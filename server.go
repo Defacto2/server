@@ -5,11 +5,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
+	"github.com/caarlos0/env"
 	_ "github.com/lib/pq"
 	"github.com/volatiletech/sqlboiler/boil"
+	"go.uber.org/zap"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -21,15 +24,34 @@ import (
 )
 
 const (
-	Port    = "1323"
 	Timeout = 5 * time.Second
 )
 
+type config struct {
+	DBPort       int  `env:"PORT" envDefault:"1323"`
+	IsProduction bool `env:"PRODUCTION"`
+}
+
 func main() {
+	// Enviroment configuration
+	cfg := config{}
+	if err := env.Parse(&cfg); err != nil {
+		log.Fatalln(err)
+	}
+
 	// Logger
-	log := logger.Production().Sugar()
-	defer log.Sync()
-	log.Info("Defacto2 web application") // todo: make a meaningful startup message for file logging
+	var log *zap.SugaredLogger
+	switch cfg.IsProduction {
+	case true:
+		log = logger.Production().Sugar()
+		defer log.Sync()
+		// todo: make a meaningful startup message for file logging
+		log.Info("Defacto2 web application")
+	default:
+		log = logger.Development().Sugar()
+		defer log.Sync()
+		log.Info("Defacto2 web application development")
+	}
 
 	// Echo instance
 	e := echo.New()
@@ -78,5 +100,5 @@ func main() {
 		fmt.Println(ver)
 	}
 
-	e.Logger.Fatal(e.Start(":" + Port))
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", cfg.DBPort)))
 }
