@@ -4,9 +4,7 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -16,16 +14,22 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
+	ps "github.com/bengarrett/df2023/db"
 	"github.com/bengarrett/df2023/db/models"
+	"github.com/bengarrett/df2023/logger"
 	"github.com/bengarrett/df2023/router"
 )
 
 const (
-	port    = "1323"
-	timeout = 5 * time.Second
+	Port    = "1323"
+	Timeout = 5 * time.Second
 )
 
 func main() {
+	// Logger
+	log := logger.Initialize().Sugar()
+	log.Info("Defacto2 web application")
+
 	// Echo instance
 	e := echo.New()
 	e.Use(middleware.AddTrailingSlashWithConfig(middleware.TrailingSlashConfig{
@@ -36,12 +40,15 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
-		Timeout: timeout,
+		Timeout: Timeout,
 	}))
 
 	// Open handle to database like normal
 	ctx := context.Background()
-	db := connectDB()
+	db, err := ps.ConnectDB()
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	boil.SetDB(db) // SQLBoiler global variant
 
@@ -52,7 +59,8 @@ func main() {
 
 	// Route => handler
 	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, fmt.Sprintf("Hello, World!\nThere are %d files\n", count))
+		return c.String(http.StatusOK, fmt.Sprintf("Hello, World!\nThere are %d files\n",
+			count))
 	})
 
 	// Routes
@@ -63,13 +71,11 @@ func main() {
 	e.DELETE("/users/:id", router.DeleteUser)
 
 	// Start server
-	e.Logger.Fatal(e.Start(":" + port))
-}
-
-func connectDB() *sql.DB {
-	db, err := sql.Open("postgres", "postgres://root:example@localhost:5432/defacto2-ps?sslmode=disable")
-	if err != nil {
-		log.Fatal(err)
+	if ver, err := ps.Version(); err != nil {
+		log.Info("could not obtain the postgres version", err)
+	} else {
+		fmt.Println(ver)
 	}
-	return db
+
+	e.Logger.Fatal(e.Start(":" + Port))
 }

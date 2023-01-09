@@ -57,3 +57,5 @@ postgresql-client: /usr/bin/dropdb
 
 Or use these instructions to install 15+
 https://www.postgresql.org/download/linux/ubuntu/
+
+Boiler guide: https://blog.logrocket.com/introduction-sqlboiler-go-framework-orms/
