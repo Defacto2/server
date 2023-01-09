@@ -6,6 +6,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+
+	"github.com/bengarrett/df2023/router"
 )
 
 const (
@@ -16,6 +18,9 @@ const (
 func main() {
 	// Echo instance
 	e := echo.New()
+	e.Use(middleware.AddTrailingSlashWithConfig(middleware.TrailingSlashConfig{
+		RedirectCode: http.StatusMovedPermanently,
+	}))
 
 	// Middleware
 	e.Use(middleware.Logger())
@@ -28,6 +33,13 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!\n")
 	})
+
+	// Routes
+	e.GET("/users", router.GetAllUsers)
+	e.POST("/users", router.CreateUser)
+	e.GET("/users/:id", router.GetUser)
+	e.PUT("/users/:id", router.UpdateUser)
+	e.DELETE("/users/:id", router.DeleteUser)
 
 	// Start server
 	e.Logger.Fatal(e.Start(":" + port))
