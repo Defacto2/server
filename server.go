@@ -27,7 +27,8 @@ const (
 
 func main() {
 	// Logger
-	log := logger.Initialize().Sugar()
+	log := logger.Production().Sugar()
+	defer log.Sync()
 	log.Info("Defacto2 web application")
 
 	// Echo instance
