@@ -7,10 +7,13 @@ import (
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 // https://pkg.go.dev/go.uber.org/zap
 // https://betterstack.com/community/guides/logging/logging-in-go/
+// https://github.com/uber-go/zap/blob/master/FAQ.md
+// https://pkg.go.dev/gopkg.in/natefinch/lumberjack.v2@v2.0.0#section-readme
 
 const (
 	filename = "test.log"
@@ -44,23 +47,27 @@ func Production() *zap.Logger {
 	// 	log.Fatalln(fmt.Errorf("could not initialize the zap logger: %w", err))
 	// }
 	core := zapcore.NewTee(
-		File(),
+		FileRotation(),
 		zapcore.NewCore(console, zapcore.AddSync(os.Stdout), zapcore.InfoLevel),
 	)
 	logger := zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
 	return logger
 }
 
-func File() zapcore.Core {
+func FileRotation() zapcore.Core {
 	config := zap.NewProductionEncoderConfig()
 	config.EncodeTime = zapcore.ISO8601TimeEncoder
-	logFile, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	fileEncoder := zapcore.NewJSONEncoder(config)
-	writer := zapcore.AddSync(logFile)
-	defaultLogLevel := zapcore.DebugLevel
-	core := zapcore.NewCore(fileEncoder, writer, defaultLogLevel)
+
+	w := zapcore.AddSync(&lumberjack.Logger{
+		Filename:   filename,
+		MaxSize:    500, // megabytes
+		MaxBackups: 3,
+		MaxAge:     28, // days
+	})
+	core := zapcore.NewCore(
+		zapcore.NewJSONEncoder(config),
+		w,
+		zap.InfoLevel,
+	)
 	return core
 }

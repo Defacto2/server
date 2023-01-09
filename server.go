@@ -29,7 +29,7 @@ func main() {
 	// Logger
 	log := logger.Production().Sugar()
 	defer log.Sync()
-	log.Info("Defacto2 web application")
+	log.Info("Defacto2 web application") // todo: make a meaningful startup message for file logging
 
 	// Echo instance
 	e := echo.New()
