@@ -1,8 +1,18 @@
+wipe     = true
+
 [mysql]
 dbname = "defacto2-inno"
 host = "localhost"
 port = 3306
 sslmode = "false"
 user = "root"
-pass = "marlin40"
-blacklist = ["sessionfd"]
+pass = "example"
+
+[psql]
+dbname = "defacto2-ps"
+host = "localhost"
+port = 5432
+sslmode = "disable"
+user = "root"
+pass = "example"
+schema = "public"
