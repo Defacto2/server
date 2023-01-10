@@ -30,6 +30,7 @@ const (
 type config struct {
 	DBPort       int  `env:"PORT" envDefault:"1323"`
 	IsProduction bool `env:"PRODUCTION"`
+	LogRequests  bool `env:"REQUESTS" envDefault:"true"`
 }
 
 func main() {
@@ -53,6 +54,22 @@ func main() {
 		log.Info("Defacto2 web application development")
 	}
 
+	// Database
+	ctx := context.Background()
+	db, err := ps.ConnectDB()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	// SQLBoiler global variant
+	boil.SetDB(db)
+
+	// Check the database connection
+	if ver, err := ps.Version(); err != nil {
+		log.Error("could not obtain the postgres version", err)
+	} else {
+		fmt.Println(ver)
+	}
+
 	// Echo instance
 	e := echo.New()
 	e.Use(middleware.AddTrailingSlashWithConfig(middleware.TrailingSlashConfig{
@@ -60,28 +77,20 @@ func main() {
 	}))
 
 	// Middleware
-	e.Use(middleware.Logger())
+	if cfg.LogRequests {
+		e.Use(middleware.Logger())
+	}
 	e.Use(middleware.Recover())
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
 		Timeout: Timeout,
 	}))
 
-	// Open handle to database like normal
-	ctx := context.Background()
-	db, err := ps.ConnectDB()
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	boil.SetDB(db) // SQLBoiler global variant
-
-	count, err := models.Files().Count(ctx, db)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	// Route => handler
 	e.GET("/", func(c echo.Context) error {
+		count, err := models.Files().Count(ctx, db)
+		if err != nil {
+			log.Fatalln(err)
+		}
 		return c.String(http.StatusOK, fmt.Sprintf("Hello, World!\nThere are %d files\n",
 			count))
 	})
@@ -92,13 +101,6 @@ func main() {
 	e.GET("/users/:id", router.GetUser)
 	e.PUT("/users/:id", router.UpdateUser)
 	e.DELETE("/users/:id", router.DeleteUser)
-
-	// Start server
-	if ver, err := ps.Version(); err != nil {
-		log.Info("could not obtain the postgres version", err)
-	} else {
-		fmt.Println(ver)
-	}
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", cfg.DBPort)))
 }
