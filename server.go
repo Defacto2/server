@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"time"
 
 	"github.com/caarlos0/env"
@@ -72,11 +74,12 @@ func main() {
 
 	// Echo instance
 	e := echo.New()
+	e.HideBanner = true
+
+	// Middleware
 	e.Use(middleware.AddTrailingSlashWithConfig(middleware.TrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,
 	}))
-
-	// Middleware
 	if cfg.LogRequests {
 		e.Use(middleware.Logger())
 	}
@@ -102,5 +105,23 @@ func main() {
 	e.PUT("/users/:id", router.UpdateUser)
 	e.DELETE("/users/:id", router.DeleteUser)
 
-	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", cfg.DBPort)))
+	// Start server with graceful shutdown
+	go func() {
+		addr := fmt.Sprintf(":%d", cfg.DBPort)
+		if err := e.Start(addr); err != nil && err != http.ErrServerClosed {
+			e.Logger.Fatal("shutting down the server")
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 10 seconds.
+	// Use a buffered channel to avoid missing signals as recommended for signal.Notify
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := e.Shutdown(ctx); err != nil {
+		e.Logger.Fatal(err)
+	}
+	log.Infoln("graceful server shutdown complete")
 }
