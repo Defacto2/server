@@ -25,7 +25,7 @@ import (
 	"github.com/bengarrett/df2023/db/models"
 	"github.com/bengarrett/df2023/logger"
 	"github.com/bengarrett/df2023/router"
-	//. "github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"github.com/bengarrett/df2023/router/html3"
 )
 
 const (
@@ -52,22 +52,6 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 	}
 
 	return t.templates.ExecuteTemplate(w, name, data)
-}
-
-func Hello(c echo.Context) error {
-	//platform = '%s' AND section != '%s'
-	//ctx := context.Background()
-	// users, err := models.Files(Where("platform = ?", "")).CountG(ctx)
-	// if err != nil {
-	// 	return err
-	// }
-	users := 0
-
-	return c.Render(http.StatusOK, "layout", map[string]interface{}{
-		"title":     "Index of /html3/",
-		"users":     0,
-		"greetings": fmt.Sprintf("I'm very pleased to see you: %d", users),
-	})
 }
 
 func main() {
@@ -153,7 +137,7 @@ func main() {
 		})
 	}).Name = "foobar"
 
-	e.GET("/html3", Hello)
+	e.GET("/html3", html3.Index)
 
 	// Routes
 	e.GET("/users", router.GetAllUsers)
