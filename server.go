@@ -5,6 +5,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -33,6 +35,22 @@ type config struct {
 	DBPort       int  `env:"PORT" envDefault:"1323"`
 	IsProduction bool `env:"PRODUCTION"`
 	LogRequests  bool `env:"REQUESTS" envDefault:"false"`
+}
+
+// TemplateRenderer is a custom html/template renderer for Echo framework
+type TemplateRenderer struct {
+	templates *template.Template
+}
+
+// Render renders a template document
+func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+
+	// Add global methods if data is a map
+	if viewContext, isMap := data.(map[string]interface{}); isMap {
+		viewContext["reverse"] = c.Echo().Reverse
+	}
+
+	return t.templates.ExecuteTemplate(w, name, data)
 }
 
 func main() {
@@ -76,8 +94,13 @@ func main() {
 	e := echo.New()
 	e.HideBanner = true
 
+	renderer := &TemplateRenderer{
+		templates: template.Must(template.ParseGlob("*.html")),
+	}
+	e.Renderer = renderer
+
 	// Middleware
-	e.Use(middleware.AddTrailingSlashWithConfig(middleware.TrailingSlashConfig{
+	e.Use(middleware.RemoveTrailingSlashWithConfig(middleware.TrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,
 	}))
 	if cfg.LogRequests {
@@ -97,6 +120,12 @@ func main() {
 		return c.String(http.StatusOK, fmt.Sprintf("Hello, World!\nThere are %d files\n",
 			count))
 	})
+
+	e.GET("/oooo", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "template.html", map[string]interface{}{
+			"name": "OoooOoooOoooO",
+		})
+	}).Name = "foobar"
 
 	// Routes
 	e.GET("/users", router.GetAllUsers)
