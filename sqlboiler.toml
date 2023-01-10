@@ -2,7 +2,7 @@
 # see: https://pgloader.readthedocs.io
 # quick guide: https://thedevelopercafe.com/articles/sql-in-go-with-sqlboiler-ac8efc4c5cb8
 #
-# recreate the static database ORM: sqlboiler psql
+# recreate the static database ORM: sqlboiler psql --add-global-variants
 
 # Target directory.
 output = "db/models" 

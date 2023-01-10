@@ -461,6 +461,11 @@ func AddNetresourceHook(hookPoint boil.HookPoint, netresourceHook NetresourceHoo
 	}
 }
 
+// OneG returns a single netresource record from the query using the global executor.
+func (q netresourceQuery) OneG(ctx context.Context) (*Netresource, error) {
+	return q.One(ctx, boil.GetContextDB())
+}
+
 // One returns a single netresource record from the query.
 func (q netresourceQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Netresource, error) {
 	o := &Netresource{}
@@ -480,6 +485,11 @@ func (q netresourceQuery) One(ctx context.Context, exec boil.ContextExecutor) (*
 	}
 
 	return o, nil
+}
+
+// AllG returns all Netresource records from the query using the global executor.
+func (q netresourceQuery) AllG(ctx context.Context) (NetresourceSlice, error) {
+	return q.All(ctx, boil.GetContextDB())
 }
 
 // All returns all Netresource records from the query.
@@ -502,6 +512,11 @@ func (q netresourceQuery) All(ctx context.Context, exec boil.ContextExecutor) (N
 	return o, nil
 }
 
+// CountG returns the count of all Netresource records in the query using the global executor
+func (q netresourceQuery) CountG(ctx context.Context) (int64, error) {
+	return q.Count(ctx, boil.GetContextDB())
+}
+
 // Count returns the count of all Netresource records in the query.
 func (q netresourceQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	var count int64
@@ -515,6 +530,11 @@ func (q netresourceQuery) Count(ctx context.Context, exec boil.ContextExecutor) 
 	}
 
 	return count, nil
+}
+
+// ExistsG checks if the row exists in the table using the global executor.
+func (q netresourceQuery) ExistsG(ctx context.Context) (bool, error) {
+	return q.Exists(ctx, boil.GetContextDB())
 }
 
 // Exists checks if the row exists in the table.
@@ -542,6 +562,11 @@ func Netresources(mods ...qm.QueryMod) netresourceQuery {
 	}
 
 	return netresourceQuery{q}
+}
+
+// FindNetresourceG retrieves a single record by ID.
+func FindNetresourceG(ctx context.Context, iD int64, selectCols ...string) (*Netresource, error) {
+	return FindNetresource(ctx, boil.GetContextDB(), iD, selectCols...)
 }
 
 // FindNetresource retrieves a single record by ID with an executor.
@@ -572,6 +597,11 @@ func FindNetresource(ctx context.Context, exec boil.ContextExecutor, iD int64, s
 	}
 
 	return netresourceObj, nil
+}
+
+// InsertG a single record. See Insert for whitelist behavior description.
+func (o *Netresource) InsertG(ctx context.Context, columns boil.Columns) error {
+	return o.Insert(ctx, boil.GetContextDB(), columns)
 }
 
 // Insert a single record using an executor.
@@ -663,6 +693,12 @@ func (o *Netresource) Insert(ctx context.Context, exec boil.ContextExecutor, col
 	return o.doAfterInsertHooks(ctx, exec)
 }
 
+// UpdateG a single Netresource record using the global executor.
+// See Update for more documentation.
+func (o *Netresource) UpdateG(ctx context.Context, columns boil.Columns) (int64, error) {
+	return o.Update(ctx, boil.GetContextDB(), columns)
+}
+
 // Update uses an executor to update the Netresource.
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
@@ -732,6 +768,11 @@ func (o *Netresource) Update(ctx context.Context, exec boil.ContextExecutor, col
 	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
 }
 
+// UpdateAllG updates all rows with the specified column values.
+func (q netresourceQuery) UpdateAllG(ctx context.Context, cols M) (int64, error) {
+	return q.UpdateAll(ctx, boil.GetContextDB(), cols)
+}
+
 // UpdateAll updates all rows with the specified column values.
 func (q netresourceQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
 	queries.SetUpdate(q.Query, cols)
@@ -747,6 +788,11 @@ func (q netresourceQuery) UpdateAll(ctx context.Context, exec boil.ContextExecut
 	}
 
 	return rowsAff, nil
+}
+
+// UpdateAllG updates all rows with the specified column values.
+func (o NetresourceSlice) UpdateAllG(ctx context.Context, cols M) (int64, error) {
+	return o.UpdateAll(ctx, boil.GetContextDB(), cols)
 }
 
 // UpdateAll updates all rows with the specified column values, using an executor.
@@ -795,6 +841,11 @@ func (o NetresourceSlice) UpdateAll(ctx context.Context, exec boil.ContextExecut
 		return 0, errors.Wrap(err, "models: unable to retrieve rows affected all in update all netresource")
 	}
 	return rowsAff, nil
+}
+
+// UpsertG attempts an insert, and does an update or ignore on conflict.
+func (o *Netresource) UpsertG(ctx context.Context, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
+	return o.Upsert(ctx, boil.GetContextDB(), updateOnConflict, conflictColumns, updateColumns, insertColumns)
 }
 
 // Upsert attempts an insert using an executor, and does an update or ignore on conflict.
@@ -921,6 +972,12 @@ func (o *Netresource) Upsert(ctx context.Context, exec boil.ContextExecutor, upd
 	return o.doAfterUpsertHooks(ctx, exec)
 }
 
+// DeleteG deletes a single Netresource record.
+// DeleteG will match against the primary key column to find the record to delete.
+func (o *Netresource) DeleteG(ctx context.Context) (int64, error) {
+	return o.Delete(ctx, boil.GetContextDB())
+}
+
 // Delete deletes a single Netresource record with an executor.
 // Delete will match against the primary key column to find the record to delete.
 func (o *Netresource) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
@@ -957,6 +1014,10 @@ func (o *Netresource) Delete(ctx context.Context, exec boil.ContextExecutor) (in
 	return rowsAff, nil
 }
 
+func (q netresourceQuery) DeleteAllG(ctx context.Context) (int64, error) {
+	return q.DeleteAll(ctx, boil.GetContextDB())
+}
+
 // DeleteAll deletes all matching rows.
 func (q netresourceQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if q.Query == nil {
@@ -976,6 +1037,11 @@ func (q netresourceQuery) DeleteAll(ctx context.Context, exec boil.ContextExecut
 	}
 
 	return rowsAff, nil
+}
+
+// DeleteAllG deletes all rows in the slice.
+func (o NetresourceSlice) DeleteAllG(ctx context.Context) (int64, error) {
+	return o.DeleteAll(ctx, boil.GetContextDB())
 }
 
 // DeleteAll deletes all rows in the slice, using an executor.
@@ -1027,6 +1093,15 @@ func (o NetresourceSlice) DeleteAll(ctx context.Context, exec boil.ContextExecut
 	return rowsAff, nil
 }
 
+// ReloadG refetches the object from the database using the primary keys.
+func (o *Netresource) ReloadG(ctx context.Context) error {
+	if o == nil {
+		return errors.New("models: no Netresource provided for reload")
+	}
+
+	return o.Reload(ctx, boil.GetContextDB())
+}
+
 // Reload refetches the object from the database
 // using the primary keys with an executor.
 func (o *Netresource) Reload(ctx context.Context, exec boil.ContextExecutor) error {
@@ -1037,6 +1112,16 @@ func (o *Netresource) Reload(ctx context.Context, exec boil.ContextExecutor) err
 
 	*o = *ret
 	return nil
+}
+
+// ReloadAllG refetches every row with matching primary key column values
+// and overwrites the original object slice with the newly updated slice.
+func (o *NetresourceSlice) ReloadAllG(ctx context.Context) error {
+	if o == nil {
+		return errors.New("models: empty NetresourceSlice provided for reload all")
+	}
+
+	return o.ReloadAll(ctx, boil.GetContextDB())
 }
 
 // ReloadAll refetches every row with matching primary key column values
@@ -1066,6 +1151,11 @@ func (o *NetresourceSlice) ReloadAll(ctx context.Context, exec boil.ContextExecu
 	*o = slice
 
 	return nil
+}
+
+// NetresourceExistsG checks if the Netresource row exists.
+func NetresourceExistsG(ctx context.Context, iD int64) (bool, error) {
+	return NetresourceExists(ctx, boil.GetContextDB(), iD)
 }
 
 // NetresourceExists checks if the Netresource row exists.

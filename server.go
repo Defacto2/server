@@ -25,6 +25,7 @@ import (
 	"github.com/bengarrett/df2023/db/models"
 	"github.com/bengarrett/df2023/logger"
 	"github.com/bengarrett/df2023/router"
+	//. "github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 const (
@@ -51,6 +52,22 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 	}
 
 	return t.templates.ExecuteTemplate(w, name, data)
+}
+
+func Hello(c echo.Context) error {
+	//platform = '%s' AND section != '%s'
+	//ctx := context.Background()
+	// users, err := models.Files(Where("platform = ?", "")).CountG(ctx)
+	// if err != nil {
+	// 	return err
+	// }
+	users := 0
+
+	return c.Render(http.StatusOK, "layout", map[string]interface{}{
+		"title":     "Index of /html3/",
+		"users":     0,
+		"greetings": fmt.Sprintf("I'm very pleased to see you: %d", users),
+	})
 }
 
 func main() {
@@ -85,7 +102,7 @@ func main() {
 
 	// Check the database connection
 	if ver, err := ps.Version(); err != nil {
-		log.Error("could not obtain the postgres version", err)
+		log.Error("could not obtain the postgres version, is the database online? ", err)
 	} else {
 		fmt.Println(ver)
 	}
@@ -94,10 +111,19 @@ func main() {
 	e := echo.New()
 	e.HideBanner = true
 
+	// support multiple template directories
+	// https://stackoverflow.com/questions/38686583/golang-parse-all-templates-in-directory-and-subdirectories
+	//t := template.Must(template.ParseGlob("public/views/*.html"))
+	//template.Must(t.ParseGlob("template/layout/*.tmpl"))
+	t := template.Must(template.ParseFiles("public/views/html3/layout.html", "public/views/html3/index.html"))
 	renderer := &TemplateRenderer{
-		templates: template.Must(template.ParseGlob("*.html")),
+		templates: t,
 	}
 	e.Renderer = renderer
+
+	// Static images
+	e.File("favicon.ico", "public/images/favicon.ico")
+	e.Static("/images", "public/images")
 
 	// Middleware
 	e.Use(middleware.RemoveTrailingSlashWithConfig(middleware.TrailingSlashConfig{
@@ -126,6 +152,8 @@ func main() {
 			"name": "OoooOoooOoooO",
 		})
 	}).Name = "foobar"
+
+	e.GET("/html3", Hello)
 
 	// Routes
 	e.GET("/users", router.GetAllUsers)

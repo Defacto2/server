@@ -33,3 +33,29 @@ func Version() (string, error) {
 	conn.Close()
 	return s, nil
 }
+
+// arts
+// query := Stmt(fmt.Sprintf("WHERE platform = '%s' AND section != '%s'",
+//platforms.Img, tags.Bbs))
+
+/*
+const (
+	Ami   Platform = "textamiga"
+	Ansi  Platform = "ansi"
+	Db    Platform = "database"
+	Dos   Platform = "dos"
+	Htm   Platform = "markup"
+	Img   Platform = "image"
+	Java  Platform = "java"
+	Linux Platform = "linux"
+	Mac   Platform = "mac10"
+	Pack  Platform = "package"
+	Pcb   Platform = "pcboard"
+	Pdf   Platform = "pdf"
+	Php   Platform = "php"
+	Snd   Platform = "audio"
+	Txt   Platform = "text"
+	Video Platform = "video"
+	Win   Platform = "windows"
+)
+*/

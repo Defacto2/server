@@ -817,6 +817,11 @@ func AddFileHook(hookPoint boil.HookPoint, fileHook FileHook) {
 	}
 }
 
+// OneG returns a single file record from the query using the global executor.
+func (q fileQuery) OneG(ctx context.Context) (*File, error) {
+	return q.One(ctx, boil.GetContextDB())
+}
+
 // One returns a single file record from the query.
 func (q fileQuery) One(ctx context.Context, exec boil.ContextExecutor) (*File, error) {
 	o := &File{}
@@ -836,6 +841,11 @@ func (q fileQuery) One(ctx context.Context, exec boil.ContextExecutor) (*File, e
 	}
 
 	return o, nil
+}
+
+// AllG returns all File records from the query using the global executor.
+func (q fileQuery) AllG(ctx context.Context) (FileSlice, error) {
+	return q.All(ctx, boil.GetContextDB())
 }
 
 // All returns all File records from the query.
@@ -858,6 +868,11 @@ func (q fileQuery) All(ctx context.Context, exec boil.ContextExecutor) (FileSlic
 	return o, nil
 }
 
+// CountG returns the count of all File records in the query using the global executor
+func (q fileQuery) CountG(ctx context.Context) (int64, error) {
+	return q.Count(ctx, boil.GetContextDB())
+}
+
 // Count returns the count of all File records in the query.
 func (q fileQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	var count int64
@@ -871,6 +886,11 @@ func (q fileQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64,
 	}
 
 	return count, nil
+}
+
+// ExistsG checks if the row exists in the table using the global executor.
+func (q fileQuery) ExistsG(ctx context.Context) (bool, error) {
+	return q.Exists(ctx, boil.GetContextDB())
 }
 
 // Exists checks if the row exists in the table.
@@ -898,6 +918,11 @@ func Files(mods ...qm.QueryMod) fileQuery {
 	}
 
 	return fileQuery{q}
+}
+
+// FindFileG retrieves a single record by ID.
+func FindFileG(ctx context.Context, iD int64, selectCols ...string) (*File, error) {
+	return FindFile(ctx, boil.GetContextDB(), iD, selectCols...)
 }
 
 // FindFile retrieves a single record by ID with an executor.
@@ -928,6 +953,11 @@ func FindFile(ctx context.Context, exec boil.ContextExecutor, iD int64, selectCo
 	}
 
 	return fileObj, nil
+}
+
+// InsertG a single record. See Insert for whitelist behavior description.
+func (o *File) InsertG(ctx context.Context, columns boil.Columns) error {
+	return o.Insert(ctx, boil.GetContextDB(), columns)
 }
 
 // Insert a single record using an executor.
@@ -1019,6 +1049,12 @@ func (o *File) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 	return o.doAfterInsertHooks(ctx, exec)
 }
 
+// UpdateG a single File record using the global executor.
+// See Update for more documentation.
+func (o *File) UpdateG(ctx context.Context, columns boil.Columns) (int64, error) {
+	return o.Update(ctx, boil.GetContextDB(), columns)
+}
+
 // Update uses an executor to update the File.
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
@@ -1088,6 +1124,11 @@ func (o *File) Update(ctx context.Context, exec boil.ContextExecutor, columns bo
 	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
 }
 
+// UpdateAllG updates all rows with the specified column values.
+func (q fileQuery) UpdateAllG(ctx context.Context, cols M) (int64, error) {
+	return q.UpdateAll(ctx, boil.GetContextDB(), cols)
+}
+
 // UpdateAll updates all rows with the specified column values.
 func (q fileQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
 	queries.SetUpdate(q.Query, cols)
@@ -1103,6 +1144,11 @@ func (q fileQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, col
 	}
 
 	return rowsAff, nil
+}
+
+// UpdateAllG updates all rows with the specified column values.
+func (o FileSlice) UpdateAllG(ctx context.Context, cols M) (int64, error) {
+	return o.UpdateAll(ctx, boil.GetContextDB(), cols)
 }
 
 // UpdateAll updates all rows with the specified column values, using an executor.
@@ -1151,6 +1197,11 @@ func (o FileSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, col
 		return 0, errors.Wrap(err, "models: unable to retrieve rows affected all in update all file")
 	}
 	return rowsAff, nil
+}
+
+// UpsertG attempts an insert, and does an update or ignore on conflict.
+func (o *File) UpsertG(ctx context.Context, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
+	return o.Upsert(ctx, boil.GetContextDB(), updateOnConflict, conflictColumns, updateColumns, insertColumns)
 }
 
 // Upsert attempts an insert using an executor, and does an update or ignore on conflict.
@@ -1277,6 +1328,12 @@ func (o *File) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnCo
 	return o.doAfterUpsertHooks(ctx, exec)
 }
 
+// DeleteG deletes a single File record.
+// DeleteG will match against the primary key column to find the record to delete.
+func (o *File) DeleteG(ctx context.Context) (int64, error) {
+	return o.Delete(ctx, boil.GetContextDB())
+}
+
 // Delete deletes a single File record with an executor.
 // Delete will match against the primary key column to find the record to delete.
 func (o *File) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
@@ -1313,6 +1370,10 @@ func (o *File) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, er
 	return rowsAff, nil
 }
 
+func (q fileQuery) DeleteAllG(ctx context.Context) (int64, error) {
+	return q.DeleteAll(ctx, boil.GetContextDB())
+}
+
 // DeleteAll deletes all matching rows.
 func (q fileQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if q.Query == nil {
@@ -1332,6 +1393,11 @@ func (q fileQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (in
 	}
 
 	return rowsAff, nil
+}
+
+// DeleteAllG deletes all rows in the slice.
+func (o FileSlice) DeleteAllG(ctx context.Context) (int64, error) {
+	return o.DeleteAll(ctx, boil.GetContextDB())
 }
 
 // DeleteAll deletes all rows in the slice, using an executor.
@@ -1383,6 +1449,15 @@ func (o FileSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (in
 	return rowsAff, nil
 }
 
+// ReloadG refetches the object from the database using the primary keys.
+func (o *File) ReloadG(ctx context.Context) error {
+	if o == nil {
+		return errors.New("models: no File provided for reload")
+	}
+
+	return o.Reload(ctx, boil.GetContextDB())
+}
+
 // Reload refetches the object from the database
 // using the primary keys with an executor.
 func (o *File) Reload(ctx context.Context, exec boil.ContextExecutor) error {
@@ -1393,6 +1468,16 @@ func (o *File) Reload(ctx context.Context, exec boil.ContextExecutor) error {
 
 	*o = *ret
 	return nil
+}
+
+// ReloadAllG refetches every row with matching primary key column values
+// and overwrites the original object slice with the newly updated slice.
+func (o *FileSlice) ReloadAllG(ctx context.Context) error {
+	if o == nil {
+		return errors.New("models: empty FileSlice provided for reload all")
+	}
+
+	return o.ReloadAll(ctx, boil.GetContextDB())
 }
 
 // ReloadAll refetches every row with matching primary key column values
@@ -1422,6 +1507,11 @@ func (o *FileSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) er
 	*o = slice
 
 	return nil
+}
+
+// FileExistsG checks if the File row exists.
+func FileExistsG(ctx context.Context, iD int64) (bool, error) {
+	return FileExists(ctx, boil.GetContextDB(), iD)
 }
 
 // FileExists checks if the File row exists.

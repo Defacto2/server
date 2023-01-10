@@ -1,0 +1,17 @@
+{{define "layout"}}<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!-- http://www.w3.org/MarkUp/Wilbur/ -->
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="description" content="Firefox 2 era (October 2006) page that is friendly for legacy operating systems including Windows 9x, NT-4, OS-X v10.2">
+  <link href="/" rev="HTML5" title="Standard website">
+  <meta name="robots" content="noindex, nofollow">
+  <title></title>
+ </head>
+<body>
+    <h2>{{index . "title"}}</h2>
+    <pre><img src="/images/html3/blank.gif" alt="Icon"> Name                                      Count  Description<hr><img src="/images/html3/back.gif" alt="[DIR]"> <a href="/file/list">Parent Directory</a>                             -   Return to the contemporary HTML5 site
+{{block "content" .}}<!-- no content was defined -->{{end}}</pre>
+    <hr>
+    <em>Defacto2 Server at defacto2.net, latency 0.459 seconds</em>
+</body></html>{{end}}
