@@ -59,3 +59,7 @@ Or use these instructions to install 15+
 https://www.postgresql.org/download/linux/ubuntu/
 
 Boiler guide: https://blog.logrocket.com/introduction-sqlboiler-go-framework-orms/
+
+Live reloading
+go install github.com/cosmtrek/air@latest
+https://thedevelopercafe.com/articles/live-reload-in-go-with-air-4eff64b7a642

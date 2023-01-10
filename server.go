@@ -30,7 +30,7 @@ const (
 type config struct {
 	DBPort       int  `env:"PORT" envDefault:"1323"`
 	IsProduction bool `env:"PRODUCTION"`
-	LogRequests  bool `env:"REQUESTS" envDefault:"true"`
+	LogRequests  bool `env:"REQUESTS" envDefault:"false"`
 }
 
 func main() {
