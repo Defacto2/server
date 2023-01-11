@@ -69,8 +69,12 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c 
 
 func TmplHTML3() map[string]*template.Template {
 	templates := make(map[string]*template.Template)
-	templates["index"] = template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles("public/views/html3/layout.html", "public/views/html3/index.html"))
-	templates["categories"] = template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles("public/views/html3/layout.html", "public/views/html3/categories.html"))
+	templates["index"] = template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles(
+		"public/views/html3/layout.html", "public/views/html3/index.html"))
+	templates["categories"] = template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles(
+		"public/views/html3/layout.html", "public/views/html3/categories.html"))
+	templates["category"] = template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles(
+		"public/views/html3/layout.html", "public/views/html3/files.html"))
 	return templates
 }
 

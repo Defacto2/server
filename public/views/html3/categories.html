@@ -6,4 +6,5 @@
 {{ range .cats -}}
 <img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/category/{{ .URI }}">{{.Name}}</a>{{leadStr $padding .Name}}{{leadInt .Count 5}}   {{ .Info }}
 {{ end }}
+{{ range .tags -}}{{.}}{{ end }}
 {{end}}

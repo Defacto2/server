@@ -9,7 +9,6 @@ import (
 
 	"github.com/bengarrett/df2023/meta"
 	"github.com/bengarrett/df2023/models"
-	"github.com/bengarrett/df2023/str"
 	"github.com/labstack/echo/v4"
 
 	"github.com/bengarrett/df2023/postgres"
@@ -26,9 +25,16 @@ func latency() *time.Time {
 	return &start
 }
 
+func RedirCategories(c echo.Context) error {
+	return c.Redirect(http.StatusPermanentRedirect, "/html3/categories")
+}
+
+func RedirIndex(c echo.Context) error {
+	return c.Redirect(http.StatusPermanentRedirect, "/html3")
+}
+
 func Index(c echo.Context) error {
 	start := latency()
-	const pad = 5
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -44,9 +50,9 @@ func Index(c echo.Context) error {
 
 	return c.Render(http.StatusOK, "index", map[string]interface{}{
 		"title":   title,
-		"art":     str.FWInt((art), pad),
-		"doc":     str.FWInt((doc), pad),
-		"sw":      str.FWInt((sw), pad),
+		"art":     art,
+		"doc":     doc,
+		"sw":      sw,
 		"latency": fmt.Sprintf("%s.", time.Since(*start)),
 	})
 }
@@ -58,5 +64,13 @@ func Categories(c echo.Context) error {
 		"latency": fmt.Sprintf("%s.", time.Since(*start)),
 		"tags":    meta.Names,
 		"cats":    meta.Categories,
+	})
+}
+
+func Category(c echo.Context) error {
+	start := latency()
+	return c.Render(http.StatusOK, "category", map[string]interface{}{
+		"title":   fmt.Sprintf("%s%s%s", title, "/category/", c.Param("id")),
+		"latency": fmt.Sprintf("%s.", time.Since(*start)),
 	})
 }

@@ -118,8 +118,10 @@ func main() {
 
 	// Routes => html3
 	e.GET("/html3", html3.Index)
+	e.GET("/html3/index", html3.RedirIndex)
 	e.GET("/html3/categories", html3.Categories)
-	e.GET("/html3/index", html3.Index) // todo: redirect
+	e.GET("/html3/category/:id", html3.Category)
+	e.GET("/html3/categories/index", html3.RedirCategories)
 
 	// Routes
 	e.GET("/users", users.GetAllUsers)
