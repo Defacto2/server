@@ -1,0 +1,9 @@
+<!-- categories.html -->
+{{define "content"}}
+{{- $parent := "Parent Directory" }}
+{{- $padding := 41 -}}
+<img src="/images/html3/back.gif" alt="[DIR]"> <a href="/html3/index">{{$parent}}</a>{{leadStr $padding $parent}}    -   Return to the HTML3 index.
+{{ range .cats -}}
+<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/category/{{ .URI }}">{{.Name}}</a>{{leadStr $padding .Name}}{{leadInt .Count 5}}   {{ .Info }}
+{{ end }}
+{{end}}

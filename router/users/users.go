@@ -1,4 +1,4 @@
-package router
+package users
 
 import (
 	"net/http"

@@ -7,56 +7,56 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/bengarrett/df2023/db/models"
+	"github.com/bengarrett/df2023/meta"
+	"github.com/bengarrett/df2023/models"
 	"github.com/bengarrett/df2023/str"
 	"github.com/labstack/echo/v4"
 
-	ps "github.com/bengarrett/df2023/db"
-	. "github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"github.com/bengarrett/df2023/postgres"
 )
 
-func Index(c echo.Context) error {
+const title = "Index of /html3"
+
+var Counts = models.Counts
+
+func latency() *time.Time {
 	start := time.Now()
 	r := new(big.Int)
 	r.Binomial(1000, 10)
+	return &start
+}
 
+func Index(c echo.Context) error {
+	start := latency()
 	const pad = 5
 	ctx := context.Background()
-	db, err := ps.ConnectDB()
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return err
 	}
-	art, err := models.Files(Where("platform = ?", "image"), Where("section != ?", "bbs")).Count(ctx, db)
-	if err != nil {
-		return err
-	}
-	doc, err := models.Files(
-		Where("platform = ?", "ansi"),
-		Or("platform = ?", "text"),
-		Or("platform = ?", "textamiga"),
-		Or("platform = ?", "pdf")).Count(ctx, db)
-	if err != nil {
-		return err
-	}
-	sw, err := models.Files(
-		Where("platform = ?", "java"),
-		Or("platform = ?", "linux"),
-		Or("platform = ?", "dos"),
-		Or("platform = ?", "php"),
-		Or("platform = ?", "windows")).Count(ctx, db)
-	if err != nil {
-		return err
-	}
+	defer db.Close()
 
-	return c.Render(http.StatusOK, "layout", map[string]interface{}{
-		"title":   "Index of /html3",
-		"art":     str.FWInt(int(art), pad),
-		"doc":     str.FWInt(int(doc), pad),
-		"sw":      str.FWInt(int(sw), pad),
-		"latency": fmt.Sprintf("%s.", time.Since(start)),
+	// TODO: defer and cache results
+	art, doc, sw := 0, 0, 0
+	art, _ = models.ArtImagesCount(ctx, db)
+	doc, _ = models.DocumentCount(ctx, db)
+	sw, _ = models.SoftwareCount(ctx, db)
+
+	return c.Render(http.StatusOK, "index", map[string]interface{}{
+		"title":   title,
+		"art":     str.FWInt((art), pad),
+		"doc":     str.FWInt((doc), pad),
+		"sw":      str.FWInt((sw), pad),
+		"latency": fmt.Sprintf("%s.", time.Since(*start)),
 	})
 }
 
 func Categories(c echo.Context) error {
-	return nil
+	start := latency()
+	return c.Render(http.StatusOK, "categories", map[string]interface{}{
+		"title":   title + "/categories",
+		"latency": fmt.Sprintf("%s.", time.Since(*start)),
+		"tags":    meta.Names,
+		"cats":    meta.Categories,
+	})
 }

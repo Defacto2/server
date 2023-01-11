@@ -5,7 +5,7 @@
 # recreate the static database ORM: sqlboiler psql --add-global-variants
 
 # Target directory.
-output = "db/models" 
+output = "postgres/models" 
 
 # This should always be kept to true.
 wipe = true

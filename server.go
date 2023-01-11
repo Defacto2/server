@@ -5,8 +5,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"html/template"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -21,11 +19,12 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	ps "github.com/bengarrett/df2023/db"
-	"github.com/bengarrett/df2023/db/models"
 	"github.com/bengarrett/df2023/logger"
+	"github.com/bengarrett/df2023/postgres"
+	"github.com/bengarrett/df2023/postgres/models"
 	"github.com/bengarrett/df2023/router"
 	"github.com/bengarrett/df2023/router/html3"
+	"github.com/bengarrett/df2023/router/users"
 )
 
 const (
@@ -36,22 +35,6 @@ type config struct {
 	DBPort       int  `env:"PORT" envDefault:"1323"`
 	IsProduction bool `env:"PRODUCTION"`
 	LogRequests  bool `env:"REQUESTS" envDefault:"false"`
-}
-
-// TemplateRenderer is a custom html/template renderer for Echo framework
-type TemplateRenderer struct {
-	templates *template.Template
-}
-
-// Render renders a template document
-func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-
-	// Add global methods if data is a map
-	if viewContext, isMap := data.(map[string]interface{}); isMap {
-		viewContext["reverse"] = c.Echo().Reverse
-	}
-
-	return t.templates.ExecuteTemplate(w, name, data)
 }
 
 func main() {
@@ -77,15 +60,16 @@ func main() {
 
 	// Database
 	ctx := context.Background()
-	db, err := ps.ConnectDB()
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		log.Fatalln(err)
 	}
+	defer db.Close()
 	// SQLBoiler global variant
 	boil.SetDB(db)
 
 	// Check the database connection
-	if ver, err := ps.Version(); err != nil {
+	if ver, err := postgres.Version(); err != nil {
 		log.Error("could not obtain the postgres version, is the database online? ", err)
 	} else {
 		fmt.Println(ver)
@@ -95,15 +79,10 @@ func main() {
 	e := echo.New()
 	e.HideBanner = true
 
-	// support multiple template directories
-	// https://stackoverflow.com/questions/38686583/golang-parse-all-templates-in-directory-and-subdirectories
-	//t := template.Must(template.ParseGlob("public/views/*.html"))
-	//template.Must(t.ParseGlob("template/layout/*.tmpl"))
-	t := template.Must(template.ParseFiles("public/views/html3/layout.html", "public/views/html3/index.html"))
-	renderer := &TemplateRenderer{
-		templates: t,
+	// HTML templates
+	e.Renderer = &router.TemplateRegistry{
+		Templates: router.TmplHTML3(),
 	}
-	e.Renderer = renderer
 
 	// Static images
 	e.File("favicon.ico", "public/images/favicon.ico")
@@ -137,14 +116,17 @@ func main() {
 		})
 	}).Name = "foobar"
 
+	// Routes => html3
 	e.GET("/html3", html3.Index)
+	e.GET("/html3/categories", html3.Categories)
+	e.GET("/html3/index", html3.Index) // todo: redirect
 
 	// Routes
-	e.GET("/users", router.GetAllUsers)
-	e.POST("/users", router.CreateUser)
-	e.GET("/users/:id", router.GetUser)
-	e.PUT("/users/:id", router.UpdateUser)
-	e.DELETE("/users/:id", router.DeleteUser)
+	e.GET("/users", users.GetAllUsers)
+	e.POST("/users", users.CreateUser)
+	e.GET("/users/:id", users.GetUser)
+	e.PUT("/users/:id", users.UpdateUser)
+	e.DELETE("/users/:id", users.DeleteUser)
 
 	// Start server with graceful shutdown
 	go func() {
