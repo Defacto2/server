@@ -9,6 +9,7 @@ import (
 
 	"github.com/bengarrett/df2023/meta"
 	"github.com/bengarrett/df2023/models"
+	"github.com/bengarrett/df2023/router"
 	"github.com/labstack/echo/v4"
 
 	"github.com/bengarrett/df2023/postgres"
@@ -25,15 +26,8 @@ func latency() *time.Time {
 	return &start
 }
 
-func RedirCategories(c echo.Context) error {
-	return c.Redirect(http.StatusPermanentRedirect, "/html3/categories")
-}
-
-func RedirIndex(c echo.Context) error {
-	return c.Redirect(http.StatusPermanentRedirect, "/html3")
-}
-
 func Index(c echo.Context) error {
+	const desc = "Welcome to the Firefox 2 era (October 2006) Defacto2 website, that is friendly for legacy operating systems including Windows 9x, NT-4, OS-X 10.2." // TODO: share this with html meta OR make this html templ
 	start := latency()
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
@@ -49,11 +43,13 @@ func Index(c echo.Context) error {
 	sw, _ = models.SoftwareCount(ctx, db)
 
 	return c.Render(http.StatusOK, "index", map[string]interface{}{
-		"title":   title,
-		"art":     art,
-		"doc":     doc,
-		"sw":      sw,
-		"latency": fmt.Sprintf("%s.", time.Since(*start)),
+		"title":       title,
+		"description": desc,
+		"art":         router.LeadInt(5, art),
+		"doc":         router.LeadInt(5, doc),
+		"sw":          router.LeadInt(5, sw),
+		"cat":         router.LeadInt(5, meta.CategoryCount),
+		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
 	})
 }
 
@@ -73,4 +69,14 @@ func Category(c echo.Context) error {
 		"title":   fmt.Sprintf("%s%s%s", title, "/category/", c.Param("id")),
 		"latency": fmt.Sprintf("%s.", time.Since(*start)),
 	})
+}
+
+// redirects
+
+func RedirCategories(c echo.Context) error {
+	return c.Redirect(http.StatusPermanentRedirect, "/html3/categories")
+}
+
+func RedirIndex(c echo.Context) error {
+	return c.Redirect(http.StatusPermanentRedirect, "/html3")
 }

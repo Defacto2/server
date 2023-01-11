@@ -48,6 +48,8 @@ const (
 	Install
 )
 
+const CategoryCount = int(Install + 1)
+
 var URIs = URI{
 	Announcement: "announcements",
 	ANSIEditor:   "ansieditor",

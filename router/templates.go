@@ -2,47 +2,11 @@ package router
 
 import (
 	"errors"
-	"fmt"
 	"html/template"
 	"io"
-	"strconv"
-	"strings"
 
 	"github.com/labstack/echo/v4"
 )
-
-const (
-	padding = " "
-	noValue = "-"
-)
-
-var TemplateFuncMap = template.FuncMap{
-	"leadInt": leadInt,
-	"leadStr": leadStr,
-}
-
-// leadInt takes an int and returns it as a string, w characters wide with whitespace padding.
-func leadInt(i, w int) string {
-	s := noValue
-	if i > 0 {
-		s = strconv.Itoa(i)
-	}
-	l := len(s)
-	if l >= w {
-		return s
-	}
-	return fmt.Sprintf("%s%s", strings.Repeat(padding, w-l), s)
-}
-
-// leadStr takes a string and returns the leading whitespace padding, w characters wide.
-// the value of string is note returned.
-func leadStr(w int, s string) string {
-	l := len(s)
-	if l >= w {
-		return ""
-	}
-	return strings.Repeat(padding, w-l)
-}
 
 // Define the template registry struct
 type TemplateRegistry struct {
