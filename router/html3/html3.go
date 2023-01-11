@@ -65,8 +65,19 @@ func Categories(c echo.Context) error {
 
 func Category(c echo.Context) error {
 	start := latency()
+	value := c.Param("id")
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	// TODO: throw a 50x error page to user and log error
+	records, _ := models.FilesByCategory(value, ctx, db)
+	fmt.Printf("%+v\n", records)
 	return c.Render(http.StatusOK, "category", map[string]interface{}{
-		"title":   fmt.Sprintf("%s%s%s", title, "/category/", c.Param("id")),
+		"title":   fmt.Sprintf("%s%s%s", title, "/category/", value),
+		"records": records,
 		"latency": fmt.Sprintf("%s.", time.Since(*start)),
 	})
 }

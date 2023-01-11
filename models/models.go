@@ -3,10 +3,14 @@ package models
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/bengarrett/df2023/postgres/models"
+	"github.com/volatiletech/null/v8"
 	. "github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
+
+// https://github.com/volatiletech/sqlboiler#constants
 
 type Count int
 
@@ -20,6 +24,22 @@ var Counts = map[int]Count{
 	Art:  0,
 	Doc:  0,
 	Soft: 0,
+}
+
+func FilesByCategory(s string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+	// files, err := models.Files(
+	// 	Where("section = ?", s)).All(ctx, db)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// return files, nil
+	x := null.StringFrom(s)
+	y, err := models.Files(models.FileWhere.Section.EQ(x)).All(ctx, db)
+	for i, z := range y {
+		fmt.Println("->", i, "==>", z.Filename.String, z.DateIssuedYear, z.Createdat, z.Filesize.Int64, z.RecordTitle)
+		fmt.Printf("%T", z.Createdat)
+	}
+	return y, err
 }
 
 func ArtImagesCount(ctx context.Context, db *sql.DB) (int, error) {

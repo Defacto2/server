@@ -5,6 +5,8 @@ import (
 	"html/template"
 	"strconv"
 	"strings"
+
+	"github.com/bengarrett/df2023/models"
 )
 
 const (
@@ -16,6 +18,9 @@ const (
 var TemplateFuncMap = template.FuncMap{
 	"leadInt": LeadInt,
 	"leadStr": LeadStr,
+	"dateStr": models.DatePub,
+	"dateFmt": models.DateFmt,
+	"byteFmt": models.ByteCount,
 }
 
 // LeadInt takes an int and returns it as a string, w characters wide with whitespace padding.
