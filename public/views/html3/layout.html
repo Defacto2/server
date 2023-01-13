@@ -1,5 +1,5 @@
 {{define "layout"}}
-{{- $home := "Home Website" -}}<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
 <!-- http://www.w3.org/MarkUp/Wilbur/ -->
 <html>
  <head>
@@ -12,8 +12,6 @@
 <body>
     <h2>{{index . "title"}}</h2>
     <p>{{index . "description"}}</p>
-    <pre><img src="/images/html3/blank.gif" alt="Icon"> Name                                      Count  Description<hr><img src="/images/html3/back.gif" alt="[DIR]"> <a href="/file/list">{{$home}}</a>{{leadStr 45 $home}}-   Return to the contemporary HTML5 site.
-{{block "content" .}}<!-- no content was defined -->{{end}}</pre>
-    <hr>
+    {{ block "pre" .}}<!-- no pre content was defined -->{{end}}<hr>
     <em>Defacto2 Server at defacto2.net, latency {{index . "latency"}}</em>
 </body></html>{{end}}

@@ -2,10 +2,12 @@ package models
 
 import (
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/bengarrett/df2023/helpers"
 	"github.com/volatiletech/null/v8"
 )
 
@@ -18,6 +20,7 @@ import (
 
 // todo: move to helpers/helpers.go
 // https://yourbasic.org/golang/formatting-byte-size-to-human-readable-format/
+
 func ByteCount(i null.Int64) string {
 	if !i.Valid {
 		return ""
@@ -46,7 +49,7 @@ func DateFmt(t null.Time) string {
 	return fmt.Sprintf("%02d-%s-%d", d, m, y)
 }
 
-func DatePub(y, m, d null.Int16) string {
+func DatePublish(y, m, d null.Int16) string {
 	const (
 		yx = "????"
 		mx = "???"
@@ -70,12 +73,12 @@ func DatePub(y, m, d null.Int16) string {
 		}
 	}
 	if isYearOnly := ys != yx && ms == mx && ds == dx; isYearOnly {
-		return fmt.Sprintf("%s%s", strings.Repeat(sp, 8), ys)
+		return fmt.Sprintf("%s%s", strings.Repeat(sp, 7), ys)
 	}
 	if isInvalidDay := ys != yx && ms != mx && ds == dx; isInvalidDay {
 		return fmt.Sprintf("%s%s-%s", strings.Repeat(sp, 3), ms, ys)
 	}
-	return fmt.Sprintf("%s-%s-%s", ds, ms, ys)
+	return fmt.Sprintf("%02d-%s-%s", int(d.Int16), ms, ys)
 }
 
 func AbbrMonth(i int) string {
@@ -102,4 +105,106 @@ func IsYear(i int) bool {
 		return true
 	}
 	return false
+}
+
+func Icon(name null.String) string {
+	const error = "unknown"
+	if !name.Valid {
+		return error
+	}
+	n := strings.ToLower(filepath.Ext(name.String))
+	switch {
+	case IsApp(n):
+		return "comp2"
+	case IsArchive(n):
+		return "compressed"
+	case IsImage(n):
+		return "image2"
+	case IsDocument(n):
+		return "doc"
+	case IsHTML(n):
+		return "generic"
+	case IsAudio(n):
+		return "sound2"
+	case IsTune(n):
+		return "sound2"
+	case IsVideo(n):
+		return "movie"
+	}
+	return error
+}
+
+// /*
+//  * Generates an icon determined by the file's extension
+//  */
+// function displayIcon(string filename) {
+// 	var ext = ListLast(arguments.filename,".")
+// 	if(ListFindNoCase(get(myapp).acceptedArchives,ext)) return "compressed";
+// 	if(ListFindNoCase(get(myapp).acceptedAudio,ext)) return "sound2";
+// 	if(ListFindNoCase(get(myapp).acceptedChiptunes,ext)) return "sound2";
+// 	if(ListFindNoCase(get(myapp).acceptedDocuments,ext)) return "text";
+// 	if(ListFindNoCase(get(myapp).acceptedGraphics,ext)) return "image2";
+// 	if(ListFindNoCase(get(myapp).acceptedNoPreviews,ext)) return "text";
+// 	if(ListFindNoCase(get(myapp).acceptedPrograms,ext)) return "comp2";
+// 	if(ListFindNoCase(get(myapp).acceptedVideos,ext)) return "movie";
+// 	return "unknown";
+// }
+
+// 7z,arc,ark,arj,cab,gz,lha,lzh,rar,tar,tar.gz,zip"
+// loc.myapp.acceptedArchives		= "7z,arc,ark,arj,cab,gz,lha,lzh,rar,tar,tar.gz,zip"
+// loc.myapp.acceptedDirChrs		= "[^a-z0-9\-\,\& ]"
+// loc.myapp.acceptedAudio			= "au,flac,m1a,m2a,mid,midi,mp1,mp2,mp3,mpa,mpga,mpeg,ogg,snd,wav,wave,wma"
+// loc.myapp.acceptedChiptunes		= "it,mod,s3m,xm"
+// loc.myapp.acceptedDocuments		= "1st,asc,ans,cap,diz,doc,dox,me,nfo,pcb,txt,unp"
+// loc.myapp.acceptedGraphics		= "bmp,gif,ico,jpg,jpeg,pdf,png,pcx"
+// loc.myapp.acceptedNoPreviews	= ""
+// loc.myapp.acceptedPrograms		= "exe,com"
+// loc.myapp.acceptedVideos		= "avi,divx,flv,gt,mov,m4a,m4v,mp4,swf,rm,ram,wmv,xvid"
+// // blacklistedExt notes: dbm is ColdFusion server, lex is Lucee extension archive
+// loc.myapp.blacklistedExt		= "cfm,cfml,cfc,cgi,dbm,lex,lucee,jsp,php,shtml"
+
+func IsApp(name string) bool {
+	s := []string{".exe", ".com"}
+	return IsValidExt(name, s...)
+}
+
+func IsArchive(name string) bool {
+	s := []string{".7z", ".arc", ".ark", ".arj", ".cab", ".gz", ".lha", ".lzh", ".rar", ".tar", ".tar.gz", ".zip"}
+	return IsValidExt(name, s...)
+}
+
+func IsDocument(name string) bool {
+	s := []string{".1st", ".asc", ".ans", ".cap", ".diz", ".doc", ".dox", ".me", ".nfo", ".pcb", ".pdf", ".txt", ".unp"}
+	return IsValidExt(name, s...)
+}
+
+func IsImage(name string) bool {
+	s := []string{".bmp", ".gif", ".ico", ".iff", ".jpg", ".jpeg", ".lbm", ".png", ".pcx"}
+	return IsValidExt(name, s...)
+}
+
+func IsHTML(name string) bool {
+	s := []string{".htm", ".html"}
+	return IsValidExt(name, s...)
+}
+
+func IsAudio(name string) bool {
+	s := []string{".au", ".flac", ".m1a", ".m2a", ".mid", ".midi", ".mp1", ".mp2", ".mp3",
+		".mpa", ".mpga", ".mpeg", ".ogg", ".snd", ".wav", ".wave", ".wma"}
+	return IsValidExt(name, s...)
+}
+
+func IsTune(name string) bool {
+	s := []string{".it", ".mod", ".s3m", ".xm"}
+	return IsValidExt(name, s...)
+}
+
+func IsVideo(name string) bool {
+	s := []string{".avi", ".divx", ".flv", ".gt", ".mov", ".m4a", ".m4v", ".mp4", ".swf", ".rm", ".ram", ".wmv", ".xvid"}
+	return IsValidExt(name, s...)
+}
+
+func IsValidExt(name string, valid ...string) bool {
+	ext := strings.ToLower(filepath.Ext(name))
+	return helpers.IsValid(name, ext)
 }

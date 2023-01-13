@@ -77,6 +77,7 @@ func Category(c echo.Context) error {
 	fmt.Printf("%+v\n", records)
 	return c.Render(http.StatusOK, "category", map[string]interface{}{
 		"title":   fmt.Sprintf("%s%s%s", title, "/category/", value),
+		"home":    "",
 		"records": records,
 		"latency": fmt.Sprintf("%s.", time.Since(*start)),
 	})

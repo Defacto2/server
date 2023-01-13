@@ -1,8 +1,15 @@
 <!-- index.html -->
-{{define "content"}}<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/art">Digital + pixel art</a>                      {{index . "art"}}   Hi-res, raster and pixel images.
-<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/documents">Document + text art</a>                      {{index . "doc"}}   Documents using any media format including text files, ASCII and ANSI text art.
-<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/software">Software</a>                                 {{index . "sw"}}   Applications and programs for any platform.
-<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/groups">by Group</a>                                     -   List files categorised by group or organisation.
-<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/platforms">by Media platform</a>                            -   List files categorised by operating system.
-<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/categories">by Category</a>                              {{index . "cat"}}   List files categorised by genre.</pre>
+{{- define "content" }}
+<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/art">Digital + pixel art</a>
+{{- leading 22}}{{index . "art"}}   Hi-res, raster and pixel images.
+<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/documents">Document + text art</a>
+{{- leading 22}}{{index . "doc"}}   Documents using any media format including text files, ASCII and ANSI text art.
+<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/software">Software</a>
+{{- leading 33}}{{index . "sw"}}   Applications and programs for any platform.
+<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/groups">by Group</a>
+{{- leading 37}}-   List files categorised by group or organisation.
+<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/platforms">by Media platform</a>
+{{- leading 28}}-   List files categorised by operating system.
+<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/categories">by Category</a>
+{{- leading 30}}{{index . "cat"}}   List files categorised by genre.</pre>
 {{end}} 

@@ -27,12 +27,6 @@ var Counts = map[int]Count{
 }
 
 func FilesByCategory(s string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
-	// files, err := models.Files(
-	// 	Where("section = ?", s)).All(ctx, db)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// return files, nil
 	x := null.StringFrom(s)
 	y, err := models.Files(models.FileWhere.Section.EQ(x)).All(ctx, db)
 	for i, z := range y {
