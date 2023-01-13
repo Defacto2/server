@@ -27,6 +27,15 @@ func latency() *time.Time {
 	return &start
 }
 
+func Routes(prefix string, e *echo.Echo) {
+	g := e.Group(prefix)
+	g.GET("", Index)
+	g.GET("/index", RedirIndex) // TODO shared redirect func
+	g.GET("/categories", Categories)
+	g.GET("/category/:id", Category)
+	g.GET("/categories/index", RedirCategories)
+}
+
 func Index(c echo.Context) error {
 	const desc = "Welcome to the Firefox 2 era (October 2006) Defacto2 website, that is friendly for legacy operating systems including Windows 9x, NT-4, OS-X 10.2." // TODO: share this with html meta OR make this html templ
 	start := latency()
@@ -92,6 +101,33 @@ func Category(c echo.Context) error {
 	})
 }
 
+func DownloadX(c echo.Context) error {
+	err := router.Download(c)
+	if err != nil {
+		return Error(err, c)
+	}
+	return nil
+	// return c.Render(http.StatusOK, "categories", map[string]interface{}{
+	// TODO: if err then render a HTML3 template error
+}
+
+func Error(err error, c echo.Context) error {
+	// Echo custom error handling: https://echo.labstack.com/guide/error-handling/
+	start := latency()
+	code := http.StatusInternalServerError
+	msg := "This is a server problem"
+	if he, ok := err.(*echo.HTTPError); ok {
+		code = he.Code
+		msg = fmt.Sprint(he.Message)
+	}
+	// TODO: switch codes and use a logger?
+	return c.Render(code, "error", map[string]interface{}{
+		"title":       fmt.Sprintf("%d error, there is a complication", code),
+		"description": fmt.Sprintf("%s.", msg),
+		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
+	})
+}
+
 // redirects
 
 func RedirCategories(c echo.Context) error {
@@ -99,5 +135,8 @@ func RedirCategories(c echo.Context) error {
 }
 
 func RedirIndex(c echo.Context) error {
-	return c.Redirect(http.StatusPermanentRedirect, "/html3")
+	fmt.Printf("\n\n%+v\n\n", c)
+	fmt.Printf("%+v <<-- %s\n", c.Path(), "")
+	return c.String(500, "oops")
+	// return c.Redirect(http.StatusPermanentRedirect, "/html3")
 }

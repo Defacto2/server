@@ -44,6 +44,8 @@ func TmplHTML3() map[string]*template.Template {
 		layout, dirs, "public/views/html3/categories.html"))
 	templates["category"] = template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles(
 		layout, files, "public/views/html3/files.html"))
+	templates["error"] = template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles(
+		layout))
 	return templates
 }
 

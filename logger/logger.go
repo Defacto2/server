@@ -15,6 +15,8 @@ import (
 // https://github.com/uber-go/zap/blob/master/FAQ.md
 // https://pkg.go.dev/gopkg.in/natefinch/lumberjack.v2@v2.0.0#section-readme
 
+// TODO: https://github.com/brpaz/echozap
+
 const (
 	filename = "test.log"
 )

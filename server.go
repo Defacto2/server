@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/caarlos0/env"
@@ -100,6 +101,33 @@ func main() {
 		Timeout: Timeout,
 	}))
 
+	e.HTTPErrorHandler = func(err error, c echo.Context) {
+		splitPaths := func(r rune) bool {
+			return r == '/'
+		}
+		rel := strings.FieldsFunc(c.Path(), splitPaths)
+		html3Route := len(rel) > 0 && rel[0] == "html3"
+		if html3Route {
+			if err := html3.Error(err, c); err != nil {
+				panic(err) // TODO: logger?
+			}
+			return
+		}
+		code := http.StatusInternalServerError
+		msg := "internal server error"
+		if he, ok := err.(*echo.HTTPError); ok {
+			code = he.Code
+			msg = fmt.Sprint(he.Message)
+		}
+		c.Logger().Error(err)
+		c.String(code, fmt.Sprintf("%d - %s", code, msg))
+		// errorPage := fmt.Sprintf("%d.html", code)
+		// if err := c.File(errorPage); err != nil {
+		// 	c.Logger().Error(err)
+		// }
+
+	}
+
 	// Route => handler
 	e.GET("/", func(c echo.Context) error {
 		count, err := models.Files().Count(ctx, db)
@@ -117,11 +145,7 @@ func main() {
 	}).Name = "foobar"
 
 	// Routes => html3
-	e.GET("/html3", html3.Index)
-	e.GET("/html3/index", html3.RedirIndex)
-	e.GET("/html3/categories", html3.Categories)
-	e.GET("/html3/category/:id", html3.Category)
-	e.GET("/html3/categories/index", html3.RedirCategories)
+	html3.Routes("/html3", e)
 
 	// Routes => users
 	e.GET("/users", users.GetAllUsers)
@@ -131,7 +155,7 @@ func main() {
 	e.DELETE("/users/:id", users.DeleteUser)
 
 	// Router => downloads
-	e.GET("/d/:id", router.DownloadX)
+	e.GET("/d/:id", html3.DownloadX)
 
 	// Start server with graceful shutdown
 	go func() {

@@ -55,9 +55,3 @@ func Download(c echo.Context) error {
 	}
 	return c.Attachment(file, name)
 }
-
-func DownloadX(c echo.Context) error {
-	return Download(c)
-	// return c.Render(http.StatusOK, "categories", map[string]interface{}{
-	// TODO: if err then render a HTML3 template error
-}
