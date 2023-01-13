@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/bengarrett/df2023/helpers"
 	"github.com/bengarrett/df2023/models"
@@ -92,7 +93,8 @@ func FileLinkPad(width int, name null.String) string {
 		return Leading(width)
 	}
 	s := helpers.TruncFilename(width, name.String)
-	if len(s) < width {
+
+	if utf8.RuneCountInString(s) < width {
 		return LeadStr(width, s)
 	}
 	return ""
@@ -110,7 +112,7 @@ func FileHref(id int64) string {
 // LeadPub formats the publication year, month and day to a fixed-width length w value.
 func LeadPub(width int, y, m, d null.Int16) string {
 	s := models.FmtPublish(y, m, d)
-	if len(s) < width {
+	if utf8.RuneCountInString(s) < width {
 		return LeadStr(width, s) + s
 	}
 	return s
@@ -119,7 +121,7 @@ func LeadPub(width int, y, m, d null.Int16) string {
 // LeadPost formats the date published to the fixed-width length w value.
 func LeadPost(width int, t null.Time) string {
 	s := models.FmtTime(t)
-	if len(s) < width {
+	if utf8.RuneCountInString(s) < width {
 		return LeadStr(width, s) + s
 	}
 	return s
@@ -131,7 +133,7 @@ func LeadFS(width int, size null.Int64) string {
 		return Leading(width)
 	}
 	s := helpers.ByteCount(size.Int64)
-	l := len(s)
+	l := utf8.RuneCountInString(s)
 	return Leading(width-l) + s
 }
 
@@ -141,7 +143,7 @@ func LeadInt(width, i int) string {
 	if i > 0 {
 		s = strconv.Itoa(i)
 	}
-	l := len(s)
+	l := utf8.RuneCountInString(s)
 	if l >= width {
 		return s
 	}
@@ -155,7 +157,7 @@ func LeadInt(width, i int) string {
 // LeadStr takes a string and returns the leading whitespace padding, characters wide.
 // the value of string is note returned.
 func LeadStr(width int, s string) string {
-	l := len(s)
+	l := utf8.RuneCountInString(s)
 	if l >= width {
 		return ""
 	}
