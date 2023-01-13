@@ -43,7 +43,7 @@ func FmtPublish(y, m, d null.Int16) string {
 	}
 	if d.Valid {
 		if i := int(d.Int16); IsDay(i) {
-			ds = strconv.Itoa(i)
+			ds = fmt.Sprintf("%02d", i)
 		}
 	}
 	if isYearOnly := ys != yx && ms == mx && ds == dx; isYearOnly {
@@ -52,7 +52,7 @@ func FmtPublish(y, m, d null.Int16) string {
 	if isInvalidDay := ys != yx && ms != mx && ds == dx; isInvalidDay {
 		return fmt.Sprintf("%s%s-%s", strings.Repeat(sp, 3), ms, ys)
 	}
-	return fmt.Sprintf("%02d-%s-%s", int(d.Int16), ms, ys)
+	return fmt.Sprintf("%s-%s-%s", ds, ms, ys)
 }
 
 // FmtTime formats the time to use dd-mmm-yyyy.

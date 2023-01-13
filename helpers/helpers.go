@@ -90,7 +90,8 @@ func TrimPunct(s string) string {
 		r := rs[i]
 		// https://www.compart.com/en/unicode/category/Po
 		if !unicode.Is(unicode.Po, r) {
-			return string(rs[0 : i+1])
+			punctless := string(rs[0 : i+1])
+			return strings.TrimSpace(punctless)
 		}
 	}
 	return s
