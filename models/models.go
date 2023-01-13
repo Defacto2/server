@@ -26,6 +26,17 @@ var Counts = map[int]Count{
 	Soft: 0,
 }
 
+func ByteCountByCategory(s string, ctx context.Context, db *sql.DB) (int64, error) {
+	i, err := models.Files(
+		SQL("SELECT sum(filesize) FROM files WHERE section = $1",
+			null.StringFrom(s)),
+	).Count(ctx, db)
+	if err != nil {
+		return 0, err
+	}
+	return i, err
+}
+
 func FilesByCategory(s string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
 	x := null.StringFrom(s)
 	y, err := models.Files(models.FileWhere.Section.EQ(x)).All(ctx, db)

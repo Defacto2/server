@@ -78,6 +78,15 @@ var URIs = URI{
 	Install:      "releaseinstall",
 }
 
+func GetURI(s string) Tag {
+	for key, value := range URIs { // Order not specified
+		if s == value {
+			return key
+		}
+	}
+	return -1
+}
+
 var Names = URI{
 	Announcement: "Announcement",
 	ANSIEditor:   "ANSI editor",

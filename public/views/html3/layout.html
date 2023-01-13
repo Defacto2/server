@@ -12,6 +12,7 @@
 <body>
     <h2>{{index . "title"}}</h2>
     <p>{{index . "description"}}</p>
+    <small>{{index . "stats"}}</small>
     {{ block "pre" .}}<!-- no pre content was defined -->{{end}}<hr>
-    <em>Defacto2 Server at defacto2.net, latency {{index . "latency"}}</em>
+    <p><em>Defacto2 Server at defacto2.net, latency {{index . "latency"}}</em></p>
 </body></html>{{end}}

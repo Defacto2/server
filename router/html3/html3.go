@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bengarrett/df2023/helpers"
 	"github.com/bengarrett/df2023/meta"
 	"github.com/bengarrett/df2023/models"
 	"github.com/bengarrett/df2023/router"
@@ -74,12 +75,20 @@ func Category(c echo.Context) error {
 	defer db.Close()
 	// TODO: throw a 50x error page to user and log error
 	records, _ := models.FilesByCategory(value, ctx, db)
-	fmt.Printf("%+v\n", records)
+	sum, _ := models.ByteCountByCategory(value, ctx, db)
+	count := len(records)
+	key := meta.GetURI(value)
+	info := meta.Infos[key]
+	name := meta.Names[key]
+	desc := fmt.Sprintf("%s - %s.", name, info)
+	stat := fmt.Sprintf("%d files, %s", count, helpers.ByteCountLong(sum))
 	return c.Render(http.StatusOK, "category", map[string]interface{}{
-		"title":   fmt.Sprintf("%s%s%s", title, "/category/", value),
-		"home":    "",
-		"records": records,
-		"latency": fmt.Sprintf("%s.", time.Since(*start)),
+		"title":       fmt.Sprintf("%s%s%s", title, "/category/", value),
+		"home":        "",
+		"description": desc,
+		"stats":       stat,
+		"records":     records,
+		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
 	})
 }
 
