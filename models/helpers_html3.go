@@ -21,35 +21,9 @@ import (
 // todo: move to helpers/helpers.go
 // https://yourbasic.org/golang/formatting-byte-size-to-human-readable-format/
 
-func ByteCount(i null.Int64) string {
-	if !i.Valid {
-		return ""
-	}
-	b := i.Int64
-	const unit = 1024
-	if b < unit {
-		return fmt.Sprintf("%d%s", b, strings.Repeat(" ", 2))
-	}
-	div, exp := int64(unit), 0
-	for n := b / unit; n >= unit; n /= unit {
-		div *= unit
-		exp++
-	}
-	return fmt.Sprintf("%.1f %c",
-		float64(b)/float64(div), "KMGTPE"[exp])
-}
-
-func DateFmt(t null.Time) string {
-	if !t.Valid {
-		return ""
-	}
-	d := t.Time.Day()
-	m := AbbrMonth(int(t.Time.Month()))
-	y := t.Time.Year()
-	return fmt.Sprintf("%02d-%s-%d", d, m, y)
-}
-
-func DatePublish(y, m, d null.Int16) string {
+// FmtPublish takes optional year, month and values and formats them to dd-mmm-yyyy.
+// Depending on the context, any missing time values will be left blank or replaced with ?? question marks.
+func FmtPublish(y, m, d null.Int16) string {
 	const (
 		yx = "????"
 		mx = "???"
@@ -63,7 +37,7 @@ func DatePublish(y, m, d null.Int16) string {
 		}
 	}
 	if m.Valid {
-		if s := AbbrMonth(int(m.Int16)); s != "" {
+		if s := helpers.ShortMonth(int(m.Int16)); s != "" {
 			ms = s
 		}
 	}
@@ -81,15 +55,18 @@ func DatePublish(y, m, d null.Int16) string {
 	return fmt.Sprintf("%02d-%s-%s", int(d.Int16), ms, ys)
 }
 
-func AbbrMonth(i int) string {
-	const abbreviated = 3
-	s := fmt.Sprint(time.Month(i))
-	if len(s) >= abbreviated {
-		return s[0:abbreviated]
+// FmtTime formats the time to use dd-mmm-yyyy.
+func FmtTime(t null.Time) string {
+	if !t.Valid {
+		return ""
 	}
-	return ""
+	d := t.Time.Day()
+	m := helpers.ShortMonth(int(t.Time.Month()))
+	y := t.Time.Year()
+	return fmt.Sprintf("%02d-%s-%d", d, m, y)
 }
 
+// IsDay returns true if the i value can be used as a day time value.
 func IsDay(i int) bool {
 	const maxDay = 31
 	if i > 0 && i <= maxDay {
@@ -98,6 +75,8 @@ func IsDay(i int) bool {
 	return false
 }
 
+// IsYear returns true  if the i value is greater than 1969
+// or equal to the current year.
 func IsYear(i int) bool {
 	const unix = 1970
 	now := time.Now().Year()
@@ -107,104 +86,96 @@ func IsYear(i int) bool {
 	return false
 }
 
+// Icon returns the extensionless name of a .gif image file to use as an icon
+// for the named file.
+// The icons are found in /public/images/html3/.
 func Icon(name null.String) string {
-	const error = "unknown"
+	const (
+		app   = "comp2"
+		doc   = "doc"
+		error = "unknown"
+		htm   = "generic"
+		pic   = "image2"
+		sfx   = "sound2"
+		vid   = "movie"
+		zip   = "compressed"
+	)
 	if !name.Valid {
 		return error
 	}
 	n := strings.ToLower(filepath.Ext(name.String))
 	switch {
-	case IsApp(n):
-		return "comp2"
 	case IsArchive(n):
-		return "compressed"
-	case IsImage(n):
-		return "image2"
-	case IsDocument(n):
-		return "doc"
-	case IsHTML(n):
-		return "generic"
+		return zip
+	case IsApp(n):
+		return app
 	case IsAudio(n):
-		return "sound2"
+		return sfx
+	case IsDocument(n):
+		return doc
+	case IsHTML(n):
+		return htm
+	case IsImage(n):
+		return pic
 	case IsTune(n):
-		return "sound2"
+		return sfx
 	case IsVideo(n):
-		return "movie"
+		return vid
 	}
 	return error
 }
 
-// /*
-//  * Generates an icon determined by the file's extension
-//  */
-// function displayIcon(string filename) {
-// 	var ext = ListLast(arguments.filename,".")
-// 	if(ListFindNoCase(get(myapp).acceptedArchives,ext)) return "compressed";
-// 	if(ListFindNoCase(get(myapp).acceptedAudio,ext)) return "sound2";
-// 	if(ListFindNoCase(get(myapp).acceptedChiptunes,ext)) return "sound2";
-// 	if(ListFindNoCase(get(myapp).acceptedDocuments,ext)) return "text";
-// 	if(ListFindNoCase(get(myapp).acceptedGraphics,ext)) return "image2";
-// 	if(ListFindNoCase(get(myapp).acceptedNoPreviews,ext)) return "text";
-// 	if(ListFindNoCase(get(myapp).acceptedPrograms,ext)) return "comp2";
-// 	if(ListFindNoCase(get(myapp).acceptedVideos,ext)) return "movie";
-// 	return "unknown";
-// }
-
-// 7z,arc,ark,arj,cab,gz,lha,lzh,rar,tar,tar.gz,zip"
-// loc.myapp.acceptedArchives		= "7z,arc,ark,arj,cab,gz,lha,lzh,rar,tar,tar.gz,zip"
-// loc.myapp.acceptedDirChrs		= "[^a-z0-9\-\,\& ]"
-// loc.myapp.acceptedAudio			= "au,flac,m1a,m2a,mid,midi,mp1,mp2,mp3,mpa,mpga,mpeg,ogg,snd,wav,wave,wma"
-// loc.myapp.acceptedChiptunes		= "it,mod,s3m,xm"
-// loc.myapp.acceptedDocuments		= "1st,asc,ans,cap,diz,doc,dox,me,nfo,pcb,txt,unp"
-// loc.myapp.acceptedGraphics		= "bmp,gif,ico,jpg,jpeg,pdf,png,pcx"
-// loc.myapp.acceptedNoPreviews	= ""
-// loc.myapp.acceptedPrograms		= "exe,com"
-// loc.myapp.acceptedVideos		= "avi,divx,flv,gt,mov,m4a,m4v,mp4,swf,rm,ram,wmv,xvid"
-// // blacklistedExt notes: dbm is ColdFusion server, lex is Lucee extension archive
-// loc.myapp.blacklistedExt		= "cfm,cfml,cfc,cgi,dbm,lex,lucee,jsp,php,shtml"
-
+// IsApp returns true if the named file uses a Windows application filename.
 func IsApp(name string) bool {
 	s := []string{".exe", ".com"}
-	return IsValidExt(name, s...)
+	return IsExt(name, s...)
 }
 
+// IsApp returns true if the named file uses a common compressed or archived filename.
 func IsArchive(name string) bool {
 	s := []string{".7z", ".arc", ".ark", ".arj", ".cab", ".gz", ".lha", ".lzh", ".rar", ".tar", ".tar.gz", ".zip"}
-	return IsValidExt(name, s...)
+	return IsExt(name, s...)
 }
 
+// IsDocument returns true if the named file uses a common document or text filename.
 func IsDocument(name string) bool {
 	s := []string{".1st", ".asc", ".ans", ".cap", ".diz", ".doc", ".dox", ".me", ".nfo", ".pcb", ".pdf", ".txt", ".unp"}
-	return IsValidExt(name, s...)
+	return IsExt(name, s...)
 }
 
+// IsImage returns true if the named file uses a common image or photo filename.
 func IsImage(name string) bool {
 	s := []string{".bmp", ".gif", ".ico", ".iff", ".jpg", ".jpeg", ".lbm", ".png", ".pcx"}
-	return IsValidExt(name, s...)
+	return IsExt(name, s...)
 }
 
+// IsHTML returns true if the named file uses a HTML markup filename.
 func IsHTML(name string) bool {
 	s := []string{".htm", ".html"}
-	return IsValidExt(name, s...)
+	return IsExt(name, s...)
 }
 
+// IsImage returns true if the named file uses a common digital audio filename.
 func IsAudio(name string) bool {
 	s := []string{".au", ".flac", ".m1a", ".m2a", ".mid", ".midi", ".mp1", ".mp2", ".mp3",
 		".mpa", ".mpga", ".mpeg", ".ogg", ".snd", ".wav", ".wave", ".wma"}
-	return IsValidExt(name, s...)
+	return IsExt(name, s...)
 }
 
+// IsImage returns true if the named file uses a common tracker music filename.
 func IsTune(name string) bool {
 	s := []string{".it", ".mod", ".s3m", ".xm"}
-	return IsValidExt(name, s...)
+	return IsExt(name, s...)
 }
 
+// IsImage returns true if the named file uses a common video filename.
 func IsVideo(name string) bool {
 	s := []string{".avi", ".divx", ".flv", ".gt", ".mov", ".m4a", ".m4v", ".mp4", ".swf", ".rm", ".ram", ".wmv", ".xvid"}
-	return IsValidExt(name, s...)
+	return IsExt(name, s...)
 }
 
-func IsValidExt(name string, valid ...string) bool {
+// IsExt returns true if the file extension of the named file is found in the collection of extensions.
+func IsExt(name string, extensions ...string) bool {
 	ext := strings.ToLower(filepath.Ext(name))
-	return helpers.IsValid(name, ext)
+	return helpers.Find(ext, extensions...)
 }

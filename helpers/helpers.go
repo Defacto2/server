@@ -1,13 +1,16 @@
+// Package helpers are funcs shared between the whole application.
 package helpers
 
 import (
 	"fmt"
 	"path/filepath"
 	"strings"
+	"time"
 	"unicode"
 	"unicode/utf8"
 )
 
+// ByteCount formats b as in a compact, human-readable unit of measure.
 func ByteCount(b int64) string {
 	const unit = 1024
 	if b < unit {
@@ -22,6 +25,7 @@ func ByteCount(b int64) string {
 		float64(b)/float64(div), "KMGTPE"[exp])
 }
 
+// ByteCountLong formats b as in a human-readable unit of measure.
 func ByteCountLong(b int64) string {
 	const unit = 1000
 	if b < unit {
@@ -36,6 +40,7 @@ func ByteCountLong(b int64) string {
 		float64(b)/float64(div), "kMGTPE"[exp])
 }
 
+// LastChr returns the last character or rune of the string.
 func LastChr(s string) string {
 	s = strings.TrimSpace(s)
 	if s == "" {
@@ -45,22 +50,18 @@ func LastChr(s string) string {
 	return string(r)
 }
 
-func TrimPunct(s string) string {
-	s = strings.TrimSpace(s)
-	if s == "" {
-		return ""
+// ShortMonth takes a month integer and abbreviates it to a three letter English month.
+func ShortMonth(month int) string {
+	const abbreviated = 3
+	s := fmt.Sprint(time.Month(month))
+	if len(s) >= abbreviated {
+		return s[0:abbreviated]
 	}
-	rs := []rune(s)
-	for i := len(rs) - 1; i >= 0; i-- {
-		r := rs[i]
-		// https://www.compart.com/en/unicode/category/Po
-		if !unicode.Is(unicode.Po, r) {
-			return string(rs[0 : i+1])
-		}
-	}
-	return s
+	return ""
 }
 
+// TruncFilename reduces a filename to the length of w characters.
+// The file extension is always preserved with the truncation.
 func TruncFilename(w int, name string) string {
 	const trunc = "."
 	if w == 0 {
@@ -78,11 +79,19 @@ func TruncFilename(w int, name string) string {
 	return fmt.Sprintf("%s%s%s", s, trunc, ext)
 }
 
-func IsValid(name string, valid ...string) bool {
-	for _, n := range valid {
-		if n == name {
-			return true
+// TrimPunct removes any trailing, common punctuation characters from the string.
+func TrimPunct(s string) string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return ""
+	}
+	rs := []rune(s)
+	for i := len(rs) - 1; i >= 0; i-- {
+		r := rs[i]
+		// https://www.compart.com/en/unicode/category/Po
+		if !unicode.Is(unicode.Po, r) {
+			return string(rs[0 : i+1])
 		}
 	}
-	return false
+	return s
 }

@@ -24,7 +24,7 @@ var TemplateFuncMap = template.FuncMap{
 	"leadInt":  LeadInt,
 	"leadStr":  LeadStr,
 	"iconFmt":  models.Icon,
-	"linkFile": FileName,
+	"linkFile": FmtFilename,
 	"linkHref": FileHref,
 	"linkPad":  FileLinkPad,
 	"datePub":  LeadPub,
@@ -33,15 +33,7 @@ var TemplateFuncMap = template.FuncMap{
 	"descript": Description,
 }
 
-// <cfif Right(records.record_title,1) is '.'>
-// #Trim(Left(records.record_title,Len(records.record_title)-1))#<cfelse>
-// #Trim(records.record_title)#</cfif><cfif Len(records.group_brand_for)>
-//
-// <cfif Len(records.record_title)> from <cfelse>From </cfif>#records.group_brand_for#</cfif>
-// <cfif ListFindNoCase("Dos,Java,Linux,Windows,Mac10",records.platform)>
-// for #Trim(Replacenocase(getPlatformName(records.platform),'Apps. ',''))#</cfif>
-// </cfif></cfoutput>
-
+// Description returns a HTML3 friendly file description.
 func Description(w int, section, platform, brand, title null.String) string {
 	category := strings.TrimSpace(section.String)
 	if category == "magazine" {
@@ -60,12 +52,14 @@ func Description(w int, section, platform, brand, title null.String) string {
 	return fmt.Sprintf("%s.", desc)
 }
 
+// IsApp returns true if the platform matches Windows, macOS, Linux, MS-DOS or Java.
 func IsApp(platform null.String) bool {
 	s := []string{"dos", "java", "linux", "windows", "mac10"}
 	p := strings.TrimSpace(strings.ToLower(platform.String))
-	return helpers.IsValid(p, s...)
+	return helpers.Find(p, s...)
 }
 
+// FmtApp returns the application platform as a string.
 func FmtApp(platform null.String) string {
 	s := ""
 	p := strings.TrimSpace(strings.ToLower(platform.String))
@@ -87,23 +81,24 @@ func FmtApp(platform null.String) string {
 	return fmt.Sprintf(" for %s", s)
 }
 
-func FileLink() {}
-
-func FileName(w int, name null.String) string {
-	return helpers.TruncFilename(w, name.String)
+// FmtFilename returns a truncated filename with to the w maximum width.
+func FmtFilename(width int, name null.String) string {
+	return helpers.TruncFilename(width, name.String)
 }
 
-func FileLinkPad(w int, name null.String) string {
+// FileLinkPad adds whitespace padding after the hyperlinked filename.
+func FileLinkPad(width int, name null.String) string {
 	if !name.Valid {
-		return Leading(w)
+		return Leading(width)
 	}
-	s := helpers.TruncFilename(w, name.String)
-	if len(s) < w {
-		return LeadStr(w, s)
+	s := helpers.TruncFilename(width, name.String)
+	if len(s) < width {
+		return LeadStr(width, s)
 	}
 	return ""
 }
 
+// FileHref creates a URL to link to the file download of the ID.
 func FileHref(id int64) string {
 	href, err := url.JoinPath("/", "d", helpers.ObfuscateParam(strconv.Itoa(int(id))))
 	if err != nil {
@@ -112,78 +107,65 @@ func FileHref(id int64) string {
 	return href
 }
 
-func LeadFileLink(w int, id int64, name null.String) string {
-	//<a href="/d/a228dd"></a>
-	if !name.Valid {
-		return Leading(w)
-	}
-	href, err := url.JoinPath("/", "d", helpers.ObfuscateParam(strconv.Itoa(int(id))))
-	if err != nil {
-		log.Println(err) //TODO: log to file
-	}
-	s := helpers.TruncFilename(w, name.String)
-	html := fmt.Sprintf("<a href=\"%s\">%s</a>", href, s)
-	if len(s) < w {
-		return html + LeadStr(w, s)
-	}
-	return html
-}
-
-func LeadPub(w int, y, m, d null.Int16) string {
-	s := models.DatePublish(y, m, d)
-	if len(s) < w {
-		return LeadStr(w, s) + s
+// LeadPub formats the publication year, month and day to a fixed-width length w value.
+func LeadPub(width int, y, m, d null.Int16) string {
+	s := models.FmtPublish(y, m, d)
+	if len(s) < width {
+		return LeadStr(width, s) + s
 	}
 	return s
 }
 
-func LeadPost(w int, t null.Time) string {
-	s := models.DateFmt(t)
-	if len(s) < w {
-		return LeadStr(w, s) + s
+// LeadPost formats the date published to the fixed-width length w value.
+func LeadPost(width int, t null.Time) string {
+	s := models.FmtTime(t)
+	if len(s) < width {
+		return LeadStr(width, s) + s
 	}
 	return s
 }
 
-func LeadFS(w int, size null.Int64) string {
+// LeadFS formats the file size to the fixed-width length w value.
+func LeadFS(width int, size null.Int64) string {
 	if !size.Valid {
-		return Leading(w)
+		return Leading(width)
 	}
 	s := helpers.ByteCount(size.Int64)
 	l := len(s)
-	return Leading(w-l) + s
+	return Leading(width-l) + s
 }
 
 // LeadInt takes an int and returns it as a string, w characters wide with whitespace padding.
-func LeadInt(w, i int) string {
+func LeadInt(width, i int) string {
 	s := noValue
 	if i > 0 {
 		s = strconv.Itoa(i)
 	}
 	l := len(s)
-	if l >= w {
+	if l >= width {
 		return s
 	}
-	count := w - l
+	count := width - l
 	if count > maxPad {
 		count = maxPad
 	}
 	return fmt.Sprintf("%s%s", strings.Repeat(padding, count), s)
 }
 
-// LeadStr takes a string and returns the leading whitespace padding, w characters wide.
+// LeadStr takes a string and returns the leading whitespace padding, characters wide.
 // the value of string is note returned.
-func LeadStr(w int, s string) string {
+func LeadStr(width int, s string) string {
 	l := len(s)
-	if l >= w {
+	if l >= width {
 		return ""
 	}
-	return strings.Repeat(padding, w-l)
+	return strings.Repeat(padding, width-l)
 }
 
-func Leading(w int) string {
-	if w < 1 {
+// Leading repeats the number of space characters.
+func Leading(count int) string {
+	if count < 1 {
 		return ""
 	}
-	return strings.Repeat(padding, w)
+	return strings.Repeat(padding, count)
 }

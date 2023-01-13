@@ -2,20 +2,34 @@ package postgres
 
 import (
 	"database/sql"
+	"fmt"
 )
 
 const (
 	Name = "postgres"
 )
 
+// ConnectDB connects to the PostgreSQL database.
 func ConnectDB() (*sql.DB, error) {
-	conn, err := sql.Open(Name, "postgres://root:example@localhost:5432/defacto2-ps?sslmode=disable")
+	const (
+		protocol = "postgres"
+		user     = "root"
+		password = "example"
+		hostname = "localhost"
+		hostport = 5432
+		database = "defacto2-ps"
+		options  = "sslmode=disable"
+	)
+	dsn := fmt.Sprintf("%s://%s:%s@%s:%d/%s?%s",
+		protocol, user, password, hostname, hostport, database, options)
+	conn, err := sql.Open(Name, dsn)
 	if err != nil {
 		return nil, err
 	}
 	return conn, nil
 }
 
+// Version returns the PostgreSQL database version from an SQL query.
 func Version() (string, error) {
 	conn, err := ConnectDB()
 	if err != nil {

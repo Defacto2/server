@@ -1,5 +1,7 @@
 package helpers
 
+// params.go helpers are funcs specific for the unique Defacto2 URL IDs.
+
 import (
 	"fmt"
 	"math"
@@ -8,24 +10,24 @@ import (
 	"strings"
 )
 
-// DeObfuscate a public facing, obfuscated file ID or file URL.
+// Deobfuscate a public facing, obfuscated file ID or file URL.
 // A URL can point to a Defacto2 file download or detail page.
-func DeObfuscate(s string) int {
+func Deobfuscate(s string) int {
 	p := strings.Split(s, "?")
-	d := deObfuscate(path.Base(p[0]))
+	d := deobfuscate(path.Base(p[0]))
 	id, _ := strconv.Atoi(d)
 	return id
 }
 
 // deObfuscate de-obfuscates a CFWheels obfuscateParam or Obfuscate() obfuscated string.
-func deObfuscate(s string) string {
+func deobfuscate(s string) string {
 	const twoChrs, decimal, hexadecimal = 2, 10, 16
 	// CFML source:
 	// https://github.com/cfwheels/cfwheels/blob/cf8e6da4b9a216b642862e7205345dd5fca34b54/wheels/global/misc.cfm
 	if _, err := strconv.Atoi(s); err == nil || len(s) < twoChrs {
 		return s
 	}
-	// De-obfuscate string.
+	// deobfuscate string.
 	tail := s[twoChrs:]
 	n, err := strconv.ParseInt(tail, hexadecimal, 0)
 	if err != nil {

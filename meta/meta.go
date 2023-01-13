@@ -79,7 +79,7 @@ var URIs = URI{
 }
 
 func GetURI(s string) Tag {
-	for key, value := range URIs { // Order not specified
+	for key, value := range URIs {
 		if s == value {
 			return key
 		}
