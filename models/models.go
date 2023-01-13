@@ -27,29 +27,6 @@ var Counts = map[int]Count{
 	Soft: 0,
 }
 
-// ByteCountByCategory sums the byte filesizes for all the files that match a category.
-func ByteCountByCategory(s string, ctx context.Context, db *sql.DB) (int64, error) {
-	i, err := models.Files(
-		SQL("SELECT sum(filesize) FROM files WHERE section = $1",
-			null.StringFrom(s)),
-	).Count(ctx, db)
-	if err != nil {
-		return 0, err
-	}
-	return i, err
-}
-
-// FilesByCategory returns all the files that match a category.
-func FilesByCategory(s string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
-	x := null.StringFrom(s)
-	y, err := models.Files(models.FileWhere.Section.EQ(x)).All(ctx, db)
-	for i, z := range y {
-		fmt.Println("->", i, "==>", z.Filename.String, z.DateIssuedYear, z.Createdat, z.Filesize.Int64, z.RecordTitle)
-		fmt.Printf("%T", z.Createdat)
-	}
-	return y, err
-}
-
 // ArtImagesCount counts the number of files that could be classified as digital or pixel art.
 func ArtImagesCount(ctx context.Context, db *sql.DB) (int, error) {
 	if c := Counts[Art]; c > 0 {
@@ -63,6 +40,18 @@ func ArtImagesCount(ctx context.Context, db *sql.DB) (int, error) {
 	}
 	Counts[Art] = Count(c)
 	return int(c), nil
+}
+
+// ByteCountByCategory sums the byte filesizes for all the files that match a category.
+func ByteCountByCategory(s string, ctx context.Context, db *sql.DB) (int64, error) {
+	i, err := models.Files(
+		SQL("SELECT sum(filesize) FROM files WHERE section = $1",
+			null.StringFrom(s)),
+	).Count(ctx, db)
+	if err != nil {
+		return 0, err
+	}
+	return i, err
 }
 
 // DocumentCount counts the number of files that could be classified as document or text art.
@@ -80,6 +69,25 @@ func DocumentCount(ctx context.Context, db *sql.DB) (int, error) {
 	}
 	Counts[Doc] = Count(c)
 	return int(c), nil
+}
+
+func Download(id int, ctx context.Context, db *sql.DB) (*models.File, error) {
+	file, err := models.Files(models.FileWhere.ID.EQ(int64(id))).One(ctx, db)
+	if err != nil {
+		return &models.File{}, err
+	}
+	return file, err
+}
+
+// FilesByCategory returns all the files that match a category.
+func FilesByCategory(s string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+	x := null.StringFrom(s)
+	y, err := models.Files(models.FileWhere.Section.EQ(x)).All(ctx, db)
+	for i, z := range y {
+		fmt.Println("->", i, "==>", z.Filename.String, z.DateIssuedYear, z.Createdat, z.Filesize.Int64, z.RecordTitle)
+		fmt.Printf("%T", z.Createdat)
+	}
+	return y, err
 }
 
 // SoftwareCount counts the number of files that could be classified as software.

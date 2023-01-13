@@ -123,12 +123,15 @@ func main() {
 	e.GET("/html3/category/:id", html3.Category)
 	e.GET("/html3/categories/index", html3.RedirCategories)
 
-	// Routes
+	// Routes => users
 	e.GET("/users", users.GetAllUsers)
 	e.POST("/users", users.CreateUser)
 	e.GET("/users/:id", users.GetUser)
 	e.PUT("/users/:id", users.UpdateUser)
 	e.DELETE("/users/:id", users.DeleteUser)
+
+	// Router => downloads
+	e.GET("/d/:id", router.DownloadX)
 
 	// Start server with graceful shutdown
 	go func() {
