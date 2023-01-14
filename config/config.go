@@ -1,3 +1,4 @@
+// Package config for system environment variable configurations for the server.
 package config
 
 import "time"
