@@ -1,3 +1,4 @@
+// Package server contains internal functions for the main server application.
 package server
 
 import (

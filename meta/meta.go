@@ -1,3 +1,4 @@
+// Package meta are categories and platform metadata used to classify served files.
 package meta
 
 import (

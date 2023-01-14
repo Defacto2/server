@@ -1,3 +1,5 @@
+// Package postgres connects to and interacts with the PostgreSQL database server.
+// https://www.postgresql.org
 package postgres
 
 import (

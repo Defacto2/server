@@ -1,3 +1,5 @@
+// Package models contain the custom queries for the database that are not available using the ORM,
+// as well as methods to interact with the query data.
 package models
 
 import (

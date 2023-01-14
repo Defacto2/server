@@ -47,7 +47,8 @@ func Routes(prefix string, e *echo.Echo) {
 }
 
 func Index(c echo.Context) error {
-	const desc = "Welcome to the Firefox 2 era (October 2006) Defacto2 website, that is friendly for legacy operating systems including Windows 9x, NT-4, OS-X 10.2." // TODO: share this with html meta OR make this html templ
+	const desc = "Welcome to the Firefox 2 era (October 2006) Defacto2 website, " +
+		"that is friendly for legacy operating systems including Windows 9x, NT-4, OS-X 10.2." // TODO: share this with html meta OR make this html templ
 	start := latency()
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()

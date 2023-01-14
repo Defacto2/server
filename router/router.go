@@ -1,3 +1,5 @@
+// Package router provides all the functions for the Echo web framework.
+// https://echo.labstack.com
 package router
 
 import (
