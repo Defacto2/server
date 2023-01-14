@@ -48,7 +48,12 @@ const (
 	Proof
 	Restrict
 	Install
+	ANSI
+	Audio
 )
+
+const FirstCategory Tag = Announcement
+const FirstPlatform Tag = ANSI
 
 const CategoryCount = int(Install + 1)
 
@@ -78,6 +83,8 @@ var URIs = URI{
 	Proof:        "releaseproof",
 	Restrict:     "internaldocument",
 	Install:      "releaseinstall",
+	ANSI:         "ansi",
+	Audio:        "audio",
 }
 
 func GetURI(s string) Tag {
@@ -115,6 +122,8 @@ var Names = URI{
 	Proof:        "Release proof",
 	Restrict:     "Restricted",
 	Install:      "Scene software install",
+	ANSI:         "ANSI",
+	Audio:        "Music",
 }
 
 var Infos = Info{
@@ -149,6 +158,8 @@ var Infos = Info{
 	Proof:     "Evidence of the source media, usually a photo or scanned image",
 	Restrict:  "Documents created by scene groups that were often never intended to be public",
 	Install:   "A program to help an end-user install a scene release",
+	ANSI:      "Coloured, text based computer art form widely used on Bulletin Board Systems",
+	Audio:     "Music or audio sound clips",
 }
 
 var Counts = Count{
@@ -177,6 +188,8 @@ var Counts = Count{
 	Proof:        0,
 	Restrict:     0,
 	Install:      0,
+	ANSI:         0,
+	Audio:        0,
 }
 
 type Meta struct {
@@ -198,9 +211,12 @@ func GetMetaByName(name string) Meta {
 }
 
 func New() []Meta {
-	var m = make([]Meta, len(URIs))
+	var m = make([]Meta, FirstPlatform)
 	i := -1
 	for key, val := range URIs {
+		if key >= FirstPlatform {
+			continue
+		}
 		i++
 		count := Counts[key]
 		m[i] = Meta{

@@ -95,10 +95,10 @@ func Index(c echo.Context) error {
 func Categories(c echo.Context) error {
 	start := latency()
 	return c.Render(http.StatusOK, "categories", map[string]interface{}{
-		"title":   title + "/categories",
-		"latency": fmt.Sprintf("%s.", time.Since(*start)),
-		"tags":    meta.Names,
-		"cats":    meta.Categories,
+		"title":     title + "/categories",
+		"latency":   fmt.Sprintf("%s.", time.Since(*start)),
+		"tags":      meta.Names,
+		"breakName": meta.FirstPlatform - 1,
 	})
 }
 
