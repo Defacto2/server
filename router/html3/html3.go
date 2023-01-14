@@ -82,10 +82,18 @@ func Category(c echo.Context) error {
 		return err
 	}
 	defer db.Close()
-	// TODO: throw a 50x error page to user and log error
-	records, _ := models.FilesByCategory(value, ctx, db)
-	sum, _ := models.ByteCountByCategory(value, ctx, db)
+	records, err := models.FilesByCategory(value, ctx, db)
+	if err != nil {
+		return err
+	}
 	count := len(records)
+	if count == 0 {
+		return echo.NewHTTPError(http.StatusNotFound)
+	}
+	sum, err := models.ByteCountByCategory(value, ctx, db)
+	if err != nil {
+		return err
+	}
 	key := meta.GetURI(value)
 	info := meta.Infos[key]
 	name := meta.Names[key]
