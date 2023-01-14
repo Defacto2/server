@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/big"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/bengarrett/df2023/helpers"
@@ -29,6 +30,21 @@ var LegacyURLs = map[string]string{
 	"/index":            "",
 	"/categories/index": "/categories",
 }
+
+var Sortings = map[string]string{
+	"Name":        "A",
+	"Publish":     "A",
+	"Posted":      "A",
+	"Size":        "A",
+	"Description": "A",
+}
+
+// 	e.GET("/users/:name", func(c echo.Context) error {
+// 		name := c.Param("name")
+// 		return c.String(http.StatusOK, name)
+//  })
+//
+//  curl http://localhost:1323/users/Joe
 
 func latency() *time.Time {
 	start := time.Now()
@@ -95,7 +111,7 @@ func Category(c echo.Context) error {
 		return err
 	}
 	defer db.Close()
-	records, err := models.FilesByCategory(value, ctx, db)
+	records, err := models.FilesByCategory(value, c.QueryString(), ctx, db)
 	if err != nil {
 		return err
 	}
@@ -113,14 +129,44 @@ func Category(c echo.Context) error {
 	name := meta.Names[key]
 	desc := fmt.Sprintf("%s - %s.", name, info)
 	stat := fmt.Sprintf("%d files, %s", count, helpers.ByteCountLong(sum))
+	sorter := sorter(c.QueryString())
 	return c.Render(http.StatusOK, "category", map[string]interface{}{
 		"title":       fmt.Sprintf("%s%s%s", title, "/category/", value),
 		"home":        "",
 		"description": desc,
 		"stats":       stat,
+		"sort":        sorter,
 		"records":     records,
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
 	})
+}
+
+// todo: custom type
+func sorter(query string) map[string]string {
+	s := Sortings
+	switch strings.ToUpper(query) {
+	case models.NameAsc:
+		s["Name"] = "D"
+	case models.NameDes:
+		s["Name"] = "A"
+	case models.PublAsc:
+		s["Publish"] = "D"
+	case models.PublDes:
+		s["Publish"] = "A"
+	case models.PostAsc:
+		s["Posted"] = "D"
+	case models.PostDes:
+		s["Posted"] = "A"
+	case models.SizeAsc:
+		s["Size"] = "D"
+	case models.SizeDes:
+		s["Size"] = "A"
+	case models.DescAsc:
+		s["Description"] = "D"
+	case models.DescDes:
+		s["Description"] = "A"
+	}
+	return Sortings
 }
 
 func Error(err error, c echo.Context) error {

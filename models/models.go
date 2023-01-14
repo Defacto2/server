@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/bengarrett/df2023/postgres/models"
 	"github.com/volatiletech/null/v8"
@@ -20,6 +21,24 @@ const (
 	Art  int = iota // Art are digital + pixel art files.
 	Doc             // Doc are document + text art files.
 	Soft            // Soft are software files.
+)
+
+const (
+	// Name
+	NameAsc = "C=N&O=A"
+	NameDes = "C=N&O=D"
+	// Date published
+	PublAsc = "C=D&O=A"
+	PublDes = "C=D&O=D"
+	// Posted
+	PostAsc = "C=P&O=A"
+	PostDes = "C=P&O=D"
+	// Size
+	SizeAsc = "C=S&O=A"
+	SizeDes = "C=S&O=D"
+	// Description
+	DescAsc = "C=I&O=A"
+	DescDes = "C=I&O=D"
 )
 
 // Counts caches the number of found files fetched from SQL queries.
@@ -82,15 +101,44 @@ func Download(id int, ctx context.Context, db *sql.DB) (*models.File, error) {
 }
 
 // FilesByCategory returns all the files that match a category.
-func FilesByCategory(s string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func FilesByCategory(s, query string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
 	x := null.StringFrom(s)
-	y, err := models.Files(models.FileWhere.Section.EQ(x)).All(ctx, db)
-	for i, z := range y {
-		fmt.Println("->", i, "==>", z.Filename.String, z.DateIssuedYear, z.Createdat, z.Filesize.Int64, z.RecordTitle)
-		fmt.Printf("%T", z.Createdat)
-	}
+	return models.Files(Where("section = ?", x), OrderBy(Clauses(query))).All(ctx, db)
+}
 
-	return y, err
+func Clauses(query string) string {
+	const a, d = "asc", "desc"
+	ca := models.FileColumns.Createdat
+	dy := models.FileColumns.DateIssuedYear
+	dm := models.FileColumns.DateIssuedMonth
+	dd := models.FileColumns.DateIssuedDay
+	fn := models.FileColumns.Filename
+	fs := models.FileColumns.Filesize
+	rt := models.FileColumns.RecordTitle
+	switch strings.ToUpper(query) {
+	case NameAsc:
+		return fmt.Sprintf("%s %s", fn, a)
+	case NameDes:
+		return fmt.Sprintf("%s %s", fn, d)
+	case PublAsc:
+		return fmt.Sprintf("%s %s, %s %s, %s %s", dy, a, dm, a, dd, a)
+	case PublDes:
+		return fmt.Sprintf("%s %s, %s %s, %s %s", dy, d, dm, d, dd, d)
+	case PostAsc:
+		return fmt.Sprintf("%s %s", ca, a)
+	case PostDes:
+		return fmt.Sprintf("%s %s", ca, d)
+	case SizeAsc:
+		return fmt.Sprintf("%s %s", fs, a)
+	case SizeDes:
+		return fmt.Sprintf("%s %s", fs, d)
+	case DescAsc:
+		return fmt.Sprintf("%s %s", rt, a)
+	case DescDes:
+		return fmt.Sprintf("%s %s", rt, d)
+	default:
+		return fmt.Sprintf("%s %s", fn, a)
+	}
 }
 
 // SoftwareCount counts the number of files that could be classified as software.
