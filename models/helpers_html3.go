@@ -25,10 +25,12 @@ import (
 // Depending on the context, any missing time values will be left blank or replaced with ?? question marks.
 func FmtPublish(y, m, d null.Int16) string {
 	const (
-		yx = "????"
-		mx = "???"
-		dx = "??"
-		sp = " "
+		yx       = "????"
+		mx       = "???"
+		dx       = "??"
+		sp       = " "
+		yPadding = 7
+		dPadding = 3
 	)
 	ys, ms, ds := yx, mx, dx
 	if y.Valid {
@@ -47,10 +49,13 @@ func FmtPublish(y, m, d null.Int16) string {
 		}
 	}
 	if isYearOnly := ys != yx && ms == mx && ds == dx; isYearOnly {
-		return fmt.Sprintf("%s%s", strings.Repeat(sp, 7), ys)
+		return fmt.Sprintf("%s%s", strings.Repeat(sp, yPadding), ys)
 	}
 	if isInvalidDay := ys != yx && ms != mx && ds == dx; isInvalidDay {
-		return fmt.Sprintf("%s%s-%s", strings.Repeat(sp, 3), ms, ys)
+		return fmt.Sprintf("%s%s-%s", strings.Repeat(sp, dPadding), ms, ys)
+	}
+	if isInvalid := ys == yx && ms == mx && ds == dx; isInvalid {
+		return fmt.Sprintf("%s%s", strings.Repeat(sp, yPadding), yx)
 	}
 	return fmt.Sprintf("%s-%s-%s", ds, ms, ys)
 }
