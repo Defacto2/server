@@ -16,9 +16,17 @@ import (
 	"github.com/bengarrett/df2023/postgres"
 )
 
-const title = "Index of /html3"
+const (
+	Root  = "/html3"
+	title = "Index of " + Root
+)
 
 var Counts = models.Counts
+
+var LegacyURLs = map[string]string{
+	"/index":            "",
+	"/categories/index": "/categories",
+}
 
 func latency() *time.Time {
 	start := time.Now()
@@ -30,10 +38,12 @@ func latency() *time.Time {
 func Routes(prefix string, e *echo.Echo) {
 	g := e.Group(prefix)
 	g.GET("", Index)
-	g.GET("/index", RedirIndex) // TODO shared redirect func
 	g.GET("/categories", Categories)
 	g.GET("/category/:id", Category)
-	g.GET("/categories/index", RedirCategories)
+	// append legacy redirects
+	for url := range LegacyURLs {
+		g.GET(url, Redirection)
+	}
 }
 
 func Index(c echo.Context) error {
@@ -88,7 +98,8 @@ func Category(c echo.Context) error {
 	}
 	count := len(records)
 	if count == 0 {
-		return echo.NewHTTPError(http.StatusNotFound)
+		return echo.NewHTTPError(http.StatusNotFound,
+			fmt.Sprintf("The category %q doesn't exist", value))
 	}
 	sum, err := models.ByteCountByCategory(value, ctx, db)
 	if err != nil {
@@ -126,15 +137,13 @@ func Error(err error, c echo.Context) error {
 	})
 }
 
-// redirects
-
-func RedirCategories(c echo.Context) error {
-	return c.Redirect(http.StatusPermanentRedirect, "/html3/categories")
-}
-
-func RedirIndex(c echo.Context) error {
-	fmt.Printf("\n\n%+v\n\n", c)
-	fmt.Printf("%+v <<-- %s\n", c.Path(), "")
-	return c.String(500, "oops")
-	// return c.Redirect(http.StatusPermanentRedirect, "/html3")
+func Redirection(c echo.Context) error {
+	for u, redirect := range LegacyURLs {
+		htm := Root + u
+		if htm == c.Path() {
+			return c.Redirect(http.StatusPermanentRedirect, Root+redirect)
+		}
+	}
+	return c.String(http.StatusInternalServerError,
+		fmt.Sprintf("unknown redirection, %q ", c.Path()))
 }

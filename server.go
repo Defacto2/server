@@ -122,7 +122,7 @@ func main() {
 	})
 
 	// Routes => html3
-	html3.Routes("/html3", e)
+	html3.Routes(html3.Root, e)
 
 	// Routes => users
 	e.GET("/users", users.GetAllUsers)
