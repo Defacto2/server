@@ -72,7 +72,8 @@ const FirstPlatform Tag = ANSI
 const LastCategory Tag = Install
 const LastPlatform Tag = Windows
 
-const CategoryCount = int(Install + 1)
+const CategoryCount = int(FirstCategory + LastCategory + 1)
+const PlatformCount = int(LastPlatform - FirstPlatform)
 
 var URIs = URI{
 	Announcement: "announcements",
@@ -121,11 +122,20 @@ var URIs = URI{
 
 func GetURI(s string) Tag {
 	for key, value := range URIs {
-		if s == value {
+		if strings.ToLower(s) == value {
 			return key
 		}
 	}
 	return -1
+}
+
+func GetApps() [5]string {
+	return [5]string{
+		URIs[DOS],
+		URIs[Java],
+		URIs[Linux],
+		URIs[Windows],
+		URIs[Mac]}
 }
 
 var Names = URI{
@@ -163,7 +173,7 @@ var Names = URI{
 	Image:        "Image",
 	Java:         "Java",
 	Linux:        "Linux",
-	Mac:          "MacOS",
+	Mac:          "macOS",
 	PCB:          "PCBoard",
 	PDF:          "PDF",
 	PHP:          "Script",

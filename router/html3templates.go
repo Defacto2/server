@@ -1,10 +1,14 @@
 package router
 
+// HTML templates for the /html3 router group.
+
 import (
 	"errors"
 	"html/template"
 	"io"
 
+	"github.com/bengarrett/df2023/meta"
+	"github.com/bengarrett/df2023/models"
 	"github.com/labstack/echo/v4"
 )
 
@@ -18,6 +22,22 @@ const (
 	dirs   = "public/views/html3/dirs.html"
 	files  = "public/views/html3/files.html"
 )
+
+// TemplateFuncMap are a collection of mapped functions that can be used in a template.
+var TemplateFuncMap = template.FuncMap{
+	"descript":   Description,
+	"linkHref":   FileHref,
+	"linkPad":    FileLinkPad,
+	"linkFile":   Filename,
+	"leading":    Leading,
+	"byteFmt":    LeadFS,
+	"leadInt":    LeadInt,
+	"datePost":   LeadPost,
+	"datePub":    LeadPub,
+	"leadStr":    LeadStr,
+	"iconFmt":    models.Icon,
+	"metaByName": meta.GetMetaByName,
+}
 
 // Render the HTML3 layout template with the core HTML, META and BODY elements.
 func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c echo.Context) error {

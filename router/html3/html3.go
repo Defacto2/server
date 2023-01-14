@@ -13,7 +13,6 @@ import (
 	"github.com/bengarrett/df2023/helpers"
 	"github.com/bengarrett/df2023/meta"
 	"github.com/bengarrett/df2023/models"
-	"github.com/bengarrett/df2023/router"
 	"github.com/labstack/echo/v4"
 
 	"github.com/bengarrett/df2023/postgres"
@@ -86,10 +85,11 @@ func Index(c echo.Context) error {
 	return c.Render(http.StatusOK, "index", map[string]interface{}{
 		"title":       title,
 		"description": desc,
-		"art":         router.LeadInt(5, art),
-		"doc":         router.LeadInt(5, doc),
-		"sw":          router.LeadInt(5, sw),
-		"cat":         router.LeadInt(5, meta.CategoryCount),
+		"art":         art,
+		"doc":         doc,
+		"sw":          sw,
+		"cat":         meta.CategoryCount,
+		"plat":        meta.PlatformCount,
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
 	})
 }

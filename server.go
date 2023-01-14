@@ -18,37 +18,24 @@ import (
 	"github.com/volatiletech/sqlboiler/boil"
 	"go.uber.org/zap"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
-
+	"github.com/bengarrett/df2023/config"
 	"github.com/bengarrett/df2023/internal/server"
 	"github.com/bengarrett/df2023/logger"
 	"github.com/bengarrett/df2023/postgres"
-	"github.com/bengarrett/df2023/postgres/models"
 	"github.com/bengarrett/df2023/router"
-	"github.com/bengarrett/df2023/router/html3"
-	"github.com/bengarrett/df2023/router/users"
 )
 
 //go:embed public/texts/defacto2.txt
 var brand []byte
 
-const (
-	Timeout = 5 * time.Second
-)
-
-type config struct {
-	DBPort       int  `env:"PORT" envDefault:"1323"`
-	IsProduction bool `env:"PRODUCTION"`
-	LogRequests  bool `env:"REQUESTS" envDefault:"false"`
-	NoRobots     bool `env:"NOROBOTS" envDefault:"false"` // TODO
-}
-
 func main() {
-	fmt.Println(string(brand))
+	// Startup logo
+	if logo := string(brand); len(logo) > 0 {
+		fmt.Println(logo)
+	}
 
 	// Enviroment configuration
-	cfg := config{}
+	cfg := config.Config{}
 	if err := env.Parse(&cfg); err != nil {
 		log.Fatalln(err)
 	}
@@ -73,6 +60,7 @@ func main() {
 		log.Fatalln(err)
 	}
 	defer db.Close()
+
 	// SQLBoiler global variant
 	boil.SetDB(db)
 
@@ -83,60 +71,12 @@ func main() {
 		fmt.Print(server.ParsePsVersion(s))
 	}
 
-	// Echo instance
-	e := echo.New()
-	e.HideBanner = true
-
-	// Custom error pages
-	e.HTTPErrorHandler = server.CustomErrorHandler
-
-	// HTML templates
-	e.Renderer = &router.TemplateRegistry{
-		Templates: router.TmplHTML3(),
-	}
-
-	// Static images
-	e.File("favicon.ico", "public/images/favicon.ico")
-	e.Static("/images", "public/images")
-
-	// Middleware
-	e.Use(middleware.RemoveTrailingSlashWithConfig(middleware.TrailingSlashConfig{
-		RedirectCode: http.StatusMovedPermanently,
-	}))
-	if cfg.LogRequests {
-		e.Use(middleware.Logger())
-	}
-	e.Use(middleware.Recover())
-	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
-		Timeout: Timeout,
-	}))
-
-	// Route => handler
-	e.GET("/", func(c echo.Context) error {
-		count, err := models.Files().Count(ctx, db)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		return c.String(http.StatusOK, fmt.Sprintf("Hello, World!\nThere are %d files\n",
-			count))
-	})
-
-	// Routes => html3
-	html3.Routes(html3.Root, e)
-
-	// Routes => users
-	e.GET("/users", users.GetAllUsers)
-	e.POST("/users", users.CreateUser)
-	e.GET("/users/:id", users.GetUser)
-	e.PUT("/users/:id", users.UpdateUser)
-	e.DELETE("/users/:id", users.DeleteUser)
-
-	// Router => downloads
-	e.GET("/d/:id", router.Download)
+	// Echo router/controller instance
+	e := router.Route(cfg)
 
 	// Start server with graceful shutdown
 	go func() {
-		serverAddress := fmt.Sprintf(":%d", cfg.DBPort)
+		serverAddress := fmt.Sprintf(":%d", cfg.DataPort)
 		if err := e.Start(serverAddress); err != nil && err != http.ErrServerClosed {
 			e.Logger.Fatal("shutting down the server")
 		}

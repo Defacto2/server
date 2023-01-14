@@ -6,13 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/bengarrett/df2023/router/html3"
-	"github.com/labstack/echo/v4"
 )
 
 var (
@@ -29,32 +25,6 @@ func ParsePsVersion(s string) string {
 		return fmt.Sprintf(" with %s\n", strings.Join(x[0:2], " "))
 	}
 	return fmt.Sprintln(s)
-}
-
-func CustomErrorHandler(err error, c echo.Context) {
-	splitPaths := func(r rune) bool {
-		return r == '/'
-	}
-	rel := strings.FieldsFunc(c.Path(), splitPaths)
-	html3Route := len(rel) > 0 && rel[0] == "html3"
-	if html3Route {
-		if err := html3.Error(err, c); err != nil {
-			panic(err) // TODO: logger?
-		}
-		return
-	}
-	code := http.StatusInternalServerError
-	msg := "internal server error"
-	if he, ok := err.(*echo.HTTPError); ok {
-		code = he.Code
-		msg = fmt.Sprint(he.Message)
-	}
-	c.Logger().Error(err)
-	c.String(code, fmt.Sprintf("%d - %s", code, msg))
-	// errorPage := fmt.Sprintf("%d.html", code)
-	// if err := c.File(errorPage); err != nil {
-	// 	c.Logger().Error(err)
-	// }
 }
 
 // TODO: remove unused funcs below
