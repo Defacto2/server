@@ -4,6 +4,7 @@ package meta
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/bengarrett/df2023/postgres/models"
 
@@ -186,6 +187,15 @@ type Meta struct {
 }
 
 var Categories []Meta = New()
+
+func GetMetaByName(name string) Meta {
+	for _, m := range Categories {
+		if strings.EqualFold(m.Name, name) {
+			return m
+		}
+	}
+	return Meta{}
+}
 
 func New() []Meta {
 	var m = make([]Meta, len(URIs))

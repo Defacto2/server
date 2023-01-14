@@ -10,6 +10,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/bengarrett/df2023/helpers"
+	"github.com/bengarrett/df2023/meta"
 	"github.com/bengarrett/df2023/models"
 	"github.com/volatiletech/null/v8"
 )
@@ -22,17 +23,18 @@ const (
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 var TemplateFuncMap = template.FuncMap{
-	"leading":  Leading,
-	"leadInt":  LeadInt,
-	"leadStr":  LeadStr,
-	"iconFmt":  models.Icon,
-	"linkFile": FmtFilename,
-	"linkHref": FileHref,
-	"linkPad":  FileLinkPad,
-	"datePub":  LeadPub,
-	"datePost": LeadPost,
-	"byteFmt":  LeadFS,
-	"descript": Description,
+	"leading":    Leading,
+	"leadInt":    LeadInt,
+	"leadStr":    LeadStr,
+	"iconFmt":    models.Icon,
+	"linkFile":   FmtFilename,
+	"linkHref":   FileHref,
+	"linkPad":    FileLinkPad,
+	"datePub":    LeadPub,
+	"datePost":   LeadPost,
+	"byteFmt":    LeadFS,
+	"descript":   Description,
+	"metaByName": meta.GetMetaByName,
 }
 
 // Description returns a HTML3 friendly file description.
