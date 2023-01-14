@@ -87,6 +87,7 @@ func FilesByCategory(s string, ctx context.Context, db *sql.DB) (models.FileSlic
 		fmt.Println("->", i, "==>", z.Filename.String, z.DateIssuedYear, z.Createdat, z.Filesize.Int64, z.RecordTitle)
 		fmt.Printf("%T", z.Createdat)
 	}
+
 	return y, err
 }
 

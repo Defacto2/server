@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"time"
 
 	"github.com/caarlos0/env"
@@ -88,6 +87,9 @@ func main() {
 	e := echo.New()
 	e.HideBanner = true
 
+	// Custom error pages
+	e.HTTPErrorHandler = server.CustomErrorHandler
+
 	// HTML templates
 	e.Renderer = &router.TemplateRegistry{
 		Templates: router.TmplHTML3(),
@@ -108,33 +110,6 @@ func main() {
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
 		Timeout: Timeout,
 	}))
-
-	e.HTTPErrorHandler = func(err error, c echo.Context) {
-		splitPaths := func(r rune) bool {
-			return r == '/'
-		}
-		rel := strings.FieldsFunc(c.Path(), splitPaths)
-		html3Route := len(rel) > 0 && rel[0] == "html3"
-		if html3Route {
-			if err := html3.Error(err, c); err != nil {
-				panic(err) // TODO: logger?
-			}
-			return
-		}
-		code := http.StatusInternalServerError
-		msg := "internal server error"
-		if he, ok := err.(*echo.HTTPError); ok {
-			code = he.Code
-			msg = fmt.Sprint(he.Message)
-		}
-		c.Logger().Error(err)
-		c.String(code, fmt.Sprintf("%d - %s", code, msg))
-		// errorPage := fmt.Sprintf("%d.html", code)
-		// if err := c.File(errorPage); err != nil {
-		// 	c.Logger().Error(err)
-		// }
-
-	}
 
 	// Route => handler
 	e.GET("/", func(c echo.Context) error {
