@@ -75,6 +75,18 @@ func ByteCountByCategory(s string, ctx context.Context, db *sql.DB) (int64, erro
 	return i, err
 }
 
+// ByteCountByPlatform sums the byte filesizes for all the files that match a category.
+func ByteCountByPlatform(s string, ctx context.Context, db *sql.DB) (int64, error) {
+	i, err := models.Files(
+		SQL("SELECT sum(filesize) FROM files WHERE platform = $1",
+			null.StringFrom(s)),
+	).Count(ctx, db)
+	if err != nil {
+		return 0, err
+	}
+	return i, err
+}
+
 // DocumentCount counts the number of files that could be classified as document or text art.
 func DocumentCount(ctx context.Context, db *sql.DB) (int, error) {
 	if c := Counts[Doc]; c > 0 {

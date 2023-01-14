@@ -45,15 +45,32 @@ const (
 	News
 	Nfo
 	NfoTool
+	Pack
 	Proof
 	Restrict
 	Install
 	ANSI
 	Audio
+	DataB
+	DOS
+	Markup
+	Image
+	Java
+	Linux
+	Mac
+	PCB
+	PDF
+	PHP
+	Text
+	TextAmiga
+	Video
+	Windows
 )
 
 const FirstCategory Tag = Announcement
 const FirstPlatform Tag = ANSI
+const LastCategory Tag = Install
+const LastPlatform Tag = Windows
 
 const CategoryCount = int(Install + 1)
 
@@ -80,11 +97,26 @@ var URIs = URI{
 	News:         "newsmedia",
 	Nfo:          "releaseinformation",
 	NfoTool:      "nfotool",
+	Pack:         "package",
 	Proof:        "releaseproof",
 	Restrict:     "internaldocument",
 	Install:      "releaseinstall",
 	ANSI:         "ansi",
 	Audio:        "audio",
+	DataB:        "database",
+	DOS:          "dos",
+	Markup:       "markup",
+	Image:        "image",
+	Java:         "java",
+	Linux:        "linux",
+	Mac:          "mac10",
+	PCB:          "pcb",
+	PDF:          "pdf",
+	PHP:          "phpy",
+	Text:         "text",
+	TextAmiga:    "textamiga",
+	Video:        "video",
+	Windows:      "windows",
 }
 
 func GetURI(s string) Tag {
@@ -119,11 +151,26 @@ var Names = URI{
 	News:         "Mainstream news",
 	Nfo:          "NFO file or scene release",
 	NfoTool:      "NFO tool",
+	Pack:         "filepack",
 	Proof:        "Release proof",
 	Restrict:     "Restricted",
 	Install:      "Scene software install",
 	ANSI:         "ANSI",
 	Audio:        "Music",
+	DataB:        "Database",
+	DOS:          "DOS",
+	Markup:       "HTML",
+	Image:        "Image",
+	Java:         "Java",
+	Linux:        "Linux",
+	Mac:          "MacOS",
+	PCB:          "PCBoard",
+	PDF:          "PDF",
+	PHP:          "Script",
+	TextAmiga:    "Text for Amiga",
+	Text:         "Text or ASCII",
+	Video:        "Video",
+	Windows:      "Windows",
 }
 
 var Infos = Info{
@@ -160,6 +207,29 @@ var Infos = Info{
 	Install:   "A program to help an end-user install a scene release",
 	ANSI:      "Coloured, text based computer art form widely used on Bulletin Board Systems",
 	Audio:     "Music or audio sound clips",
+	DataB: "A structured collection of data stored in particular formats including spreadsheets " +
+		"such as Microsoft Excel or databases such as MySQL",
+	DOS: "Microsoft DOS programs. Programs that require the use of Microsoft's DOS operating " +
+		"system for x86 compatible CPUs",
+	Markup: "Web pages or documents in HTML format. Text documents formatted in a mark-up language",
+	Image:  "Digital art, pixel art or photos",
+	Java:   "Java programs. Programs that require the use of Java",
+	Linux:  "Linux programs. Programs for a Linux compatible operating system",
+	Mac:    "macOS programs. Programs for Apple's macOS & OS X operating system",
+	Pack: "A curated bundle of scene related files stored and distributed in a compressed archive " +
+		"file Often either ZIP or 7z formats",
+	PCB: "Coloured encoded text mainly used on Bulletin Board Systems. Plain text documents " +
+		"embedded with PCBoard control codes",
+	PDF: "A document compiled in PDF (Portable Document Format)",
+	PHP: "Scripts and interpreted programs. Programs that were created in an interpreted " +
+		"programming language",
+	TextAmiga: "Text documents and text based computer art for the Amiga. Monochrome text-based " +
+		"files in a Topaz2 font that use the Latin-1 character set",
+	Text: "Text documents and text based computer art. Monochrome text-based art and plain " +
+		"text files that use an ASCII compliant character set",
+	Video: "A film, video or multimedia animation",
+	Windows: "Microsoft Windows programs. Programs that require the use of Microsoft's Windows " +
+		"operating system, working on Intel-compatible CPUs",
 }
 
 var Counts = Count{
@@ -190,6 +260,21 @@ var Counts = Count{
 	Install:      0,
 	ANSI:         0,
 	Audio:        0,
+	DataB:        0,
+	DOS:          0,
+	Markup:       0,
+	Image:        0,
+	Java:         0,
+	Linux:        0,
+	Mac:          0,
+	Pack:         0,
+	PCB:          0,
+	PDF:          0,
+	PHP:          0,
+	TextAmiga:    0,
+	Text:         0,
+	Video:        0,
+	Windows:      0,
 }
 
 type Meta struct {
@@ -199,7 +284,8 @@ type Meta struct {
 	Count int
 }
 
-var Categories []Meta = New()
+var Categories []Meta = New(FirstCategory, LastCategory)
+var Platforms []Meta = New(FirstPlatform, LastPlatform)
 
 func GetMetaByName(name string) Meta {
 	for _, m := range Categories {
@@ -210,13 +296,10 @@ func GetMetaByName(name string) Meta {
 	return Meta{}
 }
 
-func New() []Meta {
-	var m = make([]Meta, FirstPlatform)
+func New(begin, end Tag) []Meta {
+	var m = make([]Meta, LastPlatform+1)
 	i := -1
 	for key, val := range URIs {
-		if key >= FirstPlatform {
-			continue
-		}
 		i++
 		count := Counts[key]
 		m[i] = Meta{

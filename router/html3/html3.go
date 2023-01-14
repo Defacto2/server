@@ -58,6 +58,8 @@ func Routes(prefix string, e *echo.Echo) {
 	g.GET("", Index)
 	g.GET("/categories", Categories)
 	g.GET("/category/:id", Category)
+	g.GET("/platforms", Platforms)
+	g.GET("//:id", Category)
 	// append legacy redirects
 	for url := range LegacyURLs {
 		g.GET(url, Redirection)
@@ -94,11 +96,13 @@ func Index(c echo.Context) error {
 
 func Categories(c echo.Context) error {
 	start := latency()
-	return c.Render(http.StatusOK, "categories", map[string]interface{}{
-		"title":     title + "/categories",
-		"latency":   fmt.Sprintf("%s.", time.Since(*start)),
-		"tags":      meta.Names,
-		"breakName": meta.FirstPlatform - 1,
+	return c.Render(http.StatusOK, "metadata", map[string]interface{}{
+		"title":    title + "/categories",
+		"latency":  fmt.Sprintf("%s.", time.Since(*start)),
+		"path":     "category",
+		"tagFirst": meta.FirstCategory,
+		"tagEnd":   meta.LastCategory,
+		"tags":     meta.Names,
 	})
 }
 
@@ -138,6 +142,18 @@ func Category(c echo.Context) error {
 		"sort":        sorter,
 		"records":     records,
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
+	})
+}
+
+func Platforms(c echo.Context) error {
+	start := latency()
+	return c.Render(http.StatusOK, "metadata", map[string]interface{}{
+		"title":    title + "/platforms",
+		"latency":  fmt.Sprintf("%s.", time.Since(*start)),
+		"path":     "platform",
+		"tagFirst": meta.FirstPlatform,
+		"tagEnd":   meta.LastPlatform,
+		"tags":     meta.Names,
 	})
 }
 
