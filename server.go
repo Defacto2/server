@@ -168,18 +168,23 @@ func main() {
 	}()
 
 	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 10 seconds.
-	// Use a buffered channel to avoid missing signals as recommended for signal.Notify
-	// TODO: confirm shutdown with a prompt requiring an all caps YES.
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	const shutdown = 10 * time.Second
+	ctx, cancel := context.WithTimeout(context.Background(), shutdown)
 	defer func() {
+		fmt.Printf("\nDetected Ctrl-C, server will shutdown in %s\n", shutdown)
+		select {
+		case <-quit:
+			cancel()
+		case <-ctx.Done():
+		}
+		if err := e.Shutdown(ctx); err != nil {
+			e.Logger.Fatal(err)
+		}
+		log.Infoln("graceful server shutdown complete")
+		signal.Stop(quit)
 		cancel()
 	}()
-	if err := e.Shutdown(ctx); err != nil {
-		e.Logger.Fatal(err)
-	}
-	log.Infoln("graceful server shutdown complete")
-
 }
