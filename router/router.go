@@ -4,7 +4,6 @@ package router
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"path/filepath"
 
@@ -12,13 +11,15 @@ import (
 	"github.com/bengarrett/df2023/models"
 	"github.com/bengarrett/df2023/postgres"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 )
 
+// Download serves files to the user and prompts for a save location.
+// The download relies on the URL ID parameter to determine the requested file.
 func Download(c echo.Context) error {
 	// https://go.dev/src/net/http/status.go
-	uri := c.Param("id")
 	// get id
-	id := helpers.Deobfuscate(uri)
+	id := helpers.Deobfuscate(c.Param("id"))
 	if id <= 0 {
 		return echo.NewHTTPError(http.StatusNotFound,
 			"The download record cannot be located on the server")
@@ -40,19 +41,16 @@ func Download(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound,
 			"The download record cannot be located on the server")
 	}
-	// build filepath
-	file := filepath.Join("public", "images", "html3", "burst.gifx")
+	// build the source filepath
+	file := filepath.Join("public", "images", "html3", "burst.gif")
 	if !helpers.IsExist(file) {
 		return echo.NewHTTPError(http.StatusNotFound,
 			"The file for download cannot be located on the server")
 	}
-	// check local file exists
-	fmt.Printf("\nFILE DOWNLOAD: %s\n",
-		res.Filename.String)
-	// print log to console
+	// pass the original filename to the client browser
 	name := res.Filename.String
 	if name == "" {
-		// log
+		log.Info("no filename exists for record: %d", id)
 		name = file
 	}
 	return c.Attachment(file, name)

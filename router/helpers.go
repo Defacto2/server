@@ -20,6 +20,7 @@ const (
 	noValue = "-"
 )
 
+// TemplateFuncMap are a collection of mapped functions that can be used in a template.
 var TemplateFuncMap = template.FuncMap{
 	"leading":  Leading,
 	"leadInt":  LeadInt,

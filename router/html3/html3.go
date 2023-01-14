@@ -1,3 +1,5 @@
+// Package html3 handles the routes and views for the retro,
+// mini-website that is rendered in HTML 3 syntax.
 package html3
 
 import (
