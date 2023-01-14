@@ -63,3 +63,6 @@ Boiler guide: https://blog.logrocket.com/introduction-sqlboiler-go-framework-orm
 Live reloading
 go install github.com/cosmtrek/air@latest
 https://thedevelopercafe.com/articles/live-reload-in-go-with-air-4eff64b7a642
+
+SQL in Go with SQLBoiler
+https://thedevelopercafe.com/articles/sql-in-go-with-sqlboiler-ac8efc4c5cb8

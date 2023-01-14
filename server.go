@@ -1,9 +1,11 @@
+// The Defacto2 web application built in 2023.
+// (c) 2013 Ben Garrett.
+// https://defacto2.net
 package main
-
-// https://thedevelopercafe.com/articles/sql-in-go-with-sqlboiler-ac8efc4c5cb8
 
 import (
 	"context"
+	_ "embed"
 	"fmt"
 	"log"
 	"net/http"
@@ -20,6 +22,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
+	"github.com/bengarrett/df2023/internal/server"
 	"github.com/bengarrett/df2023/logger"
 	"github.com/bengarrett/df2023/postgres"
 	"github.com/bengarrett/df2023/postgres/models"
@@ -27,6 +30,9 @@ import (
 	"github.com/bengarrett/df2023/router/html3"
 	"github.com/bengarrett/df2023/router/users"
 )
+
+//go:embed public/texts/defacto2.txt
+var brand []byte
 
 const (
 	Timeout = 5 * time.Second
@@ -36,9 +42,12 @@ type config struct {
 	DBPort       int  `env:"PORT" envDefault:"1323"`
 	IsProduction bool `env:"PRODUCTION"`
 	LogRequests  bool `env:"REQUESTS" envDefault:"false"`
+	NoRobots     bool `env:"NOROBOTS" envDefault:"false"` // TODO
 }
 
 func main() {
+	fmt.Println(string(brand))
+
 	// Enviroment configuration
 	cfg := config{}
 	if err := env.Parse(&cfg); err != nil {
@@ -51,12 +60,11 @@ func main() {
 	case true:
 		log = logger.Production().Sugar()
 		defer log.Sync()
-		// todo: make a meaningful startup message for file logging
-		log.Info("Defacto2 web application")
+		fmt.Print("Defacto2 web application")
 	default:
 		log = logger.Development().Sugar()
 		defer log.Sync()
-		log.Info("Defacto2 web application development")
+		fmt.Print("Defacto2 web application development")
 	}
 
 	// Database
@@ -70,10 +78,10 @@ func main() {
 	boil.SetDB(db)
 
 	// Check the database connection
-	if ver, err := postgres.Version(); err != nil {
+	if s, err := postgres.Version(); err != nil {
 		log.Error("could not obtain the postgres version, is the database online? ", err)
 	} else {
-		fmt.Println(ver)
+		fmt.Print(server.ParsePsVersion(s))
 	}
 
 	// Echo instance
@@ -138,12 +146,6 @@ func main() {
 			count))
 	})
 
-	e.GET("/oooo", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "template.html", map[string]interface{}{
-			"name": "OoooOoooOoooO",
-		})
-	}).Name = "foobar"
-
 	// Routes => html3
 	html3.Routes("/html3", e)
 
@@ -155,12 +157,12 @@ func main() {
 	e.DELETE("/users/:id", users.DeleteUser)
 
 	// Router => downloads
-	e.GET("/d/:id", html3.DownloadX)
+	e.GET("/d/:id", router.Download)
 
 	// Start server with graceful shutdown
 	go func() {
-		addr := fmt.Sprintf(":%d", cfg.DBPort)
-		if err := e.Start(addr); err != nil && err != http.ErrServerClosed {
+		serverAddress := fmt.Sprintf(":%d", cfg.DBPort)
+		if err := e.Start(serverAddress); err != nil && err != http.ErrServerClosed {
 			e.Logger.Fatal("shutting down the server")
 		}
 	}()
@@ -172,9 +174,12 @@ func main() {
 	signal.Notify(quit, os.Interrupt)
 	<-quit
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	defer func() {
+		cancel()
+	}()
 	if err := e.Shutdown(ctx); err != nil {
 		e.Logger.Fatal(err)
 	}
 	log.Infoln("graceful server shutdown complete")
+
 }

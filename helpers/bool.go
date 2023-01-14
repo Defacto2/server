@@ -14,6 +14,7 @@ func Find(name string, names ...string) bool {
 	return false
 }
 
+// IsExist stats the named file or directory to confirm it exists on the system.
 func IsExist(name string) bool {
 	if _, err := os.Stat(name); err != nil {
 		if os.IsNotExist(err) {

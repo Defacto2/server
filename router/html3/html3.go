@@ -101,16 +101,6 @@ func Category(c echo.Context) error {
 	})
 }
 
-func DownloadX(c echo.Context) error {
-	err := router.Download(c)
-	if err != nil {
-		return Error(err, c)
-	}
-	return nil
-	// return c.Render(http.StatusOK, "categories", map[string]interface{}{
-	// TODO: if err then render a HTML3 template error
-}
-
 func Error(err error, c echo.Context) error {
 	// Echo custom error handling: https://echo.labstack.com/guide/error-handling/
 	start := latency()
