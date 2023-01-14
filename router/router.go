@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/bengarrett/df2023/helpers"
-	"github.com/bengarrett/df2023/models"
-	"github.com/bengarrett/df2023/postgres"
+	"github.com/Defacto2/server/helpers"
+	"github.com/Defacto2/server/models"
+	"github.com/Defacto2/server/postgres"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 )

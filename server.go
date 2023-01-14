@@ -18,11 +18,11 @@ import (
 	"github.com/volatiletech/sqlboiler/boil"
 	"go.uber.org/zap"
 
-	"github.com/bengarrett/df2023/config"
-	"github.com/bengarrett/df2023/internal/server"
-	"github.com/bengarrett/df2023/logger"
-	"github.com/bengarrett/df2023/postgres"
-	"github.com/bengarrett/df2023/router"
+	"github.com/Defacto2/server/config"
+	"github.com/Defacto2/server/internal/server"
+	"github.com/Defacto2/server/logger"
+	"github.com/Defacto2/server/postgres"
+	"github.com/Defacto2/server/router"
 )
 
 //go:embed public/texts/defacto2.txt

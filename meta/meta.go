@@ -6,9 +6,9 @@ import (
 	"log"
 	"strings"
 
-	"github.com/bengarrett/df2023/postgres/models"
+	"github.com/Defacto2/server/postgres/models"
 
-	"github.com/bengarrett/df2023/postgres"
+	"github.com/Defacto2/server/postgres"
 	. "github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 

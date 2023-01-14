@@ -10,12 +10,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bengarrett/df2023/helpers"
-	"github.com/bengarrett/df2023/meta"
-	"github.com/bengarrett/df2023/models"
+	"github.com/Defacto2/server/helpers"
+	"github.com/Defacto2/server/meta"
+	"github.com/Defacto2/server/models"
 	"github.com/labstack/echo/v4"
 
-	"github.com/bengarrett/df2023/postgres"
+	"github.com/Defacto2/server/postgres"
 )
 
 const (

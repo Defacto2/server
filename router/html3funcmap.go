@@ -10,9 +10,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/bengarrett/df2023/helpers"
-	"github.com/bengarrett/df2023/meta"
-	"github.com/bengarrett/df2023/models"
+	"github.com/Defacto2/server/helpers"
+	"github.com/Defacto2/server/meta"
+	"github.com/Defacto2/server/models"
 	"github.com/volatiletech/null/v8"
 )
 

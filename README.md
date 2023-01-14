@@ -22,7 +22,7 @@ failed running: mysql [--defaults-file=/tmp/optionfile3646082045]
 mysql: unknown variable 'ssl-mode=DISABLED'
 
 Unable to execute setup: exit status 7
-FAIL	github.com/bengarrett/df2023/models	0.010s
+FAIL	github.com/Defacto2/server/models	0.010s
 FAIL
 ```
 

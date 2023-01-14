@@ -7,8 +7,8 @@ import (
 	"html/template"
 	"io"
 
-	"github.com/bengarrett/df2023/meta"
-	"github.com/bengarrett/df2023/models"
+	"github.com/Defacto2/server/meta"
+	"github.com/Defacto2/server/models"
 	"github.com/labstack/echo/v4"
 )
 

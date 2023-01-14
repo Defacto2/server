@@ -1,4 +1,4 @@
-module github.com/bengarrett/df2023
+module github.com/Defacto2/server
 
 go 1.19
 

@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/bengarrett/df2023/config"
-	"github.com/bengarrett/df2023/router/html3"
-	"github.com/bengarrett/df2023/router/users"
+	"github.com/Defacto2/server/config"
+	"github.com/Defacto2/server/router/html3"
+	"github.com/Defacto2/server/router/users"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
