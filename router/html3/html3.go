@@ -94,10 +94,15 @@ func Index(c echo.Context) error {
 	defer db.Close()
 
 	// TODO: defer and cache results
-	art, doc, sw := 0, 0, 0
+	art, doc, sw, grp := 0, 0, 0, 1
 	art, _ = models.ArtImagesCount(ctx, db)
 	doc, _ = models.DocumentCount(ctx, db)
 	sw, _ = models.SoftwareCount(ctx, db)
+	grp, err = models.GroupCount(ctx, db)
+	if err != nil {
+		fmt.Println("---->", err.Error(), "\n\n")
+	}
+	fmt.Println("----->>>", grp)
 
 	return c.Render(http.StatusOK, "index", map[string]interface{}{
 		"title":       title,
@@ -105,6 +110,7 @@ func Index(c echo.Context) error {
 		"art":         art,
 		"doc":         doc,
 		"sw":          sw,
+		"grp":         grp,
 		"cat":         meta.CategoryCount,
 		"plat":        meta.PlatformCount,
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),

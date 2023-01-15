@@ -159,6 +159,23 @@ func Clauses(query string) string {
 	}
 }
 
+func Groups(ctx context.Context, db *sql.DB) ([]string, error) {
+	q, err := models.Files(Distinct("group_brand_for"), Where("length(group_brand_for) > ?", 0)).All(ctx, db)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(q)
+	return nil, nil
+}
+
+func GroupCount(ctx context.Context, db *sql.DB) (int, error) {
+	c, err := models.Files(Distinct("group_brand_for"), Where("length(group_brand_for) > ?", 0)).Count(ctx, db)
+	if err != nil {
+		return -1, err
+	}
+	return int(c), nil
+}
+
 // SoftwareCount counts the number of files that could be classified as software.
 func SoftwareCount(ctx context.Context, db *sql.DB) (int, error) {
 	if c := Counts[Soft]; c > 0 {

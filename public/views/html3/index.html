@@ -3,6 +3,7 @@
 {{- $arts := index . "art" }}
 {{- $docs := index . "doc" }}
 {{- $sws := index . "sw" }}
+{{- $grp := index . "grp" }}
 {{- $plas := index . "plat" }}
 {{- $cats := index . "cat" }}
 <img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/art">Digital + pixel art</a>
@@ -12,7 +13,7 @@
 <img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/software">Software</a>
 {{- leading 33}}{{leadInt 5 $sws}}   Applications and programs for any platform.
 <img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/groups">by Group</a>
-{{- leading 37}}-   List files categorised by group or organisation.
+{{- leading 33}}{{leadInt 5 $grp}}   List files categorised by group or organisation.
 <img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/platforms">by Platform and media</a>
 {{- leading 20}}{{leadInt 5 $plas}}   List files categorised by {{$plas}} operating systems and media formats.
 <img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/categories">by Category</a>
