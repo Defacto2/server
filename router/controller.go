@@ -12,7 +12,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func Route(cfg config.Config) *echo.Echo {
+func Route(configs config.Config) *echo.Echo {
 
 	e := echo.New()
 	e.HideBanner = true
@@ -33,13 +33,18 @@ func Route(cfg config.Config) *echo.Echo {
 	e.Use(middleware.RemoveTrailingSlashWithConfig(middleware.TrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,
 	}))
-	if cfg.LogRequests {
+	if configs.LogRequests {
 		e.Use(middleware.Logger())
 	}
 	e.Use(middleware.Recover())
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
 		Timeout: config.Timeout,
 	}))
+
+	// Response headers
+	if configs.NoRobots {
+		e.Use(NoRobotsHeader)
+	}
 
 	// Route => handler
 	e.GET("/", func(c echo.Context) error {
@@ -88,4 +93,15 @@ func CustomErrorHandler(err error, c echo.Context) {
 	// if err := c.File(errorPage); err != nil {
 	// 	c.Logger().Error(err)
 	// }
+}
+
+// NoRobotsHeader middleware adds a `X-Robots-Tag` with noindex
+// and nofollow header to the response.
+// https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag#xrobotstag
+func NoRobotsHeader(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		const HeaderXRobotsTag = "X-Robots-Tag"
+		c.Response().Header().Set(HeaderXRobotsTag, "noindex, nofollow")
+		return next(c)
+	}
 }

@@ -28,6 +28,9 @@ import (
 //go:embed public/texts/defacto2.txt
 var brand []byte
 
+// TODO:
+// bind sqlboiler statements: https://thedevelopercafe.com/articles/sql-in-go-with-sqlboiler-ac8efc4c5cb8
+
 func main() {
 	// Startup logo
 	if logo := string(brand); len(logo) > 0 {
@@ -35,14 +38,14 @@ func main() {
 	}
 
 	// Enviroment configuration
-	cfg := config.Config{}
-	if err := env.Parse(&cfg); err != nil {
+	configs := config.Config{}
+	if err := env.Parse(&configs); err != nil {
 		log.Fatalln(err)
 	}
 
 	// Logger
 	var log *zap.SugaredLogger
-	switch cfg.IsProduction {
+	switch configs.IsProduction {
 	case true:
 		log = logger.Production().Sugar()
 		defer log.Sync()
@@ -72,11 +75,11 @@ func main() {
 	}
 
 	// Echo router/controller instance
-	e := router.Route(cfg)
+	e := router.Route(configs)
 
 	// Start server with graceful shutdown
 	go func() {
-		serverAddress := fmt.Sprintf(":%d", cfg.DataPort)
+		serverAddress := fmt.Sprintf(":%d", configs.HTTPPort)
 		if err := e.Start(serverAddress); err != nil && err != http.ErrServerClosed {
 			e.Logger.Fatal("shutting down the server")
 		}
