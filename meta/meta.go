@@ -122,7 +122,7 @@ var Counts = Count{
 	Windows:      0,
 }
 
-var Tags []Meta = New()
+var Tags []Meta = GetTags()
 
 func GetApps() [5]string {
 	return [5]string{
@@ -142,7 +142,7 @@ func GetMetaByName(name string) Meta {
 	return Meta{}
 }
 
-func New() []Meta {
+func GetTags() []Meta {
 	var m = make([]Meta, LastPlatform+1)
 	i := -1
 	for key, val := range URIs {

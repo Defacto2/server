@@ -112,10 +112,16 @@ func Download(id int, ctx context.Context, db *sql.DB) (*models.File, error) {
 	return file, err
 }
 
-// FilesByCategory returns all the files that match a category.
+// FilesByCategory returns all the files that match a category tag.
 func FilesByCategory(s, query string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
 	x := null.StringFrom(s)
 	return models.Files(Where("section = ?", x), OrderBy(Clauses(query))).All(ctx, db)
+}
+
+// FilesByPlatform returns all the files that match a platform tag.
+func FilesByPlatform(s, query string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+	x := null.StringFrom(s)
+	return models.Files(Where("platform = ?", x), OrderBy(Clauses(query))).All(ctx, db)
 }
 
 func Clauses(query string) string {

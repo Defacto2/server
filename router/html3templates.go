@@ -52,7 +52,8 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c 
 func TmplHTML3() map[string]*template.Template {
 	templates := make(map[string]*template.Template)
 	templates["index"] = index()
-	templates["category"] = category()
+	templates["category"] = list()
+	templates["platform"] = list()
 	templates["error"] = serverErrs()
 	templates["metadata"] = metadata()
 	return templates
@@ -63,7 +64,7 @@ func index() *template.Template {
 		layout, dirs, "public/views/html3/index.html"))
 }
 
-func category() *template.Template {
+func list() *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles(
 		layout, files, "public/views/html3/files.html"))
 }
