@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/server/config"
 	"github.com/Defacto2/server/router/html3"
@@ -38,7 +39,7 @@ func Route(configs config.Config) *echo.Echo {
 	}
 	e.Use(middleware.Recover())
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
-		Timeout: config.Timeout,
+		Timeout: time.Duration(configs.Timeout) * time.Second,
 	}))
 
 	// Response headers
