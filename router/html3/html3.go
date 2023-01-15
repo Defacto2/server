@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Defacto2/sceners"
 	"github.com/Defacto2/server/helpers"
 	"github.com/Defacto2/server/meta"
 	"github.com/Defacto2/server/models"
@@ -24,14 +25,15 @@ type TagType int
 const (
 	SectionTag TagType = iota
 	PlatformTag
+	GroupTag
 )
 
 func (t TagType) String() string {
-	return [...]string{"category", "platform"}[t]
+	return [...]string{"category", "platform", "group"}[t]
 }
 
 func (t TagType) Parent() string {
-	return [...]string{"categories", "platforms"}[t]
+	return [...]string{"categories", "platforms", "groups"}[t]
 }
 
 const (
@@ -76,6 +78,8 @@ func Routes(prefix string, e *echo.Echo) {
 	g.GET("/category/:id", Category)
 	g.GET("/platforms", Platforms)
 	g.GET("/platform/:id", Platform)
+	g.GET("/groups", Groups)
+	g.GET("/group/:id", Group)
 	// append legacy redirects
 	for url := range LegacyURLs {
 		g.GET(url, Redirection)
@@ -94,15 +98,12 @@ func Index(c echo.Context) error {
 	defer db.Close()
 
 	// TODO: defer and cache results
-	art, doc, sw, grp := 0, 0, 0, 1
+	art, doc, sw, grp := 0, 0, 0, 0
+	// TODO: log errors
 	art, _ = models.ArtImagesCount(ctx, db)
 	doc, _ = models.DocumentCount(ctx, db)
 	sw, _ = models.SoftwareCount(ctx, db)
-	grp, err = models.GroupCount(ctx, db)
-	if err != nil {
-		fmt.Println("---->", err.Error(), "\n\n")
-	}
-	fmt.Println("----->>>", grp)
+	grp, _ = models.GroupsTotalCount(ctx, db)
 
 	return c.Render(http.StatusOK, "index", map[string]interface{}{
 		"title":       title,
@@ -141,12 +142,37 @@ func Platforms(c echo.Context) error {
 	})
 }
 
+func Groups(c echo.Context) error {
+	start := latency()
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	s, err := models.Groups(ctx, db)
+	if err != nil {
+		return err
+	}
+	fmt.Println("GROUP COUNT", len(s))
+	return c.Render(http.StatusOK, "group", map[string]interface{}{
+		"title":   title + "/groups",
+		"latency": fmt.Sprintf("%s.", time.Since(*start)),
+		"path":    "group",
+		"sceners": s,
+	})
+}
+
 func Category(c echo.Context) error {
 	return Tag(SectionTag, c)
 }
 
 func Platform(c echo.Context) error {
 	return Tag(PlatformTag, c)
+}
+
+func Group(c echo.Context) error {
+	return Tag(GroupTag, c)
 }
 
 func Tag(tt TagType, c echo.Context) error {
@@ -164,11 +190,15 @@ func Tag(tt TagType, c echo.Context) error {
 		records, err = models.FilesByCategory(value, c.QueryString(), ctx, db)
 	case PlatformTag:
 		records, err = models.FilesByPlatform(value, c.QueryString(), ctx, db)
+	case GroupTag:
+		name := sceners.CleanURL(value) //CleanURL(value)
+		records, err = models.FilesByGroup(name, c.QueryString(), ctx, db)
 	}
 	if err != nil {
 		return err
 	}
 	count := len(records)
+	fmt.Println("VALUE", value, count)
 	if count == 0 {
 		return echo.NewHTTPError(http.StatusNotFound,
 			fmt.Sprintf("The %s %q doesn't exist", tt, value))

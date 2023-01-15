@@ -8,7 +8,7 @@
 <img src="/images/html3/back.gif" alt="[DIR]"> <a href="/html3/index">{{$parent}}</a>{{leadStr $padding $parent}}    -   Return to the HTML3 index.
 {{ range $index, $value := .tags -}} 
 {{- $meta := metaByName $value -}}
-{{if lt $index $first}}{{continue}}{{end -}}
-{{if gt $index $end}}{{break}}{{end -}}
+{{if and (gt $first 0) (lt $index $first)}}{{continue}}{{end -}}
+{{if and (gt $first 0) (gt $index $end)}}{{break}}{{end -}}
 <img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/{{ $path }}/{{ $meta.URI }}">{{$meta.Name}}</a>{{leadStr $padding $meta.Name}}{{leadInt 5 $meta.Count}}   {{ $meta.Info }}.
 {{end}}{{end}}

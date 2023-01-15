@@ -56,6 +56,7 @@ func TmplHTML3() map[string]*template.Template {
 	templates["platform"] = list()
 	templates["error"] = serverErrs()
 	templates["metadata"] = metadata()
+	templates["group"] = groups()
 	return templates
 }
 
@@ -72,6 +73,11 @@ func list() *template.Template {
 func metadata() *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles(
 		layout, dirs, "public/views/html3/metadata.html"))
+}
+
+func groups() *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles(
+		layout, dirs, "public/views/html3/groups.html"))
 }
 
 func serverErrs() *template.Template {
