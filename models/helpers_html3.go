@@ -182,5 +182,5 @@ func IsVideo(name string) bool {
 // IsExt returns true if the file extension of the named file is found in the collection of extensions.
 func IsExt(name string, extensions ...string) bool {
 	ext := strings.ToLower(filepath.Ext(name))
-	return helpers.Find(ext, extensions...)
+	return helpers.Finds(ext, extensions...)
 }

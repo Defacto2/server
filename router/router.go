@@ -43,7 +43,7 @@ func Download(c echo.Context) error {
 	}
 	// build the source filepath
 	file := filepath.Join("public", "images", "html3", "burst.gif")
-	if !helpers.IsExist(file) {
+	if !helpers.IsStat(file) {
 		return echo.NewHTTPError(http.StatusNotFound,
 			"The file for download cannot be located on the server")
 	}

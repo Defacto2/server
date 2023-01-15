@@ -136,7 +136,7 @@ func isApp(platform null.String) bool {
 	s := meta.GetApps()
 	apps := s[:]
 	plat := strings.TrimSpace(strings.ToLower(platform.String))
-	return helpers.Find(plat, apps...)
+	return helpers.Finds(plat, apps...)
 }
 
 // fmtApp returns the application platform as a string.
