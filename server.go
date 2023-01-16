@@ -75,7 +75,7 @@ func main() {
 	}
 
 	// Echo router/controller instance
-	e := router.Route(configs)
+	e := router.Route(configs, log)
 
 	// Start server with graceful shutdown
 	go func() {

@@ -2,17 +2,13 @@
 package server
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 )
 
-var (
-	ErrEmpty    = errors.New("empty directory input")
-	ErrNoReader = errors.New("reader cannot be nil, it should be os.stdin")
-)
-
+// ParsePsVersion returns the database server name and version
+// from the PosgreSQL result of the "SELECT version();" SQL statement.
 func ParsePsVersion(s string) string {
 	if x := strings.Split(s, " "); len(x) > 2 {
 		_, err := strconv.ParseFloat(x[1], 32)

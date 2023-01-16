@@ -3,7 +3,6 @@ package router
 import (
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/Defacto2/server/config"
@@ -11,15 +10,30 @@ import (
 	"github.com/Defacto2/server/router/users"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"go.uber.org/zap"
 )
 
-func Route(configs config.Config) *echo.Echo {
+func Route(configs config.Config, log *zap.SugaredLogger) *echo.Echo {
 
 	e := echo.New()
 	e.HideBanner = true
 
 	// Custom error pages
-	e.HTTPErrorHandler = CustomErrorHandler
+	// NOTE: this does not work with middleware loggers
+	// as they will always render a 200 code
+	//
+	// e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+	// 	return func(c echo.Context) error {
+	// 		// Extract the credentials from HTTP request header and perform a security
+	// 		// check
+
+	// 		// For invalid credentials
+	// 		return echo.NewHTTPError(http.StatusUnauthorized, "Please provide valid credentials")
+
+	// 		// For valid credentials call next
+	// 		// return next(c)
+	// 	}
+	// })
 
 	// HTML templates
 	e.Renderer = &TemplateRegistry{
@@ -31,16 +45,17 @@ func Route(configs config.Config) *echo.Echo {
 	e.Static("/images", "public/images")
 
 	// Middleware
+
 	e.Use(middleware.RemoveTrailingSlashWithConfig(middleware.TrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,
 	}))
-	if configs.LogRequests {
-		e.Use(middleware.Logger())
-	}
 	e.Use(middleware.Recover())
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
 		Timeout: time.Duration(configs.Timeout) * time.Second,
 	}))
+
+	// HTTP status logger
+	e.Use(configs.LoggerMiddleware)
 
 	// Response headers
 	if configs.NoRobots {
@@ -67,33 +82,9 @@ func Route(configs config.Config) *echo.Echo {
 	// Router => downloads
 	e.GET("/d/:id", Download)
 
-	return e
-}
+	e.HTTPErrorHandler = configs.CustomErrorHandler
 
-func CustomErrorHandler(err error, c echo.Context) {
-	splitPaths := func(r rune) bool {
-		return r == '/'
-	}
-	rel := strings.FieldsFunc(c.Path(), splitPaths)
-	html3Route := len(rel) > 0 && rel[0] == "html3"
-	if html3Route {
-		if err := html3.Error(err, c); err != nil {
-			panic(err) // TODO: logger?
-		}
-		return
-	}
-	code := http.StatusInternalServerError
-	msg := "internal server error"
-	if he, ok := err.(*echo.HTTPError); ok {
-		code = he.Code
-		msg = fmt.Sprint(he.Message)
-	}
-	c.Logger().Error(err)
-	c.String(code, fmt.Sprintf("%d - %s", code, msg))
-	// errorPage := fmt.Sprintf("%d.html", code)
-	// if err := c.File(errorPage); err != nil {
-	// 	c.Logger().Error(err)
-	// }
+	return e
 }
 
 // NoRobotsHeader middleware adds a `X-Robots-Tag` with noindex
