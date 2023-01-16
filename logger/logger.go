@@ -2,7 +2,6 @@
 package logger
 
 import (
-	"io/fs"
 	"os"
 	"path/filepath"
 
@@ -12,12 +11,11 @@ import (
 )
 
 const (
-	ServerLog  = "server.log"
-	InfoLog    = "info.log"
-	LogMode    = fs.FileMode(0640)
-	MaxSizeMB  = 100
-	MaxBackups = 5
-	MaxDays    = 45
+	ServerLog  = "server.log" // Filename of the Error, Panic and Fatal level log.
+	InfoLog    = "info.log"   // Filename of the Warn and Info level log.
+	MaxSizeMB  = 100          // Maximum file size in megabytes before a log rotation.
+	MaxBackups = 5            // Maximum number of rotated logs to keep, older logs are deleted.
+	MaxDays    = 45           // Maximum days a log is kept before a log rotation.
 )
 
 /*
