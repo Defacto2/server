@@ -12,6 +12,7 @@ import (
 
 // ByteCount formats b as in a compact, human-readable unit of measure.
 func ByteCount(b int64) string {
+	// source: https://yourbasic.org/golang/formatting-byte-size-to-human-readable-format/
 	const unit = 1024
 	if b < unit {
 		return fmt.Sprintf("%d%s", b, strings.Repeat(" ", 1))

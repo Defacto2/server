@@ -20,57 +20,34 @@ import (
 	pgm "github.com/Defacto2/server/postgres/models"
 )
 
-type TagType int
+// GroupBy are the record groupings.
+type GroupBy int
 
 const (
-	SectionTag TagType = iota
-	PlatformTag
-	GroupTag
+	BySection  GroupBy = iota // BySection groups records by the section file table column.
+	ByPlatform                // BySection groups records by the platform file table column.
+	ByGroup                   // ByGroup groups the records by the distinct, group_brand_for file table column.
+
+	asc  = "A" // asc is order by ascending.
+	desc = "D" // desc is order by descending.
 )
 
-func (t TagType) String() string {
+func (t GroupBy) String() string {
 	return [...]string{"category", "platform", "group"}[t]
 }
 
-func (t TagType) Parent() string {
+func (t GroupBy) Parent() string {
 	return [...]string{"categories", "platforms", "groups"}[t]
 }
 
 const (
-	Root  = "/html3"
+	Root  = "/html3" // Root path of the HTML3 router group.
 	title = "Index of " + Root
 )
 
 var Counts = models.Counts
 
-var LegacyURLs = map[string]string{
-	"/index":            "",
-	"/categories/index": "/categories",
-	"/platforms/index":  "/platforms",
-}
-
-var Sortings = map[string]string{
-	"Name":        "A",
-	"Publish":     "A",
-	"Posted":      "A",
-	"Size":        "A",
-	"Description": "A",
-}
-
-// 	e.GET("/users/:name", func(c echo.Context) error {
-// 		name := c.Param("name")
-// 		return c.String(http.StatusOK, name)
-//  })
-//
-//  curl http://localhost:1323/users/Joe
-
-func latency() *time.Time {
-	start := time.Now()
-	r := new(big.Int)
-	r.Binomial(1000, 10)
-	return &start
-}
-
+// Routes for the /html3 sub-route group.
 func Routes(prefix string, e *echo.Echo) {
 	g := e.Group(prefix)
 	g.GET("", Index)
@@ -86,6 +63,36 @@ func Routes(prefix string, e *echo.Echo) {
 	}
 }
 
+// LegacyURLs are partial URL routers that are to be redirected with a HTTP 308
+// permanent redirect status code. These are for retired URL syntaxes that are still
+// found on websites online, so their links to Defacto2 do not break with 404, not found errors.
+var LegacyURLs = map[string]string{
+	"/index":            "",
+	"/categories/index": "/categories",
+	"/platforms/index":  "/platforms",
+}
+
+// Sort is the display name of column that can be used to sort and order the records.
+type Sort string
+
+const (
+	Name    Sort = "Name"        // Sort records by the filename.
+	Publish Sort = "Publish"     // Sort records by the published year, month and day.
+	Posted  Sort = "Posted"      // Sort records by the record creation dated.
+	Size    Sort = "Size"        // Sort records by the file size in byte units.
+	Desc    Sort = "Description" // Sort the records by the title.
+)
+
+// Sortings are the name and order of columns that the records can be ordered by.
+var Sortings = map[Sort]string{
+	Name:    asc,
+	Publish: asc,
+	Posted:  asc,
+	Size:    asc,
+	Desc:    asc,
+}
+
+// Index is the homepage of the /html3 sub-route.
 func Index(c echo.Context) error {
 	const desc = "Welcome to the Firefox 2 era (October 2006) Defacto2 website, " +
 		"that is friendly for legacy operating systems including Windows 9x, NT-4, OS-X 10.2." // TODO: share this with html meta OR make this html templ
@@ -118,6 +125,7 @@ func Index(c echo.Context) error {
 	})
 }
 
+// Categories lists the names, descriptions and sums of the category (section) tags.
 func Categories(c echo.Context) error {
 	start := latency()
 	return c.Render(http.StatusOK, "metadata", map[string]interface{}{
@@ -130,6 +138,7 @@ func Categories(c echo.Context) error {
 	})
 }
 
+// Platforms lists the names, descriptions and sums of the platform tags.
 func Platforms(c echo.Context) error {
 	start := latency()
 	return c.Render(http.StatusOK, "metadata", map[string]interface{}{
@@ -142,6 +151,7 @@ func Platforms(c echo.Context) error {
 	})
 }
 
+// Groups lists the names and sums of all the distinct scene groups.
 func Groups(c echo.Context) error {
 	start := latency()
 	ctx := context.Background()
@@ -163,19 +173,23 @@ func Groups(c echo.Context) error {
 	})
 }
 
+// Category lists the file records associated with the category tag that is provided by the ID param in the URL.
 func Category(c echo.Context) error {
-	return Tag(SectionTag, c)
+	return Tag(BySection, c)
 }
 
+// Platform lists the file records associated with the platform tag that is provided by the ID param in the URL.
 func Platform(c echo.Context) error {
-	return Tag(PlatformTag, c)
+	return Tag(ByPlatform, c)
 }
 
+// Group lists the file records associated with the group that is provided by the ID param in the URL.
 func Group(c echo.Context) error {
-	return Tag(GroupTag, c)
+	return Tag(ByGroup, c)
 }
 
-func Tag(tt TagType, c echo.Context) error {
+// Tag fetches all the records associated with the GroupBy grouping.
+func Tag(tt GroupBy, c echo.Context) error {
 	start := latency()
 	value := c.Param("id")
 	ctx := context.Background()
@@ -186,11 +200,11 @@ func Tag(tt TagType, c echo.Context) error {
 	defer db.Close()
 	var records pgm.FileSlice
 	switch tt {
-	case SectionTag:
+	case BySection:
 		records, err = models.FilesByCategory(value, c.QueryString(), ctx, db)
-	case PlatformTag:
+	case ByPlatform:
 		records, err = models.FilesByPlatform(value, c.QueryString(), ctx, db)
-	case GroupTag:
+	case ByGroup:
 		name := sceners.CleanURL(value) //CleanURL(value)
 		records, err = models.FilesByGroup(name, c.QueryString(), ctx, db)
 	}
@@ -198,16 +212,15 @@ func Tag(tt TagType, c echo.Context) error {
 		return err
 	}
 	count := len(records)
-	fmt.Println("VALUE", value, count)
 	if count == 0 {
 		return echo.NewHTTPError(http.StatusNotFound,
 			fmt.Sprintf("The %s %q doesn't exist", tt, value))
 	}
 	var sum int64
 	switch tt {
-	case SectionTag:
+	case BySection:
 		sum, err = models.ByteCountByCategory(value, ctx, db)
-	case PlatformTag:
+	case ByPlatform:
 		sum, err = models.ByteCountByPlatform(value, ctx, db)
 	}
 	if err != nil {
@@ -231,34 +244,7 @@ func Tag(tt TagType, c echo.Context) error {
 	})
 }
 
-// todo: custom type
-func sorter(query string) map[string]string {
-	s := Sortings
-	switch strings.ToUpper(query) {
-	case models.NameAsc:
-		s["Name"] = "D"
-	case models.NameDes:
-		s["Name"] = "A"
-	case models.PublAsc:
-		s["Publish"] = "D"
-	case models.PublDes:
-		s["Publish"] = "A"
-	case models.PostAsc:
-		s["Posted"] = "D"
-	case models.PostDes:
-		s["Posted"] = "A"
-	case models.SizeAsc:
-		s["Size"] = "D"
-	case models.SizeDes:
-		s["Size"] = "A"
-	case models.DescAsc:
-		s["Description"] = "D"
-	case models.DescDes:
-		s["Description"] = "A"
-	}
-	return Sortings
-}
-
+// Error renders a custom HTTP error page for the HTML3 sub-group.
 func Error(err error, c echo.Context) error {
 	// Echo custom error handling: https://echo.labstack.com/guide/error-handling/
 	start := latency()
@@ -268,7 +254,6 @@ func Error(err error, c echo.Context) error {
 		code = he.Code
 		msg = fmt.Sprint(he.Message)
 	}
-	// TODO: switch codes and use a logger?
 	return c.Render(code, "error", map[string]interface{}{
 		"title":       fmt.Sprintf("%d error, there is a complication", code),
 		"description": fmt.Sprintf("%s.", msg),
@@ -276,6 +261,7 @@ func Error(err error, c echo.Context) error {
 	})
 }
 
+// Redirection redirects any legacy URL matches.
 func Redirection(c echo.Context) error {
 	for u, redirect := range LegacyURLs {
 		htm := Root + u
@@ -285,4 +271,45 @@ func Redirection(c echo.Context) error {
 	}
 	return c.String(http.StatusInternalServerError,
 		fmt.Sprintf("unknown redirection, %q ", c.Path()))
+}
+
+// 	e.GET("/users/:name", func(c echo.Context) error {
+// 		name := c.Param("name")
+// 		return c.String(http.StatusOK, name)
+//  })
+//
+//  curl http://localhost:1323/users/Joe
+
+func latency() *time.Time {
+	start := time.Now()
+	r := new(big.Int)
+	r.Binomial(1000, 10)
+	return &start
+}
+
+func sorter(query string) map[Sort]string {
+	s := Sortings
+	switch strings.ToUpper(query) {
+	case models.NameAsc:
+		s[Name] = desc
+	case models.NameDes:
+		s[Name] = asc
+	case models.PublAsc:
+		s[Publish] = desc
+	case models.PublDes:
+		s[Publish] = asc
+	case models.PostAsc:
+		s[Posted] = desc
+	case models.PostDes:
+		s[Posted] = asc
+	case models.SizeAsc:
+		s[Size] = desc
+	case models.SizeDes:
+		s[Size] = asc
+	case models.DescAsc:
+		s[Desc] = desc
+	case models.DescDes:
+		s[Desc] = asc
+	}
+	return Sortings
 }
