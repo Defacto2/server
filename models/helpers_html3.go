@@ -132,50 +132,49 @@ func Icon(name null.String) string {
 
 // IsApp returns true if the named file uses a Windows application filename.
 func IsApp(name string) bool {
-	s := []string{".exe", ".com"}
+	s := []string{com, exe}
 	return IsExt(name, s...)
 }
 
 // IsApp returns true if the named file uses a common compressed or archived filename.
 func IsArchive(name string) bool {
-	s := []string{".7z", ".arc", ".ark", ".arj", ".cab", ".gz", ".lha", ".lzh", ".rar", ".tar", ".tar.gz", ".zip"}
+	s := []string{z7, arc, ark, arj, cab, gz, lha, lzh, rar, tar, tgz, zip}
 	return IsExt(name, s...)
 }
 
 // IsDocument returns true if the named file uses a common document or text filename.
 func IsDocument(name string) bool {
-	s := []string{".1st", ".asc", ".ans", ".cap", ".diz", ".doc", ".dox", ".me", ".nfo", ".pcb", ".pdf", ".txt", ".unp"}
+	s := []string{fst, asc, ans, cap, diz, doc, dox, me, nfo, pcb, pdf, txt, unp}
 	return IsExt(name, s...)
 }
 
 // IsImage returns true if the named file uses a common image or photo filename.
 func IsImage(name string) bool {
-	s := []string{".bmp", ".gif", ".ico", ".iff", ".jpg", ".jpeg", ".lbm", ".png", ".pcx"}
+	s := []string{bmp, gif, ico, iff, jpg, jpeg, lbm, png, pcx}
 	return IsExt(name, s...)
 }
 
 // IsHTML returns true if the named file uses a HTML markup filename.
 func IsHTML(name string) bool {
-	s := []string{".htm", ".html"}
+	s := []string{htm, html}
 	return IsExt(name, s...)
 }
 
 // IsImage returns true if the named file uses a common digital audio filename.
 func IsAudio(name string) bool {
-	s := []string{".au", ".flac", ".m1a", ".m2a", ".mid", ".midi", ".mp1", ".mp2", ".mp3",
-		".mpa", ".mpga", ".mpeg", ".ogg", ".snd", ".wav", ".wave", ".wma"}
+	s := []string{au, fla, mla, m2a, mid, midi, mp1, mp2, mp3, mpa, mpga, mpeg, ogg, snd, wav, wave, wma}
 	return IsExt(name, s...)
 }
 
 // IsImage returns true if the named file uses a common tracker music filename.
 func IsTune(name string) bool {
-	s := []string{".it", ".mod", ".s3m", ".xm"}
+	s := []string{it, mod, s3m, xm}
 	return IsExt(name, s...)
 }
 
 // IsImage returns true if the named file uses a common video filename.
 func IsVideo(name string) bool {
-	s := []string{".avi", ".divx", ".flv", ".gt", ".mov", ".m4a", ".m4v", ".mp4", ".swf", ".rm", ".ram", ".wmv", ".xvid"}
+	s := []string{avi, divx, flv, gt, mov, m4a, m4v, mp4, swf, rm, ram, wmv, xvid}
 	return IsExt(name, s...)
 }
 
