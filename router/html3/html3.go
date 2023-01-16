@@ -12,8 +12,8 @@ import (
 
 	"github.com/Defacto2/sceners"
 	"github.com/Defacto2/server/helpers"
-	"github.com/Defacto2/server/meta"
 	"github.com/Defacto2/server/models"
+	"github.com/Defacto2/server/tags"
 	"github.com/labstack/echo/v4"
 
 	"github.com/Defacto2/server/postgres"
@@ -112,8 +112,8 @@ func Index(c echo.Context) error {
 		"doc":         doc,
 		"sw":          sw,
 		"grp":         grp,
-		"cat":         meta.CategoryCount,
-		"plat":        meta.PlatformCount,
+		"cat":         tags.CategoryCount,
+		"plat":        tags.PlatformCount,
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
 	})
 }
@@ -124,9 +124,9 @@ func Categories(c echo.Context) error {
 		"title":    title + "/categories",
 		"latency":  fmt.Sprintf("%s.", time.Since(*start)),
 		"path":     "category",
-		"tagFirst": meta.FirstCategory,
-		"tagEnd":   meta.LastCategory,
-		"tags":     meta.Names,
+		"tagFirst": tags.FirstCategory,
+		"tagEnd":   tags.LastCategory,
+		"tags":     tags.Names,
 	})
 }
 
@@ -136,9 +136,9 @@ func Platforms(c echo.Context) error {
 		"title":    title + "/platforms",
 		"latency":  fmt.Sprintf("%s.", time.Since(*start)),
 		"path":     "platform",
-		"tagFirst": meta.FirstPlatform,
-		"tagEnd":   meta.LastPlatform,
-		"tags":     meta.Names,
+		"tagFirst": tags.FirstPlatform,
+		"tagEnd":   tags.LastPlatform,
+		"tags":     tags.Names,
 	})
 }
 
@@ -213,9 +213,9 @@ func Tag(tt TagType, c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	key := meta.GetURI(value)
-	info := meta.Infos[key]
-	name := meta.Names[key]
+	key := tags.GetURI(value)
+	info := tags.Infos[key]
+	name := tags.Names[key]
 	desc := fmt.Sprintf("%s - %s.", name, info)
 	stat := fmt.Sprintf("%d files, %s", count, helpers.ByteCountLong(sum))
 	sorter := sorter(c.QueryString())

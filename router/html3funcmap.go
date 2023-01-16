@@ -11,8 +11,8 @@ import (
 	"unicode/utf8"
 
 	"github.com/Defacto2/server/helpers"
-	"github.com/Defacto2/server/meta"
 	"github.com/Defacto2/server/models"
+	"github.com/Defacto2/server/tags"
 	"github.com/volatiletech/null/v8"
 )
 
@@ -133,7 +133,7 @@ func LeadStr(width int, s string) string {
 
 // isApp returns true if the platform matches Windows, macOS, Linux, MS-DOS or Java.
 func isApp(platform null.String) bool {
-	s := meta.GetApps()
+	s := tags.GetApps()
 	apps := s[:]
 	plat := strings.TrimSpace(strings.ToLower(platform.String))
 	return helpers.Finds(plat, apps...)
@@ -142,18 +142,18 @@ func isApp(platform null.String) bool {
 // fmtApp returns the application platform as a string.
 func fmtApp(platform null.String) string {
 	s := ""
-	p := meta.GetURI(strings.TrimSpace(platform.String))
+	p := tags.GetURI(strings.TrimSpace(platform.String))
 	switch p {
-	case meta.DOS:
-		s = meta.Names[p]
-	case meta.Java:
-		s = meta.Names[p]
-	case meta.Linux:
-		s = meta.Names[p]
-	case meta.Windows:
-		s = meta.Names[p]
-	case meta.Mac:
-		s = meta.Names[p]
+	case tags.DOS:
+		s = tags.Names[p]
+	case tags.Java:
+		s = tags.Names[p]
+	case tags.Linux:
+		s = tags.Names[p]
+	case tags.Windows:
+		s = tags.Names[p]
+	case tags.Mac:
+		s = tags.Names[p]
 	}
 	if s == "" {
 		return ""

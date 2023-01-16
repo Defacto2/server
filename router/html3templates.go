@@ -7,8 +7,8 @@ import (
 	"html/template"
 	"io"
 
-	"github.com/Defacto2/server/meta"
 	"github.com/Defacto2/server/models"
+	"github.com/Defacto2/server/tags"
 	"github.com/labstack/echo/v4"
 )
 
@@ -36,7 +36,7 @@ var TemplateFuncMap = template.FuncMap{
 	"datePub":    LeadPub,
 	"leadStr":    LeadStr,
 	"iconFmt":    models.Icon,
-	"metaByName": meta.GetMetaByName,
+	"metaByName": tags.GetMetaByName,
 }
 
 // Render the HTML3 layout template with the core HTML, META and BODY elements.

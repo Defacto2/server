@@ -1,5 +1,5 @@
-// Package meta are categories and platform metadata used to classify served files.
-package meta
+// Package tags are categories and platform metadata used to classify served files.
+package tags
 
 import (
 	"context"
