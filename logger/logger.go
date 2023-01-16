@@ -2,19 +2,22 @@
 package logger
 
 import (
-	"fmt"
-	"log"
+	"io/fs"
 	"os"
+	"path/filepath"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 const (
 	ServerLog  = "server.log"
-	HTTP500Log = "http500.log"
-	HTTP400Log = "http400.log"
-	HTTP300Log = "http300.log"
+	InfoLog    = "info.log"
+	LogMode    = fs.FileMode(0640)
+	MaxSizeMB  = 100
+	MaxBackups = 5
+	MaxDays    = 45
 )
 
 /*
@@ -53,6 +56,7 @@ const (
 )
 */
 
+// Development logger prints all log levels to stdout.
 func Development() *zap.Logger {
 	config := zap.NewDevelopmentEncoderConfig()
 	config.EncodeTime = zapcore.TimeEncoderOfLayout("15:04:05")
@@ -65,43 +69,34 @@ func Development() *zap.Logger {
 	return zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
 }
 
-// https://codewithmukesh.com/blog/structured-logging-in-golang-with-zap/
-// https://blog.sandipb.net/2018/05/02/using-zap-simple-use-cases/
-func Production() *zap.Logger {
-	config := zap.NewProductionConfig()
-	// config.Level = zap.NewAtomicLevelAt(zapcore.InfoLevel)
-	// config.Development = false
-	// //config.Encoding = "console"
+// Production logger prints all info and higher log levels to files.
+func Production(root string) *zap.Logger {
+	config := zap.NewProductionEncoderConfig()
+	config.EncodeTime = zapcore.TimeEncoderOfLayout("Jan-02-15:04:05.00")
+	jsonEncoder := zapcore.NewJSONEncoder(config)
 
-	// config.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout("Jan-02-15:04:05.00")
-	// console := zapcore.NewConsoleEncoder(config.EncoderConfig)
+	// server breakage log
+	servWr := zapcore.AddSync(&lumberjack.Logger{
+		Filename:   filepath.Join(root, ServerLog),
+		MaxSize:    MaxSizeMB,
+		MaxBackups: MaxBackups,
+		MaxAge:     MaxDays,
+	})
 
-	logger, err := config.Build()
-	if err != nil {
-		log.Fatalln(fmt.Errorf("could not initialize the zap logger: %w", err))
-	}
-	// core := zapcore.NewTee(
-	// 	FileRotation(),
-	// 	zapcore.NewCore(console, zapcore.AddSync(os.Stdout), zapcore.InfoLevel),
-	// )
-	// logger := zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
-	return logger
+	// information and warning log
+	infoWr := zapcore.AddSync(&lumberjack.Logger{
+		Filename:   filepath.Join(root, InfoLog),
+		MaxSize:    MaxSizeMB,
+		MaxBackups: MaxBackups,
+		MaxAge:     MaxDays,
+	})
+
+	core := zapcore.NewTee(
+		zapcore.NewCore(jsonEncoder, servWr, zapcore.FatalLevel),
+		zapcore.NewCore(jsonEncoder, servWr, zapcore.PanicLevel),
+		zapcore.NewCore(jsonEncoder, servWr, zapcore.ErrorLevel),
+		zapcore.NewCore(jsonEncoder, infoWr, zapcore.WarnLevel),
+		zapcore.NewCore(jsonEncoder, infoWr, zapcore.InfoLevel),
+	)
+	return zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
 }
-
-// func FileRotation() zapcore.Core {
-// 	config := zap.NewProductionEncoderConfig()
-// 	config.EncodeTime = zapcore.ISO8601TimeEncoder
-
-// 	w := zapcore.AddSync(&lumberjack.Logger{
-// 		Filename:   filename,
-// 		MaxSize:    500, // megabytes
-// 		MaxBackups: 3,
-// 		MaxAge:     28, // days
-// 	})
-// 	core := zapcore.NewCore(
-// 		zapcore.NewJSONEncoder(config),
-// 		w,
-// 		zap.InfoLevel,
-// 	)
-// 	return core
-// }

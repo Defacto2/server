@@ -26,7 +26,7 @@ func (cfg Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	var log *zap.SugaredLogger
 	switch cfg.IsProduction {
 	case true:
-		log = logger.Production().Sugar()
+		log = logger.Production(cfg.ConfigDir).Sugar()
 		defer log.Sync()
 	default:
 		log = logger.Development().Sugar()
@@ -92,7 +92,7 @@ func (cfg Config) CustomErrorHandler(err error, c echo.Context) {
 	var log *zap.SugaredLogger
 	switch cfg.IsProduction {
 	case true:
-		log = logger.Production().Sugar()
+		log = logger.Production(cfg.ConfigDir).Sugar()
 		defer log.Sync()
 	default:
 		log = logger.Development().Sugar()
@@ -121,6 +121,7 @@ func (cfg Config) CustomErrorHandler(err error, c echo.Context) {
 	}
 }
 
+// StringErr sends the error and code as a string.
 func StringErr(err error, c echo.Context) error {
 	code, msg := http.StatusInternalServerError, "internal server error"
 	if he, ok := err.(*echo.HTTPError); ok {
@@ -130,6 +131,7 @@ func StringErr(err error, c echo.Context) error {
 	return c.String(code, fmt.Sprintf("%d - %s", code, msg))
 }
 
+// IsHTML3 returns true if the route is /html3.
 func IsHTML3(path string) bool {
 	splitPaths := func(r rune) bool {
 		return r == '/'

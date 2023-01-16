@@ -37,20 +37,20 @@ func main() {
 	if err := env.Parse(&configs); err != nil {
 		log.Fatalln(err)
 	}
+	//configs.IsProduction = true
 
 	// Logger
 	var log *zap.SugaredLogger
 	switch configs.IsProduction {
 	case true:
-		log = logger.Production().Sugar()
+		if err := configs.LogStorage(); err != nil {
+			log.Errorf("The server cannot save any logs: %s.", err)
+		}
+		log = logger.Production(configs.ConfigDir).Sugar()
 	default:
 		log = logger.Development().Sugar()
 		log.Debug("The server is running in the development mode.")
 	}
-	if err := configs.LogStorage(); err != nil {
-		log.Errorf("The server cannot save any logs: %s.", err)
-	}
-
 	// Startup logo
 	if logo := string(brand); len(logo) > 0 {
 		if _, err := fmt.Printf("%s\n\n", logo); err != nil {
@@ -80,8 +80,9 @@ func main() {
 		} else {
 			fmt.Printf("⇨ Defacto2 web application %s.\n", server.ParsePsVersion(s))
 		}
-		fmt.Printf("⇨ server logs are found in: %s\n", configs.ConfigDir)
-
+		if configs.IsProduction {
+			fmt.Printf("⇨ server logs are found in: %s\n", configs.ConfigDir)
+		}
 		serverAddress := fmt.Sprintf(":%d", configs.HTTPPort)
 		if err := e.Start(serverAddress); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("HTTP server could not start: %s.", err)
