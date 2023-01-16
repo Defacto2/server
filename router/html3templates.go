@@ -36,7 +36,7 @@ var TemplateFuncMap = template.FuncMap{
 	"datePub":    LeadPub,
 	"leadStr":    LeadStr,
 	"iconFmt":    models.Icon,
-	"metaByName": tags.GetMetaByName,
+	"metaByName": tags.TagByName,
 }
 
 // Render the HTML3 layout template with the core HTML, META and BODY elements.

@@ -133,7 +133,7 @@ func LeadStr(width int, s string) string {
 
 // isApp returns true if the platform matches Windows, macOS, Linux, MS-DOS or Java.
 func isApp(platform null.String) bool {
-	s := tags.GetApps()
+	s := tags.OSTags()
 	apps := s[:]
 	plat := strings.TrimSpace(strings.ToLower(platform.String))
 	return helpers.Finds(plat, apps...)
@@ -142,7 +142,7 @@ func isApp(platform null.String) bool {
 // fmtApp returns the application platform as a string.
 func fmtApp(platform null.String) string {
 	s := ""
-	p := tags.GetURI(strings.TrimSpace(platform.String))
+	p := tags.TagByURI(strings.TrimSpace(platform.String))
 	switch p {
 	case tags.DOS:
 		s = tags.Names[p]

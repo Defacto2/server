@@ -2,10 +2,13 @@ package tags
 
 import "strings"
 
+// URI is a unique URL slug for the tag.
 type URI map[Tag]string
 
+// Name is the tags displayed title.
 type Name map[Tag]string
 
+// Info is a short description of the tag.
 type Info map[Tag]string
 
 var URIs = URI{
@@ -53,9 +56,10 @@ var URIs = URI{
 	Windows:      "windows",
 }
 
-func GetURI(s string) Tag {
+// TagByURI returns the tag belonging to the URI slug.
+func TagByURI(slug string) Tag {
 	for key, value := range URIs {
-		if strings.ToLower(s) == value {
+		if strings.ToLower(slug) == value {
 			return key
 		}
 	}

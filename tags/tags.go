@@ -12,24 +12,33 @@ import (
 	. "github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-type Tag int
+// TODO: cache the results and move the function / cache to /models/custom.go
+// https://stackoverflow.com/questions/67788292/add-a-cache-to-a-go-function-as-if-it-were-a-static-member
 
-type Count map[Tag]int
-
-type Meta struct {
-	URI   string
-	Name  string
-	Info  string
-	Count int
+// TagData holds the tag information.
+type TagData struct {
+	URI   string // URI is a unique URL slug for the tag.
+	Name  string // Name is the tags displayed title.
+	Info  string // Info is a short description of the tag.
+	Count int    // Count is the results of file count query for the tag.
 }
 
+// Tag is the unique ID.
+type Tag int
+
 const (
+	// FirstCategory is the first tag marked as a category.
 	FirstCategory Tag = Announcement
+	// FirstPlatform is the first tag marked as a platform.
 	FirstPlatform Tag = ANSI
-	LastCategory  Tag = Install
-	LastPlatform  Tag = Windows
-	CategoryCount     = int(FirstCategory + LastCategory + 1)
-	PlatformCount     = int(LastPlatform - FirstPlatform + 1)
+	// LastCategory is the final tag marked as a category.
+	LastCategory Tag = Install
+	// LastPlatform is the final tag marked as a platform.
+	LastPlatform Tag = Windows
+	// CategoryCount is the number of tags used as a category.
+	CategoryCount = int(FirstCategory + LastCategory + 1)
+	// PlatformCount is the number of tags used as a platform.
+	PlatformCount = int(LastPlatform - FirstPlatform + 1)
 )
 
 const (
@@ -77,54 +86,17 @@ const (
 	Windows
 )
 
-var Counts = Count{
-	Announcement: 0,
-	ANSIEditor:   0,
-	AppleII:      0,
-	AtariST:      0,
-	BBS:          0,
-	Logo:         0,
-	Bust:         0,
-	Drama:        0,
-	Rule:         0,
-	Tool:         0,
-	Intro:        0,
-	Demo:         0,
-	ForSale:      0,
-	Ftp:          0,
-	GameHack:     0,
-	Job:          0,
-	Guide:        0,
-	Interview:    0,
-	Mag:          0,
-	News:         0,
-	Nfo:          0,
-	NfoTool:      0,
-	Proof:        0,
-	Restrict:     0,
-	Install:      0,
-	ANSI:         0,
-	Audio:        0,
-	DataB:        0,
-	DOS:          0,
-	Markup:       0,
-	Image:        0,
-	Java:         0,
-	Linux:        0,
-	Mac:          0,
-	Pack:         0,
-	PCB:          0,
-	PDF:          0,
-	PHP:          0,
-	TextAmiga:    0,
-	Text:         0,
-	Video:        0,
-	Windows:      0,
-}
+// Sum the numbers of files with the tag.
+type Sum map[Tag]int
 
-var Tags []Meta = GetTags()
+// Sums stores the results of file count query for each tag.
+var Sums = make(Sum, Windows+1)
 
-func GetApps() [5]string {
+// Tags contains data for all the tags used by the web application.
+var Tags []TagData = All()
+
+// OSTags returns the tags that flag an operating system.
+func OSTags() [5]string {
 	return [5]string{
 		URIs[DOS],
 		URIs[Java],
@@ -133,50 +105,54 @@ func GetApps() [5]string {
 		URIs[Mac]}
 }
 
-func GetMetaByName(name string) Meta {
+// TagByName returns the named tag.
+func TagByName(name string) TagData {
 	for _, m := range Tags {
 		if strings.EqualFold(m.Name, name) {
 			return m
 		}
 	}
-	return Meta{}
+	return TagData{}
 }
 
-func GetTags() []Meta {
-	var m = make([]Meta, LastPlatform+1)
+// All the tags and assoicated data.
+func All() []TagData {
+	var m = make([]TagData, LastPlatform+1)
 	i := -1
 	for key, val := range URIs {
 		i++
-		count := Counts[key]
-		m[i] = Meta{
+		count := Sums[key]
+		m[i] = TagData{
 			URI:   val,
 			Name:  Names[key],
 			Info:  Infos[key],
 			Count: count,
 		}
-		// TODO: cache the results and move the function / cache to /models/custom.go
-		// https://stackoverflow.com/questions/67788292/add-a-cache-to-a-go-function-as-if-it-were-a-static-member
 		if count > 0 {
 			continue
 		}
 		t := key
 		defer func(i int, t Tag) {
-			ctx := context.Background()
-			db, err := postgres.ConnectDB()
-			if err != nil {
-				log.Fatalln(err) // TODO: zap log
-			}
-			clause := "section = ?"
-			if t >= FirstPlatform {
-				clause = "platform = ?"
-			}
-			val, err := models.Files(
-				Where(clause, URIs[t])).Count(ctx, db)
-			if err != nil {
-				log.Fatalln(err)
-			}
-			m[i].Count = int(val)
+			m[i].Count = int(counter(i, t))
 		}(i, t)
 	}
 	return m
+}
+
+func counter(i int, t Tag) int64 {
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		log.Fatalln(err) // TODO: zap log
+	}
+	clause := "section = ?"
+	if t >= FirstPlatform {
+		clause = "platform = ?"
+	}
+	sum, err := models.Files(
+		Where(clause, URIs[t])).Count(ctx, db)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return sum
 }

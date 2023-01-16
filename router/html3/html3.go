@@ -213,7 +213,7 @@ func Tag(tt TagType, c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	key := tags.GetURI(value)
+	key := tags.TagByURI(value)
 	info := tags.Infos[key]
 	name := tags.Names[key]
 	desc := fmt.Sprintf("%s - %s.", name, info)
