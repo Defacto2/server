@@ -58,6 +58,8 @@ func LoggerProduction(log *zap.SugaredLogger) middleware.RequestLoggerConfig {
 		}}
 }
 
+// https://github.com/labstack/echo/discussions/1820
+
 var CustomMiddleware = func(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		timeStarted := time.Now()

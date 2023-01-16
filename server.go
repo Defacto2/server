@@ -32,11 +32,6 @@ var brand []byte
 // bind sqlboiler statements: https://thedevelopercafe.com/articles/sql-in-go-with-sqlboiler-ac8efc4c5cb8
 
 func main() {
-	// Startup logo
-	if logo := string(brand); len(logo) > 0 {
-		fmt.Println(logo)
-	}
-
 	// Enviroment configuration
 	configs := config.Config{}
 	if err := env.Parse(&configs); err != nil {
@@ -48,19 +43,23 @@ func main() {
 	switch configs.IsProduction {
 	case true:
 		log = logger.Production().Sugar()
-		defer log.Sync()
-		fmt.Print("Defacto2 web application")
 	default:
 		log = logger.Development().Sugar()
-		defer log.Sync()
-		fmt.Print("Defacto2 web application development")
+		log.Debug("The server is running in the development mode.")
+	}
+
+	// Startup logo
+	if logo := string(brand); len(logo) > 0 {
+		if _, err := fmt.Println(logo); err != nil {
+			log.Warnf("Could not print the brand logo: %w.", err)
+		}
 	}
 
 	// Database
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		log.Fatalln(err)
+		log.Errorf("Could not connect to the database: %w.", err)
 	}
 	defer db.Close()
 
@@ -69,9 +68,9 @@ func main() {
 
 	// Check the database connection
 	if s, err := postgres.Version(); err != nil {
-		log.Error("could not obtain the postgres version, is the database online? ", err)
+		log.Warnln("Could not obtain the PostgreSQL server version. Is the database online?")
 	} else {
-		fmt.Print(server.ParsePsVersion(s))
+		fmt.Printf("⇨ Defacto2 web application %s.\n", server.ParsePsVersion(s))
 	}
 
 	// Echo router/controller instance
@@ -81,7 +80,7 @@ func main() {
 	go func() {
 		serverAddress := fmt.Sprintf(":%d", configs.HTTPPort)
 		if err := e.Start(serverAddress); err != nil && err != http.ErrServerClosed {
-			e.Logger.Fatal("shutting down the server")
+			log.Fatalf("HTTP server could not start: %s.", err)
 		}
 	}()
 
@@ -89,19 +88,31 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	const shutdown = 10 * time.Second
-	ctx, cancel := context.WithTimeout(context.Background(), shutdown)
+	const shutdown = 5
+	ctx, cancel := context.WithTimeout(context.Background(), shutdown*time.Second)
 	defer func() {
-		fmt.Printf("\nDetected Ctrl-C, server will shutdown in %s\n", shutdown)
+		const alert = "Detected Ctrl-C, server will shutdown in "
+		log.Sync()
+		fmt.Printf("\n%s%s", alert, shutdown*time.Second)
+		count := shutdown
+		for range time.Tick(1 * time.Second) {
+			count--
+			fmt.Printf("\r%s%ds", alert, count)
+			if count <= 0 {
+				fmt.Printf("\r%s%ds\n", alert, count)
+				break
+			}
+		}
 		select {
 		case <-quit:
 			cancel()
 		case <-ctx.Done():
 		}
 		if err := e.Shutdown(ctx); err != nil {
-			e.Logger.Fatal(err)
+			log.Fatalf("Server shutdown caused an error: %w.", err)
 		}
-		log.Infoln("graceful server shutdown complete")
+		log.Infoln("Server shutdown complete.")
+		log.Sync()
 		signal.Stop(quit)
 		cancel()
 	}()
