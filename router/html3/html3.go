@@ -4,6 +4,7 @@ package html3
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/big"
 	"net/http"
@@ -19,6 +20,8 @@ import (
 	"github.com/Defacto2/server/postgres"
 	pgm "github.com/Defacto2/server/postgres/models"
 )
+
+var ErrByTag = errors.New("unknown bytag record group")
 
 // GroupBy are the record groupings.
 type GroupBy int
@@ -205,8 +208,10 @@ func Tag(tt GroupBy, c echo.Context) error {
 	case ByPlatform:
 		records, err = models.FilesByPlatform(value, c.QueryString(), ctx, db)
 	case ByGroup:
-		name := sceners.CleanURL(value) //CleanURL(value)
+		name := sceners.CleanURL(value)
 		records, err = models.FilesByGroup(name, c.QueryString(), ctx, db)
+	default:
+		return ErrByTag
 	}
 	if err != nil {
 		return err
@@ -216,12 +221,12 @@ func Tag(tt GroupBy, c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound,
 			fmt.Sprintf("The %s %q doesn't exist", tt, value))
 	}
-	var sum int64
+	var byteSum int64
 	switch tt {
 	case BySection:
-		sum, err = models.ByteCountByCategory(value, ctx, db)
+		byteSum, err = models.ByteCountByCategory(value, ctx, db)
 	case ByPlatform:
-		sum, err = models.ByteCountByPlatform(value, ctx, db)
+		byteSum, err = models.ByteCountByPlatform(value, ctx, db)
 	}
 	if err != nil {
 		return err
@@ -230,8 +235,9 @@ func Tag(tt GroupBy, c echo.Context) error {
 	info := tags.Infos[key]
 	name := tags.Names[key]
 	desc := fmt.Sprintf("%s - %s.", name, info)
-	stat := fmt.Sprintf("%d files, %s", count, helpers.ByteCountLong(sum))
+	stat := fmt.Sprintf("%d files, %s", count, helpers.ByteCountLong(byteSum))
 	sorter := sorter(c.QueryString())
+	fmt.Printf("%+v\n", sorter)
 	return c.Render(http.StatusOK, tt.String(), map[string]interface{}{
 		"title":       fmt.Sprintf("%s%s%s", title, fmt.Sprintf("/%s/", tt), value),
 		"home":        "",
@@ -287,7 +293,7 @@ func latency() *time.Time {
 	return &start
 }
 
-func sorter(query string) map[Sort]string {
+func sorter(query string) map[string]string {
 	s := Sortings
 	switch strings.ToUpper(query) {
 	case models.NameAsc:
@@ -311,5 +317,10 @@ func sorter(query string) map[Sort]string {
 	case models.DescDes:
 		s[Desc] = asc
 	}
-	return Sortings
+	// to be usable in the template, convert custom map key type to strings
+	tmplSorts := make(map[string]string, len(s))
+	for key, value := range Sortings {
+		tmplSorts[string(key)] = value
+	}
+	return tmplSorts
 }
