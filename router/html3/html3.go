@@ -289,7 +289,8 @@ func Redirection(c echo.Context) error {
 func latency() *time.Time {
 	start := time.Now()
 	r := new(big.Int)
-	r.Binomial(1000, 10)
+	const n, k = 1000, 10
+	r.Binomial(n, k)
 	return &start
 }
 
@@ -317,7 +318,7 @@ func sorter(query string) map[string]string {
 	case models.DescDes:
 		s[Desc] = asc
 	}
-	// to be usable in the template, convert custom map key type to strings
+	// to be usable in the template, convert the map keys into strings
 	tmplSorts := make(map[string]string, len(s))
 	for key, value := range Sortings {
 		tmplSorts[string(key)] = value
