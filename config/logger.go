@@ -16,6 +16,8 @@ import (
 	"go.uber.org/zap"
 )
 
+var ErrDirNotExist = errors.New("directory does not exist or incorrectly typed")
+
 // https://github.com/labstack/echo/discussions/1820
 
 // LoggerMiddleware handles the logging of HTTP servers.
@@ -72,7 +74,7 @@ func (cfg *Config) LogStorage() error {
 		}
 	}
 	if ok := helpers.IsStat(dir); !ok {
-		return fmt.Errorf("%w: %s", os.ErrNotExist, dir)
+		return fmt.Errorf("%w: %s", ErrDirNotExist, dir)
 	}
 	logs := filepath.Join(dir, "defacto2-webapp")
 	if ok := helpers.IsStat(logs); !ok {

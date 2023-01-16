@@ -21,7 +21,6 @@ type Config struct {
 	Timeout uint `env:"DEFACTO2_TIMEOUT" envDefault:"5"`
 
 	// ConfigDir will overwrite the default directory that will store the server logs.
-	// Leave blank to use the default user config path.
-	// An invalid path here will cause the server to return a fatal error.
+	// It is recommended this is left blank to use the home .config path.
 	ConfigDir string `env:"DEFACTO2_CONFIG"`
 }
