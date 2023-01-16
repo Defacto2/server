@@ -4,6 +4,7 @@ package router
 
 import (
 	"errors"
+	"fmt"
 	"html/template"
 	"io"
 
@@ -11,6 +12,8 @@ import (
 	"github.com/Defacto2/server/tags"
 	"github.com/labstack/echo/v4"
 )
+
+var ErrTmpl = errors.New("named template cannot be found")
 
 // TemplateRegistry is template registry struct.
 type TemplateRegistry struct {
@@ -43,44 +46,49 @@ var TemplateFuncMap = template.FuncMap{
 func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	tmpl, ok := t.Templates[name]
 	if !ok {
-		err := errors.New("Template not found -> " + name)
-		return err
+		return fmt.Errorf("%w: %s", ErrTmpl, name)
 	}
 	return tmpl.ExecuteTemplate(w, "layout", data)
 }
 
+// TmplHTML3 returns a map of the templates used by the HTML3 sub-group route.
 func TmplHTML3() map[string]*template.Template {
 	templates := make(map[string]*template.Template)
 	templates["index"] = index()
 	templates["category"] = list()
 	templates["platform"] = list()
-	templates["error"] = serverErrs()
-	templates["metadata"] = metadata()
+	templates["error"] = httpErr()
+	templates["tag"] = tag()
 	templates["group"] = groups()
 	return templates
 }
 
+// Index template.
 func index() *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles(
 		layout, dirs, "public/views/html3/index.html"))
 }
 
+// List files template.
 func list() *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles(
 		layout, files, "public/views/html3/files.html"))
 }
 
-func metadata() *template.Template {
+// Tag lists template.
+func tag() *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles(
-		layout, dirs, "public/views/html3/metadata.html"))
+		layout, dirs, "public/views/html3/tag.html"))
 }
 
+// Groups list template.
 func groups() *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles(
 		layout, dirs, "public/views/html3/groups.html"))
 }
 
-func serverErrs() *template.Template {
+// Template for displaying HTTP error codes and feedback.
+func httpErr() *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles(
 		layout))
 }

@@ -131,7 +131,7 @@ func Index(c echo.Context) error {
 // Categories lists the names, descriptions and sums of the category (section) tags.
 func Categories(c echo.Context) error {
 	start := latency()
-	return c.Render(http.StatusOK, "metadata", map[string]interface{}{
+	return c.Render(http.StatusOK, "tag", map[string]interface{}{
 		"title":    title + "/categories",
 		"latency":  fmt.Sprintf("%s.", time.Since(*start)),
 		"path":     "category",
@@ -144,7 +144,7 @@ func Categories(c echo.Context) error {
 // Platforms lists the names, descriptions and sums of the platform tags.
 func Platforms(c echo.Context) error {
 	start := latency()
-	return c.Render(http.StatusOK, "metadata", map[string]interface{}{
+	return c.Render(http.StatusOK, "tag", map[string]interface{}{
 		"title":    title + "/platforms",
 		"latency":  fmt.Sprintf("%s.", time.Since(*start)),
 		"path":     "platform",
@@ -167,7 +167,6 @@ func Groups(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("GROUP COUNT", len(s))
 	return c.Render(http.StatusOK, "group", map[string]interface{}{
 		"title":   title + "/groups",
 		"latency": fmt.Sprintf("%s.", time.Since(*start)),
@@ -237,7 +236,6 @@ func Tag(tt GroupBy, c echo.Context) error {
 	desc := fmt.Sprintf("%s - %s.", name, info)
 	stat := fmt.Sprintf("%d files, %s", count, helpers.ByteCountLong(byteSum))
 	sorter := sorter(c.QueryString())
-	fmt.Printf("%+v\n", sorter)
 	return c.Render(http.StatusOK, tt.String(), map[string]interface{}{
 		"title":       fmt.Sprintf("%s%s%s", title, fmt.Sprintf("/%s/", tt), value),
 		"home":        "",

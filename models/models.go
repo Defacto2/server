@@ -252,7 +252,6 @@ func Groups(ctx context.Context, db *sql.DB) (Sceners, error) {
 	//s := make([]string, count)
 	m := make(map[string]Scener)
 	for i, g := range q {
-		//fmt.Printf("%+v\n", g.GroupBrandFor.String)
 		if x := strings.TrimSpace(g.GroupBrandFor.String); len(x) > 0 {
 
 			uri := GroupForURL(x)
