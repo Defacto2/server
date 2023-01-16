@@ -4,9 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/Defacto2/server/helpers"
 	"github.com/Defacto2/server/logger"
 	"github.com/Defacto2/server/router/html3"
 	"github.com/labstack/echo/v4"
@@ -56,6 +59,30 @@ func (cfg Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		return nil
 	}
+}
+
+// LogStorage determines the local storage path for all log files created by this web application.
+func (cfg *Config) LogStorage() error {
+	dir := cfg.ConfigDir
+	if dir == "" {
+		var err error
+		dir, err = os.UserConfigDir()
+		if err != nil {
+			return err
+		}
+	}
+	if ok := helpers.IsStat(dir); !ok {
+		return fmt.Errorf("%w: %s", os.ErrNotExist, dir)
+	}
+	logs := filepath.Join(dir, "defacto2-webapp")
+	if ok := helpers.IsStat(logs); !ok {
+		if err := os.MkdirAll(logs, 0770); err != nil {
+			return fmt.Errorf("%w: %s", err, logs)
+		}
+	}
+	cfg.ConfigDir = logs
+	return nil
+	//return errors.New("hello oops")
 }
 
 // CustomErrorHandler handles customer error templates.

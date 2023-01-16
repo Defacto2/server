@@ -10,16 +10,25 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// https://pkg.go.dev/go.uber.org/zap
-// https://betterstack.com/community/guides/logging/logging-in-go/
-// https://github.com/uber-go/zap/blob/master/FAQ.md
-// https://pkg.go.dev/gopkg.in/natefinch/lumberjack.v2@v2.0.0#section-readme
-
-// TODO: https://github.com/brpaz/echozap
-
 const (
-	filename = "test.log"
+	ServerLog  = "server.log"
+	HTTP500Log = "http500.log"
+	HTTP400Log = "http400.log"
+	HTTP300Log = "http300.log"
 )
+
+/*
+	https://github.com/uber-go/zap
+	https://pkg.go.dev/go.uber.org/zap
+	https://pkg.go.dev/go.uber.org/zap@v1.24.0/zapcore
+	https://pkg.go.dev/gopkg.in/natefinch/lumberjack.v2@v2.0.0
+
+	Using Zap - Simple use cases
+	https://blog.sandipb.net/2018/05/02/using-zap-simple-use-cases/
+
+	Structured Logging in Golang with Zap
+	https://codewithmukesh.com/blog/structured-logging-in-golang-with-zap/
+*/
 
 /*
 const (

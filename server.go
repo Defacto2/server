@@ -47,11 +47,14 @@ func main() {
 		log = logger.Development().Sugar()
 		log.Debug("The server is running in the development mode.")
 	}
+	if err := configs.LogStorage(); err != nil {
+		log.Errorf("The server cannot save any logs: %s.", err)
+	}
 
 	// Startup logo
 	if logo := string(brand); len(logo) > 0 {
-		if _, err := fmt.Println(logo); err != nil {
-			log.Warnf("Could not print the brand logo: %w.", err)
+		if _, err := fmt.Printf("%s\n\n", logo); err != nil {
+			log.Warnf("Could not print the brand logo: %s.", err)
 		}
 	}
 
@@ -59,25 +62,26 @@ func main() {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		log.Errorf("Could not connect to the database: %w.", err)
+		log.Errorf("Could not connect to the database: %s.", err)
 	}
 	defer db.Close()
 
 	// SQLBoiler global variant
 	boil.SetDB(db)
 
-	// Check the database connection
-	if s, err := postgres.Version(); err != nil {
-		log.Warnln("Could not obtain the PostgreSQL server version. Is the database online?")
-	} else {
-		fmt.Printf("⇨ Defacto2 web application %s.\n", server.ParsePsVersion(s))
-	}
-
 	// Echo router/controller instance
 	e := router.Route(configs, log)
 
 	// Start server with graceful shutdown
 	go func() {
+		// Check the database connection
+		if s, err := postgres.Version(); err != nil {
+			log.Warnln("Could not obtain the PostgreSQL server version. Is the database online?")
+		} else {
+			fmt.Printf("⇨ Defacto2 web application %s.\n", server.ParsePsVersion(s))
+		}
+		fmt.Printf("⇨ server logs are found in: %s\n", configs.ConfigDir)
+
 		serverAddress := fmt.Sprintf(":%d", configs.HTTPPort)
 		if err := e.Start(serverAddress); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("HTTP server could not start: %s.", err)
