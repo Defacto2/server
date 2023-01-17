@@ -44,6 +44,19 @@ func (t GroupBy) Parent() string {
 }
 
 const (
+	NameAsc = "C=N&O=A" // Name ascending order.
+	NameDes = "C=N&O=D" // Name descending order.
+	PublAsc = "C=D&O=A" // Date published ascending order.
+	PublDes = "C=D&O=D" // Date published descending order.
+	PostAsc = "C=P&O=A" // Posted ascending order.
+	PostDes = "C=P&O=D" // Posted descending order.
+	SizeAsc = "C=S&O=A" // Size ascending order.
+	SizeDes = "C=S&O=D" // Size descending order.
+	DescAsc = "C=I&O=A" // Description ascending order.
+	DescDes = "C=I&O=D" // Description descending order.
+)
+
+const (
 	Root  = "/html3" // Root path of the HTML3 router group.
 	title = "Index of " + Root
 )
@@ -93,6 +106,34 @@ var Sortings = map[Sort]string{
 	Posted:  asc,
 	Size:    asc,
 	Desc:    asc,
+}
+
+// Clauses for ordering file record queries.
+func Clauses(query string) models.Order {
+	switch strings.ToUpper(query) {
+	case NameAsc:
+		return models.NameAsc
+	case NameDes:
+		return models.NameDes
+	case PublAsc:
+		return models.PublAsc
+	case PublDes:
+		return models.PublDes
+	case PostAsc:
+		return models.PostAsc
+	case PostDes:
+		return models.PostDes
+	case SizeAsc:
+		return models.SizeAsc
+	case SizeDes:
+		return models.SizeDes
+	case DescAsc:
+		return models.DescAsc
+	case DescDes:
+		return models.DescDes
+	default:
+		return models.NameAsc
+	}
 }
 
 // Index is the homepage of the /html3 sub-route.
@@ -201,14 +242,15 @@ func Tag(tt GroupBy, c echo.Context) error {
 	}
 	defer db.Close()
 	var records pgm.FileSlice
+	order := Clauses(c.QueryString())
 	switch tt {
 	case BySection:
-		records, err = models.FilesByCategory(value, c.QueryString(), ctx, db)
+		records, err = order.FilesByCategory(value, ctx, db)
 	case ByPlatform:
-		records, err = models.FilesByPlatform(value, c.QueryString(), ctx, db)
+		records, err = order.FilesByPlatform(value, ctx, db)
 	case ByGroup:
 		name := sceners.CleanURL(value)
-		records, err = models.FilesByGroup(name, c.QueryString(), ctx, db)
+		records, err = order.FilesByGroup(name, ctx, db)
 	default:
 		return ErrByTag
 	}
@@ -234,7 +276,7 @@ func Tag(tt GroupBy, c echo.Context) error {
 	info := tags.Infos[key]
 	name := tags.Names[key]
 	desc := fmt.Sprintf("%s - %s.", name, info)
-	stat := fmt.Sprintf("%d files, %s", count, helpers.ByteCountLong(byteSum))
+	stat := fmt.Sprintf("%d files, %s", count, helpers.ByteCountFloat(byteSum))
 	sorter := sorter(c.QueryString())
 	return c.Render(http.StatusOK, tt.String(), map[string]interface{}{
 		"title":       fmt.Sprintf("%s%s%s", title, fmt.Sprintf("/%s/", tt), value),
@@ -295,25 +337,25 @@ func latency() *time.Time {
 func sorter(query string) map[string]string {
 	s := Sortings
 	switch strings.ToUpper(query) {
-	case models.NameAsc:
+	case NameAsc:
 		s[Name] = desc
-	case models.NameDes:
+	case NameDes:
 		s[Name] = asc
-	case models.PublAsc:
+	case PublAsc:
 		s[Publish] = desc
-	case models.PublDes:
+	case PublDes:
 		s[Publish] = asc
-	case models.PostAsc:
+	case PostAsc:
 		s[Posted] = desc
-	case models.PostDes:
+	case PostDes:
 		s[Posted] = asc
-	case models.SizeAsc:
+	case SizeAsc:
 		s[Size] = desc
-	case models.SizeDes:
+	case SizeDes:
 		s[Size] = asc
-	case models.DescAsc:
+	case DescAsc:
 		s[Desc] = desc
-	case models.DescDes:
+	case DescDes:
 		s[Desc] = asc
 	}
 	// to be usable in the template, convert the map keys into strings
