@@ -10,6 +10,8 @@ import (
 	"unicode/utf8"
 )
 
+const byteUnits = "kMGTPE"
+
 // ByteCount formats b as in a compact, human-readable unit of measure.
 func ByteCount(b int64) string {
 	// source: https://yourbasic.org/golang/formatting-byte-size-to-human-readable-format/
@@ -23,11 +25,12 @@ func ByteCount(b int64) string {
 		exp++
 	}
 	return fmt.Sprintf("%.0f%c",
-		float64(b)/float64(div), "KMGTPE"[exp])
+		float64(b)/float64(div), byteUnits[exp])
 }
 
-// ByteCountLong formats b as in a human-readable unit of measure.
-func ByteCountLong(b int64) string {
+// ByteCountFloat formats b as in a human-readable unit of measure.
+// Units measured in gigabytes or larger are returned with 1 decimal place.
+func ByteCountFloat(b int64) string {
 	const unit = 1000
 	if b < unit {
 		return fmt.Sprintf("%d bytes", b)
@@ -37,8 +40,13 @@ func ByteCountLong(b int64) string {
 		div *= unit
 		exp++
 	}
-	return fmt.Sprintf("%.0f %cB",
-		float64(b)/float64(div), "kMGTPE"[exp])
+	const gigabyte = 2
+	if exp < gigabyte {
+		return fmt.Sprintf("%.0f %cB",
+			float64(b)/float64(div), byteUnits[exp])
+	}
+	return fmt.Sprintf("%.1f %cB",
+		float64(b)/float64(div), byteUnits[exp])
 }
 
 // LastChr returns the last character or rune of the string.
