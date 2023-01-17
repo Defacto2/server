@@ -23,4 +23,7 @@ type Config struct {
 	// ConfigDir will overwrite the default directory that will store the server logs.
 	// It is recommended this is left blank to use the home .config path.
 	ConfigDir string `env:"DEFACTO2_CONFIG"`
+
+	// GOMAXPROCS todo.
+	MaxProcs int ``
 }

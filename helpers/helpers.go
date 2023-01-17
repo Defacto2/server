@@ -10,6 +10,8 @@ import (
 	"unicode/utf8"
 )
 
+const Eraseline = "\x1b[2K"
+
 const byteUnits = "kMGTPE"
 
 // ByteCount formats b as in a compact, human-readable unit of measure.

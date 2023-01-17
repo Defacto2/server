@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime"
 	"time"
 
 	"github.com/caarlos0/env"
@@ -34,10 +35,15 @@ var brand []byte
 func main() {
 	// Enviroment configuration
 	configs := config.Config{}
+	//configs.IsProduction = true
 	if err := env.Parse(&configs); err != nil {
 		log.Fatalln(err)
 	}
-	//configs.IsProduction = true
+
+	// Go runtime customizations
+	if i := configs.MaxProcs; i > 0 {
+		runtime.GOMAXPROCS(i)
+	}
 
 	// Logger
 	var log *zap.SugaredLogger
@@ -66,6 +72,9 @@ func main() {
 	}
 	defer db.Close()
 
+	// Cached global vars will go here to avoid the garbage collection.
+	// They should be lockable.
+
 	// SQLBoiler global variant
 	boil.SetDB(db)
 
@@ -74,19 +83,33 @@ func main() {
 
 	// Start server with graceful shutdown
 	go func() {
+		const mark = `⇨ `
+
 		// Check the database connection
 		if s, err := postgres.Version(); err != nil {
 			log.Warnln("Could not obtain the PostgreSQL server version. Is the database online?")
 		} else {
-			fmt.Printf("⇨ Defacto2 web application %s.\n", server.ParsePsVersion(s))
+			fmt.Printf("%sDefacto2 web application %s.\n", mark, server.ParsePsVersion(s))
 		}
+
+		fmt.Printf("%s%d active routines sharing %d usable threads on %d CPU cores.\n", mark,
+			runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
+
+		fmt.Printf("%sCompiled with Go %s.\n", mark, runtime.Version()[2:])
 		if configs.IsProduction {
-			fmt.Printf("⇨ server logs are found in: %s\n", configs.ConfigDir)
+			fmt.Printf("%sserver logs are found in: %s\n", mark, configs.ConfigDir)
 		}
+
+		// x, _ := models.GroupsTotalCount(ctx, db)
+		// y, _ := models.Tester(ctx, db)
+		// fmt.Printf("Group compare: %d total vs %d tester.\n", x, y)
+
 		serverAddress := fmt.Sprintf(":%d", configs.HTTPPort)
-		if err := e.Start(serverAddress); err != nil && err != http.ErrServerClosed {
+		err := e.Start(serverAddress)
+		if err != nil && err != http.ErrServerClosed {
 			log.Fatalf("HTTP server could not start: %s.", err)
 		}
+		// nothing should be placed here
 	}()
 
 	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 10 seconds.
@@ -97,7 +120,9 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), shutdown*time.Second)
 	defer func() {
 		const alert = "Detected Ctrl-C, server will shutdown in "
-		log.Sync()
+		if err := log.Sync(); err != nil {
+			log.Warnf("Could not sync the log before shutdown: %s.\n", err)
+		}
 		fmt.Printf("\n%s%s", alert, shutdown*time.Second)
 		count := shutdown
 		for range time.Tick(1 * time.Second) {
@@ -117,7 +142,9 @@ func main() {
 			log.Fatalf("Server shutdown caused an error: %w.", err)
 		}
 		log.Infoln("Server shutdown complete.")
-		log.Sync()
+		if err := log.Sync(); err != nil {
+			log.Warnf("Could not sync the log before shutdown: %s.\n", err)
+		}
 		signal.Stop(quit)
 		cancel()
 	}()

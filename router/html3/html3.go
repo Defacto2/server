@@ -204,15 +204,32 @@ func Groups(c echo.Context) error {
 		return err
 	}
 	defer db.Close()
-	s, err := models.Groups(ctx, db)
+	total, err := models.GroupsTotalCount(ctx, db)
 	if err != nil {
 		return err
 	}
+	// if there is an out of date cache, it will get updated in the background
+	// but the client will probably be rendered with the stale cache.
+	feedback := ""
+	l := len(models.GroupCache.Groups)
+	if l != total {
+		feedback = fmt.Sprintf("The list of groups is stale and is being updated."+
+			" Only showing %d of %d groups, please refresh for an updated list.", l, total)
+		go func(err error) error {
+			return models.GroupCache.Update()
+		}(err)
+		if err != nil {
+			return err
+		}
+	}
+
 	return c.Render(http.StatusOK, "group", map[string]interface{}{
-		"title":   title + "/groups",
-		"latency": fmt.Sprintf("%s.", time.Since(*start)),
-		"path":    "group",
-		"sceners": s,
+		// todo: feedback for when the groups are getting updated
+		"feedback": feedback,
+		"title":    title + "/groups",
+		"latency":  fmt.Sprintf("%s.", time.Since(*start)),
+		"path":     "group",
+		"sceners":  models.GroupCache.Groups,
 	})
 }
 

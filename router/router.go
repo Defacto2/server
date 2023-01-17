@@ -51,7 +51,7 @@ func Route(configs config.Config, log *zap.SugaredLogger) *echo.Echo {
 	e.Use(middleware.RemoveTrailingSlashWithConfig(middleware.TrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,
 	}))
-	e.Use(middleware.Recover())
+	//e.Use(middleware.Recover()) // TODO: only production
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
 		Timeout: time.Duration(configs.Timeout) * time.Second,
 	}))
