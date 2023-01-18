@@ -1,3 +1,6 @@
+# log files
+*.log
+# server binary
 server
-test.log
+# temp directory
 tmp/

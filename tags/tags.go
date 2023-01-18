@@ -3,17 +3,14 @@ package tags
 
 import (
 	"context"
-	"log"
 	"strings"
 
 	"github.com/Defacto2/server/postgres/models"
+	"go.uber.org/zap"
 
 	"github.com/Defacto2/server/postgres"
 	. "github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
-
-// TODO: cache the results and move the function / cache to /models/custom.go
-// https://stackoverflow.com/questions/67788292/add-a-cache-to-a-go-function-as-if-it-were-a-static-member
 
 // TagData holds the tag information.
 type TagData struct {
@@ -93,7 +90,7 @@ type Sum map[Tag]int
 var Sums = make(Sum, Windows+1)
 
 // Tags contains data for all the tags used by the web application.
-var Tags []TagData = All()
+var Tags []TagData = All(nil)
 
 // OSTags returns the tags that flag an operating system.
 func OSTags() [5]string {
@@ -106,7 +103,10 @@ func OSTags() [5]string {
 }
 
 // TagByName returns the named tag.
-func TagByName(name string) TagData {
+func TagByName(name string, log *zap.SugaredLogger) TagData {
+	if Tags == nil {
+		Tags = All(log)
+	}
 	for _, m := range Tags {
 		if strings.EqualFold(m.Name, name) {
 			return m
@@ -116,7 +116,7 @@ func TagByName(name string) TagData {
 }
 
 // All the tags and assoicated data.
-func All() []TagData {
+func All(log *zap.SugaredLogger) []TagData {
 	var m = make([]TagData, LastPlatform+1)
 	i := -1
 	for key, val := range URIs {
@@ -133,17 +133,18 @@ func All() []TagData {
 		}
 		t := key
 		defer func(i int, t Tag) {
-			m[i].Count = int(counter(i, t))
+			m[i].Count = int(counter(i, t, log))
 		}(i, t)
 	}
 	return m
 }
 
-func counter(i int, t Tag) int64 {
+func counter(i int, t Tag, log *zap.SugaredLogger) int64 {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		log.Fatalln(err) // TODO: zap log
+		log.Errorf("Could not connect to the database: %s.", err)
+		return -1
 	}
 	clause := "section = ?"
 	if t >= FirstPlatform {
@@ -152,7 +153,8 @@ func counter(i int, t Tag) int64 {
 	sum, err := models.Files(
 		Where(clause, URIs[t])).Count(ctx, db)
 	if err != nil {
-		log.Fatalln(err)
+		log.Errorf("Could not sum the records associated with tags: %s.", err)
+		return -1
 	}
 	return sum
 }

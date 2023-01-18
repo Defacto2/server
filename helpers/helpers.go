@@ -8,6 +8,9 @@ import (
 	"time"
 	"unicode"
 	"unicode/utf8"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 const Eraseline = "\x1b[2K"
@@ -59,6 +62,18 @@ func LastChr(s string) string {
 	}
 	r, _ := utf8.DecodeLastRuneInString(s)
 	return string(r)
+}
+
+func Sentence(s string) string {
+	if s == "" {
+		return ""
+	}
+	caser := cases.Title(language.English)
+	if len(s) == 1 {
+		return caser.String(s)
+	}
+	x := strings.Split(s, " ")
+	return fmt.Sprintf("%s %s", caser.String(x[0]), strings.Join(x[1:], " "))
 }
 
 // ShortMonth takes a month integer and abbreviates it to a three letter English month.

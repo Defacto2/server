@@ -48,13 +48,23 @@ func Route(configs config.Config, log *zap.SugaredLogger) *echo.Echo {
 	e.Static("/images", "public/images")
 
 	// Middleware
+	// remove trailing slashes
 	e.Use(middleware.RemoveTrailingSlashWithConfig(middleware.TrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,
 	}))
-	//e.Use(middleware.Recover()) // TODO: only production
+	// www. redirect
+	e.Pre(middleware.NonWWWRedirect())
+	// timeout
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
 		Timeout: time.Duration(configs.Timeout) * time.Second,
 	}))
+	if configs.IsProduction {
+		// recover from panics
+		e.Use(middleware.Recover())
+		// https redirect
+		// e.Pre(middleware.HTTPSRedirect())
+		// e.Pre(middleware.HTTPSNonWWWRedirect())
+	}
 
 	// HTTP status logger
 	e.Use(configs.LoggerMiddleware)

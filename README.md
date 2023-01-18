@@ -4,6 +4,8 @@ Under construction.
 
 ### echo tools to implement
 
+- SQLBoiler binding https://thedevelopercafe.com/articles/sql-in-go-with-sqlboiler-ac8efc4c5cb8
+
 - Echo#*Server#ReadTimeout 
 - Echo#*Server#WriteTimeout
 - Request and validate data (forms, query, etc) https://echo.labstack.com/guide/request/#custom-binder

@@ -1,5 +1,5 @@
 // The Defacto2 web application built in 2023.
-// (c) 2013 Ben Garrett.
+// (c) 2023 Ben Garrett.
 // https://defacto2.net
 package main
 
@@ -29,9 +29,6 @@ import (
 //go:embed public/texts/defacto2.txt
 var brand []byte
 
-// TODO:
-// bind sqlboiler statements: https://thedevelopercafe.com/articles/sql-in-go-with-sqlboiler-ac8efc4c5cb8
-
 func main() {
 	// Enviroment configuration
 	configs := config.Config{}
@@ -57,6 +54,7 @@ func main() {
 		log = logger.Development().Sugar()
 		log.Debug("The server is running in the development mode.")
 	}
+
 	// Startup logo
 	if logo := string(brand); len(logo) > 0 {
 		if _, err := fmt.Printf("%s\n\n", logo); err != nil {
