@@ -4,10 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"reflect"
+	"math/big"
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/Defacto2/server/helpers"
 	"github.com/Defacto2/server/postgres"
@@ -22,12 +23,21 @@ var GroupCache GroupCol
 // GroupCol is a cached collection of important, expensive group data.
 // The Mu mutex must always be locked when writing to the Groups map.
 type GroupCol struct {
-	Mu     sync.Mutex
+	Mu     sync.RWMutex
 	Groups map[string]Scener
+}
+
+func latency() *time.Time {
+	start := time.Now()
+	r := new(big.Int)
+	const n, k = 1000, 10
+	r.Binomial(n, k)
+	return &start
 }
 
 // Update or build the group collection with any missing group data.
 func (g *GroupCol) Update() error {
+	start := latency()
 	// TODO: create libs using base: https://github.com/Defacto2/df2/blob/937cf38cddda8a38091258ae62f2db31e1b672cf/pkg/groups/internal/rename/rename.go#L83
 	// TODO: run this in production on startup?
 	ctx, cancel := context.WithCancel(context.Background())
@@ -47,40 +57,47 @@ func (g *GroupCol) Update() error {
 	if err != nil {
 		return err
 	}
-
-	g.Mu.Lock()
-	defer g.Mu.Unlock()
-
-	if g.Groups == nil {
-		g.Groups = make(map[string]Scener, len(results))
-	}
-
-	for i, r := range results {
-		name := strings.TrimSpace(r.GroupBrandFor.String)
-		if len(name) == 0 {
-			continue
+	go func() {
+		if g.Groups == nil {
+			g.Groups = make(map[string]Scener, len(results))
 		}
-		key := GroupForURL(name)
-		cached := g.Groups[key]
-		if cached.Count > 0 {
-			continue
-		}
-		if reflect.DeepEqual(r, Scener{}) {
-			continue
-		}
-		sum, err := CountGroup(name, ctx, db)
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		db, err := postgres.ConnectDB()
 		if err != nil {
-			fmt.Println(err)
-			continue
+			return
 		}
-		g.Groups[key] = Scener{
-			Name:  name,
-			URI:   key,
-			Count: sum,
+		defer db.Close()
+		for i, r := range results {
+			if r == nil {
+				continue
+			}
+			name := strings.TrimSpace(r.GroupBrandFor.String)
+			if len(name) == 0 {
+				continue
+			}
+			key := GroupForURL(name)
+			g.Mu.RLock()
+			cached := g.Groups[key]
+			g.Mu.RUnlock()
+			if cached.Count > 0 {
+				continue
+			}
+			sum, err := CountGroup(name, ctx, db)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+			cached.Name = name
+			cached.URI = key
+			cached.Count = sum
+			g.Mu.Lock()
+			g.Groups[key] = cached
+			g.Mu.Unlock()
+			fmt.Printf("%s\r%d. Cached the group %q with %d records  ", helpers.Eraseline, i, name, sum)
 		}
-		fmt.Printf("%s\r%d. Cached the group %q with %d records", helpers.Eraseline, i, name, sum)
-	}
-	fmt.Println()
+		fmt.Printf("\nCache builder, time taken, %s.\n", time.Since(*start))
+	}()
 	return nil
 }
 

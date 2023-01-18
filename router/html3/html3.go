@@ -32,12 +32,12 @@ var ErrByTag = errors.New("unknown bytag record group")
 type RecordsBy int
 
 const (
-	BySection  RecordsBy = iota // BySection groups records by the section file table column.
-	ByPlatform                  // BySection groups records by the platform file table column.
-	ByGroup                     // ByGroup groups the records by the distinct, group_brand_for file table column.
-	AsArt
-	AsDocuments
-	AsSoftware
+	BySection   RecordsBy = iota // BySection groups records by the section file table column.
+	ByPlatform                   // BySection groups records by the platform file table column.
+	ByGroup                      // ByGroup groups the records by the distinct, group_brand_for file table column.
+	AsArt                        // AsArt group records as art.
+	AsDocuments                  // AsDocuments group records as documents.
+	AsSoftware                   // AsSoftware group records as software.
 
 	asc  = "A" // asc is order by ascending.
 	desc = "D" // desc is order by descending.
@@ -280,7 +280,10 @@ func Groups(c echo.Context) error {
 	// if there is an out of date cache, it will get updated in the background
 	// but the client will probably be rendered with an incomplete, stale cache.
 	feedback := ""
-	if l := len(models.GroupCache.Groups); l != total {
+	models.GroupCache.Mu.RLock()
+	l := len(models.GroupCache.Groups)
+	models.GroupCache.Mu.RUnlock()
+	if l != total {
 		go func(err error) error {
 			return models.GroupCache.Update()
 		}(err)
@@ -289,8 +292,9 @@ func Groups(c echo.Context) error {
 		}
 		feedback = refreshInfo(l, total)
 	}
+	models.GroupCache.Mu.RLock()
+	defer models.GroupCache.Mu.RUnlock()
 	return c.Render(http.StatusOK, "groups", map[string]interface{}{
-		// todo: feedback for when the groups are getting updated
 		"feedback": feedback,
 		"title":    title + "/groups",
 		"latency":  fmt.Sprintf("%s.", time.Since(*start)),
