@@ -1,10 +1,10 @@
-{{define "layout"}}
+{{define "layout" -}}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-<!-- http://www.w3.org/MarkUp/Wilbur/ -->
+{{ "<!-- http://www.w3.org/MarkUp/Wilbur/ -->" | safeHTML }}
 <html>
  <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta name="description" content="Firefox 2 era (October 2006) page that is friendly for legacy operating systems including Windows 9x, NT-4, OS-X v10.2">
+  <meta name="description" content="{{ index . "description" }}">
   <link href="/" rev="HTML5" title="Standard website">
   <meta name="robots" content="noindex, nofollow">
   <title>{{index . "title"}}</title>
@@ -12,8 +12,8 @@
 <body>
     <h2>{{index . "title"}}</h2>
     <p>{{index . "description"}}</p>
-    {{if ne (index . "feedback") ""}}<p><em>{{index . "feedback"}}</em></p>{{end -}}
+    {{if ne (index . "feedback") ""}}<p style="color: crimson;">{{index . "feedback"}}</p>{{end -}}
     <small>{{index . "stats"}}</small>
-    {{ block "pre" .}}<!-- no pre content was defined -->{{end}}<hr>
+    {{ block "pre" .}}{{ "<!-- no pre content was defined -->" | safeHTML }}{{end}}<hr>
     <p><em>Defacto2 Server at defacto2.net, latency {{index . "latency"}}</em></p>
 </body></html>{{end}}

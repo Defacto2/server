@@ -62,88 +62,11 @@ const (
 )
 
 func (o Order) String() string {
-	return OrderClauses()[o]
+	return orderClauses()[o]
 }
 
-// FilesByCategory returns all the files that match the named category.
-func (o Order) FilesByCategory(name string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
-	x := null.StringFrom(name)
-	return models.Files(Where(section, x), OrderBy(o.String())).All(ctx, db)
-}
-
-// FilesByPlatform returns all the files that match the named platform.
-func (o Order) FilesByPlatform(name string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
-	x := null.StringFrom(name)
-	return models.Files(Where(platform, x), OrderBy(o.String())).All(ctx, db)
-}
-
-// FilesByGroup returns all the files that match an exact named group.
-func (o Order) FilesByGroup(name string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
-	x := null.StringFrom(name)
-	return models.Files(Where(groupFor, x), OrderBy(o.String())).All(ctx, db)
-}
-
-// ArtImagesCount counts the number of files that could be classified as digital or pixel art.
-func ArtImagesCount(ctx context.Context, db *sql.DB) (int, error) {
-	if c := Counts[Art]; c > 0 {
-		return int(c), nil
-	}
-	bbs := tags.URIs[tags.BBS]
-	image := tags.URIs[tags.Image]
-	c, err := models.Files(
-		Where(platform, image),
-		Where(notSection, bbs)).Count(ctx, db)
-	if err != nil {
-		return -1, err
-	}
-	Counts[Art] = Count(c)
-	return int(c), nil
-}
-
-// ByteCountByCategory sums the byte filesizes for all the files that match the category name.
-func ByteCountByCategory(name string, ctx context.Context, db *sql.DB) (int64, error) {
-	i, err := models.Files(
-		SQL("SELECT sum(filesize) FROM files WHERE section = $1",
-			null.StringFrom(name)),
-	).Count(ctx, db)
-	if err != nil {
-		return 0, err
-	}
-	return i, err
-}
-
-// ByteCountByPlatform sums the byte filesizes for all the files that match the category name.
-func ByteCountByPlatform(name string, ctx context.Context, db *sql.DB) (int64, error) {
-	i, err := models.Files(
-		SQL("SELECT sum(filesize) FROM files WHERE platform = $1",
-			null.StringFrom(name)),
-	).Count(ctx, db)
-	if err != nil {
-		return 0, err
-	}
-	return i, err
-}
-
-// DocumentCount counts the number of files that could be classified as document or text art.
-func DocumentCount(ctx context.Context, db *sql.DB) (int, error) {
-	if c := Counts[Doc]; c > 0 {
-		return int(c), nil
-	}
-	ansi := tags.URIs[tags.ANSI]
-	text := tags.URIs[tags.Text]
-	amiga := tags.URIs[tags.TextAmiga]
-	pdf := tags.URIs[tags.PDF]
-	c, err := models.Files(
-		Where(platform, ansi), Or(platform, text), Or(platform, amiga), Or(platform, pdf)).Count(ctx, db)
-	if err != nil {
-		return -1, err
-	}
-	Counts[Doc] = Count(c)
-	return int(c), nil
-}
-
-// OrderClauses returns a map of all the SQL, ORDER BY clauses.
-func OrderClauses() map[Order]string {
+// orderClauses returns a map of all the SQL, ORDER BY clauses.
+func orderClauses() map[Order]string {
 	const a, d = "asc", "desc"
 	ca := models.FileColumns.Createdat
 	dy := models.FileColumns.DateIssuedYear
@@ -166,34 +89,195 @@ func OrderClauses() map[Order]string {
 	return m
 }
 
-// File returns the record associated with the key ID.
-func File(key int, ctx context.Context, db *sql.DB) (*models.File, error) {
+// One returns the record associated with the key ID.
+func One(key int, ctx context.Context, db *sql.DB) (*models.File, error) {
 	file, err := models.Files(models.FileWhere.ID.EQ(int64(key))).One(ctx, db)
 	if err != nil {
-		return &models.File{}, err
+		return nil, err
 	}
 	return file, err
 }
 
-// SoftwareCount counts the number of files that could be classified as software.
+// All returns all the file records.
+func (o Order) All(key int, ctx context.Context, db *sql.DB) (*models.FileSlice, error) {
+	files, err := models.Files(OrderBy(o.String())).All(ctx, db)
+	if err != nil {
+		return nil, err
+	}
+	return &files, err
+}
+
+// FilesByCategory returns all the files that match the named category.
+func (o Order) FilesByCategory(name string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+	x := null.StringFrom(name)
+	return models.Files(Where(section, x), OrderBy(o.String())).All(ctx, db)
+}
+
+// ByteCountByCategory sums the byte filesizes for all the files that match the category name.
+func ByteCountByCategory(name string, ctx context.Context, db *sql.DB) (int64, error) {
+	i, err := models.Files(
+		SQL("SELECT sum(filesize) FROM files WHERE section = $1",
+			null.StringFrom(name)),
+	).Count(ctx, db)
+	if err != nil {
+		return 0, fmt.Errorf("bytecount by section %q: %w", name, err)
+	}
+	return i, nil
+}
+
+// FilesByPlatform returns all the files that match the named platform.
+func (o Order) FilesByPlatform(name string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+	x := null.StringFrom(name)
+	return models.Files(Where(platform, x), OrderBy(o.String())).All(ctx, db)
+}
+
+// ByteCountByPlatform sums the byte filesizes for all the files that match the category name.
+func ByteCountByPlatform(name string, ctx context.Context, db *sql.DB) (int64, error) {
+	i, err := models.Files(
+		SQL("SELECT sum(filesize) FROM files WHERE platform = $1",
+			null.StringFrom(name)),
+	).Count(ctx, db)
+	if err != nil {
+		return 0, fmt.Errorf("bytecount by platform %q: %w", name, err)
+	}
+	return i, nil
+}
+
+// FilesByGroup returns all the files that match an exact named group.
+func (o Order) FilesByGroup(name string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+	x := null.StringFrom(name)
+	return models.Files(Where(groupFor, x), OrderBy(o.String())).All(ctx, db)
+}
+
+// ByteCountByGroup sums the byte filesizes for all the files that match the group name.
+func ByteCountByGroup(name string, ctx context.Context, db *sql.DB) (int64, error) {
+	x := null.StringFrom(name)
+	i, err := models.Files(SQL("SELECT SUM(filesize) as size_sum FROM files WHERE group_brand_for = $1", x)).Count(ctx, db)
+	if err != nil {
+		return 0, fmt.Errorf("bytecount by group %q: %w", name, err)
+	}
+	return i, nil
+}
+
+// ArtFiles returns all the files that could be considered as digital or pixel art.
+func (o Order) ArtFiles(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+	return models.Files(ArtExpr(), OrderBy(o.String())).All(ctx, db)
+}
+
+// ArtCount counts the files that could be considered as digital or pixel art.
+func ArtCount(ctx context.Context, db *sql.DB) (int, error) {
+	if c := Counts[Art]; c > 0 {
+		return int(c), nil
+	}
+	c, err := models.Files(ArtExpr()).Count(ctx, db)
+	if err != nil {
+		return -1, err
+	}
+	Counts[Art] = Count(c)
+	return int(c), nil
+}
+
+// ArtByteCount sums the byte filesizes for all the files that is considered as digital or pixel art.
+func ArtByteCount(ctx context.Context, db *sql.DB) (int64, error) {
+	stmt := "SELECT SUM(files.filesize) AS size_sum FROM files WHERE" +
+		fmt.Sprintf(" files.section != '%s'", tags.BBS) +
+		fmt.Sprintf(" AND files.platform = '%s';", tags.Image)
+	return models.Files(SQL(stmt)).Count(ctx, db)
+}
+
+// ArtExpr is a the query mod expression for art files.
+func ArtExpr() QueryMod {
+	bbs := null.String{String: tags.URIs[tags.BBS], Valid: true}
+	image := null.String{String: tags.URIs[tags.Image], Valid: true}
+	return Expr(
+		models.FileWhere.Section.NEQ(bbs),
+		models.FileWhere.Platform.EQ(image),
+	)
+}
+
+// DocumentFiles returns all the files that that are considered to be documents.
+func (o Order) DocumentFiles(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+	return models.Files(DocumentExpr(), OrderBy(o.String())).All(ctx, db)
+}
+
+// DocumentByteCount sums the byte filesizes for all the files that are considered to be documents.
+func DocumentByteCount(ctx context.Context, db *sql.DB) (int64, error) {
+	stmt := "SELECT SUM(files.filesize) AS size_sum FROM files WHERE " +
+		fmt.Sprintf("platform = '%s'", tags.ANSI) +
+		fmt.Sprintf("OR platform = '%s'", tags.Text) +
+		fmt.Sprintf("OR platform = '%s'", tags.TextAmiga) +
+		fmt.Sprintf("OR platform = '%s'", tags.PDF)
+	return models.Files(SQL(stmt)).Count(ctx, db)
+}
+
+// DocumentCount counts the number of files that are considered to be documents.
+func DocumentCount(ctx context.Context, db *sql.DB) (int, error) {
+	if c := Counts[Doc]; c > 0 {
+		return int(c), nil
+	}
+	c, err := models.Files(DocumentExpr()).Count(ctx, db)
+	if err != nil {
+		return -1, err
+	}
+	Counts[Doc] = Count(c)
+	return int(c), nil
+}
+
+// DocumentExpr is a the query mod expression for document files.
+func DocumentExpr() QueryMod {
+	ansi := null.String{String: tags.URIs[tags.ANSI], Valid: true}
+	text := null.String{String: tags.URIs[tags.Text], Valid: true}
+	amiga := null.String{String: tags.URIs[tags.TextAmiga], Valid: true}
+	pdf := null.String{String: tags.URIs[tags.PDF], Valid: true}
+	return Expr(
+		models.FileWhere.Platform.EQ(ansi),
+		Or2(models.FileWhere.Platform.EQ(text)),
+		Or2(models.FileWhere.Platform.EQ(amiga)),
+		Or2(models.FileWhere.Platform.EQ(pdf)),
+	)
+}
+
+// SoftwareFiles returns all the files that that are considered to be software.
+func (o Order) SoftwareFiles(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+	return models.Files(SoftwareExpr(), OrderBy(o.String())).All(ctx, db)
+}
+
+// SoftwareCount counts the number of files that are considered to be software.
 func SoftwareCount(ctx context.Context, db *sql.DB) (int, error) {
 	if c := Counts[Soft]; c > 0 {
 		return int(c), nil
 	}
-	java := tags.URIs[tags.PDF]
-	linux := tags.URIs[tags.PDF]
-	dos := tags.URIs[tags.PDF]
-	php := tags.URIs[tags.PDF]
-	windows := tags.URIs[tags.PDF]
-	c, err := models.Files(
-		Where(platform, java),
-		Or(platform, linux),
-		Or(platform, dos),
-		Or(platform, php),
-		Or(platform, windows)).Count(ctx, db)
+	c, err := models.Files(SoftwareExpr()).Count(ctx, db)
 	if err != nil {
 		return -1, err
 	}
 	Counts[Soft] = Count(c)
 	return int(c), nil
+}
+
+// SoftwareByteCount sums the byte filesizes for all the files that are considered to be software.
+func SoftwareByteCount(ctx context.Context, db *sql.DB) (int64, error) {
+	stmt := "SELECT SUM(files.filesize) AS size_sum FROM files WHERE " +
+		fmt.Sprintf("platform = '%s'", tags.Java) +
+		fmt.Sprintf("OR platform = '%s'", tags.Linux) +
+		fmt.Sprintf("OR platform = '%s'", tags.DOS) +
+		fmt.Sprintf("OR platform = '%s'", tags.PHP) +
+		fmt.Sprintf("OR platform = '%s'", tags.Windows)
+	return models.Files(SQL(stmt)).Count(ctx, db)
+}
+
+// SoftwareExpr is a the query mod expression for software files.
+func SoftwareExpr() QueryMod {
+	java := null.String{String: tags.URIs[tags.Java], Valid: true}
+	linux := null.String{String: tags.URIs[tags.Linux], Valid: true}
+	dos := null.String{String: tags.URIs[tags.DOS], Valid: true}
+	php := null.String{String: tags.URIs[tags.PHP], Valid: true}
+	windows := null.String{String: tags.URIs[tags.Windows], Valid: true}
+	return Expr(
+		models.FileWhere.Platform.EQ(java),
+		Or2(models.FileWhere.Platform.EQ(linux)),
+		Or2(models.FileWhere.Platform.EQ(dos)),
+		Or2(models.FileWhere.Platform.EQ(php)),
+		Or2(models.FileWhere.Platform.EQ(windows)),
+	)
 }

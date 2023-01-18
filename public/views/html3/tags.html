@@ -1,11 +1,11 @@
-<!-- tag.html -->
+<!-- tags.html -->
 {{define "content"}}
 {{- $parent := "Parent Directory" }}
 {{- $padding := 41 }}
 {{- $first := index . "tagFirst" }}
 {{- $end := index . "tagEnd" }}
 {{- $path := index . "path" }}
-<img src="/images/html3/back.gif" alt="[DIR]"> <a href="/html3/index">{{$parent}}</a>{{leadStr $padding $parent}}    -   Return to the HTML3 index.
+<img src="/images/html3/back.gif" alt="[DIR]"> <a href="/html3">{{$parent}}</a>{{leadStr $padding $parent}}    -   Return to the HTML3 index.
 {{ range $index, $value := .tags -}} 
 {{- $meta := metaByName $value -}}
 {{if and (gt $first -1) (lt $index $first)}}{{continue}}{{end -}}

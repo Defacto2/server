@@ -9,6 +9,7 @@ import (
 	"math/big"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/Defacto2/sceners"
@@ -16,31 +17,46 @@ import (
 	"github.com/Defacto2/server/models"
 	"github.com/Defacto2/server/tags"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 
 	"github.com/Defacto2/server/postgres"
 	pgm "github.com/Defacto2/server/postgres/models"
 )
 
+// HTTP status codes in Go
+// https://go.dev/src/net/http/status.go
+
 var ErrByTag = errors.New("unknown bytag record group")
 
-// GroupBy are the record groupings.
-type GroupBy int
+// RecordsBy are the record groupings.
+type RecordsBy int
 
 const (
-	BySection  GroupBy = iota // BySection groups records by the section file table column.
-	ByPlatform                // BySection groups records by the platform file table column.
-	ByGroup                   // ByGroup groups the records by the distinct, group_brand_for file table column.
+	BySection  RecordsBy = iota // BySection groups records by the section file table column.
+	ByPlatform                  // BySection groups records by the platform file table column.
+	ByGroup                     // ByGroup groups the records by the distinct, group_brand_for file table column.
+	AsArt
+	AsDocuments
+	AsSoftware
 
 	asc  = "A" // asc is order by ascending.
 	desc = "D" // desc is order by descending.
 )
 
-func (t GroupBy) String() string {
-	return [...]string{"category", "platform", "group"}[t]
+func (t RecordsBy) String() string {
+	const l = 6
+	if t >= l {
+		return ""
+	}
+	return [l]string{"category", "platform", "group", "art", "document", "software"}[t]
 }
 
-func (t GroupBy) Parent() string {
-	return [...]string{"categories", "platforms", "groups"}[t]
+func (t RecordsBy) Parent() string {
+	const l = 6
+	if t >= l {
+		return ""
+	}
+	return [l]string{"categories", "platforms", "groups", "", "", ""}[t]
 }
 
 const (
@@ -57,22 +73,32 @@ const (
 )
 
 const (
-	Root  = "/html3" // Root path of the HTML3 router group.
-	title = "Index of " + Root
+	Prefix = "/html3" // Root path of the HTML3 router group.
+	title  = "Index of " + Prefix
 )
 
 var Counts = models.Counts
 
+type sugared struct {
+	log *zap.SugaredLogger
+}
+
 // Routes for the /html3 sub-route group.
-func Routes(prefix string, e *echo.Echo) {
-	g := e.Group(prefix)
-	g.GET("", Index)
+// Any errors are logged and rendered to the client using HTTP codes
+// and the custom /html3, group errror template.
+func Routes(e *echo.Echo, log *zap.SugaredLogger) {
+	s := sugared{log: log}
+	g := e.Group(Prefix)
+	g.GET("", s.Index)
 	g.GET("/categories", Categories)
-	g.GET("/category/:id", Category)
+	g.GET("/category/:id", s.Category)
 	g.GET("/platforms", Platforms)
-	g.GET("/platform/:id", Platform)
+	g.GET("/platform/:id", s.Platform)
 	g.GET("/groups", Groups)
-	g.GET("/group/:id", Group)
+	g.GET("/group/:id", s.Group)
+	g.GET("/art", s.Art)
+	g.GET("/documents", s.Documents)
+	g.GET("/software", s.Software)
 	// append legacy redirects
 	for url := range LegacyURLs {
 		g.GET(url, Redirection)
@@ -136,33 +162,76 @@ func Clauses(query string) models.Order {
 	}
 }
 
-// Index is the homepage of the /html3 sub-route.
-func Index(c echo.Context) error {
-	const desc = "Welcome to the Firefox 2 era (October 2006) Defacto2 website, " +
-		"that is friendly for legacy operating systems including Windows 9x, NT-4, OS-X 10.2." // TODO: share this with html meta OR make this html templ
+const (
+	errConn = "Sorry, at the moment the server cannot connect to the database"
+	errTag  = "No database query was created for the tag"
+	errTmpl = "The server could not render the HTML template for this page"
+	firefox = "Welcome to the Firefox 2 era (October 2006) Defacto2 website, which is friendly for legacy operating systems, including Windows 9x, NT-4, and OS-X 10.2."
+)
+
+// GroupCache is a cached collection of important, expensive group data.
+// The Mu mutex must always be locked before writing this varable.
+var IndexCache IndexSums
+
+// GroupCol is a cached collection of important, expensive group data.
+// The Mu mutex must always be locked when writing to the Groups map.
+type IndexSums struct {
+	Mu   sync.Mutex
+	Sums map[int]int
+}
+
+// Index method is the homepage of the /html3 sub-route.
+func (s *sugared) Index(c echo.Context) error {
 	start := latency()
+	const desc = firefox
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return err
+		s.log.Warnf("%s: %s", errConn, err)
+		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	defer db.Close()
 
-	// TODO: defer and cache results
-	art, doc, sw, grp := 0, 0, 0, 0
-	// TODO: log errors
-	art, _ = models.ArtImagesCount(ctx, db)
-	doc, _ = models.DocumentCount(ctx, db)
-	sw, _ = models.SoftwareCount(ctx, db)
-	grp, _ = models.GroupsTotalCount(ctx, db)
-
+	// Cache for the database counts.
+	IndexCache.Mu.Lock()
+	defer IndexCache.Mu.Unlock()
+	// Get and store database counts.
+	if IndexCache.Sums == nil {
+		const loop = 4
+		IndexCache.Sums = make(map[int]int, loop)
+		for i := 0; i < loop; i++ {
+			IndexCache.Sums[i] = 0
+		}
+	}
+	for i, value := range IndexCache.Sums {
+		if value > 0 {
+			continue
+		}
+		var err error
+		sum := 0
+		switch i {
+		case 0:
+			sum, err = models.ArtCount(ctx, db)
+		case 1:
+			sum, err = models.DocumentCount(ctx, db)
+		case 2:
+			sum, err = models.SoftwareCount(ctx, db)
+		case 3:
+			sum, err = models.GroupsTotalCount(ctx, db)
+		}
+		if err != nil {
+			s.log.Warnf("%s: %s", errConn, err)
+			continue
+		}
+		IndexCache.Sums[i] = sum
+	}
 	return c.Render(http.StatusOK, "index", map[string]interface{}{
 		"title":       title,
 		"description": desc,
-		"art":         art,
-		"doc":         doc,
-		"sw":          sw,
-		"grp":         grp,
+		"art":         IndexCache.Sums[0],
+		"doc":         IndexCache.Sums[1],
+		"sw":          IndexCache.Sums[2],
+		"grp":         IndexCache.Sums[3],
 		"cat":         tags.CategoryCount,
 		"plat":        tags.PlatformCount,
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
@@ -201,29 +270,26 @@ func Groups(c echo.Context) error {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusNotFound, errConn)
 	}
 	defer db.Close()
 	total, err := models.GroupsTotalCount(ctx, db)
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusNotFound, errConn)
 	}
 	// if there is an out of date cache, it will get updated in the background
-	// but the client will probably be rendered with the stale cache.
+	// but the client will probably be rendered with an incomplete, stale cache.
 	feedback := ""
-	l := len(models.GroupCache.Groups)
-	if l != total {
-		feedback = fmt.Sprintf("The list of groups is stale and is being updated."+
-			" Only showing %d of %d groups, please refresh for an updated list.", l, total)
+	if l := len(models.GroupCache.Groups); l != total {
 		go func(err error) error {
 			return models.GroupCache.Update()
 		}(err)
 		if err != nil {
-			return err
+			return echo.NewHTTPError(http.StatusNotFound, errConn)
 		}
+		feedback = refreshInfo(l, total)
 	}
-
-	return c.Render(http.StatusOK, "group", map[string]interface{}{
+	return c.Render(http.StatusOK, "groups", map[string]interface{}{
 		// todo: feedback for when the groups are getting updated
 		"feedback": feedback,
 		"title":    title + "/groups",
@@ -233,70 +299,119 @@ func Groups(c echo.Context) error {
 	})
 }
 
+func refreshInfo(l, total int) string {
+	if l == 0 {
+		// pause for a second so the client can display some records
+		time.Sleep(1 * time.Second)
+		return fmt.Sprintf("The list of %d groups is stale and is being updated, please refresh for an updated list.", total)
+	}
+	return fmt.Sprintf("The list of groups is stale and is being updated."+
+		" Only showing %d of %d groups, please refresh for an updated list.", l, total)
+}
+
 // Category lists the file records associated with the category tag that is provided by the ID param in the URL.
-func Category(c echo.Context) error {
-	return Tag(BySection, c)
+func (s *sugared) Category(c echo.Context) error {
+	return s.Tag(BySection, c)
 }
 
 // Platform lists the file records associated with the platform tag that is provided by the ID param in the URL.
-func Platform(c echo.Context) error {
-	return Tag(ByPlatform, c)
+func (s *sugared) Platform(c echo.Context) error {
+	return s.Tag(ByPlatform, c)
 }
 
 // Group lists the file records associated with the group that is provided by the ID param in the URL.
-func Group(c echo.Context) error {
-	return Tag(ByGroup, c)
+func (s *sugared) Group(c echo.Context) error {
+	return s.Tag(ByGroup, c)
 }
 
-// Tag fetches all the records associated with the GroupBy grouping.
-func Tag(tt GroupBy, c echo.Context) error {
+func (s *sugared) Art(c echo.Context) error {
+	return s.Tag(AsArt, c)
+}
+
+func (s *sugared) Documents(c echo.Context) error {
+	return s.Tag(AsDocuments, c)
+}
+
+func (s *sugared) Software(c echo.Context) error {
+	return s.Tag(AsSoftware, c)
+}
+
+// Tag fetches all the records associated with the RecordsBy grouping.
+func (s *sugared) Tag(tt RecordsBy, c echo.Context) error {
 	start := latency()
-	value := c.Param("id")
+	id := c.Param("id")
+	name := sceners.CleanURL(id)
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return err
+		s.log.Warnf("%s: %s", errConn, err)
+		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	defer db.Close()
 	var records pgm.FileSlice
 	order := Clauses(c.QueryString())
 	switch tt {
 	case BySection:
-		records, err = order.FilesByCategory(value, ctx, db)
+		records, err = order.FilesByCategory(id, ctx, db)
 	case ByPlatform:
-		records, err = order.FilesByPlatform(value, ctx, db)
+		records, err = order.FilesByPlatform(id, ctx, db)
 	case ByGroup:
-		name := sceners.CleanURL(value)
 		records, err = order.FilesByGroup(name, ctx, db)
+	case AsArt:
+		records, err = order.ArtFiles(ctx, db)
+	case AsDocuments:
+		records, err = order.DocumentFiles(ctx, db)
+	case AsSoftware:
+		records, err = order.SoftwareFiles(ctx, db)
 	default:
-		return ErrByTag
+		s.log.Warnf("%s: %s", errTag, tt)
+		return echo.NewHTTPError(http.StatusServiceUnavailable, errTag)
 	}
 	if err != nil {
-		return err
+		s.log.Warnf("%s: %s", errConn, err)
+		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	count := len(records)
 	if count == 0 {
 		return echo.NewHTTPError(http.StatusNotFound,
-			fmt.Sprintf("The %s %q doesn't exist", tt, value))
+			fmt.Sprintf("The %s %q doesn't exist", tt, id))
 	}
 	var byteSum int64
 	switch tt {
 	case BySection:
-		byteSum, err = models.ByteCountByCategory(value, ctx, db)
+		byteSum, err = models.ByteCountByCategory(id, ctx, db)
 	case ByPlatform:
-		byteSum, err = models.ByteCountByPlatform(value, ctx, db)
+		byteSum, err = models.ByteCountByPlatform(id, ctx, db)
+	case ByGroup:
+		byteSum, err = models.ByteCountByGroup(name, ctx, db)
+	case AsArt:
+		byteSum, err = models.ArtByteCount(ctx, db)
+	case AsDocuments:
+		byteSum, err = models.DocumentByteCount(ctx, db)
+	case AsSoftware:
+		byteSum, err = models.SoftwareByteCount(ctx, db)
+	default:
+		s.log.Warnf("%s: %s", errTag, tt)
+		return echo.NewHTTPError(http.StatusServiceUnavailable, errTag)
 	}
 	if err != nil {
-		return err
+		s.log.Warnf("%s %s", errConn, err)
+		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
-	key := tags.TagByURI(value)
-	info := tags.Infos[key]
-	name := tags.Names[key]
-	desc := fmt.Sprintf("%s - %s.", name, info)
+	desc := ""
+	switch tt {
+	case BySection, ByPlatform:
+		key := tags.TagByURI(id)
+		info := tags.Infos[key]
+		name := tags.Names[key]
+		desc = fmt.Sprintf("%s - %s.", name, info)
+	case AsArt:
+		desc = "Digital + pixel art, hi-res, raster and pixel images."
+	}
 	stat := fmt.Sprintf("%d files, %s", count, helpers.ByteCountFloat(byteSum))
 	sorter := sorter(c.QueryString())
-	return c.Render(http.StatusOK, tt.String(), map[string]interface{}{
-		"title":       fmt.Sprintf("%s%s%s", title, fmt.Sprintf("/%s/", tt), value),
+	err = c.Render(http.StatusOK, tt.String(), map[string]interface{}{
+		"title":       fmt.Sprintf("%s%s%s", title, fmt.Sprintf("/%s/", tt), id),
 		"home":        "",
 		"description": desc,
 		"parent":      tt.Parent(),
@@ -305,6 +420,11 @@ func Tag(tt GroupBy, c echo.Context) error {
 		"records":     records,
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
 	})
+	if err != nil {
+		s.log.Errorf("%s: %s %d", errTmpl, err, tt)
+		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
+	}
+	return nil
 }
 
 // Error renders a custom HTTP error page for the HTML3 sub-group.
@@ -317,6 +437,9 @@ func Error(err error, c echo.Context) error {
 		code = he.Code
 		msg = fmt.Sprint(he.Message)
 	}
+	// TODO:
+	// this function should log error values.
+
 	return c.Render(code, "error", map[string]interface{}{
 		"title":       fmt.Sprintf("%d error, there is a complication", code),
 		"description": fmt.Sprintf("%s.", msg),
@@ -327,9 +450,9 @@ func Error(err error, c echo.Context) error {
 // Redirection redirects any legacy URL matches.
 func Redirection(c echo.Context) error {
 	for u, redirect := range LegacyURLs {
-		htm := Root + u
+		htm := Prefix + u
 		if htm == c.Path() {
-			return c.Redirect(http.StatusPermanentRedirect, Root+redirect)
+			return c.Redirect(http.StatusPermanentRedirect, Prefix+redirect)
 		}
 	}
 	return c.String(http.StatusInternalServerError,
@@ -374,6 +497,10 @@ func sorter(query string) map[string]string {
 		s[Desc] = desc
 	case DescDes:
 		s[Desc] = asc
+	default:
+		// When no query is provided, it is assumed the records have been
+		// ordered with Name ASC. So set DESC for the clickable Name link.
+		s[Name] = desc
 	}
 	// to be usable in the template, convert the map keys into strings
 	tmplSorts := make(map[string]string, len(s))

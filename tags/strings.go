@@ -11,6 +11,10 @@ type Name map[Tag]string
 // Info is a short description of the tag.
 type Info map[Tag]string
 
+func (t Tag) String() string {
+	return URIs[t]
+}
+
 var URIs = URI{
 	Announcement: "announcements",
 	ANSIEditor:   "ansieditor",

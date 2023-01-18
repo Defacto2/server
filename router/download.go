@@ -55,7 +55,7 @@ func download(log *zap.SugaredLogger, c echo.Context) error {
 		return echo.NewHTTPError(http.StatusServiceUnavailable, dbdown)
 	}
 	defer db.Close()
-	res, err := models.File(id, ctx, db)
+	res, err := models.One(id, ctx, db)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusServiceUnavailable, dbdown)
 	}

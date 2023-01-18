@@ -70,9 +70,12 @@ func Route(configs config.Config, log *zap.SugaredLogger) *echo.Echo {
 		return c.String(http.StatusOK, fmt.Sprintf("Hello, World!\nThere are %d files\n",
 			count))
 	})
+	e.GET("/file/list", func(c echo.Context) error {
+		return c.String(http.StatusOK, "Coming soon!")
+	})
 
 	// Routes => /html3
-	html3.Routes(html3.Root, e)
+	html3.Routes(e, log)
 
 	// Routes => /users
 	e.GET("/users", users.GetAllUsers)
