@@ -3,6 +3,7 @@
 package router
 
 import (
+	"embed"
 	"fmt"
 	"net/http"
 	"time"
@@ -15,20 +16,30 @@ import (
 	"go.uber.org/zap"
 )
 
-// Router is the main instance of the Echo router.
-func Route(configs config.Config, log *zap.SugaredLogger) *echo.Echo {
+// Router configurations.
+type Router struct {
+	Configs config.Config      // Configs from the enviroment.
+	Log     *zap.SugaredLogger // Log is a sugared logger.
+	Images  embed.FS           // Not in use.
+	Views   embed.FS           // Views are Go templates.
+}
+
+// Controller is the primary instance of the Echo router.
+func (r Router) Controller() *echo.Echo {
 
 	e := echo.New()
 	e.HideBanner = true
 
 	// HTML templates
 	e.Renderer = &html3.TemplateRegistry{
-		Templates: html3.TmplHTML3(),
+		Templates: html3.TmplHTML3(r.Views),
 	}
 
-	// Static images
-	e.File("favicon.ico", "public/images/favicon.ico")
-	e.Static("/images", "public/images")
+	// Static embedded images
+	// These get distributed in the binary
+	fs1 := echo.MustSubFS(r.Images, "public/images")
+	e.StaticFS("/images", fs1)
+	e.File("favicon.ico", "public/images/favicon.ico") // TODO: this is not being embedded
 
 	// Middleware
 	// remove trailing slashes
@@ -39,9 +50,9 @@ func Route(configs config.Config, log *zap.SugaredLogger) *echo.Echo {
 	e.Pre(middleware.NonWWWRedirect())
 	// timeout
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
-		Timeout: time.Duration(configs.Timeout) * time.Second,
+		Timeout: time.Duration(r.Configs.Timeout) * time.Second,
 	}))
-	if configs.IsProduction {
+	if r.Configs.IsProduction {
 		// recover from panics
 		e.Use(middleware.Recover())
 		// https redirect
@@ -50,10 +61,10 @@ func Route(configs config.Config, log *zap.SugaredLogger) *echo.Echo {
 	}
 
 	// HTTP status logger
-	e.Use(configs.LoggerMiddleware)
+	e.Use(r.Configs.LoggerMiddleware)
 
 	// Custom response headers
-	if configs.NoRobots {
+	if r.Configs.NoRobots {
 		e.Use(NoRobotsHeader) // TODO: only apply to HTML templates?
 	}
 
@@ -68,7 +79,7 @@ func Route(configs config.Config, log *zap.SugaredLogger) *echo.Echo {
 	})
 
 	// Routes => /html3
-	html3.Routes(e, log)
+	html3.Routes(e, r.Log)
 
 	// Routes => /users
 	e.GET("/users", users.GetAllUsers)
@@ -78,7 +89,7 @@ func Route(configs config.Config, log *zap.SugaredLogger) *echo.Echo {
 	e.DELETE("/users/:id", users.DeleteUser)
 
 	// Router => HTTP error handler
-	e.HTTPErrorHandler = configs.CustomErrorHandler
+	e.HTTPErrorHandler = r.Configs.CustomErrorHandler
 
 	return e
 }

@@ -3,7 +3,7 @@ package helpers_test
 import (
 	"testing"
 
-	"github.com/Defacto2/server/helpers"
+	"github.com/Defacto2/server/pkg/helpers"
 )
 
 func TestTruncFilename(t *testing.T) {

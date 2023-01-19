@@ -6,16 +6,18 @@
 {{- $grp := index . "sums" 3 }}
 {{- $plas := index . "plat" }}
 {{- $cats := index . "cat" }}
+
+<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/groups">by Group</a>
+{{- leading 33}}{{leadInt 5 $grp}}   List the scene groups, organisations and sites.
+<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/platforms">by Platform and media</a>
+{{- leading 20}}{{leadInt 5 $plas}}   List files categorised by {{$plas}} operating systems and media formats.
+<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/categories">by Category</a>
+{{- leading 30}}{{leadInt 5 $cats}}   List files categorised by {{$cats}} genres.
+
 <img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/art">Digital + pixel art</a>
 {{- leading 22}}{{leadInt 5 $arts}}   {{index . "descs" 0}}.
 <img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/documents">Document + text art</a>
 {{- leading 22}}{{leadInt 5 $docs}}   {{index . "descs" 1}}.
 <img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/software">Software</a>
-{{- leading 33}}{{leadInt 5 $sws}}   {{index . "descs" 2}}.
-<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/groups">by Group</a>
-{{- leading 33}}{{leadInt 5 $grp}}   List files categorised by group or organisation.
-<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/platforms">by Platform and media</a>
-{{- leading 20}}{{leadInt 5 $plas}}   List files categorised by {{$plas}} operating systems and media formats.
-<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/categories">by Category</a>
-{{- leading 30}}{{leadInt 5 $cats}}   List files categorised by {{$cats}} genres.</pre>
+{{- leading 33}}{{leadInt 5 $sws}}   {{index . "descs" 2}}.</pre>
 {{end}} 

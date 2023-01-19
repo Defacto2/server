@@ -3,10 +3,12 @@ package html3
 // HTML templates for the /html3 router group.
 
 import (
+	"embed"
 	"errors"
 	"fmt"
 	"html/template"
 	"io"
+	"path/filepath"
 
 	"github.com/Defacto2/server/models"
 	"github.com/Defacto2/server/tags"
@@ -24,9 +26,9 @@ type TemplateRegistry struct {
 }
 
 const (
-	layout = "public/views/html3/layout.html"
-	dirs   = "public/views/html3/dirs.html"
-	files  = "public/views/html3/files.html"
+	layout = "layout.html"
+	dirs   = "dirs.html"
+	files  = "files.html"
 )
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
@@ -65,47 +67,51 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c 
 }
 
 // TmplHTML3 returns a map of the templates used by the HTML3 sub-group route.
-func TmplHTML3() map[string]*template.Template {
+func TmplHTML3(fs embed.FS) map[string]*template.Template {
 	templates := make(map[string]*template.Template)
-	templates["index"] = index()
-	templates["art"] = list()
-	templates["document"] = list()
-	templates["software"] = list()
-	templates["groups"] = listGroups()
-	templates["group"] = list()
-	templates["tag"] = listTags()
-	templates["platform"] = list()
-	templates["category"] = list()
-	templates["error"] = httpErr()
+	templates["index"] = index(fs)
+	templates["art"] = list(fs)
+	templates["document"] = list(fs)
+	templates["software"] = list(fs)
+	templates["groups"] = listGroups(fs)
+	templates["group"] = list(fs)
+	templates["tag"] = listTags(fs)
+	templates["platform"] = list(fs)
+	templates["category"] = list(fs)
+	templates["error"] = httpErr(fs)
 	return templates
 }
 
+func GlobTo(name string) string {
+	return filepath.Join("public", "views", "html3", name)
+}
+
 // Index template.
-func index() *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles(
-		layout, dirs, "public/views/html3/index.html"))
+func index(fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFS(fs,
+		GlobTo(layout), GlobTo(dirs), GlobTo("index.html")))
 }
 
 // List file records template.
-func list() *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles(
-		layout, files, "public/views/html3/files.html"))
+func list(fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFS(fs,
+		GlobTo(layout), GlobTo(files), GlobTo("files.html")))
 }
 
 // List and filter the tags template.
-func listTags() *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles(
-		layout, dirs, "public/views/html3/tags.html"))
+func listTags(fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFS(fs,
+		GlobTo(layout), GlobTo(dirs), GlobTo("tags.html")))
 }
 
 // List the distinct groups template.
-func listGroups() *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles(
-		layout, dirs, "public/views/html3/groups.html"))
+func listGroups(fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFS(fs,
+		GlobTo(layout), GlobTo(dirs), GlobTo("groups.html")))
 }
 
 // Template for displaying HTTP error codes and feedback.
-func httpErr() *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFiles(
-		layout))
+func httpErr(fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFS(fs,
+		GlobTo(layout)))
 }

@@ -5,7 +5,7 @@ package main
 
 import (
 	"context"
-	_ "embed"
+	"embed"
 	"fmt"
 	"log"
 	"net/http"
@@ -28,6 +28,12 @@ import (
 
 //go:embed public/texts/defacto2.txt
 var brand []byte
+
+//go:embed public/views/html3/*.html
+var views embed.FS
+
+//go:embed public/images/*
+var images embed.FS
 
 func main() {
 	// Enviroment configuration
@@ -77,7 +83,12 @@ func main() {
 	boil.SetDB(db)
 
 	// Echo router/controller instance
-	e := router.Route(configs, log)
+	e := router.Router{
+		Configs: configs,
+		Log:     log,
+		Images:  images,
+		Views:   views,
+	}.Controller()
 
 	// Start server with graceful shutdown
 	go func() {
