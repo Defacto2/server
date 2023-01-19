@@ -182,12 +182,13 @@ func (s *sugared) Index(c echo.Context) error {
 func (s *sugared) Categories(c echo.Context) error {
 	start := latency()
 	err := c.Render(http.StatusOK, "tag", map[string]interface{}{
-		"title":    title + "/categories",
-		"latency":  fmt.Sprintf("%s.", time.Since(*start)),
-		"path":     "category",
-		"tagFirst": tags.FirstCategory,
-		"tagEnd":   tags.LastCategory,
-		"tags":     tags.Names,
+		"title":       title + "/categories",
+		"description": "File categories and classification tags.",
+		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
+		"path":        "category",
+		"tagFirst":    tags.FirstCategory,
+		"tagEnd":      tags.LastCategory,
+		"tags":        tags.Names,
 	})
 	if err != nil {
 		s.log.Errorf("%s: %s %d", errTmpl, err)
@@ -200,12 +201,13 @@ func (s *sugared) Categories(c echo.Context) error {
 func (s *sugared) Platforms(c echo.Context) error {
 	start := latency()
 	err := c.Render(http.StatusOK, "tag", map[string]interface{}{
-		"title":    title + "/platforms",
-		"latency":  fmt.Sprintf("%s.", time.Since(*start)),
-		"path":     "platform",
-		"tagFirst": tags.FirstPlatform,
-		"tagEnd":   tags.LastPlatform,
-		"tags":     tags.Names,
+		"title":       title + "/platforms",
+		"description": "File platforms, operating systems and media types.",
+		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
+		"path":        "platform",
+		"tagFirst":    tags.FirstPlatform,
+		"tagEnd":      tags.LastPlatform,
+		"tags":        tags.Names,
 	})
 	if err != nil {
 		s.log.Errorf("%s: %s %d", errTmpl, err)
@@ -247,9 +249,11 @@ func (s *sugared) Groups(c echo.Context) error {
 	err = c.Render(http.StatusOK, "groups", map[string]interface{}{
 		"feedback": feedback,
 		"title":    title + "/groups",
-		"latency":  fmt.Sprintf("%s.", time.Since(*start)),
-		"path":     "group",
-		"sceners":  models.Groups.List,
+		"description": "Listed is an exhaustive, distinct collection of scene groups and site brands." +
+			" Do note that Defacto2 is a file-serving site, so the list doesn't distinguish between different groups with the same name or brand.",
+		"latency": fmt.Sprintf("%s.", time.Since(*start)),
+		"path":    "group",
+		"sceners": models.Groups.List,
 	})
 	if err != nil {
 		s.log.Errorf("%s: %s %d", errTmpl, err)

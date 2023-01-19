@@ -70,6 +70,8 @@ func TagByURI(slug string) Tag {
 	return -1
 }
 
+// For consistency, the names and descriptions should be in US English.
+
 var Names = URI{
 	Announcement: "Announcement",
 	ANSIEditor:   "ANSI editor",
@@ -93,7 +95,7 @@ var Names = URI{
 	News:         "Mainstream news",
 	Nfo:          "NFO file or scene release",
 	NfoTool:      "NFO tool",
-	Pack:         "filepack",
+	Pack:         "Filepack",
 	Proof:        "Release proof",
 	Restrict:     "Restricted",
 	Install:      "Scene software install",
@@ -116,60 +118,46 @@ var Names = URI{
 }
 
 var Infos = Info{
-	Announcement: "Public announcements by Scene groups and organisations",
+	Announcement: "Public announcements by Scene groups and organizations",
 	ANSIEditor:   "Programs that enable you to create and edit ANSI and ASCII art",
-	AppleII:      "Files pertaining to the Scene on the Apple II computer platform",
-	AtariST:      "Files pertaining to the Scene on the Atari ST computer platform",
-	BBS:          "Files pertaining to the Scene operating over telephone based BBS (Bulletin Board System) systems",
-	Logo:         "Branding logos used by scene groups and organisations",
-	Bust: "First hand accounts and third party reports on the arrest, " +
-		"bust or take-down of an active person in the scene or a scene organisation",
-	Drama: "Used for anything political that doesn't fall into the other " +
-		"categories. Usually contains documents where people, groups or " +
-		"organisations are complaining",
-	Rule: "Various codes of conduct and agreements created by scene groups and organisations",
-	Tool: "Miscellaneous tools including fixes, intro generators and BBS software",
-	Intro: "A multimedia program that is designed to promote a scene group or organisation. " +
-		"Otherwise known as a cracktro, crack intro or loader",
-	Demo:    "An artistic multimedia program that is designed to promote a demo group or collective",
-	ForSale: "Adverts for commercial physical goods and online services, varying in legality",
-	Ftp: "Files pertaining to the scene operating over Internet based " +
-		"FTP (File Transfer Protocol) servers",
-	GameHack: "Trainers, dox, cheats, and walk-throughs, which include guides, " +
-		"how-to documents and tools to complete games",
-	Job:       "Documents used by scene groups to advertise or enrol new members",
-	Guide:     "Guides and how-to documents on how to hack and crack or on the workings of the scene",
-	Interview: "Conversations conducted with scene personalities",
-	Mag:       "Reports and written articles created by scene members about the scene",
-	News:      "Mainstream media outlets reports on the scene",
-	Nfo:       "A text file or readme used to describe a scene release, group or organisation",
-	NfoTool:   "Programs that enable you to create or view NFO text files",
-	Proof:     "Evidence of the source media, usually a photo or scanned image",
-	Restrict:  "Documents created by scene groups that were often never intended to be public",
-	Install:   "A program to help an end-user install a scene release",
-	ANSI:      "Coloured, text based computer art form widely used on Bulletin Board Systems",
-	Audio:     "Music or audio sound clips",
-	DataB: "A structured collection of data stored in particular formats including spreadsheets " +
-		"such as Microsoft Excel or databases such as MySQL",
-	DOS: "Microsoft DOS programs. Programs that require the use of Microsoft's DOS operating " +
-		"system for x86 compatible CPUs",
-	Markup: "Web pages or documents in HTML format. Text documents formatted in a mark-up language",
-	Image:  "Digital art, pixel art or photos",
-	Java:   "Java programs. Programs that require the use of Java",
-	Linux:  "Linux programs. Programs for a Linux compatible operating system",
-	Mac:    "macOS programs. Programs for Apple's macOS & OS X operating system",
-	Pack: "A curated bundle of scene related files stored and distributed in a compressed archive " +
-		"file Often either ZIP or 7z formats",
-	PCB: "Coloured encoded text mainly used on Bulletin Board Systems. Plain text documents " +
-		"embedded with PCBoard control codes",
-	PDF: "A document compiled in PDF (Portable Document Format)",
-	PHP: "Scripts and interpreted programs. Programs that were created in an interpreted " +
-		"programming language",
-	TextAmiga: "Text documents and text based computer art for the Amiga. Monochrome text-based " +
-		"files in a Topaz2 font that use the Latin-1 character set",
-	Text: "Text documents and text based computer art. Monochrome text-based art and plain " +
-		"text files that use an ASCII compliant character set",
-	Video: "A film, video or multimedia animation",
-	Windows: "Microsoft Windows programs. Programs that require the use of Microsoft's Windows " +
-		"operating system, working on Intel-compatible CPUs",
+	AppleII:      "Files about the Scene on the Apple II computer platform",
+	AtariST:      "Files on the Scene on the Atari ST computer platform",
+	BBS:          "Files about the Scene operating over telephone-based BBS (Bulletin Board System) systems",
+	Logo:         "Branding logos used by scene groups and organizations",
+	Bust:         "First-hand accounts and third party reports on the arrest, bust or take-down of an active person in the scene or a scene organizations",
+	Drama:        "Used for anything political that doesn't fall into the other categories. It usually contains documents where people, groups, or organizations are complaining",
+	Rule:         "Various codes of conduct and agreements created by scene groups and organizations",
+	Tool:         "Miscellaneous tools, including fixes, intro generators, and BBS software",
+	Intro:        "A multimedia program designed to promote a scene group or organization, known as a cracktro, crack intro, or loader",
+	Demo:         "An artistic multimedia program designed to promote a demo group or collective",
+	ForSale:      "Adverts for commercial physical goods and online services, varying in legality",
+	Ftp:          "Files about the scene operating over Internet-based FTP (File Transfer Protocol) servers",
+	GameHack:     "Trainers, dox, cheats, and walk-throughs, which include guides, how-to documents, and tools to complete games",
+	Job:          "Documents used by scene groups to advertise or enroll new members",
+	Guide:        "Guides and how-to documents on how to hack and crack the workings of the scene",
+	Interview:    "Conversations with the personalities of the scene",
+	Mag:          "Reports and written articles created by scene members about the scene",
+	News:         "Mainstream media outlets report on the scene",
+	Nfo:          "A text file or readme describes a scene release, group, or organization",
+	NfoTool:      "Programs that enable you to create or view NFO text files",
+	Proof:        "Evidence of the source media, usually a photo or scanned image",
+	Restrict:     "Documents created by scene groups that are often never intended to be public",
+	Install:      "A program to help an end-user install a scene release",
+	ANSI:         "Colored, text-based computer art form widely used on Bulletin Board Systems",
+	Audio:        "Music or audio sound clips",
+	DataB:        "A structured collection of data stored in particular formats, including spreadsheets such as Microsoft Excel or databases such as MySQL",
+	DOS:          "DOS programs require using Microsoft's DOS operating system on x86-compatible CPUs",
+	Markup:       "Web pages or documents in HTML or text documents in a mark-up language",
+	Image:        "Digital art, pixel art, or photos",
+	Java:         "Java software that requires the use of the Sun Microsystems or Oracle Java platform",
+	Linux:        "Linux programs are software for the Linux platform, including server and desktop distributions",
+	Mac:          "Programs for the various operating systems created by Apple under the Mac and Macintosh brands",
+	Pack:         "A curated bundle of scene-related files is stored and distributed in a compressed archive file, often in ZIP or 7z formats",
+	PCB:          "Colored encoded text on Bulletin Board Systems and plain text documents embedded with PCBoard control codes",
+	PDF:          "A document compiled as PDF (Adobe Portable Document Format)",
+	PHP:          "Scripts and interpreted programs that are in an interpreted programming language",
+	TextAmiga:    "Text documents and text-based computer art for the Amiga in the Latin-1 character set",
+	Text:         "Text documents and text-based computer art that use an ASCII-compliant character set",
+	Video:        "A film, video, or multimedia animation",
+	Windows:      "These programs require the use of Microsoft's Windows operating system, working on Intel-compatible CPUs",
 }
