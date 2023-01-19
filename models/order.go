@@ -7,7 +7,7 @@ import (
 
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/null/v8"
-	. "github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 // Order the query using a table column.
@@ -56,7 +56,7 @@ func orderClauses() map[Order]string {
 
 // All returns all the file records.
 func (o Order) All(key int, ctx context.Context, db *sql.DB) (*models.FileSlice, error) {
-	files, err := models.Files(OrderBy(o.String())).All(ctx, db)
+	files, err := models.Files(qm.OrderBy(o.String())).All(ctx, db)
 	if err != nil {
 		return nil, err
 	}
@@ -66,32 +66,32 @@ func (o Order) All(key int, ctx context.Context, db *sql.DB) (*models.FileSlice,
 // FilesByCategory returns all the files that match the named category.
 func (o Order) FilesByCategory(name string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
 	x := null.StringFrom(name)
-	return models.Files(Where(section, x), OrderBy(o.String())).All(ctx, db)
+	return models.Files(qm.Where(section, x), qm.OrderBy(o.String())).All(ctx, db)
 }
 
 // FilesByPlatform returns all the files that match the named platform.
 func (o Order) FilesByPlatform(name string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
 	x := null.StringFrom(name)
-	return models.Files(Where(platform, x), OrderBy(o.String())).All(ctx, db)
+	return models.Files(qm.Where(platform, x), qm.OrderBy(o.String())).All(ctx, db)
 }
 
 // FilesByGroup returns all the files that match an exact named group.
 func (o Order) FilesByGroup(name string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
 	x := null.StringFrom(name)
-	return models.Files(Where(groupFor, x), OrderBy(o.String())).All(ctx, db)
+	return models.Files(qm.Where(groupFor, x), qm.OrderBy(o.String())).All(ctx, db)
 }
 
 // ArtFiles returns all the files that could be considered as digital or pixel art.
 func (o Order) ArtFiles(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
-	return models.Files(ArtExpr(), OrderBy(o.String())).All(ctx, db)
+	return models.Files(ArtExpr(), qm.OrderBy(o.String())).All(ctx, db)
 }
 
 // DocumentFiles returns all the files that that are considered to be documents.
 func (o Order) DocumentFiles(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
-	return models.Files(DocumentExpr(), OrderBy(o.String())).All(ctx, db)
+	return models.Files(DocumentExpr(), qm.OrderBy(o.String())).All(ctx, db)
 }
 
 // SoftwareFiles returns all the files that that are considered to be software.
 func (o Order) SoftwareFiles(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
-	return models.Files(SoftwareExpr(), OrderBy(o.String())).All(ctx, db)
+	return models.Files(SoftwareExpr(), qm.OrderBy(o.String())).All(ctx, db)
 }

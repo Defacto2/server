@@ -7,7 +7,7 @@ import (
 
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
-	. "github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"go.uber.org/zap"
 )
 
@@ -150,7 +150,7 @@ func counter(i int, t Tag, log *zap.SugaredLogger) int64 {
 		clause = "platform = ?"
 	}
 	sum, err := models.Files(
-		Where(clause, URIs[t])).Count(ctx, db)
+		qm.Where(clause, URIs[t])).Count(ctx, db)
 	if err != nil {
 		log.Errorf("Could not sum the records associated with tags: %s.", err)
 		return -1

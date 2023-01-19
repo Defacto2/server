@@ -13,7 +13,7 @@ import (
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
-	. "github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 // Groups is a cached collection of important, expensive group data.
@@ -95,8 +95,8 @@ func (g *G) Update() error {
 func (g Group) Count(ctx context.Context, db *sql.DB) (int, error) {
 	// TODO: in postgresql, when comparing lowercase in queries, any column indexes are void
 	c, err := models.Files(
-		Select(models.FileColumns.GroupBrandFor),
-		Where(groupFor, g),
+		qm.Select(models.FileColumns.GroupBrandFor),
+		qm.Where(groupFor, g),
 	).Count(ctx, db)
 	if err != nil {
 		return -1, err
@@ -126,8 +126,8 @@ func (g Group) Slug() string {
 
 func Tester(ctx context.Context, db *sql.DB) (int, error) {
 	c, err := models.Files(
-		Select(models.FileColumns.GroupBrandFor),
-		Distinct(models.FileColumns.GroupBrandFor),
+		qm.Select(models.FileColumns.GroupBrandFor),
+		qm.Distinct(models.FileColumns.GroupBrandFor),
 	).Count(ctx, db)
 	if err != nil {
 		return -1, err
@@ -137,7 +137,7 @@ func Tester(ctx context.Context, db *sql.DB) (int, error) {
 
 // GroupCount returns to total number of unique groups.
 func GroupCount(ctx context.Context, db *sql.DB) (int, error) {
-	c, err := models.Files(SQL("SELECT COUNT(DISTINCT(LOWER(TRIM(files.group_brand_for)))) FROM files")).Count(ctx, db)
+	c, err := models.Files(qm.SQL("SELECT COUNT(DISTINCT(LOWER(TRIM(files.group_brand_for)))) FROM files")).Count(ctx, db)
 	if err != nil {
 		fmt.Println(err)
 		return -1, err
@@ -148,8 +148,8 @@ func GroupCount(ctx context.Context, db *sql.DB) (int, error) {
 // GroupList returns a collection of the unique groups.
 func GroupList(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
 	return models.Files(
-		Select(models.FileColumns.GroupBrandFor),
-		Distinct(models.FileColumns.GroupBrandFor),
+		qm.Select(models.FileColumns.GroupBrandFor),
+		qm.Distinct(models.FileColumns.GroupBrandFor),
 	).All(ctx, db)
 }
 

@@ -10,7 +10,7 @@ import (
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/Defacto2/server/tags"
 	"github.com/volatiletech/null/v8"
-	. "github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 // https://github.com/volatiletech/sqlboiler#constants
@@ -57,7 +57,7 @@ func One(key int, ctx context.Context, db *sql.DB) (*models.File, error) {
 // ByteCountByCategory sums the byte filesizes for all the files that match the category name.
 func ByteCountByCategory(name string, ctx context.Context, db *sql.DB) (int64, error) {
 	i, err := models.Files(
-		SQL("SELECT sum(filesize) FROM files WHERE section = $1",
+		qm.SQL("SELECT sum(filesize) FROM files WHERE section = $1",
 			null.StringFrom(name)),
 	).Count(ctx, db)
 	if err != nil {
@@ -69,7 +69,7 @@ func ByteCountByCategory(name string, ctx context.Context, db *sql.DB) (int64, e
 // ByteCountByPlatform sums the byte filesizes for all the files that match the category name.
 func ByteCountByPlatform(name string, ctx context.Context, db *sql.DB) (int64, error) {
 	i, err := models.Files(
-		SQL("SELECT sum(filesize) FROM files WHERE platform = $1",
+		qm.SQL("SELECT sum(filesize) FROM files WHERE platform = $1",
 			null.StringFrom(name)),
 	).Count(ctx, db)
 	if err != nil {
@@ -81,7 +81,7 @@ func ByteCountByPlatform(name string, ctx context.Context, db *sql.DB) (int64, e
 // ByteCountByGroup sums the byte filesizes for all the files that match the group name.
 func ByteCountByGroup(name string, ctx context.Context, db *sql.DB) (int64, error) {
 	x := null.StringFrom(name)
-	i, err := models.Files(SQL("SELECT SUM(filesize) as size_sum FROM files WHERE group_brand_for = $1", x)).Count(ctx, db)
+	i, err := models.Files(qm.SQL("SELECT SUM(filesize) as size_sum FROM files WHERE group_brand_for = $1", x)).Count(ctx, db)
 	if err != nil {
 		return 0, fmt.Errorf("bytecount by group %q: %w", name, err)
 	}
@@ -106,14 +106,14 @@ func ArtByteCount(ctx context.Context, db *sql.DB) (int64, error) {
 	stmt := "SELECT SUM(files.filesize) AS size_sum FROM files WHERE" +
 		fmt.Sprintf(" files.section != '%s'", tags.BBS) +
 		fmt.Sprintf(" AND files.platform = '%s';", tags.Image)
-	return models.Files(SQL(stmt)).Count(ctx, db)
+	return models.Files(qm.SQL(stmt)).Count(ctx, db)
 }
 
 // ArtExpr is a the query mod expression for art files.
-func ArtExpr() QueryMod {
+func ArtExpr() qm.QueryMod {
 	bbs := null.String{String: tags.URIs[tags.BBS], Valid: true}
 	image := null.String{String: tags.URIs[tags.Image], Valid: true}
-	return Expr(
+	return qm.Expr(
 		models.FileWhere.Section.NEQ(bbs),
 		models.FileWhere.Platform.EQ(image),
 	)
@@ -126,7 +126,7 @@ func DocumentByteCount(ctx context.Context, db *sql.DB) (int64, error) {
 		fmt.Sprintf("OR platform = '%s'", tags.Text) +
 		fmt.Sprintf("OR platform = '%s'", tags.TextAmiga) +
 		fmt.Sprintf("OR platform = '%s'", tags.PDF)
-	return models.Files(SQL(stmt)).Count(ctx, db)
+	return models.Files(qm.SQL(stmt)).Count(ctx, db)
 }
 
 // DocumentCount counts the number of files that are considered to be documents.
@@ -143,16 +143,16 @@ func DocumentCount(ctx context.Context, db *sql.DB) (int, error) {
 }
 
 // DocumentExpr is a the query mod expression for document files.
-func DocumentExpr() QueryMod {
+func DocumentExpr() qm.QueryMod {
 	ansi := null.String{String: tags.URIs[tags.ANSI], Valid: true}
 	text := null.String{String: tags.URIs[tags.Text], Valid: true}
 	amiga := null.String{String: tags.URIs[tags.TextAmiga], Valid: true}
 	pdf := null.String{String: tags.URIs[tags.PDF], Valid: true}
-	return Expr(
+	return qm.Expr(
 		models.FileWhere.Platform.EQ(ansi),
-		Or2(models.FileWhere.Platform.EQ(text)),
-		Or2(models.FileWhere.Platform.EQ(amiga)),
-		Or2(models.FileWhere.Platform.EQ(pdf)),
+		qm.Or2(models.FileWhere.Platform.EQ(text)),
+		qm.Or2(models.FileWhere.Platform.EQ(amiga)),
+		qm.Or2(models.FileWhere.Platform.EQ(pdf)),
 	)
 }
 
@@ -177,21 +177,21 @@ func SoftwareByteCount(ctx context.Context, db *sql.DB) (int64, error) {
 		fmt.Sprintf("OR platform = '%s'", tags.DOS) +
 		fmt.Sprintf("OR platform = '%s'", tags.PHP) +
 		fmt.Sprintf("OR platform = '%s'", tags.Windows)
-	return models.Files(SQL(stmt)).Count(ctx, db)
+	return models.Files(qm.SQL(stmt)).Count(ctx, db)
 }
 
 // SoftwareExpr is a the query mod expression for software files.
-func SoftwareExpr() QueryMod {
+func SoftwareExpr() qm.QueryMod {
 	java := null.String{String: tags.URIs[tags.Java], Valid: true}
 	linux := null.String{String: tags.URIs[tags.Linux], Valid: true}
 	dos := null.String{String: tags.URIs[tags.DOS], Valid: true}
 	php := null.String{String: tags.URIs[tags.PHP], Valid: true}
 	windows := null.String{String: tags.URIs[tags.Windows], Valid: true}
-	return Expr(
+	return qm.Expr(
 		models.FileWhere.Platform.EQ(java),
-		Or2(models.FileWhere.Platform.EQ(linux)),
-		Or2(models.FileWhere.Platform.EQ(dos)),
-		Or2(models.FileWhere.Platform.EQ(php)),
-		Or2(models.FileWhere.Platform.EQ(windows)),
+		qm.Or2(models.FileWhere.Platform.EQ(linux)),
+		qm.Or2(models.FileWhere.Platform.EQ(dos)),
+		qm.Or2(models.FileWhere.Platform.EQ(php)),
+		qm.Or2(models.FileWhere.Platform.EQ(windows)),
 	)
 }
