@@ -39,7 +39,7 @@ func main() {
 
 	// Go runtime customizations
 	if i := configs.MaxProcs; i > 0 {
-		runtime.GOMAXPROCS(i)
+		runtime.GOMAXPROCS(int(i))
 	}
 
 	// Logger
@@ -110,7 +110,7 @@ func main() {
 		// nothing should be placed here
 	}()
 
-	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 10 seconds.
+	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 5 seconds.
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit

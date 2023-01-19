@@ -64,6 +64,7 @@ func LastChr(s string) string {
 	return string(r)
 }
 
+// Sentence formats the first letter of a string to use a capital character.
 func Sentence(s string) string {
 	if s == "" {
 		return ""

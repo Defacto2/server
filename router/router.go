@@ -21,23 +21,6 @@ func Route(configs config.Config, log *zap.SugaredLogger) *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
 
-	// Custom error pages
-	// NOTE: this does not work with middleware loggers
-	// as they will always render a 200 code
-	//
-	// e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-	// 	return func(c echo.Context) error {
-	// 		// Extract the credentials from HTTP request header and perform a security
-	// 		// check
-
-	// 		// For invalid credentials
-	// 		return echo.NewHTTPError(http.StatusUnauthorized, "Please provide valid credentials")
-
-	// 		// For valid credentials call next
-	// 		// return next(c)
-	// 	}
-	// })
-
 	// HTML templates
 	e.Renderer = &TemplateRegistry{
 		Templates: TmplHTML3(),

@@ -13,6 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// Log configuration.
 type Log struct {
 	IsProduction bool
 	ConfigDir    string

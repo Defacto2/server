@@ -2,6 +2,11 @@
 
 Under construction.
 
+### Immediate TODOs
+
+- Pagination
+- HTML3 /d/ links so they can so they can use the /html3 error template
+
 ### echo tools to implement
 
 - SQLBoiler binding https://thedevelopercafe.com/articles/sql-in-go-with-sqlboiler-ac8efc4c5cb8

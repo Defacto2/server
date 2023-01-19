@@ -10,9 +10,6 @@ import (
 	"github.com/volatiletech/null/v8"
 )
 
-// TODO: Magazines https://github.com/bengarrett/Defacto2-2020/blob/78665d391f40bba14f44b6f9220dfe620c60650d/ROOT/views/html3/_pubedition.cfm
-//       https://github.com/bengarrett/Defacto2-2020/blob/78665d391f40bba14f44b6f9220dfe620c60650d/ROOT/views/html3/listfile.cfm
-
 // FmtPublish takes optional year, month and values and formats them to dd-mmm-yyyy.
 // Depending on the context, any missing time values will be left blank or replaced with ?? question marks.
 func FmtPublish(y, m, d null.Int16) string {

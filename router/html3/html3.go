@@ -146,7 +146,7 @@ func (s *sugared) Index(c echo.Context) error {
 		case 2:
 			sum, err = models.SoftwareCount(ctx, db)
 		case 3:
-			sum, err = models.GroupsTotalCount(ctx, db)
+			sum, err = models.GroupCount(ctx, db)
 		}
 		if err != nil {
 			s.log.Warnf("%s: %s", errConn, err)
@@ -216,33 +216,33 @@ func (s *sugared) Groups(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, errConn)
 	}
 	defer db.Close()
-	total, err := models.GroupsTotalCount(ctx, db)
+	total, err := models.GroupCount(ctx, db)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, errConn)
 	}
 	// if there is an out of date cache, it will get updated in the background
 	// but the client will probably be rendered with an incomplete, stale cache.
 	feedback := ""
-	models.GroupCache.Mu.RLock()
-	l := len(models.GroupCache.Groups)
-	models.GroupCache.Mu.RUnlock()
+	models.Groups.Mu.RLock()
+	l := len(models.Groups.List)
+	models.Groups.Mu.RUnlock()
 	if l != total {
 		go func(err error) error {
-			return models.GroupCache.Update()
+			return models.Groups.Update()
 		}(err)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusNotFound, errConn)
 		}
 		feedback = refreshInfo(l, total)
 	}
-	models.GroupCache.Mu.RLock()
-	defer models.GroupCache.Mu.RUnlock()
+	models.Groups.Mu.RLock()
+	defer models.Groups.Mu.RUnlock()
 	err = c.Render(http.StatusOK, "groups", map[string]interface{}{
 		"feedback": feedback,
 		"title":    title + "/groups",
 		"latency":  fmt.Sprintf("%s.", time.Since(*start)),
 		"path":     "group",
-		"sceners":  models.GroupCache.Groups,
+		"sceners":  models.Groups.List,
 	})
 	if err != nil {
 		s.log.Errorf("%s: %s %d", errTmpl, err)

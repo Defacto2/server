@@ -24,6 +24,6 @@ type Config struct {
 	// It is recommended this is left blank to use the home .config path.
 	ConfigDir string `env:"DEFACTO2_CONFIG"`
 
-	// GOMAXPROCS todo.
-	MaxProcs int ``
+	// MaxProcs overrides and limits the number of operating system threads this application can use.
+	MaxProcs uint `env:"MAXPROCS" envDefault:"0"`
 }
