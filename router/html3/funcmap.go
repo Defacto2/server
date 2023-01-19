@@ -43,7 +43,8 @@ func Description(w int, section, platform, brand, title null.String) string {
 
 // FileHref creates a URL to link to the file download of the ID.
 func FileHref(id int64) string {
-	href, err := url.JoinPath("/", "d", helpers.ObfuscateParam(strconv.Itoa(int(id))))
+	href, err := url.JoinPath("/", "html3", "d",
+		helpers.ObfuscateParam(strconv.Itoa(int(id))))
 	if err != nil {
 		log.Println(err) //TODO: log to file
 	}

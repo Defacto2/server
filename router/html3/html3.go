@@ -92,7 +92,7 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger) {
 	g.GET("/art", s.Art)
 	g.GET("/documents", s.Documents)
 	g.GET("/software", s.Software)
-	e.GET("/d/:id", s.Download)
+	g.GET("/d/:id", s.Download)
 	// append legacy redirects
 	for url := range LegacyURLs {
 		g.GET(url, s.Redirection)
