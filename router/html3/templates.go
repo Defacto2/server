@@ -52,7 +52,7 @@ var TemplateFuncMap = template.FuncMap{
 }
 
 func tagByName(name string) tags.TagData {
-	return tags.TagByName(name, nil)
+	return tags.Tags.ByName(name, nil)
 }
 
 // Render the HTML3 layout template with the core HTML, META and BODY elements.

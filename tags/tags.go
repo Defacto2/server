@@ -4,6 +4,7 @@ package tags
 import (
 	"context"
 	"strings"
+	"sync"
 
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
@@ -17,6 +18,53 @@ type TagData struct {
 	Name  string // Name is the tags displayed title.
 	Info  string // Info is a short description of the tag.
 	Count int    // Count is the results of file count query for the tag.
+}
+
+// T is a lockable collection of tags, to stop potential race conditions
+// when writing to the map containing the tagdata list.
+type T struct {
+	Mu   sync.RWMutex
+	List []TagData
+}
+
+// ByName returns the data of the named tag.
+func (t *T) ByName(name string, log *zap.SugaredLogger) TagData {
+	if Tags.List == nil {
+		t.Build(log)
+	}
+	for _, m := range Tags.List {
+		if strings.EqualFold(m.Name, name) {
+			return m
+		}
+	}
+	return TagData{}
+}
+
+// Build the tags and collect the statistical data.
+func (t *T) Build(log *zap.SugaredLogger) {
+	t.List = make([]TagData, LastPlatform+1)
+	i := -1
+	for key, val := range URIs {
+		i++
+		count := Sums[key]
+		t.Mu.Lock()
+		t.List[i] = TagData{
+			URI:   val,
+			Name:  Names[key],
+			Info:  Infos[key],
+			Count: count,
+		}
+		t.Mu.Unlock()
+		if count > 0 {
+			continue
+		}
+		tg := key
+		defer func(i int, tg Tag) {
+			t.Mu.Lock()
+			t.List[i].Count = int(counter(i, tg, log))
+			t.Mu.Unlock()
+		}(i, tg)
+	}
 }
 
 // Tag is the unique ID.
@@ -89,7 +137,7 @@ type Sum map[Tag]int
 var Sums = make(Sum, Windows+1)
 
 // Tags contains data for all the tags used by the web application.
-var Tags []TagData = All(nil)
+var Tags = T{}
 
 // OSTags returns the tags that flag an operating system.
 func OSTags() [5]string {
@@ -99,43 +147,6 @@ func OSTags() [5]string {
 		URIs[Linux],
 		URIs[Windows],
 		URIs[Mac]}
-}
-
-// TagByName returns the named tag.
-func TagByName(name string, log *zap.SugaredLogger) TagData {
-	if Tags == nil {
-		Tags = All(log)
-	}
-	for _, m := range Tags {
-		if strings.EqualFold(m.Name, name) {
-			return m
-		}
-	}
-	return TagData{}
-}
-
-// All the tags and assoicated data.
-func All(log *zap.SugaredLogger) []TagData {
-	var m = make([]TagData, LastPlatform+1)
-	i := -1
-	for key, val := range URIs {
-		i++
-		count := Sums[key]
-		m[i] = TagData{
-			URI:   val,
-			Name:  Names[key],
-			Info:  Infos[key],
-			Count: count,
-		}
-		if count > 0 {
-			continue
-		}
-		t := key
-		defer func(i int, t Tag) {
-			m[i].Count = int(counter(i, t, log))
-		}(i, t)
-	}
-	return m
 }
 
 func counter(i int, t Tag, log *zap.SugaredLogger) int64 {
