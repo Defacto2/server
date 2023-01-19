@@ -22,8 +22,8 @@ func Route(configs config.Config, log *zap.SugaredLogger) *echo.Echo {
 	e.HideBanner = true
 
 	// HTML templates
-	e.Renderer = &TemplateRegistry{
-		Templates: TmplHTML3(),
+	e.Renderer = &html3.TemplateRegistry{
+		Templates: html3.TmplHTML3(),
 	}
 
 	// Static images

@@ -1,4 +1,4 @@
-package router
+package html3
 
 // HTML templates for the /html3 router group.
 

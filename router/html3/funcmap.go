@@ -1,4 +1,4 @@
-package router
+package html3
 
 // Helper functions for the TemplateFuncMap var.
 
