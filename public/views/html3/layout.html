@@ -11,9 +11,10 @@
  </head>
 <body>
     <h2>{{index . "title"}}</h2>
-    <p>{{index . "description"}}</p>
+    {{if ne (index . "description") ""}}<p>{{index . "description"}}</p>{{end -}}
     {{if ne (index . "feedback") ""}}<p style="color: crimson;">{{index . "feedback"}}</p>{{end -}}
-    <small>{{index . "stats"}}</small>
+    {{if ne (index . "stats") ""}}<small>{{index . "stats"}}</small>{{end -}}
+    {{ block "pagination" . }}{{end -}}
     {{ block "pre" .}}{{ "<!-- no pre content was defined -->" | safeHTML }}{{end}}<hr>
     <p><em>Defacto2 Server at defacto2.net, latency {{index . "latency"}}</em></p>
 </body></html>{{end}}

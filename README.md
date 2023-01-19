@@ -7,7 +7,6 @@ Under construction.
 - Pagination
 - 0 vary the number based on the query performance
 - 1 vary the per-page based on total records, so 1000 per page except if a result is lt 1500, then just show the complete result.
-- Add both group_for and group_by to distinct results.
 
 #### Later TODOs
 
@@ -15,6 +14,8 @@ Under construction.
 - Optimise the columns fetched from SQL queries, using bindings.
 - OrderBy Name/Count /html3/groups?
 - Test all groups, using the slug and deslug funcs.
+- Add both group_for and group_by to distinct results.
+- Move orderby params to cookies?
 
 ### echo tools to implement
 

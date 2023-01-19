@@ -26,9 +26,10 @@ type TemplateRegistry struct {
 }
 
 const (
-	layout = "layout.html"
-	dirs   = "dirs.html"
-	files  = "files.html"
+	layout     = "layout.html"
+	dirs       = "dirs.html"
+	files      = "files.html"
+	pagination = "pagination.html"
 )
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
@@ -95,7 +96,7 @@ func index(fs embed.FS) *template.Template {
 // List file records template.
 func list(fs embed.FS) *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap).ParseFS(fs,
-		GlobTo(layout), GlobTo(files), GlobTo("files.html")))
+		GlobTo(layout), GlobTo(files), GlobTo(pagination), GlobTo(files)))
 }
 
 // List and filter the tags template.

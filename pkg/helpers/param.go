@@ -126,3 +126,53 @@ func ReverseInt(i uint) (uint, error) {
 	}
 	return uint(n), nil
 }
+
+func PageCount(sum, limit int) uint {
+	if sum <= 0 || limit <= 0 {
+		return 0
+	}
+	x := math.Ceil(float64(sum) / float64(limit))
+	return uint(x)
+}
+
+func Pages(sum, limit, offset int) []uint {
+	onepage := []uint{1}
+	if limit >= sum || sum <= 0 || limit <= 0 || offset <= 0 {
+		return onepage
+	}
+	max := PageCount(sum, limit)
+	pp := math.Ceil((float64(sum) / float64(max)))
+	pg := uint(math.Ceil(float64(offset) / pp))
+
+	u := []uint{}
+	for i := 2; i <= int(max); i++ {
+		if i == int(max) {
+			u = append(u, uint(max))
+			break
+		}
+		if uint(i) < pg-1 {
+			continue
+		}
+		if uint(i) > pg+2 {
+			continue
+		}
+		u = append(u, uint(i))
+	}
+	const pages = 5
+	if len(u) >= pages {
+		return append([]uint{1}, u...)
+	}
+	// if l := len(u); l < pages && int(max) >= pages {
+	// 	loop := pages - l
+	// 	for i := 1; i < loop; i++ {
+	// 		missing := int(max) - l - i + 1
+	// 		if missing == 1 {
+	// 			continue
+	// 		}
+	// 		u = append([]uint{uint(missing)}, u...)
+	// 	}
+	// }
+	// always append the first page
+	//return append([]uint{1}, u...)
+	return u
+}

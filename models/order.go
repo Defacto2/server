@@ -83,15 +83,16 @@ func (o Order) FilesByGroup(name string, ctx context.Context, db *sql.DB) (model
 
 // ArtFiles returns all the files that could be considered as digital or pixel art.
 func (o Order) ArtFiles(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
-	return models.Files(ArtExpr(), qm.OrderBy(o.String())).All(ctx, db)
+	return models.Files(ArtExpr(), qm.OrderBy(o.String()), qm.Limit(1000)).All(ctx, db)
 }
 
 // DocumentFiles returns all the files that that are considered to be documents.
 func (o Order) DocumentFiles(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
-	return models.Files(DocumentExpr(), qm.OrderBy(o.String())).All(ctx, db)
+	return models.Files(DocumentExpr(), qm.OrderBy(o.String()), qm.Limit(1000)).All(ctx, db)
 }
 
 // SoftwareFiles returns all the files that that are considered to be software.
-func (o Order) SoftwareFiles(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
-	return models.Files(SoftwareExpr(), qm.OrderBy(o.String())).All(ctx, db)
+func (o Order) SoftwareFiles(offset, limit int, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+	return models.Files(SoftwareExpr(), qm.OrderBy(o.String()),
+		qm.Offset((offset-1)*limit), qm.Limit(limit)).All(ctx, db)
 }

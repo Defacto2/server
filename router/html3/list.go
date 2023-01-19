@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Defacto2/sceners"
@@ -52,6 +54,9 @@ func (s *sugared) Software(c echo.Context) error {
 func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	start := latency()
 	id := c.Param("id")
+	offset := strings.TrimPrefix(c.Param("offset"), "/")
+	fmt.Println(c.ParamNames(), c.ParamValues(), "-->", offset)
+	page, _ := strconv.Atoi(offset) // TODO: if err, return 404
 	name := sceners.CleanURL(id)
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
@@ -74,7 +79,7 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	case AsDocuments:
 		records, err = order.DocumentFiles(ctx, db)
 	case AsSoftware:
-		records, err = order.SoftwareFiles(ctx, db)
+		records, err = order.SoftwareFiles(page, 1000, ctx, db)
 	default:
 		s.log.Warnf("%s: %s", errTag, tt)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errTag)
@@ -85,6 +90,7 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	}
 	count := len(records)
 	if count == 0 {
+		// TODO: update the error when page is invalid
 		return echo.NewHTTPError(http.StatusNotFound,
 			fmt.Sprintf("The %s %q doesn't exist", tt, id))
 	}
@@ -102,6 +108,7 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 		byteSum, err = models.DocumentByteCount(ctx, db)
 	case AsSoftware:
 		byteSum, err = models.SoftwareByteCount(ctx, db)
+		count, _ = models.SoftwareCount(ctx, db)
 	default:
 		s.log.Warnf("%s: %s", errTag, tt)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errTag)
@@ -126,6 +133,7 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	}
 	stat := fmt.Sprintf("%d files, %s", count, helpers.ByteCountFloat(byteSum))
 	sorter := sorter(c.QueryString())
+
 	err = c.Render(http.StatusOK, tt.String(), map[string]interface{}{
 		"title":       fmt.Sprintf("%s%s%s", title, fmt.Sprintf("/%s/", tt), id),
 		"home":        "",
