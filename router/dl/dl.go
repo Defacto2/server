@@ -3,6 +3,7 @@ package dl
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"path/filepath"
 
@@ -70,7 +71,8 @@ func Download(log *zap.SugaredLogger, c echo.Context) error {
 	file := filepath.Join("public", "images", "html3", "burst.xgif") // TODO: replace this placeholder
 	if !helpers.IsStat(file) {
 		log.Warnf("The hosted file download %q, for record %d does not exist.", res.Filename.String, res.ID)
-		return echo.NewHTTPError(http.StatusFailedDependency, missing)
+		return echo.NewHTTPError(http.StatusFailedDependency,
+			fmt.Sprintf("%s: %s", missing, filepath.Base(file)))
 	}
 	// pass the original filename to the client browser
 	name := res.Filename.String
