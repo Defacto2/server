@@ -5,11 +5,10 @@ import (
 	"context"
 	"strings"
 
-	"github.com/Defacto2/server/postgres/models"
-	"go.uber.org/zap"
-
-	"github.com/Defacto2/server/postgres"
+	"github.com/Defacto2/server/pkg/postgres"
+	"github.com/Defacto2/server/pkg/postgres/models"
 	. "github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"go.uber.org/zap"
 )
 
 // TagData holds the tag information.

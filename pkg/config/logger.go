@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Defacto2/server/helpers"
-	"github.com/Defacto2/server/logger"
+	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/logger"
 	"github.com/Defacto2/server/router/html3"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"

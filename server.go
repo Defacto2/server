@@ -19,10 +19,10 @@ import (
 	"github.com/volatiletech/sqlboiler/boil"
 	"go.uber.org/zap"
 
-	"github.com/Defacto2/server/config"
 	"github.com/Defacto2/server/internal/server"
-	"github.com/Defacto2/server/logger"
-	"github.com/Defacto2/server/postgres"
+	"github.com/Defacto2/server/pkg/config"
+	"github.com/Defacto2/server/pkg/logger"
+	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/router"
 )
 

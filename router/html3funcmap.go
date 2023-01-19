@@ -10,8 +10,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/Defacto2/server/helpers"
 	"github.com/Defacto2/server/models"
+	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/tags"
 	"github.com/volatiletech/null/v8"
 )

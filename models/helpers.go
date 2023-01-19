@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Defacto2/server/helpers"
+	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/volatiletech/null/v8"
 )
 

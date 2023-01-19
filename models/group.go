@@ -10,9 +10,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Defacto2/server/helpers"
-	"github.com/Defacto2/server/postgres"
-	"github.com/Defacto2/server/postgres/models"
+	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/postgres"
+	"github.com/Defacto2/server/pkg/postgres/models"
 	. "github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 

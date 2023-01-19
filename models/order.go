@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/Defacto2/server/postgres/models"
+	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/null/v8"
 	. "github.com/volatiletech/sqlboiler/v4/queries/qm"
 )

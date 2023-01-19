@@ -7,14 +7,14 @@ import (
 	"time"
 
 	"github.com/Defacto2/sceners"
-	"github.com/Defacto2/server/helpers"
 	"github.com/Defacto2/server/models"
-	"github.com/Defacto2/server/postgres"
+	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/tags"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 
-	pgm "github.com/Defacto2/server/postgres/models"
+	pgm "github.com/Defacto2/server/pkg/postgres/models"
 )
 
 type sugared struct {

@@ -11,14 +11,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Defacto2/server/helpers"
 	"github.com/Defacto2/server/models"
+	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/router/dl"
 	"github.com/Defacto2/server/tags"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
-
-	"github.com/Defacto2/server/postgres"
 )
 
 // HTTP status codes in Go

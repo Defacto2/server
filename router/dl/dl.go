@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/Defacto2/server/helpers"
-	"github.com/Defacto2/server/logger"
 	"github.com/Defacto2/server/models"
-	"github.com/Defacto2/server/postgres"
+	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/logger"
+	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )

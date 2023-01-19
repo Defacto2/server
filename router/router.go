@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Defacto2/server/config"
+	"github.com/Defacto2/server/pkg/config"
 	"github.com/Defacto2/server/router/html3"
 	"github.com/Defacto2/server/router/users"
 	"github.com/labstack/echo/v4"
