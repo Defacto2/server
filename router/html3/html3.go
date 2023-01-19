@@ -13,6 +13,7 @@ import (
 
 	"github.com/Defacto2/server/helpers"
 	"github.com/Defacto2/server/models"
+	"github.com/Defacto2/server/router/dl"
 	"github.com/Defacto2/server/tags"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -92,6 +93,7 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger) {
 	g.GET("/art", s.Art)
 	g.GET("/documents", s.Documents)
 	g.GET("/software", s.Software)
+	e.GET("/d/:id", s.Download)
 	// append legacy redirects
 	for url := range LegacyURLs {
 		g.GET(url, s.Redirection)
@@ -107,6 +109,12 @@ var IndexCache IndexSums
 type IndexSums struct {
 	Mu   sync.Mutex
 	Sums map[int]int
+}
+
+// Download serves the file download of a record to the user and prompts for a save location.
+// The record key id is provided by a URL param.
+func (s *sugared) Download(c echo.Context) error {
+	return dl.Download(s.log, c)
 }
 
 // Index method is the homepage of the /html3 sub-route.

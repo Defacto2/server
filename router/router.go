@@ -77,13 +77,6 @@ func Route(configs config.Config, log *zap.SugaredLogger) *echo.Echo {
 	e.PUT("/users/:id", users.UpdateUser)
 	e.DELETE("/users/:id", users.DeleteUser)
 
-	// Router => downloads
-	l := Log{
-		IsProduction: configs.IsProduction,
-		ConfigDir:    configs.ConfigDir,
-	}
-	e.GET("/d/:id", l.Download)
-
 	// Router => HTTP error handler
 	e.HTTPErrorHandler = configs.CustomErrorHandler
 

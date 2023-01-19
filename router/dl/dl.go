@@ -1,4 +1,5 @@
-package router
+// Package dl handles the client file downloads.
+package dl
 
 import (
 	"context"
@@ -39,10 +40,12 @@ func (l Log) Download(c echo.Context) error {
 		log = logger.Development().Sugar()
 		defer log.Sync()
 	}
-	return download(log, c)
+	return Download(log, c)
 }
 
-func download(log *zap.SugaredLogger, c echo.Context) error {
+// Download serves files to the user and prompts for a save location.
+// The download relies on the URL ID parameter to determine the requested file.
+func Download(log *zap.SugaredLogger, c echo.Context) error {
 	// https://go.dev/src/net/http/status.go
 	// get id
 	id := helpers.Deobfuscate(c.Param("id"))
