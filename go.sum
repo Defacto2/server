@@ -64,8 +64,8 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/DATA-DOG/go-sqlmock v1.4.1 h1:ThlnYciV1iM/V0OSF/dtkqWb6xo5qITT1TJBG1MRDJM=
 github.com/DATA-DOG/go-sqlmock v1.4.1/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
-github.com/Defacto2/sceners v0.0.1 h1:DuaKpPhu0/O8JLmly6zFo8IYlYMdg0d6BC4Z1rLnyOo=
-github.com/Defacto2/sceners v0.0.1/go.mod h1:8q8aIZ5C3lCa1PuWE6jcjH4ztye+xDPaEHUmZgDNjr8=
+github.com/Defacto2/sceners v0.0.2 h1:nd3kUJuHKtm24pBxH2Nmg5+vI88jMs2v2z57z22KHJw=
+github.com/Defacto2/sceners v0.0.2/go.mod h1:8q8aIZ5C3lCa1PuWE6jcjH4ztye+xDPaEHUmZgDNjr8=
 github.com/Masterminds/goutils v1.1.1/go.mod h1:8cTjp+g8YejhMuvIA5y2vz3BpJxksy863GQaJW2MFNU=
 github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
 github.com/Masterminds/sprig/v3 v3.2.2/go.mod h1:UoaO7Yp8KlPnJIYWTFkMaqPUYKTfGFPhxNuwnnxkKlk=
