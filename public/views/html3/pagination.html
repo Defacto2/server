@@ -1,4 +1,39 @@
 <!-- pagination.html -->
 {{- define "pagination" -}}
-<pre><a href="">&lt;</a> <a href=""><b>1</b></a> <a href="">2</a> ... <a href="">5</a> <a href="">&gt</a></pre>
-{{ end -}}
+{{- $pages := index . "pages" }}
+{{- $page := index . "page" }}
+{{- if gt (index . "limit") 0 }}
+<p style="font-family:monospace;">
+<!-- previous page -->
+{{- if eq (index . "page") 1}}
+<span>&lt;</span>
+{{- else}}
+<a href="/html3/{{index . "current"}}/{{index . "previous"}}">&lt;</a> 
+{{- end}}
+<!-- always link the first page -->
+{{- if eq (index . "page") 1}}
+<a href="/html3/{{index . "current"}}/1"><b>1</b></a> 
+{{- else}}
+<a href="/html3/{{index . "current"}}/1">1</a> 
+{{- end}}
+<!-- dynamic pagination -->
+{{- if gt (index . "link1") 0 }} &#8230; 
+<a href="/html3/{{index . "current"}}/{{index . "link1"}}">{{- if eq (index . "link1") (index . "page") }}<b>{{index . "link1"}}</b>{{else}}{{index . "link1"}}{{end}}</a> {{end}}
+{{- if gt (index . "link2") 0 }}
+<a href="/html3/{{index . "current"}}/{{index . "link2"}}">{{- if eq (index . "link2") (index . "page") }}<b>{{index . "link2"}}</b>{{else}}{{index . "link2"}}{{end}}</a> {{end}}
+{{- if gt (index . "link3") 0 }}
+<a href="/html3/{{index . "current"}}/{{index . "link3"}}">{{- if eq (index . "link3") (index . "page") }}<b>{{index . "link3"}}</b>{{else}}{{index . "link3"}}{{end}}</a> &#8230; {{end}}
+<!-- always link the end page -->
+{{- if eq (index . "page") (index . "pageZ")}}
+<a href="/html3/{{index . "current"}}/{{index . "pageZ"}}"><b>{{index . "pageZ"}}</b></a> 
+{{- else}}
+<a href="/html3/{{index . "current"}}/{{index . "pageZ"}}">{{index . "pageZ"}}</a> 
+{{- end}}
+<!-- next page -->
+{{- if ge (index . "page") (index . "next")}}
+<span>&gt;</span>
+{{- else}}
+<a href="/html3/{{index . "current"}}/{{index . "next"}}">&gt;</a> 
+{{- end}}
+</p>
+{{ end -}}{{ end -}}
