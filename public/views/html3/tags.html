@@ -12,4 +12,5 @@
 {{if and (gt $first -1) (lt $index $first)}}{{continue}}{{end -}}
 {{if and (gt $first -1) (gt $index $end)}}{{break}}{{end -}}
 <img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/{{ $path }}/{{ $meta.URI }}">{{$meta.Name}}</a>{{leadStr $padding $meta.Name}}{{leadInt 5 $meta.Count}}   {{ $meta.Info }}.
-{{end}}{{end}}
+{{end}}
+<hr>{{end}}

@@ -122,7 +122,7 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 		s.log.Warnf("%s: %s", errConn, err)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
-	if count == 0 {
+	if limit > 0 && count == 0 {
 		return echo.NewHTTPError(http.StatusNotFound,
 			fmt.Sprintf("The %s %q doesn't exist", tt, id))
 	}
@@ -151,10 +151,13 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	}
 	stat := fmt.Sprintf("%d files, %s", count, helpers.ByteCountFloat(byteSum))
 
-	maxPage := helpers.PageCount(count, limit)
-	if page > int(maxPage) {
-		return echo.NewHTTPError(http.StatusNotFound,
-			fmt.Sprintf("Page %d of %d for %s doesn't exist", page, maxPage, tt))
+	maxPage := uint(0)
+	if limit > 0 {
+		maxPage = helpers.PageCount(count, limit)
+		if page > int(maxPage) {
+			return echo.NewHTTPError(http.StatusNotFound,
+				fmt.Sprintf("Page %d of %d for %s doesn't exist", page, maxPage, tt))
+		}
 	}
 
 	desc := ""
