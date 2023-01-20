@@ -134,7 +134,7 @@ const (
 type Sum map[Tag]int
 
 // Sums stores the results of file count query for each tag.
-var Sums = make(Sum, Windows+1)
+var Sums = make(Sum, Windows+1) // TODO: lock?
 
 // Tags contains data for all the tags used by the web application.
 var Tags = T{}

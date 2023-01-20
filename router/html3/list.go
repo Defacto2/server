@@ -33,6 +33,7 @@ type Navigate struct {
 	QueryStr string // QueryStr to append to all pagination links.
 }
 
+// Sugared logger passthrough.
 type sugared struct {
 	log *zap.SugaredLogger
 }
@@ -52,14 +53,17 @@ func (s *sugared) Group(c echo.Context) error {
 	return s.List(ByGroup, c)
 }
 
+// Group lists the file records described as art are digital + pixel art files.
 func (s *sugared) Art(c echo.Context) error {
 	return s.List(AsArt, c)
 }
 
+// Group lists the file records described as document + text art files.
 func (s *sugared) Documents(c echo.Context) error {
 	return s.List(AsDocuments, c)
 }
 
+// Group lists the file records described as software files.
 func (s *sugared) Software(c echo.Context) error {
 	return s.List(AsSoftware, c)
 }
