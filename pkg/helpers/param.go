@@ -127,6 +127,7 @@ func ReverseInt(i uint) (uint, error) {
 	return uint(n), nil
 }
 
+// PageCount returns the maximum pages possible for the sum of records with a record limit per-page.
 func PageCount(sum, limit int) uint {
 	if sum <= 0 || limit <= 0 {
 		return 0

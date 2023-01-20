@@ -72,7 +72,7 @@ func TmplHTML3(fs embed.FS) map[string]*template.Template {
 	templates := make(map[string]*template.Template)
 	templates["index"] = index(fs)
 	templates["art"] = list(fs)
-	templates["document"] = list(fs)
+	templates["documents"] = list(fs)
 	templates["software"] = list(fs)
 	templates["groups"] = listGroups(fs)
 	templates["group"] = list(fs)

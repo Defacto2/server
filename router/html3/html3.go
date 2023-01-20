@@ -42,7 +42,7 @@ func (t RecordsBy) String() string {
 	if t >= l {
 		return ""
 	}
-	return [l]string{"category", "platform", "group", "art", "document", "software"}[t]
+	return [l]string{"category", "platform", "group", "art", "documents", "software"}[t]
 }
 
 func (t RecordsBy) Parent() string {
