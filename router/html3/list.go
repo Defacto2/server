@@ -19,6 +19,20 @@ import (
 	pgm "github.com/Defacto2/server/pkg/postgres/models"
 )
 
+// Navigate handles offset and record limit pagination.
+type Navigate struct {
+	Current  string // Current name of the current record query.
+	Limit    int    // Limit the number of records to return per query.
+	Link1    int    // Link1 of the dynamic pagination.
+	Link2    int    // Link2 of the dynamic pagination.
+	Link3    int    // Link3 of the dynamic pagination.
+	Page     int    // Page number of the current record query.
+	PagePrev int    // PagePrev is the page number to the previous record query.
+	PageNext int    // PageNext is the page number to the next record query.
+	PageMax  int    // PageMax is the maximum and last page number of the record query.
+	QueryStr string // QueryStr to append to all pagination links.
+}
+
 type sugared struct {
 	log *zap.SugaredLogger
 }
@@ -55,14 +69,18 @@ func (s *sugared) Software(c echo.Context) error {
 func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	start := latency()
 	id := c.Param("id")
+
+	count, limit, page := 0, 0, 1
 	offset := strings.TrimPrefix(c.Param("offset"), "/")
-	fmt.Println(c.ParamNames(), c.ParamValues(), "-->", offset)
-	page, _ := strconv.Atoi(offset) // TODO: if err, return 404
-	if page < 1 {
-		return echo.NewHTTPError(http.StatusNotFound,
-			fmt.Sprintf("Page %d of %s doesn't exist", page, tt))
+	if offset != "" {
+		// this permits blank offsets param but returns 404 for a /0 value
+		page, _ = strconv.Atoi(offset)
+		if page < 1 {
+			return echo.NewHTTPError(http.StatusNotFound,
+				fmt.Sprintf("Page %d of %s doesn't exist", page, tt))
+		}
 	}
-	limit := 0
+
 	name := sceners.CleanURL(id)
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
@@ -71,24 +89,31 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	defer db.Close()
+
 	var records pgm.FileSlice
 	order := Clauses(c.QueryString())
 	switch tt {
 	case BySection:
 		records, err = order.FilesByCategory(id, ctx, db)
+		count = len(records)
 	case ByPlatform:
 		records, err = order.FilesByPlatform(id, ctx, db)
+		count = len(records)
 	case ByGroup:
 		records, err = order.FilesByGroup(name, ctx, db)
+		count = len(records)
 	case AsArt:
 		limit = 1000
 		records, err = order.ArtFiles(page, limit, ctx, db)
+		count, _ = models.ArtCount(ctx, db)
 	case AsDocuments:
 		limit = 1000
 		records, err = order.DocumentFiles(page, limit, ctx, db)
+		count, _ = models.DocumentCount(ctx, db)
 	case AsSoftware:
 		limit = 1000
 		records, err = order.SoftwareFiles(page, limit, ctx, db)
+		count, _ = models.SoftwareCount(ctx, db)
 	default:
 		s.log.Warnf("%s: %s", errTag, tt)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errTag)
@@ -97,8 +122,6 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 		s.log.Warnf("%s: %s", errConn, err)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
-
-	count := len(records)
 	if count == 0 {
 		return echo.NewHTTPError(http.StatusNotFound,
 			fmt.Sprintf("The %s %q doesn't exist", tt, id))
@@ -114,13 +137,10 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 		byteSum, err = models.ByteCountByGroup(name, ctx, db)
 	case AsArt:
 		byteSum, err = models.ArtByteCount(ctx, db)
-		count, _ = models.ArtCount(ctx, db)
 	case AsDocuments:
 		byteSum, err = models.DocumentByteCount(ctx, db)
-		count, _ = models.DocumentCount(ctx, db)
 	case AsSoftware:
 		byteSum, err = models.SoftwareByteCount(ctx, db)
-		count, _ = models.SoftwareCount(ctx, db)
 	default:
 		s.log.Warnf("%s: %s", errTag, tt)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errTag)
@@ -129,6 +149,7 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 		s.log.Warnf("%s %s", errConn, err)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
+	stat := fmt.Sprintf("%d files, %s", count, helpers.ByteCountFloat(byteSum))
 
 	maxPage := helpers.PageCount(count, limit)
 	if page > int(maxPage) {
@@ -150,36 +171,40 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	case AsSoftware:
 		desc = fmt.Sprintf("%s, %s.", "Software", textSof)
 	}
-	stat := fmt.Sprintf("%d files, %s", count, helpers.ByteCountFloat(byteSum))
-	sorter := sorter(c.QueryString())
-	n1, n2, n3 := pagi(page, maxPage)
+
+	navi := Navigate{
+		Current:  tt.String(),
+		Limit:    limit,
+		Page:     page,
+		PagePrev: previous(page),
+		PageNext: next(page, maxPage),
+		PageMax:  int(maxPage),
+		QueryStr: qs(c.QueryString()),
+	}
+	navi.Link1, navi.Link2, navi.Link3 = pagi(page, maxPage)
 	err = c.Render(http.StatusOK, tt.String(), map[string]interface{}{
 		"title":       fmt.Sprintf("%s%s%s", title, fmt.Sprintf("/%s/", tt), id),
 		"home":        "",
 		"description": desc,
 		"parent":      tt.Parent(),
 		"stats":       stat,
-		"sort":        sorter,
+		"sort":        sorter(c.QueryString()),
 		"records":     records,
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
-		// work-in-progress
-
-		"current":  tt.String(),
-		"limit":    limit,
-		"pages":    helpers.Pages(count, limit, page),
-		"pageZ":    maxPage,
-		"page":     page,
-		"previous": previous(page),
-		"next":     next(page, maxPage),
-		"link1":    n1,
-		"link2":    n2,
-		"link3":    n3,
+		"navigate":    navi,
 	})
 	if err != nil {
 		s.log.Errorf("%s: %s %d", errTmpl, err, tt)
 		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
 	}
 	return nil
+}
+
+func qs(s string) string {
+	if s == "" {
+		return ""
+	}
+	return fmt.Sprintf("?%s", s)
 }
 
 func previous(page int) int {

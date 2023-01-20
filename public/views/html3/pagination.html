@@ -1,39 +1,45 @@
 <!-- pagination.html -->
 {{- define "pagination" -}}
-{{- $pages := index . "pages" }}
-{{- $page := index . "page" }}
-{{- if gt (index . "limit") 0 }}
+{{- $navi := index . "navigate" }}
+{{- $c := $navi.Current }}
+{{- $p := $navi.Page }}
+{{- $m := $navi.PageMax }}
+{{- $q := $navi.QueryStr }}
+{{- $l1 := $navi.Link1 }}
+{{- $l2 := $navi.Link2 }}
+{{- $l3 := $navi.Link3 }}
+{{- if gt ($navi.Limit) 0 }}
 <p style="font-family:monospace;">
 <!-- previous page -->
-{{- if eq (index . "page") 1}}
+{{- if eq ($p) 1 -}}
 <span>&lt;</span>
-{{- else}}
-<a href="/html3/{{index . "current"}}/{{index . "previous"}}">&lt;</a> 
-{{- end}}
+{{- else -}}
+<a href="/html3/{{$c}}/{{$navi.PagePrev}}{{$q}}">&lt;</a> 
+{{- end -}}
 <!-- always link the first page -->
-{{- if eq (index . "page") 1}}
-<a href="/html3/{{index . "current"}}/1"><b>1</b></a> 
-{{- else}}
-<a href="/html3/{{index . "current"}}/1">1</a> 
-{{- end}}
+{{- if eq ($p) 1 }}
+<a href="/html3/{{$c}}/1{{$q}}"><b>1</b></a> 
+{{- else }}
+<a href="/html3/{{$c}}/1{{$q}}">1</a> 
+{{- end -}}
 <!-- dynamic pagination -->
-{{- if gt (index . "link1") 0 }} &#8230; 
-<a href="/html3/{{index . "current"}}/{{index . "link1"}}">{{- if eq (index . "link1") (index . "page") }}<b>{{index . "link1"}}</b>{{else}}{{index . "link1"}}{{end}}</a> {{end}}
-{{- if gt (index . "link2") 0 }}
-<a href="/html3/{{index . "current"}}/{{index . "link2"}}">{{- if eq (index . "link2") (index . "page") }}<b>{{index . "link2"}}</b>{{else}}{{index . "link2"}}{{end}}</a> {{end}}
-{{- if gt (index . "link3") 0 }}
-<a href="/html3/{{index . "current"}}/{{index . "link3"}}">{{- if eq (index . "link3") (index . "page") }}<b>{{index . "link3"}}</b>{{else}}{{index . "link3"}}{{end}}</a> &#8230; {{end}}
+{{- if gt (index $navi.Link1) 0 }} &#8230; 
+<a href="/html3/{{$c}}/{{$l1}}{{$q}}">{{- if eq ($l1) ($p) }}<b>{{$l1}}</b>{{else}}{{$l1}}{{end}}</a> {{end}}
+{{- if gt (index $navi.Link2) 0 }}
+<a href="/html3/{{$c}}/{{$l2}}{{$q}}">{{- if eq ($l2) ($p) }}<b>{{$l2}}</b>{{else}}{{$l2}}{{end}}</a> {{end}}
+{{- if gt (index $navi.Link3) 0 }}
+<a href="/html3/{{$c}}/{{$l3}}{{$q}}">{{- if eq ($l3) ($p) }}<b>{{$l3}}</b>{{else}}{{$l3}}{{end}}</a> &#8230; {{end}}
 <!-- always link the end page -->
-{{- if eq (index . "page") (index . "pageZ")}}
-<a href="/html3/{{index . "current"}}/{{index . "pageZ"}}"><b>{{index . "pageZ"}}</b></a> 
-{{- else}}
-<a href="/html3/{{index . "current"}}/{{index . "pageZ"}}">{{index . "pageZ"}}</a> 
-{{- end}}
+{{- if eq ($p) ($m) -}}
+<a href="/html3/{{$c}}/{{$m}}{{$q}}"><b>{{$m}}</b></a> 
+{{- else -}}
+<a href="/html3/{{$c}}/{{$m}}{{$q}}">{{$m}}</a> 
+{{- end -}}
 <!-- next page -->
-{{- if ge (index . "page") (index . "next")}}
+{{- if ge ($p) ($navi.PageNext)}}
 <span>&gt;</span>
 {{- else}}
-<a href="/html3/{{index . "current"}}/{{index . "next"}}">&gt;</a> 
+<a href="/html3/{{$c}}/{{$navi.PageNext}}{{$q}}">&gt;</a> 
 {{- end}}
-</p>
+<span id="navKeyInfo"> - navigate with the arrow keys</span></p>
 {{ end -}}{{ end -}}

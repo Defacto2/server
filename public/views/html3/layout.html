@@ -16,6 +16,6 @@
     {{if ne (index . "stats") ""}}<small>{{index . "stats"}}</small>{{end -}}
     {{ block "pagination" . }}{{end -}}
     {{ block "pre" .}}{{ "<!-- no pre content was defined -->" | safeHTML }}{{end}}
-    {{ block "pagination" . }}{{end -}}<hr>
-    <p><em>Defacto2 Server at defacto2.net, latency {{index . "latency"}}</em></p>
+    {{ block "pagination" . }}{{end -}}
+<p><em>Defacto2 Server at defacto2.net, latency {{index . "latency"}}</em></p>
 </body></html>{{end}}
