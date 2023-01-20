@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -14,6 +15,7 @@ import (
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/tags"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 	"go.uber.org/zap"
 
 	pgm "github.com/Defacto2/server/pkg/postgres/models"
@@ -103,9 +105,12 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 		x, _ := models.CountByCategory(id, ctx, db)
 		count = int(x)
 	case ByPlatform:
+		limit = 2500
 		records, err = order.FilesByPlatform(id, ctx, db)
-		count = len(records)
+		x, _ := models.CountByPlatform(id, ctx, db)
+		count = int(x)
 	case ByGroup:
+		// ByGroups do not need a pagination limit.
 		records, err = order.FilesByGroup(name, ctx, db)
 		count = len(records)
 	case AsArt:
@@ -166,23 +171,33 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 		}
 	}
 
-	desc := ""
+	current, desc := "", ""
 	switch tt {
 	case BySection, ByPlatform:
 		key := tags.TagByURI(id)
 		info := tags.Infos[key]
 		name := tags.Names[key]
 		desc = fmt.Sprintf("%s - %s.", name, info)
+		s, err := url.JoinPath(tt.String(), key.String())
+		if err != nil {
+			log.Warnf("Could not create a URL string from %q and %q.", tt.String(), key.String())
+		}
+		current = s
 	case AsArt:
 		desc = fmt.Sprintf("%s, %s.", "Digital + pixel art", textArt)
+		current = tt.String()
 	case AsDocuments:
 		desc = fmt.Sprintf("%s, %s.", "Document + text art", textDoc)
+		current = tt.String()
 	case AsSoftware:
 		desc = fmt.Sprintf("%s, %s.", "Software", textSof)
+		current = tt.String()
+	default:
+		current = tt.String()
 	}
 
 	navi := Navigate{
-		Current:  tt.String(),
+		Current:  current,
 		Limit:    limit,
 		Page:     page,
 		PagePrev: previous(page),
@@ -233,8 +248,13 @@ func next(page int, maxPage uint) int {
 
 func pagi(page int, maxPage uint) (int, int, int) {
 	max := int(maxPage)
-	if max < 3 {
+	switch max {
+	case 0, 1, 2:
 		return 0, 0, 0
+	case 3:
+		return 2, 0, 0
+	case 4:
+		return 2, 3, 0
 	}
 	a := page + -1
 	b := page + 0

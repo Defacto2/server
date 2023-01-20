@@ -78,6 +78,12 @@ func ByteCountByPlatform(name string, ctx context.Context, db *sql.DB) (int64, e
 	return i, nil
 }
 
+// CountByPlatform counts the files that match the named category.
+func CountByPlatform(name string, ctx context.Context, db *sql.DB) (int64, error) {
+	x := null.StringFrom(name)
+	return models.Files(qm.Where(platform, x)).Count(ctx, db)
+}
+
 // ByteCountByGroup sums the byte filesizes for all the files that match the group name.
 func ByteCountByGroup(name string, ctx context.Context, db *sql.DB) (int64, error) {
 	x := null.StringFrom(name)
