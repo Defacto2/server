@@ -94,8 +94,10 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	order := Clauses(c.QueryString())
 	switch tt {
 	case BySection:
-		records, err = order.FilesByCategory(id, ctx, db)
-		count = len(records)
+		limit = 2500
+		records, err = order.FilesByCategory(id, page, limit, ctx, db)
+		x, _ := models.CountByCategory(id, ctx, db)
+		count = int(x)
 	case ByPlatform:
 		records, err = order.FilesByPlatform(id, ctx, db)
 		count = len(records)

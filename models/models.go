@@ -88,6 +88,12 @@ func ByteCountByGroup(name string, ctx context.Context, db *sql.DB) (int64, erro
 	return i, nil
 }
 
+// CountByCategory counts the files that match the named category.
+func CountByCategory(name string, ctx context.Context, db *sql.DB) (int64, error) {
+	x := null.StringFrom(name)
+	return models.Files(qm.Where(section, x)).Count(ctx, db)
+}
+
 // ArtCount counts the files that could be considered as digital or pixel art.
 func ArtCount(ctx context.Context, db *sql.DB) (int, error) {
 	if c := Counts[Art]; c > 0 {
