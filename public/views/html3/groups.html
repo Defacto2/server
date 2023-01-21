@@ -6,5 +6,5 @@
 <img src="/images/html3/back.gif" alt="[DIR]"> <a href="/html3">{{$parent}}</a>{{leadStr $padding $parent}}    -   Return to the HTML3 index.
 
 {{ range $index, $value := .sceners -}} 
-<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/{{ $path }}/{{ $value.URI }}">{{$value.Name}}</a>{{leadStr $padding $value.Name}}{{leadInt 5 $value.Count}}   {{ $value.URI }}
+<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/{{ $path }}/{{ $value.URI }}">{{$value.Name}}</a>{{leadStr $padding $value.Name}}{{leadInt 5 $value.Count}}
 {{end}}{{end}}
