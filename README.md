@@ -174,6 +174,19 @@ https://pgloader.readthedocs.io/en/latest/ref/mysql.html?highlight=schema#using-
 
 todo: rename psql schema to public
 
+#### OPENAPI?
+
+https://github.com/deepmap/oapi-codegen
+https://threedots.tech/post/serverless-cloud-run-firebase-modern-go-application/#public-http-api
+
+#### Event / Message applications
+
+Go library for building event-driven applications.
+
+https://watermill.io/
+https://github.com/ThreeDotsLabs/watermill
+https://github.com/ThreeDotsLabs/watermill/tree/master/_examples
+
 #### mysql-to-ps.load
 
 ```

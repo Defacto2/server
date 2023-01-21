@@ -16,6 +16,7 @@ import (
 
 	"github.com/caarlos0/env"
 	_ "github.com/lib/pq"
+	"github.com/urfave/cli/v2"
 	"github.com/volatiletech/sqlboiler/boil"
 	"go.uber.org/zap"
 
@@ -59,6 +60,12 @@ func main() {
 	default:
 		log = logger.Development().Sugar()
 		log.Debug("The server is running in the development mode.")
+	}
+
+	// Command-line arguments
+	// By default the webserver runs when no arguments are provided
+	if args := len(os.Args[1:]); args > 0 {
+		greet()
 	}
 
 	// Startup logo
@@ -157,4 +164,18 @@ func main() {
 		signal.Stop(quit)
 		cancel()
 	}()
+}
+
+// Command-line arguments handler placeholder.
+// TODO: https://cli.urfave.org/v2/examples/full-api-example/
+func greet() {
+	app := &cli.App{
+		Name:    "partay",
+		Version: "v19.99.0",
+	}
+	app.Suggest = true
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
+	os.Exit(0)
 }
