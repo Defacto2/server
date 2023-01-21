@@ -79,6 +79,9 @@ func Sentence(s string) string {
 
 // ShortMonth takes a month integer and abbreviates it to a three letter English month.
 func ShortMonth(month int) string {
+	if month < 1 || month > 12 {
+		return ""
+	}
 	const abbreviated = 3
 	s := fmt.Sprint(time.Month(month))
 	if len(s) >= abbreviated {

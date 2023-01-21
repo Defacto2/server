@@ -57,6 +57,9 @@ func FmtTime(t null.Time) string {
 	d := t.Time.Day()
 	m := helpers.ShortMonth(int(t.Time.Month()))
 	y := t.Time.Year()
+	if !helpers.IsYear(y) {
+		return ""
+	}
 	return fmt.Sprintf("%02d-%s-%d", d, m, y)
 }
 
