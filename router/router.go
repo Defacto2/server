@@ -42,6 +42,8 @@ func (r Router) Controller() *echo.Echo {
 	e.File("favicon.ico", "public/images/favicon.ico") // TODO: this is not being embedded
 
 	// Middleware
+	e.Use(middleware.Gzip())
+	//e.Use(middleware.Decompress())
 	// remove trailing slashes
 	e.Use(middleware.RemoveTrailingSlashWithConfig(middleware.TrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,

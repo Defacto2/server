@@ -24,8 +24,6 @@ Mock the database using a test sqlite db?
 - Response for future APIs https://echo.labstack.com/guide/response/
 - Before / After responces to handle data outside of templates https://echo.labstack.com/guide/response/#hooks
 - Custom context that are used in handlers https://echo.labstack.com/guide/context/
-- Decompress gzip header support https://echo.labstack.com/middleware/decompress/
-- Gzip compression https://echo.labstack.com/middleware/gzip/
 - HTTPS Server custom context that are used in handlers - https://echo.labstack.com/guide/context/
      https://echo.labstack.com/cookbook/http2/
 - HTTP/2 Cleartext Server
