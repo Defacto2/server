@@ -22,6 +22,7 @@ func TestTruncFilename(t *testing.T) {
 		{"ext", args{5, fn}, ".file"},
 		{"too short", args{4, fn}, ".file"},
 		{"short", args{14, fn}, "one_two-..file"},
+		{"too short 2", args{6, "file"}, "file"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

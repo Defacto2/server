@@ -2,12 +2,15 @@
 
 Under construction.
 
+#### TODOs
+
+Mock the database using a test sqlite db?
+
 #### Later TODOs
 
 - Create a method to calc the most popular years for a record query.
 - Optimise the columns fetched from SQL queries, using bindings.
 - OrderBy Name/Count /html3/groups? https://pkg.go.dev/sort#example-package-SortKeys
-- Test all groups, using the slug and deslug funcs.
 - Add both group_for and group_by to distinct results.
 - Move orderby params to cookies?
 

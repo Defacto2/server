@@ -1,9 +1,11 @@
 package helpers_test
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPageCount(t *testing.T) {
@@ -32,5 +34,13 @@ func TestPageCount(t *testing.T) {
 				t.Errorf("PageCount() got = %v, want %v", got, tt.want1)
 			}
 		})
+	}
+}
+
+func TestObfuscates(t *testing.T) {
+	keys := []int{1, 1000, 1236346, -123, 0}
+	for _, key := range keys {
+		s := helpers.ObfuscateParam(strconv.Itoa(key))
+		assert.Equal(t, key, helpers.Deobfuscate(s))
 	}
 }

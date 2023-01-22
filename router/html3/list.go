@@ -71,7 +71,6 @@ func (s *sugared) Software(c echo.Context) error {
 }
 
 // List all the records associated with the RecordsBy grouping.
-// TODO: create a struct with pagination data.
 func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	start := latency()
 	id := c.Param("id")
@@ -205,7 +204,7 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 		PageMax:  int(maxPage),
 		QueryStr: qs(c.QueryString()),
 	}
-	navi.Link1, navi.Link2, navi.Link3 = pagi(page, maxPage)
+	navi.Link1, navi.Link2, navi.Link3 = Pagi(page, maxPage)
 	err = c.Render(http.StatusOK, tt.String(), map[string]interface{}{
 		"title":       fmt.Sprintf("%s%s%s", title, fmt.Sprintf("/%s/", tt), id),
 		"home":        "",
@@ -246,7 +245,10 @@ func next(page int, maxPage uint) int {
 	return page + 1
 }
 
-func pagi(page int, maxPage uint) (int, int, int) {
+// Pagi returns up to three page numbers for pagination links.
+// The absolute numbers will always be in sequence except for returned
+// values of zero, which should be skipped.
+func Pagi(page int, maxPage uint) (int, int, int) {
 	max := int(maxPage)
 	switch max {
 	case 0, 1, 2:

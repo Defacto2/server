@@ -63,3 +63,28 @@ func TestFmtTime(t *testing.T) {
 		})
 	}
 }
+
+func TestIcon(t *testing.T) {
+	const u = "unknown"
+	tests := []struct {
+		name      string
+		expect    string
+		assertion assert.ComparisonAssertionFunc
+	}{
+		{"", u, assert.Equal},
+		{"myfile", u, assert.Equal},
+		{"myimage.png", "image2", assert.Equal},
+		{"double.exts.avi", "movie", assert.Equal},
+		{"a web site .htm", "generic", assert.Equal},
+		{"👾.mp3", "sound2", assert.Equal},
+	}
+	for _, tt := range tests {
+		t.Run(tt.expect, func(t *testing.T) {
+			n := null.String{
+				String: tt.name,
+				Valid:  true,
+			}
+			tt.assertion(t, tt.expect, models.Icon(n))
+		})
+	}
+}
