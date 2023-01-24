@@ -5,6 +5,83 @@ Under construction.
 #### TODOs
 
 Mock the database using a test sqlite db?
+Boil eager loading of groups etc. known as the n+1 problem.
+ - It takes a loop of queries, and merges them into a single big statement for db performance
+
+
+# PostgreSQL migrations
+# https://www.postgresql.org/docs/current/datatype.html
+# CITEXT = case-insensitive character string type.
+# size byes convert to `integer` (4 bytes) = max 2.147GB value
+# id = serial
+There is no performance improvement for fixed-length, padded character types.
+So should always use varchar(n) or text
+
+uuid type = may need conversion to legacy cfml? // a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
+// could create a func to rename all legacy filenames on the host system to use rfc 4122
+// 8-4-4-4-12 to equal 32 digits
+
+date_issued_month etc should have range limits 1-12
+
+todo: store NFOs,file_id.diz in database using the bytea hex format data type?
+hex is more performant than binary escape format
+https://www.postgresql.org/docs/current/datatype-binary.html
+
+Full text search types.
+https://www.postgresql.org/docs/current/datatype-textsearch.html
+
+todo: create a relationship files table that contains the filename of every
+file contained within a zip archive. could also include columns containing size in bytes, sha256 hash, text body for full text searching. this woul replace the file_zip_content column
+would also create a sep cli tool to scan the archives to fill out this data.
+for saftey and code maintainance maintenance, the tool needs to be sep from `server` and `df2`
+
+All SQL needs to account for delete_at
+`qm.WithDeleted`
+
+Create a new postgresql files db for testing.
+	defacto2-tests > files, groupnames
+    sudo -u postgres -- createuser --createdb --pwprompt start
+        createdb --username start --password --owner start gettingstarted
+    psql --username start --password gettingstarted < schema.sql
+
+```go
+var users []*models.User
+
+rows, err := db.QueryContext(context.Background(), `select * from users;`)
+if err != nil {
+    log.Fatal(err)
+}
+err = queries.Bind(rows, &users)
+if err != nil {
+    log.Fatal(err)
+}
+rows.Close()
+```
+
+# see: https://pgloader.readthedocs.io
+# quick guide: https://thedevelopercafe.com/articles/sql-in-go-with-sqlboiler-ac8efc4c5cb8
+
+```go
+# https://github.com/volatiletech/sqlboiler#extending-generated-models
+# extending generated models
+# method 1: simple funcs
+
+// Package modext is for SQLBoiler helper methods
+package modext
+
+// UserFirstTimeSetup is an extension of the user model.
+func UserFirstTimeSetup(ctx context.Context, db *sql.DB, u *models.User) error { ... }
+
+# calling code
+
+user, err := Users().One(ctx, db)
+// elided error check
+
+err = modext.UserFirstTimeSetup(ctx, db, user)
+// elided error check
+
+
+```
 
 #### Later TODOs
 
@@ -18,8 +95,6 @@ Mock the database using a test sqlite db?
 
 - SQLBoiler binding https://thedevelopercafe.com/articles/sql-in-go-with-sqlboiler-ac8efc4c5cb8
 
-- Echo#*Server#ReadTimeout 
-- Echo#*Server#WriteTimeout
 - Request and validate data (forms, query, etc) https://echo.labstack.com/guide/request/#custom-binder
 - Response for future APIs https://echo.labstack.com/guide/response/
 - Before / After responces to handle data outside of templates https://echo.labstack.com/guide/response/#hooks

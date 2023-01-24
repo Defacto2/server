@@ -17,6 +17,21 @@ func TestParent(t *testing.T) {
 	t.Run("Netresources", testNetresources)
 }
 
+func TestSoftDelete(t *testing.T) {
+	t.Run("Files", testFilesSoftDelete)
+	t.Run("Netresources", testNetresourcesSoftDelete)
+}
+
+func TestQuerySoftDeleteAll(t *testing.T) {
+	t.Run("Files", testFilesQuerySoftDeleteAll)
+	t.Run("Netresources", testNetresourcesQuerySoftDeleteAll)
+}
+
+func TestSliceSoftDeleteAll(t *testing.T) {
+	t.Run("Files", testFilesSliceSoftDeleteAll)
+	t.Run("Netresources", testNetresourcesSliceSoftDeleteAll)
+}
+
 func TestDelete(t *testing.T) {
 	t.Run("Files", testFilesDelete)
 	t.Run("Groupnames", testGroupnamesDelete)
@@ -69,12 +84,6 @@ func TestCount(t *testing.T) {
 	t.Run("Files", testFilesCount)
 	t.Run("Groupnames", testGroupnamesCount)
 	t.Run("Netresources", testNetresourcesCount)
-}
-
-func TestHooks(t *testing.T) {
-	t.Run("Files", testFilesHooks)
-	t.Run("Groupnames", testGroupnamesHooks)
-	t.Run("Netresources", testNetresourcesHooks)
 }
 
 func TestInsert(t *testing.T) {

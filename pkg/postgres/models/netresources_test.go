@@ -31,6 +31,107 @@ func testNetresources(t *testing.T) {
 	}
 }
 
+func testNetresourcesSoftDelete(t *testing.T) {
+	t.Parallel()
+
+	seed := randomize.NewSeed()
+	var err error
+	o := &Netresource{}
+	if err = randomize.Struct(seed, o, netresourceDBTypes, true, netresourceColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Netresource struct: %s", err)
+	}
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+	if err = o.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Error(err)
+	}
+
+	if rowsAff, err := o.Delete(ctx, tx, false); err != nil {
+		t.Error(err)
+	} else if rowsAff != 1 {
+		t.Error("should only have deleted one row, but affected:", rowsAff)
+	}
+
+	count, err := Netresources().Count(ctx, tx)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if count != 0 {
+		t.Error("want zero records, got:", count)
+	}
+}
+
+func testNetresourcesQuerySoftDeleteAll(t *testing.T) {
+	t.Parallel()
+
+	seed := randomize.NewSeed()
+	var err error
+	o := &Netresource{}
+	if err = randomize.Struct(seed, o, netresourceDBTypes, true, netresourceColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Netresource struct: %s", err)
+	}
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+	if err = o.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Error(err)
+	}
+
+	if rowsAff, err := Netresources().DeleteAll(ctx, tx, false); err != nil {
+		t.Error(err)
+	} else if rowsAff != 1 {
+		t.Error("should only have deleted one row, but affected:", rowsAff)
+	}
+
+	count, err := Netresources().Count(ctx, tx)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if count != 0 {
+		t.Error("want zero records, got:", count)
+	}
+}
+
+func testNetresourcesSliceSoftDeleteAll(t *testing.T) {
+	t.Parallel()
+
+	seed := randomize.NewSeed()
+	var err error
+	o := &Netresource{}
+	if err = randomize.Struct(seed, o, netresourceDBTypes, true, netresourceColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Netresource struct: %s", err)
+	}
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+	if err = o.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Error(err)
+	}
+
+	slice := NetresourceSlice{o}
+
+	if rowsAff, err := slice.DeleteAll(ctx, tx, false); err != nil {
+		t.Error(err)
+	} else if rowsAff != 1 {
+		t.Error("should only have deleted one row, but affected:", rowsAff)
+	}
+
+	count, err := Netresources().Count(ctx, tx)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if count != 0 {
+		t.Error("want zero records, got:", count)
+	}
+}
+
 func testNetresourcesDelete(t *testing.T) {
 	t.Parallel()
 
@@ -48,7 +149,7 @@ func testNetresourcesDelete(t *testing.T) {
 		t.Error(err)
 	}
 
-	if rowsAff, err := o.Delete(ctx, tx); err != nil {
+	if rowsAff, err := o.Delete(ctx, tx, true); err != nil {
 		t.Error(err)
 	} else if rowsAff != 1 {
 		t.Error("should only have deleted one row, but affected:", rowsAff)
@@ -81,7 +182,7 @@ func testNetresourcesQueryDeleteAll(t *testing.T) {
 		t.Error(err)
 	}
 
-	if rowsAff, err := Netresources().DeleteAll(ctx, tx); err != nil {
+	if rowsAff, err := Netresources().DeleteAll(ctx, tx, true); err != nil {
 		t.Error(err)
 	} else if rowsAff != 1 {
 		t.Error("should only have deleted one row, but affected:", rowsAff)
@@ -116,7 +217,7 @@ func testNetresourcesSliceDeleteAll(t *testing.T) {
 
 	slice := NetresourceSlice{o}
 
-	if rowsAff, err := slice.DeleteAll(ctx, tx); err != nil {
+	if rowsAff, err := slice.DeleteAll(ctx, tx, true); err != nil {
 		t.Error(err)
 	} else if rowsAff != 1 {
 		t.Error("should only have deleted one row, but affected:", rowsAff)
@@ -297,147 +398,6 @@ func testNetresourcesCount(t *testing.T) {
 	if count != 2 {
 		t.Error("want 2 records, got:", count)
 	}
-}
-
-func netresourceBeforeInsertHook(ctx context.Context, e boil.ContextExecutor, o *Netresource) error {
-	*o = Netresource{}
-	return nil
-}
-
-func netresourceAfterInsertHook(ctx context.Context, e boil.ContextExecutor, o *Netresource) error {
-	*o = Netresource{}
-	return nil
-}
-
-func netresourceAfterSelectHook(ctx context.Context, e boil.ContextExecutor, o *Netresource) error {
-	*o = Netresource{}
-	return nil
-}
-
-func netresourceBeforeUpdateHook(ctx context.Context, e boil.ContextExecutor, o *Netresource) error {
-	*o = Netresource{}
-	return nil
-}
-
-func netresourceAfterUpdateHook(ctx context.Context, e boil.ContextExecutor, o *Netresource) error {
-	*o = Netresource{}
-	return nil
-}
-
-func netresourceBeforeDeleteHook(ctx context.Context, e boil.ContextExecutor, o *Netresource) error {
-	*o = Netresource{}
-	return nil
-}
-
-func netresourceAfterDeleteHook(ctx context.Context, e boil.ContextExecutor, o *Netresource) error {
-	*o = Netresource{}
-	return nil
-}
-
-func netresourceBeforeUpsertHook(ctx context.Context, e boil.ContextExecutor, o *Netresource) error {
-	*o = Netresource{}
-	return nil
-}
-
-func netresourceAfterUpsertHook(ctx context.Context, e boil.ContextExecutor, o *Netresource) error {
-	*o = Netresource{}
-	return nil
-}
-
-func testNetresourcesHooks(t *testing.T) {
-	t.Parallel()
-
-	var err error
-
-	ctx := context.Background()
-	empty := &Netresource{}
-	o := &Netresource{}
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, o, netresourceDBTypes, false); err != nil {
-		t.Errorf("Unable to randomize Netresource object: %s", err)
-	}
-
-	AddNetresourceHook(boil.BeforeInsertHook, netresourceBeforeInsertHook)
-	if err = o.doBeforeInsertHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doBeforeInsertHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected BeforeInsertHook function to empty object, but got: %#v", o)
-	}
-	netresourceBeforeInsertHooks = []NetresourceHook{}
-
-	AddNetresourceHook(boil.AfterInsertHook, netresourceAfterInsertHook)
-	if err = o.doAfterInsertHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doAfterInsertHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected AfterInsertHook function to empty object, but got: %#v", o)
-	}
-	netresourceAfterInsertHooks = []NetresourceHook{}
-
-	AddNetresourceHook(boil.AfterSelectHook, netresourceAfterSelectHook)
-	if err = o.doAfterSelectHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doAfterSelectHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected AfterSelectHook function to empty object, but got: %#v", o)
-	}
-	netresourceAfterSelectHooks = []NetresourceHook{}
-
-	AddNetresourceHook(boil.BeforeUpdateHook, netresourceBeforeUpdateHook)
-	if err = o.doBeforeUpdateHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doBeforeUpdateHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected BeforeUpdateHook function to empty object, but got: %#v", o)
-	}
-	netresourceBeforeUpdateHooks = []NetresourceHook{}
-
-	AddNetresourceHook(boil.AfterUpdateHook, netresourceAfterUpdateHook)
-	if err = o.doAfterUpdateHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doAfterUpdateHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected AfterUpdateHook function to empty object, but got: %#v", o)
-	}
-	netresourceAfterUpdateHooks = []NetresourceHook{}
-
-	AddNetresourceHook(boil.BeforeDeleteHook, netresourceBeforeDeleteHook)
-	if err = o.doBeforeDeleteHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doBeforeDeleteHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected BeforeDeleteHook function to empty object, but got: %#v", o)
-	}
-	netresourceBeforeDeleteHooks = []NetresourceHook{}
-
-	AddNetresourceHook(boil.AfterDeleteHook, netresourceAfterDeleteHook)
-	if err = o.doAfterDeleteHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doAfterDeleteHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected AfterDeleteHook function to empty object, but got: %#v", o)
-	}
-	netresourceAfterDeleteHooks = []NetresourceHook{}
-
-	AddNetresourceHook(boil.BeforeUpsertHook, netresourceBeforeUpsertHook)
-	if err = o.doBeforeUpsertHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doBeforeUpsertHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected BeforeUpsertHook function to empty object, but got: %#v", o)
-	}
-	netresourceBeforeUpsertHooks = []NetresourceHook{}
-
-	AddNetresourceHook(boil.AfterUpsertHook, netresourceAfterUpsertHook)
-	if err = o.doAfterUpsertHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doAfterUpsertHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected AfterUpsertHook function to empty object, but got: %#v", o)
-	}
-	netresourceAfterUpsertHooks = []NetresourceHook{}
 }
 
 func testNetresourcesInsert(t *testing.T) {

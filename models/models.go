@@ -13,6 +13,11 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
+// File is an object representing the database table.
+// type File struct { // Primary key
+// 	ID int64 `boil:"id" json:"id" toml:"id" yaml:"id"`
+// }
+
 // https://github.com/volatiletech/sqlboiler#constants
 
 type Count int // Count is the number of found files.

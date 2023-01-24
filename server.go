@@ -1,7 +1,9 @@
-// The Defacto2 web application built in 2023.
+// The Defacto2 web application built in 2023 on Go.
 // (c) 2023 Ben Garrett.
 // https://defacto2.net
 package main
+
+//go:generate sqlboiler --config ".sqlboiler.toml" --wipe --no-hooks --add-soft-deletes psql
 
 import (
 	"context"
@@ -18,7 +20,6 @@ import (
 	"github.com/caarlos0/env"
 	_ "github.com/lib/pq"
 	"github.com/urfave/cli/v2"
-	"github.com/volatiletech/sqlboiler/boil"
 	"go.uber.org/zap"
 
 	"github.com/Defacto2/server/internal/server"
@@ -87,9 +88,6 @@ func main() {
 	// Cached global vars will go here to avoid the garbage collection.
 	// They should be lockable.
 
-	// SQLBoiler global variant
-	boil.SetDB(db)
-
 	// Echo router/controller instance
 	e := router.Router{
 		Configs: configs,
@@ -97,6 +95,9 @@ func main() {
 		Images:  images,
 		Views:   views,
 	}.Controller()
+
+	// Placeholder API example
+	//e.GET("/api/get-filename", api.GetFilename)
 
 	// Start server with graceful shutdown
 	go func() {

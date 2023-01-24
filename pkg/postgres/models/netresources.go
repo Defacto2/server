@@ -259,8 +259,6 @@ type (
 	// NetresourceSlice is an alias for a slice of pointers to Netresource.
 	// This should almost always be used instead of []Netresource.
 	NetresourceSlice []*Netresource
-	// NetresourceHook is the signature for custom Netresource hook methods
-	NetresourceHook func(context.Context, boil.ContextExecutor, *Netresource) error
 
 	netresourceQuery struct {
 		*queries.Query
@@ -288,184 +286,6 @@ var (
 	_ = qmhelper.Where
 )
 
-var netresourceAfterSelectHooks []NetresourceHook
-
-var netresourceBeforeInsertHooks []NetresourceHook
-var netresourceAfterInsertHooks []NetresourceHook
-
-var netresourceBeforeUpdateHooks []NetresourceHook
-var netresourceAfterUpdateHooks []NetresourceHook
-
-var netresourceBeforeDeleteHooks []NetresourceHook
-var netresourceAfterDeleteHooks []NetresourceHook
-
-var netresourceBeforeUpsertHooks []NetresourceHook
-var netresourceAfterUpsertHooks []NetresourceHook
-
-// doAfterSelectHooks executes all "after Select" hooks.
-func (o *Netresource) doAfterSelectHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range netresourceAfterSelectHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeInsertHooks executes all "before insert" hooks.
-func (o *Netresource) doBeforeInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range netresourceBeforeInsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterInsertHooks executes all "after Insert" hooks.
-func (o *Netresource) doAfterInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range netresourceAfterInsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeUpdateHooks executes all "before Update" hooks.
-func (o *Netresource) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range netresourceBeforeUpdateHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterUpdateHooks executes all "after Update" hooks.
-func (o *Netresource) doAfterUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range netresourceAfterUpdateHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeDeleteHooks executes all "before Delete" hooks.
-func (o *Netresource) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range netresourceBeforeDeleteHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterDeleteHooks executes all "after Delete" hooks.
-func (o *Netresource) doAfterDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range netresourceAfterDeleteHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeUpsertHooks executes all "before Upsert" hooks.
-func (o *Netresource) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range netresourceBeforeUpsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterUpsertHooks executes all "after Upsert" hooks.
-func (o *Netresource) doAfterUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range netresourceAfterUpsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// AddNetresourceHook registers your hook function for all future operations.
-func AddNetresourceHook(hookPoint boil.HookPoint, netresourceHook NetresourceHook) {
-	switch hookPoint {
-	case boil.AfterSelectHook:
-		netresourceAfterSelectHooks = append(netresourceAfterSelectHooks, netresourceHook)
-	case boil.BeforeInsertHook:
-		netresourceBeforeInsertHooks = append(netresourceBeforeInsertHooks, netresourceHook)
-	case boil.AfterInsertHook:
-		netresourceAfterInsertHooks = append(netresourceAfterInsertHooks, netresourceHook)
-	case boil.BeforeUpdateHook:
-		netresourceBeforeUpdateHooks = append(netresourceBeforeUpdateHooks, netresourceHook)
-	case boil.AfterUpdateHook:
-		netresourceAfterUpdateHooks = append(netresourceAfterUpdateHooks, netresourceHook)
-	case boil.BeforeDeleteHook:
-		netresourceBeforeDeleteHooks = append(netresourceBeforeDeleteHooks, netresourceHook)
-	case boil.AfterDeleteHook:
-		netresourceAfterDeleteHooks = append(netresourceAfterDeleteHooks, netresourceHook)
-	case boil.BeforeUpsertHook:
-		netresourceBeforeUpsertHooks = append(netresourceBeforeUpsertHooks, netresourceHook)
-	case boil.AfterUpsertHook:
-		netresourceAfterUpsertHooks = append(netresourceAfterUpsertHooks, netresourceHook)
-	}
-}
-
-// OneG returns a single netresource record from the query using the global executor.
-func (q netresourceQuery) OneG(ctx context.Context) (*Netresource, error) {
-	return q.One(ctx, boil.GetContextDB())
-}
-
 // One returns a single netresource record from the query.
 func (q netresourceQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Netresource, error) {
 	o := &Netresource{}
@@ -480,16 +300,7 @@ func (q netresourceQuery) One(ctx context.Context, exec boil.ContextExecutor) (*
 		return nil, errors.Wrap(err, "models: failed to execute a one query for netresources")
 	}
 
-	if err := o.doAfterSelectHooks(ctx, exec); err != nil {
-		return o, err
-	}
-
 	return o, nil
-}
-
-// AllG returns all Netresource records from the query using the global executor.
-func (q netresourceQuery) AllG(ctx context.Context) (NetresourceSlice, error) {
-	return q.All(ctx, boil.GetContextDB())
 }
 
 // All returns all Netresource records from the query.
@@ -501,20 +312,7 @@ func (q netresourceQuery) All(ctx context.Context, exec boil.ContextExecutor) (N
 		return nil, errors.Wrap(err, "models: failed to assign all query results to Netresource slice")
 	}
 
-	if len(netresourceAfterSelectHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doAfterSelectHooks(ctx, exec); err != nil {
-				return o, err
-			}
-		}
-	}
-
 	return o, nil
-}
-
-// CountG returns the count of all Netresource records in the query using the global executor
-func (q netresourceQuery) CountG(ctx context.Context) (int64, error) {
-	return q.Count(ctx, boil.GetContextDB())
 }
 
 // Count returns the count of all Netresource records in the query.
@@ -530,11 +328,6 @@ func (q netresourceQuery) Count(ctx context.Context, exec boil.ContextExecutor) 
 	}
 
 	return count, nil
-}
-
-// ExistsG checks if the row exists in the table using the global executor.
-func (q netresourceQuery) ExistsG(ctx context.Context) (bool, error) {
-	return q.Exists(ctx, boil.GetContextDB())
 }
 
 // Exists checks if the row exists in the table.
@@ -555,18 +348,13 @@ func (q netresourceQuery) Exists(ctx context.Context, exec boil.ContextExecutor)
 
 // Netresources retrieves all the records using an executor.
 func Netresources(mods ...qm.QueryMod) netresourceQuery {
-	mods = append(mods, qm.From("\"netresources\""))
+	mods = append(mods, qm.From("\"netresources\""), qmhelper.WhereIsNull("\"netresources\".\"deletedat\""))
 	q := NewQuery(mods...)
 	if len(queries.GetSelect(q)) == 0 {
 		queries.SetSelect(q, []string{"\"netresources\".*"})
 	}
 
 	return netresourceQuery{q}
-}
-
-// FindNetresourceG retrieves a single record by ID.
-func FindNetresourceG(ctx context.Context, iD int64, selectCols ...string) (*Netresource, error) {
-	return FindNetresource(ctx, boil.GetContextDB(), iD, selectCols...)
 }
 
 // FindNetresource retrieves a single record by ID with an executor.
@@ -579,7 +367,7 @@ func FindNetresource(ctx context.Context, exec boil.ContextExecutor, iD int64, s
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"netresources\" where \"id\"=$1", sel,
+		"select %s from \"netresources\" where \"id\"=$1 and \"deletedat\" is null", sel,
 	)
 
 	q := queries.Raw(query, iD)
@@ -592,16 +380,7 @@ func FindNetresource(ctx context.Context, exec boil.ContextExecutor, iD int64, s
 		return nil, errors.Wrap(err, "models: unable to select from netresources")
 	}
 
-	if err = netresourceObj.doAfterSelectHooks(ctx, exec); err != nil {
-		return netresourceObj, err
-	}
-
 	return netresourceObj, nil
-}
-
-// InsertG a single record. See Insert for whitelist behavior description.
-func (o *Netresource) InsertG(ctx context.Context, columns boil.Columns) error {
-	return o.Insert(ctx, boil.GetContextDB(), columns)
 }
 
 // Insert a single record using an executor.
@@ -621,10 +400,6 @@ func (o *Netresource) Insert(ctx context.Context, exec boil.ContextExecutor, col
 		if queries.MustTime(o.Updatedat).IsZero() {
 			queries.SetScanner(&o.Updatedat, currTime)
 		}
-	}
-
-	if err := o.doBeforeInsertHooks(ctx, exec); err != nil {
-		return err
 	}
 
 	nzDefaults := queries.NonZeroDefaultSet(netresourceColumnsWithDefault, o)
@@ -690,13 +465,7 @@ func (o *Netresource) Insert(ctx context.Context, exec boil.ContextExecutor, col
 		netresourceInsertCacheMut.Unlock()
 	}
 
-	return o.doAfterInsertHooks(ctx, exec)
-}
-
-// UpdateG a single Netresource record using the global executor.
-// See Update for more documentation.
-func (o *Netresource) UpdateG(ctx context.Context, columns boil.Columns) (int64, error) {
-	return o.Update(ctx, boil.GetContextDB(), columns)
+	return nil
 }
 
 // Update uses an executor to update the Netresource.
@@ -710,9 +479,6 @@ func (o *Netresource) Update(ctx context.Context, exec boil.ContextExecutor, col
 	}
 
 	var err error
-	if err = o.doBeforeUpdateHooks(ctx, exec); err != nil {
-		return 0, err
-	}
 	key := makeCacheKey(columns, nil)
 	netresourceUpdateCacheMut.RLock()
 	cache, cached := netresourceUpdateCache[key]
@@ -765,12 +531,7 @@ func (o *Netresource) Update(ctx context.Context, exec boil.ContextExecutor, col
 		netresourceUpdateCacheMut.Unlock()
 	}
 
-	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
-}
-
-// UpdateAllG updates all rows with the specified column values.
-func (q netresourceQuery) UpdateAllG(ctx context.Context, cols M) (int64, error) {
-	return q.UpdateAll(ctx, boil.GetContextDB(), cols)
+	return rowsAff, nil
 }
 
 // UpdateAll updates all rows with the specified column values.
@@ -788,11 +549,6 @@ func (q netresourceQuery) UpdateAll(ctx context.Context, exec boil.ContextExecut
 	}
 
 	return rowsAff, nil
-}
-
-// UpdateAllG updates all rows with the specified column values.
-func (o NetresourceSlice) UpdateAllG(ctx context.Context, cols M) (int64, error) {
-	return o.UpdateAll(ctx, boil.GetContextDB(), cols)
 }
 
 // UpdateAll updates all rows with the specified column values, using an executor.
@@ -843,11 +599,6 @@ func (o NetresourceSlice) UpdateAll(ctx context.Context, exec boil.ContextExecut
 	return rowsAff, nil
 }
 
-// UpsertG attempts an insert, and does an update or ignore on conflict.
-func (o *Netresource) UpsertG(ctx context.Context, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
-	return o.Upsert(ctx, boil.GetContextDB(), updateOnConflict, conflictColumns, updateColumns, insertColumns)
-}
-
 // Upsert attempts an insert using an executor, and does an update or ignore on conflict.
 // See boil.Columns documentation for how to properly use updateColumns and insertColumns.
 func (o *Netresource) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
@@ -861,10 +612,6 @@ func (o *Netresource) Upsert(ctx context.Context, exec boil.ContextExecutor, upd
 			queries.SetScanner(&o.Createdat, currTime)
 		}
 		queries.SetScanner(&o.Updatedat, currTime)
-	}
-
-	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {
-		return err
 	}
 
 	nzDefaults := queries.NonZeroDefaultSet(netresourceColumnsWithDefault, o)
@@ -969,28 +716,36 @@ func (o *Netresource) Upsert(ctx context.Context, exec boil.ContextExecutor, upd
 		netresourceUpsertCacheMut.Unlock()
 	}
 
-	return o.doAfterUpsertHooks(ctx, exec)
-}
-
-// DeleteG deletes a single Netresource record.
-// DeleteG will match against the primary key column to find the record to delete.
-func (o *Netresource) DeleteG(ctx context.Context) (int64, error) {
-	return o.Delete(ctx, boil.GetContextDB())
+	return nil
 }
 
 // Delete deletes a single Netresource record with an executor.
 // Delete will match against the primary key column to find the record to delete.
-func (o *Netresource) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o *Netresource) Delete(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
 	if o == nil {
 		return 0, errors.New("models: no Netresource provided for delete")
 	}
 
-	if err := o.doBeforeDeleteHooks(ctx, exec); err != nil {
-		return 0, err
+	var (
+		sql  string
+		args []interface{}
+	)
+	if hardDelete {
+		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), netresourcePrimaryKeyMapping)
+		sql = "DELETE FROM \"netresources\" WHERE \"id\"=$1"
+	} else {
+		currTime := time.Now().In(boil.GetLocation())
+		o.Deletedat = null.TimeFrom(currTime)
+		wl := []string{"deletedat"}
+		sql = fmt.Sprintf("UPDATE \"netresources\" SET %s WHERE \"id\"=$2",
+			strmangle.SetParamNames("\"", "\"", 1, wl),
+		)
+		valueMapping, err := queries.BindMapping(netresourceType, netresourceMapping, append(wl, netresourcePrimaryKeyColumns...))
+		if err != nil {
+			return 0, err
+		}
+		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), valueMapping)
 	}
-
-	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), netresourcePrimaryKeyMapping)
-	sql := "DELETE FROM \"netresources\" WHERE \"id\"=$1"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1007,24 +762,21 @@ func (o *Netresource) Delete(ctx context.Context, exec boil.ContextExecutor) (in
 		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for netresources")
 	}
 
-	if err := o.doAfterDeleteHooks(ctx, exec); err != nil {
-		return 0, err
-	}
-
 	return rowsAff, nil
 }
 
-func (q netresourceQuery) DeleteAllG(ctx context.Context) (int64, error) {
-	return q.DeleteAll(ctx, boil.GetContextDB())
-}
-
 // DeleteAll deletes all matching rows.
-func (q netresourceQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (q netresourceQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
 	if q.Query == nil {
 		return 0, errors.New("models: no netresourceQuery provided for delete all")
 	}
 
-	queries.SetDelete(q.Query)
+	if hardDelete {
+		queries.SetDelete(q.Query)
+	} else {
+		currTime := time.Now().In(boil.GetLocation())
+		queries.SetUpdate(q.Query, M{"deletedat": currTime})
+	}
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
@@ -1039,33 +791,37 @@ func (q netresourceQuery) DeleteAll(ctx context.Context, exec boil.ContextExecut
 	return rowsAff, nil
 }
 
-// DeleteAllG deletes all rows in the slice.
-func (o NetresourceSlice) DeleteAllG(ctx context.Context) (int64, error) {
-	return o.DeleteAll(ctx, boil.GetContextDB())
-}
-
 // DeleteAll deletes all rows in the slice, using an executor.
-func (o NetresourceSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o NetresourceSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
 	if len(o) == 0 {
 		return 0, nil
 	}
 
-	if len(netresourceBeforeDeleteHooks) != 0 {
+	var (
+		sql  string
+		args []interface{}
+	)
+	if hardDelete {
 		for _, obj := range o {
-			if err := obj.doBeforeDeleteHooks(ctx, exec); err != nil {
-				return 0, err
-			}
+			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), netresourcePrimaryKeyMapping)
+			args = append(args, pkeyArgs...)
 		}
+		sql = "DELETE FROM \"netresources\" WHERE " +
+			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, netresourcePrimaryKeyColumns, len(o))
+	} else {
+		currTime := time.Now().In(boil.GetLocation())
+		for _, obj := range o {
+			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), netresourcePrimaryKeyMapping)
+			args = append(args, pkeyArgs...)
+			obj.Deletedat = null.TimeFrom(currTime)
+		}
+		wl := []string{"deletedat"}
+		sql = fmt.Sprintf("UPDATE \"netresources\" SET %s WHERE "+
+			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 2, netresourcePrimaryKeyColumns, len(o)),
+			strmangle.SetParamNames("\"", "\"", 1, wl),
+		)
+		args = append([]interface{}{currTime}, args...)
 	}
-
-	var args []interface{}
-	for _, obj := range o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), netresourcePrimaryKeyMapping)
-		args = append(args, pkeyArgs...)
-	}
-
-	sql := "DELETE FROM \"netresources\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, netresourcePrimaryKeyColumns, len(o))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1082,24 +838,7 @@ func (o NetresourceSlice) DeleteAll(ctx context.Context, exec boil.ContextExecut
 		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for netresources")
 	}
 
-	if len(netresourceAfterDeleteHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doAfterDeleteHooks(ctx, exec); err != nil {
-				return 0, err
-			}
-		}
-	}
-
 	return rowsAff, nil
-}
-
-// ReloadG refetches the object from the database using the primary keys.
-func (o *Netresource) ReloadG(ctx context.Context) error {
-	if o == nil {
-		return errors.New("models: no Netresource provided for reload")
-	}
-
-	return o.Reload(ctx, boil.GetContextDB())
 }
 
 // Reload refetches the object from the database
@@ -1112,16 +851,6 @@ func (o *Netresource) Reload(ctx context.Context, exec boil.ContextExecutor) err
 
 	*o = *ret
 	return nil
-}
-
-// ReloadAllG refetches every row with matching primary key column values
-// and overwrites the original object slice with the newly updated slice.
-func (o *NetresourceSlice) ReloadAllG(ctx context.Context) error {
-	if o == nil {
-		return errors.New("models: empty NetresourceSlice provided for reload all")
-	}
-
-	return o.ReloadAll(ctx, boil.GetContextDB())
 }
 
 // ReloadAll refetches every row with matching primary key column values
@@ -1139,7 +868,8 @@ func (o *NetresourceSlice) ReloadAll(ctx context.Context, exec boil.ContextExecu
 	}
 
 	sql := "SELECT \"netresources\".* FROM \"netresources\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, netresourcePrimaryKeyColumns, len(*o))
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, netresourcePrimaryKeyColumns, len(*o)) +
+		"and \"deletedat\" is null"
 
 	q := queries.Raw(sql, args...)
 
@@ -1153,15 +883,10 @@ func (o *NetresourceSlice) ReloadAll(ctx context.Context, exec boil.ContextExecu
 	return nil
 }
 
-// NetresourceExistsG checks if the Netresource row exists.
-func NetresourceExistsG(ctx context.Context, iD int64) (bool, error) {
-	return NetresourceExists(ctx, boil.GetContextDB(), iD)
-}
-
 // NetresourceExists checks if the Netresource row exists.
 func NetresourceExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"netresources\" where \"id\"=$1 limit 1)"
+	sql := "select exists(select 1 from \"netresources\" where \"id\"=$1 and \"deletedat\" is null limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)

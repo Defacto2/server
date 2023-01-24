@@ -31,6 +31,107 @@ func testFiles(t *testing.T) {
 	}
 }
 
+func testFilesSoftDelete(t *testing.T) {
+	t.Parallel()
+
+	seed := randomize.NewSeed()
+	var err error
+	o := &File{}
+	if err = randomize.Struct(seed, o, fileDBTypes, true, fileColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize File struct: %s", err)
+	}
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+	if err = o.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Error(err)
+	}
+
+	if rowsAff, err := o.Delete(ctx, tx, false); err != nil {
+		t.Error(err)
+	} else if rowsAff != 1 {
+		t.Error("should only have deleted one row, but affected:", rowsAff)
+	}
+
+	count, err := Files().Count(ctx, tx)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if count != 0 {
+		t.Error("want zero records, got:", count)
+	}
+}
+
+func testFilesQuerySoftDeleteAll(t *testing.T) {
+	t.Parallel()
+
+	seed := randomize.NewSeed()
+	var err error
+	o := &File{}
+	if err = randomize.Struct(seed, o, fileDBTypes, true, fileColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize File struct: %s", err)
+	}
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+	if err = o.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Error(err)
+	}
+
+	if rowsAff, err := Files().DeleteAll(ctx, tx, false); err != nil {
+		t.Error(err)
+	} else if rowsAff != 1 {
+		t.Error("should only have deleted one row, but affected:", rowsAff)
+	}
+
+	count, err := Files().Count(ctx, tx)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if count != 0 {
+		t.Error("want zero records, got:", count)
+	}
+}
+
+func testFilesSliceSoftDeleteAll(t *testing.T) {
+	t.Parallel()
+
+	seed := randomize.NewSeed()
+	var err error
+	o := &File{}
+	if err = randomize.Struct(seed, o, fileDBTypes, true, fileColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize File struct: %s", err)
+	}
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+	if err = o.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Error(err)
+	}
+
+	slice := FileSlice{o}
+
+	if rowsAff, err := slice.DeleteAll(ctx, tx, false); err != nil {
+		t.Error(err)
+	} else if rowsAff != 1 {
+		t.Error("should only have deleted one row, but affected:", rowsAff)
+	}
+
+	count, err := Files().Count(ctx, tx)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if count != 0 {
+		t.Error("want zero records, got:", count)
+	}
+}
+
 func testFilesDelete(t *testing.T) {
 	t.Parallel()
 
@@ -48,7 +149,7 @@ func testFilesDelete(t *testing.T) {
 		t.Error(err)
 	}
 
-	if rowsAff, err := o.Delete(ctx, tx); err != nil {
+	if rowsAff, err := o.Delete(ctx, tx, true); err != nil {
 		t.Error(err)
 	} else if rowsAff != 1 {
 		t.Error("should only have deleted one row, but affected:", rowsAff)
@@ -81,7 +182,7 @@ func testFilesQueryDeleteAll(t *testing.T) {
 		t.Error(err)
 	}
 
-	if rowsAff, err := Files().DeleteAll(ctx, tx); err != nil {
+	if rowsAff, err := Files().DeleteAll(ctx, tx, true); err != nil {
 		t.Error(err)
 	} else if rowsAff != 1 {
 		t.Error("should only have deleted one row, but affected:", rowsAff)
@@ -116,7 +217,7 @@ func testFilesSliceDeleteAll(t *testing.T) {
 
 	slice := FileSlice{o}
 
-	if rowsAff, err := slice.DeleteAll(ctx, tx); err != nil {
+	if rowsAff, err := slice.DeleteAll(ctx, tx, true); err != nil {
 		t.Error(err)
 	} else if rowsAff != 1 {
 		t.Error("should only have deleted one row, but affected:", rowsAff)
@@ -297,147 +398,6 @@ func testFilesCount(t *testing.T) {
 	if count != 2 {
 		t.Error("want 2 records, got:", count)
 	}
-}
-
-func fileBeforeInsertHook(ctx context.Context, e boil.ContextExecutor, o *File) error {
-	*o = File{}
-	return nil
-}
-
-func fileAfterInsertHook(ctx context.Context, e boil.ContextExecutor, o *File) error {
-	*o = File{}
-	return nil
-}
-
-func fileAfterSelectHook(ctx context.Context, e boil.ContextExecutor, o *File) error {
-	*o = File{}
-	return nil
-}
-
-func fileBeforeUpdateHook(ctx context.Context, e boil.ContextExecutor, o *File) error {
-	*o = File{}
-	return nil
-}
-
-func fileAfterUpdateHook(ctx context.Context, e boil.ContextExecutor, o *File) error {
-	*o = File{}
-	return nil
-}
-
-func fileBeforeDeleteHook(ctx context.Context, e boil.ContextExecutor, o *File) error {
-	*o = File{}
-	return nil
-}
-
-func fileAfterDeleteHook(ctx context.Context, e boil.ContextExecutor, o *File) error {
-	*o = File{}
-	return nil
-}
-
-func fileBeforeUpsertHook(ctx context.Context, e boil.ContextExecutor, o *File) error {
-	*o = File{}
-	return nil
-}
-
-func fileAfterUpsertHook(ctx context.Context, e boil.ContextExecutor, o *File) error {
-	*o = File{}
-	return nil
-}
-
-func testFilesHooks(t *testing.T) {
-	t.Parallel()
-
-	var err error
-
-	ctx := context.Background()
-	empty := &File{}
-	o := &File{}
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, o, fileDBTypes, false); err != nil {
-		t.Errorf("Unable to randomize File object: %s", err)
-	}
-
-	AddFileHook(boil.BeforeInsertHook, fileBeforeInsertHook)
-	if err = o.doBeforeInsertHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doBeforeInsertHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected BeforeInsertHook function to empty object, but got: %#v", o)
-	}
-	fileBeforeInsertHooks = []FileHook{}
-
-	AddFileHook(boil.AfterInsertHook, fileAfterInsertHook)
-	if err = o.doAfterInsertHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doAfterInsertHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected AfterInsertHook function to empty object, but got: %#v", o)
-	}
-	fileAfterInsertHooks = []FileHook{}
-
-	AddFileHook(boil.AfterSelectHook, fileAfterSelectHook)
-	if err = o.doAfterSelectHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doAfterSelectHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected AfterSelectHook function to empty object, but got: %#v", o)
-	}
-	fileAfterSelectHooks = []FileHook{}
-
-	AddFileHook(boil.BeforeUpdateHook, fileBeforeUpdateHook)
-	if err = o.doBeforeUpdateHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doBeforeUpdateHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected BeforeUpdateHook function to empty object, but got: %#v", o)
-	}
-	fileBeforeUpdateHooks = []FileHook{}
-
-	AddFileHook(boil.AfterUpdateHook, fileAfterUpdateHook)
-	if err = o.doAfterUpdateHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doAfterUpdateHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected AfterUpdateHook function to empty object, but got: %#v", o)
-	}
-	fileAfterUpdateHooks = []FileHook{}
-
-	AddFileHook(boil.BeforeDeleteHook, fileBeforeDeleteHook)
-	if err = o.doBeforeDeleteHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doBeforeDeleteHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected BeforeDeleteHook function to empty object, but got: %#v", o)
-	}
-	fileBeforeDeleteHooks = []FileHook{}
-
-	AddFileHook(boil.AfterDeleteHook, fileAfterDeleteHook)
-	if err = o.doAfterDeleteHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doAfterDeleteHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected AfterDeleteHook function to empty object, but got: %#v", o)
-	}
-	fileAfterDeleteHooks = []FileHook{}
-
-	AddFileHook(boil.BeforeUpsertHook, fileBeforeUpsertHook)
-	if err = o.doBeforeUpsertHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doBeforeUpsertHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected BeforeUpsertHook function to empty object, but got: %#v", o)
-	}
-	fileBeforeUpsertHooks = []FileHook{}
-
-	AddFileHook(boil.AfterUpsertHook, fileAfterUpsertHook)
-	if err = o.doAfterUpsertHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doAfterUpsertHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected AfterUpsertHook function to empty object, but got: %#v", o)
-	}
-	fileAfterUpsertHooks = []FileHook{}
 }
 
 func testFilesInsert(t *testing.T) {

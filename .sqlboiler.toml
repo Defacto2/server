@@ -1,24 +1,33 @@
 # SQLBoiler configuration file
-# see: https://pgloader.readthedocs.io
-# quick guide: https://thedevelopercafe.com/articles/sql-in-go-with-sqlboiler-ac8efc4c5cb8
-#
-# recreate the static database ORM: sqlboiler psql --add-global-variants
+# To rebuild run: `go generate` in the root of this repository.
 
 # Target directory.
-output = "postgres/models" 
+output = "pkg/postgres/models" 
 
 # This should always be kept to true.
 wipe = true
 
+# Add generation for global variants.
+add-global-variants = false
+
+# Add generation for panic variants.
+add-panic-variants = false
+
+# Disable the before and after query hook models.
+no-hooks = true
+
+# Disable generated go test files.
+no-tests = false
+
 # Postgres database connection.
 [psql]
+schema = "public"
 dbname = "defacto2-ps"
 host = "localhost"
-pass = "example"
 port = 5432
-schema = "public"
-sslmode = "disable"
 user = "root"
+pass = "example"
+sslmode = "disable"
 
 [auto-columns]
 created = "createdat"
@@ -26,10 +35,17 @@ updated = "updatedat"
 deleted = "deletedat"
 
 # MySQL database connection.
-[mysql]
-dbname = "defacto2-inno"
-host = "localhost"
-pass = "example"
-port = 3306
-sslmode = "false"
-user = "root"
+# [mysql]
+# dbname = "defacto2-inno"
+# host = "localhost"
+# pass = "example"
+# port = 3306
+# sslmode = "false"
+# user = "root"
+
+# [[types]]
+#     [types.match]
+#         type     = "null.String"
+#         nullable = true
+#     [types.replace]
+#         type     = "string"

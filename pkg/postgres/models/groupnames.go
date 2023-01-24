@@ -139,8 +139,6 @@ type (
 	// GroupnameSlice is an alias for a slice of pointers to Groupname.
 	// This should almost always be used instead of []Groupname.
 	GroupnameSlice []*Groupname
-	// GroupnameHook is the signature for custom Groupname hook methods
-	GroupnameHook func(context.Context, boil.ContextExecutor, *Groupname) error
 
 	groupnameQuery struct {
 		*queries.Query
@@ -168,184 +166,6 @@ var (
 	_ = qmhelper.Where
 )
 
-var groupnameAfterSelectHooks []GroupnameHook
-
-var groupnameBeforeInsertHooks []GroupnameHook
-var groupnameAfterInsertHooks []GroupnameHook
-
-var groupnameBeforeUpdateHooks []GroupnameHook
-var groupnameAfterUpdateHooks []GroupnameHook
-
-var groupnameBeforeDeleteHooks []GroupnameHook
-var groupnameAfterDeleteHooks []GroupnameHook
-
-var groupnameBeforeUpsertHooks []GroupnameHook
-var groupnameAfterUpsertHooks []GroupnameHook
-
-// doAfterSelectHooks executes all "after Select" hooks.
-func (o *Groupname) doAfterSelectHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range groupnameAfterSelectHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeInsertHooks executes all "before insert" hooks.
-func (o *Groupname) doBeforeInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range groupnameBeforeInsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterInsertHooks executes all "after Insert" hooks.
-func (o *Groupname) doAfterInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range groupnameAfterInsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeUpdateHooks executes all "before Update" hooks.
-func (o *Groupname) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range groupnameBeforeUpdateHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterUpdateHooks executes all "after Update" hooks.
-func (o *Groupname) doAfterUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range groupnameAfterUpdateHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeDeleteHooks executes all "before Delete" hooks.
-func (o *Groupname) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range groupnameBeforeDeleteHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterDeleteHooks executes all "after Delete" hooks.
-func (o *Groupname) doAfterDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range groupnameAfterDeleteHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeUpsertHooks executes all "before Upsert" hooks.
-func (o *Groupname) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range groupnameBeforeUpsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterUpsertHooks executes all "after Upsert" hooks.
-func (o *Groupname) doAfterUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range groupnameAfterUpsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// AddGroupnameHook registers your hook function for all future operations.
-func AddGroupnameHook(hookPoint boil.HookPoint, groupnameHook GroupnameHook) {
-	switch hookPoint {
-	case boil.AfterSelectHook:
-		groupnameAfterSelectHooks = append(groupnameAfterSelectHooks, groupnameHook)
-	case boil.BeforeInsertHook:
-		groupnameBeforeInsertHooks = append(groupnameBeforeInsertHooks, groupnameHook)
-	case boil.AfterInsertHook:
-		groupnameAfterInsertHooks = append(groupnameAfterInsertHooks, groupnameHook)
-	case boil.BeforeUpdateHook:
-		groupnameBeforeUpdateHooks = append(groupnameBeforeUpdateHooks, groupnameHook)
-	case boil.AfterUpdateHook:
-		groupnameAfterUpdateHooks = append(groupnameAfterUpdateHooks, groupnameHook)
-	case boil.BeforeDeleteHook:
-		groupnameBeforeDeleteHooks = append(groupnameBeforeDeleteHooks, groupnameHook)
-	case boil.AfterDeleteHook:
-		groupnameAfterDeleteHooks = append(groupnameAfterDeleteHooks, groupnameHook)
-	case boil.BeforeUpsertHook:
-		groupnameBeforeUpsertHooks = append(groupnameBeforeUpsertHooks, groupnameHook)
-	case boil.AfterUpsertHook:
-		groupnameAfterUpsertHooks = append(groupnameAfterUpsertHooks, groupnameHook)
-	}
-}
-
-// OneG returns a single groupname record from the query using the global executor.
-func (q groupnameQuery) OneG(ctx context.Context) (*Groupname, error) {
-	return q.One(ctx, boil.GetContextDB())
-}
-
 // One returns a single groupname record from the query.
 func (q groupnameQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Groupname, error) {
 	o := &Groupname{}
@@ -360,16 +180,7 @@ func (q groupnameQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Gr
 		return nil, errors.Wrap(err, "models: failed to execute a one query for groupnames")
 	}
 
-	if err := o.doAfterSelectHooks(ctx, exec); err != nil {
-		return o, err
-	}
-
 	return o, nil
-}
-
-// AllG returns all Groupname records from the query using the global executor.
-func (q groupnameQuery) AllG(ctx context.Context) (GroupnameSlice, error) {
-	return q.All(ctx, boil.GetContextDB())
 }
 
 // All returns all Groupname records from the query.
@@ -381,20 +192,7 @@ func (q groupnameQuery) All(ctx context.Context, exec boil.ContextExecutor) (Gro
 		return nil, errors.Wrap(err, "models: failed to assign all query results to Groupname slice")
 	}
 
-	if len(groupnameAfterSelectHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doAfterSelectHooks(ctx, exec); err != nil {
-				return o, err
-			}
-		}
-	}
-
 	return o, nil
-}
-
-// CountG returns the count of all Groupname records in the query using the global executor
-func (q groupnameQuery) CountG(ctx context.Context) (int64, error) {
-	return q.Count(ctx, boil.GetContextDB())
 }
 
 // Count returns the count of all Groupname records in the query.
@@ -410,11 +208,6 @@ func (q groupnameQuery) Count(ctx context.Context, exec boil.ContextExecutor) (i
 	}
 
 	return count, nil
-}
-
-// ExistsG checks if the row exists in the table using the global executor.
-func (q groupnameQuery) ExistsG(ctx context.Context) (bool, error) {
-	return q.Exists(ctx, boil.GetContextDB())
 }
 
 // Exists checks if the row exists in the table.
@@ -444,11 +237,6 @@ func Groupnames(mods ...qm.QueryMod) groupnameQuery {
 	return groupnameQuery{q}
 }
 
-// FindGroupnameG retrieves a single record by ID.
-func FindGroupnameG(ctx context.Context, iD int, selectCols ...string) (*Groupname, error) {
-	return FindGroupname(ctx, boil.GetContextDB(), iD, selectCols...)
-}
-
 // FindGroupname retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
 func FindGroupname(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*Groupname, error) {
@@ -472,16 +260,7 @@ func FindGroupname(ctx context.Context, exec boil.ContextExecutor, iD int, selec
 		return nil, errors.Wrap(err, "models: unable to select from groupnames")
 	}
 
-	if err = groupnameObj.doAfterSelectHooks(ctx, exec); err != nil {
-		return groupnameObj, err
-	}
-
 	return groupnameObj, nil
-}
-
-// InsertG a single record. See Insert for whitelist behavior description.
-func (o *Groupname) InsertG(ctx context.Context, columns boil.Columns) error {
-	return o.Insert(ctx, boil.GetContextDB(), columns)
 }
 
 // Insert a single record using an executor.
@@ -492,10 +271,6 @@ func (o *Groupname) Insert(ctx context.Context, exec boil.ContextExecutor, colum
 	}
 
 	var err error
-
-	if err := o.doBeforeInsertHooks(ctx, exec); err != nil {
-		return err
-	}
 
 	nzDefaults := queries.NonZeroDefaultSet(groupnameColumnsWithDefault, o)
 
@@ -560,13 +335,7 @@ func (o *Groupname) Insert(ctx context.Context, exec boil.ContextExecutor, colum
 		groupnameInsertCacheMut.Unlock()
 	}
 
-	return o.doAfterInsertHooks(ctx, exec)
-}
-
-// UpdateG a single Groupname record using the global executor.
-// See Update for more documentation.
-func (o *Groupname) UpdateG(ctx context.Context, columns boil.Columns) (int64, error) {
-	return o.Update(ctx, boil.GetContextDB(), columns)
+	return nil
 }
 
 // Update uses an executor to update the Groupname.
@@ -574,9 +343,6 @@ func (o *Groupname) UpdateG(ctx context.Context, columns boil.Columns) (int64, e
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
 func (o *Groupname) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
 	var err error
-	if err = o.doBeforeUpdateHooks(ctx, exec); err != nil {
-		return 0, err
-	}
 	key := makeCacheKey(columns, nil)
 	groupnameUpdateCacheMut.RLock()
 	cache, cached := groupnameUpdateCache[key]
@@ -629,12 +395,7 @@ func (o *Groupname) Update(ctx context.Context, exec boil.ContextExecutor, colum
 		groupnameUpdateCacheMut.Unlock()
 	}
 
-	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
-}
-
-// UpdateAllG updates all rows with the specified column values.
-func (q groupnameQuery) UpdateAllG(ctx context.Context, cols M) (int64, error) {
-	return q.UpdateAll(ctx, boil.GetContextDB(), cols)
+	return rowsAff, nil
 }
 
 // UpdateAll updates all rows with the specified column values.
@@ -652,11 +413,6 @@ func (q groupnameQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor
 	}
 
 	return rowsAff, nil
-}
-
-// UpdateAllG updates all rows with the specified column values.
-func (o GroupnameSlice) UpdateAllG(ctx context.Context, cols M) (int64, error) {
-	return o.UpdateAll(ctx, boil.GetContextDB(), cols)
 }
 
 // UpdateAll updates all rows with the specified column values, using an executor.
@@ -707,20 +463,11 @@ func (o GroupnameSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor
 	return rowsAff, nil
 }
 
-// UpsertG attempts an insert, and does an update or ignore on conflict.
-func (o *Groupname) UpsertG(ctx context.Context, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
-	return o.Upsert(ctx, boil.GetContextDB(), updateOnConflict, conflictColumns, updateColumns, insertColumns)
-}
-
 // Upsert attempts an insert using an executor, and does an update or ignore on conflict.
 // See boil.Columns documentation for how to properly use updateColumns and insertColumns.
 func (o *Groupname) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
 	if o == nil {
 		return errors.New("models: no groupnames provided for upsert")
-	}
-
-	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {
-		return err
 	}
 
 	nzDefaults := queries.NonZeroDefaultSet(groupnameColumnsWithDefault, o)
@@ -825,13 +572,7 @@ func (o *Groupname) Upsert(ctx context.Context, exec boil.ContextExecutor, updat
 		groupnameUpsertCacheMut.Unlock()
 	}
 
-	return o.doAfterUpsertHooks(ctx, exec)
-}
-
-// DeleteG deletes a single Groupname record.
-// DeleteG will match against the primary key column to find the record to delete.
-func (o *Groupname) DeleteG(ctx context.Context) (int64, error) {
-	return o.Delete(ctx, boil.GetContextDB())
+	return nil
 }
 
 // Delete deletes a single Groupname record with an executor.
@@ -839,10 +580,6 @@ func (o *Groupname) DeleteG(ctx context.Context) (int64, error) {
 func (o *Groupname) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if o == nil {
 		return 0, errors.New("models: no Groupname provided for delete")
-	}
-
-	if err := o.doBeforeDeleteHooks(ctx, exec); err != nil {
-		return 0, err
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), groupnamePrimaryKeyMapping)
@@ -863,15 +600,7 @@ func (o *Groupname) Delete(ctx context.Context, exec boil.ContextExecutor) (int6
 		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for groupnames")
 	}
 
-	if err := o.doAfterDeleteHooks(ctx, exec); err != nil {
-		return 0, err
-	}
-
 	return rowsAff, nil
-}
-
-func (q groupnameQuery) DeleteAllG(ctx context.Context) (int64, error) {
-	return q.DeleteAll(ctx, boil.GetContextDB())
 }
 
 // DeleteAll deletes all matching rows.
@@ -895,23 +624,10 @@ func (q groupnameQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor
 	return rowsAff, nil
 }
 
-// DeleteAllG deletes all rows in the slice.
-func (o GroupnameSlice) DeleteAllG(ctx context.Context) (int64, error) {
-	return o.DeleteAll(ctx, boil.GetContextDB())
-}
-
 // DeleteAll deletes all rows in the slice, using an executor.
 func (o GroupnameSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if len(o) == 0 {
 		return 0, nil
-	}
-
-	if len(groupnameBeforeDeleteHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doBeforeDeleteHooks(ctx, exec); err != nil {
-				return 0, err
-			}
-		}
 	}
 
 	var args []interface{}
@@ -938,24 +654,7 @@ func (o GroupnameSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor
 		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for groupnames")
 	}
 
-	if len(groupnameAfterDeleteHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doAfterDeleteHooks(ctx, exec); err != nil {
-				return 0, err
-			}
-		}
-	}
-
 	return rowsAff, nil
-}
-
-// ReloadG refetches the object from the database using the primary keys.
-func (o *Groupname) ReloadG(ctx context.Context) error {
-	if o == nil {
-		return errors.New("models: no Groupname provided for reload")
-	}
-
-	return o.Reload(ctx, boil.GetContextDB())
 }
 
 // Reload refetches the object from the database
@@ -968,16 +667,6 @@ func (o *Groupname) Reload(ctx context.Context, exec boil.ContextExecutor) error
 
 	*o = *ret
 	return nil
-}
-
-// ReloadAllG refetches every row with matching primary key column values
-// and overwrites the original object slice with the newly updated slice.
-func (o *GroupnameSlice) ReloadAllG(ctx context.Context) error {
-	if o == nil {
-		return errors.New("models: empty GroupnameSlice provided for reload all")
-	}
-
-	return o.ReloadAll(ctx, boil.GetContextDB())
 }
 
 // ReloadAll refetches every row with matching primary key column values
@@ -1007,11 +696,6 @@ func (o *GroupnameSlice) ReloadAll(ctx context.Context, exec boil.ContextExecuto
 	*o = slice
 
 	return nil
-}
-
-// GroupnameExistsG checks if the Groupname row exists.
-func GroupnameExistsG(ctx context.Context, iD int) (bool, error) {
-	return GroupnameExists(ctx, boil.GetContextDB(), iD)
 }
 
 // GroupnameExists checks if the Groupname row exists.
