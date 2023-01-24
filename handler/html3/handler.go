@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/tags"
-	"github.com/Defacto2/server/router/dl"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -89,7 +89,7 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger) {
 // Download serves the file download of a record to the user and prompts for a save location.
 // The record key id is provided by a URL param.
 func (s *sugared) Download(c echo.Context) error {
-	return dl.Download(s.log, c)
+	return download.Send(s.log, c)
 }
 
 // Index method is the homepage of the /html3 sub-route.

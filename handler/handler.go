@@ -10,9 +10,9 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/pkg/config"
 	"github.com/Defacto2/server/pkg/postgres"
-	"github.com/Defacto2/server/router/html3"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"

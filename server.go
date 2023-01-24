@@ -34,7 +34,7 @@ var images embed.FS
 func main() {
 	// Enviroment configuration
 	configs := config.Config{
-		IsProduction: true,
+		//IsProduction: true,
 	}
 	if err := env.Parse(&configs); err != nil {
 		log.Fatalln(err)

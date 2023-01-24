@@ -13,12 +13,11 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/postgres"
+	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/Defacto2/server/pkg/tags"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 	"go.uber.org/zap"
-
-	pgm "github.com/Defacto2/server/pkg/postgres/models"
 )
 
 // Navigate handles offset and record limit pagination.
@@ -95,7 +94,7 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	}
 	defer db.Close()
 
-	var records pgm.FileSlice
+	var records models.FileSlice
 	order := Clauses(c.QueryString())
 	switch tt {
 	case BySection:

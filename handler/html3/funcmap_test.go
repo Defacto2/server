@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/Defacto2/server/router/html3"
+	"github.com/Defacto2/server/handler/html3"
 	"github.com/stretchr/testify/assert"
 )
 

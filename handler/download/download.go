@@ -1,5 +1,5 @@
-// Package dl handles the client file downloads.
-package dl
+// Package download handles the client file downloads.
+package download
 
 import (
 	"context"
@@ -28,9 +28,9 @@ const (
 	notfound  = "The download record cannot be located on the server"
 )
 
-// Download serves files to the user and prompts for a save location.
+// Send serves files to the user and prompts for a save location.
 // The download relies on the URL ID parameter to determine the requested file.
-func (l Log) Download(c echo.Context) error {
+func (l Log) Send(c echo.Context) error {
 	// Logger
 	var log *zap.SugaredLogger
 	switch l.IsProduction {
@@ -41,12 +41,12 @@ func (l Log) Download(c echo.Context) error {
 		log = logger.Development().Sugar()
 		defer log.Sync()
 	}
-	return Download(log, c)
+	return Send(log, c)
 }
 
-// Download serves files to the user and prompts for a save location.
+// Send serves files to the user and prompts for a save location.
 // The download relies on the URL ID parameter to determine the requested file.
-func Download(log *zap.SugaredLogger, c echo.Context) error {
+func Send(log *zap.SugaredLogger, c echo.Context) error {
 	// https://go.dev/src/net/http/status.go
 	// get id
 	id := helpers.Deobfuscate(c.Param("id"))
