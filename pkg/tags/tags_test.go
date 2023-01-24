@@ -3,7 +3,7 @@ package tags_test
 import (
 	"testing"
 
-	"github.com/Defacto2/server/tags"
+	"github.com/Defacto2/server/pkg/tags"
 	"github.com/stretchr/testify/assert"
 )
 

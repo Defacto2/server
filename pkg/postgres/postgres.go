@@ -7,7 +7,11 @@ package postgres
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
+	"strings"
 )
+
+type Version string
 
 const (
 	Name = "postgres"
@@ -33,21 +37,32 @@ func ConnectDB() (*sql.DB, error) {
 	return conn, nil
 }
 
-// Version returns the PostgreSQL database version from an SQL query.
-func Version() (string, error) {
+// Version stores the PostgreSQL database version from an SQL query.
+func (v *Version) Query() error {
 	conn, err := ConnectDB()
 	if err != nil {
-		return "", err
+		return err
 	}
 	rows, err := conn.Query("SELECT version();")
 	if err != nil {
-		return "", err
+		return err
 	}
-	var s string
 	for rows.Next() {
-		rows.Scan(&s)
+		rows.Scan(v)
 	}
 	rows.Close()
 	conn.Close()
-	return s, nil
+	return nil
+}
+
+func (v *Version) String() string {
+	s := string(*v)
+	if x := strings.Split(s, " "); len(x) > 2 {
+		_, err := strconv.ParseFloat(x[1], 32)
+		if err != nil {
+			return s
+		}
+		return fmt.Sprintf("with %s", strings.Join(x[0:2], " "))
+	}
+	return s
 }

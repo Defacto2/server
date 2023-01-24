@@ -22,7 +22,6 @@ import (
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 
-	"github.com/Defacto2/server/internal/server"
 	"github.com/Defacto2/server/pkg/config"
 	"github.com/Defacto2/server/pkg/logger"
 	"github.com/Defacto2/server/pkg/postgres"
@@ -104,10 +103,11 @@ func main() {
 		const mark = `⇨ `
 
 		// Check the database connection
-		if s, err := postgres.Version(); err != nil {
+		var psver postgres.Version
+		if err := psver.Query(); err != nil {
 			log.Warnln("Could not obtain the PostgreSQL server version. Is the database online?")
 		} else {
-			fmt.Printf("%sDefacto2 web application %s.\n", mark, server.ParsePsVersion(s))
+			fmt.Printf("%sDefacto2 web application %s.\n", mark, psver.String())
 		}
 
 		fmt.Printf("%s%d active routines sharing %d usable threads on %d CPU cores.\n", mark,
