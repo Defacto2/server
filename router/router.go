@@ -10,7 +10,6 @@ import (
 
 	"github.com/Defacto2/server/pkg/config"
 	"github.com/Defacto2/server/router/html3"
-	"github.com/Defacto2/server/router/users"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
@@ -82,13 +81,6 @@ func (r Router) Controller() *echo.Echo {
 
 	// Routes => /html3
 	html3.Routes(e, r.Log)
-
-	// Routes => /users
-	e.GET("/users", users.GetAllUsers)
-	e.POST("/users", users.CreateUser)
-	e.GET("/users/:id", users.GetUser)
-	e.PUT("/users/:id", users.UpdateUser)
-	e.DELETE("/users/:id", users.DeleteUser)
 
 	// Router => HTTP error handler
 	e.HTTPErrorHandler = r.Configs.CustomErrorHandler
