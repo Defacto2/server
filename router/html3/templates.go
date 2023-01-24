@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 
 	"github.com/Defacto2/server/model"
-	"github.com/Defacto2/server/tags"
+	"github.com/Defacto2/server/pkg/tags"
 	"github.com/labstack/echo/v4"
 )
 

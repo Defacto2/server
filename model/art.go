@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/Defacto2/server/pkg/postgres/models"
-	"github.com/Defacto2/server/tags"
+	"github.com/Defacto2/server/pkg/tags"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )

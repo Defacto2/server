@@ -12,7 +12,7 @@ import (
 
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/helpers"
-	"github.com/Defacto2/server/tags"
+	"github.com/Defacto2/server/pkg/tags"
 	"github.com/volatiletech/null/v8"
 )
 

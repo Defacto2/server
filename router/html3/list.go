@@ -13,7 +13,7 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/postgres"
-	"github.com/Defacto2/server/tags"
+	"github.com/Defacto2/server/pkg/tags"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 	"go.uber.org/zap"

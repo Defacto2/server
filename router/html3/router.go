@@ -10,8 +10,8 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/postgres"
+	"github.com/Defacto2/server/pkg/tags"
 	"github.com/Defacto2/server/router/dl"
-	"github.com/Defacto2/server/tags"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
