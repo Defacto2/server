@@ -96,6 +96,9 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 
 	var records models.FileSlice
 	order := Clauses(c.QueryString())
+	var arts model.Arts
+	var docs model.Docs
+	var softs model.Softs
 	switch tt {
 	case BySection:
 		limit = 2500
@@ -114,15 +117,18 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	case AsArt:
 		limit = 1000
 		records, err = order.ArtFiles(page, limit, ctx, db)
-		count, _ = model.ArtCount(ctx, db)
+		arts.Stat(ctx, db)
+		count = arts.Count
 	case AsDocuments:
 		limit = 1000
 		records, err = order.DocumentFiles(page, limit, ctx, db)
-		count, _ = model.DocumentCount(ctx, db)
+		docs.Stat(ctx, db)
+		count = docs.Count
 	case AsSoftware:
 		limit = 1000
 		records, err = order.SoftwareFiles(page, limit, ctx, db)
-		count, _ = model.SoftwareCount(ctx, db)
+		softs.Stat(ctx, db)
+		count = softs.Count
 	default:
 		s.log.Warnf("%s: %s", errTag, tt)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errTag)
@@ -145,11 +151,11 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	case ByGroup:
 		byteSum, err = model.ByteCountByGroup(name, ctx, db)
 	case AsArt:
-		byteSum, err = model.ArtByteCount(ctx, db)
+		byteSum = int64(arts.Bytes)
 	case AsDocuments:
-		byteSum, err = model.DocumentByteCount(ctx, db)
+		byteSum = int64(docs.Bytes)
 	case AsSoftware:
-		byteSum, err = model.SoftwareByteCount(ctx, db)
+		byteSum = int64(softs.Bytes)
 	default:
 		s.log.Warnf("%s: %s", errTag, tt)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errTag)

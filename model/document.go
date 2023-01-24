@@ -3,7 +3,6 @@ package model
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/Defacto2/server/pkg/tags"
@@ -11,27 +10,21 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// DocumentByteCount sums the byte filesizes for all the files that are considered to be documents.
-func DocumentByteCount(ctx context.Context, db *sql.DB) (int64, error) {
-	stmt := "SELECT SUM(files.filesize) AS size_sum FROM files WHERE " +
-		fmt.Sprintf("platform = '%s'", tags.ANSI) +
-		fmt.Sprintf("OR platform = '%s'", tags.Text) +
-		fmt.Sprintf("OR platform = '%s'", tags.TextAmiga) +
-		fmt.Sprintf("OR platform = '%s'", tags.PDF)
-	return models.Files(qm.SQL(stmt)).Count(ctx, db)
+// Docs contain statistics for releases that could be considered documents.
+type Docs struct {
+	Bytes int `boil:"size_sum"`
+	Count int `boil:"counter"`
 }
 
-// DocumentCount counts the number of files that are considered to be documents.
-func DocumentCount(ctx context.Context, db *sql.DB) (int, error) {
-	if c := Counts[Doc]; c > 0 {
-		return int(c), nil
+// Stat counts the total number and total byte size of releases that could be considered documents.
+func (d *Docs) Stat(ctx context.Context, db *sql.DB) error {
+	if d.Bytes > 0 && d.Count > 0 {
+		return nil
 	}
-	c, err := models.Files(DocumentExpr()).Count(ctx, db)
-	if err != nil {
-		return -1, err
-	}
-	Counts[Doc] = Count(c)
-	return int(c), nil
+	return models.NewQuery(
+		qm.Select(SumSize, Counter),
+		DocumentExpr(),
+		qm.From(From)).Bind(ctx, db, d)
 }
 
 // DocumentExpr is a the query mod expression for document files.

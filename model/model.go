@@ -25,6 +25,12 @@ const (
 	Soft            // Soft are software files.
 )
 
+const (
+	SumSize = "SUM(filesize) AS size_sum"
+	Counter = "COUNT(*) AS counter"
+	From    = "files"
+)
+
 // One returns the record associated with the key ID.
 func One(key int, ctx context.Context, db *sql.DB) (*models.File, error) {
 	file, err := models.Files(models.FileWhere.ID.EQ(int64(key))).One(ctx, db)
@@ -32,6 +38,23 @@ func One(key int, ctx context.Context, db *sql.DB) (*models.File, error) {
 		return nil, err
 	}
 	return file, err
+}
+
+// SelectHTML3 selects only the columns required by the HTML3 template.
+func SelectHTML3() qm.QueryMod {
+	return qm.Select(
+		models.FileColumns.ID,
+		models.FileColumns.Filename,
+		models.FileColumns.DateIssuedDay,
+		models.FileColumns.DateIssuedMonth,
+		models.FileColumns.DateIssuedYear,
+		models.FileColumns.Createdat,
+		models.FileColumns.Filesize,
+		models.FileColumns.Platform,
+		models.FileColumns.Section,
+		models.FileColumns.GroupBrandFor,
+		models.FileColumns.RecordTitle,
+	)
 }
 
 // ByteCountByCategory sums the byte filesizes for all the files that match the category name.

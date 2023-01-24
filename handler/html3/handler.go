@@ -118,11 +118,17 @@ func (s *sugared) Index(c echo.Context) error {
 		sum := 0
 		switch i {
 		case 0:
-			sum, err = model.ArtCount(ctx, db)
+			var a model.Arts
+			err = a.Stat(ctx, db)
+			sum = a.Count
 		case 1:
-			sum, err = model.DocumentCount(ctx, db)
+			var d model.Docs
+			err = d.Stat(ctx, db)
+			sum = d.Count
 		case 2:
-			sum, err = model.SoftwareCount(ctx, db)
+			var s model.Softs
+			err = s.Stat(ctx, db)
+			sum = s.Count
 		case 3:
 			sum, err = model.GroupCount(ctx, db)
 		}

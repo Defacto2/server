@@ -3,7 +3,6 @@ package model
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/Defacto2/server/pkg/tags"
@@ -11,28 +10,21 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// SoftwareCount counts the number of files that are considered to be software.
-func SoftwareCount(ctx context.Context, db *sql.DB) (int, error) {
-	if c := Counts[Soft]; c > 0 {
-		return int(c), nil
-	}
-	c, err := models.Files(SoftwareExpr()).Count(ctx, db)
-	if err != nil {
-		return -1, err
-	}
-	Counts[Soft] = Count(c)
-	return int(c), nil
+// Softs contain statistics for releases that could be considered software.
+type Softs struct {
+	Bytes int `boil:"size_sum"`
+	Count int `boil:"counter"`
 }
 
-// SoftwareByteCount sums the byte filesizes for all the files that are considered to be software.
-func SoftwareByteCount(ctx context.Context, db *sql.DB) (int64, error) {
-	stmt := "SELECT SUM(files.filesize) AS size_sum FROM files WHERE " +
-		fmt.Sprintf("platform = '%s'", tags.Java) +
-		fmt.Sprintf("OR platform = '%s'", tags.Linux) +
-		fmt.Sprintf("OR platform = '%s'", tags.DOS) +
-		fmt.Sprintf("OR platform = '%s'", tags.PHP) +
-		fmt.Sprintf("OR platform = '%s'", tags.Windows)
-	return models.Files(qm.SQL(stmt)).Count(ctx, db)
+// Stat counts the total number and total byte size of releases that could be considered as digital or pixel art.
+func (s *Softs) Stat(ctx context.Context, db *sql.DB) error {
+	if s.Bytes > 0 && s.Count > 0 {
+		return nil
+	}
+	return models.NewQuery(
+		qm.Select(SumSize, Counter),
+		SoftwareExpr(),
+		qm.From(From)).Bind(ctx, db, s)
 }
 
 // SoftwareExpr is a the query mod expression for software files.

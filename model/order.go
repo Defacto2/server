@@ -89,9 +89,9 @@ func (o Order) FilesByGroup(name string, ctx context.Context, db *sql.DB) (model
 // ArtFiles returns all the files that could be considered as digital or pixel art.
 func (o Order) ArtFiles(offset, limit int, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
 	if limit == 0 {
-		return models.Files(ArtExpr(), qm.OrderBy(o.String())).All(ctx, db)
+		return models.Files(SelectHTML3(), ArtExpr(), qm.OrderBy(o.String())).All(ctx, db)
 	}
-	return models.Files(ArtExpr(), qm.OrderBy(o.String()),
+	return models.Files(SelectHTML3(), ArtExpr(), qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
 }
 
