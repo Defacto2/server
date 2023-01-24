@@ -1,11 +1,11 @@
-package models_test
+package model_test
 
 import (
 	"context"
 	"testing"
 
 	"github.com/Defacto2/sceners"
-	"github.com/Defacto2/server/models"
+	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/labstack/gommon/log"
 	_ "github.com/lib/pq"
@@ -26,7 +26,7 @@ func TestSlug(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.expect, func(t *testing.T) {
-			tt.assertion(t, tt.expect, models.Slug(tt.name))
+			tt.assertion(t, tt.expect, model.Slug(tt.name))
 		})
 	}
 }
@@ -47,13 +47,13 @@ func TestAllSlugs(t *testing.T) {
 	}
 	defer db.Close()
 
-	fs, err := models.GroupList(ctx, db)
+	fs, err := model.GroupList(ctx, db)
 	if err != nil {
 		log.Fatal(err)
 	}
 	for _, x := range fs {
 		og := sceners.CleanURL(x.GroupBrandFor.String)
-		y := models.Slug(og)
+		y := model.Slug(og)
 		z := sceners.CleanURL(y)
 		assert.Equal(t, og, z, "slug is "+y)
 	}

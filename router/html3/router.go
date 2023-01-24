@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/model"
-	"github.com/Defacto2/server/models"
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/router/dl"
@@ -130,7 +129,7 @@ func (s *sugared) Index(c echo.Context) error {
 		case 2:
 			sum, err = model.SoftwareCount(ctx, db)
 		case 3:
-			sum, err = models.GroupCount(ctx, db)
+			sum, err = model.GroupCount(ctx, db)
 		}
 		if err != nil {
 			s.log.Warnf("%s: %s", errConn, err)
@@ -202,27 +201,27 @@ func (s *sugared) Groups(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, errConn)
 	}
 	defer db.Close()
-	total, err := models.GroupCount(ctx, db)
+	total, err := model.GroupCount(ctx, db)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, errConn)
 	}
 	// if there is an out of date cache, it will get updated in the background
 	// but the client will probably be rendered with an incomplete, stale cache.
 	feedback := ""
-	models.Groups.Mu.RLock()
-	l := len(models.Groups.List)
-	models.Groups.Mu.RUnlock()
+	model.Groups.Mu.RLock()
+	l := len(model.Groups.List)
+	model.Groups.Mu.RUnlock()
 	if l != total {
 		go func(err error) error {
-			return models.Groups.Update()
+			return model.Groups.Update()
 		}(err)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusNotFound, errConn)
 		}
 		feedback = refreshInfo(l, total)
 	}
-	models.Groups.Mu.RLock()
-	defer models.Groups.Mu.RUnlock()
+	model.Groups.Mu.RLock()
+	defer model.Groups.Mu.RUnlock()
 	err = c.Render(http.StatusOK, "groups", map[string]interface{}{
 		"feedback": feedback,
 		"title":    title + "/groups",
@@ -230,7 +229,7 @@ func (s *sugared) Groups(c echo.Context) error {
 			" Do note that Defacto2 is a file-serving site, so the list doesn't distinguish between different groups with the same name or brand.",
 		"latency": fmt.Sprintf("%s.", time.Since(*start)),
 		"path":    "group",
-		"sceners": models.Groups.List,
+		"sceners": model.Groups.List,
 	})
 	if err != nil {
 		s.log.Errorf("%s: %s %d", errTmpl, err)

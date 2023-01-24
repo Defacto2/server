@@ -1,4 +1,4 @@
-package models
+package model
 
 import (
 	"context"
@@ -13,8 +13,16 @@ import (
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
+	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
+
+// Scener contains the usable data for a group or person.
+type Scener struct {
+	URI   string // URI slug for the scener.
+	Name  string // Name to display.
+	Count int    // Count the records associated with the scene.
+}
 
 // Groups is a cached collection of important, expensive group data.
 // The Mu mutex must always be locked when writing to the Groups map.
@@ -94,9 +102,9 @@ func (g *G) Update() error {
 // Count the number of records associated with the group.
 func (g Group) Count(ctx context.Context, db *sql.DB) (int, error) {
 	// TODO: in postgresql, when comparing lowercase in queries, any column indexes are void
+	x := null.String{String: string(g), Valid: true}
 	c, err := models.Files(
-		qm.Select(models.FileColumns.GroupBrandFor),
-		qm.Where(groupFor, g),
+		qm.Select(models.FileColumns.GroupBrandFor), models.FileWhere.GroupBrandFor.EQ(x),
 	).Count(ctx, db)
 	if err != nil {
 		return -1, err
