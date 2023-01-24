@@ -6,19 +6,18 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
+	"strings"
 
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/helpers"
-	"github.com/Defacto2/server/pkg/logger"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
 
-// Log configuration.
-type Log struct {
-	IsProduction bool
-	ConfigDir    string
+// Download configuration.
+type Download struct {
+	Path string
 }
 
 const (
@@ -28,25 +27,9 @@ const (
 	notfound  = "The download record cannot be located on the server"
 )
 
-// Send serves files to the user and prompts for a save location.
+// HTTPSend serves files to the user and prompts for a save location.
 // The download relies on the URL ID parameter to determine the requested file.
-func (l Log) Send(c echo.Context) error {
-	// Logger
-	var log *zap.SugaredLogger
-	switch l.IsProduction {
-	case true:
-		log = logger.Production(l.ConfigDir).Sugar()
-		defer log.Sync()
-	default:
-		log = logger.Development().Sugar()
-		defer log.Sync()
-	}
-	return Send(log, c)
-}
-
-// Send serves files to the user and prompts for a save location.
-// The download relies on the URL ID parameter to determine the requested file.
-func Send(log *zap.SugaredLogger, c echo.Context) error {
+func (d Download) HTTPSend(log *zap.SugaredLogger, c echo.Context) error {
 	// https://go.dev/src/net/http/status.go
 	// get id
 	id := helpers.Deobfuscate(c.Param("id"))
@@ -68,14 +51,16 @@ func Send(log *zap.SugaredLogger, c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, notfound)
 	}
 	// build the source filepath
-	file := filepath.Join("public", "images", "html3", "burst.xgif") // TODO: replace this placeholder
+	name := res.Filename.String
+	uid := strings.TrimSpace(res.UUID.String)
+	file := filepath.Join(d.Path, uid) // TODO: replace this placeholder
 	if !helpers.IsStat(file) {
-		log.Warnf("The hosted file download %q, for record %d does not exist.", res.Filename.String, res.ID)
+		log.Warnf("The hosted file download %q, for record %d does not exist.\nAbsolute path: %q",
+			res.Filename.String, res.ID, file)
 		return echo.NewHTTPError(http.StatusFailedDependency,
-			fmt.Sprintf("%s: %s", missing, filepath.Base(file)))
+			fmt.Sprintf("%s: %s", missing, name))
 	}
 	// pass the original filename to the client browser
-	name := res.Filename.String
 	if name == "" {
 		log.Warnf("No filename exists for the record %d.", res.ID)
 		name = file

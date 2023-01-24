@@ -24,6 +24,9 @@ type Config struct {
 	// It is recommended this is left blank to use the home .config path.
 	ConfigDir string `env:"DEFACTO2_CONFIG"`
 
+	// DownloadDir provides the directory that holds UUID named files to offer as release downloads.
+	DownloadDir string `env:"DEFACTO2_DOWNLOAD"`
+
 	// MaxProcs overrides and limits the number of operating system threads this application can use.
 	MaxProcs uint `env:"MAXPROCS" envDefault:"0"`
 }

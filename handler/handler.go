@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/pkg/config"
 	"github.com/Defacto2/server/pkg/postgres"
@@ -17,6 +18,8 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
 )
+
+const ShutdownWait = 5 * time.Second
 
 // Configuration of the handler.
 type Configuration struct {
@@ -79,7 +82,13 @@ func (c Configuration) Controller() *echo.Echo {
 	})
 
 	// Routes => /html3
-	html3.Routes(e, c.Log)
+	g := html3.Routes(e, c.Log)
+	g.GET("/d/:id", func(x echo.Context) error {
+		d := download.Download{
+			Path: c.Import.DownloadDir,
+		}
+		return d.HTTPSend(c.Log, x)
+	})
 
 	// Router => HTTP error handler
 	e.HTTPErrorHandler = c.Import.CustomErrorHandler
@@ -119,16 +128,16 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	const shutdown = 5
-	ctx, cancel := context.WithTimeout(context.Background(), shutdown*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), ShutdownWait)
 	defer func() {
 		const alert = "Detected Ctrl-C, server will shutdown in "
 		if err := c.Log.Sync(); err != nil {
 			c.Log.Warnf("Could not sync the log before shutdown: %s.\n", err)
 		}
-		fmt.Printf("\n%s%s", alert, shutdown*time.Second)
-		count := shutdown
-		for range time.Tick(1 * time.Second) {
+		fmt.Printf("\n%s%s", alert, ShutdownWait)
+		count := ShutdownWait
+		const pause = 1 * time.Second
+		for range time.Tick(pause) {
 			count--
 			fmt.Printf("\r%s%ds", alert, count)
 			if count <= 0 {

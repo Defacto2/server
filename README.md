@@ -8,6 +8,7 @@ Mock the database using a test sqlite db?
 Boil eager loading of groups etc. known as the n+1 problem.
  - It takes a loop of queries, and merges them into a single big statement for db performance
 
+Rename Files database to Releases / Release.
 
 # PostgreSQL migrations
 # https://www.postgresql.org/docs/current/datatype.html

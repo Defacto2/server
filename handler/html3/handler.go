@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/postgres"
@@ -61,7 +60,8 @@ func (t RecordsBy) Parent() string {
 // Routes for the /html3 sub-route group.
 // Any errors are logged and rendered to the client using HTTP codes
 // and the custom /html3, group errror template.
-func Routes(e *echo.Echo, log *zap.SugaredLogger) {
+func Routes(e *echo.Echo, log *zap.SugaredLogger) *echo.Group {
+	// log *zap.SugaredLogger
 	s := sugared{log: log}
 	g := e.Group(Prefix)
 	g.GET("", s.Index)
@@ -79,17 +79,12 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger) {
 	g.GET("/documents", s.Documents)
 	g.GET("/software:offset", s.Software)
 	g.GET("/software", s.Software)
-	g.GET("/d/:id", s.Download)
+	//g.GET("/d/:id", s.Download)
 	// append legacy redirects
 	for url := range LegacyURLs {
 		g.GET(url, s.Redirection)
 	}
-}
-
-// Download serves the file download of a record to the user and prompts for a save location.
-// The record key id is provided by a URL param.
-func (s *sugared) Download(c echo.Context) error {
-	return download.Send(s.log, c)
+	return g
 }
 
 // Index method is the homepage of the /html3 sub-route.
