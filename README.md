@@ -15,6 +15,9 @@ Rename Files database to Releases / Release.
 # CITEXT = case-insensitive character string type.
 # size byes convert to `integer` (4 bytes) = max 2.147GB value
 # id = serial
+
+rename created_at updated_at
+
 There is no performance improvement for fixed-length, padded character types.
 So should always use varchar(n) or text
 
