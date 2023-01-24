@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/Defacto2/server/models"
+	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/logger"
 	"github.com/Defacto2/server/pkg/postgres"
@@ -60,7 +60,7 @@ func Download(log *zap.SugaredLogger, c echo.Context) error {
 		return echo.NewHTTPError(http.StatusServiceUnavailable, dbdown)
 	}
 	defer db.Close()
-	res, err := models.One(id, ctx, db)
+	res, err := model.One(id, ctx, db)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusServiceUnavailable, dbdown)
 	}

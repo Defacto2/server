@@ -1,4 +1,4 @@
-package models
+package model
 
 import (
 	"fmt"
@@ -9,6 +9,8 @@ import (
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/volatiletech/null/v8"
 )
+
+// TODO: make this methods to a file record struct!
 
 // FmtPublish takes optional year, month and values and formats them to dd-mmm-yyyy.
 // Depending on the context, any missing time values will be left blank or replaced with ?? question marks.

@@ -1,10 +1,10 @@
-package models_test
+package model_test
 
 import (
 	"testing"
 	"time"
 
-	"github.com/Defacto2/server/models"
+	"github.com/Defacto2/server/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/null/v8"
 )
@@ -36,7 +36,7 @@ func TestFmtPublish(t *testing.T) {
 			y := null.Int16{int16(tt.args.y), true}
 			m := null.Int16{int16(tt.args.m), true}
 			d := null.Int16{int16(tt.args.d), true}
-			tt.assertion(t, tt.expect, models.FmtPublish(y, m, d))
+			tt.assertion(t, tt.expect, model.FmtPublish(y, m, d))
 		})
 	}
 
@@ -59,7 +59,7 @@ func TestFmtTime(t *testing.T) {
 				Time:  tt.arg,
 				Valid: true,
 			}
-			tt.assertion(t, tt.expect, models.FmtTime(n))
+			tt.assertion(t, tt.expect, model.FmtTime(n))
 		})
 	}
 }
@@ -84,7 +84,7 @@ func TestIcon(t *testing.T) {
 				String: tt.name,
 				Valid:  true,
 			}
-			tt.assertion(t, tt.expect, models.Icon(n))
+			tt.assertion(t, tt.expect, model.Icon(n))
 		})
 	}
 }

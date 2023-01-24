@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/models"
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/postgres"
@@ -123,11 +124,11 @@ func (s *sugared) Index(c echo.Context) error {
 		sum := 0
 		switch i {
 		case 0:
-			sum, err = models.ArtCount(ctx, db)
+			sum, err = model.ArtCount(ctx, db)
 		case 1:
-			sum, err = models.DocumentCount(ctx, db)
+			sum, err = model.DocumentCount(ctx, db)
 		case 2:
-			sum, err = models.SoftwareCount(ctx, db)
+			sum, err = model.SoftwareCount(ctx, db)
 		case 3:
 			sum, err = models.GroupCount(ctx, db)
 		}

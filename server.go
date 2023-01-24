@@ -32,7 +32,7 @@ import (
 //go:embed public/texts/defacto2.txt
 var brand []byte
 
-//go:embed public/views/html3/*.html
+//go:embed view/html3/*.html
 var views embed.FS
 
 //go:embed public/images/*

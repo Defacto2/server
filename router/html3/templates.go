@@ -10,7 +10,7 @@ import (
 	"io"
 	"path/filepath"
 
-	"github.com/Defacto2/server/models"
+	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/tags"
 	"github.com/labstack/echo/v4"
 )
@@ -44,7 +44,7 @@ var TemplateFuncMap = template.FuncMap{
 	"datePost":   LeadPost,
 	"datePub":    LeadPub,
 	"leadStr":    LeadStr,
-	"iconFmt":    models.Icon,
+	"iconFmt":    model.Icon,
 	"metaByName": tagByName,
 	"safeHTML": func(s string) template.HTML {
 		return template.HTML(s)
@@ -84,7 +84,7 @@ func TmplHTML3(fs embed.FS) map[string]*template.Template {
 }
 
 func GlobTo(name string) string {
-	return filepath.Join("public", "views", "html3", name)
+	return filepath.Join("view", "html3", name)
 }
 
 // Index template.

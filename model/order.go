@@ -1,4 +1,4 @@
-package models
+package model
 
 import (
 	"context"
@@ -67,22 +67,23 @@ func (o Order) All(key int, ctx context.Context, db *sql.DB) (*models.FileSlice,
 func (o Order) FilesByCategory(name string, offset, limit int, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
 	x := null.StringFrom(name)
 	if limit == 0 {
-		return models.Files(qm.Where(section, x), qm.OrderBy(o.String())).All(ctx, db)
+		return models.Files(models.FileWhere.Section.EQ(x), qm.OrderBy(o.String())).All(ctx, db)
 	}
-	return models.Files(qm.Where(section, x), qm.OrderBy(o.String()),
+	return models.Files(models.FileWhere.Section.EQ(x), qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
 }
 
 // FilesByPlatform returns all the files that match the named platform.
 func (o Order) FilesByPlatform(name string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
 	x := null.StringFrom(name)
-	return models.Files(qm.Where(platform, x), qm.OrderBy(o.String())).All(ctx, db)
+	return models.Files(models.FileWhere.Platform.EQ(x), qm.OrderBy(o.String())).All(ctx, db)
 }
 
 // FilesByGroup returns all the files that match an exact named group.
 func (o Order) FilesByGroup(name string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
 	x := null.StringFrom(name)
-	return models.Files(qm.Where(groupFor, x), qm.OrderBy(o.String())).All(ctx, db)
+	//group_brand_for
+	return models.Files(models.FileWhere.GroupBrandFor.EQ(x), qm.OrderBy(o.String())).All(ctx, db)
 }
 
 // ArtFiles returns all the files that could be considered as digital or pixel art.

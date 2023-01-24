@@ -3,7 +3,7 @@ package html3
 import (
 	"strings"
 
-	"github.com/Defacto2/server/models"
+	"github.com/Defacto2/server/model"
 )
 
 // Sort is the display name of column that can be used to sort and order the records.
@@ -43,30 +43,30 @@ var Sortings = map[Sort]string{
 }
 
 // Clauses for ordering file record queries.
-func Clauses(query string) models.Order {
+func Clauses(query string) model.Order {
 	switch strings.ToUpper(query) {
 	case NameAsc:
-		return models.NameAsc
+		return model.NameAsc
 	case NameDes:
-		return models.NameDes
+		return model.NameDes
 	case PublAsc:
-		return models.PublAsc
+		return model.PublAsc
 	case PublDes:
-		return models.PublDes
+		return model.PublDes
 	case PostAsc:
-		return models.PostAsc
+		return model.PostAsc
 	case PostDes:
-		return models.PostDes
+		return model.PostDes
 	case SizeAsc:
-		return models.SizeAsc
+		return model.SizeAsc
 	case SizeDes:
-		return models.SizeDes
+		return model.SizeDes
 	case DescAsc:
-		return models.DescAsc
+		return model.DescAsc
 	case DescDes:
-		return models.DescDes
+		return model.DescDes
 	default:
-		return models.NameAsc
+		return model.NameAsc
 	}
 }
 

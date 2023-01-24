@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/sceners"
-	"github.com/Defacto2/server/models"
+	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/tags"
@@ -101,12 +101,12 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	case BySection:
 		limit = 2500
 		records, err = order.FilesByCategory(id, page, limit, ctx, db)
-		x, _ := models.CountByCategory(id, ctx, db)
+		x, _ := model.CountByCategory(id, ctx, db)
 		count = int(x)
 	case ByPlatform:
 		limit = 2500
 		records, err = order.FilesByPlatform(id, ctx, db)
-		x, _ := models.CountByPlatform(id, ctx, db)
+		x, _ := model.CountByPlatform(id, ctx, db)
 		count = int(x)
 	case ByGroup:
 		// ByGroups do not need a pagination limit.
@@ -115,15 +115,15 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	case AsArt:
 		limit = 1000
 		records, err = order.ArtFiles(page, limit, ctx, db)
-		count, _ = models.ArtCount(ctx, db)
+		count, _ = model.ArtCount(ctx, db)
 	case AsDocuments:
 		limit = 1000
 		records, err = order.DocumentFiles(page, limit, ctx, db)
-		count, _ = models.DocumentCount(ctx, db)
+		count, _ = model.DocumentCount(ctx, db)
 	case AsSoftware:
 		limit = 1000
 		records, err = order.SoftwareFiles(page, limit, ctx, db)
-		count, _ = models.SoftwareCount(ctx, db)
+		count, _ = model.SoftwareCount(ctx, db)
 	default:
 		s.log.Warnf("%s: %s", errTag, tt)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errTag)
@@ -140,17 +140,17 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	var byteSum int64
 	switch tt {
 	case BySection:
-		byteSum, err = models.ByteCountByCategory(id, ctx, db)
+		byteSum, err = model.ByteCountByCategory(id, ctx, db)
 	case ByPlatform:
-		byteSum, err = models.ByteCountByPlatform(id, ctx, db)
+		byteSum, err = model.ByteCountByPlatform(id, ctx, db)
 	case ByGroup:
-		byteSum, err = models.ByteCountByGroup(name, ctx, db)
+		byteSum, err = model.ByteCountByGroup(name, ctx, db)
 	case AsArt:
-		byteSum, err = models.ArtByteCount(ctx, db)
+		byteSum, err = model.ArtByteCount(ctx, db)
 	case AsDocuments:
-		byteSum, err = models.DocumentByteCount(ctx, db)
+		byteSum, err = model.DocumentByteCount(ctx, db)
 	case AsSoftware:
-		byteSum, err = models.SoftwareByteCount(ctx, db)
+		byteSum, err = model.SoftwareByteCount(ctx, db)
 	default:
 		s.log.Warnf("%s: %s", errTag, tt)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errTag)
