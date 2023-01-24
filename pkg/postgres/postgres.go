@@ -11,8 +11,6 @@ import (
 	"strings"
 )
 
-type Version string
-
 const (
 	Name = "postgres"
 )
@@ -37,7 +35,9 @@ func ConnectDB() (*sql.DB, error) {
 	return conn, nil
 }
 
-// Version stores the PostgreSQL database version from an SQL query.
+type Version string // Version of the PostgreSQL in use.
+
+// Query the database version.
 func (v *Version) Query() error {
 	conn, err := ConnectDB()
 	if err != nil {
