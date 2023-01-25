@@ -4,36 +4,6 @@ Under construction.
 
 #### TODOs
 
-Mock the database using a test sqlite db?
-Boil eager loading of groups etc. known as the n+1 problem.
- - It takes a loop of queries, and merges them into a single big statement for db performance
-
-Rename Files database to Releases / Release.
-
-# PostgreSQL migrations
-# https://www.postgresql.org/docs/current/datatype.html
-# CITEXT = case-insensitive character string type.
-# size byes convert to `integer` (4 bytes) = max 2.147GB value
-# id = serial
-
-rename created_at updated_at
-
-There is no performance improvement for fixed-length, padded character types.
-So should always use varchar(n) or text
-
-uuid type = may need conversion to legacy cfml? // a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11
-// could create a func to rename all legacy filenames on the host system to use rfc 4122
-// 8-4-4-4-12 to equal 32 digits
-
-date_issued_month etc should have range limits 1-12
-
-todo: store NFOs,file_id.diz in database using the bytea hex format data type?
-hex is more performant than binary escape format
-https://www.postgresql.org/docs/current/datatype-binary.html
-
-Full text search types.
-https://www.postgresql.org/docs/current/datatype-textsearch.html
-
 todo: create a relationship files table that contains the filename of every
 file contained within a zip archive. could also include columns containing size in bytes, sha256 hash, text body for full text searching. this woul replace the file_zip_content column
 would also create a sep cli tool to scan the archives to fill out this data.

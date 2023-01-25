@@ -1,16 +1,18 @@
-# placeholder code and info for model data interactions
+# Model README
 
-Example API in Echo.
+The model directory is where SQL Boiler Query Mods and Building blocks exist, these are interchangeable between different databases.
 
-// type ExampleRequest struct {
-// 	FileName string `json:"filename" query:"filename"`
-// }
+---
 
-// https://blog.boatswain.io/post/handling-http-request-in-go-echo-framework-1/
+### [SQL Boiler README](https://github.com/volatiletech/sqlboiler)
+
+[Example API in Echo and SQL Boiler](https://blog.boatswain.io/post/handling-http-request-in-go-echo-framework-1/)
+
+---
+
+### SQL Boiler examples
 
 ```go
-
-	// TODO remove
 	got, err := models.Files().One(ctx, db)
 	if err != nil {
 		log.DPanic(err)
@@ -67,3 +69,51 @@ Example API in Echo.
 	}
 	fmt.Println()
 ```
+
+---
+
+### Database migrations from MySQL to Postgres.
+
+- Rename `Files` table to `Release` or `Releases`
+- Create a `Release_tests` table with a selection of 20 read-only records.
+- Rename `files.createdat` etc to `?_at` aka `create_at`.
+
+[PostgreSQL datatypes](https://www.postgresql.org/docs/current/datatype.html)
+
+`CITEXT` type for case-insensitive character strings.
+
+`files.filesize` should be converted to an `integer`, 4 bytes to permit a 2.147GB value.
+
+`files.id` should be converted to a `serial` type.
+
+There is no performance improvement for fixed-length, padded character types, meaning strings can use `varchar`(n) or `text`.
+
+---
+
+### UUID
+
+`files.UUID` have be renamed from CFML style to the universal RFC-4122 syntax.
+
+This will require the modification of queries when dealing with `/files/[uuid|000|4000]`.
+
+CFML is 35 characters, 8-4-4-16.
+`xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxxxxxx`
+
+RFC is 36 characters, 8-4-4-4-12.
+`xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+
+---
+
+### Store NFOs and texts
+
+We can store NFO and textfiles plus file_id.diz in database using the `bytea` hex-format, binary data type. It is more performant than the binary escape format.
+
+https://www.postgresql.org/docs/current/datatype-binary.html
+
+---
+
+### Full text seach types.
+
+https://www.postgresql.org/docs/current/datatype-textsearch.html
+
+---
