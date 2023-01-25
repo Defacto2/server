@@ -19,7 +19,10 @@ import (
 	"go.uber.org/zap"
 )
 
-const ShutdownWait = 5 * time.Second
+const (
+	ShutdownCount = 3
+	ShutdownWait  = ShutdownCount * time.Second
+)
 
 // Configuration of the handler.
 type Configuration struct {
@@ -134,11 +137,9 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
 	ctx, cancel := context.WithTimeout(context.Background(), ShutdownWait)
 	defer func() {
 		const alert = "Detected Ctrl-C, server will shutdown in "
-		if err := c.Log.Sync(); err != nil {
-			c.Log.Warnf("Could not sync the log before shutdown: %s.\n", err)
-		}
+		c.Log.Sync() // do not check error as there's false positives
 		fmt.Printf("\n%s%s", alert, ShutdownWait)
-		count := ShutdownWait
+		count := ShutdownCount
 		const pause = 1 * time.Second
 		for range time.Tick(pause) {
 			count--
@@ -157,9 +158,7 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
 			c.Log.Fatalf("Server shutdown caused an error: %w.", err)
 		}
 		c.Log.Infoln("Server shutdown complete.")
-		if err := c.Log.Sync(); err != nil {
-			c.Log.Warnf("Could not sync the log before shutdown: %s.\n", err)
-		}
+		c.Log.Sync()
 		signal.Stop(quit)
 		cancel()
 	}()
