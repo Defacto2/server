@@ -5,7 +5,6 @@ package html3
 import (
 	"fmt"
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -21,17 +20,6 @@ var LegacyURLs = map[string]string{
 	"/index":            "",
 	"/categories/index": "/categories",
 	"/platforms/index":  "/platforms",
-}
-
-// GroupCache is a cached collection of important, expensive group data.
-// The Mu mutex must always be locked before writing this varable.
-var IndexCache IndexSums
-
-// GroupCol is a cached collection of important, expensive group data.
-// The Mu mutex must always be locked when writing to the Groups map.
-type IndexSums struct {
-	Mu   sync.Mutex
-	Sums map[int]int
 }
 
 // Error renders a custom HTTP error page for the HTML3 sub-group.

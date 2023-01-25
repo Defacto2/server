@@ -56,7 +56,7 @@ func (g *GroupS) All(offset, limit int, o Order, ctx context.Context, db *sql.DB
 			"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(group_brand) "+
 			"WHERE NULLIF(group_brand, '') IS NOT NULL "+ // handle empty and null values
 			"GROUP BY group_brand "+
-			"ORDER BY count DESC"), //"+"LIMIT 500"
+			"ORDER BY group_brand ASC"), //"+"LIMIT 500"
 	).Bind(ctx, db, g)
 	if err != nil {
 		return err
