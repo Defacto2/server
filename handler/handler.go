@@ -33,7 +33,10 @@ type Configuration struct {
 func (c Configuration) Controller() *echo.Echo {
 
 	e := echo.New()
+
+	// Configurations
 	e.HideBanner = true
+	e.Use(middleware.Secure())
 
 	// HTML templates
 	e.Renderer = &html3.TemplateRegistry{
