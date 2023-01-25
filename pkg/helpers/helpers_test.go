@@ -4,7 +4,27 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/stretchr/testify/assert"
 )
+
+func TestSlug(t *testing.T) {
+	tests := []struct {
+		name      string
+		expect    string
+		assertion assert.ComparisonAssertionFunc
+	}{
+		{"the-group", "the_group", assert.Equal},
+		{"group1, group2", "group1*group2", assert.Equal},
+		{"group1 & group2", "group1-ampersand-group2", assert.Equal},
+		{"group 1, group 2", "group-1*group-2", assert.Equal},
+		{"GROUP 👾", "group", assert.Equal},
+	}
+	for _, tt := range tests {
+		t.Run(tt.expect, func(t *testing.T) {
+			tt.assertion(t, tt.expect, helpers.Slug(tt.name))
+		})
+	}
+}
 
 func TestTruncFilename(t *testing.T) {
 	const fn = "one_two-three.file"

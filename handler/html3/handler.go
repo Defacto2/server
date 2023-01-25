@@ -124,18 +124,6 @@ func (s *sugared) Index(c echo.Context) error {
 	if err := Stats.Software.Stat(ctx, db); err != nil {
 		s.log.Warnf("%s: %s", errConn, err)
 	}
-
-	// fmt.Println("+++++++++++++++++")
-	// var gc model.GroupCol
-	// if gc.GroupList(ctx, db); err != nil {
-	// 	fmt.Println("-->", err)
-	// }
-	// for i, x := range gc {
-	// 	fmt.Printf("%d - %+v", i, x)
-	// }
-	// fmt.Println("+++++++++++++++++")
-	//fmt.Printf("\n%+v\n", gc)
-
 	descs := [4]string{
 		helpers.Sentence(textArt),
 		helpers.Sentence(textDoc),
@@ -204,56 +192,24 @@ func (s *sugared) Groups(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, errConn)
 	}
 	defer db.Close()
-	// total, err := model.GroupCount(ctx, db)
-	// if err != nil {
-	// 	return echo.NewHTTPError(http.StatusNotFound, errConn)
-	// }
-	// if there is an out of date cache, it will get updated in the background
-	// but the client will probably be rendered with an incomplete, stale cache.
-	feedback := ""
-	// model.Grps.Mu.RLock()
-	// l := len(model.Grps.List)
-	// model.Grps.Mu.RUnlock()
-	//if l != total {
-	// go func(err error) error {
-	// 	return model.Grps.Update()
-	// }(err)
-	// if err != nil {
-	// 	return echo.NewHTTPError(http.StatusNotFound, errConn)
-	// }
-	//feedback = refreshInfo(l, total)
-	//}
-	// model.Grps.Mu.RLock()
-	// defer model.Grps.Mu.RUnlock()
-	if err := model.Collection.GroupList(ctx, db); err != nil {
+	var groups model.GroupS
+	if err := groups.All(ctx, db); err != nil {
 		s.log.Errorf("%s: %s %d", errConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
-
 	err = c.Render(http.StatusOK, "groups", map[string]interface{}{
-		"feedback": feedback,
-		"title":    title + "/groups",
+		"title": title + "/groups",
 		"description": "Listed is an exhaustive, distinct collection of scene groups and site brands." +
 			" Do note that Defacto2 is a file-serving site, so the list doesn't distinguish between different groups with the same name or brand.",
 		"latency": fmt.Sprintf("%s.", time.Since(*start)),
 		"path":    "group",
-		"sceners": model.Collection, // model.Grps.List
+		"sceners": groups, // model.Grps.List
 	})
 	if err != nil {
 		s.log.Errorf("%s: %s %d", errTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
 	}
 	return nil
-}
-
-func refreshInfo(l, total int) string {
-	if l == 0 {
-		// pause for a second so the client can display some records
-		time.Sleep(1 * time.Second)
-		return fmt.Sprintf("The list of %d groups is stale and is being updated, please refresh for an updated list.", total)
-	}
-	return fmt.Sprintf("The list of groups is stale and is being updated."+
-		" Only showing %d of %d groups, please refresh for an updated list.", l, total)
 }
 
 // Redirection redirects any legacy URL matches.
