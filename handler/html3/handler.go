@@ -68,6 +68,8 @@ var Stats struct {
 	Software model.Softs
 }
 
+var Groups model.GroupS
+
 // Routes for the /html3 sub-route group.
 // Any errors are logged and rendered to the client using HTTP codes
 // and the custom /html3, group errror template.
@@ -192,8 +194,7 @@ func (s *sugared) Groups(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, errConn)
 	}
 	defer db.Close()
-	var groups model.GroupS
-	if err := groups.All(ctx, db); err != nil {
+	if err := Groups.All(0, 0, model.NameAsc, ctx, db); err != nil {
 		s.log.Errorf("%s: %s %d", errConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
@@ -203,7 +204,7 @@ func (s *sugared) Groups(c echo.Context) error {
 			" Do note that Defacto2 is a file-serving site, so the list doesn't distinguish between different groups with the same name or brand.",
 		"latency": fmt.Sprintf("%s.", time.Since(*start)),
 		"path":    "group",
-		"sceners": groups, // model.Grps.List
+		"sceners": Groups, // model.Grps.List
 	})
 	if err != nil {
 		s.log.Errorf("%s: %s %d", errTmpl, err)

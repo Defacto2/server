@@ -44,7 +44,7 @@ type GroupS []*struct {
 }
 
 // All the names and statistics of the unique groups.
-func (g *GroupS) All(ctx context.Context, db *sql.DB) error {
+func (g *GroupS) All(offset, limit int, o Order, ctx context.Context, db *sql.DB) error {
 	if len(*g) > 0 {
 		return nil
 	}
@@ -56,7 +56,7 @@ func (g *GroupS) All(ctx context.Context, db *sql.DB) error {
 			"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(group_brand) "+
 			"WHERE NULLIF(group_brand, '') IS NOT NULL "+ // handle empty and null values
 			"GROUP BY group_brand "+
-			"ORDER BY size_sum DESC"), //"+"LIMIT 500"
+			"ORDER BY count DESC"), //"+"LIMIT 500"
 	).Bind(ctx, db, g)
 	if err != nil {
 		return err
