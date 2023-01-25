@@ -6,6 +6,7 @@ import (
 
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/postgres/models"
+	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
@@ -20,8 +21,7 @@ func (g *Groups) Stat(ctx context.Context, db *sql.DB) error {
 	if g.Count > 0 {
 		return nil
 	}
-	r, err := models.Files(qm.SQL("SELECT DISTINCT group_brand, COUNT(*) as count "+
-		"FROM files "+
+	r, err := models.Files(qm.SQL("SELECT DISTINCT group_brand FROM files "+
 		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(group_brand) "+
 		"WHERE NULLIF(group_brand, '') IS NOT NULL "+ // handle empty and null values
 		"GROUP BY group_brand")).All(ctx, db)
@@ -33,7 +33,7 @@ func (g *Groups) Stat(ctx context.Context, db *sql.DB) error {
 }
 
 type Group struct {
-	Name  string `boil:"group_brand"` // todo rename to group_brand
+	Name  string `boil:"group_brand"`
 	URI   string // URI slug for the scener.
 	Bytes int    `boil:"size_sum"`
 	Count int    `boil:"count"`
@@ -48,17 +48,15 @@ func (g *GroupS) All(offset, limit int, o Order, ctx context.Context, db *sql.DB
 	if len(*g) > 0 {
 		return nil
 	}
-	err := models.Files(
-		qm.SQL("SELECT DISTINCT group_brand, "+
-			"COUNT(group_brand) AS count, "+
-			"SUM(files.filesize) AS size_sum "+
-			"FROM files "+
-			"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(group_brand) "+
-			"WHERE NULLIF(group_brand, '') IS NOT NULL "+ // handle empty and null values
-			"GROUP BY group_brand "+
-			"ORDER BY group_brand ASC"), //"+"LIMIT 500"
-	).Bind(ctx, db, g)
-	if err != nil {
+	query := "SELECT DISTINCT group_brand, " +
+		"COUNT(group_brand) AS count, " +
+		"SUM(files.filesize) AS size_sum " +
+		"FROM files " +
+		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(group_brand) " +
+		"WHERE NULLIF(group_brand, '') IS NOT NULL " + // handle empty and null values
+		"GROUP BY group_brand " +
+		"ORDER BY group_brand ASC"
+	if err := queries.Raw(query).Bind(ctx, db, g); err != nil {
 		return err
 	}
 	g.Slugs()
