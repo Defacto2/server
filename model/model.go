@@ -10,21 +10,6 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-type Count int // Count is the number of found files.
-
-// Counts caches the number of found files fetched from SQL queries.
-var Counts = map[int]Count{
-	Art:  0,
-	Doc:  0,
-	Soft: 0,
-}
-
-const (
-	Art  int = iota // Art are digital + pixel art files.
-	Doc             // Doc are document + text art files.
-	Soft            // Soft are software files.
-)
-
 const (
 	SumSize = "SUM(filesize) AS size_sum"
 	Counter = "COUNT(*) AS counter"
@@ -38,23 +23,6 @@ func One(key int, ctx context.Context, db *sql.DB) (*models.File, error) {
 		return nil, err
 	}
 	return file, err
-}
-
-// SelectHTML3 selects only the columns required by the HTML3 template.
-func SelectHTML3() qm.QueryMod {
-	return qm.Select(
-		models.FileColumns.ID,
-		models.FileColumns.Filename,
-		models.FileColumns.DateIssuedDay,
-		models.FileColumns.DateIssuedMonth,
-		models.FileColumns.DateIssuedYear,
-		models.FileColumns.Createdat,
-		models.FileColumns.Filesize,
-		models.FileColumns.Platform,
-		models.FileColumns.Section,
-		models.FileColumns.GroupBrandFor,
-		models.FileColumns.RecordTitle,
-	)
 }
 
 // ByteCountByCategory sums the byte filesizes for all the files that match the category name.
@@ -101,4 +69,21 @@ func CountByCategory(name string, ctx context.Context, db *sql.DB) (int64, error
 func CountByPlatform(name string, ctx context.Context, db *sql.DB) (int64, error) {
 	x := null.StringFrom(name)
 	return models.Files(models.FileWhere.Platform.EQ(x)).Count(ctx, db)
+}
+
+// SelectHTML3 selects only the columns required by the HTML3 template.
+func SelectHTML3() qm.QueryMod {
+	return qm.Select(
+		models.FileColumns.ID,
+		models.FileColumns.Filename,
+		models.FileColumns.DateIssuedDay,
+		models.FileColumns.DateIssuedMonth,
+		models.FileColumns.DateIssuedYear,
+		models.FileColumns.Createdat,
+		models.FileColumns.Filesize,
+		models.FileColumns.Platform,
+		models.FileColumns.Section,
+		models.FileColumns.GroupBrandFor,
+		models.FileColumns.RecordTitle,
+	)
 }

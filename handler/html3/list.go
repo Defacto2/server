@@ -39,6 +39,11 @@ type sugared struct {
 	log *zap.SugaredLogger
 }
 
+// All method lists every release.
+func (s *sugared) All(c echo.Context) error {
+	return s.List(AllReleases, c)
+}
+
 // Category lists the file records associated with the category tag that is provided by the ID param in the URL.
 func (s *sugared) Category(c echo.Context) error {
 	return s.List(BySection, c)
@@ -96,17 +101,23 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 
 	var records models.FileSlice
 	order := Clauses(c.QueryString())
+	var all model.All
 	var arts model.Arts
 	var docs model.Docs
 	var softs model.Softs
 	switch tt {
+	case AllReleases:
+		limit = 1000
+		records, err = order.AllFiles(page, limit, ctx, db)
+		all.Stat(ctx, db)
+		count = all.Count
 	case BySection:
-		limit = 2500
+		limit = 1000
 		records, err = order.FilesByCategory(id, page, limit, ctx, db)
 		x, _ := model.CountByCategory(id, ctx, db)
 		count = int(x)
 	case ByPlatform:
-		limit = 2500
+		limit = 1000
 		records, err = order.FilesByPlatform(id, ctx, db)
 		x, _ := model.CountByPlatform(id, ctx, db)
 		count = int(x)
@@ -150,6 +161,8 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 		byteSum, err = model.ByteCountByPlatform(id, ctx, db)
 	case ByGroup:
 		byteSum, err = model.ByteCountByGroup(name, ctx, db)
+	case AllReleases:
+		byteSum = int64(all.Bytes)
 	case AsArt:
 		byteSum = int64(arts.Bytes)
 	case AsDocuments:

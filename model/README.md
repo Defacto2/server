@@ -1,4 +1,6 @@
-package model
+# placeholder code and info for model data interactions
+
+Example API in Echo.
 
 // type ExampleRequest struct {
 // 	FileName string `json:"filename" query:"filename"`
@@ -6,19 +8,7 @@ package model
 
 // https://blog.boatswain.io/post/handling-http-request-in-go-echo-framework-1/
 
-/*
-
--- api/
--- handler/
--- model/
--- vendor/
--- view/
--- pkg/
--- server.go
-
-*/
-
-/*
+```go
 
 	// TODO remove
 	got, err := models.Files().One(ctx, db)
@@ -76,4 +66,4 @@ package model
 		fmt.Print(u.Filename.String)
 	}
 	fmt.Println()
-*/
+```

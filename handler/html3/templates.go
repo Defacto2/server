@@ -40,6 +40,7 @@ var TemplateFuncMap = template.FuncMap{
 	"linkFile":   Filename,
 	"leading":    Leading,
 	"byteFmt":    LeadFS,
+	"byteInt":    LeadFSInt,
 	"leadInt":    LeadInt,
 	"datePost":   LeadPost,
 	"datePub":    LeadPub,
@@ -71,6 +72,7 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c 
 func TmplHTML3(fs embed.FS) map[string]*template.Template {
 	templates := make(map[string]*template.Template)
 	templates["index"] = index(fs)
+	templates["all"] = list(fs)
 	templates["art"] = list(fs)
 	templates["documents"] = list(fs)
 	templates["software"] = list(fs)

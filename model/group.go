@@ -7,100 +7,81 @@ import (
 	"math/big"
 	"regexp"
 	"strings"
-	"sync"
 	"time"
 
-	"github.com/Defacto2/server/pkg/helpers"
-	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// Scener contains the usable data for a group or person.
-type Scener struct {
-	URI   string // URI slug for the scener.
-	Name  string // Name to display.
-	Count int    // Count the records associated with the scene.
+// Groups contain statistics for releases that could be considered as digital or pixel art.
+type Groups struct {
+	Bytes int `boil:"size_sum"` // unused
+	Count int `boil:"counter"`
 }
 
-// Groups is a cached collection of important, expensive group data.
-// The Mu mutex must always be locked when writing to the Groups map.
-type G struct {
-	Mu   sync.RWMutex
-	List map[string]Scener
-}
-
-// Group is a distinct scener group or organisation associated with the file record.
-type Group string
-
-// Grps is a cached collection of important, expensive group data.
-// The Update method uses a background Go routine, so the Mu mutex must
-// be locked before using this varable.
-var Groups G // TODO: move to main? it may require its own package?
-
-// Update or build the group collection with any missing group data.
-// TODO: run this in production on startup?
-func (g *G) Update() error {
-	start := latency()
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	db, err := postgres.ConnectDB()
-	if err != nil {
+// Stat counts the total number and total byte size of releases that could be considered as digital or pixel art.
+func (g *Groups) Stat(ctx context.Context, db *sql.DB) error {
+	if g.Count > 0 {
+		return nil
+	}
+	var err error
+	if g.Count, err = GroupCount(ctx, db); err != nil {
 		return err
 	}
-	defer db.Close()
-	results, err := GroupList(ctx, db)
-	if err != nil {
-		return err
-	}
-
-	go func() {
-		if g.List == nil {
-			g.List = make(map[string]Scener, len(results))
-		}
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
-		db, err := postgres.ConnectDB()
-		if err != nil {
-			return
-		}
-		defer db.Close()
-		for i, r := range results {
-			if r == nil {
-				continue
-			}
-			name := strings.TrimSpace(r.GroupBrandFor.String)
-			if len(name) == 0 {
-				continue
-			}
-			key := Group(name).Slug()
-			g.Mu.RLock()
-			cached := g.List[key]
-			g.Mu.RUnlock()
-			if cached.Count > 0 {
-				continue
-			}
-			sum, err := Group(name).Count(ctx, db)
-			if err != nil {
-				fmt.Println(err)
-				continue
-			}
-			cached.Name = name
-			cached.URI = key
-			cached.Count = sum
-			g.Mu.Lock()
-			g.List[key] = cached
-			g.Mu.Unlock()
-			fmt.Printf("%s\r%d. Cached the group %q with %d records  ", helpers.Eraseline, i, name, sum)
-		}
-		fmt.Printf("\nCache builder, time taken, %s.\n", time.Since(*start))
-	}()
 	return nil
 }
 
+type Group struct {
+	Name  string `boil:"group_brand"` // todo rename to group_brand
+	URI   string // URI slug for the scener.
+	Bytes int    `boil:"size_sum"`
+	Count int    `boil:"count"`
+}
+
+type GroupCol []*struct {
+	Group Group `boil:",bind"`
+}
+
+var Collection GroupCol
+
+// GroupList returns the names and statistics of the unique groups.
+func (g *GroupCol) GroupList(ctx context.Context, db *sql.DB) error {
+	// return models.Files(
+	// 	qm.Select(models.FileColumns.GroupBrandFor),
+	// 	qm.Distinct(models.FileColumns.GroupBrandFor),
+	// 	qm.Load("", qm.Select(SumSize, Counter), qm.From(From)),
+	// ).Bind(ctx, db, g)
+	// "SELECT COUNT(DISTINCT(LOWER(TRIM(files.group_brand_for)))) FROM files"
+	if len(*g) > 0 {
+		return nil
+	}
+	err := models.Files(
+		qm.SQL("SELECT DISTINCT group_brand, "+
+			"COUNT(group_brand) AS count, "+
+			"SUM(files.filesize) AS size_sum "+
+			"FROM files "+
+			"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(group_brand) "+
+			"WHERE NULLIF(group_brand, '') IS NOT NULL "+ // handle empty and null values
+			"GROUP BY group_brand "+
+			"ORDER BY group_brand"),
+	).Bind(ctx, db, g)
+	if err != nil {
+		return err
+	}
+	g.Slugs()
+	return nil
+}
+
+// Slug returns a URL friendly string of the group name.
+func (g *GroupCol) Slugs() {
+	for _, group := range *g {
+		group.Group.URI = Slug(group.Group.Name)
+	}
+}
+
 // Count the number of records associated with the group.
-func (g Group) Count(ctx context.Context, db *sql.DB) (int, error) {
+func Count(g string, ctx context.Context, db *sql.DB) (int, error) {
 	// TODO: in postgresql, when comparing lowercase in queries, any column indexes are void
 	x := null.String{String: string(g), Valid: true}
 	c, err := models.Files(
@@ -110,11 +91,6 @@ func (g Group) Count(ctx context.Context, db *sql.DB) (int, error) {
 		return -1, err
 	}
 	return int(c), nil
-}
-
-// Slug returns a URL friendly string of the group name.
-func (g Group) Slug() string {
-	return Slug(string(g))
 }
 
 // Slug returns a URL friendly string of the named group.

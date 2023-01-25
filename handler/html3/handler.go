@@ -20,10 +20,12 @@ const (
 
 	title   = "Index of " + Prefix
 	errConn = "Sorry, at the moment the server cannot connect to the database"
+	errSQL  = "Database connection problem or a SQL error"
 	errTag  = "No database query was created for the tag"
 	errTmpl = "The server could not render the HTML template for this page"
 	firefox = "Welcome to the Firefox 2 era (October 2006) Defacto2 website, which is friendly for legacy operating systems, including Windows 9x, NT-4, and OS-X 10.2."
 
+	textAll = "list every file or release hosted on the website"
 	textArt = "hi-res, raster and pixel images"
 	textDoc = "documents using any media format, including text files, ASCII, and ANSI text art"
 	textSof = "applications and programs for any platform"
@@ -33,7 +35,8 @@ const (
 type RecordsBy int
 
 const (
-	BySection   RecordsBy = iota // BySection groups records by the section file table column.
+	AllReleases RecordsBy = iota // AllReleases displays all records from the file table.
+	BySection                    // BySection groups records by the section file table column.
 	ByPlatform                   // BySection groups records by the platform file table column.
 	ByGroup                      // ByGroup groups the records by the distinct, group_brand_for file table column.
 	AsArt                        // AsArt group records as art.
@@ -42,29 +45,38 @@ const (
 )
 
 func (t RecordsBy) String() string {
-	const l = 6
+	const l = 7
 	if t >= l {
 		return ""
 	}
-	return [l]string{"category", "platform", "group", "art", "documents", "software"}[t]
+	return [l]string{"all", "category", "platform", "group", "art", "documents", "software"}[t]
 }
 
 func (t RecordsBy) Parent() string {
-	const l = 6
+	const l = 7
 	if t >= l {
 		return ""
 	}
-	return [l]string{"categories", "platforms", "groups", "", "", ""}[t]
+	return [l]string{"", "categories", "platforms", "groups", "", "", ""}[t]
+}
+
+var Stats struct {
+	All      model.All
+	Art      model.Arts
+	Document model.Docs
+	Group    model.Groups
+	Software model.Softs
 }
 
 // Routes for the /html3 sub-route group.
 // Any errors are logged and rendered to the client using HTTP codes
 // and the custom /html3, group errror template.
 func Routes(e *echo.Echo, log *zap.SugaredLogger) *echo.Group {
-	// log *zap.SugaredLogger
 	s := sugared{log: log}
 	g := e.Group(Prefix)
 	g.GET("", s.Index)
+	g.GET("/all:offset", s.All)
+	g.GET("/all", s.All)
 	g.GET("/categories", s.Categories)
 	g.GET("/category/:id/:offset", s.Category)
 	g.GET("/category/:id", s.Category)
@@ -79,7 +91,6 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger) *echo.Group {
 	g.GET("/documents", s.Documents)
 	g.GET("/software:offset", s.Software)
 	g.GET("/software", s.Software)
-	//g.GET("/d/:id", s.Download)
 	// append legacy redirects
 	for url := range LegacyURLs {
 		g.GET(url, s.Redirection)
@@ -98,52 +109,43 @@ func (s *sugared) Index(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	defer db.Close()
+	if err := Stats.All.Stat(ctx, db); err != nil {
+		s.log.Warnf("%s: %s", errConn, err)
+	}
+	if err := Stats.Art.Stat(ctx, db); err != nil {
+		s.log.Warnf("%s: %s", errConn, err)
+	}
+	if err := Stats.Document.Stat(ctx, db); err != nil {
+		s.log.Warnf("%s: %s", errConn, err)
+	}
+	if err := Stats.Group.Stat(ctx, db); err != nil {
+		s.log.Warnf("%s: %s", errConn, err)
+	}
+	if err := Stats.Software.Stat(ctx, db); err != nil {
+		s.log.Warnf("%s: %s", errConn, err)
+	}
 
-	// Cache for the database counts.
-	IndexCache.Mu.Lock()
-	defer IndexCache.Mu.Unlock()
-	// Get and store database counts.
-	if IndexCache.Sums == nil {
-		const loop = 4
-		IndexCache.Sums = make(map[int]int, loop)
-		for i := 0; i < loop; i++ {
-			IndexCache.Sums[i] = 0
-		}
-	}
-	for i, value := range IndexCache.Sums {
-		if value > 0 {
-			continue
-		}
-		var err error
-		sum := 0
-		switch i {
-		case 0:
-			var a model.Arts
-			err = a.Stat(ctx, db)
-			sum = a.Count
-		case 1:
-			var d model.Docs
-			err = d.Stat(ctx, db)
-			sum = d.Count
-		case 2:
-			var s model.Softs
-			err = s.Stat(ctx, db)
-			sum = s.Count
-		case 3:
-			sum, err = model.GroupCount(ctx, db)
-		}
-		if err != nil {
-			s.log.Warnf("%s: %s", errConn, err)
-			continue
-		}
-		IndexCache.Sums[i] = sum
-	}
-	descs := [3]string{helpers.Sentence(textArt), helpers.Sentence(textDoc), helpers.Sentence(textSof)}
+	// fmt.Println("+++++++++++++++++")
+	// var gc model.GroupCol
+	// if gc.GroupList(ctx, db); err != nil {
+	// 	fmt.Println("-->", err)
+	// }
+	// for i, x := range gc {
+	// 	fmt.Printf("%d - %+v", i, x)
+	// }
+	// fmt.Println("+++++++++++++++++")
+	//fmt.Printf("\n%+v\n", gc)
+
+	descs := [4]string{
+		helpers.Sentence(textArt),
+		helpers.Sentence(textDoc),
+		helpers.Sentence(textSof),
+		helpers.Sentence(textAll)}
 	err = c.Render(http.StatusOK, "index", map[string]interface{}{
 		"title":       title,
 		"description": desc,
 		"descs":       descs,
-		"sums":        IndexCache.Sums,
+		"relstats":    Stats,
 		"cat":         tags.CategoryCount,
 		"plat":        tags.PlatformCount,
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
@@ -202,27 +204,32 @@ func (s *sugared) Groups(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, errConn)
 	}
 	defer db.Close()
-	total, err := model.GroupCount(ctx, db)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, errConn)
-	}
+	// total, err := model.GroupCount(ctx, db)
+	// if err != nil {
+	// 	return echo.NewHTTPError(http.StatusNotFound, errConn)
+	// }
 	// if there is an out of date cache, it will get updated in the background
 	// but the client will probably be rendered with an incomplete, stale cache.
 	feedback := ""
-	model.Groups.Mu.RLock()
-	l := len(model.Groups.List)
-	model.Groups.Mu.RUnlock()
-	if l != total {
-		go func(err error) error {
-			return model.Groups.Update()
-		}(err)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusNotFound, errConn)
-		}
-		feedback = refreshInfo(l, total)
+	// model.Grps.Mu.RLock()
+	// l := len(model.Grps.List)
+	// model.Grps.Mu.RUnlock()
+	//if l != total {
+	// go func(err error) error {
+	// 	return model.Grps.Update()
+	// }(err)
+	// if err != nil {
+	// 	return echo.NewHTTPError(http.StatusNotFound, errConn)
+	// }
+	//feedback = refreshInfo(l, total)
+	//}
+	// model.Grps.Mu.RLock()
+	// defer model.Grps.Mu.RUnlock()
+	if err := model.Collection.GroupList(ctx, db); err != nil {
+		s.log.Errorf("%s: %s %d", errConn, err)
+		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
-	model.Groups.Mu.RLock()
-	defer model.Groups.Mu.RUnlock()
+
 	err = c.Render(http.StatusOK, "groups", map[string]interface{}{
 		"feedback": feedback,
 		"title":    title + "/groups",
@@ -230,7 +237,7 @@ func (s *sugared) Groups(c echo.Context) error {
 			" Do note that Defacto2 is a file-serving site, so the list doesn't distinguish between different groups with the same name or brand.",
 		"latency": fmt.Sprintf("%s.", time.Since(*start)),
 		"path":    "group",
-		"sceners": model.Groups.List,
+		"sceners": model.Collection, // model.Grps.List
 	})
 	if err != nil {
 		s.log.Errorf("%s: %s %d", errTmpl, err)

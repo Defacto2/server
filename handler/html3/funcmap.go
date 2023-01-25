@@ -117,6 +117,11 @@ func LeadFS(width int, size null.Int64) string {
 	return File{Size: size.Int64}.LeadFS(width)
 }
 
+// LeadFSInt formats the file size to the fixed-width length w value.
+func LeadFSInt(width, size int) string {
+	return File{Size: int64(size)}.LeadFS(width)
+}
+
 // LeadFS formats the file size to the fixed-width length w value.
 func (f File) LeadFS(width int) string {
 	s := helpers.ByteCount(f.Size)

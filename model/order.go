@@ -54,13 +54,10 @@ func orderClauses() map[Order]string {
 	return m
 }
 
-// All returns all the file records.
-func (o Order) All(key int, ctx context.Context, db *sql.DB) (*models.FileSlice, error) {
-	files, err := models.Files(qm.OrderBy(o.String())).All(ctx, db)
-	if err != nil {
-		return nil, err
-	}
-	return &files, err
+// AllFiles returns all of the file records.
+func (o Order) AllFiles(offset, limit int, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+	return models.Files(qm.OrderBy(o.String()),
+		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
 }
 
 // FilesByCategory returns all the files that match the named category.
