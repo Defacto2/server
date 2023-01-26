@@ -9,6 +9,7 @@ import (
 	"embed"
 	"fmt"
 	"log"
+	"os"
 	"runtime"
 
 	"github.com/caarlos0/env"
@@ -31,6 +32,11 @@ var views embed.FS
 //go:embed public/images/*
 var images embed.FS
 
+var (
+	version = ""
+	date    = ""
+)
+
 func main() {
 	// Enviroment configuration
 	configs := config.Config{
@@ -38,6 +44,16 @@ func main() {
 	}
 	if err := env.Parse(&configs); err != nil {
 		log.Fatalln(err)
+	}
+
+	// Command-line arguments
+	// By default the webserver runs when no arguments are provided
+	b := cmd.Build{Version: version, Date: date}
+	if code, err := b.Run(); err != nil {
+		log.Printf("The command given did not work: %s.", err)
+		os.Exit(code)
+	} else if code >= 0 {
+		os.Exit(code)
 	}
 
 	// Go runtime customizations
@@ -56,12 +72,6 @@ func main() {
 	default:
 		log = logger.Development().Sugar()
 		log.Debug("The server is running in the development mode.")
-	}
-
-	// Command-line arguments
-	// By default the webserver runs when no arguments are provided
-	if err := cmd.Run(); err != nil {
-		log.Fatalln(err) // TODO:
 	}
 
 	// Startup logo

@@ -1,18 +1,26 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"runtime/debug"
+	"strings"
 	"time"
 
 	"github.com/urfave/cli/v2"
 )
 
-func Run() error {
+// Build information.
+type Build struct {
+	Version string
+	Date    string
+}
+
+func (b *Build) Run() (int, error) {
 	if args := len(os.Args[1:]); args > 0 {
-		return greet()
+		return b.run()
 	}
-	return nil
+	return -1, nil
 }
 
 /*
@@ -35,10 +43,10 @@ build	vcs.modified=false
 
 // Command-line arguments handler placeholder.
 // TODO: https://cli.urfave.org/v2/examples/full-api-example/
-func greet() error {
+func (b *Build) run() (int, error) {
 	app := &cli.App{
 		Name:     "Defacto2 webserver",
-		Version:  Commit(),
+		Version:  b.Commit(),
 		Compiled: time.Now(),
 		Authors: []*cli.Author{
 			&cli.Author{
@@ -57,20 +65,35 @@ func greet() error {
 	app.HideVersion = false
 	app.Suggest = true
 	if err := app.Run(os.Args); err != nil {
-		return err
+		return 1, err
 	}
-	//fmt.Println(debug.ReadBuildInfo())
-	os.Exit(0) // TODO: make an error to handle
-	return nil
+	return 0, nil
 }
 
-func Commit() string {
+func (b *Build) Commit() string {
+	v, c, d := b.Version, "", b.Date
 	if info, ok := debug.ReadBuildInfo(); ok {
 		for _, setting := range info.Settings {
 			if setting.Key == "vcs.revision" {
-				return setting.Value
+				c = setting.Value
+				break
 			}
 		}
 	}
-	return "n/a"
+	s := ""
+	if v != "" {
+		s = fmt.Sprintf("v%s ", v)
+		if d != "" {
+			s += fmt.Sprintf("built on %s ", d)
+		}
+	} else if d != "" {
+		s = fmt.Sprintf("Built on %s ", d)
+	}
+	if c != "" {
+		s = fmt.Sprintf(" [%s]", v)
+	}
+	if s == "" {
+		return "n/a"
+	}
+	return strings.TrimSpace(s)
 }

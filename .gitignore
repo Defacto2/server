@@ -4,3 +4,5 @@
 server
 # temp directory
 tmp/
+# goreleaser generated directory
+dist/

@@ -102,7 +102,41 @@ running...
 
 ### GoReleaser
 
-todo
+GoReleaser is an automation tool for Go projects.
+
+https://goreleaser.com/
+
+```sh
+go install github.com/goreleaser/goreleaser@latest
+```
+
+The configuration file is found at `.goreleaser.yaml`.
+
+To validate the file.
+
+```sh
+goreleaser check
+```
+
+To build a local-only release to confirm the builder configuration.
+
+```sh
+goreleaser release --snapshot --rm-dist
+```
+
+To build to the local, host operating system. The compiled binary will be found in `dist/`.
+
+```
+goreleaser build --single-target
+```
+
+To run the build-only mode.
+
+```
+goreleaser build
+```
+
+Note, the `release` flag is unused, instead all new releases are compiled using GitHub Actions.
 
 ---
 
