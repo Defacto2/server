@@ -49,7 +49,6 @@ func (c Configuration) Controller() *echo.Echo {
 	// Static embedded images
 	// These get distributed in the binary
 	e.StaticFS("/images", echo.MustSubFS(c.Images, "public/images"))
-	e.File("favicon.ico", "public/images/favicon.ico") // TODO: this is not being embedded
 
 	// Middleware
 	e.Use(middleware.Gzip())
@@ -63,6 +62,11 @@ func (c Configuration) Controller() *echo.Echo {
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
 		Timeout: time.Duration(c.Import.Timeout) * time.Second,
 	}))
+	// uri rewrites
+	e.Pre(middleware.Rewrite(map[string]string{
+		"favicon.ico": "/images/favicon.ico",
+	}))
+
 	if c.Import.IsProduction {
 		// recover from panics
 		e.Use(middleware.Recover())

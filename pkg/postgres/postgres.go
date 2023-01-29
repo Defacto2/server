@@ -71,9 +71,10 @@ func (c Connection) URL() string {
 // ConnectDB connects to the PostgreSQL database.
 func ConnectDB() (*sql.DB, error) {
 	dsn := Connection{
-		User:     "root",
-		Password: "example",
-		Database: "defacto2-ps",
+		User:      "root",
+		Password:  "example",
+		Database:  "defacto2-ps",
+		NoSSLMode: true,
 	}
 	conn, err := sql.Open(Name, dsn.URL())
 	if err != nil {
