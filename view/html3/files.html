@@ -8,7 +8,7 @@
 <img src="/images/html3/back.gif" alt="[DIR]"> <a href="/html3/{{index . "parent"}}">{{$parentS}}</a>{{leadStr $padding $parentS}}    -   Return to the categories index.
 
 {{range .records -}}
-<img src="/images/html3/{{iconFmt .Filename}}.gif" alt="[FILE]"> <a href="{{linkHref .ID}}" title="{{.Filename.String}}">{{linkFile 21 .Filename}}</a>{{linkPad 21 .Filename}} {{datePub 13 .DateIssuedYear .DateIssuedMonth .DateIssuedDay}}  {{datePost 11 .Createdat}} {{byteFmt 7 .Filesize}}   {{descript .Section .Platform .GroupBrandFor .RecordTitle}}
+<img src="/images/html3/{{icon . }}.gif" alt="[FILE]"> <a href="{{linkHref .ID}}" title="{{.Filename.String}}">{{linkFile 21 .Filename}}</a>{{linkPad 21 .Filename}} {{publish 13 . }}  {{posted . }} {{byteFmt 7 .Filesize}}   {{descript .Section .Platform .GroupBrandFor .RecordTitle}}
 {{end}}
 <hr><img src="/images/html3/blank.gif" alt="Icon"> <a href="?C=N&O={{index .sort "Name"}}">Name</a>                    <a href="?C=D&O={{index .sort "Publish"}}">Date published</a>    <a href="?C=P&O={{index .sort "Posted"}}">Posted</a>     <a href="?C=S&O={{index .sort "Size"}}">Size</a>  <a href="?C=I&O={{index .sort "Description"}}">Description</a>
 </pre>{{end -}} 

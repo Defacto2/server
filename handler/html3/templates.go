@@ -42,11 +42,11 @@ var TemplateFuncMap = template.FuncMap{
 	"byteFmt":    LeadFS,
 	"byteInt":    LeadFSInt,
 	"leadInt":    LeadInt,
-	"datePost":   LeadPost,
-	"datePub":    LeadPub,
 	"leadStr":    LeadStr,
-	"iconFmt":    model.Icon,
 	"metaByName": tagByName,
+	"icon":       model.Icon,
+	"publish":    model.PublishedFW,
+	"posted":     model.Created,
 	"safeHTML": func(s string) template.HTML {
 		return template.HTML(s)
 	},

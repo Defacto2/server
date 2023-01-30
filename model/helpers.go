@@ -5,16 +5,37 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/Defacto2/server/pkg/helpers"
-	"github.com/volatiletech/null/v8"
+	"github.com/Defacto2/server/pkg/postgres/models"
 )
 
-// TODO: make this methods to a file record struct!
+const padding = " "
 
-// FmtPublish takes optional year, month and values and formats them to dd-mmm-yyyy.
-// Depending on the context, any missing time values will be left blank or replaced with ?? question marks.
-func FmtPublish(y, m, d null.Int16) string {
+// LeadStr takes a string and returns the leading whitespace padding, characters wide.
+// the value of string is note returned.
+func LeadStr(width int, s string) string {
+	l := utf8.RuneCountInString(s)
+	if l >= width {
+		return ""
+	}
+	return strings.Repeat(padding, width-l)
+}
+
+// PublishedFW formats the publication year, month and day to a fixed-width length w value.
+func PublishedFW(width int, f *models.File) string {
+	s := Published(f)
+	if utf8.RuneCountInString(s) < width {
+		return LeadStr(width, s) + s
+	}
+	return s
+}
+
+// Published takes optional DateIssuedYear, DateIssuedMonth and DateIssuedDay values and
+// formats them into dd-mmm-yyyy string format. Depending on the context, any missing time
+// values will be left blank or replaced with ?? question marks.
+func Published(f *models.File) string {
 	const (
 		yx       = "????"
 		mx       = "???"
@@ -24,18 +45,18 @@ func FmtPublish(y, m, d null.Int16) string {
 		dPadding = 3
 	)
 	ys, ms, ds := yx, mx, dx
-	if y.Valid {
-		if i := int(y.Int16); helpers.IsYear(i) {
+	if f.DateIssuedYear.Valid {
+		if i := int(f.DateIssuedYear.Int16); helpers.IsYear(i) {
 			ys = strconv.Itoa(i)
 		}
 	}
-	if m.Valid {
-		if s := helpers.ShortMonth(int(m.Int16)); s != "" {
+	if f.DateIssuedMonth.Valid {
+		if s := helpers.ShortMonth(int(f.DateIssuedMonth.Int16)); s != "" {
 			ms = s
 		}
 	}
-	if d.Valid {
-		if i := int(d.Int16); helpers.IsDay(i) {
+	if f.DateIssuedDay.Valid {
+		if i := int(f.DateIssuedDay.Int16); helpers.IsDay(i) {
 			ds = fmt.Sprintf("%02d", i)
 		}
 	}
@@ -51,14 +72,14 @@ func FmtPublish(y, m, d null.Int16) string {
 	return fmt.Sprintf("%s-%s-%s", ds, ms, ys)
 }
 
-// FmtTime formats the time to use dd-mmm-yyyy.
-func FmtTime(t null.Time) string {
-	if !t.Valid {
+// Created returns the Createdat time to use a dd-mmm-yyyy format.
+func Created(f *models.File) string {
+	if !f.Createdat.Valid {
 		return ""
 	}
-	d := t.Time.Day()
-	m := helpers.ShortMonth(int(t.Time.Month()))
-	y := t.Time.Year()
+	d := f.Createdat.Time.Day()
+	m := helpers.ShortMonth(int(f.Createdat.Time.Month()))
+	y := f.Createdat.Time.Year()
 	if !helpers.IsYear(y) {
 		return ""
 	}
@@ -68,7 +89,7 @@ func FmtTime(t null.Time) string {
 // Icon returns the extensionless name of a .gif image file to use as an icon
 // for the named file.
 // The icons are found in /public/images/html3/.
-func Icon(name null.String) string {
+func Icon(f *models.File) string {
 	const (
 		app   = "comp2"
 		doc   = "doc"
@@ -79,10 +100,10 @@ func Icon(name null.String) string {
 		vid   = "movie"
 		zip   = "compressed"
 	)
-	if !name.Valid {
+	if !f.Filename.Valid {
 		return error
 	}
-	n := strings.ToLower(filepath.Ext(name.String))
+	n := strings.ToLower(filepath.Ext(f.Filename.String))
 	switch {
 	case helpers.IsArchive(n):
 		return zip

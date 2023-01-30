@@ -10,7 +10,6 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/tags"
 	"github.com/volatiletech/null/v8"
@@ -144,24 +143,6 @@ func LeadInt(width, i int) string {
 		count = maxPad
 	}
 	return fmt.Sprintf("%s%s", strings.Repeat(padding, count), s)
-}
-
-// LeadPost formats the date published to the fixed-width length w value.
-func LeadPost(width int, t null.Time) string {
-	s := model.FmtTime(t)
-	if utf8.RuneCountInString(s) < width {
-		return LeadStr(width, s) + s
-	}
-	return s
-}
-
-// LeadPub formats the publication year, month and day to a fixed-width length w value.
-func LeadPub(width int, y, m, d null.Int16) string {
-	s := model.FmtPublish(y, m, d)
-	if utf8.RuneCountInString(s) < width {
-		return LeadStr(width, s) + s
-	}
-	return s
 }
 
 // LeadStr takes a string and returns the leading whitespace padding, characters wide.
