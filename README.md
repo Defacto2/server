@@ -8,7 +8,6 @@ All configurations and settings for this web server are handled through system e
 
 - [ ] All SQL smts need to account for `delete_at`
 `qm.WithDeleted`
-- [ ] Embed all templates.
 - [ ] Tests for routes and templates.
 
 ### Possible TODOs
@@ -142,6 +141,6 @@ Note, the `release` flag is unused, instead all new releases are compiled using 
 
 ### Linter
 
-todo
+to fill out
 
 ---

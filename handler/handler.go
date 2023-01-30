@@ -80,7 +80,7 @@ func (c Configuration) Controller() *echo.Echo {
 
 	// Custom response headers
 	if c.Import.NoRobots {
-		e.Use(NoRobotsHeader) // TODO: only apply to HTML templates?
+		e.Use(NoRobotsHeader)
 	}
 
 	// Route => /
