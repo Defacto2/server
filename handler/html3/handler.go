@@ -131,7 +131,7 @@ func (s *sugared) Index(c echo.Context) error {
 		helpers.Sentence(textDoc),
 		helpers.Sentence(textSof),
 		helpers.Sentence(textAll)}
-	err = c.Render(http.StatusOK, "html3_index", map[string]interface{}{
+	if err = c.Render(http.StatusOK, "html3_index", map[string]interface{}{
 		"title":       title,
 		"description": desc,
 		"descs":       descs,
@@ -139,8 +139,7 @@ func (s *sugared) Index(c echo.Context) error {
 		"cat":         tags.CategoryCount,
 		"plat":        tags.PlatformCount,
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
-	})
-	if err != nil {
+	}); err != nil {
 		s.log.Errorf("%s: %s", errTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
 	}
