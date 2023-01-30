@@ -4,7 +4,6 @@ package html3
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 	"strconv"
 	"strings"
@@ -13,6 +12,7 @@ import (
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/tags"
 	"github.com/volatiletech/null/v8"
+	"go.uber.org/zap"
 )
 
 const (
@@ -68,11 +68,12 @@ func Description(section, platform, brand, title null.String) string {
 }
 
 // FileHref creates a URL to link to the file download of the ID.
-func FileHref(id int64) string {
+func FileHref(id int64, log *zap.SugaredLogger) string {
 	href, err := url.JoinPath("/", "html3", "d",
 		helpers.ObfuscateParam(strconv.Itoa(int(id))))
 	if err != nil {
-		log.Println(err) //TODO: log to file
+		log.Error("FileHref ID %d could not be made into a valid URL: %s", err)
+		return ""
 	}
 	return href
 }

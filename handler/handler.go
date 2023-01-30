@@ -43,7 +43,7 @@ func (c Configuration) Controller() *echo.Echo {
 
 	// HTML templates
 	e.Renderer = &html3.TemplateRegistry{
-		Templates: html3.TmplHTML3(c.Views),
+		Templates: html3.TmplHTML3(c.Log, c.Views),
 	}
 
 	// Static embedded images
