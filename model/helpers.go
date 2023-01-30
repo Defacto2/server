@@ -87,23 +87,31 @@ func Created(f *models.File) string {
 }
 
 // Icon returns the extensionless name of a .gif image file to use as an icon
-// for the named file.
-// The icons are found in /public/images/html3/.
+// for the filename. The icons are found in /public/images/html3/.
 func Icon(f *models.File) string {
-	const (
-		app   = "comp2"
-		doc   = "doc"
-		error = "unknown"
-		htm   = "generic"
-		pic   = "image2"
-		sfx   = "sound2"
-		vid   = "movie"
-		zip   = "compressed"
-	)
+	const error = "unknown"
 	if !f.Filename.Valid {
 		return error
 	}
-	n := strings.ToLower(filepath.Ext(f.Filename.String))
+	if n := IconName(f.Filename.String); n != "" {
+		return n
+	}
+	return error
+}
+
+// IconName returns the extensionless name of a .gif image file to use as an icon
+// for the named file.
+func IconName(name string) string {
+	const (
+		app = "comp2"
+		doc = "doc"
+		htm = "generic"
+		pic = "image2"
+		sfx = "sound2"
+		vid = "movie"
+		zip = "compressed"
+	)
+	n := strings.ToLower(filepath.Ext(name))
 	switch {
 	case helpers.IsArchive(n):
 		return zip
@@ -122,5 +130,5 @@ func Icon(f *models.File) string {
 	case helpers.IsVideo(n):
 		return vid
 	}
-	return error
+	return ""
 }
