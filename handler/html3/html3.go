@@ -32,7 +32,7 @@ func Error(err error, c echo.Context) error {
 		code = he.Code
 		msg = fmt.Sprint(he.Message)
 	}
-	return c.Render(code, "error", map[string]interface{}{
+	return c.Render(code, "html3_error", map[string]interface{}{
 		"title":       fmt.Sprintf("%d error, there is a complication", code),
 		"description": fmt.Sprintf("%s.", msg),
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),

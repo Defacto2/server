@@ -3,13 +3,17 @@ package handler
 import (
 	"context"
 	"embed"
+	"errors"
 	"fmt"
+	"html/template"
+	"io"
 	"net/http"
 	"os"
 	"os/signal"
 	"runtime"
 	"time"
 
+	"github.com/Defacto2/server/handler/bootstrap"
 	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/pkg/config"
@@ -19,10 +23,44 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	ErrNoTmpl = errors.New("no template name exists for recordsby type index")
+	ErrTmpl   = errors.New("named template cannot be found")
+)
+
 const (
 	ShutdownCount = 3
 	ShutdownWait  = ShutdownCount * time.Second
 )
+
+func Join(srcs ...map[string]*template.Template) map[string]*template.Template {
+	m := make(map[string]*template.Template)
+	for _, src := range srcs {
+		for k, val := range src {
+			m[k] = val
+		}
+	}
+	return m
+}
+
+//unc TmplHTML3(log *zap.SugaredLogger, fs embed.FS) map[string]*template.Template {
+
+// TemplateRegistry is template registry struct.
+type TemplateRegistry struct {
+	Templates map[string]*template.Template
+}
+
+// Render the layout template with the core HTML, META and BODY elements.
+func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	if name == "" {
+		return ErrNoTmpl
+	}
+	tmpl, ok := t.Templates[name]
+	if !ok {
+		return fmt.Errorf("%w: %s", ErrTmpl, name)
+	}
+	return tmpl.ExecuteTemplate(w, "layout", data)
+}
 
 // Configuration of the handler.
 type Configuration struct {
@@ -42,8 +80,8 @@ func (c Configuration) Controller() *echo.Echo {
 	e.Use(middleware.Secure())
 
 	// HTML templates
-	e.Renderer = &html3.TemplateRegistry{
-		Templates: html3.TmplHTML3(c.Log, c.Views),
+	e.Renderer = &TemplateRegistry{
+		Templates: Join(html3.TmplHTML3(c.Log, c.Views), bootstrap.Tmpl(c.Log, c.Views)), // TODO:, bootstrap.Tmpl(c.Log, c.Views)
 	}
 
 	// Static embedded images
@@ -85,8 +123,11 @@ func (c Configuration) Controller() *echo.Echo {
 
 	// Route => /
 	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Coming soon!")
+		return bootstrap.Index(nil, c)
 	})
+	// e.GET("/", func(c echo.Context) error {
+	// 	return c.String(http.StatusOK, "Coming soon!")
+	// })
 	e.GET("/file/list", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Coming soon!")
 	})

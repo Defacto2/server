@@ -4,27 +4,13 @@ package html3
 
 import (
 	"embed"
-	"errors"
-	"fmt"
 	"html/template"
-	"io"
 	"path/filepath"
 
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/tags"
-	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
-
-var (
-	ErrNoTmpl = errors.New("no template name exists for recordsby type index")
-	ErrTmpl   = errors.New("named template cannot be found")
-)
-
-// TemplateRegistry is template registry struct.
-type TemplateRegistry struct {
-	Templates map[string]*template.Template
-}
 
 const (
 	layout     = "layout.html"
@@ -61,32 +47,20 @@ func tagByName(name string) tags.TagData {
 	return tags.Tags.ByName(name, nil)
 }
 
-// Render the HTML3 layout template with the core HTML, META and BODY elements.
-func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	if name == "" {
-		return ErrNoTmpl
-	}
-	tmpl, ok := t.Templates[name]
-	if !ok {
-		return fmt.Errorf("%w: %s", ErrTmpl, name)
-	}
-	return tmpl.ExecuteTemplate(w, "layout", data)
-}
-
 // TmplHTML3 returns a map of the templates used by the HTML3 sub-group route.
 func TmplHTML3(log *zap.SugaredLogger, fs embed.FS) map[string]*template.Template {
 	templates := make(map[string]*template.Template)
-	templates["index"] = index(log, fs)
-	templates["all"] = list(log, fs)
-	templates["art"] = list(log, fs)
-	templates["documents"] = list(log, fs)
-	templates["software"] = list(log, fs)
-	templates["groups"] = listGroups(log, fs)
-	templates["group"] = list(log, fs)
-	templates["tag"] = listTags(log, fs)
-	templates["platform"] = list(log, fs)
-	templates["category"] = list(log, fs)
-	templates["error"] = httpErr(log, fs)
+	templates["html3_index"] = index(log, fs)
+	templates["html3_all"] = list(log, fs)
+	templates["html3_art"] = list(log, fs)
+	templates["html3_documents"] = list(log, fs)
+	templates["html3_software"] = list(log, fs)
+	templates["html3_groups"] = listGroups(log, fs)
+	templates["html3_group"] = list(log, fs)
+	templates["html3_tag"] = listTags(log, fs)
+	templates["html3_platform"] = list(log, fs)
+	templates["html3_category"] = list(log, fs)
+	templates["html3_error"] = httpErr(log, fs)
 	return templates
 }
 

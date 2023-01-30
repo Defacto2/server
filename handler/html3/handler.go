@@ -49,7 +49,7 @@ func (t RecordsBy) String() string {
 	if t >= l {
 		return ""
 	}
-	return [l]string{"all", "category", "platform", "group", "art", "documents", "software"}[t]
+	return [l]string{"html3_all", "html3_category", "html3_platform", "html3_group", "html3_art", "html3_documents", "html3_software"}[t]
 }
 
 func (t RecordsBy) Parent() string {
@@ -131,7 +131,7 @@ func (s *sugared) Index(c echo.Context) error {
 		helpers.Sentence(textDoc),
 		helpers.Sentence(textSof),
 		helpers.Sentence(textAll)}
-	err = c.Render(http.StatusOK, "index", map[string]interface{}{
+	err = c.Render(http.StatusOK, "html3_index", map[string]interface{}{
 		"title":       title,
 		"description": desc,
 		"descs":       descs,
@@ -150,7 +150,7 @@ func (s *sugared) Index(c echo.Context) error {
 // Categories lists the names, descriptions and sums of the category (section) tags.
 func (s *sugared) Categories(c echo.Context) error {
 	start := latency()
-	err := c.Render(http.StatusOK, "tag", map[string]interface{}{
+	err := c.Render(http.StatusOK, "html3_tag", map[string]interface{}{
 		"title":       title + "/categories",
 		"description": "File categories and classification tags.",
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
@@ -169,7 +169,7 @@ func (s *sugared) Categories(c echo.Context) error {
 // Platforms lists the names, descriptions and sums of the platform tags.
 func (s *sugared) Platforms(c echo.Context) error {
 	start := latency()
-	err := c.Render(http.StatusOK, "tag", map[string]interface{}{
+	err := c.Render(http.StatusOK, "html3_tag", map[string]interface{}{
 		"title":       title + "/platforms",
 		"description": "File platforms, operating systems and media types.",
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
@@ -198,7 +198,7 @@ func (s *sugared) Groups(c echo.Context) error {
 		s.log.Errorf("%s: %s %d", errConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
-	err = c.Render(http.StatusOK, "groups", map[string]interface{}{
+	err = c.Render(http.StatusOK, "html3_groups", map[string]interface{}{
 		"title": title + "/groups",
 		"description": "Listed is an exhaustive, distinct collection of scene groups and site brands." +
 			" Do note that Defacto2 is a file-serving site, so the list doesn't distinguish between different groups with the same name or brand.",
