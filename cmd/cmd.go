@@ -3,10 +3,10 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"runtime/debug"
 	"strings"
 	"time"
 
+	"github.com/carlmjohnson/versioninfo"
 	"github.com/urfave/cli/v2"
 )
 
@@ -53,7 +53,7 @@ func (b *Build) run() (int, error) {
 				Email: "contact@defacto2.net",
 			},
 		},
-		Copyright: "(c) 2023 Defacto2 & Ben Garrett",
+		Copyright: Copyright() + " Defacto2 & Ben Garrett",
 		HelpName:  "server",
 		Usage:     "Serve the Defacto2 website",
 		UsageText: "server [options]",
@@ -70,29 +70,33 @@ func (b *Build) run() (int, error) {
 }
 
 func (b *Build) Commit() string {
-	v, c, d := b.Version, "", b.Date
-	if info, ok := debug.ReadBuildInfo(); ok {
-		for _, setting := range info.Settings {
-			if setting.Key == "vcs.revision" {
-				c = setting.Value
-				break
-			}
-		}
-	}
+	v := versioninfo.Version
+	c := versioninfo.Revision
+	d := versioninfo.LastCommit
 	s := ""
 	if v != "" {
 		s = fmt.Sprintf("v%s ", v)
-		if d != "" {
+		if !d.IsZero() {
 			s += fmt.Sprintf("built on %s ", d)
 		}
-	} else if d != "" {
+	} else if !d.IsZero() {
 		s = fmt.Sprintf("Built on %s ", d)
 	}
 	if c != "" {
-		s = fmt.Sprintf(" [%s]", v)
+		s = fmt.Sprintf(" %s", v)
 	}
 	if s == "" {
 		return "n/a"
 	}
 	return strings.TrimSpace(s)
+}
+
+func Copyright() string {
+	const initYear = 2023
+	t := versioninfo.LastCommit
+	s := fmt.Sprintf("© %d", initYear)
+	if t.Year() > initYear {
+		s += "-" + t.Local().Format("06")
+	}
+	return s
 }
