@@ -34,12 +34,14 @@ const (
 )
 
 // Sortings are the name and order of columns that the records can be ordered by.
-var Sortings = map[Sort]string{
-	Name:    asc,
-	Publish: asc,
-	Posted:  asc,
-	Size:    asc,
-	Desc:    asc,
+func Sortings() map[Sort]string {
+	return map[Sort]string{
+		Name:    asc,
+		Publish: asc,
+		Posted:  asc,
+		Size:    asc,
+		Desc:    asc,
+	}
 }
 
 // Clauses for ordering file record queries.
@@ -71,7 +73,7 @@ func Clauses(query string) model.Order {
 }
 
 func sorter(query string) map[string]string {
-	s := Sortings
+	s := Sortings()
 	switch strings.ToUpper(query) {
 	case NameAsc:
 		s[Name] = desc
@@ -100,7 +102,7 @@ func sorter(query string) map[string]string {
 	}
 	// to be usable in the template, convert the map keys into strings
 	tmplSorts := make(map[string]string, len(s))
-	for key, value := range Sortings {
+	for key, value := range Sortings() {
 		tmplSorts[string(key)] = value
 	}
 	return tmplSorts

@@ -173,7 +173,7 @@ func (f File) OS() string {
 		tags.Linux,
 		tags.Windows,
 		tags.Mac:
-		return fmt.Sprintf(" for %s", tags.Names[p])
+		return fmt.Sprintf(" for %s", tags.Names()[p])
 	default:
 		return ""
 	}

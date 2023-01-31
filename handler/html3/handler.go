@@ -75,7 +75,7 @@ func (t RecordsBy) Parent() string {
 	}[t]
 }
 
-var Stats struct {
+var Stats struct { //nolint:gochecknoglobals
 	All      model.All
 	Art      model.Arts
 	Document model.Docs
@@ -83,7 +83,7 @@ var Stats struct {
 	Software model.Softs
 }
 
-var Groups model.GroupS
+var Groups model.GroupS //nolint:gochecknoglobals
 
 // Routes for the /html3 sub-route group.
 // Any errors are logged and rendered to the client using HTTP codes
@@ -109,7 +109,7 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger) *echo.Group {
 	g.GET("/software:offset", s.Software)
 	g.GET("/software", s.Software)
 	// append legacy redirects
-	for url := range LegacyURLs {
+	for url := range LegacyURLs() {
 		g.GET(url, s.Redirection)
 	}
 	return g
@@ -231,7 +231,7 @@ func (s *sugared) Groups(c echo.Context) error {
 
 // Redirection redirects any legacy URL matches.
 func (s *sugared) Redirection(c echo.Context) error {
-	for u, redirect := range LegacyURLs {
+	for u, redirect := range LegacyURLs() {
 		htm := Prefix + u
 		if htm == c.Path() {
 			return c.Redirect(http.StatusPermanentRedirect, Prefix+redirect)

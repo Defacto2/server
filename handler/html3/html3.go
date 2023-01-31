@@ -16,10 +16,12 @@ import (
 // LegacyURLs are partial URL routers that are to be redirected with a HTTP 308
 // permanent redirect status code. These are for retired URL syntaxes that are still
 // found on websites online, so their links to Defacto2 do not break with 404, not found errors.
-var LegacyURLs = map[string]string{
-	"/index":            "",
-	"/categories/index": "/categories",
-	"/platforms/index":  "/platforms",
+func LegacyURLs() map[string]string {
+	return map[string]string{
+		"/index":            "",
+		"/categories/index": "/categories",
+		"/platforms/index":  "/platforms",
+	}
 }
 
 // Error renders a custom HTTP error page for the HTML3 sub-group.

@@ -29,11 +29,11 @@ func (s *Softs) Stat(ctx context.Context, db *sql.DB) error {
 
 // SoftwareExpr is a the query mod expression for software files.
 func SoftwareExpr() qm.QueryMod {
-	java := null.String{String: tags.URIs[tags.Java], Valid: true}
-	linux := null.String{String: tags.URIs[tags.Linux], Valid: true}
-	dos := null.String{String: tags.URIs[tags.DOS], Valid: true}
-	php := null.String{String: tags.URIs[tags.PHP], Valid: true}
-	windows := null.String{String: tags.URIs[tags.Windows], Valid: true}
+	java := null.String{String: tags.URIs()[tags.Java], Valid: true}
+	linux := null.String{String: tags.URIs()[tags.Linux], Valid: true}
+	dos := null.String{String: tags.URIs()[tags.DOS], Valid: true}
+	php := null.String{String: tags.URIs()[tags.PHP], Valid: true}
+	windows := null.String{String: tags.URIs()[tags.Windows], Valid: true}
 	return qm.Expr(
 		models.FileWhere.Platform.EQ(java),
 		qm.Or2(models.FileWhere.Platform.EQ(linux)),

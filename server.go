@@ -34,7 +34,7 @@ var images embed.FS
 
 var (
 	version = ""
-	date    = ""
+	date    = "" //nolint:gochecknoglobals
 )
 
 func main() {

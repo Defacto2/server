@@ -29,10 +29,10 @@ func (d *Docs) Stat(ctx context.Context, db *sql.DB) error {
 
 // DocumentExpr is a the query mod expression for document files.
 func DocumentExpr() qm.QueryMod {
-	ansi := null.String{String: tags.URIs[tags.ANSI], Valid: true}
-	text := null.String{String: tags.URIs[tags.Text], Valid: true}
-	amiga := null.String{String: tags.URIs[tags.TextAmiga], Valid: true}
-	pdf := null.String{String: tags.URIs[tags.PDF], Valid: true}
+	ansi := null.String{String: tags.URIs()[tags.ANSI], Valid: true}
+	text := null.String{String: tags.URIs()[tags.Text], Valid: true}
+	amiga := null.String{String: tags.URIs()[tags.TextAmiga], Valid: true}
+	pdf := null.String{String: tags.URIs()[tags.PDF], Valid: true}
 	return qm.Expr(
 		models.FileWhere.Platform.EQ(ansi),
 		qm.Or2(models.FileWhere.Platform.EQ(text)),

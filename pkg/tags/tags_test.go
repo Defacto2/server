@@ -9,14 +9,14 @@ import (
 
 func TestTags(t *testing.T) {
 	count := 0
-	for i, uri := range tags.URIs {
+	for i, uri := range tags.URIs() {
 		count++
 		// confirm tag uri strings
 		assert.NotEqual(t, uri, "")
 		// confirm tag names
-		assert.NotEqual(t, tags.Names[i], "")
+		assert.NotEqual(t, tags.Names()[i], "")
 		// confirm tag descriptions
-		assert.NotEqual(t, tags.Infos[i], "")
+		assert.NotEqual(t, tags.Infos()[i], "")
 	}
 	u := tags.TagByURI
 	assert.Equal(t, int(u("")), -1)

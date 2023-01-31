@@ -29,8 +29,8 @@ func (a *Arts) Stat(ctx context.Context, db *sql.DB) error {
 
 // ArtExpr is a the query mod expression for art releases.
 func ArtExpr() qm.QueryMod {
-	bbs := null.String{String: tags.URIs[tags.BBS], Valid: true}
-	image := null.String{String: tags.URIs[tags.Image], Valid: true}
+	bbs := null.String{String: tags.URIs()[tags.BBS], Valid: true}
+	image := null.String{String: tags.URIs()[tags.Image], Valid: true}
 	return qm.Expr(
 		models.FileWhere.Section.NEQ(bbs),
 		models.FileWhere.Platform.EQ(image),

@@ -192,8 +192,8 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	switch tt {
 	case BySection, ByPlatform:
 		key := tags.TagByURI(id)
-		info := tags.Infos[key]
-		name := tags.Names[key]
+		info := tags.Infos()[key]
+		name := tags.Names()[key]
 		desc = fmt.Sprintf("%s - %s.", name, info)
 		s, err := url.JoinPath(tt.String(), key.String())
 		if err != nil {

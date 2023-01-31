@@ -44,14 +44,14 @@ func (t *T) ByName(name string, log *zap.SugaredLogger) TagData {
 func (t *T) Build(log *zap.SugaredLogger) {
 	t.List = make([]TagData, LastPlatform+1)
 	i := -1
-	for key, val := range URIs {
+	for key, val := range URIs() {
 		i++
 		count := Sums[key]
 		t.Mu.Lock()
 		t.List[i] = TagData{
 			URI:   val,
-			Name:  Names[key],
-			Info:  Infos[key],
+			Name:  Names()[key],
+			Info:  Infos()[key],
 			Count: count,
 		}
 		t.Mu.Unlock()
@@ -134,19 +134,19 @@ const (
 type Sum map[Tag]int
 
 // Sums stores the results of file count query for each tag.
-var Sums = make(Sum, Windows+1)
+var Sums = make(Sum, Windows+1) //nolint:gochecknoglobals
 
 // Tags contains data for all the tags used by the web application.
-var Tags = T{}
+var Tags = T{} //nolint:gochecknoglobals
 
 // OSTags returns the tags that flag an operating system.
 func OSTags() [5]string {
 	return [5]string{
-		URIs[DOS],
-		URIs[Java],
-		URIs[Linux],
-		URIs[Windows],
-		URIs[Mac],
+		URIs()[DOS],
+		URIs()[Java],
+		URIs()[Linux],
+		URIs()[Windows],
+		URIs()[Mac],
 	}
 }
 
@@ -162,7 +162,7 @@ func counter(i int, t Tag, log *zap.SugaredLogger) int64 {
 		clause = "platform = ?"
 	}
 	sum, err := models.Files(
-		qm.Where(clause, URIs[t])).Count(ctx, db)
+		qm.Where(clause, URIs()[t])).Count(ctx, db)
 	if err != nil {
 		log.Errorf("Could not sum the records associated with tags: %s.", err)
 		return -1
