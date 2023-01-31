@@ -22,7 +22,7 @@ const (
 	fst = ".1st"
 	asc = ".asc"
 	ans = ".ans"
-	cap = ".cap"
+	cpt = ".cap"
 	diz = ".diz"
 	doc = ".doc"
 	dox = ".dox"

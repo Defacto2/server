@@ -130,7 +130,8 @@ func (s *sugared) Index(c echo.Context) error {
 		helpers.Sentence(textArt),
 		helpers.Sentence(textDoc),
 		helpers.Sentence(textSof),
-		helpers.Sentence(textAll)}
+		helpers.Sentence(textAll),
+	}
 	if err = c.Render(http.StatusOK, "html3_index", map[string]interface{}{
 		"title":       title,
 		"description": desc,

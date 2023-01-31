@@ -141,6 +141,18 @@ Note, the `release` flag is unused, instead all new releases are compiled using 
 
 ### Linter
 
-to fill out
+[Follow one of the local installation instructions](https://golangci-lint.run/usage/install/#local-installation).
+
+```sh
+golangci-lint run ./...
+```
 
 ---
+
+### Gofumpt
+
+```
+cd df2server
+go install mvdan.cc/gofumpt@latest
+gofumpt -l -w .
+```

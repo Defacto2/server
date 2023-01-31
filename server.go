@@ -6,6 +6,7 @@ package main
 //go:generate sqlboiler --config ".sqlboiler.toml" --wipe --no-hooks --add-soft-deletes psql
 
 import (
+	"bufio"
 	"embed"
 	"fmt"
 	"log"
@@ -38,9 +39,9 @@ var (
 )
 
 func main() {
-	// Enviroment configuration
+	// Environment configuration
 	configs := config.Config{
-		//IsProduction: true,
+		// IsProduction: true,
 	}
 	if err := env.Parse(&configs); err != nil {
 		log.Fatalln(err)
@@ -76,9 +77,11 @@ func main() {
 
 	// Startup logo
 	if logo := string(brand); len(logo) > 0 {
-		if _, err := fmt.Printf("%s\n\n", logo); err != nil {
+		w := bufio.NewWriter(os.Stdout)
+		if _, err := fmt.Fprintf(w, "%s\n\n", logo); err != nil {
 			log.Warnf("Could not print the brand logo: %s.", err)
 		}
+		w.Flush()
 	}
 
 	// Database

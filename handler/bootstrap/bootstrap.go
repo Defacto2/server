@@ -20,7 +20,7 @@ const (
 
 // Index method is the homepage of the /html3 sub-route.
 func Index(s *zap.SugaredLogger, c echo.Context) error {
-	var errTmpl = "The server could not render the HTML template for this page"
+	errTmpl := "The server could not render the HTML template for this page"
 	err := c.Render(http.StatusOK, "index", map[string]interface{}{})
 	if err != nil {
 		s.Errorf("%s: %s", errTmpl, err)

@@ -267,14 +267,15 @@ func next(page int, maxPage uint) int {
 // The absolute numbers will always be in sequence except for returned
 // values of zero, which should be skipped.
 func Pagi(page int, maxPage uint) (int, int, int) {
+	const page1, page2, page3, page4 = 1, 2, 3, 4
 	max := int(maxPage)
 	switch max {
-	case 0, 1, 2:
+	case 0, page1, page2:
 		return 0, 0, 0
-	case 3:
-		return 2, 0, 0
-	case 4:
-		return 2, 3, 0
+	case page3:
+		return page2, 0, 0
+	case page4:
+		return page2, page3, 0
 	}
 	a := page + -1
 	b := page + 0
@@ -282,21 +283,21 @@ func Pagi(page int, maxPage uint) (int, int, int) {
 	if c > max {
 		diff := c - max
 		c = max - diff
-		b = max - diff - 1
-		a = max - diff - 2
+		b = max - diff - page1
+		a = max - diff - page2
 		return a, b, c
 	}
 	if c == max {
-		diff := c - max + 1
+		diff := c - max + page1
 		c = max - diff
-		b = max - diff - 1
-		a = max - diff - 2
+		b = max - diff - page1
+		a = max - diff - page2
 		return a, b, c
 	}
 	if a <= 1 {
-		a = 2
-		b = 3
-		c = 4
+		a = page2
+		b = page3
+		c = page4
 	}
 	return a, b, c
 }
@@ -305,8 +306,9 @@ func Pagi(page int, maxPage uint) (int, int, int) {
 // where the second page contains significantly fewer records than the first.
 // Instead, all records are shown on a single page.
 func Limit(count, limit int) int {
-	if count > limit && count < limit+(limit/2) {
-		return limit + (limit / 2)
+	const split = 2
+	if count > limit && count < limit+(limit/split) {
+		return limit + (limit / split)
 	}
 	return limit
 }

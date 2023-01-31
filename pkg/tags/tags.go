@@ -146,7 +146,8 @@ func OSTags() [5]string {
 		URIs[Java],
 		URIs[Linux],
 		URIs[Windows],
-		URIs[Mac]}
+		URIs[Mac],
+	}
 }
 
 func counter(i int, t Tag, log *zap.SugaredLogger) int64 {

@@ -40,7 +40,7 @@ func orderClauses() map[Order]string {
 	fn := models.FileColumns.Filename
 	fs := models.FileColumns.Filesize
 	rt := models.FileColumns.RecordTitle
-	var m = make(map[Order]string, DescDes+1)
+	m := make(map[Order]string, DescDes+1)
 	m[NameAsc] = fmt.Sprintf("%s %s", fn, a)
 	m[NameDes] = fmt.Sprintf("%s %s", fn, d)
 	m[PublAsc] = fmt.Sprintf("%s %s, %s %s, %s %s", dy, a, dm, a, dd, a)
@@ -79,7 +79,7 @@ func (o Order) FilesByPlatform(name string, ctx context.Context, db *sql.DB) (mo
 // FilesByGroup returns all the files that match an exact named group.
 func (o Order) FilesByGroup(name string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
 	x := null.StringFrom(name)
-	//group_brand_for
+	// group_brand_for
 	return models.Files(models.FileWhere.GroupBrandFor.EQ(x), qm.OrderBy(o.String())).All(ctx, db)
 }
 
@@ -92,7 +92,7 @@ func (o Order) ArtFiles(offset, limit int, ctx context.Context, db *sql.DB) (mod
 		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
 }
 
-// DocumentFiles returns all the files that that are considered to be documents.
+// DocumentFiles returns all the files that  are considered to be documents.
 func (o Order) DocumentFiles(offset, limit int, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
 	if limit == 0 {
 		return models.Files(DocumentExpr(), qm.OrderBy(o.String())).All(ctx, db)
@@ -101,7 +101,7 @@ func (o Order) DocumentFiles(offset, limit int, ctx context.Context, db *sql.DB)
 		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
 }
 
-// SoftwareFiles returns all the files that that are considered to be software.
+// SoftwareFiles returns all the files that  are considered to be software.
 func (o Order) SoftwareFiles(offset, limit int, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
 	if limit == 0 {
 		return models.Files(SoftwareExpr(), qm.OrderBy(o.String())).All(ctx, db)

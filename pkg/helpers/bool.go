@@ -64,7 +64,7 @@ func IsArchive(name string) bool {
 
 // IsDocument returns true if the named file uses a common document or text filename.
 func IsDocument(name string) bool {
-	s := []string{fst, asc, ans, cap, diz, doc, dox, me, nfo, pcb, pdf, txt, unp}
+	s := []string{fst, asc, ans, cpt, diz, doc, dox, me, nfo, pcb, pdf, txt, unp}
 	return IsExt(name, s...)
 }
 

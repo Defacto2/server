@@ -81,13 +81,13 @@ func (cfg *Config) LogStorage() error {
 	}
 	logs := filepath.Join(dir, "defacto2-webapp")
 	if ok := helpers.IsStat(logs); !ok {
-		if err := os.MkdirAll(logs, 0770); err != nil {
+		const ownerGroupAll = 0o770
+		if err := os.MkdirAll(logs, ownerGroupAll); err != nil {
 			return fmt.Errorf("%w: %s", err, logs)
 		}
 	}
 	cfg.ConfigDir = logs
 	return nil
-	//return errors.New("hello oops")
 }
 
 // CustomErrorHandler handles customer error templates.

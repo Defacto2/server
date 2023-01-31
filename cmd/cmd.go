@@ -49,7 +49,7 @@ func (b *Build) run() (int, error) {
 		Version:  b.Commit(),
 		Compiled: time.Now(),
 		Authors: []*cli.Author{
-			&cli.Author{
+			{
 				Name:  "Ben Garrett",
 				Email: "contact@defacto2.net",
 			},

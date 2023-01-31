@@ -3,7 +3,6 @@ package config
 
 // Config options for the Defacto2 server.
 type Config struct {
-
 	// HTTPPort is the port to be used by the HTTP server.
 	HTTPPort int `env:"DEFACTO2_PORT" envDefault:"1323"`
 

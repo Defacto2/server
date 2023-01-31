@@ -89,7 +89,6 @@ func FileLinkPad(width int, name null.String) string {
 // FileLinkPad adds whitespace padding after the hyperlinked filename.
 func (f File) FileLinkPad(width int) string {
 	s := helpers.TruncFilename(width, f.Filename)
-	fmt.Println(s, utf8.RuneCountInString(s))
 	if utf8.RuneCountInString(s) < width {
 		return LeadStr(width, s)
 	}

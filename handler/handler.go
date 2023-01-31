@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bufio"
 	"context"
 	"embed"
 	"errors"
@@ -71,7 +72,6 @@ type Configuration struct {
 
 // Controller is the primary instance of the Echo router.
 func (c Configuration) Controller() *echo.Echo {
-
 	e := echo.New()
 
 	// Configurations
@@ -148,22 +148,25 @@ func (c Configuration) Controller() *echo.Echo {
 
 func (c *Configuration) StartHTTP(e *echo.Echo) {
 	const mark = `⇨ `
+	w := bufio.NewWriter(os.Stdout)
 
 	// Check the database connection
 	var ver postgres.Version
 	if err := ver.Query(); err != nil {
 		c.Log.Warnln("Could not obtain the PostgreSQL server version. Is the database online?")
 	} else {
-		fmt.Printf("%sDefacto2 web application %s.\n", mark, ver.String())
+		fmt.Fprintf(w, "%sDefacto2 web application %s.\n", mark, ver.String())
 	}
-
-	fmt.Printf("%s%d active routines sharing %d usable threads on %d CPU cores.\n", mark,
+	// CPU info
+	fmt.Fprintf(w, "%s%d active routines sharing %d usable threads on %d CPU cores.\n", mark,
 		runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
-
-	fmt.Printf("%sCompiled with Go %s.\n", mark, runtime.Version()[2:])
+	// Go info
+	fmt.Fprintf(w, "%sCompiled with Go %s.\n", mark, runtime.Version()[2:])
+	// Log location info
 	if c.Import.IsProduction {
-		fmt.Printf("%sserver logs are found in: %s\n", mark, c.Import.ConfigDir)
+		fmt.Fprintf(w, "%sserver logs are found in: %s\n", mark, c.Import.ConfigDir)
 	}
+	w.Flush()
 
 	serverAddress := fmt.Sprintf(":%d", c.Import.HTTPPort)
 	err := e.Start(serverAddress)

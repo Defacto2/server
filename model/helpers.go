@@ -89,14 +89,14 @@ func Created(f *models.File) string {
 // Icon returns the extensionless name of a .gif image file to use as an icon
 // for the filename. The icons are found in /public/images/html3/.
 func Icon(f *models.File) string {
-	const error = "unknown"
+	const err = "unknown"
 	if !f.Filename.Valid {
-		return error
+		return err
 	}
 	if n := IconName(f.Filename.String); n != "" {
 		return n
 	}
-	return error
+	return err
 }
 
 // IconName returns the extensionless name of a .gif image file to use as an icon
