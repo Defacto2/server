@@ -80,7 +80,10 @@ func (c Configuration) Controller() *echo.Echo {
 
 	// HTML templates
 	e.Renderer = &TemplateRegistry{
-		Templates: Join(html3.TmplHTML3(c.Log, c.Views), bootstrap.Tmpl(c.Log, c.Views)), // TODO:, bootstrap.Tmpl(c.Log, c.Views)
+		Templates: Join(
+			html3.TmplHTML3(c.Log, c.Views),
+			bootstrap.Tmpl(c.Log, c.Views),
+		),
 	}
 
 	// Static embedded images
@@ -185,16 +188,22 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
 	defer func() {
 		const alert = "Detected Ctrl-C, server will shutdown in "
 		_ = c.Log.Sync() // do not check error as there's false positives
-		fmt.Printf("\n%s%s", alert, ShutdownWait)
+		dst := os.Stdout
+		w := bufio.NewWriter(dst)
+		fmt.Fprintf(w, "\n%s%v", alert, ShutdownWait)
+		w.Flush()
 		count := ShutdownCount
 		pause := time.NewTicker(1 * time.Second)
 		for range pause.C {
 			count--
-			fmt.Printf("\r%s%ds", alert, count)
+			w := bufio.NewWriter(dst)
 			if count <= 0 {
-				fmt.Printf("\r%s%ds\n", alert, count)
+				fmt.Fprintf(w, "\r%s%s\n", alert, "now")
+				w.Flush()
 				break
 			}
+			fmt.Fprintf(w, "\r%s%ds", alert, count)
+			w.Flush()
 		}
 		select {
 		case <-quit:

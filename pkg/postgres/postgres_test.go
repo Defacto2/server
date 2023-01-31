@@ -27,8 +27,14 @@ func TestConnection_URL(t *testing.T) {
 		{fields{User: "dbuser", Password: "xyz"}, "postgres://dbuser:xyz@localhost:5432"},
 		{fields{HostName: "myserver"}, "postgres://myserver:5432"},
 		{fields{HostName: "myserver", HostPort: 5678}, "postgres://myserver:5678"},
-		{fields{HostName: "myserver", HostPort: 5678, NoSSLMode: true}, "postgres://myserver:5678?sslmode=disable"},
-		{fields{Database: "my_db", HostName: "myserver", HostPort: 5678, NoSSLMode: true}, "postgres://myserver:5678/my_db?sslmode=disable"},
+		{
+			fields{HostName: "myserver", HostPort: 5678, NoSSLMode: true},
+			"postgres://myserver:5678?sslmode=disable",
+		},
+		{
+			fields{Database: "my_db", HostName: "myserver", HostPort: 5678, NoSSLMode: true},
+			"postgres://myserver:5678/my_db?sslmode=disable",
+		},
 	}
 	for _, tt := range tests {
 		c := postgres.Connection{

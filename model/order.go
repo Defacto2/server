@@ -61,7 +61,7 @@ func (o Order) AllFiles(offset, limit int, ctx context.Context, db *sql.DB) (mod
 }
 
 // FilesByCategory returns all the files that match the named category.
-func (o Order) FilesByCategory(name string, offset, limit int, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (o Order) FilesByCategory(name string, offset, limit int, ctx context.Context, db *sql.DB) (models.FileSlice, error) { //nolint:lll
 	x := null.StringFrom(name)
 	if limit == 0 {
 		return models.Files(models.FileWhere.Section.EQ(x), qm.OrderBy(o.String())).All(ctx, db)

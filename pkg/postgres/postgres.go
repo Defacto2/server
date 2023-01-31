@@ -18,13 +18,15 @@ const (
 
 // Connection details of the PostgreSQL database connection.
 type Connection struct {
-	Protocol  string // Protocol scheme of the PostgreSQL database. Defaults to postgres.
-	User      string // User is the database user used to connect to the database.
-	Password  string // Password is the password for the database user.
-	HostName  string // HostName is the host name of the server. Defaults to localhost.
-	HostPort  int    // HostPort is the port number the server is listening on. Defaults to 5432.
-	Database  string // Database is the database name.
-	NoSSLMode bool   // NoSSLMode connects to the database using an insecure, plain text connecction using the sslmode=disable param.
+	Protocol string // Protocol scheme of the PostgreSQL database. Defaults to postgres.
+	User     string // User is the database user used to connect to the database.
+	Password string // Password is the password for the database user.
+	HostName string // HostName is the host name of the server. Defaults to localhost.
+	HostPort int    // HostPort is the port number the server is listening on. Defaults to 5432.
+	Database string // Database is the database name.
+	// NoSSLMode connects to the database using an insecure,
+	// plain text connecction using the sslmode=disable param.
+	NoSSLMode bool
 }
 
 // Open opens a PostgreSQL database connection.
@@ -107,7 +109,8 @@ func (v *Version) Query() error {
 
 func (v *Version) String() string {
 	s := string(*v)
-	if x := strings.Split(s, " "); len(x) > 2 {
+	const invalid = 2
+	if x := strings.Split(s, " "); len(x) > invalid {
 		_, err := strconv.ParseFloat(x[1], 32)
 		if err != nil {
 			return s

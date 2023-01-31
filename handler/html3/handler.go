@@ -23,7 +23,8 @@ const (
 	errSQL  = "Database connection problem or a SQL error"
 	errTag  = "No database query was created for the tag"
 	errTmpl = "The server could not render the HTML template for this page"
-	firefox = "Welcome to the Firefox 2 era (October 2006) Defacto2 website, which is friendly for legacy operating systems, including Windows 9x, NT-4, and OS-X 10.2."
+	firefox = "Welcome to the Firefox 2 era (October 2006) Defacto2 website, " +
+		"which is friendly for legacy operating systems, including Windows 9x, NT-4, and OS-X 10.2."
 
 	textAll = "list every file or release hosted on the website"
 	textArt = "hi-res, raster and pixel images"
@@ -49,7 +50,15 @@ func (t RecordsBy) String() string {
 	if t >= l {
 		return ""
 	}
-	return [l]string{"html3_all", "html3_category", "html3_platform", "html3_group", "html3_art", "html3_documents", "html3_software"}[t]
+	return [l]string{
+		"html3_all",
+		"html3_category",
+		"html3_platform",
+		"html3_group",
+		"html3_art",
+		"html3_documents",
+		"html3_software",
+	}[t]
 }
 
 func (t RecordsBy) Parent() string {
@@ -57,7 +66,13 @@ func (t RecordsBy) Parent() string {
 	if t >= l {
 		return ""
 	}
-	return [l]string{"", "categories", "platforms", "groups", "", "", ""}[t]
+	return [l]string{
+		"",
+		"categories",
+		"platforms",
+		"groups",
+		"", "", "",
+	}[t]
 }
 
 var Stats struct {
@@ -201,7 +216,8 @@ func (s *sugared) Groups(c echo.Context) error {
 	err = c.Render(http.StatusOK, "html3_groups", map[string]interface{}{
 		"title": title + "/groups",
 		"description": "Listed is an exhaustive, distinct collection of scene groups and site brands." +
-			" Do note that Defacto2 is a file-serving site, so the list doesn't distinguish between different groups with the same name or brand.",
+			" Do note that Defacto2 is a file-serving site, so the list doesn't distinguish between" +
+			" different groups with the same name or brand.",
 		"latency": fmt.Sprintf("%s.", time.Since(*start)),
 		"path":    "group",
 		"sceners": Groups, // model.Grps.List

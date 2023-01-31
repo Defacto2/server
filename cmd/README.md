@@ -17,4 +17,6 @@ Instead of using args, parse the stdin and stdout requests to determine the requ
 
 - Have a BOLD note to never run in production.
 
+---
 
+[Full CLI API ref.](https://cli.urfave.org/v2/examples/full-api-example/)

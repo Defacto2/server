@@ -7,14 +7,11 @@ linters:
   fast: true
   # Disable specific linters.
   disable:
-    # 
+    # deprecated
     - nosnakecase
     - ifshort
     - scopelint
-    # disabled for other reasons
-    - wsl
-    - gochecknoglobals
-    - lll
-    - gci
-    - nlreturn
-    - funlen
+    # disabled
+    - funlen            # should enable at a later stage. 
+    - wsl               # fussy over whitespace.
+    - nlreturn          # fussy over whitespace.

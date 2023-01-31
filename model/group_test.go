@@ -1,35 +1,34 @@
 package model_test
 
 import (
+	"context"
+	"log"
 	"testing"
 
+	"github.com/Defacto2/sceners"
+	"github.com/Defacto2/server/model"
+	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/postgres"
 	_ "github.com/lib/pq"
+	"github.com/stretchr/testify/assert"
 )
 
-/* TODO:
-Error:      	Not equal:
-            	expected: "Mooñpeople"
-            	actual  : "Moopeople"
-
-				use utf8 lib to detect extended chars?
-*/
-
 func TestAllSlugs(t *testing.T) {
-	// ctx := context.Background()
-	// db, err := postgres.ConnectDB()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer db.Close()
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
-	// fs, err := model.GroupList(ctx, db)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// for _, x := range fs {
-	// 	og := sceners.CleanURL(x.GroupBrandFor.String)
-	// 	y := model.Slug(og)
-	// 	z := sceners.CleanURL(y)
-	// 	assert.Equal(t, og, z, "slug is "+y)
-	// }
+	var g model.GroupS
+	if err := g.All(0, 0, model.NameAsc, ctx, db); err != nil {
+		log.Fatal(err)
+	}
+	for _, x := range g {
+		og := sceners.CleanURL(x.Group.Name)
+		y := helpers.Slug(og)
+		z := sceners.CleanURL(y)
+		assert.Equal(t, og, z, "slug is "+y)
+	}
 }

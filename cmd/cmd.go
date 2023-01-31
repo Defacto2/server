@@ -42,7 +42,6 @@ build	vcs.modified=false
 */
 
 // Command-line arguments handler placeholder.
-// TODO: https://cli.urfave.org/v2/examples/full-api-example/
 func (b *Build) run() (int, error) {
 	app := &cli.App{
 		Name:     "Defacto2 webserver",

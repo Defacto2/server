@@ -13,15 +13,14 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/caarlos0/env"
-	_ "github.com/lib/pq"
-	"go.uber.org/zap"
-
 	"github.com/Defacto2/server/cmd"
 	"github.com/Defacto2/server/handler"
 	"github.com/Defacto2/server/pkg/config"
 	"github.com/Defacto2/server/pkg/logger"
 	"github.com/Defacto2/server/pkg/postgres"
+	"github.com/caarlos0/env"
+	_ "github.com/lib/pq"
+	"go.uber.org/zap"
 )
 
 //go:embed public/texts/defacto2.txt

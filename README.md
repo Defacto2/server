@@ -17,6 +17,18 @@ All configurations and settings for this web server are handled through system e
 https://pkg.go.dev/sort#example-package-SortKeys
 - [ ] Move `OrderBy` params to cookies?
 
+Support Unicode slug URLs as currently the regex removes all non alphanumeric chars.
+
+```
+/*
+Error:      	Not equal:
+            	expected: "Mooñpeople"
+            	actual  : "Moopeople"
+
+				use utf8 lib to detect extended chars?
+*/
+```
+
 ---
 
 ## Developer
@@ -144,6 +156,7 @@ Note, the `release` flag is unused, instead all new releases are compiled using 
 [Follow one of the local installation instructions](https://golangci-lint.run/usage/install/#local-installation).
 
 ```sh
+cd df2server
 golangci-lint run ./...
 ```
 
@@ -155,4 +168,14 @@ golangci-lint run ./...
 cd df2server
 go install mvdan.cc/gofumpt@latest
 gofumpt -l -w .
+```
+
+---
+
+### GCI
+
+```
+cd df2server
+go install github.com/daixiang0/gci@latest
+gci write ./..
 ```

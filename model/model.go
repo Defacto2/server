@@ -39,8 +39,9 @@ func ByteCountByCategory(name string, ctx context.Context, db *sql.DB) (int64, e
 
 // ByteCountByGroup sums the byte filesizes for all the files that match the group name.
 func ByteCountByGroup(name string, ctx context.Context, db *sql.DB) (int64, error) {
+	const stmt = "SELECT SUM(filesize) as size_sum FROM files WHERE group_brand_for = $1"
 	x := null.StringFrom(name)
-	i, err := models.Files(qm.SQL("SELECT SUM(filesize) as size_sum FROM files WHERE group_brand_for = $1", x)).Count(ctx, db)
+	i, err := models.Files(qm.SQL(stmt, x)).Count(ctx, db)
 	if err != nil {
 		return 0, fmt.Errorf("bytecount by group %q: %w", name, err)
 	}
