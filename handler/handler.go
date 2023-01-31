@@ -181,11 +181,11 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
 	ctx, cancel := context.WithTimeout(context.Background(), ShutdownWait)
 	defer func() {
 		const alert = "Detected Ctrl-C, server will shutdown in "
-		c.Log.Sync() // do not check error as there's false positives
+		_ = c.Log.Sync() // do not check error as there's false positives
 		fmt.Printf("\n%s%s", alert, ShutdownWait)
 		count := ShutdownCount
-		const pause = 1 * time.Second
-		for range time.Tick(pause) {
+		pause := time.NewTicker(1 * time.Second)
+		for range pause.C {
 			count--
 			fmt.Printf("\r%s%ds", alert, count)
 			if count <= 0 {
@@ -202,7 +202,7 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
 			c.Log.Fatalf("Server shutdown caused an error: %w.", err)
 		}
 		c.Log.Infoln("Server shutdown complete.")
-		c.Log.Sync()
+		_ = c.Log.Sync()
 		signal.Stop(quit)
 		cancel()
 	}()

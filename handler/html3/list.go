@@ -109,7 +109,7 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	case AllReleases:
 		limit = 1000
 		records, err = order.AllFiles(page, limit, ctx, db)
-		all.Stat(ctx, db)
+		_ = all.Stat(ctx, db)
 		count = all.Count
 	case BySection:
 		limit = 1000
@@ -128,17 +128,17 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	case AsArt:
 		limit = 1000
 		records, err = order.ArtFiles(page, limit, ctx, db)
-		arts.Stat(ctx, db)
+		_ = arts.Stat(ctx, db)
 		count = arts.Count
 	case AsDocuments:
 		limit = 1000
 		records, err = order.DocumentFiles(page, limit, ctx, db)
-		docs.Stat(ctx, db)
+		_ = docs.Stat(ctx, db)
 		count = docs.Count
 	case AsSoftware:
 		limit = 1000
 		records, err = order.SoftwareFiles(page, limit, ctx, db)
-		softs.Stat(ctx, db)
+		_ = softs.Stat(ctx, db)
 		count = softs.Count
 	default:
 		s.log.Warnf("%s: %s", errTag, tt)

@@ -34,9 +34,9 @@ func TestPublished(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			y := null.Int16{int16(tt.args.y), true}
-			m := null.Int16{int16(tt.args.m), true}
-			d := null.Int16{int16(tt.args.d), true}
+			y := null.Int16{Int16: int16(tt.args.y), Valid: true}
+			m := null.Int16{Int16: int16(tt.args.m), Valid: true}
+			d := null.Int16{Int16: int16(tt.args.d), Valid: true}
 			f := models.File{
 				DateIssuedYear:  y,
 				DateIssuedMonth: m,

@@ -95,11 +95,13 @@ func (v *Version) Query() error {
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
+	defer conn.Close()
 	for rows.Next() {
-		rows.Scan(v)
+		if err := rows.Scan(v); err != nil {
+			return err
+		}
 	}
-	rows.Close()
-	conn.Close()
 	return nil
 }
 
