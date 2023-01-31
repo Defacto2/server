@@ -13,6 +13,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/Defacto2/server/api/apiv1"
 	"github.com/Defacto2/server/handler/bootstrap"
 	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/handler/html3"
@@ -42,8 +43,6 @@ func Join(srcs ...map[string]*template.Template) map[string]*template.Template {
 	}
 	return m
 }
-
-//unc TmplHTML3(log *zap.SugaredLogger, fs embed.FS) map[string]*template.Template {
 
 // TemplateRegistry is template registry struct.
 type TemplateRegistry struct {
@@ -125,9 +124,6 @@ func (c Configuration) Controller() *echo.Echo {
 	e.GET("/", func(c echo.Context) error {
 		return bootstrap.Index(nil, c)
 	})
-	// e.GET("/", func(c echo.Context) error {
-	// 	return c.String(http.StatusOK, "Coming soon!")
-	// })
 	e.GET("/file/list", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Coming soon!")
 	})
@@ -140,6 +136,9 @@ func (c Configuration) Controller() *echo.Echo {
 		}
 		return d.HTTPSend(c.Log, x)
 	})
+
+	// Routers => /api/v1
+	_ = apiv1.Routes(e, c.Log)
 
 	// Router => HTTP error handler
 	e.HTTPErrorHandler = c.Import.CustomErrorHandler

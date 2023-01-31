@@ -100,9 +100,6 @@ func main() {
 	}
 	e := c.Controller()
 
-	// Placeholder API example
-	//e.GET("/api/get-filename", api.GetFilename)
-
 	// Start the HTTP server
 	go c.StartHTTP(e)
 
