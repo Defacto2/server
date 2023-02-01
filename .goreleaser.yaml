@@ -47,8 +47,8 @@ changelog:
       - '^test:'
 nfpms:
   - id: deb
-    builds: ['host']
-    package_name: df2-webserver
+    builds: ['server']
+    package_name: df2-server
     file_name_template: "{{ .ConventionalFileName }}"
     vendor: Defacto2
     homepage: https://github.com/Defacto2/server
