@@ -1,5 +1,6 @@
 # This is an example .goreleaser.yml file with some sensible defaults.
 # Make sure to check the documentation at https://goreleaser.com
+project_name: df2-server
 before:
   hooks:
     # You may remove this if you don't use go modules.
@@ -9,32 +10,29 @@ before:
     #- go generate ./...
 builds:
   - id: server_dev
-    binary: server
     env:
       - CGO_ENABLED=0
+    # keep the number of targets to a minimum to improve the build time.
     targets:
       - darwin_arm64
       - darwin_amd64
       - windows_amd64
   - id: server
-    binary: server
     env:
       - CGO_ENABLED=0
-    goos: ['linux']
-    goarch: ['amd64']
+    targets:
+      - linux_amd64
 universal_binaries:
   - replace: true
     ids: ['server_dev']
+    name_template: '{{ tolower .ProjectName }}_{{ tolower .Version }}'
 archives:
-  - format: binary
-    # this name template makes the OS and Arch compatible with the results of uname.
+  - format: zip
     name_template: >-
-      {{ .ProjectName }}_
-      {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
-      {{- if .Arm }}v{{ .Arm }}{{ end }}
+      {{ tolower .ProjectName }}_{{ .Version }}_{{- tolower .Os }}
+    files:
+      - src: public/texts/defacto2.net
+        strip_parent: true
 checksum:
   name_template: 'checksums.txt'
 snapshot:
@@ -60,5 +58,5 @@ nfpms:
       - deb
     dependencies:
       - git
-    bindir: /~/bin # install to user home so it doesn't require root access.
-
+signs:
+  - artifacts: checksum
