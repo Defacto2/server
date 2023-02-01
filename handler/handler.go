@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/api/apiv1"
+	"github.com/Defacto2/server/cmd"
 	"github.com/Defacto2/server/handler/bootstrap"
 	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/handler/html3"
@@ -64,10 +65,12 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c 
 
 // Configuration of the handler.
 type Configuration struct {
-	Import *config.Config     // Import configurations from the host system environment.
-	Log    *zap.SugaredLogger // Log is a sugared logger.
-	Images embed.FS           // Not in use.
-	Views  embed.FS           // Views are Go templates.
+	Import  *config.Config     // Import configurations from the host system environment.
+	Log     *zap.SugaredLogger // Log is a sugared logger.
+	Brand   *[]byte            // Brand points to the Defacto2 ASCII logo.
+	Version string             // Version is the results of GoReleaser build command.
+	Images  embed.FS           // Not in use.
+	Views   embed.FS           // Views are Go templates.
 }
 
 // Controller is the primary instance of the Echo router.
@@ -152,19 +155,29 @@ func (c Configuration) Controller() *echo.Echo {
 func (c *Configuration) StartHTTP(e *echo.Echo) {
 	const mark = `⇨ `
 	w := bufio.NewWriter(os.Stdout)
-
+	// Startup logo
+	if logo := string(*c.Brand); len(logo) > 0 {
+		w := bufio.NewWriter(os.Stdout)
+		if _, err := fmt.Fprintf(w, "%s\n\n", logo); err != nil {
+			c.Log.Warnf("Could not print the brand logo: %s.", err)
+		}
+		w.Flush()
+	}
+	// Legal info
+	fmt.Fprintf(w, "  %s.\n", cmd.Copyright())
 	// Check the database connection
-	var ver postgres.Version
-	if err := ver.Query(); err != nil {
+	var psql postgres.Version
+	if err := psql.Query(); err != nil {
 		c.Log.Warnln("Could not obtain the PostgreSQL server version. Is the database online?")
 	} else {
-		fmt.Fprintf(w, "%sDefacto2 web application %s.\n", mark, ver.String())
+		fmt.Fprintf(w, "%sDefacto2 web application %s %s.\n", mark, cmd.Commit(c.Version), psql.String())
 	}
 	// CPU info
 	fmt.Fprintf(w, "%s%d active routines sharing %d usable threads on %d CPU cores.\n", mark,
 		runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
 	// Go info
-	fmt.Fprintf(w, "%sCompiled with Go %s.\n", mark, runtime.Version()[2:])
+	fmt.Fprintf(w, "%sCompiled with Go %s for %s, %s.\n",
+		mark, runtime.Version()[2:], cmd.OS(), cmd.Arch())
 	// Log location info
 	if c.Import.IsProduction {
 		fmt.Fprintf(w, "%sserver logs are found in: %s\n", mark, c.Import.ConfigDir)
