@@ -33,19 +33,3 @@ sslmode = "disable"
 created = "createdat"
 updated = "updatedat"
 deleted = "deletedat"
-
-# MySQL database connection.
-# [mysql]
-# dbname = "defacto2-inno"
-# host = "localhost"
-# pass = "example"
-# port = 3306
-# sslmode = "false"
-# user = "root"
-
-# [[types]]
-#     [types.match]
-#         type     = "null.String"
-#         nullable = true
-#     [types.replace]
-#         type     = "string"

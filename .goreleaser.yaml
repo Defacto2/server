@@ -7,15 +7,23 @@ before:
     # you may remove this if you don't need go generate
     - go generate ./...
 builds:
-  - env:
+  - id: server_dev
+    binary: server
+    env:
       - CGO_ENABLED=0
     targets:
       - darwin_arm64
       - darwin_amd64
       - windows_amd64
-      - linux_amd64
+  - id: server
+    binary: server
+    env:
+      - CGO_ENABLED=0
+    goos: ['linux']
+    goarch: ['amd64']
 universal_binaries:
   - replace: true
+    ids: ['server_dev']
 archives:
   - format: binary
     # this name template makes the OS and Arch compatible with the results of uname.
@@ -26,10 +34,6 @@ archives:
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
-    # use zip for windows archives
-    # format_overrides:
-    # - goos: windows
-    #   format: zip
 checksum:
   name_template: 'checksums.txt'
 snapshot:
@@ -40,8 +44,20 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+nfpms:
+  - id: deb
+    builds: ['host']
+    package_name: df2-webserver
+    file_name_template: "{{ .ConventionalFileName }}"
+    vendor: Defacto2
+    homepage: https://github.com/Defacto2/server
+    maintainer: Ben Garrett <contact@defacto2.net>
+    description: |-
+      Defacto2 web server installer package.
+    license: Copyright
+    formats:
+      - deb
+    dependencies:
+      - git
+    bindir: /~/bin # install to user home so it doesn't require root access.
 
-# The lines beneath this are called `modelines`. See `:help modeline`
-# Feel free to remove those if you don't want/use them.
-# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
-# vim: set ts=2 sw=2 tw=0 fo=cnqoj

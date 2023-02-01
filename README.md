@@ -9,6 +9,7 @@ All configurations and settings for this web server are handled through system e
 - [ ] All SQL smts need to account for `delete_at`
 `qm.WithDeleted`
 - [ ] Tests for routes and templates.
+- [ ] Move contexts to the start of args.
 
 ### Possible TODOs
 
