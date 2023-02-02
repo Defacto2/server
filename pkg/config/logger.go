@@ -26,7 +26,7 @@ func (cfg Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	var log *zap.SugaredLogger
 	switch cfg.IsProduction {
 	case true:
-		log = logger.Production(cfg.ConfigDir).Sugar()
+		log = logger.Production(cfg.LogDir).Sugar()
 	default:
 		log = logger.Development().Sugar()
 	}
@@ -68,7 +68,7 @@ func (cfg Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 // LogStorage determines the local storage path for all log files created by this web application.
 func (cfg *Config) LogStorage() error {
-	dir := cfg.ConfigDir
+	dir := cfg.LogDir
 	if dir == "" {
 		var err error
 		dir, err = os.UserConfigDir()
@@ -86,7 +86,7 @@ func (cfg *Config) LogStorage() error {
 			return fmt.Errorf("%w: %s", err, logs)
 		}
 	}
-	cfg.ConfigDir = logs
+	cfg.LogDir = logs
 	return nil
 }
 
@@ -95,7 +95,7 @@ func (cfg Config) CustomErrorHandler(err error, c echo.Context) {
 	var log *zap.SugaredLogger
 	switch cfg.IsProduction {
 	case true:
-		log = logger.Production(cfg.ConfigDir).Sugar()
+		log = logger.Production(cfg.LogDir).Sugar()
 	default:
 		log = logger.Development().Sugar()
 	}

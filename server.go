@@ -5,7 +5,6 @@ package main
 
 import (
 	"embed"
-	"log"
 	"os"
 	"runtime"
 
@@ -16,7 +15,6 @@ import (
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/caarlos0/env/v7"
 	_ "github.com/lib/pq"
-	"go.uber.org/zap"
 )
 
 //go:embed public/texts/defacto2.txt
@@ -32,20 +30,23 @@ var images embed.FS
 var version string
 
 func main() {
+	// Logger (use the development log until environment vars are parsed)
+	log := logger.Development().Sugar()
+
 	// Environment configuration
 	configs := config.Config{
+		// hardcoded overrides can go here
 		// IsProduction: true,
 	}
-	if err := env.Parse(&configs, env.Options{
-		Prefix: config.EnvPrefix,
-	}); err != nil {
-		log.Fatalln(err)
+	if err := env.Parse(
+		&configs, env.Options{Prefix: config.EnvPrefix}); err != nil {
+		log.Fatalf("Environment variable probably contains an invalid value: %s.", err)
 	}
 
 	// Command-line arguments
 	// By default the webserver runs when no arguments are provided
 	if code, err := cmd.Run(version, &configs); err != nil {
-		log.Printf("The command given did not work: %s.", err)
+		log.Errorf("The command given did not work: %s.", err)
 		os.Exit(code)
 	} else if code >= 0 {
 		os.Exit(code)
@@ -56,18 +57,18 @@ func main() {
 		runtime.GOMAXPROCS(int(i))
 	}
 
-	// Logger
-	var log *zap.SugaredLogger
 	switch configs.IsProduction {
 	case true:
 		if err := configs.LogStorage(); err != nil {
-			log.Errorf("The server cannot save any logs: %s.", err)
+			log.Fatalf("The server cannot save any logs: %s.", err)
 		}
-		log = logger.Production(configs.ConfigDir).Sugar()
+		log = logger.Production(configs.LogDir).Sugar()
 	default:
-		log = logger.Development().Sugar()
 		log.Debug("The server is running in the development mode.")
 	}
+
+	// Configuration sanity checks
+	configs.Checks(log)
 
 	// Database
 	db, err := postgres.ConnectDB()

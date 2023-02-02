@@ -180,7 +180,7 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 		mark, runtime.Version()[2:], cmd.OS(), cmd.Arch())
 	// Log location info
 	if c.Import.IsProduction {
-		fmt.Fprintf(w, "%sserver logs are found in: %s\n", mark, c.Import.ConfigDir)
+		fmt.Fprintf(w, "%sserver logs are found in: %s\n", mark, c.Import.LogDir)
 	}
 	w.Flush()
 

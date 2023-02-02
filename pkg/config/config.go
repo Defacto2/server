@@ -12,19 +12,15 @@ import (
 
 // Config options for the Defacto2 server.
 type Config struct {
-	IsProduction bool   `env:"PRODUCTION" envDefault:"false" help:"Use production mode to reduce the console feedback"`
+	IsProduction bool   `env:"PRODUCTION" envDefault:"false" help:"Use the production mode to log all errors and warnings to a file"`
 	MaxProcs     uint   `env:"MAXPROCS" envDefault:"0" help:"Limit the number of operating system threads the program can use"`
 	HTTPPort     uint   `env:"PORT" envDefault:"1323" help:"The port number to be used by the HTTP server"`
 	Timeout      uint   `env:"TIMEOUT" envDefault:"5" help:"The timeout value in seconds for the HTTP server"`
-	DownloadDir  string `env:"DOWNLOAD" help:"A directory path that holds the UUID named fields that are served as release downloads"`
+	DownloadDir  string `env:"DOWNLOAD" help:"The directory path that holds the UUID named fields that are served as release downloads"`
 	NoRobots     bool   `env:"NOROBOTS" envDefault:"false" avoid:"true" help:"Tell all search engines to not crawl the website pages or assets"`
 	LogRequests  bool   `env:"REQUESTS" envDefault:"false" avoid:"true" help:"Log all HTTP client requests to a file"`
-	ConfigDir    string `env:"CONFIG" avoid:"true" help:"Overwrite the directory path that will store the program logs"`
+	LogDir       string `env:"LOG" avoid:"true" help:"Overwrite the directory path that will store the program logs"`
 }
-
-const (
-	MaxProcs = "Hello world"
-)
 
 func (c Config) String() string {
 	const (
@@ -32,7 +28,7 @@ func (c Config) String() string {
 		tabwidth = 4
 		padding  = 2
 		padchar  = ' '
-		flags    = 0 //tabwriter.AlignRight
+		flags    = 0
 		h1       = "Environment variable"
 		h2       = "Value"
 		h3       = "Variable"
@@ -97,18 +93,18 @@ func (c Config) String() string {
 
 const EnvPrefix = "DEFACTO2_"
 
-func match(x, y string) string {
-	if x != y {
-		c := color.New(color.FgGreen, color.Bold)
-		return c.Sprint("✓")
-	}
-	return ""
-}
-
 func avoid(x string) string {
 	if x == "true" {
 		c := color.New(color.FgRed, color.Bold)
 		return c.Sprint("✗")
+	}
+	return ""
+}
+
+func match(x, y string) string {
+	if x != y {
+		c := color.New(color.FgGreen, color.Bold)
+		return c.Sprint("✓")
 	}
 	return ""
 }
