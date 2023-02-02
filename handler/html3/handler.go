@@ -3,7 +3,6 @@ package html3
 import (
 	"context"
 	"fmt"
-	"math/big"
 	"net/http"
 	"time"
 
@@ -117,7 +116,7 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger) *echo.Group {
 
 // Index method is the homepage of the /html3 sub-route.
 func (s *sugared) Index(c echo.Context) error {
-	start := latency()
+	start := helpers.Latency()
 	const desc = firefox
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
@@ -164,7 +163,7 @@ func (s *sugared) Index(c echo.Context) error {
 
 // Categories lists the names, descriptions and sums of the category (section) tags.
 func (s *sugared) Categories(c echo.Context) error {
-	start := latency()
+	start := helpers.Latency()
 	err := c.Render(http.StatusOK, "html3_tag", map[string]interface{}{
 		"title":       title + "/categories",
 		"description": "File categories and classification tags.",
@@ -183,7 +182,7 @@ func (s *sugared) Categories(c echo.Context) error {
 
 // Platforms lists the names, descriptions and sums of the platform tags.
 func (s *sugared) Platforms(c echo.Context) error {
-	start := latency()
+	start := helpers.Latency()
 	err := c.Render(http.StatusOK, "html3_tag", map[string]interface{}{
 		"title":       title + "/platforms",
 		"description": "File platforms, operating systems and media types.",
@@ -202,7 +201,7 @@ func (s *sugared) Platforms(c echo.Context) error {
 
 // Groups lists the names and sums of all the distinct scene groups.
 func (s *sugared) Groups(c echo.Context) error {
-	start := latency()
+	start := helpers.Latency()
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -244,12 +243,4 @@ func (s *sugared) Redirection(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
 	}
 	return nil
-}
-
-func latency() *time.Time {
-	start := time.Now()
-	r := new(big.Int)
-	const n, k = 1000, 10
-	r.Binomial(n, k)
-	return &start
 }

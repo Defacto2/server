@@ -76,7 +76,7 @@ func (s *sugared) Software(c echo.Context) error {
 
 // List all the records associated with the RecordsBy grouping.
 func (s *sugared) List(tt RecordsBy, c echo.Context) error {
-	start := latency()
+	start := helpers.Latency()
 	id := c.Param("id")
 
 	count, limit, page := 0, 0, 1
