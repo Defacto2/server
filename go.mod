@@ -4,8 +4,9 @@ go 1.19
 
 require (
 	github.com/Defacto2/sceners v0.0.2
-	github.com/caarlos0/env v3.5.0+incompatible
+	github.com/caarlos0/env/v7 v7.0.0
 	github.com/carlmjohnson/versioninfo v0.22.4
+	github.com/fatih/color v1.13.0
 	github.com/friendsofgo/errors v0.9.2
 	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12
 	github.com/labstack/echo/v4 v4.10.0

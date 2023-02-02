@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/Defacto2/server/pkg/config"
 	"github.com/carlmjohnson/versioninfo"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/text/cases"
@@ -13,22 +14,34 @@ import (
 )
 
 const (
-	Author = "Ben Garrett"              // Author is the primary programmer of this program.
-	Domain = "defacto2.net"             // Domain of the website.
-	Email  = "contact@defacto2.net"     // Email contact for public display.
-	Title  = "Defacto2 web application" // Title of this program.
+	Author  = "Ben Garrett"          // Author is the primary programmer of this program.
+	Domain  = "defacto2.net"         // Domain of the website.
+	Email   = "contact@defacto2.net" // Email contact for public display.
+	Program = "df2-server"
+	Title   = "Defacto2 web application" // Title of this program.
 )
 
 // Run parses optional command line arguments for this program.
-func Run(version string) (int, error) {
+func Run(version string, c *config.Config) (int, error) {
 	if args := len(os.Args[1:]); args > 0 {
-		return run(version)
+		return run(version, c)
 	}
 	return -1, nil
 }
 
-func run(version string) (int, error) {
+func run(version string, c *config.Config) (int, error) {
 	app := &cli.App{
+		Commands: []*cli.Command{
+			{
+				Name:    "configs",
+				Aliases: []string{"c"},
+				Usage:   "List the environment variables used for configuration",
+				Action: func(ctx *cli.Context) error {
+					fmt.Printf("\n%s\n", c.String())
+					return nil
+				},
+			},
+		},
 		Name:     Title,
 		Version:  Commit(version),
 		Compiled: versioninfo.LastCommit,
@@ -39,10 +52,8 @@ func run(version string) (int, error) {
 			},
 		},
 		Copyright: Copyright(),
-		HelpName:  "server",
+		HelpName:  Program,
 		Usage:     "Serve the Defacto2 website",
-		UsageText: "server [options]",
-		ArgsUsage: "[args]",
 	}
 	app.EnableBashCompletion = true
 	app.HideHelp = false

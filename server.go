@@ -14,7 +14,7 @@ import (
 	"github.com/Defacto2/server/pkg/config"
 	"github.com/Defacto2/server/pkg/logger"
 	"github.com/Defacto2/server/pkg/postgres"
-	"github.com/caarlos0/env"
+	"github.com/caarlos0/env/v7"
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 )
@@ -36,13 +36,15 @@ func main() {
 	configs := config.Config{
 		// IsProduction: true,
 	}
-	if err := env.Parse(&configs); err != nil {
+	if err := env.Parse(&configs, env.Options{
+		Prefix: config.EnvPrefix,
+	}); err != nil {
 		log.Fatalln(err)
 	}
 
 	// Command-line arguments
 	// By default the webserver runs when no arguments are provided
-	if code, err := cmd.Run(version); err != nil {
+	if code, err := cmd.Run(version, &configs); err != nil {
 		log.Printf("The command given did not work: %s.", err)
 		os.Exit(code)
 	} else if code >= 0 {

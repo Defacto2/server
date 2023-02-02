@@ -6,7 +6,7 @@ All configurations and settings for this web server are handled through system e
 
 ### TODOs
 
-- [ ] All SQL smts need to account for `delete_at`
+- [ ] All SQL stmts need to account for `delete_at`
 `qm.WithDeleted`
 - [ ] Tests for routes and templates.
 - [ ] Move contexts to the start of args.
@@ -32,7 +32,28 @@ Error:      	Not equal:
 
 ---
 
-## Developer
+## Install on Debian/Ubuntu
+
+The following instructions uses the Debian packages management tool, `dpkg` to install the server software.
+
+```sh
+# Download the Debian package
+wget https://github.com/Defacto2/server/releases/latest/download/df2-server_0.0.7_amd64.deb # todo need to rename
+
+# Install (or update) the server
+dpkg -i df2-server_0.0.7_amd64.deb
+
+# Test the server
+df2-server --version
+df2-server --help
+
+# Start the server in the developer mode
+df2-server
+```
+
+---
+
+## Edit the code
 
 This web server is dependancy free and built in Go. 
 The server expects a local PostgreSQL server containing the Defacto2 database running on port `5432`.
