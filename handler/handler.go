@@ -152,6 +152,7 @@ func (c Configuration) Controller() *echo.Echo {
 	return e
 }
 
+// StartHTTP starts the HTTP web server.
 func (c *Configuration) StartHTTP(e *echo.Echo) {
 	const mark = `⇨ `
 	w := bufio.NewWriter(os.Stdout)
@@ -192,8 +193,10 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 	// nothing should be placed here
 }
 
+// ShutdownHTTP waits for a Ctrl-C keyboard press to initiate a graceful shutdown of the HTTP web server.
+// The shutdown procedure occurs a few seconds after the key press.
 func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
-	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 5 seconds.
+	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit

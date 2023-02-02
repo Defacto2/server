@@ -30,7 +30,7 @@ var images embed.FS
 var version string
 
 func main() {
-	// Logger (use the development log until environment vars are parsed)
+	// Logger (use the development log until the environment vars are parsed)
 	log := logger.Development().Sugar()
 
 	// Environment configuration
@@ -44,11 +44,12 @@ func main() {
 	}
 
 	// Command-line arguments
-	// By default the webserver runs when no arguments are provided
+	// By default the web server runs when no arguments are provided
+	const exitProgram = 0
 	if code, err := cmd.Run(version, &configs); err != nil {
 		log.Errorf("The command given did not work: %s.", err)
 		os.Exit(code)
-	} else if code >= 0 {
+	} else if code >= exitProgram {
 		os.Exit(code)
 	}
 
@@ -57,6 +58,7 @@ func main() {
 		runtime.GOMAXPROCS(int(i))
 	}
 
+	// Setup the logger
 	switch configs.IsProduction {
 	case true:
 		if err := configs.LogStorage(); err != nil {
@@ -81,7 +83,7 @@ func main() {
 	// They should be lockable.
 
 	// Echo router/controller instance
-	c := handler.Configuration{
+	server := handler.Configuration{
 		Import:  &configs,
 		Log:     log,
 		Brand:   &brand,
@@ -89,11 +91,11 @@ func main() {
 		Images:  images,
 		Views:   views,
 	}
-	e := c.Controller()
+	e := server.Controller()
 
 	// Start the HTTP server
-	go c.StartHTTP(e)
+	go server.StartHTTP(e)
 
 	// Gracefully shutdown the HTTP server
-	c.ShutdownHTTP(e)
+	server.ShutdownHTTP(e)
 }
