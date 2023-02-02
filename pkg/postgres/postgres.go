@@ -13,7 +13,12 @@ import (
 )
 
 const (
+	// Name of the database driver.
 	Name = "postgres"
+	// Counter is a partial SQL statement to count the number of records.
+	Counter = "COUNT(*) AS counter"
+	// SumSize is a partial SQL statement to sum the filesize values of multiple records.
+	SumSize = "SUM(filesize) AS size_sum"
 )
 
 // Connection details of the PostgreSQL database connection.
@@ -118,4 +123,39 @@ func (v *Version) String() string {
 		return fmt.Sprintf("using %s", strings.Join(x[0:2], " "))
 	}
 	return s
+}
+
+// SQLGroupStat is an SQL statement to select all the unique groups.
+func SQLGroupStat() string {
+	return "SELECT DISTINCT group_brand FROM files " +
+		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(group_brand) " +
+		"WHERE NULLIF(group_brand, '') IS NOT NULL " + // handle empty and null values
+		"GROUP BY group_brand"
+}
+
+// SQLGroupAll is an SQL statement to collect statistics for each of the unique groups.
+func SQLGroupAll() string {
+	return "SELECT DISTINCT group_brand, " +
+		"COUNT(group_brand) AS count, " +
+		"SUM(files.filesize) AS size_sum " +
+		"FROM files " +
+		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(group_brand) " +
+		"WHERE NULLIF(group_brand, '') IS NOT NULL " + // handle empty and null values
+		"GROUP BY group_brand " +
+		"ORDER BY group_brand ASC"
+}
+
+// SQLSumSection is an SQL statement to sum the filesizes of records matching the section.
+func SQLSumSection() string {
+	return "SELECT SUM(files.filesize) FROM files WHERE section = $1"
+}
+
+// SQLSumGroup is an SQL statement to sum the filesizes of records matching the group.
+func SQLSumGroup() string {
+	return "SELECT SUM(filesize) as size_sum FROM files WHERE group_brand_for = $1"
+}
+
+// SQLSumPlatform is an SQL statement to sum the filesizes of records matching the platform.
+func SQLSumPlatform() string {
+	return "SELECT sum(filesize) FROM files WHERE platform = $1"
 }
