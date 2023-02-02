@@ -1,7 +1,6 @@
 package helpers_test
 
 import (
-	"strconv"
 	"testing"
 
 	"github.com/Defacto2/server/pkg/helpers"
@@ -14,9 +13,9 @@ func TestPageCount(t *testing.T) {
 		limit int
 	}
 	tests := []struct {
-		name  string
-		args  args
-		want1 uint
+		name string
+		args args
+		want uint
 	}{
 		{"-1", args{-1, -1}, 0},
 		{"0", args{0, 500}, 0},
@@ -29,10 +28,7 @@ func TestPageCount(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := helpers.PageCount(tt.args.sum, tt.args.limit)
-			if got != tt.want1 {
-				t.Errorf("PageCount() got = %v, want %v", got, tt.want1)
-			}
+			assert.Equal(t, tt.want, helpers.PageCount(tt.args.sum, tt.args.limit))
 		})
 	}
 }
@@ -40,7 +36,27 @@ func TestPageCount(t *testing.T) {
 func TestObfuscates(t *testing.T) {
 	keys := []int{1, 1000, 1236346, -123, 0}
 	for _, key := range keys {
-		s := helpers.ObfuscateParam(strconv.Itoa(key))
+		s := helpers.Obfuscate(int64(key))
 		assert.Equal(t, key, helpers.Deobfuscate(s))
+	}
+}
+
+// https://defacto2.net/f/ab27b2e
+
+func TestDeobfuscateURL(t *testing.T) {
+	tests := []struct {
+		name   string
+		rawURL string
+		want   int
+	}{
+		{"record", "https://defacto2.net/f/ab27b2e", 13526},
+		{"download", "https://defacto2.net/d/ab27b2e", 13526},
+		{"query", "https://defacto2.net/f/ab27b2e?blahblahblah", 13526},
+		{"typo", "https://defacto2.net/f/ab27b2", 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, helpers.DeobfuscateURL(tt.rawURL))
+		})
 	}
 }

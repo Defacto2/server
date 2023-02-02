@@ -5,112 +5,122 @@ package helpers
 import (
 	"fmt"
 	"math"
+	"net/url"
 	"path"
 	"strconv"
-	"strings"
 )
 
-// Deobfuscate a public facing, obfuscated file ID or file URL.
-// A URL can point to a Defacto2 file download or detail page.
-func Deobfuscate(s string) int {
-	p := strings.Split(s, "?")
-	d := deobfuscate(path.Base(p[0]))
-	id, _ := strconv.Atoi(d)
-	return id
+const (
+	hexadecimal  = 16
+	obfuscateXOR = 461
+	obfuscateSum = 154
+)
+
+// Deobfuscate an obfuscated ID to return the primary key of the record.
+// Returns a 0 if the id is not valid.
+func Deobfuscate(id string) int {
+	key, _ := strconv.Atoi(deobfuscate(id))
+	return key
 }
 
-// deObfuscate de-obfuscates a CFWheels obfuscateParam or Obfuscate() obfuscated string.
+// Deobfuscate an obfuscated record URL to return a record's primary key.
+// A URL can point to a Defacto2 record download or detail page.
+// Returns a 0 if the URL is not valid.
+func DeobfuscateURL(rawURL string) int {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return 0
+	}
+	return Deobfuscate(path.Base(u.Path))
+}
+
+// Deobfuscate the obfuscated string, or return the original string.
+// This is a port of a CFWheels framework function programmed in Coldfusion (CFML).
+// See: https://github.com/cfwheels/cfwheels/blob/cf8e6da4b9a216b642862e7205345dd5fca34b54/wheels/global/misc.cfm#L508
 func deobfuscate(s string) string {
-	const twoChrs, decimal, hexadecimal = 2, 10, 16
-	// CFML source:
-	// https://github.com/cfwheels/cfwheels/blob/cf8e6da4b9a216b642862e7205345dd5fca34b54/wheels/global/misc.cfm
-	if _, err := strconv.Atoi(s); err == nil || len(s) < twoChrs {
+	const checksum, decimal = 2, 10
+	if len(s) < checksum {
 		return s
 	}
-	// deobfuscate string.
-	tail := s[twoChrs:]
-	n, err := strconv.ParseInt(tail, hexadecimal, 0)
+	if i, _ := strconv.Atoi(s); i > 0 {
+		return s
+	}
+	// deobfuscate string
+	num, err := strconv.ParseInt(s[checksum:], hexadecimal, 0)
 	if err != nil {
 		return s
 	}
-
-	n ^= 461 // bitxor
-	ns := strconv.Itoa(int(n))
-	l := len(ns) - 1
-	tail = ""
-
+	num ^= 461
+	baseNum := strconv.Itoa(int(num))
+	l := len(baseNum) - 1
+	value := ""
 	for i := 0; i < l; i++ {
-		f := ns[l-i:][:1]
-		tail += f
+		f := baseNum[l-i:][:1]
+		value += f
 	}
-	// Create checks.
-	ct := 0
-	l = len(tail)
-
+	// create checks
+	l = len(value)
+	chksumTest := 0
 	for i := 0; i < l; i++ {
-		chr := tail[i : i+1]
+		chr := value[i : i+1]
 		n, err1 := strconv.Atoi(chr)
-
 		if err1 != nil {
 			return s
 		}
-
-		ct += n
+		chksumTest += n
 	}
-	// Run checks.
-	ci, err := strconv.ParseInt(s[:2], hexadecimal, 0)
+	// run checks
+	chksum, err := strconv.ParseInt(s[:2], hexadecimal, 0)
 	if err != nil {
 		return s
 	}
-
-	c2 := strconv.FormatInt(ci, decimal)
-
-	const unknown = 154
-
-	if strconv.FormatInt(int64(ct+unknown), decimal) != c2 {
+	chksumX := strconv.FormatInt(chksum, decimal)
+	chksumY := strconv.FormatInt(int64(chksumTest+obfuscateXOR), decimal)
+	if err := chksumX != chksumY; err {
 		return s
 	}
-
-	return tail
+	return value
 }
 
-// ObfuscateParam hides the param value using the method implemented in CFWheels obfuscateParam() helper.
-func ObfuscateParam(param string) string {
-	if param == "" {
-		return ""
+// Obfuscates the primary key of a record as a string that is used as a URL param or path.
+func Obfuscate(key int64) string {
+	return obfuscate(uint(key))
+}
+
+// obfuscate returns the value of i as an obfuscatated string.
+// This is a port of a CFWheels framework function programmed in Coldfusion (CFML).
+// See: https://github.com/cfwheels/cfwheels/blob/cf8e6da4b9a216b642862e7205345dd5fca34b54/wheels/global/misc.cfm#L483
+func obfuscate(i uint) string {
+	s := strconv.Itoa(int(i))
+	// confirm the first digit of i isn't a zero
+	if s[0] == '0' {
+		return s
 	}
-	// check to make sure param doesn't begin with a 0 digit
-	if param[0] == '0' {
-		return param
-	}
-	pint, err := strconv.Atoi(param)
+	reverse, err := ReverseInt(i)
 	if err != nil {
-		return param
+		return s
 	}
-	l := len(param)
-	r, err := ReverseInt(uint(pint))
-	if err != nil {
-		return param
-	}
-	afloat64 := math.Pow10(l) + float64(r)
-	// keep a and b as int type
-	a, b := int(afloat64), 0
+	l := len(s)
+	a := int(math.Pow10(l) + float64(reverse))
+	b := 0
 	for i := 1; i <= l; i++ {
-		// slice individual digits from param and sum them
-		s, err := strconv.Atoi(string(param[l-i]))
+		// slice and sum the individual digits
+		digit, err := strconv.Atoi(string(s[l-i]))
 		if err != nil {
-			return param
+			return s
 		}
-		b += s
+		b += digit
 	}
-	// base 64 conversion
-	const hex, xor, sum = 16, 461, 154
-	a ^= xor
-	b += sum
-	return strconv.FormatInt(int64(b), hex) + strconv.FormatInt(int64(a), hex)
+	// base64 conversion
+	a ^= obfuscateXOR
+	b += obfuscateSum
+	return fmt.Sprintf("%s%s",
+		strconv.FormatInt(int64(b), hexadecimal),
+		strconv.FormatInt(int64(a), hexadecimal),
+	)
 }
 
-// ReverseInt swaps the direction of the value, 12345 would return 54321.
+// ReverseInt swaps the direction of the i value, 12345 would return 54321.
 func ReverseInt(i uint) (uint, error) {
 	var (
 		n int

@@ -14,9 +14,12 @@ import (
 	"golang.org/x/text/language"
 )
 
-const Eraseline = "\x1b[2K"
+const (
+	// Eraseline is an ANSI escape control to erase the active line of the terminal.
+	Eraseline = "\x1b[2K"
 
-const byteUnits = "kMGTPE"
+	byteUnits = "kMGTPE"
+)
 
 // ByteCount formats b as in a compact, human-readable unit of measure.
 func ByteCount(b int64) string {
