@@ -5,16 +5,14 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-const (
-	SumSize = "SUM(filesize) AS size_sum"
-	Counter = "COUNT(*) AS counter"
-	From    = "files"
-)
+// From is the name of the table containing records of files.
+const From = "files"
 
 // One returns the record associated with the key ID.
 func One(key int, ctx context.Context, db *sql.DB) (*models.File, error) {
@@ -28,9 +26,7 @@ func One(key int, ctx context.Context, db *sql.DB) (*models.File, error) {
 // ByteCountByCategory sums the byte filesizes for all the files that match the category name.
 func ByteCountByCategory(name string, ctx context.Context, db *sql.DB) (int64, error) {
 	i, err := models.Files(
-		qm.SQL("SELECT sum(files.filesize) FROM files WHERE section = $1",
-			null.StringFrom(name)),
-	).Count(ctx, db)
+		qm.SQL(postgres.SQLSumSection(), null.StringFrom(name))).Count(ctx, db)
 	if err != nil {
 		return 0, fmt.Errorf("bytecount by section %q: %w", name, err)
 	}
@@ -39,9 +35,8 @@ func ByteCountByCategory(name string, ctx context.Context, db *sql.DB) (int64, e
 
 // ByteCountByGroup sums the byte filesizes for all the files that match the group name.
 func ByteCountByGroup(name string, ctx context.Context, db *sql.DB) (int64, error) {
-	const stmt = "SELECT SUM(filesize) as size_sum FROM files WHERE group_brand_for = $1"
 	x := null.StringFrom(name)
-	i, err := models.Files(qm.SQL(stmt, x)).Count(ctx, db)
+	i, err := models.Files(qm.SQL(postgres.SQLSumGroup(), x)).Count(ctx, db)
 	if err != nil {
 		return 0, fmt.Errorf("bytecount by group %q: %w", name, err)
 	}
@@ -50,10 +45,7 @@ func ByteCountByGroup(name string, ctx context.Context, db *sql.DB) (int64, erro
 
 // ByteCountByPlatform sums the byte filesizes for all the files that match the category name.
 func ByteCountByPlatform(name string, ctx context.Context, db *sql.DB) (int64, error) {
-	i, err := models.Files(
-		qm.SQL("SELECT sum(filesize) FROM files WHERE platform = $1",
-			null.StringFrom(name)),
-	).Count(ctx, db)
+	i, err := models.Files(qm.SQL(postgres.SQLSumPlatform(), null.StringFrom(name))).Count(ctx, db)
 	if err != nil {
 		return 0, fmt.Errorf("bytecount by platform %q: %w", name, err)
 	}

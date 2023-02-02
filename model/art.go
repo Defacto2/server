@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/Defacto2/server/pkg/tags"
 	"github.com/volatiletech/null/v8"
@@ -22,7 +23,7 @@ func (a *Arts) Stat(ctx context.Context, db *sql.DB) error {
 		return nil
 	}
 	return models.NewQuery(
-		qm.Select(SumSize, Counter),
+		qm.Select(postgres.SumSize, postgres.Counter),
 		ArtExpr(),
 		qm.From(From)).Bind(ctx, db, a)
 }

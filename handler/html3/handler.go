@@ -79,11 +79,11 @@ var Stats struct { //nolint:gochecknoglobals
 	All      model.All
 	Art      model.Arts
 	Document model.Docs
-	Group    model.Groups
+	Group    model.GroupStats
 	Software model.Softs
 }
 
-var Groups model.GroupS //nolint:gochecknoglobals
+var Groups model.Groups //nolint:gochecknoglobals
 
 // Routes for the /html3 sub-route group.
 // Any errors are logged and rendered to the client using HTTP codes

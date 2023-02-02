@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -20,6 +21,6 @@ func (a *All) Stat(ctx context.Context, db *sql.DB) error {
 		return nil
 	}
 	return models.NewQuery(
-		qm.Select(SumSize, Counter),
+		qm.Select(postgres.SumSize, postgres.Counter),
 		qm.From(From)).Bind(ctx, db, a)
 }

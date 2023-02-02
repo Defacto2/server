@@ -21,7 +21,7 @@ func TestAllSlugs(t *testing.T) {
 	}
 	defer db.Close()
 
-	var g model.GroupS
+	var g model.Groups
 	if err := g.All(0, 0, model.NameAsc, ctx, db); err != nil {
 		log.Fatal(err)
 	}

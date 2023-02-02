@@ -5,26 +5,23 @@ import (
 	"database/sql"
 
 	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// Groups contain statistics for releases that could be considered as digital or pixel art.
-type Groups struct {
-	Bytes int `boil:"size_sum"` // Unused.
+// GroupStats are statistics of the unique groups.
+type GroupStats struct {
 	Count int `boil:"counter"`
 }
 
 // Stat counts the total number of unique groups.
-func (g *Groups) Stat(ctx context.Context, db *sql.DB) error {
+func (g *GroupStats) Stat(ctx context.Context, db *sql.DB) error {
 	if g.Count > 0 {
 		return nil
 	}
-	r, err := models.Files(qm.SQL("SELECT DISTINCT group_brand FROM files "+
-		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(group_brand) "+
-		"WHERE NULLIF(group_brand, '') IS NOT NULL "+ // handle empty and null values
-		"GROUP BY group_brand")).All(ctx, db)
+	r, err := models.Files(qm.SQL(postgres.SQLGroupStat())).All(ctx, db)
 	if err != nil {
 		return err
 	}
@@ -39,24 +36,16 @@ type Group struct {
 	Count int    `boil:"count"`
 }
 
-type GroupS []*struct {
+type Groups []*struct {
 	Group Group `boil:",bind"`
 }
 
 // All the names and statistics of the unique groups.
-func (g *GroupS) All(offset, limit int, o Order, ctx context.Context, db *sql.DB) error {
+func (g *Groups) All(offset, limit int, o Order, ctx context.Context, db *sql.DB) error {
 	if len(*g) > 0 {
 		return nil
 	}
-	query := "SELECT DISTINCT group_brand, " +
-		"COUNT(group_brand) AS count, " +
-		"SUM(files.filesize) AS size_sum " +
-		"FROM files " +
-		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(group_brand) " +
-		"WHERE NULLIF(group_brand, '') IS NOT NULL " + // handle empty and null values
-		"GROUP BY group_brand " +
-		"ORDER BY group_brand ASC"
-	if err := queries.Raw(query).Bind(ctx, db, g); err != nil {
+	if err := queries.Raw(postgres.SQLGroupAll()).Bind(ctx, db, g); err != nil {
 		return err
 	}
 	g.Slugs()
@@ -64,7 +53,7 @@ func (g *GroupS) All(offset, limit int, o Order, ctx context.Context, db *sql.DB
 }
 
 // Slugs saves URL friendly strings to the Group names.
-func (g *GroupS) Slugs() {
+func (g *Groups) Slugs() {
 	for _, group := range *g {
 		group.Group.URI = helpers.Slug(group.Group.Name)
 	}
