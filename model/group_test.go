@@ -22,7 +22,7 @@ func TestAllSlugs(t *testing.T) {
 	defer db.Close()
 
 	var g model.Groups
-	if err := g.All(0, 0, model.NameAsc, ctx, db); err != nil {
+	if err := g.All(ctx, db, 0, 0, model.NameAsc); err != nil {
 		log.Fatal(err)
 	}
 	for _, x := range g {

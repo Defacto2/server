@@ -15,7 +15,7 @@ import (
 const From = "files"
 
 // One returns the record associated with the key ID.
-func One(key int, ctx context.Context, db *sql.DB) (*models.File, error) {
+func One(ctx context.Context, db *sql.DB, key int) (*models.File, error) {
 	file, err := models.Files(models.FileWhere.ID.EQ(int64(key))).One(ctx, db)
 	if err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func One(key int, ctx context.Context, db *sql.DB) (*models.File, error) {
 }
 
 // ByteCountByCategory sums the byte filesizes for all the files that match the category name.
-func ByteCountByCategory(name string, ctx context.Context, db *sql.DB) (int64, error) {
+func ByteCountByCategory(ctx context.Context, db *sql.DB, name string) (int64, error) {
 	i, err := models.Files(
 		qm.SQL(postgres.SQLSumSection(), null.StringFrom(name))).Count(ctx, db)
 	if err != nil {
@@ -34,7 +34,7 @@ func ByteCountByCategory(name string, ctx context.Context, db *sql.DB) (int64, e
 }
 
 // ByteCountByGroup sums the byte filesizes for all the files that match the group name.
-func ByteCountByGroup(name string, ctx context.Context, db *sql.DB) (int64, error) {
+func ByteCountByGroup(ctx context.Context, db *sql.DB, name string) (int64, error) {
 	x := null.StringFrom(name)
 	i, err := models.Files(qm.SQL(postgres.SQLSumGroup(), x)).Count(ctx, db)
 	if err != nil {
@@ -44,7 +44,7 @@ func ByteCountByGroup(name string, ctx context.Context, db *sql.DB) (int64, erro
 }
 
 // ByteCountByPlatform sums the byte filesizes for all the files that match the category name.
-func ByteCountByPlatform(name string, ctx context.Context, db *sql.DB) (int64, error) {
+func ByteCountByPlatform(ctx context.Context, db *sql.DB, name string) (int64, error) {
 	i, err := models.Files(qm.SQL(postgres.SQLSumPlatform(), null.StringFrom(name))).Count(ctx, db)
 	if err != nil {
 		return 0, fmt.Errorf("bytecount by platform %q: %w", name, err)
@@ -53,13 +53,13 @@ func ByteCountByPlatform(name string, ctx context.Context, db *sql.DB) (int64, e
 }
 
 // CountByCategory counts the files that match the named category.
-func CountByCategory(name string, ctx context.Context, db *sql.DB) (int64, error) {
+func CountByCategory(ctx context.Context, db *sql.DB, name string) (int64, error) {
 	x := null.StringFrom(name)
 	return models.Files(models.FileWhere.Section.EQ(x)).Count(ctx, db)
 }
 
 // CountByPlatform counts the files that match the named category.
-func CountByPlatform(name string, ctx context.Context, db *sql.DB) (int64, error) {
+func CountByPlatform(ctx context.Context, db *sql.DB, name string) (int64, error) {
 	x := null.StringFrom(name)
 	return models.Files(models.FileWhere.Platform.EQ(x)).Count(ctx, db)
 }

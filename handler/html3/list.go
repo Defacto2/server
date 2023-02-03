@@ -108,36 +108,36 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	switch tt {
 	case AllReleases:
 		limit = 1000
-		records, err = order.AllFiles(page, limit, ctx, db)
+		records, err = order.AllFiles(ctx, db, page, limit)
 		_ = all.Stat(ctx, db)
 		count = all.Count
 	case BySection:
 		limit = 1000
-		records, err = order.FilesByCategory(id, page, limit, ctx, db)
-		x, _ := model.CountByCategory(id, ctx, db)
+		records, err = order.FilesByCategory(ctx, db, page, limit, id)
+		x, _ := model.CountByCategory(ctx, db, id)
 		count = int(x)
 	case ByPlatform:
 		limit = 1000
-		records, err = order.FilesByPlatform(id, ctx, db)
-		x, _ := model.CountByPlatform(id, ctx, db)
+		records, err = order.FilesByPlatform(ctx, db, id)
+		x, _ := model.CountByPlatform(ctx, db, id)
 		count = int(x)
 	case ByGroup:
 		// ByGroups do not need a pagination limit.
-		records, err = order.FilesByGroup(name, ctx, db)
+		records, err = order.FilesByGroup(ctx, db, name)
 		count = len(records)
 	case AsArt:
 		limit = 1000
-		records, err = order.ArtFiles(page, limit, ctx, db)
+		records, err = order.ArtFiles(ctx, db, page, limit)
 		_ = arts.Stat(ctx, db)
 		count = arts.Count
 	case AsDocuments:
 		limit = 1000
-		records, err = order.DocumentFiles(page, limit, ctx, db)
+		records, err = order.DocumentFiles(ctx, db, page, limit)
 		_ = docs.Stat(ctx, db)
 		count = docs.Count
 	case AsSoftware:
 		limit = 1000
-		records, err = order.SoftwareFiles(page, limit, ctx, db)
+		records, err = order.SoftwareFiles(ctx, db, page, limit)
 		_ = softs.Stat(ctx, db)
 		count = softs.Count
 	default:
@@ -156,11 +156,11 @@ func (s *sugared) List(tt RecordsBy, c echo.Context) error {
 	var byteSum int64
 	switch tt {
 	case BySection:
-		byteSum, err = model.ByteCountByCategory(id, ctx, db)
+		byteSum, err = model.ByteCountByCategory(ctx, db, id)
 	case ByPlatform:
-		byteSum, err = model.ByteCountByPlatform(id, ctx, db)
+		byteSum, err = model.ByteCountByPlatform(ctx, db, id)
 	case ByGroup:
-		byteSum, err = model.ByteCountByGroup(name, ctx, db)
+		byteSum, err = model.ByteCountByGroup(ctx, db, name)
 	case AllReleases:
 		byteSum = int64(all.Bytes)
 	case AsArt:

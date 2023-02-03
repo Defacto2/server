@@ -55,13 +55,13 @@ func orderClauses() map[Order]string {
 }
 
 // AllFiles returns all of the file records.
-func (o Order) AllFiles(offset, limit int, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (o Order) AllFiles(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	return models.Files(qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
 }
 
 // FilesByCategory returns all the files that match the named category.
-func (o Order) FilesByCategory(name string, offset, limit int, ctx context.Context, db *sql.DB) (models.FileSlice, error) { //nolint:lll
+func (o Order) FilesByCategory(ctx context.Context, db *sql.DB, offset, limit int, name string) (models.FileSlice, error) { //nolint:lll
 	x := null.StringFrom(name)
 	if limit == 0 {
 		return models.Files(models.FileWhere.Section.EQ(x), qm.OrderBy(o.String())).All(ctx, db)
@@ -71,20 +71,20 @@ func (o Order) FilesByCategory(name string, offset, limit int, ctx context.Conte
 }
 
 // FilesByPlatform returns all the files that match the named platform.
-func (o Order) FilesByPlatform(name string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (o Order) FilesByPlatform(ctx context.Context, db *sql.DB, name string) (models.FileSlice, error) {
 	x := null.StringFrom(name)
 	return models.Files(models.FileWhere.Platform.EQ(x), qm.OrderBy(o.String())).All(ctx, db)
 }
 
 // FilesByGroup returns all the files that match an exact named group.
-func (o Order) FilesByGroup(name string, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (o Order) FilesByGroup(ctx context.Context, db *sql.DB, name string) (models.FileSlice, error) {
 	x := null.StringFrom(name)
 	// group_brand_for
 	return models.Files(models.FileWhere.GroupBrandFor.EQ(x), qm.OrderBy(o.String())).All(ctx, db)
 }
 
 // ArtFiles returns all the files that could be considered as digital or pixel art.
-func (o Order) ArtFiles(offset, limit int, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (o Order) ArtFiles(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if limit == 0 {
 		return models.Files(SelectHTML3(), ArtExpr(), qm.OrderBy(o.String())).All(ctx, db)
 	}
@@ -93,7 +93,7 @@ func (o Order) ArtFiles(offset, limit int, ctx context.Context, db *sql.DB) (mod
 }
 
 // DocumentFiles returns all the files that  are considered to be documents.
-func (o Order) DocumentFiles(offset, limit int, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (o Order) DocumentFiles(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if limit == 0 {
 		return models.Files(DocumentExpr(), qm.OrderBy(o.String())).All(ctx, db)
 	}
@@ -102,7 +102,7 @@ func (o Order) DocumentFiles(offset, limit int, ctx context.Context, db *sql.DB)
 }
 
 // SoftwareFiles returns all the files that  are considered to be software.
-func (o Order) SoftwareFiles(offset, limit int, ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (o Order) SoftwareFiles(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if limit == 0 {
 		return models.Files(SoftwareExpr(), qm.OrderBy(o.String())).All(ctx, db)
 	}

@@ -21,7 +21,7 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger) *echo.Group {
 	g := e.Group("api/v1")
 	g.GET("/files", func(c echo.Context) error {
 		const limit = 1000
-		all, err := model.PostAsc.AllFiles(0, limit, ctx, db)
+		all, err := model.PostAsc.AllFiles(ctx, db, 0, limit)
 		if err != nil {
 			return err
 		}
@@ -32,7 +32,7 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger) *echo.Group {
 		if err != nil {
 			return c.JSON(http.StatusNotAcceptable, "")
 		}
-		one, err := model.One(key, ctx, db)
+		one, err := model.One(ctx, db, key)
 		if err != nil {
 			return c.JSON(http.StatusNotFound, "")
 		}

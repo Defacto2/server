@@ -41,7 +41,7 @@ type Groups []*struct {
 }
 
 // All the names and statistics of the unique groups.
-func (g *Groups) All(offset, limit int, o Order, ctx context.Context, db *sql.DB) error {
+func (g *Groups) All(ctx context.Context, db *sql.DB, offset, limit int, o Order) error {
 	if len(*g) > 0 {
 		return nil
 	}

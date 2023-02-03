@@ -43,7 +43,7 @@ func (d Download) HTTPSend(log *zap.SugaredLogger, c echo.Context) error {
 		return echo.NewHTTPError(http.StatusServiceUnavailable, dbdown)
 	}
 	defer db.Close()
-	res, err := model.One(id, ctx, db)
+	res, err := model.One(ctx, db, id)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusServiceUnavailable, dbdown)
 	}

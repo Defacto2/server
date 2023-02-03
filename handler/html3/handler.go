@@ -208,7 +208,7 @@ func (s *sugared) Groups(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, errConn)
 	}
 	defer db.Close()
-	if err := Groups.All(0, 0, model.NameAsc, ctx, db); err != nil {
+	if err := Groups.All(ctx, db, 0, 0, model.NameAsc); err != nil {
 		s.log.Errorf("%s: %s %d", errConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
