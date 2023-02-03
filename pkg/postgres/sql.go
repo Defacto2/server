@@ -17,7 +17,7 @@ type Version string // Version of the PostgreSQL in use.
 
 // Query the database version.
 func (v *Version) Query() error {
-	conn, err := ConnectDB(DriverPGX)
+	conn, err := ConnectDB()
 	if err != nil {
 		return err
 	}
