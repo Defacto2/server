@@ -19,6 +19,7 @@ All configurations and settings for this web server are handled through system e
 [DIR] Addiction In Releasing                       3    19k
 ```
 
+- [ ] Run an automated test to confirm 200 status for all routes. Run this on startup using a defer func?
 - [ ] All SQL stmts need to account for `delete_at`
 `qm.WithDeleted`
 - [ ] Tests for routes and templates.

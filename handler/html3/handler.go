@@ -171,7 +171,7 @@ func (s *sugared) Categories(c echo.Context) error {
 		"path":        "category",
 		"tagFirst":    tags.FirstCategory,
 		"tagEnd":      tags.LastCategory,
-		"tags":        tags.Names,
+		"tags":        tags.Names(),
 	})
 	if err != nil {
 		s.log.Errorf("%s: %s %d", errTmpl, err)
@@ -190,7 +190,7 @@ func (s *sugared) Platforms(c echo.Context) error {
 		"path":        "platform",
 		"tagFirst":    tags.FirstPlatform,
 		"tagEnd":      tags.LastPlatform,
-		"tags":        tags.Names,
+		"tags":        tags.Names(),
 	})
 	if err != nil {
 		s.log.Errorf("%s: %s %d", errTmpl, err)

@@ -30,11 +30,7 @@ func (cfg Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	default:
 		log = logger.Development().Sugar()
 	}
-	// defer func() {
-	// 	if err := log.Sync(); err != nil {
-	// 		log.Error("Logger Middleware log sync broke, %s", err)
-	// 	}
-	// }()
+	defer log.Sync()
 	return func(c echo.Context) error {
 		timeStarted := time.Now()
 		err := next(c)
@@ -99,11 +95,7 @@ func (cfg Config) CustomErrorHandler(err error, c echo.Context) {
 	default:
 		log = logger.Development().Sugar()
 	}
-	defer func() {
-		if err := log.Sync(); err != nil {
-			log.Error("Custom HTML3 response log sync broke, %s", err)
-		}
-	}()
+	defer log.Sync()
 	switch {
 	case IsHTML3(c.Path()):
 		if err := html3.Error(c, err); err != nil {
