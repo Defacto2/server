@@ -7,8 +7,10 @@ All configurations and settings for this web server are handled through system e
 ### TODOs
 
 - [ ] Database normalisations on server start. PostgreSQL indexes with case-sensitive strings.
+- [ ] TODO pass config.Timeout to the SQL contexts. There's no point echo timing out and the database query continuing.
 
 ```
+
 [DIR] Acid Productions                           720    38M
 [DIR] ACiD Productions                            10   515k
 
@@ -17,6 +19,7 @@ All configurations and settings for this web server are handled through system e
 
 [DIR] Addiction in Releasing                       3    18k
 [DIR] Addiction In Releasing                       3    19k
+
 ```
 
 - [ ] Run an automated test to confirm 200 status for all routes. Run this on startup using a defer func?
