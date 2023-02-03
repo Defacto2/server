@@ -8,6 +8,7 @@ require (
 	github.com/carlmjohnson/versioninfo v0.22.4
 	github.com/fatih/color v1.13.0
 	github.com/friendsofgo/errors v0.9.2
+	github.com/jackc/pgx/v5 v5.2.0
 	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12
 	github.com/labstack/echo/v4 v4.10.0
 	github.com/labstack/gommon v0.4.0
@@ -31,6 +32,8 @@ require (
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/jackc/pgpassfile v1.0.0 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect

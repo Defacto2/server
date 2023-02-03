@@ -5,14 +5,18 @@
 package postgres
 
 import (
+	_ "github.com/jackc/pgx/v5/stdlib"
+
 	"database/sql"
 	"fmt"
 	"net/url"
 )
 
 const (
-	// Name of the database driver.
-	Name = "postgres"
+	// Protocol of the database driver.
+	Protocol = "postgres"
+	// DriverName of the database.
+	DriverName = "pgx"
 )
 
 // Connection details of the PostgreSQL database connection.
@@ -30,7 +34,7 @@ type Connection struct {
 
 // Open opens a PostgreSQL database connection.
 func (c Connection) Open() (*sql.DB, error) {
-	conn, err := sql.Open(Name, c.URL())
+	conn, err := sql.Open(DriverName, c.URL())
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +45,7 @@ func (c Connection) Open() (*sql.DB, error) {
 func (c Connection) URL() string {
 	// "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
 	if c.Protocol == "" {
-		c.Protocol = Name
+		c.Protocol = Protocol
 	}
 	if c.HostName == "" {
 		c.HostName = "localhost"
@@ -77,7 +81,7 @@ func ConnectDB() (*sql.DB, error) {
 		Database:  "defacto2-ps",
 		NoSSLMode: true,
 	}
-	conn, err := sql.Open(Name, dsn.URL())
+	conn, err := sql.Open(DriverName, dsn.URL())
 	if err != nil {
 		return nil, err
 	}
