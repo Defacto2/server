@@ -106,7 +106,7 @@ func (cfg Config) CustomErrorHandler(err error, c echo.Context) {
 	}()
 	switch {
 	case IsHTML3(c.Path()):
-		if err := html3.Error(err, c); err != nil {
+		if err := html3.Error(c, err); err != nil {
 			log.DPanic("Custom HTML3 response handler broke: %s", err)
 		}
 		return

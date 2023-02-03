@@ -41,41 +41,41 @@ type sugared struct {
 
 // All method lists every release.
 func (s *sugared) All(c echo.Context) error {
-	return s.List(AllReleases, c)
+	return s.List(c, AllReleases)
 }
 
 // Category lists the file records associated with the category tag that is provided by the ID param in the URL.
 func (s *sugared) Category(c echo.Context) error {
-	return s.List(BySection, c)
+	return s.List(c, BySection)
 }
 
 // Platform lists the file records associated with the platform tag that is provided by the ID param in the URL.
 func (s *sugared) Platform(c echo.Context) error {
-	return s.List(ByPlatform, c)
+	return s.List(c, ByPlatform)
 }
 
 // Group lists the file records associated with the group that is provided by the ID param in the URL.
 func (s *sugared) Group(c echo.Context) error {
-	return s.List(ByGroup, c)
+	return s.List(c, ByGroup)
 }
 
 // Group lists the file records described as art are digital + pixel art files.
 func (s *sugared) Art(c echo.Context) error {
-	return s.List(AsArt, c)
+	return s.List(c, AsArt)
 }
 
 // Group lists the file records described as document + text art files.
 func (s *sugared) Documents(c echo.Context) error {
-	return s.List(AsDocuments, c)
+	return s.List(c, AsDocuments)
 }
 
 // Group lists the file records described as software files.
 func (s *sugared) Software(c echo.Context) error {
-	return s.List(AsSoftware, c)
+	return s.List(c, AsSoftware)
 }
 
 // List all the records associated with the RecordsBy grouping.
-func (s *sugared) List(tt RecordsBy, c echo.Context) error {
+func (s *sugared) List(c echo.Context, tt RecordsBy) error {
 	start := helpers.Latency()
 	id := c.Param("id")
 

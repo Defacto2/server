@@ -6,6 +6,19 @@ All configurations and settings for this web server are handled through system e
 
 ### TODOs
 
+- [ ] Database normalisations on server start. PostgreSQL indexes with case-sensitive strings.
+
+```
+[DIR] Acid Productions                           720    38M
+[DIR] ACiD Productions                            10   515k
+
+[DIR] Aces of ANSI Art                            85   809k
+[DIR] Aces Of ANSI Art                             1   383k
+
+[DIR] Addiction in Releasing                       3    18k
+[DIR] Addiction In Releasing                       3    19k
+```
+
 - [ ] All SQL stmts need to account for `delete_at`
 `qm.WithDeleted`
 - [ ] Tests for routes and templates.

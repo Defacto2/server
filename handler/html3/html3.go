@@ -26,7 +26,7 @@ func LegacyURLs() map[string]string {
 }
 
 // Error renders a custom HTTP error page for the HTML3 sub-group.
-func Error(err error, c echo.Context) error {
+func Error(c echo.Context, err error) error {
 	// Echo custom error handling: https://echo.labstack.com/guide/error-handling/
 	start := helpers.Latency()
 	code := http.StatusInternalServerError
