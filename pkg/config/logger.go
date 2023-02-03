@@ -30,11 +30,11 @@ func (cfg Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	default:
 		log = logger.Development().Sugar()
 	}
-	defer func() {
-		if err := log.Sync(); err != nil {
-			log.Error("Logger Middleware log sync broke, %s", err)
-		}
-	}()
+	// defer func() {
+	// 	if err := log.Sync(); err != nil {
+	// 		log.Error("Logger Middleware log sync broke, %s", err)
+	// 	}
+	// }()
 	return func(c echo.Context) error {
 		timeStarted := time.Now()
 		err := next(c)
