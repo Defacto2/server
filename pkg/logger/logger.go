@@ -59,30 +59,31 @@ const (
 
 // Development logger prints all log levels to stdout.
 func Development() *zap.Logger {
-	config := zap.NewDevelopmentEncoderConfig()
-	config.EncodeTime = zapcore.TimeEncoderOfLayout("15:04:05")
-	config.EncodeLevel = zapcore.CapitalColorLevelEncoder
-	consoleEncoder := zapcore.NewConsoleEncoder(config)
+	cliEncoder := console()
 	defaultLogLevel := zapcore.DebugLevel
 	core := zapcore.NewTee(
-		zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), defaultLogLevel),
+		zapcore.NewCore(cliEncoder, zapcore.AddSync(os.Stdout), defaultLogLevel),
 	)
 	return zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
 }
 
 // Production logger prints all info and higher log levels to files.
+// Fatal and Panics are also returned to os.Stderr.
 func Production(root string) *zap.Logger {
 	config := zap.NewProductionEncoderConfig()
 	config.EncodeTime = zapcore.TimeEncoderOfLayout("Jan-02-15:04:05.00")
 	jsonEncoder := zapcore.NewJSONEncoder(config)
+	cliEncoder := console()
 
 	// server breakage log
-	servWr := zapcore.AddSync(&lumberjack.Logger{
+	serverWr := zapcore.AddSync(&lumberjack.Logger{
 		Filename:   filepath.Join(root, ServerLog),
 		MaxSize:    MaxSizeMB,
 		MaxBackups: MaxBackups,
 		MaxAge:     MaxDays,
 	})
+	// server breakage print errors
+	errWr := zapcore.AddSync(os.Stderr)
 
 	// information and warning log
 	infoWr := zapcore.AddSync(&lumberjack.Logger{
@@ -93,11 +94,23 @@ func Production(root string) *zap.Logger {
 	})
 
 	core := zapcore.NewTee(
-		zapcore.NewCore(jsonEncoder, servWr, zapcore.FatalLevel),
-		zapcore.NewCore(jsonEncoder, servWr, zapcore.PanicLevel),
-		zapcore.NewCore(jsonEncoder, servWr, zapcore.ErrorLevel),
+		// log to stderr
+		zapcore.NewCore(cliEncoder, errWr, zapcore.FatalLevel),
+		zapcore.NewCore(cliEncoder, errWr, zapcore.PanicLevel),
+		// log to "server.log"
+		zapcore.NewCore(jsonEncoder, serverWr, zapcore.FatalLevel),
+		zapcore.NewCore(jsonEncoder, serverWr, zapcore.PanicLevel),
+		zapcore.NewCore(jsonEncoder, serverWr, zapcore.ErrorLevel),
+		// log to "info.log"
 		zapcore.NewCore(jsonEncoder, infoWr, zapcore.WarnLevel),
 		zapcore.NewCore(jsonEncoder, infoWr, zapcore.InfoLevel),
 	)
 	return zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
+}
+
+func console() zapcore.Encoder {
+	config := zap.NewDevelopmentEncoderConfig()
+	config.EncodeTime = zapcore.TimeEncoderOfLayout("15:04:05")
+	config.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	return zapcore.NewConsoleEncoder(config)
 }
