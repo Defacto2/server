@@ -16,16 +16,34 @@ import (
 const (
 	layout     = "layout.html"
 	pagination = "pagination.html"
+	nameCSS    = "public/css/bootstrap.min.css"
+	nameJS     = "public/js/bootstrap.bundle.min.js"
 )
 
-// Index method is the homepage of the /html3 sub-route.
-func Index(s *zap.SugaredLogger, c echo.Context) error {
+// Index method is the homepage of the / sub-route.
+func Index(s *zap.SugaredLogger, ctx echo.Context, CSS, JS embed.FS) error {
 	errTmpl := "The server could not render the HTML template for this page"
-	err := c.Render(http.StatusOK, "index", map[string]interface{}{})
+
+	css, err := Integrity(nameCSS, CSS)
+	if err != nil {
+		fmt.Println(err) // TODO: logger
+		return err
+	}
+	js, err := Integrity(nameJS, JS)
+	if err != nil {
+		fmt.Println(err) // TODO: logger
+		return err
+	}
+
+	err = ctx.Render(http.StatusOK, "index", map[string]interface{}{
+		"integrityCSS": css,
+		"integrityJS":  js,
+	})
 	if err != nil {
 		s.Errorf("%s: %s", errTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
 	}
+
 	return nil
 }
 

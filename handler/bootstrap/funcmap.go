@@ -3,21 +3,19 @@ package bootstrap
 import (
 	"crypto/sha512"
 	"embed"
+	"encoding/base64"
 	"fmt"
 )
 
 // Helper functions for the TemplateFuncMap var.
 
 // Integrity
-func Integrity(name string, fs embed.FS) string {
+func Integrity(name string, fs embed.FS) (string, error) {
 	b, err := fs.ReadFile(name)
 	if err != nil {
-		return ""
+		return "", err
 	}
 	sum := sha512.Sum384(b)
-	s := string(sum[:])
-	if s == "" {
-		return ""
-	}
-	return fmt.Sprintf("sha384-%s", s)
+	b64 := base64.StdEncoding.EncodeToString(sum[:])
+	return fmt.Sprintf("sha384-%s", b64), nil
 }

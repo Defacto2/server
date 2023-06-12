@@ -132,7 +132,8 @@ func (c Configuration) Controller() *echo.Echo {
 
 	// Route => /
 	e.GET("/", func(ctx echo.Context) error {
-		return bootstrap.Index(nil, ctx)
+		// TODO pass c.Public instead of CSS/JS ?
+		return bootstrap.Index(nil, ctx, c.CSS, c.JS)
 	})
 	e.GET("/file/list", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "Coming soon!")

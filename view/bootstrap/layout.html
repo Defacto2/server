@@ -4,14 +4,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Bootstrap demo</title>
-    <link href="/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="/css/bootstrap.min.css" rel="stylesheet" integrity="{{ index . "integrityCSS" }}" crossorigin="anonymous">
   </head>
   <body>
     <div class="container">
       <h1>Hello, world!</h1>
       {{- block "content" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
     </div>
-    {{/*  TODO: integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"   */}}
-    <script src="/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="/js/bootstrap.bundle.min.js" integrity="{{ index . "integrityJS" }}" crossorigin="anonymous"></script>
   </body>
 </html>{{end}}
