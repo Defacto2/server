@@ -69,7 +69,9 @@ type Configuration struct {
 	Log     *zap.SugaredLogger // Log is a sugared logger.
 	Brand   *[]byte            // Brand points to the Defacto2 ASCII logo.
 	Version string             // Version is the results of GoReleaser build command.
+	CSS     embed.FS           // Cascading Style Sheets.
 	Images  embed.FS           // Not in use.
+	JS      embed.FS           // JavaScripts.
 	Views   embed.FS           // Views are Go templates.
 }
 
@@ -89,8 +91,10 @@ func (c Configuration) Controller() *echo.Echo {
 		),
 	}
 
-	// Static embedded images
+	// Static embedded web assets
 	// These get distributed in the binary
+	e.StaticFS("/css", echo.MustSubFS(c.CSS, "public/css"))
+	e.StaticFS("/js", echo.MustSubFS(c.JS, "public/js"))
 	e.StaticFS("/images", echo.MustSubFS(c.Images, "public/images"))
 
 	// Middleware

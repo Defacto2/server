@@ -218,3 +218,14 @@ cd df2server
 go install github.com/daixiang0/gci@latest
 gci write ./..
 ```
+
+---
+
+### BootStrap 5
+
+The site relies on Bootstrap for its frontend feature set. To avoid the messiness of JS package managers, any future Bootstrap updates can be manually sourced from the [Compiled CSS and JS Download](https://getbootstrap.com/docs/5.3/getting-started/download).
+
+
+CSS: `bootstrap.min.css` is located at: `/public/css/bootstrap.min.css`
+
+JS:  `bootstrap.bundle.min.js` is located at: `/public/js/bootstrap.bundle.min.js`
