@@ -22,7 +22,7 @@ const (
 	errSQL  = "Database connection problem or a SQL error"
 	errTag  = "No database query was created for the tag"
 	errTmpl = "The server could not render the HTML template for this page"
-	firefox = "Welcome to the Firefox 2 era (October 2006) Defacto2 website, " +
+	firefox = "Welcome to the Firefox v2, 2006 era, Defacto2 website, " +
 		"which is friendly for legacy operating systems, including Windows 9x, NT-4, and OS-X 10.2."
 
 	textAll = "list every file or release hosted on the website"
