@@ -131,20 +131,20 @@ func (c Configuration) Controller() *echo.Echo {
 	}
 
 	// Route => /
-	e.GET("/", func(c echo.Context) error {
-		return bootstrap.Index(nil, c)
+	e.GET("/", func(ctx echo.Context) error {
+		return bootstrap.Index(nil, ctx)
 	})
-	e.GET("/file/list", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Coming soon!")
+	e.GET("/file/list", func(ctx echo.Context) error {
+		return ctx.String(http.StatusOK, "Coming soon!")
 	})
 
 	// Routes => /html3
 	g := html3.Routes(e, c.Log)
-	g.GET("/d/:id", func(x echo.Context) error {
+	g.GET("/d/:id", func(ctx echo.Context) error {
 		d := download.Download{
 			Path: c.Import.DownloadDir,
 		}
-		return d.HTTPSend(c.Log, x)
+		return d.HTTPSend(c.Log, ctx)
 	})
 
 	// Routers => /api/v1
