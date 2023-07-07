@@ -1,0 +1,43 @@
+{{- define "modal"}}
+    <!-- Modals -->
+      <!-- Email -->
+      <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+        <!-- Vertically centered scrollable modal -->
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="emailModalLabel">Email</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <h2><span>contact</span><span>@</span><span>defacto2</span><span>.</span><span>net</span></h2>
+              <p>Email is checked regularly</p>
+            </div>
+            <div class="modal-footer">
+              {{/*  todo: button to copy to clipboard  */}}
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Discord -->
+      <div class="modal fade" id="discordModal" tabindex="-1" aria-labelledby="discordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="discordModalLabel">Discord</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <h2>defacto2#2067</h2>
+              <p>Discord direct messages are checked regularly</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-title="Tooltip">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+{{end}}

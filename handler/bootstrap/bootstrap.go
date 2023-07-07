@@ -15,6 +15,7 @@ import (
 
 const (
 	layout     = "layout.html"
+	modal      = "modal.html"
 	pagination = "pagination.html"
 	nameCSS    = "public/css/bootstrap.min.css"
 	nameJS     = "public/js/bootstrap.bundle.min.js"
@@ -63,7 +64,7 @@ func GlobTo(name string) string {
 // Index template.
 func index(log *zap.SugaredLogger, fs embed.FS) *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap(log)).ParseFS(fs,
-		GlobTo(layout), GlobTo("index.html")))
+		GlobTo(layout), GlobTo("index.html"), GlobTo(modal)))
 }
 
 // Template for displaying HTTP error codes and feedback.

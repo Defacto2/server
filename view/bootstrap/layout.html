@@ -15,8 +15,10 @@
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
-          <div class="collapse navbar-collapse d-flex" id="navbarNav">
-            <ul class="navbar-nav flex-fill justify-content-center">
+          <div class="collapse navbar-collapse" id="navbarNav">
+            {{/*   d-flex  */}}
+            <ul class="navbar-nav">
+              {{/*   flex-fill justify-content-center  */}}
               <li class="nav-item">
                 <a class="nav-link active" aria-current="page" href="#">Home</a>
               </li>
@@ -129,8 +131,8 @@
                   Contacts
                 </a>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#">Email</a></li>
-                  <li><a class="dropdown-item" href="#">Discord</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#emailModal">Email</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#discordModal">Discord</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="#">Mastodon</a></li>
                   <li><a class="dropdown-item" href="#">Twitter</a></li>
@@ -157,36 +159,47 @@
                   <li><a class="dropdown-item" href="#">Shrinker.err dispatcher error</a></li>
                 </ul>
               </li>
-              <div class="btn-group d-flex">
-                <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                  Uploader
-                </button>              
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#">About the uploader</a></li>
-                  <li><a class="dropdown-item" href="#">Wanted and missing</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><h6 class="dropdown-header">Submit a production</h6></li>
-                  <li><a class="dropdown-item" href="#">Demozoo or Pouët</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><h6 class="dropdown-header">Upload files</h6></li>
-                  <li><a class="dropdown-item" href="#">Intro or cracktro</a></li>
-                  <li><a class="dropdown-item" href="#">BBS or FTP advert</a></li>
-                  <li><a class="dropdown-item" href="#">NFO or document</a></li>
-                  <li><a class="dropdown-item" href="#">Magazine</a></li>
-                  <li><a class="dropdown-item" href="#">Artwork</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><h6 class="dropdown-header">Upload dialog</h6></li>
-                  <li><a class="dropdown-item" href="#">Simple</a></li>
-                  <li><a class="dropdown-item" href="#">Advanced</a></li>
-                </ul>
-              </div>
+            </ul>
+          </div>
+          <div class="btn-group d-flex">
+            <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              Uploader
+            </button>              
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">About the uploader</a></li>
+              <li><a class="dropdown-item" href="#">Wanted and missing</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><h6 class="dropdown-header">Submit a production</h6></li>
+              <li><a class="dropdown-item" href="#">Demozoo or Pouët</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><h6 class="dropdown-header">Upload files</h6></li>
+              <li><a class="dropdown-item" href="#">Intro or cracktro</a></li>
+              <li><a class="dropdown-item" href="#">BBS or FTP advert</a></li>
+              <li><a class="dropdown-item" href="#">NFO or document</a></li>
+              <li><a class="dropdown-item" href="#">Magazine</a></li>
+              <li><a class="dropdown-item" href="#">Artwork</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><h6 class="dropdown-header">Upload dialog</h6></li>
+              <li><a class="dropdown-item" href="#">Simple</a></li>
+              <li><a class="dropdown-item" href="#">Advanced</a></li>
             </ul>
           </div>
         </div>
       </nav>
 
+      <!-- Button trigger modal -->
+      {{/*  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#emailModal">
+        Launch demo modal
+      </button>  */}}
+
+
+      {{- block "modal" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
       {{- block "content" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
     </div>
     <script src="/js/bootstrap.bundle.min.js" integrity="{{ index . "integrityJS" }}" crossorigin="anonymous"></script>
+    <script defer>
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    </script>
   </body>
 </html>{{end}}

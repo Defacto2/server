@@ -67,8 +67,6 @@ func TmplHTML3(log *zap.SugaredLogger, fs embed.FS) map[string]*template.Templat
 func GlobTo(name string) string {
 	// note: the path is relative to the embed.FS root and must not use the OS path separator.
 	return strings.Join([]string{"view", "html3", name}, "/")
-	//return embed.FSPathSeparator + filepath.Join("view", "html3", name)
-	//return filepath.Join("view", "html3", name)
 }
 
 // Index template.
