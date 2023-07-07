@@ -5,7 +5,7 @@ package html3
 import (
 	"embed"
 	"html/template"
-	"path/filepath"
+	"strings"
 
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/tags"
@@ -65,7 +65,10 @@ func TmplHTML3(log *zap.SugaredLogger, fs embed.FS) map[string]*template.Templat
 }
 
 func GlobTo(name string) string {
-	return filepath.Join("view", "html3", name)
+	// note: the path is relative to the embed.FS root and must not use the OS path separator.
+	return strings.Join([]string{"view", "html3", name}, "/")
+	//return embed.FSPathSeparator + filepath.Join("view", "html3", name)
+	//return filepath.Join("view", "html3", name)
 }
 
 // Index template.

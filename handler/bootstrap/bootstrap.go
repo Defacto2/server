@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/Defacto2/server/pkg/helpers"
@@ -56,7 +56,8 @@ func Tmpl(log *zap.SugaredLogger, fs embed.FS) map[string]*template.Template {
 }
 
 func GlobTo(name string) string {
-	return filepath.Join("view", "bootstrap", name)
+	// note: the path is relative to the embed.FS root and must not use the OS path separator.
+	return strings.Join([]string{"view", "bootstrap", name}, "/")
 }
 
 // Index template.
