@@ -1,126 +1,231 @@
-{{- define "modal"}}
-{{- $faSize := "fa-fw fa-2x" }}
-    <!-- Modals -->
-      <!-- Email -->
-      <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
-        <!-- Vertically centered scrollable modal -->
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
+{{- define "modal" -}}
+{{- $faSize := "fa-fw fa-2x" -}}
+{{/*  Modals  */}}
+{{/*  Email  */}}
+<div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
 
-              <i class="fal fa-envelope {{ $faSize }}" title="Email"></i> &nbsp;
-              <h1 class="modal-title fs-5" id="emailModalLabel">Email</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <h2><span>contact</span><span>@</span><span>defacto2</span><span>.</span><span>net</span></h2>
-              <p>Email is checked regularly</p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Copy</button>
-            </div>
-          </div>
-        </div>
+        <i class="fal fa-envelope {{ $faSize }}" title="Email"></i> &nbsp;
+        <h1 class="modal-title fs-5" id="emailModalLabel">Email</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <!-- Discord -->
-      <div class="modal fade" id="discordModal" tabindex="-1" aria-labelledby="discordModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <i class="fab fa-discord {{ $faSize }}" title="Discord"></i> &nbsp;
-              <h1 class="modal-title fs-5" id="discordModalLabel">Discord</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <h2>defacto2#2067</h2>
-              <p>Discord direct messages are checked regularly</p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-title="Tooltip">Copy</button>
-            </div>
-          </div>
-        </div>
+      <div class="modal-body">
+        <h2><span>contact</span><span>@</span><span>defacto2</span><span>.</span><span>net</span></h2>
+        <p>Email is checked regularly</p>
       </div>
-      <!-- Mastodon -->
-      <div class="modal fade" id="mastodonModal" tabindex="-1" aria-labelledby="mastodonModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <i class="fab fa-mastodon {{ $faSize }}" title="Mastodon"></i> &nbsp;
-              <h1 class="modal-title fs-5" id="mastodonModalLabel">Mastodon</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <h3>@<a href="https://mas.to/@defacto2">defacto2@mas.to</a></h3>
-              <p>Mastodon is rarely updated with site feature updates.</p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-title="Tooltip">Copy</button>
-            </div>
-          </div>
-        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Copy</button>
       </div>
-      <!-- Twitter -->
-      <div class="modal fade" id="twitterModal" tabindex="-1" aria-labelledby="twitterModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <i class="fab fa-twitter {{ $faSize }}" title="Twitter"></i> &nbsp;
-              <h1 class="modal-title fs-5" id="twitterModalLabel">Twitter</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <h3><a href="https://twitter.com/Defacto2">Defacto2</a></h3>
-              <p>Twitter is rarely updated with site feature updates.</p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-title="Tooltip">Copy</button>
-            </div>
-          </div>
-        </div>
+    </div>
+  </div>
+</div>
+{{/*  Discord  */}}
+<div class="modal fade" id="discordModal" tabindex="-1" aria-labelledby="discordModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <i class="fab fa-discord {{ $faSize }}" title="Discord"></i> &nbsp;
+        <h1 class="modal-title fs-5" id="discordModalLabel">Discord</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <!-- Facebook -->
-      <div class="modal fade" id="facebookModal" tabindex="-1" aria-labelledby="facebookModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <i class="fab fa-facebook {{ $faSize }}" title="Facebook"></i> &nbsp;
-              <h1 class="modal-title fs-5" id="facebookModalLabel">Facebook</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <h3><a href="https://facebook.com/Defacto2">Defacto2</a></h3>
-              <p>Facebook is rarely updated with site feature updates.</p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-title="Tooltip">Copy</button>
-            </div>
-          </div>
-        </div>
+      <div class="modal-body">
+        <h2>defacto2#2067</h2>
+        <p>Discord direct messages are checked regularly</p>
       </div>
-      <!-- YouTube -->
-      <div class="modal fade" id="youtubeModal" tabindex="-1" aria-labelledby="youtubeModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <i class="fab fa-youtube {{ $faSize }}" title="YouTube"></i> &nbsp;
-              <h1 class="modal-title fs-5" id="youtubeModalLabel">YouTube</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <h3><a href="https://youtube.com/defacto2">defacto2</a></h3>
-              <p>The discontinued YouTube channel contains a few hundred intros and cracktros.</p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-title="Tooltip">Copy</button>
-            </div>
-          </div>
-        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-title="Tooltip">Copy</button>
       </div>
-{{end}}
+    </div>
+  </div>
+</div>
+{{/*  Mastodon  */}}
+<div class="modal fade" id="mastodonModal" tabindex="-1" aria-labelledby="mastodonModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <i class="fab fa-mastodon {{ $faSize }}" title="Mastodon"></i> &nbsp;
+        <h1 class="modal-title fs-5" id="mastodonModalLabel">Mastodon</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h3>@<a href="https://mas.to/@defacto2">defacto2@mas.to</a></h3>
+        <p>Mastodon is rarely updated with site feature updates.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-title="Tooltip">Copy</button>
+      </div>
+    </div>
+  </div>
+</div>
+{{/*  Twitter  */}}
+<div class="modal fade" id="twitterModal" tabindex="-1" aria-labelledby="twitterModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <i class="fab fa-twitter {{ $faSize }}" title="Twitter"></i> &nbsp;
+        <h1 class="modal-title fs-5" id="twitterModalLabel">Twitter</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h3><a href="https://twitter.com/Defacto2">Defacto2</a></h3>
+        <p>Twitter is rarely updated with site feature updates.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-title="Tooltip">Copy</button>
+      </div>
+    </div>
+  </div>
+</div>
+{{/*  Facebook  */}}
+<div class="modal fade" id="facebookModal" tabindex="-1" aria-labelledby="facebookModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <i class="fab fa-facebook {{ $faSize }}" title="Facebook"></i> &nbsp;
+        <h1 class="modal-title fs-5" id="facebookModalLabel">Facebook</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h3><a href="https://facebook.com/Defacto2">Defacto2</a></h3>
+        <p>Facebook is rarely updated with site feature updates.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-title="Tooltip">Copy</button>
+      </div>
+    </div>
+  </div>
+</div>
+{{/*  YouTube  */}}
+<div class="modal fade" id="youtubeModal" tabindex="-1" aria-labelledby="youtubeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <i class="fab fa-youtube {{ $faSize }}" title="YouTube"></i> &nbsp;
+        <h1 class="modal-title fs-5" id="youtubeModalLabel">YouTube</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h3><a href="https://youtube.com/defacto2">defacto2</a></h3>
+        <p>The discontinued YouTube channel contains a few hundred intros and cracktros.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-title="Tooltip">Copy</button>
+      </div>
+    </div>
+  </div>
+</div>
+{{/*  Privacy  */}}
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="privacyModalLabel">Privacy</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="lead">Defacto2 does not track visitors to the site</p>
+        <p>We use the privacy first, <a href="https://www.cloudflare.com/web-analytics/">Cloudflare analystics</a> that does not use any client-side state or figerprinting.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{{/*  Trojans and viruses  */}}
+<div class="modal fade" id="tavModal" tabindex="-1" aria-labelledby="tavModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="tavModalLabel">Trojans and software viruses</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="lead">We never intentionally distribute viruses, trojans or any form of malware.</p>
+        <p>Unfortunately current virus scanning software using their default setups employ a scan and detection technique known as heuristic scanning. In addition to the standard scanning for malware code using a blacklist, heuristic scanning looks at the program for malware-like behaviour. Many scene intros and cracktros implement self-decrypting and decompressing techniques which unfortunately is standard behaviour for malware that is attempting to infect your system.</p>
+        <p>Scanning for behaviour is never going to be 100% accurate, and an over sensitive heuristic scan can report what are known as false positives. Where a scan has incorrectly claimed, there is a potential threat but cannot pinpoint what that threat is and instead gives it a generic name.</p>
+        <p>Some files offered on Defacto2 are listed as a possible virus or trojan threat, and this is why. We do not believe they are dangerous, but some virus scanners are reporting otherwise.</p>
+        <hr>
+        <figure>
+          <p>An example of these false positive detections is an installation program Class created in 2000. It is compressed and encrypted using an arcane executable package called Shrinker. Many virus scanners do not recognise this legacy technique and flag it as suspicious.</p>
+          <p><a href="/f/a43f52">The unmodified version of the Class installer</a> triggers alerts <a href="https://www.virustotal.com/en/file/1cc1d810503a9ae3f065251c3d14c59304e0adea0bdf00d2338686567d8ca936/analysis/1390700598/">with over 20 virus scanners</a>.</p>
+          <p>Using <a href="/f/a12f23">Deshrink</a> we remove the <a href="/f/ae3d83">Shrinker encryption</a> and compression used on the program executable, and there are <a href="https://www.virustotal.com/en/file/6404901762fec0bdee30b9b04a15289c816dac54a7c2aa2434f12e54968d2880/analysis/1391469350/">no virus scanner alerts triggered</a>.</p>
+        </figure>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{{/*  About Defacto2  */}}
+<div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="aboutModalLabel">About</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="lead">Defacto2 is a website committed to the preservation of the historic PC cracking and warez scene subcultures.</p>
+        <p>Defacto2 is a website committed to preserving the historic PC cracking and warez scene subcultures. It covers objects including text files, demos, music, art, magazines, and other projects. While a seldom-discussed subject, this element of the underground computer subculture could be lost and forgotten without a preservation effort. The nature of robin-hood piracy, with its high churn for participants, means it is a community that is not well documented nor explained. Unfortunately, some files have comments or imagery that aren't acceptable in a modern context—a possible consequence of the era and the ages of the people involved.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{{/*  Copyright  */}}
+<div class="modal fade" id="copyrightModal" tabindex="-1" aria-labelledby="copyrightModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="fa-2x fa-as-first-letter">
+          <i class="fab fa-creative-commons"></i><i class="fab fa-creative-commons-by"></i>
+        </span>
+        &nbsp; <h1 class="modal-title fs-5" id="copyrightModalLabel">Copyright</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="lead">
+          This site uses the Creative Commons Attribution 4.0 International license. 
+          It enables you to use our website assets with your projects.
+        </p>
+        <p>The Creative Commons Attribution 4.0 International license applied to defacto2.net is a liberal implementation of copyright. You are free to use the original content as is or modify it to your needs.</p>
+        <p>The only requirement we impose is that you attribute, that is give credit to defacto2.net for each piece of content you use. This attribution can either be placed on the content itself or distributed in a separate file within the content.</p>
+        <p><a href="https://creativecommons.org/licences/by/4.0/">You can find more information on our Creative Commons license at the Creative Commons website, containing links to the full license, legal code.</a></p>
+        <ul class="list-unstyled lead">
+          <li>This license coverage includes:
+            <ul>
+              <li>Website text and database content</li>
+              <li>Images including previews and screenshots</li>
+              <li>Videos hosted on YouTube</li>
+            </ul>
+          </li>
+        </ul>
+        <ul class="list-unstyled lead">
+          <li>The license <u>excludes</u>:
+            <ul>
+              <li><strong>All file downloads</strong> hosted and served using the <code>defacto2.net/d/</code> URL</li>
+              <li>Glyphs and fonts named with a <code>fa-</code> prefix</li>
+              <li>Images and icons contained in <code>/images/html3/</code></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{{- end}}

@@ -9,7 +9,6 @@
   </head>
   <body>
     <div class="container">
-      
       <nav class="navbar sticky-top navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
           <span class="navbar-brand mb-0 h1">Defacto2</span>
@@ -17,17 +16,13 @@
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
-            {{/*   d-flex  */}}
             <ul class="navbar-nav">
-              {{/*   flex-fill justify-content-center  */}}
-              <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#">Home</a>
-              </li>
-
               <li class="nav-item">
                 <a class="nav-link" href="#">Thanks</a>
               </li>
-
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">Home</a>
+              </li>
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Files
@@ -44,7 +39,6 @@
                   <li><a class="dropdown-item" href="#"><em>Use retro tables</em></a></li>
                 </ul>
               </li>
-
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Groups
@@ -59,7 +53,6 @@
                   <li><a class="dropdown-item" href="#">FTP sites</a></li>
                 </ul>
               </li>
-
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   People
@@ -75,7 +68,6 @@
                   <li><a class="dropdown-item" href="#">List all</a></li>
                 </ul>
               </li>
-              
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Websites
@@ -96,7 +88,6 @@
                   <li><a class="dropdown-item" href="#">Historic sites</a></li>
                 </ul>
               </li>
-
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Search
@@ -119,12 +110,16 @@
                   About
                 </a>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#">Defacto2</a></li>
-                  <li><a class="dropdown-item" href="#">Copyright and CC</a></li>
-                  <li><a class="dropdown-item" href="#">Privacy</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#aboutModal">Defacto2</a></li>
+                  <li><a class="dropdown-item" href="#">The Scene</a></li>
+                  <li><a class="dropdown-item" href="#">Our history</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#copyrightModal">Copyright</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><h6 class="dropdown-header">Source code</h6></li>
-                  <li><a class="dropdown-item" href="#">GitHub</a></li>
+                  <li><a class="dropdown-item" href="https://github.com/Defacto2">GitHub</a></li>
+                  <li><a class="dropdown-item" href="https://github.com/sceners">Sceners</a></li>
                 </ul>
               </li>
               <li class="nav-item dropdown">
@@ -145,19 +140,19 @@
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Help
                 </a>
-                <ul class="dropdown-menu">
+                <ul class="dropdown-menu dropdown-menu-end">
                   <li><h6 class="dropdown-header">Using the downloads</h6></li>
-                  <li><a class="dropdown-item" href="#">Batch downloads</a></li>
-                  <li><a class="dropdown-item" href="#">DOS programs</a></li>
-                  <li><a class="dropdown-item" href="#">Compressed files</a></li>
-                  <li><a class="dropdown-item" href="#">NFO and DIZ files</a></li>
-                  <li><a class="dropdown-item" href="#">Trojans and viruses</a></li>
+                  <li><a class="dropdown-item" href="https://github.com/Defacto2/defacto2.net/wiki/Can-I-batch-download-the-files">Batch downloads</a></li>
+                  <li><a class="dropdown-item" href="https://github.com/Defacto2/defacto2.net/wiki/What-are-DOS-Programs">DOS programs</a></li>
+                  <li><a class="dropdown-item" href="https://github.com/Defacto2/defacto2.net/wiki/What-are-RAR-7z-ZIP-ACE-files">Compressed files</a></li>
+                  <li><a class="dropdown-item" href="https://github.com/Defacto2/defacto2.net/wiki/What-are-the-best-tools-for-viewing-and-editing-NFO-DIZ-files">NFO and DIZ files</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#tavModal">Trojans and viruses</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><h6 class="dropdown-header">Known download errors</h6></li>
-                  <li><a class="dropdown-item" href="#">D3DRM.DLL</a></li>
-                  <li><a class="dropdown-item" href="#">NPMOD32.DLL</a></li>
-                  <li><a class="dropdown-item" href="#">Runtime error 200</a></li>
-                  <li><a class="dropdown-item" href="#">Shrinker.err dispatcher error</a></li>
+                  <li><a class="dropdown-item" href="https://github.com/Defacto2/defacto2.net/wiki/Troubleshoot-d3drm.dll">D3DRM.DLL</a></li>
+                  <li><a class="dropdown-item" href="https://github.com/Defacto2/defacto2.net/wiki/Troubleshoot-npmod32.dll">NPMOD32.DLL</a></li>
+                  <li><a class="dropdown-item" href="https://github.com/Defacto2/defacto2.net/wiki/Troubleshoot-runtime-error-200">Runtime error 200</a></li>
+                  <li><a class="dropdown-item" href="https://github.com/Defacto2/defacto2.net/wiki/Troubleshoot-shrinker.err">Shrinker.err dispatcher error</a></li>
                 </ul>
               </li>
             </ul>
@@ -166,7 +161,7 @@
             <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
               Uploader
             </button>              
-            <ul class="dropdown-menu">
+            <ul class="dropdown-menu dropdown-menu-end">
               <li><a class="dropdown-item" href="#">About the uploader</a></li>
               <li><a class="dropdown-item" href="#">Wanted and missing</a></li>
               <li><hr class="dropdown-divider"></li>
@@ -187,13 +182,6 @@
           </div>
         </div>
       </nav>
-
-      <!-- Button trigger modal -->
-      {{/*  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#emailModal">
-        Launch demo modal
-      </button>  */}}
-
-
       {{- block "modal" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
       {{- block "content" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
     </div>
