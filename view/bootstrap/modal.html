@@ -1,4 +1,5 @@
 {{- define "modal"}}
+{{- $faSize := "fa-fw fa-2x" }}
     <!-- Modals -->
       <!-- Email -->
       <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
@@ -6,6 +7,8 @@
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
+
+              <i class="fal fa-envelope {{ $faSize }}" title="Email"></i> &nbsp;
               <h1 class="modal-title fs-5" id="emailModalLabel">Email</h1>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -14,7 +17,6 @@
               <p>Email is checked regularly</p>
             </div>
             <div class="modal-footer">
-              {{/*  todo: button to copy to clipboard  */}}
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
               <button type="button" class="btn btn-primary">Copy</button>
             </div>
@@ -26,12 +28,93 @@
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
+              <i class="fab fa-discord {{ $faSize }}" title="Discord"></i> &nbsp;
               <h1 class="modal-title fs-5" id="discordModalLabel">Discord</h1>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
               <h2>defacto2#2067</h2>
               <p>Discord direct messages are checked regularly</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-title="Tooltip">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Mastodon -->
+      <div class="modal fade" id="mastodonModal" tabindex="-1" aria-labelledby="mastodonModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <i class="fab fa-mastodon {{ $faSize }}" title="Mastodon"></i> &nbsp;
+              <h1 class="modal-title fs-5" id="mastodonModalLabel">Mastodon</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <h3>@<a href="https://mas.to/@defacto2">defacto2@mas.to</a></h3>
+              <p>Mastodon is rarely updated with site feature updates.</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-title="Tooltip">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Twitter -->
+      <div class="modal fade" id="twitterModal" tabindex="-1" aria-labelledby="twitterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <i class="fab fa-twitter {{ $faSize }}" title="Twitter"></i> &nbsp;
+              <h1 class="modal-title fs-5" id="twitterModalLabel">Twitter</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <h3><a href="https://twitter.com/Defacto2">Defacto2</a></h3>
+              <p>Twitter is rarely updated with site feature updates.</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-title="Tooltip">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Facebook -->
+      <div class="modal fade" id="facebookModal" tabindex="-1" aria-labelledby="facebookModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <i class="fab fa-facebook {{ $faSize }}" title="Facebook"></i> &nbsp;
+              <h1 class="modal-title fs-5" id="facebookModalLabel">Facebook</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <h3><a href="https://facebook.com/Defacto2">Defacto2</a></h3>
+              <p>Facebook is rarely updated with site feature updates.</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-title="Tooltip">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- YouTube -->
+      <div class="modal fade" id="youtubeModal" tabindex="-1" aria-labelledby="youtubeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <i class="fab fa-youtube {{ $faSize }}" title="YouTube"></i> &nbsp;
+              <h1 class="modal-title fs-5" id="youtubeModalLabel">YouTube</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <h3><a href="https://youtube.com/defacto2">defacto2</a></h3>
+              <p>The discontinued YouTube channel contains a few hundred intros and cracktros.</p>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

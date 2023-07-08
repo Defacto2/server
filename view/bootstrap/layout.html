@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Defacto2 demo</title>
     <link href="/css/bootstrap.min.css" rel="stylesheet" integrity="{{ index . "integrityCSS" }}" crossorigin="anonymous">
+    <link href="/css/layout.min.css" rel="stylesheet" integrity="{{ index . "integrityLayout" }}" crossorigin="anonymous">
   </head>
   <body>
     <div class="container">
@@ -131,13 +132,13 @@
                   Contacts
                 </a>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#emailModal">Email</a></li>
-                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#discordModal">Discord</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#emailModal"><i class="fal fa-envelope fa-fw" title="Email"></i> Email</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#discordModal"><i class="fab fa-discord fa-fw" title="Discord"></i> Discord</a></li>
                   <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="#">Mastodon</a></li>
-                  <li><a class="dropdown-item" href="#">Twitter</a></li>
-                  <li><a class="dropdown-item" href="#">Facebook</a></li>
-                  <li><a class="dropdown-item" href="#">YouTube</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#mastodonModal"><i class="fab fa-mastodon fa-fw" title="Mastodon"></i> Mastodon</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#twitterModal"><i class="fab fa-twitter fa-fw" title="Twitter"></i> Twitter</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#facebookModal"><i class="fab fa-facebook fa-fw" title="Facebook"></i> Facebook</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#youtubeModal"><i class="fab fa-youtube fa-fw" title="YouTube"></i> YouTube</a></li>
                 </ul>
               </li>
               <li class="nav-item dropdown">
@@ -201,5 +202,6 @@
       const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
       const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     </script>
+    <script src="/js/fontawesome.min.js" integrity="{{ index . "integrityFA" }}" crossorigin="anonymous"></script>
   </body>
 </html>{{end}}

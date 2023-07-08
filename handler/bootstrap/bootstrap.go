@@ -14,11 +14,13 @@ import (
 )
 
 const (
-	layout     = "layout.html"
-	modal      = "modal.html"
-	pagination = "pagination.html"
-	nameCSS    = "public/css/bootstrap.min.css"
-	nameJS     = "public/js/bootstrap.bundle.min.js"
+	layout      = "layout.html"
+	modal       = "modal.html"
+	pagination  = "pagination.html"
+	layoutCSS   = "public/css/layout.min.css"
+	nameCSS     = "public/css/bootstrap.min.css"
+	nameJS      = "public/js/bootstrap.bundle.min.js"
+	fontawesome = "public/js/fontawesome.min.js"
 )
 
 // Index method is the homepage of the / sub-route.
@@ -35,10 +37,22 @@ func Index(s *zap.SugaredLogger, ctx echo.Context, CSS, JS embed.FS) error {
 		fmt.Println(err) // TODO: logger
 		return err
 	}
+	fa, err := Integrity(fontawesome, JS)
+	if err != nil {
+		fmt.Println(err) // TODO: logger
+		return err
+	}
+	cssLay, err := Integrity(layoutCSS, CSS)
+	if err != nil {
+		fmt.Println(err) // TODO: logger
+		return err
+	}
 
 	err = ctx.Render(http.StatusOK, "index", map[string]interface{}{
-		"integrityCSS": css,
-		"integrityJS":  js,
+		"integrityCSS":    css,
+		"integrityLayout": cssLay,
+		"integrityJS":     js,
+		"integrityFA":     fa,
 	})
 	if err != nil {
 		s.Errorf("%s: %s", errTmpl, err)
