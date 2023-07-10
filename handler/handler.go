@@ -91,12 +91,12 @@ func (c Configuration) Controller() *echo.Echo {
 
 	// Static embedded web assets
 	// These get distributed in the binary
-	e.StaticFS("/js", echo.MustSubFS(c.Public, "public/js"))
-	e.GET("/js", func(ctx echo.Context) error {
+	e.StaticFS("/images/html3", echo.MustSubFS(c.Public, "public/images/html3"))
+	e.GET("/images/html3", func(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound)
 	})
-	e.StaticFS("/images", echo.MustSubFS(c.Public, "public/images"))
-	e.GET("/images", func(ctx echo.Context) error {
+	e.StaticFS("/images/layout", echo.MustSubFS(c.Public, "public/images/layout"))
+	e.GET("/images/layout", func(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound)
 	})
 
@@ -114,14 +114,19 @@ func (c Configuration) Controller() *echo.Echo {
 	}))
 
 	// Redirects, these need to be before the routes and rewrites
+	e.GET("/defacto2/history", func(ctx echo.Context) error {
+		return ctx.Redirect(http.StatusMovedPermanently, "/history")
+	})
+	e.GET("/defacto2/subculture", func(ctx echo.Context) error {
+		return ctx.Redirect(http.StatusMovedPermanently, "/thescene")
+	})
 	e.GET("/files/json/site.webmanifest", func(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusMovedPermanently, "/site.webmanifest")
 	})
 
 	// Rewrites for URIs that have changed location
 	e.Pre(middleware.Rewrite(map[string]string{
-		"/favicon.ico": "/images/favicon.ico",
-		"/logo.txt":    "/text/defacto2.txt",
+		"/logo.txt": "/text/defacto2.txt",
 	}))
 
 	// Serve embeded CSS files
@@ -132,6 +137,8 @@ func (c Configuration) Controller() *echo.Echo {
 	e.FileFS("/js/bootstrap.bundle.min.js", "public/js/bootstrap.bundle.min.js", c.Public)
 	e.FileFS("/js/bootstrap.bundle.min.js.map", "public/js/bootstrap.bundle.min.js.map", c.Public)
 	e.FileFS("/js/fontawesome.min.js", "public/js/fontawesome.min.js", c.Public)
+	// Serve embeded image files
+	e.FileFS("/favicon.ico", "public/images/favicon.ico", c.Public)
 	// Serve embedded text files
 	e.FileFS("/osd.xml", "public/text/osd.xml", c.Public)
 	e.FileFS("/robots.txt", "public/text/robots.txt", c.Public)
@@ -155,11 +162,19 @@ func (c Configuration) Controller() *echo.Echo {
 
 	// Route => /
 	e.GET("/", func(ctx echo.Context) error {
-		// TODO pass c.Public instead of CSS/JS ?
 		return bootstrap.Index(nil, ctx)
 	})
 	e.GET("/file/list", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "Coming soon!")
+	})
+	e.GET("/history", func(ctx echo.Context) error {
+		return bootstrap.History(nil, ctx)
+	})
+	e.GET("/thanks", func(ctx echo.Context) error {
+		return bootstrap.Thanks(nil, ctx)
+	})
+	e.GET("/thescene", func(ctx echo.Context) error {
+		return bootstrap.TheScene(nil, ctx)
 	})
 
 	// Routes => /html3

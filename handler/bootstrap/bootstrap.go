@@ -2,9 +2,12 @@ package bootstrap
 
 import (
 	"embed"
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -23,6 +26,8 @@ const (
 	layoutCSS   = "public/css/layout.min.css"
 	fontawesome = "public/js/fontawesome.min.js"
 )
+
+var ErrTmpl = errors.New("the server could not render the HTML template for this page")
 
 // SRI are the Subresource Integrity hashes for the layout.
 type SRI struct {
@@ -55,20 +60,58 @@ func (s *SRI) Verify(fs embed.FS) error {
 
 // Index method is the homepage of the / sub-route.
 func Index(s *zap.SugaredLogger, ctx echo.Context) error {
-	errTmpl := "The server could not render the HTML template for this page"
 	err := ctx.Render(http.StatusOK, "index", map[string]interface{}{
-		// "integrityCSS":    css,
-		// "integrityLayout": cssLay,
-		// "integrityJS":     js,
-		// "integrityFA":     fa,
-		"title":     "demo",
-		"canonical": "",
+		"canonical":   "",
+		"description": "demo",
+		"title":       "demo",
 	})
 	if err != nil {
-		s.Errorf("%s: %s", errTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
+	return nil
+}
 
+func History(s *zap.SugaredLogger, ctx echo.Context) error {
+	err := ctx.Render(http.StatusOK, "history", map[string]interface{}{
+		"canonical":   "",
+		"description": "demo",
+		"title":       "History?!",
+	})
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
+func Thanks(s *zap.SugaredLogger, ctx echo.Context) error {
+	err := ctx.Render(http.StatusOK, "thanks", map[string]interface{}{
+		"canonical":   "",
+		"description": "",
+		"title":       "Thanks!",
+	})
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
+func TheScene(s *zap.SugaredLogger, ctx echo.Context) error {
+	const h1 = "What is the scene?"
+	const lead = "Collectively referred to as The Scene, it is a subculture of different computer activities where participants actively share ideas and creations."
+	err := ctx.Render(http.StatusOK, "thescene", map[string]interface{}{
+		"canonical":   "",
+		"description": fmt.Sprint(h1, " ", lead),
+		"title":       "The Scene",
+		"h1":          h1,
+		"lead":        lead,
+	})
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
 	return nil
 }
 
@@ -79,7 +122,10 @@ func Tmpl(log *zap.SugaredLogger, public, view embed.FS) map[string]*template.Te
 		panic(err)
 	}
 	templates := make(map[string]*template.Template)
-	templates["index"] = index(log, sri, view)
+	templates["index"] = tmpl(log, sri, view, "index.html")
+	templates["history"] = tmpl(log, sri, view, "history.html")
+	templates["thanks"] = tmpl(log, sri, view, "thanks.html")
+	templates["thescene"] = tmpl(log, sri, view, "thescene.html")
 	templates["error"] = httpErr(log, sri, view)
 	return templates
 }
@@ -89,16 +135,24 @@ func GlobTo(name string) string {
 	return strings.Join([]string{"view", "bootstrap", name}, "/")
 }
 
-// Index template.
-func index(log *zap.SugaredLogger, sri SRI, view embed.FS) *template.Template {
+// tmpl returns a layout template for the given named view.
+// Note that the name is relative to the view/bootstrap directory
+func tmpl(log *zap.SugaredLogger, sri SRI, view embed.FS, name string) *template.Template {
+	if _, err := os.Stat(filepath.Join("view", "bootstrap", name)); os.IsNotExist(err) {
+		log.Errorf("tmpl template not found: %s", err)
+		panic(err)
+	} else if err != nil {
+		log.Errorf("tmpl template has a problem: %s", err)
+		panic(err)
+	}
 	return template.Must(template.New("").Funcs(TemplateFuncMap(log, sri)).ParseFS(view,
-		GlobTo(layout), GlobTo("index.html"), GlobTo(modal)))
+		GlobTo(layout), GlobTo(name), GlobTo(modal)))
 }
 
-// Template for displaying HTTP error codes and feedback.
+// httpErr is the template for displaying HTTP error codes and feedback.
 func httpErr(log *zap.SugaredLogger, sri SRI, view embed.FS) *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap(log, sri)).ParseFS(view,
-		GlobTo(layout)))
+		GlobTo(layout), GlobTo("error.html"), GlobTo(modal)))
 }
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
