@@ -131,11 +131,17 @@ func (c Configuration) Controller() *echo.Echo {
 
 	// Rewrites for URIs that have changed location
 	e.Pre(middleware.Rewrite(map[string]string{
-		"/favicon.ico":      "/images/favicon.ico",
-		"/logo.txt":         "/text/defacto2.txt",
-		"/osd.xml":          "/text/osd.xml",
-		"/site.webmanifest": "/text/site.webmanifest",
+		"/favicon.ico": "/images/favicon.ico",
+		"/logo.txt":    "/text/defacto2.txt",
 	}))
+
+	// Rewrites for files that need special MIME types
+	e.GET("/osd.xml", func(ctx echo.Context) error {
+		return ctx.File("public/text/osd.xml")
+	})
+	e.GET("/site.webmanifest", func(ctx echo.Context) error {
+		return ctx.File("public/text/site.webmanifest.json")
+	})
 
 	if c.Import.IsProduction {
 		// recover from panics
