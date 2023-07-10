@@ -61,7 +61,8 @@ func Index(s *zap.SugaredLogger, ctx echo.Context) error {
 		// "integrityLayout": cssLay,
 		// "integrityJS":     js,
 		// "integrityFA":     fa,
-		"title": "demo",
+		"title":     "demo",
+		"canonical": "",
 	})
 	if err != nil {
 		s.Errorf("%s: %s", errTmpl, err)

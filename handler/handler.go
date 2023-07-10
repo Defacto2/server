@@ -72,6 +72,7 @@ type Configuration struct {
 	CSS     embed.FS           // Cascading Style Sheets.
 	Images  embed.FS           // Not in use.
 	JS      embed.FS           // JavaScripts.
+	Public  embed.FS           // Public facing files.
 	Views   embed.FS           // Views are Go templates.
 }
 
@@ -94,8 +95,21 @@ func (c Configuration) Controller() *echo.Echo {
 	// Static embedded web assets
 	// These get distributed in the binary
 	e.StaticFS("/css", echo.MustSubFS(c.CSS, "public/css"))
+	e.GET("/css", func(ctx echo.Context) error {
+		return echo.NewHTTPError(http.StatusNotFound)
+	})
 	e.StaticFS("/js", echo.MustSubFS(c.JS, "public/js"))
+	e.GET("/js", func(ctx echo.Context) error {
+		return echo.NewHTTPError(http.StatusNotFound)
+	})
 	e.StaticFS("/images", echo.MustSubFS(c.Images, "public/images"))
+	e.GET("/images", func(ctx echo.Context) error {
+		return echo.NewHTTPError(http.StatusNotFound)
+	})
+	e.StaticFS("/text", echo.MustSubFS(c.Public, "public/text"))
+	e.GET("/text", func(ctx echo.Context) error {
+		return echo.NewHTTPError(http.StatusNotFound)
+	})
 
 	// Middleware
 	e.Use(middleware.Gzip())
@@ -109,9 +123,18 @@ func (c Configuration) Controller() *echo.Echo {
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
 		Timeout: time.Duration(c.Import.Timeout) * time.Second,
 	}))
-	// uri rewrites
+
+	// Redirects, these need to be before the routes and rewrites
+	e.GET("/files/json/site.webmanifest", func(ctx echo.Context) error {
+		return ctx.Redirect(http.StatusMovedPermanently, "/site.webmanifest")
+	})
+
+	// Rewrites for URIs that have changed location
 	e.Pre(middleware.Rewrite(map[string]string{
-		"favicon.ico": "/images/favicon.ico",
+		"/favicon.ico":      "/images/favicon.ico",
+		"/logo.txt":         "/text/defacto2.txt",
+		"/osd.xml":          "/text/osd.xml",
+		"/site.webmanifest": "/text/site.webmanifest",
 	}))
 
 	if c.Import.IsProduction {

@@ -4,8 +4,41 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ .title }} | Defacto2</title>
-    <link href="/css/bootstrap.min.css" rel="stylesheet" integrity="{{ sriBootstrapCSS }}" crossorigin="anonymous">
-    <link href="/css/layout.min.css" rel="stylesheet" integrity="{{ sriLayoutCSS }}" crossorigin="anonymous">
+    {{if ne (index . "canonical") ""}}<link rel="canonical" href="https://defacto2.net/{{index . "canonical"}}">{{end -}}
+    <meta name="description" content="Defacto2 is the premier destination for old school files and historical texts of the underground PC cracking, BBS and art scenes">
+    <meta name="theme-color" content="rgb(153, 153, 153)">
+    <meta name="defacto2:file-count" content="45209">{{/*  TODO  */}}
+    <meta name="monetization" content="$ilp.uphold.com/RpWPnb88yLaF">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="address=no">
+    {{- /*  schema.org linked data  */}}
+    <script type="application/ld+json">
+      {{- /*  TODO: check for the existence of defacto2-floppy_disk_icon-180x180.png  */}}
+      [{"@context":"http://schema.org","@type":"Organization","name":"Defacto2","url":"https://defacto2.net/","logo":"https://defacto2.net/images/layout/favicon-180x180-180x180.png",
+      "sameAs": ["https://facebook.com/Defacto2","https://twitter.com/Defacto2","https://youtube.com/defacto2","https://mas.to/@defacto2","https://github.com/defacto2?tab=repositories","https://defacto2.wordpress.com"]},
+      {"@context":"http://schema.org","@type":"WebSite","license":"https://creativecommons.org/licenses/by/4.0/","url": "https://defacto2.net/","potentialAction":{"@type":"SearchAction","target":"https://defacto2.net/search/result?query={search_term_string}","query-input":"required name=search_term_string"}}]
+    </script>
+    {{- /*  preload assets  */}}
+    <link rel="preload" href="/css/bootstrap.min.css?{{ sriBootstrapCSS }}" as="style">
+    <link rel="preload" href="/css/layout.min.css?{{ sriLayoutCSS }}" as="style">
+    {{- /*  bookmark and tab icons  */}}
+    {{- /*  todo check the existence of all files  */}}
+    <link rel="icon" type="image/svg+xml" href="/images/layout/favicon.svg">
+    <link rel="icon" type="image/png" href="/images/layout/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/images/layout/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/images/layout/favicon-192x192.png" sizes="192x192">
+    <link rel="apple-touch-icon" href="/images/layout/favicon-180x180.png" sizes="180x180">
+    {{- /*  website manifest  */}}
+    <link rel="manifest" href="site.webmanifest">
+    {{- /*  relationships  */}}
+    <link rel="alternate" href="https://github.com/Defacto2" type="text/html" title="Defacto2 organisation on GitHub">
+    <link rel="alternate" href="https://demozoo.org/groups/10000/" type="text/html" title="Defacto2 group profile on Demozoo">
+    <link rel="license" href="https://creativecommons.org/licenses/by/4.0/" title="Creative Commons Licence">
+    {{- /*  opensearch.org  TODO: file exists */}}
+    <link rel="search" href="osd.xml" type="application/opensearchdescription+xml" title="Defacto2 search">
+    {{- /*  cascading style sheets  */}}
+    <link href="/css/bootstrap.min.css?{{ sriBootstrapCSS }}" rel="stylesheet" integrity="{{ sriBootstrapCSS }}" crossorigin="anonymous">
+    <link href="/css/layout.min.css?{{ sriLayoutCSS }}" rel="stylesheet" integrity="{{ sriLayoutCSS }}" crossorigin="anonymous">
   </head>
   <body>
     <div class="container">
@@ -185,11 +218,11 @@
       {{- block "modal" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
       {{- block "content" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
     </div>
-    <script src="/js/bootstrap.bundle.min.js" integrity="{{ sriBootstrapJS }}" crossorigin="anonymous"></script>
+    <script src="/js/bootstrap.bundle.min.js?{{ sriBootstrapJS }}" integrity="{{ sriBootstrapJS }}" crossorigin="anonymous"></script>
+    <script src="/js/fontawesome.min.js?{{ sriFontAwesome }}" integrity="{{ sriFontAwesome }}" crossorigin="anonymous"></script>
     <script defer>
       const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
       const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     </script>
-    <script src="/js/fontawesome.min.js" integrity="{{ sriFontAwesome }}" crossorigin="anonymous"></script>
   </body>
 </html>{{end}}

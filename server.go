@@ -17,7 +17,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-//go:embed public/texts/defacto2.txt
+//go:embed public/text/defacto2.txt
 var brand []byte
 
 //go:embed public/css/*
@@ -28,6 +28,9 @@ var images embed.FS
 
 //go:embed public/js/*
 var js embed.FS
+
+//go:embed public/**/*
+var public embed.FS
 
 //go:embed view/**/*.html
 var views embed.FS
@@ -98,6 +101,7 @@ func main() {
 		Images:  images,
 		JS:      js,
 		Views:   views,
+		Public:  public,
 	}
 	e := server.Controller()
 

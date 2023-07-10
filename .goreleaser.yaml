@@ -37,7 +37,7 @@ archives:
       {{- if eq .Os "darwin" }}{{ tolower .ProjectName }}_{{ .Version }}_macos{{else -}}
       {{ tolower .ProjectName }}_{{ .Version }}_{{- tolower .Os }}{{ end }}
     files:
-      - src: public/texts/defacto2.txt
+      - src: public/text/defacto2.txt
         strip_parent: true
 checksum:
   name_template: 'checksums.txt'

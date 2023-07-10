@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+  <ShortName>Defacto2</ShortName>
+  <Description>Site wide search of the organisations, authors, web links and hosted files metadata served on Defacto2.</Description>
+  <Url type="application/opensearchdescription+xml"
+    rel="self"
+    template="https://defacto2.net/osd.xml" />
+  <Url type="text/html"
+    rel="results"
+    template="https://defacto2.net/search/result?query={searchTerms}"/>
+  <LongName>Defacto2 filename, group, person, word or a phrase lookup.</LongName>
+  <Image height="192" width="192" type="image/png">https://defacto2.net/images/layout/favicon-192x192.png</Image>
+  <Image height="16" width="16" type="image/x-icon">https://defacto2.net/favicon.ico</Image>
+  <Query role="example" searchTerms="class" />
+  <Query role="example" searchTerms="razor|rzr" />
+  <Query role="example" searchTerms="park central bbs" />
+  <Attribution>
+    Search data is licensed under Creative Commons Attribution 4.0 International
+  </Attribution>
+  <SyndicationRight>open</SyndicationRight>
+  <AdultContent>true</AdultContent>
+  <Language>*</Language>
+  <OutputEncoding>UTF-8</OutputEncoding>
+  <InputEncoding>UTF-8</InputEncoding>
+</OpenSearchDescription>
