@@ -3,9 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Defacto2 demo</title>
-    <link href="/css/bootstrap.min.css" rel="stylesheet" integrity="{{ index . "integrityCSS" }}" crossorigin="anonymous">
-    <link href="/css/layout.min.css" rel="stylesheet" integrity="{{ index . "integrityLayout" }}" crossorigin="anonymous">
+    <title>{{ .title }} | Defacto2</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet" integrity="{{ sriBootstrapCSS }}" crossorigin="anonymous">
+    <link href="/css/layout.min.css" rel="stylesheet" integrity="{{ sriLayoutCSS }}" crossorigin="anonymous">
   </head>
   <body>
     <div class="container">
@@ -185,11 +185,11 @@
       {{- block "modal" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
       {{- block "content" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
     </div>
-    <script src="/js/bootstrap.bundle.min.js" integrity="{{ index . "integrityJS" }}" crossorigin="anonymous"></script>
+    <script src="/js/bootstrap.bundle.min.js" integrity="{{ sriBootstrapJS }}" crossorigin="anonymous"></script>
     <script defer>
       const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
       const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     </script>
-    <script src="/js/fontawesome.min.js" integrity="{{ index . "integrityFA" }}" crossorigin="anonymous"></script>
+    <script src="/js/fontawesome.min.js" integrity="{{ sriFontAwesome }}" crossorigin="anonymous"></script>
   </body>
 </html>{{end}}

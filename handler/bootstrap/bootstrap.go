@@ -14,45 +14,54 @@ import (
 )
 
 const (
-	layout      = "layout.html"
-	modal       = "modal.html"
-	pagination  = "pagination.html"
+	layout     = "layout.html"
+	modal      = "modal.html"
+	pagination = "pagination.html"
+
+	bootCSS     = "public/css/bootstrap.min.css"
+	bootJS      = "public/js/bootstrap.bundle.min.js"
 	layoutCSS   = "public/css/layout.min.css"
-	nameCSS     = "public/css/bootstrap.min.css"
-	nameJS      = "public/js/bootstrap.bundle.min.js"
 	fontawesome = "public/js/fontawesome.min.js"
 )
 
+// SRI are the Subresource Integrity hashes for the layout.
+type SRI struct {
+	BootstrapCSS string // Bootstrap CSS verification hash.
+	BootstrapJS  string // Bootstrap JS verification hash.
+	FontAwesome  string // Font Awesome verification hash.
+	LayoutCSS    string // Layout CSS verification hash.
+}
+
+func (s *SRI) Verify(css, js embed.FS) error {
+	var err error
+	s.BootstrapCSS, err = Integrity(bootCSS, css)
+	if err != nil {
+		return err
+	}
+	s.BootstrapJS, err = Integrity(bootJS, js)
+	if err != nil {
+		return err
+	}
+	s.FontAwesome, err = Integrity(fontawesome, js)
+	if err != nil {
+		return err
+	}
+	s.LayoutCSS, err = Integrity(layoutCSS, css)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // Index method is the homepage of the / sub-route.
-func Index(s *zap.SugaredLogger, ctx echo.Context, CSS, JS embed.FS) error {
+func Index(s *zap.SugaredLogger, ctx echo.Context) error {
 	errTmpl := "The server could not render the HTML template for this page"
-
-	css, err := Integrity(nameCSS, CSS)
-	if err != nil {
-		fmt.Println(err) // TODO: logger
-		return err
-	}
-	js, err := Integrity(nameJS, JS)
-	if err != nil {
-		fmt.Println(err) // TODO: logger
-		return err
-	}
-	fa, err := Integrity(fontawesome, JS)
-	if err != nil {
-		fmt.Println(err) // TODO: logger
-		return err
-	}
-	cssLay, err := Integrity(layoutCSS, CSS)
-	if err != nil {
-		fmt.Println(err) // TODO: logger
-		return err
-	}
-
-	err = ctx.Render(http.StatusOK, "index", map[string]interface{}{
-		"integrityCSS":    css,
-		"integrityLayout": cssLay,
-		"integrityJS":     js,
-		"integrityFA":     fa,
+	err := ctx.Render(http.StatusOK, "index", map[string]interface{}{
+		// "integrityCSS":    css,
+		// "integrityLayout": cssLay,
+		// "integrityJS":     js,
+		// "integrityFA":     fa,
+		"title": "demo",
 	})
 	if err != nil {
 		s.Errorf("%s: %s", errTmpl, err)
@@ -63,10 +72,14 @@ func Index(s *zap.SugaredLogger, ctx echo.Context, CSS, JS embed.FS) error {
 }
 
 // Tmpl returns a map of the templates used by the route.
-func Tmpl(log *zap.SugaredLogger, fs embed.FS) map[string]*template.Template {
+func Tmpl(log *zap.SugaredLogger, css, js, view embed.FS) map[string]*template.Template {
+	var sri SRI
+	if err := sri.Verify(css, js); err != nil {
+		panic(err)
+	}
 	templates := make(map[string]*template.Template)
-	templates["index"] = index(log, fs)
-	templates["error"] = httpErr(log, fs)
+	templates["index"] = index(log, sri, view)
+	templates["error"] = httpErr(log, sri, view)
 	return templates
 }
 
@@ -76,20 +89,32 @@ func GlobTo(name string) string {
 }
 
 // Index template.
-func index(log *zap.SugaredLogger, fs embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(log)).ParseFS(fs,
+func index(log *zap.SugaredLogger, sri SRI, view embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap(log, sri)).ParseFS(view,
 		GlobTo(layout), GlobTo("index.html"), GlobTo(modal)))
 }
 
 // Template for displaying HTTP error codes and feedback.
-func httpErr(log *zap.SugaredLogger, fs embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(log)).ParseFS(fs,
+func httpErr(log *zap.SugaredLogger, sri SRI, view embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap(log, sri)).ParseFS(view,
 		GlobTo(layout)))
 }
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
-func TemplateFuncMap(log *zap.SugaredLogger) template.FuncMap {
+func TemplateFuncMap(log *zap.SugaredLogger, sri SRI) template.FuncMap {
 	return template.FuncMap{
+		"sriBootstrapCSS": func() string {
+			return sri.BootstrapCSS
+		},
+		"sriBootstrapJS": func() string {
+			return sri.BootstrapJS
+		},
+		"sriFontAwesome": func() string {
+			return sri.FontAwesome
+		},
+		"sriLayoutCSS": func() string {
+			return sri.LayoutCSS
+		},
 		"safeHTML": func(s string) template.HTML {
 			return template.HTML(s)
 		},

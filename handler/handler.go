@@ -87,7 +87,7 @@ func (c Configuration) Controller() *echo.Echo {
 	e.Renderer = &TemplateRegistry{
 		Templates: Join(
 			html3.TmplHTML3(c.Log, c.Views),
-			bootstrap.Tmpl(c.Log, c.Views),
+			bootstrap.Tmpl(c.Log, c.CSS, c.JS, c.Views),
 		),
 	}
 
@@ -133,7 +133,7 @@ func (c Configuration) Controller() *echo.Echo {
 	// Route => /
 	e.GET("/", func(ctx echo.Context) error {
 		// TODO pass c.Public instead of CSS/JS ?
-		return bootstrap.Index(nil, ctx, c.CSS, c.JS)
+		return bootstrap.Index(nil, ctx)
 	})
 	e.GET("/file/list", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "Coming soon!")
