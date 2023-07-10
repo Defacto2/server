@@ -94,20 +94,12 @@ func (c Configuration) Controller() *echo.Echo {
 
 	// Static embedded web assets
 	// These get distributed in the binary
-	e.StaticFS("/css", echo.MustSubFS(c.CSS, "public/css"))
-	e.GET("/css", func(ctx echo.Context) error {
-		return echo.NewHTTPError(http.StatusNotFound)
-	})
 	e.StaticFS("/js", echo.MustSubFS(c.JS, "public/js"))
 	e.GET("/js", func(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound)
 	})
 	e.StaticFS("/images", echo.MustSubFS(c.Images, "public/images"))
 	e.GET("/images", func(ctx echo.Context) error {
-		return echo.NewHTTPError(http.StatusNotFound)
-	})
-	e.StaticFS("/text", echo.MustSubFS(c.Public, "public/text"))
-	e.GET("/text", func(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound)
 	})
 
@@ -135,13 +127,18 @@ func (c Configuration) Controller() *echo.Echo {
 		"/logo.txt":    "/text/defacto2.txt",
 	}))
 
-	// Rewrites for files that need special MIME types
-	e.GET("/osd.xml", func(ctx echo.Context) error {
-		return ctx.File("public/text/osd.xml")
-	})
-	e.GET("/site.webmanifest", func(ctx echo.Context) error {
-		return ctx.File("public/text/site.webmanifest.json")
-	})
+	// Serve embeded CSS files
+	e.FileFS("/css/bootstrap.min.css", "public/css/bootstrap.min.css", c.CSS)
+	e.FileFS("/css/bootstrap.min.css.map", "public/css/bootstrap.min.css.map", c.CSS)
+	e.FileFS("/css/layout.min.css", "public/css/layout.min.css", c.CSS)
+	// Serve embeded JS files
+	e.FileFS("/js/bootstrap.bundle.min.js", "public/js/bootstrap.bundle.min.js", c.JS)
+	e.FileFS("/js/bootstrap.bundle.min.js.map", "public/js/bootstrap.bundle.min.js.map", c.JS)
+	e.FileFS("/js/fontawesome.min.js", "public/js/fontawesome.min.js", c.JS)
+	// Serve embedded text files
+	e.FileFS("/osd.xml", "public/text/osd.xml", c.Public)
+	e.FileFS("/robots.txt", "public/text/robots.txt", c.Public)
+	e.FileFS("/site.webmanifest", "public/text/site.webmanifest.json", c.Public)
 
 	if c.Import.IsProduction {
 		// recover from panics
