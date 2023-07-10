@@ -69,9 +69,6 @@ type Configuration struct {
 	Log     *zap.SugaredLogger // Log is a sugared logger.
 	Brand   *[]byte            // Brand points to the Defacto2 ASCII logo.
 	Version string             // Version is the results of GoReleaser build command.
-	CSS     embed.FS           // Cascading Style Sheets.
-	Images  embed.FS           // Not in use.
-	JS      embed.FS           // JavaScripts.
 	Public  embed.FS           // Public facing files.
 	Views   embed.FS           // Views are Go templates.
 }
@@ -88,17 +85,17 @@ func (c Configuration) Controller() *echo.Echo {
 	e.Renderer = &TemplateRegistry{
 		Templates: Join(
 			html3.TmplHTML3(c.Log, c.Views),
-			bootstrap.Tmpl(c.Log, c.CSS, c.JS, c.Views),
+			bootstrap.Tmpl(c.Log, c.Public, c.Views),
 		),
 	}
 
 	// Static embedded web assets
 	// These get distributed in the binary
-	e.StaticFS("/js", echo.MustSubFS(c.JS, "public/js"))
+	e.StaticFS("/js", echo.MustSubFS(c.Public, "public/js"))
 	e.GET("/js", func(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound)
 	})
-	e.StaticFS("/images", echo.MustSubFS(c.Images, "public/images"))
+	e.StaticFS("/images", echo.MustSubFS(c.Public, "public/images"))
 	e.GET("/images", func(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound)
 	})
@@ -128,13 +125,13 @@ func (c Configuration) Controller() *echo.Echo {
 	}))
 
 	// Serve embeded CSS files
-	e.FileFS("/css/bootstrap.min.css", "public/css/bootstrap.min.css", c.CSS)
-	e.FileFS("/css/bootstrap.min.css.map", "public/css/bootstrap.min.css.map", c.CSS)
-	e.FileFS("/css/layout.min.css", "public/css/layout.min.css", c.CSS)
+	e.FileFS("/css/bootstrap.min.css", "public/css/bootstrap.min.css", c.Public)
+	e.FileFS("/css/bootstrap.min.css.map", "public/css/bootstrap.min.css.map", c.Public)
+	e.FileFS("/css/layout.min.css", "public/css/layout.min.css", c.Public)
 	// Serve embeded JS files
-	e.FileFS("/js/bootstrap.bundle.min.js", "public/js/bootstrap.bundle.min.js", c.JS)
-	e.FileFS("/js/bootstrap.bundle.min.js.map", "public/js/bootstrap.bundle.min.js.map", c.JS)
-	e.FileFS("/js/fontawesome.min.js", "public/js/fontawesome.min.js", c.JS)
+	e.FileFS("/js/bootstrap.bundle.min.js", "public/js/bootstrap.bundle.min.js", c.Public)
+	e.FileFS("/js/bootstrap.bundle.min.js.map", "public/js/bootstrap.bundle.min.js.map", c.Public)
+	e.FileFS("/js/fontawesome.min.js", "public/js/fontawesome.min.js", c.Public)
 	// Serve embedded text files
 	e.FileFS("/osd.xml", "public/text/osd.xml", c.Public)
 	e.FileFS("/robots.txt", "public/text/robots.txt", c.Public)

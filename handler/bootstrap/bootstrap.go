@@ -32,21 +32,21 @@ type SRI struct {
 	LayoutCSS    string // Layout CSS verification hash.
 }
 
-func (s *SRI) Verify(css, js embed.FS) error {
+func (s *SRI) Verify(fs embed.FS) error {
 	var err error
-	s.BootstrapCSS, err = Integrity(bootCSS, css)
+	s.BootstrapCSS, err = Integrity(bootCSS, fs)
 	if err != nil {
 		return err
 	}
-	s.BootstrapJS, err = Integrity(bootJS, js)
+	s.BootstrapJS, err = Integrity(bootJS, fs)
 	if err != nil {
 		return err
 	}
-	s.FontAwesome, err = Integrity(fontawesome, js)
+	s.FontAwesome, err = Integrity(fontawesome, fs)
 	if err != nil {
 		return err
 	}
-	s.LayoutCSS, err = Integrity(layoutCSS, css)
+	s.LayoutCSS, err = Integrity(layoutCSS, fs)
 	if err != nil {
 		return err
 	}
@@ -73,9 +73,9 @@ func Index(s *zap.SugaredLogger, ctx echo.Context) error {
 }
 
 // Tmpl returns a map of the templates used by the route.
-func Tmpl(log *zap.SugaredLogger, css, js, view embed.FS) map[string]*template.Template {
+func Tmpl(log *zap.SugaredLogger, public, view embed.FS) map[string]*template.Template {
 	var sri SRI
-	if err := sri.Verify(css, js); err != nil {
+	if err := sri.Verify(public); err != nil {
 		panic(err)
 	}
 	templates := make(map[string]*template.Template)

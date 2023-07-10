@@ -20,15 +20,6 @@ import (
 //go:embed public/text/defacto2.txt
 var brand []byte
 
-//go:embed public/css/*
-var css embed.FS
-
-//go:embed public/images/*
-var images embed.FS
-
-//go:embed public/js/*
-var js embed.FS
-
 //go:embed public/**/*
 var public embed.FS
 
@@ -97,9 +88,6 @@ func main() {
 		Log:     log,
 		Brand:   &brand,
 		Version: version,
-		CSS:     css,
-		Images:  images,
-		JS:      js,
 		Views:   views,
 		Public:  public,
 	}
