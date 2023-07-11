@@ -229,13 +229,17 @@
            │ ███▄▄██▓ ███▄▄▄▄▄▄██▓  ███▄ ███▄███▄▄███ ███▄▄███▄ ███▄███▄▄███ │
      · ··──┼─────────··              defacto2.net                 ··─────────┼──·· ·
            │                                                                 :
-           :                  ·· WELCOME TO DEFACTO2 ··                      ·
+           {{logoText ""}}
         </pre>
       </div>
+      <main>
       {{if ne (index . "h1") ""}}<h1 class="display-6">{{ index . "h1" }}</h1>{{end -}}
       {{if ne (index . "lead") ""}}<p class="lead">{{ index . "lead" }}</p>{{end -}}
       {{- block "content" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
-      <p>&nbsp;</p>
+      </main>
+      <footer class="font-dos text-end">
+        &copy; Defacto2
+      </footer>
     </div>
     <script src="/js/bootstrap.bundle.min.js?{{ sriBootstrapJS }}" integrity="{{ sriBootstrapJS }}" crossorigin="anonymous"></script>
     <script src="/js/fontawesome.min.js?{{ sriFontAwesome }}" integrity="{{ sriFontAwesome }}" crossorigin="anonymous"></script>

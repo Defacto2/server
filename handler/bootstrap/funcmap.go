@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/url"
+	"strings"
 )
 
 const (
@@ -50,4 +51,25 @@ func WikiLink(uri, name string) template.HTML {
 		return template.HTML(err.Error())
 	}
 	return template.HTML(fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover" href="%s">%s %s</a>`, href, name, wiki))
+}
+
+func LogoText(s string) string {
+	const (
+		welcome = ":                  ·· WELCOME TO DEFACTO2 ··                      ·"
+		padder  = " ·· "
+	)
+	if s == "" {
+		return welcome
+	}
+	const w, p = len(welcome), len(padder)
+	const max = w - 3 - (p * 2)
+	l := len(s)
+	if l > max {
+		return fmt.Sprintf(":%s%s%s·", padder, s[:max], padder)
+	}
+
+	// ":                  ·· WELCOME TO DEFACTO2 ··                      ·"
+	ns := fmt.Sprintf("%s%s%s", padder, s, padder)
+	pad := (w / 2) - (len(ns) / 2) - (p / 2)
+	return fmt.Sprintf(":%s%s", strings.Repeat(" ", pad), ns)
 }

@@ -126,7 +126,8 @@
       </div>
       <div class="modal-body">
         <p class="lead">Defacto2 does not track visitors to the site</p>
-        <p>We use the privacy first, <a href="https://www.cloudflare.com/web-analytics/">Cloudflare analystics</a> that does not use any client-side state or figerprinting.</p>
+        <p>We use the privacy first, <a href="https://www.cloudflare.com/web-analytics/">Cloudflare Analytics</a> that does not use any form of client-side state or fingerprinting.</p>
+        <p>And there are no 3rd-party tools or downloads in use that are hosted on remote servers.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -186,7 +187,7 @@
     </div>
   </div>
 </div>
-{{/*  Copyright  */}}
+{{/*  Copyright and License  */}}
 <div class="modal fade" id="copyrightModal" tabindex="-1" aria-labelledby="copyrightModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
@@ -204,22 +205,29 @@
         </p>
         <p>The Creative Commons Attribution 4.0 International license applied to defacto2.net is a liberal implementation of copyright. You are free to use the original content as is or modify it to your needs.</p>
         <p>The only requirement we impose is that you attribute, that is give credit to defacto2.net for each piece of content you use. This attribution can either be placed on the content itself or distributed in a separate file within the content.</p>
-        <p><a href="https://creativecommons.org/licences/by/4.0/">You can find more information on our Creative Commons license at the Creative Commons website, containing links to the full license, legal code.</a></p>
+        <p><a href="https://creativecommons.org/licences/by/4.0/" class="icon-link icon-link-hover link-underline link-underline-opacity-25"><svg class="bi" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#cc-circle"></use></svg> You can find more information on our Creative Commons license at the Creative Commons website, containing links to the full license, legal code.</a></p>
         <ul class="list-unstyled">
-          <li>This license coverage includes:
-            <ul>
-              <li>Website text and database content</li>
-              <li>Images including previews and screenshots</li>
-              <li>Videos hosted on YouTube</li>
+          <li><span class="lead">This includes</span>
+            <ul class="list-unstyled">
+              <li><span class="text-success"><svg class="bi" width="20" height="20" fill="currentColor" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#check2"></use></svg></span> Website text and database content</li>
+              <li><span class="text-success"><svg class="bi" width="20" height="20" fill="currentColor" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#check2"></use></svg></span> Images including previews and screenshots</li>
+              <li><span class="text-success"><svg class="bi" width="20" height="20" fill="currentColor" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#check2"></use></svg></span> Videos hosted on YouTube</li>
             </ul>
           </li>
         </ul>
         <ul class="list-unstyled">
-          <li>The license <u>excludes</u>:
-            <ul>
-              <li><strong>All file downloads</strong> hosted and served using the URL: <code>defacto2.net/d/</code></li>
-              <li>Glyphs and fonts named with a <code>fa-</code> prefix</li>
-              <li>Images and icons contained in: <code>/images/html3/</code></li>
+          <li><span class="lead">But <u>excludes</u></span>
+            <ul class="list-unstyled">
+              <li>
+                <span class="text-danger"><svg class="bi" width="24" height="24" fill="currentColor" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#x"></use></svg></span> All files served using the URLs:
+                <ul>
+                  <li><code>defacto2.net/d/</code></li>
+                  <li><code>defacto2.net/file/view/</code></li>
+                </ul>
+              </li>
+              <li><span class="text-danger"><svg class="bi" width="24" height="24" fill="currentColor" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#x"></use></svg></span> The website source code and all dependencies</li>
+              <li><span class="text-danger"><svg class="bi" width="24" height="24" fill="currentColor" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#x"></use></svg></span> Glyphs and fonts by FontAwesome or Bootstrap</li>
+              <li><span class="text-danger"><svg class="bi" width="24" height="24" fill="currentColor" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#x"></use></svg></span> Images and icons contained in: <code>/images/html3/</code></li>
             </ul>
           </li>
         </ul>
@@ -250,8 +258,27 @@
           The website is built in <a href="">Go</a> using the following libraries and dependencies:
         </p>
         <dl class="row">
-          <dt class="col-sm-3"><a href="https://getbootstrap.com/">Bootstrap</a></dt>
-          <dd class="col-sm-9">The website frontend, ie the user interface</dd>
+          <dt class="col-sm-4"><a href="https://getbootstrap.com/">Bootstrap</a></dt>
+          <dd class="col-sm-8">The frontend and the user interface</dd>
+          <dt class="col-sm-4"><a href="https://icons.getbootstrap.com/">Bootstrap Icons</a></dt>
+          <dd class="col-sm-8">The user interface icons</dd>
+          <dt class="col-sm-4"><a href="https://fossies.org/linux/httpd/docs/icons/README.html">Public domain</a></dt>
+          <dd class="col-sm-8">The retro HTML3 icons</dd>
+        </dl>
+        <dl class="row">
+          <dt class="col-sm-4"><a href="https://www.postgresql.org/">PostgreSQL</a></dt>
+          <dd class="col-sm-8">The database</dd>
+          <dt class="col-sm-4"><a href="https://www.digitalocean.com/">DigitalOcean</a></dt>
+          <dd class="col-sm-8">The web host</dd>
+        </dl>
+        <p>
+          Individuals who have contributed to the website include:
+        </p>
+        <dl class="row">
+          <dt class="col-sm-4"><a href="https://int10h.org/oldschool-pc-fonts/">VileR</a></dt>
+          <dd class="col-sm-8">The VGA font</dd>
+          <dt class="col-sm-4"><a href="https://demozoo.org/sceners/47321/">Antibody</a></dt>
+          <dd class="col-sm-8">The text Defacto2 logo</dd>
         </dl>
       </div>
       <div class="modal-footer">

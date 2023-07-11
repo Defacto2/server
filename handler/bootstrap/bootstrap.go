@@ -172,6 +172,7 @@ func httpErr(log *zap.SugaredLogger, sri SRI, view embed.FS) *template.Template 
 func TemplateFuncMap(log *zap.SugaredLogger, sri SRI) template.FuncMap {
 	return template.FuncMap{
 		"externalLink": ExternalLink,
+		"logoText":     LogoText,
 		"wikiLink":     WikiLink,
 		"sriBootstrapCSS": func() string {
 			return sri.BootstrapCSS
