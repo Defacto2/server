@@ -219,6 +219,19 @@
         </div>
       </nav>
       {{- block "modal" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
+      <hr>
+      <div class="d-flex justify-content-center">
+        <pre class="text-start text-bg-dark rounded font-dos"> 
+    
+           ·      ▒██▀ ▀       ▒██▀ ▀              ▀ ▀▒██             ▀ ▀███ ·
+           : ▒██▀ ▓██ ▒██▀▀██▓ ▓██▀▀▒██▀▀███ ▒██▀▀██▓ ▓██▀ ▒██▀▀███ ▒██▀▀▀▀▀ :
+      · ··─┼─▓██──███─▓██─▄███─███──▓██──███─▓██──────███──▓██──███─▓██──███─┼─·· ·
+           │ ███▄▄██▓ ███▄▄▄▄▄▄██▓  ███▄ ███▄███▄▄███ ███▄▄███▄ ███▄███▄▄███ │
+     · ··──┼─────────··              defacto2.net                 ··─────────┼──·· ·
+           │                                                                 :
+           :                  ·· WELCOME TO DEFACTO2 ··                      ·
+        </pre>
+      </div>
       {{if ne (index . "h1") ""}}<h1 class="display-6">{{ index . "h1" }}</h1>{{end -}}
       {{if ne (index . "lead") ""}}<p class="lead">{{ index . "lead" }}</p>{{end -}}
       {{- block "content" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
@@ -230,14 +243,13 @@
       const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
       const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     </script>
-    {{/*  TODO: move to a to layout template using a Go var  */}}
+    {{- if ne (index . "carousel") ""}}
     <script defer>
-      const myCarouselElement = document.querySelector('#carouselExampleCaptions')
-
+      const myCarouselElement = document.querySelector('{{index . "carousel"}}')
       const carousel = new bootstrap.Carousel(myCarouselElement, {
         interval: 2000,
         touch: false
       })    
-    </script>
+    </script>{{end}}
   </body>
 </html>{{end}}

@@ -17,3 +17,19 @@
 .fa-youtube {
     color: #cd201f;
 }
+
+@font-face {
+    font-family: font-vga-eight;
+    font-display: swap;
+    src: url("/font/pxplus_ibm_vga8.woff2") format("woff2"),
+      url("/font/pxplus_ibm_vga8.woff") format("woff"),
+      url("/font/pxplus_ibm_vga8.ttf") format("truetype");
+}
+
+.font-dos {
+    font-family: font-vga-eight, monospace;
+    font-size: initial;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+}

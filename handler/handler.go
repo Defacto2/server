@@ -139,6 +139,10 @@ func (c Configuration) Controller() *echo.Echo {
 	e.FileFS("/css/layout.min.css", "public/css/layout.min.css", c.Public)
 	// Serve embeded SVG collections
 	e.FileFS("/bootstrap-icons.svg", "public/images/bootstrap-icons.svg", c.Public)
+	// Serve embeded font files
+	e.FileFS("/font/pxplus_ibm_vga8.woff2", "public/font/pxplus_ibm_vga8.woff2", c.Public)
+	e.FileFS("/font/pxplus_ibm_vga8.woff", "public/font/pxplus_ibm_vga8.woff", c.Public)
+	e.FileFS("/font/pxplus_ibm_vga8.ttf", "public/font/pxplus_ibm_vga8.ttf", c.Public)
 	// Serve embeded JS files
 	e.FileFS("/js/bootstrap.bundle.min.js", "public/js/bootstrap.bundle.min.js", c.Public)
 	e.FileFS("/js/bootstrap.bundle.min.js.map", "public/js/bootstrap.bundle.min.js.map", c.Public)
