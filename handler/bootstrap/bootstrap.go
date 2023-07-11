@@ -58,13 +58,23 @@ func (s *SRI) Verify(fs embed.FS) error {
 	return nil
 }
 
+func initData() map[string]interface{} {
+	return map[string]interface{}{
+		"canonical":   "",
+		"carousel":    "",
+		"description": "",
+		"h1":          "",
+		"lead":        "",
+		"title":       "",
+	}
+}
+
 // Index method is the homepage of the / sub-route.
 func Index(s *zap.SugaredLogger, ctx echo.Context) error {
-	err := ctx.Render(http.StatusOK, "index", map[string]interface{}{
-		"canonical":   "",
-		"description": "demo",
-		"title":       "demo",
-	})
+	data := initData()
+	data["description"] = "demo"
+	data["title"] = "demo"
+	err := ctx.Render(http.StatusOK, "index", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
@@ -74,13 +84,13 @@ func Index(s *zap.SugaredLogger, ctx echo.Context) error {
 
 func History(s *zap.SugaredLogger, ctx echo.Context) error {
 	const lead = "Defacto founded in late February or early March of 1996, as an electronic magazine that wrote about The Scene subculture."
-	err := ctx.Render(http.StatusOK, "history", map[string]interface{}{
-		"canonical":   "",
-		"description": lead,
-		"title":       "Our history",
-		"h1":          "Our history",
-		"lead":        lead,
-	})
+	data := initData()
+	data["carousel"] = "#carouselExampleCaptions"
+	data["description"] = lead
+	data["h1"] = "Our history"
+	data["lead"] = lead
+	data["title"] = "Our history"
+	err := ctx.Render(http.StatusOK, "history", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
@@ -89,13 +99,12 @@ func History(s *zap.SugaredLogger, ctx echo.Context) error {
 }
 
 func Thanks(s *zap.SugaredLogger, ctx echo.Context) error {
-	err := ctx.Render(http.StatusOK, "thanks", map[string]interface{}{
-		"canonical":   "",
-		"description": "Defacto2 thankyous.",
-		"title":       "Thanks!",
-		"h1":          "Thank you!",
-		"lead":        "Thanks to the hundreds of people who have contributed to Defacto2 over the decades with file submissions, hard drive donations, interviews, corrections, artwork and monetiary donations!",
-	})
+	data := initData()
+	data["description"] = "Defacto2 thankyous."
+	data["h1"] = "Thank you!"
+	data["lead"] = "Thanks to the hundreds of people who have contributed to Defacto2 over the decades with file submissions, hard drive donations, interviews, corrections, artwork and monetiary donations!"
+	data["title"] = "Thanks!"
+	err := ctx.Render(http.StatusOK, "thanks", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
@@ -106,13 +115,12 @@ func Thanks(s *zap.SugaredLogger, ctx echo.Context) error {
 func TheScene(s *zap.SugaredLogger, ctx echo.Context) error {
 	const h1 = "What is the scene?"
 	const lead = "Collectively referred to as The Scene, it is a subculture of different computer activities where participants actively share ideas and creations."
-	err := ctx.Render(http.StatusOK, "thescene", map[string]interface{}{
-		"canonical":   "",
-		"description": fmt.Sprint(h1, " ", lead),
-		"title":       "The Scene",
-		"h1":          h1,
-		"lead":        lead,
-	})
+	data := initData()
+	data["description"] = fmt.Sprint(h1, " ", lead)
+	data["h1"] = h1
+	data["lead"] = lead
+	data["title"] = "The Scene"
+	err := ctx.Render(http.StatusOK, "thescene", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
