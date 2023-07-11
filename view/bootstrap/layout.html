@@ -1,5 +1,5 @@
 {{define "layout" -}}<!doctype html>
-{{/*  TODO: link to various books  */}}
+{{- /*  TODO: link to various books  */}}
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -159,16 +159,17 @@
                   About
                 </a>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#aboutModal">Defacto2</a></li>
                   <li><a class="dropdown-item" href="/thescene">The Scene</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#aboutModal">Defacto2</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#creditsModal">Credits</a></li>
                   <li><a class="dropdown-item" href="/history">Our history</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#copyrightModal">Copyright</a></li>
                   <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><h6 class="dropdown-header">Source code</h6></li>
-                  <li><a class="dropdown-item" href="https://github.com/Defacto2">GitHub</a></li>
-                  <li><a class="dropdown-item" href="https://github.com/sceners">Sceners</a></li>
+                  <li>{{ externalLink "https://github.com/Defacto2" "GitHub" }}</li>
+                  <li>{{ externalLink "https://github.com/sceners" "Sceners" }}</li>
                 </ul>
               </li>
               <li class="nav-item dropdown">
@@ -177,17 +178,17 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li><h6 class="dropdown-header">Using the downloads</h6></li>
-                  <li><a class="dropdown-item" href="https://github.com/Defacto2/defacto2.net/wiki/Can-I-batch-download-the-files">Batch downloads</a></li>
-                  <li><a class="dropdown-item" href="https://github.com/Defacto2/defacto2.net/wiki/What-are-DOS-Programs">DOS programs</a></li>
-                  <li><a class="dropdown-item" href="https://github.com/Defacto2/defacto2.net/wiki/What-are-RAR-7z-ZIP-ACE-files">Compressed files</a></li>
-                  <li><a class="dropdown-item" href="https://github.com/Defacto2/defacto2.net/wiki/What-are-the-best-tools-for-viewing-and-editing-NFO-DIZ-files">NFO and DIZ files</a></li>
+                  <li>{{ wikiLink "Can-I-batch-download-the-files" "Batch downloads" }}</li>
+                  <li>{{ wikiLink "What-are-DOS-Programs" "DOS programs" }}</li>
+                  <li>{{ wikiLink "What-are-RAR-7z-ZIP-ACE-files" "Compressed files" }}</li>
+                  <li>{{ wikiLink "What-are-the-best-tools-for-viewing-and-editing-NFO-DIZ-files" "NFO and DIZ files" }}</li>
                   <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#tavModal">Trojans and viruses</a></li>
                   <li><hr class="dropdown-divider"></li>
-                  <li><h6 class="dropdown-header">Known download errors</h6></li>
-                  <li><a class="dropdown-item" href="https://github.com/Defacto2/defacto2.net/wiki/Troubleshoot-d3drm.dll">D3DRM.DLL</a></li>
-                  <li><a class="dropdown-item" href="https://github.com/Defacto2/defacto2.net/wiki/Troubleshoot-npmod32.dll">NPMOD32.DLL</a></li>
-                  <li><a class="dropdown-item" href="https://github.com/Defacto2/defacto2.net/wiki/Troubleshoot-runtime-error-200">Runtime error 200</a></li>
-                  <li><a class="dropdown-item" href="https://github.com/Defacto2/defacto2.net/wiki/Troubleshoot-shrinker.err">Shrinker.err dispatcher error</a></li>
+                  <li><h6 class="dropdown-header">Known errors for downloads</h6></li>
+                  <li>{{ wikiLink "Troubleshoot-d3drm.dll" "D3DRM.DLL" }}</li>
+                  <li>{{ wikiLink "Troubleshoot-npmod32.dll" "NPMOD32.DL" }}</li>
+                  <li>{{ wikiLink "Troubleshoot-runtime-error-200" "Runtime 200" }}</li>
+                  <li>{{ wikiLink "Troubleshoot-shrinker.err" "Shrinker.err dispatcher" }}</li>
                 </ul>
               </li>
             </ul>

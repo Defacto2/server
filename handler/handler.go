@@ -128,7 +128,7 @@ func (c Configuration) Controller() *echo.Echo {
 		return ctx.Redirect(http.StatusMovedPermanently, "/site.webmanifest")
 	})
 
-	// Rewrites for URIs that have changed location
+	// Rewrites for assets
 	e.Pre(middleware.Rewrite(map[string]string{
 		"/logo.txt": "/text/defacto2.txt",
 	}))
@@ -137,6 +137,8 @@ func (c Configuration) Controller() *echo.Echo {
 	e.FileFS("/css/bootstrap.min.css", "public/css/bootstrap.min.css", c.Public)
 	e.FileFS("/css/bootstrap.min.css.map", "public/css/bootstrap.min.css.map", c.Public)
 	e.FileFS("/css/layout.min.css", "public/css/layout.min.css", c.Public)
+	// Serve embeded SVG collections
+	e.FileFS("/bootstrap-icons.svg", "public/images/bootstrap-icons.svg", c.Public)
 	// Serve embeded JS files
 	e.FileFS("/js/bootstrap.bundle.min.js", "public/js/bootstrap.bundle.min.js", c.Public)
 	e.FileFS("/js/bootstrap.bundle.min.js.map", "public/js/bootstrap.bundle.min.js.map", c.Public)

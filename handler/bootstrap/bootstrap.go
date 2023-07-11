@@ -163,6 +163,8 @@ func httpErr(log *zap.SugaredLogger, sri SRI, view embed.FS) *template.Template 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func TemplateFuncMap(log *zap.SugaredLogger, sri SRI) template.FuncMap {
 	return template.FuncMap{
+		"externalLink": ExternalLink,
+		"wikiLink":     WikiLink,
 		"sriBootstrapCSS": func() string {
 			return sri.BootstrapCSS
 		},
