@@ -25,6 +25,8 @@ const (
 	bootJS      = "public/js/bootstrap.bundle.min.js"
 	layoutCSS   = "public/css/layout.min.css"
 	fontawesome = "public/js/fontawesome.min.js"
+
+	viewElem = "defaults"
 )
 
 var ErrTmpl = errors.New("the server could not render the HTML template for this page")
@@ -145,13 +147,13 @@ func Tmpl(log *zap.SugaredLogger, public, view embed.FS) map[string]*template.Te
 
 func GlobTo(name string) string {
 	// note: the path is relative to the embed.FS root and must not use the OS path separator.
-	return strings.Join([]string{"view", "bootstrap", name}, "/")
+	return strings.Join([]string{"view", viewElem, name}, "/")
 }
 
 // tmpl returns a layout template for the given named view.
-// Note that the name is relative to the view/bootstrap directory
+// Note that the name is relative to the view/defaults directory
 func tmpl(log *zap.SugaredLogger, sri SRI, view embed.FS, name string) *template.Template {
-	if _, err := os.Stat(filepath.Join("view", "bootstrap", name)); os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join("view", viewElem, name)); os.IsNotExist(err) {
 		log.Errorf("tmpl template not found: %s", err)
 		panic(err)
 	} else if err != nil {
