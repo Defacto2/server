@@ -85,7 +85,7 @@ func Index(s *zap.SugaredLogger, ctx echo.Context) error {
 func History(s *zap.SugaredLogger, ctx echo.Context) error {
 	const lead = "Defacto founded in late February or early March of 1996, as an electronic magazine that wrote about The Scene subculture."
 	data := initData()
-	data["carousel"] = "#carouselExampleCaptions"
+	data["carousel"] = "#carouselDf2Artpacks"
 	data["description"] = lead
 	data["h1"] = "Our history"
 	data["lead"] = lead
