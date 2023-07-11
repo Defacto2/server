@@ -99,6 +99,10 @@ func (c Configuration) Controller() *echo.Echo {
 	e.GET("/images/layout", func(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound)
 	})
+	e.StaticFS("/images/artpack", echo.MustSubFS(c.Public, "public/images/artpack"))
+	e.GET("/images/artpack", func(ctx echo.Context) error {
+		return echo.NewHTTPError(http.StatusNotFound)
+	})
 
 	// Middleware
 	e.Use(middleware.Gzip())

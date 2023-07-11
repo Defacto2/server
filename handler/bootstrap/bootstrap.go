@@ -73,10 +73,13 @@ func Index(s *zap.SugaredLogger, ctx echo.Context) error {
 }
 
 func History(s *zap.SugaredLogger, ctx echo.Context) error {
+	const lead = "Defacto founded in late February or early March of 1996, as an electronic magazine that wrote about The Scene subculture."
 	err := ctx.Render(http.StatusOK, "history", map[string]interface{}{
 		"canonical":   "",
-		"description": "demo",
-		"title":       "History?!",
+		"description": lead,
+		"title":       "Our history",
+		"h1":          "Our history",
+		"lead":        lead,
 	})
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
@@ -88,8 +91,10 @@ func History(s *zap.SugaredLogger, ctx echo.Context) error {
 func Thanks(s *zap.SugaredLogger, ctx echo.Context) error {
 	err := ctx.Render(http.StatusOK, "thanks", map[string]interface{}{
 		"canonical":   "",
-		"description": "",
+		"description": "Defacto2 thankyous.",
 		"title":       "Thanks!",
+		"h1":          "Thank you!",
+		"lead":        "Thanks to the hundreds of people who have contributed to Defacto2 over the decades with file submissions, hard drive donations, interviews, corrections, artwork and monetiary donations!",
 	})
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
