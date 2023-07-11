@@ -91,16 +91,16 @@ func (c Configuration) Controller() *echo.Echo {
 
 	// Static embedded web assets
 	// These get distributed in the binary
-	e.StaticFS("/images/html3", echo.MustSubFS(c.Public, "public/images/html3"))
-	e.GET("/images/html3", func(ctx echo.Context) error {
+	e.StaticFS("/image/html3", echo.MustSubFS(c.Public, "public/image/html3"))
+	e.GET("/image/html3", func(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound)
 	})
-	e.StaticFS("/images/layout", echo.MustSubFS(c.Public, "public/images/layout"))
-	e.GET("/images/layout", func(ctx echo.Context) error {
+	e.StaticFS("/image/layout", echo.MustSubFS(c.Public, "public/image/layout"))
+	e.GET("/image/layout", func(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound)
 	})
-	e.StaticFS("/images/artpack", echo.MustSubFS(c.Public, "public/images/artpack"))
-	e.GET("/images/artpack", func(ctx echo.Context) error {
+	e.StaticFS("/image/artpack", echo.MustSubFS(c.Public, "public/image/artpack"))
+	e.GET("/image/artpack", func(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound)
 	})
 
@@ -138,7 +138,7 @@ func (c Configuration) Controller() *echo.Echo {
 	e.FileFS("/css/bootstrap.min.css.map", "public/css/bootstrap.min.css.map", c.Public)
 	e.FileFS("/css/layout.min.css", "public/css/layout.min.css", c.Public)
 	// Serve embeded SVG collections
-	e.FileFS("/bootstrap-icons.svg", "public/images/bootstrap-icons.svg", c.Public)
+	e.FileFS("/bootstrap-icons.svg", "public/image/bootstrap-icons.svg", c.Public)
 	// Serve embeded font files
 	e.FileFS("/font/pxplus_ibm_vga8.woff2", "public/font/pxplus_ibm_vga8.woff2", c.Public)
 	e.FileFS("/font/pxplus_ibm_vga8.woff", "public/font/pxplus_ibm_vga8.woff", c.Public)
@@ -148,7 +148,7 @@ func (c Configuration) Controller() *echo.Echo {
 	e.FileFS("/js/bootstrap.bundle.min.js.map", "public/js/bootstrap.bundle.min.js.map", c.Public)
 	e.FileFS("/js/fontawesome.min.js", "public/js/fontawesome.min.js", c.Public)
 	// Serve embeded image files
-	e.FileFS("/favicon.ico", "public/images/favicon.ico", c.Public)
+	e.FileFS("/favicon.ico", "public/image/favicon.ico", c.Public)
 	// Serve embedded text files
 	e.FileFS("/osd.xml", "public/text/osd.xml", c.Public)
 	e.FileFS("/robots.txt", "public/text/robots.txt", c.Public)

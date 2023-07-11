@@ -14,21 +14,21 @@
 {{- $swc := $rels.Software.Count }}
 {{- $swb := $rels.Software.Bytes }}
 <!-- nl padding -->
-<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/groups">by Group</a>
+<img src="/image/html3/dir.gif" alt="[DIR]"> <a href="/html3/groups">by Group</a>
 {{- leading 33}}{{leadInt 5 $grpc}}{{- leading 10}}List the scene groups, organisations and sites.
-<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/platforms">by Platform and media</a>
+<img src="/image/html3/dir.gif" alt="[DIR]"> <a href="/html3/platforms">by Platform and media</a>
 {{- leading 20}}{{leadInt 5 $plas}}{{- leading 10}}List files categorised by {{$plas}} operating systems and media formats.
-<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/categories">by Category</a>
+<img src="/image/html3/dir.gif" alt="[DIR]"> <a href="/html3/categories">by Category</a>
 {{- leading 30}}{{leadInt 5 $cats}}{{- leading 10}}List files categorised by {{$cats}} genres.
 <!-- nl padding -->
-<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/art">Digital + pixel art</a>
+<img src="/image/html3/dir.gif" alt="[DIR]"> <a href="/html3/art">Digital + pixel art</a>
 {{- leading 22}}{{leadInt 5 $artc}}{{byteInt 7 $artb}}   {{index . "descs" 0}}.
-<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/documents">Document + text art</a>
+<img src="/image/html3/dir.gif" alt="[DIR]"> <a href="/html3/documents">Document + text art</a>
 {{- leading 22}}{{leadInt 5 $docc}}{{byteInt 7 $docb}}   {{index . "descs" 1}}.
-<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/software">Software</a>
+<img src="/image/html3/dir.gif" alt="[DIR]"> <a href="/html3/software">Software</a>
 {{- leading 33}}{{leadInt 5 $swc}}{{byteInt 7 $swb}}   {{index . "descs" 2}}.
 <!-- nl padding -->
-<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/all">Everything</a>
+<img src="/image/html3/dir.gif" alt="[DIR]"> <a href="/html3/all">Everything</a>
 {{- leading 31}}{{leadInt 5 $allc}}{{byteInt 7 $alls}}   {{index . "descs" 3}}.
 <!-- nl padding -->
 <hr>

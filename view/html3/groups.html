@@ -3,8 +3,8 @@
 {{- $parent := "Parent Directory" }}
 {{- $padding := 41 }}
 {{- $path := index . "path" }}
-<img src="/images/html3/back.gif" alt="[DIR]"> <a href="/html3">{{$parent}}</a>{{leadStr $padding $parent}}    -          Return to the HTML3 index.
+<img src="/image/html3/back.gif" alt="[DIR]"> <a href="/html3">{{$parent}}</a>{{leadStr $padding $parent}}    -          Return to the HTML3 index.
 
 {{ range $index, $value := .sceners -}} 
-<img src="/images/html3/dir.gif" alt="[DIR]"> <a href="/html3/{{ $path }}/{{ $value.Group.URI }}">{{$value.Group.Name}}</a>{{leadStr $padding $value.Group.Name}}{{leadInt 5 $value.Group.Count}}{{byteInt 7 $value.Group.Bytes}}
+<img src="/image/html3/dir.gif" alt="[DIR]"> <a href="/html3/{{ $path }}/{{ $value.Group.URI }}">{{$value.Group.Name}}</a>{{leadStr $padding $value.Group.Name}}{{leadInt 5 $value.Group.Count}}{{byteInt 7 $value.Group.Bytes}}
 {{end}}{{end}}

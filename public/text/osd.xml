@@ -9,7 +9,7 @@
     rel="results"
     template="https://defacto2.net/search/result?query={searchTerms}"/>
   <LongName>Defacto2 filename, group, person, word or a phrase lookup.</LongName>
-  <Image height="192" width="192" type="image/png">https://defacto2.net/images/layout/favicon-192x192.png</Image>
+  <Image height="192" width="192" type="image/png">https://defacto2.net/image/layout/favicon-192x192.png</Image>
   <Image height="16" width="16" type="image/x-icon">https://defacto2.net/favicon.ico</Image>
   <Query role="example" searchTerms="class" />
   <Query role="example" searchTerms="razor|rzr" />
