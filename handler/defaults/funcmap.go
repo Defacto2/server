@@ -1,4 +1,4 @@
-package bootstrap
+package defaults
 
 import (
 	"crypto/sha512"
@@ -53,6 +53,7 @@ func WikiLink(uri, name string) template.HTML {
 	return template.HTML(fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover" href="%s">%s %s</a>`, href, name, wiki))
 }
 
+// TODO: if pad is an odd value, include a blinking cursor
 func LogoText(s string) string {
 	const (
 		welcome = ":                  ·· WELCOME TO DEFACTO2 ··                      ·"

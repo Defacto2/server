@@ -16,7 +16,7 @@ import (
 
 	"github.com/Defacto2/server/api/apiv1"
 	"github.com/Defacto2/server/cmd"
-	"github.com/Defacto2/server/handler/bootstrap"
+	"github.com/Defacto2/server/handler/defaults"
 	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/pkg/config"
@@ -85,7 +85,7 @@ func (c Configuration) Controller() *echo.Echo {
 	e.Renderer = &TemplateRegistry{
 		Templates: Join(
 			html3.TmplHTML3(c.Log, c.Views),
-			bootstrap.Tmpl(c.Log, c.Public, c.Views),
+			defaults.Tmpl(c.Log, c.Public, c.Views),
 		),
 	}
 
@@ -170,21 +170,23 @@ func (c Configuration) Controller() *echo.Echo {
 		e.Use(NoRobotsHeader)
 	}
 
+	// /link/list/scenegroup
+
 	// Route => /
 	e.GET("/", func(ctx echo.Context) error {
-		return bootstrap.Index(nil, ctx)
+		return defaults.Index(nil, ctx)
 	})
 	e.GET("/file/list", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "Coming soon!")
 	})
 	e.GET("/history", func(ctx echo.Context) error {
-		return bootstrap.History(nil, ctx)
+		return defaults.History(nil, ctx)
 	})
 	e.GET("/thanks", func(ctx echo.Context) error {
-		return bootstrap.Thanks(nil, ctx)
+		return defaults.Thanks(nil, ctx)
 	})
 	e.GET("/thescene", func(ctx echo.Context) error {
-		return bootstrap.TheScene(nil, ctx)
+		return defaults.TheScene(nil, ctx)
 	})
 
 	// Routes => /html3
