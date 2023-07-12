@@ -56,7 +56,7 @@ func WikiLink(uri, name string) template.HTML {
 // TODO: if pad is an odd value, include a blinking cursor
 func LogoText(s string) string {
 	const (
-		welcome = ":                  ·· WELCOME TO DEFACTO2 ··                      ·"
+		welcome = ":                  ·· WELCOME TO DEFACTO2█ ··                     ·"
 		padder  = " ·· "
 	)
 	if s == "" {

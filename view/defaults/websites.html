@@ -1,0 +1,103 @@
+{{/*  websites.html  */}}
+{{/*  
+TODO
+redirects:
+https://defacto2.net/link/list/ansi
+
+*/}}
+{{- define "content" }}
+
+<div class="accordion accordion-flush" id="accordionExample">
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          The Scene, text art
+        </button>
+      </h2>
+      <div id="collapseOne" class="accordion-collapse collapse show">
+        <div class="accordion-body">
+<div class="row row-cols-1 row-cols-md-2 g-4">
+    {{range .textart -}}
+        {{- block "website" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
+    {{end}}
+{{/*      
+    <div class="col">
+        <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Blocktronics</h5>
+            <p class="card-text">We’re an international network of digital textmode artists that releases ANSi artpacks periodically.</p>
+            <a href="http://blocktronics.org" class="btn btn-outline-secondary">Go somewhere</a>
+        </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+            <h5 class="card-title">16colors</h5>
+            <p class="card-text">You're looking at retro computer graphics gallery. We make ANSI/ASCII art available for web display.</p>
+            <a href="https://16colo.rs" class="btn btn-outline-secondary">Go somewhere</a>
+            </div>
+        </div>
+    </div>
+    <div class="col">&nbsp;</div>  */}}
+
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            Bulletin Board Systems
+        </button>
+      </h2>
+      <div id="collapseTwo" class="accordion-collapse collapse">
+        <div class="accordion-body">
+<div class="row row-cols-1 row-cols-md-2 g-4">
+    <div class="col">
+        <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">BBS Ads Collection</h5>
+            <p class="card-text">One of the most complete BBS textmode ad collections, containing over 1,500 single ads from various platforms and scenes.</p>
+            <a href="https://mbox.bz/slurp/ascii/bbsads/" class="btn btn-outline-secondary">Go somewhere</a>
+        </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Blocktronics</h5>
+            <p class="card-text">We’re an international network of digital textmode artists that releases ANSi artpacks periodically.</p>
+            <a href="http://blocktronics.org" class="btn btn-secondary">Go somewhere</a>
+        </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+            <h5 class="card-title">16colors</h5>
+            <p class="card-text">You're looking at retro computer graphics gallery. We make ANSI/ASCII art available for web display.</p>
+            <a href="https://16colo.rs" class="btn btn-outline-secondary">Go somewhere</a>
+            {{/*  TODO: add social links, discord etc  */}}
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          Accordion Item #3
+        </button>
+      </h2>
+      <div id="collapseThree" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <strong>This is the third item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+        </div>
+      </div>
+    </div>
+</div>
+
+{{- end}}

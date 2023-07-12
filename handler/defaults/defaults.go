@@ -130,6 +130,32 @@ func TheScene(s *zap.SugaredLogger, ctx echo.Context) error {
 	return nil
 }
 
+type Site struct {
+	Title string
+	URL   string
+	Info  string
+}
+
+type Sites = []Site
+
+func Websites(s *zap.SugaredLogger, ctx echo.Context) error {
+	data := initData()
+
+	textArt := Sites{
+		Site{"16colors", "https://16colo.rs/", ""},
+		Site{"aSCIIaRENA", "https://www.asciiarena.se/", ""},
+		Site{"Blocktronics", "http://blocktronics.org/", ""},
+	}
+	data["textart"] = textArt
+
+	err := ctx.Render(http.StatusOK, "websites", data)
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
 // Tmpl returns a map of the templates used by the route.
 func Tmpl(log *zap.SugaredLogger, public, view embed.FS) map[string]*template.Template {
 	var sri SRI
@@ -141,6 +167,7 @@ func Tmpl(log *zap.SugaredLogger, public, view embed.FS) map[string]*template.Te
 	templates["history"] = tmpl(log, sri, view, "history.html")
 	templates["thanks"] = tmpl(log, sri, view, "thanks.html")
 	templates["thescene"] = tmpl(log, sri, view, "thescene.html")
+	templates["websites"] = tmpl(log, sri, view, "websites.html")
 	templates["error"] = httpErr(log, sri, view)
 	return templates
 }
@@ -160,8 +187,12 @@ func tmpl(log *zap.SugaredLogger, sri SRI, view embed.FS, name string) *template
 		log.Errorf("tmpl template has a problem: %s", err)
 		panic(err)
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(log, sri)).ParseFS(view,
-		GlobTo(layout), GlobTo(name), GlobTo(modal)))
+	files := []string{GlobTo(layout), GlobTo(name), GlobTo(modal)}
+	// append any additional templates
+	if name == "websites.html" {
+		files = append(files, GlobTo("website.html"))
+	}
+	return template.Must(template.New("").Funcs(TemplateFuncMap(log, sri)).ParseFS(view, files...))
 }
 
 // httpErr is the template for displaying HTTP error codes and feedback.

@@ -173,20 +173,23 @@ func (c Configuration) Controller() *echo.Echo {
 	// /link/list/scenegroup
 
 	// Route => /
-	e.GET("/", func(ctx echo.Context) error {
-		return defaults.Index(nil, ctx)
+	e.GET("/", func(c echo.Context) error {
+		return defaults.Index(nil, c)
 	})
-	e.GET("/file/list", func(ctx echo.Context) error {
-		return ctx.String(http.StatusOK, "Coming soon!")
+	e.GET("/file/list", func(c echo.Context) error {
+		return c.String(http.StatusOK, "Coming soon!")
 	})
-	e.GET("/history", func(ctx echo.Context) error {
-		return defaults.History(nil, ctx)
+	e.GET("/history", func(c echo.Context) error {
+		return defaults.History(nil, c)
 	})
-	e.GET("/thanks", func(ctx echo.Context) error {
-		return defaults.Thanks(nil, ctx)
+	e.GET("/thanks", func(c echo.Context) error {
+		return defaults.Thanks(nil, c)
 	})
-	e.GET("/thescene", func(ctx echo.Context) error {
-		return defaults.TheScene(nil, ctx)
+	e.GET("/thescene", func(c echo.Context) error {
+		return defaults.TheScene(nil, c)
+	})
+	e.GET("/websites", func(c echo.Context) error {
+		return defaults.Websites(nil, c)
 	})
 
 	// Routes => /html3
