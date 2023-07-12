@@ -19,12 +19,28 @@ type Sites = []Site
 
 // Accordion is a collection of websites grouped by a category.
 type Accordion = []struct {
-	Name  string
-	ID    string
-	Open  bool
-	Sites Sites
+	Name  string // Name of the category.
+	ID    string // ID of the category.
+	Open  bool   // Whether the category is displayed or closed.
+	Sites Sites  // Sites are the websites shown in the category.
 }
 
+// List is a collection of websites grouped by a category.
+func List() Accordion {
+	return Accordion{
+		{"The text art scene", "text", false, art()},
+		{"Bulletin Board Systems", "bbs", false, bbs()},
+		{"Crack and pirate scenes", "pirate", false, pir8()},
+		{"The demoscene", "demo", false, demo()},
+		{"Former groups", "exgroup", false, groups()},
+		{"Podcasts", "podcast", false, podcasts()},
+		{"Books", "book", false, books()},
+		{"Videos and documentary", "video", false, video()},
+		{"ama ~ ask me anything", "ama", false, ama()},
+	}
+}
+
+// ama is a collection of ask me anything posts.
 func ama() []Site {
 	return Sites{
 		Site{"Evil Current", "https://www.reddit.com/r/IAmA/comments/xusji/iama_former_member_of_razor_1911_amongst_many/",
@@ -71,6 +87,7 @@ func bbs() []Site {
 	}
 }
 
+// books is a collection of books about the scene.
 func books() []Site {
 	return Sites{
 		Site{"The Modem World", "https://yalebooks.yale.edu/book/9780300248142/modem-world/",
@@ -80,6 +97,7 @@ func books() []Site {
 	}
 }
 
+// demo is a collection of demoscene websites.
 func demo() []Site {
 	return Sites{
 		Site{"Demozoo", "https://demozoo.org/",
@@ -101,6 +119,8 @@ func demo() []Site {
 			"Scenery is the guide to the C64 and Amiga demoscenes with comprehensive information on releases, parties and groups."},
 	}
 }
+
+// groups is a collection of scene group websites.
 func groups() []Site {
 	return Sites{
 		Site{"ACiD Productions", "https://www.acid.org/",
@@ -125,6 +145,8 @@ func groups() []Site {
 			"The Amiga and PC demo and cracking group."},
 	}
 }
+
+// pir8 is a collection of pirate websites.
 func pir8() []Site {
 	return Sites{
 		Site{"Scize	classic collection", "https://scenelist.org/",
@@ -142,6 +164,7 @@ func pir8() []Site {
 	}
 }
 
+// podcasts returns a list of podcasts.
 func podcasts() []Site {
 	return Sites{
 		Site{"Modem Mischief Podcast", "https://modemmischief.com/",
@@ -155,6 +178,7 @@ func podcasts() []Site {
 	}
 }
 
+// video returns a list of videos and films.
 func video() []Site {
 	return Sites{
 		Site{"Steal This Film", "https://stealthisfilm.com/",
@@ -174,22 +198,36 @@ func video() []Site {
 	}
 }
 
-// Websites renders the websites page.
-func Websites(s *zap.SugaredLogger, ctx echo.Context) error {
+// Websites is the handler for the websites page.
+// Open is the ID of the accordion section to open.
+func Websites(s *zap.SugaredLogger, ctx echo.Context, open string) error {
 	data := initData()
-	acc := Accordion{
-		{"The textart scene", "collapseArt", false, art()},
-		{"Bulletin Board Systems", "collapseBBS", false, bbs()},
-		{"Crack and pirate scenes", "collapsePir8", true, pir8()},
-		{"The demoscene", "collapseDemo", false, demo()},
-		{"Former groups", "collapseGrp", false, groups()},
-		{"Podcasts", "collapsePod", false, podcasts()},
-		{"Books", "collapseBks", false, books()},
-		{"Video and documentary", "collapseVid", false, video()},
-		{"AMA ~ ask me anything", "collapseAMA", false, ama()},
-	}
-	data["accordion"] = acc
+	data["title"] = "Websites"
+	data["logo"] = "Websites, podcasts, videos and films"
+	data["description"] = "A collection of websites, podcasts, videos and films about the scene."
+	acc := List()
 
+	// Open the accordion section.
+	closeAll := true
+	for i, site := range acc {
+		if site.ID == open || open == "" {
+			site.Open = true
+			data["title"] = site.Name
+			closeAll = false
+			acc[i] = site
+			if open == "" {
+				continue
+			}
+			break
+		}
+	}
+	// If a section was requested but not found, return a 404.
+	if open != "hide" && closeAll {
+		return echo.NewHTTPError(http.StatusNotFound, ErrTmpl)
+	}
+
+	// Render the page.
+	data["accordion"] = acc
 	err := ctx.Render(http.StatusOK, "websites", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)

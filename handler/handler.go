@@ -118,14 +118,17 @@ func (c Configuration) Controller() *echo.Echo {
 	}))
 
 	// Redirects, these need to be before the routes and rewrites
-	e.GET("/defacto2/history", func(ctx echo.Context) error {
-		return ctx.Redirect(http.StatusMovedPermanently, "/history")
+	e.GET("/defacto2/history", func(c echo.Context) error {
+		return c.Redirect(http.StatusMovedPermanently, "/history")
 	})
-	e.GET("/defacto2/subculture", func(ctx echo.Context) error {
-		return ctx.Redirect(http.StatusMovedPermanently, "/thescene")
+	e.GET("/defacto2/subculture", func(c echo.Context) error {
+		return c.Redirect(http.StatusMovedPermanently, "/thescene")
 	})
-	e.GET("/files/json/site.webmanifest", func(ctx echo.Context) error {
-		return ctx.Redirect(http.StatusMovedPermanently, "/site.webmanifest")
+	e.GET("/files/json/site.webmanifest", func(c echo.Context) error {
+		return c.Redirect(http.StatusMovedPermanently, "/site.webmanifest")
+	})
+	e.GET("/link/list/:id", func(c echo.Context) error {
+		return c.Redirect(http.StatusMovedPermanently, "/websites")
 	})
 
 	// Rewrites for assets
@@ -189,7 +192,10 @@ func (c Configuration) Controller() *echo.Echo {
 		return defaults.TheScene(nil, c)
 	})
 	e.GET("/websites", func(c echo.Context) error {
-		return defaults.Websites(nil, c)
+		return defaults.Websites(nil, c, "")
+	})
+	e.GET("/websites/:id", func(c echo.Context) error {
+		return defaults.Websites(nil, c, c.Param("id"))
 	})
 
 	// Routes => /html3

@@ -67,6 +67,7 @@ func initData() map[string]interface{} {
 		"description": "",
 		"h1":          "",
 		"lead":        "",
+		"logo":        "",
 		"title":       "",
 	}
 }
