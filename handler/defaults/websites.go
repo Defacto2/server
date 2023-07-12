@@ -203,8 +203,8 @@ func video() []Site {
 func Websites(s *zap.SugaredLogger, ctx echo.Context, open string) error {
 	data := initData()
 	data["title"] = "Websites"
-	data["logo"] = "Websites, podcasts, videos and films"
-	data["description"] = "A collection of websites, podcasts, videos and films about the scene."
+	data["logo"] = "Websites, podcasts, videos, books and films"
+	data["description"] = "A collection of websites, podcasts, videos, books and films about the scene."
 	acc := List()
 
 	// Open the accordion section.
