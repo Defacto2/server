@@ -130,32 +130,6 @@ func TheScene(s *zap.SugaredLogger, ctx echo.Context) error {
 	return nil
 }
 
-type Site struct {
-	Title string
-	URL   string
-	Info  string
-}
-
-type Sites = []Site
-
-func Websites(s *zap.SugaredLogger, ctx echo.Context) error {
-	data := initData()
-
-	textArt := Sites{
-		Site{"16colors", "https://16colo.rs/", ""},
-		Site{"aSCIIaRENA", "https://www.asciiarena.se/", ""},
-		Site{"Blocktronics", "http://blocktronics.org/", ""},
-	}
-	data["textart"] = textArt
-
-	err := ctx.Render(http.StatusOK, "websites", data)
-	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-	}
-	return nil
-}
-
 // Tmpl returns a map of the templates used by the route.
 func Tmpl(log *zap.SugaredLogger, public, view embed.FS) map[string]*template.Template {
 	var sri SRI
