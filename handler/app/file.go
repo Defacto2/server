@@ -11,7 +11,7 @@ import (
 func File(s *zap.SugaredLogger, ctx echo.Context, stats bool) error {
 	data := initData()
 	data["title"] = "File categories"
-	data["logo"] = "Categories"
+	data["logo"] = "File categories"
 	data["description"] = "Table of contents for the files."
 	data["stats"] = stats
 	err := ctx.Render(http.StatusOK, "file", data)

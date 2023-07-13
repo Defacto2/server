@@ -69,23 +69,39 @@ func IntegrityBytes(b []byte) string {
 
 // LogoText returns a string of text padded with spaces to center it in the logo.
 func LogoText(s string) string {
-	// TODO: if pad is an odd value, include a blinking cursor
-	const padder = " ·· "
-
+	indent := strings.Repeat(" ", 6)
 	if s == "" {
-		return Welcome
-	}
-	const w, p = len(Welcome), len(padder)
-	const max = w - 3 - (p * 2)
-	l := len(s)
-	if l > max {
-		return fmt.Sprintf(":%s%s%s·", padder, s[:max], padder)
+		return indent + Welcome
 	}
 
-	// ":                    ·· WELCOME TO DEFACTO2_ ··                    ·"
-	ns := fmt.Sprintf("%s%s%s", padder, s, padder)
-	pad := (w / 2) - (len(ns) / 2) - (p / 2)
-	x := fmt.Sprintf(":%s%s", strings.Repeat(" ", pad), ns)
-	x += strings.Repeat(" ", w-len(x)-(p/2)) + "·"
-	return x
+	// odd returns true if the given integer is odd.
+	odd := func(i int) bool {
+		return i%2 != 0
+	}
+
+	s = strings.ToUpper(s)
+
+	const padder = " ·· "
+	const wl, pl = len(Welcome), len(padder)
+	const limit = wl - (pl + pl) - 3
+
+	// Truncate the string to the limit.
+	if len(s) > limit {
+		return fmt.Sprintf("%s:%s%s%s·",
+			indent, padder, s[:limit], padder)
+	}
+
+	styled := fmt.Sprintf("%s%s%s", padder, s, padder)
+	if !odd(len(s)) {
+		styled = fmt.Sprintf(" %s%s%s", padder, s, padder)
+	}
+
+	// Pad the string with spaces to center it.
+	count := (wl / 2) - (len(styled) / 2) - 2
+
+	text := fmt.Sprintf(":%s%s%s·",
+		strings.Repeat(" ", count),
+		styled,
+		strings.Repeat(" ", count))
+	return indent + text
 }

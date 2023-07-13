@@ -1,6 +1,5 @@
 {{/*  layout.html  */}}
-{{define "layout" -}}
-{{/**/}}<!doctype html>
+{{define "layout" -}}<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -229,15 +228,12 @@
       {{- block "modal" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
       <hr>
       <div class="d-flex justify-content-center">
-        <pre class="text-start text-bg-dark rounded font-dos"> 
-    
-           ·      ▒██▀ ▀       ▒██▀ ▀              ▀ ▀▒██             ▀ ▀███ ·
-           : ▒██▀ ▓██ ▒██▀▀██▓ ▓██▀▀▒██▀▀███ ▒██▀▀██▓ ▓██▀ ▒██▀▀███ ▒██▀▀▀▀▀ :
-      · ··─┼─▓██──███─▓██─▄███─███──▓██──███─▓██──────███──▓██──███─▓██──███─┼─·· ·
-           │ ███▄▄██▓ ███▄▄▄▄▄▄██▓  ███▄ ███▄███▄▄███ ███▄▄███▄ ███▄███▄▄███ │
-     · ··──┼─────────··              defacto2.net                 ··─────────┼──·· ·
-           │                                                                 :
-           {{logoText (index . "logo")}}
+        <pre class="text-start text-bg-dark rounded font-dos p-3">
+{{- /*  
+  the monospace brand logo should be padded with the Bootstrap classes
+  and not with pre whitespace characters */ -}}
+{{- logo }}
+{{logoText (index . "logo") -}}
         </pre>
       </div>
       <main>

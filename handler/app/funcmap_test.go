@@ -2,6 +2,7 @@ package app_test
 
 import (
 	"embed"
+	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/handler/app"
@@ -50,10 +51,20 @@ func TestIntegrityBytes(t *testing.T) {
 
 func TestLogoText(t *testing.T) {
 	t.Parallel()
+	const want1 = "      :                             ·· X ··                             ·"
+	const want2 = "      :                             ·· XY ··                            ·"
+	const want3 = "      :                            ·· XYZ ··                            ·"
+	const wantR = "      : ·· I'M MEANT TO BE WRITING AT THIS MOMENT. WHAT I MEAN IS, I ·· ·"
 	x := app.LogoText("")
-	assert.Equal(t, app.Welcome, x)
+	want := strings.Repeat(" ", 7) + app.Welcome
+	assert.Equal(t, want, x)
 	x = app.LogoText("X")
-	assert.Equal(t, app.Welcome, x)
+	assert.Equal(t, want1, x)
 	x = app.LogoText("XY")
-	assert.Equal(t, app.Welcome, x)
+	assert.Equal(t, want2, x)
+	x = app.LogoText("xyz")
+	assert.Equal(t, want3, x)
+	const rand = "I'm meant to be writing at this moment. What I mean is, I'm meant to be writing something else at this moment."
+	x = app.LogoText(rand)
+	assert.Equal(t, wantR, x)
 }

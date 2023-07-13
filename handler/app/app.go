@@ -97,12 +97,12 @@ func (c Configuration) tmpl(name string) *template.Template {
 	if name == "websites.html" {
 		files = append(files, GlobTo("website.html"))
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(c.Log, c.Subresource)).ParseFS(c.Views, files...))
+	return template.Must(template.New("").Funcs(c.TemplateFuncMap()).ParseFS(c.Views, files...))
 }
 
 // httpErr is the template for displaying HTTP error codes and feedback.
 func (c Configuration) httpErr() *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(c.Log, c.Subresource)).ParseFS(c.Views,
+	return template.Must(template.New("").Funcs(c.TemplateFuncMap()).ParseFS(c.Views,
 		GlobTo(layout), GlobTo("error.html"), GlobTo(modal)))
 }
 
@@ -113,22 +113,25 @@ func GlobTo(name string) string {
 }
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
-func TemplateFuncMap(log *zap.SugaredLogger, sri SRI) template.FuncMap {
+func (c Configuration) TemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
 		"externalLink": ExternalLink,
-		"logoText":     LogoText,
-		"wikiLink":     WikiLink,
+		"logo": func() string {
+			return string(*c.Brand)
+		},
+		"logoText": LogoText,
+		"wikiLink": WikiLink,
 		"sriBootstrapCSS": func() string {
-			return sri.BootstrapCSS
+			return c.Subresource.BootstrapCSS
 		},
 		"sriBootstrapJS": func() string {
-			return sri.BootstrapJS
+			return c.Subresource.BootstrapJS
 		},
 		"sriFontAwesome": func() string {
-			return sri.FontAwesome
+			return c.Subresource.FontAwesome
 		},
 		"sriLayoutCSS": func() string {
-			return sri.LayoutCSS
+			return c.Subresource.LayoutCSS
 		},
 		"safeHTML": func(s string) template.HTML {
 			return template.HTML(s)

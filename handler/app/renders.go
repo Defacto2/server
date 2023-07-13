@@ -56,12 +56,14 @@ func Index(s *zap.SugaredLogger, ctx echo.Context) error {
 // History is the handler for the History page.
 func History(s *zap.SugaredLogger, ctx echo.Context) error {
 	const lead = "Defacto founded in late February or early March of 1996, as an electronic magazine that wrote about The Scene subculture."
+	const h1 = "Our history"
 	data := initData()
 	data["carousel"] = "#carouselDf2Artpacks"
 	data["description"] = lead
-	data["h1"] = "Our history"
+	data["logo"] = "The history of Defacto"
+	data["h1"] = h1
 	data["lead"] = lead
-	data["title"] = "Our history"
+	data["title"] = h1
 	err := ctx.Render(http.StatusOK, "history", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
@@ -87,13 +89,14 @@ func Thanks(s *zap.SugaredLogger, ctx echo.Context) error {
 
 // TheScene is the handler for the The Scene page.
 func TheScene(s *zap.SugaredLogger, ctx echo.Context) error {
-	const h1 = "What is the scene?"
+	const h1 = "The Scene?"
 	const lead = "Collectively referred to as The Scene, it is a subculture of different computer activities where participants actively share ideas and creations."
 	data := initData()
 	data["description"] = fmt.Sprint(h1, " ", lead)
+	data["logo"] = "The underground"
 	data["h1"] = h1
 	data["lead"] = lead
-	data["title"] = "The Scene"
+	data["title"] = h1
 	err := ctx.Render(http.StatusOK, "thescene", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
