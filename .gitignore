@@ -6,3 +6,5 @@ server
 tmp/
 # goreleaser generated directory
 dist/
+# windows
+*.exe
