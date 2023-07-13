@@ -1,5 +1,7 @@
 package app
 
+// Helper functions for the TemplateFuncMap var.
+
 import (
 	"crypto/sha512"
 	"embed"
@@ -19,8 +21,6 @@ const (
 	wiki    = `<svg class="bi" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#arrow-right-short"></use></svg>`
 	link    = `<svg class="bi" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#link"></use></svg>`
 )
-
-// Helper functions for the TemplateFuncMap var.
 
 // ExternalLink returns a HTML link with an embedded SVG icon to an external website.
 func ExternalLink(href, name string) template.HTML {

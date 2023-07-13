@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// File is the handler for the file categories page.
 func File(s *zap.SugaredLogger, ctx echo.Context, stats bool) error {
 	data := initData()
 	data["title"] = "File categories"
@@ -21,6 +22,7 @@ func File(s *zap.SugaredLogger, ctx echo.Context, stats bool) error {
 	return nil
 }
 
+// Files is the handler for the files page.
 func Files(s *zap.SugaredLogger, ctx echo.Context, id string) error {
 	data := initData()
 	data["title"] = "Files placeholder"

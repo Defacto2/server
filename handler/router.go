@@ -9,23 +9,32 @@ import (
 	"go.uber.org/zap"
 )
 
+// MovedPermanently redirects URL paths with a HTTP 301 Moved Permanently.
+func MovedPermanently(e *echo.Echo) {
+	for path, redirect := range Redirects() {
+		e.GET(path, func(c echo.Context) error {
+			return c.Redirect(http.StatusMovedPermanently, redirect)
+		})
+	}
+}
+
+// Redirects are partial URL routers that are to be redirected with a HTTP 301 Moved Permanently.
+func Redirects() map[string]string {
+	return map[string]string{
+		"/defacto2/history":            "/history",
+		"/defacto2/subculture":         "/thescene",
+		"/file/index":                  "",
+		"/files/json/site.webmanifest": "/site.webmanifest",
+		"/link/list/:id":               "/websites",
+	}
+}
+
 // Routes defines the routes for the web server.
 func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) *echo.Echo {
 
 	// Redirects
 	// these need to be before the routes and rewrites
-	e.GET("/defacto2/history", func(c echo.Context) error {
-		return c.Redirect(http.StatusMovedPermanently, "/history")
-	})
-	e.GET("/defacto2/subculture", func(c echo.Context) error {
-		return c.Redirect(http.StatusMovedPermanently, "/thescene")
-	})
-	e.GET("/files/json/site.webmanifest", func(c echo.Context) error {
-		return c.Redirect(http.StatusMovedPermanently, "/site.webmanifest")
-	})
-	e.GET("/link/list/:id", func(c echo.Context) error {
-		return c.Redirect(http.StatusMovedPermanently, "/websites")
-	})
+	MovedPermanently(e)
 
 	// Serve embeded CSS files
 	e.FileFS("/css/bootstrap.min.css", "public/css/bootstrap.min.css", public)
