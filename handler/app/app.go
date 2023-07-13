@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/labstack/gommon/log"
 	"go.uber.org/zap"
 )
 
@@ -56,26 +57,34 @@ func (s *SRI) Verify(fs embed.FS) error {
 	return nil
 }
 
+// Configuration of the app.
+type Configuration struct {
+	Brand       *[]byte            // Brand points to the Defacto2 ASCII logo.
+	Log         *zap.SugaredLogger // Log is a sugared logger.
+	Subresource SRI                // SRI are the Subresource Integrity hashes for the layout.
+	Public      embed.FS           // Public facing files.
+	Views       embed.FS           // Views are Go templates.
+}
+
 // Tmpl returns a map of the templates used by the route.
-func Tmpl(log *zap.SugaredLogger, public, view embed.FS) map[string]*template.Template {
-	var sri SRI
-	if err := sri.Verify(public); err != nil {
+func (c *Configuration) Tmpl() map[string]*template.Template {
+	if err := c.Subresource.Verify(c.Public); err != nil {
 		panic(err)
 	}
 	templates := make(map[string]*template.Template)
-	templates["index"] = tmpl(log, sri, view, "index.html")
-	templates["file"] = tmpl(log, sri, view, "file.html")
-	templates["history"] = tmpl(log, sri, view, "history.html")
-	templates["thanks"] = tmpl(log, sri, view, "thanks.html")
-	templates["thescene"] = tmpl(log, sri, view, "thescene.html")
-	templates["websites"] = tmpl(log, sri, view, "websites.html")
-	templates["error"] = httpErr(log, sri, view)
+	templates["index"] = c.tmpl("index.html")
+	templates["file"] = c.tmpl("file.html")
+	templates["history"] = c.tmpl("history.html")
+	templates["thanks"] = c.tmpl("thanks.html")
+	templates["thescene"] = c.tmpl("thescene.html")
+	templates["websites"] = c.tmpl("websites.html")
+	templates["error"] = c.httpErr()
 	return templates
 }
 
 // tmpl returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory
-func tmpl(log *zap.SugaredLogger, sri SRI, view embed.FS, name string) *template.Template {
+func (c Configuration) tmpl(name string) *template.Template {
 	if _, err := os.Stat(filepath.Join("view", viewElem, name)); os.IsNotExist(err) {
 		log.Errorf("tmpl template not found: %s", err)
 		panic(err)
@@ -88,12 +97,12 @@ func tmpl(log *zap.SugaredLogger, sri SRI, view embed.FS, name string) *template
 	if name == "websites.html" {
 		files = append(files, GlobTo("website.html"))
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(log, sri)).ParseFS(view, files...))
+	return template.Must(template.New("").Funcs(TemplateFuncMap(c.Log, c.Subresource)).ParseFS(c.Views, files...))
 }
 
 // httpErr is the template for displaying HTTP error codes and feedback.
-func httpErr(log *zap.SugaredLogger, sri SRI, view embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(log, sri)).ParseFS(view,
+func (c Configuration) httpErr() *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap(c.Log, c.Subresource)).ParseFS(c.Views,
 		GlobTo(layout), GlobTo("error.html"), GlobTo(modal)))
 }
 

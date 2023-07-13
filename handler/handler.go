@@ -42,9 +42,15 @@ type Configuration struct {
 
 // Registry returns the template renderer.
 func (c Configuration) Registry() *TemplateRegistry {
+	webapp := app.Configuration{
+		Log:    c.Log,
+		Brand:  c.Brand,
+		Public: c.Public,
+		Views:  c.Views,
+	}
 	return &TemplateRegistry{
 		Templates: Join(
-			app.Tmpl(c.Log, c.Public, c.Views),
+			webapp.Tmpl(),
 			html3.Tmpl(c.Log, c.Views),
 		),
 	}
