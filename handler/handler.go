@@ -24,8 +24,10 @@ import (
 )
 
 const (
-	ShutdownCount = 3
-	ShutdownWait  = ShutdownCount * time.Second
+	// ShutdownCounter is the number of iterations to wait before shutting down the server.
+	ShutdownCounter = 3
+	// ShutdownWait is the number of seconds to wait before shutting down the server.
+	ShutdownWait = ShutdownCounter * time.Second
 )
 
 // Configuration of the handler.
@@ -187,7 +189,7 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
 		w := bufio.NewWriter(dst)
 		fmt.Fprintf(w, "\n%s%v", alert, ShutdownWait)
 		w.Flush()
-		count := ShutdownCount
+		count := ShutdownCounter
 		pause := time.NewTicker(1 * time.Second)
 		for range pause.C {
 			count--

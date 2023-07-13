@@ -40,6 +40,44 @@ func List() Accordion {
 	}
 }
 
+// Websites is the handler for the websites page.
+// Open is the ID of the accordion section to open.
+func Websites(s *zap.SugaredLogger, ctx echo.Context, open string) error {
+	data := initData()
+	data["title"] = "Websites"
+	data["logo"] = "Websites, podcasts, videos, books and films"
+	data["description"] = "A collection of websites, podcasts, videos, books and films about the scene."
+	acc := List()
+
+	// Open the accordion section.
+	closeAll := true
+	for i, site := range acc {
+		if site.ID == open || open == "" {
+			site.Open = true
+			data["title"] = site.Name
+			closeAll = false
+			acc[i] = site
+			if open == "" {
+				continue
+			}
+			break
+		}
+	}
+	// If a section was requested but not found, return a 404.
+	if open != "hide" && closeAll {
+		return echo.NewHTTPError(http.StatusNotFound, ErrTmpl)
+	}
+
+	// Render the page.
+	data["accordion"] = acc
+	err := ctx.Render(http.StatusOK, "websites", data)
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
 // ama is a collection of ask me anything posts.
 func ama() []Site {
 	return Sites{
@@ -196,42 +234,4 @@ func video() []Site {
 		Site{"Teh Scene", "https://archive.org/search?query=%22Teh%20Scene%22%20AND%20collection%3Acomputersandtechvideos",
 			"Teh Scene is 2005 parody of the online movie piracy scene."},
 	}
-}
-
-// Websites is the handler for the websites page.
-// Open is the ID of the accordion section to open.
-func Websites(s *zap.SugaredLogger, ctx echo.Context, open string) error {
-	data := initData()
-	data["title"] = "Websites"
-	data["logo"] = "Websites, podcasts, videos, books and films"
-	data["description"] = "A collection of websites, podcasts, videos, books and films about the scene."
-	acc := List()
-
-	// Open the accordion section.
-	closeAll := true
-	for i, site := range acc {
-		if site.ID == open || open == "" {
-			site.Open = true
-			data["title"] = site.Name
-			closeAll = false
-			acc[i] = site
-			if open == "" {
-				continue
-			}
-			break
-		}
-	}
-	// If a section was requested but not found, return a 404.
-	if open != "hide" && closeAll {
-		return echo.NewHTTPError(http.StatusNotFound, ErrTmpl)
-	}
-
-	// Render the page.
-	data["accordion"] = acc
-	err := ctx.Render(http.StatusOK, "websites", data)
-	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-	}
-	return nil
 }
