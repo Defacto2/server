@@ -15,3 +15,9 @@ linters:
     - funlen            # should enable at a later stage. 
     - wsl               # fussy over whitespace.
     - nlreturn          # fussy over whitespace.
+    # broken on windows
+    - gci
+    - gofmt
+    - goimports
+    # temporary disabled
+    - depguard

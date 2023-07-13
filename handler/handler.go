@@ -16,7 +16,7 @@ import (
 
 	"github.com/Defacto2/server/api/apiv1"
 	"github.com/Defacto2/server/cmd"
-	"github.com/Defacto2/server/handler/defaults"
+	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/pkg/config"
@@ -85,7 +85,7 @@ func (c Configuration) Controller() *echo.Echo {
 	e.Renderer = &TemplateRegistry{
 		Templates: Join(
 			html3.TmplHTML3(c.Log, c.Views),
-			defaults.Tmpl(c.Log, c.Public, c.Views),
+			app.Tmpl(c.Log, c.Public, c.Views),
 		),
 	}
 
@@ -177,33 +177,33 @@ func (c Configuration) Controller() *echo.Echo {
 
 	// Route => /
 	e.GET("/", func(c echo.Context) error {
-		return defaults.Index(nil, c)
+		return app.Index(nil, c)
 	})
 	e.GET("/history", func(c echo.Context) error {
-		return defaults.History(nil, c)
+		return app.History(nil, c)
 	})
 	e.GET("/thanks", func(c echo.Context) error {
-		return defaults.Thanks(nil, c)
+		return app.Thanks(nil, c)
 	})
 	e.GET("/thescene", func(c echo.Context) error {
-		return defaults.TheScene(nil, c)
+		return app.TheScene(nil, c)
 	})
 	// TODO: rename to singular
 	e.GET("/websites", func(c echo.Context) error {
-		return defaults.Websites(nil, c, "")
+		return app.Websites(nil, c, "")
 	})
 	e.GET("/websites/:id", func(c echo.Context) error {
-		return defaults.Websites(nil, c, c.Param("id"))
+		return app.Websites(nil, c, c.Param("id"))
 	})
 	e.GET("/file/stats", func(c echo.Context) error {
-		return defaults.File(nil, c, true)
+		return app.File(nil, c, true)
 	})
 	e.GET("/file/:id", func(c echo.Context) error {
 		// todo: use Files() instead
-		return defaults.Files(nil, c, c.Param("id"))
+		return app.Files(nil, c, c.Param("id"))
 	})
 	e.GET("/file", func(c echo.Context) error {
-		return defaults.File(nil, c, false)
+		return app.File(nil, c, false)
 	})
 
 	// Routes => /html3

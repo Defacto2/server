@@ -1,6 +1,8 @@
-// The Defacto2 web application built in 2023 on Go.
+// The Defacto2 Go web application built in 2023.
 // (c) 2023 Ben Garrett.
+// https://github.com/Defacto2/server
 // https://defacto2.net
+
 package main
 
 import (
@@ -84,12 +86,12 @@ func main() {
 
 	// Echo router/controller instance
 	server := handler.Configuration{
+		Brand:   &brand,
 		Import:  &configs,
 		Log:     log,
-		Brand:   &brand,
+		Public:  public,
 		Version: version,
 		Views:   views,
-		Public:  public,
 	}
 	e := server.Controller()
 

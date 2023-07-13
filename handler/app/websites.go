@@ -1,4 +1,4 @@
-package defaults
+package app
 
 import (
 	"net/http"

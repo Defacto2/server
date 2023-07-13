@@ -1,4 +1,4 @@
-package defaults
+package app
 
 import (
 	"embed"
@@ -26,7 +26,7 @@ const (
 	layoutCSS   = "public/css/layout.min.css"
 	fontawesome = "public/js/fontawesome.min.js"
 
-	viewElem = "defaults"
+	viewElem = "app"
 )
 
 var ErrTmpl = errors.New("the server could not render the HTML template for this page")
