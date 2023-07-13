@@ -53,9 +53,6 @@
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
               <li class="nav-item">
-                <a class="nav-link" href="/thanks">Thanks</a>
-              </li>
-              <li class="nav-item">
                 <a class="nav-link active" aria-current="page" href="/">Home</a>
               </li>
               <li class="nav-item dropdown">
@@ -63,14 +60,16 @@
                   Files
                 </a>
                 <ul class="dropdown-menu">
-                  <li><h6 class="dropdown-header">Filter using</h6></li>
+                  <li><h6 class="dropdown-header">Browse using</h6></li>
                   <li><a class="dropdown-item" href="/file">Categories</a></li>    
+                  <li><a class="dropdown-item" href="/file/stats">Statistics</a></li>  
                   <li><hr class="dropdown-divider"></li>
-                  <li><h6 class="dropdown-header">List productions</h6></li>
+                  <li><h6 class="dropdown-header">Browse productions</h6></li>
                   <li><a class="dropdown-item" href="#">New uploads</a></li>
                   <li><a class="dropdown-item" href="#">Oldest</a></li>
                   <li><a class="dropdown-item" href="#">Newest</a></li>
                   <li><hr class="dropdown-divider"></li>
+                  <li><h6 class="dropdown-header">Browse using tables</h6></li>
                   <li><a class="dropdown-item" href="/html3"><em>Use retro tables</em></a></li>
                 </ul>
               </li>
@@ -195,6 +194,9 @@
                   <li>{{ wikiLink "Troubleshoot-runtime-error-200" "Runtime 200" }}</li>
                   <li>{{ wikiLink "Troubleshoot-shrinker.err" "Shrinker.err dispatcher" }}</li>
                 </ul>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/thanks">Thanks</a>
               </li>
             </ul>
           </div>

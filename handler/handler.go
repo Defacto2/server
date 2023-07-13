@@ -179,9 +179,6 @@ func (c Configuration) Controller() *echo.Echo {
 	e.GET("/", func(c echo.Context) error {
 		return defaults.Index(nil, c)
 	})
-	e.GET("/file/list", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Coming soon!")
-	})
 	e.GET("/history", func(c echo.Context) error {
 		return defaults.History(nil, c)
 	})
@@ -191,11 +188,22 @@ func (c Configuration) Controller() *echo.Echo {
 	e.GET("/thescene", func(c echo.Context) error {
 		return defaults.TheScene(nil, c)
 	})
+	// TODO: rename to singular
 	e.GET("/websites", func(c echo.Context) error {
 		return defaults.Websites(nil, c, "")
 	})
 	e.GET("/websites/:id", func(c echo.Context) error {
 		return defaults.Websites(nil, c, c.Param("id"))
+	})
+	e.GET("/file/stats", func(c echo.Context) error {
+		return defaults.File(nil, c, true)
+	})
+	e.GET("/file/:id", func(c echo.Context) error {
+		// todo: use Files() instead
+		return defaults.Files(nil, c, c.Param("id"))
+	})
+	e.GET("/file", func(c echo.Context) error {
+		return defaults.File(nil, c, false)
 	})
 
 	// Routes => /html3

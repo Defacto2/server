@@ -139,6 +139,7 @@ func Tmpl(log *zap.SugaredLogger, public, view embed.FS) map[string]*template.Te
 	}
 	templates := make(map[string]*template.Template)
 	templates["index"] = tmpl(log, sri, view, "index.html")
+	templates["file"] = tmpl(log, sri, view, "file.html")
 	templates["history"] = tmpl(log, sri, view, "history.html")
 	templates["thanks"] = tmpl(log, sri, view, "thanks.html")
 	templates["thescene"] = tmpl(log, sri, view, "thescene.html")
