@@ -4,10 +4,7 @@ import (
 	"bufio"
 	"context"
 	"embed"
-	"errors"
 	"fmt"
-	"html/template"
-	"io"
 	"net/http"
 	"os"
 	"os/signal"
@@ -26,42 +23,10 @@ import (
 	"go.uber.org/zap"
 )
 
-var (
-	ErrNoTmpl = errors.New("no template name exists for recordsby type index")
-	ErrTmpl   = errors.New("named template cannot be found")
-)
-
 const (
 	ShutdownCount = 3
 	ShutdownWait  = ShutdownCount * time.Second
 )
-
-func Join(srcs ...map[string]*template.Template) map[string]*template.Template {
-	m := make(map[string]*template.Template)
-	for _, src := range srcs {
-		for k, val := range src {
-			m[k] = val
-		}
-	}
-	return m
-}
-
-// TemplateRegistry is template registry struct.
-type TemplateRegistry struct {
-	Templates map[string]*template.Template
-}
-
-// Render the layout template with the core HTML, META and BODY elements.
-func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	if name == "" {
-		return ErrNoTmpl
-	}
-	tmpl, ok := t.Templates[name]
-	if !ok {
-		return fmt.Errorf("%w: %s", ErrTmpl, name)
-	}
-	return tmpl.ExecuteTemplate(w, "layout", data)
-}
 
 // Configuration of the handler.
 type Configuration struct {
@@ -73,6 +38,16 @@ type Configuration struct {
 	Views   embed.FS           // Views are Go templates.
 }
 
+// Registry returns the template renderer.
+func (c Configuration) Registry() *TemplateRegistry {
+	return &TemplateRegistry{
+		Templates: Join(
+			app.Tmpl(c.Log, c.Public, c.Views),
+			html3.Tmpl(c.Log, c.Views),
+		),
+	}
+}
+
 // Controller is the primary instance of the Echo router.
 func (c Configuration) Controller() *echo.Echo {
 	e := echo.New()
@@ -80,14 +55,43 @@ func (c Configuration) Controller() *echo.Echo {
 	// Configurations
 	e.HideBanner = true
 	e.Use(middleware.Secure())
+	e.Use(middleware.Gzip())
 
 	// HTML templates
-	e.Renderer = &TemplateRegistry{
-		Templates: Join(
-			html3.TmplHTML3(c.Log, c.Views),
-			app.Tmpl(c.Log, c.Public, c.Views),
-		),
+	e.Renderer = c.Registry()
+
+	// HTTP status logger
+	e.Use(c.Import.LoggerMiddleware)
+
+	// Custom response headers
+	if c.Import.NoRobots {
+		e.Use(NoRobotsHeader)
 	}
+	// Rewrites for assets
+	// this is different to a redirect as it keeps the original URL in the browser
+	e.Pre(middleware.Rewrite(map[string]string{
+		"/logo.txt": "/text/defacto2.txt",
+	}))
+
+	// Production overrides
+	if c.Import.IsProduction {
+		// recover from panics
+		e.Use(middleware.Recover())
+		// https redirect
+		// e.Pre(middleware.HTTPSRedirect())
+		// e.Pre(middleware.HTTPSNonWWWRedirect())
+	}
+
+	// remove trailing slashes
+	e.Use(middleware.RemoveTrailingSlashWithConfig(middleware.TrailingSlashConfig{
+		RedirectCode: http.StatusMovedPermanently,
+	}))
+	// redirect www.defacto2.net requests to defacto2.net
+	e.Pre(middleware.NonWWWRedirect())
+	// timeout
+	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
+		Timeout: time.Duration(c.Import.Timeout) * time.Second,
+	}))
 
 	// Static embedded web assets
 	// These get distributed in the binary
@@ -104,110 +108,13 @@ func (c Configuration) Controller() *echo.Echo {
 		return echo.NewHTTPError(http.StatusNotFound)
 	})
 
-	// Middleware
-	e.Use(middleware.Gzip())
-	// remove trailing slashes
-	e.Use(middleware.RemoveTrailingSlashWithConfig(middleware.TrailingSlashConfig{
-		RedirectCode: http.StatusMovedPermanently,
-	}))
-	// www. redirect
-	e.Pre(middleware.NonWWWRedirect())
-	// timeout
-	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
-		Timeout: time.Duration(c.Import.Timeout) * time.Second,
-	}))
+	// Routes for the application.
+	e = Routes(e, c.Log, c.Public)
 
-	// Redirects, these need to be before the routes and rewrites
-	e.GET("/defacto2/history", func(c echo.Context) error {
-		return c.Redirect(http.StatusMovedPermanently, "/history")
-	})
-	e.GET("/defacto2/subculture", func(c echo.Context) error {
-		return c.Redirect(http.StatusMovedPermanently, "/thescene")
-	})
-	e.GET("/files/json/site.webmanifest", func(c echo.Context) error {
-		return c.Redirect(http.StatusMovedPermanently, "/site.webmanifest")
-	})
-	e.GET("/link/list/:id", func(c echo.Context) error {
-		return c.Redirect(http.StatusMovedPermanently, "/websites")
-	})
-
-	// Rewrites for assets
-	e.Pre(middleware.Rewrite(map[string]string{
-		"/logo.txt": "/text/defacto2.txt",
-	}))
-
-	// Serve embeded CSS files
-	e.FileFS("/css/bootstrap.min.css", "public/css/bootstrap.min.css", c.Public)
-	e.FileFS("/css/bootstrap.min.css.map", "public/css/bootstrap.min.css.map", c.Public)
-	e.FileFS("/css/layout.min.css", "public/css/layout.min.css", c.Public)
-	// Serve embeded SVG collections
-	e.FileFS("/bootstrap-icons.svg", "public/image/bootstrap-icons.svg", c.Public)
-	// Serve embeded font files
-	e.FileFS("/font/pxplus_ibm_vga8.woff2", "public/font/pxplus_ibm_vga8.woff2", c.Public)
-	e.FileFS("/font/pxplus_ibm_vga8.woff", "public/font/pxplus_ibm_vga8.woff", c.Public)
-	e.FileFS("/font/pxplus_ibm_vga8.ttf", "public/font/pxplus_ibm_vga8.ttf", c.Public)
-	// Serve embeded JS files
-	e.FileFS("/js/bootstrap.bundle.min.js", "public/js/bootstrap.bundle.min.js", c.Public)
-	e.FileFS("/js/bootstrap.bundle.min.js.map", "public/js/bootstrap.bundle.min.js.map", c.Public)
-	e.FileFS("/js/fontawesome.min.js", "public/js/fontawesome.min.js", c.Public)
-	// Serve embeded image files
-	e.FileFS("/favicon.ico", "public/image/favicon.ico", c.Public)
-	// Serve embedded text files
-	e.FileFS("/osd.xml", "public/text/osd.xml", c.Public)
-	e.FileFS("/robots.txt", "public/text/robots.txt", c.Public)
-	e.FileFS("/site.webmanifest", "public/text/site.webmanifest.json", c.Public)
-
-	if c.Import.IsProduction {
-		// recover from panics
-		e.Use(middleware.Recover())
-		// https redirect
-		// e.Pre(middleware.HTTPSRedirect())
-		// e.Pre(middleware.HTTPSNonWWWRedirect())
-	}
-
-	// HTTP status logger
-	e.Use(c.Import.LoggerMiddleware)
-
-	// Custom response headers
-	if c.Import.NoRobots {
-		e.Use(NoRobotsHeader)
-	}
-
-	// /link/list/scenegroup
-
-	// Route => /
-	e.GET("/", func(c echo.Context) error {
-		return app.Index(nil, c)
-	})
-	e.GET("/history", func(c echo.Context) error {
-		return app.History(nil, c)
-	})
-	e.GET("/thanks", func(c echo.Context) error {
-		return app.Thanks(nil, c)
-	})
-	e.GET("/thescene", func(c echo.Context) error {
-		return app.TheScene(nil, c)
-	})
-	// TODO: rename to singular
-	e.GET("/websites", func(c echo.Context) error {
-		return app.Websites(nil, c, "")
-	})
-	e.GET("/websites/:id", func(c echo.Context) error {
-		return app.Websites(nil, c, c.Param("id"))
-	})
-	e.GET("/file/stats", func(c echo.Context) error {
-		return app.File(nil, c, true)
-	})
-	e.GET("/file/:id", func(c echo.Context) error {
-		// todo: use Files() instead
-		return app.Files(nil, c, c.Param("id"))
-	})
-	e.GET("/file", func(c echo.Context) error {
-		return app.File(nil, c, false)
-	})
-
-	// Routes => /html3
+	// Routes for the HTML3 retro tables.
 	g := html3.Routes(e, c.Log)
+
+	// Routes for the file download handler.
 	g.GET("/d/:id", func(ctx echo.Context) error {
 		d := download.Download{
 			Path: c.Import.DownloadDir,
@@ -215,7 +122,7 @@ func (c Configuration) Controller() *echo.Echo {
 		return d.HTTPSend(c.Log, ctx)
 	})
 
-	// Routers => /api/v1
+	// Route for the API.
 	_ = apiv1.Routes(e, c.Log)
 
 	// Router => HTTP error handler

@@ -47,8 +47,8 @@ func tagByName(name string) tags.TagData {
 	return tags.Tags.ByName(name, nil)
 }
 
-// TmplHTML3 returns a map of the templates used by the HTML3 sub-group route.
-func TmplHTML3(log *zap.SugaredLogger, fs embed.FS) map[string]*template.Template {
+// Tmpl returns a map of the templates used by the HTML3 sub-group route.
+func Tmpl(log *zap.SugaredLogger, fs embed.FS) map[string]*template.Template {
 	templates := make(map[string]*template.Template)
 	templates["html3_index"] = index(log, fs)
 	templates["html3_all"] = list(log, fs)
