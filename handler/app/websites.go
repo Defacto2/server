@@ -20,6 +20,7 @@ type Sites = []Site
 // Accordion is a collection of websites grouped by a category.
 type Accordion = []struct {
 	Name  string // Name of the category.
+	Title string // Title tab for the category.
 	ID    string // ID of the category.
 	Open  bool   // Whether the category is displayed or closed.
 	Sites Sites  // Sites are the websites shown in the category.
@@ -28,15 +29,24 @@ type Accordion = []struct {
 // List is a collection of websites grouped by a category.
 func List() Accordion {
 	return Accordion{
-		{"The text art scene", "text", false, art()},
-		{"Bulletin Board Systems", "bbs", false, bbs()},
-		{"Crack and pirate scenes", "pirate", false, pir8()},
-		{"The demoscene", "demo", false, demo()},
-		{"Former groups", "exgroup", false, groups()},
-		{"Podcasts", "podcast", false, podcasts()},
-		{"Books", "book", false, books()},
-		{"Videos and documentary", "video", false, video()},
-		{"ama ~ ask me anything", "ama", false, ama()},
+		{"The text art scene", "Text art pages",
+			"text", false, art()},
+		{"Bulletin Board Systems", "BBS pages",
+			"bbs", false, bbs()},
+		{"Crack and pirate scenes", "Pirate pages",
+			"pirate", false, pir8()},
+		{"The demoscene", "Demoscene pages",
+			"demo", false, demo()},
+		{"Former groups", "Pages of former groups",
+			"exgroup", false, groups()},
+		{"Podcasts", "Podcasts",
+			"podcast", false, podcasts()},
+		{"Books", "Books",
+			"book", false, books()},
+		{"Videos and documentary", "Videos",
+			"video", false, video()},
+		{"ama ~ ask me anything", "AMAs",
+			"ama", false, ama()},
 	}
 }
 
@@ -54,7 +64,7 @@ func Websites(s *zap.SugaredLogger, ctx echo.Context, open string) error {
 	for i, site := range acc {
 		if site.ID == open || open == "" {
 			site.Open = true
-			data["title"] = site.Name
+			data["title"] = site.Title
 			closeAll = false
 			acc[i] = site
 			if open == "" {
@@ -187,8 +197,8 @@ func groups() []Site {
 // pir8 is a collection of pirate websites.
 func pir8() []Site {
 	return Sites{
-		Site{"Scize	classic collection", "https://scenelist.org/",
-			"Browse and search through 1000s PC releases of the 1990s from the BBS and early internet era."},
+		Site{"SCiZE's classic collection", "https://scenelist.org/",
+			"Browse and search through thousands of 1990s PC releases from the BBS and early internet era."},
 		Site{"replacementdocs", "http://www.replacementdocs.com/",
 			"The original web archive of game manuals for all platforms."},
 		Site{"RECOLLECTION", "http://www.atlantis-prophecy.org/recollection",

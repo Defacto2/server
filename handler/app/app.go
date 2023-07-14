@@ -75,6 +75,7 @@ func (c *Configuration) Tmpl() map[string]*template.Template {
 	templates["index"] = c.tmpl("index.html")
 	templates["file"] = c.tmpl("file.html")
 	templates["history"] = c.tmpl("history.html")
+	templates["interview"] = c.tmpl("interview.html")
 	templates["thanks"] = c.tmpl("thanks.html")
 	templates["thescene"] = c.tmpl("the_scene.html")
 	templates["websites"] = c.tmpl("websites.html")

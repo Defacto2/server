@@ -10,13 +10,15 @@ import (
 // File is the handler for the file categories page.
 func File(s *zap.SugaredLogger, ctx echo.Context, stats bool) error {
 	data := initData()
-	data["title"] = "File categories"
+	const title = "File categories"
+	data["title"] = title
 	data["description"] = "Table of contents for the files."
-	data["logo"] = "File categories"
-	data["h1"] = "File categories"
+	data["logo"] = title
+	data["h1"] = title
 	data["stats"] = stats
 	if stats {
 		data["h1sub"] = "with statistics"
+		data["logo"] = title + " + stats"
 	}
 	err := ctx.Render(http.StatusOK, "file", data)
 	if err != nil {

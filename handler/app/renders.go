@@ -54,6 +54,19 @@ func Index(s *zap.SugaredLogger, ctx echo.Context) error {
 	return nil
 }
 
+// Interview is the handler for the People Interviews page.
+func Interview(s *zap.SugaredLogger, ctx echo.Context) error {
+	data := initData()
+	data["description"] = "demo"
+	data["title"] = "demo"
+	err := ctx.Render(http.StatusOK, "interview", data)
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
 // History is the handler for the History page.
 func History(s *zap.SugaredLogger, ctx echo.Context) error {
 	const lead = "Defacto founded in late February or early March of 1996, as an electronic magazine that wrote about The Scene subculture."

@@ -14,7 +14,7 @@
             {{/*  <p>About this category goes here.</p>  */}}
             <div class="row row-cols-1 row-cols-md-2 g-4">
               {{range .Sites -}}
-                  {{- block "website" . -}}{{ "<!-- Text art sites -->" | safeHTML -}}{{end}}
+                  {{- block "website" . -}}{{ "<!-- {{ .ID }} range of sites -->" | safeHTML -}}{{end}}
               {{end}}
             </div>
           </div>

@@ -68,6 +68,9 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) *echo.Echo {
 	e.GET("/history", func(c echo.Context) error {
 		return app.History(nil, c)
 	})
+	e.GET("/interview", func(c echo.Context) error {
+		return app.Interview(nil, c)
+	})
 	e.GET("/thanks", func(c echo.Context) error {
 		return app.Thanks(nil, c)
 	})
