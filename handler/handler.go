@@ -87,6 +87,14 @@ func (c Configuration) EmbedDirs(e *echo.Echo) *echo.Echo {
 	return e
 }
 
+// Rewrites for assets.
+// This is different to a redirect as it keeps the original URL in the browser
+func rewrites() map[string]string {
+	return map[string]string{
+		"/logo.txt": "/text/defacto2.txt",
+	}
+}
+
 // Controller is the primary instance of the Echo router.
 func (c Configuration) Controller() *echo.Echo {
 	e := echo.New()
@@ -97,12 +105,11 @@ func (c Configuration) Controller() *echo.Echo {
 	e.Renderer = c.Registry()                        // HTML templates
 
 	// Pre configurations that are run before the router
-	e.Pre(middleware.Rewrite(map[string]string{
-		// Rewrites for assets
-		// this is different to a redirect as it keeps the original URL in the browser
-		"/logo.txt": "/text/defacto2.txt",
-	}))
-	e.Pre(middleware.NonWWWRedirect()) // redirect www.defacto2.net requests to defacto2.net
+	e.Pre(middleware.Rewrite(rewrites())) // rewrites for assets
+	e.Pre(middleware.NonWWWRedirect())    // redirect www.defacto2.net requests to defacto2.net
+	if c.Import.IsProduction {
+		e.Pre(middleware.HTTPSRedirect()) // https redirect
+	}
 
 	// Use configurations that are run after the router
 	e.Use(middleware.Secure())                                   // XSS cross-site scripting protection
@@ -110,14 +117,9 @@ func (c Configuration) Controller() *echo.Echo {
 	e.Use(c.Import.LoggerMiddleware)                             // custom logging middleware (see: pkg/config/logger.go)
 	e.Use(middleware.RemoveTrailingSlashWithConfig(c.rmSlash())) // remove trailing slashes
 	e.Use(middleware.TimeoutWithConfig(c.timeout()))             // timeout a long running operation
-	if c.Import.NoRobots {
-		e.Use(NoRobotsHeader) // add X-Robots-Tag to all responses
-	}
-
-	// Production configuration overrides
+	e.Use(c.NoRobotsHeader)                                      // add X-Robots-Tag to all responses
 	if c.Import.IsProduction {
-		e.Use(middleware.Recover())       // recover from panics
-		e.Pre(middleware.HTTPSRedirect()) // https redirect
+		e.Use(middleware.Recover()) // recover from panics
 	}
 
 	// Static embedded web assets
