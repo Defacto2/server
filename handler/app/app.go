@@ -76,7 +76,7 @@ func (c *Configuration) Tmpl() map[string]*template.Template {
 	templates["file"] = c.tmpl("file.html")
 	templates["history"] = c.tmpl("history.html")
 	templates["thanks"] = c.tmpl("thanks.html")
-	templates["thescene"] = c.tmpl("thescene.html")
+	templates["thescene"] = c.tmpl("the_scene.html")
 	templates["websites"] = c.tmpl("websites.html")
 	templates["error"] = c.httpErr()
 	return templates
@@ -94,7 +94,10 @@ func (c Configuration) tmpl(name string) *template.Template {
 	}
 	files := []string{GlobTo(layout), GlobTo(name), GlobTo(modal)}
 	// append any additional templates
-	if name == "websites.html" {
+	switch name {
+	case "file.html":
+		files = append(files, GlobTo("file_expand.html"))
+	case "websites.html":
 		files = append(files, GlobTo("website.html"))
 	}
 	return template.Must(template.New("").Funcs(c.TemplateFuncMap()).ParseFS(c.Views, files...))
