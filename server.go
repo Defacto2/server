@@ -32,12 +32,13 @@ var views embed.FS
 var version string
 
 func main() {
-	// Logger (use the development log until the environment vars are parsed)
+	// Logger
+	// Use the development log until the environment vars are parsed
 	log := logger.Development().Sugar()
 
 	// Environment configuration
+	// Any hardcoded overrides should be placed in here
 	configs := config.Config{
-		// hardcoded overrides can go here
 		// IsProduction: true,
 	}
 	if err := env.Parse(
@@ -81,10 +82,10 @@ func main() {
 	}
 	defer db.Close()
 
-	// Cached global vars will go here to avoid the garbage collection.
-	// They should be lockable.
+	// Cached global vars will go here, to avoid the garbage collection
+	// They should be lockable
 
-	// Echo router/controller instance
+	// Echo router and controller instance
 	server := handler.Configuration{
 		Brand:   &brand,
 		Import:  &configs,

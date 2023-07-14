@@ -56,54 +56,22 @@ func (c Configuration) Registry() *TemplateRegistry {
 	}
 }
 
-// Controller is the primary instance of the Echo router.
-func (c Configuration) Controller() *echo.Echo {
-	e := echo.New()
-
-	// Configurations
-	e.HideBanner = true
-	e.Use(middleware.Secure())
-	e.Use(middleware.Gzip())
-
-	// HTML templates
-	e.Renderer = c.Registry()
-
-	// HTTP status logger
-	// see: pkg/config/logger.go
-	e.Use(c.Import.LoggerMiddleware)
-
-	// Custom response headers
-	if c.Import.NoRobots {
-		e.Use(NoRobotsHeader)
-	}
-	// Rewrites for assets
-	// this is different to a redirect as it keeps the original URL in the browser
-	e.Pre(middleware.Rewrite(map[string]string{
-		"/logo.txt": "/text/defacto2.txt",
-	}))
-
-	// Production overrides
-	if c.Import.IsProduction {
-		// recover from panics
-		e.Use(middleware.Recover())
-		// https redirect
-		// e.Pre(middleware.HTTPSRedirect())
-		// e.Pre(middleware.HTTPSNonWWWRedirect())
-	}
-
-	// remove trailing slashes
-	e.Use(middleware.RemoveTrailingSlashWithConfig(middleware.TrailingSlashConfig{
+// Return the TrailingSlash middleware configuration.
+func (c Configuration) rmSlash() middleware.TrailingSlashConfig {
+	return middleware.TrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,
-	}))
-	// redirect www.defacto2.net requests to defacto2.net
-	e.Pre(middleware.NonWWWRedirect())
-	// timeout
-	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
-		Timeout: time.Duration(c.Import.Timeout) * time.Second,
-	}))
+	}
+}
 
-	// Static embedded web assets
-	// These get distributed in the binary
+// Timeout returns the timeout middleware configuration.
+func (c Configuration) timeout() middleware.TimeoutConfig {
+	return middleware.TimeoutConfig{
+		Timeout: time.Duration(c.Import.Timeout) * time.Second,
+	}
+}
+
+// EmbedDirs serves the static files from the directories embed to the binary.
+func (c Configuration) EmbedDirs(e *echo.Echo) *echo.Echo {
 	e.StaticFS("/image/html3", echo.MustSubFS(c.Public, "public/image/html3"))
 	e.GET("/image/html3", func(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound)
@@ -116,15 +84,53 @@ func (c Configuration) Controller() *echo.Echo {
 	e.GET("/image/artpack", func(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound)
 	})
+	return e
+}
+
+// Controller is the primary instance of the Echo router.
+func (c Configuration) Controller() *echo.Echo {
+	e := echo.New()
+
+	// Configurations
+	e.HideBanner = true                              // hide the Echo banner
+	e.HTTPErrorHandler = c.Import.CustomErrorHandler // custom error handler (see: pkg/config/logger.go)
+	e.Renderer = c.Registry()                        // HTML templates
+
+	// Pre configurations that are run before the router
+	e.Pre(middleware.Rewrite(map[string]string{
+		// Rewrites for assets
+		// this is different to a redirect as it keeps the original URL in the browser
+		"/logo.txt": "/text/defacto2.txt",
+	}))
+	e.Pre(middleware.NonWWWRedirect()) // redirect www.defacto2.net requests to defacto2.net
+
+	// Use configurations that are run after the router
+	e.Use(middleware.Secure())                                   // XSS cross-site scripting protection
+	e.Use(middleware.Gzip())                                     // Gzip HTTP compression
+	e.Use(c.Import.LoggerMiddleware)                             // custom logging middleware (see: pkg/config/logger.go)
+	e.Use(middleware.RemoveTrailingSlashWithConfig(c.rmSlash())) // remove trailing slashes
+	e.Use(middleware.TimeoutWithConfig(c.timeout()))             // timeout a long running operation
+	if c.Import.NoRobots {
+		e.Use(NoRobotsHeader) // add X-Robots-Tag to all responses
+	}
+
+	// Production configuration overrides
+	if c.Import.IsProduction {
+		e.Use(middleware.Recover())       // recover from panics
+		e.Pre(middleware.HTTPSRedirect()) // https redirect
+	}
+
+	// Static embedded web assets
+	// These get distributed in the binary
+	e = c.EmbedDirs(e)
 
 	// Routes for the application.
 	e = Routes(e, c.Log, c.Public)
 
 	// Routes for the HTML3 retro tables.
-	g := html3.Routes(e, c.Log)
-
-	// Routes for the file download handler.
-	g.GET("/d/:id", func(ctx echo.Context) error {
+	retro := html3.Routes(e, c.Log)
+	retro.GET("/d/:id", func(ctx echo.Context) error {
+		// route for the file download handler under the html3 group
 		d := download.Download{
 			Path: c.Import.DownloadDir,
 		}
@@ -133,10 +139,6 @@ func (c Configuration) Controller() *echo.Echo {
 
 	// Route for the API.
 	_ = apiv1.Routes(e, c.Log)
-
-	// Custom error handler
-	// see: pkg/config/logger.go
-	e.HTTPErrorHandler = c.Import.CustomErrorHandler
 
 	return e
 }

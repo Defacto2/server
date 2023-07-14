@@ -41,11 +41,16 @@ func Error(err error, c echo.Context) error {
 	})
 }
 
-func Error404(c echo.Context) error {
+func Status404(s *zap.SugaredLogger, ctx echo.Context) error {
 	data := initData()
 	data["description"] = "404 demo"
 	data["title"] = "404 demo"
-	return c.Render(http.StatusNotFound, "404", data)
+	err := ctx.Render(http.StatusNotFound, "index", data)
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
 }
 
 // Index is the handler for the Home page.
@@ -53,7 +58,7 @@ func Index(s *zap.SugaredLogger, ctx echo.Context) error {
 	data := initData()
 	data["description"] = "demo"
 	data["title"] = "demo"
-	err := ctx.Render(http.StatusOK, "index", data)
+	err := ctx.Render(http.StatusNotFound, "index", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)

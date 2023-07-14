@@ -33,7 +33,7 @@ func Redirects() map[string]string {
 func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) *echo.Echo {
 
 	e.GET("/404", func(c echo.Context) error {
-		return app.Error404(c)
+		return app.Status404(nil, c)
 	})
 
 	// Redirects
