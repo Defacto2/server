@@ -237,7 +237,7 @@
         </pre>
       </div>
       <main>
-      {{if ne (index . "h1") ""}}<h1 class="display-6">{{ index . "h1" }}</h1>{{end -}}
+      {{if ne (index . "h1") ""}}<h1 class="display-6">{{ index . "h1" }}{{if ne (index . "h1sub") ""}} <small>{{ index . "h1sub" }}</small>{{end}}</h1>{{end -}}
       {{if ne (index . "lead") ""}}<p class="lead">{{ index . "lead" }}</p>{{end -}}
       {{- block "content" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
       </main>

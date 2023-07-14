@@ -11,9 +11,13 @@ import (
 func File(s *zap.SugaredLogger, ctx echo.Context, stats bool) error {
 	data := initData()
 	data["title"] = "File categories"
-	data["logo"] = "File categories"
 	data["description"] = "Table of contents for the files."
+	data["logo"] = "File categories"
+	data["h1"] = "File categories"
 	data["stats"] = stats
+	if stats {
+		data["h1sub"] = "with statistics"
+	}
 	err := ctx.Render(http.StatusOK, "file", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
