@@ -69,6 +69,7 @@ func (c Configuration) Controller() *echo.Echo {
 	e.Renderer = c.Registry()
 
 	// HTTP status logger
+	// see: pkg/config/logger.go
 	e.Use(c.Import.LoggerMiddleware)
 
 	// Custom response headers
@@ -133,7 +134,8 @@ func (c Configuration) Controller() *echo.Echo {
 	// Route for the API.
 	_ = apiv1.Routes(e, c.Log)
 
-	// Router => HTTP error handler
+	// Custom error handler
+	// see: pkg/config/logger.go
 	e.HTTPErrorHandler = c.Import.CustomErrorHandler
 
 	return e

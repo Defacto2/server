@@ -41,6 +41,13 @@ func Error(err error, c echo.Context) error {
 	})
 }
 
+func Error404(c echo.Context) error {
+	data := initData()
+	data["description"] = "404 demo"
+	data["title"] = "404 demo"
+	return c.Render(http.StatusNotFound, "404", data)
+}
+
 // Index is the handler for the Home page.
 func Index(s *zap.SugaredLogger, ctx echo.Context) error {
 	data := initData()
