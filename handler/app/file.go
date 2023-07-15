@@ -34,10 +34,20 @@ func Files(s *zap.SugaredLogger, ctx echo.Context, id string) error {
 	data["title"] = "Files placeholder"
 	data["logo"] = "Files placeholder"
 	data["description"] = "Table of contents for the files."
-	err := ctx.Render(http.StatusOK, "file", data)
-	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	// err := ctx.Render(http.StatusOK, "file", data)
+	// if err != nil {
+	// 	s.Errorf("%s: %s", ErrTmpl, err)
+	// 	return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	// }
+	switch id {
+	case "":
+		err := ctx.Render(http.StatusOK, "file", data)
+		if err != nil {
+			s.Errorf("%s: %s", ErrTmpl, err)
+			return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		}
+	default:
+		return Status(nil, ctx, http.StatusNotFound, ctx.Param("uri"))
 	}
 	return nil
 }

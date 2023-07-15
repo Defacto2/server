@@ -1,0 +1,16 @@
+{{/* status.html */}}
+{{- define "content" }}
+<div class="m-5">
+    <div class="alert rounded-0 border-0 alert-warning text-center" role="alert">
+        <h1 class="h4">{{ index . "alert" }}</h1>
+        <hr>
+        {{ index . "probl" }}
+        <p class="mt-2 font-monospace text-info-emphasis">
+            <span class="text-warning-emphasis">
+                {{ index . "code" }} error &nbsp; 
+            </span>
+            defacto2.net/<span class="text-decoration-underline link-underline-danger link-offset-2">{{ index . "uri" }}</span>
+        </p>
+    </div>
+</div>
+{{- end}}

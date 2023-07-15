@@ -32,10 +32,6 @@ func Redirects() map[string]string {
 // Routes defines the routes for the web server.
 func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) *echo.Echo {
 
-	e.GET("/404", func(c echo.Context) error {
-		return app.Status404(nil, c)
-	})
-
 	// Redirects
 	// these need to be before the routes and rewrites
 	MovedPermanently(e)
@@ -92,11 +88,15 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) *echo.Echo {
 		return app.File(nil, c, true)
 	})
 	e.GET("/file/:id", func(c echo.Context) error {
-		// todo: use Files() instead
 		return app.Files(nil, c, c.Param("id"))
 	})
 	e.GET("/file", func(c echo.Context) error {
 		return app.File(nil, c, false)
+	})
+
+	// all other page requests return a custom 404 error page
+	e.GET("/:uri", func(c echo.Context) error {
+		return app.Status(nil, c, http.StatusNotFound, c.Param("uri"))
 	})
 
 	return e
