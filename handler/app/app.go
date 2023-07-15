@@ -3,6 +3,7 @@ package app
 import (
 	"embed"
 	"errors"
+	"fmt"
 	"html/template"
 	"os"
 	"path/filepath"
@@ -87,6 +88,16 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 			return string(*c.Brand)
 		},
 		"logoText": LogoText,
+		"mod3": func(i int) bool {
+			const x = 3
+			fmt.Println(i, x, i%x == 0)
+			return i%x == 0
+		},
+		"mod3end": func(i int) bool {
+			const x = 3
+			fmt.Println(i, x, i%x == x)
+			return i%x == x
+		},
 		"wikiLink": WikiLink,
 		"sriBootstrapCSS": func() string {
 			return c.Subresource.BootstrapCSS

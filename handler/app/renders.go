@@ -41,19 +41,6 @@ func Error(err error, c echo.Context) error {
 	})
 }
 
-// Index is the handler for the Home page.
-func Index(s *zap.SugaredLogger, ctx echo.Context) error {
-	data := initData()
-	data["description"] = "demo"
-	data["title"] = "demo"
-	err := ctx.Render(http.StatusNotFound, "index", data)
-	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-	}
-	return nil
-}
-
 // Status is the handler for the HTTP status pages such as the 404 - not found.
 func Status(s *zap.SugaredLogger, ctx echo.Context, code int, uri string) error {
 	// todo: check valid status, or throw error
@@ -101,6 +88,25 @@ func Interview(s *zap.SugaredLogger, ctx echo.Context) error {
 	data["description"] = "demo"
 	data["title"] = "demo"
 	err := ctx.Render(http.StatusOK, "interview", data)
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
+// Index is the handler for the Home page.
+func Index(s *zap.SugaredLogger, ctx echo.Context) error {
+	const lead = "a website committed to preserving the historic PC cracking and warez scene subcultures." +
+		" It covers digital objects including text files, demos, music, art, magazines, and other projects."
+	const desc = "Defacto2 is " + lead
+	data := initData()
+	data["title"] = "Demo"
+	data["description"] = desc
+	data["h1"] = "Welcome,"
+	data["lead"] = "You're at " + lead
+	data["milestones"] = ByDecade1970s()
+	err := ctx.Render(http.StatusNotFound, "index", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)

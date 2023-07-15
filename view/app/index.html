@@ -1,5 +1,163 @@
 {{/*  index.html  */}}
 {{- define "content" }}
+<p>
+  While a seldom-discussed subject, this element of the underground computer subculture could be lost and forgotten without a preservation effort.
+  The nature of digital piracy, with its high churn for participants, means it is a community that is not well documented nor preserved. 
+</p>
+<p>
+  <small class="text-warning-emphasis">Unfortunately, some files have inappropriate or harmful comments or imagery—a possible consequence of the era and the ages of the people involved, often kids.</small>
+</p>
+<hr class="my-5">
+<div class="row">
+  <div class="col-sm-6 mb-3 mb-sm-0">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">New to the website?</h5>
+        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+        <a href="#" class="btn btn-primary">Go somewhere</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">The Scene?</h5>
+        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+        <a href="#" class="btn btn-primary">Go somewhere</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 class="mt-5"><small>The Scene</small> milestones</h2>
+<div class="lead">
+  In the early days of modern computing, the terms microcomputer and personal computer were interchangeable. 
+  This site defines the PC as the Intel-compatible x86 architecture known initially as the IBM PC but evolved to MS-DOS and Windows. 
+  All other personal computer platforms get referenced as microcomputers. 
+</div>
+<p class="my-3">
+  These milestones are for the PC underground and cracking scenes. They are not definitive but are based on the digital artifacts collected.
+  The more notable communities on other microcomputer platforms are seldom mentioned here, including the famed Apple II, Commodore 64, and Commodore Amiga communities, which were often poorly imitated by the underground communities on the PC. 
+</p>
+
+{{/*  TODO: make this a []struct  */}}
+{{range $index, $mile := .milestones }}
+{{if eq true (mod3 $index)}}<div class="card-group my-3">{{end}}
+  <div class="card">
+    <div class="card-header">B:{{mod3 $index}} E:{{mod3end $index}}
+      <strong>{{.Year}}</strong> {{.Month}} {{.Day}}
+    </div>  
+    <div class="card-body">
+      <h5 class="card-title">
+        {{.Title}}<br><small class="text-body-secondary">{{.Lead}}</small>
+      </h5>
+      <p class="card-text"><small>{{.Content}}</small></p>
+      <p class="card-text">
+        <small><a href="{{.Link}}">Read "{{.LinkTitle}}</a></small>
+      </p>
+    </div>
+  </div>
+{{if eq true (mod3end $index)}}</div>{{end}}
+{{end}}
+
+<hr>
+
+<div class="card-group">
+  <div class="card">
+    <div class="card-header">
+      <strong>1971</strong> October
+    </div>  
+    <div class="card-body">
+      <h5 class="card-title">
+        Secrets of the Little Blue Box
+        <br>
+        <small class="text-body-secondary">Esquire October 1971</small>
+      </h5>
+      <p class="card-text"><small>
+Ron Rosenbaum writes the first mainstream article on phone freaks, primarily kids who'd hack and experiment with the global telephone network.
+<br>
+The piece coins them as phone-<strong>phreaks</strong> and introduces the reader to the kids' use of <strong>pseudonyms</strong> or codenames within their regional <strong>groups</strong> of friends.
+It gives an early example of <strong>social engineering</strong>, defines the community of phreakers as the phone-phreak <strong>underground</strong>, and mentions the newer trend of <strong>computer phreaking</strong>, which we call computer hacking today.
+</small></p>
+      <p class="card-text">
+        <small><a href="https://www.slate.com/articles/technology/the_spectator/2011/10/the_article_that_inspired_steve_jobs_secrets_of_the_little_blue_.html">Read the complete article</a></small>
+      </p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      November, 15
+    </div>  
+    <div class="card-body">
+      <h5 class="card-title">
+        The first microcomputer
+        <br>
+        <small class="text-body-secondary">Intel 4004</small>
+      </h5>
+      <p class="card-text">
+        Intel advertises the first-to-market general-purpose programmable processor or microprocessor, the 4-bit Intel 4004.
+      </p>
+      <p class="card-text">
+        <small><a href="https://www.intel.com/content/www/us/en/history/museum-story-of-intel-4004.html">Read The Story of the Intel 4004</a></small>
+      </p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <strong>1972</strong> April
+    </div>  
+    <div class="card-body">
+      <h5 class="card-title">
+        The first 8-bit microprocessor<br>
+        <small class="text-body-secondary">Intel 8008</small>
+      </h5>
+      <p class="card-text">
+        Intel releases the world's first 8-bit microprocessor, the Intel 8008.
+      </p>
+      <p class="card-text">
+        <small><a href="https://www.intel.com/content/www/us/en/history/virtual-vault/articles/the-8008.html">Read about The Intel 8008</a></small>
+      </p>
+    </div>
+  </div>
+</div>
+<div class="card-group my-4">
+  <div class="card">
+    <div class="card-header">
+      Early <strong>1972</strong>
+    </div>  
+    <div class="card-body">
+      <h5 class="card-title">
+        Blue boxes
+      </h5>
+      <p class="card-text">
+        Inspired by The Secrets of the Little Blue Box article, Steve Wozniak and a teenage Steve Jobs team up to build and sell 40-100, Wozniak-designed blue boxes to the students of Berkeley University.
+        The devices allowed users to hack and manipulate the electromechanical machines that operated the national telephone network.
+      </p>
+      <p class="card-text">
+        <small><a href="http://explodingthephone.com/">Read about the hackers of the telephone network</a></small>
+      </p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <strong>1974</strong> April
+    </div>  
+    <div class="card-body">
+      <h5 class="card-title">
+        The first CPU for microcomputers
+        <br><small class="text-body-secondary">Intel 8080</small>
+      </h5>
+      <p class="card-text">
+        Intel releases the 8-bit 8080 CPU, its second but more successful 8-bit programmable microprocessor.
+        This CPU became the processing heart of the earliest popular microcomputers, the Altair 8800, the Sol-20 and the IMSAI.
+      </p>
+      <p class="card-text">
+        <small><a href="https://www.intel.com/content/www/us/en/history/virtual-vault/articles/the-8008.html">Read about The Intel 8008 and 8080</a></small>
+      </p>
+    </div>
+  </div>
+</div>
+ 
 <div class="container text-center">
     <div class="row">
       <div class="col">

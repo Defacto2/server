@@ -107,3 +107,9 @@ func LogoText(s string) string {
 		strings.Repeat(" ", count))
 	return indent + text
 }
+
+// Mod returns true if the given integer is a multiple of the given max integer.
+func Mod(i, max int) bool {
+	fmt.Println(i, max, i%max, i%max == 0)
+	return i%max == 0
+}
