@@ -61,7 +61,7 @@ func (t *T) Build(log *zap.SugaredLogger) {
 		tg := key
 		defer func(i int, tg Tag) {
 			t.Mu.Lock()
-			t.List[i].Count = int(counter(i, tg, log))
+			t.List[i].Count = int(counter(tg, log))
 			t.Mu.Unlock()
 		}(i, tg)
 	}
@@ -150,7 +150,8 @@ func OSTags() [5]string {
 	}
 }
 
-func counter(i int, t Tag, log *zap.SugaredLogger) int64 {
+// count the number of files with the tag.
+func counter(t Tag, log *zap.SugaredLogger) int64 {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {

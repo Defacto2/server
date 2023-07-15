@@ -17,11 +17,11 @@ import (
 
 // Download configuration.
 type Download struct {
-	Path string
+	Path string // Path is the absolute path to the download directory.
 }
 
 const (
-	invalidID = 0
+	invalidID = 0 // invalidID is the default out of range ID value.
 	dbdown    = "The database is temporarily down"
 	missing   = "The file for download cannot be located on the server"
 	notfound  = "The download record cannot be located on the server"

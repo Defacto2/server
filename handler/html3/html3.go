@@ -14,10 +14,10 @@ import (
 // HTTP status codes in Go
 // https://go.dev/src/net/http/status.go
 
-// LegacyURLs are partial URL routers that are to be redirected with a HTTP 308
+// Redirects are partial URL routers that are to be redirected with a HTTP 308
 // permanent redirect status code. These are for retired URL syntaxes that are still
 // found on websites online, so their links to Defacto2 do not break with 404, not found errors.
-func LegacyURLs() map[string]string {
+func Redirects() map[string]string {
 	return map[string]string{
 		"/index":            "",
 		"/categories/index": "/categories",

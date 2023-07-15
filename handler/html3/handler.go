@@ -44,6 +44,7 @@ const (
 	AsSoftware                   // AsSoftware group records as software.
 )
 
+// RecordsBy are the record groupings.
 func (t RecordsBy) String() string {
 	const l = 7
 	if t >= l {
@@ -60,6 +61,7 @@ func (t RecordsBy) String() string {
 	}[t]
 }
 
+// Parent returns the parent route for the current route.
 func (t RecordsBy) Parent() string {
 	const l = 7
 	if t >= l {
@@ -74,6 +76,7 @@ func (t RecordsBy) Parent() string {
 	}[t]
 }
 
+// Stats are the database statistics.
 var Stats struct { //nolint:gochecknoglobals
 	All      model.All
 	Art      model.Arts
@@ -82,6 +85,7 @@ var Stats struct { //nolint:gochecknoglobals
 	Software model.Softs
 }
 
+// Groups are the distinct groups from the file table.
 var Groups model.Groups //nolint:gochecknoglobals
 
 // Routes for the /html3 sub-route group.
@@ -108,7 +112,7 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger) *echo.Group {
 	g.GET("/software:offset", s.Software)
 	g.GET("/software", s.Software)
 	// append legacy redirects
-	for url := range LegacyURLs() {
+	for url := range Redirects() {
 		g.GET(url, s.Redirection)
 	}
 	return g
@@ -230,7 +234,7 @@ func (s *sugared) Groups(c echo.Context) error {
 
 // Redirection redirects any legacy URL matches.
 func (s *sugared) Redirection(c echo.Context) error {
-	for u, redirect := range LegacyURLs() {
+	for u, redirect := range Redirects() {
 		htm := Prefix + u
 		if htm == c.Path() {
 			return c.Redirect(http.StatusPermanentRedirect, Prefix+redirect)

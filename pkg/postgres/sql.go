@@ -13,7 +13,7 @@ const (
 	SumSize = "SUM(filesize) AS size_sum"
 )
 
-type Version string // Version of the PostgreSQL in use.
+type Version string // Version of the PostgreSQL database server in use.
 
 // Query the database version.
 func (v *Version) Query() error {

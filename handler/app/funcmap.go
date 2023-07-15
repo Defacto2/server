@@ -18,8 +18,10 @@ const (
 	// The welcome to defacto2 text is 19 characters long.
 	// The letter 'O' of TO is the center of the text.
 	Welcome = ":                    ·· WELCOME TO DEFACTO2 ··                    ·"
-	wiki    = `<svg class="bi" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#arrow-right-short"></use></svg>`
-	link    = `<svg class="bi" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#link"></use></svg>`
+
+	// wiki and link are SVG icons.
+	wiki = `<svg class="bi" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#arrow-right-short"></use></svg>`
+	link = `<svg class="bi" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#link"></use></svg>`
 )
 
 // ExternalLink returns a HTML link with an embedded SVG icon to an external website.

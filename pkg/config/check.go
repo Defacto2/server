@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	PortMax = 65534
-	PortSys = 1024
+	PortMax = 65534 // PortMax is the highest valid port number.
+	PortSys = 1024  // PortSys is the lowest valid port number that does not require system access.
 )
 
 var (

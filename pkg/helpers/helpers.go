@@ -17,7 +17,7 @@ import (
 const (
 	// Eraseline is an ANSI escape control to erase the active line of the terminal.
 	Eraseline = "\x1b[2K"
-
+	// byteUnits is a list of units used for formatting byte sizes.
 	byteUnits = "kMGTPE"
 )
 

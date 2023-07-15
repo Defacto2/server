@@ -26,35 +26,10 @@ const (
 
 var ErrTmpl = errors.New("the server could not render the HTML template for this page")
 
-// SRI are the Subresource Integrity hashes for the layout.
-type SRI struct {
-	BootstrapCSS string // Bootstrap CSS verification hash.
-	BootstrapJS  string // Bootstrap JS verification hash.
-	FontAwesome  string // Font Awesome verification hash.
-	LayoutCSS    string // Layout CSS verification hash.
-}
-
-// Verify checks the integrity of the embeded CSS and JS files.
-// These are required for Subresource Integrity (SRI) verification in modern browsers.
-func (s *SRI) Verify(fs embed.FS) error {
-	var err error
-	s.BootstrapCSS, err = Integrity(bootCSS, fs)
-	if err != nil {
-		return err
-	}
-	s.BootstrapJS, err = Integrity(bootJS, fs)
-	if err != nil {
-		return err
-	}
-	s.FontAwesome, err = Integrity(fontawesome, fs)
-	if err != nil {
-		return err
-	}
-	s.LayoutCSS, err = Integrity(layoutCSS, fs)
-	if err != nil {
-		return err
-	}
-	return nil
+// GlobTo returns the path to the template file.
+func GlobTo(name string) string {
+	// The path is relative to the embed.FS root and must not use the OS path separator.
+	return strings.Join([]string{"view", viewElem, name}, "/")
 }
 
 // Configuration of the app.
@@ -104,18 +79,6 @@ func (c Configuration) tmpl(name string) *template.Template {
 	return template.Must(template.New("").Funcs(c.TemplateFuncMap()).ParseFS(c.Views, files...))
 }
 
-// httpErr is the template for displaying HTTP error codes and feedback.
-func (c Configuration) httpErr() *template.Template {
-	return template.Must(template.New("").Funcs(c.TemplateFuncMap()).ParseFS(c.Views,
-		GlobTo(layout), GlobTo("error.html"), GlobTo(modal)))
-}
-
-// GlobTo returns the path to the template file.
-func GlobTo(name string) string {
-	// The path is relative to the embed.FS root and must not use the OS path separator.
-	return strings.Join([]string{"view", viewElem, name}, "/")
-}
-
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func (c Configuration) TemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
@@ -141,4 +104,35 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 			return template.HTML(s)
 		},
 	}
+}
+
+// SRI are the Subresource Integrity hashes for the layout.
+type SRI struct {
+	BootstrapCSS string // Bootstrap CSS verification hash.
+	BootstrapJS  string // Bootstrap JS verification hash.
+	FontAwesome  string // Font Awesome verification hash.
+	LayoutCSS    string // Layout CSS verification hash.
+}
+
+// Verify checks the integrity of the embeded CSS and JS files.
+// These are required for Subresource Integrity (SRI) verification in modern browsers.
+func (s *SRI) Verify(fs embed.FS) error {
+	var err error
+	s.BootstrapCSS, err = Integrity(bootCSS, fs)
+	if err != nil {
+		return err
+	}
+	s.BootstrapJS, err = Integrity(bootJS, fs)
+	if err != nil {
+		return err
+	}
+	s.FontAwesome, err = Integrity(fontawesome, fs)
+	if err != nil {
+		return err
+	}
+	s.LayoutCSS, err = Integrity(layoutCSS, fs)
+	if err != nil {
+		return err
+	}
+	return nil
 }

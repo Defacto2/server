@@ -241,6 +241,7 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error {
 	return nil
 }
 
+// qs returns a query string with a leading question mark.
 func qs(s string) string {
 	if s == "" {
 		return ""
@@ -248,6 +249,7 @@ func qs(s string) string {
 	return fmt.Sprintf("?%s", s)
 }
 
+// previous returns the previous page number.
 func previous(page int) int {
 	if page == 1 {
 		return 1
@@ -255,6 +257,7 @@ func previous(page int) int {
 	return page - 1
 }
 
+// next returns the next page number.
 func next(page int, maxPage uint) int {
 	max := int(maxPage)
 	if page >= max {

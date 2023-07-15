@@ -14,10 +14,10 @@ import (
 )
 
 const (
-	Author  = "Ben Garrett"          // Author is the primary programmer of this program.
-	Domain  = "defacto2.net"         // Domain of the website.
-	Email   = "contact@defacto2.net" // Email contact for public display.
-	Program = "df2-server"
+	Author  = "Ben Garrett"              // Author is the primary programmer of this program.
+	Domain  = "defacto2.net"             // Domain of the website.
+	Email   = "contact@defacto2.net"     // Email contact for public display.
+	Program = "df2-server"               // Program is the command line name of this program.
 	Title   = "Defacto2 web application" // Title of this program.
 )
 
@@ -65,7 +65,7 @@ func run(version string, c *config.Config) (int, error) {
 	return 0, nil
 }
 
-// Arch returns this program's system architecture.
+// Arch returns the program's architecture.
 func Arch() string {
 	switch strings.ToLower(runtime.GOARCH) {
 	case "amd64":
