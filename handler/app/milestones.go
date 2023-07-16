@@ -426,6 +426,64 @@ func ByDecade1970s() Milestones {
 				Png:   "the-ptl-club.png",
 			},
 		},
+		{
+			Title: "The first 32 color VGA game", Year: 1988, Month: 3,
+			Lead: "Arcadia's Rockford: The Arcade Game", LinkTitle: "the discussion",
+			Link: "https://forum.winworldpc.com/discussion/comment/174818/#Comment_174818",
+		},
+		{
+			Title: "Earliest standalone BBS ad", Year: 1988, Month: 4, Day: 4, Highlight: false,
+			Lead: "Swashbucklers II", LinkTitle: "the file",
+			Link: "/f/b844ef",
+			Picture: Picture{
+				Title: "Swashbucklers II",
+				Alt:   "Swashbucklers II text advert screenshot",
+				Webp:  "b844ef.webp",
+				Png:   "b844ef.png",
+			},
+		},
+		{
+			Title: "Earliest ANSI ad", Year: 1988, Month: 6, Highlight: false,
+			Lead: "Paperboy by BSP", LinkTitle: "the file",
+			Link: "/f/a8286b",
+			Content: "The earliest ANSI ad is released by BSP for the game Paperboy. " +
+				"ANSI art is a computer art form that became widely used to create art and advertisements for BBSes. " +
+				"ANSI art is created using ANSI escape codes to create colored text and is usually viewed in a terminal emulator.",
+			Picture: Picture{
+				Title: "Paperboy by BSP",
+				Alt:   "Paperboy by BSP ANSI screenshot",
+				Webp:  "a8286b.webp",
+				Png:   "a8286b.png",
+			},
+		},
+		{
+			Title: "Earliest NFO as a text document", Year: 1988, Month: 7, Day: 30, Highlight: false,
+			Lead: "Bentley Sidwell Productions", LinkTitle: "the file", Link: "/f/9f3f4e",
+			Content: "The earliest NFO-like document is released by Bentley Sidwell Productions for the game " +
+				"Romance of The Three Kingdoms. NFO files are text documents that contain information about a release, such as the release group, " +
+				"release date, and release notes. NFO files are usually distributed with pirated software and are often " +
+				"used to promote the release group.",
+			Picture: Picture{
+				Title: "Bentley Sidwell Productions document",
+				Alt:   "Romance of The Three Kingdoms by Bentley Sidwell Productions document screenshot",
+				Webp:  "9f3f4e.webp",
+				Png:   "9f3f4e.png",
+			},
+		},
+		{
+			Title: "The earliest ASCII art", Year: 1988, Month: 10, Day: 6, Highlight: true,
+			Lead: "Another quality ware from $print", LinkTitle: "the file", Link: "/f/ab3dc1",
+			// TODO: fix content
+			Content: "The earliest ASCII art is released by $print for the game " +
+				"Battle Chess. ASCII art is a computer art form that became widely used to create art and advertisements for BBSes. " +
+				"ASCII art is created using ASCII characters and is usually viewed in a terminal emulator.",
+			Picture: Picture{
+				Title: "Another quality ware from $print",
+				Alt:   "Battle Chess by $print ASCII screenshot",
+				Webp:  "ab3dc1.webp",
+				Png:   "ab3dc1.png",
+			},
+		},
 	}
 	return m
 }
