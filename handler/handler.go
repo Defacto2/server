@@ -72,6 +72,10 @@ func (c Configuration) timeout() middleware.TimeoutConfig {
 
 // EmbedDirs serves the static files from the directories embed to the binary.
 func (c Configuration) EmbedDirs(e *echo.Echo) *echo.Echo {
+	e.StaticFS("/image/artpack", echo.MustSubFS(c.Public, "public/image/artpack"))
+	e.GET("/image/artpack", func(ctx echo.Context) error {
+		return echo.NewHTTPError(http.StatusNotFound)
+	})
 	e.StaticFS("/image/html3", echo.MustSubFS(c.Public, "public/image/html3"))
 	e.GET("/image/html3", func(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound)
@@ -80,8 +84,8 @@ func (c Configuration) EmbedDirs(e *echo.Echo) *echo.Echo {
 	e.GET("/image/layout", func(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound)
 	})
-	e.StaticFS("/image/artpack", echo.MustSubFS(c.Public, "public/image/artpack"))
-	e.GET("/image/artpack", func(ctx echo.Context) error {
+	e.StaticFS("/image/milestone", echo.MustSubFS(c.Public, "public/image/milestone"))
+	e.GET("/image/milestone", func(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound)
 	})
 	return e

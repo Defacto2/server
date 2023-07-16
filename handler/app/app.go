@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/labstack/gommon/log"
 	"go.uber.org/zap"
@@ -95,8 +96,8 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 		},
 		"mod3end": func(i int) bool {
 			const x = 3
-			fmt.Println(i, x, i%x == x)
-			return i%x == x
+			fmt.Println("->", i, x, i%x == (x-1))
+			return i%x == x-1
 		},
 		"wikiLink": WikiLink,
 		"sriBootstrapCSS": func() string {
@@ -113,6 +114,30 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 		},
 		"safeHTML": func(s string) template.HTML {
 			return template.HTML(s)
+		},
+		"fmtPrefix": func(s string) string {
+			if s == "" {
+				return ""
+			}
+			return fmt.Sprintf("%s ", s)
+		},
+		"fmtMonth": func(m int) string {
+			if m == 0 {
+				return ""
+			}
+			if m < 0 || m > 12 {
+				return " ERR MONTH"
+			}
+			return " " + time.Month(m).String()
+		},
+		"fmtDay": func(d int) string {
+			if d == 0 {
+				return ""
+			}
+			if d < 0 || d > 31 {
+				return " ERR DAY"
+			}
+			return fmt.Sprintf(" %d", d)
 		},
 	}
 }
