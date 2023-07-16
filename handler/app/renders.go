@@ -106,7 +106,7 @@ func Index(s *zap.SugaredLogger, ctx echo.Context) error {
 	data["h1"] = "Welcome,"
 	data["lead"] = "You're at " + lead
 	data["milestones"] = ByDecade1970s()
-	err := ctx.Render(http.StatusNotFound, "index", data)
+	err := ctx.Render(http.StatusOK, "index", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)

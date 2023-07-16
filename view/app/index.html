@@ -1,5 +1,6 @@
 {{/*  index.html  */}}
 {{- define "content" }}
+{{- $listCls := "link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover icon-link icon-link-hover"}}
 <p>
   While a seldom-discussed subject, this element of the underground computer subculture could be lost and forgotten without a preservation effort.
   The nature of digital piracy, with its high churn for participants, means it is a community that is not well documented nor preserved. 
@@ -42,6 +43,7 @@
 {{- range $index, $mile := .milestones }}
   <div class="col">
     <div class="card h-100{{ if eq true .Highlight}} text-bg-light{{end}}">
+      {{/*  Header & pictures  */}}
       {{- if and (eq "" .Picture.Png) (eq "" .Picture.Jpg)}}
       <div class="card-header">
         {{fmtPrefix .Prefix}}<strong>{{.Year}}</strong>{{fmtMonth .Month}}{{fmtDay .Day}}
@@ -55,6 +57,17 @@
         <img src="/image/milestone/{{.Picture.Png}}" class="card-img-top" alt="{{.Picture.Alt}}">
       </picture>
       {{- end}}
+      {{/*  Lists  */}}
+      {{- if and (.List) (eq "" .Content)}}
+      <ul class="list-group list-group-flush text-center">
+        {{- range .List}}
+        <li class="list-group-item">
+          <a href="{{.Link}}" class="{{$listCls}}">{{- if ne "" .Forward }}{{.Forward}} {{mergeIcon | safeHTML}}{{end}}{{.LinkTitle | safeHTML}}</a>
+        </li>
+        {{- end}}
+      </ul> 
+      {{- end}} 
+      {{/*  Card body  */}}
       <div class="card-body">
         <h5 class="card-title{{if eq true .Highlight}} text-primary{{end}}">
           {{.Title}}<br><small class="text-body-secondary">{{.Lead}}</small>
@@ -62,15 +75,26 @@
         <p class="card-text"><small>{{.Content | safeHTML}}</small></p>
         <p class="card-text">
           <small>
-          {{- if ne "" .Link}}<a href="{{.Link}}">Read {{.LinkTitle}}</a>{{- end}}
+          {{- if ne "" .Link}}<a href="{{.Link}}" class="link-offset-2 link-underline link-underline-opacity-50">Read {{.LinkTitle}}</a>{{- end}}
           {{- if ne "" .Picture.Attribution}}
             <br>
               Photo by {{.Picture.Attribution}} &nbsp;
-              <a href="{{.Picture.LicenseLink}}">{{.Picture.License}}</a>
+              <a href="{{.Picture.LicenseLink}}" class="link-offset-2 link-underline link-underline-opacity-50">{{.Picture.License}}</a>
           {{end}}
           </small>
         </p>
       </div>
+      {{/*  Lists  */}}
+      {{- if and (not .List) (ne "" .Content)}}
+      <ul class="list-group list-group-flush text-center">
+        {{- range .List}}
+        <li class="list-group-item">
+          <a href="{{.Link}}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">{{.LinkTitle | safeHTML}}</a>
+        </li>
+        {{- end}}
+      </ul> 
+      {{- end}}   
+      {{/*  Footer  */}}
       {{- if or (ne "" .Picture.Png) (ne "" .Picture.Jpg)}}
       <div class="card-footer">
         {{fmtPrefix .Prefix}}<strong>{{.Year}}</strong>{{fmtMonth .Month}}{{fmtDay .Day}}

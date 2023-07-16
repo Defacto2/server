@@ -20,8 +20,9 @@ const (
 	Welcome = ":                    ·· WELCOME TO DEFACTO2 ··                    ·"
 
 	// wiki and link are SVG icons.
-	wiki = `<svg class="bi" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#arrow-right-short"></use></svg>`
-	link = `<svg class="bi" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#link"></use></svg>`
+	wiki  = `<svg class="bi" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#arrow-right-short"></use></svg>`
+	link  = `<svg class="bi" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#link"></use></svg>`
+	merge = `<svg class="bi" aria-hidden="true" fill="currentColor"><use xlink:href="bootstrap-icons.svg#forward"></use></svg>`
 )
 
 // ExternalLink returns a HTML link with an embedded SVG icon to an external website.

@@ -1,5 +1,7 @@
 package app
 
+const notable = "Notable groups of"
+
 // Milestone is an accomplishment for a year and optional month.
 type Milestone struct {
 	Year      int     // Year of the milestone.
@@ -11,6 +13,7 @@ type Milestone struct {
 	Content   string  // Content is the main body of the milestone and can be HTML.
 	Link      string  // Link is the URL to an article about the milestone or the product.
 	LinkTitle string  // LinkTitle is the title of the Link.
+	List      Links   // Links is a collection of links that are displayed as a HTML list.
 	Highlight bool    // Highlight is a flag to outline the milestone.
 	Picture   Picture // Picture is an image or screenshot for a milestone.
 }
@@ -25,6 +28,13 @@ type Picture struct {
 	Webp        string // Webp is the filename of the WebP screenshot.
 	Png         string // Png is the filename of the PNG screenshot.
 	Jpg         string // Jpg is the filename of the JPG photo.
+}
+
+// Links is a collection of Links.
+type Links []struct {
+	LinkTitle string // LinkTitle is the title of the Link.
+	Link      string // Link is the URL to an article about the milestone or the product.
+	Forward   string // Forward is an optional name of a group that is prefixed before the link to indicate a merger.
 }
 
 // Milestones is a collection of Milestone.
@@ -86,10 +96,18 @@ func ByDecade1970s() Milestones {
 		},
 		{
 			Year: 1975, Month: 2, Title: "The first microcomputer software",
-			Lead: "Altair BASIC", LinkTitle: "about Altair BASIC",
+			Lead: "Altair BASIC", LinkTitle: "about origins of BASIC",
 			Link: "https://time.com/69316/basic/",
-			Content: "Paul Allen and Bill Gates program and sell Altair BASIC for the computer they first saw a month prior." +
+			Content: "Paul Allen and Bill Gates program and sell Altair BASIC for the computer they first saw a month prior. " +
 				"BASIC (Beginner's All-Purpose Symbolic Instruction Code) was a programming language conceived by John Kemeny and Thomas Jurtz of Dartmouth College in early 1964 to be as approachable as possible.",
+			Picture: Picture{
+				Title:       "Can anyone beat the Altair System?",
+				Alt:         "A May 1976 advertisement for the Altair 8800 computer.",
+				Jpg:         "altair-ad.jpg",
+				Attribution: "Michael Holley",
+				License:     "public domain",
+				LicenseLink: "https://commons.wikimedia.org/wiki/File:Altair_Computer_Ad_May_1976.jpg",
+			},
 		},
 		{
 			Year: 1975, Month: 3, Day: 5, Title: "The first meeting of the Homebrew Computer Club",
@@ -98,10 +116,18 @@ func ByDecade1970s() Milestones {
 			Content: "While many technology clubs of this type for sharing ideas were common, this Silicon Valley, Bay Area group became famous for its numerous members who later became industry figures.",
 		},
 		{
-			Year: 1976, Month: 1, Title: "Software piracy",
-			Lead: "An Open Letter to Hobbyists", LinkTitle: "about the Altair 8800",
+			Year: 1976, Month: 1, Title: "Software piracy", Highlight: true,
+			Lead: "An Open Letter to Hobbyists", LinkTitle: "the letter",
 			Link:    "https://archive.org/details/hcc0201/Homebrew.Computer.Club.Volume.02.Issue.01.Len.Shustek/page/n1/mode/2up",
 			Content: "Bill Gates of <em>Micro-Soft</em> writes a letter to the hobbyists of the Homebrew Computer Club requesting they stop stealing Altair BASIC.",
+			Picture: Picture{
+				Title:       "An Open Letter to Hobbyists",
+				Alt:         "A photo of the first page of the letter.",
+				Jpg:         "an-open-letter-to-hobbyists.jpg",
+				Attribution: "Len Shustek",
+				License:     "public domain",
+				LicenseLink: "https://commons.wikimedia.org/wiki/File:Bill_Gates_Letter_to_Hobbyists.jpg",
+			},
 		},
 		{
 			Year: 1976, Month: 3, Title: "The first Apple computer",
@@ -135,7 +161,7 @@ func ByDecade1970s() Milestones {
 				"Software written for either CPU often gets quoted as 8088/86 compatible.",
 		},
 		{
-			Title: "The first commercial software for x86",
+			Title: "First commercial software for x86",
 			Year:  1979, Month: 6, Day: 18,
 			Lead: "Microsoft BASIC-86", LinkTitle: "Microsoft introduces BASIC-86",
 			Link: "https://thisdayintechhistory.com/06/18/microsoft-introduces-basic-for-8086/",
@@ -149,7 +175,7 @@ func ByDecade1970s() Milestones {
 				"He called it QDOS (Quick and Dirty OS), and it sold few copies.",
 		},
 		{
-			Title: "The first PC", Year: 1981, Month: 8, Day: 12,
+			Title: "The first PC", Year: 1981, Month: 8, Day: 12, Highlight: true,
 			Lead: "IBM Personal Computer", LinkTitle: "about the IBM PC",
 			Link:    "https://www.ibm.com/ibm/history/exhibits/pc25/pc25_birth.html",
 			Content: "Built on the 4.77 MHz Intel 8088 microprocessor, 16KB of RAM and Microsoft's PC-DOS, this underpowered machine heralds the <strong>PC platform</strong>.",
@@ -192,6 +218,12 @@ func ByDecade1970s() Milestones {
 				"It is the first PC clone to use the same software and expansion cards as the IBM PC.",
 		},
 		{
+			Title: "PC / MS-DOS 2 released", Year: 1983, Month: 3,
+			Lead: "The OS includes ANSI.SYS", LinkTitle: "about MS-DOS ANSI.SYS",
+			Link:    "https://github.com/microsoft/MS-DOS/blob/master/v2.0/source/ANSI.txt",
+			Content: "Includes for the first time a device driver to view ANSI text graphics in color.",
+		},
+		{
 			Title: "The earliest cracked PC game", Year: 1983,
 			Lead: "Atarisoft's Galaxian broken by Koyote Kid", LinkTitle: "about and view the crack",
 			Link: "/f/ab2edbc", Highlight: true,
@@ -200,6 +232,198 @@ func ByDecade1970s() Milestones {
 				Alt:   "Galaxian broken screenshot",
 				Webp:  "ab2edbc.webp",
 				Png:   "ab2edbc.png",
+			},
+		},
+		{
+			Title: "Major videogame publishers enter the PC market", Year: 1983,
+			Content: "Some major arcade and videogame publishers of the era release on the PC.<br>" +
+				"<small><a href=\"//dfarq.homeip.net/atarisoft-if-you-cant-beat-em-join-em/\">Atarisoft</a>, " +
+				"<a href=\"//www.uvlist.net/companies/info/243-Infocom\">Infocom</a>, " +
+				"<a href=\"//www.resetera.com/threads/lets-look-back-at-game-company-datasoft.587093/##post-87110411\">Datasoft</a>, " +
+				"<a href=\"//www.uvlist.net/companies/info/83-Mattel%20Electronics\">Mattel</a> and " +
+				"<a href=\"//www.wired.com/story/sierra-online-ken-williams-interview-memoir/\">Sierra On-Line</a></small>",
+		},
+		{
+			Title: "The first PC virus", Year: 1986, Month: 1, Day: 19,
+			Lead: "Brain", LinkTitle: "about the Brain virus",
+			Link:    "https://www.f-secure.com/v-descs/brain.shtml",
+			Content: "The first PC virus, Brain, infects the boot sector of floppy disks.",
+			Picture: Picture{
+				Title:       "A hex dump of the Brain",
+				Alt:         "A hex dump of the boot sector of a floppy disk containing the PC virus, Brain.",
+				Jpg:         "brain-virus.jpg",
+				Attribution: "Avinash Meetoo",
+				License:     "CC-BY-2.5",
+				LicenseLink: "https://creativecommons.org/licenses/by/2.5/deed.en",
+			},
+		},
+		{
+			Title: "Earliest unprotect text", Year: 1983, Month: 5, Day: 12, Highlight: true,
+			Lead: "Directions by Randy Day for unprotecting SPOC the Chess Master", LinkTitle: "the unprotect text",
+			Link: "/f/a91c702",
+			Content: "<code>SPOC.UNP</code><br>" +
+				"Unprotects were text documents describing methods to remove software copy protection on floppy disks." +
+				"Many authors were legitimate owners who were frustrated that publishers would not permit them to create backup copies of their expensive but fragile 5¼-inch floppy disks for daily driving.",
+		},
+		{
+			Title: "Microsoft Windows announced", Year: 1983, Month: 11, Day: 10,
+			Link:      "https://www.poynter.org/reporting-editing/2014/today-in-media-history-in-1983-bill-gates-and-microsoft-introduced-windows/",
+			LinkTitle: "about the announcement",
+			Content:   "In hindsight, this premature announcement aims to keep Microsoft customers from jumping to competitor graphical user interface software.",
+		},
+		{
+			Title: "Major game publishers enter the PC market", Year: 1984,
+			Content: "<a href=\"//www.polygon.com/a/how-ea-lost-its-soul/\">Electronic Arts</a>, " +
+				"<a href=\"//www.ign.com/articles/2010/10/01/the-history-of-activision\">Activision</a>, " +
+				"<a href=\"//segaretro.org/IBM_PC\">Sega</a> and " +
+				"<a href=\"//corporate-ient.com/microprose/\">MicroProse Software</a>* publish on the platform." +
+				"<br>* The company founded by Sid Meier",
+		},
+		{
+			Title: "The first 16 color PC game", Year: 1984, Month: 8,
+			Lead: "King's Quest", LinkTitle: "the game manual",
+			Link: "http://www.sierrahelp.com/Documents/Manuals/Kings_Quest_1_IBM_-_Manual.pdf",
+			Content: "The first PC game to use 16 colors, King's Quest, is created by  Sierra On-Line and released by IBM. " +
+				"IBM PC graphics cards are limited to 4 colors, but the game is released for the new IBM PCjr that displays upto 16 colors.",
+		},
+		{
+			Title: "The earliest information text", Year: 1984, Month: 10, Day: 17, Highlight: true,
+			Lead:      "Zorktools 1 by Software Pirates Inc",
+			LinkTitle: "the information text",
+			Link:      "/f/ae2da98",
+			Content: "<code>INFOCOM.DOC</code><br>" +
+				"Information texts were documents included in a release describing how to how to use a utility program."},
+		{
+			Title: "EGA graphics standard", Year: 1984, Month: 10,
+			Lead: "16 colors from a 64 color pallete", LinkTitle: "How 16 colors saved PC gaming",
+			Link:    "https://www.custompc.com/retro-tech/ega-graphics",
+			Content: "The Enhanced Graphics Adapter standard includes 16 colors, 640×350 pixel resolution and 80×25 text mode.",
+		},
+		{
+			Title: "An early demonstration on the PC", Year: 1984, Month: 10,
+			Lead: "Fantasy Land EGA demo by IBM", LinkTitle: "and run the demo",
+			Link: "https://www.pcjs.org/software/pcx86/demo/ibm/ega/",
+			Content: "The first demo program on the PC, Fantasy Land, is created by IBM to demonstrate the new EGA graphics standard. " +
+				"The idea of a demo is to have the program run automatically, without user input, to show off the capabilities of the hardware.",
+		},
+		{
+			Prefix: "The earliest PC groups,", Year: 1984,
+			List: Links{
+				{LinkTitle: "Against Software Protection <small>ASP</small>", Link: "/g//against-software-protection"},
+				{LinkTitle: "Software Pirates Inc <small>SPi</small>", Link: "/g/software-pirates-inc"},
+			},
+		},
+		{
+			Title: "The earliest text loader", Year: 1985, Month: 5, Day: 26, Highlight: true,
+			Lead:      "Bally Midway's Spy Hunter by Imperial Warlords",
+			LinkTitle: "and view the text loader",
+			Link:      "/f/aa2be75",
+			Content: "Text loaders and ANSI art offer similar results but are different in execution. " +
+				"Text loaders are binary programs that display text mode characters and colors. " +
+				"ANSI text required the ANSI.SYS device driver included in PC/MS-DOS 2+ to convert plain text files into onscreen animation and color.",
+			Picture: Picture{
+				Title: "Spy Hunter",
+				Alt:   "Spy Hunter by Imperial Warlords screenshot",
+				Webp:  "aa2be75.webp",
+				Png:   "aa2be75.png",
+			},
+		},
+		{
+			Title: "Initial release of Microsoft Windows", Year: 1985, Month: 11, Day: 20,
+			Lead: "Windows 1.0", LinkTitle: "about the failure of Windows 1.0",
+			Link:    "https://www.theverge.com/2012/11/20/3671922/windows-1-0-microsoft-history-desktop-gracefully-failed",
+			Content: "Microsoft Windows 1.0 is released. Expensive hardware requirements and a lack of purpose lead to lackluster sales. It will take a decade and multiple releases before Windows becomes dominant.",
+			Picture: Picture{
+				Title: "Microsoft Windows 1.01",
+				Alt:   "Microsoft Windows 1.01 booting up screenshot",
+				Webp:  "windows-version-1.webp",
+				Png:   "windows-version-1.png",
+			},
+		},
+		{
+			Title: "The earliest \"DOX\"", Year: 1986, Highlight: true,
+			Lead: "Dam Buster Documentation by Apocalypse Now BBS", LinkTitle: "the documentation",
+			Link: "/f/a61db76",
+			Content: "<code>DAMBUST1.DOC</code><br>" +
+				"DOX is an abbreviation for documentation, which are text files that provide instructions on playing more complicated games. " +
+				"These titles often relied on printed instruction manuals included in the purchased game box to be playable." +
+				"<br>Dam Buster is a misname of the game The Dam Busters, a 1984 game published by Accolade.",
+		},
+		{
+			Title: "PC clone sales pickup in Europe", Year: 1986,
+			Link:      "https://www.computerhistory.org/revolution/personal-computers/17/302",
+			LinkTitle: "about the PC clone market",
+			Content: "The European market is dominated by the Amiga and Atari ST, but PC clones gain popularity." +
+				" Popular machines include the <a href=\"https://www.dosdays.co.uk/computers/Amstrad%20PC1000/amstrad_pc1000.php\">Amstrad PC1512</a>, " +
+				"the Philips P2000T and the <a href=\"https://www.dosdays.co.uk/computers/Olivetti%20M24/olivetti_m24.php\">Olivetti M24</a>.",
+		},
+		{
+			Title: "The first 16 color EGA game", Year: 1986, Month: 3,
+			Lead: "Accolade's Mean 18", LinkTitle: "the moby games entry",
+			Link: "https://www.mobygames.com/game/152/mean-18/",
+		},
+		{
+			Title: "The earliest PC loaders", Year: 1986, Month: 6, Highlight: true,
+			Content: "Loaders were named as they would be the first thing to display each time a cracked game is run. " +
+				"These screens were static images in the early days and sometimes contained ripped screens from other games. Some users found these annoying and a cause of file bloat.",
+			List: Links{
+				{LinkTitle: "Atarisoft's Gremlins by Mr. Turbo", Link: "/f/b44cac"},
+				{LinkTitle: "Exodus: Ultima 3 by ESP Pirates", Link: "/f/a83eec"},
+				{LinkTitle: "Sega's Frogger II by SPI", Link: "/f/b33404"},
+			},
+			Picture: Picture{
+				Title: "Software Pirates, Inc presents",
+				Alt:   "Software Pirates, Inc presents Frogger II  screenshot",
+				Webp:  "b33404.webp",
+				Png:   "b33404.png",
+			},
+		},
+		{
+			Year: 1986, Prefix: notable,
+			List: Links{
+				{LinkTitle: "Five-O", Link: "/g/five-o"},
+				{LinkTitle: "ESP Pirates", Link: "/g/esp-pirates"},
+			},
+			Picture: Picture{
+				Title: "Five O Presents",
+				Alt:   "Five O Presents screenshot",
+				Webp:  "five-o.webp",
+				Png:   "five-o.png",
+			},
+		},
+		{
+			Title: "VGA graphics standard", Year: 1987, Month: 4, Day: 2,
+			Lead: "256 color graphics", LinkTitle: "about the VGA graphics standard",
+			Link:    "https://www.computer.org/publications/tech-news/chasing-pixels/Famous-Graphics-Chips-IBMs-VGA",
+			Content: "The Video Graphics Array (VGA) graphics standard is released. It is the first graphics standard to support 256 colors and resolutions up to 640x480.",
+		},
+		{
+			Title: "The earliest PC demo", Year: 1987, Month: 6, Day: 22, Highlight: true,
+			Lead:      "3 Dimensional EGA Demonstration",
+			LinkTitle: "and view the demo", Link: "/f/ac21460",
+			Content: "A demo and a piece of software created purely for aesthetics, usually to show art or animation. " +
+				"While earlier demonstration software existed on the PC, they were intended for retailers or distributors and usually not given to the public.",
+		},
+		{
+			Title: "AdLib audio", Year: 1987,
+			Lead: "AdLib Music Synthesizer Card", LinkTitle: "about the AdLib sound card",
+			Link: "https://www.computinghistory.org.uk/det/23724/AdLib-Music-Synthesizer-Card/",
+			Content: "The Music Synthesizer Card sound card is released. It is the first sound card to use FM synthesis and is the first to be widely adopted by game developers. " +
+				"Adlib's success is short lived as Creative Labs releases the Sound Blaster in 1989.",
+		},
+		{
+			Year: 1987, Prefix: notable,
+			List: Links{
+				{LinkTitle: "KGB", Link: "/g/ptl-club"},
+				{LinkTitle: `Boys from Company C <small>(BBC)</small>`, Link: "/g/boys-from-company-c", Forward: "Five-O"},
+				{LinkTitle: "The PTL Club", Link: "/g/ptl-club"},
+				{LinkTitle: "Canadian Pirates Inc <small>(CPI)</small>", Link: "g/canadian-pirates-inc"},
+			},
+			Picture: Picture{
+				Title: "The PTL Club",
+				Alt:   "The PTL Club Presents screenshot",
+				Webp:  "the-ptl-club.webp",
+				Png:   "the-ptl-club.png",
 			},
 		},
 	}
