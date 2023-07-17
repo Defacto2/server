@@ -33,6 +33,7 @@ type Picture struct {
 // Links is a collection of Links.
 type Links []struct {
 	LinkTitle string // LinkTitle is the title of the Link.
+	SubTitle  string // SublTitle is the title of the Link in a smaller font and in brackets.
 	Link      string // Link is the URL to an article about the milestone or the product.
 	Forward   string // Forward is an optional name of a group that is prefixed before the link to indicate a merger.
 }
@@ -353,8 +354,10 @@ func ByDecade1970s() Milestones {
 			Title: "PC clone sales pickup in Europe", Year: 1986,
 			Link:      "https://www.computerhistory.org/revolution/personal-computers/17/302",
 			LinkTitle: "about the PC clone market",
-			Content: "The European market is dominated by the Amiga and Atari ST, but PC clones gain popularity." +
-				" Popular machines include the <a href=\"https://www.dosdays.co.uk/computers/Amstrad%20PC1000/amstrad_pc1000.php\">Amstrad PC1512</a>, " +
+			Content: "While the Commodore, Apple and IBM are common platforms in the US, the European market doesn't always share the same popular platforms. " +
+				"Import duties, slow international distribution channels and a lack of localised software and hardware often hampers the adoption of some platforms. " +
+				"The Western European market is dominated by Acorn, Amstrad, Commodore, Sinclair but the PC clones produced by local electronic manufactures gain popularity. " +
+				"Popular machines include the <a href=\"https://www.dosdays.co.uk/computers/Amstrad%20PC1000/amstrad_pc1000.php\">Amstrad PC1512</a>, " +
 				"the Philips P2000T and the <a href=\"https://www.dosdays.co.uk/computers/Olivetti%20M24/olivetti_m24.php\">Olivetti M24</a>.",
 		},
 		{
@@ -415,7 +418,8 @@ func ByDecade1970s() Milestones {
 			Year: 1987, Prefix: notable,
 			List: Links{
 				{LinkTitle: "KGB", Link: "/g/ptl-club"},
-				{LinkTitle: `Boys from Company C <small>(BBC)</small>`, Link: "/g/boys-from-company-c", Forward: "Five-O"},
+				{LinkTitle: `Boys from Company C <small>(BBC)</small>`, Link: "/g/boys-from-company-c",
+					Forward: "Five-O"},
 				{LinkTitle: "The PTL Club", Link: "/g/ptl-club"},
 				{LinkTitle: "Canadian Pirates Inc <small>(CPI)</small>", Link: "g/canadian-pirates-inc"},
 			},
@@ -444,9 +448,9 @@ func ByDecade1970s() Milestones {
 		},
 		{
 			Title: "Earliest ANSI ad", Year: 1988, Month: 6, Highlight: false,
-			Lead: "Paperboy by BSP", LinkTitle: "the file",
+			Lead: "Bentley Sidwell Productions", LinkTitle: "and view the file",
 			Link: "/f/a8286b",
-			Content: "The earliest ANSI ad is released by BSP for the game Paperboy. " +
+			Content: "The earliest ANSI ad is released by Bentley Sidwell Productions for the game Paperboy. " +
 				"ANSI art is a computer art form that became widely used to create art and advertisements for BBSes. " +
 				"ANSI art is created using ANSI escape codes to create colored text and is usually viewed in a terminal emulator.",
 			Picture: Picture{
@@ -472,18 +476,91 @@ func ByDecade1970s() Milestones {
 		},
 		{
 			Title: "The earliest ASCII art", Year: 1988, Month: 10, Day: 6, Highlight: true,
-			Lead: "Another quality ware from $print", LinkTitle: "the file", Link: "/f/ab3dc1",
-			// TODO: fix content
-			Content: "The earliest ASCII art is released by $print for the game " +
-				"Battle Chess. ASCII art is a computer art form that became widely used to create art and advertisements for BBSes. " +
-				"ASCII art is created using ASCII characters and is usually viewed in a terminal emulator.",
+			Lead: "Another quality ware from $print", LinkTitle: "and view the file", Link: "/f/ab3dc1",
+			Content: "The earliest ASCII art known so-far is released by $print for the game " +
+				"Fire Power. The ASCII logo is relatively crude and is not as detailed as later ASCII art. ",
 			Picture: Picture{
 				Title: "Another quality ware from $print",
-				Alt:   "Battle Chess by $print ASCII screenshot",
+				Alt:   "Fire Power by $print ASCII screenshot",
 				Webp:  "ab3dc1.webp",
 				Png:   "ab3dc1.png",
 			},
 		},
+		{
+			Title: "The earliest scene drama", Year: 1988, Month: 11, Day: 25,
+			Lead: "TNWC accusing PTL of stealing a release", LinkTitle: "and view the file",
+			Link: "/f/aa356d",
+			Content: "The earliest scene drama known so-far involves a release by The North West Connection (TNWC) for the game " +
+				"Paladin. The drama in the text file accuses PTL of stealing and \"re-releasing\" a release from TNWC. " +
+				"Scene drama is often text that is used to call out other groups for bad behavour, stealing releases, " +
+				"or to call out other groups for being lame.",
+			Picture: Picture{
+				Title: "TNWC accusing PTL of stealing a release",
+				Alt:   "TNWC accusing PTL of stealing a release screenshot",
+				Webp:  "aa356d.webp",
+				Png:   "aa356d.png",
+			},
+		},
+		{
+			Year: 1988, Prefix: notable,
+			List: Links{
+				{LinkTitle: "The Grand Council", Link: "/g/the-grand-council", SubTitle: "TGC", Forward: "Dude Man Dude HQ"},
+				{LinkTitle: "The North West Connection", Link: "/g/the-north-west-connection",
+					SubTitle: "TNWC", Forward: "The Neutral Zone"},
+				{LinkTitle: "Sprint", Link: "/g/sprint"},
+				{LinkTitle: "Bentley Sidwell Productions", Link: "/g/bentley-sidwell-productions", SubTitle: "BSP"},
+				{LinkTitle: "Crackers in Action", Link: "/g/crackers-in-action", SubTitle: "CIA"},
+				{LinkTitle: "The Sysops Association Network", Link: "/g/the-sysops-association-network", SubTitle: "TSAN"},
+			},
+		},
+		{
+			Title: "The first 256 color VGA game", Year: 1989, Month: 3,
+			Lead: "688 Attack Sub from Electronic Arts", LinkTitle: "the mobygames page",
+			Link: "https://www.mobygames.com/game/2099/688-attack-sub",
+		},
+		{
+			Title: "Earliest BBS ANSI loader", Year: 1989, Month: 3,
+			Lead: "Rogues Gallery BBS", LinkTitle: "the file",
+			Link:    "/f/ad21da8",
+			Content: "The Rogues Gallery BBS was based in Long Island, New York, area code 516.",
+			Picture: Picture{
+				Title: "Rogues Gallery BBS",
+				Alt:   "Rogues Gallery BBS ANSI ad screenshot",
+				Webp:  "ad21da8.webp",
+				Png:   "ad21da8.png",
+			},
+		},
+		{
+			Title: "Earliest PC intro", Year: 1989, Month: 4,
+			Lead: "First intro by Sorcerers", LinkTitle: "the file",
+			Link: "/f/ab2843",
+			Content: "An intro or the later cractrkro are small, usually short, demonstration programs desgined to display text with are or animations. " +
+				"Oddly, this first intro was created by a group of teenagers out of <strong>Findland</strong>, a country not known for its use of the expensive PC platform. " +
+				"Other 16-bit platforms such as the Commodore Amiga and Atari ST offered much better graphics than the CGA on the PC and were more popular in Europe.",
+
+			Picture: Picture{
+				Title: "First intro by Sorcerers",
+				Alt:   "First intro by Sorcerers screenshot",
+				Webp:  "ab2843.webp",
+				Png:   "ab2843.png",
+			},
+		},
+		{
+			Title: "Earliest PC cracktro", Year: 1989, Month: 4, Day: 29,
+			Lead: "Future Brain Inc", LinkTitle: "and run the cracktro",
+			Link: "/f/b83fd7",
+			Content: "This first cracktro is released by Future Brain Inc for the game Lombard RAC Rally. " +
+				"Future Brain Inc were a group from the <strong>Netherlands</strong>, and were one of the first groups to release cracktros on the PC platform.<br>" +
+				"Early cracktros on the PC platform lacked music, and were usually just a simple text screen with a logo. " +
+				"On other platforms such as the Commodore 64, Amiga, and Atari ST, cracktros offered music and graphic effects which were easier to program due to their standard hardware. ",
+			Picture: Picture{
+				Title: "Lombard RAC Rally cracktro",
+				Alt:   "Lombard RAC Rally cracktro screenshot",
+				Webp:  "b83fd7.webp",
+				Png:   "b83fd7.png",
+			},
+		},
 	}
+	// in the future, we could sort the structs by year, month, day values
 	return m
 }

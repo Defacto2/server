@@ -43,7 +43,7 @@
 {{- range $index, $mile := .milestones }}
   <div class="col">
     <div class="card h-100{{ if eq true .Highlight}} text-bg-light{{end}}">
-      {{/*  Header & pictures  */}}
+      {{- /*  Header & pictures  */}}
       {{- if and (eq "" .Picture.Png) (eq "" .Picture.Jpg)}}
       <div class="card-header">
         {{fmtPrefix .Prefix}}<strong>{{.Year}}</strong>{{fmtMonth .Month}}{{fmtDay .Day}}
@@ -57,17 +57,23 @@
         <img src="/image/milestone/{{.Picture.Png}}" class="card-img-top" alt="{{.Picture.Alt}}">
       </picture>
       {{- end}}
-      {{/*  Lists  */}}
+      {{- /*  Lists, aligned to the top  */}}
       {{- if and (.List) (eq "" .Content)}}
       <ul class="list-group list-group-flush text-center">
+        <li class="list-group-item">&nbsp;</li>
         {{- range .List}}
         <li class="list-group-item">
-          <a href="{{.Link}}" class="{{$listCls}}">{{- if ne "" .Forward }}{{.Forward}} {{mergeIcon | safeHTML}}{{end}}{{.LinkTitle | safeHTML}}</a>
+          {{- if ne "" .Forward }}<small class="text-break">{{.Forward}}</small><br>{{end}}
+          <a href="{{.Link}}" class="{{$listCls}}">
+            {{- if ne "" .Forward }}{{mergeIcon | safeHTML}}{{end}}
+            <span class="text-break">{{.LinkTitle | safeHTML}}</span>
+            {{- if ne "" .SubTitle }} <small>({{.SubTitle}})</small>{{end}}
+          </a>
         </li>
         {{- end}}
       </ul> 
       {{- end}} 
-      {{/*  Card body  */}}
+      {{- /*  Card body  */}}
       <div class="card-body">
         <h5 class="card-title{{if eq true .Highlight}} text-primary{{end}}">
           {{.Title}}<br><small class="text-body-secondary">{{.Lead}}</small>
@@ -84,17 +90,17 @@
           </small>
         </p>
       </div>
-      {{/*  Lists  */}}
-      {{- if and (not .List) (ne "" .Content)}}
+      {{- /*  Lists, aligned to the bottom  */}}
+      {{- if and (.List) (ne "" .Content)}}
       <ul class="list-group list-group-flush text-center">
         {{- range .List}}
         <li class="list-group-item">
-          <a href="{{.Link}}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">{{.LinkTitle | safeHTML}}</a>
+          <a href="{{.Link}}" class="{{$listCls}}">{{- if ne "" .Forward }}{{.Forward}} {{mergeIcon | safeHTML}}{{end}}{{.LinkTitle | safeHTML}}</a>
         </li>
         {{- end}}
       </ul> 
       {{- end}}   
-      {{/*  Footer  */}}
+      {{- /*  Footer  */}}
       {{- if or (ne "" .Picture.Png) (ne "" .Picture.Jpg)}}
       <div class="card-footer">
         {{fmtPrefix .Prefix}}<strong>{{.Year}}</strong>{{fmtMonth .Month}}{{fmtDay .Day}}
