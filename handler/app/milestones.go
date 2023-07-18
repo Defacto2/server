@@ -1,6 +1,6 @@
 package app
 
-const notable = "Notable groups of"
+const notable = "Notable group foundings,"
 
 // Milestone is an accomplishment for a year and optional month.
 type Milestone struct {
@@ -384,8 +384,8 @@ func ByDecade1970s() Milestones {
 		{
 			Year: 1986, Prefix: notable,
 			List: Links{
-				{LinkTitle: "Five-O", Link: "/g/five-o"},
 				{LinkTitle: "ESP Pirates", Link: "/g/esp-pirates"},
+				{LinkTitle: "Five-O", Link: "/g/five-o"},
 			},
 			Picture: Picture{
 				Title: "Five O Presents",
@@ -408,7 +408,7 @@ func ByDecade1970s() Milestones {
 				"While earlier demonstration software existed on the PC, they were intended for retailers or distributors and usually not given to the public.",
 		},
 		{
-			Title: "AdLib audio", Year: 1987,
+			Title: "Music audio standard", Year: 1987,
 			Lead: "AdLib Music Synthesizer Card", LinkTitle: "about the AdLib sound card",
 			Link: "https://www.computinghistory.org.uk/det/23724/AdLib-Music-Synthesizer-Card/",
 			Content: "The Music Synthesizer Card sound card is released. It is the first sound card to use FM synthesis and is the first to be widely adopted by game developers. " +
@@ -417,11 +417,11 @@ func ByDecade1970s() Milestones {
 		{
 			Year: 1987, Prefix: notable,
 			List: Links{
-				{LinkTitle: "KGB", Link: "/g/ptl-club"},
 				{LinkTitle: `Boys from Company C <small>(BBC)</small>`, Link: "/g/boys-from-company-c",
 					Forward: "Five-O"},
-				{LinkTitle: "The PTL Club", Link: "/g/ptl-club"},
 				{LinkTitle: "Canadian Pirates Inc <small>(CPI)</small>", Link: "g/canadian-pirates-inc"},
+				{LinkTitle: "KGB", Link: "/g/ptl-club"},
+				{LinkTitle: "The PTL Club", Link: "/g/ptl-club"},
 			},
 			Picture: Picture{
 				Title: "The PTL Club",
@@ -504,12 +504,14 @@ func ByDecade1970s() Milestones {
 		{
 			Year: 1988, Prefix: notable,
 			List: Links{
+				{LinkTitle: "Bentley Sidwell Productions", Link: "/g/bentley-sidwell-productions", SubTitle: "BSP"},
+				{LinkTitle: "Boys from Company C", Link: "/g/boys-from-company-c", SubTitle: "BCC", Forward: "Five-O"},
+				{LinkTitle: "Crackers in Action", Link: "/g/crackers-in-action", SubTitle: "CIA"},
+				{LinkTitle: "Miami Cracking Machine", Link: "/g/miami-cracking-machine", SubTitle: "MCM"},
+				{LinkTitle: "Sprint", Link: "/g/sprint"},
 				{LinkTitle: "The Grand Council", Link: "/g/the-grand-council", SubTitle: "TGC", Forward: "Dude Man Dude HQ"},
 				{LinkTitle: "The North West Connection", Link: "/g/the-north-west-connection",
 					SubTitle: "TNWC", Forward: "The Neutral Zone"},
-				{LinkTitle: "Sprint", Link: "/g/sprint"},
-				{LinkTitle: "Bentley Sidwell Productions", Link: "/g/bentley-sidwell-productions", SubTitle: "BSP"},
-				{LinkTitle: "Crackers in Action", Link: "/g/crackers-in-action", SubTitle: "CIA"},
 				{LinkTitle: "The Sysops Association Network", Link: "/g/the-sysops-association-network", SubTitle: "TSAN"},
 			},
 		},
@@ -531,7 +533,7 @@ func ByDecade1970s() Milestones {
 			},
 		},
 		{
-			Title: "Earliest PC intro", Year: 1989, Month: 4,
+			Title: "Earliest PC intro", Year: 1989, Month: 4, Highlight: true,
 			Lead: "First intro by Sorcerers", LinkTitle: "the file",
 			Link: "/f/ab2843",
 			Content: "An intro or the later cractrkro are small, usually short, demonstration programs desgined to display text with are or animations. " +
@@ -546,7 +548,7 @@ func ByDecade1970s() Milestones {
 			},
 		},
 		{
-			Title: "Earliest PC cracktro", Year: 1989, Month: 4, Day: 29,
+			Title: "Earliest PC cracktro", Year: 1989, Month: 4, Day: 29, Highlight: true,
 			Lead: "Future Brain Inc", LinkTitle: "and run the cracktro",
 			Link: "/f/b83fd7",
 			Content: "This first cracktro is released by Future Brain Inc for the game Lombard RAC Rally. " +
@@ -560,7 +562,223 @@ func ByDecade1970s() Milestones {
 				Png:   "b83fd7.png",
 			},
 		},
+		{
+			Title: "First issue of Pirate magazine", Year: 1989, Month: 6, Day: 1,
+			Lead: "The earlist known scene newsletter for The Scene on the PC", LinkTitle: "the issues",
+			Link:    "/g/pirate",
+			Content: "Based in Chicago, Pirate magazine was a bi-monthly newsletter for The Scene on the PC platform.",
+		},
+		{
+			Year: 1989, Prefix: notable,
+			List: Links{
+				{LinkTitle: "Aces of ANSI Art", Link: "/g/aces-of-ansi-art", SubTitle: "AAA"},
+				{LinkTitle: "American Pirate Industries", Link: "/g/american-pirate-industries", SubTitle: "API"},
+				{LinkTitle: "Future Brain Inc.", Link: "/g/future-brain-inc", SubTitle: "FBi"},
+				{LinkTitle: "International Network of Crackers", Link: "/g/international-network-of-crackers",
+					SubTitle: "INC", Forward: "MCM, NYC, NCC"},
+				{LinkTitle: "New York Crackers", Link: "/g/new-york-crackers", SubTitle: "NYC"},
+				{LinkTitle: "Norwegian Cracking Company", Link: "/g/norwegian-cracking-company", SubTitle: "NCC"},
+				{LinkTitle: "Pirates Sick of Initials", Link: "/g/pirates-sick-of-initials", SubTitle: "PSi"},
+				{LinkTitle: "The Firm", Link: "/g/the-firm", Forward: "BCC, Bentley Sidwell Productions"},
+				{LinkTitle: "The Underground Council", Link: "/g/the-underground-council", SubTitle: "UGC"},
+				{LinkTitle: "Triad", Link: "/g/triad", Forward: "PTL, PSi, Sprint, UGC"},
+			},
+			Picture: Picture{
+				Title: "Another superior FiRM crack by",
+				Alt:   "Another superior FiRM crack EGA screenshot",
+				Webp:  "the-firm.webp",
+				Png:   "the-firm.png",
+			},
+		},
+		{
+			Title: "Use of the \".NFO\" file extension", Year: 1990, Month: 1, Day: 23, Highlight: true,
+			Lead: "The Humble Guys, Knights of Legend", LinkTitle: "the file",
+			Link: "/f/ab3945",
+			Content: "<code>KNIGHTS.NFO</code><br>" +
+				"The timestamps for the Knights of Legend release predate the Bubble Bobble release by a few days.<br>" +
+				"<figure><blockquote class=\"blockquote\"><small>It happened like this, I'd just used \"Unguard\" to crack the SuperLock off of <a href=\"/f/ad4195\">Bubble Bobble</a>, and I said \"I need some file to put the info about the crack in. Hmmm.. Info, NFO!\", and that was it.</small></blockquote>" +
+				"<figcaption class=\"blockquote-footer\">Famed, former cracker for The Humble Guys, Fabulous Furlough maintains Bubble Bobble was the first THG release that used the .NFO file extension.</figcaption></figure>" +
+				"The <code>.NFO</code> file extension is used to denote a text file containing information about a release. " +
+				"Still in use today, the .NFO file contains information about the release group, the release itself, and how to install the release.",
+		},
+		{
+			Title: "Earliest PC cracktro with music", Year: 1990, Month: 12, Day: 2,
+			Lead: "The Cat, M1 Tank Plattoon", LinkTitle: "about and view cractrko",
+			Link: "/f/ab25f0e",
+			Content: "This cracktro was released by The Cat for the game M1 Tank Platoon. " +
+				"It is the first known cracktro on the PC platform to feature music. " +
+				"But \"music\" in a loose sense, as it relies on the terrible internal PC speaker to produce the tune.<br>" +
+				"While the 8-bit consoles and some microcomputers offered dedicated music audio chips, most famously the Commodore 64 with its SID chip, " +
+				"the IBM PC which targetted business did not.",
+			Picture: Picture{
+				Title: "Tank Platoon cracktro",
+				Alt:   "Tank Platoon cracktro screenshot",
+				Webp:  "ab25f0e.webp",
+				Png:   "ab25f0e.png",
+			},
+		},
+		{
+			Title: "Digital audio standard", Year: 1990,
+			Lead: "SoundBlaster",
+			Content: "The SoundBlaster audio standard was released by Creative Labs in 1990. " +
+				"It was the first digital audio standard for the IBM PC to be widely adopted on the PC platform, despite its poor quality, mono 8-bit digital audio. " +
+				"Previous audio standards such as the AdLib and the MT-32 were limited to FM synthesis or MIDI-like samples.<br>" +
+				"The SoundBlaster was the first audio standard to be widely adopted by the PC platform, and was the de facto standard for many years.",
+		},
+		{
+			Title: "CD-ROM media", Year: 1990, Prefix: "Winter",
+			Lead: "Mixed-Up Mother Goose", LinkTitle: "the Catalog listing the game",
+			Link: "https://archive.org/details/vgmuseum_sierra_sierra-90catalog-alt3/page/n21",
+			Content: "The first, widely available enhanced PC game on CD-ROM was Mixed-Up Mother Goose, released by Sierra On-Line in 1990. " +
+				"The game was originally released in 1987, but the CD-ROM version featured enhanced VGA graphics and digital audio.",
+		},
+		{
+			Year: 1990, Prefix: notable,
+			List: Links{
+				{LinkTitle: "ANSI Creators in Demand", Link: "/g/acid-productions", SubTitle: "ACiD", Forward: "Aces of ANSI Art"},
+				{LinkTitle: "Bitchin ANSI Design", Link: "/g/bitchin-ansi-design", SubTitle: "BAD"},
+				{LinkTitle: "Damn Excellent ANSI Design", Link: "/g//damn-excellent-ansi-design", SubTitle: "Damn"},
+				{LinkTitle: "Future Crew", Link: "/g/future-crew", SubTitle: "FC"},
+				{LinkTitle: "National Elite Underground Alliance", Link: "/g/national-elite-underground-alliance", SubTitle: "NEUA"},
+				{LinkTitle: "Public Enemy", Link: "/g/public-enemy", SubTitle: "PE", Forward: "Red Sector Inc."},
+				{LinkTitle: "Razor 1911", Link: "/g/razor-1911", SubTitle: "RZR", Forward: "Razor / Skillion"},
+				{LinkTitle: "Software Chronicles Digest", Link: "/g/software-chronicles-digest", SubTitle: "SCD"},
+				{LinkTitle: "Tristar & Red Sector Inc.", Link: "/g/tristar-ampersand-red-sector-inc",
+					SubTitle: "TRSi", Forward: "Red Sector, then in 1991 Skid Row, TDT"},
+			},
+		},
+		{
+			Title: "Earliest BBS VGA loader", Year: 1991, Month: 3,
+			Lead: "XTC Systems BBS", LinkTitle: "the loader", Link: "/f/a41dcd9",
+			Content: "<code>XTC-AD.COM</code>",
+			Picture: Picture{
+				Title: "XTC Systems BBS VGA loader",
+				Alt:   "XTC Systems BBS VGA loader screenshot",
+				Webp:  "a41dcd9.webp",
+				Png:   "a41dcd9.png",
+			},
+		},
+		{
+			Title: "Earliest contemporary cracktro", Year: 1991, Month: 3, Day: 12, Highlight: true,
+			Lead: "The Dream Team Presents Blues Brothers", LinkTitle: "about and view the cracktro", Link: "/f/b249b1",
+			Content: "This cracktro was released by The Dream Team - Tristar - Red Sector Inc. " +
+				"Programmed by Hard Core, it is the first known cracktro on the PC platform to feature a contemporary design, " +
+				"with a logo, music, and a scroller.<br>" +
+				"Cracktros on the PC platform had previously been limited to mostly static logo screens, " +
+				"or in the case of the earliest cracktros, no graphics at all.",
+			Picture: Picture{
+				Title: "Blues Brothers cracktro",
+				Alt:   "Blues Brothers cracktro screenshot",
+				Webp:  "b249b1.webp",
+				Png:   "b249b1.png",
+			},
+		},
+		{
+			Title: "Earliest contemporary demoscene", Year: 1991, Month: 7,
+			Lead: "Future Crew's Mental Surgery", LinkTitle: "about and view the demo", Link: "/f/ae24168",
+			Picture: Picture{
+				Title: "Mental Surgery demo",
+				Alt:   "Mental Surgery demo screenshot",
+				Webp:  "ae24168.webp",
+				Png:   "ae24168.png",
+			},
+		},
+		{
+			Title: "Earliest elite BBStro", Year: 1991, Month: 10, Day: 21,
+			Lead: "Splatterhouse BBS", LinkTitle: "about and view the BBStro", Link: "/f/b11acdf",
+			Picture: Picture{
+				Title: "Splatterhouse BBS BBStro",
+				Alt:   "Splatterhouse BBS BBStro screenshot",
+				Webp:  "b11acdf.webp",
+				Png:   "b11acdf.png",
+			},
+		},
+		{
+			Year: 1991, Prefix: notable,
+			List: Links{
+				{LinkTitle: "Graphics Rendered in Magnificence", Link: "/g/graphics-rendered-in-magnificence", SubTitle: "GRiM"},
+				{LinkTitle: "Insane Creators Enterprise", Link: "/g/insane-creators-enterprise", SubTitle: "iCE"},
+				{LinkTitle: "Fairlight", Link: "/g/fairlight", SubTitle: "FLT"},
+				{LinkTitle: "Fairlight DOX", Link: "/g/fairlight-dox"},
+				{LinkTitle: "Licensed to Draw", Link: "/g/licensed-to-draw", SubTitle: "LTD"},
+				{LinkTitle: "Nokturnal Trading Alliance", Link: "/g/nokturnal-trading-alliance", SubTitle: "NTA", Forward: "The Humble Guys"},
+				{LinkTitle: "Pirates with Attitude", Link: "/g/pirates-with-attitude", SubTitle: "PWA"},
+				{LinkTitle: "Relentless Pursuit of Magnificence", Link: "/g/relentless-pursuit-of-magnificence", SubTitle: "RPM"},
+				{LinkTitle: "Razor 1911", Link: "/g/razor-1911", SubTitle: "RZR", Forward: "Razor / Skillion"},
+				{LinkTitle: "Skid Row", Link: "/g/skid-row", SubTitle: "SR"},
+				{LinkTitle: "The Dream Team", Link: "/g/the-dream-team", SubTitle: "TDT"},
+				{LinkTitle: "The Humble Guys F/X", Link: "/g/thg-fx", SubTitle: "THG-FX"},
+				{LinkTitle: "Ultra Tech", Link: "/g/ultra-tech", SubTitle: "UT"},
+				{LinkTitle: "United Software Association", Link: "/g/united-software-association",
+					SubTitle: "USA", Forward: "The Humble Guys"},
+			},
+		},
+		{
+			Year: 1992, Prefix: notable,
+			List: Links{
+				{LinkTitle: "Artists in Revolt", Link: "/g/artists-in-revolt", Forward: "Fairlight"},
+				{LinkTitle: "Mirage", Link: "/g/mirage", Forward: "Licensed to Draw"},
+				{LinkTitle: "Pirates Analyze Warez", Link: "/g/pirates-analyze-warez", SubTitle: "PWA"},
+				{LinkTitle: "Pyradical", Link: "/g/pyradical"},
+				{LinkTitle: "Razor Dox", Link: "/g/razordox", SubTitle: "RZR"},
+				{LinkTitle: "Superior Art Creations", Link: "/g/superior-art-creations", SubTitle: "SAC"},
+				{LinkTitle: "The One and Only", Link: "/g/the-one-and-only", SubTitle: "TOAO"},
+			},
+		},
+		{
+			Year: 1993, Prefix: notable,
+			List: Links{
+				{LinkTitle: "Drink or Die", Link: "/g/drink-or-die", SubTitle: "DOD"},
+				{LinkTitle: "Hybrid", Link: "/g/hybrid", SubTitle: "HBD", Forward: "Pyradical"},
+				{LinkTitle: "Legend", Link: "/g/legend", SubTitle: "LND"},
+				{LinkTitle: "Paradox", Link: "/g/paradox", SubTitle: "PDX"},
+				{LinkTitle: "Pentagram", Link: "/g/pentagram", SubTitle: "PTG", Forward: "Legend"},
+				{LinkTitle: "Rise in Superior Couriering", Link: "/g/rise-in-superior-couriering", SubTitle: "RiSC"},
+				{LinkTitle: "Scoopex", Link: "/g/scoopex"},
+				{LinkTitle: "The Untouchables", Link: "/g/the-untouchables",
+					SubTitle: "UNT", Forward: "UNiQ, XAP"},
+			},
+		},
+		{
+			Title: "Earliest CD image release", Year: 1994, Month: 11, Day: 17, Highlight: true,
+			Lead: "ROM 1911", LinkTitle: "about the release", Link: "/f/ab3e0b",
+			Content: "The earliest known release was a CD image of the game Slob Zone later known as H.U.R.L.<br>" +
+				"At the time most Scene boards and FTP sites offered credits for file uploads but hard drive storage was very expensive. " +
+				"So whole CD images were undesirable due to the massive file sizes involved, slow internet and even slower modem speeds. " +
+				"Plus games published to CDs had little or no copy protection to crack, so were considered too easy, \"lame\" releases.<br>" +
+				"ROM 1911 was used by Razor 1911 as the dumping ground for unwanted CDs titles.",
+		},
+		{
+			Year: 1994, Prefix: notable,
+			List: Links{
+				{LinkTitle: "Request to Send", Link: "/g/request-to-send", SubTitle: "RTS"},
+			},
+		},
+		{
+			Title: "Earliest CD-RIP release", Year: 1995, Month: 6, Day: 3, Highlight: true,
+			Lead: "Hybrid", LinkTitle: "about the release", Link: "/f/a938e5",
+			Content: "The earliest known CD-RIP release was by Hybrid for the game Virtual Pool from Interplay.<br>" +
+				"Hybrid was a group formed by ex-members of Pyradical and Pentagram.<br>" +
+				"The CD-RIP came about due to the publishing of games on exclusive to CD-ROM, ignoring the standard floppy disk. " +
+				"CD-ROMs were cheaper to produce and had more storage capacity than floppy disks. " +
+				"But hard drives were expensive and whole CD image were too large to store. " +
+				"So in order for many to play the game, the CD had to be <strong>ripped</strong> to the hard drive with the game fluff such as intro videos removed.",
+		},
+		// todo win 95
+		{
+			Year: 1995, Prefix: notable,
+			List: Links{
+				{LinkTitle: "Hoodlum", Link: "/g/hoodlum", SubTitle: "HLM"},
+				{LinkTitle: "Prestige", Link: "/g/prestige", SubTitle: "PTG"},
+				{LinkTitle: "Inquisition", Link: "/g/inquisition", SubTitle: "INQ", Forward: "Week in Warez"},
+				{LinkTitle: "The Naked Truth", Link: "/g/the-naked-truth-magazine", SubTitle: "NTM"},
+				{LinkTitle: "Reality Check Network", Link: "/g/reality-check-network", SubTitle: "RCN"},
+				{LinkTitle: "The Week in Warez", Link: "/g/the-week-in-warez", SubTitle: "WWW"},
+			},
+		},
 	}
 	// in the future, we could sort the structs by year, month, day values
+	// add: holy trinity of computers 1977
+	// cbbs and other bbs milestones
 	return m
 }
