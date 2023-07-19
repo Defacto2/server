@@ -95,9 +95,14 @@
       <ul class="list-group list-group-flush text-center">
         {{- range .List}}
         <li class="list-group-item">
-          <a href="{{.Link}}" class="{{$listCls}}">{{- if ne "" .Forward }}{{.Forward}} {{mergeIcon | safeHTML}}{{end}}{{.LinkTitle | safeHTML}}</a>
+          {{- if ne "" .Forward }}<small class="text-break">{{.Forward}}</small><br>{{end}}
+          <a href="{{.Link}}" class="{{$listCls}}">
+            {{- if ne "" .Forward }}{{mergeIcon | safeHTML}}{{end}}
+            <span class="text-break">{{.LinkTitle | safeHTML}}</span>
+            {{- if ne "" .SubTitle }} <small>({{.SubTitle}})</small>{{end}}
+          </a>
+          {{- end}}
         </li>
-        {{- end}}
       </ul> 
       {{- end}}   
       {{- /*  Footer  */}}

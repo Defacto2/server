@@ -145,6 +145,29 @@ func ByDecade1970s() Milestones {
 				"It dominated the remainder of the 1970s and is the default platform for most computers running an Intel 8080, 8085 or its compatible competitor, the Zilog Z-80.",
 		},
 		{
+			Year: 1977, Title: "The trinity of microcomputers",
+			Lead: "Apple II, Commodore PET, TRS-80", LinkTitle: "about the Apple II, Commodore PET and TRS-80",
+			Link: "https://cybernews.com/editorial/the-1977-trinity-and-other-era-defining-pcs/",
+			Content: "The Apple II, Commodore PET and TRS-80 are released, the first microcomputers to be readily available to the public. " +
+				"By the end of the year, a potential customer in the USA could walk into a mall or retail shop and walk out with a complete personal computer, ready to use.",
+		},
+		{
+			Year: 1978, Month: 2, Title: "The first BBS",
+			Lead: "CBBS", LinkTitle: "the Byte Magazine article", Link: "https://vintagecomputer.net/cisc367/byte%20nov%201978%20computerized%20BBS%20-%20ward%20christensen.pdf",
+			Content: "Ward Christensen and Randy Suess create the first Bulletin Board System (BBS), the Computerized Bulletin Board System (CBBS) in Chicago. " +
+				"The software was custom written in 8080 assembler language which ran on a S-100 bus computer together with the brand new $300, Hayes 110 / 300 baud modem. " +
+				"The board became extremely popular, with callers from around the world after articles and logs were published in both Byte and Dr. Dobb's Journal magazines later in the year.",
+			Picture: Picture{
+				Title:       "A recreation of CBBS",
+				Alt:         "A recreation screen capture of the first BBS.",
+				Png:         "cbbs.jpg",
+				Webp:        "cbbs.webp",
+				Attribution: "Aeroid",
+				License:     "CC BY-SA 4.0",
+				LicenseLink: "https://creativecommons.org/licenses/by-sa/4.0/deed.en",
+			},
+		},
+		{
 			Year: 1978, Month: 6, Title: "The first x86 CPU",
 			Lead: "Intel 8086", LinkTitle: "about the Intel 8086",
 			Link: "https://www.pcworld.com/article/535966/article-7512.html",
@@ -153,7 +176,7 @@ func ByDecade1970s() Milestones {
 				"While code-compatible with the famous Intel 8080, this product failed to dominate in a market saturated with more affordable 8-bit hardware.",
 		},
 		{
-			Title: "Intel 8088 CPU", Year: 1979, Month: 6,
+			Title: "The first popular x86 CPU", Year: 1979, Month: 6,
 			Lead: "Intel 8088", LinkTitle: "about the Intel 8088",
 			Link: "https://spectrum.ieee.org/chip-hall-of-fame-intel-8088-microprocessor",
 			Content: "Intel releases the lesser 16-bit microprocessor, the Intel 8088. " +
@@ -751,7 +774,10 @@ func ByDecade1970s() Milestones {
 		{
 			Year: 1994, Prefix: notable,
 			List: Links{
+				{LinkTitle: "ROM 1911", Link: "/g/rom-1911", SubTitle: "ROM", Forward: "Razor 1911"},
 				{LinkTitle: "Request to Send", Link: "/g/request-to-send", SubTitle: "RTS"},
+				{LinkTitle: "Genesis", Link: "/g/genesis", SubTitle: "GNS", Forward: "Pentagram"},
+				{LinkTitle: "TDU-Jam", Link: "/g/tdu_jam", SubTitle: "TDU", Forward: "Genesis"},
 			},
 		},
 		{
@@ -764,16 +790,227 @@ func ByDecade1970s() Milestones {
 				"But hard drives were expensive and whole CD image were too large to store. " +
 				"So in order for many to play the game, the CD had to be <strong>ripped</strong> to the hard drive with the game fluff such as intro videos removed.",
 		},
-		// todo win 95
+		// todo: obtain NFO
+		// https://scenelist.org/nfo/DOD95C1H.ZIP
+		{
+			Title: "Windows 95 warez release", Year: 1995, Month: 8, Prefix: "Early",
+			Lead: "Drink or Die", Link: "/f/a8177", LinkTitle: "about the release",
+			Content: "Drink or Die became infamous for releasing the to warez scene, a copy of the CD media for the box retail edition of Windows 95, two weeks before the official worldwide release. " +
+				"The release highlighted a significant problem for software and game publishers: some company employees were either members of these warez groups or receiving kickbacks. " +
+				"<p><q>Another thing that may raise some questions is that, when you are in MS-DOS-SHELL, and you type 'ver', you will see Windows 95. " +
+				"[Version 4.00.950] This does not mean Beta 950, this, in fact (<em>coming directly from my supplier's mouth at MS</em>*) means that this is version 4.0 -ergo- Windows '95.</q></p>* Microsoft",
+		},
+		{
+			Title: "Windows 95", Year: 1995, Month: 8, Day: 24,
+			Lead: "Worldwide retail release", LinkTitle: "about the day in history",
+			Link:    "https://www.theverge.com/21398999/windows-95-anniversary-release-date-history",
+			Content: "Microsoft's biggest and most hyped mainstream product release. It was hugely successful in the market and began the transition away from PC/MS-DOS.",
+			Picture: Picture{
+				Title: "Windows 95 startup",
+				Alt:   "Windows 95 startup screenshot",
+				Webp:  "windows-95-startup.webp",
+				Png:   "windows-95-startup.png",
+			},
+		},
 		{
 			Year: 1995, Prefix: notable,
 			List: Links{
+				{LinkTitle: "Eclipse", Link: "/g/eclipse", SubTitle: "ECL", Forward: "Hybrid"},
 				{LinkTitle: "Hoodlum", Link: "/g/hoodlum", SubTitle: "HLM"},
 				{LinkTitle: "Prestige", Link: "/g/prestige", SubTitle: "PTG"},
 				{LinkTitle: "Inquisition", Link: "/g/inquisition", SubTitle: "INQ", Forward: "Week in Warez"},
 				{LinkTitle: "The Naked Truth", Link: "/g/the-naked-truth-magazine", SubTitle: "NTM"},
+				{LinkTitle: "Razor 1911 CD Division", Link: "/g/razor-1911-cd-division", SubTitle: "RZR", Forward: "Razor 1911"},
 				{LinkTitle: "Reality Check Network", Link: "/g/reality-check-network", SubTitle: "RCN"},
 				{LinkTitle: "The Week in Warez", Link: "/g/the-week-in-warez", SubTitle: "WWW"},
+			},
+		},
+		{
+			Title: "The Scene merch", Year: 1996, Month: 1,
+			Lead: "Razor 1911 Tenth Anniversary CD-ROM", LinkTitle: "the order form", Link: "/f/a42df1",
+			Content: "The first major Scene merchandise was a CD-ROM by Razor 1911 to celebrate their 10th anniversary. " +
+				"It was a collection of their PC releases from 1991 to 1995 and was sold for $40 USD each, including worldwide postage. " +
+				"Each purchase required the phyiscal cash to be sent in the mail to a PO Box in Florida.<br>" +
+				"Other groups followed suit with their own merchandise, with the most popular item being t-shirts.",
+			Picture: Picture{
+				Title: "Razor 1911 Tenth Anniversary CD-ROM",
+				Alt:   "Razor 1911 Tenth Anniversary CD-ROM disc",
+				Webp:  "razor-1911-tenth-anniversary-cd-rom.webp",
+				Png:   "razor-1911-tenth-anniversary-cd-rom.png",
+			},
+		},
+		{
+			Title: "First release standards", Year: 1996, Month: 2,
+			Lead: "Standards of Piracy Association", LinkTitle: "the public announcement", Link: "/f/aa3b26",
+			Content: "The Standards of Piracy Association (SPA) was formed by the groups " +
+				"<a href=\"/g/prestige\">Prestige</a>, " +
+				"<a href=\"/g/razor-1911\">Razor 1911</a>, " +
+				"<a href=\"/g/mantis\">Mantis</a>, " +
+				"<a href=\"/g/napalm\">Napalm</a>, " +
+				"and <a href=\"/g/hybrid\">Hybrid</a>. " +
+				"After 15 years of games being published on the floppy disk medium, the CD-ROM was now the standard for boxed retail games. " +
+				"Unlike the floppy, CD-ROMs were too large for The Scene to copy, crack and illegally distribute. " +
+				"And after a number of confusing and broken releases, the SPA was formed to create a set of standards for the release of CD-RIPs, " +
+				"where an incomplete but still playable game was accepted as a valid pirated release.",
+			List: Links{
+				{LinkTitle: "The Faction", Link: "/f/a634e1", SubTitle: "1998"},
+				{LinkTitle: "NSA", Link: "/f/a13771", SubTitle: "2000"},
+			},
+		},
+		{
+			Year: 1996, Prefix: notable,
+			List: Links{
+				{LinkTitle: "CD Images For the Elite", Link: "/g/cd-images-for-the-elite", SubTitle: "CiFE"},
+				{LinkTitle: "Class", Link: "/g/class", SubTitle: "CLS", Forward: "Prestige"},
+				{LinkTitle: "RomLight", Link: "/g/romlight", SubTitle: "RLT", Forward: "Fairlight"},
+				{LinkTitle: "Zeus", Link: "/g/zeus", Forward: "Eclipse"},
+				{LinkTitle: "Paradigm", Link: "/g/paradigm", SubTitle: "PDM", Forward: "Zeus"},
+			},
+		},
+		{
+			Title: "Release standards broken", Year: 1997, Month: 1, Day: 13,
+			Lead: "Hybrid presents Diablo", LinkTitle: "the release", Link: "/f/ab49cd",
+			Content: "The Standards of Piracy Association CD-RIP standards were broken by founding member Hybrid with this release of Diablo. " +
+				"Less than a year prior, SPA had agreed that CD-RIPs should be ripped to a maximum permitted size and any titles where this wasn't possible should be skipped. " +
+				"It wasn't uncommon for major games such as <a href=\"https://www.imdb.com/title/tt0131537/\">Sierra's Phantasmagoria</a> to be passed over by release groups due to their massive size and game play reliance on unrippable video and audio content.",
+			List: Links{
+				{LinkTitle: "Diablo from Razor 1911", Link: "/f/a72ced", SubTitle: "full CD rip"},
+			},
+		},
+		{
+			Title: "Earliest ISO release", Year: 1997, Month: 11, Day: 27, Highlight: true,
+			Lead: "CD Images For the Elite", LinkTitle: "the release", Link: "/f/ad40ce",
+			Content: "An ISO is a file archive format that contains the complete data of a CD, and later DVD discs. " +
+				"The trading of ISOs between individuals happened for years prior, but Lords of Magic was the earliest known ISO release to The Scene. " +
+				"The formalization of an ISO trading scene for software occurred in late 1997, but it took years before it became a dominate format.",
+		},
+		{
+			Year: 1997, Prefix: notable,
+			List: Links{
+				{LinkTitle: "CD Images For the Elite", Link: "/g/cd-images-for-the-elite", SubTitle: "CiFE"},
+				{LinkTitle: "Divine", Link: "/g/divine", SubTitle: "DVN"},
+			},
+		},
+		{
+			Year: 1998, Month: 3, Day: 31,
+			Title: "Online CD keys",
+			Lead:  "StarCraft by Blizzard",
+			Content: "StarCraft was a hugely hyped and popular real-time strategy game by Blizzard Entertainment. " +
+				"A major component of the game was its multiplayer mode, which was played online through Blizzard's Battle.net service. " +
+				"This was the first retail game to be released with a CD key, a unique code that was required to play the game online.",
+		},
+		{
+			Year: 1998, Month: 4, Day: 1,
+			Title: "Starcraft", LinkTitle: "the release", Link: "/f/a9353d",
+			Lead: "Razor 1911",
+			Content: "The first release of StarCraft was by Razor 1911 and famed cracker Beowulf, who together released the CD-RIP of the game. " +
+				"However, the release took a long time to compile and was missing the CD key, which was required to play the desirable online multiplayer. " +
+				"<p><q>" +
+				"Well, what can I say. This has got to be one of the hardest titles I have ever ripped. " +
+				"The crack was trivial, but ripping this game involved understanding and coding utilities for Blizzard's file packer. It is ...a veritable nightmare." +
+				"</q></p>",
+			List: Links{
+				{LinkTitle: "StarCraft Battle.NET Keymaker", Link: "/f/b321b00", SubTitle: "2 April"},
+				{LinkTitle: `Starcraft *100% FIX*`, Link: "/f/b13d2c", SubTitle: "3 April"},
+			},
+		},
+		{
+			Year:  1998,
+			Title: "The ISO scene picks up steam",
+			Content: "The ISO scene was still in its infancy, but it grows quickly when some top-tear RIP groups start releasing within the sphere." +
+				"<ul class=\"list-unstyled\"><li>" +
+				"<a href=\"/f/a82c49\">Razor 1911 merged the ISO division</a> back into the Razor 1911 brand.</li><li>" +
+				"The famed courier group RiSC <a href=\"/f/b04dac\">create RiSCiSO</a>, which would become one of largest ISO groups.</li><li>" +
+				"<a href=\"/f/ae48b0\">PDM ISO</a> becomes the ISO division of Paradigm and famed supplier Zeus.</li><li>" +
+				"And <a href=\"/g/dvniso\">DVNiSO</a> the ISO division of Divine/Deviance." +
+				"</li></ul>",
+		},
+		{
+			Year: 1998, Prefix: notable,
+			List: Links{
+				{LinkTitle: "Fairlight", Link: "/g/fairlight", SubTitle: "FTL"},
+				{LinkTitle: "Origin", Link: "/g/origin", SubTitle: "OGN"},
+				{LinkTitle: "RiSCiSO", Link: "/g/risciso", Forward: "Rise in Superior Couriering"},
+			},
+		},
+		{
+			Year: 1999, Prefix: notable,
+			List: Links{
+				{LinkTitle: "Razor 1911 Demo", Link: "/g/razor-1911-demo", SubTitle: "RZR", Forward: "Razor 1911"},
+				{LinkTitle: "Scienide", Link: "/g/scienide", SubTitle: "SCI"},
+			},
+		},
+		{
+			Year: 2000, Prefix: notable,
+			List: Links{
+				{LinkTitle: "Myth", Link: "/g/myth", Forward: "Paradigm, Origin"},
+				{LinkTitle: "Postmortem", Link: "/g/postmortem", SubTitle: "2001"},
+				{LinkTitle: "Virility", Link: "/g/virility", SubTitle: "2001"},
+				{LinkTitle: "Defacto2 website", Link: "/", SubTitle: "2003"},
+				{LinkTitle: "Hoodlum", Link: "/g/hoodlum", SubTitle: "2004"},
+				{LinkTitle: "Reloaded", Link: "/g/reloaded", SubTitle: "2004"},
+				{LinkTitle: "Rituel", Link: "/g/rituel", SubTitle: "2005"},
+				{LinkTitle: "Hatred", Link: "/g/hatred", SubTitle: "2006"},
+				{LinkTitle: "Skid Row", Link: "/g/skid-row", SubTitle: "2007"},
+			},
+		},
+		{
+			Title: "Digital only scene releases", Year: 2004, Month: 10, Day: 7,
+			Lead: "Counter-Strike: Source Final from Emporio", LinkTitle: "the release", Link: "/f/b1282e1",
+			Content: "The online multiplayer title, Counter-Strike Source was exclusively distributed on Steam, Valve's digital distribution platform. " +
+				"As there was no phyiscal media available, this became a dubious release within The Scene and many groups didn't acknowledge Emporio's package as a legitimate \"retail\" product or a \"final\" release. " +
+				"Due to the ease of supply and the constant online patching, at this time digital distribution was not well received. " +
+				"<p><q>SOME may contend the fact that this is BETA. <a href=\"https://web.archive.org/web/20050208205808/http://www.steampowered.com/index.php?area=news&archive=yes&id=327\">This is the version that is released on STEAM AS FINAL</a>. " +
+				"You cannot do any better than this. The ... thing with STEAM is they can easily release many patches BUT EXPECT the EMPORiO crew to bring each and every patch CRACKED to your doorstep!</q></p>",
+		},
+		{
+			Title: "Digital distribution and online activation", Year: 2004, Month: 11, Day: 16,
+			Lead: "Half-Life 2", LinkTitle: "the and view the Steam page", Link: "https://store.steampowered.com/app/220/HalfLife_2",
+			Content: "Half-Life 2 was once of the most anticipated games of the decade, and it was the first major game to use Steam, Valve's digital distribution platform. " +
+				"Steam was a major shift in the way games were distributed, and it was the first time a AAA game required online activation. " +
+				"Steam was not well received by the gaming community, but it was a huge success for Valve, and it paved the way for other digital distribution platforms. " +
+				"Half-Life 2 was simultaneously released on Steam, DVD and on CD, but all three formats required Steam activation. ",
+		},
+		{
+			Title: "Half-Life 2 *Retail*", Year: 2004, Month: 11, Day: 28,
+			Lead: "Vengeance", LinkTitle: "the release", Link: "/f/b24c10",
+			Content: "Half-Life 2 was once of the most anticipated games of the decade, and it was the first major game to use Steam, Valve's digital distribution platform. " +
+				"This was the first attempt to crack the Steam activation, and it used an unusual Steam client and activation emulator. " +
+				"While playable, the pirated game was crippled both with slower FPS, loadtimes and a lack of multiplayer gameplay.",
+			List: Links{
+				{LinkTitle: "Half Life 2 DVD *Retail*", Link: "/f/a126f6"},
+				{LinkTitle: "Half Life 2 trainer by Ages", Link: "/f/a63666"},
+			},
+		},
+		{
+			Title: "End of the line for RIPS", Year: 2005, Month: 10, Day: 9,
+			Lead: "Farewell © Myth", LinkTitle: "the release", Link: "/f/a94129",
+			Content: "The last release from Myth, a group that was founded as Zeus/<a href=\"/g/paradigm\">Paradigm</a> in 1996 and focused on ripping PC games from CD and later DVDs. " +
+				"By the mid 2000s, broadband use was widespread and the desire for ripped CD or DVD games with missing content was dwindling. " +
+				"Myth's longtime rival, <a href=\"/f/a53505\">Class, had already quit in early 2004</a>, and the other major ripping group, <a href=\"/g/divine\">Divine</a>, quit in 2006.",
+		},
+		{
+			Year: 2000, Prefix: "Beyond", Highlight: true,
+			Title: "The twilight of the cracktro",
+			Content: "The 2000s was the last time, original quality cracktros were a common sight within The Scene, mostly thanks to a few nostaligic demosceners and piracy sceners. " +
+				"However, the number of people who could and were willing to create a decent cracktro dwindled, as the skillset requirements got more specific and complex. " +
+				"And so the cracktro was often forsakened for less complicated methods of displaying the release information and branding. ",
+			List: Links{
+				{LinkTitle: "Fairlight's 500th release", Link: "/f/a61ba0f", SubTitle: "2002"},
+				{LinkTitle: "Hoodlum Cracktro #3", Link: "/f/a229a8", SubTitle: "2005"},
+				{LinkTitle: "Deviance by Titan", Link: "/f/ac2ea0a", SubTitle: "2005"},
+				{LinkTitle: "DEViANCE 2006", Link: "/f/b73b41", SubTitle: "2006"},
+				{LinkTitle: "Skid Row by Electric Druggies", Link: "/f/a72d02", SubTitle: "2008"},
+				{LinkTitle: "The Settlers 7 Cracktro by Razor 1911", Link: "/f/aa2bba", SubTitle: "2010"},
+				{LinkTitle: "CORE 25k by Titan", Link: "/f/a32e91", SubTitle: "2011"},
+				{LinkTitle: "Guess Who's Back? Genesis", Link: "/f/b343ed", SubTitle: "2013"},
+				{LinkTitle: "Razor 1911 XT-95 Checker Cracktro", Link: "/f/b230776", SubTitle: "2016"},
+			},
+			Picture: Picture{
+				Title: "Razor 1911 XT-95 Checker Cracktro",
+				Alt:   "Razor 1911 XT-95 Checker Cracktro screenshot",
+				Webp:  "b230776.webp",
+				Png:   "b230776.png",
 			},
 		},
 	}
