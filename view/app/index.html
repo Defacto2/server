@@ -10,7 +10,7 @@
 </p>
 <hr class="my-5">
 <div class="row">
-  <div class="col-sm-6 mb-3 mb-sm-0">
+  <div class="col-lg-6 mb-3 mb-lg-0">
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">New to the website?</h5>
@@ -19,7 +19,7 @@
       </div>
     </div>
   </div>
-  <div class="col-sm-6">
+  <div class="col-lg-6">
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">The Scene?</h5>
@@ -39,7 +39,8 @@
   These milestones are for the PC underground and cracking scenes. They are not definitive but are based on the digital artifacts collected.
   The more notable communities on other microcomputer platforms are seldom mentioned here, including the famed Apple II, Commodore 64, and Commodore Amiga communities, which were often poorly imitated by the underground communities on the PC. 
 </p>
-<div class="row row-cols-1 row-cols-md-3 g-4">
+{{/*  <div class="row row-cols-1 row-cols-md-3 g-4">  */}}
+<div class="row row-cols-1 row-cols-lg-2 row-cols-xl-3 g-4">
 {{- range $index, $mile := .milestones }}
   <div class="col">
     <div class="card h-100{{ if eq true .Highlight}} text-bg-light{{end}}">

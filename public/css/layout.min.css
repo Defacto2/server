@@ -1,3 +1,5 @@
+
+
 .fa-discord {
     color: #5865f2;
 }
@@ -28,8 +30,33 @@
 
 .font-dos {
     font-family: font-vga-eight, monospace;
-    font-size: initial;
+    /* font-size: initial; */
     font-style: normal;
     font-weight: normal;
     line-height: 1;
 }
+
+#logo-container {
+    container-type: inline-size;
+    container-name: cardContainer;
+}
+
+#logo-text {
+    overflow: hidden;
+}
+
+@container cardContainer (width > 575px) {
+    pre {
+        font-size: 100%;
+    }
+} 
+@container cardContainer (width < 576px) {
+    pre {
+        font-size: 55%;
+    }
+} 
+@container cardContainer (width < 422px) {
+    pre {
+        font-size: 25%;
+    }
+} 

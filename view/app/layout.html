@@ -227,8 +227,8 @@
       </nav>
       {{- block "modal" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
       <hr>
-      <div class="d-flex justify-content-center">
-        <pre class="text-start text-bg-dark rounded font-dos p-3">
+      <div class="d-flex justify-content-center" id="logo-container">
+        <pre class="text-start text-bg-dark rounded font-dos p-3" id="logo-text">
 {{- /*  
   the monospace brand logo should be padded with the Bootstrap classes
   and not with pre whitespace characters */ -}}
