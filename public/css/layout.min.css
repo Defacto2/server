@@ -52,11 +52,11 @@
 } 
 @container cardContainer (width < 576px) {
     pre {
-        font-size: 55%;
+        font-size: 0.75rem;
     }
 } 
 @container cardContainer (width < 422px) {
     pre {
-        font-size: 25%;
+        font-size: 0.5rem;
     }
 } 
