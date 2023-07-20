@@ -62,8 +62,22 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) *echo.Echo {
 	e.FileFS("/robots.txt", "public/text/robots.txt", public)
 	e.FileFS("/site.webmanifest", "public/text/site.webmanifest.json", public)
 
+	// TODO order alphabetically
+
 	e.GET("/", func(c echo.Context) error {
 		return app.Index(nil, c)
+	})
+	e.GET("/artist", func(c echo.Context) error {
+		return app.Artist(nil, c)
+	})
+	e.GET("/bbs", func(c echo.Context) error {
+		return app.BBS(nil, c)
+	})
+	e.GET("/coder", func(c echo.Context) error {
+		return app.Coder(nil, c)
+	})
+	e.GET("/ftp", func(c echo.Context) error {
+		return app.FTP(nil, c)
 	})
 	e.GET("/history", func(c echo.Context) error {
 		return app.History(nil, c)
@@ -71,8 +85,14 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) *echo.Echo {
 	e.GET("/interview", func(c echo.Context) error {
 		return app.Interview(nil, c)
 	})
+	e.GET("/musician", func(c echo.Context) error {
+		return app.Musician(nil, c)
+	})
 	e.GET("/thanks", func(c echo.Context) error {
 		return app.Thanks(nil, c)
+	})
+	e.GET("/scener", func(c echo.Context) error {
+		return app.Scener(nil, c)
 	})
 	e.GET("/thescene", func(c echo.Context) error {
 		return app.TheScene(nil, c)
@@ -84,14 +104,23 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) *echo.Echo {
 	e.GET("/websites/:id", func(c echo.Context) error {
 		return app.Websites(nil, c, c.Param("id"))
 	})
+	e.GET("/writer", func(c echo.Context) error {
+		return app.Writer(nil, c)
+	})
 	e.GET("/file/stats", func(c echo.Context) error {
 		return app.File(nil, c, true)
 	})
-	e.GET("/file/:id", func(c echo.Context) error {
+	e.GET("/files/:id", func(c echo.Context) error {
 		return app.Files(nil, c, c.Param("id"))
 	})
 	e.GET("/file", func(c echo.Context) error {
 		return app.File(nil, c, false)
+	})
+	e.GET("/magazine", func(c echo.Context) error {
+		return app.Magazine(nil, c)
+	})
+	e.GET("/releaser", func(c echo.Context) error {
+		return app.Releaser(nil, c)
 	})
 
 	// all other page requests return a custom 404 error page

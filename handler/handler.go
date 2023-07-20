@@ -32,21 +32,23 @@ const (
 
 // Configuration of the handler.
 type Configuration struct {
-	Import  *config.Config     // Import configurations from the host system environment.
-	Log     *zap.SugaredLogger // Log is a sugared logger.
-	Brand   *[]byte            // Brand points to the Defacto2 ASCII logo.
-	Version string             // Version is the results of GoReleaser build command.
-	Public  embed.FS           // Public facing files.
-	Views   embed.FS           // Views are Go templates.
+	DatbaseErr bool               // DatbaseErr is true if the database connection failed.
+	Import     *config.Config     // Import configurations from the host system environment.
+	Log        *zap.SugaredLogger // Log is a sugared logger.
+	Brand      *[]byte            // Brand points to the Defacto2 ASCII logo.
+	Version    string             // Version is the results of GoReleaser build command.
+	Public     embed.FS           // Public facing files.
+	Views      embed.FS           // Views are Go templates.
 }
 
 // Registry returns the template renderer.
 func (c Configuration) Registry() *TemplateRegistry {
 	webapp := app.Configuration{
-		Log:    c.Log,
-		Brand:  c.Brand,
-		Public: c.Public,
-		Views:  c.Views,
+		DatbaseErr: c.DatbaseErr,
+		Log:        c.Log,
+		Brand:      c.Brand,
+		Public:     c.Public,
+		Views:      c.Views,
 	}
 	return &TemplateRegistry{
 		Templates: Join(
@@ -166,6 +168,7 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 	// Check the database connection
 	var psql postgres.Version
 	if err := psql.Query(); err != nil {
+		c.DatbaseErr = true
 		c.Log.Warnln("Could not obtain the PostgreSQL server version. Is the database online?")
 	} else {
 		fmt.Fprintf(w, "%sDefacto2 web application %s %s.\n", mark, cmd.Commit(c.Version), psql.String())

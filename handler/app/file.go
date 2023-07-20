@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -40,14 +41,9 @@ func Files(s *zap.SugaredLogger, ctx echo.Context, id string) error {
 	// 	return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	// }
 	switch id {
-	case "":
-		err := ctx.Render(http.StatusOK, "file", data)
-		if err != nil {
-			s.Errorf("%s: %s", ErrTmpl, err)
-			return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-		}
+	case "", "newest", "oldest", "new-uploads":
+		return ctx.String(http.StatusOK, fmt.Sprintf("ToDo!, %q", id))
 	default:
 		return Status(nil, ctx, http.StatusNotFound, ctx.Param("uri"))
 	}
-	return nil
 }

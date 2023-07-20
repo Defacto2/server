@@ -37,6 +37,7 @@ func GlobTo(name string) string {
 // Configuration of the app.
 type Configuration struct {
 	Brand       *[]byte            // Brand points to the Defacto2 ASCII logo.
+	DatbaseErr  bool               // DBErr is true if the database connection failed.
 	Log         *zap.SugaredLogger // Log is a sugared logger.
 	Subresource SRI                // SRI are the Subresource Integrity hashes for the layout.
 	Public      embed.FS           // Public facing files.
@@ -50,13 +51,22 @@ func (c *Configuration) Tmpl() map[string]*template.Template {
 	}
 	templates := make(map[string]*template.Template)
 	templates["index"] = c.tmpl("index.html")
-	templates["status"] = c.tmpl("status.html")
+	templates["artist"] = c.tmpl("artist.html")
+	templates["bbs"] = c.tmpl("bbs.html")
+	templates["coder"] = c.tmpl("coder.html")
 	templates["file"] = c.tmpl("file.html")
+	templates["ftp"] = c.tmpl("ftp.html")
 	templates["history"] = c.tmpl("history.html")
 	templates["interview"] = c.tmpl("interview.html")
+	templates["magazine"] = c.tmpl("magazine.html")
+	templates["musician"] = c.tmpl("musician.html")
+	templates["releaser"] = c.tmpl("releaser.html")
+	templates["scener"] = c.tmpl("scener.html")
+	templates["status"] = c.tmpl("status.html")
 	templates["thanks"] = c.tmpl("thanks.html")
 	templates["thescene"] = c.tmpl("the_scene.html")
 	templates["websites"] = c.tmpl("websites.html")
+	templates["writer"] = c.tmpl("writer.html")
 	return templates
 }
 

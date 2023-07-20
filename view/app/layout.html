@@ -46,7 +46,7 @@
     <div class="container">
       <nav class="navbar sticky-top navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-          <span class="navbar-brand mb-0 h1">Defacto2</span>
+          <span class="navbar-brand mb-0 h1"><a class="nav-link active" aria-current="page" href="/">Defacto2</a></span>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -65,9 +65,9 @@
                   <li><a class="dropdown-item" href="/file/stats">Statistics</a></li>  
                   <li><hr class="dropdown-divider"></li>
                   <li><h6 class="dropdown-header">Browse productions</h6></li>
-                  <li><a class="dropdown-item" href="#">New uploads</a></li>
-                  <li><a class="dropdown-item" href="#">Oldest</a></li>
-                  <li><a class="dropdown-item" href="#">Newest</a></li>
+                  <li><a class="dropdown-item" href="/files/new-uploads">New uploads</a></li>
+                  <li><a class="dropdown-item" href="/files/oldest">Oldest</a></li>
+                  <li><a class="dropdown-item" href="/files/newest">Newest</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><h6 class="dropdown-header">Browse using tables</h6></li>
                   <li><a class="dropdown-item" href="/html3"><em>Use retro tables</em></a></li>
@@ -79,12 +79,12 @@
                 </a>
                 <ul class="dropdown-menu">
                   <li><h6 class="dropdown-header">Scene</h6></li>
-                  <li><a class="dropdown-item" href="#">Releasers</a></li>
+                  <li><a class="dropdown-item" href="/releaser">Releasers</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><h6 class="dropdown-header">Products</h6></li>
-                  <li><a class="dropdown-item" href="#">Magazines</a></li>
-                  <li><a class="dropdown-item" href="#">BBS sites</a></li>
-                  <li><a class="dropdown-item" href="#">FTP sites</a></li>
+                  <li><a class="dropdown-item" href="/magazine">Magazines</a></li>
+                  <li><a class="dropdown-item" href="/bbs">BBS sites</a></li>
+                  <li><a class="dropdown-item" href="/ftp">FTP sites</a></li>
                 </ul>
               </li>
               <li class="nav-item dropdown">
@@ -92,14 +92,14 @@
                   People
                 </a>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#">Sceners</a></li>
+                  <li><a class="dropdown-item" href="/scener">Sceners</a></li>
                   <li><a class="dropdown-item" href="/interview">Interviews</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><h6 class="dropdown-header">Roles</h6></li>
-                  <li><a class="dropdown-item" href="#">Artists</a></li>
-                  <li><a class="dropdown-item" href="#">Coders</a></li>
-                  <li><a class="dropdown-item" href="#">Musicians</a></li>
-                  <li><a class="dropdown-item" href="#">Writers</a></li>
+                  <li><a class="dropdown-item" href="/artist">Artists</a></li>
+                  <li><a class="dropdown-item" href="/coder">Coders</a></li>
+                  <li><a class="dropdown-item" href="/musician">Musicians</a></li>
+                  <li><a class="dropdown-item" href="/writer">Writers</a></li>
                 </ul>
               </li>
               <li class="nav-item dropdown">
@@ -227,6 +227,9 @@
       </nav>
       {{- block "modal" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
       <hr>
+      <div class="alert alert-danger" role="alert">
+          The database is down, this means the website is not working. We are working on it.
+      </div>
       <div class="d-flex justify-content-center" id="logo-container">
         <pre class="text-start text-bg-dark rounded font-dos p-3" id="logo-text">
 {{- /*  

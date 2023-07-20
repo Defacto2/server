@@ -82,6 +82,57 @@ func Status(s *zap.SugaredLogger, ctx echo.Context, code int, uri string) error 
 	return nil
 }
 
+// Artist is the handler for the Artist page.
+func Artist(s *zap.SugaredLogger, ctx echo.Context) error {
+	data := initData()
+	data["description"] = "demo"
+	data["title"] = "demo"
+	err := ctx.Render(http.StatusOK, "artist", data)
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
+// BBS is the handler for the BBS page.
+func BBS(s *zap.SugaredLogger, ctx echo.Context) error {
+	data := initData()
+	data["description"] = "demo"
+	data["title"] = "demo"
+	err := ctx.Render(http.StatusOK, "bbs", data)
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
+func Coder(s *zap.SugaredLogger, ctx echo.Context) error {
+	data := initData()
+	data["description"] = "demo"
+	data["title"] = "demo"
+	err := ctx.Render(http.StatusOK, "coder", data)
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "coder")
+	}
+	return nil
+}
+
+// FTP is the handler for the FTP page.
+func FTP(s *zap.SugaredLogger, ctx echo.Context) error {
+	data := initData()
+	data["description"] = "demo"
+	data["title"] = "demo"
+	err := ctx.Render(http.StatusOK, "ftp", data)
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
 // Interview is the handler for the People Interviews page.
 func Interview(s *zap.SugaredLogger, ctx echo.Context) error {
 	data := initData()
@@ -133,6 +184,63 @@ func History(s *zap.SugaredLogger, ctx echo.Context) error {
 	return nil
 }
 
+// Magazine is the handler for the Magazine page.
+func Magazine(s *zap.SugaredLogger, ctx echo.Context) error {
+	data := initData()
+	data["description"] = "demo"
+	data["title"] = "demo"
+	err := ctx.Render(http.StatusOK, "magazine", data)
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
+// Musician is the handler for the Musician page.
+func Musician(s *zap.SugaredLogger, ctx echo.Context) error {
+	data := initData()
+	data["description"] = "demo"
+	data["title"] = "demo"
+	err := ctx.Render(http.StatusOK, "musician", data)
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "musician")
+	}
+	return nil
+}
+
+// Scener is the handler for the Scener page.
+func Scener(s *zap.SugaredLogger, ctx echo.Context) error {
+	data := initData()
+	data["description"] = "demo"
+	data["title"] = "demo"
+	err := ctx.Render(http.StatusOK, "scener", data)
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
+// Releaser is the handler for the Releaser page.
+func Releaser(s *zap.SugaredLogger, ctx echo.Context) error {
+	const h1 = "Releaser"
+	const lead = "A releaser is a member of The Scene who is responsible for releasing new content."
+	data := initData()
+	data["description"] = fmt.Sprint(h1, " ", lead)
+	data["logo"] = "The underground"
+	data["h1"] = h1
+	data["lead"] = lead
+	data["title"] = h1
+	err := ctx.Render(http.StatusOK, "releaser", data)
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
 // Thanks is the handler for the Thanks page.
 func Thanks(s *zap.SugaredLogger, ctx echo.Context) error {
 	data := initData()
@@ -162,6 +270,19 @@ func TheScene(s *zap.SugaredLogger, ctx echo.Context) error {
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
+// Writer is the handler for the Writer page.
+func Writer(s *zap.SugaredLogger, ctx echo.Context) error {
+	data := initData()
+	data["description"] = "demo"
+	data["title"] = "demo"
+	err := ctx.Render(http.StatusOK, "writer", data)
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "writer")
 	}
 	return nil
 }
