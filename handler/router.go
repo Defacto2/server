@@ -98,11 +98,11 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) *echo.Echo {
 		return app.TheScene(nil, c)
 	})
 	// TODO: rename to singular
-	e.GET("/websites", func(c echo.Context) error {
-		return app.Websites(nil, c, "")
+	e.GET("/website", func(c echo.Context) error {
+		return app.Website(nil, c, "")
 	})
-	e.GET("/websites/:id", func(c echo.Context) error {
-		return app.Websites(nil, c, c.Param("id"))
+	e.GET("/website/:id", func(c echo.Context) error {
+		return app.Website(nil, c, c.Param("id"))
 	})
 	e.GET("/writer", func(c echo.Context) error {
 		return app.Writer(nil, c)

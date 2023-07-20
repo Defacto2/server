@@ -50,9 +50,9 @@ func List() Accordion {
 	}
 }
 
-// Websites is the handler for the websites page.
+// Website is the handler for the websites page.
 // Open is the ID of the accordion section to open.
-func Websites(s *zap.SugaredLogger, ctx echo.Context, open string) error {
+func Website(s *zap.SugaredLogger, ctx echo.Context, open string) error {
 	data := initData()
 	data["title"] = "Websites"
 	data["logo"] = "Websites, podcasts, videos, books and films"
