@@ -1,19 +1,56 @@
-# https://taskfile.dev
+# https://taskfile.dev/installation/
 
 version: '3'
 
 vars:
-  GREETING: Hello, World!
+  BINNAME: df2-server
+  SERVEPORT: 1327
 
 tasks:
   default:
+    desc: "Task runner for the Defacto2 server."
     cmds:
-      - echo "{{.GREETING}}"
+      - task --list-all
     silent: true
-  prod:
+  build:
+    desc: "Build the server binary."
+    deps: [assets]
+    cmds:
+      - echo "Building..."
+      - go build -o {{.BINNAME}} -v server.go
+      - echo "Done!"
+  assets:
+    desc: "Build and compress the CSS and JS assets."
+    cmds:
+      - echo "Building assets..."
+      - go run runner/runner.go
+      - echo "Done!"
+  serve:
+    desc: "Run the internal development server with live reload."
+    cmds:
+      - task: serve-air
+      - task: serve-windows
+  serve-air:
+    internal: true
+    platforms: [darwin, linux, freebsd] # other supported os can be added here
     env:
-      DEFACTO2_PRODUCTION: true
-      DEFACTO2_PORT: 1325
+      DEFACTO2_PRODUCTION: false
+      DEFACTO2_PORT: "{{.SERVEPORT}}"
     cmds:
       - air
-
+  serve-windows:
+    internal: true
+    platforms: [windows]
+    env:
+      DEFACTO2_PRODUCTION: false
+      DEFACTO2_PORT: "{{.SERVEPORT}}"
+    cmds:
+      - air -c .air.windows.toml 
+  test:
+    desc: "Run the test suite."
+    cmds:
+      - go test -v ./...
+  tester:
+    desc: "Run the slower test suite with race conditions."
+    cmds:
+      - go test -race -v ./...

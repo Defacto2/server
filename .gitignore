@@ -1,10 +1,11 @@
 # log files
 *.log
 # server binary
+df2-server
 server
+# windows binaries
+*.exe
 # temp directory
 tmp/
 # goreleaser generated directory
 dist/
-# windows
-*.exe
