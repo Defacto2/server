@@ -1,5 +1,7 @@
 # https://taskfile.dev/installation/
 
+# TODO: lint and ver tasks
+
 version: '3'
 
 vars:
