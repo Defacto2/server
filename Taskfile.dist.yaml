@@ -6,7 +6,10 @@ version: '3'
 
 vars:
   BINNAME: df2-server
+  # serve configs
   SERVEPORT: 1323
+  LOGREQUESTS: true
+  NOROBOTS: true
 
 tasks:
   default:
@@ -51,6 +54,8 @@ tasks:
     env:
       DEFACTO2_PRODUCTION: false
       DEFACTO2_PORT: "{{.SERVEPORT}}"
+      DEFACTO2_REQUESTS: "{{.LOGREQUESTS}}"
+      DEFACTO2_NOROBOTS: "{{.NOROBOTS}}"
     cmds:
       - air
   serve-air-prod:
@@ -59,6 +64,8 @@ tasks:
     env:
       DEFACTO2_PRODUCTION: true
       DEFACTO2_PORT: "{{.SERVEPORT}}"
+      DEFACTO2_REQUESTS: "{{.LOGREQUESTS}}"
+      DEFACTO2_NOROBOTS: "{{.NOROBOTS}}"
     cmds:
       - air
   serve-windows:
@@ -67,6 +74,8 @@ tasks:
     env:
       DEFACTO2_PRODUCTION: false
       DEFACTO2_PORT: "{{.SERVEPORT}}"
+      DEFACTO2_REQUESTS: "{{.LOGREQUESTS}}"
+      DEFACTO2_NOROBOTS: "{{.NOROBOTS}}"
     cmds:
       - air -c .air.windows.toml 
   serve-windows-prod:
@@ -75,5 +84,7 @@ tasks:
     env:
       DEFACTO2_PRODUCTION: true
       DEFACTO2_PORT: "{{.SERVEPORT}}"
+      DEFACTO2_REQUESTS: "{{.LOGREQUESTS}}"
+      DEFACTO2_NOROBOTS: "{{.NOROBOTS}}"
     cmds:
       - air -c .air.windows.toml 
