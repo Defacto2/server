@@ -21,6 +21,9 @@ type Config struct {
 	// HTTPPort is the port number to be used by the HTTP server.
 	HTTPPort uint `env:"PORT" envDefault:"1323" help:"The port number to be used by the HTTP server"`
 
+	// HTTPSRedirect is true when the server should redirect all HTTP requests to HTTPS.
+	HTTPSRedirect bool `env:"HTTPS_REDIRECT" envDefault:"false" help:"Redirect all HTTP requests to HTTPS"`
+
 	// Timeout is the timeout value in seconds for the HTTP server.
 	Timeout uint `env:"TIMEOUT" envDefault:"5" help:"The timeout value in seconds for the HTTP server"`
 
@@ -30,7 +33,7 @@ type Config struct {
 	// NoRobots is true when the server should tell all search engines to not crawl the website pages or assets.
 	NoRobots bool `env:"NOROBOTS" envDefault:"false" avoid:"true" help:"Tell all search engines to not crawl the website pages or assets"`
 
-	// LogRequests is true when the server should log all HTTP client requests to a file.
+	// LogRequests is true when the server should log all HTTP client requests to a file, except those with 200 OK responses.
 	LogRequests bool `env:"REQUESTS" envDefault:"false" avoid:"true" help:"Log all HTTP client requests to a file"`
 
 	// LogDir is the directory path that will store the server logs.

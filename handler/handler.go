@@ -113,14 +113,14 @@ func (c Configuration) Controller() *echo.Echo {
 	// Pre configurations that are run before the router
 	e.Pre(middleware.Rewrite(rewrites())) // rewrites for assets
 	e.Pre(middleware.NonWWWRedirect())    // redirect www.defacto2.net requests to defacto2.net
-	if c.Import.IsProduction {
+	if c.Import.HTTPSRedirect {
 		e.Pre(middleware.HTTPSRedirect()) // https redirect
 	}
 
 	// Use configurations that are run after the router
 	e.Use(middleware.Secure())                                   // XSS cross-site scripting protection
 	e.Use(middleware.Gzip())                                     // Gzip HTTP compression
-	e.Use(c.Import.LoggerMiddleware)                             // custom logging middleware (see: pkg/config/logger.go)
+	e.Use(c.Import.LoggerMiddleware)                             // custom HTTP logging middleware (see: pkg/config/logger.go)
 	e.Use(middleware.RemoveTrailingSlashWithConfig(c.rmSlash())) // remove trailing slashes
 	e.Use(middleware.TimeoutWithConfig(c.timeout()))             // timeout a long running operation
 	e.Use(c.NoRobotsHeader)                                      // add X-Robots-Tag to all responses
@@ -182,6 +182,13 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 	// Log location info
 	if c.Import.IsProduction {
 		fmt.Fprintf(w, "%sserver logs are found in: %s\n", mark, c.Import.LogDir)
+	}
+	// Additional startup info
+	if c.Import.HTTPSRedirect {
+		fmt.Fprintf(w, "%sredirecting all HTTP requests to HTTPS.\n", mark)
+	}
+	if c.Import.NoRobots {
+		fmt.Fprintf(w, "%sthe X-ROBOTS header is telling all search engines to ignore the site.\n", mark)
 	}
 	w.Flush()
 
