@@ -50,25 +50,39 @@ func HTTPPort(port uint) error {
 // DownloadDir runs checks against the named directory containing the UUID record downloads.
 // Problems will either log warnings or fatal errors.
 func DownloadDir(name string, log *zap.SugaredLogger) {
+	CheckDir(name, "download", log)
+}
+
+// CheckDir runs checks against the named directory,
+// including whether it exists, is a directory, and contains a minimum number of files.
+// Problems will either log warnings or fatal errors.
+func CheckDir(name, desc string, log *zap.SugaredLogger) {
+	s := ""
+	switch desc {
+	case "download":
+		s = "the server cannot send file downloads"
+	case "log":
+		s = "the server cannot log to files"
+	}
 	if name == "" {
-		log.Warn("The download directory path is empty, the server cannot send record downloads.")
+		log.Warnf("The %s directory path was not provided, %s.", desc, s)
 		return
 	}
 	dir, err := os.Stat(name)
 	if os.IsNotExist(err) {
-		log.Warnf("The download directory path does not exist, the server cannot send record downloads: %s", name)
+		log.Warnf("The %s directory path does not exist, %s: %s", desc, s, name)
 		return
 	}
 	if !dir.IsDir() {
-		log.Fatalf("The download directory path points to the file: %s", dir.Name())
+		log.Fatalf("The %s directory path points to the file, %s: %s", desc, s, dir.Name())
 	}
 	files, err := os.ReadDir(name)
 	if err != nil {
-		log.Fatalf("The download directory path could not be read: %s.", err)
+		log.Fatalf("The %s directory path could not be read, %s: %s.", desc, s, err)
 	}
 	if len(files) < 10 {
-		log.Warnf("The download directory path contains only a few items, is the directory correct:  %s",
-			dir.Name())
+		log.Warnf("The %s directory path contains only a few items, is the directory correct:  %s",
+			desc, dir.Name())
 		return
 	}
 }
