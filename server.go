@@ -37,14 +37,17 @@ func main() {
 	log := logger.Development().Sugar()
 
 	// Environment configuration
-	// Any hardcoded overrides should be placed in here
-	configs := config.Config{
-		// IsProduction: true,
-	}
+	configs := config.Config{}
 	if err := env.Parse(
 		&configs, env.Options{Prefix: config.EnvPrefix}); err != nil {
 		log.Fatalf("Environment variable probably contains an invalid value: %s.", err)
 	}
+	// Any hardcoded overrides can be placed in here,
+	// but they must be commented out in PRODUCTION
+	//configs.IsProduction = true // This will enable the production logger
+	//configs.HTTPSRedirect = true // This requires HTTPS certificates to be installed and configured
+	//configs.NoRobots = true // This will disable search engine crawling
+	configs.LogRequests = true // This will log all HTTP requests to the server or stdout
 
 	// Command-line arguments
 	// By default the web server runs when no arguments are provided
@@ -69,7 +72,7 @@ func main() {
 		}
 		log = logger.Production(configs.LogDir).Sugar()
 	default:
-		log.Debug("The server is running in the development mode.")
+		log.Debug("The server is running in the DEVELOPMENT MODE.")
 	}
 
 	// Configuration sanity checks
