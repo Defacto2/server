@@ -6,7 +6,7 @@ version: '3'
 
 vars:
   BINNAME: df2-server
-  SERVEPORT: 1327
+  SERVEPORT: 1323
 
 tasks:
   default:
@@ -27,16 +27,37 @@ tasks:
       - echo "Building assets..."
       - go run runner/runner.go
       - echo "Done!"
+  test:
+    desc: "Run the test suite."
+    cmds:
+      - go test -v ./...
+  tester:
+    desc: "Run the slower test suite with race conditions."
+    cmds:
+      - go test -race -v ./...
   serve:
     desc: "Run the internal development server with live reload."
     cmds:
       - task: serve-air
       - task: serve-windows
+  serve-prod:
+    desc: "Run the internal development server with live reload."
+    cmds:
+      - task: serve-air
+      - task: serve-windows-prod
   serve-air:
     internal: true
     platforms: [darwin, linux, freebsd] # other supported os can be added here
     env:
       DEFACTO2_PRODUCTION: false
+      DEFACTO2_PORT: "{{.SERVEPORT}}"
+    cmds:
+      - air
+  serve-air-prod:
+    internal: true
+    platforms: [darwin, linux, freebsd] # other supported os can be added here
+    env:
+      DEFACTO2_PRODUCTION: true
       DEFACTO2_PORT: "{{.SERVEPORT}}"
     cmds:
       - air
@@ -48,11 +69,11 @@ tasks:
       DEFACTO2_PORT: "{{.SERVEPORT}}"
     cmds:
       - air -c .air.windows.toml 
-  test:
-    desc: "Run the test suite."
+  serve-windows-prod:
+    internal: true
+    platforms: [windows]
+    env:
+      DEFACTO2_PRODUCTION: true
+      DEFACTO2_PORT: "{{.SERVEPORT}}"
     cmds:
-      - go test -v ./...
-  tester:
-    desc: "Run the slower test suite with race conditions."
-    cmds:
-      - go test -race -v ./...
+      - air -c .air.windows.toml 
