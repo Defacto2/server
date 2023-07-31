@@ -34,9 +34,7 @@ func (cfg Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		timeStarted := time.Now()
 		err := next(c)
-
 		status := c.Response().Status
-
 		httpErr := new(echo.HTTPError)
 		if errors.As(err, &httpErr) {
 			status = httpErr.Code
@@ -49,16 +47,28 @@ func (cfg Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			//"query":   c.Request().URL.RawQuery,
 			"status": status,
 		}
+		if cfg.LogRequests || err != nil {
+			s := fmt.Sprintf("HTTP %s %d: %s", v["method"], v["status"], v["path"])
+			if err != nil {
+				s += fmt.Sprintf("  info: %s", err)
+			}
+			switch status {
+			case http.StatusOK:
+				//log.Debug(s)
+			default:
+				log.Warn(s)
+			}
+		}
 		switch status {
 		case http.StatusOK:
 			return nil
+		default:
+			if err != nil {
+				// This error MUST be returned otherwise the client will always receive a 200 OK status
+				return err
+			}
+			return nil
 		}
-		if err != nil {
-			log.Debugf("HTTP %s %d: %s  info: %s", v["method"], v["status"], v["path"], err)
-			// This error MUST be returned otherwise the client will always receive a 200 OK status
-			return err
-		}
-		return nil
 	}
 }
 
