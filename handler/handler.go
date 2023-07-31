@@ -171,6 +171,7 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 		c.DatbaseErr = true
 		c.Log.Warnln("Could not obtain the PostgreSQL server version. Is the database online?")
 	} else {
+		c.DatbaseErr = false
 		fmt.Fprintf(w, "%sDefacto2 web application %s %s.\n", mark, cmd.Commit(c.Version), psql.String())
 	}
 	// CPU info

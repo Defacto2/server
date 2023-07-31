@@ -78,13 +78,6 @@ func main() {
 	// Configuration sanity checks
 	configs.Checks(log)
 
-	// Database
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		log.Errorf("Could not connect to the database: %s.", err)
-	}
-	defer db.Close()
-
 	// Cached global vars will go here, to avoid the garbage collection
 	// They should be lockable
 
@@ -97,6 +90,15 @@ func main() {
 		Version: version,
 		Views:   views,
 	}
+
+	// Database
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		server.DatbaseErr = true
+		log.Errorf("Could not connect to the database: %s.", err)
+	}
+	defer db.Close()
+
 	e := server.Controller()
 
 	// Start the HTTP server

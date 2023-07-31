@@ -227,9 +227,10 @@
       </nav>
       {{- block "modal" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
       <hr>
+      {{- if eq (index . "databaseDown") true -}}
       <div class="alert alert-danger" role="alert">
-          The database is down, this means the website is not working. We are working on it.
-      </div>
+          The database is down, this means the website is not fully working. We are working on it.
+      </div>{{end -}}
       <div class="d-flex justify-content-center" id="logo-container">
         <pre class="text-start text-bg-dark rounded font-dos p-3" id="logo-text">
 {{- /*  

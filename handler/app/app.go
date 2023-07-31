@@ -94,6 +94,9 @@ func (c Configuration) tmpl(name string) *template.Template {
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func (c Configuration) TemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
+		"databaseDown": func() bool {
+			return c.DatbaseErr
+		},
 		"mergeIcon": func() string {
 			return merge
 		},
