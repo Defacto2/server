@@ -9,6 +9,10 @@ import (
 const (
 	// Counter is a partial SQL statement to count the number of records.
 	Counter = "COUNT(*) AS counter"
+	// MinYear is a partial SQL statement to select the minimum year value.
+	MinYear = "MIN(date_issued_year) AS min_year"
+	// MaxYear is a partial SQL statement to select the maximum year value.
+	MaxYear = "MAX(date_issued_year) AS max_year"
 	// SumSize is a partial SQL statement to sum the filesize values of multiple records.
 	SumSize = "SUM(filesize) AS size_sum"
 )

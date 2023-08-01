@@ -13,14 +13,15 @@ import (
 // initData is a map of default values for the app templates.
 func initData() map[string]interface{} {
 	return map[string]interface{}{
-		"canonical":   "", // A canonical URL is the URL of the best representative page from a group of duplicate pages.
-		"carousel":    "", // The ID of the carousel to display.
-		"description": "", // A short description of the page that get inserted into the description meta element.
-		"h1":          "", // The H1 heading of the page.
-		"h1sub":       "", // The H1 sub-heading of the page.
-		"lead":        "", // The enlarged, lead paragraph of the page.
-		"logo":        "", // Text to insert into the monospaced, ASCII art logo.
-		"title":       "", // The title of the page that get inserted into the title meta element.
+		"canonical":   "",    // A canonical URL is the URL of the best representative page from a group of duplicate pages.
+		"carousel":    "",    // The ID of the carousel to display.
+		"description": "",    // A short description of the page that get inserted into the description meta element.
+		"h1":          "",    // The H1 heading of the page.
+		"h1sub":       "",    // The H1 sub-heading of the page.
+		"lead":        "",    // The enlarged, lead paragraph of the page.
+		"logo":        "",    // Text to insert into the monospaced, ASCII art logo.
+		"title":       "",    // The title of the page that get inserted into the title meta element.
+		"counter":     Stats, // The database counts for files and categories.
 	}
 }
 

@@ -3,6 +3,17 @@
 {{- $titleClass := " h3" }}
 {{- $otherClass := " h5" }}
 {{- $cardClass := " h-100"}}
+{{- $rels := index . "counter" }}
+{{- $intB := $rels.Intro.Bytes }}
+{{- $intC := $rels.Intro.Count }}
+{{- $intDB := $rels.IntroD.Bytes}}
+{{- $intDC := $rels.IntroD.Count }}
+{{- $intWB := $rels.IntroW.Bytes}}
+{{- $intWC := $rels.IntroW.Count }}
+{{- $instB := $rels.Installer.Bytes}}
+{{- $instC := $rels.Installer.Count}}
+{{- $demoB := $rels.Demo.Bytes}}
+{{- $demoC := $rels.Demo.Count}}
 <div class="row row-cols-1 row-cols-md-2 g-4 mt-1">
     <div class="col">
         <div class="card{{$cardClass}}">
@@ -15,32 +26,34 @@
                     Initially, these programs were inserted and launched whenever the cracked software was in use.
                 </p>
                 <span class="card-link">Runs on</span>
-                <a href="#" class="card-link">Windows</a>
-                <a href="#" class="card-link">MS-DOS</a>
+                <a href="/files/intro-windows" class="card-link">Windows</a>
+                <a href="/files/intro-msdos" class="card-link">MS-DOS</a>
+                <a href="/files/intro" class="card-link">any platform</a><br>
             </div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
                     Installers are blah blah.<br>
-                    <span class="card-link">Browse the</span> <a href="#" class="card-link">Installers</a>
+                    <span class="card-link">Browse the</span> <a href="/files/installer" class="card-link">Installers</a>
                 </li>
                 <li class="list-group-item">
                     Demoscene productions...<br>
-                    <span class="card-link">Browse the</span> <a href="#" class="card-link">demos</a>
+                    <span class="card-link">Browse the</span> <a href="/files/demoscene" class="card-link">demos</a>
                 </li>
                 {{- if .stats }}
                 <li class="list-group-item">
                     <small>
-                        Windows cracktros and intros: 600<br>
-                        MS-DOS cracktros and intros: 4000<br>
-                        Installers: 200<br>
-                        Demoscene productions: 100<br>
+                        Cracktros and intros: {{ $intC }}, {{ byteFmt $intB }}<br>
+                        Windows cracktros and intros: {{ $intWC }}, {{ byteFmt $intWB }}<br>
+                        MS-DOS cracktros and intros: {{ $intDC }}, {{ byteFmt $intDB }}<br>
+                        Installers: {{ $instC }}, {{ byteFmt $instB }}<br>
+                        Demoscene productions: {{ $demoC }}, {{ byteFmt $demoB }}<br>
                     </small>
                 </li>
                 {{- end}}
             </ul>
             {{- if .stats }}
             <div class="card-footer">
-                <small>releases date range: 1985-2023</small>
+                <small>releases date range: {{$rels.Intro.Year0}}-{{$rels.Intro.YearX}}</small>
             </div>
             {{- end}}
         </div>
@@ -57,12 +70,12 @@
                     cracked software.
                 </p>
                 <span class="card-link">Browse the</span>
-                <a href="#" class="card-link">NFO files</a><br>
+                <a href="/files/nfo" class="card-link">NFO files</a><br>
             </div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
                     Release proofs are blah blah.<br>
-                    <span class="card-link">Browse the</span> <a href="#" class="card-link">proofs</a>
+                    <span class="card-link">Browse the</span> <a href="/files/proof" class="card-link">proofs</a>
                 </li>
                 {{- if .stats }}
                 <li class="list-group-item">
@@ -89,12 +102,12 @@
                     Coloured ANSI text art was commonly used on BBSes for advertising and theming of their sites.
                 </p>
                 <span class="card-link">Browse the</span>
-                <a href="#" class="card-link">ANSI files</a><br>
+                <a href="/files/ansi" class="card-link">ANSI files</a><br>
                 <span class="card-link">Or only the</span>
-                <a href="#" class="card-link">brands</a>
-                <a href="#" class="card-link">BBS ads</a>
-                <a href="#" class="card-link">FTP ads</a>
-                <a href="#" class="card-link">NFOs</a>
+                <a href="/files/ansi-brand" class="card-link">brands</a>
+                <a href="/files/ansi-bbs" class="card-link">BBS ads</a>
+                <a href="/files/ansi-ftp" class="card-link">FTP ads</a>
+                <a href="/files/ansi-nfo" class="card-link">NFOs</a>
             </div>
             {{- if .stats }}
             <ul class="list-group list-group-flush">
@@ -120,17 +133,17 @@
                     during the 1980s until the mid-1990s.
                 </p>
                 <span class="card-link">Browse the</span>
-                <a href="#" class="card-link">adverts</a><br>
+                <a href="/files/bbs" class="card-link">adverts</a><br>
                 <span class="card-link">Or only the</span>
-                <a href="#" class="card-link">BBStros</a>
-                <a href="#" class="card-link">ANSI</a>
-                <a href="#" class="card-link">Images</a>
-                <a href="#" class="card-link">texts</a>
+                <a href="/files/bbstro" class="card-link">BBStros</a>
+                <a href="/files/ansi-bbs" class="card-link">ANSI</a>
+                <a href="/files/bbs-image" class="card-link">Images</a>
+                <a href="/files/bbs-text" class="card-link">texts</a>
             </div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
                     FTP adverts are blah blah.<br>
-                    <span class="card-link">Browse the</span> <a href="#" class="card-link">adverts</a>
+                    <span class="card-link">Browse the</span> <a href="/files/ftp" class="card-link">adverts</a>
                 </li>
                 {{- if .stats }}
                 <li class="list-group-item">
@@ -162,9 +175,9 @@
                     communities in the form of digital magazines and newsletters.
                 </p>
                 <span class="card-link">Browse the</span>
-                <a href="#" class="card-link">issues</a><br>
+                <a href="/files/magazine" class="card-link">issues</a><br>
                 <span class="card-link">Or the</span>
-                <a href="#" class="card-link">magazine titles</a>
+                <a href="/magazine" class="card-link">magazine titles</a>
             </div>
             {{- if .stats }}
             <div class="card-footer">
@@ -183,12 +196,12 @@
                     for easy distribution.
                 </p>
                 <span class="card-link">Browse the packs of</span>
-                <a href="#" class="card-link">ANSI art</a>
-                <a href="#" class="card-link">Text art</a>
-                <a href="#" class="card-link">NFO texts</a>
-                <a href="#" class="card-link">Images</a>
-                <a href="#" class="card-link">Windows software</a>
-                <a href="#" class="card-link">MS-DOS software</a>
+                <a href="/files/ansi-pack" class="card-link">ANSI art</a>
+                <a href="/files/text-pack" class="card-link">Text art</a>
+                <a href="/files/nfo-pack" class="card-link">NFO texts</a>
+                <a href="/files/image-pack" class="card-link">Images</a>
+                <a href="/files/windows-pack" class="card-link">Windows software</a>
+                <a href="/files/msdos-pack" class="card-link">MS-DOS software</a>
             </div>
         </div>
     </div>
@@ -203,7 +216,7 @@
                     Due to their size, these sets are often incomplete and sometimes inaccurate.
                 </p>
                 <span class="card-link">Browse the</span>
-                <a href="#" class="card-link">databases</a>
+                <a href="/files/database" class="card-link">databases</a>
             </div>
         </div>
     </div>
@@ -218,12 +231,12 @@
                     The vast majority of scene releases involve text and documents.
                 </p>
                 <span class="card-link">Browse the</span>
-                <a href="#" class="card-link">text files</a>
-                <a href="#" class="card-link">Commodore Amiga texts</a>
-                <a href="#" class="card-link">Apple ][ texts</a>
-                <a href="#" class="card-link">Atari ST texts</a>
-                <a href="#" class="card-link">documents in PDF</a>
-                <a href="#" class="card-link">documents in HTML</a>
+                <a href="/files/text" class="card-link">text files</a>
+                <a href="/files/text-amiga" class="card-link">Commodore Amiga texts</a>
+                <a href="/files/text-apple2" class="card-link">Apple ][ texts</a>
+                <a href="/files/text-atari-st" class="card-link">Atari ST texts</a>
+                <a href="/files/pdf" class="card-link">documents in PDF</a>
+                <a href="/files/html" class="card-link">documents in HTML</a>
             </div>
             {{- if .stats }}
             <div class="card-footer">

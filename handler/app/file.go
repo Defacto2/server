@@ -16,7 +16,12 @@ const errConn = "Sorry, at the moment the server cannot connect to the database"
 
 // Stats are the database statistics.
 var Stats struct { //nolint:gochecknoglobals
-	All model.All
+	All       model.All
+	Demo      model.Demo
+	Intro     model.Intro
+	IntroD    model.IntroDOS
+	IntroW    model.IntroWindows
+	Installer model.Installer
 }
 
 // File is the handler for the file categories page.
@@ -33,6 +38,21 @@ func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
 	if err := Stats.All.Stat(ctx, db); err != nil {
 		s.Warnf("%s: %s", errConn, err)
 	}
+	if err := Stats.Intro.Stat(ctx, db); err != nil {
+		s.Warnf("%s: %s", errConn, err)
+	}
+	if err := Stats.IntroD.Stat(ctx, db); err != nil {
+		s.Warnf("%s: %s", errConn, err)
+	}
+	if err := Stats.IntroW.Stat(ctx, db); err != nil {
+		s.Warnf("%s: %s", errConn, err)
+	}
+	if err := Stats.Installer.Stat(ctx, db); err != nil {
+		s.Warnf("%s: %s", errConn, err)
+	}
+	if err := Stats.Demo.Stat(ctx, db); err != nil {
+		s.Warnf("%s: %s", errConn, err)
+	}
 
 	const title = "File categories"
 	data["title"] = title
@@ -40,6 +60,8 @@ func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
 	data["logo"] = title
 	data["h1"] = title
 	data["stats"] = stats
+	data["counter"] = Stats
+
 	if stats {
 		data["h1sub"] = "with statistics"
 		data["logo"] = title + " + stats"
@@ -56,20 +78,45 @@ func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
 }
 
 // Files is the handler for the files page.
-func Files(s *zap.SugaredLogger, ctx echo.Context, id string) error {
+func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 	data := initData()
 	data["title"] = "Files placeholder"
 	data["logo"] = "Files placeholder"
 	data["description"] = "Table of contents for the files."
+
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		s.Warnf("%s: %s", errConn, err)
+		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
+	}
+	defer db.Close()
+	if err := Stats.All.Stat(ctx, db); err != nil {
+		s.Warnf("%s: %s", errConn, err)
+	}
+
 	// err := ctx.Render(http.StatusOK, "file", data)
 	// if err != nil {
 	// 	s.Errorf("%s: %s", ErrTmpl, err)
 	// 	return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	// }
 	switch id {
-	case "", "newest", "oldest", "new-uploads":
-		return ctx.String(http.StatusOK, fmt.Sprintf("ToDo!, %q", id))
+	case "", "newest", "oldest", "new-uploads",
+		"intro", "intro-windows", "intro-msdos", "installer", "demoscene",
+		"nfo", "proof",
+		"ansi", "ansi-brand", "ansi-bbs", "ansi-ftp", "ansi-nfo",
+		"bbs", "bbstro", "bbs-image", "bbs-text",
+		"ftp",
+		"magazine",
+		"ansi-pack", "text-pack", "nfo-pack", "image-pack", "windows-pack", "msdos-pack",
+		"database",
+		"text", "text-amiga", "text-apple2", "text-atari-st", "pdf", "html",
+		"windows", "msdos", "macos", "linux", "script", "java",
+		"news-article", "standards", "announcement", "job-advert", "trial-crackme",
+		"hack", "tool", "nfo-tool", "takedown", "drama", "advert", "restrict", "how-to",
+		"ansi-tool", "image", "music", "video":
+		return c.String(http.StatusOK, fmt.Sprintf("ToDo!, %q", id))
 	default:
-		return Status(nil, ctx, http.StatusNotFound, ctx.Param("uri"))
+		return Status(nil, c, http.StatusNotFound, c.Param("uri"))
 	}
 }

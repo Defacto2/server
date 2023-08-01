@@ -9,7 +9,10 @@ import (
 	"fmt"
 	"html/template"
 	"net/url"
+	"reflect"
 	"strings"
+
+	"github.com/Defacto2/server/pkg/helpers"
 )
 
 const (
@@ -24,6 +27,17 @@ const (
 	link  = `<svg class="bi" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#link"></use></svg>`
 	merge = `<svg class="bi" aria-hidden="true" fill="currentColor"><use xlink:href="bootstrap-icons.svg#forward"></use></svg>`
 )
+
+// ByteFormat returns a human readable string of the byte count.
+func ByteFormat(b any) string {
+	switch val := b.(type) {
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		i := reflect.ValueOf(val).Int()
+		return helpers.ByteCount(i)
+	default:
+		return "error: ByteFormat() received an invalid type"
+	}
+}
 
 // ExternalLink returns a HTML link with an embedded SVG icon to an external website.
 func ExternalLink(href, name string) template.HTML {
