@@ -1,0 +1,28 @@
+{{/*  files.html  */}}
+{{- define "content" }}
+{{- $cardClass := " h-100"}}
+<div class="row row-cols-1 row-cols-md-3 g-4 mt-1">
+    <div class="col">
+        <div class="card{{$cardClass}}">
+            <img src="/image/milestone/the-ptl-club.webp" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">PTL Club</h5>
+                <h6 class="card-subtitle mb-2 text-body-secondary">Jungle Hunt</h6>
+                <p class="card-text">A MS-DOS intro published in 1983.</p>
+                <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
+                <a href="#" class="card-link">Intro page</a>
+                <a href="#" class="card-link">Download intro</a>          
+            </div>
+            {{/*  <ul class="list-group list-group-flush">
+                <li class="list-group-item">A VirusTotal alert</li>
+              </ul>              */}}
+            {{/*  <div class="card-body">
+                <a href="#" class="btn btn-primary">Go somewhere</a>
+            </div>  */}}
+            {{/*  <div class="card-footer text-body-secondary text-center">
+                2 days ago
+            </div>              */}}
+        </div>
+    </div>
+</div>
+{{- end}}

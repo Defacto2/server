@@ -90,6 +90,7 @@ func (c *Configuration) Tmpl() map[string]*template.Template {
 	templates["bbs"] = c.tmpl("bbs.html")
 	templates["coder"] = c.tmpl("coder.html")
 	templates["file"] = c.tmpl("file.html")
+	templates["files"] = c.tmpl("files.html")
 	templates["ftp"] = c.tmpl("ftp.html")
 	templates["history"] = c.tmpl("history.html")
 	templates["interview"] = c.tmpl("interview.html")

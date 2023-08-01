@@ -193,8 +193,17 @@ func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 		"news-article", "standards", "announcement", "job-advert", "trial-crackme",
 		"hack", "tool", "nfo-tool", "takedown", "drama", "advert", "restrict", "how-to",
 		"ansi-tool", "image", "music", "video":
-		return c.String(http.StatusOK, fmt.Sprintf("ToDo!, %q", id))
+
+		err = c.Render(http.StatusOK, "files", data)
+		if err != nil {
+			s.Errorf("%s: %s", ErrTmpl, err)
+			return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		}
+		return nil
 	default:
+		// TODO: redirect to File categories with custom alert 404 message?
+		// replace this message: The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
+		// with something about the file categories page.
 		return Status(nil, c, http.StatusNotFound, c.Param("uri"))
 	}
 }
