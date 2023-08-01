@@ -6,8 +6,6 @@ import (
 
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
-	"github.com/Defacto2/server/pkg/tags"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
@@ -102,24 +100,4 @@ func (i *Installer) Stat(ctx context.Context, db *sql.DB) error {
 			models.FileWhere.Section.EQ(install()),
 		),
 		qm.From(From)).Bind(ctx, db, i)
-}
-
-func demo() null.String {
-	return null.String{String: tags.URIs()[tags.Demo], Valid: true}
-}
-
-func dos() null.String {
-	return null.String{String: tags.URIs()[tags.DOS], Valid: true}
-}
-
-func install() null.String {
-	return null.String{String: tags.URIs()[tags.Install], Valid: true}
-}
-
-func intro() null.String {
-	return null.String{String: tags.URIs()[tags.Intro], Valid: true}
-}
-
-func windows() null.String {
-	return null.String{String: tags.URIs()[tags.Windows], Valid: true}
 }

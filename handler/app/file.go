@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
 
@@ -15,20 +16,109 @@ import (
 const errConn = "Sorry, at the moment the server cannot connect to the database"
 
 // Stats are the database statistics.
-var Stats struct { //nolint:gochecknoglobals
+type Stats struct { //nolint:gochecknoglobals
 	All       model.All
+	Ansi      model.Ansi
+	AnsiBBS   model.AnsiBBS
+	BBS       model.BBS
+	BBSText   model.BBSText
+	BBStro    model.BBStro
 	Demo      model.Demo
+	DOS       model.DOS
 	Intro     model.Intro
 	IntroD    model.IntroDOS
 	IntroW    model.IntroWindows
 	Installer model.Installer
+	Java      model.Java
+	Linux     model.Linux
+	Mag       model.Mag
+	Mac       model.Mac
+	Nfo       model.Nfo
+	NfoTool   model.NfoTool
+	Proof     model.Proof
+	Script    model.Script
+	Text      model.Text
+	Windows   model.Windows
+}
+
+func (s *Stats) Get(ctx context.Context, db *sql.DB) error {
+	if err := s.All.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Ansi.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.AnsiBBS.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.BBS.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.BBSText.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.BBStro.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.DOS.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Intro.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.IntroD.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.IntroW.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Installer.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Java.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Linux.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Demo.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Mac.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Mag.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Nfo.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.NfoTool.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Proof.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Script.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Text.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Windows.Stat(ctx, db); err != nil {
+		return err
+	}
+	return nil
+}
+
+func Statistics() Stats {
+	return Stats{}
 }
 
 // File is the handler for the file categories page.
 func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
 	data := initData()
 
-	// todo: move to a func and return an error
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -36,22 +126,8 @@ func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	defer db.Close()
-	if err := Stats.All.Stat(ctx, db); err != nil {
-		s.Warnf("%s: %s", errConn, err)
-	}
-	if err := Stats.Intro.Stat(ctx, db); err != nil {
-		s.Warnf("%s: %s", errConn, err)
-	}
-	if err := Stats.IntroD.Stat(ctx, db); err != nil {
-		s.Warnf("%s: %s", errConn, err)
-	}
-	if err := Stats.IntroW.Stat(ctx, db); err != nil {
-		s.Warnf("%s: %s", errConn, err)
-	}
-	if err := Stats.Installer.Stat(ctx, db); err != nil {
-		s.Warnf("%s: %s", errConn, err)
-	}
-	if err := Stats.Demo.Stat(ctx, db); err != nil {
+	counter := Stats{}
+	if err := counter.Get(ctx, db); err != nil {
 		s.Warnf("%s: %s", errConn, err)
 	}
 
@@ -61,14 +137,14 @@ func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
 	data["logo"] = title
 	data["h1"] = title
 	data["stats"] = stats
-	data["counter"] = Stats
+	data["counter"] = counter
 
 	if stats {
 		data["h1sub"] = "with statistics"
 		data["logo"] = title + " + stats"
 		data["lead"] = "This page shows the file categories with selected statistics, such as the number of files in the category or platform." +
-			fmt.Sprintf(" The total number of files in the database is %d.", Stats.All.Count) +
-			fmt.Sprintf(" The total size of all files in the database is %s.", helpers.ByteCount(int64(Stats.All.Bytes)))
+			fmt.Sprintf(" The total number of files in the database is %d.", counter.All.Count) +
+			fmt.Sprintf(" The total size of all files in the database is %s.", helpers.ByteCount(int64(counter.All.Bytes)))
 	}
 	err = c.Render(http.StatusOK, "file", data)
 	if err != nil {
@@ -92,7 +168,8 @@ func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	defer db.Close()
-	if err := Stats.All.Stat(ctx, db); err != nil {
+	counter := Stats{}
+	if err := counter.All.Stat(ctx, db); err != nil {
 		s.Warnf("%s: %s", errConn, err)
 	}
 

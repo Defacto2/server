@@ -46,16 +46,15 @@ type Configuration struct {
 func (c Configuration) TemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
 		"byteFmt":      ByteFormat,
+		"cntByteFmt":   CountByteFormat,
 		"externalLink": ExternalLink,
 		"fmtDay":       FmtDay,
 		"fmtMonth":     FmtMonth,
 		"fmtPrefix":    FmtPrefix,
 		"logoText":     LogoText,
 		"mod3":         Mod3,
+		"safeHTML":     SafeHTML,
 		"wikiLink":     WikiLink,
-		"safeHTML": func(s string) template.HTML {
-			return template.HTML(s)
-		},
 		"databaseDown": func() bool {
 			return c.DatbaseErr
 		},

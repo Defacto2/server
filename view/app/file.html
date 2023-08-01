@@ -4,16 +4,32 @@
 {{- $otherClass := " h5" }}
 {{- $cardClass := " h-100"}}
 {{- $rels := index . "counter" }}
-{{- $intB := $rels.Intro.Bytes }}
-{{- $intC := $rels.Intro.Count }}
+{{- $intB := $rels.Intro.Bytes}}
+{{- $intC := $rels.Intro.Count}}
 {{- $intDB := $rels.IntroD.Bytes}}
-{{- $intDC := $rels.IntroD.Count }}
+{{- $intDC := $rels.IntroD.Count}}
 {{- $intWB := $rels.IntroW.Bytes}}
-{{- $intWC := $rels.IntroW.Count }}
+{{- $intWC := $rels.IntroW.Count}}
 {{- $instB := $rels.Installer.Bytes}}
 {{- $instC := $rels.Installer.Count}}
 {{- $demoB := $rels.Demo.Bytes}}
 {{- $demoC := $rels.Demo.Count}}
+{{- $nfoB := $rels.Nfo.Bytes}}
+{{- $nfoC := $rels.Nfo.Count}}
+{{- $nfoTB := $rels.NfoTool.Bytes}}
+{{- $nfoTC := $rels.NfoTool.Count}}
+{{- $proofB := $rels.Proof.Bytes}}
+{{- $proofC := $rels.Proof.Count}}
+{{- $ansiB := $rels.Ansi.Bytes}}
+{{- $ansiC := $rels.Ansi.Count}}
+{{- $bbsB := $rels.BBS.Bytes}}
+{{- $bbsC := $rels.BBS.Count}}
+{{- $bbsTB := $rels.BBStro.Bytes}}
+{{- $bbsTC := $rels.BBStro.Count}}
+{{- $ansiBB := $rels.AnsiBBS.Bytes}}
+{{- $ansiBC := $rels.AnsiBBS.Count}}
+{{- $bbsTxB := $rels.BBSText.Bytes}}
+{{- $bbsTxC := $rels.BBSText.Count}}
 <div class="row row-cols-1 row-cols-md-2 g-4 mt-1">
     <div class="col">
         <div class="card{{$cardClass}}">
@@ -42,11 +58,11 @@
                 {{- if .stats }}
                 <li class="list-group-item">
                     <small>
-                        Cracktros and intros: {{ $intC }}, {{ byteFmt $intB }}<br>
-                        Windows cracktros and intros: {{ $intWC }}, {{ byteFmt $intWB }}<br>
-                        MS-DOS cracktros and intros: {{ $intDC }}, {{ byteFmt $intDB }}<br>
-                        Installers: {{ $instC }}, {{ byteFmt $instB }}<br>
-                        Demoscene productions: {{ $demoC }}, {{ byteFmt $demoB }}<br>
+                        Cracktros and intros: {{ cntByteFmt $intC $intB }}<br>
+                        Windows cracktros and intros: {{ cntByteFmt $intWC $intWB }}<br>
+                        MS-DOS cracktros and intros: {{ cntByteFmt $intDC $intDB }}<br>
+                        Installers: {{ cntByteFmt $instC $instB }}<br>
+                        Demoscene productions: {{ cntByteFmt $demoC $demoB }}<br>
                     </small>
                 </li>
                 {{- end}}
@@ -64,10 +80,10 @@
                 <h1 class="card-title {{$titleClass}}">NFO files<small> for scene releases</small></h1>
                 <h6 class="card-subtitle mb-2 text-body-secondary">Plus proofs of releases</h6>
                 <p class="card-text">
-                    NFO, <small>README and file_id.diz</small> text files are generally in every scene release.
+                    NFO text files, <small>or README and file_id.diz texts</small> are generally in every scene release.
                     Often, they are stylised with ASCII text art and arranged in a standard format.
                     In the early days, these texts included detailed group information, but now they focus more on the
-                    cracked software.
+                    describing the software.
                 </p>
                 <span class="card-link">Browse the</span>
                 <a href="/files/nfo" class="card-link">NFO files</a><br>
@@ -80,16 +96,16 @@
                 {{- if .stats }}
                 <li class="list-group-item">
                     <small>
-                        NFO texts: 9500<br>
-                        Proofs: 4120<br>
-                        Editors: 140<br>
+                        NFO texts: {{ cntByteFmt $nfoC $nfoB }}<br>
+                        Proofs: {{ cntByteFmt $proofC $proofB }}<br>
+                        Editors: {{ cntByteFmt $nfoTC $nfoTB }}<br>
                     </small>
                 </li>
                 {{- end}}
             </ul>
             {{- if .stats }}
             <div class="card-footer">
-                <small>nfo date range: 1985-2023</small>
+                <small>nfo date range: {{$rels.Nfo.Year0}}-{{$rels.Nfo.YearX}}</small>
             </div>
             {{- end}}
         </div>
@@ -113,12 +129,12 @@
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
                     <small>
-                        ANSI art and texts: 3400<br>
+                        ANSI art and texts: {{ cntByteFmt $ansiC $ansiB }}<br>
                     </small>
                 </li>
             </ul>
             <div class="card-footer">
-                <small>ansi art date range: 1985-2023</small>
+                <small>ansi art date range: {{$rels.Ansi.Year0}}-{{$rels.Ansi.YearX}}</small>
             </div>
             {{- end}}
         </div>
@@ -137,7 +153,7 @@
                 <span class="card-link">Or only the</span>
                 <a href="/files/bbstro" class="card-link">BBStros</a>
                 <a href="/files/ansi-bbs" class="card-link">ANSI</a>
-                <a href="/files/bbs-image" class="card-link">Images</a>
+                <a href="/files/bbs-image" class="card-link">images</a>
                 <a href="/files/bbs-text" class="card-link">texts</a>
             </div>
             <ul class="list-group list-group-flush">
@@ -148,17 +164,17 @@
                 {{- if .stats }}
                 <li class="list-group-item">
                     <small>
-                        BBS adverts: 15000<br>
-                        BBStros: 7100<br>
-                        ANSI art: 2900<br>
-                        text files: 1900<br>
+                        BBS adverts: {{ cntByteFmt $bbsC $bbsB }}<br>
+                        BBStros: {{ cntByteFmt $bbsTC $bbsTB }}<br>
+                        ANSI art: {{ cntByteFmt $ansiBC $ansiBB }}<br>
+                        text files: {{ cntByteFmt $bbsTxC $bbsTxB }}<br>
                     </small>
                 </li>
                 {{- end}}
             </ul>
             {{- if .stats }}
             <div class="card-footer">
-                <small>bbs ads date range: 1985-2001</small>
+                <small>bbs ads date range: {{$rels.BBS.Year0}}-{{$rels.BBS.YearX}}</small>
             </div>
             {{- end}}
         </div>
@@ -181,7 +197,7 @@
             </div>
             {{- if .stats }}
             <div class="card-footer">
-                <small>magazine date range: 1985-2001</small>
+                <small>magazine date range: {{$rels.Mag.Year0}}-{{$rels.Mag.YearX}}</small>
             </div>
             {{- end}}
         </div>
@@ -240,7 +256,7 @@
             </div>
             {{- if .stats }}
             <div class="card-footer">
-                <small>texts date range: 1985-2001</small>
+                <small>texts date range: {{$rels.Text.Year0}}-{{$rels.Text.YearX}}</small>
             </div>
             {{- end}}
         </div>

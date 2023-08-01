@@ -14,6 +14,8 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/pkg/helpers"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 const (
@@ -40,6 +42,29 @@ func ByteFormat(b any) string {
 	default:
 		return fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(b).String())
 	}
+}
+
+// CountByteFormat returns a human readable string of the file count and bytes.
+func CountByteFormat(c, b any) template.HTML {
+	s := ""
+	switch val := c.(type) {
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		i := reflect.ValueOf(val).Int()
+		p := message.NewPrinter(language.English)
+		s = p.Sprintf("%d", i)
+	default:
+		s = fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(c).String())
+		return template.HTML(s)
+	}
+	switch val := b.(type) {
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		i := reflect.ValueOf(val).Int()
+		s = fmt.Sprintf("%s <small>(%s)</small>", s, helpers.ByteCount(i))
+	default:
+		s = fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(b).String())
+		return template.HTML(s)
+	}
+	return template.HTML(s)
 }
 
 // ExternalLink returns a HTML link with an embedded SVG icon to an external website.
@@ -187,6 +212,12 @@ func Mod(i any, max int) bool {
 // Mod3 returns true if the given integer is a multiple of 3.
 func Mod3(i any) bool {
 	return Mod(i, 3)
+}
+
+// SafeHTML returns a string as a template.HTML type.
+// This is intended to be used to prevent HTML escaping.
+func SafeHTML(s string) template.HTML {
+	return template.HTML(s)
 }
 
 // WikiLink returns a HTML link with an embedded SVG icon to the Defacto2 wiki on GitHub.

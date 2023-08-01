@@ -13,6 +13,8 @@ import (
 type All struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
+	Year0 int `boil:"min_year"`
+	YearX int `boil:"max_year"`
 }
 
 // Stat counts the total number and total byte size of releases that could be considered as digital or pixel art.
@@ -21,6 +23,6 @@ func (a *All) Stat(ctx context.Context, db *sql.DB) error {
 		return nil
 	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
+		qm.Select(postgres.SumSize, postgres.Counter, postgres.MinYear, postgres.MaxYear),
 		qm.From(From)).Bind(ctx, db, a)
 }
