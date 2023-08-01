@@ -28,6 +28,7 @@ var Stats struct { //nolint:gochecknoglobals
 func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
 	data := initData()
 
+	// todo: move to a func and return an error
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {

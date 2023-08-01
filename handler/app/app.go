@@ -3,12 +3,10 @@ package app
 import (
 	"embed"
 	"errors"
-	"fmt"
 	"html/template"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/labstack/gommon/log"
 	"go.uber.org/zap"
@@ -42,6 +40,44 @@ type Configuration struct {
 	Subresource SRI                // SRI are the Subresource Integrity hashes for the layout.
 	Public      embed.FS           // Public facing files.
 	Views       embed.FS           // Views are Go templates.
+}
+
+// TemplateFuncMap are a collection of mapped functions that can be used in a template.
+func (c Configuration) TemplateFuncMap() template.FuncMap {
+	return template.FuncMap{
+		"byteFmt":      ByteFormat,
+		"externalLink": ExternalLink,
+		"fmtDay":       FmtDay,
+		"fmtMonth":     FmtMonth,
+		"fmtPrefix":    FmtPrefix,
+		"logoText":     LogoText,
+		"mod3":         Mod3,
+		"wikiLink":     WikiLink,
+		"safeHTML": func(s string) template.HTML {
+			return template.HTML(s)
+		},
+		"databaseDown": func() bool {
+			return c.DatbaseErr
+		},
+		"logo": func() string {
+			return string(*c.Brand)
+		},
+		"mergeIcon": func() string {
+			return merge
+		},
+		"sriBootstrapCSS": func() string {
+			return c.Subresource.BootstrapCSS
+		},
+		"sriBootstrapJS": func() string {
+			return c.Subresource.BootstrapJS
+		},
+		"sriFontAwesome": func() string {
+			return c.Subresource.FontAwesome
+		},
+		"sriLayoutCSS": func() string {
+			return c.Subresource.LayoutCSS
+		},
+	}
 }
 
 // Tmpl returns a map of the templates used by the route.
@@ -89,74 +125,6 @@ func (c Configuration) tmpl(name string) *template.Template {
 		files = append(files, GlobTo("website.html"))
 	}
 	return template.Must(template.New("").Funcs(c.TemplateFuncMap()).ParseFS(c.Views, files...))
-}
-
-// TemplateFuncMap are a collection of mapped functions that can be used in a template.
-func (c Configuration) TemplateFuncMap() template.FuncMap {
-	return template.FuncMap{
-		"byteFmt":      ByteFormat,
-		"externalLink": ExternalLink,
-		"logoText":     LogoText,
-		"databaseDown": func() bool {
-			return c.DatbaseErr
-		},
-		"mergeIcon": func() string {
-			return merge
-		},
-		"logo": func() string {
-			return string(*c.Brand)
-		},
-		"mod3": func(i int) bool {
-			const x = 3
-			fmt.Println(i, x, i%x == 0)
-			return i%x == 0
-		},
-		"mod3end": func(i int) bool {
-			const x = 3
-			fmt.Println("->", i, x, i%x == (x-1))
-			return i%x == x-1
-		},
-		"wikiLink": WikiLink,
-		"sriBootstrapCSS": func() string {
-			return c.Subresource.BootstrapCSS
-		},
-		"sriBootstrapJS": func() string {
-			return c.Subresource.BootstrapJS
-		},
-		"sriFontAwesome": func() string {
-			return c.Subresource.FontAwesome
-		},
-		"sriLayoutCSS": func() string {
-			return c.Subresource.LayoutCSS
-		},
-		"safeHTML": func(s string) template.HTML {
-			return template.HTML(s)
-		},
-		"fmtPrefix": func(s string) string {
-			if s == "" {
-				return ""
-			}
-			return fmt.Sprintf("%s ", s)
-		},
-		"fmtMonth": func(m int) string {
-			if m == 0 {
-				return ""
-			}
-			if m < 0 || m > 12 {
-				return " ERR MONTH"
-			}
-			return " " + time.Month(m).String()
-		},
-		"fmtDay": func(d int) string {
-			if d == 0 {
-				return ""
-			}
-			if d < 0 || d > 31 {
-				return " ERR DAY"
-			}
-			return fmt.Sprintf(" %d", d)
-		},
-	}
 }
 
 // SRI are the Subresource Integrity hashes for the layout.
