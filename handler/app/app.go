@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/labstack/gommon/log"
 	"go.uber.org/zap"
 )
@@ -94,6 +95,9 @@ func (c Configuration) tmpl(name string) *template.Template {
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func (c Configuration) TemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
+		"byteFmt": func(b int64) string {
+			return helpers.ByteCount(b)
+		},
 		"databaseDown": func() bool {
 			return c.DatbaseErr
 		},
