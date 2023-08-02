@@ -14,6 +14,8 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/bengarrett/cfw"
+	"github.com/volatiletech/null/v8"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
@@ -26,12 +28,145 @@ const (
 	Welcome = ":                    ·· WELCOME TO DEFACTO2 ··                    ·"
 
 	// wiki and link are SVG icons.
-	wiki  = `<svg class="bi" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#arrow-right-short"></use></svg>`
-	link  = `<svg class="bi" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#link"></use></svg>`
-	merge = `<svg class="bi" aria-hidden="true" fill="currentColor"><use xlink:href="bootstrap-icons.svg#forward"></use></svg>`
+	wiki  = `<svg class="bi" aria-hidden="true"><use xlink:href="/bootstrap-icons.svg#arrow-right-short"></use></svg>`
+	link  = `<svg class="bi" aria-hidden="true"><use xlink:href="/bootstrap-icons.svg#link"></use></svg>`
+	merge = `<svg class="bi" aria-hidden="true" fill="currentColor"><use xlink:href="/bootstrap-icons.svg#forward"></use></svg>`
 
 	typeErr = "error: received an invalid type to "
 )
+
+// TemplateFuncMap are a collection of mapped functions that can be used in a template.
+func (c Configuration) TemplateFuncMap() template.FuncMap {
+	return template.FuncMap{
+		"byteFmt":      ByteFormat,
+		"cntByteFmt":   CountByteFormat,
+		"externalLink": ExternalLink,
+		"fmtDay":       FmtDay,
+		"fmtMonth":     FmtMonth,
+		"fmtPrefix":    FmtPrefix,
+		"lastUpdated":  LastUpdated,
+		"linkDL":       IDDownload,
+		"linkGroups":   GroupsLink,
+		"linkPage":     IDPage,
+		"logoText":     LogoText,
+		"mod3":         Mod3,
+		"safeHTML":     SafeHTML,
+		"sizeOfDL":     SizeOfDL,
+		"subTitle":     SubTitle,
+		"wikiLink":     WikiLink,
+		"databaseDown": func() bool {
+			return c.DatbaseErr
+		},
+		"logo": func() string {
+			return string(*c.Brand)
+		},
+		"mergeIcon": func() string {
+			return merge
+		},
+		"sriBootstrapCSS": func() string {
+			return c.Subresource.BootstrapCSS
+		},
+		"sriBootstrapJS": func() string {
+			return c.Subresource.BootstrapJS
+		},
+		"sriFontAwesome": func() string {
+			return c.Subresource.FontAwesome
+		},
+		"sriLayoutCSS": func() string {
+			return c.Subresource.LayoutCSS
+		},
+	}
+}
+
+func SubTitle(s any) template.HTML {
+	val := ""
+	switch v := s.(type) {
+	case string:
+		val = v
+	case null.String:
+		if !v.Valid {
+			return ""
+		}
+		val = v.String
+	}
+	if val == "" {
+		return ""
+	}
+	elem := fmt.Sprintf("<h6 class=\"card-subtitle mb-2 text-body-secondary\">%s</h6>", val)
+	return template.HTML(elem)
+}
+
+func GroupsLink(a, b any) template.HTML {
+	av, bv, s := "", "", ""
+	switch val := a.(type) {
+	case string:
+		av = reflect.ValueOf(val).String()
+	case null.String:
+		if val.Valid {
+			av = val.String
+		}
+	}
+	switch val := b.(type) {
+	case string:
+		bv = reflect.ValueOf(val).String()
+	case null.String:
+		if val.Valid {
+			bv = val.String
+		}
+	}
+	prime, second, s := "", "", ""
+	if av == "" && bv == "" {
+		return template.HTML("error: unknown group")
+	}
+	if av != "" {
+		ref, err := GroupLink(av)
+		if err != nil {
+			return template.HTML(fmt.Sprintf("error: %s", err))
+		}
+		prime = fmt.Sprintf(`<a href="%s">%s</a>`, ref, av)
+	}
+	if bv != "" {
+		ref, err := GroupLink(bv)
+		if err != nil {
+			return template.HTML(fmt.Sprintf("error: %s", err))
+		}
+		second = fmt.Sprintf(`<a href="%s">%s</a>`, ref, bv)
+	}
+	if prime != "" && second != "" {
+		s = fmt.Sprintf("%s + %s", prime, second)
+	} else if prime != "" {
+		s = prime
+	} else if second != "" {
+		s = second
+	}
+	return template.HTML(s)
+}
+
+func GroupLink(name string) (string, error) {
+	href, err := url.JoinPath("/", "g", helpers.Slug(name))
+	if err != nil {
+		return "", fmt.Errorf("name %q could not be made into a valid url: %s", name, err)
+	}
+	return href, nil
+}
+
+// SizeOfDL returns a human readable string of the file size.
+func SizeOfDL(i any) template.HTML {
+	s := ""
+	switch val := i.(type) {
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		i := reflect.ValueOf(val).Int()
+		s = helpers.ByteCount(i)
+	case null.Int64:
+		if !val.Valid {
+			return ""
+		}
+		s = helpers.ByteCount(val.Int64)
+	default:
+		return template.HTML(fmt.Sprintf("%sSizeOfDL: %s", typeErr, reflect.TypeOf(i).String()))
+	}
+	return template.HTML(fmt.Sprintf(" <small class=\"text-body-secondary\">(%s)</small>", s))
+}
 
 // ByteFormat returns a human readable string of the byte count.
 func ByteFormat(b any) string {
@@ -77,6 +212,45 @@ func ExternalLink(href, name string) template.HTML {
 	}
 
 	return template.HTML(fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover" href="%s">%s %s</a>`, href, name, link))
+}
+
+// IDDownload creates a URL to link to the file download of the record.
+func IDDownload(id any) template.HTML {
+	s, err := IDHref(id, "d")
+	if err != nil {
+		return template.HTML(err.Error())
+	}
+	return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">Download</a>`, s))
+}
+
+// IDPage creates a URL to link to the file page for the record.
+func IDPage(id any) template.HTML {
+	s, err := IDHref(id, "f")
+	if err != nil {
+		return template.HTML(err.Error())
+	}
+	return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">About</a>`, s))
+}
+
+// IDHref creates a URL to link to the record.
+// The id is obfuscated to prevent direct linking.
+// The elem is the element to link to, such as 'f' for file or 'd' for download.
+func IDHref(id any, elem string) (string, error) {
+	i := int64(0)
+	switch val := id.(type) {
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		i = reflect.ValueOf(val).Int()
+		if i <= 0 {
+			return "", fmt.Errorf("negative id %d", i)
+		}
+	default:
+		return "", fmt.Errorf("%s %s", typeErr, reflect.TypeOf(id).String())
+	}
+	href, err := url.JoinPath("/", elem, helpers.Obfuscate(i))
+	if err != nil {
+		return "", fmt.Errorf("id %d could not be made into a valid url: %s", i, err)
+	}
+	return href, nil
 }
 
 // FmtDate returns a string of the date in the format YYYY-MM-DD.
@@ -157,6 +331,23 @@ func IntegrityBytes(b []byte) string {
 	sum := sha512.Sum384(b)
 	b64 := base64.StdEncoding.EncodeToString(sum[:])
 	return fmt.Sprintf("sha384-%s", b64)
+}
+
+// LastUpdated returns a string of the time since the given time t.
+// The time is formatted as "Last updated 1 hour ago".
+// If the time is not valid, an empty string is returned.
+func LastUpdated(t any) string {
+	switch val := t.(type) {
+	case null.Time:
+		if !val.Valid {
+			return ""
+		}
+		return fmt.Sprintf("Last updated %s ago", cfw.TimeDistance(val.Time, time.Now(), true))
+	case time.Time:
+		return fmt.Sprintf("Last updated %s ago", cfw.TimeDistance(val, time.Now(), true))
+	default:
+		return fmt.Sprintf("%sLastUpdated: %s", typeErr, reflect.TypeOf(t).String())
+	}
 }
 
 // LogoText returns a string of text padded with spaces to center it in the logo.

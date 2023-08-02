@@ -42,43 +42,6 @@ type Configuration struct {
 	Views       embed.FS           // Views are Go templates.
 }
 
-// TemplateFuncMap are a collection of mapped functions that can be used in a template.
-func (c Configuration) TemplateFuncMap() template.FuncMap {
-	return template.FuncMap{
-		"byteFmt":      ByteFormat,
-		"cntByteFmt":   CountByteFormat,
-		"externalLink": ExternalLink,
-		"fmtDay":       FmtDay,
-		"fmtMonth":     FmtMonth,
-		"fmtPrefix":    FmtPrefix,
-		"logoText":     LogoText,
-		"mod3":         Mod3,
-		"safeHTML":     SafeHTML,
-		"wikiLink":     WikiLink,
-		"databaseDown": func() bool {
-			return c.DatbaseErr
-		},
-		"logo": func() string {
-			return string(*c.Brand)
-		},
-		"mergeIcon": func() string {
-			return merge
-		},
-		"sriBootstrapCSS": func() string {
-			return c.Subresource.BootstrapCSS
-		},
-		"sriBootstrapJS": func() string {
-			return c.Subresource.BootstrapJS
-		},
-		"sriFontAwesome": func() string {
-			return c.Subresource.FontAwesome
-		},
-		"sriLayoutCSS": func() string {
-			return c.Subresource.LayoutCSS
-		},
-	}
-}
-
 // Tmpl returns a map of the templates used by the route.
 func (c *Configuration) Tmpl() map[string]*template.Template {
 	if err := c.Subresource.Verify(c.Public); err != nil {

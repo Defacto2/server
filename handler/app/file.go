@@ -194,6 +194,17 @@ func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 		"hack", "tool", "nfo-tool", "takedown", "drama", "advert", "restrict", "how-to",
 		"ansi-tool", "image", "music", "video":
 
+		const (
+			limit = 10
+			page  = 1
+		)
+		var all model.All
+		data["records"], err = all.List(ctx, db, page, limit)
+		if err != nil {
+			s.Warnf("%s: %s", ErrTmpl, err)
+			return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		}
+
 		err = c.Render(http.StatusOK, "files", data)
 		if err != nil {
 			s.Errorf("%s: %s", ErrTmpl, err)
