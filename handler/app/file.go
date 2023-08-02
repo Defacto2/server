@@ -15,7 +15,145 @@ import (
 
 const errConn = "Sorry, at the moment the server cannot connect to the database"
 
-// Stats are the database statistics.
+// URI is a type for the files URI path.
+type URI int
+
+const (
+	root URI = iota
+	advert
+	announcement
+	ansi
+	ansiBBS
+	ansiBrand
+	ansiFTP
+	ansiPack
+	ansiNfo
+	ansiTool
+	bbs
+	bbstro
+	bbsImage
+	bbsText
+	database
+	demoscene
+	drama
+	ftp
+	hack
+	howTo
+	html
+	java
+	jobAdvert
+	image
+	imagePack
+	intro
+	introMsdos
+	introWindows
+	installer
+	linux
+	magazine
+	macos
+	msdos
+	msdosPack
+	music
+	newest
+	newsArticle
+	newUploads
+	nfo
+	nfoPack
+	nfoTool
+	oldest
+	pdf
+	proof
+	restrict
+	script
+	standards
+	takedown
+	text
+	textAmiga
+	textApple2
+	textAtariST
+	textPack
+	tool
+	trialCrackme
+	video
+	windows
+	windowsPack
+)
+
+func (u URI) String() string {
+	return [...]string{
+		"",
+		"advert",
+		"announcement",
+		"ansi",
+		"ansi-bbs",
+		"ansi-brand",
+		"ansi-ftp",
+		"ansi-pack",
+		"ansi-nfo",
+		"ansi-tool",
+		"bbs",
+		"bbstro",
+		"bbs-image",
+		"bbs-text",
+		"database",
+		"demoscene",
+		"drama",
+		"ftp",
+		"hack",
+		"how-to",
+		"html",
+		"java",
+		"job-advert",
+		"image",
+		"image-pack",
+		"intro",
+		"intro-msdos",
+		"intro-windows",
+		"installer",
+		"linux",
+		"magazine",
+		"macos",
+		"msdos",
+		"msdos-pack",
+		"music",
+		"newest",
+		"news-article",
+		"new-uploads",
+		"nfo",
+		"nfo-pack",
+		"nfo-tool",
+		"oldest",
+		"pdf",
+		"proof",
+		"restrict",
+		"script",
+		"standards",
+		"takedown",
+		"text",
+		"text-amiga",
+		"text-apple2",
+		"text-atari-st",
+		"text-pack",
+		"tool",
+		"trial-crackme",
+		"video",
+		"windows",
+		"windows-pack",
+	}[u]
+}
+
+// IsURI checks if the string is a valid files URI path.
+func IsURI(s string) bool {
+	// range to 57
+	for i := 1; i <= int(windowsPack); i++ {
+		if URI(i).String() == s {
+			return true
+		}
+	}
+	return false
+}
+
+// Stats are the database statistics for the file categories.
 type Stats struct { //nolint:gochecknoglobals
 	All       model.All
 	Ansi      model.Ansi
@@ -41,6 +179,7 @@ type Stats struct { //nolint:gochecknoglobals
 	Windows   model.Windows
 }
 
+// Get and store the database statistics for the file categories.
 func (s *Stats) Get(ctx context.Context, db *sql.DB) error {
 	if err := s.All.Stat(ctx, db); err != nil {
 		return err
@@ -111,6 +250,7 @@ func (s *Stats) Get(ctx context.Context, db *sql.DB) error {
 	return nil
 }
 
+// Statistics returns the empty database statistics for the file categories.
 func Statistics() Stats {
 	return Stats{}
 }
@@ -182,43 +322,28 @@ func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 	// 	s.Errorf("%s: %s", ErrTmpl, err)
 	// 	return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	// }
-	switch id {
-	case "", "newest", "oldest", "new-uploads",
-		"intro", "intro-windows", "intro-msdos", "installer", "demoscene",
-		"nfo", "proof",
-		"ansi", "ansi-brand", "ansi-bbs", "ansi-ftp", "ansi-nfo",
-		"bbs", "bbstro", "bbs-image", "bbs-text",
-		"ftp",
-		"magazine",
-		"ansi-pack", "text-pack", "nfo-pack", "image-pack", "windows-pack", "msdos-pack",
-		"database",
-		"text", "text-amiga", "text-apple2", "text-atari-st", "pdf", "html",
-		"windows", "msdos", "macos", "linux", "script", "java",
-		"news-article", "standards", "announcement", "job-advert", "trial-crackme",
-		"hack", "tool", "nfo-tool", "takedown", "drama", "advert", "restrict", "how-to",
-		"ansi-tool", "image", "music", "video":
-
-		const (
-			limit = 99
-			page  = 1
-		)
-		var all model.All
-		data["records"], err = all.List(ctx, db, page, limit)
-		if err != nil {
-			s.Warnf("%s: %s", ErrTmpl, err)
-			return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-		}
-
-		err = c.Render(http.StatusOK, "files", data)
-		if err != nil {
-			s.Errorf("%s: %s", ErrTmpl, err)
-			return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-		}
-		return nil
-	default:
+	if !IsURI(id) {
 		// TODO: redirect to File categories with custom alert 404 message?
 		// replace this message: The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
 		// with something about the file categories page.
 		return Status(s, c, http.StatusNotFound, c.Param("uri"))
 	}
+
+	const (
+		limit = 99
+		page  = 1
+	)
+	var all model.All
+	data["records"], err = all.List(ctx, db, page, limit)
+	if err != nil {
+		s.Warnf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+
+	err = c.Render(http.StatusOK, "files", data)
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
 }

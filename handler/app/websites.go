@@ -36,7 +36,7 @@ func List() Accordion {
 		},
 		{
 			"Bulletin Board Systems", "BBS pages",
-			"bbs", false, bbs(),
+			"bbs", false, bbses(),
 		},
 		{
 			"Crack and pirate scenes", "Pirate pages",
@@ -60,7 +60,7 @@ func List() Accordion {
 		},
 		{
 			"Videos and documentary", "Videos",
-			"video", false, video(),
+			"video", false, videos(),
 		},
 		{
 			"ama ~ ask me anything", "AMAs",
@@ -155,8 +155,8 @@ func art() []Site {
 	}
 }
 
-// bbs is a collection of BBS websites.
-func bbs() []Site {
+// bbses is a collection of BBS websites.
+func bbses() []Site {
 	return Sites{
 		Site{
 			"BBS Ads Collection", "https://mbox.bz/slurp/ascii/bbsads/",
@@ -332,8 +332,8 @@ func podcasts() []Site {
 	}
 }
 
-// video returns a list of videos and films.
-func video() []Site {
+// videos returns a list of videos and films.
+func videos() []Site {
 	return Sites{
 		Site{
 			"Steal This Film", "https://stealthisfilm.com/",
