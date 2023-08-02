@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/tags"
 	"github.com/bengarrett/cfw"
 	"github.com/volatiletech/null/v8"
 	"golang.org/x/text/language"
@@ -40,6 +41,7 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
 		"byteFmt":      ByteFormat,
 		"cntByteFmt":   CountByteFormat,
+		"describe":     Describe,
 		"externalLink": ExternalLink,
 		"fmtDay":       FmtDay,
 		"fmtMonth":     FmtMonth,
@@ -76,6 +78,106 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 			return c.Subresource.LayoutCSS
 		},
 	}
+}
+
+func Describe(plat, sect, year, month any) template.HTML {
+	p, s, y, m := "", "", "", ""
+	switch val := plat.(type) {
+	case string:
+		p = val
+	case null.String:
+		if val.Valid {
+			p = val.String
+		}
+	default:
+		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", plat))
+	}
+	p = strings.TrimSpace(p)
+	switch val := sect.(type) {
+	case string:
+		s = val
+	case null.String:
+		if val.Valid {
+			s = val.String
+		}
+	default:
+		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", sect))
+	}
+	s = strings.TrimSpace(s)
+	switch val := year.(type) {
+	case int, int8, int16, int32, int64:
+		y = fmt.Sprintf("%v", val)
+	case null.Int16:
+		if val.Valid {
+			y = fmt.Sprintf("%v", val.Int16)
+		}
+	default:
+		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", year))
+	}
+	switch val := month.(type) {
+	case int, int8, int16, int32, int64:
+		i := reflect.ValueOf(val).Int()
+		m = helpers.ShortMonth(int(i))
+	case null.Int16:
+		if val.Valid {
+			m = helpers.ShortMonth(int(val.Int16))
+		}
+	default:
+		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", month))
+	}
+
+	if p == "" && s == "" {
+		return template.HTML("An unknown release")
+	}
+	x := HumanizeDescription(p, s)
+	if m != "" && y != "" {
+		x = fmt.Sprintf("%s published in <span class=\"text-nowrap\">%s, %s</a>", x, m, y)
+	} else if y != "" {
+		x = fmt.Sprintf("%s published in %s", x, y)
+	}
+	return template.HTML(x + ".")
+}
+
+func HumanizeDescription(p, s string) string {
+	x := ""
+	if p == "" {
+		x = fmt.Sprintf("A %s", s)
+	}
+	if s == "" {
+		if IsOS(p) {
+			x = fmt.Sprintf("A release for %s", p)
+		} else {
+			x = fmt.Sprintf("A %s file", p)
+		}
+	}
+	// if x == "" && IsSwap(p) {
+	// 	x = fmt.Sprintf("A %s %s", tags.NameByURI(s), tags.NameByURI(p))
+	// }
+	if x == "" && p == tags.Text.String() && s == tags.Nfo.String() {
+		x = "A scene release text file"
+	}
+	if x == "" && IsOS(p) {
+		x = fmt.Sprintf("A %s for %s", tags.NameByURI(s), tags.NameByURI(p))
+	}
+	if x == "" {
+		x = fmt.Sprintf("A %s %s", tags.NameByURI(s), tags.NameByURI(p))
+	}
+	return x
+}
+
+func IsSwap(platform string) bool {
+	s := []string{tags.Text.String(), tags.TextAmiga.String()}
+	apps := s[:]
+	plat := strings.TrimSpace(strings.ToLower(platform))
+	return helpers.Finds(plat, apps...)
+}
+
+// IsOS returns true if the platform matches Windows, macOS, Linux, MS-DOS or Java.
+func IsOS(platform string) bool {
+	s := tags.OSTags()
+	apps := s[:]
+	plat := strings.TrimSpace(strings.ToLower(platform))
+	return helpers.Finds(plat, apps...)
 }
 
 func SubTitle(s any) template.HTML {

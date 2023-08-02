@@ -195,7 +195,7 @@ func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 		"ansi-tool", "image", "music", "video":
 
 		const (
-			limit = 10
+			limit = 99
 			page  = 1
 		)
 		var all model.All

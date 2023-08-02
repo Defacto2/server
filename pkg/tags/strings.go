@@ -1,6 +1,9 @@
 package tags
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // URI is a unique URL slug for the tag.
 type URI map[Tag]string
@@ -76,49 +79,60 @@ func TagByURI(slug string) Tag {
 
 func Names() URI {
 	return URI{
-		Announcement: "Announcement",
+		Announcement: "announcement",
 		ANSIEditor:   "ANSI editor",
 		AppleII:      "Apple II",
 		AtariST:      "Atari ST",
 		BBS:          "BBS",
-		Logo:         "Brand art or logo",
-		Bust:         "Bust or takedown",
-		Drama:        "Community drama",
-		Rule:         "Community standard",
-		Tool:         "Computer tool",
-		Intro:        "Cracktro or intro",
-		Demo:         "Demo program",
-		ForSale:      "For sale",
+		Logo:         "brand art or logo",
+		Bust:         "bust or takedown",
+		Drama:        "community drama",
+		Rule:         "community standard",
+		Tool:         "computer tool",
+		Intro:        "cracktro or intro",
+		Demo:         "demo program",
+		ForSale:      "for sale",
 		Ftp:          "FTP",
-		GameHack:     "Game hack",
-		Job:          "Group role or job",
-		Guide:        "Guides and how-tos",
-		Interview:    "Interview",
-		Mag:          "Magazine",
-		News:         "Mainstream news",
+		GameHack:     "game hack",
+		Job:          "group role or job",
+		Guide:        "guides and how-tos",
+		Interview:    "interview",
+		Mag:          "magazine",
+		News:         "mainstream news",
 		Nfo:          "NFO file or scene release",
 		NfoTool:      "NFO tool",
-		Pack:         "Filepack",
-		Proof:        "Release proof",
-		Restrict:     "Restricted",
-		Install:      "Scene software install",
-		ANSI:         "ANSI",
-		Audio:        "Music",
-		DataB:        "Database",
+		Pack:         "filepack",
+		Proof:        "release proof",
+		Restrict:     "restricted",
+		Install:      "scene software install",
+		ANSI:         "ansi",
+		Audio:        "music",
+		DataB:        "database",
 		DOS:          "DOS",
 		Markup:       "HTML",
-		Image:        "Image",
+		Image:        "image",
 		Java:         "Java",
 		Linux:        "Linux",
 		Mac:          "macOS",
 		PCB:          "PCBoard",
 		PDF:          "PDF",
-		PHP:          "Script",
-		TextAmiga:    "Text for Amiga",
-		Text:         "Text or ASCII",
-		Video:        "Video",
+		PHP:          "script",
+		TextAmiga:    "text for the Amiga",
+		Text:         "text or ascii",
+		Video:        "video",
 		Windows:      "Windows",
 	}
+}
+
+// NameByURI returns the name of a tag belonging to the URI slug.
+func NameByURI(slug string) string {
+	slug = strings.ToLower(strings.TrimSpace(slug))
+	for key, value := range Names() {
+		if slug == key.String() {
+			return value
+		}
+	}
+	return fmt.Sprintf("error: unknown slug %q", slug)
 }
 
 func Infos() Info {
