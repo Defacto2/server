@@ -21,3 +21,11 @@ linters:
     - goimports
     # temporary disabled
     - depguard
+
+linters-settings:
+  gomnd:
+    # List of file patterns to exclude from analysis.
+    # Values always ignored: `.+_test.go`
+    # Default: []
+    ignored-files:
+      - 'milestones.go'

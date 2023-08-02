@@ -316,7 +316,8 @@ func ByDecade1970s() Milestones {
 			LinkTitle: "the information text",
 			Link:      "/f/ae2da98",
 			Content: "<code>INFOCOM.DOC</code><br>" +
-				"Information texts were documents included in a release describing how to how to use a utility program."},
+				"Information texts were documents included in a release describing how to how to use a utility program.",
+		},
 		{
 			Title: "EGA graphics standard", Year: 1984, Month: 10,
 			Lead: "16 colors from a 64 color pallete", LinkTitle: "How 16 colors saved PC gaming",
@@ -440,8 +441,10 @@ func ByDecade1970s() Milestones {
 		{
 			Year: 1987, Prefix: notable,
 			List: Links{
-				{LinkTitle: `Boys from Company C <small>(BBC)</small>`, Link: "/g/boys-from-company-c",
-					Forward: "Five-O"},
+				{
+					LinkTitle: `Boys from Company C <small>(BBC)</small>`, Link: "/g/boys-from-company-c",
+					Forward: "Five-O",
+				},
 				{LinkTitle: "Canadian Pirates Inc <small>(CPI)</small>", Link: "g/canadian-pirates-inc"},
 				{LinkTitle: "KGB", Link: "/g/ptl-club"},
 				{LinkTitle: "The PTL Club", Link: "/g/ptl-club"},
@@ -533,8 +536,10 @@ func ByDecade1970s() Milestones {
 				{LinkTitle: "Miami Cracking Machine", Link: "/g/miami-cracking-machine", SubTitle: "MCM"},
 				{LinkTitle: "Sprint", Link: "/g/sprint"},
 				{LinkTitle: "The Grand Council", Link: "/g/the-grand-council", SubTitle: "TGC", Forward: "Dude Man Dude HQ"},
-				{LinkTitle: "The North West Connection", Link: "/g/the-north-west-connection",
-					SubTitle: "TNWC", Forward: "The Neutral Zone"},
+				{
+					LinkTitle: "The North West Connection", Link: "/g/the-north-west-connection",
+					SubTitle: "TNWC", Forward: "The Neutral Zone",
+				},
 				{LinkTitle: "The Sysops Association Network", Link: "/g/the-sysops-association-network", SubTitle: "TSAN"},
 			},
 		},
@@ -597,8 +602,10 @@ func ByDecade1970s() Milestones {
 				{LinkTitle: "Aces of ANSI Art", Link: "/g/aces-of-ansi-art", SubTitle: "AAA"},
 				{LinkTitle: "American Pirate Industries", Link: "/g/american-pirate-industries", SubTitle: "API"},
 				{LinkTitle: "Future Brain Inc.", Link: "/g/future-brain-inc", SubTitle: "FBi"},
-				{LinkTitle: "International Network of Crackers", Link: "/g/international-network-of-crackers",
-					SubTitle: "INC", Forward: "MCM, NYC, NCC"},
+				{
+					LinkTitle: "International Network of Crackers", Link: "/g/international-network-of-crackers",
+					SubTitle: "INC", Forward: "MCM, NYC, NCC",
+				},
 				{LinkTitle: "New York Crackers", Link: "/g/new-york-crackers", SubTitle: "NYC"},
 				{LinkTitle: "Norwegian Cracking Company", Link: "/g/norwegian-cracking-company", SubTitle: "NCC"},
 				{LinkTitle: "Pirates Sick of Initials", Link: "/g/pirates-sick-of-initials", SubTitle: "PSi"},
@@ -666,8 +673,10 @@ func ByDecade1970s() Milestones {
 				{LinkTitle: "Public Enemy", Link: "/g/public-enemy", SubTitle: "PE", Forward: "Red Sector Inc."},
 				{LinkTitle: "Razor 1911", Link: "/g/razor-1911", SubTitle: "RZR", Forward: "Razor / Skillion"},
 				{LinkTitle: "Software Chronicles Digest", Link: "/g/software-chronicles-digest", SubTitle: "SCD"},
-				{LinkTitle: "Tristar & Red Sector Inc.", Link: "/g/tristar-ampersand-red-sector-inc",
-					SubTitle: "TRSi", Forward: "Red Sector, then in 1991 Skid Row, TDT"},
+				{
+					LinkTitle: "Tristar & Red Sector Inc.", Link: "/g/tristar-ampersand-red-sector-inc",
+					SubTitle: "TRSi", Forward: "Red Sector, then in 1991 Skid Row, TDT",
+				},
 			},
 		},
 		{
@@ -732,8 +741,10 @@ func ByDecade1970s() Milestones {
 				{LinkTitle: "The Dream Team", Link: "/g/the-dream-team", SubTitle: "TDT"},
 				{LinkTitle: "The Humble Guys F/X", Link: "/g/thg-fx", SubTitle: "THG-FX"},
 				{LinkTitle: "Ultra Tech", Link: "/g/ultra-tech", SubTitle: "UT"},
-				{LinkTitle: "United Software Association", Link: "/g/united-software-association",
-					SubTitle: "USA", Forward: "The Humble Guys"},
+				{
+					LinkTitle: "United Software Association", Link: "/g/united-software-association",
+					SubTitle: "USA", Forward: "The Humble Guys",
+				},
 			},
 		},
 		{
@@ -758,8 +769,10 @@ func ByDecade1970s() Milestones {
 				{LinkTitle: "Pentagram", Link: "/g/pentagram", SubTitle: "PTG", Forward: "Legend"},
 				{LinkTitle: "Rise in Superior Couriering", Link: "/g/rise-in-superior-couriering", SubTitle: "RiSC"},
 				{LinkTitle: "Scoopex", Link: "/g/scoopex"},
-				{LinkTitle: "The Untouchables", Link: "/g/the-untouchables",
-					SubTitle: "UNT", Forward: "UNiQ, XAP"},
+				{
+					LinkTitle: "The Untouchables", Link: "/g/the-untouchables",
+					SubTitle: "UNT", Forward: "UNiQ, XAP",
+				},
 			},
 		},
 		{

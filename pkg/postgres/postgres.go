@@ -5,11 +5,11 @@
 package postgres
 
 import (
-	_ "github.com/jackc/pgx/v5/stdlib"
-
 	"database/sql"
 	"fmt"
 	"net/url"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 const (

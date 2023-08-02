@@ -33,7 +33,6 @@ func (c Config) Checks(log *zap.SugaredLogger) {
 	}
 	DownloadDir(c.DownloadDir, log)
 	LogDir(c.LogDir, log)
-
 }
 
 // HTTPPort returns an error if the HTTP port is invalid.

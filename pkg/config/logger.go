@@ -54,7 +54,7 @@ func (cfg Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 			switch status {
 			case http.StatusOK:
-				//log.Debug(s)
+				// log.Debug(s)
 			default:
 				log.Warn(s)
 			}

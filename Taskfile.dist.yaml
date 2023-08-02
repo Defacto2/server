@@ -17,6 +17,15 @@ tasks:
     cmds:
       - task --list-all
     silent: true
+  lint:
+    silent: false
+    desc: runs the go formatter and lints the source code
+    ignore_error: true
+    cmds:
+      - cmd: clear
+        platforms: [linux,darwin]
+      - cmd: gofumpt -w .
+      - cmd: golangci-lint run
   build:
     desc: "Build the server binary."
     deps: [assets]

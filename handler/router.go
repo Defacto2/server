@@ -31,7 +31,6 @@ func Redirects() map[string]string {
 
 // Routes defines the routes for the web server.
 func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) *echo.Echo {
-
 	// Redirects
 	// these need to be before the routes and rewrites
 	MovedPermanently(e)
