@@ -1,6 +1,7 @@
 {{/*  modal.html  */}}
 {{- define "modal" -}}
 {{- $faSize := "fa-fw fa-2x" -}}
+{{- $svgIcons := "/bootstrap-icons.svg" -}}
 {{/*  Modals  */}}
 {{/*  Email  */}}
 <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
@@ -204,13 +205,13 @@
         </p>
         <p>The Creative Commons Attribution 4.0 International license applied to defacto2.net is a liberal implementation of copyright. You are free to use the original content as is or modify it to your needs.</p>
         <p>The only requirement we impose is that you attribute, that is give credit to defacto2.net for each piece of content you use. This attribution can either be placed on the content itself or distributed in a separate file within the content.</p>
-        <p><a href="https://creativecommons.org/licences/by/4.0/" class="icon-link icon-link-hover link-underline link-underline-opacity-25"><svg class="bi" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#cc-circle"></use></svg> You can find more information on our Creative Commons license at the Creative Commons website, containing links to the full license, legal code.</a></p>
+        <p><a href="https://creativecommons.org/licences/by/4.0/" class="icon-link icon-link-hover link-underline link-underline-opacity-25"><svg class="bi" aria-hidden="true"><use xlink:href="{{$svgIcons}}#cc-circle"></use></svg> You can find more information on our Creative Commons license at the Creative Commons website, containing links to the full license, legal code.</a></p>
         <ul class="list-unstyled">
           <li><span class="lead">This includes</span>
             <ul class="list-unstyled">
-              <li><span class="text-success"><svg class="bi" width="20" height="20" fill="currentColor" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#check2"></use></svg></span> Website text and database content</li>
-              <li><span class="text-success"><svg class="bi" width="20" height="20" fill="currentColor" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#check2"></use></svg></span> Images including previews and screenshots</li>
-              <li><span class="text-success"><svg class="bi" width="20" height="20" fill="currentColor" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#check2"></use></svg></span> Videos hosted on YouTube</li>
+              <li><span class="text-success"><svg class="bi" width="20" height="20" fill="currentColor" aria-hidden="true"><use xlink:href="{{$svgIcons}}#check2"></use></svg></span> Website text and database content</li>
+              <li><span class="text-success"><svg class="bi" width="20" height="20" fill="currentColor" aria-hidden="true"><use xlink:href="{{$svgIcons}}#check2"></use></svg></span> Images including previews and screenshots</li>
+              <li><span class="text-success"><svg class="bi" width="20" height="20" fill="currentColor" aria-hidden="true"><use xlink:href="{{$svgIcons}}#check2"></use></svg></span> Videos hosted on YouTube</li>
             </ul>
           </li>
         </ul>
@@ -218,15 +219,15 @@
           <li><span class="lead">But <u>excludes</u></span>
             <ul class="list-unstyled">
               <li>
-                <span class="text-danger"><svg class="bi" width="24" height="24" fill="currentColor" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#x"></use></svg></span> All files served using the URLs:
+                <span class="text-danger"><svg class="bi" width="24" height="24" fill="currentColor" aria-hidden="true"><use xlink:href="{{$svgIcons}}#x"></use></svg></span> All files served using the URLs:
                 <ul>
                   <li><code>defacto2.net/d/</code></li>
                   <li><code>defacto2.net/file/view/</code></li>
                 </ul>
               </li>
-              <li><span class="text-danger"><svg class="bi" width="24" height="24" fill="currentColor" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#x"></use></svg></span> The website source code and all dependencies</li>
-              <li><span class="text-danger"><svg class="bi" width="24" height="24" fill="currentColor" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#x"></use></svg></span> Glyphs and fonts by FontAwesome or Bootstrap</li>
-              <li><span class="text-danger"><svg class="bi" width="24" height="24" fill="currentColor" aria-hidden="true"><use xlink:href="bootstrap-icons.svg#x"></use></svg></span> Images and icons contained in: <code>/image/html3/</code></li>
+              <li><span class="text-danger"><svg class="bi" width="24" height="24" fill="currentColor" aria-hidden="true"><use xlink:href="{{$svgIcons}}#x"></use></svg></span> The website source code and all dependencies</li>
+              <li><span class="text-danger"><svg class="bi" width="24" height="24" fill="currentColor" aria-hidden="true"><use xlink:href="{{$svgIcons}}#x"></use></svg></span> Glyphs and fonts by FontAwesome or Bootstrap</li>
+              <li><span class="text-danger"><svg class="bi" width="24" height="24" fill="currentColor" aria-hidden="true"><use xlink:href="{{$svgIcons}}#x"></use></svg></span> Images and icons contained in: <code>/image/html3/</code></li>
             </ul>
           </li>
         </ul>
