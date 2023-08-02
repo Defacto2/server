@@ -4,17 +4,15 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"time"
 
-	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
 
 const demo = "demo"
 
-// initData is a map of default values for the app templates.
-func initData() map[string]interface{} {
+// empty is a map of default values for the app templates.
+func empty() map[string]interface{} {
 	return map[string]interface{}{
 		"canonical":   "",           // A canonical URL is the URL of the best representative page from a group of duplicate pages.
 		"carousel":    "",           // The ID of the carousel to display.
@@ -26,26 +24,6 @@ func initData() map[string]interface{} {
 		"title":       "",           // The title of the page that get inserted into the title meta element.
 		"counter":     Statistics(), // The database counts for files and categories.
 	}
-}
-
-// Error renders a custom HTTP error page.
-func Error(s *zap.SugaredLogger, c echo.Context, err error) error {
-	if err == nil {
-		return nil
-	}
-	// Echo custom error handling: https://echo.labstack.com/guide/error-handling/
-	start := helpers.Latency()
-	code := http.StatusInternalServerError
-	msg := "This is a server problem"
-	if he, ok := err.(*echo.HTTPError); ok {
-		code = he.Code
-		msg = fmt.Sprint(he.Message)
-	}
-	return c.Render(code, "error", map[string]interface{}{
-		"title":       fmt.Sprintf("%d error, there is a complication", code),
-		"description": fmt.Sprintf("%s.", msg),
-		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
-	})
 }
 
 // Status is the handler for the HTTP status pages such as the 404 - not found.
@@ -62,7 +40,7 @@ func Status(s *zap.SugaredLogger, c echo.Context, code int, uri string) error {
 
 	// todo: check valid status, or throw error
 
-	data := initData()
+	data := empty()
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
 	title := fmt.Sprintf("%d error", code)
 	alert := ""
@@ -101,7 +79,7 @@ func Status(s *zap.SugaredLogger, c echo.Context, code int, uri string) error {
 
 // Artist is the handler for the Artist page.
 func Artist(s *zap.SugaredLogger, ctx echo.Context) error {
-	data := initData()
+	data := empty()
 	data["description"] = demo
 	data["title"] = demo
 	err := ctx.Render(http.StatusOK, "artist", data)
@@ -114,7 +92,7 @@ func Artist(s *zap.SugaredLogger, ctx echo.Context) error {
 
 // BBS is the handler for the BBS page.
 func BBS(s *zap.SugaredLogger, ctx echo.Context) error {
-	data := initData()
+	data := empty()
 	data["description"] = demo
 	data["title"] = demo
 	err := ctx.Render(http.StatusOK, "bbs", data)
@@ -126,7 +104,7 @@ func BBS(s *zap.SugaredLogger, ctx echo.Context) error {
 }
 
 func Coder(s *zap.SugaredLogger, ctx echo.Context) error {
-	data := initData()
+	data := empty()
 	data["description"] = demo
 	data["title"] = demo
 	err := ctx.Render(http.StatusOK, "coder", data)
@@ -139,7 +117,7 @@ func Coder(s *zap.SugaredLogger, ctx echo.Context) error {
 
 // FTP is the handler for the FTP page.
 func FTP(s *zap.SugaredLogger, ctx echo.Context) error {
-	data := initData()
+	data := empty()
 	data["description"] = demo
 	data["title"] = demo
 	err := ctx.Render(http.StatusOK, "ftp", data)
@@ -152,7 +130,7 @@ func FTP(s *zap.SugaredLogger, ctx echo.Context) error {
 
 // Interview is the handler for the People Interviews page.
 func Interview(s *zap.SugaredLogger, ctx echo.Context) error {
-	data := initData()
+	data := empty()
 	data["description"] = demo
 	data["title"] = demo
 	err := ctx.Render(http.StatusOK, "interview", data)
@@ -168,7 +146,7 @@ func Index(s *zap.SugaredLogger, ctx echo.Context) error {
 	const lead = "a website committed to preserving the historic PC cracking and warez scene subcultures." +
 		" It covers digital objects including text files, demos, music, art, magazines, and other projects."
 	const desc = "Defacto2 is " + lead
-	data := initData()
+	data := empty()
 	data["title"] = demo
 	data["description"] = desc
 	data["h1"] = "Welcome,"
@@ -186,7 +164,7 @@ func Index(s *zap.SugaredLogger, ctx echo.Context) error {
 func History(s *zap.SugaredLogger, ctx echo.Context) error {
 	const lead = "Defacto founded in late February or early March of 1996, as an electronic magazine that wrote about The Scene subculture."
 	const h1 = "Our history"
-	data := initData()
+	data := empty()
 	data["carousel"] = "#carouselDf2Artpacks"
 	data["description"] = lead
 	data["logo"] = "The history of Defacto"
@@ -203,7 +181,7 @@ func History(s *zap.SugaredLogger, ctx echo.Context) error {
 
 // Magazine is the handler for the Magazine page.
 func Magazine(s *zap.SugaredLogger, ctx echo.Context) error {
-	data := initData()
+	data := empty()
 	data["description"] = demo
 	data["title"] = demo
 	err := ctx.Render(http.StatusOK, "magazine", data)
@@ -216,7 +194,7 @@ func Magazine(s *zap.SugaredLogger, ctx echo.Context) error {
 
 // Musician is the handler for the Musician page.
 func Musician(s *zap.SugaredLogger, ctx echo.Context) error {
-	data := initData()
+	data := empty()
 	data["description"] = demo
 	data["title"] = demo
 	err := ctx.Render(http.StatusOK, "musician", data)
@@ -229,7 +207,7 @@ func Musician(s *zap.SugaredLogger, ctx echo.Context) error {
 
 // Scener is the handler for the Scener page.
 func Scener(s *zap.SugaredLogger, ctx echo.Context) error {
-	data := initData()
+	data := empty()
 	data["description"] = demo
 	data["title"] = demo
 	err := ctx.Render(http.StatusOK, "scener", data)
@@ -244,7 +222,7 @@ func Scener(s *zap.SugaredLogger, ctx echo.Context) error {
 func Releaser(s *zap.SugaredLogger, ctx echo.Context) error {
 	const h1 = "Releaser"
 	const lead = "A releaser is a member of The Scene who is responsible for releasing new content."
-	data := initData()
+	data := empty()
 	data["description"] = fmt.Sprint(h1, " ", lead)
 	data["logo"] = "The underground"
 	data["h1"] = h1
@@ -260,7 +238,7 @@ func Releaser(s *zap.SugaredLogger, ctx echo.Context) error {
 
 // Thanks is the handler for the Thanks page.
 func Thanks(s *zap.SugaredLogger, ctx echo.Context) error {
-	data := initData()
+	data := empty()
 	data["description"] = "Defacto2 thankyous."
 	data["h1"] = "Thank you!"
 	data["lead"] = "Thanks to the hundreds of people who have contributed to Defacto2 over the decades with file submissions, hard drive donations, interviews, corrections, artwork and monetiary donations!"
@@ -277,7 +255,7 @@ func Thanks(s *zap.SugaredLogger, ctx echo.Context) error {
 func TheScene(s *zap.SugaredLogger, ctx echo.Context) error {
 	const h1 = "The Scene?"
 	const lead = "Collectively referred to as The Scene, it is a subculture of different computer activities where participants actively share ideas and creations."
-	data := initData()
+	data := empty()
 	data["description"] = fmt.Sprint(h1, " ", lead)
 	data["logo"] = "The underground"
 	data["h1"] = h1
@@ -293,7 +271,7 @@ func TheScene(s *zap.SugaredLogger, ctx echo.Context) error {
 
 // Writer is the handler for the Writer page.
 func Writer(s *zap.SugaredLogger, ctx echo.Context) error {
-	data := initData()
+	data := empty()
 	data["description"] = demo
 	data["title"] = "demo"
 	err := ctx.Render(http.StatusOK, "writer", data)

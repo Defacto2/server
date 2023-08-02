@@ -13,146 +13,6 @@ import (
 	"go.uber.org/zap"
 )
 
-const errConn = "Sorry, at the moment the server cannot connect to the database"
-
-// URI is a type for the files URI path.
-type URI int
-
-const (
-	root URI = iota
-	advert
-	announcement
-	ansi
-	ansiBBS
-	ansiBrand
-	ansiFTP
-	ansiPack
-	ansiNfo
-	ansiTool
-	bbs
-	bbstro
-	bbsImage
-	bbsText
-	database
-	demoscene
-	drama
-	ftp
-	hack
-	howTo
-	html
-	java
-	jobAdvert
-	image
-	imagePack
-	intro
-	introMsdos
-	introWindows
-	installer
-	linux
-	magazine
-	macos
-	msdos
-	msdosPack
-	music
-	newest
-	newsArticle
-	newUploads
-	nfo
-	nfoPack
-	nfoTool
-	oldest
-	pdf
-	proof
-	restrict
-	script
-	standards
-	takedown
-	text
-	textAmiga
-	textApple2
-	textAtariST
-	textPack
-	tool
-	trialCrackme
-	video
-	windows
-	windowsPack
-)
-
-func (u URI) String() string {
-	return [...]string{
-		"",
-		"advert",
-		"announcement",
-		"ansi",
-		"ansi-bbs",
-		"ansi-brand",
-		"ansi-ftp",
-		"ansi-pack",
-		"ansi-nfo",
-		"ansi-tool",
-		"bbs",
-		"bbstro",
-		"bbs-image",
-		"bbs-text",
-		"database",
-		"demoscene",
-		"drama",
-		"ftp",
-		"hack",
-		"how-to",
-		"html",
-		"java",
-		"job-advert",
-		"image",
-		"image-pack",
-		"intro",
-		"intro-msdos",
-		"intro-windows",
-		"installer",
-		"linux",
-		"magazine",
-		"macos",
-		"msdos",
-		"msdos-pack",
-		"music",
-		"newest",
-		"news-article",
-		"new-uploads",
-		"nfo",
-		"nfo-pack",
-		"nfo-tool",
-		"oldest",
-		"pdf",
-		"proof",
-		"restrict",
-		"script",
-		"standards",
-		"takedown",
-		"text",
-		"text-amiga",
-		"text-apple2",
-		"text-atari-st",
-		"text-pack",
-		"tool",
-		"trial-crackme",
-		"video",
-		"windows",
-		"windows-pack",
-	}[u]
-}
-
-// IsURI checks if the string is a valid files URI path.
-func IsURI(s string) bool {
-	// range to 57
-	for i := 1; i <= int(windowsPack); i++ {
-		if URI(i).String() == s {
-			return true
-		}
-	}
-	return false
-}
-
 // Stats are the database statistics for the file categories.
 type Stats struct { //nolint:gochecknoglobals
 	All       model.All
@@ -260,7 +120,7 @@ func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
 	if s == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("%w: handler app file", ErrLogger))
 	}
-	data := initData()
+	data := empty()
 
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
@@ -269,6 +129,7 @@ func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	defer db.Close()
+
 	counter := Stats{}
 	if err := counter.Get(ctx, db); err != nil {
 		s.Warnf("%w: %w", errConn, err)
@@ -282,7 +143,6 @@ func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
 	data["h1"] = title
 	data["stats"] = stats
 	data["counter"] = counter
-
 	if stats {
 		data["h1sub"] = "with statistics"
 		data["logo"] = title + " + stats"
@@ -300,7 +160,11 @@ func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
 
 // Files is the handler for the files page.
 func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
-	data := initData()
+	const (
+		limit = 99
+		page  = 1
+	)
+	data := empty()
 	data["title"] = "Files placeholder"
 	data["logo"] = "Files placeholder"
 	data["description"] = "Table of contents for the files."
@@ -312,16 +176,11 @@ func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	defer db.Close()
+
 	counter := Stats{}
 	if err := counter.All.Stat(ctx, db); err != nil {
 		s.Warnf("%s: %s", errConn, err)
 	}
-
-	// err := ctx.Render(http.StatusOK, "file", data)
-	// if err != nil {
-	// 	s.Errorf("%s: %s", ErrTmpl, err)
-	// 	return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-	// }
 	if !IsURI(id) {
 		// TODO: redirect to File categories with custom alert 404 message?
 		// replace this message: The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
@@ -329,10 +188,6 @@ func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 		return Status(s, c, http.StatusNotFound, c.Param("uri"))
 	}
 
-	const (
-		limit = 99
-		page  = 1
-	)
 	var all model.All
 	data["records"], err = all.List(ctx, db, page, limit)
 	if err != nil {

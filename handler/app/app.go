@@ -13,15 +13,15 @@ import (
 )
 
 const (
-	layout = "layout.html" // layout is a partial template.
-	modal  = "modal.html"  // modal is a partial template.
-
+	app         = "app"                               // app is the name of the view element in the template.
+	layout      = "layout.html"                       // layout is a partial template.
+	modal       = "modal.html"                        // modal is a partial template.
 	bootCSS     = "public/css/bootstrap.min.css"      // bootCSS is the path to the minified Bootstrap 5 CSS file.
 	bootJS      = "public/js/bootstrap.bundle.min.js" // bootJS is the path to the minified Bootstrap 5 JS file.
 	layoutCSS   = "public/css/layout.min.css"         // layoutCSS is the path to the minified layout CSS file.
 	fontawesome = "public/js/fontawesome.min.js"      // fontawesome is the path to the minified Font Awesome JS file.
 
-	viewElem = "app" // viewElem is the name of the view element in the template.
+	errConn = "Sorry, at the moment the server cannot connect to the database"
 )
 
 var (
@@ -33,7 +33,7 @@ var (
 // GlobTo returns the path to the template file.
 func GlobTo(name string) string {
 	// The path is relative to the embed.FS root and must not use the OS path separator.
-	return strings.Join([]string{"view", viewElem, name}, "/")
+	return strings.Join([]string{"view", app, name}, "/")
 }
 
 // Configuration of the app.
@@ -76,7 +76,7 @@ func (c *Configuration) Tmpl() map[string]*template.Template {
 // tmpl returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory.
 func (c Configuration) tmpl(name string) *template.Template {
-	if _, err := os.Stat(filepath.Join("view", viewElem, name)); os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join("view", app, name)); os.IsNotExist(err) {
 		log.Errorf("tmpl template not found: %s", err)
 		panic(err)
 	} else if err != nil {
