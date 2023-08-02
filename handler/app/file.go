@@ -117,6 +117,9 @@ func Statistics() Stats {
 
 // File is the handler for the file categories page.
 func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
+	if s == nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
+	}
 	data := initData()
 
 	ctx := context.Background()
@@ -128,7 +131,8 @@ func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
 	defer db.Close()
 	counter := Stats{}
 	if err := counter.Get(ctx, db); err != nil {
-		s.Warnf("%s: %s", errConn, err)
+		s.Warnf("%w: %w", errConn, err)
+		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 
 	const title = "File categories"

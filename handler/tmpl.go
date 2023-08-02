@@ -21,6 +21,15 @@ type TemplateRegistry struct {
 
 // Render the layout template with the core HTML, META and BODY elements.
 func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	if w == nil {
+		return fmt.Errorf("%w: %s", echo.ErrRendererNotRegistered, "writer is nil")
+	}
+	if data == nil {
+		return fmt.Errorf("%w: %s", echo.ErrRendererNotRegistered, "data is nil")
+	}
+	if c == nil {
+		return fmt.Errorf("%w: %s", echo.ErrRendererNotRegistered, "context is nil")
+	}
 	if name == "" {
 		return ErrNoTmpl
 	}

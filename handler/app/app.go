@@ -24,7 +24,10 @@ const (
 	viewElem = "app" // viewElem is the name of the view element in the template.
 )
 
-var ErrTmpl = errors.New("the server could not render the HTML template for this page")
+var (
+	ErrLogger = errors.New("the server could not create a logger")
+	ErrTmpl   = errors.New("the server could not render the HTML template for this page")
+)
 
 // GlobTo returns the path to the template file.
 func GlobTo(name string) string {

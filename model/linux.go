@@ -20,11 +20,14 @@ func (l *Linux) Stat(ctx context.Context, db *sql.DB) error {
 	// if i.Bytes > 0 && i.Count > 0 {
 	// 	return nil
 	// }
-	return models.NewQuery(
+	err := models.NewQuery(
 		qm.Select(postgres.SumSize, postgres.Counter, postgres.MinYear, postgres.MaxYear),
 		qm.Expr(
-			// TODO: handle incorrect EQ value in sqlboiler, ie Section.EQ(linux()) causing a panic.
 			models.FileWhere.Platform.EQ(linux()),
 		),
 		qm.From(From)).Bind(ctx, db, l)
+	if err != nil {
+		return err
+	}
+	return nil
 }

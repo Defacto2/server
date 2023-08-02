@@ -9,8 +9,6 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// TODO: rename this to files.go ?
-
 // All contain statistics for every release.
 type All struct {
 	Bytes int `boil:"size_sum"`

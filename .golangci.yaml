@@ -13,16 +13,12 @@ linters:
     - scopelint
     # disabled
     - funlen            # should enable at a later stage. 
+    - depguard          # don't need this.
     - wsl               # fussy over whitespace.
     - nlreturn          # fussy over whitespace.
-    # broken on windows
-    - gci
-    - gofmt
-    - goimports
     # temporary disabled
-    - depguard
     - lll
-    - godox
+    #- godox
 
 linters-settings:
   gomnd:

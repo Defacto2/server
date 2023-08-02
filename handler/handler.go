@@ -133,7 +133,10 @@ func (c Configuration) Controller() *echo.Echo {
 	e = c.EmbedDirs(e)
 
 	// Routes for the application.
-	e = Routes(e, c.Log, c.Public)
+	e, err := Routes(e, c.Log, c.Public)
+	if err != nil {
+		c.Log.Fatal(err)
+	}
 
 	// Routes for the HTML3 retro tables.
 	retro := html3.Routes(e, c.Log)

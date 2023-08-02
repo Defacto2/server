@@ -2,11 +2,17 @@ package handler
 
 import (
 	"embed"
+	"errors"
 	"net/http"
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
+)
+
+var (
+	ErrLog    = errors.New("e logger instance is nil")
+	ErrRoutes = errors.New("e echo instance is nil")
 )
 
 // MovedPermanently redirects URL paths with a HTTP 301 Moved Permanently.
@@ -30,7 +36,13 @@ func Redirects() map[string]string {
 }
 
 // Routes defines the routes for the web server.
-func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) *echo.Echo {
+func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) (*echo.Echo, error) {
+	if e == nil {
+		return nil, ErrRoutes
+	}
+	if log == nil {
+		return nil, ErrLog
+	}
 	// Redirects
 	// these need to be before the routes and rewrites
 	MovedPermanently(e)
@@ -64,62 +76,62 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) *echo.Echo {
 	// TODO order alphabetically
 
 	e.GET("/", func(c echo.Context) error {
-		return app.Index(nil, c)
+		return app.Index(log, c)
 	})
 	e.GET("/artist", func(c echo.Context) error {
-		return app.Artist(nil, c)
+		return app.Artist(log, c)
 	})
 	e.GET("/bbs", func(c echo.Context) error {
-		return app.BBS(nil, c)
+		return app.BBS(log, c)
 	})
 	e.GET("/coder", func(c echo.Context) error {
-		return app.Coder(nil, c)
+		return app.Coder(log, c)
 	})
 	e.GET("/ftp", func(c echo.Context) error {
-		return app.FTP(nil, c)
+		return app.FTP(log, c)
 	})
 	e.GET("/history", func(c echo.Context) error {
-		return app.History(nil, c)
+		return app.History(log, c)
 	})
 	e.GET("/interview", func(c echo.Context) error {
-		return app.Interview(nil, c)
+		return app.Interview(log, c)
 	})
 	e.GET("/musician", func(c echo.Context) error {
-		return app.Musician(nil, c)
+		return app.Musician(log, c)
 	})
 	e.GET("/thanks", func(c echo.Context) error {
-		return app.Thanks(nil, c)
+		return app.Thanks(log, c)
 	})
 	e.GET("/scener", func(c echo.Context) error {
-		return app.Scener(nil, c)
+		return app.Scener(log, c)
 	})
 	e.GET("/thescene", func(c echo.Context) error {
-		return app.TheScene(nil, c)
+		return app.TheScene(log, c)
 	})
 	// TODO: rename to singular
 	e.GET("/website", func(c echo.Context) error {
-		return app.Website(nil, c, "")
+		return app.Website(log, c, "")
 	})
 	e.GET("/website/:id", func(c echo.Context) error {
-		return app.Website(nil, c, c.Param("id"))
+		return app.Website(log, c, c.Param("id"))
 	})
 	e.GET("/writer", func(c echo.Context) error {
-		return app.Writer(nil, c)
+		return app.Writer(log, c)
 	})
 	e.GET("/file/stats", func(c echo.Context) error {
-		return app.File(nil, c, true)
+		return app.File(log, c, true)
 	})
 	e.GET("/files/:id", func(c echo.Context) error {
-		return app.Files(nil, c, c.Param("id"))
+		return app.Files(log, c, c.Param("id"))
 	})
 	e.GET("/file", func(c echo.Context) error {
-		return app.File(nil, c, false)
+		return app.File(log, c, false)
 	})
 	e.GET("/magazine", func(c echo.Context) error {
-		return app.Magazine(nil, c)
+		return app.Magazine(log, c)
 	})
 	e.GET("/releaser", func(c echo.Context) error {
-		return app.Releaser(nil, c)
+		return app.Releaser(log, c)
 	})
 
 	// all other page requests return a custom 404 error page
@@ -127,5 +139,5 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) *echo.Echo {
 		return app.Status(nil, c, http.StatusNotFound, c.Param("uri"))
 	})
 
-	return e
+	return e, nil
 }
