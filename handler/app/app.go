@@ -25,8 +25,9 @@ const (
 )
 
 var (
-	ErrLogger = errors.New("the server could not create a logger")
-	ErrTmpl   = errors.New("the server could not render the HTML template for this page")
+	ErrContext = errors.New("the server could not create a context")
+	ErrLogger  = errors.New("the server could not create a logger")
+	ErrTmpl    = errors.New("the server could not render the HTML template for this page")
 )
 
 // GlobTo returns the path to the template file.

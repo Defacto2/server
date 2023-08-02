@@ -119,13 +119,11 @@ func (cfg Config) CustomErrorHandler(err error, c echo.Context) {
 		}
 		errorPage := fmt.Sprintf("%d.html", code)
 		if err := c.File(errorPage); err != nil {
-			log.Warnln("FALLBACK!!")
 			// fallback to a string error if templates break
 			if err1 := StringErr(err, c); err1 != nil {
 				log.DPanic("Custom response handler broke: %s", err1)
 			}
 		}
-		log.Warnln("HONK!!", errorPage)
 		return
 	}
 }

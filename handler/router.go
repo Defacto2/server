@@ -136,7 +136,7 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) (*echo.Echo, 
 
 	// all other page requests return a custom 404 error page
 	e.GET("/:uri", func(c echo.Context) error {
-		return app.Status(nil, c, http.StatusNotFound, c.Param("uri"))
+		return app.Status(log, c, http.StatusNotFound, c.Param("uri"))
 	})
 
 	return e, nil

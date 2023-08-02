@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/Defacto2/server/pkg/helpers"
@@ -28,7 +29,10 @@ func initData() map[string]interface{} {
 }
 
 // Error renders a custom HTTP error page.
-func Error(err error, c echo.Context) error {
+func Error(s *zap.SugaredLogger, c echo.Context, err error) error {
+	if err == nil {
+		return nil
+	}
 	// Echo custom error handling: https://echo.labstack.com/guide/error-handling/
 	start := helpers.Latency()
 	code := http.StatusInternalServerError
@@ -45,7 +49,17 @@ func Error(err error, c echo.Context) error {
 }
 
 // Status is the handler for the HTTP status pages such as the 404 - not found.
-func Status(s *zap.SugaredLogger, ctx echo.Context, code int, uri string) error {
+func Status(s *zap.SugaredLogger, c echo.Context, code int, uri string) error {
+	if s == nil {
+		fmt.Fprintln(os.Stderr, ErrLogger)
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Errorf("%w: handler app status", ErrLogger))
+	}
+	if c == nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Errorf("%w: handler app status", ErrContext))
+	}
+
 	// todo: check valid status, or throw error
 
 	data := initData()
@@ -77,7 +91,7 @@ func Status(s *zap.SugaredLogger, ctx echo.Context, code int, uri string) error 
 	data["alert"] = alert
 	data["probl"] = probl
 	data["uri"] = uri
-	err := ctx.Render(http.StatusNotFound, "status", data)
+	err := c.Render(http.StatusNotFound, "status", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)

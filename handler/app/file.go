@@ -118,7 +118,7 @@ func Statistics() Stats {
 // File is the handler for the file categories page.
 func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
 	if s == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("%w: handler app file", ErrLogger))
 	}
 	data := initData()
 
@@ -219,6 +219,6 @@ func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 		// TODO: redirect to File categories with custom alert 404 message?
 		// replace this message: The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
 		// with something about the file categories page.
-		return Status(nil, c, http.StatusNotFound, c.Param("uri"))
+		return Status(s, c, http.StatusNotFound, c.Param("uri"))
 	}
 }
