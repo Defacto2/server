@@ -12,6 +12,8 @@ import (
 const (
 	PortMax = 65534 // PortMax is the highest valid port number.
 	PortSys = 1024  // PortSys is the lowest valid port number that does not require system access.
+
+	toFewFiles = 10 // toFewFiles is the minimum number of files required in a directory.
 )
 
 var (
@@ -79,7 +81,7 @@ func CheckDir(name, desc string, log *zap.SugaredLogger) {
 	if err != nil {
 		log.Fatalf("The %s directory path could not be read, %s: %s.", desc, s, err)
 	}
-	if len(files) < 10 {
+	if len(files) < toFewFiles {
 		log.Warnf("The %s directory path contains only a few items, is the directory correct:  %s",
 			desc, dir.Name())
 		return

@@ -1,3 +1,4 @@
+//nolint:lll // multiple long lines
 package app
 
 const notable = "Notable group foundings,"
@@ -46,7 +47,8 @@ func (m Milestones) Len() int {
 	return len(m)
 }
 
-func ByDecade1970s() Milestones {
+// Collection of Milestones from the 1970s onwards.
+func Collection() Milestones { //nolint:maintidx // long function
 	m := []Milestone{
 		{
 			Year: 1971, Month: 10, Title: "Secrets of the Little Blue Box", Highlight: true,
@@ -320,7 +322,7 @@ func ByDecade1970s() Milestones {
 		},
 		{
 			Title: "EGA graphics standard", Year: 1984, Month: 10,
-			Lead: "16 colors from a 64 color pallete", LinkTitle: "How 16 colors saved PC gaming",
+			Lead: "16 colors from a 64 color palette", LinkTitle: "How 16 colors saved PC gaming",
 			Link:    "https://www.custompc.com/retro-tech/ega-graphics",
 			Content: "The Enhanced Graphics Adapter standard includes 16 colors, 640×350 pixel resolution and 80×25 text mode.",
 		},
@@ -379,7 +381,7 @@ func ByDecade1970s() Milestones {
 			Link:      "https://www.computerhistory.org/revolution/personal-computers/17/302",
 			LinkTitle: "about the PC clone market",
 			Content: "While the Commodore, Apple and IBM are common platforms in the US, the European market doesn't always share the same popular platforms. " +
-				"Import duties, slow international distribution channels and a lack of localised software and hardware often hampers the adoption of some platforms. " +
+				"Import duties, slow international distribution channels and a lack of localized software and hardware often hampers the adoption of some platforms. " +
 				"The Western European market is dominated by Acorn, Amstrad, Commodore, Sinclair but the PC clones produced by local electronic manufactures gain popularity. " +
 				"Popular machines include the <a href=\"https://www.dosdays.co.uk/computers/Amstrad%20PC1000/amstrad_pc1000.php\">Amstrad PC1512</a>, " +
 				"the Philips P2000T and the <a href=\"https://www.dosdays.co.uk/computers/Olivetti%20M24/olivetti_m24.php\">Olivetti M24</a>.",
@@ -518,7 +520,7 @@ func ByDecade1970s() Milestones {
 			Link: "/f/aa356d",
 			Content: "The earliest scene drama known so-far involves a release by The North West Connection (TNWC) for the game " +
 				"Paladin. The drama in the text file accuses PTL of stealing and \"re-releasing\" a release from TNWC. " +
-				"Scene drama is often text that is used to call out other groups for bad behavour, stealing releases, " +
+				"Scene drama is often text that is used to call out other groups for bad behavior, stealing releases, " +
 				"or to call out other groups for being lame.",
 			Picture: Picture{
 				Title: "TNWC accusing PTL of stealing a release",
@@ -564,7 +566,7 @@ func ByDecade1970s() Milestones {
 			Title: "Earliest PC intro", Year: 1989, Month: 4, Highlight: true,
 			Lead: "First intro by Sorcerers", LinkTitle: "the file",
 			Link: "/f/ab2843",
-			Content: "An intro or the later cractrkro are small, usually short, demonstration programs desgined to display text with are or animations. " +
+			Content: "An intro or the later cractrkro are small, usually short, demonstration programs designed to display text with are or animations. " +
 				"Oddly, this first intro was created by a group of teenagers out of <strong>Findland</strong>, a country not known for its use of the expensive PC platform. " +
 				"Other 16-bit platforms such as the Commodore Amiga and Atari ST offered much better graphics than the CGA on the PC and were more popular in Europe.",
 
@@ -639,7 +641,7 @@ func ByDecade1970s() Milestones {
 				"It is the first known cracktro on the PC platform to feature music. " +
 				"But \"music\" in a loose sense, as it relies on the terrible internal PC speaker to produce the tune.<br>" +
 				"While the 8-bit consoles and some microcomputers offered dedicated music audio chips, most famously the Commodore 64 with its SID chip, " +
-				"the IBM PC which targetted business did not.",
+				"the IBM PC which targeted business did not.",
 			Picture: Picture{
 				Title: "Tank Platoon cracktro",
 				Alt:   "Tank Platoon cracktro screenshot",
@@ -843,7 +845,7 @@ func ByDecade1970s() Milestones {
 			Lead: "Razor 1911 Tenth Anniversary CD-ROM", LinkTitle: "the order form", Link: "/f/a42df1",
 			Content: "The first major Scene merchandise was a CD-ROM by Razor 1911 to celebrate their 10th anniversary. " +
 				"It was a collection of their PC releases from 1991 to 1995 and was sold for $40 USD each, including worldwide postage. " +
-				"Each purchase required the phyiscal cash to be sent in the mail to a PO Box in Florida.<br>" +
+				"Each purchase required the physical cash to be sent in the mail to a PO Box in Florida.<br>" +
 				"Other groups followed suit with their own merchandise, with the most popular item being t-shirts.",
 			Picture: Picture{
 				Title: "Razor 1911 Tenth Anniversary CD-ROM",
@@ -971,7 +973,7 @@ func ByDecade1970s() Milestones {
 			Title: "Digital only scene releases", Year: 2004, Month: 10, Day: 7,
 			Lead: "Counter-Strike: Source Final from Emporio", LinkTitle: "the release", Link: "/f/b1282e1",
 			Content: "The online multiplayer title, Counter-Strike Source was exclusively distributed on Steam, Valve's digital distribution platform. " +
-				"As there was no phyiscal media available, this became a dubious release within The Scene and many groups didn't acknowledge Emporio's package as a legitimate \"retail\" product or a \"final\" release. " +
+				"As there was no physical media available, this became a dubious release within The Scene and many groups didn't acknowledge Emporio's package as a legitimate \"retail\" product or a \"final\" release. " +
 				"Due to the ease of supply and the constant online patching, at this time digital distribution was not well received. " +
 				"<p><q>SOME may contend the fact that this is BETA. <a href=\"https://web.archive.org/web/20050208205808/http://www.steampowered.com/index.php?area=news&archive=yes&id=327\">This is the version that is released on STEAM AS FINAL</a>. " +
 				"You cannot do any better than this. The ... thing with STEAM is they can easily release many patches BUT EXPECT the EMPORiO crew to bring each and every patch CRACKED to your doorstep!</q></p>",

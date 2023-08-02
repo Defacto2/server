@@ -1,3 +1,4 @@
+//nolint:lll // multiple long lines due to URLs.
 package app
 
 import (
@@ -43,7 +44,7 @@ func List() Accordion {
 		},
 		{
 			"The demoscene", "Demoscene pages",
-			"demo", false, demo(),
+			"demo", false, demos(),
 		},
 		{
 			"Former groups", "Pages of former groups",
@@ -194,8 +195,8 @@ func books() []Site {
 	}
 }
 
-// demo is a collection of demoscene websites.
-func demo() []Site {
+// demos is a collection of demoscene websites.
+func demos() []Site {
 	return Sites{
 		Site{
 			"Demozoo", "https://demozoo.org/",
@@ -348,7 +349,7 @@ func video() []Site {
 		},
 		Site{
 			"No Copy", "https://www.youtube.com/watch?v=BXBqUBAv1ek",
-			"A promotional movie for the book No Copy about copywrite, warez and media.",
+			"A promotional movie for the book No Copy about copyright, warez and media.",
 		},
 		Site{
 			"TPB AFK - The Pirate Bay Away From Keyboard", "https://www.youtube.com/watch?v=eTOKXCEwo_8",

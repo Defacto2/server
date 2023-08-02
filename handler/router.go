@@ -35,25 +35,25 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) *echo.Echo {
 	// these need to be before the routes and rewrites
 	MovedPermanently(e)
 
-	// Serve embeded CSS files
+	// Serve embedded CSS files
 	e.FileFS("/css/bootstrap.min.css", "public/css/bootstrap.min.css", public)
 	e.FileFS("/css/bootstrap.min.css.map", "public/css/bootstrap.min.css.map", public)
 	e.FileFS("/css/layout.min.css", "public/css/layout.min.css", public)
 
-	// Serve embeded SVG collections
+	// Serve embedded SVG collections
 	e.FileFS("/bootstrap-icons.svg", "public/image/bootstrap-icons.svg", public)
 
-	// Serve embeded font files
+	// Serve embedded font files
 	e.FileFS("/font/pxplus_ibm_vga8.woff2", "public/font/pxplus_ibm_vga8.woff2", public)
 	e.FileFS("/font/pxplus_ibm_vga8.woff", "public/font/pxplus_ibm_vga8.woff", public)
 	e.FileFS("/font/pxplus_ibm_vga8.ttf", "public/font/pxplus_ibm_vga8.ttf", public)
 
-	// Serve embeded JS files
+	// Serve embedded JS files
 	e.FileFS("/js/bootstrap.bundle.min.js", "public/js/bootstrap.bundle.min.js", public)
 	e.FileFS("/js/bootstrap.bundle.min.js.map", "public/js/bootstrap.bundle.min.js.map", public)
 	e.FileFS("/js/fontawesome.min.js", "public/js/fontawesome.min.js", public)
 
-	// Serve embeded image files
+	// Serve embedded image files
 	e.FileFS("/favicon.ico", "public/image/favicon.ico", public)
 
 	// Serve embedded text files

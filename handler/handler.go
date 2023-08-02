@@ -94,7 +94,7 @@ func (c Configuration) EmbedDirs(e *echo.Echo) *echo.Echo {
 }
 
 // Rewrites for assets.
-// This is different to a redirect as it keeps the original URL in the browser
+// This is different to a redirect as it keeps the original URL in the browser.
 func rewrites() map[string]string {
 	return map[string]string{
 		"/logo.txt": "/text/defacto2.txt",

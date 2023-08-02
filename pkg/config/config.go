@@ -11,6 +11,8 @@ import (
 )
 
 // Config options for the Defacto2 server.
+//
+//nolint:lll,tagalign // The struct fields are long and the tags cannot be aligned.
 type Config struct {
 	// IsProduction is true when the server is running in production mode.
 	IsProduction bool `env:"PRODUCTION" envDefault:"false" help:"Use the production mode to log all errors and warnings to a file"`

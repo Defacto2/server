@@ -454,7 +454,8 @@ func LastUpdated(t any) string {
 
 // LogoText returns a string of text padded with spaces to center it in the logo.
 func LogoText(s string) string {
-	indent := strings.Repeat(" ", 6)
+	const spaces = 6
+	indent := strings.Repeat(" ", spaces)
 	if s == "" {
 		return indent + Welcome
 	}
@@ -482,7 +483,8 @@ func LogoText(s string) string {
 	}
 
 	// Pad the string with spaces to center it.
-	count := (wl / 2) - (len(styled) / 2) - 2
+	const split = 2
+	count := (wl / split) - (len(styled) / split) - split
 
 	text := fmt.Sprintf(":%s%s%s·",
 		strings.Repeat(" ", count),
@@ -504,7 +506,8 @@ func Mod(i any, max int) bool {
 
 // Mod3 returns true if the given integer is a multiple of 3.
 func Mod3(i any) bool {
-	return Mod(i, 3)
+	const max = 3
+	return Mod(i, max)
 }
 
 // SafeHTML returns a string as a template.HTML type.

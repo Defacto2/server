@@ -10,6 +10,8 @@ import (
 	"go.uber.org/zap"
 )
 
+const demo = "demo"
+
 // initData is a map of default values for the app templates.
 func initData() map[string]interface{} {
 	return map[string]interface{}{
@@ -86,8 +88,8 @@ func Status(s *zap.SugaredLogger, ctx echo.Context, code int, uri string) error 
 // Artist is the handler for the Artist page.
 func Artist(s *zap.SugaredLogger, ctx echo.Context) error {
 	data := initData()
-	data["description"] = "demo"
-	data["title"] = "demo"
+	data["description"] = demo
+	data["title"] = demo
 	err := ctx.Render(http.StatusOK, "artist", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
@@ -99,8 +101,8 @@ func Artist(s *zap.SugaredLogger, ctx echo.Context) error {
 // BBS is the handler for the BBS page.
 func BBS(s *zap.SugaredLogger, ctx echo.Context) error {
 	data := initData()
-	data["description"] = "demo"
-	data["title"] = "demo"
+	data["description"] = demo
+	data["title"] = demo
 	err := ctx.Render(http.StatusOK, "bbs", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
@@ -111,8 +113,8 @@ func BBS(s *zap.SugaredLogger, ctx echo.Context) error {
 
 func Coder(s *zap.SugaredLogger, ctx echo.Context) error {
 	data := initData()
-	data["description"] = "demo"
-	data["title"] = "demo"
+	data["description"] = demo
+	data["title"] = demo
 	err := ctx.Render(http.StatusOK, "coder", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
@@ -124,8 +126,8 @@ func Coder(s *zap.SugaredLogger, ctx echo.Context) error {
 // FTP is the handler for the FTP page.
 func FTP(s *zap.SugaredLogger, ctx echo.Context) error {
 	data := initData()
-	data["description"] = "demo"
-	data["title"] = "demo"
+	data["description"] = demo
+	data["title"] = demo
 	err := ctx.Render(http.StatusOK, "ftp", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
@@ -137,8 +139,8 @@ func FTP(s *zap.SugaredLogger, ctx echo.Context) error {
 // Interview is the handler for the People Interviews page.
 func Interview(s *zap.SugaredLogger, ctx echo.Context) error {
 	data := initData()
-	data["description"] = "demo"
-	data["title"] = "demo"
+	data["description"] = demo
+	data["title"] = demo
 	err := ctx.Render(http.StatusOK, "interview", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
@@ -153,11 +155,11 @@ func Index(s *zap.SugaredLogger, ctx echo.Context) error {
 		" It covers digital objects including text files, demos, music, art, magazines, and other projects."
 	const desc = "Defacto2 is " + lead
 	data := initData()
-	data["title"] = "Demo"
+	data["title"] = demo
 	data["description"] = desc
 	data["h1"] = "Welcome,"
 	data["lead"] = "You're at " + lead
-	data["milestones"] = ByDecade1970s()
+	data["milestones"] = Collection()
 	err := ctx.Render(http.StatusOK, "index", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
@@ -188,8 +190,8 @@ func History(s *zap.SugaredLogger, ctx echo.Context) error {
 // Magazine is the handler for the Magazine page.
 func Magazine(s *zap.SugaredLogger, ctx echo.Context) error {
 	data := initData()
-	data["description"] = "demo"
-	data["title"] = "demo"
+	data["description"] = demo
+	data["title"] = demo
 	err := ctx.Render(http.StatusOK, "magazine", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
@@ -201,8 +203,8 @@ func Magazine(s *zap.SugaredLogger, ctx echo.Context) error {
 // Musician is the handler for the Musician page.
 func Musician(s *zap.SugaredLogger, ctx echo.Context) error {
 	data := initData()
-	data["description"] = "demo"
-	data["title"] = "demo"
+	data["description"] = demo
+	data["title"] = demo
 	err := ctx.Render(http.StatusOK, "musician", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
@@ -214,8 +216,8 @@ func Musician(s *zap.SugaredLogger, ctx echo.Context) error {
 // Scener is the handler for the Scener page.
 func Scener(s *zap.SugaredLogger, ctx echo.Context) error {
 	data := initData()
-	data["description"] = "demo"
-	data["title"] = "demo"
+	data["description"] = demo
+	data["title"] = demo
 	err := ctx.Render(http.StatusOK, "scener", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
@@ -278,7 +280,7 @@ func TheScene(s *zap.SugaredLogger, ctx echo.Context) error {
 // Writer is the handler for the Writer page.
 func Writer(s *zap.SugaredLogger, ctx echo.Context) error {
 	data := initData()
-	data["description"] = "demo"
+	data["description"] = demo
 	data["title"] = "demo"
 	err := ctx.Render(http.StatusOK, "writer", data)
 	if err != nil {

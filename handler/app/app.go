@@ -70,7 +70,7 @@ func (c *Configuration) Tmpl() map[string]*template.Template {
 }
 
 // tmpl returns a layout template for the given named view.
-// Note that the name is relative to the view/defaults directory
+// Note that the name is relative to the view/defaults directory.
 func (c Configuration) tmpl(name string) *template.Template {
 	if _, err := os.Stat(filepath.Join("view", viewElem, name)); os.IsNotExist(err) {
 		log.Errorf("tmpl template not found: %s", err)
@@ -98,7 +98,7 @@ type SRI struct {
 	LayoutCSS    string // Layout CSS verification hash.
 }
 
-// Verify checks the integrity of the embeded CSS and JS files.
+// Verify checks the integrity of the embedded CSS and JS files.
 // These are required for Subresource Integrity (SRI) verification in modern browsers.
 func (s *SRI) Verify(fs embed.FS) error {
 	var err error

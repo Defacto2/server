@@ -21,6 +21,8 @@ linters:
     - goimports
     # temporary disabled
     - depguard
+    - lll
+    - godox
 
 linters-settings:
   gomnd:
@@ -28,4 +30,12 @@ linters-settings:
     # Values always ignored: `.+_test.go`
     # Default: []
     ignored-files:
-      - 'milestones.go'
+      - 'milestones.go' # magic number false positives.
+  misspell:
+    # Correct spellings using locale preferences for US or UK.
+    # Setting locale to US will correct the British spelling of 'colour' to 'color'.
+    # Default is to use a neutral variety of English.
+    locale: US
+    # Default: []
+    ignore-words:
+      - 'Teh' # Teh Scene.
