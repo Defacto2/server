@@ -1,17 +1,11 @@
 package handler
 
 import (
-	"errors"
 	"fmt"
 	"html/template"
 	"io"
 
 	"github.com/labstack/echo/v4"
-)
-
-var (
-	ErrNoTmpl = errors.New("no template name exists for recordsby type index")
-	ErrTmpl   = errors.New("named template cannot be found")
 )
 
 // TemplateRegistry is template registry struct.

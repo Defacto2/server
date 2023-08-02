@@ -23,6 +23,9 @@ var (
 
 // Checks runs a number of sanity checks for the environment variable configurations.
 func (c Config) Checks(log *zap.SugaredLogger) {
+	if log == nil {
+		fmt.Fprintf(os.Stderr, "The logger instance for the config checks is nil.")
+	}
 	if err := HTTPPort(c.HTTPPort); err != nil {
 		switch {
 		case errors.Is(err, ErrPortMax):
@@ -58,6 +61,9 @@ func DownloadDir(name string, log *zap.SugaredLogger) {
 // including whether it exists, is a directory, and contains a minimum number of files.
 // Problems will either log warnings or fatal errors.
 func CheckDir(name, desc string, log *zap.SugaredLogger) {
+	if log == nil {
+		fmt.Fprintf(os.Stderr, "The logger instance for the config dir check is nil.")
+	}
 	s := ""
 	switch desc {
 	case "download":
@@ -91,6 +97,9 @@ func CheckDir(name, desc string, log *zap.SugaredLogger) {
 // LogDir runs checks against the named log directory.
 // Problems will either log warnings or fatal errors.
 func LogDir(name string, log *zap.SugaredLogger) {
+	if log == nil {
+		fmt.Fprintf(os.Stderr, "The logger instance for the config log dir is nil.")
+	}
 	if name == "" {
 		// recommended
 		return

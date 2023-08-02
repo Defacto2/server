@@ -28,10 +28,9 @@ const (
 	// The letter 'O' of TO is the center of the text.
 	Welcome = ":                    ·· WELCOME TO DEFACTO2 ··                    ·"
 
-	// wiki and link are SVG icons.
-	wiki  = `<svg class="bi" aria-hidden="true"><use xlink:href="/bootstrap-icons.svg#arrow-right-short"></use></svg>`
 	link  = `<svg class="bi" aria-hidden="true"><use xlink:href="/bootstrap-icons.svg#link"></use></svg>`
 	merge = `<svg class="bi" aria-hidden="true" fill="currentColor"><use xlink:href="/bootstrap-icons.svg#forward"></use></svg>`
+	wiki  = `<svg class="bi" aria-hidden="true"><use xlink:href="/bootstrap-icons.svg#arrow-right-short"></use></svg>`
 
 	typeErr = "error: received an invalid type to "
 )
@@ -80,6 +79,8 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 	}
 }
 
+// Describe returns a human readable description of a release.
+// Based on the platform, section, year and month.
 func Describe(plat, sect, year, month any) template.HTML {
 	p, s, y, m := "", "", "", ""
 	switch val := plat.(type) {
@@ -138,6 +139,8 @@ func Describe(plat, sect, year, month any) template.HTML {
 	return template.HTML(x + ".")
 }
 
+// HumanizeDescription returns a human readable description of a release.
+// Based on the platform and section.
 func HumanizeDescription(p, s string) string {
 	x := ""
 	if p == "" {
@@ -150,9 +153,6 @@ func HumanizeDescription(p, s string) string {
 			x = fmt.Sprintf("A %s file", p)
 		}
 	}
-	// if x == "" && IsSwap(p) {
-	// 	x = fmt.Sprintf("A %s %s", tags.NameByURI(s), tags.NameByURI(p))
-	// }
 	if x == "" && p == tags.Text.String() && s == tags.Nfo.String() {
 		x = "A scene release text file"
 	}
@@ -165,6 +165,7 @@ func HumanizeDescription(p, s string) string {
 	return x
 }
 
+// IsSwap returns true if the platform matches Text or TextAmiga.
 func IsSwap(platform string) bool {
 	s := []string{tags.Text.String(), tags.TextAmiga.String()}
 	apps := s[:]
@@ -180,6 +181,7 @@ func IsOS(platform string) bool {
 	return helpers.Finds(plat, apps...)
 }
 
+// SubTitle returns a secondary element with the record title.
 func SubTitle(s any) template.HTML {
 	val := ""
 	switch v := s.(type) {
@@ -198,6 +200,7 @@ func SubTitle(s any) template.HTML {
 	return template.HTML(elem)
 }
 
+// GroupsLink returns the groups associated with a release and a link to each group.
 func GroupsLink(a, b any) template.HTML {
 	av, bv, s := "", "", ""
 	switch val := a.(type) {
@@ -244,6 +247,7 @@ func GroupsLink(a, b any) template.HTML {
 	return template.HTML(s)
 }
 
+// GroupLink returns a link to the named group page.
 func GroupLink(name string) (string, error) {
 	href, err := url.JoinPath("/", "g", helpers.Slug(name))
 	if err != nil {

@@ -2,17 +2,11 @@ package handler
 
 import (
 	"embed"
-	"errors"
 	"net/http"
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
-)
-
-var (
-	ErrLog    = errors.New("e logger instance is nil")
-	ErrRoutes = errors.New("e echo instance is nil")
 )
 
 // MovedPermanently redirects URL paths with a HTTP 301 Moved Permanently.

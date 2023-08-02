@@ -30,6 +30,12 @@ const (
 // HTTPSend serves files to the user and prompts for a save location.
 // The download relies on the URL ID parameter to determine the requested file.
 func (d Download) HTTPSend(log *zap.SugaredLogger, c echo.Context) error {
+	if log == nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "the httpsend logger is missing")
+	}
+	if c == nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "the httpsend context is missing")
+	}
 	// https://go.dev/src/net/http/status.go
 	// get id
 	id := helpers.Deobfuscate(c.Param("id"))

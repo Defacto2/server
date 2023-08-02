@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"embed"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -21,6 +22,13 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
+)
+
+var (
+	ErrLog    = errors.New("e logger instance is nil")
+	ErrRoutes = errors.New("e echo instance is nil")
+	ErrNoTmpl = errors.New("named template does not exist for recordsby type index")
+	ErrTmpl   = errors.New("named template cannot be found")
 )
 
 const (
