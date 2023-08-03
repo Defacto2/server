@@ -38,83 +38,20 @@ func (c *Config) Checks(log *zap.SugaredLogger) {
 		}
 	}
 
-	DownloadDir(c.DownloadDir, log)
-	ScreenshotsDir(c.ScreenshotsDir, log)
-	ThumbnailDir(c.ThumbnailDir, log)
+	if err := DownloadDir(c.DownloadDir); err != nil {
+		log.Warn(err)
+	}
+	if err := ScreenshotsDir(c.ScreenshotsDir); err != nil {
+		log.Warn(err)
+	}
+	if err := ThumbnailDir(c.ThumbnailDir); err != nil {
+		log.Warn(err)
+	}
 	c.SetupLogDir(log)
 }
 
-// HTTPPort returns an error if the HTTP port is invalid.
-func HTTPPort(port uint) error {
-	if port > PortMax {
-		return ErrPortMax
-	}
-	if port <= PortSys {
-		return ErrPortSys
-	}
-	return nil
-}
-
-// DownloadDir runs checks against the named directory containing the UUID record downloads.
-// Problems will either log warnings or fatal errors.
-func DownloadDir(name string, log *zap.SugaredLogger) {
-	CheckDir(name, "download", log)
-}
-
-// ScreenshotsDir runs checks against the named directory containing the screenshot images.
-// Problems will either log warnings or fatal errors.
-func ScreenshotsDir(name string, log *zap.SugaredLogger) {
-	CheckDir(name, "screenshot", log)
-}
-
-// ThumbnailDir runs checks against the named directory containing the thumbnail images.
-// Problems will either log warnings or fatal errors.
-func ThumbnailDir(name string, log *zap.SugaredLogger) {
-	CheckDir(name, "thumbnail", log)
-}
-
-// CheckDir runs checks against the named directory,
-// including whether it exists, is a directory, and contains a minimum number of files.
-// Problems will either log warnings or fatal errors.
-func CheckDir(name, desc string, log *zap.SugaredLogger) {
-	if log == nil {
-		fmt.Fprintf(os.Stderr, "The logger instance for the config dir check is nil.")
-	}
-	s := ""
-	switch desc {
-	case "download":
-		s = "the server cannot send file downloads"
-	case "log":
-		s = "the server cannot log to files"
-	case "screenshot":
-		s = "the server cannot show screenshot images"
-	case "thumbnail":
-		s = "the server cannot show thumbnail images"
-	}
-	if name == "" {
-		log.Warnf("The %s directory path was not provided, %s.", desc, s)
-		return
-	}
-	dir, err := os.Stat(name)
-	if os.IsNotExist(err) {
-		log.Warnf("The %s directory path does not exist, %s: %s", desc, s, name)
-		return
-	}
-	if !dir.IsDir() {
-		log.Fatalf("The %s directory path points to the file, %s: %s", desc, s, dir.Name())
-	}
-	files, err := os.ReadDir(name)
-	if err != nil {
-		log.Fatalf("The %s directory path could not be read, %s: %s.", desc, s, err)
-	}
-	if len(files) < toFewFiles {
-		log.Warnf("The %s directory path contains only a few items, is the directory correct:  %s",
-			desc, dir.Name())
-		return
-	}
-}
-
 // SetupLogDir runs checks against the configured log directory.
+// If no log directory is configured, a default directory is used.
 // Problems will either log warnings or fatal errors.
 func (c *Config) SetupLogDir(log *zap.SugaredLogger) {
 	if log == nil {
@@ -151,4 +88,69 @@ func (c *Config) SetupLogDir(log *zap.SugaredLogger) {
 		log.Warnf("Could not remove the empty test file in the log directory path: %s: %s", err, empty)
 		return
 	}
+}
+
+// HTTPPort returns an error if the HTTP port is invalid.
+func HTTPPort(port uint) error {
+	if port > PortMax {
+		return ErrPortMax
+	}
+	if port <= PortSys {
+		return ErrPortSys
+	}
+	return nil
+}
+
+// DownloadDir runs checks against the named directory containing the UUID record downloads.
+// Problems will either log warnings or fatal errors.
+func DownloadDir(name string) error {
+	return CheckDir(name, "download")
+}
+
+// ScreenshotsDir runs checks against the named directory containing the screenshot images.
+// Problems will either log warnings or fatal errors.
+func ScreenshotsDir(name string) error {
+	return CheckDir(name, "screenshot")
+}
+
+// ThumbnailDir runs checks against the named directory containing the thumbnail images.
+// Problems will either log warnings or fatal errors.
+func ThumbnailDir(name string) error {
+	return CheckDir(name, "thumbnail")
+}
+
+// CheckDir runs checks against the named directory,
+// including whether it exists, is a directory, and contains a minimum number of files.
+// Problems will either log warnings or fatal errors.
+func CheckDir(name, desc string) error {
+	s := ""
+	switch desc {
+	case "download":
+		s = "the server cannot send file downloads"
+	case "log":
+		s = "the server cannot log to files"
+	case "screenshot":
+		s = "the server cannot show screenshot images"
+	case "thumbnail":
+		s = "the server cannot show thumbnail images"
+	}
+	if name == "" {
+		return fmt.Errorf("the %s directory path was not provided, %s", desc, s)
+	}
+	dir, err := os.Stat(name)
+	if os.IsNotExist(err) {
+		return fmt.Errorf("the %s directory path does not exist, %s: %s", desc, s, name)
+	}
+	if !dir.IsDir() {
+		return fmt.Errorf("the %s directory path points to the file, %s: %s", desc, s, dir.Name())
+	}
+	files, err := os.ReadDir(name)
+	if err != nil {
+		return fmt.Errorf("the %s directory path could not be read, %s: %s", desc, s, err)
+	}
+	if len(files) < toFewFiles {
+		return fmt.Errorf("the %s directory path contains only a few items, is the directory correct:  %s",
+			desc, dir.Name())
+	}
+	return nil
 }
