@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/Defacto2/server/model/modext"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -23,7 +24,7 @@ func (a *Ansi) Stat(ctx context.Context, db *sql.DB) error {
 	return models.NewQuery(
 		qm.Select(postgres.SumSize, postgres.Counter, postgres.MinYear, postgres.MaxYear),
 		qm.Expr(
-			models.FileWhere.Platform.EQ(ansi()),
+			models.FileWhere.Platform.EQ(modext.PAnsi()),
 		),
 		qm.From(From)).Bind(ctx, db, a)
 }
@@ -40,8 +41,8 @@ func (a *AnsiBBS) Stat(ctx context.Context, db *sql.DB) error {
 	return models.NewQuery(
 		qm.Select(postgres.SumSize, postgres.Counter),
 		qm.Expr(
-			models.FileWhere.Platform.EQ(ansi()),
-			models.FileWhere.Section.EQ(bbs()),
+			models.FileWhere.Platform.EQ(modext.PAnsi()),
+			models.FileWhere.Section.EQ(modext.SBbs()),
 		),
 		qm.From(From)).Bind(ctx, db, a)
 }

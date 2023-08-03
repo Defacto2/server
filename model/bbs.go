@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/Defacto2/server/model/modext"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -23,7 +24,7 @@ func (b *BBS) Stat(ctx context.Context, db *sql.DB) error {
 	return models.NewQuery(
 		qm.Select(postgres.SumSize, postgres.Counter, postgres.MinYear, postgres.MaxYear),
 		qm.Expr(
-			models.FileWhere.Section.EQ(bbs()),
+			models.FileWhere.Section.EQ(modext.SBbs()),
 		),
 		qm.From(From)).Bind(ctx, db, b)
 }
@@ -40,8 +41,8 @@ func (b *BBStro) Stat(ctx context.Context, db *sql.DB) error {
 	return models.NewQuery(
 		qm.Select(postgres.SumSize, postgres.Counter),
 		qm.Expr(
-			models.FileWhere.Section.EQ(bbs()),
-			models.FileWhere.Platform.EQ(dos()),
+			models.FileWhere.Section.EQ(modext.SBbs()),
+			models.FileWhere.Platform.EQ(modext.PDos()),
 		),
 		qm.From(From)).Bind(ctx, db, b)
 }
@@ -58,8 +59,8 @@ func (b *BBSText) Stat(ctx context.Context, db *sql.DB) error {
 	return models.NewQuery(
 		qm.Select(postgres.SumSize, postgres.Counter),
 		qm.Expr(
-			models.FileWhere.Section.EQ(bbs()),
-			models.FileWhere.Platform.EQ(text()),
+			models.FileWhere.Section.EQ(modext.SBbs()),
+			models.FileWhere.Platform.EQ(modext.PText()),
 		),
 		qm.From(From)).Bind(ctx, db, b)
 }

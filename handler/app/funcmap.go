@@ -228,14 +228,14 @@ func GroupsLink(a, b any) template.HTML {
 		if err != nil {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
-		prime = fmt.Sprintf(`<a href="%s">%s</a>`, ref, av)
+		prime = fmt.Sprintf(`<a class="text-nowrap" href="%s">%s</a>`, ref, av)
 	}
 	if bv != "" {
 		ref, err := GroupLink(bv)
 		if err != nil {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
-		second = fmt.Sprintf(`<a href="%s">%s</a>`, ref, bv)
+		second = fmt.Sprintf(`<a class="text-nowrap" href="%s">%s</a>`, ref, bv)
 	}
 	if prime != "" && second != "" {
 		s = fmt.Sprintf("%s + %s", prime, second)

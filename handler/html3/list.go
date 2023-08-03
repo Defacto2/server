@@ -101,7 +101,7 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error {
 
 	var records models.FileSlice
 	order := Clauses(c.QueryString())
-	var all model.All
+	var all model.Files
 	var arts model.Arts
 	var docs model.Docs
 	var softs model.Softs

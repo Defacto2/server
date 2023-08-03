@@ -137,3 +137,14 @@ func IsURI(s string) bool {
 	}
 	return false
 }
+
+// Match string to URI type or return -1 if not found.
+func Match(s string) URI {
+	// range to 57
+	for i := 1; i <= int(windowsPack); i++ {
+		if URI(i).String() == s {
+			return URI(i)
+		}
+	}
+	return -1
+}

@@ -1,9 +1,13 @@
 package model
 
+// This package contains sqlboiler models for the intros, installers and demoscene releases.
+
 import (
 	"context"
 	"database/sql"
+	"time"
 
+	"github.com/Defacto2/server/model/modext"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -14,16 +18,18 @@ type Demo struct {
 	Count int `boil:"counter"`
 }
 
+// Stat counts the total number and total bytes of demoscene releases.
 func (d *Demo) Stat(ctx context.Context, db *sql.DB) error {
-	if d.Bytes > 0 && d.Count > 0 {
-		return nil
-	}
 	return models.NewQuery(
 		qm.Select(postgres.SumSize, postgres.Counter),
-		qm.Expr(
-			models.FileWhere.Section.EQ(demo()),
-		),
+		modext.DemoExpr(),
 		qm.From(From)).Bind(ctx, db, d)
+}
+
+// List returns a list of demoscene releases.
+func (d *Demo) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+	return models.Files(modext.DemoExpr(),
+		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
 }
 
 // Intro contain statistics for releases that could be considered intros or cracktros.
@@ -36,15 +42,16 @@ type Intro struct {
 
 // Stat counts the total number and total byte size of releases that could be considered intros or cracktros.
 func (i *Intro) Stat(ctx context.Context, db *sql.DB) error {
-	// if i.Bytes > 0 && i.Count > 0 {
-	// 	return nil
-	// }
 	return models.NewQuery(
 		qm.Select(postgres.SumSize, postgres.Counter, postgres.MinYear, postgres.MaxYear),
-		qm.Expr(
-			models.FileWhere.Section.EQ(intro()),
-		),
+		modext.IntroExpr(),
 		qm.From(From)).Bind(ctx, db, i)
+}
+
+// List returns a list of releases that could be considered intros or cracktros.
+func (i *Intro) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+	return models.Files(modext.IntroExpr(),
+		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
 }
 
 type IntroDOS struct {
@@ -52,36 +59,38 @@ type IntroDOS struct {
 	Count int `boil:"counter"`
 }
 
+// Stat counts the total number and total byte size of releases that could be considered DOS intros or cracktros.
 func (i *IntroDOS) Stat(ctx context.Context, db *sql.DB) error {
-	// if i.Bytes > 0 && i.Count > 0 {
-	// 	return nil
-	// }
 	return models.NewQuery(
 		qm.Select(postgres.SumSize, postgres.Counter),
-		qm.Expr(
-			models.FileWhere.Section.EQ(intro()),
-			models.FileWhere.Platform.EQ(dos()),
-		),
+		modext.IntroDOSExpr(),
 		qm.From(From)).Bind(ctx, db, i)
+}
+
+// List returns a list of releases that could be considered DOS intros or cracktros.
+func (i *IntroDOS) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+	return models.Files(modext.IntroDOSExpr(),
+		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
 }
 
 type IntroWindows struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
+	Cache time.Time
 }
 
 // Stat counts the total number and total byte size of releases that could be considered Windows intros or cracktros.
 func (i *IntroWindows) Stat(ctx context.Context, db *sql.DB) error {
-	// if i.Bytes > 0 && i.Count > 0 {
-	// 	return nil
-	// }
 	return models.NewQuery(
 		qm.Select(postgres.SumSize, postgres.Counter),
-		qm.Expr(
-			models.FileWhere.Section.EQ(intro()),
-			models.FileWhere.Platform.EQ(windows()),
-		),
+		modext.IntroWindowsExpr(),
 		qm.From(From)).Bind(ctx, db, i)
+}
+
+// List returns a list of releases that could be considered Windows intros or cracktros.
+func (i *IntroWindows) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+	return models.Files(modext.IntroWindowsExpr(),
+		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
 }
 
 type Installer struct {
@@ -91,13 +100,14 @@ type Installer struct {
 
 // Stat counts the total number and total byte size of releases that could be considered installers.
 func (i *Installer) Stat(ctx context.Context, db *sql.DB) error {
-	// if i.Bytes > 0 && i.Count > 0 {
-	// 	return nil
-	// }
 	return models.NewQuery(
 		qm.Select(postgres.SumSize, postgres.Counter),
-		qm.Expr(
-			models.FileWhere.Section.EQ(install()),
-		),
+		modext.InstallExpr(),
 		qm.From(From)).Bind(ctx, db, i)
+}
+
+// List returns a list of releases that could be considered installers.
+func (i *Installer) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+	return models.Files(modext.InstallExpr(),
+		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
 }

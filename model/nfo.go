@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/Defacto2/server/model/modext"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -27,7 +28,7 @@ func (n *Nfo) Stat(ctx context.Context, db *sql.DB) error {
 	return models.NewQuery(
 		qm.Select(postgres.SumSize, postgres.Counter, postgres.MinYear, postgres.MaxYear),
 		qm.Expr(
-			models.FileWhere.Section.EQ(nfo()),
+			models.FileWhere.Section.EQ(modext.PNfo()),
 		),
 		qm.From(From)).Bind(ctx, db, n)
 }
@@ -44,7 +45,7 @@ func (n *NfoTool) Stat(ctx context.Context, db *sql.DB) error {
 	return models.NewQuery(
 		qm.Select(postgres.SumSize, postgres.Counter),
 		qm.Expr(
-			models.FileWhere.Section.EQ(nfoTool()),
+			models.FileWhere.Section.EQ(modext.PNfo()),
 		),
 		qm.From(From)).Bind(ctx, db, n)
 }
@@ -61,7 +62,7 @@ func (p *Proof) Stat(ctx context.Context, db *sql.DB) error {
 	return models.NewQuery(
 		qm.Select(postgres.SumSize, postgres.Counter),
 		qm.Expr(
-			models.FileWhere.Section.EQ(proof()),
+			models.FileWhere.Section.EQ(modext.SProof()),
 		),
 		qm.From(From)).Bind(ctx, db, p)
 }

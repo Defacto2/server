@@ -15,7 +15,7 @@ import (
 
 // Stats are the database statistics for the file categories.
 type Stats struct { //nolint:gochecknoglobals
-	All       model.All
+	All       model.Files
 	Ansi      model.Ansi
 	AnsiBBS   model.AnsiBBS
 	BBS       model.BBS
@@ -188,8 +188,43 @@ func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 		return Status(s, c, http.StatusNotFound, c.Param("uri"))
 	}
 
-	var all model.All
-	data["records"], err = all.List(ctx, db, page, limit)
+	switch Match(id) {
+	case demoscene:
+		r := model.Demo{}
+		data["records"], err = r.List(ctx, db, page, limit)
+	case installer:
+		r := model.Installer{}
+		data["records"], err = r.List(ctx, db, page, limit)
+	case intro:
+		r := model.Intro{}
+		data["records"], err = r.List(ctx, db, page, limit)
+	case linux:
+		r := model.Linux{}
+		data["records"], err = r.List(ctx, db, page, limit)
+	case java:
+		r := model.Java{}
+		data["records"], err = r.List(ctx, db, page, limit)
+	case macos:
+		r := model.Mac{}
+		data["records"], err = r.List(ctx, db, page, limit)
+	case script:
+		r := model.Script{}
+		data["records"], err = r.List(ctx, db, page, limit)
+	case introMsdos:
+		r := model.IntroDOS{}
+		data["records"], err = r.List(ctx, db, page, limit)
+	case introWindows:
+		r := model.IntroWindows{}
+		data["records"], err = r.List(ctx, db, page, limit)
+	case msdos:
+		r := model.DOS{}
+		data["records"], err = r.List(ctx, db, page, limit)
+	case windows:
+		r := model.Windows{}
+		data["records"], err = r.List(ctx, db, page, limit)
+	default:
+		return echo.NewHTTPError(http.StatusInternalServerError, "file category not found")
+	}
 	if err != nil {
 		s.Warnf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)

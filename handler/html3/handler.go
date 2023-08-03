@@ -78,7 +78,7 @@ func (t RecordsBy) Parent() string {
 
 // Stats are the database statistics.
 var Stats struct { //nolint:gochecknoglobals
-	All      model.All
+	All      model.Files
 	Art      model.Arts
 	Document model.Docs
 	Group    model.GroupStats

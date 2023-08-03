@@ -9,8 +9,8 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// All contain statistics for every release.
-type All struct {
+// Files contain statistics for every release.
+type Files struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
 	Year0 int `boil:"min_year"`
@@ -18,18 +18,18 @@ type All struct {
 }
 
 // Stat counts the total number and total byte size of releases that could be considered as digital or pixel art.
-func (a *All) Stat(ctx context.Context, db *sql.DB) error {
-	if a.Bytes > 0 && a.Count > 0 {
+func (f *Files) Stat(ctx context.Context, db *sql.DB) error {
+	if f.Bytes > 0 && f.Count > 0 {
 		return nil
 	}
 	return models.NewQuery(
 		qm.Select(postgres.SumSize, postgres.Counter, postgres.MinYear, postgres.MaxYear),
-		qm.From(From)).Bind(ctx, db, a)
+		qm.From(From)).Bind(ctx, db, f)
 }
 
 // List returns all of the file records.
-func (a *All) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	if err := a.Stat(ctx, db); err != nil {
+func (f *Files) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+	if err := f.Stat(ctx, db); err != nil {
 		return nil, err
 	}
 	return models.Files(qm.OrderBy("id DESC"),

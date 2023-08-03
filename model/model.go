@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
@@ -13,6 +14,12 @@ import (
 
 // From is the name of the table containing records of files.
 const From = "files"
+
+// Cache returns true if the statistics are considered to be valid.
+func Cache(b, c int, t time.Time) bool {
+	fmt.Println(t.Before(time.Now().Add(-time.Hour * 1)))
+	return b > 0 && c > 0 && t.Before(time.Now().Add(-time.Hour*1))
+}
 
 // One returns the record associated with the key ID.
 func One(ctx context.Context, db *sql.DB, key int) (*models.File, error) {
