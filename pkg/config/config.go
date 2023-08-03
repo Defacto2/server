@@ -55,30 +55,43 @@ type Config struct {
 	LogDir string `env:"LOG" avoid:"true" help:"The directory path that will store the program logs"`
 }
 
+const (
+	minwidth = 2
+	tabwidth = 4
+	padding  = 2
+	padchar  = ' '
+	flags    = 0
+	h1       = "Configuration"
+	h2       = "Value"
+	h3       = "Environment variable"
+	h4       = "Value type"
+	h5       = "About"
+	line     = "─"
+	donotuse = 7
+)
+
 // String returns a string representation of the Config struct.
 // The output is formatted as a table with the following columns:
 // Environment variable and Value
 func (c Config) String() string {
-	const (
-		minwidth = 2
-		tabwidth = 4
-		padding  = 2
-		padchar  = ' '
-		flags    = 0
-		h1       = "Configuration"
-		h2       = "Value"
-		h3       = "Environment variable"
-		h4       = "Value type"
-		h5       = "About"
-		line     = "─"
-		donotuse = 7
-	)
-
-	fields := reflect.VisibleFields(reflect.TypeOf(c))
-	values := reflect.ValueOf(c)
-
 	b := new(strings.Builder)
+	c.configurations(b)
+	fmt.Fprintf(b, "\n")
+	c.help(b)
+	return b.String()
+}
 
+// Addresses returns a list of urls that the server is accessible from.
+func (c Config) Addresses() string {
+	b := new(strings.Builder)
+	c.addresses(b)
+	return b.String()
+}
+
+// addresses prints a list of urls that the server is accessible from.
+func (c Config) addresses(b *strings.Builder) *strings.Builder {
+	pad := strings.Repeat(string(padchar), padding)
+	values := reflect.ValueOf(c)
 	fmt.Fprintf(b, "%s\n",
 		"Depending on your firewall, network and certificate setup,")
 	fmt.Fprintf(b, "%s\n",
@@ -93,19 +106,19 @@ func (c Config) String() string {
 	for _, host := range hosts {
 		switch port {
 		case 80:
-			fmt.Fprintf(b, "  http://%s\n", host)
+			fmt.Fprintf(b, "%shttp://%s\n", pad, host)
 		case 0:
-			fmt.Fprintf(b, "  http://%s:%d\n", host, 1323)
+			fmt.Fprintf(b, "%shttp://%s:%d\n", pad, host, 1323)
 		default:
-			fmt.Fprintf(b, "  http://%s:%d\n", host, port)
+			fmt.Fprintf(b, "%shttp://%s:%d\n", pad, host, port)
 		}
 		switch ports {
 		case 443:
-			fmt.Fprintf(b, "  thttps://%s\n", host)
+			fmt.Fprintf(b, "%shttps://%s\n", pad, host)
 		case 0:
 			// disabled
 		default:
-			fmt.Fprintf(b, "  https://%s:%d\n", host, ports)
+			fmt.Fprintf(b, "%shttps://%s:%d\n", pad, host, ports)
 		}
 	}
 	ips, err := helpers.GetLocalIPs()
@@ -113,20 +126,26 @@ func (c Config) String() string {
 		log.Fatalf("The server cannot get the local IP addresses: %s.", err)
 	}
 	for _, ip := range ips {
-		fmt.Fprintf(b, "  http://%s:%d\n", ip, port)
+		fmt.Fprintf(b, "%shttp://%s:%d\n", pad, ip, port)
 	}
-	fmt.Fprintf(b, "\n")
+	return b
+}
+
+// configurations prints a list of active conifguration options.
+func (c Config) configurations(b *strings.Builder) *strings.Builder {
+
+	fields := reflect.VisibleFields(reflect.TypeOf(c))
+	values := reflect.ValueOf(c)
+	w := tabwriter.NewWriter(b, minwidth, tabwidth, padding, padchar, flags)
+	nl := func() {
+		fmt.Fprintf(w, "\t\t\t\t\n")
+	}
 
 	fmt.Fprint(b, "Defacto2 server active configuration options.\n\n")
-	w := tabwriter.NewWriter(b, minwidth, tabwidth, padding, padchar, flags)
 	fmt.Fprintf(w, "\t%s\t%s\t%s\n",
 		h1, h2, h5)
 	fmt.Fprintf(w, "\t%s\t%s\t%s\n",
 		strings.Repeat(line, len(h1)), strings.Repeat(line, len(h2)), strings.Repeat(line, len(h5)))
-
-	nl := func() {
-		fmt.Fprintf(w, "\t\t\t\t\n")
-	}
 
 	for j, field := range fields {
 		if !field.IsExported() {
@@ -201,11 +220,16 @@ func (c Config) String() string {
 			lead()
 		}
 	}
-	fmt.Fprintln(w)
 	w.Flush()
+	return b
+}
+
+// config help prints the help message for the configuration options.
+func (c Config) help(b *strings.Builder) *strings.Builder {
+	fields := reflect.VisibleFields(reflect.TypeOf(c))
 
 	fmt.Fprint(b, "The following environment variables can be used to override the active configuration options.\n\n")
-	w = tabwriter.NewWriter(b, minwidth, tabwidth, padding, padchar, flags)
+	w := tabwriter.NewWriter(b, minwidth, tabwidth, padding, padchar, flags)
 	fmt.Fprintf(w, "\t%s\t%s\t%s\n", h3, h4, h5)
 	fmt.Fprintf(w, "\t%s\t%s\t%s\n",
 		strings.Repeat(line, len(h3)), strings.Repeat(line, len(h4)), strings.Repeat(line, len(h5)))
@@ -225,8 +249,7 @@ func (c Config) String() string {
 	}
 	w.Flush()
 	fmt.Fprintf(b, "\n  ✗ The marked variables are not recommended for most situations.\n")
-
-	return b.String()
+	return b
 }
 
 // avoid returns a red cross if the value is not recommended.

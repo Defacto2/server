@@ -40,13 +40,24 @@ func run(version string, c *config.Config) (int, error) {
 	app := &cli.App{
 		Commands: []*cli.Command{
 			{
-				Name:    "configs",
+				Name:    "config",
 				Aliases: []string{"c"},
-				Usage:   "List the environment variables used for configuration",
+				Usage:   "List the server configuration settings",
 				Action: func(ctx *cli.Context) error {
 					log := logger.CLI().Sugar()
 					c.Checks(log)
 					defer fmt.Printf("\n%s\n", c.String())
+					return nil
+				},
+			},
+			{
+				Name:    "address",
+				Aliases: []string{"a"},
+				Usage:   "List the IP, hostname and port addresses the server is listening on",
+				Action: func(ctx *cli.Context) error {
+					log := logger.CLI().Sugar()
+					c.Checks(log)
+					defer fmt.Printf("\n%s\n", c.Addresses())
 					return nil
 				},
 			},
