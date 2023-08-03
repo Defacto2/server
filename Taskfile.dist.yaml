@@ -8,8 +8,8 @@ vars:
   BINNAME: df2-server
   # serve configs
   SERVEPORT: 1323
-  LOGREQUESTS: true
-  NOROBOTS: true
+  LOGREQUESTS: false
+  NOROBOTS: false
 
 tasks:
   default:

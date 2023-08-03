@@ -47,7 +47,7 @@ func (v *Version) String() string {
 		if err != nil {
 			return s
 		}
-		return fmt.Sprintf("using %s", strings.Join(x[0:2], " "))
+		return fmt.Sprintf("and using %s", strings.Join(x[0:2], " "))
 	}
 	return s
 }
