@@ -36,6 +36,10 @@ func (c Config) Checks(log *zap.SugaredLogger) {
 				c.HTTPPort, err)
 		}
 	}
+
+	// todo: create default download directory if value is empty.
+	// see: LogStorage() in pkg\config\logger.go
+
 	DownloadDir(c.DownloadDir, log)
 	LogDir(c.LogDir, log)
 }
