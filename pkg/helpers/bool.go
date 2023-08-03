@@ -26,6 +26,38 @@ func IsDay(i int) bool {
 	return false
 }
 
+// IsDir returns true if the named directory exists on the system.
+func IsDir(name string) bool {
+	if s, err := os.Stat(name); err != nil {
+		if os.IsNotExist(err) {
+			return false
+		}
+		if err != nil {
+			return false
+		}
+		if s.IsDir() {
+			return true
+		}
+	}
+	return false
+}
+
+// IsFile returns true if the named file exists on the system.
+func IsFile(name string) bool {
+	if s, err := os.Stat(name); err != nil {
+		if os.IsNotExist(err) {
+			return false
+		}
+		if err != nil {
+			return false
+		}
+		if s.IsDir() {
+			return false
+		}
+	}
+	return true
+}
+
 // IsStat stats the named file or directory to confirm it exists on the system.
 func IsStat(name string) bool {
 	if _, err := os.Stat(name); err != nil {

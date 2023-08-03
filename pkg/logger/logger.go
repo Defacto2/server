@@ -57,12 +57,30 @@ const (
 )
 */
 
+// CLI logger prints all log levels to stdout but without callers.
+func CLI() *zap.Logger {
+	cliEncoder := console()
+	defaultLogLevel := zapcore.DebugLevel
+	core := zapcore.NewTee(
+		zapcore.NewCore(
+			cliEncoder,
+			zapcore.AddSync(os.Stdout),
+			defaultLogLevel,
+		),
+	)
+	return zap.New(core)
+}
+
 // Development logger prints all log levels to stdout.
 func Development() *zap.Logger {
 	cliEncoder := console()
 	defaultLogLevel := zapcore.DebugLevel
 	core := zapcore.NewTee(
-		zapcore.NewCore(cliEncoder, zapcore.AddSync(os.Stdout), defaultLogLevel),
+		zapcore.NewCore(
+			cliEncoder,
+			zapcore.AddSync(os.Stdout),
+			defaultLogLevel,
+		),
 	)
 	return zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
 }

@@ -16,7 +16,10 @@ import (
 	"go.uber.org/zap"
 )
 
-var ErrDirNotExist = errors.New("directory does not exist or incorrectly typed")
+var (
+	ErrNotDir      = errors.New("not a directory")
+	ErrDirNotExist = errors.New("directory does not exist or incorrectly typed")
+)
 
 // https://github.com/labstack/echo/discussions/1820
 

@@ -22,16 +22,22 @@ type Config struct {
 	IsProduction bool `env:"PRODUCTION" envDefault:"false" help:"Use the production mode to log all errors and warnings to a file"`
 
 	// HTTPPort is the port number to be used by the HTTP server.
-	HTTPPort uint `env:"PORT" envDefault:"1323" help:"The port number to be used by the unencrypted HTTP server"`
+	HTTPPort uint `env:"PORT" envDefault:"1323" help:"The port number to be used by the unencrypted HTTP web server"`
 
 	// HTTPSPort is the port number to be used by the HTTPS server.
-	HTTPSPort uint `env:"PORTS" envDefault:"0" help:"The port number to be used by the encrypted HTTPS server"`
+	HTTPSPort uint `env:"PORTS" envDefault:"0" help:"The port number to be used by the encrypted HTTPS web server"`
 
 	// Timeout is the timeout value in seconds for the HTTP server.
 	Timeout uint `env:"TIMEOUT" envDefault:"5" help:"The timeout value in seconds for the HTTP, HTTPS and database server requests"`
 
 	// DownloadDir is the directory path that holds the UUID named files that are served as release downloads.
 	DownloadDir string `env:"DOWNLOAD" help:"The directory path that holds the UUID named files that are served as release downloads"`
+
+	// ScreenshotsDir is the directory path that holds the UUID named image files that are served as release screenshots.
+	ScreenshotsDir string `env:"SCREENSHOTS" help:"The directory path that holds the UUID named image files that are served as release screenshots"`
+
+	// ThumbnailDir is the directory path that holds the UUID named squared image files that are served as release thumbnails.
+	ThumbnailDir string `env:"THUMBNAILS" help:"The directory path that holds the UUID named squared image files that are served as release thumbnails"`
 
 	// MaxProcs is the maximum number of operating system threads the program can use.
 	MaxProcs uint `env:"MAXPROCS" envDefault:"0" avoid:"true" help:"Limit the number of operating system threads the program can use"`
@@ -65,14 +71,51 @@ func (c Config) String() string {
 		h4       = "Value type"
 		h5       = "About"
 		line     = "─"
-		donotuse = 5
+		donotuse = 7
 	)
 
-	if err := c.LogStorage(); err != nil {
-		log.Fatalf("The server cannot save any logs: %s.", err)
-	}
+	fields := reflect.VisibleFields(reflect.TypeOf(c))
+	values := reflect.ValueOf(c)
 
 	b := new(strings.Builder)
+
+	fmt.Fprintf(b, "%s\n",
+		"Depending on your firewall, network and certificate setup,")
+	fmt.Fprintf(b, "%s\n",
+		"this web server could be accessible from the following addresses:")
+	fmt.Fprintf(b, "\n")
+	hosts, err := helpers.GetLocalHosts()
+	if err != nil {
+		log.Fatalf("The server cannot get the local host names: %s.", err)
+	}
+	port := values.FieldByName("HTTPPort").Uint()
+	ports := values.FieldByName("HTTPSPort").Uint()
+	for _, host := range hosts {
+		switch port {
+		case 80:
+			fmt.Fprintf(b, "  http://%s\n", host)
+		case 0:
+			fmt.Fprintf(b, "  http://%s:%d\n", host, 1323)
+		default:
+			fmt.Fprintf(b, "  http://%s:%d\n", host, port)
+		}
+		switch ports {
+		case 443:
+			fmt.Fprintf(b, "  thttps://%s\n", host)
+		case 0:
+			// disabled
+		default:
+			fmt.Fprintf(b, "  https://%s:%d\n", host, ports)
+		}
+	}
+	ips, err := helpers.GetLocalIPs()
+	if err != nil {
+		log.Fatalf("The server cannot get the local IP addresses: %s.", err)
+	}
+	for _, ip := range ips {
+		fmt.Fprintf(b, "  http://%s:%d\n", ip, port)
+	}
+	fmt.Fprintf(b, "\n")
 
 	fmt.Fprint(b, "Defacto2 server active configuration options.\n\n")
 	w := tabwriter.NewWriter(b, minwidth, tabwidth, padding, padchar, flags)
@@ -81,8 +124,6 @@ func (c Config) String() string {
 	fmt.Fprintf(w, "\t%s\t%s\t%s\n",
 		strings.Repeat(line, len(h1)), strings.Repeat(line, len(h2)), strings.Repeat(line, len(h5)))
 
-	fields := reflect.VisibleFields(reflect.TypeOf(c))
-	values := reflect.ValueOf(c)
 	nl := func() {
 		fmt.Fprintf(w, "\t\t\t\t\n")
 	}
@@ -95,18 +136,21 @@ func (c Config) String() string {
 			nl()
 		}
 		val := values.FieldByName(field.Name)
-		fmtVal := fmt.Sprint(val)
-		if val.Kind() == reflect.String && val.String() == "" {
-			fmtVal = `""`
-		}
 		id := field.Name
 		lead := func() {
 			fmt.Fprintf(w, "\t%s\t%v\t%s.\n",
 				id,
-				fmtVal,
+				val,
 				field.Tag.Get("help"),
 			)
 		}
+		path := func() {
+			fmt.Fprintf(w, "\t%s\t\t%s.\n",
+				id,
+				field.Tag.Get("help"),
+			)
+		}
+
 		switch id {
 		case "IsProduction":
 			lead()
@@ -128,51 +172,20 @@ func (c Config) String() string {
 			fmt.Fprintf(w, "\t\t\t%s\n",
 				"The typical HTTPS port number is 443, while for proxies it is 8443.")
 			if val.Kind() == reflect.Uint && val.Uint() == 0 {
-				fmt.Fprintf(w, "\t\t\t%s\n\n", "The server will not use HTTPS.")
+				fmt.Fprintf(w, "\t\t\t%s\n", "The server will not use HTTPS.")
 			}
-			fmt.Fprintf(w, "\t\t\t%s\n",
-				"Depending on your firewall, network and certificate setup,")
-			fmt.Fprintf(w, "\t\t\t%s\n",
-				"the server could be accessible from the following addresses:")
-			hosts, err := helpers.GetLocalHosts()
-			if err != nil {
-				log.Fatalf("The server cannot get the local host names: %s.", err)
-			}
-			port := values.FieldByName("HTTPPort").Uint()
-			ports := values.FieldByName("HTTPSPort").Uint()
-			for _, host := range hosts {
-				switch port {
-				case 80:
-					fmt.Fprintf(w, "\t\t\thttp://%s\n", host)
-				case 0:
-					fmt.Fprintf(w, "\t\t\thttp://%s:%d\n", host, 1323)
-				default:
-					fmt.Fprintf(w, "\t\t\thttp://%s:%d\n", host, port)
-				}
-				switch ports {
-				case 443:
-					fmt.Fprintf(w, "\t\t\thttps://%s\n", host)
-				case 0:
-					// disabled
-				default:
-					fmt.Fprintf(w, "\t\t\thttps://%s:%d\n", host, ports)
-				}
-			}
-			ips, err := helpers.GetLocalIPs()
-			if err != nil {
-				log.Fatalf("The server cannot get the local IP addresses: %s.", err)
-			}
-			for _, ip := range ips {
-				fmt.Fprintf(w, "\t\t\thttp://%s:%d\n", ip, port)
+		case "DownloadDir":
+			nl()
+			path()
+			if c.DownloadDir != "" {
+				fmt.Fprintf(w, "\t\t\t%s\n", c.DownloadDir)
 			}
 		case "LogDir":
 			nl()
-			fmt.Fprintf(w, "\t%s\t%v\t%s.",
-				id,
-				"",
-				field.Tag.Get("help"),
-			)
-			fmt.Fprintf(w, "\n\t\t\t%s\n", c.LogDir)
+			path()
+			if c.LogDir != "" {
+				fmt.Fprintf(w, "\t\t\t%s\n", c.LogDir)
+			}
 		case "MaxProcs":
 			nl()
 			fmt.Fprintf(w, "\t%s\t%v\t%s.",
@@ -183,20 +196,9 @@ func (c Config) String() string {
 			if val.Kind() == reflect.Uint && val.Uint() == 0 {
 				fmt.Fprintf(w, "\n\t\t\t%s\n", "This application will use all available CPU cores.")
 			}
-		case "DownloadDir":
-			nl()
-			fmt.Fprintf(w, "\t%s\t%v\t%s.",
-				id,
-				"",
-				field.Tag.Get("help"),
-			)
 		default:
 			nl()
-			fmt.Fprintf(w, "\t%s\t%v\t%s.\n",
-				id,
-				fmtVal,
-				field.Tag.Get("help"),
-			)
+			lead()
 		}
 	}
 	fmt.Fprintln(w)

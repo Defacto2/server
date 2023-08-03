@@ -22,9 +22,10 @@ var (
 )
 
 // Checks runs a number of sanity checks for the environment variable configurations.
-func (c Config) Checks(log *zap.SugaredLogger) {
+func (c *Config) Checks(log *zap.SugaredLogger) {
 	if log == nil {
-		fmt.Fprintf(os.Stderr, "The logger instance for the config checks is nil.")
+		fmt.Fprintf(os.Stderr, "cannot run config checks as the logger instance is nil.")
+		return
 	}
 	if err := HTTPPort(c.HTTPPort); err != nil {
 		switch {
@@ -37,11 +38,10 @@ func (c Config) Checks(log *zap.SugaredLogger) {
 		}
 	}
 
-	// todo: create default download directory if value is empty.
-	// see: LogStorage() in pkg\config\logger.go
-
 	DownloadDir(c.DownloadDir, log)
-	LogDir(c.LogDir, log)
+	ScreenshotsDir(c.ScreenshotsDir, log)
+	ThumbnailDir(c.ThumbnailDir, log)
+	c.SetupLogDir(log)
 }
 
 // HTTPPort returns an error if the HTTP port is invalid.
@@ -61,6 +61,18 @@ func DownloadDir(name string, log *zap.SugaredLogger) {
 	CheckDir(name, "download", log)
 }
 
+// ScreenshotsDir runs checks against the named directory containing the screenshot images.
+// Problems will either log warnings or fatal errors.
+func ScreenshotsDir(name string, log *zap.SugaredLogger) {
+	CheckDir(name, "screenshot", log)
+}
+
+// ThumbnailDir runs checks against the named directory containing the thumbnail images.
+// Problems will either log warnings or fatal errors.
+func ThumbnailDir(name string, log *zap.SugaredLogger) {
+	CheckDir(name, "thumbnail", log)
+}
+
 // CheckDir runs checks against the named directory,
 // including whether it exists, is a directory, and contains a minimum number of files.
 // Problems will either log warnings or fatal errors.
@@ -74,6 +86,10 @@ func CheckDir(name, desc string, log *zap.SugaredLogger) {
 		s = "the server cannot send file downloads"
 	case "log":
 		s = "the server cannot log to files"
+	case "screenshot":
+		s = "the server cannot show screenshot images"
+	case "thumbnail":
+		s = "the server cannot show thumbnail images"
 	}
 	if name == "" {
 		log.Warnf("The %s directory path was not provided, %s.", desc, s)
@@ -98,29 +114,39 @@ func CheckDir(name, desc string, log *zap.SugaredLogger) {
 	}
 }
 
-// LogDir runs checks against the named log directory.
+// SetupLogDir runs checks against the configured log directory.
 // Problems will either log warnings or fatal errors.
-func LogDir(name string, log *zap.SugaredLogger) {
+func (c *Config) SetupLogDir(log *zap.SugaredLogger) {
 	if log == nil {
 		fmt.Fprintf(os.Stderr, "The logger instance for the config log dir is nil.")
 	}
-	if name == "" {
-		// recommended
-		return
+	if c.LogDir == "" {
+		if err := c.LogStorage(); err != nil {
+			log.Fatalf("The server cannot log to files: %s", err)
+		}
 	}
-	dir, err := os.Stat(name)
+	dir, err := os.Stat(c.LogDir)
 	if os.IsNotExist(err) {
-		log.Fatalf("The log directory path does not exist, the server cannot log to files: %s", name)
+		log.Fatalf("The log directory path does not exist, the server cannot log to files: %s", c.LogDir)
 	}
 	if !dir.IsDir() {
 		log.Fatalf("The log directory path points to the file: %s", dir.Name())
 	}
-	empty := filepath.Join(name, ".defacto2_touch_test")
-	f, err := os.Create(empty)
-	if err != nil {
-		log.Fatalf("Could not create a file in the log directory path: %s.", err)
+	empty := filepath.Join(c.LogDir, ".defacto2_touch_test")
+	if _, err := os.Stat(empty); os.IsNotExist(err) {
+		f, err := os.Create(empty)
+		if err != nil {
+			log.Fatalf("Could not create a file in the log directory path: %s.", err)
+		}
+		defer func(f *os.File) {
+			f.Close()
+			if err := os.Remove(empty); err != nil {
+				log.Warnf("Could not remove the empty test file in the log directory path: %s: %s", err, empty)
+				return
+			}
+		}(f)
+		return
 	}
-	defer f.Close()
 	if err := os.Remove(empty); err != nil {
 		log.Warnf("Could not remove the empty test file in the log directory path: %s: %s", err, empty)
 		return

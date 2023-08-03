@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/server/pkg/config"
+	"github.com/Defacto2/server/pkg/logger"
 	"github.com/carlmjohnson/versioninfo"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/text/cases"
@@ -23,6 +24,9 @@ const (
 
 // Run parses optional command line arguments for this program.
 func Run(version string, c *config.Config) (int, error) {
+	if c == nil {
+		return -1, fmt.Errorf("cannot run command as config is nil")
+	}
 	if args := len(os.Args[1:]); args > 0 {
 		return run(version, c)
 	}
@@ -30,6 +34,9 @@ func Run(version string, c *config.Config) (int, error) {
 }
 
 func run(version string, c *config.Config) (int, error) {
+	if c == nil {
+		return -1, fmt.Errorf("cannot run command as config is nil")
+	}
 	app := &cli.App{
 		Commands: []*cli.Command{
 			{
@@ -37,7 +44,9 @@ func run(version string, c *config.Config) (int, error) {
 				Aliases: []string{"c"},
 				Usage:   "List the environment variables used for configuration",
 				Action: func(ctx *cli.Context) error {
-					fmt.Printf("\n%s\n", c.String())
+					log := logger.CLI().Sugar()
+					c.Checks(log)
+					defer fmt.Printf("\n%s\n", c.String())
 					return nil
 				},
 			},
