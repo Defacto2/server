@@ -22,7 +22,10 @@ type Config struct {
 	IsProduction bool `env:"PRODUCTION" envDefault:"false" help:"Use the production mode to log all errors and warnings to a file"`
 
 	// HTTPPort is the port number to be used by the HTTP server.
-	HTTPPort uint `env:"PORT" envDefault:"1323" help:"The port number to be used by the HTTP server"`
+	HTTPPort uint `env:"PORT" envDefault:"1323" help:"The port number to be used by the unencrypted HTTP server"`
+
+	// HTTPSPort is the port number to be used by the HTTPS server.
+	HTTPSPort uint `env:"PORTS" envDefault:"0" help:"The port number to be used by the encrypted HTTPS server"`
 
 	// Timeout is the timeout value in seconds for the HTTP server.
 	Timeout uint `env:"TIMEOUT" envDefault:"5" help:"The timeout value in seconds for the HTTP, HTTPS and database server requests"`
@@ -62,7 +65,7 @@ func (c Config) String() string {
 		h4       = "Value type"
 		h5       = "About"
 		line     = "─"
-		donotuse = 4
+		donotuse = 5
 	)
 
 	if err := c.LogStorage(); err != nil {
@@ -104,42 +107,64 @@ func (c Config) String() string {
 				field.Tag.Get("help"),
 			)
 		}
-
 		switch id {
 		case "IsProduction":
 			lead()
 			if val.Kind() == reflect.Bool && !val.Bool() {
-				fmt.Fprintf(w, "\t\t\t%s\n\n",
+				fmt.Fprintf(w, "\t\t\t%s\n",
 					"All errors and warnings will be logged to this console.")
 			}
 		case "HTTPPort":
+			nl()
 			lead()
 			fmt.Fprintf(w, "\t\t\t%s\n",
 				"The typical HTTP port number is 80, while for proxies it is 8080.")
 			if val.Kind() == reflect.Uint && val.Uint() == 0 {
-				fmt.Fprintf(w, "\t\t\t%s\n\n", "The server will use the default port number 1323.")
+				fmt.Fprintf(w, "\t\t\t%s\n", "The server will use the default port number 1323.")
 			}
+		case "HTTPSPort":
 			nl()
+			lead()
 			fmt.Fprintf(w, "\t\t\t%s\n",
-				"Depending on your firewall and network setup,")
+				"The typical HTTPS port number is 443, while for proxies it is 8443.")
+			if val.Kind() == reflect.Uint && val.Uint() == 0 {
+				fmt.Fprintf(w, "\t\t\t%s\n\n", "The server will not use HTTPS.")
+			}
 			fmt.Fprintf(w, "\t\t\t%s\n",
-				"the server will be accessible from the following addresses:")
+				"Depending on your firewall, network and certificate setup,")
+			fmt.Fprintf(w, "\t\t\t%s\n",
+				"the server could be accessible from the following addresses:")
 			hosts, err := helpers.GetLocalHosts()
 			if err != nil {
 				log.Fatalf("The server cannot get the local host names: %s.", err)
 			}
+			port := values.FieldByName("HTTPPort").Uint()
+			ports := values.FieldByName("HTTPSPort").Uint()
 			for _, host := range hosts {
-				fmt.Fprintf(w, "\t\t\thttp://%s:%d\n", host, val.Uint())
+				switch port {
+				case 80:
+					fmt.Fprintf(w, "\t\t\thttp://%s\n", host)
+				case 0:
+					fmt.Fprintf(w, "\t\t\thttp://%s:%d\n", host, 1323)
+				default:
+					fmt.Fprintf(w, "\t\t\thttp://%s:%d\n", host, port)
+				}
+				switch ports {
+				case 443:
+					fmt.Fprintf(w, "\t\t\thttps://%s\n", host)
+				case 0:
+					// disabled
+				default:
+					fmt.Fprintf(w, "\t\t\thttps://%s:%d\n", host, ports)
+				}
 			}
 			ips, err := helpers.GetLocalIPs()
 			if err != nil {
 				log.Fatalf("The server cannot get the local IP addresses: %s.", err)
 			}
 			for _, ip := range ips {
-				fmt.Fprintf(w, "\t\t\thttp://%s:%d\n", ip, val.Uint())
+				fmt.Fprintf(w, "\t\t\thttp://%s:%d\n", ip, port)
 			}
-			nl()
-
 		case "LogDir":
 			nl()
 			fmt.Fprintf(w, "\t%s\t%v\t%s.",
@@ -165,8 +190,8 @@ func (c Config) String() string {
 				"",
 				field.Tag.Get("help"),
 			)
-			nl()
 		default:
+			nl()
 			fmt.Fprintf(w, "\t%s\t%v\t%s.\n",
 				id,
 				fmtVal,
