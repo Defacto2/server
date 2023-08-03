@@ -8,7 +8,6 @@ require (
 	github.com/caarlos0/env/v7 v7.1.0
 	github.com/carlmjohnson/versioninfo v0.22.4
 	github.com/evanw/esbuild v0.18.15
-	github.com/fatih/color v1.15.0
 	github.com/friendsofgo/errors v0.9.2
 	github.com/jackc/pgx/v5 v5.4.2
 	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12
@@ -23,7 +22,6 @@ require (
 	github.com/volatiletech/sqlboiler/v4 v4.14.2
 	github.com/volatiletech/strmangle v0.0.5
 	go.uber.org/zap v1.24.0
-	golang.org/x/exp v0.0.0-20230728194245-b0cb94b80691
 	golang.org/x/text v0.11.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
