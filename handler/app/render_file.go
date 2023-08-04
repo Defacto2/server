@@ -9,9 +9,12 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/postgres"
+	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
+
+const records = "records"
 
 // Stats are the database statistics for the file categories.
 type Stats struct { //nolint:gochecknoglobals
@@ -187,53 +190,158 @@ func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 		// with something about the file categories page.
 		return Status(s, c, http.StatusNotFound, c.Param("uri"))
 	}
-
-	switch Match(id) {
-	case demoscene:
-		r := model.Demo{}
-		data["records"], err = r.List(ctx, db, page, limit)
-	case installer:
-		r := model.Installer{}
-		data["records"], err = r.List(ctx, db, page, limit)
-	case intro:
-		r := model.Intro{}
-		data["records"], err = r.List(ctx, db, page, limit)
-	case linux:
-		r := model.Linux{}
-		data["records"], err = r.List(ctx, db, page, limit)
-	case java:
-		r := model.Java{}
-		data["records"], err = r.List(ctx, db, page, limit)
-	case macos:
-		r := model.Mac{}
-		data["records"], err = r.List(ctx, db, page, limit)
-	case script:
-		r := model.Script{}
-		data["records"], err = r.List(ctx, db, page, limit)
-	case introMsdos:
-		r := model.IntroDOS{}
-		data["records"], err = r.List(ctx, db, page, limit)
-	case introWindows:
-		r := model.IntroWindows{}
-		data["records"], err = r.List(ctx, db, page, limit)
-	case msdos:
-		r := model.DOS{}
-		data["records"], err = r.List(ctx, db, page, limit)
-	case windows:
-		r := model.Windows{}
-		data["records"], err = r.List(ctx, db, page, limit)
-	default:
-		return echo.NewHTTPError(http.StatusInternalServerError, "file category not found")
-	}
+	data[records], err = Records(ctx, db, id, page, limit)
 	if err != nil {
 		s.Warnf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
-
 	err = c.Render(http.StatusOK, "files", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
+}
+
+// Records returns the records for the file category URI.
+func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
+	switch Match(uri) {
+	case announcement:
+		r := model.Announcement{}
+		return r.List(ctx, db, page, limit)
+	case ansi:
+		r := model.Ansi{}
+		return r.List(ctx, db, page, limit)
+	case ansiBrand:
+		r := model.AnsiBrand{}
+		return r.List(ctx, db, page, limit)
+	case ansiBBS:
+		r := model.AnsiBBS{}
+		return r.List(ctx, db, page, limit)
+	case ansiFTP:
+		r := model.AnsiFTP{}
+		return r.List(ctx, db, page, limit)
+	case ansiNfo:
+		r := model.AnsiNfo{}
+		return r.List(ctx, db, page, limit)
+	case ansiPack:
+		r := model.AnsiPack{}
+		return r.List(ctx, db, page, limit)
+	case bbs:
+		r := model.BBS{}
+		return r.List(ctx, db, page, limit)
+	case bbsImage:
+		r := model.BBSImage{}
+		return r.List(ctx, db, page, limit)
+	case bbstro:
+		r := model.BBStro{}
+		return r.List(ctx, db, page, limit)
+	case bbsText:
+		r := model.BBSText{}
+		return r.List(ctx, db, page, limit)
+	case database:
+		r := model.Database{}
+		return r.List(ctx, db, page, limit)
+	case demoscene:
+		r := model.Demo{}
+		return r.List(ctx, db, page, limit)
+	case ftp:
+		r := model.FTP{}
+		return r.List(ctx, db, page, limit)
+	case hack:
+		r := model.Hack{}
+		return r.List(ctx, db, page, limit)
+	case html:
+		r := model.HTML{}
+		return r.List(ctx, db, page, limit)
+	case imagePack:
+		r := model.ImagePack{}
+		return r.List(ctx, db, page, limit)
+	case installer:
+		r := model.Installer{}
+		return r.List(ctx, db, page, limit)
+	case intro:
+		r := model.Intro{}
+		return r.List(ctx, db, page, limit)
+	case linux:
+		r := model.Linux{}
+		return r.List(ctx, db, page, limit)
+	case java:
+		r := model.Java{}
+		return r.List(ctx, db, page, limit)
+	case jobAdvert:
+		r := model.JobAdvert{}
+		return r.List(ctx, db, page, limit)
+	case macos:
+		r := model.Mac{}
+		return r.List(ctx, db, page, limit)
+	case msdosPack:
+		r := model.DosPack{}
+		return r.List(ctx, db, page, limit)
+	case newsArticle:
+		r := model.NewsArticle{}
+		return r.List(ctx, db, page, limit)
+	case nfo:
+		r := model.Nfo{}
+		return r.List(ctx, db, page, limit)
+	case nfoTool:
+		r := model.NfoTool{}
+		return r.List(ctx, db, page, limit)
+	case standards:
+		r := model.Standard{}
+		return r.List(ctx, db, page, limit)
+	case script:
+		r := model.Script{}
+		return r.List(ctx, db, page, limit)
+	case introMsdos:
+		r := model.IntroDOS{}
+		return r.List(ctx, db, page, limit)
+	case introWindows:
+		r := model.IntroWindows{}
+		return r.List(ctx, db, page, limit)
+	case magazine:
+		r := model.Mag{}
+		return r.List(ctx, db, page, limit)
+	case msdos:
+		r := model.DOS{}
+		return r.List(ctx, db, page, limit)
+	case pdf:
+		r := model.PDF{}
+		return r.List(ctx, db, page, limit)
+	case proof:
+		r := model.Proof{}
+		return r.List(ctx, db, page, limit)
+	case takedown:
+		r := model.Takedown{}
+		return r.List(ctx, db, page, limit)
+	case text:
+		r := model.Text{}
+		return r.List(ctx, db, page, limit)
+	case textAmiga:
+		r := model.TextAmiga{}
+		return r.List(ctx, db, page, limit)
+	case textApple2:
+		r := model.TextAppleII{}
+		return r.List(ctx, db, page, limit)
+	case textAtariST:
+		r := model.TextAtariST{}
+		return r.List(ctx, db, page, limit)
+	case textPack:
+		r := model.TextPack{}
+		return r.List(ctx, db, page, limit)
+	case tool:
+		r := model.Tool{}
+		return r.List(ctx, db, page, limit)
+	case trialCrackme:
+		r := model.TrialCrackme{}
+		return r.List(ctx, db, page, limit)
+	case windows:
+		r := model.Windows{}
+		return r.List(ctx, db, page, limit)
+	case windowsPack:
+		r := model.WindowsPack{}
+		return r.List(ctx, db, page, limit)
+	default:
+		return nil, fmt.Errorf("unknown file category: %s", uri)
+	}
 }

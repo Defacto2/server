@@ -43,7 +43,6 @@ const (
 	newsArticle
 	newUploads
 	nfo
-	nfoPack
 	nfoTool
 	oldest
 	pdf
@@ -105,7 +104,6 @@ func (u URI) String() string {
 		"news-article",
 		"new-uploads",
 		"nfo",
-		"nfo-pack",
 		"nfo-tool",
 		"oldest",
 		"pdf",

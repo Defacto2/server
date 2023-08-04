@@ -10,21 +10,23 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-type Text struct {
+type Mag struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
 	Year0 int `boil:"min_year"`
 	YearX int `boil:"max_year"`
 }
 
-func (t *Text) Stat(ctx context.Context, db *sql.DB) error {
-	// if a.Bytes > 0 && a.Count > 0 {
-	// 	return nil
-	// }
+// Stat counts the total number and total byte size of releases magazine files.
+func (m *Mag) Stat(ctx context.Context, db *sql.DB) error {
 	return models.NewQuery(
 		qm.Select(postgres.SumSize, postgres.Counter, postgres.MinYear, postgres.MaxYear),
-		qm.Expr(
-			models.FileWhere.Platform.EQ(modext.PText()),
-		),
-		qm.From(From)).Bind(ctx, db, t)
+		modext.MagExpr(),
+		qm.From(From)).Bind(ctx, db, m)
+}
+
+// List returns a list of magazine files.
+func (m *Mag) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+	return models.Files(modext.MagExpr(),
+		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
 }

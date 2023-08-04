@@ -1,6 +1,6 @@
 package model
 
-// This package contains sqlboiler models for the intros, installers and demoscene releases.
+// Package file file_cracktros_intros.go contains sqlboiler models for the intros, installers and demoscene releases.
 
 import (
 	"context"

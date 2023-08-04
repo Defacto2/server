@@ -202,6 +202,7 @@ func SubTitle(s any) template.HTML {
 
 // GroupsLink returns the groups associated with a release and a link to each group.
 func GroupsLink(a, b any) template.HTML {
+	const class = "text-nowrap"
 	av, bv, s := "", "", ""
 	switch val := a.(type) {
 	case string:
@@ -228,17 +229,17 @@ func GroupsLink(a, b any) template.HTML {
 		if err != nil {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
-		prime = fmt.Sprintf(`<a class="text-nowrap" href="%s">%s</a>`, ref, av)
+		prime = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, av)
 	}
 	if bv != "" {
 		ref, err := GroupLink(bv)
 		if err != nil {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
-		second = fmt.Sprintf(`<a class="text-nowrap" href="%s">%s</a>`, ref, bv)
+		second = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, bv)
 	}
 	if prime != "" && second != "" {
-		s = fmt.Sprintf("%s + %s", prime, second)
+		s = fmt.Sprintf("%s<br>+ %s", prime, second)
 	} else if prime != "" {
 		s = prime
 	} else if second != "" {
