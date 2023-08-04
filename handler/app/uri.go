@@ -41,6 +41,7 @@ const (
 	music
 	newest
 	newsArticle
+	newUpdates
 	newUploads
 	nfo
 	nfoTool
@@ -102,6 +103,7 @@ func (u URI) String() string {
 		"music",
 		"newest",
 		"news-article",
+		"new-updates",
 		"new-uploads",
 		"nfo",
 		"nfo-tool",

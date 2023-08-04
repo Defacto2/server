@@ -5,6 +5,13 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
+// AdvertExpr is a the query mod expression for for sale adverts.
+func AdvertExpr() qm.QueryMod {
+	return qm.Expr(
+		models.FileWhere.Section.EQ(SAdvert()),
+	)
+}
+
 // AnnouncementExpr is a the query mod expression for announcement releases.
 func AnnouncementExpr() qm.QueryMod {
 	return qm.Expr(
@@ -111,6 +118,13 @@ func DemoExpr() qm.QueryMod {
 	)
 }
 
+// DramaExpr is a the query mod expression for community drama.
+func DramaExpr() qm.QueryMod {
+	return qm.Expr(
+		models.FileWhere.Section.EQ(SDrama()),
+	)
+}
+
 // FTPExpr is a the query mod expression for FTP releases.
 func FTPExpr() qm.QueryMod {
 	return qm.Expr(
@@ -191,6 +205,13 @@ func HTMLExpr() qm.QueryMod {
 	)
 }
 
+// HowToExpr is a the query mod expression for guides and how-tos.
+func HowToExpr() qm.QueryMod {
+	return qm.Expr(
+		models.FileWhere.Section.EQ(SHowTo()),
+	)
+}
+
 // LinuxExpr is a the query mod expression for Linux releases.
 func LinuxExpr() qm.QueryMod {
 	return qm.Expr(
@@ -202,6 +223,13 @@ func LinuxExpr() qm.QueryMod {
 func JavaExpr() qm.QueryMod {
 	return qm.Expr(
 		models.FileWhere.Platform.EQ(PJava()),
+	)
+}
+
+// ImageExpr is a the query mod expression for images.
+func ImageExpr() qm.QueryMod {
+	return qm.Expr(
+		models.FileWhere.Platform.EQ(PImage()),
 	)
 }
 
@@ -224,6 +252,13 @@ func MacExpr() qm.QueryMod {
 func MagExpr() qm.QueryMod {
 	return qm.Expr(
 		models.FileWhere.Section.EQ(SMag()),
+	)
+}
+
+// MusicExpr is a the query mod expression for music releases.
+func MusicExpr() qm.QueryMod {
+	return qm.Expr(
+		models.FileWhere.Platform.EQ(PMusic()),
 	)
 }
 
@@ -259,6 +294,13 @@ func PDFExpr() qm.QueryMod {
 func ProofExpr() qm.QueryMod {
 	return qm.Expr(
 		models.FileWhere.Section.EQ(SProof()),
+	)
+}
+
+// RestrictExpr is a the query mod expression for restricted releases.
+func RestrictExpr() qm.QueryMod {
+	return qm.Expr(
+		models.FileWhere.Section.EQ(SRestrict()),
 	)
 }
 
@@ -317,6 +359,13 @@ func TrialCrackmeExpr() qm.QueryMod {
 	return qm.Expr(
 		models.FileWhere.Section.EQ(SJobAdvert()),
 		models.FileWhere.Platform.EQ(PWindows()),
+	)
+}
+
+// VideoExpr is a the query mod expression for video releases.
+func VideoExpr() qm.QueryMod {
+	return qm.Expr(
+		models.FileWhere.Platform.EQ(PVideo()),
 	)
 }
 

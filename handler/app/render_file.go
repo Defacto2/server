@@ -206,6 +206,23 @@ func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 // Records returns the records for the file category URI.
 func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
 	switch Match(uri) {
+	// pulldown menu matches
+	case newUploads:
+		r := model.Files{}
+		return r.List(ctx, db, page, limit)
+	case newUpdates:
+		r := model.Files{}
+		return r.ListUpdates(ctx, db, page, limit)
+	case oldest:
+		r := model.Files{}
+		return r.ListOldest(ctx, db, page, limit)
+	case newest:
+		r := model.Files{}
+		return r.ListNewest(ctx, db, page, limit)
+	// file categories matches
+	case advert:
+		r := model.Advert{}
+		return r.List(ctx, db, page, limit)
 	case announcement:
 		r := model.Announcement{}
 		return r.List(ctx, db, page, limit)
@@ -245,6 +262,9 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 	case demoscene:
 		r := model.Demo{}
 		return r.List(ctx, db, page, limit)
+	case drama:
+		r := model.Drama{}
+		return r.List(ctx, db, page, limit)
 	case ftp:
 		r := model.FTP{}
 		return r.List(ctx, db, page, limit)
@@ -253,6 +273,12 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 		return r.List(ctx, db, page, limit)
 	case html:
 		r := model.HTML{}
+		return r.List(ctx, db, page, limit)
+	case howTo:
+		r := model.HowTo{}
+		return r.List(ctx, db, page, limit)
+	case image:
+		r := model.Image{}
 		return r.List(ctx, db, page, limit)
 	case imagePack:
 		r := model.ImagePack{}
@@ -277,6 +303,9 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 		return r.List(ctx, db, page, limit)
 	case msdosPack:
 		r := model.DosPack{}
+		return r.List(ctx, db, page, limit)
+	case music:
+		r := model.Music{}
 		return r.List(ctx, db, page, limit)
 	case newsArticle:
 		r := model.NewsArticle{}
@@ -311,6 +340,9 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 	case proof:
 		r := model.Proof{}
 		return r.List(ctx, db, page, limit)
+	case restrict:
+		r := model.Restrict{}
+		return r.List(ctx, db, page, limit)
 	case takedown:
 		r := model.Takedown{}
 		return r.List(ctx, db, page, limit)
@@ -334,6 +366,9 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 		return r.List(ctx, db, page, limit)
 	case trialCrackme:
 		r := model.TrialCrackme{}
+		return r.List(ctx, db, page, limit)
+	case video:
+		r := model.Video{}
 		return r.List(ctx, db, page, limit)
 	case windows:
 		r := model.Windows{}

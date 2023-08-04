@@ -35,3 +35,31 @@ func (f *Files) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 	return models.Files(qm.OrderBy("id DESC"),
 		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
 }
+
+// ListOldest returns all of the file records sorted by the date issued.
+func (f *Files) ListOldest(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+	if err := f.Stat(ctx, db); err != nil {
+		return nil, err
+	}
+	return models.Files(qm.OrderBy("date_issued_year ASC NULLS LAST, date_issued_month ASC NULLS LAST, date_issued_day ASC NULLS FIRST"),
+		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+}
+
+// ListNewest returns all of the file records sorted by the date issued.
+func (f *Files) ListNewest(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+	if err := f.Stat(ctx, db); err != nil {
+		return nil, err
+	}
+	return models.Files(qm.OrderBy("date_issued_year DESC NULLS FIRST, date_issued_month DESC NULLS FIRST, date_issued_day DESC NULLS FIRST"),
+		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+}
+
+// ListUpdates returns all of the file records sorted by the date updated.
+func (f *Files) ListUpdates(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+	if err := f.Stat(ctx, db); err != nil {
+		return nil, err
+	}
+	// TODO: rename psql column from `updated_at` to `date_updated`
+	return models.Files(qm.OrderBy("updatedat DESC"),
+		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+}
