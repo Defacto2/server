@@ -44,13 +44,13 @@
                 </p>
                 <span class="card-link">Runs on</span>
                 <a href="/files/intro-windows" class="card-link">Windows</a>
-                <a href="/files/intro-msdos" class="card-link">MS-DOS</a>
+                <a href="/files/intro-msdos" class="card-link">{{msdos}}</a>
                 <a href="/files/intro" class="card-link">any platform</a><br>
             </div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
                     Installers are blah blah.<br>
-                    <span class="card-link">Browse the</span> <a href="/files/installer" class="card-link">Installers</a>
+                    <span class="card-link">Browse the</span> <a href="/files/installer" class="card-link">installers</a>
                 </li>
                 <li class="list-group-item">
                     Demoscene productions...<br>
@@ -61,7 +61,7 @@
                     <small>
                         Cracktros and intros: {{ cntByteFmt $intC $intB }}<br>
                         Windows cracktros and intros: {{ cntByteFmt $intWC $intWB }}<br>
-                        MS-DOS cracktros and intros: {{ cntByteFmt $intDC $intDB }}<br>
+                        {{msdos}} cracktros and intros: {{ cntByteFmt $intDC $intDB }}<br>
                         Installers: {{ cntByteFmt $instC $instB }}<br>
                         Demoscene productions: {{ cntByteFmt $demoC $demoB }}<br>
                     </small>
@@ -78,16 +78,16 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h1 class="card-title {{$titleClass}}">NFO files<small> for scene releases</small></h1>
+                <h1 class="card-title {{$titleClass}}">Nfo files<small> for scene releases</small></h1>
                 <h6 class="card-subtitle mb-2 text-body-secondary">Plus proofs of releases</h6>
                 <p class="card-text">
-                    NFO text files, <small>or README and file_id.diz texts</small> are generally in every scene release.
-                    Often, they are stylised with ASCII text art and arranged in a standard format.
+                    I<u>nfo</u>mation text files, <small>or README and file_id.diz texts</small> are generally in every scene release.
+                    Often, they are stylised with text art and arranged in a standard format.
                     In the early days, these texts included detailed group information, but now they focus more on the
                     describing the software.
                 </p>
                 <span class="card-link">Browse the</span>
-                <a href="/files/nfo" class="card-link">NFO files</a><br>
+                <a href="/files/nfo" class="card-link">nfo files</a><br>
             </div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
@@ -97,9 +97,9 @@
                 {{- if .stats }}
                 <li class="list-group-item">
                     <small>
-                        NFO texts: {{ cntByteFmt $nfoC $nfoB }}<br>
-                        Proofs: {{ cntByteFmt $proofC $proofB }}<br>
-                        Editors: {{ cntByteFmt $nfoTC $nfoTB }}<br>
+                        nfo texts: {{ cntByteFmt $nfoC $nfoB }}<br>
+                        proofs: {{ cntByteFmt $proofC $proofB }}<br>
+                        editors: {{ cntByteFmt $nfoTC $nfoTB }}<br>
                     </small>
                 </li>
                 {{- end}}
@@ -114,23 +114,23 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h1 class="card-title {{$titleClass}}">ANSI art</h1>
+                <h1 class="card-title {{$titleClass}}">Ansi art</h1>
                 <p class="card-text">
-                    Coloured ANSI text art was commonly used on BBSes for advertising and theming of their sites.
+                    Coloured ansi text art was commonly used on BBSes for advertising and board theming.
                 </p>
                 <span class="card-link">Browse the</span>
-                <a href="/files/ansi" class="card-link">ANSI files</a><br>
+                <a href="/files/ansi" class="card-link">ansi files</a><br>
                 <span class="card-link">Or only the</span>
                 <a href="/files/ansi-brand" class="card-link">brands</a>
                 <a href="/files/ansi-bbs" class="card-link">BBS ads</a>
                 <a href="/files/ansi-ftp" class="card-link">FTP ads</a>
-                <a href="/files/ansi-nfo" class="card-link">NFOs</a>
+                <a href="/files/ansi-nfo" class="card-link">nfos</a>
             </div>
             {{- if .stats }}
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
                     <small>
-                        ANSI art and texts: {{ cntByteFmt $ansiC $ansiB }}<br>
+                        ansi art and texts: {{ cntByteFmt $ansiC $ansiB }}<br>
                     </small>
                 </li>
             </ul>
@@ -153,7 +153,7 @@
                 <a href="/files/bbs" class="card-link">adverts</a><br>
                 <span class="card-link">Or only the</span>
                 <a href="/files/bbstro" class="card-link">BBStros</a>
-                <a href="/files/ansi-bbs" class="card-link">ANSI</a>
+                <a href="/files/ansi-bbs" class="card-link">ansi</a>
                 <a href="/files/bbs-image" class="card-link">images</a>
                 <a href="/files/bbs-text" class="card-link">texts</a>
             </div>
@@ -167,7 +167,7 @@
                     <small>
                         BBS adverts: {{ cntByteFmt $bbsC $bbsB }}<br>
                         BBStros: {{ cntByteFmt $bbsTC $bbsTB }}<br>
-                        ANSI art: {{ cntByteFmt $ansiBC $ansiBB }}<br>
+                        ansi art: {{ cntByteFmt $ansiBC $ansiBB }}<br>
                         text files: {{ cntByteFmt $bbsTxC $bbsTxB }}<br>
                     </small>
                 </li>
@@ -213,11 +213,11 @@
                     for easy distribution.
                 </p>
                 <span class="card-link">Browse the packs of</span>
-                <a href="/files/ansi-pack" class="card-link">ANSI art</a>
-                <a href="/files/text-pack" class="card-link">Text and Nfos</a>
-                <a href="/files/image-pack" class="card-link">Images</a>
+                <a href="/files/ansi-pack" class="card-link">ansi art</a>
+                <a href="/files/text-pack" class="card-link">text and nfos</a>
+                <a href="/files/image-pack" class="card-link">images</a>
                 <a href="/files/windows-pack" class="card-link">Windows software</a>
-                <a href="/files/msdos-pack" class="card-link">MS-DOS software</a>
+                <a href="/files/msdos-pack" class="card-link">{{msdos}} software</a>
             </div>
         </div>
     </div>

@@ -3,6 +3,7 @@ package tags
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"sync"
 
@@ -129,6 +130,118 @@ const (
 	Video
 	Windows
 )
+
+// Humanize returns the human readable name of the platform and section tags combined.
+func Humanize(platform, section Tag) string {
+	switch platform {
+	case ANSI:
+		switch section {
+		case BBS:
+			return "A BBS ansi advert"
+		case Ftp:
+			return "An ansi advert for an FTP site"
+		case Logo:
+			return "An ansi logo"
+		case Nfo:
+			return "An nfo text in ansi format"
+		case Pack:
+			return "An filepack of ansi files"
+		}
+	case DataB:
+		switch section {
+		case Nfo:
+			return "A database of releases"
+		default:
+			return fmt.Sprintf("A %s database", Names()[section])
+		}
+	case Markup:
+		return fmt.Sprintf("A %s in HTML", Names()[section])
+	case Image:
+		switch section {
+		case BBS:
+			return "A BBS advert image"
+		case ForSale:
+			return "An image advertisement"
+		case Pack:
+			return "A filepack of images"
+		case Proof:
+			return "A proof of release photo"
+		}
+	case PDF:
+		return fmt.Sprintf("A %s as a PDF document", Names()[section])
+	case Text:
+		switch section {
+		case AtariST:
+			return "A textfile for the Atari ST"
+		case AppleII:
+			return "A textfile for the Apple II"
+		case BBS:
+			return "A text advert for a BBS"
+		case ForSale:
+			return "A textfile advert"
+		case Ftp:
+			return "A text advert for an FTP site"
+		case Mag:
+			return "A magazine textfile"
+		case Nfo:
+			return "An nfo textfile"
+		case Pack:
+			return "A filepack of textfiles"
+		case Restrict:
+			return "An textfile with restricted content"
+		default:
+			return fmt.Sprintf("A %s textfile", Names()[section])
+		}
+	case TextAmiga:
+		switch section {
+		case BBS:
+			return "An Amiga text advert for a BBS"
+		case ForSale:
+			return "An Amiga textfile advert"
+		case Ftp:
+			return "An Amiga text advert for an FTP site"
+		case Mag:
+			return "An Amiga magazine textfile"
+		case Nfo:
+			return "An Amiga nfo textfile"
+		case Restrict:
+			return "An Amiga textfile with restricted content"
+		}
+	case Video:
+		return fmt.Sprintf("A %s video", Names()[section])
+	case Windows:
+		switch section {
+		case Demo:
+			return "A demo on Windows"
+		case Install:
+			return "A Windows installer"
+		case Intro:
+			return "A Windows intro"
+		case Job:
+			return "A trial crackme for Windows"
+		case Pack:
+			return "A filepack of Windows programs"
+		}
+	case DOS:
+		switch section {
+		case BBS:
+			return "A BBStro on MS-Dos"
+		case Demo:
+			return "A demo on MS-Dos"
+		case ForSale:
+			return "An advertisement on MS-Dos"
+		case GameHack:
+			return "A trainer or hack on MS-Dos"
+		case Install:
+			return "A MS-Dos installer"
+		case Intro:
+			return "A intro for MS-Dos"
+		case Pack:
+			return "A filepack of MS-Dos programs"
+		}
+	}
+	return fmt.Sprintf("A %s %s", Names()[platform], Names()[section])
+}
 
 // Sum the numbers of files with the tag.
 type Sum map[Tag]int

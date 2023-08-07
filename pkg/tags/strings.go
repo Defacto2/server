@@ -75,12 +75,12 @@ func TagByURI(slug string) Tag {
 	return -1
 }
 
-// For consistency, the names and descriptions should be in US English.
-
+// Names or titles of the URI tags.
+// For consistency, the names and descriptions should be in US English and singular.
 func Names() URI {
 	return URI{
 		Announcement: "announcement",
-		ANSIEditor:   "ANSI editor",
+		ANSIEditor:   "ansi editor",
 		AppleII:      "Apple II",
 		AtariST:      "Atari ST",
 		BBS:          "BBS",
@@ -95,12 +95,12 @@ func Names() URI {
 		Ftp:          "FTP",
 		GameHack:     "game hack",
 		Job:          "group role or job",
-		Guide:        "guides and how-tos",
+		Guide:        "guide or how-to",
 		Interview:    "interview",
 		Mag:          "magazine",
 		News:         "mainstream news",
-		Nfo:          "NFO file or scene release",
-		NfoTool:      "NFO tool",
+		Nfo:          "nfo file or scene release",
+		NfoTool:      "nfo tool",
 		Pack:         "filepack",
 		Proof:        "release proof",
 		Restrict:     "restricted",
@@ -108,7 +108,7 @@ func Names() URI {
 		ANSI:         "ansi",
 		Audio:        "music",
 		DataB:        "database",
-		DOS:          "DOS",
+		DOS:          "Dos",
 		Markup:       "HTML",
 		Image:        "image",
 		Java:         "Java",
@@ -137,54 +137,54 @@ func NameByURI(slug string) string {
 
 func Infos() Info {
 	return Info{
-		Announcement: "Public announcements by Scene groups and organizations",
-		ANSIEditor:   "Programs that enable you to create and edit ANSI and ASCII art",
-		AppleII:      "Files about the Scene on the Apple II computer platform",
-		AtariST:      "Files on the Scene on the Atari ST computer platform",
-		BBS:          "Files about the Scene operating over telephone-based BBS (Bulletin Board System) systems",
-		Logo:         "Branding logos used by scene groups and organizations",
-		Bust: "First-hand accounts and third party reports on the arrest, " +
+		Announcement: "public announcements by Scene groups and organizations",
+		ANSIEditor:   "programs that enable you to create and edit ansi and text art",
+		AppleII:      "files about The Scene on the Apple II computer platform",
+		AtariST:      "files on The Scene on the Atari ST computer platform",
+		BBS:          "BBS (Bulletin Board System) files about The Scene operating over the telephone network",
+		Logo:         "brand logos used by scene groups and organizations",
+		Bust: "first-hand accounts and third party reports on the arrest, " +
 			"bust or take-down of an active person in the scene or a scene organizations",
-		Drama: "Used for anything political that doesn't fall into the other categories. " +
+		Drama: "used for anything political that doesn't fall into the other categories. " +
 			"It usually contains documents where people, groups, or organizations are complaining",
-		Rule: "Various codes of conduct and agreements created by scene groups and organizations",
-		Tool: "Miscellaneous tools, including fixes, intro generators, and BBS software",
-		Intro: "A multimedia program designed to promote a scene group or organization, " +
+		Rule: "various codes of conduct and agreements created by scene groups and organizations",
+		Tool: "miscellaneous tools, including fixes, intro generators, and BBS software",
+		Intro: "a multimedia program designed to promote a scene group or organization, " +
 			"known as a cracktro, crack intro, or loader",
-		Demo:    "An artistic multimedia program designed to promote a demo group or collective",
-		ForSale: "Adverts for commercial physical goods and online services, varying in legality",
-		Ftp:     "Files about the scene operating over Internet-based FTP (File Transfer Protocol) servers",
-		GameHack: "Trainers, dox, cheats, and walk-throughs, which include guides, " +
+		Demo:    "an artistic multimedia program designed to promote a demo group or collective",
+		ForSale: "adverts for commercial physical goods and online services, varying in legality",
+		Ftp:     "files about the scene operating over Internet-based FTP (File Transfer Protocol) servers",
+		GameHack: "trainers, dox, cheats, and walk-throughs, which include guides, " +
 			"how-to documents, and tools to complete games",
-		Job:       "Documents used by scene groups to advertise or enroll new members",
-		Guide:     "Guides and how-to documents on how to hack and crack the workings of the scene",
-		Interview: "Conversations with the personalities of the scene",
-		Mag:       "Reports and written articles created by scene members about the scene",
-		News:      "Mainstream media outlets report on the scene",
-		Nfo:       "A text file or readme describes a scene release, group, or organization",
-		NfoTool:   "Programs that enable you to create or view NFO text files",
-		Proof:     "Evidence of the source media, usually a photo or scanned image",
-		Restrict:  "Documents created by scene groups that are often never intended to be public",
-		Install:   "A program to help an end-user install a scene release",
-		ANSI:      "Colored, text-based computer art form widely used on Bulletin Board Systems",
-		Audio:     "Music or audio sound clips",
-		DataB: "A structured collection of data stored in particular formats, including " +
+		Job:       "documents used by scene groups to advertise or enroll new members",
+		Guide:     "guides and how-to documents on how to hack and crack the workings of The Scene",
+		Interview: "conversations with the personalities of The Scene",
+		Mag:       "reports and written articles created by scene members about The Scene",
+		News:      "mainstream media outlets report on The Scene",
+		Nfo:       "a text file or readme describes a scene release, group, or organization",
+		NfoTool:   "programs that enable you to create or view nfo text files",
+		Proof:     "evidence of the source media, usually a photo or scanned image",
+		Restrict:  "documents created by scene groups that are often never intended to be public",
+		Install:   "a program to help an end-user install a scene release",
+		ANSI:      "colored, text-based computer art form widely used on Bulletin Board Systems",
+		Audio:     "music or audio sound clips",
+		DataB: "a structured collection of data stored in particular formats, including " +
 			"spreadsheets such as Microsoft Excel or databases such as MySQL",
-		DOS:    "DOS programs require using Microsoft's DOS operating system on x86-compatible CPUs",
-		Markup: "Web pages or documents in HTML or text documents in a mark-up language",
-		Image:  "Digital art, pixel art, or photos",
+		DOS:    "Dos programs require using Microsoft's DOS operating system on x86-compatible CPUs",
+		Markup: "web pages or documents in HTML or text documents in a mark-up language",
+		Image:  "digital art, pixel art, or photos",
 		Java:   "Java software that requires the use of the Sun Microsystems or Oracle Java platform",
 		Linux:  "Linux programs are software for the Linux platform, including server and desktop distributions",
-		Mac:    "Programs for the various operating systems created by Apple under the Mac and Macintosh brands",
-		Pack: "A curated bundle of scene-related files is stored and distributed in a " +
+		Mac:    "orograms for the various operating systems created by Apple under the Mac and Macintosh brands",
+		Pack: "a curated bundle of scene-related files is stored and distributed in a " +
 			"compressed archive file, often in ZIP or 7z formats",
-		PCB: "Colored encoded text on Bulletin Board Systems " +
+		PCB: "colored encoded text on Bulletin Board Systems " +
 			"and plain text documents embedded with PCBoard control codes",
-		PDF:       "A document compiled as PDF (Adobe Portable Document Format)",
-		PHP:       "Scripts and interpreted programs that are in an interpreted programming language",
-		TextAmiga: "Text documents and text-based computer art for the Amiga in the Latin-1 character set",
-		Text:      "Text documents and text-based computer art that use an ASCII-compliant character set",
-		Video:     "A film, video, or multimedia animation",
-		Windows:   "These programs require the use of Microsoft's Windows operating system, working on Intel-compatible CPUs",
+		PDF:       "a document compiled as PDF (Adobe Portable Document Format)",
+		PHP:       "scripts and interpreted programs that are in an interpreted programming language",
+		TextAmiga: "text documents and text-based computer art for the Amiga in the Latin-1 character set",
+		Text:      "text documents and text-based computer art that use an ASCII-compliant character set",
+		Video:     "a film, video, or multimedia animation",
+		Windows:   "these programs require the use of Microsoft's Windows operating system, working on Intel-compatible CPUs",
 	}
 }

@@ -64,6 +64,9 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 		"mergeIcon": func() string {
 			return merge
 		},
+		"msdos": func() template.HTML {
+			return "<span class=\"text-nowrap\">MS-Dos</span>"
+		},
 		"sriBootstrapCSS": func() string {
 			return c.Subresource.BootstrapCSS
 		},
@@ -130,7 +133,8 @@ func Describe(plat, sect, year, month any) template.HTML {
 	if p == "" && s == "" {
 		return template.HTML("An unknown release")
 	}
-	x := HumanizeDescription(p, s)
+	x := tags.Humanize(tags.TagByURI(p), tags.TagByURI(s))
+	//x := HumanizeDescription(p, s)
 	if m != "" && y != "" {
 		x = fmt.Sprintf("%s published in <span class=\"text-nowrap\">%s, %s</a>", x, m, y)
 	} else if y != "" {
@@ -143,6 +147,7 @@ func Describe(plat, sect, year, month any) template.HTML {
 // Based on the platform and section.
 func HumanizeDescription(p, s string) string {
 	x := ""
+
 	if p == "" {
 		x = fmt.Sprintf("A %s", s)
 	}
