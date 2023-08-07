@@ -41,7 +41,7 @@ func (f *Files) ListOldest(ctx context.Context, db *sql.DB, offset, limit int) (
 	if err := f.Stat(ctx, db); err != nil {
 		return nil, err
 	}
-	return models.Files(qm.OrderBy("date_issued_year ASC NULLS LAST, date_issued_month ASC NULLS LAST, date_issued_day ASC NULLS FIRST"),
+	return models.Files(qm.OrderBy("date_issued_year ASC NULLS LAST, date_issued_month ASC NULLS LAST, date_issued_day ASC NULLS LAST"),
 		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
 }
 
@@ -50,7 +50,7 @@ func (f *Files) ListNewest(ctx context.Context, db *sql.DB, offset, limit int) (
 	if err := f.Stat(ctx, db); err != nil {
 		return nil, err
 	}
-	return models.Files(qm.OrderBy("date_issued_year DESC NULLS FIRST, date_issued_month DESC NULLS FIRST, date_issued_day DESC NULLS FIRST"),
+	return models.Files(qm.OrderBy("date_issued_year DESC NULLS LAST, date_issued_month DESC NULLS LAST, date_issued_day DESC NULLS LAST"),
 		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
 }
 
