@@ -1,4 +1,14 @@
 {{/*  releaser.html  */}}
 {{- define "content" }}
-The releasers are coming soon...
+{{- $path := "" }}
+{{- $name := index .itemName}}
+<div class="container px-4 text-center">
+    <div class="row row-cols-1 row-cols-sm-2 row-col-md-3 g-2">
+{{ range $index, $value := .sceners -}} 
+        <div class="col">
+            <div class="p-3 border bg-light"><h5><a href="/html3/{{ $path }}/{{ $value.Group.URI }}">{{$value.Group.Name}}</a></h5> {{ cntNameFmt $name $value.Group.Count  $value.Group.Bytes }}</div>
+        </div>
+{{- end}}
+    </div>
+</div>
 {{- end }}

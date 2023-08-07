@@ -19,6 +19,8 @@ const (
 
 type Version string // Version of the PostgreSQL database server in use.
 
+type SQL string // SQL is a raw query statement for PostgreSQL.
+
 // Query the database version.
 func (v *Version) Query() error {
 	conn, err := ConnectDB()
@@ -60,16 +62,34 @@ func SQLGroupStat() string {
 		"GROUP BY group_brand"
 }
 
-// SQLGroupAll is an SQL statement to collect statistics for each of the unique groups.
-func SQLGroupAll() string {
-	return "SELECT DISTINCT group_brand, " +
-		"COUNT(group_brand) AS count, " +
-		"SUM(files.filesize) AS size_sum " +
-		"FROM files " +
-		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(group_brand) " +
-		"WHERE NULLIF(group_brand, '') IS NOT NULL " + // handle empty and null values
-		"GROUP BY group_brand " +
-		"ORDER BY group_brand ASC"
+const releaserSEL = "SELECT DISTINCT group_brand, " +
+	"COUNT(group_brand) AS count, " +
+	"SUM(files.filesize) AS size_sum " +
+	"FROM files " +
+	"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(group_brand) " +
+	"WHERE NULLIF(group_brand, '') IS NOT NULL "
+
+const releaserBy = "GROUP BY group_brand " +
+	"ORDER BY group_brand ASC"
+
+// SelectRelr selects a list of distinct releasers or groups.
+func SelectRelr() SQL {
+	return releaserSEL + releaserBy
+}
+
+// SelectMags selects a list of distinct magazine titles.
+func SelectMag() SQL {
+	return releaserSEL + "AND section = 'magazine'" + releaserBy
+}
+
+// SelectBBS selects a list of distinct BBS names.
+func SelectBBS() SQL {
+	return releaserSEL + "AND group_brand ~ 'BBS\\M'" + releaserBy
+}
+
+// SelectFTP selects a list of distinct FTP site names.
+func SelectFTP() SQL {
+	return releaserSEL + "AND group_brand ~ 'FTP\\M'" + releaserBy
 }
 
 // SQLSumSection is an SQL statement to sum the filesizes of records matching the section.

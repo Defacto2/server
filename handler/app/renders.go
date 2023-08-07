@@ -1,10 +1,13 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
 
+	"github.com/Defacto2/server/model"
+	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -91,11 +94,30 @@ func Artist(s *zap.SugaredLogger, ctx echo.Context) error {
 }
 
 // BBS is the handler for the BBS page.
-func BBS(s *zap.SugaredLogger, ctx echo.Context) error {
+func BBS(s *zap.SugaredLogger, c echo.Context) error {
 	data := empty()
 	data["description"] = demo
 	data["title"] = demo
-	err := ctx.Render(http.StatusOK, "bbs", data)
+
+	data["itemName"] = "issues"
+
+	// TODO: groups data
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, errConn)
+	}
+	defer db.Close()
+	// Groups are the distinct groups from the file table.
+	var sceners model.Groups //nolint:gochecknoglobals
+	if err := sceners.BBS(ctx, db, 0, 0, model.NameAsc); err != nil {
+		s.Errorf("%s: %s %d", errConn, err)
+		const errSQL = "Database connection problem or a SQL error" // fix
+		return echo.NewHTTPError(http.StatusNotFound, errSQL)
+	}
+	data["sceners"] = sceners // model.Grps.List
+
+	err = c.Render(http.StatusOK, "bbs", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
@@ -116,11 +138,29 @@ func Coder(s *zap.SugaredLogger, ctx echo.Context) error {
 }
 
 // FTP is the handler for the FTP page.
-func FTP(s *zap.SugaredLogger, ctx echo.Context) error {
+func FTP(s *zap.SugaredLogger, c echo.Context) error {
 	data := empty()
 	data["description"] = demo
 	data["title"] = demo
-	err := ctx.Render(http.StatusOK, "ftp", data)
+	data["itemName"] = "files"
+
+	// TODO: groups data
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, errConn)
+	}
+	defer db.Close()
+	// Groups are the distinct groups from the file table.
+	var sceners model.Groups //nolint:gochecknoglobals
+	if err := sceners.FTP(ctx, db, 0, 0, model.NameAsc); err != nil {
+		s.Errorf("%s: %s %d", errConn, err)
+		const errSQL = "Database connection problem or a SQL error" // fix
+		return echo.NewHTTPError(http.StatusNotFound, errSQL)
+	}
+	data["sceners"] = sceners // model.Grps.List
+
+	err = c.Render(http.StatusOK, "ftp", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
@@ -180,11 +220,30 @@ func History(s *zap.SugaredLogger, ctx echo.Context) error {
 }
 
 // Magazine is the handler for the Magazine page.
-func Magazine(s *zap.SugaredLogger, ctx echo.Context) error {
+func Magazine(s *zap.SugaredLogger, c echo.Context) error {
 	data := empty()
 	data["description"] = demo
 	data["title"] = demo
-	err := ctx.Render(http.StatusOK, "magazine", data)
+
+	data["itemName"] = "issues"
+
+	// TODO: groups data
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, errConn)
+	}
+	defer db.Close()
+	// Groups are the distinct groups from the file table.
+	var sceners model.Groups //nolint:gochecknoglobals
+	if err := sceners.Magazine(ctx, db, 0, 0, model.NameAsc); err != nil {
+		s.Errorf("%s: %s %d", errConn, err)
+		const errSQL = "Database connection problem or a SQL error" // fix
+		return echo.NewHTTPError(http.StatusNotFound, errSQL)
+	}
+	data["sceners"] = sceners // model.Grps.List
+
+	err = c.Render(http.StatusOK, "magazine", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
@@ -219,7 +278,7 @@ func Scener(s *zap.SugaredLogger, ctx echo.Context) error {
 }
 
 // Releaser is the handler for the Releaser page.
-func Releaser(s *zap.SugaredLogger, ctx echo.Context) error {
+func Releaser(s *zap.SugaredLogger, c echo.Context) error {
 	const h1 = "Releaser"
 	const lead = "A releaser is a member of The Scene who is responsible for releasing new content."
 	data := empty()
@@ -228,7 +287,25 @@ func Releaser(s *zap.SugaredLogger, ctx echo.Context) error {
 	data["h1"] = h1
 	data["lead"] = lead
 	data["title"] = h1
-	err := ctx.Render(http.StatusOK, "releaser", data)
+	data["itemName"] = "files"
+
+	// TODO: groups data
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, errConn)
+	}
+	defer db.Close()
+	// Groups are the distinct groups from the file table.
+	var Groups model.Groups //nolint:gochecknoglobals
+	if err := Groups.All(ctx, db, 0, 0, model.NameAsc); err != nil {
+		s.Errorf("%s: %s %d", errConn, err)
+		const errSQL = "Database connection problem or a SQL error" // fix
+		return echo.NewHTTPError(http.StatusNotFound, errSQL)
+	}
+	data["sceners"] = Groups // model.Grps.List
+
+	err = c.Render(http.StatusOK, "releaser", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)

@@ -45,7 +45,40 @@ func (g *Groups) All(ctx context.Context, db *sql.DB, offset, limit int, o Order
 	if len(*g) > 0 {
 		return nil
 	}
-	if err := queries.Raw(postgres.SQLGroupAll()).Bind(ctx, db, g); err != nil {
+	if err := queries.Raw(string(postgres.SelectRelr())).Bind(ctx, db, g); err != nil {
+		return err
+	}
+	g.Slugs()
+	return nil
+}
+
+func (g *Groups) Magazine(ctx context.Context, db *sql.DB, offset, limit int, o Order) error {
+	if len(*g) > 0 {
+		return nil
+	}
+	if err := queries.Raw(string(postgres.SelectMag())).Bind(ctx, db, g); err != nil {
+		return err
+	}
+	g.Slugs()
+	return nil
+}
+
+func (g *Groups) BBS(ctx context.Context, db *sql.DB, offset, limit int, o Order) error {
+	if len(*g) > 0 {
+		return nil
+	}
+	if err := queries.Raw(string(postgres.SelectBBS())).Bind(ctx, db, g); err != nil {
+		return err
+	}
+	g.Slugs()
+	return nil
+}
+
+func (g *Groups) FTP(ctx context.Context, db *sql.DB, offset, limit int, o Order) error {
+	if len(*g) > 0 {
+		return nil
+	}
+	if err := queries.Raw(string(postgres.SelectFTP())).Bind(ctx, db, g); err != nil {
 		return err
 	}
 	g.Slugs()

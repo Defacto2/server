@@ -40,6 +40,7 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
 		"byteFmt":      ByteFormat,
 		"cntByteFmt":   CountByteFormat,
+		"cntNameFmt":   NamedByteFormat,
 		"describe":     Describe,
 		"externalLink": ExternalLink,
 		"fmtDay":       FmtDay,
@@ -289,6 +290,28 @@ func ByteFormat(b any) string {
 	default:
 		return fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(b).String())
 	}
+}
+
+func NamedByteFormat(name string, c, b any) template.HTML {
+	s := ""
+	switch val := c.(type) {
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		i := reflect.ValueOf(val).Int()
+		p := message.NewPrinter(language.English)
+		s = p.Sprintf("%d", i)
+	default:
+		s = fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(c).String())
+		return template.HTML(s)
+	}
+	switch val := b.(type) {
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		i := reflect.ValueOf(val).Int()
+		s = fmt.Sprintf("%s %s <small>(%s)</small>", s, name, helpers.ByteCount(i))
+	default:
+		s = fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(b).String())
+		return template.HTML(s)
+	}
+	return template.HTML(s)
 }
 
 // CountByteFormat returns a human readable string of the file count and bytes.
