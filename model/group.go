@@ -11,83 +11,100 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// GroupStats are statistics of the unique groups.
-type GroupStats struct {
-	Count int `boil:"counter"`
+// Rels counts the total number of unique groups, products and releasers.
+type Rels struct {
+	Count int `boil:"counter"` // Count of unique groups.
+}
+
+// Releaser is a collective, group or individual, that releases files.
+type Releaser struct {
+	Name  string `boil:"group_brand"` // Name of the releaser.
+	URI   string ``                   // URI slug for the scener.
+	Bytes int    `boil:"size_sum"`    // Bytes are the total size of all the files under this releaser.
+	Count int    `boil:"count"`       // Count is the total number of files under this releaser.
+}
+
+// Releasers is a collection of releasers.
+type Releasers []*struct {
+	Unique Releaser `boil:",bind"` // Unique is the releaser.
 }
 
 // Stat counts the total number of unique groups.
-func (g *GroupStats) Stat(ctx context.Context, db *sql.DB) error {
-	if g.Count > 0 {
-		return nil
+func (r *Rels) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
 	}
-	r, err := models.Files(qm.SQL(postgres.SQLGroupStat())).All(ctx, db)
+	f, err := models.Files(qm.SQL(postgres.SQLGroupStat())).All(ctx, db)
 	if err != nil {
 		return err
 	}
-	g.Count = len(r)
+	r.Count = len(f)
 	return nil
 }
 
-type Group struct {
-	Name  string `boil:"group_brand"`
-	URI   string // URI slug for the scener.
-	Bytes int    `boil:"size_sum"`
-	Count int    `boil:"count"`
-}
-
-type Groups []*struct {
-	Group Group `boil:",bind"`
-}
-
-// All the names and statistics of the unique groups.
-func (g *Groups) All(ctx context.Context, db *sql.DB, offset, limit int, o Order) error {
-	if len(*g) > 0 {
+// All gets the unique releaser names and their total file count and file sizes.
+func (r *Releasers) All(ctx context.Context, db *sql.DB, offset, limit int, o Order) error {
+	if db == nil {
+		return ErrDB
+	}
+	if len(*r) > 0 {
 		return nil
 	}
-	if err := queries.Raw(string(postgres.SelectRelr())).Bind(ctx, db, g); err != nil {
+	if err := queries.Raw(string(postgres.SelectRelr())).Bind(ctx, db, r); err != nil {
 		return err
 	}
-	g.Slugs()
+	r.Slugs()
 	return nil
 }
 
-func (g *Groups) Magazine(ctx context.Context, db *sql.DB, offset, limit int, o Order) error {
-	if len(*g) > 0 {
+// Magazine gets the unique magazine titles and their total issue count and file sizes.
+func (r *Releasers) Magazine(ctx context.Context, db *sql.DB, offset, limit int, o Order) error {
+	if db == nil {
+		return ErrDB
+	}
+	if len(*r) > 0 {
 		return nil
 	}
-	if err := queries.Raw(string(postgres.SelectMag())).Bind(ctx, db, g); err != nil {
+	if err := queries.Raw(string(postgres.SelectMag())).Bind(ctx, db, r); err != nil {
 		return err
 	}
-	g.Slugs()
+	r.Slugs()
 	return nil
 }
 
-func (g *Groups) BBS(ctx context.Context, db *sql.DB, offset, limit int, o Order) error {
-	if len(*g) > 0 {
+// BBS gets the unique BBS site names and their total file count and file sizes.
+func (r *Releasers) BBS(ctx context.Context, db *sql.DB, offset, limit int, o Order) error {
+	if db == nil {
+		return ErrDB
+	}
+	if len(*r) > 0 {
 		return nil
 	}
-	if err := queries.Raw(string(postgres.SelectBBS())).Bind(ctx, db, g); err != nil {
+	if err := queries.Raw(string(postgres.SelectBBS())).Bind(ctx, db, r); err != nil {
 		return err
 	}
-	g.Slugs()
+	r.Slugs()
 	return nil
 }
 
-func (g *Groups) FTP(ctx context.Context, db *sql.DB, offset, limit int, o Order) error {
-	if len(*g) > 0 {
+// FTP gets the unique FTP site names and their total file count and file sizes.
+func (r *Releasers) FTP(ctx context.Context, db *sql.DB, offset, limit int, o Order) error {
+	if db == nil {
+		return ErrDB
+	}
+	if len(*r) > 0 {
 		return nil
 	}
-	if err := queries.Raw(string(postgres.SelectFTP())).Bind(ctx, db, g); err != nil {
+	if err := queries.Raw(string(postgres.SelectFTP())).Bind(ctx, db, r); err != nil {
 		return err
 	}
-	g.Slugs()
+	r.Slugs()
 	return nil
 }
 
 // Slugs saves URL friendly strings to the Group names.
-func (g *Groups) Slugs() {
-	for _, group := range *g {
-		group.Group.URI = helpers.Slug(group.Group.Name)
+func (r *Releasers) Slugs() {
+	for _, releaser := range *r {
+		releaser.Unique.URI = helpers.Slug(releaser.Unique.Name)
 	}
 }

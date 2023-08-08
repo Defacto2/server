@@ -11,7 +11,10 @@ import (
 	"github.com/Defacto2/server/pkg/postgres/models"
 )
 
-const padding = " "
+const (
+	NoModel = "error, no file model"
+	padding = " "
+)
 
 // LeadStr takes a string and returns the leading whitespace padding, characters wide.
 // the value of string is note returned.
@@ -36,6 +39,9 @@ func PublishedFW(width int, f *models.File) string {
 // formats them into dd-mmm-yyyy string format. Depending on the context, any missing time
 // values will be left blank or replaced with ?? question marks.
 func Published(f *models.File) string {
+	if f == nil {
+		return NoModel
+	}
 	const (
 		yx       = "????"
 		mx       = "???"
@@ -74,6 +80,9 @@ func Published(f *models.File) string {
 
 // Created returns the Createdat time to use a dd-mmm-yyyy format.
 func Created(f *models.File) string {
+	if f == nil {
+		return NoModel
+	}
 	if !f.Createdat.Valid {
 		return ""
 	}
@@ -89,6 +98,9 @@ func Created(f *models.File) string {
 // Icon returns the extensionless name of a .gif image file to use as an icon
 // for the filename. The icons are found in /public/image/html3/.
 func Icon(f *models.File) string {
+	if f == nil {
+		return NoModel
+	}
 	const err = "unknown"
 	if !f.Filename.Valid {
 		return err

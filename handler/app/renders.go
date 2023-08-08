@@ -29,6 +29,8 @@ func empty() map[string]interface{} {
 	}
 }
 
+// TODO: reorder by menu order
+
 // Status is the handler for the HTTP status pages such as the 404 - not found.
 func Status(s *zap.SugaredLogger, c echo.Context, code int, uri string) error {
 	if s == nil {
@@ -109,7 +111,7 @@ func BBS(s *zap.SugaredLogger, c echo.Context) error {
 	}
 	defer db.Close()
 	// Groups are the distinct groups from the file table.
-	var sceners model.Groups //nolint:gochecknoglobals
+	var sceners model.Releasers //nolint:gochecknoglobals
 	if err := sceners.BBS(ctx, db, 0, 0, model.NameAsc); err != nil {
 		s.Errorf("%s: %s %d", errConn, err)
 		const errSQL = "Database connection problem or a SQL error" // fix
@@ -152,7 +154,7 @@ func FTP(s *zap.SugaredLogger, c echo.Context) error {
 	}
 	defer db.Close()
 	// Groups are the distinct groups from the file table.
-	var sceners model.Groups //nolint:gochecknoglobals
+	var sceners model.Releasers //nolint:gochecknoglobals
 	if err := sceners.FTP(ctx, db, 0, 0, model.NameAsc); err != nil {
 		s.Errorf("%s: %s %d", errConn, err)
 		const errSQL = "Database connection problem or a SQL error" // fix
@@ -235,7 +237,7 @@ func Magazine(s *zap.SugaredLogger, c echo.Context) error {
 	}
 	defer db.Close()
 	// Groups are the distinct groups from the file table.
-	var sceners model.Groups //nolint:gochecknoglobals
+	var sceners model.Releasers //nolint:gochecknoglobals
 	if err := sceners.Magazine(ctx, db, 0, 0, model.NameAsc); err != nil {
 		s.Errorf("%s: %s %d", errConn, err)
 		const errSQL = "Database connection problem or a SQL error" // fix
@@ -297,7 +299,7 @@ func Releaser(s *zap.SugaredLogger, c echo.Context) error {
 	}
 	defer db.Close()
 	// Groups are the distinct groups from the file table.
-	var Groups model.Groups //nolint:gochecknoglobals
+	var Groups model.Releasers //nolint:gochecknoglobals
 	if err := Groups.All(ctx, db, 0, 0, model.NameAsc); err != nil {
 		s.Errorf("%s: %s %d", errConn, err)
 		const errSQL = "Database connection problem or a SQL error" // fix

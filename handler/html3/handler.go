@@ -81,12 +81,12 @@ var Stats struct { //nolint:gochecknoglobals
 	All      model.Files
 	Art      model.Arts
 	Document model.Docs
-	Group    model.GroupStats
+	Group    model.Rels
 	Software model.Softs
 }
 
 // Groups are the distinct groups from the file table.
-var Groups model.Groups //nolint:gochecknoglobals
+var Groups model.Releasers //nolint:gochecknoglobals
 
 // Routes for the /html3 sub-route group.
 // Any errors are logged and rendered to the client using HTTP codes

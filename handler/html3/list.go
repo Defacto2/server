@@ -160,7 +160,7 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error {
 	case ByPlatform:
 		byteSum, err = model.ByteCountByPlatform(ctx, db, id)
 	case ByGroup:
-		byteSum, err = model.ByteCountByGroup(ctx, db, name)
+		byteSum, err = model.ByteCountByReleaser(ctx, db, name)
 	case AllReleases:
 		byteSum = int64(all.Bytes)
 	case AsArt:

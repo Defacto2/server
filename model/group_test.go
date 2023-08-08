@@ -21,12 +21,12 @@ func TestAllSlugs(t *testing.T) {
 	}
 	defer db.Close()
 
-	var g model.Groups
+	var g model.Releasers
 	if err := g.All(ctx, db, 0, 0, model.NameAsc); err != nil {
 		log.Fatal(err)
 	}
 	for _, x := range g {
-		og := sceners.CleanURL(x.Group.Name)
+		og := sceners.CleanURL(x.Unique.Name)
 		y := helpers.Slug(og)
 		z := sceners.CleanURL(y)
 		assert.Equal(t, og, z, "slug is "+y)

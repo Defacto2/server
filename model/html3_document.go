@@ -1,13 +1,14 @@
 package model
 
+// This file is the custom document category for the HTML3 template.
+
 import (
 	"context"
 	"database/sql"
 
+	"github.com/Defacto2/server/model/modext"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
-	"github.com/Defacto2/server/pkg/tags"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
@@ -19,6 +20,9 @@ type Docs struct {
 
 // Stat counts the total number and total byte size of releases that could be considered documents.
 func (d *Docs) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	if d.Bytes > 0 && d.Count > 0 {
 		return nil
 	}
@@ -30,14 +34,10 @@ func (d *Docs) Stat(ctx context.Context, db *sql.DB) error {
 
 // DocumentExpr is a the query mod expression for document files.
 func DocumentExpr() qm.QueryMod {
-	ansi := null.String{String: tags.URIs()[tags.ANSI], Valid: true}
-	text := null.String{String: tags.URIs()[tags.Text], Valid: true}
-	amiga := null.String{String: tags.URIs()[tags.TextAmiga], Valid: true}
-	pdf := null.String{String: tags.URIs()[tags.PDF], Valid: true}
 	return qm.Expr(
-		models.FileWhere.Platform.EQ(ansi),
-		qm.Or2(models.FileWhere.Platform.EQ(text)),
-		qm.Or2(models.FileWhere.Platform.EQ(amiga)),
-		qm.Or2(models.FileWhere.Platform.EQ(pdf)),
+		models.FileWhere.Platform.EQ(modext.PAnsi()),
+		qm.Or2(models.FileWhere.Platform.EQ(modext.PText())),
+		qm.Or2(models.FileWhere.Platform.EQ(modext.PTextAmiga())),
+		qm.Or2(models.FileWhere.Platform.EQ(modext.PPdf())),
 	)
 }

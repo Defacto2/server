@@ -1,13 +1,14 @@
 package model
 
+// This file is the custom art category for the HTML3 template.
+
 import (
 	"context"
 	"database/sql"
 
+	"github.com/Defacto2/server/model/modext"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
-	"github.com/Defacto2/server/pkg/tags"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
@@ -19,6 +20,9 @@ type Arts struct {
 
 // Stat counts the total number and total byte size of releases that could be considered as digital or pixel art.
 func (a *Arts) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	if a.Bytes > 0 && a.Count > 0 {
 		return nil
 	}
@@ -30,10 +34,8 @@ func (a *Arts) Stat(ctx context.Context, db *sql.DB) error {
 
 // ArtExpr is a the query mod expression for art releases.
 func ArtExpr() qm.QueryMod {
-	bbs := null.String{String: tags.URIs()[tags.BBS], Valid: true}
-	image := null.String{String: tags.URIs()[tags.Image], Valid: true}
 	return qm.Expr(
-		models.FileWhere.Section.NEQ(bbs),
-		models.FileWhere.Platform.EQ(image),
+		models.FileWhere.Section.NEQ(modext.SBbs()),
+		models.FileWhere.Platform.EQ(modext.PImage()),
 	)
 }

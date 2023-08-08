@@ -1,13 +1,14 @@
 package model
 
+// This file is the custom software category for the HTML3 template.
+
 import (
 	"context"
 	"database/sql"
 
+	"github.com/Defacto2/server/model/modext"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
-	"github.com/Defacto2/server/pkg/tags"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
@@ -19,6 +20,9 @@ type Softs struct {
 
 // Stat counts the total number and total byte size of releases that could be considered as digital or pixel art.
 func (s *Softs) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	if s.Bytes > 0 && s.Count > 0 {
 		return nil
 	}
@@ -30,16 +34,11 @@ func (s *Softs) Stat(ctx context.Context, db *sql.DB) error {
 
 // SoftwareExpr is a the query mod expression for software files.
 func SoftwareExpr() qm.QueryMod {
-	java := null.String{String: tags.URIs()[tags.Java], Valid: true}
-	linux := null.String{String: tags.URIs()[tags.Linux], Valid: true}
-	dos := null.String{String: tags.URIs()[tags.DOS], Valid: true}
-	php := null.String{String: tags.URIs()[tags.PHP], Valid: true}
-	windows := null.String{String: tags.URIs()[tags.Windows], Valid: true}
 	return qm.Expr(
-		models.FileWhere.Platform.EQ(java),
-		qm.Or2(models.FileWhere.Platform.EQ(linux)),
-		qm.Or2(models.FileWhere.Platform.EQ(dos)),
-		qm.Or2(models.FileWhere.Platform.EQ(php)),
-		qm.Or2(models.FileWhere.Platform.EQ(windows)),
+		models.FileWhere.Platform.EQ(modext.PJava()),
+		qm.Or2(models.FileWhere.Platform.EQ(modext.PLinux())),
+		qm.Or2(models.FileWhere.Platform.EQ(modext.PDos())),
+		qm.Or2(models.FileWhere.Platform.EQ(modext.PScript())),
+		qm.Or2(models.FileWhere.Platform.EQ(modext.PWindows())),
 	)
 }

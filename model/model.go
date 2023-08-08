@@ -12,47 +12,78 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
+var (
+	ErrDB   = fmt.Errorf("database value is nil")
+	ErrKey  = fmt.Errorf("key value is zero")
+	ErrName = fmt.Errorf("name value is empty")
+)
+
 // From is the name of the table containing records of files.
 const From = "files"
 
 // Cache returns true if the statistics are considered to be valid.
 func Cache(b, c int, t time.Time) bool {
-	fmt.Println(t.Before(time.Now().Add(-time.Hour * 1)))
 	return b > 0 && c > 0 && t.Before(time.Now().Add(-time.Hour*1))
 }
 
 // One returns the record associated with the key ID.
 func One(ctx context.Context, db *sql.DB, key int) (*models.File, error) {
-	file, err := models.Files(models.FileWhere.ID.EQ(int64(key))).One(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	if key == 0 {
+		return nil, ErrKey
+	}
+	mods := models.FileWhere.ID.EQ(int64(key))
+	file, err := models.Files(mods).One(ctx, db)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("one record %d: %w", key, err)
 	}
 	return file, err
 }
 
-// ByteCountByCategory sums the byte filesizes for all the files that match the category name.
+// ByteCountByCategory sums the byte file sizes for all the files that match the category name.
 func ByteCountByCategory(ctx context.Context, db *sql.DB, name string) (int64, error) {
-	i, err := models.Files(
-		qm.SQL(postgres.SQLSumSection(), null.StringFrom(name))).Count(ctx, db)
+	if db == nil {
+		return 0, ErrDB
+	}
+	if name == "" {
+		return 0, ErrName
+	}
+	mods := qm.SQL(postgres.SQLSumSection(), null.StringFrom(name))
+	i, err := models.Files(mods).Count(ctx, db)
 	if err != nil {
-		return 0, fmt.Errorf("bytecount by section %q: %w", name, err)
+		return 0, fmt.Errorf("bytecount by category %q: %w", name, err)
 	}
 	return i, nil
 }
 
-// ByteCountByGroup sums the byte filesizes for all the files that match the group name.
-func ByteCountByGroup(ctx context.Context, db *sql.DB, name string) (int64, error) {
-	x := null.StringFrom(name)
-	i, err := models.Files(qm.SQL(postgres.SQLSumGroup(), x)).Count(ctx, db)
+// ByteCountByReleaser sums the byte file sizes for all the files that match the group name.
+func ByteCountByReleaser(ctx context.Context, db *sql.DB, name string) (int64, error) {
+	if db == nil {
+		return 0, ErrDB
+	}
+	if name == "" {
+		return 0, ErrName
+	}
+	mods := qm.SQL(postgres.SQLSumGroup(), null.StringFrom(name))
+	i, err := models.Files(mods).Count(ctx, db)
 	if err != nil {
-		return 0, fmt.Errorf("bytecount by group %q: %w", name, err)
+		return 0, fmt.Errorf("bytecount by releaser %q: %w", name, err)
 	}
 	return i, nil
 }
 
 // ByteCountByPlatform sums the byte filesizes for all the files that match the category name.
 func ByteCountByPlatform(ctx context.Context, db *sql.DB, name string) (int64, error) {
-	i, err := models.Files(qm.SQL(postgres.SQLSumPlatform(), null.StringFrom(name))).Count(ctx, db)
+	if db == nil {
+		return 0, ErrDB
+	}
+	if name == "" {
+		return 0, ErrName
+	}
+	mods := qm.SQL(postgres.SQLSumPlatform(), null.StringFrom(name))
+	i, err := models.Files(mods).Count(ctx, db)
 	if err != nil {
 		return 0, fmt.Errorf("bytecount by platform %q: %w", name, err)
 	}
@@ -61,14 +92,34 @@ func ByteCountByPlatform(ctx context.Context, db *sql.DB, name string) (int64, e
 
 // CountByCategory counts the files that match the named category.
 func CountByCategory(ctx context.Context, db *sql.DB, name string) (int64, error) {
-	x := null.StringFrom(name)
-	return models.Files(models.FileWhere.Section.EQ(x)).Count(ctx, db)
+	if db == nil {
+		return 0, ErrDB
+	}
+	if name == "" {
+		return 0, ErrName
+	}
+	mods := models.FileWhere.Section.EQ(null.StringFrom(name))
+	i, err := models.Files(mods).Count(ctx, db)
+	if err != nil {
+		return 0, fmt.Errorf("count by category %q: %w", name, err)
+	}
+	return i, nil
 }
 
 // CountByPlatform counts the files that match the named category.
 func CountByPlatform(ctx context.Context, db *sql.DB, name string) (int64, error) {
-	x := null.StringFrom(name)
-	return models.Files(models.FileWhere.Platform.EQ(x)).Count(ctx, db)
+	if db == nil {
+		return 0, ErrDB
+	}
+	if name == "" {
+		return 0, ErrName
+	}
+	mods := models.FileWhere.Platform.EQ(null.StringFrom(name))
+	i, err := models.Files(mods).Count(ctx, db)
+	if err != nil {
+		return 0, fmt.Errorf("count by platform %q: %w", name, err)
+	}
+	return i, nil
 }
 
 // SelectHTML3 selects only the columns required by the HTML3 template.
