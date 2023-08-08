@@ -292,6 +292,7 @@ func ByteFormat(b any) string {
 	}
 }
 
+// NamedByteFormat returns a human readable string of the byte count with a named description.
 func NamedByteFormat(name string, c, b any) template.HTML {
 	s := ""
 	switch val := c.(type) {
@@ -306,6 +307,9 @@ func NamedByteFormat(name string, c, b any) template.HTML {
 	switch val := b.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
+		if i != 0 {
+			name = fmt.Sprintf("%ss", name)
+		}
 		s = fmt.Sprintf("%s %s <small>(%s)</small>", s, name, helpers.ByteCount(i))
 	default:
 		s = fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(b).String())
@@ -345,8 +349,9 @@ func ExternalLink(href, name string) template.HTML {
 	if name == "" {
 		return "error: name is empty"
 	}
-
-	return template.HTML(fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover" href="%s">%s %s</a>`, href, name, link))
+	a := fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover" href="%s">%s %s</a>`,
+		href, name, link)
+	return template.HTML(a)
 }
 
 // IDDownload creates a URL to link to the file download of the record.
@@ -493,32 +498,27 @@ func LogoText(s string) string {
 		return indent + Welcome
 	}
 
+	const padder = " ·· "
+	const wl, pl = len(Welcome), len(padder)
+	const limit = wl - (pl + pl) - 3
 	// odd returns true if the given integer is odd.
 	odd := func(i int) bool {
 		return i%2 != 0
 	}
-
 	s = strings.ToUpper(s)
-
-	const padder = " ·· "
-	const wl, pl = len(Welcome), len(padder)
-	const limit = wl - (pl + pl) - 3
 
 	// Truncate the string to the limit.
 	if len(s) > limit {
 		return fmt.Sprintf("%s:%s%s%s·",
 			indent, padder, s[:limit], padder)
 	}
-
 	styled := fmt.Sprintf("%s%s%s", padder, s, padder)
 	if !odd(len(s)) {
 		styled = fmt.Sprintf(" %s%s%s", padder, s, padder)
 	}
-
 	// Pad the string with spaces to center it.
 	const split = 2
 	count := (wl / split) - (len(styled) / split) - split
-
 	text := fmt.Sprintf(":%s%s%s·",
 		strings.Repeat(" ", count),
 		styled,
@@ -561,5 +561,7 @@ func WikiLink(uri, name string) template.HTML {
 	if err != nil {
 		return template.HTML(err.Error())
 	}
-	return template.HTML(fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover" href="%s">%s %s</a>`, href, name, wiki))
+	a := fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover" href="%s">%s %s</a>`,
+		href, name, wiki)
+	return template.HTML(a)
 }

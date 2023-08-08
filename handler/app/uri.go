@@ -1,5 +1,7 @@
 package app
 
+// Package file uri.go contains the URI type, strings and methods.
+
 // URI is a type for the files URI path.
 type URI int
 

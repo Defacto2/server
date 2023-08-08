@@ -27,6 +27,7 @@ const (
 
 var (
 	ErrContext = errors.New("the server could not create a context")
+	ErrDB      = errors.New("database connection is nil")
 	ErrLogger  = errors.New("the server could not create a logger")
 	ErrTmpl    = errors.New("the server could not render the HTML template for this page")
 )

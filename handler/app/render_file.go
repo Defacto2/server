@@ -1,5 +1,7 @@
 package app
 
+// Package file render_file.go contains the handler functions for the file and files routes.
+
 import (
 	"context"
 	"database/sql"
@@ -16,115 +18,12 @@ import (
 
 const records = "records"
 
-// Stats are the database statistics for the file categories.
-type Stats struct { //nolint:gochecknoglobals
-	All       model.Files
-	Ansi      model.Ansi
-	AnsiBBS   model.AnsiBBS
-	BBS       model.BBS
-	BBSText   model.BBSText
-	BBStro    model.BBStro
-	Demo      model.Demo
-	DOS       model.DOS
-	Intro     model.Intro
-	IntroD    model.IntroDOS
-	IntroW    model.IntroWindows
-	Installer model.Installer
-	Java      model.Java
-	Linux     model.Linux
-	Mag       model.Mag
-	Mac       model.Mac
-	Nfo       model.Nfo
-	NfoTool   model.NfoTool
-	Proof     model.Proof
-	Script    model.Script
-	Text      model.Text
-	Windows   model.Windows
-}
-
-// Get and store the database statistics for the file categories.
-func (s *Stats) Get(ctx context.Context, db *sql.DB) error {
-	if err := s.All.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.Ansi.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.AnsiBBS.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.BBS.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.BBSText.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.BBStro.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.DOS.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.Intro.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.IntroD.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.IntroW.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.Installer.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.Java.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.Linux.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.Demo.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.Mac.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.Mag.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.Nfo.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.NfoTool.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.Proof.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.Script.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.Text.Stat(ctx, db); err != nil {
-		return err
-	}
-	if err := s.Windows.Stat(ctx, db); err != nil {
-		return err
-	}
-	return nil
-}
-
-// Statistics returns the empty database statistics for the file categories.
-func Statistics() Stats {
-	return Stats{}
-}
-
 // File is the handler for the file categories page.
 func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
 	if s == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("%w: handler app file", ErrLogger))
 	}
 	data := empty()
-
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -132,7 +31,6 @@ func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	defer db.Close()
-
 	counter := Stats{}
 	if err := counter.Get(ctx, db); err != nil {
 		s.Warnf("%w: %w", errConn, err)
@@ -149,7 +47,8 @@ func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
 	if stats {
 		data["h1sub"] = "with statistics"
 		data["logo"] = title + " + stats"
-		data["lead"] = "This page shows the file categories with selected statistics, such as the number of files in the category or platform." +
+		data["lead"] = "This page shows the file categories with selected statistics, " +
+			"such as the number of files in the category or platform." +
 			fmt.Sprintf(" The total number of files in the database is %d.", counter.All.Count) +
 			fmt.Sprintf(" The total size of all files in the database is %s.", helpers.ByteCount(int64(counter.All.Bytes)))
 	}
@@ -163,26 +62,8 @@ func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
 
 // Files is the handler for the files page.
 func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
-	const (
-		limit = 99
-		page  = 1
-	)
-	data := empty()
-	data["title"] = "Files placeholder"
-	data["logo"] = "Files placeholder"
-	data["description"] = "Table of contents for the files."
-
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		s.Warnf("%s: %s", errConn, err)
-		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
-	}
-	defer db.Close()
-
-	counter := Stats{}
-	if err := counter.All.Stat(ctx, db); err != nil {
-		s.Warnf("%s: %s", errConn, err)
+	if s == nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("%w: handler app files", ErrLogger))
 	}
 	if !IsURI(id) {
 		// TODO: redirect to File categories with custom alert 404 message?
@@ -190,6 +71,27 @@ func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 		// with something about the file categories page.
 		return Status(s, c, http.StatusNotFound, c.Param("uri"))
 	}
+
+	const (
+		limit = 99
+		page  = 1
+	)
+	data := empty()
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		s.Warnf("%s: %s", errConn, err)
+		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
+	}
+	defer db.Close()
+	counter := Stats{}
+	if err := counter.All.Stat(ctx, db); err != nil {
+		s.Warnf("%s: %s", errConn, err)
+	}
+
+	data["title"] = "Files placeholder"
+	data["logo"] = "Files placeholder"
+	data["description"] = "Table of contents for the files."
 	data[records], err = Records(ctx, db, id, page, limit)
 	if err != nil {
 		s.Warnf("%s: %s", ErrTmpl, err)
@@ -205,6 +107,9 @@ func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 
 // Records returns the records for the file category URI.
 func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
+	if db == nil {
+		return nil, ErrDB
+	}
 	switch Match(uri) {
 	// pulldown menu matches
 	case newUploads:
@@ -379,4 +284,109 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 	default:
 		return nil, fmt.Errorf("unknown file category: %s", uri)
 	}
+}
+
+// Stats are the database statistics for the file categories.
+type Stats struct { //nolint:gochecknoglobals
+	All       model.Files
+	Ansi      model.Ansi
+	AnsiBBS   model.AnsiBBS
+	BBS       model.BBS
+	BBSText   model.BBSText
+	BBStro    model.BBStro
+	Demo      model.Demo
+	DOS       model.DOS
+	Intro     model.Intro
+	IntroD    model.IntroDOS
+	IntroW    model.IntroWindows
+	Installer model.Installer
+	Java      model.Java
+	Linux     model.Linux
+	Mag       model.Mag
+	Mac       model.Mac
+	Nfo       model.Nfo
+	NfoTool   model.NfoTool
+	Proof     model.Proof
+	Script    model.Script
+	Text      model.Text
+	Windows   model.Windows
+}
+
+// Get and store the database statistics for the file categories.
+func (s *Stats) Get(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
+	if err := s.All.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Ansi.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.AnsiBBS.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.BBS.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.BBSText.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.BBStro.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.DOS.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Intro.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.IntroD.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.IntroW.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Installer.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Java.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Linux.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Demo.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Mac.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Mag.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Nfo.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.NfoTool.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Proof.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Script.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Text.Stat(ctx, db); err != nil {
+		return err
+	}
+	if err := s.Windows.Stat(ctx, db); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Statistics returns the empty database statistics for the file categories.
+func Statistics() Stats {
+	return Stats{}
 }
