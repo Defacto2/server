@@ -35,10 +35,8 @@ var (
 )
 
 const (
-	// ShutdownCounter is the number of iterations to wait before shutting down the server.
-	ShutdownCounter = 3
-	// ShutdownWait is the number of seconds to wait before shutting down the server.
-	ShutdownWait = ShutdownCounter * time.Second
+	ShutdownCounter = 3                             // ShutdownCounter is the number of iterations to wait before shutting down the server.
+	ShutdownWait    = ShutdownCounter * time.Second // ShutdownWait is the number of seconds to wait before shutting down the server.
 )
 
 // Configuration of the handler.
@@ -66,20 +64,6 @@ func (c Configuration) Registry() *TemplateRegistry {
 			webapp.Tmpl(),
 			html3.Tmpl(c.Log, c.Views),
 		),
-	}
-}
-
-// Return the TrailingSlash middleware configuration.
-func (c Configuration) rmSlash() middleware.TrailingSlashConfig {
-	return middleware.TrailingSlashConfig{
-		RedirectCode: http.StatusMovedPermanently,
-	}
-}
-
-// Timeout returns the timeout middleware configuration.
-func (c Configuration) timeout() middleware.TimeoutConfig {
-	return middleware.TimeoutConfig{
-		Timeout: time.Duration(c.Import.Timeout) * time.Second,
 	}
 }
 
@@ -129,12 +113,12 @@ func (c Configuration) Controller() *echo.Echo {
 	}
 
 	// Use configurations that are run after the router
-	e.Use(middleware.Secure())                                   // XSS cross-site scripting protection
-	e.Use(middleware.Gzip())                                     // Gzip HTTP compression
-	e.Use(c.Import.LoggerMiddleware)                             // custom HTTP logging middleware (see: pkg/config/logger.go)
-	e.Use(middleware.RemoveTrailingSlashWithConfig(c.rmSlash())) // remove trailing slashes
-	e.Use(middleware.TimeoutWithConfig(c.timeout()))             // timeout a long running operation
-	e.Use(c.NoRobotsHeader)                                      // add X-Robots-Tag to all responses
+	e.Use(middleware.Secure())                                       // XSS cross-site scripting protection
+	e.Use(middleware.Gzip())                                         // Gzip HTTP compression
+	e.Use(c.Import.LoggerMiddleware)                                 // custom HTTP logging middleware (see: pkg/config/logger.go)
+	e.Use(middleware.RemoveTrailingSlashWithConfig(c.removeSlash())) // remove trailing slashes
+	e.Use(middleware.TimeoutWithConfig(c.timeout()))                 // timeout a long running operation
+	e.Use(c.NoRobotsHeader)                                          // add X-Robots-Tag to all responses
 	if c.Import.IsProduction {
 		e.Use(middleware.Recover()) // recover from panics
 	}

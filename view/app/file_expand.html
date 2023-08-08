@@ -13,7 +13,7 @@
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="dos-tab" data-bs-toggle="tab"
                                 data-bs-target="#dos-tab-pane" type="button" role="tab" aria-controls="dos-tab-pane"
-                                aria-selected="true">Dos</button>
+                                aria-selected="true">{{msdos}}</button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="windows-tab" data-bs-toggle="tab"
@@ -46,14 +46,14 @@
                 <div class="card-body tab-content" id="nav-tabContent">
                     <div class="tab-pane fade show active" id="dos-tab-pane" role="tabpanel" aria-labelledby="dos-tab"
                         tabindex="0">
-                        <h4 class="otherClass">D<small>OS</small> <small><em>MS-DOS</em></small></h4>
+                        <h4 class="otherClass">{{msdos}} <small><em>MS-DOS</em></small></h4>
                         <p>
                             Microsoft DOS and IBM's PC-DOS were the ...Software written for the original x86 operating system and precursor to Microsoft Windows.
                             This platform was popular in North America during the 1980s and for much of the world during the first half of the 1990s.
                         </p>
                         <p>
                             <span class="card-link">Browse the files for </span>
-                            <a href="/files/msdos" class="card-link">MS-Dos</a>
+                            <a href="/files/msdos" class="card-link">{{msdos}}</a>
                         </p>
                         <p>
                             <small>dos date range: {{$rels.DOS.Year0}}-{{$rels.DOS.YearX}} and dos count: {{ cntByteFmt $rels.DOS.Count $rels.DOS.Bytes }}</small>

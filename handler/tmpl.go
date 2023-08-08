@@ -1,5 +1,7 @@
 package handler
 
+// Package file tmpl.go contains the custom template functions for the web framework.
+
 import (
 	"fmt"
 	"html/template"

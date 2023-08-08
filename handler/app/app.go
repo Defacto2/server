@@ -1,3 +1,4 @@
+// Package app handles the routes and views for the Defacto2 website.
 package app
 
 import (
@@ -51,19 +52,20 @@ func (c *Configuration) Tmpl() map[string]*template.Template {
 	if err := c.Subresource.Verify(c.Public); err != nil {
 		panic(err)
 	}
+	const relTmpl = "releaser.html"
 	templates := make(map[string]*template.Template)
 	templates["index"] = c.tmpl("index.html")
 	templates["artist"] = c.tmpl("artist.html")
-	templates["bbs"] = c.tmpl("releaser.html")
+	templates["bbs"] = c.tmpl(relTmpl)
 	templates["coder"] = c.tmpl("coder.html")
 	templates["file"] = c.tmpl("file.html")
 	templates["files"] = c.tmpl("files.html")
-	templates["ftp"] = c.tmpl("releaser.html")
+	templates["ftp"] = c.tmpl(relTmpl)
 	templates["history"] = c.tmpl("history.html")
 	templates["interview"] = c.tmpl("interview.html")
-	templates["magazine"] = c.tmpl("releaser.html")
+	templates["magazine"] = c.tmpl(relTmpl)
 	templates["musician"] = c.tmpl("musician.html")
-	templates["releaser"] = c.tmpl("releaser.html")
+	templates["releaser"] = c.tmpl(relTmpl)
 	templates["scener"] = c.tmpl("scener.html")
 	templates["status"] = c.tmpl("status.html")
 	templates["thanks"] = c.tmpl("thanks.html")
@@ -73,7 +75,7 @@ func (c *Configuration) Tmpl() map[string]*template.Template {
 	return templates
 }
 
-// tmpl returns a layout template for the given named view.
+// Configuration tmpl returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory.
 func (c Configuration) tmpl(name string) *template.Template {
 	if _, err := os.Stat(filepath.Join("view", app, name)); os.IsNotExist(err) {

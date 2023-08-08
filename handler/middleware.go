@@ -1,6 +1,28 @@
 package handler
 
-import "github.com/labstack/echo/v4"
+// Package file middleware.go contains the custom middleware functions for the Echo web framework.
+
+import (
+	"net/http"
+	"time"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+)
+
+// removeSlash return the TrailingSlash middleware configuration.
+func (c Configuration) removeSlash() middleware.TrailingSlashConfig {
+	return middleware.TrailingSlashConfig{
+		RedirectCode: http.StatusMovedPermanently,
+	}
+}
+
+// Timeout returns the timeout middleware configuration.
+func (c Configuration) timeout() middleware.TimeoutConfig {
+	return middleware.TimeoutConfig{
+		Timeout: time.Duration(c.Import.Timeout) * time.Second,
+	}
+}
 
 // NoRobotsHeader middleware adds a `X-Robots-Tag` header to the response.
 // The header contains the noindex and nofollow values that tell search engine

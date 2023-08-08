@@ -22,6 +22,8 @@ All configurations and settings for this web server are handled through system e
 
 ```
 
+- [ ] App downloads of files and a custom page when downloads directory is broken
+- [ ] 
 - [ ] Run an automated test to confirm 200 status for all routes. Run this on startup using a defer func?
 - [ ] All SQL stmts need to account for `delete_at`
 `qm.WithDeleted`

@@ -1,5 +1,7 @@
 package handler
 
+// Package file router.go contains the custom router URIs for the website.
+
 import (
 	"embed"
 	"net/http"

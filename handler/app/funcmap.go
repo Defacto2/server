@@ -1,6 +1,6 @@
 package app
 
-// Helper functions for the TemplateFuncMap var.
+// Package file funcmap.go contains the custom template functions for the web framework.
 
 import (
 	"crypto/sha512"
@@ -66,7 +66,7 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 			return merge
 		},
 		"msdos": func() template.HTML {
-			return "<span class=\"text-nowrap\">MS-Dos</span>"
+			return "<span class=\"text-nowrap\">MS Dos</span>"
 		},
 		"sriBootstrapCSS": func() string {
 			return c.Subresource.BootstrapCSS
