@@ -1,36 +1,44 @@
 package model
 
-// Package file text.go contains the database queries for text, markdown and document files.
+// Package file_text_files.go contains the database queries for text, markdown and document files.
 
 import (
 	"context"
 	"database/sql"
 
-	"github.com/Defacto2/server/model/modext"
+	"github.com/Defacto2/server/model/expr"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
+// HTML is a the model for the HTML and markdown files.
 type HTML struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
 }
 
-// Stat counts the total number and total byte size of HTML files.
 func (h *HTML) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.HTMLExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.HTMLExpr(),
 		qm.From(From)).Bind(ctx, db, h)
 }
 
-// List returns a list of HTML files.
 func (h *HTML) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.HTMLExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.HTMLExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
+// Text is a the model for the text files.
 type Text struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
@@ -38,92 +46,126 @@ type Text struct {
 	YearX int `boil:"max_year"`
 }
 
-// Stat counts the total number and total byte size of text files.
 func (t *Text) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter, postgres.MinYear, postgres.MaxYear),
-		modext.TextExpr(),
+		qm.Select(postgres.Columns()...),
+		expr.TextExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
 
-// List returns a list of text files.
 func (t *Text) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.TextExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.TextExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
+// TextAmiga is a the model for the text files for the Amiga operating system.
 type TextAmiga struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
 }
 
-// Stat counts the total number and total byte size of text files for the Amiga operating system.
 func (t *TextAmiga) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.TextAmigaExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.TextAmigaExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
 
-// List returns a list of text files for the Amiga operating system.
 func (t *TextAmiga) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.TextAmigaExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.TextAmigaExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
+// TextAppleII is a the model for the text files for the Apple II operating system.
 type TextAppleII struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
 }
 
-// Stat counts the total number and total byte size of text files for the Apple II operating system.
 func (t *TextAppleII) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.AppleIIExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.AppleIIExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
 
-// List returns a list of text files for the Apple II operating system.
 func (t *TextAppleII) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.AppleIIExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.AppleIIExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
+// TextAtariST is a the model for the text files for the Atari ST operating system.
 type TextAtariST struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
 }
 
-// Stat counts the total number and total byte size of text files for the Atari ST operating system.
 func (t *TextAtariST) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.AtariSTExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.AtariSTExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
 
-// List returns a list of text files for the Atari ST operating system.
 func (t *TextAtariST) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.AtariSTExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.AtariSTExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
+// PDF is a the model for the documents in PDF format.
 type PDF struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
 }
 
-// Stat counts the total number and total byte size of PDF files.
 func (p *PDF) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.PDFExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.PDFExpr(),
 		qm.From(From)).Bind(ctx, db, p)
 }
 
-// List returns a list of PDF files.
 func (p *PDF) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.PDFExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.PDFExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }

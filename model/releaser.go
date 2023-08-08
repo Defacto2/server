@@ -1,5 +1,7 @@
 package model
 
+// Package releaser.go contains the database queries the releasers and groups.
+
 import (
 	"context"
 	"database/sql"

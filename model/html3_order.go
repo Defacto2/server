@@ -1,6 +1,6 @@
 package model
 
-// This file is the custom order by and table sorting for the HTML3 template.
+// Package html3_order.go contains the database queries the HTML3 order and sorting statements.
 
 import (
 	"context"
@@ -63,7 +63,8 @@ func (o Order) AllFiles(ctx context.Context, db *sql.DB, offset, limit int) (mod
 	if db == nil {
 		return nil, ErrDB
 	}
-	return models.Files(qm.OrderBy(o.String()),
+	return models.Files(
+		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit)).All(ctx, db)
 }
@@ -111,11 +112,13 @@ func (o Order) ArtFiles(ctx context.Context, db *sql.DB, offset, limit int) (mod
 	}
 	if limit == all {
 		return models.Files(
-			SelectHTML3(), ArtExpr(),
+			SelectHTML3(),
+			ArtExpr(),
 			qm.OrderBy(o.String())).All(ctx, db)
 	}
 	return models.Files(
-		SelectHTML3(), ArtExpr(),
+		SelectHTML3(),
+		ArtExpr(),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit)).All(ctx, db)

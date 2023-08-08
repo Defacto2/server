@@ -6,7 +6,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/Defacto2/server/model/modext"
+	"github.com/Defacto2/server/model/expr"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -102,181 +102,296 @@ type Video struct {
 }
 
 func (a *Advert) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.AdvertExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.AdvertExpr(),
 		qm.From(From)).Bind(ctx, db, a)
 }
 
 func (a *Advert) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.AdvertExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.AdvertExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
 func (a *Announcement) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.AnnouncementExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.AnnouncementExpr(),
 		qm.From(From)).Bind(ctx, db, a)
 }
 
 func (a *Announcement) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.AnnouncementExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.AnnouncementExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
 func (d *Drama) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.DramaExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.DramaExpr(),
 		qm.From(From)).Bind(ctx, db, d)
 }
 
 func (d *Drama) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.DramaExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.DramaExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
 func (h *Hack) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.HackExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.HackExpr(),
 		qm.From(From)).Bind(ctx, db, h)
 }
 
 func (h *Hack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.HackExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.HackExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
 func (h *HowTo) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.HowToExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.HowToExpr(),
 		qm.From(From)).Bind(ctx, db, h)
 }
 
 func (h *HowTo) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.HowToExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.HowToExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
 func (i *Image) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.ImageExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.ImageExpr(),
 		qm.From(From)).Bind(ctx, db, i)
 }
 
 func (i *Image) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.ImageExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.ImageExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
 func (j *JobAdvert) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.JobAdvertExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.JobAdvertExpr(),
 		qm.From(From)).Bind(ctx, db, j)
 }
 
 func (j *JobAdvert) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.JobAdvertExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.JobAdvertExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
 func (m *Music) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.MusicExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.MusicExpr(),
 		qm.From(From)).Bind(ctx, db, m)
 }
 
 func (m *Music) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.MusicExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.MusicExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
 func (n *NewsArticle) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.NewsArticleExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.NewsArticleExpr(),
 		qm.From(From)).Bind(ctx, db, n)
 }
 
 func (n *NewsArticle) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.NewsArticleExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.NewsArticleExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
 func (r *Restrict) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.RestrictExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.RestrictExpr(),
 		qm.From(From)).Bind(ctx, db, r)
 }
 
 func (r *Restrict) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.RestrictExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.RestrictExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
 func (s *Standard) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.StandardExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.StandardExpr(),
 		qm.From(From)).Bind(ctx, db, s)
 }
 
 func (s *Standard) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.StandardExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.StandardExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
 func (t *Takedown) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.TakedownExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.TakedownExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
 
 func (t *Takedown) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.TakedownExpr(),
+	return models.Files(expr.TakedownExpr(),
 		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
 }
 
 func (t *Tool) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.ToolExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.ToolExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
 
 func (t *Tool) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.ToolExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.ToolExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
 func (t *TrialCrackme) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.TrialCrackmeExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.TrialCrackmeExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
 
 func (t *TrialCrackme) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.TrialCrackmeExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.TrialCrackmeExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
 func (v *Video) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.VideoExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.VideoExpr(),
 		qm.From(From)).Bind(ctx, db, v)
 }
 
 func (v *Video) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.VideoExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.VideoExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }

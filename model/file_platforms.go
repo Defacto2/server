@@ -1,17 +1,18 @@
 package model
 
-// Package file os.go contains the database queries for operating systems.
+// Package file_platoforms.go contains the database queries for operating systems.
 
 import (
 	"context"
 	"database/sql"
 
-	"github.com/Defacto2/server/model/modext"
+	"github.com/Defacto2/server/model/expr"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
+// DOS is a the model for the MS-DOS operating system.
 type DOS struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
@@ -19,20 +20,27 @@ type DOS struct {
 	YearX int `boil:"max_year"`
 }
 
-// Stat counts the total number and total byte size of releases for the MS-DOS operating system.
 func (d *DOS) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter, postgres.MinYear, postgres.MaxYear),
-		modext.DOSExpr(),
+		qm.Select(postgres.Columns()...),
+		expr.DOSExpr(),
 		qm.From(From)).Bind(ctx, db, d)
 }
 
-// List returns a list of software for the MS-DOS operating system.
 func (d *DOS) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.DOSExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.DOSExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
+// Java is a the model for the Java operating system.
 type Java struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
@@ -40,20 +48,27 @@ type Java struct {
 	YearX int `boil:"max_year"`
 }
 
-// Stat counts the total number and total byte size of software for the Java operating system.
 func (j *Java) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter, postgres.MinYear, postgres.MaxYear),
-		modext.JavaExpr(),
+		qm.Select(postgres.Columns()...),
+		expr.JavaExpr(),
 		qm.From(From)).Bind(ctx, db, j)
 }
 
-// List returns a list of software for the Java operating system.
 func (j *Java) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.JavaExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.JavaExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
+// Linux is a the model for the Linux operating system.
 type Linux struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
@@ -61,20 +76,27 @@ type Linux struct {
 	YearX int `boil:"max_year"`
 }
 
-// Stat counts the total number and total byte size of software for the Linux operating system.
 func (l *Linux) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter, postgres.MinYear, postgres.MaxYear),
-		modext.LinuxExpr(),
+		qm.Select(postgres.Columns()...),
+		expr.LinuxExpr(),
 		qm.From(From)).Bind(ctx, db, l)
 }
 
-// List returns a list of software for the Linux operating system.
 func (l *Linux) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.LinuxExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.LinuxExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
+// Mac is a the model for the Macintosh operating system.
 type Mac struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
@@ -82,20 +104,27 @@ type Mac struct {
 	YearX int `boil:"max_year"`
 }
 
-// Stat counts the total number and total byte size of software for the Macintosh operating system.
 func (m *Mac) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter, postgres.MinYear, postgres.MaxYear),
-		modext.MacExpr(),
+		qm.Select(postgres.Columns()...),
+		expr.MacExpr(),
 		qm.From(From)).Bind(ctx, db, m)
 }
 
-// List returns a list of software for the Macintosh operating system.
 func (m *Mac) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.MacExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.MacExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
+// Script is a the model for the script and interpreted languages.
 type Script struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
@@ -103,20 +132,27 @@ type Script struct {
 	YearX int `boil:"max_year"`
 }
 
-// Stat counts the total number and total byte size of software for script and interpreted languages.
 func (s *Script) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter, postgres.MinYear, postgres.MaxYear),
-		modext.ScriptExpr(),
+		qm.Select(postgres.Columns()...),
+		expr.ScriptExpr(),
 		qm.From(From)).Bind(ctx, db, s)
 }
 
-// List returns a list of software for script and interpreted languages.
 func (s *Script) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.ScriptExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.ScriptExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
+// Windows is a the model for the Windows operating system.
 type Windows struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
@@ -124,16 +160,22 @@ type Windows struct {
 	YearX int `boil:"max_year"`
 }
 
-// Stat counts the total number and total byte size of software for the Windows operating system.
 func (w *Windows) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter, postgres.MinYear, postgres.MaxYear),
-		modext.WindowsExpr(),
+		qm.Select(postgres.Columns()...),
+		expr.WindowsExpr(),
 		qm.From(From)).Bind(ctx, db, w)
 }
 
-// List returns a list of software for the Windows operating system.
 func (w *Windows) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.WindowsExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.WindowsExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }

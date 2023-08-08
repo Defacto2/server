@@ -17,6 +17,16 @@ const (
 	SumSize = "SUM(filesize) AS size_sum"
 )
 
+// Columns returns a list of column selections.
+func Columns() []string {
+	return []string{SumSize, Counter, MinYear, MaxYear}
+}
+
+// Stat returns the SumSize and Counter column selections.
+func Stat() []string {
+	return []string{SumSize, Counter}
+}
+
 type Version string // Version of the PostgreSQL database server in use.
 
 type SQL string // SQL is a raw query statement for PostgreSQL.

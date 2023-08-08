@@ -1,4 +1,4 @@
-package modext
+package expr
 
 import (
 	"github.com/Defacto2/server/pkg/postgres/models"

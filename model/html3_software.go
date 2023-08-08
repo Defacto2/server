@@ -1,12 +1,12 @@
 package model
 
-// This file is the custom software category for the HTML3 template.
+// Package html3_software.go contains the database queries the HTML3 software category.
 
 import (
 	"context"
 	"database/sql"
 
-	"github.com/Defacto2/server/model/modext"
+	"github.com/Defacto2/server/model/expr"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -18,7 +18,6 @@ type Softs struct {
 	Count int `boil:"counter"`
 }
 
-// Stat counts the total number and total byte size of releases that could be considered as digital or pixel art.
 func (s *Softs) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
@@ -27,18 +26,17 @@ func (s *Softs) Stat(ctx context.Context, db *sql.DB) error {
 		return nil
 	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
+		qm.Select(postgres.Stat()...),
 		SoftwareExpr(),
 		qm.From(From)).Bind(ctx, db, s)
 }
 
-// SoftwareExpr is a the query mod expression for software files.
 func SoftwareExpr() qm.QueryMod {
 	return qm.Expr(
-		models.FileWhere.Platform.EQ(modext.PJava()),
-		qm.Or2(models.FileWhere.Platform.EQ(modext.PLinux())),
-		qm.Or2(models.FileWhere.Platform.EQ(modext.PDos())),
-		qm.Or2(models.FileWhere.Platform.EQ(modext.PScript())),
-		qm.Or2(models.FileWhere.Platform.EQ(modext.PWindows())),
+		models.FileWhere.Platform.EQ(expr.PJava()),
+		qm.Or2(models.FileWhere.Platform.EQ(expr.PLinux())),
+		qm.Or2(models.FileWhere.Platform.EQ(expr.PDos())),
+		qm.Or2(models.FileWhere.Platform.EQ(expr.PScript())),
+		qm.Or2(models.FileWhere.Platform.EQ(expr.PWindows())),
 	)
 }

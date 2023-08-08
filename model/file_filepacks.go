@@ -6,103 +6,138 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/Defacto2/server/model/modext"
+	"github.com/Defacto2/server/model/expr"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
+// AnsiPack is a the model for the ANSI file packs.
 type AnsiPack struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
 }
 
-// Stat counts the total number and total byte size of releases ANSI packs.
 func (a *AnsiPack) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.AnsiPackExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.AnsiPackExpr(),
 		qm.From(From)).Bind(ctx, db, a)
 }
 
-// List returns a list of ANSI packs.
 func (a *AnsiPack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.AnsiPackExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.AnsiPackExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
+// ImagePack is a the model for the image file packs.
 type ImagePack struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
 }
 
-// Stat counts the total number and total byte size of releases image packs.
 func (i *ImagePack) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.ImagePackExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.ImagePackExpr(),
 		qm.From(From)).Bind(ctx, db, i)
 }
 
-// List returns a list of image packs.
 func (i *ImagePack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.ImagePackExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.ImagePackExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
+// DosPack is a the model for the DOS file packs.
 type DosPack struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
 }
 
-// Stat counts the total number and total byte size of releases DOS packs.
 func (d *DosPack) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.DosPackExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.DosPackExpr(),
 		qm.From(From)).Bind(ctx, db, d)
 }
 
-// List returns a list of DOS packs.
 func (d *DosPack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.DosPackExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.DosPackExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
+// TextPack is a the model for the text file packs.
 type TextPack struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
 }
 
-// Stat counts the total number and total byte size of releases text packs.
 func (t *TextPack) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.TextPackExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.TextPackExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
 
-// List returns a list of text packs.
 func (t *TextPack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.TextPackExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.TextPackExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
+// WindowsPack is a the model for the Windows file packs.
 type WindowsPack struct {
 	Bytes int `boil:"size_sum"`
 	Count int `boil:"counter"`
 }
 
-// Stat counts the total number and total byte size of releases Windows packs.
 func (w *WindowsPack) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	return models.NewQuery(
-		qm.Select(postgres.SumSize, postgres.Counter),
-		modext.WindowsPackExpr(),
+		qm.Select(postgres.Stat()...),
+		expr.WindowsPackExpr(),
 		qm.From(From)).Bind(ctx, db, w)
 }
 
-// List returns a list of Windows packs.
 func (w *WindowsPack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(modext.WindowsPackExpr(),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.WindowsPackExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }

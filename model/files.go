@@ -1,5 +1,7 @@
 package model
 
+// Package files.go contains the database queries for the listing of sorted files.
+
 import (
 	"context"
 	"database/sql"
@@ -17,7 +19,6 @@ type Files struct {
 	YearX int `boil:"max_year"`
 }
 
-// Stat counts the total number and total byte size of releases that could be considered as digital or pixel art.
 func (f *Files) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
@@ -25,13 +26,12 @@ func (f *Files) Stat(ctx context.Context, db *sql.DB) error {
 	if f.Bytes > 0 && f.Count > 0 {
 		return nil
 	}
-	cols := []string{postgres.SumSize, postgres.Counter, postgres.MinYear, postgres.MaxYear}
 	return models.NewQuery(
-		qm.Select(cols...),
+		qm.Select(postgres.Columns()...),
 		qm.From(From)).Bind(ctx, db, f)
 }
 
-// List returns all of the file records.
+// List returns a list of files reversed ordered by the ID column.
 func (f *Files) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB

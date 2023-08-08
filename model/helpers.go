@@ -1,5 +1,7 @@
 package model
 
+// Package helpers.go contains helper functions for the model package.
+
 import (
 	"fmt"
 	"path/filepath"
