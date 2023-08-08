@@ -17,6 +17,8 @@ const (
 	MaxYear = "MAX(date_issued_year) AS max_year"
 	// SumSize is a partial SQL statement to sum the filesize values of multiple records.
 	SumSize = "SUM(filesize) AS size_sum"
+	// Ver is a SQL statement to select the version of the PostgreSQL database server in use.
+	Ver = "SELECT version();"
 )
 
 // Columns returns a list of column selections.
@@ -37,7 +39,7 @@ func (v *Version) Query() error {
 	if err != nil {
 		return err
 	}
-	rows, err := conn.Query("SELECT version();")
+	rows, err := conn.Query(Ver)
 	if err != nil {
 		return err
 	}
@@ -65,14 +67,6 @@ func (v *Version) String() string {
 }
 
 type SQL string // SQL is a raw query statement for PostgreSQL.
-
-// SQLGroupStat is an SQL statement to select all the unique groups.
-func SQLGroupStat() string {
-	return "SELECT DISTINCT group_brand FROM files " +
-		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(group_brand) " +
-		"WHERE NULLIF(group_brand, '') IS NOT NULL " + // handle empty and null values
-		"GROUP BY group_brand"
-}
 
 const releaserSEL = "SELECT DISTINCT group_brand, " +
 	"COUNT(group_brand) AS count, " +
@@ -104,17 +98,25 @@ func SelectFTP() SQL {
 	return releaserSEL + "AND group_brand ~ 'FTP\\M'" + releaserBy
 }
 
-// SQLSumSection is an SQL statement to sum the filesizes of records matching the section.
-func SQLSumSection() string {
+// StatRelr is an SQL statement to select all the unique groups.
+func StatRelr() SQL {
+	return "SELECT DISTINCT group_brand FROM files " +
+		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(group_brand) " +
+		"WHERE NULLIF(group_brand, '') IS NOT NULL " + // handle empty and null values
+		"GROUP BY group_brand"
+}
+
+// SumSection is an SQL statement to sum the filesizes of records matching the section.
+func SumSection() SQL {
 	return "SELECT SUM(files.filesize) FROM files WHERE section = $1"
 }
 
-// SQLSumGroup is an SQL statement to sum the filesizes of records matching the group.
-func SQLSumGroup() string {
+// SumGroup is an SQL statement to sum the filesizes of records matching the group.
+func SumGroup() SQL {
 	return "SELECT SUM(filesize) as size_sum FROM files WHERE group_brand_for = $1"
 }
 
-// SQLSumPlatform is an SQL statement to sum the filesizes of records matching the platform.
-func SQLSumPlatform() string {
+// SumPlatform is an SQL statement to sum the filesizes of records matching the platform.
+func SumPlatform() SQL {
 	return "SELECT sum(filesize) FROM files WHERE platform = $1"
 }

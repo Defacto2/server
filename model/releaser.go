@@ -36,7 +36,8 @@ func (r *Rels) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
-	f, err := models.Files(qm.SQL(postgres.SQLGroupStat())).All(ctx, db)
+	mods := qm.SQL(string(postgres.StatRelr()))
+	f, err := models.Files(mods).All(ctx, db)
 	if err != nil {
 		return err
 	}

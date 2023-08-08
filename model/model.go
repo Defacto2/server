@@ -50,7 +50,7 @@ func ByteCountByCategory(ctx context.Context, db *sql.DB, name string) (int64, e
 	if name == "" {
 		return 0, ErrName
 	}
-	mods := qm.SQL(postgres.SQLSumSection(), null.StringFrom(name))
+	mods := qm.SQL(string(postgres.SumSection()), null.StringFrom(name))
 	i, err := models.Files(mods).Count(ctx, db)
 	if err != nil {
 		return 0, fmt.Errorf("bytecount by category %q: %w", name, err)
@@ -66,7 +66,7 @@ func ByteCountByReleaser(ctx context.Context, db *sql.DB, name string) (int64, e
 	if name == "" {
 		return 0, ErrName
 	}
-	mods := qm.SQL(postgres.SQLSumGroup(), null.StringFrom(name))
+	mods := qm.SQL(string(postgres.SumGroup()), null.StringFrom(name))
 	i, err := models.Files(mods).Count(ctx, db)
 	if err != nil {
 		return 0, fmt.Errorf("bytecount by releaser %q: %w", name, err)
@@ -82,7 +82,7 @@ func ByteCountByPlatform(ctx context.Context, db *sql.DB, name string) (int64, e
 	if name == "" {
 		return 0, ErrName
 	}
-	mods := qm.SQL(postgres.SQLSumPlatform(), null.StringFrom(name))
+	mods := qm.SQL(string(postgres.SumPlatform()), null.StringFrom(name))
 	i, err := models.Files(mods).Count(ctx, db)
 	if err != nil {
 		return 0, fmt.Errorf("bytecount by platform %q: %w", name, err)
