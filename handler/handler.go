@@ -1,3 +1,5 @@
+// Package handler provides the HTTP handlers for the Defacto2 website.
+// Using the Echo Project web framework, it is the entry point for the web server.
 package handler
 
 import (
@@ -6,6 +8,7 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -204,10 +207,19 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 	}
 	w.Flush()
 
+	// Start the HTTP server
 	serverAddress := fmt.Sprintf(":%d", c.Import.HTTPPort)
-	err := e.Start(serverAddress)
-	if err != nil && err != http.ErrServerClosed {
-		c.Log.Fatalf("HTTP server could not start: %s.", err)
+	if err := e.Start(serverAddress); err != nil {
+		var portErr *net.OpError
+		switch {
+		case !c.Import.IsProduction && errors.As(err, &portErr):
+			c.Log.Infof("air or task server could not start (this can probably be ignored): %s.", err)
+		case errors.Is(err, net.ErrClosed),
+			errors.Is(err, http.ErrServerClosed):
+			c.Log.Infof("HTTP server shutdown gracefully.")
+		default:
+			c.Log.Fatalf("HTTP server could not start: %s.", err)
+		}
 	}
 	// nothing should be placed here
 }
