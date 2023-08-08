@@ -28,7 +28,7 @@ func ByteCount(b int64) string {
 	// source: https://yourbasic.org/golang/formatting-byte-size-to-human-readable-format/
 	const unit = 1024
 	if b < unit {
-		return fmt.Sprintf("%d%s", b, strings.Repeat(" ", 1))
+		return fmt.Sprintf("%d%s", b, strings.Repeat("B", 1))
 	}
 	div, exp := int64(unit), 0
 	for n := b / unit; n >= unit; n /= unit {

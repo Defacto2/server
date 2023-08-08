@@ -69,7 +69,7 @@ func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 		// TODO: redirect to File categories with custom alert 404 message?
 		// replace this message: The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
 		// with something about the file categories page.
-		return Status(s, c, http.StatusNotFound, c.Param("uri"))
+		return StatusErr(s, c, http.StatusNotFound, c.Param("uri"))
 	}
 
 	const (

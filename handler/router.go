@@ -69,8 +69,6 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) (*echo.Echo, 
 	e.FileFS("/robots.txt", "public/text/robots.txt", public)
 	e.FileFS("/site.webmanifest", "public/text/site.webmanifest.json", public)
 
-	// TODO order alphabetically
-
 	e.GET("/", func(c echo.Context) error {
 		return app.Index(log, c)
 	})
@@ -83,37 +81,6 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) (*echo.Echo, 
 	e.GET("/coder", func(c echo.Context) error {
 		return app.Coder(log, c)
 	})
-	e.GET("/ftp", func(c echo.Context) error {
-		return app.FTP(log, c)
-	})
-	e.GET("/history", func(c echo.Context) error {
-		return app.History(log, c)
-	})
-	e.GET("/interview", func(c echo.Context) error {
-		return app.Interview(log, c)
-	})
-	e.GET("/musician", func(c echo.Context) error {
-		return app.Musician(log, c)
-	})
-	e.GET("/thanks", func(c echo.Context) error {
-		return app.Thanks(log, c)
-	})
-	e.GET("/scener", func(c echo.Context) error {
-		return app.Scener(log, c)
-	})
-	e.GET("/thescene", func(c echo.Context) error {
-		return app.TheScene(log, c)
-	})
-	// TODO: rename to singular
-	e.GET("/website", func(c echo.Context) error {
-		return app.Website(log, c, "")
-	})
-	e.GET("/website/:id", func(c echo.Context) error {
-		return app.Website(log, c, c.Param("id"))
-	})
-	e.GET("/writer", func(c echo.Context) error {
-		return app.Writer(log, c)
-	})
 	e.GET("/file/stats", func(c echo.Context) error {
 		return app.File(log, c, true)
 	})
@@ -123,16 +90,46 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) (*echo.Echo, 
 	e.GET("/file", func(c echo.Context) error {
 		return app.File(log, c, false)
 	})
+	e.GET("/ftp", func(c echo.Context) error {
+		return app.FTP(log, c)
+	})
+	e.GET("/history", func(c echo.Context) error {
+		return app.History(log, c)
+	})
+	e.GET("/interview", func(c echo.Context) error {
+		return app.Interview(log, c)
+	})
 	e.GET("/magazine", func(c echo.Context) error {
 		return app.Magazine(log, c)
+	})
+	e.GET("/musician", func(c echo.Context) error {
+		return app.Musician(log, c)
 	})
 	e.GET("/releaser", func(c echo.Context) error {
 		return app.Releaser(log, c)
 	})
+	e.GET("/scener", func(c echo.Context) error {
+		return app.Scener(log, c)
+	})
+	e.GET("/thanks", func(c echo.Context) error {
+		return app.Thanks(log, c)
+	})
+	e.GET("/thescene", func(c echo.Context) error {
+		return app.TheScene(log, c)
+	})
+	e.GET("/website/:id", func(c echo.Context) error {
+		return app.Website(log, c, c.Param("id"))
+	})
+	e.GET("/website", func(c echo.Context) error {
+		return app.Website(log, c, "")
+	})
+	e.GET("/writer", func(c echo.Context) error {
+		return app.Writer(log, c)
+	})
 
 	// all other page requests return a custom 404 error page
 	e.GET("/:uri", func(c echo.Context) error {
-		return app.Status(log, c, http.StatusNotFound, c.Param("uri"))
+		return app.StatusErr(log, c, http.StatusNotFound, c.Param("uri"))
 	})
 
 	return e, nil

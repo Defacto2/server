@@ -298,6 +298,9 @@ func NamedByteFormat(name string, c, b any) template.HTML {
 	switch val := c.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
+		if i != 1 {
+			name = fmt.Sprintf("%ss", name)
+		}
 		p := message.NewPrinter(language.English)
 		s = p.Sprintf("%d", i)
 	default:
@@ -307,9 +310,6 @@ func NamedByteFormat(name string, c, b any) template.HTML {
 	switch val := b.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
-		if i != 0 {
-			name = fmt.Sprintf("%ss", name)
-		}
 		s = fmt.Sprintf("%s %s <small>(%s)</small>", s, name, helpers.ByteCount(i))
 	default:
 		s = fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(b).String())

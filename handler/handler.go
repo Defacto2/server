@@ -29,8 +29,8 @@ import (
 
 var (
 	ErrLog    = errors.New("e logger instance is nil")
-	ErrRoutes = errors.New("e echo instance is nil")
 	ErrNoTmpl = errors.New("named template does not exist for recordsby type index")
+	ErrRoutes = errors.New("e echo instance is nil")
 	ErrTmpl   = errors.New("named template cannot be found")
 )
 

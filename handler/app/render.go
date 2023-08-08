@@ -15,6 +15,8 @@ import (
 
 const demo = "demo"
 
+const errSQL = "Database connection problem or a SQL error" // fix
+
 // empty is a map of default values for the app templates.
 func empty() map[string]interface{} {
 	return map[string]interface{}{
@@ -31,56 +33,6 @@ func empty() map[string]interface{} {
 }
 
 // TODO: reorder by menu order
-
-// Status is the handler for the HTTP status pages such as the 404 - not found.
-func Status(s *zap.SugaredLogger, c echo.Context, code int, uri string) error {
-	if s == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app status", ErrLogger))
-	}
-	if c == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app status", ErrContext))
-	}
-
-	// todo: check valid status, or throw error
-
-	data := empty()
-	data["description"] = fmt.Sprintf("HTTP status %d error", code)
-	title := fmt.Sprintf("%d error", code)
-	alert := ""
-	logo := "??!!"
-	probl := "There is a complication"
-	switch code {
-	case http.StatusNotFound:
-		title = "404 error, page not found"
-		logo = "Page not found"
-		alert = "The page cannot be found"
-		probl = "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable."
-	case http.StatusForbidden:
-		title = "403 error, forbidden"
-		logo = "Forbidden"
-		alert = "The page is locked"
-		probl = "You don't have permission to access this resource."
-	case http.StatusInternalServerError:
-		title = "500 error, there is a complication"
-		logo = "Server error"
-		alert = "There is a complication"
-		probl = "The server encountered an internal error or misconfiguration and was unable to complete your request."
-	}
-	data["title"] = title
-	data["code"] = code
-	data["logo"] = logo
-	data["alert"] = alert
-	data["probl"] = probl
-	data["uri"] = uri
-	err := c.Render(http.StatusNotFound, "status", data)
-	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-	}
-	return nil
-}
 
 // Artist is the handler for the Artist page.
 func Artist(s *zap.SugaredLogger, c echo.Context) error {
@@ -107,7 +59,7 @@ func BBS(s *zap.SugaredLogger, c echo.Context) error {
 	data["description"] = demo
 	data["title"] = demo
 
-	data["itemName"] = "issues"
+	data["itemName"] = "issue"
 
 	// TODO: groups data
 	ctx := context.Background()
@@ -156,7 +108,7 @@ func FTP(s *zap.SugaredLogger, c echo.Context) error {
 	data := empty()
 	data["description"] = demo
 	data["title"] = demo
-	data["itemName"] = "files"
+	data["itemName"] = "file"
 
 	// TODO: groups data
 	ctx := context.Background()
@@ -247,27 +199,34 @@ func Magazine(s *zap.SugaredLogger, c echo.Context) error {
 	if s == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
 	}
+	const h1 = "Magazines"
+	const lead = "Reports and publications written about The Scene subculture."
 	data := empty()
-	data["description"] = demo
-	data["title"] = demo
+	data["description"] = lead
+	data["lead"] = lead
+	data["title"] = h1
+	data["h1"] = h1
+	data["itemName"] = "issue"
 
-	data["itemName"] = "issues"
-
-	// TODO: groups data
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, errConn)
 	}
 	defer db.Close()
-	// Groups are the distinct groups from the file table.
-	var sceners model.Releasers //nolint:gochecknoglobals
-	if err := sceners.Magazine(ctx, db, 0, 0, model.NameAsc); err != nil {
+
+	var r model.Releasers
+	if err := r.Magazine(ctx, db, 0, 0, model.NameAsc); err != nil {
 		s.Errorf("%s: %s %d", errConn, err)
-		const errSQL = "Database connection problem or a SQL error" // fix
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
-	data["sceners"] = sceners // model.Grps.List
+	data["sceners"] = r
+
+	mags := model.Mag{}
+	if err := mags.Stat(ctx, db); err != nil {
+		return err
+	}
+	fmt.Println(mags, "rel", len(r))
 
 	err = c.Render(http.StatusOK, "magazine", data)
 	if err != nil {
@@ -322,7 +281,7 @@ func Releaser(s *zap.SugaredLogger, c echo.Context) error {
 	data["h1"] = h1
 	data["lead"] = lead
 	data["title"] = h1
-	data["itemName"] = "files"
+	data["itemName"] = "file"
 
 	// TODO: groups data
 	ctx := context.Background()
