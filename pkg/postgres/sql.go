@@ -1,5 +1,7 @@
 package postgres
 
+// Package file sql.go contains custom SQL statements that cannot be created using the SQLBoiler tool.
+
 import (
 	"fmt"
 	"strconv"
@@ -28,8 +30,6 @@ func Stat() []string {
 }
 
 type Version string // Version of the PostgreSQL database server in use.
-
-type SQL string // SQL is a raw query statement for PostgreSQL.
 
 // Query the database version.
 func (v *Version) Query() error {
@@ -63,6 +63,8 @@ func (v *Version) String() string {
 	}
 	return s
 }
+
+type SQL string // SQL is a raw query statement for PostgreSQL.
 
 // SQLGroupStat is an SQL statement to select all the unique groups.
 func SQLGroupStat() string {

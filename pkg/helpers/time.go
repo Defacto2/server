@@ -1,5 +1,7 @@
 package helpers
 
+// Package time.go contains functions that return a time.Time value.
+
 import (
 	"math/big"
 	"time"

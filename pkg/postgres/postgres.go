@@ -13,28 +13,40 @@ import (
 )
 
 const (
-	// Protocol of the database driver.
-	Protocol = "postgres"
-	// DriverName of the database.
-	DriverName = "pgx"
+	Protocol   = "postgres" // Protocol of the database driver.
+	DriverName = "pgx"      // DriverName of the database.
 )
 
 // Connection details of the PostgreSQL database connection.
 type Connection struct {
-	Protocol string // Protocol scheme of the PostgreSQL database. Defaults to postgres.
-	User     string // User is the database user used to connect to the database.
-	Password string // Password is the password for the database user.
-	HostName string // HostName is the host name of the server. Defaults to localhost.
-	HostPort int    // HostPort is the port number the server is listening on. Defaults to 5432.
-	Database string // Database is the database name.
-	// NoSSLMode connects to the database using an insecure,
-	// plain text connecction using the sslmode=disable param.
-	NoSSLMode bool
+	Protocol  string // Protocol scheme of the PostgreSQL database. Defaults to postgres.
+	User      string // User is the database user used to connect to the database.
+	Password  string // Password is the password for the database user.
+	HostName  string // HostName is the host name of the server. Defaults to localhost.
+	HostPort  int    // HostPort is the port number the server is listening on. Defaults to 5432.
+	Database  string // Database is the database name.
+	NoSSLMode bool   // NoSSLMode connects to the database using an insecure, plain text connecction using the sslmode=disable param.
 }
 
 // Open opens a PostgreSQL database connection.
 func (c Connection) Open() (*sql.DB, error) {
 	conn, err := sql.Open(DriverName, c.URL())
+	if err != nil {
+		return nil, err
+	}
+	return conn, nil
+}
+
+// ConnectDB connects to the PostgreSQL database.
+func ConnectDB() (*sql.DB, error) {
+	// TODO: replace this with c.Open()
+	dsn := Connection{
+		User:      "root",
+		Password:  "example",
+		Database:  "defacto2-ps",
+		NoSSLMode: true,
+	}
+	conn, err := sql.Open(DriverName, dsn.URL())
 	if err != nil {
 		return nil, err
 	}
@@ -71,19 +83,4 @@ func (c Connection) URL() string {
 		dns.RawQuery = q.Encode()
 	}
 	return dns.String()
-}
-
-// ConnectDB connects to the PostgreSQL database.
-func ConnectDB() (*sql.DB, error) {
-	dsn := Connection{
-		User:      "root",
-		Password:  "example",
-		Database:  "defacto2-ps",
-		NoSSLMode: true,
-	}
-	conn, err := sql.Open(DriverName, dsn.URL())
-	if err != nil {
-		return nil, err
-	}
-	return conn, nil
 }

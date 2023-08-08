@@ -1,6 +1,6 @@
 package helpers
 
-// params.go helpers are funcs specific for the unique Defacto2 URL IDs.
+// Package file param.go contains functions specific for the unique, Defacto2 ID URLs.
 
 import (
 	"math"

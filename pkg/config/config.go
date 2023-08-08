@@ -1,4 +1,4 @@
-// Package config for system environment variable configurations for the server.
+// Package config for system environment variable configurations for the Defacto2 web server.
 package config
 
 import (

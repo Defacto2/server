@@ -1,5 +1,7 @@
 package config
 
+// Package file logger.go contains the logging middleware for the web application.
+
 import (
 	"errors"
 	"fmt"

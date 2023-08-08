@@ -1,5 +1,7 @@
 package config
 
+// Package file check.go contains the sanity check functions for the configuration values.
+
 import (
 	"errors"
 	"fmt"

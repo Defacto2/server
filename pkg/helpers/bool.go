@@ -1,11 +1,11 @@
 package helpers
 
+// Package file bool.go contains functions that return a boolean.
+
 import (
 	"os"
 	"time"
 )
-
-// bool.go are funcs that return a boolean.
 
 // Finds returns true if the name is found in the collection of names.
 func Finds(name string, names ...string) bool {

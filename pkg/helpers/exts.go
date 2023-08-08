@@ -1,11 +1,11 @@
 package helpers
 
+// Package exts.go contains common file extensions used by the file records.
+
 import (
 	"path/filepath"
 	"strings"
 )
-
-// exts.go contains common file extensions used by the file records.
 
 const (
 	com = ".com"
