@@ -81,7 +81,7 @@ var Stats struct { //nolint:gochecknoglobals
 	All      model.Files
 	Art      model.Arts
 	Document model.Docs
-	Group    model.Rels
+	//Group    model.Rels
 	Software model.Softs
 }
 
@@ -138,9 +138,10 @@ func (s *sugared) Index(c echo.Context) error {
 	if err := Stats.Document.Stat(ctx, db); err != nil {
 		s.log.Warnf("%s: %s", errConn, err)
 	}
-	if err := Stats.Group.Stat(ctx, db); err != nil {
-		s.log.Warnf("%s: %s", errConn, err)
-	}
+	// TODO: REPLACE
+	// if err := Stats.Group.Stat(ctx, db); err != nil {
+	// 	s.log.Warnf("%s: %s", errConn, err)
+	// }
 	if err := Stats.Software.Stat(ctx, db); err != nil {
 		s.log.Warnf("%s: %s", errConn, err)
 	}

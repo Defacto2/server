@@ -1,14 +1,12 @@
 package app
 
 // Package file render.go contains the handler functions for the app pages.
+// The BBS, FTP, Magazine and Releaser handlers can be found in render_releaser.go.
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 
-	"github.com/Defacto2/server/model"
-	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -19,16 +17,21 @@ const errSQL = "Database connection problem or a SQL error" // fix
 
 // empty is a map of default values for the app templates.
 func empty() map[string]interface{} {
+	// the keys are listed in order of appearance in the templates.
+	// * marked keys are required.
+	// ! marked keys are suggested.
 	return map[string]interface{}{
-		"canonical":   "",           // A canonical URL is the URL of the best representative page from a group of duplicate pages.
-		"carousel":    "",           // The ID of the carousel to display.
-		"description": "",           // A short description of the page that get inserted into the description meta element.
-		"h1":          "",           // The H1 heading of the page.
-		"h1sub":       "",           // The H1 sub-heading of the page.
-		"lead":        "",           // The enlarged, lead paragraph of the page.
-		"logo":        "",           // Text to insert into the monospaced, ASCII art logo.
-		"title":       "",           // The title of the page that get inserted into the title meta element.
-		"counter":     Statistics(), // The database counts for files and categories.
+		"title":       "", // * The title of the page that get inserted into the title meta element.
+		"canonical":   "", //   A canonical URL is the URL of the best representative page from a group of duplicate pages.
+		"description": "", // * A short description of the page that get inserted into the description meta element.
+
+		"logo":     "", // ! Text to insert into the monospaced, ASCII art logo.
+		"h1":       "", // ! The H1 heading of the page.
+		"h1sub":    "", //   The H1 sub-heading of the page.
+		"lead":     "", // ! The enlarged, lead paragraph of the page.
+		"carousel": "", //   The ID of the carousel to display.
+
+		"counter": Statistics(), // The database counts for files and categories.
 	}
 }
 
@@ -50,41 +53,6 @@ func Artist(s *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
-// BBS is the handler for the BBS page.
-func BBS(s *zap.SugaredLogger, c echo.Context) error {
-	if s == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
-	}
-	data := empty()
-	data["description"] = demo
-	data["title"] = demo
-
-	data["itemName"] = "issue"
-
-	// TODO: groups data
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, errConn)
-	}
-	defer db.Close()
-	// Groups are the distinct groups from the file table.
-	var sceners model.Releasers //nolint:gochecknoglobals
-	if err := sceners.BBS(ctx, db, 0, 0, model.NameAsc); err != nil {
-		s.Errorf("%s: %s %d", errConn, err)
-		const errSQL = "Database connection problem or a SQL error" // fix
-		return echo.NewHTTPError(http.StatusNotFound, errSQL)
-	}
-	data["sceners"] = sceners // model.Grps.List
-
-	err = c.Render(http.StatusOK, "bbs", data)
-	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-	}
-	return nil
-}
-
 func Coder(s *zap.SugaredLogger, c echo.Context) error {
 	if s == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
@@ -96,40 +64,6 @@ func Coder(s *zap.SugaredLogger, c echo.Context) error {
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "coder")
-	}
-	return nil
-}
-
-// FTP is the handler for the FTP page.
-func FTP(s *zap.SugaredLogger, c echo.Context) error {
-	if s == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
-	}
-	data := empty()
-	data["description"] = demo
-	data["title"] = demo
-	data["itemName"] = "file"
-
-	// TODO: groups data
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, errConn)
-	}
-	defer db.Close()
-	// Groups are the distinct groups from the file table.
-	var sceners model.Releasers //nolint:gochecknoglobals
-	if err := sceners.FTP(ctx, db, 0, 0, model.NameAsc); err != nil {
-		s.Errorf("%s: %s %d", errConn, err)
-		const errSQL = "Database connection problem or a SQL error" // fix
-		return echo.NewHTTPError(http.StatusNotFound, errSQL)
-	}
-	data["sceners"] = sceners // model.Grps.List
-
-	err = c.Render(http.StatusOK, "ftp", data)
-	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
@@ -194,48 +128,6 @@ func History(s *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
-// Magazine is the handler for the Magazine page.
-func Magazine(s *zap.SugaredLogger, c echo.Context) error {
-	if s == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
-	}
-	const h1 = "Magazines"
-	const lead = "Reports and publications written about The Scene subculture."
-	data := empty()
-	data["description"] = lead
-	data["lead"] = lead
-	data["title"] = h1
-	data["h1"] = h1
-	data["itemName"] = "issue"
-
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, errConn)
-	}
-	defer db.Close()
-
-	var r model.Releasers
-	if err := r.Magazine(ctx, db, 0, 0, model.NameAsc); err != nil {
-		s.Errorf("%s: %s %d", errConn, err)
-		return echo.NewHTTPError(http.StatusNotFound, errSQL)
-	}
-	data["sceners"] = r
-
-	mags := model.Mag{}
-	if err := mags.Stat(ctx, db); err != nil {
-		return err
-	}
-	fmt.Println(mags, "rel", len(r))
-
-	err = c.Render(http.StatusOK, "magazine", data)
-	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-	}
-	return nil
-}
-
 // Musician is the handler for the Musician page.
 func Musician(s *zap.SugaredLogger, c echo.Context) error {
 	if s == nil {
@@ -261,45 +153,6 @@ func Scener(s *zap.SugaredLogger, c echo.Context) error {
 	data["description"] = demo
 	data["title"] = demo
 	err := c.Render(http.StatusOK, "scener", data)
-	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-	}
-	return nil
-}
-
-// Releaser is the handler for the Releaser page.
-func Releaser(s *zap.SugaredLogger, c echo.Context) error {
-	if s == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
-	}
-	const h1 = "Releaser"
-	const lead = "A releaser is a member of The Scene who is responsible for releasing new content."
-	data := empty()
-	data["description"] = fmt.Sprint(h1, " ", lead)
-	data["logo"] = "The underground"
-	data["h1"] = h1
-	data["lead"] = lead
-	data["title"] = h1
-	data["itemName"] = "file"
-
-	// TODO: groups data
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, errConn)
-	}
-	defer db.Close()
-	// Groups are the distinct groups from the file table.
-	var Groups model.Releasers //nolint:gochecknoglobals
-	if err := Groups.All(ctx, db, 0, 0, model.NameAsc); err != nil {
-		s.Errorf("%s: %s %d", errConn, err)
-		const errSQL = "Database connection problem or a SQL error" // fix
-		return echo.NewHTTPError(http.StatusNotFound, errSQL)
-	}
-	data["sceners"] = Groups // model.Grps.List
-
-	err = c.Render(http.StatusOK, "releaser", data)
 	if err != nil {
 		s.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)

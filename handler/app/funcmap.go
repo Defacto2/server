@@ -52,6 +52,7 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 		"linkPage":     IDPage,
 		"logoText":     LogoText,
 		"mod3":         Mod3,
+		"nameReleaser": NameReleaser,
 		"safeHTML":     SafeHTML,
 		"sizeOfDL":     SizeOfDL,
 		"subTitle":     SubTitle,
@@ -541,6 +542,20 @@ func Mod(i any, max int) bool {
 func Mod3(i any) bool {
 	const max = 3
 	return Mod(i, max)
+}
+
+// NameReleaser returns a string with the last 4 characters removed if they are " FTP" or " BBS".
+func NameReleaser(s string) string {
+	n := strings.ToLower(strings.TrimSpace(s))
+	const chrs = 4
+	if len(s) < chrs {
+		return s
+	}
+	switch n[len(s)-chrs:] {
+	case " ftp", " bbs":
+		return s[:len(s)-chrs]
+	}
+	return s
 }
 
 // SafeHTML returns a string as a template.HTML type.

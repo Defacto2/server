@@ -68,19 +68,29 @@ func (v *Version) String() string {
 
 type SQL string // SQL is a raw query statement for PostgreSQL.
 
-const releaserSEL = "SELECT DISTINCT group_brand, " +
-	"COUNT(group_brand) AS count, " +
+// releaserSEL is a partial SQL statement to select the releasers name, file count and filesize sum.
+// The distinct on clause is used in PostreSQL to create a non-case sensitive list of releasers.
+// It requires a matching order by upper clause to be valid.
+// The cross join lateral clause is used to create a distinct list of releasers from
+// the group_brand_for and group_brand_by columns.
+const releaserSEL SQL = "SELECT DISTINCT ON(upper(releaser)) releaser, " +
+	"COUNT(files.filename) AS count_sum, " +
 	"SUM(files.filesize) AS size_sum " +
 	"FROM files " +
-	"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(group_brand) " +
-	"WHERE NULLIF(group_brand, '') IS NOT NULL "
+	"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
+	"WHERE NULLIF(releaser, '') IS NOT NULL "
 
-const releaserBy = "GROUP BY group_brand " +
-	"ORDER BY group_brand ASC"
+const releaserBy SQL = "GROUP BY releaser " +
+	"ORDER BY upper(releaser) ASC"
 
-// SelectRelr selects a list of distinct releasers or groups.
+// SelectRelr selects a list of distinct releasers or groups,
+// excluding magazine titles, BBS and FTP sites.
 func SelectRelr() SQL {
-	return releaserSEL + releaserBy
+	return releaserSEL +
+		"AND section != 'magazine' " +
+		"AND releaser !~ 'BBS\\M' " +
+		"AND releaser !~ 'FTP\\M' " +
+		releaserBy
 }
 
 // SelectMags selects a list of distinct magazine titles.
@@ -90,16 +100,62 @@ func SelectMag() SQL {
 
 // SelectBBS selects a list of distinct BBS names.
 func SelectBBS() SQL {
-	return releaserSEL + "AND group_brand ~ 'BBS\\M'" + releaserBy
+	return releaserSEL + "AND releaser ~ 'BBS\\M' " + releaserBy
 }
 
 // SelectFTP selects a list of distinct FTP site names.
 func SelectFTP() SQL {
-	return releaserSEL + "AND group_brand ~ 'FTP\\M'" + releaserBy
+	return releaserSEL + "AND releaser ~ 'FTP\\M' " + releaserBy
+}
+
+// SumReleaser is an SQL statement to total the file count and filesize sum of releasers,
+// as well as the minimum, oldest and maximum, newest year values.
+// The where parameter is used to filter the releasers by section, either all, magazine, bbs or ftp.
+func SumReleaser(where string) SQL {
+	s := "SELECT COUNT(files.id) AS count_total, " +
+		"SUM(files.filesize) AS size_total, " +
+		"MIN(files.date_issued_year) AS min_year, " +
+		"MAX(files.date_issued_year) AS max_year " +
+		"FROM files "
+	switch where {
+	case "all":
+		return SQL(strings.TrimSpace(s))
+	case "magazine":
+		s += "WHERE files.section = 'magazine'"
+	case "bbs":
+		s += "WHERE files.group_brand_for ~ 'BBS\\M' " +
+			"OR files.group_brand_by ~ 'BBS\\M'"
+	case "ftp":
+		s += "WHERE files.group_brand_for ~ 'FTP\\M' " +
+			"OR files.group_brand_by ~ 'FTP\\M'"
+	default:
+		return ""
+	}
+	return SQL(strings.TrimSpace(s))
+}
+
+// SumAll is an SQL statement to total the file count and filesize sum of all releasers.
+func SumAll() SQL {
+	return SumReleaser("all")
+}
+
+// SumBBS is an SQL statement to total the file count and filesize sum of BBS sites.
+func SumBBS() SQL {
+	return SumReleaser("bbs")
+}
+
+// SumFTP is an SQL statement to total the file count and filesize sum of FTP sites.
+func SumFTP() SQL {
+	return SumReleaser("ftp")
+}
+
+// SumMag is an SQL statement to total the file count and filesize sum of magazine titles.
+func SumMag() SQL {
+	return SumReleaser("magazine")
 }
 
 // StatRelr is an SQL statement to select all the unique groups.
-func StatRelr() SQL {
+func xStatRelr() SQL {
 	return "SELECT DISTINCT group_brand FROM files " +
 		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(group_brand) " +
 		"WHERE NULLIF(group_brand, '') IS NOT NULL " + // handle empty and null values
