@@ -83,9 +83,9 @@ const releaserSEL SQL = "SELECT DISTINCT ON(upper(releaser)) releaser, " +
 const releaserBy SQL = "GROUP BY releaser " +
 	"ORDER BY upper(releaser) ASC"
 
-// SelectRelr selects a list of distinct releasers or groups,
+// SelectRels selects a list of distinct releasers or groups,
 // excluding magazine titles, BBS and FTP sites.
-func SelectRelr() SQL {
+func SelectRels() SQL {
 	return releaserSEL +
 		"AND section != 'magazine' " +
 		"AND releaser !~ 'BBS\\M' " +

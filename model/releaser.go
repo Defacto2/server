@@ -5,10 +5,16 @@ package model
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"os"
+	"strings"
 
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/postgres"
+	"github.com/Defacto2/server/pkg/postgres/models"
+	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/queries"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 // Summary counts the total number files, file sizes and the earliest and latest years.
@@ -30,6 +36,21 @@ type Releaser struct {
 // Releasers is a collection of releasers.
 type Releasers []*struct {
 	Unique Releaser `boil:",bind"` // Unique is the releaser.
+}
+
+func (r *Releasers) List(ctx context.Context, db *sql.DB, name string) (models.FileSlice, error) {
+	if db == nil {
+		return nil, ErrDB
+	}
+	n := strings.ToUpper(name)
+	n = strings.ReplaceAll(n, "-", " ")
+	x := null.StringFrom(n)
+	fmt.Fprintln(os.Stdout, "name", x, "-", n)
+	// mods := qm.Expr(
+	// 	models.FileWhere.GroupBrandFor.EQ(x),
+	// 	qm.Or2(models.FileWhere.GroupBrandBy.EQ(x)),
+	// )
+	return models.Files(qm.Where("upper(group_brand_for) = ?", n)).All(ctx, db)
 }
 
 // Stat counts the total number of files and file sizes for all the releasers.
@@ -54,7 +75,7 @@ func (r *Releasers) All(ctx context.Context, db *sql.DB, offset, limit int, o Or
 	if len(*r) > 0 {
 		return nil
 	}
-	if err := queries.Raw(string(postgres.SelectRelr())).Bind(ctx, db, r); err != nil {
+	if err := queries.Raw(string(postgres.SelectRels())).Bind(ctx, db, r); err != nil {
 		return err
 	}
 	r.Slugs()

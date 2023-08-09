@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/helpers"
@@ -93,6 +94,59 @@ func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 	data["logo"] = "Files placeholder"
 	data["description"] = "Table of contents for the files."
 	data[records], err = Records(ctx, db, id, page, limit)
+	if err != nil {
+		s.Warnf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	err = c.Render(http.StatusOK, "files", data)
+	if err != nil {
+		s.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
+// G is the handler for the files page.
+// TODO: move this to _releaser.go
+func G(s *zap.SugaredLogger, c echo.Context, id string) error {
+	if s == nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("%w: handler app files", ErrLogger))
+	}
+	// if !IsURI(id) {
+	// 	// TODO: redirect to File categories with custom alert 404 message?
+	// 	// replace this message: The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
+	// 	// with something about the file categories page.
+	// 	return StatusErr(s, c, http.StatusNotFound, c.Param("uri"))
+	// }
+
+	fmt.Fprintln(os.Stdout, "G", id)
+
+	const (
+		limit = 99
+		page  = 1
+	)
+	data := empty()
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		s.Warnf("%s: %s", errConn, err)
+		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
+	}
+	defer db.Close()
+	counter := Stats{}
+	if err := counter.All.Stat(ctx, db); err != nil {
+		s.Warnf("%s: %s", errConn, err)
+	}
+
+	data["title"] = "Releaser files placeholder"
+	data["logo"] = "Releaser files placeholder"
+	data["description"] = "Table of contents for the files."
+	rel := model.Releasers{}
+	data[records], err = rel.List(ctx, db, id)
+
+	x := data[records].(models.FileSlice)
+	fmt.Fprintln(os.Stdout, "G len", len(x))
+
 	if err != nil {
 		s.Warnf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
