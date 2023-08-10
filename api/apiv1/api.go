@@ -12,11 +12,11 @@ import (
 )
 
 // Routes acts as a JSON, API placeholder.
-func Routes(e *echo.Echo, log *zap.SugaredLogger) *echo.Group {
+func Routes(z *zap.SugaredLogger, e *echo.Echo) *echo.Group {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		log.DPanic(err)
+		z.DPanic(err)
 	}
 	g := e.Group("api/v1")
 	g.GET("/files", func(c echo.Context) error {

@@ -68,11 +68,11 @@ func Description(section, platform, brand, title null.String) string {
 }
 
 // FileHref creates a URL to link to the file download of the ID.
-func FileHref(id int64, log *zap.SugaredLogger) string {
+func FileHref(z *zap.SugaredLogger, id int64) string {
 	href, err := url.JoinPath("/", "html3", "d",
 		helpers.Obfuscate(id))
 	if err != nil {
-		log.Error("FileHref ID %d could not be made into a valid URL: %s", err)
+		z.Error("FileHref ID %d could not be made into a valid URL: %s", err)
 		return ""
 	}
 	return href

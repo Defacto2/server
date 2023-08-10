@@ -20,21 +20,21 @@ import (
 const records = "records"
 
 // File is the handler for the file categories page.
-func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
-	if s == nil {
+func File(z *zap.SugaredLogger, c echo.Context, stats bool) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("%w: handler app file", ErrLogger))
 	}
 	data := empty()
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		s.Warnf("%s: %s", errConn, err)
+		z.Warnf("%s: %s", errConn, err)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	defer db.Close()
 	counter := Stats{}
 	if err := counter.Get(ctx, db); err != nil {
-		s.Warnf("%w: %w", errConn, err)
+		z.Warnf("%w: %w", errConn, err)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 
@@ -55,22 +55,22 @@ func File(s *zap.SugaredLogger, c echo.Context, stats bool) error {
 	}
 	err = c.Render(http.StatusOK, "file", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // Files is the handler for the files page.
-func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
-	if s == nil {
+func Files(z *zap.SugaredLogger, c echo.Context, id string) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("%w: handler app files", ErrLogger))
 	}
 	if !IsURI(id) {
 		// TODO: redirect to File categories with custom alert 404 message?
 		// replace this message: The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
 		// with something about the file categories page.
-		return StatusErr(s, c, http.StatusNotFound, c.Param("uri"))
+		return StatusErr(z, c, http.StatusNotFound, c.Param("uri"))
 	}
 
 	const (
@@ -81,13 +81,13 @@ func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		s.Warnf("%s: %s", errConn, err)
+		z.Warnf("%s: %s", errConn, err)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	defer db.Close()
 	counter := Stats{}
 	if err := counter.All.Stat(ctx, db); err != nil {
-		s.Warnf("%s: %s", errConn, err)
+		z.Warnf("%s: %s", errConn, err)
 	}
 
 	data["title"] = "Files placeholder"
@@ -95,12 +95,12 @@ func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 	data["description"] = "Table of contents for the files."
 	data[records], err = Records(ctx, db, id, page, limit)
 	if err != nil {
-		s.Warnf("%s: %s", ErrTmpl, err)
+		z.Warnf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	err = c.Render(http.StatusOK, "files", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
@@ -108,8 +108,8 @@ func Files(s *zap.SugaredLogger, c echo.Context, id string) error {
 
 // G is the handler for the files page.
 // TODO: move this to _releaser.go
-func G(s *zap.SugaredLogger, c echo.Context, id string) error {
-	if s == nil {
+func G(z *zap.SugaredLogger, c echo.Context, id string) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("%w: handler app files", ErrLogger))
 	}
 	// if !IsURI(id) {
@@ -129,13 +129,13 @@ func G(s *zap.SugaredLogger, c echo.Context, id string) error {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		s.Warnf("%s: %s", errConn, err)
+		z.Warnf("%s: %s", errConn, err)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	defer db.Close()
 	counter := Stats{}
 	if err := counter.All.Stat(ctx, db); err != nil {
-		s.Warnf("%s: %s", errConn, err)
+		z.Warnf("%s: %s", errConn, err)
 	}
 
 	data["title"] = "Releaser files placeholder"
@@ -148,12 +148,12 @@ func G(s *zap.SugaredLogger, c echo.Context, id string) error {
 	fmt.Fprintln(os.Stdout, "G len", len(x))
 
 	if err != nil {
-		s.Warnf("%s: %s", ErrTmpl, err)
+		z.Warnf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	err = c.Render(http.StatusOK, "files", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil

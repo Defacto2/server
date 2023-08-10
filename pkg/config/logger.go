@@ -28,14 +28,14 @@ var (
 // LoggerMiddleware handles the logging of HTTP servers.
 func (cfg Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	// Logger
-	var log *zap.SugaredLogger
+	var z *zap.SugaredLogger
 	switch cfg.IsProduction {
 	case true:
-		log = logger.Production(cfg.LogDir).Sugar()
+		z = logger.Production(cfg.LogDir).Sugar()
 	default:
-		log = logger.Development().Sugar()
+		z = logger.Development().Sugar()
 	}
-	defer log.Sync()
+	defer z.Sync()
 	return func(c echo.Context) error {
 		timeStarted := time.Now()
 		err := next(c)
@@ -59,9 +59,9 @@ func (cfg Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 			switch status {
 			case http.StatusOK:
-				// log.Debug(s)
+				// z.Debug(s)
 			default:
-				log.Warn(s)
+				z.Warn(s)
 			}
 		}
 		switch status {
@@ -103,18 +103,18 @@ func (cfg *Config) LogStorage() error {
 
 // CustomErrorHandler handles customer error templates.
 func (cfg Config) CustomErrorHandler(err error, c echo.Context) {
-	var log *zap.SugaredLogger
+	var z *zap.SugaredLogger
 	switch cfg.IsProduction {
 	case true:
-		log = logger.Production(cfg.LogDir).Sugar()
+		z = logger.Production(cfg.LogDir).Sugar()
 	default:
-		log = logger.Development().Sugar()
+		z = logger.Development().Sugar()
 	}
-	defer log.Sync()
+	defer z.Sync()
 	switch {
 	case IsHTML3(c.Path()):
 		if err := html3.Error(c, err); err != nil {
-			log.DPanic("Custom HTML3 response handler broke: %s", err)
+			z.DPanic("Custom HTML3 response handler broke: %s", err)
 		}
 		return
 	default:
@@ -126,7 +126,7 @@ func (cfg Config) CustomErrorHandler(err error, c echo.Context) {
 		if err := c.File(errorPage); err != nil {
 			// fallback to a string error if templates break
 			if err1 := StringErr(err, c); err1 != nil {
-				log.DPanic("Custom response handler broke: %s", err1)
+				z.DPanic("Custom response handler broke: %s", err1)
 			}
 		}
 		return

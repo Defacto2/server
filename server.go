@@ -85,7 +85,7 @@ func main() {
 	server := handler.Configuration{
 		Brand:   &brand,
 		Import:  &configs,
-		Log:     log,
+		ZLog:    log,
 		Public:  public,
 		Version: version,
 		Views:   views,

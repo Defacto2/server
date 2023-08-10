@@ -11,8 +11,8 @@ import (
 )
 
 // StatusErr is the handler for the HTTP status pages such as the 404 - not found.
-func StatusErr(s *zap.SugaredLogger, c echo.Context, code int, uri string) error {
-	if s == nil {
+func StatusErr(z *zap.SugaredLogger, c echo.Context, code int, uri string) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Errorf("%w: handler app status", ErrLogger))
 	}
@@ -54,7 +54,7 @@ func StatusErr(s *zap.SugaredLogger, c echo.Context, code int, uri string) error
 	data["uri"] = uri
 	err := c.Render(http.StatusNotFound, "status", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil

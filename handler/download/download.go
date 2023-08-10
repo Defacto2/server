@@ -29,8 +29,8 @@ const (
 
 // HTTPSend serves files to the user and prompts for a save location.
 // The download relies on the URL ID parameter to determine the requested file.
-func (d Download) HTTPSend(log *zap.SugaredLogger, c echo.Context) error {
-	if log == nil {
+func (d Download) HTTPSend(z *zap.SugaredLogger, c echo.Context) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "the httpsend logger is missing")
 	}
 	if c == nil {
@@ -61,14 +61,14 @@ func (d Download) HTTPSend(log *zap.SugaredLogger, c echo.Context) error {
 	uid := strings.TrimSpace(res.UUID.String)
 	file := filepath.Join(d.Path, uid)
 	if !helpers.IsStat(file) {
-		log.Warnf("The hosted file download %q, for record %d does not exist.\nAbsolute path: %q",
+		z.Warnf("The hosted file download %q, for record %d does not exist.\nAbsolute path: %q",
 			res.Filename.String, res.ID, file)
 		return echo.NewHTTPError(http.StatusFailedDependency,
 			fmt.Sprintf("%s: %s", missing, name))
 	}
 	// pass the original filename to the client browser
 	if name == "" {
-		log.Warnf("No filename exists for the record %d.", res.ID)
+		z.Warnf("No filename exists for the record %d.", res.ID)
 		name = file
 	}
 	return c.Attachment(file, name)

@@ -29,9 +29,9 @@ type T struct {
 }
 
 // ByName returns the data of the named tag.
-func (t *T) ByName(name string, log *zap.SugaredLogger) TagData {
+func (t *T) ByName(z *zap.SugaredLogger, name string) TagData {
 	if Tags.List == nil {
-		t.Build(log)
+		t.Build(z)
 	}
 	for _, m := range Tags.List {
 		if strings.EqualFold(m.Name, name) {
@@ -42,7 +42,7 @@ func (t *T) ByName(name string, log *zap.SugaredLogger) TagData {
 }
 
 // Build the tags and collect the statistical data.
-func (t *T) Build(log *zap.SugaredLogger) {
+func (t *T) Build(z *zap.SugaredLogger) {
 	t.List = make([]TagData, LastPlatform+1)
 	i := -1
 	for key, val := range URIs() {
@@ -62,7 +62,7 @@ func (t *T) Build(log *zap.SugaredLogger) {
 		tg := key
 		defer func(i int, tg Tag) {
 			t.Mu.Lock()
-			t.List[i].Count = int(counter(tg, log))
+			t.List[i].Count = int(counter(z, tg))
 			t.Mu.Unlock()
 		}(i, tg)
 	}
@@ -264,11 +264,11 @@ func OSTags() [5]string {
 }
 
 // count the number of files with the tag.
-func counter(t Tag, log *zap.SugaredLogger) int64 {
+func counter(z *zap.SugaredLogger, t Tag) int64 {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		log.Errorf("Could not connect to the database: %s.", err)
+		z.Errorf("Could not connect to the database: %s.", err)
 		return -1
 	}
 	clause := "section = ?"
@@ -278,7 +278,7 @@ func counter(t Tag, log *zap.SugaredLogger) int64 {
 	sum, err := models.Files(
 		qm.Where(clause, URIs()[t])).Count(ctx, db)
 	if err != nil {
-		log.Errorf("Could not sum the records associated with tags: %s.", err)
+		z.Errorf("Could not sum the records associated with tags: %s.", err)
 		return -1
 	}
 	return sum

@@ -73,7 +73,7 @@ func List() Accordion {
 
 // Website is the handler for the websites page.
 // Open is the ID of the accordion section to open.
-func Website(s *zap.SugaredLogger, ctx echo.Context, open string) error {
+func Website(z *zap.SugaredLogger, ctx echo.Context, open string) error {
 	data := empty()
 	data["title"] = "Websites"
 	data["logo"] = "Websites, podcasts, videos, books and films"
@@ -103,7 +103,7 @@ func Website(s *zap.SugaredLogger, ctx echo.Context, open string) error {
 	data["accordion"] = acc
 	err := ctx.Render(http.StatusOK, "websites", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil

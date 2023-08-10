@@ -38,8 +38,8 @@ func empty() map[string]interface{} {
 // TODO: reorder by menu order
 
 // Artist is the handler for the Artist page.
-func Artist(s *zap.SugaredLogger, c echo.Context) error {
-	if s == nil {
+func Artist(z *zap.SugaredLogger, c echo.Context) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
 	}
 	data := empty()
@@ -47,14 +47,14 @@ func Artist(s *zap.SugaredLogger, c echo.Context) error {
 	data["title"] = demo
 	err := c.Render(http.StatusOK, "artist", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
-func Coder(s *zap.SugaredLogger, c echo.Context) error {
-	if s == nil {
+func Coder(z *zap.SugaredLogger, c echo.Context) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
 	}
 	data := empty()
@@ -62,15 +62,15 @@ func Coder(s *zap.SugaredLogger, c echo.Context) error {
 	data["title"] = demo
 	err := c.Render(http.StatusOK, "coder", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "coder")
 	}
 	return nil
 }
 
 // Interview is the handler for the People Interviews page.
-func Interview(s *zap.SugaredLogger, c echo.Context) error {
-	if s == nil {
+func Interview(z *zap.SugaredLogger, c echo.Context) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
 	}
 	data := empty()
@@ -78,15 +78,15 @@ func Interview(s *zap.SugaredLogger, c echo.Context) error {
 	data["title"] = demo
 	err := c.Render(http.StatusOK, "interview", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // Index is the handler for the Home page.
-func Index(s *zap.SugaredLogger, c echo.Context) error {
-	if s == nil {
+func Index(z *zap.SugaredLogger, c echo.Context) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
 	}
 	const lead = "a website committed to preserving the historic PC cracking and warez scene subcultures." +
@@ -100,15 +100,15 @@ func Index(s *zap.SugaredLogger, c echo.Context) error {
 	data["milestones"] = Collection()
 	err := c.Render(http.StatusOK, "index", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // History is the handler for the History page.
-func History(s *zap.SugaredLogger, c echo.Context) error {
-	if s == nil {
+func History(z *zap.SugaredLogger, c echo.Context) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
 	}
 	const lead = "Defacto founded in late February or early March of 1996, as an electronic magazine that wrote about The Scene subculture."
@@ -122,15 +122,15 @@ func History(s *zap.SugaredLogger, c echo.Context) error {
 	data["title"] = h1
 	err := c.Render(http.StatusOK, "history", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // Musician is the handler for the Musician page.
-func Musician(s *zap.SugaredLogger, c echo.Context) error {
-	if s == nil {
+func Musician(z *zap.SugaredLogger, c echo.Context) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
 	}
 	data := empty()
@@ -138,15 +138,15 @@ func Musician(s *zap.SugaredLogger, c echo.Context) error {
 	data["title"] = demo
 	err := c.Render(http.StatusOK, "musician", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "musician")
 	}
 	return nil
 }
 
 // Scener is the handler for the Scener page.
-func Scener(s *zap.SugaredLogger, c echo.Context) error {
-	if s == nil {
+func Scener(z *zap.SugaredLogger, c echo.Context) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
 	}
 	data := empty()
@@ -154,15 +154,15 @@ func Scener(s *zap.SugaredLogger, c echo.Context) error {
 	data["title"] = demo
 	err := c.Render(http.StatusOK, "scener", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // Thanks is the handler for the Thanks page.
-func Thanks(s *zap.SugaredLogger, c echo.Context) error {
-	if s == nil {
+func Thanks(z *zap.SugaredLogger, c echo.Context) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
 	}
 	data := empty()
@@ -172,15 +172,15 @@ func Thanks(s *zap.SugaredLogger, c echo.Context) error {
 	data["title"] = "Thanks!"
 	err := c.Render(http.StatusOK, "thanks", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // TheScene is the handler for the The Scene page.
-func TheScene(s *zap.SugaredLogger, c echo.Context) error {
-	if s == nil {
+func TheScene(z *zap.SugaredLogger, c echo.Context) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
 	}
 	const h1 = "The Scene?"
@@ -193,15 +193,15 @@ func TheScene(s *zap.SugaredLogger, c echo.Context) error {
 	data["title"] = h1
 	err := c.Render(http.StatusOK, "thescene", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // Writer is the handler for the Writer page.
-func Writer(s *zap.SugaredLogger, c echo.Context) error {
-	if s == nil {
+func Writer(z *zap.SugaredLogger, c echo.Context) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
 	}
 	data := empty()
@@ -209,7 +209,7 @@ func Writer(s *zap.SugaredLogger, c echo.Context) error {
 	data["title"] = "demo"
 	err := c.Render(http.StatusOK, "writer", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "writer")
 	}
 	return nil

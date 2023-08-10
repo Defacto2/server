@@ -36,7 +36,7 @@ type Navigate struct {
 
 // Sugared logger passthrough.
 type sugared struct {
-	log *zap.SugaredLogger
+	zlog *zap.SugaredLogger
 }
 
 // All method lists every release.
@@ -94,7 +94,7 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		s.log.Warnf("%s: %s", errConn, err)
+		s.zlog.Warnf("%s: %s", errConn, err)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	defer db.Close()
@@ -141,11 +141,11 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error {
 		_ = softs.Stat(ctx, db)
 		count = softs.Count
 	default:
-		s.log.Warnf("%s: %s", errTag, tt)
+		s.zlog.Warnf("%s: %s", errTag, tt)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errTag)
 	}
 	if err != nil {
-		s.log.Warnf("%s: %s", errConn, err)
+		s.zlog.Warnf("%s: %s", errConn, err)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	if limit > 0 && count == 0 {
@@ -170,11 +170,11 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error {
 	case AsSoftware:
 		byteSum = int64(softs.Bytes)
 	default:
-		s.log.Warnf("%s: %s", errTag, tt)
+		s.zlog.Warnf("%s: %s", errTag, tt)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errTag)
 	}
 	if err != nil {
-		s.log.Warnf("%s %s", errConn, err)
+		s.zlog.Warnf("%s %s", errConn, err)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	stat := fmt.Sprintf("%d files, %s", count, helpers.ByteCountFloat(byteSum))
@@ -235,7 +235,7 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error {
 		"navigate":    navi,
 	})
 	if err != nil {
-		s.log.Errorf("%s: %s %d", errTmpl, err, tt)
+		s.zlog.Errorf("%s: %s %d", errTmpl, err, tt)
 		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
 	}
 	return nil

@@ -14,8 +14,8 @@ import (
 // The file render_releaser.go contains the renderers that use the releaser.html template.
 
 // Releaser is the handler for the Releaser page.
-func Releaser(s *zap.SugaredLogger, c echo.Context) error {
-	if s == nil {
+func Releaser(z *zap.SugaredLogger, c echo.Context) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
 	}
 	data := empty()
@@ -41,7 +41,7 @@ func Releaser(s *zap.SugaredLogger, c echo.Context) error {
 	defer db.Close()
 	var r model.Releasers
 	if err := r.All(ctx, db, 0, 0, model.NameAsc); err != nil {
-		s.Errorf("%s: %s %d", errConn, err)
+		z.Errorf("%s: %s %d", errConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
 	var m model.Summary
@@ -57,15 +57,15 @@ func Releaser(s *zap.SugaredLogger, c echo.Context) error {
 
 	err = c.Render(http.StatusOK, "releaser", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // Magazine is the handler for the Magazine page.
-func Magazine(s *zap.SugaredLogger, c echo.Context) error {
-	if s == nil {
+func Magazine(z *zap.SugaredLogger, c echo.Context) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
 	}
 	data := empty()
@@ -91,7 +91,7 @@ func Magazine(s *zap.SugaredLogger, c echo.Context) error {
 	defer db.Close()
 	var r model.Releasers
 	if err := r.Magazine(ctx, db, 0, 0, model.NameAsc); err != nil {
-		s.Errorf("%s: %s %d", errConn, err)
+		z.Errorf("%s: %s %d", errConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
 	var m model.Summary
@@ -107,15 +107,15 @@ func Magazine(s *zap.SugaredLogger, c echo.Context) error {
 
 	err = c.Render(http.StatusOK, "magazine", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // BBS is the handler for the BBS page.
-func BBS(s *zap.SugaredLogger, c echo.Context) error {
-	if s == nil {
+func BBS(z *zap.SugaredLogger, c echo.Context) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
 	}
 	data := empty()
@@ -141,7 +141,7 @@ func BBS(s *zap.SugaredLogger, c echo.Context) error {
 	defer db.Close()
 	var r model.Releasers
 	if err := r.BBS(ctx, db, 0, 0, model.NameAsc); err != nil {
-		s.Errorf("%s: %s %d", errConn, err)
+		z.Errorf("%s: %s %d", errConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
 	var m model.Summary
@@ -157,15 +157,15 @@ func BBS(s *zap.SugaredLogger, c echo.Context) error {
 
 	err = c.Render(http.StatusOK, "bbs", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // FTP is the handler for the FTP page.
-func FTP(s *zap.SugaredLogger, c echo.Context) error {
-	if s == nil {
+func FTP(z *zap.SugaredLogger, c echo.Context) error {
+	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
 	}
 	data := empty()
@@ -191,7 +191,7 @@ func FTP(s *zap.SugaredLogger, c echo.Context) error {
 	defer db.Close()
 	var r model.Releasers
 	if err := r.FTP(ctx, db, 0, 0, model.NameAsc); err != nil {
-		s.Errorf("%s: %s %d", errConn, err)
+		z.Errorf("%s: %s %d", errConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
 	var m model.Summary
@@ -207,7 +207,7 @@ func FTP(s *zap.SugaredLogger, c echo.Context) error {
 
 	err = c.Render(http.StatusOK, "ftp", data)
 	if err != nil {
-		s.Errorf("%s: %s", ErrTmpl, err)
+		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil

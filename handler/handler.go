@@ -43,7 +43,7 @@ const (
 type Configuration struct {
 	DatbaseErr bool               // DatbaseErr is true if the database connection failed.
 	Import     *config.Config     // Import configurations from the host system environment.
-	Log        *zap.SugaredLogger // Log is a sugared logger.
+	ZLog       *zap.SugaredLogger // ZLog is a sugared, zap logger.
 	Brand      *[]byte            // Brand points to the Defacto2 ASCII logo.
 	Version    string             // Version is the results of GoReleaser build command.
 	Public     embed.FS           // Public facing files.
@@ -54,7 +54,7 @@ type Configuration struct {
 func (c Configuration) Registry() *TemplateRegistry {
 	webapp := app.Configuration{
 		DatbaseErr: c.DatbaseErr,
-		Log:        c.Log,
+		ZLog:       c.ZLog,
 		Brand:      c.Brand,
 		Public:     c.Public,
 		Views:      c.Views,
@@ -62,7 +62,7 @@ func (c Configuration) Registry() *TemplateRegistry {
 	return &TemplateRegistry{
 		Templates: Join(
 			webapp.Tmpl(),
-			html3.Tmpl(c.Log, c.Views),
+			html3.Tmpl(c.ZLog, c.Views),
 		),
 	}
 }
@@ -128,23 +128,23 @@ func (c Configuration) Controller() *echo.Echo {
 	e = c.EmbedDirs(e)
 
 	// Routes for the application.
-	e, err := Routes(e, c.Log, c.Public)
+	e, err := Routes(c.ZLog, e, c.Public)
 	if err != nil {
-		c.Log.Fatal(err)
+		c.ZLog.Fatal(err)
 	}
 
 	// Routes for the HTML3 retro tables.
-	retro := html3.Routes(e, c.Log)
+	retro := html3.Routes(c.ZLog, e)
 	retro.GET("/d/:id", func(ctx echo.Context) error {
 		// route for the file download handler under the html3 group
 		d := download.Download{
 			Path: c.Import.DownloadDir,
 		}
-		return d.HTTPSend(c.Log, ctx)
+		return d.HTTPSend(c.ZLog, ctx)
 	})
 
 	// Route for the API.
-	_ = apiv1.Routes(e, c.Log)
+	_ = apiv1.Routes(c.ZLog, e)
 
 	return e
 }
@@ -157,7 +157,7 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 	if logo := string(*c.Brand); len(logo) > 0 {
 		w := bufio.NewWriter(os.Stdout)
 		if _, err := fmt.Fprintf(w, "%s\n\n", logo); err != nil {
-			c.Log.Warnf("Could not print the brand logo: %s.", err)
+			c.ZLog.Warnf("Could not print the brand logo: %s.", err)
 		}
 		w.Flush()
 	}
@@ -167,7 +167,7 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 	var psql postgres.Version
 	if err := psql.Query(); err != nil {
 		c.DatbaseErr = true
-		c.Log.Warnln("Could not obtain the PostgreSQL server version. Is the database online?")
+		c.ZLog.Warnln("Could not obtain the PostgreSQL server version. Is the database online?")
 	} else {
 		c.DatbaseErr = false
 		fmt.Fprintf(w, "%sDefacto2 web application %s %s.\n", mark, cmd.Commit(c.Version), psql.String())
@@ -201,12 +201,12 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 		var portErr *net.OpError
 		switch {
 		case !c.Import.IsProduction && errors.As(err, &portErr):
-			c.Log.Infof("air or task server could not start (this can probably be ignored): %s.", err)
+			c.ZLog.Infof("air or task server could not start (this can probably be ignored): %s.", err)
 		case errors.Is(err, net.ErrClosed),
 			errors.Is(err, http.ErrServerClosed):
-			c.Log.Infof("HTTP server shutdown gracefully.")
+			c.ZLog.Infof("HTTP server shutdown gracefully.")
 		default:
-			c.Log.Fatalf("HTTP server could not start: %s.", err)
+			c.ZLog.Fatalf("HTTP server could not start: %s.", err)
 		}
 	}
 	// nothing should be placed here
@@ -222,7 +222,7 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
 	ctx, cancel := context.WithTimeout(context.Background(), ShutdownWait)
 	defer func() {
 		const alert = "Detected Ctrl-C, server will shutdown in "
-		_ = c.Log.Sync() // do not check error as there's false positives
+		_ = c.ZLog.Sync() // do not check error as there's false positives
 		dst := os.Stdout
 		w := bufio.NewWriter(dst)
 		fmt.Fprintf(w, "\n%s%v", alert, ShutdownWait)
@@ -246,10 +246,10 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
 		case <-ctx.Done():
 		}
 		if err := e.Shutdown(ctx); err != nil {
-			c.Log.Fatalf("Server shutdown caused an error: %w.", err)
+			c.ZLog.Fatalf("Server shutdown caused an error: %w.", err)
 		}
-		c.Log.Infoln("Server shutdown complete.")
-		_ = c.Log.Sync()
+		c.ZLog.Infoln("Server shutdown complete.")
+		_ = c.ZLog.Sync()
 		signal.Stop(quit)
 		cancel()
 	}()

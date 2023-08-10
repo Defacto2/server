@@ -24,70 +24,70 @@ var (
 )
 
 // Checks runs a number of sanity checks for the environment variable configurations.
-func (c *Config) Checks(log *zap.SugaredLogger) {
-	if log == nil {
+func (c *Config) Checks(z *zap.SugaredLogger) {
+	if z == nil {
 		fmt.Fprintf(os.Stderr, "cannot run config checks as the logger instance is nil.")
 		return
 	}
 	if err := HTTPPort(c.HTTPPort); err != nil {
 		switch {
 		case errors.Is(err, ErrPortMax):
-			log.Fatalf("The server could not use the HTTP port %d, %s.",
+			z.Fatalf("The server could not use the HTTP port %d, %s.",
 				c.HTTPPort, err)
 		case errors.Is(err, ErrPortSys):
-			log.Infof("The server HTTP port %d, %s.",
+			z.Infof("The server HTTP port %d, %s.",
 				c.HTTPPort, err)
 		}
 	}
 
 	if err := DownloadDir(c.DownloadDir); err != nil {
-		log.Warn(err)
+		z.Warn(err)
 	}
 	if err := ScreenshotsDir(c.ScreenshotsDir); err != nil {
-		log.Warn(err)
+		z.Warn(err)
 	}
 	if err := ThumbnailDir(c.ThumbnailDir); err != nil {
-		log.Warn(err)
+		z.Warn(err)
 	}
-	c.SetupLogDir(log)
+	c.SetupLogDir(z)
 }
 
 // SetupLogDir runs checks against the configured log directory.
 // If no log directory is configured, a default directory is used.
 // Problems will either log warnings or fatal errors.
-func (c *Config) SetupLogDir(log *zap.SugaredLogger) {
-	if log == nil {
+func (c *Config) SetupLogDir(z *zap.SugaredLogger) {
+	if z == nil {
 		fmt.Fprintf(os.Stderr, "The logger instance for the config log dir is nil.")
 	}
 	if c.LogDir == "" {
 		if err := c.LogStorage(); err != nil {
-			log.Fatalf("The server cannot log to files: %s", err)
+			z.Fatalf("The server cannot log to files: %s", err)
 		}
 	}
 	dir, err := os.Stat(c.LogDir)
 	if os.IsNotExist(err) {
-		log.Fatalf("The log directory path does not exist, the server cannot log to files: %s", c.LogDir)
+		z.Fatalf("The log directory path does not exist, the server cannot log to files: %s", c.LogDir)
 	}
 	if !dir.IsDir() {
-		log.Fatalf("The log directory path points to the file: %s", dir.Name())
+		z.Fatalf("The log directory path points to the file: %s", dir.Name())
 	}
 	empty := filepath.Join(c.LogDir, ".defacto2_touch_test")
 	if _, err := os.Stat(empty); os.IsNotExist(err) {
 		f, err := os.Create(empty)
 		if err != nil {
-			log.Fatalf("Could not create a file in the log directory path: %s.", err)
+			z.Fatalf("Could not create a file in the log directory path: %s.", err)
 		}
 		defer func(f *os.File) {
 			f.Close()
 			if err := os.Remove(empty); err != nil {
-				log.Warnf("Could not remove the empty test file in the log directory path: %s: %s", err, empty)
+				z.Warnf("Could not remove the empty test file in the log directory path: %s: %s", err, empty)
 				return
 			}
 		}(f)
 		return
 	}
 	if err := os.Remove(empty); err != nil {
-		log.Warnf("Could not remove the empty test file in the log directory path: %s: %s", err, empty)
+		z.Warnf("Could not remove the empty test file in the log directory path: %s: %s", err, empty)
 		return
 	}
 }

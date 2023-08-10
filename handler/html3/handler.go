@@ -91,8 +91,8 @@ var Groups model.Releasers //nolint:gochecknoglobals
 // Routes for the /html3 sub-route group.
 // Any errors are logged and rendered to the client using HTTP codes
 // and the custom /html3, group errror template.
-func Routes(e *echo.Echo, log *zap.SugaredLogger) *echo.Group {
-	s := sugared{log: log}
+func Routes(z *zap.SugaredLogger, e *echo.Echo) *echo.Group {
+	s := sugared{zlog: z}
 	g := e.Group(Prefix)
 	g.GET("", s.Index)
 	g.GET("/all:offset", s.All)
@@ -125,25 +125,25 @@ func (s *sugared) Index(c echo.Context) error {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		s.log.Warnf("%s: %s", errConn, err)
+		s.zlog.Warnf("%s: %s", errConn, err)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	defer db.Close()
 	if err := Stats.All.Stat(ctx, db); err != nil {
-		s.log.Warnf("%s: %s", errConn, err)
+		s.zlog.Warnf("%s: %s", errConn, err)
 	}
 	if err := Stats.Art.Stat(ctx, db); err != nil {
-		s.log.Warnf("%s: %s", errConn, err)
+		s.zlog.Warnf("%s: %s", errConn, err)
 	}
 	if err := Stats.Document.Stat(ctx, db); err != nil {
-		s.log.Warnf("%s: %s", errConn, err)
+		s.zlog.Warnf("%s: %s", errConn, err)
 	}
 	// TODO: REPLACE
 	// if err := Stats.Group.Stat(ctx, db); err != nil {
 	// 	s.log.Warnf("%s: %s", errConn, err)
 	// }
 	if err := Stats.Software.Stat(ctx, db); err != nil {
-		s.log.Warnf("%s: %s", errConn, err)
+		s.zlog.Warnf("%s: %s", errConn, err)
 	}
 	descs := [4]string{
 		helpers.Sentence(textArt),
@@ -160,7 +160,7 @@ func (s *sugared) Index(c echo.Context) error {
 		"plat":        tags.PlatformCount,
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
 	}); err != nil {
-		s.log.Errorf("%s: %s", errTmpl, err)
+		s.zlog.Errorf("%s: %s", errTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
 	}
 	return nil
@@ -179,7 +179,7 @@ func (s *sugared) Categories(c echo.Context) error {
 		"tags":        tags.Names(),
 	})
 	if err != nil {
-		s.log.Errorf("%s: %s %d", errTmpl, err)
+		s.zlog.Errorf("%s: %s %d", errTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
 	}
 	return nil
@@ -198,7 +198,7 @@ func (s *sugared) Platforms(c echo.Context) error {
 		"tags":        tags.Names(),
 	})
 	if err != nil {
-		s.log.Errorf("%s: %s %d", errTmpl, err)
+		s.zlog.Errorf("%s: %s %d", errTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
 	}
 	return nil
@@ -214,7 +214,7 @@ func (s *sugared) Groups(c echo.Context) error {
 	}
 	defer db.Close()
 	if err := Groups.All(ctx, db, 0, 0, model.NameAsc); err != nil {
-		s.log.Errorf("%s: %s %d", errConn, err)
+		s.zlog.Errorf("%s: %s %d", errConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
 	err = c.Render(http.StatusOK, "html3_groups", map[string]interface{}{
@@ -227,7 +227,7 @@ func (s *sugared) Groups(c echo.Context) error {
 		"sceners": Groups, // model.Grps.List
 	})
 	if err != nil {
-		s.log.Errorf("%s: %s %d", errTmpl, err)
+		s.zlog.Errorf("%s: %s %d", errTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
 	}
 	return nil
@@ -244,7 +244,7 @@ func (s *sugared) Redirection(c echo.Context) error {
 	err := c.String(http.StatusInternalServerError,
 		fmt.Sprintf("unknown redirection, %q ", c.Path()))
 	if err != nil {
-		s.log.Errorf("%s: %s %d", errTmpl, err)
+		s.zlog.Errorf("%s: %s %d", errTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
 	}
 	return nil

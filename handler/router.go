@@ -32,11 +32,11 @@ func Redirects() map[string]string {
 }
 
 // Routes defines the routes for the web server.
-func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) (*echo.Echo, error) {
+func Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.FS) (*echo.Echo, error) {
 	if e == nil {
 		return nil, ErrRoutes
 	}
-	if log == nil {
+	if z == nil {
 		return nil, ErrLog
 	}
 	// Redirects
@@ -70,69 +70,69 @@ func Routes(e *echo.Echo, log *zap.SugaredLogger, public embed.FS) (*echo.Echo, 
 	e.FileFS("/site.webmanifest", "public/text/site.webmanifest.json", public)
 
 	e.GET("/", func(c echo.Context) error {
-		return app.Index(log, c)
+		return app.Index(z, c)
 	})
 	e.GET("/artist", func(c echo.Context) error {
-		return app.Artist(log, c)
+		return app.Artist(z, c)
 	})
 	e.GET("/bbs", func(c echo.Context) error {
-		return app.BBS(log, c)
+		return app.BBS(z, c)
 	})
 	e.GET("/coder", func(c echo.Context) error {
-		return app.Coder(log, c)
+		return app.Coder(z, c)
 	})
 	e.GET("/file/stats", func(c echo.Context) error {
-		return app.File(log, c, true)
+		return app.File(z, c, true)
 	})
 	e.GET("/files/:id", func(c echo.Context) error {
-		return app.Files(log, c, c.Param("id"))
+		return app.Files(z, c, c.Param("id"))
 	})
 	e.GET("/file", func(c echo.Context) error {
-		return app.File(log, c, false)
+		return app.File(z, c, false)
 	})
 	e.GET("/ftp", func(c echo.Context) error {
-		return app.FTP(log, c)
+		return app.FTP(z, c)
 	})
 	e.GET("/g/:id", func(c echo.Context) error {
-		return app.G(log, c, c.Param("id"))
+		return app.G(z, c, c.Param("id"))
 	})
 	e.GET("/history", func(c echo.Context) error {
-		return app.History(log, c)
+		return app.History(z, c)
 	})
 	e.GET("/interview", func(c echo.Context) error {
-		return app.Interview(log, c)
+		return app.Interview(z, c)
 	})
 	e.GET("/magazine", func(c echo.Context) error {
-		return app.Magazine(log, c)
+		return app.Magazine(z, c)
 	})
 	e.GET("/musician", func(c echo.Context) error {
-		return app.Musician(log, c)
+		return app.Musician(z, c)
 	})
 	e.GET("/releaser", func(c echo.Context) error {
-		return app.Releaser(log, c)
+		return app.Releaser(z, c)
 	})
 	e.GET("/scener", func(c echo.Context) error {
-		return app.Scener(log, c)
+		return app.Scener(z, c)
 	})
 	e.GET("/thanks", func(c echo.Context) error {
-		return app.Thanks(log, c)
+		return app.Thanks(z, c)
 	})
 	e.GET("/thescene", func(c echo.Context) error {
-		return app.TheScene(log, c)
+		return app.TheScene(z, c)
 	})
 	e.GET("/website/:id", func(c echo.Context) error {
-		return app.Website(log, c, c.Param("id"))
+		return app.Website(z, c, c.Param("id"))
 	})
 	e.GET("/website", func(c echo.Context) error {
-		return app.Website(log, c, "")
+		return app.Website(z, c, "")
 	})
 	e.GET("/writer", func(c echo.Context) error {
-		return app.Writer(log, c)
+		return app.Writer(z, c)
 	})
 
 	// all other page requests return a custom 404 error page
 	e.GET("/:uri", func(c echo.Context) error {
-		return app.StatusErr(log, c, http.StatusNotFound, c.Param("uri"))
+		return app.StatusErr(z, c, http.StatusNotFound, c.Param("uri"))
 	})
 
 	return e, nil
