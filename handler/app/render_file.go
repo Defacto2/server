@@ -69,12 +69,12 @@ func counter() (Stats, error) {
 	return counter, nil
 }
 
-// Files is the handler for the files page.
+// Files is the handler for the list and preview of the files page.
 func Files(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("%w: handler app files", ErrLogger))
 	}
-	if !IsURI(uri) {
+	if !IsFiles(uri) {
 		return FilesErr(z, c, uri)
 	}
 
@@ -97,7 +97,9 @@ func Files(z *zap.SugaredLogger, c echo.Context, uri string) error {
 		h1sub = "the newest releases"
 		lead = "These are the most recent products from The Scene in the collection."
 	default:
-		h1sub = RecordsSub(uri)
+		s := RecordsSub(uri)
+		h1sub = s
+		logo = s
 	}
 	data := empty()
 	data["title"] = title
@@ -109,7 +111,7 @@ func Files(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	data[records] = []models.FileSlice{}
 
 	const (
-		limit = 99
+		limit = 198
 		page  = 1
 	)
 	ctx := context.Background()

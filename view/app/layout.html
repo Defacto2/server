@@ -217,7 +217,7 @@
                 </a>
                 <ul class="dropdown-menu">
                   <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#aboutModal">Defacto2</a></li>
-                  <li><a class="dropdown-item" href="/thescene">The Scene</a></li>The VGA font
+                  <li><a class="dropdown-item" href="/thescene">The Scene</a></li>
                   <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#creditsModal">Credits</a></li>
                   <li><a class="dropdown-item" href="/history">Our history</a></li>
                   <li><hr class="dropdown-divider"></li>
@@ -235,7 +235,7 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li><h6 class="dropdown-header">Glossary</h6></li>
-                  <li><a class="dropdown-item" href="">Common terms</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Common terms</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><h6 class="dropdown-header">Using the downloads</h6></li>
                   <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#tavModal">Trojans and viruses</a></li>
@@ -288,7 +288,7 @@
   The database is down, this means the website is not fully working. We are working on it.
 </div>{{- end}}
 <div class="d-flex justify-content-center" id="logo-container">
-<pre class="text-start text-bg-dark rounded font-dos p-3" id="logo-text">
+<pre class="text-start text-bg-dark rounded font-dos px-1 py-2" id="logo-text">
   {{- /*  
     the monospace brand logo should be padded with the Bootstrap classes
     and not with pre whitespace characters */ -}}
@@ -298,7 +298,7 @@
 </div>
 <main>
     {{- if ne (index . "h1") ""}}<h1 class="display-6">{{ index . "h1" }}{{if ne (index . "h1sub") ""}} <small>{{ index . "h1sub" }}</small>{{end}}</h1>{{end -}}
-    {{- if ne (index . "lead") ""}}<p class="lead">{{ index . "lead" }}</p>{{end -}}
+    {{- if ne (index . "lead") ""}}<p class="lead">{{ index . "lead" | safeHTML }}</p>{{end -}}
     {{- block "content" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
 </main>
 <footer class="font-dos text-end mt-3 me-1">

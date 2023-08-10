@@ -129,8 +129,8 @@ func (u URI) String() string {
 	}[u]
 }
 
-// IsURI checks if the string is a valid files URI path.
-func IsURI(s string) bool {
+// IsFiles checks if the string is a valid URI path for the list of files.
+func IsFiles(s string) bool {
 	// range to 57
 	for i := 1; i <= int(windowsPack); i++ {
 		if URI(i).String() == s {
