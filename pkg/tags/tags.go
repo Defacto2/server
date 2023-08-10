@@ -13,6 +13,9 @@ import (
 	"go.uber.org/zap"
 )
 
+// The msdos, app funcmap handler must match the format and syntax of MS-DOS that's used here.
+const msdos = "MS Dos"
+
 // TagData holds the tag information.
 type TagData struct {
 	URI   string // URI is a unique URL slug for the tag.
@@ -133,114 +136,313 @@ const (
 
 // Humanize returns the human readable name of the platform and section tags combined.
 func Humanize(platform, section Tag) string {
+	switch section {
+	case News:
+		switch platform {
+		case Image:
+			return "a screenshot of an article from a news outlet"
+		case Markup:
+			return "a HTML copy of an article from a news outlet"
+		case PDF:
+			return "a PDF of an article from a news outlet"
+		case Text:
+			return "a textfile copy of an article from a news outlet"
+		case TextAmiga:
+			return "an Amiga textfile copy of an article from a news outlet"
+		default:
+			return fmt.Sprintf("a %s from a news outlet", Names()[platform])
+		}
+	case Restrict:
+		switch platform {
+		case ANSI:
+			return "a insider ansi textfile"
+		case Text:
+			return "a insider textfile"
+		case TextAmiga:
+			return "an insider Amiga textfile"
+		default:
+			return fmt.Sprintf("a insider %s file", Names()[platform])
+		}
+	}
 	switch platform {
 	case ANSI:
 		switch section {
 		case BBS:
-			return "A BBS ansi advert"
+			return "a BBS ansi advert"
 		case Ftp:
-			return "An ansi advert for an FTP site"
+			return "an ansi advert for an FTP site"
 		case Logo:
-			return "An ansi logo"
+			return "an ansi logo"
 		case Nfo:
-			return "An nfo text in ansi format"
+			return "an nfo text in ansi format"
 		case Pack:
-			return "An filepack of ansi files"
+			return "an filepack of ansi files"
+		}
+	case Audio:
+		switch section {
+		case Intro:
+			return "a chiptune or intro music"
 		}
 	case DataB:
 		switch section {
 		case Nfo:
-			return "A database of releases"
+			return "a database of releases"
 		default:
-			return fmt.Sprintf("A %s database", Names()[section])
+			return fmt.Sprintf("a %s database", Names()[section])
 		}
 	case Markup:
-		return fmt.Sprintf("A %s in HTML", Names()[section])
+		return fmt.Sprintf("a %s in HTML", Names()[section])
 	case Image:
 		switch section {
 		case BBS:
-			return "A BBS advert image"
+			return "a BBS advert image"
 		case ForSale:
-			return "An image advertisement"
+			return "an image advertisement"
 		case Pack:
-			return "A filepack of images"
+			return "a filepack of images"
 		case Proof:
-			return "A proof of release photo"
+			return "a proof of release photo"
 		}
 	case PDF:
-		return fmt.Sprintf("A %s as a PDF document", Names()[section])
+		return fmt.Sprintf("a %s as a PDF document", Names()[section])
 	case Text:
 		switch section {
 		case AtariST:
-			return "A textfile for the Atari ST"
+			return "a textfile for the Atari ST"
 		case AppleII:
-			return "A textfile for the Apple II"
+			return "a textfile for the Apple II"
 		case BBS:
-			return "A text advert for a BBS"
+			return "a text advert for a BBS"
 		case ForSale:
-			return "A textfile advert"
+			return "a textfile advert"
 		case Ftp:
-			return "A text advert for an FTP site"
+			return "a text advert for an FTP site"
 		case Mag:
-			return "A magazine textfile"
+			return "a magazine textfile"
 		case Nfo:
-			return "An nfo textfile"
+			return "an nfo textfile"
 		case Pack:
-			return "A filepack of textfiles"
-		case Restrict:
-			return "An textfile with restricted content"
+			return "a filepack of textfiles"
 		default:
 			return fmt.Sprintf("A %s textfile", Names()[section])
 		}
 	case TextAmiga:
 		switch section {
 		case BBS:
-			return "An Amiga text advert for a BBS"
+			return "an Amiga text advert for a BBS"
 		case ForSale:
-			return "An Amiga textfile advert"
+			return "an Amiga textfile advert"
 		case Ftp:
-			return "An Amiga text advert for an FTP site"
+			return "an Amiga text advert for an FTP site"
 		case Mag:
-			return "An Amiga magazine textfile"
+			return "an Amiga magazine textfile"
 		case Nfo:
-			return "An Amiga nfo textfile"
-		case Restrict:
-			return "An Amiga textfile with restricted content"
+			return "an Amiga nfo textfile"
 		}
 	case Video:
+		switch section {
+		case ForSale, Logo, Intro:
+			return "a bumper video"
+		}
 		return fmt.Sprintf("A %s video", Names()[section])
 	case Windows:
 		switch section {
 		case Demo:
-			return "A demo on Windows"
+			return "a demo on Windows"
 		case Install:
-			return "A Windows installer"
+			return "a Windows installer"
 		case Intro:
-			return "A Windows intro"
+			return "a Windows intro"
 		case Job:
-			return "A trial crackme for Windows"
+			return "a trial crackme for Windows"
 		case Pack:
-			return "A filepack of Windows programs"
+			return "a filepack of Windows programs"
 		}
 	case DOS:
 		switch section {
 		case BBS:
-			return "A BBStro on MS-Dos"
+			return "a BBStro on " + msdos
 		case Demo:
-			return "A demo on MS-Dos"
+			return "a demo on " + msdos
 		case ForSale:
-			return "An advertisement on MS-Dos"
+			return "an advertisement on " + msdos
 		case GameHack:
-			return "A trainer or hack on MS-Dos"
+			return "a trainer or hack on " + msdos
 		case Install:
-			return "A MS-Dos installer"
+			return "a " + msdos + " installer"
 		case Intro:
-			return "A intro for MS-Dos"
+			return "a intro for " + msdos
 		case Pack:
-			return "A filepack of MS-Dos programs"
+			return "a filepack of " + msdos + " programs"
 		}
 	}
 	return fmt.Sprintf("A %s %s", Names()[platform], Names()[section])
+}
+
+// Humanizes returns the human readable name plurals of the platform and section tags combined.
+func Humanizes(platform, section Tag) string {
+	switch platform {
+	case ANSI:
+		switch section {
+		case BBS:
+			return "BBS ansi adverts"
+		case Ftp:
+			return "FTP sites ansi adverts"
+		case Logo:
+			return "ansi format logos"
+		case Nfo:
+			return "ansi format nfo texts"
+		case Pack:
+			return "filepacks of ansi files"
+		default:
+			return "ansi format textfiles"
+		}
+	case Audio:
+		return "music, chiptunes and audio samples"
+	case DataB:
+		switch section {
+		case Nfo:
+			return "databases of releases"
+		default:
+			return fmt.Sprintf("%s databases", Names()[section])
+		}
+	case Image:
+		switch section {
+		case BBS:
+			return "BBS advert images"
+		case ForSale:
+			return "image advertisements"
+		case Pack:
+			return "filepacks of images"
+		case Proof:
+			return "proof of release photos"
+		default:
+			return "images, pictures and photos"
+		}
+	case Java:
+		return fmt.Sprintf("%s for Java", Names()[section])
+	case Linux:
+		return fmt.Sprintf("%s for Linux and BSD", Names()[section])
+	case Markup:
+		return fmt.Sprintf("%s as HTML files", Names()[section])
+	case Mac:
+		return fmt.Sprintf("%s for Macintosh and macOS", Names()[section])
+	case PDF:
+		return fmt.Sprintf("%s as PDF documents", Names()[section])
+	case PHP:
+		return fmt.Sprintf("%s for scripting languages", Names()[section])
+	case Text:
+		switch section {
+		case AtariST:
+			return "textfiles for the Atari ST"
+		case AppleII:
+			return "textfiles for the Apple II"
+		case BBS:
+			return "BBS text adverts"
+		case ForSale:
+			return "textfile adverts"
+		case Ftp:
+			return "textfile adverts for FTP sites"
+		case Mag:
+			return "magazine textfiles"
+		case Nfo:
+			return "nfo textfiles"
+		case Pack:
+			return "filepacks of textfiles"
+		case Restrict:
+			return "textfiles with restricted content"
+		default:
+			return fmt.Sprintf("%s textfiles", Names()[section])
+		}
+	case TextAmiga:
+		switch section {
+		case BBS:
+			return "BBS Amiga text adverts"
+		case ForSale:
+			return "Amiga textfile adverts"
+		case Ftp:
+			return "Amiga text adverts for FTP sites"
+		case Mag:
+			return "Amiga magazine textfiles"
+		case Nfo:
+			return "Amiga nfo textfiles"
+		case Restrict:
+			return "Amiga textfiles with restricted content"
+		default:
+			return fmt.Sprintf("%s textfiles for the Amiga", Names()[section])
+		}
+	case Video:
+		return "videos and animations"
+	case Windows:
+		switch section {
+		case Demo:
+			return "demos on Windows"
+		case Install:
+			return "Windows installers"
+		case Intro:
+			return "Windows intros"
+		case Job:
+			return "\"CrackMe\" tests for Windows"
+		case Pack:
+			return "filepacks of Windows programs"
+		default:
+			return fmt.Sprintf("%s for Windows", Names()[section])
+		}
+	case DOS:
+		switch section {
+		case BBS:
+			return "BBS intro adverts"
+		case Demo:
+			return "demos on " + msdos
+		case ForSale:
+			return "advertisements on " + msdos
+		case GameHack:
+			return "trainers or hacks on " + msdos
+		case Install:
+			return msdos + " installers"
+		case Intro:
+			return "intros for " + msdos
+		case Pack:
+			return "filepacks of " + msdos + " programs"
+		default:
+			return fmt.Sprintf("%s for %s", Names()[section], msdos)
+		}
+	}
+	if platform < 0 {
+		switch section {
+		case BBS:
+			return "BBS adverts"
+		case Bust:
+			return "busted releasers, sites and sceners"
+		case Drama:
+			return "drama between releasers or individuals"
+		case ForSale:
+			return "adverts for releasers or individuals"
+		case Ftp:
+			return "FTP site adverts"
+		case Job:
+			return "job adverts or new roles"
+		case GameHack:
+			return "game trainers or hacks"
+		case Guide:
+			return "guides, tutorials and how-to's"
+		case Mag:
+			return "magazine issues or ads"
+		case News:
+			return "articles from mainstream news outlets"
+		case NfoTool:
+			return "nfo file editors or tools"
+		case Restrict:
+			return "insider or restricted content"
+		case Tool:
+			return "software tools by the scene"
+		}
+		return fmt.Sprintf("%ss", Names()[section])
+	}
+	if section < 0 {
+		return fmt.Sprintf("%ss", Names()[platform])
+	}
+	return fmt.Sprintf("%ss %ss", Names()[platform], Names()[section])
 }
 
 // Sum the numbers of files with the tag.

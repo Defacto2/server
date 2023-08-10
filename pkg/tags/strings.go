@@ -104,7 +104,7 @@ func Names() URI {
 		Pack:         "filepack",
 		Proof:        "release proof",
 		Restrict:     "restricted",
-		Install:      "scene software install",
+		Install:      "scene software installer",
 		ANSI:         "ansi",
 		Audio:        "music",
 		DataB:        "database",

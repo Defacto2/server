@@ -60,6 +60,20 @@ func ByteCountFloat(b int64) string {
 		float64(b)/float64(div), byteUnits[exp])
 }
 
+// Capitalize returns a string with the first letter of the first word capitalized.
+func Capitalize(s string) string {
+	if s == "" {
+		return ""
+	}
+	const sep = " "
+	caser := cases.Title(language.English)
+	x := strings.Split(s, sep)
+	if len(x) == 1 {
+		return caser.String(s)
+	}
+	return caser.String(x[0]) + sep + strings.Join(x[1:], sep)
+}
+
 // LastChr returns the last character or rune of the string.
 func LastChr(s string) string {
 	s = strings.TrimSpace(s)

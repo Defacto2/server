@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ .title }} | Defacto2</title>
+    <title>{{ .title }}{{if ne (index . "h1sub") ""}} {{ index . "h1sub" }}{{end}} | Defacto2</title>
     {{if ne (index . "canonical") ""}}<link rel="canonical" href="https://defacto2.net/{{index . "canonical"}}">{{end -}}
     {{if ne (index . "description") ""}}<meta name="description" content="{{ index . "description" }}">{{end -}}
     {{if eq (index . "description") ""}}<meta name="description" content="{{$fallbackDesc}}">{{end}}

@@ -136,6 +136,7 @@ func Describe(plat, sect, year, month any) template.HTML {
 		return template.HTML("An unknown release")
 	}
 	x := tags.Humanize(tags.TagByURI(p), tags.TagByURI(s))
+	x = helpers.Capitalize(x)
 	//x := HumanizeDescription(p, s)
 	if m != "" && y != "" {
 		x = fmt.Sprintf("%s published in <span class=\"text-nowrap\">%s, %s</a>", x, m, y)
