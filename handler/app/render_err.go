@@ -49,6 +49,34 @@ func FilesErr(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	return nil
 }
 
+// GErr renders the files error page for the Groups menu and invalid releasers.
+func GErr(z *zap.SugaredLogger, c echo.Context, id string) error {
+	if z == nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Errorf("%w: handler app g", ErrLogger))
+	}
+	if c == nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Errorf("%w: handler app g", ErrContext))
+	}
+	data := empty()
+	data["title"] = fmt.Sprintf("%d error, releaser page not found", http.StatusNotFound)
+	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
+	data["code"] = http.StatusNotFound
+	data["logo"] = "Releaser not found"
+	data["alert"] = "Releaser page cannot be found"
+	data["probl"] = "The releaser page does not exist, there is probably a typo with the URL."
+	data["uriOkay"] = "g/"
+	data["uriErr"] = id
+
+	err := c.Render(http.StatusNotFound, "status", data)
+	if err != nil {
+		z.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
 // StatusErr is the handler for the HTTP status pages such as the 404 - not found.
 func StatusErr(z *zap.SugaredLogger, c echo.Context, code int, uri string) error {
 	if z == nil {

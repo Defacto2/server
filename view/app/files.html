@@ -1,25 +1,26 @@
 {{- /* files.html */}}
 {{- /* TODO: VirusTotal alert, JS Music player to play in this view, a video player? */}}
 {{- define "content" }}
-{{- $cardClass := " h-100"}}
-  <div class="row justify-content-md-center row-cols-1 row-cols-md-3 g-4 mt-1">
-    {{- range .records }}
-    <div class="col">
-      <div class="card{{$cardClass}} placeholder-glow">
-        <img src="..." class="card-img-top placeholder" style="min-height:10em;" alt="...">
-        <div class="card-body">
-          <h5 class="card-title text-truncate">{{linkGroups .GroupBrandFor .GroupBrandBy }}</h5>
-          {{subTitle .RecordTitle}}
-          <p class="card-text">{{describe .Platform .Section .DateIssuedYear .DateIssuedMonth}}</p>
-          <p class="card-text"><small class="text-body-secondary">{{lastUpdated .Updatedat}}</small></p>
-          {{linkPage .ID}}
-          {{linkDL .ID}}{{ sizeOfDL .Filesize}}
-        </div>
-        <div class="card-footer text-body-secondary text-center">
-          <code>{{.Filename.String}}</code>
-        </div>
+{{- $cardClass := " h-100"}} 
+<p class="text-start lead">We have 0 <small>(0B)</small> files and releases from 1980-2022.</p>
+<div class="row justify-content-md-center row-cols-1 row-cols-md-3 g-4 mt-1">
+  {{- range .records }}
+  <div class="col">
+    <div class="card{{$cardClass}} placeholder-glow">
+      <img src="..." class="card-img-top placeholder" style="min-height:10em;" alt="...">
+      <div class="card-body">
+        <h5 class="card-title text-truncate">{{linkGroups .GroupBrandFor .GroupBrandBy }}</h5>
+        {{subTitle .RecordTitle}}
+        <p class="card-text">{{describe .Platform .Section .DateIssuedYear .DateIssuedMonth}}</p>
+        <p class="card-text"><small class="text-body-secondary">{{lastUpdated .Updatedat}}</small></p>
+        {{linkPage .ID}}
+        {{linkDL .ID}}{{ sizeOfDL .Filesize}}
+      </div>
+      <div class="card-footer text-body-secondary text-center">
+        <code>{{.Filename.String}}</code>
       </div>
     </div>
-    {{- end}}
   </div>
+  {{- end}}
+</div>
 {{- end}}

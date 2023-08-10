@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
+	"github.com/Defacto2/sceners/pkg/rename"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/postgres"
@@ -141,20 +143,6 @@ func G(z *zap.SugaredLogger, c echo.Context, id string) error {
 	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("%w: handler app files", ErrLogger))
 	}
-	// if !IsURI(id) {
-	// 	// TODO: redirect to File categories with custom alert 404 message?
-	// 	// replace this message: The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
-	// 	// with something about the file categories page.
-	// 	return StatusErr(s, c, http.StatusNotFound, c.Param("uri"))
-	// }
-
-	fmt.Fprintln(os.Stdout, "G", id)
-
-	const (
-		limit = 99
-		page  = 1
-	)
-	data := empty()
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -162,16 +150,30 @@ func G(z *zap.SugaredLogger, c echo.Context, id string) error {
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	defer db.Close()
-	counter := Stats{}
-	if err := counter.All.Stat(ctx, db); err != nil {
-		z.Warnf("%s: %s", errConn, err)
+
+	data := empty()
+	rel := model.Releasers{}
+	fs, err := rel.List(ctx, db, id)
+	if err != nil {
+		z.Warnf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	if len(fs) == 0 {
+		// releaser not found
+		return GErr(z, c, id)
 	}
 
-	data["title"] = "Releaser files placeholder"
-	data["logo"] = "Releaser files placeholder"
-	data["description"] = "Table of contents for the files."
-	rel := model.Releasers{}
-	data[records], err = rel.List(ctx, db, id)
+	// counter := Stats{}
+	// if err := counter.All.Stat(ctx, db); err != nil {
+	// 	z.Warnf("%s: %s", errConn, err)
+	// }
+	name := rename.Cleaner(strings.ReplaceAll(id, "-", " "))
+	data["title"] = "Files for " + name
+	data["h1"] = name
+	data["logo"] = name
+	data["description"] = "The collection of files for " + name + "."
+
+	data[records] = fs
 
 	x := data[records].(models.FileSlice)
 	fmt.Fprintln(os.Stdout, "G len", len(x))
