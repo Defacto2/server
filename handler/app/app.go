@@ -26,6 +26,8 @@ const (
 )
 
 var (
+	ErrCode    = errors.New("the HTTP status code is not valid")
+	ErrConn    = errors.New("at the moment the server cannot connect to the database")
 	ErrContext = errors.New("the server could not create a context")
 	ErrDB      = errors.New("database connection is nil")
 	ErrLogger  = errors.New("the server could not create a logger")

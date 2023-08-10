@@ -24,36 +24,29 @@ func File(z *zap.SugaredLogger, c echo.Context, stats bool) error {
 	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("%w: handler app file", ErrLogger))
 	}
-	data := empty()
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		z.Warnf("%s: %s", errConn, err)
-		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
-	}
-	defer db.Close()
-	counter := Stats{}
-	if err := counter.Get(ctx, db); err != nil {
-		z.Warnf("%w: %w", errConn, err)
-		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
-	}
-
 	const title = "File categories"
+	data := empty()
 	data["title"] = title
-	data["description"] = "Table of contents for the files."
+	data["description"] = "A table of contents for the collection."
 	data["logo"] = title
 	data["h1"] = title
+	data["lead"] = "This page shows the file categories and platforms in the collection."
 	data["stats"] = stats
-	data["counter"] = counter
+	data["counter"] = Stats{}
+
 	if stats {
-		data["h1sub"] = "with statistics"
+		c, err := counter()
+		if err != nil {
+			return echo.NewHTTPError(http.StatusServiceUnavailable, err)
+		}
+		data["counter"] = c
 		data["logo"] = title + " + stats"
 		data["lead"] = "This page shows the file categories with selected statistics, " +
 			"such as the number of files in the category or platform." +
-			fmt.Sprintf(" The total number of files in the database is %d.", counter.All.Count) +
-			fmt.Sprintf(" The total size of all files in the database is %s.", helpers.ByteCount(int64(counter.All.Bytes)))
+			fmt.Sprintf(" The total number of files in the database is %d.", c.All.Count) +
+			fmt.Sprintf(" The total size of all files in the database is %s.", helpers.ByteCount(int64(c.All.Bytes)))
 	}
-	err = c.Render(http.StatusOK, "file", data)
+	err := c.Render(http.StatusOK, "file", data)
 	if err != nil {
 		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
@@ -61,23 +54,52 @@ func File(z *zap.SugaredLogger, c echo.Context, stats bool) error {
 	return nil
 }
 
+func counter() (Stats, error) {
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return Stats{}, fmt.Errorf("%w: %s", ErrConn, err)
+	}
+	defer db.Close()
+	counter := Stats{}
+	if err := counter.Get(ctx, db); err != nil {
+		return Stats{}, fmt.Errorf("%w: %s", ErrConn, err)
+	}
+	return counter, nil
+}
+
 // Files is the handler for the files page.
-func Files(z *zap.SugaredLogger, c echo.Context, id string) error {
+func Files(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("%w: handler app files", ErrLogger))
 	}
-	if !IsURI(id) {
-		// TODO: redirect to File categories with custom alert 404 message?
-		// replace this message: The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
-		// with something about the file categories page.
-		return StatusErr(z, c, http.StatusNotFound, c.Param("uri"))
+	if !IsURI(uri) {
+		return FilesErr(z, c, uri)
 	}
+
+	title := "Files"
+	switch uri {
+	case "new-uploads":
+		title = "New uploads"
+	case "new-updates":
+		title = "New updates"
+	case "oldest":
+		title = "Oldest releases and files"
+	case "newest":
+		title = "Newest releases and files"
+	}
+	data := empty()
+	data["title"] = title
+	data["description"] = "Table of contents for the files."
+	data["logo"] = "Files placeholder"
+	data["h1"] = title
+	data["h1sub"] = "placeholder"
+	data[records] = []models.FileSlice{}
 
 	const (
 		limit = 99
 		page  = 1
 	)
-	data := empty()
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -89,11 +111,8 @@ func Files(z *zap.SugaredLogger, c echo.Context, id string) error {
 	if err := counter.All.Stat(ctx, db); err != nil {
 		z.Warnf("%s: %s", errConn, err)
 	}
-
-	data["title"] = "Files placeholder"
-	data["logo"] = "Files placeholder"
-	data["description"] = "Table of contents for the files."
-	data[records], err = Records(ctx, db, id, page, limit)
+	// fetch the records by category
+	data[records], err = Records(ctx, db, uri, page, limit)
 	if err != nil {
 		z.Warnf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
