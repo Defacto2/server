@@ -4,6 +4,7 @@
 {{- $otherClass := " h5" }}
 {{- $cardClass := " h-100"}}
 {{- $rels := index . "counter" }}
+{{- $linkClass := "card-link text-nowrap"}}
 {{/*  TODO: remove these alias vars  */}}
 {{- $intB := $rels.Intro.Bytes}}
 {{- $intC := $rels.Intro.Count}}
@@ -43,18 +44,18 @@
                     Initially, these programs were inserted and launched whenever the cracked software was in use.
                 </p>
                 <span class="card-link">Runs on</span>
-                <a href="/files/intro-windows" class="card-link">Windows</a>
-                <a href="/files/intro-msdos" class="card-link">{{msdos}}</a>
-                <a href="/files/intro" class="card-link">any platform</a><br>
+                <a href="/files/intro-windows" class="{{$linkClass}}">Windows</a>
+                <a href="/files/intro-msdos" class="{{$linkClass}}">{{msdos}}</a>
+                <a href="/files/intro" class="{{$linkClass}}">any platform</a><br>
             </div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
                     Installers are blah blah.<br>
-                    <span class="card-link">Browse the</span> <a href="/files/installer" class="card-link">installers</a>
+                    <span class="{{$linkClass}}">Browse the</span> <a href="/files/installer" class="{{$linkClass}}">installers</a>
                 </li>
                 <li class="list-group-item">
                     Demoscene productions...<br>
-                    <span class="card-link">Browse the</span> <a href="/files/demoscene" class="card-link">demos</a>
+                    <span class="{{$linkClass}}">Browse the</span> <a href="/files/demoscene" class="{{$linkClass}}">demos</a>
                 </li>
                 {{- if .stats }}
                 <li class="list-group-item">
@@ -86,13 +87,13 @@
                     In the early days, these texts included detailed group information, but now they focus more on the
                     describing the software.
                 </p>
-                <span class="card-link">Browse the</span>
-                <a href="/files/nfo" class="card-link">nfo files</a><br>
+                <span class="{{$linkClass}}">Browse the</span>
+                <a href="/files/nfo" class="{{$linkClass}}">nfo files</a><br>
             </div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
                     Release proofs are blah blah.<br>
-                    <span class="card-link">Browse the</span> <a href="/files/proof" class="card-link">proofs</a>
+                    <span class="{{$linkClass}}">Browse the</span> <a href="/files/proof" class="{{$linkClass}}">proofs</a>
                 </li>
                 {{- if .stats }}
                 <li class="list-group-item">
@@ -118,13 +119,13 @@
                 <p class="card-text">
                     Coloured ansi text art was commonly used on BBSes for advertising and board theming.
                 </p>
-                <span class="card-link">Browse the</span>
-                <a href="/files/ansi" class="card-link">ansi files</a><br>
-                <span class="card-link">Or only the</span>
-                <a href="/files/ansi-brand" class="card-link">brands</a>
-                <a href="/files/ansi-bbs" class="card-link">BBS ads</a>
-                <a href="/files/ansi-ftp" class="card-link">FTP ads</a>
-                <a href="/files/ansi-nfo" class="card-link">nfos</a>
+                <span class="{{$linkClass}}">Browse the</span>
+                <a href="/files/ansi" class="{{$linkClass}}">ansi files</a><br>
+                <span class="{{$linkClass}}">Or only the</span>
+                <a href="/files/ansi-brand" class="{{$linkClass}}">brands</a>
+                <a href="/files/ansi-bbs" class="{{$linkClass}}">BBS ads</a>
+                <a href="/files/ansi-ftp" class="{{$linkClass}}">FTP ads</a>
+                <a href="/files/ansi-nfo" class="{{$linkClass}}">nfos</a>
             </div>
             {{- if .stats }}
             <ul class="list-group list-group-flush">
@@ -149,18 +150,18 @@
                     Bulletin Board Systems were a proto-Interweb for online communication and the exchange of files
                     during the 1980s until the mid-1990s.
                 </p>
-                <span class="card-link">Browse the</span>
-                <a href="/files/bbs" class="card-link">adverts</a><br>
-                <span class="card-link">Or only the</span>
-                <a href="/files/bbstro" class="card-link">BBStros</a>
-                <a href="/files/ansi-bbs" class="card-link">ansi</a>
-                <a href="/files/bbs-image" class="card-link">images</a>
-                <a href="/files/bbs-text" class="card-link">texts</a>
+                <span class="{{$linkClass}}">Browse the</span>
+                <a href="/files/bbs" class="{{$linkClass}}">adverts</a><br>
+                <span class="{{$linkClass}}">Or only the</span>
+                <a href="/files/bbstro" class="{{$linkClass}}">BBStros</a>
+                <a href="/files/ansi-bbs" class="{{$linkClass}}">ansi</a>
+                <a href="/files/bbs-image" class="{{$linkClass}}">images</a>
+                <a href="/files/bbs-text" class="{{$linkClass}}">texts</a>
             </div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
                     FTP adverts are blah blah.<br>
-                    <span class="card-link">Browse the</span> <a href="/files/ftp" class="card-link">adverts</a>
+                    <span class="{{$linkClass}}">Browse the</span> <a href="/files/ftp" class="{{$linkClass}}">adverts</a>
                 </li>
                 {{- if .stats }}
                 <li class="list-group-item">
@@ -191,10 +192,10 @@
                     Before the web and social media existed, groups used to exchange ideas and write articles on their
                     communities in the form of digital magazines and newsletters.
                 </p>
-                <span class="card-link">Browse the</span>
-                <a href="/files/magazine" class="card-link">issues</a><br>
-                <span class="card-link">Or the</span>
-                <a href="/magazine" class="card-link">magazine titles</a>
+                <span class="{{$linkClass}}">Browse the</span>
+                <a href="/files/magazine" class="{{$linkClass}}">issues</a><br>
+                <span class="{{$linkClass}}">Or the</span>
+                <a href="/magazine" class="{{$linkClass}}">magazine titles</a>
             </div>
             {{- if .stats }}
             <div class="card-footer">
@@ -212,12 +213,12 @@
                     File packs are packages of files that share a common theme that people have collected and curated
                     for easy distribution.
                 </p>
-                <span class="card-link">Browse the packs of</span>
-                <a href="/files/ansi-pack" class="card-link">ansi art</a>
-                <a href="/files/text-pack" class="card-link">text and nfos</a>
-                <a href="/files/image-pack" class="card-link">images</a>
-                <a href="/files/windows-pack" class="card-link">Windows software</a>
-                <a href="/files/msdos-pack" class="card-link">{{msdos}} software</a>
+                <span class="{{$linkClass}}">Browse the packs of</span>
+                <a href="/files/ansi-pack" class="{{$linkClass}}">ansi art</a>
+                <a href="/files/text-pack" class="{{$linkClass}}">text and nfos</a>
+                <a href="/files/image-pack" class="{{$linkClass}}">images</a>
+                <a href="/files/windows-pack" class="{{$linkClass}}">Windows software</a>
+                <a href="/files/msdos-pack" class="{{$linkClass}}">{{msdos}} software</a>
             </div>
         </div>
     </div>
@@ -231,8 +232,8 @@
                     associated groups.
                     Due to their size, these sets are often incomplete and sometimes inaccurate.
                 </p>
-                <span class="card-link">Browse the</span>
-                <a href="/files/database" class="card-link">databases</a>
+                <span class="{{$linkClass}}">Browse the</span>
+                <a href="/files/database" class="{{$linkClass}}">databases</a>
             </div>
         </div>
     </div>
@@ -246,13 +247,13 @@
                 <p class="card-text">
                     The vast majority of scene releases involve text and documents.
                 </p>
-                <span class="card-link">Browse the</span>
-                <a href="/files/text" class="card-link">text files</a>
-                <a href="/files/text-amiga" class="card-link">Commodore Amiga texts</a>
-                <a href="/files/text-apple2" class="card-link">Apple ][ texts</a>
-                <a href="/files/text-atari-st" class="card-link">Atari ST texts</a>
-                <a href="/files/pdf" class="card-link">documents in PDF</a>
-                <a href="/files/html" class="card-link">documents in HTML</a>
+                <span class="{{$linkClass}}">Browse the</span>
+                <a href="/files/text" class="{{$linkClass}}">text files</a>
+                <a href="/files/text-amiga" class="{{$linkClass}}">Commodore Amiga texts</a>
+                <a href="/files/text-apple2" class="{{$linkClass}}">Apple ][ texts</a>
+                <a href="/files/text-atari-st" class="{{$linkClass}}">Atari ST texts</a>
+                <a href="/files/pdf" class="{{$linkClass}}">documents in PDF</a>
+                <a href="/files/html" class="{{$linkClass}}">documents in HTML</a>
             </div>
             {{- if .stats }}
             <div class="card-footer">
