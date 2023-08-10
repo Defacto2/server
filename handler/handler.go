@@ -189,6 +189,10 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 	if c.Import.NoRobots {
 		fmt.Fprintf(w, "%sthe X-ROBOTS header is telling all search engines to ignore the site.\n", mark)
 	}
+	// Important layout assets checks
+	// if _, err := os.Stat(filepath.Join(c.Public, "public/image/layout")); err != nil {
+	// 	c.Log.Warnf("Could not find the layout assets directory: %s.", err)
+	// }
 	w.Flush()
 
 	// Start the HTTP server

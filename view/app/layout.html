@@ -1,5 +1,8 @@
 {{/*  layout.html  */}}
 {{define "layout" -}}<!doctype html>
+{{$fallbackDesc := "Defacto2 is the premier destination for old school files and historical texts of the underground PC cracking, BBS and art scenes" -}}
+{{$cc           := "https://creativecommons.org/licenses/by/4.0/" -}}
+{{$github       := "https://github.com/defacto2/" -}}
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -7,19 +10,67 @@
     <title>{{ .title }} | Defacto2</title>
     {{if ne (index . "canonical") ""}}<link rel="canonical" href="https://defacto2.net/{{index . "canonical"}}">{{end -}}
     {{if ne (index . "description") ""}}<meta name="description" content="{{ index . "description" }}">{{end -}}
-    {{if eq (index . "description") ""}}<meta name="description" content="Defacto2 is the premier destination for old school files and historical texts of the underground PC cracking, BBS and art scenes">{{end}}
+    {{if eq (index . "description") ""}}<meta name="description" content="{{$fallbackDesc}}">{{end}}
     <meta name="theme-color" content="rgb(153, 153, 153)">
-    <meta name="defacto2:file-count" content="45209">{{/*  TODO  */}}
+    <meta name="defacto2:file-count" content="45209">{{/*  TODO, for specific pages using the JS notification  */}}
     <meta name="monetization" content="$ilp.uphold.com/RpWPnb88yLaF">
     <meta name="format-detection" content="telephone=no">
     <meta name="format-detection" content="address=no">
-    {{- /*  schema.org linked data  */}}
-    <script type="application/ld+json">
-      {{- /*  TODO: check for the existence of defacto2-floppy_disk_icon-180x180.png  */}}
-      [{"@context":"http://schema.org","@type":"Organization","name":"Defacto2","url":"https://defacto2.net/","logo":"https://defacto2.net/image/layout/favicon-180x180-180x180.png",
-      "sameAs": ["https://facebook.com/Defacto2","https://twitter.com/Defacto2","https://youtube.com/defacto2","https://mas.to/@defacto2","https://github.com/defacto2?tab=repositories","https://defacto2.wordpress.com"]},
-      {"@context":"http://schema.org","@type":"WebSite","license":"https://creativecommons.org/licenses/by/4.0/","url": "https://defacto2.net/","potentialAction":{"@type":"SearchAction","target":"https://defacto2.net/search/result?query={search_term_string}","query-input":"required name=search_term_string"}}]
-    </script>
+    {{- /*  schema.org linked data, 
+      see: https://json-ld.org/playground/
+      and: https://developers.google.com/search/docs/appearance/structured-data/search-gallery  */}}
+<script type="application/ld+json">
+{
+  "@graph": [
+    {
+      "@type": "http://schema.org/Organization",
+      "http://schema.org/logo": {
+        "@id": "https://defacto2.net/image/layout/favicon-180x180.png"
+      },
+      "http://schema.org/name": "Defacto2",
+      "http://schema.org/sameAs": [
+        {
+          "@id": "https://facebook.com/Defacto2"
+        },
+        {
+          "@id": "https://twitter.com/Defacto2"
+        },
+        {
+          "@id": "https://youtube.com/defacto2"
+        },
+        {
+          "@id": "https://mas.to/@defacto2"
+        },
+        {
+          "@id": "https://github.com/defacto2/"
+        },
+        {
+          "@id": "https://defacto2.wordpress.com"
+        }
+      ],
+      "http://schema.org/url": {
+        "@id": "https://defacto2.net/"
+      }
+    },
+    {
+      "@type": "http://schema.org/WebSite",
+      "http://schema.org/license": {
+        "@id": "https://creativecommons.org/licenses/by/4.0/"
+      },
+      "http://schema.org/potentialAction": {
+        "@type": "http://schema.org/SearchAction",
+        "http://schema.org/query-input": "required name=search_term_string",
+        "http://schema.org/target": {
+          "@id": "https://defacto2.net/search/result?query={search_term_string}"
+        }
+      },
+      "http://schema.org/url": {
+        "@id": "https://defacto2.net/"
+      }
+    }
+  ]
+}
+</script>
     {{- /*  preload assets  */}}
     <link rel="preload" href="/css/bootstrap.min.css?{{ sriBootstrapCSS }}" as="style">
     <link rel="preload" href="/css/layout.min.css?{{ sriLayoutCSS }}" as="style">
@@ -33,11 +84,11 @@
     {{- /*  website manifest  */}}
     <link rel="manifest" href="site.webmanifest">
     {{- /*  relationships  */}}
-    <link rel="alternate" href="https://github.com/Defacto2" type="text/html" title="Defacto2 organisation on GitHub">
+    <link rel="alternate" href="{{$github}}" type="text/html" title="Defacto2 organisation on GitHub">
     <link rel="alternate" href="https://demozoo.org/groups/10000/" type="text/html" title="Defacto2 group profile on Demozoo">
-    <link rel="license" href="https://creativecommons.org/licenses/by/4.0/" title="Creative Commons Licence">
-    {{- /*  opensearch.org  TODO: file exists */}}
-    <link rel="search" href="osd.xml" type="application/opensearchdescription+xml" title="Defacto2 search">
+    <link rel="license" href="{{$cc}}" title="Creative Commons Licence">
+    {{- /*  opensearch.org  */}}
+    <link rel="search" href="/osd.xml" type="application/opensearchdescription+xml" title="Defacto2 search">
     {{- /*  cascading style sheets  */}}
     <link href="/css/bootstrap.min.css?{{ sriBootstrapCSS }}" rel="stylesheet" integrity="{{ sriBootstrapCSS }}" crossorigin="anonymous">
     <link href="/css/layout.min.css?{{ sriLayoutCSS }}" rel="stylesheet" integrity="{{ sriLayoutCSS }}" crossorigin="anonymous">
@@ -230,43 +281,43 @@
           </div>
         </div>
       </nav>
-      {{- block "modal" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
-      <hr>
-      {{- if eq (index . "databaseDown") true -}}
-      <div class="alert alert-danger" role="alert">
-          The database is down, this means the website is not fully working. We are working on it.
-      </div>{{end -}}
-      <div class="d-flex justify-content-center" id="logo-container">
-        <pre class="text-start text-bg-dark rounded font-dos p-3" id="logo-text">
-{{- /*  
-  the monospace brand logo should be padded with the Bootstrap classes
-  and not with pre whitespace characters */ -}}
+{{- block "modal" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
+  <hr>
+{{- if eq (index . "databaseDown") true -}}
+<div class="alert alert-danger" role="alert">
+  The database is down, this means the website is not fully working. We are working on it.
+</div>{{- end}}
+<div class="d-flex justify-content-center" id="logo-container">
+<pre class="text-start text-bg-dark rounded font-dos p-3" id="logo-text">
+  {{- /*  
+    the monospace brand logo should be padded with the Bootstrap classes
+    and not with pre whitespace characters */ -}}
 {{- logo }}
 {{logoText (index . "logo") -}}
-        </pre>
-      </div>
-      <main>
-      {{if ne (index . "h1") ""}}<h1 class="display-6">{{ index . "h1" }}{{if ne (index . "h1sub") ""}} <small>{{ index . "h1sub" }}</small>{{end}}</h1>{{end -}}
-      {{if ne (index . "lead") ""}}<p class="lead">{{ index . "lead" }}</p>{{end -}}
-      {{- block "content" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
-      </main>
-      <footer class="font-dos text-end mt-3 me-1">
-        &copy; Defacto2
-      </footer>
-    </div>
-    <script src="/js/bootstrap.bundle.min.js?{{ sriBootstrapJS }}" integrity="{{ sriBootstrapJS }}" crossorigin="anonymous"></script>
-    <script src="/js/fontawesome.min.js?{{ sriFontAwesome }}" integrity="{{ sriFontAwesome }}" crossorigin="anonymous"></script>
-    <script defer>
-      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-    </script>
-    {{- if ne (index . "carousel") ""}}
-    <script defer>
-      const myCarouselElement = document.querySelector('{{index . "carousel"}}')
-      const carousel = new bootstrap.Carousel(myCarouselElement, {
-        interval: 2000,
-        touch: false
-      })    
-    </script>{{end}}
-  </body>
+</pre>
+</div>
+<main>
+    {{- if ne (index . "h1") ""}}<h1 class="display-6">{{ index . "h1" }}{{if ne (index . "h1sub") ""}} <small>{{ index . "h1sub" }}</small>{{end}}</h1>{{end -}}
+    {{- if ne (index . "lead") ""}}<p class="lead">{{ index . "lead" }}</p>{{end -}}
+    {{- block "content" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
+</main>
+<footer class="font-dos text-end mt-3 me-1">
+  &copy; Defacto2
+</footer>
+</div>
+<script src="/js/bootstrap.bundle.min.js?{{ sriBootstrapJS }}" integrity="{{ sriBootstrapJS }}" crossorigin="anonymous"></script>
+<script src="/js/fontawesome.min.js?{{ sriFontAwesome }}" integrity="{{ sriFontAwesome }}" crossorigin="anonymous"></script>
+<script defer>
+  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+  const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+</script>
+{{- if ne (index . "carousel") ""}}
+<script defer>
+  const myCarouselElement = document.querySelector('{{index . "carousel"}}')
+  const carousel = new bootstrap.Carousel(myCarouselElement, {
+    interval: 2000,
+    touch: false
+  })    
+</script>{{end}}
+</body>
 </html>{{end}}
