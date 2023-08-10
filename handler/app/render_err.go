@@ -59,15 +59,9 @@ func StatusErr(z *zap.SugaredLogger, c echo.Context, code int, uri string) error
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Errorf("%w: handler app status", ErrContext))
 	}
-
-	// todo: check valid status, or throw error
-
 	data := empty()
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
-	title := fmt.Sprintf("%d error", code)
-	alert := ""
-	logo := "??!!"
-	probl := "There is a complication"
+	title, alert, logo, probl := "", "", "", ""
 	switch code {
 	case http.StatusNotFound:
 		title = "404 error, page not found"
@@ -102,7 +96,8 @@ func StatusErr(z *zap.SugaredLogger, c echo.Context, code int, uri string) error
 	data["alert"] = alert
 	data["probl"] = probl
 	data["uriErr"] = uri
-	err := c.Render(http.StatusNotFound, "status", data)
+
+	err := c.Render(code, "status", data)
 	if err != nil {
 		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
