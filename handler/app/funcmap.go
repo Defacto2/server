@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Defacto2/sceners/pkg/rename"
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/tags"
 	"github.com/bengarrett/cfw"
@@ -38,25 +39,25 @@ const (
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func (c Configuration) TemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
-		"byteFmt":      ByteFormat,
-		"cntByteFmt":   CountByteFormat,
-		"cntNameFmt":   NamedByteFormat,
-		"describe":     Describe,
-		"externalLink": ExternalLink,
-		"fmtDay":       FmtDay,
-		"fmtMonth":     FmtMonth,
-		"fmtPrefix":    FmtPrefix,
-		"lastUpdated":  LastUpdated,
-		"linkDL":       IDDownload,
-		"linkGroups":   GroupsLink,
-		"linkPage":     IDPage,
-		"logoText":     LogoText,
-		"mod3":         Mod3,
-		"nameReleaser": NameReleaser,
-		"safeHTML":     SafeHTML,
-		"sizeOfDL":     SizeOfDL,
-		"subTitle":     SubTitle,
-		"wikiLink":     WikiLink,
+		"describe":       Describe,
+		"fmtByte":        FmtByte,
+		"fmtByteCnt":     FmtByteCnt,
+		"fmtByteName":    FmtByteName,
+		"fmtDay":         FmtDay,
+		"fmtMonth":       FmtMonth,
+		"fmtPrefix":      FmtPrefix,
+		"lastUpdated":    LastUpdated,
+		"linkDownload":   LinkDownload,
+		"linkPage":       LinkPage,
+		"linkRemote":     LinkRemote,
+		"linkRelrs":      LinkRelrs,
+		"linkWiki":       LinkWiki,
+		"logoText":       LogoText,
+		"mod3":           Mod3,
+		"safeHTML":       SafeHTML,
+		"sizeOfDL":       SizeOfDL,
+		"subTitle":       SubTitle,
+		"trimSiteSuffix": TrimSiteSuffix,
 		"databaseDown": func() bool {
 			return c.DatbaseErr
 		},
@@ -69,16 +70,16 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 		"msdos": func() template.HTML {
 			return "<span class=\"text-nowrap\">MS Dos</span>"
 		},
-		"sriBootstrapCSS": func() string {
+		"sriBootCSS": func() string {
 			return c.Subresource.BootstrapCSS
 		},
-		"sriBootstrapJS": func() string {
+		"sriBootJS": func() string {
 			return c.Subresource.BootstrapJS
 		},
-		"sriFontAwesome": func() string {
+		"sriFA": func() string {
 			return c.Subresource.FontAwesome
 		},
-		"sriLayoutCSS": func() string {
+		"sriLayout": func() string {
 			return c.Subresource.LayoutCSS
 		},
 	}
@@ -146,145 +147,8 @@ func Describe(plat, sect, year, month any) template.HTML {
 	return template.HTML(x + ".")
 }
 
-// HumanizeDescription returns a human readable description of a release.
-// Based on the platform and section.
-func HumanizeDescription(p, s string) string {
-	x := ""
-
-	if p == "" {
-		x = fmt.Sprintf("A %s", s)
-	}
-	if s == "" {
-		if IsOS(p) {
-			x = fmt.Sprintf("A release for %s", p)
-		} else {
-			x = fmt.Sprintf("A %s file", p)
-		}
-	}
-	if x == "" && p == tags.Text.String() && s == tags.Nfo.String() {
-		x = "A scene release text file"
-	}
-	if x == "" && IsOS(p) {
-		x = fmt.Sprintf("A %s for %s", tags.NameByURI(s), tags.NameByURI(p))
-	}
-	if x == "" {
-		x = fmt.Sprintf("A %s %s", tags.NameByURI(s), tags.NameByURI(p))
-	}
-	return x
-}
-
-// IsSwap returns true if the platform matches Text or TextAmiga.
-func IsSwap(platform string) bool {
-	s := []string{tags.Text.String(), tags.TextAmiga.String()}
-	apps := s[:]
-	plat := strings.TrimSpace(strings.ToLower(platform))
-	return helpers.Finds(plat, apps...)
-}
-
-// IsOS returns true if the platform matches Windows, macOS, Linux, MS-DOS or Java.
-func IsOS(platform string) bool {
-	s := tags.OSTags()
-	apps := s[:]
-	plat := strings.TrimSpace(strings.ToLower(platform))
-	return helpers.Finds(plat, apps...)
-}
-
-// SubTitle returns a secondary element with the record title.
-func SubTitle(s any) template.HTML {
-	val := ""
-	switch v := s.(type) {
-	case string:
-		val = v
-	case null.String:
-		if !v.Valid {
-			return ""
-		}
-		val = v.String
-	}
-	if val == "" {
-		return ""
-	}
-	elem := fmt.Sprintf("<h6 class=\"card-subtitle mb-2 text-body-secondary\">%s</h6>", val)
-	return template.HTML(elem)
-}
-
-// GroupsLink returns the groups associated with a release and a link to each group.
-func GroupsLink(a, b any) template.HTML {
-	const class = "text-nowrap"
-	av, bv, s := "", "", ""
-	switch val := a.(type) {
-	case string:
-		av = reflect.ValueOf(val).String()
-	case null.String:
-		if val.Valid {
-			av = val.String
-		}
-	}
-	switch val := b.(type) {
-	case string:
-		bv = reflect.ValueOf(val).String()
-	case null.String:
-		if val.Valid {
-			bv = val.String
-		}
-	}
-	prime, second, s := "", "", ""
-	if av == "" && bv == "" {
-		return template.HTML("error: unknown group")
-	}
-	if av != "" {
-		ref, err := GroupLink(av)
-		if err != nil {
-			return template.HTML(fmt.Sprintf("error: %s", err))
-		}
-		prime = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, av)
-	}
-	if bv != "" {
-		ref, err := GroupLink(bv)
-		if err != nil {
-			return template.HTML(fmt.Sprintf("error: %s", err))
-		}
-		second = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, bv)
-	}
-	if prime != "" && second != "" {
-		s = fmt.Sprintf("%s<br>+ %s", prime, second)
-	} else if prime != "" {
-		s = prime
-	} else if second != "" {
-		s = second
-	}
-	return template.HTML(s)
-}
-
-// GroupLink returns a link to the named group page.
-func GroupLink(name string) (string, error) {
-	href, err := url.JoinPath("/", "g", helpers.Slug(name))
-	if err != nil {
-		return "", fmt.Errorf("name %q could not be made into a valid url: %s", name, err)
-	}
-	return href, nil
-}
-
-// SizeOfDL returns a human readable string of the file size.
-func SizeOfDL(i any) template.HTML {
-	s := ""
-	switch val := i.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		i := reflect.ValueOf(val).Int()
-		s = helpers.ByteCount(i)
-	case null.Int64:
-		if !val.Valid {
-			return ""
-		}
-		s = helpers.ByteCount(val.Int64)
-	default:
-		return template.HTML(fmt.Sprintf("%sSizeOfDL: %s", typeErr, reflect.TypeOf(i).String()))
-	}
-	return template.HTML(fmt.Sprintf(" <small class=\"text-body-secondary\">(%s)</small>", s))
-}
-
-// ByteFormat returns a human readable string of the byte count.
-func ByteFormat(b any) string {
+// FmtByte returns a human readable string of the byte count.
+func FmtByte(b any) string {
 	switch val := b.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
@@ -294,8 +158,31 @@ func ByteFormat(b any) string {
 	}
 }
 
-// NamedByteFormat returns a human readable string of the byte count with a named description.
-func NamedByteFormat(name string, c, b any) template.HTML {
+// FmtByteCnt returns a human readable string of the file count and bytes.
+func FmtByteCnt(c, b any) template.HTML {
+	s := ""
+	switch val := c.(type) {
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		i := reflect.ValueOf(val).Int()
+		p := message.NewPrinter(language.English)
+		s = p.Sprintf("%d", i)
+	default:
+		s = fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(c).String())
+		return template.HTML(s)
+	}
+	switch val := b.(type) {
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		i := reflect.ValueOf(val).Int()
+		s = fmt.Sprintf("%s <small>(%s)</small>", s, helpers.ByteCount(i))
+	default:
+		s = fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(b).String())
+		return template.HTML(s)
+	}
+	return template.HTML(s)
+}
+
+// FmtByteName returns a human readable string of the byte count with a named description.
+func FmtByteName(name string, c, b any) template.HTML {
 	s := ""
 	switch val := c.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
@@ -320,79 +207,21 @@ func NamedByteFormat(name string, c, b any) template.HTML {
 	return template.HTML(s)
 }
 
-// CountByteFormat returns a human readable string of the file count and bytes.
-func CountByteFormat(c, b any) template.HTML {
-	s := ""
-	switch val := c.(type) {
+// FmtDay returns a string of the day number from the day d number between 1 and 31.
+func FmtDay(d any) string {
+	switch val := d.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
-		p := message.NewPrinter(language.English)
-		s = p.Sprintf("%d", i)
-	default:
-		s = fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(c).String())
-		return template.HTML(s)
-	}
-	switch val := b.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		i := reflect.ValueOf(val).Int()
-		s = fmt.Sprintf("%s <small>(%s)</small>", s, helpers.ByteCount(i))
-	default:
-		s = fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(b).String())
-		return template.HTML(s)
-	}
-	return template.HTML(s)
-}
-
-// ExternalLink returns a HTML link with an embedded SVG icon to an external website.
-func ExternalLink(href, name string) template.HTML {
-	if href == "" {
-		return "error: href is empty"
-	}
-	if name == "" {
-		return "error: name is empty"
-	}
-	a := fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover" href="%s">%s %s</a>`,
-		href, name, link)
-	return template.HTML(a)
-}
-
-// IDDownload creates a URL to link to the file download of the record.
-func IDDownload(id any) template.HTML {
-	s, err := IDHref(id, "d")
-	if err != nil {
-		return template.HTML(err.Error())
-	}
-	return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">Download</a>`, s))
-}
-
-// IDPage creates a URL to link to the file page for the record.
-func IDPage(id any) template.HTML {
-	s, err := IDHref(id, "f")
-	if err != nil {
-		return template.HTML(err.Error())
-	}
-	return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">About</a>`, s))
-}
-
-// IDHref creates a URL to link to the record.
-// The id is obfuscated to prevent direct linking.
-// The elem is the element to link to, such as 'f' for file or 'd' for download.
-func IDHref(id any, elem string) (string, error) {
-	i := int64(0)
-	switch val := id.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		i = reflect.ValueOf(val).Int()
-		if i <= 0 {
-			return "", fmt.Errorf("negative id %d", i)
+		if i == 0 {
+			return ""
 		}
+		if i < 0 || i > 31 {
+			return fmt.Sprintf(" error: day out of range %d", i)
+		}
+		return fmt.Sprintf(" %d", i)
 	default:
-		return "", fmt.Errorf("%s %s", typeErr, reflect.TypeOf(id).String())
+		return fmt.Sprintf("%sFmtDay: %s", typeErr, reflect.TypeOf(d).String())
 	}
-	href, err := url.JoinPath("/", elem, helpers.Obfuscate(i))
-	if err != nil {
-		return "", fmt.Errorf("id %d could not be made into a valid url: %s", i, err)
-	}
-	return href, nil
 }
 
 // FmtDate returns a string of the date in the format YYYY-MM-DD.
@@ -412,23 +241,6 @@ func FmtDateTime(d any) string {
 		return val.Format("2006-01-02 15:04:05")
 	default:
 		return fmt.Sprintf("%sFmtDateTime: %s", typeErr, reflect.TypeOf(d).String())
-	}
-}
-
-// FmtDay returns a string of the day number from the day d number between 1 and 31.
-func FmtDay(d any) string {
-	switch val := d.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		i := reflect.ValueOf(val).Int()
-		if i == 0 {
-			return ""
-		}
-		if i < 0 || i > 31 {
-			return fmt.Sprintf(" error: day out of range %d", i)
-		}
-		return fmt.Sprintf(" %d", i)
-	default:
-		return fmt.Sprintf("%sFmtDay: %s", typeErr, reflect.TypeOf(d).String())
 	}
 }
 
@@ -455,6 +267,15 @@ func FmtPrefix(s string) string {
 		return ""
 	}
 	return fmt.Sprintf("%s ", s)
+}
+
+// FmtYears returns a string of the years if they are different.
+// If they are the same, it returns a singular year.
+func FmtYears(a, b int) string {
+	if a == b {
+		return fmt.Sprintf("the year %d", a)
+	}
+	return fmt.Sprintf("the years %d - %d", a, b)
 }
 
 // Integrity returns the sha384 hash of the named embed file.
@@ -490,6 +311,132 @@ func LastUpdated(t any) string {
 	default:
 		return fmt.Sprintf("%sLastUpdated: %s", typeErr, reflect.TypeOf(t).String())
 	}
+}
+
+// LinkDownload creates a URL to link to the file download of the record.
+func LinkDownload(id any) template.HTML {
+	s, err := linkID(id, "d")
+	if err != nil {
+		return template.HTML(err.Error())
+	}
+	return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">Download</a>`, s))
+}
+
+// LinkRelrs returns the groups associated with a release and a link to each group.
+func LinkRelrs(a, b any) template.HTML {
+	const class = "text-nowrap"
+	av, bv, s := "", "", ""
+	switch val := a.(type) {
+	case string:
+		av = reflect.ValueOf(val).String()
+	case null.String:
+		if val.Valid {
+			av = val.String
+		}
+	}
+	switch val := b.(type) {
+	case string:
+		bv = reflect.ValueOf(val).String()
+	case null.String:
+		if val.Valid {
+			bv = val.String
+		}
+	}
+	prime, second, s := "", "", ""
+	if av == "" && bv == "" {
+		return template.HTML("error: unknown group")
+	}
+	if av != "" {
+		ref, err := LinkRelr(av)
+		if err != nil {
+			return template.HTML(fmt.Sprintf("error: %s", err))
+		}
+		prime = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, rename.Cleaner(av))
+	}
+	if bv != "" {
+		ref, err := LinkRelr(bv)
+		if err != nil {
+			return template.HTML(fmt.Sprintf("error: %s", err))
+		}
+		second = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, rename.Cleaner(av))
+	}
+	if prime != "" && second != "" {
+		s = fmt.Sprintf("%s<br>+ %s", prime, second)
+	} else if prime != "" {
+		s = prime
+	} else if second != "" {
+		s = second
+	}
+	return template.HTML(s)
+}
+
+// LinkRelr returns a link to the named group page.
+func LinkRelr(name string) (string, error) {
+	href, err := url.JoinPath("/", "g", helpers.Slug(name))
+	if err != nil {
+		return "", fmt.Errorf("name %q could not be made into a valid url: %s", name, err)
+	}
+	return href, nil
+}
+
+// LinkRemote returns a HTML link with an embedded SVG icon to an external website.
+func LinkRemote(href, name string) template.HTML {
+	if href == "" {
+		return "error: href is empty"
+	}
+	if name == "" {
+		return "error: name is empty"
+	}
+	a := fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover" href="%s">%s %s</a>`,
+		href, name, link)
+	return template.HTML(a)
+}
+
+// LinkPage creates a URL to link to the file page for the record.
+func LinkPage(id any) template.HTML {
+	s, err := linkID(id, "f")
+	if err != nil {
+		return template.HTML(err.Error())
+	}
+	return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">About</a>`, s))
+}
+
+// LinkWiki returns a HTML link with an embedded SVG icon to the Defacto2 wiki on GitHub.
+func LinkWiki(uri, name string) template.HTML {
+	if uri == "" {
+		return "error: href is empty"
+	}
+	if name == "" {
+		return "error: name is empty"
+	}
+	href, err := url.JoinPath("https://github.com/Defacto2/defacto2.net/wiki/", uri)
+	if err != nil {
+		return template.HTML(err.Error())
+	}
+	a := fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover" href="%s">%s %s</a>`,
+		href, name, wiki)
+	return template.HTML(a)
+}
+
+// linkID creates a URL to link to the record.
+// The id is obfuscated to prevent direct linking.
+// The elem is the element to link to, such as 'f' for file or 'd' for download.
+func linkID(id any, elem string) (string, error) {
+	i := int64(0)
+	switch val := id.(type) {
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		i = reflect.ValueOf(val).Int()
+		if i <= 0 {
+			return "", fmt.Errorf("negative id %d", i)
+		}
+	default:
+		return "", fmt.Errorf("%s %s", typeErr, reflect.TypeOf(id).String())
+	}
+	href, err := url.JoinPath("/", elem, helpers.Obfuscate(i))
+	if err != nil {
+		return "", fmt.Errorf("id %d could not be made into a valid url: %s", i, err)
+	}
+	return href, nil
 }
 
 // LogoText returns a string of text padded with spaces to center it in the logo.
@@ -545,8 +492,51 @@ func Mod3(i any) bool {
 	return Mod(i, max)
 }
 
-// NameReleaser returns a string with the last 4 characters removed if they are " FTP" or " BBS".
-func NameReleaser(s string) string {
+// SafeHTML returns a string as a template.HTML type.
+// This is intended to be used to prevent HTML escaping.
+func SafeHTML(s string) template.HTML {
+	return template.HTML(s)
+}
+
+// SizeOfDL returns a human readable string of the file size.
+func SizeOfDL(i any) template.HTML {
+	s := ""
+	switch val := i.(type) {
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		i := reflect.ValueOf(val).Int()
+		s = helpers.ByteCount(i)
+	case null.Int64:
+		if !val.Valid {
+			return ""
+		}
+		s = helpers.ByteCount(val.Int64)
+	default:
+		return template.HTML(fmt.Sprintf("%sSizeOfDL: %s", typeErr, reflect.TypeOf(i).String()))
+	}
+	return template.HTML(fmt.Sprintf(" <small class=\"text-body-secondary\">(%s)</small>", s))
+}
+
+// SubTitle returns a secondary element with the record title.
+func SubTitle(s any) template.HTML {
+	val := ""
+	switch v := s.(type) {
+	case string:
+		val = v
+	case null.String:
+		if !v.Valid {
+			return ""
+		}
+		val = v.String
+	}
+	if val == "" {
+		return ""
+	}
+	elem := fmt.Sprintf("<h6 class=\"card-subtitle mb-2 text-body-secondary\">%s</h6>", val)
+	return template.HTML(elem)
+}
+
+// TrimSiteSuffix returns a string with the last 4 characters removed if they are " FTP" or " BBS".
+func TrimSiteSuffix(s string) string {
 	n := strings.ToLower(strings.TrimSpace(s))
 	const chrs = 4
 	if len(s) < chrs {
@@ -559,25 +549,39 @@ func NameReleaser(s string) string {
 	return s
 }
 
-// SafeHTML returns a string as a template.HTML type.
-// This is intended to be used to prevent HTML escaping.
-func SafeHTML(s string) template.HTML {
-	return template.HTML(s)
+// =======================
+
+// HumanizeDescription returns a human readable description of a release.
+// Based on the platform and section.
+func HumanizeDescription(p, s string) string {
+	x := ""
+
+	if p == "" {
+		x = fmt.Sprintf("A %s", s)
+	}
+	if s == "" {
+		if isOS(p) {
+			x = fmt.Sprintf("A release for %s", p)
+		} else {
+			x = fmt.Sprintf("A %s file", p)
+		}
+	}
+	if x == "" && p == tags.Text.String() && s == tags.Nfo.String() {
+		x = "A scene release text file"
+	}
+	if x == "" && isOS(p) {
+		x = fmt.Sprintf("A %s for %s", tags.NameByURI(s), tags.NameByURI(p))
+	}
+	if x == "" {
+		x = fmt.Sprintf("A %s %s", tags.NameByURI(s), tags.NameByURI(p))
+	}
+	return x
 }
 
-// WikiLink returns a HTML link with an embedded SVG icon to the Defacto2 wiki on GitHub.
-func WikiLink(uri, name string) template.HTML {
-	if uri == "" {
-		return "error: href is empty"
-	}
-	if name == "" {
-		return "error: name is empty"
-	}
-	href, err := url.JoinPath("https://github.com/Defacto2/defacto2.net/wiki/", uri)
-	if err != nil {
-		return template.HTML(err.Error())
-	}
-	a := fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover" href="%s">%s %s</a>`,
-		href, name, wiki)
-	return template.HTML(a)
+// isOS returns true if the platform matches Windows, macOS, Linux, MS-DOS or Java.
+func isOS(platform string) bool {
+	s := tags.OSTags()
+	apps := s[:]
+	plat := strings.TrimSpace(strings.ToLower(platform))
+	return helpers.Finds(plat, apps...)
 }

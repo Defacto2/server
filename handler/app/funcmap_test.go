@@ -16,21 +16,21 @@ const (
 
 func TestExternalLink(t *testing.T) {
 	t.Parallel()
-	x := app.ExternalLink("", "")
+	x := app.LinkRemote("", "")
 	assert.Contains(t, x, "error:")
-	x = app.ExternalLink(exampleURL, "")
+	x = app.LinkRemote(exampleURL, "")
 	assert.Contains(t, x, "error:")
-	x = app.ExternalLink(exampleURL, "Example")
+	x = app.LinkRemote(exampleURL, "Example")
 	assert.Contains(t, x, exampleURL)
 }
 
 func TestWikiLink(t *testing.T) {
 	t.Parallel()
-	x := app.WikiLink("", "")
+	x := app.LinkWiki("", "")
 	assert.Contains(t, x, "error:")
-	x = app.WikiLink(exampleWiki, "")
+	x = app.LinkWiki(exampleWiki, "")
 	assert.Contains(t, x, "error:")
-	x = app.WikiLink(exampleWiki, "Example")
+	x = app.LinkWiki(exampleWiki, "Example")
 	assert.Contains(t, x, exampleWiki)
 }
 
