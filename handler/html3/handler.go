@@ -146,10 +146,10 @@ func (s *sugared) Index(c echo.Context) error {
 		s.zlog.Warnf("%s: %s", errConn, err)
 	}
 	descs := [4]string{
-		helpers.Sentence(textArt),
-		helpers.Sentence(textDoc),
-		helpers.Sentence(textSof),
-		helpers.Sentence(textAll),
+		helpers.Capitalize(textArt),
+		helpers.Capitalize(textDoc),
+		helpers.Capitalize(textSof),
+		helpers.Capitalize(textAll),
 	}
 	if err = c.Render(http.StatusOK, "html3_index", map[string]interface{}{
 		"title":       title,
@@ -213,7 +213,7 @@ func (s *sugared) Groups(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, errConn)
 	}
 	defer db.Close()
-	if err := Groups.All(ctx, db, 0, 0, model.NameAsc); err != nil {
+	if err := Groups.All(ctx, db, 0, 0, false); err != nil {
 		s.zlog.Errorf("%s: %s %d", errConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}

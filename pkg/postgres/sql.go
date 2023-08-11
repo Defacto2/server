@@ -19,7 +19,14 @@ const (
 	SumSize = "SUM(filesize) AS size_sum"
 	// Ver is a SQL statement to select the version of the PostgreSQL database server in use.
 	Ver = "SELECT version();"
+
+	Totals = "COUNT(*) AS count_total, SUM(filesize) AS size_total"
+	Years  = "MIN(date_issued_year) AS min_year, MAX(date_issued_year) AS max_year"
 )
+
+func Statistics() []string {
+	return []string{Totals, Years}
+}
 
 // Columns returns a list of column selections.
 func Columns() []string {
@@ -93,6 +100,16 @@ func SelectRels() SQL {
 		releaserBy
 }
 
+func SelectRelPros() SQL {
+	return "SELECT * FROM (" +
+		releaserSEL +
+		"AND section != 'magazine' " +
+		"AND releaser !~ 'BBS\\M' " +
+		"AND releaser !~ 'FTP\\M' " +
+		releaserBy +
+		") sub ORDER BY sub.count_sum DESC"
+}
+
 // SelectMags selects a list of distinct magazine titles.
 func SelectMag() SQL {
 	return releaserSEL + "AND section = 'magazine'" + releaserBy
@@ -118,8 +135,6 @@ func SumReleaser(where string) SQL {
 		"MAX(files.date_issued_year) AS max_year " +
 		"FROM files "
 	switch where {
-	case "all":
-		return SQL(strings.TrimSpace(s))
 	case "magazine":
 		s += "WHERE files.section = 'magazine'"
 	case "bbs":
@@ -132,11 +147,6 @@ func SumReleaser(where string) SQL {
 		return ""
 	}
 	return SQL(strings.TrimSpace(s))
-}
-
-// SumAll is an SQL statement to total the file count and filesize sum of all releasers.
-func SumAll() SQL {
-	return SumReleaser("all")
 }
 
 // SumBBS is an SQL statement to total the file count and filesize sum of BBS sites.

@@ -13,8 +13,17 @@ import (
 
 // The file render_releaser.go contains the renderers that use the releaser.html template.
 
-// Releaser is the handler for the Releaser page.
 func Releaser(z *zap.SugaredLogger, c echo.Context) error {
+	return releaser(z, c, false)
+}
+
+// ReleaserPro is the handler for the prolific releaser page.
+func ReleaserPro(z *zap.SugaredLogger, c echo.Context) error {
+	return releaser(z, c, true)
+}
+
+// releaser is the handler for the Releaser page.
+func releaser(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
 	}
@@ -40,7 +49,7 @@ func Releaser(z *zap.SugaredLogger, c echo.Context) error {
 	}
 	defer db.Close()
 	var r model.Releasers
-	if err := r.All(ctx, db, 0, 0, model.NameAsc); err != nil {
+	if err := r.All(ctx, db, 0, 0, prolific); err != nil {
 		z.Errorf("%s: %s %d", errConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
@@ -51,8 +60,8 @@ func Releaser(z *zap.SugaredLogger, c echo.Context) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":   fmt.Sprintf("%d releasers and groups", len(r)),
-		"issues": string(NamedByteFormat(name, m.SumCount, m.SumBytes)),
-		"years":  fmt.Sprintf("%d - %d", m.MinYear, m.MaxYear),
+		"issues": string(FmtByteName(name, m.SumCount, m.SumBytes)),
+		"years":  FmtYears(m.MinYear, m.MaxYear),
 	}
 
 	err = c.Render(http.StatusOK, "releaser", data)
@@ -101,7 +110,7 @@ func Magazine(z *zap.SugaredLogger, c echo.Context) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":   fmt.Sprintf("%d publications", len(r)),
-		"issues": string(NamedByteFormat(name, m.SumCount, m.SumBytes)),
+		"issues": string(FmtByteName(name, m.SumCount, m.SumBytes)),
 		"years":  fmt.Sprintf("%d - %d", m.MinYear, m.MaxYear),
 	}
 
@@ -151,7 +160,7 @@ func BBS(z *zap.SugaredLogger, c echo.Context) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":   fmt.Sprintf("%d boards", len(r)),
-		"issues": string(NamedByteFormat(name, m.SumCount, m.SumBytes)),
+		"issues": string(FmtByteName(name, m.SumCount, m.SumBytes)),
 		"years":  fmt.Sprintf("%d - %d", m.MinYear, m.MaxYear),
 	}
 
@@ -201,7 +210,7 @@ func FTP(z *zap.SugaredLogger, c echo.Context) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":   fmt.Sprintf("%d sites", len(r)),
-		"issues": string(NamedByteFormat(name, m.SumCount, m.SumBytes)),
+		"issues": string(FmtByteName(name, m.SumCount, m.SumBytes)),
 		"years":  fmt.Sprintf("%d - %d", m.MinYear, m.MaxYear),
 	}
 

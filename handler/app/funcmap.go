@@ -2,6 +2,8 @@ package app
 
 // Package file funcmap.go contains the custom template functions for the web framework.
 
+// TODO: move generic functions to pkg\helpers\helpers.go
+
 import (
 	"crypto/sha512"
 	"embed"

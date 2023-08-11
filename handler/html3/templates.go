@@ -29,7 +29,7 @@ func TemplateFuncMap(z *zap.SugaredLogger) template.FuncMap {
 		"linkPad":    FileLinkPad,
 		"linkFile":   Filename,
 		"leading":    Leading,
-		"byteFmt":    LeadFS,
+		"fmtByte":    LeadFS,
 		"byteInt":    LeadFSInt,
 		"leadInt":    LeadInt,
 		"leadStr":    LeadStr,

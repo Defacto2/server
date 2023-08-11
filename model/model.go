@@ -21,6 +21,11 @@ var (
 // From is the name of the table containing records of files.
 const From = "files"
 
+// ClauseOldDate orders the records by oldest date first.
+const ClauseOldDate = "date_issued_year ASC NULLS LAST, " +
+	"date_issued_month ASC NULLS LAST, " +
+	"date_issued_day ASC NULLS LAST"
+
 // Cache returns true if the statistics are considered to be valid.
 func Cache(b, c int, t time.Time) bool {
 	return b > 0 && c > 0 && t.Before(time.Now().Add(-time.Hour*1))

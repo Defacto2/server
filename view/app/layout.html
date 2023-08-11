@@ -72,8 +72,8 @@
 }
 </script>
     {{- /*  preload assets  */}}
-    <link rel="preload" href="/css/bootstrap.min.css?{{ sriBootstrapCSS }}" as="style">
-    <link rel="preload" href="/css/layout.min.css?{{ sriLayoutCSS }}" as="style">
+    <link rel="preload" href="/css/bootstrap.min.css?{{ sriBootCSS }}" as="style">
+    <link rel="preload" href="/css/layout.min.css?{{ sriLayout }}" as="style">
     {{- /*  bookmark and tab icons  */}}
     {{- /*  todo check the existence of all files  */}}
     <link rel="icon" type="image/svg+xml" href="/image/layout/favicon.svg">
@@ -90,8 +90,8 @@
     {{- /*  opensearch.org  */}}
     <link rel="search" href="/osd.xml" type="application/opensearchdescription+xml" title="Defacto2 search">
     {{- /*  cascading style sheets  */}}
-    <link href="/css/bootstrap.min.css?{{ sriBootstrapCSS }}" rel="stylesheet" integrity="{{ sriBootstrapCSS }}" crossorigin="anonymous">
-    <link href="/css/layout.min.css?{{ sriLayoutCSS }}" rel="stylesheet" integrity="{{ sriLayoutCSS }}" crossorigin="anonymous">
+    <link href="/css/bootstrap.min.css?{{ sriBootCSS }}" rel="stylesheet" integrity="{{ sriBootCSS }}" crossorigin="anonymous">
+    <link href="/css/layout.min.css?{{ sriLayout }}" rel="stylesheet" integrity="{{ sriLayout }}" crossorigin="anonymous">
   </head>
   <body>
     <div class="container">
@@ -133,6 +133,7 @@
                 <ul class="dropdown-menu">
                   <li><h6 class="dropdown-header">Scene</h6></li>
                   <li><a class="dropdown-item" href="/releaser">Releasers</a></li>
+                  <li><a class="dropdown-item" href="/releaser/prolific">Prolific</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><h6 class="dropdown-header">Products</h6></li>
                   <li><a class="dropdown-item" href="/magazine">Magazines</a></li>
@@ -185,8 +186,7 @@
                   Search
                 </a>
                 <ul class="dropdown-menu">
-                  <li><h6 class="dropdown-header">Search the database</h6></li>
-                  <li><a class="dropdown-item" href="/search">Go</a></li>
+                  <li><a class="dropdown-item" href="/search">The database</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><h6 class="dropdown-header">Filter</h6></li>
                   <li><a class="dropdown-item" href="/search">Files</a></li>
@@ -225,8 +225,8 @@
                   <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><h6 class="dropdown-header">Source code</h6></li>
-                  <li>{{ externalLink "https://github.com/Defacto2" "GitHub" }}</li>
-                  <li>{{ externalLink "https://github.com/sceners" "Sceners" }}</li>
+                  <li>{{ linkRemote "https://github.com/Defacto2" "GitHub" }}</li>
+                  <li>{{ linkRemote "https://github.com/sceners" "Sceners" }}</li>
                 </ul>
               </li>
               <li class="nav-item dropdown">
@@ -239,16 +239,16 @@
                   <li><hr class="dropdown-divider"></li>
                   <li><h6 class="dropdown-header">Using the downloads</h6></li>
                   <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#tavModal">Trojans and viruses</a></li>
-                  <li>{{ wikiLink "Can-I-batch-download-the-files" "Batch downloads" }}</li>
-                  <li>{{ wikiLink "What-are-DOS-Programs" "DOS programs" }}</li>
-                  <li>{{ wikiLink "What-are-RAR-7z-ZIP-ACE-files" "Compressed files" }}</li>
-                  <li>{{ wikiLink "What-are-the-best-tools-for-viewing-and-editing-NFO-DIZ-files" "NFO and DIZ files" }}</li>
+                  <li>{{ linkWiki "Can-I-batch-download-the-files" "Batch downloads" }}</li>
+                  <li>{{ linkWiki "What-are-DOS-Programs" "DOS programs" }}</li>
+                  <li>{{ linkWiki "What-are-RAR-7z-ZIP-ACE-files" "Compressed files" }}</li>
+                  <li>{{ linkWiki "What-are-the-best-tools-for-viewing-and-editing-NFO-DIZ-files" "NFO and DIZ files" }}</li>
                   <li><hr class="dropdown-divider"></li>
                   <li><h6 class="dropdown-header">Known errors for downloads</h6></li>
-                  <li>{{ wikiLink "Troubleshoot-d3drm.dll" "D3DRM.DLL" }}</li>
-                  <li>{{ wikiLink "Troubleshoot-npmod32.dll" "NPMOD32.DL" }}</li>
-                  <li>{{ wikiLink "Troubleshoot-runtime-error-200" "Runtime 200" }}</li>
-                  <li>{{ wikiLink "Troubleshoot-shrinker.err" "Shrinker.err dispatcher" }}</li>
+                  <li>{{ linkWiki "Troubleshoot-d3drm.dll" "D3DRM.DLL" }}</li>
+                  <li>{{ linkWiki "Troubleshoot-npmod32.dll" "NPMOD32.DL" }}</li>
+                  <li>{{ linkWiki "Troubleshoot-runtime-error-200" "Runtime 200" }}</li>
+                  <li>{{ linkWiki "Troubleshoot-shrinker.err" "Shrinker.err dispatcher" }}</li>
                 </ul>
               </li>
               <li class="nav-item">
@@ -305,8 +305,8 @@
   &copy; Defacto2
 </footer>
 </div>
-<script src="/js/bootstrap.bundle.min.js?{{ sriBootstrapJS }}" integrity="{{ sriBootstrapJS }}" crossorigin="anonymous"></script>
-<script src="/js/fontawesome.min.js?{{ sriFontAwesome }}" integrity="{{ sriFontAwesome }}" crossorigin="anonymous"></script>
+<script src="/js/bootstrap.bundle.min.js?{{ sriBootJS }}" integrity="{{ sriBootJS }}" crossorigin="anonymous"></script>
+<script src="/js/fontawesome.min.js?{{ sriFA }}" integrity="{{ sriFA }}" crossorigin="anonymous"></script>
 <script defer>
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
   const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))

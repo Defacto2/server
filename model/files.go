@@ -1,6 +1,6 @@
 package model
 
-// Package files.go contains the database queries for the listing of sorted files.
+// Package file files.go contains the database queries for the listing of sorted files.
 
 import (
 	"context"

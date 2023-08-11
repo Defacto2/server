@@ -5,8 +5,6 @@ package model
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"os"
 	"strings"
 
 	"github.com/Defacto2/server/pkg/helpers"
@@ -16,14 +14,6 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
-
-// Summary counts the total number files, file sizes and the earliest and latest years.
-type Summary struct {
-	SumBytes int `boil:"size_total"`  // Sum total of the file sizes.
-	SumCount int `boil:"count_total"` // Sum total count of the files.
-	MinYear  int `boil:"min_year"`    // Minimum or earliest year of the files.
-	MaxYear  int `boil:"max_year"`    // Maximum or latest year of the files.
-}
 
 // Releaser is a collective, group or individual, that releases files.
 type Releaser struct {
@@ -45,12 +35,10 @@ func (r *Releasers) List(ctx context.Context, db *sql.DB, name string) (models.F
 	n := strings.ToUpper(name)
 	n = strings.ReplaceAll(n, "-", " ")
 	x := null.StringFrom(n)
-	fmt.Fprintln(os.Stdout, "name", x, "-", n)
-	// mods := qm.Expr(
-	// 	models.FileWhere.GroupBrandFor.EQ(x),
-	// 	qm.Or2(models.FileWhere.GroupBrandBy.EQ(x)),
-	// )
-	return models.Files(qm.Where("upper(group_brand_for) = ?", n)).All(ctx, db)
+	return models.Files(
+		qm.Where("upper(group_brand_for) = ?", x),
+		qm.OrderBy(ClauseOldDate),
+	).All(ctx, db)
 }
 
 // Stat counts the total number of files and file sizes for all the releasers.
@@ -68,27 +56,22 @@ func (r *Releasers) List(ctx context.Context, db *sql.DB, name string) (models.F
 // }
 
 // All gets the unique releaser names and their total file count and file sizes.
-func (r *Releasers) All(ctx context.Context, db *sql.DB, offset, limit int, o Order) error {
+// When reorder is true the results are ordered by the total file counts.
+func (r *Releasers) All(ctx context.Context, db *sql.DB, offset, limit int, reorder bool) error {
 	if db == nil {
 		return ErrDB
 	}
 	if len(*r) > 0 {
 		return nil
 	}
-	if err := queries.Raw(string(postgres.SelectRels())).Bind(ctx, db, r); err != nil {
+	query := string(postgres.SelectRels())
+	if reorder {
+		query = string(postgres.SelectRelPros())
+	}
+	if err := queries.Raw(query).Bind(ctx, db, r); err != nil {
 		return err
 	}
 	r.Slugs()
-	return nil
-}
-
-func (s *Summary) All(ctx context.Context, db *sql.DB) error {
-	if db == nil {
-		return ErrDB
-	}
-	if err := queries.Raw(string(postgres.SumAll())).Bind(ctx, db, s); err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -107,16 +90,6 @@ func (r *Releasers) Magazine(ctx context.Context, db *sql.DB, offset, limit int,
 	return nil
 }
 
-func (r *Summary) Magazine(ctx context.Context, db *sql.DB) error {
-	if db == nil {
-		return ErrDB
-	}
-	if err := queries.Raw(string(postgres.SumMag())).Bind(ctx, db, r); err != nil {
-		return err
-	}
-	return nil
-}
-
 // BBS gets the unique BBS site names and their total file count and file sizes.
 func (r *Releasers) BBS(ctx context.Context, db *sql.DB, offset, limit int, o Order) error {
 	if db == nil {
@@ -132,16 +105,6 @@ func (r *Releasers) BBS(ctx context.Context, db *sql.DB, offset, limit int, o Or
 	return nil
 }
 
-func (r *Summary) BBS(ctx context.Context, db *sql.DB) error {
-	if db == nil {
-		return ErrDB
-	}
-	if err := queries.Raw(string(postgres.SumBBS())).Bind(ctx, db, r); err != nil {
-		return err
-	}
-	return nil
-}
-
 // FTP gets the unique FTP site names and their total file count and file sizes.
 func (r *Releasers) FTP(ctx context.Context, db *sql.DB, offset, limit int, o Order) error {
 	if db == nil {
@@ -154,16 +117,6 @@ func (r *Releasers) FTP(ctx context.Context, db *sql.DB, offset, limit int, o Or
 		return err
 	}
 	r.Slugs()
-	return nil
-}
-
-func (r *Summary) FTP(ctx context.Context, db *sql.DB) error {
-	if db == nil {
-		return ErrDB
-	}
-	if err := queries.Raw(string(postgres.SumFTP())).Bind(ctx, db, r); err != nil {
-		return err
-	}
 	return nil
 }
 

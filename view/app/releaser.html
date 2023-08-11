@@ -11,8 +11,8 @@
     <div class="row row-cols-1 row-cols-sm-2 row-col-md-3 g-2">
 {{- range $index, $rel := .releasers -}} 
         <div class="col">
-            <div class="p-3 border bg-light"><h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{nameReleaser $rel.Unique.Name}}</a> </h5>
-            {{- cntNameFmt $name $rel.Unique.Count $rel.Unique.Bytes }}</div>
+            <div class="p-3 border bg-light"><h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{trimSiteSuffix $rel.Unique.Name}}</a> </h5>
+            {{- fmtByteName $name $rel.Unique.Count $rel.Unique.Bytes }}</div>
         </div>
 {{- end}}
     </div>

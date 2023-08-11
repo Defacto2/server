@@ -60,11 +60,11 @@
                 {{- if .stats }}
                 <li class="list-group-item">
                     <small>
-                        Cracktros and intros: {{ cntByteFmt $intC $intB }}<br>
-                        Windows cracktros and intros: {{ cntByteFmt $intWC $intWB }}<br>
-                        {{msdos}} cracktros and intros: {{ cntByteFmt $intDC $intDB }}<br>
-                        Installers: {{ cntByteFmt $instC $instB }}<br>
-                        Demoscene productions: {{ cntByteFmt $demoC $demoB }}<br>
+                        Cracktros and intros: {{ fmtByteCnt $intC $intB }}<br>
+                        Windows cracktros and intros: {{ fmtByteCnt $intWC $intWB }}<br>
+                        {{msdos}} cracktros and intros: {{ fmtByteCnt $intDC $intDB }}<br>
+                        Installers: {{ fmtByteCnt $instC $instB }}<br>
+                        Demoscene productions: {{ fmtByteCnt $demoC $demoB }}<br>
                     </small>
                 </li>
                 {{- end}}
@@ -98,9 +98,9 @@
                 {{- if .stats }}
                 <li class="list-group-item">
                     <small>
-                        nfo texts: {{ cntByteFmt $nfoC $nfoB }}<br>
-                        proofs: {{ cntByteFmt $proofC $proofB }}<br>
-                        editors: {{ cntByteFmt $nfoTC $nfoTB }}<br>
+                        nfo texts: {{ fmtByteCnt $nfoC $nfoB }}<br>
+                        proofs: {{ fmtByteCnt $proofC $proofB }}<br>
+                        editors: {{ fmtByteCnt $nfoTC $nfoTB }}<br>
                     </small>
                 </li>
                 {{- end}}
@@ -131,7 +131,7 @@
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
                     <small>
-                        ansi art and texts: {{ cntByteFmt $ansiC $ansiB }}<br>
+                        ansi art and texts: {{ fmtByteCnt $ansiC $ansiB }}<br>
                     </small>
                 </li>
             </ul>
@@ -166,10 +166,10 @@
                 {{- if .stats }}
                 <li class="list-group-item">
                     <small>
-                        BBS adverts: {{ cntByteFmt $bbsC $bbsB }}<br>
-                        BBStros: {{ cntByteFmt $bbsTC $bbsTB }}<br>
-                        ansi art: {{ cntByteFmt $ansiBC $ansiBB }}<br>
-                        text files: {{ cntByteFmt $bbsTxC $bbsTxB }}<br>
+                        BBS adverts: {{ fmtByteCnt $bbsC $bbsB }}<br>
+                        BBStros: {{ fmtByteCnt $bbsTC $bbsTB }}<br>
+                        ansi art: {{ fmtByteCnt $ansiBC $ansiBB }}<br>
+                        text files: {{ fmtByteCnt $bbsTxC $bbsTxB }}<br>
                     </small>
                 </li>
                 {{- end}}
