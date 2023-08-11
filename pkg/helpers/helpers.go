@@ -119,19 +119,6 @@ func GetLocalHosts() ([]string, error) {
 	return hosts, nil
 }
 
-// Sentence formats the first letter of a string to use a capital character.
-func Sentence(s string) string {
-	if s == "" {
-		return ""
-	}
-	caser := cases.Title(language.English)
-	if len(s) == 1 {
-		return caser.String(s)
-	}
-	x := strings.Split(s, " ")
-	return fmt.Sprintf("%s %s", caser.String(x[0]), strings.Join(x[1:], " "))
-}
-
 // Slug returns a URL friendly string of the named group.
 func Slug(name string) string {
 	s := name
