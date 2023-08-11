@@ -13,12 +13,13 @@ import (
 
 // The file render_releaser.go contains the renderers that use the releaser.html template.
 
-func Releaser(z *zap.SugaredLogger, c echo.Context) error {
+// ReleaserAZ is the handler for the releaser page ordered alphabetically.
+func ReleaserAZ(z *zap.SugaredLogger, c echo.Context) error {
 	return releaser(z, c, false)
 }
 
-// ReleaserPro is the handler for the prolific releaser page.
-func ReleaserPro(z *zap.SugaredLogger, c echo.Context) error {
+// Releaser is the handler for the releaser page ordered by the most files.
+func Releaser(z *zap.SugaredLogger, c echo.Context) error {
 	return releaser(z, c, true)
 }
 

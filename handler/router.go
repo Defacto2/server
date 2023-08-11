@@ -111,8 +111,8 @@ func Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.FS) (*echo.Echo, er
 	e.GET("/releaser", func(c echo.Context) error {
 		return app.Releaser(z, c)
 	})
-	e.GET("/releaser/prolific", func(c echo.Context) error {
-		return app.ReleaserPro(z, c)
+	e.GET("/releaser/a-z", func(c echo.Context) error {
+		return app.ReleaserAZ(z, c)
 	})
 	e.GET("/scener", func(c echo.Context) error {
 		return app.Scener(z, c)
