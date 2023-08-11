@@ -123,8 +123,16 @@ func Magazine(z *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
-// BBS is the handler for the BBS page.
 func BBS(z *zap.SugaredLogger, c echo.Context) error {
+	return bbsH(z, c, true)
+}
+
+func BBSAZ(z *zap.SugaredLogger, c echo.Context) error {
+	return bbsH(z, c, false)
+}
+
+// bbsH is the handler for the BBS page.
+func bbsH(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	if z == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
 	}
@@ -150,7 +158,7 @@ func BBS(z *zap.SugaredLogger, c echo.Context) error {
 	}
 	defer db.Close()
 	var r model.Releasers
-	if err := r.BBS(ctx, db, 0, 0, model.NameAsc); err != nil {
+	if err := r.BBS(ctx, db, 0, 0, prolific); err != nil {
 		z.Errorf("%s: %s %d", errConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}

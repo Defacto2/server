@@ -120,6 +120,14 @@ func SelectBBS() SQL {
 	return releaserSEL + "AND releaser ~ 'BBS\\M' " + releaserBy
 }
 
+func SelectBBSPros() SQL {
+	return "SELECT * FROM (" +
+		releaserSEL +
+		"AND releaser ~ 'BBS\\M' " +
+		releaserBy +
+		") sub ORDER BY sub.count_sum DESC"
+}
+
 // SelectFTP selects a list of distinct FTP site names.
 func SelectFTP() SQL {
 	return releaserSEL + "AND releaser ~ 'FTP\\M' " + releaserBy
