@@ -30,6 +30,20 @@ All configurations and settings for this web server are handled through system e
 - [ ] Tests for routes and templates.
 - [ ] Move contexts to the start of args.
 
+### Automatic database corrections:
+
+/g/damn-excellent-ansi-designers    > /g/damn-excellent-ansi-design
+/g/the-original-funny-guys          > original-funny-guys
+
+
+Broken links
+- http://localhost:1323/g/x_pression-design
+- http://localhost:1323/g/ice
+- http://localhost:1323/g/ansi-creators-in-demand
+- http://localhost:1323/g/nc_17
+- http://localhost:1323/g/share-and-enjoy
+- north-american-pirate_phreak-association
+
 ### Possible TODOs
 
 - [ ] Create a method to calc the most popular years for a collection of records query.

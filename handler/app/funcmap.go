@@ -15,8 +15,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Defacto2/sceners/pkg/rename"
+	"github.com/Defacto2/server/pkg/fmts"
 	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/initialism"
 	"github.com/Defacto2/server/pkg/tags"
 	"github.com/bengarrett/cfw"
 	"github.com/volatiletech/null/v8"
@@ -59,6 +60,8 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 		"safeHTML":       SafeHTML,
 		"sizeOfDL":       SizeOfDL,
 		"subTitle":       SubTitle,
+		"fmtURI":         FmtURI,
+		"fmtInitalism":   initialism.Join,
 		"trimSiteSuffix": TrimSiteSuffix,
 		"databaseDown": func() bool {
 			return c.DatbaseErr
@@ -85,6 +88,10 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 			return c.Subresource.LayoutCSS
 		},
 	}
+}
+
+func FmtURI(uri string) string {
+	return fmts.Name(uri)
 }
 
 // Describe returns a human readable description of a release.
@@ -353,14 +360,14 @@ func LinkRelrs(a, b any) template.HTML {
 		if err != nil {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
-		prime = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, rename.Cleaner(av))
+		prime = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, fmts.Name(helpers.Slug(av)))
 	}
 	if bv != "" {
 		ref, err := LinkRelr(bv)
 		if err != nil {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
-		second = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, rename.Cleaner(av))
+		second = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, fmts.Name(helpers.Slug(bv)))
 	}
 	if prime != "" && second != "" {
 		s = fmt.Sprintf("%s<br>+ %s", prime, second)

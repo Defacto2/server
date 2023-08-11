@@ -97,7 +97,7 @@ func Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.FS) (*echo.Echo, er
 		return app.FTP(z, c)
 	})
 	e.GET("/g/:id", func(c echo.Context) error {
-		return app.G(z, c, c.Param("id"))
+		return app.Releasers(z, c, c.Param("id"))
 	})
 	e.GET("/history", func(c echo.Context) error {
 		return app.History(z, c)
