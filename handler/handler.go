@@ -21,7 +21,6 @@ import (
 	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/pkg/config"
-	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
@@ -98,6 +97,9 @@ func rewrites() map[string]string {
 
 // Controller is the primary instance of the Echo router.
 func (c Configuration) Controller() *echo.Echo {
+
+	// TODO: handle broken DB connection
+
 	e := echo.New()
 
 	// Configurations
@@ -163,15 +165,6 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 	}
 	// Legal info
 	fmt.Fprintf(w, "  %s.\n", cmd.Copyright())
-	// Check the database connection
-	var psql postgres.Version
-	if err := psql.Query(); err != nil {
-		c.DatbaseErr = true
-		c.ZLog.Warnln("Could not obtain the PostgreSQL server version. Is the database online?")
-	} else {
-		c.DatbaseErr = false
-		fmt.Fprintf(w, "%sDefacto2 web application %s %s.\n", mark, cmd.Commit(c.Version), psql.String())
-	}
 	// CPU info
 	fmt.Fprintf(w, "%s%d active routines sharing %d usable threads on %d CPU cores.\n", mark,
 		runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())

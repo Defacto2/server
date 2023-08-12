@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"strings"
 
+	"github.com/Defacto2/sceners/pkg/rename"
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
@@ -32,8 +33,7 @@ func (r *Releasers) List(ctx context.Context, db *sql.DB, name string) (models.F
 	if db == nil {
 		return nil, ErrDB
 	}
-	n := strings.ToUpper(name)
-	n = strings.ReplaceAll(n, "-", " ")
+	n := strings.ToUpper(rename.DeObfuscateURL(name))
 	x := null.StringFrom(n)
 	return models.Files(
 		qm.Where("upper(group_brand_for) = ?", x),

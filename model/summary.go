@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"strings"
 
+	"github.com/Defacto2/sceners/pkg/rename"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/null/v8"
@@ -65,8 +66,7 @@ func (s *Summary) Releaser(ctx context.Context, db *sql.DB, name string) error {
 	if db == nil {
 		return ErrDB
 	}
-	n := strings.ToUpper(name)
-	n = strings.ReplaceAll(n, "-", " ")
+	n := strings.ToUpper(rename.DeObfuscateURL(name))
 	x := null.StringFrom(n)
 	return models.NewQuery(
 		qm.Select(postgres.Statistics()...),

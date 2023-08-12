@@ -34,13 +34,13 @@ var version string
 func main() {
 	// Logger
 	// Use the development log until the environment vars are parsed
-	log := logger.Development().Sugar()
+	zlog := logger.Development().Sugar()
 
 	// Environment configuration
 	configs := config.Config{}
 	if err := env.Parse(
 		&configs, env.Options{Prefix: config.EnvPrefix}); err != nil {
-		log.Fatalf("Environment variable probably contains an invalid value: %s.", err)
+		zlog.Fatalf("Environment variable probably contains an invalid value: %s.", err)
 	}
 	// Any hardcoded overrides can be placed in here,
 	// but they must be commented out in PRODUCTION
@@ -53,7 +53,7 @@ func main() {
 	// By default the web server runs when no arguments are provided
 	const exitProgram = 0
 	if code, err := cmd.Run(version, &configs); err != nil {
-		log.Errorf("The command given did not work: %s.", err)
+		zlog.Errorf("The command given did not work: %s.", err)
 		os.Exit(code)
 	} else if code >= exitProgram {
 		os.Exit(code)
@@ -68,36 +68,46 @@ func main() {
 	switch configs.IsProduction {
 	case true:
 		if err := configs.LogStorage(); err != nil {
-			log.Fatalf("The server cannot save any logs: %s.", err)
+			zlog.Fatalf("The server cannot save any logs: %s.", err)
 		}
-		log = logger.Production(configs.LogDir).Sugar()
+		zlog = logger.Production(configs.LogDir).Sugar()
 	default:
-		log.Debug("The server is running in the DEVELOPMENT MODE.")
+		zlog.Debug("The server is running in the DEVELOPMENT MODE.")
 	}
 
 	// Configuration sanity checks
-	configs.Checks(log)
+	configs.Checks(zlog)
 
 	// Cached global vars will go here, to avoid the garbage collection
 	// They should be lockable
 
 	// Echo router and controller instance
 	server := handler.Configuration{
-		Brand:   &brand,
-		Import:  &configs,
-		ZLog:    log,
-		Public:  public,
-		Version: version,
-		Views:   views,
+		DatbaseErr: false,
+		Brand:      &brand,
+		Import:     &configs,
+		ZLog:       zlog,
+		Public:     public,
+		Version:    version,
+		Views:      views,
 	}
 
 	// Database
 	db, err := postgres.ConnectDB()
 	if err != nil {
 		server.DatbaseErr = true
-		log.Errorf("Could not connect to the database: %s.", err)
+		zlog.Errorf("Could not connect to the database: %s.", err)
 	}
 	defer db.Close()
+	// Check the database connection
+	var psql postgres.Version
+	if err := psql.Query(); err != nil {
+		server.DatbaseErr = true
+		zlog.Warnln("Could not obtain the PostgreSQL server version. Is the database online?")
+	} else {
+		server.DatbaseErr = false
+		// TODO: run database migrations and fixes
+	}
 
 	e := server.Controller()
 

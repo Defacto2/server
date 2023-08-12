@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Defacto2/sceners/pkg/rename"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -64,7 +65,7 @@ func GErr(z *zap.SugaredLogger, c echo.Context, id string) error {
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
 	data["code"] = http.StatusNotFound
 	data["logo"] = "Releaser not found"
-	data["alert"] = "Releaser page cannot be found"
+	data["alert"] = fmt.Sprintf("Releaser %q cannot be found", rename.DeObfuscateURL(id))
 	data["probl"] = "The releaser page does not exist, there is probably a typo with the URL."
 	data["uriOkay"] = "g/"
 	data["uriErr"] = id

@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Defacto2/sceners/pkg/rename"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/fmts"
 	"github.com/Defacto2/server/pkg/initialism"
@@ -21,7 +20,8 @@ import (
 // Files is the handler for the list and preview of the files page.
 func Files(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	if z == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("%w: handler app files", ErrLogger))
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Errorf("%w: handler app files", ErrLogger))
 	}
 	if !IsFiles(uri) {
 		return FilesErr(z, c, uri)
@@ -103,7 +103,7 @@ func Releasers(z *zap.SugaredLogger, c echo.Context, uri string) error {
 
 	name := fmts.Name(uri)
 	rel := model.Releasers{}
-	fs, err := rel.List(ctx, db, rename.DeObfuscateURL(uri))
+	fs, err := rel.List(ctx, db, uri)
 	if err != nil {
 		z.Warnf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
@@ -126,17 +126,12 @@ func Releasers(z *zap.SugaredLogger, c echo.Context, uri string) error {
 			", independent releases are files with no group or releaser affiliation"
 	}
 
-	d, err := releaserSum(ctx, db, rename.DeObfuscateURL(uri))
+	d, err := releaserSum(ctx, db, uri)
 	if err != nil {
-		z.Warnf("%s: %s", ErrTmpl, err)
+		z.Warnf("releaserSum %s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	data["stats"] = d
-
-	if err != nil {
-		z.Warnf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-	}
 	err = c.Render(http.StatusOK, "files", data)
 	if err != nil {
 		z.Errorf("%s: %s", ErrTmpl, err)
