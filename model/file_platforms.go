@@ -14,10 +14,10 @@ import (
 
 // DOS is a the model for the MS-DOS operating system.
 type DOS struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
-	Year0 int `boil:"min_year"`
-	YearX int `boil:"max_year"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	YearMin int `boil:"min_year"`
+	YearMax int `boil:"max_year"`
 }
 
 func (d *DOS) Stat(ctx context.Context, db *sql.DB) error {
@@ -42,10 +42,10 @@ func (d *DOS) List(ctx context.Context, db *sql.DB, offset, limit int) (models.F
 
 // Java is a the model for the Java operating system.
 type Java struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
-	Year0 int `boil:"min_year"`
-	YearX int `boil:"max_year"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	YearMin int `boil:"min_year"`
+	YearMax int `boil:"max_year"`
 }
 
 func (j *Java) Stat(ctx context.Context, db *sql.DB) error {
@@ -70,10 +70,10 @@ func (j *Java) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 
 // Linux is a the model for the Linux operating system.
 type Linux struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
-	Year0 int `boil:"min_year"`
-	YearX int `boil:"max_year"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	YearMin int `boil:"min_year"`
+	YearMax int `boil:"max_year"`
 }
 
 func (l *Linux) Stat(ctx context.Context, db *sql.DB) error {
@@ -98,10 +98,10 @@ func (l *Linux) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 
 // Mac is a the model for the Macintosh operating system.
 type Mac struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
-	Year0 int `boil:"min_year"`
-	YearX int `boil:"max_year"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	YearMin int `boil:"min_year"`
+	YearMax int `boil:"max_year"`
 }
 
 func (m *Mac) Stat(ctx context.Context, db *sql.DB) error {
@@ -126,10 +126,10 @@ func (m *Mac) List(ctx context.Context, db *sql.DB, offset, limit int) (models.F
 
 // Script is a the model for the script and interpreted languages.
 type Script struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
-	Year0 int `boil:"min_year"`
-	YearX int `boil:"max_year"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	YearMin int `boil:"min_year"`
+	YearMax int `boil:"max_year"`
 }
 
 func (s *Script) Stat(ctx context.Context, db *sql.DB) error {
@@ -154,10 +154,10 @@ func (s *Script) List(ctx context.Context, db *sql.DB, offset, limit int) (model
 
 // Windows is a the model for the Windows operating system.
 type Windows struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
-	Year0 int `boil:"min_year"`
-	YearX int `boil:"max_year"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	YearMin int `boil:"min_year"`
+	YearMax int `boil:"max_year"`
 }
 
 func (w *Windows) Stat(ctx context.Context, db *sql.DB) error {

@@ -41,10 +41,10 @@ func (d *Demo) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 
 // Intro contain statistics for releases that could be considered intros or cracktros.
 type Intro struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
-	Year0 int `boil:"min_year"`
-	YearX int `boil:"max_year"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	YearMin int `boil:"min_year"`
+	YearMax int `boil:"max_year"`
 }
 
 func (i *Intro) Stat(ctx context.Context, db *sql.DB) error {

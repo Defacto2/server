@@ -71,7 +71,7 @@
             </ul>
             {{- if .stats }}
             <div class="card-footer">
-                <small>releases date range: {{$rels.Intro.Year0}}-{{$rels.Intro.YearX}}</small>
+                <small>releases date range: {{$rels.Intro.YearMin}}-{{$rels.Intro.YearMax}}</small>
             </div>
             {{- end}}
         </div>
@@ -107,7 +107,7 @@
             </ul>
             {{- if .stats }}
             <div class="card-footer">
-                <small>nfo date range: {{$rels.Nfo.Year0}}-{{$rels.Nfo.YearX}}</small>
+                <small>nfo date range: {{$rels.Nfo.YearMin}}-{{$rels.Nfo.YearMax}}</small>
             </div>
             {{- end}}
         </div>
@@ -136,7 +136,7 @@
                 </li>
             </ul>
             <div class="card-footer">
-                <small>ansi art date range: {{$rels.Ansi.Year0}}-{{$rels.Ansi.YearX}}</small>
+                <small>ansi art date range: {{$rels.Ansi.YearMin}}-{{$rels.Ansi.YearMax}}</small>
             </div>
             {{- end}}
         </div>
@@ -176,7 +176,7 @@
             </ul>
             {{- if .stats }}
             <div class="card-footer">
-                <small>bbs ads date range: {{$rels.BBS.Year0}}-{{$rels.BBS.YearX}}</small>
+                <small>bbs ads date range: {{$rels.BBS.YearMin}}-{{$rels.BBS.YearMax}}</small>
             </div>
             {{- end}}
         </div>
@@ -199,7 +199,7 @@
             </div>
             {{- if .stats }}
             <div class="card-footer">
-                <small>magazine date range: {{$rels.Mag.Year0}}-{{$rels.Mag.YearX}}</small>
+                <small>magazine date range: {{$rels.Mag.YearMin}}-{{$rels.Mag.YearMax}}</small>
             </div>
             {{- end}}
         </div>
@@ -257,7 +257,7 @@
             </div>
             {{- if .stats }}
             <div class="card-footer">
-                <small>texts date range: {{$rels.Text.Year0}}-{{$rels.Text.YearX}}</small>
+                <small>texts date range: {{$rels.Text.YearMin}}-{{$rels.Text.YearMax}}</small>
             </div>
             {{- end}}
         </div>

@@ -14,10 +14,10 @@ import (
 
 // Ansi is a the model for the ANSI formatted text and art files.
 type Ansi struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
-	Year0 int `boil:"min_year"`
-	YearX int `boil:"max_year"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	YearMin int `boil:"min_year"`
+	YearMax int `boil:"max_year"`
 }
 
 func (a *Ansi) Stat(ctx context.Context, db *sql.DB) error {

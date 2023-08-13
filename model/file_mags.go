@@ -14,10 +14,10 @@ import (
 
 // Mag is a the model for the magazine files.
 type Mag struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
-	Year0 int `boil:"min_year"`
-	YearX int `boil:"max_year"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	YearMin int `boil:"min_year"`
+	YearMax int `boil:"max_year"`
 }
 
 func (m *Mag) Stat(ctx context.Context, db *sql.DB) error {

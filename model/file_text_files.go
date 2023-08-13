@@ -40,10 +40,10 @@ func (h *HTML) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 
 // Text is a the model for the text files.
 type Text struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
-	Year0 int `boil:"min_year"`
-	YearX int `boil:"max_year"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	YearMin int `boil:"min_year"`
+	YearMax int `boil:"max_year"`
 }
 
 func (t *Text) Stat(ctx context.Context, db *sql.DB) error {
