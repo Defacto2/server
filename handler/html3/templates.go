@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/server/model"
+	"github.com/Defacto2/server/pkg/fmts"
 	"github.com/Defacto2/server/pkg/tags"
 	"go.uber.org/zap"
 )
@@ -26,10 +27,13 @@ func TemplateFuncMap(z *zap.SugaredLogger) template.FuncMap {
 		"linkHref": func(id int64) string {
 			return FileHref(z, id)
 		},
-		"linkPad":    FileLinkPad,
-		"linkFile":   Filename,
-		"leading":    Leading,
-		"fmtByte":    LeadFS,
+		"linkPad":  FileLinkPad,
+		"linkFile": Filename,
+		"leading":  Leading,
+		"fmtByte":  LeadFS,
+		"fmtURI": func(uri string) string {
+			return fmts.Name(uri)
+		},
 		"byteInt":    LeadFSInt,
 		"leadInt":    LeadInt,
 		"leadStr":    LeadStr,

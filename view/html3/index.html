@@ -4,7 +4,7 @@
 {{- $cats := index . "cat" }}
 {{- $filesize := 565245456 }}
 {{- $rels := index . "relstats" }}
-{{- $grpc := $rels.Files.Count }} 
+{{- $grpc := 0 }} 
 {{/*  $rels.Releaser.Count  */}}
 {{- $allc := $rels.All.Count }}
 {{- $alls := $rels.All.Bytes }}

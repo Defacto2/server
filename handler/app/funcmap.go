@@ -60,11 +60,13 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 		"safeHTML":       SafeHTML,
 		"sizeOfDL":       SizeOfDL,
 		"subTitle":       SubTitle,
-		"fmtURI":         FmtURI,
 		"fmtInitalism":   initialism.Join,
 		"trimSiteSuffix": TrimSiteSuffix,
 		"databaseDown": func() bool {
 			return c.DatbaseErr
+		},
+		"fmtURI": func(uri string) string {
+			return fmts.Name(uri)
 		},
 		"logo": func() string {
 			return string(*c.Brand)
@@ -88,10 +90,6 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 			return c.Subresource.LayoutCSS
 		},
 	}
-}
-
-func FmtURI(uri string) string {
-	return fmts.Name(uri)
 }
 
 // Describe returns a human readable description of a release.

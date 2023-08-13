@@ -85,8 +85,8 @@ var Stats struct { //nolint:gochecknoglobals
 	Software model.Softs
 }
 
-// Groups are the distinct groups from the file table.
-var Groups model.Releasers //nolint:gochecknoglobals
+// Releasers are the distinct groups from the file table.
+var Releasers model.Releasers //nolint:gochecknoglobals
 
 // Routes for the /html3 sub-route group.
 // Any errors are logged and rendered to the client using HTTP codes
@@ -213,7 +213,7 @@ func (s *sugared) Groups(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, errConn)
 	}
 	defer db.Close()
-	if err := Groups.All(ctx, db, 0, 0, false); err != nil {
+	if err := Releasers.All(ctx, db, 0, 0, false); err != nil {
 		s.zlog.Errorf("%s: %s %d", errConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
@@ -222,9 +222,9 @@ func (s *sugared) Groups(c echo.Context) error {
 		"description": "Listed is an exhaustive, distinct collection of scene groups and site brands." +
 			" Do note that Defacto2 is a file-serving site, so the list doesn't distinguish between" +
 			" different groups with the same name or brand.",
-		"latency": fmt.Sprintf("%s.", time.Since(*start)),
-		"path":    "group",
-		"sceners": Groups, // model.Grps.List
+		"latency":   fmt.Sprintf("%s.", time.Since(*start)),
+		"path":      "group",
+		"releasers": Releasers, // model.Grps.List
 	})
 	if err != nil {
 		s.zlog.Errorf("%s: %s %d", errTmpl, err)

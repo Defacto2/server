@@ -62,6 +62,8 @@ func (r *Summary) Magazine(ctx context.Context, db *sql.DB) error {
 	return nil
 }
 
+// Releaser returns the summary statistics for the named releaser.
+// The name is case insensitive and should be the URI slug of the releaser.
 func (s *Summary) Releaser(ctx context.Context, db *sql.DB, name string) error {
 	if db == nil {
 		return ErrDB
