@@ -10,7 +10,7 @@
   {{- range .records }}
   <div class="col">
     <div class="card{{$cardClass}} placeholder-glow">
-      <img src="..." class="card-img-top placeholder" style="min-height:10em;" alt="...">
+      {{thumb .UUID.String .Filename.String}}
       <div class="card-body">
         <h5 class="card-title text-truncate">{{linkRelrs .GroupBrandFor .GroupBrandBy }}</h5>
         {{subTitle .RecordTitle}}

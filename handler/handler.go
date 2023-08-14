@@ -53,6 +53,7 @@ type Configuration struct {
 func (c Configuration) Registry() *TemplateRegistry {
 	webapp := app.Configuration{
 		DatbaseErr: c.DatbaseErr,
+		Import:     c.Import,
 		ZLog:       c.ZLog,
 		Brand:      c.Brand,
 		Public:     c.Public,
@@ -130,7 +131,7 @@ func (c Configuration) Controller() *echo.Echo {
 	e = c.EmbedDirs(e)
 
 	// Routes for the application.
-	e, err := Routes(c.ZLog, e, c.Public)
+	e, err := c.Routes(c.ZLog, e, c.Public)
 	if err != nil {
 		c.ZLog.Fatal(err)
 	}

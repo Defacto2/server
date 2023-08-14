@@ -199,6 +199,18 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 			if c.DownloadDir != "" {
 				fmt.Fprintf(w, "\t\t\t%s\n", c.DownloadDir)
 			}
+		case "ScreenshotsDir":
+			nl()
+			path()
+			if c.ScreenshotsDir != "" {
+				fmt.Fprintf(w, "\t\t\t%s\n", c.ScreenshotsDir)
+			}
+		case "ThumbnailDir":
+			nl()
+			path()
+			if c.ThumbnailDir != "" {
+				fmt.Fprintf(w, "\t\t\t%s\n", c.ThumbnailDir)
+			}
 		case "LogDir":
 			nl()
 			path()
@@ -270,4 +282,8 @@ func types(t reflect.Type) string {
 	default:
 		return t.String()
 	}
+}
+
+func StaticThumb() string {
+	return "/public/image/thumb"
 }

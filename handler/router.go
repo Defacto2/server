@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/Defacto2/server/handler/app"
+	"github.com/Defacto2/server/pkg/config"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -32,7 +33,7 @@ func Redirects() map[string]string {
 }
 
 // Routes defines the routes for the web server.
-func Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.FS) (*echo.Echo, error) {
+func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.FS) (*echo.Echo, error) {
 	if e == nil {
 		return nil, ErrRoutes
 	}
@@ -68,6 +69,9 @@ func Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.FS) (*echo.Echo, er
 	e.FileFS("/osd.xml", "public/text/osd.xml", public)
 	e.FileFS("/robots.txt", "public/text/robots.txt", public)
 	e.FileFS("/site.webmanifest", "public/text/site.webmanifest.json", public)
+
+	// Serve asset thumbnail images
+	e.Static(config.StaticThumb(), c.Import.ThumbnailDir) // TODO: rename to /image/thumb/
 
 	e.GET("/", func(c echo.Context) error {
 		return app.Index(z, c)

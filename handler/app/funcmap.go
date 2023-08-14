@@ -11,10 +11,12 @@ import (
 	"fmt"
 	"html/template"
 	"net/url"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"time"
 
+	"github.com/Defacto2/server/pkg/config"
 	"github.com/Defacto2/server/pkg/fmts"
 	"github.com/Defacto2/server/pkg/helpers"
 	"github.com/Defacto2/server/pkg/initialism"
@@ -42,6 +44,7 @@ const (
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func (c Configuration) TemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
+		"thumb":          c.Thumb,
 		"describe":       Describe,
 		"fmtByte":        FmtByte,
 		"fmtByteCnt":     FmtByteCnt,
@@ -90,6 +93,44 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 			return c.Subresource.LayoutCSS
 		},
 	}
+}
+
+func (c Configuration) Thumb(uuid, desc string) template.HTML {
+	fw := filepath.Join(c.Import.ThumbnailDir, fmt.Sprintf("%s.webp", uuid))
+	fp := filepath.Join(c.Import.ThumbnailDir, fmt.Sprintf("%s.png", uuid))
+	webp := strings.Join([]string{config.StaticThumb(), fmt.Sprintf("%s.webp", uuid)}, "/")
+	png := strings.Join([]string{config.StaticThumb(), fmt.Sprintf("%s.png", uuid)}, "/")
+	alt := strings.ToLower(desc) + " thumbnail"
+	w, p := false, false
+	if helpers.IsStat(fw) {
+		w = true
+	}
+	if helpers.IsStat(fp) {
+		p = true
+	}
+	const style = "min-height:10em;max-height:20em;" // min-height:10em;
+	if !w && !p {
+		return template.HTML("<img src=\"\" alt=\"thumbnail placeholder\" class=\"card-img-top placeholder\" style=\"" + style + "\" />")
+	}
+	if w && p {
+		elm := "<picture class=\"card-img-top\">" +
+			fmt.Sprintf("<source srcset=\"%s\" type=\"image/webp\" />", webp) +
+			string(img(png, alt, style)) +
+			"</picture>"
+		return template.HTML(elm)
+	}
+	elm := ""
+	if w {
+		return img(webp, alt, style)
+	}
+	if p {
+		return img(png, alt, style)
+	}
+	return template.HTML(elm)
+}
+
+func img(src, alt, style string) template.HTML {
+	return template.HTML(fmt.Sprintf("<img src=\"%s\" alt=\"%s\" class=\"card-img-top\" style=\"%s\" />", src, alt, style))
 }
 
 // Describe returns a human readable description of a release.

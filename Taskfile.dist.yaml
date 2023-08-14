@@ -85,6 +85,7 @@ tasks:
       DEFACTO2_PORT: "{{.SERVEPORT}}"
       DEFACTO2_REQUESTS: "{{.LOGREQUESTS}}"
       DEFACTO2_NOROBOTS: "{{.NOROBOTS}}"
+      DEFACTO2_THUMBNAILS: "F:\\Defacto2\\images400"
     cmds:
       - air -c .air.windows.toml 
   serve-windows-prod:
@@ -95,5 +96,6 @@ tasks:
       DEFACTO2_PORT: "{{.SERVEPORT}}"
       DEFACTO2_REQUESTS: "{{.LOGREQUESTS}}"
       DEFACTO2_NOROBOTS: "{{.NOROBOTS}}"
+      DEFACTO2_THUMBNAILS: "F:\\Defacto2\\images400"
     cmds:
       - air -c .air.windows.toml 
