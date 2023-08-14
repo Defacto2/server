@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/sceners/pkg/rename"
-	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/helper"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/null/v8"
@@ -127,6 +127,6 @@ func (r *Releasers) FTP(ctx context.Context, db *sql.DB, offset, limit int, o Or
 // Slugs saves URL friendly strings to the Group names.
 func (r *Releasers) Slugs() {
 	for _, releaser := range *r {
-		releaser.Unique.URI = helpers.Slug(releaser.Unique.Name)
+		releaser.Unique.URI = helper.Slug(releaser.Unique.Name)
 	}
 }

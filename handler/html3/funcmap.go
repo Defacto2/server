@@ -9,7 +9,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/helper"
 	"github.com/Defacto2/server/pkg/tags"
 	"github.com/volatiletech/null/v8"
 	"go.uber.org/zap"
@@ -45,7 +45,7 @@ func (f File) Description() string {
 		}
 		return fmt.Sprintf("%s.", desc)
 	}
-	if t := helpers.TrimPunct(f.Title); t == "" {
+	if t := helper.TrimPunct(f.Title); t == "" {
 		desc = "A release from "
 	} else {
 		desc = fmt.Sprintf("%s from ", t)
@@ -70,7 +70,7 @@ func Description(section, platform, brand, title null.String) string {
 // FileHref creates a URL to link to the file download of the ID.
 func FileHref(z *zap.SugaredLogger, id int64) string {
 	href, err := url.JoinPath("/", "html3", "d",
-		helpers.Obfuscate(id))
+		helper.Obfuscate(id))
 	if err != nil {
 		z.Error("FileHref ID %d could not be made into a valid URL: %s", err)
 		return ""
@@ -88,7 +88,7 @@ func FileLinkPad(width int, name null.String) string {
 
 // FileLinkPad adds whitespace padding after the hyperlinked filename.
 func (f File) FileLinkPad(width int) string {
-	s := helpers.TruncFilename(width, f.Filename)
+	s := helper.TruncFilename(width, f.Filename)
 	if utf8.RuneCountInString(s) < width {
 		return LeadStr(width, s)
 	}
@@ -97,7 +97,7 @@ func (f File) FileLinkPad(width int) string {
 
 // Filename returns a truncated filename with to the w maximum width.
 func Filename(width int, name null.String) string {
-	return helpers.TruncFilename(width, name.String)
+	return helper.TruncFilename(width, name.String)
 }
 
 // Leading repeats the number of space characters.
@@ -123,7 +123,7 @@ func LeadFSInt(width, size int) string {
 
 // LeadFS formats the file size to the fixed-width length w value.
 func (f File) LeadFS(width int) string {
-	s := helpers.ByteCount(f.Size)
+	s := helper.ByteCount(f.Size)
 	l := utf8.RuneCountInString(s)
 	return Leading(width-l) + s
 }
@@ -160,7 +160,7 @@ func (f File) IsOS() bool {
 	s := tags.OSTags()
 	apps := s[:]
 	plat := strings.TrimSpace(strings.ToLower(f.Platform))
-	return helpers.Finds(plat, apps...)
+	return helper.Finds(plat, apps...)
 }
 
 // OS returns the platform operating system description

@@ -2,7 +2,7 @@ package app
 
 // Package file funcmap.go contains the custom template functions for the web framework.
 
-// TODO: move generic functions to pkg\helpers\helpers.go
+// TODO: move generic functions to pkg\helper\helper.go
 
 import (
 	"crypto/sha512"
@@ -18,7 +18,7 @@ import (
 
 	"github.com/Defacto2/server/pkg/config"
 	"github.com/Defacto2/server/pkg/fmts"
-	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/helper"
 	"github.com/Defacto2/server/pkg/initialism"
 	"github.com/Defacto2/server/pkg/tags"
 	"github.com/bengarrett/cfw"
@@ -102,10 +102,10 @@ func (c Configuration) Thumb(uuid, desc string) template.HTML {
 	png := strings.Join([]string{config.StaticThumb(), fmt.Sprintf("%s.png", uuid)}, "/")
 	alt := strings.ToLower(desc) + " thumbnail"
 	w, p := false, false
-	if helpers.IsStat(fw) {
+	if helper.IsStat(fw) {
 		w = true
 	}
-	if helpers.IsStat(fp) {
+	if helper.IsStat(fp) {
 		p = true
 	}
 	const style = "min-height:10em;max-height:20em;" // min-height:10em;
@@ -172,10 +172,10 @@ func Describe(plat, sect, year, month any) template.HTML {
 	switch val := month.(type) {
 	case int, int8, int16, int32, int64:
 		i := reflect.ValueOf(val).Int()
-		m = helpers.ShortMonth(int(i))
+		m = helper.ShortMonth(int(i))
 	case null.Int16:
 		if val.Valid {
-			m = helpers.ShortMonth(int(val.Int16))
+			m = helper.ShortMonth(int(val.Int16))
 		}
 	default:
 		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", month))
@@ -185,7 +185,7 @@ func Describe(plat, sect, year, month any) template.HTML {
 		return template.HTML("An unknown release")
 	}
 	x := tags.Humanize(tags.TagByURI(p), tags.TagByURI(s))
-	x = helpers.Capitalize(x)
+	x = helper.Capitalize(x)
 	//x := HumanizeDescription(p, s)
 	if m != "" && y != "" {
 		x = fmt.Sprintf("%s published in <span class=\"text-nowrap\">%s, %s</a>", x, m, y)
@@ -200,7 +200,7 @@ func FmtByte(b any) string {
 	switch val := b.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
-		return helpers.ByteCount(i)
+		return helper.ByteCount(i)
 	default:
 		return fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(b).String())
 	}
@@ -221,7 +221,7 @@ func FmtByteCnt(c, b any) template.HTML {
 	switch val := b.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
-		s = fmt.Sprintf("%s <small>(%s)</small>", s, helpers.ByteCount(i))
+		s = fmt.Sprintf("%s <small>(%s)</small>", s, helper.ByteCount(i))
 	default:
 		s = fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(b).String())
 		return template.HTML(s)
@@ -247,7 +247,7 @@ func FmtByteName(name string, c, b any) template.HTML {
 	switch val := b.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
-		s = fmt.Sprintf("%s %s <small>(%s)</small>", s, name, helpers.ByteCount(i))
+		s = fmt.Sprintf("%s %s <small>(%s)</small>", s, name, helper.ByteCount(i))
 	default:
 		s = fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(b).String())
 		return template.HTML(s)
@@ -399,14 +399,14 @@ func LinkRelrs(a, b any) template.HTML {
 		if err != nil {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
-		prime = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, fmts.Name(helpers.Slug(av)))
+		prime = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, fmts.Name(helper.Slug(av)))
 	}
 	if bv != "" {
 		ref, err := LinkRelr(bv)
 		if err != nil {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
-		second = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, fmts.Name(helpers.Slug(bv)))
+		second = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, fmts.Name(helper.Slug(bv)))
 	}
 	if prime != "" && second != "" {
 		s = fmt.Sprintf("%s<br>+ %s", prime, second)
@@ -420,7 +420,7 @@ func LinkRelrs(a, b any) template.HTML {
 
 // LinkRelr returns a link to the named group page.
 func LinkRelr(name string) (string, error) {
-	href, err := url.JoinPath("/", "g", helpers.Slug(name))
+	href, err := url.JoinPath("/", "g", helper.Slug(name))
 	if err != nil {
 		return "", fmt.Errorf("name %q could not be made into a valid url: %s", name, err)
 	}
@@ -480,7 +480,7 @@ func linkID(id any, elem string) (string, error) {
 	default:
 		return "", fmt.Errorf("%s %s", typeErr, reflect.TypeOf(id).String())
 	}
-	href, err := url.JoinPath("/", elem, helpers.Obfuscate(i))
+	href, err := url.JoinPath("/", elem, helper.Obfuscate(i))
 	if err != nil {
 		return "", fmt.Errorf("id %d could not be made into a valid url: %s", i, err)
 	}
@@ -552,12 +552,12 @@ func SizeOfDL(i any) template.HTML {
 	switch val := i.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
-		s = helpers.ByteCount(i)
+		s = helper.ByteCount(i)
 	case null.Int64:
 		if !val.Valid {
 			return ""
 		}
-		s = helpers.ByteCount(val.Int64)
+		s = helper.ByteCount(val.Int64)
 	default:
 		return template.HTML(fmt.Sprintf("%sSizeOfDL: %s", typeErr, reflect.TypeOf(i).String()))
 	}
@@ -631,5 +631,5 @@ func isOS(platform string) bool {
 	s := tags.OSTags()
 	apps := s[:]
 	plat := strings.TrimSpace(strings.ToLower(platform))
-	return helpers.Finds(plat, apps...)
+	return helper.Finds(plat, apps...)
 }

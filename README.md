@@ -1,8 +1,12 @@
 # Defacto2 server
 
-The Defacto2 web server is a self-contained application built in Go. It can be quickly and easily built for all the common operating systems. The web server relies on a PostgreSQL database server for data queries. This is best provided using a container such as Docker.
+The Defacto2 web server is a self-contained application built in Go. 
+It can be quickly and easily built for all the common operating systems. 
+The web server relies on a PostgreSQL database server for data queries. 
+This is best provided using a container such as Docker.
 
-All configurations and settings for this web server are handled through system environment variables. On a production setup, this too should be hosted within a container such as Docker.
+All configurations and settings for this web server are handled through system environment variables. 
+On a production setup, this too should be hosted within a container such as Docker.
 
 ### TODOs
 

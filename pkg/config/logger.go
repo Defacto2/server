@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/handler/html3"
-	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/helper"
 	"github.com/Defacto2/server/pkg/logger"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -87,11 +87,11 @@ func (cfg *Config) LogStorage() error {
 			return err
 		}
 	}
-	if ok := helpers.IsStat(dir); !ok {
+	if ok := helper.IsStat(dir); !ok {
 		return fmt.Errorf("%w: %s", ErrDirNotExist, dir)
 	}
 	logs := filepath.Join(dir, "defacto2-webapp")
-	if ok := helpers.IsStat(logs); !ok {
+	if ok := helper.IsStat(logs); !ok {
 		const ownerGroupAll = 0o770
 		if err := os.MkdirAll(logs, ownerGroupAll); err != nil {
 			return fmt.Errorf("%w: %s", err, logs)

@@ -1,4 +1,4 @@
-package helpers
+package helper
 
 // Package time.go contains functions that return a time.Time value.
 

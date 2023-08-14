@@ -1,9 +1,9 @@
-package helpers_test
+package helper_test
 
 import (
 	"testing"
 
-	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/helper"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,7 +28,7 @@ func TestPageCount(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, helpers.PageCount(tt.args.sum, tt.args.limit))
+			assert.Equal(t, tt.want, helper.PageCount(tt.args.sum, tt.args.limit))
 		})
 	}
 }
@@ -36,8 +36,8 @@ func TestPageCount(t *testing.T) {
 func TestObfuscates(t *testing.T) {
 	keys := []int{1, 1000, 1236346, -123, 0}
 	for _, key := range keys {
-		s := helpers.Obfuscate(int64(key))
-		assert.Equal(t, key, helpers.Deobfuscate(s))
+		s := helper.Obfuscate(int64(key))
+		assert.Equal(t, key, helper.Deobfuscate(s))
 	}
 }
 
@@ -56,7 +56,7 @@ func TestDeobfuscateURL(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, helpers.DeobfuscateURL(tt.rawURL))
+			assert.Equal(t, tt.want, helper.DeobfuscateURL(tt.rawURL))
 		})
 	}
 }

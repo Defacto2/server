@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/model"
-	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/helper"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/tags"
 	"github.com/labstack/echo/v4"
@@ -120,7 +120,7 @@ func Routes(z *zap.SugaredLogger, e *echo.Echo) *echo.Group {
 
 // Index method is the homepage of the /html3 sub-route.
 func (s *sugared) Index(c echo.Context) error {
-	start := helpers.Latency()
+	start := helper.Latency()
 	const desc = firefox
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
@@ -146,10 +146,10 @@ func (s *sugared) Index(c echo.Context) error {
 		s.zlog.Warnf("%s: %s", errConn, err)
 	}
 	descs := [4]string{
-		helpers.Capitalize(textArt),
-		helpers.Capitalize(textDoc),
-		helpers.Capitalize(textSof),
-		helpers.Capitalize(textAll),
+		helper.Capitalize(textArt),
+		helper.Capitalize(textDoc),
+		helper.Capitalize(textSof),
+		helper.Capitalize(textAll),
 	}
 	if err = c.Render(http.StatusOK, "html3_index", map[string]interface{}{
 		"title":       title,
@@ -168,7 +168,7 @@ func (s *sugared) Index(c echo.Context) error {
 
 // Categories lists the names, descriptions and sums of the category (section) tags.
 func (s *sugared) Categories(c echo.Context) error {
-	start := helpers.Latency()
+	start := helper.Latency()
 	err := c.Render(http.StatusOK, "html3_tag", map[string]interface{}{
 		"title":       title + "/categories",
 		"description": "File categories and classification tags.",
@@ -187,7 +187,7 @@ func (s *sugared) Categories(c echo.Context) error {
 
 // Platforms lists the names, descriptions and sums of the platform tags.
 func (s *sugared) Platforms(c echo.Context) error {
-	start := helpers.Latency()
+	start := helper.Latency()
 	err := c.Render(http.StatusOK, "html3_tag", map[string]interface{}{
 		"title":       title + "/platforms",
 		"description": "File platforms, operating systems and media types.",
@@ -206,7 +206,7 @@ func (s *sugared) Platforms(c echo.Context) error {
 
 // Groups lists the names and sums of all the distinct scene groups.
 func (s *sugared) Groups(c echo.Context) error {
-	start := helpers.Latency()
+	start := helper.Latency()
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {

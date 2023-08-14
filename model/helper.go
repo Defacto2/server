@@ -1,6 +1,6 @@
 package model
 
-// Package helpers.go contains helper functions for the model package.
+// Package file helper.go contains helper functions for the model package.
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/helper"
 	"github.com/Defacto2/server/pkg/postgres/models"
 )
 
@@ -54,17 +54,17 @@ func Published(f *models.File) string {
 	)
 	ys, ms, ds := yx, mx, dx
 	if f.DateIssuedYear.Valid {
-		if i := int(f.DateIssuedYear.Int16); helpers.IsYear(i) {
+		if i := int(f.DateIssuedYear.Int16); helper.IsYear(i) {
 			ys = strconv.Itoa(i)
 		}
 	}
 	if f.DateIssuedMonth.Valid {
-		if s := helpers.ShortMonth(int(f.DateIssuedMonth.Int16)); s != "" {
+		if s := helper.ShortMonth(int(f.DateIssuedMonth.Int16)); s != "" {
 			ms = s
 		}
 	}
 	if f.DateIssuedDay.Valid {
-		if i := int(f.DateIssuedDay.Int16); helpers.IsDay(i) {
+		if i := int(f.DateIssuedDay.Int16); helper.IsDay(i) {
 			ds = fmt.Sprintf("%02d", i)
 		}
 	}
@@ -89,9 +89,9 @@ func Created(f *models.File) string {
 		return ""
 	}
 	d := f.Createdat.Time.Day()
-	m := helpers.ShortMonth(int(f.Createdat.Time.Month()))
+	m := helper.ShortMonth(int(f.Createdat.Time.Month()))
 	y := f.Createdat.Time.Year()
-	if !helpers.IsYear(y) {
+	if !helper.IsYear(y) {
 		return ""
 	}
 	return fmt.Sprintf("%02d-%s-%d", d, m, y)
@@ -127,21 +127,21 @@ func IconName(name string) string {
 	)
 	n := strings.ToLower(filepath.Ext(name))
 	switch {
-	case helpers.IsArchive(n):
+	case helper.IsArchive(n):
 		return zip
-	case helpers.IsApp(n):
+	case helper.IsApp(n):
 		return app
-	case helpers.IsAudio(n):
+	case helper.IsAudio(n):
 		return sfx
-	case helpers.IsDocument(n):
+	case helper.IsDocument(n):
 		return doc
-	case helpers.IsHTML(n):
+	case helper.IsHTML(n):
 		return htm
-	case helpers.IsImage(n):
+	case helper.IsImage(n):
 		return pic
-	case helpers.IsTune(n):
+	case helper.IsTune(n):
 		return sfx
-	case helpers.IsVideo(n):
+	case helper.IsVideo(n):
 		return vid
 	}
 	return ""

@@ -1,4 +1,4 @@
-package helpers
+package helper
 
 // Package file param.go contains functions specific for the unique, Defacto2 ID URLs.
 

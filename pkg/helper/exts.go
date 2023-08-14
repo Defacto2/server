@@ -1,4 +1,4 @@
-package helpers
+package helper
 
 // Package exts.go contains common file extensions used by the file records.
 

@@ -1,9 +1,9 @@
-package helpers_test
+package helper_test
 
 import (
 	"testing"
 
-	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/helper"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,7 +21,7 @@ func TestSlug(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.expect, func(t *testing.T) {
-			tt.assertion(t, tt.expect, helpers.Slug(tt.name))
+			tt.assertion(t, tt.expect, helper.Slug(tt.name))
 		})
 	}
 }
@@ -46,7 +46,7 @@ func TestTruncFilename(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := helpers.TruncFilename(tt.args.w, tt.args.name); got != tt.want {
+			if got := helper.TruncFilename(tt.args.w, tt.args.name); got != tt.want {
 				t.Errorf("TruncFilename() = %v, want %v", got, tt.want)
 			}
 		})
@@ -66,7 +66,7 @@ func TestLastChr(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.s, func(t *testing.T) {
-			if got := helpers.LastChr(tt.s); got != tt.want {
+			if got := helper.LastChr(tt.s); got != tt.want {
 				t.Errorf("LastChr() = %v, want %v", got, tt.want)
 			}
 		})
@@ -88,7 +88,7 @@ func TestTrimPunct(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.s, func(t *testing.T) {
-			if got := helpers.TrimPunct(tt.s); got != tt.want {
+			if got := helper.TrimPunct(tt.s); got != tt.want {
 				t.Errorf("TrimPunct() = %v, want %v", got, tt.want)
 			}
 		})

@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/server/model"
-	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/helper"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -38,7 +38,7 @@ func (d Download) HTTPSend(z *zap.SugaredLogger, c echo.Context) error {
 	}
 	// https://go.dev/src/net/http/status.go
 	// get id
-	id := helpers.Deobfuscate(c.Param("id"))
+	id := helper.Deobfuscate(c.Param("id"))
 	if id <= invalidID {
 		return echo.NewHTTPError(http.StatusNotFound, notfound)
 	}
@@ -60,7 +60,7 @@ func (d Download) HTTPSend(z *zap.SugaredLogger, c echo.Context) error {
 	name := res.Filename.String
 	uid := strings.TrimSpace(res.UUID.String)
 	file := filepath.Join(d.Path, uid)
-	if !helpers.IsStat(file) {
+	if !helper.IsStat(file) {
 		z.Warnf("The hosted file download %q, for record %d does not exist.\nAbsolute path: %q",
 			res.Filename.String, res.ID, file)
 		return echo.NewHTTPError(http.StatusFailedDependency,

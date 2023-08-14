@@ -105,7 +105,6 @@ func main() {
 		server.DatbaseErr = true
 		zlog.Warnln("Could not obtain the PostgreSQL server version. Is the database online?")
 	} else {
-		server.DatbaseErr = false
 		// TODO: run database migrations and fixes
 	}
 

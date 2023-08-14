@@ -39,7 +39,6 @@ func (c Connection) Open() (*sql.DB, error) {
 
 // ConnectDB connects to the PostgreSQL database.
 func ConnectDB() (*sql.DB, error) {
-	// TODO: replace this with c.Open()
 	dsn := Connection{
 		User:      "root",
 		Password:  "example",

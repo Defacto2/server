@@ -11,7 +11,7 @@ import (
 
 	"github.com/Defacto2/sceners"
 	"github.com/Defacto2/server/model"
-	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/helper"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/Defacto2/server/pkg/tags"
@@ -76,7 +76,7 @@ func (s *sugared) Software(c echo.Context) error {
 
 // List all the records associated with the RecordsBy grouping.
 func (s *sugared) List(c echo.Context, tt RecordsBy) error {
-	start := helpers.Latency()
+	start := helper.Latency()
 	id := c.Param("id")
 
 	count, limit, page := 0, 0, 1
@@ -177,11 +177,11 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error {
 		s.zlog.Warnf("%s %s", errConn, err)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
-	stat := fmt.Sprintf("%d files, %s", count, helpers.ByteCountFloat(byteSum))
+	stat := fmt.Sprintf("%d files, %s", count, helper.ByteCountFloat(byteSum))
 
 	maxPage := uint(0)
 	if limit > 0 {
-		maxPage = helpers.PageCount(count, limit)
+		maxPage = helper.PageCount(count, limit)
 		if page > int(maxPage) {
 			return echo.NewHTTPError(http.StatusNotFound,
 				fmt.Sprintf("Page %d of %d for %s doesn't exist", page, maxPage, tt))

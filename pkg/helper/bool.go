@@ -1,4 +1,4 @@
-package helpers
+package helper
 
 // Package file bool.go contains functions that return a boolean.
 

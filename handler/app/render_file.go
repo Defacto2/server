@@ -9,7 +9,7 @@ import (
 	"net/http"
 
 	"github.com/Defacto2/server/model"
-	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/helper"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -46,7 +46,7 @@ func File(z *zap.SugaredLogger, c echo.Context, stats bool) error {
 		data["lead"] = "This page shows the file categories with selected statistics, " +
 			"such as the number of files in the category or platform." +
 			fmt.Sprintf(" The total number of files in the database is %d.", c.All.Count) +
-			fmt.Sprintf(" The total size of all files in the database is %s.", helpers.ByteCount(int64(c.All.Bytes)))
+			fmt.Sprintf(" The total size of all files in the database is %s.", helper.ByteCount(int64(c.All.Bytes)))
 	}
 	err := c.Render(http.StatusOK, "file", data)
 	if err != nil {

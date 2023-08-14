@@ -7,7 +7,7 @@ import (
 
 	"github.com/Defacto2/sceners"
 	"github.com/Defacto2/server/model"
-	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/helper"
 	"github.com/Defacto2/server/pkg/postgres"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
@@ -27,7 +27,7 @@ func TestAllSlugs(t *testing.T) {
 	}
 	for _, x := range g {
 		og := sceners.CleanURL(x.Unique.Name)
-		y := helpers.Slug(og)
+		y := helper.Slug(og)
 		z := sceners.CleanURL(y)
 		assert.Equal(t, og, z, "slug is "+y)
 	}

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/helper"
 )
 
 // EnvPrefix is the prefix for all server environment variables.
@@ -97,7 +97,7 @@ func (c Config) addresses(b *strings.Builder) *strings.Builder {
 	fmt.Fprintf(b, "%s\n",
 		"this web server could be accessible from the following addresses:")
 	fmt.Fprintf(b, "\n")
-	hosts, err := helpers.GetLocalHosts()
+	hosts, err := helper.GetLocalHosts()
 	if err != nil {
 		log.Fatalf("The server cannot get the local host names: %s.", err)
 	}
@@ -121,7 +121,7 @@ func (c Config) addresses(b *strings.Builder) *strings.Builder {
 			fmt.Fprintf(b, "%shttps://%s:%d\n", pad, host, ports)
 		}
 	}
-	ips, err := helpers.GetLocalIPs()
+	ips, err := helper.GetLocalIPs()
 	if err != nil {
 		log.Fatalf("The server cannot get the local IP addresses: %s.", err)
 	}

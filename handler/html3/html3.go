@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Defacto2/server/pkg/helpers"
+	"github.com/Defacto2/server/pkg/helper"
 	"github.com/labstack/echo/v4"
 )
 
@@ -28,7 +28,7 @@ func Redirects() map[string]string {
 // Error renders a custom HTTP error page for the HTML3 sub-group.
 func Error(c echo.Context, err error) error {
 	// Echo custom error handling: https://echo.labstack.com/guide/error-handling/
-	start := helpers.Latency()
+	start := helper.Latency()
 	code := http.StatusInternalServerError
 	msg := "This is a server problem"
 	if he, ok := err.(*echo.HTTPError); ok {
