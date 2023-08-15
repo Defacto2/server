@@ -68,15 +68,15 @@ func (i *ImagePack) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 		qm.Limit(limit)).All(ctx, db)
 }
 
-// DosPack is a the model for the DOS file packs.
-type DosPack struct {
+// MsDosPack is a the model for the DOS file packs.
+type MsDosPack struct {
 	Bytes   int `boil:"size_sum"`
 	Count   int `boil:"counter"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
 
-func (d *DosPack) Stat(ctx context.Context, db *sql.DB) error {
+func (d *MsDosPack) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -86,7 +86,7 @@ func (d *DosPack) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, d)
 }
 
-func (d *DosPack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+func (d *MsDosPack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}

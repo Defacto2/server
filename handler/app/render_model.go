@@ -72,7 +72,7 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 		r := model.Database{}
 		return r.List(ctx, db, page, limit)
 	case demoscene:
-		r := model.Demo{}
+		r := model.Demoscene{}
 		return r.List(ctx, db, page, limit)
 	case drama:
 		r := model.Drama{}
@@ -114,7 +114,7 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 		r := model.Mac{}
 		return r.List(ctx, db, page, limit)
 	case msdosPack:
-		r := model.DosPack{}
+		r := model.MsDosPack{}
 		return r.List(ctx, db, page, limit)
 	case music:
 		r := model.Music{}
@@ -135,13 +135,13 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 		r := model.Script{}
 		return r.List(ctx, db, page, limit)
 	case introMsdos:
-		r := model.IntroDOS{}
+		r := model.IntroMsDos{}
 		return r.List(ctx, db, page, limit)
 	case introWindows:
 		r := model.IntroWindows{}
 		return r.List(ctx, db, page, limit)
 	case magazine:
-		r := model.Mag{}
+		r := model.Magazine{}
 		return r.List(ctx, db, page, limit)
 	case msdos:
 		r := model.DOS{}
@@ -165,7 +165,7 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 		r := model.TextAmiga{}
 		return r.List(ctx, db, page, limit)
 	case textApple2:
-		r := model.TextAppleII{}
+		r := model.TextApple2{}
 		return r.List(ctx, db, page, limit)
 	case textAtariST:
 		r := model.TextAtariST{}
@@ -314,15 +314,15 @@ type Stats struct { //nolint:gochecknoglobals
 	BBS       model.BBS
 	BBSText   model.BBSText
 	BBStro    model.BBStro
-	Demo      model.Demo
+	Demoscene model.Demoscene
 	DOS       model.DOS
 	Intro     model.Intro
-	IntroD    model.IntroDOS
+	IntroD    model.IntroMsDos
 	IntroW    model.IntroWindows
 	Installer model.Installer
 	Java      model.Java
 	Linux     model.Linux
-	Mag       model.Mag
+	Magazine  model.Magazine
 	Mac       model.Mac
 	Nfo       model.Nfo
 	NfoTool   model.NfoTool
@@ -376,13 +376,13 @@ func (s *Stats) Get(ctx context.Context, db *sql.DB) error {
 	if err := s.Linux.Stat(ctx, db); err != nil {
 		return err
 	}
-	if err := s.Demo.Stat(ctx, db); err != nil {
+	if err := s.Demoscene.Stat(ctx, db); err != nil {
 		return err
 	}
 	if err := s.Mac.Stat(ctx, db); err != nil {
 		return err
 	}
-	if err := s.Mag.Stat(ctx, db); err != nil {
+	if err := s.Magazine.Stat(ctx, db); err != nil {
 		return err
 	}
 	if err := s.Nfo.Stat(ctx, db); err != nil {

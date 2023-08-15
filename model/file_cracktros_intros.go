@@ -13,15 +13,15 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// Demo is a the model for the demoscene releases.
-type Demo struct {
+// Demoscene is a the model for the demoscene releases.
+type Demoscene struct {
 	Bytes   int `boil:"size_sum"`
 	Count   int `boil:"counter"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
 
-func (d *Demo) Stat(ctx context.Context, db *sql.DB) error {
+func (d *Demoscene) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -31,7 +31,7 @@ func (d *Demo) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, d)
 }
 
-func (d *Demo) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+func (d *Demoscene) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
@@ -69,15 +69,15 @@ func (i *Intro) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 		qm.Limit(limit)).All(ctx, db)
 }
 
-// IntroDOS contain statistics for releases that could be considered DOS intros or cracktros.
-type IntroDOS struct {
+// IntroMsDos contain statistics for releases that could be considered DOS intros or cracktros.
+type IntroMsDos struct {
 	Bytes   int `boil:"size_sum"`
 	Count   int `boil:"counter"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
 
-func (i *IntroDOS) Stat(ctx context.Context, db *sql.DB) error {
+func (i *IntroMsDos) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -87,7 +87,7 @@ func (i *IntroDOS) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, i)
 }
 
-func (i *IntroDOS) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+func (i *IntroMsDos) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}

@@ -90,7 +90,7 @@ func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error {
 		}
 		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
 	case "intro-msdos":
-		m := IntroDOS{}
+		m := IntroMsDos{}
 		if err := m.Stat(ctx, db); err != nil {
 			return err
 		}
@@ -108,7 +108,7 @@ func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error {
 		}
 		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
 	case "demoscene":
-		m := Demo{}
+		m := Demoscene{}
 		if err := m.Stat(ctx, db); err != nil {
 			return err
 		}
@@ -192,7 +192,7 @@ func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error {
 		}
 		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
 	case "magazine":
-		m := Mag{}
+		m := Magazine{}
 		if err := m.Stat(ctx, db); err != nil {
 			return err
 		}
@@ -222,7 +222,7 @@ func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error {
 		}
 		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
 	case "msdos-pack":
-		m := DosPack{}
+		m := MsDosPack{}
 		if err := m.Stat(ctx, db); err != nil {
 			return err
 		}
@@ -240,7 +240,7 @@ func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error {
 		}
 		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
 	case "text-apple2":
-		m := TextAppleII{}
+		m := TextApple2{}
 		if err := m.Stat(ctx, db); err != nil {
 			return err
 		}

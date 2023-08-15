@@ -12,15 +12,15 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// Mag is a the model for the magazine files.
-type Mag struct {
+// Magazine is a the model for the magazine files.
+type Magazine struct {
 	Bytes   int `boil:"size_sum"`
 	Count   int `boil:"counter"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
 
-func (m *Mag) Stat(ctx context.Context, db *sql.DB) error {
+func (m *Magazine) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -30,7 +30,7 @@ func (m *Mag) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, m)
 }
 
-func (m *Mag) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+func (m *Magazine) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}

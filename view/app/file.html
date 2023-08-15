@@ -14,8 +14,8 @@
 {{- $intWC := $rels.IntroW.Count}}
 {{- $instB := $rels.Installer.Bytes}}
 {{- $instC := $rels.Installer.Count}}
-{{- $demoB := $rels.Demo.Bytes}}
-{{- $demoC := $rels.Demo.Count}}
+{{- $demoB := $rels.Demoscene.Bytes}}
+{{- $demoC := $rels.Demoscene.Count}}
 {{- $nfoB := $rels.Nfo.Bytes}}
 {{- $nfoC := $rels.Nfo.Count}}
 {{- $nfoTB := $rels.NfoTool.Bytes}}
@@ -199,7 +199,7 @@
             </div>
             {{- if .stats }}
             <div class="card-footer">
-                <small>magazine date range: {{$rels.Mag.MinYear}}-{{$rels.Mag.MaxYear}}</small>
+                <small>magazine date range: {{$rels.Magazine.MinYear}}-{{$rels.Magazine.MaxYear}}</small>
             </div>
             {{- end}}
         </div>

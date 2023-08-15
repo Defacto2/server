@@ -96,15 +96,15 @@ func (t *TextAmiga) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 		qm.Limit(limit)).All(ctx, db)
 }
 
-// TextAppleII is a the model for the text files for the Apple II operating system.
-type TextAppleII struct {
+// TextApple2 is a the model for the text files for the Apple II operating system.
+type TextApple2 struct {
 	Bytes   int `boil:"size_sum"`
 	Count   int `boil:"counter"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
 
-func (t *TextAppleII) Stat(ctx context.Context, db *sql.DB) error {
+func (t *TextApple2) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -114,7 +114,7 @@ func (t *TextAppleII) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, t)
 }
 
-func (t *TextAppleII) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+func (t *TextApple2) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
