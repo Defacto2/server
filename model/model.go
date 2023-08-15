@@ -16,6 +16,7 @@ var (
 	ErrDB   = fmt.Errorf("database value is nil")
 	ErrKey  = fmt.Errorf("key value is zero")
 	ErrName = fmt.Errorf("name value is empty")
+	ErrURI  = fmt.Errorf("uri value is invalid")
 )
 
 // From is the name of the table containing records of files.

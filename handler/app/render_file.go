@@ -4,11 +4,9 @@ package app
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"net/http"
 
-	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/helper"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/labstack/echo/v4"
@@ -68,25 +66,4 @@ func counter() (Stats, error) {
 		return Stats{}, fmt.Errorf("%w: %s", ErrConn, err)
 	}
 	return counter, nil
-}
-
-func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, error) {
-	if db == nil {
-		return nil, fmt.Errorf("%w: %s", ErrConn, "nil database connection")
-	}
-	// fetch the statistics of the category
-	m := model.Summary{}
-	if err := m.All(ctx, db); err != nil {
-		return nil, err
-	}
-	// add the statistics to the data
-	d := map[string]string{
-		"files": string(FmtByteName("file", m.SumCount, m.SumBytes)),
-		"years": fmt.Sprintf("%d - %d", m.MinYear, m.MaxYear),
-	}
-	switch uri {
-	case "new-updates", "newest":
-		d["years"] = fmt.Sprintf("%d - %d", m.MaxYear, m.MinYear)
-	}
-	return d, nil
 }

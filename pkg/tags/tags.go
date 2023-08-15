@@ -13,8 +13,8 @@ import (
 	"go.uber.org/zap"
 )
 
-// The msdos, app funcmap handler must match the format and syntax of MS-DOS that's used here.
-const msdos = "MS Dos"
+// The dos, app funcmap handler must match the format and syntax of MS-DOS that's used here.
+const msDos = "MS Dos"
 
 // TagData holds the tag information.
 type TagData struct {
@@ -261,19 +261,19 @@ func Humanize(platform, section Tag) string {
 	case DOS:
 		switch section {
 		case BBS:
-			return "a BBStro on " + msdos
+			return "a BBStro on " + msDos
 		case Demo:
-			return "a demo on " + msdos
+			return "a demo on " + msDos
 		case ForSale:
-			return "an advertisement on " + msdos
+			return "an advertisement on " + msDos
 		case GameHack:
-			return "a trainer or hack on " + msdos
+			return "a trainer or hack on " + msDos
 		case Install:
-			return "a " + msdos + " installer"
+			return "a " + msDos + " installer"
 		case Intro:
-			return "a intro for " + msdos
+			return "a intro for " + msDos
 		case Pack:
-			return "a filepack of " + msdos + " programs"
+			return "a filepack of " + msDos + " programs"
 		}
 	}
 	return fmt.Sprintf("A %s %s", Names()[platform], Names()[section])
@@ -393,19 +393,19 @@ func Humanizes(platform, section Tag) string {
 		case BBS:
 			return "BBS intro adverts"
 		case Demo:
-			return "demos on " + msdos
+			return "demos on " + msDos
 		case ForSale:
-			return "advertisements on " + msdos
+			return "advertisements on " + msDos
 		case GameHack:
-			return "trainers or hacks on " + msdos
+			return "trainers or hacks on " + msDos
 		case Install:
-			return msdos + " installers"
+			return msDos + " installers"
 		case Intro:
-			return "intros for " + msdos
+			return "intros for " + msDos
 		case Pack:
-			return "filepacks of " + msdos + " programs"
+			return "filepacks of " + msDos + " programs"
 		default:
-			return fmt.Sprintf("%s for %s", Names()[section], msdos)
+			return fmt.Sprintf("%s for %s", Names()[section], msDos)
 		}
 	}
 	if platform < 0 {

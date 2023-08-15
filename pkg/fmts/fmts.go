@@ -27,6 +27,7 @@ var names = Names{
 	"orion":                            "ORiON",
 	"mmi":                              "MMi",
 	"mp2k":                             "MP2K",
+	"nc_17":                            "NC-17",
 	"risciso":                          "RISCiSO",
 	"seek-n-destroy":                   "Seek 'n Destroy",
 	"sma-posse":                        "SMA Posse",

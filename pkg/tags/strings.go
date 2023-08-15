@@ -6,7 +6,7 @@ import (
 )
 
 // URI is a unique URL slug for the tag.
-type URI map[Tag]string
+type URIz map[Tag]string
 
 // Name is the tags displayed title.
 type Name map[Tag]string
@@ -18,8 +18,8 @@ func (t Tag) String() string {
 	return URIs()[t]
 }
 
-func URIs() URI {
-	return URI{
+func URIs() URIz {
+	return URIz{
 		Announcement: "announcements",
 		ANSIEditor:   "ansieditor",
 		AppleII:      "appleii",
@@ -77,8 +77,8 @@ func TagByURI(slug string) Tag {
 
 // Names or titles of the URI tags.
 // For consistency, the names and descriptions should be in US English and singular.
-func Names() URI {
-	return URI{
+func Names() URIz {
+	return URIz{
 		Announcement: "announcement",
 		ANSIEditor:   "ansi editor",
 		AppleII:      "Apple II",

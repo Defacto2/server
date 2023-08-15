@@ -14,8 +14,10 @@ import (
 
 // HTML is a the model for the HTML and markdown files.
 type HTML struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (h *HTML) Stat(ctx context.Context, db *sql.DB) error {
@@ -23,7 +25,7 @@ func (h *HTML) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.HTMLExpr(),
 		qm.From(From)).Bind(ctx, db, h)
 }
@@ -42,8 +44,8 @@ func (h *HTML) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 type Text struct {
 	Bytes   int `boil:"size_sum"`
 	Count   int `boil:"counter"`
-	YearMin int `boil:"min_year"`
-	YearMax int `boil:"max_year"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (t *Text) Stat(ctx context.Context, db *sql.DB) error {
@@ -68,8 +70,10 @@ func (t *Text) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 
 // TextAmiga is a the model for the text files for the Amiga operating system.
 type TextAmiga struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (t *TextAmiga) Stat(ctx context.Context, db *sql.DB) error {
@@ -77,7 +81,7 @@ func (t *TextAmiga) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.TextAmigaExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
@@ -94,8 +98,10 @@ func (t *TextAmiga) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 
 // TextAppleII is a the model for the text files for the Apple II operating system.
 type TextAppleII struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (t *TextAppleII) Stat(ctx context.Context, db *sql.DB) error {
@@ -103,7 +109,7 @@ func (t *TextAppleII) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.AppleIIExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
@@ -120,8 +126,10 @@ func (t *TextAppleII) List(ctx context.Context, db *sql.DB, offset, limit int) (
 
 // TextAtariST is a the model for the text files for the Atari ST operating system.
 type TextAtariST struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (t *TextAtariST) Stat(ctx context.Context, db *sql.DB) error {
@@ -129,7 +137,7 @@ func (t *TextAtariST) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.AtariSTExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
@@ -146,8 +154,10 @@ func (t *TextAtariST) List(ctx context.Context, db *sql.DB, offset, limit int) (
 
 // PDF is a the model for the documents in PDF format.
 type PDF struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (p *PDF) Stat(ctx context.Context, db *sql.DB) error {
@@ -155,7 +165,7 @@ func (p *PDF) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.PDFExpr(),
 		qm.From(From)).Bind(ctx, db, p)
 }

@@ -16,8 +16,8 @@ import (
 type Nfo struct {
 	Bytes   int `boil:"size_sum"`
 	Count   int `boil:"counter"`
-	YearMin int `boil:"min_year"`
-	YearMax int `boil:"max_year"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (n *Nfo) Stat(ctx context.Context, db *sql.DB) error {
@@ -42,8 +42,10 @@ func (n *Nfo) List(ctx context.Context, db *sql.DB, offset, limit int) (models.F
 
 // NfoTool is a the model for the NFO tools.
 type NfoTool struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (n *NfoTool) Stat(ctx context.Context, db *sql.DB) error {
@@ -51,7 +53,7 @@ func (n *NfoTool) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.NfoToolExpr(),
 		qm.From(From)).Bind(ctx, db, n)
 }
@@ -68,8 +70,10 @@ func (n *NfoTool) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 
 // Proof is a the model for the file proofs.
 type Proof struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (p *Proof) Stat(ctx context.Context, db *sql.DB) error {
@@ -77,7 +81,7 @@ func (p *Proof) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.ProofExpr(),
 		qm.From(From)).Bind(ctx, db, p)
 }

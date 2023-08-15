@@ -14,8 +14,10 @@ import (
 
 // Database is a the model for the database releases.
 type Database struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (d *Database) Stat(ctx context.Context, db *sql.DB) error {
@@ -23,7 +25,7 @@ func (d *Database) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.DatabaseExpr(),
 		qm.From(From)).Bind(ctx, db, d)
 }

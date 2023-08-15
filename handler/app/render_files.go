@@ -5,6 +5,7 @@ package app
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -29,19 +30,19 @@ func Files(z *zap.SugaredLogger, c echo.Context, uri string) error {
 
 	title, logo, h1sub, lead := "Files", "", "", ""
 	switch uri {
-	case "new-uploads":
+	case newUploads.String():
 		logo = "new uploads"
 		h1sub = "the new uploads"
 		lead = "These are the files that have been recently uploaded to Defacto2."
-	case "new-updates":
+	case newUpdates.String():
 		logo = "new updates"
 		h1sub = "the new updates"
 		lead = "These are the file records that have been recently uploaded or modified on Defacto2."
-	case "oldest":
+	case oldest.String():
 		logo = "oldest releases"
 		h1sub = "the oldest releases"
 		lead = "These are the earliest, historical products from The Scene in the collection."
-	case "newest":
+	case newest.String():
 		logo = "newest releases"
 		h1sub = "the newest releases"
 		lead = "These are the most recent products from The Scene in the collection."
@@ -86,6 +87,36 @@ func Files(z *zap.SugaredLogger, c echo.Context, uri string) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
+}
+
+func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, error) {
+	if db == nil {
+		return nil, fmt.Errorf("%w: %s", ErrConn, "nil database connection")
+	}
+	if !IsFiles(uri) {
+		return nil, nil
+	}
+	// fetch the statistics of the uri
+	m := model.Summary{}
+	err := m.URI(ctx, db, uri)
+	if err != nil && !errors.Is(err, model.ErrURI) {
+		return nil, err
+	}
+	if errors.Is(err, model.ErrURI) {
+		if err := m.All(ctx, db); err != nil {
+			return nil, err
+		}
+	}
+	// add the statistics to the data
+	d := map[string]string{
+		"files": string(FmtByteName("file", m.SumCount, m.SumBytes)),
+		"years": fmt.Sprintf("%d - %d", m.MinYear, m.MaxYear),
+	}
+	switch uri {
+	case "new-updates", "newest":
+		d["years"] = fmt.Sprintf("%d - %d", m.MaxYear, m.MinYear)
+	}
+	return d, nil
 }
 
 // Releasers is the handler for the list and preview of files credited to a releaser.

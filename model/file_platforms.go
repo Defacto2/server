@@ -16,8 +16,8 @@ import (
 type DOS struct {
 	Bytes   int `boil:"size_sum"`
 	Count   int `boil:"counter"`
-	YearMin int `boil:"min_year"`
-	YearMax int `boil:"max_year"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (d *DOS) Stat(ctx context.Context, db *sql.DB) error {
@@ -44,8 +44,8 @@ func (d *DOS) List(ctx context.Context, db *sql.DB, offset, limit int) (models.F
 type Java struct {
 	Bytes   int `boil:"size_sum"`
 	Count   int `boil:"counter"`
-	YearMin int `boil:"min_year"`
-	YearMax int `boil:"max_year"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (j *Java) Stat(ctx context.Context, db *sql.DB) error {
@@ -72,8 +72,8 @@ func (j *Java) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 type Linux struct {
 	Bytes   int `boil:"size_sum"`
 	Count   int `boil:"counter"`
-	YearMin int `boil:"min_year"`
-	YearMax int `boil:"max_year"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (l *Linux) Stat(ctx context.Context, db *sql.DB) error {
@@ -100,8 +100,8 @@ func (l *Linux) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 type Mac struct {
 	Bytes   int `boil:"size_sum"`
 	Count   int `boil:"counter"`
-	YearMin int `boil:"min_year"`
-	YearMax int `boil:"max_year"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (m *Mac) Stat(ctx context.Context, db *sql.DB) error {
@@ -128,8 +128,8 @@ func (m *Mac) List(ctx context.Context, db *sql.DB, offset, limit int) (models.F
 type Script struct {
 	Bytes   int `boil:"size_sum"`
 	Count   int `boil:"counter"`
-	YearMin int `boil:"min_year"`
-	YearMax int `boil:"max_year"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (s *Script) Stat(ctx context.Context, db *sql.DB) error {
@@ -156,8 +156,8 @@ func (s *Script) List(ctx context.Context, db *sql.DB, offset, limit int) (model
 type Windows struct {
 	Bytes   int `boil:"size_sum"`
 	Count   int `boil:"counter"`
-	YearMin int `boil:"min_year"`
-	YearMax int `boil:"max_year"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (w *Windows) Stat(ctx context.Context, db *sql.DB) error {

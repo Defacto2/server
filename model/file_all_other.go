@@ -14,91 +14,121 @@ import (
 
 // Advert is a the model for the for sale.
 type Advert struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 // Announcement is a the model for the public and community announcements.
 type Announcement struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 // Drama is the model for community drama.
 type Drama struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 // Hack is a the model for the game hacks.
 type Hack struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 // HowTo is a the model for the guides and how-tos.
 type HowTo struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 // Image is a the model for the images.
 type Image struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 // JobAdvert is a the model for group job advertisements.
 type JobAdvert struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 // Music is a the model for the music.
 type Music struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 // NewsArticle is a the model for mainstream news articles.
 type NewsArticle struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 type Restrict struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 // Standard is a the model for community standards.
 type Standard struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 // Takedown is a the model for the bust and takedowns.
 type Takedown struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 // Tool is a the model for the computer tools.
 type Tool struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 // TrialCrackme is a the model for group job trial crackme releases.
 type TrialCrackme struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 // Video is a the model for the videos.
 type Video struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (a *Advert) Stat(ctx context.Context, db *sql.DB) error {
@@ -106,7 +136,7 @@ func (a *Advert) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.AdvertExpr(),
 		qm.From(From)).Bind(ctx, db, a)
 }
@@ -126,7 +156,7 @@ func (a *Announcement) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.AnnouncementExpr(),
 		qm.From(From)).Bind(ctx, db, a)
 }
@@ -146,7 +176,7 @@ func (d *Drama) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.DramaExpr(),
 		qm.From(From)).Bind(ctx, db, d)
 }
@@ -166,7 +196,7 @@ func (h *Hack) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.HackExpr(),
 		qm.From(From)).Bind(ctx, db, h)
 }
@@ -186,7 +216,7 @@ func (h *HowTo) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.HowToExpr(),
 		qm.From(From)).Bind(ctx, db, h)
 }
@@ -206,7 +236,7 @@ func (i *Image) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.ImageExpr(),
 		qm.From(From)).Bind(ctx, db, i)
 }
@@ -226,7 +256,7 @@ func (j *JobAdvert) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.JobAdvertExpr(),
 		qm.From(From)).Bind(ctx, db, j)
 }
@@ -246,7 +276,7 @@ func (m *Music) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.MusicExpr(),
 		qm.From(From)).Bind(ctx, db, m)
 }
@@ -266,7 +296,7 @@ func (n *NewsArticle) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.NewsArticleExpr(),
 		qm.From(From)).Bind(ctx, db, n)
 }
@@ -286,7 +316,7 @@ func (r *Restrict) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.RestrictExpr(),
 		qm.From(From)).Bind(ctx, db, r)
 }
@@ -306,7 +336,7 @@ func (s *Standard) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.StandardExpr(),
 		qm.From(From)).Bind(ctx, db, s)
 }
@@ -326,7 +356,7 @@ func (t *Takedown) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.TakedownExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
@@ -341,7 +371,7 @@ func (t *Tool) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.ToolExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
@@ -361,7 +391,7 @@ func (t *TrialCrackme) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.TrialCrackmeExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
@@ -381,7 +411,7 @@ func (v *Video) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.VideoExpr(),
 		qm.From(From)).Bind(ctx, db, v)
 }

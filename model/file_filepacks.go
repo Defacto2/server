@@ -14,8 +14,10 @@ import (
 
 // AnsiPack is a the model for the ANSI file packs.
 type AnsiPack struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (a *AnsiPack) Stat(ctx context.Context, db *sql.DB) error {
@@ -23,7 +25,7 @@ func (a *AnsiPack) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.AnsiPackExpr(),
 		qm.From(From)).Bind(ctx, db, a)
 }
@@ -40,8 +42,10 @@ func (a *AnsiPack) List(ctx context.Context, db *sql.DB, offset, limit int) (mod
 
 // ImagePack is a the model for the image file packs.
 type ImagePack struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (i *ImagePack) Stat(ctx context.Context, db *sql.DB) error {
@@ -49,7 +53,7 @@ func (i *ImagePack) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.ImagePackExpr(),
 		qm.From(From)).Bind(ctx, db, i)
 }
@@ -66,8 +70,10 @@ func (i *ImagePack) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 
 // DosPack is a the model for the DOS file packs.
 type DosPack struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (d *DosPack) Stat(ctx context.Context, db *sql.DB) error {
@@ -75,7 +81,7 @@ func (d *DosPack) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.DosPackExpr(),
 		qm.From(From)).Bind(ctx, db, d)
 }
@@ -92,8 +98,10 @@ func (d *DosPack) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 
 // TextPack is a the model for the text file packs.
 type TextPack struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (t *TextPack) Stat(ctx context.Context, db *sql.DB) error {
@@ -101,7 +109,7 @@ func (t *TextPack) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.TextPackExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
@@ -118,8 +126,10 @@ func (t *TextPack) List(ctx context.Context, db *sql.DB, offset, limit int) (mod
 
 // WindowsPack is a the model for the Windows file packs.
 type WindowsPack struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes   int `boil:"size_sum"`
+	Count   int `boil:"counter"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (w *WindowsPack) Stat(ctx context.Context, db *sql.DB) error {
@@ -127,7 +137,7 @@ func (w *WindowsPack) Stat(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(postgres.Columns()...),
 		expr.WindowsPackExpr(),
 		qm.From(From)).Bind(ctx, db, w)
 }

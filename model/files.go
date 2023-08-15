@@ -15,8 +15,8 @@ import (
 type Files struct {
 	Bytes   int `boil:"size_sum"`
 	Count   int `boil:"counter"`
-	YearMin int `boil:"min_year"`
-	YearMax int `boil:"max_year"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
 }
 
 func (f *Files) Stat(ctx context.Context, db *sql.DB) error {
