@@ -1,8 +1,7 @@
 package app
 
 // Package file funcmap.go contains the custom template functions for the web framework.
-
-// TODO: move generic functions to pkg\helper\helper.go
+// The functions are used by the HTML templates to format data.
 
 import (
 	"crypto/sha512"
@@ -44,12 +43,12 @@ const (
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func (c Configuration) TemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
-		"thumb":          c.Thumb,
 		"describe":       Describe,
 		"fmtByte":        FmtByte,
 		"fmtByteCnt":     FmtByteCnt,
 		"fmtByteName":    FmtByteName,
 		"fmtDay":         FmtDay,
+		"fmtInitalism":   initialism.Join,
 		"fmtMonth":       FmtMonth,
 		"fmtPrefix":      FmtPrefix,
 		"lastUpdated":    LastUpdated,
@@ -63,7 +62,7 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 		"safeHTML":       SafeHTML,
 		"sizeOfDL":       SizeOfDL,
 		"subTitle":       SubTitle,
-		"fmtInitalism":   initialism.Join,
+		"thumb":          c.Thumb,
 		"trimSiteSuffix": TrimSiteSuffix,
 		"databaseDown": func() bool {
 			return c.DatbaseErr
@@ -95,6 +94,9 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 	}
 }
 
+// Thumb returns a HTML image tag or picture element for the given uuid.
+// The uuid is the filename of the thumbnail image without an extension.
+// The desc is the description of the image.
 func (c Configuration) Thumb(uuid, desc string) template.HTML {
 	fw := filepath.Join(c.Import.ThumbnailDir, fmt.Sprintf("%s.webp", uuid))
 	fp := filepath.Join(c.Import.ThumbnailDir, fmt.Sprintf("%s.png", uuid))
@@ -108,7 +110,7 @@ func (c Configuration) Thumb(uuid, desc string) template.HTML {
 	if helper.IsStat(fp) {
 		p = true
 	}
-	const style = "min-height:10em;max-height:20em;" // min-height:10em;
+	const style = "min-height:10em;max-height:20em;"
 	if !w && !p {
 		return template.HTML("<img src=\"\" alt=\"thumbnail placeholder\" class=\"card-img-top placeholder\" style=\"" + style + "\" />")
 	}
@@ -597,8 +599,7 @@ func TrimSiteSuffix(s string) string {
 	return s
 }
 
-// =======================
-
+// TODO: remove?
 // HumanizeDescription returns a human readable description of a release.
 // Based on the platform and section.
 func HumanizeDescription(p, s string) string {
