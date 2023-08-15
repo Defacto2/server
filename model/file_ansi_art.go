@@ -36,8 +36,8 @@ func (a *Ansi) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 	}
 	return models.Files(
 		expr.AnsiExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // AnsiBrand is a the model for the brand logos created in ANSI text.
@@ -64,8 +64,8 @@ func (a *AnsiBrand) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 	}
 	return models.Files(
 		expr.AnsiBrandExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // AnsiBBS is a the model for the BBS advertisements created in ANSI text.
@@ -92,8 +92,8 @@ func (a *AnsiBBS) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 	}
 	return models.Files(
 		expr.AnsiBBSExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // AnsiFTP is a the model for the FTP advertisements created in ANSI text.
@@ -120,8 +120,8 @@ func (a *AnsiFTP) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 	}
 	return models.Files(
 		expr.AnsiFTPExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // AnsiNfo is a the model for the NFO files created in ANSI text.
@@ -148,6 +148,6 @@ func (a *AnsiNfo) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 	}
 	return models.Files(
 		expr.AnsiNfoExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }

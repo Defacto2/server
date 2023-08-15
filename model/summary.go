@@ -353,6 +353,42 @@ func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error {
 			return err
 		}
 		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+	case "msdos":
+		m := MsDos{}
+		if err := m.Stat(ctx, db); err != nil {
+			return err
+		}
+		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+	case "windows":
+		m := Windows{}
+		if err := m.Stat(ctx, db); err != nil {
+			return err
+		}
+		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+	case "macos":
+		m := Macos{}
+		if err := m.Stat(ctx, db); err != nil {
+			return err
+		}
+		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+	case "linux":
+		m := Linux{}
+		if err := m.Stat(ctx, db); err != nil {
+			return err
+		}
+		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+	case "java":
+		m := Java{}
+		if err := m.Stat(ctx, db); err != nil {
+			return err
+		}
+		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+	case "script":
+		m := Script{}
+		if err := m.Stat(ctx, db); err != nil {
+			return err
+		}
+		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
 	default:
 		return fmt.Errorf("%w: %q", ErrURI, uri)
 	}

@@ -36,6 +36,6 @@ func (m *Magazine) List(ctx context.Context, db *sql.DB, offset, limit int) (mod
 	}
 	return models.Files(
 		expr.MagExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }

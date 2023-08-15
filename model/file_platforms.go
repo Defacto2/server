@@ -12,15 +12,15 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// DOS is a the model for the MS-DOS operating system.
-type DOS struct {
+// MsDos is a the model for the MS-DOS operating system.
+type MsDos struct {
 	Bytes   int `boil:"size_sum"`
 	Count   int `boil:"counter"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
 
-func (d *DOS) Stat(ctx context.Context, db *sql.DB) error {
+func (d *MsDos) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -30,14 +30,14 @@ func (d *DOS) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, d)
 }
 
-func (d *DOS) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+func (d *MsDos) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.DOSExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // Java is a the model for the Java operating system.
@@ -64,8 +64,8 @@ func (j *Java) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 	}
 	return models.Files(
 		expr.JavaExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // Linux is a the model for the Linux operating system.
@@ -92,19 +92,19 @@ func (l *Linux) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 	}
 	return models.Files(
 		expr.LinuxExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
-// Mac is a the model for the Macintosh operating system.
-type Mac struct {
+// Macos is a the model for the Macintosh operating system.
+type Macos struct {
 	Bytes   int `boil:"size_sum"`
 	Count   int `boil:"counter"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
 
-func (m *Mac) Stat(ctx context.Context, db *sql.DB) error {
+func (m *Macos) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -114,14 +114,14 @@ func (m *Mac) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, m)
 }
 
-func (m *Mac) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+func (m *Macos) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.MacExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // Script is a the model for the script and interpreted languages.
@@ -148,8 +148,8 @@ func (s *Script) List(ctx context.Context, db *sql.DB, offset, limit int) (model
 	}
 	return models.Files(
 		expr.ScriptExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // Windows is a the model for the Windows operating system.
@@ -176,6 +176,6 @@ func (w *Windows) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 	}
 	return models.Files(
 		expr.WindowsExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }

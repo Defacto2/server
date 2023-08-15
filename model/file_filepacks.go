@@ -36,8 +36,8 @@ func (a *AnsiPack) List(ctx context.Context, db *sql.DB, offset, limit int) (mod
 	}
 	return models.Files(
 		expr.AnsiPackExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // ImagePack is a the model for the image file packs.
@@ -64,8 +64,8 @@ func (i *ImagePack) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 	}
 	return models.Files(
 		expr.ImagePackExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // MsDosPack is a the model for the DOS file packs.
@@ -92,8 +92,8 @@ func (d *MsDosPack) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 	}
 	return models.Files(
 		expr.DosPackExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // TextPack is a the model for the text file packs.
@@ -120,8 +120,8 @@ func (t *TextPack) List(ctx context.Context, db *sql.DB, offset, limit int) (mod
 	}
 	return models.Files(
 		expr.TextPackExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // WindowsPack is a the model for the Windows file packs.
@@ -148,6 +148,6 @@ func (w *WindowsPack) List(ctx context.Context, db *sql.DB, offset, limit int) (
 	}
 	return models.Files(
 		expr.WindowsPackExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }

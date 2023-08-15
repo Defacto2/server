@@ -36,8 +36,8 @@ func (b *BBS) List(ctx context.Context, db *sql.DB, offset, limit int) (models.F
 	}
 	return models.Files(
 		expr.BBSExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // BBStro is a the model for the Bulletin Board System intro files.
@@ -64,8 +64,8 @@ func (b *BBStro) List(ctx context.Context, db *sql.DB, offset, limit int) (model
 	}
 	return models.Files(
 		expr.BBStroExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // BBSImage is a the model for the Bulletin Board System image files.
@@ -92,8 +92,8 @@ func (b *BBSImage) List(ctx context.Context, db *sql.DB, offset, limit int) (mod
 	}
 	return models.Files(
 		expr.BBSImageExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // BBSText is a the model for the Bulletin Board System text files.
@@ -120,8 +120,8 @@ func (b *BBSText) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 	}
 	return models.Files(
 		expr.BBSTextExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // FTP is a the model for the FTP files.
@@ -148,6 +148,6 @@ func (f *FTP) List(ctx context.Context, db *sql.DB, offset, limit int) (models.F
 	}
 	return models.Files(
 		expr.FTPExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }

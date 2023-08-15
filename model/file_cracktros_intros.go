@@ -37,8 +37,8 @@ func (d *Demoscene) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 	}
 	return models.Files(
 		expr.DemoExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // Intro contain statistics for releases that could be considered intros or cracktros.
@@ -65,8 +65,8 @@ func (i *Intro) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 	}
 	return models.Files(
 		expr.IntroExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // IntroMsDos contain statistics for releases that could be considered DOS intros or cracktros.
@@ -93,8 +93,8 @@ func (i *IntroMsDos) List(ctx context.Context, db *sql.DB, offset, limit int) (m
 	}
 	return models.Files(
 		expr.IntroDOSExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // IntroWindows contain statistics for releases that could be considered Windows intros or cracktros.
@@ -122,8 +122,8 @@ func (i *IntroWindows) List(ctx context.Context, db *sql.DB, offset, limit int) 
 	}
 	return models.Files(
 		expr.IntroWindowsExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // Installer contain statistics for releases that could be considered installers.
@@ -150,6 +150,6 @@ func (i *Installer) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 	}
 	return models.Files(
 		expr.InstallExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }

@@ -111,7 +111,7 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 		r := model.JobAdvert{}
 		return r.List(ctx, db, page, limit)
 	case macos:
-		r := model.Mac{}
+		r := model.Macos{}
 		return r.List(ctx, db, page, limit)
 	case msdosPack:
 		r := model.MsDosPack{}
@@ -144,7 +144,7 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 		r := model.Magazine{}
 		return r.List(ctx, db, page, limit)
 	case msdos:
-		r := model.DOS{}
+		r := model.MsDos{}
 		return r.List(ctx, db, page, limit)
 	case pdf:
 		r := model.PDF{}
@@ -315,7 +315,7 @@ type Stats struct { //nolint:gochecknoglobals
 	BBSText   model.BBSText
 	BBStro    model.BBStro
 	Demoscene model.Demoscene
-	DOS       model.DOS
+	MsDos     model.MsDos
 	Intro     model.Intro
 	IntroD    model.IntroMsDos
 	IntroW    model.IntroWindows
@@ -323,7 +323,7 @@ type Stats struct { //nolint:gochecknoglobals
 	Java      model.Java
 	Linux     model.Linux
 	Magazine  model.Magazine
-	Mac       model.Mac
+	Macos     model.Macos
 	Nfo       model.Nfo
 	NfoTool   model.NfoTool
 	Proof     model.Proof
@@ -355,7 +355,7 @@ func (s *Stats) Get(ctx context.Context, db *sql.DB) error {
 	if err := s.BBStro.Stat(ctx, db); err != nil {
 		return err
 	}
-	if err := s.DOS.Stat(ctx, db); err != nil {
+	if err := s.MsDos.Stat(ctx, db); err != nil {
 		return err
 	}
 	if err := s.Intro.Stat(ctx, db); err != nil {
@@ -379,7 +379,7 @@ func (s *Stats) Get(ctx context.Context, db *sql.DB) error {
 	if err := s.Demoscene.Stat(ctx, db); err != nil {
 		return err
 	}
-	if err := s.Mac.Stat(ctx, db); err != nil {
+	if err := s.Macos.Stat(ctx, db); err != nil {
 		return err
 	}
 	if err := s.Magazine.Stat(ctx, db); err != nil {

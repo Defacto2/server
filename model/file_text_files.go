@@ -36,8 +36,8 @@ func (h *HTML) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 	}
 	return models.Files(
 		expr.HTMLExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // Text is a the model for the text files.
@@ -64,8 +64,8 @@ func (t *Text) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 	}
 	return models.Files(
 		expr.TextExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // TextAmiga is a the model for the text files for the Amiga operating system.
@@ -92,8 +92,8 @@ func (t *TextAmiga) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 	}
 	return models.Files(
 		expr.TextAmigaExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // TextApple2 is a the model for the text files for the Apple II operating system.
@@ -120,8 +120,8 @@ func (t *TextApple2) List(ctx context.Context, db *sql.DB, offset, limit int) (m
 	}
 	return models.Files(
 		expr.AppleIIExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // TextAtariST is a the model for the text files for the Atari ST operating system.
@@ -148,8 +148,8 @@ func (t *TextAtariST) List(ctx context.Context, db *sql.DB, offset, limit int) (
 	}
 	return models.Files(
 		expr.AtariSTExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // PDF is a the model for the documents in PDF format.
@@ -176,6 +176,6 @@ func (p *PDF) List(ctx context.Context, db *sql.DB, offset, limit int) (models.F
 	}
 	return models.Files(
 		expr.PDFExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }

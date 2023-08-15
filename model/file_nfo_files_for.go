@@ -36,8 +36,8 @@ func (n *Nfo) List(ctx context.Context, db *sql.DB, offset, limit int) (models.F
 	}
 	return models.Files(
 		expr.NfoExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // NfoTool is a the model for the NFO tools.
@@ -64,8 +64,8 @@ func (n *NfoTool) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 	}
 	return models.Files(
 		expr.NfoToolExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // Proof is a the model for the file proofs.
@@ -92,6 +92,6 @@ func (p *Proof) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 	}
 	return models.Files(
 		expr.ProofExpr(),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, db)
 }
