@@ -91,8 +91,11 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 	e.GET("/file/stats", func(c echo.Context) error {
 		return app.File(z, c, true)
 	})
+	e.GET("/files/:id/:page", func(c echo.Context) error {
+		return app.Files(z, c, c.Param("id"), c.Param("page"))
+	})
 	e.GET("/files/:id", func(c echo.Context) error {
-		return app.Files(z, c, c.Param("id"))
+		return app.Files(z, c, c.Param("id"), "1")
 	})
 	e.GET("/file", func(c echo.Context) error {
 		return app.File(z, c, false)

@@ -3,6 +3,7 @@
 {{$fallbackDesc := "Defacto2 is the premier destination for old school files and historical texts of the underground PC cracking, BBS and art scenes" -}}
 {{$cc           := "https://creativecommons.org/licenses/by/4.0/" -}}
 {{$github       := "https://github.com/defacto2/" -}}
+{{$az := "<small><small class=\"fw-lighter\">A-Z</small></small>" | safeHTML -}}
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -133,13 +134,13 @@
                 <ul class="dropdown-menu">
                   <li><h6 class="dropdown-header">Scene</h6></li>
                   <li><a class="dropdown-item" href="/releaser">Releasers</a></li>
-                  <li><a class="dropdown-item" href="/releaser/a-z">Releasers <small>A-Z</small></a></li>
+                  <li><a class="dropdown-item" href="/releaser/a-z">Releasers {{$az}}</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><h6 class="dropdown-header">Products</h6></li>
-                  <li><a class="dropdown-item" href="/magazine">Magazines</a></li>
-                  <li><a class="dropdown-item" href="/ftp">FTP sites</a></li>
+                  <li><a class="dropdown-item" href="/magazine">Magazines {{$az}}</a></li>
+                  <li><a class="dropdown-item" href="/ftp">FTP sites {{$az}}</a></li>
                   <li><a class="dropdown-item" href="/bbs">BBS sites</a></li>
-                  <li><a class="dropdown-item" href="/bbs/a-z">BBS sites <small>A-Z</small></a></li>
+                  <li><a class="dropdown-item" href="/bbs/a-z">BBS sites {{$az}}</a></li>
                 </ul>
               </li>
               <li class="nav-item dropdown">
@@ -297,6 +298,18 @@
 {{logoText (index . "logo") -}}
 </pre>
 </div>
+{{- if gt (index  .pagination.SumPages) 1}}
+<nav aria-label="Page navigation example">
+  <ul class="pagination pagination-sm justify-content-end mb-4">
+    {{if ge (index .pagination.TwoBelow) 2}}<li class="page-item"><a class="page-link" href="{{index .pagination.BaseURL}}/1">1</a></li>{{end}}
+    {{if ge (index .pagination.TwoBelow) 1}}<li class="page-item"><a class="page-link" href="{{index .pagination.BaseURL}}/{{index .pagination.TwoBelow}}">{{index .pagination.TwoBelow}}</a></li>{{end}}
+    {{if ge (index .pagination.PrevPage) 1}}<li class="page-item"><a class="page-link" href="{{index .pagination.BaseURL}}/{{index .pagination.PrevPage}}">{{index .pagination.PrevPage}}</a></li>{{end}}
+    <li class="page-item active" aria-current="page"><a class="page-link">{{index .pagination.CurrPage}}</a></li>
+    {{if (le (index .pagination.NextPage) (index .pagination.SumPages))}}<li class="page-item"><a class="page-link" href="{{index .pagination.BaseURL}}/{{index .pagination.NextPage}}">{{index .pagination.NextPage}}</a></li>{{end}}
+    {{if (le (index .pagination.TwoAfter) (index .pagination.SumPages))}}<li class="page-item"><a class="page-link" href="{{index .pagination.BaseURL}}/{{index .pagination.TwoAfter}}">{{index .pagination.TwoAfter}}</a></li>{{end}}
+    {{if (lt (index .pagination.TwoAfter) (index .pagination.SumPages))}}<li class="page-item"><a class="page-link" href="{{index .pagination.BaseURL}}/{{index .pagination.SumPages}}">{{index .pagination.SumPages}}</a></li>{{end}}
+  </ul>
+</nav>{{- end}}
 <main>
     {{- if ne (index . "h1") ""}}<h1 class="display-6">{{ index . "h1" }}{{if ne (index . "h1sub") ""}} <small>{{ index . "h1sub" }}</small>{{end}}</h1>{{end -}}
     {{- if ne (index . "lead") ""}}<p class="lead">{{ index . "lead" | safeHTML }}</p>{{end -}}

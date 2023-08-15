@@ -41,20 +41,6 @@ func (r *Releasers) List(ctx context.Context, db *sql.DB, name string) (models.F
 	).All(ctx, db)
 }
 
-// Stat counts the total number of files and file sizes for all the releasers.
-// func (r *Rels) Stat(ctx context.Context, db *sql.DB) error {
-// 	if db == nil {
-// 		return ErrDB
-// 	}
-// 	mods := qm.SQL(string(postgres.StatRelr()))
-// 	f, err := models.Files(mods).All(ctx, db)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	r.Count = len(f)
-// 	return nil
-// }
-
 // All gets the unique releaser names and their total file count and file sizes.
 // When reorder is true the results are ordered by the total file counts.
 func (r *Releasers) All(ctx context.Context, db *sql.DB, offset, limit int, reorder bool) error {

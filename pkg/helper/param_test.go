@@ -60,3 +60,26 @@ func TestDeobfuscateURL(t *testing.T) {
 		})
 	}
 }
+
+func TestPagination(t *testing.T) {
+	tests := []struct {
+		name  string
+		page  int
+		sum   int
+		limit int
+		want  []int
+	}{
+		// {"-1", -1, -1, -1, nil},
+		// {"0", 0, 0, 0, nil},
+		// {"1", 1, 1, 1, []int{1}},
+		{"1k", 18, 1000, 15, []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}},
+		//{"25 of 1k", 25, 10000, 100, []int{1, 21, 22, 23, 24, 25, 26, 27, 28, 29}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.EqualValues(t, tt.want, helper.Pagination(tt.page, tt.sum, tt.limit))
+			assert.Equal(t, 0, 1)
+		})
+
+	}
+}

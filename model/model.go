@@ -19,6 +19,16 @@ var (
 	ErrURI  = fmt.Errorf("uri value is invalid")
 )
 
+type Pagination struct {
+	CurrPage int    // CurrPage is the current page number.
+	SumPages int    // SumPages is the total number of pages.
+	PrevPage int    // PrevPage is the previous page number.
+	NextPage int    // NextPage is the next page number.
+	TwoBelow int    // TwoBelow is the page number two below the current page.
+	TwoAfter int    // TwoAfter is the page number two after the current page.
+	BaseURL  string // BaseURL is the base URL for the pagination links.
+}
+
 // From is the name of the table containing records of files.
 const From = "files"
 

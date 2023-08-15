@@ -42,3 +42,30 @@ func PageCount(sum, limit int) uint {
 	x := math.Ceil(float64(sum) / float64(limit))
 	return uint(x)
 }
+
+// Pagination returns the page numbers to display in the pagination bar.
+func Pagination(page, sum, limit int) []int {
+	if page <= 0 || sum <= 0 || limit <= 0 {
+		return nil
+	}
+	const firstPage = 1
+	lastPage := int(PageCount(sum, limit))
+	pages := make([]int, 0, 9)
+	pages = append(pages, firstPage)
+	pages = append(pages, lastPage)
+
+	// pages = append(pages, 1)
+	// p := int(PageCount(sum, limit))
+	// for i := 1; i < 9; i++ {
+	// 	if page-i > 1 {
+	// 		pages = append(pages, page-i)
+	// 		fmt.Fprintln(os.Stderr, ">>", i, page-i)
+	// 	}
+	// 	if page+i < p {
+	// 		pages = append(pages, page+i)
+	// 		fmt.Fprintln(os.Stderr, "<<", i, page+1)
+	// 	}
+	// }
+	// pages = append(pages, p)
+	return pages
+}

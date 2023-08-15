@@ -172,14 +172,6 @@ func SumMag() SQL {
 	return SumReleaser("magazine")
 }
 
-// StatRelr is an SQL statement to select all the unique groups.
-func xStatRelr() SQL {
-	return "SELECT DISTINCT group_brand FROM files " +
-		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(group_brand) " +
-		"WHERE NULLIF(group_brand, '') IS NOT NULL " + // handle empty and null values
-		"GROUP BY group_brand"
-}
-
 // SumSection is an SQL statement to sum the filesizes of records matching the section.
 func SumSection() SQL {
 	return "SELECT SUM(files.filesize) FROM files WHERE section = $1"

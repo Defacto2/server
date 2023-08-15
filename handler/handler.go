@@ -39,6 +39,7 @@ const (
 )
 
 // Configuration of the handler.
+// TODO: DownloadErr bool // DownloadErr is true if the download directory is not found or is empty.
 type Configuration struct {
 	DatbaseErr bool               // DatbaseErr is true if the database connection failed.
 	Import     *config.Config     // Import configurations from the host system environment.
