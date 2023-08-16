@@ -33,6 +33,13 @@ tasks:
       - echo "Building..."
       - go build -o {{.BINNAME}} -v server.go
       - echo "Done!"
+  build-race:
+    desc: "Build the server binary  with race conditions."
+    deps: [assets]
+    cmds:
+      - echo "Building with race conditions..."
+      - go build -o {{.BINNAME}} -race -v server.go
+      - echo "Done!"
   assets:
     desc: "Build and compress the CSS and JS assets."
     cmds:
