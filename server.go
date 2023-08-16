@@ -6,6 +6,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"os"
 	"runtime"
@@ -15,8 +16,11 @@ import (
 	"github.com/Defacto2/server/pkg/config"
 	"github.com/Defacto2/server/pkg/logger"
 	"github.com/Defacto2/server/pkg/postgres"
+	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/caarlos0/env/v7"
 	_ "github.com/lib/pq"
+	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 //go:embed public/text/defacto2.txt
@@ -106,6 +110,27 @@ func main() {
 		zlog.Warnln("Could not obtain the PostgreSQL server version. Is the database online?")
 	} else {
 		// TODO: run database migrations and fixes
+		//group_brand_for // group_brand_by
+		ctx := context.Background()
+		boil.DebugMode = true
+		f, err := models.Files(
+			qm.Where("group_brand_for = group_brand_by"),
+			qm.WithDeleted()).All(ctx, db)
+		if err != nil {
+			panic(err)
+		}
+		rowsAff, err := f.UpdateAll(ctx, db, models.M{"group_brand_by": ""})
+		if err != nil {
+			panic(err)
+		}
+		zlog.Infof("Rows affected: %d", rowsAff)
+		// count, err := models.Files(
+		// 	qm.Where("group_brand_for = group_brand_by"),
+		// ).Count(ctx, db)
+		// if err != nil {
+		// 	zlog.Warnln(err)
+		// }
+		// fmt.Fprintln(os.Stdout, "Files count:", count)
 	}
 
 	e := server.Controller()
