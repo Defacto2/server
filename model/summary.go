@@ -245,6 +245,12 @@ func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error {
 			return err
 		}
 		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+	case "text-atari-st":
+		m := TextAtariST{}
+		if err := m.Stat(ctx, db); err != nil {
+			return err
+		}
+		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
 	case "pdf":
 		m := PDF{}
 		if err := m.Stat(ctx, db); err != nil {
