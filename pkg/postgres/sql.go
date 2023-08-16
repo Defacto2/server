@@ -80,34 +80,37 @@ type SQL string // SQL is a raw query statement for PostgreSQL.
 // It requires a matching order by upper clause to be valid.
 // The cross join lateral clause is used to create a distinct list of releasers from
 // the group_brand_for and group_brand_by columns.
+//
+// Note these SQLs may cause inconsistent results when used with the count_sum and size_sum columns.
+// This is because there SelectRels and SelectRelsPros excludes some files from the count and sum.
 const releaserSEL SQL = "SELECT DISTINCT ON(upper(releaser)) releaser, " +
 	"COUNT(files.filename) AS count_sum, " +
 	"SUM(files.filesize) AS size_sum " +
 	"FROM files " +
-	"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
+	"CROSS JOIN LATERAL (values(upper(group_brand_for)),(upper(group_brand_by))) AS T(releaser) " +
 	"WHERE NULLIF(releaser, '') IS NOT NULL "
 
 const releaserBy SQL = "GROUP BY releaser " +
 	"ORDER BY upper(releaser) ASC"
 
 // SelectRels selects a list of distinct releasers or groups,
-// excluding magazine titles, BBS and FTP sites.
+// excluding BBS and FTP sites.
 func SelectRels() SQL {
 	return releaserSEL +
-		"AND section != 'magazine' " +
 		"AND releaser !~ 'BBS\\M' " +
 		"AND releaser !~ 'FTP\\M' " +
 		releaserBy
 }
 
+// SelectRelsPros selects a list of distinct releasers or groups,
+// excluding BBS and FTP sites and ordered by the file count.
 func SelectRelPros() SQL {
 	return "SELECT * FROM (" +
 		releaserSEL +
-		"AND section != 'magazine' " +
 		"AND releaser !~ 'BBS\\M' " +
 		"AND releaser !~ 'FTP\\M' " +
 		releaserBy +
-		") sub ORDER BY sub.count_sum DESC"
+		") sub WHERE sub.count_sum > 2 ORDER BY sub.count_sum DESC" // TODO remove sub.count_sum
 }
 
 // SelectMags selects a list of distinct magazine titles.
@@ -125,7 +128,7 @@ func SelectBBSPros() SQL {
 		releaserSEL +
 		"AND releaser ~ 'BBS\\M' " +
 		releaserBy +
-		") sub ORDER BY sub.count_sum DESC"
+		") sub WHERE sub.count_sum > 2 ORDER BY sub.count_sum DESC"
 }
 
 // SelectFTP selects a list of distinct FTP site names.
