@@ -83,15 +83,24 @@ type SQL string // SQL is a raw query statement for PostgreSQL.
 //
 // Note these SQLs may cause inconsistent results when used with the count_sum and size_sum columns.
 // This is because there SelectRels and SelectRelsPros excludes some files from the count and sum.
-const releaserSEL SQL = "SELECT DISTINCT ON(upper(releaser)) releaser, " +
+const XreleaserSEL SQL = "SELECT DISTINCT ON(upper(releaser)) releaser, " +
 	"COUNT(files.filename) AS count_sum, " +
 	"SUM(files.filesize) AS size_sum " +
 	"FROM files " +
 	"CROSS JOIN LATERAL (values(upper(group_brand_for)),(upper(group_brand_by))) AS T(releaser) " +
 	"WHERE NULLIF(releaser, '') IS NOT NULL "
 
-const releaserBy SQL = "GROUP BY releaser " +
+const XreleaserBy SQL = "GROUP BY releaser " +
 	"ORDER BY upper(releaser) ASC"
+
+const releaserSEL SQL = "SELECT DISTINCT releaser, " +
+	"COUNT(files.filename) AS count_sum, " +
+	"SUM(files.filesize) AS size_sum " +
+	"FROM files " +
+	"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
+	"WHERE NULLIF(releaser, '') IS NOT NULL "
+const releaserBy SQL = "GROUP BY releaser " +
+	"ORDER BY releaser ASC"
 
 // SelectRels selects a list of distinct releasers or groups,
 // excluding BBS and FTP sites.
