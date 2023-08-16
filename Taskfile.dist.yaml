@@ -23,23 +23,29 @@ tasks:
     ignore_error: true
     cmds:
       - cmd: clear
-        platforms: [linux,darwin]
+        platforms: [linux, darwin, freebsd]
       - cmd: gofumpt -w .
       - cmd: golangci-lint run
   build:
     desc: "Build the server binary."
     deps: [assets]
     cmds:
-      - echo "Building..."
-      - go build -o {{.BINNAME}} -v server.go
-      - echo "Done!"
+      - cmd: echo "Building..."
+      - cmd: go build -o {{.BINNAME}} -v server.go
+        platforms: [linux, darwin, freebsd]
+      - cmd: go build -o {{.BINNAME}}.exe -v server.go
+        platforms: [windows]
+      - cmd: echo "Done!"
   build-race:
     desc: "Build the server binary  with race conditions."
     deps: [assets]
     cmds:
-      - echo "Building with race conditions..."
-      - go build -o {{.BINNAME}} -race -v server.go
-      - echo "Done!"
+      - cmd: echo "Building with race conditions..."
+      - cmd: go build -o {{.BINNAME}} -race -v server.go
+        platforms: [linux, darwin, freebsd]
+      - cmd: go build -o {{.BINNAME}}.exe -race -v server.go
+        platforms: [windows]
+      - cmd: echo "Done!"
   assets:
     desc: "Build and compress the CSS and JS assets."
     cmds:
