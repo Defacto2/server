@@ -5,8 +5,7 @@
 {{- $years := index .stats.years}}
 {{- $cnt := len .records}}
 {{- $cardClass := " h-100"}} 
-<p class="text-start lead"><small>There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}} from {{$years | safeHTML}}.</small> 
-  ({{$cnt}} records / {{index .Pagination.SumPages}} pages)</p>  {{/*  TODO: pass through an IsProd config  */}}
+<p class="text-start lead"><small>There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}} from {{$years | safeHTML}}.</small></p>
 <div class="row justify-content-md-center row-cols-1 row-cols-md-3 g-4 mt-1">
   {{- range .records }}
   <div class="col">
