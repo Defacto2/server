@@ -1,0 +1,25 @@
+{{- /*  pagination.html  */}}
+{{- define "paginationList" -}}
+{{- $base := index .Pagination.BaseURL }}
+{{- if and (.Pagination) (gt (index  .Pagination.SumPages) 1)}}
+    {{- if ge (index .Pagination.TwoBelow) 2}}
+    <li class="page-item"><a class="page-link" href="{{$base}}/1">1</a></li>
+    {{- end}}
+    {{- if ge (index .Pagination.TwoBelow) 1}}
+    <li class="page-item"><a class="page-link" href="{{$base}}/{{index .Pagination.TwoBelow}}">{{index .Pagination.TwoBelow}}</a></li>
+    {{- end}}
+    {{- if ge (index .Pagination.PrevPage) 1}}
+    <li class="page-item"><a class="page-link" href="{{$base}}/{{index .Pagination.PrevPage}}">{{index .Pagination.PrevPage}}</a></li>
+    {{- end -}}
+    <li class="page-item active" aria-current="page"><a class="page-link">{{index .Pagination.CurrPage}}</a></li>
+    {{- if (le (index .Pagination.NextPage) (index .Pagination.SumPages))}}
+    <li class="page-item"><a class="page-link" href="{{$base}}/{{index .Pagination.NextPage}}">{{index .Pagination.NextPage}}#</a></li>
+    {{- end}}
+    {{- if (le (index .Pagination.TwoAfter) (index .Pagination.SumPages))}}
+    <li class="page-item"><a class="page-link" href="{{$base}}/{{index .Pagination.TwoAfter}}">{{index .Pagination.TwoAfter}}@</a></li>
+    {{- end}}
+    {{- if (lt (index .Pagination.TwoAfter) (index .Pagination.SumPages))}}
+    <li class="page-item"><a class="page-link" href="{{$base}}/{{index .Pagination.SumPages}}">{{index .Pagination.SumPages}}!</a></li>
+    {{- end}}
+{{- end}}
+{{- end}}

@@ -83,14 +83,15 @@ func (c *Configuration) Tmpl() map[string]*template.Template {
 // Configuration tmpl returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory.
 func (c Configuration) tmpl(name string) *template.Template {
-	if _, err := os.Stat(filepath.Join("view", app, name)); os.IsNotExist(err) {
-		log.Errorf("tmpl template not found: %s", err)
+	fp := filepath.Join("view", app, name)
+	if _, err := os.Stat(fp); os.IsNotExist(err) {
+		log.Errorf("tmpl template not found, %s: %q", err, fp)
 		panic(err)
 	} else if err != nil {
 		log.Errorf("tmpl template has a problem: %s", err)
 		panic(err)
 	}
-	files := []string{GlobTo(layout), GlobTo(name), GlobTo(modal)}
+	files := []string{GlobTo(layout), GlobTo("pagination.html"), GlobTo(name), GlobTo(modal)}
 	// append any additional templates
 	switch name {
 	case "file.html":
@@ -98,7 +99,8 @@ func (c Configuration) tmpl(name string) *template.Template {
 	case "websites.html":
 		files = append(files, GlobTo("website.html"))
 	}
-	return template.Must(template.New("").Funcs(c.TemplateFuncMap()).ParseFS(c.Views, files...))
+	return template.Must(
+		template.New("").Funcs(c.TemplateFuncMap()).ParseFS(c.Views, files...))
 }
 
 // SRI are the Subresource Integrity hashes for the layout.

@@ -108,7 +108,7 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 		return echo.NewHTTPError(http.StatusNotFound)
 	}
 
-	data["pagination"] = model.Pagination{
+	data["Pagination"] = model.Pagination{
 		TwoAfter: page + 2,
 		NextPage: page + 1,
 		CurrPage: page,
