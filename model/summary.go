@@ -30,6 +30,7 @@ func (s *Summary) All(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Statistics()...),
+		qm.Where(ClauseNoSoftDel),
 		qm.From(From)).Bind(ctx, db, s)
 }
 
