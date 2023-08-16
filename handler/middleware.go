@@ -2,9 +2,12 @@ package handler
 
 // Package file middleware.go contains the custom middleware functions for the Echo web framework.
 
+// DO NOT USE THE middleware.TimeoutWithConfig().
+// It is broken and causes race conditions and broken responses.
+// See, https://github.com/labstack/echo/issues/2306
+
 import (
 	"net/http"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -14,13 +17,6 @@ import (
 func (c Configuration) removeSlash() middleware.TrailingSlashConfig {
 	return middleware.TrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,
-	}
-}
-
-// Timeout returns the timeout middleware configuration.
-func (c Configuration) timeout() middleware.TimeoutConfig {
-	return middleware.TimeoutConfig{
-		Timeout: time.Duration(c.Import.Timeout) * time.Second,
 	}
 }
 

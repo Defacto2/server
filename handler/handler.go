@@ -117,11 +117,13 @@ func (c Configuration) Controller() *echo.Echo {
 	}
 
 	// Use configurations that are run after the router
+	// Note: NEVER USE the middleware.Timeout() as it will cause the server to crash.
+	// See: https://github.com/labstack/echo/blob/v4.11.1/middleware/timeout.go
+	//
 	e.Use(middleware.Secure())                                       // XSS cross-site scripting protection
 	e.Use(middleware.Gzip())                                         // Gzip HTTP compression
 	e.Use(c.Import.LoggerMiddleware)                                 // custom HTTP logging middleware (see: pkg/config/logger.go)
 	e.Use(middleware.RemoveTrailingSlashWithConfig(c.removeSlash())) // remove trailing slashes
-	e.Use(middleware.TimeoutWithConfig(c.timeout()))                 // timeout a long running operation
 	e.Use(c.NoRobotsHeader)                                          // add X-Robots-Tag to all responses
 	if c.Import.IsProduction {
 		e.Use(middleware.Recover()) // recover from panics
