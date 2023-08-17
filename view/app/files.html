@@ -5,7 +5,19 @@
 {{- $years := index .stats.years}}
 {{- $cnt := len .records}}
 {{- $cardClass := " h-100"}} 
+{{- $zoo := index .demozoo }}
+{{- $sixteen := index .sixteen }}
 <p class="text-start lead"><small>There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}} from {{$years | safeHTML}}.</small></p>
+{{- if or (ne $zoo "0") (ne $sixteen "")}}
+<p class="text-end lead">
+  {{- if ne $zoo "0"}}
+  <small><a class="link-offset-2" href="https://demozoo.org/groups/{{$zoo}}/"><strong>Demozoo</strong></a> offers production and member lists</small><br>
+  {{- end}}
+  {{- if ne $sixteen ""}}
+  <small><a class="link-offset-2" href="https://16colo.rs/{{$sixteen}}"><strong>16colors</strong></a> collection of ANSI and text artworks</small><br>
+  {{- end}}
+</p>
+{{- end}}
 <div class="row justify-content-md-center row-cols-1 row-cols-md-3 g-4 mt-1">
   {{- range .records }}
   <div class="col">

@@ -16,6 +16,8 @@ import (
 	"github.com/Defacto2/server/pkg/initialism"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
+	"github.com/Defacto2/server/pkg/sixteen"
+	"github.com/Defacto2/server/pkg/zoo"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -186,6 +188,8 @@ func Releasers(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	data["lead"] = initialism.Join(uri)
 	data["logo"] = name
 	data["description"] = "The collection of files for " + name + "."
+	data["demozoo"] = strconv.Itoa(int(zoo.Find(uri)))
+	data["sixteen"] = sixteen.Find(uri)
 	data[records] = fs
 
 	switch uri {

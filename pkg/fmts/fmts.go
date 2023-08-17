@@ -1,3 +1,4 @@
+// Package fmts contains the well-known styled names of releasers.
 package fmts
 
 import (
@@ -28,6 +29,7 @@ var names = Names{
 	"mmi":                              "MMi",
 	"mp2k":                             "MP2K",
 	"nc_17":                            "NC-17",
+	"paradox":                          "Paradox",
 	"risciso":                          "RISCiSO",
 	"seek-n-destroy":                   "Seek 'n Destroy",
 	"sma-posse":                        "SMA Posse",

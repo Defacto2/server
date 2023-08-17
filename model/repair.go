@@ -33,10 +33,13 @@ func RepairReleasers(ctx context.Context, db *sql.DB) error {
 		trsifix = "TRISTAR & RED SECTOR INC"
 		acidbad = "ACID"
 		acidfix = "ACID PRODUCTIONS"
+		icebad  = "ICE"
+		icefix  = "INSANE CREATORS ENTERPRISE"
 	)
 	fixes := map[string]string{
 		trsibad: trsifix,
 		acidbad: acidfix,
+		icebad:  icefix,
 	}
 	for bad, fix := range fixes {
 		f, err = models.Files(
