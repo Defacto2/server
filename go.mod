@@ -1,6 +1,6 @@
 module github.com/Defacto2/server
 
-go 1.19
+go 1.21
 
 require (
 	github.com/Defacto2/sceners v0.0.2
