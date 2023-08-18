@@ -49,13 +49,17 @@ type Configuration struct {
 	Views       embed.FS           // Views are Go templates.
 }
 
+type (
+	filename string // filename is the name of the template file in the view directory.
+)
+
 // Tmpl returns a map of the templates used by the route.
 func (c *Configuration) Tmpl() (map[string]*template.Template, error) {
 	if err := c.Subresource.Verify(c.Public); err != nil {
 		return nil, err
 	}
 	const r, s = "releaser.tmpl", "scener.tmpl"
-	list := map[string]string{
+	list := map[string]filename{
 		"index":     "index.tmpl",
 		"bbs":       r,
 		"coder":     s,
@@ -73,8 +77,8 @@ func (c *Configuration) Tmpl() (map[string]*template.Template, error) {
 		"websites":  "websites.tmpl",
 	}
 	tmpls := make(map[string]*template.Template)
-	for k, v := range list {
-		tmpl, err := c.tmpl(v)
+	for k, name := range list {
+		tmpl, err := c.tmpl(name)
 		if err != nil {
 			return nil, err
 		}
@@ -85,7 +89,7 @@ func (c *Configuration) Tmpl() (map[string]*template.Template, error) {
 
 // Configuration tmpl returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory.
-func (c Configuration) tmpl(name string) (*template.Template, error) {
+func (c Configuration) tmpl(name filename) (*template.Template, error) {
 	const (
 		fileExp    = "file_expand.tmpl"
 		layout     = "layout.tmpl"
@@ -93,7 +97,7 @@ func (c Configuration) tmpl(name string) (*template.Template, error) {
 		pagination = "pagination.tmpl"
 		website    = "website.tmpl"
 	)
-	fp := filepath.Join("view", app, name)
+	fp := filepath.Join("view", app, string(name))
 	if _, err := os.Stat(fp); os.IsNotExist(err) {
 		log.Errorf("tmpl template not found, %s: %q", err, fp)
 		return nil, err
@@ -101,7 +105,7 @@ func (c Configuration) tmpl(name string) (*template.Template, error) {
 		log.Errorf("tmpl template has a problem: %s", err)
 		return nil, err
 	}
-	files := []string{GlobTo(layout), GlobTo(pagination), GlobTo(name), GlobTo(modal)}
+	files := []string{GlobTo(layout), GlobTo(pagination), GlobTo(string(name)), GlobTo(modal)}
 	// append any additional templates
 	switch name {
 	case "file.tmpl":
