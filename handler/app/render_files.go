@@ -22,6 +22,12 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	limit   = 198 // per-page record limit
+	page    = 1   // default page number
+	records = "records"
+)
+
 // Files is the handler for the list and preview of the files page.
 // The uri is the category or collection of files to display.
 // The page is the page number of the results to display.
@@ -39,13 +45,11 @@ func Files(z *zap.SugaredLogger, c echo.Context, uri, page string) error {
 	if page == "" {
 		return files(z, c, uri, 1)
 	}
-	p, _ = strconv.Atoi(page)
-
-	// uri := c.Request().URL.Path
-	// page := 1
-	// if p := c.QueryParam("page"); p != "" {
-	// 	page = fmts.ParseInt(p)
-	// }
+	p, err := strconv.Atoi(page)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound,
+			fmt.Errorf("%w: %s", ErrPage, page))
+	}
 	return files(z, c, uri, p)
 }
 
@@ -85,8 +89,8 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		z.Warnf("%s: %s", errConn, err)
-		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
+		z.Warnf("%s: %s", ErrConn, err)
+		return echo.NewHTTPError(http.StatusServiceUnavailable, ErrConn)
 	}
 	defer db.Close()
 	// fetch the records by category
@@ -166,8 +170,8 @@ func Sceners(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		z.Warnf("%s: %s", errConn, err)
-		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
+		z.Warnf("%s: %s", ErrConn, err)
+		return echo.NewHTTPError(http.StatusServiceUnavailable, ErrConn)
 	}
 	defer db.Close()
 
@@ -231,8 +235,8 @@ func Releasers(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		z.Warnf("%s: %s", errConn, err)
-		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
+		z.Warnf("%s: %s", ErrConn, err)
+		return echo.NewHTTPError(http.StatusServiceUnavailable, ErrConn)
 	}
 	defer db.Close()
 

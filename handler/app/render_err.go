@@ -30,7 +30,7 @@ func FilesErr(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	}
 	if c == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app files", ErrContext))
+			fmt.Errorf("%w: handler app files", ErrCxt))
 	}
 	data := empty()
 	data["title"] = fmt.Sprintf("%d error, files page not found", http.StatusNotFound)
@@ -58,7 +58,7 @@ func GErr(z *zap.SugaredLogger, c echo.Context, id string) error {
 	}
 	if c == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app g", ErrContext))
+			fmt.Errorf("%w: handler app g", ErrCxt))
 	}
 	data := empty()
 	data["title"] = fmt.Sprintf("%d error, releaser page not found", http.StatusNotFound)
@@ -86,7 +86,7 @@ func PErr(z *zap.SugaredLogger, c echo.Context, id string) error {
 	}
 	if c == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app p", ErrContext))
+			fmt.Errorf("%w: handler app p", ErrCxt))
 	}
 	data := empty()
 	data["title"] = fmt.Sprintf("%d error, scener page not found", http.StatusNotFound)
@@ -114,7 +114,7 @@ func StatusErr(z *zap.SugaredLogger, c echo.Context, code int, uri string) error
 	}
 	if c == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app status", ErrContext))
+			fmt.Errorf("%w: handler app status", ErrCxt))
 	}
 	data := empty()
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)

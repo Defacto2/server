@@ -46,12 +46,12 @@ func bbsH(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, errConn)
+		return echo.NewHTTPError(http.StatusNotFound, ErrConn)
 	}
 	defer db.Close()
 	var r model.Releasers
 	if err := r.BBS(ctx, db, 0, 0, prolific); err != nil {
-		z.Errorf("%s: %s %d", errConn, err)
+		z.Errorf("%s: %s %d", ErrConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
 	var m model.Summary
@@ -96,12 +96,12 @@ func FTP(z *zap.SugaredLogger, c echo.Context) error {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, errConn)
+		return echo.NewHTTPError(http.StatusNotFound, ErrConn)
 	}
 	defer db.Close()
 	var r model.Releasers
 	if err := r.FTP(ctx, db, 0, 0, model.NameAsc); err != nil {
-		z.Errorf("%s: %s %d", errConn, err)
+		z.Errorf("%s: %s %d", ErrConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
 	var m model.Summary
@@ -146,12 +146,12 @@ func Magazine(z *zap.SugaredLogger, c echo.Context) error {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, errConn)
+		return echo.NewHTTPError(http.StatusNotFound, ErrConn)
 	}
 	defer db.Close()
 	var r model.Releasers
 	if err := r.Magazine(ctx, db, 0, 0, model.NameAsc); err != nil {
-		z.Errorf("%s: %s %d", errConn, err)
+		z.Errorf("%s: %s %d", ErrConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
 	var m model.Summary
@@ -206,12 +206,12 @@ func releaser(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, errConn)
+		return echo.NewHTTPError(http.StatusNotFound, ErrConn)
 	}
 	defer db.Close()
 	var r model.Releasers
 	if err := r.All(ctx, db, 0, 0, prolific); err != nil {
-		z.Errorf("%s: %s %d", errConn, err)
+		z.Errorf("%s: %s %d", ErrConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
 	var m model.Summary

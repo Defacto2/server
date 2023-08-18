@@ -51,7 +51,7 @@ type Configuration struct {
 }
 
 // Registry returns the template renderer.
-func (c Configuration) Registry() *TemplateRegistry {
+func (c Configuration) Registry() (*TemplateRegistry, error) {
 	webapp := app.Configuration{
 		DatbaseErr: c.DatbaseErr,
 		Import:     c.Import,
@@ -60,12 +60,16 @@ func (c Configuration) Registry() *TemplateRegistry {
 		Public:     c.Public,
 		Views:      c.Views,
 	}
+	webTmpl, err := webapp.Tmpl()
+	if err != nil {
+		return nil, err
+	}
 	return &TemplateRegistry{
 		Templates: Join(
-			webapp.Tmpl(),
+			webTmpl,
 			html3.Tmpl(c.ZLog, c.Views),
 		),
-	}
+	}, nil
 }
 
 // EmbedDirs serves the static files from the directories embed to the binary.
@@ -107,7 +111,11 @@ func (c Configuration) Controller() *echo.Echo {
 	// Configurations
 	e.HideBanner = true                              // hide the Echo banner
 	e.HTTPErrorHandler = c.Import.CustomErrorHandler // custom error handler (see: pkg/config/logger.go)
-	e.Renderer = c.Registry()                        // HTML templates
+	reg, err := c.Registry()                         // HTML templates
+	if err != nil {
+		c.ZLog.Fatal(err)
+	}
+	e.Renderer = reg
 
 	// Pre configurations that are run before the router
 	e.Pre(middleware.Rewrite(rewrites())) // rewrites for assets
@@ -134,7 +142,7 @@ func (c Configuration) Controller() *echo.Echo {
 	e = c.EmbedDirs(e)
 
 	// Routes for the application.
-	e, err := c.Routes(c.ZLog, e, c.Public)
+	e, err = c.Routes(c.ZLog, e, c.Public)
 	if err != nil {
 		c.ZLog.Fatal(err)
 	}

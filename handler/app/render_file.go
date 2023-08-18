@@ -13,12 +13,6 @@ import (
 	"go.uber.org/zap"
 )
 
-const (
-	limit   = 198
-	page    = 1
-	records = "records"
-)
-
 // File is the handler for the file categories page.
 func File(z *zap.SugaredLogger, c echo.Context, stats bool) error {
 	if z == nil {

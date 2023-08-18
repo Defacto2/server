@@ -97,6 +97,7 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 	}
 }
 
+// Attribute returns a formatted string of the roles for the given scener name.
 func Attribute(write, code, art, music, name string) string {
 	name = strings.ToLower(name)
 	w, c, a, m :=

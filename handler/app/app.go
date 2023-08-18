@@ -22,17 +22,16 @@ const (
 	bootJS      = "public/js/bootstrap.bundle.min.js" // bootJS is the path to the minified Bootstrap 5 JS file.
 	layoutCSS   = "public/css/layout.min.css"         // layoutCSS is the path to the minified layout CSS file.
 	fontawesome = "public/js/fontawesome.min.js"      // fontawesome is the path to the minified Font Awesome JS file.
-
-	errConn = "Sorry, at the moment the server cannot connect to the database"
 )
 
 var (
-	ErrCode    = errors.New("the HTTP status code is not valid")
-	ErrConn    = errors.New("at the moment the server cannot connect to the database")
-	ErrContext = errors.New("the server could not create a context")
-	ErrDB      = errors.New("database connection is nil")
-	ErrLogger  = errors.New("the server could not create a logger")
-	ErrTmpl    = errors.New("the server could not render the HTML template for this page")
+	ErrCode   = errors.New("the HTTP status code is not valid")
+	ErrConn   = errors.New("at the moment the server cannot connect to the database")
+	ErrCxt    = errors.New("the server could not create a context")
+	ErrDB     = errors.New("database connection is nil")
+	ErrLogger = errors.New("the server could not create a logger")
+	ErrPage   = errors.New("invalid page number")
+	ErrTmpl   = errors.New("the server could not render the HTML template for this page")
 )
 
 // GlobTo returns the path to the template file.
@@ -53,43 +52,52 @@ type Configuration struct {
 }
 
 // Tmpl returns a map of the templates used by the route.
-func (c *Configuration) Tmpl() map[string]*template.Template {
+func (c *Configuration) Tmpl() (map[string]*template.Template, error) {
 	if err := c.Subresource.Verify(c.Public); err != nil {
-		panic(err)
+		return nil, err
 	}
 	const r, s = "releaser.html", "scener.html"
-	templates := make(map[string]*template.Template)
-	templates["index"] = c.tmpl("index.html")
-	templates["artist"] = c.tmpl("artist.html")
-	templates["bbs"] = c.tmpl(r)
-	templates["coder"] = c.tmpl(s)
-	templates["file"] = c.tmpl("file.html")
-	templates["files"] = c.tmpl("files.html")
-	templates["ftp"] = c.tmpl(r)
-	templates["history"] = c.tmpl("history.html")
-	templates["interview"] = c.tmpl("interview.html")
-	templates["magazine"] = c.tmpl(r)
-	templates["musician"] = c.tmpl("musician.html")
-	templates["releaser"] = c.tmpl(r)
-	templates["scener"] = c.tmpl(s)
-	templates["status"] = c.tmpl("status.html")
-	templates["thanks"] = c.tmpl("thanks.html")
-	templates["thescene"] = c.tmpl("the_scene.html")
-	templates["websites"] = c.tmpl("websites.html")
-	templates["writer"] = c.tmpl("writer.html")
-	return templates
+	list := map[string]string{
+		"index":     "index.html",
+		"artist":    "artist.html",
+		"bbs":       r,
+		"coder":     s,
+		"file":      "file.html",
+		"files":     "files.html",
+		"ftp":       r,
+		"history":   "history.html",
+		"interview": "interview.html",
+		"magazine":  r,
+		"musician":  "musician.html",
+		"releaser":  r,
+		"scener":    s,
+		"status":    "status.html",
+		"thanks":    "thanks.html",
+		"thescene":  "the_scene.html",
+		"websites":  "websites.html",
+		"writer":    "writer.html",
+	}
+	tmpls := make(map[string]*template.Template)
+	for k, v := range list {
+		tmpl, err := c.tmpl(v)
+		if err != nil {
+			return nil, err
+		}
+		tmpls[k] = tmpl
+	}
+	return tmpls, nil
 }
 
 // Configuration tmpl returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory.
-func (c Configuration) tmpl(name string) *template.Template {
+func (c Configuration) tmpl(name string) (*template.Template, error) {
 	fp := filepath.Join("view", app, name)
 	if _, err := os.Stat(fp); os.IsNotExist(err) {
 		log.Errorf("tmpl template not found, %s: %q", err, fp)
-		panic(err)
+		return nil, err
 	} else if err != nil {
 		log.Errorf("tmpl template has a problem: %s", err)
-		panic(err)
+		return nil, err
 	}
 	files := []string{GlobTo(layout), GlobTo("pagination.html"), GlobTo(name), GlobTo(modal)}
 	// append any additional templates
@@ -100,7 +108,7 @@ func (c Configuration) tmpl(name string) *template.Template {
 		files = append(files, GlobTo("website.html"))
 	}
 	return template.Must(
-		template.New("").Funcs(c.TemplateFuncMap()).ParseFS(c.Views, files...))
+		template.New("").Funcs(c.TemplateFuncMap()).ParseFS(c.Views, files...)), nil
 }
 
 // SRI are the Subresource Integrity hashes for the layout.
