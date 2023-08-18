@@ -370,6 +370,9 @@ func FmtYears(a, b int) string {
 	if a == b {
 		return fmt.Sprintf("the year %d", a)
 	}
+	if b-a == 1 {
+		return fmt.Sprintf("the years %d and %d", a, b)
+	}
 	return fmt.Sprintf("the years %d - %d", a, b)
 }
 
