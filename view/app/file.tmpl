@@ -1,0 +1,240 @@
+{{/*  file.tmpl  */}}
+{{- define "content" }}
+{{- $titleClass := " h3" }}
+{{- $otherClass := " h5" }}
+{{- $cardClass := " h-100"}}
+{{- $rels := index . "counter" }}
+{{- $linkClass := "card-link text-nowrap"}}
+<div class="row row-cols-1 row-cols-md-2 g-4 mt-1">
+    <div class="col">
+        <div class="card{{$cardClass}}">
+            <div class="card-body">
+                <h1 class="card-title {{$titleClass}}">Cracktros and intros</h1>
+                <h6 class="card-subtitle mb-2 text-body-secondary">Plus loaders, installers and demos</h6>
+                <p class="card-text">
+                    Cracktros <small>and loaders</small> are mini adverts created by cracking groups to announce their
+                    releases to the community.
+                    Initially, these programs were inserted and launched whenever the cracked software was in use.
+                </p>
+                <span class="card-link">Runs on</span>
+                <a href="/files/intro-windows" class="{{$linkClass}}">Windows</a>
+                <a href="/files/intro-msdos" class="{{$linkClass}}">{{msdos}}</a>
+                <a href="/files/intro" class="{{$linkClass}}">any platform</a><br>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    Installers are blah blah.<br>
+                    <span class="{{$linkClass}}">Browse the</span> <a href="/files/installer" class="{{$linkClass}}">installers</a>
+                </li>
+                <li class="list-group-item">
+                    Demoscene productions...<br>
+                    <span class="{{$linkClass}}">Browse the</span> <a href="/files/demoscene" class="{{$linkClass}}">demos</a>
+                </li>
+                {{- if .stats }}
+                <li class="list-group-item">
+                    <small>
+                        Cracktros and intros: {{ fmtByteCnt $rels.Intro.Count $rels.Intro.Bytes }}<br>
+                        Windows cracktros and intros: {{ fmtByteCnt $rels.IntroW.Count $rels.IntroW.Bytes }}<br>
+                        {{msdos}} cracktros and intros: {{ fmtByteCnt $rels.IntroD.Count $rels.IntroD.Bytes }}<br>
+                        Installers: {{ fmtByteCnt $rels.Installer.Bytes $rels.Installer.Bytes }}<br>
+                        Demoscene productions: {{ fmtByteCnt $rels.Demoscene.Count $rels.Demoscene.Bytes }}<br>
+                    </small>
+                </li>
+                {{- end}}
+            </ul>
+            {{- if .stats }}
+            <div class="card-footer">
+                <small>releases date range: {{$rels.Intro.MinYear}}-{{$rels.Intro.MaxYear}}</small>
+            </div>
+            {{- end}}
+        </div>
+    </div>
+    <div class="col">
+        <div class="card{{$cardClass}}">
+            <div class="card-body">
+                <h1 class="card-title {{$titleClass}}">Nfo files<small> for scene releases</small></h1>
+                <h6 class="card-subtitle mb-2 text-body-secondary">Plus proofs of releases</h6>
+                <p class="card-text">
+                    I<u>nfo</u>mation text files, <small>or README and file_id.diz texts</small> are generally in every scene release.
+                    Often, they are stylised with text art and arranged in a standard format.
+                    In the early days, these texts included detailed group information, but now they focus more on the
+                    describing the software.
+                </p>
+                <span class="{{$linkClass}}">Browse the</span>
+                <a href="/files/nfo" class="{{$linkClass}}">nfo files</a><br>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    Release proofs are blah blah.<br>
+                    <span class="{{$linkClass}}">Browse the</span> <a href="/files/proof" class="{{$linkClass}}">proofs</a>
+                </li>
+                {{- if .stats }}
+                <li class="list-group-item">
+                    <small>
+                        nfo texts: {{ fmtByteCnt $rels.Nfo.Count $rels.Nfo.Bytes }}<br>
+                        proofs: {{ fmtByteCnt $rels.Proof.Bytes $rels.Proof.Bytes }}<br>
+                        editors: {{ fmtByteCnt $rels.NfoTool.Count $rels.NfoTool.Bytes }}<br>
+                    </small>
+                </li>
+                {{- end}}
+            </ul>
+            {{- if .stats }}
+            <div class="card-footer">
+                <small>nfo date range: {{$rels.Nfo.MinYear}}-{{$rels.Nfo.MaxYear}}</small>
+            </div>
+            {{- end}}
+        </div>
+    </div>
+    <div class="col">
+        <div class="card{{$cardClass}}">
+            <div class="card-body">
+                <h1 class="card-title {{$titleClass}}">Ansi art</h1>
+                <p class="card-text">
+                    Coloured ansi text art was commonly used on BBSes for advertising and board theming.
+                </p>
+                <span class="{{$linkClass}}">Browse the</span>
+                <a href="/files/ansi" class="{{$linkClass}}">ansi files</a><br>
+                <span class="{{$linkClass}}">Or only the</span>
+                <a href="/files/ansi-brand" class="{{$linkClass}}">brands</a>
+                <a href="/files/ansi-bbs" class="{{$linkClass}}">BBS ads</a>
+                <a href="/files/ansi-ftp" class="{{$linkClass}}">FTP ads</a>
+                <a href="/files/ansi-nfo" class="{{$linkClass}}">nfos</a>
+            </div>
+            {{- if .stats }}
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <small>
+                        ansi art and texts: {{ fmtByteCnt $rels.Ansi.Count $rels.Ansi.Bytes }}<br>
+                    </small>
+                </li>
+            </ul>
+            <div class="card-footer">
+                <small>ansi art date range: {{$rels.Ansi.MinYear}}-{{$rels.Ansi.MaxYear}}</small>
+            </div>
+            {{- end}}
+        </div>
+    </div>
+    <div class="col">
+        <div class="card{{$cardClass}}">
+            <div class="card-body">
+                <h1 class="card-title {{$titleClass}}">BBS adverts</h1>
+                <h6 class="card-subtitle mb-2 text-body-secondary">Plus FTP site adverts</h6>
+                <p class="card-text">
+                    Bulletin Board Systems were a proto-Interweb for online communication and the exchange of files
+                    during the 1980s until the mid-1990s.
+                </p>
+                <span class="{{$linkClass}}">Browse the</span>
+                <a href="/files/bbs" class="{{$linkClass}}">adverts</a><br>
+                <span class="{{$linkClass}}">Or only the</span>
+                <a href="/files/bbstro" class="{{$linkClass}}">BBStros</a>
+                <a href="/files/ansi-bbs" class="{{$linkClass}}">ansi</a>
+                <a href="/files/bbs-image" class="{{$linkClass}}">images</a>
+                <a href="/files/bbs-text" class="{{$linkClass}}">texts</a>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    FTP adverts are blah blah.<br>
+                    <span class="{{$linkClass}}">Browse the</span> <a href="/files/ftp" class="{{$linkClass}}">adverts</a>
+                </li>
+                {{- if .stats }}
+                <li class="list-group-item">
+                    <small>
+                        BBS adverts: {{ fmtByteCnt $rels.BBS.Count $rels.BBS.Bytes }}<br>
+                        BBStros: {{ fmtByteCnt $rels.BBStro.Count $rels.BBStro.Bytes }}<br>
+                        ansi art: {{ fmtByteCnt $rels.AnsiBBS.Count $rels.AnsiBBS.Bytes }}<br>
+                        text files: {{ fmtByteCnt $rels.BBSText.Count $rels.BBSText.Bytes }}<br>
+                    </small>
+                </li>
+                {{- end}}
+            </ul>
+            {{- if .stats }}
+            <div class="card-footer">
+                <small>bbs ads date range: {{$rels.BBS.MinYear}}-{{$rels.BBS.MaxYear}}</small>
+            </div>
+            {{- end}}
+        </div>
+    </div>
+</div>
+<div class="row row-cols-1 row-cols-md-3 g-4 mt-2">
+    <div class="col">
+        <div class="card{{$cardClass}}">
+            <div class="card-body">
+                <h1 class="card-title {{$titleClass}}">Magazines</h1>
+                <h6 class="card-subtitle mb-2 text-body-secondary">Also called e-mags</h6>
+                <p class="card-text">
+                    Before the web and social media existed, groups used to exchange ideas and write articles on their
+                    communities in the form of digital magazines and newsletters.
+                </p>
+                <span class="{{$linkClass}}">Browse the</span>
+                <a href="/files/magazine" class="{{$linkClass}}">issues</a><br>
+                <span class="{{$linkClass}}">Or the</span>
+                <a href="/magazine" class="{{$linkClass}}">magazine titles</a>
+            </div>
+            {{- if .stats }}
+            <div class="card-footer">
+                <small>magazine date range: {{$rels.Magazine.MinYear}}-{{$rels.Magazine.MaxYear}}</small>
+            </div>
+            {{- end}}
+        </div>
+    </div>
+    <div class="col">
+        <div class="card{{$cardClass}}">
+            <div class="card-body">
+                <h1 class="card-title {{$titleClass}}">File packs</h1>
+                <h6 class="card-subtitle mb-2 text-body-secondary">Also includes art packs</h6>
+                <p class="card-text">
+                    File packs are packages of files that share a common theme that people have collected and curated
+                    for easy distribution.
+                </p>
+                <span class="{{$linkClass}}">Browse the packs of</span>
+                <a href="/files/ansi-pack" class="{{$linkClass}}">ansi art</a>
+                <a href="/files/text-pack" class="{{$linkClass}}">text and nfos</a>
+                <a href="/files/image-pack" class="{{$linkClass}}">images</a>
+                <a href="/files/windows-pack" class="{{$linkClass}}">Windows software</a>
+                <a href="/files/msdos-pack" class="{{$linkClass}}">{{msdos}} software</a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card{{$cardClass}}">
+            <div class="card-body">
+                <h1 class="card-title {{$titleClass}}">Databases</h1>
+                <h6 class="card-subtitle mb-2 text-body-secondary">Includes PreDB</h6>
+                <p class="card-text">
+                    Scene databases are often once private datasets of cracked software titles, release dates and
+                    associated groups.
+                    Due to their size, these sets are often incomplete and sometimes inaccurate.
+                </p>
+                <span class="{{$linkClass}}">Browse the</span>
+                <a href="/files/database" class="{{$linkClass}}">databases</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row row-cols-1 row-cols-md-1 g-4 mt-2">
+    <div class="col">
+        <div class="card{{$cardClass}}">
+            <div class="card-body">
+                <h1 class="card-title {{$titleClass}}">Text files</h1>
+                <h6 class="card-subtitle mb-2 text-body-secondary">Includes PDF and markup documents</h6>
+                <p class="card-text">
+                    The vast majority of scene releases involve text and documents.
+                </p>
+                <span class="{{$linkClass}}">Browse the</span>
+                <a href="/files/text" class="{{$linkClass}}">text files</a>
+                <a href="/files/text-amiga" class="{{$linkClass}}">Commodore Amiga texts</a>
+                <a href="/files/text-apple2" class="{{$linkClass}}">Apple ][ texts</a>
+                <a href="/files/text-atari-st" class="{{$linkClass}}">Atari ST texts</a>
+                <a href="/files/pdf" class="{{$linkClass}}">documents in PDF</a>
+                <a href="/files/html" class="{{$linkClass}}">documents in HTML</a>
+            </div>
+            {{- if .stats }}
+            <div class="card-footer">
+                <small>texts date range: {{$rels.Text.MinYear}}-{{$rels.Text.MaxYear}}</small>
+            </div>
+            {{- end}}
+        </div>
+    </div>
+</div>
+{{- block "morecategories" . -}}{{ "<!-- More categories -->" | safeHTML -}}{{end}}
+{{- end}}

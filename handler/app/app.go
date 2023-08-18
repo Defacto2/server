@@ -16,8 +16,6 @@ import (
 
 const (
 	app         = "app"                               // app is the name of the view element in the template.
-	layout      = "layout.html"                       // layout is a partial template.
-	modal       = "modal.html"                        // modal is a partial template.
 	bootCSS     = "public/css/bootstrap.min.css"      // bootCSS is the path to the minified Bootstrap 5 CSS file.
 	bootJS      = "public/js/bootstrap.bundle.min.js" // bootJS is the path to the minified Bootstrap 5 JS file.
 	layoutCSS   = "public/css/layout.min.css"         // layoutCSS is the path to the minified layout CSS file.
@@ -56,26 +54,23 @@ func (c *Configuration) Tmpl() (map[string]*template.Template, error) {
 	if err := c.Subresource.Verify(c.Public); err != nil {
 		return nil, err
 	}
-	const r, s = "releaser.html", "scener.html"
+	const r, s = "releaser.tmpl", "scener.tmpl"
 	list := map[string]string{
-		"index":     "index.html",
-		"artist":    "artist.html",
+		"index":     "index.tmpl",
 		"bbs":       r,
 		"coder":     s,
-		"file":      "file.html",
-		"files":     "files.html",
+		"file":      "file.tmpl",
+		"files":     "files.tmpl",
 		"ftp":       r,
-		"history":   "history.html",
-		"interview": "interview.html",
+		"history":   "history.tmpl",
+		"interview": "interview.tmpl",
 		"magazine":  r,
-		"musician":  "musician.html",
 		"releaser":  r,
 		"scener":    s,
-		"status":    "status.html",
-		"thanks":    "thanks.html",
-		"thescene":  "the_scene.html",
-		"websites":  "websites.html",
-		"writer":    "writer.html",
+		"status":    "status.tmpl",
+		"thanks":    "thanks.tmpl",
+		"thescene":  "the_scene.tmpl",
+		"websites":  "websites.tmpl",
 	}
 	tmpls := make(map[string]*template.Template)
 	for k, v := range list {
@@ -91,6 +86,13 @@ func (c *Configuration) Tmpl() (map[string]*template.Template, error) {
 // Configuration tmpl returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory.
 func (c Configuration) tmpl(name string) (*template.Template, error) {
+	const (
+		fileExp    = "file_expand.tmpl"
+		layout     = "layout.tmpl"
+		modal      = "modal.tmpl"
+		pagination = "pagination.tmpl"
+		website    = "website.tmpl"
+	)
 	fp := filepath.Join("view", app, name)
 	if _, err := os.Stat(fp); os.IsNotExist(err) {
 		log.Errorf("tmpl template not found, %s: %q", err, fp)
@@ -99,13 +101,13 @@ func (c Configuration) tmpl(name string) (*template.Template, error) {
 		log.Errorf("tmpl template has a problem: %s", err)
 		return nil, err
 	}
-	files := []string{GlobTo(layout), GlobTo("pagination.html"), GlobTo(name), GlobTo(modal)}
+	files := []string{GlobTo(layout), GlobTo(pagination), GlobTo(name), GlobTo(modal)}
 	// append any additional templates
 	switch name {
-	case "file.html":
-		files = append(files, GlobTo("file_expand.html"))
-	case "websites.html":
-		files = append(files, GlobTo("website.html"))
+	case "file.tmpl":
+		files = append(files, GlobTo(fileExp))
+	case "websites.tmpl":
+		files = append(files, GlobTo(website))
 	}
 	return template.Must(
 		template.New("").Funcs(c.TemplateFuncMap()).ParseFS(c.Views, files...)), nil

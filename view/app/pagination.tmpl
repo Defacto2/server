@@ -1,4 +1,4 @@
-{{- /*  pagination.html  */}}
+{{- /*  pagination.tmpl  */}}
 {{- define "paginationList" -}}
 {{- $base := index .Pagination.BaseURL }}
 {{- if and (.Pagination) (gt (index  .Pagination.SumPages) 1)}}
