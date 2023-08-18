@@ -57,21 +57,21 @@ func (c *Configuration) Tmpl() map[string]*template.Template {
 	if err := c.Subresource.Verify(c.Public); err != nil {
 		panic(err)
 	}
-	const relTmpl = "releaser.html"
+	const r, s = "releaser.html", "scener.html"
 	templates := make(map[string]*template.Template)
 	templates["index"] = c.tmpl("index.html")
 	templates["artist"] = c.tmpl("artist.html")
-	templates["bbs"] = c.tmpl(relTmpl)
-	templates["coder"] = c.tmpl("coder.html")
+	templates["bbs"] = c.tmpl(r)
+	templates["coder"] = c.tmpl(s)
 	templates["file"] = c.tmpl("file.html")
 	templates["files"] = c.tmpl("files.html")
-	templates["ftp"] = c.tmpl(relTmpl)
+	templates["ftp"] = c.tmpl(r)
 	templates["history"] = c.tmpl("history.html")
 	templates["interview"] = c.tmpl("interview.html")
-	templates["magazine"] = c.tmpl(relTmpl)
+	templates["magazine"] = c.tmpl(r)
 	templates["musician"] = c.tmpl("musician.html")
-	templates["releaser"] = c.tmpl(relTmpl)
-	templates["scener"] = c.tmpl("scener.html")
+	templates["releaser"] = c.tmpl(r)
+	templates["scener"] = c.tmpl(s)
 	templates["status"] = c.tmpl("status.html")
 	templates["thanks"] = c.tmpl("thanks.html")
 	templates["thescene"] = c.tmpl("the_scene.html")

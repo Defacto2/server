@@ -22,6 +22,7 @@ require (
 	github.com/volatiletech/sqlboiler/v4 v4.14.2
 	github.com/volatiletech/strmangle v0.0.5
 	go.uber.org/zap v1.24.0
+	golang.org/x/exp v0.0.0-20230811145659-89c5cff77bcb
 	golang.org/x/text v0.11.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )

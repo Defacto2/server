@@ -37,37 +37,6 @@ func empty() map[string]interface{} {
 
 // TODO: reorder by menu order
 
-// Artist is the handler for the Artist page.
-func Artist(z *zap.SugaredLogger, c echo.Context) error {
-	if z == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
-	}
-	data := empty()
-	data["description"] = demo
-	data["title"] = demo
-	err := c.Render(http.StatusOK, "artist", data)
-	if err != nil {
-		z.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-	}
-	return nil
-}
-
-func Coder(z *zap.SugaredLogger, c echo.Context) error {
-	if z == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
-	}
-	data := empty()
-	data["description"] = demo
-	data["title"] = demo
-	err := c.Render(http.StatusOK, "coder", data)
-	if err != nil {
-		z.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "coder")
-	}
-	return nil
-}
-
 // Interview is the handler for the People Interviews page.
 func Interview(z *zap.SugaredLogger, c echo.Context) error {
 	if z == nil {
@@ -128,38 +97,6 @@ func History(z *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
-// Musician is the handler for the Musician page.
-func Musician(z *zap.SugaredLogger, c echo.Context) error {
-	if z == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
-	}
-	data := empty()
-	data["description"] = demo
-	data["title"] = demo
-	err := c.Render(http.StatusOK, "musician", data)
-	if err != nil {
-		z.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "musician")
-	}
-	return nil
-}
-
-// Scener is the handler for the Scener page.
-func Scener(z *zap.SugaredLogger, c echo.Context) error {
-	if z == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
-	}
-	data := empty()
-	data["description"] = demo
-	data["title"] = demo
-	err := c.Render(http.StatusOK, "scener", data)
-	if err != nil {
-		z.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-	}
-	return nil
-}
-
 // Thanks is the handler for the Thanks page.
 func Thanks(z *zap.SugaredLogger, c echo.Context) error {
 	if z == nil {
@@ -195,22 +132,6 @@ func TheScene(z *zap.SugaredLogger, c echo.Context) error {
 	if err != nil {
 		z.Errorf("%s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-	}
-	return nil
-}
-
-// Writer is the handler for the Writer page.
-func Writer(z *zap.SugaredLogger, c echo.Context) error {
-	if z == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
-	}
-	data := empty()
-	data["description"] = demo
-	data["title"] = "demo"
-	err := c.Render(http.StatusOK, "writer", data)
-	if err != nil {
-		z.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "writer")
 	}
 	return nil
 }

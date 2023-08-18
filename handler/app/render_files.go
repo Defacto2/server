@@ -158,6 +158,70 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 	return d, m.SumCount, nil
 }
 
+// Sceners is the handler for the list and preview of files credited to a scener.
+func Sceners(z *zap.SugaredLogger, c echo.Context, uri string) error {
+	if z == nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("%w: handler app files", ErrLogger))
+	}
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		z.Warnf("%s: %s", errConn, err)
+		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
+	}
+	defer db.Close()
+
+	name := fmts.Name(uri)
+	var rel model.Scener
+	fs, err := rel.List(ctx, db, uri)
+	if err != nil {
+		z.Warnf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	if len(fs) == 0 {
+		return PErr(z, c, uri) // scener not found
+	}
+
+	data := empty()
+	data["title"] = name + " attributions"
+	data["h1"] = name
+	data["lead"] = "Files attributed to " + name + "."
+	data["logo"] = name
+	data["description"] = "The collection of files attributed to " + name + "."
+	data["demozoo"] = "0"
+	data["sixteen"] = ""
+	data[records] = fs
+	d, err := scenerSum(ctx, db, uri)
+	if err != nil {
+		z.Warnf("releaserSum %s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	data["stats"] = d
+	err = c.Render(http.StatusOK, "files", data)
+	if err != nil {
+		z.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
+func scenerSum(ctx context.Context, db *sql.DB, uri string) (map[string]string, error) {
+	if db == nil {
+		return nil, fmt.Errorf("%w: %s", ErrConn, "nil database connection")
+	}
+	// fetch the statistics of the category
+	m := model.Summary{}
+	if err := m.Scener(ctx, db, uri); err != nil {
+		return nil, err
+	}
+	// add the statistics to the data
+	d := map[string]string{
+		"files": string(FmtByteName("file", m.SumCount, m.SumBytes)),
+		"years": FmtYears(m.MinYear, m.MaxYear),
+	}
+	return d, nil
+}
+
 // Releasers is the handler for the list and preview of files credited to a releaser.
 func Releasers(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	if z == nil {

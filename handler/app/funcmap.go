@@ -56,6 +56,7 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 		"linkPage":       LinkPage,
 		"linkRemote":     LinkRemote,
 		"linkRelrs":      LinkRelrs,
+		"linkScnr":       LinkScnr,
 		"linkWiki":       LinkWiki,
 		"logoText":       LogoText,
 		"mod3":           Mod3,
@@ -423,6 +424,15 @@ func LinkRelrs(a, b any) template.HTML {
 // LinkRelr returns a link to the named group page.
 func LinkRelr(name string) (string, error) {
 	href, err := url.JoinPath("/", "g", helper.Slug(name))
+	if err != nil {
+		return "", fmt.Errorf("name %q could not be made into a valid url: %s", name, err)
+	}
+	return href, nil
+}
+
+// LinkScnr returns a link to the named scener page.
+func LinkScnr(name string) (string, error) {
+	href, err := url.JoinPath("/", "p", helper.Slug(name))
 	if err != nil {
 		return "", fmt.Errorf("name %q could not be made into a valid url: %s", name, err)
 	}

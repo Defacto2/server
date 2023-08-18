@@ -36,6 +36,7 @@ func RepairReleasers(ctx context.Context, db *sql.DB) error {
 		icebad  = "ICE"
 		icefix  = "INSANE CREATORS ENTERPRISE"
 	)
+	// TODO: globalise this map and create redirects for the old names?
 	fixes := map[string]string{
 		trsibad: trsifix,
 		acidbad: acidfix,

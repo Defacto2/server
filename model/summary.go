@@ -64,6 +64,16 @@ func (r *Summary) Magazine(ctx context.Context, db *sql.DB) error {
 	return nil
 }
 
+func (s *Summary) Scener(ctx context.Context, db *sql.DB, name string) error {
+	if db == nil {
+		return ErrDB
+	}
+	return models.NewQuery(
+		qm.Select(postgres.Statistics()...),
+		qm.Where(ScenerSQL(name)),
+		qm.From(From)).Bind(ctx, db, s)
+}
+
 // Releaser returns the summary statistics for the named releaser.
 // The name is case insensitive and should be the URI slug of the releaser.
 func (s *Summary) Releaser(ctx context.Context, db *sql.DB, name string) error {

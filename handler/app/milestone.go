@@ -58,7 +58,7 @@ func Collection() Milestones { //nolint:maintidx // long function
 			Lead: "Esquire October 1971", LinkTitle: "the complete article",
 			Link: "https://www.slate.com/articles/technology/the_spectator/2011/10/the_article_that_inspired_steve_jobs_secrets_of_the_little_blue_.html",
 			Content: "Ron Rosenbaum writes the first mainstream article on phone freaks, primarily kids who'd hack and experiment with the global telephone network.<br>" +
-				"The piece coins them as phone-<strong>phreaks</strong> and introduces the reader to the kids' use of <strong>pseudonyms</strong> or codenames within their regional <strong>groups</strong> of friends. " +
+				"The piece coins them as phone-<strong>phreaks</strong> and introduces the reader to the kids' use of <strong>pseudonyms</strong> or codenames within their cliques and <strong>groups</strong> of friends. " +
 				"It gives an early example of <strong>social engineering</strong>, defines the community of phreakers as the phone-phreak <strong>underground</strong>, and mentions the newer trend of <strong>computer phreaking</strong>, which we call <u>computer hacking</u> today.",
 		},
 		{
@@ -199,7 +199,7 @@ func Collection() Milestones { //nolint:maintidx // long function
 			Title: "The first operating system for x86", Year: 1980, Month: 8,
 			Lead: "Seattle Computer Products QDOS", LinkTitle: "about QDOS",
 			Link: "https://www.1000bit.it/storia/perso/tim_paterson_e.asp",
-			Content: "Tim Paterson worked on a project at Seattle Computer Products to create an 8086 CPU plugin board for the S-100 bus standard." +
+			Content: "Tim Paterson worked on a project at Seattle Computer Products to create an 8086 CPU plugin board for the S-100 bus standard. " +
 				"Needing an operating system for the 16-bit Intel CPU, he programmed a half-complete, unauthorized clone of the CP/M operating system within four months." +
 				"He called it QDOS (Quick and Dirty OS), and it sold few copies.",
 		},
@@ -273,20 +273,6 @@ func Collection() Milestones { //nolint:maintidx // long function
 				"<a href=\"//www.wired.com/story/sierra-online-ken-williams-interview-memoir/\">Sierra On-Line</a></small>",
 		},
 		{
-			Title: "The first PC virus", Year: 1986, Month: 1, Day: 19,
-			Lead: "Brain", LinkTitle: "about the Brain virus",
-			Link:    "https://www.f-secure.com/v-descs/brain.shtml",
-			Content: "The first PC virus, Brain, infects the boot sector of floppy disks.",
-			Picture: Picture{
-				Title:       "A hex dump of the Brain",
-				Alt:         "A hex dump of the boot sector of a floppy disk containing the PC virus, Brain.",
-				Jpg:         "brain-virus.jpg",
-				Attribution: "Avinash Meetoo",
-				License:     "CC-BY-2.5",
-				LicenseLink: "https://creativecommons.org/licenses/by/2.5/deed.en",
-			},
-		},
-		{
 			Title: "Earliest unprotect text", Year: 1983, Month: 5, Day: 12, Highlight: true,
 			Lead: "Directions by Randy Day for unprotecting SPOC the Chess Master", LinkTitle: "the unprotect text",
 			Link: "/f/a91c702",
@@ -298,7 +284,10 @@ func Collection() Milestones { //nolint:maintidx // long function
 			Title: "Microsoft Windows announced", Year: 1983, Month: 11, Day: 10,
 			Link:      "https://www.poynter.org/reporting-editing/2014/today-in-media-history-in-1983-bill-gates-and-microsoft-introduced-windows/",
 			LinkTitle: "about the announcement",
-			Content:   "In hindsight, this premature announcement aims to keep Microsoft customers from jumping to competitor graphical user interface software.",
+			Content: "Around this time, <abbr title=\"graphical user interface\" class=\"initialism\">GUI</abbr> for microcomputing was the hype in the technology industry and media. " +
+				"In hindsight, this premature announcement from Microsoft aimed to keep customers from jumping to competitor GUI platforms and offerings. " +
+				"It took over a decade before graphical interfaces on the PC replaced text in business computing and even longer before it became commonplace in the home." +
+				"<br>Other microcomputer platforms, such as the <span class=\"text-nowrap\">Apple Macintosh <sup>1984</sup></span>, <span class=\"text-nowrap\">Commodore Amiga</span> and <span class=\"text-nowrap\">Atari ST <sup>1985</sup></span> came with a GUI as standard.",
 		},
 		{
 			Title: "Major game publishers enter the PC market", Year: 1984,
@@ -388,6 +377,20 @@ func Collection() Milestones { //nolint:maintidx // long function
 				"The Western European market is dominated by Acorn, Amstrad, Commodore, Sinclair but the PC clones produced by local electronic manufactures gain popularity. " +
 				"Popular machines include the <a href=\"https://www.dosdays.co.uk/computers/Amstrad%20PC1000/amstrad_pc1000.php\">Amstrad PC1512</a>, " +
 				"the Philips P2000T and the <a href=\"https://www.dosdays.co.uk/computers/Olivetti%20M24/olivetti_m24.php\">Olivetti M24</a>.",
+		},
+		{
+			Title: "The first PC virus", Year: 1986, Month: 1, Day: 19,
+			Lead: "Brain", LinkTitle: "about the Brain virus",
+			Link:    "https://www.f-secure.com/v-descs/brain.shtml",
+			Content: "The first PC virus, Brain, infects the boot sector of floppy disks.",
+			Picture: Picture{
+				Title:       "A hex dump of the Brain",
+				Alt:         "A hex dump of the boot sector of a floppy disk containing the PC virus, Brain.",
+				Jpg:         "brain-virus.jpg",
+				Attribution: "Avinash Meetoo",
+				License:     "CC-BY-2.5",
+				LicenseLink: "https://creativecommons.org/licenses/by/2.5/deed.en",
+			},
 		},
 		{
 			Title: "The first 16 color EGA game", Year: 1986, Month: 3,

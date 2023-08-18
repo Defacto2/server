@@ -9,6 +9,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"golang.org/x/exp/slices"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -62,6 +63,21 @@ func Capitalize(s string) string {
 		return caser.String(s)
 	}
 	return caser.String(x[0]) + sep + strings.Join(x[1:], sep)
+}
+
+// DeleteDupe removes duplicate strings from a slice.
+// The returned slice is sorted and compacted.
+func DeleteDupe(s []string) []string {
+	slices.Sort(s)
+	s = slices.Compact(s)
+	x := make([]string, 0, len(s))
+	for _, val := range s {
+		if slices.Contains(x, val) {
+			continue
+		}
+		x = append(x, val)
+	}
+	return slices.Compact(x)
 }
 
 // LastChr returns the last character or rune of the string.

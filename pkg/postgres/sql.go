@@ -24,11 +24,13 @@ const (
 	Years  = "MIN(date_issued_year) AS min_year, MAX(date_issued_year) AS max_year"
 )
 
+// Statistics returns the SQL for file and size totals and the min and max year values.
 func Statistics() []string {
 	return []string{Totals, Years}
 }
 
 // Columns returns a list of column selections.
+// TODO: make this redundant or merge is Statistics()
 func Columns() []string {
 	return []string{SumSize, Counter, MinYear, MaxYear}
 }
@@ -83,24 +85,64 @@ type SQL string // SQL is a raw query statement for PostgreSQL.
 //
 // Note these SQLs may cause inconsistent results when used with the count_sum and size_sum columns.
 // This is because there SelectRels and SelectRelsPros excludes some files from the count and sum.
-const XreleaserSEL SQL = "SELECT DISTINCT ON(upper(releaser)) releaser, " +
-	"COUNT(files.filename) AS count_sum, " +
-	"SUM(files.filesize) AS size_sum " +
-	"FROM files " +
-	"CROSS JOIN LATERAL (values(upper(group_brand_for)),(upper(group_brand_by))) AS T(releaser) " +
-	"WHERE NULLIF(releaser, '') IS NOT NULL "
-
-const XreleaserBy SQL = "GROUP BY releaser " +
-	"ORDER BY upper(releaser) ASC"
-
 const releaserSEL SQL = "SELECT DISTINCT releaser, " +
 	"COUNT(files.filename) AS count_sum, " +
 	"SUM(files.filesize) AS size_sum " +
 	"FROM files " +
 	"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
 	"WHERE NULLIF(releaser, '') IS NOT NULL "
+
 const releaserBy SQL = "GROUP BY releaser " +
 	"ORDER BY releaser ASC"
+
+	// credit_text
+	// credit_program
+	// credit_illustration
+	// credit_audio
+
+type Role string
+
+const (
+	Writer   Role = "(upper(credit_text))"
+	Artist   Role = "(upper(credit_illustration))"
+	Coder    Role = "(upper(credit_program))"
+	Musician Role = "(upper(credit_audio))"
+)
+
+func Roles() Role {
+	s := strings.Join([]string{string(Writer), string(Artist), string(Coder), string(Musician)}, ",")
+	return Role(s)
+}
+
+func (r Role) Select() SQL {
+	s := "SELECT DISTINCT ON(upper(scener)) scener " +
+		"FROM files " +
+		fmt.Sprintf("CROSS JOIN LATERAL (values%s) AS T(scener) ", r) +
+		"WHERE NULLIF(scener, '') IS NOT NULL " +
+		"GROUP BY scener " +
+		"ORDER BY upper(scener) ASC"
+	return SQL(s)
+}
+
+func SelectSceners() SQL {
+	return Roles().Select()
+}
+
+func SelectWriter() SQL {
+	return Writer.Select()
+}
+
+func SelectArtist() SQL {
+	return Artist.Select()
+}
+
+func SelectCoder() SQL {
+	return Coder.Select()
+}
+
+func SelectMusician() SQL {
+	return Musician.Select()
+}
 
 // SelectRels selects a list of distinct releasers or groups,
 // excluding BBS and FTP sites.
