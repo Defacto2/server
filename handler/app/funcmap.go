@@ -34,9 +34,9 @@ const (
 	// The letter 'O' of TO is the center of the text.
 	Welcome = ":                    ·· WELCOME TO DEFACTO2 ··                    ·"
 
-	link  = `<svg class="bi" aria-hidden="true"><use xlink:href="/bootstrap-icons.svg#link"></use></svg>`
-	merge = `<svg class="bi" aria-hidden="true" fill="currentColor"><use xlink:href="/bootstrap-icons.svg#forward"></use></svg>`
-	wiki  = `<svg class="bi" aria-hidden="true"><use xlink:href="/bootstrap-icons.svg#arrow-right-short"></use></svg>`
+	link  template.HTML = `<svg class="bi" aria-hidden="true"><use xlink:href="/bootstrap-icons.svg#link"></use></svg>`
+	merge template.HTML = `<svg class="bi" aria-hidden="true" fill="currentColor"><use xlink:href="/bootstrap-icons.svg#forward"></use></svg>`
+	wiki  template.HTML = `<svg class="bi" aria-hidden="true"><use xlink:href="/bootstrap-icons.svg#arrow-right-short"></use></svg>`
 
 	typeErr = "error: received an invalid type to "
 )
@@ -76,7 +76,7 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 		"logo": func() string {
 			return string(*c.Brand)
 		},
-		"mergeIcon": func() string {
+		"mergeIcon": func() template.HTML {
 			return merge
 		},
 		"msdos": func() template.HTML {
