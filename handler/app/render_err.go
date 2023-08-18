@@ -50,6 +50,35 @@ func FilesErr(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	return nil
 }
 
+// PageErr renders the files page error page for the Files menu and categories.
+// It provides different error messages to the standard error page.
+func PageErr(z *zap.SugaredLogger, c echo.Context, uri, page string) error {
+	if z == nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Errorf("%w: handler app files", ErrLogger))
+	}
+	if c == nil {
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Errorf("%w: handler app files", ErrCxt))
+	}
+	data := empty()
+	data["title"] = fmt.Sprintf("%d error, files page not found", http.StatusNotFound)
+	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
+	data["code"] = http.StatusNotFound
+	data["logo"] = "Page not found"
+	data["alert"] = fmt.Sprintf("Files %s page does not exist", uri)
+	data["probl"] = "The files page does not exist, there is probably a typo with the URL."
+	data["uriOkay"] = fmt.Sprintf("files/%s/", uri)
+	data["uriErr"] = page
+
+	err := c.Render(http.StatusNotFound, "status", data)
+	if err != nil {
+		z.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
 // GErr renders the files error page for the Groups menu and invalid releasers.
 func GErr(z *zap.SugaredLogger, c echo.Context, id string) error {
 	if z == nil {

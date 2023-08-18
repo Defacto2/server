@@ -47,8 +47,7 @@ func Files(z *zap.SugaredLogger, c echo.Context, uri, page string) error {
 	}
 	p, err := strconv.Atoi(page)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound,
-			fmt.Errorf("%w: %s", ErrPage, page))
+		return PageErr(z, c, uri, page)
 	}
 	return files(z, c, uri, p)
 }
@@ -77,7 +76,7 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 		h1sub = s
 		logo = s
 	}
-	data := empty()
+	data := emptyFiles()
 	data["title"] = title
 	data["description"] = "Table of contents for the files."
 	data["logo"] = logo
@@ -106,12 +105,10 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	data["stats"] = d
-
-	//fmt.Println(float64(sum/limit), " // ", page, ">>", sum, limit)
 	lastPage := math.Ceil(float64(sum) / float64(limit))
-	fmt.Printf("%d / %d = %f\n", sum, limit, float64(sum)/float64(limit))
 	if page > int(lastPage) {
-		return echo.NewHTTPError(http.StatusNotFound)
+		i := strconv.Itoa(page)
+		return PageErr(z, c, uri, i)
 	}
 
 	data["Pagination"] = model.Pagination{
@@ -186,14 +183,12 @@ func Sceners(z *zap.SugaredLogger, c echo.Context, uri string) error {
 		return PErr(z, c, uri) // scener not found
 	}
 
-	data := empty()
+	data := emptyFiles()
 	data["title"] = name + " attributions"
 	data["h1"] = name
 	data["lead"] = "Files attributed to " + name + "."
 	data["logo"] = name
 	data["description"] = "The collection of files attributed to " + name + "."
-	data["demozoo"] = "0"
-	data["sixteen"] = ""
 	data["scener"] = name
 	data[records] = fs
 	d, err := scenerSum(ctx, db, uri)
@@ -251,7 +246,7 @@ func Releasers(z *zap.SugaredLogger, c echo.Context, uri string) error {
 		return GErr(z, c, uri) // releaser not found
 	}
 
-	data := empty()
+	data := emptyFiles()
 	data["title"] = "Files for " + name
 	data["h1"] = name
 	data["lead"] = initialism.Join(uri)
@@ -259,7 +254,6 @@ func Releasers(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	data["description"] = "The collection of files for " + name + "."
 	data["demozoo"] = strconv.Itoa(int(zoo.Find(uri)))
 	data["sixteen"] = sixteen.Find(uri)
-	data["scener"] = ""
 	data[records] = fs
 
 	switch uri {

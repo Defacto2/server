@@ -35,6 +35,14 @@ func empty() map[string]interface{} {
 	}
 }
 
+func emptyFiles() map[string]interface{} {
+	data := empty()
+	data["demozoo"] = "0"
+	data["sixteen"] = ""
+	data["scener"] = ""
+	return data
+}
+
 // TODO: reorder by menu order
 
 // Interview is the handler for the People Interviews page.
