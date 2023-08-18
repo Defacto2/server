@@ -255,6 +255,7 @@ func Releasers(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	data["description"] = "The collection of files for " + name + "."
 	data["demozoo"] = strconv.Itoa(int(zoo.Find(uri)))
 	data["sixteen"] = sixteen.Find(uri)
+	data["scener"] = ""
 	data[records] = fs
 
 	switch uri {

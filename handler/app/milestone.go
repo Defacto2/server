@@ -348,6 +348,22 @@ func Collection() Milestones { //nolint:maintidx // long function
 			},
 		},
 		{
+			Title: "Razor 1911 is named", Year: 1985, Month: 11,
+			Lead: "On the Commodore 64", LinkTitle: "about the early days of Razor 1911",
+			Link: "https://csdb.dk/group/?id=431",
+			Content: "Razor 1911, the oldest and most famed brand in The Scene, is founded in <strong>Norway</strong> with three members. " +
+				"The group released demos and later cracked exclusively for the Commodore 64 and then the Amiga. Co-founder Sector 9 took the brand to the <a href=\"/f/a12d5e\">PC in late 1990</a>.<br>" +
+				"The distinctive number suffix was a fad with groups of the Commodore 64 era. <q>1911</q> denotes the decimal value of hexadecimal <code>$777</code>.",
+			Picture: Picture{
+				Title:       "Amazing Demo I",
+				Alt:         "Amazing Demo I by Razor 1911 screenshot",
+				Jpg:         "razor-1911-is-founded.png",
+				Attribution: "CSDb",
+				License:     "© Dr.Jekyll, Sector 9 of Razor 1911",
+				LicenseLink: "https://csdb.dk/release/?id=230004",
+			},
+		},
+		{
 			Title: "Initial release of Microsoft Windows", Year: 1985, Month: 11, Day: 20,
 			Lead: "Windows 1.0", LinkTitle: "about the failure of Windows 1.0",
 			Link:    "https://www.theverge.com/2012/11/20/3671922/windows-1-0-microsoft-history-desktop-gracefully-failed",
@@ -424,6 +440,21 @@ func Collection() Milestones { //nolint:maintidx // long function
 				Alt:   "Five O Presents screenshot",
 				Webp:  "five-o.webp",
 				Png:   "five-o.png",
+			},
+		},
+		{
+			Title: "Fairlight is founded", Year: 1987, Month: 3,
+			Lead: "On the Commodore 64 and Amiga", LinkTitle: "about the early days of Fairlight",
+			Link: "http://janeway.exotica.org.uk/target.php?idp=6375&idr=1940&tgt=1",
+			Content: "Fairlight, one of the oldest brands in The Scene, is founded in <strong>Sweden</strong> with just three members. " +
+				"The group cracked and released demos exclusively for the Commodore C64 and Amiga platforms before expanding to consoles and the <a href=\"/f/b04615\">PC in February 1991</a>.",
+			Picture: Picture{
+				Title:       "Fairlight Intro (the Legendary one)",
+				Alt:         "Commodore 64, Fairlight Intro (the Legendary one) screenshot",
+				Jpg:         "fairlight-is-founded.png",
+				Attribution: "CSDb",
+				License:     "© Woodo of Fairlight",
+				LicenseLink: "https://csdb.dk/release/index.php?id=53390",
 			},
 		},
 		{

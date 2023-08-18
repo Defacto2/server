@@ -15,22 +15,6 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// SELECT *
-// FROM "files"
-// WHERE "credit_text" ILIKE '%Absolute Zero%' OR "credit_program" ILIKE '%Absolute Zero%' OR "credit_illustration" ILIKE '%Absolute Zero%' OR "credit_audio" ILIKE '%Absolute Zero%'
-// LIMIT 50
-
-// SELECT *
-// FROM "files"
-// WHERE "credit_text" ILIKE '%ab%,' OR
-// "credit_program" ILIKE '%ab%,' OR
-// "credit_illustration" ILIKE '%ab%,' OR
-// "credit_audio" ILIKE '%ab%,'
-// LIMIT 50
-
-// TODO matchText matchProg etc (name string) string
-// match ben ben, ,ben, ,ben
-
 type Scener string
 
 type Sceners []*struct {
@@ -41,8 +25,6 @@ func (s *Scener) List(ctx context.Context, db *sql.DB, name string) (models.File
 	if db == nil {
 		return nil, ErrDB
 	}
-	//n := strings.ToUpper(rename.DeObfuscateURL(name))
-	//x := null.StringFrom(n)
 	boil.DebugMode = true
 	return models.Files(
 		qm.Where(ScenerSQL(name)),
@@ -52,10 +34,23 @@ func (s *Scener) List(ctx context.Context, db *sql.DB, name string) (models.File
 
 func ScenerSQL(name string) string {
 	n := strings.ToUpper(rename.DeObfuscateURL(name))
-	return fmt.Sprintf("(upper(credit_text) ILIKE '%%%s%%')"+
-		" OR (upper(credit_program) ILIKE '%%%s%%')"+
-		" OR (upper(credit_illustration) ILIKE '%%%s%%')"+
-		" OR (upper(credit_audio) ILIKE '%%%s%%')", n, n, n, n)
+	exact := fmt.Sprintf("(upper(credit_text) = '%s')"+
+		" OR (upper(credit_program) = '%s')"+
+		" OR (upper(credit_illustration) = '%s')"+
+		" OR (upper(credit_audio) = '%s')", n, n, n, n)
+	first := fmt.Sprintf("(upper(credit_text) LIKE '%s,%%')"+
+		" OR (upper(credit_program) LIKE '%s,%%')"+
+		" OR (upper(credit_illustration) LIKE '%s,%%')"+
+		" OR (upper(credit_audio) LIKE '%s,%%')", n, n, n, n)
+	middle := fmt.Sprintf("(upper(credit_text) LIKE '%%,%s,%%')"+
+		" OR (upper(credit_program) LIKE '%%,%s,%%')"+
+		" OR (upper(credit_illustration) LIKE '%%,%s,%%')"+
+		" OR (upper(credit_audio) LIKE '%%,%s,%%')", n, n, n, n)
+	last := fmt.Sprintf("(upper(credit_text) LIKE '%%,%s')"+
+		" OR (upper(credit_program) LIKE '%%,%s')"+
+		" OR (upper(credit_illustration) LIKE '%%,%s')"+
+		" OR (upper(credit_audio) LIKE '%%,%s')", n, n, n, n)
+	return fmt.Sprintf("(%s) OR (%s) OR (%s) OR (%s)", exact, first, middle, last)
 }
 
 // All gets a list of all sceners.
