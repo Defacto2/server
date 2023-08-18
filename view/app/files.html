@@ -7,6 +7,7 @@
 {{- $cardClass := " h-100"}} 
 {{- $zoo := index .demozoo }}
 {{- $sixteen := index .sixteen }}
+{{- $scener := index .scener }}
 <p class="text-start lead"><small>There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}} from {{$years | safeHTML}}.</small></p>
 {{- if or (ne $zoo "0") (ne $sixteen "")}}
 <p class="text-end lead">
@@ -20,14 +21,18 @@
 {{- end}}
 <div class="row justify-content-md-center row-cols-1 row-cols-md-3 g-4 mt-1">
   {{- range .records }}
+  {{- $attr := attribute .CreditText.String .CreditProgram.String .CreditIllustration.String .CreditAudio.String $scener}}
   <div class="col">
     <div class="card{{$cardClass}} placeholder-glow">
-      {{thumb .UUID.String .Filename.String}}
+      {{thumb .UUID.String .Filename.String }}
       <div class="card-body">
         <h5 class="card-title text-truncate">{{linkRelrs .GroupBrandFor .GroupBrandBy }}</h5>
         {{subTitle .RecordTitle}}
         <p class="card-text">{{describe .Platform .Section .DateIssuedYear .DateIssuedMonth}}</p>
         <p class="card-text"><small class="text-body-secondary">{{lastUpdated .Updatedat}}</small></p>
+        {{- if ne $attr ""}}
+        <p class="card-text"><small class="text-body-secondary">{{$attr}}</small></p>
+        {{- end}}
         {{linkPage .ID}}
         {{linkDownload .ID}}{{ sizeOfDL .Filesize}}
       </div>

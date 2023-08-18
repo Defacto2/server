@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"strings"
 	"time"
 
@@ -43,6 +44,7 @@ const (
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func (c Configuration) TemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
+		"attribute":      Attribute,
 		"describe":       Describe,
 		"fmtByte":        FmtByte,
 		"fmtByteCnt":     FmtByteCnt,
@@ -93,6 +95,48 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 			return c.Subresource.LayoutCSS
 		},
 	}
+}
+
+func Attribute(write, code, art, music, name string) string {
+	name = strings.ToLower(name)
+	w, c, a, m :=
+		strings.Split(strings.ToLower(write), ","),
+		strings.Split(strings.ToLower(code), ","),
+		strings.Split(strings.ToLower(art), ","),
+		strings.Split(strings.ToLower(music), ",")
+	if len(w) == 0 && len(c) == 0 && len(a) == 0 && len(m) == 0 {
+		return ""
+	}
+	if name == "" {
+		return ""
+	}
+	match := []string{}
+	if slices.Contains(w, name) {
+		match = append(match, "writer")
+	}
+	if slices.Contains(c, name) {
+		match = append(match, "programmer")
+	}
+	if slices.Contains(a, name) {
+		match = append(match, "artist")
+	}
+	if slices.Contains(m, name) {
+		match = append(match, "musician")
+	}
+	if len(match) == 0 {
+		all := []string{write, code, art, music}
+		return fmt.Sprintf("error: %q, %s", name, strings.Join(all, ","))
+	}
+	match[0] = helper.Capitalize(match[0])
+	if len(match) == 1 {
+		return match[0] + " attribution"
+	}
+	if len(match) == 2 {
+		return strings.Join(match, " and ") + " attributions"
+	}
+	last := len(match) - 1
+	match[last] = "and " + match[last]
+	return strings.Join(match, ", ") + " attributions"
 }
 
 // Thumb returns a HTML image tag or picture element for the given uuid.

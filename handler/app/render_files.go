@@ -190,6 +190,7 @@ func Sceners(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	data["description"] = "The collection of files attributed to " + name + "."
 	data["demozoo"] = "0"
 	data["sixteen"] = ""
+	data["scener"] = name
 	data[records] = fs
 	d, err := scenerSum(ctx, db, uri)
 	if err != nil {
