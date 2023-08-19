@@ -38,7 +38,7 @@ func (d Download) HTTPSend(z *zap.SugaredLogger, c echo.Context) error {
 	}
 	// https://go.dev/src/net/http/status.go
 	// get id
-	id := helper.Deobfuscate(c.Param("id"))
+	id := helper.DeobfuscateID(c.Param("id"))
 	if id <= invalidID {
 		return echo.NewHTTPError(http.StatusNotFound, notfound)
 	}

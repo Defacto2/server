@@ -1,6 +1,6 @@
 package helper
 
-// Package exts.go contains common file extensions used by the file records.
+// Package ext.go contains common file extensions used by the file records.
 
 import (
 	"path/filepath"

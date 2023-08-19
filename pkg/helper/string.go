@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 	"unicode"
@@ -88,6 +89,23 @@ func LastChr(s string) string {
 	}
 	r, _ := utf8.DecodeLastRuneInString(s)
 	return string(r)
+}
+
+// ReverseInt reverses an integer.
+func ReverseInt(i int) (int, error) {
+	// credit: Wade73
+	// http://stackoverflow.com/questions/35972561/reverse-int-golang
+	itoa, str := strconv.Itoa(i), ""
+	for x := len(itoa); x > 0; x-- {
+		str += string(itoa[x-1])
+	}
+
+	reverse, err := strconv.Atoi(str)
+	if err != nil {
+		return 0, fmt.Errorf("reverseInt %d: %w", i, err)
+	}
+
+	return reverse, nil
 }
 
 // Slug returns a URL friendly string of the named group.

@@ -4,7 +4,6 @@ go 1.21
 
 require (
 	github.com/Defacto2/sceners v0.0.2
-	github.com/bengarrett/cfw v1.4.1
 	github.com/caarlos0/env/v7 v7.1.0
 	github.com/carlmjohnson/versioninfo v0.22.4
 	github.com/evanw/esbuild v0.18.15

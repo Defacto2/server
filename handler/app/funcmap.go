@@ -21,7 +21,6 @@ import (
 	"github.com/Defacto2/server/pkg/helper"
 	"github.com/Defacto2/server/pkg/initialism"
 	"github.com/Defacto2/server/pkg/tags"
-	"github.com/bengarrett/cfw"
 	"github.com/volatiletech/null/v8"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -409,9 +408,9 @@ func LastUpdated(t any) string {
 		if !val.Valid {
 			return ""
 		}
-		return fmt.Sprintf("Last updated %s ago", cfw.TimeDistance(val.Time, time.Now(), true))
+		return fmt.Sprintf("Last updated %s ago", helper.TimeDistance(val.Time, time.Now(), true))
 	case time.Time:
-		return fmt.Sprintf("Last updated %s ago", cfw.TimeDistance(val, time.Now(), true))
+		return fmt.Sprintf("Last updated %s ago", helper.TimeDistance(val, time.Now(), true))
 	default:
 		return fmt.Sprintf("%sLastUpdated: %s", typeErr, reflect.TypeOf(t).String())
 	}
@@ -547,7 +546,7 @@ func linkID(id any, elem string) (string, error) {
 	default:
 		return "", fmt.Errorf("%s %s", typeErr, reflect.TypeOf(id).String())
 	}
-	href, err := url.JoinPath("/", elem, helper.Obfuscate(i))
+	href, err := url.JoinPath("/", elem, helper.ObfuscateID(i))
 	if err != nil {
 		return "", fmt.Errorf("id %d could not be made into a valid url: %s", i, err)
 	}

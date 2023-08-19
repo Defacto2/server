@@ -36,8 +36,8 @@ func TestPageCount(t *testing.T) {
 func TestObfuscates(t *testing.T) {
 	keys := []int{1, 1000, 1236346, -123, 0}
 	for _, key := range keys {
-		s := helper.Obfuscate(int64(key))
-		assert.Equal(t, key, helper.Deobfuscate(s))
+		s := helper.ObfuscateID(int64(key))
+		assert.Equal(t, key, helper.DeobfuscateID(s))
 	}
 }
 
