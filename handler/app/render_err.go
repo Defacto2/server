@@ -138,7 +138,7 @@ func InternalErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) er
 	if z == nil {
 		zapNil(err)
 	} else if err != nil {
-		z.Errorf("%d error for %q: %w", code, uri, err)
+		z.Errorf("%d error for %q: %s", code, uri, err)
 	}
 	// render the fallback, text only error page
 	if c == nil {
