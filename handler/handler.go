@@ -27,10 +27,13 @@ import (
 )
 
 var (
-	ErrLog    = errors.New("e logger instance is nil")
-	ErrNoTmpl = errors.New("named template does not exist for recordsby type index")
+	ErrCtx    = errors.New("echo context is nil")
+	ErrData   = errors.New("data interface is nil")
+	ErrName   = errors.New("template name string is empty")
 	ErrRoutes = errors.New("e echo instance is nil")
 	ErrTmpl   = errors.New("named template cannot be found")
+	ErrW      = errors.New("w io.writer instance is nil")
+	ErrZap    = errors.New("zap logger instance is nil")
 )
 
 const (
@@ -64,32 +67,31 @@ func (c Configuration) Registry() (*TemplateRegistry, error) {
 	if err != nil {
 		return nil, err
 	}
+	htmTmpl := html3.Tmpl(c.ZLog, c.Views)
 	return &TemplateRegistry{
 		Templates: Join(
-			webTmpl,
-			html3.Tmpl(c.ZLog, c.Views),
+			webTmpl, htmTmpl,
 		),
 	}, nil
 }
 
 // EmbedDirs serves the static files from the directories embed to the binary.
 func (c Configuration) EmbedDirs(e *echo.Echo) *echo.Echo {
-	e.StaticFS("/image/artpack", echo.MustSubFS(c.Public, "public/image/artpack"))
-	e.GET("/image/artpack", func(ctx echo.Context) error {
-		return echo.NewHTTPError(http.StatusNotFound)
-	})
-	e.StaticFS("/image/html3", echo.MustSubFS(c.Public, "public/image/html3"))
-	e.GET("/image/html3", func(ctx echo.Context) error {
-		return echo.NewHTTPError(http.StatusNotFound)
-	})
-	e.StaticFS("/image/layout", echo.MustSubFS(c.Public, "public/image/layout"))
-	e.GET("/image/layout", func(ctx echo.Context) error {
-		return echo.NewHTTPError(http.StatusNotFound)
-	})
-	e.StaticFS("/image/milestone", echo.MustSubFS(c.Public, "public/image/milestone"))
-	e.GET("/image/milestone", func(ctx echo.Context) error {
-		return echo.NewHTTPError(http.StatusNotFound)
-	})
+	if e == nil {
+		c.ZLog.Fatal(ErrRoutes)
+	}
+	dirs := map[string]string{
+		"/image/artpack":   "public/image/artpack",
+		"/image/html3":     "public/image/html3",
+		"/image/layout":    "public/image/layout",
+		"/image/milestone": "public/image/milestone",
+	}
+	for path, fsRoot := range dirs {
+		e.StaticFS(path, echo.MustSubFS(c.Public, fsRoot))
+		e.GET(path, func(ctx echo.Context) error {
+			return echo.NewHTTPError(http.StatusNotFound)
+		})
+	}
 	return e
 }
 
@@ -103,11 +105,9 @@ func rewrites() map[string]string {
 
 // Controller is the primary instance of the Echo router.
 func (c Configuration) Controller() *echo.Echo {
-
 	// TODO: handle broken DB connection
-
 	e := echo.New()
-
+	//
 	// Configurations
 	e.HideBanner = true                              // hide the Echo banner
 	e.HTTPErrorHandler = c.Import.CustomErrorHandler // custom error handler (see: pkg/config/logger.go)
@@ -116,18 +116,17 @@ func (c Configuration) Controller() *echo.Echo {
 		c.ZLog.Fatal(err)
 	}
 	e.Renderer = reg
-
+	//
 	// Pre configurations that are run before the router
 	e.Pre(middleware.Rewrite(rewrites())) // rewrites for assets
 	e.Pre(middleware.NonWWWRedirect())    // redirect www.defacto2.net requests to defacto2.net
 	if c.Import.HTTPSRedirect {
 		e.Pre(middleware.HTTPSRedirect()) // https redirect
 	}
-
-	// Use configurations that are run after the router
-	// Note: NEVER USE the middleware.Timeout() as it will cause the server to crash.
-	// See: https://github.com/labstack/echo/blob/v4.11.1/middleware/timeout.go
 	//
+	// Use configurations that are run after the router
+	// Note: NEVER USE the middleware.Timeout() as it will cause the server to crash
+	// See: https://github.com/labstack/echo/blob/v4.11.1/middleware/timeout.go
 	e.Use(middleware.Secure())                                       // XSS cross-site scripting protection
 	e.Use(middleware.Gzip())                                         // Gzip HTTP compression
 	e.Use(c.Import.LoggerMiddleware)                                 // custom HTTP logging middleware (see: pkg/config/logger.go)
@@ -136,18 +135,14 @@ func (c Configuration) Controller() *echo.Echo {
 	if c.Import.IsProduction {
 		e.Use(middleware.Recover()) // recover from panics
 	}
-
-	// Static embedded web assets
-	// These get distributed in the binary
+	// Static embedded web assets that get distributed in the binary
 	e = c.EmbedDirs(e)
-
-	// Routes for the application.
+	// Routes for the web application
 	e, err = c.Routes(c.ZLog, e, c.Public)
 	if err != nil {
 		c.ZLog.Fatal(err)
 	}
-
-	// Routes for the HTML3 retro tables.
+	// Routes for the htm retro web tables
 	retro := html3.Routes(c.ZLog, e)
 	retro.GET("/d/:id", func(ctx echo.Context) error {
 		// route for the file download handler under the html3 group
@@ -156,8 +151,7 @@ func (c Configuration) Controller() *echo.Echo {
 		}
 		return d.HTTPSend(c.ZLog, ctx)
 	})
-
-	// Route for the API.
+	// Route for the api
 	_ = apiv1.Routes(c.ZLog, e)
 
 	return e
@@ -194,12 +188,7 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 	if c.Import.NoRobots {
 		fmt.Fprintf(w, "%sthe X-ROBOTS header is telling all search engines to ignore the site.\n", mark)
 	}
-	// Important layout assets checks
-	// if _, err := os.Stat(filepath.Join(c.Public, "public/image/layout")); err != nil {
-	// 	c.Log.Warnf("Could not find the layout assets directory: %s.", err)
-	// }
 	w.Flush()
-
 	// Start the HTTP server
 	serverAddress := fmt.Sprintf(":%d", c.Import.HTTPPort)
 	if err := e.Start(serverAddress); err != nil {

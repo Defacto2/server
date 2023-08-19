@@ -17,23 +17,24 @@ type TemplateRegistry struct {
 
 // Render the layout template with the core HTML, META and BODY elements.
 func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	const layout = "layout"
+	if name == "" {
+		return ErrName
+	}
 	if w == nil {
-		return fmt.Errorf("%w: %s", echo.ErrRendererNotRegistered, "writer is nil")
+		return fmt.Errorf("%w: %s", echo.ErrRendererNotRegistered, ErrW)
 	}
 	if data == nil {
-		return fmt.Errorf("%w: %s", echo.ErrRendererNotRegistered, "data is nil")
+		return fmt.Errorf("%w: %s", echo.ErrRendererNotRegistered, ErrData)
 	}
 	if c == nil {
-		return fmt.Errorf("%w: %s", echo.ErrRendererNotRegistered, "context is nil")
-	}
-	if name == "" {
-		return ErrNoTmpl
+		return fmt.Errorf("%w: %s", echo.ErrRendererNotRegistered, ErrCtx)
 	}
 	tmpl, ok := t.Templates[name]
 	if !ok {
 		return fmt.Errorf("%w: %s", ErrTmpl, name)
 	}
-	return tmpl.ExecuteTemplate(w, "layout", data)
+	return tmpl.ExecuteTemplate(w, layout, data)
 }
 
 // Join multiple templates into one collection.

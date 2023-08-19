@@ -4,6 +4,7 @@ package handler
 
 import (
 	"embed"
+	"fmt"
 	"net/http"
 
 	"github.com/Defacto2/server/handler/app"
@@ -22,6 +23,7 @@ func MovedPermanently(e *echo.Echo) {
 }
 
 // Redirects are partial URL routers that are to be redirected with a HTTP 301 Moved Permanently.
+// TODO: migrate all nginx redirects to this map.
 func Redirects() map[string]string {
 	return map[string]string{
 		"/defacto2/history":            "/history",
@@ -35,10 +37,10 @@ func Redirects() map[string]string {
 // Routes defines the routes for the web server.
 func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.FS) (*echo.Echo, error) {
 	if e == nil {
-		return nil, ErrRoutes
+		return nil, fmt.Errorf("%w: %s", ErrRoutes, "handler routes")
 	}
 	if z == nil {
-		return nil, ErrLog
+		return nil, fmt.Errorf("%w: %s", ErrZap, "handler routes")
 	}
 	// Redirects
 	// these need to be before the routes and rewrites
