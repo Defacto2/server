@@ -143,7 +143,7 @@ func Attribute(write, code, art, music, name string) string {
 // Thumb returns a HTML image tag or picture element for the given uuid.
 // The uuid is the filename of the thumbnail image without an extension.
 // The desc is the description of the image.
-func (c Configuration) Thumb(uuid, desc string) template.HTML {
+func (c Configuration) Thumb(uuid, desc string, bottom bool) template.HTML {
 	fw := filepath.Join(c.Import.ThumbnailDir, fmt.Sprintf("%s.webp", uuid))
 	fp := filepath.Join(c.Import.ThumbnailDir, fmt.Sprintf("%s.png", uuid))
 	webp := strings.Join([]string{config.StaticThumb(), fmt.Sprintf("%s.webp", uuid)}, "/")
@@ -156,29 +156,34 @@ func (c Configuration) Thumb(uuid, desc string) template.HTML {
 	if helper.IsStat(fp) {
 		p = true
 	}
-	const style = "min-height:10em;max-height:20em;"
+	const style = "min-height:5em;max-height:20em;"
+	class := "card-img-bottom"
+	if !bottom {
+		class = "card-img-top"
+	}
 	if !w && !p {
-		return template.HTML("<img src=\"\" alt=\"thumbnail placeholder\" class=\"card-img-top placeholder\" style=\"" + style + "\" />")
+		return template.HTML("<img src=\"\" alt=\"thumbnail placeholder\" class=\"" + class + " placeholder\" style=\"" + style + "\" />")
 	}
 	if w && p {
-		elm := "<picture class=\"card-img-top\">" +
+		elm := "<picture class=\"" + class + "\">" +
 			fmt.Sprintf("<source srcset=\"%s\" type=\"image/webp\" />", webp) +
-			string(img(png, alt, style)) +
+			string(img(png, alt, class, style)) +
 			"</picture>"
 		return template.HTML(elm)
 	}
 	elm := ""
 	if w {
-		return img(webp, alt, style)
+		return img(webp, alt, class, style)
 	}
 	if p {
-		return img(png, alt, style)
+		return img(png, alt, class, style)
 	}
 	return template.HTML(elm)
 }
 
-func img(src, alt, style string) template.HTML {
-	return template.HTML(fmt.Sprintf("<img src=\"%s\" alt=\"%s\" class=\"card-img-top\" style=\"%s\" />", src, alt, style))
+func img(src, alt, class, style string) template.HTML {
+	return template.HTML(fmt.Sprintf("<img src=\"%s\" alt=\"%s\" class=\"%s\" style=\"%s\" />",
+		src, alt, class, style))
 }
 
 // Describe returns a human readable description of a release.
@@ -441,6 +446,8 @@ func LinkRelrs(a, b any) template.HTML {
 			bv = val.String
 		}
 	}
+	av = strings.TrimSpace(av)
+	bv = strings.TrimSpace(bv)
 	prime, second, s := "", "", ""
 	if av == "" && bv == "" {
 		return template.HTML("error: unknown group")

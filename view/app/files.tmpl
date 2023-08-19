@@ -24,7 +24,9 @@
   {{- $attr := attribute .CreditText.String .CreditProgram.String .CreditIllustration.String .CreditAudio.String $scener}}
   <div class="col">
     <div class="card{{$cardClass}} placeholder-glow">
-      {{thumb .UUID.String .Filename.String }}
+      <div class="card-header text-body-secondary text-center">
+        <code>{{.Filename.String}}</code>
+      </div>
       <div class="card-body">
         <h5 class="card-title text-truncate">{{linkRelrs .GroupBrandFor .GroupBrandBy }}</h5>
         {{subTitle .RecordTitle}}
@@ -36,9 +38,7 @@
         {{linkPage .ID}}
         {{linkDownload .ID}}{{ sizeOfDL .Filesize}}
       </div>
-      <div class="card-footer text-body-secondary text-center">
-        <code>{{.Filename.String}}</code>
-      </div>
+      {{thumb .UUID.String .Filename.String true }}
     </div>
   </div>
   {{- end}}
