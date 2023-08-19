@@ -60,12 +60,12 @@ func counter() (Stats, error) {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return Stats{}, fmt.Errorf("%w: %s", ErrConn, err)
+		return Stats{}, err
 	}
 	defer db.Close()
 	counter := Stats{}
 	if err := counter.Get(ctx, db); err != nil {
-		return Stats{}, fmt.Errorf("%w: %s", ErrConn, err)
+		return Stats{}, err
 	}
 	return counter, nil
 }
