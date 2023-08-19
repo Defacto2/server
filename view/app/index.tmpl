@@ -68,7 +68,7 @@
         <li class="list-group-item">
           {{- if ne "" .Forward }}<small class="text-break">{{.Forward}}</small><br>{{end}}
           <a href="{{.Link}}" class="{{$listCls}}">
-            {{- if ne "" .Forward }}{{mergeIcon | safeHTML}}{{end}}
+            {{- if ne "" .Forward }}{{mergeIcon}}{{end}}
             <span class="text-break">{{.LinkTitle | safeHTML}}</span>
             {{- if ne "" .SubTitle }} <small>({{.SubTitle}})</small>{{end}}
           </a>
@@ -100,7 +100,7 @@
         <li class="list-group-item">
           {{- if ne "" .Forward }}<small class="text-break">{{.Forward}}</small><br>{{end}}
           <a href="{{.Link}}" class="{{$listCls}}">
-            {{- if ne "" .Forward }}{{mergeIcon | safeHTML}}{{end}}
+            {{- if ne "" .Forward }}{{mergeIcon}}{{end}}
             <span class="text-break">{{.LinkTitle | safeHTML}}</span>
             {{- if ne "" .SubTitle }} <small>({{.SubTitle}})</small>{{end}}
           </a>

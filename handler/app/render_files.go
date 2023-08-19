@@ -33,8 +33,7 @@ const (
 // The page is the page number of the results to display.
 func Files(z *zap.SugaredLogger, c echo.Context, uri, page string) error {
 	if z == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app files", ErrLogger))
+		return InternalErr(z, c, "files", ErrZap)
 	}
 	// check the uri is valid
 	if !IsFiles(uri) {
@@ -53,7 +52,8 @@ func Files(z *zap.SugaredLogger, c echo.Context, uri, page string) error {
 }
 
 func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
-	title, logo, h1sub, lead := "Files", "", "", ""
+	const title, name = "Files", "files"
+	logo, h1sub, lead := "", "", ""
 	switch uri {
 	case newUploads.String():
 		logo = "new uploads"
@@ -88,21 +88,18 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		z.Warnf("%s: %s", ErrConn, err)
-		return echo.NewHTTPError(http.StatusServiceUnavailable, ErrConn)
+		return InternalErr(z, c, name, err)
 	}
 	defer db.Close()
 	// fetch the records by category
 	r, err := Records(ctx, db, uri, int(page), limit)
 	if err != nil {
-		z.Warnf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		return InternalErr(z, c, name, err)
 	}
 	data[records] = r
 	d, sum, err := stats(ctx, db, uri)
 	if err != nil {
-		z.Warnf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		return InternalErr(z, c, name, err)
 	}
 	data["stats"] = d
 	lastPage := math.Ceil(float64(sum) / float64(limit))
@@ -110,7 +107,6 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 		i := strconv.Itoa(page)
 		return PageErr(z, c, uri, i)
 	}
-
 	data["Pagination"] = model.Pagination{
 		TwoAfter: page + 2,
 		NextPage: page + 1,
@@ -120,18 +116,16 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 		SumPages: int(lastPage),
 		BaseURL:  "/files/" + uri,
 	}
-
-	err = c.Render(http.StatusOK, "files", data)
+	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		z.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		return InternalErr(z, c, name, err)
 	}
 	return nil
 }
 
 func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int, error) {
 	if db == nil {
-		return nil, 0, fmt.Errorf("%w: %s", ErrConn, "nil database connection")
+		return nil, 0, ErrDB
 	}
 	if !IsFiles(uri) {
 		return nil, 0, nil
@@ -161,53 +155,49 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 
 // Sceners is the handler for the list and preview of files credited to a scener.
 func Sceners(z *zap.SugaredLogger, c echo.Context, uri string) error {
+	const name = "files"
 	if z == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("%w: handler app files", ErrLogger))
+		return InternalErr(z, c, name, ErrZap)
 	}
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		z.Warnf("%s: %s", ErrConn, err)
-		return echo.NewHTTPError(http.StatusServiceUnavailable, ErrConn)
+		return InternalErr(z, c, name, err)
 	}
 	defer db.Close()
 
-	name := fmts.Name(uri)
+	s := fmts.Name(uri)
 	var rel model.Scener
 	fs, err := rel.List(ctx, db, uri)
 	if err != nil {
-		z.Warnf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		return InternalErr(z, c, name, err)
 	}
 	if len(fs) == 0 {
-		return PErr(z, c, uri) // scener not found
+		return ScenerErr(z, c, uri)
 	}
-
 	data := emptyFiles()
-	data["title"] = name + " attributions"
-	data["h1"] = name
-	data["lead"] = "Files attributed to " + name + "."
-	data["logo"] = name
-	data["description"] = "The collection of files attributed to " + name + "."
-	data["scener"] = name
+	data["title"] = s + " attributions"
+	data["h1"] = s
+	data["lead"] = "Files attributed to " + s + "."
+	data["logo"] = s
+	data["description"] = "The collection of files attributed to " + s + "."
+	data["scener"] = s
 	data[records] = fs
 	d, err := scenerSum(ctx, db, uri)
 	if err != nil {
-		z.Warnf("releaserSum %s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		return InternalErr(z, c, name, err)
 	}
 	data["stats"] = d
 	err = c.Render(http.StatusOK, "files", data)
 	if err != nil {
-		z.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		return InternalErr(z, c, name, err)
 	}
 	return nil
 }
 
 func scenerSum(ctx context.Context, db *sql.DB, uri string) (map[string]string, error) {
 	if db == nil {
-		return nil, fmt.Errorf("%w: %s", ErrConn, "nil database connection")
+		return nil, ErrDB
 	}
 	// fetch the statistics of the category
 	m := model.Summary{}
@@ -224,61 +214,55 @@ func scenerSum(ctx context.Context, db *sql.DB, uri string) (map[string]string, 
 
 // Releasers is the handler for the list and preview of files credited to a releaser.
 func Releasers(z *zap.SugaredLogger, c echo.Context, uri string) error {
+	const name = "files"
 	if z == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("%w: handler app files", ErrLogger))
+		return InternalErr(z, c, name, ErrZap)
 	}
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		z.Warnf("%s: %s", ErrConn, err)
-		return echo.NewHTTPError(http.StatusServiceUnavailable, ErrConn)
+		return InternalErr(z, c, name, err)
 	}
 	defer db.Close()
 
-	name := fmts.Name(uri)
+	s := fmts.Name(uri)
 	rel := model.Releasers{}
 	fs, err := rel.List(ctx, db, uri)
 	if err != nil {
-		z.Warnf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		return InternalErr(z, c, name, err)
 	}
 	if len(fs) == 0 {
-		return GErr(z, c, uri) // releaser not found
+		return ReleaserErr(z, c, uri)
 	}
-
 	data := emptyFiles()
-	data["title"] = "Files for " + name
-	data["h1"] = name
+	data["title"] = "Files for " + s
+	data["h1"] = s
 	data["lead"] = initialism.Join(uri)
-	data["logo"] = name
-	data["description"] = "The collection of files for " + name + "."
+	data["logo"] = s
+	data["description"] = "The collection of files for " + s + "."
 	data["demozoo"] = strconv.Itoa(int(zoo.Find(uri)))
 	data["sixteen"] = sixteen.Find(uri)
 	data[records] = fs
-
 	switch uri {
 	case "independent":
 		data["lead"] = initialism.Join(uri) +
 			", independent releases are files with no group or releaser affiliation"
 	}
-
 	d, err := releaserSum(ctx, db, uri)
 	if err != nil {
-		z.Warnf("releaserSum %s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		return InternalErr(z, c, name, err)
 	}
 	data["stats"] = d
 	err = c.Render(http.StatusOK, "files", data)
 	if err != nil {
-		z.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		return InternalErr(z, c, name, err)
 	}
 	return nil
 }
 
 func releaserSum(ctx context.Context, db *sql.DB, uri string) (map[string]string, error) {
 	if db == nil {
-		return nil, fmt.Errorf("%w: %s", ErrConn, "nil database connection")
+		return nil, ErrDB
 	}
 	// fetch the statistics of the category
 	m := model.Summary{}

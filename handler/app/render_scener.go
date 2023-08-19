@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/Defacto2/server/model"
@@ -70,14 +69,15 @@ func Writer(z *zap.SugaredLogger, c echo.Context) error {
 
 func scener(z *zap.SugaredLogger, c echo.Context, r postgres.Role,
 	data map[string]interface{}) error {
+	const name = "scener"
 	if z == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
+		return InternalErr(z, c, name, ErrZap)
 	}
 	s := model.Sceners{}
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, errSQL)
+		return InternalErr(z, c, name, err)
 	}
 	switch r {
 	case postgres.Writer:
@@ -92,8 +92,7 @@ func scener(z *zap.SugaredLogger, c echo.Context, r postgres.Role,
 		err = s.All(ctx, db)
 	}
 	if err != nil {
-		fmt.Println(err)
-		return echo.NewHTTPError(http.StatusInternalServerError, errSQL)
+		return InternalErr(z, c, name, err)
 	}
 	data["sceners"] = s.Sort()
 	data["description"] = "Sceners and people who have been credited for their work in The Scene."
@@ -101,10 +100,9 @@ func scener(z *zap.SugaredLogger, c echo.Context, r postgres.Role,
 		" The list is not complete or accurate, due to the amount of data and the lack of a standard format for crediting people." +
 		" Sceners themselves would often use different names or spellings on their own work, " +
 		" including character swaps, aliases, the use of initals and even single letter signatures."
-	err = c.Render(http.StatusOK, "scener", data)
+	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		z.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		return InternalErr(z, c, name, err)
 	}
 	return nil
 }

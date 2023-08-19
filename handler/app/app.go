@@ -23,13 +23,14 @@ const (
 )
 
 var (
-	ErrCode   = errors.New("the HTTP status code is not valid")
+	ErrCode   = errors.New("the http status code is not valid")
 	ErrConn   = errors.New("at the moment the server cannot connect to the database")
 	ErrCxt    = errors.New("the server could not create a context")
 	ErrDB     = errors.New("database connection is nil")
 	ErrLogger = errors.New("the server could not create a logger")
 	ErrPage   = errors.New("invalid page number")
-	ErrTmpl   = errors.New("the server could not render the HTML template for this page")
+	ErrTmpl   = errors.New("the server could not render the html template for this page")
+	ErrZap    = errors.New("the zap logger cannot be nil")
 )
 
 // GlobTo returns the path to the template file.

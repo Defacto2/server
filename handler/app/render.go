@@ -13,8 +13,6 @@ import (
 
 const demo = "demo"
 
-const errSQL = "Database connection problem or a SQL error" // fix
-
 // empty is a map of default values for the app templates.
 func empty() map[string]interface{} {
 	// the keys are listed in order of appearance in the templates.
@@ -35,6 +33,7 @@ func empty() map[string]interface{} {
 	}
 }
 
+// emptyFiles is a map of default values specific to the files templates.
 func emptyFiles() map[string]interface{} {
 	data := empty()
 	data["demozoo"] = "0"
@@ -43,28 +42,27 @@ func emptyFiles() map[string]interface{} {
 	return data
 }
 
-// TODO: reorder by menu order
-
 // Interview is the handler for the People Interviews page.
 func Interview(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "interview"
 	if z == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
+		return InternalErr(z, c, name, ErrZap)
 	}
 	data := empty()
 	data["description"] = demo
 	data["title"] = demo
-	err := c.Render(http.StatusOK, "interview", data)
+	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		z.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		return InternalErr(z, c, name, err)
 	}
 	return nil
 }
 
 // Index is the handler for the Home page.
 func Index(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "index"
 	if z == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
+		return InternalErr(z, c, name, ErrZap)
 	}
 	const lead = "a website committed to preserving the historic PC cracking and warez scene subcultures." +
 		" It covers digital objects including text files, demos, music, art, magazines, and other projects."
@@ -75,18 +73,18 @@ func Index(z *zap.SugaredLogger, c echo.Context) error {
 	data["h1"] = "Welcome,"
 	data["lead"] = "You're at " + lead
 	data["milestones"] = Collection()
-	err := c.Render(http.StatusOK, "index", data)
+	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		z.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		return InternalErr(z, c, name, err)
 	}
 	return nil
 }
 
 // History is the handler for the History page.
 func History(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "history"
 	if z == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
+		return InternalErr(z, c, name, ErrZap)
 	}
 	const lead = "Defacto founded in late February or early March of 1996, as an electronic magazine that wrote about The Scene subculture."
 	const h1 = "Our history"
@@ -97,36 +95,36 @@ func History(z *zap.SugaredLogger, c echo.Context) error {
 	data["h1"] = h1
 	data["lead"] = lead
 	data["title"] = h1
-	err := c.Render(http.StatusOK, "history", data)
+	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		z.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		return InternalErr(z, c, name, err)
 	}
 	return nil
 }
 
 // Thanks is the handler for the Thanks page.
 func Thanks(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "thanks"
 	if z == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
+		return InternalErr(z, c, name, ErrZap)
 	}
 	data := empty()
 	data["description"] = "Defacto2 thankyous."
 	data["h1"] = "Thank you!"
 	data["lead"] = "Thanks to the hundreds of people who have contributed to Defacto2 over the decades with file submissions, hard drive donations, interviews, corrections, artwork and monetiary donations!"
 	data["title"] = "Thanks!"
-	err := c.Render(http.StatusOK, "thanks", data)
+	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		z.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		return InternalErr(z, c, name, err)
 	}
 	return nil
 }
 
 // TheScene is the handler for the The Scene page.
 func TheScene(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "thescene"
 	if z == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrLogger)
+		return InternalErr(z, c, name, ErrZap)
 	}
 	const h1 = "The Scene?"
 	const lead = "Collectively referred to as The Scene, it is a subculture of different computer activities where participants actively share ideas and creations."
@@ -136,10 +134,9 @@ func TheScene(z *zap.SugaredLogger, c echo.Context) error {
 	data["h1"] = h1
 	data["lead"] = lead
 	data["title"] = h1
-	err := c.Render(http.StatusOK, "thescene", data)
+	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		z.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		return InternalErr(z, c, name, err)
 	}
 	return nil
 }

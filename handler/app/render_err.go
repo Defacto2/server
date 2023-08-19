@@ -15,20 +15,28 @@ package app
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/Defacto2/sceners/pkg/rename"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
 
+func zapNil(name string) {
+	fmt.Fprintln(os.Stdout,
+		fmt.Errorf("%w: %w for %q", ErrTmpl, ErrLogger, name).Error())
+}
+
 // FilesErr renders the files error page for the Files menu and categories.
 // It provides different error messages to the standard error page.
 func FilesErr(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	if z == nil {
+		zapNil("FilesErr")
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Errorf("%w: handler app files", ErrLogger))
 	}
 	if c == nil {
+		z.Errorf("%s: %s", ErrTmpl, ErrCxt)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Errorf("%w: handler app files", ErrCxt))
 	}
@@ -54,10 +62,12 @@ func FilesErr(z *zap.SugaredLogger, c echo.Context, uri string) error {
 // It provides different error messages to the standard error page.
 func PageErr(z *zap.SugaredLogger, c echo.Context, uri, page string) error {
 	if z == nil {
+		z.Errorf("%s: %s", ErrTmpl, ErrLogger)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Errorf("%w: handler app files", ErrLogger))
 	}
 	if c == nil {
+		z.Errorf("%s: %s", ErrTmpl, ErrCxt)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Errorf("%w: handler app files", ErrCxt))
 	}
@@ -79,13 +89,15 @@ func PageErr(z *zap.SugaredLogger, c echo.Context, uri, page string) error {
 	return nil
 }
 
-// GErr renders the files error page for the Groups menu and invalid releasers.
-func GErr(z *zap.SugaredLogger, c echo.Context, id string) error {
+// ReleaserErr renders the files error page for the Groups menu and invalid releasers.
+func ReleaserErr(z *zap.SugaredLogger, c echo.Context, id string) error {
 	if z == nil {
+		z.Errorf("%s: %s", ErrTmpl, ErrLogger)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Errorf("%w: handler app g", ErrLogger))
 	}
 	if c == nil {
+		z.Errorf("%s: %s", ErrTmpl, ErrCxt)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Errorf("%w: handler app g", ErrCxt))
 	}
@@ -107,13 +119,15 @@ func GErr(z *zap.SugaredLogger, c echo.Context, id string) error {
 	return nil
 }
 
-// PErr renders the files error page for the People menu and invalid sceners.
-func PErr(z *zap.SugaredLogger, c echo.Context, id string) error {
+// ScenerErr renders the files error page for the People menu and invalid sceners.
+func ScenerErr(z *zap.SugaredLogger, c echo.Context, id string) error {
 	if z == nil {
+		z.Errorf("%s: %s", ErrTmpl, ErrLogger)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Errorf("%w: handler app p", ErrLogger))
 	}
 	if c == nil {
+		z.Errorf("%s: %s", ErrTmpl, ErrCxt)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Errorf("%w: handler app p", ErrCxt))
 	}
@@ -135,16 +149,59 @@ func PErr(z *zap.SugaredLogger, c echo.Context, id string) error {
 	return nil
 }
 
-// StatusErr is the handler for the HTTP status pages such as the 404 - not found.
-func StatusErr(z *zap.SugaredLogger, c echo.Context, code int, uri string) error {
+// InternalErr is the handler for handling Internal Server Errors, caused by programming bugs or crashes.
+// The uri string is the part of the URL that caused the error.
+// The optional error value is logged using the zap sugared logger.
+// If the zap logger is nil then the error page is returned but no error is logged.
+// If the echo context is nil then a user hostile, fallback error in raw text is returned.
+func InternalErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) error {
+	const code = http.StatusInternalServerError
 	if z == nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app status", ErrLogger))
+		zapNil(uri) // TODO print error?
+	} else if err != nil {
+		z.Errorf("%d error for %q: %w", code, uri, err)
 	}
+	// render the fallback, text only error page
 	if c == nil {
+		if z != nil {
+			z.Errorf("%s: %s", ErrTmpl, ErrCxt)
+		}
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Errorf("%w: handler app status", ErrCxt))
 	}
+	data := empty()
+	data["description"] = fmt.Sprintf("HTTP status %d error", code)
+	data["title"] = "500 error, there is a complication"
+	data["code"] = code
+	data["logo"] = "Server error"
+	data["alert"] = "Something crashed!"
+	data["probl"] = "This is not your fault, but the server encountered an internal error or misconfiguration and cannot display this page."
+	data["uriErr"] = uri
+	if err := c.Render(code, "status", data); err != nil {
+		if z != nil {
+			z.Errorf("%s: %s", ErrTmpl, err)
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
+// StatusErr is the handler for the HTTP status pages such as the 404 - not found.
+// If the zap logger is nil then the error page is returned but no error is logged.
+// If the echo context is nil then a user hostile, fallback error in raw text is returned.
+func StatusErr(z *zap.SugaredLogger, c echo.Context, code int, uri string) error {
+	if z == nil {
+		zapNil(uri)
+	}
+	// render the fallback, text only error page
+	if c == nil {
+		if z != nil {
+			z.Errorf("%s: %s", ErrTmpl, ErrCxt)
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Errorf("%w: handler app status", ErrCxt))
+	}
+	// render a user friendly error page
 	data := empty()
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
 	title, alert, logo, probl := "", "", "", ""
@@ -160,15 +217,14 @@ func StatusErr(z *zap.SugaredLogger, c echo.Context, code int, uri string) error
 		alert = "The page is locked"
 		probl = "You don't have permission to access this resource."
 	case http.StatusInternalServerError:
-		title = "500 error, there is a complication"
-		logo = "Server error"
-		alert = "There is a complication"
-		probl = "The server encountered an internal error or misconfiguration and was unable to complete your request."
+		return InternalErr(z, c, uri, nil)
 	default:
 		s := http.StatusText(code)
 		if s == "" {
 			err := fmt.Errorf("%s: %d", ErrCode, code)
-			z.Errorf("%s", err)
+			if z != nil {
+				z.Error(err)
+			}
 			return echo.NewHTTPError(http.StatusInternalServerError, err)
 		}
 		title = fmt.Sprintf("%d error, %s", code, s)
@@ -183,9 +239,10 @@ func StatusErr(z *zap.SugaredLogger, c echo.Context, code int, uri string) error
 	data["probl"] = probl
 	data["uriErr"] = uri
 
-	err := c.Render(code, "status", data)
-	if err != nil {
-		z.Errorf("%s: %s", ErrTmpl, err)
+	if err := c.Render(code, "status", data); err != nil {
+		if z != nil {
+			z.Errorf("%s: %s", ErrTmpl, err)
+		}
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil

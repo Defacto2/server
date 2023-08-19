@@ -29,6 +29,45 @@ type Accordion = []struct {
 	Sites Sites  // Sites are the websites shown in the category.
 }
 
+// Website is the handler for the websites page.
+// Open is the ID of the accordion section to open.
+func Website(z *zap.SugaredLogger, c echo.Context, open string) error {
+	const name = "websites"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	data := empty()
+	data["title"] = "Websites"
+	data["logo"] = "Websites, podcasts, videos, books and films"
+	data["description"] = "A collection of websites, podcasts, videos, books and films about the scene."
+	acc := List()
+	// Open the accordion section.
+	closeAll := true
+	for i, site := range acc {
+		if site.ID == open || open == "" {
+			site.Open = true
+			data["title"] = site.Title
+			closeAll = false
+			acc[i] = site
+			if open == "" {
+				continue
+			}
+			break
+		}
+	}
+	// If a section was requested but not found, return a 404.
+	if open != "hide" && closeAll {
+		return StatusErr(z, c, http.StatusNotFound, open)
+	}
+	// Render the page.
+	data["accordion"] = acc
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	return nil
+}
+
 // List is a collection of websites grouped by a category.
 func List() Accordion {
 	return Accordion{
@@ -69,44 +108,6 @@ func List() Accordion {
 			"ama", false, ama(),
 		},
 	}
-}
-
-// Website is the handler for the websites page.
-// Open is the ID of the accordion section to open.
-func Website(z *zap.SugaredLogger, ctx echo.Context, open string) error {
-	data := empty()
-	data["title"] = "Websites"
-	data["logo"] = "Websites, podcasts, videos, books and films"
-	data["description"] = "A collection of websites, podcasts, videos, books and films about the scene."
-	acc := List()
-
-	// Open the accordion section.
-	closeAll := true
-	for i, site := range acc {
-		if site.ID == open || open == "" {
-			site.Open = true
-			data["title"] = site.Title
-			closeAll = false
-			acc[i] = site
-			if open == "" {
-				continue
-			}
-			break
-		}
-	}
-	// If a section was requested but not found, return a 404.
-	if open != "hide" && closeAll {
-		return echo.NewHTTPError(http.StatusNotFound, ErrTmpl)
-	}
-
-	// Render the page.
-	data["accordion"] = acc
-	err := ctx.Render(http.StatusOK, "websites", data)
-	if err != nil {
-		z.Errorf("%s: %s", ErrTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-	}
-	return nil
 }
 
 // ama is a collection of ask me anything posts.
