@@ -44,7 +44,7 @@ type Configuration struct {
 	ZLog        *zap.SugaredLogger // Log is a sugared logger.
 	Subresource SRI                // SRI are the Subresource Integrity hashes for the layout.
 	Public      embed.FS           // Public facing files.
-	Views       embed.FS           // Views are Go templates.
+	View        embed.FS           // Views are Go templates.
 }
 
 type (
@@ -112,7 +112,7 @@ func (c Configuration) tmpl(name filename) (*template.Template, error) {
 		files = append(files, GlobTo(website))
 	}
 	return template.Must(
-		template.New("").Funcs(c.TemplateFuncMap()).ParseFS(c.Views, files...)), nil
+		template.New("").Funcs(c.TemplateFuncMap()).ParseFS(c.View, files...)), nil
 }
 
 // SRI are the Subresource Integrity hashes for the layout.

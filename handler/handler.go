@@ -50,7 +50,7 @@ type Configuration struct {
 	Brand      *[]byte            // Brand points to the Defacto2 ASCII logo.
 	Version    string             // Version is the results of GoReleaser build command.
 	Public     embed.FS           // Public facing files.
-	Views      embed.FS           // Views are Go templates.
+	View       embed.FS           // View contains Go templates.
 }
 
 // Registry returns the template renderer.
@@ -61,13 +61,13 @@ func (c Configuration) Registry() (*TemplateRegistry, error) {
 		ZLog:       c.ZLog,
 		Brand:      c.Brand,
 		Public:     c.Public,
-		Views:      c.Views,
+		View:       c.View,
 	}
 	webTmpl, err := webapp.Tmpl()
 	if err != nil {
 		return nil, err
 	}
-	htmTmpl := html3.Tmpl(c.ZLog, c.Views)
+	htmTmpl := html3.Tmpl(c.ZLog, c.View)
 	return &TemplateRegistry{
 		Templates: Join(
 			webTmpl, htmTmpl,
