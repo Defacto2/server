@@ -103,10 +103,10 @@ func main() {
 	if err := repairDB(server); err != nil {
 		server.DatbaseErr = true
 		if errors.Is(err, ErrVersion) {
-			zlog.Fatalf("The database server version could not be obtained, " +
+			zlog.Errorf("The database server version could not be obtained, " +
 				"is the database server down?")
 		} else {
-			zlog.Fatalf("Could not initialize the database data: %s.", err)
+			zlog.Errorf("Could not initialize the database data: %s.", err)
 		}
 	}
 
@@ -120,13 +120,13 @@ func main() {
 	server.ShutdownHTTP(e)
 }
 
+// repairDB, on startup check the database connection and make any data corrections.
 func repairDB(server handler.Configuration) error {
 	db, err := postgres.ConnectDB()
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-	// On startup, check the database connection and make any data corrections.
 	var psql postgres.Version
 	ctx := context.Background()
 	if err := psql.Query(); err != nil {
