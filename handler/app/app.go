@@ -40,7 +40,6 @@ func GlobTo(name string) string {
 type Configuration struct {
 	Brand       *[]byte            // Brand points to the Defacto2 ASCII logo.
 	Import      *config.Config     // Import configurations from the host system environment.
-	DatbaseErr  bool               // DatbaseErr is true if the database connection failed.
 	ZLog        *zap.SugaredLogger // Log is a sugared logger.
 	Subresource SRI                // SRI are the Subresource Integrity hashes for the layout.
 	Public      embed.FS           // Public facing files.

@@ -67,7 +67,7 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 		"thumb":          c.Thumb,
 		"trimSiteSuffix": TrimSiteSuffix,
 		"databaseDown": func() bool {
-			return c.DatbaseErr
+			return false //c.DatbaseErr
 		},
 		"fmtURI": func(uri string) string {
 			return fmts.Name(uri)

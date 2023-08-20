@@ -44,24 +44,22 @@ const (
 // Configuration of the handler.
 // TODO: DownloadErr bool // DownloadErr is true if the download directory is not found or is empty.
 type Configuration struct {
-	DatbaseErr bool               // DatbaseErr is true if the database connection failed.
-	Import     *config.Config     // Import configurations from the host system environment.
-	ZLog       *zap.SugaredLogger // ZLog is a sugared, zap logger.
-	Brand      *[]byte            // Brand points to the Defacto2 ASCII logo.
-	Version    string             // Version is the results of GoReleaser build command.
-	Public     embed.FS           // Public facing files.
-	View       embed.FS           // View contains Go templates.
+	Import  *config.Config     // Import configurations from the host system environment.
+	ZLog    *zap.SugaredLogger // ZLog is a sugared, zap logger.
+	Brand   *[]byte            // Brand points to the Defacto2 ASCII logo.
+	Version string             // Version is the results of GoReleaser build command.
+	Public  embed.FS           // Public facing files.
+	View    embed.FS           // View contains Go templates.
 }
 
 // Registry returns the template renderer.
 func (c Configuration) Registry() (*TemplateRegistry, error) {
 	webapp := app.Configuration{
-		DatbaseErr: c.DatbaseErr,
-		Import:     c.Import,
-		ZLog:       c.ZLog,
-		Brand:      c.Brand,
-		Public:     c.Public,
-		View:       c.View,
+		Import: c.Import,
+		ZLog:   c.ZLog,
+		Brand:  c.Brand,
+		Public: c.Public,
+		View:   c.View,
 	}
 	webTmpl, err := webapp.Tmpl()
 	if err != nil {

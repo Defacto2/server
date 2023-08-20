@@ -88,18 +88,16 @@ func main() {
 
 	// Echo router and controller instance
 	server := handler.Configuration{
-		DatbaseErr: false,
-		Brand:      &brand,
-		Import:     &configs,
-		ZLog:       zlog,
-		Public:     public,
-		Version:    version,
-		View:       view,
+		Brand:   &brand,
+		Import:  &configs,
+		ZLog:    zlog,
+		Public:  public,
+		Version: version,
+		View:    view,
 	}
 
 	// Database
 	if err := repairDB(server); err != nil {
-		server.DatbaseErr = true
 		if errors.Is(err, ErrVersion) {
 			zlog.Errorf("The database server version could not be obtained, " +
 				"is the database server down?")
