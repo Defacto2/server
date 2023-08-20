@@ -99,8 +99,7 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 // Attribute returns a formatted string of the roles for the given scener name.
 func Attribute(write, code, art, music, name string) string {
 	name = strings.ToLower(name)
-	w, c, a, m :=
-		strings.Split(strings.ToLower(write), ","),
+	w, c, a, m := strings.Split(strings.ToLower(write), ","),
 		strings.Split(strings.ToLower(code), ","),
 		strings.Split(strings.ToLower(art), ","),
 		strings.Split(strings.ToLower(music), ",")
@@ -238,7 +237,7 @@ func Describe(plat, sect, year, month any) template.HTML {
 	}
 	x := tags.Humanize(tags.TagByURI(p), tags.TagByURI(s))
 	x = helper.Capitalize(x)
-	//x := HumanizeDescription(p, s)
+	// x := HumanizeDescription(p, s)
 	if m != "" && y != "" {
 		x = fmt.Sprintf("%s published in <span class=\"text-nowrap\">%s, %s</a>", x, m, y)
 	} else if y != "" {

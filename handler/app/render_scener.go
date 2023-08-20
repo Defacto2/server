@@ -68,7 +68,8 @@ func Writer(z *zap.SugaredLogger, c echo.Context) error {
 }
 
 func scener(z *zap.SugaredLogger, c echo.Context, r postgres.Role,
-	data map[string]interface{}) error {
+	data map[string]interface{},
+) error {
 	const name = "scener"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)

@@ -26,7 +26,7 @@ func (f *Files) Stat(ctx context.Context, db *sql.DB) error {
 	if f.Bytes > 0 && f.Count > 0 {
 		return nil
 	}
-	//boil.DebugMode = true
+	// boil.DebugMode = true
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -76,7 +76,7 @@ func (f *Files) ListNewest(ctx context.Context, db *sql.DB, offset, limit int) (
 	const clause = "date_issued_year DESC NULLS LAST, " +
 		"date_issued_month DESC NULLS LAST, " +
 		"date_issued_day DESC NULLS LAST"
-	//boil.DebugMode = true
+	// boil.DebugMode = true
 	return models.Files(
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),

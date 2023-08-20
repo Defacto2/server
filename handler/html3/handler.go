@@ -81,7 +81,7 @@ var Stats struct { //nolint:gochecknoglobals
 	All      model.Files
 	Art      model.Arts
 	Document model.Docs
-	//Group    model.Rels
+	// Group    model.Rels
 	Software model.Softs
 }
 

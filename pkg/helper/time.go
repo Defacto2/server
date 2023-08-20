@@ -53,6 +53,7 @@ func TimeDistance(from, to time.Time, seconds bool) string {
 		return fmt.Sprintf("%d years", y)
 	}
 }
+
 func lessMin(secs int) string {
 	const minute = 60
 	switch {
