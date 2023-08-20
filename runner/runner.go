@@ -1,4 +1,5 @@
 // Runner is a placeholder for esbuild to build css and js files.
+// To use, run `go run runner/runner.go` and it will minify the css and js files.
 package main
 
 import (
