@@ -1,1 +1,12 @@
+# Always use LF line endings.
 * text=auto eol=lf
+
+# Binary files that should not be modified.
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.ttf binary
+*.webp binary
+*.woff binary
+*.woff2 binary
