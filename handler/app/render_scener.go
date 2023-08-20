@@ -93,7 +93,7 @@ func scener(z *zap.SugaredLogger, c echo.Context, r postgres.Role,
 		err = s.All(ctx, db)
 	}
 	if err != nil {
-		return InternalErr(z, c, name, err)
+		return DatabaseErr(z, c, name, err)
 	}
 	data["sceners"] = s.Sort()
 	data["description"] = "Sceners and people who have been credited for their work in The Scene."

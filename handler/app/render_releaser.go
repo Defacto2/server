@@ -50,11 +50,11 @@ func bbsHandler(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	defer db.Close()
 	r := model.Releasers{}
 	if err := r.BBS(ctx, db, 0, 0, prolific); err != nil {
-		return InternalErr(z, c, name, err)
+		return DatabaseErr(z, c, name, err)
 	}
 	m := model.Summary{}
 	if err := m.BBS(ctx, db); err != nil {
-		return InternalErr(z, c, name, err)
+		return DatabaseErr(z, c, name, err)
 	}
 	data[key] = r
 	data["stats"] = map[string]string{
@@ -95,11 +95,11 @@ func FTP(z *zap.SugaredLogger, c echo.Context) error {
 	defer db.Close()
 	r := model.Releasers{}
 	if err := r.FTP(ctx, db, 0, 0, model.NameAsc); err != nil {
-		return InternalErr(z, c, name, err)
+		return DatabaseErr(z, c, name, err)
 	}
 	m := model.Summary{}
 	if err := m.FTP(ctx, db); err != nil {
-		return InternalErr(z, c, name, err)
+		return DatabaseErr(z, c, name, err)
 	}
 	data[key] = r
 	data["stats"] = map[string]string{
@@ -142,11 +142,11 @@ func Magazine(z *zap.SugaredLogger, c echo.Context) error {
 	defer db.Close()
 	r := model.Releasers{}
 	if err := r.Magazine(ctx, db, 0, 0, model.NameAsc); err != nil {
-		return InternalErr(z, c, name, err)
+		return DatabaseErr(z, c, name, err)
 	}
 	m := model.Summary{}
 	if err := m.Magazine(ctx, db); err != nil {
-		return InternalErr(z, c, name, err)
+		return DatabaseErr(z, c, name, err)
 	}
 	data[key] = r
 	data["stats"] = map[string]string{
@@ -198,11 +198,11 @@ func releaser(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	defer db.Close()
 	var r model.Releasers
 	if err := r.All(ctx, db, 0, 0, prolific); err != nil {
-		return InternalErr(z, c, name, err)
+		return DatabaseErr(z, c, name, err)
 	}
 	var m model.Summary
 	if err := m.All(ctx, db); err != nil {
-		return InternalErr(z, c, name, err)
+		return DatabaseErr(z, c, name, err)
 	}
 	data[key] = r
 	data["stats"] = map[string]string{
