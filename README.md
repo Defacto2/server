@@ -1,61 +1,52 @@
-# Defacto2 server
+# Defacto2, web application server
 
-The Defacto2 web server is a self-contained application built in Go. 
+The [Defacto2](https://defacto2.net) web server is a self-contained application built on [Go](https://go.dev/). 
 It can be quickly and easily built for all the common operating systems. 
-The web server relies on a PostgreSQL database server for data queries. 
-This is best provided using a container such as Docker.
+The web server relies on a [PostgreSQL database server](https://www.postgresql.org/) for data queries. 
+This is best provided using a container such as [Docker](https://www.docker.com/).
 
-All configurations and settings for this web server are handled through system environment variables. 
-On a production setup, this too should be hosted within a container such as Docker.
+All configurations and settings for the web server are handled through system environment variables. 
+On a production setup such with a Docker container, these variables should also be handled within the container environment.
 
-### TODOs
+# TODOs
 
-- [ ] Database normalisations on server start. PostgreSQL indexes with case-sensitive strings.
-- [ ] TODO pass config.Timeout to the SQL contexts. There's no point echo timing out and the database query continuing.
+These items should be implemented and tested before going live.
 
-```
+#### Database
 
-[DIR] Acid Productions                           720    38M
-[DIR] ACiD Productions                            10   515k
+- [ ] Database *normalisations* on server start. 
+- - [ ] PostgreSQL *indexes* with case-sensitive strings.
+- [ ] Some form of database timeout? **The Echo middleware is problematic.**
+- [ ] All SQL statements need to account for `delete_at` ~ `qm.WithDeleted`
+---
 
-[DIR] Aces of ANSI Art                            85   809k
-[DIR] Aces Of ANSI Art                             1   383k
+#### Pages
 
-[DIR] Addiction in Releasing                       3    18k
-[DIR] Addiction In Releasing                       3    19k
-
-```
-
-- [ ] App downloads of files and a custom page when downloads directory is broken
-- [ ] 
-- [ ] Run an automated test to confirm 200 status for all routes. Run this on startup using a defer func?
-- [ ] All SQL stmts need to account for `delete_at`
-`qm.WithDeleted`
+- [ ] Show a *custom error page when the file download* is missing or the root directory is broken.
+- [ ] Run an *automated test to confirm 200 status* for all routes. Run this on startup using a defer func?
 - [ ] Tests for routes and templates.
-- [ ] Move contexts to the start of args.
 
-### Automatic database corrections:
+#### Automatic database corrections
 
-/g/damn-excellent-ansi-designers    > /g/damn-excellent-ansi-design
-/g/the-original-funny-guys          > original-funny-guys
+- `/g/damn-excellent-ansi-designers` > `damn-excellent-ansi-design`
+- `/g/the-original-funny-guys` > `original-funny-guys`
 
+#### Known broken links
 
-Broken links
-- http://localhost:1323/g/x_pression-design
-- http://localhost:1323/g/ice
-- http://localhost:1323/g/ansi-creators-in-demand
-- http://localhost:1323/g/nc_17
-- http://localhost:1323/g/share-and-enjoy
-- north-american-pirate_phreak-association
+- [ ] http://localhost:1323/g/x_pression-design
+- [ ] http://localhost:1323/g/ice
+- [ ] http://localhost:1323/g/ansi-creators-in-demand
+- [ ] http://localhost:1323/g/nc_17
+- [ ] http://localhost:1323/g/share-and-enjoy
+- [ ] http://localhost:1323/g/north-american-pirate_phreak-association
 
 ### Possible TODOs
 
-- [ ] Create a method to calc the most popular years for a collection of records query.
 - [ ] `OrderBy` Name/Count /html3/groups?
 https://pkg.go.dev/sort#example-package-SortKeys
 - [ ] Move `OrderBy` params to cookies?
 
-Support Unicode slug URLs as currently the regex removes all non alphanumeric chars.
+#### Support Unicode slug URLs as currently the regex removes all non alphanumeric chars.
 
 ```
 /*
@@ -67,11 +58,10 @@ Error:      	Not equal:
 */
 ```
 
----
+# Install on Debian/Ubuntu
 
-## Install on Debian/Ubuntu
-
-The following instructions uses the Debian packages management tool, `dpkg` to install the server software.
+The following instructions uses the Debian packages management tool, 
+`dpkg` to install the server software.
 
 ```sh
 # Download the Debian package
@@ -84,17 +74,17 @@ dpkg -i df2-server_0.0.7_amd64.deb
 df2-server --version
 df2-server --help
 
-# Start the server in the developer mode
+# Start the server without any custom configuration and in the developer mode
 df2-server
 ```
 
----
+# Edit the code
 
-## Edit the code
+This web server is dependancy free and built in Go with some common frameworks and dependencies. 
+The web application expects a local PostgreSQL server containing the Defacto2 database running on port `5432`.
+The application will load and show static webpages, but any other page that requires data from database will timeout.
 
-This web server is dependancy free and built in Go. 
-The server expects a local PostgreSQL server containing the Defacto2 database running on port `5432`.
-It is configured to use the following as developer defaults.
+The web server configured to use the following as developer defaults.
 
 - user: `root`
 - password: `example`
@@ -102,13 +92,28 @@ It is configured to use the following as developer defaults.
 - database: `defacto2-ps`
 - sslmode: `disabled`
 
-[Download and install Go](https://go.dev/doc/install).
+[Download and install the Go](https://go.dev/doc/install) programming language.
 
 Clone this repository using [git](https://git-scm.com/).
 
 ```sh
+# Clone the repository
 git clone https://github.com/Defacto2/server.git df2server
 cd df2server
+
+# Install some additional tools for use in the repository
+# Task is a task runner / build tool
+go install github.com/go-task/task/v3/cmd/task@latest
+
+# Initalise the repository using the task runner
+task _init
+
+# Run the web application source code with a live code modification reload monitor.
+task serve
+
+...
+⇨ Compiled with Go 1.21.0 for Windows, Intel/AMD 64.
+⇨ http server started on [::]:1323
 ```
 
 Compile and run the server.
