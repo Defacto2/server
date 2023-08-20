@@ -13,13 +13,13 @@ vars:
 
 tasks:
   default:
-    desc: "Task runner for the Defacto2 server."
+    desc: "Task runner for the Defacto2 web server source code."
     cmds:
       - task --list-all
     silent: true
   lint:
     silent: false
-    desc: runs the go formatter and lints the source code
+    desc: Runs the go formatter and lints the source code.
     ignore_error: true
     cmds:
       - cmd: clear
@@ -27,7 +27,7 @@ tasks:
       - cmd: gofumpt -w .
       - cmd: golangci-lint run
   build:
-    desc: "Build the server binary."
+    desc: "Build the binary of the web server."
     deps: [assets]
     cmds:
       - cmd: echo "Building..."
@@ -37,7 +37,7 @@ tasks:
         platforms: [windows]
       - cmd: echo "Done!"
   build-race:
-    desc: "Build the server binary  with race conditions."
+    desc: "Build the binary of the web server with race detection."
     deps: [assets]
     cmds:
       - cmd: echo "Building with race conditions..."
@@ -45,9 +45,13 @@ tasks:
         platforms: [linux, darwin, freebsd]
       - cmd: go build -o {{.BINNAME}}.exe -race -v server.go
         platforms: [windows]
+      - cmd: ./{{.BINNAME}} --version
+        platforms: [linux,darwin]
+      - cmd: ./{{.BINNAME}}.exe --version
+        platforms: [windows]
       - cmd: echo "Done!"
   assets:
-    desc: "Build and compress the CSS and JS assets."
+    desc: "Build, compile and compress the web serve CSS and JS assets."
     cmds:
       - echo "Building assets..."
       - go run runner/runner.go
@@ -56,17 +60,17 @@ tasks:
     desc: "Run the test suite."
     cmds:
       - go test -v ./...
-  tester:
-    desc: "Run the slower test suite with race conditions."
+  testr:
+    desc: "Run the test suite with the slower race detection."
     cmds:
       - go test -race -v ./...
   serve:
-    desc: "Run the internal development server with live reload."
+    desc: "Run the internal web server in development mode with live reload."
     cmds:
       - task: serve-air
       - task: serve-windows
   serve-prod:
-    desc: "Run the internal development server with live reload."
+    desc: "Run the internal web server with live reload."
     cmds:
       - task: serve-air
       - task: serve-windows-prod
@@ -112,3 +116,15 @@ tasks:
       DEFACTO2_THUMBNAILS: "F:\\Defacto2\\images400"
     cmds:
       - air -c .air.windows.toml 
+  pkg-patch:
+    silent: false
+    desc: Update and apply patches to the web server dependencies.
+    cmds:
+      - cmd: go get -u=patch -x
+      - cmd: go mod verify
+  pkg-update:
+    silent: false
+    desc: Update the web server dependencies.
+    cmds:
+      - cmd: go get -u -x
+      - cmd: go mod verify
