@@ -1,13 +1,10 @@
 # https://taskfile.dev/installation/
 
-# TODO: lint and ver tasks
-
 version: '3'
 
 vars:
-  BINNAME: df2-server
-  # serve configs
-  SERVEPORT: 1323
+  BINNAME: df2-server # build output, binary filename (without extension) 
+  SERVEPORT: 1323     # web server port number
   LOGREQUESTS: false
   NOROBOTS: false
 
@@ -128,3 +125,13 @@ tasks:
     cmds:
       - cmd: go get -u -x
       - cmd: go mod verify
+  ver:
+    silent: false
+    desc: Print the versions of the build and compiler tools.
+    ignore_error: true
+    cmds:
+      - cmd: go version
+      - cmd: gofumpt --version
+      - cmd: task --version
+      - cmd: golangci-lint --version
+      - cmd: goreleaser --version
