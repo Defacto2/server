@@ -30,6 +30,7 @@ func empty() map[string]interface{} {
 		"carousel": "", //   The ID of the carousel to display.
 
 		"counter": Statistics(), // The database counts for files and categories.
+		"dberror": false,        // If true, the database is not available.
 	}
 }
 

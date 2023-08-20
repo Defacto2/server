@@ -41,7 +41,7 @@ const (
 )
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
-func (c Configuration) TemplateFuncMap() template.FuncMap {
+func (web Web) TemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
 		"attribute":      Attribute,
 		"describe":       Describe,
@@ -64,16 +64,13 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 		"safeHTML":       SafeHTML,
 		"sizeOfDL":       SizeOfDL,
 		"subTitle":       SubTitle,
-		"thumb":          c.Thumb,
+		"thumb":          web.Thumb,
 		"trimSiteSuffix": TrimSiteSuffix,
-		"databaseDown": func() bool {
-			return false //c.DatbaseErr
-		},
 		"fmtURI": func(uri string) string {
 			return fmts.Name(uri)
 		},
 		"logo": func() string {
-			return string(*c.Brand)
+			return string(*web.Brand)
 		},
 		"mergeIcon": func() template.HTML {
 			return merge
@@ -82,16 +79,16 @@ func (c Configuration) TemplateFuncMap() template.FuncMap {
 			return "<span class=\"text-nowrap\">MS Dos</span>"
 		},
 		"sriBootCSS": func() string {
-			return c.Subresource.BootstrapCSS
+			return web.Subresource.BootstrapCSS
 		},
 		"sriBootJS": func() string {
-			return c.Subresource.BootstrapJS
+			return web.Subresource.BootstrapJS
 		},
 		"sriFA": func() string {
-			return c.Subresource.FontAwesome
+			return web.Subresource.FontAwesome
 		},
 		"sriLayout": func() string {
-			return c.Subresource.LayoutCSS
+			return web.Subresource.LayoutCSS
 		},
 	}
 }
@@ -141,9 +138,9 @@ func Attribute(write, code, art, music, name string) string {
 // Thumb returns a HTML image tag or picture element for the given uuid.
 // The uuid is the filename of the thumbnail image without an extension.
 // The desc is the description of the image.
-func (c Configuration) Thumb(uuid, desc string, bottom bool) template.HTML {
-	fw := filepath.Join(c.Import.ThumbnailDir, fmt.Sprintf("%s.webp", uuid))
-	fp := filepath.Join(c.Import.ThumbnailDir, fmt.Sprintf("%s.png", uuid))
+func (web Web) Thumb(uuid, desc string, bottom bool) template.HTML {
+	fw := filepath.Join(web.Import.ThumbnailDir, fmt.Sprintf("%s.webp", uuid))
+	fp := filepath.Join(web.Import.ThumbnailDir, fmt.Sprintf("%s.png", uuid))
 	webp := strings.Join([]string{config.StaticThumb(), fmt.Sprintf("%s.webp", uuid)}, "/")
 	png := strings.Join([]string{config.StaticThumb(), fmt.Sprintf("%s.png", uuid)}, "/")
 	alt := strings.ToLower(desc) + " thumbnail"

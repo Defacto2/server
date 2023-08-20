@@ -285,7 +285,7 @@
       </nav>
 {{- block "modal" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
   <hr>
-{{- if eq databaseDown true -}}
+{{- if eq (index . "dberror") true -}}
 <div class="alert alert-danger" role="alert">
   The database is down, this means the website is not fully working. We are working on it.
 </div>{{- end}}

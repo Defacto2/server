@@ -54,7 +54,7 @@ type Configuration struct {
 
 // Registry returns the template renderer.
 func (c Configuration) Registry() (*TemplateRegistry, error) {
-	webapp := app.Configuration{
+	webapp := app.Web{
 		Import: c.Import,
 		ZLog:   c.ZLog,
 		Brand:  c.Brand,

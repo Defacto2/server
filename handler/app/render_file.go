@@ -30,7 +30,8 @@ func File(z *zap.SugaredLogger, c echo.Context, stats bool) error {
 
 	data, err := fileWStats(data, stats)
 	if err != nil {
-		return InternalErr(z, c, name, err)
+		z.Warn(err)
+		data["dberror"] = true
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -45,7 +46,7 @@ func fileWStats(data map[string]interface{}, stats bool) (map[string]interface{}
 	}
 	c, err := counter()
 	if err != nil {
-		return nil, err
+		return data, err
 	}
 	data["counter"] = c
 	data["logo"] = "File category statistics"

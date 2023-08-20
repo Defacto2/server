@@ -94,12 +94,12 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 	// fetch the records by category
 	r, err := Records(ctx, db, uri, int(page), limit)
 	if err != nil {
-		return InternalErr(z, c, name, err)
+		return DatabaseErr(z, c, name, err)
 	}
 	data[records] = r
 	d, sum, err := stats(ctx, db, uri)
 	if err != nil {
-		return InternalErr(z, c, name, err)
+		return DatabaseErr(z, c, name, err)
 	}
 	data["stats"] = d
 	lastPage := math.Ceil(float64(sum) / float64(limit))

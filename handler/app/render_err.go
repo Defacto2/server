@@ -128,6 +128,42 @@ func zapNil(err error) {
 	log.Println(fmt.Errorf("cannot log the following error: %w", err))
 }
 
+// DatabaseErr is the handler for handling database connection errors.
+func DatabaseErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) error {
+	const code = http.StatusInternalServerError
+	if z == nil {
+		zapNil(err)
+	} else if err != nil {
+		z.Warnf("%d error for %q: %s", code, uri, err)
+	}
+	// render the fallback, text only error page
+	if c == nil {
+		if z == nil {
+			zapNil(fmt.Errorf("%w: databaserr", ErrCxt))
+		} else {
+			z.Warnf("%s: %s", ErrTmpl, ErrCxt)
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Errorf("%w: handler app status", ErrCxt))
+	}
+	// render a user friendly error page
+	data := empty()
+	data["description"] = fmt.Sprintf("HTTP status %d error", code)
+	data["title"] = "500 error, there is a complication"
+	data["code"] = code
+	data["logo"] = "Database error"
+	data["alert"] = "Cannot connect to the database!"
+	data["uriErr"] = ""
+	data["probl"] = "This is not your fault, but the server cannot communicate with the database and cannot display this page."
+	if err := c.Render(code, "status", data); err != nil {
+		if z != nil {
+			z.Errorf("%s: %s", ErrTmpl, err)
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
 // InternalErr is the handler for handling Internal Server Errors, caused by programming bugs or crashes.
 // The uri string is the part of the URL that caused the error.
 // The optional error value is logged using the zap sugared logger.

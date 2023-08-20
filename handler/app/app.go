@@ -36,8 +36,8 @@ func GlobTo(name string) string {
 	return strings.Join([]string{"view", app, name}, "/")
 }
 
-// Configuration of the app.
-type Configuration struct {
+// Web is the configuration and status of the web app.
+type Web struct {
 	Brand       *[]byte            // Brand points to the Defacto2 ASCII logo.
 	Import      *config.Config     // Import configurations from the host system environment.
 	ZLog        *zap.SugaredLogger // Log is a sugared logger.
@@ -51,8 +51,8 @@ type (
 )
 
 // Tmpl returns a map of the templates used by the route.
-func (c *Configuration) Tmpl() (map[string]*template.Template, error) {
-	if err := c.Subresource.Verify(c.Public); err != nil {
+func (web *Web) Tmpl() (map[string]*template.Template, error) {
+	if err := web.Subresource.Verify(web.Public); err != nil {
 		return nil, err
 	}
 	const r, s = "releaser.tmpl", "scener.tmpl"
@@ -75,7 +75,7 @@ func (c *Configuration) Tmpl() (map[string]*template.Template, error) {
 	}
 	tmpls := make(map[string]*template.Template)
 	for k, name := range list {
-		tmpl, err := c.tmpl(name)
+		tmpl, err := web.tmpl(name)
 		if err != nil {
 			return nil, err
 		}
@@ -84,9 +84,9 @@ func (c *Configuration) Tmpl() (map[string]*template.Template, error) {
 	return tmpls, nil
 }
 
-// Configuration tmpl returns a layout template for the given named view.
+// Web tmpl returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory.
-func (c Configuration) tmpl(name filename) (*template.Template, error) {
+func (web Web) tmpl(name filename) (*template.Template, error) {
 	const (
 		fileExp    = "file_expand.tmpl"
 		layout     = "layout.tmpl"
@@ -111,7 +111,7 @@ func (c Configuration) tmpl(name filename) (*template.Template, error) {
 		files = append(files, GlobTo(website))
 	}
 	return template.Must(
-		template.New("").Funcs(c.TemplateFuncMap()).ParseFS(c.View, files...)), nil
+		template.New("").Funcs(web.TemplateFuncMap()).ParseFS(web.View, files...)), nil
 }
 
 // SRI are the Subresource Integrity hashes for the layout.
