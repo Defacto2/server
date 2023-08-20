@@ -116,12 +116,6 @@ task serve
 ⇨ http server started on [::]:1323
 ```
 
-Compile and run the server.
-
-```sh
-go run .
-```
-
 Point your browser to: **http://localhost:1323**.
 
 To exit the server, tap <kbd>CTRL-C</kbd>.
@@ -136,42 +130,37 @@ To exit the server, tap <kbd>CTRL-C</kbd>.
  · ··──┼─────────··                defacto2.net               ··─────────┼──·· ·
        │                                                                 :
 
-⇨ Defacto2 web application with PostgreSQL 15.1.
-⇨ 5 active routines sharing 4 usable threads on 4 CPU cores.
-⇨ Compiled with Go 1.19.5.
+⇨ ...
 ⇨ http server started on [::]:1323
 
 ```
 
 ---
 
-### Live reloading
+### Linter
 
-The server is configured to use, [Air - Live reload for Go apps](https://github.com/cosmtrek/air).
+The application is configured to use golangci-lint as the Go linter aggregator.
 
-Install Air to the server directory.
+[Follow one of the local installation instructions](https://golangci-lint.run/usage/install/#local-installation).
 
-```
-cd df2server
-go install github.com/cosmtrek/air@latest
-
-air
+```sh
+# Use the lint task
+task lint
 ```
 
-```
-  __    _   ___ 
- / /\  | | | |_) 
-/_/--\ |_| |_| \_ , built with Go 
+---
 
-mkdir /home/ben/github/df2-serve/tmp
-watching .
-building...
-running...
+### BootStrap 5
 
-server.go has changed
-building...
-running...
-```
+The site relies on Bootstrap for its frontend feature set. To avoid the messiness of JS package managers, any future Bootstrap updates can be manually sourced from the [Compiled CSS and JS Download](https://getbootstrap.com/docs/5.3/getting-started/download).
+
+#### CSS:
+
+`bootstrap.min.css` is located at: `/public/css/bootstrap.min.css`
+
+#### JS:  
+
+`bootstrap.bundle.min.js` is located at: `/public/js/bootstrap.bundle.min.js`
 
 ---
 
@@ -196,7 +185,7 @@ goreleaser check
 To build a local-only release to confirm the builder configuration.
 
 ```sh
-goreleaser release --snapshot --rm-dist
+goreleaser release --snapshot --clean
 ```
 
 To build to the local, host operating system. The compiled binary will be found in `dist/`.
@@ -212,45 +201,3 @@ goreleaser build
 ```
 
 Note, the `release` flag is unused, instead all new releases are compiled using GitHub Actions.
-
----
-
-### Linter
-
-[Follow one of the local installation instructions](https://golangci-lint.run/usage/install/#local-installation).
-
-```sh
-cd df2server
-golangci-lint run ./...
-```
-
----
-
-### Gofumpt
-
-```
-cd df2server
-go install mvdan.cc/gofumpt@latest
-gofumpt -l -w .
-```
-
----
-
-### GCI
-
-```
-cd df2server
-go install github.com/daixiang0/gci@latest
-gci write ./..
-```
-
----
-
-### BootStrap 5
-
-The site relies on Bootstrap for its frontend feature set. To avoid the messiness of JS package managers, any future Bootstrap updates can be manually sourced from the [Compiled CSS and JS Download](https://getbootstrap.com/docs/5.3/getting-started/download).
-
-
-CSS: `bootstrap.min.css` is located at: `/public/css/bootstrap.min.css`
-
-JS:  `bootstrap.bundle.min.js` is located at: `/public/js/bootstrap.bundle.min.js`
