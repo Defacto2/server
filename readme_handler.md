@@ -1,46 +1,65 @@
-# Handler README
+# Handler readme
 
-The handler directory is where the Echo router controller options and settings exist. In a traditional MVC framework this directory would contain the controller.
+The `handler/` directory is where the Echo router, controller and its settings exist. In a traditional model-view-controller framework, this `handler/` directory would contain the controller.
+
+This document lists possible new features and middleware that could be implemented into the existing Echo configuration.
 
 ---
 
-### Echo testing!
+### Unit tests
 
-https://echo.labstack.com/guide/testing/
+[This simple guide explains](https://echo.labstack.com/guide/testing/) how to test the fetching of a user by id from the database. If user is not found it returns 404 error with a message.
 
-List all routes for testing and debugging https://echo.labstack.com/guide/routing/#list-routes
+[List all routes for testing and debugging](https://echo.labstack.com/guide/routing/#list-routes).
 
-Testing middleware examples https://github.com/labstack/echo/tree/master/middleware
+[The list of middleware examples](https://github.com/labstack/echo/tree/master/middleware) contain `_test.go` test files.
 
 ---
 
 ### CRUD
 
-User accounts with CRUD https://echo.labstack.com/cookbook/crud/
+User accounts example with create-read-update-delete, https://echo.labstack.com/cookbook/crud/
+
+---
+
+### Session ID
+
+Session middleware https://echo.labstack.com/middleware/session/
+
+Request ID Middleware https://echo.labstack.com/middleware/request-id/
 
 ---
 
 ### Uploads
 
-- https://echo.labstack.com/cookbook/file-upload/
-- https://echo.labstack.com/cookbook/file-upload/
-- https://echo.labstack.com/cookbook/timeouts/
+[Upload a single file with parameters](https://echo.labstack.com/cookbook/file-upload/) example.
+
+[Upload multiple files with parameters](https://echo.labstack.com/docs/cookbook/file-upload#upload-multiple-files-with-parameters) example.
 
 ---
 
 ### Timeouts
 
+#### DO NOT USE
+
+```
+// ---------------------------------------------------------------------------------------------------------------
+// WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+// WARNING: Timeout middleware causes more problems than it solves.
+// WARNING: This middleware should be first middleware as it messes with request Writer and could cause data race if
+// 					it is in other position
+```
+[source code](https://github.com/labstack/echo/blob/master/middleware/timeout.go)
+
+
 Timeout middleware for specific routes https://echo.labstack.com/middleware/timeout/
 
 ---
 
-### Request and Validate data
+### Data validation
 
-Sourced from FORMS, queries etc.
+Request and validate data sourced from FORMS, queries etc.
 https://echo.labstack.com/guide/request/#custom-binder
-
-Body (size) limit middleware, except for uploads?
-https://echo.labstack.com/middleware/body-limit/
 
 ---
 
@@ -66,14 +85,6 @@ When decoding the request body, the following data types are supported as specif
     application/x-www-form-urlencoded
 
 When binding path parameter, query parameter, header, or form data, tags must be explicitly set on each struct field. However, JSON and XML binding is done on the struct field name if the tag is omitted. This is according to the behaviour of Go’s json package.
-
----
-
-### Session ID
-
-Session middleware https://echo.labstack.com/middleware/session/
-
-Request ID Middleware https://echo.labstack.com/middleware/request-id/
 
 ---
 
@@ -121,13 +132,6 @@ https://echo.labstack.com/cookbook/cors/
 ### CSRF Middleware
 
 https://echo.labstack.com/middleware/csrf/
-
----
-
-### Dump Middleware
-
-Body dump the middleware when `IsProduction`=`false`.
-https://echo.labstack.com/middleware/body-dump/
 
 ---
 
