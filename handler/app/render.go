@@ -54,7 +54,7 @@ func Interview(z *zap.SugaredLogger, c echo.Context) error {
 	data["description"] = "Discussions with scene members."
 	data["logo"] = title
 	data["h1"] = title
-	data["lead"] = "An incomplete list of discussions and interviews with sceners, crackers and demo makers."
+	data["lead"] = "An incomplete list of discussions and unedited interviews with sceners, crackers and demo makers."
 	data["interviews"] = Interviewees()
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {

@@ -21,6 +21,18 @@ type Interviews []Interviewee
 func Interviewees() Groups {
 	i := Groups{
 		{
+			Name: "Retirements",
+			Link: "",
+			Interviews: Interviews{
+				{
+					Scener: "ChinaBlue",
+					Year:   1998, Month: 6,
+					Content: "Talks about her retirement and the 'bust or be busted' paranoia of the scene.",
+					Link:    "/wayback/scenelink-from-1998-june-25/features/issue/5/china-interview.html",
+				},
+			},
+		},
+		{
 			Name: "Amnesia",
 			Link: "amnesia",
 			Interviews: Interviews{
@@ -41,6 +53,12 @@ func Interviewees() Groups {
 					Year:   1999, Month: 12,
 					Content: "The council member of Drink or Die talks about life in The Scene.",
 					Link:    "/wayback/apollo-x-demo-resources-1999-december-17/bandido.htm",
+				},
+				{
+					Scener: "BiGrAr",
+					Year:   2002, Month: 10,
+					Content: "Former member of Drink or Die and convicted pirate talks about his time in the group and prison.",
+					Link:    "https://yro.slashdot.org/story/02/10/04/144217/former-drinkordie-member-chris-tresco-answers",
 				},
 			},
 		},
@@ -187,18 +205,6 @@ func Interviewees() Groups {
 					Year:   2012, Month: 8,
 					Content: "The former member of The Humble Guys talks about his side group, \"Lamers of Power\".",
 					Link:    "/f/ae2f55",
-				},
-			},
-		},
-		{
-			Name: "Retirements",
-			Link: "",
-			Interviews: Interviews{
-				{
-					Scener: "ChinaBlue",
-					Year:   1998, Month: 6,
-					Content: "Talks about her retirement and the 'bust or be busted' paranoia of the scene.",
-					Link:    "/wayback/scenelink-from-1998-june-25/features/issue/5/china-interview.html",
 				},
 			},
 		},
