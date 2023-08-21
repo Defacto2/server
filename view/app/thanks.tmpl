@@ -2,41 +2,39 @@
 {{- define "content" }}
 {{- $lsMoney := " bg-light" }}
 <p>
-    The Defacto2 website costs many hundreds of dollars to run each year...
 </p>
 <p class="lead">
-    All tips, no matter how large or small, are greatly appreciated and go to the operations of the Defacto2 website.
+    As the Defacto2 website costs many hundreds of dollars to run each year,
+    all tips, no matter how large or small, are greatly appreciated and go to the operations of the website.
 </p>
-<div class="card m-0">
-    <div class="card-body bg-success-subtle">
-        <p class="card-title fs-1 text-white">Tip with</p>
+<div class="card card border-success mx-1 my-5">
+    <div class="card-body">
+        <p class="card-text mb-2 text-center lead">No signup or accounts are required and no personal details are given to us.</p>
+        <p class="card-title fs-1 text-secondary">Tip with</p>
         <div class="container text-center">
-            <div class="row row-cols-1">
-                <div class="col p-4">
-                <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PBV5H45GG5L8G" class="btn btn-primary fs-1 p-3">PayPal</a>
-                {{/*   <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PBV5H45GG5L8G" class="btn btn-primary fs-1">PayPal</a>  */}}
+            <div class="row row-cols-2">
+                <div class="col">
+                    <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PBV5H45GG5L8G" class="btn btn-outline-success fs-1 pb-3 px-5" role="button">PayPal</a>
                 </div>
-                <div class="col p-4">
-                    <a href="https://www.buymeacoffee.com/4rtEGvUIY" class="btn btn-primary text-nowrap fs-1 p-3">Buy Me a Coffee</a>
-                    {{/*  <a href="https://www.buymeacoffee.com/4rtEGvUIY" class="btn btn-primary fs-1">Buy Me a Coffee</a>  */}}
+                <div class="col">
+                    <a href="https://www.buymeacoffee.com/4rtEGvUIY" class="btn btn-outline-success text-nowrap fs-1 pb-3 px-5" role="button">Buy me a coffee!</a>
                 </div>
             </div>
         </div>
-        <p class="card-text mt-2">No signup or accounts are required and no personal details are given to us.</p>
+        <dl class="row fs-5 fw-lighter m-5">
+            <dt class="col-sm-3 fs-3 text-center fw-lighter text-danger{{$lsMoney}}">$326.75</dt>
+            <dd class="col-sm-9 fs-3">Total, annual hosting <small>in US dollars</small></dd>
+            <dt class="col-sm-3"></dt>
+            <dd class="col-sm-9"></dd>
+            <dt class="col-sm-3 text-center fw-lighter{{$lsMoney}}">$240.00</dt>
+            <dd class="col-sm-9 ps-4">Website hosting including the file downloads, database and image hosting</dd>
+            <dt class="col-sm-3 text-center fw-lighter{{$lsMoney}}">$48.00</dt>
+            <dd class="col-sm-9 ps-4">Website redundancy backups</dd>
+            <dt class="col-sm-3 text-center fw-lighter{{$lsMoney}}">$28.80</dt>
+            <dd class="col-sm-9 ps-4">Annual sales-tax</dd>
+            <dt class="col-sm-3 text-center fw-lighter{{$lsMoney}}">$9.95</dt>
+            <dd class="col-sm-9 ps-4">Domain name</dd>
+        </dl>
     </div>
 </div>
-<dl class="row fs-5 fw-lighter">
-    <dt class="col-sm-3 fs-2 text-center fw-lighter text-danger{{$lsMoney}}">$326.75</dt>
-    <dd class="col-sm-9 fs-2">Total annual hosting costs in <small>US</small> dollars.</dd>
-    <dt class="col-sm-3"></dt>
-    <dd class="col-sm-9"></dd>
-    <dt class="col-sm-3 text-center fw-lighter{{$lsMoney}}">$240.00</dt>
-    <dd class="col-sm-9 ps-4">Website hosting including the file downloads, database and image hosting.</dd>
-    <dt class="col-sm-3 text-center fw-lighter{{$lsMoney}}">$48.00</dt>
-    <dd class="col-sm-9 ps-4">Website redundancy backups.</dd>
-    <dt class="col-sm-3 text-center fw-lighter{{$lsMoney}}">$28.80</dt>
-    <dd class="col-sm-9 ps-4">Annual sale tax.</dd>
-    <dt class="col-sm-3 text-center fw-lighter{{$lsMoney}}">$9.95</dt>
-    <dd class="col-sm-9 ps-4">Domain name.</dd>
-</dl>  
 {{- end}}
