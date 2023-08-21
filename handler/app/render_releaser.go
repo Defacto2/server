@@ -25,7 +25,7 @@ func BBSAZ(z *zap.SugaredLogger, c echo.Context) error {
 
 // bbsHandler is the handler for the BBS page.
 func bbsHandler(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
-	const title, name = "BBS", "file"
+	const title, name = "BBS", "bbs"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
@@ -71,7 +71,7 @@ func bbsHandler(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 
 // FTP is the handler for the FTP page.
 func FTP(z *zap.SugaredLogger, c echo.Context) error {
-	const title, name = "FTP", "file"
+	const title, name = "FTP", "ftp"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
@@ -116,6 +116,16 @@ func FTP(z *zap.SugaredLogger, c echo.Context) error {
 
 // Magazine is the handler for the Magazine page.
 func Magazine(z *zap.SugaredLogger, c echo.Context) error {
+	return mag(z, c, true)
+}
+
+// Magazine is the handler for the Magazine page ordered chronologically.
+func MagazineAZ(z *zap.SugaredLogger, c echo.Context) error {
+	return mag(z, c, false)
+}
+
+// mag is the handler for the magazine page.
+func mag(z *zap.SugaredLogger, c echo.Context, chronological bool) error {
 	const title, name = "Magazine", "magazine"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
@@ -141,8 +151,14 @@ func Magazine(z *zap.SugaredLogger, c echo.Context) error {
 	}
 	defer db.Close()
 	r := model.Releasers{}
-	if err := r.Magazine(ctx, db, 0, 0, model.NameAsc); err != nil {
-		return DatabaseErr(z, c, name, err)
+	if chronological {
+		if err := r.Magazine(ctx, db); err != nil {
+			return DatabaseErr(z, c, name, err)
+		}
+	} else {
+		if err := r.MagazineAZ(ctx, db); err != nil {
+			return DatabaseErr(z, c, name, err)
+		}
 	}
 	m := model.Summary{}
 	if err := m.Magazine(ctx, db); err != nil {

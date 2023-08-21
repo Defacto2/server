@@ -117,6 +117,9 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 	e.GET("/magazine", func(c echo.Context) error {
 		return app.Magazine(z, c)
 	})
+	e.GET("/magazine/a-z", func(c echo.Context) error {
+		return app.MagazineAZ(z, c)
+	})
 	e.GET("/musician", func(c echo.Context) error {
 		return app.Musician(z, c)
 	})

@@ -95,10 +95,16 @@ const releaserSEL SQL = "SELECT DISTINCT releaser, " +
 const releaserBy SQL = "GROUP BY releaser " +
 	"ORDER BY releaser ASC"
 
-	// credit_text
-	// credit_program
-	// credit_illustration
-	// credit_audio
+const magazineSEL SQL = "SELECT DISTINCT releaser, " +
+	"COUNT(files.filename) AS count_sum, " +
+	"SUM(files.filesize) AS size_sum, " +
+	"MIN(files.date_issued_year) AS min_year " +
+	"FROM files " +
+	"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
+	"WHERE NULLIF(releaser, '') IS NOT NULL " +
+	"AND section = 'magazine' " +
+	"GROUP BY releaser " +
+	"ORDER BY min_year ASC, releaser ASC"
 
 type Role string
 
@@ -167,6 +173,10 @@ func SelectRelPros() SQL {
 // SelectMags selects a list of distinct magazine titles.
 func SelectMag() SQL {
 	return releaserSEL + "AND section = 'magazine'" + releaserBy
+}
+
+func SelectMagCron() SQL {
+	return magazineSEL
 }
 
 // SelectBBS selects a list of distinct BBS names.

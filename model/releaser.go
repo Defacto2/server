@@ -18,10 +18,11 @@ import (
 
 // Releaser is a collective, group or individual, that releases files.
 type Releaser struct {
-	Name  string `boil:"releaser"`  // Name of the releaser.
-	URI   string ``                 // URI slug for the releaser with no boiler bind.
-	Bytes int    `boil:"size_sum"`  // Bytes are the total size of all the files under this releaser.
-	Count int    `boil:"count_sum"` // Count is the total number of files under this releaser.
+	Name  string   `boil:"releaser"`  // Name of the releaser.
+	URI   string   ``                 // URI slug for the releaser with no boiler bind.
+	Bytes int      `boil:"size_sum"`  // Bytes are the total size of all the files under this releaser.
+	Count int      `boil:"count_sum"` // Count is the total number of files under this releaser.
+	Year  null.Int `boil:"min_year"`  // Year is used for optional sorting and is the earliest year the releaser was active.
 }
 
 // Releasers is a collection of releasers.
@@ -62,7 +63,7 @@ func (r *Releasers) All(ctx context.Context, db *sql.DB, offset, limit int, reor
 }
 
 // Magazine gets the unique magazine titles and their total issue count and file sizes.
-func (r *Releasers) Magazine(ctx context.Context, db *sql.DB, offset, limit int, o Order) error {
+func (r *Releasers) MagazineAZ(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -70,6 +71,21 @@ func (r *Releasers) Magazine(ctx context.Context, db *sql.DB, offset, limit int,
 		return nil
 	}
 	if err := queries.Raw(string(postgres.SelectMag())).Bind(ctx, db, r); err != nil {
+		return err
+	}
+	r.Slugs()
+	return nil
+}
+
+// Magazine gets the unique magazine titles and their total issue count and file sizes.
+func (r *Releasers) Magazine(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
+	if len(*r) > 0 {
+		return nil
+	}
+	if err := queries.Raw(string(postgres.SelectMagCron())).Bind(ctx, db, r); err != nil {
 		return err
 	}
 	r.Slugs()

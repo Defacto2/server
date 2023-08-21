@@ -1,0 +1,38 @@
+{{/*  releaser.tmpl  */}}
+{{- define "content" }}
+{{- $path := "g" }}
+{{- $name := index .itemName}}
+{{- $pubs := index .stats.pubs }}
+{{- $issues := index .stats.issues }}
+{{- $years := index .stats.years}}
+{{- $class := "row row-cols-1 row-cols-sm-2 row-col-md-3 g-2"}}
+<div class="container px-4 text-center">
+    <p class="text-start lead"><small>There are {{$pubs}} with {{$issues | safeHTML}} 
+        from {{$years}}.</small></p>
+    <div class="{{$class}}">
+{{- $prevYear := 0 }}
+{{- range $index, $rel := .releasers -}}
+    {{- $title := fmtURI $rel.Unique.URI }}
+    {{- $initialism := fmtInitalism $rel.Unique.URI }}
+    {{- $year := $rel.Unique.Year.Int }}
+    {{- if and (gt $prevYear 0) (gt $year 0) (gt $year $prevYear) }}
+        {{- $prevYear = $rel.Unique.Year.Int }}
+        </div>
+        <br>
+        <div class="{{$class}}">
+    {{- end}}
+    {{- if eq $prevYear 0}}
+    {{- $prevYear = $rel.Unique.Year.Int }}
+    {{- end}}
+        <div class="col">
+            <div class="p-3 border bg-light"><h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{trimSiteSuffix $title}}</a></h5>
+            <span class="text-muted">{{ $initialism }} &nbsp; </span>
+            {{- fmtByteName $name $rel.Unique.Count $rel.Unique.Bytes }}
+            {{- if gt $year 0 }}
+            &nbsp; <small>{{$rel.Unique.Year.Int}}</small>
+            {{- end}}</div>
+        </div>
+{{- end}}
+    </div>
+</div>
+{{- end }}

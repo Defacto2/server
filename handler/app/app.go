@@ -57,21 +57,22 @@ func (web *Web) Tmpl() (map[string]*template.Template, error) {
 	}
 	const r, s = "releaser.tmpl", "scener.tmpl"
 	list := map[string]filename{
-		"index":     "index.tmpl",
-		"bbs":       r,
-		"coder":     s,
-		"file":      "file.tmpl",
-		"files":     "files.tmpl",
-		"ftp":       r,
-		"history":   "history.tmpl",
-		"interview": "interview.tmpl",
-		"magazine":  r,
-		"releaser":  r,
-		"scener":    s,
-		"status":    "status.tmpl",
-		"thanks":    "thanks.tmpl",
-		"thescene":  "the_scene.tmpl",
-		"websites":  "websites.tmpl",
+		"index":       "index.tmpl",
+		"bbs":         r,
+		"coder":       s,
+		"file":        "file.tmpl",
+		"files":       "files.tmpl",
+		"ftp":         r,
+		"history":     "history.tmpl",
+		"interview":   "interview.tmpl",
+		"magazine":    "releaser_year.tmpl",
+		"magazine-az": r,
+		"releaser":    r,
+		"scener":      s,
+		"status":      "status.tmpl",
+		"thanks":      "thanks.tmpl",
+		"thescene":    "the_scene.tmpl",
+		"websites":    "websites.tmpl",
 	}
 	tmpls := make(map[string]*template.Template)
 	for k, name := range list {
