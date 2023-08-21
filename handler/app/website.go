@@ -114,24 +114,24 @@ func List() Accordion {
 func ama() []Site {
 	return Sites{
 		Site{
-			"Evil Current", "https://www.reddit.com/r/IAmA/comments/xusji/iama_former_member_of_razor_1911_amongst_many/",
-			"August 2012, with a former head member of Razor 1911, and ex-member of The Cartel, Drink or Die, SCuM, Tyranny, Napalm, Pirates with Attitudes, and others.",
+			"Evil Current <sup>2012</sup>", "https://www.reddit.com/r/IAmA/comments/xusji/iama_former_member_of_razor_1911_amongst_many/",
+			"The former head member of Razor 1911, and ex-member of The Cartel, Drink or Die, SCuM, Tyranny, Napalm, Pirates with Attitudes, and others.",
 		},
 		Site{
-			"The Playboy", "https://www.reddit.com/r/IAmA/comments/ckobg/iama_exbbs_warez_scene_guy_ama/",
-			"July 2010, I worked for a major computer game company and was a member of Razor1911. I supplied and was responsible for releasing MAJOR releases such as C&C Red Alert, Z, and others.",
+			"The Playboy <sup>2010</sup>", "https://www.reddit.com/r/IAmA/comments/ckobg/iama_exbbs_warez_scene_guy_ama/",
+			"I worked for a major computer game company and was a member of Razor1911. I supplied and was responsible for releasing MAJOR releases such as C&C Red Alert, Z, and others.",
 		},
 		Site{
-			"BiGrAr", "https://yro.slashdot.org/story/02/10/04/144217/former-drinkordie-member-chris-tresco-answers",
-			"October 2004, Slashdot AMA with ex Drink Or Die member, taken after being busted in Operation Buccaneer but before serving a 33 month jail sentence.",
+			"BiGrAr <sup>2004</sup>", "https://yro.slashdot.org/story/02/10/04/144217/former-drinkordie-member-chris-tresco-answers",
+			"Slashdot AMA with ex Drink Or Die member, taken after being busted in Operation Buccaneer but before serving a 33 month jail sentence.",
 		},
 		Site{
-			"ex-MP3 scener", "https://www.reddit.com/r/IAmA/comments/c451i/iama_ex_warez_scene_member_ama/",
-			"May 2010, I didn't have involvement with cracking etc. and was involved in the far less glamorous MP3 side of the scene, which in a way I'd consider to be a now redundant section.",
+			"ex-MP3 scener <sup>2010</sup>", "https://www.reddit.com/r/IAmA/comments/c451i/iama_ex_warez_scene_member_ama/",
+			"I didn't have involvement with cracking etc. and was involved in the far less glamorous MP3 side of the scene, which in a way I'd consider to be a now redundant section.",
 		},
 		Site{
-			"ex-DVD scener", "https://www.reddit.com/r/IAmA/comments/9l1j3/iama_former_distributor_of_warez_on_the_top_level/",
-			"September 2009, I was a member of the DVD ripping scene for a few years.",
+			"ex-DVD scener <sup>2009</sup>", "https://www.reddit.com/r/IAmA/comments/9l1j3/iama_former_distributor_of_warez_on_the_top_level/",
+			"I was a member of the DVD ripping scene for a few years.",
 		},
 	}
 }
@@ -188,12 +188,16 @@ func bbses() []Site {
 func books() []Site {
 	return Sites{
 		Site{
-			"The Modem World", "https://yalebooks.yale.edu/book/9780300248142/modem-world/",
+			"The Modem World <sup>2022</sup>", "https://yalebooks.yale.edu/book/9780300248142/modem-world/",
 			"The Modem World is the first book to chronicle the history of the social, political, and technical changes wrought by the invention of the modem.",
 		},
 		Site{
-			"Exploding the Phone", "http://explodingthephone.com/",
+			"Exploding the Phone <sup>2013</sup>", "http://explodingthephone.com/",
 			"Before smartphones, back even before the Internet and personal computer, a misfit group of technophiles, blind teenagers, hippies, and outlaws figured out how to hack the world's largest machine: the telephone system.",
+		},
+		Site{
+			"Warez: The Infrastructure and Aesthetics of Piracy <sup>2021</sup>", "https://punctumbooks.pubpub.org/pub/m5fu2twe",
+			"Is the first scholarly research book about this underground subculture, which began life in the pre-internet era Bulletin Board Systems and moved to internet File Transfer Protocol servers (“topsites”) in the mid- to late-1990s.",
 		},
 	}
 }
@@ -339,32 +343,32 @@ func podcasts() []Site {
 func videos() []Site {
 	return Sites{
 		Site{
-			"Steal This Film", "https://stealthisfilm.com/",
-			"Steal This Film and is a 2006-7 film series documenting the movement against intellectual property and released via BitTorrent.",
+			"Steal This Film <sup>2006</sup>", "https://stealthisfilm.com/",
+			"Steal This Film is a series documenting the movement against intellectual property and released via BitTorrent.",
 		},
 		Site{
-			"You're Stealing It Wrong", "https://vimeo.com/15400820",
+			"You're Stealing It Wrong <sup>2010</sup>", "https://vimeo.com/15400820",
 			"Historian Jason Scott walks through the many-years story of software piracy and touches on the tired debates before going into a completely different direction - the interesting, informative, hilarious and occasionally obscene world of inter-pirate-group battles.",
 		},
 		Site{
-			"Good Copy Bad Copy", "https://www.youtube.com/watch?v=ByY6j0qzOyM",
-			"Good Copy Bad Copy is a 2007 documentary about the state of copyright and culture.",
+			"Good Copy Bad Copy <sup>2007</sup>", "https://www.youtube.com/watch?v=ByY6j0qzOyM",
+			"Good Copy Bad Copy is a documentary about the state of copyright and culture.",
 		},
 		Site{
-			"No Copy", "https://www.youtube.com/watch?v=BXBqUBAv1ek",
+			"No Copy <sup>2008</sup>", "https://www.youtube.com/watch?v=BXBqUBAv1ek",
 			"A promotional movie for the book No Copy about copyright, warez and media.",
 		},
 		Site{
-			"TPB AFK - The Pirate Bay Away From Keyboard", "https://www.youtube.com/watch?v=eTOKXCEwo_8",
+			"TPB AFK - The Pirate Bay Away From Keyboard <sup>2013</sup>", "https://www.youtube.com/watch?v=eTOKXCEwo_8",
 			"TPB AFK is a documentary about the founders of the Pirate Bay, subtitled in English.",
 		},
 		Site{
-			"The Scene", "https://www.youtube.com/watch?v=1ZKBCA6PQ_g",
-			"Welcome to the Scene is a 20 part, 2004 web series about people in the online movie piracy scene.",
+			"The Scene <sup>2004</sup>", "https://www.youtube.com/watch?v=1ZKBCA6PQ_g",
+			"Welcome to the Scene is a 20 part web series about people in the online movie piracy scene.",
 		},
 		Site{
-			"Teh Scene", "https://archive.org/search?query=%22Teh%20Scene%22%20AND%20collection%3Acomputersandtechvideos",
-			"Teh Scene is 2005 parody of the online movie piracy scene.",
+			"Teh Scene <sup>2005</sup>", "https://archive.org/search?query=%22Teh%20Scene%22%20AND%20collection%3Acomputersandtechvideos",
+			"Teh Scene is a parody of the online movie piracy scene.",
 		},
 	}
 }

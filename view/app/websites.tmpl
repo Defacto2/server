@@ -5,13 +5,13 @@
 {{- $state := " collapsed" }}
     <div class="accordion-item">
         <h2 class="accordion-header">
-          <button class="accordion-button{{- if .Open }}{{else}}  collapsed{{end}}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ .ID }}" aria-expanded="{{ .Open }}" aria-controls="collapse{{ .ID }}">
+          <button class="accordion-button{{- if .Open }}{{else}}  collapsed{{end}}" type="button" 
+            data-bs-toggle="collapse" data-bs-target="#collapse{{ .ID }}" aria-expanded="{{ .Open }}" aria-controls="collapse{{ .ID }}">
             {{ .Name }}
           </button>
         </h2>
         <div id="collapse{{ .ID }}" class="accordion-collapse collapse{{- if .Open }} show{{end}}">
           <div class="accordion-body">
-            {{/*  <p>About this category goes here.</p>  */}}
             <div class="row row-cols-1 row-cols-md-2 g-4">
               {{range .Sites -}}
                   {{- block "website" . -}}{{ "<!-- {{ .ID }} range of sites -->" | safeHTML -}}{{end}}

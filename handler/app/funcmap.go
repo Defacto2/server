@@ -66,6 +66,7 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"subTitle":       SubTitle,
 		"thumb":          web.Thumb,
 		"trimSiteSuffix": TrimSiteSuffix,
+		"websiteIcon":    WebsiteIcon,
 		"fmtURI": func(uri string) string {
 			return fmts.Name(uri)
 		},
@@ -91,6 +92,26 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 			return web.Subresource.LayoutCSS
 		},
 	}
+}
+
+func WebsiteIcon(url string) string {
+	switch {
+	case strings.Contains(url, "archive.org"):
+		return "bank"
+	case strings.Contains(url, "reddit.com"):
+		return "reddit"
+	case strings.Contains(url, "yalebooks.yale.edu"),
+		strings.Contains(url, "explodingthephone.com"),
+		strings.Contains(url, "punctumbooks"):
+		return "book"
+	case strings.Contains(url, "youtube.com"):
+		return "youtube"
+	case strings.Contains(url, "vimeo.com"):
+		return "vimeo"
+	case strings.Contains(url, "slashdot.org"):
+		return "slash-circle"
+	}
+	return "arrow-right"
 }
 
 // Attribute returns a formatted string of the roles for the given scener name.
