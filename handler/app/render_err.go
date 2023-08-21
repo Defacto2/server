@@ -154,7 +154,7 @@ func DatabaseErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) er
 	data["logo"] = "Database error"
 	data["alert"] = "Cannot connect to the database!"
 	data["uriErr"] = ""
-	data["probl"] = "This is not your fault, but the server cannot communicate with the database and cannot display this page."
+	data["probl"] = "This is not your fault, but the server cannot communicate with the database to display this page."
 	if err := c.Render(code, "status", data); err != nil {
 		if z != nil {
 			z.Errorf("%s: %s", ErrTmpl, err)
