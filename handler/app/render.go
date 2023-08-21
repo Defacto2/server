@@ -45,13 +45,17 @@ func emptyFiles() map[string]interface{} {
 
 // Interview is the handler for the People Interviews page.
 func Interview(z *zap.SugaredLogger, c echo.Context) error {
-	const name = "interview"
+	const title, name = "Interviews with sceners", "interview"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
 	data := empty()
-	data["description"] = demo
-	data["title"] = demo
+	data["title"] = title
+	data["description"] = "Discussions with scene members."
+	data["logo"] = title
+	data["h1"] = title
+	data["lead"] = "An incomplete list of discussions and interviews with sceners, crackers and demo makers."
+	data["interviews"] = Interviewees()
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(z, c, name, err)
