@@ -29,7 +29,7 @@ func (s *Summary) All(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Statistics()...),
+		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
 		qm.From(From)).Bind(ctx, db, s)
 }
@@ -69,7 +69,7 @@ func (s *Summary) Scener(ctx context.Context, db *sql.DB, name string) error {
 		return ErrDB
 	}
 	return models.NewQuery(
-		qm.Select(postgres.Statistics()...),
+		qm.Select(postgres.Columns()...),
 		qm.Where(ScenerSQL(name)),
 		qm.From(From)).Bind(ctx, db, s)
 }
@@ -83,7 +83,7 @@ func (s *Summary) Releaser(ctx context.Context, db *sql.DB, name string) error {
 	n := strings.ToUpper(rename.DeObfuscateURL(name))
 	x := null.StringFrom(n)
 	return models.NewQuery(
-		qm.Select(postgres.Statistics()...),
+		qm.Select(postgres.Columns()...),
 		qm.Where("upper(group_brand_for) = ? OR upper(group_brand_by) = ?", x, x),
 		// qm.Or2(models.FileWhere.Platform.EQ(expr.PText())
 		qm.From(From)).Bind(ctx, db, s)

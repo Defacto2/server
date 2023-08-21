@@ -14,8 +14,8 @@ import (
 
 // Magazine is a the model for the magazine files.
 type Magazine struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }

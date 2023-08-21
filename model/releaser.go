@@ -18,11 +18,11 @@ import (
 
 // Releaser is a collective, group or individual, that releases files.
 type Releaser struct {
-	Name  string   `boil:"releaser"`  // Name of the releaser.
-	URI   string   ``                 // URI slug for the releaser with no boiler bind.
-	Bytes int      `boil:"size_sum"`  // Bytes are the total size of all the files under this releaser.
-	Count int      `boil:"count_sum"` // Count is the total number of files under this releaser.
-	Year  null.Int `boil:"min_year"`  // Year is used for optional sorting and is the earliest year the releaser was active.
+	Name  string   `boil:"releaser"`   // Name of the releaser.
+	URI   string   ``                  // URI slug for the releaser with no boiler bind.
+	Bytes int      `boil:"size_total"` // Bytes are the total size of all the files under this releaser.
+	Count int      `boil:"count_sum"`  // Count is the total number of files under this releaser.
+	Year  null.Int `boil:"min_year"`   // Year is used for optional sorting and is the earliest year the releaser was active.
 }
 
 // Releasers is a collection of releasers.
@@ -51,9 +51,9 @@ func (r *Releasers) All(ctx context.Context, db *sql.DB, offset, limit int, reor
 	if len(*r) > 0 {
 		return nil
 	}
-	query := string(postgres.SelectRels())
+	query := string(postgres.DistReleaser())
 	if reorder {
-		query = string(postgres.SelectRelPros())
+		query = string(postgres.DistReleaserSummed())
 	}
 	if err := queries.Raw(query).Bind(ctx, db, r); err != nil {
 		return err
@@ -70,7 +70,7 @@ func (r *Releasers) MagazineAZ(ctx context.Context, db *sql.DB) error {
 	if len(*r) > 0 {
 		return nil
 	}
-	if err := queries.Raw(string(postgres.SelectMag())).Bind(ctx, db, r); err != nil {
+	if err := queries.Raw(string(postgres.DistMagazine())).Bind(ctx, db, r); err != nil {
 		return err
 	}
 	r.Slugs()
@@ -85,7 +85,7 @@ func (r *Releasers) Magazine(ctx context.Context, db *sql.DB) error {
 	if len(*r) > 0 {
 		return nil
 	}
-	if err := queries.Raw(string(postgres.SelectMagCron())).Bind(ctx, db, r); err != nil {
+	if err := queries.Raw(string(postgres.DistMagazineByYear())).Bind(ctx, db, r); err != nil {
 		return err
 	}
 	r.Slugs()
@@ -100,9 +100,9 @@ func (r *Releasers) BBS(ctx context.Context, db *sql.DB, offset, limit int, reor
 	if len(*r) > 0 {
 		return nil
 	}
-	query := string(postgres.SelectBBS())
+	query := string(postgres.DistBBS())
 	if reorder {
-		query = string(postgres.SelectBBSPros())
+		query = string(postgres.DistBBSSummed())
 	}
 	if err := queries.Raw(query).Bind(ctx, db, r); err != nil {
 		return err
@@ -119,7 +119,7 @@ func (r *Releasers) FTP(ctx context.Context, db *sql.DB, offset, limit int, o Or
 	if len(*r) > 0 {
 		return nil
 	}
-	if err := queries.Raw(string(postgres.SelectFTP())).Bind(ctx, db, r); err != nil {
+	if err := queries.Raw(string(postgres.DistFTP())).Bind(ctx, db, r); err != nil {
 		return err
 	}
 	r.Slugs()

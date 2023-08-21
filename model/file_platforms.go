@@ -14,8 +14,8 @@ import (
 
 // MsDos is a the model for the MS-DOS operating system.
 type MsDos struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -42,8 +42,8 @@ func (d *MsDos) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 
 // Java is a the model for the Java operating system.
 type Java struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -70,8 +70,8 @@ func (j *Java) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 
 // Linux is a the model for the Linux operating system.
 type Linux struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -98,8 +98,8 @@ func (l *Linux) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 
 // Macos is a the model for the Macintosh operating system.
 type Macos struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -126,8 +126,8 @@ func (m *Macos) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 
 // Script is a the model for the script and interpreted languages.
 type Script struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -154,8 +154,8 @@ func (s *Script) List(ctx context.Context, db *sql.DB, offset, limit int) (model
 
 // Windows is a the model for the Windows operating system.
 type Windows struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }

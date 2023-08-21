@@ -61,7 +61,7 @@ func (s *Sceners) All(ctx context.Context, db *sql.DB) error {
 	if len(*s) > 0 {
 		return nil
 	}
-	query := string(postgres.SelectSceners())
+	query := string(postgres.DistScener())
 	return queries.Raw(query).Bind(ctx, db, s)
 }
 
@@ -73,7 +73,7 @@ func (s *Sceners) Writer(ctx context.Context, db *sql.DB) error {
 	if len(*s) > 0 {
 		return nil
 	}
-	query := string(postgres.SelectWriter())
+	query := string(postgres.DistWriter())
 	return queries.Raw(query).Bind(ctx, db, s)
 }
 
@@ -85,7 +85,7 @@ func (s *Sceners) Artist(ctx context.Context, db *sql.DB) error {
 	if len(*s) > 0 {
 		return nil
 	}
-	query := string(postgres.SelectArtist())
+	query := string(postgres.DistArtist())
 	return queries.Raw(query).Bind(ctx, db, s)
 }
 
@@ -97,7 +97,7 @@ func (s *Sceners) Coder(ctx context.Context, db *sql.DB) error {
 	if len(*s) > 0 {
 		return nil
 	}
-	query := string(postgres.SelectCoder())
+	query := string(postgres.DistCoder())
 	return queries.Raw(query).Bind(ctx, db, s)
 }
 
@@ -109,7 +109,7 @@ func (s *Sceners) Musician(ctx context.Context, db *sql.DB) error {
 	if len(*s) > 0 {
 		return nil
 	}
-	query := string(postgres.SelectMusician())
+	query := string(postgres.DistMusician())
 	return queries.Raw(query).Bind(ctx, db, s)
 }
 

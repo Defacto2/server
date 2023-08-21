@@ -14,8 +14,8 @@ import (
 
 // HTML is a the model for the HTML and markdown files.
 type HTML struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -42,8 +42,8 @@ func (h *HTML) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 
 // Text is a the model for the text files.
 type Text struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -70,8 +70,8 @@ func (t *Text) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 
 // TextAmiga is a the model for the text files for the Amiga operating system.
 type TextAmiga struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -98,8 +98,8 @@ func (t *TextAmiga) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 
 // TextApple2 is a the model for the text files for the Apple II operating system.
 type TextApple2 struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -126,8 +126,8 @@ func (t *TextApple2) List(ctx context.Context, db *sql.DB, offset, limit int) (m
 
 // TextAtariST is a the model for the text files for the Atari ST operating system.
 type TextAtariST struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -154,8 +154,8 @@ func (t *TextAtariST) List(ctx context.Context, db *sql.DB, offset, limit int) (
 
 // PDF is a the model for the documents in PDF format.
 type PDF struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }

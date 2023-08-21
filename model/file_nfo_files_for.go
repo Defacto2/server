@@ -14,8 +14,8 @@ import (
 
 // Nfo is a the model for the NFO files.
 type Nfo struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -42,8 +42,8 @@ func (n *Nfo) List(ctx context.Context, db *sql.DB, offset, limit int) (models.F
 
 // NfoTool is a the model for the NFO tools.
 type NfoTool struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -70,8 +70,8 @@ func (n *NfoTool) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 
 // Proof is a the model for the file proofs.
 type Proof struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }

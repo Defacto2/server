@@ -16,8 +16,8 @@ import (
 
 // Arts contain statistics for releases that could be considered as digital or pixel art.
 type Arts struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes int `boil:"size_total"`
+	Count int `boil:"count_total"`
 }
 
 func (a *Arts) Stat(ctx context.Context, db *sql.DB) error {

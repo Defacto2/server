@@ -14,8 +14,8 @@ import (
 
 // Ansi is a the model for the ANSI formatted text and art files.
 type Ansi struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -42,8 +42,8 @@ func (a *Ansi) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 
 // AnsiBrand is a the model for the brand logos created in ANSI text.
 type AnsiBrand struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -70,8 +70,8 @@ func (a *AnsiBrand) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 
 // AnsiBBS is a the model for the BBS advertisements created in ANSI text.
 type AnsiBBS struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -98,8 +98,8 @@ func (a *AnsiBBS) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 
 // AnsiFTP is a the model for the FTP advertisements created in ANSI text.
 type AnsiFTP struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -126,8 +126,8 @@ func (a *AnsiFTP) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 
 // AnsiNfo is a the model for the NFO files created in ANSI text.
 type AnsiNfo struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }

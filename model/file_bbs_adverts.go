@@ -14,8 +14,8 @@ import (
 
 // BBS is a the model for the Bulletin Board System files.
 type BBS struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -42,8 +42,8 @@ func (b *BBS) List(ctx context.Context, db *sql.DB, offset, limit int) (models.F
 
 // BBStro is a the model for the Bulletin Board System intro files.
 type BBStro struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -70,8 +70,8 @@ func (b *BBStro) List(ctx context.Context, db *sql.DB, offset, limit int) (model
 
 // BBSImage is a the model for the Bulletin Board System image files.
 type BBSImage struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -98,8 +98,8 @@ func (b *BBSImage) List(ctx context.Context, db *sql.DB, offset, limit int) (mod
 
 // BBSText is a the model for the Bulletin Board System text files.
 type BBSText struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -126,8 +126,8 @@ func (b *BBSText) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 
 // FTP is a the model for the FTP files.
 type FTP struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }

@@ -14,8 +14,8 @@ import (
 
 // AnsiPack is a the model for the ANSI file packs.
 type AnsiPack struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -42,8 +42,8 @@ func (a *AnsiPack) List(ctx context.Context, db *sql.DB, offset, limit int) (mod
 
 // ImagePack is a the model for the image file packs.
 type ImagePack struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -70,8 +70,8 @@ func (i *ImagePack) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 
 // MsDosPack is a the model for the DOS file packs.
 type MsDosPack struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -98,8 +98,8 @@ func (d *MsDosPack) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 
 // TextPack is a the model for the text file packs.
 type TextPack struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -126,8 +126,8 @@ func (t *TextPack) List(ctx context.Context, db *sql.DB, offset, limit int) (mod
 
 // WindowsPack is a the model for the Windows file packs.
 type WindowsPack struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }

@@ -15,8 +15,8 @@ import (
 
 // Demoscene is a the model for the demoscene releases.
 type Demoscene struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -43,8 +43,8 @@ func (d *Demoscene) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 
 // Intro contain statistics for releases that could be considered intros or cracktros.
 type Intro struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -71,8 +71,8 @@ func (i *Intro) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 
 // IntroMsDos contain statistics for releases that could be considered DOS intros or cracktros.
 type IntroMsDos struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
@@ -99,8 +99,8 @@ func (i *IntroMsDos) List(ctx context.Context, db *sql.DB, offset, limit int) (m
 
 // IntroWindows contain statistics for releases that could be considered Windows intros or cracktros.
 type IntroWindows struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 	Cache   time.Time
@@ -128,8 +128,8 @@ func (i *IntroWindows) List(ctx context.Context, db *sql.DB, offset, limit int) 
 
 // Installer contain statistics for releases that could be considered installers.
 type Installer struct {
-	Bytes   int `boil:"size_sum"`
-	Count   int `boil:"counter"`
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }

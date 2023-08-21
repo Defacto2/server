@@ -14,8 +14,8 @@ import (
 
 // Softs contain statistics for releases that could be considered software.
 type Softs struct {
-	Bytes int `boil:"size_sum"`
-	Count int `boil:"counter"`
+	Bytes int `boil:"size_total"`
+	Count int `boil:"count_total"`
 }
 
 func (s *Softs) Stat(ctx context.Context, db *sql.DB) error {

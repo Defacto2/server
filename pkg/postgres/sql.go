@@ -8,39 +8,29 @@ import (
 	"strings"
 )
 
+type SQL string     // SQL is a raw query statement for PostgreSQL.
+type Version string // Version of the PostgreSQL database server in use.
+type Role string    // Role is a scener attribution used in the database.
+
 const (
-	// Counter is a partial SQL statement to count the number of records.
-	Counter = "COUNT(*) AS counter"
+	Writer   Role = "(upper(credit_text))"         // Writer or author of a document.
+	Artist   Role = "(upper(credit_illustration))" // Artist or illustrator of an image or artwork.
+	Coder    Role = "(upper(credit_program))"      // Coder or programmer of a program or application.
+	Musician Role = "(upper(credit_audio))"        // Musician or composer of a music or audio track.
+)
+
+const (
+	// TotalCnt is a partial SQL statement to count the number of records.
+	TotalCnt = "COUNT(*) AS count_total"
+	// SumSize is a partial SQL statement to sum the filesize values of multiple records.
+	SumSize = "SUM(filesize) AS size_total"
 	// MinYear is a partial SQL statement to select the minimum year value.
 	MinYear = "MIN(date_issued_year) AS min_year"
 	// MaxYear is a partial SQL statement to select the maximum year value.
 	MaxYear = "MAX(date_issued_year) AS max_year"
-	// SumSize is a partial SQL statement to sum the filesize values of multiple records.
-	SumSize = "SUM(filesize) AS size_sum"
 	// Ver is a SQL statement to select the version of the PostgreSQL database server in use.
 	Ver = "SELECT version();"
-
-	Totals = "COUNT(*) AS count_total, SUM(filesize) AS size_total"
-	Years  = "MIN(date_issued_year) AS min_year, MAX(date_issued_year) AS max_year"
 )
-
-// Statistics returns the SQL for file and size totals and the min and max year values.
-func Statistics() []string {
-	return []string{Totals, Years}
-}
-
-// Columns returns a list of column selections.
-// TODO: make this redundant or merge is Statistics()
-func Columns() []string {
-	return []string{SumSize, Counter, MinYear, MaxYear}
-}
-
-// Stat returns the SumSize and Counter column selections.
-func Stat() []string {
-	return []string{SumSize, Counter}
-}
-
-type Version string // Version of the PostgreSQL database server in use.
 
 // Query the database version.
 func (v *Version) Query() error {
@@ -75,7 +65,15 @@ func (v *Version) String() string {
 	return s
 }
 
-type SQL string // SQL is a raw query statement for PostgreSQL.
+// Columns returns a list of column selections used for filtering and statistics.
+func Columns() []string {
+	return []string{SumSize, TotalCnt, MinYear, MaxYear}
+}
+
+// Stat returns the SumSize and TotalCnt column selections.
+func Stat() []string {
+	return []string{SumSize, TotalCnt}
+}
 
 // releaserSEL is a partial SQL statement to select the releasers name, file count and filesize sum.
 // The distinct on clause is used in PostreSQL to create a non-case sensitive list of releasers.
@@ -83,21 +81,22 @@ type SQL string // SQL is a raw query statement for PostgreSQL.
 // The cross join lateral clause is used to create a distinct list of releasers from
 // the group_brand_for and group_brand_by columns.
 //
-// Note these SQLs may cause inconsistent results when used with the count_sum and size_sum columns.
+// Note these SQLs may cause inconsistent results when used with the count_sum and size_total columns.
 // This is because there SelectRels and SelectRelsPros excludes some files from the count and sum.
 const releaserSEL SQL = "SELECT DISTINCT releaser, " +
 	"COUNT(files.filename) AS count_sum, " +
-	"SUM(files.filesize) AS size_sum " +
+	"SUM(files.filesize) AS size_total " +
 	"FROM files " +
 	"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
 	"WHERE NULLIF(releaser, '') IS NOT NULL "
 
+// releaserBy is a partial SQL statement to group the results by the releaser name.
 const releaserBy SQL = "GROUP BY releaser " +
 	"ORDER BY releaser ASC"
 
 const magazineSEL SQL = "SELECT DISTINCT releaser, " +
 	"COUNT(files.filename) AS count_sum, " +
-	"SUM(files.filesize) AS size_sum, " +
+	"SUM(files.filesize) AS size_total, " +
 	"MIN(files.date_issued_year) AS min_year " +
 	"FROM files " +
 	"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
@@ -106,15 +105,7 @@ const magazineSEL SQL = "SELECT DISTINCT releaser, " +
 	"GROUP BY releaser " +
 	"ORDER BY min_year ASC, releaser ASC"
 
-type Role string
-
-const (
-	Writer   Role = "(upper(credit_text))"
-	Artist   Role = "(upper(credit_illustration))"
-	Coder    Role = "(upper(credit_program))"
-	Musician Role = "(upper(credit_audio))"
-)
-
+// Roles returns all of the sceners reguardless of the attribution.
 func Roles() Role {
 	s := strings.Join([]string{string(Writer), string(Artist), string(Coder), string(Musician)}, ",")
 	return Role(s)
@@ -130,29 +121,34 @@ func (r Role) Select() SQL {
 	return SQL(s)
 }
 
-func SelectSceners() SQL {
+// DistScener selects a list of distinct sceners.
+func DistScener() SQL {
 	return Roles().Select()
 }
 
-func SelectWriter() SQL {
+// DistWriter selects a list of distinct writers.
+func DistWriter() SQL {
 	return Writer.Select()
 }
 
-func SelectArtist() SQL {
+// DistArtist selects a list of distinct artists.
+func DistArtist() SQL {
 	return Artist.Select()
 }
 
-func SelectCoder() SQL {
+// DistCoder selects a list of distinct coders.
+func DistCoder() SQL {
 	return Coder.Select()
 }
 
-func SelectMusician() SQL {
+// DistMusician selects a list of distinct musicians.
+func DistMusician() SQL {
 	return Musician.Select()
 }
 
-// SelectRels selects a list of distinct releasers or groups,
+// DistReleaser selects a list of distinct releasers or groups,
 // excluding BBS and FTP sites.
-func SelectRels() SQL {
+func DistReleaser() SQL {
 	return releaserSEL +
 		"AND releaser !~ 'BBS\\M' " +
 		"AND releaser !~ 'FTP\\M' " +
@@ -161,30 +157,31 @@ func SelectRels() SQL {
 
 // SelectRelsPros selects a list of distinct releasers or groups,
 // excluding BBS and FTP sites and ordered by the file count.
-func SelectRelPros() SQL {
+func DistReleaserSummed() SQL {
 	return "SELECT * FROM (" +
 		releaserSEL +
 		"AND releaser !~ 'BBS\\M' " +
 		"AND releaser !~ 'FTP\\M' " +
 		releaserBy +
-		") sub WHERE sub.count_sum > 2 ORDER BY sub.count_sum DESC" // TODO remove sub.count_sum
+		") sub WHERE sub.count_sum > 2 ORDER BY sub.count_sum DESC"
 }
 
-// SelectMags selects a list of distinct magazine titles.
-func SelectMag() SQL {
+// DistMagazine selects a list of distinct magazine titles.
+func DistMagazine() SQL {
 	return releaserSEL + "AND section = 'magazine'" + releaserBy
 }
 
-func SelectMagCron() SQL {
+func DistMagazineByYear() SQL {
 	return magazineSEL
 }
 
-// SelectBBS selects a list of distinct BBS names.
-func SelectBBS() SQL {
+// DistBBS selects a list of distinct BBS names.
+func DistBBS() SQL {
 	return releaserSEL + "AND releaser ~ 'BBS\\M' " + releaserBy
 }
 
-func SelectBBSPros() SQL {
+// DistBBSSummed selects a list of distinct BBS names ordered by the file count.
+func DistBBSSummed() SQL {
 	return "SELECT * FROM (" +
 		releaserSEL +
 		"AND releaser ~ 'BBS\\M' " +
@@ -192,8 +189,8 @@ func SelectBBSPros() SQL {
 		") sub WHERE sub.count_sum > 2 ORDER BY sub.count_sum DESC"
 }
 
-// SelectFTP selects a list of distinct FTP site names.
-func SelectFTP() SQL {
+// DistFTP selects a list of distinct FTP site names.
+func DistFTP() SQL {
 	return releaserSEL + "AND releaser ~ 'FTP\\M' " + releaserBy
 }
 
@@ -243,7 +240,7 @@ func SumSection() SQL {
 
 // SumGroup is an SQL statement to sum the filesizes of records matching the group.
 func SumGroup() SQL {
-	return "SELECT SUM(filesize) as size_sum FROM files WHERE group_brand_for = $1"
+	return "SELECT SUM(filesize) as size_total FROM files WHERE group_brand_for = $1"
 }
 
 // SumPlatform is an SQL statement to sum the filesizes of records matching the platform.
