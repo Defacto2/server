@@ -7,7 +7,9 @@ import (
 	"math"
 	"net/url"
 	"path"
+	"regexp"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -132,4 +134,30 @@ func PageCount(sum, limit int) uint {
 	}
 	x := math.Ceil(float64(sum) / float64(limit))
 	return uint(x)
+}
+
+// Slug returns a URL friendly string of the named group.
+func Slug(name string) string {
+	s := name
+	// hyphen to underscore
+	re := regexp.MustCompile(`\-`)
+	s = re.ReplaceAllString(s, "_")
+	// multiple groups get separated with asterisk
+	re = regexp.MustCompile(`\, `)
+	s = re.ReplaceAllString(s, "*")
+	// any & characters need replacement due to HTML escaping
+	re = regexp.MustCompile(` \& `)
+	s = re.ReplaceAllString(s, " ampersand ")
+	// numbers receive a leading hyphen
+	re = regexp.MustCompile(` ([0-9])`)
+	s = re.ReplaceAllString(s, "-$1")
+	// delete all other characters
+	const deleteAllExcept = `[^A-Za-z0-9 \-\+\.\_\*]`
+	re = regexp.MustCompile(deleteAllExcept)
+	s = re.ReplaceAllString(s, "")
+	// trim whitespace and replace any space separators with hyphens
+	s = strings.TrimSpace(strings.ToLower(s))
+	re = regexp.MustCompile(` `)
+	s = re.ReplaceAllString(s, "-")
+	return s
 }

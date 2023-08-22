@@ -69,6 +69,7 @@ func (web *Web) Tmpl() (map[string]*template.Template, error) {
 		"magazine-az": r,
 		"releaser":    r,
 		"scener":      s,
+		"search":      "search.tmpl",
 		"status":      "status.tmpl",
 		"thanks":      "thanks.tmpl",
 		"thescene":    "the_scene.tmpl",

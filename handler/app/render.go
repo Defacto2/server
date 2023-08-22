@@ -4,9 +4,16 @@ package app
 // The BBS, FTP, Magazine and Releaser handlers can be found in render_releaser.go.
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
+	"github.com/Defacto2/server/model"
+	"github.com/Defacto2/server/pkg/fmts"
+	"github.com/Defacto2/server/pkg/helper"
+	"github.com/Defacto2/server/pkg/initialism"
+	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -140,6 +147,62 @@ func TheScene(z *zap.SugaredLogger, c echo.Context) error {
 	data["lead"] = lead
 	data["title"] = h1
 	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	return nil
+}
+
+// SearchPoster is the handler for the releaser search form post page.
+func SearchPoster(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "search"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	input := c.FormValue("releaser-data-list")
+	val := helper.TrimRoundBraket(input)
+	slug := helper.Slug(val)
+	if slug == "" {
+		return SearchReleaser(z, c)
+	}
+	return c.Redirect(http.StatusAccepted, "/g/"+slug)
+}
+
+// SearchReleaser is the handler for the Releaser Search page.
+func SearchReleaser(z *zap.SugaredLogger, c echo.Context) error {
+	const title, name = "Search for releasers", "search"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	data := empty()
+	data["description"] = "Search form to discover releasers."
+	data["logo"] = title
+	data["title"] = title
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	defer db.Close()
+	x := model.ReleaserStr{}
+	if err := x.List(ctx, db); err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	s := make([]string, len(x))
+	for i, v := range x {
+		id := strings.TrimSpace(v.Name)
+		slug := helper.Slug(id)
+		name := fmts.Name(slug)
+		ism := initialism.Initialism(slug)
+		opt := name
+		if len(ism) > 0 {
+			opt = fmt.Sprintf("%s (%s)", name, strings.Join(ism, ", "))
+		}
+		s[i] = opt
+	}
+	data["releasers"] = s
+
+	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(z, c, name, err)
 	}

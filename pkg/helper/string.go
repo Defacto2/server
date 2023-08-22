@@ -3,7 +3,6 @@ package helper
 import (
 	"fmt"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -108,32 +107,6 @@ func ReverseInt(i int) (int, error) {
 	return reverse, nil
 }
 
-// Slug returns a URL friendly string of the named group.
-func Slug(name string) string {
-	s := name
-	// hyphen to underscore
-	re := regexp.MustCompile(`\-`)
-	s = re.ReplaceAllString(s, "_")
-	// multiple groups get separated with asterisk
-	re = regexp.MustCompile(`\, `)
-	s = re.ReplaceAllString(s, "*")
-	// any & characters need replacement due to HTML escaping
-	re = regexp.MustCompile(` \& `)
-	s = re.ReplaceAllString(s, " ampersand ")
-	// numbers receive a leading hyphen
-	re = regexp.MustCompile(` ([0-9])`)
-	s = re.ReplaceAllString(s, "-$1")
-	// delete all other characters
-	const deleteAllExcept = `[^A-Za-z0-9 \-\+\.\_\*]`
-	re = regexp.MustCompile(deleteAllExcept)
-	s = re.ReplaceAllString(s, "")
-	// trim whitespace and replace any space separators with hyphens
-	s = strings.TrimSpace(strings.ToLower(s))
-	re = regexp.MustCompile(` `)
-	s = re.ReplaceAllString(s, "-")
-	return s
-}
-
 // ShortMonth takes a month integer and abbreviates it to a three letter English month.
 func ShortMonth(month int) string {
 	if month < 1 || month > 12 {
@@ -145,24 +118,6 @@ func ShortMonth(month int) string {
 		return s[0:abbreviated]
 	}
 	return ""
-}
-
-// TrimPunct removes any trailing, common punctuation characters from the string.
-func TrimPunct(s string) string {
-	s = strings.TrimSpace(s)
-	if s == "" {
-		return ""
-	}
-	rs := []rune(s)
-	for i := len(rs) - 1; i >= 0; i-- {
-		r := rs[i]
-		// https://www.compart.com/en/unicode/category/Po
-		if !unicode.Is(unicode.Po, r) {
-			punctless := string(rs[0 : i+1])
-			return strings.TrimSpace(punctless)
-		}
-	}
-	return s
 }
 
 // TruncFilename reduces a filename to the length of w characters.
@@ -182,4 +137,35 @@ func TruncFilename(w int, name string) string {
 	}
 	s := name[0 : w-len(ext)-len(trunc)]
 	return fmt.Sprintf("%s%s%s", s, trunc, ext)
+}
+
+// TrimRoundBraket removes the tailing round brakets and any whitespace.
+func TrimRoundBraket(s string) string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return ""
+	}
+	l, r := strings.Index(s, "("), strings.Index(s, ")")
+	if l < r {
+		return strings.TrimSpace(s[:l-1])
+	}
+	return s
+}
+
+// TrimPunct removes any trailing, common punctuation characters from the string.
+func TrimPunct(s string) string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return ""
+	}
+	rs := []rune(s)
+	for i := len(rs) - 1; i >= 0; i-- {
+		r := rs[i]
+		// https://www.compart.com/en/unicode/category/Po
+		if !unicode.Is(unicode.Po, r) {
+			punctless := string(rs[0 : i+1])
+			return strings.TrimSpace(punctless)
+		}
+	}
+	return s
 }

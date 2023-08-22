@@ -135,6 +135,12 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 	e.GET("/scener", func(c echo.Context) error {
 		return app.Scener(z, c)
 	})
+	e.GET("/search/releaser", func(c echo.Context) error {
+		return app.SearchReleaser(z, c)
+	})
+	e.POST("/search/releaser", func(c echo.Context) error {
+		return app.SearchPoster(z, c)
+	})
 	e.GET("/thanks", func(c echo.Context) error {
 		return app.Thanks(z, c)
 	})

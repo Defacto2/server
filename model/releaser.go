@@ -30,6 +30,26 @@ type Releasers []*struct {
 	Unique Releaser `boil:",bind"` // Unique is the releaser.
 }
 
+type ReleaserList struct {
+	Name string `boil:"releaser"`
+}
+
+// ReleaserStr is a distinct data list of of releasers.
+type ReleaserStr []ReleaserList
+
+func (r *ReleaserStr) List(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
+	query := "SELECT DISTINCT releaser " +
+		"FROM files " +
+		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
+		"WHERE NULLIF(releaser, '') IS NOT NULL " +
+		"GROUP BY releaser " +
+		"ORDER BY releaser ASC"
+	return queries.Raw(query).Bind(ctx, db, r)
+}
+
 func (r *Releasers) List(ctx context.Context, db *sql.DB, name string) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
