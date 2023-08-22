@@ -1,48 +1,62 @@
 {{/*  index.tmpl  */}}
 {{- define "content" }}
 {{- $listCls := "link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover icon-link icon-link-hover"}}
-<p>
+<p class="lead">
   While a seldom-discussed subject, this element of the underground computer subculture could be lost and forgotten without a preservation effort.
   The nature of digital piracy, with its high churn for participants, means it is a community that is not well documented nor preserved. 
 </p>
-<p>
+<p class="lead">
   <small class="text-warning-emphasis">Occasional files within are <abbr title="not safe for work" class="initialism">nsfw</abbr>, with inappropriate or harmful comments and imagery—a consequence of the era and the ages of the many teenagers involved.</small>
 </p>
-<hr class="my-5">
-<div class="row">
+<div class="row mt-5">
   <div class="col-lg-6 mb-3 mb-lg-0">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">New to the website?</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+        <h5 class="card-title fs-4">New to the website</h5>
+        <p class="card-text">
+          Defacto2 is a massive file server with thousands of digital artifacts of programs, images, and documents. 
+          The site is divided into three core sections to ease accessing the collection.</p>
+          <ul class="list-inline">
+            <li><span class="fw-semibold">Files</span> contain the artifacts tagged by year of release, category, and platform.</li>
+            <li><span class="fw-semibold">Groups</span> are releasers or collectives of people that release the artifacts under a brand.</li>
+            <li><span class="fw-semibold">People</span> are the individuals who contribute or create artifacts.</li>
+          </ul>
       </div>
     </div>
   </div>
   <div class="col-lg-6">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">The Scene?</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+        <h5 class="card-title">The Scene</h5>
+        <p class="card-text">Is collection of subcultures for different computer activities, usually online, where participants actively compete or share ideas and creations.</p>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+          <a href="/thescene" class="btn btn-link">A brief page on diffent Scenes</a>
+          <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal" class="btn btn-link">Glossary of terms</a>
+        </div>
       </div>
     </div>
   </div>
 </div>
+<hr class="mt-5">
 <h2 class="mt-5"><small>The PC Scene</small> milestones</h2>
-<div class="lead">
-  The Scene milestones for the <abbr title="personal computer" class="initialism">PC</abbr> underground and cracking communities. 
-  They are not definitive but are based on the digital artifacts collected.
-  In the early days of modern computing, the terms microcomputer and personal computer were interchangeable. 
-  This site defines the <abbr title="personal computer" class="initialism">PC</abbr> as <span class="text-nowrap">Intel-compatible</span>, x86 architecture known initially as the IBM PC, that evolved into <abbr title="Microsoft disk operating system" class="initialism">MS-DOS</abbr> and now Microsoft Windows. 
-  All other personal computer platforms get referenced as microcomputers. 
-</div>
-<p class="mt-3 mb-5">
-  The more notable communities on other microcomputer platforms are seldom mentioned here, 
-  including the famed Apple II, Commodore 64, and Commodore Amiga communities, 
-  which were often imitated by the underground communities on the PC. 
+<p class="lead">
+  The remainder of this page shows the milestones of the early microcomputing industry, piracy, and The Scene on the <abbr title="personal computer" class="initialism">PC</abbr> platform. 
+  Chronologically ordered this highlighted list of events offers insight into the birth of The Scene on the PC and the links to piracy in the earliest days of personal computing.
 </p>
-<div class="row row-cols-1 row-cols-lg-2 row-cols-xl-3 g-4">
+<p class="lead">
+  <small>During the 1980s and 1990s, the PC was one of many competing microcomputer platforms. 
+    It was frequently the poorer cousin regarding graphics, gameplay, and audio capability. 
+    So communities of hobbyists and pirates ran Scenes on these other platforms long before a Scene matured on the PC. 
+    The Apple II, Commodore 64, Atari ST, and Commodore Amiga Scenes actively developed communities in Europe, Australasia, and North America.</small>
+</p>
+<p class="lead">
+  <small>
+    The milestones are not definitive but are based on the digital artifacts collected.
+    In the early days of modern computing, the terms microcomputer and personal computer were interchangeable. 
+    This site defines the <abbr title="personal computer" class="initialism">PC</abbr> as <span class="text-nowrap">Intel-compatible</span>, x86 architecture known initially as the IBM PC, that evolved into <abbr title="Microsoft disk operating system" class="initialism">MS-DOS</abbr> and now Microsoft Windows. 
+    All other personal computer platforms get referenced as microcomputers.</small>
+</p>
+<div class="row row-cols-1 row-cols-lg-2 row-cols-xl-3 g-4 mt-5">
 {{- range $index, $mile := .milestones }}
   <div class="col">
     <div class="card h-100{{ if eq true .Highlight}} text-bg-light{{end}}">

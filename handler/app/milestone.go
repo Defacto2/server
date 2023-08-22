@@ -194,6 +194,10 @@ func Collection() Milestones { //nolint:maintidx // long function
 			Year:  1979, Month: 6, Day: 18,
 			Lead: "Microsoft BASIC-86", LinkTitle: "Microsoft introduces BASIC-86",
 			Link: "https://thisdayintechhistory.com/06/18/microsoft-introduces-basic-for-8086/",
+			Content: "Microsoft BASIC and its many revisions were the first killer applications for Microsoft in its early years. " +
+				"Most microcomputers were sold to enthusiasts or businesses, and the software availability could have been better. " +
+				"So many owners resorted to creating software, and the BASIC programming language had the easiest learning curve. " +
+				"Microsoft didn't invent the language, but its implementation was considered the gold standard.",
 		},
 		{
 			Title: "The first operating system for x86", Year: 1980, Month: 8,
@@ -202,6 +206,12 @@ func Collection() Milestones { //nolint:maintidx // long function
 			Content: "Tim Paterson worked on a project at Seattle Computer Products to create an 8086 CPU plugin board for the S-100 bus standard. " +
 				"Needing an operating system for the 16-bit Intel CPU, he programmed a half-complete, unauthorized clone of the CP/M operating system within four months." +
 				"He called it QDOS (Quick and Dirty OS), and it sold few copies.",
+		},
+		{
+			Title: "Computer Software Copyright Act of 1980", Year: 1980, Month: 12, Day: 12, Highlight: true,
+			Lead: "Software is defined by copyright laws in the USA", LinkTitle: "about the act",
+			Link:    "https://www.c2st.org/the-computer-software-copyright-act-of-1980/",
+			Content: "Signed as an amendment to law by President Jimmy Carter, computer programs are defined by copyright law and enable authors to control the copying, selling, and leasing of their software.",
 		},
 		{
 			Title: "The first PC", Year: 1981, Month: 8, Day: 12, Highlight: true,
@@ -220,8 +230,11 @@ func Collection() Milestones { //nolint:maintidx // long function
 		{
 			Title: "The first published PC game", Year: 1981, Month: 9,
 			Lead: "IBM's Microsoft Adventure", LinkTitle: "about Microsoft Adventure",
-			Link:    "https://www.filfre.net/2011/07/microsoft-adventure/",
-			Content: "A port of the text only Colossal Cave Adventure.",
+			Link: "https://www.filfre.net/2011/07/microsoft-adventure/",
+			Content: "A PC port of the text only Colossal Cave Adventure. " +
+				"Adventure was a highly influential and popular text-only adventure game for mainframe computers of the 1970s. " +
+				"Will Crowther wrote it in FORTRAN for the PDP-10 system and Don Woods at the Stanford AI Lab in California later expanded it. " +
+				"The game created the interactive fiction genre, which later led to graphic adventures and story narratives in video games.",
 		},
 		{
 			Title: "Initial release of MS-DOS", Year: 1982, Month: 8,
@@ -501,9 +514,15 @@ func Collection() Milestones { //nolint:maintidx // long function
 			Link: "https://forum.winworldpc.com/discussion/comment/174818/#Comment_174818",
 		},
 		{
-			Title: "Earliest standalone BBS ad", Year: 1988, Month: 4, Day: 4, Highlight: false,
+			Title: "Earliest standalone 'elite' BBS ad", Year: 1988, Month: 4, Day: 4, Highlight: false,
 			Lead: "Swashbucklers II", LinkTitle: "the file",
 			Link: "/f/b844ef",
+			Content: "Home of PTL/CPI<br>" +
+				"100 megs Online!<br>" +
+				"85 megs Offline, Request!<br>" +
+				"All PTL/CPI Cracks FREE<br>" +
+				"All other Major Groups cracks Always Online<br>" +
+				"Ask your local Sysop for the number.",
 			Picture: Picture{
 				Title: "Swashbucklers II",
 				Alt:   "Swashbucklers II text advert screenshot",
@@ -543,7 +562,15 @@ func Collection() Milestones { //nolint:maintidx // long function
 			Title: "The earliest ASCII art", Year: 1988, Month: 10, Day: 6, Highlight: true,
 			Lead: "Another quality ware from $print", LinkTitle: "and view the file", Link: "/f/ab3dc1",
 			Content: "The earliest ASCII art known so-far is released by $print for the game " +
-				"Fire Power. The ASCII logo is relatively crude and is not as detailed as later ASCII art. ",
+				"Fire Power. The ASCII logo is relatively crude and is not as detailed as later ASCII art. " +
+				"<pre> ╔═══════════════════════════════╗<br>" +
+				"╔╝      Another Quality Ware     ╚╗<br>" +
+				"║          F  R  O  M             ║<br>" +
+				"║                                 ║<br>" +
+				"║   ┌┼┼┼ ┌─┐┌──┐ ─┬─ │\\  │──┬──   ║<br>" +
+				"║   └┼┼┼┐┼─┘│─┬┘  │  │ \\ │  │     ║<br>" +
+				"║   ─┼┼┼┘│  │ └─ ─┴─ │  \\│  │     ║<br>" +
+				"╚═════════════════════════════════╝</pre>",
 			Picture: Picture{
 				Title: "Another quality ware from $print",
 				Alt:   "Fire Power by $print ASCII screenshot",
