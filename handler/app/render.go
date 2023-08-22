@@ -165,7 +165,8 @@ func SearchPoster(z *zap.SugaredLogger, c echo.Context) error {
 	if slug == "" {
 		return SearchReleaser(z, c)
 	}
-	return c.Redirect(http.StatusAccepted, "/g/"+slug)
+	// note, the redirect to a GET only works with 301 and 404 status codes.
+	return c.Redirect(http.StatusMovedPermanently, "/g/"+slug)
 }
 
 // SearchReleaser is the handler for the Releaser Search page.
