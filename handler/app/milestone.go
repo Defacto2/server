@@ -1069,7 +1069,7 @@ func Collection() Milestones { //nolint:maintidx // long function
 				"Myth's longtime rival, <a href=\"/f/a53505\">Class, had already quit in early 2004</a>, and the other major ripping group, <a href=\"/g/divine\">Divine</a>, quit in 2006.",
 		},
 		{
-			Year: 2000, Prefix: "Beyond", Highlight: true,
+			Year: 2016, Prefix: "", Highlight: true,
 			Title: "The twilight of the cracktro",
 			Content: "The 2000s was the last time, original quality cracktros were a common sight within The Scene, mostly thanks to a few nostaligic demosceners and piracy sceners. " +
 				"However, the number of people who could and were willing to create a decent cracktro dwindled, as the skillset requirements got more specific and complex. " +

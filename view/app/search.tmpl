@@ -4,7 +4,10 @@
     <div class="col-sm-6">
         <div class="card border-dark mb-3 p-3">      
             <div class="card-body">
-                <h5 class="card-title text-info-emphasis fs-2 lead">{{index . "title"}}</h5>
+                <h5 class="card-title text-info-emphasis fs-2 lead">
+                    {{index . "title"}}<br>
+                    <small class="fs-5 fw-lighter">{{index . "info"}}</small>
+                </h5>
                 <p class="card-text">
 <form class="row g-3" method="post">
 <input class="form-control form-control" list="datalistOptions" id="relDataList" name="releaser-data-list" placeholder="Type to search for a releaser...">

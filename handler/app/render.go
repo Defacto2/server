@@ -179,6 +179,7 @@ func SearchReleaser(z *zap.SugaredLogger, c echo.Context) error {
 	data["description"] = "Search form to discover releasers."
 	data["logo"] = title
 	data["title"] = title
+	data["info"] = "A search can be for a group, magazine, board or site"
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
