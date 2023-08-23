@@ -19,6 +19,7 @@ var groups = Groups{
 	"superior-art-creations":            7050,
 	"razor-1911":                        519,
 	"the-dream-team":                    20609,
+	"the-silents":                       101,
 	"tristar-ampersand-red-sector-inc":  69,
 }
 

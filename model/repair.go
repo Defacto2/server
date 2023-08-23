@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"database/sql"
+	"strings"
 
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/null/v8"
@@ -35,6 +36,8 @@ func RepairReleasers(ctx context.Context, db *sql.DB) error {
 		acidfix = "ACID PRODUCTIONS"
 		icebad  = "ICE"
 		icefix  = "INSANE CREATORS ENTERPRISE"
+		pwabad  = "pirates with attitude"
+		pwafix  = "pirates with attitudes"
 	)
 	// TODO: globalise this map and create redirects for the old names?
 	fixes := map[string]string{
@@ -43,6 +46,8 @@ func RepairReleasers(ctx context.Context, db *sql.DB) error {
 		icebad:  icefix,
 	}
 	for bad, fix := range fixes {
+		bad = strings.ToUpper(bad)
+		fix = strings.ToUpper(fix)
 		f, err = models.Files(
 			qm.Where("group_brand_for = ?", bad),
 			qm.WithDeleted()).All(ctx, db)
