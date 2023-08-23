@@ -29,7 +29,7 @@ func bbsHandler(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	const lead = "Historical, telephone based \"elite\" Bulletin Board Systems for communication and file sharing."
+	const lead = "Bulletin Board Systems on personal computers for \"elite\" communication and file sharing over the landline telephone network."
 	const key = "releasers"
 	data := empty()
 	data["title"] = title

@@ -1093,8 +1093,5 @@ func Collection() Milestones { //nolint:maintidx // long function
 			},
 		},
 	}
-	// in the future, we could sort the structs by year, month, day values
-	// add: holy trinity of computers 1977
-	// cbbs and other bbs milestones
 	return m
 }
