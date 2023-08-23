@@ -136,6 +136,10 @@ func (c Configuration) Controller() *echo.Echo {
 	// Static embedded web assets that get distributed in the binary
 	e = c.EmbedDirs(e)
 	// Routes for the web application
+	e, err = c.Moved(c.ZLog, e)
+	if err != nil {
+		c.ZLog.Fatal(err)
+	}
 	e, err = c.Routes(c.ZLog, e, c.Public)
 	if err != nil {
 		c.ZLog.Fatal(err)

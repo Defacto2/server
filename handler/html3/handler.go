@@ -112,6 +112,7 @@ func Routes(z *zap.SugaredLogger, e *echo.Echo) *echo.Group {
 	g.GET("/software:offset", s.Software)
 	g.GET("/software", s.Software)
 	// append legacy redirects
+	// TODO: range doesn't work with echo.GET
 	for url := range Redirects() {
 		g.GET(url, s.Redirection)
 	}
