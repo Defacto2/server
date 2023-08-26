@@ -5,6 +5,7 @@ package app
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
 	"strings"
@@ -156,7 +157,7 @@ func TheScene(z *zap.SugaredLogger, c echo.Context) error {
 
 // SearchPoster is the handler for the releaser search form post page.
 func SearchPoster(z *zap.SugaredLogger, c echo.Context) error {
-	const name = "search"
+	const name = "searchList"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
@@ -168,6 +169,81 @@ func SearchPoster(z *zap.SugaredLogger, c echo.Context) error {
 	}
 	// note, the redirect to a GET only works with 301 and 404 status codes.
 	return c.Redirect(http.StatusMovedPermanently, "/g/"+slug)
+}
+
+func SearchFile(z *zap.SugaredLogger, c echo.Context) error {
+	const title, name = "Search for files", "searchPost"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	data := empty()
+	data["description"] = "Search form to discover files."
+	data["logo"] = title
+	data["title"] = title
+	data["info"] = "A search can be for a filename, description, year or ?"
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	return nil
+}
+
+func PostFile(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "files"
+	const uri = "defacto"
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	defer db.Close()
+
+	input := c.FormValue("search-term-query")
+	terms := helper.SearchTerm(input)
+	rel := model.Files{}
+	fs, err := rel.Search(ctx, db, terms)
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	if len(fs) == 0 {
+		return ReleaserErr(z, c, uri)
+	}
+
+	s := strings.Join(terms, " ")
+	data := emptyFiles()
+	data["title"] = "Filename results"
+	data["h1"] = "Filename results"
+	data["lead"] = s
+	data["logo"] = s
+	data["description"] = "Filename search results for " + s + "."
+	data[records] = fs
+	d, err := postFileStats(ctx, db, terms)
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	data["stats"] = d
+	err = c.Render(http.StatusOK, "files", data)
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	return nil
+}
+
+func postFileStats(ctx context.Context, db *sql.DB, terms []string) (map[string]string, error) {
+	if db == nil {
+		return nil, ErrDB
+	}
+	// fetch the statistics of the category
+	m := model.Summary{}
+	if err := m.Search(ctx, db, terms); err != nil {
+		return nil, err
+	}
+	// add the statistics to the data
+	d := map[string]string{
+		"files": string(FmtByteName("file", m.SumCount, m.SumBytes)),
+		"years": FmtYears(m.MinYear, m.MaxYear),
+	}
+	return d, nil
 }
 
 // SearchReleaser is the handler for the Releaser Search page.

@@ -60,3 +60,23 @@ func TestDeobfuscateURL(t *testing.T) {
 		})
 	}
 }
+
+func TestSearchTerm(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+		want  []string
+	}{
+		// {"empty", "", []string{}},
+		// {"spaces", "   ", []string{}},
+		// {"one", "one", []string{"one"}},
+		// {"two", "one two", []string{"one", "two"}},
+		// {"three", "one two three", []string{"one", "two", "three"}},
+		{"quotes", `"one two" three`, []string{"one two", "three"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, helper.SearchTerm(tt.input))
+		})
+	}
+}

@@ -24,6 +24,30 @@ type Summary struct {
 	MaxYear  int `boil:"max_year"`    // Maximum or latest year of the files.
 }
 
+func (r *Summary) Search(ctx context.Context, db *sql.DB, terms []string) error {
+	if db == nil {
+		return ErrDB
+	}
+	s := "SELECT COUNT(files.id) AS count_total, " +
+		"SUM(files.filesize) AS size_total, " +
+		"MIN(files.date_issued_year) AS min_year, " +
+		"MAX(files.date_issued_year) AS max_year " +
+		"FROM files " +
+		"WHERE "
+	for i, term := range terms {
+		if i > 0 {
+			s = fmt.Sprintf("%s OR ", s)
+		}
+		s = fmt.Sprintf("%s files.filename ~ '%s' OR files.filename ILIKE '%s' ", s, term, "%"+term+"%")
+	}
+	s = strings.TrimSpace(s)
+	fmt.Println(s)
+	if err := queries.Raw(s).Bind(ctx, db, r); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *Summary) All(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
