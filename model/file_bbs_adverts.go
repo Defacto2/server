@@ -1,3 +1,4 @@
+//nolint:dupl
 package model
 
 // Package file file_bbs_adverts.go contains the database queries for BBS and FTP files.

@@ -9,7 +9,7 @@ type URI string
 // List is a map of initialisms to releasers.
 type List map[URI][]string
 
-// all initialisms should be in their stylized form
+// all initialisms should be in their stylized form.
 var initialisms = List{
 	"2000ad":                                   {"2KAD", "2000 AD"},
 	"aces-of-ansi-art":                         {"AAA"},

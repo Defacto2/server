@@ -5,7 +5,7 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// AdvertExpr is a the query mod expression for for sale adverts.
+// AdvertExpr is a the query mod expression for sale adverts.
 func AdvertExpr() qm.QueryMod {
 	return qm.Expr(
 		models.FileWhere.Section.EQ(SAdvert()),

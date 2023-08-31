@@ -1,3 +1,4 @@
+//nolint:dupl
 package model
 
 // Package file_platoforms.go contains the database queries for operating systems.
