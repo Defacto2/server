@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
   <ShortName>Defacto2</ShortName>
-  <Description>Site wide search of the organisations, authors, web links and hosted files metadata served on Defacto2.</Description>
+  <Description>Site wide search of the organizations, authors, web links and hosted files metadata served on Defacto2.</Description>
   <Url type="application/opensearchdescription+xml"
     rel="self"
     template="https://defacto2.net/osd.xml" />

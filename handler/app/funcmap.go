@@ -148,7 +148,8 @@ func Attribute(write, code, art, music, name string) string {
 	if len(match) == 1 {
 		return match[0] + " attribution"
 	}
-	if len(match) == 2 {
+	const and = 2
+	if len(match) == and {
 		return strings.Join(match, " and ") + " attributions"
 	}
 	last := len(match) - 1

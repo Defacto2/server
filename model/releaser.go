@@ -34,7 +34,7 @@ type ReleaserList struct {
 	Name string `boil:"releaser"`
 }
 
-// ReleaserStr is a distinct data list of of releasers.
+// ReleaserStr is a distinct data list of releasers.
 type ReleaserStr []ReleaserList
 
 func (r *ReleaserStr) List(ctx context.Context, db *sql.DB) error {

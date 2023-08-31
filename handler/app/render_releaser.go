@@ -198,7 +198,7 @@ func releaser(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	const key = "releasers"
 	data["title"] = title
 	data["description"] = fmt.Sprint(title, " ", lead)
-	data["logo"] = "Groups, organisations and publications"
+	data["logo"] = "Groups, organizations and publications"
 	data["h1"] = title
 	data["lead"] = lead
 	// releaser.html specific data items

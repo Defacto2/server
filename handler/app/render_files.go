@@ -40,7 +40,6 @@ func Files(z *zap.SugaredLogger, c echo.Context, uri, page string) error {
 		return FilesErr(z, c, uri)
 	}
 	// check the page is valid
-	p := 1
 	if page == "" {
 		return files(z, c, uri, 1)
 	}
@@ -107,12 +106,13 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 		i := strconv.Itoa(page)
 		return PageErr(z, c, uri, i)
 	}
+	const pages = 2
 	data["Pagination"] = model.Pagination{
-		TwoAfter: page + 2,
+		TwoAfter: page + pages,
 		NextPage: page + 1,
 		CurrPage: page,
 		PrevPage: page - 1,
-		TwoBelow: page - 2,
+		TwoBelow: page - pages,
 		SumPages: int(lastPage),
 		BaseURL:  "/files/" + uri,
 	}

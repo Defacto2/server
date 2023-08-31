@@ -72,7 +72,7 @@ const (
 
 // String returns a string representation of the Config struct.
 // The output is formatted as a table with the following columns:
-// Environment variable and Value
+// Environment variable and Value.
 func (c Config) String() string {
 	b := new(strings.Builder)
 	c.configurations(b)
@@ -103,17 +103,20 @@ func (c Config) addresses(b *strings.Builder) *strings.Builder {
 	}
 	port := values.FieldByName("HTTPPort").Uint()
 	ports := values.FieldByName("HTTPSPort").Uint()
+	const web = 80
+	const webs = 443
+	const local = 1323
 	for _, host := range hosts {
 		switch port {
-		case 80:
+		case web:
 			fmt.Fprintf(b, "%shttp://%s\n", pad, host)
 		case 0:
-			fmt.Fprintf(b, "%shttp://%s:%d\n", pad, host, 1323)
+			fmt.Fprintf(b, "%shttp://%s:%d\n", pad, host, local)
 		default:
 			fmt.Fprintf(b, "%shttp://%s:%d\n", pad, host, port)
 		}
 		switch ports {
-		case 443:
+		case webs:
 			fmt.Fprintf(b, "%shttps://%s\n", pad, host)
 		case 0:
 			// disabled
@@ -131,7 +134,7 @@ func (c Config) addresses(b *strings.Builder) *strings.Builder {
 	return b
 }
 
-// configurations prints a list of active conifguration options.
+// configurations prints a list of active configurations options.
 func (c Config) configurations(b *strings.Builder) *strings.Builder {
 	fields := reflect.VisibleFields(reflect.TypeOf(c))
 	values := reflect.ValueOf(c)

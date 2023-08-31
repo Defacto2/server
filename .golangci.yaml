@@ -18,15 +18,17 @@ linters:
     - nlreturn          # fussy over whitespace.
     # temporary disabled
     - lll
-    #- godox
+    - godox
 
 linters-settings:
   gomnd:
     # List of file patterns to exclude from analysis.
     # Values always ignored: `.+_test.go`
     # Default: []
-    ignored-files:
-      - 'milestones.go' # magic number false positives.
+    ignored-files: # magic number false positives.
+      - 'milestone.go'
+      - 'interview.go'
+      - 'zoo.go'      
   misspell:
     # Correct spellings using locale preferences for US or UK.
     # Setting locale to US will correct the British spelling of 'colour' to 'color'.

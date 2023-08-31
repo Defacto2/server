@@ -136,7 +136,7 @@ var initialisms = List{
 	"malicious-art-denomination":          {"MAD"},
 	"malice":                              {"MAL"},
 	"majic-12":                            {"M12"},
-	"millenium":                           {"MnM"},
+	"millennium":                          {"MnM"},
 	"mutual-assured-destruction":          {"MAD"},
 	"manifest":                            {"MFD", "Manifest Destiny"},
 	"motiv8":                              {"M8"},

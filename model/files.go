@@ -32,7 +32,8 @@ func (f *Files) Stat(ctx context.Context, db *sql.DB) error {
 	// 	qm.Select(postgres.Columns()...),
 	// 	qm.Where(ClauseNoSoftDel),
 	// 	qm.From(From)).Bind(ctx, db, f)
-	return models.Files(qm.Limit(10)).Bind(ctx, db, f)
+	const limit = 10
+	return models.Files(qm.Limit(limit)).Bind(ctx, db, f)
 }
 
 // Search returns a list of files that match ....

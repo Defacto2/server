@@ -255,15 +255,19 @@ func (c Configuration) Moved(z *zap.SugaredLogger, e *echo.Echo) (*echo.Echo, er
 	e.GET("/link/list/:id", func(c echo.Context) error {
 		return c.Redirect(code, "/website")
 	})
+	//nolint:misspell
 	e.GET("/organisation/list/bbs", func(c echo.Context) error {
 		return c.Redirect(code, "/bbs")
 	})
+	//nolint:misspell
 	e.GET("/organisation/list/group", func(c echo.Context) error {
 		return c.Redirect(code, "/releaser")
 	})
+	//nolint:misspell
 	e.GET("/organisation/list/ftp", func(c echo.Context) error {
 		return c.Redirect(code, "/ftp")
 	})
+	//nolint:misspell
 	e.GET("/organisation/list/magazine", func(c echo.Context) error {
 		return c.Redirect(code, "/magazine")
 	})
