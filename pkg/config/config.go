@@ -135,6 +135,8 @@ func (c Config) addresses(b *strings.Builder) *strings.Builder {
 }
 
 // configurations prints a list of active configurations options.
+//
+//nolint:gocognit
 func (c Config) configurations(b *strings.Builder) *strings.Builder {
 	fields := reflect.VisibleFields(reflect.TypeOf(c))
 	values := reflect.ValueOf(c)

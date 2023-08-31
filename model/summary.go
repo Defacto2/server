@@ -113,6 +113,7 @@ func (s *Summary) Releaser(ctx context.Context, db *sql.DB, name string) error {
 		qm.From(From)).Bind(ctx, db, s)
 }
 
+//nolint:gocyclo,gocognit,maintidx
 func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error {
 	if db == nil {
 		return ErrDB
