@@ -159,7 +159,7 @@ func (c Configuration) Moved(z *zap.SugaredLogger, e *echo.Echo) (*echo.Echo, er
 		return c.Redirect(code, "/d/"+c.Param("id"))
 	})
 	e.GET("/file/view/:id", func(c echo.Context) error {
-		return c.Redirect(code, "/v/"+c.Param("id")) //todo
+		return c.Redirect(code, "/v/"+c.Param("id")) // todo
 	})
 	e.GET("/apollo-x/fc.htm", func(c echo.Context) error {
 		return c.Redirect(code, "/wayback/apollo-x-demo-resources-1999-december-17/fc.htm")
@@ -174,7 +174,7 @@ func (c Configuration) Moved(z *zap.SugaredLogger, e *echo.Echo) (*echo.Echo, er
 		return c.Redirect(code, "/files/intro")
 	})
 	e.GET("/cracktros-detail.cfm:/:id", func(c echo.Context) error {
-		return c.Redirect(code, "/") //todo
+		return c.Redirect(code, "/") // todo
 	})
 	e.GET("/documents.cfm", func(c echo.Context) error {
 		return c.Redirect(code, "/files/text")
@@ -208,7 +208,7 @@ func (c Configuration) Moved(z *zap.SugaredLogger, e *echo.Echo) (*echo.Echo, er
 	})
 	// 2020 website redirects
 	e.GET("/code", func(c echo.Context) error {
-		return c.Redirect(code, "/") //todo
+		return c.Redirect(code, "/") // todo
 	})
 	e.GET("/commercial", func(c echo.Context) error {
 		return c.Redirect(code, "/")

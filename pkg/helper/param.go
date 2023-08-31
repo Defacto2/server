@@ -210,7 +210,7 @@ func SearchTerm(input string) []string {
 		}
 	}
 
-	//terms = append(terms, t...)
+	// terms = append(terms, t...)
 
 	// for i, v := range q {
 	// 	q[i] = strings.TrimSpace(v)

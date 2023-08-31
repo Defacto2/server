@@ -8,9 +8,11 @@ import (
 	"strings"
 )
 
-type SQL string     // SQL is a raw query statement for PostgreSQL.
-type Version string // Version of the PostgreSQL database server in use.
-type Role string    // Role is a scener attribution used in the database.
+type (
+	SQL     string // SQL is a raw query statement for PostgreSQL.
+	Version string // Version of the PostgreSQL database server in use.
+	Role    string // Role is a scener attribution used in the database.
+)
 
 const (
 	Writer   Role = "(upper(credit_text))"         // Writer or author of a document.

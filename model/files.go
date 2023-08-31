@@ -69,8 +69,8 @@ func (f *Files) Search(ctx context.Context, db *sql.DB, terms []string) (models.
 	// match file extensions
 	// otherwise match string
 
-	//const clause = "id DESC"
-	//qm.Where("upper(group_brand_for) = ? OR upper(group_brand_by) = ?", x, x),
+	// const clause = "id DESC"
+	// qm.Where("upper(group_brand_for) = ? OR upper(group_brand_by) = ?", x, x),
 	// qm.Or2(models.FileWhere.Platform.EQ(expr.PText())
 	mods := []qm.QueryMod{}
 	for i, term := range terms {
