@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/Defacto2/server/pkg/helper"
 	"go.uber.org/zap"
 )
 
@@ -26,7 +27,7 @@ var (
 // Checks runs a number of sanity checks for the environment variable configurations.
 func (c *Config) Checks(z *zap.SugaredLogger) {
 	if z == nil {
-		fmt.Fprintf(os.Stderr, "cannot run config checks as the logger instance is nil.")
+		fmt.Fprintf(os.Stderr, "Cannot run config checks as the logger instance is nil.")
 		return
 	}
 	if err := HTTPPort(c.HTTPPort); err != nil {
@@ -41,13 +42,16 @@ func (c *Config) Checks(z *zap.SugaredLogger) {
 	}
 
 	if err := DownloadDir(c.DownloadDir); err != nil {
-		z.Warn(err)
+		s := helper.Capitalize(err.Error()) + "."
+		z.Warn(s)
 	}
 	if err := ScreenshotsDir(c.ScreenshotsDir); err != nil {
-		z.Warn(err)
+		s := helper.Capitalize(err.Error()) + "."
+		z.Warn(s)
 	}
 	if err := ThumbnailDir(c.ThumbnailDir); err != nil {
-		z.Warn(err)
+		s := helper.Capitalize(err.Error()) + "."
+		z.Warn(s)
 	}
 	c.SetupLogDir(z)
 }

@@ -39,7 +39,7 @@ var ErrVersion = errors.New("could not obtain the database server version value"
 func main() {
 	// Logger
 	// Use the development log until the environment vars are parsed
-	zlog := logger.Development().Sugar()
+	zlog := logger.CLI().Sugar()
 
 	// Environment configuration
 	configs := config.Config{}
@@ -69,6 +69,9 @@ func main() {
 		runtime.GOMAXPROCS(int(i))
 	}
 
+	// Configuration sanity checks
+	configs.Checks(zlog)
+
 	// Setup the logger
 	switch configs.IsProduction {
 	case true:
@@ -78,10 +81,8 @@ func main() {
 		zlog = logger.Production(configs.LogDir).Sugar()
 	default:
 		zlog.Debug("The server is running in the DEVELOPMENT MODE.")
+		zlog = logger.Development().Sugar()
 	}
-
-	// Configuration sanity checks
-	configs.Checks(zlog)
 
 	// Cached global vars will go here, to avoid the garbage collection
 	// They should be lockable
