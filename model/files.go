@@ -12,6 +12,9 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
+// Maximum number of files to return per query.
+const Maximum = 998
+
 // Files contain statistics for every release.
 type Files struct {
 	Bytes   int `boil:"size_total"`
@@ -32,8 +35,7 @@ func (f *Files) Stat(ctx context.Context, db *sql.DB) error {
 	// 	qm.Select(postgres.Columns()...),
 	// 	qm.Where(ClauseNoSoftDel),
 	// 	qm.From(From)).Bind(ctx, db, f)
-	const limit = 10
-	return models.Files(qm.Limit(limit)).Bind(ctx, db, f)
+	return models.Files(qm.Limit(Maximum)).Bind(ctx, db, f)
 }
 
 // Search returns a list of files that match ....
@@ -44,7 +46,6 @@ func (f *Files) Search(ctx context.Context, db *sql.DB, terms []string) (models.
 	if terms == nil {
 		return models.FileSlice{}, nil
 	}
-	const max = 100
 	// if err := f.Stat(ctx, db); err != nil { // TODO: remove this
 	// 	return nil, err
 	// }
@@ -84,7 +85,7 @@ func (f *Files) Search(ctx context.Context, db *sql.DB, terms []string) (models.
 		mods = append(mods, qm.Or("filename ~ ? OR filename ILIKE ? OR filename ILIKE ? OR filename ILIKE ?",
 			term, term+"%", "%"+term, "%"+term+"%"))
 	}
-	mods = append(mods, qm.OrderBy("filename ASC"), qm.Limit(max))
+	mods = append(mods, qm.OrderBy("filename ASC"), qm.Limit(Maximum))
 
 	return models.Files(mods...).All(ctx, db)
 }

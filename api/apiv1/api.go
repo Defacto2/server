@@ -20,8 +20,7 @@ func Routes(z *zap.SugaredLogger, e *echo.Echo) *echo.Group {
 	}
 	g := e.Group("api/v1")
 	g.GET("/files", func(c echo.Context) error {
-		const limit = 1000
-		all, err := model.PostAsc.AllFiles(ctx, db, 0, limit)
+		all, err := model.PostAsc.AllFiles(ctx, db, 0, model.Maximum)
 		if err != nil {
 			return err
 		}

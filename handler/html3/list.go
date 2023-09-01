@@ -107,17 +107,17 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error {
 	var softs model.Softs
 	switch tt {
 	case AllReleases:
-		limit = 1000
+		limit = model.Maximum
 		records, err = order.AllFiles(ctx, db, page, limit)
 		_ = all.Stat(ctx, db)
 		count = all.Count
 	case BySection:
-		limit = 1000
+		limit = model.Maximum
 		records, err = order.FilesByCategory(ctx, db, page, limit, id)
 		x, _ := model.CountByCategory(ctx, db, id)
 		count = int(x)
 	case ByPlatform:
-		limit = 1000
+		limit = model.Maximum
 		records, err = order.FilesByPlatform(ctx, db, id)
 		x, _ := model.CountByPlatform(ctx, db, id)
 		count = int(x)
@@ -126,17 +126,17 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error {
 		records, err = order.FilesByGroup(ctx, db, name)
 		count = len(records)
 	case AsArt:
-		limit = 1000
+		limit = model.Maximum
 		records, err = order.ArtFiles(ctx, db, page, limit)
 		_ = arts.Stat(ctx, db)
 		count = arts.Count
 	case AsDocuments:
-		limit = 1000
+		limit = model.Maximum
 		records, err = order.DocumentFiles(ctx, db, page, limit)
 		_ = docs.Stat(ctx, db)
 		count = docs.Count
 	case AsSoftware:
-		limit = 1000
+		limit = model.Maximum
 		records, err = order.SoftwareFiles(ctx, db, page, limit)
 		_ = softs.Stat(ctx, db)
 		count = softs.Count
