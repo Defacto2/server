@@ -45,9 +45,9 @@ func (f *Files) Search(ctx context.Context, db *sql.DB, terms []string) (models.
 		return models.FileSlice{}, nil
 	}
 	const max = 100
-	if err := f.Stat(ctx, db); err != nil { // TODO: remove this
-		return nil, err
-	}
+	// if err := f.Stat(ctx, db); err != nil { // TODO: remove this
+	// 	return nil, err
+	// }
 
 	// match years
 	// names := terms
