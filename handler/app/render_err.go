@@ -16,11 +16,87 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/Defacto2/sceners/pkg/rename"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
+
+// DatabaseErr is the handler for handling database connection errors.
+func DatabaseErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) error {
+	const code = http.StatusInternalServerError
+	if z == nil {
+		zapNil(err)
+	} else if err != nil {
+		z.Warnf("%d error for %q: %s", code, uri, err)
+	}
+	// render the fallback, text only error page
+	if c == nil {
+		if z == nil {
+			zapNil(fmt.Errorf("%w: databaserr", ErrCxt))
+		} else {
+			z.Warnf("%s: %s", ErrTmpl, ErrCxt)
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Errorf("%w: handler app status", ErrCxt))
+	}
+	// render a user friendly error page
+	data := empty()
+	data["description"] = fmt.Sprintf("HTTP status %d error", code)
+	data["title"] = "500 error, there is a complication"
+	data["code"] = code
+	data["logo"] = "Database error"
+	data["alert"] = "Cannot connect to the database!"
+	data["uriErr"] = ""
+	data["probl"] = "This is not your fault, but the server cannot communicate with the database to display this page."
+	if err := c.Render(code, "status", data); err != nil {
+		if z != nil {
+			z.Errorf("%s: %s", ErrTmpl, err)
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
+// DownloadErr is the handler for missing download files and database ID errors.
+func DownloadErr(z *zap.SugaredLogger, c echo.Context, err error) error {
+	const code = http.StatusNotFound
+	uri := c.Param("id")
+	if z == nil {
+		zapNil(err)
+	} else if err != nil {
+		z.Errorf("%d error for %q: %s", code, uri, err)
+	}
+	// render the fallback, text only error page
+	if c == nil {
+		if z == nil {
+			zapNil(fmt.Errorf("%w: downloaderr", ErrCxt))
+		} else {
+			z.Errorf("%s: %s", ErrTmpl, ErrCxt)
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Errorf("%w: handler app status", ErrCxt))
+	}
+	// render a user friendly error page
+	data := empty()
+	data["description"] = fmt.Sprintf("HTTP status %d error", code)
+	data["title"] = "404 download error"
+	data["code"] = code
+	data["logo"] = "Download problem"
+	data["alert"] = "Cannot send you this download"
+	data["probl"] = "The download you are looking for might have been removed, " +
+		"had its filename changed, or is temporarily unavailable. " +
+		"Is the URL correct?"
+	data["uriErr"] = strings.Join([]string{"d", uri}, "/")
+	if err := c.Render(code, "status", data); err != nil {
+		if z != nil {
+			z.Errorf("%s: %s", ErrTmpl, err)
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
 
 // FilesErr renders the files error page for the Files menu and categories.
 // It provides different error messages to the standard error page.
@@ -126,42 +202,6 @@ func ScenerErr(z *zap.SugaredLogger, c echo.Context, id string) error {
 
 func zapNil(err error) {
 	log.Println(fmt.Errorf("cannot log the following error: %w", err))
-}
-
-// DatabaseErr is the handler for handling database connection errors.
-func DatabaseErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) error {
-	const code = http.StatusInternalServerError
-	if z == nil {
-		zapNil(err)
-	} else if err != nil {
-		z.Warnf("%d error for %q: %s", code, uri, err)
-	}
-	// render the fallback, text only error page
-	if c == nil {
-		if z == nil {
-			zapNil(fmt.Errorf("%w: databaserr", ErrCxt))
-		} else {
-			z.Warnf("%s: %s", ErrTmpl, ErrCxt)
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app status", ErrCxt))
-	}
-	// render a user friendly error page
-	data := empty()
-	data["description"] = fmt.Sprintf("HTTP status %d error", code)
-	data["title"] = "500 error, there is a complication"
-	data["code"] = code
-	data["logo"] = "Database error"
-	data["alert"] = "Cannot connect to the database!"
-	data["uriErr"] = ""
-	data["probl"] = "This is not your fault, but the server cannot communicate with the database to display this page."
-	if err := c.Render(code, "status", data); err != nil {
-		if z != nil {
-			z.Errorf("%s: %s", ErrTmpl, err)
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-	}
-	return nil
 }
 
 // InternalErr is the handler for handling Internal Server Errors, caused by programming bugs or crashes.
