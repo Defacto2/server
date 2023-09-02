@@ -92,7 +92,7 @@ func History(z *zap.SugaredLogger, c echo.Context) error {
 		return InternalErr(z, c, name, ErrZap)
 	}
 	const lead = "Defacto2 started in late February or early March of 1996, as an electronic magazine that wrote about The Scene subculture. " +
-		"In the past, alternative iterations of the name have included DF, De Facto, DeFacto, Defacto II, Defacto 2, and defacto2.com."
+		"In the past, alternative iterations of the name have included De Facto, DF, DeFacto, Defacto II, Defacto 2, and the defacto2.com domain."
 	const h1 = "The history of the brand"
 	data := empty()
 	data["carousel"] = "#carouselDf2Artpacks"
