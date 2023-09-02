@@ -179,7 +179,7 @@ func (web Web) Thumb(uuid, desc string, bottom bool) template.HTML {
 		class = "card-img-top"
 	}
 	if !w && !p {
-		return template.HTML("<img src=\"\" alt=\"thumbnail placeholder\" class=\"" + class + " placeholder\" style=\"" + style + "\" />")
+		return template.HTML("<img src=\"\" loading=\"lazy\" alt=\"thumbnail placeholder\" class=\"" + class + " placeholder\" style=\"" + style + "\" />")
 	}
 	if w && p {
 		elm := "<picture class=\"" + class + "\">" +
@@ -199,7 +199,7 @@ func (web Web) Thumb(uuid, desc string, bottom bool) template.HTML {
 }
 
 func img(src, alt, class, style string) template.HTML {
-	return template.HTML(fmt.Sprintf("<img src=\"%s\" alt=\"%s\" class=\"%s\" style=\"%s\" />",
+	return template.HTML(fmt.Sprintf("<img src=\"%s\" loading=\"lazy\" alt=\"%s\" class=\"%s\" style=\"%s\" />",
 		src, alt, class, style))
 }
 
