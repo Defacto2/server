@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	"strings"
 
+	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
@@ -68,6 +70,14 @@ func RepairReleasers(ctx context.Context, db *sql.DB) error {
 		if err != nil {
 			return err
 		}
+	}
+	_, err = queries.Raw(postgres.SetUpper("group_brand_for")).Exec(db)
+	if err != nil {
+		return err
+	}
+	_, err = queries.Raw(postgres.SetUpper("group_brand_by")).Exec(db)
+	if err != nil {
+		return err
 	}
 	return nil
 }

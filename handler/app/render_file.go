@@ -52,8 +52,8 @@ func fileWStats(data map[string]interface{}, stats bool) (map[string]interface{}
 	data["logo"] = "File category statistics"
 	data["lead"] = "This page shows the file categories with selected statistics, " +
 		"such as the number of files in the category or platform." +
-		fmt.Sprintf(" The total number of files in the database is %d.", c.All.Count) +
-		fmt.Sprintf(" The total size of all files in the database is %s.", helper.ByteCount(int64(c.All.Bytes)))
+		fmt.Sprintf(" The total number of files in the database is %d.", c.Record.Count) +
+		fmt.Sprintf(" The total size of all files in the database is %s.", helper.ByteCount(int64(c.Record.Bytes)))
 	return data, nil
 }
 

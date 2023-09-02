@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -23,6 +24,7 @@ type Files struct {
 	MaxYear int `boil:"max_year"`
 }
 
+// Stat returns the total number of files and the total size of all files that are not soft deleted.
 func (f *Files) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
@@ -31,11 +33,11 @@ func (f *Files) Stat(ctx context.Context, db *sql.DB) error {
 		return nil
 	}
 	// boil.DebugMode = true
-	// return models.NewQuery(
-	// 	qm.Select(postgres.Columns()...),
-	// 	qm.Where(ClauseNoSoftDel),
-	// 	qm.From(From)).Bind(ctx, db, f)
-	return models.Files(qm.Limit(Maximum)).Bind(ctx, db, f)
+	return models.NewQuery(
+		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
+		qm.From(From)).Bind(ctx, db, f)
+	//return models.Files(qm.Limit(Maximum)).Bind(ctx, db, f)
 }
 
 // Search returns a list of files that match ....

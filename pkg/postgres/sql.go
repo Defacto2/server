@@ -249,3 +249,9 @@ func SumGroup() SQL {
 func SumPlatform() SQL {
 	return "SELECT sum(filesize) FROM files WHERE platform = $1"
 }
+
+// SetUpper is an SQL statement to update a column with uppercase values.
+func SetUpper(column string) string {
+	return "UPDATE files " +
+		fmt.Sprintf("SET %s = UPPER(%s);", column, column)
+}

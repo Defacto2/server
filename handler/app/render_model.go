@@ -312,7 +312,7 @@ func RecordsSub(uri string) string {
 
 // Stats are the database statistics for the file categories.
 type Stats struct { //nolint:gochecknoglobals
-	All       model.Files
+	Record    model.Files
 	Ansi      model.Ansi
 	AnsiBBS   model.AnsiBBS
 	BBS       model.BBS
@@ -341,7 +341,7 @@ func (s *Stats) Get(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
-	if err := s.All.Stat(ctx, db); err != nil {
+	if err := s.Record.Stat(ctx, db); err != nil {
 		return err
 	}
 	if err := s.Ansi.Stat(ctx, db); err != nil {
