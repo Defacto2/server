@@ -146,6 +146,7 @@ func (c Configuration) Controller() *echo.Echo {
 	}
 	// Routes for the htm retro web tables
 	retro := html3.Routes(c.ZLog, e)
+	// TODO: MOVE
 	retro.GET("/d/:id", func(ctx echo.Context) error {
 		// route for the file download handler under the html3 group
 		d := download.Download{

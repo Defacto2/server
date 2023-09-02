@@ -14,7 +14,7 @@ import (
 )
 
 // Routes defines the routes for the web server.
-func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.FS) (*echo.Echo, error) {
+func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.FS) (*echo.Echo, error) {
 	if e == nil {
 		return nil, fmt.Errorf("%w: %s", ErrRoutes, "handler routes")
 	}
@@ -49,7 +49,7 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 	e.FileFS("/site.webmanifest", "public/text/site.webmanifest.json", public)
 
 	// Serve asset thumbnail images
-	e.Static(config.StaticThumb(), c.Import.ThumbnailDir) // TODO: rename to /image/thumb/
+	e.Static(config.StaticThumb(), conf.Import.ThumbnailDir) // TODO: rename to /image/thumb/
 
 	e.GET("/", func(c echo.Context) error {
 		return app.Index(z, c)
@@ -65,6 +65,9 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 	})
 	e.GET("/coder", func(c echo.Context) error {
 		return app.Coder(z, c)
+	})
+	e.GET("/d/:id", func(c echo.Context) error {
+		return app.Download(z, c, conf.Import.DownloadDir)
 	})
 	e.GET("/file/stats", func(c echo.Context) error {
 		return app.File(z, c, true)

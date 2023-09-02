@@ -79,6 +79,8 @@ tasks:
       DEFACTO2_PORT: "{{.SERVEPORT}}"
       DEFACTO2_REQUESTS: "{{.LOGREQUESTS}}"
       DEFACTO2_NOROBOTS: "{{.NOROBOTS}}"
+      DEFACTO2_DOWNLOAD: /Users/ben/defacto2-assets/downloads
+      DEFACTO2_SCREENSHOTS: /Users/ben/defacto2-assets/images000
       DEFACTO2_THUMBNAILS: /Users/ben/defacto2-assets/images400
     deps: [assets]
     cmds:

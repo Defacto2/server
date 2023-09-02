@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Defacto2/server/handler/download"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -41,6 +42,26 @@ func emptyFiles() map[string]interface{} {
 	data["sixteen"] = ""
 	data["scener"] = ""
 	return data
+}
+
+func Download(z *zap.SugaredLogger, c echo.Context, path string) error {
+	// const name = "download"
+	// if z == nil {
+	// 	return InternalErr(z, c, name, ErrZap)
+	// }
+	// data := empty()
+	// data["description"] = "Download the Defacto2 releases."
+	// data["h1"] = "Download"
+	// data["lead"] = "Download the Defacto2 releases."
+	// data["title"] = "Download"
+	// err := c.Render(http.StatusOK, name, data)
+	// if err != nil {
+	// 	return InternalErr(z, c, name, err)
+	// }
+	d := download.Download{
+		Path: path,
+	}
+	return d.HTTPSend(z, c)
 }
 
 // Interview is the handler for the People Interviews page.
