@@ -60,13 +60,13 @@ func DatabaseErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) er
 }
 
 // DownloadErr is the handler for missing download files and database ID errors.
-func DownloadErr(z *zap.SugaredLogger, c echo.Context, err error) error {
+func DownloadErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) error {
 	const code = http.StatusNotFound
-	uri := c.Param("id")
+	id := c.Param("id")
 	if z == nil {
 		zapNil(err)
 	} else if err != nil {
-		z.Errorf("%d error for %q: %s", code, uri, err)
+		z.Errorf("%d error for %q: %s", code, id, err)
 	}
 	// render the fallback, text only error page
 	if c == nil {
@@ -88,7 +88,7 @@ func DownloadErr(z *zap.SugaredLogger, c echo.Context, err error) error {
 	data["probl"] = "The download you are looking for might have been removed, " +
 		"had its filename changed, or is temporarily unavailable. " +
 		"Is the URL correct?"
-	data["uriErr"] = strings.Join([]string{"d", uri}, "/")
+	data["uriErr"] = strings.Join([]string{uri, id}, "/")
 	if err := c.Render(code, "status", data); err != nil {
 		if z != nil {
 			z.Errorf("%s: %s", ErrTmpl, err)

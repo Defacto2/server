@@ -105,6 +105,9 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.GET("/p/:id", func(c echo.Context) error {
 		return app.Sceners(z, c, c.Param("id"))
 	})
+	e.GET("/r/:id", func(c echo.Context) error {
+		return app.Reader(z, c, c.Param("id"))
+	})
 	e.GET("/releaser", func(c echo.Context) error {
 		return app.Releaser(z, c)
 	})
@@ -114,7 +117,6 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.GET("/scener", func(c echo.Context) error {
 		return app.Scener(z, c)
 	})
-
 	e.GET("/search/file", func(c echo.Context) error {
 		return app.SearchFile(z, c)
 	})
@@ -142,6 +144,9 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.GET("/writer", func(c echo.Context) error {
 		return app.Writer(z, c)
 	})
+	e.GET("/v/:id", func(c echo.Context) error {
+		return app.Inline(z, c, conf.Import.DownloadDir)
+	})
 
 	// all other page requests return a custom 404 error page
 	e.GET("/:uri", func(c echo.Context) error {
@@ -162,7 +167,7 @@ func (c Configuration) Moved(z *zap.SugaredLogger, e *echo.Echo) (*echo.Echo, er
 		return c.Redirect(code, "/d/"+c.Param("id"))
 	})
 	e.GET("/file/view/:id", func(c echo.Context) error {
-		return c.Redirect(code, "/v/"+c.Param("id")) // todo
+		return c.Redirect(code, "/v/"+c.Param("id"))
 	})
 	e.GET("/apollo-x/fc.htm", func(c echo.Context) error {
 		return c.Redirect(code, "/wayback/apollo-x-demo-resources-1999-december-17/fc.htm")

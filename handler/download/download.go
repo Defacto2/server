@@ -17,7 +17,8 @@ import (
 
 // Download configuration.
 type Download struct {
-	Path string // Path is the absolute path to the download directory.
+	Inline bool   // Inline is true if the file should attempt to display in the browser.
+	Path   string // Path is the absolute path to the download directory.
 }
 
 const startID = 1 // startID is the default, first ID value.
@@ -72,6 +73,9 @@ func (d Download) HTTPSend(z *zap.SugaredLogger, c echo.Context) error {
 	if name == "" {
 		z.Warnf("No filename exists for the record %d.", res.ID)
 		name = file
+	}
+	if d.Inline {
+		return c.Inline(file, name)
 	}
 	return c.Attachment(file, name)
 }

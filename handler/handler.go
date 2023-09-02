@@ -150,7 +150,8 @@ func (c Configuration) Controller() *echo.Echo {
 	retro.GET("/d/:id", func(ctx echo.Context) error {
 		// route for the file download handler under the html3 group
 		d := download.Download{
-			Path: c.Import.DownloadDir,
+			Inline: false,
+			Path:   c.Import.DownloadDir,
 		}
 		return d.HTTPSend(c.ZLog, ctx)
 	})

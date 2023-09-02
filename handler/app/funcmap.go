@@ -40,6 +40,13 @@ const (
 	typeErr = "error: received an invalid type to "
 )
 
+var (
+	archives  = []string{".zip", ".rar", ".7z", ".tar", ".lha", ".lzh", ".arc", ".arj", ".ace", ".tar"}
+	documents = []string{".txt", ".nfo", ".diz", ".asc", ".lit", ".rtf", ".doc", ".docx", ".pdf", ".unp", ".htm", ".html", ".xml", ".json", ".csv"}
+	images    = []string{".avif", ".gif", ".jpg", ".jpeg", ".jfif", ".png", ".svg", ".webp", ".bmp", ".ico"}
+	media     = []string{".mpeg", ".mp1", ".mp2", ".mp3", ".mp4", ".ogg", ".wmv"}
+)
+
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func (web Web) TemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
@@ -55,6 +62,7 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"lastUpdated":    LastUpdated,
 		"linkDownload":   LinkDownload,
 		"linkPage":       LinkPage,
+		"linkPreview":    LinkPreview,
 		"linkRemote":     LinkRemote,
 		"linkRelrs":      LinkRelrs,
 		"linkScnr":       LinkScnr,
@@ -531,6 +539,39 @@ func LinkPage(id any) template.HTML {
 		return template.HTML(err.Error())
 	}
 	return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">About</a>`, s))
+}
+
+// LinkPreview creates a URL to link to the file record in tab, to use as a preview.
+// The preview link will only show with compatible file types based on their extension.
+func LinkPreview(id any, name, platform string) template.HTML {
+	if name == "" {
+		return template.HTML("")
+	}
+	platform = strings.TrimSpace(platform)
+	// supported formats
+	// https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
+	ext := strings.ToLower(filepath.Ext(name))
+	switch {
+	case slices.Contains(archives, ext):
+		// this must always be first
+		return template.HTML("")
+	case platform == "textamiga", platform == "text":
+		break
+	case slices.Contains(documents, ext):
+		break
+	case slices.Contains(images, ext):
+		break
+	case slices.Contains(media, ext):
+		break
+	default:
+		return template.HTML("")
+	}
+	s, err := linkID(id, "v")
+	if err != nil {
+		return template.HTML(err.Error())
+	}
+	elm := fmt.Sprintf(`&nbsp; <a class="card-link" href="%s">Preview</a>`, s)
+	return template.HTML(elm)
 }
 
 // LinkWiki returns a HTML link with an embedded SVG icon to the Defacto2 wiki on GitHub.

@@ -47,11 +47,25 @@ func emptyFiles() map[string]interface{} {
 // Download is the handler for the Download file record page.
 func Download(z *zap.SugaredLogger, c echo.Context, path string) error {
 	d := download.Download{
-		Path: path,
+		Inline: false,
+		Path:   path,
 	}
 	err := d.HTTPSend(z, c)
 	if err != nil {
-		return DownloadErr(z, c, err)
+		return DownloadErr(z, c, "d", err)
+	}
+	return nil
+}
+
+// Inline is the handler for the Download file record page.
+func Inline(z *zap.SugaredLogger, c echo.Context, path string) error {
+	d := download.Download{
+		Inline: true,
+		Path:   path,
+	}
+	err := d.HTTPSend(z, c)
+	if err != nil {
+		return DownloadErr(z, c, "v", err)
 	}
 	return nil
 }
@@ -114,6 +128,26 @@ func History(z *zap.SugaredLogger, c echo.Context) error {
 	data["h1"] = h1
 	data["lead"] = lead
 	data["title"] = h1
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	return nil
+}
+
+// Interview is the handler for the People Interviews page.
+func Reader(z *zap.SugaredLogger, c echo.Context, id string) error {
+	const title, name = "Interviews with sceners", "reader"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	data := empty()
+	data["title"] = title
+	data["description"] = "Discussions with scene members."
+	data["logo"] = title
+	data["h1"] = title
+	data["lead"] = "An incomplete list of discussions and unedited interviews with sceners, crackers and demo makers."
+	data["interviews"] = Interviewees()
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(z, c, name, err)

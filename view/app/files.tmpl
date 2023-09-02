@@ -44,6 +44,7 @@
         {{- end}}
         {{linkPage .ID}}
         {{linkDownload .ID}}{{ sizeOfDL .Filesize}}
+        {{linkPreview .ID .Filename.String .Platform.String}}
       </div>
       {{thumb .UUID.String .Filename.String true }}
     </div>
