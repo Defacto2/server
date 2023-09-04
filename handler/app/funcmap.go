@@ -51,6 +51,7 @@ var (
 func (web Web) TemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
 		"attribute":      Attribute,
+		"brief":          Brief,
 		"describe":       Describe,
 		"fmtByte":        FmtByte,
 		"fmtByteCnt":     FmtByteCnt,
@@ -59,6 +60,7 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"fmtInitalism":   initialism.Join,
 		"fmtMonth":       FmtMonth,
 		"fmtPrefix":      FmtPrefix,
+		"fmtRoles":       FmtRoles,
 		"lastUpdated":    LastUpdated,
 		"linkDownload":   LinkDownload,
 		"linkPage":       LinkPage,
@@ -100,6 +102,19 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 			return web.Subresource.LayoutCSS
 		},
 	}
+}
+
+func FmtRoles(s string) string {
+	x := []string{}
+	y := strings.Split(s, ",")
+	for _, z := range y {
+		z = strings.TrimSpace(z)
+		if z == "" {
+			continue
+		}
+		x = append(x, helper.Capitalize(z))
+	}
+	return strings.Join(x, ", ")
 }
 
 func WebsiteIcon(url string) string {
@@ -270,6 +285,40 @@ func Describe(plat, sect, year, month any) template.HTML {
 	} else if y != "" {
 		x = fmt.Sprintf("%s published in %s", x, y)
 	}
+	return template.HTML(x + ".")
+}
+
+// Brief returns a human readable brief description of a release.
+// Based on the platform, section, year and month.
+func Brief(plat, sect any) template.HTML {
+	p, s := "", ""
+	switch val := plat.(type) {
+	case string:
+		p = val
+	case null.String:
+		if val.Valid {
+			p = val.String
+		}
+	default:
+		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", plat))
+	}
+	p = strings.TrimSpace(p)
+	switch val := sect.(type) {
+	case string:
+		s = val
+	case null.String:
+		if val.Valid {
+			s = val.String
+		}
+	default:
+		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", sect))
+	}
+	s = strings.TrimSpace(s)
+	if p == "" && s == "" {
+		return template.HTML("An unknown release")
+	}
+	x := tags.Humanize(tags.TagByURI(p), tags.TagByURI(s))
+	//x = helper.Capitalize(x)
 	return template.HTML(x + ".")
 }
 

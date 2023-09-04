@@ -48,8 +48,9 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.FileFS("/robots.txt", "public/text/robots.txt", public)
 	e.FileFS("/site.webmanifest", "public/text/site.webmanifest.json", public)
 
-	// Serve asset thumbnail images
+	// Serve asset images
 	e.Static(config.StaticThumb(), conf.Import.ThumbnailDir) // TODO: rename to /image/thumb/
+	e.Static(config.StaticOriginal(), conf.Import.ScreenshotsDir)
 
 	e.GET("/", func(c echo.Context) error {
 		return app.Index(z, c)
@@ -68,6 +69,9 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	})
 	e.GET("/d/:id", func(c echo.Context) error {
 		return app.Download(z, c, conf.Import.DownloadDir)
+	})
+	e.GET("/f/:id", func(c echo.Context) error {
+		return app.About(z, c, c.Param("id"))
 	})
 	e.GET("/file/stats", func(c echo.Context) error {
 		return app.File(z, c, true)

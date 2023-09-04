@@ -58,6 +58,7 @@ func (web *Web) Tmpl() (map[string]*template.Template, error) {
 	const r, s = "releaser.tmpl", "scener.tmpl"
 	list := map[string]filename{
 		"index":       "index.tmpl",
+		"about":       "about.tmpl",
 		"bbs":         r,
 		"coder":       s,
 		"file":        "file.tmpl",
@@ -109,6 +110,8 @@ func (web Web) tmpl(name filename) (*template.Template, error) {
 	files := []string{GlobTo(layout), GlobTo(pagination), GlobTo(string(name)), GlobTo(modal)}
 	// append any additional templates
 	switch name {
+	case "about.tmpl":
+		files = append(files, GlobTo("about_table.tmpl"))
 	case "file.tmpl":
 		files = append(files, GlobTo(fileExp))
 	case "websites.tmpl":

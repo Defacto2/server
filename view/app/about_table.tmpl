@@ -1,0 +1,121 @@
+{{- /*  about_table.tmpl  */}}
+{{- define "aboutTable" -}}
+{{- $writers := (index . "writers") }}
+{{- $artists := (index . "artists") }}
+{{- $programmers := (index . "programmers") }}
+{{- $musicians := (index . "musicians") }}
+{{- $demozoo := (index . "demozoo")}}
+{{- $pouet := (index . "pouet")}}
+{{- /*  Modal table contents of the file archive  */}}
+{{- if (index . "content")}}
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">{{index . "filename"}} <small>content</small></h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <table class="table table-sm table-striped">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name or path</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {{- range $i, $v := (index . "content") }}
+                  <tr>
+                    <th scope="row">{{$i}}</th>
+                    <td><code>{{$v}}</code></td>
+                  </tr>
+                {{- end }}
+                </tbody>
+              </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>{{ end -}}
+<!-- About details -->  
+<div class="d-grid gap-2 d-md-block mx-auto">
+    <a class="btn btn-outline-primary btn-lg" href="/d/{{index . "download"}}" role="button">
+        Download &nbsp; {{index . "filesize"}}</a>
+{{- if (index . "content")}}
+    <button type="button" class="btn btn-outline-secondary btn" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        View contents
+    </button>
+{{- end}}
+</div>
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th scope="row"><span class="text-nowrap">Download size</span></th>
+            <td>
+                {{- index . "filesize" -}}
+                {{- if ne "" (index . "contentDesc")}}, {{index . "contentDesc"}}{{end -}}
+            </td>
+        </tr>
+        <tr>
+            <th scope="row"><span class="text-nowrap">Last modification</span></th>
+            <td>{{index . "lastmodified"}}</td>
+        </tr>
+        <tr>
+            <th scope="row"><span class="text-nowrap">MD5 checksum</span></th>
+            <td><code>{{index . "checksum"}}</code></td>
+        </tr>
+        <tr>
+            <th scope="row"><span class="text-nowrap">Mime type</span></th>
+            <td>{{index . "magic"}}</td>
+        </tr>
+        <tr>
+            <th scope="row">&nbsp;</th>
+            <td></td>
+        </tr>
+        {{- if ne $writers "" }}
+        <tr>
+            <th scope="row">Writers</th>
+            <td>{{fmtRoles $writers}}</td>
+        </tr>{{- end}}
+        {{- if ne $artists "" }}
+        <tr>
+            <th scope="row">Artists</th>
+            <td>{{fmtRoles $artists}}</td>
+        </tr>{{- end}}
+        {{- if ne $programmers "" }}
+        <tr>
+            <th scope="row">Programmers</th>
+            <td>{{fmtRoles $programmers}}</td>
+        </tr>{{- end}}
+        {{- if ne $musicians "" }}
+        <tr>
+            <th scope="row">Musicians</th>
+            <td>{{fmtRoles $musicians}}</td>
+        </tr>{{- end}}
+        {{- if gt $pouet 0}}
+        <tr>
+            <th scope="row">Pouët reviews</th>
+            <td>
+                <a href="http://www.pouet.net/prod.php?which={{$pouet}}">3 stars</a>
+                &nbsp; <small>75 votes</small>
+                <span class="hidden" id="pouetID">{{$pouet}}</span>
+            </td>
+        </tr>{{- end}}
+        {{- if gt $demozoo 0}}
+        <tr>
+            <th scope="row">Demozoo</th>
+            <td>
+                <a href="https://demozoo.org/productions/{{$demozoo}}">Alternative downloads, links and metadata</a>
+            </td>
+        </tr>{{- end}}
+    </tbody>
+</table>
+{{- end}}

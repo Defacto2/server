@@ -291,3 +291,7 @@ func types(t reflect.Type) string {
 func StaticThumb() string {
 	return "/public/image/thumb"
 }
+
+func StaticOriginal() string {
+	return "/public/image/original"
+}

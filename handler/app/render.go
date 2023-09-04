@@ -137,7 +137,7 @@ func History(z *zap.SugaredLogger, c echo.Context) error {
 
 // Interview is the handler for the People Interviews page.
 func Reader(z *zap.SugaredLogger, c echo.Context, id string) error {
-	const title, name = "Interviews with sceners", "reader"
+	const title, name = "Textfile reader", "reader"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}

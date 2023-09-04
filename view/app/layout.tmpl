@@ -284,6 +284,7 @@
 <div class="alert alert-danger" role="alert">
   The database is down, this means the website is not fully working. We are working on it.
 </div>{{- end}}
+{{- if ne (index . "logo") "" -}}
 <div class="d-flex justify-content-center" id="logo-container">
 <pre class="text-start text-bg-dark rounded font-dos px-1 py-2" id="logo-text">
   {{- /*  
@@ -293,6 +294,7 @@
 {{logoText (index . "logo") -}}
 </pre>
 </div>
+{{- end}}
 {{- if and (.Pagination) (gt (index  .Pagination.SumPages) 1)}}
 <nav aria-label="Compact pagination navigation at the header">
   <ul class="pagination pagination-sm justify-content-end mb-4">
