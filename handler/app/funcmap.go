@@ -104,6 +104,18 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"sriPouet": func() string {
 			return web.Subresource.PouetJS
 		},
+		"cssBoot": func() string {
+			return BootCSS
+		},
+		"cssLayout": func() string {
+			return LayoutCSS
+		},
+		"jsBoot": func() string {
+			return BootJS
+		},
+		"jsFA": func() string {
+			return FAJS
+		},
 		"jsPouet": func() string {
 			return PouetJS
 		},

@@ -26,13 +26,13 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Build failed: %v\n", layoutCSS.Errors)
 	}
 	pouetJS := api.Build(api.BuildOptions{
-		EntryPoints: []string{"./public/js/pouet.js"},
-		Outfile:     "./public/js/pouet.min.js",
-		Write:       true,
-		Bundle:      false,
-		// MinifyWhitespace:  true,
-		// MinifyIdentifiers: true,
-		// MinifySyntax:      true,
+		EntryPoints:       []string{"./public/js/pouet.js"},
+		Outfile:           "./public/js/pouet.min.js",
+		Write:             true,
+		Bundle:            false,
+		MinifyWhitespace:  true,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
 		Banner: map[string]string{
 			"js": "/* pouet.min.js */",
 		},

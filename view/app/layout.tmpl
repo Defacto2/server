@@ -72,9 +72,6 @@
   ]
 }
 </script>
-    {{- /*  preload assets  */}}
-    <link rel="preload" href="/css/bootstrap.min.css?{{ sriBootCSS }}" as="style">
-    <link rel="preload" href="/css/layout.min.css?{{ sriLayout }}" as="style">
     {{- /*  bookmark and tab icons  */}}
     {{- /*  todo check the existence of all files  */}}
     <link rel="icon" type="image/svg+xml" href="/image/layout/favicon.svg">
@@ -91,8 +88,8 @@
     {{- /*  opensearch.org  */}}
     <link rel="search" href="/osd.xml" type="application/opensearchdescription+xml" title="Defacto2 search">
     {{- /*  cascading style sheets  */}}
-    <link href="/css/bootstrap.min.css?{{ sriBootCSS }}" rel="stylesheet" integrity="{{ sriBootCSS }}" crossorigin="anonymous">
-    <link href="/css/layout.min.css?{{ sriLayout }}" rel="stylesheet" integrity="{{ sriLayout }}" crossorigin="anonymous">
+    <link href="{{ cssBoot }}?{{ sriBootCSS }}" rel="stylesheet" integrity="{{ sriBootCSS }}" crossorigin="anonymous">
+    <link href="{{ cssLayout }}?{{ sriLayout }}" rel="stylesheet" integrity="{{ sriLayout }}" crossorigin="anonymous">
   </head>
   <body>
     <div class="container-xxl">
@@ -318,10 +315,10 @@
   &copy; Defacto2
 </footer>
 </div>
-<script src="/js/bootstrap.bundle.min.js?{{ sriBootJS }}" integrity="{{ sriBootJS }}" crossorigin="anonymous"></script>
-<script src="/js/fontawesome.min.js?{{ sriFA }}" integrity="{{ sriFA }}" crossorigin="anonymous"></script>
+<script async src="{{ jsBoot }}?{{ sriBootJS }}" integrity="{{ sriBootJS }}" crossorigin="anonymous"></script>
+<script async src="{{ jsFA }}?{{ sriFA }}" integrity="{{ sriFA }}" crossorigin="anonymous"></script>
 {{- if index . "pouet"}}
-<script src="/{{ jsPouet }}?{{ sriPouet }}" integrity="{{ sriPouet }}" crossorigin="anonymous"></script>
+<script async src="{{ jsPouet }}?{{ sriPouet }}" integrity="{{ sriPouet }}" crossorigin="anonymous"></script>
 {{- end}}
 <script defer>
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')

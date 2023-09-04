@@ -15,14 +15,23 @@ import (
 )
 
 const (
-	app         = "app"                               // app is the name of the view element in the template.
-	bootCSS     = "public/css/bootstrap.min.css"      // bootCSS is the path to the minified Bootstrap 5 CSS file.
-	bootJS      = "public/js/bootstrap.bundle.min.js" // bootJS is the path to the minified Bootstrap 5 JS file.
-	layoutCSS   = "public/css/layout.min.css"         // layoutCSS is the path to the minified layout CSS file.
-	fontawesome = "public/js/fontawesome.min.js"      // fontawesome is the path to the minified Font Awesome JS file.
-	PouetJS     = "js/pouet.min.js"                   // pouetJS is the path to the minified Pouet JS file.
-	PouetPub    = public + PouetJS
-	public      = "public/"
+	app    = "app" // app is the name of the view element in the template.
+	public = "public"
+
+	BootCSS  = "/css/bootstrap.min.css" // BootCSS is the path to the minified Bootstrap 5 CSS file.
+	BootCPub = public + BootCSS
+
+	BootJS   = "/js/bootstrap.bundle.min.js" // BootJS is the path to the minified Bootstrap 5 JS file.
+	BootJPub = public + BootJS
+
+	LayoutCSS = "/css/layout.min.css" // LayoutCSS is the path to the minified layout CSS file.
+	LayoutPub = public + LayoutCSS
+
+	FAJS  = "/js/fontawesome.min.js" // FAJS is the path to the minified Font Awesome JS file.
+	FAPub = public + FAJS
+
+	PouetJS  = "/js/pouet.min.js" // PouetJS is the path to the minified Pouet JS file.
+	PouetPub = public + PouetJS
 )
 
 var (
@@ -137,19 +146,19 @@ type SRI struct {
 // These are required for Subresource Integrity (SRI) verification in modern browsers.
 func (s *SRI) Verify(fs embed.FS) error {
 	var err error
-	s.BootstrapCSS, err = Integrity(bootCSS, fs)
+	s.BootstrapCSS, err = Integrity(BootCPub, fs)
 	if err != nil {
 		return err
 	}
-	s.BootstrapJS, err = Integrity(bootJS, fs)
+	s.BootstrapJS, err = Integrity(BootJPub, fs)
 	if err != nil {
 		return err
 	}
-	s.FontAwesome, err = Integrity(fontawesome, fs)
+	s.FontAwesome, err = Integrity(FAPub, fs)
 	if err != nil {
 		return err
 	}
-	s.LayoutCSS, err = Integrity(layoutCSS, fs)
+	s.LayoutCSS, err = Integrity(LayoutPub, fs)
 	if err != nil {
 		return err
 	}

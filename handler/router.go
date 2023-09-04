@@ -23,9 +23,9 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	}
 
 	// Serve embedded CSS files
-	e.FileFS("/css/bootstrap.min.css", "public/css/bootstrap.min.css", public)
-	e.FileFS("/css/bootstrap.min.css.map", "public/css/bootstrap.min.css.map", public)
-	e.FileFS("/css/layout.min.css", "public/css/layout.min.css", public)
+	e.FileFS(app.BootCSS, app.BootCPub, public)
+	e.FileFS(app.BootCSS+".map", app.BootCPub+".map", public)
+	e.FileFS(app.LayoutCSS, app.LayoutPub, public)
 
 	// Serve embedded SVG collections
 	e.FileFS("/bootstrap-icons.svg", "public/image/bootstrap-icons.svg", public)
@@ -36,9 +36,9 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.FileFS("/font/pxplus_ibm_vga8.ttf", "public/font/pxplus_ibm_vga8.ttf", public)
 
 	// Serve embedded JS files
-	e.FileFS("/js/bootstrap.bundle.min.js", "public/js/bootstrap.bundle.min.js", public)
-	e.FileFS("/js/bootstrap.bundle.min.js.map", "public/js/bootstrap.bundle.min.js.map", public)
-	e.FileFS("/js/fontawesome.min.js", "public/js/fontawesome.min.js", public)
+	e.FileFS(app.BootJS, app.BootJPub, public)
+	e.FileFS(app.BootJS+".map", app.BootJPub+".map", public)
+	e.FileFS(app.FAJS, app.FAPub, public)
 	e.FileFS(app.PouetJS, app.PouetPub, public)
 
 	// Serve embedded image files
