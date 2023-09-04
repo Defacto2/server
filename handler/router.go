@@ -39,6 +39,7 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.FileFS("/js/bootstrap.bundle.min.js", "public/js/bootstrap.bundle.min.js", public)
 	e.FileFS("/js/bootstrap.bundle.min.js.map", "public/js/bootstrap.bundle.min.js.map", public)
 	e.FileFS("/js/fontawesome.min.js", "public/js/fontawesome.min.js", public)
+	e.FileFS(app.PouetJS, app.PouetPub, public)
 
 	// Serve embedded image files
 	e.FileFS("/favicon.ico", "public/image/favicon.ico", public)
@@ -150,6 +151,11 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	})
 	e.GET("/v/:id", func(c echo.Context) error {
 		return app.Inline(z, c, conf.Import.DownloadDir)
+	})
+
+	// TODO: test pouet voter
+	e.GET("/pouet/vote/:id", func(c echo.Context) error {
+		return app.Pouet(z, c, c.Param("id"))
 	})
 
 	// all other page requests return a custom 404 error page

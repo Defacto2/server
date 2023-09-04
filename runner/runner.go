@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	result := api.Build(api.BuildOptions{
+	layoutCSS := api.Build(api.BuildOptions{
 		EntryPoints:       []string{"./public/css/layout.css"},
 		Outfile:           "./public/css/layout.min.css",
 		Write:             true,
@@ -22,8 +22,22 @@ func main() {
 			"css": "/* layout.min.css */",
 		},
 	})
-
-	if len(result.Errors) > 0 {
-		fmt.Fprintf(os.Stderr, "Build failed: %v\n", result.Errors)
+	if len(layoutCSS.Errors) > 0 {
+		fmt.Fprintf(os.Stderr, "Build failed: %v\n", layoutCSS.Errors)
+	}
+	pouetJS := api.Build(api.BuildOptions{
+		EntryPoints: []string{"./public/js/pouet.js"},
+		Outfile:     "./public/js/pouet.min.js",
+		Write:       true,
+		Bundle:      false,
+		// MinifyWhitespace:  true,
+		// MinifyIdentifiers: true,
+		// MinifySyntax:      true,
+		Banner: map[string]string{
+			"js": "/* pouet.min.js */",
+		},
+	})
+	if len(pouetJS.Errors) > 0 {
+		fmt.Fprintf(os.Stderr, "Build failed: %v\n", pouetJS.Errors)
 	}
 }

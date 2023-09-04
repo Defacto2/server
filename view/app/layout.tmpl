@@ -320,6 +320,9 @@
 </div>
 <script src="/js/bootstrap.bundle.min.js?{{ sriBootJS }}" integrity="{{ sriBootJS }}" crossorigin="anonymous"></script>
 <script src="/js/fontawesome.min.js?{{ sriFA }}" integrity="{{ sriFA }}" crossorigin="anonymous"></script>
+{{- if index . "pouet"}}
+<script src="/{{ jsPouet }}?{{ sriPouet }}" integrity="{{ sriPouet }}" crossorigin="anonymous"></script>
+{{- end}}
 <script defer>
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
   const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))

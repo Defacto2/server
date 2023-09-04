@@ -6,8 +6,10 @@ package app
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/Defacto2/server/handler/download"
+	"github.com/Defacto2/server/pkg/pouet"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -42,6 +44,28 @@ func emptyFiles() map[string]interface{} {
 	data["sixteen"] = ""
 	data["scener"] = ""
 	return data
+}
+
+// Pouet is the handler for the Pouet production votes JSON page.
+func Pouet(z *zap.SugaredLogger, c echo.Context, id string) error {
+	const title, name = "Pouet", "pouet"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	data := pouet.Pouet{}
+	val, err := strconv.Atoi(id)
+	if err != nil {
+		return c.String(http.StatusNotFound, err.Error())
+	}
+	err = data.Votes(val)
+	if err != nil {
+		return c.String(http.StatusNotFound, err.Error())
+	}
+	err = c.JSON(http.StatusOK, data)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return nil
 }
 
 // Download is the handler for the Download file record page.

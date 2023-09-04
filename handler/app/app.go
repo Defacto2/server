@@ -20,6 +20,9 @@ const (
 	bootJS      = "public/js/bootstrap.bundle.min.js" // bootJS is the path to the minified Bootstrap 5 JS file.
 	layoutCSS   = "public/css/layout.min.css"         // layoutCSS is the path to the minified layout CSS file.
 	fontawesome = "public/js/fontawesome.min.js"      // fontawesome is the path to the minified Font Awesome JS file.
+	PouetJS     = "js/pouet.min.js"                   // pouetJS is the path to the minified Pouet JS file.
+	PouetPub    = public + PouetJS
+	public      = "public/"
 )
 
 var (
@@ -127,6 +130,7 @@ type SRI struct {
 	BootstrapJS  string // Bootstrap JS verification hash.
 	FontAwesome  string // Font Awesome verification hash.
 	LayoutCSS    string // Layout CSS verification hash.
+	PouetJS      string // Pouet JS verification hash.
 }
 
 // Verify checks the integrity of the embedded CSS and JS files.
@@ -146,6 +150,10 @@ func (s *SRI) Verify(fs embed.FS) error {
 		return err
 	}
 	s.LayoutCSS, err = Integrity(layoutCSS, fs)
+	if err != nil {
+		return err
+	}
+	s.PouetJS, err = Integrity(PouetPub, fs)
 	if err != nil {
 		return err
 	}

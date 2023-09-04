@@ -101,12 +101,12 @@
             <td>{{fmtRoles $musicians}}</td>
         </tr>{{- end}}
         {{- if gt $pouet 0}}
-        <tr>
+        <tr id="pouetRow" class="d-none">
             <th scope="row">Pouët reviews</th>
             <td>
-                <a href="http://www.pouet.net/prod.php?which={{$pouet}}">3 stars</a>
-                &nbsp; <small>75 votes</small>
-                <span class="hidden" id="pouetID">{{$pouet}}</span>
+                <a id="pouetStars" href="http://www.pouet.net/prod.php?which={{$pouet}}">3 stars</a>
+                &nbsp; <small id="pouetVotes">75 votes</small>
+                <span class="d-none" id="pouetProdID">{{$pouet}}</span>
             </td>
         </tr>{{- end}}
         {{- if gt $demozoo 0}}
