@@ -39,10 +39,11 @@ var (
 const (
 	ShutdownCounter = 3                             // ShutdownCounter is the number of iterations to wait before shutting down the server.
 	ShutdownWait    = ShutdownCounter * time.Second // ShutdownWait is the number of seconds to wait before shutting down the server.
+
+	Downloader = "/d/:id" // Downloader is the route for the file download handler.
 )
 
 // Configuration of the handler.
-// TODO: DownloadErr bool // DownloadErr is true if the download directory is not found or is empty.
 type Configuration struct {
 	Import  *config.Config     // Import configurations from the host system environment.
 	ZLog    *zap.SugaredLogger // ZLog is a sugared, zap logger.
@@ -146,19 +147,20 @@ func (c Configuration) Controller() *echo.Echo {
 	}
 	// Routes for the htm retro web tables
 	retro := html3.Routes(c.ZLog, e)
-	// TODO: MOVE
-	retro.GET("/d/:id", func(ctx echo.Context) error {
-		// route for the file download handler under the html3 group
-		d := download.Download{
-			Inline: false,
-			Path:   c.Import.DownloadDir,
-		}
-		return d.HTTPSend(c.ZLog, ctx)
-	})
+	retro.GET(Downloader, c.downloader)
 	// Route for the api
 	_ = apiv1.Routes(c.ZLog, e)
 
 	return e
+}
+
+// downloader route for the file download handler under the html3 group
+func (c Configuration) downloader(ctx echo.Context) error {
+	d := download.Download{
+		Inline: false,
+		Path:   c.Import.DownloadDir,
+	}
+	return d.HTTPSend(c.ZLog, ctx)
 }
 
 // StartHTTP starts the HTTP web server.

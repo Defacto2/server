@@ -68,7 +68,7 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.GET("/coder", func(c echo.Context) error {
 		return app.Coder(z, c)
 	})
-	e.GET("/d/:id", func(c echo.Context) error {
+	e.GET(Downloader, func(c echo.Context) error {
 		return app.Download(z, c, conf.Import.DownloadDir)
 	})
 	e.GET("/f/:id", func(c echo.Context) error {
