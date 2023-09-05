@@ -25,6 +25,7 @@ const (
 var (
 	ErrID      = errors.New("pouet production id is invalid")
 	ErrSuccess = errors.New("pouet production not found")
+	ErrStatus  = errors.New("pouet production status is not ok")
 )
 
 // Pouet is the production voting data from the Pouet API.
@@ -74,19 +75,18 @@ func (p *Pouet) Votes(id int) error {
 	}
 	req.Header.Set("User-Agent",
 		"Defacto2 2023 app under construction (thanks!)")
-
 	res, err := client.Do(req)
 	if err != nil {
 		return err
 	}
-	if res.Body != nil {
-		defer res.Body.Close()
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("%w: %d - %s", ErrStatus, res.StatusCode, res.Status)
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return err
 	}
-
 	r := Response{}
 	err = json.Unmarshal(body, &r)
 	if err != nil {
