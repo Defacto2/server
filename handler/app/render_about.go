@@ -51,8 +51,9 @@ func About(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	data["title"] = fname
 	data["description"] = "About the filename x released by x + x."
 	//data["logo"] = title
-	data["h1"] = fname
-	data["lead"] = title + "<br>" + string(LinkRelrs(res.GroupBrandBy, res.GroupBrandFor))
+	data["h1"] = title
+	fn := fmt.Sprintf("<span class=\"font-monospace fw-light\">%s</span> ", fname)
+	data["lead"] = string(LinkRelrs(res.GroupBrandBy, res.GroupBrandFor)) + "<br>" + fn
 	// data["lead"] = fmt.Sprintf("<code>%s</code> ", fname) +
 	// 	fmt.Sprintf("%s ", model.Published(res)) +
 	// 	"<br>" +
@@ -96,6 +97,9 @@ func About(z *zap.SugaredLogger, c echo.Context, uri string) error {
 
 	data["demozoo"] = res.WebIDDemozoo.Int64
 	data["pouet"] = res.WebIDPouet.Int64
+	data["youtube"] = res.WebIDYoutube.String
+	data["createdat"] = res.Createdat.Time
+	data["updatedat"] = res.Updatedat.Time
 
 	// todo: use different templates based on the platform and category.
 	err = c.Render(http.StatusOK, name, data)

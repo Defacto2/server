@@ -6,6 +6,7 @@
 {{- $musicians := (index . "musicians") }}
 {{- $demozoo := (index . "demozoo")}}
 {{- $pouet := (index . "pouet")}}
+{{- $youtube := (index . "youtube")}}
 {{- /*  Modal table contents of the file archive  */}}
 {{- if (index . "content")}}
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -43,6 +44,9 @@
 <div class="d-grid gap-2 d-md-block mx-auto">
     <a class="btn btn-outline-primary btn-lg" href="/d/{{index . "download"}}" role="button">
         Download &nbsp; {{index . "filesize"}}</a>
+    <button type="button" class="btn btn-outline-secondary btn">
+        #
+    </button>
 {{- if (index . "content")}}
     <button type="button" class="btn btn-outline-secondary btn" data-bs-toggle="modal" data-bs-target="#exampleModal">
         View contents
@@ -113,8 +117,24 @@
         <tr>
             <th scope="row">Demozoo</th>
             <td>
-                <a href="https://demozoo.org/productions/{{$demozoo}}">Alternative downloads, links and metadata</a>
+                <a href="https://demozoo.org/productions/{{$demozoo}}">Other downloads, links and metadata</a>
             </td>
+        </tr>{{- end}}
+        {{- if ne $youtube ""}}
+        <tr>
+            <th scope="row">Youtube</th>
+            <td>
+                <a href="https://www.youtube.com/watch?v={{$youtube}}">Watch on Youtube</a>
+            </td>
+        </tr>{{- end}}
+        <tr>
+            <th scope="row"><small>File entry</small></th>
+            <td><small>{{updated .createdat "Created"}}</small></td>
+        </tr>
+        {{- if ne (updated .updatedat "") (updated .createdat "")}}
+        <tr>
+            <th scope="row"></th>
+            <td><small>{{lastUpdated .updatedat}}</small></td>
         </tr>{{- end}}
     </tbody>
 </table>

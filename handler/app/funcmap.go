@@ -50,8 +50,9 @@ var (
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func (web Web) TemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
-		"attribute":      Attribute,
-		"brief":          Brief,
+		"attribute": Attribute,
+		"brief":     Brief,
+
 		"describe":       Describe,
 		"fmtByte":        FmtByte,
 		"fmtByteCnt":     FmtByteCnt,
@@ -76,6 +77,7 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"subTitle":       SubTitle,
 		"thumb":          web.Thumb,
 		"trimSiteSuffix": TrimSiteSuffix,
+		"updated":        Updated,
 		"websiteIcon":    WebsiteIcon,
 		"fmtURI": func(uri string) string {
 			return fmts.Name(uri)
@@ -496,16 +498,24 @@ func IntegrityBytes(b []byte) string {
 // The time is formatted as "Last updated 1 hour ago".
 // If the time is not valid, an empty string is returned.
 func LastUpdated(t any) string {
+	const s = "Last updated"
+	return Updated(t, s)
+}
+
+func Updated(t any, s string) string {
+	if s == "" {
+		s = "Time"
+	}
 	switch val := t.(type) {
 	case null.Time:
 		if !val.Valid {
 			return ""
 		}
-		return fmt.Sprintf("Last updated %s ago", helper.TimeDistance(val.Time, time.Now(), true))
+		return fmt.Sprintf("%s %s ago", s, helper.TimeDistance(val.Time, time.Now(), true))
 	case time.Time:
-		return fmt.Sprintf("Last updated %s ago", helper.TimeDistance(val, time.Now(), true))
+		return fmt.Sprintf("%s %s ago", s, helper.TimeDistance(val, time.Now(), true))
 	default:
-		return fmt.Sprintf("%sLastUpdated: %s", typeErr, reflect.TypeOf(t).String())
+		return fmt.Sprintf("%supdated: %s", typeErr, reflect.TypeOf(t).String())
 	}
 }
 

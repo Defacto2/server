@@ -1,15 +1,13 @@
 {{/* about.tmpl */}}
 {{- define "content" }}
+{{- $colClass := "col-6"}}
 <div class="container">
     <div class="row g-2">
-        <div class="">
+        <div class="{{$colClass}}">
             <h4 class="lead">{{index . "published"}}, {{brief (index . "platform") (index . "section")}}</h4>
-        </div>
-        <div class="col-6">
             {{ template "aboutTable" . }}
-            <hr>
         </div>
-        <div class="col-6">
+        <div class="{{$colClass}}">
             <div class="p-3">
                 <img src="{{index . "image"}}" class="rounded mx-auto d-block img-fluid" alt="...">
             </div>
