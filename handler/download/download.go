@@ -30,7 +30,7 @@ var (
 
 // Checksum serves the checksums for the requested file.
 func Checksum(z *zap.SugaredLogger, c echo.Context, id string) error {
-	res, err := oneRecord(z, c, id)
+	res, err := OneRecord(z, c, id)
 	if err != nil {
 		return err
 	}
@@ -59,7 +59,8 @@ func Checksum(z *zap.SugaredLogger, c echo.Context, id string) error {
 	//return nil
 }
 
-func oneRecord(z *zap.SugaredLogger, c echo.Context, uid string) (*models.File, error) {
+// OneRecord retrieves a single file record from the database using the uid URL ID.
+func OneRecord(z *zap.SugaredLogger, c echo.Context, uid string) (*models.File, error) {
 	if z == nil {
 		return nil, ErrZap
 	}
@@ -96,7 +97,7 @@ type Download struct {
 // HTTPSend serves files to the user and prompts for a save location.
 // The download relies on the URL ID parameter to determine the requested file.
 func (d Download) HTTPSend(z *zap.SugaredLogger, c echo.Context) error {
-	res, err := oneRecord(z, c, c.Param("id"))
+	res, err := OneRecord(z, c, c.Param("id"))
 	if err != nil {
 		return err
 	}

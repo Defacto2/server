@@ -7,6 +7,8 @@
 {{- $demozoo := (index . "demozoo")}}
 {{- $pouet := (index . "pouet")}}
 {{- $youtube := (index . "youtube")}}
+{{- $github := (index . "github")}}
+{{- $comment := (index . "comment")}}
 {{- /*  Modal table contents of the file archive  */}}
 {{- if (index . "content")}}
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -40,7 +42,7 @@
       </div>
     </div>
 </div>{{ end -}}
-<!-- About details -->  
+{{- /*  About the file download link  */}}
 <div class="d-grid gap-2 d-md-block mx-auto m-3">
     <a class="btn btn-outline-primary btn-lg" href="/d/{{index . "download"}}" role="button">
         Download &nbsp; {{index . "filesize"}}</a>
@@ -56,6 +58,11 @@
     </button>
 {{- end}}
 </div>
+{{- /*  Commant about the file  */}}
+{{- if ne $comment ""}}
+<p>{{index . "comment"}}</p>
+{{- end}}
+{{- /*  Table with details  */}}
 <table class="table table-sm">
     <thead>
         <tr>
@@ -83,6 +90,7 @@
             <th scope="row">&nbsp;</th>
             <td></td>
         </tr>
+        {{- /*  Authors and attributions  */}}
         {{- if ne $writers "" }}
         <tr>
             <th scope="row">Writers</th>
@@ -103,6 +111,7 @@
             <th scope="row">Musicians</th>
             <td>{{fmtRoles $musicians}}</td>
         </tr>{{- end}}
+        {{- /*  Pouet and Demozoo links  */}}
         {{- if gt $pouet 0}}
         <tr id="pouetRow" class="d-none">
             <th scope="row">Pouët reviews</th>
@@ -119,6 +128,7 @@
                 <a href="https://demozoo.org/productions/{{$demozoo}}">Other downloads, links and metadata</a>
             </td>
         </tr>{{- end}}
+        {{- /*  YouTube, GitHub and other links  */}}
         {{- if ne $youtube ""}}
         <tr>
             <th scope="row">Youtube</th>
@@ -126,6 +136,15 @@
                 <a href="https://www.youtube.com/watch?v={{$youtube}}">Watch on Youtube</a>
             </td>
         </tr>{{- end}}
+        {{- if ne $github ""}}
+        <tr>
+            <th scope="row">GitHub</th>
+            <td>
+                <a href="https://github.com{{$github}}"><var>{{$github}}</var></a>
+            </td>
+        </tr>{{- end}}
+        {{- index . "listLinks" }}
+        {{- /*  File created and updated dates  */}}
         <tr>
             <th scope="row"><small>File entry</small></th>
             <td><small>{{updated .createdat "Created"}}</small></td>

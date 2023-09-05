@@ -1,13 +1,16 @@
 {{/* about.tmpl */}}
 {{- define "content" }}
-{{- $colClass := "col-10"}}
+{{- $colClass := "col-12 col-md-6"}}
 <div class="container">
     <div class="row g-2">
         <div class="{{$colClass}}">
+            {{- /*  Lead including published, platform and section  */}}
             <h4 class="lead">{{index . "published"}}, {{brief (index . "platform") (index . "section")}}</h4>
+            {{- /*  Table of details  */}}
             {{ template "aboutTable" . }}
         </div>
         <div class="{{$colClass}}">
+            {{- /*  Screenshot of the file  */}}
             <div class="p-3">
               {{ screenshot (index . "uuid") (index . "description") }}
             </div>
