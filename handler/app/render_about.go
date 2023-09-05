@@ -67,7 +67,7 @@ func About(z *zap.SugaredLogger, c echo.Context, uri string) error {
 		lm = "not set"
 	}
 	data["lastmodified"] = lm
-	data["checksum"] = res.FileIntegrityWeak.String
+	data["checksum"] = res.FileIntegrityStrong.String
 	data["magic"] = res.FileMagicType.String
 	data["releasers"] = string(LinkRelrs(res.GroupBrandBy, res.GroupBrandFor))
 	data["published"] = model.PublishedFmt(res)

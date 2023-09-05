@@ -68,6 +68,11 @@ func Pouet(z *zap.SugaredLogger, c echo.Context, id string) error {
 	return nil
 }
 
+// Checksum is the handler for the Checksum file record page.
+func Checksum(z *zap.SugaredLogger, c echo.Context, id string) error {
+	return download.Checksum(z, c, id)
+}
+
 // Download is the handler for the Download file record page.
 func Download(z *zap.SugaredLogger, c echo.Context, path string) error {
 	d := download.Download{

@@ -50,9 +50,8 @@ var (
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func (web Web) TemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
-		"attribute": Attribute,
-		"brief":     Brief,
-
+		"attribute":      Attribute,
+		"brief":          Brief,
 		"describe":       Describe,
 		"fmtByte":        FmtByte,
 		"fmtByteCnt":     FmtByteCnt,
@@ -73,12 +72,22 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"logoText":       LogoText,
 		"mod3":           Mod3,
 		"safeHTML":       SafeHTML,
+		"screenshot":     web.Screenshot,
 		"sizeOfDL":       SizeOfDL,
 		"subTitle":       SubTitle,
 		"thumb":          web.Thumb,
 		"trimSiteSuffix": TrimSiteSuffix,
 		"updated":        Updated,
 		"websiteIcon":    WebsiteIcon,
+		"add": func(a any) int64 {
+			switch val := a.(type) {
+			case int, int8, int16, int32, int64:
+				i := reflect.ValueOf(val).Int()
+				return i + 1
+			default:
+				return 0
+			}
+		},
 		"fmtURI": func(uri string) string {
 			return fmts.Name(uri)
 		},
@@ -198,6 +207,41 @@ func Attribute(write, code, art, music, name string) string {
 	last := len(match) - 1
 	match[last] = "and " + match[last]
 	return strings.Join(match, ", ") + " attributions"
+}
+
+// Screenshots returns a picture elment with screenshots for the given uuid.
+func (web Web) Screenshot(uuid, desc string) template.HTML {
+	fw := filepath.Join(web.Import.ScreenshotsDir, fmt.Sprintf("%s.webp", uuid))
+	fp := filepath.Join(web.Import.ScreenshotsDir, fmt.Sprintf("%s.png", uuid))
+	webp := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s.webp", uuid)}, "/")
+	png := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s.png", uuid)}, "/")
+	alt := strings.ToLower(desc) + " screenshot"
+	w, p := false, false
+	if helper.IsStat(fw) {
+		w = true
+	}
+	if helper.IsStat(fp) {
+		p = true
+	}
+	class := "rounded mx-auto d-block img-fluid"
+	if !w && !p {
+		return template.HTML("<img src=\"\" loading=\"lazy\" alt=\"screenshot placeholder\" class=\"" + class + "\" />")
+	}
+	if w && p {
+		elm := "<picture>" +
+			fmt.Sprintf("<source srcset=\"%s\" type=\"image/webp\" />", webp) +
+			string(img(png, alt, class, "")) +
+			"</picture>"
+		return template.HTML(elm)
+	}
+	elm := ""
+	if w {
+		return img(webp, alt, class, "")
+	}
+	if p {
+		return img(png, alt, class, "")
+	}
+	return template.HTML(elm)
 }
 
 // Thumb returns a HTML image tag or picture element for the given uuid.

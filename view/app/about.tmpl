@@ -1,6 +1,6 @@
 {{/* about.tmpl */}}
 {{- define "content" }}
-{{- $colClass := "col-6"}}
+{{- $colClass := "col-10"}}
 <div class="container">
     <div class="row g-2">
         <div class="{{$colClass}}">
@@ -9,7 +9,7 @@
         </div>
         <div class="{{$colClass}}">
             <div class="p-3">
-                <img src="{{index . "image"}}" class="rounded mx-auto d-block img-fluid" alt="...">
+              {{ screenshot (index . "uuid") (index . "description") }}
             </div>
         </div>
     </div>

@@ -27,7 +27,7 @@
                 <tbody>
                 {{- range $i, $v := (index . "content") }}
                   <tr>
-                    <th scope="row">{{$i}}</th>
+                    <th scope="row">{{add $i}}</th>
                     <td><code>{{$v}}</code></td>
                   </tr>
                 {{- end }}
@@ -41,12 +41,15 @@
     </div>
 </div>{{ end -}}
 <!-- About details -->  
-<div class="d-grid gap-2 d-md-block mx-auto">
+<div class="d-grid gap-2 d-md-block mx-auto m-3">
     <a class="btn btn-outline-primary btn-lg" href="/d/{{index . "download"}}" role="button">
         Download &nbsp; {{index . "filesize"}}</a>
-    <button type="button" class="btn btn-outline-secondary btn">
+{{- if ne "" (index . "checksum")}}
+    <a class="btn btn-outline-secondary btn" href="/sum/{{index . "download"}}" 
+        role="button" data-bs-toggle="tooltip" data-bs-title="Checksum download">
         #
-    </button>
+    </a>
+{{- end}}
 {{- if (index . "content")}}
     <button type="button" class="btn btn-outline-secondary btn" data-bs-toggle="modal" data-bs-target="#exampleModal">
         View contents
@@ -71,10 +74,6 @@
         <tr>
             <th scope="row"><span class="text-nowrap">Last modification</span></th>
             <td>{{index . "lastmodified"}}</td>
-        </tr>
-        <tr>
-            <th scope="row"><span class="text-nowrap">MD5 checksum</span></th>
-            <td><code>{{index . "checksum"}}</code></td>
         </tr>
         <tr>
             <th scope="row"><span class="text-nowrap">Mime type</span></th>

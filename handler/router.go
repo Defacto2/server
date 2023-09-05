@@ -134,6 +134,9 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.POST("/search/releaser", func(c echo.Context) error {
 		return app.PostReleaser(z, c)
 	})
+	e.GET("/sum/:id", func(c echo.Context) error {
+		return app.Checksum(z, c, c.Param("id"))
+	})
 	e.GET("/thanks", func(c echo.Context) error {
 		return app.Thanks(z, c)
 	})
