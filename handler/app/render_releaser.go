@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Defacto2/server/model"
+	"github.com/Defacto2/server/pkg/helper"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -59,7 +60,7 @@ func bbsHandler(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":   fmt.Sprintf("%d boards", len(r)),
-		"issues": string(FmtByteName(name, m.SumCount, m.SumBytes)),
+		"issues": string(ByteFileS(name, m.SumCount, m.SumBytes)),
 		"years":  fmt.Sprintf("%d - %d", m.MinYear, m.MaxYear),
 	}
 	err = c.Render(http.StatusOK, name, data)
@@ -104,7 +105,7 @@ func FTP(z *zap.SugaredLogger, c echo.Context) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":   fmt.Sprintf("%d sites", len(r)),
-		"issues": string(FmtByteName(name, m.SumCount, m.SumBytes)),
+		"issues": string(ByteFileS(name, m.SumCount, m.SumBytes)),
 		"years":  fmt.Sprintf("%d - %d", m.MinYear, m.MaxYear),
 	}
 	err = c.Render(http.StatusOK, name, data)
@@ -167,7 +168,7 @@ func mag(z *zap.SugaredLogger, c echo.Context, chronological bool) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":   fmt.Sprintf("%d publications", len(r)),
-		"issues": string(FmtByteName(issue, m.SumCount, m.SumBytes)),
+		"issues": string(ByteFileS(issue, m.SumCount, m.SumBytes)),
 		"years":  fmt.Sprintf("%d - %d", m.MinYear, m.MaxYear),
 	}
 	err = c.Render(http.StatusOK, name, data)
@@ -223,8 +224,8 @@ func releaser(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":   fmt.Sprintf("%d releasers and groups", len(r)),
-		"issues": string(FmtByteName("file", m.SumCount, m.SumBytes)),
-		"years":  FmtYears(m.MinYear, m.MaxYear),
+		"issues": string(ByteFileS("file", m.SumCount, m.SumBytes)),
+		"years":  helper.Years(m.MinYear, m.MaxYear),
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {

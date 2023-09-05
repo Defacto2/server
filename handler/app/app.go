@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/server/pkg/config"
+	"github.com/Defacto2/server/pkg/helper"
 	"github.com/labstack/gommon/log"
 	"go.uber.org/zap"
 )
@@ -146,23 +147,23 @@ type SRI struct {
 // These are required for Subresource Integrity (SRI) verification in modern browsers.
 func (s *SRI) Verify(fs embed.FS) error {
 	var err error
-	s.BootstrapCSS, err = Integrity(BootCPub, fs)
+	s.BootstrapCSS, err = helper.Integrity(BootCPub, fs)
 	if err != nil {
 		return err
 	}
-	s.BootstrapJS, err = Integrity(BootJPub, fs)
+	s.BootstrapJS, err = helper.Integrity(BootJPub, fs)
 	if err != nil {
 		return err
 	}
-	s.FontAwesome, err = Integrity(FAPub, fs)
+	s.FontAwesome, err = helper.Integrity(FAPub, fs)
 	if err != nil {
 		return err
 	}
-	s.LayoutCSS, err = Integrity(LayoutPub, fs)
+	s.LayoutCSS, err = helper.Integrity(LayoutPub, fs)
 	if err != nil {
 		return err
 	}
-	s.PouetJS, err = Integrity(PouetPub, fs)
+	s.PouetJS, err = helper.Integrity(PouetPub, fs)
 	if err != nil {
 		return err
 	}

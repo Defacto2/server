@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Defacto2/server/pkg/exts"
 	"github.com/Defacto2/server/pkg/helper"
 	"github.com/stretchr/testify/assert"
 )
@@ -56,13 +57,13 @@ func TestBools(t *testing.T) {
 	assert.False(t, helper.IsYear(-1))
 	assert.True(t, helper.IsYear(1970))
 	assert.False(t, helper.IsYear(time.Now().Year()+1))
-	assert.False(t, helper.IsApp("myapp"))
-	assert.True(t, helper.IsApp("myapp.exe"))
-	assert.True(t, helper.IsArchive("stuff.zip"))
-	assert.True(t, helper.IsDocument("readme.doc"))
-	assert.True(t, helper.IsImage("cat.jpeg"))
-	assert.True(t, helper.IsHTML("index.html"))
-	assert.True(t, helper.IsAudio("song.wav"))
-	assert.True(t, helper.IsTune("song.mod"))
-	assert.True(t, helper.IsVideo("cat.divx"))
+	assert.False(t, exts.IsApp("myapp"))
+	assert.True(t, exts.IsApp("myapp.exe"))
+	assert.True(t, exts.IsArchive("stuff.zip"))
+	assert.True(t, exts.IsDocument("readme.doc"))
+	assert.True(t, exts.IsImage("cat.jpeg"))
+	assert.True(t, exts.IsHTML("index.html"))
+	assert.True(t, exts.IsAudio("song.wav"))
+	assert.True(t, exts.IsTune("song.mod"))
+	assert.True(t, exts.IsVideo("cat.divx"))
 }

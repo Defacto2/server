@@ -13,6 +13,7 @@ import (
 
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/fmts"
+	"github.com/Defacto2/server/pkg/helper"
 	"github.com/Defacto2/server/pkg/initialism"
 	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/Defacto2/server/pkg/postgres/models"
@@ -143,7 +144,7 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 	}
 	// add the statistics to the data
 	d := map[string]string{
-		"files": string(FmtByteName("file", m.SumCount, m.SumBytes)),
+		"files": string(ByteFileS("file", m.SumCount, m.SumBytes)),
 		"years": fmt.Sprintf("%d - %d", m.MinYear, m.MaxYear),
 	}
 	switch uri {
@@ -206,8 +207,8 @@ func scenerSum(ctx context.Context, db *sql.DB, uri string) (map[string]string, 
 	}
 	// add the statistics to the data
 	d := map[string]string{
-		"files": string(FmtByteName("file", m.SumCount, m.SumBytes)),
-		"years": FmtYears(m.MinYear, m.MaxYear),
+		"files": string(ByteFileS("file", m.SumCount, m.SumBytes)),
+		"years": helper.Years(m.MinYear, m.MaxYear),
 	}
 	return d, nil
 }
@@ -271,8 +272,8 @@ func releaserSum(ctx context.Context, db *sql.DB, uri string) (map[string]string
 	}
 	// add the statistics to the data
 	d := map[string]string{
-		"files": string(FmtByteName("file", m.SumCount, m.SumBytes)),
-		"years": FmtYears(m.MinYear, m.MaxYear),
+		"files": string(ByteFileS("file", m.SumCount, m.SumBytes)),
+		"years": helper.Years(m.MinYear, m.MaxYear),
 	}
 	return d, nil
 }

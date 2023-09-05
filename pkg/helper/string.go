@@ -80,6 +80,20 @@ func DeleteDupe(s []string) []string {
 	return slices.Compact(x)
 }
 
+// FmtSlice formats a comma separated string.
+func FmtSlice(s string) string {
+	x := []string{}
+	y := strings.Split(s, ",")
+	for _, z := range y {
+		z = strings.TrimSpace(z)
+		if z == "" {
+			continue
+		}
+		x = append(x, Capitalize(z))
+	}
+	return strings.Join(x, ", ")
+}
+
 // LastChr returns the last character or rune of the string.
 func LastChr(s string) string {
 	s = strings.TrimSpace(s)
@@ -168,4 +182,16 @@ func TrimPunct(s string) string {
 		}
 	}
 	return s
+}
+
+// Years returns a string of the years if they are different.
+// If they are the same, it returns a singular year.
+func Years(a, b int) string {
+	if a == b {
+		return fmt.Sprintf("the year %d", a)
+	}
+	if b-a == 1 {
+		return fmt.Sprintf("the years %d and %d", a, b)
+	}
+	return fmt.Sprintf("the years %d - %d", a, b)
 }

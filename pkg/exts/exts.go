@@ -1,10 +1,11 @@
-package helper
-
-// Package ext.go contains common file extensions used by the file records.
+// Package exts contains common file extensions used by the file records.
+package exts
 
 import (
 	"path/filepath"
 	"strings"
+
+	"github.com/Defacto2/server/pkg/helper"
 )
 
 const (
@@ -140,5 +141,39 @@ func IsVideo(name string) bool {
 // IsExt returns true if the file extension of the named file is found in the collection of extensions.
 func IsExt(name string, extensions ...string) bool {
 	ext := strings.ToLower(filepath.Ext(name))
-	return Finds(ext, extensions...)
+	return helper.Finds(ext, extensions...)
+}
+
+// IconName returns the extensionless name of an Apache2 .gif image file to use as an icon
+// for the named file.
+func IconName(name string) string {
+	const (
+		app = "comp2"
+		doc = "doc"
+		htm = "generic"
+		pic = "image2"
+		sfx = "sound2"
+		vid = "movie"
+		zip = "compressed"
+	)
+	n := strings.ToLower(filepath.Ext(name))
+	switch {
+	case IsArchive(n):
+		return zip
+	case IsApp(n):
+		return app
+	case IsAudio(n):
+		return sfx
+	case IsDocument(n):
+		return doc
+	case IsHTML(n):
+		return htm
+	case IsImage(n):
+		return pic
+	case IsTune(n):
+		return sfx
+	case IsVideo(n):
+		return vid
+	}
+	return ""
 }

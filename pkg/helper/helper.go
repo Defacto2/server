@@ -2,6 +2,10 @@
 package helper
 
 import (
+	"crypto/sha512"
+	"embed"
+	"encoding/base64"
+	"fmt"
 	"net"
 	"os"
 )
@@ -46,4 +50,22 @@ func GetLocalHosts() ([]string, error) {
 	}
 	hosts = append(hosts, "localhost")
 	return hosts, nil
+}
+
+// Integrity returns the sha384 hash of the named embed file.
+// This is intended to be used for Subresource Integrity (SRI)
+// verification with integrity attributes in HTML script and link tags.
+func Integrity(name string, fs embed.FS) (string, error) {
+	b, err := fs.ReadFile(name)
+	if err != nil {
+		return "", err
+	}
+	return IntegrityBytes(b), nil
+}
+
+// IntegrityBytes returns the sha384 hash of the given byte slice.
+func IntegrityBytes(b []byte) string {
+	sum := sha512.Sum384(b)
+	b64 := base64.StdEncoding.EncodeToString(sum[:])
+	return fmt.Sprintf("sha384-%s", b64)
 }

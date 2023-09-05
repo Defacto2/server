@@ -94,8 +94,8 @@ func postFileStats(ctx context.Context, db *sql.DB, terms []string) (map[string]
 	}
 	// add the statistics to the data
 	d := map[string]string{
-		"files": string(FmtByteName("file", m.SumCount, m.SumBytes)),
-		"years": FmtYears(m.MinYear, m.MaxYear),
+		"files": string(ByteFileS("file", m.SumCount, m.SumBytes)),
+		"years": helper.Years(m.MinYear, m.MaxYear),
 	}
 	return d, nil
 }

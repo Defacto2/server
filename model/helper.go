@@ -4,12 +4,12 @@ package model
 
 import (
 	"fmt"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
 
+	"github.com/Defacto2/server/pkg/exts"
 	"github.com/Defacto2/server/pkg/helper"
 	"github.com/Defacto2/server/pkg/postgres/models"
 )
@@ -140,42 +140,8 @@ func Icon(f *models.File) string {
 	if !f.Filename.Valid {
 		return err
 	}
-	if n := IconName(f.Filename.String); n != "" {
+	if n := exts.IconName(f.Filename.String); n != "" {
 		return n
 	}
 	return err
-}
-
-// IconName returns the extensionless name of a .gif image file to use as an icon
-// for the named file.
-func IconName(name string) string {
-	const (
-		app = "comp2"
-		doc = "doc"
-		htm = "generic"
-		pic = "image2"
-		sfx = "sound2"
-		vid = "movie"
-		zip = "compressed"
-	)
-	n := strings.ToLower(filepath.Ext(name))
-	switch {
-	case helper.IsArchive(n):
-		return zip
-	case helper.IsApp(n):
-		return app
-	case helper.IsAudio(n):
-		return sfx
-	case helper.IsDocument(n):
-		return doc
-	case helper.IsHTML(n):
-		return htm
-	case helper.IsImage(n):
-		return pic
-	case helper.IsTune(n):
-		return sfx
-	case helper.IsVideo(n):
-		return vid
-	}
-	return ""
 }
