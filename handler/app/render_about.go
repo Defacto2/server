@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/helper"
 	"github.com/Defacto2/server/pkg/postgres/models"
@@ -21,7 +20,7 @@ func About(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	res, err := download.OneRecord(z, c, uri)
+	res, err := model.OneRecord(z, c, uri)
 	if err != nil {
 		return err
 	}
