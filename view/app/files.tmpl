@@ -43,7 +43,7 @@
         <p class="card-text"><small class="text-body-secondary">{{$attr}}</small></p>
         {{- end}}
         {{linkPage .ID}}
-        {{linkDownload .ID}}{{ sizeOfDL .Filesize}}
+        {{linkDownload .ID}}{{ downloadB .Filesize}}
         {{linkPreview .ID .Filename.String .Platform.String}}
       </div>
       {{thumb .UUID.String .Filename.String true }}

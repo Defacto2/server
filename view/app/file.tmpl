@@ -33,11 +33,11 @@
                 {{- if .stats }}
                 <li class="list-group-item">
                     <small>
-                        Cracktros and intros: {{ fmtByteCnt $rels.Intro.Count $rels.Intro.Bytes }}<br>
-                        Windows cracktros and intros: {{ fmtByteCnt $rels.IntroW.Count $rels.IntroW.Bytes }}<br>
-                        {{msdos}} cracktros and intros: {{ fmtByteCnt $rels.IntroD.Count $rels.IntroD.Bytes }}<br>
-                        Installers: {{ fmtByteCnt $rels.Installer.Bytes $rels.Installer.Bytes }}<br>
-                        Demoscene productions: {{ fmtByteCnt $rels.Demoscene.Count $rels.Demoscene.Bytes }}<br>
+                        Cracktros and intros: {{ byteFile $rels.Intro.Count $rels.Intro.Bytes }}<br>
+                        Windows cracktros and intros: {{ byteFile $rels.IntroW.Count $rels.IntroW.Bytes }}<br>
+                        {{msdos}} cracktros and intros: {{ byteFile $rels.IntroD.Count $rels.IntroD.Bytes }}<br>
+                        Installers: {{ byteFile $rels.Installer.Bytes $rels.Installer.Bytes }}<br>
+                        Demoscene productions: {{ byteFile $rels.Demoscene.Count $rels.Demoscene.Bytes }}<br>
                     </small>
                 </li>
                 {{- end}}
@@ -71,9 +71,9 @@
                 {{- if .stats }}
                 <li class="list-group-item">
                     <small>
-                        nfo texts: {{ fmtByteCnt $rels.Nfo.Count $rels.Nfo.Bytes }}<br>
-                        proofs: {{ fmtByteCnt $rels.Proof.Bytes $rels.Proof.Bytes }}<br>
-                        editors: {{ fmtByteCnt $rels.NfoTool.Count $rels.NfoTool.Bytes }}<br>
+                        nfo texts: {{ byteFile $rels.Nfo.Count $rels.Nfo.Bytes }}<br>
+                        proofs: {{ byteFile $rels.Proof.Bytes $rels.Proof.Bytes }}<br>
+                        editors: {{ byteFile $rels.NfoTool.Count $rels.NfoTool.Bytes }}<br>
                     </small>
                 </li>
                 {{- end}}
@@ -104,7 +104,7 @@
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
                     <small>
-                        ansi art and texts: {{ fmtByteCnt $rels.Ansi.Count $rels.Ansi.Bytes }}<br>
+                        ansi art and texts: {{ byteFile $rels.Ansi.Count $rels.Ansi.Bytes }}<br>
                     </small>
                 </li>
             </ul>
@@ -139,10 +139,10 @@
                 {{- if .stats }}
                 <li class="list-group-item">
                     <small>
-                        BBS adverts: {{ fmtByteCnt $rels.BBS.Count $rels.BBS.Bytes }}<br>
-                        BBStros: {{ fmtByteCnt $rels.BBStro.Count $rels.BBStro.Bytes }}<br>
-                        ansi art: {{ fmtByteCnt $rels.AnsiBBS.Count $rels.AnsiBBS.Bytes }}<br>
-                        text files: {{ fmtByteCnt $rels.BBSText.Count $rels.BBSText.Bytes }}<br>
+                        BBS adverts: {{ byteFile $rels.BBS.Count $rels.BBS.Bytes }}<br>
+                        BBStros: {{ byteFile $rels.BBStro.Count $rels.BBStro.Bytes }}<br>
+                        ansi art: {{ byteFile $rels.AnsiBBS.Count $rels.AnsiBBS.Bytes }}<br>
+                        text files: {{ byteFile $rels.BBSText.Count $rels.BBSText.Bytes }}<br>
                     </small>
                 </li>
                 {{- end}}

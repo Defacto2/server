@@ -13,7 +13,7 @@
 {{- $prevYear := 0 }}
 {{- range $index, $rel := .releasers -}}
     {{- $title := fmtURI $rel.Unique.URI }}
-    {{- $initialism := fmtInitalism $rel.Unique.URI }}
+    {{- $initialism := initalisms $rel.Unique.URI }}
     {{- $year := $rel.Unique.Year.Int }}
     {{- if and (gt $prevYear 0) (gt $year 0) (gt $year $prevYear) }}
         {{- $prevYear = $rel.Unique.Year.Int }}
@@ -27,7 +27,7 @@
         <div class="col">
             <div class="p-3 border bg-light"><h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{trimSiteSuffix $title}}</a></h5>
             <span class="text-muted">{{ $initialism }} &nbsp; </span>
-            {{- fmtByteName $name $rel.Unique.Count $rel.Unique.Bytes }}
+            {{- byteFileS $name $rel.Unique.Count $rel.Unique.Bytes }}
             {{- if gt $year 0 }}
             &nbsp; <small>{{$rel.Unique.Year.Int}}</small>
             {{- end}}</div>
