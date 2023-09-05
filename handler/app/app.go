@@ -52,7 +52,7 @@ func GlobTo(name string) string {
 type Web struct {
 	Brand       *[]byte            // Brand points to the Defacto2 ASCII logo.
 	Import      *config.Config     // Import configurations from the host system environment.
-	ZLog        *zap.SugaredLogger // Log is a sugared logger.
+	Logger      *zap.SugaredLogger // Logger is the zap sugared logger.
 	Subresource SRI                // SRI are the Subresource Integrity hashes for the layout.
 	Public      embed.FS           // Public facing files.
 	View        embed.FS           // Views are Go templates.

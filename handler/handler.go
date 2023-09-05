@@ -46,7 +46,7 @@ const (
 // Configuration of the handler.
 type Configuration struct {
 	Import  *config.Config     // Import configurations from the host system environment.
-	ZLog    *zap.SugaredLogger // ZLog is a sugared, zap logger.
+	Logger  *zap.SugaredLogger // Logger is the zap sugared logger.
 	Brand   *[]byte            // Brand points to the Defacto2 ASCII logo.
 	Version string             // Version is the results of GoReleaser build command.
 	Public  embed.FS           // Public facing files.
@@ -57,7 +57,7 @@ type Configuration struct {
 func (c Configuration) Registry() (*TemplateRegistry, error) {
 	webapp := app.Web{
 		Import: c.Import,
-		ZLog:   c.ZLog,
+		Logger: c.Logger,
 		Brand:  c.Brand,
 		Public: c.Public,
 		View:   c.View,
@@ -66,7 +66,7 @@ func (c Configuration) Registry() (*TemplateRegistry, error) {
 	if err != nil {
 		return nil, err
 	}
-	htmTmpl := html3.Tmpl(c.ZLog, c.View)
+	htmTmpl := html3.Tmpl(c.Logger, c.View)
 	return &TemplateRegistry{
 		Templates: Join(
 			webTmpl, htmTmpl,
@@ -77,7 +77,7 @@ func (c Configuration) Registry() (*TemplateRegistry, error) {
 // EmbedDirs serves the static files from the directories embed to the binary.
 func (c Configuration) EmbedDirs(e *echo.Echo) *echo.Echo {
 	if e == nil {
-		c.ZLog.Fatal(ErrRoutes)
+		c.Logger.Fatal(ErrRoutes)
 	}
 	dirs := map[string]string{
 		"/image/artpack":   "public/image/artpack",
@@ -112,7 +112,7 @@ func (c Configuration) Controller() *echo.Echo {
 	e.HTTPErrorHandler = c.Import.CustomErrorHandler // custom error handler (see: pkg/config/logger.go)
 	reg, err := c.Registry()                         // HTML templates
 	if err != nil {
-		c.ZLog.Fatal(err)
+		c.Logger.Fatal(err)
 	}
 	e.Renderer = reg
 	//
@@ -137,19 +137,19 @@ func (c Configuration) Controller() *echo.Echo {
 	// Static embedded web assets that get distributed in the binary
 	e = c.EmbedDirs(e)
 	// Routes for the web application
-	e, err = c.Moved(c.ZLog, e)
+	e, err = c.Moved(c.Logger, e)
 	if err != nil {
-		c.ZLog.Fatal(err)
+		c.Logger.Fatal(err)
 	}
-	e, err = c.Routes(c.ZLog, e, c.Public)
+	e, err = c.Routes(c.Logger, e, c.Public)
 	if err != nil {
-		c.ZLog.Fatal(err)
+		c.Logger.Fatal(err)
 	}
 	// Routes for the htm retro web tables
-	retro := html3.Routes(c.ZLog, e)
+	retro := html3.Routes(c.Logger, e)
 	retro.GET(Downloader, c.downloader)
 	// Route for the api
-	_ = apiv1.Routes(c.ZLog, e)
+	_ = apiv1.Routes(c.Logger, e)
 
 	return e
 }
@@ -160,7 +160,7 @@ func (c Configuration) downloader(ctx echo.Context) error {
 		Inline: false,
 		Path:   c.Import.DownloadDir,
 	}
-	return d.HTTPSend(c.ZLog, ctx)
+	return d.HTTPSend(c.Logger, ctx)
 }
 
 // StartHTTP starts the HTTP web server.
@@ -171,7 +171,7 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 	if logo := string(*c.Brand); len(logo) > 0 {
 		w := bufio.NewWriter(os.Stdout)
 		if _, err := fmt.Fprintf(w, "%s\n\n", logo); err != nil {
-			c.ZLog.Warnf("Could not print the brand logo: %s.", err)
+			c.Logger.Warnf("Could not print the brand logo: %s.", err)
 		}
 		w.Flush()
 	}
@@ -201,12 +201,12 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 		var portErr *net.OpError
 		switch {
 		case !c.Import.IsProduction && errors.As(err, &portErr):
-			c.ZLog.Infof("air or task server could not start (this can probably be ignored): %s.", err)
+			c.Logger.Infof("air or task server could not start (this can probably be ignored): %s.", err)
 		case errors.Is(err, net.ErrClosed),
 			errors.Is(err, http.ErrServerClosed):
-			c.ZLog.Infof("HTTP server shutdown gracefully.")
+			c.Logger.Infof("HTTP server shutdown gracefully.")
 		default:
-			c.ZLog.Fatalf("HTTP server could not start: %s.", err)
+			c.Logger.Fatalf("HTTP server could not start: %s.", err)
 		}
 	}
 	// nothing should be placed here
@@ -222,7 +222,7 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
 	ctx, cancel := context.WithTimeout(context.Background(), ShutdownWait)
 	defer func() {
 		const alert = "Detected Ctrl-C, server will shutdown in "
-		_ = c.ZLog.Sync() // do not check error as there's false positives
+		_ = c.Logger.Sync() // do not check error as there's false positives
 		dst := os.Stdout
 		w := bufio.NewWriter(dst)
 		fmt.Fprintf(w, "\n%s%v", alert, ShutdownWait)
@@ -246,10 +246,10 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
 		case <-ctx.Done():
 		}
 		if err := e.Shutdown(ctx); err != nil {
-			c.ZLog.Fatalf("Server shutdown caused an error: %w.", err)
+			c.Logger.Fatalf("Server shutdown caused an error: %w.", err)
 		}
-		c.ZLog.Infoln("Server shutdown complete.")
-		_ = c.ZLog.Sync()
+		c.Logger.Infoln("Server shutdown complete.")
+		_ = c.Logger.Sync()
 		signal.Stop(quit)
 		cancel()
 	}()
