@@ -11,7 +11,7 @@ import (
 
 func main() {
 	layoutCSS := api.Build(api.BuildOptions{
-		EntryPoints:       []string{"./public/css/layout.css"},
+		EntryPoints:       []string{"./assets/css/layout.css"},
 		Outfile:           "./public/css/layout.min.css",
 		Write:             true,
 		Bundle:            false,
@@ -26,7 +26,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Build failed: %v\n", layoutCSS.Errors)
 	}
 	pouetJS := api.Build(api.BuildOptions{
-		EntryPoints:       []string{"./public/js/pouet.js"},
+		EntryPoints:       []string{"./assets/js/pouet.js"},
 		Outfile:           "./public/js/pouet.min.js",
 		Write:             true,
 		Bundle:            false,
