@@ -72,7 +72,11 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 		return app.Download(z, c, conf.Import.DownloadDir)
 	})
 	e.GET("/f/:id", func(c echo.Context) error {
-		return app.About(z, c, c.Param("id"))
+		a := app.AboutConf{
+			DownloadDir: conf.Import.DownloadDir,
+			URI:         c.Param("id"),
+		}
+		return a.About(z, c)
 	})
 	e.GET("/file/stats", func(c echo.Context) error {
 		return app.File(z, c, true)

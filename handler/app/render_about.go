@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"path/filepath"
 	"strings"
 
 	"github.com/Defacto2/server/model"
@@ -14,20 +15,27 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+// AboutConf contains required data for the about file page.
+type AboutConf struct {
+	DownloadDir string
+	URI         string
+}
+
 // About is the handler for the about page of the file record.
-func About(z *zap.SugaredLogger, c echo.Context, uri string) error {
+func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	const name = "about"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	res, err := model.OneRecord(z, c, uri)
+	res, err := model.OneRecord(z, c, a.URI)
 	if err != nil {
 		return err
 	}
 	title := res.RecordTitle.String
 	fname := res.Filename.String
+	uuid := res.UUID.String
 	data := empty()
-	data["uuid"] = res.UUID.String
+	data["uuid"] = uuid
 	data["download"] = helper.ObfuscateID(int64(res.ID))
 	data["title"] = fname
 	data["description"] = aboutDesc(res)
@@ -63,6 +71,12 @@ func About(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	data["github"] = res.WebIDGithub.String
 	data["createdat"] = res.Createdat.Time
 	data["updatedat"] = res.Updatedat.Time
+
+	txt := filepath.Join(a.DownloadDir, uuid+".txt")
+	me := helper.IsStat(txt)
+	if me {
+		data["readme"] = txt
+	}
 
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
