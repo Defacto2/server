@@ -74,9 +74,24 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	data["pouet"] = res.WebIDPouet.Int64
 	data["youtube"] = res.WebIDYoutube.String
 	data["github"] = res.WebIDGithub.String
-	data["createdat"] = res.Createdat.Time
-	data["updatedat"] = res.Updatedat.Time
-
+	switch {
+	case res.Createdat.Valid && res.Updatedat.Valid:
+		c := Updated(res.Createdat.Time, "")
+		u := Updated(res.Updatedat.Time, "")
+		if c != u {
+			c = Updated(res.Createdat.Time, "Created")
+			u = Updated(res.Updatedat.Time, "Updated")
+			data["filentry"] = c + "<br>" + u
+		} else {
+			data["filentry"] = c
+		}
+	case res.Createdat.Valid:
+		c := Updated(res.Createdat.Time, "Created")
+		data["filentry"] = c
+	case res.Updatedat.Valid:
+		u := Updated(res.Updatedat.Time, "Updated")
+		data["filentry"] = u
+	}
 	txt := filepath.Join(a.DownloadDir, uuid+".txt")
 	me := helper.IsStat(txt)
 	fmt.Fprintln(os.Stdout, "me", me, "txt", txt)
@@ -101,18 +116,21 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 		case utf8.Valid(b):
 			data["readme"] = string(b)
 			data["readmeName"] = res.RetrotxtReadme.String
+			data["readmeFont"] = "font-dos"
 		case e == charmap.ISO8859_1 && ok:
 			r := e.NewDecoder().Reader(strings.NewReader(string(b)))
 			var out strings.Builder
 			io.Copy(&out, r)
 			data["readme"] = out.String()
 			data["readmeName"] = res.RetrotxtReadme.String
+			data["readmeFont"] = "font-amiga"
 		default:
 			r := charmap.CodePage437.NewDecoder().Reader(strings.NewReader(string(b)))
 			var out strings.Builder
 			io.Copy(&out, r)
 			data["readme"] = out.String()
 			data["readmeName"] = res.RetrotxtReadme.String
+			data["readmeFont"] = "font-dos"
 		}
 
 		//e, n, ok := charset.DetermineEncoding(b, "text/plain")

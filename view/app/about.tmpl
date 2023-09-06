@@ -17,11 +17,10 @@
             </div>
         </div>
         <div class="col-12">
-            <div class="p-3">
-            {{if (index . "readme")}}
-                <pre class="font-amiga">{{(index . "readme")}}</pre>
-            {{- end}}
-            </div>
+        {{if (index . "readme")}}
+            <h6 class="fs-6 fw-lighter">Readme or information text <small>{{index . "readmeName"}}</small></h6>
+            <pre class="{{(index . "readmeFont")}}">{{(index . "readme")}}</pre>
+        {{- end}}
         </div>
     </div>
 </div>

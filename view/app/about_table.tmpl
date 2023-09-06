@@ -145,15 +145,12 @@
         </tr>{{- end}}
         {{- index . "listLinks" }}
         {{- /*  File created and updated dates  */}}
+        {{- if (index . "filentry")}}
         <tr>
             <th scope="row"><small>File entry</small></th>
-            <td><small>{{updated .createdat "Created"}}</small></td>
+            <td><small>{{index . "filentry" | safeHTML}}</small></td>
         </tr>
-        {{- if ne (updated .updatedat "") (updated .createdat "")}}
-        <tr>
-            <th scope="row"></th>
-            <td><small>{{lastUpdated .updatedat}}</small></td>
-        </tr>{{- end}}
+        {{- end}}
     </tbody>
 </table>
 {{- end}}

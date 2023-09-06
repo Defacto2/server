@@ -47,7 +47,6 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"subTitle":       SubTitle,
 		"thumb":          web.Thumb,
 		"trimSiteSuffix": TrimSiteSuffix,
-		"updated":        Updated,
 		"websiteIcon":    WebsiteIcon,
 		// these closures should only return simple values
 		"logo": func() string {
