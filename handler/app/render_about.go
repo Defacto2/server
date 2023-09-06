@@ -30,7 +30,7 @@ func About(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	data["uuid"] = res.UUID.String
 	data["download"] = helper.ObfuscateID(int64(res.ID))
 	data["title"] = fname
-	data["description"] = desc(res)
+	data["description"] = aboutDesc(res)
 	data["h1"] = title
 	data["lead"] = aboutLead(res)
 	data["filename"] = fname
@@ -71,7 +71,7 @@ func About(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	return nil
 }
 
-func desc(res *models.File) string {
+func aboutDesc(res *models.File) string {
 	s := res.Filename.String
 	if res.RecordTitle.String != "" {
 		s = res.RecordTitle.String
@@ -96,7 +96,7 @@ func desc(res *models.File) string {
 
 func aboutLead(res *models.File) string {
 	fname := res.Filename.String
-	span := fmt.Sprintf("<span class=\"font-monospace fw-light\">%s</span> ", fname)
+	span := fmt.Sprintf("<span class=\"font-monospace fs-6 fw-light\">%s</span> ", fname)
 	rels := string(LinkRelrs(res.GroupBrandBy, res.GroupBrandFor))
 	return fmt.Sprintf("%s<br>%s", rels, span)
 }

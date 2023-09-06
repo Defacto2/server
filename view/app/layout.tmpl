@@ -300,7 +300,7 @@
 </nav>
 {{- end }}
 <main>
-    {{- if ne (index . "h1") ""}}<h1 class="display-6">{{ index . "h1" }}{{if ne (index . "h1sub") ""}} <small>{{ index . "h1sub" }}</small>{{end}}</h1>{{end -}}
+    {{- if ne (index . "h1") ""}}<h1 class="fs-1 fw-light">{{ index . "h1" }}{{if ne (index . "h1sub") ""}} <small>{{ index . "h1sub" }}</small>{{end}}</h1>{{end -}}
     {{- if ne (index . "lead") ""}}<p class="lead">{{ index . "lead" | safeHTML }}</p>{{end -}}
     {{- block "content" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
 </main>

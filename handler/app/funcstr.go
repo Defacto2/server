@@ -17,7 +17,9 @@ const (
 	// each side contains 20 whitespace characters.
 	// The welcome to defacto2 text is 19 characters long.
 	// The letter 'O' of TO is the center of the text.
-	Welcome = ":                    ·· WELCOME TO DEFACTO2 ··                    ·"
+	Welcome = `:                    ` +
+		`·· WELCOME TO DEFACTO2 ··` +
+		`                    ·`
 )
 
 // Attribute returns a formatted string of the roles for the given scener name.
