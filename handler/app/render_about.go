@@ -3,7 +3,9 @@ package app
 import (
 	"fmt"
 	"html/template"
+	"io"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -13,6 +15,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 	"golang.org/x/exp/slices"
+	"golang.org/x/text/encoding/charmap"
 )
 
 // AboutConf contains required data for the about file page.
@@ -74,9 +77,23 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 
 	txt := filepath.Join(a.DownloadDir, uuid+".txt")
 	me := helper.IsStat(txt)
+	fmt.Fprintln(os.Stdout, "me", me, "txt", txt)
 	if me {
-		data["readme"] = txt
+		f, err := os.Open(txt)
+		if err != nil {
+			z.Error(err)
+		}
+		//enc, _, _ := charset.DetermineEncoding(f, "")
+		//e, en, eok := charset.DetermineEncoding(content, "")
+		//fmt.Fprintln(os.Stdout, "e", e, "en", en, "eok", eok)
+		r := charmap.CodePage437.NewDecoder().Reader(f)
+		var out strings.Builder
+		io.Copy(&out, r)
+		//io.Closer(out)
+		data["readme"] = out.String()
 	}
+
+	//fmt.Println(string(content))
 
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {

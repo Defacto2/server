@@ -16,6 +16,13 @@
               {{ screenshot (index . "uuid") (index . "description") }}
             </div>
         </div>
+        <div class="col-12">
+            <div class="p-3">
+            {{if (index . "readme")}}
+                <pre class="font-dos">{{(index . "readme")}}</pre>
+            {{- end}}
+            </div>
+        </div>
     </div>
 </div>
 {{- end}}
