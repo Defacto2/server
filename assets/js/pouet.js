@@ -30,11 +30,15 @@
       return response.json();
     })
     .then((result) => {
+      let v = result.votes_up + result.votes_down + result.votes_meh;
+      if (v === 0) {
+        row.classList.add(`d-none`);
+        return;
+      }
       let s = `${result.stars} star`;
       if (result.stars !== 1) s += `s`;
       stars.innerHTML = s;
 
-      let v = result.votes_up + result.votes_down + result.votes_meh;
       s = `${v} vote`;
       if (v !== 1) s += `s`;
       votes.innerHTML = s;

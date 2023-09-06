@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/pkg/helper"
@@ -15,6 +16,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 	"golang.org/x/exp/slices"
+	"golang.org/x/net/html/charset"
 	"golang.org/x/text/encoding/charmap"
 )
 
@@ -78,19 +80,55 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	txt := filepath.Join(a.DownloadDir, uuid+".txt")
 	me := helper.IsStat(txt)
 	fmt.Fprintln(os.Stdout, "me", me, "txt", txt)
-	if me {
-		f, err := os.Open(txt)
-		if err != nil {
-			z.Error(err)
-		}
+	if me && res.RetrotxtNoReadme.Int16 == 0 {
+		// f, err := os.Open(txt)
+		// if err != nil {
+		// 	z.Error(err)
+		// }
+		//b1 := make([]byte, 5)
+		//n1, err := f.Read(b1)
 		//enc, _, _ := charset.DetermineEncoding(f, "")
 		//e, en, eok := charset.DetermineEncoding(content, "")
 		//fmt.Fprintln(os.Stdout, "e", e, "en", en, "eok", eok)
-		r := charmap.CodePage437.NewDecoder().Reader(f)
-		var out strings.Builder
-		io.Copy(&out, r)
-		//io.Closer(out)
-		data["readme"] = out.String()
+		//readr := enc.NewDecoder().Reader(f)
+
+		b, err := os.ReadFile(txt)
+		if err != nil {
+			z.Error(err)
+		}
+		e, _, ok := charset.DetermineEncoding(b, "text/plain")
+		switch {
+		case utf8.Valid(b):
+			data["readme"] = string(b)
+			data["readmeName"] = res.RetrotxtReadme.String
+		case e == charmap.ISO8859_1 && ok:
+			r := e.NewDecoder().Reader(strings.NewReader(string(b)))
+			var out strings.Builder
+			io.Copy(&out, r)
+			data["readme"] = out.String()
+			data["readmeName"] = res.RetrotxtReadme.String
+		default:
+			r := charmap.CodePage437.NewDecoder().Reader(strings.NewReader(string(b)))
+			var out strings.Builder
+			io.Copy(&out, r)
+			data["readme"] = out.String()
+			data["readmeName"] = res.RetrotxtReadme.String
+		}
+
+		//e, n, ok := charset.DetermineEncoding(b, "text/plain")
+		// fmt.Fprintln(os.Stdout, "e", e, "n", n, "ok", ok)
+		// r := e.NewDecoder().Reader(strings.NewReader(string(b)))
+		// var out strings.Builder
+		// io.Copy(&out, r)
+		// data["readme"] = out.String()
+		// data["readmeName"] = res.RetrotxtReadme.String
+		//r := charmap.CodePage437.NewDecoder().Reader(f)
+		// 	var out strings.Builder
+		// 	io.Copy(&out, r)
+		// 	//io.Closer(out)
+		// 	data["readme"] = out.String()
+		// 	data["readmeName"] = res.RetrotxtReadme.String
+		// }
 	}
 
 	//fmt.Println(string(content))

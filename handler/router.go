@@ -34,6 +34,9 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.FileFS("/font/pxplus_ibm_vga8.woff2", "public/font/pxplus_ibm_vga8.woff2", public)
 	e.FileFS("/font/pxplus_ibm_vga8.woff", "public/font/pxplus_ibm_vga8.woff", public)
 	e.FileFS("/font/pxplus_ibm_vga8.ttf", "public/font/pxplus_ibm_vga8.ttf", public)
+	e.FileFS("/font/topazplus_a1200.woff2", "public/font/topazplus_a1200.woff2", public)
+	e.FileFS("/font/topazplus_a1200.woff", "public/font/topazplus_a1200.woff", public)
+	e.FileFS("/font/topazplus_a1200.ttf", "public/font/topazplus_a1200.ttf", public)
 
 	// Serve embedded JS files
 	e.FileFS(app.BootJS, app.BootJPub, public)
@@ -114,6 +117,9 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.GET("/p/:id", func(c echo.Context) error {
 		return app.Sceners(z, c, c.Param("id"))
 	})
+	e.GET("/pouet/vote/:id", func(c echo.Context) error {
+		return app.Pouet(z, c, c.Param("id"))
+	})
 	e.GET("/r/:id", func(c echo.Context) error {
 		return app.Reader(z, c, c.Param("id"))
 	})
@@ -159,12 +165,6 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.GET("/v/:id", func(c echo.Context) error {
 		return app.Inline(z, c, conf.Import.DownloadDir)
 	})
-
-	// TODO: test pouet voter
-	e.GET("/pouet/vote/:id", func(c echo.Context) error {
-		return app.Pouet(z, c, c.Param("id"))
-	})
-
 	// all other page requests return a custom 404 error page
 	e.GET("/:uri", func(c echo.Context) error {
 		return app.StatusErr(z, c, http.StatusNotFound, c.Param("uri"))
