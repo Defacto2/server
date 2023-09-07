@@ -1,6 +1,8 @@
 package helper
 
 import (
+	"bytes"
+	"fmt"
 	"unicode/utf8"
 
 	"golang.org/x/text/encoding"
@@ -11,10 +13,15 @@ import (
 // If the byte slice contains Unicode multi-byte characters then nil is returned.
 // Otherwise a charmap.ISO8859_1 or charmap.CodePage437 encoding is returned.
 func DetermineEncoding(p []byte) encoding.Encoding {
-	if utf8.RuneCount(p) < len(p) {
-		// detected multi-byte characters
-		return nil
-	}
+	// if utf8.RuneCount(p) < len(p) {
+	// 	// detected multi-byte characters
+	// 	return nil
+	// }
+	fmt.Println("DetermineEncoding l:", len(p), "count", utf8.RuneCount(p))
+	// if utf8.RuneCount(p) < len(p) {
+	// 	// detected multi-byte characters
+	// 	return nil
+	// }
 	const (
 		controlStart   = 0x00
 		controlEnd     = 0x1f
@@ -39,6 +46,18 @@ func DetermineEncoding(p []byte) encoding.Encoding {
 			// case p[i] > lastChar:
 			// 	return nil
 		}
+	}
+	const (
+		lowerHalfBlock = 0xdc
+		upperHalfBlock = 0xdf
+	)
+	subslice := []byte{lowerHalfBlock, lowerHalfBlock, lowerHalfBlock, lowerHalfBlock}
+	if bytes.Contains(p, subslice) {
+		return charmap.CodePage437
+	}
+	subslice = []byte{upperHalfBlock, upperHalfBlock, upperHalfBlock, upperHalfBlock}
+	if bytes.Contains(p, subslice) {
+		return charmap.CodePage437
 	}
 	return charmap.ISO8859_1
 }

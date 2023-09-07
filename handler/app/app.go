@@ -33,6 +33,9 @@ const (
 
 	PouetJS  = "/js/pouet.min.js" // PouetJS is the path to the minified Pouet JS file.
 	PouetPub = public + PouetJS
+
+	ReadmeJS  = "/js/readme.min.js" // ReadmeJS is the path to the minified Readme JS file.
+	ReadmePub = public + ReadmeJS
 )
 
 var (
@@ -141,6 +144,7 @@ type SRI struct {
 	FontAwesome  string // Font Awesome verification hash.
 	LayoutCSS    string // Layout CSS verification hash.
 	PouetJS      string // Pouet JS verification hash.
+	ReadmeJS     string // Readme JS verification hash.
 }
 
 // Verify checks the integrity of the embedded CSS and JS files.
@@ -164,6 +168,10 @@ func (s *SRI) Verify(fs embed.FS) error {
 		return err
 	}
 	s.PouetJS, err = helper.Integrity(PouetPub, fs)
+	if err != nil {
+		return err
+	}
+	s.ReadmeJS, err = helper.Integrity(ReadmePub, fs)
 	if err != nil {
 		return err
 	}

@@ -92,6 +92,13 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 		data["filentry"] = u
 	}
 	txt := filepath.Join(a.DownloadDir, uuid+".txt")
+
+	// todo: make into func
+	// if platform amigatext only show topaz pre
+	// use filedownload for all text platform files
+	// - except known archives extensions
+	// - also do a scan to confirm is not a binary file
+
 	if helper.IsStat(txt) && res.RetrotxtNoReadme.Int16 == 0 {
 		b, err := os.ReadFile(txt)
 		if err != nil {
@@ -99,31 +106,60 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 		}
 		e := helper.DetermineEncoding(b)
 		data["readmeName"] = res.RetrotxtReadme.String
-		switch {
-		case e == nil:
-			data["readme"] = string(b)
-			data["readmeFont"] = "font-dos"
-		case e == charmap.ISO8859_1:
-			r := e.NewDecoder().Reader(bytes.NewReader(b))
-			out := strings.Builder{}
-			if _, err := io.Copy(&out, r); err != nil {
-				z.Info(err)
-			}
-			data["readme"] = out.String()
-			data["readmeFont"] = "font-amiga"
-		case e == charmap.CodePage437:
-			r := e.NewDecoder().Reader(bytes.NewReader(b))
-			out := strings.Builder{}
-			if _, err := io.Copy(&out, r); err != nil {
-				z.Info(err)
-			}
-			data["readme"] = out.String()
-			data["readmeFont"] = "font-dos"
+		fmt.Println("DetermineEncoding", e)
+
+		r := charmap.ISO8859_1.NewDecoder().Reader(bytes.NewReader(b))
+		out := strings.Builder{}
+		if _, err := io.Copy(&out, r); err != nil {
+			z.Info(err)
 		}
+		data["readmeLatin1"] = out.String()
+		//data["readmeFont"] = "font-amiga"
+
+		r = charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
+		out = strings.Builder{}
+		if _, err := io.Copy(&out, r); err != nil {
+			z.Info(err)
+		}
+		data["readmeCP437"] = out.String()
+
+		switch e {
+		case charmap.ISO8859_1:
+			data["readmeLatin1Cls"] = ""
+			data["readmeCP437Cls"] = "d-none"
+			data["topazCheck"] = "checked"
+		case charmap.CodePage437:
+			data["readmeLatin1Cls"] = "d-none"
+			data["readmeCP437Cls"] = ""
+			data["vgaCheck"] = "checked"
+		}
+
+		//data["readmeFont"] = "font-dos"
+
+		// check if utf8 and then check if ISO8859?
+
+		// switch {
+		// // case e == nil:
+		// // 	data["readme"] = string(b)
+		// // 	data["readmeFont"] = "font-dos"
+		// case e == charmap.ISO8859_1:
+		// 	r := e.NewDecoder().Reader(bytes.NewReader(b))
+		// 	out := strings.Builder{}
+		// 	if _, err := io.Copy(&out, r); err != nil {
+		// 		z.Info(err)
+		// 	}
+		// 	data["readmeLatin1"] = out.String()
+		// 	data["readmeFont"] = "font-amiga"
+		// case e == charmap.CodePage437:
+		// 	r := e.NewDecoder().Reader(bytes.NewReader(b))
+		// 	out := strings.Builder{}
+		// 	if _, err := io.Copy(&out, r); err != nil {
+		// 		z.Info(err)
+		// 	}
+		// 	data["readmeCP437"] = out.String()
+		// 	data["readmeFont"] = "font-dos"
+		// }
 	}
-
-	//fmt.Println(string(content))
-
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(z, c, name, err)

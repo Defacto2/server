@@ -40,4 +40,19 @@ func main() {
 	if len(pouetJS.Errors) > 0 {
 		fmt.Fprintf(os.Stderr, "Build failed: %v\n", pouetJS.Errors)
 	}
+	readmeJS := api.Build(api.BuildOptions{
+		EntryPoints:       []string{"./assets/js/readme.js"},
+		Outfile:           "./public/js/readme.min.js",
+		Write:             true,
+		Bundle:            false,
+		MinifyWhitespace:  true,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		Banner: map[string]string{
+			"js": "/* readme.min.js */",
+		},
+	})
+	if len(readmeJS.Errors) > 0 {
+		fmt.Fprintf(os.Stderr, "Build failed: %v\n", readmeJS.Errors)
+	}
 }

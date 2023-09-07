@@ -73,6 +73,9 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"sriPouet": func() string {
 			return web.Subresource.PouetJS
 		},
+		"sriReadme": func() string {
+			return web.Subresource.ReadmeJS
+		},
 		"cssBoot": func() string {
 			return BootCSS
 		},
@@ -87,6 +90,9 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		},
 		"jsPouet": func() string {
 			return PouetJS
+		},
+		"jsReadme": func() string {
+			return ReadmeJS
 		},
 	}
 }
