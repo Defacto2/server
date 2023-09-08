@@ -9,23 +9,30 @@
             {{- /*  Table of details  */}}
             {{ template "aboutTable" . }}
         </div>
-        {{/*  TODO: func to determine the use of a screenshot? ie if text etc  */}}
+        {{- if not (index . "noScreenshot")}}
         <div class="{{$colClass}}">
             {{- /*  Screenshot of the file  */}}
             <div class="p-3">
               {{ screenshot (index . "uuid") (index . "description") }}
             </div>
         </div>
+        {{- end}}
         <div class="col-12">
-        {{if or (index . "readmeLatin1") (index . "readmeCP437")}}
-            <h6 class="fs-6 fw-lighter">Readme or information text <small>{{index . "readmeName"}}</small></h6>
-            <div class="m-2">
+        {{- if or (index . "readmeLatin1") (index . "readmeCP437")}}
+            <div class="m-3">
                 <input type="radio" class="btn-check" name="readme-base" id="topazFont" autocomplete="off" {{index . "topazCheck"}}>
-                <label class="btn btn-sm" for="topazFont">Topaz font</label>
+                <label class="btn btn-sm" for="topazFont" 
+                    data-bs-toggle="tooltip" data-bs-title="Use the TopazPlus font with Latin-1 encoding">Amiga style</label>
                 <input type="radio" class="btn-check" name="readme-base" id="vgaFont" autocomplete="off" {{index . "vgaCheck"}}>
-                <label class="btn btn-sm" for="vgaFont">VGA font</label>
+                <label class="btn btn-sm" for="vgaFont"
+                    data-bs-toggle="tooltip" data-bs-title="Use a classic IBM VGA font with OEM-US encoding">DOS style</label>
             </div>
-            {{/*  <pre id="readmePre" class="{{(index . "readmeFont")}}">{{(index . "readme")}}</pre>  */}}
+            {{- if not (index . "noScreenshot")}}
+                <h6 class="fs-6 fw-lighter">Readme or information text <small>{{index . "readmeName"}}</small></h6>
+            {{- end}}
+            {{- if (index . "noScreenshot")}}
+                <h6 class="fs-6 fw-lighter">Textfile content</small></h6>
+            {{- end}}
         {{- end}}
         {{if index . "readmeLatin1"}}
             <pre id="readmeLatin1" class="{{index . "readmeLatin1Cls"}} font-amiga">{{(index . "readmeLatin1")}}</pre>

@@ -50,14 +50,19 @@ func DetermineEncoding(p []byte) encoding.Encoding {
 	const (
 		lowerHalfBlock = 0xdc
 		upperHalfBlock = 0xdf
+		doubleHorizBar = 0xcd
+		singleHorizBar = 0xc4
 	)
-	subslice := []byte{lowerHalfBlock, lowerHalfBlock, lowerHalfBlock, lowerHalfBlock}
-	if bytes.Contains(p, subslice) {
-		return charmap.CodePage437
-	}
-	subslice = []byte{upperHalfBlock, upperHalfBlock, upperHalfBlock, upperHalfBlock}
-	if bytes.Contains(p, subslice) {
-		return charmap.CodePage437
+	chrs := []byte{
+		lowerHalfBlock,
+		upperHalfBlock,
+		doubleHorizBar,
+		singleHorizBar}
+	for _, v := range chrs {
+		const count = 4
+		if bytes.Contains(p, bytes.Repeat([]byte{v}, count)) {
+			return charmap.CodePage437
+		}
 	}
 	return charmap.ISO8859_1
 }

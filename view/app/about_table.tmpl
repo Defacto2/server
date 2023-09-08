@@ -9,6 +9,7 @@
 {{- $youtube := (index . "youtube")}}
 {{- $github := (index . "github")}}
 {{- $comment := (index . "comment")}}
+{{- $mimetype := (index . "magic")}}
 {{- /*  Modal table contents of the file archive  */}}
 {{- if (index . "content")}}
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -43,24 +44,24 @@
     </div>
 </div>{{ end -}}
 {{- /*  About the file download link  */}}
-<div class="d-grid gap-2 d-md-block mx-auto m-3">
-    <a class="btn btn-outline-primary btn-lg" href="/d/{{index . "download"}}" role="button">
+<div class="d-grid gap-2 d-md-block mx-auto">
+    <a class="btn btn-outline-primary btn-lg m-1" href="/d/{{index . "download"}}" role="button">
         Download &nbsp; {{index . "filesize"}}</a>
 {{- if ne "" (index . "checksum")}}
-    <a class="btn btn-outline-secondary btn" href="/sum/{{index . "download"}}" 
+    <a class="btn btn-outline-secondary btn m-1" href="/sum/{{index . "download"}}" 
         role="button" data-bs-toggle="tooltip" data-bs-title="Checksum download">
         #
     </a>
 {{- end}}
 {{- if (index . "content")}}
-    <button type="button" class="btn btn-outline-secondary btn" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    <button type="button" class="btn btn-outline-secondary btn m-1" data-bs-toggle="modal" data-bs-target="#exampleModal">
         View contents
     </button>
 {{- end}}
 </div>
 {{- /*  Commant about the file  */}}
 {{- if ne $comment ""}}
-<p>{{index . "comment"}}</p>
+<q>{{index . "comment"}}</q>
 {{- end}}
 {{- /*  Table with details  */}}
 <table class="table table-sm">
@@ -82,10 +83,12 @@
             <th scope="row"><span class="text-nowrap">Last modification</span></th>
             <td>{{index . "lastmodified"}}</td>
         </tr>
+        {{- if ne $mimetype ""}}
         <tr>
             <th scope="row"><span class="text-nowrap">Mime type</span></th>
-            <td>{{index . "magic"}}</td>
+            <td>{{$mimetype}}</td>
         </tr>
+        {{- end}}
         <tr>
             <th scope="row">&nbsp;</th>
             <td></td>
