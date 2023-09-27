@@ -162,12 +162,6 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 		return nil, nil
 	}
 
-	// todo: make into func
-	// if platform amigatext only show topaz pre
-	// use filedownload for all text platform files
-	// - except known archives extensions
-	// - also do a scan to confirm is not a binary file
-
 	fname := res.Filename.String
 	uuid := res.UUID.String
 	platform := strings.TrimSpace(res.Platform.String)

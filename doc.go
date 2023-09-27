@@ -38,6 +38,39 @@ The following on the host system or in the container.
 
 The following environment variables are required for the Pouet API:
 
+# Configuration overrides
+
+A number of server configuration options can be overridden by code edits.
+Though these are not advised other than for debugging or testing in development.
+
+The following options can be added to [github.com/Defacto2.server.main]
+
+	configs.IsProduction = true		// This will enable the production logger
+
+	configs.HTTPSRedirect = true	// This requires HTTPS certificates to be installed and configured
+
+	configs.NoRobots = true			// This will disable search engine crawling
+
+	configs.LogRequests = true		// This will log all HTTP requests to the server or stdout
+
+
+# TODO
+
+	- [model.Files.ListUpdates], rename the PSQL column from "updated_at" to "date_updated".
+	- [model.RepairReleasers], globalize the "fixes" map and create redirects for the old names?
+	- [handler.html3.Routes], using a range over with "echo.GET" does not work.
+	- [handler.app], create a func for the aboutReadme.
+	If it is a platform "amigatext" use topaz pre, else use filedownload, except for known archives.
+	Also do a scan to confirm is not a binary file.
+	- [handler.Configuration.Controller], handle a broken DB connection situation.
+	- "conf.Import.ThumbnailDir" (dir path?) should be renamed to "/image/thumb".
+	- [handler.Configuration.Moved] Implement legacy URI redirects,
+	"/cracktros-detail.cfm:/:id" and "/code".
+
+
+# Milestones to add
+
+	- Fetch the DOD nfo for w95, https://scenelist.org/nfo/DOD95C1H.ZIP
 */
 // [Defacto2]: https://defacto2.net
 package main

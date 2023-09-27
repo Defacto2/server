@@ -54,7 +54,7 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.FileFS("/site.webmanifest", "public/text/site.webmanifest.json", public)
 
 	// Serve asset images
-	e.Static(config.StaticThumb(), conf.Import.ThumbnailDir) // TODO: rename to /image/thumb/
+	e.Static(config.StaticThumb(), conf.Import.ThumbnailDir)
 	e.Static(config.StaticOriginal(), conf.Import.ScreenshotsDir)
 
 	e.GET("/", func(c echo.Context) error {
@@ -200,7 +200,7 @@ func (c Configuration) Moved(z *zap.SugaredLogger, e *echo.Echo) (*echo.Echo, er
 		return c.Redirect(code, "/files/intro")
 	})
 	e.GET("/cracktros-detail.cfm:/:id", func(c echo.Context) error {
-		return c.Redirect(code, "/") // todo
+		return c.Redirect(code, "/")
 	})
 	e.GET("/documents.cfm", func(c echo.Context) error {
 		return c.Redirect(code, "/files/text")
@@ -234,7 +234,7 @@ func (c Configuration) Moved(z *zap.SugaredLogger, e *echo.Echo) (*echo.Echo, er
 	})
 	// 2020 website redirects
 	e.GET("/code", func(c echo.Context) error {
-		return c.Redirect(code, "/") // todo
+		return c.Redirect(code, "/")
 	})
 	e.GET("/commercial", func(c echo.Context) error {
 		return c.Redirect(code, "/")

@@ -1,5 +1,3 @@
-// The Defacto2 Go web application built in 2023.
-// (c) 2023 Ben Garrett.
 package main
 
 import (
@@ -44,12 +42,6 @@ func main() {
 		&configs, env.Options{Prefix: config.EnvPrefix}); err != nil {
 		logs.Fatalf("Environment variable probably contains an invalid value: %s.", err)
 	}
-	// Any hardcoded overrides can be placed in here,
-	// but they must be commented out in PRODUCTION
-	// configs.IsProduction = true // This will enable the production logger
-	// configs.HTTPSRedirect = true // This requires HTTPS certificates to be installed and configured
-	// configs.NoRobots = true // This will disable search engine crawling
-	// configs.LogRequests = true // This will log all HTTP requests to the server or stdout
 
 	// Command-line arguments
 	// By default the web server runs when no arguments are provided

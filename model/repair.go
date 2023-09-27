@@ -41,7 +41,6 @@ func RepairReleasers(ctx context.Context, db *sql.DB) error {
 		pwabad  = "pirates with attitude"
 		pwafix  = "pirates with attitudes"
 	)
-	// TODO: globalize this map and create redirects for the old names?
 	fixes := map[string]string{
 		trsibad: trsifix,
 		acidbad: acidfix,

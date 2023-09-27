@@ -869,8 +869,6 @@ func Collection() Milestones { //nolint:maintidx // long function
 				"But hard drives were expensive and whole CD image were too large to store. " +
 				"So in order for many to play the game, the CD had to be <strong>ripped</strong> to the hard drive with the game fluff such as intro videos removed.",
 		},
-		// todo: obtain NFO
-		// https://scenelist.org/nfo/DOD95C1H.ZIP
 		{
 			Title: "Windows 95 warez release", Year: 1995, Month: 8, Prefix: "Early",
 			Lead: "Drink or Die", Link: "/f/a8177", LinkTitle: "about the release",

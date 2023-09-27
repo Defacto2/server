@@ -112,7 +112,6 @@ func Routes(z *zap.SugaredLogger, e *echo.Echo) *echo.Group {
 	g.GET("/software:offset", s.Software)
 	g.GET("/software", s.Software)
 	// append legacy redirects
-	// TODO: range doesn't work with echo.GET
 	for url := range Redirects() {
 		g.GET(url, s.Redirection)
 	}
@@ -139,7 +138,7 @@ func (s *sugared) Index(c echo.Context) error {
 	if err := Stats.Document.Stat(ctx, db); err != nil {
 		s.zlog.Warnf("%s: %s", errConn, err)
 	}
-	// TODO: REPLACE
+	// Need to replace?
 	// if err := Stats.Group.Stat(ctx, db); err != nil {
 	// 	s.log.Warnf("%s: %s", errConn, err)
 	// }

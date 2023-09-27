@@ -104,7 +104,6 @@ func rewrites() map[string]string {
 
 // Controller is the primary instance of the Echo router.
 func (c Configuration) Controller() *echo.Echo {
-	// TODO: handle broken DB connection
 	e := echo.New()
 	//
 	// Configurations
@@ -154,7 +153,7 @@ func (c Configuration) Controller() *echo.Echo {
 	return e
 }
 
-// downloader route for the file download handler under the html3 group
+// downloader route for the file download handler under the html3 group.
 func (c Configuration) downloader(ctx echo.Context) error {
 	d := download.Download{
 		Inline: false,

@@ -150,7 +150,6 @@ func (f *Files) ListUpdates(ctx context.Context, db *sql.DB, offset, limit int) 
 	if err := f.Stat(ctx, db); err != nil {
 		return nil, err
 	}
-	// TODO: rename PSQL column from `updated_at` to `date_updated`
 	const clause = "updatedat DESC"
 	return models.Files(
 		qm.OrderBy(clause),
