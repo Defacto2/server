@@ -22,6 +22,7 @@ func TestIntegrityBytes(t *testing.T) {
 	x = helper.IntegrityBytes([]byte("hello world"))
 	assert.Equal(t, "sha384-/b2OdaZ/KfcBpOBAOF4uI5hjA+oQI5IRr5B/y7g1eLPkF8txzmRu/QgZ3YwIjeG9", x)
 }
+
 func TestSlug(t *testing.T) {
 	tests := []struct {
 		name      string

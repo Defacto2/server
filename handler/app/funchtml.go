@@ -151,7 +151,7 @@ func Brief(plat, sect any) template.HTML {
 		return template.HTML("An unknown release")
 	}
 	x := tags.Humanize(tags.TagByURI(p), tags.TagByURI(s))
-	//x = helper.Capitalize(x)
+	// x = helper.Capitalize(x)
 	return template.HTML(x + ".")
 }
 

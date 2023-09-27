@@ -101,7 +101,7 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 		data["filentry"] = u
 	}
 
-	//txt := filepath.Join(a.DownloadDir, uuid+".txt")
+	// txt := filepath.Join(a.DownloadDir, uuid+".txt")
 
 	// switch platform {
 	// case "textamiga", "text":
@@ -117,9 +117,9 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	// 	helper.ReadFile(filepath.Join(a.DownloadDir, uuid))
 	// }
 
-	//if helper.IsStat(txt) && res.RetrotxtNoReadme.Int16 == 0 {
+	// if helper.IsStat(txt) && res.RetrotxtNoReadme.Int16 == 0 {
 
-	//data["readmeFont"] = "font-dos"
+	// data["readmeFont"] = "font-dos"
 
 	// check if utf8 and then check if ISO8859?
 
@@ -178,7 +178,7 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 		return nil, nil
 	}
 
-	//file := filepath.Join(a.DownloadDir, uuid)
+	// file := filepath.Join(a.DownloadDir, uuid)
 	txt := filepath.Join(a.DownloadDir, uuid+".txt")
 	readPath := filepath.Join(a.DownloadDir, uuid)
 	data := map[string]interface{}{}
@@ -224,7 +224,7 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 		return nil, err
 	}
 	data["readmeLatin1"] = out.String()
-	//data["readmeFont"] = "font-amiga"
+	// data["readmeFont"] = "font-amiga"
 
 	r = charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
 	out = strings.Builder{}
@@ -249,7 +249,6 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 	}
 
 	return data, nil
-
 }
 
 func aboutDesc(res *models.File) string {

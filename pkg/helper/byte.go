@@ -57,7 +57,8 @@ func DetermineEncoding(p []byte) encoding.Encoding {
 		lowerHalfBlock,
 		upperHalfBlock,
 		doubleHorizBar,
-		singleHorizBar}
+		singleHorizBar,
+	}
 	for _, v := range chrs {
 		const count = 4
 		if bytes.Contains(p, bytes.Repeat([]byte{v}, count)) {
