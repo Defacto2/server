@@ -248,7 +248,9 @@ func Releasers(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	case "independent":
 		data["lead"] = initialism.Join(uri) +
 			", independent releases are files with no group or releaser affiliation." +
-			`<br><small class="fw-lighter">In the scene's early years, releasing documents or software cracks under a personal alias or a real-name attribution was commonplace.</small>`
+			`<br><small class="fw-lighter">In the scene's early years,` +
+			` releasing documents or software cracks under a personal alias or a` +
+			` real-name attribution was commonplace.</small>`
 	}
 	d, err := releaserSum(ctx, db, uri)
 	if err != nil {

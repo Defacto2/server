@@ -147,8 +147,10 @@ func History(z *zap.SugaredLogger, c echo.Context) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	const lead = "Defacto2 started in late February or early March of 1996, as an electronic magazine that wrote about The Scene subculture. " +
-		"In the past, alternative iterations of the name have included De Facto, DF, DeFacto, Defacto II, Defacto 2, and the defacto2.com domain."
+	const lead = "Defacto2 started in late February or early March of 1996," +
+		" as an electronic magazine that wrote about The Scene subculture." +
+		" In the past, alternative iterations of the name have included" +
+		" De Facto, DF, DeFacto, Defacto II, Defacto 2, and the defacto2.com domain."
 	const h1 = "The history of the brand"
 	data := empty()
 	data["carousel"] = "#carouselDf2Artpacks"
@@ -193,7 +195,9 @@ func Thanks(z *zap.SugaredLogger, c echo.Context) error {
 	data := empty()
 	data["description"] = "Defacto2 thankyous."
 	data["h1"] = "Thank you!"
-	data["lead"] = "Thanks to the hundreds of people who have contributed to Defacto2 over the decades with file submissions, hard drive donations, interviews, corrections, artwork and monetiary donations!"
+	data["lead"] = "Thanks to the hundreds of people who have contributed" +
+		" to Defacto2 over the decades with file submissions, hard drive donations," +
+		" interviews, corrections, artwork and monetiary donations!"
 	data["title"] = "Thanks!"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -209,7 +213,8 @@ func TheScene(z *zap.SugaredLogger, c echo.Context) error {
 		return InternalErr(z, c, name, ErrZap)
 	}
 	const h1 = "The Scene?"
-	const lead = "Collectively referred to as The Scene, it is a subculture of different computer activities where participants actively share ideas and creations."
+	const lead = "Collectively referred to as The Scene," +
+		" it is a subculture of different computer activities where participants actively share ideas and creations."
 	data := empty()
 	data["description"] = fmt.Sprint(h1, " ", lead)
 	data["logo"] = "The underground"

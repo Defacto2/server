@@ -18,11 +18,16 @@ import (
 
 // Releaser is a collective, group or individual, that releases files.
 type Releaser struct {
-	Name  string   `boil:"releaser"`   // Name of the releaser.
-	URI   string   ``                  // URI slug for the releaser with no boiler bind.
-	Bytes int      `boil:"size_total"` // Bytes are the total size of all the files under this releaser.
-	Count int      `boil:"count_sum"`  // Count is the total number of files under this releaser.
-	Year  null.Int `boil:"min_year"`   // Year is used for optional sorting and is the earliest year the releaser was active.
+	// Name of the releaser.
+	Name string `boil:"releaser"`
+	// URI slug for the releaser with no boiler bind.
+	URI string ``
+	// Bytes are the total size of all the files under this releaser.
+	Bytes int `boil:"size_total"`
+	// Count is the total number of files under this releaser.
+	Count int `boil:"count_sum"`
+	// Year is used for optional sorting and is the earliest year the releaser was active.
+	Year null.Int `boil:"min_year"`
 }
 
 // Releasers is a collection of releasers.

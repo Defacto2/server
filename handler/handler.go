@@ -37,10 +37,12 @@ var (
 )
 
 const (
-	ShutdownCounter = 3                             // ShutdownCounter is the number of iterations to wait before shutting down the server.
-	ShutdownWait    = ShutdownCounter * time.Second // ShutdownWait is the number of seconds to wait before shutting down the server.
-
-	Downloader = "/d/:id" // Downloader is the route for the file download handler.
+	// ShutdownCounter is the number of iterations to wait before shutting down the server.
+	ShutdownCounter = 3
+	// ShutdownWait is the number of seconds to wait before shutting down the server.
+	ShutdownWait = ShutdownCounter * time.Second
+	// Downloader is the route for the file download handler.
+	Downloader = "/d/:id"
 )
 
 // Configuration of the handler.
@@ -125,9 +127,10 @@ func (c Configuration) Controller() *echo.Echo {
 	// Use configurations that are run after the router
 	// Note: NEVER USE the middleware.Timeout() as it will cause the server to crash
 	// See: https://github.com/labstack/echo/blob/v4.11.1/middleware/timeout.go
-	e.Use(middleware.Secure())                                       // XSS cross-site scripting protection
-	e.Use(middleware.Gzip())                                         // Gzip HTTP compression
-	e.Use(c.Import.LoggerMiddleware)                                 // custom HTTP logging middleware (see: internal/config/logger.go)
+	e.Use(middleware.Secure())       // XSS cross-site scripting protection
+	e.Use(middleware.Gzip())         // Gzip HTTP compression
+	e.Use(c.Import.LoggerMiddleware) // custom HTTP logging middleware
+	// 									(see: internal/config/logger.go)
 	e.Use(middleware.RemoveTrailingSlashWithConfig(c.removeSlash())) // remove trailing slashes
 	e.Use(c.NoRobotsHeader)                                          // add X-Robots-Tag to all responses
 	if c.Import.IsProduction {

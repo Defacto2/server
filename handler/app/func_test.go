@@ -48,7 +48,8 @@ func TestLogoText(t *testing.T) {
 	assert.Equal(t, want2, x)
 	x = app.LogoText("xyz")
 	assert.Equal(t, want3, x)
-	const rand = "I'm meant to be writing at this moment. What I mean is, I'm meant to be writing something else at this moment."
+	const rand = "I'm meant to be writing at this moment. " +
+		"What I mean is, I'm meant to be writing something else at this moment."
 	x = app.LogoText(rand)
 	assert.Equal(t, wantR, x)
 }

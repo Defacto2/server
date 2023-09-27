@@ -17,16 +17,22 @@ linters:
     - wsl               # fussy over whitespace.
     - nlreturn          # fussy over whitespace.
     # temporary disabled
-    - lll
 issues:
   exclude-rules:
     - path: handler/app/milestone.go
       linters:
         - maintidx
+        - lll
     - path: handler/app/render_model.go
       linters:
         - gocyclo
         - maintidx
+    - path: handler/app/render_releaser.go
+      linters:
+        - lll
+    - path: handler/app/website.go
+      linters:
+        - lll
     - path: internal/config/config.go
       linters:
         - gocognit

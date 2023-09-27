@@ -95,8 +95,10 @@ func Interviewees() Groups {
 				{
 					Scener: "Purple Motion",
 					Year:   1993, Month: 2,
-					Content: "Member of the famous demoscene group Future Crew talks about the group and working on the game, Max Payne for Remedy Entertainment.",
-					Link:    "/f/a1377e",
+					Content: "Member of the famous demoscene group Future Crew" +
+						" talks about the group and working on the game, Max Payne" +
+						" for Remedy Entertainment.",
+					Link: "/f/a1377e",
 				},
 			},
 		},

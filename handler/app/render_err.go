@@ -233,7 +233,8 @@ func InternalErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) er
 	data["code"] = code
 	data["logo"] = "Server error"
 	data["alert"] = "Something crashed!"
-	data["probl"] = "This is not your fault, but the server encountered an internal error or misconfiguration and cannot display this page."
+	data["probl"] = "This is not your fault," +
+		" but the server encountered an internal error or misconfiguration and cannot display this page."
 	data["uriErr"] = uri
 	if err := c.Render(code, "status", data); err != nil {
 		if z != nil {

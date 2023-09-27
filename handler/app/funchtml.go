@@ -30,9 +30,12 @@ const (
 
 var (
 	archives  = []string{".zip", ".rar", ".7z", ".tar", ".lha", ".lzh", ".arc", ".arj", ".ace", ".tar"}
-	documents = []string{".txt", ".nfo", ".diz", ".asc", ".lit", ".rtf", ".doc", ".docx", ".pdf", ".unp", ".htm", ".html", ".xml", ".json", ".csv"}
-	images    = []string{".avif", ".gif", ".jpg", ".jpeg", ".jfif", ".png", ".svg", ".webp", ".bmp", ".ico"}
-	media     = []string{".mpeg", ".mp1", ".mp2", ".mp3", ".mp4", ".ogg", ".wmv"}
+	documents = []string{
+		".txt", ".nfo", ".diz", ".asc", ".lit", ".rtf", ".doc", ".docx",
+		".pdf", ".unp", ".htm", ".html", ".xml", ".json", ".csv",
+	}
+	images = []string{".avif", ".gif", ".jpg", ".jpeg", ".jfif", ".png", ".svg", ".webp", ".bmp", ".ico"}
+	media  = []string{".mpeg", ".mp1", ".mp2", ".mp3", ".mp4", ".ogg", ".wmv"}
 )
 
 // SafeHTML returns a string as a template.HTML type.
@@ -98,7 +101,9 @@ func (web Web) Thumb(uuid, desc string, bottom bool) template.HTML {
 		class = "card-img-top"
 	}
 	if !w && !p {
-		return template.HTML("<img src=\"\" loading=\"lazy\" alt=\"thumbnail placeholder\" class=\"" + class + " placeholder\" style=\"" + style + "\" />")
+		s := "<img src=\"\" loading=\"lazy\" alt=\"thumbnail placeholder\"" +
+			" class=\"" + class + " placeholder\" style=\"" + style + "\" />"
+		return template.HTML(s)
 	}
 	if w && p {
 		elm := "<picture class=\"" + class + "\">" +
