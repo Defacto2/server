@@ -18,12 +18,46 @@ linters:
     - nlreturn          # fussy over whitespace.
     # temporary disabled
     - lll
-    #- godox
 issues:
   exclude-rules:
+    - path: handler/app/milestone.go
+      linters:
+        - maintidx
+    - path: handler/app/render_model.go
+      linters:
+        - gocyclo
+        - maintidx
+    - path: internal/config/config.go
+      linters:
+        - gocognit
     - path: internal/pouet/pouet.go
       linters:
         - tagliatelle
+    - path: internal/tags/tags.go
+      linters:
+        - gocyclo
+        - gochecknoglobals
+    - path: model/file_ansi_art.go
+      linters:
+        - dupl
+    - path: model/file_bbs_adverts.go
+      linters:
+        - dupl
+    - path: model/file_filepacks.go
+      linters:
+        - dupl
+    - path: model/file_platforms.go
+      linters:
+        - dupl
+    - path: model/file_text_files.go
+      linters:
+        - dupl
+    - path: model/summary.go
+      linters:
+        - gocognit
+        - maintidx
+        - gocyclo
+      
 linters-settings:
   gomnd:
     # List of file patterns to exclude from analysis.

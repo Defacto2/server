@@ -13,8 +13,6 @@ import (
 // Package file render_model.go contains the database queries for the renders.
 
 // Records returns the records for the file category URI.
-//
-//nolint:maintidx,gocyclo
 func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
@@ -196,8 +194,6 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 }
 
 // Records returns the records for the file category URI.
-//
-//nolint:maintidx,gocyclo,nolintlint
 func RecordsSub(uri string) string {
 	const ignore = -1
 	switch Match(uri) {
@@ -311,7 +307,7 @@ func RecordsSub(uri string) string {
 }
 
 // Stats are the database statistics for the file categories.
-type Stats struct { //nolint:gochecknoglobals
+type Stats struct {
 	Record    model.Files
 	Ansi      model.Ansi
 	AnsiBBS   model.AnsiBBS

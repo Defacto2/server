@@ -77,7 +77,7 @@ func (t RecordsBy) Parent() string {
 }
 
 // Stats are the database statistics.
-var Stats struct { //nolint:gochecknoglobals
+var Stats struct {
 	All      model.Files
 	Art      model.Arts
 	Document model.Docs
@@ -86,7 +86,7 @@ var Stats struct { //nolint:gochecknoglobals
 }
 
 // Releasers are the distinct groups from the file table.
-var Releasers model.Releasers //nolint:gochecknoglobals
+var Releasers model.Releasers
 
 // Routes for the /html3 sub-route group.
 // Any errors are logged and rendered to the client using HTTP codes

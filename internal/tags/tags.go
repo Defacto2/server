@@ -135,8 +135,6 @@ const (
 )
 
 // Humanize returns the human readable name of the platform and section tags combined.
-//
-//nolint:gocognit,gocyclo,nolintlint
 func Humanize(platform, section Tag) string {
 	switch section {
 	case News:
@@ -487,10 +485,10 @@ func emptyPlatform(section Tag) string {
 type Sum map[Tag]int
 
 // Sums stores the results of file count query for each tag.
-var Sums = make(Sum, Windows+1) //nolint:gochecknoglobals
+var Sums = make(Sum, Windows+1)
 
 // Tags contains data for all the tags used by the web application.
-var Tags = T{} //nolint:gochecknoglobals
+var Tags = T{}
 
 // OSTags returns the tags that flag an operating system.
 func OSTags() [5]string {

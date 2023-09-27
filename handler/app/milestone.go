@@ -1,4 +1,3 @@
-//nolint:lll // multiple long lines
 package app
 
 // Package file milestone.go contains the milestones for The Scene,
@@ -51,7 +50,7 @@ func (m Milestones) Len() int {
 }
 
 // Collection of Milestones from the 1970s onwards.
-func Collection() Milestones { //nolint:maintidx // long function
+func Collection() Milestones {
 	m := []Milestone{
 		{
 			Year: 1971, Month: 10, Title: "Secrets of the Little Blue Box", Highlight: true,

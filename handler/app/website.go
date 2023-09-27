@@ -1,4 +1,3 @@
-//nolint:lll // multiple long lines due to URLs.
 package app
 
 // Package file website.go contains the website list and handler.

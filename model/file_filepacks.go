@@ -1,4 +1,3 @@
-//nolint:dupl
 package model
 
 // Package file file_filepacks.go contains the database queries for file packages and collections.

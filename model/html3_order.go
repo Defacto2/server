@@ -70,7 +70,10 @@ func (o Order) AllFiles(ctx context.Context, db *sql.DB, offset, limit int) (mod
 }
 
 // FilesByCategory returns all the files that match the named category.
-func (o Order) FilesByCategory(ctx context.Context, db *sql.DB, offset, limit int, name string) (models.FileSlice, error) { //nolint:lll
+func (o Order) FilesByCategory(
+	ctx context.Context, db *sql.DB, offset, limit int, name string) (
+	models.FileSlice, error,
+) {
 	if db == nil {
 		return nil, ErrDB
 	}

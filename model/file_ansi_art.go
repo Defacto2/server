@@ -1,4 +1,3 @@
-//nolint:dupl
 package model
 
 // Package file file_ansi_art.go contains the database queries for ANSI art.
