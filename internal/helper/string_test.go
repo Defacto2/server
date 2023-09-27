@@ -3,7 +3,7 @@ package helper_test
 import (
 	"testing"
 
-	"github.com/Defacto2/server/pkg/helper"
+	"github.com/Defacto2/server/internal/helper"
 	"github.com/stretchr/testify/assert"
 )
 

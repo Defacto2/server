@@ -3,7 +3,7 @@ package postgres_test
 import (
 	"testing"
 
-	"github.com/Defacto2/server/pkg/postgres"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/stretchr/testify/assert"
 )
 

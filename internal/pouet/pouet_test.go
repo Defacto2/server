@@ -3,7 +3,7 @@ package pouet_test
 import (
 	"testing"
 
-	"github.com/Defacto2/server/pkg/pouet"
+	"github.com/Defacto2/server/internal/pouet"
 	"github.com/stretchr/testify/assert"
 )
 

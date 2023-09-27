@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Defacto2/server/pkg/exts"
-	"github.com/Defacto2/server/pkg/helper"
+	"github.com/Defacto2/server/internal/exts"
+	"github.com/Defacto2/server/internal/helper"
 	"github.com/stretchr/testify/assert"
 )
 
