@@ -32,7 +32,7 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"fmtPrefix":      Prefix,
 		"fmtRoles":       helper.FmtSlice,
 		"fmtURI":         fmts.Name,
-		"initalisms":     initialism.Join,
+		"initialisms":    initialism.Join,
 		"lastUpdated":    LastUpdated,
 		"linkDownload":   LinkDownload,
 		"linkPage":       LinkPage,

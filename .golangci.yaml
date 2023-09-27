@@ -19,7 +19,11 @@ linters:
     # temporary disabled
     - lll
     #- godox
-
+issues:
+  exclude-rules:
+    - path: internal/pouet/pouet.go
+      linters:
+        - tagliatelle
 linters-settings:
   gomnd:
     # List of file patterns to exclude from analysis.

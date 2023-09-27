@@ -179,7 +179,7 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 
 	isTextfile := !exts.IsArchive(fname)
 	switch platform {
-	case "textamiga", "text", "atarist":
+	case textamiga, "text", "atarist":
 		if isTextfile {
 			data["noScreenshot"] = true
 			break
@@ -198,7 +198,7 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 
 	var e encoding.Encoding
 	switch platform {
-	case "textamiga":
+	case textamiga:
 		e = charmap.ISO8859_1
 	default:
 		switch section {
@@ -310,9 +310,10 @@ func aboutLinks(res *models.File) template.HTML {
 		return ""
 	}
 	rows := ""
+	const expected = 2
 	for _, link := range links {
 		x := strings.Split(link, ";")
-		if len(x) != 2 {
+		if len(x) != expected {
 			continue
 		}
 		name, href := x[0], x[1]

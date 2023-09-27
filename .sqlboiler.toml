@@ -2,7 +2,7 @@
 # To rebuild run: `go generate` in the root of this repository.
 
 # Target directory.
-output = "pkg/postgres/models" 
+output = "internal/postgres/models" 
 
 # This should always be kept to true.
 wipe = true

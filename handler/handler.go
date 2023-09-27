@@ -108,7 +108,7 @@ func (c Configuration) Controller() *echo.Echo {
 	//
 	// Configurations
 	e.HideBanner = true                              // hide the Echo banner
-	e.HTTPErrorHandler = c.Import.CustomErrorHandler // custom error handler (see: pkg/config/logger.go)
+	e.HTTPErrorHandler = c.Import.CustomErrorHandler // custom error handler (see: internal/config/logger.go)
 	reg, err := c.Registry()                         // HTML templates
 	if err != nil {
 		c.Logger.Fatal(err)
@@ -127,7 +127,7 @@ func (c Configuration) Controller() *echo.Echo {
 	// See: https://github.com/labstack/echo/blob/v4.11.1/middleware/timeout.go
 	e.Use(middleware.Secure())                                       // XSS cross-site scripting protection
 	e.Use(middleware.Gzip())                                         // Gzip HTTP compression
-	e.Use(c.Import.LoggerMiddleware)                                 // custom HTTP logging middleware (see: pkg/config/logger.go)
+	e.Use(c.Import.LoggerMiddleware)                                 // custom HTTP logging middleware (see: internal/config/logger.go)
 	e.Use(middleware.RemoveTrailingSlashWithConfig(c.removeSlash())) // remove trailing slashes
 	e.Use(c.NoRobotsHeader)                                          // add X-Robots-Tag to all responses
 	if c.Import.IsProduction {

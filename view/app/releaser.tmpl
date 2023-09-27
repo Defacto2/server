@@ -11,7 +11,7 @@
     <div class="row row-cols-1 row-cols-sm-2 row-col-md-3 g-2">
 {{- range $index, $rel := .releasers -}}
 {{- $title := fmtURI $rel.Unique.URI }}
-{{- $initialism := initalisms $rel.Unique.URI }}
+{{- $initialism := initialisms $rel.Unique.URI }}
         <div class="col">
             <div class="p-3 border bg-light"><h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{trimSiteSuffix $title}}</a></h5>
             <span class="text-muted">{{ $initialism }} &nbsp; </span>

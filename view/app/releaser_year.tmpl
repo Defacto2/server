@@ -13,7 +13,7 @@
 {{- $prevYear := 0 }}
 {{- range $index, $rel := .releasers -}}
     {{- $title := fmtURI $rel.Unique.URI }}
-    {{- $initialism := initalisms $rel.Unique.URI }}
+    {{- $initialism := initialisms $rel.Unique.URI }}
     {{- $year := $rel.Unique.Year.Int }}
     {{- if and (gt $prevYear 0) (gt $year 0) (gt $year $prevYear) }}
         {{- $prevYear = $rel.Unique.Year.Int }}

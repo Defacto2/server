@@ -24,7 +24,8 @@ const (
 		`<use xlink:href="/bootstrap-icons.svg#link"></use></svg>`
 	wiki template.HTML = `<svg class="bi" aria-hidden="true">` +
 		`<use xlink:href="/bootstrap-icons.svg#arrow-right-short"></use></svg>`
-	typeErr = "error: received an invalid type to "
+	typeErr   = "error: received an invalid type to "
+	textamiga = "textamiga"
 )
 
 var (
@@ -409,7 +410,7 @@ func LinkPreview(id any, name, platform string) template.HTML {
 	case slices.Contains(archives, ext):
 		// this must always be first
 		return template.HTML("")
-	case platform == "textamiga", platform == "text":
+	case platform == textamiga, platform == "text":
 		break
 	case slices.Contains(documents, ext):
 		break
