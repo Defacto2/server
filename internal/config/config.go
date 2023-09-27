@@ -8,7 +8,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/Defacto2/server/pkg/helper"
+	"github.com/Defacto2/server/internal/helper"
 )
 
 // EnvPrefix is the prefix for all server environment variables.

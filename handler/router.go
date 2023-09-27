@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	"github.com/Defacto2/server/handler/app"
-	"github.com/Defacto2/server/pkg/config"
+	"github.com/Defacto2/server/internal/config"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )

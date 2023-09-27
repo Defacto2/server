@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model"
-	"github.com/Defacto2/server/pkg/postgres/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/null/v8"
 )

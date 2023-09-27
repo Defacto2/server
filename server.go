@@ -14,10 +14,10 @@ import (
 
 	"github.com/Defacto2/server/cmd"
 	"github.com/Defacto2/server/handler"
+	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/logger"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
-	"github.com/Defacto2/server/pkg/config"
-	"github.com/Defacto2/server/pkg/logger"
-	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/caarlos0/env/v7"
 	_ "github.com/lib/pq"
 )

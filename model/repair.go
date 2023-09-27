@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"strings"
 
-	"github.com/Defacto2/server/pkg/postgres"
-	"github.com/Defacto2/server/pkg/postgres/models"
+	"github.com/Defacto2/server/internal/postgres"
+	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"

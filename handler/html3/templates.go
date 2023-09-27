@@ -7,9 +7,9 @@ import (
 	"html/template"
 	"strings"
 
+	"github.com/Defacto2/server/internal/fmts"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
-	"github.com/Defacto2/server/pkg/fmts"
-	"github.com/Defacto2/server/pkg/tags"
 	"go.uber.org/zap"
 )
 

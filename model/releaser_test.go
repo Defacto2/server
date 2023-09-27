@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"github.com/Defacto2/sceners"
+	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
-	"github.com/Defacto2/server/pkg/helper"
-	"github.com/Defacto2/server/pkg/postgres"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 )

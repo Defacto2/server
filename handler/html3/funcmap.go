@@ -9,8 +9,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/Defacto2/server/pkg/helper"
-	"github.com/Defacto2/server/pkg/tags"
+	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/volatiletech/null/v8"
 	"go.uber.org/zap"
 )

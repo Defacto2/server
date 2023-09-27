@@ -9,9 +9,9 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/Defacto2/server/pkg/exts"
-	"github.com/Defacto2/server/pkg/helper"
-	"github.com/Defacto2/server/pkg/postgres/models"
+	"github.com/Defacto2/server/internal/exts"
+	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/postgres/models"
 )
 
 const (

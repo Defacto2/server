@@ -1,7 +1,7 @@
 package expr
 
 import (
-	"github.com/Defacto2/server/pkg/tags"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/volatiletech/null/v8"
 )
 

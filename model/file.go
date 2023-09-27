@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Defacto2/server/pkg/helper"
-	"github.com/Defacto2/server/pkg/postgres"
-	"github.com/Defacto2/server/pkg/postgres/models"
+	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/postgres"
+	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )

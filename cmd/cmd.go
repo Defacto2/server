@@ -9,8 +9,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/Defacto2/server/pkg/config"
-	"github.com/Defacto2/server/pkg/logger"
+	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/logger"
 	"github.com/carlmjohnson/versioninfo"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/text/cases"

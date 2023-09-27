@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Defacto2/server/pkg/config"
-	"github.com/Defacto2/server/pkg/helper"
+	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/helper"
 	"github.com/labstack/gommon/log"
 	"go.uber.org/zap"
 )

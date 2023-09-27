@@ -6,9 +6,9 @@ package app
 import (
 	"html/template"
 
-	"github.com/Defacto2/server/pkg/fmts"
-	"github.com/Defacto2/server/pkg/helper"
-	"github.com/Defacto2/server/pkg/initialism"
+	"github.com/Defacto2/server/internal/fmts"
+	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/initialism"
 )
 
 const (

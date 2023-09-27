@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Defacto2/server/pkg/helper"
+	"github.com/Defacto2/server/internal/helper"
 	"go.uber.org/zap"
 )
 

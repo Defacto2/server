@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/handler/html3"
-	"github.com/Defacto2/server/pkg/helper"
-	"github.com/Defacto2/server/pkg/logger"
+	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/logger"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )

@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
-	"github.com/Defacto2/server/pkg/postgres/models"
-	"github.com/Defacto2/server/pkg/tags"
 )
 
 // Package file render_model.go contains the database queries for the renders.

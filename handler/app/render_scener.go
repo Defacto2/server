@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
-	"github.com/Defacto2/server/pkg/postgres"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )

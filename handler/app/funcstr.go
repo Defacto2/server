@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Defacto2/server/pkg/helper"
+	"github.com/Defacto2/server/internal/helper"
 	"github.com/volatiletech/null/v8"
 )
 

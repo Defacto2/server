@@ -9,7 +9,7 @@ import (
 	"strconv"
 
 	"github.com/Defacto2/server/handler/download"
-	"github.com/Defacto2/server/pkg/pouet"
+	"github.com/Defacto2/server/internal/pouet"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )

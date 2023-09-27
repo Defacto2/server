@@ -20,7 +20,7 @@ import (
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/handler/html3"
-	"github.com/Defacto2/server/pkg/config"
+	"github.com/Defacto2/server/internal/config"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
