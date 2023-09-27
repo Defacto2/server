@@ -1,3 +1,4 @@
+// Package apiv1 provides a JSON, API placeholder.
 package apiv1
 
 import (

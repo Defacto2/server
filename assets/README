@@ -1,0 +1,3 @@
+This assets/ directory should contain original JS and CSS source
+files that are used in the project. These files will be
+minified and copied to the public/ directory whenever the project is built.

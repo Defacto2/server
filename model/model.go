@@ -1,3 +1,4 @@
+// Package model provides a database model for the Defacto2 website.
 package model
 
 import (
