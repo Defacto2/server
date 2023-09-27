@@ -1,3 +1,4 @@
+// Package expr provides the query mod expressions for the file database.
 package expr
 
 import (

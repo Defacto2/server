@@ -14,6 +14,11 @@ tasks:
     cmds:
       - task --list-all
     silent: true
+  doc:
+    desc: "Generate and view the documentation website."
+    cmds:
+      - cmd: pkgsite
+    silent: true
   lint:
     silent: false
     desc: Runs the go formatter and lints the source code.
