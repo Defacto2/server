@@ -82,10 +82,7 @@ The following options can be added to [github.com/Defacto2.server.main]
 # Tasks
 
 	- Finish this doc.go file.
-	- Hide Tables for a future implementation.
 	- Fix "122 bbss (760k)"... "/bbs".
-	- Trim Websites menu to only show List the Sites and Categories.
-	- Hide the Mirror websites link.
 	- Complete "Search for files" feature to support, Years, Descriptions.
 	- Uploader placeholder.
 	- Complete the textfile printing feature.
@@ -99,7 +96,6 @@ The following options can be added to [github.com/Defacto2.server.main]
 # Mobile fixes
 
 	- View file, checksum button is too wide and bottom padding is off.
-	- Hide the uploader menu.
 	- File categories, the items are too close together and should be lists.
 	- Demozoo and 16colors links should align to the left.
 	- Interviews with sceners boxes are broken.
