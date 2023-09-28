@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/Defacto2/server/internal/config"
-	"github.com/Defacto2/server/internal/logger"
 	"github.com/carlmjohnson/versioninfo"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/text/cases"
@@ -47,7 +46,7 @@ func setup(ver string, c *config.Config) (int, error) {
 	if c == nil {
 		return -1, ErrCmd
 	}
-	app := CLIApp(ver, c)
+	app := App(ver, c)
 	app.EnableBashCompletion = true
 	app.HideHelpCommand = true
 	app.HideVersion = false
@@ -58,9 +57,9 @@ func setup(ver string, c *config.Config) (int, error) {
 	return 0, nil
 }
 
-// CLIApp returns the command line interface for this program.
+// App returns the command line interface for this program.
 // It uses the [github.com/urfave.cli] package.
-func CLIApp(ver string, c *config.Config) *cli.App {
+func App(ver string, c *config.Config) *cli.App {
 	app := &cli.App{
 		Name:    Title,
 		Version: Version(ver),
@@ -79,36 +78,40 @@ func CLIApp(ver string, c *config.Config) *cli.App {
 				Email: Email,
 			},
 		},
-		Commands: []*cli.Command{
-			{
-				Name:        "config",
-				Aliases:     []string{"c"},
-				Usage:       "list the server configuration",
-				Description: "List the available server configuration options and the settings.",
-				Action: func(ctx *cli.Context) error {
-					log := logger.CLI().Sugar()
-					c.Checks(log)
-					defer fmt.Printf("\n%s\n", c.String())
-					return nil
-				},
-			},
-			{
-				Name:        "address",
-				Aliases:     []string{"a"},
-				Usage:       "list the server addresses",
-				Description: "List the IP, hostname and port addresses the server is most probably listening on.",
-				Action: func(ctx *cli.Context) error {
-					log := logger.CLI().Sugar()
-					c.Checks(log)
-					defer fmt.Printf("\n%s\n", c.Addresses())
-					return nil
-				},
-			},
-		},
+		Commands: []*cli.Command{Config(c), Address(c)},
 	}
 	return app
 }
 
+// Config is the config command help and action.
+func Config(c *config.Config) *cli.Command {
+	return &cli.Command{
+		Name:        "config",
+		Aliases:     []string{"c"},
+		Usage:       "list the server configuration",
+		Description: "List the available server configuration options and the settings.",
+		Action: func(ctx *cli.Context) error {
+			defer fmt.Printf("%s\n", c.String())
+			return nil
+		},
+	}
+}
+
+// Address is the address command help and action.
+func Address(c *config.Config) *cli.Command {
+	return &cli.Command{
+		Name:        "address",
+		Aliases:     []string{"a"},
+		Usage:       "list the server addresses",
+		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
+		Action: func(ctx *cli.Context) error {
+			defer fmt.Printf("%s\n", c.Addresses())
+			return nil
+		},
+	}
+}
+
+// Version returns a formatted version string for this program.
 func Version(s string) string {
 	x := []string{Commit(s)}
 	x = append(x, fmt.Sprintf("%s for %s", OS(), Arch()))
@@ -163,6 +166,7 @@ func Copyright() string {
 	return s
 }
 
+// LastCommit returns the date of the last repository commit.
 func LastCommit() string {
 	d := versioninfo.LastCommit
 	if d.IsZero() {
