@@ -23,29 +23,68 @@ const (
 	Title   = "Defacto2 web application" // Title of this program.
 	Author  = "Ben Garrett"              // Author is the primary programmer of this program.
 	Email   = "contact@defacto2.net"     // Email contact for public display.
+	desc    = `Launch the server and listen on the configured port (default: 1323).
+The server expects the Defacto2 PostgreSQL database running on the host system
+or in a container. But will run without a database connection for debugging.`
+)
+
+var (
+	ErrCmd = fmt.Errorf("cannot run command as config is nil")
 )
 
 // Run parses optional command line arguments for this program.
-func Run(version string, c *config.Config) (int, error) {
+func Run(ver string, c *config.Config) (int, error) {
 	if c == nil {
-		return -1, fmt.Errorf("cannot run command as config is nil")
+		return -1, ErrCmd
 	}
 	if args := len(os.Args[1:]); args > 0 {
-		return run(version, c)
+		return setup(ver, c)
 	}
 	return -1, nil
 }
 
-func run(version string, c *config.Config) (int, error) {
+func setup(ver string, c *config.Config) (int, error) {
 	if c == nil {
-		return -1, fmt.Errorf("cannot run command as config is nil")
+		return -1, ErrCmd
 	}
+	app := CLIApp(ver, c)
+	app.EnableBashCompletion = true
+	app.HideHelpCommand = true
+	app.HideVersion = false
+	app.Suggest = true
+	if err := app.Run(os.Args); err != nil {
+		return 1, err
+	}
+	return 0, nil
+}
+
+// CLIApp returns the command line interface for this program.
+// It uses the [github.com/urfave.cli] package.
+func CLIApp(ver string, c *config.Config) *cli.App {
 	app := &cli.App{
+		Name:    Title,
+		Version: Version(ver),
+		Usage:   "serve the Defacto2 web site",
+		UsageText: "df2-server" +
+			"\ndf2-server [command]" +
+			"\ndf2-server [command] --help" +
+			"\ndf2-server [flag]",
+		Description: desc,
+		Compiled:    versioninfo.LastCommit,
+		Copyright:   Copyright(),
+		HelpName:    Program,
+		Authors: []*cli.Author{
+			{
+				Name:  Author,
+				Email: Email,
+			},
+		},
 		Commands: []*cli.Command{
 			{
-				Name:    "config",
-				Aliases: []string{"c"},
-				Usage:   "List the server configuration settings",
+				Name:        "config",
+				Aliases:     []string{"c"},
+				Usage:       "list the server configuration",
+				Description: "List the available server configuration options and the settings.",
 				Action: func(ctx *cli.Context) error {
 					log := logger.CLI().Sugar()
 					c.Checks(log)
@@ -54,9 +93,10 @@ func run(version string, c *config.Config) (int, error) {
 				},
 			},
 			{
-				Name:    "address",
-				Aliases: []string{"a"},
-				Usage:   "List the IP, hostname and port addresses the server is listening on",
+				Name:        "address",
+				Aliases:     []string{"a"},
+				Usage:       "list the server addresses",
+				Description: "List the IP, hostname and port addresses the server is most probably listening on.",
 				Action: func(ctx *cli.Context) error {
 					log := logger.CLI().Sugar()
 					c.Checks(log)
@@ -65,27 +105,14 @@ func run(version string, c *config.Config) (int, error) {
 				},
 			},
 		},
-		Name:     Title,
-		Version:  Commit(version),
-		Compiled: versioninfo.LastCommit,
-		Authors: []*cli.Author{
-			{
-				Name:  Author,
-				Email: Email,
-			},
-		},
-		Copyright: Copyright(),
-		HelpName:  Program,
-		Usage:     "Serve the Defacto2 website",
 	}
-	app.EnableBashCompletion = true
-	app.HideHelp = false
-	app.HideVersion = false
-	app.Suggest = true
-	if err := app.Run(os.Args); err != nil {
-		return 1, err
-	}
-	return 0, nil
+	return app
+}
+
+func Version(s string) string {
+	x := []string{Commit(s)}
+	x = append(x, fmt.Sprintf("%s for %s", OS(), Arch()))
+	return strings.Join(x, " on ")
 }
 
 // Arch returns the program's architecture.
@@ -107,22 +134,22 @@ func Arch() string {
 
 // Commit returns a formatted, git commit description for this repository,
 // including tag version and date.
-func Commit(version string) string {
-	s := ""
-	c := versioninfo.Short()
-
-	if version != "" {
-		s = fmt.Sprintf("%s ", Vers(version))
-	} else if c != "" {
-		s += fmt.Sprintf("version %s, ", c)
+func Commit(ver string) string {
+	x := []string{}
+	s := versioninfo.Short()
+	if ver != "" {
+		x = append(x, Vers(ver))
+	} else if s != "" {
+		x = append(x, s)
 	}
 	if l := LastCommit(); l != "" {
-		s += fmt.Sprintf("built in %s,", l)
+		comm := fmt.Sprintf("built in %s", l)
+		x = append(x, comm)
 	}
-	if s == "" {
-		return "n/a"
+	if len(x) == 0 || x[0] == "devel" {
+		return "n/a (not a build)"
 	}
-	return strings.TrimSpace(s)
+	return strings.Join(x, ", ")
 }
 
 // Copyright returns the copyright years and author of this program.

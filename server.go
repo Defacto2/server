@@ -93,7 +93,7 @@ func main() {
 	}
 
 	// Database
-	if err := repairDB(server); err != nil {
+	if err := RepairDB(server); err != nil {
 		if errors.Is(err, ErrVer) {
 			logs.Errorf("%w, is the database server down?", ErrVer)
 		}
@@ -110,8 +110,8 @@ func main() {
 	server.ShutdownHTTP(e)
 }
 
-// repairDB, on startup check the database connection and make any data corrections.
-func repairDB(server handler.Configuration) error {
+// RepairDB, on startup check the database connection and make any data corrections.
+func RepairDB(server handler.Configuration) error {
 	db, err := postgres.ConnectDB()
 	if err != nil {
 		return err

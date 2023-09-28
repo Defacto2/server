@@ -1,18 +1,44 @@
 // Copyright © 2023 Ben Garrett. All rights reserved.
 
 /*
-The [Defacto2] webserver created in 2023 on Go.
+The [Defacto2] web server created in 2023 on Go.
+
+(requirements and dependencies should be mentioned here)
+
+	- database
+	- filedownloads
+	- previews and thumbs
+	- container or host system dependencies
 
 Usage:
+
+	df2-server
+
+Launch the server and listen on the configured port (default: 1323).
+The server expects the Defacto2 PostgreSQL database running on the host system
+or in a container. But will run without a database connection for debugging.
+
+Usage commands:
+
+	df2-server [command]
+
+The commands are:
+
+	address
+			List the IP, hostname and port addresses the server is listening on.
+	config
+			List the server configuration options and settings.
+
+Usage flags:
 
 	df2-server [flags]
 
 The flags are:
 
 	--help
-			Print help and exit.
+			Print the basic command help and exit.
 	--version
-			Print version and exit.
+			Print the application version and exit.
 
 # Database
 
@@ -53,6 +79,18 @@ The following options can be added to [github.com/Defacto2.server.main]
 
 	configs.LogRequests = true		// This will log all HTTP requests to the server or stdout
 
+# Tasks
+
+	- Finish this doc.go file.
+	- Hide Tables for a future implementation.
+	- Fix "122 bbss (760k)"... "/bbs".
+	- Trim Websites menu to only show List the Sites and Categories.
+	- Hide the Mirror websites link.
+	- Complete "Search for files" feature to support, Years, Descriptions.
+	- Uploader placeholder.
+	- Complete the textfile printing feature.
+	- Database from MySQL to PostgreSQL migration and writeup.
+	- Fix missing warnings for the non-server commands of "address" and "config".
 
 # TODO
 
@@ -67,6 +105,12 @@ The following options can be added to [github.com/Defacto2.server.main]
 	- [handler.Configuration.Moved] Implement legacy URI redirects,
 	"/cracktros-detail.cfm:/:id" and "/code".
 
+# Bugs
+
+# New features to deliver
+
+	- Extensive database repair and cleanup on startup.
+	- DOS emulation using something other than DOSBox.
 
 # Milestones to add
 
