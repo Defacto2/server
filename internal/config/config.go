@@ -142,12 +142,21 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 	nl := func() {
 		fmt.Fprintf(w, "\t\t\t\t\n")
 	}
+	dir := func(s string) {
+		if s != "" {
+			fmt.Fprintf(w, "\t\tPATH →\t%s\n", s)
+			return
+		}
+		fmt.Fprintf(w, "\t\tPATH →\t%s\n", "[NO DIRECTORY SET]")
+	}
 
 	fmt.Fprint(b, "Defacto2 server active configuration options.\n\n")
 	fmt.Fprintf(w, "\t%s\t%s\t%s\n",
 		h1, h2, h5)
 	fmt.Fprintf(w, "\t%s\t%s\t%s\n",
-		strings.Repeat(line, len(h1)), strings.Repeat(line, len(h2)), strings.Repeat(line, len(h5)))
+		strings.Repeat(line, len(h1)),
+		strings.Repeat(line, len(h2)),
+		strings.Repeat(line, len(h5)))
 
 	for j, field := range fields {
 		if !field.IsExported() {
@@ -159,19 +168,25 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 		val := values.FieldByName(field.Name)
 		id := field.Name
 		lead := func() {
-			fmt.Fprintf(w, "\t%s\t%v\t%s.\n",
-				id,
-				val,
-				field.Tag.Get("help"),
-			)
+			help := field.Tag.Get("help")
+			switch id {
+			case "Timeout":
+				help = strings.Replace(help, "HTTP, HTTPS", "HTTP, HTTPS\n\t\t\t", 1)
+			}
+			fmt.Fprintf(w, "\t%s\t%v\t%s.\n", id, val, help)
 		}
 		path := func() {
-			fmt.Fprintf(w, "\t%s\t\t%s.\n",
-				id,
-				field.Tag.Get("help"),
-			)
+			help := field.Tag.Get("help")
+			switch id {
+			case "DownloadDir":
+				help = strings.Replace(help, "UUID named files", "UUID named files\n\t\t\t", 1)
+			case "ScreenshotsDir":
+				help = strings.Replace(help, "UUID named image", "UUID named image\n\t\t\t", 1)
+			case "ThumbnailDir":
+				help = strings.Replace(help, "UUID named squared image", "UUID named squared image\n\t\t\t", 1)
+			}
+			fmt.Fprintf(w, "\t%s\t\t%s.\n", id, help)
 		}
-
 		switch id {
 		case "IsProduction":
 			lead()
@@ -198,27 +213,19 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 		case "DownloadDir":
 			nl()
 			path()
-			if c.DownloadDir != "" {
-				fmt.Fprintf(w, "\t\t\t%s\n", c.DownloadDir)
-			}
+			dir(c.DownloadDir)
 		case "ScreenshotsDir":
 			nl()
 			path()
-			if c.ScreenshotsDir != "" {
-				fmt.Fprintf(w, "\t\t\t%s\n", c.ScreenshotsDir)
-			}
+			dir(c.ScreenshotsDir)
 		case "ThumbnailDir":
 			nl()
 			path()
-			if c.ThumbnailDir != "" {
-				fmt.Fprintf(w, "\t\t\t%s\n", c.ThumbnailDir)
-			}
+			dir(c.ThumbnailDir)
 		case "LogDir":
 			nl()
 			path()
-			if c.LogDir != "" {
-				fmt.Fprintf(w, "\t\t\t%s\n", c.LogDir)
-			}
+			dir(c.LogDir)
 		case "MaxProcs":
 			nl()
 			fmt.Fprintf(w, "\t%s\t%v\t%s.",
@@ -254,12 +261,34 @@ func (c Config) help(b *strings.Builder) *strings.Builder {
 		if j == donotuse {
 			fmt.Fprintf(w, "\t\t\t\t\n")
 		}
+		help := field.Tag.Get("help")
+		name := EnvPrefix + field.Tag.Get("env")
+		switch name {
+		case "DEFACTO2_PRODUCTION":
+			help = strings.Replace(help, "log all errors", "log all errors\n\t\t\t", 1)
+		case "DEFACTO2_PORT":
+			help = strings.Replace(help, "unencrypted HTTP", "unencrypted HTTP\n\t\t\t", 1)
+		case "DEFACTO2_PORTS":
+			help = strings.Replace(help, "encrypted HTTPS", "encrypted HTTPS\n\t\t\t", 1)
+		case "DEFACTO2_TIMEOUT":
+			help = strings.Replace(help, "HTTP, HTTPS", "HTTP, HTTPS\n\t\t\t", 1)
+		case "DEFACTO2_DOWNLOAD":
+			help = strings.Replace(help, "UUID named files", "UUID named files\n\t\t\t", 1)
+		case "DEFACTO2_SCREENSHOTS":
+			help = strings.Replace(help, "UUID named image", "UUID named image\n\t\t\t", 1)
+		case "DEFACTO2_THUMBNAILS":
+			help = strings.Replace(help, "UUID named squared", "UUID named squared\n\t\t\t", 1)
+		case "DEFACTO2_MAXPROCS":
+			help = strings.Replace(help, "threads the", "threads the\n\t\t\t", 1)
+		case "DEFACTO2_NOROBOTS":
+			help = strings.Replace(help, "crawl any of", "crawl any of\n\t\t\t", 1)
+		}
 		fmt.Fprintf(w, "\t%s%s\t%s\t",
 			avoid(field.Tag.Get("avoid")),
-			EnvPrefix+field.Tag.Get("env"),
+			name,
 			types(field.Type),
 		)
-		fmt.Fprintf(w, "%s.\n", field.Tag.Get("help"))
+		fmt.Fprintf(w, "%s.\n", help)
 	}
 	w.Flush()
 	fmt.Fprintf(b, "\n  ✗ The marked variables are not recommended for most situations.\n")
