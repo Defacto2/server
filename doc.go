@@ -99,7 +99,6 @@ The following options can be added to [github.com/Defacto2.server.main]
 	- File categories, the items are too close together and should be lists.
 	- Demozoo and 16colors links should align to the left.
 	- Interviews with sceners boxes are broken.
-	- Thank you! buttons overlap.
 
 # TODO
 
