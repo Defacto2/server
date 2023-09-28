@@ -91,6 +91,21 @@ The following options can be added to [github.com/Defacto2.server.main]
 	- Complete the textfile printing feature.
 	- Database from MySQL to PostgreSQL migration and writeup.
 	- Fix missing warnings for the non-server commands of "address" and "config".
+	- View file, with a magazine title, handle solo issue numbers.
+	- View file, date and file info format is odd.
+	  1990 March 1, A Dos magazine
+	  1990 March 1, an nfo textfile
+
+# Mobile fixes
+
+	- View file, checksum button is too wide and bottom padding is off.
+	- Hide the uploader menu.
+	- File categories, the items are too close together and should be lists.
+	- Demozoo and 16colors links should align to the left.
+	- Interviews with sceners boxes are broken.
+	- Thank you! buttons overlap.
+	- The history of the brand carousel is too wide.
+	- The history of the brand carousel, breaks the menu, maybe hide it on mobile.
 
 # TODO
 

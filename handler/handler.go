@@ -183,7 +183,7 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 	fmt.Fprintf(w, "%s%d active routines sharing %d usable threads on %d CPU cores.\n", mark,
 		runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
 	// Go info
-	fmt.Fprintf(w, "%sCompiled with Go %s for %s, %s.\n",
+	fmt.Fprintf(w, "%sCompiled with Go %s for %s on %s.\n",
 		mark, runtime.Version()[2:], cmd.OS(), cmd.Arch())
 	// Log location info
 	if c.Import.IsProduction {

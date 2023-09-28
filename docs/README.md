@@ -112,7 +112,7 @@ task _init
 task serve
 
 ...
-⇨ Compiled with Go 1.21.0 for Windows, Intel/AMD 64.
+⇨ Compiled with Go 1.21.0 for Windows on Intel/AMD 64.
 ⇨ http server started on [::]:1323
 ```
 
