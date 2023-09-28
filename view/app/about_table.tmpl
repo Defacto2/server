@@ -44,14 +44,14 @@
     </div>
 </div>{{ end -}}
 {{- /*  About the file download link  */}}
-<div class="d-grid gap-2 d-md-block mx-auto">
+<div class="d-grid gap-2 d-sm-block mx-auto py-3 text-center">
     <a class="btn btn-outline-primary btn-lg m-1" href="/d/{{index . "download"}}" role="button">
         Download &nbsp; {{index . "filesize"}}</a>
 {{- if ne "" (index . "checksum")}}
-    <a class="btn btn-outline-secondary btn m-1" href="/sum/{{index . "download"}}" 
-        role="button" data-bs-toggle="tooltip" data-bs-title="Checksum download">
-        #
-    </a>
+    <a class="d-none d-sm-inline btn btn-outline-secondary btn m-1" href="/sum/{{index . "download"}}" 
+        role="button" data-bs-toggle="tooltip" data-bs-title="Checksum download">#</a>
+    <a class="d-inline d-sm-none btn btn-outline-secondary btn m-1" href="/sum/{{index . "download"}}" 
+        role="button">Checksum</a>
 {{- end}}
 {{- if (index . "content")}}
     <button type="button" class="btn btn-outline-secondary btn m-1" data-bs-toggle="modal" data-bs-target="#exampleModal">
@@ -61,7 +61,9 @@
 </div>
 {{- /*  Commant about the file  */}}
 {{- if ne $comment ""}}
-<q>{{index . "comment"}}</q>
+<div class="container p-2 text-center">
+    <q>{{index . "comment"}}</q>
+</div>
 {{- end}}
 {{- /*  Table with details  */}}
 <table class="table table-sm">
