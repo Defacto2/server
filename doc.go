@@ -100,8 +100,6 @@ The following options can be added to [github.com/Defacto2.server.main]
 	- Demozoo and 16colors links should align to the left.
 	- Interviews with sceners boxes are broken.
 	- Thank you! buttons overlap.
-	- The history of the brand carousel is too wide.
-	- The history of the brand carousel, breaks the menu, maybe hide it on mobile.
 
 # TODO
 
