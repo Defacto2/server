@@ -5,7 +5,9 @@
 {{- $cardClass := " h-100"}}
 {{- $rels := index . "counter" }}
 {{- $linkClass := "card-link text-nowrap"}}
-<div class="row row-cols-1 row-cols-md-2 g-4 mt-1">
+{{/* note row-cols-sm-* is the smallest row-cols value */}}
+{{- $rowCols := "row row-cols-1 row-cols-sm-2 row-cols-md-5 g-3 p-3 g-md-0 p-md-0"}}
+<div class="row row-cols-1 row-cols-lg-2 g-4 mt-1">
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
@@ -17,9 +19,19 @@
                     Initially, these programs were inserted and launched whenever the cracked software was in use.
                 </p>
                 <span class="card-link">Runs on</span>
+                <div class="container text-left">
+                    <div class="{{$rowCols}}">
+                      <div class="col-sm">
                 <a href="/files/intro-windows" class="{{$linkClass}}">Windows</a>
+                        </div>
+                        <div class="col-sm">
                 <a href="/files/intro-msdos" class="{{$linkClass}}">{{msdos}}</a>
-                <a href="/files/intro" class="{{$linkClass}}">any platform</a><br>
+                        </div>
+                        <div class="col-sm">
+                <a href="/files/intro" class="{{$linkClass}}">any platform</a>
+                        </div>
+                    </div>
+                </div>
             </div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
@@ -95,10 +107,22 @@
                 <span class="{{$linkClass}}">Browse the</span>
                 <a href="/files/ansi" class="{{$linkClass}}">ansi files</a><br>
                 <span class="{{$linkClass}}">Or only the</span>
-                <a href="/files/ansi-brand" class="{{$linkClass}}">brands</a>
-                <a href="/files/ansi-bbs" class="{{$linkClass}}">BBS ads</a>
-                <a href="/files/ansi-ftp" class="{{$linkClass}}">FTP ads</a>
-                <a href="/files/ansi-nfo" class="{{$linkClass}}">nfos</a>
+                <div class="container text-left">
+                    <div class="{{$rowCols}}">
+                      <div class="col-sm">
+                        <a href="/files/ansi-brand" class="{{$linkClass}}">brands</a>
+                      </div>
+                      <div class="col-sm">
+                        <a href="/files/ansi-bbs" class="{{$linkClass}}">BBS ads</a>
+                      </div>
+                      <div class="col-sm">
+                        <a href="/files/ansi-ftp" class="{{$linkClass}}">FTP ads</a>
+                      </div>
+                      <div class="col-sm">
+                        <a href="/files/ansi-nfo" class="{{$linkClass}}">nfos</a>
+                      </div>
+                    </div>
+                  </div>
             </div>
             {{- if .stats }}
             <ul class="list-group list-group-flush">
@@ -126,10 +150,22 @@
                 <span class="{{$linkClass}}">Browse the</span>
                 <a href="/files/bbs" class="{{$linkClass}}">adverts</a><br>
                 <span class="{{$linkClass}}">Or only the</span>
+                <div class="container text-left">
+                    <div class="{{$rowCols}}">
+                      <div class="col-sm">
                 <a href="/files/bbstro" class="{{$linkClass}}">BBStros</a>
+                        </div>
+                        <div class="col-sm">
                 <a href="/files/ansi-bbs" class="{{$linkClass}}">ansi</a>
+                        </div>
+                        <div class="col-sm">
                 <a href="/files/bbs-image" class="{{$linkClass}}">images</a>
+                        </div>
+                        <div class="col-sm">
                 <a href="/files/bbs-text" class="{{$linkClass}}">texts</a>
+                        </div>
+                    </div>
+                </div>
             </div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
@@ -155,7 +191,7 @@
         </div>
     </div>
 </div>
-<div class="row row-cols-1 row-cols-md-3 g-4 mt-2">
+<div class="row row-cols-1 row-cols-lg-3 g-4 mt-2">
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
@@ -166,9 +202,28 @@
                     communities in the form of digital magazines and newsletters.
                 </p>
                 <span class="{{$linkClass}}">Browse the</span>
-                <a href="/files/magazine" class="{{$linkClass}}">issues</a><br>
+                <div class="d-none d-sm-inline">
+                    <a href="/files/magazine" class="{{$linkClass}}">issues</a>
+                </div>
+                <div class="container text-left d-inline d-sm-none">
+                    <div class="{{$rowCols}}">
+                        <div class="col-sm">
+                <a href="/files/magazine" class="{{$linkClass}}">issues</a>
+                        </div>
+                    </div>
+                </div>
+                <br>
                 <span class="{{$linkClass}}">Or the</span>
+                <div class="container text-left d-inline d-sm-none">
+                    <div class="{{$rowCols}}">
+                        <div class="col-sm">
                 <a href="/magazine" class="{{$linkClass}}">magazine titles</a>
+                        </div>
+                    </div>
+                </div>                
+                <div class="d-none d-sm-inline">
+                    <a href="/magazine" class="{{$linkClass}}">magazine titles</a>
+                </div>
             </div>
             {{- if .stats }}
             <div class="card-footer">
@@ -187,11 +242,25 @@
                     for easy distribution.
                 </p>
                 <span class="{{$linkClass}}">Browse the packs of</span>
+                <div class="container text-left">
+                    <div class="row row-cols-1 row-cols-sm-2 g-3 p-3 g-md-0 p-md-0">
+                      <div class="col">
                 <a href="/files/ansi-pack" class="{{$linkClass}}">ansi art</a>
+                        </div>
+                        <div class="col">
                 <a href="/files/text-pack" class="{{$linkClass}}">text and nfos</a>
+                        </div>
+                        <div class="col">
                 <a href="/files/image-pack" class="{{$linkClass}}">images</a>
+                        </div>
+                        <div class="col">
                 <a href="/files/windows-pack" class="{{$linkClass}}">Windows software</a>
+                        </div>
+                        <div class="col">
                 <a href="/files/msdos-pack" class="{{$linkClass}}">{{msdos}} software</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -221,12 +290,28 @@
                     The vast majority of scene releases involve text and documents.
                 </p>
                 <span class="{{$linkClass}}">Browse the</span>
+                <div class="container text-left">
+                    <div class="row row-cols-1 row-cols-sm-2 g-3 p-3 g-md-0 p-md-0">
+                        <div class="col">
                 <a href="/files/text" class="{{$linkClass}}">text files</a>
+                        </div>
+                        <div class="col">
                 <a href="/files/text-amiga" class="{{$linkClass}}">Commodore Amiga texts</a>
+                        </div>
+                        <div class="col">
                 <a href="/files/text-apple2" class="{{$linkClass}}">Apple ][ texts</a>
+                        </div>
+                        <div class="col">
                 <a href="/files/text-atari-st" class="{{$linkClass}}">Atari ST texts</a>
+                        </div>
+                        <div class="col">
                 <a href="/files/pdf" class="{{$linkClass}}">documents in PDF</a>
+                        </div>
+                        <div class="col">
                 <a href="/files/html" class="{{$linkClass}}">documents in HTML</a>
+                        </div>
+                    </div>
+                </div>
             </div>
             {{- if .stats }}
             <div class="card-footer">

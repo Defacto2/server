@@ -95,10 +95,7 @@ The following options can be added to [github.com/Defacto2.server.main]
 
 # Mobile fixes
 
-	- View file, checksum button is too wide and bottom padding is off.
 	- File categories, the items are too close together and should be lists.
-	- Demozoo and 16colors links should align to the left.
-	- Interviews with sceners boxes are broken.
 
 # TODO
 
