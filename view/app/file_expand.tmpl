@@ -3,6 +3,8 @@
 {{- $otherClass := " h5" }}
 {{- $cardClass := " h-100"}}
 {{- $rels := index . "counter" }}
+
+{{- $linkClass := "card-link text-nowrap"}}
 <div class="row row-cols-1 row-cols-md-1 g-4 mt-2 collapse" id="moreCategories">
     <div class="col">
         <div class="card">
@@ -183,10 +185,22 @@
                         Calls for new group memberships or employment and tools for possible applicants.
                         Sometimes a trial crackme is made to test one's abilty.
                     </p>
-                    <span class="card-link">Browse the</span>
-                    <a href="/files/job-advert" class="card-link">job adverts</a><br>
-                    <span class="card-link">Browse the</span>
+                    <span class="{{$linkClass}}">Browse the</span>
+                    <div class="container text-left">
+                        <div class="row row-cols-1 row-cols-sm-2 g-3 p-3 g-md-0 p-md-0">
+                            <div class="col">
+                    <a href="/files/job-advert" class="card-link">job adverts</a>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="{{$linkClass}}">Browse the</span>
+                    <div class="container text-left">
+                        <div class="row row-cols-1 row-cols-sm-2 g-3 p-3 g-md-0 p-md-0">
+                            <div class="col">
                     <a href="/files/trial-crackme" class="card-link">trial crackme(s)</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

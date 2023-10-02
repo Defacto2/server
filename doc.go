@@ -95,7 +95,7 @@ The following options can be added to [github.com/Defacto2.server.main]
 
 # Mobile fixes
 
-	- File categories, the items are too close together and should be lists.
+	-
 
 # TODO
 
