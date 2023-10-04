@@ -48,6 +48,7 @@ func main() {
 		&configs, env.Options{Prefix: config.EnvPrefix}); err != nil {
 		logs.Fatalf("%w: %s", ErrEnv, err)
 	}
+	configs = *Override(&configs)
 
 	// Command-line arguments
 	// By default the web server runs when no arguments are provided
@@ -108,6 +109,14 @@ func main() {
 
 	// Gracefully shutdown the HTTP server
 	server.ShutdownHTTP(e)
+}
+
+// Override the configuration settings for development.
+func Override(c *config.Config) *config.Config {
+	// examples:
+	// c.IsProduction = true
+	// c.HTTPPort = 8080
+	return c
 }
 
 // RepairDB, on startup check the database connection and make any data corrections.

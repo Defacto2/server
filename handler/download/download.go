@@ -20,6 +20,8 @@ var (
 )
 
 // Checksum serves the checksums for the requested file.
+// The response is a text file named "checksums.txt" with the checksum and filename.
+// The id string is the UID filename of the requested file.
 func Checksum(z *zap.SugaredLogger, c echo.Context, id string) error {
 	res, err := model.OneRecord(z, c, id)
 	if err != nil {

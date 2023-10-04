@@ -3,19 +3,12 @@
 /*
 The [Defacto2] web server created in 2023 on Go.
 
-(requirements and dependencies should be mentioned here)
-
-	- database
-	- filedownloads
-	- previews and thumbs
-	- container or host system dependencies
-
 Usage:
 
 	df2-server
 
 Launch the server and listen on the configured port (default: 1323).
-The server expects the Defacto2 PostgreSQL database running on the host system
+The server expects the [Defacto2 PostgreSQL database] running on the host system
 or in a container. But will run without a database connection for debugging.
 
 Usage commands:
@@ -42,41 +35,43 @@ The flags are:
 
 # Database
 
-This application requires a PostgreSQL database and the following environment
-variables to be set:
+This application expects the [Defacto2 PostgreSQL database] and if needed,
+the following environment variables to be set:
 
-	1. "DEFACTO2_DB_USER"
-	2. "DEFACTO2_DB_PASS"
-	3. "DEFACTO2_DB_NAME"
-	4. "DEFACTO2_DB_HOST"
-	5. "DEFACTO2_DB_PORT"
+	1. "DEFACTO2_PORT" is the unencrypted port number the web server will listen on (default: 1323).
+	2. "DEFACTO2_PORTS" is the encrypted port number the web server will listen on (default: 0 [unused]).
+	3. "DEFACTO2_TIMEOUT" is the he timeout in seconds for the web server and database requests (default: 5).
 
-The following environment variables are optional:
+# File downloads
 
-	1. "DEFACTO2_DB_SSLMODE"
-	2. "DEFACTO2_DB_SSLROOTCERT"
-	3. "DEFACTO2_DB_SSLCERT"
-	4. "DEFACTO2_DB_SSLKEY"
+The following environment variables are required for the web server to
+offer file downloads:
+
+	1. "DEFACTO2_DOWNLOAD" is the absolute path to the file downloads directory.
+
+# Previews and thumbnails
+
+The following environment variables are required for the previews and thumbnails:
+
+	1. "DEFACTO2_SCREENSHOTS" is the absolute path to the screenshots directory.
+	2. "DEFACTO2_THUMBNAILS" is the absolute path to the thumbnails directory.
 
 # Dependencies
 
 The following on the host system or in the container.
 
-The following environment variables are required for the Pouet API:
+Coming soon.
 
 # Configuration overrides
 
-A number of server configuration options can be overridden by code edits.
+A number of server configuration options can be overridden using hard coded values.
 Though these are not advised other than for debugging or testing in development.
 
-The following options can be added to [github.com/Defacto2.server.main]
+The following options can be added to [Override].
 
 	configs.IsProduction = true		// This will enable the production logger
-
 	configs.HTTPSRedirect = true	// This requires HTTPS certificates to be installed and configured
-
 	configs.NoRobots = true			// This will disable search engine crawling
-
 	configs.LogRequests = true		// This will log all HTTP requests to the server or stdout
 
 # Tasks
@@ -95,7 +90,7 @@ The following options can be added to [github.com/Defacto2.server.main]
 
 # Mobile fixes
 
-	-
+	- none
 
 # TODO
 
@@ -109,8 +104,11 @@ The following options can be added to [github.com/Defacto2.server.main]
 	- "conf.Import.ThumbnailDir" (dir path?) should be renamed to "/image/thumb".
 	- [handler.Configuration.Moved] Implement legacy URI redirects,
 	"/cracktros-detail.cfm:/:id" and "/code".
+	- Move the glossary of terms from a module to its own page.
 
 # Bugs
+
+	- none
 
 # New features to deliver
 
@@ -122,4 +120,5 @@ The following options can be added to [github.com/Defacto2.server.main]
 	- Fetch the DOD nfo for w95, https://scenelist.org/nfo/DOD95C1H.ZIP
 */
 // [Defacto2]: https://defacto2.net
+// [Defacto2 PostgreSQL database]: https://github.com/Defacto2/database-ps
 package main

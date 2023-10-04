@@ -1,4 +1,4 @@
-// Package apiv1 provides a JSON, API placeholder.
+// Package apiv1 provides JSON, API version 1 placeholders.
 package apiv1
 
 import (

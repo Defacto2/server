@@ -1,3 +1,4 @@
+// Package runner is used to build and minify the css and js files.
 package main
 
 // Runner is a placeholder for esbuild to build css and js files.
