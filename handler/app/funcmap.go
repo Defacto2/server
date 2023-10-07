@@ -7,8 +7,8 @@ import (
 	"html/template"
 
 	"github.com/Defacto2/releaser"
+	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/initialism"
 )
 
 const (

@@ -12,8 +12,8 @@ import (
 	"strconv"
 
 	"github.com/Defacto2/releaser"
+	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/initialism"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/sixteen"
@@ -238,7 +238,7 @@ func Releasers(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	data := emptyFiles()
 	data["title"] = "Files for " + s
 	data["h1"] = s
-	data["lead"] = initialism.Join(uri)
+	data["lead"] = initialism.Join(initialism.Path(uri))
 	data["logo"] = s
 	data["description"] = "The collection of files for " + s + "."
 	data["demozoo"] = strconv.Itoa(int(zoo.Find(uri)))
@@ -246,7 +246,7 @@ func Releasers(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	data[records] = fs
 	switch uri {
 	case "independent":
-		data["lead"] = initialism.Join(uri) +
+		data["lead"] = initialism.Join(initialism.Path(uri)) +
 			", independent releases are files with no group or releaser affiliation." +
 			`<br><small class="fw-lighter">In the scene's early years,` +
 			` releasing documents or software cracks under a personal alias or a` +

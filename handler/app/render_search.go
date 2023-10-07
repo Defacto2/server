@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/Defacto2/releaser"
+	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/initialism"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
@@ -142,7 +142,7 @@ func SearchReleaser(z *zap.SugaredLogger, c echo.Context) error {
 		id := strings.TrimSpace(v.Name)
 		slug := helper.Slug(id)
 		name := releaser.Link(slug)
-		ism := initialism.Initialism(slug)
+		ism := initialism.Initialism(initialism.Path(slug))
 		opt := name
 		if len(ism) > 0 {
 			opt = fmt.Sprintf("%s (%s)", name, strings.Join(ism, ", "))
