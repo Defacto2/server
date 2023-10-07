@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Defacto2/sceners"
+	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -90,7 +90,7 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error {
 		}
 	}
 
-	name := sceners.CleanURL(id)
+	name := releaser.Clean(id)
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {

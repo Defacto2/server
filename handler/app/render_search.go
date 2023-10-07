@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Defacto2/server/internal/fmts"
+	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/initialism"
 	"github.com/Defacto2/server/internal/postgres"
@@ -141,7 +141,7 @@ func SearchReleaser(z *zap.SugaredLogger, c echo.Context) error {
 	for i, v := range x {
 		id := strings.TrimSpace(v.Name)
 		slug := helper.Slug(id)
-		name := fmts.Name(slug)
+		name := releaser.Link(slug)
 		ism := initialism.Initialism(slug)
 		opt := name
 		if len(ism) > 0 {

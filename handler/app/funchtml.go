@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/config"
-	"github.com/Defacto2/server/internal/fmts"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/volatiletech/null/v8"
@@ -364,14 +364,14 @@ func LinkRelrs(a, b any) template.HTML {
 		if err != nil {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
-		prime = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, fmts.Name(helper.Slug(av)))
+		prime = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, releaser.Link(helper.Slug(av)))
 	}
 	if bv != "" {
 		ref, err := linkRelr(bv)
 		if err != nil {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
-		second = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, fmts.Name(helper.Slug(bv)))
+		second = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, releaser.Link(helper.Slug(bv)))
 	}
 	if prime != "" && second != "" {
 		s = fmt.Sprintf("%s<br>+ %s", prime, second)

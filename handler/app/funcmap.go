@@ -6,7 +6,7 @@ package app
 import (
 	"html/template"
 
-	"github.com/Defacto2/server/internal/fmts"
+	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/initialism"
 )
@@ -31,7 +31,7 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"fmtMonth":       Month,
 		"fmtPrefix":      Prefix,
 		"fmtRoles":       helper.FmtSlice,
-		"fmtURI":         fmts.Name,
+		"fmtURI":         releaser.Link,
 		"initialisms":    initialism.Join,
 		"lastUpdated":    LastUpdated,
 		"linkDownload":   LinkDownload,

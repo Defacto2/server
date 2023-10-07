@@ -11,7 +11,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Defacto2/server/internal/fmts"
+	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/initialism"
 	"github.com/Defacto2/server/internal/postgres"
@@ -167,7 +167,7 @@ func Sceners(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	}
 	defer db.Close()
 
-	s := fmts.Name(uri)
+	s := releaser.Link(uri)
 	var rel model.Scener
 	fs, err := rel.List(ctx, db, uri)
 	if err != nil {
@@ -226,7 +226,7 @@ func Releasers(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	}
 	defer db.Close()
 
-	s := fmts.Name(uri)
+	s := releaser.Link(uri)
 	rel := model.Releasers{}
 	fs, err := rel.List(ctx, db, uri)
 	if err != nil {

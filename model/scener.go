@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Defacto2/sceners/pkg/rename"
+	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -33,7 +33,7 @@ func (s *Scener) List(ctx context.Context, db *sql.DB, name string) (models.File
 }
 
 func ScenerSQL(name string) string {
-	n := strings.ToUpper(rename.DeObfuscateURL(name))
+	n := strings.ToUpper(releaser.Humanize(name))
 	exact := fmt.Sprintf("(upper(credit_text) = '%s')"+
 		" OR (upper(credit_program) = '%s')"+
 		" OR (upper(credit_illustration) = '%s')"+

@@ -3,7 +3,7 @@ module github.com/Defacto2/server
 go 1.21
 
 require (
-	github.com/Defacto2/sceners v0.0.2
+	github.com/Defacto2/releaser v0.5.0
 	github.com/caarlos0/env/v7 v7.1.0
 	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/evanw/esbuild v0.18.15

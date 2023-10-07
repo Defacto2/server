@@ -180,16 +180,16 @@ func mag(z *zap.SugaredLogger, c echo.Context, chronological bool) error {
 
 // Releaser is the handler for the releaser page ordered by the most files.
 func Releaser(z *zap.SugaredLogger, c echo.Context) error {
-	return releaser(z, c, true)
+	return rel(z, c, true)
 }
 
 // ReleaserAZ is the handler for the releaser page ordered alphabetically.
 func ReleaserAZ(z *zap.SugaredLogger, c echo.Context) error {
-	return releaser(z, c, false)
+	return rel(z, c, false)
 }
 
-// releaser is the handler for the Releaser page.
-func releaser(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
+// rel is the handler for the Releaser page.
+func rel(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	const title, name = "Releaser", "releaser"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Defacto2/sceners/pkg/rename"
+	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/volatiletech/null/v8"
@@ -104,7 +104,7 @@ func (s *Summary) Releaser(ctx context.Context, db *sql.DB, name string) error {
 	if db == nil {
 		return ErrDB
 	}
-	n := strings.ToUpper(rename.DeObfuscateURL(name))
+	n := strings.ToUpper(releaser.Humanize(name))
 	x := null.StringFrom(n)
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),

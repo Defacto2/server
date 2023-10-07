@@ -18,7 +18,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Defacto2/sceners/pkg/rename"
+	"github.com/Defacto2/releaser"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -164,7 +164,7 @@ func ReleaserErr(z *zap.SugaredLogger, c echo.Context, id string) error {
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
 	data["code"] = http.StatusNotFound
 	data["logo"] = "Releaser not found"
-	data["alert"] = fmt.Sprintf("Releaser %q cannot be found", rename.DeObfuscateURL(id))
+	data["alert"] = fmt.Sprintf("Releaser %q cannot be found", releaser.Humanize(id))
 	data["probl"] = "The releaser page does not exist, there is probably a typo with the URL."
 	data["uriOkay"] = "g/"
 	data["uriErr"] = id
@@ -189,7 +189,7 @@ func ScenerErr(z *zap.SugaredLogger, c echo.Context, id string) error {
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
 	data["code"] = http.StatusNotFound
 	data["logo"] = "Scener not found"
-	data["alert"] = fmt.Sprintf("Scener %q cannot be found", rename.DeObfuscateURL(id))
+	data["alert"] = fmt.Sprintf("Scener %q cannot be found", releaser.Humanize(id))
 	data["probl"] = "The scener page does not exist, there is probably a typo with the URL."
 	data["uriOkay"] = "p/"
 	data["uriErr"] = id
