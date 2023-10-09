@@ -63,14 +63,18 @@ func Collection() Milestones {
 		{
 			Year: 1971, Month: 11, Day: 15, Title: "The first microprocessor",
 			Lead: "Intel 4004", LinkTitle: "The Story of the Intel 4004",
-			Link:    "https://www.intel.com/content/www/us/en/history/museum-story-of-intel-4004.html",
-			Content: "Intel advertises the first-to-market general-purpose programmable processor or microprocessor, the 4-bit Intel 4004.",
+			Link: "https://www.intel.com/content/www/us/en/history/museum-story-of-intel-4004.html",
+			Content: "Intel advertises the first-to-market general-purpose programmable processor or microprocessor, the 4-bit Intel 4004. " +
+				"Its main uses were in <a href=\"http://www.vintagecalculators.com/html/busicom_141-pf.html\">calculators</a>, some early automatic teller machines, and other embedded devices." +
+				"<p></p>Busicom (formerly Nippon Calculating Machine Corp) <a href=\"http://nascojp.com/about.html\">first commissioned the 4004</a> as part of a chipset for its 141PF Printing Calculator. The 4000 chipset comprises four branded components: the 4001 read-only memory, 4002 RAM, 4003 shift register memory, and the <strong>4004 processor</strong>.",
 		},
 		{
 			Year: 1972, Month: 4, Title: "The first 8-bit microprocessor",
 			Lead: "Intel 8008", LinkTitle: "The Story of the Intel 8008",
-			Link:    "https://www.intel.com/content/www/us/en/history/museum-story-of-intel-8008.html",
-			Content: "Intel releases the world's first 8-bit microprocessor, the Intel 8008.",
+			Link: "https://www.intel.com/content/www/us/en/history/virtual-vault/articles/the-8008.html",
+			Content: "Intel released the world's first 8-bit microprocessor, the Intel 8008. Despite the branding, it was not an 8-bit extension of the Intel 4004 but a new architecture." +
+				"<br>Unlike the earlier 4004, Computer Terminal Corporation of Texas commissioned the new Intel chip for their cost-effective <a href=\"https://history-computer.com/datapoint-2200-guide/\">Datapoint 2200 computer terminal</a>. Designed as a dumb terminal, CTC realized it could also operate as a programmable device with a central processing unit." +
+				"<br>Manufacturing issues with the 8008 and deadlines meant that the Datapoint 2200 ditched the CPU. CTC followed the common practice of building the internals from discrete transistor-transistor (TTL) logic.",
 			Picture: Picture{
 				Title:       "Intel 8008 CPU chip",
 				Alt:         "A photo of an Intel C8008-1 CPU chip.",
@@ -83,21 +87,26 @@ func Collection() Milestones {
 		{
 			Year: 1972, Prefix: "Early", Title: "Blue boxes",
 			Link: "https://explodingthephone.com/", LinkTitle: "about the hackers of the telephone network",
-			Content: "Inspired by The Secrets of the Little Blue Box article, Steve Wozniak and a teenage Steve Jobs team up to build and sell 40-100, Wozniak-designed blue boxes to the students of Berkeley University. " +
+			Content: "Inspired by The Secrets of the Little Blue Box article, Steve Wozniak and a teenage Steve Jobs team up to build and sell dozens and dozens of the Wozniak-designed blue boxes to the students of Berkeley University. " +
 				"The devices allowed users to hack and manipulate the electromechanical machines that operated the national telephone network.",
 		},
 		{
 			Year: 1974, Month: 4, Title: "The first CPU for microcomputers",
 			Lead: "Intel 8080", LinkTitle: "about The Intel 8008 and 8080",
-			Link: "https://www.intel.com/content/www/us/en/history/museum-story-of-intel-8008.html",
-			Content: "Intel releases the 8-bit 8080 CPU, its second but more successful 8-bit programmable microprocessor. " +
-				"This CPU became the processing heart of the earliest popular microcomputers, the Altair 8800, the Sol-20 and the IMSAI.",
+			Link: "https://www.intel.com/content/www/us/en/history/virtual-vault/articles/the-8008.html",
+			Content: "Intel released the 8-bit 8080 CPU, its second but far more successful 8-bit programmable microprocessor. " +
+				"While the Intel 8008 was the first central processing unit on a chip, the heavily upgraded Intel 8080 became the first mass-produced CPU suitable for personal microcomputing. " +
+				"The 8080 and its later descendants, both from Intel and competitors, meant the 8080 architecture came to dominate the 8-bit CPU market of the 1970s and 1980s.<br>" +
+				"This CPU became the processing heart of the earliest popular microcomputers, the <a href=\"https://collection.powerhouse.com.au/object/167322\">Altair 8800</a>, " +
+				"the <a href=\"http://oldcomputers.net/sol-20.html\">Sol-20</a>, <a href=\"https://collection.powerhouse.com.au/object/153559\">IMSAI</a>, and later in arcade machines, such as the cultural phenomenon that was <a href=\"https://www.computinghistory.org.uk/det/47162/40-Years-of-Space-Invaders/\">Space Invaders</a>.",
 		},
 		{
 			Year: 1975, Month: 1, Title: "The first popular microcomputer",
 			Lead: "Altair 8800", LinkTitle: "about the Altair 8800",
-			Link:    "https://americanhistory.si.edu/collections/search/object/nmah_334396",
-			Content: "The worlds first popular microcomputer appears on the front cover of Popular Electronics in the USA, the Altair 8800 by MITS running an Intel 8080 CPU.",
+			Link: "https://americanhistory.si.edu/collections/search/object/nmah_334396",
+			Content: "The worlds first popular microcomputer appears on the <a href=\"https://archive.org/details/197501PopularElectronics\">front cover of Popular Electronics</a> in the USA, the Altair 8800 by MITS running an Intel 8080 CPU. " +
+				"Even for the time, the Altair was a primitive device, requiring toggle on/off switches for input and blinking red LED lights for output, and there was no way to save programs. But it was the first widely available programmable computer that didn't cost an arm, a leg, or a house." +
+				"<br>Eventually, with the system's popularity and its use of the modular S-100 bus interface, the upgraded Altair platform allowed for storage, teletype-keyboard input, printer output and displays.",
 		},
 		{
 			Year: 1975, Month: 2, Title: "The first microcomputer software",
@@ -123,8 +132,9 @@ func Collection() Milestones {
 		{
 			Year: 1976, Month: 1, Title: "Software piracy", Highlight: true,
 			Lead: "An Open Letter to Hobbyists", LinkTitle: "the letter",
-			Link:    "https://archive.org/details/hcc0201/Homebrew.Computer.Club.Volume.02.Issue.01.Len.Shustek/page/n1/mode/2up",
-			Content: "Bill Gates of <em>Micro-Soft</em> writes a letter to the hobbyists of the Homebrew Computer Club requesting they stop stealing Altair BASIC.",
+			Link: "https://archive.org/details/hcc0201/Homebrew.Computer.Club.Volume.02.Issue.01.Len.Shustek/page/n1/mode/2up",
+			Content: "Bill Gates of <em>Micro-Soft</em> writes a letter to the hobbyists of the Homebrew Computer Club requesting they stop stealing Altair BASIC." +
+				"<br>US copyright law is confusing at the time as software documentation and source code is protected, but object code or the compiled software that ran on the computers is probably not.",
 			Picture: Picture{
 				Title:       "An Open Letter to Hobbyists",
 				Alt:         "A photo of the first page of the letter.",
@@ -137,8 +147,11 @@ func Collection() Milestones {
 		{
 			Year: 1976, Month: 3, Title: "The first Apple computer",
 			Lead: "Apple-1", LinkTitle: "about the Apple-1",
-			Link:    "https://www.computerhistory.org/revolution/personal-computers/17/312/1132",
-			Content: "Steve Wozniak and Steve Jobs release the Apple I, a single-board computer with a 6502 CPU, 4KB of RAM, and a 40-column display controller.",
+			Link: "https://www.computerhistory.org/revolution/personal-computers/17/312/1132",
+			Content: "Steve Wozniak and Steve Jobs release the Apple I, a single-board computer with a <a href=\"https://spectrum.ieee.org/chip-hall-of-fame-mos-technology-6502-microprocessor\">MOS 6502 CPU</a>, 4KB of RAM, and a 40-column display controller. " +
+				"Unlike the earlier Altair 8800, the Apple Computer wasn't usable out of the box and didn't come with a case. However, <a href=\"https://upload.wikimedia.org/wikipedia/commons/4/48/Apple_1_Advertisement_Oct_1976.jpg\">it did offer a convenient video terminal, cassette, and keyboard interface</a>, requiring owners to supply peripherals for output, storage, and input." +
+				"<br>The choice of the new, powerful, and affordable MOS 6502 CPU showed foresight, as it became the basis of the far more successful Apple II <sup>1977</sup> " +
+				"computer platform and the Nintendo Entertainment System <sup>1983</sup> , the Commodore 64 <sup>1982</sup>, PET <sup>1977</sup>, and the Atari 2600 <sup>1977</sup>.",
 		},
 		{
 			Year: 1977, Month: 1, Title: "CP/M operating system",
@@ -146,14 +159,16 @@ func Collection() Milestones {
 			Content: "Gary Kildall forms Digital Research to sell his hobbyist operating system, CP/M, for the Intel 8080. " +
 				"Gary was an occasional consultant for Intel's microprocessor division, which gave him access to hardware and personnel. " +
 				"CP/M became the first successful microcomputer operating system. " +
-				"It dominated the remainder of the 1970s and is the default platform for most computers running an Intel 8080, 8085 or its compatible competitor, the Zilog Z-80.",
+				"It dominated the remainder of the 1970s and is the default platform for most computers running an Intel 8080, 8085 or its compatible competitor, the Zilog Z-80." +
+				"<p></p>IBM and Microsoft's later PC-DOS / MS-DOS took a lot of inspiration from CP/M and supplanted (<a href=\"https://www.wired.com/2012/08/ms-dos-examined-for-thef/\">or usurped</a>) it as the dominant open hardware personal computing operating system.",
 		},
 		{
 			Year: 1977, Title: "The trinity of microcomputers",
 			Lead: "Apple II, Commodore PET, TRS-80", LinkTitle: "about the Apple II, Commodore PET and TRS-80",
 			Link: "https://cybernews.com/editorial/the-1977-trinity-and-other-era-defining-pcs/",
 			Content: "The Apple II, Commodore PET and TRS-80 are released, the first microcomputers to be readily available to the public. " +
-				"By the end of the year, a potential customer in the USA could walk into a mall or retail shop and walk out with a complete personal computer, ready to use.",
+				"By the end of the year, a potential customer in the USA could walk into a mall or retail shop and walk out with a complete personal computer, ready to use." +
+				"<br>The Commodore and the Apple used the MOS 6502 CPU <sup>1975</sup>, while the TRS-80 ran off a Zilog Z-80 <sup>1976</sup>.",
 		},
 		{
 			Year: 1978, Month: 2, Title: "The first BBS",
@@ -175,9 +190,9 @@ func Collection() Milestones {
 			Year: 1978, Month: 6, Title: "The first x86 CPU",
 			Lead: "Intel 8086", LinkTitle: "about the Intel 8086",
 			Link: "https://www.pcworld.com/article/535966/article-7512.html",
-			Content: "Intel releases the 16-bit programmable microprocessor, the Intel 8086, which is the beginning of the <strong>x86 architecture</strong>.<br>" +
-				"Unlike at the start of the decade when Intel broke new ground, this CPU design was a commercial response to market competition. " +
-				"While code-compatible with the famous Intel 8080, this product failed to dominate in a market saturated with more affordable 8-bit hardware.",
+			Content: "Intel releases the 16-bit programmable microprocessor, the Intel 8086, which is the beginning of the <strong>x86 architecture</strong>." +
+				"<br>After the success of the 8080, in March 1976, Intel released the 8085, a minor update to the CPU line, which improved the circuitry and reduced implementation costs. In July 1976, the startup Zilog launched its first product, <a href=\"https://spectrum.ieee.org/chip-hall-of-fame-zilog-z80-microprocessor\">the Z80 CPU</a>, an enhanced, cheaper and software-compatible 8080 clone. Eventually, the Z80 became one of the most successful 8-bit CPUs." +
+				"<br>The development and launch of the 8086, a software-compatible 16-bit implementation of the 8080 and the 8085, is a response to the Z80 launch and market share growth. However, it failed to dominate a market saturated with more affordable 8-bit hardware.",
 		},
 		{
 			Title: "The first popular x86 CPU", Year: 1979, Month: 6,
@@ -203,8 +218,21 @@ func Collection() Milestones {
 			Lead: "Seattle Computer Products QDOS", LinkTitle: "about QDOS",
 			Link: "https://www.1000bit.it/storia/perso/tim_paterson_e.asp",
 			Content: "Tim Paterson worked on a project at Seattle Computer Products to create an 8086 CPU plugin board for the S-100 bus standard. " +
-				"Needing an operating system for the 16-bit Intel CPU, he programmed a half-complete, unauthorized clone of the CP/M operating system within four months." +
+				"Needing an operating system for the 16-bit Intel CPU, he programmed a half-complete, unauthorized clone of the CP/M operating system within four months. " +
 				"He called it QDOS (Quick and Dirty OS), and it sold few copies.",
+		},
+		{
+			Title: "Motorola 68000 16-bit CPU", Year: 1980, Month: 11,
+			Lead: "", LinkTitle: "about the 68000", Link: "https://spectrum.ieee.org/chip-hall-of-fame-motorola-mc68000-microprocessor",
+			Content: "Available in November 1980, the famed Motorola 68000 is the 16-bit successor to the 8-bit 6800 CPU from late 1974. " +
+				"The Motorola series competed and operated in parallel with the incompatible Intel chips for the burgeoning microprocessor market. " +
+				"And like Intel, Motorola found its 8-bit chip designs reversed-engineered, enhanced, and undercut by its other competitors." +
+				"<br>But the 68000 was the 16-bit chip of the 1980s, powering everything from the <a href=\"https://www.lifewire.com/history-of-sega-genesis-dawn-729670\">Sega Megadrive/Genesis</a>, the Sega 16, the SNK NeoGeo, and various arcade games. " +
+				"<br>Significantly, it was at the heart of a future generation personal computing platforms, the Apple Lisa <sup>1983</sup>, <a href=\"https://spectrum.ieee.org/apple-macintosh\">Apple Macintosh</a> <sup>1984</sup>, " +
+				"<a href=\"https://daily.redbullmusicacademy.com/2017/10/atari-st-instrumental-instruments\">Atari ST</a> <sup>1985</sup>, and the <a href=\"https://arstechnica.com/gadgets/2007/07/a-history-of-the-amiga-part-1/\">Commodore Amiga 1000</a> <sup>1985</sup>. " +
+				"These incompatible systems offered high-resolution graphics and their own mouse-driven <abbr title=\"Graphical User Interface\">GUI</abbr> operating system as standard. " +
+				"At a time when the typical microcomputer or PC relied upon dated, user-hostile text interaction." +
+				"<p title=\"The common input prompt for an IBM or Microsoft disk operating system\"><code>A><strong>_</strong></code><p>",
 		},
 		{
 			Title: "Computer Software Copyright Act of 1980", Year: 1980, Month: 12, Day: 12, Highlight: true,
@@ -238,8 +266,9 @@ func Collection() Milestones {
 		{
 			Title: "Initial release of MS-DOS", Year: 1982, Month: 8,
 			Lead: "MS-DOS v1.25", LinkTitle: "about MS-DOS 1.25",
-			Link:    "https://betawiki.net/wiki/MS-DOS_1.25",
-			Content: "Microsoft releases the first edition of MS-DOS v1.25, which is readily available to all OEM computer manufacturers. All prior releases were exclusive to IBM.",
+			Link: "https://betawiki.net/wiki/MS-DOS_1.25",
+			Content: "Microsoft releases the first edition of MS-DOS v1.25, which is readily available to all OEM computer manufacturers. All prior releases were exclusive to IBM. " +
+				"This release starts the ball rolling, with Microsoft becoming the de facto operating system provider for personal computers for decades.",
 		},
 		{
 			Title: "Third-party PC games", Year: 1982,
@@ -277,7 +306,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Major videogame publishers enter the PC market", Year: 1983,
-			Content: "Some major arcade and videogame publishers of the era release on the PC.<br>" +
+			Content: "1983 saw some major arcade and video game publishers release software on the PC. Despite the business-centric marketing of the platform, game software was a popular seller.<br>" +
 				"<small><a href=\"//dfarq.homeip.net/atarisoft-if-you-cant-beat-em-join-em/\">Atarisoft</a>, " +
 				"<a href=\"//www.uvlist.net/companies/info/243-Infocom\">Infocom</a>, " +
 				"<a href=\"//www.resetera.com/threads/lets-look-back-at-game-company-datasoft.587093/##post-87110411\">Datasoft</a>, " +
@@ -314,7 +343,8 @@ func Collection() Milestones {
 			Lead: "King's Quest", LinkTitle: "the game manual",
 			Link: "http://www.sierrahelp.com/Documents/Manuals/Kings_Quest_1_IBM_-_Manual.pdf",
 			Content: "The first PC game to use 16 colors, King's Quest, is created by  Sierra On-Line and released by IBM. " +
-				"IBM PC graphics cards are limited to 4 colors, but the game is released for the new IBM PCjr that displays upto 16 colors.",
+				"IBM PC graphics cards are limited to 4 colors, but the game is released for the new IBM PCjr that displays upto 16 colors." +
+				"The other pioneering aspect of the game was the pseudo-3D landscape. The player controlled a human avatar from a 3rd person perspective and could use it to walk around set pieces, both in front and from behind, and interact with the onscreen objects.",
 		},
 		{
 			Title: "The earliest information text", Year: 1984, Month: 10, Day: 17, Highlight: true,
@@ -423,7 +453,8 @@ func Collection() Milestones {
 		{
 			Title: "The first 16 color EGA game", Year: 1986, Month: 3,
 			Lead: "Accolade's Mean 18", LinkTitle: "the moby games entry",
-			Link: "https://www.mobygames.com/game/152/mean-18/",
+			Link:    "https://www.mobygames.com/game/152/mean-18/",
+			Content: "It may seem strange today, but golf games were popular in the 1980s and 1990s in the US and Japan. White-collar elites played the real-life sport, so it isn't surprising that video game golf simulations targetting expensive computer platforms and arcades became popular.",
 		},
 		{
 			Title: "The earliest PC loaders", Year: 1986, Month: 6, Highlight: true,
@@ -511,6 +542,9 @@ func Collection() Milestones {
 			Title: "The first 32 color VGA game", Year: 1988, Month: 3,
 			Lead: "Arcadia's Rockford: The Arcade Game", LinkTitle: "the discussion",
 			Link: "https://forum.winworldpc.com/discussion/comment/174818/#Comment_174818",
+			Content: "<a href=\"https://www.mobygames.com/game/4019/rockford-the-arcade-game/\">Rockford</a> is a strange game, being a port of the arcade game of the same name—the arcade, created as a port of the then-popular microcomputer videogame series, <a href=\"https://boulder-dash.com/history/\">Boulder Dash</a>." +
+				"<p></p>" +
+				"More unusual is the use of 32-color VGA for a home computer port of an arcade game on the PC, in an era when ports were done on the cheap using lowest common denominator 4-color CGA graphics. The crossover of players who owned expensive VGA graphic cards and monitors in 1988 who were playing arcade ports was probably low.",
 		},
 		{
 			Title: "Earliest standalone 'elite' BBS ad", Year: 1988, Month: 4, Day: 4, Highlight: false,
@@ -611,7 +645,8 @@ func Collection() Milestones {
 		{
 			Title: "The first 256 color VGA game", Year: 1989, Month: 3,
 			Lead: "688 Attack Sub from Electronic Arts", LinkTitle: "the mobygames page",
-			Link: "https://www.mobygames.com/game/2099/688-attack-sub",
+			Link:    "https://www.mobygames.com/game/2099/688-attack-sub",
+			Content: "Driving, flying, and military simulation games were once a popular genre of video games on the PC. Before dedicated GPUs existed, this genre created demanding open-world landscapes requiring expensive CPUs and even co-processors! Which was great for those with high-end hardware who wanted to show off.",
 		},
 		{
 			Title: "Earliest BBS ANSI loader", Year: 1989, Month: 3,
@@ -813,6 +848,15 @@ func Collection() Milestones {
 			},
 		},
 		{
+			Title: "First SuperVGA / VESA game", Year: 1992, Month: 6,
+			Lead: "Links 386 Pro", LinkTitle: "the mobygames page", Link: "https://www.mobygames.com/game/3757/links-386-pro/",
+			Content: "The first widely available SuperVGA game was Links 386 Pro from Access. Here, another popular golf simulation pushed the baseline PC gaming requirements with the need for higher-end hardware. " +
+				"The 386 in the title stated the minimum base of an Intel 386 CPU when 286 systems were the commodity." +
+				"<br>The problem for consumers in this era is that ordinarily, most PC software never took advantage of the enhancements offered by the more expensive Intel 386 or 486 CPUs." +
+				"<br>Some caveats to the first SVGA/VESA claim: we are talking about a retail, boxed game requiring a resolution/color depth that a standard VGA setup cannot handle, " +
+				"so at least a constant 600x400 resolution with 256 colors.",
+		},
+		{
 			Year: 1992, Prefix: notable,
 			List: Links{
 				{LinkTitle: "Artists in Revolt", Link: "/g/artists-in-revolt", Forward: "Fairlight"},
@@ -934,6 +978,13 @@ func Collection() Milestones {
 			},
 		},
 		{
+			Title: "The first popular 3D graphics chipset", Year: 1996, Month: 10,
+			Lead: "3Dfx Voodoo 1", LinkTitle: "The Voodoo That They Righteously Do", Link: "https://computeme.tripod.com/voodoo1.html",
+			Content: "The <a href=\"https://www.pixelrefresh.com/3dfx-orchid-righteous-voodoo-1-where-3d-acceleration-truly-began\">Orchid Righteous</a> is available in retail. Later cards from other manufacturers, such as the <a href=\"https://www.tomshardware.com/reviews/3d-accelerator-card-reviews,42-7.html\">Diamond Monster 3D</a>, quickly followed, and within a year, the 3Dfx chipset dominated the market.<br>" +
+				"Before the 3Dfx Voodoo release, the fragmented 3D graphics market for consumer PCs had abysmal software support. 3Dfx coordinated with publishers to target their Glide API with new game releases so gamers had confidence in their Voodoo card purchases.<br>" +
+				"3Dfx also extended the life of existing PC hardware and broke the endless cycle of aggressive, expensive CPU upgrades to support the current generation of games. A new 3Dfx card would double the resolution, add fantastic color support, and even improve the frames-per-second on what would otherwise be an older machine.",
+		},
+		{
 			Year: 1996, Prefix: notable,
 			List: Links{
 				{LinkTitle: "CD Images For the Elite", Link: "/g/cd-images-for-the-elite", SubTitle: "CiFE"},
@@ -1010,6 +1061,16 @@ func Collection() Milestones {
 			},
 		},
 		{
+			Year:  1999,
+			Title: "3Dfx vs. Nvidia", LinkTitle: "a short story of 3dfx - 5 steps to fall", Link: "https://level2.vc/a-short-story-of-3dfx/",
+			Lead: "1999 was a complex year for PC gamers",
+			Content: "The market pioneer, 3Dfx, with its Voodoo 3 GPU, had abandoned OEM manufacturers and decided to produce both the chips and graphic boards in-house. The change, intended to boost profits, led to manufacturing and global distribution shortages and decreased retail shelf space for 3Dfx products." +
+				"<br>In the same year, Nvidia released its TNT and <strong>GeForce series</strong> of GPUs and became the go-to supplier of chips for OEM card manufacturers. Unlike 3Dfx, Nvidia was API agnostic and happy to prioritize Direct3D and OpenGL." +
+				"<br>For gamers, the new 3Dfx cards were more challenging to obtain but offered the best compatibility for 3D games of the past few years. Plus, current games ran fast with better frames per second." +
+				"<br>The high-end Nvidia products offered improved resolutions and graphic feature sets but poorer compatibility for older games developed primarily for the proprietary 3Dfx Glide API." +
+				"<br>But by the end of 2000, 3Dfx was bankrupt, having taken on too much debt and railroaded themselves into a dead-end architecture. <a href=\"https://www.cnet.com/culture/nvidia-buys-out-3dfx-graphics-chip-business\">By April 2002</a>, the company's assets and intellectual property were owned by Nvidia.",
+		},
+		{
 			Year: 1999, Prefix: notable,
 			List: Links{
 				{LinkTitle: "Razor 1911 Demo", Link: "/g/razor-1911-demo", SubTitle: "RZR", Forward: "Razor 1911"},
@@ -1017,7 +1078,14 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Year: 2000, Prefix: notable,
+			Title: "Direct3D, the 3D graphic standard", Year: 2000, Month: 11,
+			Lead: "DirectX 8.0 (4.08.00.0400)", LinkTitle: "the press release", Link: "https://news.microsoft.com/2000/11/09/microsoft-announces-release-of-directx-8-0",
+			Content: "The release of Microsoft's Direct3D 8 for all active editions of Windows from 95 through to XP was the beginning of the dominance of the proprietary 3D graphics API, as it is the first release offering compelling features for game developers. " +
+				"<br>For Microsoft, this helps to lock in Windows as the only operating system for modern PC gaming.<br>" +
+				"Prior editions of Direct3D, since 1996, have been clumsy and lacking features compared to the competing proprietory 3Dfx Glide or the industry OpenGL standard. Direct3D was instead a hardware fallback API for developers to support.",
+		},
+		{
+			Year: 2000, Prefix: notable + " onward,",
 			List: Links{
 				{LinkTitle: "Myth", Link: "/g/myth", Forward: "Paradigm, Origin"},
 				{LinkTitle: "Postmortem", Link: "/g/postmortem", SubTitle: "2001"},
