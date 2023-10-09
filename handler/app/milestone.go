@@ -231,8 +231,8 @@ func Collection() Milestones {
 				"<br>Significantly, it was at the heart of a future generation personal computing platforms, the Apple Lisa <sup>1983</sup>, <a href=\"https://spectrum.ieee.org/apple-macintosh\">Apple Macintosh</a> <sup>1984</sup>, " +
 				"<a href=\"https://daily.redbullmusicacademy.com/2017/10/atari-st-instrumental-instruments\">Atari ST</a> <sup>1985</sup>, and the <a href=\"https://arstechnica.com/gadgets/2007/07/a-history-of-the-amiga-part-1/\">Commodore Amiga 1000</a> <sup>1985</sup>. " +
 				"These incompatible systems offered high-resolution graphics and their own mouse-driven <abbr title=\"Graphical User Interface\">GUI</abbr> operating system as standard. " +
-				"At a time when the typical microcomputer or PC relied upon dated, user-hostile text interaction." +
-				"<p title=\"The common input prompt for an IBM or Microsoft disk operating system\"><code>A><strong>_</strong></code><p>",
+				"At a time when the typical microcomputer or PC relied upon dated, user-hostile text interaction. &nbsp; " +
+				"<span title=\"The common input prompt for an IBM or Microsoft disk operating system\"><strong>A>_</strong></span>",
 		},
 		{
 			Title: "Computer Software Copyright Act of 1980", Year: 1980, Month: 12, Day: 12, Highlight: true,
@@ -454,7 +454,7 @@ func Collection() Milestones {
 			Title: "The first 16 color EGA game", Year: 1986, Month: 3,
 			Lead: "Accolade's Mean 18", LinkTitle: "the moby games entry",
 			Link:    "https://www.mobygames.com/game/152/mean-18/",
-			Content: "It may seem strange today, but golf games were popular in the 1980s and 1990s in the US and Japan. White-collar elites played the real-life sport, so it isn't surprising that video game golf simulations targetting expensive computer platforms and arcades became popular.",
+			Content: "It may seem strange today, but golf games were popular in the 1980s and 1990s. The real-life sport was asperational for many white collar, US and Japanese workers, so it isn't surprising that video game golf simulations targetting expensive computer platforms and arcades became popular.",
 		},
 		{
 			Title: "The earliest PC loaders", Year: 1986, Month: 6, Highlight: true,
@@ -646,7 +646,7 @@ func Collection() Milestones {
 			Title: "The first 256 color VGA game", Year: 1989, Month: 3,
 			Lead: "688 Attack Sub from Electronic Arts", LinkTitle: "the mobygames page",
 			Link:    "https://www.mobygames.com/game/2099/688-attack-sub",
-			Content: "Driving, flying, and military simulation games were once a popular genre of video games on the PC. Before dedicated GPUs existed, this genre created demanding open-world landscapes requiring expensive CPUs and even co-processors! Which was great for those with high-end hardware who wanted to show off.",
+			Content: "Driving, flying, and military simulation games were once a popular genre of video games on the PC. Before dedicated <abbr title=\"graphics processing unit\">GPUs</abbr> existed, this genre created demanding open-world landscapes requiring expensive CPUs and even co-processors! Which was great for those with high-end hardware who wanted to show off.",
 		},
 		{
 			Title: "Earliest BBS ANSI loader", Year: 1989, Month: 3,
@@ -894,6 +894,17 @@ func Collection() Milestones {
 				"ROM 1911 was used by Razor 1911 as the dumping ground for unwanted CDs titles.",
 		},
 		{
+			Title: "The Warez Scene legal precedent is set", Year: 1994, Month: 12, Day: 28, Highlight: true,
+			Lead: "No criminal liability for the sharing of software", LinkTitle: "David LaMacchia Defense Fund with press releases", Link: "https://web.archive.org/web/19990224000548/http://photo.net/dldf/home.html",
+			Content: "In April 1994, David LaMacchia, a 20 year old junior at the Massachusetts Institute of Technology, <a href=\"/f/b628640\">is indicted</a> for conspiring to commit wire fraud. A 1950s law intended to stop defrauding another out of money using the U.S. landline telephone network. " +
+				"<br>David ran two anonymous <a href=\"https://fsp.sourceforge.net/index.html\">File Service Protocol</a> sites using MIT's internal network connected to the Internet to share software with users without financial gain. The primary site, <a href=\"https://web.archive.org/web/19991018194139/http://photo.net/dldf/indictment.html\">Cynosure, offered downloads, while Cynosure II</a> also permitted uploads with requests." +
+				"<p></p>Months later, David's defense lawyers filed a motion to dismiss, " +
+				"<q>LaMacchia contends that the indictment invents a criminal charge, primarily by distorting the wire fraud statute, in order to circumvent Congress's decision not to apply a criminal sanction to LaMacchia's alleged conduct.</q>" +
+				"<br>And just days after Christmas, the motion to dismiss was allowed by District Judge Stearns." +
+				"<br><q>The Court dismissed the indictment, holding that <strong>there was no clearly expressed Congressional intent to permit prosecution of copyright " +
+				"infringement</strong> under the wire fraud statute. There was no allegation that LaMacchia infringed copyrighted software for commercial advantage or private financial gain.</q>",
+		},
+		{
 			Year: 1994, Prefix: notable,
 			List: Links{
 				{LinkTitle: "ROM 1911", Link: "/g/rom-1911", SubTitle: "ROM", Forward: "Razor 1911"},
@@ -1012,6 +1023,14 @@ func Collection() Milestones {
 				"The formalization of an ISO trading scene for software occurred in late 1997, but it took years before it became a dominate format.",
 		},
 		{
+			Title: "Overnight, many Warez Scene activities become criminal", Year: 1997, Month: 12, Day: 16, Highlight: true,
+			Lead: "No Electronic Theft (NET) Act", LinkTitle: "Forbes article Stealing code", Link: "https://www.forbes.com/1997/11/28/feat.html?sh=5fc911fb2c1c",
+			Content: "<q>The NET Act was signed into law by President Clinton in December 1997, making it illegal to reproduce or distribute copyrighted works, such as software programs and musical recordings, even if the defendant acts without a commercial purpose or for private financial gain.</q>" +
+				"<br><br>The law is a response to the failed prosecution against David LaMacchia from a few years earlier. The dismissal of his case brought attention to the legal anomaly named after his win, <a href=\"https://www.newscientist.com/article/mg15621113-000-publish-on-the-net-and-be-damned/\">the LaMacchia loophole</a>." +
+				"<br><br>Under the new law, <q>if the defendant reproduces or distributes 10 or more copyrighted works that have a total value of more than $2,500, he or she can be charged with a felony, and faces a sentence of up to 3 years imprisonment and a fine of up to $250,000. " +
+				"A defendant who reproduces or distributes one or more copies of copyrighted works with a value of more than $1,000 can be charged with a misdemeanor, and face up to one year in prison and a fine of up to $100,000.</q>",
+		},
+		{
 			Year: 1997, Prefix: notable,
 			List: Links{
 				{LinkTitle: "CD Images For the Elite", Link: "/g/cd-images-for-the-elite", SubTitle: "CiFE"},
@@ -1078,6 +1097,14 @@ func Collection() Milestones {
 			},
 		},
 		{
+			Title: "The free party is over", Year: 2000, Month: 5, Day: 5, Highlight: true,
+			Lead: "The end of Pirates with Attitude", LinkTitle: "the US DOJ press release", Link: "https://web.archive.org/web/20120114174415/http://www.justice.gov/criminal/cybercrime/pirates.htm",
+			Content: "The US Department of Justice indicted 17 members of <a href=\"/g/pirates-with-attitudes\">Pirates with Attitudes</a> who got caught up in a honey pot scheme where, for months, Canadian law enforcement had taken control of the primary PWA FTP distribution (World HQ) site, Sentinel, running out of the University of Sherbrooke in Quebec." +
+				"<p>A day later, <a href=\"/f/a23b69\">PWA published their final release</a> out of Belgium, a farewell NFO by the fugitive Shiffie.</p>" +
+				"Of the US defendants, 13 pleaded guilty. Five members were active employees of Intel Corp, and one was an employee of Microsoft Corp." +
+				"<p>Less than a week later, Christian Morley, aka <q>Mercy,</q> a former senior organizer of PWA, <a href=\"https://ipmall.law.unh.edu/sites/default/files/hosted_resources/CyberCrime/pwa_verdict.pdf\">became the first person to be found guilty</a> under the No Electronic Theft (NET) Act and <strong>the first to be guilty of conspiracy to infringe software copyrights</strong>.</p>",
+		},
+		{
 			Title: "Direct3D, the 3D graphic standard", Year: 2000, Month: 11,
 			Lead: "DirectX 8.0 (4.08.00.0400)", LinkTitle: "the press release", Link: "https://news.microsoft.com/2000/11/09/microsoft-announces-release-of-directx-8-0",
 			Content: "The release of Microsoft's Direct3D 8 for all active editions of Windows from 95 through to XP was the beginning of the dominance of the proprietary 3D graphics API, as it is the first release offering compelling features for game developers. " +
@@ -1097,6 +1124,13 @@ func Collection() Milestones {
 				{LinkTitle: "Hatred", Link: "/g/hatred", SubTitle: "2006"},
 				{LinkTitle: "Skid Row", Link: "/g/skid-row", SubTitle: "2007"},
 			},
+		},
+		{
+			Title: "Operation Buccaneer", Year: 2001, Month: 12, Day: 11,
+			Lead: "The global takedown of Drink or Die", LinkTitle: "the Department of Justice overview", Link: "https://www.ojp.gov/ncjrs/virtual-library/abstracts/cross-national-investigation-and-prosecution-intellectual-property",
+			Content: "Operation Buccaneer was the first global effort to target a specific warez group for criminal prosecution. Because of the nature of warez groups on the Internet, members operate in numerous countries and time zones. " +
+				"The operation needed multiple law enforcement agencies in the USA, UK, Australia, Norway, Sweden, and Finland to coordinate the execution of 70 search warrants." +
+				"<p></p>The target, <a href=\"/g/drink-or-die\">Drink or Die</a> is singled out for their pirate releases of Microsoft Windows 95 that occurred back in 1995, over six years prior with different membership.",
 		},
 		{
 			Title: "Digital only scene releases", Year: 2004, Month: 10, Day: 7,
