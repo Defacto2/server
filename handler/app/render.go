@@ -125,7 +125,7 @@ func Index(z *zap.SugaredLogger, c echo.Context) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	const lead = "a website committed to preserving the historic PC cracking and warez scene subcultures." +
+	const lead = "a website maintaining the historic PC cracking and warez scene subcultures." +
 		" It covers digital objects including text files, demos, music, art, magazines, and other projects."
 	const desc = "Defacto2 is " + lead
 	data := empty()

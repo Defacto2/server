@@ -2,6 +2,8 @@ package app
 
 // Package file milestone.go contains the milestones for The Scene,
 // that are used by the home page.
+//
+// TODO Earliest contemporary demoscene entry.
 
 const notable = "Notable group foundings,"
 
@@ -72,9 +74,9 @@ func Collection() Milestones {
 			Year: 1972, Month: 4, Title: "The first 8-bit microprocessor",
 			Lead: "Intel 8008", LinkTitle: "The Story of the Intel 8008",
 			Link: "https://www.intel.com/content/www/us/en/history/virtual-vault/articles/the-8008.html",
-			Content: "Intel released the world's first 8-bit microprocessor, the Intel 8008. Despite the branding, it was not an 8-bit extension of the Intel 4004 but a new architecture." +
-				"<br>Unlike the earlier 4004, Computer Terminal Corporation of Texas commissioned the new Intel chip for their cost-effective <a href=\"https://history-computer.com/datapoint-2200-guide/\">Datapoint 2200 computer terminal</a>. Designed as a dumb terminal, CTC realized it could also operate as a programmable device with a central processing unit." +
-				"<br>Manufacturing issues with the 8008 and deadlines meant that the Datapoint 2200 ditched the CPU. CTC followed the common practice of building the internals from discrete transistor-transistor (TTL) logic.",
+			Content: "Intel released the world's first 8-bit microprocessor, the Intel 8008. Despite the branding, it was not an 8-bit extension of the 4-bit Intel 4004 but a new architecture." +
+				"<br>Computer Terminal Corporation of Texas commissioned the new Intel chip for their cost-effective <a href=\"https://history-computer.com/datapoint-2200-guide/\">Datapoint 2200 computer terminal</a>. Designed as a dumb terminal, CTC realized it could also operate as a programmable device with a central processing unit." +
+				"<br>Manufacturing issues with the 8008 and deadlines meant that the Datapoint 2200 ditched the CPU. Instead, CTC followed the common practice of building the internals from discrete transistor-transistor (TTL) logic.",
 			Picture: Picture{
 				Title:       "Intel 8008 CPU chip",
 				Alt:         "A photo of an Intel C8008-1 CPU chip.",
@@ -87,8 +89,8 @@ func Collection() Milestones {
 		{
 			Year: 1972, Prefix: "Early", Title: "Blue boxes",
 			Link: "https://explodingthephone.com/", LinkTitle: "about the hackers of the telephone network",
-			Content: "Inspired by The Secrets of the Little Blue Box article, Steve Wozniak and a teenage Steve Jobs team up to build and sell dozens and dozens of the Wozniak-designed blue boxes to the students of Berkeley University. " +
-				"The devices allowed users to hack and manipulate the electromechanical machines that operated the national telephone network.",
+			Content: "Inspired by The Secrets of the Little Blue Box article, Steve Wozniak and a teenage Steve Jobs team up to build and sell dozens and dozens of the Wozniak-designed blue boxes to the students of the University of California, Berkeley. " +
+				"The devices allowed users to hack and manipulate the electromechanical machines that operated the national telephone network—enabling them to call anywhere worldwide without incurring the typical prohibitively expensive costs.",
 		},
 		{
 			Year: 1974, Month: 4, Title: "The first CPU for microcomputers",
@@ -96,7 +98,7 @@ func Collection() Milestones {
 			Link: "https://www.intel.com/content/www/us/en/history/virtual-vault/articles/the-8008.html",
 			Content: "Intel released the 8-bit 8080 CPU, its second but far more successful 8-bit programmable microprocessor. " +
 				"While the Intel 8008 was the first central processing unit on a chip, the heavily upgraded Intel 8080 became the first mass-produced CPU suitable for personal microcomputing. " +
-				"The 8080 and its later descendants, both from Intel and competitors, meant the 8080 architecture came to dominate the 8-bit CPU market of the 1970s and 1980s.<br>" +
+				"<br>The 8080 and its later descendants, both from Intel and competitors, meant the 8080 architecture came to dominate the 8-bit CPU market of the 1970s and 1980s.<br>" +
 				"This CPU became the processing heart of the earliest popular microcomputers, the <a href=\"https://collection.powerhouse.com.au/object/167322\">Altair 8800</a>, " +
 				"the <a href=\"http://oldcomputers.net/sol-20.html\">Sol-20</a>, <a href=\"https://collection.powerhouse.com.au/object/153559\">IMSAI</a>, and later in arcade machines, such as the cultural phenomenon that was <a href=\"https://www.computinghistory.org.uk/det/47162/40-Years-of-Space-Invaders/\">Space Invaders</a>.",
 		},
@@ -104,9 +106,9 @@ func Collection() Milestones {
 			Year: 1975, Month: 1, Title: "The first popular microcomputer",
 			Lead: "Altair 8800", LinkTitle: "about the Altair 8800",
 			Link: "https://americanhistory.si.edu/collections/search/object/nmah_334396",
-			Content: "The worlds first popular microcomputer appears on the <a href=\"https://archive.org/details/197501PopularElectronics\">front cover of Popular Electronics</a> in the USA, the Altair 8800 by MITS running an Intel 8080 CPU. " +
+			Content: "The worlds first popular microcomputer appears on the <a href=\"https://archive.org/details/197501PopularElectronics\">front cover of Popular Electronics</a> in the USA, the Altair 8800 by MITS running on the Intel 8080 CPU. " +
 				"Even for the time, the Altair was a primitive device, requiring toggle on/off switches for input and blinking red LED lights for output, and there was no way to save programs. But it was the first widely available programmable computer that didn't cost an arm, a leg, or a house." +
-				"<br>Eventually, with the system's popularity and its use of the modular S-100 bus interface, the upgraded Altair platform allowed for storage, teletype-keyboard input, printer output and displays.",
+				"<br>Eventually, with the system's popularity and its use of <a href=\"http://www.s100computers.com/History.htm#The%20S-100%20Bus\">the modular S-100 bus interface</a>, an upgraded Altair platform allowed for storage, teletype-keyboard input, printer output and displays.",
 		},
 		{
 			Year: 1975, Month: 2, Title: "The first microcomputer software",
@@ -134,7 +136,7 @@ func Collection() Milestones {
 			Lead: "An Open Letter to Hobbyists", LinkTitle: "the letter",
 			Link: "https://archive.org/details/hcc0201/Homebrew.Computer.Club.Volume.02.Issue.01.Len.Shustek/page/n1/mode/2up",
 			Content: "Bill Gates of <em>Micro-Soft</em> writes a letter to the hobbyists of the Homebrew Computer Club requesting they stop stealing Altair BASIC." +
-				"<br>US copyright law is confusing at the time as software documentation and source code is protected, but object code or the compiled software that ran on the computers is probably not.",
+				" But at the time, US copyright law generally did not apply to software.",
 			Picture: Picture{
 				Title:       "An Open Letter to Hobbyists",
 				Alt:         "A photo of the first page of the letter.",
@@ -175,7 +177,7 @@ func Collection() Milestones {
 			Lead: "CBBS", LinkTitle: "the Byte Magazine article", Link: "https://vintagecomputer.net/cisc367/byte%20nov%201978%20computerized%20BBS%20-%20ward%20christensen.pdf",
 			Content: "Ward Christensen and Randy Suess create the first Bulletin Board System (BBS), the Computerized Bulletin Board System (CBBS) in Chicago. " +
 				"The software was custom written in 8080 assembler language which ran on a S-100 bus computer together with the brand new $300, Hayes 110 / 300 baud modem. " +
-				"The board became extremely popular, with callers from around the world after articles and logs were published in both Byte and Dr. Dobb's Journal magazines later in the year.",
+				"The digital bulletin board became extremely popular, with callers from around the world after articles and logs were published in both Byte and Dr. Dobb's Journal magazines later in the year.",
 			Picture: Picture{
 				Title:       "A recreation of CBBS",
 				Alt:         "A recreation screen capture of the first BBS.",
@@ -190,25 +192,26 @@ func Collection() Milestones {
 			Year: 1978, Month: 6, Title: "The first x86 CPU",
 			Lead: "Intel 8086", LinkTitle: "about the Intel 8086",
 			Link: "https://www.pcworld.com/article/535966/article-7512.html",
-			Content: "Intel releases the 16-bit programmable microprocessor, the Intel 8086, which is the beginning of the <strong>x86 architecture</strong>." +
-				"<br>After the success of the 8080, in March 1976, Intel released the 8085, a minor update to the CPU line, which improved the circuitry and reduced implementation costs. In July 1976, the startup Zilog launched its first product, <a href=\"https://spectrum.ieee.org/chip-hall-of-fame-zilog-z80-microprocessor\">the Z80 CPU</a>, an enhanced, cheaper and software-compatible 8080 clone. Eventually, the Z80 became one of the most successful 8-bit CPUs." +
-				"<br>The development and launch of the 8086, a software-compatible 16-bit implementation of the 8080 and the 8085, is a response to the Z80 launch and market share growth. However, it failed to dominate a market saturated with more affordable 8-bit hardware.",
+			Content: "<p>Intel releases the 16-bit programmable microprocessor, the Intel 8086, which is the beginning of the <strong>x86 architecture</strong>.</p>" +
+				"<p>Back in July 1976, the startup Zilog launched its first product, <a href=\"https://spectrum.ieee.org/chip-hall-of-fame-zilog-z80-microprocessor\">the Z80 CPU</a>, an enhanced, cheaper and software-compatible 8080 clone. Eventually, the Z80 became one of the most successful 8-bit CPUs.</p>" +
+				"Months later, <a href=\"https://timeline.intel.com/1976/8085-microprocessor\">Intel released the 8085</a>, an update to the 8080 CPU line, which improved the circuitry, power requirements and reduced implementation costs." +
+				"<br>The development and launch of the 8086, a software-compatible 16-bit implementation of the 8080 and the 8085, is a direct response to the Z80, and the market of clone CPUs. However, the 8086 failed to dominate an in industry saturated with more affordable 8-bit hardware.",
 		},
 		{
 			Title: "The first popular x86 CPU", Year: 1979, Month: 6,
 			Lead: "Intel 8088", LinkTitle: "about the Intel 8088",
 			Link: "https://spectrum.ieee.org/chip-hall-of-fame-intel-8088-microprocessor",
-			Content: "Intel releases the lesser 16-bit microprocessor, the Intel 8088. " +
-				"While fully compatible with the earlier Intel 8086 CPU, this model is intentionally \"castrated\" using an 8-bit external data bus. " +
-				"The revision is an improvement for some buyers as it needs less expensive support chips on the mainboard and is compatible with the more readily available 8-bit hardware. " +
-				"Software written for either CPU often gets quoted as 8088/86 compatible.",
+			Content: "Intel releases a lesser 16-bit microprocessor, the Intel 8088. " +
+				"While fully compatible with the earlier Intel 8086 CPU, this CPU model is intentionally \"castrated\" with an 8-bit external data bus. " +
+				"The revision is an improvement for some buyers as it needs less expensive mainboard support chips and is compatible with the more readily available 8-bit hardware. " +
+				"<p>Software written for either 16-bit CPU <a href=\"https://archive.org/details/msdos-200-users-guide-1983/page/n3/mode/2up\">often gets quoted as 8086/8088 compatible</a>.</p>",
 		},
 		{
 			Title: "First commercial software for x86",
 			Year:  1979, Month: 6, Day: 18,
 			Lead: "Microsoft BASIC-86", LinkTitle: "Microsoft introduces BASIC-86",
 			Link: "https://thisdayintechhistory.com/06/18/microsoft-introduces-basic-for-8086/",
-			Content: "Microsoft BASIC and its many revisions were the first killer applications for Microsoft in its early years. " +
+			Content: "<a href=\"https://www.computerhistory.org/collections/catalog/102623976\">Microsoft BASIC</a> and its many revisions were the first killer applications for Microsoft in its early years. " +
 				"Most microcomputers were sold to enthusiasts or businesses, and the software availability could have been better. " +
 				"So many owners resorted to creating software, and the BASIC programming language had the easiest learning curve. " +
 				"Microsoft didn't invent the language, but its implementation was considered the gold standard.",
@@ -217,7 +220,7 @@ func Collection() Milestones {
 			Title: "The first operating system for x86", Year: 1980, Month: 8,
 			Lead: "Seattle Computer Products QDOS", LinkTitle: "about QDOS",
 			Link: "https://www.1000bit.it/storia/perso/tim_paterson_e.asp",
-			Content: "Tim Paterson worked on a project at Seattle Computer Products to create an 8086 CPU plugin board for the S-100 bus standard. " +
+			Content: "Tim Paterson worked on a project at Seattle Computer Products to create an <a href=\"http://www.s100computers.com/Hardware%20Folder/Seattle%20Computer%20Products/8086%20CPU%20Board/8086%20Board.htm\">8086 CPU plugin board for the S-100 bus standard</a>. " +
 				"Needing an operating system for the 16-bit Intel CPU, he programmed a half-complete, unauthorized clone of the CP/M operating system within four months. " +
 				"He called it QDOS (Quick and Dirty OS), and it sold few copies.",
 		},
@@ -235,16 +238,17 @@ func Collection() Milestones {
 				"<span title=\"The common input prompt for an IBM or Microsoft disk operating system\"><strong>A>_</strong></span>",
 		},
 		{
-			Title: "Computer Software Copyright Act of 1980", Year: 1980, Month: 12, Day: 12, Highlight: true,
-			Lead: "Software is defined by copyright laws in the USA", LinkTitle: "about the act",
-			Link:    "https://www.c2st.org/the-computer-software-copyright-act-of-1980/",
-			Content: "Signed as an amendment to law by President Jimmy Carter, computer programs are defined by copyright law and enable authors to control the copying, selling, and leasing of their software.",
+			Title: "Computer Software Copyright Act", Year: 1980, Month: 12, Day: 12, Highlight: true,
+			Lead: "Software is defined in US copyright laws", LinkTitle: "about the act",
+			Link: "https://www.c2st.org/the-computer-software-copyright-act-of-1980/",
+			Content: "Signed as an amendment to law by President Jimmy Carter, computer programs are defined by copyright law and enable authors to control the copying, selling, and leasing of their software." +
+				"<br><a href=\"https://repository.law.uic.edu/cgi/viewcontent.cgi?article=1571&context=jitpl\">But the law was confusing</a> as software documentation and software source code are protected, but the object code or the compiled software that ran on the computer hardware is probably not.",
 		},
 		{
 			Title: "The first PC", Year: 1981, Month: 8, Day: 12, Highlight: true,
 			Lead: "IBM Personal Computer", LinkTitle: "about the IBM PC",
 			Link:    "https://www.ibm.com/ibm/history/exhibits/pc25/pc25_birth.html",
-			Content: "Built on the 4.77 MHz Intel 8088 microprocessor, 16KB of RAM and Microsoft's PC-DOS, this underpowered machine heralds the <strong>PC platform</strong>.",
+			Content: "Built on the 4.77 MHz Intel 8088 microprocessor, 16KB of RAM and Microsoft's PC-DOS, this expensive and underpowered machine heralds <strong>the PC platform</strong>.",
 			Picture: Picture{
 				Title:       "IBM PC 5150",
 				Alt:         "A photo of the IBM PC 5150",
@@ -258,16 +262,16 @@ func Collection() Milestones {
 			Title: "The first published PC game", Year: 1981, Month: 9,
 			Lead: "IBM's Microsoft Adventure", LinkTitle: "about Microsoft Adventure",
 			Link: "https://www.filfre.net/2011/07/microsoft-adventure/",
-			Content: "A PC port of the text only Colossal Cave Adventure. " +
-				"Adventure was a highly influential and popular text-only adventure game for mainframe computers of the 1970s. " +
+			Content: "Microsoft Adventure is an IBM PC port of the text only Colossal Cave Adventure.<br>" +
+				"Adventure was a highly influential and popular text-only adventuring game of exploration and puzzle solving for mainframe computers of the 1970s. " +
 				"Will Crowther wrote it in FORTRAN for the PDP-10 system and Don Woods at the Stanford AI Lab in California later expanded it. " +
 				"The game created the interactive fiction genre, which later led to graphic adventures and story narratives in video games.",
 		},
 		{
 			Title: "Initial release of MS-DOS", Year: 1982, Month: 8,
-			Lead: "MS-DOS v1.25", LinkTitle: "about MS-DOS 1.25",
-			Link: "https://betawiki.net/wiki/MS-DOS_1.25",
-			Content: "Microsoft releases the first edition of MS-DOS v1.25, which is readily available to all OEM computer manufacturers. All prior releases were exclusive to IBM. " +
+			Lead: "MS-DOS v1.25", LinkTitle: "about MS-DOS 1 and 1.25",
+			Link: "https://www.os2museum.com/wp/dos/dos-1-0-and-1-1/",
+			Content: "Microsoft releases the first edition of MS-DOS v1.25, <a href=\"https://www.os2museum.com/wp/dos/dos-1-0-and-1-1/msdos-ad-1982/\">which is readily available to all OEM computer manufacturers</a>. All prior releases were exclusive to IBM. " +
 				"This release starts the ball rolling, with Microsoft becoming the de facto operating system provider for personal computers for decades.",
 		},
 		{
@@ -288,10 +292,11 @@ func Collection() Milestones {
 				"It is the first PC clone to use the same software and expansion cards as the IBM PC.",
 		},
 		{
-			Title: "PC / MS-DOS 2 released", Year: 1983, Month: 3,
-			Lead: "The OS includes ANSI.SYS", LinkTitle: "about MS-DOS ANSI.SYS",
-			Link:    "https://github.com/microsoft/MS-DOS/blob/master/v2.0/source/ANSI.txt",
-			Content: "Includes for the first time a device driver to view ANSI text graphics in color.",
+			Title: "ANSI.SYS, the means to ANSI art", Year: 1983, Month: 3,
+			Lead: "PC-DOS and MS-DOS version 2 are released", LinkTitle: "about MS-DOS ANSI.SYS",
+			Link: "https://github.com/microsoft/MS-DOS/blob/master/v2.0/source/ANSI.txt",
+			Content: "The PC for the first time includes a device driver to view ANSI text graphics in color.<br>" +
+				"ANSI was a text terminal display standard from the mid-1970s to format onscreen text and control cursor movement. The implementation in DOS was only partially complete but became its own sub-standard over time.",
 		},
 		{
 			Title: "The earliest cracked PC game", Year: 1983,
@@ -306,7 +311,8 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Major videogame publishers enter the PC market", Year: 1983,
-			Content: "1983 saw some major arcade and video game publishers release software on the PC. Despite the business-centric marketing of the platform, game software was a popular seller.<br>" +
+			Content: "1983 saw some major arcade and video game publishers release software on the PC. Despite the business-centric marketing of the platform, game software sold on a floppy disk was a popular seller. " +
+				"For publishers, it is less risky than manufacturing the expensive cartridges required by some other game systems.<br>" +
 				"<small><a href=\"//dfarq.homeip.net/atarisoft-if-you-cant-beat-em-join-em/\">Atarisoft</a>, " +
 				"<a href=\"//www.uvlist.net/companies/info/243-Infocom\">Infocom</a>, " +
 				"<a href=\"//www.resetera.com/threads/lets-look-back-at-game-company-datasoft.587093/##post-87110411\">Datasoft</a>, " +
@@ -318,32 +324,35 @@ func Collection() Milestones {
 			Lead: "Directions by Randy Day for unprotecting SPOC the Chess Master", LinkTitle: "the unprotect text",
 			Link: "/f/a91c702",
 			Content: "<code>SPOC.UNP</code><br>" +
-				"Unprotects were text documents describing methods to remove software copy protection on floppy disks." +
+				"Unprotects were text documents describing methods to remove software copy protection on floppy disks. " +
 				"Many authors were legitimate owners who were frustrated that publishers would not permit them to create backup copies of their expensive but fragile 5¼-inch floppy disks for daily driving.",
 		},
 		{
 			Title: "Microsoft Windows announced", Year: 1983, Month: 11, Day: 10,
 			Link:      "https://www.poynter.org/reporting-editing/2014/today-in-media-history-in-1983-bill-gates-and-microsoft-introduced-windows/",
 			LinkTitle: "about the announcement",
-			Content: "Around this time, <abbr title=\"graphical user interface\" class=\"initialism\">GUI</abbr> for microcomputing was the hype in the technology industry and media. " +
-				"In hindsight, this premature announcement from Microsoft aimed to keep customers from jumping to competitor GUI platforms and offerings. " +
-				"It took over a decade before graphical interfaces on the PC replaced text in business computing and even longer before it became commonplace in the home." +
-				"<br>Other microcomputer platforms, such as the <span class=\"text-nowrap\">Apple Macintosh <sup>1984</sup></span>, <span class=\"text-nowrap\">Commodore Amiga</span> and <span class=\"text-nowrap\">Atari ST <sup>1985</sup></span> came with a GUI as standard.",
+			Content: "Around this time, <abbr title=\"graphical user interface\" class=\"initialism\">GUI</abbr> for microcomputing was all the hype within the technology industry and media. " +
+				"In hindsight, this premature announcement from Microsoft aimed to keep customers from jumping ship to competitor platforms and GUI offerings. " +
+				"<br>It took a decade before graphical interfaces on the PC replaced text in business computing with Windows NT <sup>1993</sup> and even longer with Windows 95 <sup>1995</sup> before it became commonplace in the home." +
+				" Other microcomputer platforms, such as the <span class=\"text-nowrap\">Apple Macintosh <sup>1984</sup></span>, <span class=\"text-nowrap\">Commodore Amiga</span> and <span class=\"text-nowrap\">Atari ST <sup>1985</sup></span> came with a GUI as standard.",
 		},
 		{
 			Title: "Major game publishers enter the PC market", Year: 1984,
 			Content: "<a href=\"//www.polygon.com/a/how-ea-lost-its-soul/\">Electronic Arts</a>, " +
 				"<a href=\"//www.ign.com/articles/2010/10/01/the-history-of-activision\">Activision</a>, " +
 				"<a href=\"//segaretro.org/IBM_PC\">Sega</a> and " +
-				"<a href=\"//corporate-ient.com/microprose/\">MicroProse Software</a>* publish on the platform." +
-				"<br>* The company founded by Sid Meier",
+				"<a href=\"//corporate-ient.com/microprose/\">MicroProse Software</a> publish on the platform." +
+				"<p>Electronic Arts was founded in 1982 by former Apple employee Trip Hawkins and initially developed for the Atari 400/800 and later Commodore 64." +
+				"<br>Activision originated in late 1979 as the first 3rd-party developer for the Atari 2600, comprising former Atari employees." +
+				"<br>Sega was a significant arcade game developer." +
+				"<br>MicroProse Software was the company founded by Sid Meier and Bill Stealey in 1982 to create games for the Atari 400/800.",
 		},
 		{
 			Title: "The first 16 color PC game", Year: 1984, Month: 8,
 			Lead: "King's Quest", LinkTitle: "the game manual",
 			Link: "http://www.sierrahelp.com/Documents/Manuals/Kings_Quest_1_IBM_-_Manual.pdf",
 			Content: "The first PC game to use 16 colors, King's Quest, is created by  Sierra On-Line and released by IBM. " +
-				"IBM PC graphics cards are limited to 4 colors, but the game is released for the new IBM PCjr that displays upto 16 colors." +
+				"IBM PC graphics cards are limited to 4 colors, but the game is released for the new IBM PCjr that displays upto 16 colors. " +
 				"The other pioneering aspect of the game was the pseudo-3D landscape. The player controlled a human avatar from a 3rd person perspective and could use it to walk around set pieces, both in front and from behind, and interact with the onscreen objects.",
 		},
 		{
@@ -356,9 +365,11 @@ func Collection() Milestones {
 		},
 		{
 			Title: "EGA graphics standard", Year: 1984, Month: 10,
-			Lead: "16 colors from a 64 color palette", LinkTitle: "How 16 colors saved PC gaming",
-			Link:    "https://www.custompc.com/retro-tech/ega-graphics",
-			Content: "The Enhanced Graphics Adapter standard includes 16 colors, 640×350 pixel resolution and 80×25 text mode.",
+			Lead: "16 color, 64 color palette, 640x350 resolution!?", LinkTitle: "How 16 colors saved PC gaming",
+			Link: "https://www.custompc.com/retro-tech/ega-graphics",
+			Content: "The Enhanced Graphics Adapter standard includes 16 colors, 640×350 resolution and 80×25 text mode." +
+				"<p><a href=\"http://nerdlypleasures.blogspot.com/2014/01/simcity-for-dos-swiss-army-knife-of.html\">With the odd exception</a>, most PC games that use EGA only ever support 160x200 or 320*200 resolutions with 4 or 16 colors on screen. " +
+				"There were complications with EGA and its expensive monitor displays, plus the expensive memory requirements needed for higher resolution graphic modes with 16 colors.</p>",
 		},
 		{
 			Title: "An early demonstration on the PC", Year: 1984, Month: 10,
@@ -380,8 +391,8 @@ func Collection() Milestones {
 			LinkTitle: "and view the text loader",
 			Link:      "/f/aa2be75",
 			Content: "Text loaders and ANSI art offer similar results but are different in execution. " +
-				"Text loaders are binary programs that display text mode characters and colors. " +
-				"ANSI text required the ANSI.SYS device driver included in PC/MS-DOS 2+ to convert plain text files into onscreen animation and color.",
+				"Text loaders are binary programs that <a href=\"https://minuszerodegrees.net/video/bios_video_modes.htm\">display text mode characters and colors</a> instead of graphics. " +
+				"<br>ANSI text files required the ANSI.SYS device driver included in PC and MS-DOS to convert the text files into onscreen animation and color.",
 			Picture: Picture{
 				Title: "Spy Hunter",
 				Alt:   "Spy Hunter by Imperial Warlords screenshot",
@@ -423,8 +434,8 @@ func Collection() Milestones {
 			Link: "/f/a61db76",
 			Content: "<code>DAMBUST1.DOC</code><br>" +
 				"DOX is an abbreviation for documentation, which are text files that provide instructions on playing more complicated games. " +
-				"These titles often relied on printed instruction manuals included in the purchased game box to be playable." +
-				"<br>Dam Buster is a misname of the game The Dam Busters, a 1984 game published by Accolade.",
+				"These titles often relied on printed instruction manuals included in the purchased game box to be usable." +
+				"<p>Dam Buster is a misname of the game The Dam Busters, a 1984 game published by Accolade.</p>",
 		},
 		{
 			Title: "PC clone sales pickup in Europe", Year: 1986,
@@ -432,7 +443,7 @@ func Collection() Milestones {
 			LinkTitle: "about the PC clone market",
 			Content: "While the Commodore, Apple and IBM are common platforms in the US, the European market doesn't always share the same popular platforms. " +
 				"Import duties, slow international distribution channels and a lack of localized software and hardware often hampers the adoption of some platforms. " +
-				"The Western European market is dominated by Acorn, Amstrad, Commodore, Sinclair but the PC clones produced by local electronic manufactures gain popularity. " +
+				"<br>The Western European market is dominated by Acorn, Amstrad, Commodore, Sinclair but the PC clones produced by local electronic manufactures gain popularity. " +
 				"Popular machines include the <a href=\"https://www.dosdays.co.uk/computers/Amstrad%20PC1000/amstrad_pc1000.php\">Amstrad PC1512</a>, " +
 				"the Philips P2000T and the <a href=\"https://www.dosdays.co.uk/computers/Olivetti%20M24/olivetti_m24.php\">Olivetti M24</a>.",
 		},
@@ -454,12 +465,12 @@ func Collection() Milestones {
 			Title: "The first 16 color EGA game", Year: 1986, Month: 3,
 			Lead: "Accolade's Mean 18", LinkTitle: "the moby games entry",
 			Link:    "https://www.mobygames.com/game/152/mean-18/",
-			Content: "It may seem strange today, but golf games were popular in the 1980s and 1990s. The real-life sport was asperational for many white collar, US and Japanese workers, so it isn't surprising that video game golf simulations targetting expensive computer platforms and arcades became popular.",
+			Content: "It may seem strange today, but golf games were popular in the 1980s and 1990s. The real-life sport was aspirational for plenty of white collar US and Japanese workers, so it isn't surprising that video game golf simulations targetting expensive computer platforms and arcades became popular.",
 		},
 		{
 			Title: "The earliest PC loaders", Year: 1986, Month: 6, Highlight: true,
-			Content: "Loaders were named as they would be the first thing to display each time a cracked game is run. " +
-				"These screens were static images in the early days and sometimes contained ripped screens from other games. Some users found these annoying and a cause of file bloat.",
+			Content: "Loaders were named as they would be the first thing to load and display each time the cracked game is run. " +
+				"These screens were static images in the early days and sometimes contained ripped screens from other games. Some users found these annoying and a cause of unwanted file bloat.",
 			List: Links{
 				{LinkTitle: "Atarisoft's Gremlins by Mr. Turbo", Link: "/f/b44cac"},
 				{LinkTitle: "Exodus: Ultima 3 by ESP Pirates", Link: "/f/a83eec"},
@@ -510,7 +521,7 @@ func Collection() Milestones {
 			Title: "The earliest PC demo", Year: 1987, Month: 6, Day: 22, Highlight: true,
 			Lead:      "3 Dimensional EGA Demonstration",
 			LinkTitle: "and view the demo", Link: "/f/ac21460",
-			Content: "A demo and a piece of software created purely for aesthetics, usually to show art or animation. " +
+			Content: "A demo ix a piece of software created purely for aesthetics, usually to show art and animation. " +
 				"While earlier demonstration software existed on the PC, they were intended for retailers or distributors and usually not given to the public.",
 		},
 		{
@@ -542,7 +553,7 @@ func Collection() Milestones {
 			Title: "The first 32 color VGA game", Year: 1988, Month: 3,
 			Lead: "Arcadia's Rockford: The Arcade Game", LinkTitle: "the discussion",
 			Link: "https://forum.winworldpc.com/discussion/comment/174818/#Comment_174818",
-			Content: "<a href=\"https://www.mobygames.com/game/4019/rockford-the-arcade-game/\">Rockford</a> is a strange game, being a port of the arcade game of the same name—the arcade, created as a port of the then-popular microcomputer videogame series, <a href=\"https://boulder-dash.com/history/\">Boulder Dash</a>." +
+			Content: "<a href=\"https://www.mobygames.com/game/4019/rockford-the-arcade-game/\">Rockford</a> is a strange game, being a port of the arcade game of the same name—a machine, created as a port of the then-popular microcomputer videogame series, <a href=\"https://boulder-dash.com/history/\">Boulder Dash</a>." +
 				"<p></p>" +
 				"More unusual is the use of 32-color VGA for a home computer port of an arcade game on the PC, in an era when ports were done on the cheap using lowest common denominator 4-color CGA graphics. The crossover of players who owned expensive VGA graphic cards and monitors in 1988 who were playing arcade ports was probably low.",
 		},
@@ -567,8 +578,8 @@ func Collection() Milestones {
 			Title: "Earliest ANSI ad", Year: 1988, Month: 6, Highlight: false,
 			Lead: "Bentley Sidwell Productions", LinkTitle: "and view the file",
 			Link: "/f/a8286b",
-			Content: "The earliest ANSI ad is released by Bentley Sidwell Productions for the game Paperboy. " +
-				"ANSI art is a computer art form that became widely used to create art and advertisements for BBSes. " +
+			Content: "The earliest ANSI ad is released by Bentley Sidwell Productions for <a href=\"https://www.mobygames.com/game/4577/paperboy/cover/group-3710/cover-12867/\">the game Paperboy</a>. " +
+				"<br>ANSI art is a computer art form that became widely used to create art and advertisements for online bulletin board systems. " +
 				"ANSI art is created using ANSI escape codes to create colored text and is usually viewed in a terminal emulator.",
 			Picture: Picture{
 				Title: "Paperboy by BSP",
@@ -581,9 +592,9 @@ func Collection() Milestones {
 			Title: "Earliest NFO as a text document", Year: 1988, Month: 7, Day: 30, Highlight: false,
 			Lead: "Bentley Sidwell Productions", LinkTitle: "the file", Link: "/f/9f3f4e",
 			Content: "The earliest NFO-like document is released by Bentley Sidwell Productions for the game " +
-				"Romance of The Three Kingdoms. NFO files are text documents that contain information about a release, such as the release group, " +
-				"release date, and release notes. NFO files are usually distributed with pirated software and are often " +
-				"used to promote the release group.",
+				"<a href=\"https://www.mobygames.com/game/9093/romance-of-the-three-kingdoms/cover/group-9976/cover-249195/\">Romance of The Three Kingdoms</a>. NFO files are text documents that contain information about a release, such as the release group, " +
+				"release date, and release notes." +
+				"<br>NFO files are usually distributed with pirated software and are often used to promote the release group.",
 			Picture: Picture{
 				Title: "Bentley Sidwell Productions document",
 				Alt:   "Romance of The Three Kingdoms by Bentley Sidwell Productions document screenshot",
@@ -595,7 +606,7 @@ func Collection() Milestones {
 			Title: "The earliest ASCII art", Year: 1988, Month: 10, Day: 6, Highlight: true,
 			Lead: "Another quality ware from $print", LinkTitle: "and view the file", Link: "/f/ab3dc1",
 			Content: "The earliest ASCII art known so-far is released by $print for the game " +
-				"Fire Power. The ASCII logo is relatively crude and is not as detailed as later ASCII art. " +
+				"Fire Power. The ASCII text logo is relatively crude and is not as detailed as later ASCII art. " +
 				"<pre> ╔═══════════════════════════════╗<br>" +
 				"╔╝      Another Quality Ware     ╚╗<br>" +
 				"║          F  R  O  M             ║<br>" +
@@ -615,8 +626,8 @@ func Collection() Milestones {
 			Title: "The earliest scene drama", Year: 1988, Month: 11, Day: 25,
 			Lead: "TNWC accusing PTL of stealing a release", LinkTitle: "and view the file",
 			Link: "/f/aa356d",
-			Content: "The earliest scene drama known so-far involves a release by The North West Connection (TNWC) for the game " +
-				"Paladin. The drama in the text file accuses PTL of stealing and \"re-releasing\" a release from TNWC. " +
+			Content: "The earliest scene drama known so-far involves a release by <a href=\"/g/the-north-west-connection\">The North West Connection</a> (TNWC) for the game " +
+				"Paladin. The drama in the text file accuses <a href=\"/g/ptl-club?\">PTL Club</a> of stealing and \"re-releasing\" a release from TNWC. " +
 				"Scene drama is often text that is used to call out other groups for bad behavior, stealing releases, " +
 				"or to call out other groups for being lame.",
 			Picture: Picture{
@@ -652,7 +663,7 @@ func Collection() Milestones {
 			Title: "Earliest BBS ANSI loader", Year: 1989, Month: 3,
 			Lead: "Rogues Gallery BBS", LinkTitle: "the file",
 			Link:    "/f/ad21da8",
-			Content: "The Rogues Gallery BBS was based in Long Island, New York, area code 516.",
+			Content: "The <a href=\"https://demozoo.org/bbs/1762/\">Rogues Gallery</a> BBS was based in Long Island, New York, area code 516.",
 			Picture: Picture{
 				Title: "Rogues Gallery BBS",
 				Alt:   "Rogues Gallery BBS ANSI ad screenshot",
@@ -666,7 +677,7 @@ func Collection() Milestones {
 			Link: "/f/ab2843",
 			Content: "An intro or the later cractrkro are small, usually short, demonstration programs designed to display text with are or animations. " +
 				"Oddly, this first intro was created by a group of teenagers out of <strong>Findland</strong>, a country not known for its use of the expensive PC platform. " +
-				"Other 16-bit platforms such as the Commodore Amiga and Atari ST offered much better graphics than the CGA on the PC and were more popular in Europe.",
+				"<br>Other more popular 16-bit platforms such as the Commodore Amiga and Atari ST offered much better graphics and audio than CGA on the PC.",
 
 			Picture: Picture{
 				Title: "First intro by Sorcerers",
@@ -679,10 +690,10 @@ func Collection() Milestones {
 			Title: "Earliest PC cracktro", Year: 1989, Month: 4, Day: 29, Highlight: true,
 			Lead: "Future Brain Inc", LinkTitle: "and run the cracktro",
 			Link: "/f/b83fd7",
-			Content: "This first cracktro is released by Future Brain Inc for the game Lombard RAC Rally. " +
+			Content: "This first cracktro is released by Future Brain Inc for the game <a href=\"https://www.mobygames.com/game/2161/lombard-rac-rally/cover/group-99392/cover-270796/\">Lombard RAC Rally</a>. " +
 				"Future Brain Inc were a group from the <strong>Netherlands</strong>, and were one of the first groups to release cracktros on the PC platform.<br>" +
-				"Early cracktros on the PC platform lacked music, and were usually just a simple text screen with a logo. " +
-				"On other platforms such as the Commodore 64, Amiga, and Atari ST, cracktros offered music and graphic effects which were easier to program due to their standard hardware. ",
+				"Early cracktros on the PC platform lacked music, and were usually a simple screen of text and a logo. " +
+				"On other platforms, the Commodore 64, Amiga 500, and Atari ST, cracktros offered music and graphic effects which were easier to create due to their unified hardware. ",
 			Picture: Picture{
 				Title: "Lombard RAC Rally cracktro",
 				Alt:   "Lombard RAC Rally cracktro screenshot",
@@ -693,8 +704,13 @@ func Collection() Milestones {
 		{
 			Title: "First issue of Pirate magazine", Year: 1989, Month: 6, Day: 1,
 			Lead: "The earlist known scene newsletter for The Scene on the PC", LinkTitle: "the issues",
-			Link:    "/g/pirate",
-			Content: "Based in Chicago, Pirate magazine was a bi-monthly newsletter for The Scene on the PC platform.",
+			Link: "/g/pirate",
+			Content: "<p>Based in Chicago, Pirate magazine was a bi-monthly newsletter for The Scene on the PC platform.</p>" +
+				"<q>What's a pirate? COMPUTER PIRACY is copying and distribution of copyright software (warez). Pirates are hobbyists who enjoy collecting and playing with the latest programs. " +
+				"Most pirates enjoy collecting warez, getting them running, and then generally archive them, or store them away. A PIRATE IS NOT A BOOTLEGGER. " +
+				"Bootleggers are to piracy what a chop-shop is to a home auto mechanic. Bootleggers are people who DEAL stolen merchandise for personal gain. " +
+				"Bootleggers are crooks. They sell stolen goods. Pirates are not crooks, and most pirates consider bootleggers to be lower life forms...</q>" +
+				"<br><q>Pirates SHARE warez to learn, trade information, and have fun! But, being a pirate is more than swapping warez. It's a life style and a passion.</q>",
 		},
 		{
 			Year: 1989, Prefix: notable,
@@ -726,7 +742,7 @@ func Collection() Milestones {
 			Link: "/f/ab3945",
 			Content: "<code>KNIGHTS.NFO</code><br>" +
 				"The timestamps for the Knights of Legend release predate the Bubble Bobble release by a few days.<br>" +
-				"<figure><blockquote class=\"blockquote\"><small>It happened like this, I'd just used \"Unguard\" to crack the SuperLock off of <a href=\"/f/ad4195\">Bubble Bobble</a>, and I said \"I need some file to put the info about the crack in. Hmmm.. Info, NFO!\", and that was it.</small></blockquote>" +
+				"<figure><blockquote class=\"blockquote\"><q><small>It happened like this, I'd just used <a href=\"http://nerdlypleasures.blogspot.com/2011/05/scourge-of-preservation-disk-based-copy.html\">\"Unguard\"</a> to crack the SuperLock off of <a href=\"/f/ad4195\">Bubble Bobble</a>, and I said \"I need some file to put the info about the crack in. Hmmm.. Info, NFO!\", and that was it.</small></q></blockquote>" +
 				"<figcaption class=\"blockquote-footer\">Famed, former cracker for The Humble Guys, Fabulous Furlough maintains Bubble Bobble was the first THG release that used the .NFO file extension.</figcaption></figure>" +
 				"The <code>.NFO</code> file extension is used to denote a text file containing information about a release. " +
 				"Still in use today, the .NFO file contains information about the release group, the release itself, and how to install the release.",
@@ -735,9 +751,9 @@ func Collection() Milestones {
 			Title: "Earliest PC cracktro with music", Year: 1990, Month: 12, Day: 2,
 			Lead: "The Cat, M1 Tank Plattoon", LinkTitle: "about and view cractrko",
 			Link: "/f/ab25f0e",
-			Content: "This cracktro was released by The Cat for the game M1 Tank Platoon. " +
+			Content: "This cracktro was released by The Cat for the game <a class=\"text-nowrap\" href=\"https://www.mobygames.com/game/1499/m1-tank-platoon/cover/group-3004/cover-230986/\">M1 Tank Platoon</a>. " +
 				"It is the first known cracktro on the PC platform to feature music. " +
-				"But \"music\" in a loose sense, as it relies on the terrible internal PC speaker to produce the tune.<br>" +
+				"But \"music\" in a loose sense, as it relies on the terrible internal PC speaker to produce the melody.<br>" +
 				"While the 8-bit consoles and some microcomputers offered dedicated music audio chips, most famously the Commodore 64 with its SID chip, " +
 				"the IBM PC which targeted business did not.",
 			Picture: Picture{
@@ -749,18 +765,20 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Digital audio standard", Year: 1990,
-			Lead: "SoundBlaster",
-			Content: "The SoundBlaster audio standard was released by Creative Labs in 1990. " +
+			Lead:      "SoundBlaster",
+			LinkTitle: "The Sound Blaster Story", Link: "https://www.custompc.com/retro-tech/the-sound-blaster-story",
+			Content: "The SoundBlaster audio standard came about in 1990 after the Sound Blaster 1.5 audio card was released by Creative Labs, with the box proudly proclaiming" +
+				" <q><a href=\"https://vgmpf.com/Wiki/index.php?title=File:Sound_Blaster_1.5_-_Box_-_Back.jpg\">The PC Sound Standard</a></q>. " +
 				"It was the first digital audio standard for the IBM PC to be widely adopted on the PC platform, despite its poor quality, mono 8-bit digital audio. " +
-				"Previous audio standards such as the AdLib and the MT-32 were limited to FM synthesis or MIDI-like samples.<br>" +
-				"The SoundBlaster was the first audio standard to be widely adopted by the PC platform, and was the de facto standard for many years.",
+				"Previous audio standards such as the AdLib and the MT-32, were limited to FM synthesis or MIDI-like samples.<br>" +
+				"The SoundBlaster was the first audio standard widely adopted by the PC platform and was the de facto audio option in games for many years.",
 		},
 		{
 			Title: "CD-ROM media", Year: 1990, Prefix: "Winter",
 			Lead: "Mixed-Up Mother Goose", LinkTitle: "the Catalog listing the game",
 			Link: "https://archive.org/details/vgmuseum_sierra_sierra-90catalog-alt3/page/n21",
-			Content: "The first, widely available enhanced PC game on CD-ROM was Mixed-Up Mother Goose, released by Sierra On-Line in 1990. " +
-				"The game was originally released in 1987, but the CD-ROM version featured enhanced VGA graphics and digital audio.",
+			Content: "The first widely available <a href=\"https://www.mocagh.org/sierra/mothergoose-alt-manual.pdf\">enhanced PC game on CD-ROM was Mixed-Up Mother Goose</a>, announced by Sierra On-Line in 1990 and released in 1991. " +
+				"The game was initially released in 1987, but the CD-ROM remake featured enhanced VGA graphics and digital audio with speech, singing, and music.",
 		},
 		{
 			Year: 1990, Prefix: notable,
@@ -782,7 +800,8 @@ func Collection() Milestones {
 		{
 			Title: "Earliest BBS VGA loader", Year: 1991, Month: 3,
 			Lead: "XTC Systems BBS", LinkTitle: "the loader", Link: "/f/a41dcd9",
-			Content: "<code>XTC-AD.COM</code>",
+			Content: "<p><code>XTC-AD.COM</code></p>" +
+				"<a href=\"https://demozoo.org/bbs/4009/\">XTC Systems</a> was a well-known BBS out of Dallas, Texas. It was the World HQ for the art group ACiD and served as a distribution board for Fairlight, Razor 1911, and some magazines.",
 			Picture: Picture{
 				Title: "XTC Systems BBS VGA loader",
 				Alt:   "XTC Systems BBS VGA loader screenshot",
@@ -818,6 +837,7 @@ func Collection() Milestones {
 		{
 			Title: "Earliest elite BBStro", Year: 1991, Month: 10, Day: 21,
 			Lead: "Splatterhouse BBS", LinkTitle: "about and view the BBStro", Link: "/f/b11acdf",
+			Content: "Splatterhouse, or Splatter House, was a San Jose, California bulletin board heavily affiliated with the International Network of Crackers and the art groups ACiD and Insane Creators Enterprise, the creators of this BBStro.",
 			Picture: Picture{
 				Title: "Splatterhouse BBS BBStro",
 				Alt:   "Splatterhouse BBS BBStro screenshot",
