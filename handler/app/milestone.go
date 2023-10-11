@@ -1163,7 +1163,7 @@ func Collection() Milestones {
 			Lead: "Counter-Strike: Source Final from Emporio", LinkTitle: "the release", Link: "/f/b1282e1",
 			Content: "The online multiplayer title, <a href=\"https://www.mobygames.com/game/15518/counter-strike-source/cover/group-80271/cover-733563/\">Counter-Strike Source</a> was exclusively distributed on <a href=\"https://steampowered.com\">Steam</a>, Valve's digital distribution platform. " +
 				"As there was no physical media available, this became a dubious release within The Scene and many groups didn't acknowledge <a href=\"/g/emporio\">Emporio</a>'s package as a legitimate \"retail\" product or a \"final\" release. " +
-				"Due to the ease of supply and constant online patching, digital distribution was not well received. " +
+				"<p>Due to the ease of supply and constant online patching, digital distribution was not well received.</p>" +
 				"<p><q>SOME may contend the fact that this is BETA. <a href=\"https://web.archive.org/web/20050208205808/http://www.steampowered.com/index.php?area=news&archive=yes&id=327\">This is the version that is released on STEAM AS FINAL</a>. " +
 				"You cannot do any better than this. The ... thing with STEAM is they can easily release many patches BUT EXPECT the EMPORiO crew to bring each and every patch CRACKED to your doorstep!</q></p>",
 		},
@@ -1172,7 +1172,7 @@ func Collection() Milestones {
 			Lead: "Half-Life 2", LinkTitle: "the and view the Steam page", Link: "https://store.steampowered.com/app/220/HalfLife_2",
 			Content: "Half-Life 2 was once of the most anticipated games of the decade, and it was the first major game to use <a href=\"https://steampowered.com\">Steam</a>, Valve's digital distribution platform. " +
 				"Steam was a huge shift in the way games were distributed, and it was the first time a major game required online activation. " +
-				"Steam was not well received by the gaming community, but it was a big success for Valve, and it paved the way for other digital distribution platforms. " +
+				"<a href=\"https://www.amazon.com/product-reviews/B00006I02Z/ref=acr_dp_hist_1?ie=UTF8&filterByStar=one_star&reviewerType=all_reviews#reviews-filter-bar\">Steam often was not well received</a> by the gaming community, but it was a big success for Valve, and it paved the way for other digital distribution platforms. " +
 				"Half-Life 2 was simultaneously released on <a href=\"https://store.steampowered.com/app/220/HalfLife_2/\">Steam</a>, " +
 				"<a href=\"https://www.mobygames.com/game/15564/half-life-2/cover/group-90348/cover-246334/\">DVD</a> " +
 				"and <a href=\"https://www.mobygames.com/game/15564/half-life-2/cover/group-16318/cover-38738/\">on CD</a>, but all three formats required Steam activation. ",
@@ -1188,6 +1188,7 @@ func Collection() Milestones {
 				{LinkTitle: "Half Life 2 *Retail* [CD]", Link: "/f/b24c10"},
 				{LinkTitle: "Half Life 2 DVD *Retail*", Link: "/f/a126f6"},
 				{LinkTitle: "Half-Life 2 *Retail* Offline Installer", Link: "/f/b31a0b7"},
+				{LinkTitle: "Half-Life 2 CDVersion Upgrade", Link: "/f/bc300c7"},
 				{LinkTitle: "Half Life 2 trainer by Ages", Link: "/f/a63666"},
 			},
 		},
