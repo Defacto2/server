@@ -9,3 +9,5 @@ server
 tmp/
 # goreleaser generated directory
 dist/
+# macOS
+*.DS_Store
