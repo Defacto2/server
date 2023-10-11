@@ -774,11 +774,12 @@ func Collection() Milestones {
 				"The SoundBlaster was the first audio standard widely adopted by the PC platform and was the de facto audio option in games for many years.",
 		},
 		{
-			Title: "CD-ROM media", Year: 1990, Prefix: "Winter",
+			Title: "CD-ROM multimedia", Year: 1990, Prefix: "Winter",
 			Lead: "Mixed-Up Mother Goose", LinkTitle: "the Catalog listing the game",
 			Link: "https://archive.org/details/vgmuseum_sierra_sierra-90catalog-alt3/page/n21",
 			Content: "The first widely available <a href=\"https://www.mocagh.org/sierra/mothergoose-alt-manual.pdf\">enhanced PC game on CD-ROM was Mixed-Up Mother Goose</a>, announced by Sierra On-Line in 1990 and released in 1991. " +
-				"The game was initially released in 1987, but the CD-ROM remake featured enhanced VGA graphics and digital audio with speech, singing, and music.",
+				"The children's game was a high-technology remake of <a href=\"https://www.mobygames.com/game/758/mixed-up-mother-goose/cover/group-27001/cover-70129/\">a fun title from 1987</a>, but the CD-ROM remake featured new, enhanced VGA graphics and interface, digital audio with speech, singing, and music." +
+				"<br>With the newest of the technology and a lack of standards for CD media, <a href=\"https://sierrachest.com/index.php?a=games&id=544&title=mother-goose-vga&fld=box&pid=3\">the box came with two identical discs</a>, one red and one blue. The red disc supported Red Book CD audio, while the blue disc lower quality digital samples playback. ",
 		},
 		{
 			Year: 1990, Prefix: notable,
@@ -812,11 +813,8 @@ func Collection() Milestones {
 		{
 			Title: "Earliest contemporary cracktro", Year: 1991, Month: 3, Day: 12, Highlight: true,
 			Lead: "The Dream Team Presents Blues Brothers", LinkTitle: "about and view the cracktro", Link: "/f/b249b1",
-			Content: "This cracktro was released by The Dream Team - Tristar - Red Sector Inc. " +
-				"Programmed by Hard Core, it is the first known cracktro on the PC platform to feature a contemporary design, " +
-				"with a logo, music, and a scroller.<br>" +
-				"Cracktros on the PC platform had previously been limited to mostly static logo screens, " +
-				"or in the case of the earliest cracktros, no graphics at all.",
+			Content: "A trifecta of <a href=\"/g/the-dream-team\">The Dream Team</a> - <a href=\"/g/tristar-ampersand-red-sector-inc\">Tristar - Red Sector Inc.</a> released this cracktro. Programmed by <a href=\"/p/hard-core\">Hard Core</a>, and it is the first known cracktro on the PC platform to feature a contemporary design with a logo, music, and a scroller. " +
+				"Cracktros on the PC platform had previously been limited to primarily static logo screens or, in the case of the earliest cracktros, no graphics.",
 			Picture: Picture{
 				Title: "Blues Brothers cracktro",
 				Alt:   "Blues Brothers cracktro screenshot",
@@ -837,7 +835,7 @@ func Collection() Milestones {
 		{
 			Title: "Earliest elite BBStro", Year: 1991, Month: 10, Day: 21,
 			Lead: "Splatterhouse BBS", LinkTitle: "about and view the BBStro", Link: "/f/b11acdf",
-			Content: "Splatterhouse, or Splatter House, was a San Jose, California bulletin board heavily affiliated with the International Network of Crackers and the art groups ACiD and Insane Creators Enterprise, the creators of this BBStro.",
+			Content: "<a href=\"https://demozoo.org/bbs/7179/\">Splatterhouse, or Splatter House</a>, was a San Jose, California bulletin board heavily affiliated with the International Network of Crackers and the art groups ACiD and the creators of this BBStro, Insane Creators Enterprise.",
 			Picture: Picture{
 				Title: "Splatterhouse BBS BBStro",
 				Alt:   "Splatterhouse BBS BBStro screenshot",
@@ -871,8 +869,8 @@ func Collection() Milestones {
 			Title: "First SuperVGA / VESA game", Year: 1992, Month: 6,
 			Lead: "Links 386 Pro", LinkTitle: "the mobygames page", Link: "https://www.mobygames.com/game/3757/links-386-pro/",
 			Content: "The first widely available SuperVGA game was Links 386 Pro from Access. Here, another popular golf simulation pushed the baseline PC gaming requirements with the need for higher-end hardware. " +
-				"The 386 in the title stated the minimum base of an Intel 386 CPU when 286 systems were the commodity." +
-				"<br>The problem for consumers in this era is that ordinarily, most PC software never took advantage of the enhancements offered by the more expensive Intel 386 or 486 CPUs." +
+				"The 386 in the title stated the minimum requirement of an Intel 386 CPU when 286 systems were the commodity." +
+				"<br>The problem for consumers is that ordinarily, most PC software never took advantage of the enhancements offered by the more expensive Intel 386 or 486 CPUs." +
 				"<br>Some caveats to the first SVGA/VESA claim: we are talking about a retail, boxed game requiring a resolution/color depth that a standard VGA setup cannot handle, " +
 				"so at least a constant 600x400 resolution with 256 colors.",
 		},
@@ -907,11 +905,11 @@ func Collection() Milestones {
 		{
 			Title: "Earliest CD image release", Year: 1994, Month: 11, Day: 17, Highlight: true,
 			Lead: "ROM 1911", LinkTitle: "about the release", Link: "/f/ab3e0b",
-			Content: "The earliest known release was a CD image of the game Slob Zone later known as H.U.R.L.<br>" +
-				"At the time most Scene boards and FTP sites offered credits for file uploads but hard drive storage was very expensive. " +
-				"So whole CD images were undesirable due to the massive file sizes involved, slow internet and even slower modem speeds. " +
-				"Plus games published to CDs had little or no copy protection to crack, so were considered too easy, \"lame\" releases.<br>" +
-				"ROM 1911 was used by Razor 1911 as the dumping ground for unwanted CDs titles.",
+			Content: "<p>The earliest known release was a CD image of the game <a href=\"https://www.mobygames.com/game/3350/hurl/cover/group-2469/cover-13273/\">Slob Zone</a> later known as H.U.R.L.</p>" +
+				"CD images were generally disliked in The Scene, as they had no copy protection to crack and occupied too much space on the site or board's costly hard drives. " +
+				"<p>ROM 1911 was used by Razor 1911 as a dumping ground for CD titles.</p>" +
+				"<q>ROM 1911 is dedicated to bringing you the best CD titles available on PC, with a catch : we must be able to zip these games down to 10 1.44 meg files or less, or we won't release it. " +
+				"We know that a large portion of the scene would like to play these games, but the size of many CD titles is prohibitive to the pirate gamer. But not all games are too big to release! Which brings us here ..</q>",
 		},
 		{
 			Title: "The Warez Scene legal precedent is set", Year: 1994, Month: 12, Day: 28, Highlight: true,
@@ -936,26 +934,28 @@ func Collection() Milestones {
 		{
 			Title: "Earliest CD-RIP release", Year: 1995, Month: 6, Day: 3, Highlight: true,
 			Lead: "Hybrid", LinkTitle: "about the release", Link: "/f/a938e5",
-			Content: "The earliest known CD-RIP release was by Hybrid for the game Virtual Pool from Interplay.<br>" +
-				"Hybrid was a group formed by ex-members of Pyradical and Pentagram.<br>" +
-				"The CD-RIP came about due to the publishing of games on exclusive to CD-ROM, ignoring the standard floppy disk. " +
-				"CD-ROMs were cheaper to produce and had more storage capacity than floppy disks. " +
-				"But hard drives were expensive and whole CD image were too large to store. " +
-				"So in order for many to play the game, the CD had to be <strong>ripped</strong> to the hard drive with the game fluff such as intro videos removed.",
+			Content: "<p>The earliest known CD-RIP release was by Hybrid for the game <a href=\"https://www.mobygames.com/game/3328/virtual-pool/cover/group-119259/cover-316591/\">Virtual Pool from Interplay</a>. " +
+				"Hybrid was a group formed by ex-members of <a href=\"/g/pyradical\">Pyradical</a> and <a href=\"/g/pentagram\">Pentagram</a>.</p>" +
+				"The <u>CD RIP</u> type came about due to CD-ROM-only games being unable to get a proper Scene release. For PC game publishers, " +
+				"CD-ROMs were cheaper to produce and had far more storage capacity than the standard floppy disks. However, large hard drives were too expensive to store the content of complete CD images. " +
+				"So, for many pirates to play a game published on CD, the disc's content had to be ripped and repackaged to a hard drive, but with the removal of the game's fluff, such as intro videos, music, and speech.",
 		},
 		{
 			Title: "Windows 95 warez release", Year: 1995, Month: 8, Prefix: "Early",
 			Lead: "Drink or Die", Link: "/f/a8177", LinkTitle: "about the release",
-			Content: "Drink or Die became infamous for releasing the to warez scene, a copy of the CD media for the box retail edition of Windows 95, two weeks before the official worldwide release. " +
-				"The release highlighted a significant problem for software and game publishers: some company employees were either members of these warez groups or receiving kickbacks. " +
+			Content: "<p>Drink or Die became notorious for releasing the CD media for the box retail edition of Windows 95 two weeks before the official worldwide release.</p>" +
+				"<p>In an era when global, same-day product launches were logistically costly and uncommon, this operating system launch was probably the most hyped Microsoft consumer product ever. " +
+				"Over a decade before Apple cemented the marketing tactic, <a href=\"https://rarehistoricalphotos.com/windows-95-launch-day-1995/\">Windows 95 had fans queuing at midnight in retail stores worldwide</a>.</p>" +
+				"<p>The release also highlighted a significant problem for software and game publishers: for pirates to get access to the retail packaging weeks before launch meant some company employees were either members of these warez groups or receiving kickbacks.</p>" +
 				"<p><q>Another thing that may raise some questions is that, when you are in MS-DOS-SHELL, and you type 'ver', you will see Windows 95. " +
-				"[Version 4.00.950] This does not mean Beta 950, this, in fact (<em>coming directly from my supplier's mouth at MS</em>*) means that this is version 4.0 -ergo- Windows '95.</q></p>* Microsoft",
+				"[Version 4.00.950] This does not mean Beta 950, this, in fact (<em>coming directly from my supplier's mouth at MS</em> [Microsoft]) means that this is version 4.0 -ergo- Windows '95.</q></p>",
 		},
 		{
 			Title: "Windows 95", Year: 1995, Month: 8, Day: 24,
 			Lead: "Worldwide retail release", LinkTitle: "about the day in history",
-			Link:    "https://www.theverge.com/21398999/windows-95-anniversary-release-date-history",
-			Content: "Microsoft's biggest and most hyped mainstream product release. It was hugely successful in the market and began the transition away from PC/MS-DOS.",
+			Link: "https://www.theverge.com/21398999/windows-95-anniversary-release-date-history",
+			Content: "<p>Microsoft's biggest and most hyped mainstream product release was hugely successful in the market and finally began the PC's transition away from the archaic IBM and Microsoft Disk Operating Systems.</p>" +
+				"<p>Windows 95 had been a long time coming, over a decade late, and offered a fully graphical user interface as the default. It also introduced <a href=\"https://arstechnica.com/gadgets/2015/08/the-windows-start-menu-saga-from-1993-to-today/\">the famed Start menu concept</a> that would later become favored by many Windows and, ironically, <a href=\"https://fossforce.com/2019/07/why-gnome-2-continues-to-win-the-desktop-popularity-contest/\">desktop Linux users</a>.</p>",
 			Picture: Picture{
 				Title: "Windows 95 startup",
 				Alt:   "Windows 95 startup screenshot",
@@ -979,10 +979,8 @@ func Collection() Milestones {
 		{
 			Title: "The Scene merch", Year: 1996, Month: 1,
 			Lead: "Razor 1911 Tenth Anniversary CD-ROM", LinkTitle: "the order form", Link: "/f/a42df1",
-			Content: "The first major Scene merchandise was a CD-ROM by Razor 1911 to celebrate their 10th anniversary. " +
-				"It was a collection of their PC releases from 1991 to 1995 and was sold for $40 USD each, including worldwide postage. " +
-				"Each purchase required the physical cash to be sent in the mail to a PO Box in Florida.<br>" +
-				"Other groups followed suit with their own merchandise, with the most popular item being t-shirts.",
+			Content: "The first major Scene merchandise was selling a CD-ROM by <a href=\"/g/razor-1911\">Razor 1911</a> to celebrate their 10th anniversary. The disc was a collection of their PC releases from 1991 to 1995 and sold for $40 each, including worldwide postage. Before online or consumer digital transactions, buyers had to post in an envelope the physical cash and an order form to a PO Box in Florida. " +
+				"<p>The disc was controversial as selling scene-released software for a profit was criminal and frowned upon. But its success meant other group merchandise soon followed suit, with the most popular items being branded t-shirts.</p>",
 			Picture: Picture{
 				Title: "Razor 1911 Tenth Anniversary CD-ROM",
 				Alt:   "Razor 1911 Tenth Anniversary CD-ROM disc",
@@ -998,11 +996,11 @@ func Collection() Milestones {
 				"<a href=\"/g/razor-1911\">Razor 1911</a>, " +
 				"<a href=\"/g/mantis\">Mantis</a>, " +
 				"<a href=\"/g/napalm\">Napalm</a>, " +
-				"and <a href=\"/g/hybrid\">Hybrid</a>. " +
-				"After 15 years of games being published on the floppy disk medium, the CD-ROM was now the standard for boxed retail games. " +
-				"Unlike the floppy, CD-ROMs were too large for The Scene to copy, crack and illegally distribute. " +
-				"And after a number of confusing and broken releases, the SPA was formed to create a set of standards for the release of CD-RIPs, " +
-				"where an incomplete but still playable game was accepted as a valid pirated release.",
+				"and <a href=\"/g/hybrid\">Hybrid</a>.<br>" +
+				"For the prior 15 years, PC publishers used 5¼ and 3½ inch floppy disks to distribute software, whereas the CD-ROM was now the standard medium for boxed retail games. " +
+				"<p>But CD-ROMs were too large for The Scene to copy, crack, and spread properly. And after several confusing and broken releases, an association of groups created a set of standards for releasing CD-RIPs. While floppy disk distributed releases always included the complete and cracked game, ripped CD releases were playable but missing key gameplay features, such as cutscenes, music, instruction manuals, and speech.</p>" +
+				"<p>CD ripping made an incomplete but technically playable game accepted as a valid pirated release as this was not the case prior.</p>" +
+				"<p><q>the SPA is an agreement between the 5 top PC games groups that lays down the official \"rules of engagement\" to be used in the battle to release the most</q></p>",
 			List: Links{
 				{LinkTitle: "The Faction", Link: "/f/a634e1", SubTitle: "1998"},
 				{LinkTitle: "NSA", Link: "/f/a13771", SubTitle: "2000"},
@@ -1028,7 +1026,7 @@ func Collection() Milestones {
 		{
 			Title: "Release standards broken", Year: 1997, Month: 1, Day: 13,
 			Lead: "Hybrid presents Diablo", LinkTitle: "the release", Link: "/f/ab49cd",
-			Content: "The Standards of Piracy Association CD-RIP standards were broken by founding member Hybrid with this release of Diablo. " +
+			Content: "<p>The Standards of Piracy Association <a href=\"/f/aa3b26\">CD-RIP standards</a> were broken by founding member Hybrid with this release of Diablo.</p>" +
 				"Less than a year prior, SPA had agreed that CD-RIPs should be ripped to a maximum permitted size and any titles where this wasn't possible should be skipped. " +
 				"It wasn't uncommon for major games such as <a href=\"https://www.imdb.com/title/tt0131537/\">Sierra's Phantasmagoria</a> to be passed over by release groups due to their massive size and game play reliance on unrippable video and audio content.",
 			List: Links{
@@ -1038,9 +1036,9 @@ func Collection() Milestones {
 		{
 			Title: "Earliest ISO release", Year: 1997, Month: 11, Day: 27, Highlight: true,
 			Lead: "CD Images For the Elite", LinkTitle: "the release", Link: "/f/ad40ce",
-			Content: "An ISO is a file archive format that contains the complete data of a CD, and later DVD discs. " +
-				"The trading of ISOs between individuals happened for years prior, but Lords of Magic was the earliest known ISO release to The Scene. " +
-				"The formalization of an ISO trading scene for software occurred in late 1997, but it took years before it became a dominate format.",
+			Content: "An <a href=\"https://www.loc.gov/preservation/digital/formats/fdd/fdd000348.shtml\">ISO is a common file archive format</a> containing the entire CD and later DVD data. It enables the copying and exact replication of data onto consumable blank discs." +
+				"<p>Trading ISO images between individuals has happened for years prior, but <a href=\"https://www.mobygames.com/game/2082/lords-of-magic/covers/\">Lords of Magic</a> was the earliest known ISO release pushed to The Scene.</p>" +
+				"<p>A formalization of an ISO trading scene occurred sometime in late 1997, but it took years before the medium became the dominant format.</p>",
 		},
 		{
 			Title: "Overnight, many Warez Scene activities become criminal", Year: 1997, Month: 12, Day: 16, Highlight: true,
@@ -1059,22 +1057,29 @@ func Collection() Milestones {
 		},
 		{
 			Year: 1998, Month: 3, Day: 31,
-			Title: "Online CD keys",
+			Title: "Online keys",
 			Lead:  "StarCraft by Blizzard",
-			Content: "StarCraft was a hugely hyped and popular real-time strategy game by Blizzard Entertainment. " +
-				"A major component of the game was its multiplayer mode, which was played online through Blizzard's Battle.net service. " +
-				"This was the first retail game to be released with a CD key, a unique code that was required to play the game online.",
+			Content: "<a href=\"https://www.mobygames.com/game/378/starcraft/cover/group-9232/cover-2059/\">StarCraft</a> was a hugely hyped and popular real-time strategy game by Blizzard Entertainment.<br>" +
+				"A significant gameplay component was its online multiplayer mode through Blizzard's <a href=\"https://www.myabandonware.com/game/starcraft-epy\">Battle.net</a>. " +
+				"The service required player registration and a unique unlock code in each copy of the game, making StarCraft the first retail game to issue CD keys.",
+			Picture: Picture{
+				Title:       "Rear of the StarCraft CD case",
+				Alt:         "Rear of the StarCraft CD case screenshot",
+				Attribution: "MES392",
+				License:     "©",
+				LicenseLink: "https://www.reddit.com/r/starcraft/comments/aaz4es/cleaned_up_the_office_who_needs_an_original/",
+				//Webp:  "starcraft-case.webp",
+				Jpg: "starcraft-case.jpg",
+			},
 		},
 		{
 			Year: 1998, Month: 4, Day: 1,
 			Title: "Starcraft", LinkTitle: "the release", Link: "/f/a9353d",
 			Lead: "Razor 1911",
-			Content: "The first release of StarCraft was by Razor 1911 and famed cracker Beowulf, who together released the CD-RIP of the game. " +
-				"However, the release took a long time to compile and was missing the CD key, which was required to play the desirable online multiplayer. " +
-				"<p><q>" +
-				"Well, what can I say. This has got to be one of the hardest titles I have ever ripped. " +
-				"The crack was trivial, but ripping this game involved understanding and coding utilities for Blizzard's file packer. It is ...a veritable nightmare." +
-				"</q></p>",
+			Content: "The credited release of StarCraft went to <a href=\"/g/razor-1911\">Razor 1911</a> and famed cracker <a href=\"/p/beowulf\">Beowulf</a>, who together put out a CD-RIP of the game. " +
+				"However, the package took time to compile and lacked the unique CD keys required to play the desirable online multiplayer." +
+				"<p><q>Well, what can I say. This has got to be one of the hardest titles I have ever ripped. " +
+				"The crack was trivial, but ripping this game involved understanding and coding utilities for Blizzard's file packer. It is ...a veritable nightmare.</q></p>",
 			List: Links{
 				{LinkTitle: "StarCraft Battle.NET Keymaker", Link: "/f/b321b00", SubTitle: "2 April"},
 				{LinkTitle: `Starcraft *100% FIX*`, Link: "/f/b13d2c", SubTitle: "3 April"},
@@ -1082,14 +1087,15 @@ func Collection() Milestones {
 		},
 		{
 			Year:  1998,
-			Title: "The ISO scene picks up steam",
-			Content: "The ISO scene was still in its infancy, but it grows quickly when some top-tear RIP groups start releasing within the sphere." +
-				"<ul class=\"list-unstyled\"><li>" +
-				"<a href=\"/f/a82c49\">Razor 1911 merged the ISO division</a> back into the Razor 1911 brand.</li><li>" +
-				"The famed courier group RiSC <a href=\"/f/b04dac\">create RiSCiSO</a>, which would become one of largest ISO groups.</li><li>" +
-				"<a href=\"/f/ae48b0\">PDM ISO</a> becomes the ISO division of Paradigm and famed supplier Zeus.</li><li>" +
-				"And <a href=\"/g/dvniso\">DVNiSO</a> the ISO division of Divine/Deviance." +
-				"</li></ul>",
+			Title: "ISO scene picks up steam",
+			Content: "<p>The ISO scene is still in its infancy but snowballs after some top groups start releasing with the file format.</p>" +
+				"<a href=\"/f/a82c49\">Razor 1911 merges the separate ISO division</a> back into the Razor 1911 label.<br>" +
+				"<a href=\"/f/ac2be5\">Fairlight returns</a> after 4-years and is exclusively releasing with the format.<br>" +
+				"The famed couriers RiSC <a href=\"/f/b04dac\">created RiSCiSO</a> to become one of the largest ISO release groups.<br>" +
+				"<a href=\"/f/ae48b0\">PDM ISO</a> becomes the ISO division of <a href=\"/g/paradigm\">Paradigm</a> and Zeus.<br>" +
+				"<a href=\"/g/dvniso\">DVNiSO</a> becomes an ISO division of Divine and Deviance.<br>" +
+				"<p><br>Other early users of the format include <a class=\"text-nowrap\" href=\"/g/cd-images-for-the-elite\">CD Images for the Elite (CiFE)</a>, <a href=\"/g/kalisto\">Kalisto</a>, <a href=\"/g/isolation\">ISOlation</a>, <a class=\"text-nowrap\" href=\"/g/in-search-of-cd\">In Search of CD</a>, and CaLiSO.</p>" +
+				"<p><q>Paradigm - we do rips, we do ISO - we do it all with style</q></p>",
 		},
 		{
 			Year: 1998, Prefix: notable,
@@ -1117,12 +1123,12 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "The free party is over", Year: 2000, Month: 5, Day: 5, Highlight: true,
+			Title: "The copy party is over", Year: 2000, Month: 5, Day: 5, Highlight: true,
 			Lead: "The end of Pirates with Attitude", LinkTitle: "the US DOJ press release", Link: "https://web.archive.org/web/20120114174415/http://www.justice.gov/criminal/cybercrime/pirates.htm",
 			Content: "The US Department of Justice indicted 17 members of <a href=\"/g/pirates-with-attitudes\">Pirates with Attitudes</a> who got caught up in a honey pot scheme where, for months, Canadian law enforcement had taken control of the primary PWA FTP distribution (World HQ) site, Sentinel, running out of the University of Sherbrooke in Quebec." +
-				"<p>A day later, <a href=\"/f/a23b69\">PWA published their final release</a> out of Belgium, a farewell NFO by the fugitive Shiffie.</p>" +
+				"<p>A day later, <a href=\"/f/a23b69\">PWA published their final release</a>, a farewell NFO written by the fugitive Shiffie out of Belgium.</p>" +
 				"Of the US defendants, 13 pleaded guilty. Five members were active employees of Intel Corp, and one was an employee of Microsoft Corp." +
-				"<p>Less than a week later, Christian Morley, aka <q>Mercy,</q> a former senior organizer of PWA, <a href=\"https://ipmall.law.unh.edu/sites/default/files/hosted_resources/CyberCrime/pwa_verdict.pdf\">became the first person to be found guilty</a> under the No Electronic Theft (NET) Act and <strong>the first to be guilty of conspiracy to infringe software copyrights</strong>.</p>",
+				"<p><br>Less than a week later, Christian Morley, aka <q>Mercy,</q> a former senior organizer of PWA, <a href=\"https://ipmall.law.unh.edu/sites/default/files/hosted_resources/CyberCrime/pwa_verdict.pdf\">became the first person to be found guilty</a> under the No Electronic Theft (NET) Act and <strong>the first to be guilty of conspiracy to infringe software copyrights</strong>.</p>",
 		},
 		{
 			Title: "Direct3D, the 3D graphic standard", Year: 2000, Month: 11,
@@ -1146,53 +1152,63 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Operation Buccaneer", Year: 2001, Month: 12, Day: 11,
-			Lead: "The global takedown of Drink or Die", LinkTitle: "the Department of Justice overview", Link: "https://www.ojp.gov/ncjrs/virtual-library/abstracts/cross-national-investigation-and-prosecution-intellectual-property",
+			Title: "The global takedown of Drink or Die", Year: 2001, Month: 12, Day: 11,
+			Lead: "Operation Buccaneer", LinkTitle: "the Department of Justice overview", Link: "https://www.ojp.gov/ncjrs/virtual-library/abstracts/cross-national-investigation-and-prosecution-intellectual-property",
 			Content: "Operation Buccaneer was the first global effort to target a specific warez group for criminal prosecution. Because of the nature of warez groups on the Internet, members operate in numerous countries and time zones. " +
 				"The operation needed multiple law enforcement agencies in the USA, UK, Australia, Norway, Sweden, and Finland to coordinate the execution of 70 search warrants." +
-				"<p></p>The target, <a href=\"/g/drink-or-die\">Drink or Die</a> is singled out for their pirate releases of Microsoft Windows 95 that occurred back in 1995, over six years prior with different membership.",
+				"<p></p>The target, <a href=\"/g/drink-or-die\">Drink or Die</a> is singled out for their pirate releases of Microsoft Windows 95 that occurred back in 1995, over six years prior with a different group membership.",
 		},
 		{
 			Title: "Digital only scene releases", Year: 2004, Month: 10, Day: 7,
 			Lead: "Counter-Strike: Source Final from Emporio", LinkTitle: "the release", Link: "/f/b1282e1",
-			Content: "The online multiplayer title, Counter-Strike Source was exclusively distributed on Steam, Valve's digital distribution platform. " +
-				"As there was no physical media available, this became a dubious release within The Scene and many groups didn't acknowledge Emporio's package as a legitimate \"retail\" product or a \"final\" release. " +
-				"Due to the ease of supply and the constant online patching, at this time digital distribution was not well received. " +
+			Content: "The online multiplayer title, <a href=\"https://www.mobygames.com/game/15518/counter-strike-source/cover/group-80271/cover-733563/\">Counter-Strike Source</a> was exclusively distributed on <a href=\"https://steampowered.com\">Steam</a>, Valve's digital distribution platform. " +
+				"As there was no physical media available, this became a dubious release within The Scene and many groups didn't acknowledge <a href=\"/g/emporio\">Emporio</a>'s package as a legitimate \"retail\" product or a \"final\" release. " +
+				"Due to the ease of supply and constant online patching, digital distribution was not well received. " +
 				"<p><q>SOME may contend the fact that this is BETA. <a href=\"https://web.archive.org/web/20050208205808/http://www.steampowered.com/index.php?area=news&archive=yes&id=327\">This is the version that is released on STEAM AS FINAL</a>. " +
 				"You cannot do any better than this. The ... thing with STEAM is they can easily release many patches BUT EXPECT the EMPORiO crew to bring each and every patch CRACKED to your doorstep!</q></p>",
 		},
 		{
 			Title: "Digital distribution and online activation", Year: 2004, Month: 11, Day: 16,
 			Lead: "Half-Life 2", LinkTitle: "the and view the Steam page", Link: "https://store.steampowered.com/app/220/HalfLife_2",
-			Content: "Half-Life 2 was once of the most anticipated games of the decade, and it was the first major game to use Steam, Valve's digital distribution platform. " +
-				"Steam was a major shift in the way games were distributed, and it was the first time a AAA game required online activation. " +
-				"Steam was not well received by the gaming community, but it was a huge success for Valve, and it paved the way for other digital distribution platforms. " +
-				"Half-Life 2 was simultaneously released on Steam, DVD and on CD, but all three formats required Steam activation. ",
+			Content: "Half-Life 2 was once of the most anticipated games of the decade, and it was the first major game to use <a href=\"https://steampowered.com\">Steam</a>, Valve's digital distribution platform. " +
+				"Steam was a huge shift in the way games were distributed, and it was the first time a major game required online activation. " +
+				"Steam was not well received by the gaming community, but it was a big success for Valve, and it paved the way for other digital distribution platforms. " +
+				"Half-Life 2 was simultaneously released on <a href=\"https://store.steampowered.com/app/220/HalfLife_2/\">Steam</a>, " +
+				"<a href=\"https://www.mobygames.com/game/15564/half-life-2/cover/group-90348/cover-246334/\">DVD</a> " +
+				"and <a href=\"https://www.mobygames.com/game/15564/half-life-2/cover/group-16318/cover-38738/\">on CD</a>, but all three formats required Steam activation. ",
 		},
 		{
 			Title: "Half-Life 2 *Retail*", Year: 2004, Month: 11, Day: 28,
 			Lead: "Vengeance", LinkTitle: "the release", Link: "/f/b24c10",
-			Content: "Half-Life 2 was once of the most anticipated games of the decade, and it was the first major game to use Steam, Valve's digital distribution platform. " +
-				"This was the first attempt to crack the Steam activation, and it used an unusual Steam client and activation emulator. " +
-				"While playable, the pirated game was crippled both with slower FPS, loadtimes and a lack of multiplayer gameplay.",
+			Content: "Half-Life 2 was one of the most anticipated games of the decade, and it was the first major game to use Steam, Valve's digital distribution platform. " +
+				"<a href=\"/g/vengeance\">Vengeance</a> is the first attempt to crack the Steam activation, and it used an unusual Steam client and activation emulator. " +
+				"But while playable, their pirate release of the game suffered with slower frame rates, load times, and the lack of multiplayer gameplay." +
+				"<p>Vengence would release the DVD *Retail* version with a tweaked crack two days later.</p>",
 			List: Links{
+				{LinkTitle: "Half Life 2 *Retail* [CD]", Link: "/f/b24c10"},
 				{LinkTitle: "Half Life 2 DVD *Retail*", Link: "/f/a126f6"},
+				{LinkTitle: "Half-Life 2 *Retail* Offline Installer", Link: "/f/b31a0b7"},
 				{LinkTitle: "Half Life 2 trainer by Ages", Link: "/f/a63666"},
 			},
 		},
 		{
 			Title: "End of the line for RIPS", Year: 2005, Month: 10, Day: 9,
 			Lead: "Farewell © Myth", LinkTitle: "the release", Link: "/f/a94129",
-			Content: "The last release from Myth, a group that was founded as Zeus/<a href=\"/g/paradigm\">Paradigm</a> in 1996 and focused on ripping PC games from CD and later DVDs. " +
-				"By the mid 2000s, broadband use was widespread and the desire for ripped CD or DVD games with missing content was dwindling. " +
-				"Myth's longtime rival, <a href=\"/f/a53505\">Class, had already quit in early 2004</a>, and the other major ripping group, <a href=\"/g/divine\">Divine</a>, quit in 2006.",
+			Content: "Farewell © Myth is the final release from Myth, a group founded as <a href=\"/f/a53f3c\">Zeus</a> then <a href=\"/g/paradigm\">Paradigm</a> in 1996 and focused on ripping PC games from CD and later DVDs. " +
+				"By the mid-2000s, broadband use was widespread and the desire for ripped CD or DVD games with missing content was dwindling. " +
+				"Myth's longtime rival, <a href=\"/f/a53505\">Class, had already quit in early 2004</a>, and the other major competitor, <a href=\"/g/divine\">Divine</a>, finished up the following year." +
+				"<p><q>We believe that the rip scene is one of incredible skill. " +
+				"Not only is there the cracking talent needed to be successful like that of ISO, you must have dedicated coders and rippers to fully complete the task. " +
+				"Much time is needed to perfect a rip like that of Neverwinter Nights. (We'll never forget you old friend) With the faster speed of the internet, equates to less usage of rips and just makes it not worth it. " +
+				"When you are releasing upwards of 30 games a month some months, and you know not many people are downloading them. " +
+				"It hardly gives you the rush of winning the title. We see groups throw out games now with stolen cracks and are completely non-working. These titles are not nuked, as no one even notices anymore, indeed a sad time in the scene.</q></p>",
 		},
 		{
 			Year: 2016, Prefix: "", Highlight: true,
 			Title: "The twilight of the cracktro",
-			Content: "The 2000s was the last time, original quality cracktros were a common sight within The Scene, mostly thanks to a few nostaligic demosceners and piracy sceners. " +
-				"However, the number of people who could and were willing to create a decent cracktro dwindled, as the skillset requirements got more specific and complex. " +
-				"And so the cracktro was often forsakened for less complicated methods of displaying the release information and branding. ",
+			Content: "The first decade of the 2000s was the last time original quality cracktros were common in The Scene, primarily thanks to a few nostalgic demosceners and warez sceners. " +
+				"However, the number of people who could and were willing to create a decent cracktro dwindled as the skillset requirements got more specific and complex. " +
+				"And so the cracktro was often forsaken for more straightforward methods of displaying the release information and branding. ",
 			List: Links{
 				{LinkTitle: "Fairlight's 500th release", Link: "/f/a61ba0f", SubTitle: "2002"},
 				{LinkTitle: "Hoodlum Cracktro #3", Link: "/f/a229a8", SubTitle: "2005"},
