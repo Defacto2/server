@@ -278,8 +278,8 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Earliest dated crack", Year: 1982, Month: 3,
-			Lead: "Dung Beetles breakage by Black Bart",
-			//LinkTitle: "about the crack", Link: "/f/2b2e3a4",
+			Lead:      "Dung Beetles breakage by Black Bart",
+			LinkTitle: "view the crack", Link: "http://artscene.textfiles.com/intros/APPLEII/dungbeetles.gif",
 			Content: "The earliest dated crack is probably on the Apple II, Dung Beetles broken by Black Bart in March 1982. " +
 				"<p>A screenshot of an earlier serial key exists, <a href=\"http://artscene.textfiles.com/intros/APPLEII/thepirate.gif\">Broken by The Pirate 09/26/81</a>, but the screen lacks context.</p>" +
 				"Other early dated cracks include<br><a href=\"http://artscene.textfiles.com/intros/APPLEII/marscars.gif\">Mars Cars</a> Cracked by Mr Krac-Man 1982.<br>" +
@@ -287,11 +287,10 @@ func Collection() Milestones {
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/aec.gif\">A.E.</a> Cracked by Mr. Krac-Man 12/17/82.<br>" +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/sinterceptm.gif\">Shuttle Intercept</a> Copy/OK (B) 1982 <abbr title=\"Apple Pirated Program Library Exchange\">A.P.P.L.E.</abbr> by The Clone Stranger",
 			Picture: Picture{
-				Title: "Type Attack, Broken by Krakowicz NY",
-				Alt:   "Type Attack broken screenshot",
-				Png:   "thepirate.gif",
-				//Webp:  "ab2edbc.webp",
-				//Png:   "ab2edbc.png",
+				Title: "Dung Beetles breakage by Black Bart",
+				Alt:   "Dung Beetles broken screenshot",
+				Png:   "dungbeetles.png",
+				Webp:  "dungbeetles.webp",
 			},
 		},
 		{
