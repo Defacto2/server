@@ -222,7 +222,8 @@ func Collection() Milestones {
 			Link: "https://www.1000bit.it/storia/perso/tim_paterson_e.asp",
 			Content: "Tim Paterson worked on a project at Seattle Computer Products to create an <a href=\"http://www.s100computers.com/Hardware%20Folder/Seattle%20Computer%20Products/8086%20CPU%20Board/8086%20Board.htm\">8086 CPU plugin board for the S-100 bus standard</a>. " +
 				"Needing an operating system for the 16-bit Intel CPU, he programmed a half-complete, unauthorized clone of the CP/M operating system within four months. " +
-				"He called it QDOS (Quick and Dirty OS), and it sold few copies.",
+				"He called it QDOS (Quick and Dirty OS), and it sold few copies." +
+				"<p>Initially, QDOS got bundled with an Intel <a href=\"http://www.s100computers.com/Hardware%20Folder/Seattle%20Computer%20Products/8086%20CPU%20Board/8086%20Board.htm\">8086 CPU and hardware package</a> for the S-100 bus. But after poor sales, the OS was promptly renamed with the more business-friendly <a href=\"https://archive.org/details/bitsavers_seattleComanual1980_2120639/mode/2up\">86-DOS</a>.</p>",
 		},
 		{
 			Title: "Motorola 68000 16-bit CPU", Year: 1980, Month: 11,
@@ -268,6 +269,32 @@ func Collection() Milestones {
 				"The game created the interactive fiction genre, which later led to graphic adventures and story narratives in video games.",
 		},
 		{
+			Title: "The birth of warez?", Year: 1981, Highlight: true,
+			Lead: "The Apple II", Link: "http://artscene.textfiles.com/intros/APPLEII/", LinkTitle: "Apple II crack screens",
+			Content: "<p>There's no exact answer to the statement, but the director of the BBS: The Documentary, Jason Scott, suggests that the first crack screens for Apple II occurred in 1981.</p>" +
+				"<p><q>It's still up in the air when this phenomenon began to happen (1981 is as good a guess as any), but Apple II pirates, not content to merely get commercial software copied and the protection removed, started giving themselves group names (\"Midwest Pirates' Guild\", \"Black Bag\", \"High Society\") and began to release these pirated programs as products in themselves.</q></p>" +
+				"This date predates the <a href=\"https://spectrum.ieee.org/commodore-64\">Commodore 64</a> <sup>1982</sup>, but still after the <a href=\"https://www.fastcompany.com/90432140/how-atari-took-on-apple-in-the-1980s-home-pc-wars\">Atari 400/800</a> <sup>1979</sup> computer releases, the other era systems heavily skewed toward gaming. " +
+				"But the date also occurred after <a href=\"https://www.apple2history.org/history/ah13/#09\">the first few Apple II modem peripheral devices</a> were on sale. ",
+		},
+		{
+			Title: "Earliest dated crack", Year: 1982, Month: 3,
+			Lead: "Dung Beetles breakage by Black Bart",
+			//LinkTitle: "about the crack", Link: "/f/2b2e3a4",
+			Content: "The earliest dated crack is probably on the Apple II, Dung Beetles broken by Black Bart in March 1982. " +
+				"<p>A screenshot of an earlier serial key exists, <a href=\"http://artscene.textfiles.com/intros/APPLEII/thepirate.gif\">Broken by The Pirate 09/26/81</a>, but the screen lacks context.</p>" +
+				"Other early dated cracks include<br><a href=\"http://artscene.textfiles.com/intros/APPLEII/marscars.gif\">Mars Cars</a> Cracked by Mr Krac-Man 1982.<br>" +
+				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/tattackm.gif\">Type Attack</a>, (B) 1982 Broken by Krakowicz NY.<br>" +
+				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/aec.gif\">A.E.</a> Cracked by Mr. Krac-Man 12/17/82.<br>" +
+				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/sinterceptm.gif\">Shuttle Intercept</a> Copy/OK (B) 1982 <abbr title=\"Apple Pirated Program Library Exchange\">A.P.P.L.E.</abbr> by The Clone Stranger",
+			Picture: Picture{
+				Title: "Type Attack, Broken by Krakowicz NY",
+				Alt:   "Type Attack broken screenshot",
+				Png:   "thepirate.gif",
+				//Webp:  "ab2edbc.webp",
+				//Png:   "ab2edbc.png",
+			},
+		},
+		{
 			Title: "Initial release of MS-DOS", Year: 1982, Month: 8,
 			Lead: "MS-DOS v1.25", LinkTitle: "about MS-DOS 1 and 1.25",
 			Link: "https://www.os2museum.com/wp/dos/dos-1-0-and-1-1/",
@@ -283,6 +310,19 @@ func Collection() Milestones {
 				"<a href=\"//www.uvlist.net/companies/info/1023-Windmill+Software\">Windmill Software</a>, " +
 				"<a href=\"//retro365.blog/2019/09/23/bits-from-my-personal-collection-the-original-ibm-pc-and-orion-software/\">Orion Software</a> and " +
 				"<a href=\"//www.uvlist.net/companies/info/1029-Spinnaker+Software\">Spinnaker Software</a></small>",
+		},
+		{
+			Title: "The great online reboot", Year: 1983, Month: 1, Day: 1,
+			Lead: "Internetworking", LinkTitle: "the notable computer networks", Link: "https://dl.acm.org/doi/pdf/10.1145/6617.6618",
+			Content: "On the 1st of January, 1983, the US Department of Defense coordinated the massive shutdown of its existing experimental wide-area network, <abbr title=\"Advanced Research Projects Agency Network\">ARPAnet</abbr>." +
+				"<p>Referred to as \"Flag Day,\" the event meant that all systems associated with the US military network were required to reconnect using a new <abbr title=\"Transfer Control Protocol\">TCP</abbr>/<abbr title=\"Internetwork Protocol\">IP</abbr> protocol.</p>" +
+				"<p>The replacement protocol decentralized the networks operations and is somewhat inspired by the earlier French <a href=\"https://www.inria.fr/en/between-stanford-and-cyclades-transatlantic-perspective-creation-internet\">CYCLADES packet-switch network</a>. By demanding the connected hosts handle data delivery and error correction. The connecting of various academic, research, and commercial computer networks is possible, removing the ARPAnet's expense and inability to scale.</p>" +
+				"<p>Later in the year, <a href=\"https://www.washingtonpost.com/archive/business/1983/10/04/big-computer-network-split-by-pentagon/d12feaba-c0c7-45fb-a851-25267f8dca9c/\">due to a fear of civilian hackers</a>, the systems associated with the US military were to disconnect again and join a new isolated Defense Data Network (MILnet). The few remaining non-military systems that adopted the TCP/IP protocol standard formed the basis of the new ARPA internetwork or APRA Internet.</p>" +
+				"<p>The other alternative networks of the era:</p>" +
+				"<abbr title=\"Because It's Time NETwork\">BITNet</abbr> <sup>1981</sup>, a cross-continental, research center and university network for file transfers and messaging." +
+				"<br><abbr title=\"European Unix Network\">EUnet</abbr> <sup>1982</sup>, the first public wide area network of Europe." +
+				"<br>Janet <sup>1984</sup>, an extensive UK academic network." +
+				"<br>Corporate networks from Xerox Internet, DEC Easynet and IBM VNET.",
 		},
 		{
 			Title: "The first PC clone", Year: 1983, Month: 3,
@@ -302,6 +342,8 @@ func Collection() Milestones {
 			Title: "The earliest cracked PC game", Year: 1983,
 			Lead: "Atarisoft's Galaxian broken by Koyote Kid", LinkTitle: "about and view the crack",
 			Link: "/f/ab2edbc", Highlight: true,
+			Content: "While Atarisoft released this title in 1983, it is still uncertain if the crack by The Koyote Kid is from the same year. The text uses the common Apple II term <q>broken</q> to describe the crack action. " +
+				"<a href=\"https://www.mobygames.com/game/137/galaxian/screenshots/pc-booter/951/\">The original text</a> had a copyright notice and a press space to continue notice.",
 			Picture: Picture{
 				Title: "Galaxian broken by Koyote Kid",
 				Alt:   "Galaxian broken screenshot",
@@ -325,7 +367,8 @@ func Collection() Milestones {
 			Link: "/f/a91c702",
 			Content: "<code>SPOC.UNP</code><br>" +
 				"Unprotects were text documents describing methods to remove software copy protection on floppy disks. " +
-				"Many authors were legitimate owners who were frustrated that publishers would not permit them to create backup copies of their expensive but fragile 5¼-inch floppy disks for daily driving.",
+				"Many authors were legitimate owners who were frustrated that publishers would not permit them to create backup copies of their expensive but fragile 5¼-inch floppy disks for daily driving." +
+				"<p><q>The disk is close to a normal disk. There is one file in the directory, spoc.exe, which is most of the program. However, track 20, sector 5 is a bad sector. In what manner it is bad, I don't know, but nothing can read it.</q></p>",
 		},
 		{
 			Title: "Microsoft Windows announced", Year: 1983, Month: 11, Day: 10,
@@ -912,7 +955,7 @@ func Collection() Milestones {
 				"We know that a large portion of the scene would like to play these games, but the size of many CD titles is prohibitive to the pirate gamer. But not all games are too big to release! Which brings us here ..</q>",
 		},
 		{
-			Title: "The Warez Scene legal precedent is set", Year: 1994, Month: 12, Day: 28, Highlight: true,
+			Title: "Copyright infringement legal precedent", Year: 1994, Month: 12, Day: 28, Highlight: true,
 			Lead: "No criminal liability for the sharing of software", LinkTitle: "David LaMacchia Defense Fund with press releases", Link: "https://web.archive.org/web/19990224000548/http://photo.net/dldf/home.html",
 			Content: "In April 1994, David LaMacchia, a 20 year old junior at the Massachusetts Institute of Technology, <a href=\"/f/b628640\">is indicted</a> for conspiring to commit wire fraud. A 1950s law intended to stop defrauding another out of money using the U.S. landline telephone network. " +
 				"<br>David ran two anonymous <a href=\"https://fsp.sourceforge.net/index.html\">File Service Protocol</a> sites using MIT's internal network connected to the Internet to share software with users without financial gain. The primary site, <a href=\"https://web.archive.org/web/19991018194139/http://photo.net/dldf/indictment.html\">Cynosure, offered downloads, while Cynosure II</a> also permitted uploads with requests." +
