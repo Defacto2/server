@@ -271,10 +271,11 @@ func Collection() Milestones {
 		{
 			Title: "The birth of warez?", Year: 1981, Highlight: true,
 			Lead: "The Apple II", Link: "http://artscene.textfiles.com/intros/APPLEII/", LinkTitle: "Apple II crack screens",
-			Content: "<p>There's no exact answer to the statement, but the director of the BBS: The Documentary, Jason Scott, suggests that the first crack screens for Apple II occurred in 1981.</p>" +
+			Content: "<p>There's no exact answer to the statement, but the director of the <a href=\"https://www.imdb.com/title/tt0460402/\">BBS: The Documentary</a>, Jason Scott, suggests that the first crack screens for Apple II occurred in 1981.</p>" +
 				"<p><q>It's still up in the air when this phenomenon began to happen (1981 is as good a guess as any), but Apple II pirates, not content to merely get commercial software copied and the protection removed, started giving themselves group names (\"Midwest Pirates' Guild\", \"Black Bag\", \"High Society\") and began to release these pirated programs as products in themselves.</q></p>" +
 				"This date predates the <a href=\"https://spectrum.ieee.org/commodore-64\">Commodore 64</a> <sup>1982</sup>, but still after the <a href=\"https://www.fastcompany.com/90432140/how-atari-took-on-apple-in-the-1980s-home-pc-wars\">Atari 400/800</a> <sup>1979</sup> computer releases, the other era systems heavily skewed toward gaming. " +
-				"But the date also occurred after <a href=\"https://www.apple2history.org/history/ah13/#09\">the first few Apple II modem peripheral devices</a> were on sale. ",
+				"But the date also occurred after <a href=\"https://www.apple2history.org/history/ah13/#09\">the first few Apple II modem peripheral devices</a> were on sale, <small>Hayes Micromodem II <sup>1979</sup> and the Novation CAT <sup>1980</sup></small>. " +
+				"<br>Also this year is the publication of <a href=\"http://computist.textfiles.com/\">HardCore Computer for the Apple user</a>. A paper magazine with the front-cover header \"How to back up, unlock, or modify copy-protected software.\"",
 		},
 		{
 			Title: "Earliest dated crack", Year: 1982, Month: 3,
@@ -410,7 +411,7 @@ func Collection() Milestones {
 			Lead: "16 color, 64 color palette, 640x350 resolution!?", LinkTitle: "How 16 colors saved PC gaming",
 			Link: "https://www.custompc.com/retro-tech/ega-graphics",
 			Content: "The Enhanced Graphics Adapter standard includes 16 colors, 640×350 resolution and 80×25 text mode." +
-				"<p><a href=\"http://nerdlypleasures.blogspot.com/2014/01/simcity-for-dos-swiss-army-knife-of.html\">With the odd exception</a>, most PC games that use EGA only ever support 160x200 or 320*200 resolutions with 4 or 16 colors on screen. " +
+				"<p><a href=\"http://nerdlypleasures.blogspot.com/2014/01/simcity-for-dos-swiss-army-knife-of.html\">With the odd exception</a>, most PC games that use EGA only ever support 160x200 or 320x200 resolutions with 4 or 16 colors on screen. " +
 				"There were complications with EGA and its expensive monitor displays, plus the expensive memory requirements needed for higher resolution graphic modes with 16 colors.</p>",
 		},
 		{
