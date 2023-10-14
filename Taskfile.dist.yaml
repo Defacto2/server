@@ -14,6 +14,12 @@ tasks:
     cmds:
       - task --list-all
     silent: true
+  file-sync:
+    desc: "Sync the source code to the remote server."
+    cmds:
+      - rsync --info=progress2 --recursive --human-readable ben@dz.defacto2.net:/opt/assets-defacto2/downloads /home/ben/defacto2-assets/downloads/
+      - rsync --info=progress2 --recursive --human-readable ben@dz.defacto2.net:/opt/assets-defacto2/images000 /home/ben/defacto2-assets/images000/
+      - rsync --info=progress2 --recursive --human-readable ben@dz.defacto2.net:/opt/assets-defacto2/images400 /home/ben/defacto2-assets/images400/
   doc:
     desc: "Generate and view the documentation website."
     cmds:
@@ -69,16 +75,32 @@ tasks:
   serve:
     desc: "Run the internal web server in development mode with live reload."
     cmds:
-      - task: serve-air
+      - task: serve-linux
+      - task: serve-macos
       - task: serve-windows
   serve-prod:
     desc: "Run the internal web server with live reload."
     cmds:
-      - task: serve-air
+      - task: serve-linux
+      - task: serve-macos
       - task: serve-windows-prod
-  serve-air:
+  serve-linux:
     internal: true
-    platforms: [darwin, linux, freebsd] # other supported os can be added here
+    platforms: [linux, freebsd] # other supported os can be added here
+    env:
+      DEFACTO2_PRODUCTION: false
+      DEFACTO2_PORT: "{{.SERVEPORT}}"
+      DEFACTO2_REQUESTS: "{{.LOGREQUESTS}}"
+      DEFACTO2_NOROBOTS: "{{.NOROBOTS}}"
+      DEFACTO2_DOWNLOAD: /home/ben/defacto2-assets/downloads
+      DEFACTO2_SCREENSHOTS: /home/ben/defacto2-assets/images000
+      DEFACTO2_THUMBNAILS: /home/ben/defacto2-assets/images400
+    deps: [assets]
+    cmds:
+      - air
+  serve-macos:
+    internal: true
+    platforms: [darwin]
     env:
       DEFACTO2_PRODUCTION: false
       DEFACTO2_PORT: "{{.SERVEPORT}}"
