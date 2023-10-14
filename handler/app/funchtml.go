@@ -335,7 +335,7 @@ func LinkDownload(id any) template.HTML {
 
 // LinkRelrs returns the groups associated with a release and a link to each group.
 func LinkRelrs(a, b any) template.HTML {
-	const class = "text-nowrap"
+	const class = "text-nowrap link-offset-2 link-underline link-underline-opacity-25"
 	av, bv, s := "", "", ""
 	switch val := a.(type) {
 	case string:

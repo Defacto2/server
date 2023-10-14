@@ -32,7 +32,6 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"fmtPrefix":      Prefix,
 		"fmtRoles":       helper.FmtSlice,
 		"fmtURI":         releaser.Link,
-		"initialisms":    initialism.Join,
 		"lastUpdated":    LastUpdated,
 		"linkDownload":   LinkDownload,
 		"linkPage":       LinkPage,
@@ -49,6 +48,9 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"trimSiteSuffix": TrimSiteSuffix,
 		"websiteIcon":    WebsiteIcon,
 		// these closures should only return simple values
+		"initialisms": func(s string) string {
+			return initialism.Join(initialism.Path(s))
+		},
 		"logo": func() string {
 			return string(*web.Brand)
 		},
