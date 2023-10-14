@@ -269,13 +269,14 @@ func Collection() Milestones {
 				"The game created the interactive fiction genre, which later led to graphic adventures and story narratives in video games.",
 		},
 		{
-			Title: "The birth of warez?", Year: 1981, Highlight: true,
+			Title: "The birth of warez ?", Year: 1981, Highlight: true,
 			Lead: "The Apple II", Link: "http://artscene.textfiles.com/intros/APPLEII/", LinkTitle: "Apple II crack screens",
-			Content: "<p>There's no exact answer to the statement, but the director of the <a href=\"https://www.imdb.com/title/tt0460402/\">BBS: The Documentary</a>, Jason Scott, suggests that the first crack screens for Apple II occurred in 1981.</p>" +
+			Content: "<p>There's no exact answer to the statement, but the director of the <a href=\"https://www.imdb.com/title/tt0460402/\">BBS: The Documentary</a>, Jason Scott, suggests that the first crack screens occurred in 1981 on the Apple II.</p>" +
 				"<p><q>It's still up in the air when this phenomenon began to happen (1981 is as good a guess as any), but Apple II pirates, not content to merely get commercial software copied and the protection removed, started giving themselves group names (\"Midwest Pirates' Guild\", \"Black Bag\", \"High Society\") and began to release these pirated programs as products in themselves.</q></p>" +
-				"This date predates the <a href=\"https://spectrum.ieee.org/commodore-64\">Commodore 64</a> <sup>1982</sup>, but still after the <a href=\"https://www.fastcompany.com/90432140/how-atari-took-on-apple-in-the-1980s-home-pc-wars\">Atari 400/800</a> <sup>1979</sup> computer releases, the other era systems heavily skewed toward gaming. " +
-				"But the date also occurred after <a href=\"https://www.apple2history.org/history/ah13/#09\">the first few Apple II modem peripheral devices</a> were on sale, <small>Hayes Micromodem II <sup>1979</sup> and the Novation CAT <sup>1980</sup></small>. " +
-				"<br>Also this year is the publication of <a href=\"http://computist.textfiles.com/\">HardCore Computer for the Apple user</a>. A paper magazine with the front-cover header \"How to back up, unlock, or modify copy-protected software.\"",
+				"This date predates the <a href=\"https://spectrum.ieee.org/commodore-64\">Commodore 64</a> <sup>1982</sup>, and the <a href=\"https://www.fastcompany.com/90432140/how-atari-took-on-apple-in-the-1980s-home-pc-wars\">Atari 400/800</a> <a href=\"http://www.atarimania.com/faq-atari-400-800-xl-xe-what-other-modems-can-i-use-with-my-atari_47.html\">modem peripherals</a> <sup>1981-83</sup>, the other era systems heavily skewed toward gaming. " +
+				"But the date also occurred after the first few <a href=\"https://www.apple2history.org/history/ah13/#09\">Apple II modem peripheral devices</a> were on sale, the <small>Hayes Micromodem II <sup>1979</sup> and the Novation CAT <sup>1980</sup></small>. " +
+				"Expensive modem peripherals are required for users to connect to remote computers and bulletin boards for online socializing and file sharing." +
+				"<p><br>Also, this year is the publication of <a href=\"http://computist.textfiles.com/\">HardCore Computing</a>. A printed magazine for the Apple II that came with \"How to back up your copy-protected disks.\" on the front cover.</p>",
 		},
 		{
 			Title: "Earliest dated crack", Year: 1982, Month: 3,
@@ -283,6 +284,7 @@ func Collection() Milestones {
 			LinkTitle: "view the crack", Link: "http://artscene.textfiles.com/intros/APPLEII/dungbeetles.gif",
 			Content: "The earliest dated crack is probably on the Apple II, Dung Beetles broken by Black Bart in March 1982. " +
 				"<p>A screenshot of an earlier serial key exists, <a href=\"http://artscene.textfiles.com/intros/APPLEII/thepirate.gif\">Broken by The Pirate 09/26/81</a>, but the screen lacks context.</p>" +
+				"<p>Broken or krack were common words used in this era to describe the removal of disk copy protection.</p>" +
 				"Other early dated cracks include<br><a href=\"http://artscene.textfiles.com/intros/APPLEII/marscars.gif\">Mars Cars</a> Cracked by Mr Krac-Man 1982.<br>" +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/tattackm.gif\">Type Attack</a>, (B) 1982 Broken by Krakowicz NY.<br>" +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/aec.gif\">A.E.</a> Cracked by Mr. Krac-Man 12/17/82.<br>" +
