@@ -28,6 +28,7 @@
 
 .font-dos {
   font-family: font-vga-eight, monospace;
+  /* font-size: 125%; */
   font-style: normal;
   font-weight: normal;
   line-height: 1;
@@ -43,6 +44,7 @@
 
 .font-amiga {
   font-family:font-topaz-two, font-vga-eight, monospace;
+  /* font-size: 125%; */
   font-style: normal;
   font-weight: normal;
   line-height: 1;

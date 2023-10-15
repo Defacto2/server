@@ -29,9 +29,11 @@
             </div>
             {{- if not (index . "noScreenshot")}}
                 <h6 class="fs-6 fw-lighter">Readme or information text <small>{{index . "readmeName"}}</small></h6>
+                <hr>
             {{- end}}
             {{- if (index . "noScreenshot")}}
                 <h6 class="fs-6 fw-lighter">Textfile content</small></h6>
+                <hr>
             {{- end}}
         {{- end}}
         {{if index . "readmeLatin1"}}

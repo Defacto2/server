@@ -59,9 +59,9 @@ func (web Web) Screenshot(uuid, desc string) template.HTML {
 		p = true
 	}
 	class := "rounded mx-auto d-block img-fluid"
-	if !w && !p {
-		return template.HTML("<img src=\"\" loading=\"lazy\" alt=\"screenshot placeholder\" class=\"" + class + "\" />")
-	}
+	// if !w && !p {
+	// 	return template.HTML("<img src=\"\" loading=\"lazy\" alt=\"screenshot placeholder\" class=\"" + class + "\" />")
+	// }
 	if w && p {
 		elm := "<picture>" +
 			fmt.Sprintf("<source srcset=\"%s\" type=\"image/webp\" />", webp) +
@@ -154,7 +154,7 @@ func Brief(plat, sect any) template.HTML {
 	}
 	s = strings.TrimSpace(s)
 	if p == "" && s == "" {
-		return template.HTML("An unknown release")
+		return template.HTML("an unknown release")
 	}
 	x := tags.Humanize(tags.TagByURI(p), tags.TagByURI(s))
 	// x = helper.Capitalize(x)

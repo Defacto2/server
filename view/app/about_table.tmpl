@@ -49,7 +49,7 @@
         Download &nbsp; {{index . "filesize"}}</a>
 {{- if ne "" (index . "checksum")}}
     <a class="d-none d-sm-inline btn btn-outline-secondary btn m-1" href="/sum/{{index . "download"}}" 
-        role="button" data-bs-toggle="tooltip" data-bs-title="Checksum download">#</a>
+        role="button" data-bs-toggle="tooltip" data-bs-title="Checksum download">#sum</a>
     <a class="d-inline d-sm-none btn btn-outline-secondary btn m-1" href="/sum/{{index . "download"}}" 
         role="button">Checksum</a>
 {{- end}}
@@ -74,6 +74,11 @@
         </tr>
     </thead>
     <tbody>
+        {{- if (index . "noDownload")}}
+        <tr>
+            <td colspan="2" class="text-warning-emphasis">Error this download is missing from the file server</td>
+        </tr>
+        {{- end}}
         <tr>
             <th scope="row"><span class="text-nowrap">Download size</span></th>
             <td>
@@ -130,7 +135,7 @@
         <tr>
             <th scope="row">Demozoo</th>
             <td>
-                <small><a class="link-offset-3" href="https://demozoo.org/productions/{{$demozoo}}">More downloads, links and metadata</a></small>
+                <small><a class="link-offset-3" href="https://demozoo.org/productions/{{$demozoo}}">Downloads, links and extras</a></small>
             </td>
         </tr>{{- end}}
         {{- /*  YouTube, GitHub and other links  */}}

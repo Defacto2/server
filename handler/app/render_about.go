@@ -2,23 +2,22 @@ package app
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"html/template"
 	"io"
 	"net/http"
-	"os"
-	"path/filepath"
+	"strconv"
 	"strings"
 
-	"github.com/Defacto2/server/internal/exts"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/Defacto2/server/internal/render"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
-	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/charmap"
 )
 
@@ -100,51 +99,6 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 		u := Updated(res.Updatedat.Time, "Updated")
 		data["filentry"] = u
 	}
-
-	// txt := filepath.Join(a.DownloadDir, uuid+".txt")
-
-	// switch platform {
-	// case "textamiga", "text":
-	// 	if !exts.IsArchive(fname) {
-	// 		data["noScreenshot"] = true
-	// 	}
-	// }
-
-	// fmt.Println(res.Platform.String)
-
-	// if strings.TrimSpace(res.Platform.String) == "textamiga" {
-	// 	fmt.Println("hello bonjour")
-	// 	helper.ReadFile(filepath.Join(a.DownloadDir, uuid))
-	// }
-
-	// if helper.IsStat(txt) && res.RetrotxtNoReadme.Int16 == 0 {
-
-	// data["readmeFont"] = "font-dos"
-
-	// check if utf8 and then check if ISO8859?
-
-	// switch {
-	// // case e == nil:
-	// // 	data["readme"] = string(b)
-	// // 	data["readmeFont"] = "font-dos"
-	// case e == charmap.ISO8859_1:
-	// 	r := e.NewDecoder().Reader(bytes.NewReader(b))
-	// 	out := strings.Builder{}
-	// 	if _, err := io.Copy(&out, r); err != nil {
-	// 		z.Info(err)
-	// 	}
-	// 	data["readmeLatin1"] = out.String()
-	// 	data["readmeFont"] = "font-amiga"
-	// case e == charmap.CodePage437:
-	// 	r := e.NewDecoder().Reader(bytes.NewReader(b))
-	// 	out := strings.Builder{}
-	// 	if _, err := io.Copy(&out, r); err != nil {
-	// 		z.Info(err)
-	// 	}
-	// 	data["readmeCP437"] = out.String()
-	// 	data["readmeFont"] = "font-dos"
-	// }
-	//}
 	d, err := a.aboutReadme(res)
 	if err != nil {
 		return InternalErr(z, c, name, err)
@@ -162,56 +116,30 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 		return nil, nil
 	}
 
-	fname := res.Filename.String
-	uuid := res.UUID.String
 	platform := strings.TrimSpace(res.Platform.String)
-	section := strings.TrimSpace(res.Section.String)
-
 	switch platform {
 	case "markup", "pdf":
 		return nil, nil
 	}
-
-	// file := filepath.Join(a.DownloadDir, uuid)
-	txt := filepath.Join(a.DownloadDir, uuid+".txt")
-	readPath := filepath.Join(a.DownloadDir, uuid)
 	data := map[string]interface{}{}
-
-	isTextfile := !exts.IsArchive(fname)
-	switch platform {
-	case textamiga, "text", "atarist":
-		if isTextfile {
-			data["noScreenshot"] = true
-			break
-		}
-		readPath = txt
+	if render.NoScreenshot(res) {
+		data["noScreenshot"] = true
 	}
 
-	if !helper.IsStat(readPath) {
+	b, err := render.Read(a.DownloadDir, res)
+	if errors.Is(err, render.ErrDownload) {
+		data["noDownload"] = true
 		return data, nil
 	}
-
-	b, err := os.ReadFile(readPath)
 	if err != nil {
 		return nil, err
 	}
-
-	var e encoding.Encoding
-	switch platform {
-	case textamiga:
-		e = charmap.ISO8859_1
-	default:
-		switch section {
-		case "appleii", "atarist":
-			e = charmap.ISO8859_1
-		default:
-			e = helper.DetermineEncoding(b)
-		}
+	if b == nil {
+		return nil, nil
 	}
 
-	data["readmeName"] = res.RetrotxtReadme.String
-	fmt.Println("DetermineEncoding", e)
-
+	// render both ISO8859 and CP437 encodings of the readme
+	// and let the user choose which one to display
 	r := charmap.ISO8859_1.NewDecoder().Reader(bytes.NewReader(b))
 	out := strings.Builder{}
 	if _, err := io.Copy(&out, r); err != nil {
@@ -219,7 +147,6 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 	}
 	data["readmeLatin1"] = out.String()
 	// data["readmeFont"] = "font-amiga"
-
 	r = charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
 	out = strings.Builder{}
 	if _, err := io.Copy(&out, r); err != nil {
@@ -227,6 +154,7 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 	}
 	data["readmeCP437"] = out.String()
 
+	e := render.Encoder(res, b...)
 	switch e {
 	case charmap.ISO8859_1:
 		data["readmeLatin1Cls"] = ""
@@ -237,11 +165,6 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 		data["readmeCP437Cls"] = ""
 		data["vgaCheck"] = "checked"
 	}
-
-	if err = helper.ReadFile(readPath); err != nil {
-		return nil, err
-	}
-
 	return data, nil
 }
 
@@ -276,11 +199,13 @@ func aboutLead(res *models.File) string {
 }
 
 func aboutLM(res *models.File) string {
-	const none = "not set"
+	const none = "no timestamp"
 	if !res.FileLastModified.Valid {
 		return none
 	}
-	if res.FileLastModified.Time.Format("2006") == "1980" {
+	year, _ := strconv.Atoi(res.FileLastModified.Time.Format("2006"))
+	const epoch = 1980
+	if year <= epoch {
 		// 1980 is the default date for MS-DOS files without a timestamp
 		return none
 	}

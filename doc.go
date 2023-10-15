@@ -87,6 +87,13 @@ The following options can be added to [Override].
 	- View file, date and file info format is odd.
 	  1990 March 1, A Dos magazine
 	  1990 March 1, an nfo textfile
+	- About file screenshot should be stretched to match the width of the thumbnails.
+	- Start repair should delete mimetype that begins with "ERROR: " (/f/a92a225).
+	- Mime type  	Zip archive data, at least v1.0 to extract and v2.0 should be simplified.
+	- Cache Pouet reviews and link to Demozoo ID if found.
+	- If screenshot cannot fix side tab, CSS move them to the bottom of the about.
+	- - Or create a modal popup for the screenshots that centre on the screen.
+	- NFO preview isn't rendering high ASCII characters correctly.
 
 # Mobile fixes
 

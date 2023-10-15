@@ -55,7 +55,7 @@ func PublishedFmt(f *models.File) string {
 	}
 	if f.DateIssuedDay.Valid {
 		if i := int(f.DateIssuedDay.Int16); helper.IsDay(i) {
-			ds = fmt.Sprintf("%02d", i)
+			ds = fmt.Sprintf("%d", i)
 		}
 	}
 	if isYearOnly := ys != "" && ms == "" && ds == ""; isYearOnly {

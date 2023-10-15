@@ -202,7 +202,7 @@ func Humanize(platform, section Tag) string {
 		case Pack:
 			return "a filepack of textfiles"
 		default:
-			return fmt.Sprintf("A %s textfile", Names()[section])
+			return fmt.Sprintf("a %s textfile", Names()[section])
 		}
 	case TextAmiga:
 		switch section {
@@ -222,7 +222,7 @@ func Humanize(platform, section Tag) string {
 		case ForSale, Logo, Intro:
 			return "a bumper video"
 		}
-		return fmt.Sprintf("A %s video", Names()[section])
+		return fmt.Sprintf("a %s video", Names()[section])
 	case Windows:
 		switch section {
 		case Demo:
@@ -254,7 +254,7 @@ func Humanize(platform, section Tag) string {
 			return "a filepack of " + msDos + " programs"
 		}
 	}
-	return fmt.Sprintf("A %s %s", Names()[platform], Names()[section])
+	return fmt.Sprintf("a %s %s", Names()[platform], Names()[section])
 }
 
 func news(platform Tag) string {
