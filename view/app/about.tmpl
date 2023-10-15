@@ -37,10 +37,10 @@
             {{- end}}
         {{- end}}
         {{if index . "readmeLatin1"}}
-            <pre id="readmeLatin1" class="{{index . "readmeLatin1Cls"}} font-amiga">{{(index . "readmeLatin1")}}</pre>
+            <pre id="readmeLatin1" class="{{index . "readmeLatin1Cls"}} font-amiga reader">{{(index . "readmeLatin1")}}</pre>
         {{- end}}
         {{if index . "readmeCP437"}}
-            <pre id="readmeCP437" class="{{index . "readmeCP437Cls"}} font-dos">{{(index . "readmeCP437")}}</pre>
+            <pre id="readmeCP437" class="{{index . "readmeCP437Cls"}} font-dos reader">{{(index . "readmeCP437")}}</pre>
         {{- end}}
         </div>
     </div>

@@ -50,6 +50,12 @@
   line-height: 1;
 }
 
+.reader {
+  font-size: 110%;
+  white-space: pre-wrap;  
+  hyphens: manual;
+}
+
 #logo-container {
   container-type: inline-size;
   container-name: cardContainer;

@@ -146,7 +146,6 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 		return nil, err
 	}
 	data["readmeLatin1"] = out.String()
-	// data["readmeFont"] = "font-amiga"
 	r = charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
 	out = strings.Builder{}
 	if _, err := io.Copy(&out, r); err != nil {
