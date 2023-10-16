@@ -203,8 +203,9 @@ func ByteFileS(name string, cnt, bytes any) template.HTML {
 	switch val := cnt.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
+		name = names(name)
 		if i != 1 {
-			name = fmt.Sprintf("%ss", name)
+			name = name + "s"
 		}
 		p := message.NewPrinter(language.English)
 		s = p.Sprintf("%d", i)
@@ -221,6 +222,14 @@ func ByteFileS(name string, cnt, bytes any) template.HTML {
 		return template.HTML(s)
 	}
 	return template.HTML(s)
+}
+
+func names(s string) string {
+	switch s {
+	case "bbs", "ftp":
+		return "file"
+	}
+	return s
 }
 
 // Day returns a string of the day number from the day d number between 1 and 31.

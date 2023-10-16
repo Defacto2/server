@@ -77,7 +77,6 @@ The following options can be added to [Override].
 # Tasks
 
 	- Finish this doc.go file.
-	- Fix "122 bbss (760k)"... "/bbs".
 	- Complete "Search for files" feature to support, Years, Descriptions.
 	- Uploader placeholder.
 	- Complete the textfile printing feature.
