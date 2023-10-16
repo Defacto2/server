@@ -134,8 +134,30 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 	if err != nil {
 		return nil, err
 	}
-	if b == nil {
+	if b == nil || render.IsUTF16(b) {
 		return nil, nil
+	}
+
+	e := render.Encoder(res, b...)
+	const (
+		sp      = 0x20 // space
+		hyphen  = 0x2d // hyphen-minus
+		shy     = 0xad // soft hyphen for ISO8859-1
+		nbsp    = 0xa0 // non-breaking space for ISO8859-1
+		nbsp437 = 0xff // non-breaking space for CP437
+	)
+	switch e {
+	case charmap.ISO8859_1:
+		data["readmeLatin1Cls"] = ""
+		data["readmeCP437Cls"] = "d-none"
+		data["topazCheck"] = "checked"
+		b = bytes.ReplaceAll(b, []byte{nbsp}, []byte{sp})
+		b = bytes.ReplaceAll(b, []byte{shy}, []byte{hyphen})
+	case charmap.CodePage437:
+		data["readmeLatin1Cls"] = "d-none"
+		data["readmeCP437Cls"] = ""
+		data["vgaCheck"] = "checked"
+		b = bytes.ReplaceAll(b, []byte{nbsp437}, []byte{sp})
 	}
 
 	// render both ISO8859 and CP437 encodings of the readme
@@ -153,17 +175,6 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 	}
 	data["readmeCP437"] = out.String()
 
-	e := render.Encoder(res, b...)
-	switch e {
-	case charmap.ISO8859_1:
-		data["readmeLatin1Cls"] = ""
-		data["readmeCP437Cls"] = "d-none"
-		data["topazCheck"] = "checked"
-	case charmap.CodePage437:
-		data["readmeLatin1Cls"] = "d-none"
-		data["readmeCP437Cls"] = ""
-		data["vgaCheck"] = "checked"
-	}
 	return data, nil
 }
 

@@ -83,11 +83,24 @@ func Read(path string, res *models.File) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	b = bytes.ToValidUTF8(b, []byte("x"))
-	// TODO: func to replace all non-standard controls with a space
-	b = bytes.ReplaceAll(b, []byte{0x0}, []byte(" "))
 
+	const nul = 0x00
+	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
 	return b, nil
+}
+
+// IsUTF16 returns true if the byte slice is encoded in UTF-16.
+func IsUTF16(p []byte) bool {
+	if len(p) < 2 {
+		return false
+	}
+	if p[0] == 0xff && p[1] == 0xfe {
+		return true
+	}
+	if p[0] == 0xfe && p[1] == 0xff {
+		return true
+	}
+	return false
 }
 
 // Viewer returns true if the file entry should display the file download in the browser plain text viewer.

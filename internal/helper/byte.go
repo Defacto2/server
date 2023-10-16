@@ -52,12 +52,16 @@ func DetermineEncoding(p []byte) encoding.Encoding {
 		upperHalfBlock = 0xdf
 		doubleHorizBar = 0xcd
 		singleHorizBar = 0xc4
+		mediumShade    = 0xb1
+		fullBlock      = 0xdb
 	)
 	chrs := []byte{
 		lowerHalfBlock,
 		upperHalfBlock,
 		doubleHorizBar,
 		singleHorizBar,
+		mediumShade,
+		fullBlock,
 	}
 	for _, v := range chrs {
 		const count = 4
