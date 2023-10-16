@@ -122,16 +122,21 @@ func NoReadme(res *models.File) bool {
 }
 
 // NoScreenshot returns true when the file entry should not attempt to display a screenshot.
-// This is based on the platform.
-func NoScreenshot(res *models.File) bool {
+// This is based on the platform, section or if the screenshot is missing on the server.
+func NoScreenshot(path string, res *models.File) bool {
 	if res == nil {
-		return false
+		return true
 	}
 	platform := strings.ToLower(strings.TrimSpace(res.Platform.String))
 	switch platform {
 	case "textamiga", "text", "atarist":
 		return true
 	}
-
-	return false
+	uuid := res.UUID.String
+	webp := strings.Join([]string{path, fmt.Sprintf("%s.webp", uuid)}, "/")
+	png := strings.Join([]string{path, fmt.Sprintf("%s.png", uuid)}, "/")
+	if helper.IsStat(webp) || helper.IsStat(png) {
+		return false
+	}
+	return true
 }

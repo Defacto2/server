@@ -12,11 +12,11 @@
 {{- $mimetype := (index . "magic")}}
 {{- /*  Modal table contents of the file archive  */}}
 {{- if (index . "content")}}
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<div class="modal fade" id="viewContentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">{{index . "filename"}} <small>content</small></h1>
+          <h1 class="modal-title fs-5" id="viewContentModalLabel">{{index . "filename"}} <small>content</small></h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -54,9 +54,7 @@
         role="button">Checksum</a>
 {{- end}}
 {{- if (index . "content")}}
-    <button type="button" class="btn btn-outline-secondary btn m-1" data-bs-toggle="modal" data-bs-target="#exampleModal">
-        View contents
-    </button>
+    <a class="d-inline btn btn-outline-secondary btn m-1" data-bs-toggle="modal" data-bs-target="#viewContentModal">view content</a>
 {{- end}}
 </div>
 {{- /*  Commant about the file  */}}
@@ -76,7 +74,7 @@
     <tbody>
         {{- if (index . "noDownload")}}
         <tr>
-            <td colspan="2" class="text-warning-emphasis">Error this download is missing from the file server</td>
+            <td colspan="2" class="text-warning-emphasis p-3">Error the file download is missing on the server</td>
         </tr>
         {{- end}}
         <tr>
@@ -143,14 +141,14 @@
         <tr>
             <th scope="row">YouTube</th>
             <td>
-                <a href="https://www.youtube.com/watch?v={{$youtube}}">Watch on YouTube</a>
+                <small><a class="link-offset-3" href="https://www.youtube.com/watch?v={{$youtube}}">Watch on YouTube</a></small>
             </td>
         </tr>{{- end}}
         {{- if ne $github ""}}
         <tr>
             <th scope="row">GitHub</th>
             <td>
-                <a href="https://github.com{{$github}}"><var>{{$github}}</var></a>
+                <small><a class="link-offset-3" href="https://github.com{{$github}}"><var>{{$github}}</var></a></small>
             </td>
         </tr>{{- end}}
         {{- index . "listLinks" }}

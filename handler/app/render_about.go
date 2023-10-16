@@ -23,8 +23,9 @@ import (
 
 // AboutConf contains required data for the about file page.
 type AboutConf struct {
-	DownloadDir string
-	URI         string
+	DownloadDir   string // path to the file download directory
+	ScreenshotDir string // path to the file screenshot directory
+	URI           string // the URI of the file record
 }
 
 // About is the handler for the about page of the file record.
@@ -122,7 +123,7 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 		return nil, nil
 	}
 	data := map[string]interface{}{}
-	if render.NoScreenshot(res) {
+	if render.NoScreenshot(a.ScreenshotDir, res) {
 		data["noScreenshot"] = true
 	}
 

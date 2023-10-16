@@ -12,8 +12,28 @@
         {{- if not (index . "noScreenshot")}}
         <div class="{{$colClass}}">
             {{- /*  Screenshot of the file  */}}
-            <div class="p-3">
-              {{ screenshot (index . "uuid") (index . "description") }}
+            <div class="p-3 text-center">
+                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#screenshotModal">
+                {{ screenshot (index . "uuid") (index . "description") }}
+                </a>
+                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#screenshotModal">Enlarge</a>
+            </div>
+        </div>
+        {{/*  Modal for the full screen screenshot  */}}
+        <div class="modal fade" id="screenshotModal" tabindex="-1" aria-labelledby="screenshotModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-fullscreen">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title">{{ (index . "description") }} screenshot</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{ screenshot (index . "uuid") (index . "description") }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>  
             </div>
         </div>
         {{- end}}
