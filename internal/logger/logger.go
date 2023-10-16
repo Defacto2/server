@@ -59,11 +59,11 @@ const (
 
 // CLI logger prints all log levels to stdout but without callers.
 func CLI() *zap.Logger {
-	cliEncoder := console()
-	defaultLogLevel := zapcore.DebugLevel
+	enc := console()
+	defaultLogLevel := zapcore.InfoLevel
 	core := zapcore.NewTee(
 		zapcore.NewCore(
-			cliEncoder,
+			enc,
 			zapcore.AddSync(os.Stdout),
 			defaultLogLevel,
 		),
@@ -73,11 +73,11 @@ func CLI() *zap.Logger {
 
 // Development logger prints all log levels to stdout.
 func Development() *zap.Logger {
-	cliEncoder := console()
+	enc := console()
 	defaultLogLevel := zapcore.DebugLevel
 	core := zapcore.NewTee(
 		zapcore.NewCore(
-			cliEncoder,
+			enc,
 			zapcore.AddSync(os.Stdout),
 			defaultLogLevel,
 		),
@@ -90,8 +90,8 @@ func Development() *zap.Logger {
 func Production(root string) *zap.Logger {
 	config := zap.NewProductionEncoderConfig()
 	config.EncodeTime = zapcore.TimeEncoderOfLayout("Jan-02-15:04:05.00")
-	jsonEncoder := zapcore.NewJSONEncoder(config)
-	cliEncoder := console()
+	jsonEnc := zapcore.NewJSONEncoder(config)
+	enc := console()
 
 	// server breakage log
 	serverWr := zapcore.AddSync(&lumberjack.Logger{
@@ -113,15 +113,15 @@ func Production(root string) *zap.Logger {
 
 	core := zapcore.NewTee(
 		// log to stderr
-		zapcore.NewCore(cliEncoder, errWr, zapcore.FatalLevel),
-		zapcore.NewCore(cliEncoder, errWr, zapcore.PanicLevel),
+		zapcore.NewCore(enc, errWr, zapcore.FatalLevel),
+		zapcore.NewCore(enc, errWr, zapcore.PanicLevel),
 		// log to "server.log"
-		zapcore.NewCore(jsonEncoder, serverWr, zapcore.FatalLevel),
-		zapcore.NewCore(jsonEncoder, serverWr, zapcore.PanicLevel),
-		zapcore.NewCore(jsonEncoder, serverWr, zapcore.ErrorLevel),
+		zapcore.NewCore(jsonEnc, serverWr, zapcore.FatalLevel),
+		zapcore.NewCore(jsonEnc, serverWr, zapcore.PanicLevel),
+		zapcore.NewCore(jsonEnc, serverWr, zapcore.ErrorLevel),
 		// log to "info.log"
-		zapcore.NewCore(jsonEncoder, infoWr, zapcore.WarnLevel),
-		zapcore.NewCore(jsonEncoder, infoWr, zapcore.InfoLevel),
+		zapcore.NewCore(jsonEnc, infoWr, zapcore.WarnLevel),
+		zapcore.NewCore(jsonEnc, infoWr, zapcore.InfoLevel),
 	)
 	return zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
 }

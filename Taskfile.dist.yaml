@@ -5,7 +5,7 @@ version: '3'
 vars:
   BINNAME: df2-server # build output, binary filename (without extension) 
   SERVEPORT: 1323     # web server port number
-  LOGREQUESTS: false
+  LOGREQUESTS: true
   NOROBOTS: false
 
 tasks:

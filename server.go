@@ -54,7 +54,7 @@ func main() {
 	// By default the web server runs when no arguments are provided
 	const exitProgram = 0
 	if code, err := cmd.Run(version, &configs); err != nil {
-		logs.Errorf("%w: %s", ErrCmd, err)
+		logs.Errorf("%s: %s", ErrCmd, err)
 		os.Exit(code)
 	} else if code >= exitProgram {
 		os.Exit(code)
@@ -96,9 +96,9 @@ func main() {
 	// Database
 	if err := RepairDB(server); err != nil {
 		if errors.Is(err, ErrVer) {
-			logs.Errorf("%w, is the database server down?", ErrVer)
+			logs.Errorf("%s, is the database server down?", ErrVer)
 		}
-		logs.Errorf("%w: %s", ErrDB, err)
+		logs.Errorf("%s: %s", ErrDB, err)
 	}
 
 	// Controllers and routes
