@@ -18,30 +18,56 @@ import (
 
 // Summary counts the total number files, file sizes and the earliest and latest years.
 type Summary struct {
-	SumBytes int `boil:"size_total"`  // Sum total of the file sizes.
-	SumCount int `boil:"count_total"` // Sum total count of the files.
-	MinYear  int `boil:"min_year"`    // Minimum or earliest year of the files.
-	MaxYear  int `boil:"max_year"`    // Maximum or latest year of the files.
+	SumBytes sql.NullInt64 `boil:"size_total"`  // Sum total of the file sizes.
+	SumCount sql.NullInt64 `boil:"count_total"` // Sum total count of the files.
+	MinYear  sql.NullInt16 `boil:"min_year"`    // Minimum or earliest year of the files.
+	MaxYear  sql.NullInt16 `boil:"max_year"`    // Maximum or latest year of the files.
 }
 
-func (r *Summary) Search(ctx context.Context, db *sql.DB, terms []string) error {
+const summary = "SELECT COUNT(files.id) AS count_total, " +
+	"SUM(files.filesize) AS size_total, " +
+	"MIN(files.date_issued_year) AS min_year, " +
+	"MAX(files.date_issued_year) AS max_year " +
+	"FROM files " +
+	"WHERE "
+
+// SearchDesc saves the summary statistics for the file description search.
+func (r *Summary) SearchDesc(ctx context.Context, db *sql.DB, terms []string) error {
 	if db == nil {
 		return ErrDB
 	}
-	s := "SELECT COUNT(files.id) AS count_total, " +
-		"SUM(files.filesize) AS size_total, " +
-		"MIN(files.date_issued_year) AS min_year, " +
-		"MAX(files.date_issued_year) AS max_year " +
-		"FROM files " +
-		"WHERE "
-	for i, term := range terms {
-		if i > 0 {
-			s = fmt.Sprintf("%s OR ", s)
+	s := summary
+	for i := range terms {
+		const clauseT = "to_tsvector('english', concat_ws(' ', files.record_title, files.comment)) @@ to_tsquery"
+		if i == 0 {
+			s = fmt.Sprintf("%s%s($%d) ", s, clauseT, i+1)
+			continue
 		}
-		s = fmt.Sprintf("%s files.filename ~ '%s' OR files.filename ILIKE '%s' ", s, term, "%"+term+"%")
+		s = fmt.Sprintf("%sOR %s($%d) ", s, clauseT, i+1)
 	}
 	s = strings.TrimSpace(s)
-	fmt.Println(s)
+	if err := queries.Raw(s, strings.Join(terms, ",")).Bind(ctx, db, r); err != nil {
+		return err
+	}
+	return nil
+}
+
+// SearchFilename saves the summary statistics for the filename search.
+func (r *Summary) SearchFilename(ctx context.Context, db *sql.DB, terms []string) error {
+	if db == nil {
+		return ErrDB
+	}
+	s := summary
+	for i, term := range terms {
+		if i == 0 {
+			s = s + fmt.Sprintf(" filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
+				term, term+"%", "%"+term, "%"+term+"%")
+			continue
+		}
+		s = s + fmt.Sprintf(" OR filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
+			term, term+"%", "%"+term, "%"+term+"%")
+	}
+	s = strings.TrimSpace(s)
 	if err := queries.Raw(s).Bind(ctx, db, r); err != nil {
 		return err
 	}
@@ -434,6 +460,10 @@ func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error {
 	default:
 		return fmt.Errorf("%w: %q", ErrURI, uri)
 	}
-	s.SumBytes, s.SumCount, s.MinYear, s.MaxYear = b, c, y0, y1
+	s.SumBytes = sql.NullInt64{Int64: int64(b)}
+	s.SumCount = sql.NullInt64{Int64: int64(c)}
+	s.MinYear = sql.NullInt16{Int16: int16(y0)}
+	s.MaxYear = sql.NullInt16{Int16: int16(y1)}
+	//	s.SumBytes, s.SumCount, s.MinYear, s.MaxYear = b, c, y0, y1
 	return nil
 }

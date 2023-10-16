@@ -137,7 +137,13 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 		return app.SearchFile(z, c)
 	})
 	e.POST("/search/file", func(c echo.Context) error {
-		return app.PostFile(z, c) // rename PostFile
+		return app.PostFilename(z, c)
+	})
+	e.GET("/search/desc", func(c echo.Context) error {
+		return app.SearchDesc(z, c)
+	})
+	e.POST("/search/desc", func(c echo.Context) error {
+		return app.PostDescriptions(z, c)
 	})
 	e.GET("/search/releaser", func(c echo.Context) error {
 		return app.SearchReleaser(z, c)

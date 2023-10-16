@@ -169,7 +169,7 @@ func ByteCount(b any) template.HTML {
 		i := reflect.ValueOf(val).Int()
 		s = helper.ByteCount(i)
 	default:
-		s = fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(b).String())
+		s = fmt.Sprintf("%sByteCount: %s", typeErr, reflect.TypeOf(b).String())
 	}
 	return template.HTML(s)
 }
@@ -183,7 +183,7 @@ func ByteFile(cnt, bytes any) template.HTML {
 		p := message.NewPrinter(language.English)
 		s = p.Sprintf("%d", i)
 	default:
-		s = fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(cnt).String())
+		s = fmt.Sprintf("%sByteFile: %s", typeErr, reflect.TypeOf(cnt).String())
 		return template.HTML(s)
 	}
 	switch val := bytes.(type) {
@@ -191,7 +191,7 @@ func ByteFile(cnt, bytes any) template.HTML {
 		i := reflect.ValueOf(val).Int()
 		s = fmt.Sprintf("%s <small>(%s)</small>", s, helper.ByteCount(i))
 	default:
-		s = fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(bytes).String())
+		s = fmt.Sprintf("%sByteFile: %s", typeErr, reflect.TypeOf(bytes).String())
 		return template.HTML(s)
 	}
 	return template.HTML(s)
@@ -210,7 +210,7 @@ func ByteFileS(name string, cnt, bytes any) template.HTML {
 		p := message.NewPrinter(language.English)
 		s = p.Sprintf("%d", i)
 	default:
-		s = fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(cnt).String())
+		s = fmt.Sprintf("%sByteFileS: %s", typeErr, reflect.TypeOf(cnt).String())
 		return template.HTML(s)
 	}
 	switch val := bytes.(type) {
@@ -218,7 +218,7 @@ func ByteFileS(name string, cnt, bytes any) template.HTML {
 		i := reflect.ValueOf(val).Int()
 		s = fmt.Sprintf("%s %s <small>(%s)</small>", s, name, helper.ByteCount(i))
 	default:
-		s = fmt.Sprintf("%sByteFmt: %s", typeErr, reflect.TypeOf(bytes).String())
+		s = fmt.Sprintf("%sByteFileS: %s", typeErr, reflect.TypeOf(bytes).String())
 		return template.HTML(s)
 	}
 	return template.HTML(s)

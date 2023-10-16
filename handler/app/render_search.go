@@ -11,10 +11,40 @@ import (
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
+	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
+
+type FileSearch int
+
+const (
+	filenames FileSearch = iota
+	descriptions
+)
+
+// SearchDesc is the handler for the Search for file descriptions page.
+func SearchDesc(z *zap.SugaredLogger, c echo.Context) error {
+	const title, name = "Search for files", "searchPost"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	data := empty()
+	data["description"] = "Search form to discover file descriptions."
+	data["logo"] = title
+	data["title"] = title
+	data["info"] = "A search for file descriptions"
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	return nil
+}
+
+func PostDescriptions(z *zap.SugaredLogger, c echo.Context) error {
+	return Post(z, c, descriptions)
+}
 
 // SearchFile is the handler for the Search for files page.
 func SearchFile(z *zap.SugaredLogger, c echo.Context) error {
@@ -26,7 +56,7 @@ func SearchFile(z *zap.SugaredLogger, c echo.Context) error {
 	data["description"] = "Search form to discover files."
 	data["logo"] = title
 	data["title"] = title
-	data["info"] = "A search can be for a filename, description, year or ?"
+	data["info"] = "A search for filenames or extensions"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(z, c, name, err)
@@ -34,8 +64,12 @@ func SearchFile(z *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
-// PostFile is the handler for the Search for files form post page.
-func PostFile(z *zap.SugaredLogger, c echo.Context) error {
+func PostFilename(z *zap.SugaredLogger, c echo.Context) error {
+	return Post(z, c, filenames)
+}
+
+// PostFilename is the handler for the Search for filenames form post page.
+func Post(z *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
 	const name = "files"
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
@@ -47,7 +81,22 @@ func PostFile(z *zap.SugaredLogger, c echo.Context) error {
 	input := c.FormValue("search-term-query")
 	terms := helper.SearchTerm(input)
 	rel := model.Files{}
-	fs, err := rel.Search(ctx, db, terms)
+
+	fs := models.FileSlice{}
+	switch mode {
+	case filenames:
+		fs, err = rel.SearchFilename(ctx, db, terms)
+		if err != nil {
+			return InternalErr(z, c, name, err)
+		}
+	case descriptions:
+		fs, err = rel.SearchDescription(ctx, db, terms)
+		if err != nil {
+			return InternalErr(z, c, name, err)
+		}
+	}
+	// TODO:
+	d, err := mode.postFileStats(ctx, db, terms)
 	if err != nil {
 		return InternalErr(z, c, name, err)
 	}
@@ -60,14 +109,6 @@ func PostFile(z *zap.SugaredLogger, c echo.Context) error {
 	data["logo"] = s + " results"
 	data["description"] = "Filename search results for " + s + "."
 	data[records] = fs
-
-	d := noFiles()
-	if len(fs) > 0 {
-		d, err = postFileStats(ctx, db, terms)
-		if err != nil {
-			return InternalErr(z, c, name, err)
-		}
-	}
 	data["stats"] = d
 	err = c.Render(http.StatusOK, "files", data)
 	if err != nil {
@@ -76,26 +117,35 @@ func PostFile(z *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
-func noFiles() map[string]string {
-	return map[string]string{
-		"files": "no files found",
-		"years": "",
-	}
-}
-
-func postFileStats(ctx context.Context, db *sql.DB, terms []string) (map[string]string, error) {
+func (mode FileSearch) postFileStats(ctx context.Context, db *sql.DB, terms []string) (map[string]string, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
+	none := func() map[string]string {
+		return map[string]string{
+			"files": "no files found",
+			"years": "",
+		}
+	}
 	// fetch the statistics of the category
 	m := model.Summary{}
-	if err := m.Search(ctx, db, terms); err != nil {
-		return nil, err
+	switch mode {
+	case filenames:
+		if err := m.SearchFilename(ctx, db, terms); err != nil {
+			return nil, err
+		}
+	case descriptions:
+		if err := m.SearchDesc(ctx, db, terms); err != nil {
+			return nil, err
+		}
+	}
+	if m.SumCount.Int64 == 0 {
+		return none(), nil
 	}
 	// add the statistics to the data
 	d := map[string]string{
-		"files": string(ByteFileS("file", m.SumCount, m.SumBytes)),
-		"years": helper.Years(m.MinYear, m.MaxYear),
+		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
+		"years": helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	return d, nil
 }

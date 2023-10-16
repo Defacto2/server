@@ -60,8 +60,8 @@ func bbsHandler(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":   fmt.Sprintf("%d boards", len(r)),
-		"issues": string(ByteFileS(name, m.SumCount, m.SumBytes)),
-		"years":  fmt.Sprintf("%d - %d", m.MinYear, m.MaxYear),
+		"issues": string(ByteFileS(name, m.SumCount.Int64, m.SumBytes.Int64)),
+		"years":  fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -105,8 +105,8 @@ func FTP(z *zap.SugaredLogger, c echo.Context) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":   fmt.Sprintf("%d sites", len(r)),
-		"issues": string(ByteFileS(name, m.SumCount, m.SumBytes)),
-		"years":  fmt.Sprintf("%d - %d", m.MinYear, m.MaxYear),
+		"issues": string(ByteFileS(name, m.SumCount.Int64, m.SumBytes.Int64)),
+		"years":  fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -168,8 +168,8 @@ func mag(z *zap.SugaredLogger, c echo.Context, chronological bool) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":   fmt.Sprintf("%d publications", len(r)),
-		"issues": string(ByteFileS(issue, m.SumCount, m.SumBytes)),
-		"years":  fmt.Sprintf("%d - %d", m.MinYear, m.MaxYear),
+		"issues": string(ByteFileS(issue, m.SumCount.Int64, m.SumBytes.Int64)),
+		"years":  fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -224,8 +224,8 @@ func rel(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":   fmt.Sprintf("%d releasers and groups", len(r)),
-		"issues": string(ByteFileS("file", m.SumCount, m.SumBytes)),
-		"years":  helper.Years(m.MinYear, m.MaxYear),
+		"issues": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
+		"years":  helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {

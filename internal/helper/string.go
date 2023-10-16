@@ -186,7 +186,7 @@ func TrimPunct(s string) string {
 
 // Years returns a string of the years if they are different.
 // If they are the same, it returns a singular year.
-func Years(a, b int) string {
+func Years(a, b int16) string {
 	if a == b {
 		return fmt.Sprintf("the year %d", a)
 	}

@@ -5,8 +5,6 @@ package model
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"path/filepath"
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -40,45 +38,18 @@ func (f *Files) Stat(ctx context.Context, db *sql.DB) error {
 	// return models.Files(qm.Limit(Maximum)).Bind(ctx, db, f)
 }
 
-// Search returns a list of files that match ....
-func (f *Files) Search(ctx context.Context, db *sql.DB, terms []string) (models.FileSlice, error) {
+// SearchFilename returns a list of files that match the search terms.
+// The search terms are matched against the filename column.
+// The results are ordered by the filename column in ascending order.
+func (f *Files) SearchFilename(ctx context.Context, db *sql.DB, terms []string) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	if terms == nil {
 		return models.FileSlice{}, nil
 	}
-	// if err := f.Stat(ctx, db); err != nil { // TODO: remove this
-	// 	return nil, err
-	// }
-
-	// match years
-	// names := terms
-	// names = slices.DeleteFunc(names, func(s string) bool {
-	// 	i, err := strconv.Atoi(s)
-	// 	if err != nil {
-	// 		fmt.Println("x", s)
-	// 		return false
-	// 	}
-	// 	const minYear = 1980
-	// 	if i < minYear || i > time.Now().Year() {
-	// 		fmt.Println("xx")
-	// 		return false
-	// 	}
-	// 	return true
-	// })
-
-	// fmt.Println(names, "<<")
-
-	// match file extensions
-	// otherwise match string
-
-	// const clause = "id DESC"
-	// qm.Where("upper(group_brand_for) = ? OR upper(group_brand_by) = ?", x, x),
-	// qm.Or2(models.FileWhere.Platform.EQ(expr.PText())
 	mods := []qm.QueryMod{}
 	for i, term := range terms {
-		fmt.Println("-->", term, filepath.Ext(term) == term)
 		if i == 0 {
 			mods = append(mods, qm.Where("filename ~ ? OR filename ILIKE ? OR filename ILIKE ? OR filename ILIKE ?",
 				term, term+"%", "%"+term, "%"+term+"%"))
@@ -88,7 +59,32 @@ func (f *Files) Search(ctx context.Context, db *sql.DB, terms []string) (models.
 			term, term+"%", "%"+term, "%"+term+"%"))
 	}
 	mods = append(mods, qm.OrderBy("filename ASC"), qm.Limit(Maximum))
+	return models.Files(mods...).All(ctx, db)
+}
 
+// SearchDescription returns a list of files that match the search terms.
+// The search terms are matched against the record_title column.
+// The results are ordered by the filename column in ascending order.
+func (f *Files) SearchDescription(ctx context.Context, db *sql.DB, terms []string) (models.FileSlice, error) {
+	if db == nil {
+		return nil, ErrDB
+	}
+	if terms == nil {
+		return models.FileSlice{}, nil
+	}
+	mods := []qm.QueryMod{}
+	const clauseT = "to_tsvector(record_title) @@ to_tsquery(?)"
+	const clauseC = "to_tsvector(comment) @@ to_tsquery(?)"
+	for i, term := range terms {
+		if i == 0 {
+			mods = append(mods, qm.Where(clauseT, term))
+			mods = append(mods, qm.Or(clauseC, term))
+			continue
+		}
+		mods = append(mods, qm.Or(clauseT, term))
+		mods = append(mods, qm.Or(clauseC, term))
+	}
+	mods = append(mods, qm.Limit(Maximum))
 	return models.Files(mods...).All(ctx, db)
 }
 

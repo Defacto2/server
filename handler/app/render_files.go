@@ -144,14 +144,14 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 	}
 	// add the statistics to the data
 	d := map[string]string{
-		"files": string(ByteFileS("file", m.SumCount, m.SumBytes)),
-		"years": fmt.Sprintf("%d - %d", m.MinYear, m.MaxYear),
+		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
+		"years": fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	switch uri {
 	case "new-updates", "newest":
-		d["years"] = fmt.Sprintf("%d - %d", m.MaxYear, m.MinYear)
+		d["years"] = fmt.Sprintf("%d - %d", m.MaxYear.Int16, m.MinYear.Int16)
 	}
-	return d, m.SumCount, nil
+	return d, int(m.SumCount.Int64), nil
 }
 
 // Sceners is the handler for the list and preview of files credited to a scener.
@@ -207,8 +207,8 @@ func scenerSum(ctx context.Context, db *sql.DB, uri string) (map[string]string, 
 	}
 	// add the statistics to the data
 	d := map[string]string{
-		"files": string(ByteFileS("file", m.SumCount, m.SumBytes)),
-		"years": helper.Years(m.MinYear, m.MaxYear),
+		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
+		"years": helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	return d, nil
 }
@@ -276,7 +276,7 @@ func releaserSum(ctx context.Context, db *sql.DB, uri string) (map[string]string
 	// add the statistics to the data
 	d := map[string]string{
 		"files": string(ByteFileS("file", m.SumCount, m.SumBytes)),
-		"years": helper.Years(m.MinYear, m.MaxYear),
+		"years": helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	return d, nil
 }
