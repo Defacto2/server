@@ -5,9 +5,11 @@ package app
 
 import (
 	"html/template"
+	"strings"
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/releaser/initialism"
+	"github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/internal/helper"
 )
 
@@ -31,7 +33,7 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"fmtMonth":       Month,
 		"fmtPrefix":      Prefix,
 		"fmtRoles":       helper.FmtSlice,
-		"fmtURI":         releaser.Link,
+		"fmtURI":         releaser.Link, // this is not performant for large lists, use fmtFastURI instead
 		"lastUpdated":    LastUpdated,
 		"linkDownload":   LinkDownload,
 		"linkPage":       LinkPage,
@@ -51,6 +53,16 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		// these closures should only return simple values
 		"initialisms": func(s string) string {
 			return initialism.Join(initialism.Path(s))
+		},
+		"fmtName": func(s string) string {
+			return helper.Capitalize(strings.ToLower(s))
+		},
+		"fmtFastURI": func(s string) string {
+			x, err := name.Humanize(name.Path(s))
+			if err != nil {
+				return err.Error()
+			}
+			return helper.Capitalize(x)
 		},
 		"logo": func() string {
 			return string(*web.Brand)

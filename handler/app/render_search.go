@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/releaser/initialism"
+	namer "github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -95,7 +95,6 @@ func Post(z *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
 			return DatabaseErr(z, c, name, err)
 		}
 	}
-	// TODO:
 	d, err := mode.postFileStats(ctx, db, terms)
 	if err != nil {
 		return InternalErr(z, c, name, err)
@@ -191,7 +190,8 @@ func SearchReleaser(z *zap.SugaredLogger, c echo.Context) error {
 	for i, v := range x {
 		id := strings.TrimSpace(v.Name)
 		slug := helper.Slug(id)
-		name := releaser.Link(slug)
+		// use namer.Humanized instead of the releaser.link func as it is far more performant
+		name, _ := namer.Humanize(namer.Path(slug))
 		ism := initialism.Initialism(initialism.Path(slug))
 		opt := name
 		if len(ism) > 0 {

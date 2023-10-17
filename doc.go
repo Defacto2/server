@@ -76,19 +76,17 @@ The following options can be added to [Override].
 
 # Tasks
 
-	- Finish this doc.go file.
-	- Complete "Search for files" feature to support, Years, Descriptions.
+	- Complete "Search for files"
+	- - fix sorting and date ordering issues.
+	- - SearchReleaser()
 	- Uploader modal placeholders.
-	- Fix missing warnings for the non-server commands of "address" and "config".
+	- Textfile content viewer requires an inverted colour scheme button.
+	- Finish this doc.go file.
 	- Cache Pouet reviews and link to Demozoo ID if found.
 
 # Mobile fixes
 
 	- none
-
-# TODO
-
-	- "conf.Import.ThumbnailDir" (dir path?) should be renamed to "/image/thumb".
 
 # Bugs
 
@@ -96,7 +94,6 @@ The following options can be added to [Override].
 
 # New features to deliver
 
-	- Extensive database repair and cleanup on startup.
 	- DOS emulation using something other than DOSBox.
 
 # Database changes
