@@ -41,6 +41,7 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"linkScnr":       LinkScnr,
 		"linkWiki":       LinkWiki,
 		"logoText":       LogoText,
+		"mimeMagic":      MimeMagic,
 		"safeHTML":       SafeHTML,
 		"screenshot":     web.Screenshot,
 		"subTitle":       SubTitle,

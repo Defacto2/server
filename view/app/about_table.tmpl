@@ -9,7 +9,7 @@
 {{- $youtube := (index . "youtube")}}
 {{- $github := (index . "github")}}
 {{- $comment := (index . "comment")}}
-{{- $mimetype := (index . "magic")}}
+{{- $mimetype := mimeMagic (index . "magic")}}
 {{- /*  Modal table contents of the file archive  */}}
 {{- if (index . "content")}}
 <div class="modal fade" id="viewContentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
