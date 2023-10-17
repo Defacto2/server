@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/render"
@@ -38,7 +39,6 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	title := res.RecordTitle.String
 	fname := res.Filename.String
 	uuid := res.UUID.String
 	platform := strings.TrimSpace(res.Platform.String)
@@ -47,7 +47,7 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	data["download"] = helper.ObfuscateID(int64(res.ID))
 	data["title"] = fname
 	data["description"] = aboutDesc(res)
-	data["h1"] = title
+	data["h1"] = aboutIssue(res)
 	data["lead"] = aboutLead(res)
 	data["comment"] = res.Comment.String
 	// file metadata
@@ -182,10 +182,10 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 func aboutDesc(res *models.File) string {
 	s := res.Filename.String
 	if res.RecordTitle.String != "" {
-		s = res.RecordTitle.String
+		s = aboutIssue(res)
 	}
-	r1 := helper.Capitalize(res.GroupBrandBy.String)
-	r2 := helper.Capitalize(res.GroupBrandFor.String)
+	r1 := releaser.Clean(strings.ToLower(res.GroupBrandBy.String))
+	r2 := releaser.Clean(strings.ToLower(res.GroupBrandFor.String))
 	r := ""
 	if r1 != "" && r2 != "" {
 		r = fmt.Sprintf("%s + %s", r1, r2)
@@ -198,6 +198,18 @@ func aboutDesc(res *models.File) string {
 	y := res.DateIssuedYear.Int16
 	if y > 0 {
 		s = fmt.Sprintf("%s in %d", s, y)
+	}
+	return s
+}
+
+func aboutIssue(res *models.File) string {
+	sect := strings.TrimSpace(strings.ToLower(res.Section.String))
+	if sect != "magazine" {
+		return res.RecordTitle.String
+	}
+	s := res.RecordTitle.String
+	if i, err := strconv.Atoi(s); err == nil {
+		return fmt.Sprintf("Issue %d", i)
 	}
 	return s
 }

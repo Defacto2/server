@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -532,7 +533,7 @@ func Month(m any) template.HTML {
 }
 
 // SubTitle returns a secondary element with the record title.
-func SubTitle(s any) template.HTML {
+func SubTitle(section null.String, s any) template.HTML {
 	val := ""
 	switch v := s.(type) {
 	case string:
@@ -545,6 +546,11 @@ func SubTitle(s any) template.HTML {
 	}
 	if val == "" {
 		return ""
+	}
+	if strings.TrimSpace(strings.ToLower(section.String)) == "magazine" {
+		if i, err := strconv.Atoi(val); err == nil {
+			val = fmt.Sprintf("Issue %d", i)
+		}
 	}
 	cls := "card-subtitle mb-2 text-body-secondary"
 	elem := fmt.Sprintf("<h6 class=\"%s\">%s</h6>", cls, val)

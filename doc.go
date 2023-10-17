@@ -81,7 +81,6 @@ The following options can be added to [Override].
 	- Uploader placeholder.
 	- Complete the textfile printing feature.
 	- Fix missing warnings for the non-server commands of "address" and "config".
-	- View file, with a magazine title, handle solo issue numbers.
 	- About file screenshot should be stretched to match the width of the thumbnails.
 	- Start repair should delete mimetype that begins with "ERROR: " (/f/a92a225).
 	- Mime type  	Zip archive data, at least v1.0 to extract and v2.0 should be simplified.
