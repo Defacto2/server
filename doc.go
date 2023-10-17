@@ -88,9 +88,6 @@ The following options can be added to [Override].
 
 # TODO
 
-	- [model.RepairReleasers], globalize the "fixes" map and create redirects for the old names?
-	If it is a platform "amigatext" use topaz pre, else use filedownload, except for known archives.
-	Also do a scan to confirm is not a binary file.
 	- [handler.Configuration.Controller], handle a broken DB connection situation.
 	- "conf.Import.ThumbnailDir" (dir path?) should be renamed to "/image/thumb".
 

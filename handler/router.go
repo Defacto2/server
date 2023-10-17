@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/labstack/echo/v4"
@@ -367,6 +368,19 @@ func (c Configuration) Moved(z *zap.SugaredLogger, e *echo.Echo) (*echo.Echo, er
 	})
 	e.GET("/web.pages/warez_world-1.htm", func(c echo.Context) error {
 		return c.Redirect(code, "/wayback/warez-world-from-2001-july-26/index.html")
+	})
+	// repaired releaser database entry redirects
+	e.GET("/g/acid", func(c echo.Context) error {
+		return c.Redirect(code, "/g/"+releaser.Obfuscate("ACID PRODUCTIONS"))
+	})
+	e.GET("/g/ice", func(c echo.Context) error {
+		return c.Redirect(code, "/g/"+releaser.Obfuscate("INSANE CREATORS ENTERPRISE"))
+	})
+	e.GET("/g/"+releaser.Obfuscate("pirates with attitude"), func(c echo.Context) error {
+		return c.Redirect(code, "/g/"+releaser.Obfuscate("pirates with attitudes"))
+	})
+	e.GET("/g/"+releaser.Obfuscate("TRISTAR AND RED SECTOR INC"), func(c echo.Context) error {
+		return c.Redirect(code, "/g/"+releaser.Obfuscate("TRISTAR & RED SECTOR INC"))
 	})
 	return e, nil
 }

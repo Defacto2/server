@@ -36,15 +36,16 @@ func RepairReleasers(w io.Writer, ctx context.Context, db *sql.DB) error {
 		return err
 	}
 	// fix bad imported names, such as those from Demozoo data imports
+	// each one of these fixes need a redirect
 	const (
-		trsibad = "TRISTAR AND RED SECTOR INC"
-		trsifix = "TRISTAR & RED SECTOR INC"
 		acidbad = "ACID"
 		acidfix = "ACID PRODUCTIONS"
 		icebad  = "ICE"
 		icefix  = "INSANE CREATORS ENTERPRISE"
 		pwabad  = "pirates with attitude"
 		pwafix  = "pirates with attitudes"
+		trsibad = "TRISTAR AND RED SECTOR INC"
+		trsifix = "TRISTAR & RED SECTOR INC"
 	)
 	fixes := map[string]string{
 		trsibad: trsifix,
