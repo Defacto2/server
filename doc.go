@@ -88,14 +88,11 @@ The following options can be added to [Override].
 
 # TODO
 
-	- [model.Files.ListUpdates], rename the PSQL column from "updated_at" to "date_updated".
 	- [model.RepairReleasers], globalize the "fixes" map and create redirects for the old names?
 	If it is a platform "amigatext" use topaz pre, else use filedownload, except for known archives.
 	Also do a scan to confirm is not a binary file.
 	- [handler.Configuration.Controller], handle a broken DB connection situation.
 	- "conf.Import.ThumbnailDir" (dir path?) should be renamed to "/image/thumb".
-	- [handler.Configuration.Moved] Implement legacy URI redirects,
-	"/cracktros-detail.cfm:/:id" and "/code".
 
 # Bugs
 
@@ -105,6 +102,10 @@ The following options can be added to [Override].
 
 	- Extensive database repair and cleanup on startup.
 	- DOS emulation using something other than DOSBox.
+
+# Database changes
+
+	- [model.Files.ListUpdates], rename the PSQL column from "updated_at" to "date_updated".
 
 # Milestones to add
 
