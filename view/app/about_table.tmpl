@@ -13,7 +13,7 @@
 {{- /*  Modal table contents of the file archive  */}}
 {{- if (index . "content")}}
 <div class="modal fade" id="viewContentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="viewContentModalLabel">{{index . "filename"}} <small>content</small></h1>
@@ -24,7 +24,7 @@
                 <thead>
                   <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Name or path</th>
+                    <th scope="col">Filename or path</th>
                   </tr>
                 </thead>
                 <tbody>
