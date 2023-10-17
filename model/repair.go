@@ -3,6 +3,8 @@ package model
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"io"
 	"strings"
 
 	"github.com/Defacto2/server/internal/postgres"
@@ -15,7 +17,10 @@ import (
 // Package file repair.go contains functions for repairing the database data.
 
 // RepairReleasers will repair the group_brand_by and group_brand_for releasers data.
-func RepairReleasers(ctx context.Context, db *sql.DB) error {
+func RepairReleasers(w io.Writer, ctx context.Context, db *sql.DB) error {
+	if w == nil {
+		w = io.Discard
+	}
 	if db == nil {
 		return ErrDB
 	}
@@ -46,6 +51,7 @@ func RepairReleasers(ctx context.Context, db *sql.DB) error {
 		acidbad: acidfix,
 		icebad:  icefix,
 	}
+	rowsAff := int64(0)
 	for bad, fix := range fixes {
 		bad = strings.ToUpper(bad)
 		fix = strings.ToUpper(fix)
@@ -55,9 +61,12 @@ func RepairReleasers(ctx context.Context, db *sql.DB) error {
 		if err != nil {
 			return err
 		}
-		_, err = f.UpdateAll(ctx, db, models.M{"group_brand_for": fix})
+		rowsAff, err = f.UpdateAll(ctx, db, models.M{"group_brand_for": fix})
 		if err != nil {
 			return err
+		}
+		if rowsAff > 0 {
+			fmt.Fprintln(w, "updated", rowsAff, "groups for to", fix)
 		}
 		f, err = models.Files(
 			qm.Where("group_brand_by = ?", bad),
@@ -65,9 +74,12 @@ func RepairReleasers(ctx context.Context, db *sql.DB) error {
 		if err != nil {
 			return err
 		}
-		_, err = f.UpdateAll(ctx, db, models.M{"group_brand_by": fix})
+		rowsAff, err = f.UpdateAll(ctx, db, models.M{"group_brand_by": fix})
 		if err != nil {
 			return err
+		}
+		if rowsAff > 0 {
+			fmt.Fprintln(w, "updated", rowsAff, "groups by to", fix)
 		}
 	}
 	_, err = queries.Raw(postgres.SetUpper("group_brand_for")).Exec(db)
@@ -77,6 +89,18 @@ func RepairReleasers(ctx context.Context, db *sql.DB) error {
 	_, err = queries.Raw(postgres.SetUpper("group_brand_by")).Exec(db)
 	if err != nil {
 		return err
+	}
+
+	magics, err := models.Files(qm.Where("file_magic_type ILIKE ?", "ERROR: %")).All(ctx, db)
+	if err != nil {
+		return err
+	}
+	rowsAff, err = magics.UpdateAll(ctx, db, models.M{"file_magic_type": ""})
+	if err != nil {
+		return err
+	}
+	if rowsAff > 0 {
+		fmt.Fprintln(w, "removed", rowsAff, "file magic types with errors")
 	}
 	return nil
 }
