@@ -78,10 +78,8 @@ The following options can be added to [Override].
 
 	- Finish this doc.go file.
 	- Complete "Search for files" feature to support, Years, Descriptions.
-	- Uploader placeholder.
-	- Complete the textfile printing feature.
+	- Uploader modal placeholders.
 	- Fix missing warnings for the non-server commands of "address" and "config".
-	- Start repair should delete mimetype that begins with "ERROR: " (/f/a92a225).
 	- Cache Pouet reviews and link to Demozoo ID if found.
 
 # Mobile fixes
@@ -92,15 +90,12 @@ The following options can be added to [Override].
 
 	- [model.Files.ListUpdates], rename the PSQL column from "updated_at" to "date_updated".
 	- [model.RepairReleasers], globalize the "fixes" map and create redirects for the old names?
-	- [handler.html3.Routes], using a range over with "echo.GET" does not work.
-	- [handler.app], create a func for the aboutReadme.
 	If it is a platform "amigatext" use topaz pre, else use filedownload, except for known archives.
 	Also do a scan to confirm is not a binary file.
 	- [handler.Configuration.Controller], handle a broken DB connection situation.
 	- "conf.Import.ThumbnailDir" (dir path?) should be renamed to "/image/thumb".
 	- [handler.Configuration.Moved] Implement legacy URI redirects,
 	"/cracktros-detail.cfm:/:id" and "/code".
-	- Move the glossary of terms from a module to its own page.
 
 # Bugs
 

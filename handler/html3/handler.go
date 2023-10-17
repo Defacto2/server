@@ -111,10 +111,19 @@ func Routes(z *zap.SugaredLogger, e *echo.Echo) *echo.Group {
 	g.GET("/documents", s.Documents)
 	g.GET("/software:offset", s.Software)
 	g.GET("/software", s.Software)
+
 	// append legacy redirects
-	for url := range Redirects() {
-		g.GET(url, s.Redirection)
-	}
+	// these must be hand coded as using a map/range will fail
+	const code = http.StatusMovedPermanently
+	g.GET("/index", func(c echo.Context) error {
+		return c.Redirect(code, "/html3")
+	})
+	g.GET("/categories/index", func(c echo.Context) error {
+		return c.Redirect(code, "/html3/categories")
+	})
+	g.GET("/platforms/index", func(c echo.Context) error {
+		return c.Redirect(code, "/html3/platforms")
+	})
 	return g
 }
 
@@ -226,23 +235,6 @@ func (s *sugared) Groups(c echo.Context) error {
 		"path":      "group",
 		"releasers": Releasers, // model.Grps.List
 	})
-	if err != nil {
-		s.zlog.Errorf("%s: %s %d", errTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
-	}
-	return nil
-}
-
-// Redirection redirects any legacy URL matches.
-func (s *sugared) Redirection(c echo.Context) error {
-	for u, redirect := range Redirects() {
-		htm := Prefix + u
-		if htm == c.Path() {
-			return c.Redirect(http.StatusPermanentRedirect, Prefix+redirect)
-		}
-	}
-	err := c.String(http.StatusInternalServerError,
-		fmt.Sprintf("unknown redirection, %q ", c.Path()))
 	if err != nil {
 		s.zlog.Errorf("%s: %s %d", errTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)

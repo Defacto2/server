@@ -11,20 +11,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// HTTP status codes in Go
-// https://go.dev/src/net/http/status.go
-
-// Redirects are partial URL routers that are to be redirected with a HTTP 308
-// permanent redirect status code. These are for retired URL syntaxes that are still
-// found on websites online, so their links to Defacto2 do not break with 404, not found errors.
-func Redirects() map[string]string {
-	return map[string]string{
-		"/index":            "",
-		"/categories/index": "/categories",
-		"/platforms/index":  "/platforms",
-	}
-}
-
 // Error renders a custom HTTP error page for the HTML3 sub-group.
 func Error(c echo.Context, err error) error {
 	// Echo custom error handling: https://echo.labstack.com/guide/error-handling/

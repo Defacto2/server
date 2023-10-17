@@ -131,5 +131,5 @@ func RepairDB(server handler.Configuration) error {
 	if err := ver.Query(); err != nil {
 		return ErrVer
 	}
-	return model.RepairReleasers(ctx, db)
+	return model.RepairReleasers(os.Stderr, ctx, db)
 }
