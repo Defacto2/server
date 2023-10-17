@@ -275,7 +275,7 @@ func releaserSum(ctx context.Context, db *sql.DB, uri string) (map[string]string
 	}
 	// add the statistics to the data
 	d := map[string]string{
-		"files": string(ByteFileS("file", m.SumCount, m.SumBytes)),
+		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
 		"years": helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	return d, nil
