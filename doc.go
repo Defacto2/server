@@ -88,7 +88,6 @@ The following options can be added to [Override].
 
 # TODO
 
-	- [handler.Configuration.Controller], handle a broken DB connection situation.
 	- "conf.Import.ThumbnailDir" (dir path?) should be renamed to "/image/thumb".
 
 # Bugs

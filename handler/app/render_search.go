@@ -74,7 +74,7 @@ func Post(z *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return InternalErr(z, c, name, err)
+		return DatabaseErr(z, c, name, err)
 	}
 	defer db.Close()
 
@@ -87,12 +87,12 @@ func Post(z *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
 	case filenames:
 		fs, err = rel.SearchFilename(ctx, db, terms)
 		if err != nil {
-			return InternalErr(z, c, name, err)
+			return DatabaseErr(z, c, name, err)
 		}
 	case descriptions:
 		fs, err = rel.SearchDescription(ctx, db, terms)
 		if err != nil {
-			return InternalErr(z, c, name, err)
+			return DatabaseErr(z, c, name, err)
 		}
 	}
 	// TODO:
