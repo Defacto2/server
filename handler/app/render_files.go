@@ -54,15 +54,18 @@ func Files(z *zap.SugaredLogger, c echo.Context, uri, page string) error {
 func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 	const title, name = "Files", "files"
 	logo, h1sub, lead := "", "", ""
+	unknownYears := true
 	switch uri {
 	case newUploads.String():
 		logo = "new uploads"
 		h1sub = "the new uploads"
 		lead = "These are the files that have been recently uploaded to Defacto2."
+		unknownYears = false
 	case newUpdates.String():
 		logo = "new updates"
 		h1sub = "the new updates"
 		lead = "These are the file records that have been recently uploaded or modified on Defacto2."
+		unknownYears = false
 	case oldest.String():
 		logo = "oldest releases"
 		h1sub = "the oldest releases"
@@ -83,6 +86,7 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 	data["h1"] = title
 	data["h1sub"] = h1sub
 	data["lead"] = lead
+	data["unknownYears"] = unknownYears
 	data[records] = []models.FileSlice{}
 
 	ctx := context.Background()

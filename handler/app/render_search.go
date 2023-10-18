@@ -107,6 +107,7 @@ func Post(z *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
 	data["lead"] = fmt.Sprintf("Results for %q", s)
 	data["logo"] = s + " results"
 	data["description"] = "Filename search results for " + s + "."
+	data["unknownYears"] = false
 	data[records] = fs
 	data["stats"] = d
 	err = c.Render(http.StatusOK, "files", data)

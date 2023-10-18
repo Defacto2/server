@@ -9,6 +9,7 @@
 {{- $sixteen := index .sixteen }}
 {{- $scener := index .scener }}
 {{- $noYears := false}}
+{{- $unYears := index .unknownYears }}
 {{- $rowCols := "row-cols-1 row-cols-md-2 row-cols-lg-3"}}
 <p class="text-start lead"><small>There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}}{{if ne $years ""}} from {{$years | safeHTML}}{{end}}.</small></p>
 {{- if or (ne $zoo "0") (ne $sixteen "")}}
@@ -23,7 +24,8 @@
 {{- end}}
 <div class="row justify-content-md-center {{$rowCols}} g-4 mt-1">
   {{- range .records }}
-{{- if and (eq $noYears false) (eq .DateIssuedYear.Int16 0)}}
+{{- /*  this should not display with search or order by date of records listings */}}
+{{- if and (eq $unYears true) (eq $noYears false) (eq .DateIssuedYear.Int16 0)}}
   {{- $noYears = true}}
 </div>
 <hr class="mt-5 mb-4"><p class="text-center lead"><small>These are files from an unknown year</small></p>
