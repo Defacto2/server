@@ -56,6 +56,10 @@
 {{- if (index . "content")}}
     <a class="d-inline btn btn-outline-secondary btn m-1" data-bs-toggle="modal" data-bs-target="#viewContentModal">view content</a>
 {{- end}}
+{{- if ne "" (index . "linkpreview")}}
+    <a class="d-inline btn btn-outline-secondary btn m-1" href="{{- index . "linkpreview" }}" 
+    role="button" data-bs-toggle="tooltip" data-bs-title="Play this as media">preview</a>
+{{- end}}
 </div>
 {{- /*  Commant about the file  */}}
 {{- if ne $comment ""}}

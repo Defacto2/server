@@ -452,6 +452,16 @@ func LinkPreview(id any, name, platform string) template.HTML {
 	if name == "" {
 		return template.HTML("")
 	}
+	s := LinkPreviewHref(id, name, platform)
+	elm := fmt.Sprintf(`&nbsp; <a class="card-link" href="%s">Preview</a>`, s)
+	return template.HTML(elm)
+}
+
+// LinkPreviewHref creates a URL path to link to the file record in tab, to use as a preview.
+func LinkPreviewHref(id any, name, platform string) template.HTML {
+	if name == "" {
+		return template.HTML("")
+	}
 	platform = strings.TrimSpace(platform)
 	// supported formats
 	// https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
@@ -475,8 +485,7 @@ func LinkPreview(id any, name, platform string) template.HTML {
 	if err != nil {
 		return template.HTML(err.Error())
 	}
-	elm := fmt.Sprintf(`&nbsp; <a class="card-link" href="%s">Preview</a>`, s)
-	return template.HTML(elm)
+	return template.HTML(s)
 }
 
 // linkID creates a URL to link to the record.

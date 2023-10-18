@@ -83,6 +83,7 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 		data["contentDesc"] = fmt.Sprintf("contains %d files", len(ctt))
 	}
 	// record metadata
+	data["linkpreview"] = LinkPreviewHref(res.ID, res.Filename.String, res.Platform.String)
 	switch {
 	case res.Createdat.Valid && res.Updatedat.Valid:
 		c := Updated(res.Createdat.Time, "")
