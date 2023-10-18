@@ -453,6 +453,9 @@ func LinkPreview(id any, name, platform string) template.HTML {
 		return template.HTML("")
 	}
 	s := LinkPreviewHref(id, name, platform)
+	if s == "" {
+		return template.HTML("")
+	}
 	elm := fmt.Sprintf(`&nbsp; <a class="card-link" href="%s">Preview</a>`, s)
 	return template.HTML(elm)
 }
