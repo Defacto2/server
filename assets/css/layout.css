@@ -65,6 +65,11 @@
   overflow: hidden;
 }
 
+.reader-invert {
+  background-color: #000;
+  color: #fff;
+}
+
 @container cardContainer (width > 575px) {
   pre {
     font-size: 100%;
