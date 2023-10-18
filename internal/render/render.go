@@ -110,7 +110,7 @@ func Viewer(res *models.File) bool {
 	}
 	platform := strings.ToLower(strings.TrimSpace(res.Platform.String))
 	switch platform {
-	case "text":
+	case "text", "textamiga":
 		return true
 	}
 	return false
@@ -129,7 +129,7 @@ func NoScreenshot(path string, res *models.File) bool {
 	}
 	platform := strings.ToLower(strings.TrimSpace(res.Platform.String))
 	switch platform {
-	case "textamiga", "text", "atarist":
+	case "textamiga", "text":
 		return true
 	}
 	uuid := res.UUID.String

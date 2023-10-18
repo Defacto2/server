@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -137,6 +138,17 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 	}
 	if b == nil || render.IsUTF16(b) {
 		return nil, nil
+	}
+
+	const ansi = "application/octet-stream"
+	contentType := http.DetectContentType(b)
+	switch contentType {
+	case "archive/zip", "application/zip":
+		return nil, nil
+	case ansi:
+		// Remove ANSI control codes from byte array
+		re := regexp.MustCompile(`\x1b\[[0-9;]*[a-zA-Z]`)
+		b = re.ReplaceAll(b, []byte{})
 	}
 
 	e := render.Encoder(res, b...)
