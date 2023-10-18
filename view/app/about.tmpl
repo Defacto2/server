@@ -39,20 +39,20 @@
         {{- end}}
         <div class="col-12">
         {{- if or (index . "readmeLatin1") (index . "readmeCP437")}}
-            <div class="m-3">
-                <input type="radio" class="btn-check" name="readme-base" id="topazFont" autocomplete="off" {{index . "topazCheck"}}>
-                <label class="btn btn-sm" for="topazFont" 
-                    data-bs-toggle="tooltip" data-bs-title="Use the TopazPlus font with Latin-1 encoding">Amiga style</label>
-                <input type="radio" class="btn-check" name="readme-base" id="vgaFont" autocomplete="off" {{index . "vgaCheck"}}>
-                <label class="btn btn-sm" for="vgaFont"
-                    data-bs-toggle="tooltip" data-bs-title="Use a classic IBM VGA font with OEM-US encoding">DOS style</label>
-            </div>
             {{- if not (index . "noScreenshot")}}
                 <h6 class="fs-6 fw-lighter">Readme or information text <small>{{index . "readmeName"}}</small></h6>
                 <hr>
             {{- end}}
             {{- if (index . "noScreenshot")}}
                 <h6 class="fs-6 fw-lighter">Textfile content</small></h6>
+                <div class="m-3">
+                    <input type="radio" class="btn-check" name="readme-base" id="topazFont" autocomplete="off" {{index . "topazCheck"}}>
+                    <label class="btn btn-sm" for="topazFont" 
+                        data-bs-toggle="tooltip" data-bs-title="Use the TopazPlus font with Latin-1 encoding">Amiga style</label>
+                    <input type="radio" class="btn-check" name="readme-base" id="vgaFont" autocomplete="off" {{index . "vgaCheck"}}>
+                    <label class="btn btn-sm" for="vgaFont"
+                        data-bs-toggle="tooltip" data-bs-title="Use a classic IBM VGA font with OEM-US encoding">DOS style</label>
+                </div>
                 <hr>
             {{- end}}
         {{- end}}
