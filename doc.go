@@ -79,7 +79,7 @@ The following options can be added to [Override].
 	- Uploader modal placeholders.
 	- Finish this doc.go file.
 	- Cache Pouet reviews and link to Demozoo ID if found.
-	- JS music tracker player.
+	- JS music tracker player. https://github.com/deskjet/chiptune2.js/
 	- Defacto2 history [history.tmlp] should have its intro text expanded to better explain the brand.
 	- - First known as Defacto...
 	- "<meta name="defacto2:file-count" content="45209">" layout should use a real value, or maybe use browser notifications?

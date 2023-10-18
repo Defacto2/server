@@ -116,16 +116,15 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 }
 
 func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error) {
+	data := map[string]interface{}{}
 	if res.RetrotxtNoReadme.Int16 != 0 {
-		return nil, nil
+		return data, nil
 	}
-
 	platform := strings.TrimSpace(res.Platform.String)
 	switch platform {
 	case "markup", "pdf":
-		return nil, nil
+		return data, nil
 	}
-	data := map[string]interface{}{}
 	if render.NoScreenshot(a.ScreenshotDir, res) {
 		data["noScreenshot"] = true
 	}
@@ -136,16 +135,16 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 		return data, nil
 	}
 	if err != nil {
-		return nil, err
+		return data, err
 	}
 	if b == nil || render.IsUTF16(b) {
-		return nil, nil
+		return data, nil
 	}
 
 	contentType := http.DetectContentType(b)
 	switch contentType {
 	case "archive/zip", "application/zip":
-		return nil, nil
+		return data, nil
 	}
 
 	// Remove control codes and metadata from byte array
@@ -184,13 +183,13 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 	r := charmap.ISO8859_1.NewDecoder().Reader(bytes.NewReader(b))
 	out := strings.Builder{}
 	if _, err := io.Copy(&out, r); err != nil {
-		return nil, err
+		return data, err
 	}
 	data["readmeLatin1"] = out.String()
 	r = charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
 	out = strings.Builder{}
 	if _, err := io.Copy(&out, r); err != nil {
-		return nil, err
+		return data, err
 	}
 	data["readmeCP437"] = out.String()
 
