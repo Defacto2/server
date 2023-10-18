@@ -17,11 +17,12 @@ import (
 	"go.uber.org/zap"
 )
 
+// FileSearch is the type of search to perform.
 type FileSearch int
 
 const (
-	filenames FileSearch = iota
-	descriptions
+	Filenames    FileSearch = iota // Filenames is the search for filenames.
+	Descriptions                   // Descriptions is the search for file descriptions and titles.
 )
 
 // SearchDesc is the handler for the Search for file descriptions page.
@@ -42,8 +43,9 @@ func SearchDesc(z *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
+// PostDescriptions is the handler for the Search for file descriptions form post page.
 func PostDescriptions(z *zap.SugaredLogger, c echo.Context) error {
-	return Post(z, c, descriptions)
+	return Post(z, c, Descriptions)
 }
 
 // SearchFile is the handler for the Search for files page.
@@ -64,8 +66,9 @@ func SearchFile(z *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
+// PostFilename is the handler for the Search for filenames form post page.
 func PostFilename(z *zap.SugaredLogger, c echo.Context) error {
-	return Post(z, c, filenames)
+	return Post(z, c, Filenames)
 }
 
 // PostFilename is the handler for the Search for filenames form post page.
@@ -84,23 +87,19 @@ func Post(z *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
 
 	fs := models.FileSlice{}
 	switch mode {
-	case filenames:
-		fs, err = rel.SearchFilename(ctx, db, terms)
+	case Filenames:
+		fs, _ = rel.SearchFilename(ctx, db, terms)
 		if err != nil {
 			return DatabaseErr(z, c, name, err)
 		}
-	case descriptions:
-		fs, err = rel.SearchDescription(ctx, db, terms)
+	case Descriptions:
+		fs, _ = rel.SearchDescription(ctx, db, terms)
 		if err != nil {
 			return DatabaseErr(z, c, name, err)
 		}
 	}
-	d, err := mode.postFileStats(ctx, db, terms)
-	if err != nil {
-		return InternalErr(z, c, name, err)
-	}
-
-	s := strings.Join(terms, " ")
+	d := mode.postFileStats(ctx, db, terms)
+	s := strings.Join(terms, ", ")
 	data := emptyFiles()
 	data["title"] = "Filename results"
 	data["h1"] = "Filename search"
@@ -117,9 +116,9 @@ func Post(z *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
 	return nil
 }
 
-func (mode FileSearch) postFileStats(ctx context.Context, db *sql.DB, terms []string) (map[string]string, error) {
+func (mode FileSearch) postFileStats(ctx context.Context, db *sql.DB, terms []string) map[string]string {
 	if db == nil {
-		return nil, ErrDB
+		return nil
 	}
 	none := func() map[string]string {
 		return map[string]string{
@@ -130,24 +129,24 @@ func (mode FileSearch) postFileStats(ctx context.Context, db *sql.DB, terms []st
 	// fetch the statistics of the category
 	m := model.Summary{}
 	switch mode {
-	case filenames:
+	case Filenames:
 		if err := m.SearchFilename(ctx, db, terms); err != nil {
-			return nil, err
+			return none()
 		}
-	case descriptions:
+	case Descriptions:
 		if err := m.SearchDesc(ctx, db, terms); err != nil {
-			return nil, err
+			return none()
 		}
 	}
 	if m.SumCount.Int64 == 0 {
-		return none(), nil
+		return none()
 	}
 	// add the statistics to the data
 	d := map[string]string{
 		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
 		"years": helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
 	}
-	return d, nil
+	return d
 }
 
 // PostReleaser is the handler for the releaser search form post page.
@@ -176,7 +175,7 @@ func SearchReleaser(z *zap.SugaredLogger, c echo.Context) error {
 	data["description"] = "Search form to discover releasers."
 	data["logo"] = title
 	data["title"] = title
-	data["info"] = "A search can be for a group, magazine, board or site"
+	data["info"] = "A search for a group, initalism, magazine, board or site"
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {

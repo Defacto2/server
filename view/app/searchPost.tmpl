@@ -1,4 +1,4 @@
-{{/*  search.tmpl  */}}
+{{/*  searchPost.tmpl  */}}
 {{- define "content" }} 
 <div class="row justify-content-md-center">
     <div class="col-sm-6">
@@ -7,16 +7,16 @@
                 <h5 class="card-title text-info-emphasis fs-2 lead">
                     {{index . "title"}}<br>
                     <small class="fs-5 fw-lighter">{{index . "info"}}</small>
+                    <p class="fs-6">multiple terms can be seperated with commas</p>
                 </h5>
                 <p class="card-text">
-<form class="row g-3" method="post">
-    {{/*  TODO customize input element  */}}
-<input class="form-control form-control" id="relDataList" name="search-term-query" placeholder="Type in the search terms...">
-<div class="d-grid gap-2 d-md-flex justify-content-md-end">
-    <button type="submit" class="btn btn-primary me-md-3">Submit</button>
-    <button type="reset" class="btn btn-outline-dark">Clear</button>
-</div>
-</form>
+                <form class="row g-3" method="post">
+                <input class="form-control form-control" id="relDataList" name="search-term-query" placeholder="Type in the search terms...">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary me-md-3">Submit</button>
+                    <button type="reset" class="btn btn-outline-dark">Clear</button>
+                </div>
+                </form>
                 </p>
             </div>
         </div>

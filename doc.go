@@ -76,11 +76,7 @@ The following options can be added to [Override].
 
 # Tasks
 
-	- Complete "Search for files"
-	- - fix sorting and date ordering issues.
-	- - SearchReleaser()
 	- Uploader modal placeholders.
-	- Textfile content viewer requires an inverted colour scheme button.
 	- Finish this doc.go file.
 	- Cache Pouet reviews and link to Demozoo ID if found.
 	- VirusTotal alert and download disabler.

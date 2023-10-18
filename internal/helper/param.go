@@ -8,7 +8,6 @@ import (
 	"net/url"
 	"path"
 	"regexp"
-	"slices"
 	"strconv"
 	"strings"
 )
@@ -164,74 +163,17 @@ func Slug(name string) string {
 }
 
 // SearchTerm returns a list of search terms from the input string.
-// The input string is split by double quotes.
+// The input string is split by commas.
 func SearchTerm(input string) []string {
 	if input == "" {
 		return []string{}
 	}
 	// split the input by double quotes
-	q := strings.Split(input, "\"")
-	fmt.Println("P1 ->", q)
-	q = slices.DeleteFunc(q, func(s string) bool {
-		if s == "" {
-			return true
-		}
-		fmt.Println("S", s)
-		if []rune(s)[0] == '"' && []rune(s)[len(s)-1] == '"' {
-			return false
-		}
-		return true
-	})
-	fmt.Println("P2 ->", q)
+	q := strings.Split(input, ",")
 	// join the two slices
-	terms := []string{}
-	terms = append(terms, q...)
-
-	t := strings.Split(input, "\"")
-	t = slices.DeleteFunc(t, func(s string) bool {
-		if s == "" {
-			return true
-		}
-		if []rune(s)[0] == '"' && []rune(s)[len(s)-1] == '"' {
-			return true
-		}
-		return false
-	})
-	fmt.Println("T ->", t)
-	for _, v := range t {
-		// split the input by spaces
-		x := strings.Split(v, " ")
-		for _, y := range x {
-			// delete any empty strings
-			if len(y) == 0 {
-				continue
-			}
-			terms = append(terms, y)
-		}
+	s := make([]string, 0, len(q))
+	for _, v := range q {
+		s = append(s, strings.TrimSpace(v))
 	}
-
-	// terms = append(terms, t...)
-
-	// for i, v := range q {
-	// 	q[i] = strings.TrimSpace(v)
-	// }
-	// slices.Sort(q)
-	// q = slices.Compact(q)
-	// // delete any empty strings
-	// q = slices.DeleteFunc(q, func(s string) bool {
-	// 	return len(s) == 0
-	// })
-	// terms := []string{}
-	// for _, v := range q {
-	// 	// split the input by spaces
-	// 	x := strings.Split(v, " ")
-	// 	for _, y := range x {
-	// 		// delete any empty strings
-	// 		if len(y) == 0 {
-	// 			continue
-	// 		}
-	// 		terms = append(terms, y)
-	// 	}
-	// }
-	return terms
+	return s
 }

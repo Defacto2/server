@@ -5,6 +5,7 @@ package model
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -30,12 +31,10 @@ func (f *Files) Stat(ctx context.Context, db *sql.DB) error {
 	if f.Bytes > 0 && f.Count > 0 {
 		return nil
 	}
-	// boil.DebugMode = true
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
 		qm.From(From)).Bind(ctx, db, f)
-	// return models.Files(qm.Limit(Maximum)).Bind(ctx, db, f)
 }
 
 // SearchFilename returns a list of files that match the search terms.
@@ -85,6 +84,7 @@ func (f *Files) SearchDescription(ctx context.Context, db *sql.DB, terms []strin
 		mods = append(mods, qm.Or(clauseC, term))
 	}
 	mods = append(mods, qm.Limit(Maximum))
+	fmt.Println("doooooooooooooooooo")
 	return models.Files(mods...).All(ctx, db)
 }
 
