@@ -36,7 +36,9 @@ var (
 		".pdf", ".unp", ".htm", ".html", ".xml", ".json", ".csv",
 	}
 	images = []string{".avif", ".gif", ".jpg", ".jpeg", ".jfif", ".png", ".svg", ".webp", ".bmp", ".ico"}
-	media  = []string{".mpeg", ".mp1", ".mp2", ".mp3", ".mp4", ".ogg", ".wmv"}
+	// only browser supported formats should be listed:
+	// https://developer.mozilla.org/en-US/docs/Web/Media/Formats
+	media = []string{".mpeg", ".mp1", ".mp2", ".mp3", ".mp4", ".ogg", ".wmv"}
 )
 
 // SafeHTML returns a string as a template.HTML type.

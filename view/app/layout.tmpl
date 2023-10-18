@@ -13,7 +13,7 @@
     {{if ne (index . "description") ""}}<meta name="description" content="{{ index . "description" }}">{{end -}}
     {{if eq (index . "description") ""}}<meta name="description" content="{{$fallbackDesc}}">{{end}}
     <meta name="theme-color" content="rgb(153, 153, 153)">
-    <meta name="defacto2:file-count" content="45209">{{/*  TODO, for specific pages using the JS notification  */}}
+    <meta name="defacto2:file-count" content="45209">
     <meta name="monetization" content="$ilp.uphold.com/RpWPnb88yLaF">
     <meta name="format-detection" content="telephone=no">
     <meta name="format-detection" content="address=no">
@@ -73,7 +73,6 @@
 }
 </script>
     {{- /*  bookmark and tab icons  */}}
-    {{- /*  todo check the existence of all files  */}}
     <link rel="icon" type="image/svg+xml" href="/image/layout/favicon.svg">
     <link rel="icon" type="image/png" href="/image/layout/favicon-16x16.png" sizes="16x16">
     <link rel="icon" type="image/png" href="/image/layout/favicon-32x32.png" sizes="32x32">

@@ -2,8 +2,6 @@ package app
 
 // Package file milestone.go contains the milestones for The Scene,
 // that are used by the home page.
-//
-// TODO Earliest contemporary demoscene entry.
 
 const notable = "Notable group foundings,"
 
