@@ -36,6 +36,7 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"fmtURI":         releaser.Link, // this is not performant for large lists, use fmtFastURI instead
 		"lastUpdated":    LastUpdated,
 		"linkDownload":   LinkDownload,
+		"linkHref":       LinkHref,
 		"linkPage":       LinkPage,
 		"linkPreview":    LinkPreview,
 		"linkRemote":     LinkRemote,

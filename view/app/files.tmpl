@@ -49,7 +49,7 @@
         {{linkDownload .ID}}{{ downloadB .Filesize}}
         {{linkPreview .ID .Filename.String .Platform.String}}
       </div>
-      {{thumb .UUID.String .Filename.String true }}
+      <a href="{{linkHref .ID}}">{{thumb .UUID.String .Filename.String true }}</a>
     </div>
   </div>
   {{- end}}

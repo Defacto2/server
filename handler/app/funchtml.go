@@ -422,13 +422,18 @@ func linkRelr(name string) (string, error) {
 	return href, nil
 }
 
-// LinkPage creates a URL to link to the file page for the record.
+// LinkPage creates a URL anchor element to link to the file page for the record.
 func LinkPage(id any) template.HTML {
 	s, err := linkID(id, "f")
 	if err != nil {
 		return template.HTML(err.Error())
 	}
 	return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">About</a>`, s))
+}
+
+// LinkHref creates a URL path to link to the file page for the record.
+func LinkHref(id any) (string, error) {
+	return linkID(id, "f")
 }
 
 // LinkPreview creates a URL to link to the file record in tab, to use as a preview.
