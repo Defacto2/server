@@ -57,7 +57,7 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	data["lastmodified"] = aboutLM(res)
 	data["checksum"] = res.FileIntegrityStrong.String
 	data["magic"] = res.FileMagicType.String
-	data["releasers"] = string(LinkRelrs(res.GroupBrandBy, res.GroupBrandFor))
+	data["releasers"] = string(LinkRels(res.GroupBrandBy, res.GroupBrandFor))
 	data["published"] = model.PublishedFmt(res)
 	data["section"] = res.Section.String
 	data["platform"] = platform
@@ -229,7 +229,7 @@ func aboutIssue(res *models.File) string {
 func aboutLead(res *models.File) string {
 	fname := res.Filename.String
 	span := fmt.Sprintf("<span class=\"font-monospace fs-6 fw-light\">%s</span> ", fname)
-	rels := string(LinkRelrs(res.GroupBrandBy, res.GroupBrandFor))
+	rels := string(LinkRels(res.GroupBrandBy, res.GroupBrandFor))
 	return fmt.Sprintf("%s<br>%s", rels, span)
 }
 

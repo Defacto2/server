@@ -39,7 +39,7 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"linkPage":       LinkPage,
 		"linkPreview":    LinkPreview,
 		"linkRemote":     LinkRemote,
-		"linkRelrs":      LinkRelrs,
+		"linkRelrs":      LinkRelFast,
 		"linkScnr":       LinkScnr,
 		"linkWiki":       LinkWiki,
 		"logoText":       LogoText,

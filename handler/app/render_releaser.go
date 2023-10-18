@@ -195,7 +195,7 @@ func rel(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 		return InternalErr(z, c, name, ErrZap)
 	}
 	data := empty()
-	const lead = "A releaser is a collective or group of sceners who are responsible for releasing or distributing product."
+	const lead = "A releaser is a brand or a collective group of sceners who are responsible for releasing or distributing product."
 	const key = "releasers"
 	data["title"] = title
 	data["description"] = fmt.Sprint(title, " ", lead)

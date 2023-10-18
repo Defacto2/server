@@ -43,6 +43,7 @@ func emptyFiles() map[string]interface{} {
 	data["demozoo"] = "0"
 	data["sixteen"] = ""
 	data["scener"] = ""
+	data["unknownYears"] = true
 	return data
 }
 

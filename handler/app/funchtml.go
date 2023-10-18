@@ -343,8 +343,20 @@ func LinkDownload(id any) template.HTML {
 	return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">Download</a>`, s))
 }
 
+// LinkRelFast returns the groups associated with a release and a link to each group.
+// It is a faster version of LinkRelrs and should be used with the templates that have large lists of group names.
+func LinkRelFast(a, b any) template.HTML {
+	return LinkRelrs(true, a, b)
+}
+
 // LinkRelrs returns the groups associated with a release and a link to each group.
-func LinkRelrs(a, b any) template.HTML {
+func LinkRels(a, b any) template.HTML {
+	return LinkRelrs(false, a, b)
+}
+
+// LinkRelrs returns the groups associated with a release and a link to each group.
+// The performant flag will use the group name instead of the much slower group slug formatter.
+func LinkRelrs(performant bool, a, b any) template.HTML {
 	const class = "text-nowrap link-offset-2 link-underline link-underline-opacity-25"
 	av, bv, s := "", "", ""
 	switch val := a.(type) {
@@ -374,14 +386,22 @@ func LinkRelrs(a, b any) template.HTML {
 		if err != nil {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
-		prime = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, releaser.Link(helper.Slug(av)))
+		x := helper.Capitalize(strings.ToLower(av))
+		if !performant {
+			x = releaser.Link(helper.Slug(av))
+		}
+		prime = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, x)
 	}
 	if bv != "" {
 		ref, err := linkRelr(bv)
 		if err != nil {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
-		second = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, releaser.Link(helper.Slug(bv)))
+		x := helper.Capitalize(strings.ToLower(bv))
+		if !performant {
+			x = releaser.Link(helper.Slug(bv))
+		}
+		second = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, x)
 	}
 	if prime != "" && second != "" {
 		s = fmt.Sprintf("%s<br>+ %s", prime, second)
