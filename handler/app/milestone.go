@@ -444,6 +444,20 @@ func Collection() Milestones {
 			},
 		},
 		{
+			Title: "Earliest ANSI ad", Year: 1985, Month: 8, Highlight: false,
+			Lead: "The Game Gallery BBS", LinkTitle: "and view the file",
+			Link: "/f/ba2bcbb",
+			Content: "The earliest ANSI advert is for the Manhattan <sup>(+212)</sup> based The Game Gallery BBS. " +
+				"<br>ANSI art is a computer art form that became widely used to create art and advertisements for online bulletin board systems. " +
+				"The output is generated using ANSI escape codes to create colored text and is usually viewed in a terminal emulator.",
+			Picture: Picture{
+				Title: "The Game Gallery BBS",
+				Alt:   "The Game Gallery BBS ad screenshot",
+				Webp:  "ba2bcbb.webp",
+				Png:   "ba2bcbb.png",
+			},
+		},
+		{
 			Title: "Razor 1911 is named", Year: 1985, Month: 11,
 			Lead: "On the Commodore 64", LinkTitle: "about the early days of Razor 1911",
 			Link: "https://csdb.dk/group/?id=431",
@@ -615,20 +629,6 @@ func Collection() Milestones {
 				Alt:   "Swashbucklers II text advert screenshot",
 				Webp:  "b844ef.webp",
 				Png:   "b844ef.png",
-			},
-		},
-		{
-			Title: "Earliest ANSI ad", Year: 1988, Month: 6, Highlight: false,
-			Lead: "Bentley Sidwell Productions", LinkTitle: "and view the file",
-			Link: "/f/a8286b",
-			Content: "The earliest ANSI ad is released by Bentley Sidwell Productions for <a href=\"https://www.mobygames.com/game/4577/paperboy/cover/group-3710/cover-12867/\">the game Paperboy</a>. " +
-				"<br>ANSI art is a computer art form that became widely used to create art and advertisements for online bulletin board systems. " +
-				"ANSI art is created using ANSI escape codes to create colored text and is usually viewed in a terminal emulator.",
-			Picture: Picture{
-				Title: "Paperboy by BSP",
-				Alt:   "Paperboy by BSP ANSI screenshot",
-				Webp:  "a8286b.webp",
-				Png:   "a8286b.png",
 			},
 		},
 		{
