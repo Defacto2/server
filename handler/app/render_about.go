@@ -140,16 +140,19 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 		return nil, nil
 	}
 
-	const ansi = "application/octet-stream"
 	contentType := http.DetectContentType(b)
 	switch contentType {
 	case "archive/zip", "application/zip":
 		return nil, nil
-	case ansi:
-		// Remove ANSI control codes from byte array
-		re := regexp.MustCompile(`\x1b\[[0-9;]*[a-zA-Z]`)
-		b = re.ReplaceAll(b, []byte{})
 	}
+
+	// Remove ANSI control codes from byte array
+	const (
+		reAnsi  = `\x1b\[[0-9;]*[a-zA-Z]`
+		reAmiga = `\x1b\[[0-9;]*[ ]p` // unknown control code found in Amiga texts
+	)
+	re := regexp.MustCompile(reAnsi + `|` + reAmiga)
+	b = re.ReplaceAll(b, []byte{})
 
 	e := render.Encoder(res, b...)
 	const (
