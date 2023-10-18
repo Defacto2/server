@@ -49,20 +49,25 @@ func SafeHTML(s string) template.HTML {
 func (web Web) Screenshot(uuid, desc string) template.HTML {
 	fw := filepath.Join(web.Import.ScreenshotsDir, fmt.Sprintf("%s.webp", uuid))
 	fp := filepath.Join(web.Import.ScreenshotsDir, fmt.Sprintf("%s.png", uuid))
+	fj := filepath.Join(web.Import.ScreenshotsDir, fmt.Sprintf("%s.jpg", uuid))
 	webp := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s.webp", uuid)}, "/")
 	png := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s.png", uuid)}, "/")
+	jpg := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s.jpg", uuid)}, "/")
 	alt := strings.ToLower(desc) + " screenshot"
-	w, p := false, false
+	w, p, j := false, false, false
 	if helper.IsStat(fw) {
 		w = true
 	}
 	if helper.IsStat(fp) {
 		p = true
 	}
+	if !p {
+		// fallback to jpg on the odd chance that the png is missing
+		if helper.IsStat(fj) {
+			j = true
+		}
+	}
 	class := "rounded mx-auto d-block img-fluid"
-	// if !w && !p {
-	// 	return template.HTML("<img src=\"\" loading=\"lazy\" alt=\"screenshot placeholder\" class=\"" + class + "\" />")
-	// }
 	if w && p {
 		elm := "<picture>" +
 			fmt.Sprintf("<source srcset=\"%s\" type=\"image/webp\" />", webp) +
@@ -76,6 +81,9 @@ func (web Web) Screenshot(uuid, desc string) template.HTML {
 	}
 	if p {
 		return img(png, alt, class, "")
+	}
+	if j {
+		return img(jpg, alt, class, "")
 	}
 	return template.HTML(elm)
 }
