@@ -345,10 +345,13 @@ func DownloadB(i any) template.HTML {
 }
 
 // LinkDownload creates a URL to link to the file download of the record.
-func LinkDownload(id any) template.HTML {
+func LinkDownload(id any, alertURL string) template.HTML {
 	s, err := linkID(id, "d")
 	if err != nil {
 		return template.HTML(err.Error())
+	}
+	if alertURL != "" {
+		return template.HTML(`<s class="card-link text-warning-emphasis" data-bs-toggle="tooltip" data-bs-title="Use the About link to access this file download">Download</s>`)
 	}
 	return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">Download</a>`, s))
 }

@@ -79,7 +79,6 @@ The following options can be added to [Override].
 	- Uploader modal placeholders.
 	- Finish this doc.go file.
 	- Cache Pouet reviews and link to Demozoo ID if found.
-	- VirusTotal alert and download disabler.
 	- JS music tracker player.
 	- Defacto2 history [history.tmlp] should have its intro text expanded to better explain the brand.
 	- - First known as Defacto...

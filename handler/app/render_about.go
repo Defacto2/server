@@ -61,6 +61,7 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	data["published"] = model.PublishedFmt(res)
 	data["section"] = res.Section.String
 	data["platform"] = platform
+	data["alertURL"] = res.FileSecurityAlertURL.String
 	// attributions and credits
 	data["writers"] = res.CreditText.String
 	data["artists"] = res.CreditIllustration.String

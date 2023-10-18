@@ -45,8 +45,35 @@
 </div>{{ end -}}
 {{- /*  About the file download link  */}}
 <div class="d-grid gap-2 d-sm-block mx-auto py-3 text-center">
+{{- if eq (index . "alertURL") "" }}
+    {{/*  standard download  */}}
     <a class="btn btn-outline-primary btn-lg m-1" href="/d/{{index . "download"}}" role="button">
         Download &nbsp; {{index . "filesize"}}</a>
+{{- else }}
+    {{/*  google download warning  */}}
+    <a class="btn btn-outline-primary btn-lg m-1" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        Download &nbsp; {{index . "filesize"}}</a>
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Download warning</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start">
+                Google Search has flagged this download as an unsafe or unwanted download.
+                This can be a false positive, but we recommend you to be careful and
+                run the file in a virtualized environment or in an emulator.
+                <p class="m-3 text-center"><a href="{{index . "alertURL"}}">You should read this scan report before downloading</a></p>
+                <p class="m-5 text-center"><small><a class="link-secondary" href="/d/{{index . "download"}}" role="button">I understand, download anyway</a></small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Abort</button>
+            </div>
+            </div>
+        </div>
+    </div>               
+{{- end }}
 {{- if ne "" (index . "checksum")}}
     <a class="d-none d-sm-inline btn btn-outline-secondary btn m-1" href="/sum/{{index . "download"}}" 
         role="button" data-bs-toggle="tooltip" data-bs-title="Checksum download">#sum</a>

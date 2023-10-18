@@ -5,7 +5,6 @@ package model
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -84,7 +83,6 @@ func (f *Files) SearchDescription(ctx context.Context, db *sql.DB, terms []strin
 		mods = append(mods, qm.Or(clauseC, term))
 	}
 	mods = append(mods, qm.Limit(Maximum))
-	fmt.Println("doooooooooooooooooo")
 	return models.Files(mods...).All(ctx, db)
 }
 
