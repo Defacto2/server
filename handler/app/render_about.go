@@ -146,12 +146,13 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 		return nil, nil
 	}
 
-	// Remove ANSI control codes from byte array
+	// Remove control codes and metadata from byte array
 	const (
-		reAnsi  = `\x1b\[[0-9;]*[a-zA-Z]`
-		reAmiga = `\x1b\[[0-9;]*[ ]p` // unknown control code found in Amiga texts
+		reAnsi  = `\x1b\[[0-9;]*[a-zA-Z]` // ANSI escape codes
+		reAmiga = `\x1b\[[0-9;]*[ ]p`     // unknown control code found in Amiga texts
+		reSauce = `SAUCE00.*`             // SAUCE metadata that is appended to some files
 	)
-	re := regexp.MustCompile(reAnsi + `|` + reAmiga)
+	re := regexp.MustCompile(reAnsi + `|` + reAmiga + `|` + reSauce)
 	b = re.ReplaceAll(b, []byte{})
 
 	e := render.Encoder(res, b...)
