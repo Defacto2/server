@@ -32,8 +32,9 @@ func empty() map[string]interface{} {
 		"lead":     "", // ! The enlarged, lead paragraph of the page.
 		"carousel": "", //   The ID of the carousel to display.
 
-		"counter": Statistics(), // The database counts for files and categories.
-		"dberror": false,        // If true, the database is not available.
+		"counter":      Statistics(),        // Empty database counts for files and categories.
+		"df2FileCount": Caching.RecordCount, // The number of records of files in the database.
+		"dberror":      false,               // If true, the database is not available.
 	}
 }
 

@@ -15,6 +15,11 @@ import (
 	"go.uber.org/zap"
 )
 
+// Cache contains database values that are used throughout the app or layouts.
+type Cache struct {
+	RecordCount int // The total number of file records in the database.
+}
+
 const (
 	app    = "app" // app is the name of the view element in the template.
 	public = "public"
@@ -37,6 +42,9 @@ const (
 	ReadmeJS  = "/js/readme.min.js" // ReadmeJS is the path to the minified Readme JS file.
 	ReadmePub = public + ReadmeJS
 )
+
+// Caching are values that are used throughout the app or layouts.
+var Caching = Cache{}
 
 var (
 	ErrCode = errors.New("the http status code is not valid")

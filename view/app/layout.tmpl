@@ -13,7 +13,7 @@
     {{if ne (index . "description") ""}}<meta name="description" content="{{ index . "description" }}">{{end -}}
     {{if eq (index . "description") ""}}<meta name="description" content="{{$fallbackDesc}}">{{end}}
     <meta name="theme-color" content="rgb(153, 153, 153)">
-    <meta name="defacto2:file-count" content="45209">
+    <meta name="defacto2:file-count" content="{{ index . "df2FileCount" }}">
     <meta name="monetization" content="$ilp.uphold.com/RpWPnb88yLaF">
     <meta name="format-detection" content="telephone=no">
     <meta name="format-detection" content="address=no">

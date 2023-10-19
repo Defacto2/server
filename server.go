@@ -12,9 +12,11 @@ import (
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/logger"
 	"github.com/Defacto2/server/internal/postgres"
+	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model"
 	"github.com/caarlos0/env/v7"
 	_ "github.com/lib/pq"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 //go:embed public/text/defacto2.txt
@@ -80,9 +82,6 @@ func main() {
 		logs = logger.Development().Sugar()
 	}
 
-	// Cached global vars will go here, to avoid the garbage collection
-	// They should be lockable
-
 	// Echo router and controller instance
 	server := handler.Configuration{
 		Brand:   &brand,
@@ -100,6 +99,7 @@ func main() {
 		}
 		logs.Errorf("%s: %s", ErrDB, err)
 	}
+	server.RecordCount = RecordCount()
 
 	// Controllers and routes
 	e := server.Controller()
@@ -132,4 +132,19 @@ func RepairDB(server handler.Configuration) error {
 		return ErrVer
 	}
 	return model.RepairReleasers(os.Stderr, ctx, db)
+}
+
+// RecordCount returns the number of records in the database.
+func RecordCount() int {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return 0
+	}
+	defer db.Close()
+	ctx := context.Background()
+	x, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, db)
+	if err != nil {
+		return 0
+	}
+	return int(x)
 }

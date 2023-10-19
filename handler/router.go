@@ -23,6 +23,9 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 		return nil, fmt.Errorf("%w: %s", ErrZap, "handler routes")
 	}
 
+	// Cache the database record count.
+	app.Caching.RecordCount = conf.RecordCount
+
 	// Serve embedded CSS files
 	e.FileFS(app.BootCSS, app.BootCPub, public)
 	e.FileFS(app.BootCSS+".map", app.BootCPub+".map", public)
