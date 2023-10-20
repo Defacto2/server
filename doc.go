@@ -76,7 +76,6 @@ The following options can be added to [Override].
 
 # Tasks
 
-	- Uploader modal placeholders.
 	- Finish this doc.go file.
 	- Cache Pouet reviews and link to Demozoo ID if found.
 	- JS music tracker player. https://github.com/deskjet/chiptune2.js/

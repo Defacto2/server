@@ -66,11 +66,11 @@
       </div>
       {{- end}}
       {{- if ne "" .Picture.Jpg}}
-      <img src="/image/milestone/{{.Picture.Jpg}}" class="card-img-top" alt="{{.Picture.Alt}}">  
+      <img src="/image/milestone/{{.Picture.Jpg}}" loading="lazy" class="card-img-top" alt="{{.Picture.Alt}}">  
       {{- else if ne "" .Picture.Webp}}
       <picture title="{{.Picture.Title}}">
         <source srcset="/image/milestone/{{.Picture.Webp}}" type="image/webp" class="card-img-top">
-        <img src="/image/milestone/{{.Picture.Png}}" class="card-img-top" alt="{{.Picture.Alt}}">
+        <img src="/image/milestone/{{.Picture.Png}}" loading="lazy" class="card-img-top" alt="{{.Picture.Alt}}">
       </picture>
       {{- end}}
       {{- /*  Lists, aligned to the top  */}}
