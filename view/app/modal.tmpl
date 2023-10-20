@@ -403,12 +403,12 @@
             or <a href="https://demozoo.org/productions/?platform=4">MS-Dos</a> production on <a href="https://demozoo.org">Demozoo</a> that should be on this site?
             Submit its production ID and we will handle the rest.
           </p>
-          <p class="font-monospace text-primary-emphasis">https://demozoo.org/productions/<mark>0</mark>/</p>
-          <div class="mb-3">
-            <label for="recipient-name" class="col-form-label">Demozoo production ID:</label>
-            <input type="number" min="1" max="999999" class="form-control" id="recipient-name">
+          <label for="basic-url" class="form-label">Demozoo production ID</label>
+          <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon3">https://demozoo.org/productions/</span>
+            <input type="number" min="1" max="999999" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4">
           </div>
-          <button type="reset" class="btn btn-outline-dark">Reset</button>
+          <button type="reset" class="btn btn-sm btn-outline-dark">Reset</button>
         </form>
       </div>
       <div class="modal-footer">
@@ -432,12 +432,12 @@
             Know a <a href="https://demozoo.org/graphics/">graphics release</a> on <a href="https://demozoo.org">Demozoo</a> that should be on this site?
             Submit its graphics ID and we will handle the rest.
           </p>
-          <p class="font-monospace text-primary-emphasis">https://demozoo.org/graphics/<mark>0</mark>/</p>
-          <div class="mb-3">
-            <label for="recipient-name" class="col-form-label">Demozoo graphics ID:</label>
-            <input type="number" min="1" max="999999" class="form-control" id="recipient-name">
+          <label for="basic-url" class="form-label">Demozoo graphics ID</label>
+          <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon3">https://demozoo.org/graphics/</span>
+            <input type="number" min="1" max="999999" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4">
           </div>
-          <button type="reset" class="btn btn-outline-dark">Reset</button>
+          <button type="reset" class="btn btn-sm btn-outline-dark">Reset</button>
         </form>
       </div>
       <div class="modal-footer">
@@ -462,12 +462,12 @@
             or <a href="https://www.pouet.net/prodlist.php?platform%5B%5D=MS-Dos&page=1">MS-Dos</a> production on <a href="https://www.pouet.net">Pouët</a> that should be on this site?
             Submit its Prods ID and we will handle the rest.
           </p>
-          <p class="font-monospace text-primary-emphasis">https://www.pouet.net/prod.php?which=<mark>0</mark></p>
-          <div class="mb-3">
-            <label for="recipient-name" class="col-form-label">Pouët Prods ID:</label>
-            <input type="number" min="1" max="199999" class="form-control" id="recipient-name">
+          <label for="basic-url" class="form-label">Pouët Prods ID</label>
+          <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon3">https://www.pouet.net/prod.php?which=</span>
+            <input type="number" min="1" max="199999" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4">
           </div>
-          <button type="reset" class="btn btn-outline-dark">Reset</button>
+          <button type="reset" class="btn btn-sm btn-outline-dark">Reset</button>
         </form>
       </div>
       <div class="modal-footer">
@@ -491,16 +491,13 @@
             <input type="file" class="form-control" id="inputGroupFile02">
             <label class="input-group-text" for="inputGroupFile02">Upload</label>
           </div>
-          <fieldset class="row mb-4">
-            <legend class="col-form-label col-sm-4 pt-0">Operating system</legend>
-            <div class="col-sm-8 text-end">
-              <input type="radio" class="btn-check" name="options-base" id="option5" autocomplete="off" checked>
-              <label class="btn btn-outline-primary" for="option5" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Microsoft Windows">Windows PC</label>
-              &nbsp;
-              <input type="radio" class="btn-check" name="options-base" id="option6" autocomplete="off">
-              <label class="btn btn-outline-primary" for="option6" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="IBM PC or MS-DOS compatible">Dos PC</label>
-            </div>
-          </fieldset>
+          <div class="btn-group mb-3" role="group" aria-label="Basic radio toggle button group">
+            <span class="input-group-text" id="basic-addon4">Operating system &nbsp; </span>
+            <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
+            <label class="btn btn-outline-primary" for="btnradio1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Microsoft Windows">Windows PC</label>
+            <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+            <label class="btn btn-outline-primary" for="btnradio2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="IBM PC or MS-DOS compatible">Dos PC</label>
+          </div>
           <div class="form-floating mb-3">
             <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="example: 500000th release!">
             <label for="exampleInputEmail1">Title</label>
@@ -556,16 +553,13 @@
             <input type="file" class="form-control" id="inputGroupFile02">
             <label class="input-group-text" for="inputGroupFile02">Upload</label>
           </div>
-          <fieldset class="row mb-4">
-            <legend class="col-form-label col-sm-4 pt-0">Stylation</legend>
-            <div class="col-sm-8 text-end">
-              <input type="radio" class="btn-check" name="text-format-base" id="textPC" autocomplete="off" checked>
-              <label class="btn btn-outline-primary" for="textPC" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Your standard NFO, ANSI or CP437">PC text</label>
-              &nbsp;
-              <input type="radio" class="btn-check" name="text-format-base" id="textAmiga" autocomplete="off">
-              <label class="btn btn-outline-primary" for="textAmiga" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Text for Commodore Amiga">Amiga text</label>
-            </div>
-          </fieldset>
+          <div class="btn-group mb-3" role="group" aria-label="Basic radio toggle button group">
+            <span class="input-group-text" id="basic-addon4">Stylize &nbsp; </span>
+            <input type="radio" class="btn-check" name="btnradioa" id="btnradio1a" autocomplete="off" checked>
+            <label class="btn btn-outline-primary" for="btnradio1a" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Your standard NFO, ANSI or CP437">PC text</label>
+            <input type="radio" class="btn-check" name="btnradioa" id="btnradio2a" autocomplete="off">
+            <label class="btn btn-outline-primary" for="btnradio2a" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Text for Commodore Amiga">Amiga text</label>
+          </div>
           <div class="form-floating mb-3">
             <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="example: 500000th release!">
             <label for="exampleInputEmail1">Title</label>
@@ -623,16 +617,13 @@
             <input type="file" class="form-control" id="inputGroupFile02">
             <label class="input-group-text" for="inputGroupFile02">Upload</label>
           </div>
-          <fieldset class="row mb-4">
-            <legend class="col-form-label col-sm-4 pt-0">Purpose</legend>
-            <div class="col-sm-8 text-end">
-              <input type="radio" class="btn-check" name="text-format-base" id="imageAd" autocomplete="off" checked>
-              <label class="btn btn-outline-primary" for="imageAd" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Your standard NFO, ANSI or CP437">Ad or branding</label>
-              &nbsp;
-              <input type="radio" class="btn-check" name="text-format-base" id="imageProof" autocomplete="off">
-              <label class="btn btn-outline-primary" for="imageProof" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Text for Commodore Amiga">Proof of release</label>
-            </div>
-          </fieldset>
+          <div class="btn-group mb-3" role="group" aria-label="Basic radio toggle button group">
+            <span class="input-group-text" id="basic-addon4">Purpose &nbsp; </span>
+            <input type="radio" class="btn-check" name="btnradioaa" id="btnradio1aa" autocomplete="off" checked>
+            <label class="btn btn-outline-primary" for="btnradio1aa" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Your standard NFO, ANSI or CP437">Ad or branding</label>
+            <input type="radio" class="btn-check" name="btnradioaa" id="btnradio2aa" autocomplete="off">
+            <label class="btn btn-outline-primary" for="btnradio2aa" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Text for Commodore Amiga">Proof of release</label>
+          </div>
           <div class="form-floating mb-3">
             <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="example: 500000th release!">
             <label for="exampleInputEmail1">Title</label>
@@ -688,19 +679,15 @@
             <input type="file" class="form-control" id="inputGroupFile02">
             <label class="input-group-text" for="inputGroupFile02">Upload</label>
           </div>
-          <fieldset class="row mb-4">
-            <legend class="col-form-label col-sm-4 pt-0">Operating system</legend>
-            <div class="col-sm-8 text-end">
-              <input type="radio" class="btn-check" name="magazine" id="option611" autocomplete="off" checked>
-              <label class="btn btn-outline-primary" for="option611" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="IBM PC or MS-DOS compatible">Text</label>
-              &nbsp;
-              <input type="radio" class="btn-check" name="magazine" id="option511" autocomplete="off">
-              <label class="btn btn-outline-primary" for="option511" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Microsoft Windows">Windows PC</label>
-              &nbsp;
-              <input type="radio" class="btn-check" name="magazine" id="option8611" autocomplete="off">
-              <label class="btn btn-outline-primary" for="option8611" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="IBM PC or MS-DOS compatible">Dos PC</label>
-            </div>
-          </fieldset>
+          <div class="btn-group mb-3" role="group" aria-label="Basic radio toggle button group">
+            <span class="input-group-text" id="basic-addon4">Operating system &nbsp; </span>
+            <input type="radio" class="btn-check" name="btnradiox" id="btnradio1xx" autocomplete="off" checked>
+            <label class="btn btn-outline-primary" for="btnradio1xx" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Text or PDF magazine">Text</label>
+            <input type="radio" class="btn-check" name="btnradiox" id="btnradio1x" autocomplete="off">
+            <label class="btn btn-outline-primary" for="btnradio1x" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Microsoft Windows app">Windows PC</label>
+            <input type="radio" class="btn-check" name="btnradiox" id="btnradio2x" autocomplete="off">
+            <label class="btn btn-outline-primary" for="btnradio2x" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="IBM PC or MS-DOS compatible app">Dos PC</label>
+          </div>
           <div class="mb-4">
             <label for="exampleInputEmail1" class="form-label">Magazine title</label>
             <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="example: Console News">
