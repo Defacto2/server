@@ -16,6 +16,10 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	ErrData = fmt.Errorf("cache data is invalid or corrupt")
+)
+
 const (
 	sep  = ";"
 	demo = "demo"
@@ -74,13 +78,11 @@ func Pouet(z *zap.SugaredLogger, c echo.Context, id string) error {
 	}
 	z.Debugf("cache miss for pouet id %s", id)
 
-	err = data.Votes(i)
-	if err != nil {
+	if err = data.GetVotes(i); err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
 
-	err = c.JSON(http.StatusOK, data)
-	if err != nil {
+	if err = c.JSON(http.StatusOK, data); err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
@@ -92,13 +94,10 @@ func Pouet(z *zap.SugaredLogger, c echo.Context, id string) error {
 	return nil
 }
 
-var (
-	ErrData = fmt.Errorf("cache data did not split correctly")
-)
-
 // PouetCache parses the cached data for the Pouet production votes.
 // If the cache is valid it is returned as JSON response.
-// If the cache is invalid a API request should be made to Pouet.
+// If the cache is invalid or corrupt an error will be returned
+// and a API request should be made to Pouet.
 func PouetCache(c echo.Context, data string) error {
 	if data == "" {
 		return nil

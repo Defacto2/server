@@ -62,7 +62,7 @@ type Response struct {
 
 // Votes retrieves the production voting data from the Pouet API.
 // The id value is the Pouet production ID and must be greater than 0.
-func (p *Pouet) Votes(id int) error {
+func (p *Pouet) GetVotes(id int) error {
 	if id < firstID {
 		return fmt.Errorf("%w: %d", ErrID, id)
 	}
