@@ -1,10 +1,10 @@
 {{- /* files.tmpl */}}
-{{- /* TODO: VirusTotal alert, JS Music player to play in this view, a video player? */}}
 {{- define "content" }}
 {{- $files := index .stats.files }}
 {{- $years := index .stats.years}}
 {{- $cnt := len .records}}
-{{- $cardClass := " h-100"}} 
+{{- $cardClass := " h-100"}}
+{{- $web := index .website }}
 {{- $zoo := index .demozoo }}
 {{- $sixteen := index .sixteen }}
 {{- $scener := index .scener }}
@@ -12,13 +12,19 @@
 {{- $unYears := index .unknownYears }}
 {{- $rowCols := "row-cols-1 row-cols-md-2 row-cols-lg-3"}}
 <p class="text-start lead"><small>There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}}{{if ne $years ""}} from {{$years | safeHTML}}{{end}}.</small></p>
-{{- if or (ne $zoo "0") (ne $sixteen "")}}
+{{- if or (ne $zoo "0") (ne $sixteen "") (ne $web.URL "")}}
 <p class="text-start text-sm-center text-md-end lead">
   {{- if ne $zoo "0"}}
   <small><a class="link-offset-2" href="https://demozoo.org/groups/{{$zoo}}/"><strong>Demozoo</strong></a> offers production and member lists</small><br>
   {{- end}}
   {{- if ne $sixteen ""}}
   <small><a class="link-offset-2" href="https://16colo.rs/{{$sixteen}}"><strong>16colors</strong></a> collection of ANSI and text artworks</small><br>
+  {{- end}}
+  {{- if and (ne $web.URL "") (eq $web.NotWorking false ) }}
+  <small><a class="link-offset-2" href="{{$web.URL}}"><strong>{{$web.Name}}</strong></a> archive of the website</small>
+  {{- end}}
+  {{- if and (ne $web.URL "") (eq $web.NotWorking true ) }}
+  <small><strong>{{$web.Name}}</strong></a> former website, <span class="text-decoration-line-through fw-lighter">{{$web.URL}}</span></small>
   {{- end}}
 </p>
 {{- end}}

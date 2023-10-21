@@ -17,6 +17,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/sixteen"
+	"github.com/Defacto2/server/internal/web"
 	"github.com/Defacto2/server/internal/zoo"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
@@ -247,6 +248,7 @@ func Releasers(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	data["description"] = "The collection of files for " + s + "."
 	data["demozoo"] = strconv.Itoa(int(zoo.Find(uri)))
 	data["sixteen"] = sixteen.Find(uri)
+	data["website"] = web.Find(uri)
 	data[records] = fs
 	switch uri {
 	case "independent":
