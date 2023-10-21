@@ -7,14 +7,19 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/Defacto2/server/handler/download"
+	"github.com/Defacto2/server/internal/cache"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
 
-const demo = "demo"
+const (
+	sep  = ";"
+	demo = "demo"
+)
 
 // empty is a map of default values for the app templates.
 func empty() map[string]interface{} {
@@ -50,21 +55,81 @@ func emptyFiles() map[string]interface{} {
 
 // Pouet is the handler for the Pouet production votes JSON page.
 func Pouet(z *zap.SugaredLogger, c echo.Context, id string) error {
-	const title, name = "Pouet", "pouet"
+	const title, name, sep = "Pouet", "pouet", ";"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
 	data := pouet.Pouet{}
-	val, err := strconv.Atoi(id)
+	i, err := strconv.Atoi(id)
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
-	err = data.Votes(val)
+
+	cp := cache.Pouet
+	if s, err := cp.Read(id); err == nil {
+		if err := PouetCache(c, s); err == nil {
+			z.Debugf("cache hit for pouet id %s", id)
+			return nil
+		}
+	}
+	z.Debugf("cache miss for pouet id %s", id)
+
+	err = data.Votes(i)
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
+
 	err = c.JSON(http.StatusOK, data)
 	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	val := fmt.Sprintf("%.1f%s%d%s%d%s%d",
+		data.Stars, sep, data.VotesDown, sep, data.VotesUp, sep, data.VotesMeh)
+	if err := cp.Write(id, val, cache.ExpiredAt); err != nil {
+		z.Errorf("failed to write pouet id %s to cache db: %s", id, err)
+	}
+	return nil
+}
+
+var (
+	ErrData = fmt.Errorf("cache data did not split correctly")
+)
+
+// PouetCache parses the cached data for the Pouet production votes.
+// If the cache is valid it is returned as JSON response.
+// If the cache is invalid a API request should be made to Pouet.
+func PouetCache(c echo.Context, data string) error {
+	if data == "" {
+		return nil
+	}
+	pp := pouet.Pouet{}
+	x := strings.Split(data, sep)
+	const expect = 4
+	if l := len(x); l != expect {
+		return fmt.Errorf("%w: %d, want %d", ErrData, l, expect)
+	}
+	stars, err := strconv.ParseFloat(x[0], 64)
+	if err != nil {
+		return fmt.Errorf("%w: %s", err, x[0])
+	}
+	vd, err := strconv.Atoi(x[1])
+	if err != nil {
+		return fmt.Errorf("%w: %s", err, x[1])
+	}
+	vu, err := strconv.Atoi(x[2])
+	if err != nil {
+		return fmt.Errorf("%w: %s", err, x[2])
+	}
+	vm, err := strconv.Atoi(x[3])
+	if err != nil {
+		return fmt.Errorf("%w: %s", err, x[3])
+	}
+	pp.Stars = stars
+	pp.VotesDown = uint64(vd)
+	pp.VotesUp = uint64(vu)
+	pp.VotesMeh = uint64(vm)
+	if err = c.JSON(http.StatusOK, pp); err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	return nil
