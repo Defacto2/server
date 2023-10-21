@@ -12,7 +12,7 @@
 {{- $unYears := index .unknownYears }}
 {{- $rowCols := "row-cols-1 row-cols-md-2 row-cols-lg-3"}}
 <p class="text-start lead"><small>There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}}{{if ne $years ""}} from {{$years | safeHTML}}{{end}}.</small></p>
-{{- if or (ne $zoo "0") (ne $sixteen "") (ne $web.URL "")}}
+{{- if or (ne $zoo "0") (ne $sixteen "") (gt (len $web) 0)}}
 <p class="text-start text-sm-center text-md-end lead">
   {{- if ne $zoo "0"}}
   <small><a class="link-offset-2" href="https://demozoo.org/groups/{{$zoo}}/"><strong>Demozoo</strong></a> offers production and member lists</small><br>
@@ -20,11 +20,15 @@
   {{- if ne $sixteen ""}}
   <small><a class="link-offset-2" href="https://16colo.rs/{{$sixteen}}"><strong>16colors</strong></a> collection of ANSI and text artworks</small><br>
   {{- end}}
-  {{- if and (ne $web.URL "") (eq $web.NotWorking false ) }}
-  <small><a class="link-offset-2" href="{{$web.URL}}"><strong>{{$web.Name}}</strong></a> archive of the website</small>
-  {{- end}}
-  {{- if and (ne $web.URL "") (eq $web.NotWorking true ) }}
-  <small><strong>{{$web.Name}}</strong></a> former website, <span class="text-decoration-line-through fw-lighter">{{$web.URL}}</span></small>
+  {{- if gt (len $web) 0}}
+    {{- range $web }}
+      {{- if and (ne .URL "") (eq .NotWorking false ) }}
+      <small><a class="link-offset-2" href="{{.URL}}"><strong>{{.Name}}</strong></a> website</small><br>
+      {{- end}}
+      {{- if and (ne .URL "") (eq .NotWorking true ) }}
+      <small><strong>{{.Name}}</strong></a> ex-site, <span class="text-decoration-line-through fw-lighter">{{.URL}}</span></small><br>
+      {{- end}}
+    {{- end}}
   {{- end}}
 </p>
 {{- end}}

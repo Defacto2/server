@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Defacto2/releaser"
+	namer "github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/volatiletech/null/v8"
@@ -130,7 +130,11 @@ func (s *Summary) Releaser(ctx context.Context, db *sql.DB, name string) error {
 	if db == nil {
 		return ErrDB
 	}
-	n := strings.ToUpper(releaser.Humanize(name))
+	ns, err := namer.Humanize(namer.Path(name))
+	if err != nil {
+		return err
+	}
+	n := strings.ToUpper(ns)
 	x := null.StringFrom(n)
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),

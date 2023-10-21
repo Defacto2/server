@@ -13,12 +13,18 @@ type Groups map[URI]GroupID
 
 var groups = Groups{
 	"acid-productions":                  7647,
+	"class":                             16508,
 	"defacto2":                          10000,
+	"fairlight":                         239,
 	"international-network-of-crackers": 12175,
 	"insane-creators-enterprise":        2169,
-	"superior-art-creations":            7050,
+	"mirage":                            45887,
+	"paradigm":                          26612,
 	"razor-1911":                        519,
+	"silicon-dream-artists":             25795,
+	"superior-art-creations":            7050,
 	"the-dream-team":                    20609,
+	"the-humble-guys":                   7421,
 	"the-silents":                       101,
 	"tristar-ampersand-red-sector-inc":  69,
 }
