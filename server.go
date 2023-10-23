@@ -95,6 +95,8 @@ func main() {
 	// Database
 	if err := RepairDB(server); err != nil {
 		if errors.Is(err, ErrVer) {
+			// todo give ports feedback
+			// also display the program ver on startup.
 			logs.Errorf("%s, is the database server down?", ErrVer)
 		}
 		logs.Errorf("%s: %s", ErrDB, err)

@@ -1,0 +1,30 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: service
+    volumes:
+      - ./:/app
+    # environment:
+    #   - DB_HOST=host.docker.internal
+    #   - Defacto2_IsProduction=false
+    # ports:
+    #   - 1323:1323
+      #- "5432:5432"
+      #- 5432:5432
+    ports:
+      - "5432:5432"
+    #network_mode: "host"
+    # networks:
+    #   - backend
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+
+# networks:
+#   backend:
+
+
+# TODO: merge this with https://github.com/Defacto2/database-ps/blob/main/docker-compose.yml
+# Eventually move the DC file into its own private repo?
