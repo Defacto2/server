@@ -28,3 +28,9 @@ services:
 
 # TODO: merge this with https://github.com/Defacto2/database-ps/blob/main/docker-compose.yml
 # Eventually move the DC file into its own private repo?
+
+# other services to add?
+# dns_search:
+# domainname: test.defacto2.net
+# expose: 3000
+# network_host # doesn't allow port mapping
