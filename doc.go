@@ -79,6 +79,8 @@ The following options can be added to [Override].
 	- Finish this doc.go file.
 	- Defacto2 history [history.tmlp] should have its intro text expanded to better explain the brand.
 	- - First known as Defacto...
+	- JS-DOS 6.22 	https://js-dos.com/6.22/examples/?arkanoid
+	-				https://js-dos.com/index_6.22.html
 
 # Mobile fixes
 

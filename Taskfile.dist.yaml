@@ -58,6 +58,26 @@ tasks:
       - cmd: ./{{.BINNAME}}.exe --version
         platforms: [windows]
       - cmd: echo "Done!"
+  build-snapshot:
+    aliases:
+      - "builds"
+    desc: "Build the release binary of the web server without a git version tag."
+    deps: [assets]
+    cmds:
+      - cmd: echo "Building snapshot..."
+      - cmd: goreleaser build --snapshot --clean
+      - cmd: echo "Done!"
+  build-release:
+    aliases:
+      - "buildr"
+    desc: "Build the release binary of the web server embeded with the git version tag."
+    deps: [assets]
+    cmds:
+      - cmd: echo "Git status results:"
+      - cmd: git status
+      - cmd: echo "Building snapshot..."
+      - cmd: goreleaser build --clean
+      - cmd: echo "Done!"
   assets:
     desc: "Build, compile and compress the web serve CSS and JS assets."
     cmds:
