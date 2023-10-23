@@ -5,13 +5,10 @@ import (
 	"embed"
 	"errors"
 	"html/template"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/labstack/gommon/log"
 	"go.uber.org/zap"
 )
 
@@ -123,14 +120,6 @@ func (web Web) tmpl(name filename) (*template.Template, error) {
 		pagination = "pagination.tmpl"
 		website    = "website.tmpl"
 	)
-	fp := filepath.Join("view", app, string(name))
-	if _, err := os.Stat(fp); os.IsNotExist(err) {
-		log.Errorf("tmpl template not found, %s: %q", err, fp)
-		return nil, err
-	} else if err != nil {
-		log.Errorf("tmpl template has a problem: %s", err)
-		return nil, err
-	}
 	files := []string{GlobTo(layout), GlobTo(pagination), GlobTo(string(name)), GlobTo(modal)}
 	// append any additional templates
 	switch name {
