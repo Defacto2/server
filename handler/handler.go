@@ -166,6 +166,13 @@ func (c Configuration) downloader(ctx echo.Context) error {
 	return d.HTTPSend(c.Logger, ctx)
 }
 
+func (c Configuration) version() string {
+	if c.Version == "" {
+		return "  no version info, app compiled binary directly."
+	}
+	return fmt.Sprintf("  %s.", cmd.Commit(c.Version))
+}
+
 // StartHTTP starts the HTTP web server.
 func (c *Configuration) StartHTTP(e *echo.Echo) {
 	const mark = `⇨ `
@@ -180,6 +187,8 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 	}
 	// Legal info
 	fmt.Fprintf(w, "  %s.\n", cmd.Copyright())
+	// Brief version
+	fmt.Fprintf(w, "  %s\n", c.version())
 	// CPU info
 	fmt.Fprintf(w, "%s%d active routines sharing %d usable threads on %d CPU cores.\n", mark,
 		runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
@@ -195,7 +204,7 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 		fmt.Fprintf(w, "%sredirecting all HTTP requests to HTTPS.\n", mark)
 	}
 	if c.Import.NoRobots {
-		fmt.Fprintf(w, "%sthe X-ROBOTS header is telling all search engines to ignore the site.\n", mark)
+		fmt.Fprintf(w, "%sNoRobots is on, network headers will tell web crawlers to ignore this site.\n", mark)
 	}
 	w.Flush()
 	// Start the HTTP server
