@@ -27,18 +27,34 @@ services:
         ENTRYPOINT ["df2-server"]
 
     ports:
-      - "1323:1323"   # HTTP (unencrypted) port that the server listens on
+      - "${HOSTPORT}:1323"   # HTTP (unencrypted) port that the server listens on
 
     environment:
       PS_HOST: "host.docker.internal"   # this value must be kept as host.docker.internal 
                                         # otherwise the server will not be able to connect 
                                         # to the docker containerized postgresql database
       D2_NOROBOTS: "true"               # disable site crawling by search engines
-      D2_PRODUCTION: "true"             # enable production mode to log errros and recover from any panics.
+      D2_PRODUCTION: "true"             # enable production mode to log errros and recover from any panics
+      D2_DIR_DOWN: "/opt/downloads"     # the DIR directories should not be changed
+      D2_DIR_SHOT: "/opt/screenshots"
+      D2_DIR_THUMB: "/opt/thumbnails"
 
     extra_hosts:
       - "host.docker.internal:host-gateway" # this is required for the server to connect
                                             # to the docker containerized postgresql database
+
+    volumes:
+      # store the server configuration and logs in a named volume
+      # this will be kept and accessible even if the container is removed
+      - webapp-config:/root/.config
+      # the local directories located on the host are bound to the /opt directory in the container
+      # EDIT the .env file to change the location of these directories
+      - ${DOWNLOAD}:/opt/downloads      # the directory where the server will store downloaded files
+      - ${SCREENSHOT}:/opt/screenshots  # the directory where the server will store screenshots
+      - ${THUMBNAIL}:/opt/thumbnails    # the directory where the server will store thumbnails
+
+volumes:
+  webapp-config:
 
 # other services to add?
 # dns_search:
