@@ -3,6 +3,11 @@ version: '3'
 # A placeholder container for the database migration and server.
 # Intended for the domain test.defacto2.net.
 #
+# docker compose up --build
+# docker compose up --detach
+# docker compose run webapp --version
+# docker compose run webapp address
+# docker compose run webapp config
 services:
 
   webapp:
@@ -24,13 +29,14 @@ services:
       - "1323:1323"   # HTTP (unencrypted) port that the server listens on
 
     environment:
-      - PS_HOST=localhost # this value must be kept as host.docker.internal 
-                          # otherwise the server will not be able to connect 
-                          # to the docker containerized postgres database
+      PS_HOST: "host.docker.internal"   # this value must be kept as host.docker.internal 
+                                        # otherwise the server will not be able to connect 
+                                        # to the docker containerized postgresql database
+      D2_NOROBOTS: "true"               # disable site crawling by search engines
 
     extra_hosts:
       - "host.docker.internal:host-gateway" # this is required for the server to connect
-                                            # to the docker containerized postgres database
+                                            # to the docker containerized postgresql database
 
 # other services to add?
 # dns_search:

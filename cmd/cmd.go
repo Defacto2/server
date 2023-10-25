@@ -4,6 +4,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"runtime"
@@ -28,7 +29,9 @@ The server expects the Defacto2 PostgreSQL database running on the host system
 or in a container. But will run without a database connection for debugging.`
 )
 
-var ErrCmd = fmt.Errorf("cannot run command as config is nil")
+var (
+	ErrCmd = errors.New("cannot run command as config is nil")
+)
 
 // Run parses optional command line arguments for this program.
 func Run(ver string, c *config.Config) (int, error) {
@@ -92,10 +95,9 @@ func Config(c *config.Config) *cli.Command {
 		Action: func(ctx *cli.Context) error {
 			defer fmt.Printf("%s\n", c.String())
 			defer func() {
-				x := postgres.Connection{}
-				x.New()
+				ds, _ := postgres.New()
 				b := new(strings.Builder)
-				x.Configurations(b)
+				ds.Configurations(b)
 				fmt.Printf("%s\n", b.String())
 			}()
 			return nil

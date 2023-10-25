@@ -6,13 +6,19 @@ package postgres
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/url"
 	"reflect"
 	"strings"
 	"text/tabwriter"
 
+	"github.com/caarlos0/env/v7"
 	_ "github.com/jackc/pgx/v5/stdlib"
+)
+
+var (
+	ErrEnv = errors.New("environment variable probably contains an invalid value")
 )
 
 const (
@@ -56,9 +62,9 @@ func (c Connection) Open() (*sql.DB, error) {
 }
 
 // New initialises the connection with default values or values from the environment.
-func (c *Connection) New() {
+func New() (Connection, error) {
 	// "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
-	//const pre = config.EnvPrefix
+	c := Connection{}
 	c.NoSSLMode = NoSSL
 	c.Protocol = Protocol
 	c.User = User
@@ -66,12 +72,18 @@ func (c *Connection) New() {
 	c.HostName = DockerHost
 	c.HostPort = HostPort
 	c.Database = DBName
+	if err := env.Parse(&c, env.Options{}); err != nil {
+		return Connection{}, fmt.Errorf("%w: %s", ErrEnv, err)
+	}
+	return c, nil
 }
 
 // ConnectDB connects to the PostgreSQL database.
 func ConnectDB() (*sql.DB, error) {
-	ds := Connection{}
-	ds.New()
+	ds, err := New()
+	if err != nil {
+		return nil, err
+	}
 	conn, err := sql.Open(DriverName, ds.URL())
 	if err != nil {
 		return nil, err
