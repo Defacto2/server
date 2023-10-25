@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/carlmjohnson/versioninfo"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/text/cases"
@@ -90,6 +91,13 @@ func Config(c *config.Config) *cli.Command {
 		Description: "List the available server configuration options and the settings.",
 		Action: func(ctx *cli.Context) error {
 			defer fmt.Printf("%s\n", c.String())
+			defer func() {
+				x := postgres.Connection{}
+				x.New()
+				b := new(strings.Builder)
+				x.Configurations(b)
+				fmt.Printf("%s\n", b.String())
+			}()
 			return nil
 		},
 	}
