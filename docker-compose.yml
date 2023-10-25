@@ -8,6 +8,7 @@ version: '3'
 # docker compose run webapp --version
 # docker compose run webapp address
 # docker compose run webapp config
+# docker compose exec webapp ls -l /root/.config
 services:
 
   webapp:

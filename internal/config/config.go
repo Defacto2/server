@@ -11,8 +11,10 @@ import (
 	"github.com/Defacto2/server/internal/helper"
 )
 
-// EnvPrefix is the prefix for all server environment variables.
-const EnvPrefix = "D2_"
+const (
+	ConfigDir = "defacto2-app" // ConfigDir is the subdirectory for the home user ".config".
+	EnvPrefix = "D2_"          // EnvPrefix is the prefix for all server environment variables.
+)
 
 // Config options for the Defacto2 server.
 //

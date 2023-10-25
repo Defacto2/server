@@ -90,7 +90,7 @@ func (cfg *Config) LogStorage() error {
 	if ok := helper.IsStat(dir); !ok {
 		return fmt.Errorf("%w: %s", ErrDirNotExist, dir)
 	}
-	logs := filepath.Join(dir, "defacto2-webapp")
+	logs := filepath.Join(dir, ConfigDir)
 	if ok := helper.IsStat(logs); !ok {
 		const ownerGroupAll = 0o770
 		if err := os.MkdirAll(logs, ownerGroupAll); err != nil {
