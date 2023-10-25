@@ -5,137 +5,33 @@ version: '3'
 #
 services:
 
-  # migrate:
-  #   labels:
-  #     net.defacto2.description: "Migrate the MySQL database to PostgreSQL"
-  #   image: dimitri/pgloader
-  #   container_name: pgloader
-  #   networks:
-  #     - back-tier
-  #   volumes: 
-  #     - "./init-db:/opt/db"
-  #     - "./pgloader-config:/loader"
-  #   depends_on:
-  #     - sqldump
-  #     - mysql
-  #     - db
-  #   command: pgloader /loader/my.load
-  #   profiles:
-  #     - migrater
-
-  # sqldump:
-  #   labels:
-  #     net.defacto2.description: "Download and assemble the SQL data dump"
-  #   container_name: sql_dump
-  #   build: ./sql
-  #   tty: false
-  #   volumes:
-  #     - type: volume
-  #       source: dump-data
-  #       target: /docker-entrypoint-initdb.d
-  #       read_only: true
-  #   profiles:
-  #     - migrater
-
-  # mysql:
-  #   image: mariadb
-  #   labels:
-  #     net.defacto2.description: "Defacto2 MySQL database"
-  #   restart: "no"
-  #   container_name: database_mysql
-  #   # expose ports to the other containers and the network
-  #   ports:
-  #     - 3304:3306
-  #   networks:
-  #     - back-tier
-  #   volumes:
-  #     # store the database on a docker volume
-  #     - my-data:/var/lib/mysql
-  #     # create the database on the first time build
-  #     - type: volume
-  #       source: dump-data
-  #       target: /docker-entrypoint-initdb.d
-  #       read_only: false # must be kept to false!
-  #   environment:
-  #     # for more options, see: https://hub.docker.com/_/mariadb
-  #     MARIADB_ROOT_PASSWORD: example
-  #     MARIADB_DATABASE: defacto2-inno
-  #     MARIADB_AUTO_UPGRADE: true
-  #   profiles:
-  #     - migrater
-
-  # db:
-  #   image: postgres
-  #   labels:
-  #     net.defacto2.description: "Defacto2 PostgreSQL database"
-  #   restart: always
-  #   container_name: database_ps
-  #   networks:
-  #     - back-tier
-  #   volumes:
-  #     # store the database on a docker volume
-  #     - ps-data:/var/lib/postgresql/data
-  #   # expose:
-  #   #   - "5432" # Publishes 5432 to other containers but NOT to the host machine
-  #   ports:
-  #     - "5432:5432"
-  #   environment:
-  #     # for more options, see: https://hub.docker.com/_/postgres
-  #     POSTGRES_PASSWORD: example
-  #     POSTGRES_USER: root
-  #     POSTGRES_DB: defacto2-ps
-
-  # adminer:
-  #   labels:
-  #     net.defacto2.description: "Databases admin web interface"
-  #   image: adminer
-  #   restart: always
-  #   container_name: web_admin_ps
-  #   networks:
-  #     - back-tier
-  #   ports:
-  #     - 8080:8080
-
-  app:
+  webapp:
+    container_name: defacto2-webapp
+    restart: unless-stopped
+    
+    # build gets run using the --build flag or build command
     build:
-      context: .
-      dockerfile: ./Dockerfile
-    container_name: service
-    volumes:
-      - ./..:/app
+      context: .      # use the current directory for the build context
+                      # an inline dockerfile can be used instead of a Dockerfile
+      dockerfile_inline: |
+        FROM alpine:latest
+        RUN mkdir /root/.config
+        COPY dist/server_linux_amd64_v1/df2-server /usr/local/bin/df2-server
+        EXPOSE 1323
+        ENTRYPOINT ["df2-server"]
+
     ports:
-      - "1323:1323"
-    # external_links:
-    #   - "database_ps:database_ps"
-    # environment:
-    #   - DB_HOST=host.docker.internal
-    #   - Defacto2_IsProduction=false
-    # ports:
-    #   - 1323:1323
-      #- "5432:5432"
-      #- 5432:5432
-    #network_mode: "host"
-    # networks:
-    #   - backend
+      - "1323:1323"   # HTTP (unencrypted) port that the server listens on
+
+    environment:
+      - PS_HOST=localhost # this value must be kept as host.docker.internal 
+                          # otherwise the server will not be able to connect 
+                          # to the docker containerized postgres database
+
     extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-# networks:
-#   backend:
-
-# networks:
-#   back-tier: {}
-
-# volumes:
-#   ps-data:
-#   my-data:
-#   dump-data:
-
-# TODO: merge this with https://github.com/Defacto2/database-ps/blob/main/docker-compose.yml
-# Eventually move the DC file into its own private repo?
+      - "host.docker.internal:host-gateway" # this is required for the server to connect
+                                            # to the docker containerized postgres database
 
 # other services to add?
 # dns_search:
 # domainname: test.defacto2.net
-# expose: 3000
-# network_host # doesn't allow port mapping
