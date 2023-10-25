@@ -78,7 +78,7 @@ func main() {
 		}
 		logs = logger.Production(configs.LogDir).Sugar()
 	default:
-		logs.Debug("The server is running in the DEVELOPMENT MODE.")
+		logs.Warn("The server is running in the DEVELOPMENT MODE.")
 		logs = logger.Development().Sugar()
 	}
 
@@ -98,8 +98,9 @@ func main() {
 			// todo give ports feedback
 			// also display the program ver on startup.
 			logs.Errorf("%s, is the database server down?", ErrVer)
+		} else {
+			logs.Errorf("%s: %s", ErrDB, err)
 		}
-		logs.Errorf("%s: %s", ErrDB, err)
 	}
 	server.RecordCount = RecordCount()
 

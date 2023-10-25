@@ -33,6 +33,7 @@ services:
                                         # otherwise the server will not be able to connect 
                                         # to the docker containerized postgresql database
       D2_NOROBOTS: "true"               # disable site crawling by search engines
+      D2_PRODUCTION: "true"             # enable production mode to log errros and recover from any panics.
 
     extra_hosts:
       - "host.docker.internal:host-gateway" # this is required for the server to connect

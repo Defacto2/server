@@ -19,7 +19,7 @@ const EnvPrefix = "D2_"
 //nolint:lll,tagalign // The struct fields are long and the tags cannot be aligned.
 type Config struct {
 	// IsProduction is true when the server is running in production mode.
-	IsProduction bool `env:"PRODUCTION" envDefault:"false" help:"Use the production mode to log all errors and warnings to a file"`
+	IsProduction bool `env:"PRODUCTION" envDefault:"false" help:"Use the production mode to log errors to a file and recover from panics"`
 
 	// DownloadDir is the directory path that holds the UUID named files that are served as release downloads.
 	DownloadDir string `env:"DIR_DOWN" help:"The directory path that holds the UUID named files that are served as release downloads"`
