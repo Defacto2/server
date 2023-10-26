@@ -36,7 +36,7 @@ var (
 	ErrDB  = errors.New("could not initialize the database data")
 	ErrEnv = errors.New("environment variable probably contains an invalid value")
 	ErrLog = errors.New("the server cannot save any logs")
-	ErrVer = errors.New("could not obtain the database server version value")
+	ErrVer = errors.New("postgresql version request failed")
 )
 
 func main() {
@@ -97,7 +97,7 @@ func main() {
 		if errors.Is(err, ErrVer) {
 			// todo give ports feedback
 			// also display the program ver on startup.
-			logs.Errorf("%s, is the database server down?", ErrVer)
+			logs.Warnf("%s, is the database server down?", ErrVer)
 		} else {
 			logs.Errorf("%s: %s", ErrDB, err)
 		}

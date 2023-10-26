@@ -9,5 +9,7 @@ server
 tmp/
 # goreleaser generated directory
 dist/
+# docker
+.env
 # macOS
 *.DS_Store

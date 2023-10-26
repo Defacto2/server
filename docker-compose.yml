@@ -35,7 +35,8 @@ services:
                                         # to the docker containerized postgresql database
       D2_NOROBOTS: "true"               # disable site crawling by search engines
       D2_PRODUCTION: "true"             # enable production mode to log errros and recover from any panics
-      D2_DIR_DOWN: "/opt/downloads"     # the DIR directories should not be changed
+      
+      D2_DIR_DOWN: "/opt/downloads"     # THESE DIR directories should not be changed
       D2_DIR_SHOT: "/opt/screenshots"
       D2_DIR_THUMB: "/opt/thumbnails"
 
