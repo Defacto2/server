@@ -154,6 +154,13 @@
             <th scope="row">Musicians</th>
             <td>{{fmtRoles $musicians}}</td>
         </tr>{{- end}}
+        {{/*  JSDOS placeholder  */}}
+        <tr>
+            <th scope="row">Emulation</th>
+            <td>
+                <a href="#" id="jsdosRunLink" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#jsDOSModal">Run in your browser</a>
+            </td>
+        </tr>
         {{- /*  Pouet and Demozoo links  */}}
         {{- if gt $pouet 0}}
         <tr id="pouetRow" class="d-none">

@@ -126,7 +126,7 @@ func (web Web) tmpl(name filename) (*template.Template, error) {
 	// append any additional templates
 	switch name {
 	case "about.tmpl":
-		files = append(files, GlobTo("about_table.tmpl"))
+		files = append(files, GlobTo("about_table.tmpl"), GlobTo("about_jsdos.tmpl"))
 	case "file.tmpl":
 		files = append(files, GlobTo(fileExp))
 	case "websites.tmpl":
