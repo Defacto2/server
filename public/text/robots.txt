@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /d/
+Disallow: /v/
 Disallow: /wayback/
 Disallow: /file/data-json/
 Disallow: /file/feed-atom/

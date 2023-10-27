@@ -1,7 +1,5 @@
 {{/*  uploader.tmpl  */}}
 {{- define "uploader" -}}
-{{- $inpYear := "yearOf" }}
-{{- $inpMonth := "monthOf" }}
 {{/*  Uploader about */}}
 <div class="modal fade" id="uploaderAbout" tabindex="-1" aria-labelledby="uploaderAboutLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -152,8 +150,8 @@
             </div>
             <div class="input-group mb-3">
               <span class="input-group-text">Year and month of release</span>
-              <input type="number" min="1980" max="2023" aria-label="First name" name="yearRel" class="form-control">
-              <input type="number" min="1" max="12" name="monthRel" class="form-control">
+              <input type="number" min="1980" max="2023" aria-label="First name" name="yearRel" class="form-control input-date" placeholder="{{exampleYear}}">
+              <input type="number" min="1" max="12" name="monthRel" class="form-control input-date" placeholder="{{exampleMonth}}">
             </div>
             <div class="input-group input-group-sm mb-3">
                 <span class="input-group-text" id="basic-addon4">YouTube video</span>
@@ -214,8 +212,8 @@
             </div>
             <div class="input-group mb-3">
               <span class="input-group-text">Year and month of release</span>
-              <input type="number" min="1980" max="2023" aria-label="First name" class="form-control">
-              <input type="number" min="1" max="12" class="form-control">
+              <input type="number" min="1980" max="2023" aria-label="First name" class="form-control input-date" placeholder="{{exampleYear}}">
+              <input type="number" min="1" max="12" class="form-control input-date" placeholder="{{exampleMonth}}">
             </div>
             <div class="input-group input-group-sm mb-3">
                 <span class="input-group-text" id="basic-addon4">Writer</span>
@@ -278,8 +276,8 @@
             </div>
             <div class="input-group mb-3">
               <span class="input-group-text">Year and month of creation</span>
-              <input type="number" min="1980" max="2023" aria-label="First name" class="form-control">
-              <input type="number" min="1" max="12" class="form-control">
+              <input type="number" min="1980" max="2023" aria-label="First name" class="form-control input-date" placeholder="{{exampleYear}}">
+              <input type="number" min="1" max="12" class="form-control input-date" placeholder="{{exampleMonth}}">
             </div>
             <div class="input-group input-group-sm mb-3">
                 <span class="input-group-text" id="basic-addon4">Artist</span>
@@ -340,9 +338,9 @@
             </div>      
             <div class="input-group mb-3">
               <span class="input-group-text">Year, month, day of release</span>
-              <input type="number" min="1980" max="2023" aria-label="First name" class="form-control">
-              <input type="number" min="1" max="12" class="form-control">
-              <input type="number" min="1" max="31" class="form-control">
+              <input type="number" min="1980" max="2023" aria-label="First name" class="form-control input-date" placeholder="{{exampleYear}}">
+              <input type="number" min="1" max="12" class="form-control input-date" placeholder="{{exampleMonth}}">
+              <input type="number" min="1" max="31" class="form-control input-date" placeholder="{{exampleDay}}">
             </div>
             <div class="input-group input-group-sm mb-3">
                 <span class="input-group-text" id="basic-addon4">Writer</span>
@@ -456,9 +454,9 @@
             </div>
             <div class="input-group mb-3">
               <span class="input-group-text">Year, month, day of release</span>
-              <input type="number" min="1980" max="2023" aria-label="First name" class="form-control">
-              <input type="number" min="1" max="12" class="form-control">
-              <input type="number" min="1" max="31" class="form-control">
+              <input type="number" min="1980" max="2023" aria-label="First name" class="form-control input-date" placeholder="{{exampleYear}}">
+              <input type="number" min="1" max="12" class="form-control input-date" placeholder="{{exampleMonth}}">
+              <input type="number" min="1" max="31" class="form-control input-date" placeholder="{{exampleDay}}">
             </div>
             <div class="input-group input-group-sm mb-1">
                 <span class="input-group-text" id="basic-addon4">Writer</span>

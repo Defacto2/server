@@ -86,7 +86,7 @@ The following options can be added to [Override].
 
 # Bugs
 
-	- Fix preview button popup for text files.
+	- `public/text/osd.xml` needs updating to use current search links.
 
 # New features to deliver
 

@@ -85,3 +85,8 @@
     font-size: 0.5rem;
   }
 }
+
+.input-date::placeholder {
+  opacity: 0.3;
+  color: red;
+}

@@ -6,6 +6,7 @@ package app
 import (
 	"html/template"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/releaser/initialism"
@@ -112,6 +113,15 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		},
 		"version": func() string {
 			return web.Version
+		},
+		"exampleYear": func() string {
+			return time.Now().Format("2006")
+		},
+		"exampleMonth": func() string {
+			return time.Now().Format("1")
+		},
+		"exampleDay": func() string {
+			return time.Now().Format("2")
 		},
 	}
 }
