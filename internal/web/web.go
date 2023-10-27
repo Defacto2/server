@@ -38,21 +38,26 @@ var groups = Groups{
 	}},
 	"razor-1911": []Website{
 		{
-			URL:        "https://www.razor1911.com",
+			URL:        "www.razor1911.com",
 			Name:       "Razor 1911",
 			NotWorking: true,
 		},
 	},
 	"razor-1911-demo": []Website{
 		{
-			URL:        "https://www.razor1911.com/demo",
+			URL:        "www.razor1911.co.uk",
+			Name:       "Razor 1911 Demo Division",
+			NotWorking: true,
+		},
+		{
+			URL:        "www.razor1911.com/demo",
 			Name:       "Razor 1911",
 			NotWorking: true,
 		},
 	},
 	"superior-art-creations": []Website{
 		{
-			URL:        "https://www.superiorartcreations.com",
+			URL:        "www.superiorartcreations.com",
 			Name:       "SAC",
 			NotWorking: true,
 		},
@@ -63,12 +68,12 @@ var groups = Groups{
 	},
 	"tristar-ampersand-red-sector-inc": []Website{
 		{
-			URL:        "https://www.trsi.de",
+			URL:        "www.trsi.de",
 			Name:       "TRSi",
 			NotWorking: true,
 		},
 		{
-			URL:        "https://www.trsi.org",
+			URL:        "www.trsi.org",
 			Name:       "TRSI WHQ",
 			NotWorking: true,
 		},

@@ -110,5 +110,8 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"jsReadme": func() string {
 			return ReadmeJS
 		},
+		"version": func() string {
+			return web.Version
+		},
 	}
 }

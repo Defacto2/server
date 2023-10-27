@@ -2,8 +2,6 @@ package helper
 
 import (
 	"bytes"
-	"fmt"
-	"unicode/utf8"
 
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/charmap"
@@ -13,15 +11,6 @@ import (
 // If the byte slice contains Unicode multi-byte characters then nil is returned.
 // Otherwise a charmap.ISO8859_1 or charmap.CodePage437 encoding is returned.
 func DetermineEncoding(p []byte) encoding.Encoding {
-	// if utf8.RuneCount(p) < len(p) {
-	// 	// detected multi-byte characters
-	// 	return nil
-	// }
-	fmt.Println("DetermineEncoding l:", len(p), "count", utf8.RuneCount(p))
-	// if utf8.RuneCount(p) < len(p) {
-	// 	// detected multi-byte characters
-	// 	return nil
-	// }
 	const (
 		controlStart   = 0x00
 		controlEnd     = 0x1f

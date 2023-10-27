@@ -91,6 +91,9 @@ func main() {
 		Version: version,
 		View:    view,
 	}
+	if server.Version == "" {
+		server.Version = cmd.Commit("")
+	}
 
 	// Database
 	if err := RepairDB(server); err != nil {

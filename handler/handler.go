@@ -59,11 +59,12 @@ type Configuration struct {
 // Registry returns the template renderer.
 func (c Configuration) Registry() (*TemplateRegistry, error) {
 	webapp := app.Web{
-		Import: c.Import,
-		Logger: c.Logger,
-		Brand:  c.Brand,
-		Public: c.Public,
-		View:   c.View,
+		Import:  c.Import,
+		Logger:  c.Logger,
+		Brand:   c.Brand,
+		Public:  c.Public,
+		Version: c.Version,
+		View:    c.View,
 	}
 	webTmpl, err := webapp.Tmpl()
 	if err != nil {
