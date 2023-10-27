@@ -1,4 +1,8 @@
 # The Defacto2 server GoReleaser configuration.
+#
+# This releaser file is intended for the docker-compose.yml file
+# to generate a release build of the server for Linux.
+#
 # The documentation is at https://goreleaser.com.
 # To test any modifications to this configuration:
 # goreleaser check
@@ -9,33 +13,16 @@ before:
   hooks:
     # You may remove this if you don't use go modules.
     - go mod tidy
-    # you may remove this if you don't need go generate.
-    # go generate breaks github actions.
-    #- go generate ./...
 builds:
-  - id: server_dev
-    env:
-      - CGO_ENABLED=0
-    # keep the number of targets to a minimum to improve the build time.
-    targets:
-      - darwin_arm64
-      - darwin_amd64
-      - windows_amd64
   - id: server
     env:
       - CGO_ENABLED=0
     targets:
       - linux_amd64
-universal_binaries:
-  - replace: true
-    ids: ['server_dev']
-    name_template: >-
-      {{ tolower .ProjectName }}
 archives:
   - format: zip
     name_template: >-
-      {{- if eq .Os "darwin" }}{{ tolower .ProjectName }}_{{ .Version }}_macos{{else -}}
-      {{ tolower .ProjectName }}_{{ .Version }}_{{- tolower .Os }}{{ end }}
+      {{ tolower .ProjectName }}_{{ .Version }}_{{- tolower .Os }}
     files:
       - src: public/text/defacto2.txt
         strip_parent: true
@@ -49,20 +36,4 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
-nfpms:
-  - id: deb
-    builds: ['server']
-    package_name: df2-server
-    file_name_template: "{{ .ConventionalFileName }}"
-    vendor: Defacto2
-    homepage: https://github.com/Defacto2/server
-    maintainer: Ben Garrett <contact@defacto2.net>
-    description: |-
-      Defacto2 web server installer package.
-    license: Copyright
-    formats:
-      - deb
-    dependencies:
-      - git
-# signs:
-#   - artifacts: checksum
+      - '^tmp:'
