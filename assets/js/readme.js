@@ -68,31 +68,32 @@
    * Event listener for the Topaz font radio button.
    * @function
    */
-  topaz.addEventListener("click", function () {
-    preLatin1.classList.remove(hide);
-    pre437.classList.add(hide);
-  });
+  if (topaz !== null) {
+    topaz.addEventListener("click", function () {
+      preLatin1.classList.remove(hide);
+      pre437.classList.add(hide);
+    });
+  }
 
   /**
    * Event listener for the VGA font radio button.
    * @function
    */
-  vga.addEventListener("click", function () {
-    preLatin1.classList.add(hide);
-    pre437.classList.remove(hide);
-  });
+  if (vga !== null) {
+    vga.addEventListener("click", function () {
+      preLatin1.classList.add(hide);
+      pre437.classList.remove(hide);
+    });
+  }
 
-  if (typeof navigator.clipboard === `undefined`)
-    copyBtn.classList.add(hide);
-  else
-    /**
-     * Event listener for the copy button.
-     * @function
-     */
+  if (typeof navigator.clipboard === `undefined`) copyBtn.classList.add(hide);
+  /**
+   * Event listener for the copy button.
+   * @function
+   */ else
     copyBtn.addEventListener(`click`, () => {
-      if (topaz.checked)
-        clipText(`readmeLatin1`);
-      else if (vga.checked)
-        clipText(`readmeCP437`);
+      if (topaz !== null && topaz.checked) clipText(`readmeLatin1`);
+      else if (vga !== null && vga.checked) clipText(`readmeCP437`);
+      else clipText(`readmeCP437`);
     });
 })();
