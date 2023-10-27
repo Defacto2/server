@@ -54,7 +54,9 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	// file metadata
 	data["filename"] = fname
 	data["filesize"] = helper.ByteCount(res.Filesize.Int64)
+	data["filebyte"] = res.Filesize.Int64
 	data["lastmodified"] = aboutLM(res)
+	data["lastmodifiedAgo"] = aboutModAgo(res)
 	data["checksum"] = res.FileIntegrityStrong.String
 	data["magic"] = res.FileMagicType.String
 	data["releasers"] = string(LinkRels(res.GroupBrandBy, res.GroupBrandFor))
@@ -85,6 +87,7 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	}
 	// record metadata
 	data["linkpreview"] = LinkPreviewHref(res.ID, res.Filename.String, res.Platform.String)
+	data["linkpreviewTip"] = LinkPreviewTip(res.ID, res.Filename.String, res.Platform.String)
 	switch {
 	case res.Createdat.Valid && res.Updatedat.Valid:
 		c := Updated(res.Createdat.Time, "")
@@ -94,6 +97,7 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 			u = Updated(res.Updatedat.Time, "Updated")
 			data["filentry"] = c + "<br>" + u
 		} else {
+			c = Updated(res.Createdat.Time, "Created")
 			data["filentry"] = c
 		}
 	case res.Createdat.Valid:
@@ -185,13 +189,22 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 	if _, err := io.Copy(&out, r); err != nil {
 		return data, err
 	}
+	if !strings.HasSuffix(out.String(), "\n\n") {
+		out.WriteString("\n")
+	}
 	data["readmeLatin1"] = out.String()
 	r = charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
 	out = strings.Builder{}
 	if _, err := io.Copy(&out, r); err != nil {
 		return data, err
 	}
+	if !strings.HasSuffix(out.String(), "\n\n") {
+		out.WriteString("\n")
+	}
 	data["readmeCP437"] = out.String()
+
+	data["readmeLines"] = strings.Count(out.String(), "\n")
+	data["readmeRows"] = helper.MaxLineLength(out.String())
 
 	return data, nil
 }
@@ -254,6 +267,19 @@ func aboutLM(res *models.File) string {
 		return none
 	}
 	return lm
+}
+
+func aboutModAgo(res *models.File) string {
+	if !res.FileLastModified.Valid {
+		return ""
+	}
+	year, _ := strconv.Atoi(res.FileLastModified.Time.Format("2006"))
+	const epoch = 1980
+	if year <= epoch {
+		// 1980 is the default date for MS-DOS files without a timestamp
+		return ""
+	}
+	return Updated(res.FileLastModified.Time, "Modified")
 }
 
 func aboutCtt(res *models.File) []string {

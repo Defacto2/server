@@ -119,8 +119,9 @@ func (web Web) tmpl(name filename) (*template.Template, error) {
 		modal      = "modal.tmpl"
 		pagination = "pagination.tmpl"
 		website    = "website.tmpl"
+		uploader   = "uploader.tmpl"
 	)
-	files := []string{GlobTo(layout), GlobTo(pagination), GlobTo(string(name)), GlobTo(modal)}
+	files := []string{GlobTo(layout), GlobTo(pagination), GlobTo(string(name)), GlobTo(modal), GlobTo(uploader)}
 	// append any additional templates
 	switch name {
 	case "about.tmpl":

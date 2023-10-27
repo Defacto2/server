@@ -104,6 +104,19 @@ func LastChr(s string) string {
 	return string(r)
 }
 
+// MaxLineLength counts the character length of the longest line in a string.
+func MaxLineLength(s string) int {
+	lines := strings.Split(s, "\n")
+	max := 0
+	for _, line := range lines {
+		l := utf8.RuneCountInString(line)
+		if l > max {
+			max = l
+		}
+	}
+	return max
+}
+
 // ReverseInt reverses an integer.
 func ReverseInt(i int) (int, error) {
 	// credit: Wade73

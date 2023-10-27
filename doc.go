@@ -81,6 +81,9 @@ The following options can be added to [Override].
 	- - First known as Defacto...
 	- JS-DOS 6.22 	https://js-dos.com/6.22/examples/?arkanoid
 	-				https://js-dos.com/index_6.22.html
+	- Add text content width and height of text, aka 80x20.
+	- Add button under text content to copy text to clipboard.
+	- Inject a NL for text that end with a EOF or non-NL.
 
 # Mobile fixes
 
@@ -88,7 +91,7 @@ The following options can be added to [Override].
 
 # Bugs
 
-	- none
+	- Fix preview button popup for text files.
 
 # New features to deliver
 

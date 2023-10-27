@@ -119,9 +119,6 @@
                   <li><a class="dropdown-item" href="/files/oldest">Oldest</a></li>
                   <li><a class="dropdown-item" href="/files/newest">Newest</a></li>
                   <li><hr class="dropdown-divider"></li>
-                  {{/*  not yet implemented
-                  <li><h6 class="dropdown-header">Table productions</h6></li>
-                    <li><a class="dropdown-item" href="/table">Browse tables</a></li>  */}}
                   <li><a class="dropdown-item" href="/html3">Use <em>retro</em> tables</a></li>
                 </ul>
               </li>
@@ -263,7 +260,8 @@
           </div>
         </div>
       </nav>
-{{- block "modal" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
+{{- block "modal" . -}}{{ "<!-- Modal popup content here -->" | safeHTML -}}{{end}}
+{{- block "uploader" . -}}{{ "<!-- Uploader content here -->" | safeHTML -}}{{end}}
   <hr>
 {{- if eq (index . "dberror") true -}}
 <div class="alert alert-danger" role="alert">
@@ -303,7 +301,7 @@
   &copy; Defacto2
 </footer>
 </div>
-{{- /*  Do not defer to async load the Bootstrap JS  */}}
+{{- /*  Do not defer, or async load the JS for Bootstrap  */}}
 <script src="{{ jsBoot }}?{{ sriBootJS }}" integrity="{{ sriBootJS }}" crossorigin="anonymous"></script>
 {{- /*  FontAwesome  */}}
 <script async src="{{ jsFA }}?{{ sriFA }}" integrity="{{ sriFA }}" crossorigin="anonymous"></script>
@@ -313,12 +311,13 @@
 {{- if or (index . "readmeLatin1") (index . "readmeCP437")}}
 <script async src="{{ jsReadme }}?{{ sriReadme }}" integrity="{{ sriReadme }}" crossorigin="anonymous"></script>
 {{- end}}
+{{- /*  Bootstrap tooltips get initialized on every page  */}}
 <script defer>
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
   const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 </script>
 {{- if ne (index . "carousel") ""}}
-{{- /*  this script block is only for the carousel  */}}
+{{- /*  Bootstrap carousel initalizer  */}}
 <script defer>
   const myCarouselElement = document.querySelector('{{index . "carousel"}}')
   const carousel = new bootstrap.Carousel(myCarouselElement, {
