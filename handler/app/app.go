@@ -38,6 +38,13 @@ const (
 
 	ReadmeJS  = "/js/readme.min.js" // ReadmeJS is the path to the minified Readme JS file.
 	ReadmePub = public + ReadmeJS
+
+	// JS DOS v6 are minified files.
+	// https://js-dos.com/6.22/examples/?arkanoid
+	JSDos     = "/js/js-dos.js"
+	JSDosPub  = public + JSDos
+	JSWDos    = "/js/wdosbox.js"
+	JSWDosPub = public + JSWDos
 )
 
 // Caching are values that are used throughout the app or layouts.
@@ -144,6 +151,8 @@ type SRI struct {
 	LayoutCSS    string // Layout CSS verification hash.
 	PouetJS      string // Pouet JS verification hash.
 	ReadmeJS     string // Readme JS verification hash.
+	JSDos        string // JS DOS verification hash.
+	JSWDos       string // JS wasm verification hash.
 }
 
 // Verify checks the integrity of the embedded CSS and JS files.
@@ -171,6 +180,14 @@ func (s *SRI) Verify(fs embed.FS) error {
 		return err
 	}
 	s.ReadmeJS, err = helper.Integrity(ReadmePub, fs)
+	if err != nil {
+		return err
+	}
+	s.JSDos, err = helper.Integrity(JSDosPub, fs)
+	if err != nil {
+		return err
+	}
+	s.JSWDos, err = helper.Integrity(JSWDosPub, fs)
 	if err != nil {
 		return err
 	}

@@ -79,6 +79,7 @@ The following options can be added to [Override].
 	- Finish this doc.go file.
 	- JS-DOS 6.22 	https://js-dos.com/6.22/examples/?arkanoid
 	-				https://js-dos.com/index_6.22.html
+	- Make JS-DOS only work with MS-DOS platforms.
 
 # Mobile fixes
 
@@ -90,13 +91,13 @@ The following options can be added to [Override].
 
 # New features to deliver
 
-	- DOS emulation using something other than DOSBox.
+	-
 
 # Database changes
 
 	- [model.Files.ListUpdates], rename the PSQL column from "updated_at" to "date_updated".
 
-# Milestones to add
+# Milestones to add or fix
 
 	- Fetch the DOD nfo for w95, https://scenelist.org/nfo/DOD95C1H.ZIP
 */

@@ -311,6 +311,9 @@
 {{- if or (index . "readmeLatin1") (index . "readmeCP437")}}
 <script async src="{{ jsReadme }}?{{ sriReadme }}" integrity="{{ sriReadme }}" crossorigin="anonymous"></script>
 {{- end}}
+{{/*  JS DOS v6  */}}
+<script async src="{{ jsDos }}?{{ sriJSDos }}" integrity="{{ sriJSDos }}" crossorigin="anonymous"></script>
+<script async src="{{ jsWDos }}?{{ sriJSWDos }}" integrity="{{ sriJSWDos }}" crossorigin="anonymous"></script>
 {{- /*  Bootstrap tooltips get initialized on every page  */}}
 <script defer>
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')

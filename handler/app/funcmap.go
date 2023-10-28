@@ -93,6 +93,12 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"sriReadme": func() string {
 			return web.Subresource.ReadmeJS
 		},
+		"sriJSDos": func() string {
+			return web.Subresource.JSDos
+		},
+		"sriJSWDos": func() string {
+			return web.Subresource.JSWDos
+		},
 		"cssBoot": func() string {
 			return BootCSS
 		},
@@ -110,6 +116,12 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		},
 		"jsReadme": func() string {
 			return ReadmeJS
+		},
+		"jsDos": func() string {
+			return JSDos
+		},
+		"jsWDos": func() string {
+			return JSWDos
 		},
 		"version": func() string {
 			return web.Version

@@ -1,22 +1,23 @@
 {{- /*  about_jsdos.tmpl  */}}
 {{- define "aboutJSDOS" -}}
+{{- $download := index . "download"}}
 {{- /*  JS DOS  */}}
 <div class="modal fade" id="jsDOSModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="jsDOSModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-body">  
                 <canvas id="jsdos"></canvas>  
-                <script src="https://js-dos.com/6.22/current/js-dos.js" defer></script>
+                {{/*  <script src="https://js-dos.com/6.22/current/js-dos.js" defer></script>  */}}
                 <script defer>
                     // create a function
                     function startJSDOS() {
                         Dos(document.getElementById("jsdos"), { 
-                            wdosboxUrl: "https://js-dos.com/6.22/current/wdosbox.js",
+                            wdosboxUrl: "/js/wdosbox.js",
                             cycles: 1000,
                             autolock: true,
                         }).ready(function (fs, main) {
-                            fs.extract("https://js-dos.com/6.22/current/test/arkanoid.zip").then(function () {
-                            main(["-c", "cd Arkanoid", "-c", "ARKANOID.COM"]).then(function (ci) {
+                            fs.extract("/d/{{$download}}").then(function () {
+                            main(["-c", "dir"]).then(function (ci) {
                                 window.ci = ci;
                             });
                             });
@@ -30,6 +31,9 @@
                 </script>
             </div>
             <div class="modal-footer">
+                <label class="form-check-label">
+                    This emulator is currently just a placeholder
+                </label>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
