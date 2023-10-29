@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -73,9 +74,12 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	data["listLinks"] = aboutLinks(res)
 	data["demozoo"] = res.WebIDDemozoo.Int64
 	data["pouet"] = res.WebIDPouet.Int64
+	data["sixteenColors"] = res.WebID16colors.String
 	data["youtube"] = res.WebIDYoutube.String
 	data["github"] = res.WebIDGithub.String
 	// file archive content
+	data["jsdos"] = aboutJSDos(res)
+	fmt.Println("jsdos", data["jsdos"])
 	ctt := aboutCtt(res)
 	data["content"] = ctt
 	data["contentDesc"] = ""
@@ -131,6 +135,12 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 	}
 	if render.NoScreenshot(a.ScreenshotDir, res) {
 		data["noScreenshot"] = true
+	}
+	// the bbs era, remote images protcol is not supported
+	// example: /f/b02392f
+	const ripScrip = ".rip"
+	if filepath.Ext(strings.ToLower(res.Filename.String)) == ripScrip {
+		return data, nil
 	}
 
 	b, err := render.Read(a.DownloadDir, res)
@@ -312,4 +322,19 @@ func aboutLinks(res *models.File) template.HTML {
 			"<td><small><a class=\"text-truncate\" href=\"%s\">%s</a></small></td></tr>", href, name)
 	}
 	return template.HTML(rows)
+}
+
+func aboutJSDos(res *models.File) bool {
+	if strings.TrimSpace(strings.ToLower(res.Platform.String)) != "dos" {
+		return false
+	}
+	// check supported filename extensions
+	ext := filepath.Ext(strings.ToLower(res.Filename.String))
+	switch ext {
+	case ".zip":
+		// ".exe", ".com", /f/b03550
+		// legacy zip, not supported, /f/a319104
+		return true
+	}
+	return false
 }

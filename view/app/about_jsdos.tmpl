@@ -1,5 +1,6 @@
 {{- /*  about_jsdos.tmpl  */}}
 {{- define "aboutJSDOS" -}}
+{{- if eq (index . "jsdos") true}}
 {{- $download := index . "download"}}
 {{- /*  JS DOS  */}}
 <div class="modal fade" id="jsDOSModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="jsDOSModalLabel" aria-hidden="true">
@@ -7,36 +8,60 @@
         <div class="modal-content">
             <div class="modal-body">  
                 <canvas id="jsdos"></canvas>  
-                {{/*  <script src="https://js-dos.com/6.22/current/js-dos.js" defer></script>  */}}
-                <script defer>
-                    // create a function
-                    function startJSDOS() {
-                        Dos(document.getElementById("jsdos"), { 
-                            wdosboxUrl: "/js/wdosbox.js",
-                            cycles: 1000,
-                            autolock: true,
-                        }).ready(function (fs, main) {
-                            fs.extract("/d/{{$download}}").then(function () {
-                            main(["-c", "dir"]).then(function (ci) {
-                                window.ci = ci;
-                            });
-                            });
-                        });}
-                    const jsdos = document.getElementById("jsdosRunLink");
-                    jsdos.addEventListener("click", function(){
-                        this.style.pointerEvents = "none";
-                        this.textContent = "Started... reload this tab to stop";
-                        startJSDOS();
-                    });
-                </script>
             </div>
             <div class="modal-footer">
                 <label class="form-check-label">
                     This emulator is currently just a placeholder
                 </label>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="jsdosCloser" class="btn btn-secondary" data-bs-dismiss="modal">Close &amp; refresh</button>
             </div>
         </div>
     </div>
 </div>
-{{- end}}
+{{/*  <script src="https://js-dos.com/6.22/current/js-dos.js" defer></script>  */}}
+{{/*  Archive ZIP info, http://fileformats.archiveteam.org/wiki/ZIP  */}}
+<script defer>
+    // create a function
+    function startJSDOS() {
+        Dos(document.getElementById("jsdos"), {
+            wdosboxUrl: "/js/wdosbox.js",
+            cycles: 1000,
+            autolock: true,
+        }).ready(function (fs, main) {
+            // multiple archives
+            //fs.extractAll([
+            //    { url: "ultrsound.zip", mountPoint: "/snd" },
+            //    { url: "game.zip", mountPoint: "/game" },
+            //}).then(() => {
+            //    main(["-c", "cd game", "-c", "game.exe"])
+            //});
+            // todo, ignore fs.extract if already extracted ie a .com or .exe file.
+            fs.extract("/d/{{$download}}").then(function () {
+                // custom dosbox.conf file
+                //fs.createFile("dosbox.conf", `
+                //    [autoexec]
+                //    mount c .
+                //    c:
+                //    type dosbox~1.con
+                //`);
+                //main(["-conf", "dosbox.conf"]);
+                main(["-c", "dir"]).then(function (ci) {
+                    // querty keyboard popup.
+                    // DosController.Qwerty(ci.getParentDiv(), ci.getKeyEventConsumer());
+                    window.ci = ci;
+                });
+            });
+        });
+    }
+    const jsdos = document.getElementById("jsdosRunLink");
+    jsdos.addEventListener("click", function () {
+        this.style.pointerEvents = "none";
+        this.textContent = "Started... reload this tab to stop";
+        startJSDOS();
+    });
+    const jsCls = document.getElementById("jsdosCloser");
+    jsCls.addEventListener("click", function () {
+        location.reload();
+    });
+</script>
+{{- end}}{{ end }}

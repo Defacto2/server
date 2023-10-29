@@ -35,11 +35,12 @@ func empty() map[string]interface{} {
 		"canonical":   "", //   A canonical URL is the URL of the best representative page from a group of duplicate pages.
 		"description": "", // * A short description of the page that get inserted into the description meta element.
 
-		"logo":     "", // ! Text to insert into the monospaced, ASCII art logo.
-		"h1":       "", // ! The H1 heading of the page.
-		"h1sub":    "", //   The H1 sub-heading of the page.
-		"lead":     "", // ! The enlarged, lead paragraph of the page.
-		"carousel": "", //   The ID of the carousel to display.
+		"logo":     "",    // ! Text to insert into the monospaced, ASCII art logo.
+		"h1":       "",    // ! The H1 heading of the page.
+		"h1sub":    "",    //   The H1 sub-heading of the page.
+		"lead":     "",    // ! The enlarged, lead paragraph of the page.
+		"carousel": "",    //   The ID of the carousel to display.
+		"jsdos":    false, //  	If true, the large, JS-DOS emulator files will be loaded.
 
 		"counter":      Statistics(),        // Empty database counts for files and categories.
 		"df2FileCount": Caching.RecordCount, // The number of records of files in the database.

@@ -6,6 +6,7 @@
 {{- $musicians := (index . "musicians") }}
 {{- $demozoo := (index . "demozoo")}}
 {{- $pouet := (index . "pouet")}}
+{{- $sixteenColors := (index . "sixteenColors")}}
 {{- $youtube := (index . "youtube")}}
 {{- $github := (index . "github")}}
 {{- $comment := (index . "comment")}}
@@ -154,14 +155,14 @@
             <th scope="row">Musicians</th>
             <td>{{fmtRoles $musicians}}</td>
         </tr>{{- end}}
-        {{/*  JSDOS placeholder  */}}
+        {{- if eq (index . "jsdos") true}}
         <tr>
             <th scope="row">Emulation</th>
             <td>
-                <a href="#" id="jsdosRunLink" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#jsDOSModal">Run in your browser</a>
+                <a href="#" id="jsdosRunLink" class="dropdown-item text-success" data-bs-toggle="modal" data-bs-target="#jsDOSModal">Run in your browser</a>
             </td>
-        </tr>
-        {{- /*  Pouet and Demozoo links  */}}
+        </tr>{{- end}}
+        {{- /*  Pouet, Demozoo, 16colors links  */}}
         {{- if gt $pouet 0}}
         <tr id="pouetRow" class="d-none">
             <th scope="row">Pouët reviews</th>
@@ -176,6 +177,13 @@
             <th scope="row">Demozoo</th>
             <td>
                 <small><a class="link-offset-3" href="https://demozoo.org/productions/{{$demozoo}}">Downloads, links and extras</a></small>
+            </td>
+        </tr>{{- end}}
+        {{- if ne $sixteenColors ""}}
+        <tr>
+            <th scope="row">16colors</th>
+            <td>
+                <small><a class="link-offset-3" href="https://16colo.rs//{{$sixteenColors}}">Downloads, links and extras</a></small>
             </td>
         </tr>{{- end}}
         {{- /*  YouTube, GitHub and other links  */}}
