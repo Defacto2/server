@@ -77,10 +77,12 @@ The following options can be added to [Override].
 # Tasks
 
 	- Finish this doc.go file.
-	- Defacto2 history [history.tmlp] should have its intro text expanded to better explain the brand.
-	- - First known as Defacto...
 	- JS-DOS 6.22 	https://js-dos.com/6.22/examples/?arkanoid
 	-				https://js-dos.com/index_6.22.html
+	- Make JS-DOS only work with MS-DOS platforms.
+	- (long) group/releaser pages should have a link to the end of the document.
+	- history on the domain, Registered: 9th April 1998  [25 years, 6 months, 19 days back] previously used .com and .org.
+	- database on start fixes, replace empty cells with NULL.
 
 # Mobile fixes
 
@@ -88,17 +90,20 @@ The following options can be added to [Override].
 
 # Bugs
 
-	- none
+	- `public/text/osd.xml` needs updating to use current search links.
+	- /f/{{bad id}} currently returns a 500 error, should return a 404.
+	- also check groups for the same problem.
+	- ren x_pression to x_pression-design
 
 # New features to deliver
 
-	- DOS emulation using something other than DOSBox.
+	-
 
 # Database changes
 
 	- [model.Files.ListUpdates], rename the PSQL column from "updated_at" to "date_updated".
 
-# Milestones to add
+# Milestones to add or fix
 
 	- Fetch the DOD nfo for w95, https://scenelist.org/nfo/DOD95C1H.ZIP
 */

@@ -132,16 +132,16 @@ func CheckDir(name, desc string) error {
 	s := ""
 	switch desc {
 	case "download":
-		s = "the server cannot send file downloads"
+		s = "file downloading will not work"
 	case "log":
 		s = "the server cannot log to files"
 	case "screenshot":
-		s = "the server cannot show screenshot images"
+		s = "screenshot images will not show"
 	case "thumbnail":
-		s = "the server cannot show thumbnail images"
+		s = "thumbnail images will be blank"
 	}
 	if name == "" {
-		return fmt.Errorf("the %s directory path was not provided, %s", desc, s)
+		return fmt.Errorf("no %s directory path, %s", desc, s)
 	}
 	dir, err := os.Stat(name)
 	if os.IsNotExist(err) {

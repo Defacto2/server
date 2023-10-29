@@ -42,6 +42,12 @@
     {
       "src": "/image/layout/favicon.svg",
       "sizes": "333x333"
+    },
+    {
+      "src": "/image/layout/maskable_icon_x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

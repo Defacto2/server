@@ -41,6 +41,8 @@
         {{- if or (index . "readmeLatin1") (index . "readmeCP437")}}
             {{- if not (index . "noScreenshot")}}
                 <h6 class="fs-6 fw-lighter">Readme or information text <small>{{index . "readmeName"}}</small></h6>
+                <div class="m-3"><button class="btn btn-sm btn-outline-secondary" id="copyReadme" 
+                    data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard">Copy</button></div>
                 <hr>
             {{- end}}
             {{- if (index . "noScreenshot")}}
@@ -52,6 +54,9 @@
                     <input type="radio" class="btn-check" name="readme-base" id="vgaFont" autocomplete="off" {{index . "vgaCheck"}}>
                     <label class="btn btn-sm" for="vgaFont"
                         data-bs-toggle="tooltip" data-bs-title="Use a classic IBM VGA font with OEM-US encoding">DOS style</label>
+                    &nbsp;
+                    <button class="btn btn-sm btn-outline-secondary" id="copyReadme" 
+                        data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard">Copy</button>
                 </div>
                 <hr>
             {{- end}}
@@ -65,4 +70,5 @@
         </div>
     </div>
 </div>
+{{ template "aboutJSDOS" . }}
 {{- end}}

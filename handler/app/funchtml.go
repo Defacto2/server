@@ -494,6 +494,29 @@ func LinkPreviewHref(id any, name, platform string) template.HTML {
 	return template.HTML(s)
 }
 
+// LinkPreviewTip returns a tooltip to describe the preview link.
+func LinkPreviewTip(id any, name, platform string) string {
+	if name == "" {
+		return ""
+	}
+	platform = strings.TrimSpace(platform)
+	ext := strings.ToLower(filepath.Ext(name))
+	switch {
+	case slices.Contains(archives, ext):
+		// this must always be first
+		return ""
+	case platform == textamiga, platform == "text":
+		return "Read this as text"
+	case slices.Contains(documents, ext):
+		return "Read this as text"
+	case slices.Contains(images, ext):
+		return "View this as an image or photo"
+	case slices.Contains(media, ext):
+		return "Play this as media"
+	}
+	return ""
+}
+
 // linkID creates a URL to link to the record.
 // The id is obfuscated to prevent direct linking.
 // The elem is the element to link to, such as 'f' for file or 'd' for download.
@@ -617,7 +640,7 @@ func SubTitle(section null.String, s any) template.HTML {
 			val = fmt.Sprintf("Issue %d", i)
 		}
 	}
-	cls := "card-subtitle mb-2 text-body-secondary"
-	elem := fmt.Sprintf("<h6 class=\"%s\">%s</h6>", cls, val)
+	cls := "card-subtitle mb-2 text-body-secondary fs-6"
+	elem := fmt.Sprintf("<h3 class=\"%s\">%s</h3>", cls, val)
 	return template.HTML(elem)
 }

@@ -6,6 +6,7 @@
 {{- $musicians := (index . "musicians") }}
 {{- $demozoo := (index . "demozoo")}}
 {{- $pouet := (index . "pouet")}}
+{{- $sixteenColors := (index . "sixteenColors")}}
 {{- $youtube := (index . "youtube")}}
 {{- $github := (index . "github")}}
 {{- $comment := (index . "comment")}}
@@ -47,11 +48,11 @@
 <div class="d-grid gap-2 d-sm-block mx-auto py-3 text-center">
 {{- if eq (index . "alertURL") "" }}
     {{/*  standard download  */}}
-    <a class="btn btn-outline-primary btn-lg m-1" href="/d/{{index . "download"}}" role="button">
+    <a class="btn btn-success btn-lg m-1" href="/d/{{index . "download"}}" rel="nofollow" role="button">
         Download &nbsp; {{index . "filesize"}}</a>
 {{- else }}
     {{/*  google download warning  */}}
-    <a class="btn btn-outline-primary btn-lg m-1" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    <a class="btn btn-outline-danger btn-lg m-1" data-bs-toggle="modal" data-bs-target="#exampleModal">
         Download &nbsp; {{index . "filesize"}}</a>
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -61,14 +62,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-start">
-                Google Search has flagged this download as an unsafe or unwanted download.
-                This can be a false positive, but we recommend you to be careful and
-                run the file in a virtualized environment or in an emulator.
-                <p class="m-3 text-center"><a href="{{index . "alertURL"}}">You should read this scan report before downloading</a></p>
-                <p class="m-5 text-center"><small><a class="link-secondary" href="/d/{{index . "download"}}" role="button">I understand, download anyway</a></small></p>
+                Google Search has flagged this download as an unsafe or unwanted download. It can be a false positive, but we recommend carefully running the file in a virtualized environment or an emulator.
+                <p class="m-3 text-center"><a class="link-offset-2" href="{{index . "alertURL"}}">You should read this scan report before downloading</a></p>
+                <p class="m-5 text-center"><small><a class="link-secondary link-offset-3" href="/d/{{index . "download"}}" rel="nofollow" role="button">I understand, download anyway</a></small></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Abort</button>
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cancel</button>
             </div>
             </div>
         </div>
@@ -85,12 +84,12 @@
 {{- end}}
 {{- if ne "" (index . "linkpreview")}}
     <a class="d-inline btn btn-outline-secondary btn m-1" href="{{- index . "linkpreview" }}" 
-    role="button" data-bs-toggle="tooltip" data-bs-title="Play this as media">preview</a>
+    role="button" data-bs-toggle="tooltip" data-bs-title="{{index . "linkpreviewTip"}}">preview</a>
 {{- end}}
 </div>
 {{- /*  Commant about the file  */}}
 {{- if ne $comment ""}}
-<div class="container p-2 text-center">
+<div class="container p-2 text-start">
     <q>{{index . "comment"}}</q>
 </div>
 {{- end}}
@@ -111,18 +110,24 @@
         <tr>
             <th scope="row"><span class="text-nowrap">Download size</span></th>
             <td>
-                {{- index . "filesize" -}}
+                <span data-bs-toggle="tooltip" data-bs-title="{{- index . "filebyte"}} bytes">{{- index . "filesize" -}}</span>
                 {{- if ne "" (index . "contentDesc")}}, {{index . "contentDesc"}}{{end -}}
             </td>
         </tr>
         <tr>
             <th scope="row"><span class="text-nowrap">Last modification</span></th>
-            <td>{{index . "lastmodified"}}</td>
+            <td><span data-bs-toggle="tooltip" data-bs-title="{{index . "lastmodifiedAgo"}}">{{index . "lastmodified"}}</span></td>
         </tr>
         {{- if ne $mimetype ""}}
         <tr>
             <th scope="row"><span class="text-nowrap">Mime type</span></th>
             <td>{{$mimetype}}</td>
+        </tr>
+        {{- end}}
+        {{if index . "readmeLatin1"}}
+        <tr>
+            <th scope="row"><span class="text-nowrap">Text dimensions</span></th></th>
+            <td><span data-bs-toggle="tooltip" data-bs-title="Number of lines in the text">{{index . "readmeLines"}}</span> x <span data-bs-toggle="tooltip" data-bs-title="Maximum number of rows or characters per-line">{{index . "readmeRows"}}</span></td>
         </tr>
         {{- end}}
         <tr>
@@ -150,12 +155,19 @@
             <th scope="row">Musicians</th>
             <td>{{fmtRoles $musicians}}</td>
         </tr>{{- end}}
-        {{- /*  Pouet and Demozoo links  */}}
+        {{- if eq (index . "jsdos") true}}
+        <tr>
+            <th scope="row">Emulation</th>
+            <td>
+                <a href="#" id="jsdosRunLink" class="dropdown-item text-success" data-bs-toggle="modal" data-bs-target="#jsDOSModal">Run in your browser</a>
+            </td>
+        </tr>{{- end}}
+        {{- /*  Pouet, Demozoo, 16colors links  */}}
         {{- if gt $pouet 0}}
         <tr id="pouetRow" class="d-none">
             <th scope="row">Pouët reviews</th>
             <td>
-                <a id="pouetStars" href="http://www.pouet.net/prod.php?which={{$pouet}}">? stars</a>
+                <a id="pouetStars" href="https://www.pouet.net/prod.php?which={{$pouet}}">? stars</a>
                 &nbsp; <small id="pouetVotes">? votes</small>
                 <span class="d-none" id="pouetProdID">{{$pouet}}</span>
             </td>
@@ -165,6 +177,13 @@
             <th scope="row">Demozoo</th>
             <td>
                 <small><a class="link-offset-3" href="https://demozoo.org/productions/{{$demozoo}}">Downloads, links and extras</a></small>
+            </td>
+        </tr>{{- end}}
+        {{- if ne $sixteenColors ""}}
+        <tr>
+            <th scope="row">16colors</th>
+            <td>
+                <small><a class="link-offset-3" href="https://16colo.rs//{{$sixteenColors}}">Downloads, links and extras</a></small>
             </td>
         </tr>{{- end}}
         {{- /*  YouTube, GitHub and other links  */}}

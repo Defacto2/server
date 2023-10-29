@@ -36,7 +36,7 @@ var (
 	ErrDB  = errors.New("could not initialize the database data")
 	ErrEnv = errors.New("environment variable probably contains an invalid value")
 	ErrLog = errors.New("the server cannot save any logs")
-	ErrVer = errors.New("could not obtain the database server version value")
+	ErrVer = errors.New("postgresql version request failed")
 )
 
 func main() {
@@ -78,7 +78,7 @@ func main() {
 		}
 		logs = logger.Production(configs.LogDir).Sugar()
 	default:
-		logs.Debug("The server is running in the DEVELOPMENT MODE.")
+		logs.Warn("The server is running in the DEVELOPMENT MODE.")
 		logs = logger.Development().Sugar()
 	}
 
@@ -91,15 +91,19 @@ func main() {
 		Version: version,
 		View:    view,
 	}
+	if server.Version == "" {
+		server.Version = cmd.Commit("")
+	}
 
 	// Database
 	if err := RepairDB(server); err != nil {
 		if errors.Is(err, ErrVer) {
 			// todo give ports feedback
 			// also display the program ver on startup.
-			logs.Errorf("%s, is the database server down?", ErrVer)
+			logs.Warnf("%s, is the database server down?", ErrVer)
+		} else {
+			logs.Errorf("%s: %s", ErrDB, err)
 		}
-		logs.Errorf("%s: %s", ErrDB, err)
 	}
 	server.RecordCount = RecordCount()
 

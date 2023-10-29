@@ -79,20 +79,16 @@ func (cfg Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 // LogStorage determines the local storage path for all log files created by this web application.
 func (cfg *Config) LogStorage() error {
-	dir := cfg.LogDir
-	if dir == "" {
-		var err error
-		dir, err = os.UserConfigDir()
+	const ownerGroupAll = 0o770
+	logs := cfg.LogDir
+	if logs == "" {
+		dir, err := os.UserConfigDir()
 		if err != nil {
 			return err
 		}
+		logs = filepath.Join(dir, ConfigDir)
 	}
-	if ok := helper.IsStat(dir); !ok {
-		return fmt.Errorf("%w: %s", ErrDirNotExist, dir)
-	}
-	logs := filepath.Join(dir, "defacto2-webapp")
 	if ok := helper.IsStat(logs); !ok {
-		const ownerGroupAll = 0o770
 		if err := os.MkdirAll(logs, ownerGroupAll); err != nil {
 			return fmt.Errorf("%w: %s", err, logs)
 		}

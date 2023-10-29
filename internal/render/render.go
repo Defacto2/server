@@ -70,7 +70,7 @@ func Read(path string, res *models.File) ([]byte, error) {
 		return nil, fmt.Errorf("%w: %s", ErrDownload, filepath.Join(path, uuid))
 	}
 
-	if !Viewer(res) {
+	if !files.uutxtOk && !Viewer(res) {
 		return nil, nil
 	}
 

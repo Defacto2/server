@@ -38,6 +38,13 @@ const (
 
 	ReadmeJS  = "/js/readme.min.js" // ReadmeJS is the path to the minified Readme JS file.
 	ReadmePub = public + ReadmeJS
+
+	// JS DOS v6 are minified files.
+	// https://js-dos.com/6.22/examples/?arkanoid
+	JSDos     = "/js/js-dos.js"
+	JSDosPub  = public + JSDos
+	JSWDos    = "/js/wdosbox.js"
+	JSWDosPub = public + JSWDos
 )
 
 // Caching are values that are used throughout the app or layouts.
@@ -63,6 +70,7 @@ type Web struct {
 	Import      *config.Config     // Import configurations from the host system environment.
 	Logger      *zap.SugaredLogger // Logger is the zap sugared logger.
 	Subresource SRI                // SRI are the Subresource Integrity hashes for the layout.
+	Version     string             // Version is the current version of the app.
 	Public      embed.FS           // Public facing files.
 	View        embed.FS           // Views are Go templates.
 }
@@ -119,12 +127,13 @@ func (web Web) tmpl(name filename) (*template.Template, error) {
 		modal      = "modal.tmpl"
 		pagination = "pagination.tmpl"
 		website    = "website.tmpl"
+		uploader   = "uploader.tmpl"
 	)
-	files := []string{GlobTo(layout), GlobTo(pagination), GlobTo(string(name)), GlobTo(modal)}
+	files := []string{GlobTo(layout), GlobTo(pagination), GlobTo(string(name)), GlobTo(modal), GlobTo(uploader)}
 	// append any additional templates
 	switch name {
 	case "about.tmpl":
-		files = append(files, GlobTo("about_table.tmpl"))
+		files = append(files, GlobTo("about_table.tmpl"), GlobTo("about_jsdos.tmpl"))
 	case "file.tmpl":
 		files = append(files, GlobTo(fileExp))
 	case "websites.tmpl":
@@ -142,6 +151,8 @@ type SRI struct {
 	LayoutCSS    string // Layout CSS verification hash.
 	PouetJS      string // Pouet JS verification hash.
 	ReadmeJS     string // Readme JS verification hash.
+	JSDos        string // JS DOS verification hash.
+	JSWDos       string // JS wasm verification hash.
 }
 
 // Verify checks the integrity of the embedded CSS and JS files.
@@ -169,6 +180,14 @@ func (s *SRI) Verify(fs embed.FS) error {
 		return err
 	}
 	s.ReadmeJS, err = helper.Integrity(ReadmePub, fs)
+	if err != nil {
+		return err
+	}
+	s.JSDos, err = helper.Integrity(JSDosPub, fs)
+	if err != nil {
+		return err
+	}
+	s.JSWDos, err = helper.Integrity(JSWDosPub, fs)
 	if err != nil {
 		return err
 	}

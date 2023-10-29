@@ -1,36 +1,62 @@
 version: '3'
+#
+# A placeholder container for the database migration and server.
+# Intended for the domain test.defacto2.net.
+#
+# docker compose up --build
+# docker compose up --detach
+# docker compose run webapp --version
+# docker compose run webapp address
+# docker compose run webapp config
+# docker compose exec webapp ls -l /root/.config
 services:
-  app:
+
+  webapp:
+    container_name: defacto2-webapp
+    restart: unless-stopped
+    
+    # build gets run using the --build flag or build command
     build:
-      context: .
-      dockerfile: ./Dockerfile
-    container_name: service
-    volumes:
-      - ./:/app
-    # environment:
-    #   - DB_HOST=host.docker.internal
-    #   - Defacto2_IsProduction=false
-    # ports:
-    #   - 1323:1323
-      #- "5432:5432"
-      #- 5432:5432
+      context: .      # use the current directory for the build context
+                      # an inline dockerfile can be used instead of a Dockerfile
+      dockerfile_inline: |
+        FROM alpine:latest
+        RUN mkdir /root/.config
+        COPY dist/server_linux_amd64_v1/df2-server /usr/local/bin/df2-server
+        EXPOSE 1323
+        ENTRYPOINT ["df2-server"]
+
     ports:
-      - "5432:5432"
-    #network_mode: "host"
-    # networks:
-    #   - backend
-    # extra_hosts:
-    #   - "host.docker.internal:host-gateway"
+      - "${HOSTPORT}:1323"   # HTTP (unencrypted) port that the server listens on
 
-# networks:
-#   backend:
+    environment:
+      PS_HOST: "host.docker.internal"   # this value must be kept as host.docker.internal 
+                                        # otherwise the server will not be able to connect 
+                                        # to the docker containerized postgresql database
+      D2_NOROBOTS: "true"               # disable site crawling by search engines
+      D2_PRODUCTION: "true"             # enable production mode to log errros and recover from any panics
+      
+      D2_DIR_DOWN: "/opt/downloads"     # THESE DIR directories should not be changed
+      D2_DIR_SHOT: "/opt/screenshots"
+      D2_DIR_THUMB: "/opt/thumbnails"
 
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # this is required for the server to connect
+                                            # to the docker containerized postgresql database
 
-# TODO: merge this with https://github.com/Defacto2/database-ps/blob/main/docker-compose.yml
-# Eventually move the DC file into its own private repo?
+    volumes:
+      # store the server configuration and logs in a named volume
+      # this will be kept and accessible even if the container is removed
+      - webapp-config:/root/.config
+      # the local directories located on the host are bound to the /opt directory in the container
+      # EDIT the .env file to change the location of these directories
+      - ${DOWNLOAD}:/opt/downloads      # the directory where the server will store downloaded files
+      - ${SCREENSHOT}:/opt/screenshots  # the directory where the server will store screenshots
+      - ${THUMBNAIL}:/opt/thumbnails    # the directory where the server will store thumbnails
+
+volumes:
+  webapp-config:
 
 # other services to add?
 # dns_search:
 # domainname: test.defacto2.net
-# expose: 3000
-# network_host # doesn't allow port mapping

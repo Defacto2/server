@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -54,7 +55,9 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	// file metadata
 	data["filename"] = fname
 	data["filesize"] = helper.ByteCount(res.Filesize.Int64)
+	data["filebyte"] = res.Filesize.Int64
 	data["lastmodified"] = aboutLM(res)
+	data["lastmodifiedAgo"] = aboutModAgo(res)
 	data["checksum"] = res.FileIntegrityStrong.String
 	data["magic"] = res.FileMagicType.String
 	data["releasers"] = string(LinkRels(res.GroupBrandBy, res.GroupBrandFor))
@@ -71,9 +74,12 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	data["listLinks"] = aboutLinks(res)
 	data["demozoo"] = res.WebIDDemozoo.Int64
 	data["pouet"] = res.WebIDPouet.Int64
+	data["sixteenColors"] = res.WebID16colors.String
 	data["youtube"] = res.WebIDYoutube.String
 	data["github"] = res.WebIDGithub.String
 	// file archive content
+	data["jsdos"] = aboutJSDos(res)
+	fmt.Println("jsdos", data["jsdos"])
 	ctt := aboutCtt(res)
 	data["content"] = ctt
 	data["contentDesc"] = ""
@@ -85,6 +91,7 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	}
 	// record metadata
 	data["linkpreview"] = LinkPreviewHref(res.ID, res.Filename.String, res.Platform.String)
+	data["linkpreviewTip"] = LinkPreviewTip(res.ID, res.Filename.String, res.Platform.String)
 	switch {
 	case res.Createdat.Valid && res.Updatedat.Valid:
 		c := Updated(res.Createdat.Time, "")
@@ -94,6 +101,7 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 			u = Updated(res.Updatedat.Time, "Updated")
 			data["filentry"] = c + "<br>" + u
 		} else {
+			c = Updated(res.Createdat.Time, "Created")
 			data["filentry"] = c
 		}
 	case res.Createdat.Valid:
@@ -127,6 +135,12 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 	}
 	if render.NoScreenshot(a.ScreenshotDir, res) {
 		data["noScreenshot"] = true
+	}
+	// the bbs era, remote images protcol is not supported
+	// example: /f/b02392f
+	const ripScrip = ".rip"
+	if filepath.Ext(strings.ToLower(res.Filename.String)) == ripScrip {
+		return data, nil
 	}
 
 	b, err := render.Read(a.DownloadDir, res)
@@ -185,13 +199,22 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 	if _, err := io.Copy(&out, r); err != nil {
 		return data, err
 	}
+	if !strings.HasSuffix(out.String(), "\n\n") {
+		out.WriteString("\n")
+	}
 	data["readmeLatin1"] = out.String()
 	r = charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
 	out = strings.Builder{}
 	if _, err := io.Copy(&out, r); err != nil {
 		return data, err
 	}
+	if !strings.HasSuffix(out.String(), "\n\n") {
+		out.WriteString("\n")
+	}
 	data["readmeCP437"] = out.String()
+
+	data["readmeLines"] = strings.Count(out.String(), "\n")
+	data["readmeRows"] = helper.MaxLineLength(out.String())
 
 	return data, nil
 }
@@ -256,6 +279,19 @@ func aboutLM(res *models.File) string {
 	return lm
 }
 
+func aboutModAgo(res *models.File) string {
+	if !res.FileLastModified.Valid {
+		return ""
+	}
+	year, _ := strconv.Atoi(res.FileLastModified.Time.Format("2006"))
+	const epoch = 1980
+	if year <= epoch {
+		// 1980 is the default date for MS-DOS files without a timestamp
+		return ""
+	}
+	return Updated(res.FileLastModified.Time, "Modified")
+}
+
 func aboutCtt(res *models.File) []string {
 	conts := strings.Split(res.FileZipContent.String, "\n")
 	conts = slices.DeleteFunc(conts, func(s string) bool {
@@ -286,4 +322,19 @@ func aboutLinks(res *models.File) template.HTML {
 			"<td><small><a class=\"text-truncate\" href=\"%s\">%s</a></small></td></tr>", href, name)
 	}
 	return template.HTML(rows)
+}
+
+func aboutJSDos(res *models.File) bool {
+	if strings.TrimSpace(strings.ToLower(res.Platform.String)) != "dos" {
+		return false
+	}
+	// check supported filename extensions
+	ext := filepath.Ext(strings.ToLower(res.Filename.String))
+	switch ext {
+	case ".zip":
+		// ".exe", ".com", /f/b03550
+		// legacy zip, not supported, /f/a319104
+		return true
+	}
+	return false
 }
