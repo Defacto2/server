@@ -91,175 +91,177 @@
     <link href="{{ cssLayout }}?{{ sriLayout }}" rel="stylesheet" integrity="{{ sriLayout }}" crossorigin="anonymous">
   </head>
   <body>
-    <div class="container-xxl">
-      <nav class="navbar bg-dark sticky-top navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
-        <div class="container-fluid">
-          <img class="me-3" src="/image/layout/under-construction.gif" alt="Under construction animated GIF" width="30" height="30">
-          <span class="navbar-brand mb-0 h1"><a class="nav-link active" aria-current="page" href="/">Defacto2</a></span>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-              <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="/">Home</a>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Files
-                </a>
-                <ul class="dropdown-menu">
-                  <li><h6 class="dropdown-header">Browse</h6></li>
-                  <li><a class="dropdown-item" href="/file">Categories</a></li>    
-                  <li><a class="dropdown-item" href="/file/stats">Statistics</a></li>  
-                  <li><hr class="dropdown-divider"></li>
-                  <li><h6 class="dropdown-header">Browse productions</h6></li>
-                  <li><a class="dropdown-item" href="/files/new-uploads">New uploads</a></li>
-                  <li><a class="dropdown-item" href="/files/new-updates">New changes</a></li>
-                  <li><a class="dropdown-item" href="/files/oldest">Oldest</a></li>
-                  <li><a class="dropdown-item" href="/files/newest">Newest</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="/html3">Use <em>retro</em> tables</a></li>
-                </ul>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Groups
-                </a>
-                <ul class="dropdown-menu">
-                  <li><h6 class="dropdown-header">Scene</h6></li>
-                  <li><a class="dropdown-item" href="/releaser">Releasers</a></li>
-                  <li><a class="dropdown-item" href="/releaser/a-z">Releasers {{$az}}</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><h6 class="dropdown-header">Products</h6></li>
-                  <li><a class="dropdown-item" href="/magazine">Magazines</a></li>
-                  <li><a class="dropdown-item" href="/magazine/a-z">Magazines {{$az}}</a></li>
-                  <li><a class="dropdown-item" href="/ftp">FTP sites {{$az}}</a></li>
-                  <li><a class="dropdown-item" href="/bbs">BBS sites</a></li>
-                  <li><a class="dropdown-item" href="/bbs/a-z">BBS sites {{$az}}</a></li>
-                </ul>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  People
-                </a>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="/scener">Sceners</a></li>
-                  <li><a class="dropdown-item" href="/interview">Interviews</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><h6 class="dropdown-header">Roles</h6></li>
-                  <li><a class="dropdown-item" href="/artist">Artists</a></li>
-                  <li><a class="dropdown-item" href="/coder">Coders</a></li>
-                  <li><a class="dropdown-item" href="/musician">Musicians</a></li>
-                  <li><a class="dropdown-item" href="/writer">Writers</a></li>
-                </ul>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Websites
-                </a>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="/website">List the sites</a></li>
-                  <li><a class="dropdown-item" href="/website/hide">Categories</a></li>
-                  {{/*    not yet implemented
-                  <li><hr class="dropdown-divider"></li>
-                  <li><h6 class="dropdown-header">Mirrored</h6></li>
-                  <li><a class="dropdown-item" href="#">Historic sites</a></li>*/}}
-                </ul>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Search
-                </a>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="/search/releaser">Releasers</a></li>
-                  <li><a class="dropdown-item" href="/search/file">Files</a></li>
-                  <li><a class="dropdown-item" href="/search/desc">Descriptions</a></li>
-                </ul>
-              </li>
-            </ul>
-            <ul class="navbar-nav">
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Contacts
-                </a>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#emailModal"><i class="fal fa-envelope fa-fw" title="Email"></i> Email</a></li>
-                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#discordModal"><i class="fab fa-discord fa-fw" title="Discord"></i> Discord</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#mastodonModal"><i class="fab fa-mastodon fa-fw" title="Mastodon"></i> Mastodon</a></li>
-                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#twitterModal"><i class="fab fa-twitter fa-fw" title="Twitter"></i> Twitter</a></li>
-                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#facebookModal"><i class="fab fa-facebook fa-fw" title="Facebook"></i> Facebook</a></li>
-                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#youtubeModal"><i class="fab fa-youtube fa-fw" title="YouTube"></i> YouTube</a></li>
-                </ul>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  About
-                </a>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#aboutModal">Defacto2</a></li>
-                  <li><a class="dropdown-item" href="/thescene">The Scene</a></li>
-                  <li><a class="dropdown-item" href="/history">Brand history</a></li>
-                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#creditsModal">Credits</a></li>
-                  <li class="d-none d-lg-block d-xl-none"><a class="dropdown-item" href="/thanks">Thanks</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#copyrightModal">Copyright</a></li>
-                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><h6 class="dropdown-header">Source code</h6></li>
-                  <li>{{ linkRemote "https://github.com/Defacto2" "GitHub" }}</li>
-                  <li>{{ linkRemote "https://github.com/sceners" "Sceners" }}</li>
-                </ul>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Help
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Glossary of terms</a></li>
-                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#tavModal">Trojans and viruses</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><h6 class="dropdown-header">Using the downloads</h6></li>
-                  <li>{{ linkWiki "Can-I-batch-download-the-files" "Batch downloads" }}</li>
-                  <li>{{ linkWiki "What-are-DOS-Programs" "DOS programs" }}</li>
-                  <li>{{ linkWiki "What-are-RAR-7z-ZIP-ACE-files" "Compressed files" }}</li>
-                  <li>{{ linkWiki "What-are-the-best-tools-for-viewing-and-editing-NFO-DIZ-files" "NFO and DIZ files" }}</li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><h6 class="dropdown-header">Known errors</h6></li>
-                  <li>{{ linkWiki "Troubleshoot-d3drm.dll" "D3DRM.DLL" }}</li>
-                  <li>{{ linkWiki "Troubleshoot-npmod32.dll" "NPMOD32.DLL" }}</li>
-                  <li>{{ linkWiki "Troubleshoot-runtime-error-200" "Runtime 200" }}</li>
-                  <li>{{ linkWiki "Troubleshoot-shrinker.err" "Shrinker.err" }}</li>
-                </ul>
-              </li>
-              <li class="nav-item d-lg-none d-xl-block">
-                <a class="nav-link" href="/thanks">Thanks</a>
-              </li>
-            </ul>
-          </div>
-          <div class="btn-group d-flex d-none d-lg-block">
-            <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-              Uploader
-            </button>              
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li><h6 class="dropdown-header">Submit a production</h6></li>
-              <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploaderDZ">Demozoo</a></li>
-              <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploaderDZArt"> &nbsp; &#x2937; Graphics</a></li>
-              <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploaderPouet">Pouët</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><h6 class="dropdown-header">Upload files</h6></li>
-              <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploaderIntro">Intro, cracktro, bbstro</a></li>
-              <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploaderText">Text, ANSI or NFO</a></li>
-              <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploaderImg">Image or photo</a></li>
-              <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploaderMag">Magazine</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploaderAdv">Advanced Uploader</a></li>
-              <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploaderAbout">About</a></li>
-            </ul>
-          </div>
+    <div class="container-xxl m-0 p-0">
+    <nav class="navbar bg-dark sticky-top navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+      <div class="container-fluid">
+        <img class="me-3" src="/image/layout/under-construction.gif" alt="Under construction animated GIF" width="30" height="30">
+        <span class="navbar-brand mb-0 h1"><a class="nav-link active" aria-current="page" href="/">Defacto2</a></span>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/">Home</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Files
+              </a>
+              <ul class="dropdown-menu">
+                <li><h6 class="dropdown-header">Browse</h6></li>
+                <li><a class="dropdown-item" href="/file">Categories</a></li>    
+                <li><a class="dropdown-item" href="/file/stats">Statistics</a></li>  
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Browse productions</h6></li>
+                <li><a class="dropdown-item" href="/files/new-uploads">New uploads</a></li>
+                <li><a class="dropdown-item" href="/files/new-updates">New changes</a></li>
+                <li><a class="dropdown-item" href="/files/oldest">Oldest</a></li>
+                <li><a class="dropdown-item" href="/files/newest">Newest</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="/html3">Use <em>retro</em> tables</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Groups
+              </a>
+              <ul class="dropdown-menu">
+                <li><h6 class="dropdown-header">Scene</h6></li>
+                <li><a class="dropdown-item" href="/releaser">Releasers</a></li>
+                <li><a class="dropdown-item" href="/releaser/a-z">Releasers {{$az}}</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Products</h6></li>
+                <li><a class="dropdown-item" href="/magazine">Magazines</a></li>
+                <li><a class="dropdown-item" href="/magazine/a-z">Magazines {{$az}}</a></li>
+                <li><a class="dropdown-item" href="/ftp">FTP sites {{$az}}</a></li>
+                <li><a class="dropdown-item" href="/bbs">BBS sites</a></li>
+                <li><a class="dropdown-item" href="/bbs/a-z">BBS sites {{$az}}</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                People
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/scener">Sceners</a></li>
+                <li><a class="dropdown-item" href="/interview">Interviews</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Roles</h6></li>
+                <li><a class="dropdown-item" href="/artist">Artists</a></li>
+                <li><a class="dropdown-item" href="/coder">Coders</a></li>
+                <li><a class="dropdown-item" href="/musician">Musicians</a></li>
+                <li><a class="dropdown-item" href="/writer">Writers</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Websites
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/website">List the sites</a></li>
+                <li><a class="dropdown-item" href="/website/hide">Categories</a></li>
+                {{/*    not yet implemented
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Mirrored</h6></li>
+                <li><a class="dropdown-item" href="#">Historic sites</a></li>*/}}
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Search
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/search/releaser">Releasers</a></li>
+                <li><a class="dropdown-item" href="/search/file">Files</a></li>
+                <li><a class="dropdown-item" href="/search/desc">Descriptions</a></li>
+              </ul>
+            </li>
+          </ul>
+          <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Contacts
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#emailModal"><i class="fal fa-envelope fa-fw" title="Email"></i> Email</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#discordModal"><i class="fab fa-discord fa-fw" title="Discord"></i> Discord</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#mastodonModal"><i class="fab fa-mastodon fa-fw" title="Mastodon"></i> Mastodon</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#twitterModal"><i class="fab fa-twitter fa-fw" title="Twitter"></i> Twitter</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#facebookModal"><i class="fab fa-facebook fa-fw" title="Facebook"></i> Facebook</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#youtubeModal"><i class="fab fa-youtube fa-fw" title="YouTube"></i> YouTube</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                About
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#aboutModal">Defacto2</a></li>
+                <li><a class="dropdown-item" href="/thescene">The Scene</a></li>
+                <li><a class="dropdown-item" href="/history">Brand history</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#creditsModal">Credits</a></li>
+                <li class="d-none d-lg-block d-xl-none"><a class="dropdown-item" href="/thanks">Thanks</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#copyrightModal">Copyright</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Source code</h6></li>
+                <li>{{ linkRemote "https://github.com/Defacto2" "GitHub" }}</li>
+                <li>{{ linkRemote "https://github.com/sceners" "Sceners" }}</li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Help
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Glossary of terms</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#tavModal">Trojans and viruses</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Using the downloads</h6></li>
+                <li>{{ linkWiki "Can-I-batch-download-the-files" "Batch downloads" }}</li>
+                <li>{{ linkWiki "What-are-DOS-Programs" "DOS programs" }}</li>
+                <li>{{ linkWiki "What-are-RAR-7z-ZIP-ACE-files" "Compressed files" }}</li>
+                <li>{{ linkWiki "What-are-the-best-tools-for-viewing-and-editing-NFO-DIZ-files" "NFO and DIZ files" }}</li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Known errors</h6></li>
+                <li>{{ linkWiki "Troubleshoot-d3drm.dll" "D3DRM.DLL" }}</li>
+                <li>{{ linkWiki "Troubleshoot-npmod32.dll" "NPMOD32.DLL" }}</li>
+                <li>{{ linkWiki "Troubleshoot-runtime-error-200" "Runtime 200" }}</li>
+                <li>{{ linkWiki "Troubleshoot-shrinker.err" "Shrinker.err" }}</li>
+              </ul>
+            </li>
+            <li class="nav-item d-lg-none d-xl-block">
+              <a class="nav-link" href="/thanks">Thanks</a>
+            </li>
+          </ul>
         </div>
-      </nav>
+        <div class="btn-group d-flex d-none d-lg-block">
+          <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            Uploader
+          </button>              
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><h6 class="dropdown-header">Submit a production</h6></li>
+            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploaderDZ">Demozoo</a></li>
+            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploaderDZArt"> &nbsp; &#x2937; Graphics</a></li>
+            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploaderPouet">Pouët</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><h6 class="dropdown-header">Upload files</h6></li>
+            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploaderIntro">Intro, cracktro, bbstro</a></li>
+            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploaderText">Text, ANSI or NFO</a></li>
+            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploaderImg">Image or photo</a></li>
+            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploaderMag">Magazine</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploaderAdv">Advanced Uploader</a></li>
+            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploaderAbout">About</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    </div>
+    <div class="container-xxl">
 {{- block "modal" . -}}{{ "<!-- Modal popup content here -->" | safeHTML -}}{{end}}
 {{- block "uploader" . -}}{{ "<!-- Uploader content here -->" | safeHTML -}}{{end}}
   <hr>

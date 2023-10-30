@@ -78,7 +78,7 @@ The following options can be added to [Override].
 
 	- Finish this doc.go file.
 	- (long) group/releaser pages should have a link to the end of the document.
-	- database on start fixes, replace empty cells with NULL.
+
 
 # Mobile fixes
 
