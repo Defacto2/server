@@ -546,7 +546,7 @@ func LinkRemote(href, name string) template.HTML {
 	if name == "" {
 		return "error: name is empty"
 	}
-	a := fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover" href="%s">%s %s</a>`,
+	a := fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover link-light" href="%s">%s %s</a>`,
 		href, name, link)
 	return template.HTML(a)
 }
@@ -563,7 +563,7 @@ func LinkWiki(uri, name string) template.HTML {
 	if err != nil {
 		return template.HTML(err.Error())
 	}
-	a := fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover" href="%s">%s %s</a>`,
+	a := fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover link-light" href="%s">%s %s</a>`,
 		href, name, wiki)
 	return template.HTML(a)
 }

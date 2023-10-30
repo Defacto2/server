@@ -91,7 +91,7 @@
     <link href="{{ cssLayout }}?{{ sriLayout }}" rel="stylesheet" integrity="{{ sriLayout }}" crossorigin="anonymous">
   </head>
   <body>
-    <div class="container-xxl m-0 p-0">
+    <div class="container-xxl p-0">
     <nav class="navbar bg-dark sticky-top navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
       <div class="container-fluid">
         <img class="me-3" src="/image/layout/under-construction.gif" alt="Under construction animated GIF" width="30" height="30">
@@ -260,7 +260,7 @@
         </div>
       </div>
     </nav>
-    </div>
+  </div>
     <div class="container-xxl">
 {{- block "modal" . -}}{{ "<!-- Modal popup content here -->" | safeHTML -}}{{end}}
 {{- block "uploader" . -}}{{ "<!-- Uploader content here -->" | safeHTML -}}{{end}}
