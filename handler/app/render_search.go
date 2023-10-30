@@ -11,7 +11,6 @@ import (
 	namer "github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
-	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -27,12 +26,12 @@ const (
 
 // SearchDesc is the handler for the Search for file descriptions page.
 func SearchDesc(z *zap.SugaredLogger, c echo.Context) error {
-	const title, name = "Search for files", "searchPost"
+	const title, name = "Search titles and descriptions", "searchPost"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
 	data := empty()
-	data["description"] = "Search form to discover file descriptions."
+	data["description"] = "Search form to scan through file descriptions."
 	data["logo"] = title
 	data["title"] = title
 	data["info"] = "A search for file descriptions"
@@ -45,12 +44,48 @@ func SearchDesc(z *zap.SugaredLogger, c echo.Context) error {
 
 // PostDescriptions is the handler for the Search for file descriptions form post page.
 func PostDescriptions(z *zap.SugaredLogger, c echo.Context) error {
-	return Post(z, c, Descriptions)
+	return PostDesc(z, c, Descriptions)
+}
+
+// PostDesc is the handler for the Search for filenames form post page.
+func PostDesc(z *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
+	const name = "files"
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return DatabaseErr(z, c, name, err)
+	}
+	defer db.Close()
+
+	input := c.FormValue("search-term-query")
+	terms := helper.SearchTerm(input)
+	rel := model.Files{}
+
+	fs, _ := rel.SearchDescription(ctx, db, terms)
+	if err != nil {
+		return DatabaseErr(z, c, name, err)
+	}
+	d := mode.postStats(ctx, db, terms)
+	s := strings.Join(terms, ", ")
+	data := emptyFiles()
+	data["title"] = "Title and description results"
+	data["h1"] = "Title and description search"
+	data["lead"] = fmt.Sprintf("Results for %q", s)
+	data["logo"] = s + " results"
+	data["description"] = "Title and description search results for " + s + "."
+	data["unknownYears"] = false
+	data[records] = fs
+	data["stats"] = d
+	err = c.Render(http.StatusOK, "files", data)
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	return nil
 }
 
 // SearchFile is the handler for the Search for files page.
 func SearchFile(z *zap.SugaredLogger, c echo.Context) error {
-	const title, name = "Search for files", "searchPost"
+	const title, name = "Search for filenames", "searchPost"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
@@ -68,11 +103,11 @@ func SearchFile(z *zap.SugaredLogger, c echo.Context) error {
 
 // PostFilename is the handler for the Search for filenames form post page.
 func PostFilename(z *zap.SugaredLogger, c echo.Context) error {
-	return Post(z, c, Filenames)
+	return PostName(z, c, Filenames)
 }
 
-// PostFilename is the handler for the Search for filenames form post page.
-func Post(z *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
+// PostName is the handler for the Search for filenames form post page.
+func PostName(z *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
 	const name = "files"
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
@@ -85,20 +120,11 @@ func Post(z *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
 	terms := helper.SearchTerm(input)
 	rel := model.Files{}
 
-	fs := models.FileSlice{}
-	switch mode {
-	case Filenames:
-		fs, _ = rel.SearchFilename(ctx, db, terms)
-		if err != nil {
-			return DatabaseErr(z, c, name, err)
-		}
-	case Descriptions:
-		fs, _ = rel.SearchDescription(ctx, db, terms)
-		if err != nil {
-			return DatabaseErr(z, c, name, err)
-		}
+	fs, _ := rel.SearchFilename(ctx, db, terms)
+	if err != nil {
+		return DatabaseErr(z, c, name, err)
 	}
-	d := mode.postFileStats(ctx, db, terms)
+	d := mode.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
 	data := emptyFiles()
 	data["title"] = "Filename results"
@@ -116,7 +142,7 @@ func Post(z *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
 	return nil
 }
 
-func (mode FileSearch) postFileStats(ctx context.Context, db *sql.DB, terms []string) map[string]string {
+func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string) map[string]string {
 	if db == nil {
 		return nil
 	}

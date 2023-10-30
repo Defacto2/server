@@ -5,6 +5,7 @@ package model
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -74,6 +75,7 @@ func (f *Files) SearchDescription(ctx context.Context, db *sql.DB, terms []strin
 	const clauseT = "to_tsvector(record_title) @@ to_tsquery(?)"
 	const clauseC = "to_tsvector(comment) @@ to_tsquery(?)"
 	for i, term := range terms {
+		term = fmt.Sprintf("'%s'", term) // the single quotes are required for terms containing spaces
 		if i == 0 {
 			mods = append(mods, qm.Where(clauseT, term))
 			mods = append(mods, qm.Or(clauseC, term))

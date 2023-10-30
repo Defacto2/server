@@ -46,7 +46,7 @@ func (r *Summary) SearchDesc(ctx context.Context, db *sql.DB, terms []string) er
 		s = fmt.Sprintf("%sOR %s($%d) ", s, clauseT, i+1)
 	}
 	s = strings.TrimSpace(s)
-	if err := queries.Raw(s, strings.Join(terms, ",")).Bind(ctx, db, r); err != nil {
+	if err := queries.Raw(s, "'"+strings.Join(terms, "','")+"'").Bind(ctx, db, r); err != nil {
 		return err
 	}
 	return nil
