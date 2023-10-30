@@ -91,7 +91,6 @@ The following options can be added to [Override].
 # Bugs
 
 	- `public/text/osd.xml` needs updating to use current search links.
-	- /f/{{bad id}} currently returns a 500 error, should return a 404.
 	- also check groups for the same problem.
 	- ren x_pression to x_pression-design
 

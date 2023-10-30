@@ -23,13 +23,38 @@ import (
 	"go.uber.org/zap"
 )
 
+// AboutErr renders the about file error page for the the About files links.
+func AboutErr(z *zap.SugaredLogger, c echo.Context, id string) error {
+	const name = "status"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	if c == nil {
+		return InternalErr(z, c, name, ErrCxt)
+	}
+	data := empty()
+	data["title"] = fmt.Sprintf("%d error, file about page not found", http.StatusNotFound)
+	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
+	data["code"] = http.StatusNotFound
+	data["logo"] = "About file not found"
+	data["alert"] = fmt.Sprintf("About file %q cannot be found", strings.ToLower(id))
+	data["probl"] = "The about file page does not exist, there is probably a typo with the URL."
+	data["uriOkay"] = "f/"
+	data["uriErr"] = id
+	err := c.Render(http.StatusNotFound, name, data)
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	return nil
+}
+
 // DatabaseErr is the handler for handling database connection errors.
 func DatabaseErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) error {
 	const code = http.StatusInternalServerError
 	if z == nil {
 		zapNil(err)
 	} else if err != nil {
-		z.Warnf("%d error for %q: %s", code, uri, err)
+		z.Errorf("%d error for %q: %s", code, uri, err)
 	}
 	// render the fallback, text only error page
 	if c == nil {

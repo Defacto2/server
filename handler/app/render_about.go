@@ -39,7 +39,10 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	}
 	res, err := model.OneRecord(z, c, a.URI)
 	if err != nil {
-		return DatabaseErr(z, c, "f/"+a.URI, ErrZap)
+		if errors.Is(err, model.ErrID) {
+			return AboutErr(z, c, a.URI)
+		}
+		return DatabaseErr(z, c, "f/"+a.URI, err)
 	}
 	fname := res.Filename.String
 	uuid := res.UUID.String
