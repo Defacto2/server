@@ -77,11 +77,7 @@ The following options can be added to [Override].
 # Tasks
 
 	- Finish this doc.go file.
-	- JS-DOS 6.22 	https://js-dos.com/6.22/examples/?arkanoid
-	-				https://js-dos.com/index_6.22.html
-	- Make JS-DOS only work with MS-DOS platforms.
 	- (long) group/releaser pages should have a link to the end of the document.
-	- history on the domain, Registered: 9th April 1998  [25 years, 6 months, 19 days back] previously used .com and .org.
 	- database on start fixes, replace empty cells with NULL.
 
 # Mobile fixes
@@ -90,7 +86,7 @@ The following options can be added to [Override].
 
 # Bugs
 
-	- `public/text/osd.xml` needs updating to use current search links.
+	-
 
 # New features to deliver
 

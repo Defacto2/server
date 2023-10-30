@@ -42,13 +42,8 @@ func SearchDesc(z *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
-// PostDescriptions is the handler for the Search for file descriptions form post page.
-func PostDescriptions(z *zap.SugaredLogger, c echo.Context) error {
-	return PostDesc(z, c, Descriptions)
-}
-
-// PostDesc is the handler for the Search for filenames form post page.
-func PostDesc(z *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
+// PostDesc is the handler for the Search for file descriptions form post page.
+func PostDesc(z *zap.SugaredLogger, c echo.Context, input string) error {
 	const name = "files"
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
@@ -57,7 +52,7 @@ func PostDesc(z *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
 	}
 	defer db.Close()
 
-	input := c.FormValue("search-term-query")
+	//input := c.FormValue("search-term-query")
 	terms := helper.SearchTerm(input)
 	rel := model.Files{}
 
@@ -65,7 +60,7 @@ func PostDesc(z *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
 	if err != nil {
 		return DatabaseErr(z, c, name, err)
 	}
-	d := mode.postStats(ctx, db, terms)
+	d := Descriptions.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
 	data := emptyFiles()
 	data["title"] = "Title and description results"

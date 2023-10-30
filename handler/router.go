@@ -6,6 +6,7 @@ import (
 	"embed"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app"
@@ -151,7 +152,7 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 		return app.SearchDesc(z, c)
 	})
 	e.POST("/search/desc", func(c echo.Context) error {
-		return app.PostDescriptions(z, c)
+		return app.PostDesc(z, c, c.FormValue("search-term-query"))
 	})
 	e.GET("/search/releaser", func(c echo.Context) error {
 		return app.SearchReleaser(z, c)
@@ -159,8 +160,15 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.POST("/search/releaser", func(c echo.Context) error {
 		return app.PostReleaser(z, c)
 	})
+	e.GET("/search/result", func(c echo.Context) error {
+		// this legacy get result should be kept for (osx.xml) opensearch compatibility
+		// and to keep possible backwards compatibility with third party site links.
+		terms := strings.ReplaceAll(c.QueryParam("query"), "+", " ") // AND replacement
+		terms = strings.ReplaceAll(terms, "|", ",")                  // OR replacement
+		return app.PostDesc(z, c, terms)
+	})
 	e.GET("/sum/:id", func(c echo.Context) error {
-		return app.Checksum(z, c, c.Param("id"))
+		return app.Checksum(z, c, c.Param("query"))
 	})
 	e.GET("/thanks", func(c echo.Context) error {
 		return app.Thanks(z, c)
@@ -325,9 +333,6 @@ func (c Configuration) Moved(z *zap.SugaredLogger, e *echo.Echo) (*echo.Echo, er
 	})
 	e.GET("/person/list/writers", func(c echo.Context) error {
 		return c.Redirect(code, "/writer")
-	})
-	e.GET("/search/result", func(c echo.Context) error {
-		return c.Redirect(code, "/search/")
 	})
 	e.GET("/upload", func(c echo.Context) error {
 		return c.Redirect(code, "/")
