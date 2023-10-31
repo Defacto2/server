@@ -53,6 +53,8 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.FileFS(app.JSWDos, app.JSWDosPub, public)
 	e.FileFS("/js/wdosbox.wasm", "public/js/wdosbox.wasm", public)
 
+	e.FileFS("/js/rest-pouet.js", "public/js/rest-pouet.js", public)
+
 	// Serve embedded image files
 	e.FileFS("/favicon.ico", "public/image/favicon.ico", public)
 
@@ -128,7 +130,10 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 		return app.Sceners(z, c, c.Param("id"))
 	})
 	e.GET("/pouet/vote/:id", func(c echo.Context) error {
-		return app.Pouet(z, c, c.Param("id"))
+		return app.VotePouet(z, c, c.Param("id"))
+	})
+	e.GET("/zoo/prod/:id", func(c echo.Context) error {
+		return app.ProdZoo(z, c, c.Param("id"))
 	})
 	e.GET("/r/:id", func(c echo.Context) error {
 		return app.Reader(z, c, c.Param("id"))

@@ -12,6 +12,7 @@ import (
 	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/internal/cache"
 	"github.com/Defacto2/server/internal/pouet"
+	"github.com/Defacto2/server/internal/zoo"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -59,8 +60,28 @@ func emptyFiles() map[string]interface{} {
 	return data
 }
 
-// Pouet is the handler for the Pouet production votes JSON page.
-func Pouet(z *zap.SugaredLogger, c echo.Context, id string) error {
+// ProdZoo is the handler for the Demozoo production JSON page.
+func ProdZoo(z *zap.SugaredLogger, c echo.Context, id string) error {
+	const name = "demozoo"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	data := zoo.Demozoo{}
+	i, err := strconv.Atoi(id)
+	if err != nil {
+		return c.String(http.StatusNotFound, err.Error())
+	}
+	if err = data.Get(i); err != nil {
+		return c.String(http.StatusNotFound, err.Error())
+	}
+	if err = c.JSON(http.StatusOK, data); err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return nil
+}
+
+// VotePouet is the handler for the Pouet production votes JSON page.
+func VotePouet(z *zap.SugaredLogger, c echo.Context, id string) error {
 	const title, name, sep = "Pouet", "pouet", ";"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
