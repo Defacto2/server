@@ -190,6 +190,9 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.GET("/writer", func(c echo.Context) error {
 		return app.Writer(z, c)
 	})
+	e.POST("/uploader", func(c echo.Context) error {
+		return app.PostIntro(z, c)
+	})
 	e.GET("/v/:id", func(c echo.Context) error {
 		return app.Inline(z, c, conf.Import.DownloadDir)
 	})

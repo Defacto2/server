@@ -24,7 +24,7 @@
       </div>
     </div>
   </div>
-  {{/*  Uploader ~ Demozoo production */}}
+  {{- /*  Uploader ~ Demozoo production */}}
   <div class="modal fade" id="uploaderDZ" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploaderDZLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -33,6 +33,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
+          {{- /*  move this JS  */}}
           <script src="/js/rest-pouet.js" defer></script>
           <form id="demozooProdUploader">
             <p>
@@ -101,28 +102,28 @@
           <h1 class="modal-title fs-5" id="uploaderIntroLabel">Intro, Cracktro, BBS/FTPtro</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <form id="introUploader">
+        <form id="introUploader" action="/uploader" method="post">
         <div class="modal-body">
             <div class="input-group mb-3">
-              <input type="file" class="form-control" id="inputGroupFile02">
-              <label class="input-group-text" for="inputGroupFile02">Upload</label>
+              <input type="file" name="file-selection" class="form-control" id="introFile">
+              <label class="input-group-text" for="introFile">Upload</label>
             </div>
-            <div class="btn-group mb-3" role="group" aria-label="Basic radio toggle button group">
-              <span class="input-group-text" id="basic-addon4">Operating system &nbsp; </span>
-              <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
-              <label class="btn btn-outline-primary" for="btnradio1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Microsoft Windows">Windows PC</label>
-              <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
-              <label class="btn btn-outline-primary" for="btnradio2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="IBM PC or MS-DOS compatible">Dos PC</label>
+            <div class="btn-group mb-3 w-100" role="group" aria-label="Basic radio toggle button group">
+              <span class="input-group-text">Operating system &nbsp; </span>
+              <input type="radio" value="windows" class="btn-check" name="operating-system" id="windowsOS" autocomplete="off" checked>
+              <label class="btn btn-outline-primary" for="windowsOS" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Microsoft Windows">Windows PC</label>
+              <input type="radio" value="msdos" class="btn-check" name="operating-system" id="msdosOS" autocomplete="off">
+              <label class="btn btn-outline-primary" for="msdosOS" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="IBM PC or MS-DOS compatible">Dos PC</label>
             </div>
             <div class="form-floating mb-3">
-              <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="example: 500000th release!">
-              <label for="exampleInputEmail1">Title</label>
-              <div id="emailHelp" class="form-text">A brief description or name of the release</div>
+              <input type="text" name="title" class="form-control" id="releaseTitle" aria-describedby="releaseTitleHelp" placeholder="example: 500000th release!">
+              <label for="releaseTitle">Title</label>
+              <div id="releaseTitleHelp" class="form-text">A brief description or name of the release</div>
             </div>      
             <div class="mb-4">
-              <label for="exampleInputEmail1" class="form-label">Releasers <small>maximum of 2</small></label>
-              <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="example: Razor 1911 + Titan">
-              <div id="emailHelp" class="form-text">
+              <label for="releasers" class="form-label">Releasers <small>maximum of 2</small></label>
+              <input type="text" name="releasers" class="form-control" id="releasers" aria-describedby="releasersHelp" placeholder="example: Razor 1911 + Titan">
+              <div id="releasersHelp" class="form-text">
                 A releaser can be a group name, bbs name or ftp site<br>
                 A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q><br>
                 example: <q>Dark Domain BBS</q> or <q>Dark Domain FTP</q>
@@ -130,28 +131,32 @@
             </div>
             <div class="input-group mb-3">
               <span class="input-group-text">Year and month of release</span>
-              <input type="number" min="1980" max="2023" aria-label="First name" name="yearRel" class="form-control input-date" placeholder="{{exampleYear}}">
-              <input type="number" min="1" max="12" name="monthRel" class="form-control input-date" placeholder="{{exampleMonth}}">
+              <input type="number" name="release-year" min="1980" max="2023" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
+              <input type="number" name="release-month" min="1" max="12" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
             </div>
             <div class="input-group input-group-sm mb-3">
-                <span class="input-group-text" id="basic-addon4">YouTube video</span>
-                <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4">
+                <span class="input-group-text" id="youtubeHelp">YouTube video</span>
+                <input type="text" name="youtube" class="form-control" id="youtube" aria-describedby="youtubeHelp">
             </div>
-            <div class="col-sm-6">
-              <button class="btn btn-outline-success" type="submit">Upload and submit</button>
-            </div>      
+            <div class="row g-2">
+              <div class="col text-begin">
+                <button class="btn btn-outline-success" type="submit">Upload and submit</button>
+              </div>
+              <div class="col text-end">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="reset" class="btn btn-outline-danger">Reset</button>
+              </div>
+            </div>
         </div>
+        </form>
         <div class="modal-footer">
           <div class="form-check">
             <label class="form-check-label" for="gridCheck">
               Clear form after submit
             </label>
             <input class="form-check-input" type="checkbox" id="gridCheck">
-          </div>  
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="reset" class="btn btn-outline-danger">Reset</button>
+          </div> 
         </div>
-        </form>
       </div>
     </div>
   </div>
@@ -163,28 +168,28 @@
           <h1 class="modal-title fs-5" id="uploaderTextLabel">Text, ANSI or NFO</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <form id="textNfoUploader">
+        <form id="textNfoUploader" action="/uploader" method="post">
         <div class="modal-body">
             <div class="input-group mb-3">
-              <input type="file" class="form-control" id="inputGroupFile02">
-              <label class="input-group-text" for="inputGroupFile02">Upload</label>
+              <input type="file" name="file-section" class="form-control" id="textFile">
+              <label class="input-group-text" for="textFile">Upload</label>
             </div>
-            <div class="btn-group mb-3" role="group" aria-label="Basic radio toggle button group">
-              <span class="input-group-text" id="basic-addon4">Stylize &nbsp; </span>
-              <input type="radio" class="btn-check" name="btnradioa" id="btnradio1a" autocomplete="off" checked>
-              <label class="btn btn-outline-primary" for="btnradio1a" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Your standard NFO, ANSI or CP437">PC text</label>
-              <input type="radio" class="btn-check" name="btnradioa" id="btnradio2a" autocomplete="off">
-              <label class="btn btn-outline-primary" for="btnradio2a" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Text for Commodore Amiga">Amiga text</label>
+            <div class="btn-group mb-3 w-100" role="group" aria-label="Basic radio toggle button group">
+              <span class="input-group-text">Stylize &nbsp; </span>
+              <input type="radio" value="pc-text" class="btn-check" name="text-style" id="pcText" autocomplete="off" checked>
+              <label class="btn btn-outline-primary" for="pcText" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Your standard NFO, ANSI or CP437">PC text</label>
+              <input type="radio" value="amiga-text" class="btn-check" name="text-style" id="amigaText" autocomplete="off">
+              <label class="btn btn-outline-primary" for="amigaText" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Text for Commodore Amiga">Amiga text</label>
             </div>
             <div class="form-floating mb-3">
-              <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="example: 500000th release!">
-              <label for="exampleInputEmail1">Title</label>
-              <div id="emailHelp" class="form-text">A brief description or name of the release</div>
+              <input type="text" name="title" class="form-control" id="textTitle" aria-describedby="textTitleHelp" placeholder="example: 500000th release!">
+              <label for="textTitle">Title</label>
+              <div id="textTitleHelp" class="form-text">A brief description or name of the release</div>
             </div>      
             <div class="mb-4">
-              <label for="exampleInputEmail1" class="form-label">Releasers <small>maximum of 2</small></label>
-              <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="example: Razor 1911 + Titan">
-              <div id="emailHelp" class="form-text">
+              <label for="textReleasers" class="form-label">Releasers <small>maximum of 2</small></label>
+              <input type="text" name="releasers" class="form-control" id="textReleasers" aria-describedby="textReleaserslHelp" placeholder="example: Razor 1911 + Titan">
+              <div id="textReleaserslHelp" class="form-text">
                 A releaser can be a group name, bbs name or ftp site<br>
                 A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q><br>
                 example: <q>Dark Domain BBS</q> or <q>Dark Domain FTP</q>
@@ -192,30 +197,34 @@
             </div>
             <div class="input-group mb-3">
               <span class="input-group-text">Year and month of release</span>
-              <input type="number" min="1980" max="2023" aria-label="First name" class="form-control input-date" placeholder="{{exampleYear}}">
-              <input type="number" min="1" max="12" class="form-control input-date" placeholder="{{exampleMonth}}">
+              <input type="number" name="release-year" min="1980" max="2023" aria-label="First name" class="form-control input-date" placeholder="{{exampleYear}}">
+              <input type="number" name="release-month" min="1" max="12" class="form-control input-date" placeholder="{{exampleMonth}}">
             </div>
             <div class="input-group input-group-sm mb-3">
-                <span class="input-group-text" id="basic-addon4">Writer</span>
-                <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4" placeholder="example: Alpha + Bravo">
-                <span class="input-group-text" id="basic-addon41">Artist</span>
-                <input type="text" class="form-control" id="basic-url1" aria-describedby="basic-addon3 basic-addon4">
+                <span class="input-group-text" id="textWriter">Writer</span>
+                <input type="text" name="credit-writers" class="form-control" aria-describedby="textWriter" placeholder="example: Alpha + Bravo">
+                <span class="input-group-text" id="textArtist">Artist</span>
+                <input type="text" name="credit-artists" class="form-control" aria-describedby="textArtist">
             </div>
-            <div class="col-sm-6">
-              <button class="btn btn-outline-success" type="submit">Upload and submit</button>
-            </div>      
+            <div class="row g-2">
+              <div class="col text-begin">
+                <button class="btn btn-outline-success" type="submit">Upload and submit</button>
+              </div>
+              <div class="col text-end">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="reset" class="btn btn-outline-danger">Reset</button>
+              </div>
+            </div>
         </div>
+        </form>
         <div class="modal-footer">
           <div class="form-check">
             <label class="form-check-label" for="gridCheck">
               Clear form after submit
             </label>
             <input class="form-check-input" type="checkbox" id="gridCheck">
-          </div>  
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="reset" class="btn btn-outline-danger">Reset</button>
+          </div> 
         </div>
-        </form>
       </div>
     </div>
   </div>
