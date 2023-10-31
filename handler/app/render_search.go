@@ -200,12 +200,12 @@ func SearchReleaser(z *zap.SugaredLogger, c echo.Context) error {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return InternalErr(z, c, name, err)
+		return DatabaseErr(z, c, name, err)
 	}
 	defer db.Close()
 	x := model.ReleaserStr{}
 	if err := x.List(ctx, db); err != nil {
-		return InternalErr(z, c, name, err)
+		return DatabaseErr(z, c, name, err)
 	}
 	s := make([]string, len(x))
 	for i, v := range x {
