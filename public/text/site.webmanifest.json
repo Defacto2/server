@@ -42,6 +42,11 @@
       "type": "image/png"
     },
     {
+      "src": "/image/layout/favicon-720x720.png",
+      "sizes": "720x720",
+      "type": "image/png"
+    },
+    {
       "src": "/image/layout/favicon.svg",
       "sizes": "333x333"
     },
