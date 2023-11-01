@@ -135,5 +135,11 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"exampleDay": func() string {
 			return time.Now().Format("2")
 		},
+		"uploader": func() string {
+			return UploaderJS
+		},
+		"sriUploader": func() string {
+			return web.Subresource.UploaderJS
+		},
 	}
 }

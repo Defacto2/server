@@ -27,17 +27,8 @@ const (
 	BootJS   = "/js/bootstrap.bundle.min.js" // BootJS is the path to the minified Bootstrap 5 JS file.
 	BootJPub = public + BootJS
 
-	LayoutCSS = "/css/layout.min.css" // LayoutCSS is the path to the minified layout CSS file.
-	LayoutPub = public + LayoutCSS
-
 	FAJS  = "/js/fontawesome.min.js" // FAJS is the path to the minified Font Awesome JS file.
 	FAPub = public + FAJS
-
-	PouetJS  = "/js/pouet.min.js" // PouetJS is the path to the minified Pouet JS file.
-	PouetPub = public + PouetJS
-
-	ReadmeJS  = "/js/readme.min.js" // ReadmeJS is the path to the minified Readme JS file.
-	ReadmePub = public + ReadmeJS
 
 	// JS DOS v6 are minified files.
 	// https://js-dos.com/6.22/examples/?arkanoid
@@ -45,6 +36,18 @@ const (
 	JSDosPub  = public + JSDos
 	JSWDos    = "/js/wdosbox.js"
 	JSWDosPub = public + JSWDos
+
+	LayoutCSS = "/css/layout.min.css" // LayoutCSS is the path to the minified layout CSS file.
+	LayoutPub = public + LayoutCSS
+
+	PouetJS  = "/js/pouet.min.js" // PouetJS is the path to the minified Pouet JS file.
+	PouetPub = public + PouetJS
+
+	ReadmeJS  = "/js/readme.min.js" // ReadmeJS is the path to the minified Readme JS file.
+	ReadmePub = public + ReadmeJS
+
+	UploaderJS  = "/js/uploader.min.js" // UploaderJS is the path to the minified Uploader JS file.
+	UploaderPub = public + UploaderJS
 )
 
 // Caching are values that are used throughout the app or layouts.
@@ -148,11 +151,12 @@ type SRI struct {
 	BootstrapCSS string // Bootstrap CSS verification hash.
 	BootstrapJS  string // Bootstrap JS verification hash.
 	FontAwesome  string // Font Awesome verification hash.
+	JSDos        string // JS DOS verification hash.
+	JSWDos       string // JS wasm verification hash.
 	LayoutCSS    string // Layout CSS verification hash.
 	PouetJS      string // Pouet JS verification hash.
 	ReadmeJS     string // Readme JS verification hash.
-	JSDos        string // JS DOS verification hash.
-	JSWDos       string // JS wasm verification hash.
+	UploaderJS   string // Uploader JS verification hash.
 }
 
 // Verify checks the integrity of the embedded CSS and JS files.
@@ -188,6 +192,10 @@ func (s *SRI) Verify(fs embed.FS) error {
 		return err
 	}
 	s.JSWDos, err = helper.Integrity(JSWDosPub, fs)
+	if err != nil {
+		return err
+	}
+	s.UploaderJS, err = helper.Integrity(UploaderPub, fs)
 	if err != nil {
 		return err
 	}

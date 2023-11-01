@@ -52,6 +52,7 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.FileFS(app.JSDos, app.JSDosPub, public)
 	e.FileFS(app.JSWDos, app.JSWDosPub, public)
 	e.FileFS("/js/wdosbox.wasm", "public/js/wdosbox.wasm", public)
+	e.FileFS(app.UploaderJS, app.UploaderPub, public)
 
 	e.FileFS("/js/rest-pouet.js", "public/js/rest-pouet.js", public)
 

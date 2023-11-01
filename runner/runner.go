@@ -57,4 +57,19 @@ func main() {
 	if len(readmeJS.Errors) > 0 {
 		fmt.Fprintf(os.Stderr, "Build failed: %v\n", readmeJS.Errors)
 	}
+	uploaderJS := api.Build(api.BuildOptions{
+		EntryPoints:       []string{"./assets/js/uploader.js"},
+		Outfile:           "./public/js/uploader.min.js",
+		Write:             true,
+		Bundle:            false,
+		MinifyWhitespace:  true,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		Banner: map[string]string{
+			"js": "/* uploader.min.js */",
+		},
+	})
+	if len(uploaderJS.Errors) > 0 {
+		fmt.Fprintf(os.Stderr, "Build failed: %v\n", uploaderJS.Errors)
+	}
 }
