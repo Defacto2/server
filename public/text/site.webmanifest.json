@@ -1,12 +1,14 @@
 {
   "name": "Defacto2",
   "short_name": "Defacto2",
+  "id": "net.defacto2.www",
   "start_url": "/",
   "lang": "en",
+  "display-override": ["minimal-ui", "browser"],
   "display": "standalone",
   "background_color": "rgb(0, 0, 0)",
   "theme_color": "rgb(153, 153, 153)",
-  "description": "Defacto2 preserves the legitimate productions derived from the historic DOS and Windows 9x cracking communities.",
+  "description": "Defacto2 is a website maintaining the historic PC cracking and warez scene subcultures. It covers digital objects including text files, demos, music, art, magazines, and other projects.",
   "orientation": "portrait-primary",
   "icons": [
     {
