@@ -17,6 +17,15 @@
           We will filter through what we can use: cracktros, intros, magazines, reports, text files, documents, articles, art work or Scene related.</p>
           <p><strong>But nothing illegal</strong>.</p>
           <p><a href="https://github.com/Defacto2/defacto2.net/wiki/Wanted-uploads">Wanted uploads</a></p>
+          <hr>
+          <p class="lead">keyboard shortcuts</p>
+          <p>
+            <kbd>ctrl</kbd>/<kbd>alt</kbd>/<kbd>i</kbd> &nbsp; <small>intro, cracktro, bbstros</small><br>
+            <kbd>ctrl</kbd>/<kbd>alt</kbd>/<kbd>n</kbd> &nbsp; <small>nfo, ansi, text</small><br>
+            <kbd>ctrl</kbd>/<kbd>alt</kbd>/<kbd>g</kbd> &nbsp; <small>graphic, photo, artworks</small><br>
+            <kbd>ctrl</kbd>/<kbd>alt</kbd>/<kbd>m</kbd> &nbsp; <small>magazines</small><br>
+            <kbd>ctrl</kbd>/<kbd>alt</kbd>/<kbd>a</kbd> &nbsp; <small>advance uploader</small><br>
+          </p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -82,7 +91,7 @@
             <label for="basic-url" class="form-label">Pouët Prods ID</label>
             <div class="input-group mb-3">
               <span class="input-group-text" id="basic-addon3">https://www.pouet.net/prod.php?which=</span>
-              <input type="number" min="1" max="199999" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4">
+              <input type="number" id="pouetProdID"  min="1" max="199999" class="form-control" aria-describedby="basic-addon3 basic-addon4">
             </div>
             <button type="reset" class="btn btn-sm btn-outline-dark">Reset</button>
           </form>
@@ -150,7 +159,7 @@
         </div>
         </form>
         <div class="modal-footer">
-          <div class="form-check">
+          <div class="form-check ">
             <label class="form-check-label" for="introCF">
               Clear form after submit
             </label>
@@ -401,8 +410,8 @@
               <label class="input-group-text" for="advSelOS">Operating system</label>
             </div>
             <div class="input-group mb-3">
-              <label class="input-group-text" for="AdvCategory">Tag as category</label>
-              <select name="category" id="AdvCategory" class="form-select">
+              <label class="input-group-text" for="advSelCat">Tag as category</label>
+              <select name="category" id="advSelCat" class="form-select">
                 <option selected>Choose...</option>
                 <option value="proof">Proof of release</option>
                 <option value="ad">Releaser ad or logo</option>
@@ -451,9 +460,9 @@
             </div>
             <div class="input-group mb-3">
               <span class="input-group-text">Year, month, day of release</span>
-              <input type="number" name="release-year" min="1980" max="2023" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
-              <input type="number" name="release-month" min="1" max="12" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
-              <input type="number" name="release-day" min="1" max="31" aria-label="Day of release" class="form-control input-date" placeholder="{{exampleDay}}">
+              <input type="number" name="release-year" id="advYear" min="1980" max="2023" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
+              <input type="number" name="release-month" id="advMonth" min="1" max="12" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
+              <input type="number" name="release-day" id="advDay" min="1" max="31" aria-label="Day of release" class="form-control input-date" placeholder="{{exampleDay}}">
             </div>
             <div class="input-group input-group-sm mb-1">
                 <span class="input-group-text w-25" id="advWriter">Writer</span>
@@ -486,7 +495,7 @@
             </div>
             <div class="row g-2">
               <div class="col text-begin">
-                <button class="btn btn-outline-success" type="submit">Upload and submit</button>
+                <button id="advSubmit" class="btn btn-outline-success" type="button">Upload and submit</button>
               </div>
               <div class="col text-end">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
@@ -500,7 +509,7 @@
             <label class="form-check-label" for="advCF">
               Clear form after submit
             </label>
-            <input class="form-check-input" type="checkbox" id="advCF">
+            <input class="form-check-input" type="checkbox" id="advCF" disabled>
           </div> 
         </div>
       </div>

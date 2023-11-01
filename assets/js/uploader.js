@@ -3,6 +3,50 @@
 
   const invalid = "is-invalid";
 
+  const zooM = document.getElementById("uploaderDZ");
+  const pouetM = document.getElementById("uploaderPouet");
+  const introM = document.getElementById("uploaderIntro");
+  const txtM = document.getElementById("uploaderText");
+  const imgM = document.getElementById("uploaderImg");
+  const magM = document.getElementById("uploaderMag");
+  const advM = document.getElementById("uploaderAdv");
+
+  const zooModal = new bootstrap.Modal(zooM);
+  const pouetModal = new bootstrap.Modal(pouetM);
+  const introModal = new bootstrap.Modal(introM);
+  const txtModal = new bootstrap.Modal(txtM);
+  const imgModal = new bootstrap.Modal(imgM);
+  const magModal = new bootstrap.Modal(magM);
+  const advModal = new bootstrap.Modal(advM);
+
+  document.addEventListener("keydown", function (event) {
+    if (event.ctrlKey && event.altKey) {
+      switch (event.key) {
+        case "d":
+          zooModal.show();
+          break;
+        case "p":
+          pouetModal.show();
+          break;
+        case "i":
+          introModal.show();
+          break;
+        case "n": // n for nfo
+          txtModal.show();
+          break;
+        case "g": // g for gfx
+          imgModal.show();
+          break;
+        case "m":
+          magModal.show();
+          break;
+        case "a":
+          advModal.show();
+          break;
+      }
+    }
+  });
+
   /**
    * Checks if a given year is valid, i.e. between 1980 and the current year.
    * @param {number} year - The year to be validated.
@@ -50,6 +94,24 @@
   }
 
   const introFrm = document.getElementById("introUploader");
+  const txtFrm = document.getElementById("textUploader");
+  const imgFrm = document.getElementById("imageUploader");
+  const magFrm = document.getElementById("magUploader");
+  const advFrm = document.getElementById("advancedUploader");
+
+  const dzId = document.getElementById("demozooProdID");
+  document
+    .getElementById("uploaderDZ")
+    .addEventListener("shown.bs.modal", function () {
+      dzId.focus();
+    });
+  const pouetId = document.getElementById("pouetProdID");
+  document
+    .getElementById("uploaderPouet")
+    .addEventListener("shown.bs.modal", function () {
+      pouetId.focus();
+    });
+
   const introFile = document.getElementById("introFile");
   const introTitl = document.getElementById("releaseTitle");
   const introRels = document.getElementById("introReleasers");
@@ -93,7 +155,6 @@
   });
   introFrm.addEventListener("reset", introReset);
 
-  const txtFrm = document.getElementById("textUploader");
   const txtFile = document.getElementById("textFile");
   const txtTitl = document.getElementById("textTitle");
   const txtRels = document.getElementById("textReleasers");
@@ -137,7 +198,6 @@
   });
   txtFrm.addEventListener("reset", txtReset);
 
-  const imgFrm = document.getElementById("imageUploader");
   const imgFile = document.getElementById("imageFile");
   const imgTitl = document.getElementById("imageTitle");
   const imgRels = document.getElementById("imageReleasers");
@@ -181,7 +241,6 @@
   });
   imgFrm.addEventListener("reset", imgReset);
 
-  const magFrm = document.getElementById("magUploader");
   const magFile = document.getElementById("magFile");
   const magTitl = document.getElementById("magTitle");
   const magIssu = document.getElementById("magIssue");
@@ -230,4 +289,66 @@
     }
     magFrm.addEventListener("reset", magReset);
   });
+
+  const advFile = document.getElementById("advFile");
+  const advOS = document.getElementById("advSelOS");
+  const advCat = document.getElementById("advSelCat");
+  const advTitl = document.getElementById("advTitle");
+  const advRels = document.getElementById("releasersAdv");
+  const advYear = document.getElementById("advYear");
+  const advMonth = document.getElementById("advMonth");
+  const advDay = document.getElementById("advDay");
+
+  function advReset() {
+    advFile.classList.remove(invalid);
+    advOS.classList.remove(invalid);
+    advCat.classList.remove(invalid);
+    advTitl.classList.remove(invalid);
+    advRels.classList.remove(invalid);
+    advYear.classList.remove(invalid);
+    advMonth.classList.remove(invalid);
+    advDay.classList.remove(invalid);
+  }
+
+  document.getElementById("advSubmit").addEventListener("click", function () {
+    const choose = "Choose...";
+    let pass = true;
+    advReset();
+    if (advFile.value == "") {
+      advFile.classList.add(invalid);
+      pass = false;
+    }
+    if (advOS.value == "" || advOS.value == choose) {
+      advOS.classList.add(invalid);
+      pass = false;
+    }
+    if (advCat.value == "" || advCat.value == choose) {
+      advCat.classList.add(invalid);
+      pass = false;
+    }
+    if (advTitl.value == "") {
+      advTitl.classList.add(invalid);
+      pass = false;
+    }
+    if (advRels.value == "") {
+      advRels.classList.add(invalid);
+      pass = false;
+    }
+    if (validYear(advYear.value) == false) {
+      advYear.classList.add(invalid);
+      pass = false;
+    }
+    if (validMonth(advMonth.value) == false) {
+      advMonth.classList.add(invalid);
+      pass = false;
+    }
+    if (validDay(advDay.value) == false) {
+      advDay.classList.add(invalid);
+      pass = false;
+    }
+    if (pass == true) {
+      advFrm.submit();
+    }
+  });
+  advFrm.addEventListener("reset", advReset);
 })();
