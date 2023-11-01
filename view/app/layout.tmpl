@@ -281,10 +281,11 @@
 {{- end}}
 {{- if and (.Pagination) (gt (index  .Pagination.SumPages) 1)}}
 <nav aria-label="Compact pagination navigation at the header">
-  <ul class="pagination pagination-sm justify-content-end mb-4">
+  <ul class="pagination pagination-sm justify-content-end mb-0">
     {{ template "paginationList" . }}
   </ul>
 </nav>
+<div class="text-end mb-4"><small>arrow and control keys pagenation support</small></div>
 {{- end }}
 <main>
     {{- if ne (index . "h1") ""}}<h1 class="fs-1 fw-light">{{ index . "h1" }}{{if ne (index . "h1sub") ""}} <small>{{ index . "h1sub" }}</small>{{end}}</h1>{{end -}}

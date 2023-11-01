@@ -21,6 +21,11 @@
   const advModal = new bootstrap.Modal(advM);
   const glossModal = new bootstrap.Modal(glossM);
 
+  const pageS = document.getElementById("paginationStart");
+  const pageP = document.getElementById("paginationPrev");
+  const pageN = document.getElementById("paginationNext");
+  const pageE = document.getElementById("paginationEnd");
+
   document.addEventListener("keydown", function (event) {
     if (event.ctrlKey && event.altKey) {
       switch (event.key) {
@@ -49,6 +54,22 @@
           glossModal.show();
           break;
       }
+    }
+    if (event.ctrlKey && event.key == "ArrowLeft") {
+      if (pageS != null) pageS.click();
+      return;
+    }
+    if (event.ctrlKey && event.key == "ArrowRight") {
+      if (pageE != null) pageE.click();
+      return;
+    }
+    if (event.key == "ArrowLeft") {
+      if (pageP != null) pageP.click();
+      return;
+    }
+    if (event.key == "ArrowRight") {
+      if (pageN != null) pageN.click();
+      return;
     }
   });
 
