@@ -10,6 +10,7 @@
   const imgM = document.getElementById("uploaderImg");
   const magM = document.getElementById("uploaderMag");
   const advM = document.getElementById("uploaderAdv");
+  const glossM = document.getElementById("termsModal"); // not part of uploader but still a modal
 
   const zooModal = new bootstrap.Modal(zooM);
   const pouetModal = new bootstrap.Modal(pouetM);
@@ -18,6 +19,7 @@
   const imgModal = new bootstrap.Modal(imgM);
   const magModal = new bootstrap.Modal(magM);
   const advModal = new bootstrap.Modal(advM);
+  const glossModal = new bootstrap.Modal(glossM);
 
   document.addEventListener("keydown", function (event) {
     if (event.ctrlKey && event.altKey) {
@@ -42,6 +44,9 @@
           break;
         case "a":
           advModal.show();
+          break;
+        case "t": // t for terms
+          glossModal.show();
           break;
       }
     }
