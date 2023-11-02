@@ -131,7 +131,7 @@
     .addEventListener("shown.bs.modal", function () {
       dzId.focus();
     });
-  const pouetId = document.getElementById("pouetProdID");
+  const pouetId = document.getElementById("pouetProdsID");
   document
     .getElementById("uploaderPouet")
     .addEventListener("shown.bs.modal", function () {

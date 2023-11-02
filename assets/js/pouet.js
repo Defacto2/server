@@ -7,7 +7,7 @@
     return `${location.protocol}//${location.host}/pouet/vote/${id}`;
   };
 
-  let prodElm = document.getElementById(`pouetProdID`);
+  let prodElm = document.getElementById(`pouetVoteID`);
   let row = document.getElementById(`pouetRow`);
   let stars = document.getElementById(`pouetStars`);
   let votes = document.getElementById(`pouetVotes`);

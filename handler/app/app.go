@@ -46,6 +46,11 @@ const (
 	ReadmeJS  = "/js/readme.min.js" // ReadmeJS is the path to the minified Readme JS file.
 	ReadmePub = public + ReadmeJS
 
+	RestPouetJS  = "/js/rest-pouet.min.js" // RestPouetJS is the path to the Pouet REST JS file.
+	RestPouetPub = public + RestPouetJS
+	RestZooJS    = "/js/rest-zoo.min.js" // RestZooJS is the path to the Demozoo REST JS file.
+	RestZooPub   = public + RestZooJS
+
 	UploaderJS  = "/js/uploader.min.js" // UploaderJS is the path to the minified Uploader JS file.
 	UploaderPub = public + UploaderJS
 )
@@ -156,6 +161,8 @@ type SRI struct {
 	LayoutCSS    string // Layout CSS verification hash.
 	PouetJS      string // Pouet JS verification hash.
 	ReadmeJS     string // Readme JS verification hash.
+	RestPouetJS  string // Pouet REST JS verification hash.
+	RestZooJS    string // Demozoo REST JS verification hash.
 	UploaderJS   string // Uploader JS verification hash.
 }
 
@@ -175,6 +182,14 @@ func (s *SRI) Verify(fs embed.FS) error {
 	if err != nil {
 		return err
 	}
+	s.JSDos, err = helper.Integrity(JSDosPub, fs)
+	if err != nil {
+		return err
+	}
+	s.JSWDos, err = helper.Integrity(JSWDosPub, fs)
+	if err != nil {
+		return err
+	}
 	s.LayoutCSS, err = helper.Integrity(LayoutPub, fs)
 	if err != nil {
 		return err
@@ -187,11 +202,11 @@ func (s *SRI) Verify(fs embed.FS) error {
 	if err != nil {
 		return err
 	}
-	s.JSDos, err = helper.Integrity(JSDosPub, fs)
+	s.RestPouetJS, err = helper.Integrity(RestPouetPub, fs)
 	if err != nil {
 		return err
 	}
-	s.JSWDos, err = helper.Integrity(JSWDosPub, fs)
+	s.RestZooJS, err = helper.Integrity(RestZooPub, fs)
 	if err != nil {
 		return err
 	}

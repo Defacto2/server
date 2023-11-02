@@ -49,12 +49,14 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.FileFS(app.FAJS, app.FAPub, public)
 	e.FileFS(app.PouetJS, app.PouetPub, public)
 	e.FileFS(app.ReadmeJS, app.ReadmePub, public)
+	e.FileFS(app.RestPouetJS, app.RestPouetPub, public)
+	e.FileFS(app.RestZooJS, app.RestZooPub, public)
+	e.FileFS(app.UploaderJS, app.UploaderPub, public)
+
+	// Serve embedded JS DOS files
 	e.FileFS(app.JSDos, app.JSDosPub, public)
 	e.FileFS(app.JSWDos, app.JSWDosPub, public)
 	e.FileFS("/js/wdosbox.wasm", "public/js/wdosbox.wasm", public)
-	e.FileFS(app.UploaderJS, app.UploaderPub, public)
-
-	e.FileFS("/js/rest-pouet.js", "public/js/rest-pouet.js", public)
 
 	// Serve embedded image files
 	e.FileFS("/favicon.ico", "public/image/favicon.ico", public)
@@ -132,6 +134,9 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	})
 	e.GET("/pouet/vote/:id", func(c echo.Context) error {
 		return app.VotePouet(z, c, c.Param("id"))
+	})
+	e.GET("/pouet/prod/:id", func(c echo.Context) error {
+		return app.ProdPouet(z, c, c.Param("id"))
 	})
 	e.GET("/zoo/prod/:id", func(c echo.Context) error {
 		return app.ProdZoo(z, c, c.Param("id"))

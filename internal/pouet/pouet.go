@@ -9,6 +9,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -29,8 +30,36 @@ var (
 	ErrStatus  = errors.New("pouet production status is not ok")
 )
 
-// Pouet is the production voting data from the Pouet API.
+// Pouet is the production data from the Pouet API.
+// The Pouet API returns values as null or string, so this struct
+// is used to normalize the data types.
 type Pouet struct {
+	// ID is the prod ID.
+	ID int `json:"id"`
+	// Title is the prod title.
+	Title string `json:"title"`
+	// ReleaseDate is the prod release date.
+	ReleaseDate string `json:"release_date"`
+	// Groups are the releasers that produced the prod.
+	Groups []struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"groups"`
+	// Platforms are the platforms the prod runs on.
+	Platforms Platforms `json:"platforms"`
+	// Types are the prod types.
+	Types Types `json:"types"`
+	// Platform is the prod platforms as a string.
+	// If the string is empty then the prod is not supported.
+	Platform string `json:"platform"`
+	// Valid is true if this prod is a supported type and platform.
+	Valid bool `json:"valid"`
+}
+
+// Votes is the production voting data from the Pouet API.
+// The Pouet API returns values as null or string, so this struct
+// is used to normalize the data types.
+type Votes struct {
 	// ID is the production ID.
 	ID int `json:"id"`
 	// Stars is the production rating using the average votes multiplied by 5.
@@ -52,17 +81,101 @@ type Pouet struct {
 type Response struct {
 	Success bool `json:"success"`
 	Prod    struct {
-		ID       string `json:"id"`
+		// used by uploader and voter
+		ID string `json:"id"`
+		// used by voter
 		Voteup   string `json:"voteup"`
 		Votepig  string `json:"votepig"`
 		Votedown string `json:"votedown"`
 		Voteavg  string `json:"voteavg"`
+		// used by uploader
+		Title       string `json:"name"`
+		ReleaseDate string `json:"releaseDate"`
+		Groups      []struct {
+			ID   string `json:"id"`
+			Name string `json:"name"`
+		} `json:"groups"`
+		Platforms Platforms `json:"platforms"`
+		Types     Types     `json:"types"`
 	} `json:"prod"`
 }
 
-// Votes retrieves the production voting data from the Pouet API.
+// Platforms are the supported platforms from the Pouet API.
+type Platforms struct {
+	DosGus  Platform `json:"69"` // MS-Dos with GUS
+	Windows Platform `json:"68"` // Windows
+	MSDos   Platform `json:"67"` // MS-Dos
+}
+
+func (p Platforms) String() string {
+	s := []string{}
+	if p.DosGus.Name != "" {
+		s = append(s, p.DosGus.Name)
+	}
+	if p.MSDos.Name != "" {
+		s = append(s, p.MSDos.Name)
+	}
+	if p.Windows.Name != "" {
+		s = append(s, p.Windows.Name)
+	}
+	return strings.Join(s, ", ")
+}
+
+func (p Platforms) Valid() bool {
+	if p.DosGus.Slug == "msdosgus" {
+		return true
+	}
+	if p.Windows.Slug == "windows" {
+		return true
+	}
+	if p.MSDos.Slug == "msdos" {
+		return true
+	}
+	return false
+}
+
+// Platform is the production platform data from the Pouet API.
+type Platform struct {
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+}
+
+// Type is the production type from the Pouet API.
+type Type string
+
+func (t Type) Valid() bool {
+	switch t {
+	case "dentro", "fastdemo", "invitation", "liveact", "musicdisk",
+		"procedural graphics", "report", "slideshow", "votedisk", "wild":
+		return false
+	default:
+		return true
+	}
+}
+
+// Types are the production types from the Pouet API.
+type Types []Type
+
+func (t Types) Valid() bool {
+	for _, t := range t {
+		if t.Valid() {
+			return true
+		}
+	}
+	return false
+}
+
+func (t Types) String() string {
+	s := []string{}
+	for _, t := range t {
+		s = append(s, string(t))
+	}
+	return strings.Join(s, ", ")
+}
+
+// Get retrieves the production voting data from the Pouet API.
 // The id value is the Pouet production ID and must be greater than 0.
-func (p *Pouet) GetVotes(id int) error {
+func (r *Response) Get(id int) error {
 	if id < firstID {
 		return fmt.Errorf("%w: %d", ErrID, id)
 	}
@@ -88,7 +201,6 @@ func (p *Pouet) GetVotes(id int) error {
 	if err != nil {
 		return err
 	}
-	r := Response{}
 	err = json.Unmarshal(body, &r)
 	if err != nil {
 		return err
@@ -96,28 +208,70 @@ func (p *Pouet) GetVotes(id int) error {
 	if !r.Success {
 		return fmt.Errorf("%w: %d", ErrSuccess, id)
 	}
+	fmt.Printf("%+v\n", r)
+	return nil
+}
+
+// Uploader retrieves and parses the production data from the Pouet API.
+// The id value is the Pouet production ID and must be greater than 0.
+// The data is intended for the Pouet Uploader.
+func (p *Pouet) Uploader(id int) error {
+	if id < firstID {
+		return fmt.Errorf("%w: %d", ErrID, id)
+	}
+	r := Response{}
+	err := r.Get(id)
+	if err != nil {
+		return err
+	}
 	p.ID, err = strconv.Atoi(r.Prod.ID)
 	if err != nil {
 		return err
 	}
+	p.Title = r.Prod.Title
+	p.ReleaseDate = r.Prod.ReleaseDate
+	p.Groups = r.Prod.Groups
+	p.Platforms = r.Prod.Platforms
+	p.Types = r.Prod.Types
+	p.Platform = r.Prod.Platforms.String()
+	p.Valid = r.Prod.Platforms.Valid() && r.Prod.Types.Valid()
+	return nil
+}
+
+// Votes retrieves the production voting data from the Pouet API.
+// The id value is the Pouet production ID and must be greater than 0.
+// The data is intended for the About file page, Pouët reviews section.
+func (v *Votes) Votes(id int) error {
+	if id < firstID {
+		return fmt.Errorf("%w: %d", ErrID, id)
+	}
+	r := Response{}
+	err := r.Get(id)
+	if err != nil {
+		return err
+	}
+	v.ID, err = strconv.Atoi(r.Prod.ID)
+	if err != nil {
+		return err
+	}
 	const base, bitSize = 10, 64
-	p.VotesUp, err = strconv.ParseUint(r.Prod.Voteup, base, bitSize)
+	v.VotesUp, err = strconv.ParseUint(r.Prod.Voteup, base, bitSize)
 	if err != nil {
 		return err
 	}
-	p.VotesMeh, err = strconv.ParseUint(r.Prod.Votepig, base, bitSize)
+	v.VotesMeh, err = strconv.ParseUint(r.Prod.Votepig, base, bitSize)
 	if err != nil {
 		return err
 	}
-	p.VotesDown, err = strconv.ParseUint(r.Prod.Votedown, base, bitSize)
+	v.VotesDown, err = strconv.ParseUint(r.Prod.Votedown, base, bitSize)
 	if err != nil {
 		return err
 	}
-	p.VotesAvg, err = strconv.ParseFloat(r.Prod.Voteavg, 64)
+	v.VotesAvg, err = strconv.ParseFloat(r.Prod.Voteavg, 64)
 	if err != nil {
 		return err
 	}
-	p.Stars = Stars(p.VotesUp, p.VotesMeh, p.VotesDown)
+	v.Stars = Stars(v.VotesUp, v.VotesMeh, v.VotesDown)
 	return nil
 }
 

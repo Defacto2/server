@@ -60,6 +60,26 @@ func emptyFiles() map[string]interface{} {
 	return data
 }
 
+// ProdPouet is the handler for the Pouet prod JSON page.
+func ProdPouet(z *zap.SugaredLogger, c echo.Context, id string) error {
+	const name = "pouet"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	p := pouet.Pouet{}
+	i, err := strconv.Atoi(id)
+	if err != nil {
+		return c.String(http.StatusNotFound, err.Error())
+	}
+	if err = p.Uploader(i); err != nil {
+		return c.String(http.StatusNotFound, err.Error())
+	}
+	if err = c.JSON(http.StatusOK, p); err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return nil
+}
+
 // ProdZoo is the handler for the Demozoo production JSON page.
 func ProdZoo(z *zap.SugaredLogger, c echo.Context, id string) error {
 	const name = "demozoo"
@@ -86,11 +106,12 @@ func VotePouet(z *zap.SugaredLogger, c echo.Context, id string) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	data := pouet.Pouet{}
+	pv := pouet.Votes{}
 	i, err := strconv.Atoi(id)
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
+	fmt.Println("--->", i, id, "<---")
 
 	cp := cache.Pouet
 	if s, err := cp.Read(id); err == nil {
@@ -101,16 +122,16 @@ func VotePouet(z *zap.SugaredLogger, c echo.Context, id string) error {
 	}
 	z.Debugf("cache miss for pouet id %s", id)
 
-	if err = data.GetVotes(i); err != nil {
+	if err = pv.Votes(i); err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
 
-	if err = c.JSON(http.StatusOK, data); err != nil {
+	if err = c.JSON(http.StatusOK, pv); err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	val := fmt.Sprintf("%.1f%s%d%s%d%s%d",
-		data.Stars, sep, data.VotesDown, sep, data.VotesUp, sep, data.VotesMeh)
+		pv.Stars, sep, pv.VotesDown, sep, pv.VotesUp, sep, pv.VotesMeh)
 	if err := cp.Write(id, val, cache.ExpiredAt); err != nil {
 		z.Errorf("failed to write pouet id %s to cache db: %s", id, err)
 	}
@@ -125,7 +146,7 @@ func PouetCache(c echo.Context, data string) error {
 	if data == "" {
 		return nil
 	}
-	pp := pouet.Pouet{}
+	pv := pouet.Votes{}
 	x := strings.Split(data, sep)
 	const expect = 4
 	if l := len(x); l != expect {
@@ -147,11 +168,11 @@ func PouetCache(c echo.Context, data string) error {
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, x[3])
 	}
-	pp.Stars = stars
-	pp.VotesDown = uint64(vd)
-	pp.VotesUp = uint64(vu)
-	pp.VotesMeh = uint64(vm)
-	if err = c.JSON(http.StatusOK, pp); err != nil {
+	pv.Stars = stars
+	pv.VotesDown = uint64(vd)
+	pv.VotesUp = uint64(vu)
+	pv.VotesMeh = uint64(vm)
+	if err = c.JSON(http.StatusOK, pv); err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	return nil

@@ -84,6 +84,12 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"sriFA": func() string {
 			return web.Subresource.FontAwesome
 		},
+		"sriJSDos": func() string {
+			return web.Subresource.JSDos
+		},
+		"sriJSWDos": func() string {
+			return web.Subresource.JSWDos
+		},
 		"sriLayout": func() string {
 			return web.Subresource.LayoutCSS
 		},
@@ -93,38 +99,14 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"sriReadme": func() string {
 			return web.Subresource.ReadmeJS
 		},
-		"sriJSDos": func() string {
-			return web.Subresource.JSDos
-		},
-		"sriJSWDos": func() string {
-			return web.Subresource.JSWDos
+		"sriUploader": func() string {
+			return web.Subresource.UploaderJS
 		},
 		"cssBoot": func() string {
 			return BootCSS
 		},
 		"cssLayout": func() string {
 			return LayoutCSS
-		},
-		"jsBoot": func() string {
-			return BootJS
-		},
-		"jsFA": func() string {
-			return FAJS
-		},
-		"jsPouet": func() string {
-			return PouetJS
-		},
-		"jsReadme": func() string {
-			return ReadmeJS
-		},
-		"jsDos": func() string {
-			return JSDos
-		},
-		"jsWDos": func() string {
-			return JSWDos
-		},
-		"version": func() string {
-			return web.Version
 		},
 		"exampleYear": func() string {
 			return time.Now().Format("2006")
@@ -135,11 +117,41 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"exampleDay": func() string {
 			return time.Now().Format("2")
 		},
+		"jsBoot": func() string {
+			return BootJS
+		},
+		"jsDos": func() string {
+			return JSDos
+		},
+		"jsWDos": func() string {
+			return JSWDos
+		},
+		"jsFA": func() string {
+			return FAJS
+		},
+		"jsPouet": func() string {
+			return PouetJS
+		},
+		"jsReadme": func() string {
+			return ReadmeJS
+		},
+		"version": func() string {
+			return web.Version
+		},
 		"uploader": func() string {
 			return UploaderJS
 		},
-		"sriUploader": func() string {
-			return web.Subresource.UploaderJS
+		"restPouet": func() string {
+			return RestPouetJS
+		},
+		"sriRestPouet": func() string {
+			return web.Subresource.RestPouetJS
+		},
+		"restZoo": func() string {
+			return RestZooJS
+		},
+		"sriRestZoo": func() string {
+			return web.Subresource.RestZooJS
 		},
 	}
 }

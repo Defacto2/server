@@ -42,8 +42,6 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          {{- /*  move this JS  */}}
-          <script src="/js/rest-pouet.js" defer></script>
           <form id="demozooProdUploader">
             <p>
               Know a <a href="https://demozoo.org/productions/?platform=1">Windows</a>, 
@@ -88,12 +86,19 @@
               or <a href="https://www.pouet.net/prodlist.php?platform%5B%5D=MS-Dos&page=1">MS-Dos</a> production on <a href="https://www.pouet.net">Pouët</a> that should be on this site?
               Submit its Prods ID and we will handle the rest.
             </p>
-            <label for="basic-url" class="form-label">Pouët Prods ID</label>
+            <label for="pouetProdsID" id="pouetProdsIDLabel" class="form-label">Pouët Prods ID</label>
             <div class="input-group mb-3">
-              <span class="input-group-text" id="basic-addon3">https://www.pouet.net/prod.php?which=</span>
-              <input type="number" id="pouetProdID"  min="1" max="199999" class="form-control" aria-describedby="basic-addon3 basic-addon4">
+              <span class="input-group-text">https://www.pouet.net/prod.php?which=</span>
+              <input type="text" class="form-control" id="pouetProdsID" aria-describedby="pouetProdsIDLabel">
             </div>
-            <button type="reset" class="btn btn-sm btn-outline-dark">Reset</button>
+            <button id="pouetProdReset" type="reset" class="btn btn-sm btn-outline-dark">Reset</button>
+            <div id="pouetProd" class="d-none mt-2">
+              <span id="pouetProdTitle"></span>
+              <span id="pouetProdGroups"></span>
+              <small id="pouetProdPlat"></small>
+              <small id="pouetProdDate"></small>
+            </div>
+            <div id="pouetProdInvalid" class="d-none text-danger"></div>
           </form>
         </div>
         <div class="modal-footer">

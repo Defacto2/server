@@ -57,6 +57,36 @@ func main() {
 	if len(readmeJS.Errors) > 0 {
 		fmt.Fprintf(os.Stderr, "Build failed: %v\n", readmeJS.Errors)
 	}
+	restZooJS := api.Build(api.BuildOptions{
+		EntryPoints:       []string{"./assets/js/rest-zoo.js"},
+		Outfile:           "./public/js/rest-zoo.min.js",
+		Write:             true,
+		Bundle:            false,
+		MinifyWhitespace:  true,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		Banner: map[string]string{
+			"js": "/* rest-zoo.min.js */",
+		},
+	})
+	if len(restZooJS.Errors) > 0 {
+		fmt.Fprintf(os.Stderr, "Build failed: %v\n", restZooJS.Errors)
+	}
+	restPouetJS := api.Build(api.BuildOptions{
+		EntryPoints:       []string{"./assets/js/rest-pouet.js"},
+		Outfile:           "./public/js/rest-pouet.min.js",
+		Write:             true,
+		Bundle:            false,
+		MinifyWhitespace:  true,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		Banner: map[string]string{
+			"js": "/* rest-pouet.min.js */",
+		},
+	})
+	if len(restPouetJS.Errors) > 0 {
+		fmt.Fprintf(os.Stderr, "Build failed: %v\n", restPouetJS.Errors)
+	}
 	uploaderJS := api.Build(api.BuildOptions{
 		EntryPoints:       []string{"./assets/js/uploader.js"},
 		Outfile:           "./public/js/uploader.min.js",

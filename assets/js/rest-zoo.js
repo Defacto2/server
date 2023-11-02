@@ -61,7 +61,7 @@
   }
 
   function check(prodID) {
-    console.info(`Requesting the Pouët API for production #${prodID}`);
+    console.info(`Requesting the Demozoo API for production #${prodID}`);
     fetch(url(prodID), {
       method: `GET`,
       headers: {
