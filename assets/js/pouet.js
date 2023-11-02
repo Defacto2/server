@@ -1,6 +1,15 @@
+/**
+ * This function fetches data from Pouët's API and updates the DOM with the production, user votes results.
+ * @returns {void}
+ */
 (() => {
   "use strict";
 
+  /**
+   * Returns the URL for the given production ID.
+   * @param {string} id - The ID of the production to fetch.
+   * @returns {string} The URL for the given production ID.
+   */
   const url = (id) => {
     // This URL is to avoid CORS errors,
     // which are not supported by Pouët's API.

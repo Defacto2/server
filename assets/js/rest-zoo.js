@@ -1,6 +1,16 @@
+/**
+ * This module handles the fetching and display of data from the Demozoo API.
+ * @module rest-zoo
+ */
+
 (() => {
   "use strict";
 
+  /**
+   * Returns the URL for a given production ID.
+   * @param {number} id - The ID of the production.
+   * @returns {string} - The URL for the production.
+   */
   const url = (id) => {
     // This URL is to avoid CORS errors,
     // which are not supported by Demozoo's API.
@@ -16,7 +26,7 @@
   const invalid = document.getElementById(`demozooProdInvalid`);
   const reset = document.getElementById(`demozooProdReset`);
 
-  const delay = 500;
+  const delay = 500; // milliseconds
   let timeout = null;
 
   demozoo.addEventListener(`input`, parseEvent);
@@ -26,6 +36,10 @@
   });
   reset.addEventListener(`click`, resetEvent);
 
+  /**
+   * Parses an event and sets a timeout to execute the event function with a delay.
+   * @param {any} change - The event to be parsed.
+   */
   function parseEvent(change) {
     clearTimeout(timeout);
     resetEvent();
@@ -34,22 +48,34 @@
     }, delay);
   }
 
+  /**
+   * This function is called when an event is triggered.
+   * It extracts the numbers from the input string and checks if the product id is valid.
+   * If the product id is invalid, it displays an error message.
+   * @param {Event} change - The event object that triggered the function.
+   */
   function eventFunction(change) {
     const str = change.target.value;
+    if (str === "") {
+      return;
+    }
     const mat = str.match(/\d+/g);
     if (mat === null) {
-      console.log(`no numbers`);
+      invalid.classList.remove(`d-none`);
+      invalid.innerText = "This prod id is invalid";
       return;
     }
     const numbers = mat.map(Number);
     if (numbers.length === 0) {
-      console.log(`no numbers`);
       return;
     }
     change.target.value = numbers[0];
     check(numbers[0]);
   }
 
+  /**
+   * Resets the event by hiding the prod and invalid elements, and clearing the inner text of title, groups, plats, and date elements.
+   */
   function resetEvent() {
     const hide = `d-none`;
     prod.classList.add(hide);
@@ -60,6 +86,10 @@
     date.innerText = ``;
   }
 
+  /**
+   * Fetches data from the Demzoo API for a given production ID and updates the DOM with the result.
+   * @param {number} prodID - The ID of the production to fetch from the API.
+   */
   function check(prodID) {
     console.info(`Requesting the Demozoo API for production #${prodID}`);
     fetch(url(prodID), {
@@ -93,7 +123,11 @@
         }
       });
   }
-
+  /**
+   * Returns a string containing the names of the releasers of a given data array.
+   * @param {Array} data - An array of objects containing releaser information.
+   * @returns {string} - A string containing the names of the releasers, separated by ' + '.
+   */
   function releasers(authors) {
     if (authors === null) return ``;
     let groups = [];
@@ -106,6 +140,11 @@
     return "by " + groups.join(` + `);
   }
 
+  /**
+   * Returns a string of concatenated types from an array of types.
+   * @param {Array} data - An array of types.
+   * @returns {string} - A string of concatenated types.
+   */
   function platform(platforms) {
     if (platforms === null) return ``;
     let plats = [];
@@ -116,6 +155,11 @@
     return "for " + plats.join(` + `);
   }
 
+  /**
+   * Validates the result of a REST API call to the Demozoo API.
+   * @param {Object} result - The result object returned by the API.
+   * @returns {string} An error message if the result is invalid, or an empty string if the result is valid.
+   */
   function validate(result) {
     if (result === null) return `result error is null`;
     switch (result.supertype) {

@@ -1,8 +1,15 @@
+/**
+ * This module handles the uploader functionality for the website.
+ * It contains functions to validate user input and show/hide modals.
+ * @module uploader
+ * @requires bootstrap
+ */
 (() => {
   "use strict";
 
   const invalid = "is-invalid";
 
+  // Modal elements
   const zooM = document.getElementById("uploaderDZ");
   const pouetM = document.getElementById("uploaderPouet");
   const introM = document.getElementById("uploaderIntro");
@@ -12,6 +19,7 @@
   const advM = document.getElementById("uploaderAdv");
   const glossM = document.getElementById("termsModal"); // not part of uploader but still a modal
 
+  // Modal objects
   const zooModal = new bootstrap.Modal(zooM);
   const pouetModal = new bootstrap.Modal(pouetM);
   const introModal = new bootstrap.Modal(introM);
@@ -21,11 +29,13 @@
   const advModal = new bootstrap.Modal(advM);
   const glossModal = new bootstrap.Modal(glossM);
 
+  // Pagination button elements
   const pageS = document.getElementById("paginationStart");
   const pageP = document.getElementById("paginationPrev");
   const pageN = document.getElementById("paginationNext");
   const pageE = document.getElementById("paginationEnd");
 
+  // Keyboard shortcuts event listener
   document.addEventListener("keydown", function (event) {
     if (event.ctrlKey && event.altKey) {
       switch (event.key) {
@@ -55,18 +65,22 @@
           break;
       }
     }
+    // Ctrl + Left arrow key to go to the start page
     if (event.ctrlKey && event.key == "ArrowLeft") {
       if (pageS != null) pageS.click();
       return;
     }
+    // Ctrl + Right arrow key to go to the end page
     if (event.ctrlKey && event.key == "ArrowRight") {
       if (pageE != null) pageE.click();
       return;
     }
+    // Left arrow key to go to the previous page
     if (event.key == "ArrowLeft") {
       if (pageP != null) pageP.click();
       return;
     }
+    // Right arrow key to go to the next page
     if (event.key == "ArrowRight") {
       if (pageN != null) pageN.click();
       return;
@@ -119,18 +133,21 @@
     return true;
   }
 
+  // Uploader forms
   const introFrm = document.getElementById("introUploader");
   const txtFrm = document.getElementById("textUploader");
   const imgFrm = document.getElementById("imageUploader");
   const magFrm = document.getElementById("magUploader");
   const advFrm = document.getElementById("advancedUploader");
 
+  // Focus on the first input field when the modal is shown
   const dzId = document.getElementById("demozooProdID");
   document
     .getElementById("uploaderDZ")
     .addEventListener("shown.bs.modal", function () {
       dzId.focus();
     });
+  // Focus on the first input field when the modal is shown
   const pouetId = document.getElementById("pouetProdsID");
   document
     .getElementById("uploaderPouet")
@@ -138,12 +155,16 @@
       pouetId.focus();
     });
 
+  // Elements for the intro uploader
   const introFile = document.getElementById("introFile");
   const introTitl = document.getElementById("releaseTitle");
   const introRels = document.getElementById("introReleasers");
   const introYear = document.getElementById("introYear");
   const introMonth = document.getElementById("introMonth");
 
+  /**
+   * Resets the input fields for the intro section of the uploader form.
+   */
   function introReset() {
     introFile.classList.remove(invalid);
     introTitl.classList.remove(invalid);
@@ -152,6 +173,7 @@
     introMonth.classList.remove(invalid);
   }
 
+  // Event listener for the intro submit button
   document.getElementById("introSubmit").addEventListener("click", function () {
     let pass = true;
     introReset();
@@ -179,14 +201,19 @@
       introFrm.submit();
     }
   });
+  // Event listener for the intro reset button
   introFrm.addEventListener("reset", introReset);
 
+  // Elements for the text uploader
   const txtFile = document.getElementById("textFile");
   const txtTitl = document.getElementById("textTitle");
   const txtRels = document.getElementById("textReleasers");
   const txtYear = document.getElementById("textYear");
   const txtMonth = document.getElementById("textMonth");
 
+  /**
+   * Resets the input fields for file, title, release date, and year by removing the 'invalid' class.
+   */
   function txtReset() {
     txtFile.classList.remove(invalid);
     txtTitl.classList.remove(invalid);
@@ -195,6 +222,7 @@
     txtMonth.classList.remove(invalid);
   }
 
+  // Event listener for the text submit button
   document.getElementById("textSubmit").addEventListener("click", function () {
     let pass = true;
     txtReset();
@@ -222,14 +250,19 @@
       txtFrm.submit();
     }
   });
+  // Event listener for the text reset button
   txtFrm.addEventListener("reset", txtReset);
 
+  // Elements for the image uploader
   const imgFile = document.getElementById("imageFile");
   const imgTitl = document.getElementById("imageTitle");
   const imgRels = document.getElementById("imageReleasers");
   const imgYear = document.getElementById("imageYear");
   const imgMonth = document.getElementById("imageMonth");
 
+  /**
+   * Resets the input fields for image upload.
+   */
   function imgReset() {
     imgFile.classList.remove(invalid);
     imgTitl.classList.remove(invalid);
@@ -238,6 +271,7 @@
     imgMonth.classList.remove(invalid);
   }
 
+  // Event listener for the image submit button
   document.getElementById("imageSubmit").addEventListener("click", function () {
     let pass = true;
     imgReset();
@@ -265,8 +299,10 @@
       imgFrm.submit();
     }
   });
+  // Event listener for the image reset button
   imgFrm.addEventListener("reset", imgReset);
 
+  // Elements for the magazine uploader
   const magFile = document.getElementById("magFile");
   const magTitl = document.getElementById("magTitle");
   const magIssu = document.getElementById("magIssue");
@@ -274,6 +310,9 @@
   const magMonth = document.getElementById("magMonth");
   const magDay = document.getElementById("magDay");
 
+  /**
+   * Resets the form fields for a magazine upload.
+   */
   function magReset() {
     magFile.classList.remove(invalid);
     magTitl.classList.remove(invalid);
@@ -283,6 +322,7 @@
     magDay.classList.remove(invalid);
   }
 
+  // Event listener for the magazine submit button
   document.getElementById("magSubmit").addEventListener("click", function () {
     let pass = true;
     magReset();
@@ -313,9 +353,11 @@
     if (pass == true) {
       magFrm.submit();
     }
-    magFrm.addEventListener("reset", magReset);
   });
+  // Event listener for the magazine reset button
+  magFrm.addEventListener("reset", magReset);
 
+  // Elements for the advanced uploader
   const advFile = document.getElementById("advFile");
   const advOS = document.getElementById("advSelOS");
   const advCat = document.getElementById("advSelCat");
@@ -325,6 +367,9 @@
   const advMonth = document.getElementById("advMonth");
   const advDay = document.getElementById("advDay");
 
+  /**
+   * Resets the form by removing the "invalid" class from all form elements.
+   */
   function advReset() {
     advFile.classList.remove(invalid);
     advOS.classList.remove(invalid);
@@ -336,6 +381,7 @@
     advDay.classList.remove(invalid);
   }
 
+  // Event listener for the advanced submit button
   document.getElementById("advSubmit").addEventListener("click", function () {
     const choose = "Choose...";
     let pass = true;
@@ -376,5 +422,6 @@
       advFrm.submit();
     }
   });
+  // Event listener for the advanced reset button
   advFrm.addEventListener("reset", advReset);
 })();
