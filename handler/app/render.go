@@ -111,7 +111,6 @@ func VotePouet(z *zap.SugaredLogger, c echo.Context, id string) error {
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
-	fmt.Println("--->", i, id, "<---")
 
 	cp := cache.Pouet
 	if s, err := cp.Read(id); err == nil {

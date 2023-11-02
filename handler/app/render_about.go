@@ -82,7 +82,6 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	data["github"] = res.WebIDGithub.String
 	// file archive content
 	data["jsdos"] = aboutJSDos(res)
-	fmt.Println("jsdos", data["jsdos"])
 	ctt := aboutCtt(res)
 	data["content"] = ctt
 	data["contentDesc"] = ""

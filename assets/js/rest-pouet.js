@@ -24,7 +24,7 @@
     resetEvent();
     eventFunction(change);
   });
-  pouet.addEventListener(`click`, resetEvent);
+  reset.addEventListener(`click`, resetEvent);
 
   function parseEvent(change) {
     console.log(`parseEvent`, change);
