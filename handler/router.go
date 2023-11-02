@@ -180,7 +180,7 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 		return app.PostDesc(z, c, terms)
 	})
 	e.GET("/sum/:id", func(c echo.Context) error {
-		return app.Checksum(z, c, c.Param("query"))
+		return app.Checksum(z, c, c.Param("id"))
 	})
 	e.GET("/thanks", func(c echo.Context) error {
 		return app.Thanks(z, c)
