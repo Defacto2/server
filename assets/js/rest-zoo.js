@@ -25,7 +25,11 @@
   const date = document.getElementById(`demozooProdDate`);
   const invalid = document.getElementById(`demozooProdInvalid`);
   const reset = document.getElementById(`demozooProdReset`);
+  const submit = document.getElementById(`demozooSubmit`);
+  const hide = `d-none`;
+  const errProd =  "This prod id is not valid"
 
+  const largestID = 999999;
   const delay = 500; // milliseconds
   let timeout = null;
 
@@ -35,6 +39,9 @@
     eventFunction(change);
   });
   reset.addEventListener(`click`, resetEvent);
+  submit.addEventListener(`click`, function (event) {
+    document.getElementById(`demozooProdUploader`).submit();
+  });
 
   /**
    * Parses an event and sets a timeout to execute the event function with a delay.
@@ -43,6 +50,10 @@
   function parseEvent(change) {
     clearTimeout(timeout);
     resetEvent();
+    if (change.target.value !== "") {
+      prod.classList.remove(hide);
+      title.innerText = `Will lookup ${change.target.value}...`;
+    }
     timeout = setTimeout(() => {
       eventFunction(change);
     }, delay);
@@ -57,17 +68,23 @@
   function eventFunction(change) {
     const str = change.target.value;
     if (str === "") {
+      submit.disabled = true;
       return;
     }
     const mat = str.match(/\d+/g);
     if (mat === null) {
-      invalid.classList.remove(`d-none`);
-      invalid.innerText = "This prod id is invalid";
+      invalid.classList.remove(hide);
+      invalid.innerText = errProd;
       return;
     }
     const numbers = mat.map(Number);
     if (numbers.length === 0) {
       return;
+    }
+    if (numbers[0] > largestID) {
+        invalid.classList.remove(hide);
+        invalid.innerText = errProd;
+        return;
     }
     change.target.value = numbers[0];
     check(numbers[0]);
@@ -77,7 +94,6 @@
    * Resets the event by hiding the prod and invalid elements, and clearing the inner text of title, groups, plats, and date elements.
    */
   function resetEvent() {
-    const hide = `d-none`;
     prod.classList.add(hide);
     invalid.classList.add(hide);
     title.innerText = ``;
@@ -115,10 +131,11 @@
           plats.innerText = `graphic or image`;
         }
         date.innerText = `from ` + result.release_date;
-        prod.classList.remove(`d-none`);
+        prod.classList.remove(hide);
         const err = validate(result);
         if (err !== ``) {
-          invalid.classList.remove(`d-none`);
+          submit.disabled = true;
+          invalid.classList.remove(hide);
           invalid.innerText = err;
         }
       });

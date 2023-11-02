@@ -25,7 +25,11 @@
   const date = document.getElementById(`pouetProdDate`);
   const invalid = document.getElementById(`pouetProdInvalid`);
   const reset = document.getElementById(`pouetProdReset`);
+  const submit = document.getElementById(`pouetSubmit`);
+  const hide = `d-none`;
+  const errProd =  "This prod id is not valid"
 
+  const largestID = 199999
   const delay = 500; // milliseconds
   let timeout = null;
 
@@ -35,6 +39,9 @@
     eventFunction(change);
   });
   reset.addEventListener(`click`, resetEvent);
+  submit.addEventListener(`click`, function (event) {
+    document.getElementById(`pouetUploader`).submit();
+  });
 
   /**
    * Parses an event and sets a timeout to execute the event function with a delay.
@@ -43,7 +50,13 @@
   function parseEvent(change) {
     clearTimeout(timeout);
     resetEvent();
+    if (change.target.value !== "") {
+      prod.classList.remove(hide);
+      title.innerText = `Will lookup ${change.target.value}...`;
+    }
     timeout = setTimeout(() => {
+      prod.classList.add(hide);
+      title.innerText = ``;
       eventFunction(change);
     }, delay);
   }
@@ -58,17 +71,23 @@
   function eventFunction(change) {
     const str = change.target.value;
     if (str === "") {
+      submit.disabled = true;
       return;
     }
     const mat = str.match(/\d+/g);
     if (mat === null) {
-      invalid.classList.remove(`d-none`);
-      invalid.innerText = "This prod id is invalid";
+      invalid.classList.remove(hide);
+      invalid.innerText = errProd;
       return;
     }
     const numbers = mat.map(Number);
     if (numbers.length === 0) {
       return;
+    }
+    if (numbers[0] > largestID) {
+        invalid.classList.remove(hide);
+        invalid.innerText = errProd;
+        return;
     }
     change.target.value = numbers[0];
     check(numbers[0]);
@@ -78,7 +97,6 @@
    * Resets the event by hiding the prod and invalid elements, and clearing the inner text of title, groups, plats, and date elements.
    */
   function resetEvent() {
-    const hide = `d-none`;
     prod.classList.add(hide);
     invalid.classList.add(hide);
     title.innerText = ``;
@@ -101,7 +119,14 @@
     })
       .then((response) => {
         if (!response.ok) {
+          submit.disabled = true;
+          invalid.classList.remove(hide);
+          if (response.status === 404) {
+            invalid.innerText = errProd + ` ${prodID}`;
+            return;
+          }
           const error = `A network error occurred requesting API`;
+          invalid.innerText = `${error}: ${response.statusText}`;
           throw new Error(
             `${error}: ${response.statusText} ${response.status}`
           );
@@ -111,13 +136,18 @@
       .then((result) => {
         title.innerText = result.title;
         groups.innerText = releasers(result.groups);
-        plats.innerText = `on ` + result.platform + typers(result.types);
+        plats.innerText = `the ` + result.platform + typers(result.types);
         date.innerText = `from ` + result.release_date;
-        prod.classList.remove(`d-none`);
+        prod.classList.remove(hide);
         if (result.valid !== true) {
-          invalid.classList.remove(`d-none`);
-          invalid.innerText = "This prod is not valid";
+          submit.disabled = true;
+          invalid.classList.remove(hide);
+          invalid.innerText = errProd;
+          return;
         }
+      }).catch((error) => {
+        if (typeof error == 'undefined') return;
+        console.error(error);
       });
   }
 
