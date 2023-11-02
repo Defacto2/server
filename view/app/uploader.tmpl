@@ -42,7 +42,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form id="demozooProdUploader">
+          <form id="demozooProdUploader" action="/uploader" method="post">
             <p>
               Know a <a href="https://demozoo.org/productions/?platform=1">Windows</a>, 
               <a href="https://demozoo.org/productions/?platform=4">MS-Dos</a> production or a 
@@ -52,7 +52,7 @@
             <label for="demozooProdID" id="demozooProdIDLabel" class="form-label">Demozoo production ID</label>
             <div class="input-group mb-3">
               <span class="input-group-text">https://demozoo.org/productions/</span>
-              <input type="text" class="form-control" id="demozooProdID" aria-describedby="demozooProdIDLabel">
+              <input type="text" name="demozoo-prod-id" class="form-control" id="demozooProdID" aria-describedby="demozooProdIDLabel">
             </div>
             <button id="demozooProdReset" type="reset" class="btn btn-sm btn-outline-dark">Reset</button>              
             <div id="demozooProd" class="d-none mt-2">
@@ -89,7 +89,7 @@
             <label for="pouetProdsID" id="pouetProdsIDLabel" class="form-label">Pouët Prods ID</label>
             <div class="input-group mb-3">
               <span class="input-group-text">https://www.pouet.net/prod.php?which=</span>
-              <input type="text" class="form-control" id="pouetProdsID" aria-describedby="pouetProdsIDLabel">
+              <input type="text" name="pouet-prod-id" class="form-control" id="pouetProdsID" aria-describedby="pouetProdsIDLabel">
             </div>
             <button id="pouetProdReset" type="reset" class="btn btn-sm btn-outline-dark">Reset</button>
             <div id="pouetProd" class="d-none mt-2">

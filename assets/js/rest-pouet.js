@@ -97,6 +97,7 @@
    * Resets the event by hiding the prod and invalid elements, and clearing the inner text of title, groups, plats, and date elements.
    */
   function resetEvent() {
+    submit.disabled = true;
     prod.classList.add(hide);
     invalid.classList.add(hide);
     title.innerText = ``;
@@ -145,6 +146,7 @@
           invalid.innerText = errProd;
           return;
         }
+        submit.disabled = false;
       }).catch((error) => {
         if (typeof error == 'undefined') return;
         console.error(error);

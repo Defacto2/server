@@ -94,6 +94,7 @@
    * Resets the event by hiding the prod and invalid elements, and clearing the inner text of title, groups, plats, and date elements.
    */
   function resetEvent() {
+    submit.disabled = true;
     prod.classList.add(hide);
     invalid.classList.add(hide);
     title.innerText = ``;
@@ -116,7 +117,14 @@
     })
       .then((response) => {
         if (!response.ok) {
+          submit.disabled = true;
+          invalid.classList.remove(hide);
+          if (response.status === 404) {
+            invalid.innerText = errProd + ` ${prodID}`;
+            return;
+          }
           const error = `A network error occurred requesting API`;
+          invalid.innerText = `${error}: ${response.statusText}`;
           throw new Error(
             `${error}: ${response.statusText} ${response.status}`
           );
@@ -138,6 +146,10 @@
           invalid.classList.remove(hide);
           invalid.innerText = err;
         }
+        submit.disabled = false;
+      }).catch((error) => {
+        if (typeof error == 'undefined') return;
+        console.error(error);
       });
   }
   /**
