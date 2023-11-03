@@ -86,6 +86,8 @@
     <a class="d-inline btn btn-outline-secondary btn m-1" href="{{- index . "linkpreview" }}" 
     role="button" data-bs-toggle="tooltip" data-bs-title="{{index . "linkpreviewTip"}}">preview</a>
 {{- end}}
+{{/*  TODO: hide unless editor  */}}
+<a class="d-inline btn btn-primary btn m-1" href="#" role="button" data-bs-toggle="modal" data-bs-target="#fileEditorModal" data-bs-toggle="tooltip" data-bs-title="Edit this file">Modify</a>
 </div>
 {{- /*  Commant about the file  */}}
 {{- if ne $comment ""}}

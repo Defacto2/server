@@ -30,7 +30,7 @@ func Checksum(z *zap.SugaredLogger, c echo.Context, id string) error {
 
 	// an example checksum file body created by `shasum`
 	// 72f8a29d75993487b7ad5ad3a17d2f65ed4c41be155adbda88258d0458fcfe29f55e2e31b0316f01d57f4427ca9e2422  sk8-01.jpg
-	sum := res.FileIntegrityStrong.String
+	sum := strings.TrimSpace(res.FileIntegrityStrong.String)
 	if sum == "" {
 		return fmt.Errorf("%w: %d", ErrSum, res.ID)
 	}

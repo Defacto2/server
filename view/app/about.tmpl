@@ -71,4 +71,162 @@
     </div>
 </div>
 {{ template "aboutJSDOS" . }}
+{{- /*  File editor (TODO: move to a sep tmpl)  */}}
+{{- $faSize := "fa-fw fa-2x" -}}
+<div class="modal fade" id="fileEditorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="fileEditorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <form>
+      <div class="modal-content">
+        <div class="modal-header">
+          <i class="fal fa-envelope {{ $faSize }}" title="Email"></i> &nbsp;
+          <h1 class="modal-title fs-5" id="fileEditorModalLabel">Modify the file metadata</h1><br>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3 row">
+            <label for="staticEmail" class="col-sm-2 col-form-label">IDs</label>
+            <div class="col-sm-6">
+              <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="fdf405c8-7829-4c3a-af67-a8e1dba6d025">
+            </div>
+            <div class="col-sm-2">
+              <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="/f/bb2b71f">
+            </div>
+            <div class="col-sm-2">
+              <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="47877">
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputPassword" class="col-sm-2 col-form-label">Title</label>
+            <div class="col-sm-7">
+              <input type="text" class="form-control" id="inputPassword" value="{{index . "title"}}">
+            </div>
+            <div class="col-sm-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                <label class="form-check-label" for="flexSwitchCheckDefault">Online and public</label>
+              </div>            
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="inputPassword" class="col-sm-2 col-form-label">Releasers</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="inputPassword">
+            </div>
+          </div>
+          <div class="input-group mb-3">
+            <span class="input-group-text">Year, month, day of release</span>
+            <input type="number" name="release-year" id="magYear" min="1980" max="2023" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
+            <input type="number" name="release-month" id="magMonth" min="1" max="12" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
+            <input type="number" name="release-day" id="magDay" min="1" max="31" aria-label="Day of release" class="form-control input-date" placeholder="{{exampleDay}}">
+            <button class="btn btn-outline-secondary" type="button">Use last modification</button>
+          </div>
+          <div class="mb-1 row">
+            <div class="input-group">
+              <label class="input-group-text" for="inputGroupSelect01">Options</label>
+              <select class="form-select" id="inputGroupSelect01">
+                <option selected>Choose...</option>
+                <option value="1">One</option>
+                <option value="2">Two</option>
+                <option value="3">Three</option>
+              </select>
+              <span class="input-group-text">@</span>
+              <select class="form-select" id="inputGroupSelect01">
+                <option selected>Choose...</option>
+                <option value="1">One</option>
+                <option value="2">Two</option>
+                <option value="3">Three</option>
+              </select>
+              <label class="input-group-text" for="inputGroupSelect01">Options</label>
+            </div> 
+          </div>
+          <div class="btn-group mb-3">
+            <button class="btn btn-sm btn-link" type="button">Dos text</button>
+            <button class="btn btn-sm btn-link" type="button">Amiga text</button>
+            <button class="btn btn-sm btn-link" type="button">Proof</button>
+            <button class="btn btn-sm btn-link" type="button">Dos intro</button>
+            <button class="btn btn-sm btn-link" type="button">Win intro</button>
+            <button class="btn btn-sm btn-link" type="button">BBStro</button>
+          </div>
+          <div class="mb-3 input-group">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="floatingPassword" value="{{index . "artists"}}">
+              <label for="floatingPassword">Artists</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="floatingPassword" value="{{index . "programmers"}}">
+              <label for="floatingPassword">Coders</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="floatingPassword" value="{{index . "musicians"}}">
+              <label for="floatingPassword">Musicians</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="floatingPassword" value="{{index . "writers"}}">
+              <label for="floatingPassword">Writers</label>
+            </div>
+          </div>
+          <p class="lead"><small>optional, less used metadata</small></p>
+          <div class="mb-3 input-group">
+            <div class="form-floating">
+              <input type="number" class="form-control" id="floatingPassword" value="{{index . "demozoo"}}">
+              <label for="floatingPassword">Demozoo</label>
+            </div>
+            <div class="form-floating">
+              <input type="number" class="form-control" id="floatingPassword" value="{{index . "pouet"}}">
+              <label for="floatingPassword">Pouet</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="floatingPassword" value="{{index . "github"}}">
+              <label for="floatingPassword">GitHub</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="floatingPassword" value="{{index . "sixteenColors"}}">
+              <label for="floatingPassword">16colors</label>
+            </div>
+          </div>
+          <div class="mb-3 input-group">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="floatingPassword" placeholder="Password">
+              <label for="floatingPassword">Internal links</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="floatingPassword" placeholder="Password">
+              <label for="floatingPassword">Websites</label>
+            </div>
+          </div>
+          <div class="row g-2">
+            <div class="col-md">
+              <div class="mb-3 input-group">
+                <div class="form-floating">
+                  <input type="text" class="form-control" id="floatingPassword" value="{{index . "youtube"}}">
+                  <label for="floatingPassword">YouTube</label>
+                </div>
+                <div class="form-floating">
+                  <input type="text" class="form-control" id="floatingPassword" placeholder="Password">
+                  <label for="floatingPassword">VirusTotal</label>
+                </div>
+              </div>
+            </div>
+            <div class="col-md">
+              <div class="form-floating">
+                <input type="text" class="form-control" id="floatingPassword" value="{{index . "filename"}}">
+                <label for="floatingPassword">Filename</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-floating">
+            <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea">{{index . "comment"}}</textarea>
+            <label for="floatingTextarea">Comments</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="reset" class="btn btn-secondary">Reset</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    <form>
+    </div>
+  </div>
+  
+  
 {{- end}}

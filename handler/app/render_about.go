@@ -61,7 +61,7 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	data["filebyte"] = res.Filesize.Int64
 	data["lastmodified"] = aboutLM(res)
 	data["lastmodifiedAgo"] = aboutModAgo(res)
-	data["checksum"] = res.FileIntegrityStrong.String
+	data["checksum"] = strings.TrimSpace(res.FileIntegrityStrong.String)
 	data["magic"] = res.FileMagicType.String
 	data["releasers"] = string(LinkRels(res.GroupBrandBy, res.GroupBrandFor))
 	data["published"] = model.PublishedFmt(res)
