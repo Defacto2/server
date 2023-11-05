@@ -46,6 +46,7 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	// Serve embedded JS files
 	e.FileFS(app.BootJS, app.BootJPub, public)
 	e.FileFS(app.BootJS+".map", app.BootJPub+".map", public)
+	e.FileFS(app.EditorJS, app.EditorJSPub, public)
 	e.FileFS(app.FAJS, app.FAPub, public)
 	e.FileFS(app.PouetJS, app.PouetPub, public)
 	e.FileFS(app.ReadmeJS, app.ReadmePub, public)

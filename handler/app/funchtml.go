@@ -644,3 +644,61 @@ func SubTitle(section null.String, s any) template.HTML {
 	elem := fmt.Sprintf("<h3 class=\"%s\">%s</h3>", cls, val)
 	return template.HTML(elem)
 }
+
+// RecordRels returns the groups associated with a release and joins them with a plus sign.
+func RecordRels(a, b any) template.HTML {
+	av, bv, s := "", "", ""
+	switch val := a.(type) {
+	case string:
+		av = reflect.ValueOf(val).String()
+	case null.String:
+		if val.Valid {
+			av = val.String
+		}
+	}
+	switch val := b.(type) {
+	case string:
+		bv = reflect.ValueOf(val).String()
+	case null.String:
+		if val.Valid {
+			bv = val.String
+		}
+	}
+	av = strings.TrimSpace(av)
+	bv = strings.TrimSpace(bv)
+	switch {
+	case av != "" && bv != "":
+		s = strings.Join([]string{av, bv}, " + ")
+	case av != "":
+		s = av
+	case bv != "":
+		s = bv
+	}
+	return template.HTML(s)
+}
+
+func TagSel(check, option any) template.HTML {
+	x, s := "", ""
+	switch val := check.(type) {
+	case string:
+		x = reflect.ValueOf(val).String()
+	case null.String:
+		if val.Valid {
+			x = val.String
+		}
+	}
+	switch val := option.(type) {
+	case string:
+		s = reflect.ValueOf(val).String()
+	case null.String:
+		if val.Valid {
+			s = val.String
+		}
+	}
+	x = strings.TrimSpace(x)
+	s = strings.TrimSpace(s)
+	if x != "" && x == s {
+		return template.HTML(fmt.Sprintf("<option value=\"%s\" selected>", s))
+	}
+	return template.HTML(fmt.Sprintf("<option value=\"%s\">", s))
+}

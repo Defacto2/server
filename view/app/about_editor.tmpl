@@ -1,0 +1,168 @@
+{{/* about_editor.tmpl */}}
+{{- define "aboutEditor" }}
+{{- $faSize := "fa-fw fa-2x" -}}
+{{- $id := index . "recID"}}
+<div class="modal fade" id="fileEditorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="fileEditorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <form>
+      <div class="modal-content">
+        <div class="modal-header">
+          <i class="fal fa-file-alt {{ $faSize }}" title="Modify the record"></i> &nbsp;
+          <h1 class="modal-title fs-5" id="fileEditorModalLabel">Modify the file metadata for ID {{index . "recID"}}</h1><br>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3 row" id="recordIDs">
+            <label for="recordIDs" class="col-sm-2 col-form-label">IDs</label>
+            <div class="col-sm-6">
+                <input type="text" readonly class="form-control-plaintext" id="recordUUID" value="{{index . "uuid"}}">
+            </div>
+            <div class="col-sm-2">
+              <input type="text" readonly class="form-control-plaintext" id="recordID" value="{{$id}}">
+            </div>
+            <div class="col-sm-2">
+              <input type="text" readonly class="form-control-plaintext" id="recordLink" value="{{linkHref $id}}">
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="recordTitle" id="recordTitleLabel" class="col-sm-2 col-form-label">Title</label>
+            <div class="col-sm-7">
+              <input type="text" name="title" class="form-control" id="recordTitle" value="{{index . "recTitle"}}">
+            </div>
+            <div class="col-sm-3">
+              <div class="form-check form-switch">
+                {{recordOnline (index . "recOnline") }}
+                <label class="form-check-label" id="recordOnlineLabel" for="recordOnline">Online and public</label>
+              </div>            
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="recordReleasers" id="recordReleasersLabel" class="col-sm-2 col-form-label">Releasers</label>
+            <div class="col-sm-10">
+              <input type="text" name="releasers" class="form-control" id="recordReleasers" value="{{index . "recReleasers"}}">
+              <div class="form-text">
+                <span id="recordReleasersMax">A maximum of two releasers</span>, 
+                  example: <code class="d-none">Razor 1911 + Titan</code><code class="">Console News + Titan</code>
+                  <span class="d-none"><br>A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q>, example: <code>Dark Domain BBS</code></span>
+              </div>
+            </div>
+          </div>
+          <div class="input-group mb-3">
+            <span class="input-group-text">Year, month, day of release</span>
+            <input type="number" name="release-year" id="recordYear" min="1980" max="2023" aria-label="Year of release" class="form-control input-date" value="{{index . "recYear"}}" placeholder="{{exampleYear}}">
+            <input type="number" name="release-month" id="recordMonth" min="1" max="12" aria-label="Month of release" class="form-control input-date" value="{{index . "recMonth"}}" placeholder="{{exampleMonth}}">
+            <input type="number" name="release-day" id="recordDay" min="1" max="31" aria-label="Day of release" class="form-control input-date" value="{{index . "recDay"}}" placeholder="{{exampleDay}}">
+            {{recordLastMod (index . "recLastMod") }}Use last modification</button>
+            <input type="hidden" id="recordLastMod" value="{{index . "recLastModValue"}}">
+          </div>
+          <div class="mb-1 row">
+            <div class="input-group">
+              <label class="input-group-text" name="platform" for="recordPlatform">Platform</label>
+              <select class="form-select" id="recordPlatform">
+                {{ template "optionOS" . }}
+              </select>
+              <span class="input-group-text" name="tag" for="recordTag">Tag</span>
+              <select class="form-select" id="recordTag">
+                {{ template "optionTag" . }}
+              </select>
+            </div> 
+          </div>
+          <div class="btn-group mb-3">
+            <button class="btn btn-sm btn-link" id="recordDosText" type="button">Dos text</button>
+            <button class="btn btn-sm btn-link" id="recordAmigaText" type="button">Amiga text</button>
+            <button class="btn btn-sm btn-link" id="recordProof" type="button">Proof</button>
+            <button class="btn btn-sm btn-link" id="recordDostro" type="button">Dos intro</button>
+            <button class="btn btn-sm btn-link" id="recordWintro" type="button">Win intro</button>
+            <button class="btn btn-sm btn-link" id="recordBBStro" type="button">BBStro</button>
+            <button class="btn btn-sm btn-link" id="recordBBSAnsi" type="button">BBS ANSI ad</button>
+            <button class="btn btn-sm btn-link" id="recordTextMag" type="button">Emag text</button>
+            <button class="btn btn-sm btn-link" id="recordDosMag" type="button">Emag Dos app</button>
+          </div>
+          <div class="mb-3">
+            <div class="input-group">
+              <div class="form-floating">
+                <input type="text" class="form-control" id="recordArtist" value="{{index . "artists"}}">
+                <label for="recordArtist">Artists</label>
+              </div>
+              <div class="form-floating">
+                <input type="text" class="form-control" id="recordCoder" value="{{index . "programmers"}}">
+                <label for="recordCoder">Coders</label>
+              </div>
+              <div class="form-floating">
+                <input type="text" class="form-control" id="recordMusic" value="{{index . "musicians"}}">
+                <label for="recordMusic">Musicians</label>
+              </div>
+              <div class="form-floating">
+                <input type="text" class="form-control" id="recordWriter" value="{{index . "writers"}}">
+                <label for="recordWriter">Writers</label>
+              </div>
+            </div>
+            <div class="form-text">Join multiple authors or credits with commas, example: <code>nick1,nick2</code></div>
+          </div>
+          <div class="form-text text-info-emphasis mb-2">All the fields below are optional and usually don't need modification</div>
+          <div class="mb-3 input-group">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="recordDemozoo" value="{{index . "demozoo"}}">
+              <label for="recordDemozoo">Demozoo prod</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="recordPouet" value="{{index . "pouet"}}">
+              <label for="recordPouet">Pouet prod</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="record16colors" value="{{index . "sixteenColors"}}">
+              <label for="record16colors">16colors partial</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="recordGitHub" value="{{index . "github"}}">
+              <label for="recordGitHub">GitHub repository</label>
+            </div>
+          </div>
+          <div class="mb-3">
+          <div class="form-text">links example: <code>NFO;9b1c6|Intro;a92116e</code></div>
+          <div class="input-group">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="recordLinks">
+              <label for="recordLinks">Links to other releases</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="recordWebsites">
+              <label for="recordWebsites">Websites</label>
+            </div>
+          </div>
+          <div class="form-text text-end">websites example: <code>Original;https://web.com|Docs;https://info.org</code></div>
+        </div>
+          <div class="row g-2 mb-3">
+            <div class="col-md">
+              <div class="input-group">
+                <div class="form-floating">
+                  <input type="text" class="form-control" id="recordYouTube" value="{{index . "youtube"}}">
+                  <label for="recordYouTube">YouTube ID</label>
+                </div>
+                <div class="form-floating">
+                  <input type="text" class="form-control" id="recordVTotal">
+                  <label for="recordVTotal">VirusTotal URL</label>
+                </div>
+              </div>
+            </div>
+            <div class="col-md">
+              <div class="form-floating">
+                <input type="text" class="form-control" id="recordFilename" value="{{index . "filename"}}">
+                <label for="recordFilename">Filename</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-floating">
+            <textarea class="form-control" id="recordComment">{{index . "comment"}}</textarea>
+            <label for="recordComment">Comments</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="reset" id="recordReset" class="btn btn-secondary">Reset</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    <form>
+    </div>
+  </div>
+{{- end}}

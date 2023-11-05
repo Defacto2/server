@@ -1,0 +1,89 @@
+{{- /*  option_tag.tmpl  */}}
+{{- /*  
+    ansieditor          app-ansi-tool
+    programmingtool     app-coding-tool
+    nfotool             app-nfo-tool
+
+    scenerules          text-rules
+    newsmedia           text-news-media
+    groupapplication    app-text-job
+    interview           text-interview
+    internaldocument    text-insider
+    guide               text-how-to
+    forsale             text-for-sale
+    politics            text-drama
+    takedown            text-bust
+    announcements       text-announce
+
+    package             zip-filepack
+    magazine            app-text-magazine
+    releaseinstall      app-installer
+    gamehack            app-trainer
+    demo                app-demo
+    releaseadvert       app-intro-cracktro
+    ftp                 ftp-ftptro
+    bbs                 bbs-bbstro
+    releaseinformation  app-text-nfo
+    logo                app-text-logo
+    releaseproof        img-proof
+*/}}
+{{- define "optionTag" -}}
+{{- $tag := (index . "section") }}
+{{- $package := tagSel $tag "package" }}
+{{- $magazine := tagSel $tag "magazine" }}
+{{- $releaseinstall := tagSel $tag "releaseinstall" }}
+{{- $gamehack := tagSel $tag "gamehack" }}
+{{- $demo := tagSel $tag "demo" }}
+{{- $releaseadvert := tagSel $tag "releaseadvert" }}
+{{- $ftp := tagSel $tag "ftp" }}
+{{- $bbs := tagSel $tag "bbs" }}
+{{- $releaseinformation := tagSel $tag "releaseinformation" }}
+{{- $logo := tagSel $tag "logo" }}
+{{- $releaseproof := tagSel $tag "releaseproof" }}
+{{- $ansieditor := tagSel $tag "ansieditor" }}
+{{- $programmingtool := tagSel $tag "programmingtool" }}
+{{- $nfotool := tagSel $tag "nfotool" }}
+{{- $scenerules := tagSel $tag "scenerules" }}
+{{- $newsmedia := tagSel $tag "newsmedia" }}
+{{- $groupapplication := tagSel $tag "groupapplication" }}
+{{- $interview := tagSel $tag "interview" }}
+{{- $internaldocument := tagSel $tag "internaldocument" }}
+{{- $guide := tagSel $tag "guide" }}
+{{- $forsale := tagSel $tag "forsale" }}
+{{- $politics := tagSel $tag "politics" }}
+{{- $takedown := tagSel $tag "takedown" }}
+{{- $announcements := tagSel $tag "announcements" }}
+{{- $appleii := tagSel "appleii" $tag }}
+{{- $atarist := tagSel "atarist" $tag }}
+<option value="" selected>Choose...</option>
+{{$releaseproof}}Proof of release</option>
+{{$logo}}Logo, brand or releaser ad</option>
+{{$releaseinformation}}NFO or README</option>
+{{$bbs}}BBS ad or bbstro</option>
+{{$ftp}}FTP ad or ftptro</option>
+<option></option>
+{{$releaseadvert}}Cracktro or intro app</option>
+{{$demo}}Demoscene prod app</option>
+{{$gamehack}}Trainer or game hack app</option>
+{{$releaseinstall}}Installer app</option>
+{{$magazine}}Magazine</option>
+{{$package}}Filepack</option>
+<option></option>
+{{$announcements}}Announcement</option>
+{{$takedown}}Bust or takedown</option>
+{{$politics}}Drama</option>
+{{$forsale}}For sale ad</option>
+{{$guide}}How-To or guide</option>
+{{$internaldocument}}Insider or not-for-public</option>
+{{$interview}}Interview</option>
+{{$groupapplication}}Job ad or application</option>
+{{$newsmedia}}Mainstream news article</option>
+{{$scenerules}}Standards or rules</option>
+<option></option>
+{{$nfotool}}NFO tool app</option>
+{{$programmingtool}}Coding tool app</option>
+{{$ansieditor}}ANSI tool app</option>
+<option></option>
+{{$appleii}}Apple II</option>
+{{$atarist}}Atari ST</option>
+{{- end -}}

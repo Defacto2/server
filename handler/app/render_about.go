@@ -46,8 +46,18 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	}
 	fname := res.Filename.String
 	uuid := res.UUID.String
-	platform := strings.TrimSpace(res.Platform.String)
 	data := empty()
+	// about editor
+	data["recID"] = res.ID
+	data["recTitle"] = res.RecordTitle.String
+	data["recOnline"] = res.Deletedat.Time.IsZero()
+	data["recReleasers"] = string(RecordRels(res.GroupBrandBy, res.GroupBrandFor))
+	data["recYear"] = res.DateIssuedYear.Int16
+	data["recMonth"] = res.DateIssuedMonth.Int16
+	data["recDay"] = res.DateIssuedDay.Int16
+	data["recLastMod"] = res.FileLastModified.IsZero()
+	data["recLastModValue"] = res.FileLastModified.Time.Format("2006-1-2") // value should not have no leading zeros
+	// page metadata
 	data["uuid"] = uuid
 	data["download"] = helper.ObfuscateID(int64(res.ID))
 	data["title"] = fname
@@ -65,8 +75,8 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	data["magic"] = res.FileMagicType.String
 	data["releasers"] = string(LinkRels(res.GroupBrandBy, res.GroupBrandFor))
 	data["published"] = model.PublishedFmt(res)
-	data["section"] = res.Section.String
-	data["platform"] = platform
+	data["section"] = strings.TrimSpace(res.Section.String)
+	data["platform"] = strings.TrimSpace(res.Platform.String)
 	data["alertURL"] = res.FileSecurityAlertURL.String
 	// attributions and credits
 	data["writers"] = res.CreditText.String
@@ -75,8 +85,8 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	data["musicians"] = res.CreditAudio.String
 	// links to other records and sites
 	data["listLinks"] = aboutLinks(res)
-	data["demozoo"] = res.WebIDDemozoo.Int64
-	data["pouet"] = res.WebIDPouet.Int64
+	data["demozoo"] = aboutID(res.WebIDDemozoo.Int64)
+	data["pouet"] = aboutID(res.WebIDPouet.Int64)
 	data["sixteenColors"] = res.WebID16colors.String
 	data["youtube"] = res.WebIDYoutube.String
 	data["github"] = res.WebIDGithub.String
@@ -339,4 +349,11 @@ func aboutJSDos(res *models.File) bool {
 		return true
 	}
 	return false
+}
+
+func aboutID(id int64) string {
+	if id == 0 {
+		return ""
+	}
+	return strconv.FormatInt(id, 10)
 }

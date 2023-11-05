@@ -46,6 +46,11 @@
 </div>{{ end -}}
 {{- /*  About the file download link  */}}
 <div class="d-grid gap-2 d-sm-block mx-auto py-3 text-center">
+    {{/*  TODO: hide unless editor  */}}
+    <div class="btn-group w-100 p-3">
+        <a href="#" data-bs-toggle="modal" data-bs-target="#fileEditorModal" class="btn btn-lg btn-outline-success">File assets editor</a>
+        <a href="#" data-bs-toggle="modal" data-bs-target="#fileEditorModal" class="btn btn-lg btn-outline-primary">Metadata editor</a>
+    </div>
 {{- if eq (index . "alertURL") "" }}
     {{/*  standard download  */}}
     <a class="btn btn-success btn-lg m-1" href="/d/{{index . "download"}}" rel="nofollow" role="button">
@@ -86,8 +91,6 @@
     <a class="d-inline btn btn-outline-secondary btn m-1" href="{{- index . "linkpreview" }}" 
     role="button" data-bs-toggle="tooltip" data-bs-title="{{index . "linkpreviewTip"}}">preview</a>
 {{- end}}
-{{/*  TODO: hide unless editor  */}}
-<a class="d-inline btn btn-primary btn m-1" href="#" role="button" data-bs-toggle="modal" data-bs-target="#fileEditorModal" data-bs-toggle="tooltip" data-bs-title="Edit this file">Modify</a>
 </div>
 {{- /*  Commant about the file  */}}
 {{- if ne $comment ""}}
@@ -165,7 +168,7 @@
             </td>
         </tr>{{- end}}
         {{- /*  Pouet, Demozoo, 16colors links  */}}
-        {{- if gt $pouet 0}}
+        {{- if ne $pouet ""}}
         <tr id="pouetRow" class="d-none">
             <th scope="row">Pouët reviews</th>
             <td>
@@ -174,7 +177,7 @@
                 <span class="d-none" id="pouetVoteID">{{$pouet}}</span>
             </td>
         </tr>{{- end}}
-        {{- if gt $demozoo 0}}
+        {{- if ne $demozoo ""}}
         <tr>
             <th scope="row">Demozoo</th>
             <td>

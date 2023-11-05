@@ -27,6 +27,9 @@ const (
 	BootJS   = "/js/bootstrap.bundle.min.js" // BootJS is the path to the minified Bootstrap 5 JS file.
 	BootJPub = public + BootJS
 
+	EditorJS    = "/js/editor.min.js" // EditorJS is the path to the minified Editor JS file.
+	EditorJSPub = public + EditorJS
+
 	FAJS  = "/js/fontawesome.min.js" // FAJS is the path to the minified Font Awesome JS file.
 	FAPub = public + FAJS
 
@@ -133,15 +136,25 @@ func (web Web) tmpl(name filename) (*template.Template, error) {
 		fileExp    = "file_expand.tmpl"
 		layout     = "layout.tmpl"
 		modal      = "modal.tmpl"
+		optionOS   = "option_os.tmpl"
+		optionTag  = "option_tag.tmpl"
 		pagination = "pagination.tmpl"
 		website    = "website.tmpl"
 		uploader   = "uploader.tmpl"
 	)
-	files := []string{GlobTo(layout), GlobTo(pagination), GlobTo(string(name)), GlobTo(modal), GlobTo(uploader)}
+	files := []string{
+		GlobTo(layout),
+		GlobTo(modal),
+		GlobTo(optionOS),
+		GlobTo(optionTag),
+		GlobTo(string(name)),
+		GlobTo(pagination),
+		GlobTo(uploader),
+	}
 	// append any additional templates
 	switch name {
 	case "about.tmpl":
-		files = append(files, GlobTo("about_table.tmpl"), GlobTo("about_jsdos.tmpl"))
+		files = append(files, GlobTo("about_table.tmpl"), GlobTo("about_jsdos.tmpl"), GlobTo("about_editor.tmpl"))
 	case "file.tmpl":
 		files = append(files, GlobTo(fileExp))
 	case "websites.tmpl":
@@ -155,6 +168,7 @@ func (web Web) tmpl(name filename) (*template.Template, error) {
 type SRI struct {
 	BootstrapCSS string // Bootstrap CSS verification hash.
 	BootstrapJS  string // Bootstrap JS verification hash.
+	EditorJS     string // Editor JS verification hash.
 	FontAwesome  string // Font Awesome verification hash.
 	JSDos        string // JS DOS verification hash.
 	JSWDos       string // JS wasm verification hash.
@@ -175,6 +189,10 @@ func (s *SRI) Verify(fs embed.FS) error {
 		return err
 	}
 	s.BootstrapJS, err = helper.Integrity(BootJPub, fs)
+	if err != nil {
+		return err
+	}
+	s.EditorJS, err = helper.Integrity(EditorJSPub, fs)
 	if err != nil {
 		return err
 	}

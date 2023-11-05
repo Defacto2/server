@@ -391,62 +391,14 @@
             </div>
             <div class="input-group mb-1">
               <select name="operating-system" id="advSelOS" class="form-select">
-                <option selected>Choose...</option>
-                <option value="windows">Windows PC app</option>
-                <option value="msdos">Dos PC app</option>
-                <option></option>
-                <option value="ascii">Text <small>PC or ascii</small></option>
-                <option value="amiga">Text <small>Amiga</small></option>
-                <option value="ansi">Text <small>ANSI</small></option>
-                <option value="pcboard">Text <small>PCBoard bbs</small></option>
-                <option value="pdf">PDF <small>document</small></option>
-                <option></option>
-                <option value="image">Image <small>png, jpg, gif, etc.</small></option>
-                <option value="music">Music <small>mp3 or modules</small></option>
-                <option value="video">Video</option>
-                <option></option>
-                <option value="linux">Linux</option>
-                <option value="macos">macOS</option>
-                <option value="shell">shell <small>script</small></option>
-                <option value="java">Java <small>web app</small></option>
-                <option value="html">Html <small>webpage</small></option>
-                <option value="database">Database</option>
+                {{ template "optionOS" . }}
               </select>
               <label class="input-group-text" for="advSelOS">Operating system</label>
             </div>
             <div class="input-group mb-3">
               <label class="input-group-text" for="advSelCat">Tag as category</label>
               <select name="category" id="advSelCat" class="form-select">
-                <option selected>Choose...</option>
-                <option value="proof">Proof of release</option>
-                <option value="ad">Releaser ad or logo</option>
-                <option value="nfo">NFO or README</option>
-                <option></option>
-                <option value="intro">Intro or cracktro app</option>
-                <option value="demo">Demoscene prod app</option>
-                <option value="train">Trainer or game hack app</option>
-                <option value="install">Installer app</option>
-                <option value="magazine">Magazine</option>
-                <option value="filepack">Filepack</option>
-                <option></option>
-                <option value="announce">Announcement</option>
-                <option value="bust">Bust or takedown</option>
-                <option value="drama">Drama</option>
-                <option value="foresale">For sale ad</option>
-                <option value="howto">How-To or guide</option>
-                <option value="insider">Insider or not-for-public</option>
-                <option value="interview">Interview</option>
-                <option value="jobad">Job ad or application</option>
-                <option value="mainstream">Mainstream news article</option>
-                <option value="rules">Standards or rules</option>
-                <option></option>
-                <option value="nfotool">NFO tool app</option>
-                <option value="scenetool">A Scene tool app</option>
-                <option value="ansitool">ANSI tool app</option>
-                <option></option>
-                <option value="apple2">Apple II</option>
-                <option value="atarist">Atari ST</option>
-  
+                {{ template "optionTag" . }}
               </select>
             </div>
             <div class="form-floating mb-3">

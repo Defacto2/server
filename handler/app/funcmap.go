@@ -141,6 +141,12 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"uploader": func() string {
 			return UploaderJS
 		},
+		"editorForm": func() string {
+			return EditorJS
+		},
+		"sriEditorForm": func() string {
+			return web.Subresource.EditorJS
+		},
 		"restPouet": func() string {
 			return RestPouetJS
 		},
@@ -152,6 +158,24 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		},
 		"sriRestZoo": func() string {
 			return web.Subresource.RestZooJS
+		},
+		//"recordReleasers": RecordRels,
+		"tagSel": TagSel,
+		"recordOnline": func(b bool) template.HTML {
+			if b {
+				return template.HTML("<input class=\"form-check-input\"" +
+					" name=\"online\" type=\"checkbox\" role=\"switch\" id=\"recordOnline\" checked>")
+			}
+			return template.HTML(("<input class=\"form-check-input\"" +
+				" name=\"online\" type=\"checkbox\" role=\"switch\" id=\"recordOnline\">"))
+		},
+		"recordLastMod": func(b bool) template.HTML {
+			if b {
+				// tooltips do not work on disabled buttons
+				return template.HTML("<button class=\"btn btn-outline-secondary\" type=\"button\" disabled>")
+			}
+			return template.HTML("<button id=\"recordLMBtn\" class=\"btn btn-outline-secondary\" type=\"button\" " +
+				"data-bs-toggle=\"tooltip\" data-bs-title=\"Apply the file last modified date\">")
 		},
 	}
 }

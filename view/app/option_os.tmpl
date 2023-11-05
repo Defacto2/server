@@ -1,0 +1,40 @@
+{{- /*  option_os.tmpl  */}}
+{{- define "optionOS" -}}
+{{- $os := (index . "platform") }}
+{{- $windows := tagSel $os "windows" }}
+{{- $dos := tagSel $os "dos" }}
+{{- $text := tagSel $os "text" }}
+{{- $textamiga := tagSel $os "textamiga" }}
+{{- $ansi := tagSel $os "ansi" }}
+{{- $pcb := tagSel $os "pcb" }}
+{{- $pdf := tagSel $os "pdf" }}
+{{- $image := tagSel $os "image" }}
+{{- $audio := tagSel $os "audio" }}
+{{- $video := tagSel $os "video" }}
+{{- $linux := tagSel $os "linux" }}
+{{- $mac10 := tagSel $os "mac10" }}
+{{- $php := tagSel $os "php" }}
+{{- $java := tagSel $os "java" }}
+{{- $markup := tagSel $os "markup" }}
+{{- $database := tagSel $os "database" }}
+<option value="" selected>Choose...</option>
+{{$windows}}Windows PC app</option>
+{{$dos}}Dos PC app</option>
+<option></option>
+{{$text}}Text CP-437</option>
+{{$textamiga}}Text Latin-1</option>
+{{$ansi}}Text ANSI</option>
+{{$pcb}}Text PCBoard</option>
+{{$pdf}}PDF document</option>
+<option></option>
+{{$image}}Image ~ png, jpg, gif, etc.</option>
+{{$audio}}Music ~ mp3 or modules</option>
+{{$video}}Video</option>
+<option></option>
+{{$linux}}Linux</option>
+{{$mac10}}macOS</option>
+{{$php}}shell script</option>
+{{$java}}Java web app</option>
+{{$markup}}Html webpage</option>
+{{$database}}Database</option>
+{{- end -}}
