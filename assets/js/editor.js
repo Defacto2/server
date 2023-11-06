@@ -213,15 +213,14 @@
       dz.classList.add(err);
       return;
     }
-    if (id == 0) {
-      dz.value = ``;
-      dz.classList.remove(err);
-      return;
-    }
     if (id < 0 || id > 999999) {
       dz.classList.add(err);
       return;
     }
+    if (id == 0) {
+      dz.value = ``;
+    }
+    dz.classList.remove(err);
   });
   // pouet copy and paste
   const pouet = document.getElementById(`recordPouet`);
@@ -264,15 +263,14 @@
       pouet.classList.add(err);
       return;
     }
-    if (id == 0) {
-      pouet.value = ``;
-      pouet.classList.remove(err);
-      return;
-    }
     if (id < 0 || id > 199999) {
       pouet.classList.add(err);
       return;
     }
+    if (id == 0) {
+      pouet.value = ``;
+    }
+    pouet.classList.remove(err);
   });
   // 16colors
   const sixteen = document.getElementById(`record16colors`);
@@ -383,12 +381,18 @@
     setTimeout(() => {
       if (tag.value == `magazine`) {
         magazineTag();
+        return;
       }
+      titleTag()
     }, 0);
   });
   function magazineTag() {
     releaserL.textContent = `Magazine`;
     titleL.textContent = `Issue`;
+  }
+  function titleTag() {
+    releaserL.textContent = `Releasers`;
+    titleL.textContent = `Title`;
   }
 
   // platform and tag shortcut buttons
@@ -397,54 +401,63 @@
     .addEventListener(`click`, function (event) {
       platform.value = `text`;
       tag.value = ``;
+      titleTag();
     });
   document
     .getElementById(`recordAmigaText`)
     .addEventListener(`click`, function (event) {
       platform.value = `textamiga`;
       tag.value = ``;
+      titleTag();
     });
   document
     .getElementById(`recordProof`)
     .addEventListener(`click`, function (event) {
       platform.value = `image`;
       tag.value = `releaseproof`;
+      titleTag();
     });
   document
     .getElementById(`recordDostro`)
     .addEventListener(`click`, function (event) {
       platform.value = `dos`;
       tag.value = `releaseadvert`;
+      titleTag();
     });
   document
     .getElementById(`recordWintro`)
     .addEventListener(`click`, function (event) {
       platform.value = `windows`;
       tag.value = `releaseadvert`;
+      titleTag();
     });
   document
     .getElementById(`recordBBStro`)
     .addEventListener(`click`, function (event) {
       platform.value = `dos`;
       tag.value = `bbs`;
+      titleTag();
     });
   document
     .getElementById(`recordBBSAnsi`)
     .addEventListener(`click`, function (event) {
       platform.value = `ansi`;
       tag.value = `bbs`;
+      titleTag();
     });
   document
     .getElementById(`recordTextMag`)
     .addEventListener(`click`, function (event) {
       platform.value = `text`;
       tag.value = `magazine`;
+      magazineTag();
     });
   document
     .getElementById(`recordDosMag`)
     .addEventListener(`click`, function (event) {
       platform.value = `dos`;
       tag.value = `magazine`;
+      magazineTag();
     });
 
   const reset = document.getElementById(`recordReset`);
@@ -452,16 +465,21 @@
   reset.addEventListener(`click`, function (event) {
     // delay execution to allow the reset action to complete
     setTimeout(() => {
-      const inputs = document.querySelectorAll(`input`);
-      inputs.forEach((input) => {
-        input.classList.remove(err);
-      }, 0);
       if (online.checked != true) {
         onlineL.classList.add(dang);
       } else {
         onlineL.classList.remove(dang);
       }
       releasersMax.classList.remove(dang);
+      if(tag.value == `magazine`) {
+        magazineTag();
+      } else {
+        titleTag();
+      }
+      const inputs = document.querySelectorAll(`input`);
+      inputs.forEach((input) => {
+        input.classList.remove(err);
+      }, 0);
     });
   });
 })();

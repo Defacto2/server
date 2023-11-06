@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"image"
 	"io"
 	"net/http"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -17,17 +19,23 @@ import (
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/render"
 	"github.com/Defacto2/server/model"
+	"github.com/h2non/filetype"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 	"golang.org/x/text/encoding/charmap"
+
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 )
 
 // AboutConf contains required data for the about file page.
 type AboutConf struct {
 	DownloadDir   string // path to the file download directory
 	ScreenshotDir string // path to the file screenshot directory
+	ThumbnailDir  string // path to the file thumbnail directory
 	URI           string // the URI of the file record
 }
 
@@ -46,6 +54,7 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	}
 	fname := res.Filename.String
 	uuid := res.UUID.String
+	abs := filepath.Join(a.DownloadDir, uuid)
 	data := empty()
 	// about editor
 	data["recID"] = res.ID
@@ -57,6 +66,12 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	data["recDay"] = res.DateIssuedDay.Int16
 	data["recLastMod"] = res.FileLastModified.IsZero()
 	data["recLastModValue"] = res.FileLastModified.Time.Format("2006-1-2") // value should not have no leading zeros
+	data["recAbsDownload"] = abs
+	data["recKind"] = aboutMagic(abs)
+	data["recStat"] = aboutStat(abs)
+	data["recAssets"] = a.aboutAssets(uuid)
+	data["recReadme"] = fmt.Sprintf("%q", res.RetrotxtReadme.String) // todo: a port of the CFML readme picker
+	data["recNoReadme"] = res.RetrotxtNoReadme.IsZero()
 	// page metadata
 	data["uuid"] = uuid
 	data["download"] = helper.ObfuscateID(int64(res.ID))
@@ -291,6 +306,29 @@ func aboutLM(res *models.File) string {
 	return lm
 }
 
+func aboutMagic(name string) string {
+	file, err := os.Open(name)
+	if err != nil {
+		return err.Error()
+	}
+	defer file.Close()
+
+	head := make([]byte, 512)
+	_, err = file.Read(head)
+	if err != nil {
+		return err.Error()
+	}
+	kind, err := filetype.Match(head)
+	if err != nil {
+		return err.Error()
+	}
+	if kind != filetype.Unknown {
+		return kind.MIME.Value
+	}
+
+	return http.DetectContentType(head)
+}
+
 func aboutModAgo(res *models.File) string {
 	if !res.FileLastModified.Valid {
 		return ""
@@ -356,4 +394,95 @@ func aboutID(id int64) string {
 		return ""
 	}
 	return strconv.FormatInt(id, 10)
+}
+
+// aboutStat returns the file status.
+func aboutStat(name string) string {
+	stat, err := os.Stat(name)
+	if err != nil {
+		return err.Error()
+	}
+	return fmt.Sprintf("%s, %d bytes or %s", stat.ModTime().Format("2006-1-2"), stat.Size(), helper.ByteCount(stat.Size()))
+}
+
+// aboutAssets returns a list of downloads and image assets belonging to the file record.
+// any errors are appended to the list.
+func (a AboutConf) aboutAssets(uuid string) map[string]string {
+	matches := map[string]string{}
+
+	downloads, err := os.ReadDir(a.DownloadDir)
+	if err != nil {
+		matches[err.Error()] = ""
+	}
+	images, err := os.ReadDir(a.ScreenshotDir)
+	if err != nil {
+		matches[err.Error()] = ""
+	}
+	thumbs, err := os.ReadDir(a.ThumbnailDir)
+	if err != nil {
+		matches[err.Error()] = ""
+	}
+
+	for _, file := range downloads {
+		if strings.HasPrefix(file.Name(), uuid) {
+			if filepath.Ext(file.Name()) == "" {
+				continue
+			}
+			s := strings.ToUpper(filepath.Ext(file.Name()))
+			st, err := file.Info()
+			if err != nil {
+				matches[err.Error()] = err.Error()
+			}
+			if s == ".TXT" {
+				s = ".TXT readme"
+			}
+			matches[s] = fmt.Sprintf("%d bytes", st.Size())
+		}
+	}
+	for _, file := range images {
+		if strings.HasPrefix(file.Name(), uuid) {
+			s := strings.ToUpper(filepath.Ext(file.Name()))
+			if s == ".WEBP" {
+				s = ".WebP"
+			}
+			matches[s+" preview "] = aboutImgInfo(filepath.Join(a.ScreenshotDir, file.Name()))
+		}
+	}
+	for _, file := range thumbs {
+		if strings.HasPrefix(file.Name(), uuid) {
+			s := strings.ToUpper(filepath.Ext(file.Name()))
+			if s == ".WEBP" {
+				s = ".WebP"
+			}
+			matches[s+" thumb"] = aboutImgInfo(filepath.Join(a.ThumbnailDir, file.Name()))
+		}
+	}
+
+	return matches
+}
+
+func aboutImgInfo(name string) string {
+	switch filepath.Ext(name) {
+	case ".png", ".jpg", ".jpeg", ".gif":
+	default:
+		st, err := os.Stat(name)
+		if err != nil {
+			return err.Error()
+		}
+		return fmt.Sprintf("%d bytes", st.Size())
+	}
+	reader, err := os.Open(name)
+	if err != nil {
+		return err.Error()
+	}
+	defer reader.Close()
+	st, err := reader.Stat()
+	if err != nil {
+		return err.Error()
+	}
+	config, format, err := image.DecodeConfig(reader)
+	if err != nil {
+		return err.Error()
+	}
+	return fmt.Sprintf("%s, %d x %d pixels, %d bytes", format, config.Width, config.Height, st.Size())
 }

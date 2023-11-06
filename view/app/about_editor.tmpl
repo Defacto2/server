@@ -2,9 +2,80 @@
 {{- define "aboutEditor" }}
 {{- $faSize := "fa-fw fa-2x" -}}
 {{- $id := index . "recID"}}
+<div class="modal fade" id="assetEditorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="assetEditorModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <i class="fal fa-file-alt {{ $faSize }}" title="Modify the record"></i> &nbsp;
+        <h1 class="modal-title fs-5" id="assetEditorModalLabel">Modify the file assets for ID {{index . "recID"}}</h1><br>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3 row" id="recordIDs">
+          <label for="recordIDs" class="col-sm-2 col-form-label">IDs</label>
+          <div class="col-sm-6">
+              <input type="text" readonly class="form-control-plaintext" id="recordUUID" value="{{index . "uuid"}}">
+          </div>
+          <div class="col-sm-2">
+            <input type="text" readonly class="form-control-plaintext" id="recordID" value="{{$id}}">
+          </div>
+          <div class="col-sm-2">
+            <input type="text" readonly class="form-control-plaintext" id="recordLink" value="{{linkHref $id}}">
+          </div>
+        </div>
+        <dl class="row mb-0">
+          <dt class="col-sm-2">Filename</dt>
+          <dd class="col-sm-10">{{index . "filename"}}</dd>
+        </dl>
+        <dl class="row mb-0">
+          <dt class="col-sm-2">Metadata</dt>
+          <dd class="col-sm-5">{{index . "recStat"}}</dd>
+        </dl>
+        <dl class="row mb-0">
+          <dt class="col-sm-2">Quick type</dt>
+          <dd class="col-sm-10">{{index . "recKind"}}</dd>
+        </dl>
+        <dl class="row mb-0">
+          <dt class="col-sm-2">Location</dt>
+          <dd class="col-sm-10">{{index . "recAbsDownload"}}</dd>
+        </dl>
+        <hr class="m-0 mb-3">
+        <table class="table table-success table-striped table-hover">
+          <thead>
+            <tr>
+              <th scope="col">Additional asset</th>
+              <th scope="col">Info</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{range $name, $info := .recAssets}}
+            <tr>
+              <td scope="row">{{$name}}</td>
+              <td>{{$info}}</td>
+            </tr>
+            {{end}}
+          </tbody>
+        </table>
+        <dl class="row mb-0">
+          <dt class="col-sm-2">Readme</dt>
+          <dd class="col-sm-5">{{index . "recReadme"}}</dd>
+          <dd class="col-sm-5"><small>hide the readme flag: {{index . "recNoReadme"}}</small></dd>
+        </dl>
+      </div>
+      <div class="modal-footer row g-2">
+        <div class="col-md text-begin">
+          <button class="btn btn-primary" data-bs-target="#fileEditorModal" data-bs-toggle="modal">Switch to metadata</button>
+        </div>
+        <div class="col-md text-end">
+          <button type="reset" id="recordReset" class="btn btn-outline-danger me-5">Reset</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="modal fade" id="fileEditorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="fileEditorModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-    <form>
       <div class="modal-content">
         <div class="modal-header">
           <i class="fal fa-file-alt {{ $faSize }}" title="Modify the record"></i> &nbsp;
@@ -42,16 +113,16 @@
               <input type="text" name="releasers" class="form-control" id="recordReleasers" value="{{index . "recReleasers"}}">
               <div class="form-text">
                 <span id="recordReleasersMax">A maximum of two releasers</span>, 
-                  example: <code class="d-none">Razor 1911 + Titan</code><code class="">Console News + Titan</code>
-                  <span class="d-none"><br>A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q>, example: <code>Dark Domain BBS</code></span>
+                  example: <code class="">Razor 1911 + Titan</code><code class="d-none">Console News + Titan</code>
+                  <span class=""><br>A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q>, example: <code>Dark Domain BBS</code></span>
               </div>
             </div>
           </div>
           <div class="input-group mb-3">
             <span class="input-group-text">Year, month, day of release</span>
             <input type="number" name="release-year" id="recordYear" min="1980" max="2023" aria-label="Year of release" class="form-control input-date" value="{{index . "recYear"}}" placeholder="{{exampleYear}}">
-            <input type="number" name="release-month" id="recordMonth" min="1" max="12" aria-label="Month of release" class="form-control input-date" value="{{index . "recMonth"}}" placeholder="{{exampleMonth}}">
-            <input type="number" name="release-day" id="recordDay" min="1" max="31" aria-label="Day of release" class="form-control input-date" value="{{index . "recDay"}}" placeholder="{{exampleDay}}">
+            <input type="number" name="release-month" id="recordMonth" min="0" max="12" aria-label="Month of release" class="form-control input-date" value="{{index . "recMonth"}}" placeholder="{{exampleMonth}}">
+            <input type="number" name="release-day" id="recordDay" min="0" max="31" aria-label="Day of release" class="form-control input-date" value="{{index . "recDay"}}" placeholder="{{exampleDay}}">
             {{recordLastMod (index . "recLastMod") }}Use last modification</button>
             <input type="hidden" id="recordLastMod" value="{{index . "recLastModValue"}}">
           </div>
@@ -157,12 +228,16 @@
             <label for="recordComment">Comments</label>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="reset" id="recordReset" class="btn btn-secondary">Reset</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <div class="modal-footer row g-2">
+          <div class="col-md text-begin">
+            <button class="btn btn-primary" data-bs-target="#assetEditorModal" data-bs-toggle="modal">Switch to assets</button>
+          </div>
+          <div class="col-md text-end">
+            <button type="reset" id="recordReset" class="btn btn-outline-danger me-5">Reset</button>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
         </div>
       </div>
-    <form>
     </div>
   </div>
 {{- end}}

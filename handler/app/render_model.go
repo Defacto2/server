@@ -89,7 +89,7 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 	case howTo:
 		r := model.HowTo{}
 		return r.List(ctx, db, page, limit)
-	case image:
+	case imageFile:
 		r := model.Image{}
 		return r.List(ctx, db, page, limit)
 	case imagePack:
@@ -235,7 +235,7 @@ func RecordsSub(uri string) string {
 		return uri
 	case howTo:
 		return tags.Humanizes(ignore, tags.Guide)
-	case image:
+	case imageFile:
 		return tags.Humanizes(tags.Image, ignore)
 	case imagePack:
 		return tags.Humanizes(tags.Image, tags.Pack)

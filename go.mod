@@ -8,6 +8,7 @@ require (
 	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/evanw/esbuild v0.18.15
 	github.com/friendsofgo/errors v0.9.2
+	github.com/h2non/filetype v1.1.3
 	github.com/jackc/pgx/v5 v5.4.3
 	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12
 	github.com/labstack/echo/v4 v4.11.1

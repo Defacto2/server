@@ -94,6 +94,7 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 		a := app.AboutConf{
 			DownloadDir:   conf.Import.DownloadDir,
 			ScreenshotDir: conf.Import.ScreenshotsDir,
+			ThumbnailDir:  conf.Import.ThumbnailDir,
 			URI:           c.Param("id"),
 		}
 		return a.About(z, c)

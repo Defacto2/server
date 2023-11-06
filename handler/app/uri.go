@@ -29,7 +29,7 @@ const (
 	html
 	java
 	jobAdvert
-	image
+	imageFile
 	imagePack
 	intro
 	introMsdos
