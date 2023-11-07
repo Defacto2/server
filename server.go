@@ -17,6 +17,8 @@ import (
 	"github.com/caarlos0/env/v7"
 	_ "github.com/lib/pq"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
+
+	_ "go.uber.org/automaxprocs"
 )
 
 //go:embed public/text/defacto2.txt
@@ -63,6 +65,7 @@ func main() {
 	}
 
 	// Go runtime customizations
+	// If not set, the automaxprocs lib automatically set GOMAXPROCS to match Linux container CPU quota
 	if i := configs.MaxProcs; i > 0 {
 		runtime.GOMAXPROCS(int(i))
 	}
