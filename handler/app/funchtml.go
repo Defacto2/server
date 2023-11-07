@@ -133,6 +133,29 @@ func (web Web) Thumb(uuid, desc string, bottom bool) template.HTML {
 	return template.HTML(elm)
 }
 
+func (web Web) ImageSample(uuid, ext string) template.HTML {
+	name := filepath.Join(web.Import.ScreenshotsDir, fmt.Sprintf("%s%s", uuid, ext))
+	src := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s%s", uuid, ext)}, "/")
+	hash, err := helper.IntegrityFile(name)
+	if err != nil {
+		return template.HTML(err.Error())
+	}
+	return template.HTML(fmt.Sprintf("<img src=\"%s?%s\" loading=\"lazy\" class=\"img-fluid\" alt=\"%s sample\" integrity=\"%s\" />",
+		src, hash, ext, hash))
+}
+
+func (web Web) ThumbSample(uuid string) template.HTML {
+	const ext = ".png"
+	name := filepath.Join(web.Import.ThumbnailDir, fmt.Sprintf("%s%s", uuid, ext))
+	src := strings.Join([]string{config.StaticThumb(), fmt.Sprintf("%s%s", uuid, ext)}, "/")
+	hash, err := helper.IntegrityFile(name)
+	if err != nil {
+		return template.HTML(err.Error())
+	}
+	return template.HTML(fmt.Sprintf("<img src=\"%s?%s\" loading=\"lazy\" class=\"img-fluid\" alt=\"%s sample\" integrity=\"%s\" />",
+		src, hash, ext, hash))
+}
+
 func img(src, alt, class, style string) template.HTML {
 	return template.HTML(fmt.Sprintf("<img src=\"%s\" loading=\"lazy\" alt=\"%s\" class=\"%s\" style=\"%s\" />",
 		src, alt, class, style))

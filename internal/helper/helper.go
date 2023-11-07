@@ -63,6 +63,16 @@ func Integrity(name string, fs embed.FS) (string, error) {
 	return IntegrityBytes(b), nil
 }
 
+// IntegrityFile returns the sha384 hash of the named file.
+// This can be used as a link cache buster.
+func IntegrityFile(name string) (string, error) {
+	b, err := os.ReadFile(name)
+	if err != nil {
+		return "", err
+	}
+	return IntegrityBytes(b), nil
+}
+
 // IntegrityBytes returns the sha384 hash of the given byte slice.
 func IntegrityBytes(b []byte) string {
 	sum := sha512.Sum384(b)

@@ -70,8 +70,8 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	data["recKind"] = aboutMagic(abs)
 	data["recStat"] = aboutStat(abs)
 	data["recAssets"] = a.aboutAssets(uuid)
-	data["recReadme"] = fmt.Sprintf("%q", res.RetrotxtReadme.String) // todo: a port of the CFML readme picker
-	data["recNoReadme"] = res.RetrotxtNoReadme.IsZero()
+	data["recReadme"] = res.RetrotxtReadme.String // todo: a port of the CFML readme picker
+	data["recNoReadme"] = !res.RetrotxtNoReadme.IsZero()
 	// page metadata
 	data["uuid"] = uuid
 	data["download"] = helper.ObfuscateID(int64(res.ID))
@@ -433,8 +433,11 @@ func (a AboutConf) aboutAssets(uuid string) map[string]string {
 			if err != nil {
 				matches[err.Error()] = err.Error()
 			}
-			if s == ".TXT" {
+			switch s {
+			case ".TXT":
 				s = ".TXT readme"
+			case ".ZIP":
+				s = ".ZIP for emulator"
 			}
 			matches[s] = fmt.Sprintf("%d bytes", st.Size())
 		}

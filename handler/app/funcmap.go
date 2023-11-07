@@ -177,5 +177,7 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 			return template.HTML("<button id=\"recordLMBtn\" class=\"btn btn-outline-secondary\" type=\"button\" " +
 				"data-bs-toggle=\"tooltip\" data-bs-title=\"Apply the file last modified date\">")
 		},
+		"recordImgSample":   web.ImageSample,
+		"recordThumbSample": web.ThumbSample,
 	}
 }
