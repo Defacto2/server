@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"errors"
+	"fmt"
 	"os"
 	"runtime"
 
@@ -100,8 +101,6 @@ func main() {
 	// Database
 	if err := RepairDB(server); err != nil {
 		if errors.Is(err, ErrVer) {
-			// todo give ports feedback
-			// also display the program ver on startup.
 			logs.Warnf("%s, is the database server down?", ErrVer)
 		} else {
 			logs.Errorf("%s: %s", ErrDB, err)
@@ -114,6 +113,8 @@ func main() {
 
 	// Start the HTTP server
 	go server.StartHTTP(e)
+	// List the detected host IP addresses
+	go fmt.Printf("%s\n", configs.Startup())
 
 	// Gracefully shutdown the HTTP server
 	server.ShutdownHTTP(e)

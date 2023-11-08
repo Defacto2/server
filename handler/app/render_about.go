@@ -69,7 +69,7 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	data["recKind"] = aboutMagic(abs)
 	data["recStat"] = aboutStat(abs)
 	data["recAssets"] = a.aboutAssets(uuid)
-	data["recReadme"] = res.RetrotxtReadme.String // todo: a port of the CFML readme picker
+	data["recReadme"] = res.RetrotxtReadme.String
 	data["recNoReadme"] = !res.RetrotxtNoReadme.IsZero()
 	// page metadata
 	data["uuid"] = uuid

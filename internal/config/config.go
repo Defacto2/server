@@ -85,19 +85,29 @@ func (c Config) String() string {
 // Addresses returns a list of urls that the server is accessible from.
 func (c Config) Addresses() string {
 	b := new(strings.Builder)
-	c.addresses(b)
+	c.addresses(b, true)
+	return b.String()
+}
+
+// Startup returns a list of urls that the server is accessible from,
+// without any CLI helper text.
+func (c Config) Startup() string {
+	b := new(strings.Builder)
+	c.addresses(b, false)
 	return b.String()
 }
 
 // addresses prints a list of urls that the server is accessible from.
-func (c Config) addresses(b *strings.Builder) *strings.Builder {
+func (c Config) addresses(b *strings.Builder, intro bool) *strings.Builder {
 	pad := strings.Repeat(string(padchar), padding)
 	values := reflect.ValueOf(c)
-	fmt.Fprintf(b, "%s\n",
-		"Depending on your firewall, network and certificate setup,")
-	fmt.Fprintf(b, "%s\n",
-		"this web server could be accessible from the following addresses:")
-	fmt.Fprintf(b, "\n")
+	if intro {
+		fmt.Fprintf(b, "%s\n",
+			"Depending on your firewall, network and certificate setup,")
+		fmt.Fprintf(b, "%s\n",
+			"this web server could be accessible from the following addresses:")
+		fmt.Fprintf(b, "\n")
+	}
 	hosts, err := helper.GetLocalHosts()
 	if err != nil {
 		log.Fatalf("The server cannot get the local host names: %s.", err)
