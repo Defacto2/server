@@ -20,6 +20,8 @@ var (
 	ErrFileModel = errors.New("file model is nil")
 )
 
+const textamiga = "textamiga"
+
 // Encoder returns the encoding for the model file entry.
 // Based on the platform and section.
 // Otherwise it will attempt to determine the encoding from the file byte content.
@@ -32,7 +34,7 @@ func Encoder(res *models.File, b ...byte) encoding.Encoding {
 	section := strings.ToLower(strings.TrimSpace(res.Section.String))
 
 	switch platform {
-	case "textamiga":
+	case textamiga:
 		return charmap.ISO8859_1
 	default:
 		switch section {
@@ -91,7 +93,8 @@ func Read(path string, res *models.File) ([]byte, error) {
 
 // IsUTF16 returns true if the byte slice is encoded in UTF-16.
 func IsUTF16(p []byte) bool {
-	if len(p) < 2 {
+	const minimum = 2
+	if len(p) < minimum {
 		return false
 	}
 	if p[0] == 0xff && p[1] == 0xfe {
@@ -110,7 +113,7 @@ func Viewer(res *models.File) bool {
 	}
 	platform := strings.ToLower(strings.TrimSpace(res.Platform.String))
 	switch platform {
-	case "text", "textamiga":
+	case "text", textamiga:
 		return true
 	}
 	return false
@@ -129,7 +132,7 @@ func NoScreenshot(path string, res *models.File) bool {
 	}
 	platform := strings.ToLower(strings.TrimSpace(res.Platform.String))
 	switch platform {
-	case "textamiga", "text":
+	case textamiga, "text":
 		return true
 	}
 	uuid := res.UUID.String

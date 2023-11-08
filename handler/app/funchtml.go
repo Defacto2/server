@@ -140,7 +140,8 @@ func (web Web) ImageSample(uuid, ext string) template.HTML {
 	if err != nil {
 		return template.HTML(err.Error())
 	}
-	return template.HTML(fmt.Sprintf("<img src=\"%s?%s\" loading=\"lazy\" class=\"img-fluid\" alt=\"%s sample\" integrity=\"%s\" />",
+	return template.HTML(fmt.Sprintf("<img src=\"%s?%s\" loading=\"lazy\" "+
+		"class=\"img-fluid\" alt=\"%s sample\" integrity=\"%s\" />",
 		src, hash, ext, hash))
 }
 
@@ -152,7 +153,8 @@ func (web Web) ThumbSample(uuid string) template.HTML {
 	if err != nil {
 		return template.HTML(err.Error())
 	}
-	return template.HTML(fmt.Sprintf("<img src=\"%s?%s\" loading=\"lazy\" class=\"img-fluid\" alt=\"%s sample\" integrity=\"%s\" />",
+	return template.HTML(fmt.Sprintf("<img src=\"%s?%s\" loading=\"lazy\" "+
+		"class=\"img-fluid\" alt=\"%s sample\" integrity=\"%s\" />",
 		src, hash, ext, hash))
 }
 
@@ -374,7 +376,8 @@ func LinkDownload(id any, alertURL string) template.HTML {
 		return template.HTML(err.Error())
 	}
 	if alertURL != "" {
-		return template.HTML(`<s class="card-link text-warning-emphasis" data-bs-toggle="tooltip" data-bs-title="Use the About link to access this file download">Download</s>`)
+		return template.HTML(`<s class="card-link text-warning-emphasis" data-bs-toggle="tooltip" ` +
+			`data-bs-title="Use the About link to access this file download">Download</s>`)
 	}
 	return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">Download</a>`, s))
 }

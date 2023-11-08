@@ -33,6 +33,7 @@ tasks:
       - cmd: clear
         platforms: [linux, darwin, freebsd]
       - cmd: gofumpt -w .
+      - cmd: gci write -s standard -s default .
       - cmd: golangci-lint run
   build:
     desc: "Build the binary of the web server."
@@ -187,6 +188,7 @@ tasks:
     cmds:
       - cmd: go version
       - cmd: gofumpt --version
+      - cmd: gci --version
       - cmd: task --version
       - cmd: golangci-lint --version
       - cmd: goreleaser --version

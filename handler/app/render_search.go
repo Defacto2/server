@@ -52,7 +52,7 @@ func PostDesc(z *zap.SugaredLogger, c echo.Context, input string) error {
 	}
 	defer db.Close()
 
-	//input := c.FormValue("search-term-query")
+	// input := c.FormValue("search-term-query")
 	terms := helper.SearchTerm(input)
 	rel := model.Files{}
 
@@ -196,7 +196,7 @@ func SearchReleaser(z *zap.SugaredLogger, c echo.Context) error {
 	data["description"] = "Search form to discover releasers."
 	data["logo"] = title
 	data["title"] = title
-	data["info"] = "A search for a group, initalism, magazine, board or site"
+	data["info"] = "A search for a group, initialism, magazine, board or site"
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {

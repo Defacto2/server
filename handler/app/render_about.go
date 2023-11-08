@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"html/template"
 	"image"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
 	"net/http"
 	"os"
@@ -25,10 +28,6 @@ import (
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 	"golang.org/x/text/encoding/charmap"
-
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
 )
 
 // AboutConf contains required data for the about file page.
@@ -313,7 +312,8 @@ func aboutMagic(name string) string {
 	}
 	defer file.Close()
 
-	head := make([]byte, 512)
+	const sample = 512
+	head := make([]byte, sample)
 	_, err = file.Read(head)
 	if err != nil {
 		return err.Error()

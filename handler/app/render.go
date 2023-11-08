@@ -17,9 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var (
-	ErrData = fmt.Errorf("cache data is invalid or corrupt")
-)
+var ErrData = fmt.Errorf("cache data is invalid or corrupt")
 
 const (
 	sep  = ";"

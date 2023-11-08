@@ -23,7 +23,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// AboutErr renders the about file error page for the the About files links.
+// AboutErr renders the about file error page for the About files links.
 func AboutErr(z *zap.SugaredLogger, c echo.Context, id string) error {
 	const name = "status"
 	if z == nil {

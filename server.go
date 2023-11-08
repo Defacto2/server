@@ -17,7 +17,6 @@ import (
 	"github.com/caarlos0/env/v7"
 	_ "github.com/lib/pq"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
-
 	_ "go.uber.org/automaxprocs"
 )
 

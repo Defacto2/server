@@ -17,7 +17,7 @@ const (
 )
 
 const (
-	DirMode   = 0755               // Directory permissions.
+	DirMode   = 0o755              // Directory permissions.
 	ExpiredAt = 7 * 24 * time.Hour // The expiry time for cacheDB entries.
 	SubDir    = "cacheDB"          // The name of the cacheDB subdirectory.
 )

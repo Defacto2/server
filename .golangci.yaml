@@ -39,6 +39,9 @@ issues:
     - path: internal/pouet/pouet.go
       linters:
         - tagliatelle
+    - path: internal/zoo/zoo.go
+      linters:
+        - tagliatelle
     - path: internal/tags/tags.go
       linters:
         - gocyclo

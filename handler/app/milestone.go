@@ -522,7 +522,7 @@ func Collection() Milestones {
 			Title: "The first 16 color EGA game", Year: 1986, Month: 3,
 			Lead: "Accolade's Mean 18", LinkTitle: "the moby games entry",
 			Link:    "https://www.mobygames.com/game/152/mean-18/",
-			Content: "It may seem strange today, but golf games were popular in the 1980s and 1990s. The real-life sport was aspirational for plenty of white collar US and Japanese workers, so it isn't surprising that video game golf simulations targetting expensive computer platforms and arcades became popular.",
+			Content: "It may seem strange today, but golf games were popular in the 1980s and 1990s. The real-life sport was aspirational for plenty of white collar US and Japanese workers, so it isn't surprising that video game golf simulations targeting expensive computer platforms and arcades became popular.",
 		},
 		{
 			Title: "The earliest PC loaders", Year: 1986, Month: 6, Highlight: true,
@@ -1111,7 +1111,7 @@ func Collection() Milestones {
 				Attribution: "MES392",
 				License:     "©",
 				LicenseLink: "https://www.reddit.com/r/starcraft/comments/aaz4es/cleaned_up_the_office_who_needs_an_original/",
-				//Webp:  "starcraft-case.webp",
+				// Webp:  "starcraft-case.webp",
 				Jpg: "starcraft-case.jpg",
 			},
 		},
@@ -1178,7 +1178,7 @@ func Collection() Milestones {
 			Lead: "DirectX 8.0 (4.08.00.0400)", LinkTitle: "the press release", Link: "https://news.microsoft.com/2000/11/09/microsoft-announces-release-of-directx-8-0",
 			Content: "The release of Microsoft's Direct3D 8 for all active editions of Windows from 95 through to XP was the beginning of the dominance of the proprietary 3D graphics API, as it is the first release offering compelling features for game developers. " +
 				"<br>For Microsoft, this helps to lock in Windows as the only operating system for modern PC gaming.<br>" +
-				"Prior editions of Direct3D, since 1996, have been clumsy and lacking features compared to the competing proprietory 3Dfx Glide or the industry OpenGL standard. Direct3D was instead a hardware fallback API for developers to support.",
+				"Prior editions of Direct3D, since 1996, have been clumsy and lacking features compared to the competing proprietary 3Dfx Glide or the industry OpenGL standard. Direct3D was instead a hardware fallback API for developers to support.",
 		},
 		{
 			Year: 2000, Prefix: notable + " onward,",
@@ -1226,7 +1226,7 @@ func Collection() Milestones {
 			Content: "Half-Life 2 was one of the most anticipated games of the decade, and it was the first major game to use Steam, Valve's digital distribution platform. " +
 				"<a href=\"/g/vengeance\">Vengeance</a> is the first attempt to crack the Steam activation, and it used an unusual Steam client and activation emulator. " +
 				"But while playable, their pirate release of the game suffered with slower frame rates, load times, and the lack of multiplayer gameplay." +
-				"<p>Vengence would release the DVD *Retail* version with a tweaked crack two days later.</p>",
+				"<p>Vengeance would release the DVD *Retail* version with a tweaked crack two days later.</p>",
 			List: Links{
 				{LinkTitle: "Half Life 2 *Retail* [CD]", Link: "/f/b24c10"},
 				{LinkTitle: "Half Life 2 DVD *Retail*", Link: "/f/a126f6"},

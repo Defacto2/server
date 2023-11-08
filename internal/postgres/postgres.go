@@ -17,20 +17,19 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-var (
-	ErrEnv = errors.New("environment variable probably contains an invalid value")
-)
+var ErrEnv = errors.New("environment variable probably contains an invalid value")
 
 const (
-	Protocol   = "postgres"             // Protocol of the database driver.
-	DriverName = "pgx"                  // DriverName of the database.
-	User       = "root"                 // User is the default database username used to connect.
-	Pass       = "example"              // Pass is the placeholder database password used to connect.
-	HostName   = "localhost"            // HostName is the default host name of the database server to connect.
-	HostPort   = 5432                   // HostPort is the default port number of the database server to connect.
-	DockerHost = "host.docker.internal" // DockerHost is the default database host name to use when running in a Docker container.
-	DBName     = "defacto2-ps"          // DBName is the default database name to connect to.
-	NoSSL      = true                   // NoSSL connects to the database using an insecure, plain text connection.
+	Protocol   = "postgres"  // Protocol of the database driver.
+	DriverName = "pgx"       // DriverName of the database.
+	User       = "root"      // User is the default database username used to connect.
+	Pass       = "example"   // Pass is the placeholder database password used to connect.
+	HostName   = "localhost" // HostName is the default host name of the database server to connect.
+	HostPort   = 5432        // HostPort is the default port number of the database server to connect.
+	// DockerHost is the default database host name to use when running in a Docker container.
+	DockerHost = "host.docker.internal"
+	DBName     = "defacto2-ps" // DBName is the default database name to connect to.
+	NoSSL      = true          // NoSSL connects to the database using an insecure, plain text connection.
 )
 
 // Connection details of the PostgreSQL database connection.
@@ -61,7 +60,7 @@ func (c Connection) Open() (*sql.DB, error) {
 	return conn, nil
 }
 
-// New initialises the connection with default values or values from the environment.
+// New initializes the connection with default values or values from the environment.
 func New() (Connection, error) {
 	// "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
 	c := Connection{}
@@ -126,7 +125,6 @@ func (c Connection) URL() string {
 
 // Configurations prints a list of active connection configurations.
 func (c Connection) Configurations(b *strings.Builder) *strings.Builder {
-
 	const (
 		minwidth = 2
 		tabwidth = 4
