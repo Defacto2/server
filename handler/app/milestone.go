@@ -984,14 +984,15 @@ func Collection() Milestones {
 				"So, for many pirates to play a game published on CD, the disc's content had to be ripped and repackaged to a hard drive, but with the removal of the game's fluff, such as intro videos, music, and speech.",
 		},
 		{
-			Title: "Windows 95 warez release", Year: 1995, Month: 8, Prefix: "Early",
-			Lead: "Drink or Die", Link: "/f/a8177", LinkTitle: "about the release",
+			Title: "Windows 95 warez release", Year: 1995, Month: 8, Day: 12,
+			Lead: "Drink or Die", Link: "/f/bb2b71f", LinkTitle: "about the release",
 			Content: "<p>Drink or Die became notorious for releasing the CD media for the box retail edition of Windows 95 two weeks before the official worldwide release.</p>" +
 				"<p>In an era when global, same-day product launches were logistically costly and uncommon, this operating system launch was probably the most hyped Microsoft consumer product ever. " +
 				"Over a decade before Apple cemented the marketing tactic, <a href=\"https://rarehistoricalphotos.com/windows-95-launch-day-1995/\">Windows 95 had fans queuing at midnight in retail stores worldwide</a>.</p>" +
 				"<p>The release also highlighted a significant problem for software and game publishers: for pirates to get access to the retail packaging weeks before launch meant some company employees were either members of these warez groups or receiving kickbacks.</p>" +
-				"<p><q>Another thing that may raise some questions is that, when you are in MS-DOS-SHELL, and you type 'ver', you will see Windows 95. " +
-				"[Version 4.00.950] This does not mean Beta 950, this, in fact (<em>coming directly from my supplier's mouth at MS</em> [Microsoft]) means that this is version 4.0 -ergo- Windows '95.</q></p>",
+				"<p>Years later, competitor <a href=\"/g/pirates-with-attitudes\">Pirates With Attitudes</a> would release the <a href=\"/f/a52a8c\" class=\"text-nowrap\">Windows 98 media</a> five weeks and <a href=\"/f/b42e2f6\">Windows 2000</a> two months before the official launches! " +
+				"But in the following decade, a global, coordinated law enforcement effort would take down both groups.</p>" +
+				"<p>The other Microsoft-sourced releases from DOD during this two-week period were the Windows 95 <a href=\"/f/b82406f\" class=\"text-nowrap\">floppy edition</a>, <a href=\"/f/b721b5\" class=\"text-nowrap\">upgrade edition</a>, <a href=\"/f/b92697\" class=\"text-nowrap\">Plus Pack</a>, Microsoft <a href=\"/f/ba28e0f\">BOB</a>, and <a href=\"/f/bc2dc2f\">Word</a>.</p>",
 		},
 		{
 			Title: "Windows 95", Year: 1995, Month: 8, Day: 24,
@@ -1199,7 +1200,7 @@ func Collection() Milestones {
 			Lead: "Operation Buccaneer", LinkTitle: "the Department of Justice overview", Link: "https://www.ojp.gov/ncjrs/virtual-library/abstracts/cross-national-investigation-and-prosecution-intellectual-property",
 			Content: "Operation Buccaneer was the first global effort to target a specific warez group for criminal prosecution. Because of the nature of warez groups on the Internet, members operate in numerous countries and time zones. " +
 				"The operation needed multiple law enforcement agencies in the USA, UK, Australia, Norway, Sweden, and Finland to coordinate the execution of 70 search warrants." +
-				"<p></p>The target, <a href=\"/g/drink-or-die\">Drink or Die</a> is singled out for their pirate releases of Microsoft Windows 95 that occurred back in 1995, over six years prior with a different group membership.",
+				"<p></p>The target, <a href=\"/g/drink-or-die\">Drink or Die</a> is singled out for their multiple, pirate releases of Microsoft <a href=\"/f/bb2b71f\">Windows 95</a> that occurred back in August 1995, over six years prior with a different group membership.",
 		},
 		{
 			Title: "Digital only scene releases", Year: 2004, Month: 10, Day: 7,
