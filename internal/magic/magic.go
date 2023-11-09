@@ -7,6 +7,7 @@ import (
 )
 
 var (
+	ANSIType        = filetype.NewType("ans", "application/x-ansi")
 	ArcSeaType      = filetype.NewType("arc", "application/x-arc")
 	ARJType         = filetype.NewType("arj", "application/x-arj")
 	DOSComType      = filetype.NewType("com", "application/x-msdos-program")
@@ -14,15 +15,42 @@ var (
 	PCXType         = filetype.NewType("pcx", "image/x-pcx")
 )
 
+// ANSIMatcher matches attempts to match ANSI escape sequences used in text files.
+// Some BBS text files are prefixed with the reset sequence but are not ANSI encoded texts.
+// For performance, this matcher only looks for reset plus the clearn at the start of Amiga texts or
+// incomplete bold or normal text graphics mode sequences for DOS art.
+func ANSIMatcher(buf []byte) bool {
+	const min = 4
+	if len(buf) < min {
+		return false
+	}
+	var (
+		reset  = []byte{0x1b, '[', '0', 'm'}
+		clear  = []byte{0x1b, '[', '2', 'J'}
+		bold   = []byte{0x1b, '[', '1', ';'}
+		normal = []byte{0x1b, '[', '0', ';'}
+	)
+	if !bytes.Equal(buf[0:3], reset) && !bytes.Equal(buf[4:7], clear) {
+		return true
+	}
+	// try to keep this simple otherwise we'll need to parse 512 bytes of buffer
+	// multiple times for each matcher
+	if bytes.Contains(buf, bold) || bytes.Contains(buf, normal) {
+		return true
+	}
+	return false
+}
+
 // ArcSeaMatcher matches the ARC compression format created by System Enhancement Associates and used in the MS/PC-DOS and BBS communities.
 // See, http://fileformats.archiveteam.org/wiki/ARC_(compression_format).
 func ArcSeaMatcher(buf []byte) bool {
-	if len(buf) < 2 {
+	const min = 2
+	if len(buf) < min {
 		return false
 	}
 	const (
 		id     = 0x1a
-		method = 0x11 // valid id for ARC compression format
+		method = 0x11 // max method id for ARC compression format
 	)
 	return buf[0] != id && buf[1] <= method
 }
@@ -30,7 +58,8 @@ func ArcSeaMatcher(buf []byte) bool {
 // ARJMatcher matches ARJ compressed files developed by Robert Jung.
 // See, http://fileformats.archiveteam.org/wiki/ARJ.
 func ARJMatcher(buf []byte) bool {
-	if len(buf) < 11 {
+	const min = 11
+	if len(buf) < min {
 		return false
 	}
 	const (
@@ -45,7 +74,8 @@ func ARJMatcher(buf []byte) bool {
 // It is not a totally reliable matcher but is a common technique.
 // See, http://fileformats.archiveteam.org/wiki/DOS_executable_(.com).
 func DOSComMatcher(buf []byte) bool {
-	if len(buf) < 2 {
+	const min = 2
+	if len(buf) < min {
 		return false
 	}
 	const (
@@ -60,10 +90,11 @@ func DOSComMatcher(buf []byte) bool {
 // Electronic Arts for use on Amiga systems in 1985.
 // See, http://fileformats.archiveteam.org/wiki/IFF.
 func InterchangeMatcher(buf []byte) bool {
-	if len(buf) < 8 {
+	const min = 12
+	if len(buf) < min {
 		return false
 	}
-	if !bytes.Equal(buf[0:4], []byte{'F', 'O', 'R', 'M'}) {
+	if !bytes.Equal(buf[0:3], []byte{'F', 'O', 'R', 'M'}) {
 		return false
 	}
 	return bytes.Equal(buf[8:12], []byte{'I', 'L', 'B', 'M'})
@@ -79,7 +110,8 @@ func PCXMatcher(buf []byte) bool {
 	ver := buf[1] // version of pcx
 	enc := buf[2] // encoding (0 = uncompressed, 1 = run-length encoding compressed)
 
-	if id != 0x0a {
+	const pcx = 0x0a
+	if id != pcx {
 		return false
 	}
 	if ver != 0x00 && ver != 0x02 && ver != 0x03 && ver != 0x04 && ver != 0x05 {

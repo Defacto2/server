@@ -321,6 +321,7 @@ func aboutMagic(name string) string {
 	}
 
 	// add custom magic matchers
+	filetype.AddMatcher(magic.ANSIType, magic.ANSIMatcher)
 	filetype.AddMatcher(magic.ArcSeaType, magic.ArcSeaMatcher)
 	filetype.AddMatcher(magic.ARJType, magic.ARJMatcher)
 	filetype.AddMatcher(magic.DOSComType, magic.DOSComMatcher)
