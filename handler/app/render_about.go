@@ -19,6 +19,7 @@ import (
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/magic"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/render"
 	"github.com/Defacto2/server/model"
@@ -318,6 +319,13 @@ func aboutMagic(name string) string {
 	if err != nil {
 		return err.Error()
 	}
+
+	// add custom magic matchers
+	filetype.AddMatcher(magic.ArcSeaType, magic.ArcSeaMatcher)
+	filetype.AddMatcher(magic.ARJType, magic.ARJMatcher)
+	filetype.AddMatcher(magic.DOSComType, magic.DOSComMatcher)
+	filetype.AddMatcher(magic.InterchangeType, magic.InterchangeMatcher)
+	filetype.AddMatcher(magic.PCXType, magic.PCXMatcher)
 	kind, err := filetype.Match(head)
 	if err != nil {
 		return err.Error()
