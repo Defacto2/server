@@ -236,7 +236,7 @@ func Index(z *zap.SugaredLogger, c echo.Context) error {
 		" It covers digital objects including text files, demos, music, art, magazines, and other projects."
 	const desc = "Defacto2 is " + lead
 	data := empty()
-	data["title"] = demo
+	data["title"] = "Home"
 	data["description"] = desc
 	data["h1"] = "Welcome,"
 	data["lead"] = "You're at " + lead
