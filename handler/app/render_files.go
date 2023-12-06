@@ -60,21 +60,21 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 	case newUploads.String():
 		logo = "new uploads"
 		h1sub = "the new uploads"
-		lead = "These are the files that have been recently uploaded to Defacto2."
+		lead = "These are the recent file artifacts that have been submitted to Defacto2."
 		unknownYears = false
 	case newUpdates.String():
-		logo = "new updates"
-		h1sub = "the new updates"
-		lead = "These are the file records that have been recently uploaded or modified on Defacto2."
+		logo = "new changes"
+		h1sub = "the new changes"
+		lead = "These are the recent file artifacts that have been modified or submitted on Defacto2."
 		unknownYears = false
 	case oldest.String():
 		logo = "oldest releases"
 		h1sub = "the oldest releases"
-		lead = "These are the earliest, historical products from The Scene in the collection."
+		lead = "These are the earliest, historical file artifacts in the collection."
 	case newest.String():
 		logo = "newest releases"
 		h1sub = "the newest releases"
-		lead = "These are the most recent products from The Scene in the collection."
+		lead = "These are the most recent file artifacts in the collection."
 	default:
 		s := RecordsSub(uri)
 		h1sub = s

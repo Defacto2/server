@@ -24,7 +24,7 @@ func File(z *zap.SugaredLogger, c echo.Context, stats bool) error {
 	data["description"] = "A table of contents for the collection."
 	data["logo"] = title
 	data["h1"] = title
-	data["lead"] = "This page shows the file categories and platforms in the collection."
+	data["lead"] = "This page shows the categories and platforms in the collection of file artifacts."
 	data["stats"] = stats
 	data["counter"] = Stats{}
 
@@ -53,7 +53,7 @@ func fileWStats(data map[string]interface{}, stats bool) (map[string]interface{}
 	data["lead"] = "This page shows the file categories with selected statistics, " +
 		"such as the number of files in the category or platform." +
 		fmt.Sprintf(" The total number of files in the database is %d.", c.Record.Count) +
-		fmt.Sprintf(" The total size of all files in the database is %s.", helper.ByteCount(int64(c.Record.Bytes)))
+		fmt.Sprintf(" The total size of all file artifacts are %s.", helper.ByteCount(int64(c.Record.Bytes)))
 	return data, nil
 }
 

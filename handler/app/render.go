@@ -217,7 +217,7 @@ func Interview(z *zap.SugaredLogger, c echo.Context) error {
 	data["description"] = "Discussions with scene members."
 	data["logo"] = title
 	data["h1"] = title
-	data["lead"] = "An incomplete list of discussions and unedited interviews with sceners, crackers and demo makers."
+	data["lead"] = "Here is a centralized page for the site's discussions and unedited interviews with sceners, crackers, and demo makers. Currently, incomplete."
 	data["interviews"] = Interviewees()
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -300,9 +300,8 @@ func Thanks(z *zap.SugaredLogger, c echo.Context) error {
 	data := empty()
 	data["description"] = "Defacto2 thankyous."
 	data["h1"] = "Thank you!"
-	data["lead"] = "Thanks to the hundreds of people who have contributed" +
-		" to Defacto2 over the decades with file submissions, hard drive donations," +
-		" interviews, corrections, artwork and monetiary donations!"
+	data["lead"] = "Thanks to the hundreds of people who have contributed to Defacto2 over the decades with file submissions, " +
+		"hard drive donations, interviews, corrections, artwork, and monetary contributions!"
 	data["title"] = "Thanks!"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {

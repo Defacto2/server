@@ -10,7 +10,7 @@
                 </h5>
                 <p class="card-text">
                 <form class="row g-3" method="post">
-                <input autofocus class="form-control" list="datalistOptions" id="relDataList" name="releaser-data-list" placeholder="Type to search for a releaser...">
+                <input autofocus class="form-control" list="datalistOptions" id="relDataList" name="releaser-data-list" placeholder="Type to search for a releaser…">
                 <datalist id="datalistOptions">
                 {{- range $index, $name := index . "releasers"}}
                 <option value="{{$name}}">{{- end}}

@@ -34,7 +34,7 @@ func SearchDesc(z *zap.SugaredLogger, c echo.Context) error {
 	data["description"] = "Search form to scan through file descriptions."
 	data["logo"] = title
 	data["title"] = title
-	data["info"] = "A search for file descriptions"
+	data["info"] = "search the metadata descriptions of file artifacts"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(z, c, name, err)
@@ -88,7 +88,7 @@ func SearchFile(z *zap.SugaredLogger, c echo.Context) error {
 	data["description"] = "Search form to discover files."
 	data["logo"] = title
 	data["title"] = title
-	data["info"] = "A search for filenames or extensions"
+	data["info"] = "search for filenames or extensions"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(z, c, name, err)
@@ -196,7 +196,7 @@ func SearchReleaser(z *zap.SugaredLogger, c echo.Context) error {
 	data["description"] = "Search form to discover releasers."
 	data["logo"] = title
 	data["title"] = title
-	data["info"] = "A search for a group, initialism, magazine, board or site"
+	data["info"] = "search for a group, initialism, magazine, board, or site"
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {

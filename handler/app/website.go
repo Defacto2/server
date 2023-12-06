@@ -71,7 +71,7 @@ func Website(z *zap.SugaredLogger, c echo.Context, open string) error {
 func List() Accordion {
 	return Accordion{
 		{
-			"The text art scene", "Text art pages",
+			"Text art scene", "Text art pages",
 			"text", false, art(),
 		},
 		{
@@ -79,7 +79,7 @@ func List() Accordion {
 			"bbs", false, bbses(),
 		},
 		{
-			"Crack and pirate scenes", "Pirate pages",
+			"Crack and pirate scene", "Pirate pages",
 			"pirate", false, pir8(),
 		},
 		{
@@ -99,7 +99,7 @@ func List() Accordion {
 			"book", false, books(),
 		},
 		{
-			"Videos and documentary", "Videos",
+			"Videos and documentaries", "Videos",
 			"video", false, videos(),
 		},
 		{

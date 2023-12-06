@@ -30,7 +30,7 @@ func bbsHandler(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	const lead = "Bulletin Board Systems on personal computers for \"elite\" communication and file sharing over the landline telephone network."
+	const lead = "Bulletin Board Systems are historical, networked personal computer servers connected using the landline telephone network and provide forums, real-time chat, mail, and file sharing for The Scene \"elites.\""
 	const key = "releasers"
 	data := empty()
 	data["title"] = title
@@ -60,7 +60,7 @@ func bbsHandler(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":   fmt.Sprintf("%d boards", len(r)),
-		"issues": string(ByteFileS(name, m.SumCount.Int64, m.SumBytes.Int64)),
+		"issues": string(ByteFileS("file artefact", m.SumCount.Int64, m.SumBytes.Int64)),
 		"years":  fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	err = c.Render(http.StatusOK, name, data)
@@ -77,7 +77,7 @@ func FTP(z *zap.SugaredLogger, c echo.Context) error {
 		return InternalErr(z, c, name, ErrZap)
 	}
 	data := empty()
-	const lead = "Historical, internet based \"elite\" FTP sites for the upload and download of scene releases."
+	const lead = "FTP sites are historical, internet-based file servers for uploading and downloading \"elite\" scene releases."
 	const key = "releasers"
 	data["title"] = title
 	data["description"] = lead
@@ -105,7 +105,7 @@ func FTP(z *zap.SugaredLogger, c echo.Context) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":   fmt.Sprintf("%d sites", len(r)),
-		"issues": string(ByteFileS(name, m.SumCount.Int64, m.SumBytes.Int64)),
+		"issues": string(ByteFileS("file artefact", m.SumCount.Int64, m.SumBytes.Int64)),
 		"years":  fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	err = c.Render(http.StatusOK, name, data)
@@ -132,7 +132,7 @@ func mag(z *zap.SugaredLogger, c echo.Context, chronological bool) error {
 		return InternalErr(z, c, name, ErrZap)
 	}
 	data := empty()
-	const lead = "Newsletters, reports and publications written about activities within The Scene subculture."
+	const lead = "The magazines are newsletters, reports, and publications about activities within The Scene subculture."
 	const issue = "issue"
 	const key = "releasers"
 	data["title"] = title
@@ -195,7 +195,7 @@ func rel(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 		return InternalErr(z, c, name, ErrZap)
 	}
 	data := empty()
-	const lead = "A releaser is a brand or a collective group of sceners who are responsible for releasing or distributing product."
+	const lead = "A releaser is a brand or a collective group of sceners responsible for releasing or distributing products."
 	const key = "releasers"
 	data["title"] = title
 	data["description"] = fmt.Sprint(title, " ", lead)
@@ -224,7 +224,7 @@ func rel(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":   fmt.Sprintf("%d releasers and groups", len(r)),
-		"issues": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
+		"issues": string(ByteFileS("file artefact", m.SumCount.Int64, m.SumBytes.Int64)),
 		"years":  helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	err = c.Render(http.StatusOK, name, data)
