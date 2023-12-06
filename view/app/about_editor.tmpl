@@ -16,14 +16,17 @@
       <div class="modal-body">
         <div class="mb-3 row" id="recordIDs">
           <label for="recordIDs" class="col-sm-2 col-form-label">IDs</label>
-          <div class="col-sm-6">
+          <div class="col-sm-5">
+            {{/*  UUID used for the filename of assets  */}}
               <input type="text" readonly class="form-control-plaintext" id="recordUUID" value="{{index . "uuid"}}">
           </div>
           <div class="col-sm-2">
+            {{/*  Database table auto ID  */}}
             <input type="text" readonly class="form-control-plaintext" id="recordID" value="{{$id}}">
           </div>
-          <div class="col-sm-2">
-            <input type="text" readonly class="form-control-plaintext" id="recordLink" value="{{linkHref $id}}">
+          <div class="col-sm-3">
+            {{/*  Example file link  */}}
+            <input type="text" readonly class="form-control-plaintext" id="recordLink" value="defacto2.net{{linkHref $id}}">
           </div>
         </div>
         <dl class="row mb-0">
@@ -46,7 +49,7 @@
         <table class="table table-success table-striped table-hover">
           <thead>
             <tr>
-              <th scope="col">Additional asset</th>
+              <th scope="col">Complementary assets</th>
               <th scope="col">Info</th>
             </tr>
           </thead>
@@ -66,11 +69,11 @@
         </div>
         <hr class="m-0 mb-3 mt-3">
         <div class="mb-3 row">
-          <label for="recordTitle" id="recordTitleLabel" class="col-sm-2 col-form-label">Readme</label>
+          <label for="recordReadme" id="recordReadmeLabel" class="col-sm-3 col-form-label">Readme in archive</label>
           <div class="col-sm-5">
-            <input type="text" name="title" class="form-control" id="recordTitle" value="{{index . "recReadme"}}">
+            <input type="text" name="title" class="form-control" id="recordReadme" value="{{index . "recReadme"}}" placeholder="Overwrite with a named file">
           </div>
-          <div class="col-sm-5">
+          <div class="col-sm-4">
             <div class="form-check form-switch">
               {{recordOnline (index . "recNoReadme") }}
               <label class="form-check-label" id="recordOnlineLabel" for="recordOnline">Hide readme from view</label>
@@ -117,13 +120,16 @@
           <div class="mb-3 row" id="recordIDs">
             <label for="recordIDs" class="col-sm-2 col-form-label">IDs</label>
             <div class="col-sm-6">
+              {{/*  UUID used for the filename of assets  */}}
                 <input type="text" readonly class="form-control-plaintext" id="recordUUID" value="{{index . "uuid"}}">
             </div>
             <div class="col-sm-2">
+              {{/*  Database table auto ID  */}}
               <input type="text" readonly class="form-control-plaintext" id="recordID" value="{{$id}}">
             </div>
             <div class="col-sm-2">
-              <input type="text" readonly class="form-control-plaintext" id="recordLink" value="{{linkHref $id}}">
+              {{/*  Example file link  */}}
+              <input type="text" readonly class="form-control-plaintext" id="recordLink" value="defacto2.net{{linkHref $id}}">
             </div>
           </div>
           <div class="mb-3 row">

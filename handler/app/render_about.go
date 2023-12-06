@@ -411,7 +411,7 @@ func aboutStat(name string) string {
 	if err != nil {
 		return err.Error()
 	}
-	return fmt.Sprintf("%s, %d bytes or %s", stat.ModTime().Format("2006-1-2"), stat.Size(), helper.ByteCount(stat.Size()))
+	return fmt.Sprintf("Modified %s, %dB or %s", stat.ModTime().Format("2006-1-2"), stat.Size(), helper.ByteCount(stat.Size()))
 }
 
 // aboutAssets returns a list of downloads and image assets belonging to the file record.
