@@ -6,6 +6,11 @@
 
   // record online/offline
   const online = document.getElementById(`recordOnline`);
+  if (online == null) {
+    console.info(`the editor modal is not open so this script is not needed`);
+    return;
+  }
+
   const onlineL = document.getElementById(`recordOnlineLabel`);
   if (online.checked != true) {
     onlineL.classList.add(dang);
