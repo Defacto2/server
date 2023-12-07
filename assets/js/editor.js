@@ -1,8 +1,12 @@
 (() => {
   "use strict";
 
+  const replace = `Are you sure you want to replace `;
+  const refresh = `Refresh the page to see the changes`
+  const prmpt = `yes`
   const dang = `text-danger`;
   const err = `is-invalid`;
+  const ok = `is-valid`;
 
   // record online/offline
   const online = document.getElementById(`recordOnline`);
@@ -20,6 +24,58 @@
       onlineL.classList.remove(dang);
     } else {
       onlineL.classList.add(dang);
+    }
+  });
+
+  // file artifact preview
+
+  // file artifact replacement
+  const artifact = document.getElementById(`recordArtifact`);
+  const artifactB = document.getElementById(`recordArtifactBtn`);
+  const artifactR = document.getElementById(`recordArtifactReset`);
+  artifact.addEventListener(`change`, function (event) {
+    if (artifact.value != ``) {
+      artifact.classList.remove(err);
+    }
+  });
+  artifactB.addEventListener(`click`, function (event) {
+    if (artifact.value == ``) {
+      artifact.classList.add(err);
+      artifact.classList.remove(ok);
+      return;
+    }
+    artifact.classList.remove(err);
+    artifact.classList.remove(ok);
+    // Prompt for upload replacement
+    let confirmation = window.prompt(
+      replace + artifact.value + `?\nType "`+prmpt+`" to confirm.`
+    );
+    if (confirmation.toLowerCase() != prmpt) {
+      return;
+    }
+    artifact.classList.add(ok)
+  });
+  artifactR.addEventListener(`click`, function (event) {
+    artifact.value = ``;
+    artifact.classList.remove(err);
+    artifact.classList.remove(ok);
+  });
+
+  // record readme hide/show
+  const readme = document.getElementById(`recordHideReadme`);
+  const readmeL = document.getElementById(`recordHideReadmeLabel`);
+  const readmeName = document.getElementById(`recordReadme`);
+  if (readme.checked == true) {
+    readmeL.classList.add(dang);
+    readmeName.disabled = true;
+  }
+  readme.addEventListener(`change`, function (event) {
+    if (readme.checked == true) {
+      readmeL.classList.add(dang);
+      readmeName.disabled = true;
+    } else {
+      readmeL.classList.remove(dang);
+      readmeName.disabled = false;
     }
   });
 
@@ -388,7 +444,7 @@
         magazineTag();
         return;
       }
-      titleTag()
+      titleTag();
     }, 0);
   });
   function magazineTag() {
@@ -476,7 +532,7 @@
         onlineL.classList.remove(dang);
       }
       releasersMax.classList.remove(dang);
-      if(tag.value == `magazine`) {
+      if (tag.value == `magazine`) {
         magazineTag();
       } else {
         titleTag();

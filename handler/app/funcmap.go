@@ -169,6 +169,14 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 			return template.HTML(("<input class=\"form-check-input\"" +
 				" name=\"online\" type=\"checkbox\" role=\"switch\" id=\"recordOnline\">"))
 		},
+		"recordReadme": func(b bool) template.HTML {
+			if b {
+				return template.HTML("<input class=\"form-check-input\"" +
+					" name=\"hide-readme\" type=\"checkbox\" role=\"switch\" id=\"recordHideReadme\" checked>")
+			}
+			return template.HTML(("<input class=\"form-check-input\"" +
+				" name=\"hide-readme\" type=\"checkbox\" role=\"switch\" id=\"recordHideReadme\">"))
+		},
 		"recordLastMod": func(b bool) template.HTML {
 			if b {
 				// tooltips do not work on disabled buttons
