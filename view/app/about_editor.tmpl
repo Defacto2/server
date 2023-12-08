@@ -82,18 +82,21 @@
           </div>
         </div>
         <hr class="m-0 mb-3 mt-3">
+        {{/*  TODO: rename record IDs to "edit"  */}}
         {{/*  Readme in archive  */}}
         <div class="mb-3 row">
           <label for="recordReadme" id="recordReadmeLabel" class="col-sm-3 col-form-label"
           data-bs-toggle="tooltip" data-bs-title="An included NFO, DIZ or text file to display"><strong>Readme</strong> in archive</label>
           <div class="col-sm-5">
             {{/*  TODO: default disabled based on hide readme value  */}}
-            <input list="readmeList" name="title" class="form-control" id="recordReadme" value="{{index . "recReadme"}}" placeholder="Overwrite with a named file">
-            <datalist id="readmeList">
+            <input list="recordReadmeList" name="title" class="form-control" id="recordReadme" value="{{index . "recReadme"}}" placeholder="Overwrite with a named file">
+            <datalist id="recordReadmeList">
+              <option>honk</option>
               {{/*  {{range .recReadmeList}}
               <option value="{{$name}}">{{$name}}</option>
               {{end}}  */}}
             </datalist>
+            <div class="valid-feedback">Previews replaced, {{$replace}}</div>
           </div>
           <div class="col-sm-4">
             <div class="form-check form-switch">
@@ -102,43 +105,49 @@
             </div>            
           </div>
         </div>
+        {{/*  preview in archive  */}}
         <hr class="m-0 mb-3 mt-3">
         <div class="mb-3 row">
           <label for="recordPreview" id="recordPreviewLabel" class="col-sm-3 col-form-label"
           data-bs-toggle="tooltip" data-bs-title="An included image to use as the preview and thumbnail"><strong>Preview</strong> in archive</label>
           <div class="col-sm-5">
             {{/*  TODO: default disabled based on hide value  */}}
-            <input list="previewList" name="title" class="form-control" id="recordPreview" value="" placeholder="Replace with a named file">
-            <datalist id="previewList">
+            <input list="recordPreviewList" name="title" class="form-control" id="recordPreview" value="" placeholder="Replace with a named file">
+            <datalist id="recordPreviewList">
+              <option>honk</option>
               {{/*  {{range .recReadmeList}}
               <option value="{{$name}}">{{$name}}</option>
               {{end}}  */}}
             </datalist>
+            <div class="valid-feedback">Previews replaced, {{$replace}}</div>
           </div>
           <div class="col-sm-4 text-end">
-            <button class="btn btn-outline-success" disabled>Recreate previews and thumb</button>          
+            <button class="btn btn-outline-success" id="recordPreviewBtn">Recreate previews and thumb</button>          
           </div>
         </div>
         <hr class="m-0 mb-3 mt-3">
+        {{/*  preview from a file upload  */}}
         <div class="mb-3 row">
           <label for="recordPreviewUp" id="recordPreviewUpLabel" class="col-sm-3 col-form-label"
           data-bs-toggle="tooltip" data-bs-title="An included image to use as the preview and thumbnail"><strong>Preview</strong> from upload</label>
           <div class="col-sm-5">
             {{/*  TODO: default disabled based on hide value  */}}
-            <input type="file" class="form-control" value="">
+            <input type="file" class="form-control" id="recordPreviewUp" value="" 
+              accept="image/png, image/jpeg, image/webp, image/bmp, image/gif, image/tiff">
+            <div class="valid-feedback">Download artifact replaced, {{$replace}}</div>
           </div>
           <div class="col-sm-4 text-end">
-            <button class="btn btn-outline-success" disabled>Upload and recreate</button>      
-            <button class="btn btn-outline-danger">Reset</button>    
+            <button class="btn btn-outline-success" id="recordPreviewUpBtn">Upload and recreate</button>      
+            <button class="btn btn-outline-danger" id="recordPreviewUpReset">Reset</button>    
           </div>
         </div>
         <hr class="m-0 mb-3 mt-3">
-        {{/*  download artifact  */}}
+        {{/*  download artifact replacement */}}
         <div class="mb-3 row">
           <label for="recordArtifact" id="recordArtifactLabel" class="col-sm-3 col-form-label"
           data-bs-toggle="tooltip" data-bs-title="An included image to use as the preview and thumbnail"><strong>Download</strong> artifact</label>
           <div class="col-sm-5">
-            <input type="file" class="form-control is-valid" id="recordArtifact" value="">
+            <input type="file" class="form-control" id="recordArtifact" value="">
             <div class="valid-feedback">Download artifact replaced, {{$replace}}</div>
           </div>
           <div class="col-sm-4 text-end">

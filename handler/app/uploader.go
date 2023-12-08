@@ -20,3 +20,17 @@ func PostIntro(z *zap.SugaredLogger, c echo.Context) error {
 	c.JSONPretty(http.StatusOK, x, "  ")
 	return nil
 }
+
+// EditorReadme handles the POST request for the editor readme forms.
+func EditorReadme(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor readme"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	x, err := c.FormParams()
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	c.JSONPretty(http.StatusOK, x, "  ")
+	return nil
+}

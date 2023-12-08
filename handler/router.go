@@ -210,6 +210,10 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 		return app.StatusErr(z, c, http.StatusNotFound, c.Param("uri"))
 	})
 
+	e.POST("/editor/readme", func(c echo.Context) error {
+		return app.EditorReadme(z, c)
+	})
+
 	return e, nil
 }
 
