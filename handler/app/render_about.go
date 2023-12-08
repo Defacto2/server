@@ -71,7 +71,7 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	data["recStat"] = aboutStat(abs)
 	data["recAssets"] = a.aboutAssets(uuid)
 	data["recReadme"] = res.RetrotxtReadme.String
-	data["recNoReadme"] = !res.RetrotxtNoReadme.IsZero()
+	data["recNoReadme"] = res.RetrotxtNoReadme.Int16 != 0
 	// page metadata
 	data["uuid"] = uuid
 	data["download"] = helper.ObfuscateID(int64(res.ID))

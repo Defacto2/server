@@ -42,6 +42,21 @@ func main() {
 	if len(editorJS.Errors) > 0 {
 		fmt.Fprintf(os.Stderr, "Build failed: %v\n", editorJS.Errors)
 	}
+	editorAssetsJS := api.Build(api.BuildOptions{
+		EntryPoints:       []string{"./assets/js/editor-assets.js"},
+		Outfile:           "./public/js/editor-assets.min.js",
+		Write:             true,
+		Bundle:            false,
+		MinifyWhitespace:  true,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		Banner: map[string]string{
+			"js": "/* editor-assets.min.js */",
+		},
+	})
+	if len(editorAssetsJS.Errors) > 0 {
+		fmt.Fprintf(os.Stderr, "Build failed: %v\n", editorAssetsJS.Errors)
+	}
 	pouetJS := api.Build(api.BuildOptions{
 		EntryPoints:       []string{"./assets/js/pouet.js"},
 		Outfile:           "./public/js/pouet.min.js",

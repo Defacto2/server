@@ -147,6 +147,12 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"sriEditorForm": func() string {
 			return web.Subresource.EditorJS
 		},
+		"editorAssetsForm": func() string {
+			return EditorAssetsJS
+		},
+		"sriEditorAssetsForm": func() string {
+			return web.Subresource.EditorAssetsJS
+		},
 		"restPouet": func() string {
 			return RestPouetJS
 		},

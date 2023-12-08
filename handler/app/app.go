@@ -27,8 +27,10 @@ const (
 	BootJS   = "/js/bootstrap.bundle.min.js" // BootJS is the path to the minified Bootstrap 5 JS file.
 	BootJPub = public + BootJS
 
-	EditorJS    = "/js/editor.min.js" // EditorJS is the path to the minified Editor JS file.
-	EditorJSPub = public + EditorJS
+	EditorJS          = "/js/editor.min.js" // EditorJS is the path to the minified Editor JS file.
+	EditorJSPub       = public + EditorJS
+	EditorAssetsJS    = "/js/editor-assets.min.js" // EditorAssetsJS is the path to the minified Editor Assets JS file.
+	EditorAssetsJSPub = public + EditorAssetsJS
 
 	FAJS  = "/js/fontawesome.min.js" // FAJS is the path to the minified Font Awesome JS file.
 	FAPub = public + FAJS
@@ -166,18 +168,19 @@ func (web Web) tmpl(name filename) (*template.Template, error) {
 
 // SRI are the Subresource Integrity hashes for the layout.
 type SRI struct {
-	BootstrapCSS string // Bootstrap CSS verification hash.
-	BootstrapJS  string // Bootstrap JS verification hash.
-	EditorJS     string // Editor JS verification hash.
-	FontAwesome  string // Font Awesome verification hash.
-	JSDos        string // JS DOS verification hash.
-	JSWDos       string // JS wasm verification hash.
-	LayoutCSS    string // Layout CSS verification hash.
-	PouetJS      string // Pouet JS verification hash.
-	ReadmeJS     string // Readme JS verification hash.
-	RestPouetJS  string // Pouet REST JS verification hash.
-	RestZooJS    string // Demozoo REST JS verification hash.
-	UploaderJS   string // Uploader JS verification hash.
+	BootstrapCSS   string // Bootstrap CSS verification hash.
+	BootstrapJS    string // Bootstrap JS verification hash.
+	EditorJS       string // Editor JS verification hash.
+	EditorAssetsJS string // Editor Assets JS verification hash.
+	FontAwesome    string // Font Awesome verification hash.
+	JSDos          string // JS DOS verification hash.
+	JSWDos         string // JS wasm verification hash.
+	LayoutCSS      string // Layout CSS verification hash.
+	PouetJS        string // Pouet JS verification hash.
+	ReadmeJS       string // Readme JS verification hash.
+	RestPouetJS    string // Pouet REST JS verification hash.
+	RestZooJS      string // Demozoo REST JS verification hash.
+	UploaderJS     string // Uploader JS verification hash.
 }
 
 // Verify checks the integrity of the embedded CSS and JS files.
@@ -193,6 +196,10 @@ func (s *SRI) Verify(fs embed.FS) error {
 		return err
 	}
 	s.EditorJS, err = helper.Integrity(EditorJSPub, fs)
+	if err != nil {
+		return err
+	}
+	s.EditorAssetsJS, err = helper.Integrity(EditorAssetsJSPub, fs)
 	if err != nil {
 		return err
 	}
