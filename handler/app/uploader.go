@@ -1,15 +1,11 @@
 package app
 
 import (
-	"errors"
-	"fmt"
-	"io"
 	"net/http"
-	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
+	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -67,78 +63,11 @@ func (a AboutConf) EditorMeCP(z *zap.SugaredLogger, c echo.Context) error {
 	}
 
 	fp := filepath.Join(a.DownloadDir, f.UUID.String)
-	fmt.Println("fp", fp)
-	st, err := os.Stat(fp)
+
+	err = command.UnzipOne(fp, ".txt", target)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request, " + err.Error()})
 	}
-	if st.Size() == 0 {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request, file is empty"})
-	}
-
-	_, err = exec.LookPath("unzip")
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request, " + err.Error()})
-	}
-
-	out, err := exec.Command("unzip", "-l", fp).Output()
-	if errors.Is(err, exec.ErrDot) {
-		err = nil
-	}
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request, " + err.Error()})
-	}
-	fmt.Println("out", string(out))
-
-	tmp, err := os.MkdirTemp(os.TempDir(), "defacto2-")
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request, " + err.Error()})
-	}
-	defer os.RemoveAll(tmp)
-	fmt.Println("tmp", tmp)
-
-	// unzip -j "myarchive.zip" "in/archive/file.txt" -d "/path/to/unzip/to"
-	out, err = exec.Command("unzip", fp, target, "-d", tmp).Output()
-	if errors.Is(err, exec.ErrDot) {
-		err = nil
-	}
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request, " + err.Error()})
-	}
-	fmt.Println("out", string(out))
-
-	dst := filepath.Join(tmp, target)
-	st, err = os.Stat(dst)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request, " + err.Error()})
-	}
-	if st.Size() == 0 {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request, file is empty"})
-	}
-
-	srcFile, err := os.Open(dst)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request, " + err.Error()})
-	}
-	defer srcFile.Close()
-
-	txt := fmt.Sprintf("%s.txt", fp)
-	dstFile, err := os.Create(txt)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request, " + err.Error()})
-	}
-	defer dstFile.Close()
-
-	_, err = io.Copy(dstFile, srcFile)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request, " + err.Error()})
-	}
-
-	err = dstFile.Sync()
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request, " + err.Error()})
-	}
-
 	return c.JSON(http.StatusOK, record)
 }
 
