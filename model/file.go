@@ -48,3 +48,25 @@ func OneRecord(z *zap.SugaredLogger, c echo.Context, uid string) (*models.File, 
 	}
 	return res, nil
 }
+
+// Record retrieves a single file record from the database using the record key.
+func Record(z *zap.SugaredLogger, c echo.Context, key int) (*models.File, error) {
+	if z == nil {
+		return nil, ErrZap
+	}
+	if c == nil {
+		return nil, ErrCtx
+	}
+	// get record id, filename, uuid
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return nil, ErrDB
+	}
+	defer db.Close()
+	res, err := One(ctx, db, key)
+	if err != nil {
+		return nil, ErrDB
+	}
+	return res, nil
+}

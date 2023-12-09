@@ -27,6 +27,13 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	// Cache the database record count.
 	app.Caching.RecordCount = conf.RecordCount
 
+	// Set the application configuration for paths.
+	dir := app.AboutConf{
+		DownloadDir:   conf.Import.DownloadDir,
+		ScreenshotDir: conf.Import.ScreenshotsDir,
+		ThumbnailDir:  conf.Import.ThumbnailDir,
+	}
+
 	// Serve embedded CSS files
 	e.FileFS(app.BootCSS, app.BootCPub, public)
 	e.FileFS(app.BootCSS+".map", app.BootCPub+".map", public)
@@ -92,13 +99,8 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 		return app.Download(z, c, conf.Import.DownloadDir)
 	})
 	e.GET("/f/:id", func(c echo.Context) error {
-		a := app.AboutConf{
-			DownloadDir:   conf.Import.DownloadDir,
-			ScreenshotDir: conf.Import.ScreenshotsDir,
-			ThumbnailDir:  conf.Import.ThumbnailDir,
-			URI:           c.Param("id"),
-		}
-		return a.About(z, c)
+		dir.URI = c.Param("id")
+		return dir.About(z, c)
 	})
 	e.GET("/file/stats", func(c echo.Context) error {
 		return app.File(z, c, true)
@@ -212,7 +214,11 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	})
 
 	e.POST("/editor/readme", func(c echo.Context) error {
-		return app.EditorReadme(z, c)
+		dir.URI = c.Param("id")
+		return dir.EditorMe(z, c)
+	})
+	e.POST("/editor/readme/copy", func(c echo.Context) error {
+		return dir.EditorMeCP(z, c)
 	})
 
 	return e, nil

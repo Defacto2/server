@@ -8,7 +8,7 @@
 {{- $replace := "refresh the page to see the changes"}}
 {{/*  Assets editor  */}}
 <div class="modal fade" id="assetEditorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="assetEditorModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <i class="fal fa-file-alt {{ $faSize }}" title="Modify the record"></i> &nbsp;
@@ -91,10 +91,7 @@
             {{/*  TODO: default disabled based on hide readme value  */}}
             <input list="recordReadmeList" name="title" class="form-control" id="recordReadme" value="{{index . "recReadme"}}" placeholder="Overwrite with a named file">
             <datalist id="recordReadmeList">
-              <option>honk</option>
-              {{/*  {{range .recReadmeList}}
-              <option value="{{$name}}">{{$name}}</option>
-              {{end}}  */}}
+              {{index . "recReadmeList"}}
             </datalist>
             <div class="valid-feedback">Previews replaced, {{$replace}}</div>
           </div>
@@ -116,10 +113,7 @@
             {{/*  TODO: default disabled based on hide value  */}}
             <input list="recordPreviewList" name="title" class="form-control" id="recordPreview" value="" placeholder="Replace with a named file">
             <datalist id="recordPreviewList">
-              <option>honk</option>
-              {{/*  {{range .recReadmeList}}
-              <option value="{{$name}}">{{$name}}</option>
-              {{end}}  */}}
+              {{index . "recPreviewList"}}
             </datalist>
             <div class="valid-feedback">Previews replaced, {{$replace}}</div>
           </div>

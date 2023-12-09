@@ -646,6 +646,34 @@ func Month(m any) template.HTML {
 	return template.HTML(s)
 }
 
+// OptionsReadme returns a list of readme and known textfiles in the archive content.
+func OptionsReadme(zipContent string) template.HTML {
+	list := strings.Split(zipContent, "\n")
+	s := ""
+	for _, v := range list {
+		x := strings.TrimSpace(strings.ToLower(v))
+		switch filepath.Ext(x) {
+		case ".txt", ".nfo", ".diz", ".me", ".asc", ".doc":
+			s = s + fmt.Sprintf("<option value=\"%s\">%s</option>", v, x)
+		}
+	}
+	return template.HTML(s)
+}
+
+// OptionsPreview returns a list of preview images or textfiles in the archive content.
+func OptionsPreview(zipContent string) template.HTML {
+	list := strings.Split(zipContent, "\n")
+	s := ""
+	for _, v := range list {
+		x := strings.TrimSpace(strings.ToLower(v))
+		switch filepath.Ext(x) {
+		case ".txt", ".nfo", ".diz", ".me", ".gif", ".png", ".jpg", ".jpeg", ".webp", ".bmp":
+			s = s + fmt.Sprintf("<option value=\"%s\">%s</option>", v, x)
+		}
+	}
+	return template.HTML(s)
+}
+
 // SubTitle returns a secondary element with the record title.
 func SubTitle(section null.String, s any) template.HTML {
 	val := ""

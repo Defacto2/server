@@ -1,5 +1,5 @@
 (() => {
-    "use strict";
+  "use strict";
 
   const replace = `Are you sure you want to replace `;
   const prmpt = `yes`;
@@ -32,6 +32,29 @@
       readmeValue.classList.add(err);
       return;
     }
+
+    fetch("/editor/readme/copy", {
+      method: "POST",
+      body: JSON.stringify({
+        id: parseInt(id.value),
+        target: readmeValue.value,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("server could not save the change");
+        }
+        readme.classList.add(ok);
+        return response.json();
+      })
+      .catch((error) => {
+        readmeErr.textContent = error.message;
+        readmeHide.classList.add(err);
+      });
+
     readmeValue.classList.add(ok);
   });
 
