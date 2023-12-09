@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -65,6 +66,63 @@ func (a AboutConf) EditorMeCP(z *zap.SugaredLogger, c echo.Context) error {
 	fp := filepath.Join(a.DownloadDir, f.UUID.String)
 
 	err = command.UnzipOne(fp, ".txt", target)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request, " + err.Error()})
+	}
+	return c.JSON(http.StatusOK, record)
+}
+
+func (a AboutConf) EdMeRM(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor remove readme"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+
+	type Record struct {
+		ID int `query:"id"`
+	}
+	// in the handler for /users?id=<userID>
+	var record Record
+	err := c.Bind(&record)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request " + err.Error()})
+	}
+
+	f, err := model.Record(z, c, record.ID)
+	if err != nil {
+		return err
+	}
+
+	err = command.RemoveMe(a.DownloadDir, f.UUID.String)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request, " + err.Error()})
+	}
+	return c.JSON(http.StatusOK, record)
+}
+
+func (a AboutConf) EdImgRM(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor remove images"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+
+	type Record struct {
+		ID int `query:"id"`
+	}
+	// in the handler for /users?id=<userID>
+	var record Record
+	err := c.Bind(&record)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request " + err.Error()})
+	}
+	fmt.Println(record)
+
+	f, err := model.Record(z, c, record.ID)
+	if err != nil {
+		return err
+	}
+
+	err = command.RemoveImgs(a.ScreenshotDir, a.ThumbnailDir, f.UUID.String)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request, " + err.Error()})
 	}

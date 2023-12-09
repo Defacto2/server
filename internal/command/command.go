@@ -23,6 +23,58 @@ var (
 	ErrIsDir = errors.New("file is a directory")
 )
 
+//Complementary assets
+
+func RemoveImgs(preview, thumb, uuid string) error {
+	exts := []string{".jpg", ".png", ".gif", ".webp"}
+	// remove previews
+	for _, ext := range exts {
+		name := filepath.Join(preview, uuid+ext)
+		st, err := os.Stat(name)
+		if errors.Is(err, os.ErrNotExist) {
+			continue
+		}
+		if st.IsDir() {
+			return ErrIsDir
+		}
+		if err = os.Remove(name); err != nil {
+			return err
+		}
+	}
+	// remove thumbnails
+	for _, ext := range exts {
+		name := filepath.Join(thumb, uuid+ext)
+		st, err := os.Stat(name)
+		if errors.Is(err, os.ErrNotExist) {
+			continue
+		}
+		if st.IsDir() {
+			return ErrIsDir
+		}
+		if err = os.Remove(name); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// RemoveMe removes the file with the uuid name combined with a ".txt" extension
+// from the download directory. It returns nil if the file does not exist.
+func RemoveMe(download, uuid string) error {
+	name := filepath.Join(download, uuid+".txt")
+	st, err := os.Stat(name)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return nil
+		}
+		return err
+	}
+	if st.IsDir() {
+		return ErrIsDir
+	}
+	return os.Remove(name)
+}
+
 // UnzipOne extracts a single file from a zip archive.
 // The extracted file is copied to the src with the ext extension appended.
 // It requires the [unzip] command to be available on the host system.

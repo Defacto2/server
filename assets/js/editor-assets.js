@@ -15,6 +15,53 @@
     return;
   }
 
+  // Modify the file metadata, delete readme asset
+  const edmeBtn = document.getElementById(`edMeBtn`);
+  edmeBtn.addEventListener(`click`, function (event) {
+    fetch("/editor/readme/delete", {
+      method: "POST",
+      body: JSON.stringify({
+        id: parseInt(id.value),
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("server could not save the change");
+        }
+        return response.json();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  })
+
+    // Modify the file metadata, delete images asset
+    const edImgBtn = document.getElementById(`edImgBtn`);
+    edImgBtn.addEventListener(`click`, function (event) {
+      alert(`delete images`)
+      fetch("/editor/images/delete", {
+        method: "POST",
+        body: JSON.stringify({
+          id: parseInt(id.value),
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("server could not save the change");
+          }
+          return response.json();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    })
+
   // Modify the file assets, readme in archive
   const readmeValue = document.getElementById(`recordReadme`);
   const readmeList = document.getElementById(`recordReadmeList`);

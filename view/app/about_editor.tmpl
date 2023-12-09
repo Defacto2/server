@@ -77,9 +77,13 @@
             <button class="btn btn-sm btn-dark">Regenerate complementary images</button>  
           </div>
           <div class="col-sm-6 text-end">
-            <button class="btn btn-sm btn-danger">Delete complementary images</button>  
-            <button class="btn btn-sm btn-danger">Delete readme asset</button>   
+            <button class="btn btn-sm btn-danger" id="edImgBtn">Delete complementary images</button>  
+            <button class="btn btn-sm btn-danger" id="edMeBtn">Delete readme asset</button>
           </div>
+          <input type="hidden" id="edme" class="is-invalid">
+          {{/*  TODO: implementation  */}}
+          <div class="valid-feedback text-end">readme textfile deleted, {{$replace}}</div>
+          <div class="invalid-feedback text-end">readme textfile not found</div>
         </div>
         <hr class="m-0 mb-3 mt-3">
         {{/*  TODO: rename record IDs to "edit"  */}}

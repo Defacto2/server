@@ -220,6 +220,12 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.POST("/editor/readme/copy", func(c echo.Context) error {
 		return dir.EditorMeCP(z, c)
 	})
+	e.POST("/editor/readme/delete", func(c echo.Context) error {
+		return dir.EdMeRM(z, c)
+	})
+	e.POST("/editor/images/delete", func(c echo.Context) error {
+		return dir.EdImgRM(z, c)
+	})
 
 	return e, nil
 }
