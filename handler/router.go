@@ -28,10 +28,10 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	app.Caching.RecordCount = conf.RecordCount
 
 	// Set the application configuration for paths.
-	dir := app.AboutConf{
-		DownloadDir:   conf.Import.DownloadDir,
-		ScreenshotDir: conf.Import.ScreenshotsDir,
-		ThumbnailDir:  conf.Import.ThumbnailDir,
+	dir := app.Dirs{
+		Download:   conf.Import.DownloadDir,
+		Screenshot: conf.Import.ScreenshotDir,
+		Thumbnail:  conf.Import.ThumbnailDir,
 	}
 
 	// Serve embedded CSS files
@@ -78,7 +78,7 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 
 	// Serve asset images
 	e.Static(config.StaticThumb(), conf.Import.ThumbnailDir)
-	e.Static(config.StaticOriginal(), conf.Import.ScreenshotsDir)
+	e.Static(config.StaticOriginal(), conf.Import.ScreenshotDir)
 
 	e.GET("/", func(c echo.Context) error {
 		return app.Index(z, c)
@@ -213,18 +213,19 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 		return app.StatusErr(z, c, http.StatusNotFound, c.Param("uri"))
 	})
 
-	e.POST("/editor/readme", func(c echo.Context) error {
-		dir.URI = c.Param("id")
-		return dir.EditorMe(z, c)
-	})
+	// todo: lock /editor behind a login requirement
 	e.POST("/editor/readme/copy", func(c echo.Context) error {
-		return dir.EditorMeCP(z, c)
+		return app.PostMeCP(z, c, dir.Download)
 	})
 	e.POST("/editor/readme/delete", func(c echo.Context) error {
-		return dir.EdMeRM(z, c)
+		return app.PostMeRm(z, c, dir.Download)
+	})
+	e.POST("/editor/readme/hide", func(c echo.Context) error {
+		dir.URI = c.Param("id")
+		return app.PostMeHide(z, c)
 	})
 	e.POST("/editor/images/delete", func(c echo.Context) error {
-		return dir.EdImgRM(z, c)
+		return dir.PostImgsRm(z, c)
 	})
 
 	return e, nil

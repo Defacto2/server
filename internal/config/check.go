@@ -45,7 +45,7 @@ func (c *Config) Checks(z *zap.SugaredLogger) {
 		s := helper.Capitalize(err.Error()) + "."
 		z.Warn(s)
 	}
-	if err := ScreenshotsDir(c.ScreenshotsDir); err != nil {
+	if err := ScreenshotDir(c.ScreenshotDir); err != nil {
 		s := helper.Capitalize(err.Error()) + "."
 		z.Warn(s)
 	}
@@ -113,9 +113,9 @@ func DownloadDir(name string) error {
 	return CheckDir(name, "download")
 }
 
-// ScreenshotsDir runs checks against the named directory containing the screenshot images.
+// ScreenshotDir runs checks against the named directory containing the screenshot images.
 // Problems will either log warnings or fatal errors.
-func ScreenshotsDir(name string) error {
+func ScreenshotDir(name string) error {
 	return CheckDir(name, "screenshot")
 }
 

@@ -26,8 +26,8 @@ type Config struct {
 	// DownloadDir is the directory path that holds the UUID named files that are served as release downloads.
 	DownloadDir string `env:"DIR_DOWN" help:"The directory path that holds the UUID named files that are served as release downloads"`
 
-	// ScreenshotsDir is the directory path that holds the UUID named image files that are served as release screenshots.
-	ScreenshotsDir string `env:"DIR_SHOT" help:"The directory path that holds the UUID named image files that are served as release screenshots"`
+	// ScreenshotDir is the directory path that holds the UUID named image files that are served as release screenshots.
+	ScreenshotDir string `env:"DIR_SHOT" help:"The directory path that holds the UUID named image files that are served as release screenshots"`
 
 	// ThumbnailDir is the directory path that holds the UUID named squared image files that are served as release thumbnails.
 	ThumbnailDir string `env:"DIR_THUMB" help:"The directory path that holds the UUID named squared image files that are served as release thumbnails"`
@@ -193,7 +193,7 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 			switch id {
 			case "DownloadDir":
 				help = strings.Replace(help, "UUID named files", "UUID named files\n\t\t\t\t", 1)
-			case "ScreenshotsDir":
+			case "ScreenshotDir":
 				help = strings.Replace(help, "UUID named image", "UUID named image\n\t\t\t\t", 1)
 			case "ThumbnailDir":
 				help = strings.Replace(help, "UUID named squared image", "UUID named squared image\n\t\t\t\t", 1)
@@ -227,10 +227,10 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 			nl()
 			path()
 			dir(c.DownloadDir)
-		case "ScreenshotsDir":
+		case "ScreenshotDir":
 			nl()
 			path()
-			dir(c.ScreenshotsDir)
+			dir(c.ScreenshotDir)
 		case "ThumbnailDir":
 			nl()
 			path()

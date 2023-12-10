@@ -47,11 +47,11 @@ func SafeHTML(s string) template.HTML {
 	return template.HTML(s)
 }
 
-// Screenshots returns a picture elment with screenshots for the given uuid.
+// Screenshot returns a picture elment with screenshots for the given uuid.
 func (web Web) Screenshot(uuid, desc string) template.HTML {
-	fw := filepath.Join(web.Import.ScreenshotsDir, fmt.Sprintf("%s.webp", uuid))
-	fp := filepath.Join(web.Import.ScreenshotsDir, fmt.Sprintf("%s.png", uuid))
-	fj := filepath.Join(web.Import.ScreenshotsDir, fmt.Sprintf("%s.jpg", uuid))
+	fw := filepath.Join(web.Import.ScreenshotDir, fmt.Sprintf("%s.webp", uuid))
+	fp := filepath.Join(web.Import.ScreenshotDir, fmt.Sprintf("%s.png", uuid))
+	fj := filepath.Join(web.Import.ScreenshotDir, fmt.Sprintf("%s.jpg", uuid))
 	webp := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s.webp", uuid)}, "/")
 	png := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s.png", uuid)}, "/")
 	jpg := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s.jpg", uuid)}, "/")
@@ -134,7 +134,7 @@ func (web Web) Thumb(uuid, desc string, bottom bool) template.HTML {
 }
 
 func (web Web) ImageSample(uuid, ext string) template.HTML {
-	name := filepath.Join(web.Import.ScreenshotsDir, fmt.Sprintf("%s%s", uuid, ext))
+	name := filepath.Join(web.Import.ScreenshotDir, fmt.Sprintf("%s%s", uuid, ext))
 	src := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s%s", uuid, ext)}, "/")
 	hash, err := helper.IntegrityFile(name)
 	if err != nil {

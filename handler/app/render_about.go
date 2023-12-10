@@ -31,16 +31,16 @@ import (
 	"golang.org/x/text/encoding/charmap"
 )
 
-// AboutConf contains required data for the about file page.
-type AboutConf struct {
-	DownloadDir   string // path to the file download directory
-	ScreenshotDir string // path to the file screenshot directory
-	ThumbnailDir  string // path to the file thumbnail directory
-	URI           string // the URI of the file record
+// Dirs contains the directories used by the about pages.
+type Dirs struct {
+	Download   string // path to the file download directory
+	Screenshot string // path to the file screenshot directory
+	Thumbnail  string // path to the file thumbnail directory
+	URI        string // the URI of the file record
 }
 
 // About is the handler for the about page of the file record.
-func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
+func (a Dirs) About(z *zap.SugaredLogger, c echo.Context) error {
 	const name = "about"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
@@ -54,7 +54,7 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	}
 	fname := res.Filename.String
 	uuid := res.UUID.String
-	abs := filepath.Join(a.DownloadDir, uuid)
+	abs := filepath.Join(a.Download, uuid)
 	data := empty()
 	// about editor
 	data["recID"] = res.ID
@@ -152,7 +152,7 @@ func (a AboutConf) About(z *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
-func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error) {
+func (a Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) {
 	data := map[string]interface{}{}
 	if res.RetrotxtNoReadme.Int16 != 0 {
 		return data, nil
@@ -162,7 +162,7 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 	case "markup", "pdf":
 		return data, nil
 	}
-	if render.NoScreenshot(a.ScreenshotDir, res) {
+	if render.NoScreenshot(a.Screenshot, res) {
 		data["noScreenshot"] = true
 	}
 	// the bbs era, remote images protcol is not supported
@@ -172,7 +172,7 @@ func (a AboutConf) aboutReadme(res *models.File) (map[string]interface{}, error)
 		return data, nil
 	}
 
-	b, err := render.Read(a.DownloadDir, res)
+	b, err := render.Read(a.Download, res)
 	if errors.Is(err, render.ErrDownload) {
 		data["noDownload"] = true
 		return data, nil
@@ -418,18 +418,18 @@ func aboutStat(name string) string {
 
 // aboutAssets returns a list of downloads and image assets belonging to the file record.
 // any errors are appended to the list.
-func (a AboutConf) aboutAssets(uuid string) map[string]string {
+func (dir Dirs) aboutAssets(uuid string) map[string]string {
 	matches := map[string]string{}
 
-	downloads, err := os.ReadDir(a.DownloadDir)
+	downloads, err := os.ReadDir(dir.Download)
 	if err != nil {
 		matches[err.Error()] = ""
 	}
-	images, err := os.ReadDir(a.ScreenshotDir)
+	images, err := os.ReadDir(dir.Screenshot)
 	if err != nil {
 		matches[err.Error()] = ""
 	}
-	thumbs, err := os.ReadDir(a.ThumbnailDir)
+	thumbs, err := os.ReadDir(dir.Thumbnail)
 	if err != nil {
 		matches[err.Error()] = ""
 	}
@@ -459,7 +459,7 @@ func (a AboutConf) aboutAssets(uuid string) map[string]string {
 			if s == ".WEBP" {
 				s = ".WebP"
 			}
-			matches[s+" preview "] = aboutImgInfo(filepath.Join(a.ScreenshotDir, file.Name()))
+			matches[s+" preview "] = aboutImgInfo(filepath.Join(dir.Screenshot, file.Name()))
 		}
 	}
 	for _, file := range thumbs {
@@ -468,7 +468,7 @@ func (a AboutConf) aboutAssets(uuid string) map[string]string {
 			if s == ".WEBP" {
 				s = ".WebP"
 			}
-			matches[s+" thumb"] = aboutImgInfo(filepath.Join(a.ThumbnailDir, file.Name()))
+			matches[s+" thumb"] = aboutImgInfo(filepath.Join(dir.Thumbnail, file.Name()))
 		}
 	}
 

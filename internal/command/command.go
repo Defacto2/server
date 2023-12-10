@@ -8,6 +8,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"go.uber.org/zap"
 )
 
 type Dir struct {
@@ -21,10 +23,12 @@ const (
 var (
 	ErrEmpty = errors.New("file is empty")
 	ErrIsDir = errors.New("file is a directory")
+	ErrZap   = errors.New("zap logger instance is nil")
 )
 
-//Complementary assets
-
+// RemoveImgs removes the preview and thumbnail images from the preview and
+// thumbnail directories associated with the uuid.
+// It returns nil if the files do not exist.
 func RemoveImgs(preview, thumb, uuid string) error {
 	exts := []string{".jpg", ".png", ".gif", ".webp"}
 	// remove previews
@@ -76,18 +80,26 @@ func RemoveMe(download, uuid string) error {
 }
 
 // UnzipOne extracts a single file from a zip archive.
+//
+// TODO: replace ext and name with a single path for destination.
+//
 // The extracted file is copied to the src with the ext extension appended.
 // It requires the [unzip] command to be available on the host system.
 // This allows for better compatibility with retro zip archives,
 // such as those that use the [compression methods] prior to zip deflate.
 //
 // The src argument is the path to the zip archive.
-// The ext argument is the destination extension and should include a leading dot, eg. ".txt".
+// The dst argument is the destination filepath and should end with
+// a file extension, eg. ".txt".
 // The name argument is the name of the one file to unzip and copy.
 //
 // [unzip]: https://sourceforge.net/projects/infozip
 // [compression methods]: https://www.hanshq.net/zip.html
-func UnzipOne(src, ext, name string) error {
+func UnzipOne(z *zap.SugaredLogger, src, dst, name string) error {
+	if z == nil {
+		return ErrZap
+	}
+	const cmd = "unzip"
 
 	st, err := os.Stat(src)
 	if err != nil {
@@ -100,7 +112,7 @@ func UnzipOne(src, ext, name string) error {
 		return ErrEmpty
 	}
 
-	_, err = exec.LookPath("unzip")
+	_, err = exec.LookPath(cmd)
 	if errors.Is(err, exec.ErrDot) {
 		err = nil
 	}
@@ -115,14 +127,14 @@ func UnzipOne(src, ext, name string) error {
 	defer os.RemoveAll(tmp)
 
 	const exdir = "-d" // Directory to which to extract files.
-	out, err := exec.Command("unzip", src, name, exdir, tmp).Output()
+	out, err := exec.Command(cmd, src, name, exdir, tmp).Output()
 	if errors.Is(err, exec.ErrDot) {
 		err = nil
 	}
 	if err != nil {
 		return err
 	}
-	fmt.Println("out", string(out)) // TODO: print to terminal?
+	z.Info("unzipone: ", cmd, string(out))
 
 	extracted := filepath.Join(tmp, name)
 	st, err = os.Stat(extracted)
@@ -142,22 +154,17 @@ func UnzipOne(src, ext, name string) error {
 	}
 	defer srcFile.Close()
 
-	dst := fmt.Sprintf("%s%s", src, ext)
 	dstFile, err := os.Create(dst)
 	if err != nil {
 		return err
 	}
 	defer dstFile.Close()
 
-	_, err = io.Copy(dstFile, srcFile)
+	b, err := io.Copy(dstFile, srcFile)
 	if err != nil {
 		return err
 	}
+	z.Info("unzipone: " + fmt.Sprintf("copied %d bytes to %s", b, dst))
 
-	err = dstFile.Sync()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return dstFile.Sync()
 }
