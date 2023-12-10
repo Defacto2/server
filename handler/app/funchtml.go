@@ -654,7 +654,7 @@ func OptionsReadme(zipContent string) template.HTML {
 		x := strings.TrimSpace(strings.ToLower(v))
 		switch filepath.Ext(x) {
 		case ".txt", ".nfo", ".diz", ".me", ".asc", ".doc":
-			s = s + fmt.Sprintf("<option value=\"%s\">%s</option>", v, x)
+			s = s + fmt.Sprintf("<option>%s</option>", v)
 		}
 	}
 	return template.HTML(s)
@@ -668,7 +668,7 @@ func OptionsPreview(zipContent string) template.HTML {
 		x := strings.TrimSpace(strings.ToLower(v))
 		switch filepath.Ext(x) {
 		case ".txt", ".nfo", ".diz", ".me", ".gif", ".png", ".jpg", ".jpeg", ".webp", ".bmp":
-			s = s + fmt.Sprintf("<option value=\"%s\">%s</option>", v, x)
+			s = s + fmt.Sprintf("<option>%s</option>", v)
 		}
 	}
 	return template.HTML(s)

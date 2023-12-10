@@ -1,11 +1,17 @@
 (() => {
   "use strict";
 
-  const replace = `Are you sure you want to replace `;
-  const prmpt = `yes`;
-  const dang = `text-danger`;
+  const danger = `text-danger`;
   const err = `is-invalid`;
   const ok = `is-valid`;
+  const fok = `valid-feedback`;
+  const ferr = `invalid-feedback`;
+
+  const header = {
+    "Content-type": "application/json; charset=UTF-8",
+  }
+
+  const saveErr = `server could not save the change`
 
   // The table record id and key value, used for all fetch requests
   // It is also used to confirm the existence of the editor modal
@@ -16,49 +22,63 @@
   }
 
   // Modify the file metadata, delete readme asset
-  const edmeBtn = document.getElementById(`edMeBtn`);
-  edmeBtn.addEventListener(`click`, function (event) {
+  document.getElementById(`edBtnRead`).addEventListener(`click`, function (event) {
+    if (!window.confirm("Delete the readme or textfile?")) {
+      return;
+    }
+    const info = document.getElementById(`edBtnsHide`)
+    const feed = document.getElementById(`edBtnsFeedback`)
     fetch("/editor/readme/delete", {
       method: "POST",
       body: JSON.stringify({
         id: parseInt(id.value),
       }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
+      headers: header,
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("server could not save the change");
+          throw new Error(saveErr);
         }
+        info.classList.add(ok)
+        feed.classList.add(fok)
+        feed.textContent = `readme or textfile deleted, refresh the page to see the change`
         return response.json();
       })
       .catch((error) => {
+        info.classList.add(err)
+        feed.classList.add(ferr)
+        feed.textContent = error.message;
         console.log(error);
       });
   })
 
     // Modify the file metadata, delete images asset
-    const edImgBtn = document.getElementById(`edImgBtn`);
-    edImgBtn.addEventListener(`click`, function (event) {
-      alert(`delete images`)
+    document.getElementById(`edBtnImgs`).addEventListener(`click`, function (event) {
+      if (!window.confirm("Delete the previews and thumbnail?")) {
+        return;
+      }
+      const info = document.getElementById(`edBtnsHide`)
+      const feed = document.getElementById(`edBtnsFeedback`)
       fetch("/editor/images/delete", {
         method: "POST",
         body: JSON.stringify({
           id: parseInt(id.value),
         }),
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
+        headers: header,
       })
         .then((response) => {
           if (!response.ok) {
-            throw new Error("server could not save the change");
+            throw new Error(saveErr);
           }
+          info.classList.add(ok)
+          feed.classList.add(fok)
+          feed.textContent = `images deleted, refresh the page to see the change`
           return response.json();
         })
         .catch((error) => {
-          console.log(error);
+          info.classList.add(err)
+          feed.classList.add(ferr)
+          feed.textContent = error.message;
         });
     })
 
@@ -86,13 +106,11 @@
         id: parseInt(id.value),
         target: readmeValue.value,
       }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
+      headers: header,
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("server could not save the change");
+          throw new Error(saveErr);
         }
         readme.classList.add(ok);
         return response.json();
@@ -112,30 +130,28 @@
   const readmeHide = document.getElementById(`recordHideReadme`);
   const readmeErr = document.getElementById(`recordHideReadmeErr`);
   if (readme.checked == true) {
-    readmeL.classList.add(dang);
+    readmeL.classList.add(danger);
     readmeName.disabled = true;
   }
   readme.addEventListener(`change`, function (event) {
     if (readme.checked == true) {
-      readmeL.classList.add(dang);
+      readmeL.classList.add(danger);
       readmeName.disabled = true;
     } else {
-      readmeL.classList.remove(dang);
+      readmeL.classList.remove(danger);
       readmeName.disabled = false;
     }
-    fetch("/editor/readme", {
+    fetch("/editor/readme/hide", {
       method: "POST",
       body: JSON.stringify({
         id: parseInt(id.value),
         readme: readme.checked,
       }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
+      headers: header,
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("server could not save the change");
+          throw new Error(saveErr);
         }
         readme.classList.add(ok);
         return response.json();
@@ -213,9 +229,9 @@
     artifact.classList.remove(ok);
     // Prompt for upload replacement
     let confirmation = window.prompt(
-      replace + artifact.value + `?\nType "` + prmpt + `" to confirm.`
+      `Replace ` + artifact.value + `?\nType "yes" to confirm.`
     );
-    if (confirmation.toLowerCase() != prmpt) {
+    if (confirmation.toLowerCase() != `yes`) {
       return;
     }
     // upload here
@@ -231,13 +247,13 @@
   const online = document.getElementById(`recordOnline`);
   const onlineL = document.getElementById(`recordOnlineLabel`);
   if (online.checked != true) {
-    onlineL.classList.add(dang);
+    onlineL.classList.add(danger);
   }
   online.addEventListener(`change`, function (event) {
     if (online.checked == true) {
-      onlineL.classList.remove(dang);
+      onlineL.classList.remove(danger);
     } else {
-      onlineL.classList.add(dang);
+      onlineL.classList.add(danger);
     }
   });
 })();
