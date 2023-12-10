@@ -9,9 +9,9 @@
 
   const header = {
     "Content-type": "application/json; charset=UTF-8",
-  }
+  };
 
-  const saveErr = `server could not save the change`
+  const saveErr = `server could not save the change`;
 
   // The table record id and key value, used for all fetch requests
   // It is also used to confirm the existence of the editor modal
@@ -22,43 +22,47 @@
   }
 
   // Modify the file metadata, delete readme asset
-  document.getElementById(`edBtnRead`).addEventListener(`click`, function (event) {
-    if (!window.confirm("Delete the readme or textfile?")) {
-      return;
-    }
-    const info = document.getElementById(`edBtnsHide`)
-    const feed = document.getElementById(`edBtnsFeedback`)
-    fetch("/editor/readme/delete", {
-      method: "POST",
-      body: JSON.stringify({
-        id: parseInt(id.value),
-      }),
-      headers: header,
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(saveErr);
-        }
-        info.classList.add(ok)
-        feed.classList.add(fok)
-        feed.textContent = `readme or textfile deleted, refresh the page to see the change`
-        return response.json();
+  document
+    .getElementById(`edBtnRead`)
+    .addEventListener(`click`, function (event) {
+      if (!window.confirm("Delete the readme or textfile?")) {
+        return;
+      }
+      const info = document.getElementById(`edBtnsHide`);
+      const feed = document.getElementById(`edBtnsFeedback`);
+      fetch("/editor/readme/delete", {
+        method: "POST",
+        body: JSON.stringify({
+          id: parseInt(id.value),
+        }),
+        headers: header,
       })
-      .catch((error) => {
-        info.classList.add(err)
-        feed.classList.add(ferr)
-        feed.textContent = error.message;
-        console.log(error);
-      });
-  })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(saveErr);
+          }
+          info.classList.add(ok);
+          feed.classList.add(fok);
+          feed.textContent = `readme or textfile deleted, refresh the page to see the change`;
+          return response.json();
+        })
+        .catch((error) => {
+          info.classList.add(err);
+          feed.classList.add(ferr);
+          feed.textContent = error.message;
+          console.log(error);
+        });
+    });
 
-    // Modify the file metadata, delete images asset
-    document.getElementById(`edBtnImgs`).addEventListener(`click`, function (event) {
+  // Modify the file metadata, delete images asset
+  document
+    .getElementById(`edBtnImgs`)
+    .addEventListener(`click`, function (event) {
       if (!window.confirm("Delete the previews and thumbnail?")) {
         return;
       }
-      const info = document.getElementById(`edBtnsHide`)
-      const feed = document.getElementById(`edBtnsFeedback`)
+      const info = document.getElementById(`edBtnsHide`);
+      const feed = document.getElementById(`edBtnsFeedback`);
       fetch("/editor/images/delete", {
         method: "POST",
         body: JSON.stringify({
@@ -70,33 +74,33 @@
           if (!response.ok) {
             throw new Error(saveErr);
           }
-          info.classList.add(ok)
-          feed.classList.add(fok)
-          feed.textContent = `images deleted, refresh the page to see the change`
+          info.classList.add(ok);
+          feed.classList.add(fok);
+          feed.textContent = `images deleted, refresh the page to see the change`;
           return response.json();
         })
         .catch((error) => {
-          info.classList.add(err)
-          feed.classList.add(ferr)
+          info.classList.add(err);
+          feed.classList.add(ferr);
           feed.textContent = error.message;
         });
-    })
+    });
 
   // Modify the file assets, readme in archive
-  const readmeValue = document.getElementById(`recordReadme`);
-  const readmeList = document.getElementById(`recordReadmeList`);
-  readmeValue.addEventListener(`input`, function (event) {
-    readmeValue.classList.remove(err);
-    readmeValue.classList.remove(ok);
-    if (readmeValue.value == ``) {
+  const readmeCP = document.getElementById(`edCopyMe`);
+  readmeCP.addEventListener(`input`, function (event) {
+    readmeCP.classList.remove(err);
+    readmeCP.classList.remove(ok);
+    if (readmeCP.value == ``) {
       return;
     }
-    // automatic upload
-    let exists = Array.from(readmeList.options).some(
-      (option) => option.value === readmeValue.value
+
+    const list = document.getElementById(`edCopyMeList`);
+    let exists = Array.from(list.options).some(
+      (option) => option.value === readmeCP.value
     );
     if (!exists) {
-      readmeValue.classList.add(err);
+      readmeCP.classList.add(err);
       return;
     }
 
@@ -104,7 +108,7 @@
       method: "POST",
       body: JSON.stringify({
         id: parseInt(id.value),
-        target: readmeValue.value,
+        target: readmeCP.value,
       }),
       headers: header,
     })
@@ -112,40 +116,46 @@
         if (!response.ok) {
           throw new Error(saveErr);
         }
-        readme.classList.add(ok);
+        readmeCP.classList.add(ok);
         return response.json();
       })
       .catch((error) => {
-        readmeErr.textContent = error.message;
-        readmeHide.classList.add(err);
+        document.getElementById(`edCopyMeErr`).textContent = error.message;
+        list.classList.add(err);
+        return;
       });
-
-    readmeValue.classList.add(ok);
   });
+  // Modify the file assets, readme in archive reset
+  document
+    .getElementById(`edCopyMeReset`)
+    .addEventListener(`click`, function (event) {
+      readmeCP.value = ``;
+      readmeCP.classList.remove(err);
+      readmeCP.classList.remove(ok);
+      readmeHide.classList.remove(err);
+      readmeHide.classList.remove(ok);
+    });
 
   // Modify the file assets, record readme hide/show
-  const readme = document.getElementById(`recordHideReadme`);
-  const readmeL = document.getElementById(`recordHideReadmeLabel`);
-  const readmeName = document.getElementById(`recordReadme`);
-  const readmeHide = document.getElementById(`recordHideReadme`);
-  const readmeErr = document.getElementById(`recordHideReadmeErr`);
-  if (readme.checked == true) {
-    readmeL.classList.add(danger);
-    readmeName.disabled = true;
+  const readmeHide = document.getElementById(`edHideMe`);
+  if (readmeHide.checked == true) {
+    document.getElementById(`edHideMeLabel`).classList.add(danger);
+    readmeCP.disabled = true;
   }
-  readme.addEventListener(`change`, function (event) {
-    if (readme.checked == true) {
-      readmeL.classList.add(danger);
-      readmeName.disabled = true;
+  readmeHide.addEventListener(`change`, function (event) {
+    const label = document.getElementById(`edHideMeLabel`);
+    if (readmeHide.checked == true) {
+      label.classList.add(danger);
+      readmeCP.disabled = true;
     } else {
-      readmeL.classList.remove(danger);
-      readmeName.disabled = false;
+      label.classList.remove(danger);
+      readmeCP.disabled = false;
     }
     fetch("/editor/readme/hide", {
       method: "POST",
       body: JSON.stringify({
         id: parseInt(id.value),
-        readme: readme.checked,
+        readme: readmeHide.checked,
       }),
       headers: header,
     })
@@ -153,11 +163,11 @@
         if (!response.ok) {
           throw new Error(saveErr);
         }
-        readme.classList.add(ok);
+        readmeHide.classList.add(ok);
         return response.json();
       })
       .catch((error) => {
-        readmeErr.textContent = error.message;
+        document.getElementById(`edHideMeErr`).textContent = error.message;
         readmeHide.classList.add(err);
       });
   });

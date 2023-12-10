@@ -178,10 +178,10 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"recordReadme": func(b bool) template.HTML {
 			if b {
 				return template.HTML("<input class=\"form-check-input\"" +
-					" name=\"hide-readme\" type=\"checkbox\" role=\"switch\" id=\"recordHideReadme\" checked>")
+					" name=\"hide-readme\" type=\"checkbox\" role=\"switch\" id=\"edHideMe\" checked>")
 			}
 			return template.HTML(("<input class=\"form-check-input\"" +
-				" name=\"hide-readme\" type=\"checkbox\" role=\"switch\" id=\"recordHideReadme\">"))
+				" name=\"hide-readme\" type=\"checkbox\" role=\"switch\" id=\"edHideMe\">"))
 		},
 		"recordLastMod": func(b bool) template.HTML {
 			if b {

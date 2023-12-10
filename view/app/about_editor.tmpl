@@ -85,28 +85,28 @@
           <div id="edBtnsFeedback" class="text-end"></div>
         </div>
         <hr class="m-0 mb-3 mt-3">
-        {{/*  TODO: rename record IDs to "edit"  */}}
         {{/*  Readme in archive  */}}
         <div class="mb-3 row">
-          <label for="recordReadme" id="recordReadmeLabel" class="col-sm-3 col-form-label"
+          <label for="edCopyMe" id="edCopyMeLabel" class="col-sm-3 col-form-label"
           data-bs-toggle="tooltip" data-bs-title="An included NFO, DIZ or text file to display"><strong>Readme</strong> in archive</label>
           <div class="col-sm-5">
-            {{/*  TODO: default disabled based on hide readme value  */}}
-            <input list="recordReadmeList" name="title" class="form-control" id="recordReadme" value="{{index . "recReadme"}}" placeholder="Overwrite with a named file">
-            <datalist id="recordReadmeList">
+            <input list="edCopyMeList" name="title" class="form-control" id="edCopyMe" value="{{index . "recReadme"}}" placeholder="Overwrite with a named file">
+            <datalist id="edCopyMeList">
               {{index . "recReadmeList"}}
             </datalist>
             <div class="valid-feedback">Previews replaced, {{$replace}}</div>
+            <div class="invalid-feedback" id="edCopyMeErr">something went wrong</div>
           </div>
           <div class="col-sm-1">
-            <button class="btn btn-outline-danger" id="recordReadmeReset">Clear</button>
+            <button class="btn btn-outline-danger" id="edCopyMeReset">Clear</button>
           </div>
           {{/*  Hide readme from view  */}}
           <div class="col-sm-3">
             <div class="form-check form-switch">
               {{recordReadme (index . "recNoReadme") }}
-              <label class="form-check-label" id="recordHideReadmeLabel" for="recordHideReadme">Hide readme from view</label>
-              <div class="invalid-feedback" id="recordHideReadmeErr">error placeholder</div>  
+              <label class="form-check-label" id="edHideMeLabel" for="edHideMe">Hide readme from view</label>
+              <div class="valid-feedback">Saved, {{$replace}}</div>
+              <div class="invalid-feedback" id="edHideMeErr">error placeholder</div>  
             </div>
           </div>    
         </div>
