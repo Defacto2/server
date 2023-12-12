@@ -173,9 +173,9 @@
   });
 
   // Modify the file assets, preview in archive
-  const previewValue = document.getElementById(`recordPreview`);
-  const previewList = document.getElementById(`recordPreviewList`);
-  const previewB = document.getElementById(`recordPreviewBtn`);
+  const previewValue = document.getElementById(`edCopyPreview`);
+  const previewList = document.getElementById(`edCopyPreviewList`);
+  const previewB = document.getElementById(`edCopyPreviewBtn`);
   previewValue.addEventListener(`input`, function (event) {
     previewValue.classList.remove(err);
     previewValue.classList.remove(ok);
@@ -189,7 +189,7 @@
     );
     if (!exists) {
       previewValue.classList.add(err);
-      document.getElementById(`edCopyImgsErr`).textContent = `unknown filename`;
+      document.getElementById(`edCopyPreviewErr`).textContent = `unknown filename`;
       previewList.classList.remove(err);
       return;
     }
@@ -213,7 +213,7 @@
       })
       .catch((error) => {
         console.log(error);
-        document.getElementById(`edCopyImgsErr`).textContent = error.message;
+        document.getElementById(`edCopyPreviewErr`).textContent = error.message;
         previewList.classList.add(err);
         //list.classList.add(err);
         return;
@@ -221,12 +221,12 @@
   });
   // Modify the file assets, preview in archive reset
   document
-    .getElementById(`edCopyImgsReset`)
+    .getElementById(`edCopyPreviewReset`)
     .addEventListener(`click`, function () {
       previewValue.value = ``;
       previewValue.classList.remove(err);
       previewValue.classList.remove(ok);
-      document.getElementById(`edCopyImgsErr`).textContent = ``;
+      document.getElementById(`edCopyPreviewErr`).textContent = ``;
       previewList.classList.remove(err);
     });
 
@@ -292,9 +292,9 @@
   /// TODO: below
 
   // Modify the file assets, file artifact preview upload
-  const previewUp = document.getElementById(`recordPreviewUp`);
-  const previewUpB = document.getElementById(`recordPreviewUpBtn`);
-  const previewUpR = document.getElementById(`recordPreviewUpReset`);
+  const previewUp = document.getElementById(`edUploadPreview`);
+  const previewUpB = document.getElementById(`edUploadPreviewBtn`);
+  const previewUpR = document.getElementById(`edUploadPreviewReset`);
   previewUp.addEventListener(`change`, function (event) {
     if (previewUp.value != ``) {
       previewUp.classList.remove(err);
@@ -318,9 +318,9 @@
   });
 
   // Modify the file assets, file artifact replacement upload
-  const artifact = document.getElementById(`recordArtifact`);
-  const artifactB = document.getElementById(`recordArtifactBtn`);
-  const artifactR = document.getElementById(`recordArtifactReset`);
+  const artifact = document.getElementById(`edUploadArtifact`);
+  const artifactB = document.getElementById(`edUploadArtifactBtn`);
+  const artifactR = document.getElementById(`edUploadArtifactReset`);
   artifact.addEventListener(`change`, function (event) {
     if (artifact.value != ``) {
       artifact.classList.remove(err);

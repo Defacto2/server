@@ -2,6 +2,7 @@ package app
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -13,13 +14,25 @@ import (
 )
 
 var (
-	ErrTarget = errors.New("target not found")
+	ErrExtract = errors.New("unknown extractor value")
+	ErrTarget  = errors.New("target not found")
+)
+
+const (
+	txt = ".txt" // txt file extension
 )
 
 // badRequest returns a JSON response with a 400 status code,
 // the server cannot or will not process the request due to something that is perceived to be a client error.
 func badRequest(c echo.Context, err error) error {
 	return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request " + err.Error()})
+}
+
+// Form is the form data for the editor.
+type Form struct {
+	ID     int    `query:"id"`     // ID is the auto incrementing database id of the record.
+	Readme bool   `query:"readme"` // Readme hides the readme textfile from the about page.
+	Target string `query:"target"` // Target is the name of the file to extract from the zip archive.
 }
 
 // PostIntro handles the POST request for the intro upload form.
@@ -36,22 +49,38 @@ func PostIntro(z *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
-// PostMeCP handles the POST request for the editor readme copy, input value.
-func PostMeCP(z *zap.SugaredLogger, c echo.Context, downloadDir string) error {
-	const name = "editor readme cp"
+// ReadmeDel handles the post submission for the Delete readme asset button.
+func ReadmeDel(z *zap.SugaredLogger, c echo.Context, downloadDir string) error {
+	const name = "editor readme delete"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
 
-	type Form struct {
-		ID     int    `query:"id"`
-		Target string `query:"readme"`
-	}
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
+	r, err := model.Record(z, c, f.ID)
+	if err != nil {
+		return err
+	}
+	if err = command.RemoveMe(downloadDir, r.UUID.String); err != nil {
+		return badRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, r)
+}
 
+// ReadmePost handles the post submission for the Readme in archive.
+func ReadmePost(z *zap.SugaredLogger, c echo.Context, downloadDir string) error {
+	const name = "editor readme"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+
+	var f Form
+	if err := c.Bind(&f); err != nil {
+		return badRequest(c, err)
+	}
 	r, err := model.Record(z, c, f.ID)
 	if err != nil {
 		return badRequest(c, err)
@@ -73,7 +102,7 @@ func PostMeCP(z *zap.SugaredLogger, c echo.Context, downloadDir string) error {
 	}
 
 	src := filepath.Join(downloadDir, r.UUID.String)
-	dst := filepath.Join(downloadDir, r.UUID.String+".txt")
+	dst := filepath.Join(downloadDir, r.UUID.String+txt)
 	err = command.UnZipOne(z, src, dst, target)
 	if err != nil {
 		return badRequest(c, err)
@@ -81,77 +110,78 @@ func PostMeCP(z *zap.SugaredLogger, c echo.Context, downloadDir string) error {
 	return c.JSON(http.StatusOK, r)
 }
 
-// PostMeHide handles the POST request for the editor readme, hide toggle.
-func PostMeHide(z *zap.SugaredLogger, c echo.Context) error {
-	const name = "editor readme hide"
+// ReadmeToggle handles the post submission for the Hide readme from view toggle.
+func ReadmeToggle(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor readme toggle"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
 
-	type Form struct {
-		ID     int  `query:"id"`
-		Readme bool `query:"readme"`
-	}
-	// in the handler for /users?id=<userID>
 	var f Form
-	err := c.Bind(&f)
-	if err != nil {
+	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-
-	if err = model.UpdateNoReadme(c, int64(f.ID), f.Readme); err != nil {
+	if err := model.UpdateNoReadme(c, int64(f.ID), f.Readme); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, f)
 }
 
-// PostMeRm handles the POST request for the editor readme, remove button click.
-func PostMeRm(z *zap.SugaredLogger, c echo.Context, downloadDir string) error {
-	const name = "editor readme remove"
+// PreviewPost handles the post submission for the Preview from image in archive.
+func (dir Dirs) PreviewPost(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor preview"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	return dir.extractor(z, c, imgs)
+}
+
+// PreviewDel handles the post submission for the Delete complementary images button.
+func (dir Dirs) PreviewDel(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor preview remove"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
 
-	type Form struct {
-		ID int `query:"id"`
-	}
 	var f Form
-	err := c.Bind(&f)
+	if err := c.Bind(&f); err != nil {
+		return badRequest(c, err)
+	}
+	r, err := model.Record(z, c, f.ID)
 	if err != nil {
 		return badRequest(c, err)
 	}
-
-	r, err := model.Record(z, c, f.ID)
-	if err != nil {
-		return err
-	}
-
-	if err = command.RemoveMe(downloadDir, r.UUID.String); err != nil {
+	if err = command.RemoveImgs(dir.Preview, dir.Thumbnail, r.UUID.String); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, r)
 }
 
-type post int
+// AnsiLovePost handles the post submission for the Preview from text in archive.
+func (dir Dirs) AnsiLovePost(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor ansilove"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	return dir.extractor(z, c, ansis)
+}
+
+type extract int
 
 const (
-	imgs post = iota
-	ansis
+	imgs  extract = iota // extract image
+	ansis                // extract ansilove compatible text
 )
 
-func (dir Dirs) postCopier(z *zap.SugaredLogger, c echo.Context, p post) error {
+func (dir Dirs) extractor(z *zap.SugaredLogger, c echo.Context, p extract) error {
 	if z == nil {
-		return InternalErr(z, c, "post copier", ErrZap)
+		return InternalErr(z, c, "extractor", ErrZap)
 	}
-	type Form struct {
-		ID     int    `query:"id"`
-		Target string `query:"readme"`
-	}
+
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-
 	r, err := model.Record(z, c, f.ID)
 	if err != nil {
 		return badRequest(c, err)
@@ -179,51 +209,10 @@ func (dir Dirs) postCopier(z *zap.SugaredLogger, c echo.Context, p post) error {
 		err = cmd.ExtractImage(z, src, r.UUID.String, target)
 	case ansis:
 		err = cmd.ExtractAnsiLove(z, src, r.UUID.String, target)
+	default:
+		return InternalErr(z, c, "extractor", fmt.Errorf("%w: %d", ErrExtract, p))
 	}
 	if err != nil {
-		return badRequest(c, err)
-	}
-	return c.JSON(http.StatusOK, r)
-}
-
-func (dir Dirs) PostImgsCP(z *zap.SugaredLogger, c echo.Context) error {
-	const name = "editor images copy"
-	if z == nil {
-		return InternalErr(z, c, name, ErrZap)
-	}
-	return dir.postCopier(z, c, imgs)
-}
-
-func (dir Dirs) PostAnsiCP(z *zap.SugaredLogger, c echo.Context) error {
-	const name = "editor ansilove copy"
-	if z == nil {
-		return InternalErr(z, c, name, ErrZap)
-	}
-	return dir.postCopier(z, c, ansis)
-}
-
-// PostMeRm handles the POST request for the editor complementary images, remove button click.
-func (dir Dirs) PostImgsRm(z *zap.SugaredLogger, c echo.Context) error {
-	const name = "editor images remove"
-	if z == nil {
-		return InternalErr(z, c, name, ErrZap)
-	}
-
-	type Form struct {
-		ID int `query:"id"`
-	}
-	var f Form
-	err := c.Bind(&f)
-	if err != nil {
-		return badRequest(c, err)
-	}
-
-	r, err := model.Record(z, c, f.ID)
-	if err != nil {
-		return err
-	}
-
-	if err = command.RemoveImgs(dir.Preview, dir.Thumbnail, r.UUID.String); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, r)

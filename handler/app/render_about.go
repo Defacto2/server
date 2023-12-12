@@ -71,7 +71,8 @@ func (a Dirs) About(z *zap.SugaredLogger, c echo.Context) error {
 	data["recLastModValue"] = res.FileLastModified.Time.Format("2006-1-2") // value should not have no leading zeros
 	data["recAbsDownload"] = abs
 	data["recKind"] = aboutMagic(abs)
-	data["recStat"] = aboutStat(abs)
+	data["recStatMod"] = aboutStat(abs)[0]
+	data["recStatSize"] = aboutStat(abs)[1]
 	data["recAssets"] = a.aboutAssets(uuid)
 	data["recReadme"] = res.RetrotxtReadme.String
 	data["recNoReadme"] = res.RetrotxtNoReadme.Int16 != 0
@@ -411,13 +412,19 @@ func aboutID(id int64) string {
 	return strconv.FormatInt(id, 10)
 }
 
-// aboutStat returns the file status.
-func aboutStat(name string) string {
+// aboutStat returns the file last modified date and formatted file size.
+func aboutStat(name string) [2]string {
 	stat, err := os.Stat(name)
 	if err != nil {
-		return err.Error()
+		return [2]string{err.Error(), err.Error()}
 	}
-	return fmt.Sprintf("Modified %s, %dB or %s", stat.ModTime().Format("2006-1-2"), stat.Size(), helper.ByteCount(stat.Size()))
+	return [2]string{
+		stat.ModTime().Format("2006-Jan-02"),
+		fmt.Sprintf("%s bytes - %s - %s",
+			humanize.Comma(stat.Size()),
+			humanize.Bytes(uint64(stat.Size())),
+			humanize.IBytes(uint64(stat.Size()))),
+	}
 }
 
 // aboutAssets returns a list of downloads and image assets belonging to the file record.

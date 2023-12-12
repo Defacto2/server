@@ -14,6 +14,25 @@ import (
 // Each argument and its value is a separate string in the slice.
 type Args []string
 
+func (a *Args) AnsiAmiga(arg string) {
+	*a = append(*a,
+		"-d",           // DOS aspect ratio.
+		"-f", "topaz+", // Output font.
+		"-m", "workbench", // Rendering mode set to Amiga Workbench palette.
+		"-S", // Use SAUCE record for render options.
+	)
+}
+
+func (a *Args) AnsiDOS(arg string) {
+	*a = append(*a,
+		"-d",          // DOS aspect ratio.
+		"-f", "80x25", // Output font.
+		"-i",        // Use iCE colors.
+		"-m", "ced", // Rendering mode set to black on grey, with 78 columns.
+		"-S", // Use SAUCE record for render options.
+	)
+}
+
 // Jpeg appends the command line arguments for the convert command to transform an image into a JPEG image.
 func (a *Args) Jpeg() {
 	*a = append(*a,

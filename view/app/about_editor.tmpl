@@ -15,7 +15,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div class="mb-3 row">
+        <div class="row">
           <div class="col-sm-2" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Internal identifiers"><strong>IDs</strong></div>
           <div class="col-sm-5">
             {{/*  UUID used for the filename of assets  */}}
@@ -39,7 +39,8 @@
         </dl>
         <dl class="row mb-0">
           <dt class="col-sm-2" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Last modified date and sizes of the artifact">Metadata</dt>
-          <dd class="col-sm-5">{{index . "recStat"}}</dd>
+          <dd class="col-sm-5"><strong>last modified on server</strong> {{index . "recStatMod"}}</dd>
+          <dd class="col-sm-5"><strong>size</strong> {{index . "recStatSize"}}</dd>
         </dl>
         <dl class="row mb-0">
           <dt class="col-sm-2" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Common media type, this maybe inaccurate">Quick type</dt>
@@ -96,22 +97,22 @@
         {{/*  preview from image in archive  */}}
         <hr class="m-0 mb-3 mt-3">
         <div class="mb-3 row">
-          <label for="recordPreview" id="recordPreviewLabel" class="col-sm-3 col-form-label"
+          <label for="edCopyPreview" id="edCopyPreviewLabel" class="col-sm-3 col-form-label"
           data-bs-toggle="tooltip" data-bs-title="An included image to use as the preview and thumbnail"><strong>Preview</strong> from image in archive</label>
           <div class="col-sm-5">
             {{/*  TODO: default disabled based on hide value  */}}
-            <input list="recordPreviewList" name="title" class="form-control" id="recordPreview" value="" placeholder="Replace with a named file">
-            <datalist id="recordPreviewList">
+            <input list="edCopyPreviewList" name="title" class="form-control" id="edCopyPreview" value="" placeholder="Replace with a named file">
+            <datalist id="edCopyPreviewList">
               {{index . "recPreviewList"}}
             </datalist>
             <div class="valid-feedback">Previews replaced, {{$replace}}</div>
-            <div class="invalid-feedback" id="edCopyImgsErr">something went wrong</div>
+            <div class="invalid-feedback" id="edCopyPreviewErr">something went wrong</div>
           </div>
           <div class="col-sm-1">
-            <button class="btn btn-outline-danger" id="edCopyImgsReset">Clear</button>
+            <button class="btn btn-outline-danger" id="edCopyPreviewReset">Clear</button>
           </div>
           <div class="col-sm-3 text-start">
-            <button class="btn btn-outline-success" id="recordPreviewBtn">Recreate previews and thumb</button>          
+            <button class="btn btn-outline-success" id="edCopyPreviewBtn">Recreate previews and thumb</button>          
           </div>
         </div>
         {{/*  preview from text in archive  */}}
@@ -139,35 +140,35 @@
         <hr class="m-0 mb-3 mt-3">
         {{/*  preview from a file upload  */}}
         <div class="mb-3 row">
-          <label for="recordPreviewUp" id="recordPreviewUpLabel" class="col-sm-3 col-form-label"
+          <label for="edUploadPreview" id="edUploadPreviewLabel" class="col-sm-3 col-form-label"
           data-bs-toggle="tooltip" data-bs-title="An included image to use as the preview and thumbnail"><strong>Preview</strong> from upload</label>
           <div class="col-sm-5">
             {{/*  TODO: default disabled based on hide value  */}}
-            <input type="file" class="form-control" id="recordPreviewUp" value="" 
+            <input type="file" class="form-control" id="edUploadPreview" value="" 
               accept="image/png, image/jpeg, image/webp, image/bmp, image/gif, image/tiff">
             <div class="valid-feedback">Download artifact replaced, {{$replace}}</div>
           </div>
           <div class="col-sm-1">
-            <button class="btn btn-outline-danger" id="recordPreviewUpReset">Clear</button>
+            <button class="btn btn-outline-danger" id="edUploadPreviewReset">Clear</button>
           </div>
           <div class="col-sm-3 text-start">
-            <button class="btn btn-outline-success" id="recordPreviewUpBtn">Upload and recreate</button>  
+            <button class="btn btn-outline-success" id="edUploadPreviewBtn">Upload and recreate</button>  
           </div>
         </div>
         <hr class="m-0 mb-3 mt-3">
         {{/*  download artifact replacement */}}
         <div class="mb-3 row">
-          <label for="recordArtifact" id="recordArtifactLabel" class="col-sm-3 col-form-label"
+          <label for="edUploadArtifact" id="edUploadArtifactLabel" class="col-sm-3 col-form-label"
           data-bs-toggle="tooltip" data-bs-title="An included image to use as the preview and thumbnail"><strong>Download</strong> artifact</label>
           <div class="col-sm-5">
-            <input type="file" class="form-control" id="recordArtifact" value="">
+            <input type="file" class="form-control" id="edUploadArtifact" value="">
             <div class="valid-feedback">Download artifact replaced, {{$replace}}</div>
           </div>
           <div class="col-sm-1">
-            <button class="btn btn-outline-danger" id="recordArtifactReset">Clear</button>
+            <button class="btn btn-outline-danger" id="edUploadArtifactReset">Clear</button>
           </div>
           <div class="col-sm-3 text-start">
-            <button class="btn btn-outline-success" id="recordArtifactBtn">Upload and replace</button>   
+            <button class="btn btn-outline-success" id="edUploadArtifactBtn">Upload and replace</button>   
           </div>
         </div>
         <hr class="m-0 mb-3 mt-3">

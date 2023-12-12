@@ -215,23 +215,23 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 
 	// todo: lock /editor behind a login requirement
 	e.POST("/editor/readme/copy", func(c echo.Context) error {
-		return app.PostMeCP(z, c, dir.Download)
+		return app.ReadmePost(z, c, dir.Download)
 	})
 	e.POST("/editor/readme/delete", func(c echo.Context) error {
-		return app.PostMeRm(z, c, dir.Download)
+		return app.ReadmeDel(z, c, dir.Download)
 	})
 	e.POST("/editor/readme/hide", func(c echo.Context) error {
 		dir.URI = c.Param("id")
-		return app.PostMeHide(z, c)
+		return app.ReadmeToggle(z, c)
 	})
 	e.POST("/editor/images/copy", func(c echo.Context) error {
-		return dir.PostImgsCP(z, c)
+		return dir.PreviewPost(z, c)
 	})
 	e.POST("/editor/images/delete", func(c echo.Context) error {
-		return dir.PostImgsRm(z, c)
+		return dir.PreviewDel(z, c)
 	})
 	e.POST("/editor/ansilove/copy", func(c echo.Context) error {
-		return dir.PostAnsiCP(z, c)
+		return dir.AnsiLovePost(z, c)
 	})
 
 	return e, nil
