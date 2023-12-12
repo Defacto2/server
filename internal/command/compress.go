@@ -67,7 +67,7 @@ func UnZipOne(z *zap.SugaredLogger, src, dst, name string) error {
 	return CopyFile(z, extracted, dst)
 }
 
-func (dir Dirs) UnZipImage(z *zap.SugaredLogger, src, uuid, name string) error {
+func (dir Dirs) ExtractImage(z *zap.SugaredLogger, src, uuid, name string) error {
 	if z == nil {
 		return ErrZap
 	}
@@ -91,8 +91,10 @@ func (dir Dirs) UnZipImage(z *zap.SugaredLogger, src, uuid, name string) error {
 		return fmt.Errorf("%w: %q", ErrIsDir, dst)
 	}
 
+	// TODO: https://pkg.go.dev/golang.org/x/image
+	// bmp, tiff, webp
 	switch filepath.Ext(strings.ToLower(dst)) {
-	case gif:
+	case gif: // TODO: use gif2webp: https://developers.google.com/speed/webp/docs/gif2webp
 		// use lossless compression (but larger file size)
 		err = dir.LosslessScreenshot(z, dst, uuid)
 	case bmp:
@@ -115,7 +117,7 @@ func (dir Dirs) UnZipImage(z *zap.SugaredLogger, src, uuid, name string) error {
 	return nil
 }
 
-func (dir Dirs) UnZipAnsiLove(z *zap.SugaredLogger, src, uuid, name string) error {
+func (dir Dirs) ExtractAnsiLove(z *zap.SugaredLogger, src, uuid, name string) error {
 	if z == nil {
 		return ErrZap
 	}

@@ -7,6 +7,9 @@ import (
 	"go.uber.org/zap"
 )
 
+// ansilove may find -extent and -extract useful
+// https://imagemagick.org/script/command-line-options.php#extent
+
 // Args is a slice of strings that represents the command line arguments.
 // Each argument and its value is a separate string in the slice.
 type Args []string
@@ -14,44 +17,48 @@ type Args []string
 // Jpeg appends the command line arguments for the convert command to transform an image into a JPEG image.
 func (a *Args) Jpeg() {
 	*a = append(*a,
-		"-sampling-factor", "4:2:0",
-		"-strip",
-		"-quality", "85",
-		"-interlace", "Plane",
-		"-gaussian-blur", "0.05",
-		"-colorspace", "RGB",
+		"-sampling-factor", "4:2:0", // Horizontal and vertical sampling factors to be used by the JPEG encoder for chroma downsampling.
+		"-strip",         // Strip the image of any profiles and comments.
+		"-quality", "90", // See: https://imagemagick.org/script/command-line-options.php#quality
+		"-interlace", "plane", // Type of interlacing scheme, see: https://imagemagick.org/script/command-line-options.php#interlace
+		"-gaussian-blur", "0.05", // Blur the image with a Gaussian operator.
+		"-colorspace", "RGB", // Set the image colorspace.
 	)
 }
 
 // Png appends the command line arguments for the convert command to transform an image into a PNG image.
 func (a *Args) Png() {
 	*a = append(*a,
+		// Defined PNG compression options, these replace the -quality option.
 		"-define", "png:compression-filter=5",
 		"-define", "png:compression-level=9",
 		"-define", "png:compression-strategy=1",
 		"-define", "png:exclude-chunk=all",
-		"-filter", "Triangle",
-		"-flatten",
-		"-posterize", "136", // max colours
+		"-flatten",          // Create a canvas the size of the first images virtual canvas using the current -background color, and -compose each image in turn onto that canvas.
+		"-strip",            // Strip the image of any profiles, comments or PNG chunks.
+		"-posterize", "136", // Reduce the image to a limited number of color levels per channel.
 	)
 }
 
 // Thumb appends the command line arguments for the convert command to transform an image into a thumbnail image.
 func (a *Args) Thumb() {
 	*a = append(*a,
-		"-thumbnail", "400x400",
-		"-background", "#999",
-		"-gravity", "center",
-		"-extent", "400x400",
+		"-filter", "Triangle", // Use this type of filter when resizing or distorting an image.
+		"-thumbnail", "400x400", // Create a thumbnail of the image, more performant than -resize.
+		"-background", "#999", // Set the background color.
+		"-gravity", "center", // Sets the current gravity suggestion for various other settings and options.
+		"-extent", "400x400", // Set the image size and offset.
 	)
 }
 
-// Webp appends the command line arguments for the cwebp command to transform an image into a webp image.
+// Webp appends the command line arguments for the [cwebp command] to transform an image into a webp image.
+//
+// [cwebp command]: https://developers.google.com/speed/webp/docs/cwebp
 func (a *Args) Webp() {
 	*a = append(*a,
-		"-af",
-		"-v",
-		"-exact",
+		"-af",    // Auto-filter will spend additional time optimizing the filtering strength to reach a well-balanced quality.
+		"-exact", // Preserve RGB values in transparent area. The default is off, to help compressibility.
+		//"-v", // Print extra information.
 	)
 }
 

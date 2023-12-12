@@ -132,12 +132,17 @@ func PostMeRm(z *zap.SugaredLogger, c echo.Context, downloadDir string) error {
 	return c.JSON(http.StatusOK, r)
 }
 
-func (dir Dirs) PostImgsCP(z *zap.SugaredLogger, c echo.Context) error {
-	const name = "editor images copy"
-	if z == nil {
-		return InternalErr(z, c, name, ErrZap)
-	}
+type post int
 
+const (
+	imgs post = iota
+	ansis
+)
+
+func (dir Dirs) postCopier(z *zap.SugaredLogger, c echo.Context, p post) error {
+	if z == nil {
+		return InternalErr(z, c, "post copier", ErrZap)
+	}
 	type Form struct {
 		ID     int    `query:"id"`
 		Target string `query:"readme"`
@@ -169,11 +174,24 @@ func (dir Dirs) PostImgsCP(z *zap.SugaredLogger, c echo.Context) error {
 
 	src := filepath.Join(dir.Download, r.UUID.String)
 	cmd := command.Dirs{Download: dir.Download, Preview: dir.Preview, Thumbnail: dir.Thumbnail}
-	err = cmd.UnZipImage(z, src, r.UUID.String, target)
+	switch p {
+	case imgs:
+		err = cmd.ExtractImage(z, src, r.UUID.String, target)
+	case ansis:
+		err = cmd.ExtractAnsiLove(z, src, r.UUID.String, target)
+	}
 	if err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, r)
+}
+
+func (dir Dirs) PostImgsCP(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor images copy"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	return dir.postCopier(z, c, imgs)
 }
 
 func (dir Dirs) PostAnsiCP(z *zap.SugaredLogger, c echo.Context) error {
@@ -181,45 +199,7 @@ func (dir Dirs) PostAnsiCP(z *zap.SugaredLogger, c echo.Context) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-
-	// TODO implement a private shared function with this and PostImgsCP
-
-	type Form struct {
-		ID     int    `query:"id"`
-		Target string `query:"readme"`
-	}
-	var f Form
-	if err := c.Bind(&f); err != nil {
-		return badRequest(c, err)
-	}
-
-	r, err := model.Record(z, c, f.ID)
-	if err != nil {
-		return badRequest(c, err)
-	}
-
-	list := strings.Split(r.FileZipContent.String, "\n")
-	target := ""
-	for _, x := range list {
-		s := strings.TrimSpace(x)
-		if s == "" {
-			continue
-		}
-		if strings.EqualFold(s, f.Target) {
-			target = s
-		}
-	}
-	if target == "" {
-		return badRequest(c, ErrTarget)
-	}
-
-	src := filepath.Join(dir.Download, r.UUID.String)
-	cmd := command.Dirs{Download: dir.Download, Preview: dir.Preview, Thumbnail: dir.Thumbnail}
-	err = cmd.UnZipAnsiLove(z, src, r.UUID.String, target)
-	if err != nil {
-		return badRequest(c, err)
-	}
-	return c.JSON(http.StatusOK, r)
+	return dir.postCopier(z, c, ansis)
 }
 
 // PostMeRm handles the POST request for the editor complementary images, remove button click.
