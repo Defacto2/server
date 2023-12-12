@@ -94,7 +94,7 @@
             <datalist id="edCopyMeList">
               {{index . "recReadmeList"}}
             </datalist>
-            <div class="valid-feedback">Previews replaced, {{$replace}}</div>
+            <div class="valid-feedback">Readme replaced, {{$replace}}</div>
             <div class="invalid-feedback" id="edCopyMeErr">something went wrong</div>
           </div>
           <div class="col-sm-1">
@@ -122,9 +122,10 @@
               {{index . "recPreviewList"}}
             </datalist>
             <div class="valid-feedback">Previews replaced, {{$replace}}</div>
+            <div class="invalid-feedback" id="edCopyImgsErr">something went wrong</div>
           </div>
           <div class="col-sm-1">
-            <button class="btn btn-outline-danger" id="recordReadmeReset">Clear</button>
+            <button class="btn btn-outline-danger" id="edCopyImgsReset">Clear</button>
           </div>
           <div class="col-sm-3 text-start">
             <button class="btn btn-outline-success" id="recordPreviewBtn">Recreate previews and thumb</button>          

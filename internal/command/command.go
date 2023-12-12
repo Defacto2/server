@@ -8,22 +8,37 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"go.uber.org/zap"
 )
 
-type Dir struct {
-	Download string
-}
-
 const (
 	pattern = "defacto2-" // prefix for temporary directories
+	gif     = ".gif"      // gif file extension
+	jpg     = ".jpg"      // jpg file extension
+	jpeg    = ".jpeg"     // jpeg file extension
+	png     = ".png"      // png file extension
+	webp    = ".webp"     // webp file extension
 )
 
 var (
 	ErrEmpty = errors.New("file is empty")
+	ErrImg   = errors.New("file is not an known image format")
 	ErrIsDir = errors.New("file is a directory")
 	ErrZap   = errors.New("zap logger instance is nil")
+)
+
+// Dirs is a struct of the download, screenshot and thumbnail directories.
+type Dirs struct {
+	Download   string
+	Screenshot string
+	Thumbnail  string
+}
+
+const (
+	Convert = "convert" // Convert is the ImageMagick convert command.
+	Cwebp   = "cwebp"   // Cwebp is the Google create webp command.
 )
 
 // RemoveImgs removes the preview and thumbnail images from the preview and
@@ -79,76 +94,12 @@ func RemoveMe(download, uuid string) error {
 	return os.Remove(name)
 }
 
-// UnzipOne extracts a single file from a zip archive.
-//
-// TODO: replace ext and name with a single path for destination.
-//
-// The extracted file is copied to the src with the ext extension appended.
-// It requires the [unzip] command to be available on the host system.
-// This allows for better compatibility with retro zip archives,
-// such as those that use the [compression methods] prior to zip deflate.
-//
-// The src argument is the path to the zip archive.
-// The dst argument is the destination filepath and should end with
-// a file extension, eg. ".txt".
-// The name argument is the name of the one file to unzip and copy.
-//
-// [unzip]: https://sourceforge.net/projects/infozip
-// [compression methods]: https://www.hanshq.net/zip.html
-func UnzipOne(z *zap.SugaredLogger, src, dst, name string) error {
+func CopyFile(z *zap.SugaredLogger, src, dst string) error {
 	if z == nil {
 		return ErrZap
 	}
-	const cmd = "unzip"
 
-	st, err := os.Stat(src)
-	if err != nil {
-		return err
-	}
-	if st.IsDir() {
-		return ErrIsDir
-	}
-	if st.Size() == 0 {
-		return ErrEmpty
-	}
-
-	_, err = exec.LookPath(cmd)
-	if errors.Is(err, exec.ErrDot) {
-		err = nil
-	}
-	if err != nil {
-		return err
-	}
-
-	tmp, err := os.MkdirTemp(os.TempDir(), pattern)
-	if err != nil {
-		return err
-	}
-	defer os.RemoveAll(tmp)
-
-	const exdir = "-d" // Directory to which to extract files.
-	out, err := exec.Command(cmd, src, name, exdir, tmp).Output()
-	if errors.Is(err, exec.ErrDot) {
-		err = nil
-	}
-	if err != nil {
-		return err
-	}
-	z.Info("unzipone: ", cmd, string(out))
-
-	extracted := filepath.Join(tmp, name)
-	st, err = os.Stat(extracted)
-	if err != nil {
-		return err
-	}
-	if st.IsDir() {
-		return ErrIsDir
-	}
-	if st.Size() == 0 {
-		return ErrEmpty
-	}
-
-	srcFile, err := os.Open(extracted)
+	srcFile, err := os.Open(src)
 	if err != nil {
 		return err
 	}
@@ -164,7 +115,79 @@ func UnzipOne(z *zap.SugaredLogger, src, dst, name string) error {
 	if err != nil {
 		return err
 	}
-	z.Info("unzipone: " + fmt.Sprintf("copied %d bytes to %s", b, dst))
+	z.Info("copyfile: " + fmt.Sprintf("copied %d bytes to %s", b, dst))
 
 	return dstFile.Sync()
+}
+
+func LookCmd(name string) error {
+	_, err := exec.LookPath(name)
+	if errors.Is(err, exec.ErrDot) {
+		err = nil
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// BaseName returns the base name of the file without the extension.
+// Both the directory and extension are removed.
+func BaseName(path string) string {
+	if path == "" {
+		return ""
+	}
+	return strings.TrimSuffix(filepath.Base(path), filepath.Ext(filepath.Base(path)))
+}
+
+func BaseNamePath(path string) string {
+	if path == "" {
+		return ""
+	}
+	return filepath.Join(filepath.Dir(path), BaseName(path))
+}
+
+func Run(z *zap.SugaredLogger, name string, arg ...string) error {
+	if z == nil {
+		return ErrZap
+	}
+
+	if err := LookCmd(name); err != nil {
+		return err
+	}
+
+	cmd := exec.Command(name, arg...)
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return err
+	}
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	if b, _ := io.ReadAll(stderr); len(b) > 0 {
+		z.Debugln("run %q: %s", cmd, string(b))
+	}
+	if err := cmd.Wait(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func RunQuiet(z *zap.SugaredLogger, name string, arg ...string) error {
+	if z == nil {
+		return ErrZap
+	}
+
+	if err := LookCmd(name); err != nil {
+		return err
+	}
+
+	cmd := exec.Command(name, arg...)
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	if err := cmd.Wait(); err != nil {
+		return err
+	}
+	return nil
 }

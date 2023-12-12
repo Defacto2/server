@@ -132,6 +132,50 @@ func PostMeRm(z *zap.SugaredLogger, c echo.Context, downloadDir string) error {
 	return c.JSON(http.StatusOK, r)
 }
 
+func (dir Dirs) PostImgsCP(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor images copy"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+
+	type Form struct {
+		ID     int    `query:"id"`
+		Target string `query:"readme"`
+	}
+	var f Form
+	if err := c.Bind(&f); err != nil {
+		return badRequest(c, err)
+	}
+
+	r, err := model.Record(z, c, f.ID)
+	if err != nil {
+		return badRequest(c, err)
+	}
+
+	list := strings.Split(r.FileZipContent.String, "\n")
+	target := ""
+	for _, x := range list {
+		s := strings.TrimSpace(x)
+		if s == "" {
+			continue
+		}
+		if strings.EqualFold(s, f.Target) {
+			target = s
+		}
+	}
+	if target == "" {
+		return badRequest(c, TargetErr)
+	}
+
+	src := filepath.Join(dir.Download, r.UUID.String)
+	cmd := command.Dirs{Download: dir.Download, Screenshot: dir.Screenshot, Thumbnail: dir.Thumbnail}
+	err = cmd.UnzipImg(z, src, r.UUID.String, target)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, r)
+}
+
 // PostMeRm handles the POST request for the editor complementary images, remove button click.
 func (dir Dirs) PostImgsRm(z *zap.SugaredLogger, c echo.Context) error {
 	const name = "editor images remove"

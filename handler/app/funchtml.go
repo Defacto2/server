@@ -136,6 +136,7 @@ func (web Web) Thumb(uuid, desc string, bottom bool) template.HTML {
 func (web Web) ImageSample(uuid, ext string) template.HTML {
 	name := filepath.Join(web.Import.ScreenshotDir, fmt.Sprintf("%s%s", uuid, ext))
 	src := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s%s", uuid, ext)}, "/")
+	fmt.Println("-->", name, "\n", src)
 	hash, err := helper.IntegrityFile(name)
 	if err != nil {
 		return template.HTML(err.Error())
@@ -667,7 +668,8 @@ func OptionsPreview(zipContent string) template.HTML {
 	for _, v := range list {
 		x := strings.TrimSpace(strings.ToLower(v))
 		switch filepath.Ext(x) {
-		case ".txt", ".nfo", ".diz", ".me", ".gif", ".png", ".jpg", ".jpeg", ".webp", ".bmp":
+		// TODO: add support for text files? ".txt", ".nfo", ".diz", ".me",
+		case ".gif", ".png", ".jpg", ".jpeg", ".webp", ".bmp":
 			s = s + fmt.Sprintf("<option>%s</option>", v)
 		}
 	}

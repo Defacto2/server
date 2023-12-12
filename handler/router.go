@@ -224,6 +224,9 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 		dir.URI = c.Param("id")
 		return app.PostMeHide(z, c)
 	})
+	e.POST("/editor/images/copy", func(c echo.Context) error {
+		return dir.PostImgsCP(z, c)
+	})
 	e.POST("/editor/images/delete", func(c echo.Context) error {
 		return dir.PostImgsRm(z, c)
 	})

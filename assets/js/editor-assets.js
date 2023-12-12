@@ -189,10 +189,49 @@
     );
     if (!exists) {
       previewValue.classList.add(err);
+      document.getElementById(`edCopyImgsErr`).textContent = `unknown filename`;
+      previewList.classList.remove(err);
       return;
     }
-    previewValue.classList.add(ok);
+    fetch("/editor/images/copy", {
+      method: "POST",
+      body: JSON.stringify({
+        id: parseInt(id.value),
+        target: previewValue.value,
+      }),
+      headers: header,
+    })
+      .then((response) => {
+        console.log(response);
+        if (!response.ok) {
+          console.log(`not ok`)
+          throw new Error(saveErr);
+          return;
+        }
+        previewValue.classList.add(ok);
+        return response.json();
+      })
+      .catch((error) => {
+        console.log(error)
+        document.getElementById(`edCopyImgsErr`).textContent = error.message;
+        previewList.classList.add(err);
+        //list.classList.add(err);
+        return;
+      });
   });
+  // Modify the file assets, preview in archive reset
+  document
+    .getElementById(`edCopyImgsReset`)
+    .addEventListener(`click`, function () {
+      previewValue.value = ``;
+      previewValue.classList.remove(err);
+      previewValue.classList.remove(ok);
+      document.getElementById(`edCopyImgsErr`).textContent = ``;
+      previewList.classList.remove(err);
+    });
+
+  /// ==============
+  /// TODO: below
 
   // Modify the file assets, file artifact preview upload
   const previewUp = document.getElementById(`recordPreviewUp`);
