@@ -29,9 +29,9 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 
 	// Set the application configuration for paths.
 	dir := app.Dirs{
-		Download:   conf.Import.DownloadDir,
-		Screenshot: conf.Import.ScreenshotDir,
-		Thumbnail:  conf.Import.ThumbnailDir,
+		Download:  conf.Import.DownloadDir,
+		Preview:   conf.Import.PreviewDir,
+		Thumbnail: conf.Import.ThumbnailDir,
 	}
 
 	// Serve embedded CSS files
@@ -78,7 +78,7 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 
 	// Serve asset images
 	e.Static(config.StaticThumb(), conf.Import.ThumbnailDir)
-	e.Static(config.StaticOriginal(), conf.Import.ScreenshotDir)
+	e.Static(config.StaticOriginal(), conf.Import.PreviewDir)
 
 	e.GET("/", func(c echo.Context) error {
 		return app.Index(z, c)

@@ -168,7 +168,7 @@ func (dir Dirs) PostImgsCP(z *zap.SugaredLogger, c echo.Context) error {
 	}
 
 	src := filepath.Join(dir.Download, r.UUID.String)
-	cmd := command.Dirs{Download: dir.Download, Screenshot: dir.Screenshot, Thumbnail: dir.Thumbnail}
+	cmd := command.Dirs{Download: dir.Download, Preview: dir.Preview, Thumbnail: dir.Thumbnail}
 	err = cmd.UnZipImage(z, src, r.UUID.String, target)
 	if err != nil {
 		return badRequest(c, err)
@@ -197,7 +197,7 @@ func (dir Dirs) PostImgsRm(z *zap.SugaredLogger, c echo.Context) error {
 		return err
 	}
 
-	if err = command.RemoveImgs(dir.Screenshot, dir.Thumbnail, r.UUID.String); err != nil {
+	if err = command.RemoveImgs(dir.Preview, dir.Thumbnail, r.UUID.String); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, r)

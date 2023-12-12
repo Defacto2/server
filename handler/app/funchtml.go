@@ -49,9 +49,9 @@ func SafeHTML(s string) template.HTML {
 
 // Screenshot returns a picture elment with screenshots for the given uuid.
 func (web Web) Screenshot(uuid, desc string) template.HTML {
-	fw := filepath.Join(web.Import.ScreenshotDir, fmt.Sprintf("%s.webp", uuid))
-	fp := filepath.Join(web.Import.ScreenshotDir, fmt.Sprintf("%s.png", uuid))
-	fj := filepath.Join(web.Import.ScreenshotDir, fmt.Sprintf("%s.jpg", uuid))
+	fw := filepath.Join(web.Import.PreviewDir, fmt.Sprintf("%s.webp", uuid))
+	fp := filepath.Join(web.Import.PreviewDir, fmt.Sprintf("%s.png", uuid))
+	fj := filepath.Join(web.Import.PreviewDir, fmt.Sprintf("%s.jpg", uuid))
 	webp := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s.webp", uuid)}, "/")
 	png := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s.png", uuid)}, "/")
 	jpg := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s.jpg", uuid)}, "/")
@@ -140,7 +140,7 @@ func (web Web) ImageSample(uuid string) template.HTML {
 	)
 	ext, name, src := "", "", ""
 	for _, ext = range []string{webp, png} {
-		name = filepath.Join(web.Import.ScreenshotDir, fmt.Sprintf("%s%s", uuid, ext))
+		name = filepath.Join(web.Import.PreviewDir, fmt.Sprintf("%s%s", uuid, ext))
 		src = strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s%s", uuid, ext)}, "/")
 		if helper.IsStat(name) {
 			break

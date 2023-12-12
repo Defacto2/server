@@ -34,10 +34,10 @@ import (
 
 // Dirs contains the directories used by the about pages.
 type Dirs struct {
-	Download   string // path to the file download directory
-	Screenshot string // path to the file screenshot directory
-	Thumbnail  string // path to the file thumbnail directory
-	URI        string // the URI of the file record
+	Download  string // path to the artifact download directory
+	Preview   string // path to the preview and screenshot directory
+	Thumbnail string // path to the file thumbnail directory
+	URI       string // the URI of the file record
 }
 
 // About is the handler for the about page of the file record.
@@ -163,7 +163,7 @@ func (a Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) {
 	case "markup", "pdf":
 		return data, nil
 	}
-	if render.NoScreenshot(a.Screenshot, res) {
+	if render.NoScreenshot(a.Preview, res) {
 		data["noScreenshot"] = true
 	}
 	// the bbs era, remote images protcol is not supported
@@ -426,7 +426,7 @@ func (dir Dirs) aboutAssets(uuid string) map[string]string {
 	if err != nil {
 		matches[err.Error()] = ""
 	}
-	images, err := os.ReadDir(dir.Screenshot)
+	images, err := os.ReadDir(dir.Preview)
 	if err != nil {
 		matches[err.Error()] = ""
 	}
@@ -460,7 +460,7 @@ func (dir Dirs) aboutAssets(uuid string) map[string]string {
 			if s == ".WEBP" {
 				s = ".WebP"
 			}
-			matches[s+" preview "] = aboutImgInfo(filepath.Join(dir.Screenshot, file.Name()))
+			matches[s+" preview "] = aboutImgInfo(filepath.Join(dir.Preview, file.Name()))
 		}
 	}
 	for _, file := range thumbs {

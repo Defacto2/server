@@ -45,7 +45,7 @@ func (c *Config) Checks(z *zap.SugaredLogger) {
 		s := helper.Capitalize(err.Error()) + "."
 		z.Warn(s)
 	}
-	if err := ScreenshotDir(c.ScreenshotDir); err != nil {
+	if err := PreviewDir(c.PreviewDir); err != nil {
 		s := helper.Capitalize(err.Error()) + "."
 		z.Warn(s)
 	}
@@ -107,16 +107,16 @@ func HTTPPort(port uint) error {
 	return nil
 }
 
-// DownloadDir runs checks against the named directory containing the UUID record downloads.
+// DownloadDir runs checks against the named directory containing the UUID artifact downloads.
 // Problems will either log warnings or fatal errors.
 func DownloadDir(name string) error {
 	return CheckDir(name, "download")
 }
 
-// ScreenshotDir runs checks against the named directory containing the screenshot images.
+// PreviewDir runs checks against the named directory containing the preview and screenshot images.
 // Problems will either log warnings or fatal errors.
-func ScreenshotDir(name string) error {
-	return CheckDir(name, "screenshot")
+func PreviewDir(name string) error {
+	return CheckDir(name, "preview")
 }
 
 // ThumbnailDir runs checks against the named directory containing the thumbnail images.
@@ -135,8 +135,8 @@ func CheckDir(name, desc string) error {
 		s = "file downloading will not work"
 	case "log":
 		s = "the server cannot log to files"
-	case "screenshot":
-		s = "screenshot images will not show"
+	case "preview":
+		s = "previews images will not show"
 	case "thumbnail":
 		s = "thumbnail images will be blank"
 	}

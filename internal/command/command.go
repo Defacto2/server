@@ -31,11 +31,11 @@ var (
 	ErrZap   = errors.New("zap logger instance is nil")
 )
 
-// Dirs is a struct of the download, screenshot and thumbnail directories.
+// Dirs is a struct of the download, preview and thumbnail directories.
 type Dirs struct {
-	Download   string
-	Screenshot string
-	Thumbnail  string
+	Download  string
+	Preview   string
+	Thumbnail string
 }
 
 const (

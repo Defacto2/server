@@ -114,7 +114,7 @@ tasks:
       D2_REQUESTS: "{{.LOGREQUESTS}}"
       D2_NOROBOTS: "{{.NOROBOTS}}"
       D2_DIR_DOWN: /home/ben/defacto2-assets/downloads
-      D2_DIR_SHOT: /home/ben/defacto2-assets/images000
+      D2_DIR_PREVIEW: /home/ben/defacto2-assets/images000
       D2_DIR_THUMB: /home/ben/defacto2-assets/images400
       PS_HOST: localhost
     deps: [assets]
@@ -129,7 +129,7 @@ tasks:
       D2_REQUESTS: "{{.LOGREQUESTS}}"
       D2_NOROBOTS: "{{.NOROBOTS}}"
       D2_DIR_DOWN: /Users/ben/defacto2-assets/downloads
-      D2_DIR_SHOT: /Users/ben/defacto2-assets/images000
+      D2_DIR_PREVIEW: /Users/ben/defacto2-assets/images000
       D2_DIR_THUMB: /Users/ben/defacto2-assets/images400
       PS_HOST: localhost
     deps: [assets]

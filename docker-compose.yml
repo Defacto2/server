@@ -37,7 +37,7 @@ services:
       D2_PRODUCTION: "true"             # enable production mode to log errros and recover from any panics
       
       D2_DIR_DOWN: "/opt/downloads"     # THESE DIR directories should not be changed
-      D2_DIR_SHOT: "/opt/screenshots"
+      D2_DIR_PREVIEW: "/opt/screenshots"
       D2_DIR_THUMB: "/opt/thumbnails"
 
     extra_hosts:
@@ -50,8 +50,8 @@ services:
       - webapp-config:/root/.config
       # the local directories located on the host are bound to the /opt directory in the container
       # EDIT the .env file to change the location of these directories
-      - ${DOWNLOAD}:/opt/downloads      # the directory where the server will store downloaded files
-      - ${SCREENSHOT}:/opt/screenshots  # the directory where the server will store screenshots
+      - ${DOWNLOAD}:/opt/downloads      # the directory where the server will store artifact downloads
+      - ${PREVIEW}:/opt/screenshots     # the directory where the server will store previews
       - ${THUMBNAIL}:/opt/thumbnails    # the directory where the server will store thumbnails
 
 volumes:

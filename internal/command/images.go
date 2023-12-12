@@ -62,7 +62,7 @@ func (dir Dirs) PngScreenshot(z *zap.SugaredLogger, src, uuid string) error {
 		return ErrZap
 	}
 
-	dst := filepath.Join(dir.Screenshot, uuid+png)
+	dst := filepath.Join(dir.Preview, uuid+png)
 	if err := CopyFile(z, src, dst); err != nil {
 		return err
 	}
@@ -103,7 +103,7 @@ func (dir Dirs) WebpScreenshot(z *zap.SugaredLogger, src, uuid string) error {
 		return err
 	}
 
-	dst := filepath.Join(dir.Screenshot, uuid+webp)
+	dst := filepath.Join(dir.Preview, uuid+webp)
 	if err := CopyFile(z, tmp, dst); err != nil {
 		return err
 	}
@@ -169,7 +169,7 @@ func (dir Dirs) LosslessScreenshot(z *zap.SugaredLogger, src, uuid string) error
 		return err
 	}
 
-	dst := filepath.Join(dir.Screenshot, uuid+png)
+	dst := filepath.Join(dir.Preview, uuid+png)
 	if err := CopyFile(z, tmp, dst); err != nil {
 		return err
 	}
@@ -205,7 +205,7 @@ func (dir Dirs) LossyScreenshot(z *zap.SugaredLogger, src, uuid string) error {
 		return err
 	}
 
-	dst := filepath.Join(dir.Screenshot, uuid+webp)
+	dst := filepath.Join(dir.Preview, uuid+webp)
 	args = Args{}
 	args.Webp()
 	arg = []string{tmp}          // source file
