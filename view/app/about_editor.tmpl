@@ -67,21 +67,6 @@
             <tr><td colspan="2">{{/*  empty placeholder  */}}</td></tr>
           </tbody>
         </table>
-        <div class="row g-3 text-center">
-          <div class="col-md">{{$previewImg}}<div class="form-text">Preview</div></div>
-          <div class="col-md">{{$thumbImg}}<div class="form-text">Thumbnail</div></div>
-        </div>
-        <div class="my-2 row">
-          <div class="col-sm-6 text-start">
-            <button class="btn btn-sm btn-dark">Regenerate complementary images</button>  
-          </div>
-          <div class="col-sm-6 text-end">
-            <button class="btn btn-sm btn-danger" id="edBtnImgs">Delete complementary images</button>  
-            <button class="btn btn-sm btn-danger" id="edBtnRead">Delete readme asset</button>
-          </div>
-          <input type="hidden" id="edBtnsHide">
-          <div id="edBtnsFeedback" class="text-end"></div>
-        </div>
         <hr class="m-0 mb-3 mt-3">
         {{/*  Readme in archive  */}}
         <div class="mb-3 row">
@@ -185,8 +170,26 @@
             <button class="btn btn-outline-success" id="recordArtifactBtn">Upload and replace</button>   
           </div>
         </div>
+        <hr class="m-0 mb-3 mt-3">
+        {{/*  Regenerate complementary images  */}}
+        <div class="my-2 row">
+          <div class="col-sm-6 text-start">
+            <button class="btn btn-sm btn-dark">Regenerate complementary images</button>  
+          </div>
+          <div class="col-sm-6 text-end">
+            <button class="btn btn-sm btn-danger" id="edBtnImgs">Delete complementary images</button>  
+            <button class="btn btn-sm btn-danger" id="edBtnRead">Delete readme asset</button>
+          </div>
+          <input type="hidden" id="edBtnsHide">
+          <div id="edBtnsFeedback" class="text-end"></div>
+          {{/*  Preview and Thumbnail images  */}}
+          <div class="row g-3 text-center">
+            <div class="col-md">{{$previewImg}}<div class="form-text">Preview</div></div>
+            <div class="col-md">{{$thumbImg}}<div class="form-text">Thumbnail</div></div>
+          </div>
+        </div>
       </div>
-      <div class="modal-footer row g-2">
+      <div class="modal-footer row">
         <div class="col-md text-begin">
           <button class="btn btn-primary" data-bs-target="#fileEditorModal" data-bs-toggle="modal">Switch to metadata</button>
           <button class="btn btn-secondary" data-bs-target="#viewContentModal" data-bs-toggle="modal">List archive content</button>
