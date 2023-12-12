@@ -17,6 +17,8 @@ import (
 	"strconv"
 	"strings"
 
+	_ "golang.org/x/image/webp"
+
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magic"
@@ -449,10 +451,12 @@ func (dir Dirs) aboutAssets(uuid string) map[string]string {
 			switch s {
 			case ".TXT":
 				s = ".TXT readme"
+				i, _ := helper.Lines(filepath.Join(dir.Download, file.Name()))
+				matches[s] = fmt.Sprintf("%s bytes - %d lines", humanize.Comma(st.Size()), i)
 			case ".ZIP":
 				s = ".ZIP for emulator"
+				matches[s] = fmt.Sprintf("%s bytes", humanize.Comma(st.Size()))
 			}
-			matches[s] = fmt.Sprintf("%s bytes", humanize.Comma(st.Size()))
 		}
 	}
 	for _, file := range images {
@@ -479,7 +483,7 @@ func (dir Dirs) aboutAssets(uuid string) map[string]string {
 
 func aboutImgInfo(name string) string {
 	switch filepath.Ext(strings.ToLower(name)) {
-	case ".png", ".jpg", ".jpeg", ".gif":
+	case ".jpg", ".jpeg", ".gif", ".png", ".webp":
 	default:
 		st, err := os.Stat(name)
 		if err != nil {

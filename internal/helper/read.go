@@ -2,33 +2,25 @@ package helper
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 )
 
-func ReadFile(name string) error {
+func Lines(name string) (int, error) {
 	file, err := os.Open(name)
 	if err != nil {
-		return err
+		return 0, err
 	}
+	defer file.Close()
 
-	// read the file line by line using a scanner
 	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
-
-	text := []string{}
+	lines := 0
 	for scanner.Scan() {
-		x := scanner.Text()
-		text = append(text, x)
+		lines++
 	}
+
 	if err := scanner.Err(); err != nil {
-		return err
-	}
-	file.Close()
-
-	for i, line := range text {
-		fmt.Println(i, string(line))
+		return 0, err
 	}
 
-	return nil
+	return lines, nil
 }
