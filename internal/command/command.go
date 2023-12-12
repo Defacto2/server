@@ -3,7 +3,6 @@ package command
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -15,10 +14,13 @@ import (
 
 const (
 	pattern = "defacto2-" // prefix for temporary directories
+	bmp     = ".bmp"      // bmp file extension
 	gif     = ".gif"      // gif file extension
 	jpg     = ".jpg"      // jpg file extension
 	jpeg    = ".jpeg"     // jpeg file extension
 	png     = ".png"      // png file extension
+	tiff    = ".tiff"     // tiff file extension
+	txt     = ".txt"      // txt file extension
 	webp    = ".webp"     // webp file extension
 )
 
@@ -39,13 +41,20 @@ type Dirs struct {
 const (
 	Convert = "convert" // Convert is the ImageMagick convert command.
 	Cwebp   = "cwebp"   // Cwebp is the Google create webp command.
+	Optipng = "optipng" // Optipng is the PNG optimizer command.
+	Unzip   = "unzip"   // Unzip is the zip decompression command.
 )
+
+// Lookups returns a list of the execute command names used by the application.
+func Lookups() []string {
+	return []string{Convert, Cwebp, Optipng, Unzip}
+}
 
 // RemoveImgs removes the preview and thumbnail images from the preview and
 // thumbnail directories associated with the uuid.
 // It returns nil if the files do not exist.
 func RemoveImgs(preview, thumb, uuid string) error {
-	exts := []string{".jpg", ".png", ".gif", ".webp"}
+	exts := []string{jpg, png, webp}
 	// remove previews
 	for _, ext := range exts {
 		name := filepath.Join(preview, uuid+ext)
@@ -80,7 +89,7 @@ func RemoveImgs(preview, thumb, uuid string) error {
 // RemoveMe removes the file with the uuid name combined with a ".txt" extension
 // from the download directory. It returns nil if the file does not exist.
 func RemoveMe(download, uuid string) error {
-	name := filepath.Join(download, uuid+".txt")
+	name := filepath.Join(download, uuid+txt)
 	st, err := os.Stat(name)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
@@ -94,41 +103,31 @@ func RemoveMe(download, uuid string) error {
 	return os.Remove(name)
 }
 
+// CopyFile copies the src file to the dst file and path.
 func CopyFile(z *zap.SugaredLogger, src, dst string) error {
 	if z == nil {
 		return ErrZap
 	}
 
-	srcFile, err := os.Open(src)
+	s, err := os.Open(src)
 	if err != nil {
 		return err
 	}
-	defer srcFile.Close()
+	defer s.Close()
 
-	dstFile, err := os.Create(dst)
+	d, err := os.Create(dst)
 	if err != nil {
 		return err
 	}
-	defer dstFile.Close()
+	defer d.Close()
 
-	b, err := io.Copy(dstFile, srcFile)
+	i, err := io.Copy(d, s)
 	if err != nil {
 		return err
 	}
-	z.Info("copyfile: " + fmt.Sprintf("copied %d bytes to %s", b, dst))
+	z.Infof("copyfile: copied %d bytes to %s\n", i, dst)
 
-	return dstFile.Sync()
-}
-
-func LookCmd(name string) error {
-	_, err := exec.LookPath(name)
-	if errors.Is(err, exec.ErrDot) {
-		err = nil
-	}
-	if err != nil {
-		return err
-	}
-	return nil
+	return d.Sync()
 }
 
 // BaseName returns the base name of the file without the extension.
@@ -140,6 +139,7 @@ func BaseName(path string) string {
 	return strings.TrimSuffix(filepath.Base(path), filepath.Ext(filepath.Base(path)))
 }
 
+// BaseNamePath returns the directory and base name of the file without the extension.
 func BaseNamePath(path string) string {
 	if path == "" {
 		return ""
@@ -147,6 +147,20 @@ func BaseNamePath(path string) string {
 	return filepath.Join(filepath.Dir(path), BaseName(path))
 }
 
+// LookCmd returns an error if the named command is not found in the system path.
+func LookCmd(name string) error {
+	_, err := exec.LookPath(name)
+	if errors.Is(err, exec.ErrDot) {
+		err = nil
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Run looks for the command in the system path and executes it with the arguments.
+// Any output to stderr is logged as a debug message.
 func Run(z *zap.SugaredLogger, name string, arg ...string) error {
 	if z == nil {
 		return ErrZap
@@ -165,7 +179,7 @@ func Run(z *zap.SugaredLogger, name string, arg ...string) error {
 		return err
 	}
 	if b, _ := io.ReadAll(stderr); len(b) > 0 {
-		z.Debugln("run %q: %s", cmd, string(b))
+		z.Debugf("run %q: %s\n", cmd, string(b))
 	}
 	if err := cmd.Wait(); err != nil {
 		return err
@@ -173,6 +187,7 @@ func Run(z *zap.SugaredLogger, name string, arg ...string) error {
 	return nil
 }
 
+// Run looks for the command in the system path and executes it with the arguments.
 func RunQuiet(z *zap.SugaredLogger, name string, arg ...string) error {
 	if z == nil {
 		return ErrZap

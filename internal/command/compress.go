@@ -1,10 +1,8 @@
 package command
 
 import (
-	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 
 	"go.uber.org/zap"
@@ -24,18 +22,9 @@ import (
 //
 // [unzip]: https://sourceforge.net/projects/infozip
 // [compression methods]: https://www.hanshq.net/zip.html
-func UnzipOne(z *zap.SugaredLogger, src, dst, name string) error {
+func UnZipOne(z *zap.SugaredLogger, src, dst, name string) error {
 	if z == nil {
 		return ErrZap
-	}
-
-	const cmd = "unzip"
-	_, err := exec.LookPath(cmd)
-	if errors.Is(err, exec.ErrDot) {
-		err = nil
-	}
-	if err != nil {
-		return err
 	}
 
 	st, err := os.Stat(src)
@@ -43,10 +32,10 @@ func UnzipOne(z *zap.SugaredLogger, src, dst, name string) error {
 		return err
 	}
 	if st.IsDir() {
-		return ErrIsDir
+		return fmt.Errorf("%w: %q", ErrIsDir, src)
 	}
 	if st.Size() == 0 {
-		return ErrEmpty
+		return fmt.Errorf("%w: %q", ErrEmpty, src)
 	}
 
 	tmp, err := os.MkdirTemp(os.TempDir(), pattern)
@@ -55,15 +44,12 @@ func UnzipOne(z *zap.SugaredLogger, src, dst, name string) error {
 	}
 	defer os.RemoveAll(tmp)
 
-	const exdir = "-d" // Directory to which to extract files.
-	out, err := exec.Command(cmd, src, name, exdir, tmp).Output()
-	if errors.Is(err, exec.ErrDot) {
-		err = nil
-	}
-	if err != nil {
+	arg := []string{src}         // source zip archive
+	arg = append(arg, name)      // target file to extract
+	arg = append(arg, "-d", tmp) // extract destination
+	if err := RunQuiet(z, Unzip, arg...); err != nil {
 		return err
 	}
-	z.Info("unzipone: ", cmd, string(out))
 
 	extracted := filepath.Join(tmp, name)
 	st, err = os.Stat(extracted)
@@ -71,16 +57,16 @@ func UnzipOne(z *zap.SugaredLogger, src, dst, name string) error {
 		return err
 	}
 	if st.IsDir() {
-		return ErrIsDir
+		return fmt.Errorf("%w: %q", ErrIsDir, extracted)
 	}
 	if st.Size() == 0 {
-		return ErrEmpty
+		return fmt.Errorf("%w: %q", ErrEmpty, extracted)
 	}
 
 	return CopyFile(z, extracted, dst)
 }
 
-func (dir Dirs) UnzipImg(z *zap.SugaredLogger, src, uuid, name string) error {
+func (dir Dirs) UnZipImage(z *zap.SugaredLogger, src, uuid, name string) error {
 	if z == nil {
 		return ErrZap
 	}
@@ -92,7 +78,7 @@ func (dir Dirs) UnzipImg(z *zap.SugaredLogger, src, uuid, name string) error {
 	defer os.RemoveAll(tmp)
 
 	dst := filepath.Join(tmp, filepath.Base(name))
-	if err = UnzipOne(z, src, dst, name); err != nil {
+	if err = UnZipOne(z, src, dst, name); err != nil {
 		return err
 	}
 
@@ -101,18 +87,23 @@ func (dir Dirs) UnzipImg(z *zap.SugaredLogger, src, uuid, name string) error {
 		return err
 	}
 	if st.IsDir() {
-		return ErrIsDir
+		return fmt.Errorf("%w: %q", ErrIsDir, dst)
 	}
 
 	switch filepath.Ext(dst) {
-	case ".gif":
+	case gif:
 		// use lossless compression (but larger file size)
-		err = dir.ConvertLossless(z, dst, uuid)
-	case ".bmp":
+		err = dir.LosslessScreenshot(z, dst, uuid)
+	case bmp:
 		// use lossy compression that removes some details (but smaller file size)
-		err = dir.ConvertLossy(z, dst, uuid)
-	case ".jpeg", ".jpg", ".tiff", ".webp":
-		// keep the same format, but optimize the file size
+		err = dir.LossyScreenshot(z, dst, uuid)
+	case png:
+		// optimize but keep the original png file as preview
+		err = dir.PngScreenshot(z, dst, uuid)
+	case jpeg, jpg, tiff, webp:
+		// convert to the optimal webp format
+		// as of 2023, webp is supported by all current browsers
+		// these format cases are supported by cwebp conversion tool
 		err = dir.WebpScreenshot(z, dst, uuid)
 	default:
 		return fmt.Errorf("%w: %q", ErrImg, filepath.Ext(dst))

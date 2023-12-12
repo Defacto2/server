@@ -1,13 +1,8 @@
 package command
 
 import (
-	"errors"
-	"fmt"
-	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"strings"
 
 	"go.uber.org/zap"
 )
@@ -16,7 +11,7 @@ import (
 // Each argument and its value is a separate string in the slice.
 type Args []string
 
-// Jpeg sets the command line arguments for the convert command to transform an image into a JPEG image.
+// Jpeg appends the command line arguments for the convert command to transform an image into a JPEG image.
 func (a *Args) Jpeg() {
 	*a = append(*a,
 		"-sampling-factor", "4:2:0",
@@ -28,7 +23,7 @@ func (a *Args) Jpeg() {
 	)
 }
 
-// Png sets the command line arguments for the convert command to transform an image into a PNG image.
+// Png appends the command line arguments for the convert command to transform an image into a PNG image.
 func (a *Args) Png() {
 	*a = append(*a,
 		"-define", "png:compression-filter=5",
@@ -41,7 +36,7 @@ func (a *Args) Png() {
 	)
 }
 
-// Thumb sets the command line arguments for the convert command to transform an image into a thumbnail image.
+// Thumb appends the command line arguments for the convert command to transform an image into a thumbnail image.
 func (a *Args) Thumb() {
 	*a = append(*a,
 		"-thumbnail", "400x400",
@@ -51,13 +46,41 @@ func (a *Args) Thumb() {
 	)
 }
 
-// Webp sets the command line arguments for the cwebp command to transform an image into a webp image.
+// Webp appends the command line arguments for the cwebp command to transform an image into a webp image.
 func (a *Args) Webp() {
 	*a = append(*a,
 		"-af",
 		"-v",
 		"-exact",
 	)
+}
+
+// PngScreenshot copies and optimizes the src PNG image to the screenshot directory.
+// A webp thumbnail image is also created and copied to the thumbnail directory.
+func (dir Dirs) PngScreenshot(z *zap.SugaredLogger, src, uuid string) error {
+	if z == nil {
+		return ErrZap
+	}
+
+	dst := filepath.Join(dir.Screenshot, uuid+png)
+	if err := CopyFile(z, src, dst); err != nil {
+		return err
+	}
+
+	defer func() {
+		err := OptimizePNG(z, dst)
+		if err != nil {
+			z.Warnln("png screenshot: ", err)
+		}
+	}()
+
+	defer func() {
+		err := dir.WebpThumbnail(z, src, uuid)
+		if err != nil {
+			z.Warnln("png screenshot: ", err)
+		}
+	}()
+	return nil
 }
 
 // WebpScreenshot converts the src image to a webp image in the screenshot directory.
@@ -72,9 +95,9 @@ func (dir Dirs) WebpScreenshot(z *zap.SugaredLogger, src, uuid string) error {
 
 	args := Args{}
 	args.Webp()
-	arg := []string{src}                                        // source file
-	arg = append(arg, args...)                                  // command line arguments
-	tmp := filepath.Join(filepath.Dir(src), BaseName(src)+webp) // destination
+	arg := []string{src}            // source file
+	arg = append(arg, args...)      // command line arguments
+	tmp := BaseNamePath(src) + webp // destination
 	arg = append(arg, "-o", tmp)
 	if err := RunQuiet(z, Cwebp, arg...); err != nil {
 		return err
@@ -88,7 +111,7 @@ func (dir Dirs) WebpScreenshot(z *zap.SugaredLogger, src, uuid string) error {
 	defer func() {
 		err := dir.WebpThumbnail(z, tmp, uuid)
 		if err != nil {
-			z.Warnln("images webp: ", err)
+			z.Warnln("webp screenshot: ", err)
 		}
 	}()
 	return nil
@@ -100,7 +123,7 @@ func (dir Dirs) WebpThumbnail(z *zap.SugaredLogger, src, uuid string) error {
 		return ErrZap
 	}
 
-	tmp := filepath.Join(dir.Thumbnail, BaseName(src)+jpg)
+	tmp := BaseNamePath(src) + jpg
 	args := Args{}
 	args.Thumb()
 	args.Jpeg()
@@ -124,35 +147,25 @@ func (dir Dirs) WebpThumbnail(z *zap.SugaredLogger, src, uuid string) error {
 	return nil
 }
 
-// ConvertLossless converts the src image to a webp image in the screenshot directory.
+// LosslessScreenshot converts the src image to a lossless PNG image in the screenshot directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
+// The lossless conversion is useful for screenshots of text, terminals interfaces and pixel art.
 //
-// The lossless conversion is done using the ImageMagick [convert] command
-// and transforms the src into a .PNG image before converting to webp.
-func (dir Dirs) ConvertLossless(z *zap.SugaredLogger, src, uuid string) error {
+// The lossless conversion is done using the ImageMagick [convert] command.
+//
+// [convert]: https://imagemagick.org/script/convert.php
+func (dir Dirs) LosslessScreenshot(z *zap.SugaredLogger, src, uuid string) error {
 	if z == nil {
 		return ErrZap
 	}
 
-	const png = ".png"
-
-	name := Convert
-	_, err := exec.LookPath(name)
-	if errors.Is(err, exec.ErrDot) {
-		err = nil
-	}
-	if err != nil {
-		return err
-	}
-
-	tmp := src + png
 	args := Args{}
 	args.Png()
-	arg := []string{src}       // source file
-	arg = append(arg, args...) // command line arguments
-	arg = append(arg, tmp)     // destination
-	cmd := exec.Command(name, arg...)
-	if err := cmd.Run(); err != nil {
+	arg := []string{src}           // source file
+	arg = append(arg, args...)     // command line arguments
+	tmp := BaseNamePath(src) + png // destination
+	arg = append(arg, tmp)
+	if err := RunQuiet(z, Convert, arg...); err != nil {
 		return err
 	}
 
@@ -160,220 +173,70 @@ func (dir Dirs) ConvertLossless(z *zap.SugaredLogger, src, uuid string) error {
 	if err := CopyFile(z, tmp, dst); err != nil {
 		return err
 	}
-	// run these conversions in the background for faster frontend response
+
 	defer func() {
-		err := ConvertThumbnail(z, dst, filepath.Join(dir.Thumbnail, uuid+png))
+		err := dir.WebpThumbnail(z, tmp, uuid)
 		if err != nil {
-			z.Error("convertLossless thumbnail: ", err)
-		}
-	}()
-	defer func() {
-		err = ConvertWebP(z, dst)
-		if err != nil {
-			z.Error("convertLossless webp: ", err)
+			z.Warnln("lossless screenshot: ", err)
 		}
 	}()
 	return nil
 }
 
-func (dir Dirs) ConvertLossy(z *zap.SugaredLogger, src, uuid string) error {
+// LossyScreenshot converts the src image to a lossy Webp image in the screenshot directory.
+// A webp thumbnail image is also created and copied to the thumbnail directory.
+// The lossy conversion is useful for photographs.
+//
+// The lossy conversion is done using the ImageMagick [convert] command.
+//
+// [convert]: https://imagemagick.org/script/convert.php
+func (dir Dirs) LossyScreenshot(z *zap.SugaredLogger, src, uuid string) error {
 	if z == nil {
 		return ErrZap
 	}
 
-	//a PNG, JPEG, TIFF or WebP file.
-
-	const jpg = ".jpg"
-
-	name := Convert
-	_, err := exec.LookPath(name)
-	if errors.Is(err, exec.ErrDot) {
-		err = nil
-	}
-	if err != nil {
-		return err
-	}
-
-	tmp := src + jpg
+	tmp := BaseNamePath(src) + jpg
 	args := Args{}
 	args.Jpeg()
 	arg := []string{src}       // source file
 	arg = append(arg, args...) // command line arguments
 	arg = append(arg, tmp)     // destination
-	cmd := exec.Command(name, arg...)
-	if err := cmd.Run(); err != nil {
+	if err := RunQuiet(z, Convert, arg...); err != nil {
 		return err
 	}
 
-	dst := filepath.Join(dir.Screenshot, uuid+jpg)
-	if err := CopyFile(z, tmp, dst); err != nil {
+	dst := filepath.Join(dir.Screenshot, uuid+webp)
+	args = Args{}
+	args.Webp()
+	arg = []string{tmp}          // source file
+	arg = append(arg, args...)   // command line arguments
+	arg = append(arg, "-o", dst) // destination
+	if err := RunQuiet(z, Cwebp, arg...); err != nil {
 		return err
 	}
+	defer os.Remove(tmp)
 
-	// all these should be deferred and errors printed to the log
-
-	err = ThumbnailLossy(z, dst, filepath.Join(dir.Thumbnail, uuid+jpg))
-	if err != nil {
-		return err
-	}
-	err = ConvertWebP(z, dst)
-	if err != nil {
-		return err
-	}
+	defer func() {
+		err := dir.WebpThumbnail(z, tmp, uuid)
+		if err != nil {
+			z.Warnln("lossy screenshot: ", err)
+		}
+	}()
 	return nil
 }
 
-func ThumbnailLossy(z *zap.SugaredLogger, src, dst string) error {
-	if z == nil {
-		return ErrZap
-	}
-
-	const name = "convert"
-	_, err := exec.LookPath(name)
-	if errors.Is(err, exec.ErrDot) {
-		err = nil
-	}
-	if err != nil {
-		return err
-	}
-
-	args := Args{}
-	args.Thumb()
-	arg := []string{src}       // source file
-	arg = append(arg, args...) // command line arguments
-	arg = append(arg, dst)     // destination
-	cmd := exec.Command(name, arg...)
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		return err
-	}
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-
-	slurp, _ := io.ReadAll(stderr)
-	z.Debugln("thumbnaniler: %s %s", cmd, string(slurp))
-
-	if err := cmd.Wait(); err != nil {
-		return err
-	}
-
-	err = ConvertWebP(z, dst)
-	if err != nil {
-		return err
-	}
-	defer os.Remove(dst)
-
-	return nil
-}
-
-func ConvertThumbnail(z *zap.SugaredLogger, src, dst string) error {
-	if z == nil {
-		return ErrZap
-	}
-
-	const name = "convert"
-	_, err := exec.LookPath(name)
-	if errors.Is(err, exec.ErrDot) {
-		err = nil
-	}
-	if err != nil {
-		return err
-	}
-
-	cmd := exec.Command(name, src, "-thumbnail", "400x400", "-background", "#999", "-gravity", "center", "-extent", "400x400",
-		"-define", "png:compression-filter=5", "-define", "png:compression-level=9", "-define", "png:compression-strategy=1", "-define", "png:exclude-chunk=all",
-		"-filter", "Triangle",
-		"-posterize", "136", // max colours
-		dst) // 239151 bytes
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		return err
-	}
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-
-	slurp, _ := io.ReadAll(stderr)
-	z.Debugln("thumbnaniler: %s %s", cmd, string(slurp))
-
-	if err := cmd.Wait(); err != nil {
-		return err
-	}
-
-	err = ConvertWebP(z, dst)
-	if err != nil {
-		return err
-	}
-	defer os.Remove(dst)
-
-	return nil
-}
-
-func ConvertWebP(z *zap.SugaredLogger, src string) error {
-	if z == nil {
-		return ErrZap
-	}
-
-	const name = "cwebp"
-	_, err := exec.LookPath(name)
-	if errors.Is(err, exec.ErrDot) {
-		err = nil
-	}
-	if err != nil {
-		return err
-	}
-
-	// arguments='cwebp -near_lossless 70 "#arguments.source#" -o "#dest#"'
-	filename := strings.TrimSuffix(filepath.Base(src), filepath.Ext(filepath.Base(src)))
-	dst := filepath.Join(filepath.Dir(src), filename+".webp")
-	fmt.Println("conv webp ->", dst)
-	cmd := exec.Command(name, src, "-lossless", "-o", dst)
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		return err
-	}
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-
-	slurp, _ := io.ReadAll(stderr)
-	z.Debugln("cwebp: %s %s", cmd, string(slurp))
-
-	if err := cmd.Wait(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
+// OptimizePNG optimizes the src PNG image using the optipng command.
+// The optimization is done in-place, overwriting the src file.
+// It should be used in a deferred function.
 func OptimizePNG(z *zap.SugaredLogger, src string) error {
 	if z == nil {
 		return ErrZap
 	}
 
-	const name = "optipng"
-	_, err := exec.LookPath(name)
-	if errors.Is(err, exec.ErrDot) {
-		err = nil
-	}
-	if err != nil {
-		return err
-	}
-
-	cmd := exec.Command(name, src)
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		return err
-	}
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-
-	slurp, _ := io.ReadAll(stderr)
-	z.Debugln("optipng: %s %s", cmd, string(slurp))
-
-	if err := cmd.Wait(); err != nil {
+	args := Args{}
+	arg := []string{src}       // source file
+	arg = append(arg, args...) // command line arguments
+	if err := RunQuiet(z, Optipng, arg...); err != nil {
 		return err
 	}
 

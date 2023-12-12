@@ -74,7 +74,7 @@ func PostMeCP(z *zap.SugaredLogger, c echo.Context, downloadDir string) error {
 
 	src := filepath.Join(downloadDir, r.UUID.String)
 	dst := filepath.Join(downloadDir, r.UUID.String+".txt")
-	err = command.UnzipOne(z, src, dst, target)
+	err = command.UnZipOne(z, src, dst, target)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -169,7 +169,7 @@ func (dir Dirs) PostImgsCP(z *zap.SugaredLogger, c echo.Context) error {
 
 	src := filepath.Join(dir.Download, r.UUID.String)
 	cmd := command.Dirs{Download: dir.Download, Screenshot: dir.Screenshot, Thumbnail: dir.Thumbnail}
-	err = cmd.UnzipImg(z, src, r.UUID.String, target)
+	err = cmd.UnZipImage(z, src, r.UUID.String, target)
 	if err != nil {
 		return badRequest(c, err)
 	}
