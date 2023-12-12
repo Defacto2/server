@@ -2,8 +2,7 @@
 {{- define "aboutEditor" }}
 {{- $faSize := "fa-fw fa-2x" -}}
 {{- $id := index . "recID"}}
-{{- $pngImg := recordImgSample (index . "uuid") ".png"}}
-{{- $webpImg := recordImgSample (index . "uuid") ".webp"}}
+{{- $previewImg := recordImgSample (index . "uuid")}}
 {{- $thumbImg := recordThumbSample (index . "uuid")}}
 {{- $replace := "refresh the page to see the changes"}}
 {{/*  Assets editor  */}}
@@ -69,9 +68,8 @@
           </tbody>
         </table>
         <div class="row g-3 text-center">
-          <div class="col-md">{{$pngImg}}<div class="form-text">.png preview</div></div>
-          <div class="col-md">{{$webpImg}}<div class="form-text">.webp preview</div></div>
-          <div class="col-md">{{$thumbImg}}<div class="form-text">.png thumb</div></div>
+          <div class="col-md">{{$previewImg}}<div class="form-text">Preview</div></div>
+          <div class="col-md">{{$thumbImg}}<div class="form-text">Thumbnail</div></div>
         </div>
         <div class="my-2 row">
           <div class="col-sm-6 text-start">

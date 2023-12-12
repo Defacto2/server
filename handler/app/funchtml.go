@@ -133,10 +133,19 @@ func (web Web) Thumb(uuid, desc string, bottom bool) template.HTML {
 	return template.HTML(elm)
 }
 
-func (web Web) ImageSample(uuid, ext string) template.HTML {
-	name := filepath.Join(web.Import.ScreenshotDir, fmt.Sprintf("%s%s", uuid, ext))
-	src := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s%s", uuid, ext)}, "/")
-	fmt.Println("-->", name, "\n", src)
+func (web Web) ImageSample(uuid string) template.HTML {
+	const (
+		png  = ".png"
+		webp = ".webp"
+	)
+	ext, name, src := "", "", ""
+	for _, ext = range []string{webp, png} {
+		name = filepath.Join(web.Import.ScreenshotDir, fmt.Sprintf("%s%s", uuid, ext))
+		src = strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s%s", uuid, ext)}, "/")
+		if helper.IsStat(name) {
+			break
+		}
+	}
 	hash, err := helper.IntegrityFile(name)
 	if err != nil {
 		return template.HTML(err.Error())
@@ -147,9 +156,18 @@ func (web Web) ImageSample(uuid, ext string) template.HTML {
 }
 
 func (web Web) ThumbSample(uuid string) template.HTML {
-	const ext = ".png"
-	name := filepath.Join(web.Import.ThumbnailDir, fmt.Sprintf("%s%s", uuid, ext))
-	src := strings.Join([]string{config.StaticThumb(), fmt.Sprintf("%s%s", uuid, ext)}, "/")
+	const (
+		png  = ".png"
+		webp = ".webp"
+	)
+	ext, name, src := "", "", ""
+	for _, ext = range []string{webp, png} {
+		name = filepath.Join(web.Import.ThumbnailDir, fmt.Sprintf("%s%s", uuid, ext))
+		src = strings.Join([]string{config.StaticThumb(), fmt.Sprintf("%s%s", uuid, ext)}, "/")
+		if helper.IsStat(name) {
+			break
+		}
+	}
 	hash, err := helper.IntegrityFile(name)
 	if err != nil {
 		return template.HTML(err.Error())

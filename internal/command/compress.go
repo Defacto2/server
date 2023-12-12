@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"go.uber.org/zap"
 )
@@ -90,7 +91,7 @@ func (dir Dirs) UnZipImage(z *zap.SugaredLogger, src, uuid, name string) error {
 		return fmt.Errorf("%w: %q", ErrIsDir, dst)
 	}
 
-	switch filepath.Ext(dst) {
+	switch filepath.Ext(strings.ToLower(dst)) {
 	case gif:
 		// use lossless compression (but larger file size)
 		err = dir.LosslessScreenshot(z, dst, uuid)

@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	TargetErr = errors.New("target not found")
+	ErrTarget = errors.New("target not found")
 )
 
 // badRequest returns a JSON response with a 400 status code,
@@ -69,7 +69,7 @@ func PostMeCP(z *zap.SugaredLogger, c echo.Context, downloadDir string) error {
 		}
 	}
 	if target == "" {
-		return badRequest(c, TargetErr)
+		return badRequest(c, ErrTarget)
 	}
 
 	src := filepath.Join(downloadDir, r.UUID.String)
@@ -164,7 +164,7 @@ func (dir Dirs) PostImgsCP(z *zap.SugaredLogger, c echo.Context) error {
 		}
 	}
 	if target == "" {
-		return badRequest(c, TargetErr)
+		return badRequest(c, ErrTarget)
 	}
 
 	src := filepath.Join(dir.Download, r.UUID.String)
