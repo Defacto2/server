@@ -23,6 +23,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/render"
 	"github.com/Defacto2/server/model"
+	"github.com/dustin/go-humanize"
 	"github.com/h2non/filetype"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -450,7 +451,7 @@ func (dir Dirs) aboutAssets(uuid string) map[string]string {
 			case ".ZIP":
 				s = ".ZIP for emulator"
 			}
-			matches[s] = fmt.Sprintf("%d bytes", st.Size())
+			matches[s] = fmt.Sprintf("%s bytes", humanize.Comma(st.Size()))
 		}
 	}
 	for _, file := range images {
@@ -476,14 +477,14 @@ func (dir Dirs) aboutAssets(uuid string) map[string]string {
 }
 
 func aboutImgInfo(name string) string {
-	switch filepath.Ext(name) {
+	switch filepath.Ext(strings.ToLower(name)) {
 	case ".png", ".jpg", ".jpeg", ".gif":
 	default:
 		st, err := os.Stat(name)
 		if err != nil {
 			return err.Error()
 		}
-		return fmt.Sprintf("%d bytes", st.Size())
+		return fmt.Sprintf("%s bytes", humanize.Comma(st.Size()))
 	}
 	reader, err := os.Open(name)
 	if err != nil {
@@ -494,9 +495,9 @@ func aboutImgInfo(name string) string {
 	if err != nil {
 		return err.Error()
 	}
-	config, format, err := image.DecodeConfig(reader)
+	config, _, err := image.DecodeConfig(reader)
 	if err != nil {
 		return err.Error()
 	}
-	return fmt.Sprintf("%s, %d x %d pixels, %d bytes", format, config.Width, config.Height, st.Size())
+	return fmt.Sprintf("%s bytes - %d x %d pixels", humanize.Comma(st.Size()), config.Width, config.Height)
 }

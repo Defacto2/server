@@ -6,6 +6,7 @@ require (
 	github.com/Defacto2/releaser v1.0.1
 	github.com/caarlos0/env/v7 v7.1.0
 	github.com/carlmjohnson/versioninfo v0.22.5
+	github.com/dustin/go-humanize v1.0.0
 	github.com/evanw/esbuild v0.18.15
 	github.com/friendsofgo/errors v0.9.2
 	github.com/h2non/filetype v1.1.3
@@ -22,6 +23,7 @@ require (
 	github.com/volatiletech/randomize v0.0.1
 	github.com/volatiletech/sqlboiler/v4 v4.15.0
 	github.com/volatiletech/strmangle v0.0.5
+	go.uber.org/automaxprocs v1.5.3
 	go.uber.org/zap v1.26.0
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	golang.org/x/text v0.13.0
@@ -58,7 +60,6 @@ require (
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/volatiletech/inflect v0.0.1 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
-	go.uber.org/automaxprocs v1.5.3 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/net v0.16.0 // indirect
