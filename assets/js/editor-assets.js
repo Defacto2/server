@@ -204,7 +204,7 @@
       .then((response) => {
         console.log(response);
         if (!response.ok) {
-          console.log(`not ok`)
+          console.log(`not ok`);
           throw new Error(saveErr);
           return;
         }
@@ -212,7 +212,7 @@
         return response.json();
       })
       .catch((error) => {
-        console.log(error)
+        console.log(error);
         document.getElementById(`edCopyImgsErr`).textContent = error.message;
         previewList.classList.add(err);
         //list.classList.add(err);
@@ -228,6 +228,64 @@
       previewValue.classList.remove(ok);
       document.getElementById(`edCopyImgsErr`).textContent = ``;
       previewList.classList.remove(err);
+    });
+
+  // Modify the file assets, ansilove preview in archive
+  const ansiloveValue = document.getElementById(`edAnsiLove`);
+  const ansiloveList = document.getElementById(`edAnsiLoveList`);
+  const ansiloveB = document.getElementById(`edAnsiLoveBtn`);
+  ansiloveValue.addEventListener(`input`, function (event) {
+    ansiloveValue.classList.remove(err);
+    ansiloveValue.classList.remove(ok);
+    if (ansiloveValue.value == ``) {
+      return;
+    }
+  });
+  ansiloveB.addEventListener(`click`, function (event) {
+    let exists = Array.from(ansiloveList.options).some(
+      (option) => option.value === ansiloveValue.value
+    );
+    if (!exists) {
+      ansiloveValue.classList.add(err);
+      document.getElementById(`edAnsiLoveErr`).textContent = `unknown filename`;
+      ansiloveList.classList.remove(err);
+      return;
+    }
+    fetch("/editor/ansilove/copy", {
+      method: "POST",
+      body: JSON.stringify({
+        id: parseInt(id.value),
+        target: ansiloveValue.value,
+      }),
+      headers: header,
+    })
+      .then((response) => {
+        console.log(response);
+        if (!response.ok) {
+          console.log(`not ok`);
+          throw new Error(saveErr);
+          return;
+        }
+        ansiloveValue.classList.add(ok);
+        return response.json();
+      })
+      .catch((error) => {
+        console.log(error);
+        document.getElementById(`edAnsiLoveErr`).textContent = error.message;
+        ansiloveList.classList.add(err);
+        //list.classList.add(err);
+        return;
+      });
+  });
+  // Modify the file assets, ansilove preview in archive reset
+  document
+    .getElementById(`edAnsiLoveReset`)
+    .addEventListener(`click`, function () {
+      ansiloveValue.value = ``;
+      ansiloveValue.classList.remove(err);
+      ansiloveValue.classList.remove(ok);
+      document.getElementById(`edAnsiLoveErr`).textContent = ``;
+      ansiloveList.classList.remove(err);
     });
 
   /// ==============

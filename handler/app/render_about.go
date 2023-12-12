@@ -75,6 +75,7 @@ func (a Dirs) About(z *zap.SugaredLogger, c echo.Context) error {
 	data["recNoReadme"] = res.RetrotxtNoReadme.Int16 != 0
 	data["recReadmeList"] = OptionsReadme(res.FileZipContent.String)
 	data["recPreviewList"] = OptionsPreview(res.FileZipContent.String)
+	data["recAnsiLoveList"] = OptionsAnsiLove(res.FileZipContent.String)
 	// page metadata
 	data["uuid"] = uuid
 	data["download"] = helper.ObfuscateID(int64(res.ID))

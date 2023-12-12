@@ -176,6 +176,52 @@ func (dir Dirs) PostImgsCP(z *zap.SugaredLogger, c echo.Context) error {
 	return c.JSON(http.StatusOK, r)
 }
 
+func (dir Dirs) PostAnsiCP(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor ansilove copy"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+
+	// TODO implement a private shared function with this and PostImgsCP
+
+	type Form struct {
+		ID     int    `query:"id"`
+		Target string `query:"readme"`
+	}
+	var f Form
+	if err := c.Bind(&f); err != nil {
+		return badRequest(c, err)
+	}
+
+	r, err := model.Record(z, c, f.ID)
+	if err != nil {
+		return badRequest(c, err)
+	}
+
+	list := strings.Split(r.FileZipContent.String, "\n")
+	target := ""
+	for _, x := range list {
+		s := strings.TrimSpace(x)
+		if s == "" {
+			continue
+		}
+		if strings.EqualFold(s, f.Target) {
+			target = s
+		}
+	}
+	if target == "" {
+		return badRequest(c, ErrTarget)
+	}
+
+	src := filepath.Join(dir.Download, r.UUID.String)
+	cmd := command.Dirs{Download: dir.Download, Preview: dir.Preview, Thumbnail: dir.Thumbnail}
+	err = cmd.UnZipAnsiLove(z, src, r.UUID.String, target)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, r)
+}
+
 // PostMeRm handles the POST request for the editor complementary images, remove button click.
 func (dir Dirs) PostImgsRm(z *zap.SugaredLogger, c echo.Context) error {
 	const name = "editor images remove"

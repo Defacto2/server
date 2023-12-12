@@ -679,6 +679,25 @@ func OptionsReadme(zipContent string) template.HTML {
 	return template.HTML(s)
 }
 
+// OptionsAnsiLove returns a list of possible text or ANSI files in the archive content.
+// In general, all file extensions are valid except for well known archives and executables.
+// Due to the CP/M and DOS platform, 8.3 filename limitations, the file extension is not always reliable.
+func OptionsAnsiLove(zipContent string) template.HTML {
+	list := strings.Split(zipContent, "\n")
+	s := ""
+	for _, v := range list {
+		x := strings.TrimSpace(strings.ToLower(v))
+		switch filepath.Ext(x) {
+		case ".com", ".exe", ".dll", ".gif", ".png", ".jpg", ".jpeg", ".webp", ".bmp",
+			".ico", ".avi", ".mpg", ".mpeg", ".mp1", ".mp2", ".mp3", ".mp4", ".ogg", ".wmv",
+			".zip", ".arc", ".arj", ".ace", ".lha", ".lzh", ".7z", ".tar", ".gz", ".bz2", ".xz", ".z":
+			continue
+		}
+		s = s + fmt.Sprintf("<option>%s</option>", v)
+	}
+	return template.HTML(s)
+}
+
 // OptionsPreview returns a list of preview images or textfiles in the archive content.
 func OptionsPreview(zipContent string) template.HTML {
 	list := strings.Split(zipContent, "\n")
@@ -686,7 +705,6 @@ func OptionsPreview(zipContent string) template.HTML {
 	for _, v := range list {
 		x := strings.TrimSpace(strings.ToLower(v))
 		switch filepath.Ext(x) {
-		// TODO: add support for text files? ".txt", ".nfo", ".diz", ".me",
 		case ".gif", ".png", ".jpg", ".jpeg", ".webp", ".bmp":
 			s = s + fmt.Sprintf("<option>%s</option>", v)
 		}

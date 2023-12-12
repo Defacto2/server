@@ -114,3 +114,10 @@ func (dir Dirs) UnZipImage(z *zap.SugaredLogger, src, uuid, name string) error {
 	}
 	return nil
 }
+
+func (dir Dirs) UnZipAnsiLove(z *zap.SugaredLogger, src, uuid, name string) error {
+	if z == nil {
+		return ErrZap
+	}
+	return nil
+}

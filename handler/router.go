@@ -230,6 +230,9 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.POST("/editor/images/delete", func(c echo.Context) error {
 		return dir.PostImgsRm(z, c)
 	})
+	e.POST("/editor/ansilove/copy", func(c echo.Context) error {
+		return dir.PostAnsiCP(z, c)
+	})
 
 	return e, nil
 }

@@ -108,11 +108,11 @@
             </div>
           </div>    
         </div>
-        {{/*  preview in archive  */}}
+        {{/*  preview from image in archive  */}}
         <hr class="m-0 mb-3 mt-3">
         <div class="mb-3 row">
           <label for="recordPreview" id="recordPreviewLabel" class="col-sm-3 col-form-label"
-          data-bs-toggle="tooltip" data-bs-title="An included image to use as the preview and thumbnail"><strong>Preview</strong> in archive</label>
+          data-bs-toggle="tooltip" data-bs-title="An included image to use as the preview and thumbnail"><strong>Preview</strong> from image in archive</label>
           <div class="col-sm-5">
             {{/*  TODO: default disabled based on hide value  */}}
             <input list="recordPreviewList" name="title" class="form-control" id="recordPreview" value="" placeholder="Replace with a named file">
@@ -127,6 +127,28 @@
           </div>
           <div class="col-sm-3 text-start">
             <button class="btn btn-outline-success" id="recordPreviewBtn">Recreate previews and thumb</button>          
+          </div>
+        </div>
+        {{/*  preview from text in archive  */}}
+        {{/*  list all files, except: exe,com,dll,images,compressed files  */}}
+        <hr class="m-0 mb-3 mt-3">
+        <div class="mb-3 row">
+          <label for="edAnsiLove" id="edAnsiLoveLabel" class="col-sm-3 col-form-label"
+          data-bs-toggle="tooltip" data-bs-title="An included text or ANSI art to use as the preview and thumbnail"><strong>Preview</strong> from text in archive</label>
+          <div class="col-sm-5">
+            {{/*  TODO: default disabled based on hide value  */}}
+            <input list="edAnsiLoveList" name="title" class="form-control" id="edAnsiLove" value="" placeholder="Replace with a named file">
+            <datalist id="edAnsiLoveList">
+              {{index . "recAnsiLoveList"}}
+            </datalist>
+            <div class="valid-feedback">Previews replaced, {{$replace}}</div>
+            <div class="invalid-feedback" id="edAnsiLoveErr">something went wrong</div>
+          </div>
+          <div class="col-sm-1">
+            <button class="btn btn-outline-danger" id="edAnsiLoveReset">Clear</button>
+          </div>
+          <div class="col-sm-3 text-start">
+            <button class="btn btn-outline-success" id="edAnsiLoveBtn">Recreate previews and thumb</button>          
           </div>
         </div>
         <hr class="m-0 mb-3 mt-3">
