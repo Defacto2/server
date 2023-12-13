@@ -101,6 +101,8 @@
     );
     if (!exists) {
       readmeCP.classList.add(err);
+      document.getElementById(`edCopyMeErr`).textContent = `unknown filename`;
+      list.classList.remove(err);
       return;
     }
 

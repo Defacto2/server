@@ -15,6 +15,7 @@ import (
 
 const (
 	pattern = "defacto2-" // prefix for temporary directories
+	arc     = ".arc"      // arc file extension
 	arj     = ".arj"      // arj file extension
 	bmp     = ".bmp"      // bmp file extension
 	gif     = ".gif"      // gif file extension
@@ -42,6 +43,7 @@ type Dirs struct {
 }
 
 const (
+	Arc      = "arc"      // Arc is the arc decompression command.
 	Arj      = "arj"      // Arj is the arj decompression command.
 	Ansilove = "ansilove" // Ansilove is the ansilove text to image command.
 	Convert  = "convert"  // Convert is the ImageMagick convert command.
@@ -175,12 +177,45 @@ func Run(z *zap.SugaredLogger, name string, arg ...string) error {
 	if z == nil {
 		return ErrZap
 	}
+	return run(z, name, "", arg...)
+}
 
+// Run looks for the command in the system path and executes it with the arguments.
+func RunQuiet(z *zap.SugaredLogger, name string, arg ...string) error {
+	if z == nil {
+		return ErrZap
+	}
+
+	if err := LookCmd(name); err != nil {
+		return err
+	}
+	cmd := exec.Command(name, arg...)
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	if err := cmd.Wait(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// RunWD looks for the command in the system path and executes it with the arguments.
+// The working directory is set for the command.
+// Any output to stderr is logged as a debug message.
+func RunWD(z *zap.SugaredLogger, name, wdir string, arg ...string) error {
+	if z == nil {
+		return ErrZap
+	}
+	return run(z, name, wdir, arg...)
+}
+
+func run(z *zap.SugaredLogger, name, wdir string, arg ...string) error {
 	if err := LookCmd(name); err != nil {
 		return err
 	}
 
 	cmd := exec.Command(name, arg...)
+	cmd.Dir = wdir
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
 		return fmt.Errorf("could not get stderr pipe: %w", err)
@@ -194,26 +229,6 @@ func Run(z *zap.SugaredLogger, name string, arg ...string) error {
 	}
 	if len(b) > 0 {
 		z.Debugf("run %q: %s\n", cmd, string(b))
-	}
-	if err := cmd.Wait(); err != nil {
-		return err
-	}
-	return nil
-}
-
-// Run looks for the command in the system path and executes it with the arguments.
-func RunQuiet(z *zap.SugaredLogger, name string, arg ...string) error {
-	if z == nil {
-		return ErrZap
-	}
-
-	if err := LookCmd(name); err != nil {
-		return err
-	}
-
-	cmd := exec.Command(name, arg...)
-	if err := cmd.Start(); err != nil {
-		return err
 	}
 	if err := cmd.Wait(); err != nil {
 		return err

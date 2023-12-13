@@ -191,7 +191,7 @@ func (a Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) {
 
 	contentType := http.DetectContentType(b)
 	switch contentType {
-	case "archive/zip", "application/zip":
+	case "archive/zip", "application/zip", "application/octet-stream":
 		return data, nil
 	}
 

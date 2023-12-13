@@ -45,10 +45,14 @@ func ExtractOne(z *zap.SugaredLogger, src, dst, ext, name string) error {
 	if err != nil {
 		return err
 	}
-	defer os.RemoveAll(tmp)
+	//defer os.RemoveAll(tmp)
 
 	r := runner{src: src, tmp: tmp, name: name}
 	switch strings.ToLower(ext) {
+	case arc:
+		if err = r.arc(z); err != nil {
+			return err
+		}
 	case arj:
 		if err = r.arj(z); err != nil {
 			return err
@@ -84,6 +88,21 @@ type runner struct {
 	name string // name is the name of the file to extract from the archive.
 }
 
+// arc extracts the named file from the src arc archive.
+func (r runner) arc(z *zap.SugaredLogger) error {
+	// the arc command doesn't offer a target directory option
+	tmpArc := filepath.Join(r.tmp, "archive.arc")
+	if err := CopyFile(z, r.src, tmpArc); err != nil {
+		return err
+	}
+	arg := []string{
+		"xwo",  // Extract files from archive.
+		tmpArc, // Source archive.
+		r.name, // File to extract from the archive.
+	}
+	return RunWD(z, Arc, r.tmp, arg...)
+}
+
 // arj extracts the named file from the src arj archive.
 func (r runner) arj(z *zap.SugaredLogger) error {
 	// the arj command requires the source archive to have an .arj extension
@@ -103,9 +122,6 @@ func (r runner) arj(z *zap.SugaredLogger) error {
 	}
 	return nil
 }
-
-// unrar [OPTION...] ARCHIVE [FILE...] [DESTINATION]
-// unrar e -ep zzz.rar VD-SDW2.WKD
 
 // rar extracts the named file from the src rar archive.
 func (r runner) rar(z *zap.SugaredLogger) error {
