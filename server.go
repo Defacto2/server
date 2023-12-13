@@ -19,6 +19,7 @@ import (
 	"github.com/caarlos0/env/v7"
 	_ "github.com/lib/pq"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"go.uber.org/zap"
 	//_ "go.uber.org/automaxprocs"
 )
 
@@ -38,8 +39,10 @@ var (
 	ErrCmd = errors.New("the command given did not work")
 	ErrDB  = errors.New("could not initialize the database data")
 	ErrEnv = errors.New("environment variable probably contains an invalid value")
+	ErrFS  = fmt.Errorf("the directories repair broke")
 	ErrLog = errors.New("the server cannot save any logs")
 	ErrVer = errors.New("postgresql version request failed")
+	ErrZap = errors.New("the logger instance is nil")
 )
 
 func main() {
@@ -110,8 +113,7 @@ func main() {
 	server.RecordCount = RecordCount()
 
 	// Placeholder for future file system checks
-	if err := RepairFS(&configs); err != nil {
-		var ErrFS = fmt.Errorf("the file system is not ready")
+	if err := RepairFS(logs, &configs); err != nil {
 		logs.Errorf("%s: %s", ErrFS, err)
 	}
 
@@ -165,7 +167,12 @@ func RecordCount() int {
 	return int(x)
 }
 
-func RepairFS(c *config.Config) error {
+// RepairFS, on startup check the file system directories for any invalid or unknown files.
+// If any are found, they are removed without warning.
+func RepairFS(z *zap.SugaredLogger, c *config.Config) error {
+	if z == nil {
+		return ErrZap
+	}
 	const (
 		uuid = "00000000-0000-0000-0000-000000000000" // common universal unique identifier example
 		cfid = "00000000-0000-0000-0000000000000000"  // coldfusion uuid example
@@ -178,7 +185,7 @@ func RepairFS(c *config.Config) error {
 
 	dirs := []string{c.PreviewDir, c.ThumbnailDir}
 	for _, dir := range dirs {
-		fmt.Fprintln(os.Stdout, "repair:", dir)
+		z.Info("repair:", dir)
 		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
@@ -194,22 +201,22 @@ func RepairFS(c *config.Config) error {
 				case st:
 					defer os.RemoveAll(path)
 				default:
-					fmt.Println("dir:", path)
+					fmt.Fprintln(os.Stderr, "unknown dir:", path)
 				}
 			}
 			switch ext {
 			case png:
 				if l != len(uuid)+lpng && l != len(cfid)+lpng {
-					fmt.Println("remove:", name, dir)
+					fmt.Fprintln(os.Stderr, "remove:", name, dir)
 					defer os.Remove(path)
 				}
 			case webp:
 				if l != len(uuid)+lweb && l != len(cfid)+lweb {
-					fmt.Println("remove:", name)
+					fmt.Fprintln(os.Stderr, "remove:", name)
 					defer os.Remove(path)
 				}
 			default:
-				fmt.Println("unknown:", path)
+				fmt.Fprintln(os.Stderr, "unknown:", path)
 				defer os.Remove(path)
 			}
 			return nil
@@ -217,6 +224,45 @@ func RepairFS(c *config.Config) error {
 		if err != nil {
 			return err
 		}
+	}
+	dir := c.DownloadDir
+	z.Info("repair:", dir)
+	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		name := info.Name()
+		l := len(name)
+
+		if info.IsDir() {
+			switch name {
+			case filepath.Base(dir):
+				return nil // skip the root directory
+			case st:
+				defer os.RemoveAll(path)
+			default:
+				fmt.Fprintln(os.Stderr, "unknown dir:", path)
+			}
+		}
+		switch filepath.Ext(name) {
+		case ".chiptune", ".txt":
+			return nil
+		case ".zip":
+			if l != len(uuid)+4 && l != len(cfid)+4 {
+				fmt.Fprintln(os.Stderr, "remove:", name)
+				defer os.Remove(path)
+			}
+			return nil
+		default:
+			if l != len(uuid) && l != len(cfid) {
+				fmt.Fprintln(os.Stderr, "unknown:", name)
+				defer os.Remove(path)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return err
 	}
 	return nil
 }
