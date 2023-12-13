@@ -3,6 +3,7 @@ package command
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -39,6 +40,7 @@ type Dirs struct {
 }
 
 const (
+	Arj      = "arj"      // Arj is the arj decompression command.
 	Ansilove = "ansilove" // Ansilove is the ansilove text to image command.
 	Convert  = "convert"  // Convert is the ImageMagick convert command.
 	Cwebp    = "cwebp"    // Cwebp is the Google create webp command.
@@ -175,12 +177,16 @@ func Run(z *zap.SugaredLogger, name string, arg ...string) error {
 	cmd := exec.Command(name, arg...)
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		return err
+		return fmt.Errorf("could not get stderr pipe: %w", err)
 	}
 	if err := cmd.Start(); err != nil {
-		return err
+		return fmt.Errorf("could not start command: %w", err)
 	}
-	if b, _ := io.ReadAll(stderr); len(b) > 0 {
+	b, err := io.ReadAll(stderr)
+	if err != nil {
+		return fmt.Errorf("could not read stderr: %w", err)
+	}
+	if len(b) > 0 {
 		z.Debugf("run %q: %s\n", cmd, string(b))
 	}
 	if err := cmd.Wait(); err != nil {

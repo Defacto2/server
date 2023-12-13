@@ -103,7 +103,8 @@ func ReadmePost(z *zap.SugaredLogger, c echo.Context, downloadDir string) error 
 
 	src := filepath.Join(downloadDir, r.UUID.String)
 	dst := filepath.Join(downloadDir, r.UUID.String+txt)
-	err = command.UnZipOne(z, src, dst, target)
+	ext := filepath.Ext(strings.ToLower(r.Filename.String))
+	err = command.UnZipOne(z, src, dst, ext, target)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -201,14 +202,14 @@ func (dir Dirs) extractor(z *zap.SugaredLogger, c echo.Context, p extract) error
 	if target == "" {
 		return badRequest(c, ErrTarget)
 	}
-
 	src := filepath.Join(dir.Download, r.UUID.String)
 	cmd := command.Dirs{Download: dir.Download, Preview: dir.Preview, Thumbnail: dir.Thumbnail}
+	ext := filepath.Ext(strings.ToLower(r.Filename.String))
 	switch p {
 	case imgs:
-		err = cmd.ExtractImage(z, src, r.UUID.String, target)
+		err = cmd.ExtractImage(z, src, r.UUID.String, ext, target)
 	case ansis:
-		err = cmd.ExtractAnsiLove(z, src, r.UUID.String, target)
+		err = cmd.ExtractAnsiLove(z, src, r.UUID.String, ext, target)
 	default:
 		return InternalErr(z, c, "extractor", fmt.Errorf("%w: %d", ErrExtract, p))
 	}
