@@ -226,7 +226,6 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 		case "DownloadDir":
 			nl()
 			path()
-			dir(c.DownloadDir)
 		case "PreviewDir":
 			nl()
 			path()
@@ -246,7 +245,8 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 				fmt.Fprintf(w, "\n\t\t\t\t%s\n", "This application will use all available CPU cores.")
 			}
 			nl()
-			fmt.Fprintf(w, "\t✗\t✗\t\tThe following configurations can usually be left at their defaults.\n")
+			fmt.Fprintf(w, "\t \t \t\tThe following configurations can usually be left at their defaults\n")
+			fmt.Fprintf(w, "\t \t \t\t──────────────────────────────────────────────────────────────────")
 		default:
 			nl()
 			lead()

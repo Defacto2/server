@@ -18,7 +18,7 @@ import (
 	"github.com/caarlos0/env/v7"
 	_ "github.com/lib/pq"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
-	_ "go.uber.org/automaxprocs"
+	//_ "go.uber.org/automaxprocs"
 )
 
 //go:embed public/text/defacto2.txt
@@ -54,6 +54,12 @@ func main() {
 	}
 	configs = *Override(&configs)
 
+	// Go runtime customizations
+	// If not set, the automaxprocs lib automatically set GOMAXPROCS to match Linux container CPU quota
+	if i := configs.MaxProcs; i > 0 {
+		runtime.GOMAXPROCS(int(i))
+	}
+
 	// Command-line arguments
 	// By default the web server runs when no arguments are provided
 	const exitProgram = 0
@@ -62,12 +68,6 @@ func main() {
 		os.Exit(code)
 	} else if code >= exitProgram {
 		os.Exit(code)
-	}
-
-	// Go runtime customizations
-	// If not set, the automaxprocs lib automatically set GOMAXPROCS to match Linux container CPU quota
-	if i := configs.MaxProcs; i > 0 {
-		runtime.GOMAXPROCS(int(i))
 	}
 
 	// Configuration sanity checks
