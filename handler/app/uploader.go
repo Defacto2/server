@@ -104,7 +104,7 @@ func ReadmePost(z *zap.SugaredLogger, c echo.Context, downloadDir string) error 
 	src := filepath.Join(downloadDir, r.UUID.String)
 	dst := filepath.Join(downloadDir, r.UUID.String+txt)
 	ext := filepath.Ext(strings.ToLower(r.Filename.String))
-	err = command.UnZipOne(z, src, dst, ext, target)
+	err = command.ExtractOne(z, src, dst, ext, target)
 	if err != nil {
 		return badRequest(c, err)
 	}

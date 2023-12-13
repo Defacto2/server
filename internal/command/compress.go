@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// UnzipOne extracts athe named file from a zip archive.
+// ExtractOne extracts the named file from a zip archive.
 //
 // The extracted file is copied to the src with the ext extension appended.
 // It requires the [unzip] command to be available on the host system.
@@ -25,7 +25,7 @@ import (
 //
 // [unzip]: https://sourceforge.net/projects/infozip
 // [compression methods]: https://www.hanshq.net/zip.html
-func UnZipOne(z *zap.SugaredLogger, src, dst, ext, name string) error {
+func ExtractOne(z *zap.SugaredLogger, src, dst, ext, name string) error {
 	if z == nil {
 		return ErrZap
 	}
@@ -47,24 +47,14 @@ func UnZipOne(z *zap.SugaredLogger, src, dst, ext, name string) error {
 	}
 	defer os.RemoveAll(tmp)
 
+	r := runner{src: src, tmp: tmp, name: name}
 	switch strings.ToLower(ext) {
-	case ".arj":
-		// the arj command requires the source archive to have an .arj extension
-		tmpArj := filepath.Join(tmp, "archive.arj")
-		if err = CopyFile(z, src, tmpArj); err != nil {
-			return err
-		}
-		// arj e FUS-VX94.ARJ S-H.COM -ht/home/ben
-		arg := []string{"e", tmpArj, name, "-ht" + tmp}
-		if err := Run(z, Arj, arg...); err != nil {
-			z.Warnf("arj exit status: %s", ArjExitStatus(err))
+	case arj:
+		if err = r.arj(z); err != nil {
 			return err
 		}
 	default:
-		arg := []string{src}         // source zip archive
-		arg = append(arg, name)      // target file to extract
-		arg = append(arg, "-d", tmp) // extract destination
-		if err := Run(z, Unzip, arg...); err != nil {
+		if err = r.zip(z); err != nil {
 			return err
 		}
 	}
@@ -84,8 +74,40 @@ func UnZipOne(z *zap.SugaredLogger, src, dst, ext, name string) error {
 	return CopyFile(z, extracted, dst)
 }
 
-// ArjStatus returns the exit status of the arj command error.
-func ArjExitStatus(err error) string {
+type runner struct {
+	src  string // src is the absolute path to the source archive.
+	tmp  string // tmp is the absolute path to a temporary, destination directory.
+	name string // name is the name of the file to extract from the archive.
+}
+
+func (r runner) arj(z *zap.SugaredLogger) error {
+	// the arj command requires the source archive to have an .arj extension
+	tmpArj := filepath.Join(r.tmp, "archive.arj")
+	if err := CopyFile(z, r.src, tmpArj); err != nil {
+		return err
+	}
+	arg := []string{
+		"e",           // Extract files from archive.
+		tmpArj,        // Source archive with the required .arj extension.
+		r.name,        // File to extract from the archive.
+		"-ht" + r.tmp, // Set Target directory, ie: "ht/destdir".
+	}
+	if err := Run(z, Arj, arg...); err != nil {
+		z.Warnf("arj exit status: %s", arjExitStatus(err))
+		return err
+	}
+	return nil
+}
+
+func (r runner) zip(z *zap.SugaredLogger) error {
+	arg := []string{r.src}         // source zip archive
+	arg = append(arg, r.name)      // target file to extract
+	arg = append(arg, "-d", r.tmp) // extract destination
+	return Run(z, Unzip, arg...)
+}
+
+// arjExitStatus returns the exit status of the arj command error.
+func arjExitStatus(err error) string {
 	if err == nil {
 		return ""
 	}
@@ -135,7 +157,7 @@ func extract(z *zap.SugaredLogger, src, uuid, ext, name string) (string, error) 
 	}
 
 	dst := filepath.Join(tmp, filepath.Base(name))
-	if err = UnZipOne(z, src, dst, ext, name); err != nil {
+	if err = ExtractOne(z, src, dst, ext, name); err != nil {
 		return "", err
 	}
 	st, err := os.Stat(dst)

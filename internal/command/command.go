@@ -15,6 +15,7 @@ import (
 
 const (
 	pattern = "defacto2-" // prefix for temporary directories
+	arj     = ".arj"      // arj file extension
 	bmp     = ".bmp"      // bmp file extension
 	gif     = ".gif"      // gif file extension
 	jpg     = ".jpg"      // jpg file extension
