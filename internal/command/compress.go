@@ -50,21 +50,19 @@ func ExtractOne(z *zap.SugaredLogger, src, dst, ext, name string) error {
 	r := runner{src: src, tmp: tmp, name: name}
 	switch strings.ToLower(ext) {
 	case arc:
-		if err = r.arc(z); err != nil {
-			return err
-		}
+		err = r.arc(z)
 	case arj:
-		if err = r.arj(z); err != nil {
-			return err
-		}
+		err = r.arj(z)
 	case rar:
-		if err = r.rar(z); err != nil {
-			return err
-		}
+		err = r.rar(z)
+	case tar:
+		err = r.tar(z)
 	default:
-		if err = r.zip(z); err != nil {
-			return err
-		}
+		// replace with 7zip?
+		err = r.zip(z)
+	}
+	if err != nil {
+		return err
 	}
 
 	extracted := filepath.Join(tmp, name)
@@ -134,6 +132,17 @@ func (r runner) rar(z *zap.SugaredLogger) error {
 		r.tmp,  // Target directory.
 	}
 	return Run(z, Unrar, arg...)
+}
+
+// tar extracts the named file from the src tar archive.
+func (r runner) tar(z *zap.SugaredLogger) error {
+	arg := []string{
+		"-x",        // Extract files from archive.
+		"-f", r.src, // Source archive.
+		"-C", r.tmp, // Target directory.
+		r.name, // File to extract from the archive.
+	}
+	return Run(z, Tar, arg...)
 }
 
 // zip extracts the named file from the src zip archive.
