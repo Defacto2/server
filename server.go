@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
 
 	"github.com/Defacto2/server/cmd"
@@ -108,6 +109,12 @@ func main() {
 	}
 	server.RecordCount = RecordCount()
 
+	// Placeholder for future file system checks
+	if err := RepairFS(&configs); err != nil {
+		var ErrFS = fmt.Errorf("the file system is not ready")
+		logs.Errorf("%s: %s", ErrFS, err)
+	}
+
 	// Controllers and routes
 	e := server.Controller()
 
@@ -156,4 +163,60 @@ func RecordCount() int {
 		return 0
 	}
 	return int(x)
+}
+
+func RepairFS(c *config.Config) error {
+	const (
+		uuid = "00000000-0000-0000-0000-000000000000" // common universal unique identifier example
+		cfid = "00000000-0000-0000-0000000000000000"  // coldfusion uuid example
+		png  = ".png"                                 // png file extension
+		webp = ".webp"                                // webp file extension
+		lpng = len(png)                               // length of png file extension
+		lweb = len(webp)                              // length of webp file extension
+		st   = ".stfolder"                            // st is a syncthing directory
+	)
+
+	dirs := []string{c.PreviewDir, c.ThumbnailDir}
+	for _, dir := range dirs {
+		fmt.Fprintln(os.Stdout, "repair:", dir)
+		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			name := info.Name()
+			ext := filepath.Ext(name)
+			l := len(name)
+
+			if info.IsDir() {
+				switch name {
+				case filepath.Base(dir):
+					return nil // skip the root directory
+				case st:
+					defer os.RemoveAll(path)
+				default:
+					fmt.Println("dir:", path)
+				}
+			}
+			switch ext {
+			case png:
+				if l != len(uuid)+lpng && l != len(cfid)+lpng {
+					fmt.Println("remove:", name, dir)
+					defer os.Remove(path)
+				}
+			case webp:
+				if l != len(uuid)+lweb && l != len(cfid)+lweb {
+					fmt.Println("remove:", name)
+					defer os.Remove(path)
+				}
+			default:
+				fmt.Println("unknown:", path)
+				defer os.Remove(path)
+			}
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
