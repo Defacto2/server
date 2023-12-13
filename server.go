@@ -39,7 +39,7 @@ var (
 	ErrCmd = errors.New("the command given did not work")
 	ErrDB  = errors.New("could not initialize the database data")
 	ErrEnv = errors.New("environment variable probably contains an invalid value")
-	ErrFS  = fmt.Errorf("the directories repair broke")
+	ErrFS  = errors.New("the directories repair broke")
 	ErrLog = errors.New("the server cannot save any logs")
 	ErrVer = errors.New("postgresql version request failed")
 	ErrZap = errors.New("the logger instance is nil")

@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// UnzipOne extracts a single file from a zip archive.
+// UnzipOne extracts athe named file from a zip archive.
 //
 // The extracted file is copied to the src with the ext extension appended.
 // It requires the [unzip] command to be available on the host system.
@@ -48,7 +48,7 @@ func UnZipOne(z *zap.SugaredLogger, src, dst, name string) error {
 	arg := []string{src}         // source zip archive
 	arg = append(arg, name)      // target file to extract
 	arg = append(arg, "-d", tmp) // extract destination
-	if err := RunQuiet(z, Unzip, arg...); err != nil {
+	if err := Run(z, Unzip, arg...); err != nil {
 		return err
 	}
 
@@ -67,6 +67,7 @@ func UnZipOne(z *zap.SugaredLogger, src, dst, name string) error {
 	return CopyFile(z, extracted, dst)
 }
 
+// extract extracts the named file from a zip archive and returns the path to the file.
 func extract(z *zap.SugaredLogger, src, uuid, name string) (string, error) {
 	if z == nil {
 		return "", ErrZap
@@ -91,6 +92,9 @@ func extract(z *zap.SugaredLogger, src, uuid, name string) (string, error) {
 	return dst, nil
 }
 
+// ExtractImage extracts the named image file from a zip archive.
+// Based on the file extension, the image is converted to a webp preview and thumbnails.
+// Named files with a PNG extension are optimized but kept as the preview image.
 func (dir Dirs) ExtractImage(z *zap.SugaredLogger, src, uuid, name string) error {
 	if z == nil {
 		return ErrZap
@@ -102,15 +106,11 @@ func (dir Dirs) ExtractImage(z *zap.SugaredLogger, src, uuid, name string) error
 	}
 	defer os.RemoveAll(dst)
 
-	// TODO: https://pkg.go.dev/golang.org/x/image
-	// bmp, tiff, webp
 	switch filepath.Ext(strings.ToLower(dst)) {
-	case gif: // TODO: use gif2webp: https://developers.google.com/speed/webp/docs/gif2webp
-		// use lossless compression (but larger file size)
-		err = dir.LosslessScreenshot(z, dst, uuid)
+	case gif:
+		err = dir.PreviewGIF(z, dst, uuid)
 	case bmp:
-		// use lossy compression that removes some details (but smaller file size)
-		err = dir.LossyScreenshot(z, dst, uuid)
+		err = dir.PreviewLossy(z, dst, uuid)
 	case png:
 		// optimize but keep the original png file as preview
 		err = dir.PreviewPNG(z, dst, uuid)
@@ -121,6 +121,8 @@ func (dir Dirs) ExtractImage(z *zap.SugaredLogger, src, uuid, name string) error
 		err = dir.PreviewWebP(z, dst, uuid)
 	default:
 		return fmt.Errorf("%w: %q", ErrImg, filepath.Ext(dst))
+		// use lossless compression (but larger file size)
+		//err = dir.LosslessScreenshot(z, dst, uuid)
 	}
 	if err != nil {
 		return err
@@ -128,6 +130,10 @@ func (dir Dirs) ExtractImage(z *zap.SugaredLogger, src, uuid, name string) error
 	return nil
 }
 
+// ExtractAnsiLove extracts the named text file from a zip archive.
+// The text file is converted to a PNG preview and a webp thumbnails.
+// Any text file usable by the ansilove command is supported,
+// including ANSI, codepage plain text, PCBoard, etc.
 func (dir Dirs) ExtractAnsiLove(z *zap.SugaredLogger, src, uuid, name string) error {
 	if z == nil {
 		return ErrZap

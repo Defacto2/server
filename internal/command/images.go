@@ -14,15 +14,20 @@ import (
 // Each argument and its value is a separate string in the slice.
 type Args []string
 
+// AnsiDOS appends the command line arguments for the [ansilove command] to transform an Commodore Amiga ANSI text file into a PNG image.
+//
+// [ansilove command]: https://github.com/ansilove/ansilove
 func (a *Args) AnsiAmiga() {
 	*a = append(*a,
-		"-d",           // DOS aspect ratio.
 		"-f", "topaz+", // Output font.
 		"-m", "workbench", // Rendering mode set to Amiga Workbench palette.
 		"-S", // Use SAUCE record for render options.
 	)
 }
 
+// AnsiDOS appends the command line arguments for the [ansilove command] to transform an ANSI text file into a PNG image.
+//
+// [ansilove command]: https://github.com/ansilove/ansilove
 func (a *Args) AnsiDOS() {
 	*a = append(*a,
 		"-d",          // DOS aspect ratio.
@@ -69,10 +74,10 @@ func (a *Args) Thumb() {
 	)
 }
 
-// Webp appends the command line arguments for the [cwebp command] to transform an image into a webp image.
+// CWebp appends the command line arguments for the [cwebp command] to transform an image into a webp image.
 //
 // [cwebp command]: https://developers.google.com/speed/webp/docs/cwebp
-func (a *Args) Webp() {
+func (a *Args) CWebp() {
 	*a = append(*a,
 		"-af",    // Auto-filter will spend additional time optimizing the filtering strength to reach a well-balanced quality.
 		"-exact", // Preserve RGB values in transparent area. The default is off, to help compressibility.
@@ -80,6 +85,19 @@ func (a *Args) Webp() {
 	)
 }
 
+// GWebp appends the command line arguments for the [gif2webp command] to transform a GIF image into a webp image.
+//
+// [gif2webp command]: https://developers.google.com/speed/webp/docs/gif2webp
+func (a *Args) GWebp() {
+	*a = append(*a,
+		"-q", "100", // Compression factor for RGB channels between 0 and 100.
+		"-mt", // Use multi-threading if available.
+		//"-v", // Print extra information.
+	)
+}
+
+// AnsiLove converts the src text file and creates a PNG image in the preview directory.
+// A webp thumbnail image is also created and copied to the thumbnail directory.
 func (dir Dirs) AnsiLove(z *zap.SugaredLogger, src, uuid string) error {
 	if z == nil {
 		return ErrZap
@@ -102,13 +120,44 @@ func (dir Dirs) AnsiLove(z *zap.SugaredLogger, src, uuid string) error {
 	defer func() {
 		err := OptimizePNG(z, dst)
 		if err != nil {
-			z.Warnln("png screenshot: ", err)
+			z.Warnln("ansilove: ", err)
 		}
 	}()
 	defer func() {
-		err := dir.ThumbnailAnsiLove(z, tmp, uuid)
+		err := dir.AnsiThumbnail(z, tmp, uuid)
 		if err != nil {
-			z.Warnln("lossless screenshot: ", err)
+			z.Warnln("ansilove: ", err)
+		}
+	}()
+	return nil
+}
+
+// PreviewPNG copies and optimizes the src PNG image to the screenshot directory.
+// A webp thumbnail image is also created and copied to the thumbnail directory.
+func (dir Dirs) PreviewGIF(z *zap.SugaredLogger, src, uuid string) error {
+	if z == nil {
+		return ErrZap
+	}
+
+	args := Args{}
+	args.GWebp()
+	arg := []string{src}            // source file
+	arg = append(arg, args...)      // command line arguments
+	tmp := BaseNamePath(src) + webp // destination
+	arg = append(arg, "-o", tmp)
+	if err := Run(z, Gwebp, arg...); err != nil {
+		return err
+	}
+
+	dst := filepath.Join(dir.Preview, uuid+webp)
+	if err := CopyFile(z, tmp, dst); err != nil {
+		return err
+	}
+
+	defer func() {
+		err := dir.WebpThumbnail(z, tmp, uuid)
+		if err != nil {
+			z.Warnln("gif: ", err)
 		}
 	}()
 	return nil
@@ -125,18 +174,16 @@ func (dir Dirs) PreviewPNG(z *zap.SugaredLogger, src, uuid string) error {
 	if err := CopyFile(z, src, dst); err != nil {
 		return err
 	}
-
 	defer func() {
 		err := OptimizePNG(z, dst)
 		if err != nil {
-			z.Warnln("png screenshot: ", err)
+			z.Warnln("png: ", err)
 		}
 	}()
-
 	defer func() {
 		err := dir.WebpThumbnail(z, src, uuid)
 		if err != nil {
-			z.Warnln("png screenshot: ", err)
+			z.Warnln("png: ", err)
 		}
 	}()
 	return nil
@@ -153,7 +200,7 @@ func (dir Dirs) PreviewWebP(z *zap.SugaredLogger, src, uuid string) error {
 	}
 
 	args := Args{}
-	args.Webp()
+	args.CWebp()
 	arg := []string{src}            // source file
 	arg = append(arg, args...)      // command line arguments
 	tmp := BaseNamePath(src) + webp // destination
@@ -166,17 +213,18 @@ func (dir Dirs) PreviewWebP(z *zap.SugaredLogger, src, uuid string) error {
 	if err := CopyFile(z, tmp, dst); err != nil {
 		return err
 	}
-
 	defer func() {
 		err := dir.WebpThumbnail(z, tmp, uuid)
 		if err != nil {
-			z.Warnln("webp screenshot: ", err)
+			z.Warnln("webp: ", err)
 		}
 	}()
 	return nil
 }
 
-func (dir Dirs) ThumbnailAnsiLove(z *zap.SugaredLogger, src, uuid string) error {
+// AnsiThumbnail converts the src image to a 400x400 pixel, webp image in the thumbnail directory.
+// The conversion is done using using a temporary, lossless PNG image.
+func (dir Dirs) AnsiThumbnail(z *zap.SugaredLogger, src, uuid string) error {
 	if z == nil {
 		return ErrZap
 	}
@@ -194,7 +242,7 @@ func (dir Dirs) ThumbnailAnsiLove(z *zap.SugaredLogger, src, uuid string) error 
 
 	dst := filepath.Join(dir.Thumbnail, uuid+webp)
 	args = Args{}
-	args.Webp()
+	args.CWebp()
 	arg = []string{tmp}          // source file
 	arg = append(arg, args...)   // command line arguments
 	arg = append(arg, "-o", dst) // destination
@@ -205,7 +253,8 @@ func (dir Dirs) ThumbnailAnsiLove(z *zap.SugaredLogger, src, uuid string) error 
 	return nil
 }
 
-// WebpThumbnail converts the src image to a webp image in the thumbnail directory.
+// WebpThumbnail converts the src image to a 400x400 pixel, webp image in the thumbnail directory.
+// The conversion is done using using a temporary, lossy PNG image.
 func (dir Dirs) WebpThumbnail(z *zap.SugaredLogger, src, uuid string) error {
 	if z == nil {
 		return ErrZap
@@ -224,7 +273,7 @@ func (dir Dirs) WebpThumbnail(z *zap.SugaredLogger, src, uuid string) error {
 
 	dst := filepath.Join(dir.Thumbnail, uuid+webp)
 	args = Args{}
-	args.Webp()
+	args.CWebp()
 	arg = []string{tmp}          // source file
 	arg = append(arg, args...)   // command line arguments
 	arg = append(arg, "-o", dst) // destination
@@ -271,14 +320,14 @@ func (dir Dirs) LosslessScreenshot(z *zap.SugaredLogger, src, uuid string) error
 	return nil
 }
 
-// LossyScreenshot converts the src image to a lossy Webp image in the screenshot directory.
+// PreviewLossy converts the src image to a lossy Webp image in the screenshot directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
 // The lossy conversion is useful for photographs.
 //
 // The lossy conversion is done using the ImageMagick [convert] command.
 //
 // [convert]: https://imagemagick.org/script/convert.php
-func (dir Dirs) LossyScreenshot(z *zap.SugaredLogger, src, uuid string) error {
+func (dir Dirs) PreviewLossy(z *zap.SugaredLogger, src, uuid string) error {
 	if z == nil {
 		return ErrZap
 	}
@@ -295,7 +344,7 @@ func (dir Dirs) LossyScreenshot(z *zap.SugaredLogger, src, uuid string) error {
 
 	dst := filepath.Join(dir.Preview, uuid+webp)
 	args = Args{}
-	args.Webp()
+	args.CWebp()
 	arg = []string{tmp}          // source file
 	arg = append(arg, args...)   // command line arguments
 	arg = append(arg, "-o", dst) // destination

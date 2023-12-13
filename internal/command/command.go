@@ -42,6 +42,7 @@ const (
 	Ansilove = "ansilove" // Ansilove is the ansilove text to image command.
 	Convert  = "convert"  // Convert is the ImageMagick convert command.
 	Cwebp    = "cwebp"    // Cwebp is the Google create webp command.
+	Gwebp    = "gif2webp" // Gwebp is the Google gif to webp command.
 	Optipng  = "optipng"  // Optipng is the PNG optimizer command.
 	Unzip    = "unzip"    // Unzip is the zip decompression command.
 )
