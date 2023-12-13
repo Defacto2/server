@@ -21,6 +21,7 @@ const (
 	jpg     = ".jpg"      // jpg file extension
 	jpeg    = ".jpeg"     // jpeg file extension
 	png     = ".png"      // png file extension
+	rar     = ".rar"      // rar file extension
 	tiff    = ".tiff"     // tiff file extension
 	txt     = ".txt"      // txt file extension
 	webp    = ".webp"     // webp file extension
@@ -47,7 +48,11 @@ const (
 	Cwebp    = "cwebp"    // Cwebp is the Google create webp command.
 	Gwebp    = "gif2webp" // Gwebp is the Google gif to webp command.
 	Optipng  = "optipng"  // Optipng is the PNG optimizer command.
-	Unzip    = "unzip"    // Unzip is the zip decompression command.
+	// A note about unrar on linux, this cannot be the unrar-free package
+	// which is a poor substitute for the files this application needs to handle.
+	// The unrar binary should return "UNRAR 6.24 freeware      Copyright (c) 1993-2023 Alexander Roshal".
+	Unrar = "unrar" // Unrar is the rar decompression command.
+	Unzip = "unzip" // Unzip is the zip decompression command.
 )
 
 // Lookups returns a list of the execute command names used by the application.

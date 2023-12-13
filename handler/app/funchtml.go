@@ -690,7 +690,8 @@ func OptionsAnsiLove(zipContent string) template.HTML {
 		switch filepath.Ext(x) {
 		case ".com", ".exe", ".dll", ".gif", ".png", ".jpg", ".jpeg", ".webp", ".bmp",
 			".ico", ".avi", ".mpg", ".mpeg", ".mp1", ".mp2", ".mp3", ".mp4", ".ogg", ".wmv",
-			".zip", ".arc", ".arj", ".ace", ".lha", ".lzh", ".7z", ".tar", ".gz", ".bz2", ".xz", ".z":
+			".zip", ".arc", ".arj", ".ace", ".lha", ".lzh", ".7z", ".tar", ".gz", ".bz2", ".xz", ".z",
+			".───", ".──-", ".-", ".--", ".---":
 			continue
 		}
 		s = s + fmt.Sprintf("<option>%s</option>", v)

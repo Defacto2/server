@@ -53,6 +53,10 @@ func ExtractOne(z *zap.SugaredLogger, src, dst, ext, name string) error {
 		if err = r.arj(z); err != nil {
 			return err
 		}
+	case rar:
+		if err = r.rar(z); err != nil {
+			return err
+		}
 	default:
 		if err = r.zip(z); err != nil {
 			return err
@@ -80,6 +84,7 @@ type runner struct {
 	name string // name is the name of the file to extract from the archive.
 }
 
+// arj extracts the named file from the src arj archive.
 func (r runner) arj(z *zap.SugaredLogger) error {
 	// the arj command requires the source archive to have an .arj extension
 	tmpArj := filepath.Join(r.tmp, "archive.arj")
@@ -99,6 +104,22 @@ func (r runner) arj(z *zap.SugaredLogger) error {
 	return nil
 }
 
+// unrar [OPTION...] ARCHIVE [FILE...] [DESTINATION]
+// unrar e -ep zzz.rar VD-SDW2.WKD
+
+// rar extracts the named file from the src rar archive.
+func (r runner) rar(z *zap.SugaredLogger) error {
+	arg := []string{
+		"e",    // Extract files.
+		"-ep",  // Exclude path from names.
+		r.src,  // Source archive.
+		r.name, // File to extract from the archive.
+		r.tmp,  // Target directory.
+	}
+	return Run(z, Unrar, arg...)
+}
+
+// zip extracts the named file from the src zip archive.
 func (r runner) zip(z *zap.SugaredLogger) error {
 	arg := []string{r.src}         // source zip archive
 	arg = append(arg, r.name)      // target file to extract
