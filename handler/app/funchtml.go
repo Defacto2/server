@@ -674,6 +674,12 @@ func OptionsReadme(zipContent string) template.HTML {
 		switch filepath.Ext(x) {
 		case ".txt", ".nfo", ".diz", ".me", ".asc", ".doc":
 			s = s + fmt.Sprintf("<option>%s</option>", v)
+			continue
+		}
+		x = strings.ToLower(v)
+		if strings.Contains(x, "readme") {
+			s = s + fmt.Sprintf("<option>%s</option>", v)
+			continue
 		}
 	}
 	return template.HTML(s)

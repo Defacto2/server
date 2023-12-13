@@ -117,8 +117,9 @@ func (r runner) arj(z *zap.SugaredLogger) error {
 		"-ht" + r.tmp, // Set Target directory, ie: "ht/destdir".
 	}
 	if err := Run(z, Arj, arg...); err != nil {
-		z.Warnf("arj exit status: %s", arjExitStatus(err))
-		return err
+		s := arjExitStatus(err)
+		z.Warnf("arj exit status: %s", s)
+		return fmt.Errorf("%w: %s", err, s)
 	}
 	return nil
 }
@@ -140,7 +141,12 @@ func (r runner) zip(z *zap.SugaredLogger) error {
 	arg := []string{r.src}         // source zip archive
 	arg = append(arg, r.name)      // target file to extract
 	arg = append(arg, "-d", r.tmp) // extract destination
-	return Run(z, Unzip, arg...)
+	if err := Run(z, Unzip, arg...); err != nil {
+		s := unzipExitStatus(err)
+		z.Warnf("unzip exit status: %s", s)
+		return fmt.Errorf("%w: %s", err, s)
+	}
+	return nil
 }
 
 // arjExitStatus returns the exit status of the arj command error.
@@ -177,6 +183,56 @@ func arjExitStatus(err error) string {
 				return "user control break"
 			case 12:
 				return "too many chapters (over 250)"
+			}
+		}
+	}
+	return err.Error()
+}
+
+// unzipExitStatus returns the exit status of the unzip command error.
+func unzipExitStatus(err error) string {
+	if err == nil {
+		return ""
+	}
+	if exitError, ok := err.(*exec.ExitError); ok {
+		if status, ok := exitError.Sys().(syscall.WaitStatus); ok {
+			switch status.ExitStatus() {
+			case 0:
+				return "success"
+			case 1:
+				return "success with warning"
+			case 2:
+				return "generic error in the zipfile format"
+			case 3:
+				return "severe error in zipfile format"
+			case 4:
+				return "unable to allocate memory for buffers"
+			case 5:
+				return "unable to allocate memory or tty to read decryption password"
+			case 6:
+				return "unable to allocate memory during decompression to disk"
+			case 7:
+				return "unable to allocate memory during in-memory decompression"
+			case 8:
+				return "unused"
+			case 9:
+				return "the specified zip file was not found"
+			case 10:
+				return "invalid command arguments"
+			case 11:
+				return "no matching files were found"
+			case 12:
+				return "possible zip-bomb detected, aborting"
+			case 50:
+				return "the disk is full during extraction"
+			case 51:
+				return "the end of the zip archive was encountered prematurely"
+			case 80:
+				return "user stopped the process with control-C"
+			case 81:
+				return "testing or extraction of one or more files failed due to unsupported compression methods or unsupported decryption"
+			case 82:
+				return "no files were found due to bad decryption password"
 			}
 		}
 	}
