@@ -113,12 +113,12 @@ func (dir Dirs) ExtractImage(z *zap.SugaredLogger, src, uuid, name string) error
 		err = dir.LossyScreenshot(z, dst, uuid)
 	case png:
 		// optimize but keep the original png file as preview
-		err = dir.PngScreenshot(z, dst, uuid)
+		err = dir.PreviewPNG(z, dst, uuid)
 	case jpeg, jpg, tiff, webp:
 		// convert to the optimal webp format
 		// as of 2023, webp is supported by all current browsers
 		// these format cases are supported by cwebp conversion tool
-		err = dir.WebpScreenshot(z, dst, uuid)
+		err = dir.PreviewWebP(z, dst, uuid)
 	default:
 		return fmt.Errorf("%w: %q", ErrImg, filepath.Ext(dst))
 	}

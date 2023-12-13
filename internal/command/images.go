@@ -106,7 +106,7 @@ func (dir Dirs) AnsiLove(z *zap.SugaredLogger, src, uuid string) error {
 		}
 	}()
 	defer func() {
-		err := dir.WebpThumbnail(z, tmp, uuid)
+		err := dir.ThumbnailAnsiLove(z, tmp, uuid)
 		if err != nil {
 			z.Warnln("lossless screenshot: ", err)
 		}
@@ -114,9 +114,9 @@ func (dir Dirs) AnsiLove(z *zap.SugaredLogger, src, uuid string) error {
 	return nil
 }
 
-// PngScreenshot copies and optimizes the src PNG image to the screenshot directory.
+// PreviewPNG copies and optimizes the src PNG image to the screenshot directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
-func (dir Dirs) PngScreenshot(z *zap.SugaredLogger, src, uuid string) error {
+func (dir Dirs) PreviewPNG(z *zap.SugaredLogger, src, uuid string) error {
 	if z == nil {
 		return ErrZap
 	}
@@ -142,12 +142,12 @@ func (dir Dirs) PngScreenshot(z *zap.SugaredLogger, src, uuid string) error {
 	return nil
 }
 
-// WebpScreenshot converts the src image to a webp image in the screenshot directory.
+// PreviewWebP converts the src image to a webp image in the screenshot directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
 //
 // The conversion is done using the cwebp command, which supports either
 // a PNG, JPEG, TIFF or WebP source image file.
-func (dir Dirs) WebpScreenshot(z *zap.SugaredLogger, src, uuid string) error {
+func (dir Dirs) PreviewWebP(z *zap.SugaredLogger, src, uuid string) error {
 	if z == nil {
 		return ErrZap
 	}
@@ -173,6 +173,35 @@ func (dir Dirs) WebpScreenshot(z *zap.SugaredLogger, src, uuid string) error {
 			z.Warnln("webp screenshot: ", err)
 		}
 	}()
+	return nil
+}
+
+func (dir Dirs) ThumbnailAnsiLove(z *zap.SugaredLogger, src, uuid string) error {
+	if z == nil {
+		return ErrZap
+	}
+
+	tmp := filepath.Join(dir.Thumbnail, uuid+png)
+	args := Args{}
+	args.Thumb()
+	args.Png()
+	arg := []string{src}       // source file
+	arg = append(arg, args...) // command line arguments
+	arg = append(arg, tmp)     // destination
+	if err := RunQuiet(z, Convert, arg...); err != nil {
+		return err
+	}
+
+	dst := filepath.Join(dir.Thumbnail, uuid+webp)
+	args = Args{}
+	args.Webp()
+	arg = []string{tmp}          // source file
+	arg = append(arg, args...)   // command line arguments
+	arg = append(arg, "-o", dst) // destination
+	if err := RunQuiet(z, Cwebp, arg...); err != nil {
+		return err
+	}
+	defer os.Remove(tmp)
 	return nil
 }
 
