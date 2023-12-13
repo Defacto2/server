@@ -39,10 +39,11 @@ type Dirs struct {
 }
 
 const (
-	Convert = "convert" // Convert is the ImageMagick convert command.
-	Cwebp   = "cwebp"   // Cwebp is the Google create webp command.
-	Optipng = "optipng" // Optipng is the PNG optimizer command.
-	Unzip   = "unzip"   // Unzip is the zip decompression command.
+	Ansilove = "ansilove" // Ansilove is the ansilove text to image command.
+	Convert  = "convert"  // Convert is the ImageMagick convert command.
+	Cwebp    = "cwebp"    // Cwebp is the Google create webp command.
+	Optipng  = "optipng"  // Optipng is the PNG optimizer command.
+	Unzip    = "unzip"    // Unzip is the zip decompression command.
 )
 
 // Lookups returns a list of the execute command names used by the application.

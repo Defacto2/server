@@ -67,29 +67,40 @@ func UnZipOne(z *zap.SugaredLogger, src, dst, name string) error {
 	return CopyFile(z, extracted, dst)
 }
 
+func extract(z *zap.SugaredLogger, src, uuid, name string) (string, error) {
+	if z == nil {
+		return "", ErrZap
+	}
+	tmp, err := os.MkdirTemp(os.TempDir(), pattern)
+	if err != nil {
+		return "", err
+	}
+
+	dst := filepath.Join(tmp, filepath.Base(name))
+	if err = UnZipOne(z, src, dst, name); err != nil {
+		return "", err
+	}
+
+	st, err := os.Stat(dst)
+	if err != nil {
+		return "", err
+	}
+	if st.IsDir() {
+		return "", fmt.Errorf("%w: %q", ErrIsDir, dst)
+	}
+	return dst, nil
+}
+
 func (dir Dirs) ExtractImage(z *zap.SugaredLogger, src, uuid, name string) error {
 	if z == nil {
 		return ErrZap
 	}
 
-	tmp, err := os.MkdirTemp(os.TempDir(), pattern)
+	dst, err := extract(z, src, uuid, name)
 	if err != nil {
 		return err
 	}
-	defer os.RemoveAll(tmp)
-
-	dst := filepath.Join(tmp, filepath.Base(name))
-	if err = UnZipOne(z, src, dst, name); err != nil {
-		return err
-	}
-
-	st, err := os.Stat(dst)
-	if err != nil {
-		return err
-	}
-	if st.IsDir() {
-		return fmt.Errorf("%w: %q", ErrIsDir, dst)
-	}
+	defer os.RemoveAll(dst)
 
 	// TODO: https://pkg.go.dev/golang.org/x/image
 	// bmp, tiff, webp
@@ -120,6 +131,16 @@ func (dir Dirs) ExtractImage(z *zap.SugaredLogger, src, uuid, name string) error
 func (dir Dirs) ExtractAnsiLove(z *zap.SugaredLogger, src, uuid, name string) error {
 	if z == nil {
 		return ErrZap
+	}
+
+	dst, err := extract(z, src, uuid, name)
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(dst)
+
+	if err := dir.AnsiLove(z, dst, uuid); err != nil {
+		return err
 	}
 	return nil
 }

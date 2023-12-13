@@ -14,7 +14,7 @@ import (
 // Each argument and its value is a separate string in the slice.
 type Args []string
 
-func (a *Args) AnsiAmiga(arg string) {
+func (a *Args) AnsiAmiga() {
 	*a = append(*a,
 		"-d",           // DOS aspect ratio.
 		"-f", "topaz+", // Output font.
@@ -23,12 +23,11 @@ func (a *Args) AnsiAmiga(arg string) {
 	)
 }
 
-func (a *Args) AnsiDOS(arg string) {
+func (a *Args) AnsiDOS() {
 	*a = append(*a,
 		"-d",          // DOS aspect ratio.
 		"-f", "80x25", // Output font.
-		"-i",        // Use iCE colors.
-		"-m", "ced", // Rendering mode set to black on grey, with 78 columns.
+		"-i", // Use iCE colors.
 		"-S", // Use SAUCE record for render options.
 	)
 }
@@ -79,6 +78,40 @@ func (a *Args) Webp() {
 		"-exact", // Preserve RGB values in transparent area. The default is off, to help compressibility.
 		//"-v", // Print extra information.
 	)
+}
+
+func (dir Dirs) AnsiLove(z *zap.SugaredLogger, src, uuid string) error {
+	if z == nil {
+		return ErrZap
+	}
+
+	args := Args{}
+	args.AnsiDOS()
+	arg := []string{src}           // source file
+	arg = append(arg, args...)     // command line arguments
+	tmp := BaseNamePath(src) + png // destination
+	arg = append(arg, "-o", tmp)
+	if err := Run(z, Ansilove, arg...); err != nil {
+		return err
+	}
+
+	dst := filepath.Join(dir.Preview, uuid+png)
+	if err := CopyFile(z, tmp, dst); err != nil {
+		return err
+	}
+	defer func() {
+		err := OptimizePNG(z, dst)
+		if err != nil {
+			z.Warnln("png screenshot: ", err)
+		}
+	}()
+	defer func() {
+		err := dir.WebpThumbnail(z, tmp, uuid)
+		if err != nil {
+			z.Warnln("lossless screenshot: ", err)
+		}
+	}()
+	return nil
 }
 
 // PngScreenshot copies and optimizes the src PNG image to the screenshot directory.

@@ -166,7 +166,7 @@ func (dir Dirs) AnsiLovePost(z *zap.SugaredLogger, c echo.Context) error {
 	return dir.extractor(z, c, ansis)
 }
 
-type extract int
+type extract int // extract target format for the file archive extractor
 
 const (
 	imgs  extract = iota // extract image
