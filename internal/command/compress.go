@@ -146,15 +146,21 @@ func (r *runner) p7zip(z *zap.SugaredLogger) error {
 }
 
 // rar extracts the named file from the src rar archive.
-func (r runner) rar(z *zap.SugaredLogger) error {
+func (r *runner) rar(z *zap.SugaredLogger) error {
+	// unrar <command> -<switch 1> -<switch N> <archive> <files...>
 	arg := []string{
 		"e",    // Extract files.
-		"-ep",  // Exclude path from names.
 		r.src,  // Source archive.
 		r.name, // File to extract from the archive.
-		r.tmp,  // Target directory.
 	}
-	return Run(z, Unrar, arg...)
+	if err := RunWD(z, Unrar, r.tmp, arg...); err != nil {
+		s := unrarExitStatus(err)
+		z.Warnf("unrar exit status: %s", s)
+		return fmt.Errorf("%w: %s", err, s)
+	}
+	// handle file extraction from a directory in the archive
+	r.name = filepath.Base(r.name)
+	return nil
 }
 
 // tar extracts the named file from the src tar archive.
@@ -216,6 +222,46 @@ func arjExitStatus(err error) string {
 				return "user control break"
 			case 12:
 				return "too many chapters (over 250)"
+			}
+		}
+	}
+	return err.Error()
+}
+
+// unrarExitStatus returns the exit status of the unrar command error.
+func unrarExitStatus(err error) string {
+	if err == nil {
+		return ""
+	}
+	if exitError, ok := err.(*exec.ExitError); ok {
+		if status, ok := exitError.Sys().(syscall.WaitStatus); ok {
+			switch status.ExitStatus() {
+			case 0:
+				return "success"
+			case 1:
+				return "success with warning"
+			case 2:
+				return "fatal error"
+			case 3:
+				return "invalid checksum, data damage"
+			case 4:
+				return "attempt to modify a locked archive"
+			case 5:
+				return "write error"
+			case 6:
+				return "file open error"
+			case 7:
+				return "wrong command line option"
+			case 8:
+				return "not enough memory"
+			case 9:
+				return "file create error"
+			case 10:
+				return "no files matching the specified mask and options were found"
+			case 11:
+				return "incorrect password"
+			case 255:
+				return "user stopped the process with control-C"
 			}
 		}
 	}
