@@ -4,6 +4,7 @@
 {{- $id := index . "recID"}}
 {{- $previewImg := recordImgSample (index . "uuid")}}
 {{- $thumbImg := recordThumbSample (index . "uuid")}}
+{{- $readmeSug := index . "recReadmeSug"}}
 {{- $replace := "refresh the page to see the changes"}}
 {{/*  Assets editor  */}}
 <div class="modal fade" id="assetEditorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="assetEditorModalLabel" aria-hidden="true">
@@ -68,6 +69,8 @@
             <tr><td colspan="2">{{/*  empty placeholder  */}}</td></tr>
           </tbody>
         </table>
+        {{- if ne "" $readmeSug}}<p><strong>Readme suggestion</strong> <var>{{$readmeSug}}</var></p>{{end}}
+
         <hr class="m-0 mb-3 mt-3">
         {{/*  Readme in archive  */}}
         <div class="mb-3 row">
@@ -175,7 +178,7 @@
         {{/*  Regenerate complementary images  */}}
         <div class="my-2 row">
           <div class="col-sm-6 text-start">
-            <button class="btn btn-sm btn-dark">Regenerate complementary images</button>  
+            {{/*  <button class="btn btn-sm btn-dark">Regenerate complementary images</button>    */}}
           </div>
           <div class="col-sm-6 text-end">
             <button class="btn btn-sm btn-danger" id="edBtnImgs">Delete complementary images</button>  

@@ -65,8 +65,10 @@ const (
 )
 
 // Lookups returns a list of the execute command names used by the application.
+// TODO: scan these on startup and report any missing commands.
+// Confirm unrar is not unrar-free.
 func Lookups() []string {
-	return []string{Convert, Cwebp, Optipng, Unzip}
+	return []string{Arc, Arj, Ansilove, Convert, Cwebp, Gwebp, Optipng, P7zip, Tar, Unrar, Unzip}
 }
 
 // RemoveImgs removes the preview and thumbnail images from the preview and
