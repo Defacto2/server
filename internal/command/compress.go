@@ -45,7 +45,7 @@ func ExtractOne(z *zap.SugaredLogger, src, dst, ext, name string) error {
 	if err != nil {
 		return err
 	}
-	//defer os.RemoveAll(tmp)
+	defer os.RemoveAll(tmp)
 
 	r := runner{src: src, tmp: tmp, name: name}
 	switch strings.ToLower(ext) {
@@ -55,17 +55,18 @@ func ExtractOne(z *zap.SugaredLogger, src, dst, ext, name string) error {
 		err = r.arj(z)
 	case rar:
 		err = r.rar(z)
-	case tar:
+	case tar, gzip:
 		err = r.tar(z)
-	default:
-		// replace with 7zip?
+	case zip:
 		err = r.zip(z)
+	default:
+		err = r.p7zip(z)
 	}
 	if err != nil {
 		return err
 	}
 
-	extracted := filepath.Join(tmp, name)
+	extracted := filepath.Join(tmp, r.name) // p7zip manipulates the r.name
 	st, err = os.Stat(extracted)
 	if err != nil {
 		return err
@@ -122,6 +123,28 @@ func (r runner) arj(z *zap.SugaredLogger) error {
 	return nil
 }
 
+// p7zip extracts the named file from the src 7-Zip archive.
+// The tool also supports the following archive formats:
+// LZMA2, XZ, ZIP, Zip64, CAB, ARJ, GZIP, BZIP2, TAR, CPIO, RPM, ISO,
+// most filesystem images and DEB formats.
+func (r *runner) p7zip(z *zap.SugaredLogger) error {
+	// p7zip may use incompatible forward slashes for Windows paths
+	name := strings.ReplaceAll(r.name, "\\", "/")
+	arg := []string{
+		"e",          // Extract files from archive.
+		"-y",         // Assume Yes on all queries.
+		"-o" + r.tmp, // Set output directory.
+		r.src,        // Source archive.
+		name,         // File to extract from the archive.
+	}
+	if err := Run(z, P7zip, arg...); err != nil {
+		return err
+	}
+	// handle file extraction from a directory in the archive
+	r.name = filepath.Base(name)
+	return Run(z, P7zip, arg...)
+}
+
 // rar extracts the named file from the src rar archive.
 func (r runner) rar(z *zap.SugaredLogger) error {
 	arg := []string{
@@ -138,6 +161,7 @@ func (r runner) rar(z *zap.SugaredLogger) error {
 func (r runner) tar(z *zap.SugaredLogger) error {
 	arg := []string{
 		"-x",        // Extract files from archive.
+		"-a",        // Auto detect archive type (for gzip support).
 		"-f", r.src, // Source archive.
 		"-C", r.tmp, // Target directory.
 		r.name, // File to extract from the archive.

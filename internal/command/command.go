@@ -2,6 +2,7 @@
 package command
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -19,14 +20,17 @@ const (
 	arj     = ".arj"      // arj file extension
 	bmp     = ".bmp"      // bmp file extension
 	gif     = ".gif"      // gif file extension
+	gzip    = ".gz"       // gzip file extension
 	jpg     = ".jpg"      // jpg file extension
 	jpeg    = ".jpeg"     // jpeg file extension
+	p7zip   = ".7z"       // 7zip file extension
 	png     = ".png"      // png file extension
 	rar     = ".rar"      // rar file extension
 	tar     = ".tar"      // tar file extension
 	tiff    = ".tiff"     // tiff file extension
 	txt     = ".txt"      // txt file extension
 	webp    = ".webp"     // webp file extension
+	zip     = ".zip"      // zip file extension
 )
 
 var (
@@ -51,6 +55,7 @@ const (
 	Cwebp    = "cwebp"    // Cwebp is the Google create webp command.
 	Gwebp    = "gif2webp" // Gwebp is the Google gif to webp command.
 	Optipng  = "optipng"  // Optipng is the PNG optimizer command.
+	P7zip    = "7z"       // P7zip is the 7-Zip decompression command.
 	Tar      = "tar"      // Tar is the tar decompression command.
 	// A note about unrar on linux, this cannot be the unrar-free package
 	// which is a poor substitute for the files this application needs to handle.
@@ -180,6 +185,20 @@ func Run(z *zap.SugaredLogger, name string, arg ...string) error {
 		return ErrZap
 	}
 	return run(z, name, "", arg...)
+}
+
+func RunOut(z *zap.SugaredLogger, name string, arg ...string) ([]byte, error) {
+	if err := LookCmd(name); err != nil {
+		return nil, err
+	}
+
+	var out bytes.Buffer
+	cmd := exec.Command(name, arg...)
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		return nil, err
+	}
+	return out.Bytes(), nil
 }
 
 // Run looks for the command in the system path and executes it with the arguments.

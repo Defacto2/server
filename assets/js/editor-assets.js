@@ -136,6 +136,7 @@
       readmeCP.classList.remove(ok);
       readmeHide.classList.remove(err);
       readmeHide.classList.remove(ok);
+      document.getElementById(`edCopyMeList`).classList.remove(err);
     });
 
   // Modify the file assets, record readme hide/show

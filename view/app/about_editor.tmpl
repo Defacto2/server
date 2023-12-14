@@ -74,7 +74,7 @@
           <label for="edCopyMe" id="edCopyMeLabel" class="col-sm-3 col-form-label"
           data-bs-toggle="tooltip" data-bs-title="An included NFO, DIZ or text file to display"><strong>Readme</strong> in archive</label>
           <div class="col-sm-5">
-            <input list="edCopyMeList" name="title" class="form-control" id="edCopyMe" value="{{index . "recReadme"}}" placeholder="Overwrite with a named file">
+            <input list="edCopyMeList" name="title" class="form-control" id="edCopyMe" value="" placeholder="Use a named file">
             <datalist id="edCopyMeList">
               {{index . "recReadmeList"}}
             </datalist>
@@ -101,7 +101,7 @@
           data-bs-toggle="tooltip" data-bs-title="An included image to use as the preview and thumbnail"><strong>Preview</strong> from image in archive</label>
           <div class="col-sm-5">
             {{/*  TODO: default disabled based on hide value  */}}
-            <input list="edCopyPreviewList" name="title" class="form-control" id="edCopyPreview" value="" placeholder="Replace with a named file">
+            <input list="edCopyPreviewList" name="title" class="form-control" id="edCopyPreview" value="" placeholder="Use a named file">
             <datalist id="edCopyPreviewList">
               {{index . "recPreviewList"}}
             </datalist>
@@ -123,7 +123,7 @@
           data-bs-toggle="tooltip" data-bs-title="An included text or ANSI art to use as the preview and thumbnail"><strong>Preview</strong> from text in archive</label>
           <div class="col-sm-5">
             {{/*  TODO: default disabled based on hide value  */}}
-            <input list="edAnsiLoveList" name="title" class="form-control" id="edAnsiLove" value="" placeholder="Replace with a named file">
+            <input list="edAnsiLoveList" name="title" class="form-control" id="edAnsiLove" value="" placeholder="Use a named file">
             <datalist id="edAnsiLoveList">
               {{index . "recAnsiLoveList"}}
             </datalist>

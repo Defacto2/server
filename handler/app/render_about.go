@@ -74,7 +74,6 @@ func (a Dirs) About(z *zap.SugaredLogger, c echo.Context) error {
 	data["recStatMod"] = aboutStat(abs)[0]
 	data["recStatSize"] = aboutStat(abs)[1]
 	data["recAssets"] = a.aboutAssets(uuid)
-	data["recReadme"] = res.RetrotxtReadme.String
 	data["recNoReadme"] = res.RetrotxtNoReadme.Int16 != 0
 	data["recReadmeList"] = OptionsReadme(res.FileZipContent.String)
 	data["recPreviewList"] = OptionsPreview(res.FileZipContent.String)
