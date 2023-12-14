@@ -5,12 +5,9 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
-	"slices"
-	"sort"
 	"strings"
 
 	"github.com/Defacto2/server/internal/command"
-	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -220,124 +217,4 @@ func (dir Dirs) extractor(z *zap.SugaredLogger, c echo.Context, p extract) error
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, r)
-}
-
-// TODO: move to render_about and make private
-
-func readmeSuggest(r *models.File) string {
-	filename := r.Filename.String
-	group := r.GroupBrandFor.String
-	if group == "" {
-		group = r.GroupBrandBy.String
-	}
-	if x := strings.Split(group, " "); len(x) > 1 {
-		group = x[0]
-	}
-	cont := strings.ReplaceAll(r.FileZipContent.String, "\r\n", "\n")
-	content := strings.Split(cont, "\n")
-	return ReadmeSug(filename, group, content...)
-}
-
-// FileZipContent, Filename, GroupName
-func ReadmeSug(filename, group string, content ...string) string {
-	// this is a port of variables.findTextfile in File.cfc
-	finds := []string{}
-	skip := []string{"scene.org", "scene.org.txt"}
-	priority := []string{".nfo", ".txt", ".unp", ".doc"}
-	candidate := []string{".diz", ".asc", ".1st", ".dox", ".me", ".cap", ".ans", ".pcb"}
-
-	//content := strings.ReplaceAll(res.FileZipContent.String, "\r\n", "\n")
-	//strings.Split(content, "\n")
-
-	for _, name := range content {
-		if name == "" {
-			continue
-		}
-		s := strings.ToLower(name)
-		if slices.Contains(skip, s) {
-			continue
-		}
-		ext := filepath.Ext(s)
-		if slices.Contains(priority, ext) {
-			finds = append(finds, name)
-			continue
-		}
-		if slices.Contains(candidate, ext) {
-			finds = append(finds, name)
-		}
-	}
-	if len(finds) == 1 {
-		return finds[0]
-	}
-
-	finds = sortContent(finds)
-
-	// match either the filename or the group name with a priority extension
-	// e.g. .nfo, .txt, .unp, .doc
-	base := filepath.Base(filename)
-	for _, ext := range priority {
-		for _, name := range finds {
-			// match the filename + extension
-			if strings.EqualFold(base+ext, name) {
-				return name
-			}
-			// match the group name + extension
-			if strings.EqualFold(group+ext, name) {
-				return name
-			}
-		}
-	}
-	// match file_id.diz
-	for _, name := range finds {
-		if strings.EqualFold("file_id.diz", name) {
-			return name
-		}
-	}
-	// match either the filename or the group name with a candidate extension
-	for _, ext := range candidate {
-		for _, name := range finds {
-			// match the filename + extension
-			if strings.EqualFold(base+ext, name) {
-				return name
-			}
-			// match the group name + extension
-			if strings.EqualFold(group+ext, name) {
-				return name
-			}
-		}
-	}
-	// match any finds that use a priority extension
-	for _, name := range finds {
-		s := strings.ToLower(name)
-		ext := filepath.Ext(s)
-		if slices.Contains(priority, ext) {
-			return name
-		}
-	}
-	// match the first file in the list
-	for _, name := range finds {
-		return name
-	}
-	return ""
-}
-
-func sortContent(content []string) []string {
-	sort.Slice(content, func(i, j int) bool {
-		// Fix any Windows path separators
-		content[i] = strings.ReplaceAll(content[i], "\\", "/")
-		content[j] = strings.ReplaceAll(content[j], "\\", "/")
-		// Count the number of slashes in each string
-		iCount := strings.Count(content[i], "/")
-		jCount := strings.Count(content[j], "/")
-
-		// Prioritize strings with fewer slashes (i.e., closer to the root)
-		if iCount != jCount {
-			return iCount < jCount
-		}
-
-		// If the number of slashes is the same, sort alphabetically
-		return content[i] < content[j]
-	})
-
-	return content
 }

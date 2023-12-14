@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -512,4 +513,134 @@ func aboutImgInfo(name string) string {
 		return err.Error()
 	}
 	return fmt.Sprintf("%s bytes - %d x %d pixels", humanize.Comma(st.Size()), config.Width, config.Height)
+}
+
+// readmeSuggest returns a suggested readme file name for the record.
+func readmeSuggest(r *models.File) string {
+	if r == nil {
+		return ""
+	}
+	filename := r.Filename.String
+	group := r.GroupBrandFor.String
+	if group == "" {
+		group = r.GroupBrandBy.String
+	}
+	if x := strings.Split(group, " "); len(x) > 1 {
+		group = x[0]
+	}
+	cont := strings.ReplaceAll(r.FileZipContent.String, "\r\n", "\n")
+	content := strings.Split(cont, "\n")
+	return ReadmeSug(filename, group, content...)
+}
+
+// ReadmeSug returns a suggested readme file name for the record.
+// It prioritizes the filename and group name with a priority extension,
+// such as ".nfo", ".txt", etc. If no priority extension is found,
+// it will return the first textfile in the content list.
+//
+// The filename should be the name of the file archive artifact.
+// The group should be a name or common abbreviation of the group that
+// released the artifact. The content should be a list of files contained
+// in the artifact.
+func ReadmeSug(filename, group string, content ...string) string {
+	// this is a port of variables.findTextfile in File.cfc
+	finds := []string{}
+	skip := []string{"scene.org", "scene.org.txt"}
+	priority := []string{".nfo", ".txt", ".unp", ".doc"}
+	candidate := []string{".diz", ".asc", ".1st", ".dox", ".me", ".cap", ".ans", ".pcb"}
+
+	for _, name := range content {
+		if name == "" {
+			continue
+		}
+		s := strings.ToLower(name)
+		if slices.Contains(skip, s) {
+			continue
+		}
+		ext := filepath.Ext(s)
+		if slices.Contains(priority, ext) {
+			finds = append(finds, name)
+			continue
+		}
+		if slices.Contains(candidate, ext) {
+			finds = append(finds, name)
+		}
+	}
+	if len(finds) == 1 {
+		return finds[0]
+	}
+
+	finds = SortContent(finds)
+
+	// match either the filename or the group name with a priority extension
+	// e.g. .nfo, .txt, .unp, .doc
+	base := filepath.Base(filename)
+	for _, ext := range priority {
+		for _, name := range finds {
+			// match the filename + extension
+			if strings.EqualFold(base+ext, name) {
+				return name
+			}
+			// match the group name + extension
+			if strings.EqualFold(group+ext, name) {
+				return name
+			}
+		}
+	}
+	// match file_id.diz
+	for _, name := range finds {
+		if strings.EqualFold("file_id.diz", name) {
+			return name
+		}
+	}
+	// match either the filename or the group name with a candidate extension
+	for _, ext := range candidate {
+		for _, name := range finds {
+			// match the filename + extension
+			if strings.EqualFold(base+ext, name) {
+				return name
+			}
+			// match the group name + extension
+			if strings.EqualFold(group+ext, name) {
+				return name
+			}
+		}
+	}
+	// match any finds that use a priority extension
+	for _, name := range finds {
+		s := strings.ToLower(name)
+		ext := filepath.Ext(s)
+		if slices.Contains(priority, ext) {
+			return name
+		}
+	}
+	// match the first file in the list
+	for _, name := range finds {
+		return name
+	}
+	return ""
+}
+
+// SortContent sorts the content list by the number of slashes in each string.
+// It prioritizes strings with fewer slashes (i.e., closer to the root).
+// If the number of slashes is the same, it sorts alphabetically.
+func SortContent(content []string) []string {
+	sort.Slice(content, func(i, j int) bool {
+		// Fix any Windows path separators
+		content[i] = strings.ReplaceAll(content[i], "\\", "/")
+		content[j] = strings.ReplaceAll(content[j], "\\", "/")
+		// Count the number of slashes in each string
+		iCount := strings.Count(content[i], "/")
+		jCount := strings.Count(content[j], "/")
+
+		// Prioritize strings with fewer slashes (i.e., closer to the root)
+		if iCount != jCount {
+			return iCount < jCount
+		}
+
+		// If the number of slashes is the same, sort alphabetically
+		return content[i] < content[j]
+	})
+
+	return content
 }
