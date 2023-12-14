@@ -217,7 +217,8 @@ func Interview(z *zap.SugaredLogger, c echo.Context) error {
 	data["description"] = "Discussions with scene members."
 	data["logo"] = title
 	data["h1"] = title
-	data["lead"] = "Here is a centralized page for the site's discussions and unedited interviews with sceners, crackers, and demo makers. Currently, incomplete."
+	data["lead"] = "Here is a centralized page for the site's discussions and unedited" +
+		" interviews with sceners, crackers, and demo makers. Currently, incomplete."
 	data["interviews"] = Interviewees()
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -233,7 +234,8 @@ func Index(z *zap.SugaredLogger, c echo.Context) error {
 		return InternalErr(z, c, name, ErrZap)
 	}
 	const lead = "a website maintaining the historic PC cracking and warez scene subcultures." +
-		" It covers digital objects including text files, demos, music, art, magazines, and other projects."
+		" It covers digital objects including text files, demos, music, art, " +
+		"magazines, and other projects."
 	const desc = "Defacto2 is " + lead
 	data := empty()
 	data["title"] = "Home"
@@ -282,7 +284,8 @@ func Reader(z *zap.SugaredLogger, c echo.Context, id string) error {
 	data["description"] = "Discussions with scene members."
 	data["logo"] = title
 	data["h1"] = title
-	data["lead"] = "An incomplete list of discussions and unedited interviews with sceners, crackers and demo makers."
+	data["lead"] = "An incomplete list of discussions and unedited interviews with sceners," +
+		" crackers and demo makers."
 	data["interviews"] = Interviewees()
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -300,7 +303,8 @@ func Thanks(z *zap.SugaredLogger, c echo.Context) error {
 	data := empty()
 	data["description"] = "Defacto2 thankyous."
 	data["h1"] = "Thank you!"
-	data["lead"] = "Thanks to the hundreds of people who have contributed to Defacto2 over the decades with file submissions, " +
+	data["lead"] = "Thanks to the hundreds of people who have contributed to" +
+		" Defacto2 over the decades with file submissions, " +
 		"hard drive donations, interviews, corrections, artwork, and monetary contributions!"
 	data["title"] = "Thanks!"
 	err := c.Render(http.StatusOK, name, data)
@@ -318,7 +322,8 @@ func TheScene(z *zap.SugaredLogger, c echo.Context) error {
 	}
 	const h1 = "The Scene?"
 	const lead = "Collectively referred to as The Scene," +
-		" it is a subculture of different computer activities where participants actively share ideas and creations."
+		" it is a subculture of different computer activities where participants" +
+		" actively share ideas and creations."
 	data := empty()
 	data["description"] = fmt.Sprint(h1, " ", lead)
 	data["logo"] = "The underground"

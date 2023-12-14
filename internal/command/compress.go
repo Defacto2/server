@@ -193,35 +193,25 @@ func arjExitStatus(err error) string {
 	if err == nil {
 		return ""
 	}
+	statuses := map[int]string{
+		0:  "success",
+		1:  "warning",
+		2:  "fatal error",
+		3:  "crc error (header, file or bad password)",
+		4:  "arj-security error",
+		5:  "disk full or write error",
+		6:  "cannot open archive or file",
+		7:  "user error, bad command line parameters",
+		8:  "not enough memory",
+		9:  "not an arj archive",
+		10: "MS-DOS XMS memory error",
+		11: "user control break",
+		12: "too many chapters (over 250)",
+	}
 	if exitError, ok := err.(*exec.ExitError); ok {
 		if status, ok := exitError.Sys().(syscall.WaitStatus); ok {
-			switch status.ExitStatus() {
-			case 0:
-				return "success"
-			case 1:
-				return "warning"
-			case 2:
-				return "fatal error"
-			case 3:
-				return "crc error (header, file or bad password)"
-			case 4:
-				return "arj-security error"
-			case 5:
-				return "disk full or write error"
-			case 6:
-				return "cannot open archive or file"
-			case 7:
-				return "user error, bad command line parameters"
-			case 8:
-				return "not enough memory"
-			case 9:
-				return "not an arj archive"
-			case 10:
-				return "MS-DOS XMS memory error"
-			case 11:
-				return "user control break"
-			case 12:
-				return "too many chapters (over 250)"
+			if s, ok := statuses[status.ExitStatus()]; ok {
+				return s
 			}
 		}
 	}
@@ -233,35 +223,25 @@ func unrarExitStatus(err error) string {
 	if err == nil {
 		return ""
 	}
+	statuses := map[int]string{
+		0:   "success",
+		1:   "success with warning",
+		2:   "fatal error",
+		3:   "invalid checksum, data damage",
+		4:   "attempt to modify a locked archive",
+		5:   "write error",
+		6:   "file open error",
+		7:   "wrong command line option",
+		8:   "not enough memory",
+		9:   "file create error",
+		10:  "no files matching the specified mask and options were found",
+		11:  "incorrect password",
+		255: "user stopped the process with control-C",
+	}
 	if exitError, ok := err.(*exec.ExitError); ok {
 		if status, ok := exitError.Sys().(syscall.WaitStatus); ok {
-			switch status.ExitStatus() {
-			case 0:
-				return "success"
-			case 1:
-				return "success with warning"
-			case 2:
-				return "fatal error"
-			case 3:
-				return "invalid checksum, data damage"
-			case 4:
-				return "attempt to modify a locked archive"
-			case 5:
-				return "write error"
-			case 6:
-				return "file open error"
-			case 7:
-				return "wrong command line option"
-			case 8:
-				return "not enough memory"
-			case 9:
-				return "file create error"
-			case 10:
-				return "no files matching the specified mask and options were found"
-			case 11:
-				return "incorrect password"
-			case 255:
-				return "user stopped the process with control-C"
+			if s, ok := statuses[status.ExitStatus()]; ok {
+				return s
 			}
 		}
 	}
@@ -275,43 +255,29 @@ func unzipExitStatus(err error) string {
 	}
 	if exitError, ok := err.(*exec.ExitError); ok {
 		if status, ok := exitError.Sys().(syscall.WaitStatus); ok {
-			switch status.ExitStatus() {
-			case 0:
-				return "success"
-			case 1:
-				return "success with warning"
-			case 2:
-				return "generic error in the zipfile format"
-			case 3:
-				return "severe error in zipfile format"
-			case 4:
-				return "unable to allocate memory for buffers"
-			case 5:
-				return "unable to allocate memory or tty to read decryption password"
-			case 6:
-				return "unable to allocate memory during decompression to disk"
-			case 7:
-				return "unable to allocate memory during in-memory decompression"
-			case 8:
-				return "unused"
-			case 9:
-				return "the specified zip file was not found"
-			case 10:
-				return "invalid command arguments"
-			case 11:
-				return "no matching files were found"
-			case 12:
-				return "possible zip-bomb detected, aborting"
-			case 50:
-				return "the disk is full during extraction"
-			case 51:
-				return "the end of the zip archive was encountered prematurely"
-			case 80:
-				return "user stopped the process with control-C"
-			case 81:
-				return "testing or extraction of one or more files failed due to unsupported compression methods or unsupported decryption"
-			case 82:
-				return "no files were found due to bad decryption password"
+			statuses := map[int]string{
+				0:  "success",
+				1:  "success with warning",
+				2:  "generic error in the zipfile format",
+				3:  "severe error in zipfile format",
+				4:  "unable to allocate memory for buffers",
+				5:  "unable to allocate memory or tty to read decryption password",
+				6:  "unable to allocate memory during decompression to disk",
+				7:  "unable to allocate memory during in-memory decompression",
+				8:  "unused",
+				9:  "the specified zip file was not found",
+				10: "invalid command arguments",
+				11: "no matching files were found",
+				12: "possible zip-bomb detected, aborting",
+				50: "the disk is full during extraction",
+				51: "the end of the zip archive was encountered prematurely",
+				80: "user stopped the process with control-C",
+				81: "testing or extraction of one or more files failed due to " +
+					"unsupported compression methods or unsupported decryption",
+				82: "no files were found due to bad decryption password",
+			}
+			if s, ok := statuses[status.ExitStatus()]; ok {
+				return s
 			}
 		}
 	}
@@ -372,7 +338,7 @@ func (dir Dirs) ExtractImage(z *zap.SugaredLogger, src, uuid, ext, name string) 
 	default:
 		return fmt.Errorf("%w: %q", ErrImg, filepath.Ext(dst))
 		// use lossless compression (but larger file size)
-		//err = dir.LosslessScreenshot(z, dst, uuid)
+		// err = dir.LosslessScreenshot(z, dst, uuid)
 	}
 	if err != nil {
 		return err

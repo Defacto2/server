@@ -41,7 +41,8 @@ func ANSIMatcher(buf []byte) bool {
 	return false
 }
 
-// ArcSeaMatcher matches the ARC compression format created by System Enhancement Associates and used in the MS/PC-DOS and BBS communities.
+// ArcSeaMatcher matches the ARC compression format created by
+// System Enhancement Associates and used in the MS/PC-DOS and BBS communities.
 // See, http://fileformats.archiveteam.org/wiki/ARC_(compression_format).
 func ArcSeaMatcher(buf []byte) bool {
 	const min = 2

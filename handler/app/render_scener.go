@@ -99,8 +99,10 @@ func scener(z *zap.SugaredLogger, c echo.Context, r postgres.Role,
 	data["description"] = "Sceners and people who have been credited for their work in The Scene."
 	data["lead"] = "This page shows the sceners and people credited for their work in The Scene." +
 		`<br><small class="fw-lighter">` +
-		"The list will not be complete or accurate due to the amount of data and the lack of a standard format for crediting people. " +
-		" Sceners often used different names or spellings on their work, including character swaps, aliases, initials, and even single-letter signatures." +
+		"The list will not be complete or accurate due to the amount of data and the lack of a" +
+		" standard format for crediting people. " +
+		" Sceners often used different names or spellings on their work, including character" +
+		" swaps, aliases, initials, and even single-letter signatures." +
 		"</small>"
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {

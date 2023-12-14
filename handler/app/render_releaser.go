@@ -60,7 +60,7 @@ func bbsHandler(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":   fmt.Sprintf("%d boards", len(r)),
-		"issues": string(ByteFileS("file artefact", m.SumCount.Int64, m.SumBytes.Int64)),
+		"issues": string(ByteFileS("file artifact", m.SumCount.Int64, m.SumBytes.Int64)),
 		"years":  fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	err = c.Render(http.StatusOK, name, data)
@@ -105,7 +105,7 @@ func FTP(z *zap.SugaredLogger, c echo.Context) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":   fmt.Sprintf("%d sites", len(r)),
-		"issues": string(ByteFileS("file artefact", m.SumCount.Int64, m.SumBytes.Int64)),
+		"issues": string(ByteFileS("file artifact", m.SumCount.Int64, m.SumBytes.Int64)),
 		"years":  fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	err = c.Render(http.StatusOK, name, data)
@@ -224,7 +224,7 @@ func rel(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":   fmt.Sprintf("%d releasers and groups", len(r)),
-		"issues": string(ByteFileS("file artefact", m.SumCount.Int64, m.SumBytes.Int64)),
+		"issues": string(ByteFileS("file artifact", m.SumCount.Int64, m.SumBytes.Int64)),
 		"years":  helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	err = c.Render(http.StatusOK, name, data)

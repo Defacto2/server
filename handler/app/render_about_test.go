@@ -58,6 +58,7 @@ func TestSortContent(t *testing.T) {
 		})
 	}
 }
+
 func TestReadmeSug(t *testing.T) {
 	tests := []struct {
 		filename string

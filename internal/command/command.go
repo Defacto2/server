@@ -59,7 +59,7 @@ const (
 	Tar      = "tar"      // Tar is the tar decompression command.
 	// A note about unrar on linux, this cannot be the unrar-free package
 	// which is a poor substitute for the files this application needs to handle.
-	// The unrar binary should return "UNRAR 6.24 freeware      Copyright (c) 1993-2023 Alexander Roshal".
+	// The unrar binary should return "UNRAR 6.24 freeware, Copyright (c) 1993-2023 Alexander Roshal".
 	Unrar = "unrar" // Unrar is the rar decompression command.
 	Unzip = "unzip" // Unzip is the zip decompression command.
 )

@@ -29,13 +29,21 @@ const (
 	textamiga = "textamiga"
 )
 
+const (
+	gif  = ".gif"
+	jpeg = ".jpeg"
+	jpg  = ".jpg"
+	png  = ".png"
+	webp = ".webp"
+)
+
 var (
 	archives  = []string{".zip", ".rar", ".7z", ".tar", ".lha", ".lzh", ".arc", ".arj", ".ace", ".tar"}
 	documents = []string{
 		".txt", ".nfo", ".diz", ".asc", ".lit", ".rtf", ".doc", ".docx",
 		".pdf", ".unp", ".htm", ".html", ".xml", ".json", ".csv",
 	}
-	images = []string{".avif", ".gif", ".jpg", ".jpeg", ".jfif", ".png", ".svg", ".webp", ".bmp", ".ico"}
+	images = []string{".avif", gif, jpg, jpeg, ".jfif", png, ".svg", webp, ".bmp", ".ico"}
 	// only browser supported formats should be listed:
 	// https://developer.mozilla.org/en-US/docs/Web/Media/Formats
 	media = []string{".mpeg", ".mp1", ".mp2", ".mp3", ".mp4", ".ogg", ".wmv"}
@@ -135,8 +143,8 @@ func (web Web) Thumb(uuid, desc string, bottom bool) template.HTML {
 
 func (web Web) ImageSample(uuid string) template.HTML {
 	const (
-		png  = ".png"
-		webp = ".webp"
+		png  = png
+		webp = webp
 	)
 	ext, name, src := "", "", ""
 	for _, ext = range []string{webp, png} {
@@ -157,8 +165,8 @@ func (web Web) ImageSample(uuid string) template.HTML {
 
 func (web Web) ThumbSample(uuid string) template.HTML {
 	const (
-		png  = ".png"
-		webp = ".webp"
+		png  = png
+		webp = webp
 	)
 	ext, name, src := "", "", ""
 	for _, ext = range []string{webp, png} {
@@ -694,7 +702,7 @@ func OptionsAnsiLove(zipContent string) template.HTML {
 	for _, v := range list {
 		x := strings.TrimSpace(strings.ToLower(v))
 		switch filepath.Ext(x) {
-		case ".com", ".exe", ".dll", ".gif", ".png", ".jpg", ".jpeg", ".webp", ".bmp",
+		case ".com", ".exe", ".dll", gif, png, jpg, jpeg, webp, ".bmp",
 			".ico", ".avi", ".mpg", ".mpeg", ".mp1", ".mp2", ".mp3", ".mp4", ".ogg", ".wmv",
 			".zip", ".arc", ".arj", ".ace", ".lha", ".lzh", ".7z", ".tar", ".gz", ".bz2", ".xz", ".z",
 			".───", ".──-", ".-", ".--", ".---":
@@ -712,7 +720,7 @@ func OptionsPreview(zipContent string) template.HTML {
 	for _, v := range list {
 		x := strings.TrimSpace(strings.ToLower(v))
 		switch filepath.Ext(x) {
-		case ".gif", ".png", ".jpg", ".jpeg", ".webp", ".bmp":
+		case gif, png, jpg, jpeg, webp, ".bmp":
 			s = s + fmt.Sprintf("<option>%s</option>", v)
 		}
 	}

@@ -14,7 +14,8 @@ import (
 // Each argument and its value is a separate string in the slice.
 type Args []string
 
-// AnsiDOS appends the command line arguments for the [ansilove command] to transform an Commodore Amiga ANSI text file into a PNG image.
+// AnsiDOS appends the command line arguments for the [ansilove command]
+// to transform an Commodore Amiga ANSI text file into a PNG image.
 //
 // [ansilove command]: https://github.com/ansilove/ansilove
 func (a *Args) AnsiAmiga() {
@@ -25,7 +26,8 @@ func (a *Args) AnsiAmiga() {
 	)
 }
 
-// AnsiDOS appends the command line arguments for the [ansilove command] to transform an ANSI text file into a PNG image.
+// AnsiDOS appends the command line arguments for the [ansilove command] to
+// transform an ANSI text file into a PNG image.
 //
 // [ansilove command]: https://github.com/ansilove/ansilove
 func (a *Args) AnsiDOS() {
@@ -37,7 +39,8 @@ func (a *Args) AnsiDOS() {
 	)
 }
 
-// Jpeg appends the command line arguments for the convert command to transform an image into a JPEG image.
+// Jpeg appends the command line arguments for the convert command to
+// transform an image into a JPEG image.
 func (a *Args) Jpeg() {
 	*a = append(*a,
 		"-sampling-factor", "4:2:0", // Horizontal and vertical sampling factors to be used by the JPEG encoder for chroma downsampling.
@@ -223,7 +226,7 @@ func (dir Dirs) PreviewWebP(z *zap.SugaredLogger, src, uuid string) error {
 }
 
 // AnsiThumbnail converts the src image to a 400x400 pixel, webp image in the thumbnail directory.
-// The conversion is done using using a temporary, lossless PNG image.
+// The conversion is done using a temporary, lossless PNG image.
 func (dir Dirs) AnsiThumbnail(z *zap.SugaredLogger, src, uuid string) error {
 	if z == nil {
 		return ErrZap
@@ -254,7 +257,7 @@ func (dir Dirs) AnsiThumbnail(z *zap.SugaredLogger, src, uuid string) error {
 }
 
 // WebpThumbnail converts the src image to a 400x400 pixel, webp image in the thumbnail directory.
-// The conversion is done using using a temporary, lossy PNG image.
+// The conversion is done using a temporary, lossy PNG image.
 func (dir Dirs) WebpThumbnail(z *zap.SugaredLogger, src, uuid string) error {
 	if z == nil {
 		return ErrZap

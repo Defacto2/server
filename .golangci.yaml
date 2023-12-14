@@ -33,6 +33,9 @@ issues:
     - path: handler/app/website.go
       linters:
         - lll
+    - path: internal/command/images.go
+      linters:
+        - lll
     - path: internal/config/config.go
       linters:
         - gocognit

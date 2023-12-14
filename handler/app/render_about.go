@@ -18,8 +18,6 @@ import (
 	"strconv"
 	"strings"
 
-	_ "golang.org/x/image/webp"
-
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magic"
@@ -32,6 +30,7 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
+	_ "golang.org/x/image/webp"
 	"golang.org/x/text/encoding/charmap"
 )
 
@@ -329,7 +328,7 @@ func aboutMagic(name string) string {
 	}
 
 	// add custom magic matchers
-	//filetype.AddMatcher(magic.ANSIType, magic.ANSIMatcher) // todo: this is creating false positives with ZIP archives
+	// filetype.AddMatcher(magic.ANSIType, magic.ANSIMatcher) // todo: this is creating false positives with ZIP archives
 	filetype.AddMatcher(magic.ArcSeaType, magic.ArcSeaMatcher)
 	filetype.AddMatcher(magic.ARJType, magic.ARJMatcher)
 	filetype.AddMatcher(magic.DOSComType, magic.DOSComMatcher)
@@ -533,6 +532,29 @@ func readmeSuggest(r *models.File) string {
 	return ReadmeSug(filename, group, content...)
 }
 
+func readmeFinds(content ...string) []string {
+	finds := []string{}
+	skip := []string{"scene.org", "scene.org.txt"}
+	for _, name := range content {
+		if name == "" {
+			continue
+		}
+		s := strings.ToLower(name)
+		if slices.Contains(skip, s) {
+			continue
+		}
+		ext := filepath.Ext(s)
+		if slices.Contains(priority(), ext) {
+			finds = append(finds, name)
+			continue
+		}
+		if slices.Contains(candidate(), ext) {
+			finds = append(finds, name)
+		}
+	}
+	return finds
+}
+
 // ReadmeSug returns a suggested readme file name for the record.
 // It prioritizes the filename and group name with a priority extension,
 // such as ".nfo", ".txt", etc. If no priority extension is found,
@@ -543,39 +565,18 @@ func readmeSuggest(r *models.File) string {
 // released the artifact. The content should be a list of files contained
 // in the artifact.
 func ReadmeSug(filename, group string, content ...string) string {
-	// this is a port of variables.findTextfile in File.cfc
-	finds := []string{}
-	skip := []string{"scene.org", "scene.org.txt"}
-	priority := []string{".nfo", ".txt", ".unp", ".doc"}
-	candidate := []string{".diz", ".asc", ".1st", ".dox", ".me", ".cap", ".ans", ".pcb"}
+	// this is a port of the CFML function, variables.findTextfile found in File.cfc
 
-	for _, name := range content {
-		if name == "" {
-			continue
-		}
-		s := strings.ToLower(name)
-		if slices.Contains(skip, s) {
-			continue
-		}
-		ext := filepath.Ext(s)
-		if slices.Contains(priority, ext) {
-			finds = append(finds, name)
-			continue
-		}
-		if slices.Contains(candidate, ext) {
-			finds = append(finds, name)
-		}
-	}
+	finds := readmeFinds(content...)
 	if len(finds) == 1 {
 		return finds[0]
 	}
-
 	finds = SortContent(finds)
 
 	// match either the filename or the group name with a priority extension
 	// e.g. .nfo, .txt, .unp, .doc
 	base := filepath.Base(filename)
-	for _, ext := range priority {
+	for _, ext := range priority() {
 		for _, name := range finds {
 			// match the filename + extension
 			if strings.EqualFold(base+ext, name) {
@@ -594,7 +595,7 @@ func ReadmeSug(filename, group string, content ...string) string {
 		}
 	}
 	// match either the filename or the group name with a candidate extension
-	for _, ext := range candidate {
+	for _, ext := range candidate() {
 		for _, name := range finds {
 			// match the filename + extension
 			if strings.EqualFold(base+ext, name) {
@@ -610,7 +611,7 @@ func ReadmeSug(filename, group string, content ...string) string {
 	for _, name := range finds {
 		s := strings.ToLower(name)
 		ext := filepath.Ext(s)
-		if slices.Contains(priority, ext) {
+		if slices.Contains(priority(), ext) {
 			return name
 		}
 	}
@@ -619,6 +620,14 @@ func ReadmeSug(filename, group string, content ...string) string {
 		return name
 	}
 	return ""
+}
+
+func candidate() []string {
+	return []string{".diz", ".asc", ".1st", ".dox", ".me", ".cap", ".ans", ".pcb"}
+}
+
+func priority() []string {
+	return []string{".nfo", ".txt", ".unp", ".doc"}
 }
 
 // SortContent sorts the content list by the number of slashes in each string.

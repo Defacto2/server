@@ -20,7 +20,6 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"go.uber.org/zap"
-	//_ "go.uber.org/automaxprocs"
 )
 
 //go:embed public/text/defacto2.txt
@@ -43,6 +42,11 @@ var (
 	ErrLog = errors.New("the server cannot save any logs")
 	ErrVer = errors.New("postgresql version request failed")
 	ErrZap = errors.New("the logger instance is nil")
+)
+
+const (
+	uuid = "00000000-0000-0000-0000-000000000000" // common universal unique identifier example
+	cfid = "00000000-0000-0000-0000000000000000"  // coldfusion uuid example
 )
 
 func main() {
@@ -173,16 +177,6 @@ func RepairFS(z *zap.SugaredLogger, c *config.Config) error {
 	if z == nil {
 		return ErrZap
 	}
-	const (
-		uuid = "00000000-0000-0000-0000-000000000000" // common universal unique identifier example
-		cfid = "00000000-0000-0000-0000000000000000"  // coldfusion uuid example
-		png  = ".png"                                 // png file extension
-		webp = ".webp"                                // webp file extension
-		lpng = len(png)                               // length of png file extension
-		lweb = len(webp)                              // length of webp file extension
-		st   = ".stfolder"                            // st is a syncthing directory
-	)
-
 	dirs := []string{c.PreviewDir, c.ThumbnailDir}
 	for _, dir := range dirs {
 		z.Info("repair:", dir)
@@ -191,35 +185,10 @@ func RepairFS(z *zap.SugaredLogger, c *config.Config) error {
 				return err
 			}
 			name := info.Name()
-			ext := filepath.Ext(name)
-			l := len(name)
-
 			if info.IsDir() {
-				switch name {
-				case filepath.Base(dir):
-					return nil // skip the root directory
-				case st:
-					defer os.RemoveAll(path)
-				default:
-					fmt.Fprintln(os.Stderr, "unknown dir:", path)
-				}
+				return fixDir(name, path, dir)
 			}
-			switch ext {
-			case png:
-				if l != len(uuid)+lpng && l != len(cfid)+lpng {
-					fmt.Fprintln(os.Stderr, "remove:", name, dir)
-					defer os.Remove(path)
-				}
-			case webp:
-				if l != len(uuid)+lweb && l != len(cfid)+lweb {
-					fmt.Fprintln(os.Stderr, "remove:", name)
-					defer os.Remove(path)
-				}
-			default:
-				fmt.Fprintln(os.Stderr, "unknown:", path)
-				defer os.Remove(path)
-			}
-			return nil
+			return fixImgs(name, path)
 		})
 		if err != nil {
 			return err
@@ -227,42 +196,74 @@ func RepairFS(z *zap.SugaredLogger, c *config.Config) error {
 	}
 	dir := c.DownloadDir
 	z.Info("repair:", dir)
-	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+	return filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 		name := info.Name()
-		l := len(name)
-
 		if info.IsDir() {
-			switch name {
-			case filepath.Base(dir):
-				return nil // skip the root directory
-			case st:
-				defer os.RemoveAll(path)
-			default:
-				fmt.Fprintln(os.Stderr, "unknown dir:", path)
-			}
+			return fixDir(name, path, dir)
 		}
-		switch filepath.Ext(name) {
-		case ".chiptune", ".txt":
-			return nil
-		case ".zip":
-			if l != len(uuid)+4 && l != len(cfid)+4 {
-				fmt.Fprintln(os.Stderr, "remove:", name)
-				defer os.Remove(path)
-			}
-			return nil
-		default:
-			if l != len(uuid) && l != len(cfid) {
-				fmt.Fprintln(os.Stderr, "unknown:", name)
-				defer os.Remove(path)
-			}
+		return fixDL(name, path)
+	})
+}
+
+func rm(name, info, path string) {
+	fmt.Fprintf(os.Stderr, "%s: %s\n", info, name)
+	defer os.Remove(path)
+}
+
+func fixDir(name, path, dir string) error {
+	const st = ".stfolder" // st is a syncthing directory
+	switch name {
+	case filepath.Base(dir):
+		// skip the root directory
+	case st:
+		defer os.RemoveAll(path)
+	default:
+		fmt.Fprintln(os.Stderr, "unknown dir:", path)
+	}
+	return nil // always skip
+}
+
+func fixDL(name, path string) error {
+	l := len(name)
+	switch filepath.Ext(name) {
+	case ".chiptune", ".txt":
+		return nil
+	case ".zip":
+		if l != len(uuid)+4 && l != len(cfid)+4 {
+			rm(name, "remove", path)
 		}
 		return nil
-	})
-	if err != nil {
-		return err
+	default:
+		if l != len(uuid) && l != len(cfid) {
+			rm(name, "unknown", path)
+		}
+	}
+	return nil
+}
+
+func fixImgs(name, path string) error {
+	const (
+		png  = ".png"    // png file extension
+		webp = ".webp"   // webp file extension
+		lpng = len(png)  // length of png file extension
+		lweb = len(webp) // length of webp file extension
+	)
+	ext := filepath.Ext(name)
+	l := len(name)
+	switch ext {
+	case png:
+		if l != len(uuid)+lpng && l != len(cfid)+lpng {
+			rm(name, "remove", path)
+		}
+	case webp:
+		if l != len(uuid)+lweb && l != len(cfid)+lweb {
+			rm(name, "remove", path)
+		}
+	default:
+		rm(name, "unknown", path)
 	}
 	return nil
 }

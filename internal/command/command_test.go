@@ -27,6 +27,7 @@ func TestBaseName(t *testing.T) {
 		})
 	}
 }
+
 func TestBaseNamePath(t *testing.T) {
 	tests := []struct {
 		name     string
