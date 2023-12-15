@@ -1,0 +1,26 @@
+{{- /* layout_editor.tmpl */}}
+{{- define "aboutLayoutEditor" }}
+<div class="btn-toolbar me-3">
+    <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+        Editor
+    </button>              
+    <ul class="dropdown-menu dropdown-menu-end"><li>
+        <h6 class="dropdown-header">Record</h6></li>
+        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#assetEditorModal">Assets</a></li>
+        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#fileEditorModal">Metadata</a></li>
+        <li><h6 class="dropdown-header">Files</h6></li>
+        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editorVersion">Approve</a></li>
+        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editorVersion">List new</a></li>
+        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editorVersion">⮡ disabled</a></li>
+        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editorVersion">⮡ unwanted</a></li>
+        <li><h6 class="dropdown-header">Tools</h6></li>
+        <!--software, db versions, table sets and env configs-->
+        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editorVersion">Software</a></li>
+        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editor">Statistics</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><h6 class="dropdown-header">Batch rename</h6></li>
+        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editorVersion">Releasers</a></li>
+        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editorVersion">People</a></li>
+    </ul>
+    </div>
+{{- end}}

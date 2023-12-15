@@ -44,6 +44,7 @@ func empty() map[string]interface{} {
 		"counter":      Statistics(),        // Empty database counts for files and categories.
 		"df2FileCount": Caching.RecordCount, // The number of records of files in the database.
 		"dberror":      false,               // If true, the database is not available.
+		"readonly":     true,                // If true, the application is in read-only mode.
 	}
 }
 

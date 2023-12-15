@@ -153,10 +153,22 @@ func (web Web) tmpl(name filename) (*template.Template, error) {
 		GlobTo(pagination),
 		GlobTo(uploader),
 	}
+	if web.Import.IsReadOnly {
+		files = append(files, GlobTo("layout_editor_null.tmpl"))
+	} else {
+		files = append(files, GlobTo("layout_editor.tmpl"))
+	}
 	// append any additional templates
 	switch name {
 	case "about.tmpl":
-		files = append(files, GlobTo("about_table.tmpl"), GlobTo("about_jsdos.tmpl"), GlobTo("about_editor.tmpl"))
+		files = append(files, GlobTo("about_table.tmpl"), GlobTo("about_jsdos.tmpl"))
+		if web.Import.IsReadOnly {
+			files = append(files, GlobTo("about_editor_null.tmpl"))
+			files = append(files, GlobTo("about_editor_table_null.tmpl"))
+		} else {
+			files = append(files, GlobTo("about_editor.tmpl"))
+			files = append(files, GlobTo("about_editor_table.tmpl"))
+		}
 	case "file.tmpl":
 		files = append(files, GlobTo(fileExp))
 	case "websites.tmpl":

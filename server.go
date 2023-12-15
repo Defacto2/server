@@ -106,7 +106,7 @@ func main() {
 		server.Version = cmd.Commit("")
 	}
 
-	// Database
+	// Repair the database on startup
 	if err := RepairDB(server); err != nil {
 		if errors.Is(err, ErrVer) {
 			logs.Warnf("%s, is the database server down?", ErrVer)
@@ -114,12 +114,12 @@ func main() {
 			logs.Errorf("%s: %s", ErrDB, err)
 		}
 	}
-	server.RecordCount = RecordCount()
-
-	// Placeholder for future file system checks
+	// Repair assets on the host file system
 	if err := RepairFS(logs, &configs); err != nil {
 		logs.Errorf("%s: %s", ErrFS, err)
 	}
+
+	server.RecordCount = RecordCount()
 
 	// Controllers and routes
 	e := server.Controller()
@@ -137,6 +137,7 @@ func main() {
 func Override(c *config.Config) *config.Config {
 	// examples:
 	// c.IsProduction = true
+	// c.IsReadOnly = false
 	// c.HTTPPort = 8080
 	return c
 }
@@ -179,6 +180,9 @@ func RepairFS(z *zap.SugaredLogger, c *config.Config) error {
 	}
 	dirs := []string{c.PreviewDir, c.ThumbnailDir}
 	for _, dir := range dirs {
+		if _, err := os.Stat(dir); err != nil {
+			continue
+		}
 		z.Info("repair:", dir)
 		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
@@ -195,6 +199,9 @@ func RepairFS(z *zap.SugaredLogger, c *config.Config) error {
 		}
 	}
 	dir := c.DownloadDir
+	if _, err := os.Stat(dir); err != nil {
+		return nil
+	}
 	z.Info("repair:", dir)
 	return filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {

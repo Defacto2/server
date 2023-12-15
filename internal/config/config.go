@@ -23,6 +23,9 @@ type Config struct {
 	// IsProduction is true when the server is running in production mode.
 	IsProduction bool `env:"PRODUCTION" envDefault:"false" help:"Use the production mode to log errors to a file and recover from panics"`
 
+	// IsReadOnly is true when the server is running in read-only mode. This disables all POST, PUT and DELETE requests and any related user interface.
+	IsReadOnly bool `env:"READONLY" envDefault:"true" help:"Use the read-only mode to disable all POST, PUT and DELETE requests and any related user interface"`
+
 	// DownloadDir is the directory path that holds the UUID named files that are served as artifact downloads.
 	DownloadDir string `env:"DIR_DOWN" help:"The directory path that holds the UUID named files that are served as artifact downloads"`
 

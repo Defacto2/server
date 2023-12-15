@@ -43,7 +43,7 @@ type Dirs struct {
 }
 
 // About is the handler for the about page of the file record.
-func (a Dirs) About(z *zap.SugaredLogger, c echo.Context) error {
+func (a Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error {
 	const name = "about"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
@@ -60,25 +60,28 @@ func (a Dirs) About(z *zap.SugaredLogger, c echo.Context) error {
 	abs := filepath.Join(a.Download, uuid)
 	data := empty()
 	// about editor
-	data["recID"] = res.ID
-	data["recTitle"] = res.RecordTitle.String
-	data["recOnline"] = res.Deletedat.Time.IsZero()
-	data["recReleasers"] = string(RecordRels(res.GroupBrandBy, res.GroupBrandFor))
-	data["recYear"] = res.DateIssuedYear.Int16
-	data["recMonth"] = res.DateIssuedMonth.Int16
-	data["recDay"] = res.DateIssuedDay.Int16
-	data["recLastMod"] = res.FileLastModified.IsZero()
-	data["recLastModValue"] = res.FileLastModified.Time.Format("2006-1-2") // value should not have no leading zeros
-	data["recAbsDownload"] = abs
-	data["recKind"] = aboutMagic(abs)
-	data["recStatMod"] = aboutStat(abs)[0]
-	data["recStatSize"] = aboutStat(abs)[1]
-	data["recAssets"] = a.aboutAssets(uuid)
-	data["recNoReadme"] = res.RetrotxtNoReadme.Int16 != 0
-	data["recReadmeList"] = OptionsReadme(res.FileZipContent.String)
-	data["recPreviewList"] = OptionsPreview(res.FileZipContent.String)
-	data["recAnsiLoveList"] = OptionsAnsiLove(res.FileZipContent.String)
-	data["recReadmeSug"] = readmeSuggest(res)
+	if !readonly {
+		data["readonly"] = false
+		data["recID"] = res.ID
+		data["recTitle"] = res.RecordTitle.String
+		data["recOnline"] = res.Deletedat.Time.IsZero()
+		data["recReleasers"] = string(RecordRels(res.GroupBrandBy, res.GroupBrandFor))
+		data["recYear"] = res.DateIssuedYear.Int16
+		data["recMonth"] = res.DateIssuedMonth.Int16
+		data["recDay"] = res.DateIssuedDay.Int16
+		data["recLastMod"] = res.FileLastModified.IsZero()
+		data["recLastModValue"] = res.FileLastModified.Time.Format("2006-1-2") // value should not have no leading zeros
+		data["recAbsDownload"] = abs
+		data["recKind"] = aboutMagic(abs)
+		data["recStatMod"] = aboutStat(abs)[0]
+		data["recStatSize"] = aboutStat(abs)[1]
+		data["recAssets"] = a.aboutAssets(uuid)
+		data["recNoReadme"] = res.RetrotxtNoReadme.Int16 != 0
+		data["recReadmeList"] = OptionsReadme(res.FileZipContent.String)
+		data["recPreviewList"] = OptionsPreview(res.FileZipContent.String)
+		data["recAnsiLoveList"] = OptionsAnsiLove(res.FileZipContent.String)
+		data["recReadmeSug"] = readmeSuggest(res)
+	}
 	// page metadata
 	data["uuid"] = uuid
 	data["download"] = helper.ObfuscateID(int64(res.ID))
@@ -622,12 +625,14 @@ func ReadmeSug(filename, group string, content ...string) string {
 	return ""
 }
 
-func candidate() []string {
-	return []string{".diz", ".asc", ".1st", ".dox", ".me", ".cap", ".ans", ".pcb"}
-}
-
+// priority returns a list of readme text file extensions in priority order.
 func priority() []string {
 	return []string{".nfo", ".txt", ".unp", ".doc"}
+}
+
+// candidate returns a list of other, common text file extensions in priority order.
+func candidate() []string {
+	return []string{".diz", ".asc", ".1st", ".dox", ".me", ".cap", ".ans", ".pcb"}
 }
 
 // SortContent sorts the content list by the number of slashes in each string.

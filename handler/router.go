@@ -100,7 +100,7 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	})
 	e.GET("/f/:id", func(c echo.Context) error {
 		dir.URI = c.Param("id")
-		return dir.About(z, c)
+		return dir.About(z, c, conf.Import.IsReadOnly)
 	})
 	e.GET("/file/stats", func(c echo.Context) error {
 		return app.File(z, c, true)
@@ -212,6 +212,11 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.GET("/:uri", func(c echo.Context) error {
 		return app.StatusErr(z, c, http.StatusNotFound, c.Param("uri"))
 	})
+
+	// Skip the serving of the editor pages
+	if conf.Import.IsReadOnly {
+		return e, nil
+	}
 
 	// todo: lock /editor behind a login requirement
 	e.POST("/editor/readme/copy", func(c echo.Context) error {
