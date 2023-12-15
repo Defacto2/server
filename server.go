@@ -137,7 +137,7 @@ func main() {
 func Override(c *config.Config) *config.Config {
 	// examples:
 	// c.IsProduction = true
-	// c.IsReadOnly = false
+	c.IsReadOnly = false
 	// c.HTTPPort = 8080
 	return c
 }
