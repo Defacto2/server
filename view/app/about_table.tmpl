@@ -39,10 +39,7 @@
               </table>
         </div>
         <div class="modal-footer row g-2">
-            <div class="col-md text-begin">
-                {{- /*  TODO: hide this unless editor is in use  */}}
-                <button class="btn btn-primary" data-bs-target="#assetEditorModal" data-bs-toggle="modal">Switch to assets</button>
-            </div>
+            {{- template "aboutTableSwitch" . }}
             <div class="col-md text-end">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>

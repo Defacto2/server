@@ -217,8 +217,9 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	if conf.Import.IsReadOnly {
 		return e, nil
 	}
+	// TODO: Implement a middleware to check for a valid session cookie.
+	// and exit here if not valid.
 
-	// todo: lock /editor behind a login requirement
 	e.POST("/editor/readme/copy", func(c echo.Context) error {
 		return app.ReadmePost(z, c, dir.Download)
 	})

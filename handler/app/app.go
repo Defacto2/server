@@ -165,9 +165,11 @@ func (web Web) tmpl(name filename) (*template.Template, error) {
 		if web.Import.IsReadOnly {
 			files = append(files, GlobTo("about_editor_null.tmpl"))
 			files = append(files, GlobTo("about_editor_table_null.tmpl"))
+			files = append(files, GlobTo("about_table_switch_null.tmpl"))
 		} else {
 			files = append(files, GlobTo("about_editor.tmpl"))
 			files = append(files, GlobTo("about_editor_table.tmpl"))
+			files = append(files, GlobTo("about_table_switch.tmpl"))
 		}
 	case "file.tmpl":
 		files = append(files, GlobTo(fileExp))
