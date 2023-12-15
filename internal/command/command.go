@@ -37,6 +37,7 @@ var (
 	ErrEmpty = errors.New("file is empty")
 	ErrImg   = errors.New("file is not an known image format")
 	ErrIsDir = errors.New("file is a directory")
+	ErrVers  = errors.New("version mismatch")
 	ErrZap   = errors.New("zap logger instance is nil")
 )
 
@@ -65,11 +66,32 @@ const (
 )
 
 // Lookups returns a list of the execute command names used by the application.
-// TODO: scan these on startup and report any missing commands.
-// Confirm unrar is not unrar-free.
 func Lookups() []string {
 	return []string{Arc, Arj, Ansilove, Convert, Cwebp, Gwebp, Optipng, P7zip, Tar, Unrar, Unzip}
 }
+
+// Infos returns details for the list of the execute command names used by the application.
+func Infos() []string {
+	return []string{
+		"archive utility ver 5+",
+		"arj32 ver 3+",
+		"ansilove/c ver 4+",
+		"ImageMagick ver 7+",
+		"Google WebP ver 1+",
+		"Google GIF to WebP ver 1+",
+		"OptiPNG optimizer ver 0.7+",
+		"\t7-Zip ver 16+",
+		"GNU tar ver 1+",
+		"UNRAR freeware (c) Alexander Roshal",
+		"Info-ZIP ver 6+",
+	}
+}
+
+func LookupUnrar() error {
+	return LookVersion(Unrar, "-v", "Alexander Roshal")
+}
+
+// TODO:Confirm unrar is not unrar-free.
 
 // RemoveImgs removes the preview and thumbnail images from the preview and
 // thumbnail directories associated with the uuid.
@@ -178,6 +200,29 @@ func LookCmd(name string) error {
 		return err
 	}
 	return nil
+}
+
+func LookVersion(name, flag, match string) error {
+	if err := LookCmd(name); err != nil {
+		return err
+	}
+	cmd := exec.Command(name, flag)
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	b, err := io.ReadAll(stdout)
+	if err != nil {
+		return err
+	}
+	//
+	if bytes.Contains(b, []byte(match)) {
+		return fmt.Errorf("%w: %s", ErrVers, name)
+	}
+	return cmd.Wait()
 }
 
 // Run looks for the command in the system path and executes it with the arguments.

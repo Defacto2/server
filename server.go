@@ -8,9 +8,11 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/Defacto2/server/cmd"
 	"github.com/Defacto2/server/handler"
+	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/logger"
 	"github.com/Defacto2/server/internal/postgres"
@@ -81,15 +83,53 @@ func main() {
 	// Configuration sanity checks
 	configs.Checks(logs)
 
+	// Confirm command requirements when not running in read-only mode
+	if !configs.IsReadOnly {
+		var buf strings.Builder
+		for i, name := range command.Lookups() {
+			if err := command.LookCmd(name); err != nil {
+				buf.WriteString("\n\t\t\tmissing: " + name)
+				buf.WriteString("\t" + command.Infos()[i])
+			}
+		}
+		if buf.Len() > 0 {
+			logs.Warnln("The following commands are required for the server to run in WRITE MODE",
+				"\n\t\t\tThese need to be installed and accessable on the system path:"+
+					"\t\t\t"+buf.String())
+		}
+		if err := command.LookupUnrar(); err != nil {
+			if errors.Is(err, command.ErrVers) {
+				logs.Warnf("Could not find unrar by Alexander Roshal, " +
+					"is the unrar-free command mistakenly installed?")
+			} else {
+				logs.Warnf("%s: %s", ErrCmd, err)
+			}
+		}
+	}
+
+	// Repair assets on the host file system
+	if err := RepairFS(logs, &configs); err != nil {
+		logs.Errorf("%s: %s", ErrFS, err)
+	}
+
 	// Setup the logger
+	mode := "read-only mode"
+	if !configs.IsReadOnly {
+		mode = "write mode"
+	}
 	switch configs.IsProduction {
 	case true:
 		if err := configs.LogStorage(); err != nil {
 			logs.Fatalf("%w: %s", ErrLog, err)
 		}
 		logs = logger.Production(configs.LogDir).Sugar()
+		s := "The server is running in a "
+		s += strings.ToUpper("production, "+mode) + "."
+		logs.Info(s)
 	default:
-		logs.Warn("The server is running in the DEVELOPMENT MODE.")
+		s := "The server is running in a "
+		s += strings.ToUpper("development, "+mode) + "."
+		logs.Warn(s)
 		logs = logger.Development().Sugar()
 	}
 
@@ -113,10 +153,6 @@ func main() {
 		} else {
 			logs.Errorf("%s: %s", ErrDB, err)
 		}
-	}
-	// Repair assets on the host file system
-	if err := RepairFS(logs, &configs); err != nil {
-		logs.Errorf("%s: %s", ErrFS, err)
 	}
 
 	server.RecordCount = RecordCount()
@@ -183,7 +219,7 @@ func RepairFS(z *zap.SugaredLogger, c *config.Config) error {
 		if _, err := os.Stat(dir); err != nil {
 			continue
 		}
-		z.Info("repair:", dir)
+		z.Info("scan: ", dir)
 		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
@@ -202,7 +238,7 @@ func RepairFS(z *zap.SugaredLogger, c *config.Config) error {
 	if _, err := os.Stat(dir); err != nil {
 		return nil
 	}
-	z.Info("repair:", dir)
+	z.Info("scan: ", dir)
 	return filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
