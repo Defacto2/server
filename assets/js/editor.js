@@ -1,13 +1,58 @@
 (() => {
   "use strict";
 
+  const danger = `text-danger`;
+  const header = {
+    "Content-type": "application/json; charset=UTF-8",
+  };
+
   // The table record id and key value, used for all fetch requests
   // It is also used to confirm the existence of the editor modal
   const id = document.getElementById(`recordID`);
   if (id == null) {
-    console.info(`the editor modal is not open so this script is not needed`);
+    console.info(
+      `the editor modal is not open so the editor script is not needed`
+    );
     return;
   }
+
+  // Modify the file metadata, online and public
+  const online = document.getElementById(`recordOnline`);
+  const onlineL = document.getElementById(`recordOnlineLabel`);
+  if (online.checked != true) {
+    onlineL.classList.add(danger);
+  }
+  online.addEventListener(`change`, function (event) {
+    let path = `/editor/online/false`;
+    if (online.checked == true) {
+      path = `/editor/online/true`;
+    }
+    fetch(path, {
+      method: "POST",
+      body: JSON.stringify({
+        id: parseInt(id.value),
+      }),
+      headers: header,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(saveErr);
+        }
+        if (online.checked == true) {
+          onlineL.classList.remove(danger);
+        } else {
+          onlineL.classList.add(danger);
+        }
+        return response.json();
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  });
+
+  // recordTitle
+  const recTitle = document.getElementById(`recordTitle`);
+  recTitle.addEventListener(`input`, function (event) {});
 
   // releasers
   const releasers = document.getElementById(`recordReleasers`);

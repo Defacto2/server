@@ -4,7 +4,6 @@
 {{- $id := index . "recID"}}
 {{- $previewImg := recordImgSample (index . "uuid")}}
 {{- $thumbImg := recordThumbSample (index . "uuid")}}
-{{- $readmeSug := index . "recReadmeSug"}}
 {{- $replace := "refresh the page to see the changes"}}
 {{- /*  Assets editor  */}}
 <div class="modal fade" id="assetEditorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="assetEditorModalLabel" aria-hidden="true">
@@ -69,77 +68,7 @@
             <tr><td colspan="2">{{/*  empty placeholder  */}}</td></tr>
           </tbody>
         </table>
-        {{- if ne "" $readmeSug}}<p><strong>Readme suggestion</strong> <var>{{$readmeSug}}</var></p>{{end}}
-
-        <hr class="m-0 mb-3 mt-3">
-        {{- /*  Readme in archive  */}}
-        <div class="mb-3 row">
-          <label for="edCopyMe" id="edCopyMeLabel" class="col-sm-3 col-form-label"
-          data-bs-toggle="tooltip" data-bs-title="An included NFO, DIZ or text file to display"><strong>Readme</strong> in archive</label>
-          <div class="col-sm-5">
-            <input list="edCopyMeList" name="title" class="form-control" id="edCopyMe" value="" placeholder="Use a named file">
-            <datalist id="edCopyMeList">
-              {{index . "recReadmeList"}}
-            </datalist>
-            <div class="valid-feedback">Readme replaced, {{$replace}}</div>
-            <div class="invalid-feedback" id="edCopyMeErr">something went wrong</div>
-          </div>
-          <div class="col-sm-1">
-            <button class="btn btn-outline-danger" id="edCopyMeReset">Clear</button>
-          </div>
-          {{- /*  Hide readme from view  */}}
-          <div class="col-sm-3">
-            <div class="form-check form-switch">
-              {{recordReadme (index . "recNoReadme") }}
-              <label class="form-check-label" id="edHideMeLabel" for="edHideMe">Hide readme from view</label>
-              <div class="valid-feedback">Saved, {{$replace}}</div>
-              <div class="invalid-feedback" id="edHideMeErr">error placeholder</div>  
-            </div>
-          </div>    
-        </div>
-        {{- /*  preview from image in archive  */}}
-        <hr class="m-0 mb-3 mt-3">
-        <div class="mb-3 row">
-          <label for="edCopyPreview" id="edCopyPreviewLabel" class="col-sm-3 col-form-label"
-          data-bs-toggle="tooltip" data-bs-title="An included image to use as the preview and thumbnail"><strong>Preview</strong> from image in archive</label>
-          <div class="col-sm-5">
-            {{- /*  TODO: default disabled based on hide value  */}}
-            <input list="edCopyPreviewList" name="title" class="form-control" id="edCopyPreview" value="" placeholder="Use a named file">
-            <datalist id="edCopyPreviewList">
-              {{index . "recPreviewList"}}
-            </datalist>
-            <div class="valid-feedback">Previews replaced, {{$replace}}</div>
-            <div class="invalid-feedback" id="edCopyPreviewErr">something went wrong</div>
-          </div>
-          <div class="col-sm-1">
-            <button class="btn btn-outline-danger" id="edCopyPreviewReset">Clear</button>
-          </div>
-          <div class="col-sm-3 text-start">
-            <button class="btn btn-outline-success" id="edCopyPreviewBtn">Recreate previews and thumb</button>          
-          </div>
-        </div>
-        {{- /*  preview from text in archive  */}}
-        {{- /*  list all files, except: exe,com,dll,images,compressed files  */}}
-        <hr class="m-0 mb-3 mt-3">
-        <div class="mb-3 row">
-          <label for="edAnsiLove" id="edAnsiLoveLabel" class="col-sm-3 col-form-label"
-          data-bs-toggle="tooltip" data-bs-title="An included text or ANSI art to use as the preview and thumbnail"><strong>Preview</strong> from text in archive</label>
-          <div class="col-sm-5">
-            {{- /*  TODO: default disabled based on hide value  */}}
-            <input list="edAnsiLoveList" name="title" class="form-control" id="edAnsiLove" value="" placeholder="Use a named file">
-            <datalist id="edAnsiLoveList">
-              {{index . "recAnsiLoveList"}}
-            </datalist>
-            <div class="valid-feedback">Previews replaced, {{$replace}}</div>
-            <div class="invalid-feedback" id="edAnsiLoveErr">something went wrong</div>
-          </div>
-          <div class="col-sm-1">
-            <button class="btn btn-outline-danger" id="edAnsiLoveReset">Clear</button>
-          </div>
-          <div class="col-sm-3 text-start">
-            <button class="btn btn-outline-success" id="edAnsiLoveBtn">Recreate previews and thumb</button>          
-          </div>
-        </div>
+        {{ template "aboutEditorArchive" . }}
         <hr class="m-0 mb-3 mt-3">
         {{- /*  preview from a file upload  */}}
         <div class="mb-3 row">
@@ -182,7 +111,7 @@
           </div>
           <div class="col-sm-6 text-end">
             <button class="btn btn-sm btn-danger" id="edBtnImgs">Delete complementary images</button>  
-            <button class="btn btn-sm btn-danger" id="edBtnRead">Delete readme asset</button>
+            <button class="btn btn-sm btn-danger" id="edBtnRead" disabled>Delete readme asset</button>
           </div>
           <input type="hidden" id="edBtnsHide">
           <div id="edBtnsFeedback" class="text-end"></div>
@@ -209,6 +138,7 @@
 {{- /*  Artifact metadata editor  */}}
 <div class="modal fade" id="fileEditorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="fileEditorModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+
       <div class="modal-content">
         <div class="modal-header">
           <i class="fal fa-file-alt {{ $faSize }}" title="Modify the record"></i> &nbsp;
@@ -216,52 +146,50 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
+
           <div class="mb-3 row">
-            <div class="col-sm-2" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Internal identifiers"><strong>IDs</strong></div>
-            <div class="col-sm-6">
-              {{- /*  UUID used for the filename of assets  */}}
-                <input type="text" readonly class="form-control-plaintext" id="edMetaUUID" value="{{index . "uuid"}}">
-            </div>
-            <div class="col-sm-2">
-              {{- /*  Database table auto ID  */}}
-              <input type="text" readonly class="form-control-plaintext" id="edMetaID" value="{{$id}}">
-            </div>
-            <div class="col-sm-2">
-              {{- /*  Example file link  */}}
-              <input type="text" readonly class="form-control-plaintext" id="edMetaLink" value="defacto2.net{{linkHref $id}}">
-            </div>
-          </div>
-          <div class="mb-3 row">
-            <label for="recordTitle" id="recordTitleLabel" class="col-sm-2 col-form-label">Title</label>
-            <div class="col-sm-7">
-              <input type="text" name="title" class="form-control" id="recordTitle" value="{{index . "recTitle"}}">
-            </div>
-            <div class="col-sm-3">
+            <div class="col-sm-2" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Internal identifiers"><strong>ID</strong></div>
+            <div class="col-sm-5">{{index . "uuid"}}</div>
+            <div class="col-sm-5 text-begin">
               <div class="form-check form-switch">
                 {{recordOnline (index . "recOnline") }}
-                <label class="form-check-label" id="recordOnlineLabel" for="recordOnline">Online and public</label>
-              </div>            
+                <label class="form-check-label" id="recordOnlineLabel" for="recordOnline">File artifact is online and public</label>
+                <div class="invalid-feedback" id="recordOnlineErr">error placeholder</div>  
+              </div>  
             </div>
           </div>
+
           <div class="mb-3 row">
-            <label for="recordReleasers" id="recordReleasersLabel" class="col-sm-2 col-form-label">Releasers</label>
-            <div class="col-sm-10">
+            <label for="recordTitle" id="recordTitleLabel" class="col-sm-1 col-form-label">Title</label>
+            <div class="col-sm-5">
+              <input type="text" name="title" class="form-control" id="recordTitle" value="{{index . "recTitle"}}">
+              <div class="form-text">
+                A title can be the name of the release or title of the document,<br>
+                or a very brief description of the file artifact.<br>
+                The title is optional, otherwise the filename is used.
+              </div>
+            </div>
+            <label for="recordReleasers" id="recordReleasersLabel" class="col-sm-1 col-form-label">Releasers</label>
+            <div class="col-sm-5">
               <input type="text" name="releasers" class="form-control" id="recordReleasers" value="{{index . "recReleasers"}}">
               <div class="form-text">
                 <span id="recordReleasersMax">A maximum of two releasers</span>, 
                   example: <code class="">Razor 1911 + Titan</code><code class="d-none">Console News + Titan</code>
-                  <span class=""><br>A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q>, example: <code>Dark Domain BBS</code></span>
+                  <span class=""><br>A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q>,<br>example: <code>Dark Domain BBS</code></span>
               </div>
             </div>
           </div>
+
           <div class="input-group mb-3">
             <span class="input-group-text">Year, month, day of release</span>
             <input type="number" name="release-year" id="recordYear" min="1980" max="2023" aria-label="Year of release" class="form-control input-date" value="{{index . "recYear"}}" placeholder="{{exampleYear}}">
             <input type="number" name="release-month" id="recordMonth" min="0" max="12" aria-label="Month of release" class="form-control input-date" value="{{index . "recMonth"}}" placeholder="{{exampleMonth}}">
             <input type="number" name="release-day" id="recordDay" min="0" max="31" aria-label="Day of release" class="form-control input-date" value="{{index . "recDay"}}" placeholder="{{exampleDay}}">
             {{recordLastMod (index . "recLastMod") }}Use last modification</button>
-            <input type="hidden" id="recordLastMod" value="{{index . "recLastModValue"}}">
+            <button class="btn btn-outline-success px-5" type="button">Save</button>
+            <button class="btn btn-outline-danger" type="button">Reset</button>
           </div>
+          <input type="hidden" id="recordLastMod" value="{{index . "recLastModValue"}}">
           <div class="mb-1 row">
             <div class="input-group">
               <label class="input-group-text" name="platform" for="recordPlatform">Platform</label>

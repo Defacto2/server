@@ -81,6 +81,7 @@ func (a Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error {
 		data["recPreviewList"] = OptionsPreview(res.FileZipContent.String)
 		data["recAnsiLoveList"] = OptionsAnsiLove(res.FileZipContent.String)
 		data["recReadmeSug"] = readmeSuggest(res)
+		data["recZipContent"] = strings.TrimSpace(res.FileZipContent.String)
 	}
 	// page metadata
 	data["uuid"] = uuid

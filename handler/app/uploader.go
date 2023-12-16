@@ -31,6 +31,7 @@ func badRequest(c echo.Context, err error) error {
 // Form is the form data for the editor.
 type Form struct {
 	ID     int    `query:"id"`     // ID is the auto incrementing database id of the record.
+	Online bool   `query:"online"` // Online is the record online and public toggle.
 	Readme bool   `query:"readme"` // Readme hides the readme textfile from the about page.
 	Target string `query:"target"` // Target is the name of the file to extract from the zip archive.
 }
@@ -47,6 +48,29 @@ func PostIntro(z *zap.SugaredLogger, c echo.Context) error {
 	}
 	c.JSON(http.StatusOK, x)
 	return nil
+}
+
+// RecordToggle handles the post submission for the File artifact is online and public toggle.
+func RecordToggle(z *zap.SugaredLogger, c echo.Context, state bool) error {
+	const name = "editor record toggle"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+
+	var f Form
+	if err := c.Bind(&f); err != nil {
+		return badRequest(c, err)
+	}
+	if state {
+		if err := model.UpdateOnline(c, int64(f.ID)); err != nil {
+			return badRequest(c, err)
+		}
+		return c.JSON(http.StatusOK, f)
+	}
+	if err := model.UpdateOffline(c, int64(f.ID)); err != nil {
+		return badRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, f)
 }
 
 // ReadmeDel handles the post submission for the Delete readme asset button.

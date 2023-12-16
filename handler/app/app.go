@@ -27,13 +27,14 @@ const (
 	BootJS   = "/js/bootstrap.bundle.min.js" // BootJS is the path to the minified Bootstrap 5 JS file.
 	BootJPub = public + BootJS
 
-	EditorJS          = "/js/editor.min.js" // EditorJS is the path to the minified Editor JS file.
-	EditorJSPub       = public + EditorJS
-	EditorAssetsJS    = "/js/editor-assets.min.js" // EditorAssetsJS is the path to the minified Editor Assets JS file.
-	EditorAssetsJSPub = public + EditorAssetsJS
-
-	FAJS  = "/js/fontawesome.min.js" // FAJS is the path to the minified Font Awesome JS file.
-	FAPub = public + FAJS
+	EditorJS           = "/js/editor.min.js" // EditorJS is the path to the minified Editor JS file.
+	EditorJSPub        = public + EditorJS
+	EditorAssetsJS     = "/js/editor-assets.min.js" // EditorAssetsJS is the path to the minified Editor assets JS file.
+	EditorAssetsJSPub  = public + EditorAssetsJS
+	EditorArchiveJS    = "/js/editor-archive.min.js" // EditorArchiveJS is the path to the minified Editor archive JS file.
+	EditorArchiveJSPub = public + EditorArchiveJS
+	FAJS               = "/js/fontawesome.min.js" // FAJS is the path to the minified Font Awesome JS file.
+	FAPub              = public + FAJS
 
 	// JS DOS v6 are minified files.
 	// https://js-dos.com/6.22/examples/?arkanoid
@@ -162,6 +163,7 @@ func (web Web) tmpl(name filename) (*template.Template, error) {
 	switch name {
 	case "about.tmpl":
 		files = append(files, GlobTo("about_table.tmpl"), GlobTo("about_jsdos.tmpl"))
+		files = append(files, GlobTo("about_editor_archive.tmpl"))
 		if web.Import.IsReadOnly {
 			files = append(files, GlobTo("about_editor_null.tmpl"))
 			files = append(files, GlobTo("about_editor_table_null.tmpl"))
@@ -182,19 +184,20 @@ func (web Web) tmpl(name filename) (*template.Template, error) {
 
 // SRI are the Subresource Integrity hashes for the layout.
 type SRI struct {
-	BootstrapCSS   string // Bootstrap CSS verification hash.
-	BootstrapJS    string // Bootstrap JS verification hash.
-	EditorJS       string // Editor JS verification hash.
-	EditorAssetsJS string // Editor Assets JS verification hash.
-	FontAwesome    string // Font Awesome verification hash.
-	JSDos          string // JS DOS verification hash.
-	JSWDos         string // JS wasm verification hash.
-	LayoutCSS      string // Layout CSS verification hash.
-	PouetJS        string // Pouet JS verification hash.
-	ReadmeJS       string // Readme JS verification hash.
-	RestPouetJS    string // Pouet REST JS verification hash.
-	RestZooJS      string // Demozoo REST JS verification hash.
-	UploaderJS     string // Uploader JS verification hash.
+	BootstrapCSS    string // Bootstrap CSS verification hash.
+	BootstrapJS     string // Bootstrap JS verification hash.
+	EditorJS        string // Editor JS verification hash.
+	EditorAssetsJS  string // Editor Assets JS verification hash.
+	EditorArchiveJS string // Editor Archive JS verification hash.
+	FontAwesome     string // Font Awesome verification hash.
+	JSDos           string // JS DOS verification hash.
+	JSWDos          string // JS wasm verification hash.
+	LayoutCSS       string // Layout CSS verification hash.
+	PouetJS         string // Pouet JS verification hash.
+	ReadmeJS        string // Readme JS verification hash.
+	RestPouetJS     string // Pouet REST JS verification hash.
+	RestZooJS       string // Demozoo REST JS verification hash.
+	UploaderJS      string // Uploader JS verification hash.
 }
 
 // Verify checks the integrity of the embedded CSS and JS files.
@@ -214,6 +217,10 @@ func (s *SRI) Verify(fs embed.FS) error {
 		return err
 	}
 	s.EditorAssetsJS, err = helper.Integrity(EditorAssetsJSPub, fs)
+	if err != nil {
+		return err
+	}
+	s.EditorArchiveJS, err = helper.Integrity(EditorArchiveJSPub, fs)
 	if err != nil {
 		return err
 	}
