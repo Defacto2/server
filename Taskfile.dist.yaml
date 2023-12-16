@@ -88,11 +88,16 @@ tasks:
   test:
     desc: "Run the test suite."
     cmds:
-      - go test -v ./...
+      - set -o pipefail && go test ./... -json | tparse -all
+  nil:
+    desc: "Run the static analysis techniques to catch Nil dereferences."
+    cmds:
+      - nilaway ./...
   testr:
     desc: "Run the test suite with the slower race detection."
     cmds:
-      - go test -race -v ./...
+      - set -o pipefail && go test ./... -json | tparse -all
+      #- go test -race -v ./...
   serve:
     desc: "Run the internal web server in development mode with live reload."
     cmds:
