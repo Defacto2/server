@@ -31,7 +31,6 @@ func UpdateOnline(c echo.Context, id int64) error {
 	if err != nil {
 		return err
 	}
-	// deletedat="",deletedby=""
 	f.Deletedat = null.TimeFromPtr(nil)
 	f.Deletedby = null.String{}
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {

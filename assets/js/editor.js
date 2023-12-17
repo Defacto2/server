@@ -52,7 +52,14 @@
 
   // recordTitle
   const recTitle = document.getElementById(`recordTitle`);
-  recTitle.addEventListener(`input`, function (event) {});
+  recTitle.addEventListener(`input`, function (event) {
+    recTitle.value = recTitle.value.trimStart();
+    if (recTitle.value == ``) {
+      recTitle.classList.add(danger);
+      return;
+    }
+    recTitle.classList.remove(danger);
+  });
 
   // releasers
   const releasers = document.getElementById(`recordReleasers`);
