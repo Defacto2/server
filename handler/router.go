@@ -247,6 +247,13 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 		return dir.AnsiLovePost(z, c)
 	})
 
+	e.POST("/editor/title", func(c echo.Context) error {
+		return app.TitleEdit(z, c)
+	})
+	e.POST("/editor/ymd", func(c echo.Context) error {
+		return app.YMDEdit(z, c)
+	})
+
 	return e, nil
 }
 

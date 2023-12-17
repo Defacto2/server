@@ -6,10 +6,12 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
+	"github.com/volatiletech/null/v8"
 	"go.uber.org/zap"
 )
 
@@ -34,6 +36,10 @@ type Form struct {
 	Online bool   `query:"online"` // Online is the record online and public toggle.
 	Readme bool   `query:"readme"` // Readme hides the readme textfile from the about page.
 	Target string `query:"target"` // Target is the name of the file to extract from the zip archive.
+	Value  string `query:"value"`  // Value is the value of the form input field to change.
+	Year   int16  `query:"year"`   // Year is the year of the release.
+	Month  int16  `query:"month"`  // Month is the month of the release.
+	Day    int16  `query:"day"`    // Day is the day of the release.
 }
 
 // PostIntro handles the POST request for the intro upload form.
@@ -48,6 +54,71 @@ func PostIntro(z *zap.SugaredLogger, c echo.Context) error {
 	}
 	c.JSON(http.StatusOK, x)
 	return nil
+}
+
+// TitleEdit handles the post submission for the Delete readme asset button.
+func TitleEdit(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor title"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+
+	var f Form
+	if err := c.Bind(&f); err != nil {
+		return badRequest(c, err)
+	}
+	r, err := model.Record(z, c, f.ID)
+	if err != nil {
+		return err
+	}
+	if err = model.UpdateTitle(c, int64(f.ID), f.Value); err != nil {
+		return badRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, r)
+}
+
+func YMDEdit(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor ymd"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+
+	var f Form
+	if err := c.Bind(&f); err != nil {
+		return badRequest(c, err)
+	}
+	r, err := model.Record(z, c, f.ID)
+	if err != nil {
+		return err
+	}
+	y := ValidY(f.Year)
+	m := ValidM(f.Month)
+	d := ValidD(f.Day)
+	if err = model.UpdateYMD(c, int64(f.ID), y, m, d); err != nil {
+		return badRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, r)
+}
+
+func ValidY(y int16) null.Int16 {
+	if y < 1980 || y > int16(time.Now().Year()) {
+		return null.Int16{Int16: 0, Valid: false}
+	}
+	return null.Int16{Int16: y, Valid: true}
+}
+
+func ValidM(m int16) null.Int16 {
+	if m < 1 || m > 12 {
+		return null.Int16{Int16: 0, Valid: false}
+	}
+	return null.Int16{Int16: m, Valid: true}
+}
+
+func ValidD(d int16) null.Int16 {
+	if d < 1 || d > 31 {
+		return null.Int16{Int16: 0, Valid: false}
+	}
+	return null.Int16{Int16: d, Valid: true}
 }
 
 // RecordToggle handles the post submission for the File artifact is online and public toggle.

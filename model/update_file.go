@@ -94,3 +94,61 @@ func UpdateNoReadme(c echo.Context, id int64, val bool) error {
 	}
 	return nil
 }
+
+// UpdateTitle updates the title column value with val.
+// It returns nil if the update was successful.
+// Id is the database id of the record.
+func UpdateTitle(c echo.Context, id int64, val string) error {
+	if c == nil {
+		return ErrCtx
+	}
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := models.FindFile(ctx, db, id)
+	if err != nil {
+		return err
+	}
+	// TODO: format val text
+	f.RecordTitle = null.StringFrom(val)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return err
+	}
+	return nil
+}
+
+// UpdateYMD updates the title column value with val.
+// It returns nil if the update was successful.
+// Id is the database id of the record.
+func UpdateYMD(c echo.Context, id int64, y, m, d null.Int16) error {
+	if c == nil {
+		return ErrCtx
+	}
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := models.FindFile(ctx, db, id)
+	if err != nil {
+		return err
+	}
+	f.DateIssuedYear = y
+	f.DateIssuedMonth = m
+	f.DateIssuedDay = d
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return err
+	}
+	//fmt.Println(f.ID, y, m, d)
+	//f.DateIssuedDay =
+	// // TODO: format val text
+	// f.RecordTitle = null.StringFrom(val)
+	// if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+	// 	return err
+	// }
+	return nil
+}

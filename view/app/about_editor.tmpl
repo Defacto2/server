@@ -162,11 +162,14 @@
           <div class="mb-3 row">
             <label for="recordTitle" id="recordTitleLabel" class="col-sm-1 col-form-label">Title</label>
             <div class="col-sm-5">
-              <input type="text" name="title" class="form-control" id="recordTitle" value="{{index . "recTitle"}}">
+              <input type="text" name="title" class="form-control" id="recordTitle" 
+                value="{{index . "recTitle"}}" placeholder="{{index . "filename"}}">
+              <div class="invalid-feedback" id="recordTitleErr" class="d-none">something went wrong</div>
               <div class="form-text">
                 A title can be the name of the release or title of the document,<br>
                 or a very brief description of the file artifact.<br>
                 The title is optional, otherwise the filename is used.
+                <div id="recordTitleOG" class="text-info d-none">previous title: <span id="recordTitleOGValue">{{index . "recTitle"}}</span></div>
               </div>
             </div>
             <label for="recordReleasers" id="recordReleasersLabel" class="col-sm-1 col-form-label">Releasers</label>
@@ -179,17 +182,23 @@
               </div>
             </div>
           </div>
-
-          <div class="input-group mb-3">
-            <span class="input-group-text">Year, month, day of release</span>
-            <input type="number" name="release-year" id="recordYear" min="1980" max="2023" aria-label="Year of release" class="form-control input-date" value="{{index . "recYear"}}" placeholder="{{exampleYear}}">
-            <input type="number" name="release-month" id="recordMonth" min="0" max="12" aria-label="Month of release" class="form-control input-date" value="{{index . "recMonth"}}" placeholder="{{exampleMonth}}">
-            <input type="number" name="release-day" id="recordDay" min="0" max="31" aria-label="Day of release" class="form-control input-date" value="{{index . "recDay"}}" placeholder="{{exampleDay}}">
-            {{recordLastMod (index . "recLastMod") }}Use last modification</button>
-            <button class="btn btn-outline-success px-5" type="button">Save</button>
-            <button class="btn btn-outline-danger" type="button">Reset</button>
+          <div class="col-sm-10 mb-3">
+            <div class="input-group">
+              <span class="input-group-text">Year, month, day of release</span>
+              <input type="number" name="release-year" id="recordYear" min="1980" max="2023" aria-label="Year of release" class="form-control input-date" value="{{index . "recYear"}}" placeholder="{{exampleYear}}">
+              <input type="number" name="release-month" id="recordMonth" min="0" max="12" aria-label="Month of release" class="form-control input-date" value="{{index . "recMonth"}}" placeholder="{{exampleMonth}}">
+              <input type="number" name="release-day" id="recordDay" min="0" max="31" aria-label="Day of release" class="form-control input-date" value="{{index . "recDay"}}" placeholder="{{exampleDay}}">
+              <button id="recordYMDReset" class="btn btn-outline-danger" type="button">Reset</button>
+              {{recordLastMod (index . "recLastMod") }}Use last modification</button>
+              <button id="recordYMDSave" class="btn btn-outline-success px-5" type="button">Save</button>
+            </div>
+            <input type="hidden" id="recordOgY" value="{{index . "recYear"}}">
+            <input type="hidden" id="recordOgM" value="{{index . "recMonth"}}">
+            <input type="hidden" id="recordOgD" value="{{index . "recDay"}}">
           </div>
           <input type="hidden" id="recordLastMod" value="{{index . "recLastModValue"}}">
+          <input type="hidden" id="recOSOg" value="{{index . "recOS"}}">
+          <input type="hidden" id="recTagOg" value="{{index . "recTag"}}">
           <div class="mb-1 row">
             <div class="input-group">
               <label class="input-group-text" name="platform" for="recordPlatform">Platform</label>
@@ -203,15 +212,18 @@
             </div> 
           </div>
           <div class="btn-group mb-3">
-            <button class="btn btn-sm btn-link" id="recordDosText" type="button">Dos text</button>
+            <button class="btn btn-sm btn-link link-danger" id="recTagsReset" type="button">Reset</button>
+            <span class="form-text ms-3">Popular</span>
+            <button class="btn btn-sm btn-link" id="recordDosText" type="button">MsDos text</button>
             <button class="btn btn-sm btn-link" id="recordAmigaText" type="button">Amiga text</button>
             <button class="btn btn-sm btn-link" id="recordProof" type="button">Proof</button>
-            <button class="btn btn-sm btn-link" id="recordDostro" type="button">Dos intro</button>
-            <button class="btn btn-sm btn-link" id="recordWintro" type="button">Win intro</button>
+            <button class="btn btn-sm btn-link" id="recordDostro" type="button">MsDos intro</button>
+            <button class="btn btn-sm btn-link" id="recordWintro" type="button">Windows intro</button>
             <button class="btn btn-sm btn-link" id="recordBBStro" type="button">BBStro</button>
             <button class="btn btn-sm btn-link" id="recordBBSAnsi" type="button">BBS ANSI ad</button>
-            <button class="btn btn-sm btn-link" id="recordTextMag" type="button">Emag text</button>
-            <button class="btn btn-sm btn-link" id="recordDosMag" type="button">Emag Dos app</button>
+            <span class="form-text ms-3">Magazine</span>
+            <button class="btn btn-sm btn-link" id="recordTextMag" type="button">text</button>
+            <button class="btn btn-sm btn-link" id="recordDosMag" type="button">MsDos app</button>
           </div>
           <div class="mb-3">
             <div class="input-group">
@@ -232,17 +244,20 @@
                 <label for="recordWriter">Writers</label>
               </div>
             </div>
-            <div class="form-text">Join multiple authors or credits with commas, example: <code>nick1,nick2</code></div>
+            <div class="form-text">Join multiple artists, coders, musicians and writers with commas, example: <code>nick1,nick2,nick3</code></div>
           </div>
+          <hr>
           <div class="form-text text-info-emphasis mb-2">All the fields below are optional and usually don't need modification</div>
           <div class="mb-3 input-group">
             <div class="form-floating">
               <input type="text" class="form-control" id="recordDemozoo" value="{{index . "demozoo"}}">
               <label for="recordDemozoo">Demozoo prod</label>
+              <p class="form-text"><a href="https://demozoo.org/productions/{{index . "demozoo"}}">link to demozoo</a></p>
             </div>
             <div class="form-floating">
               <input type="text" class="form-control" id="recordPouet" value="{{index . "pouet"}}">
               <label for="recordPouet">Pouet prod</label>
+              <p class="form-text"><a href="https://www.pouet.net/prod.php?which={{index . "pouet"}}">link to pouet</a></p>
             </div>
             <div class="form-floating">
               <input type="text" class="form-control" id="record16colors" value="{{index . "sixteenColors"}}">

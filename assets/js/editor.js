@@ -2,6 +2,11 @@
   "use strict";
 
   const danger = `text-danger`;
+  const err = `is-invalid`;
+  const ok = `is-valid`;
+  const fok = `valid-feedback`;
+  const ferr = `invalid-feedback`;
+  const hide = `d-none`;
   const header = {
     "Content-type": "application/json; charset=UTF-8",
   };
@@ -16,7 +21,7 @@
     return;
   }
 
-  // Modify the file metadata, online and public
+  // Modify the file metadata, File artifact is online and public
   const online = document.getElementById(`recordOnline`);
   const onlineL = document.getElementById(`recordOnlineLabel`);
   if (online.checked != true) {
@@ -50,15 +55,184 @@
       });
   });
 
-  // recordTitle
+  // Modify the file metadata, Title
   const recTitle = document.getElementById(`recordTitle`);
   recTitle.addEventListener(`input`, function (event) {
-    recTitle.value = recTitle.value.trimStart();
-    if (recTitle.value == ``) {
-      recTitle.classList.add(danger);
+    const infoErr = document.getElementById(`recordTitleErr`);
+    const ogLabel = document.getElementById(`recordTitleOG`);
+    const ogText = document.getElementById(`recordTitleOGValue`).textContent;
+    if (recTitle.value != ogText && recTitle.value.length > 0) {
+      ogLabel.classList.remove(hide);
+    } else {
+      ogLabel.classList.add(hide);
+    }
+    recTitle.classList.remove(err);
+    infoErr.classList.add(hide);
+    fetch("/editor/title", {
+      method: "POST",
+      body: JSON.stringify({
+        id: parseInt(id.value),
+        value: recTitle.value,
+      }),
+      headers: header,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(saveErr);
+        }
+        infoErr.classList.add(hide);
+        recTitle.classList.remove(err);
+        recTitle.classList.add(ok);
+        return response.json();
+      })
+      .catch((error) => {
+        infoErr.classList.remove(hide);
+        recTitle.classList.add(err);
+        console.log(error.message);
+      });
+  });
+
+  // Modify the file metadata, Year, month, day of release, save button
+  const recYMDSave = document.getElementById(`recordYMDSave`);
+  recYMDSave.addEventListener(`click`, function (event) {
+    year.classList.remove(ok);
+    month.classList.remove(ok);
+    day.classList.remove(ok);
+    fetch("/editor/ymd", {
+      method: "POST",
+      body: JSON.stringify({
+        id: parseInt(id.value),
+        year: parseInt(year.value),
+        month: parseInt(month.value),
+        day: parseInt(day.value),
+      }),
+      headers: header,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(saveErr);
+        }
+        year.classList.add(ok);
+        month.classList.add(ok);
+        day.classList.add(ok);
+        recYMDSave.classList.remove(danger);
+        return response.json();
+      })
+      .catch((error) => {
+        recYMDSave.classList.add(danger);
+        console.log(error.message);
+      });
+  });
+
+  // Modify the file metadata, Year, month, day of release, Use last modification button
+  document
+    .getElementById(`recordLMBtn`)
+    .addEventListener(`click`, function (event) {
+      year.classList.remove(err);
+      month.classList.remove(err);
+      day.classList.remove(err);
+      year.classList.remove(ok);
+      month.classList.remove(ok);
+      day.classList.remove(ok);
+      const split = document.getElementById(`recordLastMod`).value.split(`-`);
+      if (split.length != 3) {
+        console.error(`invalid last modified date provided by server`);
+        return;
+      }
+      year.value = split[0];
+      month.value = split[1];
+      day.value = split[2];
+    });
+
+  // Modify the file metadata, Year, month, day of release, reset button
+  document
+    .getElementById(`recordYMDReset`)
+    .addEventListener(`click`, function (event) {
+      const ogy = document.getElementById(`recordOgY`).value;
+      const ogm = document.getElementById(`recordOgM`).value;
+      const ogd = document.getElementById(`recordOgD`).value;
+      year.value = ogy;
+      month.value = ogm;
+      day.value = ogd;
+      year.classList.remove(err);
+      month.classList.remove(err);
+      day.classList.remove(err);
+      year.classList.remove(ok);
+      month.classList.remove(ok);
+      day.classList.remove(ok);
+      recYMDSave.disabled = false;
+    });
+
+  // Modify the file metadata, Year, month, day of release
+  const year = document.getElementById(`recordYear`);
+  const month = document.getElementById(`recordMonth`);
+  const day = document.getElementById(`recordDay`);
+  year.addEventListener(`input`, function (event) {
+    if (year.value >= 1980 && year.value <= 2023) {
+      year.classList.remove(err);
+      recYMDSave.disabled = false;
       return;
     }
-    recTitle.classList.remove(danger);
+    // year can only be empty when month and day are empty
+    if (year.value == `` && month.value == `` && day.value == ``) {
+      year.classList.remove(err);
+      month.classList.remove(err);
+      day.classList.remove(err);
+      recYMDSave.disabled = false;
+      return;
+    }
+    year.classList.add(err);
+    recYMDSave.disabled = true;
+  });
+  month.addEventListener(`input`, function (event) {
+    if (month.value >= 1 && month.value <= 12) {
+      month.classList.remove(err);
+      recYMDSave.disabled = false;
+      return;
+    }
+    if (year.value == `` && month.value == `` && day.value == ``) {
+      year.classList.remove(err);
+      month.classList.remove(err);
+      day.classList.remove(err);
+      recYMDSave.disabled = false;
+      return;
+    }
+    // month can only be empty when day is empty
+    if (month.value == `` && day.value == ``) {
+      month.classList.remove(err);
+      day.classList.remove(err);
+      recYMDSave.disabled = false;
+      return;
+    }
+    month.classList.add(err);
+    recYMDSave.disabled = true;
+  });
+  day.addEventListener(`input`, function (event) {
+    if (day.value >= 1 && day.value <= 31) {
+      day.classList.remove(err);
+      recYMDSave.disabled = false;
+      return;
+    }
+    if (year.value == `` && month.value == `` && day.value == ``) {
+      year.classList.remove(err);
+      month.classList.remove(err);
+      day.classList.remove(err);
+      recYMDSave.disabled = false;
+      return;
+    }
+    if (month.value == `` && day.value == ``) {
+      month.classList.remove(err);
+      day.classList.remove(err);
+      recYMDSave.disabled = false;
+      return;
+    }
+    if (day.value == ``) {
+      day.classList.remove(err);
+      recYMDSave.disabled = false;
+      return;
+    }
+    day.classList.add(err);
+    recYMDSave.disabled = true;
   });
 
   // releasers
@@ -105,81 +279,6 @@
     // re = regexp.MustCompile(` `)
     // s = re.ReplaceAllString(s, "-")
   });
-
-  // release dates
-  const year = document.getElementById(`recordYear`);
-  const month = document.getElementById(`recordMonth`);
-  const day = document.getElementById(`recordDay`);
-  year.addEventListener(`input`, function (event) {
-    if (year.value >= 1980 && year.value <= 2023) {
-      year.classList.remove(err);
-      return;
-    }
-    // year can only be empty when month and day are empty
-    if (year.value == `` && month.value == `` && day.value == ``) {
-      year.classList.remove(err);
-      month.classList.remove(err);
-      day.classList.remove(err);
-      return;
-    }
-    year.classList.add(err);
-  });
-  month.addEventListener(`input`, function (event) {
-    if (month.value >= 1 && month.value <= 12) {
-      month.classList.remove(err);
-      return;
-    }
-    if (year.value == `` && month.value == `` && day.value == ``) {
-      year.classList.remove(err);
-      month.classList.remove(err);
-      day.classList.remove(err);
-      return;
-    }
-    // month can only be empty when day is empty
-    if (month.value == `` && day.value == ``) {
-      month.classList.remove(err);
-      day.classList.remove(err);
-      return;
-    }
-    month.classList.add(err);
-  });
-  day.addEventListener(`input`, function (event) {
-    if (month.value >= 1 && month.value <= 31) {
-      month.classList.remove(err);
-      return;
-    }
-    if (year.value == `` && month.value == `` && day.value == ``) {
-      year.classList.remove(err);
-      month.classList.remove(err);
-      day.classList.remove(err);
-      return;
-    }
-    if (month.value == `` && day.value == ``) {
-      month.classList.remove(err);
-      day.classList.remove(err);
-      return;
-    }
-    if (day.value == ``) {
-      day.classList.remove(err);
-      return;
-    }
-    day.classList.add(err);
-  });
-
-  // last modification button
-  const lmBtn = document.getElementById(`recordLMBtn`);
-  const lm = document.getElementById(`recordLastMod`);
-  if (typeof lmBtn !== `undefined` && lmBtn !== null) {
-    lmBtn.addEventListener(`click`, function (event) {
-      const split = lm.value.split(`-`);
-      if (split.length != 3) {
-        return;
-      }
-      year.value = split[0];
-      month.value = split[1];
-      day.value = split[2];
-    });
-  }
 
   // people
   function parseName(name) {
@@ -414,8 +513,19 @@
     filename.classList.remove(err);
   });
 
+  // Modify the file metadata, Platform and Tag
   const platform = document.getElementById(`recordPlatform`);
   const tag = document.getElementById(`recordTag`);
+
+  document.getElementById(`recTagsReset`).addEventListener(`click`, function () {
+    const ogp = document.getElementById(`recOSOg`).value;
+    const ogt = document.getElementById(`recTagOg`).value;
+    platform.value = ogp;
+    tag.value = ogt;
+  });
+
+
+
   const releaserL = document.getElementById(`recordReleasersLabel`);
   const titleL = document.getElementById(`recordTitleLabel`);
 
