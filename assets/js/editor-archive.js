@@ -3,7 +3,9 @@
 
   const danger = `text-danger`;
   const err = `is-invalid`;
-  const ok = `is-valid`;
+  const ok = `is-valid`;  
+  const fok = `valid-feedback`;
+  const ferr = `invalid-feedback`;
 
   const header = {
     "Content-type": "application/json; charset=UTF-8",
@@ -30,7 +32,7 @@
     return;
   }
 
-  readmeCP.addEventListener(`input`, function (event) {
+  readmeCP.addEventListener(`input`, function () {
     readmeCP.classList.remove(err);
     readmeCP.classList.remove(ok);
     if (readmeCP.value == ``) {
@@ -72,7 +74,7 @@
   // Modify the file assets, readme in archive reset
   document
     .getElementById(`edCopyMeReset`)
-    .addEventListener(`click`, function (event) {
+    .addEventListener(`click`, function () {
       readmeCP.value = ``;
       readmeCP.classList.remove(err);
       readmeCP.classList.remove(ok);
@@ -87,7 +89,7 @@
     document.getElementById(`edHideMeLabel`).classList.add(danger);
     readmeCP.disabled = true;
   }
-  readmeHide.addEventListener(`change`, function (event) {
+  readmeHide.addEventListener(`change`, function () {
     const label = document.getElementById(`edHideMeLabel`);
     if (readmeHide.checked == true) {
       label.classList.add(danger);
@@ -121,14 +123,14 @@
   const previewValue = document.getElementById(`edCopyPreview`);
   const previewList = document.getElementById(`edCopyPreviewList`);
   const previewB = document.getElementById(`edCopyPreviewBtn`);
-  previewValue.addEventListener(`input`, function (event) {
+  previewValue.addEventListener(`input`, function () {
     previewValue.classList.remove(err);
     previewValue.classList.remove(ok);
     if (previewValue.value == ``) {
       return;
     }
   });
-  previewB.addEventListener(`click`, function (event) {
+  previewB.addEventListener(`click`, function () {
     let exists = Array.from(previewList.options).some(
       (option) => option.value === previewValue.value
     );
@@ -153,7 +155,6 @@
         if (!response.ok) {
           console.log(`not ok`);
           throw new Error(saveErr);
-          return;
         }
         previewValue.classList.add(ok);
         return response.json();
@@ -181,14 +182,14 @@
   const ansiloveValue = document.getElementById(`edAnsiLove`);
   const ansiloveList = document.getElementById(`edAnsiLoveList`);
   const ansiloveB = document.getElementById(`edAnsiLoveBtn`);
-  ansiloveValue.addEventListener(`input`, function (event) {
+  ansiloveValue.addEventListener(`input`, function () {
     ansiloveValue.classList.remove(err);
     ansiloveValue.classList.remove(ok);
     if (ansiloveValue.value == ``) {
       return;
     }
   });
-  ansiloveB.addEventListener(`click`, function (event) {
+  ansiloveB.addEventListener(`click`, function () {
     let exists = Array.from(ansiloveList.options).some(
       (option) => option.value === ansiloveValue.value
     );
@@ -211,7 +212,6 @@
         if (!response.ok) {
           console.log(`not ok`);
           throw new Error(saveErr);
-          return;
         }
         ansiloveValue.classList.add(ok);
         return response.json();
@@ -238,7 +238,7 @@
   // Modify the file metadata, delete readme asset
   const readmeDel = document.getElementById(`edBtnRead`)
   readmeDel.disabled = false;
-  readmeDel.addEventListener(`click`, function (event) {
+  readmeDel.addEventListener(`click`, function () {
       if (!window.confirm("Delete the readme or textfile?")) {
         return;
       }

@@ -253,6 +253,9 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.POST("/editor/ymd", func(c echo.Context) error {
 		return app.YMDEdit(z, c)
 	})
+	e.POST("/editor/platform", func(c echo.Context) error {
+		return app.PlatformEdit(z, c)
+	})
 
 	return e, nil
 }

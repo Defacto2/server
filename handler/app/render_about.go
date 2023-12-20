@@ -113,6 +113,8 @@ func (a Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error {
 	data["musicians"] = res.CreditAudio.String
 	// links to other records and sites
 	data["listLinks"] = aboutLinks(res)
+	data["listReleases"] = res.ListRelations.String
+	data["listWebsites"] = res.ListLinks.String
 	data["demozoo"] = aboutID(res.WebIDDemozoo.Int64)
 	data["pouet"] = aboutID(res.WebIDPouet.Int64)
 	data["sixteenColors"] = res.WebID16colors.String

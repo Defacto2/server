@@ -56,6 +56,27 @@ func PostIntro(z *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
+// PlatformEdit handles the post submission for the Platform selection field.
+func PlatformEdit(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor platform"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+
+	var f Form
+	if err := c.Bind(&f); err != nil {
+		return badRequest(c, err)
+	}
+	r, err := model.Record(z, c, f.ID)
+	if err != nil {
+		return err
+	}
+	if err = model.UpdatePlatform(c, int64(f.ID), f.Value); err != nil {
+		return badRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, r)
+}
+
 // TitleEdit handles the post submission for the Delete readme asset button.
 func TitleEdit(z *zap.SugaredLogger, c echo.Context) error {
 	const name = "editor title"

@@ -95,6 +95,34 @@ func UpdateNoReadme(c echo.Context, id int64, val bool) error {
 	return nil
 }
 
+// UpdatePlatform updates the platform column value with val.
+// It returns nil if the update was successful.
+// Id is the database id of the record.
+func UpdatePlatform(c echo.Context, id int64, val string) error {
+	if c == nil {
+		return ErrCtx
+	}
+
+	// TODO: validate val
+	val = strings.ToLower(val)
+
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := models.FindFile(ctx, db, id)
+	if err != nil {
+		return err
+	}
+	f.Platform = null.StringFrom(val)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return err
+	}
+	return nil
+}
+
 // UpdateTitle updates the title column value with val.
 // It returns nil if the update was successful.
 // Id is the database id of the record.

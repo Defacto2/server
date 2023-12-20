@@ -1,15 +1,16 @@
 (() => {
   "use strict";
 
-  const danger = `text-danger`;
+  const dang = `text-danger`;
   const err = `is-invalid`;
   const ok = `is-valid`;
-  const fok = `valid-feedback`;
-  const ferr = `invalid-feedback`;
+  // const fok = `valid-feedback`;
+  // const ferr = `invalid-feedback`;
   const hide = `d-none`;
   const header = {
     "Content-type": "application/json; charset=UTF-8",
   };
+  const saveErr = `server could not save the change`;
 
   // The table record id and key value, used for all fetch requests
   // It is also used to confirm the existence of the editor modal
@@ -25,9 +26,9 @@
   const online = document.getElementById(`recordOnline`);
   const onlineL = document.getElementById(`recordOnlineLabel`);
   if (online.checked != true) {
-    onlineL.classList.add(danger);
+    onlineL.classList.add(dang);
   }
-  online.addEventListener(`change`, function (event) {
+  online.addEventListener(`change`, function () {
     let path = `/editor/online/false`;
     if (online.checked == true) {
       path = `/editor/online/true`;
@@ -44,9 +45,9 @@
           throw new Error(saveErr);
         }
         if (online.checked == true) {
-          onlineL.classList.remove(danger);
+          onlineL.classList.remove(dang);
         } else {
-          onlineL.classList.add(danger);
+          onlineL.classList.add(dang);
         }
         return response.json();
       })
@@ -57,7 +58,7 @@
 
   // Modify the file metadata, Title
   const recTitle = document.getElementById(`recordTitle`);
-  recTitle.addEventListener(`input`, function (event) {
+  recTitle.addEventListener(`input`, function () {
     const infoErr = document.getElementById(`recordTitleErr`);
     const ogLabel = document.getElementById(`recordTitleOG`);
     const ogText = document.getElementById(`recordTitleOGValue`).textContent;
@@ -94,7 +95,7 @@
 
   // Modify the file metadata, Year, month, day of release, save button
   const recYMDSave = document.getElementById(`recordYMDSave`);
-  recYMDSave.addEventListener(`click`, function (event) {
+  recYMDSave.addEventListener(`click`, function () {
     year.classList.remove(ok);
     month.classList.remove(ok);
     day.classList.remove(ok);
@@ -115,39 +116,37 @@
         year.classList.add(ok);
         month.classList.add(ok);
         day.classList.add(ok);
-        recYMDSave.classList.remove(danger);
+        recYMDSave.classList.remove(dang);
         return response.json();
       })
       .catch((error) => {
-        recYMDSave.classList.add(danger);
+        recYMDSave.classList.add(dang);
         console.log(error.message);
       });
   });
 
   // Modify the file metadata, Year, month, day of release, Use last modification button
-  document
-    .getElementById(`recordLMBtn`)
-    .addEventListener(`click`, function (event) {
-      year.classList.remove(err);
-      month.classList.remove(err);
-      day.classList.remove(err);
-      year.classList.remove(ok);
-      month.classList.remove(ok);
-      day.classList.remove(ok);
-      const split = document.getElementById(`recordLastMod`).value.split(`-`);
-      if (split.length != 3) {
-        console.error(`invalid last modified date provided by server`);
-        return;
-      }
-      year.value = split[0];
-      month.value = split[1];
-      day.value = split[2];
-    });
+  document.getElementById(`recordLMBtn`).addEventListener(`click`, function () {
+    year.classList.remove(err);
+    month.classList.remove(err);
+    day.classList.remove(err);
+    year.classList.remove(ok);
+    month.classList.remove(ok);
+    day.classList.remove(ok);
+    const split = document.getElementById(`recordLastMod`).value.split(`-`);
+    if (split.length != 3) {
+      console.error(`invalid last modified date provided by server`);
+      return;
+    }
+    year.value = split[0];
+    month.value = split[1];
+    day.value = split[2];
+  });
 
   // Modify the file metadata, Year, month, day of release, reset button
   document
     .getElementById(`recordYMDReset`)
-    .addEventListener(`click`, function (event) {
+    .addEventListener(`click`, function () {
       const ogy = document.getElementById(`recordOgY`).value;
       const ogm = document.getElementById(`recordOgM`).value;
       const ogd = document.getElementById(`recordOgD`).value;
@@ -167,7 +166,7 @@
   const year = document.getElementById(`recordYear`);
   const month = document.getElementById(`recordMonth`);
   const day = document.getElementById(`recordDay`);
-  year.addEventListener(`input`, function (event) {
+  year.addEventListener(`input`, function () {
     if (year.value >= 1980 && year.value <= 2023) {
       year.classList.remove(err);
       recYMDSave.disabled = false;
@@ -184,7 +183,7 @@
     year.classList.add(err);
     recYMDSave.disabled = true;
   });
-  month.addEventListener(`input`, function (event) {
+  month.addEventListener(`input`, function () {
     if (month.value >= 1 && month.value <= 12) {
       month.classList.remove(err);
       recYMDSave.disabled = false;
@@ -207,7 +206,7 @@
     month.classList.add(err);
     recYMDSave.disabled = true;
   });
-  day.addEventListener(`input`, function (event) {
+  day.addEventListener(`input`, function () {
     if (day.value >= 1 && day.value <= 31) {
       day.classList.remove(err);
       recYMDSave.disabled = false;
@@ -238,7 +237,7 @@
   // releasers
   const releasers = document.getElementById(`recordReleasers`);
   const releasersMax = document.getElementById(`recordReleasersMax`);
-  releasers.addEventListener(`input`, function (event) {
+  releasers.addEventListener(`input`, function () {
     // enforce text input
     releasers.value = releasers.value.toUpperCase();
     releasers.value = releasers.value.replace(/[^a-zA-Z0-9-+& ]/g, "");
@@ -291,22 +290,22 @@
   const coder = document.getElementById(`recordCoder`);
   const music = document.getElementById(`recordMusic`);
   const writer = document.getElementById(`recordWriter`);
-  artist.addEventListener(`input`, function (event) {
+  artist.addEventListener(`input`, function () {
     artist.value = parseName(artist.value);
   });
-  coder.addEventListener(`input`, function (event) {
+  coder.addEventListener(`input`, function () {
     coder.value = parseName(coder.value);
   });
-  music.addEventListener(`input`, function (event) {
+  music.addEventListener(`input`, function () {
     music.value = parseName(music.value);
   });
-  writer.addEventListener(`input`, function (event) {
+  writer.addEventListener(`input`, function () {
     writer.value = parseName(writer.value);
   });
 
   // demozoo copy and paste
   const dz = document.getElementById(`recordDemozoo`);
-  dz.addEventListener(`paste`, function (event) {
+  dz.addEventListener(`paste`, function () {
     // delay execution to allow the paste action to complete
     setTimeout(() => {
       try {
@@ -349,7 +348,7 @@
     }, 0);
   });
   // demozoo input
-  dz.addEventListener(`input`, function (event) {
+  dz.addEventListener(`input`, function () {
     let id = Number(dz.value); // remove leading zeros
     if (isNaN(id)) {
       dz.classList.add(err);
@@ -366,7 +365,7 @@
   });
   // pouet copy and paste
   const pouet = document.getElementById(`recordPouet`);
-  pouet.addEventListener(`paste`, function (event) {
+  pouet.addEventListener(`paste`, function () {
     // delay execution to allow the paste action to complete
     setTimeout(() => {
       try {
@@ -399,7 +398,7 @@
     }, 0);
   });
   // pouet input
-  pouet.addEventListener(`input`, function (event) {
+  pouet.addEventListener(`input`, function () {
     let id = Number(pouet.value); // remove leading zeros
     if (isNaN(id)) {
       pouet.classList.add(err);
@@ -416,7 +415,7 @@
   });
   // 16colors
   const sixteen = document.getElementById(`record16colors`);
-  sixteen.addEventListener(`paste`, function (event) {
+  sixteen.addEventListener(`paste`, function () {
     // delay execution to allow the paste action to complete
     setTimeout(() => {
       try {
@@ -433,7 +432,7 @@
       }
     }, 0);
   });
-  sixteen.addEventListener(`input`, function (event) {
+  sixteen.addEventListener(`input`, function () {
     if (sixteen.value == ``) {
       sixteen.classList.remove(err);
       return;
@@ -441,7 +440,7 @@
   });
   // github
   const gh = document.getElementById(`recordGitHub`);
-  gh.addEventListener(`paste`, function (event) {
+  gh.addEventListener(`paste`, function () {
     // delay execution to allow the paste action to complete
     setTimeout(() => {
       try {
@@ -458,7 +457,7 @@
       }
     }, 0);
   });
-  gh.addEventListener(`input`, function (event) {
+  gh.addEventListener(`input`, function () {
     if (gh.value == ``) {
       gh.classList.remove(err);
       return;
@@ -466,7 +465,7 @@
   });
   // youtube
   const yt = document.getElementById(`recordYouTube`);
-  yt.addEventListener(`paste`, function (event) {
+  yt.addEventListener(`paste`, function () {
     // delay execution to allow the paste action to complete
     setTimeout(() => {
       try {
@@ -487,7 +486,7 @@
       }
     }, 0);
   });
-  yt.addEventListener(`input`, function (event) {
+  yt.addEventListener(`input`, function () {
     setTimeout(() => {
       if (yt.value == ``) {
         yt.classList.remove(err);
@@ -517,20 +516,45 @@
   const platform = document.getElementById(`recordPlatform`);
   const tag = document.getElementById(`recordTag`);
 
-  document.getElementById(`recTagsReset`).addEventListener(`click`, function () {
+  platform.addEventListener(`change`, function (event) {
+    platform.classList.remove(err);
+    const value = event.target.value;
+    if (value.length == 0) {
+      platform.classList.add(err);
+      return;
+    }
+  });
+  tag.addEventListener(`change`, function (event) {
+    tag.classList.remove(err);
+    const value = event.target.value;
+    if (value.length == 0) {
+      tag.classList.add(err);
+      return;
+    }
+  });
+  // Reset the platform and tag to the original values
+  document
+  .getElementById(`recTagsReset`)
+  .addEventListener(`click`, function () {
     const ogp = document.getElementById(`recOSOg`).value;
     const ogt = document.getElementById(`recTagOg`).value;
     platform.value = ogp;
     tag.value = ogt;
+    platform.classList.remove(err);
+    tag.classList.remove(err);
+    if (platform.value.length == 0) {
+      platform.classList.add(err);
+    }
+    if (tag.value.length == 0) {
+      tag.classList.add(err);
+    }
   });
-
-
 
   const releaserL = document.getElementById(`recordReleasersLabel`);
   const titleL = document.getElementById(`recordTitleLabel`);
 
   // special handler for magazine tag
-  tag.addEventListener(`change`, function (event) {
+  tag.addEventListener(`change`, function () {
     setTimeout(() => {
       if (tag.value == `magazine`) {
         magazineTag();
@@ -551,71 +575,88 @@
   // platform and tag shortcut buttons
   document
     .getElementById(`recordDosText`)
-    .addEventListener(`click`, function (event) {
+    .addEventListener(`click`, function () {
       platform.value = `text`;
+      platform.classList.remove(err);
       tag.value = ``;
+      tag.classList.add(err);
       titleTag();
     });
   document
     .getElementById(`recordAmigaText`)
-    .addEventListener(`click`, function (event) {
+    .addEventListener(`click`, function () {
       platform.value = `textamiga`;
+      platform.classList.remove(err);
       tag.value = ``;
+      tag.classList.add(err);
       titleTag();
     });
-  document
-    .getElementById(`recordProof`)
-    .addEventListener(`click`, function (event) {
-      platform.value = `image`;
-      tag.value = `releaseproof`;
-      titleTag();
-    });
+  document.getElementById(`recordProof`).addEventListener(`click`, function () {
+    platform.value = `image`;
+    platform.classList.remove(err);
+    tag.value = `releaseproof`;
+    tag.classList.remove(err);
+    titleTag();
+  });
   document
     .getElementById(`recordDostro`)
-    .addEventListener(`click`, function (event) {
+    .addEventListener(`click`, function () {
       platform.value = `dos`;
+      platform.classList.remove(err);
       tag.value = `releaseadvert`;
+      tag.classList.remove(err);
       titleTag();
     });
   document
     .getElementById(`recordWintro`)
-    .addEventListener(`click`, function (event) {
+    .addEventListener(`click`, function () {
       platform.value = `windows`;
+      platform.classList.remove(err);
       tag.value = `releaseadvert`;
+      tag.classList.remove(err);
       titleTag();
     });
   document
     .getElementById(`recordBBStro`)
-    .addEventListener(`click`, function (event) {
+    .addEventListener(`click`, function () {
       platform.value = `dos`;
+      platform.classList.remove(err);
       tag.value = `bbs`;
+      tag.classList.remove(err);
       titleTag();
     });
   document
     .getElementById(`recordBBSAnsi`)
-    .addEventListener(`click`, function (event) {
+    .addEventListener(`click`, function () {
       platform.value = `ansi`;
+      platform.classList.remove(err);
       tag.value = `bbs`;
+      tag.classList.remove(err);
       titleTag();
     });
   document
     .getElementById(`recordTextMag`)
-    .addEventListener(`click`, function (event) {
+    .addEventListener(`click`, function () {
       platform.value = `text`;
       tag.value = `magazine`;
       magazineTag();
     });
   document
     .getElementById(`recordDosMag`)
-    .addEventListener(`click`, function (event) {
+    .addEventListener(`click`, function () {
       platform.value = `dos`;
+      platform.classList.remove(err);
       tag.value = `magazine`;
+      tag.classList.remove(err);
       magazineTag();
     });
 
+  // TODO: {{brief (index . "platform") (index . "section")}}
+  // create an fetch response to get the platform and section as text
+
   const reset = document.getElementById(`recordReset`);
   // reset all input elements
-  reset.addEventListener(`click`, function (event) {
+  reset.addEventListener(`click`, function () {
     // delay execution to allow the reset action to complete
     setTimeout(() => {
       if (online.checked != true) {

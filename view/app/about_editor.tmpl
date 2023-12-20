@@ -177,8 +177,8 @@
               <input type="text" name="releasers" class="form-control" id="recordReleasers" value="{{index . "recReleasers"}}">
               <div class="form-text">
                 <span id="recordReleasersMax">A maximum of two releasers</span>, 
-                  example: <code class="">Razor 1911 + Titan</code><code class="d-none">Console News + Titan</code>
-                  <span class=""><br>A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q>,<br>example: <code>Dark Domain BBS</code></span>
+                  example: <code class="">RAZOR 1911 + TITAN</code><code class="d-none">CONSOLE NEWS + TITAN</code>
+                  <span class=""><br>A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q>,<br>example: <code>DARK DOMAIN BBS</code></span>
               </div>
             </div>
           </div>
@@ -188,9 +188,9 @@
               <input type="number" name="release-year" id="recordYear" min="1980" max="2023" aria-label="Year of release" class="form-control input-date" value="{{index . "recYear"}}" placeholder="{{exampleYear}}">
               <input type="number" name="release-month" id="recordMonth" min="0" max="12" aria-label="Month of release" class="form-control input-date" value="{{index . "recMonth"}}" placeholder="{{exampleMonth}}">
               <input type="number" name="release-day" id="recordDay" min="0" max="31" aria-label="Day of release" class="form-control input-date" value="{{index . "recDay"}}" placeholder="{{exampleDay}}">
-              <button id="recordYMDReset" class="btn btn-outline-danger" type="button">Reset</button>
               {{recordLastMod (index . "recLastMod") }}Use last modification</button>
               <button id="recordYMDSave" class="btn btn-outline-success px-5" type="button">Save</button>
+              <button id="recordYMDReset" class="btn btn-outline-danger" type="button">Reset</button>
             </div>
             <input type="hidden" id="recordOgY" value="{{index . "recYear"}}">
             <input type="hidden" id="recordOgM" value="{{index . "recMonth"}}">
@@ -201,17 +201,20 @@
           <input type="hidden" id="recTagOg" value="{{index . "recTag"}}">
           <div class="mb-1 row">
             <div class="input-group">
-              <label class="input-group-text" name="platform" for="recordPlatform">Platform</label>
-              <select class="form-select" id="recordPlatform">
+              <label class="input-group-text col-sm-1" name="platform" for="recordPlatform">Platform</label>
+              <select class="form-select col-sm-10" id="recordPlatform">
                 {{ template "optionOS" . }}
               </select>
-              <span class="input-group-text" name="tag" for="recordTag">Tag</span>
-              <select class="form-select" id="recordTag">
+              <span class="input-group-text col-sm-1" name="tag" for="recordTag">Tag</span>
+              <select class="form-select col-sm-10" id="recordTag">
                 {{ template "optionTag" . }}
               </select>
-            </div> 
+              <div id="optionsTags" class="invalid-feedback text-center">
+                Both the Platform and the Tag must be selected.
+              </div>
+            </div>
           </div>
-          <div class="btn-group mb-3">
+          <div class="btn-group">
             <button class="btn btn-sm btn-link link-danger" id="recTagsReset" type="button">Reset</button>
             <span class="form-text ms-3">Popular</span>
             <button class="btn btn-sm btn-link" id="recordDosText" type="button">MsDos text</button>
@@ -225,6 +228,9 @@
             <button class="btn btn-sm btn-link" id="recordTextMag" type="button">text</button>
             <button class="btn btn-sm btn-link" id="recordDosMag" type="button">MsDos app</button>
           </div>
+
+          <div class="form-text mb-3">Platform and tag brief: <span class="text-primary-emphasis">a Windows intro</span></div>
+
           <div class="mb-3">
             <div class="input-group">
               <div class="form-floating">
@@ -262,25 +268,29 @@
             <div class="form-floating">
               <input type="text" class="form-control" id="record16colors" value="{{index . "sixteenColors"}}">
               <label for="record16colors">16colors partial</label>
+              <p class="form-text"><a href="https://16colo.rs/{{index . "sixteenColors"}}">link to 16colors</a></p>
             </div>
             <div class="form-floating">
               <input type="text" class="form-control" id="recordGitHub" value="{{index . "github"}}">
               <label for="recordGitHub">GitHub repository</label>
+              <p class="form-text"><a href="https://github.com{{index . "github"}}">link to github</a></p>
             </div>
           </div>
           <div class="mb-3">
-          <div class="form-text">links example: <code>NFO;9b1c6|Intro;a92116e</code></div>
+            <div class="row">
+              <div class="form-text col-md-6">releases example: <code>NFO;9b1c6 | Intro;a92116e</code></div>
+              <div class="form-text col-md-6 text-end">websites example: <code>Web;example.com | Docs;docs.example.com</code></div>
+            </div>
           <div class="input-group">
             <div class="form-floating">
-              <input type="text" class="form-control" id="recordLinks">
+              <input type="text" class="form-control" id="recordLinks" value="{{index . "listReleases"}}">
               <label for="recordLinks">Links to other releases</label>
             </div>
             <div class="form-floating">
-              <input type="text" class="form-control" id="recordWebsites">
+              <input type="text" class="form-control" id="recordWebsites" value="{{index . "listWebsites"}}">
               <label for="recordWebsites">Websites</label>
             </div>
           </div>
-          <div class="form-text text-end">websites example: <code>Original;https://web.com|Docs;https://info.org</code></div>
         </div>
           <div class="row g-2 mb-3">
             <div class="col-md">
@@ -303,7 +313,7 @@
             </div>
           </div>
           <div class="form-floating">
-            <textarea class="form-control" id="recordComment">{{index . "comment"}}</textarea>
+            <textarea class="form-control" id="recordComment" style="height:6em;">{{index . "comment"}}</textarea>
             <label for="recordComment">Comments</label>
           </div>
         </div>

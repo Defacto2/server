@@ -33,10 +33,10 @@ type T struct {
 
 // ByName returns the data of the named tag.
 func (t *T) ByName(z *zap.SugaredLogger, name string) TagData {
-	if Tags.List == nil {
+	if t.List == nil {
 		t.Build(z)
 	}
-	for _, m := range Tags.List {
+	for _, m := range t.List {
 		if strings.EqualFold(m.Name, name) {
 			return m
 		}
@@ -44,7 +44,7 @@ func (t *T) ByName(z *zap.SugaredLogger, name string) TagData {
 	return TagData{}
 }
 
-// Build the tags and collect the statistical data.
+// Build the tags and collect the statistical data sourced from the database.
 func (t *T) Build(z *zap.SugaredLogger) {
 	t.List = make([]TagData, LastPlatform+1)
 	i := -1
@@ -133,6 +133,84 @@ const (
 	Video
 	Windows
 )
+
+// List all the tags.
+func List() []Tag {
+	return []Tag{
+		Announcement,
+		ANSIEditor,
+		AppleII,
+		AtariST,
+		BBS,
+		Logo,
+		Bust,
+		Drama,
+		Rule,
+		Tool,
+		Intro,
+		Demo,
+		ForSale,
+		Ftp,
+		GameHack,
+		Job,
+		Guide,
+		Interview,
+		Mag,
+		News,
+		Nfo,
+		NfoTool,
+		Pack,
+		Proof,
+		Restrict,
+		Install,
+		ANSI,
+		Audio,
+		DataB,
+		DOS,
+		Markup,
+		Image,
+		Java,
+		Linux,
+		Mac,
+		PCB,
+		PDF,
+		PHP,
+		Text,
+		TextAmiga,
+		Video,
+		Windows,
+	}
+}
+
+// IsCategory returns true if the named tag is a category.
+func IsCategory(name string) bool {
+	for _, tag := range List() {
+		if strings.EqualFold(tag.String(), name) {
+			return tag >= FirstCategory && tag <= LastCategory
+		}
+	}
+	return false
+}
+
+// IsPlatform returns true if the named tag is a platform.
+func IsPlatform(name string) bool {
+	for _, tag := range List() {
+		if strings.EqualFold(tag.String(), name) {
+			return tag >= FirstPlatform && tag <= LastPlatform
+		}
+	}
+	return false
+}
+
+// IsTag returns true if the named tag is a category or platform.
+func IsTag(name string) bool {
+	for _, tag := range List() {
+		if strings.EqualFold(tag.String(), name) {
+			return true
+		}
+	}
+	return false
+}
 
 // Humanize returns the human readable name of the platform and section tags combined.
 func Humanize(platform, section Tag) string {
