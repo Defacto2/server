@@ -11,10 +11,10 @@
 {{- $github := (index . "github")}}
 {{- $comment := (index . "comment")}}
 {{- $mimetype := mimeMagic (index . "magic")}}
-{{- /*  Modal table contents of the file archive  */}}
+{{- /*  [FILENAME] Content  */}}
 {{- if (index . "content")}}
 <div class="modal fade" id="viewContentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="viewContentModalLabel">{{index . "filename"}} <small>content</small></h1>
@@ -36,12 +36,13 @@
                   </tr>
                 {{- end }}
                 </tbody>
-              </table>
+            </table>
         </div>
-        <div class="modal-footer row g-2">
-            {{- template "aboutTableSwitch" . }}
-            <div class="col-md text-end">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        {{/*  Switch to assets and Close button  */}}
+        <div class="modal-footer row g-3 mt-1">
+            <div class="col-md text-center">
+                {{- template "aboutTableSwitch" . }}
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Xlose</button>
             </div>
         </div>
       </div>

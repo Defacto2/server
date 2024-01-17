@@ -2,6 +2,7 @@
 {{- define "aboutEditorArchive" }}
 {{- $readmeSug := index . "recReadmeSug"}}
 {{- $replace := "refresh the page to see the changes"}}
+{{/*  Readme suggestion  */}}
 {{- if ne "" $readmeSug}}<p><strong>Readme suggestion</strong> <var>{{$readmeSug}}</var></p>{{end}}
 {{- if eq "" (index . "recZipContent")}}
 <hr class="m-0 mb-3 mt-3">
@@ -12,9 +13,9 @@
 <hr class="m-0 mb-3 mt-3">
 {{- /*  Readme in archive  */}}
 <div class="mb-3 row">
-  <label for="edCopyMe" id="edCopyMeLabel" class="col-sm-3 col-form-label"
+  <label for="edCopyMe" id="edCopyMeLabel" class="col-lg-3 col-form-label"
   data-bs-toggle="tooltip" data-bs-title="An included NFO, DIZ or text file to display"><strong>Readme</strong> in archive</label>
-  <div class="col-sm-5">
+  <div class="col-10 col-lg-5">
     <input list="edCopyMeList" name="title" class="form-control" id="edCopyMe" value="" placeholder="Use a named file">
     <datalist id="edCopyMeList">
       {{index . "recReadmeList"}}
@@ -22,11 +23,11 @@
     <div class="valid-feedback">Readme replaced, {{$replace}}</div>
     <div class="invalid-feedback" id="edCopyMeErr">something went wrong</div>
   </div>
-  <div class="col-sm-1">
+  <div class="col-1">
     <button class="btn btn-outline-danger" id="edCopyMeReset">Clear</button>
   </div>
   {{- /*  Hide readme from view  */}}
-  <div class="col-sm-3">
+  <div class="col-lg-3">
     <div class="form-check form-switch">
       {{recordReadme (index . "recNoReadme") }}
       <label class="form-check-label" id="edHideMeLabel" for="edHideMe">Hide readme from view</label>
@@ -35,12 +36,12 @@
     </div>
   </div>    
 </div>
-{{- /*  preview from image in archive  */}}
+{{- /*  Preview from image in archive  */}}
 <hr class="m-0 mb-3 mt-3">
 <div class="mb-3 row">
-  <label for="edCopyPreview" id="edCopyPreviewLabel" class="col-sm-3 col-form-label"
+  <label for="edCopyPreview" id="edCopyPreviewLabel" class="col-lg-3 col-form-label"
   data-bs-toggle="tooltip" data-bs-title="An included image to use as the preview and thumbnail"><strong>Preview</strong> from image in archive</label>
-  <div class="col-sm-5">
+  <div class="col-10 col-lg-5">
     {{- /*  TODO: default disabled based on hide value  */}}
     <input list="edCopyPreviewList" name="title" class="form-control" id="edCopyPreview" value="" placeholder="Use a named file">
     <datalist id="edCopyPreviewList">
@@ -49,20 +50,20 @@
     <div class="valid-feedback">Previews replaced, {{$replace}}</div>
     <div class="invalid-feedback" id="edCopyPreviewErr">something went wrong</div>
   </div>
-  <div class="col-sm-1">
+  <div class="col-1">
     <button class="btn btn-outline-danger" id="edCopyPreviewReset">Clear</button>
   </div>
-  <div class="col-sm-3 text-start">
+  <div class="col-8 mt-1 col-lg-3 mt-lg-0 text-start">
     <button class="btn btn-outline-success" id="edCopyPreviewBtn">Recreate previews and thumb</button>          
   </div>
 </div>
-{{- /*  preview from text in archive  */}}
+{{- /*  Preview from text in archive  */}}
 {{- /*  list all files, except: exe,com,dll,images,compressed files  */}}
 <hr class="m-0 mb-3 mt-3">
 <div class="mb-3 row">
-  <label for="edAnsiLove" id="edAnsiLoveLabel" class="col-sm-3 col-form-label"
+  <label for="edAnsiLove" id="edAnsiLoveLabel" class="col-lg-3 col-form-label"
   data-bs-toggle="tooltip" data-bs-title="An included text or ANSI art to use as the preview and thumbnail"><strong>Preview</strong> from text in archive</label>
-  <div class="col-sm-5">
+  <div class="col-10 col-lg-5">
     {{- /*  TODO: default disabled based on hide value  */}}
     <input list="edAnsiLoveList" name="title" class="form-control" id="edAnsiLove" value="" placeholder="Use a named file">
     <datalist id="edAnsiLoveList">
@@ -71,10 +72,10 @@
     <div class="valid-feedback">Previews replaced, {{$replace}}</div>
     <div class="invalid-feedback" id="edAnsiLoveErr">something went wrong</div>
   </div>
-  <div class="col-sm-1">
+  <div class="col-1">
     <button class="btn btn-outline-danger" id="edAnsiLoveReset">Clear</button>
   </div>
-  <div class="col-sm-3 text-start">
+  <div class="col-8 mt-1 col-lg-3 mt-lg-0 text-start">
     <button class="btn btn-outline-success" id="edAnsiLoveBtn">Recreate previews and thumb</button>          
   </div>
 </div>
