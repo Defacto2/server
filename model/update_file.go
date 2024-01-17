@@ -7,6 +7,7 @@ import (
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/labstack/echo/v4"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -15,6 +16,23 @@ import (
 const (
 	uidPlaceholder = `ADB7C2BF-7221-467B-B813-3636FE4AE16B`
 )
+
+func GetPlatformTagInfo(c echo.Context, platform, tag string) (string, error) {
+	if c == nil {
+		return "", ErrCtx
+	}
+	p, t := tags.TagByURI(platform), tags.TagByURI(tag)
+	return tags.Humanize(p, t), nil
+}
+
+func GetTagInfo(c echo.Context, tag string) (string, error) {
+	if c == nil {
+		return "", ErrCtx
+	}
+	t := tags.TagByURI(tag)
+	s := tags.Infos()[t]
+	return s, nil
+}
 
 // UpdateOnline updates the record to be online and public.
 func UpdateOnline(c echo.Context, id int64) error {
@@ -103,7 +121,7 @@ func UpdatePlatform(c echo.Context, id int64, val string) error {
 		return ErrCtx
 	}
 
-	// TODO: validate val
+	// TODO: validate val against a list of platforms
 	val = strings.ToLower(val)
 
 	db, err := postgres.ConnectDB()
@@ -117,6 +135,34 @@ func UpdatePlatform(c echo.Context, id int64, val string) error {
 		return err
 	}
 	f.Platform = null.StringFrom(val)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return err
+	}
+	return nil
+}
+
+// UpdateTag updates the section column value with val.
+// It returns nil if the update was successful.
+// Id is the database id of the record.
+func UpdateTag(c echo.Context, id int64, val string) error {
+	if c == nil {
+		return ErrCtx
+	}
+
+	// TODO: validate val against a list of SECTIONS
+	val = strings.ToLower(val)
+
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := models.FindFile(ctx, db, id)
+	if err != nil {
+		return err
+	}
+	f.Section = null.StringFrom(val)
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
 		return err
 	}

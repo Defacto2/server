@@ -809,3 +809,15 @@ func TagSel(check, option any) template.HTML {
 	}
 	return template.HTML(fmt.Sprintf("<option value=\"%s\">", s))
 }
+
+func TagInfoX(tag string) template.HTML {
+	t := tags.TagByURI(tag)
+	s := tags.Infos()[t]
+	return template.HTML(s)
+}
+
+func InfoOSTag(os, tag string) template.HTML {
+	p, t := tags.TagByURI(os), tags.TagByURI(tag)
+	s := tags.Humanize(p, t)
+	return template.HTML(s)
+}

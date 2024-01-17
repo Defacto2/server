@@ -32,14 +32,16 @@ func badRequest(c echo.Context, err error) error {
 
 // Form is the form data for the editor.
 type Form struct {
-	ID     int    `query:"id"`     // ID is the auto incrementing database id of the record.
-	Online bool   `query:"online"` // Online is the record online and public toggle.
-	Readme bool   `query:"readme"` // Readme hides the readme textfile from the about page.
-	Target string `query:"target"` // Target is the name of the file to extract from the zip archive.
-	Value  string `query:"value"`  // Value is the value of the form input field to change.
-	Year   int16  `query:"year"`   // Year is the year of the release.
-	Month  int16  `query:"month"`  // Month is the month of the release.
-	Day    int16  `query:"day"`    // Day is the day of the release.
+	ID       int    `query:"id"`       // ID is the auto incrementing database id of the record.
+	Online   bool   `query:"online"`   // Online is the record online and public toggle.
+	Readme   bool   `query:"readme"`   // Readme hides the readme textfile from the about page.
+	Target   string `query:"target"`   // Target is the name of the file to extract from the zip archive.
+	Value    string `query:"value"`    // Value is the value of the form input field to change.
+	Year     int16  `query:"year"`     // Year is the year of the release.
+	Month    int16  `query:"month"`    // Month is the month of the release.
+	Day      int16  `query:"day"`      // Day is the day of the release.
+	Platform string `query:"platform"` // Platform is the platform of the release.
+	Tag      string `query:"tag"`      // Tag is the tag of the release.
 }
 
 // PostIntro handles the POST request for the intro upload form.
@@ -53,6 +55,42 @@ func PostIntro(z *zap.SugaredLogger, c echo.Context) error {
 		return InternalErr(z, c, name, err)
 	}
 	c.JSON(http.StatusOK, x)
+	return nil
+}
+
+// TagInfo handles the POST submission for the platform and tag info.
+func TagInfo(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor tag info"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	var f Form
+	if err := c.Bind(&f); err != nil {
+		return badRequest(c, err)
+	}
+	info, err := model.GetTagInfo(c, f.Tag)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	c.String(http.StatusOK, info)
+	return nil
+}
+
+// PlatformTagInfo handles the POST submission for the platform and tag info.
+func PlatformTagInfo(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor platform tag info"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	var f Form
+	if err := c.Bind(&f); err != nil {
+		return badRequest(c, err)
+	}
+	info, err := model.GetPlatformTagInfo(c, f.Platform, f.Tag)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	c.String(http.StatusOK, info)
 	return nil
 }
 
@@ -72,6 +110,27 @@ func PlatformEdit(z *zap.SugaredLogger, c echo.Context) error {
 		return err
 	}
 	if err = model.UpdatePlatform(c, int64(f.ID), f.Value); err != nil {
+		return badRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, r)
+}
+
+// TagEdit handles the post submission for the Tag selection field.
+func TagEdit(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor tag"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+
+	var f Form
+	if err := c.Bind(&f); err != nil {
+		return badRequest(c, err)
+	}
+	r, err := model.Record(z, c, f.ID)
+	if err != nil {
+		return err
+	}
+	if err = model.UpdateTag(c, int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, r)

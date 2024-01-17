@@ -197,6 +197,21 @@
             <input type="hidden" id="recordOgD" value="{{index . "recDay"}}">
           </div>
           <input type="hidden" id="recordLastMod" value="{{index . "recLastModValue"}}">
+
+          <div class="btn-group">
+            <button class="btn btn-sm btn-link link-danger" id="recTagsReset" type="button">Reset</button>
+            <span class="form-text ms-3">Popular</span>
+            <button class="btn btn-sm btn-link" id="recordDosText" type="button">MsDos text</button>
+            <button class="btn btn-sm btn-link" id="recordAmigaText" type="button">Amiga text</button>
+            <button class="btn btn-sm btn-link" id="recordProof" type="button">Proof</button>
+            <button class="btn btn-sm btn-link" id="recordDostro" type="button">MsDos intro</button>
+            <button class="btn btn-sm btn-link" id="recordWintro" type="button">Windows intro</button>
+            <button class="btn btn-sm btn-link" id="recordBBStro" type="button">BBStro</button>
+            <button class="btn btn-sm btn-link" id="recordBBSAnsi" type="button">BBS ANSI ad</button>
+            <span class="form-text ms-3">Magazine</span>
+            <button class="btn btn-sm btn-link" id="recordTextMag" type="button">text</button>
+            <button class="btn btn-sm btn-link" id="recordDosMag" type="button">MsDos app</button>
+          </div>
           <input type="hidden" id="recOSOg" value="{{index . "recOS"}}">
           <input type="hidden" id="recTagOg" value="{{index . "recTag"}}">
           <div class="mb-1 row">
@@ -214,22 +229,15 @@
               </div>
             </div>
           </div>
-          <div class="btn-group">
-            <button class="btn btn-sm btn-link link-danger" id="recTagsReset" type="button">Reset</button>
-            <span class="form-text ms-3">Popular</span>
-            <button class="btn btn-sm btn-link" id="recordDosText" type="button">MsDos text</button>
-            <button class="btn btn-sm btn-link" id="recordAmigaText" type="button">Amiga text</button>
-            <button class="btn btn-sm btn-link" id="recordProof" type="button">Proof</button>
-            <button class="btn btn-sm btn-link" id="recordDostro" type="button">MsDos intro</button>
-            <button class="btn btn-sm btn-link" id="recordWintro" type="button">Windows intro</button>
-            <button class="btn btn-sm btn-link" id="recordBBStro" type="button">BBStro</button>
-            <button class="btn btn-sm btn-link" id="recordBBSAnsi" type="button">BBS ANSI ad</button>
-            <span class="form-text ms-3">Magazine</span>
-            <button class="btn btn-sm btn-link" id="recordTextMag" type="button">text</button>
-            <button class="btn btn-sm btn-link" id="recordDosMag" type="button">MsDos app</button>
-          </div>
 
-          <div class="form-text mb-3">Platform and tag brief: <span class="text-primary-emphasis">a Windows intro</span></div>
+          <div class="row">
+            <div class="form-text mb-3 col-sm-6">
+              <span>Platform and tag brief: <span id="platformTagInfo" class="text-primary-emphasis">{{recordInfoOSTag (index . "recOS") (index . "recTag") }}</span></span>
+            </div>
+            <div class="form-text mb-3 col-sm-6">
+              <span>Tag brief: <span id="tagInfo" class="text-primary-emphasis">{{recordTagInfo (index . "recTag") }}</span></span>
+            </div>
+          </div>
 
           <div class="mb-3">
             <div class="input-group">

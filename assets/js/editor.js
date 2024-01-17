@@ -512,10 +512,8 @@
     filename.classList.remove(err);
   });
 
-  // Modify the file metadata, Platform and Tag
+  // Modify the file metadata, Platform
   const platform = document.getElementById(`recordPlatform`);
-  const tag = document.getElementById(`recordTag`);
-
   platform.addEventListener(`change`, function (event) {
     platform.classList.remove(err);
     const value = event.target.value;
@@ -523,32 +521,122 @@
       platform.classList.add(err);
       return;
     }
+    platformChange(value);
   });
+
+  function platformChange(value) {
+    fetch("/editor/platform", {
+      method: "POST",
+      body: JSON.stringify({
+        id: parseInt(id.value),
+        value: value,
+      }),
+      headers: header,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(saveErr);
+        }
+        platform.classList.remove(err);
+        platform.classList.add(ok);
+        return response.json();
+      })
+      .catch((error) => {
+        platform.classList.remove(ok);
+        platform.classList.add(dang);
+        console.log(error.message);
+      });
+    platformTagInfo(value, tag.value);
+  }
+
+  // Modify the file metadata, Tag
+  const tag = document.getElementById(`recordTag`);
   tag.addEventListener(`change`, function (event) {
-    tag.classList.remove(err);
     const value = event.target.value;
+    tagChange(value);
+  });
+
+  function tagChange(value) {
+    tag.classList.remove(err);
+    platformTagInfo(platform.value, value);
+    tagInfo(value);
     if (value.length == 0) {
       tag.classList.add(err);
+      tag.value = ``; // incase a hyperlink was clicked
       return;
     }
-  });
-  // Reset the platform and tag to the original values
+    fetch("/editor/tag", {
+      method: "POST",
+      body: JSON.stringify({
+        id: parseInt(id.value),
+        value: value,
+      }),
+      headers: header,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(saveErr);
+        }
+        tag.classList.remove(err);
+        tag.classList.add(ok);
+        return response.json();
+      })
+      .catch((error) => {
+        tag.classList.remove(ok);
+        tag.classList.add(dang);
+        document.getElementById(`tagInfo`).textContent = ``;
+        console.log(error.message);
+      });
+  }
+
+  function platformTagInfo(platform, tag) {
+    fetch("/editor/platform+tag", {
+      method: "POST",
+      body: JSON.stringify({
+        platform: platform,
+        tag: tag,
+      }),
+      headers: header,
+    })
+      .then((response) => response.text())
+      .then((text) => {
+        document.getElementById(`platformTagInfo`).textContent = text;
+      });
+  }
+
+  function tagInfo(tag) {
+    fetch("/editor/tag/info", {
+      method: "POST",
+      body: JSON.stringify({
+        tag: tag,
+      }),
+      headers: header,
+    })
+      .then((response) => response.text())
+      .then((text) => {
+        document.getElementById(`tagInfo`).textContent = text;
+      });
+  }
+
+  // Modify the file metadata, Reset Platform and Tag
   document
-  .getElementById(`recTagsReset`)
-  .addEventListener(`click`, function () {
-    const ogp = document.getElementById(`recOSOg`).value;
-    const ogt = document.getElementById(`recTagOg`).value;
-    platform.value = ogp;
-    tag.value = ogt;
-    platform.classList.remove(err);
-    tag.classList.remove(err);
-    if (platform.value.length == 0) {
-      platform.classList.add(err);
-    }
-    if (tag.value.length == 0) {
-      tag.classList.add(err);
-    }
-  });
+    .getElementById(`recTagsReset`)
+    .addEventListener(`click`, function () {
+      const ogp = document.getElementById(`recOSOg`).value;
+      const ogt = document.getElementById(`recTagOg`).value;
+      platform.value = ogp;
+      tag.value = ogt;
+      platform.classList.remove(err);
+      tag.classList.remove(err);
+      if (platform.value.length == 0) {
+        platform.classList.add(err);
+      }
+      if (tag.value.length == 0) {
+        tag.classList.add(err);
+      }
+      platformChange(ogp);
+      tagChange(ogt);
+    });
 
   const releaserL = document.getElementById(`recordReleasersLabel`);
   const titleL = document.getElementById(`recordTitleLabel`);
@@ -576,11 +664,17 @@
   document
     .getElementById(`recordDosText`)
     .addEventListener(`click`, function () {
-      platform.value = `text`;
-      platform.classList.remove(err);
-      tag.value = ``;
-      tag.classList.add(err);
+      platformChange(`text`);
+      tagChange(``);
       titleTag();
+      // platform.value = `text`;
+      // platform.classList.remove(err);
+      // tag.value = ``;
+      // tag.classList.add(err);
+      // platformTagInfo(`text`);
+      // platformChange(`text`);
+      // tagChange(``);
+      // tagInfo(``);
     });
   document
     .getElementById(`recordAmigaText`)

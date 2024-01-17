@@ -199,5 +199,7 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		},
 		"recordImgSample":   web.ImageSample,
 		"recordThumbSample": web.ThumbSample,
+		"recordInfoOSTag":   InfoOSTag,
+		"recordTagInfo":     TagInfoX,
 	}
 }
