@@ -14,6 +14,8 @@ services:
   webapp:
     container_name: defacto2-webapp
     restart: unless-stopped
+    env_file:
+      - .evn.local
     
     # build gets run using the --build flag or build command
     build:
