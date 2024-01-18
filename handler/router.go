@@ -213,13 +213,25 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.GET("/:uri", func(c echo.Context) error {
 		return app.StatusErr(z, c, http.StatusNotFound, c.Param("uri"))
 	})
-
-	// Skip the serving of the editor pages
+	// Login using the legacy path.
+	// This should not be used when the site is in read-only mode.
+	e.GET("/operator/signin", func(c echo.Context) error {
+		return c.Redirect(http.StatusMovedPermanently, "/signin")
+	})
+	e.GET("/signin", func(c echo.Context) error {
+		return app.Signin(z, c, conf.Import.IsReadOnly)
+	})
+	//
+	// When IsReadOnly is true, the editor pages are not served.
+	// Skip the serving of all GETS and POSTS below here.
+	//
 	if conf.Import.IsReadOnly {
 		return e, nil
 	}
+	//
 	// TODO: Implement a middleware to check for a valid session cookie.
 	// and exit here if not valid.
+	//
 	e.POST("/editor/online/true", func(c echo.Context) error {
 		return app.RecordToggle(z, c, true)
 	})

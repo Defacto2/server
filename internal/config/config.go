@@ -36,7 +36,7 @@ type Config struct {
 	ThumbnailDir string `env:"DIR_THUMB" help:"The directory path that holds the UUID named squared image files that are served as artifact thumbnails"`
 
 	// HTTPPort is the port number to be used by the HTTP server.
-	HTTPPort uint `env:"PORTX" envDefault:"1323" help:"The port number to be used by the unencrypted HTTP web server"`
+	HTTPPort uint `env:"PORT" envDefault:"1323" help:"The port number to be used by the unencrypted HTTP web server"`
 
 	// HTTPSPort is the port number to be used by the HTTPS server.
 	HTTPSPort uint `env:"PORTS" envDefault:"0" help:"The port number to be used by the encrypted HTTPS web server"`

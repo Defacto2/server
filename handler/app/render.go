@@ -337,3 +337,24 @@ func TheScene(z *zap.SugaredLogger, c echo.Context) error {
 	}
 	return nil
 }
+
+func Signin(z *zap.SugaredLogger, c echo.Context, readonly bool) error {
+	const name = "signin"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	if readonly {
+		return c.String(http.StatusForbidden, "The site is in read-only mode.")
+	}
+
+	data := empty()
+	data["title"] = "Sign in"
+	data["description"] = "Sign in to Defacto2."
+	data["h1"] = "Sign in"
+	data["lead"] = "Sign in to Defacto2."
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	return nil
+}

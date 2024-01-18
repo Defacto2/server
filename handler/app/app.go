@@ -116,6 +116,7 @@ func (web *Web) Tmpl() (map[string]*template.Template, error) {
 		"scener":      s,
 		"searchList":  "searchList.tmpl",
 		"searchPost":  "searchPost.tmpl",
+		"signin":      "signin.tmpl",
 		"status":      "status.tmpl",
 		"thanks":      "thanks.tmpl",
 		"thescene":    "the_scene.tmpl",
