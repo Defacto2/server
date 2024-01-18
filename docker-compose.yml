@@ -15,7 +15,7 @@ services:
     container_name: defacto2-webapp
     restart: unless-stopped
     env_file:
-      - .evn.local
+      - .env.local
     
     # build gets run using the --build flag or build command
     build:
@@ -29,18 +29,19 @@ services:
         ENTRYPOINT ["df2-server"]
 
     ports:
-      - "${HOSTPORT}:1323"   # HTTP (unencrypted) port that the server listens on
+      - "${D2_PORT}:1323"   # HTTP (unencrypted) port that the server listens on
 
     environment:
-      PS_HOST: "host.docker.internal"   # this value must be kept as host.docker.internal 
-                                        # otherwise the server will not be able to connect 
-                                        # to the docker containerized postgresql database
-      D2_NOROBOTS: "true"               # disable site crawling by search engines
-      D2_PRODUCTION: "true"             # enable production mode to log errros and recover from any panics
-      
-      D2_DIR_DOWN: "/opt/downloads"     # THESE DIR directories should not be changed
-      D2_DIR_PREVIEW: "/opt/screenshots"
-      D2_DIR_THUMB: "/opt/thumbnails"
+      # PS_HOST value must be kept as host.docker.internal 
+      # otherwise the server will not be able to connect 
+      # to the docker containerized postgresql database
+      PS_HOST: "host.docker.internal"   
+      # D2_PRODUCTION enables production mode to log errors and recover from any panics
+      D2_PRODUCTION: "true"             
+      # D2_DIR_[NAME] are internal directory volumes and must not be changed
+      D2_DIR_DOWN: "/srv/downloads"
+      D2_DIR_PREVIEW: "/srv/screenshots"
+      D2_DIR_THUMB: "/srv/thumbnails"
 
     extra_hosts:
       - "host.docker.internal:host-gateway" # this is required for the server to connect
@@ -52,9 +53,9 @@ services:
       - webapp-config:/root/.config
       # the local directories located on the host are bound to the /opt directory in the container
       # EDIT the .env file to change the location of these directories
-      - ${DOWNLOAD}:/opt/downloads      # the directory where the server will store artifact downloads
-      - ${PREVIEW}:/opt/screenshots     # the directory where the server will store previews
-      - ${THUMBNAIL}:/opt/thumbnails    # the directory where the server will store thumbnails
+      - ${D2_DIR_DOWN}:/srv/downloads      # the directory where the server will store artifact downloads
+      - ${D2_DIR_PREVIEW}:/srv/screenshots     # the directory where the server will store previews
+      - ${D2_DIR_THUMB}:/srv/thumbnails    # the directory where the server will store thumbnails
 
 volumes:
   webapp-config:

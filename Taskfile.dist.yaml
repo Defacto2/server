@@ -3,10 +3,9 @@
 version: '3'
 
 vars:
-  BINNAME: df2-server # build output, binary filename (without extension) 
-  SERVEPORT: 1323     # web server port number
-  LOGREQUESTS: true
-  NOROBOTS: false
+  BINNAME: df2-server # build output, binary filename (without any extensions) 
+
+dotenv: ['.env.local']
 
 tasks:
   default:
@@ -102,40 +101,17 @@ tasks:
     desc: "Run the internal web server in development mode with live reload."
     cmds:
       - task: serve-linux
-      - task: serve-macos
       - task: serve-windows
   serve-prod:
     desc: "Run the internal web server with live reload."
     cmds:
       - task: serve-linux
-      - task: serve-macos
       - task: serve-windows-prod
   serve-linux:
     internal: true
-    platforms: [linux, freebsd] # other supported os can be added here
+    platforms: [linux, freebsd, darwin] # other supported os can be added here
     env:
       D2_PRODUCTION: false
-      D2_PORT: "{{.SERVEPORT}}"
-      D2_REQUESTS: "{{.LOGREQUESTS}}"
-      D2_NOROBOTS: "{{.NOROBOTS}}"
-      D2_DIR_DOWN: /home/ben/defacto2-assets/downloads
-      D2_DIR_PREVIEW: /home/ben/defacto2-assets/images000
-      D2_DIR_THUMB: /home/ben/defacto2-assets/images400
-      PS_HOST: localhost
-    deps: [assets]
-    cmds:
-      - air
-  serve-macos:
-    internal: true
-    platforms: [darwin]
-    env:
-      D2_PRODUCTION: false
-      D2_PORT: "{{.SERVEPORT}}"
-      D2_REQUESTS: "{{.LOGREQUESTS}}"
-      D2_NOROBOTS: "{{.NOROBOTS}}"
-      D2_DIR_DOWN: /Users/ben/defacto2-assets/downloads
-      D2_DIR_PREVIEW: /Users/ben/defacto2-assets/images000
-      D2_DIR_THUMB: /Users/ben/defacto2-assets/images400
       PS_HOST: localhost
     deps: [assets]
     cmds:
@@ -145,9 +121,6 @@ tasks:
     platforms: [darwin, linux, freebsd] # other supported os can be added here
     env:
       D2_PRODUCTION: true
-      D2_PORT: "{{.SERVEPORT}}"
-      D2_REQUESTS: "{{.LOGREQUESTS}}"
-      D2_NOROBOTS: "{{.NOROBOTS}}"
     cmds:
       - air
   serve-windows:
@@ -155,10 +128,6 @@ tasks:
     platforms: [windows]
     env:
       D2_PRODUCTION: false
-      D2_PORT: "{{.SERVEPORT}}"
-      D2_REQUESTS: "{{.LOGREQUESTS}}"
-      D2_NOROBOTS: "{{.NOROBOTS}}"
-      D2_DIR_THUMB: "F:\\Defacto2\\images400"
     deps: [assets]
     cmds:
       - air -c .air.windows.toml 
@@ -167,10 +136,6 @@ tasks:
     platforms: [windows]
     env:
       D2_PRODUCTION: true
-      D2_PORT: "{{.SERVEPORT}}"
-      D2_REQUESTS: "{{.LOGREQUESTS}}"
-      D2_NOROBOTS: "{{.NOROBOTS}}"
-      D2_DIR_THUMB: "F:\\Defacto2\\images400"
     deps: [assets]
     cmds:
       - air -c .air.windows.toml 
