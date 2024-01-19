@@ -137,6 +137,7 @@ func (web *Web) Tmpl() (map[string]*template.Template, error) {
 // Note that the name is relative to the view/defaults directory.
 func (web Web) tmpl(name filename) (*template.Template, error) {
 	const (
+		editorMenu = "layout_editor.tmpl"
 		fileExp    = "file_expand.tmpl"
 		layout     = "layout.tmpl"
 		modal      = "modal.tmpl"
@@ -145,6 +146,7 @@ func (web Web) tmpl(name filename) (*template.Template, error) {
 		pagination = "pagination.tmpl"
 		website    = "website.tmpl"
 		uploader   = "uploader.tmpl"
+		uploadMenu = "layout_uploader.tmpl"
 	)
 	files := []string{
 		GlobTo(layout),
@@ -153,19 +155,23 @@ func (web Web) tmpl(name filename) (*template.Template, error) {
 		GlobTo(optionTag),
 		GlobTo(string(name)),
 		GlobTo(pagination),
-		GlobTo(uploader),
 	}
-	if web.Import.IsReadOnly {
-		files = append(files, GlobTo("layout_editor_null.tmpl"))
+	config := web.Import
+	if !config.IsReadOnly {
+		files = append(files,
+			GlobTo("layout_editor_null.tmpl"),
+			GlobTo("layout_uploader_null.tmpl"),
+			GlobTo("uploader_null.tmpl"),
+		)
 	} else {
-		files = append(files, GlobTo("layout_editor.tmpl"))
+		files = append(files, GlobTo(editorMenu), GlobTo(uploader), GlobTo(uploadMenu))
 	}
 	// append any additional templates
 	switch name {
 	case "about.tmpl":
 		files = append(files, GlobTo("about_table.tmpl"), GlobTo("about_jsdos.tmpl"))
 		files = append(files, GlobTo("about_editor_archive.tmpl"))
-		if web.Import.IsReadOnly {
+		if config.IsReadOnly {
 			files = append(files, GlobTo("about_editor_null.tmpl"))
 			files = append(files, GlobTo("about_editor_table_null.tmpl"))
 			files = append(files, GlobTo("about_table_switch_null.tmpl"))

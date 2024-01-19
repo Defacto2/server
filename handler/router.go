@@ -81,6 +81,11 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.Static(config.StaticThumb(), conf.Import.ThumbnailDir)
 	e.Static(config.StaticOriginal(), conf.Import.PreviewDir)
 
+	// Custom 404 error, "The page cannot be found"
+	e.GET("/:uri", func(c echo.Context) error {
+		return app.StatusErr(z, c, http.StatusNotFound, c.Param("uri"))
+	})
+
 	e.GET("/", func(c echo.Context) error {
 		return app.Index(z, c)
 	})
@@ -160,31 +165,6 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.GET("/scener", func(c echo.Context) error {
 		return app.Scener(z, c)
 	})
-	e.GET("/search/file", func(c echo.Context) error {
-		return app.SearchFile(z, c)
-	})
-	e.POST("/search/file", func(c echo.Context) error {
-		return app.PostFilename(z, c)
-	})
-	e.GET("/search/desc", func(c echo.Context) error {
-		return app.SearchDesc(z, c)
-	})
-	e.POST("/search/desc", func(c echo.Context) error {
-		return app.PostDesc(z, c, c.FormValue("search-term-query"))
-	})
-	e.GET("/search/releaser", func(c echo.Context) error {
-		return app.SearchReleaser(z, c)
-	})
-	e.POST("/search/releaser", func(c echo.Context) error {
-		return app.PostReleaser(z, c)
-	})
-	e.GET("/search/result", func(c echo.Context) error {
-		// this legacy get result should be kept for (osx.xml) opensearch compatibility
-		// and to keep possible backwards compatibility with third party site links.
-		terms := strings.ReplaceAll(c.QueryParam("query"), "+", " ") // AND replacement
-		terms = strings.ReplaceAll(terms, "|", ",")                  // OR replacement
-		return app.PostDesc(z, c, terms)
-	})
 	e.GET("/sum/:id", func(c echo.Context) error {
 		return app.Checksum(z, c, c.Param("id"))
 	})
@@ -203,79 +183,108 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	e.GET("/writer", func(c echo.Context) error {
 		return app.Writer(z, c)
 	})
-	e.POST("/uploader", func(c echo.Context) error {
-		return app.PostIntro(z, c)
-	})
 	e.GET("/v/:id", func(c echo.Context) error {
 		return app.Inline(z, c, conf.Import.DownloadDir)
 	})
-	// all other page requests return a custom 404 error page
-	e.GET("/:uri", func(c echo.Context) error {
-		return app.StatusErr(z, c, http.StatusNotFound, c.Param("uri"))
+
+	// Search forms and results for database records.
+	search := e.Group("/search")
+	search.GET("/desc", func(c echo.Context) error {
+		return app.SearchDesc(z, c)
 	})
-	// Login using the legacy path.
-	// This should not be used when the site is in read-only mode.
-	e.GET("/operator/signin", func(c echo.Context) error {
-		return c.Redirect(http.StatusMovedPermanently, "/signin")
+	search.GET("/file", func(c echo.Context) error {
+		return app.SearchFile(z, c)
 	})
-	e.GET("/signin", func(c echo.Context) error {
-		return app.Signin(z, c, conf.Import.IsReadOnly)
+	search.GET("/releaser", func(c echo.Context) error {
+		return app.SearchReleaser(z, c)
 	})
-	//
-	// When IsReadOnly is true, the editor pages are not served.
-	// Skip the serving of all GETS and POSTS below here.
-	//
-	if conf.Import.IsReadOnly {
-		return e, nil
-	}
-	//
-	// TODO: Implement a middleware to check for a valid session cookie.
-	// and exit here if not valid.
-	//
-	e.POST("/editor/online/true", func(c echo.Context) error {
-		return app.RecordToggle(z, c, true)
+	search.GET("/result", func(c echo.Context) error {
+		// this legacy get result should be kept for (osx.xml) opensearch compatibility
+		// and to keep possible backwards compatibility with third party site links.
+		terms := strings.ReplaceAll(c.QueryParam("query"), "+", " ") // AND replacement
+		terms = strings.ReplaceAll(terms, "|", ",")                  // OR replacement
+		return app.PostDesc(z, c, terms)
 	})
-	e.POST("/editor/online/false", func(c echo.Context) error {
-		return app.RecordToggle(z, c, false)
+	search.POST("/desc", func(c echo.Context) error {
+		return app.PostDesc(z, c, c.FormValue("search-term-query"))
+	})
+	search.POST("/file", func(c echo.Context) error {
+		return app.PostFilename(z, c)
+	})
+	search.POST("/releaser", func(c echo.Context) error {
+		return app.PostReleaser(z, c)
 	})
 
-	e.POST("/editor/readme/copy", func(c echo.Context) error {
+	// Uploader for annoymous user uploads
+	uploader := e.Group("/uploader")
+	uploader.Use(conf.ReadOnlyLock)
+	uploader.GET("", func(c echo.Context) error {
+		return app.PostIntro(z, c)
+	})
+
+	// Sign in for operators.
+	signins := e.Group("")
+	signins.Use(conf.ReadOnlyLock)
+	signins.GET("/signin", func(c echo.Context) error {
+		return app.Signin(z, c, conf.Import.IsReadOnly)
+	})
+	signins.GET("/operator/signin", func(c echo.Context) error {
+		return c.Redirect(http.StatusMovedPermanently, "/signin")
+	})
+	google := signins.Group("/google")
+	google.POST("/callback", func(c echo.Context) error {
+		return app.GoogleCallback(z, c)
+	})
+
+	// Editor pages to update the database records.
+	editor := e.Group("/editor")
+	editor.Use(conf.ReadOnlyLock)
+	online := editor.Group("/online")
+	online.POST("/true", func(c echo.Context) error {
+		return app.RecordToggle(z, c, true)
+	})
+	online.POST("/false", func(c echo.Context) error {
+		return app.RecordToggle(z, c, false)
+	})
+	readme := editor.Group("/readme")
+	readme.POST("/copy", func(c echo.Context) error {
 		return app.ReadmePost(z, c, dir.Download)
 	})
-	e.POST("/editor/readme/delete", func(c echo.Context) error {
+	readme.POST("/delete", func(c echo.Context) error {
 		return app.ReadmeDel(z, c, dir.Download)
 	})
-	e.POST("/editor/readme/hide", func(c echo.Context) error {
+	readme.POST("/hide", func(c echo.Context) error {
 		dir.URI = c.Param("id")
 		return app.ReadmeToggle(z, c)
 	})
-	e.POST("/editor/images/copy", func(c echo.Context) error {
+	images := editor.Group("/images")
+	images.POST("/copy", func(c echo.Context) error {
 		return dir.PreviewPost(z, c)
 	})
-	e.POST("/editor/images/delete", func(c echo.Context) error {
+	images.POST("/delete", func(c echo.Context) error {
 		return dir.PreviewDel(z, c)
 	})
-	e.POST("/editor/ansilove/copy", func(c echo.Context) error {
+	ansilove := editor.Group("/ansilove")
+	ansilove.POST("/copy", func(c echo.Context) error {
 		return dir.AnsiLovePost(z, c)
 	})
-
-	e.POST("/editor/title", func(c echo.Context) error {
+	editor.POST("/title", func(c echo.Context) error {
 		return app.TitleEdit(z, c)
 	})
-	e.POST("/editor/ymd", func(c echo.Context) error {
+	editor.POST("/ymd", func(c echo.Context) error {
 		return app.YMDEdit(z, c)
 	})
-
-	e.POST("/editor/platform", func(c echo.Context) error {
+	editor.POST("/platform", func(c echo.Context) error {
 		return app.PlatformEdit(z, c)
 	})
-	e.POST("/editor/tag", func(c echo.Context) error {
-		return app.TagEdit(z, c)
-	})
-	e.POST("/editor/platform+tag", func(c echo.Context) error {
+	editor.POST("/platform+tag", func(c echo.Context) error {
 		return app.PlatformTagInfo(z, c)
 	})
-	e.POST("/editor/tag/info", func(c echo.Context) error {
+	tag := editor.Group("/tag")
+	tag.POST("", func(c echo.Context) error {
+		return app.TagEdit(z, c)
+	})
+	tag.POST("/info", func(c echo.Context) error {
 		return app.TagInfo(z, c)
 	})
 

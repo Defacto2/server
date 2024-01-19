@@ -1,32 +1,31 @@
 {{- /* signin.tmpl */}}
-{{- define "content" }} 
+{{- define "content" }}
+{{- $client := (index . "clientID") }}
+{{- $callback := (index . "callback") }}
+{{- /*  todo info  */}}
 <script src="https://accounts.google.com/gsi/client" async></script>
+{{/*  operator / sign-in  */}}
 <div class="row justify-content-md-center">
-    <div class="col-sm-6">
-        <div class="card border-dark mb-3 p-3">      
-            <div class="card-body">
-                <h5 class="card-title text-info-emphasis fs-2 lead">
-                    {{index . "title"}}<br>
-                    <small class="fs-5 fw-lighter">{{index . "info"}}</small>
-                </h5>
-                <p class="card-text">
-
-    <div
-    id="g_id_onload"
-    data-client_id="{{.ClientID}}"
-    data-login_uri="{{.CallbackUrl}}">
-</div>
-<div
-    class="g_id_signin"
-    data-type="standard"
-    data-theme="filled_blue"
-    data-text="sign_in_with"
-    data-shape="rectangular"
-    data-width="200"
-    data-logo_alignment="left"></div>
-                </p>
-            </div>
-        </div>
+    <div id="g_id_onload"
+        data-client_id="885513036389-n4uee89egjaph948pbpg7qcesf00gi0g.apps.googleusercontent.com"
+        data-context="signin"
+        data-ux_mode="popup"
+        data-login_uri="http://localhost:1323/google/callback"
+        data-nonce=""
+        data-itp_support="true">
+    </div>
+    <p>
+        This sign is not for general users and there is no ability for new sign ups.
+        The Defacto2 privacy policy does not apply to this sign in page.
+    </p>
+    <p>If you formerly had a <em>Defacto2 operator account</em> please get in contact for a new, passwordless sign up.</p>
+    <div class="m-3 g_id_signin"
+        data-type="standard"
+        data-shape="pill"
+        data-theme="outline"
+        data-text="signin_with"
+        data-size="large"
+        data-logo_alignment="left">
     </div>
 </div>
 {{- end }}

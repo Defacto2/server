@@ -4,6 +4,7 @@ package app
 // The BBS, FTP, Magazine and Releaser handlers can be found in render_releaser.go.
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -15,6 +16,7 @@ import (
 	"github.com/Defacto2/server/internal/zoo"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
+	"google.golang.org/api/idtoken"
 )
 
 var ErrData = fmt.Errorf("cache data is invalid or corrupt")
@@ -352,9 +354,96 @@ func Signin(z *zap.SugaredLogger, c echo.Context, readonly bool) error {
 	data["description"] = "Sign in to Defacto2."
 	data["h1"] = "Sign in"
 	data["lead"] = "Sign in to Defacto2."
+
+	data["callback"] = "http://localhost:1323/google/callback"                                    // todo: passthrough data values?
+	data["clientID"] = "885513036389-n4uee89egjaph948pbpg7qcesf00gi0g.apps.googleusercontent.com" // todo: pass through and validate data onload?
+
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(z, c, name, err)
 	}
+	return nil
+}
+
+// csrf_token_cookie = self.request.cookies.get('g_csrf_token')
+// if not csrf_token_cookie:
+//     webapp2.abort(400, 'No CSRF token in Cookie.')
+// csrf_token_body = self.request.get('g_csrf_token')
+// if not csrf_token_body:
+//     webapp2.abort(400, 'No CSRF token in post body.')
+// if csrf_token_cookie != csrf_token_body:
+//     webapp2.abort(400, 'Failed to verify double submit cookie.')
+
+func GoogleCallback(z *zap.SugaredLogger, c echo.Context) error {
+	//https://developers.google.com/identity/gsi/web/guides/verify-google-id-token
+	const name = "google_callback"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+
+	cookie, err := c.Cookie("g_csrf_token")
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	fmt.Println(cookie)
+	token := cookie.Value
+
+	bodyToken := c.FormValue("g_csrf_token")
+	if token != bodyToken {
+		return InternalErr(z, c, name, fmt.Errorf("token mismatch"))
+	}
+
+	ctx := context.Background()
+	validator, err := idtoken.NewValidator(ctx)
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+
+	credential := c.FormValue("credential")
+	playload, err := validator.Validate(ctx, credential,
+		"885513036389-n4uee89egjaph948pbpg7qcesf00gi0g.apps.googleusercontent.com")
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+
+	for k, v := range playload.Claims {
+		fmt.Println(k, v)
+	}
+
+	err = c.String(http.StatusOK, "ok, confirm the terminal")
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+
+	// csrf == cookie values
+
+	// g_csrf_token=5322598e6a01d04   /// Cookie value: 5322598e6a01d04
+	// iss https://accounts.google.com
+	// sub 116860644014108518010
+	// email bengarrett77@gmail.com
+	// email_verified true
+	// exp 1.705616751e+09
+	// azp 885513036389-n4uee89egjaph948pbpg7qcesf00gi0g.apps.googleusercontent.com
+	// aud 885513036389-n4uee89egjaph948pbpg7qcesf00gi0g.apps.googleusercontent.com
+	// name Ben Garrett
+	// family_name Garrett
+	// iat 1.705613151e+09
+	// nbf 1.705612851e+09
+	// locale en-GB
+	// given_name Ben
+	// jti 6bc5ce2d2821bed7e143d7019a51c3fc958b91fa
+
+	// body dump
+	//c.Echo().Use(middleware.BodyDumpWithConfig(middleware.BodyDumpConfig{}))
+
+	// data := empty()
+	// data["title"] = "Google callback"
+	// data["description"] = "Google callback."
+	// data["h1"] = "Google callback"
+	// data["lead"] = "Google callback."
+	// err := c.Render(http.StatusOK, name, data)
+	// if err != nil {
+	// 	return InternalErr(z, c, name, err)
+	// }
 	return nil
 }

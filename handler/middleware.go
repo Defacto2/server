@@ -7,14 +7,16 @@ package handler
 // See, https://github.com/labstack/echo/issues/2306
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/Defacto2/server/handler/app"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 // removeSlash return the TrailingSlash middleware configuration.
-func (c Configuration) removeSlash() middleware.TrailingSlashConfig {
+func (cfg Configuration) removeSlash() middleware.TrailingSlashConfig {
 	return middleware.TrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,
 	}
@@ -24,13 +26,25 @@ func (c Configuration) removeSlash() middleware.TrailingSlashConfig {
 // The header contains the noindex and nofollow values that tell search engine
 // crawlers to not index or crawl the page or asset.
 // See https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag#xrobotstag
-func (c Configuration) NoRobotsHeader(next echo.HandlerFunc) echo.HandlerFunc {
-	if !c.Import.NoRobots {
+func (cfg Configuration) NoRobotsHeader(next echo.HandlerFunc) echo.HandlerFunc {
+	if !cfg.Import.NoRobots {
 		return next
 	}
 	return func(c echo.Context) error {
 		const HeaderXRobotsTag = "X-Robots-Tag"
 		c.Response().Header().Set(HeaderXRobotsTag, "noindex, nofollow")
+		return next(c)
+	}
+}
+
+// ReadOnlyLock disables all POST, PUT and DELETE requests for the modification
+// of the database and any related user interface.
+func (cfg Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		c.Response().Header().Set("X-Read-Only-Lock", fmt.Sprintf("%t", cfg.Import.IsReadOnly))
+		if cfg.Import.IsReadOnly {
+			return app.StatusErr(cfg.Logger, c, http.StatusForbidden, "")
+		}
 		return next(c)
 	}
 }
