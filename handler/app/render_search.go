@@ -30,7 +30,7 @@ func SearchDesc(z *zap.SugaredLogger, c echo.Context) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	data := empty()
+	data := empty(c)
 	data["description"] = "Search form to scan through file descriptions."
 	data["logo"] = title
 	data["title"] = title
@@ -62,7 +62,7 @@ func PostDesc(z *zap.SugaredLogger, c echo.Context, input string) error {
 	}
 	d := Descriptions.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
-	data := emptyFiles()
+	data := emptyFiles(c)
 	data["title"] = "Title and description results"
 	data["h1"] = "Title and description search"
 	data["lead"] = fmt.Sprintf("Results for %q", s)
@@ -84,7 +84,7 @@ func SearchFile(z *zap.SugaredLogger, c echo.Context) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	data := empty()
+	data := empty(c)
 	data["description"] = "Search form to discover files."
 	data["logo"] = title
 	data["title"] = title
@@ -121,7 +121,7 @@ func PostName(z *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
 	}
 	d := mode.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
-	data := emptyFiles()
+	data := emptyFiles(c)
 	data["title"] = "Filename results"
 	data["h1"] = "Filename search"
 	data["lead"] = fmt.Sprintf("Results for %q", s)
@@ -192,7 +192,7 @@ func SearchReleaser(z *zap.SugaredLogger, c echo.Context) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	data := empty()
+	data := empty(c)
 	data["description"] = "Search form to discover releasers."
 	data["logo"] = title
 	data["title"] = title

@@ -11,6 +11,7 @@ import (
 	"net/http"
 
 	"github.com/Defacto2/server/handler/app"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -45,6 +46,28 @@ func (cfg Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
 		if cfg.Import.IsReadOnly {
 			return app.StatusErr(cfg.Logger, c, http.StatusForbidden, "")
 		}
+		return next(c)
+	}
+}
+
+func (cfg Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// https://pkg.go.dev/github.com/gorilla/sessions#Session
+		sess, err := session.Get("d2_op", c)
+		if err != nil {
+			return err
+		}
+
+		id, ok := sess.Values["sub"]
+		if !ok || id == "" {
+			// additional check could be sub against DB
+			return echo.ErrForbidden
+		}
+
+		if name, ok := sess.Values["given_name"]; ok && name.(string) != "" {
+			c.Response().Header().Set("X-User-Name", name.(string))
+		}
+
 		return next(c)
 	}
 }

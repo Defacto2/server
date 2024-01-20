@@ -32,7 +32,7 @@ func AboutErr(z *zap.SugaredLogger, c echo.Context, id string) error {
 	if c == nil {
 		return InternalErr(z, c, name, ErrCxt)
 	}
-	data := empty()
+	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, file about page not found", http.StatusNotFound)
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
 	data["code"] = http.StatusNotFound
@@ -67,7 +67,7 @@ func DatabaseErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) er
 			fmt.Errorf("%w: handler app status", ErrCxt))
 	}
 	// render a user friendly error page
-	data := empty()
+	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
 	data["title"] = "500 error, there is a complication"
 	data["code"] = code
@@ -104,7 +104,7 @@ func DownloadErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) er
 			fmt.Errorf("%w: handler app status", ErrCxt))
 	}
 	// render a user friendly error page
-	data := empty()
+	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
 	data["title"] = "404 download error"
 	data["code"] = code
@@ -133,7 +133,7 @@ func FilesErr(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	if c == nil {
 		return InternalErr(z, c, name, ErrCxt)
 	}
-	data := empty()
+	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, files page not found", http.StatusNotFound)
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
 	data["code"] = http.StatusNotFound
@@ -159,7 +159,7 @@ func PageErr(z *zap.SugaredLogger, c echo.Context, uri, page string) error {
 	if c == nil {
 		return InternalErr(z, c, name, ErrCxt)
 	}
-	data := empty()
+	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, files page not found", http.StatusNotFound)
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
 	data["code"] = http.StatusNotFound
@@ -184,7 +184,7 @@ func ReleaserErr(z *zap.SugaredLogger, c echo.Context, id string) error {
 	if c == nil {
 		return InternalErr(z, c, name, ErrCxt)
 	}
-	data := empty()
+	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, releaser page not found", http.StatusNotFound)
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
 	data["code"] = http.StatusNotFound
@@ -209,7 +209,7 @@ func ScenerErr(z *zap.SugaredLogger, c echo.Context, id string) error {
 	if c == nil {
 		return InternalErr(z, c, name, ErrCxt)
 	}
-	data := empty()
+	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, scener page not found", http.StatusNotFound)
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
 	data["code"] = http.StatusNotFound
@@ -252,7 +252,7 @@ func InternalErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) er
 			fmt.Errorf("%w: handler app status", ErrCxt))
 	}
 	// render a user friendly error page
-	data := empty()
+	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
 	data["title"] = "500 error, there is a complication"
 	data["code"] = code
@@ -260,6 +260,41 @@ func InternalErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) er
 	data["alert"] = "Something crashed!"
 	data["probl"] = "This is not your fault," +
 		" but the server encountered an internal error or misconfiguration and cannot display this page."
+	data["uriErr"] = uri
+	if err := c.Render(code, "status", data); err != nil {
+		if z != nil {
+			z.Errorf("%s: %s", ErrTmpl, err)
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
+func BadRequestErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) error {
+	const code = http.StatusBadRequest
+	if z == nil {
+		zapNil(err)
+	} else if err != nil {
+		z.Errorf("%d error for %q: %s", code, uri, err)
+	}
+	// render the fallback, text only error page
+	if c == nil {
+		if z == nil {
+			zapNil(fmt.Errorf("%w: internalerr", ErrCxt))
+		} else {
+			z.Errorf("%s: %s", ErrTmpl, ErrCxt)
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Errorf("%w: handler app status", ErrCxt))
+	}
+	// render a user friendly error page
+	data := empty(c)
+	data["description"] = fmt.Sprintf("HTTP status %d error", code)
+	data["title"] = "400 error, there is a complication"
+	data["code"] = code
+	data["logo"] = "Client error"
+	data["alert"] = "Something went wrong, " + err.Error()
+	data["probl"] = "It might be a settings or configuration problem or a legacy browser issue."
 	data["uriErr"] = uri
 	if err := c.Render(code, "status", data); err != nil {
 		if z != nil {
@@ -288,7 +323,7 @@ func StatusErr(z *zap.SugaredLogger, c echo.Context, code int, uri string) error
 			fmt.Errorf("%w: handler app status", ErrCxt))
 	}
 	// render a user friendly error page
-	data := empty()
+	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
 	title, alert, logo, probl := "", "", "", ""
 	switch code {

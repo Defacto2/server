@@ -35,7 +35,7 @@ func Website(z *zap.SugaredLogger, c echo.Context, open string) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	data := empty()
+	data := empty(c)
 	data["title"] = "Websites"
 	data["logo"] = "Websites, podcasts, videos, books and films"
 	data["description"] = "A collection of websites, podcasts, videos, books and films about the scene."

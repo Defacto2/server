@@ -58,6 +58,12 @@ type Config struct {
 
 	// LogDir is the directory path that will store the server logs.
 	LogDir string `env:"DIR_LOG" avoid:"true" help:"The directory path that will store the program logs"`
+
+	// SessionKey is the session key for the cookie store.
+	SessionKey string `env:"SESSION_KEY" envDefault:"" avoid:"true" help:"The session key for the cookie store"`
+
+	// GoogleClientID is the Google OAuth2 client ID.
+	GoogleClientID string `env:"GOOGLE_CLIENT_ID" envDefault:"" avoid:"true" help:"The Google OAuth2 client ID"`
 }
 
 const (

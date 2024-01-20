@@ -11,6 +11,8 @@ import (
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/internal/config"
+	"github.com/gorilla/sessions"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -23,6 +25,10 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	if z == nil {
 		return nil, fmt.Errorf("%w: %s", ErrZap, "handler routes")
 	}
+
+	// TODO: Keypairs should be a long randomized value that changes on every restart.
+	// Or create a cmd flag to generate a new keypair for use with an environment variable.
+	e.Use(session.Middleware(sessions.NewCookieStore([]byte("conf.Import.SessionKey"))))
 
 	// Cache the database record count.
 	app.Caching.RecordCount = conf.RecordCount
@@ -86,109 +92,112 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 		return app.StatusErr(z, c, http.StatusNotFound, c.Param("uri"))
 	})
 
-	e.GET("/", func(c echo.Context) error {
+	// Use session middleware for all routes but not the embedded files.
+	s := e.Group("")
+	s.GET("/", func(c echo.Context) error {
+		fmt.Printf("index header\n%+v\n", c.Request().Header)
 		return app.Index(z, c)
 	})
-	e.GET("/artist", func(c echo.Context) error {
+	s.GET("/artist", func(c echo.Context) error {
 		return app.Artist(z, c)
 	})
-	e.GET("/bbs", func(c echo.Context) error {
+	s.GET("/bbs", func(c echo.Context) error {
 		return app.BBS(z, c)
 	})
-	e.GET("/bbs/a-z", func(c echo.Context) error {
+	s.GET("/bbs/a-z", func(c echo.Context) error {
 		return app.BBSAZ(z, c)
 	})
-	e.GET("/coder", func(c echo.Context) error {
+	s.GET("/coder", func(c echo.Context) error {
 		return app.Coder(z, c)
 	})
-	e.GET(Downloader, func(c echo.Context) error {
+	s.GET(Downloader, func(c echo.Context) error {
 		return app.Download(z, c, conf.Import.DownloadDir)
 	})
-	e.GET("/f/:id", func(c echo.Context) error {
+	s.GET("/f/:id", func(c echo.Context) error {
 		dir.URI = c.Param("id")
 		return dir.About(z, c, conf.Import.IsReadOnly)
 	})
-	e.GET("/file/stats", func(c echo.Context) error {
+	s.GET("/file/stats", func(c echo.Context) error {
 		return app.File(z, c, true)
 	})
-	e.GET("/files/:id/:page", func(c echo.Context) error {
+	s.GET("/files/:id/:page", func(c echo.Context) error {
 		return app.Files(z, c, c.Param("id"), c.Param("page"))
 	})
-	e.GET("/files/:id", func(c echo.Context) error {
+	s.GET("/files/:id", func(c echo.Context) error {
 		return app.Files(z, c, c.Param("id"), "1")
 	})
-	e.GET("/file", func(c echo.Context) error {
+	s.GET("/file", func(c echo.Context) error {
 		return app.File(z, c, false)
 	})
-	e.GET("/ftp", func(c echo.Context) error {
+	s.GET("/ftp", func(c echo.Context) error {
 		return app.FTP(z, c)
 	})
-	e.GET("/g/:id", func(c echo.Context) error {
+	s.GET("/g/:id", func(c echo.Context) error {
 		return app.Releasers(z, c, c.Param("id"))
 	})
-	e.GET("/history", func(c echo.Context) error {
+	s.GET("/history", func(c echo.Context) error {
 		return app.History(z, c)
 	})
-	e.GET("/interview", func(c echo.Context) error {
+	s.GET("/interview", func(c echo.Context) error {
 		return app.Interview(z, c)
 	})
-	e.GET("/magazine", func(c echo.Context) error {
+	s.GET("/magazine", func(c echo.Context) error {
 		return app.Magazine(z, c)
 	})
-	e.GET("/magazine/a-z", func(c echo.Context) error {
+	s.GET("/magazine/a-z", func(c echo.Context) error {
 		return app.MagazineAZ(z, c)
 	})
-	e.GET("/musician", func(c echo.Context) error {
+	s.GET("/musician", func(c echo.Context) error {
 		return app.Musician(z, c)
 	})
-	e.GET("/p/:id", func(c echo.Context) error {
+	s.GET("/p/:id", func(c echo.Context) error {
 		return app.Sceners(z, c, c.Param("id"))
 	})
-	e.GET("/pouet/vote/:id", func(c echo.Context) error {
+	s.GET("/pouet/vote/:id", func(c echo.Context) error {
 		return app.VotePouet(z, c, c.Param("id"))
 	})
-	e.GET("/pouet/prod/:id", func(c echo.Context) error {
+	s.GET("/pouet/prod/:id", func(c echo.Context) error {
 		return app.ProdPouet(z, c, c.Param("id"))
 	})
-	e.GET("/zoo/prod/:id", func(c echo.Context) error {
+	s.GET("/zoo/prod/:id", func(c echo.Context) error {
 		return app.ProdZoo(z, c, c.Param("id"))
 	})
-	e.GET("/r/:id", func(c echo.Context) error {
+	s.GET("/r/:id", func(c echo.Context) error {
 		return app.Reader(z, c, c.Param("id"))
 	})
-	e.GET("/releaser", func(c echo.Context) error {
+	s.GET("/releaser", func(c echo.Context) error {
 		return app.Releaser(z, c)
 	})
-	e.GET("/releaser/a-z", func(c echo.Context) error {
+	s.GET("/releaser/a-z", func(c echo.Context) error {
 		return app.ReleaserAZ(z, c)
 	})
-	e.GET("/scener", func(c echo.Context) error {
+	s.GET("/scener", func(c echo.Context) error {
 		return app.Scener(z, c)
 	})
-	e.GET("/sum/:id", func(c echo.Context) error {
+	s.GET("/sum/:id", func(c echo.Context) error {
 		return app.Checksum(z, c, c.Param("id"))
 	})
-	e.GET("/thanks", func(c echo.Context) error {
+	s.GET("/thanks", func(c echo.Context) error {
 		return app.Thanks(z, c)
 	})
-	e.GET("/thescene", func(c echo.Context) error {
+	s.GET("/thescene", func(c echo.Context) error {
 		return app.TheScene(z, c)
 	})
-	e.GET("/website/:id", func(c echo.Context) error {
+	s.GET("/website/:id", func(c echo.Context) error {
 		return app.Website(z, c, c.Param("id"))
 	})
-	e.GET("/website", func(c echo.Context) error {
+	s.GET("/website", func(c echo.Context) error {
 		return app.Website(z, c, "")
 	})
-	e.GET("/writer", func(c echo.Context) error {
+	s.GET("/writer", func(c echo.Context) error {
 		return app.Writer(z, c)
 	})
-	e.GET("/v/:id", func(c echo.Context) error {
+	s.GET("/v/:id", func(c echo.Context) error {
 		return app.Inline(z, c, conf.Import.DownloadDir)
 	})
 
 	// Search forms and results for database records.
-	search := e.Group("/search")
+	search := s.Group("/search")
 	search.GET("/desc", func(c echo.Context) error {
 		return app.SearchDesc(z, c)
 	})
@@ -225,20 +234,24 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	// Sign in for operators.
 	signins := e.Group("")
 	signins.Use(conf.ReadOnlyLock)
+	signins.GET("/signout", func(c echo.Context) error {
+		return app.Signout(z, c)
+	})
 	signins.GET("/signin", func(c echo.Context) error {
-		return app.Signin(z, c, conf.Import.IsReadOnly)
+		return app.Signin(z, c)
 	})
 	signins.GET("/operator/signin", func(c echo.Context) error {
 		return c.Redirect(http.StatusMovedPermanently, "/signin")
 	})
 	google := signins.Group("/google")
 	google.POST("/callback", func(c echo.Context) error {
-		return app.GoogleCallback(z, c)
+		// check error here
+		return app.GoogleCallback(z, c, conf.Import.GoogleClientID)
 	})
 
 	// Editor pages to update the database records.
 	editor := e.Group("/editor")
-	editor.Use(conf.ReadOnlyLock)
+	editor.Use(conf.ReadOnlyLock, conf.SessionLock)
 	online := editor.Group("/online")
 	online.POST("/true", func(c echo.Context) error {
 		return app.RecordToggle(z, c, true)

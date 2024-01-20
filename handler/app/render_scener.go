@@ -14,7 +14,7 @@ import (
 
 // Scener is the handler for the page to list all the sceners.
 func Scener(z *zap.SugaredLogger, c echo.Context) error {
-	data := empty()
+	data := empty(c)
 	title := "Sceners, the people of The Scene"
 	data["title"] = title
 	data["logo"] = title
@@ -25,7 +25,7 @@ func Scener(z *zap.SugaredLogger, c echo.Context) error {
 
 // Artist is the handler for the Artist sceners page.
 func Artist(z *zap.SugaredLogger, c echo.Context) error {
-	data := empty()
+	data := empty(c)
 	title := "Pixel artists and graphic designers"
 	data["title"] = title
 	data["logo"] = title
@@ -36,7 +36,7 @@ func Artist(z *zap.SugaredLogger, c echo.Context) error {
 
 // Code is the handler for the Coder sceners page.
 func Coder(z *zap.SugaredLogger, c echo.Context) error {
-	data := empty()
+	data := empty(c)
 	title := "Coder and programmers"
 	data["title"] = title
 	data["logo"] = title
@@ -47,7 +47,7 @@ func Coder(z *zap.SugaredLogger, c echo.Context) error {
 
 // Musician is the handler for the Musiciansceners page.
 func Musician(z *zap.SugaredLogger, c echo.Context) error {
-	data := empty()
+	data := empty(c)
 	title := "Musicians and composers"
 	data["title"] = title
 	data["logo"] = title
@@ -58,7 +58,7 @@ func Musician(z *zap.SugaredLogger, c echo.Context) error {
 
 // Writer is the handler for the Writer page.
 func Writer(z *zap.SugaredLogger, c echo.Context) error {
-	data := empty()
+	data := empty(c)
 	title := "Writers, editors and authors"
 	data["title"] = title
 	data["logo"] = title

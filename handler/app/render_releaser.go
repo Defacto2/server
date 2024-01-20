@@ -32,7 +32,7 @@ func bbsHandler(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	}
 	const lead = "Bulletin Board Systems are historical, networked personal computer servers connected using the landline telephone network and provide forums, real-time chat, mail, and file sharing for The Scene \"elites.\""
 	const key = "releasers"
-	data := empty()
+	data := empty(c)
 	data["title"] = title
 	data["description"] = lead
 	data["logo"] = "Bulletin Board Systems"
@@ -76,7 +76,7 @@ func FTP(z *zap.SugaredLogger, c echo.Context) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	data := empty()
+	data := empty(c)
 	const lead = "FTP sites are historical, internet-based file servers for uploading and downloading \"elite\" scene releases."
 	const key = "releasers"
 	data["title"] = title
@@ -131,7 +131,7 @@ func mag(z *zap.SugaredLogger, c echo.Context, chronological bool) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	data := empty()
+	data := empty(c)
 	const lead = "The magazines are newsletters, reports, and publications about activities within The Scene subculture."
 	const issue = "issue"
 	const key = "releasers"
@@ -194,7 +194,7 @@ func rel(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	data := empty()
+	data := empty(c)
 	const lead = "A releaser is a brand or a collective group of sceners responsible for releasing or distributing products."
 	const key = "releasers"
 	data["title"] = title

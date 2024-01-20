@@ -80,7 +80,7 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 		h1sub = s
 		logo = s
 	}
-	data := emptyFiles()
+	data := emptyFiles(c)
 	data["title"] = title
 	data["description"] = "Table of contents for the files."
 	data["logo"] = logo
@@ -181,7 +181,7 @@ func Sceners(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	if len(fs) == 0 {
 		return ScenerErr(z, c, uri)
 	}
-	data := emptyFiles()
+	data := emptyFiles(c)
 	data["title"] = s + " attributions"
 	data["h1"] = s
 	data["lead"] = "Files attributed to " + s + "."
@@ -240,7 +240,7 @@ func Releasers(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	if len(fs) == 0 {
 		return ReleaserErr(z, c, uri)
 	}
-	data := emptyFiles()
+	data := emptyFiles(c)
 	data["title"] = "Files for " + s
 	data["h1"] = s
 	data["lead"] = initialism.Join(initialism.Path(uri))

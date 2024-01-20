@@ -19,7 +19,7 @@ func File(z *zap.SugaredLogger, c echo.Context, stats bool) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	data := empty()
+	data := empty(c)
 	data["title"] = title
 	data["description"] = "A table of contents for the collection."
 	data["logo"] = title

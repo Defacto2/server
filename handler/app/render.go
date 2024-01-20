@@ -5,6 +5,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -14,6 +15,8 @@ import (
 	"github.com/Defacto2/server/internal/cache"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/internal/zoo"
+	"github.com/gorilla/sessions"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 	"google.golang.org/api/idtoken"
@@ -27,7 +30,18 @@ const (
 )
 
 // empty is a map of default values for the app templates.
-func empty() map[string]interface{} {
+func empty(c echo.Context) map[string]interface{} {
+	editor := false
+	sess, _ := session.Get("d2_op", c)
+	if id, ok := sess.Values["sub"]; ok && id != "" {
+		// additional check could be sub against DB
+		editor = true
+	}
+	//fmt.Println("sess", sess, "valeues", sess.Values["sub"])
+	// if sess.ID != "" {
+	// 	editor = true
+	// }
+
 	// the keys are listed in order of appearance in the templates.
 	// * marked keys are required.
 	// ! marked keys are suggested.
@@ -45,14 +59,16 @@ func empty() map[string]interface{} {
 
 		"counter":      Statistics(),        // Empty database counts for files and categories.
 		"df2FileCount": Caching.RecordCount, // The number of records of files in the database.
-		"dberror":      false,               // If true, the database is not available.
-		"readonly":     true,                // If true, the application is in read-only mode.
+
+		"dberror":  false,  // If true, the database is not available.
+		"readonly": true,   // If true, the application is in read-only mode.
+		"editor":   editor, // If true, the editor mode is enabled.
 	}
 }
 
 // emptyFiles is a map of default values specific to the files templates.
-func emptyFiles() map[string]interface{} {
-	data := empty()
+func emptyFiles(c echo.Context) map[string]interface{} {
+	data := empty(c)
 	data["demozoo"] = "0"
 	data["sixteen"] = ""
 	data["scener"] = ""
@@ -215,7 +231,7 @@ func Interview(z *zap.SugaredLogger, c echo.Context) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	data := empty()
+	data := empty(c)
 	data["title"] = title
 	data["description"] = "Discussions with scene members."
 	data["logo"] = title
@@ -240,7 +256,7 @@ func Index(z *zap.SugaredLogger, c echo.Context) error {
 		" It covers digital objects including text files, demos, music, art, " +
 		"magazines, and other projects."
 	const desc = "Defacto2 is " + lead
-	data := empty()
+	data := empty(c)
 	data["title"] = "Home"
 	data["description"] = desc
 	data["h1"] = "Welcome,"
@@ -262,7 +278,7 @@ func History(z *zap.SugaredLogger, c echo.Context) error {
 	const lead = "In the past, alternative iterations of the name have included" +
 		" De Facto, DF, DeFacto, Defacto II, Defacto 2, and the defacto2.com domain."
 	const h1 = "The history of the brand"
-	data := empty()
+	data := empty(c)
 	data["carousel"] = "#carouselDf2Artpacks"
 	data["description"] = lead
 	data["logo"] = "The history of Defacto"
@@ -282,7 +298,7 @@ func Reader(z *zap.SugaredLogger, c echo.Context, id string) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	data := empty()
+	data := empty(c)
 	data["title"] = title
 	data["description"] = "Discussions with scene members."
 	data["logo"] = title
@@ -303,7 +319,7 @@ func Thanks(z *zap.SugaredLogger, c echo.Context) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	data := empty()
+	data := empty(c)
 	data["description"] = "Defacto2 thankyous."
 	data["h1"] = "Thank you!"
 	data["lead"] = "Thanks to the hundreds of people who have contributed to" +
@@ -327,7 +343,7 @@ func TheScene(z *zap.SugaredLogger, c echo.Context) error {
 	const lead = "Collectively referred to as The Scene," +
 		" it is a subculture of different computer activities where participants" +
 		" actively share ideas and creations."
-	data := empty()
+	data := empty(c)
 	data["description"] = fmt.Sprint(h1, " ", lead)
 	data["logo"] = "The underground"
 	data["h1"] = h1
@@ -340,16 +356,13 @@ func TheScene(z *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
-func Signin(z *zap.SugaredLogger, c echo.Context, readonly bool) error {
+func Signin(z *zap.SugaredLogger, c echo.Context) error {
 	const name = "signin"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	if readonly {
-		return c.String(http.StatusForbidden, "The site is in read-only mode.")
-	}
 
-	data := empty()
+	data := empty(c)
 	data["title"] = "Sign in"
 	data["description"] = "Sign in to Defacto2."
 	data["h1"] = "Sign in"
@@ -365,6 +378,39 @@ func Signin(z *zap.SugaredLogger, c echo.Context, readonly bool) error {
 	return nil
 }
 
+func Signout(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "signin"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	data := empty(c)
+	data["title"] = "Sign out"
+	data["description"] = "Sign out of Defacto2."
+	data["h1"] = "Sign out"
+	data["lead"] = "Sign out to Defacto2."
+
+	sess, err := session.Get("d2_op", c)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	id, ok := sess.Values["sub"]
+	if !ok || id == "" {
+		return echo.ErrForbidden
+	}
+
+	const signout = -1
+	sess.Options.MaxAge = signout
+	err = sess.Save(c.Request(), c.Response())
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	err = c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	return nil
+}
+
 // csrf_token_cookie = self.request.cookies.get('g_csrf_token')
 // if not csrf_token_cookie:
 //     webapp2.abort(400, 'No CSRF token in Cookie.')
@@ -374,49 +420,109 @@ func Signin(z *zap.SugaredLogger, c echo.Context, readonly bool) error {
 // if csrf_token_cookie != csrf_token_body:
 //     webapp2.abort(400, 'Failed to verify double submit cookie.')
 
-func GoogleCallback(z *zap.SugaredLogger, c echo.Context) error {
-	//https://developers.google.com/identity/gsi/web/guides/verify-google-id-token
-	const name = "google_callback"
+func GoogleCallback(z *zap.SugaredLogger, c echo.Context, clientID string) error {
+	// https://developers.google.com/identity/gsi/web/guides/verify-google-id-token
+	// https://pkg.go.dev/google.golang.org/api/idtoken
+	const name = "google/callback"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
 
-	cookie, err := c.Cookie("g_csrf_token")
+	const csrf = "g_csrf_token"
+	cookie, err := c.Cookie(csrf)
 	if err != nil {
-		return InternalErr(z, c, name, err)
+		if errors.Is(err, http.ErrNoCookie) {
+			fmt.Println("no cookie, redirect to signin")
+			return c.Redirect(http.StatusTemporaryRedirect, "/signin")
+		}
+		return BadRequestErr(z, c, name, err)
 	}
-	fmt.Println(cookie)
 	token := cookie.Value
 
-	bodyToken := c.FormValue("g_csrf_token")
+	bodyToken := c.FormValue(csrf)
 	if token != bodyToken {
-		return InternalErr(z, c, name, fmt.Errorf("token mismatch"))
+		return BadRequestErr(z, c, name, fmt.Errorf("token mismatch"))
 	}
 
 	ctx := context.Background()
 	validator, err := idtoken.NewValidator(ctx)
 	if err != nil {
-		return InternalErr(z, c, name, err)
+		return BadRequestErr(z, c, name, err)
 	}
 
 	credential := c.FormValue("credential")
-	playload, err := validator.Validate(ctx, credential,
-		"885513036389-n4uee89egjaph948pbpg7qcesf00gi0g.apps.googleusercontent.com")
+	playload, err := validator.Validate(ctx, credential, clientID)
 	if err != nil {
-		return InternalErr(z, c, name, err)
+		return BadRequestErr(z, c, name, err)
 	}
 
-	for k, v := range playload.Claims {
-		fmt.Println(k, v)
+	if err = SessionHandler(z, c, token, playload.Claims); err != nil {
+		return BadRequestErr(z, c, name, err)
 	}
 
+	// todo: redirect to the page they were on before signin
 	err = c.String(http.StatusOK, "ok, confirm the terminal")
 	if err != nil {
 		return InternalErr(z, c, name, err)
 	}
 
-	// csrf == cookie values
+	return nil
+}
 
+func SessionHandler(z *zap.SugaredLogger, c echo.Context, token string, claims map[string]interface{}) error {
+	// https://pkg.go.dev/github.com/gorilla/sessions
+	// https://pkg.go.dev/google.golang.org/api/idtoken
+	//
+	// Features, simple API
+	// Built-in backends to store sessions in cookies or the filesystem
+	// Flash messages, values that last for exactly one request
+	// Convenient way to switch session persistency (aka "remember me") and set other attributes
+	// Mechanism to rotate authentication and encryption keys
+
+	// get always returns a session, even if empty.
+	session, err := session.Get("d2_op", c)
+	if err != nil {
+		return err
+	}
+
+	// session Options are cookie options and are all optional
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
+	const oneHour = 60 * 60
+	session.Options = &sessions.Options{
+		Path:     "/",                  // path that must exist in the requested URL to send the Cookie header
+		Domain:   "",                   // which server can receive a cookie
+		MaxAge:   oneHour * 6,          // maximum age for the cookie, in seconds
+		Secure:   true,                 // cookie requires HTTPS except for localhost
+		HttpOnly: true,                 // stops the cookie being read by JS
+		SameSite: http.SameSiteLaxMode, // LaxMode (default) or StrictMode
+	}
+
+	// CSRF token from google
+	if token == "" {
+		return fmt.Errorf("no csrf token in claims")
+	}
+	session.Values["csrfToken"] = token
+
+	// sub is the unique user id from google
+	val, ok := claims["sub"]
+	if !ok {
+		return fmt.Errorf("no sub id in claims")
+	}
+	session.Values["sub"] = val
+
+	// not required
+	session.Values["givenName"] = claims["given_name"]
+	session.Values["email"] = claims["email"]
+	session.Values["emailVerified"] = claims["email_verified"]
+
+	err = session.Save(c.Request(), c.Response())
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+	// csrf == cookie values
 	// g_csrf_token=5322598e6a01d04   /// Cookie value: 5322598e6a01d04
 	// iss https://accounts.google.com
 	// sub 116860644014108518010
@@ -445,5 +551,4 @@ func GoogleCallback(z *zap.SugaredLogger, c echo.Context) error {
 	// if err != nil {
 	// 	return InternalErr(z, c, name, err)
 	// }
-	return nil
 }

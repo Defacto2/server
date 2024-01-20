@@ -58,7 +58,7 @@ func (a Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error {
 	fname := res.Filename.String
 	uuid := res.UUID.String
 	abs := filepath.Join(a.Download, uuid)
-	data := empty()
+	data := empty(c)
 	// about editor
 	if !readonly {
 		data["readonly"] = false

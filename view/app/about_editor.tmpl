@@ -1,5 +1,8 @@
 {{- /* about_editor.tmpl */}}
 {{- define "aboutEditor" }}
+{{- if eq false (index . "editor")}}
+{{- /* render nothing in the layout   */}}
+{{- else}}
 {{- $faSize := "fa-fw fa-2x" -}}
 {{- $id := index . "recID"}}
 {{- $previewImg := recordImgSample (index . "uuid")}}
@@ -365,4 +368,5 @@
       </div>
     </div>
   </div>
+{{- end}}
 {{- end}}

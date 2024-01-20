@@ -157,7 +157,7 @@ func (web Web) tmpl(name filename) (*template.Template, error) {
 		GlobTo(pagination),
 	}
 	config := web.Import
-	if !config.IsReadOnly {
+	if config.IsReadOnly {
 		files = append(files,
 			GlobTo("layout_editor_null.tmpl"),
 			GlobTo("layout_uploader_null.tmpl"),
