@@ -244,9 +244,10 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 		return c.Redirect(http.StatusMovedPermanently, "/signin")
 	})
 	google := signings.Group("/google")
-	// TODO: validate the google client id against the environment variable using hashed values.
 	google.POST("/callback", func(c echo.Context) error {
-		return app.GoogleCallback(z, c, conf.Import.GoogleClientID)
+		return app.GoogleCallback(z, c,
+			conf.Import.GoogleClientID,
+			conf.Import.GoogleAccounts...)
 	})
 
 	// Editor pages to update the database records.

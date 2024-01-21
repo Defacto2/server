@@ -64,6 +64,13 @@ type Config struct {
 
 	// GoogleClientID is the Google OAuth2 client ID.
 	GoogleClientID string `env:"GOOGLE_CLIENT_ID" envDefault:"" avoid:"true" help:"The Google OAuth2 client ID"`
+
+	// GoogleAccounts is a comma separated list of Google OAuth2 accounts that are allowed to login.
+	GoogleIDs string `env:"GOOGLE_ACCOUNTS" envDefault:"" avoid:"true" help:"The Google OAuth2 accounts that are allowed to login"`
+
+	// GoogleAccounts is a slice of Google OAuth2 accounts that are allowed to login.
+	// Each account is a 48 byte slice of bytes that represents the SHA-384 hash of the unique Google ID.
+	GoogleAccounts [][48]byte
 }
 
 const (

@@ -5,6 +5,8 @@ package app
 
 import (
 	"context"
+	"crypto/sha256"
+	"crypto/sha512"
 	"errors"
 	"fmt"
 	"net/http"
@@ -383,10 +385,26 @@ func Signin(z *zap.SugaredLogger, c echo.Context, clientID string) error {
 		if err != nil {
 			return BadRequestErr(z, c, name, err)
 		}
-		fmt.Println("sessions", sess.Values)
 		id, ok := sess.Values["sub"]
-		if !ok || id == "" {
+		if !ok {
+			err := c.Render(http.StatusOK, name, data)
+			if err != nil {
+				return InternalErr(z, c, name, err)
+			}
+			return nil
+		}
+		idStr, ok := id.(string)
+		if !ok || idStr == "" {
 			return ForbiddenErr(z, c, name, fmt.Errorf("no sub id in session"))
+		}
+		user := ""
+		if n, ok := sess.Values["givenName"]; ok {
+			if nameStr, ok := n.(string); ok && nameStr != "" {
+				user = " " + nameStr
+			}
+		}
+		if sum := sha256.Sum256([]byte(idStr)); sum != [32]byte{} {
+			return ForbiddenErr(z, c, name, fmt.Errorf("unknown user%s. If this is a mistake, contact Defacto2 admin and give them this Google account ID: %s", user, idStr))
 		}
 	}
 	err := c.Render(http.StatusOK, name, data)
@@ -421,20 +439,11 @@ func Signout(z *zap.SugaredLogger, c echo.Context) error {
 	return c.Redirect(http.StatusFound, "/")
 }
 
-// csrf_token_cookie = self.request.cookies.get('g_csrf_token')
-// if not csrf_token_cookie:
-//     webapp2.abort(400, 'No CSRF token in Cookie.')
-// csrf_token_body = self.request.get('g_csrf_token')
-// if not csrf_token_body:
-//     webapp2.abort(400, 'No CSRF token in post body.')
-// if csrf_token_cookie != csrf_token_body:
-//     webapp2.abort(400, 'Failed to verify double submit cookie.')
-
 // GoogleCallback is the handler for the Google OAuth2 callback page to verify
 // the [Google ID token].
 //
 // [Google ID token]: https://developers.google.com/identity/gsi/web/guides/verify-google-id-token
-func GoogleCallback(z *zap.SugaredLogger, c echo.Context, clientID string) error {
+func GoogleCallback(z *zap.SugaredLogger, c echo.Context, clientID string, accounts ...[48]byte) error {
 	const name = "google/callback"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
@@ -470,6 +479,21 @@ func GoogleCallback(z *zap.SugaredLogger, c echo.Context, clientID string) error
 	playload, err := validator.Validate(ctx, credential, clientID)
 	if err != nil {
 		return BadRequestErr(z, c, name, err)
+	}
+
+	// Verify the sub value against the list of allowed accounts.
+	check := false
+	for _, account := range accounts {
+		if sum := sha512.Sum384([]byte(playload.Claims["sub"].(string))); sum == account {
+			check = true
+			break
+		}
+	}
+	if !check {
+		fullname := playload.Claims["name"]
+		sub := playload.Claims["sub"]
+		return ForbiddenErr(z, c, name,
+			fmt.Errorf("unknown user %s. If this is a mistake, contact Defacto2 admin and give them this Google account ID: %s", fullname, sub))
 	}
 
 	if err = sessionHandler(z, c, token, playload.Claims); err != nil {

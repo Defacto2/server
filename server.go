@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/sha512"
 	"embed"
 	"errors"
 	"fmt"
@@ -174,12 +175,20 @@ func checks(logs *zap.SugaredLogger, isReadOnly bool) {
 	}
 }
 
-// Override the configuration settings for development.
+// Override the configuration settings fetched from the environment.
 func Override(c *config.Config) *config.Config {
-	// examples:
+	// hash and delete any supplied google ids
+	ids := strings.Split(c.GoogleIDs, ",")
+	for _, id := range ids {
+		sum := sha512.Sum384([]byte(id))
+		c.GoogleAccounts = append(c.GoogleAccounts, sum)
+	}
+	c.GoogleIDs = "overwrite placeholder"
+	c.GoogleIDs = "" // empty the string
+
+	// examples of hard-coded overrides:
 	// c.IsProduction = true
-	c.IsReadOnly = false
-	// c.HTTPPort = 8080
+	// c.IsReadOnly = true
 	return c
 }
 
