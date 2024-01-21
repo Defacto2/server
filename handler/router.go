@@ -27,11 +27,15 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 		return nil, fmt.Errorf("%w: %s", ErrZap, "handler routes")
 	}
 
-	// The session key is a long randomized value that changes on every restart.
+	// The session key, if empty a long randomized value is generated that changes on every restart.
 	if !conf.Import.IsReadOnly {
-		key := make([]byte, 32)
-		if _, err := rand.Read(key); err != nil {
-			panic(err)
+		key := []byte(conf.Import.SessionKey)
+		if conf.Import.SessionKey == "" {
+			const length = 32
+			key = make([]byte, length)
+			if _, err := rand.Read(key); err != nil {
+				return nil, err
+			}
 		}
 		e.Use(session.Middleware(sessions.NewCookieStore(key)))
 	}

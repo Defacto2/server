@@ -7,6 +7,7 @@ package handler
 // See, https://github.com/labstack/echo/issues/2306
 
 import (
+	"crypto/sha512"
 	"fmt"
 	"net/http"
 
@@ -50,6 +51,7 @@ func (cfg Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
+// SessionLock middleware checks the session cookie for a valid signed in user.
 func (cfg Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// https://pkg.go.dev/github.com/gorilla/sessions#Session
@@ -57,9 +59,18 @@ func (cfg Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 		if err != nil {
 			return err
 		}
-		id, ok := sess.Values["sub"]
+		id, ok := sess.Values["sub"].(string)
 		if !ok || id == "" {
-			// additional check could be sub against DB
+			return echo.ErrForbidden
+		}
+		check := false
+		for _, account := range cfg.Import.GoogleAccounts {
+			if sum := sha512.Sum384([]byte(id)); sum == account {
+				check = true
+				break
+			}
+		}
+		if !check {
 			return echo.ErrForbidden
 		}
 		return next(c)

@@ -57,7 +57,7 @@ func main() {
 	// Use the development log until the environment vars are parsed
 	logs := logger.CLI().Sugar()
 
-	// Environment configuration
+	// Environment variables configuration
 	configs := config.Config{}
 	if err := env.Parse(
 		&configs, env.Options{Prefix: config.EnvPrefix}); err != nil {

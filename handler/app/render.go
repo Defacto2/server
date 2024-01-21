@@ -384,11 +384,11 @@ func Signin(z *zap.SugaredLogger, c echo.Context, clientID string) error {
 	{ // get any existing session
 		sess, err := session.Get(SessionName, c)
 		if err != nil {
-			return delete(z, c, name, data)
+			return remove(z, c, name, data)
 		}
 		id, ok := sess.Values["sub"]
 		if !ok {
-			return delete(z, c, name, data)
+			return remove(z, c, name, data)
 		}
 		idStr, ok := id.(string)
 		if ok && idStr != "" {
@@ -402,11 +402,11 @@ func Signin(z *zap.SugaredLogger, c echo.Context, clientID string) error {
 	return nil
 }
 
-func delete(z *zap.SugaredLogger, c echo.Context, name string, data map[string]interface{}) error {
+func remove(z *zap.SugaredLogger, c echo.Context, name string, data map[string]interface{}) error {
 	sess, err := session.Get(SessionName, c)
 	if err != nil {
-		const delete = -1
-		sess.Options.MaxAge = delete
+		const remove = -1
+		sess.Options.MaxAge = remove
 		_ = sess.Save(c.Request(), c.Response())
 	}
 	err = c.Render(http.StatusOK, name, data)
@@ -447,8 +447,8 @@ func SignedOut(z *zap.SugaredLogger, c echo.Context) error {
 		if !ok || id == "" {
 			return ForbiddenErr(z, c, name, fmt.Errorf("no sub id in session"))
 		}
-		const delete = -1
-		sess.Options.MaxAge = delete
+		const remove = -1
+		sess.Options.MaxAge = remove
 		err = sess.Save(c.Request(), c.Response())
 		if err != nil {
 			return InternalErr(z, c, name, err)
@@ -501,10 +501,12 @@ func GoogleCallback(z *zap.SugaredLogger, c echo.Context, clientID string, accou
 
 	// Verify the sub value against the list of allowed accounts.
 	check := false
-	for _, account := range accounts {
-		if sum := sha512.Sum384([]byte(playload.Claims["sub"].(string))); sum == account {
-			check = true
-			break
+	if sub, ok := playload.Claims["sub"]; ok {
+		for _, account := range accounts {
+			if id, ok := sub.(string); ok && sha512.Sum384([]byte(id)) == account {
+				check = true
+				break
+			}
 		}
 	}
 	if !check {
