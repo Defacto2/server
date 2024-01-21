@@ -57,19 +57,11 @@ func (cfg Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 		if err != nil {
 			return err
 		}
-
 		id, ok := sess.Values["sub"]
 		if !ok || id == "" {
 			// additional check could be sub against DB
 			return echo.ErrForbidden
 		}
-
-		if name, ok := sess.Values["given_name"]; ok {
-			if nameStr, ok := name.(string); ok && nameStr != "" {
-				c.Response().Header().Set("X-User-Name", nameStr)
-			}
-		}
-
 		return next(c)
 	}
 }

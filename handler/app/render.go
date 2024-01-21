@@ -5,7 +5,6 @@ package app
 
 import (
 	"context"
-	"crypto/sha256"
 	"crypto/sha512"
 	"errors"
 	"fmt"
@@ -33,17 +32,6 @@ const (
 
 // empty is a map of default values for the app templates.
 func empty(c echo.Context) map[string]interface{} {
-	editor := false
-	sess, _ := session.Get(SessionName, c)
-	if id, ok := sess.Values["sub"]; ok && id != "" {
-		// additional check could be sub against DB
-		editor = true
-	}
-	// fmt.Println("sess", sess, "valeues", sess.Values["sub"])
-	// if sess.ID != "" {
-	// 	editor = true
-	// }
-
 	// the keys are listed in order of appearance in the templates.
 	// * marked keys are required.
 	// ! marked keys are suggested.
@@ -62,10 +50,22 @@ func empty(c echo.Context) map[string]interface{} {
 		"counter":      Statistics(),        // Empty database counts for files and categories.
 		"df2FileCount": Caching.RecordCount, // The number of records of files in the database.
 
-		"dberror":  false,  // If true, the database is not available.
-		"readonly": true,   // If true, the application is in read-only mode.
-		"editor":   editor, // If true, the editor mode is enabled.
+		"dberror":  false,     // If true, the database is not available.
+		"readonly": true,      // If true, the application is in read-only mode.
+		"editor":   editor(c), // If true, the editor mode is enabled.
 	}
+}
+
+func editor(c echo.Context) bool {
+	sess, err := session.Get(SessionName, c)
+	if err != nil {
+		return false
+	}
+	if id, ok := sess.Values["sub"]; ok && id != "" {
+		// additional check could be sub against DB
+		return true
+	}
+	return false
 }
 
 // emptyFiles is a map of default values specific to the files templates.
@@ -380,31 +380,19 @@ func Signin(z *zap.SugaredLogger, c echo.Context, clientID string) error {
 	data["lead"] = "This sign-in is not open to the general public, and no registration is available."
 	data["callback"] = "http://localhost:1323/google/callback" // todo: passthrough data values?
 	data["clientID"] = clientID
+	data["nonce"] = ""
 	{ // get any existing session
 		sess, err := session.Get(SessionName, c)
 		if err != nil {
-			return BadRequestErr(z, c, name, err)
+			return delete(z, c, name, data)
 		}
 		id, ok := sess.Values["sub"]
 		if !ok {
-			err := c.Render(http.StatusOK, name, data)
-			if err != nil {
-				return InternalErr(z, c, name, err)
-			}
-			return nil
+			return delete(z, c, name, data)
 		}
 		idStr, ok := id.(string)
-		if !ok || idStr == "" {
-			return ForbiddenErr(z, c, name, fmt.Errorf("no sub id in session"))
-		}
-		user := ""
-		if n, ok := sess.Values["givenName"]; ok {
-			if nameStr, ok := n.(string); ok && nameStr != "" {
-				user = " " + nameStr
-			}
-		}
-		if sum := sha256.Sum256([]byte(idStr)); sum != [32]byte{} {
-			return ForbiddenErr(z, c, name, fmt.Errorf("unknown user%s. If this is a mistake, contact Defacto2 admin and give them this Google account ID: %s", user, idStr))
+		if ok && idStr != "" {
+			return SignOut(z, c)
 		}
 	}
 	err := c.Render(http.StatusOK, name, data)
@@ -414,9 +402,39 @@ func Signin(z *zap.SugaredLogger, c echo.Context, clientID string) error {
 	return nil
 }
 
-// Signout is the handler to sign out and remove the current session.
-func Signout(z *zap.SugaredLogger, c echo.Context) error {
+func delete(z *zap.SugaredLogger, c echo.Context, name string, data map[string]interface{}) error {
+	sess, err := session.Get(SessionName, c)
+	if err != nil {
+		const delete = -1
+		sess.Options.MaxAge = delete
+		_ = sess.Save(c.Request(), c.Response())
+	}
+	err = c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	return nil
+}
+
+func SignOut(z *zap.SugaredLogger, c echo.Context) error {
 	const name = "signout"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	data := empty(c)
+	data["title"] = "Sign out"
+	data["description"] = "Sign out of Defacto2."
+	data["h1"] = "Sign out"
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	return nil
+}
+
+// SignedOut is the handler to sign out and remove the current session.
+func SignedOut(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "signedout"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
@@ -429,8 +447,8 @@ func Signout(z *zap.SugaredLogger, c echo.Context) error {
 		if !ok || id == "" {
 			return ForbiddenErr(z, c, name, fmt.Errorf("no sub id in session"))
 		}
-		const signout = -1
-		sess.Options.MaxAge = signout
+		const delete = -1
+		sess.Options.MaxAge = delete
 		err = sess.Save(c.Request(), c.Response())
 		if err != nil {
 			return InternalErr(z, c, name, err)

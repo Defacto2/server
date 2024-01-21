@@ -2,9 +2,13 @@
 {{- define "content" }}
 {{- $client := (index . "clientID") }}
 {{- $callback := (index . "callback") }}
-{{/*    */}}
+{{- $nonce := (index . "nonce") }}
+{{- /*  Sign In With Google HTML API reference
+        https://developers.google.com/identity/gsi/web/reference/html-reference  
+*/ -}}
 <script src="https://accounts.google.com/gsi/client" async></script>
-{{- /*  - data-client_id   Your application's client ID.
+{{- /*  Data attributes
+        - data-client_id   Your application's client ID.
         - data-context     The sign-in context of the button. The value can be either signin or signup.
         - data-ux_mode     The sign-in flow mode of the button. The value can be either popup or redirect.
         - data-login_uri   The URI of the page that handles the sign-in flow.
@@ -12,7 +16,7 @@
         - data-itp_support Whether to enable Intelligent Tracking Prevention (ITP) support. The value can be either true or false.
         - data-use_fedcm_for_prompt Whether to use the federated sign-in prompt. The value can be either true or false.
 */ -}}
-<div class="row justify-content-md-center">
+<div class="text-left">
     <div id="g_id_onload"
         data-client_id="{{$client}}" 
         data-context="signin"
@@ -22,19 +26,30 @@
         data-itp_support="true"
         data-use_fedcm_for_prompt="true">
     </div>
-    <p>
+    {{/*  TODO: data-nonce is a random tring to prevent replay attacks, max JWT size  */}}
+    <div>
         The privacy policy of Defacto2 does not apply to the sign-in page.
         <br>
         If you formerly had a Defacto2 operator account, please sign-in to obtain your numeric Google account unique identifier and 
-        <a href="#" data-bs-toggle="modal" data-bs-target="#emailModal">contact Defacto2</a> for new signup. 
-    </p>
-    <div class="m-3 g_id_signin"
+        <a href="#" data-bs-toggle="modal" data-bs-target="#emailModal">contact Defacto2</a> for a new signup. 
+    </div>
+{{- /*  Sign In With Google button
+        - data-type     The button type. The value can be either standard or (a smaller) icon.
+        - data-shape    The button shape. The value can be either rectangular or pill.
+        - data-theme    The button theme. The value can be either outline or filled_blue or filled_black.
+        - data-text     The button text. The value can be either signin_with or continue_with or signin.
+        - data-shape    The button shape.
+        - data-size     The button size. The value can be either large or medium or small.
+        - data-logo_alignment The button logo alignment. The value can be either left or center.
+        - data-width    The button width in pixels. The value can be a maximum of 400 pixels.
+*/ -}}
+    <div class="m-5 g_id_signin"
         data-type="standard"
-        data-shape="pill"
-        data-theme="outline"
+        data-theme="filled_black"
         data-text="signin_with"
+        data-shape="pill"
         data-size="large"
-        data-logo_alignment="left">
+        data-logo_alignment="center">
     </div>
 </div>
 {{- end }}

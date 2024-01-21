@@ -3,6 +3,7 @@ package handler
 // Package file router.go contains the custom router URIs for the website.
 
 import (
+	"crypto/rand"
 	"embed"
 	"fmt"
 	"net/http"
@@ -26,9 +27,14 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 		return nil, fmt.Errorf("%w: %s", ErrZap, "handler routes")
 	}
 
-	// TODO: Keypairs should be a long randomized value that changes on every restart.
-	// Or create a cmd flag to generate a new keypair for use with an environment variable.
-	e.Use(session.Middleware(sessions.NewCookieStore([]byte("conf.Import.SessionKey"))))
+	// The session key is a long randomized value that changes on every restart.
+	if !conf.Import.IsReadOnly {
+		key := make([]byte, 32)
+		if _, err := rand.Read(key); err != nil {
+			panic(err)
+		}
+		e.Use(session.Middleware(sessions.NewCookieStore(key)))
+	}
 
 	// Cache the database record count.
 	app.Caching.RecordCount = conf.RecordCount
@@ -234,8 +240,8 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	// Sign in for operators.
 	signings := e.Group("")
 	signings.Use(conf.ReadOnlyLock)
-	signings.GET("/signout", func(c echo.Context) error {
-		return app.Signout(z, c)
+	signings.GET("/signedout", func(c echo.Context) error {
+		return app.SignedOut(z, c)
 	})
 	signings.GET("/signin", func(c echo.Context) error {
 		return app.Signin(z, c, conf.Import.GoogleClientID)
