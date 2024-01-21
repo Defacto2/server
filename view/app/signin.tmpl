@@ -7,18 +7,19 @@
 {{/*  operator / sign-in  */}}
 <div class="row justify-content-md-center">
     <div id="g_id_onload"
-        data-client_id="885513036389-n4uee89egjaph948pbpg7qcesf00gi0g.apps.googleusercontent.com"
+        data-client_id="{{$client}}"
         data-context="signin"
         data-ux_mode="popup"
-        data-login_uri="http://localhost:1323/google/callback"
+        data-login_uri="{{$callback}}"
         data-nonce=""
         data-itp_support="true">
     </div>
     <p>
-        This sign is not for general users and there is no ability for new sign ups.
-        The Defacto2 privacy policy does not apply to this sign in page.
+        The privacy policy of Defacto2 does not apply to the sign-in page.
+        <br>
+        If you formerly had a Defacto2 operator account, please sign-in to obtain your numeric Google account unique identifier and 
+        <a href="#" data-bs-toggle="modal" data-bs-target="#emailModal">contact Defacto2</a> for new signup. 
     </p>
-    <p>If you formerly had a <em>Defacto2 operator account</em> please get in contact for a new, passwordless sign up.</p>
     <div class="m-3 g_id_signin"
         data-type="standard"
         data-shape="pill"

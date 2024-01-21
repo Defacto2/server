@@ -84,28 +84,7 @@ func main() {
 	configs.Checks(logs)
 
 	// Confirm command requirements when not running in read-only mode
-	if !configs.IsReadOnly {
-		var buf strings.Builder
-		for i, name := range command.Lookups() {
-			if err := command.LookCmd(name); err != nil {
-				buf.WriteString("\n\t\t\tmissing: " + name)
-				buf.WriteString("\t" + command.Infos()[i])
-			}
-		}
-		if buf.Len() > 0 {
-			logs.Warnln("The following commands are required for the server to run in WRITE MODE",
-				"\n\t\t\tThese need to be installed and accessable on the system path:"+
-					"\t\t\t"+buf.String())
-		}
-		if err := command.LookupUnrar(); err != nil {
-			if errors.Is(err, command.ErrVers) {
-				logs.Warnf("Could not find unrar by Alexander Roshal, " +
-					"is the unrar-free command mistakenly installed?")
-			} else {
-				logs.Warnf("%s: %s", ErrCmd, err)
-			}
-		}
-	}
+	checks(logs, configs.IsReadOnly)
 
 	// Repair assets on the host file system
 	if err := RepairFS(logs, &configs); err != nil {
@@ -167,6 +146,32 @@ func main() {
 
 	// Gracefully shutdown the HTTP server
 	server.ShutdownHTTP(e)
+}
+
+func checks(logs *zap.SugaredLogger, isReadOnly bool) {
+	if isReadOnly {
+		return
+	}
+	var buf strings.Builder
+	for i, name := range command.Lookups() {
+		if err := command.LookCmd(name); err != nil {
+			buf.WriteString("\n\t\t\tmissing: " + name)
+			buf.WriteString("\t" + command.Infos()[i])
+		}
+	}
+	if buf.Len() > 0 {
+		logs.Warnln("The following commands are required for the server to run in WRITE MODE",
+			"\n\t\t\tThese need to be installed and accessible on the system path:"+
+				"\t\t\t"+buf.String())
+	}
+	if err := command.LookupUnrar(); err != nil {
+		if errors.Is(err, command.ErrVers) {
+			logs.Warnf("Could not find unrar by Alexander Roshal, " +
+				"is the unrar-free command mistakenly installed?")
+		} else {
+			logs.Warnf("%s: %s", ErrCmd, err)
+		}
+	}
 }
 
 // Override the configuration settings for development.

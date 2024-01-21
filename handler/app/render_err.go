@@ -305,6 +305,41 @@ func BadRequestErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) 
 	return nil
 }
 
+func ForbiddenErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) error {
+	const code = http.StatusForbidden
+	if z == nil {
+		zapNil(err)
+	} else if err != nil {
+		z.Errorf("%d error for %q: %s", code, uri, err)
+	}
+	// render the fallback, text only error page
+	if c == nil {
+		if z == nil {
+			zapNil(fmt.Errorf("%w: internalerr", ErrCxt))
+		} else {
+			z.Errorf("%s: %s", ErrTmpl, ErrCxt)
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Errorf("%w: handler app status", ErrCxt))
+	}
+	// render a user friendly error page
+	data := empty(c)
+	data["description"] = fmt.Sprintf("HTTP status %d error", code)
+	data["title"] = "403, forbidden"
+	data["code"] = code
+	data["logo"] = "Forbidden"
+	data["alert"] = "This page is locked"
+	data["probl"] = fmt.Sprintf("This page is not intended for the general public, %s.", err.Error())
+	data["uriErr"] = uri
+	if err := c.Render(code, "status", data); err != nil {
+		if z != nil {
+			z.Errorf("%s: %s", ErrTmpl, err)
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
 // StatusErr is the handler for the HTTP status pages such as the 404 - not found.
 // If the zap logger is nil then the error page is returned but no error is logged.
 // If the echo context is nil then a user hostile, fallback error in raw text is returned.

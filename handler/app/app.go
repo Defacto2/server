@@ -21,6 +21,8 @@ const (
 	app    = "app" // app is the name of the view element in the template.
 	public = "public"
 
+	SessionName = "d2_op" // SessionName is the name given to the session cookie.
+
 	BootCSS  = "/css/bootstrap.min.css" // BootCSS is the path to the minified Bootstrap 5 CSS file.
 	BootCPub = public + BootCSS
 

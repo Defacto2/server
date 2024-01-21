@@ -224,7 +224,7 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 		return app.PostReleaser(z, c)
 	})
 
-	// Uploader for annoymous user uploads
+	// Uploader for anonymous user uploads
 	uploader := e.Group("/uploader")
 	uploader.Use(conf.ReadOnlyLock)
 	uploader.GET("", func(c echo.Context) error {
@@ -232,20 +232,20 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	})
 
 	// Sign in for operators.
-	signins := e.Group("")
-	signins.Use(conf.ReadOnlyLock)
-	signins.GET("/signout", func(c echo.Context) error {
+	signings := e.Group("")
+	signings.Use(conf.ReadOnlyLock)
+	signings.GET("/signout", func(c echo.Context) error {
 		return app.Signout(z, c)
 	})
-	signins.GET("/signin", func(c echo.Context) error {
-		return app.Signin(z, c)
+	signings.GET("/signin", func(c echo.Context) error {
+		return app.Signin(z, c, conf.Import.GoogleClientID)
 	})
-	signins.GET("/operator/signin", func(c echo.Context) error {
+	signings.GET("/operator/signin", func(c echo.Context) error {
 		return c.Redirect(http.StatusMovedPermanently, "/signin")
 	})
-	google := signins.Group("/google")
+	google := signings.Group("/google")
+	// TODO: validate the google client id against the environment variable using hashed values.
 	google.POST("/callback", func(c echo.Context) error {
-		// check error here
 		return app.GoogleCallback(z, c, conf.Import.GoogleClientID)
 	})
 

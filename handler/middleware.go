@@ -53,7 +53,7 @@ func (cfg Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
 func (cfg Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// https://pkg.go.dev/github.com/gorilla/sessions#Session
-		sess, err := session.Get("d2_op", c)
+		sess, err := session.Get(app.SessionName, c)
 		if err != nil {
 			return err
 		}
@@ -64,8 +64,10 @@ func (cfg Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 			return echo.ErrForbidden
 		}
 
-		if name, ok := sess.Values["given_name"]; ok && name.(string) != "" {
-			c.Response().Header().Set("X-User-Name", name.(string))
+		if name, ok := sess.Values["given_name"]; ok {
+			if nameStr, ok := name.(string); ok && nameStr != "" {
+				c.Response().Header().Set("X-User-Name", nameStr)
+			}
 		}
 
 		return next(c)
