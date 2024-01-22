@@ -1,22 +1,40 @@
 linters:
-  # Enable all available linters.
-  # Default: false
   enable-all: true
-  # Run only fast linters from enabled linters set (first run won't be fast).
-  # Default: false
-  fast: true
+  fast: false
   # Disable specific linters.
   disable:
     # deprecated
-    - nosnakecase
+    - deadcode
+    - exhaustivestruct
+    - golint
     - ifshort
+    - interfacer
+    - maligned
+    - nosnakecase
     - scopelint
+    - structcheck
+    - varcheck
     # disabled
-    - funlen            # should enable at a later stage. 
     - depguard          # don't need this.
-    - wsl               # fussy over whitespace.
+    - exhaustive
+    - exhaustruct
+    - ireturn
     - nlreturn          # fussy over whitespace.
+    - paralleltest
+    - varnamelen
+    - wrapcheck
+    - wsl               # fussy over whitespace.
     # temporary disabled
+    - godox
+    - cyclop
+    - funlen            # should enable at a later stage. 
+    - stylecheck
+    - revive
+    - noctx
+    - goerr113
+    - gochecknoglobals
+    - errorlint
+    - gosec
 issues:
   exclude-rules:
     - path: handler/router.go

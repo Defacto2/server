@@ -127,10 +127,7 @@ func (web *Web) Tmpl() (map[string]*template.Template, error) {
 	}
 	tmpls := make(map[string]*template.Template)
 	for k, name := range list {
-		tmpl, err := web.tmpl(name)
-		if err != nil {
-			return nil, err
-		}
+		tmpl := web.tmpl(name)
 		tmpls[k] = tmpl
 	}
 	return tmpls, nil
@@ -138,7 +135,7 @@ func (web *Web) Tmpl() (map[string]*template.Template, error) {
 
 // Web tmpl returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory.
-func (web Web) tmpl(name filename) (*template.Template, error) {
+func (web Web) tmpl(name filename) *template.Template {
 	const (
 		editorMenu = "layout_editor.tmpl"
 		fileExp    = "file_expand.tmpl"
@@ -189,7 +186,7 @@ func (web Web) tmpl(name filename) (*template.Template, error) {
 		files = append(files, GlobTo(website))
 	}
 	return template.Must(
-		template.New("").Funcs(web.TemplateFuncMap()).ParseFS(web.View, files...)), nil
+		template.New("").Funcs(web.TemplateFuncMap()).ParseFS(web.View, files...))
 }
 
 // SRI are the Subresource Integrity hashes for the layout.

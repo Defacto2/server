@@ -44,6 +44,9 @@ func (v *Version) Query() error {
 	if err != nil {
 		return err
 	}
+	if rows.Err() != nil {
+		return rows.Err()
+	}
 	defer rows.Close()
 	defer conn.Close()
 	for rows.Next() {

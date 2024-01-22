@@ -87,7 +87,7 @@ func (a Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error {
 	}
 	// page metadata
 	data["uuid"] = uuid
-	data["download"] = helper.ObfuscateID(int64(res.ID))
+	data["download"] = helper.ObfuscateID(res.ID)
 	data["title"] = fname
 	data["description"] = aboutDesc(res)
 	data["h1"] = aboutIssue(res)
@@ -269,11 +269,12 @@ func aboutDesc(res *models.File) string {
 	r1 := releaser.Clean(strings.ToLower(res.GroupBrandBy.String))
 	r2 := releaser.Clean(strings.ToLower(res.GroupBrandFor.String))
 	r := ""
-	if r1 != "" && r2 != "" {
+	switch {
+	case r1 != "" && r2 != "":
 		r = fmt.Sprintf("%s + %s", r1, r2)
-	} else if r1 != "" {
+	case r1 != "":
 		r = r1
-	} else if r2 != "" {
+	case r2 != "":
 		r = r2
 	}
 	s = fmt.Sprintf("%s released by %s", s, r)

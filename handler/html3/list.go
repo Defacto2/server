@@ -78,8 +78,8 @@ func (s *sugared) Software(c echo.Context) error {
 func (s *sugared) List(c echo.Context, tt RecordsBy) error {
 	start := helper.Latency()
 	id := c.Param("id")
-
-	count, limit, page := 0, 0, 1
+	var count, limit int
+	page := 1
 	offset := strings.TrimPrefix(c.Param("offset"), "/")
 	if offset != "" {
 		// this permits blank offsets param but returns 404 for a /0 value
@@ -188,7 +188,7 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error {
 		}
 	}
 
-	current, desc := "", ""
+	var current, desc string
 	switch tt {
 	case BySection, ByPlatform:
 		key := tags.TagByURI(id)

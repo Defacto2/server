@@ -226,7 +226,7 @@ func Brief(plat, sect any) template.HTML {
 
 // ByteCount returns a human readable string of the byte count.
 func ByteCount(b any) template.HTML {
-	s := ""
+	var s string
 	switch val := b.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
@@ -239,7 +239,7 @@ func ByteCount(b any) template.HTML {
 
 // ByteFile returns a human readable string of the file count and bytes.
 func ByteFile(cnt, bytes any) template.HTML {
-	s := ""
+	var s string
 	switch val := cnt.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
@@ -262,13 +262,13 @@ func ByteFile(cnt, bytes any) template.HTML {
 
 // ByteFileS returns a human readable string of the byte count with a named description.
 func ByteFileS(name string, cnt, bytes any) template.HTML {
-	s := ""
+	var s string
 	switch val := cnt.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
 		name = names(name)
 		if i != 1 {
-			name = name + "s"
+			name += "s"
 		}
 		p := message.NewPrinter(language.English)
 		s = p.Sprintf("%d", i)
@@ -297,7 +297,7 @@ func names(s string) string {
 
 // Day returns a string of the day number from the day d number between 1 and 31.
 func Day(d any) template.HTML {
-	s := ""
+	var s string
 	switch val := d.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
@@ -379,7 +379,7 @@ func Describe(plat, sect, year, month any) template.HTML {
 
 // DownloadB returns a human readable string of the file size.
 func DownloadB(i any) template.HTML {
-	s := ""
+	var s string
 	switch val := i.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
@@ -424,7 +424,7 @@ func LinkRels(a, b any) template.HTML {
 // The performant flag will use the group name instead of the much slower group slug formatter.
 func LinkRelrs(performant bool, a, b any) template.HTML {
 	const class = "text-nowrap link-offset-2 link-underline link-underline-opacity-25"
-	av, bv, s := "", "", ""
+	var av, bv, s string
 	switch val := a.(type) {
 	case string:
 		av = reflect.ValueOf(val).String()
@@ -469,11 +469,12 @@ func LinkRelrs(performant bool, a, b any) template.HTML {
 		}
 		second = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, x)
 	}
-	if prime != "" && second != "" {
+	switch {
+	case prime != "" && second != "":
 		s = fmt.Sprintf("%s<br>+ %s", prime, second)
-	} else if prime != "" {
+	case prime != "":
 		s = prime
-	} else if second != "" {
+	case second != "":
 		s = second
 	}
 	return template.HTML(s)
@@ -574,7 +575,7 @@ func LinkPreviewTip(id any, name, platform string) string {
 // The id is obfuscated to prevent direct linking.
 // The elem is the element to link to, such as 'f' for file or 'd' for download.
 func linkID(id any, elem string) (string, error) {
-	i := int64(0)
+	var i int64
 	switch val := id.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i = reflect.ValueOf(val).Int()
@@ -655,7 +656,7 @@ func Mod3(i any) bool {
 
 // Month returns a string of the month name from the month m number between 1 and 12.
 func Month(m any) template.HTML {
-	s := ""
+	var s string
 	switch val := m.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
@@ -681,12 +682,12 @@ func OptionsReadme(zipContent string) template.HTML {
 		x := strings.TrimSpace(strings.ToLower(v))
 		switch filepath.Ext(x) {
 		case ".txt", ".nfo", ".diz", ".me", ".asc", ".doc":
-			s = s + fmt.Sprintf("<option>%s</option>", v)
+			s += fmt.Sprintf("<option>%s</option>", v)
 			continue
 		}
 		x = strings.ToLower(v)
 		if strings.Contains(x, "readme") {
-			s = s + fmt.Sprintf("<option>%s</option>", v)
+			s += fmt.Sprintf("<option>%s</option>", v)
 			continue
 		}
 	}
@@ -708,7 +709,7 @@ func OptionsAnsiLove(zipContent string) template.HTML {
 			".───", ".──-", ".-", ".--", ".---":
 			continue
 		}
-		s = s + fmt.Sprintf("<option>%s</option>", v)
+		s += fmt.Sprintf("<option>%s</option>", v)
 	}
 	return template.HTML(s)
 }
@@ -721,7 +722,7 @@ func OptionsPreview(zipContent string) template.HTML {
 		x := strings.TrimSpace(strings.ToLower(v))
 		switch filepath.Ext(x) {
 		case gif, png, jpg, jpeg, webp, ".bmp":
-			s = s + fmt.Sprintf("<option>%s</option>", v)
+			s += fmt.Sprintf("<option>%s</option>", v)
 		}
 	}
 	return template.HTML(s)

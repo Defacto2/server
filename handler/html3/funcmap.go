@@ -36,7 +36,7 @@ func (f File) Description() string {
 	if f.GroupBy == "" {
 		return ""
 	}
-	desc := ""
+	var desc string
 	category := strings.TrimSpace(f.Section)
 	if category == tags.Mag.String() {
 		desc = fmt.Sprintf("%s issue %s", f.GroupBy, f.Title)

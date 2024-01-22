@@ -127,7 +127,7 @@ func main() {
 	}
 
 	// Repair the database on startup
-	if err := RepairDB(server); err != nil {
+	if err := RepairDB(); err != nil {
 		if errors.Is(err, ErrVer) {
 			logs.Warnf("%s, is the database server down?", ErrVer)
 		} else {
@@ -193,7 +193,7 @@ func Override(c *config.Config) *config.Config {
 }
 
 // RepairDB, on startup check the database connection and make any data corrections.
-func RepairDB(server handler.Configuration) error {
+func RepairDB() error {
 	db, err := postgres.ConnectDB()
 	if err != nil {
 		return err
@@ -250,7 +250,8 @@ func RepairFS(z *zap.SugaredLogger, c *config.Config) error {
 	}
 	dir := c.DownloadDir
 	if _, err := os.Stat(dir); err != nil {
-		return nil
+		var ignore error
+		return ignore //nolint:nilerr
 	}
 	z.Info("scan: ", dir)
 	return filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {

@@ -56,7 +56,7 @@ func RepairReleasers(w io.Writer, ctx context.Context, db *sql.DB) error {
 		trsibad: trsifix,
 		xpress:  xpressfix,
 	}
-	rowsAff := int64(0)
+	var rowsAff int64
 	for bad, fix := range fixes {
 		bad = strings.ToUpper(bad)
 		fix = strings.ToUpper(fix)

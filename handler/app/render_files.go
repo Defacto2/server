@@ -54,7 +54,7 @@ func Files(z *zap.SugaredLogger, c echo.Context, uri, page string) error {
 
 func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 	const title, name = "Files", "files"
-	logo, h1sub, lead := "", "", ""
+	var logo, h1sub, lead string
 	unknownYears := true
 	switch uri {
 	case newUploads.String():
@@ -97,7 +97,7 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 	}
 	defer db.Close()
 	// fetch the records by category
-	r, err := Records(ctx, db, uri, int(page), limit)
+	r, err := Records(ctx, db, uri, page, limit)
 	if err != nil {
 		return DatabaseErr(z, c, name, err)
 	}

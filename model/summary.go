@@ -60,11 +60,11 @@ func (r *Summary) SearchFilename(ctx context.Context, db *sql.DB, terms []string
 	s := summary
 	for i, term := range terms {
 		if i == 0 {
-			s = s + fmt.Sprintf(" filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
+			s += fmt.Sprintf(" filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
 				term, term+"%", "%"+term, "%"+term+"%")
 			continue
 		}
-		s = s + fmt.Sprintf(" OR filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
+		s += fmt.Sprintf(" OR filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
 			term, term+"%", "%"+term, "%"+term+"%")
 	}
 	s = strings.TrimSpace(s)
@@ -147,7 +147,7 @@ func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error {
 	if db == nil {
 		return ErrDB
 	}
-	c, b, y0, y1 := 0, 0, 0, 0
+	var c, b, y0, y1 int
 	switch uri {
 	case "intro-windows":
 		m := IntroWindows{}

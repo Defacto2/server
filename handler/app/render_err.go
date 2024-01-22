@@ -360,7 +360,7 @@ func StatusErr(z *zap.SugaredLogger, c echo.Context, code int, uri string) error
 	// render a user friendly error page
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
-	title, alert, logo, probl := "", "", "", ""
+	var title, alert, logo, probl string
 	switch code {
 	case http.StatusNotFound:
 		title = "404 error, page not found"

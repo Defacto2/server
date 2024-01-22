@@ -517,7 +517,7 @@ func GoogleCallback(z *zap.SugaredLogger, c echo.Context, clientID string, maxAg
 				"If this is a mistake, contact Defacto2 admin and give them this Google account ID: %s", fullname, sub))
 	}
 
-	if err = sessionHandler(z, c, token, maxAge, playload.Claims); err != nil {
+	if err = sessionHandler(z, c, maxAge, playload.Claims); err != nil {
 		return BadRequestErr(z, c, name, err)
 	}
 	return c.Redirect(http.StatusFound, "/")
@@ -530,7 +530,7 @@ func GoogleCallback(z *zap.SugaredLogger, c echo.Context, clientID string, maxAg
 // [ID Tokens for Google HTTP APIs]: https://pkg.go.dev/google.golang.org/api/idtoken
 func sessionHandler(
 	z *zap.SugaredLogger,
-	c echo.Context, token string, maxAge int,
+	c echo.Context, maxAge int,
 	claims map[string]interface{},
 ) error {
 	const name = "google/callback"

@@ -105,7 +105,6 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	// Use session middleware for all routes but not the embedded files.
 	s := e.Group("")
 	s.GET("/", func(c echo.Context) error {
-		fmt.Printf("index header\n%+v\n", c.Request().Header)
 		return app.Index(z, c)
 	})
 	s.GET("/artist", func(c echo.Context) error {

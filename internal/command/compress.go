@@ -285,7 +285,7 @@ func unzipExitStatus(err error) string {
 }
 
 // extract extracts the named file from a zip archive and returns the path to the file.
-func extract(z *zap.SugaredLogger, src, uuid, ext, name string) (string, error) {
+func extract(z *zap.SugaredLogger, src, ext, name string) (string, error) {
 	if z == nil {
 		return "", ErrZap
 	}
@@ -316,7 +316,7 @@ func (dir Dirs) ExtractImage(z *zap.SugaredLogger, src, uuid, ext, name string) 
 		return ErrZap
 	}
 
-	dst, err := extract(z, src, uuid, ext, name)
+	dst, err := extract(z, src, ext, name)
 	if err != nil {
 		return err
 	}
@@ -355,7 +355,7 @@ func (dir Dirs) ExtractAnsiLove(z *zap.SugaredLogger, src, uuid, ext, name strin
 		return ErrZap
 	}
 
-	dst, err := extract(z, src, uuid, ext, name)
+	dst, err := extract(z, src, ext, name)
 	if err != nil {
 		return err
 	}
