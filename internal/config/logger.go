@@ -27,12 +27,12 @@ var (
 // https://github.com/labstack/echo/discussions/1820
 
 // LoggerMiddleware handles the logging of HTTP servers.
-func (cfg Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+func (c Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	// Logger
 	var z *zap.SugaredLogger
-	switch cfg.IsProduction {
+	switch c.IsProduction {
 	case true:
-		z = logger.Production(cfg.LogDir).Sugar()
+		z = logger.Production(c.LogDir).Sugar()
 	default:
 		z = logger.Development().Sugar()
 	}
@@ -41,10 +41,10 @@ func (cfg Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			log.Printf("zap logger sync error: %s", err)
 		}
 	}()
-	return func(c echo.Context) error {
+	return func(e echo.Context) error {
 		timeStarted := time.Now()
-		err := next(c)
-		status := c.Response().Status
+		err := next(e)
+		status := e.Response().Status
 		httpErr := new(echo.HTTPError)
 		if errors.As(err, &httpErr) {
 			status = httpErr.Code
@@ -52,11 +52,11 @@ func (cfg Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 		v := map[string]interface{}{
 			"latency": int64(time.Since(timeStarted) / time.Millisecond),
-			"method":  c.Request().Method,
-			"path":    c.Request().URL.Path,
+			"method":  e.Request().Method,
+			"path":    e.Request().URL.Path,
 			"status":  status,
 		}
-		if cfg.LogRequests || err != nil {
+		if c.LogRequests || err != nil {
 			s := fmt.Sprintf("HTTP %s %d: %s", v["method"], v["status"], v["path"])
 			if err != nil {
 				s += fmt.Sprintf("  info: %s", err)
@@ -82,9 +82,9 @@ func (cfg Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 }
 
 // LogStorage determines the local storage path for all log files created by this web application.
-func (cfg *Config) LogStorage() error {
+func (c *Config) LogStorage() error {
 	const ownerGroupAll = 0o770
-	logs := cfg.LogDir
+	logs := c.LogDir
 	if logs == "" {
 		dir, err := os.UserConfigDir()
 		if err != nil {
@@ -97,16 +97,16 @@ func (cfg *Config) LogStorage() error {
 			return fmt.Errorf("%w: %s", err, logs)
 		}
 	}
-	cfg.LogDir = logs
+	c.LogDir = logs
 	return nil
 }
 
 // CustomErrorHandler handles customer error templates.
-func (cfg Config) CustomErrorHandler(err error, c echo.Context) {
+func (c Config) CustomErrorHandler(err error, e echo.Context) {
 	var z *zap.SugaredLogger
-	switch cfg.IsProduction {
+	switch c.IsProduction {
 	case true:
-		z = logger.Production(cfg.LogDir).Sugar()
+		z = logger.Production(c.LogDir).Sugar()
 	default:
 		z = logger.Development().Sugar()
 	}
@@ -116,8 +116,8 @@ func (cfg Config) CustomErrorHandler(err error, c echo.Context) {
 		}
 	}()
 	switch {
-	case IsHTML3(c.Path()):
-		if err := html3.Error(c, err); err != nil {
+	case IsHTML3(e.Path()):
+		if err := html3.Error(e, err); err != nil {
 			z.DPanic("Custom HTML3 response handler broke: %s", err)
 		}
 		return
@@ -128,9 +128,9 @@ func (cfg Config) CustomErrorHandler(err error, c echo.Context) {
 			code = httpError.Code
 		}
 		errorPage := fmt.Sprintf("%d.html", code)
-		if err := c.File(errorPage); err != nil {
+		if err := e.File(errorPage); err != nil {
 			// fallback to a string error if templates break
-			if err1 := StringErr(err, c); err1 != nil {
+			if err1 := StringErr(err, e); err1 != nil {
 				z.DPanic("Custom response handler broke: %s", err1)
 			}
 		}

@@ -18,7 +18,7 @@ import (
 )
 
 // removeSlash return the TrailingSlash middleware configuration.
-func (cfg Configuration) removeSlash() middleware.TrailingSlashConfig {
+func (c Configuration) removeSlash() middleware.TrailingSlashConfig {
 	return middleware.TrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,
 	}
@@ -28,34 +28,34 @@ func (cfg Configuration) removeSlash() middleware.TrailingSlashConfig {
 // The header contains the noindex and nofollow values that tell search engine
 // crawlers to not index or crawl the page or asset.
 // See https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag#xrobotstag
-func (cfg Configuration) NoRobotsHeader(next echo.HandlerFunc) echo.HandlerFunc {
-	if !cfg.Import.NoRobots {
+func (c Configuration) NoRobotsHeader(next echo.HandlerFunc) echo.HandlerFunc {
+	if !c.Import.NoRobots {
 		return next
 	}
-	return func(c echo.Context) error {
+	return func(e echo.Context) error {
 		const HeaderXRobotsTag = "X-Robots-Tag"
-		c.Response().Header().Set(HeaderXRobotsTag, "noindex, nofollow")
-		return next(c)
+		e.Response().Header().Set(HeaderXRobotsTag, "noindex, nofollow")
+		return next(e)
 	}
 }
 
 // ReadOnlyLock disables all POST, PUT and DELETE requests for the modification
 // of the database and any related user interface.
-func (cfg Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		c.Response().Header().Set("X-Read-Only-Lock", fmt.Sprintf("%t", cfg.Import.IsReadOnly))
-		if cfg.Import.IsReadOnly {
-			return app.StatusErr(cfg.Logger, c, http.StatusForbidden, "")
+func (c Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(e echo.Context) error {
+		e.Response().Header().Set("X-Read-Only-Lock", fmt.Sprintf("%t", c.Import.IsReadOnly))
+		if c.Import.IsReadOnly {
+			return app.StatusErr(c.Logger, e, http.StatusForbidden, "")
 		}
-		return next(c)
+		return next(e)
 	}
 }
 
 // SessionLock middleware checks the session cookie for a valid signed in user.
-func (cfg Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
+func (c Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(e echo.Context) error {
 		// https://pkg.go.dev/github.com/gorilla/sessions#Session
-		sess, err := session.Get(app.SessionName, c)
+		sess, err := session.Get(app.SessionName, e)
 		if err != nil {
 			return err
 		}
@@ -64,7 +64,7 @@ func (cfg Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 			return echo.ErrForbidden
 		}
 		check := false
-		for _, account := range cfg.Import.GoogleAccounts {
+		for _, account := range c.Import.GoogleAccounts {
 			if sum := sha512.Sum384([]byte(id)); sum == account {
 				check = true
 				break
@@ -73,6 +73,6 @@ func (cfg Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 		if !check {
 			return echo.ErrForbidden
 		}
-		return next(c)
+		return next(e)
 	}
 }

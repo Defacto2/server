@@ -28,7 +28,6 @@ linters:
     - godox
     - cyclop
     - funlen            # should enable at a later stage. 
-    - stylecheck
 issues:
   exclude-rules:
     - path: cmd/cmd.go
