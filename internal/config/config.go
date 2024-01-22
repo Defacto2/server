@@ -62,6 +62,9 @@ type Config struct {
 	// SessionKey is the session key for the cookie store.
 	SessionKey string `env:"SESSION_KEY" envDefault:"" avoid:"true" help:"The session key for the cookie store or leave blank to generate a random key"`
 
+	// SessionMaxAge is the maximum age in hours for the session cookie.
+	SessionMaxAge int `env:"SESSION_MAX_AGE" envDefault:"3" avoid:"true" help:"The maximum age in hours for the session cookie"`
+
 	// GoogleClientID is the Google OAuth2 client ID.
 	GoogleClientID string `env:"GOOGLE_CLIENT_ID" envDefault:"" avoid:"true" help:"The Google OAuth2 client ID"`
 

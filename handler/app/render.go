@@ -378,7 +378,7 @@ func Signin(z *zap.SugaredLogger, c echo.Context, clientID string) error {
 	data["description"] = "Sign in to Defacto2."
 	data["h1"] = "Sign in"
 	data["lead"] = "This sign-in is not open to the general public, and no registration is available."
-	data["callback"] = "http://localhost:1323/google/callback" // todo: passthrough data values?
+	data["callback"] = "/google/callback"
 	data["clientID"] = clientID
 	data["nonce"] = ""
 	{ // get any existing session
@@ -461,7 +461,7 @@ func SignedOut(z *zap.SugaredLogger, c echo.Context) error {
 // the [Google ID token].
 //
 // [Google ID token]: https://developers.google.com/identity/gsi/web/guides/verify-google-id-token
-func GoogleCallback(z *zap.SugaredLogger, c echo.Context, clientID string, accounts ...[48]byte) error {
+func GoogleCallback(z *zap.SugaredLogger, c echo.Context, clientID string, maxAge int, accounts ...[48]byte) error {
 	const name = "google/callback"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
@@ -513,10 +513,11 @@ func GoogleCallback(z *zap.SugaredLogger, c echo.Context, clientID string, accou
 		fullname := playload.Claims["name"]
 		sub := playload.Claims["sub"]
 		return ForbiddenErr(z, c, name,
-			fmt.Errorf("unknown user %s. If this is a mistake, contact Defacto2 admin and give them this Google account ID: %s", fullname, sub))
+			fmt.Errorf("unknown user %s. "+
+				"If this is a mistake, contact Defacto2 admin and give them this Google account ID: %s", fullname, sub))
 	}
 
-	if err = sessionHandler(z, c, token, playload.Claims); err != nil {
+	if err = sessionHandler(z, c, token, maxAge, playload.Claims); err != nil {
 		return BadRequestErr(z, c, name, err)
 	}
 	return c.Redirect(http.StatusFound, "/")
@@ -525,12 +526,13 @@ func GoogleCallback(z *zap.SugaredLogger, c echo.Context, clientID string, accou
 // sessionHandler creates a [new session] and populates it with
 // the claims data created by the [ID Tokens for Google HTTP APIs].
 //
-// TODO: passthrough the MaxAge value from an environment variable.
-// TODO: validate the sub value against the list and return a forbidden error if not found.
-//
 // [new session]: https://pkg.go.dev/github.com/gorilla/sessions
 // [ID Tokens for Google HTTP APIs]: https://pkg.go.dev/google.golang.org/api/idtoken
-func sessionHandler(z *zap.SugaredLogger, c echo.Context, token string, claims map[string]interface{}) error {
+func sessionHandler(
+	z *zap.SugaredLogger,
+	c echo.Context, token string, maxAge int,
+	claims map[string]interface{},
+) error {
 	const name = "google/callback"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
@@ -544,11 +546,11 @@ func sessionHandler(z *zap.SugaredLogger, c echo.Context, token string, claims m
 
 	// session Options are cookie options and are all optional
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
-	const hour, age = 60 * 60, 6
+	const hour = 60 * 60
 	session.Options = &sessions.Options{
 		Path:     "/",                  // path that must exist in the requested URL to send the Cookie header
 		Domain:   "",                   // which server can receive a cookie
-		MaxAge:   hour * age,           // maximum age for the cookie, in seconds
+		MaxAge:   hour * maxAge,        // maximum age for the cookie, in seconds
 		Secure:   true,                 // cookie requires HTTPS except for localhost
 		HttpOnly: true,                 // stops the cookie being read by JS
 		SameSite: http.SameSiteLaxMode, // LaxMode (default) or StrictMode

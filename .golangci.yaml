@@ -19,6 +19,9 @@ linters:
     # temporary disabled
 issues:
   exclude-rules:
+    - path: handler/router.go
+      linters:
+        - maintidx
     - path: handler/app/milestone.go
       linters:
         - maintidx

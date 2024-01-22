@@ -257,6 +257,7 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 	google.POST("/callback", func(c echo.Context) error {
 		return app.GoogleCallback(z, c,
 			conf.Import.GoogleClientID,
+			conf.Import.SessionMaxAge,
 			conf.Import.GoogleAccounts...)
 	})
 
