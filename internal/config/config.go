@@ -41,9 +41,6 @@ type Config struct {
 	// HTTPSPort is the port number to be used by the HTTPS server.
 	HTTPSPort uint `env:"PORTS" envDefault:"0" help:"The port number to be used by the encrypted HTTPS web server"`
 
-	// Timeout is the timeout value in seconds for the HTTP server.
-	Timeout uint `env:"TIMEOUT" envDefault:"5" help:"The timeout value in seconds for the HTTP, HTTPS and database server requests"`
-
 	// MaxProcs is the maximum number of operating system threads the program can use.
 	MaxProcs uint `env:"MAXPROCS" envDefault:"0" avoid:"true" help:"Limit the number of operating system threads the program can use"`
 
@@ -177,12 +174,6 @@ func dir(w *tabwriter.Writer, s string) {
 
 func lead(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
 	help := field.Tag.Get("help")
-	switch id {
-	case "Timeout":
-		help = strings.Replace(help, "HTTP, HTTPS", "HTTP, HTTPS\n\t\t\t\t", 1)
-	default:
-		// do nothing
-	}
 	fmt.Fprintf(w, "\t%s\t%s\t%v\t%s.\n", id, name, val, help)
 }
 

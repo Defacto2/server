@@ -40,7 +40,6 @@ the following environment variables to be set:
 
 	1. "DEFACTO2_PORT" is the unencrypted port number the web server will listen on (default: 1323).
 	2. "DEFACTO2_PORTS" is the encrypted port number the web server will listen on (default: 0 [unused]).
-	3. "DEFACTO2_TIMEOUT" is the he timeout in seconds for the web server and database requests (default: 5).
 
 # File downloads
 

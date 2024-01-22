@@ -200,6 +200,8 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 	//
 	w.Flush()
 	// Start the HTTP server
+	// TODO: implement HTTPS using HTTPSPort
+	// https://echo.labstack.com/docs/cookbook/http2
 	serverAddress := fmt.Sprintf(":%d", c.Import.HTTPPort)
 	if err := e.Start(serverAddress); err != nil {
 		var portErr *net.OpError

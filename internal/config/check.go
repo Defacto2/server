@@ -28,6 +28,8 @@ var (
 	ErrDirIs   = fmt.Errorf("the directory path points to the file")
 	ErrDirRead = fmt.Errorf("the directory path could not be read")
 	ErrDirFew  = fmt.Errorf("the directory path contains only a few items")
+
+	ErrUnencrypted = fmt.Errorf("the production server is configured to use unencrypted HTTP connections")
 )
 
 // Checks runs a number of sanity checks for the environment variable configurations.
@@ -36,6 +38,9 @@ func (c *Config) Checks(z *zap.SugaredLogger) {
 		fmt.Fprintf(os.Stderr, "Cannot run config checks as the logger instance is nil.")
 		return
 	}
+	// TODO: handle HTTPS port and give it priority over HTTP port?
+	// https://echo.labstack.com/docs/cookbook/http2
+	// TODO: only use HTTP ports if > 0
 	if err := HTTPPort(c.HTTPPort); err != nil {
 		switch {
 		case errors.Is(err, ErrPortMax):
@@ -45,6 +50,13 @@ func (c *Config) Checks(z *zap.SugaredLogger) {
 			z.Infof("The server HTTP port %d, %s.",
 				c.HTTPPort, err)
 		}
+	}
+
+	if c.IsProduction && !c.IsReadOnly && c.HTTPPort > 0 {
+		s := fmt.Sprintf("%s over port %d.",
+			helper.Capitalize(ErrUnencrypted.Error()),
+			c.HTTPPort)
+		z.Warn(s)
 	}
 
 	if err := DownloadDir(c.DownloadDir); err != nil {
@@ -64,7 +76,7 @@ func (c *Config) Checks(z *zap.SugaredLogger) {
 		z.Warn("NoRobots is on, most web crawlers will ignore this site.")
 	}
 	if c.HTTPSRedirect {
-		z.Warn("HTTPSRedirect is on, all HTTP requests will be redirected to HTTPS.")
+		z.Info("HTTPSRedirect is on, all HTTP requests will be redirected to HTTPS.")
 	}
 
 	c.SetupLogDir(z)

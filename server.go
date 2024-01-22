@@ -85,7 +85,7 @@ func main() {
 		logs.Errorf("%s: %s", ErrFS, err)
 	}
 
-	// Setup the logger
+	// Setup the logger and print the startup production/read-only message
 	logs = initLogger(logs, configs)
 
 	// Echo router and controller instance
