@@ -325,197 +325,201 @@ func (c Configuration) Moved(z *zap.SugaredLogger, e *echo.Echo) (*echo.Echo, er
 	}
 	const code = http.StatusMovedPermanently
 	// nginx redirects
-	e.GET("/welcome", func(x echo.Context) error {
+	nginx := e.Group("")
+	nginx.GET("/welcome", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	e.GET("/file/download/:id", func(x echo.Context) error {
+	nginx.GET("/file/download/:id", func(x echo.Context) error {
 		return x.Redirect(code, "/d/"+x.Param("id"))
 	})
-	e.GET("/file/view/:id", func(x echo.Context) error {
+	nginx.GET("/file/view/:id", func(x echo.Context) error {
 		return x.Redirect(code, "/v/"+x.Param("id"))
 	})
-	e.GET("/apollo-x/fc.htm", func(x echo.Context) error {
+	nginx.GET("/apollo-x/fc.htm", func(x echo.Context) error {
 		return x.Redirect(code, "/wayback/apollo-x-demo-resources-1999-december-17/fc.htm")
 	})
-	e.GET("/bbs.cfm", func(x echo.Context) error {
+	nginx.GET("/bbs.cfm", func(x echo.Context) error {
 		return x.Redirect(code, "/bbs")
 	})
-	e.GET("/contact.cfm", func(x echo.Context) error {
+	nginx.GET("/contact.cfm", func(x echo.Context) error {
 		return x.Redirect(code, "/") // there's no dedicated contact page
 	})
-	e.GET("/cracktros.cfm", func(x echo.Context) error {
+	nginx.GET("/cracktros.cfm", func(x echo.Context) error {
 		return x.Redirect(code, "/files/intro")
 	})
-	e.GET("/cracktros-detail.cfm:/:id", func(x echo.Context) error {
+	nginx.GET("/cracktros-detail.cfm:/:id", func(x echo.Context) error {
 		return x.Redirect(code, "/f/"+x.Param("id"))
 	})
-	e.GET("/documents.cfm", func(x echo.Context) error {
+	nginx.GET("/documents.cfm", func(x echo.Context) error {
 		return x.Redirect(code, "/files/text")
 	})
-	e.GET("/index.cfm", func(x echo.Context) error {
+	nginx.GET("/index.cfm", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	e.GET("/index.cfm/:uri", func(x echo.Context) error {
+	nginx.GET("/index.cfm/:uri", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	e.GET("/index.cfml/:uri", func(x echo.Context) error {
+	nginx.GET("/index.cfml/:uri", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	e.GET("/groups.cfm", func(x echo.Context) error {
+	nginx.GET("/groups.cfm", func(x echo.Context) error {
 		return x.Redirect(code, "/releaser")
 	})
-	e.GET("/magazines.cfm", func(x echo.Context) error {
+	nginx.GET("/magazines.cfm", func(x echo.Context) error {
 		return x.Redirect(code, "/magazine")
 	})
-	e.GET("/nfo-files.cfm", func(x echo.Context) error {
+	nginx.GET("/nfo-files.cfm", func(x echo.Context) error {
 		return x.Redirect(code, "/files/nfo")
 	})
-	e.GET("/portal.cfm", func(x echo.Context) error {
+	nginx.GET("/portal.cfm", func(x echo.Context) error {
 		return x.Redirect(code, "/website")
 	})
-	e.GET("/rewrite.cfm", func(x echo.Context) error {
+	nginx.GET("/rewrite.cfm", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	e.GET("/site-info.cfm", func(x echo.Context) error {
+	nginx.GET("/site-info.cfm", func(x echo.Context) error {
 		return x.Redirect(code, "/") // there's no dedicated about page
 	})
 	// 2020 website redirects
-	e.GET("/code", func(x echo.Context) error {
+	old := e.Group("")
+	old.GET("/code", func(x echo.Context) error {
 		return x.Redirect(code, "https://github.com/Defacto2/server")
 	})
-	e.GET("/commercial", func(x echo.Context) error {
+	old.GET("/commercial", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	e.GET("/defacto", func(x echo.Context) error {
+	old.GET("/defacto", func(x echo.Context) error {
 		return x.Redirect(code, "/history")
 	})
-	e.GET("/defacto2/donate", func(x echo.Context) error {
+	old.GET("/defacto2/donate", func(x echo.Context) error {
 		return x.Redirect(code, "/thanks")
 	})
-	e.GET("/defacto2/history", func(x echo.Context) error {
+	old.GET("/defacto2/history", func(x echo.Context) error {
 		return x.Redirect(code, "/history")
 	})
-	e.GET("/defacto2/subculture", func(x echo.Context) error {
+	old.GET("/defacto2/subculture", func(x echo.Context) error {
 		return x.Redirect(code, "/thescene")
 	})
-	e.GET("/file/detail/:id", func(x echo.Context) error {
+	old.GET("/file/detail/:id", func(x echo.Context) error {
 		return x.Redirect(code, "/f/"+x.Param("id"))
 	})
-	e.GET("/file/index", func(x echo.Context) error {
+	old.GET("/file/index", func(x echo.Context) error {
 		return x.Redirect(code, "/file")
 	})
-	e.GET("/file/list/:uri", func(x echo.Context) error {
+	old.GET("/file/list/:uri", func(x echo.Context) error {
 		return x.Redirect(code, "/files/new-uploads")
 	})
-	e.GET("/files/json/site.webmanifest", func(x echo.Context) error {
+	old.GET("/files/json/site.webmanifest", func(x echo.Context) error {
 		return x.Redirect(code, "/site.webmanifest")
 	})
-	e.GET("/help/cc", func(x echo.Context) error {
+	old.GET("/help/cc", func(x echo.Context) error {
 		return x.Redirect(code, "/") // there's no dedicated contact page
 	})
-	e.GET("/help/privacy", func(x echo.Context) error {
+	old.GET("/help/privacy", func(x echo.Context) error {
 		return x.Redirect(code, "/") // there's no dedicated privacy page
 	})
-	e.GET("/help/viruses", func(x echo.Context) error {
+	old.GET("/help/viruses", func(x echo.Context) error {
 		return x.Redirect(code, "/") // there's no dedicated virus page
 	})
-	e.GET("/home", func(x echo.Context) error {
+	old.GET("/home", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	e.GET("/link/list", func(x echo.Context) error {
+	old.GET("/link/list", func(x echo.Context) error {
 		return x.Redirect(code, "/website")
 	})
-	e.GET("/link/list/:id", func(x echo.Context) error {
+	old.GET("/link/list/:id", func(x echo.Context) error {
 		return x.Redirect(code, "/website")
 	})
 	//nolint:misspell
-	e.GET("/organisation/list/bbs", func(x echo.Context) error {
+	old.GET("/organisation/list/bbs", func(x echo.Context) error {
 		return x.Redirect(code, "/bbs")
 	})
 	//nolint:misspell
-	e.GET("/organisation/list/group", func(x echo.Context) error {
+	old.GET("/organisation/list/group", func(x echo.Context) error {
 		return x.Redirect(code, "/releaser")
 	})
 	//nolint:misspell
-	e.GET("/organisation/list/ftp", func(x echo.Context) error {
+	old.GET("/organisation/list/ftp", func(x echo.Context) error {
 		return x.Redirect(code, "/ftp")
 	})
 	//nolint:misspell
-	e.GET("/organisation/list/magazine", func(x echo.Context) error {
+	old.GET("/organisation/list/magazine", func(x echo.Context) error {
 		return x.Redirect(code, "/magazine")
 	})
-	e.GET("/person/list", func(x echo.Context) error {
+	old.GET("/person/list", func(x echo.Context) error {
 		return x.Redirect(code, "/scener")
 	})
-	e.GET("/person/list/artists", func(x echo.Context) error {
+	old.GET("/person/list/artists", func(x echo.Context) error {
 		return x.Redirect(code, "/artist")
 	})
-	e.GET("/person/list/coders", func(x echo.Context) error {
+	old.GET("/person/list/coders", func(x echo.Context) error {
 		return x.Redirect(code, "/coder")
 	})
-	e.GET("/person/list/musicians", func(x echo.Context) error {
+	old.GET("/person/list/musicians", func(x echo.Context) error {
 		return x.Redirect(code, "/musician")
 	})
-	e.GET("/person/list/writers", func(x echo.Context) error {
+	old.GET("/person/list/writers", func(x echo.Context) error {
 		return x.Redirect(code, "/writer")
 	})
-	e.GET("/upload", func(x echo.Context) error {
+	old.GET("/upload", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	e.GET("/upload/file", func(x echo.Context) error {
+	old.GET("/upload/file", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	e.GET("/upload/external", func(x echo.Context) error {
+	old.GET("/upload/external", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	e.GET("/upload/intro", func(x echo.Context) error {
+	old.GET("/upload/intro", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	e.GET("/upload/site", func(x echo.Context) error {
+	old.GET("/upload/site", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	e.GET("/upload/document", func(x echo.Context) error {
+	old.GET("/upload/document", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	e.GET("/upload/magazine", func(x echo.Context) error {
+	old.GET("/upload/magazine", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	e.GET("/upload/art", func(x echo.Context) error {
+	old.GET("/upload/art", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	e.GET("/upload/other", func(x echo.Context) error {
+	old.GET("/upload/other", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
 	// wayback redirects
-	e.GET("/scene-archive/:uri", func(x echo.Context) error {
+	wayback := e.Group("")
+	wayback.GET("/scene-archive/:uri", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	e.GET("/includes/documentsweb/df2web99/scene-archive/history.html", func(x echo.Context) error {
+	wayback.GET("/includes/documentsweb/df2web99/scene-archive/history.html", func(x echo.Context) error {
 		return x.Redirect(code, "/wayback/defacto2-from-1999-september-26/scene-archive/history.html")
 	})
-	e.GET("/includes/documentsweb/tKC_history.html", func(x echo.Context) error {
+	wayback.GET("/includes/documentsweb/tKC_history.html", func(x echo.Context) error {
 		return x.Redirect(code, "/wayback/the-life-and-legend-of-tkc-2000-october-10/index.html")
 	})
-	e.GET("/legacy/apollo-x/:uri", func(x echo.Context) error {
+	wayback.GET("/legacy/apollo-x/:uri", func(x echo.Context) error {
 		return x.Redirect(code, "/wayback/apollo-x-demo-resources-1999-december-17/:uri")
 	})
-	e.GET("/web/20120827022026/http:/www.defacto2.net:80/file/list/nfotool", func(x echo.Context) error {
+	wayback.GET("/web/20120827022026/http:/www.defacto2.net:80/file/list/nfotool", func(x echo.Context) error {
 		return x.Redirect(code, "/files/nfo-tool")
 	})
-	e.GET("/web.pages/warez_world-1.htm", func(x echo.Context) error {
+	wayback.GET("/web.pages/warez_world-1.htm", func(x echo.Context) error {
 		return x.Redirect(code, "/wayback/warez-world-from-2001-july-26/index.html")
 	})
 	// repaired releaser database entry redirects
-	e.GET("/g/acid", func(x echo.Context) error {
+	fixes := e.Group("/g")
+	fixes.GET("/acid", func(x echo.Context) error {
 		return x.Redirect(code, "/g/"+releaser.Obfuscate("ACID PRODUCTIONS"))
 	})
-	e.GET("/g/ice", func(x echo.Context) error {
+	fixes.GET("/ice", func(x echo.Context) error {
 		return x.Redirect(code, "/g/"+releaser.Obfuscate("INSANE CREATORS ENTERPRISE"))
 	})
-	e.GET("/g/"+releaser.Obfuscate("pirates with attitude"), func(x echo.Context) error {
+	fixes.GET("/"+releaser.Obfuscate("pirates with attitude"), func(x echo.Context) error {
 		return x.Redirect(code, "/g/"+releaser.Obfuscate("pirates with attitudes"))
 	})
-	e.GET("/g/"+releaser.Obfuscate("TRISTAR AND RED SECTOR INC"), func(x echo.Context) error {
+	fixes.GET("/"+releaser.Obfuscate("TRISTAR AND RED SECTOR INC"), func(x echo.Context) error {
 		return x.Redirect(code, "/g/"+releaser.Obfuscate("TRISTAR & RED SECTOR INC"))
 	})
 	return e, nil
