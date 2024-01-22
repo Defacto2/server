@@ -1,6 +1,7 @@
 package command
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -208,7 +209,8 @@ func arjExitStatus(err error) string {
 		11: "user control break",
 		12: "too many chapters (over 250)",
 	}
-	if exitError, ok := err.(*exec.ExitError); ok {
+	var exitError *exec.ExitError
+	if errors.As(err, &exitError) {
 		if status, ok := exitError.Sys().(syscall.WaitStatus); ok {
 			if s, ok := statuses[status.ExitStatus()]; ok {
 				return s
@@ -238,7 +240,8 @@ func unrarExitStatus(err error) string {
 		11:  "incorrect password",
 		255: "user stopped the process with control-C",
 	}
-	if exitError, ok := err.(*exec.ExitError); ok {
+	var exitError *exec.ExitError
+	if errors.As(err, &exitError) {
 		if status, ok := exitError.Sys().(syscall.WaitStatus); ok {
 			if s, ok := statuses[status.ExitStatus()]; ok {
 				return s
@@ -253,7 +256,8 @@ func unzipExitStatus(err error) string {
 	if err == nil {
 		return ""
 	}
-	if exitError, ok := err.(*exec.ExitError); ok {
+	var exitError *exec.ExitError
+	if errors.As(err, &exitError) {
 		if status, ok := exitError.Sys().(syscall.WaitStatus); ok {
 			statuses := map[int]string{
 				0:  "success",

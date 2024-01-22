@@ -3,6 +3,7 @@
 package html3
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -17,9 +18,10 @@ func Error(c echo.Context, err error) error {
 	start := helper.Latency()
 	code := http.StatusInternalServerError
 	msg := "This is a server problem"
-	if he, ok := err.(*echo.HTTPError); ok {
-		code = he.Code
-		msg = fmt.Sprint(he.Message)
+	var httpError *echo.HTTPError
+	if errors.As(err, &httpError) {
+		code = httpError.Code
+		msg = fmt.Sprint(httpError.Message)
 	}
 	return c.Render(code, "html3_error", map[string]interface{}{
 		"title":       fmt.Sprintf("%d error, there is a complication", code),

@@ -123,8 +123,9 @@ func (cfg Config) CustomErrorHandler(err error, c echo.Context) {
 		return
 	default:
 		code := http.StatusInternalServerError
-		if he, ok := err.(*echo.HTTPError); ok {
-			code = he.Code
+		var httpError *echo.HTTPError
+		if errors.As(err, &httpError) {
+			code = httpError.Code
 		}
 		errorPage := fmt.Sprintf("%d.html", code)
 		if err := c.File(errorPage); err != nil {
@@ -140,9 +141,10 @@ func (cfg Config) CustomErrorHandler(err error, c echo.Context) {
 // StringErr sends the error and code as a string.
 func StringErr(err error, c echo.Context) error {
 	code, msg := http.StatusInternalServerError, "internal server error"
-	if he, ok := err.(*echo.HTTPError); ok {
-		code = he.Code
-		msg = fmt.Sprint(he.Message)
+	var httpError *echo.HTTPError
+	if errors.As(err, &httpError) {
+		code = httpError.Code
+		msg = fmt.Sprint(httpError.Message)
 	}
 	return c.String(code, fmt.Sprintf("%d - %s", code, msg))
 }
