@@ -172,7 +172,7 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 		return app.ProdZoo(z, c, c.Param("id"))
 	})
 	s.GET("/r/:id", func(c echo.Context) error {
-		return app.Reader(z, c, c.Param("id"))
+		return app.Reader(z, c)
 	})
 	s.GET("/releaser", func(c echo.Context) error {
 		return app.Releaser(z, c)
@@ -316,7 +316,13 @@ func (conf Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embe
 }
 
 // Moved redirects are partial URL routers that are to be redirected with a HTTP 301 Moved Permanently.
-func (c Configuration) Moved(z *zap.SugaredLogger, e *echo.Echo) (*echo.Echo, error) {
+func (conf Configuration) Moved(z *zap.SugaredLogger, e *echo.Echo) (*echo.Echo, error) {
+	if e == nil {
+		return nil, fmt.Errorf("%w: %s", ErrRoutes, "handler routes")
+	}
+	if z == nil {
+		return nil, fmt.Errorf("%w: %s", ErrZap, "handler routes")
+	}
 	const code = http.StatusMovedPermanently
 	// nginx redirects
 	e.GET("/welcome", func(c echo.Context) error {

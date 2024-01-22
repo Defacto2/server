@@ -3,6 +3,7 @@
 package zoo
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -60,7 +61,8 @@ func (d *Demozoo) Get(id int) error {
 		Timeout: Timeout,
 	}
 	url := ProdURL + strconv.Itoa(id)
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return err
 	}

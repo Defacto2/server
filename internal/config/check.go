@@ -22,6 +22,12 @@ const (
 var (
 	ErrPortMax = fmt.Errorf("http port value must be between 0-%d", PortMax)
 	ErrPortSys = fmt.Errorf("http port values between 0-%d require system access", PortSys)
+
+	ErrDir     = fmt.Errorf("the named directory path is empty")
+	ErrDir404  = fmt.Errorf("the directory path does not exist")
+	ErrDirIs   = fmt.Errorf("the directory path points to the file")
+	ErrDirRead = fmt.Errorf("the directory path could not be read")
+	ErrDirFew  = fmt.Errorf("the directory path contains only a few items")
 )
 
 // Checks runs a number of sanity checks for the environment variable configurations.
@@ -139,34 +145,22 @@ func ThumbnailDir(name string) error {
 // including whether it exists, is a directory, and contains a minimum number of files.
 // Problems will either log warnings or fatal errors.
 func CheckDir(name, desc string) error {
-	s := ""
-	switch desc {
-	case "download":
-		s = "file downloading will not work"
-	case "log":
-		s = "the server cannot log to files"
-	case "preview":
-		s = "previews images will not show"
-	case "thumbnail":
-		s = "thumbnail images will be blank"
-	}
 	if name == "" {
-		return fmt.Errorf("no %s directory path, %s", desc, s)
+		return fmt.Errorf("%w: %s", ErrDir, desc)
 	}
 	dir, err := os.Stat(name)
 	if os.IsNotExist(err) {
-		return fmt.Errorf("the %s directory path does not exist, %s: %s", desc, s, name)
+		return fmt.Errorf("%w, %s: %s", ErrDir404, desc, name)
 	}
 	if !dir.IsDir() {
-		return fmt.Errorf("the %s directory path points to the file, %s: %s", desc, s, dir.Name())
+		return fmt.Errorf("%w, %s: %s", ErrDirIs, desc, dir.Name())
 	}
 	files, err := os.ReadDir(name)
 	if err != nil {
-		return fmt.Errorf("the %s directory path could not be read, %s: %w", desc, s, err)
+		return fmt.Errorf("%w, %s: %w", ErrDirRead, desc, err)
 	}
 	if len(files) < toFewFiles {
-		return fmt.Errorf("the %s directory path contains only a few items, is the directory correct:  %s",
-			desc, dir.Name())
+		return fmt.Errorf("%w, %s: %s", ErrDirFew, desc, dir.Name())
 	}
 	return nil
 }

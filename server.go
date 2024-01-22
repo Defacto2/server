@@ -204,7 +204,7 @@ func RepairDB() error {
 	if err := ver.Query(); err != nil {
 		return ErrVer
 	}
-	return model.RepairReleasers(os.Stderr, ctx, db)
+	return model.RepairReleasers(ctx, os.Stderr, db)
 }
 
 // RecordCount returns the number of records in the database.

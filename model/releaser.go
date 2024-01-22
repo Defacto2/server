@@ -73,7 +73,7 @@ func (r *Releasers) List(ctx context.Context, db *sql.DB, name string) (models.F
 
 // All gets the unique releaser names and their total file count and file sizes.
 // When reorder is true the results are ordered by the total file counts.
-func (r *Releasers) All(ctx context.Context, db *sql.DB, offset, limit int, reorder bool) error {
+func (r *Releasers) All(ctx context.Context, db *sql.DB, reorder bool) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -122,7 +122,7 @@ func (r *Releasers) Magazine(ctx context.Context, db *sql.DB) error {
 }
 
 // BBS gets the unique BBS site names and their total file count and file sizes.
-func (r *Releasers) BBS(ctx context.Context, db *sql.DB, offset, limit int, reorder bool) error {
+func (r *Releasers) BBS(ctx context.Context, db *sql.DB, reorder bool) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -141,7 +141,7 @@ func (r *Releasers) BBS(ctx context.Context, db *sql.DB, offset, limit int, reor
 }
 
 // FTP gets the unique FTP site names and their total file count and file sizes.
-func (r *Releasers) FTP(ctx context.Context, db *sql.DB, offset, limit int, o Order) error {
+func (r *Releasers) FTP(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}

@@ -37,6 +37,11 @@ const (
 	webp = ".webp"
 )
 
+var (
+	ErrLinkID   = fmt.Errorf("the id value cannot be a negative number")
+	ErrLinkType = fmt.Errorf("the id value is an invalid type")
+)
+
 func archives() []string {
 	return []string{".zip", ".rar", ".7z", ".tar", ".lha", ".lzh", ".arc", ".arj", ".ace", ".tar"}
 }
@@ -558,7 +563,7 @@ func LinkPreviewHref(id any, name, platform string) template.HTML {
 }
 
 // LinkPreviewTip returns a tooltip to describe the preview link.
-func LinkPreviewTip(id any, name, platform string) string {
+func LinkPreviewTip(name, platform string) string {
 	if name == "" {
 		return ""
 	}
@@ -589,10 +594,10 @@ func linkID(id any, elem string) (string, error) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i = reflect.ValueOf(val).Int()
 		if i <= 0 {
-			return "", fmt.Errorf("negative id %d", i)
+			return "", fmt.Errorf("%w: %d", ErrLinkID, i)
 		}
 	default:
-		return "", fmt.Errorf("%s %s", typeErr, reflect.TypeOf(id).String())
+		return "", fmt.Errorf("%w: %s", ErrLinkType, reflect.TypeOf(id).String())
 	}
 	href, err := url.JoinPath("/", elem, helper.ObfuscateID(i))
 	if err != nil {

@@ -17,7 +17,7 @@ import (
 // Package file repair.go contains functions for repairing the database data.
 
 // RepairReleasers will repair the group_brand_by and group_brand_for releasers data.
-func RepairReleasers(w io.Writer, ctx context.Context, db *sql.DB) error {
+func RepairReleasers(ctx context.Context, w io.Writer, db *sql.DB) error {
 	if w == nil {
 		w = io.Discard
 	}

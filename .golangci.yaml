@@ -29,9 +29,6 @@ linters:
     - cyclop
     - funlen            # should enable at a later stage. 
     - stylecheck
-    - revive
-    - noctx
-    - goerr113
 issues:
   exclude-rules:
     - path: cmd/cmd.go

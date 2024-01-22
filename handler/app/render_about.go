@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"html/template"
 	"image"
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
+	_ "image/gif"  // gif format decoder
+	_ "image/jpeg" // jpeg format decoder
+	_ "image/png"  // png format decoder
 	"io"
 	"net/http"
 	"os"
@@ -30,7 +30,7 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
-	_ "golang.org/x/image/webp"
+	_ "golang.org/x/image/webp" // webp format decoder
 	"golang.org/x/text/encoding/charmap"
 )
 
@@ -43,21 +43,21 @@ type Dirs struct {
 }
 
 // About is the handler for the about page of the file record.
-func (a Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error {
+func (dir Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error {
 	const name = "about"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	res, err := model.OneRecord(z, c, a.URI)
+	res, err := model.OneRecord(z, c, dir.URI)
 	if err != nil {
 		if errors.Is(err, model.ErrID) {
-			return AboutErr(z, c, a.URI)
+			return AboutErr(z, c, dir.URI)
 		}
-		return DatabaseErr(z, c, "f/"+a.URI, err)
+		return DatabaseErr(z, c, "f/"+dir.URI, err)
 	}
 	fname := res.Filename.String
 	uuid := res.UUID.String
-	abs := filepath.Join(a.Download, uuid)
+	abs := filepath.Join(dir.Download, uuid)
 	data := empty(c)
 	// about editor
 	if !readonly {
@@ -75,7 +75,7 @@ func (a Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error {
 		data["recKind"] = aboutMagic(abs)
 		data["recStatMod"] = aboutStat(abs)[0]
 		data["recStatSize"] = aboutStat(abs)[1]
-		data["recAssets"] = a.aboutAssets(uuid)
+		data["recAssets"] = dir.aboutAssets(uuid)
 		data["recNoReadme"] = res.RetrotxtNoReadme.Int16 != 0
 		data["recReadmeList"] = OptionsReadme(res.FileZipContent.String)
 		data["recPreviewList"] = OptionsPreview(res.FileZipContent.String)
@@ -133,7 +133,7 @@ func (a Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error {
 	}
 	// record metadata
 	data["linkpreview"] = LinkPreviewHref(res.ID, res.Filename.String, res.Platform.String)
-	data["linkpreviewTip"] = LinkPreviewTip(res.ID, res.Filename.String, res.Platform.String)
+	data["linkpreviewTip"] = LinkPreviewTip(res.Filename.String, res.Platform.String)
 	switch {
 	case res.Createdat.Valid && res.Updatedat.Valid:
 		c := Updated(res.Createdat.Time, "")
@@ -153,7 +153,7 @@ func (a Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error {
 		u := Updated(res.Updatedat.Time, "Updated")
 		data["filentry"] = u
 	}
-	d, err := a.aboutReadme(res)
+	d, err := dir.aboutReadme(res)
 	if err != nil {
 		return InternalErr(z, c, name, err)
 	}
@@ -165,7 +165,7 @@ func (a Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error {
 	return nil
 }
 
-func (a Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) {
+func (dir Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) {
 	data := map[string]interface{}{}
 	if res.RetrotxtNoReadme.Int16 != 0 {
 		return data, nil
@@ -175,7 +175,7 @@ func (a Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) {
 	case "markup", "pdf":
 		return data, nil
 	}
-	if render.NoScreenshot(a.Preview, res) {
+	if render.NoScreenshot(dir.Preview, res) {
 		data["noScreenshot"] = true
 	}
 	// the bbs era, remote images protcol is not supported
@@ -185,7 +185,7 @@ func (a Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) {
 		return data, nil
 	}
 
-	b, err := render.Read(a.Download, res)
+	b, err := render.Read(dir.Download, res)
 	if errors.Is(err, render.ErrDownload) {
 		data["noDownload"] = true
 		return data, nil

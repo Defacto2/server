@@ -3,12 +3,15 @@ package app
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 )
+
+var ErrCategory = errors.New("unknown file category")
 
 // Package file render_model.go contains the database queries for the renders.
 
@@ -189,7 +192,7 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 		r := model.WindowsPack{}
 		return r.List(ctx, db, page, limit)
 	default:
-		return nil, fmt.Errorf("unknown file category: %s", uri)
+		return nil, fmt.Errorf("%w: %s", ErrCategory, uri)
 	}
 }
 
@@ -400,10 +403,7 @@ func (s *Stats) Get(ctx context.Context, db *sql.DB) error {
 	if err := s.Text.Stat(ctx, db); err != nil {
 		return err
 	}
-	if err := s.Windows.Stat(ctx, db); err != nil {
-		return err
-	}
-	return nil
+	return s.Windows.Stat(ctx, db)
 }
 
 // Statistics returns the empty database statistics for the file categories.

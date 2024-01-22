@@ -14,7 +14,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/caarlos0/env/v7"
-	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/jackc/pgx/v5/stdlib" // Use a lowlevel PostgreSQL driver.
 )
 
 var ErrEnv = errors.New("environment variable probably contains an invalid value")

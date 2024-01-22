@@ -50,7 +50,7 @@ func bbsHandler(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	}
 	defer db.Close()
 	r := model.Releasers{}
-	if err := r.BBS(ctx, db, 0, 0, prolific); err != nil {
+	if err := r.BBS(ctx, db, prolific); err != nil {
 		return DatabaseErr(z, c, name, err)
 	}
 	m := model.Summary{}
@@ -95,7 +95,7 @@ func FTP(z *zap.SugaredLogger, c echo.Context) error {
 	}
 	defer db.Close()
 	r := model.Releasers{}
-	if err := r.FTP(ctx, db, 0, 0, model.NameAsc); err != nil {
+	if err := r.FTP(ctx, db); err != nil {
 		return DatabaseErr(z, c, name, err)
 	}
 	m := model.Summary{}
@@ -214,7 +214,7 @@ func rel(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	}
 	defer db.Close()
 	var r model.Releasers
-	if err := r.All(ctx, db, 0, 0, prolific); err != nil {
+	if err := r.All(ctx, db, prolific); err != nil {
 		return DatabaseErr(z, c, name, err)
 	}
 	var m model.Summary

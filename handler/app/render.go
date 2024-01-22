@@ -23,7 +23,13 @@ import (
 	"google.golang.org/api/idtoken"
 )
 
-var ErrData = fmt.Errorf("cache data is invalid or corrupt")
+var (
+	ErrData     = fmt.Errorf("cache data is invalid or corrupt")
+	ErrMisMatch = fmt.Errorf("token mismatch")
+	ErrClaims   = fmt.Errorf("no sub id in the claims playload")
+	ErrSession  = fmt.Errorf("no sub id in session")
+	ErrUser     = fmt.Errorf("unknown user")
+)
 
 const (
 	sep  = ";"
@@ -304,7 +310,7 @@ func History(z *zap.SugaredLogger, c echo.Context) error {
 }
 
 // Interview is the handler for the People Interviews page.
-func Reader(z *zap.SugaredLogger, c echo.Context, id string) error {
+func Reader(z *zap.SugaredLogger, c echo.Context) error {
 	const title, name = "Textfile reader", "reader"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
@@ -445,7 +451,7 @@ func SignedOut(z *zap.SugaredLogger, c echo.Context) error {
 		}
 		id, ok := sess.Values["sub"]
 		if !ok || id == "" {
-			return ForbiddenErr(z, c, name, fmt.Errorf("no sub id in session"))
+			return ForbiddenErr(z, c, name, ErrSession)
 		}
 		const remove = -1
 		sess.Options.MaxAge = remove
@@ -481,7 +487,7 @@ func GoogleCallback(z *zap.SugaredLogger, c echo.Context, clientID string, maxAg
 	// Cross-Site Request Forgery post token
 	bodyToken := c.FormValue(csrf)
 	if token != bodyToken {
-		return BadRequestErr(z, c, name, fmt.Errorf("token mismatch"))
+		return BadRequestErr(z, c, name, ErrMisMatch)
 	}
 
 	// Create a new token verifier.
@@ -513,8 +519,9 @@ func GoogleCallback(z *zap.SugaredLogger, c echo.Context, clientID string, maxAg
 		fullname := playload.Claims["name"]
 		sub := playload.Claims["sub"]
 		return ForbiddenErr(z, c, name,
-			fmt.Errorf("unknown user %s. "+
-				"If this is a mistake, contact Defacto2 admin and give them this Google account ID: %s", fullname, sub))
+			fmt.Errorf("%w %s. "+
+				"If this is a mistake, contact Defacto2 admin and give them this Google account ID: %s",
+				ErrUser, fullname, sub))
 	}
 
 	if err = sessionHandler(z, c, maxAge, playload.Claims); err != nil {
@@ -559,7 +566,7 @@ func sessionHandler(
 	// sub is the unique user id from google
 	val, ok := claims["sub"]
 	if !ok {
-		return fmt.Errorf("no sub id in the claims playload")
+		return ErrClaims
 	}
 	session.Values["sub"] = val
 

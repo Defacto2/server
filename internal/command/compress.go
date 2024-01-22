@@ -364,8 +364,5 @@ func (dir Dirs) ExtractAnsiLove(z *zap.SugaredLogger, src, uuid, ext, name strin
 		return err
 	}
 	defer os.RemoveAll(dst)
-	if err := dir.AnsiLove(z, dst, uuid); err != nil {
-		return err
-	}
-	return nil
+	return dir.AnsiLove(z, dst, uuid)
 }

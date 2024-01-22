@@ -376,9 +376,5 @@ func OptimizePNG(z *zap.SugaredLogger, src string) error {
 	args := Args{}
 	arg := []string{src}       // source file
 	arg = append(arg, args...) // command line arguments
-	if err := RunQuiet(z, Optipng, arg...); err != nil {
-		return err
-	}
-
-	return nil
+	return RunQuiet(z, Optipng, arg...)
 }

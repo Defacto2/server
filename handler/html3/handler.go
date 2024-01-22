@@ -220,7 +220,7 @@ func (s *sugared) Groups(c echo.Context) error {
 	defer db.Close()
 	// releasers are the distinct groups from the file table.
 	var releasers model.Releasers
-	if err := releasers.All(ctx, db, 0, 0, false); err != nil {
+	if err := releasers.All(ctx, db, false); err != nil {
 		s.zlog.Errorf("%s: %s %d", errConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}

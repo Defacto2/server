@@ -233,10 +233,12 @@ func Run(z *zap.SugaredLogger, name string, arg ...string) error {
 }
 
 func RunOut(z *zap.SugaredLogger, name string, arg ...string) ([]byte, error) {
+	if z == nil {
+		return nil, ErrZap
+	}
 	if err := LookCmd(name); err != nil {
 		return nil, err
 	}
-
 	var out bytes.Buffer
 	cmd := exec.Command(name, arg...)
 	cmd.Stdout = &out
@@ -259,10 +261,7 @@ func RunQuiet(z *zap.SugaredLogger, name string, arg ...string) error {
 	if err := cmd.Start(); err != nil {
 		return err
 	}
-	if err := cmd.Wait(); err != nil {
-		return err
-	}
-	return nil
+	return cmd.Wait()
 }
 
 // RunWD looks for the command in the system path and executes it with the arguments.
@@ -296,8 +295,5 @@ func run(z *zap.SugaredLogger, name, wdir string, arg ...string) error {
 	if len(b) > 0 {
 		z.Debugf("run %q: %s\n", cmd, string(b))
 	}
-	if err := cmd.Wait(); err != nil {
-		return err
-	}
-	return nil
+	return cmd.Wait()
 }

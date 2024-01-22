@@ -32,46 +32,40 @@ const summary = "SELECT COUNT(files.id) AS count_total, " +
 	"WHERE "
 
 // SearchDesc saves the summary statistics for the file description search.
-func (r *Summary) SearchDesc(ctx context.Context, db *sql.DB, terms []string) error {
+func (s *Summary) SearchDesc(ctx context.Context, db *sql.DB, terms []string) error {
 	if db == nil {
 		return ErrDB
 	}
-	s := summary
+	sum := summary
 	for i := range terms {
 		const clauseT = "to_tsvector('english', concat_ws(' ', files.record_title, files.comment)) @@ to_tsquery"
 		if i == 0 {
-			s = fmt.Sprintf("%s%s($%d) ", s, clauseT, i+1)
+			sum = fmt.Sprintf("%s%s($%d) ", sum, clauseT, i+1)
 			continue
 		}
-		s = fmt.Sprintf("%sOR %s($%d) ", s, clauseT, i+1)
+		sum = fmt.Sprintf("%sOR %s($%d) ", sum, clauseT, i+1)
 	}
-	s = strings.TrimSpace(s)
-	if err := queries.Raw(s, "'"+strings.Join(terms, "','")+"'").Bind(ctx, db, r); err != nil {
-		return err
-	}
-	return nil
+	sum = strings.TrimSpace(sum)
+	return queries.Raw(sum, "'"+strings.Join(terms, "','")+"'").Bind(ctx, db, s)
 }
 
 // SearchFilename saves the summary statistics for the filename search.
-func (r *Summary) SearchFilename(ctx context.Context, db *sql.DB, terms []string) error {
+func (s *Summary) SearchFilename(ctx context.Context, db *sql.DB, terms []string) error {
 	if db == nil {
 		return ErrDB
 	}
-	s := summary
+	sum := summary
 	for i, term := range terms {
 		if i == 0 {
-			s += fmt.Sprintf(" filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
+			sum += fmt.Sprintf(" filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
 				term, term+"%", "%"+term, "%"+term+"%")
 			continue
 		}
-		s += fmt.Sprintf(" OR filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
+		sum += fmt.Sprintf(" OR filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
 			term, term+"%", "%"+term, "%"+term+"%")
 	}
-	s = strings.TrimSpace(s)
-	if err := queries.Raw(s).Bind(ctx, db, r); err != nil {
-		return err
-	}
-	return nil
+	sum = strings.TrimSpace(sum)
+	return queries.Raw(sum).Bind(ctx, db, s)
 }
 
 func (s *Summary) All(ctx context.Context, db *sql.DB) error {
@@ -84,34 +78,25 @@ func (s *Summary) All(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, s)
 }
 
-func (r *Summary) BBS(ctx context.Context, db *sql.DB) error {
+func (s *Summary) BBS(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
-	if err := queries.Raw(string(postgres.SumBBS())).Bind(ctx, db, r); err != nil {
-		return err
-	}
-	return nil
+	return queries.Raw(string(postgres.SumBBS())).Bind(ctx, db, s)
 }
 
-func (r *Summary) FTP(ctx context.Context, db *sql.DB) error {
+func (s *Summary) FTP(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
-	if err := queries.Raw(string(postgres.SumFTP())).Bind(ctx, db, r); err != nil {
-		return err
-	}
-	return nil
+	return queries.Raw(string(postgres.SumFTP())).Bind(ctx, db, s)
 }
 
-func (r *Summary) Magazine(ctx context.Context, db *sql.DB) error {
+func (s *Summary) Magazine(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
-	if err := queries.Raw(string(postgres.SumMag())).Bind(ctx, db, r); err != nil {
-		return err
-	}
-	return nil
+	return queries.Raw(string(postgres.SumMag())).Bind(ctx, db, s)
 }
 
 func (s *Summary) Scener(ctx context.Context, db *sql.DB, name string) error {
