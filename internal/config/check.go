@@ -53,6 +53,14 @@ func (c *Config) Checks(z *zap.SugaredLogger) {
 		s := helper.Capitalize(err.Error()) + "."
 		z.Warn(s)
 	}
+
+	if c.NoRobots {
+		z.Warn("NoRobots is on, most web crawlers will ignore this site.")
+	}
+	if c.HTTPSRedirect {
+		z.Warn("HTTPSRedirect is on, all HTTP requests will be redirected to HTTPS.")
+	}
+
 	c.SetupLogDir(z)
 }
 
@@ -67,6 +75,8 @@ func (c *Config) SetupLogDir(z *zap.SugaredLogger) {
 		if err := c.LogStorage(); err != nil {
 			z.Fatalf("The server cannot log to files: %s", err)
 		}
+	} else {
+		z.Info("The server logs are found in: ", c.LogDir)
 	}
 	dir, err := os.Stat(c.LogDir)
 	if os.IsNotExist(err) {

@@ -91,8 +91,6 @@ func LookupUnrar() error {
 	return LookVersion(Unrar, "-v", "Alexander Roshal")
 }
 
-// TODO:Confirm unrar is not unrar-free.
-
 // RemoveImgs removes the preview and thumbnail images from the preview and
 // thumbnail directories associated with the uuid.
 // It returns nil if the files do not exist.

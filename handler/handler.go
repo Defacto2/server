@@ -196,17 +196,9 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 	// Go info
 	fmt.Fprintf(w, "%scompiled with Go %s for %s on %s.\n",
 		mark, runtime.Version()[2:], cmd.OS(), cmd.Arch())
-	// Log location info
-	if c.Import.IsProduction {
-		fmt.Fprintf(w, "%sserver logs are found in: %s\n", mark, c.Import.LogDir)
-	}
-	// Additional startup info
-	if c.Import.HTTPSRedirect {
-		fmt.Fprintf(w, "%sredirecting all HTTP requests to HTTPS.\n", mark)
-	}
-	if c.Import.NoRobots {
-		fmt.Fprintf(w, "%sNoRobots is on, network headers will tell web crawlers to ignore this site.\n", mark)
-	}
+	//
+	// All additional feedback should go in internal/config/check.go (c *Config) Checks()
+	//
 	w.Flush()
 	// Start the HTTP server
 	serverAddress := fmt.Sprintf(":%d", c.Import.HTTPPort)
