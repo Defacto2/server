@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 
 	"github.com/Defacto2/server/internal/config"
@@ -164,11 +165,12 @@ func Commit(ver string) string {
 // Copyright returns the copyright years and author of this program.
 func Copyright() string {
 	const initYear = 2023
+	years := strconv.Itoa(initYear)
 	t := versioninfo.LastCommit
-	s := fmt.Sprintf("© %d Defacto2 & %s", initYear, Author)
 	if t.Year() > initYear {
-		s += "-" + t.Local().Format("06")
+		years += "-" + t.Local().Format("06")
 	}
+	s := fmt.Sprintf("© %s Defacto2 & %s", years, Author)
 	return s
 }
 

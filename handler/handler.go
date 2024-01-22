@@ -176,7 +176,6 @@ func (c Configuration) version() string {
 
 // StartHTTP starts the HTTP web server.
 func (c *Configuration) StartHTTP(e *echo.Echo) {
-	const mark = `⇨ `
 	w := bufio.NewWriter(os.Stdout)
 	// Startup logo
 	if logo := string(*c.Brand); len(logo) > 0 {
@@ -189,13 +188,13 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 	// Legal info
 	fmt.Fprintf(w, "  %s.\n", cmd.Copyright())
 	// Brief version
-	fmt.Fprintf(w, "  %s\n", c.version())
+	fmt.Fprintf(w, "%s\n", c.version())
 	// CPU info
-	fmt.Fprintf(w, "    %d active routines sharing %d usable threads on %d CPU cores.\n",
+	fmt.Fprintf(w, "  %d active routines sharing %d usable threads on %d CPU cores.\n",
 		runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
 	// Go info
-	fmt.Fprintf(w, "%scompiled with Go %s for %s on %s.\n",
-		mark, runtime.Version()[2:], cmd.OS(), cmd.Arch())
+	fmt.Fprintf(w, "  compiled with Go %s for %s on %s.\n\n",
+		runtime.Version()[2:], cmd.OS(), cmd.Arch())
 	//
 	// All additional feedback should go in internal/config/check.go (c *Config) Checks()
 	//
