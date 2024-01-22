@@ -4,16 +4,39 @@ import (
 	"bytes"
 
 	"github.com/h2non/filetype"
+	"github.com/h2non/filetype/types"
 )
 
-var (
-	ANSIType        = filetype.NewType("ans", "application/x-ansi")
-	ArcSeaType      = filetype.NewType("arc", "application/x-arc")
-	ARJType         = filetype.NewType("arj", "application/x-arj")
-	DOSComType      = filetype.NewType("com", "application/x-msdos-program")
-	InterchangeType = filetype.NewType("bmp", "image/x-iff")
-	PCXType         = filetype.NewType("pcx", "image/x-pcx")
-)
+// ANSIType returns the ANSI text file type.
+func ANSIType() types.Type {
+	return filetype.NewType("ans", "application/x-ansi")
+}
+
+// ArcSeaType returns the ARC compression file type.
+func ArcSeaType() types.Type {
+	return filetype.NewType("arc", "application/x-arc")
+}
+
+// ARJType returns the ARJ compression file type.
+func ARJType() types.Type {
+	return filetype.NewType("arj", "application/x-arj")
+}
+
+// DOSComType returns the MS-DOS command file type.
+// The .com extension operates like an .exe executable file but is limited to 64KB.
+func DOSComType() types.Type {
+	return filetype.NewType("com", "application/x-msdos-program")
+}
+
+// InterchangeType returns the Interchange File Format (IFF) file type.
+func InterchangeType() types.Type {
+	return filetype.NewType("bmp", "image/x-iff")
+}
+
+// PCXType returns the ZSoft Corporation PCX (Personal Computer eXchange) file type.
+func PCXType() types.Type {
+	return filetype.NewType("pcx", "image/x-pcx")
+}
 
 // ANSIMatcher matches attempts to match ANSI escape sequences used in text files.
 // Some BBS text files are prefixed with the reset sequence but are not ANSI encoded texts.

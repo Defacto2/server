@@ -32,8 +32,6 @@ linters:
     - revive
     - noctx
     - goerr113
-    - gochecknoglobals
-    #- errorlint
 issues:
   exclude-rules:
     - path: cmd/cmd.go

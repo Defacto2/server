@@ -338,11 +338,11 @@ func aboutMagic(name string) string {
 
 	// add custom magic matchers
 	// filetype.AddMatcher(magic.ANSIType, magic.ANSIMatcher) // todo: this is creating false positives with ZIP archives
-	filetype.AddMatcher(magic.ArcSeaType, magic.ArcSeaMatcher)
-	filetype.AddMatcher(magic.ARJType, magic.ARJMatcher)
-	filetype.AddMatcher(magic.DOSComType, magic.DOSComMatcher)
-	filetype.AddMatcher(magic.InterchangeType, magic.InterchangeMatcher)
-	filetype.AddMatcher(magic.PCXType, magic.PCXMatcher)
+	filetype.AddMatcher(magic.ArcSeaType(), magic.ArcSeaMatcher)
+	filetype.AddMatcher(magic.ARJType(), magic.ARJMatcher)
+	filetype.AddMatcher(magic.DOSComType(), magic.DOSComMatcher)
+	filetype.AddMatcher(magic.InterchangeType(), magic.InterchangeMatcher)
+	filetype.AddMatcher(magic.PCXType(), magic.PCXMatcher)
 	kind, err := filetype.Match(head)
 	if err != nil {
 		return err.Error()

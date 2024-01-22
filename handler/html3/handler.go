@@ -76,18 +76,6 @@ func (t RecordsBy) Parent() string {
 	}[t]
 }
 
-// Stats are the database statistics.
-var Stats struct {
-	All      model.Files
-	Art      model.Arts
-	Document model.Docs
-	// Group    model.Rels
-	Software model.Softs
-}
-
-// Releasers are the distinct groups from the file table.
-var Releasers model.Releasers
-
 // Routes for the /html3 sub-route group.
 // Any errors are logged and rendered to the client using HTTP codes
 // and the custom /html3, group errror template.
@@ -131,6 +119,14 @@ func Routes(z *zap.SugaredLogger, e *echo.Echo) *echo.Group {
 func (s *sugared) Index(c echo.Context) error {
 	start := helper.Latency()
 	const desc = firefox
+	// Stats are the database statistics.
+	var stats struct {
+		All      model.Files
+		Art      model.Arts
+		Document model.Docs
+		// Group    model.Rels
+		Software model.Softs
+	}
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -138,20 +134,20 @@ func (s *sugared) Index(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	defer db.Close()
-	if err := Stats.All.Stat(ctx, db); err != nil {
+	if err := stats.All.Stat(ctx, db); err != nil {
 		s.zlog.Warnf("%s: %s", errConn, err)
 	}
-	if err := Stats.Art.Stat(ctx, db); err != nil {
+	if err := stats.Art.Stat(ctx, db); err != nil {
 		s.zlog.Warnf("%s: %s", errConn, err)
 	}
-	if err := Stats.Document.Stat(ctx, db); err != nil {
+	if err := stats.Document.Stat(ctx, db); err != nil {
 		s.zlog.Warnf("%s: %s", errConn, err)
 	}
 	// Need to replace?
 	// if err := Stats.Group.Stat(ctx, db); err != nil {
 	// 	s.log.Warnf("%s: %s", errConn, err)
 	// }
-	if err := Stats.Software.Stat(ctx, db); err != nil {
+	if err := stats.Software.Stat(ctx, db); err != nil {
 		s.zlog.Warnf("%s: %s", errConn, err)
 	}
 	descs := [4]string{
@@ -164,7 +160,7 @@ func (s *sugared) Index(c echo.Context) error {
 		"title":       title,
 		"description": desc,
 		"descs":       descs,
-		"relstats":    Stats,
+		"relstats":    stats,
 		"cat":         tags.CategoryCount,
 		"plat":        tags.PlatformCount,
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
@@ -222,7 +218,9 @@ func (s *sugared) Groups(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, errConn)
 	}
 	defer db.Close()
-	if err := Releasers.All(ctx, db, 0, 0, false); err != nil {
+	// releasers are the distinct groups from the file table.
+	var releasers model.Releasers
+	if err := releasers.All(ctx, db, 0, 0, false); err != nil {
 		s.zlog.Errorf("%s: %s %d", errConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
@@ -233,7 +231,7 @@ func (s *sugared) Groups(c echo.Context) error {
 			" different groups with the same name or brand.",
 		"latency":   fmt.Sprintf("%s.", time.Since(*start)),
 		"path":      "group",
-		"releasers": Releasers, // model.Grps.List
+		"releasers": releasers, // model.Grps.List
 	})
 	if err != nil {
 		s.zlog.Errorf("%s: %s %d", errTmpl, err)

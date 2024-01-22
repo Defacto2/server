@@ -37,17 +37,26 @@ const (
 	webp = ".webp"
 )
 
-var (
-	archives  = []string{".zip", ".rar", ".7z", ".tar", ".lha", ".lzh", ".arc", ".arj", ".ace", ".tar"}
-	documents = []string{
+func archives() []string {
+	return []string{".zip", ".rar", ".7z", ".tar", ".lha", ".lzh", ".arc", ".arj", ".ace", ".tar"}
+}
+
+func documents() []string {
+	return []string{
 		".txt", ".nfo", ".diz", ".asc", ".lit", ".rtf", ".doc", ".docx",
 		".pdf", ".unp", ".htm", ".html", ".xml", ".json", ".csv",
 	}
-	images = []string{".avif", gif, jpg, jpeg, ".jfif", png, ".svg", webp, ".bmp", ".ico"}
+}
+
+func images() []string {
+	return []string{".avif", gif, jpg, jpeg, ".jfif", png, ".svg", webp, ".bmp", ".ico"}
+}
+
+func media() []string {
 	// only browser supported formats should be listed:
 	// https://developer.mozilla.org/en-US/docs/Web/Media/Formats
-	media = []string{".mpeg", ".mp1", ".mp2", ".mp3", ".mp4", ".ogg", ".wmv"}
-)
+	return []string{".mpeg", ".mp1", ".mp2", ".mp3", ".mp4", ".ogg", ".wmv"}
+}
 
 // SafeHTML returns a string as a template.HTML type.
 // This is intended to be used to prevent HTML escaping.
@@ -527,16 +536,16 @@ func LinkPreviewHref(id any, name, platform string) template.HTML {
 	// https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
 	ext := strings.ToLower(filepath.Ext(name))
 	switch {
-	case slices.Contains(archives, ext):
+	case slices.Contains(archives(), ext):
 		// this must always be first
 		return template.HTML("")
 	case platform == textamiga, platform == "text":
 		break
-	case slices.Contains(documents, ext):
+	case slices.Contains(documents(), ext):
 		break
-	case slices.Contains(images, ext):
+	case slices.Contains(images(), ext):
 		break
-	case slices.Contains(media, ext):
+	case slices.Contains(media(), ext):
 		break
 	default:
 		return template.HTML("")
@@ -556,16 +565,16 @@ func LinkPreviewTip(id any, name, platform string) string {
 	platform = strings.TrimSpace(platform)
 	ext := strings.ToLower(filepath.Ext(name))
 	switch {
-	case slices.Contains(archives, ext):
+	case slices.Contains(archives(), ext):
 		// this must always be first
 		return ""
 	case platform == textamiga, platform == "text":
 		return "Read this as text"
-	case slices.Contains(documents, ext):
+	case slices.Contains(documents(), ext):
 		return "Read this as text"
-	case slices.Contains(images, ext):
+	case slices.Contains(images(), ext):
 		return "View this as an image or photo"
-	case slices.Contains(media, ext):
+	case slices.Contains(media(), ext):
 		return "Play this as media"
 	}
 	return ""
