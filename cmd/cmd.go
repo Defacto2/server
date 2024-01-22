@@ -152,7 +152,7 @@ func Commit(ver string) string {
 	} else if s != "" {
 		x = append(x, s)
 	}
-	if l := LastCommit(); l != "" {
+	if l := LastCommit(); l != "" && !strings.Contains(ver, "built in") {
 		comm := fmt.Sprintf("built in %s", l)
 		x = append(x, comm)
 	}
@@ -163,6 +163,7 @@ func Commit(ver string) string {
 }
 
 // Copyright returns the copyright years and author of this program.
+// The final year is generated from the last commit date.
 func Copyright() string {
 	const initYear = 2023
 	years := strconv.Itoa(initYear)
