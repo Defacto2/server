@@ -72,7 +72,7 @@ func New() (Connection, error) {
 	c.HostPort = HostPort
 	c.Database = DBName
 	if err := env.Parse(&c, env.Options{}); err != nil {
-		return Connection{}, fmt.Errorf("%w: %s", ErrEnv, err)
+		return Connection{}, fmt.Errorf("%w: %w", ErrEnv, err)
 	}
 	return c, nil
 }

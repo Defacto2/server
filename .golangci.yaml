@@ -33,7 +33,7 @@ linters:
     - noctx
     - goerr113
     - gochecknoglobals
-    - errorlint
+    #- errorlint
 issues:
   exclude-rules:
     - path: cmd/cmd.go

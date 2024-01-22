@@ -377,7 +377,7 @@ func StatusErr(z *zap.SugaredLogger, c echo.Context, code int, uri string) error
 	default:
 		s := http.StatusText(code)
 		if s == "" {
-			err := fmt.Errorf("%s: %d", ErrCode, code)
+			err := fmt.Errorf("%w: %d", ErrCode, code)
 			if z != nil {
 				z.Error(err)
 			}

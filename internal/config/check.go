@@ -162,7 +162,7 @@ func CheckDir(name, desc string) error {
 	}
 	files, err := os.ReadDir(name)
 	if err != nil {
-		return fmt.Errorf("the %s directory path could not be read, %s: %s", desc, s, err)
+		return fmt.Errorf("the %s directory path could not be read, %s: %w", desc, s, err)
 	}
 	if len(files) < toFewFiles {
 		return fmt.Errorf("the %s directory path contains only a few items, is the directory correct:  %s",

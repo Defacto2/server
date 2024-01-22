@@ -22,13 +22,13 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c 
 		return ErrName
 	}
 	if w == nil {
-		return fmt.Errorf("%w: %s", echo.ErrRendererNotRegistered, ErrW)
+		return fmt.Errorf("%w: %w", echo.ErrRendererNotRegistered, ErrW)
 	}
 	if data == nil {
-		return fmt.Errorf("%w: %s", echo.ErrRendererNotRegistered, ErrData)
+		return fmt.Errorf("%w: %w", echo.ErrRendererNotRegistered, ErrData)
 	}
 	if c == nil {
-		return fmt.Errorf("%w: %s", echo.ErrRendererNotRegistered, ErrCtx)
+		return fmt.Errorf("%w: %w", echo.ErrRendererNotRegistered, ErrCtx)
 	}
 	tmpl, ok := t.Templates[name]
 	if !ok {

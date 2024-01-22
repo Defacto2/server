@@ -69,7 +69,7 @@ func Attribute(write, code, art, music, name string) string {
 func LinkScnr(name string) (string, error) {
 	href, err := url.JoinPath("/", "p", helper.Slug(name))
 	if err != nil {
-		return "", fmt.Errorf("name %q could not be made into a valid url: %s", name, err)
+		return "", fmt.Errorf("name %q could not be made into a valid url: %w", name, err)
 	}
 	return href, nil
 }

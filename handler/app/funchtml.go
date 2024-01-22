@@ -484,7 +484,7 @@ func LinkRelrs(performant bool, a, b any) template.HTML {
 func linkRelr(name string) (string, error) {
 	href, err := url.JoinPath("/", "g", helper.Slug(name))
 	if err != nil {
-		return "", fmt.Errorf("name %q could not be made into a valid url: %s", name, err)
+		return "", fmt.Errorf("name %q could not be made into a valid url: %w", name, err)
 	}
 	return href, nil
 }
@@ -587,7 +587,7 @@ func linkID(id any, elem string) (string, error) {
 	}
 	href, err := url.JoinPath("/", elem, helper.ObfuscateID(i))
 	if err != nil {
-		return "", fmt.Errorf("id %d could not be made into a valid url: %s", i, err)
+		return "", fmt.Errorf("id %d could not be made into a valid url: %w", i, err)
 	}
 	return href, nil
 }
