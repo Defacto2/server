@@ -92,12 +92,12 @@ func Config(c *config.Config) *cli.Command {
 		Usage:       "list the server configuration",
 		Description: "List the available server configuration options and the settings.",
 		Action: func(ctx *cli.Context) error {
-			defer fmt.Printf("%s\n", c.String())
+			defer fmt.Fprintf(os.Stdout, "%s\n", c.String())
 			defer func() {
 				ds, _ := postgres.New()
 				b := new(strings.Builder)
 				ds.Configurations(b)
-				fmt.Printf("%s\n", b.String())
+				fmt.Fprintf(os.Stdout, "%s\n", b.String())
 			}()
 			return nil
 		},
@@ -112,7 +112,7 @@ func Address(c *config.Config) *cli.Command {
 		Usage:       "list the server addresses",
 		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
 		Action: func(ctx *cli.Context) error {
-			defer fmt.Printf("%s\n", c.Addresses())
+			defer fmt.Fprintf(os.Stdout, "%s\n", c.Addresses())
 			return nil
 		},
 	}

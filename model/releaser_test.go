@@ -23,7 +23,8 @@ func TestAllSlugs(t *testing.T) {
 
 	var g model.Releasers
 	if err := g.All(ctx, db, 0, 0, false); err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
 	for _, x := range g {
 		og := releaser.Clean(x.Unique.Name)

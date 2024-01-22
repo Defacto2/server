@@ -37,6 +37,9 @@ linters:
     - gosec
 issues:
   exclude-rules:
+    - path: cmd/cmd.go
+      linters:
+        - gosmopolitan
     - path: handler/router.go
       linters:
         - maintidx

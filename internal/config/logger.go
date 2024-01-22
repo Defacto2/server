@@ -5,6 +5,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -35,7 +36,11 @@ func (cfg Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	default:
 		z = logger.Development().Sugar()
 	}
-	defer z.Sync()
+	defer func() {
+		if err := z.Sync(); err != nil {
+			log.Printf("zap logger sync error: %s", err)
+		}
+	}()
 	return func(c echo.Context) error {
 		timeStarted := time.Now()
 		err := next(c)
@@ -49,8 +54,7 @@ func (cfg Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			"latency": int64(time.Since(timeStarted) / time.Millisecond),
 			"method":  c.Request().Method,
 			"path":    c.Request().URL.Path,
-			//"query":   c.Request().URL.RawQuery,
-			"status": status,
+			"status":  status,
 		}
 		if cfg.LogRequests || err != nil {
 			s := fmt.Sprintf("HTTP %s %d: %s", v["method"], v["status"], v["path"])
@@ -106,7 +110,11 @@ func (cfg Config) CustomErrorHandler(err error, c echo.Context) {
 	default:
 		z = logger.Development().Sugar()
 	}
-	defer z.Sync()
+	defer func() {
+		if err := z.Sync(); err != nil {
+			log.Printf("zap logger sync error: %s", err)
+		}
+	}()
 	switch {
 	case IsHTML3(c.Path()):
 		if err := html3.Error(c, err); err != nil {

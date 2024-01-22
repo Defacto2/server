@@ -143,7 +143,7 @@ func main() {
 	// Start the HTTP server
 	go server.StartHTTP(e)
 	// List the detected host IP addresses
-	go fmt.Printf("%s\n", configs.Startup())
+	go fmt.Fprintf(os.Stdout, "%s\n", configs.Startup())
 
 	// Gracefully shutdown the HTTP server
 	server.ShutdownHTTP(e)

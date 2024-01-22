@@ -54,8 +54,7 @@ func PostIntro(z *zap.SugaredLogger, c echo.Context) error {
 	if err != nil {
 		return InternalErr(z, c, name, err)
 	}
-	c.JSON(http.StatusOK, x)
-	return nil
+	return c.JSON(http.StatusOK, x)
 }
 
 // TagInfo handles the POST submission for the platform and tag info.
@@ -72,8 +71,7 @@ func TagInfo(z *zap.SugaredLogger, c echo.Context) error {
 	if err != nil {
 		return badRequest(c, err)
 	}
-	c.String(http.StatusOK, info)
-	return nil
+	return c.String(http.StatusOK, info)
 }
 
 // PlatformTagInfo handles the POST submission for the platform and tag info.
@@ -90,8 +88,7 @@ func PlatformTagInfo(z *zap.SugaredLogger, c echo.Context) error {
 	if err != nil {
 		return badRequest(c, err)
 	}
-	c.String(http.StatusOK, info)
-	return nil
+	return c.String(http.StatusOK, info)
 }
 
 // PlatformEdit handles the post submission for the Platform selection field.

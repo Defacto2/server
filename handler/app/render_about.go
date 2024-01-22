@@ -410,8 +410,9 @@ func aboutJSDos(res *models.File) bool {
 		// ".exe", ".com", /f/b03550
 		// legacy zip, not supported, /f/a319104
 		return true
+	default:
+		return false
 	}
-	return false
 }
 
 func aboutID(id int64) string {

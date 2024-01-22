@@ -84,7 +84,7 @@ func (a *Args) CWebp() {
 	*a = append(*a,
 		"-af",    // Auto-filter will spend additional time optimizing the filtering strength to reach a well-balanced quality.
 		"-exact", // Preserve RGB values in transparent area. The default is off, to help compressibility.
-		//"-v", // Print extra information.
+		// "-v", // Print extra information.
 	)
 }
 
@@ -95,7 +95,7 @@ func (a *Args) GWebp() {
 	*a = append(*a,
 		"-q", "100", // Compression factor for RGB channels between 0 and 100.
 		"-mt", // Use multi-threading if available.
-		//"-v", // Print extra information.
+		// "-v", // Print extra information.
 	)
 }
 

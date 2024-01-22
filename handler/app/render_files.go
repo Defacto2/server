@@ -257,6 +257,8 @@ func Releasers(z *zap.SugaredLogger, c echo.Context, uri string) error {
 			`<br><small class="fw-lighter">In the scene's early years,` +
 			` releasing documents or software cracks under a personal alias or a` +
 			` real-name attribution was commonplace.</small>`
+	default:
+		// placeholder to handle other releaser types
 	}
 	d, err := releaserSum(ctx, db, uri)
 	if err != nil {

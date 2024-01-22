@@ -238,6 +238,8 @@ func Humanize(platform, section Tag) string {
 		switch section {
 		case Intro:
 			return "a chiptune or intro music"
+		default:
+			// placeholder for other sections
 		}
 	case DataB:
 		switch section {

@@ -27,13 +27,11 @@ func TemplateFuncMap(z *zap.SugaredLogger) template.FuncMap {
 		"linkHref": func(id int64) string {
 			return FileHref(z, id)
 		},
-		"linkPad":  FileLinkPad,
-		"linkFile": Filename,
-		"leading":  Leading,
-		"fmtByte":  LeadFS,
-		"fmtURI": func(uri string) string {
-			return releaser.Link(uri)
-		},
+		"linkPad":    FileLinkPad,
+		"linkFile":   Filename,
+		"leading":    Leading,
+		"fmtByte":    LeadFS,
+		"fmtURI":     releaser.Link,
 		"byteInt":    LeadFSInt,
 		"leadInt":    LeadInt,
 		"leadStr":    LeadStr,

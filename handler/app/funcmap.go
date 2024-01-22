@@ -171,7 +171,7 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 		"sriRestZoo": func() string {
 			return web.Subresource.RestZooJS
 		},
-		//"recordReleasers": RecordRels,
+		// "recordReleasers": RecordRels,
 		"tagSel": TagSel,
 		"recordOnline": func(b bool) template.HTML {
 			if b {

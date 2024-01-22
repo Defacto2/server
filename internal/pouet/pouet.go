@@ -208,7 +208,6 @@ func (r *Response) Get(id int) error {
 	if !r.Success {
 		return fmt.Errorf("%w: %d", ErrSuccess, id)
 	}
-	fmt.Printf("%+v\n", r)
 	return nil
 }
 

@@ -117,7 +117,7 @@ func (c Config) Startup() string {
 }
 
 // addresses prints a list of urls that the server is accessible from.
-func (c Config) addresses(b *strings.Builder, intro bool) *strings.Builder {
+func (c Config) addresses(b *strings.Builder, intro bool) {
 	pad := strings.Repeat(string(padchar), padding)
 	values := reflect.ValueOf(c)
 	if intro {
@@ -161,7 +161,6 @@ func (c Config) addresses(b *strings.Builder, intro bool) *strings.Builder {
 	for _, ip := range ips {
 		fmt.Fprintf(b, "%shttp://%s:%d\n", pad, ip, port)
 	}
-	return b
 }
 
 // configurations prints a list of active configurations options.
@@ -204,6 +203,8 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 			switch id {
 			case "Timeout":
 				help = strings.Replace(help, "HTTP, HTTPS", "HTTP, HTTPS\n\t\t\t\t", 1)
+			default:
+				// do nothing
 			}
 			fmt.Fprintf(w, "\t%s\t%s\t%v\t%s.\n", id, name, val, help)
 		}
