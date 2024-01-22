@@ -75,7 +75,7 @@ func (s *sugared) Software(c echo.Context) error {
 }
 
 // List all the records associated with the RecordsBy grouping.
-func (s *sugared) List(c echo.Context, tt RecordsBy) error {
+func (s *sugared) List(c echo.Context, tt RecordsBy) error { //nolint:funlen
 	start := helper.Latency()
 	id := c.Param("id")
 	var count, limit int

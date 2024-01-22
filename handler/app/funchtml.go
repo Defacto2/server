@@ -376,9 +376,12 @@ func Describe(plat, sect, year, month any) template.HTML {
 	default:
 		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", month))
 	}
+	return template.HTML(desc(p, s, y, m))
+}
 
+func desc(p, s, y, m string) string {
 	if p == "" && s == "" {
-		return template.HTML("An unknown release")
+		return "An unknown release."
 	}
 	x := tags.Humanize(tags.TagByURI(p), tags.TagByURI(s))
 	x = helper.Capitalize(x)
@@ -388,7 +391,7 @@ func Describe(plat, sect, year, month any) template.HTML {
 	} else if y != "" {
 		x = fmt.Sprintf("%s published in %s", x, y)
 	}
-	return template.HTML(x + ".")
+	return x + "."
 }
 
 // DownloadB returns a human readable string of the file size.
@@ -438,7 +441,7 @@ func LinkRels(a, b any) template.HTML {
 // The performant flag will use the group name instead of the much slower group slug formatter.
 func LinkRelrs(performant bool, a, b any) template.HTML {
 	const class = "text-nowrap link-offset-2 link-underline link-underline-opacity-25"
-	var av, bv, s string
+	var av, bv string
 	switch val := a.(type) {
 	case string:
 		av = reflect.ValueOf(val).String()
@@ -455,9 +458,8 @@ func LinkRelrs(performant bool, a, b any) template.HTML {
 			bv = val.String
 		}
 	}
-	av = strings.TrimSpace(av)
-	bv = strings.TrimSpace(bv)
-	prime, second, s := "", "", ""
+	av, bv = strings.TrimSpace(av), strings.TrimSpace(bv)
+	prime, second := "", ""
 	if av == "" && bv == "" {
 		return template.HTML("error: unknown group")
 	}
@@ -483,15 +485,21 @@ func LinkRelrs(performant bool, a, b any) template.HTML {
 		}
 		second = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, x)
 	}
+	s := relHTML(prime, second)
+	return template.HTML(s)
+}
+
+func relHTML(prime, second string) string {
 	switch {
 	case prime != "" && second != "":
-		s = fmt.Sprintf("%s<br>+ %s", prime, second)
+		return fmt.Sprintf("%s<br>+ %s", prime, second)
 	case prime != "":
-		s = prime
+		return prime
 	case second != "":
-		s = second
+		return second
+	default:
+		return ""
 	}
-	return template.HTML(s)
 }
 
 // linkRelr returns a link to the named group page.

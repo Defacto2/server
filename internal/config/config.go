@@ -163,22 +163,86 @@ func (c Config) addresses(b *strings.Builder, intro bool) {
 	}
 }
 
+func nl(w *tabwriter.Writer) {
+	fmt.Fprintf(w, "\t\t\t\t\n")
+}
+
+func dir(w *tabwriter.Writer, s string) {
+	if s != "" {
+		fmt.Fprintf(w, "\t\t\tPATH →\t%s\n", s)
+		return
+	}
+	fmt.Fprintf(w, "\t\t\tPATH →\t%s\n", "[NO DIRECTORY SET]")
+}
+
+func lead(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
+	help := field.Tag.Get("help")
+	switch id {
+	case "Timeout":
+		help = strings.Replace(help, "HTTP, HTTPS", "HTTP, HTTPS\n\t\t\t\t", 1)
+	default:
+		// do nothing
+	}
+	fmt.Fprintf(w, "\t%s\t%s\t%v\t%s.\n", id, name, val, help)
+}
+
+func path(w *tabwriter.Writer, id, name string, field reflect.StructField) {
+	help := field.Tag.Get("help")
+	switch id {
+	case "DownloadDir":
+		help = strings.Replace(help, "UUID named files", "UUID named files\n\t\t\t\t", 1)
+	case "PreviewDir":
+		help = strings.Replace(help, "UUID named image", "UUID named image\n\t\t\t\t", 1)
+	case "ThumbnailDir":
+		help = strings.Replace(help, "UUID named squared image", "UUID named squared image\n\t\t\t\t", 1)
+	}
+	fmt.Fprintf(w, "\t%s\t%s\t\t%s.\n", id, name, help)
+}
+
+func isProd(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
+	lead(w, id, name, val, field)
+	if val.Kind() == reflect.Bool && !val.Bool() {
+		fmt.Fprintf(w, "\t\t\t\t%s\n",
+			"All errors and warnings will be logged to this console.")
+	}
+}
+
+func httpPort(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
+	nl(w)
+	lead(w, id, name, val, field)
+	fmt.Fprintf(w, "\t\t\t\t%s\n",
+		"The typical HTTP port number is 80, while for proxies it is 8080.")
+	if val.Kind() == reflect.Uint && val.Uint() == 0 {
+		fmt.Fprintf(w, "\t\t\t\t%s\n", "The server will use the default port number 1323.")
+	}
+}
+
+func httpsPort(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
+	nl(w)
+	lead(w, id, name, val, field)
+	fmt.Fprintf(w, "\t\t\t\t%s\n",
+		"The typical HTTPS port number is 443, while for proxies it is 8443.")
+	if val.Kind() == reflect.Uint && val.Uint() == 0 {
+		fmt.Fprintf(w, "\t\t\t\t%s\n", "The server will not use HTTPS.")
+	}
+}
+
+func maxProcs(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
+	nl(w)
+	fmt.Fprintf(w, "\t%s\t%s\t%v\t%s.", id, name, 0, field.Tag.Get("help"))
+	if val.Kind() == reflect.Uint && val.Uint() == 0 {
+		fmt.Fprintf(w, "\n\t\t\t\t%s\n", "This application will use all available CPU cores.")
+	}
+	nl(w)
+	fmt.Fprintf(w, "\t \t \t\tThe following configurations can usually be left at their defaults\n")
+	fmt.Fprintf(w, "\t \t \t\t──────────────────────────────────────────────────────────────────")
+}
+
 // configurations prints a list of active configurations options.
 func (c Config) configurations(b *strings.Builder) *strings.Builder {
 	fields := reflect.VisibleFields(reflect.TypeOf(c))
 	values := reflect.ValueOf(c)
 	w := tabwriter.NewWriter(b, minwidth, tabwidth, padding, padchar, flags)
-	nl := func() {
-		fmt.Fprintf(w, "\t\t\t\t\n")
-	}
-	dir := func(s string) {
-		if s != "" {
-			fmt.Fprintf(w, "\t\t\tPATH →\t%s\n", s)
-			return
-		}
-		fmt.Fprintf(w, "\t\t\tPATH →\t%s\n", "[NO DIRECTORY SET]")
-	}
-
 	fmt.Fprint(b, "Defacto2 server active configuration options.\n\n")
 	fmt.Fprintf(w, "\t%s\t%s\t%s\t%s\n",
 		h1, h3, h2, h5)
@@ -193,83 +257,38 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 			continue
 		}
 		if j == donotuse {
-			nl()
+			nl(w)
 		}
 		val := values.FieldByName(field.Name)
 		id := field.Name
 		name := EnvPrefix + field.Tag.Get("env")
-		lead := func() {
-			help := field.Tag.Get("help")
-			switch id {
-			case "Timeout":
-				help = strings.Replace(help, "HTTP, HTTPS", "HTTP, HTTPS\n\t\t\t\t", 1)
-			default:
-				// do nothing
-			}
-			fmt.Fprintf(w, "\t%s\t%s\t%v\t%s.\n", id, name, val, help)
-		}
-		path := func() {
-			help := field.Tag.Get("help")
-			switch id {
-			case "DownloadDir":
-				help = strings.Replace(help, "UUID named files", "UUID named files\n\t\t\t\t", 1)
-			case "PreviewDir":
-				help = strings.Replace(help, "UUID named image", "UUID named image\n\t\t\t\t", 1)
-			case "ThumbnailDir":
-				help = strings.Replace(help, "UUID named squared image", "UUID named squared image\n\t\t\t\t", 1)
-			}
-			fmt.Fprintf(w, "\t%s\t%s\t\t%s.\n", id, name, help)
-		}
 		switch id {
 		case "IsProduction":
-			lead()
-			if val.Kind() == reflect.Bool && !val.Bool() {
-				fmt.Fprintf(w, "\t\t\t\t%s\n",
-					"All errors and warnings will be logged to this console.")
-			}
+			isProd(w, id, name, val, field)
 		case "HTTPPort":
-			nl()
-			lead()
-			fmt.Fprintf(w, "\t\t\t\t%s\n",
-				"The typical HTTP port number is 80, while for proxies it is 8080.")
-			if val.Kind() == reflect.Uint && val.Uint() == 0 {
-				fmt.Fprintf(w, "\t\t\t\t%s\n", "The server will use the default port number 1323.")
-			}
+			httpPort(w, id, name, val, field)
 		case "HTTPSPort":
-			nl()
-			lead()
-			fmt.Fprintf(w, "\t\t\t\t%s\n",
-				"The typical HTTPS port number is 443, while for proxies it is 8443.")
-			if val.Kind() == reflect.Uint && val.Uint() == 0 {
-				fmt.Fprintf(w, "\t\t\t\t%s\n", "The server will not use HTTPS.")
-			}
+			httpsPort(w, id, name, val, field)
 		case "DownloadDir":
-			nl()
-			path()
+			nl(w)
+			path(w, id, name, field)
 		case "PreviewDir":
-			nl()
-			path()
-			dir(c.PreviewDir)
+			nl(w)
+			path(w, id, name, field)
+			dir(w, c.PreviewDir)
 		case "ThumbnailDir":
-			nl()
-			path()
-			dir(c.ThumbnailDir)
+			nl(w)
+			path(w, id, name, field)
+			dir(w, c.ThumbnailDir)
 		case "LogDir":
-			nl()
-			path()
-			dir(c.LogDir)
+			nl(w)
+			path(w, id, name, field)
+			dir(w, c.LogDir)
 		case "MaxProcs":
-			nl()
-			fmt.Fprintf(w, "\t%s\t%s\t%v\t%s.", id, name, 0, field.Tag.Get("help"))
-			if val.Kind() == reflect.Uint && val.Uint() == 0 {
-				fmt.Fprintf(w, "\n\t\t\t\t%s\n", "This application will use all available CPU cores.")
-			}
-			nl()
-			fmt.Fprintf(w, "\t \t \t\tThe following configurations can usually be left at their defaults\n")
-			fmt.Fprintf(w, "\t \t \t\t──────────────────────────────────────────────────────────────────")
+			maxProcs(w, id, name, val, field)
 		default:
-			nl()
-			lead()
+			nl(w)
+			lead(w, id, name, val, field)
 		}
 	}
 	w.Flush()

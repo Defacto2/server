@@ -128,7 +128,7 @@ func (s *Summary) Releaser(ctx context.Context, db *sql.DB, name string) error {
 		qm.From(From)).Bind(ctx, db, s)
 }
 
-func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error {
+func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error { //nolint:cyclop,funlen
 	if db == nil {
 		return ErrDB
 	}
@@ -453,6 +453,5 @@ func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error {
 	s.SumCount = sql.NullInt64{Int64: int64(c)}
 	s.MinYear = sql.NullInt16{Int16: int16(y0)}
 	s.MaxYear = sql.NullInt16{Int16: int16(y1)}
-	//	s.SumBytes, s.SumCount, s.MinYear, s.MaxYear = b, c, y0, y1
 	return nil
 }

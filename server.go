@@ -71,15 +71,8 @@ func main() {
 		runtime.GOMAXPROCS(int(i))
 	}
 
-	// Command-line arguments
 	// By default the web server runs when no arguments are provided
-	const exitProgram = 0
-	if code, err := cmd.Run(version, &configs); err != nil {
-		logs.Errorf("%s: %s", ErrCmd, err)
-		os.Exit(code)
-	} else if code >= exitProgram {
-		os.Exit(code)
-	}
+	commandLine(logs, configs)
 
 	// Configuration sanity checks
 	configs.Checks(logs)
@@ -93,25 +86,7 @@ func main() {
 	}
 
 	// Setup the logger
-	mode := "read-only mode"
-	if !configs.IsReadOnly {
-		mode = "write mode"
-	}
-	switch configs.IsProduction {
-	case true:
-		if err := configs.LogStorage(); err != nil {
-			logs.Fatalf("%w: %s", ErrLog, err)
-		}
-		logs = logger.Production(configs.LogDir).Sugar()
-		s := "The server is running in a "
-		s += strings.ToUpper("production, "+mode) + "."
-		logs.Info(s)
-	default:
-		s := "The server is running in a "
-		s += strings.ToUpper("development, "+mode) + "."
-		logs.Warn(s)
-		logs = logger.Development().Sugar()
-	}
+	logs = initLogger(logs, configs)
 
 	// Echo router and controller instance
 	server := handler.Configuration{
@@ -147,6 +122,40 @@ func main() {
 
 	// Gracefully shutdown the HTTP server
 	server.ShutdownHTTP(e)
+}
+
+func commandLine(logs *zap.SugaredLogger, configs config.Config) {
+	const exitProgram = 0
+	if code, err := cmd.Run(version, &configs); err != nil {
+		logs.Errorf("%s: %s", ErrCmd, err)
+		os.Exit(code)
+	} else if code >= exitProgram {
+		os.Exit(code)
+	}
+}
+
+func initLogger(logs *zap.SugaredLogger, configs config.Config) *zap.SugaredLogger {
+	// Setup the logger
+	mode := "read-only mode"
+	if !configs.IsReadOnly {
+		mode = "write mode"
+	}
+	switch configs.IsProduction {
+	case true:
+		if err := configs.LogStorage(); err != nil {
+			logs.Fatalf("%w: %s", ErrLog, err)
+		}
+		logs = logger.Production(configs.LogDir).Sugar()
+		s := "The server is running in a "
+		s += strings.ToUpper("production, "+mode) + "."
+		logs.Info(s)
+	default:
+		s := "The server is running in a "
+		s += strings.ToUpper("development, "+mode) + "."
+		logs.Warn(s)
+		logs = logger.Development().Sugar()
+	}
+	return logs
 }
 
 func checks(logs *zap.SugaredLogger, isReadOnly bool) {

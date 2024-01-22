@@ -222,81 +222,21 @@ func Humanize(platform, section Tag) string {
 	}
 	switch platform {
 	case ANSI:
-		switch section {
-		case BBS:
-			return "a BBS ansi advert"
-		case Ftp:
-			return "an ansi advert for an FTP site"
-		case Logo:
-			return "an ansi logo"
-		case Nfo:
-			return "an nfo text in ansi format"
-		case Pack:
-			return "an filepack of ansi files"
-		}
+		return humAnsi(platform, section)
 	case Audio:
-		switch section {
-		case Intro:
-			return "a chiptune or intro music"
-		default:
-			// placeholder for other sections
-		}
+		return humAudio(platform, section)
 	case DataB:
-		switch section {
-		case Nfo:
-			return "a database of releases"
-		default:
-			return fmt.Sprintf("a %s database", Names()[section])
-		}
+		return humDB(section)
 	case Markup:
 		return fmt.Sprintf("a %s in HTML", Names()[section])
 	case Image:
-		switch section {
-		case BBS:
-			return "a BBS advert image"
-		case ForSale:
-			return "an image advertisement"
-		case Pack:
-			return "a filepack of images"
-		case Proof:
-			return "a proof of release photo"
-		}
+		return humImg(platform, section)
 	case PDF:
 		return fmt.Sprintf("a %s as a PDF document", Names()[section])
 	case Text:
-		switch section {
-		case AtariST:
-			return "a textfile for the Atari ST"
-		case AppleII:
-			return "a textfile for the Apple II"
-		case BBS:
-			return "a text advert for a BBS"
-		case ForSale:
-			return "a textfile advert"
-		case Ftp:
-			return "a text advert for an FTP site"
-		case Mag:
-			return "a magazine textfile"
-		case Nfo:
-			return "an nfo textfile"
-		case Pack:
-			return "a filepack of textfiles"
-		default:
-			return fmt.Sprintf("a %s textfile", Names()[section])
-		}
+		return humText(platform, section)
 	case TextAmiga:
-		switch section {
-		case BBS:
-			return "an Amiga text advert for a BBS"
-		case ForSale:
-			return "an Amiga textfile advert"
-		case Ftp:
-			return "an Amiga text advert for an FTP site"
-		case Mag:
-			return "an Amiga magazine textfile"
-		case Nfo:
-			return "an Amiga nfo textfile"
-		}
+		return humAmiga(platform, section)
 	case Video:
 		switch section {
 		case ForSale, Logo, Intro:
@@ -304,37 +244,143 @@ func Humanize(platform, section Tag) string {
 		}
 		return fmt.Sprintf("a %s video", Names()[section])
 	case Windows:
-		switch section {
-		case Demo:
-			return "a demo on Windows"
-		case Install:
-			return "a Windows installer"
-		case Intro:
-			return "a Windows intro"
-		case Job:
-			return "a trial crackme for Windows"
-		case Pack:
-			return "a filepack of Windows programs"
-		}
+		return humWin(platform, section)
 	case DOS:
-		switch section {
-		case BBS:
-			return "a BBStro on " + msDos
-		case Demo:
-			return "a demo on " + msDos
-		case ForSale:
-			return "an advertisement on " + msDos
-		case GameHack:
-			return "a trainer or hack on " + msDos
-		case Install:
-			return "a " + msDos + " installer"
-		case Intro:
-			return "a intro for " + msDos
-		case Pack:
-			return "a filepack of " + msDos + " programs"
-		}
+		return humDOS(platform, section)
 	}
 	return fmt.Sprintf("a %s %s", Names()[platform], Names()[section])
+}
+
+func other(platform, section Tag) string {
+	return fmt.Sprintf("a %s %s", Names()[platform], Names()[section])
+}
+
+func humAnsi(platform, section Tag) string {
+	switch section {
+	case BBS:
+		return "a BBS ansi advert"
+	case Ftp:
+		return "an ansi advert for an FTP site"
+	case Logo:
+		return "an ansi logo"
+	case Nfo:
+		return "an nfo text in ansi format"
+	case Pack:
+		return "an filepack of ansi files"
+	default:
+		return other(platform, section)
+	}
+}
+
+func humAudio(platform, section Tag) string {
+	switch section {
+	case Intro:
+		return "a chiptune or intro music"
+	default:
+		return other(platform, section)
+	}
+}
+
+func humDB(section Tag) string {
+	switch section {
+	case Nfo:
+		return "a database of releases"
+	default:
+		return fmt.Sprintf("a %s database", Names()[section])
+	}
+}
+
+func humImg(platform, section Tag) string {
+	switch section {
+	case BBS:
+		return "a BBS advert image"
+	case ForSale:
+		return "an image advertisement"
+	case Pack:
+		return "a filepack of images"
+	case Proof:
+		return "a proof of release photo"
+	default:
+		return other(platform, section)
+	}
+}
+
+func humText(platform, section Tag) string {
+	switch section {
+	case AtariST:
+		return "a textfile for the Atari ST"
+	case AppleII:
+		return "a textfile for the Apple II"
+	case BBS:
+		return "a text advert for a BBS"
+	case ForSale:
+		return "a textfile advert"
+	case Ftp:
+		return "a text advert for an FTP site"
+	case Mag:
+		return "a magazine textfile"
+	case Nfo:
+		return "an nfo textfile"
+	case Pack:
+		return "a filepack of textfiles"
+	default:
+		return other(platform, section)
+	}
+}
+
+func humAmiga(platform, section Tag) string {
+	switch section {
+	case BBS:
+		return "an Amiga text advert for a BBS"
+	case ForSale:
+		return "an Amiga textfile advert"
+	case Ftp:
+		return "an Amiga text advert for an FTP site"
+	case Mag:
+		return "an Amiga magazine textfile"
+	case Nfo:
+		return "an Amiga nfo textfile"
+	default:
+		return other(platform, section)
+	}
+}
+
+func humDOS(platform, section Tag) string {
+	switch section {
+	case BBS:
+		return "a BBStro on " + msDos
+	case Demo:
+		return "a demo on " + msDos
+	case ForSale:
+		return "an advertisement on " + msDos
+	case GameHack:
+		return "a trainer or hack on " + msDos
+	case Install:
+		return "a " + msDos + " installer"
+	case Intro:
+		return "a intro for " + msDos
+	case Pack:
+		return "a filepack of " + msDos + " programs"
+	default:
+		return other(platform, section)
+	}
+}
+
+func humWin(platform, section Tag) string {
+	switch section {
+	case Demo:
+		return "a demo on Windows"
+	case Install:
+		return "a Windows installer"
+	case Intro:
+		return "a Windows intro"
+	case Job:
+		return "a trial crackme for Windows"
+	case Pack:
+		return "a filepack of Windows programs"
+	default:
+		return other(platform, section)
+	}
 }
 
 func news(platform Tag) string {
@@ -375,12 +421,7 @@ func Humanizes(platform, section Tag) string {
 	case Audio:
 		return "music, chiptunes and audio samples"
 	case DataB:
-		switch section {
-		case Nfo:
-			return "databases of releases"
-		default:
-			return fmt.Sprintf("%s databases", Names()[section])
-		}
+		return database(section)
 	case DOS:
 		return dos(section)
 	case Image:
@@ -406,6 +447,19 @@ func Humanizes(platform, section Tag) string {
 	case Windows:
 		return windows(section)
 	}
+	return defaults(platform, section)
+}
+
+func database(section Tag) string {
+	switch section {
+	case Nfo:
+		return "databases of releases"
+	default:
+		return fmt.Sprintf("%s databases", Names()[section])
+	}
+}
+
+func defaults(platform, section Tag) string {
 	if platform < 0 {
 		return emptyPlatform(section)
 	}

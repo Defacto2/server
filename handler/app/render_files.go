@@ -52,21 +52,17 @@ func Files(z *zap.SugaredLogger, c echo.Context, uri, page string) error {
 	return files(z, c, uri, p)
 }
 
-func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
-	const title, name = "Files", "files"
+func fileInfo(uri string) (string, string, string) {
 	var logo, h1sub, lead string
-	unknownYears := true
 	switch uri {
 	case newUploads.String():
 		logo = "new uploads"
 		h1sub = "the new uploads"
 		lead = "These are the recent file artifacts that have been submitted to Defacto2."
-		unknownYears = false
 	case newUpdates.String():
 		logo = "new changes"
 		h1sub = "the new changes"
 		lead = "These are the recent file artifacts that have been modified or submitted on Defacto2."
-		unknownYears = false
 	case oldest.String():
 		logo = "oldest releases"
 		h1sub = "the oldest releases"
@@ -80,6 +76,12 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 		h1sub = s
 		logo = s
 	}
+	return logo, h1sub, lead
+}
+
+func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
+	const title, name = "Files", "files"
+	logo, h1sub, lead := fileInfo(uri)
 	data := emptyFiles(c)
 	data["title"] = title
 	data["description"] = "Table of contents for the files."
@@ -87,8 +89,12 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 	data["h1"] = title
 	data["h1sub"] = h1sub
 	data["lead"] = lead
-	data["unknownYears"] = unknownYears
 	data[records] = []models.FileSlice{}
+	data["unknownYears"] = true
+	switch uri {
+	case newUploads.String(), newUpdates.String():
+		data["unknownYears"] = false
+	}
 
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()

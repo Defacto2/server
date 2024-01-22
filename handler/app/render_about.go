@@ -43,7 +43,7 @@ type Dirs struct {
 }
 
 // About is the handler for the about page of the file record.
-func (dir Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error {
+func (dir Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error { //nolint:funlen
 	const name = "about"
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
@@ -165,7 +165,7 @@ func (dir Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error
 	return nil
 }
 
-func (dir Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) {
+func (dir Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) { //nolint:funlen
 	data := map[string]interface{}{}
 	if res.RetrotxtNoReadme.Int16 != 0 {
 		return data, nil

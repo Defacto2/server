@@ -49,21 +49,7 @@ func ExtractOne(z *zap.SugaredLogger, src, dst, ext, name string) error {
 	defer os.RemoveAll(tmp)
 
 	r := runner{src: src, tmp: tmp, name: name}
-	switch strings.ToLower(ext) {
-	case arc:
-		err = r.arc(z)
-	case arj:
-		err = r.arj(z)
-	case rar:
-		err = r.rar(z)
-	case tar, gzip:
-		err = r.tar(z)
-	case zip:
-		err = r.zip(z)
-	default:
-		err = r.p7zip(z)
-	}
-	if err != nil {
+	if err = r.extract(z, ext); err != nil {
 		return err
 	}
 
@@ -86,6 +72,24 @@ type runner struct {
 	src  string // src is the absolute path to the source archive.
 	tmp  string // tmp is the absolute path to a temporary, destination directory.
 	name string // name is the name of the file to extract from the archive.
+}
+
+// extract extracts the named file from the src archive.
+func (r runner) extract(z *zap.SugaredLogger, ext string) error {
+	switch strings.ToLower(ext) {
+	case arc:
+		return r.arc(z)
+	case arj:
+		return r.arj(z)
+	case rar:
+		return r.rar(z)
+	case tar, gzip:
+		return r.tar(z)
+	case zip:
+		return r.zip(z)
+	default:
+		return r.p7zip(z)
+	}
 }
 
 // arc extracts the named file from the src arc archive.

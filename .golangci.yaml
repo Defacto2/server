@@ -26,30 +26,46 @@ linters:
     - wsl               # fussy over whitespace.
     # temporary disabled
     - godox
-    - cyclop
-    - funlen            # should enable at a later stage. 
 issues:
   exclude-rules:
+    - path: _test.go
+      linters:
+        - cyclop
+        - funlen
+    - path: runner/runner.go
+      linters:
+        - funlen
     - path: cmd/cmd.go
       linters:
         - gosmopolitan
+    - path: handler/html3/list.go
+      linters:
+        - cyclop
     - path: handler/app/funchtml.go
       linters:
         - gosec    
     - path: handler/app/funcmap.go
       linters:
         - gosec
+        - funlen
+    - path: handler/app/interview.go
+      linters:
+        - funlen
     - path: handler/router.go
       linters:
+        - funlen
         - maintidx
     - path: handler/app/milestone.go
       linters:
+        - funlen
         - maintidx
         - lll
     - path: handler/app/render_model.go
       linters:
+        - cyclop
         - gocyclo
         - maintidx
+        - funlen
     - path: handler/app/render_releaser.go
       linters:
         - lll
@@ -72,6 +88,9 @@ issues:
       linters:
         - gocyclo
         - gochecknoglobals
+    - path: internal/web/web.go
+      linters:
+        - funlen
     - path: model/file_ansi_art.go
       linters:
         - dupl
@@ -87,6 +106,9 @@ issues:
     - path: model/file_text_files.go
       linters:
         - dupl
+    - path: model/repair.go
+      linters:
+        - funlen
     - path: model/summary.go
       linters:
         - gocognit
@@ -94,6 +116,17 @@ issues:
         - gocyclo
       
 linters-settings:
+  cyclop:
+    # The maximal code complexity to report.
+    # Default: 10
+    max-complexity: 17
+    skip-tests: true
+  funlen:
+    # Maximum function length in lines.
+    # Default: 50
+    lines: 60
+    statements: 45
+    ignore-comments: true
   gomnd:
     # List of file patterns to exclude from analysis.
     # Values always ignored: `.+_test.go`
