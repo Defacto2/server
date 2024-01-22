@@ -5,7 +5,6 @@ package config
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -37,9 +36,7 @@ func (c Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		z = logger.Development().Sugar()
 	}
 	defer func() {
-		if err := z.Sync(); err != nil {
-			log.Printf("zap logger sync error: %s", err)
-		}
+		_ = z.Sync()
 	}()
 	return func(e echo.Context) error {
 		timeStarted := time.Now()
@@ -111,9 +108,7 @@ func (c Config) CustomErrorHandler(err error, e echo.Context) {
 		z = logger.Development().Sugar()
 	}
 	defer func() {
-		if err := z.Sync(); err != nil {
-			log.Printf("zap logger sync error: %s", err)
-		}
+		_ = z.Sync()
 	}()
 	switch {
 	case IsHTML3(e.Path()):
