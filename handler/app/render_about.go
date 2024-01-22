@@ -396,7 +396,7 @@ func aboutLinks(res *models.File) template.HTML {
 		rows += fmt.Sprintf("<tr><th scope=\"row\"><small>Link</small></th>"+
 			"<td><small><a class=\"text-truncate\" href=\"%s\">%s</a></small></td></tr>", href, name)
 	}
-	return template.HTML(rows)
+	return template.HTML(rows) //nolint:gosec
 }
 
 func aboutJSDos(res *models.File) bool {

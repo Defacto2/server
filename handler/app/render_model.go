@@ -83,7 +83,7 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 	case hack:
 		r := model.Hack{}
 		return r.List(ctx, db, page, limit)
-	case html:
+	case htm:
 		r := model.HTML{}
 		return r.List(ctx, db, page, limit)
 	case howTo:
@@ -231,7 +231,7 @@ func RecordsSub(uri string) string {
 		return tags.Humanizes(ignore, tags.Ftp)
 	case hack:
 		return tags.Humanizes(ignore, tags.GameHack)
-	case html:
+	case htm:
 		return uri
 	case howTo:
 		return tags.Humanizes(ignore, tags.Guide)

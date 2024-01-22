@@ -34,12 +34,17 @@ linters:
     - goerr113
     - gochecknoglobals
     - errorlint
-    - gosec
 issues:
   exclude-rules:
     - path: cmd/cmd.go
       linters:
         - gosmopolitan
+    - path: handler/app/funchtml.go
+      linters:
+        - gosec    
+    - path: handler/app/funcmap.go
+      linters:
+        - gosec
     - path: handler/router.go
       linters:
         - maintidx

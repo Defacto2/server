@@ -40,7 +40,7 @@ func TemplateFuncMap(z *zap.SugaredLogger) template.FuncMap {
 		"publish":    model.PublishedFW,
 		"posted":     model.Created,
 		"safeHTML": func(s string) template.HTML {
-			return template.HTML(s)
+			return template.HTML(s) //nolint:gosec
 		},
 	}
 }

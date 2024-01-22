@@ -26,7 +26,7 @@ const (
 	ftp
 	hack
 	howTo
-	html
+	htm
 	java
 	jobAdvert
 	imageFile

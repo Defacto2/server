@@ -50,7 +50,7 @@ const (
 	pcx  = ".pcx"
 
 	htm  = ".htm"
-	html = ".html"
+	htmx = ".html"
 
 	au   = ".au"
 	fla  = ".flac"
@@ -116,7 +116,7 @@ func IsImage(name string) bool {
 
 // IsHTML returns true if the named file uses a HTML markup filename.
 func IsHTML(name string) bool {
-	s := []string{htm, html}
+	s := []string{htm, htmx}
 	return IsExt(name, s...)
 }
 
