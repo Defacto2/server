@@ -24,14 +24,14 @@ type Config struct {
 	ReadMode       bool   `env:"READ_ONLY" envDefault:"true" help:"Use the read-only mode to disable all POST, PUT and DELETE requests and any related user interface"`
 	HTTPSRedirect  bool   `env:"HTTPS_REDIRECT" help:"Redirect all HTTP requests to HTTPS"`
 	NoRobots       bool   `env:"NOROBOTS" help:"Tell all search engines to not crawl any of website pages or assets"`
-	LogRequests    bool   `env:"REQUESTS" help:"Log every HTTP and HTTPS client requests to a file except those with 200 OK responses"`
+	LogRequests    bool   `env:"LOG_REQUESTS" help:"Log every HTTP and HTTPS client requests to a file except those with 200 OK responses"`
+	LogDir         string `env:"LOG_DIR" help:"The directory path that will store the program logs"`
 	DownloadDir    string `env:"DOWNLOAD_DIR" help:"The directory path that holds the UUID named files that are served as artifact downloads"`
 	PreviewDir     string `env:"PREVIEW_DIR" help:"The directory path that holds the UUID named image files that are served as previews of the artifact"`
 	ThumbnailDir   string `env:"THUMBNAIL_DIR" help:"The directory path that holds the UUID named squared image files that are served as artifact thumbnails"`
 	HTTPPort       uint   `env:"HTTP_PORT" envDefault:"1323" help:"The port number to be used by the unencrypted HTTP web server"`
 	HTTPSPort      uint   `env:"HTTPS_PORT" help:"The port number to be used by the encrypted HTTPS web server"`
 	MaxProcs       uint   `env:"MAX_PROCS" help:"Limit the number of operating system threads the program can use"`
-	LogDir         string `env:"LOG_DIR" help:"The directory path that will store the program logs"`
 	SessionKey     string `env:"SESSION_KEY,unset" help:"The session key for the cookie store or leave blank to generate a random key"`
 	SessionMaxAge  int    `env:"SESSION_MAX_AGE" envDefault:"3" help:"The maximum age in hours for the session cookie"`
 	GoogleClientID string `env:"GOOGLE_CLIENT_ID" help:"The Google OAuth2 client ID"`

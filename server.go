@@ -183,8 +183,9 @@ func checks(logs *zap.SugaredLogger, isReadOnly bool) {
 	}
 	if err := command.LookupUnrar(); err != nil {
 		if errors.Is(err, command.ErrVers) {
-			logs.Warnf("Could not find unrar by Alexander Roshal, " +
-				"is the unrar-free command mistakenly installed?")
+			logs.Warnf("Found unrar but " +
+				"could not find unrar by Alexander Roshal, " +
+				"is unrar-free mistakenly installed?")
 		} else {
 			logs.Warnf("%s: %s", ErrCmd, err)
 		}

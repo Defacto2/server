@@ -87,8 +87,9 @@ func Infos() []string {
 	}
 }
 
+// LookupUnrar returns an error if the name Alexander Roshal is not found in the unrar version output.
 func LookupUnrar() error {
-	return LookVersion(Unrar, "-v", "Alexander Roshal")
+	return LookVersion(Unrar, "", "Alexander Roshal")
 }
 
 // RemoveImgs removes the preview and thumbnail images from the preview and
@@ -200,6 +201,7 @@ func LookCmd(name string) error {
 	return nil
 }
 
+// LookVersion returns an error the match string is not found in the named command output.
 func LookVersion(name, flag, match string) error {
 	if err := LookCmd(name); err != nil {
 		return err
@@ -216,8 +218,7 @@ func LookVersion(name, flag, match string) error {
 	if err != nil {
 		return err
 	}
-	//
-	if bytes.Contains(b, []byte(match)) {
+	if !bytes.Contains(b, []byte(match)) {
 		return fmt.Errorf("%w: %s", ErrVers, name)
 	}
 	return cmd.Wait()
