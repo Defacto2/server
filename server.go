@@ -80,6 +80,13 @@ func main() {
 	// Confirm command requirements when not running in read-only mode
 	checks(logs, configs.ReadMode)
 
+	// Database connection checks
+	if conn, err := postgres.New(); err != nil {
+		logs.Errorf("%s: %s", ErrDB, err)
+	} else {
+		_ = conn.Check(logs)
+	}
+
 	// Repair assets on the host file system
 	if err := RepairFS(logs, &configs); err != nil {
 		logs.Errorf("%s: %s", ErrFS, err)
@@ -103,13 +110,8 @@ func main() {
 
 	// Repair the database on startup
 	if err := RepairDB(); err != nil {
-		if errors.Is(err, ErrVer) {
-			logs.Warnf("%s, is the database server down?", ErrVer)
-		} else {
-			logs.Errorf("%s: %s", ErrDB, err)
-		}
+		repairdb(logs, err)
 	}
-
 	server.RecordCount = RecordCount()
 
 	// Controllers and routes
@@ -223,6 +225,14 @@ func RepairDB() error {
 		return ErrVer
 	}
 	return model.RepairReleasers(ctx, os.Stderr, db)
+}
+
+func repairdb(z *zap.SugaredLogger, err error) {
+	if errors.Is(err, ErrVer) {
+		z.Warnf("%s, is the database server down?", ErrVer)
+	} else {
+		z.Errorf("%s: %s", ErrDB, err)
+	}
 }
 
 // RecordCount returns the number of records in the database.

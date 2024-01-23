@@ -32,7 +32,8 @@ var (
 	ErrUnencrypted = fmt.Errorf("the production server is configured to use unencrypted HTTP connections")
 	ErrNoOAuth2    = fmt.Errorf("the production server requires a google, oauth2 client id to allow admin logins")
 	ErrNoAccounts  = fmt.Errorf("the production server has no google oauth2 user accounts to allow admin logins")
-	ErrSessionKey  = fmt.Errorf("the production server has a session, encryption key set instead of using a randomized key")
+	ErrSessionKey  = fmt.Errorf("the production server has a session, " +
+		"encryption key set instead of using a randomized key")
 )
 
 func (c Config) httpPort(z *zap.SugaredLogger) {

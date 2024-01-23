@@ -115,6 +115,10 @@ issues:
         - gocognit
         - maintidx
         - gocyclo
+    - path: internal/postgres/postgres.go
+      linters:
+        - lll
+        - tagalign
       
 linters-settings:
   cyclop:

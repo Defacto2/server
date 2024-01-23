@@ -39,7 +39,7 @@ func TestConnection_URL(t *testing.T) {
 	for _, tt := range tests {
 		c := postgres.Connection{
 			Protocol:  tt.fields.Protocol,
-			User:      tt.fields.User,
+			Username:  tt.fields.User,
 			Password:  tt.fields.Password,
 			HostName:  tt.fields.HostName,
 			HostPort:  tt.fields.HostPort,
