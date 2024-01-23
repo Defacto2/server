@@ -157,7 +157,7 @@ func (web Web) tmpl(name filename) *template.Template {
 		GlobTo(pagination),
 	}
 	config := web.Import
-	if config.IsReadOnly {
+	if config.ReadMode {
 		files = append(files,
 			GlobTo("layout_editor_null.tmpl"),
 			GlobTo("layout_uploader_null.tmpl"),
@@ -171,7 +171,7 @@ func (web Web) tmpl(name filename) *template.Template {
 	case "about.tmpl":
 		files = append(files, GlobTo("about_table.tmpl"), GlobTo("about_jsdos.tmpl"))
 		files = append(files, GlobTo("about_editor_archive.tmpl"))
-		if config.IsReadOnly {
+		if config.ReadMode {
 			files = append(files, GlobTo("about_editor_null.tmpl"))
 			files = append(files, GlobTo("about_editor_table_null.tmpl"))
 			files = append(files, GlobTo("about_table_switch_null.tmpl"))

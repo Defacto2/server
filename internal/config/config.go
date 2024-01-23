@@ -16,57 +16,26 @@ const (
 	EnvPrefix = "D2_"          // EnvPrefix is the prefix for all server environment variables.
 )
 
-// Config options for the Defacto2 server.
+// Config options for the Defacto2 server using the [caarlos0/env] package.
 //
-//nolint:lll,tagalign // The struct fields are long and the tags cannot be aligned.
+// [caarlos0/env]:https://github.com/caarlos0/env
 type Config struct {
-	// IsProduction is true when the server is running in production mode.
-	IsProduction bool `env:"PRODUCTION" envDefault:"false" help:"Use the production mode to log errors to a file and recover from panics"`
-
-	// IsReadOnly is true when the server is running in read-only mode. This disables all POST, PUT and DELETE requests and any related user interface.
-	IsReadOnly bool `env:"READONLY" envDefault:"true" help:"Use the read-only mode to disable all POST, PUT and DELETE requests and any related user interface"`
-
-	// DownloadDir is the directory path that holds the UUID named files that are served as artifact downloads.
-	DownloadDir string `env:"DIR_DOWN" help:"The directory path that holds the UUID named files that are served as artifact downloads"`
-
-	// PreviewDir is the directory path that holds the UUID named image files that are served as artifact previews or screenshots.
-	PreviewDir string `env:"DIR_PREVIEW" help:"The directory path that holds the UUID named image files that are served as previews of the artifact"`
-
-	// ThumbnailDir is the directory path that holds the UUID named squared image files that are served as artifact thumbnails.
-	ThumbnailDir string `env:"DIR_THUMB" help:"The directory path that holds the UUID named squared image files that are served as artifact thumbnails"`
-
-	// HTTPPort is the port number to be used by the HTTP server.
-	HTTPPort uint `env:"PORT" envDefault:"1323" help:"The port number to be used by the unencrypted HTTP web server"`
-
-	// HTTPSPort is the port number to be used by the HTTPS server.
-	HTTPSPort uint `env:"PORTS" envDefault:"0" help:"The port number to be used by the encrypted HTTPS web server"`
-
-	// MaxProcs is the maximum number of operating system threads the program can use.
-	MaxProcs uint `env:"MAXPROCS" envDefault:"0" avoid:"true" help:"Limit the number of operating system threads the program can use"`
-
-	// HTTPSRedirect is true when the server should redirect all HTTP requests to HTTPS.
-	HTTPSRedirect bool `env:"REDIRECT" envDefault:"false" avoid:"true" help:"Redirect all HTTP requests to HTTPS"`
-
-	// NoRobots is true when the server should tell all search engines to not crawl the website pages or assets.
-	NoRobots bool `env:"NOROBOTS" envDefault:"false" avoid:"true" help:"Tell all search engines to not crawl any of website pages or assets"`
-
-	// LogRequests is true when the server should log all HTTP client requests to a file, except those with 200 OK responses.
-	LogRequests bool `env:"REQUESTS" envDefault:"false" avoid:"true" help:"Log all HTTP and HTTPS client requests to a file"`
-
-	// LogDir is the directory path that will store the server logs.
-	LogDir string `env:"DIR_LOG" avoid:"true" help:"The directory path that will store the program logs"`
-
-	// SessionKey is the session key for the cookie store.
-	SessionKey string `env:"SESSION_KEY" envDefault:"" avoid:"true" help:"The session key for the cookie store or leave blank to generate a random key"`
-
-	// SessionMaxAge is the maximum age in hours for the session cookie.
-	SessionMaxAge int `env:"SESSION_MAX_AGE" envDefault:"3" avoid:"true" help:"The maximum age in hours for the session cookie"`
-
-	// GoogleClientID is the Google OAuth2 client ID.
-	GoogleClientID string `env:"GOOGLE_CLIENT_ID" envDefault:"" avoid:"true" help:"The Google OAuth2 client ID"`
-
-	// GoogleAccounts is a comma separated list of Google OAuth2 accounts that are allowed to login.
-	GoogleIDs string `env:"GOOGLE_ACCOUNTS" envDefault:"" avoid:"true" help:"The Google OAuth2 accounts that are allowed to login"`
+	ProductionMode bool   `env:"PRODUCTION_MODE" help:"Use the production mode to log errors to a file and recover from panics"`
+	ReadMode       bool   `env:"READ_ONLY" envDefault:"true" help:"Use the read-only mode to disable all POST, PUT and DELETE requests and any related user interface"`
+	HTTPSRedirect  bool   `env:"HTTPS_REDIRECT" help:"Redirect all HTTP requests to HTTPS"`
+	NoRobots       bool   `env:"NOROBOTS" help:"Tell all search engines to not crawl any of website pages or assets"`
+	LogRequests    bool   `env:"REQUESTS" help:"Log every HTTP and HTTPS client requests to a file except those with 200 OK responses"`
+	DownloadDir    string `env:"DOWNLOAD_DIR" help:"The directory path that holds the UUID named files that are served as artifact downloads"`
+	PreviewDir     string `env:"PREVIEW_DIR" help:"The directory path that holds the UUID named image files that are served as previews of the artifact"`
+	ThumbnailDir   string `env:"THUMBNAIL_DIR" help:"The directory path that holds the UUID named squared image files that are served as artifact thumbnails"`
+	HTTPPort       uint   `env:"HTTP_PORT" envDefault:"1323" help:"The port number to be used by the unencrypted HTTP web server"`
+	HTTPSPort      uint   `env:"HTTPS_PORT" help:"The port number to be used by the encrypted HTTPS web server"`
+	MaxProcs       uint   `env:"MAX_PROCS" help:"Limit the number of operating system threads the program can use"`
+	LogDir         string `env:"LOG_DIR" help:"The directory path that will store the program logs"`
+	SessionKey     string `env:"SESSION_KEY,unset" help:"The session key for the cookie store or leave blank to generate a random key"`
+	SessionMaxAge  int    `env:"SESSION_MAX_AGE" envDefault:"3" help:"The maximum age in hours for the session cookie"`
+	GoogleClientID string `env:"GOOGLE_CLIENT_ID" help:"The Google OAuth2 client ID"`
+	GoogleIDs      string `env:"GOOGLE_IDS,unset" help:"The Google OAuth2 accounts that are allowed to login"`
 
 	// GoogleAccounts is a slice of Google OAuth2 accounts that are allowed to login.
 	// Each account is a 48 byte slice of bytes that represents the SHA-384 hash of the unique Google ID.
@@ -130,15 +99,17 @@ func (c Config) addresses(b *strings.Builder, intro bool) {
 	}
 	port := values.FieldByName("HTTPPort").Uint()
 	ports := values.FieldByName("HTTPSPort").Uint()
+	if port == 0 && ports == 0 {
+		log.Fatalln("The server cannot start without a HTTP or a HTTPS port.")
+	}
 	const web = 80
 	const webs = 443
-	const local = 1323
 	for _, host := range hosts {
 		switch port {
 		case web:
 			fmt.Fprintf(b, "%shttp://%s\n", pad, host)
 		case 0:
-			fmt.Fprintf(b, "%shttp://%s:%d\n", pad, host, local)
+			// disabled
 		default:
 			fmt.Fprintf(b, "%shttp://%s:%d\n", pad, host, port)
 		}
@@ -156,6 +127,9 @@ func (c Config) addresses(b *strings.Builder, intro bool) {
 		log.Fatalf("The server cannot get the local IP addresses: %s.", err)
 	}
 	for _, ip := range ips {
+		if port == 0 {
+			break
+		}
 		fmt.Fprintf(b, "%shttp://%s:%d\n", pad, ip, port)
 	}
 }
@@ -254,7 +228,7 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 		id := field.Name
 		name := EnvPrefix + field.Tag.Get("env")
 		switch id {
-		case "IsProduction":
+		case "ProductionMode":
 			isProd(w, id, name, val, field)
 		case "HTTPPort":
 			httpPort(w, id, name, val, field)

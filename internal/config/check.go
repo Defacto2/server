@@ -20,8 +20,8 @@ const (
 )
 
 var (
-	ErrPortMax = fmt.Errorf("http port value must be between 0-%d", PortMax)
-	ErrPortSys = fmt.Errorf("http port values between 0-%d require system access", PortSys)
+	ErrPortMax = fmt.Errorf("http port value must be between 1-%d", PortMax)
+	ErrPortSys = fmt.Errorf("http port values between 1-%d require system access", PortSys)
 
 	ErrDir     = fmt.Errorf("the named directory path is empty")
 	ErrDir404  = fmt.Errorf("the directory path does not exist")
@@ -30,17 +30,15 @@ var (
 	ErrDirFew  = fmt.Errorf("the directory path contains only a few items")
 
 	ErrUnencrypted = fmt.Errorf("the production server is configured to use unencrypted HTTP connections")
+	ErrNoOAuth2    = fmt.Errorf("the production server requires a google, oauth2 client id to allow admin logins")
+	ErrNoAccounts  = fmt.Errorf("the production server has no google oauth2 user accounts to allow admin logins")
+	ErrSessionKey  = fmt.Errorf("the production server has a session, encryption key set instead of using a randomized key")
 )
 
-// Checks runs a number of sanity checks for the environment variable configurations.
-func (c *Config) Checks(z *zap.SugaredLogger) {
-	if z == nil {
-		fmt.Fprintf(os.Stderr, "Cannot run config checks as the logger instance is nil.")
+func (c Config) httpPort(z *zap.SugaredLogger) {
+	if c.HTTPPort == 0 {
 		return
 	}
-	// TODO: handle HTTPS port and give it priority over HTTP port?
-	// https://echo.labstack.com/docs/cookbook/http2
-	// TODO: only use HTTP ports if > 0
 	if err := HTTPPort(c.HTTPPort); err != nil {
 		switch {
 		case errors.Is(err, ErrPortMax):
@@ -51,14 +49,73 @@ func (c *Config) Checks(z *zap.SugaredLogger) {
 				c.HTTPPort, err)
 		}
 	}
+}
 
-	if c.IsProduction && !c.IsReadOnly && c.HTTPPort > 0 {
+func (c Config) httpsPort(z *zap.SugaredLogger) {
+	if c.HTTPSPort == 0 {
+		return
+	}
+	if err := HTTPPort(c.HTTPSPort); err != nil {
+		switch {
+		case errors.Is(err, ErrPortMax):
+			z.Fatalf("The server could not use the HTTPS port %d, %s.",
+				c.HTTPSPort, err)
+		case errors.Is(err, ErrPortSys):
+			z.Infof("The server HTTPS port %d, %s.",
+				c.HTTPSPort, err)
+		}
+	}
+}
+
+// The production mode checks when not in read-only mode. It
+// expects the server to be configured with OAuth2 and Google IDs.
+// The server should be running over HTTPS and not unencrypted HTTP.
+func (c Config) production(z *zap.SugaredLogger) {
+	if !c.ProductionMode || c.ReadMode {
+		return
+	}
+	if c.GoogleClientID == "" {
+		s := helper.Capitalize(ErrNoOAuth2.Error()) + "."
+		z.Warn(s)
+	}
+	if c.GoogleIDs == "" && len(c.GoogleAccounts) == 0 {
+		s := helper.Capitalize(ErrNoAccounts.Error()) + "."
+		z.Warn(s)
+	}
+	if c.HTTPPort > 0 {
 		s := fmt.Sprintf("%s over port %d.",
 			helper.Capitalize(ErrUnencrypted.Error()),
 			c.HTTPPort)
+		z.Info(s)
+	}
+	if c.SessionKey != "" {
+		s := helper.Capitalize(ErrSessionKey.Error()) + "."
 		z.Warn(s)
+		z.Warn("This means that all signed in users will not be logged out on a server restart.")
+	}
+	if c.SessionMaxAge > 0 {
+		z.Infof("A signed in user session lasts for %d hour(s).", c.SessionMaxAge)
+	} else {
+		z.Warn("A signed in user session lasts forever.")
+	}
+}
+
+// Checks runs a number of sanity checks for the environment variable configurations.
+func (c *Config) Checks(z *zap.SugaredLogger) {
+	if z == nil {
+		fmt.Fprintf(os.Stderr, "Cannot run config checks as the logger instance is nil.")
+		return
 	}
 
+	if c.HTTPSRedirect && c.HTTPSPort == 0 {
+		z.Warn("HTTPSRedirect is on but the HTTPS port is not set, so the server will not redirect HTTP requests to HTTPS.")
+	}
+
+	c.httpPort(z)
+	c.httpsPort(z)
+	c.production(z)
+
+	// Check the download, preview and thumbnail directories.
 	if err := DownloadDir(c.DownloadDir); err != nil {
 		s := helper.Capitalize(err.Error()) + "."
 		z.Warn(s)
@@ -72,10 +129,11 @@ func (c *Config) Checks(z *zap.SugaredLogger) {
 		z.Warn(s)
 	}
 
+	// Reminds for the optional configuration values.
 	if c.NoRobots {
-		z.Warn("NoRobots is on, most web crawlers will ignore this site.")
+		z.Warn("NoRobots is on, web crawlers should ignore this site.")
 	}
-	if c.HTTPSRedirect {
+	if c.HTTPSRedirect && c.HTTPSPort > 0 {
 		z.Info("HTTPSRedirect is on, all HTTP requests will be redirected to HTTPS.")
 	}
 
@@ -124,8 +182,12 @@ func (c *Config) SetupLogDir(z *zap.SugaredLogger) {
 	}
 }
 
-// HTTPPort returns an error if the HTTP port is invalid.
+// HTTPPort returns an error if the HTTP/HTTPS port is invalid.
 func HTTPPort(port uint) error {
+	const disabled = 0
+	if port == disabled {
+		return nil
+	}
 	if port > PortMax {
 		return ErrPortMax
 	}

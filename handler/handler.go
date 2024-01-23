@@ -122,7 +122,7 @@ func (c Configuration) Controller() *echo.Echo {
 	// Pre configurations that are run before the router
 	e.Pre(middleware.Rewrite(rewrites())) // rewrites for assets
 	e.Pre(middleware.NonWWWRedirect())    // redirect www.defacto2.net requests to defacto2.net
-	if c.Import.HTTPSRedirect {
+	if c.Import.HTTPSRedirect && c.Import.HTTPSPort > 0 {
 		e.Pre(middleware.HTTPSRedirect()) // https redirect
 	}
 	//
@@ -135,7 +135,7 @@ func (c Configuration) Controller() *echo.Echo {
 	// 									(see: internal/config/logger.go)
 	e.Use(middleware.RemoveTrailingSlashWithConfig(c.removeSlash())) // remove trailing slashes
 	e.Use(c.NoRobotsHeader)                                          // add X-Robots-Tag to all responses
-	if c.Import.IsProduction {
+	if c.Import.ProductionMode {
 		e.Use(middleware.Recover()) // recover from panics
 	}
 	// Static embedded web assets that get distributed in the binary
@@ -174,8 +174,7 @@ func (c Configuration) version() string {
 	return fmt.Sprintf("  %s.", cmd.Commit(c.Version))
 }
 
-// StartHTTP starts the HTTP web server.
-func (c *Configuration) StartHTTP(e *echo.Echo) {
+func (c Configuration) Info() {
 	w := bufio.NewWriter(os.Stdout)
 	// Startup logo
 	if logo := string(*c.Brand); len(logo) > 0 {
@@ -199,23 +198,51 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 	// All additional feedback should go in internal/config/check.go (c *Config) Checks()
 	//
 	w.Flush()
+}
+
+// StartHTTP starts the HTTP web server.
+func (c *Configuration) StartHTTP(e *echo.Echo) {
+	port := c.Import.HTTPPort
+	if port == 0 {
+		return
+	}
+	address := fmt.Sprintf(":%d", port)
+	if err := e.Start(address); err != nil {
+		c.PortErr(port, err)
+	}
+}
+
+// StartHTTPS starts the HTTPS web server.
+func (c *Configuration) StartHTTPS(e *echo.Echo) {
 	// Start the HTTP server
 	// TODO: implement HTTPS using HTTPSPort
 	// https://echo.labstack.com/docs/cookbook/http2
-	serverAddress := fmt.Sprintf(":%d", c.Import.HTTPPort)
-	if err := e.Start(serverAddress); err != nil {
-		var portErr *net.OpError
-		switch {
-		case !c.Import.IsProduction && errors.As(err, &portErr):
-			c.Logger.Infof("air or task server could not start (this can probably be ignored): %s.", err)
-		case errors.Is(err, net.ErrClosed),
-			errors.Is(err, http.ErrServerClosed):
-			c.Logger.Infof("HTTP server shutdown gracefully.")
-		default:
-			c.Logger.Fatalf("HTTP server could not start: %s.", err)
-		}
+	port := c.Import.HTTPSPort
+	if port == 0 {
+		return
 	}
-	// nothing should be placed here
+	address := fmt.Sprintf(":%d", port)
+	if err := e.Start(address); err != nil {
+		c.PortErr(port, err)
+	}
+}
+
+// PortErr handles the error when the HTTP or HTTPS server cannot start.
+func (c Configuration) PortErr(port uint, err error) {
+	s := "HTTP"
+	if port == c.Import.HTTPSPort {
+		s = "HTTPS"
+	}
+	var portErr *net.OpError
+	switch {
+	case !c.Import.ProductionMode && errors.As(err, &portErr):
+		c.Logger.Infof("air or task server could not start (this can probably be ignored): %s.", err)
+	case errors.Is(err, net.ErrClosed),
+		errors.Is(err, http.ErrServerClosed):
+		c.Logger.Infof("%s server shutdown gracefully.", s)
+	default:
+		c.Logger.Fatalf("%s server on port %d could not start: %w.", s, port, err)
+	}
 }
 
 // ShutdownHTTP waits for a Ctrl-C keyboard press to initiate a graceful shutdown of the HTTP web server.

@@ -28,7 +28,7 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 	}
 
 	// The session key, if empty a long randomized value is generated that changes on every restart.
-	if !c.Import.IsReadOnly {
+	if !c.Import.ReadMode {
 		key := []byte(c.Import.SessionKey)
 		if c.Import.SessionKey == "" {
 			const length = 32
@@ -124,7 +124,7 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 	})
 	s.GET("/f/:id", func(x echo.Context) error {
 		dir.URI = x.Param("id")
-		return dir.About(z, x, c.Import.IsReadOnly)
+		return dir.About(z, x, c.Import.ReadMode)
 	})
 	s.GET("/file/stats", func(x echo.Context) error {
 		return app.File(z, x, true)

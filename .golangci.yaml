@@ -77,6 +77,8 @@ issues:
     - path: internal/config/config.go
       linters:
         - gocognit
+        - lll
+        - tagalign
     - path: internal/pouet/pouet.go
       linters:
         - tagliatelle

@@ -29,7 +29,7 @@ var (
 func (c Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	// Logger
 	var z *zap.SugaredLogger
-	switch c.IsProduction {
+	switch c.ProductionMode {
 	case true:
 		z = logger.Production(c.LogDir).Sugar()
 	default:
@@ -101,7 +101,7 @@ func (c *Config) LogStorage() error {
 // CustomErrorHandler handles customer error templates.
 func (c Config) CustomErrorHandler(err error, e echo.Context) {
 	var z *zap.SugaredLogger
-	switch c.IsProduction {
+	switch c.ProductionMode {
 	case true:
 		z = logger.Production(c.LogDir).Sugar()
 	default:

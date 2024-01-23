@@ -13,7 +13,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/caarlos0/env/v7"
+	"github.com/caarlos0/env/v10"
 	_ "github.com/jackc/pgx/v5/stdlib" // Use a lowlevel PostgreSQL driver.
 )
 
@@ -71,7 +71,7 @@ func New() (Connection, error) {
 	c.HostName = DockerHost
 	c.HostPort = HostPort
 	c.Database = DBName
-	if err := env.Parse(&c, env.Options{}); err != nil {
+	if err := env.Parse(&c); err != nil {
 		return Connection{}, fmt.Errorf("%w: %w", ErrEnv, err)
 	}
 	return c, nil

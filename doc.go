@@ -68,7 +68,7 @@ Though these are not advised other than for debugging or testing in development.
 
 The following options can be added to [Override].
 
-	configs.IsProduction = true		// This will enable the production logger
+	configs.ProductionMode = true		// This will enable the production logger
 	configs.HTTPSRedirect = true	// This requires HTTPS certificates to be installed and configured
 	configs.NoRobots = true			// This will disable search engine crawling
 	configs.LogRequests = true		// This will log all HTTP requests to the server or stdout

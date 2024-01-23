@@ -43,8 +43,8 @@ func (c Configuration) NoRobotsHeader(next echo.HandlerFunc) echo.HandlerFunc {
 // of the database and any related user interface.
 func (c Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(e echo.Context) error {
-		e.Response().Header().Set("X-Read-Only-Lock", fmt.Sprintf("%t", c.Import.IsReadOnly))
-		if c.Import.IsReadOnly {
+		e.Response().Header().Set("X-Read-Only-Lock", fmt.Sprintf("%t", c.Import.ReadMode))
+		if c.Import.ReadMode {
 			return app.StatusErr(c.Logger, e, http.StatusForbidden, "")
 		}
 		return next(e)

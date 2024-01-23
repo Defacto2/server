@@ -19,7 +19,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model"
-	"github.com/caarlos0/env/v7"
+	"github.com/caarlos0/env/v10"
 	_ "github.com/lib/pq"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"go.uber.org/zap"
@@ -59,7 +59,7 @@ func main() {
 
 	// Environment variables configuration
 	configs := config.Config{}
-	if err := env.Parse(
+	if err := env.ParseWithOptions(
 		&configs, env.Options{Prefix: config.EnvPrefix}); err != nil {
 		logs.Fatalf("%w: %s", ErrEnv, err)
 	}
@@ -78,7 +78,7 @@ func main() {
 	configs.Checks(logs)
 
 	// Confirm command requirements when not running in read-only mode
-	checks(logs, configs.IsReadOnly)
+	checks(logs, configs.ReadMode)
 
 	// Repair assets on the host file system
 	if err := RepairFS(logs, &configs); err != nil {
@@ -115,9 +115,14 @@ func main() {
 	// Controllers and routes
 	e := server.Controller()
 
-	// Start the HTTP server
+	// Startup information and warnings
+	server.Info()
+
+	// Start the HTTP and HTTPS server
 	go server.StartHTTP(e)
-	// List the detected host IP addresses
+	go server.StartHTTPS(e)
+
+	// List the local IP addresses that can also be used to access the server
 	go fmt.Fprintf(os.Stdout, "%s\n", configs.Startup())
 
 	// Gracefully shutdown the HTTP server
@@ -137,10 +142,10 @@ func commandLine(logs *zap.SugaredLogger, configs config.Config) {
 func initLogger(logs *zap.SugaredLogger, configs config.Config) *zap.SugaredLogger {
 	// Setup the logger
 	mode := "read-only mode"
-	if !configs.IsReadOnly {
+	if !configs.ReadMode {
 		mode = "write mode"
 	}
-	switch configs.IsProduction {
+	switch configs.ProductionMode {
 	case true:
 		if err := configs.LogStorage(); err != nil {
 			logs.Fatalf("%w: %s", ErrLog, err)
@@ -195,9 +200,13 @@ func Override(c *config.Config) *config.Config {
 	c.GoogleIDs = "overwrite placeholder"
 	c.GoogleIDs = "" // empty the string
 
+	if c.HTTPPort == 0 && c.HTTPSPort == 0 {
+		c.HTTPPort = 1323
+	}
+
 	// examples of hard-coded overrides:
-	// c.IsProduction = true
-	// c.IsReadOnly = true
+	// c.ProductionMode = true
+	// c.ReadMode = true
 	return c
 }
 
