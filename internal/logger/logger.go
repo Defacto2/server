@@ -135,7 +135,7 @@ func console() zapcore.Encoder {
 
 func consoleNoTime() zapcore.Encoder {
 	config := zap.NewDevelopmentEncoderConfig()
-	//config.EncodeTime = nil  // use nil to remove the leading console separator
+	// config.EncodeTime = nil  // use nil to remove the leading console separator
 	config.EncodeTime = zapcore.TimeEncoderOfLayout("")
 	config.ConsoleSeparator = "  "
 	config.EncodeLevel = zapcore.CapitalColorLevelEncoder

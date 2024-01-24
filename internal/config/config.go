@@ -57,6 +57,10 @@ const (
 	h5       = "Information"
 	line     = "─"
 	donotuse = 7
+	down     = "DownloadDir"
+	logr     = "LogDir"
+	prev     = "PreviewDir"
+	thumb    = "ThumbnailDir"
 )
 
 // String returns a string representation of the Config struct.
@@ -147,13 +151,13 @@ func dir(w *tabwriter.Writer, id, s string) {
 	}
 	fmt.Fprintf(w, "\t\t\tPATH →\t%s", "[NO DIRECTORY SET]")
 	switch id {
-	case "DownloadDir":
+	case down:
 		fmt.Fprintf(w, "\tNo downloads will be served.\n")
-	case "PreviewDir":
+	case prev:
 		fmt.Fprintf(w, "\tNo preview images will be shown.\n")
-	case "ThumbnailDir":
+	case thumb:
 		fmt.Fprintf(w, "\tNo thumbnails will be shown.\n")
-	case "LogDir":
+	case logr:
 		fmt.Fprintf(w, "\tLogs will be printed to this terminal.\n")
 	default:
 		fmt.Fprintln(w)
@@ -168,11 +172,11 @@ func lead(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect
 func path(w *tabwriter.Writer, id, name string, field reflect.StructField) {
 	help := field.Tag.Get("help")
 	switch id {
-	case "DownloadDir":
+	case down:
 		help = strings.Replace(help, "UUID named files", "UUID named files\n\t\t\t\t", 1)
-	case "PreviewDir":
+	case prev:
 		help = strings.Replace(help, "UUID named image", "UUID named image\n\t\t\t\t", 1)
-	case "ThumbnailDir":
+	case thumb:
 		help = strings.Replace(help, "UUID named squared image", "UUID named squared image\n\t\t\t\t", 1)
 	}
 	fmt.Fprintf(w, "\t%s\t%s\t\t%s.\n", helper.SplitAsSpaces(id), name, help)
@@ -249,69 +253,86 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 		}
 		// mode for development and readonly which is set using the go build flags.
 		if c.LocalMode || (!c.ProductionMode && c.ReadMode) {
-			switch field.Name {
-			case
-				"GoogleClientID",
-				"GoogleIDs",
-				"SessionKey",
-				"SessionMaxAge":
+			if accountSkip(field.Name) {
 				continue
 			}
 		}
-		if c.LocalMode {
-			switch field.Name {
-			case
-				"ReadMode",
-				"ProductionMode",
-				"HTTPSPort",
-				"HTTPSRedirect",
-				"NoRobots",
-				"LogDir",
-				"MaxProcs":
-				continue
-			}
+		if c.LocalMode && localSkip(field.Name) {
+			continue
 		}
 		val := values.FieldByName(field.Name)
 		id := field.Name
 		name := EnvPrefix + field.Tag.Get("env")
 		if before, found := strings.CutSuffix(name, ",unset"); found {
-			fmt.Println(before, found, name)
 			name = before
 		}
-
-		switch id {
-		case "ProductionMode":
-			isProd(w, id, name, val, field)
-		case "HTTPPort":
-			httpPort(w, id, name, val, field)
-		case "HTTPSPort":
-			httpsPort(w, id, name, val, field)
-		case "DownloadDir":
-			nl(w)
-			path(w, id, name, field)
-			dir(w, id, c.PreviewDir)
-		case "PreviewDir":
-			nl(w)
-			path(w, id, name, field)
-			dir(w, id, c.PreviewDir)
-		case "ThumbnailDir":
-			nl(w)
-			path(w, id, name, field)
-			dir(w, id, c.ThumbnailDir)
-		case "LogDir":
-			nl(w)
-			path(w, id, name, field)
-			dir(w, id, c.LogDir)
-		case "MaxProcs":
-			maxProcs(w, id, name, val, field)
-			googleHead(w, c)
-		default:
-			nl(w)
-			lead(w, id, name, val, field)
-		}
+		c.fmtField(w, id, name, val, field)
 	}
 	w.Flush()
 	return b
+}
+
+func (c Config) fmtField(w *tabwriter.Writer,
+	id, name string,
+	val reflect.Value, field reflect.StructField,
+) {
+	switch id {
+	case "ProductionMode":
+		isProd(w, id, name, val, field)
+	case "HTTPPort":
+		httpPort(w, id, name, val, field)
+	case "HTTPSPort":
+		httpsPort(w, id, name, val, field)
+	case down:
+		nl(w)
+		path(w, id, name, field)
+		dir(w, id, c.PreviewDir)
+	case prev:
+		nl(w)
+		path(w, id, name, field)
+		dir(w, id, c.PreviewDir)
+	case thumb:
+		nl(w)
+		path(w, id, name, field)
+		dir(w, id, c.ThumbnailDir)
+	case logr:
+		nl(w)
+		path(w, id, name, field)
+		dir(w, id, c.LogDir)
+	case "MaxProcs":
+		maxProcs(w, id, name, val, field)
+		googleHead(w, c)
+	default:
+		nl(w)
+		lead(w, id, name, val, field)
+	}
+}
+
+func localSkip(name string) bool {
+	switch name {
+	case
+		"ReadMode",
+		"ProductionMode",
+		"HTTPSPort",
+		"HTTPSRedirect",
+		"NoRobots",
+		logr,
+		"MaxProcs":
+		return true
+	}
+	return false
+}
+
+func accountSkip(name string) bool {
+	switch name {
+	case
+		"GoogleClientID",
+		"GoogleIDs",
+		"SessionKey",
+		"SessionMaxAge":
+		return true
+	}
+	return false
 }
 
 func StaticThumb() string {
