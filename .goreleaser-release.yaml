@@ -2,8 +2,8 @@
 # The documentation is at https://goreleaser.com.
 # To test any modifications to this configuration:
 # goreleaser check
-# goreleaser release --rm-dist --snapshot
-# goreleaser build --rm-dist --snapshot
+# goreleaser release --clean --snapshot
+# goreleaser build --clean --snapshot
 project_name: df2-server
 before:
   hooks:
@@ -13,13 +13,17 @@ before:
     # go generate breaks github actions.
     #- go generate ./...
 builds:
-  - id: server_dev
+  - id: defacto2-app
     env:
       - CGO_ENABLED=0
+    ldflags:
+      - -X 'main.LocalMode=true'
     # keep the number of targets to a minimum to improve the build time.
     targets:
-      - darwin_arm64
       - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
       - windows_amd64
   - id: server
     env:
@@ -28,7 +32,7 @@ builds:
       - linux_amd64
 universal_binaries:
   - replace: true
-    ids: ['server_dev']
+    ids: ['defacto2-app']
     name_template: >-
       {{ tolower .ProjectName }}
 archives:
@@ -49,6 +53,8 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+      - '^tmp:'
+      - '.env.local'
 nfpms:
   - id: deb
     builds: ['server']

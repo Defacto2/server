@@ -53,7 +53,7 @@ func (c Connection) Open() (*sql.DB, error) {
 }
 
 // Check the connection values and print any issues or feedback to the logger.
-func (c Connection) Check(z *zap.SugaredLogger) error {
+func (c Connection) Check(z *zap.SugaredLogger, local bool) error {
 	if z == nil {
 		return ErrZap
 	}
@@ -63,7 +63,7 @@ func (c Connection) Check(z *zap.SugaredLogger) error {
 	if c.HostPort == 0 {
 		z.Warn("The database connection host port is set to 0.")
 	}
-	if c.NoSSLMode {
+	if !local && c.NoSSLMode {
 		z.Warn("The database connection is using an insecure, plain text connection.")
 	}
 	switch {
@@ -139,7 +139,7 @@ func (c Connection) Configurations(b *strings.Builder) *strings.Builder {
 		flags    = 0
 		h1       = "Configuration"
 		h2       = "Value"
-		h3       = "Env variable"
+		h3       = "Environment variable"
 		h4       = "Value type"
 		h5       = "Information"
 		line     = "─"
@@ -166,18 +166,18 @@ func (c Connection) Configurations(b *strings.Builder) *strings.Builder {
 		if !field.IsExported() {
 			continue
 		}
-		val := values.FieldByName(field.Name)
-		id := field.Name
-		name := field.Tag.Get("env")
 		help := field.Tag.Get("help")
 		if help == "" {
 			continue
 		}
+		val := values.FieldByName(field.Name)
+		id := field.Name
+		name := EnvPrefix + field.Tag.Get("env")
 		lead := func() {
 			fmt.Fprintf(w, "\t%s\t%s\t%v\t%s.\n", id, name, val, help)
 		}
 		if id == "Password" && val.String() != c.Password {
-			fmt.Fprintf(w, "\t%s\t%s\t%v\t%s.\n", id, name, "****", help)
+			fmt.Fprintf(w, "\t%s\t%s\t%v\t%s.\n", id, name, "******", help)
 			continue
 		}
 		lead()

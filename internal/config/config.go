@@ -23,8 +23,8 @@ type Config struct {
 	ProductionMode bool   `env:"PRODUCTION_MODE" help:"Use the production mode to log errors to a file and recover from panics"`
 	ReadMode       bool   `env:"READ_ONLY" envDefault:"true" help:"Use the read-only mode to disable all POST, PUT and DELETE requests and any related user interface"`
 	HTTPSRedirect  bool   `env:"HTTPS_REDIRECT" help:"Redirect all HTTP requests to HTTPS"`
-	NoRobots       bool   `env:"NOROBOTS" help:"Tell all search engines to not crawl any of website pages or assets"`
-	LogRequests    bool   `env:"LOG_REQUESTS" help:"Log every HTTP and HTTPS client requests to a file except those with 200 OK responses"`
+	NoRobots       bool   `env:"NOROBOTS" help:"Tell search engines to not crawl any of website pages or assets"`
+	LogRequests    bool   `env:"LOG_REQUESTS" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`
 	LogDir         string `env:"LOG_DIR" help:"The directory path that will store the program logs"`
 	DownloadDir    string `env:"DOWNLOAD_DIR" help:"The directory path that holds the UUID named files that are served as artifact downloads"`
 	PreviewDir     string `env:"PREVIEW_DIR" help:"The directory path that holds the UUID named image files that are served as previews of the artifact"`
@@ -40,6 +40,8 @@ type Config struct {
 	// GoogleAccounts is a slice of Google OAuth2 accounts that are allowed to login.
 	// Each account is a 48 byte slice of bytes that represents the SHA-384 hash of the unique Google ID.
 	GoogleAccounts [][48]byte
+	// LocalMode build ldflags is set to true.
+	LocalMode bool
 }
 
 const (
@@ -50,7 +52,7 @@ const (
 	flags    = 0
 	h1       = "Configuration"
 	h2       = "Value"
-	h3       = "Env variable"
+	h3       = "Environment variable"
 	h4       = "Value type"
 	h5       = "Information"
 	line     = "─"
@@ -138,17 +140,29 @@ func nl(w *tabwriter.Writer) {
 	fmt.Fprintf(w, "\t\t\t\t\n")
 }
 
-func dir(w *tabwriter.Writer, s string) {
+func dir(w *tabwriter.Writer, id, s string) {
 	if s != "" {
 		fmt.Fprintf(w, "\t\t\tPATH →\t%s\n", s)
 		return
 	}
-	fmt.Fprintf(w, "\t\t\tPATH →\t%s\n", "[NO DIRECTORY SET]")
+	fmt.Fprintf(w, "\t\t\tPATH →\t%s", "[NO DIRECTORY SET]")
+	switch id {
+	case "DownloadDir":
+		fmt.Fprintf(w, "\tNo downloads will be served.\n")
+	case "PreviewDir":
+		fmt.Fprintf(w, "\tNo preview images will be shown.\n")
+	case "ThumbnailDir":
+		fmt.Fprintf(w, "\tNo thumbnails will be shown.\n")
+	case "LogDir":
+		fmt.Fprintf(w, "\tLogs will be printed to this terminal.\n")
+	default:
+		fmt.Fprintln(w)
+	}
 }
 
 func lead(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
 	help := field.Tag.Get("help")
-	fmt.Fprintf(w, "\t%s\t%s\t%v\t%s.\n", id, name, val, help)
+	fmt.Fprintf(w, "\t%s\t%s\t%v\t%s.\n", helper.SplitAsSpaces(id), name, val, help)
 }
 
 func path(w *tabwriter.Writer, id, name string, field reflect.StructField) {
@@ -161,7 +175,7 @@ func path(w *tabwriter.Writer, id, name string, field reflect.StructField) {
 	case "ThumbnailDir":
 		help = strings.Replace(help, "UUID named squared image", "UUID named squared image\n\t\t\t\t", 1)
 	}
-	fmt.Fprintf(w, "\t%s\t%s\t\t%s.\n", id, name, help)
+	fmt.Fprintf(w, "\t%s\t%s\t\t%s.\n", helper.SplitAsSpaces(id), name, help)
 }
 
 func isProd(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
@@ -198,9 +212,16 @@ func maxProcs(w *tabwriter.Writer, id, name string, val reflect.Value, field ref
 	if val.Kind() == reflect.Uint && val.Uint() == 0 {
 		fmt.Fprintf(w, "\n\t\t\t\t%s\n", "This application will use all available CPU cores.")
 	}
+}
+
+func googleHead(w *tabwriter.Writer, c Config) {
+	if !c.ProductionMode && c.ReadMode {
+		return
+	}
 	nl(w)
-	fmt.Fprintf(w, "\t \t \t\tThe following configurations can usually be left at their defaults\n")
-	fmt.Fprintf(w, "\t \t \t\t──────────────────────────────────────────────────────────────────")
+	fmt.Fprintf(w, "\t \t \t\t──────────────────────────────────────────────────────────────────────\n")
+	fmt.Fprintf(w, "\t \t \t\t  The following configurations can usually be left at their defaults\n")
+	fmt.Fprintf(w, "\t \t \t\t──────────────────────────────────────────────────────────────────────")
 }
 
 // configurations prints a list of active configurations options.
@@ -217,16 +238,47 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 		strings.Repeat(line, len(h2)),
 		strings.Repeat(line, len(h5)))
 
-	for j, field := range fields {
+	for _, field := range fields {
 		if !field.IsExported() {
 			continue
 		}
-		if j == donotuse {
-			nl(w)
+		switch field.Name {
+		case "GoogleAccounts", "LocalMode":
+			continue
+		default:
+		}
+		// mode for development and readonly which is set using the go build flags.
+		if c.LocalMode || (!c.ProductionMode && c.ReadMode) {
+			switch field.Name {
+			case
+				"GoogleClientID",
+				"GoogleIDs",
+				"SessionKey",
+				"SessionMaxAge":
+				continue
+			}
+		}
+		if c.LocalMode {
+			switch field.Name {
+			case
+				"ReadMode",
+				"ProductionMode",
+				"HTTPSPort",
+				"HTTPSRedirect",
+				"NoRobots",
+				"LogDir",
+				"MaxProcs":
+				continue
+			}
 		}
 		val := values.FieldByName(field.Name)
 		id := field.Name
 		name := EnvPrefix + field.Tag.Get("env")
+		if before, found := strings.CutSuffix(name, ",unset"); found {
+			fmt.Println(before, found, name)
+			name = before
+		}
+
 		switch id {
 		case "ProductionMode":
 			isProd(w, id, name, val, field)
@@ -237,20 +289,22 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 		case "DownloadDir":
 			nl(w)
 			path(w, id, name, field)
+			dir(w, id, c.PreviewDir)
 		case "PreviewDir":
 			nl(w)
 			path(w, id, name, field)
-			dir(w, c.PreviewDir)
+			dir(w, id, c.PreviewDir)
 		case "ThumbnailDir":
 			nl(w)
 			path(w, id, name, field)
-			dir(w, c.ThumbnailDir)
+			dir(w, id, c.ThumbnailDir)
 		case "LogDir":
 			nl(w)
 			path(w, id, name, field)
-			dir(w, c.LogDir)
+			dir(w, id, c.LogDir)
 		case "MaxProcs":
 			maxProcs(w, id, name, val, field)
+			googleHead(w, c)
 		default:
 			nl(w)
 			lead(w, id, name, val, field)

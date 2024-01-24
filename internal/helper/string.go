@@ -147,6 +147,23 @@ func ShortMonth(month int) string {
 	return ""
 }
 
+// SplitAsSpaces splits a string at each capital letter.
+func SplitAsSpaces(s string) string {
+	var result strings.Builder
+	for i, r := range s {
+		if unicode.IsUpper(r) && i != 0 {
+			result.WriteRune(' ')
+		}
+		result.WriteRune(r)
+	}
+	x := result.String()
+	x = strings.ReplaceAll(x, "Dir", "Directory")
+	x = strings.ReplaceAll(x, "H T T P", "HTTP")
+	x = strings.ReplaceAll(x, "P S ", "PS ")
+	x = strings.ReplaceAll(x, "I D", "ID")
+	return x
+}
+
 // TruncFilename reduces a filename to the length of w characters.
 // The file extension is always preserved with the truncation.
 func TruncFilename(w int, name string) string {

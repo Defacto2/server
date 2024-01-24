@@ -23,7 +23,7 @@ var (
 	ErrPortMax = fmt.Errorf("http port value must be between 1-%d", PortMax)
 	ErrPortSys = fmt.Errorf("http port values between 1-%d require system access", PortSys)
 
-	ErrDir     = fmt.Errorf("the named directory path is empty")
+	ErrDir     = fmt.Errorf("the directory path is not set")
 	ErrDir404  = fmt.Errorf("the directory path does not exist")
 	ErrDirIs   = fmt.Errorf("the directory path points to the file")
 	ErrDirRead = fmt.Errorf("the directory path could not be read")

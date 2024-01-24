@@ -25,9 +25,6 @@ const (
 	Title   = "Defacto2 web application" // Title of this program.
 	Author  = "Ben Garrett"              // Author is the primary programmer of this program.
 	Email   = "contact@defacto2.net"     // Email contact for public display.
-	desc    = `Launch the server and listen on the configured port (default: 1323).
-The server expects the Defacto2 PostgreSQL database running on the host system
-or in a container. But will run without a database connection for debugging.`
 )
 
 var ErrCmd = errors.New("cannot run command as config is nil")
@@ -58,6 +55,19 @@ func setup(ver string, c *config.Config) (int, error) {
 	return 0, nil
 }
 
+func desc(c *config.Config) string {
+	if c == nil {
+		return ""
+	}
+	return fmt.Sprintf(`Launch the web server and listen on the configured port %d.
+The server expects the Defacto2 PostgreSQL database to run on the host system
+or in a container. But will run without a database connection, limiting functionality.
+
+The server relies on system environment variables for configuration and has limited 
+defaults for poor usability. Without the downloads and image directories, the server 
+will not display any thumbnails or previews or serve the file downloads.`, c.HTTPPort)
+}
+
 // App returns the command line interface for this program.
 // It uses the [github.com/urfave.cli] package.
 func App(ver string, c *config.Config) *cli.App {
@@ -69,7 +79,7 @@ func App(ver string, c *config.Config) *cli.App {
 			"\ndf2-server [command]" +
 			"\ndf2-server [command] --help" +
 			"\ndf2-server [flag]",
-		Description: desc,
+		Description: desc(c),
 		Compiled:    versioninfo.LastCommit,
 		Copyright:   Copyright(),
 		HelpName:    Program,
@@ -121,8 +131,8 @@ func Address(c *config.Config) *cli.Command {
 // Version returns a formatted version string for this program.
 func Version(s string) string {
 	x := []string{Commit(s)}
-	x = append(x, fmt.Sprintf("%s for %s", OS(), Arch()))
-	return strings.Join(x, " on ")
+	x = append(x, fmt.Sprintf("%s on %s", OS(), Arch()))
+	return strings.Join(x, " for ")
 }
 
 // Arch returns the program's architecture.

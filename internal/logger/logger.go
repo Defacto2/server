@@ -59,7 +59,7 @@ const (
 
 // CLI logger prints all log levels to stdout but without callers.
 func CLI() *zap.Logger {
-	enc := console()
+	enc := consoleNoTime()
 	defaultLogLevel := zapcore.InfoLevel
 	core := zapcore.NewTee(
 		zapcore.NewCore(
@@ -129,6 +129,15 @@ func Production(root string) *zap.Logger {
 func console() zapcore.Encoder {
 	config := zap.NewDevelopmentEncoderConfig()
 	config.EncodeTime = zapcore.TimeEncoderOfLayout("15:04:05")
+	config.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	return zapcore.NewConsoleEncoder(config)
+}
+
+func consoleNoTime() zapcore.Encoder {
+	config := zap.NewDevelopmentEncoderConfig()
+	//config.EncodeTime = nil  // use nil to remove the leading console separator
+	config.EncodeTime = zapcore.TimeEncoderOfLayout("")
+	config.ConsoleSeparator = "  "
 	config.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	return zapcore.NewConsoleEncoder(config)
 }

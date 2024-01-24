@@ -6,8 +6,8 @@
 # The documentation is at https://goreleaser.com.
 # To test any modifications to this configuration:
 # goreleaser check
-# goreleaser release --rm-dist --snapshot
-# goreleaser build --rm-dist --snapshot
+# goreleaser release --clean --snapshot
+# goreleaser build --clean --snapshot
 project_name: df2-server
 before:
   hooks:

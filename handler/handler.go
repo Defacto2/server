@@ -252,25 +252,33 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	ctx, cancel := context.WithTimeout(context.Background(), ShutdownWait)
+	waitDuration := ShutdownWait
+	waitCount := ShutdownCounter
+	ticker := 1 * time.Second
+	if c.Import.LocalMode {
+		waitDuration = 0
+		waitCount = 0
+		ticker = 1 * time.Millisecond // this cannot be zero
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), waitDuration)
 	defer func() {
-		const alert = "Detected Ctrl-C, server will shutdown in "
+		const alert = "Detected Ctrl-C, server will shutdown"
 		_ = c.Logger.Sync() // do not check error as there's false positives
 		dst := os.Stdout
 		w := bufio.NewWriter(dst)
-		fmt.Fprintf(w, "\n%s%v", alert, ShutdownWait)
+		fmt.Fprintf(w, "\n%s in %v ", alert, waitDuration)
 		w.Flush()
-		count := ShutdownCounter
-		pause := time.NewTicker(1 * time.Second)
+		count := waitCount
+		pause := time.NewTicker(ticker)
 		for range pause.C {
 			count--
 			w := bufio.NewWriter(dst)
 			if count <= 0 {
-				fmt.Fprintf(w, "\r%s%s\n", alert, "now")
+				fmt.Fprintf(w, "\r%s %s\n", alert, "now     ")
 				w.Flush()
 				break
 			}
-			fmt.Fprintf(w, "\r%s%ds", alert, count)
+			fmt.Fprintf(w, "\r%s in %ds ", alert, count)
 			w.Flush()
 		}
 		select {

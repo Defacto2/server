@@ -272,10 +272,12 @@ func Index(z *zap.SugaredLogger, c echo.Context) error {
 	data["milestones"] = Collection()
 	{
 		// get the signed in given name
-		sess, _ := session.Get(SessionName, c)
-		if name, ok := sess.Values["givenName"]; ok {
-			if nameStr, ok := name.(string); ok && nameStr != "" {
-				data["h1"] = "Welcome, " + nameStr
+		sess, err := session.Get(SessionName, c)
+		if err == nil {
+			if name, ok := sess.Values["givenName"]; ok {
+				if nameStr, ok := name.(string); ok && nameStr != "" {
+					data["h1"] = "Welcome, " + nameStr
+				}
 			}
 		}
 	}
