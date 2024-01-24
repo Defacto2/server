@@ -1,6 +1,6 @@
 /**
  * This module handles the uploader functionality for the website.
- * It contains functions to validate user input and show/hide modals.
+ * It contains functions to validate client input and show/hide modals.
  * @module uploader
  * @requires bootstrap
  */

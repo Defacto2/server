@@ -235,7 +235,7 @@ func (dir Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) { 
 	}
 
 	// render both ISO8859 and CP437 encodings of the readme
-	// and let the user choose which one to display
+	// and let the client choose which one to display
 	r := charmap.ISO8859_1.NewDecoder().Reader(bytes.NewReader(b))
 	out := strings.Builder{}
 	if _, err := io.Copy(&out, r); err != nil {

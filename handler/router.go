@@ -234,7 +234,7 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 		return app.PostReleaser(z, x)
 	})
 
-	// Uploader for anonymous user uploads
+	// Uploader for anonymous client uploads
 	uploader := e.Group("/uploader")
 	uploader.Use(c.ReadOnlyLock)
 	uploader.GET("", func(x echo.Context) error {

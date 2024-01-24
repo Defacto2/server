@@ -54,7 +54,7 @@ type Download struct {
 	Path   string // Path is the absolute path to the download directory.
 }
 
-// HTTPSend serves files to the user and prompts for a save location.
+// HTTPSend serves files to the client and prompts for a save location.
 // The download relies on the URL ID parameter to determine the requested file.
 func (d Download) HTTPSend(z *zap.SugaredLogger, c echo.Context) error {
 	res, err := model.OneRecord(z, c, c.Param("id"))

@@ -20,9 +20,9 @@ import (
 )
 
 const (
-	Program = "df2-server"               // Program is the command line name of this program.
-	Domain  = "defacto2.net"             // Domain of the website.
 	Title   = "Defacto2 web application" // Title of this program.
+	Domain  = "defacto2.net"             // Domain of the website.
+	Program = "df2-server"               // Program is the command line name of this program.
 	Author  = "Ben Garrett"              // Author is the primary programmer of this program.
 	Email   = "contact@defacto2.net"     // Email contact for public display.
 )

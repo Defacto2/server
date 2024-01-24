@@ -51,7 +51,7 @@ func (c Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-// SessionLock middleware checks the session cookie for a valid signed in user.
+// SessionLock middleware checks the session cookie for a valid signed in client.
 func (c Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(e echo.Context) error {
 		// https://pkg.go.dev/github.com/gorilla/sessions#Session

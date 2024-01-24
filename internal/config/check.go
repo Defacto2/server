@@ -92,12 +92,12 @@ func (c Config) production(z *zap.SugaredLogger) {
 	if c.SessionKey != "" {
 		s := helper.Capitalize(ErrSessionKey.Error()) + "."
 		z.Warn(s)
-		z.Warn("This means that all signed in users will not be logged out on a server restart.")
+		z.Warn("This means that all signed in clients will not be logged out on a server restart.")
 	}
 	if c.SessionMaxAge > 0 {
-		z.Infof("A signed in user session lasts for %d hour(s).", c.SessionMaxAge)
+		z.Infof("A signed in client session lasts for %d hour(s).", c.SessionMaxAge)
 	} else {
-		z.Warn("A signed in user session lasts forever.")
+		z.Warn("A signed in client session lasts forever.")
 	}
 }
 
