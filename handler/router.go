@@ -59,12 +59,13 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 	e.FileFS("/bootstrap-icons.svg", "public/image/bootstrap-icons.svg", public)
 
 	// Serve embedded font files
-	e.FileFS("/font/pxplus_ibm_vga8.woff2", "public/font/pxplus_ibm_vga8.woff2", public)
-	e.FileFS("/font/pxplus_ibm_vga8.woff", "public/font/pxplus_ibm_vga8.woff", public)
-	e.FileFS("/font/pxplus_ibm_vga8.ttf", "public/font/pxplus_ibm_vga8.ttf", public)
-	e.FileFS("/font/topazplus_a1200.woff2", "public/font/topazplus_a1200.woff2", public)
-	e.FileFS("/font/topazplus_a1200.woff", "public/font/topazplus_a1200.woff", public)
-	e.FileFS("/font/topazplus_a1200.ttf", "public/font/topazplus_a1200.ttf", public)
+	font := e.Group("/font")
+	font.FileFS("/pxplus_ibm_vga8.woff2", "public/font/pxplus_ibm_vga8.woff2", public)
+	font.FileFS("/pxplus_ibm_vga8.woff", "public/font/pxplus_ibm_vga8.woff", public)
+	font.FileFS("/pxplus_ibm_vga8.ttf", "public/font/pxplus_ibm_vga8.ttf", public)
+	font.FileFS("/topazplus_a1200.woff2", "public/font/topazplus_a1200.woff2", public)
+	font.FileFS("/topazplus_a1200.woff", "public/font/topazplus_a1200.woff", public)
+	font.FileFS("/topazplus_a1200.ttf", "public/font/topazplus_a1200.ttf", public)
 
 	// Serve embedded JS files
 	e.FileFS(app.BootJS, app.BootJPub, public)
@@ -381,111 +382,111 @@ func (c Configuration) Moved(z *zap.SugaredLogger, e *echo.Echo) (*echo.Echo, er
 		return x.Redirect(code, "/") // there's no dedicated about page
 	})
 	// 2020 website redirects
-	old := e.Group("")
-	old.GET("/code", func(x echo.Context) error {
+	retired := e.Group("")
+	retired.GET("/code", func(x echo.Context) error {
 		return x.Redirect(code, "https://github.com/Defacto2/server")
 	})
-	old.GET("/commercial", func(x echo.Context) error {
+	retired.GET("/commercial", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	old.GET("/defacto", func(x echo.Context) error {
+	retired.GET("/defacto", func(x echo.Context) error {
 		return x.Redirect(code, "/history")
 	})
-	old.GET("/defacto2/donate", func(x echo.Context) error {
+	retired.GET("/defacto2/donate", func(x echo.Context) error {
 		return x.Redirect(code, "/thanks")
 	})
-	old.GET("/defacto2/history", func(x echo.Context) error {
+	retired.GET("/defacto2/history", func(x echo.Context) error {
 		return x.Redirect(code, "/history")
 	})
-	old.GET("/defacto2/subculture", func(x echo.Context) error {
+	retired.GET("/defacto2/subculture", func(x echo.Context) error {
 		return x.Redirect(code, "/thescene")
 	})
-	old.GET("/file/detail/:id", func(x echo.Context) error {
+	retired.GET("/file/detail/:id", func(x echo.Context) error {
 		return x.Redirect(code, "/f/"+x.Param("id"))
 	})
-	old.GET("/file/index", func(x echo.Context) error {
+	retired.GET("/file/index", func(x echo.Context) error {
 		return x.Redirect(code, "/file")
 	})
-	old.GET("/file/list/:uri", func(x echo.Context) error {
+	retired.GET("/file/list/:uri", func(x echo.Context) error {
 		return x.Redirect(code, "/files/new-uploads")
 	})
-	old.GET("/files/json/site.webmanifest", func(x echo.Context) error {
+	retired.GET("/files/json/site.webmanifest", func(x echo.Context) error {
 		return x.Redirect(code, "/site.webmanifest")
 	})
-	old.GET("/help/cc", func(x echo.Context) error {
+	retired.GET("/help/cc", func(x echo.Context) error {
 		return x.Redirect(code, "/") // there's no dedicated contact page
 	})
-	old.GET("/help/privacy", func(x echo.Context) error {
+	retired.GET("/help/privacy", func(x echo.Context) error {
 		return x.Redirect(code, "/") // there's no dedicated privacy page
 	})
-	old.GET("/help/viruses", func(x echo.Context) error {
+	retired.GET("/help/viruses", func(x echo.Context) error {
 		return x.Redirect(code, "/") // there's no dedicated virus page
 	})
-	old.GET("/home", func(x echo.Context) error {
+	retired.GET("/home", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	old.GET("/link/list", func(x echo.Context) error {
+	retired.GET("/link/list", func(x echo.Context) error {
 		return x.Redirect(code, "/website")
 	})
-	old.GET("/link/list/:id", func(x echo.Context) error {
+	retired.GET("/link/list/:id", func(x echo.Context) error {
 		return x.Redirect(code, "/website")
 	})
 	//nolint:misspell
-	old.GET("/organisation/list/bbs", func(x echo.Context) error {
+	retired.GET("/organisation/list/bbs", func(x echo.Context) error {
 		return x.Redirect(code, "/bbs")
 	})
 	//nolint:misspell
-	old.GET("/organisation/list/group", func(x echo.Context) error {
+	retired.GET("/organisation/list/group", func(x echo.Context) error {
 		return x.Redirect(code, "/releaser")
 	})
 	//nolint:misspell
-	old.GET("/organisation/list/ftp", func(x echo.Context) error {
+	retired.GET("/organisation/list/ftp", func(x echo.Context) error {
 		return x.Redirect(code, "/ftp")
 	})
 	//nolint:misspell
-	old.GET("/organisation/list/magazine", func(x echo.Context) error {
+	retired.GET("/organisation/list/magazine", func(x echo.Context) error {
 		return x.Redirect(code, "/magazine")
 	})
-	old.GET("/person/list", func(x echo.Context) error {
+	retired.GET("/person/list", func(x echo.Context) error {
 		return x.Redirect(code, "/scener")
 	})
-	old.GET("/person/list/artists", func(x echo.Context) error {
+	retired.GET("/person/list/artists", func(x echo.Context) error {
 		return x.Redirect(code, "/artist")
 	})
-	old.GET("/person/list/coders", func(x echo.Context) error {
+	retired.GET("/person/list/coders", func(x echo.Context) error {
 		return x.Redirect(code, "/coder")
 	})
-	old.GET("/person/list/musicians", func(x echo.Context) error {
+	retired.GET("/person/list/musicians", func(x echo.Context) error {
 		return x.Redirect(code, "/musician")
 	})
-	old.GET("/person/list/writers", func(x echo.Context) error {
+	retired.GET("/person/list/writers", func(x echo.Context) error {
 		return x.Redirect(code, "/writer")
 	})
-	old.GET("/upload", func(x echo.Context) error {
+	retired.GET("/upload", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	old.GET("/upload/file", func(x echo.Context) error {
+	retired.GET("/upload/file", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	old.GET("/upload/external", func(x echo.Context) error {
+	retired.GET("/upload/external", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	old.GET("/upload/intro", func(x echo.Context) error {
+	retired.GET("/upload/intro", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	old.GET("/upload/site", func(x echo.Context) error {
+	retired.GET("/upload/site", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	old.GET("/upload/document", func(x echo.Context) error {
+	retired.GET("/upload/document", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	old.GET("/upload/magazine", func(x echo.Context) error {
+	retired.GET("/upload/magazine", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	old.GET("/upload/art", func(x echo.Context) error {
+	retired.GET("/upload/art", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	old.GET("/upload/other", func(x echo.Context) error {
+	retired.GET("/upload/other", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
 	// wayback redirects
@@ -508,7 +509,7 @@ func (c Configuration) Moved(z *zap.SugaredLogger, e *echo.Echo) (*echo.Echo, er
 	wayback.GET("/web.pages/warez_world-1.htm", func(x echo.Context) error {
 		return x.Redirect(code, "/wayback/warez-world-from-2001-july-26/index.html")
 	})
-	// repaired releaser database entry redirects
+	// repaired, releaser database entry redirects
 	fixes := e.Group("/g")
 	fixes.GET("/acid", func(x echo.Context) error {
 		return x.Redirect(code, "/g/"+releaser.Obfuscate("ACID PRODUCTIONS"))
