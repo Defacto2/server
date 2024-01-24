@@ -172,3 +172,5 @@ tasks:
       - cmd: go install github.com/cosmtrek/air@latest
       - cmd: go install github.com/goreleaser/goreleaser@latest
       - cmd: go install github.com/evanw/esbuild/cmd/esbuild@latest
+      - cmd: go install github.com/volatiletech/sqlboiler/v4@latest
+      - cmd: go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql@latest
