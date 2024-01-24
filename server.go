@@ -42,8 +42,8 @@ var version string
 // It removes the option to set a number environment variables when running the server locally.
 // This is set using the -ldflags option when building the app.
 //
-// go build -ldflags="-X 'main.LocalMode=true'"
-var LocalMode string
+// Example, go build -ldflags="-X 'main.LocalMode=true'", this will set the LocalMode variable to true.
+var LocalMode string //nolint:gochecknoglobals
 
 var (
 	ErrCmd = errors.New("the command given did not work")
@@ -62,7 +62,7 @@ const (
 	cfid = "00000000-0000-0000-0000000000000000"  // coldfusion uuid example
 )
 
-func main() {
+func main() { //nolint:funlen
 	// Logger
 	// Use the development log until the environment vars are parsed
 	logs := logger.CLI().Sugar()
@@ -146,13 +146,14 @@ func main() {
 }
 
 func commandLine(logs *zap.SugaredLogger, configs config.Config) {
-	const exitProgram = 0
-	if code, err := cmd.Run(version, &configs); err != nil {
+	code, err := cmd.Run(version, &configs)
+	if err != nil {
 		logs.Errorf("%s: %s", ErrCmd, err)
-		os.Exit(code)
-	} else if code >= exitProgram {
-		os.Exit(code)
+		os.Exit(int(code))
+	} else if code >= cmd.ExitOK {
+		os.Exit(int(code))
 	}
+	// after the command-line arguments are parsed, continue with the web server
 }
 
 func initLogger(logs *zap.SugaredLogger, configs config.Config) *zap.SugaredLogger {

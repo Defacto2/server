@@ -29,20 +29,32 @@ const (
 
 var ErrCmd = errors.New("cannot run command as config is nil")
 
+type ExitCode int // ExitCode is the exit code for this program.
+
+const (
+	NoExit       ExitCode = iota - 1 // NoExit is a special case to indicate the program should not exit.
+	ExitOK                           // ExitOK is the exit code for a successful run.
+	GenericError                     // GenericError is the exit code for a generic error.
+	UsageError                       // UsageError is the exit code for an incorrect command line argument or usage.
+)
+
 // Run parses optional command line arguments for this program.
-func Run(ver string, c *config.Config) (int, error) {
+func Run(ver string, c *config.Config) (ExitCode, error) {
+	// return an error if the config is nil
 	if c == nil {
-		return -1, ErrCmd
+		return UsageError, ErrCmd
 	}
+	// if there are command-line arguments, parse them
 	if args := len(os.Args[1:]); args > 0 {
 		return setup(ver, c)
 	}
-	return -1, nil
+	// otherwise run the web server
+	return NoExit, nil
 }
 
-func setup(ver string, c *config.Config) (int, error) {
+func setup(ver string, c *config.Config) (ExitCode, error) {
 	if c == nil {
-		return -1, ErrCmd
+		return UsageError, ErrCmd
 	}
 	app := App(ver, c)
 	app.EnableBashCompletion = true
@@ -50,9 +62,9 @@ func setup(ver string, c *config.Config) (int, error) {
 	app.HideVersion = false
 	app.Suggest = true
 	if err := app.Run(os.Args); err != nil {
-		return 1, err
+		return GenericError, err
 	}
-	return 0, nil
+	return ExitOK, nil
 }
 
 func desc(c *config.Config) string {

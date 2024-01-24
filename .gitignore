@@ -1,15 +1,11 @@
-# log files
-*.log
-# server binary
+# binaries
 df2-server
 server
-# windows binaries
 *.exe
-# temp directory
-tmp/
-# goreleaser generated directory
+# temp directories
 dist/
-# docker
+tmp/
+# taskfile and docker compose
 .env.local
 # macOS
 *.DS_Store
