@@ -40,6 +40,7 @@ func File(z *zap.SugaredLogger, c echo.Context, stats bool) error {
 	return nil
 }
 
+// fileWStats is a helper function for File that adds the statistics to the data map.
 func fileWStats(data map[string]interface{}, stats bool) (map[string]interface{}, error) {
 	if !stats {
 		return data, nil
@@ -57,6 +58,7 @@ func fileWStats(data map[string]interface{}, stats bool) (map[string]interface{}
 	return data, nil
 }
 
+// counter returns the statistics for the file categories.
 func counter() (Stats, error) {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()

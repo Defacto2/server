@@ -120,7 +120,7 @@ func Magazine(z *zap.SugaredLogger, c echo.Context) error {
 	return mag(z, c, true)
 }
 
-// Magazine is the handler for the Magazine page ordered chronologically.
+// MagazineAZ is the handler for the Magazine page ordered chronologically.
 func MagazineAZ(z *zap.SugaredLogger, c echo.Context) error {
 	return mag(z, c, false)
 }

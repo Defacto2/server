@@ -165,6 +165,7 @@ func (dir Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error
 	return nil
 }
 
+// aboutReadme returns the readme data for the file record.
 func (dir Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) { //nolint:funlen
 	data := map[string]interface{}{}
 	if res.RetrotxtNoReadme.Int16 != 0 {
@@ -261,6 +262,7 @@ func (dir Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) { 
 	return data, nil
 }
 
+// aboutDesc returns the description for the file record.
 func aboutDesc(res *models.File) string {
 	s := res.Filename.String
 	if res.RecordTitle.String != "" {
@@ -285,6 +287,8 @@ func aboutDesc(res *models.File) string {
 	return s
 }
 
+// aboutIssue returns the title of the file,
+// unless the file is a magazine issue, in which case it returns the issue number.
 func aboutIssue(res *models.File) string {
 	sect := strings.TrimSpace(strings.ToLower(res.Section.String))
 	if sect != "magazine" {
@@ -297,6 +301,7 @@ func aboutIssue(res *models.File) string {
 	return s
 }
 
+// aboutLead returns the lead for the file record which is the filename and releasers.
 func aboutLead(res *models.File) string {
 	fname := res.Filename.String
 	span := fmt.Sprintf("<span class=\"font-monospace fs-6 fw-light\">%s</span> ", fname)
@@ -304,6 +309,7 @@ func aboutLead(res *models.File) string {
 	return fmt.Sprintf("%s<br>%s", rels, span)
 }
 
+// aboutLM returns the last modified date for the file record.
 func aboutLM(res *models.File) string {
 	const none = "no timestamp"
 	if !res.FileLastModified.Valid {
@@ -322,6 +328,7 @@ func aboutLM(res *models.File) string {
 	return lm
 }
 
+// aboutMagic returns the MIME type for the file record.
 func aboutMagic(name string) string {
 	file, err := os.Open(name)
 	if err != nil {
@@ -354,6 +361,7 @@ func aboutMagic(name string) string {
 	return http.DetectContentType(head)
 }
 
+// aboutModAgo returns the last modified date in a human readable format.
 func aboutModAgo(res *models.File) string {
 	if !res.FileLastModified.Valid {
 		return ""
@@ -367,6 +375,7 @@ func aboutModAgo(res *models.File) string {
 	return Updated(res.FileLastModified.Time, "Modified")
 }
 
+// aboutCtt returns the file archive content for the file record.
 func aboutCtt(res *models.File) []string {
 	conts := strings.Split(res.FileZipContent.String, "\n")
 	conts = slices.DeleteFunc(conts, func(s string) bool {
@@ -376,6 +385,7 @@ func aboutCtt(res *models.File) []string {
 	return conts
 }
 
+// aboutLinks returns the list of links for the file record.
 func aboutLinks(res *models.File) template.HTML {
 	s := res.ListLinks.String
 	if s == "" {
@@ -399,6 +409,7 @@ func aboutLinks(res *models.File) template.HTML {
 	return template.HTML(rows) //nolint:gosec
 }
 
+// aboutJSDos returns true if the file record is a known, MS-DOS executable.
 func aboutJSDos(res *models.File) bool {
 	if strings.TrimSpace(strings.ToLower(res.Platform.String)) != "dos" {
 		return false
@@ -415,6 +426,7 @@ func aboutJSDos(res *models.File) bool {
 	}
 }
 
+// aboutID returns the record ID as a string.
 func aboutID(id int64) string {
 	if id == 0 {
 		return ""
@@ -498,6 +510,7 @@ func (dir Dirs) aboutAssets(uuid string) map[string]string {
 	return matches
 }
 
+// aboutImgInfo returns the image file size and dimensions.
 func aboutImgInfo(name string) string {
 	switch filepath.Ext(strings.ToLower(name)) {
 	case ".jpg", ".jpeg", ".gif", ".png", ".webp":
@@ -542,6 +555,7 @@ func readmeSuggest(r *models.File) string {
 	return ReadmeSug(filename, group, content...)
 }
 
+// readmeFinds returns a list of readme text files found in the file archive.
 func readmeFinds(content ...string) []string {
 	finds := []string{}
 	skip := []string{"scene.org", "scene.org.txt"}

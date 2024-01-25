@@ -42,10 +42,12 @@ var (
 	ErrLinkType = fmt.Errorf("the id value is an invalid type")
 )
 
+// archives returns a list of archive file extensions supported by this web application.
 func archives() []string {
 	return []string{".zip", ".rar", ".7z", ".tar", ".lha", ".lzh", ".arc", ".arj", ".ace", ".tar"}
 }
 
+// documents returns a list of document file extensions that can be read as text in the browser.
 func documents() []string {
 	return []string{
 		".txt", ".nfo", ".diz", ".asc", ".lit", ".rtf", ".doc", ".docx",
@@ -53,13 +55,15 @@ func documents() []string {
 	}
 }
 
+// images returns a list of image file extensions that can be displayed in the browser.
 func images() []string {
 	return []string{".avif", gif, jpg, jpeg, ".jfif", png, ".svg", webp, ".bmp", ".ico"}
 }
 
+// media returns a list of [media file extensions] that can be played in the browser.
+//
+// [media file extensions]: https://developer.mozilla.org/en-US/docs/Web/Media/Formats
 func media() []string {
-	// only browser supported formats should be listed:
-	// https://developer.mozilla.org/en-US/docs/Web/Media/Formats
 	return []string{".mpeg", ".mp1", ".mp2", ".mp3", ".mp4", ".ogg", ".wmv"}
 }
 
@@ -71,12 +75,12 @@ func SafeHTML(s string) template.HTML {
 
 // Screenshot returns a picture elment with screenshots for the given uuid.
 func (web Web) Screenshot(uuid, desc string) template.HTML {
-	fw := filepath.Join(web.Import.PreviewDir, fmt.Sprintf("%s.webp", uuid))
-	fp := filepath.Join(web.Import.PreviewDir, fmt.Sprintf("%s.png", uuid))
-	fj := filepath.Join(web.Import.PreviewDir, fmt.Sprintf("%s.jpg", uuid))
-	webp := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s.webp", uuid)}, "/")
-	png := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s.png", uuid)}, "/")
-	jpg := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s.jpg", uuid)}, "/")
+	fw := filepath.Join(web.Import.PreviewDir, fmt.Sprintf("%s%s", uuid, webp))
+	fp := filepath.Join(web.Import.PreviewDir, fmt.Sprintf("%s%s", uuid, png))
+	fj := filepath.Join(web.Import.PreviewDir, fmt.Sprintf("%s%s", uuid, jpg))
+	webp := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s%s", uuid, webp)}, "/")
+	png := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s%s", uuid, png)}, "/")
+	jpg := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s%s", uuid, jpg)}, "/")
 	alt := strings.ToLower(desc) + " screenshot"
 	w, p, j := false, false, false
 	if helper.IsStat(fw) {
@@ -155,6 +159,7 @@ func (web Web) Thumb(uuid, desc string, bottom bool) template.HTML {
 	return template.HTML(elm)
 }
 
+// ImageSample returns a HTML image tag for the given uuid.
 func (web Web) ImageSample(uuid string) template.HTML {
 	const (
 		png  = png
@@ -177,6 +182,7 @@ func (web Web) ImageSample(uuid string) template.HTML {
 		src, hash, ext, hash))
 }
 
+// ThumbSample returns a HTML image tag for the given uuid.
 func (web Web) ThumbSample(uuid string) template.HTML {
 	const (
 		png  = png
@@ -199,6 +205,7 @@ func (web Web) ThumbSample(uuid string) template.HTML {
 		src, hash, ext, hash))
 }
 
+// img returns a HTML image tag.
 func img(src, alt, class, style string) template.HTML {
 	return template.HTML(fmt.Sprintf("<img src=\"%s\" loading=\"lazy\" alt=\"%s\" class=\"%s\" style=\"%s\" />",
 		src, alt, class, style))
@@ -489,6 +496,7 @@ func LinkRelrs(performant bool, a, b any) template.HTML {
 	return template.HTML(s)
 }
 
+// relHTML returns a HTML links for the primary and secondary group names.
 func relHTML(prime, second string) string {
 	switch {
 	case prime != "" && second != "":
@@ -807,6 +815,7 @@ func RecordRels(a, b any) template.HTML {
 	return template.HTML(s)
 }
 
+// TagSel returns a HTML option tag with the selected attribute if the check value matches the option value.
 func TagSel(check, option any) template.HTML {
 	x, s := "", ""
 	switch val := check.(type) {
@@ -833,13 +842,15 @@ func TagSel(check, option any) template.HTML {
 	return template.HTML(fmt.Sprintf("<option value=\"%s\">", s))
 }
 
-func TagInfoX(tag string) template.HTML {
+// TagBrief returns a small summary of the tag.
+func TagBrief(tag string) template.HTML {
 	t := tags.TagByURI(tag)
 	s := tags.Infos()[t]
 	return template.HTML(s)
 }
 
-func InfoOSTag(os, tag string) template.HTML {
+// TagWithOS returns a small summary of the tag with the operating system.
+func TagWithOS(os, tag string) template.HTML {
 	p, t := tags.TagByURI(os), tags.TagByURI(tag)
 	s := tags.Humanize(p, t)
 	return template.HTML(s)

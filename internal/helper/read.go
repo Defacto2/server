@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+// Lines returns the number of lines in the named file.
 func Lines(name string) (int, error) {
 	file, err := os.Open(name)
 	if err != nil {

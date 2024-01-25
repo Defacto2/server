@@ -67,6 +67,7 @@ func setup(ver string, c *config.Config) (ExitCode, error) {
 	return ExitOK, nil
 }
 
+// desc returns the description for this program.
 func desc(c *config.Config) string {
 	if c == nil {
 		return ""

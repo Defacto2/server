@@ -36,6 +36,7 @@ var (
 		"encryption key set instead of using a randomized key")
 )
 
+// httpPort returns an error if the HTTP port is invalid.
 func (c Config) httpPort(z *zap.SugaredLogger) {
 	if c.HTTPPort == 0 {
 		return
@@ -52,6 +53,7 @@ func (c Config) httpPort(z *zap.SugaredLogger) {
 	}
 }
 
+// httpsPort returns an error if the HTTPS port is invalid.
 func (c Config) httpsPort(z *zap.SugaredLogger) {
 	if c.HTTPSPort == 0 {
 		return

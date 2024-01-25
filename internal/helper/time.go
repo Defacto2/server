@@ -54,6 +54,7 @@ func TimeDistance(from, to time.Time, seconds bool) string {
 	}
 }
 
+// lessMin returns a string describing the time difference in seconds or minutes.
 func lessMin(secs int) string {
 	const minute = 60
 	switch {
@@ -64,6 +65,7 @@ func lessMin(secs int) string {
 	}
 }
 
+// lessMinAsSec returns a string describing the time difference in seconds.
 func lessMinAsSec(secs int) string {
 	const five, ten, twenty, forty = 5, 10, 20, 40
 	switch {
@@ -80,6 +82,7 @@ func lessMinAsSec(secs int) string {
 	}
 }
 
+// lessHours returns a string describing the time difference in hours.
 func lessHours(mins, hrs int) string {
 	const parthour, abouthour, hours = 45, 90, 1440
 
@@ -95,6 +98,7 @@ func lessHours(mins, hrs int) string {
 	}
 }
 
+// lessDays returns a string describing the time difference in days.
 func lessDays(mins, hrs int) string {
 	const day, days = 2880, 43200
 	switch {
@@ -109,6 +113,7 @@ func lessDays(mins, hrs int) string {
 	}
 }
 
+// lessMonths returns a string describing the time difference in months.
 func lessMonths(mins, hrs int) string {
 	const month, months = 86400, 525600
 	switch {

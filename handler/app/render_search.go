@@ -137,6 +137,7 @@ func PostName(z *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
 	return nil
 }
 
+// postStats is a helper function for PostName that returns the statistics for the files page.
 func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string) map[string]string {
 	if db == nil {
 		return nil

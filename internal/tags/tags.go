@@ -635,7 +635,7 @@ func OSTags() [5]string {
 	}
 }
 
-// count the number of files with the tag.
+// counter counts the number of files with the tag.
 func counter(z *zap.SugaredLogger, t Tag) int64 {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()

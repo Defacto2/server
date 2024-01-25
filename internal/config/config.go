@@ -140,10 +140,12 @@ func (c Config) addresses(b *strings.Builder, intro bool) {
 	}
 }
 
+// nl prints a new line to the tabwriter.
 func nl(w *tabwriter.Writer) {
 	fmt.Fprintf(w, "\t\t\t\t\n")
 }
 
+// dir prints the directory path to the tabwriter or a warning if the path is empty.
 func dir(w *tabwriter.Writer, id, s string) {
 	if s != "" {
 		fmt.Fprintf(w, "\t\t\tPATH →\t%s\n", s)
@@ -164,11 +166,13 @@ func dir(w *tabwriter.Writer, id, s string) {
 	}
 }
 
+// lead prints the id, name, value and help text to the tabwriter.
 func lead(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
 	help := field.Tag.Get("help")
 	fmt.Fprintf(w, "\t%s\t%s\t%v\t%s.\n", helper.SplitAsSpaces(id), name, val, help)
 }
 
+// path prints the file and image paths to the tabwriter.
 func path(w *tabwriter.Writer, id, name string, field reflect.StructField) {
 	help := field.Tag.Get("help")
 	switch id {
@@ -182,6 +186,7 @@ func path(w *tabwriter.Writer, id, name string, field reflect.StructField) {
 	fmt.Fprintf(w, "\t%s\t%s\t\t%s.\n", helper.SplitAsSpaces(id), name, help)
 }
 
+// isProd prints a warning if the production mode is disabled.
 func isProd(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
 	lead(w, id, name, val, field)
 	if val.Kind() == reflect.Bool && !val.Bool() {
@@ -190,6 +195,7 @@ func isProd(w *tabwriter.Writer, id, name string, val reflect.Value, field refle
 	}
 }
 
+// httpPort prints the HTTP port number to the tabwriter.
 func httpPort(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
 	nl(w)
 	lead(w, id, name, val, field)
@@ -200,6 +206,7 @@ func httpPort(w *tabwriter.Writer, id, name string, val reflect.Value, field ref
 	}
 }
 
+// httpsPort prints the HTTPS port number to the tabwriter.
 func httpsPort(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
 	nl(w)
 	lead(w, id, name, val, field)
@@ -210,6 +217,7 @@ func httpsPort(w *tabwriter.Writer, id, name string, val reflect.Value, field re
 	}
 }
 
+// maxProcs prints the number of CPU cores to the tabwriter.
 func maxProcs(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
 	nl(w)
 	fmt.Fprintf(w, "\t%s\t%s\t%v\t%s.", id, name, 0, field.Tag.Get("help"))
@@ -218,6 +226,7 @@ func maxProcs(w *tabwriter.Writer, id, name string, val reflect.Value, field ref
 	}
 }
 
+// googleHead prints a header for the Google OAuth2 configurations.
 func googleHead(w *tabwriter.Writer, c Config) {
 	if !c.ProductionMode && c.ReadMode {
 		return
@@ -272,6 +281,7 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 	return b
 }
 
+// fmtField prints the id, name, value and help text to the tabwriter.
 func (c Config) fmtField(w *tabwriter.Writer,
 	id, name string,
 	val reflect.Value, field reflect.StructField,
@@ -308,6 +318,7 @@ func (c Config) fmtField(w *tabwriter.Writer,
 	}
 }
 
+// localSkip skips the configurations that are inaccessable in local mode.
 func localSkip(name string) bool {
 	switch name {
 	case
@@ -323,6 +334,8 @@ func localSkip(name string) bool {
 	return false
 }
 
+// accountSkip skips the configurations that are not used when using Google OAuth2
+// is not enabled or when the server is in read-only mode.
 func accountSkip(name string) bool {
 	switch name {
 	case
@@ -335,10 +348,12 @@ func accountSkip(name string) bool {
 	return false
 }
 
+// StaticThumb returns the path to the thumbnail directory.
 func StaticThumb() string {
 	return "/public/image/thumb"
 }
 
+// StaticOriginal returns the path to the image directory.
 func StaticOriginal() string {
 	return "/public/image/original"
 }

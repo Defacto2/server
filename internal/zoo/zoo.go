@@ -53,6 +53,7 @@ var (
 	ErrStatus  = errors.New("demozoo production status is not ok")
 )
 
+// Get returns the production data from the Demozoo API.
 func (d *Demozoo) Get(id int) error {
 	if id < 1 {
 		return fmt.Errorf("%w: %d", ErrID, id)
@@ -99,6 +100,7 @@ type GroupID uint
 // Groups is a map of releasers URIs mapped to their Demozoo IDs.
 type Groups map[URI]GroupID
 
+// groups returns a map of releasers URIs mapped to their Demozoo IDs.
 func groups() Groups {
 	return Groups{
 		"acid-productions":                  7647,

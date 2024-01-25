@@ -154,6 +154,7 @@ func TitleEdit(z *zap.SugaredLogger, c echo.Context) error {
 	return c.JSON(http.StatusOK, r)
 }
 
+// YMDEdit handles the post submission for the Year, Month, Day selection fields.
 func YMDEdit(z *zap.SugaredLogger, c echo.Context) error {
 	const name = "editor ymd"
 	if z == nil {
@@ -177,6 +178,7 @@ func YMDEdit(z *zap.SugaredLogger, c echo.Context) error {
 	return c.JSON(http.StatusOK, r)
 }
 
+// ValidY returns a valid year or a null value.
 func ValidY(y int16) null.Int16 {
 	if y < 1980 || y > int16(time.Now().Year()) {
 		return null.Int16{Int16: 0, Valid: false}
@@ -184,6 +186,7 @@ func ValidY(y int16) null.Int16 {
 	return null.Int16{Int16: y, Valid: true}
 }
 
+// ValidM returns a valid month or a null value.
 func ValidM(m int16) null.Int16 {
 	if m < 1 || m > 12 {
 		return null.Int16{Int16: 0, Valid: false}
@@ -191,6 +194,7 @@ func ValidM(m int16) null.Int16 {
 	return null.Int16{Int16: m, Valid: true}
 }
 
+// ValidD returns a valid day or a null value.
 func ValidD(d int16) null.Int16 {
 	if d < 1 || d > 31 {
 		return null.Int16{Int16: 0, Valid: false}
@@ -346,6 +350,7 @@ const (
 	ansis                // extract ansilove compatible text
 )
 
+// extractor is a helper function for the PreviewPost and AnsiLovePost handlers.
 func (dir Dirs) extractor(z *zap.SugaredLogger, c echo.Context, p extract) error {
 	if z == nil {
 		return InternalErr(z, c, "extractor", ErrZap)

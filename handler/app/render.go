@@ -62,6 +62,7 @@ func empty(c echo.Context) map[string]interface{} {
 	}
 }
 
+// editor returns true if the user is signed in and is an editor.
 func editor(c echo.Context) bool {
 	sess, err := session.Get(SessionName, c)
 	if err != nil {
@@ -410,6 +411,7 @@ func Signin(z *zap.SugaredLogger, c echo.Context, clientID string) error {
 	return nil
 }
 
+// remove is a helper function to remove the session cookie by setting the MaxAge to -1.
 func remove(z *zap.SugaredLogger, c echo.Context, name string, data map[string]interface{}) error {
 	sess, err := session.Get(SessionName, c)
 	if err != nil {
@@ -424,6 +426,7 @@ func remove(z *zap.SugaredLogger, c echo.Context, name string, data map[string]i
 	return nil
 }
 
+// SignOut is the handler for the Sign out of Defacto2 page.
 func SignOut(z *zap.SugaredLogger, c echo.Context) error {
 	const name = "signout"
 	if z == nil {

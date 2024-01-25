@@ -1,5 +1,7 @@
 package app
 
+// Package file render_model.go contains the database queries for the renders.
+
 import (
 	"context"
 	"database/sql"
@@ -12,8 +14,6 @@ import (
 )
 
 var ErrCategory = errors.New("unknown file category")
-
-// Package file render_model.go contains the database queries for the renders.
 
 // Records returns the records for the file category URI.
 func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
@@ -196,7 +196,7 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 	}
 }
 
-// Records returns the records for the file category URI.
+// RecordsSub returns the records for the file category URI.
 func RecordsSub(uri string) string {
 	const ignore = -1
 	switch Match(uri) {

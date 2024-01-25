@@ -1,23 +1,29 @@
 package app
 
+// Groups is a collection of group interviews.
 type Groups []Group
 
+// Group is a collection of interviews with members of a group.
 type Group struct {
-	Name       string
-	Link       string
-	Interviews Interviews
+	Name       string     // Name is the name of the group.
+	Link       string     // Link is a local URL to the group.
+	Interviews Interviews // Interviews is a list of interviews with members of the group.
 }
 
+// Interviewee is a person who was interviewed with a link to the interview.
 type Interviewee struct {
-	Scener  string
-	Year    int
-	Month   int
-	Content string
-	Link    string
+	Scener  string // Scener is the name of the person interviewed.
+	Year    int    // Year is the year the interview was conducted.
+	Month   int    // Month is the month the interview was conducted.
+	Content string // Content is a short description of the interview.
+	Link    string // Link is the URL to the interview.
 }
 
+// Interviews is a collection of Interviewee.
 type Interviews []Interviewee
 
+// Interviewees returns a list of interviewees and their interviews.
+// These are categorised by the group they were in at the time of the interview.
 func Interviewees() Groups {
 	i := Groups{
 		{

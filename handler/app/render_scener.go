@@ -67,6 +67,7 @@ func Writer(z *zap.SugaredLogger, c echo.Context) error {
 	return scener(z, c, postgres.Writer, data)
 }
 
+// scener is the handler for the scener pages.
 func scener(z *zap.SugaredLogger, c echo.Context, r postgres.Role,
 	data map[string]interface{},
 ) error {

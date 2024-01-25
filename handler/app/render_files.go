@@ -52,6 +52,7 @@ func Files(z *zap.SugaredLogger, c echo.Context, uri, page string) error {
 	return files(z, c, uri, p)
 }
 
+// fileInfo is a helper function for Files that returns the page title, h1 title and lead text.
 func fileInfo(uri string) (string, string, string) {
 	var logo, h1sub, lead string
 	switch uri {
@@ -79,6 +80,7 @@ func fileInfo(uri string) (string, string, string) {
 	return logo, h1sub, lead
 }
 
+// files is a helper function for Files that returns the data map for the files page.
 func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 	const title, name = "Files", "files"
 	logo, h1sub, lead := fileInfo(uri)
@@ -135,6 +137,7 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 	return nil
 }
 
+// stats is a helper function for Files that returns the statistics for the files page.
 func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int, error) {
 	if db == nil {
 		return nil, 0, ErrDB
@@ -207,6 +210,7 @@ func Sceners(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	return nil
 }
 
+// scenerSum is a helper function for Sceners that returns the statistics for the files page.
 func scenerSum(ctx context.Context, db *sql.DB, uri string) (map[string]string, error) {
 	if db == nil {
 		return nil, ErrDB
@@ -278,6 +282,7 @@ func Releasers(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	return nil
 }
 
+// releaserSum is a helper function for Releasers that returns the statistics for the files page.
 func releaserSum(ctx context.Context, db *sql.DB, uri string) (map[string]string, error) {
 	if db == nil {
 		return nil, ErrDB

@@ -14,11 +14,11 @@ import (
 )
 
 const (
-	ServerLog  = "server.log" // Filename of the Error, Panic and Fatal level log.
-	InfoLog    = "info.log"   // Filename of the Warn and Info level log.
-	MaxSizeMB  = 100          // Maximum file size in megabytes before a log rotation.
-	MaxBackups = 5            // Maximum number of rotated logs to keep, older logs are deleted.
-	MaxDays    = 45           // Maximum days a log is kept before a log rotation.
+	ServerLog  = "server.log" // ServerLog is the filename of the Error, Panic and Fatal level log.
+	InfoLog    = "info.log"   // InfoLog is the filename of the Warn and Info level log.
+	MaxSizeMB  = 100          // MaxSizeMB is the maximum file size in megabytes before a log rotation is triggered.
+	MaxBackups = 5            // MaxBackups is the maximum number of rotated logs to keep, older logs are deleted.
+	MaxDays    = 45           // MaxDays is the maximum days a log is kept before a log rotation.
 )
 
 /*
@@ -126,6 +126,7 @@ func Production(root string) *zap.Logger {
 	return zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
 }
 
+// console returns a logger in color and time.
 func console() zapcore.Encoder {
 	config := zap.NewDevelopmentEncoderConfig()
 	config.EncodeTime = zapcore.TimeEncoderOfLayout("15:04:05")
@@ -133,6 +134,7 @@ func console() zapcore.Encoder {
 	return zapcore.NewConsoleEncoder(config)
 }
 
+// consoleNoTime returns a logger in color but without the time.
 func consoleNoTime() zapcore.Encoder {
 	config := zap.NewDevelopmentEncoderConfig()
 	// config.EncodeTime = nil  // use nil to remove the leading console separator

@@ -270,6 +270,8 @@ func InternalErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) er
 	return nil
 }
 
+// BadRequestErr is the handler for handling Bad Request Errors, caused by invalid user input
+// or a malformed client requests.
 func BadRequestErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) error {
 	const code = http.StatusBadRequest
 	if z == nil {
@@ -305,6 +307,8 @@ func BadRequestErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) 
 	return nil
 }
 
+// ForbiddenErr is the handler for handling Forbidden Errors, caused by clients requesting
+// pages that they do not have permission to access.
 func ForbiddenErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) error {
 	const code = http.StatusForbidden
 	if z == nil {

@@ -165,6 +165,7 @@ func (c Configuration) downloader(ctx echo.Context) error {
 	return d.HTTPSend(c.Logger, ctx)
 }
 
+// version returns the application version string.
 func (c Configuration) version() string {
 	if c.Version == "" {
 		return "  no version info, app compiled binary directly."
@@ -172,6 +173,7 @@ func (c Configuration) version() string {
 	return fmt.Sprintf("  %s.", cmd.Commit(c.Version))
 }
 
+// Info prints the application information to the console.
 func (c Configuration) Info() {
 	w := bufio.NewWriter(os.Stdout)
 	// Startup logo
