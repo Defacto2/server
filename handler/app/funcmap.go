@@ -22,6 +22,7 @@ const (
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func (web Web) TemplateFuncMap() template.FuncMap {
+	hrefs := Hrefs()
 	return template.FuncMap{
 		"add":            helper.Add1,
 		"attribute":      Attribute,
@@ -103,10 +104,10 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 			return web.Subresource.UploaderJS
 		},
 		"cssBoot": func() string {
-			return BootCSS
+			return hrefs[Bootstrap]
 		},
 		"cssLayout": func() string {
-			return LayoutCSS
+			return hrefs[Layout]
 		},
 		"exampleYear": func() string {
 			return time.Now().Format("2006")
@@ -118,55 +119,55 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 			return time.Now().Format("2")
 		},
 		"jsBoot": func() string {
-			return BootJS
+			return hrefs[BootstrapJS]
 		},
 		"jsDos": func() string {
-			return JSDos
+			return hrefs[JSDosUI]
 		},
 		"jsWDos": func() string {
-			return JSWDos
+			return hrefs[JSDosW]
 		},
 		"jsFA": func() string {
-			return FAJS
+			return hrefs[FontAwesome]
 		},
 		"jsPouet": func() string {
-			return PouetJS
+			return hrefs[Pouet]
 		},
 		"jsReadme": func() string {
-			return ReadmeJS
+			return hrefs[Readme]
 		},
 		"version": func() string {
 			return web.Version
 		},
 		"uploader": func() string {
-			return UploaderJS
+			return hrefs[Uploader]
 		},
 		"editorForm": func() string {
-			return EditorJS
+			return hrefs[Editor]
 		},
 		"sriEditorForm": func() string {
 			return web.Subresource.EditorJS
 		},
 		"editorAssetsForm": func() string {
-			return EditorAssetsJS
+			return hrefs[EditAssets]
 		},
 		"sriEditorAssetsForm": func() string {
 			return web.Subresource.EditorAssetsJS
 		},
 		"editorArchiveForm": func() string {
-			return EditorArchiveJS
+			return hrefs[EditArchive]
 		},
 		"sriEditorArchiveForm": func() string {
 			return web.Subresource.EditorArchiveJS
 		},
 		"restPouet": func() string {
-			return RestPouetJS
+			return hrefs[RESTPouet]
 		},
 		"sriRestPouet": func() string {
 			return web.Subresource.RestPouetJS
 		},
 		"restZoo": func() string {
-			return RestZooJS
+			return hrefs[RESTZoo]
 		},
 		"sriRestZoo": func() string {
 			return web.Subresource.RestZooJS

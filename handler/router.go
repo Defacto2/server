@@ -50,10 +50,15 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 		Thumbnail: c.Import.ThumbnailDir,
 	}
 
-	// Serve embedded CSS files
-	e.FileFS(app.BootCSS, app.BootCPub, public)
-	e.FileFS(app.BootCSS+".map", app.BootCPub+".map", public)
-	e.FileFS(app.LayoutCSS, app.LayoutPub, public)
+	// Serve embedded CSS, JS and WASM files
+	hrefs, names := app.Hrefs(), app.Names()
+	for key, href := range hrefs {
+		e.FileFS(href, names[key], public)
+	}
+	// Serve embedded CSS and JS map files
+	e.FileFS(hrefs[app.Bootstrap]+".map", names[app.Bootstrap]+".map", public)
+	e.FileFS(hrefs[app.BootstrapJS]+".map", names[app.BootstrapJS]+".map", public)
+	e.FileFS(hrefs[app.JSDosUI]+".map", names[app.JSDosUI]+".map", public)
 
 	// Serve embedded SVG collections
 	e.FileFS("/bootstrap-icons.svg", "public/image/bootstrap-icons.svg", public)
@@ -66,25 +71,6 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 	font.FileFS("/topazplus_a1200.woff2", "public/font/topazplus_a1200.woff2", public)
 	font.FileFS("/topazplus_a1200.woff", "public/font/topazplus_a1200.woff", public)
 	font.FileFS("/topazplus_a1200.ttf", "public/font/topazplus_a1200.ttf", public)
-
-	// Serve embedded JS files
-	e.FileFS(app.BootJS, app.BootJPub, public)
-	e.FileFS(app.BootJS+".map", app.BootJPub+".map", public)
-	e.FileFS(app.EditorJS, app.EditorJSPub, public)
-	e.FileFS(app.EditorAssetsJS, app.EditorAssetsJSPub, public)
-	e.FileFS(app.EditorArchiveJS, app.EditorArchiveJSPub, public)
-	e.FileFS(app.FAJS, app.FAPub, public)
-	e.FileFS(app.PouetJS, app.PouetPub, public)
-	e.FileFS(app.ReadmeJS, app.ReadmePub, public)
-	e.FileFS(app.RestPouetJS, app.RestPouetPub, public)
-	e.FileFS(app.RestZooJS, app.RestZooPub, public)
-	e.FileFS(app.UploaderJS, app.UploaderPub, public)
-
-	// Serve embedded JS DOS files
-	e.FileFS(app.JSDos, app.JSDosPub, public)
-	e.FileFS(app.JSWDos, app.JSWDosPub, public)
-	e.FileFS("/js/wdosbox.wasm", "public/js/wdosbox.wasm", public)
-	e.FileFS("/js/js-dos.js.map", "public/js/js-dos.js.map", public)
 
 	// Serve embedded image files
 	e.FileFS("/favicon.ico", "public/image/favicon.ico", public)
