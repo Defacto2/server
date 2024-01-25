@@ -204,7 +204,7 @@ func SearchReleaser(z *zap.SugaredLogger, c echo.Context) error {
 		return DatabaseErr(z, c, name, err)
 	}
 	defer db.Close()
-	x := model.ReleaserStr{}
+	x := model.ReleaserNames{}
 	if err := x.List(ctx, db); err != nil {
 		return DatabaseErr(z, c, name, err)
 	}

@@ -35,14 +35,16 @@ type Releasers []*struct {
 	Unique Releaser `boil:",bind"` // Unique is the releaser.
 }
 
-type ReleaserList struct {
+// ReleaserName is a releaser name.
+type ReleaserName struct {
 	Name string `boil:"releaser"`
 }
 
-// ReleaserStr is a distinct data list of releasers.
-type ReleaserStr []ReleaserList
+// ReleaserNames is a distinct data list of releasers.
+type ReleaserNames []ReleaserName
 
-func (r *ReleaserStr) List(ctx context.Context, db *sql.DB) error {
+// List gets the unique releaser names.
+func (r *ReleaserNames) List(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -55,6 +57,7 @@ func (r *ReleaserStr) List(ctx context.Context, db *sql.DB) error {
 	return queries.Raw(query).Bind(ctx, db, r)
 }
 
+// List gets the unique releaser names.
 func (r *Releasers) List(ctx context.Context, db *sql.DB, name string) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB

@@ -68,6 +68,7 @@ func (s *Summary) SearchFilename(ctx context.Context, db *sql.DB, terms []string
 	return queries.Raw(sum).Bind(ctx, db, s)
 }
 
+// All selects the summary statistics for all files.
 func (s *Summary) All(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
@@ -78,6 +79,7 @@ func (s *Summary) All(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, s)
 }
 
+// BBS selects the summary statistics for all BBS files.
 func (s *Summary) BBS(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
@@ -85,6 +87,7 @@ func (s *Summary) BBS(ctx context.Context, db *sql.DB) error {
 	return queries.Raw(string(postgres.SumBBS())).Bind(ctx, db, s)
 }
 
+// FTP selects the summary statistics for all FTP files.
 func (s *Summary) FTP(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
@@ -92,6 +95,7 @@ func (s *Summary) FTP(ctx context.Context, db *sql.DB) error {
 	return queries.Raw(string(postgres.SumFTP())).Bind(ctx, db, s)
 }
 
+// Magazine selects the summary statistics for all magazine files.
 func (s *Summary) Magazine(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
@@ -99,6 +103,7 @@ func (s *Summary) Magazine(ctx context.Context, db *sql.DB) error {
 	return queries.Raw(string(postgres.SumMag())).Bind(ctx, db, s)
 }
 
+// Scener selects the summary statistics for the named sceners.
 func (s *Summary) Scener(ctx context.Context, db *sql.DB, name string) error {
 	if db == nil {
 		return ErrDB
@@ -128,6 +133,7 @@ func (s *Summary) Releaser(ctx context.Context, db *sql.DB, name string) error {
 		qm.From(From)).Bind(ctx, db, s)
 }
 
+// URI returns the summary statistics for the named URI.
 func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error { //nolint:cyclop,funlen
 	if db == nil {
 		return ErrDB

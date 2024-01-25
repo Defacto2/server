@@ -15,9 +15,10 @@ import (
 )
 
 const (
-	NoModel = "error, no file model"
 	padding = " "
 )
+
+var ErrModel = fmt.Errorf("error, no file model")
 
 // LeadStr takes a string and returns the leading whitespace padding, characters wide.
 // the value of string is note returned.
@@ -40,7 +41,7 @@ func PublishedFW(width int, f *models.File) string {
 
 func PublishedFmt(f *models.File) string {
 	if f == nil {
-		return NoModel
+		return ErrModel.Error()
 	}
 	ys, ms, ds := "", "", ""
 	if f.DateIssuedYear.Valid {
@@ -75,7 +76,7 @@ func PublishedFmt(f *models.File) string {
 // values will be left blank or replaced with ?? question marks.
 func Published(f *models.File) string {
 	if f == nil {
-		return NoModel
+		return ErrModel.Error()
 	}
 	const (
 		yx       = "????"
@@ -116,7 +117,7 @@ func Published(f *models.File) string {
 // Created returns the Createdat time to use a dd-mmm-yyyy format.
 func Created(f *models.File) string {
 	if f == nil {
-		return NoModel
+		return ErrModel.Error()
 	}
 	if !f.Createdat.Valid {
 		return ""
@@ -134,7 +135,7 @@ func Created(f *models.File) string {
 // for the filename. The icons are found in /public/image/html3/.
 func Icon(f *models.File) string {
 	if f == nil {
-		return NoModel
+		return ErrModel.Error()
 	}
 	const err = "unknown"
 	if !f.Filename.Valid {

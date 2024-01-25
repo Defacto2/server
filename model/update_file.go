@@ -14,9 +14,10 @@ import (
 )
 
 const (
-	uidPlaceholder = `ADB7C2BF-7221-467B-B813-3636FE4AE16B`
+	uidPlaceholder = `ADB7C2BF-7221-467B-B813-3636FE4AE16B` // UID of the user who deleted the file.
 )
 
+// GetPlatformTagInfo returns the human readable platform and tag name.
 func GetPlatformTagInfo(c echo.Context, platform, tag string) (string, error) {
 	if c == nil {
 		return "", ErrCtx
@@ -25,6 +26,7 @@ func GetPlatformTagInfo(c echo.Context, platform, tag string) (string, error) {
 	return tags.Humanize(p, t), nil
 }
 
+// GetTagInfo returns the human readable tag name.
 func GetTagInfo(c echo.Context, tag string) (string, error) {
 	if c == nil {
 		return "", ErrCtx
@@ -217,12 +219,5 @@ func UpdateYMD(c echo.Context, id int64, y, m, d null.Int16) error {
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
 		return err
 	}
-	// fmt.Println(f.ID, y, m, d)
-	// f.DateIssuedDay =
-	// // TODO: format val text
-	// f.RecordTitle = null.StringFrom(val)
-	// if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
-	// 	return err
-	// }
 	return nil
 }

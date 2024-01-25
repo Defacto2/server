@@ -15,12 +15,15 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
+// Scener is a collective, group or individual, that releases files.
 type Scener string
 
+// Sceners is a collection of sceners.
 type Sceners []*struct {
 	Name Scener `boil:"scener"`
 }
 
+// List gets the unique scener names.
 func (s *Scener) List(ctx context.Context, db *sql.DB, name string) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
@@ -32,6 +35,7 @@ func (s *Scener) List(ctx context.Context, db *sql.DB, name string) (models.File
 	).All(ctx, db)
 }
 
+// ScenerSQL is the SQL query for getting sceners.
 func ScenerSQL(name string) string {
 	n := strings.ToUpper(releaser.Humanize(name))
 	exact := fmt.Sprintf("(upper(credit_text) = '%s')"+

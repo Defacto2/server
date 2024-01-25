@@ -18,6 +18,7 @@ type Docs struct {
 	Count int `boil:"count_total"`
 }
 
+// Stat returns the total bytes and count of releases that could be considered documents.
 func (d *Docs) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
@@ -31,6 +32,7 @@ func (d *Docs) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, d)
 }
 
+// DocumentExpr returns a query modifier for the document category.
 func DocumentExpr() qm.QueryMod {
 	return qm.Expr(
 		models.FileWhere.Platform.EQ(expr.PAnsi()),

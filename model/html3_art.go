@@ -20,6 +20,7 @@ type Arts struct {
 	Count int `boil:"count_total"`
 }
 
+// Stat returns the total bytes and count of releases that could be considered as digital or pixel art.
 func (a *Arts) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
@@ -33,6 +34,7 @@ func (a *Arts) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, a)
 }
 
+// ArtExpr returns a query modifier for the digital or pixel art category.
 func ArtExpr() qm.QueryMod {
 	return qm.Expr(
 		models.FileWhere.Section.NEQ(expr.SBbs()),

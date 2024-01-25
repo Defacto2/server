@@ -18,6 +18,7 @@ type Softs struct {
 	Count int `boil:"count_total"`
 }
 
+// Stat returns the total bytes and count of releases that could be considered software.
 func (s *Softs) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
@@ -31,6 +32,7 @@ func (s *Softs) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, s)
 }
 
+// SoftwareExpr returns a query modifier for the software category.
 func SoftwareExpr() qm.QueryMod {
 	return qm.Expr(
 		models.FileWhere.Platform.EQ(expr.PJava()),
