@@ -64,13 +64,11 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 	e.FileFS("/bootstrap-icons.svg", "public/image/bootstrap-icons.svg", public)
 
 	// Serve embedded font files
+	fonts, fnames := app.FontRefs(), app.FontNames()
 	font := e.Group("/font")
-	font.FileFS("/pxplus_ibm_vga8.woff2", "public/font/pxplus_ibm_vga8.woff2", public)
-	font.FileFS("/pxplus_ibm_vga8.woff", "public/font/pxplus_ibm_vga8.woff", public)
-	font.FileFS("/pxplus_ibm_vga8.ttf", "public/font/pxplus_ibm_vga8.ttf", public)
-	font.FileFS("/topazplus_a1200.woff2", "public/font/topazplus_a1200.woff2", public)
-	font.FileFS("/topazplus_a1200.woff", "public/font/topazplus_a1200.woff", public)
-	font.FileFS("/topazplus_a1200.ttf", "public/font/topazplus_a1200.ttf", public)
+	for key, href := range fonts {
+		font.FileFS(href, fnames[key], public)
+	}
 
 	// Serve embedded image files
 	e.FileFS("/favicon.ico", "public/image/favicon.ico", public)

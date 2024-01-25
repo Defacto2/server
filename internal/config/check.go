@@ -131,8 +131,8 @@ func (c *Config) Checks(z *zap.SugaredLogger) {
 	}
 
 	// Reminds for the optional configuration values.
-	if c.NoRobots {
-		z.Warn("NoRobots is on, web crawlers should ignore this site.")
+	if c.NoCrawl {
+		z.Warn("NoCrawl is on, web crawlers should ignore this site.")
 	}
 	if c.HTTPSRedirect && c.HTTPSPort > 0 {
 		z.Info("HTTPSRedirect is on, all HTTP requests will be redirected to HTTPS.")

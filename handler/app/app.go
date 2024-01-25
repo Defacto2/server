@@ -57,7 +57,8 @@ type Paths map[Asset]string
 // The strings are intended for href attributes in HTML link elements and
 // the src attribute in HTML script elements.
 func Hrefs() Paths {
-	// js-dos (JS DOS v6) are minified files, help: https://js-dos.com/6.22/examples/?arkanoid
+	// note, the js-dos (JS DOS v6) are minified files,
+	// help: https://js-dos.com/6.22/examples/?arkanoid
 	return Paths{
 		Bootstrap:   "/css/bootstrap.min.css",
 		BootstrapJS: "/js/bootstrap.bundle.min.js",
@@ -83,11 +84,52 @@ func Names() Paths {
 	const public = "public"
 	href := Hrefs()
 	// iterate and return HRefs() with the public prefix
-	Path := make(Paths, len(href))
+	paths := make(Paths, len(href))
 	for k, v := range href {
-		Path[k] = public + v
+		paths[k] = public + v
 	}
-	return Path
+	return paths
+}
+
+// Font is a relative path to a public facing font file.
+type Font int
+
+const (
+	VGA8      Font = iota // VGA8 is the path to the IBM VGA 8px font file.
+	VGA8Woff              // VGA8Woff is the path to the IBM VGA 8px legacy WOFF format font file.
+	VGA8TT                // VGA8TT is the path to the IBM VGA 8px legacy TrueType format font file.
+	A1200                 // A1200 is the path to the Topaz Plus font file.
+	A1200Woff             // A1200Woff is the path to the Topaz Plus legacy WOFF format font file.
+	A1200TT               // A1200TT is the path to the Topaz Plus legacy TrueType format font file.
+)
+
+// Fonts are a map of the public facing font files.
+type Fonts map[Font]string
+
+// FontRefs returns the relative path of the public facing font files.
+// The strings are intended for href attributes in HTML link elements and
+// the src attribute in HTML script elements.
+func FontRefs() Fonts {
+	return Fonts{
+		VGA8:      "/pxplus_ibm_vga8.woff2",
+		VGA8Woff:  "/pxplus_ibm_vga8.woff",
+		VGA8TT:    "/pxplus_ibm_vga8.ttf",
+		A1200:     "/topazplus_a1200.woff2",
+		A1200Woff: "/topazplus_a1200.woff",
+		A1200TT:   "/topazplus_a1200.ttf",
+	}
+}
+
+// Names returns the absolute path of the public facing font files
+// relative to the embed.FS root.
+func FontNames() Fonts {
+	const public = "public/font"
+	href := FontRefs()
+	paths := make(Fonts, len(href))
+	for k, v := range href {
+		paths[k] = public + v
+	}
+	return paths
 }
 
 // Caching are values that are used throughout the app or layouts.
@@ -114,13 +156,9 @@ type (
 	filename string // filename is the name of the template file in the view directory.
 )
 
-// Tmpl returns a map of the templates used by the route.
-func (web *Web) Tmpl() (map[string]*template.Template, error) {
-	if err := web.Subresource.Verify(web.Public); err != nil {
-		return nil, err
-	}
+func templates() map[string]filename {
 	const releaser, scener = "releaser.tmpl", "scener.tmpl"
-	list := map[string]filename{
+	return map[string]filename{
 		"index":       "index.tmpl",
 		"about":       "about.tmpl",
 		"bbs":         releaser,
@@ -144,8 +182,15 @@ func (web *Web) Tmpl() (map[string]*template.Template, error) {
 		"thescene":    "the_scene.tmpl",
 		"websites":    "websites.tmpl",
 	}
+}
+
+// Templates returns a map of the templates used by the route.
+func (web *Web) Templates() (map[string]*template.Template, error) {
+	if err := web.Subresource.Verify(web.Public); err != nil {
+		return nil, err
+	}
 	tmpls := make(map[string]*template.Template)
-	for k, name := range list {
+	for k, name := range templates() {
 		tmpl := web.tmpl(name)
 		tmpls[k] = tmpl
 	}
@@ -155,57 +200,58 @@ func (web *Web) Tmpl() (map[string]*template.Template, error) {
 // Web tmpl returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory.
 func (web Web) tmpl(name filename) *template.Template {
-	const (
-		editorMenu = "layout_editor.tmpl"
-		fileExp    = "file_expand.tmpl"
-		layout     = "layout.tmpl"
-		modal      = "modal.tmpl"
-		optionOS   = "option_os.tmpl"
-		optionTag  = "option_tag.tmpl"
-		pagination = "pagination.tmpl"
-		website    = "website.tmpl"
-		uploader   = "uploader.tmpl"
-		uploadMenu = "layout_uploader.tmpl"
-	)
 	files := []string{
-		GlobTo(layout),
-		GlobTo(modal),
-		GlobTo(optionOS),
-		GlobTo(optionTag),
+		GlobTo("layout.tmpl"),
+		GlobTo("modal.tmpl"),
+		GlobTo("option_os.tmpl"),
+		GlobTo("option_tag.tmpl"),
 		GlobTo(string(name)),
-		GlobTo(pagination),
+		GlobTo("pagination.tmpl"),
 	}
 	config := web.Import
-	if config.ReadMode {
-		files = append(files,
-			GlobTo("layout_editor_null.tmpl"),
-			GlobTo("layout_uploader_null.tmpl"),
-			GlobTo("uploader_null.tmpl"),
-		)
-	} else {
-		files = append(files, GlobTo(editorMenu), GlobTo(uploader), GlobTo(uploadMenu))
-	}
-	// append any additional templates
+	files = uploaderTmpls(config.ReadMode, files...)
+	// append any additional and embedded templates
 	switch name {
 	case "about.tmpl":
-		files = append(files, GlobTo("about_table.tmpl"), GlobTo("about_jsdos.tmpl"))
-		files = append(files, GlobTo("about_editor_archive.tmpl"))
-		if config.ReadMode {
-			files = append(files, GlobTo("about_editor_null.tmpl"))
-			files = append(files, GlobTo("about_editor_table_null.tmpl"))
-			files = append(files, GlobTo("about_table_switch_null.tmpl"))
-		} else {
-			files = append(files, GlobTo("about_editor.tmpl"))
-			files = append(files, GlobTo("about_editor_table.tmpl"))
-			files = append(files, GlobTo("about_table_switch.tmpl"))
-		}
+		files = aboutTmpls(config.ReadMode, files...)
 	case "file.tmpl":
-		files = append(files, GlobTo(fileExp))
+		files = append(files, GlobTo("file_expand.tmpl"))
 	case "websites.tmpl":
-		files = append(files, GlobTo(website))
+		const individualWebsite = "website.tmpl"
+		files = append(files, GlobTo(individualWebsite))
 	}
-	return template.Must(
-		template.New("").Funcs(web.TemplateFuncMap()).ParseFS(web.View, files...))
+	return template.Must(template.New("").Funcs(
+		web.TemplateFuncMap()).ParseFS(web.View, files...))
+}
+
+func uploaderTmpls(lock bool, files ...string) []string {
+	if lock {
+		return append(files,
+			GlobTo("layout_editor_null.tmpl"),
+			GlobTo("layout_uploader_null.tmpl"),
+			GlobTo("uploader_null.tmpl"))
+	}
+	return append(files,
+		GlobTo("layout_editor.tmpl"),
+		GlobTo("layout_uploader.tmpl"),
+		GlobTo("uploader.tmpl"))
+}
+
+func aboutTmpls(lock bool, files ...string) []string {
+	files = append(files,
+		GlobTo("about_table.tmpl"),
+		GlobTo("about_jsdos.tmpl"),
+		GlobTo("about_editor_archive.tmpl"))
+	if lock {
+		return append(files,
+			GlobTo("about_editor_null.tmpl"),
+			GlobTo("about_editor_table_null.tmpl"),
+			GlobTo("about_table_switch_null.tmpl"))
+	}
+	return append(files,
+		GlobTo("about_editor.tmpl"),
+		GlobTo("about_editor_table.tmpl"),
+		GlobTo("about_table_switch.tmpl"))
 }
 
 // SRI are the Subresource Integrity hashes for the layout.

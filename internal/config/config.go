@@ -23,7 +23,7 @@ type Config struct {
 	ProductionMode bool   `env:"PRODUCTION_MODE" help:"Use the production mode to log errors to a file and recover from panics"`
 	ReadMode       bool   `env:"READ_ONLY" envDefault:"true" help:"Use the read-only mode to disable all POST, PUT and DELETE requests and any related user interface"`
 	HTTPSRedirect  bool   `env:"HTTPS_REDIRECT" help:"Redirect all HTTP requests to HTTPS"`
-	NoRobots       bool   `env:"NOROBOTS" help:"Tell search engines to not crawl any of website pages or assets"`
+	NoCrawl        bool   `env:"NO_CRAWL" help:"Tell search engines to not crawl any of website pages or assets"`
 	LogRequests    bool   `env:"LOG_REQUESTS" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`
 	LogDir         string `env:"LOG_DIR" help:"The directory path that will store the program logs"`
 	DownloadDir    string `env:"DOWNLOAD_DIR" help:"The directory path that holds the UUID named files that are served as artifact downloads"`
@@ -315,7 +315,7 @@ func localSkip(name string) bool {
 		"ProductionMode",
 		"HTTPSPort",
 		"HTTPSRedirect",
-		"NoRobots",
+		"NoCrawl",
 		logr,
 		"MaxProcs":
 		return true

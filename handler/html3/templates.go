@@ -49,21 +49,21 @@ func tagByName(name string) tags.TagData {
 	return tags.Tags.ByName(nil, name)
 }
 
-// Tmpl returns a map of the templates used by the HTML3 sub-group route.
-func Tmpl(z *zap.SugaredLogger, fs embed.FS) map[string]*template.Template {
-	templates := make(map[string]*template.Template)
-	templates["html3_index"] = index(z, fs)
-	templates["html3_all"] = list(z, fs)
-	templates["html3_art"] = list(z, fs)
-	templates["html3_documents"] = list(z, fs)
-	templates["html3_software"] = list(z, fs)
-	templates["html3_groups"] = listGroups(z, fs)
-	templates["html3_group"] = list(z, fs)
-	templates["html3_tag"] = listTags(z, fs)
-	templates["html3_platform"] = list(z, fs)
-	templates["html3_category"] = list(z, fs)
-	templates["html3_error"] = httpErr(z, fs)
-	return templates
+// Templates returns a map of the templates used by the HTML3 sub-group route.
+func Templates(z *zap.SugaredLogger, fs embed.FS) map[string]*template.Template {
+	t := make(map[string]*template.Template)
+	t["html3_index"] = index(z, fs)
+	t["html3_all"] = list(z, fs)
+	t["html3_art"] = list(z, fs)
+	t["html3_documents"] = list(z, fs)
+	t["html3_software"] = list(z, fs)
+	t["html3_groups"] = listGroups(z, fs)
+	t["html3_group"] = list(z, fs)
+	t["html3_tag"] = listTags(z, fs)
+	t["html3_platform"] = list(z, fs)
+	t["html3_category"] = list(z, fs)
+	t["html3_error"] = httpErr(z, fs)
+	return t
 }
 
 func GlobTo(name string) string {

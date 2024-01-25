@@ -231,7 +231,7 @@ func Override(c *config.Config) *config.Config {
 		c.LocalMode = true
 		c.ProductionMode = false
 		c.ReadMode = true
-		c.NoRobots = true
+		c.NoCrawl = true
 		c.LogDir = ""
 		c.GoogleClientID = ""
 		c.GoogleIDs = ""

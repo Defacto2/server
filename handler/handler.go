@@ -66,16 +66,12 @@ func (c Configuration) Registry() (*TemplateRegistry, error) {
 		Version: c.Version,
 		View:    c.View,
 	}
-	webTmpl, err := webapp.Tmpl()
+	web, err := webapp.Templates()
 	if err != nil {
 		return nil, err
 	}
-	htmTmpl := html3.Tmpl(c.Logger, c.View)
-	return &TemplateRegistry{
-		Templates: Join(
-			webTmpl, htmTmpl,
-		),
-	}, nil
+	htm3 := html3.Templates(c.Logger, c.View)
+	return &TemplateRegistry{Templates: Join(web, htm3)}, nil
 }
 
 // EmbedDirs serves the static files from the directories embed to the binary.
@@ -108,39 +104,42 @@ func rewrites() map[string]string {
 
 // Controller is the primary instance of the Echo router.
 func (c Configuration) Controller() *echo.Echo {
+	// configurations
 	e := echo.New()
-	//
-	// Configurations
 	e.HideBanner = true                              // hide the Echo banner
 	e.HTTPErrorHandler = c.Import.CustomErrorHandler // custom error handler (see: internal/config/logger.go)
-	reg, err := c.Registry()                         // HTML templates
+	// register html templates
+	templates, err := c.Registry()
 	if err != nil {
 		c.Logger.Fatal(err)
 	}
-	e.Renderer = reg
-	//
-	// Pre configurations that are run before the router
-	e.Pre(middleware.Rewrite(rewrites())) // rewrites for assets
-	e.Pre(middleware.NonWWWRedirect())    // redirect www.defacto2.net requests to defacto2.net
-	if c.Import.HTTPSRedirect && c.Import.HTTPSPort > 0 {
-		e.Pre(middleware.HTTPSRedirect()) // https redirect
+	e.Renderer = templates
+	// middleware pre-configurations
+	e.Pre(
+		middleware.Rewrite(rewrites()), // rewrites for assets
+		middleware.NonWWWRedirect(),    // redirect www.defacto2.net requests to defacto2.net
+	)
+	httpsRedirect := c.Import.HTTPSRedirect && c.Import.HTTPSPort > 0
+	if httpsRedirect {
+		e.Pre(middleware.HTTPSRedirect()) // http://defacto2.net to https://defacto2.net redirect
 	}
-	//
-	// Use configurations that are run after the router
-	// Note: NEVER USE the middleware.Timeout() as it will cause the server to crash
-	// See: https://github.com/labstack/echo/blob/v4.11.1/middleware/timeout.go
-	e.Use(middleware.Secure())       // XSS cross-site scripting protection
-	e.Use(middleware.Gzip())         // Gzip HTTP compression
-	e.Use(c.Import.LoggerMiddleware) // custom HTTP logging middleware
-	// 									(see: internal/config/logger.go)
-	e.Use(middleware.RemoveTrailingSlashWithConfig(c.removeSlash())) // remove trailing slashes
-	e.Use(c.NoRobotsHeader)                                          // add X-Robots-Tag to all responses
+	// middleware configurations
+	// Note: NEVER USE the middleware.Timeout(),
+	// it shouldn't be in the echo library and will cause server crashes
+	e.Use(
+		middleware.Secure(),       // XSS cross-site scripting protection
+		middleware.Gzip(),         // Gzip HTTP compression
+		c.Import.LoggerMiddleware, // custom HTTP logging middleware
+		c.NoCrawl,                 // add X-Robots-Tag to all responses
+		middleware.RemoveTrailingSlashWithConfig(configRTS()), // remove trailing slashes
+	)
 	if c.Import.ProductionMode {
 		e.Use(middleware.Recover()) // recover from panics
 	}
 	// Static embedded web assets that get distributed in the binary
 	e = c.EmbedDirs(e)
 	// Routes for the web application
+	// that first handles the permanent redirects
 	e, err = c.Moved(c.Logger, e)
 	if err != nil {
 		c.Logger.Fatal(err)
@@ -149,12 +148,11 @@ func (c Configuration) Controller() *echo.Echo {
 	if err != nil {
 		c.Logger.Fatal(err)
 	}
-	// Routes for the htm retro web tables
+	// Routes for the retro web tables
 	retro := html3.Routes(c.Logger, e)
 	retro.GET(Downloader, c.downloader)
 	// Route for the api
 	_ = apiv1.Routes(c.Logger, e)
-
 	return e
 }
 
@@ -215,7 +213,7 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 // StartHTTPS starts the HTTPS web server.
 func (c *Configuration) StartHTTPS(e *echo.Echo) {
 	// Start the HTTP server
-	// TODO: implement HTTPS using HTTPSPort
+	// TODO: implement HTTPS using cookbook example
 	// https://echo.labstack.com/docs/cookbook/http2
 	port := c.Import.HTTPSPort
 	if port == 0 {
