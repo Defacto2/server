@@ -210,20 +210,20 @@ func (web Web) tmpl(name filename) *template.Template {
 
 // SRI are the Subresource Integrity hashes for the layout.
 type SRI struct {
-	BootstrapCSS    string // Bootstrap CSS verification hash.
-	BootstrapJS     string // Bootstrap JS verification hash.
-	EditorJS        string // Editor JS verification hash.
-	EditorAssetsJS  string // Editor Assets JS verification hash.
-	EditorArchiveJS string // Editor Archive JS verification hash.
-	FontAwesome     string // Font Awesome verification hash.
-	JSDos           string // JS DOS verification hash.
-	JSWDos          string // JS wasm verification hash.
-	LayoutCSS       string // Layout CSS verification hash.
-	PouetJS         string // Pouet JS verification hash.
-	ReadmeJS        string // Readme JS verification hash.
-	RestPouetJS     string // Pouet REST JS verification hash.
-	RestZooJS       string // Demozoo REST JS verification hash.
-	UploaderJS      string // Uploader JS verification hash.
+	Bootstrap   string // Bootstrap CSS verification hash.
+	BootstrapJS string // Bootstrap JS verification hash.
+	Editor      string // Editor JS verification hash.
+	EditAssets  string // Editor Assets JS verification hash.
+	EditArchive string // Editor Archive JS verification hash.
+	FontAwesome string // Font Awesome verification hash.
+	JSDosUI     string // JS DOS verification hash.
+	JSDosW      string // JS DOS emscripten verification hash.
+	Layout      string // Layout CSS verification hash.
+	Pouet       string // Pouet JS verification hash.
+	Readme      string // Readme JS verification hash.
+	RESTPouet   string // Pouet REST JS verification hash.
+	RESTZoo     string // Demozoo REST JS verification hash.
+	Uploader    string // Uploader JS verification hash.
 }
 
 // Verify checks the integrity of the embedded CSS and JS files.
@@ -231,7 +231,7 @@ type SRI struct {
 func (s *SRI) Verify(fs embed.FS) error {
 	names := Names()
 	var err error
-	s.BootstrapCSS, err = helper.Integrity(names[Bootstrap], fs)
+	s.Bootstrap, err = helper.Integrity(names[Bootstrap], fs)
 	if err != nil {
 		return err
 	}
@@ -239,15 +239,15 @@ func (s *SRI) Verify(fs embed.FS) error {
 	if err != nil {
 		return err
 	}
-	s.EditorJS, err = helper.Integrity(names[Editor], fs)
+	s.Editor, err = helper.Integrity(names[Editor], fs)
 	if err != nil {
 		return err
 	}
-	s.EditorAssetsJS, err = helper.Integrity(names[EditAssets], fs)
+	s.EditAssets, err = helper.Integrity(names[EditAssets], fs)
 	if err != nil {
 		return err
 	}
-	s.EditorArchiveJS, err = helper.Integrity(names[EditArchive], fs)
+	s.EditArchive, err = helper.Integrity(names[EditArchive], fs)
 	if err != nil {
 		return err
 	}
@@ -255,35 +255,35 @@ func (s *SRI) Verify(fs embed.FS) error {
 	if err != nil {
 		return err
 	}
-	s.JSDos, err = helper.Integrity(names[JSDosUI], fs)
+	s.JSDosUI, err = helper.Integrity(names[JSDosUI], fs)
 	if err != nil {
 		return err
 	}
-	s.JSWDos, err = helper.Integrity(names[JSDosW], fs)
+	s.JSDosW, err = helper.Integrity(names[JSDosW], fs)
 	if err != nil {
 		return err
 	}
-	s.LayoutCSS, err = helper.Integrity(names[Layout], fs)
+	s.Layout, err = helper.Integrity(names[Layout], fs)
 	if err != nil {
 		return err
 	}
-	s.PouetJS, err = helper.Integrity(names[Pouet], fs)
+	s.Pouet, err = helper.Integrity(names[Pouet], fs)
 	if err != nil {
 		return err
 	}
-	s.ReadmeJS, err = helper.Integrity(names[Readme], fs)
+	s.Readme, err = helper.Integrity(names[Readme], fs)
 	if err != nil {
 		return err
 	}
-	s.RestPouetJS, err = helper.Integrity(names[RESTPouet], fs)
+	s.RESTPouet, err = helper.Integrity(names[RESTPouet], fs)
 	if err != nil {
 		return err
 	}
-	s.RestZooJS, err = helper.Integrity(names[RESTZoo], fs)
+	s.RESTZoo, err = helper.Integrity(names[RESTZoo], fs)
 	if err != nil {
 		return err
 	}
-	s.UploaderJS, err = helper.Integrity(names[Uploader], fs)
+	s.Uploader, err = helper.Integrity(names[Uploader], fs)
 	if err != nil {
 		return err
 	}

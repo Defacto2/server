@@ -77,7 +77,7 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 			return msDos
 		},
 		"sriBootCSS": func() string {
-			return web.Subresource.BootstrapCSS
+			return web.Subresource.Bootstrap
 		},
 		"sriBootJS": func() string {
 			return web.Subresource.BootstrapJS
@@ -86,22 +86,22 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 			return web.Subresource.FontAwesome
 		},
 		"sriJSDos": func() string {
-			return web.Subresource.JSDos
+			return web.Subresource.JSDosUI
 		},
 		"sriJSWDos": func() string {
-			return web.Subresource.JSWDos
+			return web.Subresource.JSDosW
 		},
 		"sriLayout": func() string {
-			return web.Subresource.LayoutCSS
+			return web.Subresource.Layout
 		},
 		"sriPouet": func() string {
-			return web.Subresource.PouetJS
+			return web.Subresource.Pouet
 		},
 		"sriReadme": func() string {
-			return web.Subresource.ReadmeJS
+			return web.Subresource.Readme
 		},
 		"sriUploader": func() string {
-			return web.Subresource.UploaderJS
+			return web.Subresource.Uploader
 		},
 		"cssBoot": func() string {
 			return hrefs[Bootstrap]
@@ -146,31 +146,31 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 			return hrefs[Editor]
 		},
 		"sriEditorForm": func() string {
-			return web.Subresource.EditorJS
+			return web.Subresource.Editor
 		},
 		"editorAssetsForm": func() string {
 			return hrefs[EditAssets]
 		},
 		"sriEditorAssetsForm": func() string {
-			return web.Subresource.EditorAssetsJS
+			return web.Subresource.EditAssets
 		},
 		"editorArchiveForm": func() string {
 			return hrefs[EditArchive]
 		},
 		"sriEditorArchiveForm": func() string {
-			return web.Subresource.EditorArchiveJS
+			return web.Subresource.EditArchive
 		},
 		"restPouet": func() string {
 			return hrefs[RESTPouet]
 		},
 		"sriRestPouet": func() string {
-			return web.Subresource.RestPouetJS
+			return web.Subresource.RESTPouet
 		},
 		"restZoo": func() string {
 			return hrefs[RESTZoo]
 		},
 		"sriRestZoo": func() string {
-			return web.Subresource.RestZooJS
+			return web.Subresource.RESTZoo
 		},
 		// "recordReleasers": RecordRels,
 		"tagSel": TagSel,
