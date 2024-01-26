@@ -47,7 +47,7 @@ func Sortings() map[Sort]string {
 // Clauses for ordering file record queries.
 func Clauses(query string) model.Order {
 	switch strings.ToUpper(query) {
-	case NameAsc:
+	case NameAsc: // Name ascending order should match the case.
 		return model.NameAsc
 	case NameDes:
 		return model.NameDes
@@ -72,7 +72,9 @@ func Clauses(query string) model.Order {
 	}
 }
 
-func sorter(query string) map[string]string {
+// Sorter creates the query string for the sortable columns.
+// Replacing the O key value with the opposite value, either A or D.
+func Sorter(query string) map[string]string {
 	s := Sortings()
 	switch strings.ToUpper(query) {
 	case NameAsc:
@@ -101,9 +103,9 @@ func sorter(query string) map[string]string {
 		s[Name] = desc
 	}
 	// to be usable in the template, convert the map keys into strings
-	tmplSorts := make(map[string]string, len(s))
-	for key, value := range Sortings() {
-		tmplSorts[string(key)] = value
+	fix := make(map[string]string, len(s))
+	for key, value := range s {
+		fix[string(key)] = value
 	}
-	return tmplSorts
+	return fix
 }

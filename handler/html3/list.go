@@ -221,7 +221,7 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error { //nolint:funlen
 		"description": desc,
 		"parent":      tt.Parent(),
 		"stats":       stat,
-		"sort":        sorter(c.QueryString()),
+		"sort":        Sorter(c.QueryString()),
 		"records":     records,
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
 		"navigate":    navi,
