@@ -3,9 +3,9 @@ package x_test
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/Defacto2/server/handler/x"
@@ -22,10 +22,11 @@ func TestBrotli(t *testing.T) {
 
 	// Skip if no Accept-Encoding header
 	h := x.Brotli()(func(c echo.Context) error {
-		c.Response().Write([]byte("test")) // For Content-Type sniffing
+		_, _ = c.Response().Write([]byte("test")) // For Content-Type sniffing
 		return nil
 	})
-	h(c)
+	err := h(c)
+	assert.NoError(t, err)
 
 	assert := assert.New(t)
 
@@ -36,13 +37,15 @@ func TestBrotli(t *testing.T) {
 	req.Header.Set(echo.HeaderAcceptEncoding, x.BrotliScheme)
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
-	h(c)
+	err = h(c)
+	assert.NoError(err)
 	assert.Equal(x.BrotliScheme, rec.Header().Get(echo.HeaderContentEncoding))
 	assert.Contains(rec.Header().Get(echo.HeaderContentType), echo.MIMETextPlain)
 
 	r := brotli.NewReader(rec.Body)
 	buf := new(bytes.Buffer)
-	buf.ReadFrom(r)
+	_, err = buf.ReadFrom(r)
+	assert.NoError(err)
 	assert.Equal("test", buf.String())
 
 	chunkBuf := make([]byte, 5)
@@ -53,25 +56,28 @@ func TestBrotli(t *testing.T) {
 	rec = httptest.NewRecorder()
 
 	c = e.NewContext(req, rec)
-	x.Brotli()(func(c echo.Context) error {
+	err = x.Brotli()(func(c echo.Context) error {
 		c.Response().Header().Set("Content-Type", "text/event-stream")
 		c.Response().Header().Set("Transfer-Encoding", "chunked")
 
 		// Write and flush the first part of the data
-		c.Response().Write([]byte("test\n"))
+		_, err = c.Response().Write([]byte("test\n"))
+		assert.NoError(err)
 		c.Response().Flush()
 
 		// Read the first part of the data
 		assert.True(rec.Flushed)
 		assert.Equal(x.BrotliScheme, rec.Header().Get(echo.HeaderContentEncoding))
-		r.Reset(rec.Body)
+		err := r.Reset(rec.Body)
+		assert.NoError(err)
 
-		_, err := io.ReadFull(r, chunkBuf)
+		_, err = io.ReadFull(r, chunkBuf)
 		assert.NoError(err)
 		assert.Equal("test\n", string(chunkBuf))
 
 		// Write and flush the second part of the data
-		c.Response().Write([]byte("test\n"))
+		_, err = c.Response().Write([]byte("test\n"))
+		assert.NoError(err)
 		c.Response().Flush()
 
 		_, err = io.ReadFull(r, chunkBuf)
@@ -79,12 +85,15 @@ func TestBrotli(t *testing.T) {
 		assert.Equal("test\n", string(chunkBuf))
 
 		// Write the final part of the data and return
-		c.Response().Write([]byte("test"))
+		_, err = c.Response().Write([]byte("test"))
+		assert.NoError(err)
 		return nil
 	})(c)
+	assert.NoError(err)
 
 	buf = new(bytes.Buffer)
-	buf.ReadFrom(r)
+	_, err = buf.ReadFrom(r)
+	assert.NoError(err)
 	assert.Equal("test", buf.String())
 }
 
@@ -118,12 +127,12 @@ func TestBrotliErrorReturned(t *testing.T) {
 	assert.Empty(t, rec.Header().Get(echo.HeaderContentEncoding))
 }
 
-// Issue #806
+// Issue #806.
 func TestBrotliWithStatic(t *testing.T) {
 	e := echo.New()
 	e.Use(x.Brotli())
-	e.Static("/test", "../_fixture/images")
-	req := httptest.NewRequest(http.MethodGet, "/test/walle.png", nil)
+	e.Static("/test", "../../public/image/layout")
+	req := httptest.NewRequest(http.MethodGet, "/test/favicon-152x152.png", nil)
 	req.Header.Set(echo.HeaderAcceptEncoding, x.BrotliScheme)
 	rec := httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
@@ -135,10 +144,11 @@ func TestBrotliWithStatic(t *testing.T) {
 	}
 	r := brotli.NewReader(rec.Body)
 
-	want, err := ioutil.ReadFile("../_fixture/images/walle.png")
+	want, err := os.ReadFile("../../public/image/layout/favicon-152x152.png")
 	if assert.NoError(t, err) {
 		buf := new(bytes.Buffer)
-		buf.ReadFrom(r)
-		assert.Equal(t, want, buf.Bytes())
+		_, err = buf.ReadFrom(r)
+		assert.NoError(t, err)
+		assert.EqualValues(t, want, buf.Bytes())
 	}
 }

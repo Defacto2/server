@@ -279,10 +279,7 @@ func (c Configuration) PortErr(port uint, err error) {
 		errors.Is(err, http.ErrServerClosed):
 		c.Logger.Infof("%s server shutdown gracefully.", s)
 	case errors.Is(err, os.ErrNotExist):
-		if pathError, ok := err.(*os.PathError); ok {
-			fmt.Println("File not found:", pathError.Path, pathError.Err)
-		}
-		c.Logger.Fatalf("%s server on port %d could not start: %w.", s, port)
+		c.Logger.Fatalf("%s server on port %d could not start: %w.", s, port, err)
 	default:
 	}
 }

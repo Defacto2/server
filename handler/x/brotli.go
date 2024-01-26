@@ -17,6 +17,8 @@ import (
 // https://github.com/labstack/echo/blob/a327810ef8a5625797ca6a106b538e5abec3917e/middleware/compress_brotli.go
 //
 
+var ErrHijack = echo.NewHTTPError(http.StatusInternalServerError, "response could not be hijacked")
+
 type (
 	// BrotliConfig defines the config for Brotli middleware.
 	BrotliConfig struct {
@@ -39,15 +41,17 @@ const (
 )
 
 // DefaultBrotliConfig is the default Brotli middleware config.
-var DefaultBrotliConfig = BrotliConfig{
-	Skipper: middleware.DefaultSkipper,
-	Level:   brotli.DefaultCompression,
+func DefaultBrotliConfig() BrotliConfig {
+	return BrotliConfig{
+		Skipper: middleware.DefaultSkipper,
+		Level:   brotli.DefaultCompression,
+	}
 }
 
 // Brotli returns a middleware which compresses HTTP response using brotli compression
 // scheme.
 func Brotli() echo.MiddlewareFunc {
-	return BrotliWithConfig(DefaultBrotliConfig)
+	return BrotliWithConfig(DefaultBrotliConfig())
 }
 
 // BrotliWithConfig return Brotli middleware with config.
@@ -55,10 +59,10 @@ func Brotli() echo.MiddlewareFunc {
 func BrotliWithConfig(config BrotliConfig) echo.MiddlewareFunc {
 	// Defaults
 	if config.Skipper == nil {
-		config.Skipper = DefaultBrotliConfig.Skipper
+		config.Skipper = DefaultBrotliConfig().Skipper
 	}
 	if config.Level == 0 {
-		config.Level = DefaultBrotliConfig.Level
+		config.Level = DefaultBrotliConfig().Level
 	}
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -112,12 +116,17 @@ func (w *brotliResponseWriter) Write(b []byte) (int, error) {
 }
 
 func (w *brotliResponseWriter) Flush() {
-	w.Writer.(*brotli.Writer).Flush()
+	if writer, ok := w.Writer.(*brotli.Writer); ok {
+		writer.Flush()
+	}
 	if flusher, ok := w.ResponseWriter.(http.Flusher); ok {
 		flusher.Flush()
 	}
 }
 
 func (w *brotliResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
-	return w.ResponseWriter.(http.Hijacker).Hijack()
+	if hijacker, ok := w.ResponseWriter.(http.Hijacker); ok {
+		return hijacker.Hijack()
+	}
+	return nil, nil, ErrHijack
 }

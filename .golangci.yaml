@@ -25,6 +25,7 @@ linters:
     - wrapcheck
     - wsl               # fussy over whitespace.
     # temporary disabled
+    - godox
 issues:
   exclude-rules:
     - path: _test.go

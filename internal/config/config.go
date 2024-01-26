@@ -323,7 +323,7 @@ func (c Config) fmtField(w *tabwriter.Writer,
 	}
 }
 
-// localSkip skips the configurations that are inaccessable in local mode.
+// localSkip skips the configurations that are inaccessible in local mode.
 func localSkip(name string) bool {
 	switch name {
 	case

@@ -23,7 +23,7 @@ type Interviewee struct {
 type Interviews []Interviewee
 
 // Interviewees returns a list of interviewees and their interviews.
-// These are categorised by the group they were in at the time of the interview.
+// These are categorized by the group they were in at the time of the interview.
 func Interviewees() Groups {
 	i := Groups{
 		{
