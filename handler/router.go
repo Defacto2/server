@@ -87,6 +87,23 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 		return app.StatusErr(z, x, http.StatusNotFound, x.Param("uri"))
 	})
 
+	// Request debug information
+	// TODO: hide in production, make json and xml output
+	e.GET("/debug", func(x echo.Context) error {
+		req := x.Request()
+		format := `<code>
+		Protocol: %s<br>
+		Host: %s<br>
+		Remote Address: %s<br>
+		Method: %s<br>
+		Path: %s<br>
+		URI: %s<br>
+		Query: %s<br>
+		</code>`
+		return x.HTML(http.StatusOK, fmt.Sprintf(format,
+			req.Proto, req.Host, req.RemoteAddr, req.Method, req.URL.Path, req.RequestURI, req.URL.RawQuery))
+	})
+
 	// Use session middleware for all routes but not the embedded files.
 	s := e.Group("")
 	s.GET("/", func(x echo.Context) error {

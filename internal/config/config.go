@@ -30,12 +30,17 @@ type Config struct {
 	PreviewDir     string `env:"PREVIEW_DIR" help:"The directory path that holds the UUID named image files that are served as previews of the artifact"`
 	ThumbnailDir   string `env:"THUMBNAIL_DIR" help:"The directory path that holds the UUID named squared image files that are served as artifact thumbnails"`
 	HTTPPort       uint   `env:"HTTP_PORT" envDefault:"1323" help:"The port number to be used by the unencrypted HTTP web server"`
-	HTTPSPort      uint   `env:"HTTPS_PORT" help:"The port number to be used by the encrypted HTTPS web server"`
 	MaxProcs       uint   `env:"MAX_PROCS" help:"Limit the number of operating system threads the program can use"`
 	SessionKey     string `env:"SESSION_KEY,unset" help:"The session key for the cookie store or leave blank to generate a random key"`
 	SessionMaxAge  int    `env:"SESSION_MAX_AGE" envDefault:"3" help:"The maximum age in hours for the session cookie"`
 	GoogleClientID string `env:"GOOGLE_CLIENT_ID" help:"The Google OAuth2 client ID"`
 	GoogleIDs      string `env:"GOOGLE_IDS,unset" help:"The Google OAuth2 accounts that are allowed to login"`
+
+	Compression string `env:"COMPRESSION" envDefault:"gzip" help:"Enable either gzip or br compression of HTTP/HTTPS responses, you may want to disable this if using a reverse proxy"`
+
+	TLSPort uint   `env:"TLS_PORT" help:"The port number to be used by the encrypted, HTTPS web server"`
+	TLSCert string `env:"TLS_CERT" help:"The TLS certificate file path, leave blank to use the self-signed, localhost certificate"`
+	TLSKey  string `env:"TLS_KEY" help:"The TLS key file path, leave blank to use the self-signed, localhost key"`
 
 	// GoogleAccounts is a slice of Google OAuth2 accounts that are allowed to login.
 	// Each account is a 48 byte slice of bytes that represents the SHA-384 hash of the unique Google ID.
@@ -104,9 +109,9 @@ func (c Config) addresses(b *strings.Builder, intro bool) {
 		log.Fatalf("The server cannot get the local host names: %s.", err)
 	}
 	port := values.FieldByName("HTTPPort").Uint()
-	ports := values.FieldByName("HTTPSPort").Uint()
-	if port == 0 && ports == 0 {
-		log.Fatalln("The server cannot start without a HTTP or a HTTPS port.")
+	tls := values.FieldByName("TLSPort").Uint()
+	if port == 0 && tls == 0 {
+		log.Fatalln("The server cannot start without a HTTP or a TLS port.")
 	}
 	const web = 80
 	const webs = 443
@@ -119,13 +124,13 @@ func (c Config) addresses(b *strings.Builder, intro bool) {
 		default:
 			fmt.Fprintf(b, "%shttp://%s:%d\n", pad, host, port)
 		}
-		switch ports {
+		switch tls {
 		case webs:
 			fmt.Fprintf(b, "%shttps://%s\n", pad, host)
 		case 0:
 			// disabled
 		default:
-			fmt.Fprintf(b, "%shttps://%s:%d\n", pad, host, ports)
+			fmt.Fprintf(b, "%shttps://%s:%d\n", pad, host, tls)
 		}
 	}
 	ips, err := helper.GetLocalIPs()
@@ -206,14 +211,14 @@ func httpPort(w *tabwriter.Writer, id, name string, val reflect.Value, field ref
 	}
 }
 
-// httpsPort prints the HTTPS port number to the tabwriter.
-func httpsPort(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
+// tlsPort prints the HTTPS port number to the tabwriter.
+func tlsPort(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
 	nl(w)
 	lead(w, id, name, val, field)
 	fmt.Fprintf(w, "\t\t\t\t%s\n",
-		"The typical HTTPS port number is 443, while for proxies it is 8443.")
+		"The typical TLS port number is 443, while for proxies it is 8443.")
 	if val.Kind() == reflect.Uint && val.Uint() == 0 {
-		fmt.Fprintf(w, "\t\t\t\t%s\n", "The server will not use HTTPS.")
+		fmt.Fprintf(w, "\t\t\t\t%s\n", "The server will not use TLS.")
 	}
 }
 
@@ -291,8 +296,8 @@ func (c Config) fmtField(w *tabwriter.Writer,
 		isProd(w, id, name, val, field)
 	case "HTTPPort":
 		httpPort(w, id, name, val, field)
-	case "HTTPSPort":
-		httpsPort(w, id, name, val, field)
+	case "TLSPort":
+		tlsPort(w, id, name, val, field)
 	case down:
 		nl(w)
 		path(w, id, name, field)
@@ -324,7 +329,7 @@ func localSkip(name string) bool {
 	case
 		"ReadMode",
 		"ProductionMode",
-		"HTTPSPort",
+		"TLSPort",
 		"HTTPSRedirect",
 		"NoCrawl",
 		logr,

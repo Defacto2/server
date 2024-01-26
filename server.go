@@ -130,19 +130,52 @@ func main() { //nolint:funlen
 	// Startup information and warnings
 	server.Info()
 
-	// Start the HTTP and HTTPS server
-	go server.StartHTTP(e)
-	go server.StartHTTPS(e)
+	// Start the HTTP and the TLS server
+	switch {
+	case useTLS(&configs) && useHTTP(&configs):
+		go func() {
+			e2 := e // we need a new echo instance, otherwise the server may use the wrong port
+			server.StartHTTP(e2)
+		}()
+		go server.StartTLS(e)
+	case useTLSLocal(&configs) && useHTTP(&configs):
+		go func() {
+			e2 := e // we need a new echo instance, otherwise the server may use the wrong port
+			server.StartHTTP(e2)
+		}()
+		go server.StartTLSLocal(e)
+	case useTLS(&configs):
+		go server.StartTLS(e)
+	case useHTTP(&configs):
+		go server.StartHTTP(e)
+	case useTLSLocal(&configs):
+		go server.StartTLSLocal(e)
+	default:
+		// this should never happen as HTTPPort is always set to a default value
+		logs.Fatalf("No server ports are configured, please check the environment variables.")
+	}
 
 	// List the local IP addresses that can also be used to access the server
 	go fmt.Fprintf(os.Stdout, "%s\n", configs.Startup())
-	go func() {
-		if localMode() {
+	if localMode() {
+		go func() {
 			fmt.Fprint(os.Stdout, "Tap Ctrl + C, to exit at anytime.\n")
-		}
-	}()
+		}()
+	}
 	// Gracefully shutdown the HTTP server
 	server.ShutdownHTTP(e)
+}
+
+func useTLS(c *config.Config) bool {
+	return c.TLSPort > 0 && c.TLSCert != "" || c.TLSKey != ""
+}
+
+func useHTTP(c *config.Config) bool {
+	return c.HTTPPort > 0
+}
+
+func useTLSLocal(c *config.Config) bool {
+	return c.TLSPort > 0 && c.TLSCert == "" && c.TLSKey == ""
 }
 
 func commandLine(logs *zap.SugaredLogger, configs config.Config) {
@@ -237,7 +270,9 @@ func Override(c *config.Config) *config.Config {
 		c.GoogleIDs = ""
 		c.SessionKey = ""
 		c.SessionMaxAge = 0
-		c.HTTPSPort = 0
+		c.TLSPort = 0
+		c.TLSCert = ""
+		c.TLSKey = ""
 		c.HTTPSRedirect = false
 		c.MaxProcs = 0
 		return c
@@ -251,7 +286,7 @@ func Override(c *config.Config) *config.Config {
 	c.GoogleIDs = "overwrite placeholder"
 	c.GoogleIDs = "" // empty the string
 
-	if c.HTTPPort == 0 && c.HTTPSPort == 0 {
+	if c.HTTPPort == 0 && c.TLSPort == 0 {
 		c.HTTPPort = HTTPPort
 	}
 	return c

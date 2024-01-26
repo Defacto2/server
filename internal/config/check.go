@@ -41,7 +41,7 @@ func (c Config) httpPort(z *zap.SugaredLogger) {
 	if c.HTTPPort == 0 {
 		return
 	}
-	if err := HTTPPort(c.HTTPPort); err != nil {
+	if err := Validate(c.HTTPPort); err != nil {
 		switch {
 		case errors.Is(err, ErrPortMax):
 			z.Fatalf("The server could not use the HTTP port %d, %s.",
@@ -53,19 +53,19 @@ func (c Config) httpPort(z *zap.SugaredLogger) {
 	}
 }
 
-// httpsPort returns an error if the HTTPS port is invalid.
-func (c Config) httpsPort(z *zap.SugaredLogger) {
-	if c.HTTPSPort == 0 {
+// tlsPort returns an error if the TLS port is invalid.
+func (c Config) tlsPort(z *zap.SugaredLogger) {
+	if c.TLSPort == 0 {
 		return
 	}
-	if err := HTTPPort(c.HTTPSPort); err != nil {
+	if err := Validate(c.TLSPort); err != nil {
 		switch {
 		case errors.Is(err, ErrPortMax):
 			z.Fatalf("The server could not use the HTTPS port %d, %s.",
-				c.HTTPSPort, err)
+				c.TLSPort, err)
 		case errors.Is(err, ErrPortSys):
 			z.Infof("The server HTTPS port %d, %s.",
-				c.HTTPSPort, err)
+				c.TLSPort, err)
 		}
 	}
 }
@@ -110,12 +110,12 @@ func (c *Config) Checks(z *zap.SugaredLogger) {
 		return
 	}
 
-	if c.HTTPSRedirect && c.HTTPSPort == 0 {
+	if c.HTTPSRedirect && c.TLSPort == 0 {
 		z.Warn("HTTPSRedirect is on but the HTTPS port is not set, so the server will not redirect HTTP requests to HTTPS.")
 	}
 
 	c.httpPort(z)
-	c.httpsPort(z)
+	c.tlsPort(z)
 	c.production(z)
 
 	// Check the download, preview and thumbnail directories.
@@ -136,7 +136,7 @@ func (c *Config) Checks(z *zap.SugaredLogger) {
 	if c.NoCrawl {
 		z.Warn("NoCrawl is on, web crawlers should ignore this site.")
 	}
-	if c.HTTPSRedirect && c.HTTPSPort > 0 {
+	if c.HTTPSRedirect && c.TLSPort > 0 {
 		z.Info("HTTPSRedirect is on, all HTTP requests will be redirected to HTTPS.")
 	}
 
@@ -185,8 +185,8 @@ func (c *Config) SetupLogDir(z *zap.SugaredLogger) {
 	}
 }
 
-// HTTPPort returns an error if the HTTP/HTTPS port is invalid.
-func HTTPPort(port uint) error {
+// Validate returns an error if the HTTP or TLS port is invalid.
+func Validate(port uint) error {
 	const disabled = 0
 	if port == disabled {
 		return nil

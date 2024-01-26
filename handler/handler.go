@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/Defacto2/server/api/apiv1"
@@ -20,7 +21,9 @@ import (
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/handler/html3"
+	"github.com/Defacto2/server/handler/x"
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/helper"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
@@ -119,7 +122,7 @@ func (c Configuration) Controller() *echo.Echo {
 		middleware.Rewrite(rewrites()), // rewrites for assets
 		middleware.NonWWWRedirect(),    // redirect www.defacto2.net requests to defacto2.net
 	)
-	httpsRedirect := c.Import.HTTPSRedirect && c.Import.HTTPSPort > 0
+	httpsRedirect := c.Import.HTTPSRedirect && c.Import.TLSPort > 0
 	if httpsRedirect {
 		e.Pre(middleware.HTTPSRedirect()) // http://defacto2.net to https://defacto2.net redirect
 	}
@@ -128,14 +131,20 @@ func (c Configuration) Controller() *echo.Echo {
 	// it shouldn't be in the echo library and will cause server crashes
 	e.Use(
 		middleware.Secure(),       // XSS cross-site scripting protection
-		middleware.Gzip(),         // Gzip HTTP compression
 		c.Import.LoggerMiddleware, // custom HTTP logging middleware
 		c.NoCrawl,                 // add X-Robots-Tag to all responses
 		middleware.RemoveTrailingSlashWithConfig(configRTS()), // remove trailing slashes
 	)
+	switch strings.ToLower(c.Import.Compression) {
+	case "gzip": // Gzip HTTP compression
+		e.Use(middleware.Gzip())
+	case "br": // experimental Brotli HTTP compression
+		e.Use(x.Brotli())
+	}
 	if c.Import.ProductionMode {
 		e.Use(middleware.Recover()) // recover from panics
 	}
+	// e.Use(x.Brotli())
 	// Static embedded web assets that get distributed in the binary
 	e = c.EmbedDirs(e)
 	// Routes for the web application
@@ -200,7 +209,7 @@ func (c Configuration) Info() {
 	w.Flush()
 }
 
-// StartHTTP starts the HTTP web server.
+// StartHTTP starts the insecure HTTP web server.
 func (c *Configuration) StartHTTP(e *echo.Echo) {
 	port := c.Import.HTTPPort
 	if port == 0 {
@@ -212,17 +221,46 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 	}
 }
 
-// StartHTTPS starts the HTTPS web server.
-func (c *Configuration) StartHTTPS(e *echo.Echo) {
-	// Start the HTTP server
-	// TODO: implement HTTPS using cookbook example
-	// https://echo.labstack.com/docs/cookbook/http2
-	port := c.Import.HTTPSPort
+// StartTLS starts the encrypted TLS web server.
+func (c *Configuration) StartTLS(e *echo.Echo) {
+	port := c.Import.TLSPort
 	if port == 0 {
 		return
 	}
+	cert := c.Import.TLSCert
+	key := c.Import.TLSKey
+	if cert == "" || key == "" {
+		c.Logger.Fatalf("Could not start the TLS server, missing certificate or key file.")
+	}
+	if !helper.IsFile(cert) {
+		c.Logger.Fatalf("Could not start the TLS server, certificate file does not exist: %s.", cert)
+	}
+	if !helper.IsFile(key) {
+		c.Logger.Fatalf("Could not start the TLS server, key file does not exist: %s.", key)
+	}
 	address := fmt.Sprintf(":%d", port)
-	if err := e.Start(address); err != nil {
+	if err := e.StartTLS(address, "", ""); err != nil {
+		c.PortErr(port, err)
+	}
+}
+
+// StartTLSLocal starts the localhost, encrypted TLS web server.
+// This should only be triggered when the server is running in local mode.
+func (c *Configuration) StartTLSLocal(e *echo.Echo) {
+	port := c.Import.TLSPort
+	if port == 0 {
+		return
+	}
+	cpem, err := c.Public.ReadFile("public/certs/cert.pem")
+	if err != nil {
+		c.Logger.Fatalf("Could not read the internal localhost, TLS certificate: %s.", err)
+	}
+	kpem, err := c.Public.ReadFile("public/certs/key.pem")
+	if err != nil {
+		c.Logger.Fatalf("Could not read the internal localhost, TLS key: %s.", err)
+	}
+	address := fmt.Sprintf("localhost:%d", port)
+	if err := e.StartTLS(address, cpem, kpem); err != nil {
 		c.PortErr(port, err)
 	}
 }
@@ -230,8 +268,8 @@ func (c *Configuration) StartHTTPS(e *echo.Echo) {
 // PortErr handles the error when the HTTP or HTTPS server cannot start.
 func (c Configuration) PortErr(port uint, err error) {
 	s := "HTTP"
-	if port == c.Import.HTTPSPort {
-		s = "HTTPS"
+	if port == c.Import.TLSPort {
+		s = "TLS"
 	}
 	var portErr *net.OpError
 	switch {
@@ -240,8 +278,12 @@ func (c Configuration) PortErr(port uint, err error) {
 	case errors.Is(err, net.ErrClosed),
 		errors.Is(err, http.ErrServerClosed):
 		c.Logger.Infof("%s server shutdown gracefully.", s)
+	case errors.Is(err, os.ErrNotExist):
+		if pathError, ok := err.(*os.PathError); ok {
+			fmt.Println("File not found:", pathError.Path, pathError.Err)
+		}
+		c.Logger.Fatalf("%s server on port %d could not start: %w.", s, port)
 	default:
-		c.Logger.Fatalf("%s server on port %d could not start: %w.", s, port, err)
 	}
 }
 
