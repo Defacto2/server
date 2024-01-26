@@ -132,6 +132,11 @@ func TrimSiteSuffix(s string) string {
 	return s
 }
 
+// TrimSpace returns a string with all leading and trailing whitespace removed.
+func TrimSpace(s string) string {
+	return strings.TrimSpace(s)
+}
+
 // LastUpdated returns a string of the time since the given time t.
 // The time is formatted as "Last updated 1 hour ago".
 // If the time is not valid, an empty string is returned.

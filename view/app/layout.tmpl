@@ -267,11 +267,17 @@
     {{ template "paginationList" . }}
   </ul>
 </nav>
-<div class="text-end mb-4"><small>arrow and control keys pagenation support</small></div>
+<div class="text-end mb-4"><small>arrow + control keys pagination support</small></div>
 {{- end }}
 <main>
-    {{- if ne (index . "h1") ""}}<h1 class="fs-1 fw-light">{{ index . "h1" }}{{if ne (index . "h1Sub") ""}} <small>{{ index . "h1Sub" }}</small>{{end}}</h1>{{end -}}
-    {{- if ne (index . "lead") ""}}<p class="lead">{{ index . "lead" | safeHTML }}</p>{{end -}}
+    {{- if ne (index . "h1") ""}}
+    <h1 class="fs-1 fw-light">{{ index . "h1" }}{{if ne (index . "h1Sub") ""}} <small>{{ index . "h1Sub" }}</small>{{end}}</h1>
+    {{- end}}
+    {{- if ne (index . "lead") ""}}
+    <p class="lead">
+      {{ index . "lead" | safeHTML }}
+    </p>
+    {{- end}}
     {{- block "content" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
 </main>
 {{- if and (.Pagination) (gt (index  .Pagination.SumPages) 1)}}

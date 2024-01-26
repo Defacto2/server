@@ -221,6 +221,7 @@ func (web Web) TemplateFuncs() template.FuncMap {
 		"subTitle":          SubTitle,
 		"thumb":             web.Thumb,
 		"trimSiteSuffix":    TrimSiteSuffix,
+		"trimSpace":         TrimSpace,
 		"websiteIcon":       WebsiteIcon,
 	}
 	return funcMap

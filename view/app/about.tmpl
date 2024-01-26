@@ -7,7 +7,7 @@
             {{- /*  Lead including published, platform and section  */}}
             <h4 class="lead">{{index . "published"}}, {{brief (index . "platform") (index . "section")}}</h4>
             {{- /*  Table of details  */}}
-            {{ template "aboutTable" . }}
+            {{- template "aboutTable" . }}
         </div>
         {{- if not (index . "noScreenshot")}}
         <div class="{{$colClass}}">
@@ -37,8 +37,8 @@
             </div>
         </div>
         {{- end}}
-        <div class="col-12">
         {{- if or (index . "readmeLatin1") (index . "readmeCP437")}}
+        <div class="col-12">
             {{- if not (index . "noScreenshot")}}
                 <h6 class="fs-6 fw-lighter">Readme or information text <small>{{index . "readmeName"}}</small></h6>
                 <div class="m-3"><button class="btn btn-sm btn-outline-secondary" id="copyReadme" 
@@ -60,14 +60,14 @@
                 </div>
                 <hr>
             {{- end}}
+            {{if index . "readmeLatin1"}}
+                <pre id="readmeLatin1" class="{{index . "readmeLatin1Cls"}} font-amiga reader reader-invert border border-black rounded-1 p-1">{{(index . "readmeLatin1")}}</pre>
+            {{- end}}
+            {{if index . "readmeCP437"}}
+                <pre id="readmeCP437" class="{{index . "readmeCP437Cls"}} font-dos reader reader-invert border border-black rounded-1 p-1">{{(index . "readmeCP437")}}</pre>
+            {{- end -}}
+            </div>
         {{- end}}
-        {{if index . "readmeLatin1"}}
-            <pre id="readmeLatin1" class="{{index . "readmeLatin1Cls"}} font-amiga reader reader-invert border border-black rounded-1 p-1">{{(index . "readmeLatin1")}}</pre>
-        {{- end}}
-        {{if index . "readmeCP437"}}
-            <pre id="readmeCP437" class="{{index . "readmeCP437Cls"}} font-dos reader reader-invert border border-black rounded-1 p-1">{{(index . "readmeCP437")}}</pre>
-        {{- end}}
-        </div>
     </div>
 </div>
 {{- template "aboutJSDOS" . }}
