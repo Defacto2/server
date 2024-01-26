@@ -389,18 +389,18 @@
                 <input type="file" multiple="true" name="file-section" class="form-control" id="advFile">
                 <label class="input-group-text" for="advFile">Upload</label>
               </div>
-<div class="input-group mb-1">
-  <select name="operating-system" id="advSelOS" class="form-select">
-  {{- template "optionOS" . }}
-  </select>
-  <label class="input-group-text" for="advSelOS">Operating system</label>
-</div>
-<div class="input-group mb-3">
-  <label class="input-group-text" for="advSelCat">Tag as category</label>
-  <select name="category" id="advSelCat" class="form-select">
-  {{- template "optionTag" . }}
-  </select>
-</div>
+              <div class="input-group mb-1">
+                <select name="operating-system" id="advSelOS" class="form-select">
+                {{- template "optionOS" . }}
+                </select>
+                <label class="input-group-text" for="advSelOS">Operating system</label>
+              </div>
+              <div class="input-group mb-3">
+                <label class="input-group-text" for="advSelCat">Tag as category</label>
+                <select name="category" id="advSelCat" class="form-select">
+                {{- template "optionTag" . }}
+                </select>
+              </div>
               <div class="form-floating mb-3">
                 <input type="text" name="title" class="form-control" id="advTitle" aria-describedby="advTitleHelp" placeholder="example: 500000th release!">
                 <label for="advTitle">Title</label>
