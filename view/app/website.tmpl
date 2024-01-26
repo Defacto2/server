@@ -1,15 +1,12 @@
 {{- /*  website.tmpl  */}}
-{{- define "website" -}}
-<div class="col">
-    <div class="card h-100">
-        <div class="card-body">
-            <h5 class="card-title">{{ .Title | safeHTML }}</h5>
-            <p class="card-text">{{ .Info }}</p>
-            <a href="{{ .URL }}" class="icon-link icon-link-hover">
-                <svg class="bi" aria-hidden="true"><use xlink:href="/bootstrap-icons.svg#{{websiteIcon .URL}}"></use></svg>
-                Go surf
-            </a>
-        </div>
-    </div>
-</div>
+{{- define "website"}}
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ .Title | safeHTML }}</h5>
+                        <p class="card-text">{{ .Info }}</p>
+                        <a href="{{ .URL }}" class="icon-link icon-link-hover"><svg class="bi" aria-hidden="true"><use xlink:href="/bootstrap-icons.svg#{{websiteIcon .URL}}"></use></svg> Go surf</a>
+                    </div>
+                </div>
+            </div>
 {{- end -}}

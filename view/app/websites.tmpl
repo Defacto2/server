@@ -1,7 +1,7 @@
 {{- /*  websites.tmpl  */}}
 {{- define "content" }}
 <div class="accordion accordion-flush" id="websitesAccordion">
-{{range .accordion -}}
+{{- range .accordion -}}
 {{- $state := " collapsed" }}
     <div class="accordion-item">
         <h2 class="accordion-header">
@@ -13,13 +13,13 @@
         <div id="collapse{{ .ID }}" class="accordion-collapse collapse{{- if .Open }} show{{end}}">
           <div class="accordion-body">
             <div class="row row-cols-1 row-cols-md-2 g-4">
-              {{range .Sites -}}
+              {{- range .Sites -}}
                   {{- block "website" . -}}{{ "<!-- {{ .ID }} range of sites -->" | safeHTML -}}{{end}}
-              {{end}}
+              {{- end}}
             </div>
           </div>
         </div>
       </div>
-{{end}}
+{{- end}}
 </div>
 {{- end}}
