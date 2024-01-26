@@ -70,19 +70,19 @@ func (web Web) TemplateElms() template.FuncMap {
 func (web Web) TemplateClosures() template.FuncMap {
 	hrefs := Hrefs()
 	return template.FuncMap{
-		"cssBoot": func() string {
+		"bootstrap": func() string {
 			return hrefs[Bootstrap]
 		},
-		"cssLayout": func() string {
-			return hrefs[Layout]
+		"bootstrapJS": func() string {
+			return hrefs[BootstrapJS]
 		},
-		"editorArchiveForm": func() string {
+		"editArchive": func() string {
 			return hrefs[EditArchive]
 		},
-		"editorAssetsForm": func() string {
+		"editAssets": func() string {
 			return hrefs[EditAssets]
 		},
-		"editorForm": func() string {
+		"editor": func() string {
 			return hrefs[Editor]
 		},
 		"exampleDay": func() string {
@@ -94,39 +94,39 @@ func (web Web) TemplateClosures() template.FuncMap {
 		"exampleYear": func() string {
 			return time.Now().Format("2006")
 		},
-		"fmtFastURI": func(s string) string {
+		"fmtName": func(s string) string {
+			return helper.Capitalize(strings.ToLower(s))
+		},
+		"fmtRangeURI": func(s string) string {
 			x, err := name.Humanize(name.Path(s))
 			if err != nil {
 				return err.Error()
 			}
 			return helper.Capitalize(x)
 		},
-		"fmtName": func(s string) string {
-			return helper.Capitalize(strings.ToLower(s))
+		"fontAwesome": func() string {
+			return hrefs[FontAwesome]
 		},
 		"initialisms": func(s string) string {
 			return initialism.Join(initialism.Path(s))
 		},
-		"jsBoot": func() string {
-			return hrefs[BootstrapJS]
-		},
-		"jsDos": func() string {
+		"jsdosUI": func() string {
 			return hrefs[JSDosUI]
 		},
-		"jsFA": func() string {
-			return hrefs[FontAwesome]
-		},
-		"jsPouet": func() string {
-			return hrefs[Pouet]
-		},
-		"jsReadme": func() string {
-			return hrefs[Readme]
-		},
-		"jsWDos": func() string {
+		"jsdosW": func() string {
 			return hrefs[JSDosW]
+		},
+		"layout": func() string {
+			return hrefs[Layout]
 		},
 		"logo": func() string {
 			return string(*web.Brand)
+		},
+		"pouet": func() string {
+			return hrefs[Pouet]
+		},
+		"readme": func() string {
+			return hrefs[Readme]
 		},
 		"restPouet": func() string {
 			return hrefs[RESTPouet]
@@ -134,46 +134,46 @@ func (web Web) TemplateClosures() template.FuncMap {
 		"restZoo": func() string {
 			return hrefs[RESTZoo]
 		},
-		"sriBootCSS": func() string {
+		"sri_bootstrap": func() string {
 			return web.Subresource.Bootstrap
 		},
-		"sriBootJS": func() string {
+		"sri_bootstrapJS": func() string {
 			return web.Subresource.BootstrapJS
 		},
-		"sriEditorArchiveForm": func() string {
+		"sri_editArchive": func() string {
 			return web.Subresource.EditArchive
 		},
-		"sriEditorAssetsForm": func() string {
+		"sri_editAssets": func() string {
 			return web.Subresource.EditAssets
 		},
-		"sriEditorForm": func() string {
+		"sri_editor": func() string {
 			return web.Subresource.Editor
 		},
-		"sriFA": func() string {
+		"sri_fontAwesome": func() string {
 			return web.Subresource.FontAwesome
 		},
-		"sriJSDos": func() string {
+		"sri_jsdosUI": func() string {
 			return web.Subresource.JSDosUI
 		},
-		"sriJSWDos": func() string {
+		"sri_jsdosW": func() string {
 			return web.Subresource.JSDosW
 		},
-		"sriLayout": func() string {
+		"sri_layout": func() string {
 			return web.Subresource.Layout
 		},
-		"sriPouet": func() string {
+		"sri_pouet": func() string {
 			return web.Subresource.Pouet
 		},
-		"sriReadme": func() string {
+		"sri_readme": func() string {
 			return web.Subresource.Readme
 		},
-		"sriRestPouet": func() string {
+		"sri_restPouet": func() string {
 			return web.Subresource.RESTPouet
 		},
-		"sriRestZoo": func() string {
+		"sri_restZoo": func() string {
 			return web.Subresource.RESTZoo
 		},
-		"sriUploader": func() string {
+		"sri_uploader": func() string {
 			return web.Subresource.Uploader
 		},
 		"tagSel": TagSel,
@@ -200,7 +200,7 @@ func (web Web) TemplateFuncs() template.FuncMap {
 		"fmtMonth":          Month,
 		"fmtPrefix":         Prefix,
 		"fmtRoles":          helper.FmtSlice,
-		"fmtURI":            releaser.Link, // this is not performant for large lists, instead use fmtFastURI in TemplateStrings()
+		"fmtURI":            releaser.Link, // this is not performant for large lists, instead use fmtRangeURI in TemplateStrings()
 		"lastUpdated":       LastUpdated,
 		"linkDownload":      LinkDownload,
 		"linkHref":          LinkHref,

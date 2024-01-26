@@ -86,8 +86,8 @@
     {{- /*  opensearch.org  */}}
     <link rel="search" href="/osd.xml" type="application/opensearchdescription+xml" title="Defacto2 search">
     {{- /*  cascading style sheets  */}}
-    <link href="{{ cssBoot }}?{{ sriBootCSS }}" rel="stylesheet" integrity="{{ sriBootCSS }}" crossorigin="anonymous">
-    <link href="{{ cssLayout }}?{{ sriLayout }}" rel="stylesheet" integrity="{{ sriLayout }}" crossorigin="anonymous">
+    <link href="{{ bootstrap }}?{{ sri_bootstrap }}" rel="stylesheet" integrity="{{ sri_bootstrap }}" crossorigin="anonymous">
+    <link href="{{ layout }}?{{ sri_layout }}" rel="stylesheet" integrity="{{ sri_layout }}" crossorigin="anonymous">
   </head>
   <body>
     <div class="container-xxl p-0">
@@ -286,29 +286,29 @@
 </footer>
 </div>
 {{- /*  Do not defer, or async load the JS for Bootstrap  */}}
-<script src="{{ jsBoot }}?{{ sriBootJS }}" integrity="{{ sriBootJS }}" crossorigin="anonymous"></script>
+<script src="{{ bootstrapJS }}?{{ sri_bootstrapJS }}" integrity="{{ sri_bootstrapJS }}" crossorigin="anonymous"></script>
 {{- /*  FontAwesome  */}}
-<script async src="{{ jsFA }}?{{ sriFA }}" integrity="{{ sriFA }}" crossorigin="anonymous"></script>
+<script async src="{{ fontAwesome }}?{{ sri_fontAwesome }}" integrity="{{ sri_fontAwesome }}" crossorigin="anonymous"></script>
 {{- if index . "pouet"}}
-<script async src="{{ jsPouet }}?{{ sriPouet }}" integrity="{{ sriPouet }}" crossorigin="anonymous"></script>
+<script async src="{{ pouet }}?{{ sri_pouet }}" integrity="{{ sri_pouet }}" crossorigin="anonymous"></script>
 {{- end}}
 {{- if or (index . "readmeLatin1") (index . "readmeCP437")}}
-<script async src="{{ jsReadme }}?{{ sriReadme }}" integrity="{{ sriReadme }}" crossorigin="anonymous"></script>
+<script async src="{{ readme }}?{{ sri_readme }}" integrity="{{ sri_readme }}" crossorigin="anonymous"></script>
 {{- end}}
 {{- /*  JS DOS v6  */}}
 {{- if index . "jsdos"}}
-<script async src="{{ jsDos }}?{{ sriJSDos }}" integrity="{{ sriJSDos }}" crossorigin="anonymous"></script>
-<script async src="{{ jsWDos }}?{{ sriJSWDos }}" integrity="{{ sriJSWDos }}" crossorigin="anonymous"></script>
+<script async src="{{ jsdosUI }}?{{ sri_jsdosUI }}" integrity="{{ sri_jsdosUI }}" crossorigin="anonymous"></script>
+<script async src="{{ jsdosW }}?{{ sri_jsdosW }}" integrity="{{ sri_jsdosW }}" crossorigin="anonymous"></script>
 {{- end}}
 {{- /*  Uploader  */}}
-<script async src="{{ uploader }}?{{ sriUploader }}" integrity="{{ sriUploader }}" crossorigin="anonymous"></script>
-<script asnyc src="{{ restPouet }}?{{ sriRestPouet }}" integrity="{{ sriRestPouet }}" crossorigin="anonymous"></script>
-<script asnyc src="{{ restZoo }}?{{ sriRestZoo }}" integrity="{{ sriRestZoo }}" crossorigin="anonymous"></script>
+<script async src="{{ uploader }}?{{ sri_uploader }}" integrity="{{ sri_uploader }}" crossorigin="anonymous"></script>
+<script asnyc src="{{ restPouet }}?{{ sri_restPouet }}" integrity="{{ sri_restPouet }}" crossorigin="anonymous"></script>
+<script asnyc src="{{ restZoo }}?{{ sri_restZoo }}" integrity="{{ sri_restZoo }}" crossorigin="anonymous"></script>
 {{- /*  Editor  */}}
 {{- if eq false (index . "readOnly")}}
-<script asnyc src="{{ editorForm }}?{{ sriEditorForm }}" integrity="{{ sriEditorForm }}" crossorigin="anonymous"></script>
-<script asnyc src="{{ editorAssetsForm }}?{{ sriEditorAssetsForm }}" integrity="{{ sriEditorAssetsForm }}" crossorigin="anonymous"></script>
-<script asnyc src="{{ editorArchiveForm }}?{{ sriEditorArchiveForm }}" integrity="{{ sriEditorArchiveForm }}" crossorigin="anonymous"></script>
+<script asnyc src="{{ editor }}?{{ sri_editor }}" integrity="{{ sri_editor }}" crossorigin="anonymous"></script>
+<script asnyc src="{{ editAssets }}?{{ sri_editAssets }}" integrity="{{ sri_editAssets }}" crossorigin="anonymous"></script>
+<script asnyc src="{{ editArchive }}?{{ sri_editArchive }}" integrity="{{ sri_editArchive }}" crossorigin="anonymous"></script>
 {{- end}}
 {{- /*  Google Analytics  */}}
 {{- /*  Bootstrap tooltips get initialized on every page  */}}
