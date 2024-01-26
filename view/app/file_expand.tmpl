@@ -53,10 +53,10 @@
                             In the early days, games listed the platform as <q>IBM</q> or <q>IBM PC</q>, but this naming evolved to <q>IBM/Tandy and compatibles</q> before eventually settling on <q>MS-DOS</q> in the 1990s.
                         </p>
                         <p>
-                            <span class="card-link">Browse the files for </span>
-                            <a href="/files/msdos" class="card-link">{{msdos}}</a>
+                            <span class="card-link"><a href="/files/msdos" class="card-link">Browse the files for {{msdos}}</a></span>
                         </p>
                         {{- if .stats }}
+                        <hr>
                         <p><small>dos date range: {{$rels.MsDos.MinYear}}-{{$rels.MsDos.MaxYear}} and dos count: {{ byteFile $rels.MsDos.Count $rels.MsDos.Bytes }}</small></p>
                         {{- end }}
                     </div>
@@ -68,10 +68,10 @@
                             Most of the Windows software hosted on this site released in the 1990s will target Windows 95 or 98, while the releases from the 2000s should be for Windows XP or 7.
                         </p>
                         <p>
-                            <span class="card-link">Browse the files for </span>
-                            <a href="/files/windows" class="card-link">Windows</a>
+                            <span class="card-link"><a href="/files/windows" class="card-link">Browse the files for Windows</a></span>
                         </p>
                         {{- if .stats }}
+                        <hr>
                         <p><small>windows date range: {{$rels.Windows.MinYear}}-{{$rels.Windows.MaxYear}} and windows count: {{ byteFile $rels.Windows.Count $rels.Windows.Bytes }}</small></p>
                         {{- end }}
                     </div>
@@ -83,10 +83,10 @@
                             Unlike Microsoft Windows, Apple has used different hardware architectures over the years, so the Apple platforms lack backward compatibility.
                         </p>
                         <p>
-                            <span class="card-link">Browse the files for </span>
-                            <a href="/files/macos" class="card-link">macOS</a>
+                            <span class="card-link"><a href="/files/macos" class="card-link">Browse the files for macOS</a></span>
                         </p>
                         {{- if .stats }}
+                        <hr>
                         <p><small>mac date range: {{$rels.Macos.MinYear}}-{{$rels.Macos.MaxYear}} and mac count: {{ byteFile $rels.Macos.Count $rels.Macos.Bytes }}</small></p>
                         {{- end }}
                     </div>
@@ -97,10 +97,10 @@
                             Software created for Linux or Unix platforms. Obsolete software targeting the desktop will likely fail on modern distributions, but terminal apps may still work.
                         </p>
                         <p>
-                            <span class="card-link">Browse the files for </span>
-                            <a href="/files/linux" class="card-link">Linux</a>
+                            <span class="card-link"><a href="/files/linux" class="card-link">Browse the files for Linux</a></span>
                         </p>
                         {{- if .stats }}
+                        <hr>
                         <p><small>linux date range: {{$rels.Linux.MinYear}}-{{$rels.Linux.MaxYear}} and linux count: {{ byteFile $rels.Linux.Count $rels.Linux.Bytes }}</small></p>
                         {{- end }}
                     </div>
@@ -111,10 +111,10 @@
                             Shell scripts and software created in interpreted programming languages such as PHP, Perl, TCL, Python and Ruby.
                         </p>
                         <p>
-                            <span class="card-link">Browse the </span>
-                            <a href="/files/script" class="card-link">shell scripts and software</a>
+                            <span class="card-link"><a href="/files/script" class="card-link">Browse the shell scripts and software</a></span>
                         </p>
                         {{- if .stats }}
+                        <hr>
                         <p><small>script date range: {{$rels.Script.MinYear}}-{{$rels.Script.MaxYear}} and script count: {{ byteFile $rels.Script.Count $rels.Script.Bytes }}</small></p>
                         {{- end }}
                     </div>
@@ -125,10 +125,10 @@
                             Software written in Java is a popular language for cross-platform applications, though unrelated to JavaScript.
                         </p>
                         <p>
-                            <span class="card-link">Browse the files for </span>
-                            <a href="/files/java" class="card-link">Java</a>
+                            <span class="card-link"><a href="/files/java" class="card-link">Browse the files for Java</a></span>
                         </p>
                         {{- if .stats }}
+                        <hr>
                         <p><small>java date range: {{$rels.Java.MinYear}}-{{$rels.Java.MaxYear}} and java count: {{ byteFile $rels.Java.Count $rels.Java.Bytes }}</small></p>
                         {{- end }}
                     </div>
@@ -189,6 +189,7 @@
                             </div>
                         </div>
                     </div>
+                    <hr>
                     <span class="{{$linkClass}}">Browse the</span>
                     <div class="container text-left">
                         <div class="row row-cols-1 row-cols-sm-2 g-3 p-3 g-md-0 p-md-0">
