@@ -61,7 +61,7 @@ func (dir Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error
 	data := empty(c)
 	// about editor
 	if !readonly {
-		data["readonly"] = false
+		data["readOnly"] = false
 		data["recID"] = res.ID
 		data["recTitle"] = res.RecordTitle.String
 		data["recOnline"] = res.Deletedat.Time.IsZero()

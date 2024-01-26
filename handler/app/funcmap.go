@@ -29,6 +29,9 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 // TemplateElms returns a map of functions that return HTML elements.
 func (web Web) TemplateElms() template.FuncMap {
 	return template.FuncMap{
+		"az": func() template.HTML {
+			return template.HTML(`<small><small class=\"fw-lighter\">A-Z</small></small>`)
+		},
 		"mergeIcon": func() template.HTML {
 			return template.HTML(`<svg class="bi" aria-hidden="true" fill="currentColor">` +
 				`<use xlink:href="/bootstrap-icons.svg#forward"></use></svg>`)

@@ -30,7 +30,9 @@ func bbsHandler(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	const lead = "Bulletin Board Systems are historical, networked personal computer servers connected using the landline telephone network and provide forums, real-time chat, mail, and file sharing for The Scene \"elites.\""
+	const lead = "Bulletin Board Systems are historical, " +
+		"networked personal computer servers connected using the landline telephone network and provide forums, " +
+		"real-time chat, mail, and file sharing for The Scene \"elites.\""
 	const key = "releasers"
 	data := empty(c)
 	data["title"] = title

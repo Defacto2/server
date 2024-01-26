@@ -89,7 +89,7 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 	data["description"] = "Table of contents for the files."
 	data["logo"] = logo
 	data["h1"] = title
-	data["h1sub"] = h1sub
+	data["h1Sub"] = h1sub
 	data["lead"] = lead
 	data[records] = []models.FileSlice{}
 	data["unknownYears"] = true

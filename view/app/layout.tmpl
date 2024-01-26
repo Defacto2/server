@@ -3,17 +3,16 @@
 {{$fallbackDesc := "Defacto2 is the premier destination for old school files and historical texts of the underground PC cracking, BBS and art scenes" -}}
 {{$cc           := "https://creativecommons.org/licenses/by/4.0/" -}}
 {{$github       := "https://github.com/defacto2/" -}}
-{{$az := "<small><small class=\"fw-lighter\">A-Z</small></small>" | safeHTML -}}
 <html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ .title }}{{if ne (index . "h1sub") ""}} {{ index . "h1sub" }}{{end}} | Defacto2</title>
+    <title>{{ .title }}{{if ne (index . "h1Sub") ""}} {{ index . "h1Sub" }}{{end}} | Defacto2</title>
     {{if ne (index . "canonical") ""}}<link rel="canonical" href="https://defacto2.net/{{index . "canonical"}}">{{end -}}
     {{if ne (index . "description") ""}}<meta name="description" content="{{ index . "description" }}">{{end -}}
     {{if eq (index . "description") ""}}<meta name="description" content="{{$fallbackDesc}}">{{end}}
     <meta name="theme-color" content="rgb(153, 153, 153)">
-    <meta name="defacto2:file-count" content="{{ index . "df2FileCount" }}">
+    <meta name="defacto2:file-count" content="{{ index . "cacheFiles" }}">
     <meta name="monetization" content="$ilp.uphold.com/RpWPnb88yLaF">
     <meta name="format-detection" content="telephone=no">
     <meta name="format-detection" content="address=no">
@@ -129,14 +128,14 @@
               <ul class="dropdown-menu">
                 <li><h6 class="dropdown-header">Scene</h6></li>
                 <li><a class="dropdown-item" href="/releaser">Releasers</a></li>
-                <li><a class="dropdown-item" href="/releaser/a-z">Releasers {{$az}}</a></li>
+                <li><a class="dropdown-item" href="/releaser/a-z">Releasers {{az}}</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">Products</h6></li>
                 <li><a class="dropdown-item" href="/magazine">Magazines</a></li>
-                <li><a class="dropdown-item" href="/magazine/a-z">Magazines {{$az}}</a></li>
-                <li><a class="dropdown-item" href="/ftp">FTP sites {{$az}}</a></li>
+                <li><a class="dropdown-item" href="/magazine/a-z">Magazines {{az}}</a></li>
+                <li><a class="dropdown-item" href="/ftp">FTP sites {{az}}</a></li>
                 <li><a class="dropdown-item" href="/bbs">BBS sites</a></li>
-                <li><a class="dropdown-item" href="/bbs/a-z">BBS sites {{$az}}</a></li>
+                <li><a class="dropdown-item" href="/bbs/a-z">BBS sites {{az}}</a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -243,11 +242,11 @@
       </div>
     </nav>
   </div>
-    <div class="container-xxl">
-{{- block "modal" . -}}{{ "<!-- Modal popup content here -->" | safeHTML -}}{{end}}
-{{- block "uploader" . -}}{{ "<!-- Uploader content here -->" | safeHTML -}}{{end}}
+  <div class="container-xxl">
+  {{- block "modal" . -}}{{ "<!-- Modal popup content here -->" | safeHTML -}}{{end}}
+  {{- block "uploader" . -}}{{ "<!-- Uploader content here -->" | safeHTML -}}{{end}}
   <hr>
-{{- if eq (index . "dberror") true -}}
+{{- if eq (index . "dbError") true -}}
 <div class="alert alert-danger" role="alert">
   The database is down, this means the website is not fully working. We are working on it.
 </div>{{- end}}
@@ -271,7 +270,7 @@
 <div class="text-end mb-4"><small>arrow and control keys pagenation support</small></div>
 {{- end }}
 <main>
-    {{- if ne (index . "h1") ""}}<h1 class="fs-1 fw-light">{{ index . "h1" }}{{if ne (index . "h1sub") ""}} <small>{{ index . "h1sub" }}</small>{{end}}</h1>{{end -}}
+    {{- if ne (index . "h1") ""}}<h1 class="fs-1 fw-light">{{ index . "h1" }}{{if ne (index . "h1Sub") ""}} <small>{{ index . "h1Sub" }}</small>{{end}}</h1>{{end -}}
     {{- if ne (index . "lead") ""}}<p class="lead">{{ index . "lead" | safeHTML }}</p>{{end -}}
     {{- block "content" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
 </main>
@@ -306,7 +305,7 @@
 <script asnyc src="{{ restPouet }}?{{ sriRestPouet }}" integrity="{{ sriRestPouet }}" crossorigin="anonymous"></script>
 <script asnyc src="{{ restZoo }}?{{ sriRestZoo }}" integrity="{{ sriRestZoo }}" crossorigin="anonymous"></script>
 {{- /*  Editor  */}}
-{{- if eq false (index . "readonly")}}
+{{- if eq false (index . "readOnly")}}
 <script asnyc src="{{ editorForm }}?{{ sriEditorForm }}" integrity="{{ sriEditorForm }}" crossorigin="anonymous"></script>
 <script asnyc src="{{ editorAssetsForm }}?{{ sriEditorAssetsForm }}" integrity="{{ sriEditorAssetsForm }}" crossorigin="anonymous"></script>
 <script asnyc src="{{ editorArchiveForm }}?{{ sriEditorArchiveForm }}" integrity="{{ sriEditorArchiveForm }}" crossorigin="anonymous"></script>

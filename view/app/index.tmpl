@@ -61,9 +61,7 @@
     <div class="card h-100{{ if eq true .Highlight}} text-bg-light{{end}}">
       {{- /*  Header & pictures  */}}
       {{- if and (eq "" .Picture.Png) (eq "" .Picture.Jpg)}}
-      <div class="card-header">
-        {{fmtPrefix .Prefix}}<strong>{{.Year}}</strong>{{fmtMonth .Month}}{{fmtDay .Day}}
-      </div>
+      <div class="card-header">{{fmtPrefix .Prefix}}<strong>{{.Year}}</strong>{{fmtMonth .Month}}{{fmtDay .Day}}</div>
       {{- end}}
       {{- if ne "" .Picture.Jpg}}
       <img src="/image/milestone/{{.Picture.Jpg}}" loading="lazy" class="card-img-top" alt="{{.Picture.Alt}}">  
@@ -91,10 +89,15 @@
       {{- end}} 
       {{- /*  Card body  */}}
       <div class="card-body">
+        {{- if (ne "" .Title)}}
         <h5 class="card-title{{if eq true .Highlight}} text-primary{{end}}">
           {{.Title}}<br><small class="text-body-secondary">{{.Lead}}</small>
         </h5>
+        {{- end}}
+        {{- if (ne "" .Content)}}
         <p class="card-text"><small>{{.Content | safeHTML}}</small></p>
+        {{- end}}
+        {{- if or (ne "" .Link) (ne "" .Picture.Attribution)}}
         <p class="card-text">
           <small>
           {{- if ne "" .Link}}<a href="{{.Link}}" class="link-offset-2 link-underline link-underline-opacity-50">Read {{.LinkTitle}}</a>{{- end}}
@@ -102,9 +105,10 @@
             <br>
               Photo by {{.Picture.Attribution}} &nbsp;
               <a href="{{.Picture.LicenseLink}}" class="link-offset-2 link-underline link-underline-opacity-50">{{.Picture.License}}</a>
-          {{end}}
+          {{- end -}}
           </small>
         </p>
+        {{- end}}
       </div>
       {{- /*  Lists, aligned to the bottom  */}}
       {{- if and (.List) (ne "" .Content)}}
@@ -123,12 +127,10 @@
       {{- end}}   
       {{- /*  Footer  */}}
       {{- if or (ne "" .Picture.Png) (ne "" .Picture.Jpg)}}
-      <div class="card-footer">
-        {{fmtPrefix .Prefix}}<strong>{{.Year}}</strong>{{fmtMonth .Month}}{{fmtDay .Day}}
-      </div>
-      {{end}}
+      <div class="card-footer">{{fmtPrefix .Prefix}}<strong>{{.Year}}</strong>{{fmtMonth .Month}}{{fmtDay .Day}}</div>
+      {{- end}}
     </div>
   </div>
-{{end}}
+{{- end}}
 </div>
 {{- end}}

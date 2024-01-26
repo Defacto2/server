@@ -31,7 +31,7 @@ func File(z *zap.SugaredLogger, c echo.Context, stats bool) error {
 	data, err := fileWStats(data, stats)
 	if err != nil {
 		z.Warn(err)
-		data["dberror"] = true
+		data["dbError"] = true
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {

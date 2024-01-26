@@ -24,9 +24,9 @@ import (
 )
 
 var (
+	ErrClaims   = fmt.Errorf("no sub id in the claims playload")
 	ErrData     = fmt.Errorf("cache data is invalid or corrupt")
 	ErrMisMatch = fmt.Errorf("token mismatch")
-	ErrClaims   = fmt.Errorf("no sub id in the claims playload")
 	ErrSession  = fmt.Errorf("no sub id in session")
 	ErrUser     = fmt.Errorf("unknown user")
 )
@@ -42,23 +42,20 @@ func empty(c echo.Context) map[string]interface{} {
 	// * marked keys are required.
 	// ! marked keys are suggested.
 	return map[string]interface{}{
-		"title":       "", // * The title of the page that get inserted into the title meta element.
-		"canonical":   "", //   A canonical URL is the URL of the best representative page from a group of duplicate pages.
-		"description": "", // * A short description of the page that get inserted into the description meta element.
-
-		"logo":     "",    // ! Text to insert into the monospaced, ASCII art logo.
-		"h1":       "",    // ! The H1 heading of the page.
-		"h1sub":    "",    //   The H1 sub-heading of the page.
-		"lead":     "",    // ! The enlarged, lead paragraph of the page.
-		"carousel": "",    //   The ID of the carousel to display.
-		"jsdos":    false, //  	If true, the large, JS-DOS emulator files will be loaded.
-
-		"counter":      Statistics(),        // Empty database counts for files and categories.
-		"df2FileCount": Caching.RecordCount, // The number of records of files in the database.
-
-		"dberror":  false,     // If true, the database is not available.
-		"readonly": true,      // If true, the application is in read-only mode.
-		"editor":   editor(c), // If true, the editor mode is enabled.
+		"cacheFiles":  Caching.RecordCount, //   The number of records of files in the database.
+		"canonical":   "",                  //   A canonical URL is the URL of the best representative page from a group of duplicate pages.
+		"carousel":    "",                  //   The ID of the carousel to display.
+		"counter":     Statistics(),        //   Empty database counts for files and categories.
+		"dbError":     false,               //   If true, the database is not available.
+		"description": "",                  // * A short description of the page that get inserted into the description meta element.
+		"editor":      editor(c),           //   If true, the editor mode is enabled.
+		"h1":          "",                  // ! The H1 heading of the page.
+		"h1Sub":       "",                  //   The H1 sub-heading of the page.
+		"jsdos":       false,               //   If true, the large, JS-DOS emulator files will be loaded.
+		"lead":        "",                  // ! The enlarged, lead paragraph of the page.
+		"logo":        "",                  // ! Text to insert into the monospaced, ASCII art logo.
+		"readOnly":    true,                //   If true, the application is in read-only mode.
+		"title":       "",                  // * The title of the page that get inserted into the title meta element.
 	}
 }
 
