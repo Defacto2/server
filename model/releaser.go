@@ -5,6 +5,7 @@ package model
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"strings"
 
 	namer "github.com/Defacto2/releaser/name"
@@ -18,21 +19,16 @@ import (
 
 // Releaser is a collective, group or individual, that releases files.
 type Releaser struct {
-	// Name of the releaser.
-	Name string `boil:"releaser"`
-	// URI slug for the releaser with no boiler bind.
-	URI string ``
-	// Bytes are the total size of all the files under this releaser.
-	Bytes int `boil:"size_total"`
-	// Count is the total number of files under this releaser.
-	Count int `boil:"count_sum"`
-	// Year is used for optional sorting and is the earliest year the releaser was active.
-	Year null.Int `boil:"min_year"`
+	Name  string   `boil:"releaser"`   // Name of the releaser.
+	URI   string   ``                  // URI slug for the releaser, with no boiler bind.
+	Bytes int      `boil:"size_total"` // Bytes are the total size of all the files under this releaser.
+	Count int      `boil:"count_sum"`  // Count is the total number of files under this releaser.
+	Year  null.Int `boil:"min_year"`   // Year is used for optional sorting and is the earliest year the releaser was active.
 }
 
 // Releasers is a collection of releasers.
 type Releasers []*struct {
-	Unique Releaser `boil:",bind"` // Unique is the releaser.
+	Unique Releaser `boil:",bind"` // Unique releaser.
 }
 
 // ReleaserName is a releaser name.
@@ -76,7 +72,8 @@ func (r *Releasers) List(ctx context.Context, db *sql.DB, name string) (models.F
 
 // All gets the unique releaser names and their total file count and file sizes.
 // When reorder is true the results are ordered by the total file counts.
-func (r *Releasers) All(ctx context.Context, db *sql.DB, reorder bool) error {
+func (r *Releasers) All(ctx context.Context, db *sql.DB, reorder bool, limit, page int) error {
+	fmt.Println("query", limit, page, "????????????")
 	if db == nil {
 		return ErrDB
 	}
@@ -87,11 +84,26 @@ func (r *Releasers) All(ctx context.Context, db *sql.DB, reorder bool) error {
 	if reorder {
 		query = string(postgres.DistReleaserSummed())
 	}
+	if limit > 0 {
+		if page < 1 {
+			page = 1
+		}
+		limit, offset := calculateLimitAndOffset(page, limit)
+		query += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
+
+		fmt.Println(query, limit, offset, "????????????")
+	}
 	if err := queries.Raw(query).Bind(ctx, db, r); err != nil {
 		return err
 	}
 	r.Slugs()
 	return nil
+}
+
+func calculateLimitAndOffset(pageNumber int, pageSize int) (limit int, offset int) {
+	limit = pageSize
+	offset = (pageNumber - 1) * pageSize
+	return
 }
 
 // Magazine gets the unique magazine titles and their total issue count and file sizes.

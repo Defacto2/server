@@ -5,8 +5,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
+	namer "github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/volatiletech/null/v8"
@@ -85,7 +87,12 @@ func ByteCountByReleaser(ctx context.Context, db *sql.DB, name string) (int64, e
 	if name == "" {
 		return 0, ErrName
 	}
-	mods := qm.SQL(string(postgres.SumGroup()), null.StringFrom(name))
+	s, err := namer.Humanize(namer.Path(name))
+	if err != nil {
+		return 0, err
+	}
+	n := strings.ToUpper(s)
+	mods := qm.SQL(string(postgres.SumGroup()), null.StringFrom(n))
 	i, err := models.Files(mods).Count(ctx, db)
 	if err != nil {
 		return 0, fmt.Errorf("bytecount by releaser %q: %w", name, err)

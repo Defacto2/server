@@ -92,7 +92,7 @@ func listTags(z *zap.SugaredLogger, fs embed.FS) *template.Template {
 // List the distinct groups template.
 func listGroups(z *zap.SugaredLogger, fs embed.FS) *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap(z)).ParseFS(fs,
-		GlobTo(layout), GlobTo(dirs), GlobTo("groups.html")))
+		GlobTo(layout), GlobTo(dirs), GlobTo(pagination), GlobTo("groups.html")))
 }
 
 // Template for displaying HTTP error codes and feedback.

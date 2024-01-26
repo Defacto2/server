@@ -22,7 +22,7 @@ func TestAllSlugs(t *testing.T) {
 	defer db.Close()
 
 	var g model.Releasers
-	if err := g.All(ctx, db, false); err != nil {
+	if err := g.All(ctx, db, false, 0, 0); err != nil {
 		log.Println(err)
 		return
 	}

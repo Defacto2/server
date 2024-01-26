@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Defacto2/server/internal/helper"
@@ -91,6 +93,7 @@ func Routes(z *zap.SugaredLogger, e *echo.Echo) *echo.Group {
 	g.GET("/platforms", s.Platforms)
 	g.GET("/platform/:id/:offset", s.Platform)
 	g.GET("/platform/:id", s.Platform)
+	g.GET("/groups:offset", s.Groups)
 	g.GET("/groups", s.Groups)
 	g.GET("/group/:id", s.Group)
 	g.GET("/art:offset", s.Art)
@@ -111,6 +114,10 @@ func Routes(z *zap.SugaredLogger, e *echo.Echo) *echo.Group {
 	})
 	g.GET("/platforms/index", func(c echo.Context) error {
 		return c.Redirect(code, "/html3/platforms")
+	})
+	// Custom 404 error, "The page cannot be found"
+	g.GET("/:uri", func(x echo.Context) error {
+		return x.String(http.StatusNotFound, fmt.Sprintf("The page cannot be found: /html3/%s", x.Param("uri")))
 	})
 	return g
 }
@@ -218,9 +225,53 @@ func (s *sugared) Groups(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, errConn)
 	}
 	defer db.Close()
+
+	page := 1
+	offset := strings.TrimPrefix(c.Param("offset"), "/")
+	if offset != "" {
+		// this permits blank offsets param but returns 404 for a /0 value
+		page, _ = strconv.Atoi(offset)
+		if page < 1 {
+			return echo.NewHTTPError(http.StatusNotFound,
+				fmt.Sprintf("Page %d of %s doesn't exist", page, "/groups"))
+		}
+	}
+
 	// releasers are the distinct groups from the file table.
-	var releasers model.Releasers
-	if err := releasers.All(ctx, db, false); err != nil {
+
+	var unique model.ReleaserNames
+	if err := unique.List(ctx, db); err != nil {
+		s.zlog.Errorf("%s: %s %d", errConn, err)
+		return echo.NewHTTPError(http.StatusNotFound, errSQL)
+	}
+	count := len(unique)
+
+	maxPage := uint(0)
+	limit := model.Maximum
+	if limit > 0 {
+		maxPage = helper.PageCount(count, limit)
+		if page > int(maxPage) {
+			return echo.NewHTTPError(http.StatusNotFound,
+				fmt.Sprintf("Page %d of %d for %s doesn't exist", page, maxPage, " TODO"))
+		}
+	}
+
+	navi := Navigate{
+		Current:  "groups",
+		Limit:    limit,
+		Page:     page,
+		PagePrev: previous(page),
+		PageNext: next(page, maxPage),
+		PageMax:  int(maxPage),
+		QueryStr: qs(c.QueryString()),
+	}
+	navi.Link1, navi.Link2, navi.Link3 = Pagi(page, maxPage)
+
+	fmt.Println(navi)
+
+	// releasers are the distinct groups from the file table.
+	releasers := model.Releasers{}
+	if err := releasers.All(ctx, db, false, model.Maximum, page); err != nil {
 		s.zlog.Errorf("%s: %s %d", errConn, err)
 		return echo.NewHTTPError(http.StatusNotFound, errSQL)
 	}
@@ -232,6 +283,7 @@ func (s *sugared) Groups(c echo.Context) error {
 		"latency":   fmt.Sprintf("%s.", time.Since(*start)),
 		"path":      "group",
 		"releasers": releasers, // model.Grps.List
+		"navigate":  navi,
 	})
 	if err != nil {
 		s.zlog.Errorf("%s: %s %d", errTmpl, err)

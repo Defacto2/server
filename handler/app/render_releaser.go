@@ -216,7 +216,7 @@ func rel(z *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	}
 	defer db.Close()
 	var r model.Releasers
-	if err := r.All(ctx, db, prolific); err != nil {
+	if err := r.All(ctx, db, prolific, 0, 0); err != nil {
 		return DatabaseErr(z, c, name, err)
 	}
 	var m model.Summary

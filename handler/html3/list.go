@@ -60,17 +60,17 @@ func (s *sugared) Group(c echo.Context) error {
 	return s.List(c, ByGroup)
 }
 
-// Group lists the file records described as art are digital + pixel art files.
+// Art lists the file records described as art are digital + pixel art files.
 func (s *sugared) Art(c echo.Context) error {
 	return s.List(c, AsArt)
 }
 
-// Group lists the file records described as document + text art files.
+// Documents lists the file records described as document + text art files.
 func (s *sugared) Documents(c echo.Context) error {
 	return s.List(c, AsDocuments)
 }
 
-// Group lists the file records described as software files.
+// Software lists the file records described as software files.
 func (s *sugared) Software(c echo.Context) error {
 	return s.List(c, AsSoftware)
 }
@@ -90,7 +90,6 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error { //nolint:funlen
 				fmt.Sprintf("Page %d of %s doesn't exist", page, tt))
 		}
 	}
-
 	name := releaser.Clean(id)
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
@@ -124,7 +123,7 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error { //nolint:funlen
 		count = int(x)
 	case ByGroup:
 		// ByGroups do not need a pagination limit.
-		records, err = order.FilesByGroup(ctx, db, name)
+		records, err = order.FilesByGroup(ctx, db, id)
 		count = len(records)
 	case AsArt:
 		limit = model.Maximum
@@ -181,31 +180,26 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error { //nolint:funlen
 		}
 	}
 
-	var current, desc string
+	var desc string
+	current := strings.TrimPrefix(tt.String(), "html3_")
 	switch tt {
 	case BySection, ByPlatform:
 		key := tags.TagByURI(id)
 		info := tags.Infos()[key]
 		name := tags.Names()[key]
 		desc = fmt.Sprintf("%s - %s.", name, info)
-		s, err := url.JoinPath(tt.String(), key.String())
+		s, err := url.JoinPath(current, key.String())
 		if err != nil {
 			log.Warnf("Could not create a URL string from %q and %q.", tt.String(), key.String())
 		}
 		current = s
 	case AsArt:
 		desc = fmt.Sprintf("%s, %s.", "Digital + pixel art", textArt)
-		current = tt.String()
 	case AsDocuments:
 		desc = fmt.Sprintf("%s, %s.", "Document + text art", textDoc)
-		current = tt.String()
 	case AsSoftware:
 		desc = fmt.Sprintf("%s, %s.", "Software", textSof)
-		current = tt.String()
-	default:
-		current = tt.String()
 	}
-
 	navi := Navigate{
 		Current:  current,
 		Limit:    limit,
@@ -215,9 +209,14 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error { //nolint:funlen
 		PageMax:  int(maxPage),
 		QueryStr: qs(c.QueryString()),
 	}
+	title := fmt.Sprintf("%s/%s", title, current)
+	if tt == ByGroup && id != "" {
+		title = fmt.Sprintf("%s/%s", title, id)
+	}
+	// fmt.Sprintf("%s%s%s", title, fmt.Sprintf("/%s/", strings.TrimSuffix(current, id)), id)
 	navi.Link1, navi.Link2, navi.Link3 = Pagi(page, maxPage)
 	err = c.Render(http.StatusOK, tt.String(), map[string]interface{}{
-		"title":       fmt.Sprintf("%s%s%s", title, fmt.Sprintf("/%s/", tt), id),
+		"title":       title,
 		"home":        "",
 		"description": desc,
 		"parent":      tt.Parent(),
@@ -249,10 +248,12 @@ func (s *sugared) sumBytesBy(ctx context.Context, db *sql.DB, tt RecordsBy, id, 
 			return 0, fmt.Errorf("ByteCountByCategory: %q, %w", id, err)
 		}
 	case ByGroup:
+		fmt.Println("DOING A SIGNIFICANT BY GROUP SUM")
 		byteSum, err = model.ByteCountByReleaser(ctx, db, id)
 		if err != nil {
 			return 0, fmt.Errorf("ByteCountByCategory: %q, %w", name, err)
 		}
+		fmt.Println("DONE A SIGNIFICANT BY GROUP SUM")
 	}
 	return byteSum, nil
 }

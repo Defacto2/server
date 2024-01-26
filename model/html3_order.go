@@ -6,7 +6,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 
+	namer "github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -103,7 +105,12 @@ func (o Order) FilesByGroup(ctx context.Context, db *sql.DB, name string) (model
 	if db == nil {
 		return nil, ErrDB
 	}
-	mods := models.FileWhere.GroupBrandFor.EQ(null.StringFrom(name))
+	s, err := namer.Humanize(namer.Path(name))
+	if err != nil {
+		return nil, err
+	}
+	n := strings.ToUpper(s)
+	mods := models.FileWhere.GroupBrandFor.EQ(null.StringFrom(n))
 	return models.Files(mods,
 		qm.OrderBy(o.String())).All(ctx, db)
 }
