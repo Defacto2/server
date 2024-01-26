@@ -120,13 +120,13 @@ func Created(f *models.File) string {
 		return ErrModel.Error()
 	}
 	if !f.Createdat.Valid {
-		return ""
+		return "-- --- ----"
 	}
 	d := f.Createdat.Time.Day()
 	m := helper.ShortMonth(int(f.Createdat.Time.Month()))
 	y := f.Createdat.Time.Year()
 	if !helper.IsYear(y) {
-		return ""
+		return "-- --- ----"
 	}
 	return fmt.Sprintf("%02d-%s-%d", d, m, y)
 }

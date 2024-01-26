@@ -2,6 +2,7 @@ package html3
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -153,14 +154,12 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error { //nolint:funlen
 			fmt.Sprintf("The %s %q doesn't exist", tt, id))
 	}
 
-	var byteSum int64
+	byteSum, err := s.sumBytesBy(ctx, db, tt, id, name)
+	if err != nil {
+		s.zlog.Warnf("%s: %s", errConn, err)
+		//return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
+	}
 	switch tt {
-	case BySection:
-		byteSum, err = model.ByteCountByCategory(ctx, db, id)
-	case ByPlatform:
-		byteSum, err = model.ByteCountByPlatform(ctx, db, id)
-	case ByGroup:
-		byteSum, err = model.ByteCountByReleaser(ctx, db, name)
 	case AllReleases:
 		byteSum = int64(all.Bytes)
 	case AsArt:
@@ -170,12 +169,6 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error { //nolint:funlen
 	case AsSoftware:
 		byteSum = int64(softs.Bytes)
 	default:
-		s.zlog.Warnf("%s: %s", errTag, tt)
-		return echo.NewHTTPError(http.StatusServiceUnavailable, errTag)
-	}
-	if err != nil {
-		s.zlog.Warnf("%s %s", errConn, err)
-		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
 	}
 	stat := fmt.Sprintf("%d files, %s", count, helper.ByteCountFloat(byteSum))
 
@@ -239,6 +232,29 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error { //nolint:funlen
 		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
 	}
 	return nil
+}
+
+func (s *sugared) sumBytesBy(ctx context.Context, db *sql.DB, tt RecordsBy, id, name string) (int64, error) {
+	var byteSum int64
+	var err error
+	switch tt {
+	case BySection:
+		byteSum, err = model.ByteCountByCategory(ctx, db, id)
+		if err != nil {
+			return 0, fmt.Errorf("ByteCountByCategory: %q, %w", id, err)
+		}
+	case ByPlatform:
+		byteSum, err = model.ByteCountByPlatform(ctx, db, id)
+		if err != nil {
+			return 0, fmt.Errorf("ByteCountByCategory: %q, %w", id, err)
+		}
+	case ByGroup:
+		byteSum, err = model.ByteCountByReleaser(ctx, db, id)
+		if err != nil {
+			return 0, fmt.Errorf("ByteCountByCategory: %q, %w", name, err)
+		}
+	}
+	return byteSum, nil
 }
 
 // qs returns a query string with a leading question mark.
