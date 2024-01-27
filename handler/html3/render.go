@@ -85,7 +85,6 @@ func (s *sugared) Index(c echo.Context) error {
 		All      model.Files
 		Art      model.Arts
 		Document model.Docs
-		// Group    model.Rels
 		Software model.Softs
 	}
 	ctx := context.Background()
@@ -113,7 +112,7 @@ func (s *sugared) Index(c echo.Context) error {
 		helper.Capitalize(textSof),
 		helper.Capitalize(textAll),
 	}
-	if err = c.Render(http.StatusOK, "html3_index", map[string]interface{}{
+	err = c.Render(http.StatusOK, "html3_index", map[string]interface{}{
 		"title":       title,
 		"description": desc,
 		"descs":       descs,
@@ -121,7 +120,8 @@ func (s *sugared) Index(c echo.Context) error {
 		"cat":         tags.CategoryCount,
 		"plat":        tags.PlatformCount,
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
-	}); err != nil {
+	})
+	if err != nil {
 		s.zlog.Errorf("%s: %s", errTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
 	}
@@ -131,7 +131,7 @@ func (s *sugared) Index(c echo.Context) error {
 // Categories lists the names, descriptions and sums of the category (section) tags.
 func (s *sugared) Categories(c echo.Context) error {
 	start := helper.Latency()
-	err := c.Render(http.StatusOK, "html3_tag", map[string]interface{}{
+	err := c.Render(http.StatusOK, string(tag), map[string]interface{}{
 		"title":       title + "/categories",
 		"description": "File categories and classification tags.",
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
@@ -150,7 +150,7 @@ func (s *sugared) Categories(c echo.Context) error {
 // Platforms lists the names, descriptions and sums of the platform tags.
 func (s *sugared) Platforms(c echo.Context) error {
 	start := helper.Latency()
-	err := c.Render(http.StatusOK, "html3_tag", map[string]interface{}{
+	err := c.Render(http.StatusOK, string(tag), map[string]interface{}{
 		"title":       title + "/platforms",
 		"description": "File platforms, operating systems and media types.",
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),

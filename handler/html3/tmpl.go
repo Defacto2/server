@@ -13,6 +13,12 @@ import (
 	"go.uber.org/zap"
 )
 
+type Templ string
+
+const (
+	tag Templ = "html3_tag"
+)
+
 const (
 	layout     = "layout.html"
 	dirs       = "dirs.html"
@@ -24,22 +30,22 @@ const (
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func TemplateFuncMap(z *zap.SugaredLogger) template.FuncMap {
 	return template.FuncMap{
-		"descript": Description,
+		"byteInt":    LeadFSInt,
+		"descript":   Description,
+		"fmtByte":    LeadFS,
+		"fmtURI":     releaser.Link,
+		"icon":       model.Icon,
+		"leading":    Leading,
+		"leadInt":    LeadInt,
+		"leadStr":    LeadStr,
+		"linkPad":    FileLinkPad,
+		"linkFile":   Filename,
+		"metaByName": tagByName,
+		"publish":    model.PublishedFW,
+		"posted":     model.Created,
 		"linkHref": func(id int64) string {
 			return FileHref(z, id)
 		},
-		"linkPad":    FileLinkPad,
-		"linkFile":   Filename,
-		"leading":    Leading,
-		"fmtByte":    LeadFS,
-		"fmtURI":     releaser.Link,
-		"byteInt":    LeadFSInt,
-		"leadInt":    LeadInt,
-		"leadStr":    LeadStr,
-		"metaByName": tagByName,
-		"icon":       model.Icon,
-		"publish":    model.PublishedFW,
-		"posted":     model.Created,
 		"safeHTML": func(s string) template.HTML {
 			return template.HTML(s) //nolint:gosec
 		},
@@ -47,7 +53,13 @@ func TemplateFuncMap(z *zap.SugaredLogger) template.FuncMap {
 }
 
 func tagByName(name string) tags.TagData {
-	return tags.Tags.ByName(nil, name)
+	t := tags.Tags.ByName(nil, name)
+	s := strings.TrimSpace(t.Info)
+	if len(s) < 2 {
+		return t
+	}
+	t.Info = strings.ToUpper(string(s[0])) + s[1:]
+	return t
 }
 
 // Templates returns a map of the templates used by the HTML3 sub-group route.
@@ -60,7 +72,7 @@ func Templates(z *zap.SugaredLogger, fs embed.FS) map[string]*template.Template 
 	t["html3_software"] = list(z, fs)
 	t["html3_groups"] = listGroups(z, fs)
 	t["html3_group"] = list(z, fs)
-	t["html3_tag"] = listTags(z, fs)
+	t[string(tag)] = listTags(z, fs)
 	t["html3_platform"] = list(z, fs)
 	t["html3_category"] = list(z, fs)
 	t["html3_error"] = httpErr(z, fs)

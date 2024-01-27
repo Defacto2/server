@@ -175,7 +175,7 @@ func Infos() Info {
 		Image:  "digital art, pixel art, or photos",
 		Java:   "Java software that requires the use of the Sun Microsystems or Oracle Java platform",
 		Linux:  "Linux programs are software for the Linux platform, including server and desktop distributions",
-		Mac:    "orograms for the various operating systems created by Apple under the Mac and Macintosh brands",
+		Mac:    "programs for the various operating systems created by Apple under the Mac and Macintosh brands",
 		Pack: "a curated bundle of scene-related files is stored and distributed in a " +
 			"compressed archive file, often in ZIP or 7z formats",
 		PCB: "colored encoded text on Bulletin Board Systems " +

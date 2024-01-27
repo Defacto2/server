@@ -26,7 +26,6 @@ const (
 
 // Error renders a custom HTTP error page for the HTML3 sub-group.
 func Error(c echo.Context, err error) error {
-	// Echo custom error handling: https://echo.labstack.com/guide/error-handling/
 	start := helper.Latency()
 	code := http.StatusInternalServerError
 	msg := "This is a server problem"
