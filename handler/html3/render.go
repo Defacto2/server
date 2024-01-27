@@ -91,21 +91,21 @@ func (s *sugared) Index(c echo.Context) error {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		s.zlog.Warnf("%s: %s", errConn, err)
-		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
+		s.zlog.Warnf("%s: %s", ErrConn, err)
+		return echo.NewHTTPError(http.StatusServiceUnavailable, ErrConn)
 	}
 	defer db.Close()
 	if err := stats.All.Stat(ctx, db); err != nil {
-		s.zlog.Warnf("%s: %s", errConn, err)
+		s.zlog.Warnf("index stats all: %s", err)
 	}
 	if err := stats.Art.Stat(ctx, db); err != nil {
-		s.zlog.Warnf("%s: %s", errConn, err)
+		s.zlog.Warnf("index stats art: %s", err)
 	}
 	if err := stats.Document.Stat(ctx, db); err != nil {
-		s.zlog.Warnf("%s: %s", errConn, err)
+		s.zlog.Warnf("index stats document: %s", err)
 	}
 	if err := stats.Software.Stat(ctx, db); err != nil {
-		s.zlog.Warnf("%s: %s", errConn, err)
+		s.zlog.Warnf("index stats software: %s", err)
 	}
 	descs := [4]string{
 		helper.Capitalize(textArt),
@@ -123,8 +123,8 @@ func (s *sugared) Index(c echo.Context) error {
 		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
 	})
 	if err != nil {
-		s.zlog.Errorf("%s: %s", errTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
+		s.zlog.Errorf("%s: %s", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
@@ -142,8 +142,8 @@ func (s *sugared) Categories(c echo.Context) error {
 		"tags":        tags.Names(),
 	})
 	if err != nil {
-		s.zlog.Errorf("%s: %s %d", errTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
+		s.zlog.Errorf("%s: %s %d", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
@@ -161,8 +161,8 @@ func (s *sugared) Platforms(c echo.Context) error {
 		"tags":        tags.Names(),
 	})
 	if err != nil {
-		s.zlog.Errorf("%s: %s %d", errTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
+		s.zlog.Errorf("%s: %s %d", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
@@ -173,7 +173,7 @@ func (s *sugared) Groups(c echo.Context) error {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, errConn)
+		return echo.NewHTTPError(http.StatusNotFound, ErrConn)
 	}
 	defer db.Close()
 
@@ -192,8 +192,8 @@ func (s *sugared) Groups(c echo.Context) error {
 
 	var unique model.ReleaserNames
 	if err := unique.List(ctx, db); err != nil {
-		s.zlog.Errorf("%s: %s %d", errConn, err)
-		return echo.NewHTTPError(http.StatusNotFound, errSQL)
+		s.zlog.Errorf("%s: %w", ErrSQL, err)
+		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
 	count := len(unique)
 
@@ -213,8 +213,8 @@ func (s *sugared) Groups(c echo.Context) error {
 	// releasers are the distinct groups from the file table.
 	releasers := model.Releasers{}
 	if err := releasers.All(ctx, db, false, model.Maximum, page); err != nil {
-		s.zlog.Errorf("%s: %s %d", errConn, err)
-		return echo.NewHTTPError(http.StatusNotFound, errSQL)
+		s.zlog.Errorf("group and releaser list: %w", err)
+		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
 	err = c.Render(http.StatusOK, "html3_groups", map[string]interface{}{
 		"title": title + "/groups",
@@ -227,8 +227,8 @@ func (s *sugared) Groups(c echo.Context) error {
 		"navigate":  navi,
 	})
 	if err != nil {
-		s.zlog.Errorf("%s: %s %d", errTmpl, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
+		s.zlog.Errorf("%s: %s %d", ErrTmpl, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }

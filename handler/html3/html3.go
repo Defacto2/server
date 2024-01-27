@@ -14,14 +14,11 @@ import (
 )
 
 var (
-	ErrDB = fmt.Errorf("database value is nil")
-)
-
-const (
-	errConn = "Sorry, at the moment the server cannot connect to the database"
-	errSQL  = "Database connection problem or a SQL error"
-	errTag  = "No database query was created for the tag"
-	errTmpl = "The server could not render the HTML template for this page"
+	ErrConn = fmt.Errorf("the server cannot connect to the database")
+	ErrDB   = fmt.Errorf("database value is nil")
+	ErrSQL  = fmt.Errorf("database connection problem or a SQL error")
+	ErrTag  = fmt.Errorf("no database query was for the tag")
+	ErrTmpl = fmt.Errorf("the server could not render the HTML template for this page")
 )
 
 // Error renders a custom HTTP error page for the HTML3 sub-group.

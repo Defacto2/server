@@ -98,7 +98,7 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error { //nolint:funlen
 	limit, count, byteSum, records, err := Query(c, tt, page)
 	if err != nil {
 		s.zlog.Warnf("%s query error: %s", tt, err)
-		return echo.NewHTTPError(http.StatusServiceUnavailable, errConn)
+		return echo.NewHTTPError(http.StatusServiceUnavailable, ErrConn)
 	}
 	if limit > 0 && count == 0 {
 		return echo.NewHTTPError(http.StatusNotFound,
@@ -138,8 +138,8 @@ func (s *sugared) List(c echo.Context, tt RecordsBy) error { //nolint:funlen
 		"navigate":    navi,
 	})
 	if err != nil {
-		s.zlog.Errorf("%s: %s %d", errTmpl, err, tt)
-		return echo.NewHTTPError(http.StatusInternalServerError, errTmpl)
+		s.zlog.Errorf("%s: %s %d", ErrTmpl, err, tt)
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
