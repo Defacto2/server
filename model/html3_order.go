@@ -91,13 +91,22 @@ func (o Order) FilesByCategory(
 }
 
 // FilesByPlatform returns all the files that match the named platform.
-func (o Order) FilesByPlatform(ctx context.Context, db *sql.DB, name string) (models.FileSlice, error) {
+func (o Order) FilesByPlatform(
+	ctx context.Context, db *sql.DB, offset, limit int, name string) (
+	models.FileSlice, error,
+) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	mods := models.FileWhere.Platform.EQ(null.StringFrom(name))
+	if limit == all {
+		return models.Files(mods,
+			qm.OrderBy(o.String())).All(ctx, db)
+	}
 	return models.Files(mods,
-		qm.OrderBy(o.String())).All(ctx, db)
+		qm.OrderBy(o.String()),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
 }
 
 // FilesByGroup returns all the files that match an exact named group.

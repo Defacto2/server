@@ -260,9 +260,7 @@ func QueryByPlatform(ctx context.Context, db *sql.DB, c echo.Context, offset int
 	const limit = model.Maximum
 	order := Clauses(c.QueryString())
 	id := ID(c)
-
-	// test: http://localhost:1323/html3/platform/dos, no pagination
-	records, err := order.FilesByPlatform(ctx, db, id) // TODO: no limit or offset??
+	records, err := order.FilesByPlatform(ctx, db, offset, limit, id)
 	if err != nil {
 		return queryErr("by platform:", err)
 	}
