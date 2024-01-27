@@ -22,7 +22,7 @@ const (
 type Config struct {
 	ProductionMode bool   `env:"PRODUCTION_MODE" help:"Use the production mode to log errors to a file and recover from panics"`
 	ReadMode       bool   `env:"READ_ONLY" envDefault:"true" help:"Use the read-only mode to disable all POST, PUT and DELETE requests and any related user interface"`
-	HTTPSRedirect  bool   `env:"HTTPS_REDIRECT" help:"Redirect all HTTP requests to HTTPS"`
+	Compression    string `env:"COMPRESSION" envDefault:"gzip" help:"Enable either gzip or br compression of HTTP/HTTPS responses, you may want to disable this if using a reverse proxy"`
 	NoCrawl        bool   `env:"NO_CRAWL" help:"Tell search engines to not crawl any of website pages or assets"`
 	LogRequests    bool   `env:"LOG_REQUESTS" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`
 	LogDir         string `env:"LOG_DIR" help:"The directory path that will store the program logs"`
@@ -35,12 +35,11 @@ type Config struct {
 	SessionMaxAge  int    `env:"SESSION_MAX_AGE" envDefault:"3" help:"The maximum age in hours for the session cookie"`
 	GoogleClientID string `env:"GOOGLE_CLIENT_ID" help:"The Google OAuth2 client ID"`
 	GoogleIDs      string `env:"GOOGLE_IDS,unset" help:"The Google OAuth2 accounts that are allowed to login"`
-
-	Compression string `env:"COMPRESSION" envDefault:"gzip" help:"Enable either gzip or br compression of HTTP/HTTPS responses, you may want to disable this if using a reverse proxy"`
-
-	TLSPort uint   `env:"TLS_PORT" help:"The port number to be used by the encrypted, HTTPS web server"`
-	TLSCert string `env:"TLS_CERT" help:"The TLS certificate file path, leave blank to use the self-signed, localhost certificate"`
-	TLSKey  string `env:"TLS_KEY" help:"The TLS key file path, leave blank to use the self-signed, localhost key"`
+	TLSPort        uint   `env:"TLS_PORT" help:"The port number to be used by the encrypted, HTTPS web server"`
+	TLSCert        string `env:"TLS_CERT" help:"The TLS certificate file path, leave blank to use the self-signed, localhost certificate"`
+	TLSKey         string `env:"TLS_KEY" help:"The TLS key file path, leave blank to use the self-signed, localhost key"`
+	TLSHost        string `env:"TLS_HOST" help:"This recommended setting, limits TSL to the specific host or domain name, leave blank to permit TLS connections from any host"`
+	HTTPSRedirect  bool   `env:"HTTPS_REDIRECT" help:"Redirect all HTTP requests to HTTPS"`
 
 	// GoogleAccounts is a slice of Google OAuth2 accounts that are allowed to login.
 	// Each account is a 48 byte slice of bytes that represents the SHA-384 hash of the unique Google ID.
@@ -113,22 +112,25 @@ func (c Config) addresses(b *strings.Builder, intro bool) {
 	if port == 0 && tls == 0 {
 		log.Fatalln("The server cannot start without a HTTP or a TLS port.")
 	}
-	const web = 80
-	const webs = 443
+	const disable, text, secure = 0, 80, 443
 	for _, host := range hosts {
 		switch port {
-		case web:
+		case text:
 			fmt.Fprintf(b, "%shttp://%s\n", pad, host)
-		case 0:
-			// disabled
+		case disable:
+			continue
 		default:
 			fmt.Fprintf(b, "%shttp://%s:%d\n", pad, host, port)
 		}
+		fmt.Println(host, c.TLSHost)
+		if c.TLSHost != "" && host != c.TLSHost {
+			continue
+		}
 		switch tls {
-		case webs:
+		case secure:
 			fmt.Fprintf(b, "%shttps://%s\n", pad, host)
-		case 0:
-			// disabled
+		case disable:
+			continue
 		default:
 			fmt.Fprintf(b, "%shttps://%s:%d\n", pad, host, tls)
 		}

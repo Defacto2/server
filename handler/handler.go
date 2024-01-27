@@ -251,15 +251,23 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo) {
 	if port == 0 {
 		return
 	}
-	cpem, err := c.Public.ReadFile("public/certs/cert.pem")
+	const cert, key = "public/certs/cert.pem", "public/certs/key.pem"
+	cpem, err := c.Public.ReadFile(cert)
 	if err != nil {
 		c.Logger.Fatalf("Could not read the internal localhost, TLS certificate: %s.", err)
 	}
-	kpem, err := c.Public.ReadFile("public/certs/key.pem")
+	kpem, err := c.Public.ReadFile(key)
 	if err != nil {
 		c.Logger.Fatalf("Could not read the internal localhost, TLS key: %s.", err)
 	}
-	address := fmt.Sprintf("localhost:%d", port)
+	lock := strings.TrimSpace(c.Import.TLSHost)
+	var address string
+	switch lock {
+	case "": // allow all connections
+		address = fmt.Sprintf(":%d", port)
+	default: // only allow connections from the
+		address = fmt.Sprintf("%s:%d", lock, port)
+	}
 	if err := e.StartTLS(address, cpem, kpem); err != nil {
 		c.PortErr(port, err)
 	}
