@@ -1,3 +1,4 @@
+// Package cache provides a lightweight engine for storing key/value pairs.
 package cache
 
 import (
@@ -9,23 +10,28 @@ import (
 	"github.com/rosedblabs/rosedb/v2"
 )
 
-type Column string // Column Family name.
+type Cache int
 
 const (
-	Pouet Column = "pouet" // Pouet Column Family.
-	Test  Column = "test"  // Test Column Family.
+	Pouet Cache = iota // pouet data cache
+	Test               // test cache
 )
+
+// String returns the name of the cache.
+func (c Cache) String() string {
+	return [...]string{"pouet", "test"}[c]
+}
 
 const (
 	DirMode   = 0o755              // Directory permissions.
-	ExpiredAt = 7 * 24 * time.Hour // The expiry time for cacheDB entries.
-	SubDir    = "cacheDB"          // The name of the cacheDB subdirectory.
+	ExpiredAt = 7 * 24 * time.Hour // The expiry time for storage engine entries.
+	SubDir    = "cacheDB"          // The name of the storage engine subdirectory.
 )
 
-// Path returns the absolute path to the cacheDB directory.
+// Path returns the absolute path to the storage engine directory.
 // If the directory does not exist it will be created.
-func (c Column) Path() (string, error) {
-	tmp := filepath.Join(os.TempDir(), SubDir, string(c))
+func (c Cache) Path() (string, error) {
+	tmp := filepath.Join(os.TempDir(), SubDir, c.String())
 	_, err := os.Stat(tmp)
 	if err != nil && !os.IsNotExist(err) {
 		return "", fmt.Errorf("%s: %w", tmp, err)
@@ -40,10 +46,10 @@ func (c Column) Path() (string, error) {
 	return tmp, nil
 }
 
-// Write writes a key/value pair to the cacheDB.
+// Write writes a key/value pair to the storage engine.
 // The key/value pair will be deleted after the ttl time duration has elapsed.
 // If ttl is 0 then the key/value pair will immediately expire.
-func (c Column) Write(key, value string, ttl time.Duration) error {
+func (c Cache) Write(key, value string, ttl time.Duration) error {
 	var err error
 
 	options := rosedb.DefaultOptions
@@ -60,9 +66,9 @@ func (c Column) Write(key, value string, ttl time.Duration) error {
 	return db.PutWithTTL([]byte(key), []byte(value), ttl)
 }
 
-// WriteNoExpire writes a key/value pair to the cacheDB.
+// WriteNoExpire writes a key/value pair to the storage engine.
 // The key/value pair will not expire.
-func (c Column) WriteNoExpire(key, value string) error {
+func (c Cache) WriteNoExpire(key, value string) error {
 	var err error
 
 	options := rosedb.DefaultOptions
@@ -79,8 +85,8 @@ func (c Column) WriteNoExpire(key, value string) error {
 	return db.Put([]byte(key), []byte(value))
 }
 
-// Read returns value from the cacheDB.
-func (c Column) Read(id string) (string, error) {
+// Read returns value from the storage engine.
+func (c Cache) Read(id string) (string, error) {
 	path, err := c.Path()
 	if err != nil {
 		return "", err
@@ -102,8 +108,8 @@ func (c Column) Read(id string) (string, error) {
 	return string(value), nil
 }
 
-// Delete deletes a key/value pair from the cacheDB.
-func (c Column) Delete(id string) error {
+// Delete deletes a key/value pair from the storage engine.
+func (c Cache) Delete(id string) error {
 	path, err := c.Path()
 	if err != nil {
 		return err
