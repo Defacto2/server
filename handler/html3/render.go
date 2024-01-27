@@ -33,13 +33,13 @@ const (
 type RecordsBy int
 
 const (
-	AllReleases RecordsBy = iota // AllReleases displays all records from the file table.
-	BySection                    // BySection groups records by the section file table column.
-	ByPlatform                   // BySection groups records by the platform file table column.
-	ByGroup                      // ByGroup groups the records by the distinct, group_brand_for file table column.
-	AsArt                        // AsArt group records as art.
-	AsDocuments                  // AsDocuments group records as documents.
-	AsSoftware                   // AsSoftware group records as software.
+	Everything RecordsBy = iota // Everything displays all records from the file table.
+	BySection                   // BySection groups records by the section file table column.
+	ByPlatform                  // BySection groups records by the platform file table column.
+	ByGroup                     // ByGroup groups the records by the distinct, group_brand_for file table column.
+	AsArt                       // AsArt group records as art.
+	AsDocument                  // AsDocument group records as documents.
+	AsSoftware                  // AsSoftware group records as software.
 )
 
 // RecordsBy are the record groupings.

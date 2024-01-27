@@ -40,7 +40,7 @@ type sugared struct {
 
 // All method lists every release.
 func (s *sugared) All(c echo.Context) error {
-	return s.List(c, AllReleases)
+	return s.List(c, Everything)
 }
 
 // Category lists the file records associated with the category tag that is provided by the ID param in the URL.
@@ -65,7 +65,7 @@ func (s *sugared) Art(c echo.Context) error {
 
 // Documents lists the file records described as document + text art files.
 func (s *sugared) Documents(c echo.Context) error {
-	return s.List(c, AsDocuments)
+	return s.List(c, AsDocument)
 }
 
 // Software lists the file records described as software files.
@@ -155,7 +155,7 @@ func ListInfo(tt RecordsBy, current, id string) (string, string) {
 		desc = fmt.Sprintf("%s - %s.", name, info)
 	case AsArt:
 		desc = fmt.Sprintf("%s, %s.", "Digital + pixel art", textArt)
-	case AsDocuments:
+	case AsDocument:
 		desc = fmt.Sprintf("%s, %s.", "Document + text art", textDoc)
 	case AsSoftware:
 		desc = fmt.Sprintf("%s, %s.", "Software", textSof)
@@ -178,8 +178,8 @@ func Query(c echo.Context, tt RecordsBy, offset int) (int, int, int64, models.Fi
 	clause := c.QueryString()
 	defer db.Close()
 	switch tt {
-	case AllReleases:
-		return QueryAllReleases(ctx, db, clause, offset)
+	case Everything:
+		return QueryEverything(ctx, db, clause, offset)
 	case BySection:
 		return QueryBySection(ctx, db, c, offset)
 	case ByPlatform:
@@ -188,8 +188,8 @@ func Query(c echo.Context, tt RecordsBy, offset int) (int, int, int64, models.Fi
 		return QueryByGroup(ctx, db, c)
 	case AsArt:
 		return QueryAsArt(ctx, db, clause, offset) // TODO: no pagination display
-	case AsDocuments:
-		return QueryAsDocuments(ctx, db, clause, offset)
+	case AsDocument:
+		return QueryAsDocument(ctx, db, clause, offset)
 	case AsSoftware:
 		return QueryAsSoftware(ctx, db, clause, offset)
 	}
@@ -208,14 +208,14 @@ func dbErr() (int, int, int64, models.FileSlice, error) {
 	return 0, 0, 0, nil, ErrDB
 }
 
-// QueryAllReleases returns a slice of all the records, "Everything".
-func QueryAllReleases(ctx context.Context, db *sql.DB, clause string, offset int) (int, int, int64, models.FileSlice, error) {
+// QueryEverything returns a slice of all the records, "Everything".
+func QueryEverything(ctx context.Context, db *sql.DB, clause string, offset int) (int, int, int64, models.FileSlice, error) {
 	if db == nil {
 		return dbErr()
 	}
 	const limit = model.Maximum
 	order := Clauses(clause)
-	records, err := order.AllFiles(ctx, db, offset, limit)
+	records, err := order.Everything(ctx, db, offset, limit)
 	if err != nil {
 		return queryErr("all releases:", err)
 	}
@@ -236,7 +236,7 @@ func QueryBySection(ctx context.Context, db *sql.DB, c echo.Context, offset int)
 	const limit = model.Maximum
 	order := Clauses(c.QueryString())
 	id := ID(c)
-	records, err := order.FilesByCategory(ctx, db, offset, limit, id)
+	records, err := order.ByCategory(ctx, db, offset, limit, id)
 	if err != nil {
 		return queryErr("by category:", err)
 	}
@@ -261,7 +261,7 @@ func QueryByPlatform(ctx context.Context, db *sql.DB, c echo.Context, offset int
 	const limit = model.Maximum
 	order := Clauses(c.QueryString())
 	id := ID(c)
-	records, err := order.FilesByPlatform(ctx, db, offset, limit, id)
+	records, err := order.ByPlatform(ctx, db, offset, limit, id)
 	if err != nil {
 		return queryErr("by platform:", err)
 	}
@@ -284,7 +284,7 @@ func QueryByGroup(ctx context.Context, db *sql.DB, c echo.Context) (int, int, in
 	}
 	order := Clauses(c.QueryString())
 	id := c.Param("id")
-	records, err := order.FilesByGroup(ctx, db, id)
+	records, err := order.ByGroup(ctx, db, id)
 	if err != nil {
 		return queryErr("by group:", err)
 	}
@@ -304,7 +304,7 @@ func QueryAsArt(ctx context.Context, db *sql.DB, clause string, offset int) (int
 	}
 	const limit = model.Maximum
 	order := Clauses(clause)
-	records, err := order.ArtFiles(ctx, db, offset, limit)
+	records, err := order.Art(ctx, db, offset, limit)
 	if err != nil {
 		return queryErr("as art:", err)
 	}
@@ -317,14 +317,14 @@ func QueryAsArt(ctx context.Context, db *sql.DB, clause string, offset int) (int
 	return limit, total, byteSum, records, nil
 }
 
-// QueryAsDocuments returns a slice of all the records filtered by "Document + text art".
-func QueryAsDocuments(ctx context.Context, db *sql.DB, clause string, offset int) (int, int, int64, models.FileSlice, error) {
+// QueryAsDocument returns a slice of all the records filtered by "Document + text art".
+func QueryAsDocument(ctx context.Context, db *sql.DB, clause string, offset int) (int, int, int64, models.FileSlice, error) {
 	if db == nil {
 		return dbErr()
 	}
 	const limit = model.Maximum
 	order := Clauses(clause)
-	records, err := order.DocumentFiles(ctx, db, offset, limit)
+	records, err := order.Document(ctx, db, offset, limit)
 	if err != nil {
 		return queryErr("as document:", err)
 	}
@@ -344,7 +344,7 @@ func QueryAsSoftware(ctx context.Context, db *sql.DB, clause string, offset int)
 	}
 	const limit = model.Maximum
 	order := Clauses(clause)
-	records, err := order.SoftwareFiles(ctx, db, offset, limit)
+	records, err := order.Software(ctx, db, offset, limit)
 	if err != nil {
 		return queryErr("as software:", err)
 	}

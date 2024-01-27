@@ -60,8 +60,8 @@ func orderClauses() map[Order]string {
 	return m
 }
 
-// AllFiles returns all of the file records.
-func (o Order) AllFiles(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+// Everything returns all of the file records.
+func (o Order) Everything(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
@@ -71,8 +71,8 @@ func (o Order) AllFiles(ctx context.Context, db *sql.DB, offset, limit int) (mod
 		qm.Limit(limit)).All(ctx, db)
 }
 
-// FilesByCategory returns all the files that match the named category.
-func (o Order) FilesByCategory(
+// ByCategory returns all the files that match the named category.
+func (o Order) ByCategory(
 	ctx context.Context, db *sql.DB, offset, limit int, name string) (
 	models.FileSlice, error,
 ) {
@@ -90,8 +90,8 @@ func (o Order) FilesByCategory(
 		qm.Limit(limit)).All(ctx, db)
 }
 
-// FilesByPlatform returns all the files that match the named platform.
-func (o Order) FilesByPlatform(
+// ByPlatform returns all the files that match the named platform.
+func (o Order) ByPlatform(
 	ctx context.Context, db *sql.DB, offset, limit int, name string) (
 	models.FileSlice, error,
 ) {
@@ -109,8 +109,8 @@ func (o Order) FilesByPlatform(
 		qm.Limit(limit)).All(ctx, db)
 }
 
-// FilesByGroup returns all the files that match an exact named group.
-func (o Order) FilesByGroup(ctx context.Context, db *sql.DB, name string) (models.FileSlice, error) {
+// ByGroup returns all the files that match an exact named group.
+func (o Order) ByGroup(ctx context.Context, db *sql.DB, name string) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
@@ -124,8 +124,8 @@ func (o Order) FilesByGroup(ctx context.Context, db *sql.DB, name string) (model
 		qm.OrderBy(o.String())).All(ctx, db)
 }
 
-// ArtFiles returns all the files that could be considered as digital or pixel art.
-func (o Order) ArtFiles(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+// Art returns all the files that could be considered as digital or pixel art.
+func (o Order) Art(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
@@ -143,8 +143,8 @@ func (o Order) ArtFiles(ctx context.Context, db *sql.DB, offset, limit int) (mod
 		qm.Limit(limit)).All(ctx, db)
 }
 
-// DocumentFiles returns all the files that  are considered to be documents.
-func (o Order) DocumentFiles(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+// Document returns all the files that  are considered to be documents.
+func (o Order) Document(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
@@ -160,8 +160,8 @@ func (o Order) DocumentFiles(ctx context.Context, db *sql.DB, offset, limit int)
 		qm.Limit(limit)).All(ctx, db)
 }
 
-// SoftwareFiles returns all the files that  are considered to be software.
-func (o Order) SoftwareFiles(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+// Software returns all the files that  are considered to be software.
+func (o Order) Software(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
