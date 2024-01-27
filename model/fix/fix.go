@@ -25,6 +25,7 @@ type Repair int
 
 const (
 	None     Repair = iota - 1 // None does nothing.
+	All                        // All repairs all the repairable data.
 	Releaser                   // Releaser repairs the releaser data.
 )
 
@@ -39,7 +40,9 @@ func (r Repair) Run(ctx context.Context, w io.Writer, db *sql.DB) error {
 		return ErrDB
 	}
 	switch r {
-	case Releaser:
+	case None:
+		return nil
+	case Releaser, All:
 		return releasers(context.Background(), w, db)
 	}
 	return fmt.Errorf("invalid repair option %d", r)
