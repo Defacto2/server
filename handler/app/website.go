@@ -28,6 +28,40 @@ type Accordion = []struct {
 	Sites Sites  // Sites are the websites shown in the category.
 }
 
+// TODO: add
+// https://www.youtube.com/watch?v=ockNRSt3Nsk I was a video game pirate VMG
+// https://www.youtube.com/watch?v=VheNpiSZxf0 Dungeon Master Clever..
+// https://www.youtube.com/watch?v=W1cryx7TzqM Robocop 3 fail
+// https://www.youtube.com/watch?v=S_Tz0YpDa6o Codewheels
+// https://www.youtube.com/watch?v=WH3ja70_okA Datel
+// https://www.youtube.com/watch?v=u8ltfyqD3lM SecureROM
+// https://www.youtube.com/watch?v=Wpn9sLNg-6k LensLock
+// https://www.youtube.com/watch?v=p-wyIalhdPU StarForce
+
+// LGR https://www.youtube.com/watch?v=HjEbpMgiL7U history of copy protection
+// https://www.youtube.com/watch?v=ha7w96FQ-y4 the lost art ...
+// https://www.youtube.com/watch?v=dL9gUli_7L0 Anti-piracy screens
+// https://www.youtube.com/watch?v=6avtHAmz6js 10 punishments...
+// https://www.youtube.com/watch?v=wUUZFu0YmXw Horror of
+// https://www.youtube.com/watch?v=FVVx5WYmO2s 7 punishments
+// https://www.youtube.com/watch?v=y_6zYVcJIKM Denuvo
+// https://www.youtube.com/watch?v=xXYBrvKEXKw Amiga hidden and ...
+// https://www.youtube.com/watch?v=ZUioVa-wdDk The Greatest pirate...
+// https://www.youtube.com/watch?v=uY8KNl88Lqc xbox ripping
+
+// https://www.youtube.com/playlist?list=PLfABUWdDse7bfBp4HvkN_RSKdXygMO71Z how they worked.
+
+// https://www.youtube.com/watch?v=z_heZ-lgzq0&list=PLop3s1hMlSJKXqmuFjK7gbJh2WAyllTTY&index=5 Al's Geek Lab, The Underground
+
+// https://www.youtube.com/watch?v=I18ifd8I6P8 BBS the first internet (followup the Usenet etc, during covid)
+// https://www.youtube.com/watch?v=8uUJFvSkTfI primer on the scene from 2000s onwards
+// https://www.youtube.com/watch?v=XEKPUARYckc Rockstar and Razor
+// https://www.youtube.com/watch?v=Wpn9sLNg-6k Lenslok
+
+// https://www.wired.com/story/empress-drm-cracking-denuvo-video-game-piracy/
+// https://www.youtube.com/watch?v=ZUioVa-wdDk The Greatest pirate...
+// https://www.reddit.com/r/HobbyDrama/comments/rowk83/digital_piracy_the_rise_of_empress_how_one_woman/
+
 // Website is the handler for the websites page.
 // Open is the ID of the accordion section to open.
 func Website(z *zap.SugaredLogger, c echo.Context, open string) error {
@@ -320,19 +354,19 @@ func pir8() []Site {
 func podcasts() []Site {
 	return Sites{
 		Site{
-			"Modem Mischief Podcast", "https://modemmischief.com/",
+			"Modem Mischief Podcast <sup>2021 - ongoing</sup>", "https://modemmischief.com/",
 			"Modem Mischief is a true cybercrime podcast.",
 		},
 		Site{
-			"Apple II pirate lore", "https://archive.org/details/Apple-II-Pirate-Lore",
+			"Apple II pirate lore <sup>2003</sup>", "https://archive.org/details/Apple-II-Pirate-Lore",
 			"Overview of the Apple II Piracy Community of the early to mid 1980's, presented by historian Jason Scott at the 5th Rubi-Con conference.",
 		},
 		Site{
-			"Open Apple #66:Glenda Adams", "https://www.open-apple.net/2016/12/28/show-066-glenda-the-atom-adams-software-piracy/",
+			"Open Apple #66:Glenda Adams <sup>2016</sup>", "https://www.open-apple.net/2016/12/28/show-066-glenda-the-atom-adams-software-piracy/",
 			"Glenda Adams, also known as The Atom, was a cracker of some note back in the 1980s, and she shares great stories with us of her exploits in boot tracing, cracking, and distributing software in the glory days of the Apple II BBS scene.",
 		},
 		Site{
-			"100 Years of the Computer Art Scene", "https://archive.org/details/notacon-artscene-2004-04-24",
+			"100 Years of the Computer Art Scene <sup>2004</sup>", "https://archive.org/details/notacon-artscene-2004-04-24",
 			"Historian Jason Scott and ACiD founder RaD Man capture 100 years of computer art, the magic of the art scene, the demo scene, and a dozen other 'scenes' that have been with us as long as computers have.",
 		},
 	}
