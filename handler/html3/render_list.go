@@ -328,7 +328,7 @@ func QueryAsDocument(ctx context.Context, db *sql.DB, clause string, offset int)
 	if err != nil {
 		return queryErr("as document:", err)
 	}
-	var stat html3.Docs
+	var stat html3.Documents
 	if err := stat.Stat(ctx, db); err != nil {
 		return statErr("as document:", err)
 	}
@@ -348,7 +348,7 @@ func QueryAsSoftware(ctx context.Context, db *sql.DB, clause string, offset int)
 	if err != nil {
 		return queryErr("as software:", err)
 	}
-	var stat html3.Softs
+	var stat html3.Softwares
 	if err := stat.Stat(ctx, db); err != nil {
 		return statErr("as software:", err)
 	}

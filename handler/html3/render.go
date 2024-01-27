@@ -85,8 +85,8 @@ func (s *sugared) Index(c echo.Context) error {
 	var stats struct {
 		All      model.Files
 		Art      html3.Arts
-		Document html3.Docs
-		Software html3.Softs
+		Document html3.Documents
+		Software html3.Softwares
 	}
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()

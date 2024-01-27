@@ -12,14 +12,14 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// Softs contain statistics for releases that could be considered software.
-type Softs struct {
+// Softwares contain statistics for releases that could be considered software.
+type Softwares struct {
 	Bytes int `boil:"size_total"`
 	Count int `boil:"count_total"`
 }
 
 // Stat returns the total bytes and count of releases that could be considered software.
-func (s *Softs) Stat(ctx context.Context, db *sql.DB) error {
+func (s *Softwares) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}

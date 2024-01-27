@@ -12,14 +12,14 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// Docs contain statistics for releases that could be considered documents.
-type Docs struct {
+// Documents contain statistics for releases that could be considered documents.
+type Documents struct {
 	Bytes int `boil:"size_total"`
 	Count int `boil:"count_total"`
 }
 
 // Stat returns the total bytes and count of releases that could be considered documents.
-func (d *Docs) Stat(ctx context.Context, db *sql.DB) error {
+func (d *Documents) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
