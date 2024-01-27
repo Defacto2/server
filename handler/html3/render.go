@@ -13,17 +13,12 @@ import (
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 )
 
 const (
 	Prefix = "/html3" // Root path of the HTML3 router group.
 
 	title   = "Index of " + Prefix
-	errConn = "Sorry, at the moment the server cannot connect to the database"
-	errSQL  = "Database connection problem or a SQL error"
-	errTag  = "No database query was created for the tag"
-	errTmpl = "The server could not render the HTML template for this page"
 	firefox = "Welcome to the Firefox v2, 2006 era, Defacto2 website, " +
 		"which is friendly for legacy operating systems, including Windows 9x, NT-4, and OS-X 10.2."
 
@@ -69,57 +64,16 @@ func (t RecordsBy) Parent() string {
 	if t >= l {
 		return ""
 	}
+	const blank = ""
 	return [l]string{
-		"",
+		blank,
 		"categories",
 		"platforms",
 		"groups",
-		"", "", "",
+		blank,
+		blank,
+		blank,
 	}[t]
-}
-
-// Routes for the /html3 sub-route group.
-// Any errors are logged and rendered to the client using HTTP codes
-// and the custom /html3, group errror template.
-func Routes(z *zap.SugaredLogger, e *echo.Echo) *echo.Group {
-	s := sugared{zlog: z}
-	g := e.Group(Prefix)
-	g.GET("", s.Index)
-	g.GET("/all:offset", s.All)
-	g.GET("/all", s.All)
-	g.GET("/categories", s.Categories)
-	g.GET("/category/:id/:offset", s.Category)
-	g.GET("/category/:id", s.Category)
-	g.GET("/platforms", s.Platforms)
-	g.GET("/platform/:id/:offset", s.Platform)
-	g.GET("/platform/:id", s.Platform)
-	g.GET("/groups:offset", s.Groups)
-	g.GET("/groups", s.Groups)
-	g.GET("/group/:id", s.Group)
-	g.GET("/art:offset", s.Art)
-	g.GET("/art", s.Art)
-	g.GET("/documents:offset", s.Documents)
-	g.GET("/documents", s.Documents)
-	g.GET("/software:offset", s.Software)
-	g.GET("/software", s.Software)
-
-	// append legacy redirects
-	// these must be hand coded as using a map/range will fail
-	const code = http.StatusMovedPermanently
-	g.GET("/index", func(c echo.Context) error {
-		return c.Redirect(code, "/html3")
-	})
-	g.GET("/categories/index", func(c echo.Context) error {
-		return c.Redirect(code, "/html3/categories")
-	})
-	g.GET("/platforms/index", func(c echo.Context) error {
-		return c.Redirect(code, "/html3/platforms")
-	})
-	// Custom 404 error, "The page cannot be found"
-	g.GET("/:uri", func(x echo.Context) error {
-		return x.String(http.StatusNotFound, fmt.Sprintf("The page cannot be found: /html3/%s", x.Param("uri")))
-	})
-	return g
 }
 
 // Index method is the homepage of the /html3 sub-route.
@@ -150,10 +104,6 @@ func (s *sugared) Index(c echo.Context) error {
 	if err := stats.Document.Stat(ctx, db); err != nil {
 		s.zlog.Warnf("%s: %s", errConn, err)
 	}
-	// Need to replace?
-	// if err := Stats.Group.Stat(ctx, db); err != nil {
-	// 	s.log.Warnf("%s: %s", errConn, err)
-	// }
 	if err := stats.Software.Stat(ctx, db); err != nil {
 		s.zlog.Warnf("%s: %s", errConn, err)
 	}
@@ -256,18 +206,8 @@ func (s *sugared) Groups(c echo.Context) error {
 		}
 	}
 
-	navi := Navigate{
-		Current:  "groups",
-		Limit:    limit,
-		Page:     page,
-		PagePrev: previous(page),
-		PageNext: next(page, maxPage),
-		PageMax:  int(maxPage),
-		QueryStr: qs(c.QueryString()),
-	}
+	navi := Navi(limit, page, maxPage, "groups", qs(c.QueryString()))
 	navi.Link1, navi.Link2, navi.Link3 = Pagi(page, maxPage)
-
-	fmt.Println(navi)
 
 	// releasers are the distinct groups from the file table.
 	releasers := model.Releasers{}

@@ -50,3 +50,47 @@ func TestPagi(t *testing.T) {
 		})
 	}
 }
+
+func TestNavi(t *testing.T) {
+	limit := 10
+	page := 2
+	maxPage := uint(5)
+	current := "current"
+	qs := "query"
+
+	expected := html3.Navigate{
+		Current:  current,
+		Limit:    limit,
+		Page:     page,
+		PagePrev: 1,
+		PageNext: 3,
+		PageMax:  5,
+		QueryStr: qs,
+	}
+
+	result := html3.Navi(limit, page, maxPage, current, qs)
+
+	if result != expected {
+		t.Errorf("Navi(%d, %d, %d, %s, %s) = %v; want %v", limit, page, maxPage, current, qs, result, expected)
+	}
+}
+
+func TestList(t *testing.T) {
+	// TODO: Write test cases for the List function
+}
+
+func TestSumBytesBy(t *testing.T) {
+	// TODO: Write test cases for the sumBytesBy function
+}
+
+func TestQs(t *testing.T) {
+	// TODO: Write test cases for the qs function
+}
+
+func TestPrevious(t *testing.T) {
+	// TODO: Write test cases for the previous function
+}
+
+func TestNext(t *testing.T) {
+	// TODO: Write test cases for the next function
+}
