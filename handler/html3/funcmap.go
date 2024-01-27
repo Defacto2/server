@@ -11,6 +11,7 @@ import (
 
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/tags"
+	"github.com/Defacto2/server/model/html3"
 	"github.com/volatiletech/null/v8"
 	"go.uber.org/zap"
 )
@@ -90,7 +91,7 @@ func FileLinkPad(width int, name null.String) string {
 func (f File) FileLinkPad(width int) string {
 	s := helper.TruncFilename(width, f.Filename)
 	if utf8.RuneCountInString(s) < width {
-		return LeadStr(width, s)
+		return html3.LeadStr(width, s)
 	}
 	return ""
 }
@@ -143,16 +144,6 @@ func LeadInt(width, i int) string {
 		count = maxPad
 	}
 	return fmt.Sprintf("%s%s", strings.Repeat(padding, count), s)
-}
-
-// LeadStr takes a string and returns the leading whitespace padding, characters wide.
-// the value of string is note returned.
-func LeadStr(width int, s string) string {
-	l := utf8.RuneCountInString(s)
-	if l >= width {
-		return ""
-	}
-	return strings.Repeat(padding, width-l)
 }
 
 // IsOS returns true if the platform matches Windows, macOS, Linux, MS-DOS or Java.

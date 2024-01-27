@@ -147,20 +147,3 @@ func CountByPlatform(ctx context.Context, db *sql.DB, name string) (int64, error
 	}
 	return i, nil
 }
-
-// SelectHTML3 selects only the columns required by the HTML3 template.
-func SelectHTML3() qm.QueryMod {
-	return qm.Select(
-		models.FileColumns.ID,
-		models.FileColumns.Filename,
-		models.FileColumns.DateIssuedDay,
-		models.FileColumns.DateIssuedMonth,
-		models.FileColumns.DateIssuedYear,
-		models.FileColumns.Createdat,
-		models.FileColumns.Filesize,
-		models.FileColumns.Platform,
-		models.FileColumns.Section,
-		models.FileColumns.GroupBrandFor,
-		models.FileColumns.RecordTitle,
-	)
-}

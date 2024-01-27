@@ -1,4 +1,4 @@
-package model
+package html3
 
 // Package html3_order.go contains the database queries the HTML3 order and sorting statements.
 

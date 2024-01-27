@@ -8,6 +8,7 @@ import (
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
+	"github.com/Defacto2/server/model/html3"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -21,7 +22,7 @@ func Routes(z *zap.SugaredLogger, e *echo.Echo) *echo.Group {
 	}
 	g := e.Group("api/v1")
 	g.GET("/files", func(c echo.Context) error {
-		all, err := model.PostAsc.AllFiles(ctx, db, 0, model.Maximum)
+		all, err := html3.PostAsc.AllFiles(ctx, db, 0, model.Maximum)
 		if err != nil {
 			return err
 		}

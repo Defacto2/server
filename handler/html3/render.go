@@ -12,6 +12,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
+	"github.com/Defacto2/server/model/html3"
 	"github.com/labstack/echo/v4"
 )
 
@@ -83,9 +84,9 @@ func (s *sugared) Index(c echo.Context) error {
 	// Stats are the database statistics.
 	var stats struct {
 		All      model.Files
-		Art      model.Arts
-		Document model.Docs
-		Software model.Softs
+		Art      html3.Arts
+		Document html3.Docs
+		Software html3.Softs
 	}
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()

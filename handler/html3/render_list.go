@@ -14,6 +14,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
+	"github.com/Defacto2/server/model/html3"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -307,7 +308,7 @@ func QueryAsArt(ctx context.Context, db *sql.DB, clause string, offset int) (int
 	if err != nil {
 		return queryErr("as art:", err)
 	}
-	var stat model.Arts
+	var stat html3.Arts
 	if err := stat.Stat(ctx, db); err != nil {
 		return statErr("as art:", err)
 	}
@@ -327,7 +328,7 @@ func QueryAsDocuments(ctx context.Context, db *sql.DB, clause string, offset int
 	if err != nil {
 		return queryErr("as document:", err)
 	}
-	var stat model.Docs
+	var stat html3.Docs
 	if err := stat.Stat(ctx, db); err != nil {
 		return statErr("as document:", err)
 	}
@@ -347,7 +348,7 @@ func QueryAsSoftware(ctx context.Context, db *sql.DB, clause string, offset int)
 	if err != nil {
 		return queryErr("as software:", err)
 	}
-	var stat model.Softs
+	var stat html3.Softs
 	if err := stat.Stat(ctx, db); err != nil {
 		return statErr("as software:", err)
 	}

@@ -1,4 +1,4 @@
-package model
+package html3
 
 // This file is the custom art category for the HTML3 template.
 
