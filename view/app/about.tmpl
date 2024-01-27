@@ -41,25 +41,22 @@
         <div class="col-12">
             {{- if not (index . "noScreenshot")}}
                 <h6 class="fs-6 fw-lighter">Readme or information text <small>{{index . "readmeName"}}</small></h6>
-                <div class="m-3"><button class="btn btn-sm btn-outline-secondary" id="copyReadme" 
-                    data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard">Copy</button></div>
-                <hr>
-            {{- end}}
-            {{- if (index . "noScreenshot")}}
+                {{- end}}
+                {{- if (index . "noScreenshot")}}
                 <h6 class="fs-6 fw-lighter">Textfile content</small></h6>
+                {{- end}}
                 <div class="m-3">
                     <input type="radio" class="btn-check" name="readme-base" id="topazFont" autocomplete="off" {{index . "topazCheck"}}>
-                    <label class="btn btn-sm" for="topazFont" 
+                    <label class="btn btn-sm btn-outline-dark" for="topazFont" 
                         data-bs-toggle="tooltip" data-bs-title="Use the TopazPlus font with Latin-1 encoding">Amiga style</label>
                     <input type="radio" class="btn-check" name="readme-base" id="vgaFont" autocomplete="off" {{index . "vgaCheck"}}>
-                    <label class="btn btn-sm" for="vgaFont"
+                    <label class="btn btn-sm btn-outline-dark" for="vgaFont"
                         data-bs-toggle="tooltip" data-bs-title="Use a classic IBM VGA font with OEM-US encoding">DOS style</label>
                     &nbsp;
                     <button class="btn btn-sm btn-outline-secondary" id="copyReadme" 
                         data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard">Copy</button>
                 </div>
                 <hr>
-            {{- end}}
             {{- if index . "readmeLatin1"}}
                 <pre id="readmeLatin1" class="{{index . "readmeLatin1Cls"}} font-amiga reader reader-invert border border-black rounded-1 p-1">{{(index . "readmeLatin1")}}</pre>
             {{- end}}

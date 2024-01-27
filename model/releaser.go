@@ -73,7 +73,6 @@ func (r *Releasers) List(ctx context.Context, db *sql.DB, name string) (models.F
 // All gets the unique releaser names and their total file count and file sizes.
 // When reorder is true the results are ordered by the total file counts.
 func (r *Releasers) All(ctx context.Context, db *sql.DB, reorder bool, limit, page int) error {
-	fmt.Println("query", limit, page, "????????????")
 	if db == nil {
 		return ErrDB
 	}
@@ -90,8 +89,6 @@ func (r *Releasers) All(ctx context.Context, db *sql.DB, reorder bool, limit, pa
 		}
 		limit, offset := calculateLimitAndOffset(page, limit)
 		query += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
-
-		fmt.Println(query, limit, offset, "????????????")
 	}
 	if err := queries.Raw(query).Bind(ctx, db, r); err != nil {
 		return err

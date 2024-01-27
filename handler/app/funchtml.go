@@ -497,17 +497,19 @@ func LinkRelrs(performant bool, a, b any) template.HTML {
 }
 
 // relHTML returns a HTML links for the primary and secondary group names.
-func relHTML(prime, second string) string {
+func relHTML(prime, second string) template.HTML {
+	var s string
 	switch {
 	case prime != "" && second != "":
-		return fmt.Sprintf("%s<br>+ %s", prime, second)
+		s = fmt.Sprintf("%s <strong>+</strong><br>%s", prime, second)
 	case prime != "":
-		return prime
+		s = prime
 	case second != "":
-		return second
+		s = second
 	default:
 		return ""
 	}
+	return template.HTML(s)
 }
 
 // linkRelr returns a link to the named group page.
