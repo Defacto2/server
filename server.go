@@ -20,6 +20,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model"
+	"github.com/Defacto2/server/model/fix"
 	"github.com/caarlos0/env/v10"
 	_ "github.com/lib/pq"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -307,7 +308,7 @@ func RepairDB() error {
 	if err := ver.Query(); err != nil {
 		return ErrVer
 	}
-	return model.RepairReleasers(ctx, os.Stderr, db)
+	return fix.Releaser.Run(ctx, os.Stderr, db)
 }
 
 func repairdb(z *zap.SugaredLogger, err error) {

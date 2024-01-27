@@ -1,8 +1,10 @@
-package model
+// Package fix contains functions for repairing the database data.
+package fix
 
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -14,16 +16,37 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// Package file repair.go contains functions for repairing the database data.
+var (
+	ErrDB = errors.New("database connection is nil")
+)
 
-// RepairReleasers will repair the group_brand_by and group_brand_for releasers data.
-func RepairReleasers(ctx context.Context, w io.Writer, db *sql.DB) error {
+// Repair the database data.
+type Repair int
+
+const (
+	None     Repair = iota - 1 // None does nothing.
+	Releaser                   // Releaser repairs the releaser data.
+)
+
+// In the future we may want to add a Debug or TestRun func.
+
+// Run the repair.
+func (r Repair) Run(ctx context.Context, w io.Writer, db *sql.DB) error {
 	if w == nil {
 		w = io.Discard
 	}
 	if db == nil {
 		return ErrDB
 	}
+	switch r {
+	case Releaser:
+		return releasers(context.Background(), w, db)
+	}
+	return fmt.Errorf("invalid repair option %d", r)
+}
+
+// releasers will repair the group_brand_by and group_brand_for releasers data.
+func releasers(ctx context.Context, w io.Writer, db *sql.DB) error {
 	x := null.NewString("", true)
 	f, err := models.Files(
 		qm.Where("group_brand_for = group_brand_by"),
