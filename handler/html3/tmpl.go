@@ -18,6 +18,7 @@ const (
 	dirs       = "dirs.html"
 	files      = "files.html"
 	pagination = "pagination.html"
+	subDirs    = "dirs_sub.html"
 )
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
@@ -86,7 +87,7 @@ func list(z *zap.SugaredLogger, fs embed.FS) *template.Template {
 // List and filter the tags template.
 func listTags(z *zap.SugaredLogger, fs embed.FS) *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap(z)).ParseFS(fs,
-		GlobTo(layout), GlobTo(dirs), GlobTo("tags.html")))
+		GlobTo(layout), GlobTo(subDirs), GlobTo("tags.html")))
 }
 
 // List the distinct groups template.
