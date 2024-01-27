@@ -7,18 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLimit(t *testing.T) {
-	l := html3.Limit
-	assert.Equal(t, l(0, 0), 0)
-	assert.Equal(t, l(1, 1), 1)
-	assert.Equal(t, l(2, 1), 1)
-	assert.Equal(t, l(1, 2), 2)
-	assert.Equal(t, l(99, 100), 100)
-	assert.Equal(t, l(151, 100), 100)
-	assert.Equal(t, l(501, 100), 100)
-	assert.Equal(t, l(101, 100), 150)
-}
-
 func TestPagi(t *testing.T) {
 	type args struct {
 		page    int

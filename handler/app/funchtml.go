@@ -245,19 +245,6 @@ func Brief(plat, sect any) template.HTML {
 	return template.HTML(x + ".")
 }
 
-// ByteCount returns a human readable string of the byte count.
-func ByteCount(b any) template.HTML {
-	var s string
-	switch val := b.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		i := reflect.ValueOf(val).Int()
-		s = helper.ByteCount(i)
-	default:
-		s = fmt.Sprintf("%sByteCount: %s", typeErr, reflect.TypeOf(b).String())
-	}
-	return template.HTML(s)
-}
-
 // ByteFile returns a human readable string of the file count and bytes.
 func ByteFile(cnt, bytes any) template.HTML {
 	var s string

@@ -233,6 +233,8 @@ func Run(z *zap.SugaredLogger, name string, arg ...string) error {
 	return run(z, name, "", arg...)
 }
 
+// RunOut looks for the command in the system path and executes it with the arguments.
+// Any output is sent to the stdout buffer.
 func RunOut(z *zap.SugaredLogger, name string, arg ...string) ([]byte, error) {
 	if z == nil {
 		return nil, ErrZap
@@ -249,7 +251,7 @@ func RunOut(z *zap.SugaredLogger, name string, arg ...string) ([]byte, error) {
 	return out.Bytes(), nil
 }
 
-// Run looks for the command in the system path and executes it with the arguments.
+// RunQuiet looks for the command in the system path and executes it with the arguments.
 func RunQuiet(z *zap.SugaredLogger, name string, arg ...string) error {
 	if z == nil {
 		return ErrZap

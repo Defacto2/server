@@ -433,14 +433,3 @@ func Pagi(page int, maxPage uint) (int, int, int) {
 	}
 	return a, b, c
 }
-
-// Limit increases the limit value to stop unnecessary pagination of records,
-// where the second page contains significantly fewer records than the first.
-// Instead, all records are shown on a single page.
-func Limit(count, limit int) int {
-	const split = 2
-	if count > limit && count < limit+(limit/split) {
-		return limit + (limit / split)
-	}
-	return limit
-}
