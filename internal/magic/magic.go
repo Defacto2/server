@@ -2,6 +2,8 @@ package magic
 
 import (
 	"bytes"
+	"net/http"
+	"strings"
 
 	"github.com/h2non/filetype"
 	"github.com/h2non/filetype/types"
@@ -40,18 +42,24 @@ func PCXType() types.Type {
 
 // ANSIMatcher matches attempts to match ANSI escape sequences used in text files.
 // Some BBS text files are prefixed with the reset sequence but are not ANSI encoded texts.
-// For performance, this matcher only looks for reset plus the clearn at the start of Amiga texts or
+// For performance, this matcher only looks for reset plus the clean at the start of Amiga texts or
 // incomplete bold or normal text graphics mode sequences for DOS art.
 func ANSIMatcher(buf []byte) bool {
 	const min = 4
 	if len(buf) < min {
 		return false
 	}
+	contentType := http.DetectContentType(buf)
+	ctype := strings.Split(contentType, ";")
+	if len(ctype) == 0 || ctype[0] != "text/plain" {
+		return false
+	}
+	const esc = 0x1b
 	var (
-		reset  = []byte{0x1b, '[', '0', 'm'}
-		clear  = []byte{0x1b, '[', '2', 'J'}
-		bold   = []byte{0x1b, '[', '1', ';'}
-		normal = []byte{0x1b, '[', '0', ';'}
+		reset  = []byte{esc, '[', '0', 'm'}
+		clear  = []byte{esc, '[', '2', 'J'}
+		bold   = []byte{esc, '[', '1', ';'}
+		normal = []byte{esc, '[', '0', ';'}
 	)
 	if !bytes.Equal(buf[0:3], reset) && !bytes.Equal(buf[4:7], clear) {
 		return true

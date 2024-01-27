@@ -119,11 +119,6 @@ func Viewer(res *models.File) bool {
 	return false
 }
 
-// NoReadme returns true if the file entry has a "no readme" flagged.
-func NoReadme(res *models.File) bool {
-	return res.RetrotxtNoReadme.Int16 != 0
-}
-
 // NoScreenshot returns true when the file entry should not attempt to display a screenshot.
 // This is based on the platform, section or if the screenshot is missing on the server.
 func NoScreenshot(path string, res *models.File) bool {
