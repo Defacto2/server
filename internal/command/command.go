@@ -1,4 +1,4 @@
-// Package command provides interfaces for shell commands and applications on the host system.
+// Package command provides interfaces for the shell commands and applications on the host system.
 package command
 
 import (
@@ -37,6 +37,7 @@ var (
 	ErrEmpty = errors.New("file is empty")
 	ErrImg   = errors.New("file is not an known image format")
 	ErrIsDir = errors.New("file is a directory")
+	ErrMatch = errors.New("no match value is present")
 	ErrVers  = errors.New("version mismatch")
 	ErrZap   = errors.New("zap logger instance is nil")
 )
@@ -58,16 +59,29 @@ const (
 	Optipng  = "optipng"  // Optipng is the PNG optimizer command.
 	P7zip    = "7z"       // P7zip is the 7-Zip decompression command.
 	Tar      = "tar"      // Tar is the tar decompression command.
-	// A note about unrar on linux, this cannot be the unrar-free package
+	// A note about unrar on linux, the installation cannot use the unrar-free package,
 	// which is a poor substitute for the files this application needs to handle.
-	// The unrar binary should return "UNRAR 6.24 freeware, Copyright (c) 1993-2023 Alexander Roshal".
+	// The unrar binary should return:
+	// "UNRAR 6.24 freeware, Copyright (c) 1993-2023 Alexander Roshal".
 	Unrar = "unrar" // Unrar is the rar decompression command.
 	Unzip = "unzip" // Unzip is the zip decompression command.
 )
 
 // Lookups returns a list of the execute command names used by the application.
 func Lookups() []string {
-	return []string{Arc, Arj, Ansilove, Convert, Cwebp, Gwebp, Optipng, P7zip, Tar, Unrar, Unzip}
+	return []string{
+		Arc,
+		Arj,
+		Ansilove,
+		Convert,
+		Cwebp,
+		Gwebp,
+		Optipng,
+		P7zip,
+		Tar,
+		Unrar,
+		Unzip,
+	}
 }
 
 // Infos returns details for the list of the execute command names used by the application.
@@ -92,46 +106,33 @@ func LookupUnrar() error {
 	return LookVersion(Unrar, "", "Alexander Roshal")
 }
 
-// RemoveImgs removes the preview and thumbnail images from the preview and
-// thumbnail directories associated with the uuid.
-// It returns nil if the files do not exist.
-func RemoveImgs(preview, thumb, uuid string) error {
+// RemoveImgs removes uuid named images with .jpg, .png and .webp extensions from the directory paths.
+// A nil is returned if the directory or the named uuid files do not exist.
+func RemoveImgs(uuid string, dirs ...string) error {
 	exts := []string{jpg, png, webp}
-	// remove previews
-	for _, ext := range exts {
-		name := filepath.Join(preview, uuid+ext)
-		st, err := os.Stat(name)
-		if errors.Is(err, os.ErrNotExist) {
-			continue
-		}
-		if st.IsDir() {
-			return ErrIsDir
-		}
-		if err = os.Remove(name); err != nil {
-			return err
-		}
-	}
-	// remove thumbnails
-	for _, ext := range exts {
-		name := filepath.Join(thumb, uuid+ext)
-		st, err := os.Stat(name)
-		if errors.Is(err, os.ErrNotExist) {
-			continue
-		}
-		if st.IsDir() {
-			return ErrIsDir
-		}
-		if err = os.Remove(name); err != nil {
-			return err
+	for _, path := range dirs {
+		// remove images
+		for _, ext := range exts {
+			name := filepath.Join(path, uuid+ext)
+			st, err := os.Stat(name)
+			if errors.Is(err, os.ErrNotExist) {
+				continue
+			}
+			if st.IsDir() {
+				return ErrIsDir
+			}
+			if err = os.Remove(name); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
 }
 
 // RemoveMe removes the file with the uuid name combined with a ".txt" extension
-// from the download directory. It returns nil if the file does not exist.
-func RemoveMe(download, uuid string) error {
-	name := filepath.Join(download, uuid+txt)
+// from the download directory path. It returns nil if the file does not exist.
+func RemoveMe(uuid, dir string) error {
+	name := filepath.Join(dir, uuid+txt)
 	st, err := os.Stat(name)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
@@ -201,10 +202,13 @@ func LookCmd(name string) error {
 	return nil
 }
 
-// LookVersion returns an error the match string is not found in the named command output.
+// LookVersion returns an error when the match string is not found in the named command output.
 func LookVersion(name, flag, match string) error {
 	if err := LookCmd(name); err != nil {
 		return err
+	}
+	if match == "" {
+		return ErrMatch
 	}
 	cmd := exec.Command(name, flag)
 	stdout, err := cmd.StdoutPipe()
@@ -268,7 +272,7 @@ func RunQuiet(z *zap.SugaredLogger, name string, arg ...string) error {
 }
 
 // RunWD looks for the command in the system path and executes it with the arguments.
-// The working directory is set for the command.
+// An optional working directory is set for the command.
 // Any output to stderr is logged as a debug message.
 func RunWD(z *zap.SugaredLogger, name, wdir string, arg ...string) error {
 	if z == nil {
@@ -281,7 +285,6 @@ func run(z *zap.SugaredLogger, name, wdir string, arg ...string) error {
 	if err := LookCmd(name); err != nil {
 		return err
 	}
-
 	cmd := exec.Command(name, arg...)
 	cmd.Dir = wdir
 	stderr, err := cmd.StderrPipe()

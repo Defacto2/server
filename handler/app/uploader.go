@@ -240,7 +240,7 @@ func ReadmeDel(z *zap.SugaredLogger, c echo.Context, downloadDir string) error {
 	if err != nil {
 		return err
 	}
-	if err = command.RemoveMe(downloadDir, r.UUID.String); err != nil {
+	if err = command.RemoveMe(r.UUID.String, downloadDir); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, r)
@@ -328,7 +328,7 @@ func (dir Dirs) PreviewDel(z *zap.SugaredLogger, c echo.Context) error {
 	if err != nil {
 		return badRequest(c, err)
 	}
-	if err = command.RemoveImgs(dir.Preview, dir.Thumbnail, r.UUID.String); err != nil {
+	if err = command.RemoveImgs(r.UUID.String, dir.Preview, dir.Thumbnail); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, r)

@@ -12,21 +12,25 @@ import (
 	"go.uber.org/zap"
 )
 
-// ExtractOne extracts the named file from a zip archive.
+// ExtractOne extracts the named file from the src archive.
 //
-// The extracted file is copied to the src with the ext extension appended.
-// It requires the [unzip] command to be available on the host system.
-// This allows for better compatibility with retro zip archives,
+// The extracted file is copied to the dst. It uses [exec.Command] and
+// relies on extractor being avaliable on the system host path.
+// Using non-Go apps allows for better compatibility with retro zip archives,
 // such as those that use the [compression methods] prior to zip deflate.
 //
 // The src argument is the path to the zip archive.
 // The dst argument is the destination filepath and should end with
 // a file extension, eg. ".txt".
+// The optional extHint arg is a file extension hint for the extractor.
+// Valid hints are: ".arc", ".arj", ".rar", ".tar", ".zip", otherwise the
+// extractor will use the 7-Zip command.
 // The name argument is the name of the one file to unzip and copy.
 //
-// [unzip]: https://sourceforge.net/projects/infozip
 // [compression methods]: https://www.hanshq.net/zip.html
-func ExtractOne(z *zap.SugaredLogger, src, dst, ext, name string) error {
+//
+// [unzip]: https://sourceforge.net/projects/infozip
+func ExtractOne(z *zap.SugaredLogger, src, dst, extHint, name string) error {
 	if z == nil {
 		return ErrZap
 	}
@@ -49,7 +53,7 @@ func ExtractOne(z *zap.SugaredLogger, src, dst, ext, name string) error {
 	defer os.RemoveAll(tmp)
 
 	r := runner{src: src, tmp: tmp, name: name}
-	if err = r.extract(z, ext); err != nil {
+	if err = r.extract(z, extHint); err != nil {
 		return err
 	}
 
@@ -121,7 +125,7 @@ func (r runner) arj(z *zap.SugaredLogger) error {
 		"-ht" + r.tmp, // Set Target directory, ie: "ht/destdir".
 	}
 	if err := Run(z, Arj, arg...); err != nil {
-		s := arjExitStatus(err)
+		s := ArjExitStatus(err)
 		z.Warnf("arj exit status: %s", s)
 		return fmt.Errorf("%w: %s", err, s)
 	}
@@ -159,7 +163,7 @@ func (r *runner) rar(z *zap.SugaredLogger) error {
 		r.name, // File to extract from the archive.
 	}
 	if err := RunWD(z, Unrar, r.tmp, arg...); err != nil {
-		s := unrarExitStatus(err)
+		s := UnRarExitStatus(err)
 		z.Warnf("unrar exit status: %s", s)
 		return fmt.Errorf("%w: %s", err, s)
 	}
@@ -193,8 +197,8 @@ func (r runner) zip(z *zap.SugaredLogger) error {
 	return nil
 }
 
-// arjExitStatus returns the exit status of the arj command error.
-func arjExitStatus(err error) string {
+// ArjExitStatus returns the exit status of the arj command error.
+func ArjExitStatus(err error) string {
 	if err == nil {
 		return ""
 	}
@@ -224,8 +228,8 @@ func arjExitStatus(err error) string {
 	return err.Error()
 }
 
-// unrarExitStatus returns the exit status of the unrar command error.
-func unrarExitStatus(err error) string {
+// UnRarExitStatus returns the exit status of the unrar command error.
+func UnRarExitStatus(err error) string {
 	if err == nil {
 		return ""
 	}
@@ -292,28 +296,21 @@ func unzipExitStatus(err error) string {
 	return err.Error()
 }
 
-// extract extracts the named file from a zip archive and returns the path to the file.
-func extract(z *zap.SugaredLogger, src, ext, name string) (string, error) {
+// ExtractAnsiLove extracts the named text file from a zip archive.
+// The text file is converted to a PNG preview and a webp thumbnails.
+// Any text file usable by the ansilove command is supported,
+// including ANSI, codepage plain text, PCBoard, etc.
+func (dir Dirs) ExtractAnsiLove(z *zap.SugaredLogger, src, uuid, ext, name string) error {
 	if z == nil {
-		return "", ErrZap
-	}
-	tmp, err := os.MkdirTemp(os.TempDir(), pattern)
-	if err != nil {
-		return "", err
+		return ErrZap
 	}
 
-	dst := filepath.Join(tmp, filepath.Base(name))
-	if err = ExtractOne(z, src, dst, ext, name); err != nil {
-		return "", err
-	}
-	st, err := os.Stat(dst)
+	dst, err := extract(z, src, ext, name)
 	if err != nil {
-		return "", err
+		return err
 	}
-	if st.IsDir() {
-		return "", fmt.Errorf("%w: %q", ErrIsDir, dst)
-	}
-	return dst, nil
+	defer os.RemoveAll(dst)
+	return dir.AnsiLove(z, dst, uuid)
 }
 
 // ExtractImage extracts the named image file from a zip archive.
@@ -354,19 +351,26 @@ func (dir Dirs) ExtractImage(z *zap.SugaredLogger, src, uuid, ext, name string) 
 	return nil
 }
 
-// ExtractAnsiLove extracts the named text file from a zip archive.
-// The text file is converted to a PNG preview and a webp thumbnails.
-// Any text file usable by the ansilove command is supported,
-// including ANSI, codepage plain text, PCBoard, etc.
-func (dir Dirs) ExtractAnsiLove(z *zap.SugaredLogger, src, uuid, ext, name string) error {
+// extract extracts the named file from a zip archive and returns the path to the file.
+func extract(z *zap.SugaredLogger, src, ext, name string) (string, error) {
 	if z == nil {
-		return ErrZap
+		return "", ErrZap
+	}
+	tmp, err := os.MkdirTemp(os.TempDir(), pattern)
+	if err != nil {
+		return "", err
 	}
 
-	dst, err := extract(z, src, ext, name)
-	if err != nil {
-		return err
+	dst := filepath.Join(tmp, filepath.Base(name))
+	if err = ExtractOne(z, src, dst, ext, name); err != nil {
+		return "", err
 	}
-	defer os.RemoveAll(dst)
-	return dir.AnsiLove(z, dst, uuid)
+	st, err := os.Stat(dst)
+	if err != nil {
+		return "", err
+	}
+	if st.IsDir() {
+		return "", fmt.Errorf("%w: %q", ErrIsDir, dst)
+	}
+	return dst, nil
 }

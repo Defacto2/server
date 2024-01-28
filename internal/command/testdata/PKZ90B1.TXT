@@ -1,0 +1,175 @@
+
+PKZIP (R)   FAST!   Create/Update Utility   Version 2.04g   02-01-93
+Copr. 1989-1993 PKWARE Inc.  All Rights Reserved.  Registered Version
+PKZIP Reg. U.S. Pat. and Tm. Off.   Patent No. 5,051,745
+
+þ 80486 CPU detected.
+þ EMS version 4.00 detected.
+þ XMS version 3.00 detected.
+
+Searching ZIP: C:/ZIP/PKZ90B1.ZIP
+
+          Filename: TEST.ANS
+         File type: text
+        Attributes: --w-
+     Date and Time: Sep 19,2012  14:21:52
+Compression Method: Shrunk 
+   Compressed Size:      63
+ Uncompressed Size:      68
+  32 bit CRC value: 5ce2f707
+        Created by:   PKZIP: 1.0 under MS-DOS
+ Needed to extract: PKUNZIP: 1.0
+
+          Filename: TEST.ASC
+         File type: text
+        Attributes: --w-
+     Date and Time: Sep 19,2012  14:17:52
+Compression Method: Stored 
+   Compressed Size:      13
+ Uncompressed Size:      13
+  32 bit CRC value: 7ef91c5d
+        Created by:   PKZIP: 1.0 under MS-DOS
+ Needed to extract: PKUNZIP: 1.0
+
+          Filename: TEST.BMP
+         File type: binary
+        Attributes: --w-
+     Date and Time: Sep 19,2012  14:11:24
+Compression Method: Reduce1
+   Compressed Size:    7168
+ Uncompressed Size:  750054
+  32 bit CRC value: 64c6e850
+        Created by:   PKZIP: 1.0 under MS-DOS
+ Needed to extract: PKUNZIP: 1.0
+
+          Filename: TEST.CAP
+         File type: text
+        Attributes: --w-
+     Date and Time: Sep 19,2012  14:22:34
+Compression Method: Stored 
+   Compressed Size:      13
+ Uncompressed Size:      13
+  32 bit CRC value: 49dfe6f2
+        Created by:   PKZIP: 1.0 under MS-DOS
+ Needed to extract: PKUNZIP: 1.0
+
+          Filename: TEST.DIZ
+         File type: text
+        Attributes: --w-
+     Date and Time: Sep 19,2012  14:22:48
+Compression Method: Stored 
+   Compressed Size:      13
+ Uncompressed Size:      13
+  32 bit CRC value: d16e82ea
+        Created by:   PKZIP: 1.0 under MS-DOS
+ Needed to extract: PKUNZIP: 1.0
+
+          Filename: TEST.DOC
+         File type: text
+        Attributes: --w-
+     Date and Time: Sep 19,2012  14:23:00
+Compression Method: Stored 
+   Compressed Size:      13
+ Uncompressed Size:      13
+  32 bit CRC value: 9667e483
+        Created by:   PKZIP: 1.0 under MS-DOS
+ Needed to extract: PKUNZIP: 1.0
+
+          Filename: TEST.EXE
+         File type: binary
+        Attributes: --w-
+     Date and Time: Mar 22,2016  08:55:58
+Compression Method: Reduce1 
+   Compressed Size: 1011464
+ Uncompressed Size: 2426368
+  32 bit CRC value: 68e32163
+        Created by:   PKZIP: 1.0 under MS-DOS
+ Needed to extract: PKUNZIP: 1.0
+
+          Filename: TEST.GIF
+         File type: binary
+        Attributes: --w-
+     Date and Time: Sep 19,2012  14:11:38
+Compression Method: Reduce1
+   Compressed Size:    2176
+ Uncompressed Size:    2646
+  32 bit CRC value: 195a28a8
+        Created by:   PKZIP: 1.0 under MS-DOS
+ Needed to extract: PKUNZIP: 1.0
+
+          Filename: TEST.JPG
+         File type: binary
+        Attributes: --w-
+     Date and Time: Sep 19,2012  14:11:54
+Compression Method: Reduce1
+   Compressed Size:    9862
+ Uncompressed Size:   16461
+  32 bit CRC value: 134961cd
+        Created by:   PKZIP: 1.0 under MS-DOS
+ Needed to extract: PKUNZIP: 1.0
+
+          Filename: TEST.ME
+         File type: text
+        Attributes: --w-
+     Date and Time: Sep 19,2012  14:23:12
+Compression Method: Stored 
+   Compressed Size:      12
+ Uncompressed Size:      12
+  32 bit CRC value: 3a3f1a1c
+        Created by:   PKZIP: 1.0 under MS-DOS
+ Needed to extract: PKUNZIP: 1.0
+
+          Filename: TEST.NFO
+         File type: text
+        Attributes: --w-
+     Date and Time: Sep 19,2012  14:23:24
+Compression Method: Stored 
+   Compressed Size:      13
+ Uncompressed Size:      13
+  32 bit CRC value: e5fd7de3
+        Created by:   PKZIP: 1.0 under MS-DOS
+ Needed to extract: PKUNZIP: 1.0
+
+          Filename: TEST.PCX
+         File type: binary
+        Attributes: --w-
+     Date and Time: Sep 19,2012  14:16:28
+Compression Method: Reduce1
+   Compressed Size:    4607
+ Uncompressed Size:   29530
+  32 bit CRC value: e63058f8
+        Created by:   PKZIP: 1.0 under MS-DOS
+ Needed to extract: PKUNZIP: 1.0
+
+          Filename: TEST.PNG
+         File type: binary
+        Attributes: --w-
+     Date and Time: Sep 19,2012  14:14:04
+Compression Method: Reduce1
+   Compressed Size:    2873
+ Uncompressed Size:    4163
+  32 bit CRC value: dfafce04
+        Created by:   PKZIP: 1.0 under MS-DOS
+ Needed to extract: PKUNZIP: 1.0
+
+          Filename: TEST.TXT
+         File type: text
+        Attributes: --w-
+     Date and Time: Sep 19,2012  14:23:36
+Compression Method: Stored 
+   Compressed Size:      14
+ Uncompressed Size:      14
+  32 bit CRC value: b8d80e3c
+        Created by:   PKZIP: 1.0 under MS-DOS
+ Needed to extract: PKUNZIP: 1.0
+
+          Filename: TEST~1.JPE
+         File type: binary
+        Attributes: --w-
+     Date and Time: Sep 19,2012  14:11:54
+Compression Method: Reduce1
+   Compressed Size:    9862
+ Uncompressed Size:   16461
+  32 bit CRC value: 134961cd
+        Created by:   PKZIP: 1.0 under MS-DOS
+ Needed to extract: PKUNZIP: 1.0
