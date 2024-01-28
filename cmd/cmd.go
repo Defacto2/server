@@ -136,7 +136,11 @@ func Address(c *config.Config) *cli.Command {
 		Usage:       "list the server addresses",
 		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
 		Action: func(ctx *cli.Context) error {
-			defer fmt.Fprintf(os.Stdout, "%s\n", c.Addresses())
+			s, err := c.Addresses()
+			if err != nil {
+				return err
+			}
+			defer fmt.Fprintf(os.Stdout, "%s\n", s)
 			return nil
 		},
 	}

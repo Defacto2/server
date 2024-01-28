@@ -3,7 +3,6 @@ package config
 
 import (
 	"fmt"
-	"log"
 	"reflect"
 	"strings"
 	"text/tabwriter"
@@ -78,22 +77,26 @@ func (c Config) String() string {
 }
 
 // Addresses returns a list of urls that the server is accessible from.
-func (c Config) Addresses() string {
+func (c Config) Addresses() (string, error) {
 	b := new(strings.Builder)
-	c.addresses(b, true)
-	return b.String()
+	if err := c.addresses(b, true); err != nil {
+		return "", err
+	}
+	return b.String(), nil
 }
 
 // Startup returns a list of urls that the server is accessible from,
 // without any CLI helper text.
-func (c Config) Startup() string {
+func (c Config) Startup() (string, error) {
 	b := new(strings.Builder)
-	c.addresses(b, false)
-	return b.String()
+	if err := c.addresses(b, false); err != nil {
+		return "", err
+	}
+	return b.String(), nil
 }
 
 // addresses prints a list of urls that the server is accessible from.
-func (c Config) addresses(b *strings.Builder, intro bool) {
+func (c Config) addresses(b *strings.Builder, intro bool) error {
 	pad := strings.Repeat(string(padchar), padding)
 	values := reflect.ValueOf(c)
 	if intro {
@@ -105,12 +108,12 @@ func (c Config) addresses(b *strings.Builder, intro bool) {
 	}
 	hosts, err := helper.GetLocalHosts()
 	if err != nil {
-		log.Fatalf("The server cannot get the local host names: %s.", err)
+		return fmt.Errorf("the server cannot get the local host names: %w", err)
 	}
 	port := values.FieldByName("HTTPPort").Uint()
 	tls := values.FieldByName("TLSPort").Uint()
 	if port == 0 && tls == 0 {
-		log.Fatalln("The server cannot start without a HTTP or a TLS port.")
+		return fmt.Errorf("the server cannot start without a HTTP or a TLS port")
 	}
 	const disable, text, secure = 0, 80, 443
 	for _, host := range hosts {
@@ -137,7 +140,7 @@ func (c Config) addresses(b *strings.Builder, intro bool) {
 	}
 	ips, err := helper.GetLocalIPs()
 	if err != nil {
-		log.Fatalf("The server cannot get the local IP addresses: %s.", err)
+		return fmt.Errorf("the server cannot get the local IP addresses: %w", err)
 	}
 	for _, ip := range ips {
 		if port == 0 {
@@ -145,6 +148,7 @@ func (c Config) addresses(b *strings.Builder, intro bool) {
 		}
 		fmt.Fprintf(b, "%shttp://%s:%d\n", pad, ip, port)
 	}
+	return nil
 }
 
 // nl prints a new line to the tabwriter.
@@ -269,11 +273,11 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 		}
 		// mode for development and readonly which is set using the go build flags.
 		if c.LocalMode || (!c.ProductionMode && c.ReadMode) {
-			if accountSkip(field.Name) {
+			if AccountSkip(field.Name) {
 				continue
 			}
 		}
-		if c.LocalMode && localSkip(field.Name) {
+		if c.LocalMode && LocalSkip(field.Name) {
 			continue
 		}
 		val := values.FieldByName(field.Name)
@@ -325,8 +329,8 @@ func (c Config) fmtField(w *tabwriter.Writer,
 	}
 }
 
-// localSkip skips the configurations that are inaccessible in local mode.
-func localSkip(name string) bool {
+// LocalSkip skips the configurations that are inaccessible in local mode.
+func LocalSkip(name string) bool {
 	switch name {
 	case
 		"ReadMode",
@@ -341,9 +345,9 @@ func localSkip(name string) bool {
 	return false
 }
 
-// accountSkip skips the configurations that are not used when using Google OAuth2
+// AccountSkip skips the configurations that are not used when using Google OAuth2
 // is not enabled or when the server is in read-only mode.
-func accountSkip(name string) bool {
+func AccountSkip(name string) bool {
 	switch name {
 	case
 		"GoogleClientID",

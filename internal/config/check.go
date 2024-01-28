@@ -34,6 +34,7 @@ var (
 	ErrNoAccounts  = fmt.Errorf("the production server has no google oauth2 user accounts to allow admin logins")
 	ErrSessionKey  = fmt.Errorf("the production server has a session, " +
 		"encryption key set instead of using a randomized key")
+	ErrZapLogger = fmt.Errorf("the zap logger instance is nil")
 )
 
 // httpPort returns an error if the HTTP port is invalid.
@@ -104,10 +105,9 @@ func (c Config) production(z *zap.SugaredLogger) {
 }
 
 // Checks runs a number of sanity checks for the environment variable configurations.
-func (c *Config) Checks(z *zap.SugaredLogger) {
+func (c *Config) Checks(z *zap.SugaredLogger) error {
 	if z == nil {
-		fmt.Fprintf(os.Stderr, "Cannot run config checks as the logger instance is nil.")
-		return
+		return ErrZapLogger
 	}
 
 	if c.HTTPSRedirect && c.TLSPort == 0 {
@@ -140,35 +140,35 @@ func (c *Config) Checks(z *zap.SugaredLogger) {
 		z.Info("HTTPSRedirect is on, all HTTP requests will be redirected to HTTPS.")
 	}
 
-	c.SetupLogDir(z)
+	return c.SetupLogDir(z)
 }
 
 // SetupLogDir runs checks against the configured log directory.
 // If no log directory is configured, a default directory is used.
 // Problems will either log warnings or fatal errors.
-func (c *Config) SetupLogDir(z *zap.SugaredLogger) {
+func (c *Config) SetupLogDir(z *zap.SugaredLogger) error {
 	if z == nil {
-		fmt.Fprintf(os.Stderr, "The logger instance for the config log dir is nil.")
+		return ErrZapLogger
 	}
 	if c.LogDir == "" {
 		if err := c.LogStorage(); err != nil {
-			z.Fatalf("The server cannot log to files: %s", err)
+			return fmt.Errorf("the server cannot log to files: %s", err)
 		}
 	} else {
 		z.Info("The server logs are found in: ", c.LogDir)
 	}
 	dir, err := os.Stat(c.LogDir)
 	if os.IsNotExist(err) {
-		z.Fatalf("The log directory path does not exist, the server cannot log to files: %s", c.LogDir)
+		return fmt.Errorf("the log directory path does not exist: %s", c.LogDir)
 	}
 	if !dir.IsDir() {
-		z.Fatalf("The log directory path points to the file: %s", dir.Name())
+		return fmt.Errorf("the log directory path points to the file: %s", dir.Name())
 	}
 	empty := filepath.Join(c.LogDir, ".defacto2_touch_test")
 	if _, err := os.Stat(empty); os.IsNotExist(err) {
 		f, err := os.Create(empty)
 		if err != nil {
-			z.Fatalf("Could not create a file in the log directory path: %s.", err)
+			return fmt.Errorf("the server cannot create a file in the log directory path: %s", err)
 		}
 		defer func(f *os.File) {
 			f.Close()
@@ -177,12 +177,12 @@ func (c *Config) SetupLogDir(z *zap.SugaredLogger) {
 				return
 			}
 		}(f)
-		return
+		return nil
 	}
 	if err := os.Remove(empty); err != nil {
 		z.Warnf("Could not remove the empty test file in the log directory path: %s: %s", err, empty)
-		return
 	}
+	return nil
 }
 
 // Validate returns an error if the HTTP or TLS port is invalid.

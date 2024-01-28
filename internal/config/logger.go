@@ -19,6 +19,7 @@ import (
 )
 
 var (
+	ErrEchoNil     = errors.New("echo instance is nil")
 	ErrNotDir      = errors.New("not a directory")
 	ErrDirNotExist = errors.New("directory does not exist or incorrectly typed")
 )
@@ -125,23 +126,29 @@ func (c Config) CustomErrorHandler(err error, e echo.Context) {
 		errorPage := fmt.Sprintf("%d.html", code)
 		if err := e.File(errorPage); err != nil {
 			// fallback to a string error if templates break
-			if err1 := StringErr(err, e); err1 != nil {
+			c, s, err1 := StringErr(err)
+			if err1 != nil {
 				z.DPanic("Custom response handler broke: %s", err1)
 			}
+			e.String(c, s)
 		}
 		return
 	}
 }
 
 // StringErr sends the error and code as a string.
-func StringErr(err error, c echo.Context) error {
+func StringErr(err error) (int, string, error) {
+	if err == nil {
+		return 0, "", nil
+	}
 	code, msg := http.StatusInternalServerError, "internal server error"
 	var httpError *echo.HTTPError
 	if errors.As(err, &httpError) {
 		code = httpError.Code
 		msg = fmt.Sprint(httpError.Message)
 	}
-	return c.String(code, fmt.Sprintf("%d - %s", code, msg))
+	return code, fmt.Sprintf("%d - %s", code, msg), nil
+	//return c.String(code, fmt.Sprintf("%d - %s", code, msg))
 }
 
 // IsHTML3 returns true if the route is /html3.

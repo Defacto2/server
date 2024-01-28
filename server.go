@@ -86,7 +86,9 @@ func main() { //nolint:funlen
 	commandLine(logs, configs)
 
 	// Configuration sanity checks
-	configs.Checks(logs)
+	if err := configs.Checks(logs); err != nil {
+		logs.Errorf("%s: %s", ErrEnv, err)
+	}
 
 	// Confirm command requirements when not running in read-only mode
 	checks(logs, configs.ReadMode)
@@ -157,7 +159,13 @@ func main() { //nolint:funlen
 	}
 
 	// List the local IP addresses that can also be used to access the server
-	go fmt.Fprintf(os.Stdout, "%s\n", configs.Startup())
+	go func() {
+		s, err := configs.Startup()
+		if err != nil {
+			logs.Errorf("%s: %s", ErrEnv, err)
+		}
+		fmt.Fprintf(os.Stdout, "%s\n", s)
+	}()
 	if localMode() {
 		go func() {
 			fmt.Fprint(os.Stdout, "Tap Ctrl + C, to exit at anytime.\n")
