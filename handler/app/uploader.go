@@ -384,9 +384,9 @@ func (dir Dirs) extractor(z *zap.SugaredLogger, c echo.Context, p extract) error
 	ext := filepath.Ext(strings.ToLower(r.Filename.String))
 	switch p {
 	case imgs:
-		err = cmd.ExtractImage(z, src, r.UUID.String, ext, target)
+		err = cmd.ExtractImage(z, src, ext, r.UUID.String, target)
 	case ansis:
-		err = cmd.ExtractAnsiLove(z, src, r.UUID.String, ext, target)
+		err = cmd.ExtractAnsiLove(z, src, ext, r.UUID.String, target)
 	default:
 		return InternalErr(z, c, "extractor", fmt.Errorf("%w: %d", ErrExtract, p))
 	}

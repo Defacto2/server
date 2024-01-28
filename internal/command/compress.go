@@ -300,12 +300,12 @@ func unzipExitStatus(err error) string {
 // The text file is converted to a PNG preview and a webp thumbnails.
 // Any text file usable by the ansilove command is supported,
 // including ANSI, codepage plain text, PCBoard, etc.
-func (dir Dirs) ExtractAnsiLove(z *zap.SugaredLogger, src, uuid, ext, name string) error {
+func (dir Dirs) ExtractAnsiLove(z *zap.SugaredLogger, src, extHint, uuid, name string) error {
 	if z == nil {
 		return ErrZap
 	}
 
-	dst, err := extract(z, src, ext, name)
+	dst, err := extract(z, src, extHint, name)
 	if err != nil {
 		return err
 	}
@@ -316,12 +316,12 @@ func (dir Dirs) ExtractAnsiLove(z *zap.SugaredLogger, src, uuid, ext, name strin
 // ExtractImage extracts the named image file from a zip archive.
 // Based on the file extension, the image is converted to a webp preview and thumbnails.
 // Named files with a PNG extension are optimized but kept as the preview image.
-func (dir Dirs) ExtractImage(z *zap.SugaredLogger, src, uuid, ext, name string) error {
+func (dir Dirs) ExtractImage(z *zap.SugaredLogger, src, extHint, uuid, name string) error {
 	if z == nil {
 		return ErrZap
 	}
 
-	dst, err := extract(z, src, ext, name)
+	dst, err := extract(z, src, extHint, name)
 	if err != nil {
 		return err
 	}
@@ -352,7 +352,7 @@ func (dir Dirs) ExtractImage(z *zap.SugaredLogger, src, uuid, ext, name string) 
 }
 
 // extract extracts the named file from a zip archive and returns the path to the file.
-func extract(z *zap.SugaredLogger, src, ext, name string) (string, error) {
+func extract(z *zap.SugaredLogger, src, extHint, name string) (string, error) {
 	if z == nil {
 		return "", ErrZap
 	}
@@ -362,7 +362,7 @@ func extract(z *zap.SugaredLogger, src, ext, name string) (string, error) {
 	}
 
 	dst := filepath.Join(tmp, filepath.Base(name))
-	if err = ExtractOne(z, src, dst, ext, name); err != nil {
+	if err = ExtractOne(z, src, dst, extHint, name); err != nil {
 		return "", err
 	}
 	st, err := os.Stat(dst)

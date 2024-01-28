@@ -1,6 +1,7 @@
 package command
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -301,10 +302,18 @@ func (dir Dirs) LosslessScreenshot(z *zap.SugaredLogger, src, uuid string) error
 
 	args := Args{}
 	args.Png()
-	arg := []string{src}           // source file
-	arg = append(arg, args...)     // command line arguments
-	tmp := BaseNamePath(src) + png // destination
+	arg := []string{src}       // source file
+	arg = append(arg, args...) // command line arguments
+	// create a temporary target file in the temp dir
+	name := filepath.Base(src) + png                             // temp file name
+	tmp, err := os.MkdirTemp(os.TempDir(), "losslessscreenshot") // create temp dir
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(tmp)        // remove temp dir
+	tmp = filepath.Join(tmp, name) // temp output file target
 	arg = append(arg, tmp)
+	fmt.Println(arg)
 	if err := RunQuiet(z, Convert, arg...); err != nil {
 		return err
 	}
@@ -335,12 +344,19 @@ func (dir Dirs) PreviewLossy(z *zap.SugaredLogger, src, uuid string) error {
 		return ErrZap
 	}
 
-	tmp := BaseNamePath(src) + jpg
 	args := Args{}
 	args.Jpeg()
 	arg := []string{src}       // source file
 	arg = append(arg, args...) // command line arguments
-	arg = append(arg, tmp)     // destination
+	// create a temporary target file in the temp dir
+	name := filepath.Base(src) + jpg                       // temp file name
+	tmp, err := os.MkdirTemp(os.TempDir(), "lossypreview") // create temp dir
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(tmp)        // remove temp dir
+	tmp = filepath.Join(tmp, name) // temp output file target
+	arg = append(arg, tmp)         // destination
 	if err := RunQuiet(z, Convert, arg...); err != nil {
 		return err
 	}
