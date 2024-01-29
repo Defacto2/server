@@ -33,6 +33,25 @@ func TestFinds(t *testing.T) {
 	}
 }
 
+func TestIsFile(t *testing.T) {
+	self := filepath.Join(".", "bool_test.go")
+	tests := []struct {
+		name      string
+		expect    bool
+		assertion assert.ComparisonAssertionFunc
+	}{
+		{self, true, assert.Equal},
+		{"^&%#$%@#", false, assert.Equal},
+		{"testdata/", false, assert.Equal},
+		{"testdata/TEST.DOC", true, assert.Equal},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.assertion(t, tt.expect, helper.IsFile(tt.name))
+		})
+	}
+}
+
 func TestIsStat(t *testing.T) {
 	self := filepath.Join(".", "bool_test.go")
 	tests := []struct {
@@ -42,6 +61,8 @@ func TestIsStat(t *testing.T) {
 	}{
 		{self, true, assert.Equal},
 		{"^&%#$%@#", false, assert.Equal},
+		{"testdata/", true, assert.Equal},
+		{"testdata/TEST.DOC", true, assert.Equal},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

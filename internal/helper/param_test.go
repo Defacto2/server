@@ -7,6 +7,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestSlug(t *testing.T) {
+	tests := []struct {
+		name      string
+		expect    string
+		assertion assert.ComparisonAssertionFunc
+	}{
+		{"the-group", "the_group", assert.Equal},
+		{"group1, group2", "group1*group2", assert.Equal},
+		{"group1 & group2", "group1-ampersand-group2", assert.Equal},
+		{"group 1, group 2", "group-1*group-2", assert.Equal},
+		{"GROUP 👾", "group", assert.Equal},
+	}
+	for _, tt := range tests {
+		t.Run(tt.expect, func(t *testing.T) {
+			tt.assertion(t, tt.expect, helper.Slug(tt.name))
+		})
+	}
+}
+
 func TestPageCount(t *testing.T) {
 	type args struct {
 		sum   int

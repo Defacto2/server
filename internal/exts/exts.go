@@ -144,36 +144,38 @@ func IsExt(name string, extensions ...string) bool {
 	return helper.Finds(ext, extensions...)
 }
 
+// Icon names for the Apache2 .gif image files used as icons for the named file.
+const (
+	App = "comp2"
+	Doc = "doc"
+	Htm = "generic"
+	Pic = "image2"
+	Sfx = "sound2"
+	Vid = "movie"
+	Zip = "compressed"
+)
+
 // IconName returns the extensionless name of an Apache2 .gif image file to use as an icon
 // for the named file.
 func IconName(name string) string {
-	const (
-		app = "comp2"
-		doc = "doc"
-		htm = "generic"
-		pic = "image2"
-		sfx = "sound2"
-		vid = "movie"
-		zip = "compressed"
-	)
 	n := strings.ToLower(filepath.Ext(name))
 	switch {
 	case IsArchive(n):
-		return zip
+		return Zip
 	case IsApp(n):
-		return app
+		return App
 	case IsAudio(n):
-		return sfx
+		return Sfx
 	case IsDocument(n):
-		return doc
+		return Doc
 	case IsHTML(n):
-		return htm
+		return Htm
 	case IsImage(n):
-		return pic
+		return Pic
 	case IsTune(n):
-		return sfx
+		return Sfx
 	case IsVideo(n):
-		return vid
+		return Vid
 	}
 	return ""
 }

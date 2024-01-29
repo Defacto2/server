@@ -20,20 +20,34 @@ func DetermineEncoding(p []byte) encoding.Encoding {
 		carriageReturn = '\r'
 		tab            = '\t'
 		escape         = 0x1b
-		lastChar       = 0xff
+		multiByte      = 0x100
+		unknownChr     = 65533
 	)
-	for i := range p {
+	s := string(p)
+	for i, r := range s {
 		switch {
-		case p[i] == byte(newline), p[i] == byte(carriageReturn), p[i] == byte(tab):
+		case // common whitespace control characters
+			r == rune(newline),
+			r == rune(carriageReturn),
+			r == rune(tab):
 			continue
-		case p[i] == escape:
+		case r == rune(escape):
+			// escape control character commonly used for ANSI
 			continue
 		case p[i] >= undefinedStart && p[i] <= undefinedEnd:
+			// unused ASCII, which we can probably assumed to be CP-437
 			return charmap.CodePage437
 		case p[i] >= controlStart && p[i] <= controlEnd:
+			// ASCII control characters, which we can probably assumed to be CP-437 glyphs
 			return charmap.CodePage437
-			// case p[i] > lastChar:
-			// 	return nil
+		case r == unknownChr:
+			// when an unknown extended-ASCII character (128-255) is encountered, it is probably CP-437
+			return charmap.CodePage437
+		case r > unknownChr:
+			// The maximum value of an 8-bit character is 255 (0xff),
+			// so rune valud above that, 256+ (0x100) is a Unicode multi-byte character,
+			// which we can probably assumed to be UTF-8.
+			return nil
 		}
 	}
 	const (
@@ -52,9 +66,9 @@ func DetermineEncoding(p []byte) encoding.Encoding {
 		mediumShade,
 		fullBlock,
 	}
-	for _, v := range chrs {
+	for _, chr := range chrs {
 		const count = 4
-		if bytes.Contains(p, bytes.Repeat([]byte{v}, count)) {
+		if bytes.Contains(p, bytes.Repeat([]byte{chr}, count)) {
 			return charmap.CodePage437
 		}
 	}

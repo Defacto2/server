@@ -26,3 +26,26 @@ func TestIcon(t *testing.T) {
 		})
 	}
 }
+
+func TestIconName(t *testing.T) {
+	s := exts.IconName("myfile")
+	assert.Equal(t, "", s)
+	s = exts.IconName("myimage.png")
+	assert.Equal(t, exts.Pic, s)
+	s = exts.IconName("double.exts.avi")
+	assert.Equal(t, exts.Vid, s)
+	s = exts.IconName("a web site .htm")
+	assert.Equal(t, exts.Htm, s)
+	s = exts.IconName("👾.mp3")
+	assert.Equal(t, exts.Sfx, s)
+	s = exts.IconName("archive.rar")
+	assert.Equal(t, exts.Zip, s)
+	s = exts.IconName("archive.zip")
+	assert.Equal(t, exts.Zip, s)
+	s = exts.IconName("program.exe")
+	assert.Equal(t, exts.App, s)
+	s = exts.IconName("document.txt")
+	assert.Equal(t, exts.Doc, s)
+	s = exts.IconName("document.mod")
+	assert.Equal(t, exts.Sfx, s)
+}
