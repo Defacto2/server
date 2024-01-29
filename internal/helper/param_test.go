@@ -7,6 +7,26 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// https://defacto2.net/f/ab27b2e
+
+func TestDeobfuscateURL(t *testing.T) {
+	tests := []struct {
+		name   string
+		rawURL string
+		want   int
+	}{
+		{"record", "https://defacto2.net/f/ab27b2e", 13526},
+		{"download", "https://defacto2.net/d/ab27b2e", 13526},
+		{"query", "https://defacto2.net/f/ab27b2e?blahblahblah", 13526},
+		{"typo", "https://defacto2.net/f/ab27b2", 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, helper.DeobfuscateURL(tt.rawURL))
+		})
+	}
+}
+
 func TestSlug(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -60,38 +80,19 @@ func TestObfuscates(t *testing.T) {
 	}
 }
 
-// https://defacto2.net/f/ab27b2e
-
-func TestDeobfuscateURL(t *testing.T) {
-	tests := []struct {
-		name   string
-		rawURL string
-		want   int
-	}{
-		{"record", "https://defacto2.net/f/ab27b2e", 13526},
-		{"download", "https://defacto2.net/d/ab27b2e", 13526},
-		{"query", "https://defacto2.net/f/ab27b2e?blahblahblah", 13526},
-		{"typo", "https://defacto2.net/f/ab27b2", 0},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, helper.DeobfuscateURL(tt.rawURL))
-		})
-	}
-}
-
 func TestSearchTerm(t *testing.T) {
 	tests := []struct {
 		name  string
 		input string
 		want  []string
 	}{
-		// {"empty", "", []string{}},
-		// {"spaces", "   ", []string{}},
-		// {"one", "one", []string{"one"}},
-		// {"two", "one two", []string{"one", "two"}},
-		// {"three", "one two three", []string{"one", "two", "three"}},
-		{"quotes", `"one two" three`, []string{"one two", "three"}},
+		{"empty", "", []string{}},
+		{"spaces", "   ", []string{""}},
+		{"one", "one", []string{"one"}},
+		{"two", "one two", []string{"one two"}},
+		{"three", "one two three", []string{"one two three"}},
+		{"quotes", `"one two" three`, []string{"\"one two\" three"}},
+		{"two", "one,two", []string{"one", "two"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

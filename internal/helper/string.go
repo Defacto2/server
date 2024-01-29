@@ -52,6 +52,7 @@ func ByteCountFloat(b int64) string {
 }
 
 // Capitalize returns a string with the first letter of the first word capitalized.
+// If the first word is an acronym, it is capitalized as a word.
 func Capitalize(s string) string {
 	if s == "" {
 		return ""
@@ -161,6 +162,7 @@ func SplitAsSpaces(s string) string {
 	x = strings.ReplaceAll(x, "H T T P", "HTTP") //nolint:dupword
 	x = strings.ReplaceAll(x, "P S ", "PS ")
 	x = strings.ReplaceAll(x, "I D", "ID")
+	x = strings.ReplaceAll(x, "  ", " ")
 	return x
 }
 
