@@ -30,21 +30,28 @@ const (
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func TemplateFuncMap(z *zap.SugaredLogger) template.FuncMap {
 	return template.FuncMap{
-		"byteInt":    LeadFSInt,
-		"descript":   Description,
-		"fmtByte":    LeadFS,
-		"fmtURI":     releaser.Link,
-		"icon":       html3.Icon,
-		"leading":    Leading,
-		"leadInt":    LeadInt,
-		"leadStr":    html3.LeadStr,
-		"linkPad":    FileLinkPad,
-		"linkFile":   Filename,
-		"metaByName": tagByName,
-		"publish":    html3.PublishedFW,
-		"posted":     html3.Created,
+		"byteInt":  LeadFSInt,
+		"descript": Description,
+		"fmtByte":  LeadFS,
+		"fmtURI":   releaser.Link,
+		"icon":     html3.Icon,
+		"leading":  Leading,
+		"leadInt":  LeadInt,
+		"leadStr":  html3.LeadStr,
+		"linkPad":  FileLinkPad,
+		"linkFile": Filename,
+		"publish":  html3.PublishedFW,
+		"posted":   html3.Created,
 		"linkHref": func(id int64) string {
 			return FileHref(z, id)
+		},
+		"metaByName": func(s string) tags.TagData {
+			t, err := tagByName(s)
+			if err != nil {
+				z.Errorw("tag", "error", err)
+				return tags.TagData{}
+			}
+			return t
 		},
 		"safeHTML": func(s string) template.HTML {
 			return template.HTML(s) //nolint:gosec
@@ -52,14 +59,17 @@ func TemplateFuncMap(z *zap.SugaredLogger) template.FuncMap {
 	}
 }
 
-func tagByName(name string) tags.TagData {
-	t := tags.Tags.ByName(nil, name)
+func tagByName(name string) (tags.TagData, error) {
+	t, err := tags.Tags.ByName(name)
+	if err != nil {
+		return t, err
+	}
 	s := strings.TrimSpace(t.Info)
 	if len(s) < 2 {
-		return t
+		return t, nil
 	}
 	t.Info = strings.ToUpper(string(s[0])) + s[1:]
-	return t
+	return t, nil
 }
 
 // Templates returns a map of the templates used by the HTML3 sub-group route.

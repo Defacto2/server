@@ -10,7 +10,6 @@ import (
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
-	"go.uber.org/zap"
 )
 
 // The dos, app funcmap handler must match the format and syntax of MS-DOS that's used here.
@@ -32,20 +31,22 @@ type T struct {
 }
 
 // ByName returns the data of the named tag.
-func (t *T) ByName(z *zap.SugaredLogger, name string) TagData {
+func (t *T) ByName(name string) (TagData, error) {
 	if t.List == nil {
-		t.Build(z)
+		if err := t.Build(); err != nil {
+			return TagData{}, err
+		}
 	}
 	for _, m := range t.List {
 		if strings.EqualFold(m.Name, name) {
-			return m
+			return m, nil
 		}
 	}
-	return TagData{}
+	return TagData{}, nil
 }
 
 // Build the tags and collect the statistical data sourced from the database.
-func (t *T) Build(z *zap.SugaredLogger) {
+func (t *T) Build() (err error) {
 	t.List = make([]TagData, LastPlatform+1)
 	i := -1
 	for key, val := range URIs() {
@@ -65,10 +66,16 @@ func (t *T) Build(z *zap.SugaredLogger) {
 		tg := key
 		defer func(i int, tg Tag) {
 			t.Mu.Lock()
-			t.List[i].Count = int(counter(z, tg))
+			var val int64
+			val, err = counter(tg)
+			t.List[i].Count = int(val)
 			t.Mu.Unlock()
 		}(i, tg)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // Tag is the unique ID.
@@ -636,12 +643,11 @@ func OSTags() [5]string {
 }
 
 // counter counts the number of files with the tag.
-func counter(z *zap.SugaredLogger, t Tag) int64 {
+func counter(t Tag) (int64, error) {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		z.Errorf("Could not connect to the database: %s.", err)
-		return -1
+		return -1, fmt.Errorf("could not connect to the database: %w", err)
 	}
 	clause := "section = ?"
 	if t >= FirstPlatform {
@@ -650,8 +656,7 @@ func counter(z *zap.SugaredLogger, t Tag) int64 {
 	sum, err := models.Files(
 		qm.Where(clause, URIs()[t])).Count(ctx, db)
 	if err != nil {
-		z.Errorf("Could not sum the records associated with tags: %s.", err)
-		return -1
+		return -1, fmt.Errorf("could not count the records associated with tag: %s", err)
 	}
-	return sum
+	return sum, nil
 }
