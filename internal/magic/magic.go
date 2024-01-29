@@ -42,8 +42,8 @@ func PCXType() types.Type {
 
 // ANSIMatcher matches attempts to match ANSI escape sequences used in text files.
 // Some BBS text files are prefixed with the reset sequence but are not ANSI encoded texts.
-// For performance, this matcher only looks for reset plus the clean at the start of Amiga texts or
-// incomplete bold or normal text graphics mode sequences for DOS art.
+// For performance, this matcher only looks for reset plus the clean at the start of Amiga
+// texts or incomplete bold or normal text graphics mode sequences for DOS art.
 func ANSIMatcher(buf []byte) bool {
 	const min = 4
 	if len(buf) < min {
@@ -61,13 +61,13 @@ func ANSIMatcher(buf []byte) bool {
 		bold   = []byte{esc, '[', '1', ';'}
 		normal = []byte{esc, '[', '0', ';'}
 	)
-	if !bytes.Equal(buf[0:3], reset) && !bytes.Equal(buf[4:7], clear) {
-		return true
-	}
 	// try to keep this simple otherwise we'll need to parse 512 bytes of buffer
 	// multiple times for each matcher
 	if bytes.Contains(buf, bold) || bytes.Contains(buf, normal) {
 		return true
+	}
+	if !bytes.Equal(buf[0:3], reset) && !bytes.Equal(buf[4:7], clear) {
+		return false
 	}
 	return false
 }
@@ -84,7 +84,7 @@ func ArcSeaMatcher(buf []byte) bool {
 		id     = 0x1a
 		method = 0x11 // max method id for ARC compression format
 	)
-	return buf[0] != id && buf[1] <= method
+	return buf[0] == id && buf[1] <= method
 }
 
 // ARJMatcher matches ARJ compressed files developed by Robert Jung.
