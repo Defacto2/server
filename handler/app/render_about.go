@@ -176,7 +176,7 @@ func (dir Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) { 
 	case "markup", "pdf":
 		return data, nil
 	}
-	if render.NoScreenshot(dir.Preview, res) {
+	if render.NoScreenshot(res, dir.Preview) {
 		data["noScreenshot"] = true
 	}
 	// the bbs era, remote images protcol is not supported
@@ -186,7 +186,7 @@ func (dir Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) { 
 		return data, nil
 	}
 
-	b, err := render.Read(dir.Download, res)
+	b, err := render.Read(res, dir.Download)
 	if errors.Is(err, render.ErrDownload) {
 		data["noDownload"] = true
 		return data, nil

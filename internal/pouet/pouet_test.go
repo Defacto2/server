@@ -7,7 +7,68 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// Set to true to test against the remote servers.
+const testRemoteServers = false
+
+func TestPlatforms(t *testing.T) {
+	t.Parallel()
+	p := pouet.Platforms{
+		DosGus: pouet.Platform{
+			Name: "DOS/GUS",
+			Slug: "msdosgus",
+		},
+	}
+	assert.Equal(t, "DOS/GUS", p.String())
+	assert.True(t, p.Valid())
+}
+
+func TestType(t *testing.T) {
+	t.Parallel()
+	var pt pouet.Type = "demo"
+	var fd pouet.Type = "fastdemo"
+	var prods pouet.Types = []pouet.Type{pt, fd}
+	assert.True(t, prods.Valid())
+	assert.Equal(t, "demo, fastdemo", prods.String())
+}
+
+func TestResponseGet(t *testing.T) {
+	t.Parallel()
+	r := pouet.Response{}
+	err := r.Get(0)
+	assert.Error(t, err)
+	// this pings a remote server, so it is disabled.
+	if testRemoteServers {
+		err = r.Get(1)
+		assert.NoError(t, err)
+	}
+}
+
+func TestPouet(t *testing.T) {
+	t.Parallel()
+	p := pouet.Pouet{}
+	err := p.Uploader(0)
+	assert.Error(t, err)
+	// this pings a remote server, so it is disabled.
+	if testRemoteServers {
+		err = p.Uploader(1)
+		assert.NoError(t, err)
+	}
+}
+
+func TestVotes(t *testing.T) {
+	t.Parallel()
+	v := pouet.Votes{}
+	err := v.Votes(0)
+	assert.Error(t, err)
+	// this pings a remote server, so it is disabled.
+	if testRemoteServers {
+		err = v.Votes(1)
+		assert.NoError(t, err)
+	}
+}
+
 func TestStars(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		up   uint64
 		meh  uint64

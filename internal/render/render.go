@@ -18,6 +18,8 @@ import (
 var (
 	ErrDownload  = errors.New("download file cannot be stat")
 	ErrFileModel = errors.New("file model is nil")
+	ErrFilename  = errors.New("file model filename is empty")
+	ErrUUID      = errors.New("file model uuid is empty")
 )
 
 const textamiga = "textamiga"
@@ -47,13 +49,20 @@ func Encoder(res *models.File, b ...byte) encoding.Encoding {
 
 // Read returns the content of either the file download or an extracted text file.
 // The text is intended to be used as a readme, preview or an in-browser viewer.
-func Read(path string, res *models.File) ([]byte, error) {
+func Read(res *models.File, path string) ([]byte, error) {
 	if res == nil {
 		return nil, ErrFileModel
 	}
 
 	fname := res.Filename.String
 	uuid := res.UUID.String
+
+	if fname == "" {
+		return nil, ErrFilename
+	}
+	if uuid == "" {
+		return nil, ErrUUID
+	}
 
 	var files struct {
 		uuidTxt string
@@ -91,19 +100,20 @@ func Read(path string, res *models.File) ([]byte, error) {
 	return b, nil
 }
 
-// IsUTF16 returns true if the byte slice is encoded in UTF-16.
+// IsUTF16 returns true if the byte slice is embedded with a UTF-16 BOM (byte order mark).
 func IsUTF16(p []byte) bool {
 	const minimum = 2
 	if len(p) < minimum {
 		return false
 	}
-	if p[0] == 0xff && p[1] == 0xfe {
+
+	littleEndian := p[0] == 0xff && p[1] == 0xfe
+	if littleEndian {
 		return true
 	}
-	if p[0] == 0xfe && p[1] == 0xff {
-		return true
-	}
-	return false
+
+	bigEndian := p[0] == 0xfe && p[1] == 0xff
+	return bigEndian
 }
 
 // Viewer returns true if the file entry should display the file download in the browser plain text viewer.
@@ -121,7 +131,7 @@ func Viewer(res *models.File) bool {
 
 // NoScreenshot returns true when the file entry should not attempt to display a screenshot.
 // This is based on the platform, section or if the screenshot is missing on the server.
-func NoScreenshot(path string, res *models.File) bool {
+func NoScreenshot(res *models.File, path string) bool {
 	if res == nil {
 		return true
 	}
@@ -133,6 +143,7 @@ func NoScreenshot(path string, res *models.File) bool {
 	uuid := res.UUID.String
 	webp := strings.Join([]string{path, fmt.Sprintf("%s.webp", uuid)}, "/")
 	png := strings.Join([]string{path, fmt.Sprintf("%s.png", uuid)}, "/")
+	fmt.Println(webp, png, path)
 	if helper.IsStat(webp) || helper.IsStat(png) {
 		return false
 	}

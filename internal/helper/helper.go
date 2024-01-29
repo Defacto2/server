@@ -79,3 +79,30 @@ func IntegrityBytes(b []byte) string {
 	b64 := base64.StdEncoding.EncodeToString(sum[:])
 	return fmt.Sprintf("sha384-%s", b64)
 }
+
+// Touch creates a new, empty named file.
+// If the file already exists, an error is returned.
+func Touch(name string) error {
+	file, err := os.OpenFile(name, os.O_CREATE|os.O_EXCL, 0666)
+	if err != nil {
+		return err
+	}
+	return file.Close()
+}
+
+// TouchW creates a new named file with the given data.
+// If the file already exists, an error is returned.
+func TouchW(name string, data ...byte) (int, error) {
+	file, err := os.OpenFile(name, os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		return 0, err
+	}
+	if len(data) == 0 {
+		return 0, file.Close()
+	}
+	i, err := file.Write(data)
+	if err != nil {
+		return 0, err
+	}
+	return i, file.Close()
+}
