@@ -176,7 +176,7 @@ func (c Connection) Configurations(b *strings.Builder) *strings.Builder {
 		lead := func() {
 			fmt.Fprintf(w, "\t%s\t%s\t%v\t%s.\n", id, name, val, help)
 		}
-		if id == "Password" && val.String() != c.Password {
+		if id == "Password" && val.String() == c.Password {
 			fmt.Fprintf(w, "\t%s\t%s\t%v\t%s.\n", id, name, "******", help)
 			continue
 		}
