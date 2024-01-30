@@ -53,6 +53,7 @@ var (
 	ErrVer = errors.New("postgresql version request failed")
 )
 
+// main is the entry point for the application.
 func main() { //nolint:funlen
 	// Logger
 	// Use the development log until the environment vars are parsed
@@ -96,7 +97,7 @@ func main() { //nolint:funlen
 	}
 
 	// Setup the logger and print the startup production/read-only message
-	logs = initLogger(logs, configs)
+	logs = setupLogger(logs, configs)
 
 	// Echo router and controller instance
 	server := handler.Configuration{
@@ -165,34 +166,43 @@ func main() { //nolint:funlen
 	server.ShutdownHTTP(e)
 }
 
-func commandLine(logs *zap.SugaredLogger, configs config.Config) {
-	code, err := cmd.Run(version, &configs)
+// commandLine is used to parse the command-line arguments.
+func commandLine(logs *zap.SugaredLogger, c config.Config) {
+	if logs == nil {
+		return
+	}
+	code, err := cmd.Run(version, &c)
 	if err != nil {
 		logs.Errorf("%s: %s", ErrCmd, err)
 		os.Exit(int(code))
-	} else if code >= cmd.ExitOK {
+	}
+	useExitCode := code >= cmd.ExitOK
+	if useExitCode {
 		os.Exit(int(code))
 	}
 	// after the command-line arguments are parsed, continue with the web server
 }
 
-func initLogger(logs *zap.SugaredLogger, configs config.Config) *zap.SugaredLogger {
-	// Setup the logger
+// setupLogger is used to setup the logger.
+func setupLogger(logs *zap.SugaredLogger, c config.Config) *zap.SugaredLogger {
+	if logs == nil {
+		return nil
+	}
 	if localMode() {
 		s := "Welcome to the local Defacto2 web application."
 		logs.Info(s)
 		return logs
 	}
 	mode := "read-only mode"
-	if !configs.ReadMode {
+	if !c.ReadMode {
 		mode = "write mode"
 	}
-	switch configs.ProductionMode {
+	switch c.ProductionMode {
 	case true:
-		if err := configs.LogStorage(); err != nil {
+		if err := c.LogStorage(); err != nil {
 			logs.Fatalf("%w: %s", ErrLog, err)
 		}
-		logs = logger.Production(configs.LogDir).Sugar()
+		logs = logger.Production(c.LogDir).Sugar()
 		s := "The server is running in a "
 		s += strings.ToUpper("production, "+mode) + "."
 		logs.Info(s)
@@ -205,8 +215,9 @@ func initLogger(logs *zap.SugaredLogger, configs config.Config) *zap.SugaredLogg
 	return logs
 }
 
-func checks(logs *zap.SugaredLogger, isReadOnly bool) {
-	if isReadOnly {
+// checks is used to confirm the required commands are available.
+func checks(logs *zap.SugaredLogger, readonly bool) {
+	if logs == nil || readonly {
 		return
 	}
 	var buf strings.Builder
@@ -232,6 +243,7 @@ func checks(logs *zap.SugaredLogger, isReadOnly bool) {
 	}
 }
 
+// localMode is used to always override the PRODUCTION_MODE and READ_ONLY environment variables.
 func localMode() bool {
 	val, err := strconv.ParseBool(LocalMode)
 	if err != nil {
@@ -240,7 +252,7 @@ func localMode() bool {
 	return val
 }
 
-// RepairDB, on startup check the database connection and make any data corrections.
+// RepairDB on startup checks the database connection and make any data corrections.
 func RepairDB() error {
 	if localMode() {
 		return nil
@@ -258,7 +270,11 @@ func RepairDB() error {
 	return fix.Releaser.Run(ctx, os.Stderr, db)
 }
 
+// repairdb is used to log the database repair error.
 func repairdb(z *zap.SugaredLogger, err error) {
+	if z == nil || err == nil {
+		return
+	}
 	if errors.Is(err, ErrVer) {
 		z.Warnf("A %s, is the database server down?", ErrVer)
 	} else {
@@ -274,9 +290,9 @@ func RecordCount() int {
 	}
 	defer db.Close()
 	ctx := context.Background()
-	x, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, db)
+	fs, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, db)
 	if err != nil {
 		return 0
 	}
-	return int(x)
+	return int(fs)
 }

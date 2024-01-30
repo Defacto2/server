@@ -1,5 +1,7 @@
 # SQLBoiler configuration file
-# To rebuild run: `go generate` in the root of this repository.
+#
+# To rebuild run the command in the root of this repository:
+# $ go generate
 
 # Target directory.
 output = "internal/postgres/models" 
@@ -20,7 +22,7 @@ no-hooks = true
 # The tests require a PostgreSQL client or server installation on the local machine.
 no-tests = true
 
-# Postgres database connection.
+# PostgreSQL database connection.
 [psql]
 schema = "public"
 dbname = "defacto2-ps"

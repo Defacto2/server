@@ -1,3 +1,4 @@
+# Task is a task runner / build tool that aims to be simpler and easier to use than, for example, GNU Make.
 # https://taskfile.dev/installation/
 
 version: '3'
@@ -22,7 +23,7 @@ tasks:
   doc:
     desc: "Generate and view the documentation website."
     cmds:
-      - cmd: pkgsite
+      - cmd: pkgsite -http localhost:8090
     silent: true
   lint:
     silent: false
