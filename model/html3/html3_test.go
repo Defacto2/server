@@ -34,6 +34,24 @@ func TestCreated(t *testing.T) {
 	}
 }
 
+func TestIcon(t *testing.T) {
+	s := html3.Icon(nil)
+	assert.Equal(t, s, "error, no file model")
+	f := models.File{}
+	s = html3.Icon(&f)
+	assert.Equal(t, s, "unknown")
+	f.Filename = null.StringFrom("file.txt")
+	s = html3.Icon(&f)
+	assert.Equal(t, s, "doc")
+}
+
+func TestLeadStr(t *testing.T) {
+	s := html3.LeadStr(0, "")
+	assert.Equal(t, "", s)
+	s = html3.LeadStr(10, "Hello")
+	assert.Equal(t, "     ", s)
+}
+
 func TestPublished(t *testing.T) {
 	const errS = "       ????"
 	type args struct {
@@ -69,4 +87,20 @@ func TestPublished(t *testing.T) {
 			tt.assertion(t, tt.expect, html3.Published(&f))
 		})
 	}
+}
+
+func TestPublishedFW(t *testing.T) {
+	s := html3.PublishedFW(0, nil)
+	assert.Equal(t, "error, no file model", s)
+	f := models.File{}
+	s = html3.PublishedFW(0, &f)
+	assert.Equal(t, "       ????", s)
+	f.DateIssuedYear = null.Int16From(1980)
+	s = html3.PublishedFW(0, &f)
+	assert.Equal(t, "       1980", s)
+}
+
+func TestSelectHTML3(t *testing.T) {
+	qm := html3.SelectHTML3()
+	assert.NotEmpty(t, qm)
 }

@@ -1,6 +1,6 @@
 package html3
 
-// Package html3_order.go contains the database queries the HTML3 order and sorting statements.
+// Package html3Order.go contains the database queries the HTML3 order and sorting statements.
 
 import (
 	"context"
