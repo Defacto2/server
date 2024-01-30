@@ -1,6 +1,6 @@
 package model
 
-// Package file_database.go contains the database queries for the collections of databases.
+// Package fileDatabase.go contains the database queries for the collections of databases.
 
 import (
 	"context"

@@ -1,10 +1,11 @@
 package model
 
-// Package file file_bbs_adverts.go contains the database queries for BBS and FTP files.
+// Package file fileCracktroIntro.go contains sqlboiler models for the intros, installers and demoscene releases.
 
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -12,142 +13,143 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// BBS is a the model for the Bulletin Board System files.
-type BBS struct {
+// Demoscene is a the model for the demoscene releases.
+type Demoscene struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
 
-func (b *BBS) Stat(ctx context.Context, db *sql.DB) error {
+func (d *Demoscene) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
-		expr.BBSExpr(),
-		qm.From(From)).Bind(ctx, db, b)
+		expr.DemoExpr(),
+		qm.From(From)).Bind(ctx, db, d)
 }
 
-func (b *BBS) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+func (d *Demoscene) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.BBSExpr(),
+		expr.DemoExpr(),
 		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
 	).All(ctx, db)
 }
 
-// BBStro is a the model for the Bulletin Board System intro files.
-type BBStro struct {
+// Intro contain statistics for releases that could be considered intros or cracktros.
+type Intro struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
 
-func (b *BBStro) Stat(ctx context.Context, db *sql.DB) error {
+func (i *Intro) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
-		expr.BBStroExpr(),
-		qm.From(From)).Bind(ctx, db, b)
+		expr.IntroExpr(),
+		qm.From(From)).Bind(ctx, db, i)
 }
 
-func (b *BBStro) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+func (i *Intro) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.BBStroExpr(),
+		expr.IntroExpr(),
 		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
 	).All(ctx, db)
 }
 
-// BBSImage is a the model for the Bulletin Board System image files.
-type BBSImage struct {
+// IntroMsDos contain statistics for releases that could be considered DOS intros or cracktros.
+type IntroMsDos struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
 
-func (b *BBSImage) Stat(ctx context.Context, db *sql.DB) error {
+func (i *IntroMsDos) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
-		expr.BBSImageExpr(),
-		qm.From(From)).Bind(ctx, db, b)
+		expr.IntroDOSExpr(),
+		qm.From(From)).Bind(ctx, db, i)
 }
 
-func (b *BBSImage) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+func (i *IntroMsDos) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.BBSImageExpr(),
+		expr.IntroDOSExpr(),
 		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
 	).All(ctx, db)
 }
 
-// BBSText is a the model for the Bulletin Board System text files.
-type BBSText struct {
+// IntroWindows contain statistics for releases that could be considered Windows intros or cracktros.
+type IntroWindows struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
+	Cache   time.Time
 }
 
-func (b *BBSText) Stat(ctx context.Context, db *sql.DB) error {
+func (i *IntroWindows) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
-		expr.BBSTextExpr(),
-		qm.From(From)).Bind(ctx, db, b)
+		expr.IntroWindowsExpr(),
+		qm.From(From)).Bind(ctx, db, i)
 }
 
-func (b *BBSText) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+func (i *IntroWindows) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.BBSTextExpr(),
+		expr.IntroWindowsExpr(),
 		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
 	).All(ctx, db)
 }
 
-// FTP is a the model for the FTP files.
-type FTP struct {
+// Installer contain statistics for releases that could be considered installers.
+type Installer struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
 
-func (f *FTP) Stat(ctx context.Context, db *sql.DB) error {
+func (i *Installer) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
-		expr.FTPExpr(),
-		qm.From(From)).Bind(ctx, db, f)
+		expr.InstallExpr(),
+		qm.From(From)).Bind(ctx, db, i)
 }
 
-func (f *FTP) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+func (i *Installer) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.FTPExpr(),
+		expr.InstallExpr(),
 		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
 	).All(ctx, db)
 }

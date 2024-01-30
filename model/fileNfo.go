@@ -1,6 +1,6 @@
 package model
 
-// Package file file_nfo_files_for.go contains the database queries for NFO files, tools and release proofs.
+// Package file fileNfo.go contains the database queries for NFO files, tools and release proofs.
 
 import (
 	"context"

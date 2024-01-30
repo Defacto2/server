@@ -2,9 +2,12 @@ package model
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"strings"
 	"time"
 
+	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
@@ -17,12 +20,26 @@ const (
 	uidPlaceholder = `ADB7C2BF-7221-467B-B813-3636FE4AE16B` // UID of the user who deleted the file.
 )
 
+var (
+	ErrPlatform = errors.New("invalid platform")
+	ErrTag      = errors.New("invalid tag")
+	ErrYear     = errors.New("invalid year")
+	ErrMonth    = errors.New("invalid month")
+	ErrDay      = errors.New("invalid day")
+)
+
 // GetPlatformTagInfo returns the human readable platform and tag name.
 func GetPlatformTagInfo(c echo.Context, platform, tag string) (string, error) {
 	if c == nil {
 		return "", ErrCtx
 	}
 	p, t := tags.TagByURI(platform), tags.TagByURI(tag)
+	if p == -1 {
+		return "", fmt.Errorf("%s: %w", platform, ErrPlatform)
+	}
+	if t == -1 {
+		return "", fmt.Errorf("%s: %w", tag, ErrTag)
+	}
 	return tags.Humanize(p, t), nil
 }
 
@@ -32,6 +49,9 @@ func GetTagInfo(c echo.Context, tag string) (string, error) {
 		return "", ErrCtx
 	}
 	t := tags.TagByURI(tag)
+	if t == -1 {
+		return "", fmt.Errorf("%s: %w", tag, ErrTag)
+	}
 	s := tags.Infos()[t]
 	return s, nil
 }
@@ -122,9 +142,10 @@ func UpdatePlatform(c echo.Context, id int64, val string) error {
 	if c == nil {
 		return ErrCtx
 	}
-
-	// TODO: validate val against a list of platforms
 	val = strings.ToLower(val)
+	if p := tags.TagByURI(val); p == -1 {
+		return fmt.Errorf("%s: %w", val, ErrPlatform)
+	}
 
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -151,8 +172,10 @@ func UpdateTag(c echo.Context, id int64, val string) error {
 		return ErrCtx
 	}
 
-	// TODO: validate val against a list of SECTIONS
 	val = strings.ToLower(val)
+	if t := tags.TagByURI(val); t == -1 {
+		return fmt.Errorf("%s: %w", val, ErrTag)
+	}
 
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -188,7 +211,6 @@ func UpdateTitle(c echo.Context, id int64, val string) error {
 	if err != nil {
 		return err
 	}
-	// TODO: format val text
 	f.RecordTitle = null.StringFrom(val)
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
 		return err
@@ -203,6 +225,17 @@ func UpdateYMD(c echo.Context, id int64, y, m, d null.Int16) error {
 	if c == nil {
 		return ErrCtx
 	}
+
+	if !y.IsZero() && !helper.IsYear(int(y.Int16)) {
+		return fmt.Errorf("%d: %w", y.Int16, ErrYear)
+	}
+	if !m.IsZero() && helper.ShortMonth(int(m.Int16)) == "" {
+		return fmt.Errorf("%d: %w", m.Int16, ErrMonth)
+	}
+	if !d.IsZero() && !helper.IsDay(int(d.Int16)) {
+		return fmt.Errorf("%d: %w", d.Int16, ErrDay)
+	}
+
 	db, err := postgres.ConnectDB()
 	if err != nil {
 		return ErrDB

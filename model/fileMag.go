@@ -1,6 +1,6 @@
 package model
 
-// Package file_mags.go contains the database queries for magazine files.
+// Package fileMag.go contains the database queries for magazine files.
 
 import (
 	"context"

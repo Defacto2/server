@@ -1,6 +1,6 @@
 package model
 
-// Package file file_ansi_art.go contains the database queries for ANSI art.
+// Package file fileFilepack.go contains the database queries for file packages and collections.
 
 import (
 	"context"
@@ -12,142 +12,142 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// Ansi is a the model for the ANSI formatted text and art files.
-type Ansi struct {
+// AnsiPack is a the model for the ANSI file packs.
+type AnsiPack struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
 
-func (a *Ansi) Stat(ctx context.Context, db *sql.DB) error {
+func (a *AnsiPack) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
-		expr.AnsiExpr(),
+		expr.AnsiPackExpr(),
 		qm.From(From)).Bind(ctx, db, a)
 }
 
-func (a *Ansi) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+func (a *AnsiPack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.AnsiExpr(),
+		expr.AnsiPackExpr(),
 		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
 	).All(ctx, db)
 }
 
-// AnsiBrand is a the model for the brand logos created in ANSI text.
-type AnsiBrand struct {
+// ImagePack is a the model for the image file packs.
+type ImagePack struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
 
-func (a *AnsiBrand) Stat(ctx context.Context, db *sql.DB) error {
+func (i *ImagePack) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
-		expr.AnsiBrandExpr(),
-		qm.From(From)).Bind(ctx, db, a)
+		expr.ImagePackExpr(),
+		qm.From(From)).Bind(ctx, db, i)
 }
 
-func (a *AnsiBrand) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+func (i *ImagePack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.AnsiBrandExpr(),
+		expr.ImagePackExpr(),
 		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
 	).All(ctx, db)
 }
 
-// AnsiBBS is a the model for the BBS advertisements created in ANSI text.
-type AnsiBBS struct {
+// MsDosPack is a the model for the DOS file packs.
+type MsDosPack struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
 
-func (a *AnsiBBS) Stat(ctx context.Context, db *sql.DB) error {
+func (d *MsDosPack) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
-		expr.AnsiBBSExpr(),
-		qm.From(From)).Bind(ctx, db, a)
+		expr.DosPackExpr(),
+		qm.From(From)).Bind(ctx, db, d)
 }
 
-func (a *AnsiBBS) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+func (d *MsDosPack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.AnsiBBSExpr(),
+		expr.DosPackExpr(),
 		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
 	).All(ctx, db)
 }
 
-// AnsiFTP is a the model for the FTP advertisements created in ANSI text.
-type AnsiFTP struct {
+// TextPack is a the model for the text file packs.
+type TextPack struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
 
-func (a *AnsiFTP) Stat(ctx context.Context, db *sql.DB) error {
+func (t *TextPack) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
-		expr.AnsiFTPExpr(),
-		qm.From(From)).Bind(ctx, db, a)
+		expr.TextPackExpr(),
+		qm.From(From)).Bind(ctx, db, t)
 }
 
-func (a *AnsiFTP) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+func (t *TextPack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.AnsiFTPExpr(),
+		expr.TextPackExpr(),
 		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
 	).All(ctx, db)
 }
 
-// AnsiNfo is a the model for the NFO files created in ANSI text.
-type AnsiNfo struct {
+// WindowsPack is a the model for the Windows file packs.
+type WindowsPack struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
 
-func (a *AnsiNfo) Stat(ctx context.Context, db *sql.DB) error {
+func (w *WindowsPack) Stat(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
-		expr.AnsiNfoExpr(),
-		qm.From(From)).Bind(ctx, db, a)
+		expr.WindowsPackExpr(),
+		qm.From(From)).Bind(ctx, db, w)
 }
 
-func (a *AnsiNfo) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+func (w *WindowsPack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.AnsiNfoExpr(),
+		expr.WindowsPackExpr(),
 		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
 	).All(ctx, db)
 }

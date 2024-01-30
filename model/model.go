@@ -17,7 +17,7 @@ import (
 
 var (
 	ErrDB   = fmt.Errorf("database value is nil")
-	ErrKey  = fmt.Errorf("key value is zero")
+	ErrKey  = fmt.Errorf("key value is zero or negative")
 	ErrName = fmt.Errorf("name value is empty")
 	ErrURI  = fmt.Errorf("uri value is invalid")
 )
@@ -52,8 +52,8 @@ func One(ctx context.Context, db *sql.DB, key int) (*models.File, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
-	if key == 0 {
-		return nil, ErrKey
+	if key <= 0 {
+		return nil, fmt.Errorf("key value %d: %w", key, ErrKey)
 	}
 	mods := models.FileWhere.ID.EQ(int64(key))
 	file, err := models.Files(mods).One(ctx, db)
