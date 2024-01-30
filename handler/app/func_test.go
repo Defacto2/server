@@ -35,12 +35,13 @@ func TestWikiLink(t *testing.T) {
 
 func TestLogoText(t *testing.T) {
 	t.Parallel()
+	const leftPad = 6
 	const want1 = "      :                             ·· X ··                             ·"
 	const want2 = "      :                             ·· XY ··                            ·"
 	const want3 = "      :                            ·· XYZ ··                            ·"
 	const wantR = "      : ·· I'M MEANT TO BE WRITING AT THIS MOMENT. WHAT I MEAN IS, I ·· ·"
 	x := app.LogoText("")
-	want := strings.Repeat(" ", 7) + app.Welcome
+	want := strings.Repeat(" ", leftPad) + app.Welcome
 	assert.Equal(t, want, x)
 	x = app.LogoText("X")
 	assert.Equal(t, want1, x)

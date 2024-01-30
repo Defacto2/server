@@ -16,31 +16,10 @@ import (
 	"go.uber.org/zap"
 )
 
-// FileSearch is the type of search to perform.
-type FileSearch int
-
 const (
 	Filenames    FileSearch = iota // Filenames is the search for filenames.
 	Descriptions                   // Descriptions is the search for file descriptions and titles.
 )
-
-// SearchDesc is the handler for the Search for file descriptions page.
-func SearchDesc(z *zap.SugaredLogger, c echo.Context) error {
-	const title, name = "Search titles and descriptions", "searchPost"
-	if z == nil {
-		return InternalErr(z, c, name, ErrZap)
-	}
-	data := empty(c)
-	data["description"] = "Search form to scan through file descriptions."
-	data["logo"] = title
-	data["title"] = title
-	data["info"] = "search the metadata descriptions of file artifacts"
-	err := c.Render(http.StatusOK, name, data)
-	if err != nil {
-		return InternalErr(z, c, name, err)
-	}
-	return nil
-}
 
 // PostDesc is the handler for the Search for file descriptions form post page.
 func PostDesc(z *zap.SugaredLogger, c echo.Context, input string) error {
@@ -72,24 +51,6 @@ func PostDesc(z *zap.SugaredLogger, c echo.Context, input string) error {
 	data[records] = fs
 	data["stats"] = d
 	err = c.Render(http.StatusOK, "files", data)
-	if err != nil {
-		return InternalErr(z, c, name, err)
-	}
-	return nil
-}
-
-// SearchFile is the handler for the Search for files page.
-func SearchFile(z *zap.SugaredLogger, c echo.Context) error {
-	const title, name = "Search for filenames", "searchPost"
-	if z == nil {
-		return InternalErr(z, c, name, ErrZap)
-	}
-	data := empty(c)
-	data["description"] = "Search form to discover files."
-	data["logo"] = title
-	data["title"] = title
-	data["info"] = "search for filenames or extensions"
-	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(z, c, name, err)
 	}
@@ -137,40 +98,6 @@ func PostName(z *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
 	return nil
 }
 
-// postStats is a helper function for PostName that returns the statistics for the files page.
-func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string) map[string]string {
-	if db == nil {
-		return nil
-	}
-	none := func() map[string]string {
-		return map[string]string{
-			"files": "no files found",
-			"years": "",
-		}
-	}
-	// fetch the statistics of the category
-	m := model.Summary{}
-	switch mode {
-	case Filenames:
-		if err := m.SearchFilename(ctx, db, terms); err != nil {
-			return none()
-		}
-	case Descriptions:
-		if err := m.SearchDesc(ctx, db, terms); err != nil {
-			return none()
-		}
-	}
-	if m.SumCount.Int64 == 0 {
-		return none()
-	}
-	// add the statistics to the data
-	d := map[string]string{
-		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
-		"years": helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
-	}
-	return d
-}
-
 // PostReleaser is the handler for the releaser search form post page.
 func PostReleaser(z *zap.SugaredLogger, c echo.Context) error {
 	const name = "searchList"
@@ -185,6 +112,42 @@ func PostReleaser(z *zap.SugaredLogger, c echo.Context) error {
 	}
 	// note, the redirect to a GET only works with 301 and 404 status codes.
 	return c.Redirect(http.StatusMovedPermanently, "/g/"+slug)
+}
+
+// SearchDesc is the handler for the Search for file descriptions page.
+func SearchDesc(z *zap.SugaredLogger, c echo.Context) error {
+	const title, name = "Search titles and descriptions", "searchPost"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	data := empty(c)
+	data["description"] = "Search form to scan through file descriptions."
+	data["logo"] = title
+	data["title"] = title
+	data["info"] = "search the metadata descriptions of file artifacts"
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	return nil
+}
+
+// SearchFile is the handler for the Search for files page.
+func SearchFile(z *zap.SugaredLogger, c echo.Context) error {
+	const title, name = "Search for filenames", "searchPost"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	data := empty(c)
+	data["description"] = "Search form to discover files."
+	data["logo"] = title
+	data["title"] = title
+	data["info"] = "search for filenames or extensions"
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	return nil
 }
 
 // SearchReleaser is the handler for the Releaser Search page.
@@ -228,4 +191,41 @@ func SearchReleaser(z *zap.SugaredLogger, c echo.Context) error {
 		return InternalErr(z, c, name, err)
 	}
 	return nil
+}
+
+// FileSearch is the type of search to perform.
+type FileSearch int
+
+// postStats is a helper function for PostName that returns the statistics for the files page.
+func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string) map[string]string {
+	if db == nil {
+		return nil
+	}
+	none := func() map[string]string {
+		return map[string]string{
+			"files": "no files found",
+			"years": "",
+		}
+	}
+	// fetch the statistics of the category
+	m := model.Summary{}
+	switch mode {
+	case Filenames:
+		if err := m.SearchFilename(ctx, db, terms); err != nil {
+			return none()
+		}
+	case Descriptions:
+		if err := m.SearchDesc(ctx, db, terms); err != nil {
+			return none()
+		}
+	}
+	if m.SumCount.Int64 == 0 {
+		return none()
+	}
+	// add the statistics to the data
+	d := map[string]string{
+		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
+		"years": helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
+	}
+	return d
 }
