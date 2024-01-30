@@ -17,7 +17,8 @@ add-panic-variants = false
 no-hooks = true
 
 # Disable generated go test files.
-no-tests = false
+# The tests require a PostgreSQL client or server installation on the local machine.
+no-tests = true
 
 # Postgres database connection.
 [psql]
