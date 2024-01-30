@@ -20,22 +20,59 @@ const (
 )
 
 var (
-	ErrPortMax = fmt.Errorf("http port value must be between 1-%d", PortMax)
-	ErrPortSys = fmt.Errorf("http port values between 1-%d require system access", PortSys)
-
-	ErrDir     = fmt.Errorf("the directory path is not set")
-	ErrDir404  = fmt.Errorf("the directory path does not exist")
-	ErrDirIs   = fmt.Errorf("the directory path points to the file")
-	ErrDirRead = fmt.Errorf("the directory path could not be read")
-	ErrDirFew  = fmt.Errorf("the directory path contains only a few items")
-
+	ErrPortMax     = fmt.Errorf("http port value must be between 1-%d", PortMax)
+	ErrPortSys     = fmt.Errorf("http port values between 1-%d require system access", PortSys)
+	ErrDir         = fmt.Errorf("the directory path is not set")
+	ErrDir404      = fmt.Errorf("the directory path does not exist")
+	ErrDirIs       = fmt.Errorf("the directory path points to the file")
+	ErrDirRead     = fmt.Errorf("the directory path could not be read")
+	ErrDirFew      = fmt.Errorf("the directory path contains only a few items")
 	ErrUnencrypted = fmt.Errorf("the production server is configured to use unencrypted HTTP connections")
 	ErrNoOAuth2    = fmt.Errorf("the production server requires a google, oauth2 client id to allow admin logins")
 	ErrNoAccounts  = fmt.Errorf("the production server has no google oauth2 user accounts to allow admin logins")
 	ErrSessionKey  = fmt.Errorf("the production server has a session, " +
 		"encryption key set instead of using a randomized key")
-	ErrZapLogger = fmt.Errorf("the zap logger instance is nil")
+	ErrZap = fmt.Errorf("the zap logger instance is nil")
 )
+
+// Checks runs a number of sanity checks for the environment variable configurations.
+func (c *Config) Checks(z *zap.SugaredLogger) error {
+	if z == nil {
+		return ErrZap
+	}
+
+	if c.HTTPSRedirect && c.TLSPort == 0 {
+		z.Warn("HTTPSRedirect is on but the HTTPS port is not set, so the server will not redirect HTTP requests to HTTPS.")
+	}
+
+	c.httpPort(z)
+	c.tlsPort(z)
+	c.production(z)
+
+	// Check the download, preview and thumbnail directories.
+	if err := DownloadDir(c.DownloadDir); err != nil {
+		s := helper.Capitalize(err.Error()) + "."
+		z.Warn(s)
+	}
+	if err := PreviewDir(c.PreviewDir); err != nil {
+		s := helper.Capitalize(err.Error()) + "."
+		z.Warn(s)
+	}
+	if err := ThumbnailDir(c.ThumbnailDir); err != nil {
+		s := helper.Capitalize(err.Error()) + "."
+		z.Warn(s)
+	}
+
+	// Reminds for the optional configuration values.
+	if c.NoCrawl {
+		z.Warn("NoCrawl is on, web crawlers should ignore this site.")
+	}
+	if c.HTTPSRedirect && c.TLSPort > 0 {
+		z.Info("HTTPSRedirect is on, all HTTP requests will be redirected to HTTPS.")
+	}
+
+	return c.SetupLogDir(z)
+}
 
 // httpPort returns an error if the HTTP port is invalid.
 func (c Config) httpPort(z *zap.SugaredLogger) {
@@ -104,51 +141,12 @@ func (c Config) production(z *zap.SugaredLogger) {
 	}
 }
 
-// Checks runs a number of sanity checks for the environment variable configurations.
-func (c *Config) Checks(z *zap.SugaredLogger) error {
-	if z == nil {
-		return ErrZapLogger
-	}
-
-	if c.HTTPSRedirect && c.TLSPort == 0 {
-		z.Warn("HTTPSRedirect is on but the HTTPS port is not set, so the server will not redirect HTTP requests to HTTPS.")
-	}
-
-	c.httpPort(z)
-	c.tlsPort(z)
-	c.production(z)
-
-	// Check the download, preview and thumbnail directories.
-	if err := DownloadDir(c.DownloadDir); err != nil {
-		s := helper.Capitalize(err.Error()) + "."
-		z.Warn(s)
-	}
-	if err := PreviewDir(c.PreviewDir); err != nil {
-		s := helper.Capitalize(err.Error()) + "."
-		z.Warn(s)
-	}
-	if err := ThumbnailDir(c.ThumbnailDir); err != nil {
-		s := helper.Capitalize(err.Error()) + "."
-		z.Warn(s)
-	}
-
-	// Reminds for the optional configuration values.
-	if c.NoCrawl {
-		z.Warn("NoCrawl is on, web crawlers should ignore this site.")
-	}
-	if c.HTTPSRedirect && c.TLSPort > 0 {
-		z.Info("HTTPSRedirect is on, all HTTP requests will be redirected to HTTPS.")
-	}
-
-	return c.SetupLogDir(z)
-}
-
 // SetupLogDir runs checks against the configured log directory.
 // If no log directory is configured, a default directory is used.
 // Problems will either log warnings or fatal errors.
 func (c *Config) SetupLogDir(z *zap.SugaredLogger) error {
 	if z == nil {
-		return ErrZapLogger
+		return ErrZap
 	}
 	if c.LogDir == "" {
 		if err := c.LogStorage(); err != nil {
@@ -185,17 +183,26 @@ func (c *Config) SetupLogDir(z *zap.SugaredLogger) error {
 	return nil
 }
 
-// Validate returns an error if the HTTP or TLS port is invalid.
-func Validate(port uint) error {
-	const disabled = 0
-	if port == disabled {
-		return nil
+// CheckDir runs checks against the named directory,
+// including whether it exists, is a directory, and contains a minimum number of files.
+// Problems will either log warnings or fatal errors.
+func CheckDir(name, desc string) error {
+	if name == "" {
+		return fmt.Errorf("%w: %s", ErrDir, desc)
 	}
-	if port > PortMax {
-		return ErrPortMax
+	dir, err := os.Stat(name)
+	if os.IsNotExist(err) {
+		return fmt.Errorf("%w, %s: %s", ErrDir404, desc, name)
 	}
-	if port <= PortSys {
-		return ErrPortSys
+	if !dir.IsDir() {
+		return fmt.Errorf("%w, %s: %s", ErrDirIs, desc, dir.Name())
+	}
+	files, err := os.ReadDir(name)
+	if err != nil {
+		return fmt.Errorf("%w, %s: %w", ErrDirRead, desc, err)
+	}
+	if len(files) < toFewFiles {
+		return fmt.Errorf("%w, %s: %s", ErrDirFew, desc, dir.Name())
 	}
 	return nil
 }
@@ -218,26 +225,17 @@ func ThumbnailDir(name string) error {
 	return CheckDir(name, "thumbnail")
 }
 
-// CheckDir runs checks against the named directory,
-// including whether it exists, is a directory, and contains a minimum number of files.
-// Problems will either log warnings or fatal errors.
-func CheckDir(name, desc string) error {
-	if name == "" {
-		return fmt.Errorf("%w: %s", ErrDir, desc)
+// Validate returns an error if the HTTP or TLS port is invalid.
+func Validate(port uint) error {
+	const disabled = 0
+	if port == disabled {
+		return nil
 	}
-	dir, err := os.Stat(name)
-	if os.IsNotExist(err) {
-		return fmt.Errorf("%w, %s: %s", ErrDir404, desc, name)
+	if port > PortMax {
+		return ErrPortMax
 	}
-	if !dir.IsDir() {
-		return fmt.Errorf("%w, %s: %s", ErrDirIs, desc, dir.Name())
-	}
-	files, err := os.ReadDir(name)
-	if err != nil {
-		return fmt.Errorf("%w, %s: %w", ErrDirRead, desc, err)
-	}
-	if len(files) < toFewFiles {
-		return fmt.Errorf("%w, %s: %s", ErrDirFew, desc, dir.Name())
+	if port <= PortSys {
+		return ErrPortSys
 	}
 	return nil
 }

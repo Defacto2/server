@@ -2,6 +2,7 @@
 package config
 
 import (
+	"crypto/sha512"
 	"fmt"
 	"reflect"
 	"strings"
@@ -13,6 +14,7 @@ import (
 const (
 	ConfigDir = "defacto2-app" // ConfigDir is the subdirectory for the home user ".config".
 	EnvPrefix = "D2_"          // EnvPrefix is the prefix for all server environment variables.
+	HTTPPort  = 1323           // HTTPPort is the default port number for the unencrypted HTTP server.
 )
 
 // Config options for the Defacto2 server using the [caarlos0/env] package.
@@ -367,4 +369,57 @@ func StaticThumb() string {
 // StaticOriginal returns the path to the image directory.
 func StaticOriginal() string {
 	return "/public/image/original"
+}
+
+// UseTLS returns true if the server is configured to use TLS.
+func (c Config) UseTLS() bool {
+	return c.TLSPort > 0 && c.TLSCert != "" || c.TLSKey != ""
+}
+
+// UseHTTP returns true if the server is configured to use HTTP.
+func (c Config) UseHTTP() bool {
+	return c.HTTPPort > 0
+}
+
+// UseTLSLocal returns true if the server is configured to use the local-mode.
+func (c Config) UseTLSLocal() bool {
+	return c.TLSPort > 0 && c.TLSCert == "" && c.TLSKey == ""
+}
+
+// Override the configuration settings fetched from the environment.
+func (c *Config) Override(localMode bool) {
+	// Build binary, environment variables overrides using,
+	// go build -ldflags="-X 'main.LocalMode=true'"
+	if localMode {
+		if c.HTTPPort == 0 {
+			c.HTTPPort = HTTPPort
+		}
+		c.LocalMode = true
+		c.ProductionMode = false
+		c.ReadMode = true
+		c.NoCrawl = true
+		c.LogDir = ""
+		c.GoogleClientID = ""
+		c.GoogleIDs = ""
+		c.SessionKey = ""
+		c.SessionMaxAge = 0
+		c.TLSPort = 0
+		c.TLSCert = ""
+		c.TLSKey = ""
+		c.HTTPSRedirect = false
+		c.MaxProcs = 0
+		return
+	}
+	// hash and delete any supplied google ids
+	ids := strings.Split(c.GoogleIDs, ",")
+	for _, id := range ids {
+		sum := sha512.Sum384([]byte(id))
+		c.GoogleAccounts = append(c.GoogleAccounts, sum)
+	}
+	c.GoogleIDs = "overwrite placeholder"
+	c.GoogleIDs = "" // empty the string
+
+	if c.HTTPPort == 0 && c.TLSPort == 0 {
+		c.HTTPPort = HTTPPort
+	}
 }

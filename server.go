@@ -2,12 +2,10 @@ package main
 
 import (
 	"context"
-	"crypto/sha512"
 	"embed"
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -53,14 +51,6 @@ var (
 	ErrFS  = errors.New("the directories repair broke")
 	ErrLog = errors.New("the server cannot save any logs")
 	ErrVer = errors.New("postgresql version request failed")
-	ErrZap = errors.New("the logger instance is nil")
-)
-
-const (
-	HTTPPort = 1323 // HTTPPort is the default port number for the unencrypted HTTP server.
-
-	uuid = "00000000-0000-0000-0000-000000000000" // common universal unique identifier example
-	cfid = "00000000-0000-0000-0000000000000000"  // coldfusion uuid example
 )
 
 func main() { //nolint:funlen
@@ -74,7 +64,7 @@ func main() { //nolint:funlen
 		&configs, env.Options{Prefix: config.EnvPrefix}); err != nil {
 		logs.Fatalf("%w: %s", ErrEnv, err)
 	}
-	configs = *Override(&configs)
+	configs.Override(localMode())
 
 	// Go runtime customizations
 	// If not set, the automaxprocs lib automatically set GOMAXPROCS to match Linux container CPU quota
@@ -101,7 +91,7 @@ func main() { //nolint:funlen
 	}
 
 	// Repair assets on the host file system
-	if err := RepairFS(logs, &configs); err != nil {
+	if err := configs.RepairFS(logs); err != nil {
 		logs.Errorf("%s: %s", ErrFS, err)
 	}
 
@@ -135,23 +125,23 @@ func main() { //nolint:funlen
 
 	// Start the HTTP and the TLS server
 	switch {
-	case useTLS(&configs) && useHTTP(&configs):
+	case configs.UseTLS() && configs.UseHTTP():
 		go func() {
 			e2 := e // we need a new echo instance, otherwise the server may use the wrong port
 			server.StartHTTP(e2)
 		}()
 		go server.StartTLS(e)
-	case useTLSLocal(&configs) && useHTTP(&configs):
+	case configs.UseTLSLocal() && configs.UseHTTP():
 		go func() {
 			e2 := e // we need a new echo instance, otherwise the server may use the wrong port
 			server.StartHTTP(e2)
 		}()
 		go server.StartTLSLocal(e)
-	case useTLS(&configs):
+	case configs.UseTLS():
 		go server.StartTLS(e)
-	case useHTTP(&configs):
+	case configs.UseHTTP():
 		go server.StartHTTP(e)
-	case useTLSLocal(&configs):
+	case configs.UseTLSLocal():
 		go server.StartTLSLocal(e)
 	default:
 		// this should never happen as HTTPPort is always set to a default value
@@ -173,18 +163,6 @@ func main() { //nolint:funlen
 	}
 	// Gracefully shutdown the HTTP server
 	server.ShutdownHTTP(e)
-}
-
-func useTLS(c *config.Config) bool {
-	return c.TLSPort > 0 && c.TLSCert != "" || c.TLSKey != ""
-}
-
-func useHTTP(c *config.Config) bool {
-	return c.HTTPPort > 0
-}
-
-func useTLSLocal(c *config.Config) bool {
-	return c.TLSPort > 0 && c.TLSCert == "" && c.TLSKey == ""
 }
 
 func commandLine(logs *zap.SugaredLogger, configs config.Config) {
@@ -262,45 +240,6 @@ func localMode() bool {
 	return val
 }
 
-// Override the configuration settings fetched from the environment.
-func Override(c *config.Config) *config.Config {
-	// Build binary, environment variables overrides using,
-	// go build -ldflags="-X 'main.LocalMode=true'"
-	if localMode() {
-		if c.HTTPPort == 0 {
-			c.HTTPPort = HTTPPort
-		}
-		c.LocalMode = true
-		c.ProductionMode = false
-		c.ReadMode = true
-		c.NoCrawl = true
-		c.LogDir = ""
-		c.GoogleClientID = ""
-		c.GoogleIDs = ""
-		c.SessionKey = ""
-		c.SessionMaxAge = 0
-		c.TLSPort = 0
-		c.TLSCert = ""
-		c.TLSKey = ""
-		c.HTTPSRedirect = false
-		c.MaxProcs = 0
-		return c
-	}
-	// hash and delete any supplied google ids
-	ids := strings.Split(c.GoogleIDs, ",")
-	for _, id := range ids {
-		sum := sha512.Sum384([]byte(id))
-		c.GoogleAccounts = append(c.GoogleAccounts, sum)
-	}
-	c.GoogleIDs = "overwrite placeholder"
-	c.GoogleIDs = "" // empty the string
-
-	if c.HTTPPort == 0 && c.TLSPort == 0 {
-		c.HTTPPort = HTTPPort
-	}
-	return c
-}
-
 // RepairDB, on startup check the database connection and make any data corrections.
 func RepairDB() error {
 	if localMode() {
@@ -340,136 +279,4 @@ func RecordCount() int {
 		return 0
 	}
 	return int(x)
-}
-
-// RepairFS, on startup check the file system directories for any invalid or unknown files.
-// If any are found, they are removed without warning.
-func RepairFS(z *zap.SugaredLogger, c *config.Config) error {
-	if z == nil {
-		return ErrZap
-	}
-	dirs := []string{c.PreviewDir, c.ThumbnailDir}
-	p, t := 0, 0
-	for _, dir := range dirs {
-		if _, err := os.Stat(dir); err != nil {
-			continue
-		}
-		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			name := info.Name()
-			if info.IsDir() {
-				return fixDir(name, path, dir)
-			}
-			switch dir {
-			case c.PreviewDir:
-				if filepath.Ext(name) != ".webp" {
-					p++
-				}
-			case c.ThumbnailDir:
-				if filepath.Ext(name) != ".webp" {
-					t++
-				}
-			}
-			return fixImgs(name, path)
-		})
-		if err != nil {
-			return err
-		}
-		switch dir {
-		case c.PreviewDir:
-			z.Infof("The preview directory contains, %d images: %s", p, dir)
-		case c.ThumbnailDir:
-			z.Infof("The thumb directory contains, %d images: %s", t, dir)
-		}
-	}
-	return downloadFS(z, c)
-}
-
-func downloadFS(z *zap.SugaredLogger, c *config.Config) error {
-	dir := c.DownloadDir
-	if _, err := os.Stat(dir); err != nil {
-		var ignore error
-		return ignore //nolint:nilerr
-	}
-	d := 0
-	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		name := info.Name()
-		if filepath.Ext(name) == "" {
-			d++
-		}
-		if info.IsDir() {
-			return fixDir(name, path, dir)
-		}
-		return fixDL(name, path)
-	})
-	if err != nil {
-		return err
-	}
-	z.Infof("The downloads directory contains, %d files: %s", d, dir)
-	return nil
-}
-
-func rm(name, info, path string) {
-	fmt.Fprintf(os.Stderr, "%s: %s\n", info, name)
-	defer os.Remove(path)
-}
-
-func fixDir(name, path, dir string) error {
-	const st = ".stfolder" // st is a syncthing directory
-	switch name {
-	case filepath.Base(dir):
-		// skip the root directory
-	case st:
-		defer os.RemoveAll(path)
-	default:
-		fmt.Fprintln(os.Stderr, "unknown dir:", path)
-	}
-	return nil // always skip
-}
-
-func fixDL(name, path string) error {
-	l := len(name)
-	switch filepath.Ext(name) {
-	case ".chiptune", ".txt":
-		return nil
-	case ".zip":
-		if l != len(uuid)+4 && l != len(cfid)+4 {
-			rm(name, "remove", path)
-		}
-		return nil
-	default:
-		if l != len(uuid) && l != len(cfid) {
-			rm(name, "unknown", path)
-		}
-	}
-	return nil
-}
-
-func fixImgs(name, path string) error {
-	const (
-		png  = ".png"    // png file extension
-		webp = ".webp"   // webp file extension
-		lpng = len(png)  // length of png file extension
-		lweb = len(webp) // length of webp file extension
-	)
-	ext := filepath.Ext(name)
-	l := len(name)
-	switch ext {
-	case png:
-		if l != len(uuid)+lpng && l != len(cfid)+lpng {
-			rm(name, "remove", path)
-		}
-	case webp:
-		if l != len(uuid)+lweb && l != len(cfid)+lweb {
-			rm(name, "remove", path)
-		}
-	default:
-		rm(name, "unknown", path)
-	}
-	return nil
 }
