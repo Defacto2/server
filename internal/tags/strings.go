@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-// URI is a unique URL slug for the tag.
-type URIz map[Tag]string
+// URIS is a unique string for the tag.
+type URIS map[Tag]string
 
 // Name is the tags displayed title.
 type Name map[Tag]string
@@ -18,8 +18,8 @@ func (t Tag) String() string {
 	return URIs()[t]
 }
 
-func URIs() URIz {
-	return URIz{
+func URIs() URIS {
+	return URIS{
 		Announcement: "announcements",
 		ANSIEditor:   "ansieditor",
 		AppleII:      "appleii",
@@ -77,8 +77,8 @@ func TagByURI(slug string) Tag {
 
 // Names or titles of the URI tags.
 // For consistency, the names and descriptions should be in US English and singular.
-func Names() URIz {
-	return URIz{
+func Names() URIS {
+	return URIS{
 		Announcement: "announcement",
 		ANSIEditor:   "ansi editor",
 		AppleII:      "Apple II",
@@ -121,6 +121,54 @@ func Names() URIz {
 		Text:         "text or ascii",
 		Video:        "video",
 		Windows:      "Windows",
+	}
+}
+
+// Determiner is the article used before the tag name.
+func Determiner() URIS {
+	return URIS{
+		Announcement: "an",
+		ANSIEditor:   "an",
+		AppleII:      "an",
+		AtariST:      "an",
+		BBS:          "a",
+		Logo:         "a",
+		Bust:         "a",
+		Drama:        "a",
+		Rule:         "a",
+		Tool:         "a",
+		Intro:        "a",
+		Demo:         "a",
+		ForSale:      "a",
+		Ftp:          "an",
+		GameHack:     "a",
+		Job:          "a",
+		Guide:        "a",
+		Interview:    "an",
+		Mag:          "a",
+		News:         "a",
+		Nfo:          "a",
+		NfoTool:      "a",
+		Pack:         "a",
+		Proof:        "a",
+		Restrict:     "an",
+		Install:      "a",
+		ANSI:         "an",
+		Audio:        "an",
+		DataB:        "a",
+		DOS:          "a",
+		Markup:       "a",
+		Image:        "an",
+		Java:         "a",
+		Linux:        "a",
+		Mac:          "a",
+		PCB:          "a",
+		PDF:          "a",
+		PHP:          "a",
+		TextAmiga:    "a",
+		Text:         "a",
+		Video:        "a",
+		Windows:      "a",
 	}
 }
 

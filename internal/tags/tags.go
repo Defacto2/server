@@ -221,6 +221,13 @@ func IsTag(name string) bool {
 
 // Humanize returns the human readable name of the platform and section tags combined.
 func Humanize(platform, section Tag) string {
+	p, s := platform.String(), section.String()
+	if !IsPlatform(platform.String()) {
+		return fmt.Sprintf("unknown platform tag: %q", p)
+	}
+	if !IsCategory(section.String()) {
+		return fmt.Sprintf("unknown section tag: %q", s)
+	}
 	switch section {
 	case News:
 		return news(platform)
@@ -234,12 +241,14 @@ func Humanize(platform, section Tag) string {
 		return humAudio(platform, section)
 	case DataB:
 		return humDB(section)
+	case DOS:
+		return humDOS(platform, section)
 	case Markup:
-		return fmt.Sprintf("a %s in HTML", Names()[section])
+		return fmt.Sprintf("%s %s in HTML", Determiner()[section], Names()[section])
 	case Image:
 		return humImg(platform, section)
 	case PDF:
-		return fmt.Sprintf("a %s as a PDF document", Names()[section])
+		return fmt.Sprintf("%s %s as a PDF document", Determiner()[section], Names()[section])
 	case Text:
 		return humText(platform, section)
 	case TextAmiga:
@@ -249,17 +258,15 @@ func Humanize(platform, section Tag) string {
 		case ForSale, Logo, Intro:
 			return "a bumper video"
 		}
-		return fmt.Sprintf("a %s video", Names()[section])
+		return fmt.Sprintf("%s %s video", Determiner()[section], Names()[section])
 	case Windows:
 		return humWin(platform, section)
-	case DOS:
-		return humDOS(platform, section)
 	}
-	return fmt.Sprintf("a %s %s", Names()[platform], Names()[section])
+	return fmt.Sprintf("%s %s %s", Determiner()[platform], Names()[platform], Names()[section])
 }
 
 func other(platform, section Tag) string {
-	return fmt.Sprintf("a %s %s", Names()[platform], Names()[section])
+	return fmt.Sprintf("%s %s %s", Determiner()[platform], Names()[platform], Names()[section])
 }
 
 func humAnsi(platform, section Tag) string {
@@ -273,7 +280,7 @@ func humAnsi(platform, section Tag) string {
 	case Nfo:
 		return "an nfo text in ansi format"
 	case Pack:
-		return "an filepack of ansi files"
+		return "a filepack of ansi files"
 	default:
 		return other(platform, section)
 	}
@@ -293,7 +300,7 @@ func humDB(section Tag) string {
 	case Nfo:
 		return "a database of releases"
 	default:
-		return fmt.Sprintf("a %s database", Names()[section])
+		return fmt.Sprintf("%s %s database", Determiner()[section], Names()[section])
 	}
 }
 
@@ -365,7 +372,7 @@ func humDOS(platform, section Tag) string {
 	case Install:
 		return "a " + msDos + " installer"
 	case Intro:
-		return "a intro for " + msDos
+		return "an intro for " + msDos
 	case Pack:
 		return "a filepack of " + msDos + " programs"
 	default:
@@ -403,20 +410,20 @@ func news(platform Tag) string {
 	case TextAmiga:
 		return "an Amiga textfile copy of an article from a news outlet"
 	default:
-		return fmt.Sprintf("a %s from a news outlet", Names()[platform])
+		return fmt.Sprintf("%s %s from a news outlet", Determiner()[platform], Names()[platform])
 	}
 }
 
 func restrict(platform Tag) string {
 	switch platform {
 	case ANSI:
-		return "a insider ansi textfile"
+		return "an insider ansi textfile"
 	case Text:
-		return "a insider textfile"
+		return "an insider textfile"
 	case TextAmiga:
 		return "an insider Amiga textfile"
 	default:
-		return fmt.Sprintf("a insider %s file", Names()[platform])
+		return fmt.Sprintf("an insider %s file", Names()[platform])
 	}
 }
 
@@ -436,7 +443,7 @@ func Humanizes(platform, section Tag) string {
 	case Java:
 		return fmt.Sprintf("%s for Java", Names()[section])
 	case Linux:
-		return fmt.Sprintf("%s for Linux and BSD", Names()[section])
+		return fmt.Sprintf("%s programs for Linux and BSD", Names()[section])
 	case Markup:
 		return fmt.Sprintf("%s as HTML files", Names()[section])
 	case Mac:
@@ -467,6 +474,9 @@ func database(section Tag) string {
 }
 
 func defaults(platform, section Tag) string {
+	if platform < 0 && section < 0 {
+		return "all files"
+	}
 	if platform < 0 {
 		return emptyPlatform(section)
 	}
