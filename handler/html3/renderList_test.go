@@ -62,23 +62,3 @@ func TestNavi(t *testing.T) {
 		t.Errorf("Navi(%d, %d, %d, %s, %s) = %v; want %v", limit, page, maxPage, current, qs, result, expected)
 	}
 }
-
-func TestList(t *testing.T) {
-	// TODO: Write test cases for the List function
-}
-
-func TestSumBytesBy(t *testing.T) {
-	// TODO: Write test cases for the sumBytesBy function
-}
-
-func TestQs(t *testing.T) {
-	// TODO: Write test cases for the qs function
-}
-
-func TestPrevious(t *testing.T) {
-	// TODO: Write test cases for the previous function
-}
-
-func TestNext(t *testing.T) {
-	// TODO: Write test cases for the next function
-}

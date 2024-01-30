@@ -22,6 +22,10 @@ const (
 	noValue = "-"
 )
 
+var (
+	ErrZap = fmt.Errorf("zap logger is nil")
+)
+
 // File record details.
 type File struct {
 	Filename string // Filename of the file.
@@ -70,6 +74,9 @@ func Description(section, platform, brand, title null.String) string {
 
 // FileHref creates a URL to link to the file download of the ID.
 func FileHref(z *zap.SugaredLogger, id int64) string {
+	if z == nil {
+		return ErrZap.Error()
+	}
 	href, err := url.JoinPath("/", "html3", "d",
 		helper.ObfuscateID(id))
 	if err != nil {
