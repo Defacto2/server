@@ -129,24 +129,24 @@ func (u URI) String() string {
 	}[u]
 }
 
-// IsFiles checks if the string is a valid URI path for the list of files.
-func IsFiles(s string) bool {
+// Match path to a URI type or return -1 if not found.
+func Match(path string) URI {
 	// range to 57
 	for i := 1; i <= int(windowsPack); i++ {
-		if URI(i).String() == s {
-			return true
-		}
-	}
-	return false
-}
-
-// Match string to URI type or return -1 if not found.
-func Match(s string) URI {
-	// range to 57
-	for i := 1; i <= int(windowsPack); i++ {
-		if URI(i).String() == s {
+		if URI(i).String() == path {
 			return URI(i)
 		}
 	}
 	return -1
+}
+
+// Valid returns true if path is a valid URI for the list of files.
+func Valid(path string) bool {
+	// range to 57
+	for i := 1; i <= int(windowsPack); i++ {
+		if URI(i).String() == path {
+			return true
+		}
+	}
+	return false
 }

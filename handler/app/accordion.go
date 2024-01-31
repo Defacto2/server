@@ -9,16 +9,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// Site is a website.
-type Site struct {
-	Title string // Title of the website.
-	URL   string // URL of the website, including the HTTP or HTTPS protocol.
-	Info  string // A short description of the website.
-}
-
-// Sites is a collection of websites.
-type Sites = []Site
-
 // Accordion is a collection of websites grouped by a category.
 type Accordion = []struct {
 	Name  string // Name of the category.
@@ -26,6 +16,16 @@ type Accordion = []struct {
 	ID    string // ID of the category.
 	Open  bool   // Whether the category is displayed or closed.
 	Sites Sites  // Sites are the websites shown in the category.
+}
+
+// Sites is a collection of websites.
+type Sites = []Site
+
+// Site is a website.
+type Site struct {
+	Title string // Title of the website.
+	URL   string // URL of the website, including the HTTP or HTTPS protocol.
+	Info  string // A short description of the website.
 }
 
 // TODO: add

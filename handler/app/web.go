@@ -4,6 +4,7 @@ package app
 // The functions are used by the HTML templates to format data.
 
 import (
+	"embed"
 	"html/template"
 	"strings"
 	"time"
@@ -11,8 +12,22 @@ import (
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/releaser/name"
+	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/helper"
+	"go.uber.org/zap"
 )
+
+// Web is the configuration and status of the web app.
+// Rename to app or template?
+type Web struct {
+	Brand       *[]byte            // Brand points to the Defacto2 ASCII logo.
+	Import      *config.Config     // Import configurations from the host system environment.
+	Logger      *zap.SugaredLogger // Logger is the zap sugared logger.
+	Subresource SRI                // SRI are the Subresource Integrity hashes for the layout.
+	Version     string             // Version is the current version of the app.
+	Public      embed.FS           // Public facing files.
+	View        embed.FS           // Views are Go templates.
+}
 
 // TemplateFuncMap returns a map of all the template functions.
 func (web Web) TemplateFuncMap() template.FuncMap {
@@ -225,4 +240,104 @@ func (web Web) TemplateFuncs() template.FuncMap {
 		"websiteIcon":       WebsiteIcon,
 	}
 	return funcMap
+}
+
+// Templates returns a map of the templates used by the route.
+func (web *Web) Templates() (map[string]*template.Template, error) {
+	if err := web.Subresource.Verify(web.Public); err != nil {
+		return nil, err
+	}
+	tmpls := make(map[string]*template.Template)
+	for k, name := range templates() {
+		tmpl := web.tmpl(name)
+		tmpls[k] = tmpl
+	}
+	return tmpls, nil
+}
+
+// Web tmpl returns a layout template for the given named view.
+// Note that the name is relative to the view/defaults directory.
+func (web Web) tmpl(name filename) *template.Template {
+	files := []string{
+		GlobTo("layout.tmpl"),
+		GlobTo("modal.tmpl"),
+		GlobTo("option_os.tmpl"),
+		GlobTo("option_tag.tmpl"),
+		GlobTo(string(name)),
+		GlobTo("pagination.tmpl"),
+	}
+	config := web.Import
+	files = uploaderTmpls(config.ReadMode, files...)
+	// append any additional and embedded templates
+	switch name {
+	case "about.tmpl":
+		files = aboutTmpls(config.ReadMode, files...)
+	case "file.tmpl":
+		files = append(files, GlobTo("file_expand.tmpl"))
+	case "websites.tmpl":
+		const individualWebsite = "website.tmpl"
+		files = append(files, GlobTo(individualWebsite))
+	}
+	return template.Must(template.New("").Funcs(
+		web.TemplateFuncMap()).ParseFS(web.View, files...))
+}
+
+type filename string // filename is the name of the template file in the view directory.
+
+func templates() map[string]filename {
+	const releaser, scener = "releaser.tmpl", "scener.tmpl"
+	return map[string]filename{
+		"index":       "index.tmpl",
+		"about":       "about.tmpl",
+		"bbs":         releaser,
+		"coder":       scener,
+		"file":        "file.tmpl",
+		"files":       "files.tmpl",
+		"ftp":         releaser,
+		"history":     "history.tmpl",
+		"interview":   "interview.tmpl",
+		"magazine":    "releaser_year.tmpl",
+		"magazine-az": releaser,
+		"reader":      "reader.tmpl",
+		"releaser":    releaser,
+		"scener":      scener,
+		"searchList":  "searchList.tmpl",
+		"searchPost":  "searchPost.tmpl",
+		"signin":      "signin.tmpl",
+		"signout":     "signout.tmpl",
+		"status":      "status.tmpl",
+		"thanks":      "thanks.tmpl",
+		"thescene":    "the_scene.tmpl",
+		"websites":    "websites.tmpl",
+	}
+}
+
+func uploaderTmpls(lock bool, files ...string) []string {
+	if lock {
+		return append(files,
+			GlobTo("layout_editor_null.tmpl"),
+			GlobTo("layout_uploader_null.tmpl"),
+			GlobTo("uploader_null.tmpl"))
+	}
+	return append(files,
+		GlobTo("layout_editor.tmpl"),
+		GlobTo("layout_uploader.tmpl"),
+		GlobTo("uploader.tmpl"))
+}
+
+func aboutTmpls(lock bool, files ...string) []string {
+	files = append(files,
+		GlobTo("about_table.tmpl"),
+		GlobTo("about_jsdos.tmpl"),
+		GlobTo("about_editor_archive.tmpl"))
+	if lock {
+		return append(files,
+			GlobTo("about_editor_null.tmpl"),
+			GlobTo("about_editor_table_null.tmpl"),
+			GlobTo("about_table_switch_null.tmpl"))
+	}
+	return append(files,
+		GlobTo("about_editor.tmpl"),
+		GlobTo("about_editor_table.tmpl"),
+		GlobTo("about_table_switch.tmpl"))
 }

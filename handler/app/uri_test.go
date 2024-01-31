@@ -7,13 +7,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestIsFiles(t *testing.T) {
+func TestValid(t *testing.T) {
 	t.Parallel()
-	assert.False(t, app.IsFiles("not-a-valid-uri"))
-	assert.False(t, app.IsFiles("/files/newest"))
-	assert.True(t, app.IsFiles("newest"))
-	assert.True(t, app.IsFiles("windows-pack"))
-	assert.True(t, app.IsFiles("advert"))
+	assert.False(t, app.Valid("not-a-valid-uri"))
+	assert.False(t, app.Valid("/files/newest"))
+	assert.True(t, app.Valid("newest"))
+	assert.True(t, app.Valid("windows-pack"))
+	assert.True(t, app.Valid("advert"))
 }
 
 func TestMatch(t *testing.T) {

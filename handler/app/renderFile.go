@@ -5,40 +5,10 @@ package app
 import (
 	"context"
 	"fmt"
-	"net/http"
 
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
-	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 )
-
-// File is the handler for the file categories page.
-func File(z *zap.SugaredLogger, c echo.Context, stats bool) error {
-	const title, name = "File categories", "file"
-	if z == nil {
-		return InternalErr(z, c, name, ErrZap)
-	}
-	data := empty(c)
-	data["title"] = title
-	data["description"] = "A table of contents for the collection."
-	data["logo"] = title
-	data["h1"] = title
-	data["lead"] = "This page shows the categories and platforms in the collection of file artifacts."
-	data["stats"] = stats
-	data["counter"] = Stats{}
-
-	data, err := fileWStats(data, stats)
-	if err != nil {
-		z.Warn(err)
-		data["dbError"] = true
-	}
-	err = c.Render(http.StatusOK, name, data)
-	if err != nil {
-		return InternalErr(z, c, name, err)
-	}
-	return nil
-}
 
 // fileWStats is a helper function for File that adds the statistics to the data map.
 func fileWStats(data map[string]interface{}, stats bool) (map[string]interface{}, error) {

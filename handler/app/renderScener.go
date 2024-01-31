@@ -12,39 +12,6 @@ import (
 
 // Package file render_scener.go contains the handler functions for the scener and people pages.
 
-// Artist is the handler for the Artist sceners page.
-func Artist(z *zap.SugaredLogger, c echo.Context) error {
-	data := empty(c)
-	title := "Pixel artists and graphic designers"
-	data["title"] = title
-	data["logo"] = title
-	data["h1"] = title
-	data["description"] = demo
-	return scener(z, c, postgres.Artist, data)
-}
-
-// Code is the handler for the Coder sceners page.
-func Coder(z *zap.SugaredLogger, c echo.Context) error {
-	data := empty(c)
-	title := "Coder and programmers"
-	data["title"] = title
-	data["logo"] = title
-	data["h1"] = title
-	data["description"] = demo
-	return scener(z, c, postgres.Writer, data)
-}
-
-// Musician is the handler for the Musiciansceners page.
-func Musician(z *zap.SugaredLogger, c echo.Context) error {
-	data := empty(c)
-	title := "Musicians and composers"
-	data["title"] = title
-	data["logo"] = title
-	data["h1"] = title
-	data["description"] = demo
-	return scener(z, c, postgres.Musician, data)
-}
-
 // Writer is the handler for the Writer page.
 func Writer(z *zap.SugaredLogger, c echo.Context) error {
 	data := empty(c)

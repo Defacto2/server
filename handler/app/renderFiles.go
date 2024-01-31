@@ -30,28 +30,6 @@ const (
 	records = "records"
 )
 
-// Files is the handler for the list and preview of the files page.
-// The uri is the category or collection of files to display.
-// The page is the page number of the results to display.
-func Files(z *zap.SugaredLogger, c echo.Context, uri, page string) error {
-	if z == nil {
-		return InternalErr(z, c, "files", ErrZap)
-	}
-	// check the uri is valid
-	if !IsFiles(uri) {
-		return FilesErr(z, c, uri)
-	}
-	// check the page is valid
-	if page == "" {
-		return files(z, c, uri, 1)
-	}
-	p, err := strconv.Atoi(page)
-	if err != nil {
-		return PageErr(z, c, uri, page)
-	}
-	return files(z, c, uri, p)
-}
-
 // fileInfo is a helper function for Files that returns the page title, h1 title and lead text.
 func fileInfo(uri string) (string, string, string) {
 	var logo, h1sub, lead string
@@ -142,7 +120,7 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 	if db == nil {
 		return nil, 0, ErrDB
 	}
-	if !IsFiles(uri) {
+	if !Valid(uri) {
 		return nil, 0, nil
 	}
 	// fetch the statistics of the uri

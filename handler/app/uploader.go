@@ -1,7 +1,6 @@
 package app
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"path/filepath"
@@ -13,11 +12,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/volatiletech/null/v8"
 	"go.uber.org/zap"
-)
-
-var (
-	ErrExtract = errors.New("unknown extractor value")
-	ErrTarget  = errors.New("target not found")
 )
 
 const (

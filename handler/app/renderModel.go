@@ -5,15 +5,12 @@ package app
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 )
-
-var ErrCategory = errors.New("unknown file category")
 
 // Records returns the records for the file category URI.
 func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
