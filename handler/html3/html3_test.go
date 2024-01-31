@@ -13,6 +13,66 @@ import (
 func z() *zap.SugaredLogger {
 	return zap.NewExample().Sugar()
 }
+
+func TestClauses(t *testing.T) {
+	tests := []string{
+		html3.NameAsc,
+		html3.NameDes,
+		html3.PublAsc,
+		html3.PublDes,
+		html3.PostAsc,
+		html3.PostDes,
+		html3.SizeAsc,
+		html3.SizeDes,
+		html3.DescAsc,
+		html3.DescDes,
+	}
+	for i, s := range tests {
+		assert.Equal(t, int(html3.Clauses(s)), i)
+	}
+	assert.Equal(t, int(html3.Clauses("")),
+		int(html3.Clauses(html3.NameAsc)), "default should be name asc")
+}
+
+func TestSorter(t *testing.T) {
+	tests := []string{
+		html3.NameAsc,
+		html3.NameDes,
+		html3.PublAsc,
+		html3.PublDes,
+		html3.PostAsc,
+		html3.PostDes,
+		html3.SizeAsc,
+		html3.SizeDes,
+		html3.DescAsc,
+		html3.DescDes,
+	}
+	for _, s := range tests {
+		switch s {
+		case html3.NameAsc:
+			assert.Equal(t, html3.Sorter(s)[string(html3.Name)], "D")
+		case html3.NameDes:
+			assert.Equal(t, html3.Sorter(s)[string(html3.Name)], "A")
+		case html3.PublAsc:
+			assert.Equal(t, html3.Sorter(s)[string(html3.Publish)], "D")
+		case html3.PublDes:
+			assert.Equal(t, html3.Sorter(s)[string(html3.Publish)], "A")
+		case html3.PostAsc:
+			assert.Equal(t, html3.Sorter(s)[string(html3.Posted)], "D")
+		case html3.PostDes:
+			assert.Equal(t, html3.Sorter(s)[string(html3.Posted)], "A")
+		case html3.SizeAsc:
+			assert.Equal(t, html3.Sorter(s)[string(html3.Size)], "D")
+		case html3.SizeDes:
+			assert.Equal(t, html3.Sorter(s)[string(html3.Size)], "A")
+		case html3.DescAsc:
+			assert.Equal(t, html3.Sorter(s)[string(html3.Desc)], "D")
+		case html3.DescDes:
+			assert.Equal(t, html3.Sorter(s)[string(html3.Desc)], "A")
+		}
+
+	}
+}
 func TestFile_Description(t *testing.T) {
 	type fields struct {
 		Title    string
@@ -100,4 +160,60 @@ func TestFormattings(t *testing.T) {
 	assert.Equal(t, html3.LeadInt(3, 1), "  1")
 	assert.True(t, html3.File{Platform: "java"}.IsOS())
 	assert.Equal(t, html3.File{Platform: "java"}.OS(), " for Java")
+}
+
+func TestPagi(t *testing.T) {
+	type args struct {
+		page    int
+		maxPage uint
+	}
+	tests := []struct {
+		name  string
+		args  args
+		want  int
+		want1 int
+		want2 int
+	}{
+		{"empty", args{}, 0, 0, 0},
+		{"1 page", args{1, 1}, 0, 0, 0},
+		{"2 pages", args{1, 2}, 0, 0, 0},
+		{"3 pages", args{1, 3}, 2, 0, 0},
+		{"4 pages", args{1, 4}, 2, 3, 0},
+		{"start of many pages", args{2, 10}, 2, 3, 4},
+		{"middle of many pages", args{5, 10}, 4, 5, 6},
+		{"near end of many pages", args{9, 10}, 7, 8, 9},
+		{"last of many pages", args{10, 10}, 7, 8, 9},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got1, got2 := html3.Pagi(tt.args.page, tt.args.maxPage)
+			assert.Equal(t, got, tt.want, "value a")
+			assert.Equal(t, got1, tt.want1, "value b")
+			assert.Equal(t, got2, tt.want2, "value c")
+		})
+	}
+}
+
+func TestNavi(t *testing.T) {
+	limit := 10
+	page := 2
+	maxPage := uint(5)
+	current := "current"
+	qs := "query"
+
+	expected := html3.Navigate{
+		Current:  current,
+		Limit:    limit,
+		Page:     page,
+		PagePrev: 1,
+		PageNext: 3,
+		PageMax:  5,
+		QueryStr: qs,
+	}
+
+	result := html3.Navi(limit, page, maxPage, current, qs)
+
+	if result != expected {
+		t.Errorf("Navi(%d, %d, %d, %s, %s) = %v; want %v", limit, page, maxPage, current, qs, result, expected)
+	}
 }

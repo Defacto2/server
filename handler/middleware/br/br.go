@@ -13,40 +13,16 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-// Brotli compression scheme, copied from a submission delaneyj commented on 22 Feb 2019.
+//
+// Brotli compression scheme, copied from the submission the delaneyj commented on 22 Feb 2019.
 // https://github.com/labstack/echo/blob/a327810ef8a5625797ca6a106b538e5abec3917e/middleware/compress_brotli.go
 //
 
-var ErrHijack = echo.NewHTTPError(http.StatusInternalServerError, "response could not be hijacked")
-
-type (
-	// BrotliConfig defines the config for Brotli middleware.
-	BrotliConfig struct {
-		// Skipper defines a function to skip middleware.
-		Skipper middleware.Skipper
-
-		// Brotli compression level.
-		// Optional. Default value -1.
-		Level int `yaml:"level"`
-	}
-
-	brotliResponseWriter struct {
-		io.Writer
-		http.ResponseWriter
-	}
-)
-
 const (
-	BrotliScheme = "br"
+	BrotliScheme = "br" // Brotli compression header scheme.
 )
 
-// DefaultBrotliConfig is the default Brotli middleware config.
-func DefaultBrotliConfig() BrotliConfig {
-	return BrotliConfig{
-		Skipper: middleware.DefaultSkipper,
-		Level:   brotli.DefaultCompression,
-	}
-}
+var ErrHijack = echo.NewHTTPError(http.StatusInternalServerError, "response could not be hijacked")
 
 // Brotli returns a middleware which compresses HTTP response using brotli compression
 // scheme.
@@ -54,8 +30,7 @@ func Brotli() echo.MiddlewareFunc {
 	return BrotliWithConfig(DefaultBrotliConfig())
 }
 
-// BrotliWithConfig return Brotli middleware with config.
-// See: `Brotli()`.
+// BrotliWithConfig returns the [Brotli] middleware with config.
 func BrotliWithConfig(config BrotliConfig) echo.MiddlewareFunc {
 	// Defaults
 	if config.Skipper == nil {
@@ -99,6 +74,31 @@ func BrotliWithConfig(config BrotliConfig) echo.MiddlewareFunc {
 		}
 	}
 }
+
+// DefaultBrotliConfig is the default Brotli middleware config.
+func DefaultBrotliConfig() BrotliConfig {
+	return BrotliConfig{
+		Skipper: middleware.DefaultSkipper,
+		Level:   brotli.DefaultCompression,
+	}
+}
+
+type (
+	// BrotliConfig defines the config for Brotli middleware.
+	BrotliConfig struct {
+		// Skipper defines a function to skip middleware.
+		Skipper middleware.Skipper
+
+		// Brotli compression level.
+		// Optional. Default value -1.
+		Level int `yaml:"level"`
+	}
+
+	brotliResponseWriter struct {
+		io.Writer
+		http.ResponseWriter
+	}
+)
 
 func (w *brotliResponseWriter) WriteHeader(code int) {
 	if code == http.StatusNoContent { // Issue #489

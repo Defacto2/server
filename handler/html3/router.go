@@ -13,7 +13,7 @@ import (
 // Any errors are logged and rendered to the client using HTTP codes
 // and the custom /html3, group errror template.
 func Routes(z *zap.SugaredLogger, e *echo.Echo) *echo.Group {
-	s := sugared{zlog: z}
+	s := Sugared{Log: z}
 	g := e.Group(Prefix)
 	g.GET("", s.Index)
 	g.GET("/all:offset", s.All)
@@ -62,7 +62,8 @@ func Routes(z *zap.SugaredLogger, e *echo.Echo) *echo.Group {
 	})
 	// Custom 404 error, "The page cannot be found"
 	g.GET("/:uri", func(x echo.Context) error {
-		return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("The page cannot be found: /html3/%s", x.Param("uri")))
+		return echo.NewHTTPError(http.StatusNotFound,
+			fmt.Sprintf("The page cannot be found: /html3/%s", x.Param("uri")))
 	})
 	return g
 }
