@@ -1,2 +1,2 @@
-// Package api provides a JSON, API placeholder.
+// Package api is a placeholder for a future API.
 package api

@@ -1,5 +1,5 @@
 // Package handler provides the HTTP handlers for the Defacto2 website.
-// Using the Echo Project web framework, it is the entry point for the web server.
+// Using the Echo Project web framework, the handler is the entry point for the web server.
 package handler
 
 import (
@@ -21,7 +21,7 @@ import (
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/handler/html3"
-	"github.com/Defacto2/server/handler/x"
+	"github.com/Defacto2/server/handler/middleware/br"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/labstack/echo/v4"
@@ -139,12 +139,11 @@ func (c Configuration) Controller() *echo.Echo {
 	case "gzip": // Gzip HTTP compression
 		e.Use(middleware.Gzip())
 	case "br": // experimental Brotli HTTP compression
-		e.Use(x.Brotli())
+		e.Use(br.Brotli())
 	}
 	if c.Import.ProductionMode {
 		e.Use(middleware.Recover()) // recover from panics
 	}
-	// e.Use(x.Brotli())
 	// Static embedded web assets that get distributed in the binary
 	e = c.EmbedDirs(e)
 	// Routes for the web application

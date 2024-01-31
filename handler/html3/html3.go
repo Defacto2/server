@@ -1,4 +1,4 @@
-// Package html3 handles renders the /html3 sub-route of the website.
+// Package html3 renders the html3 sub-route of the website.
 // This generates pages for the website for browsing of the file database using HTML3 styled tables.
 package html3
 

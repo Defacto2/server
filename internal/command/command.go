@@ -1,4 +1,4 @@
-// Package command provides interfaces for the shell commands and applications on the host system.
+// Package command provides interfaces for the shell commands and programs on the host.
 package command
 
 import (

@@ -1,3 +1,4 @@
+// Package magic contains the file register and type matchers.
 package magic
 
 import (

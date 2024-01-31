@@ -1,4 +1,4 @@
-// Package exts contains common file extensions used by the file records.
+// Package exts contains common filename extensions used by the file records.
 package exts
 
 import (

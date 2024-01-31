@@ -1,5 +1,5 @@
-// Package x provides experimental custom middleware functions for the Echo web framework.
-package x
+// Package br provides experimental brotli support for the Echo web framework.
+package br
 
 import (
 	"bufio"

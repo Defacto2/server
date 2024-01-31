@@ -1,4 +1,4 @@
-// Package helpers are general functions shared with all parts of the web application.
+// Package helpers are general, shared functions.
 package helper
 
 import (

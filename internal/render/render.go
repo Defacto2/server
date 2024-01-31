@@ -1,3 +1,4 @@
+// Package render provides the file content rendering for the web server.
 package render
 
 import (

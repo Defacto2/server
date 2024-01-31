@@ -1,4 +1,4 @@
-// Package tags are categories and platform metadata used to classify served files.
+// Package tags are categories and platform metadata used to classify the served files.
 package tags
 
 import (

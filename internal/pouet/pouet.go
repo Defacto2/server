@@ -1,4 +1,4 @@
-// Package pouet provides a production voting data from the Pouet API.
+// Package pouet provides production, user voting data sourced from the Pouet website API.
 package pouet
 
 import (
