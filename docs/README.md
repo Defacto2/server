@@ -1,12 +1,129 @@
-# Defacto2, web application server
+# Defacto2, the web application server
 
-The [Defacto2](https://defacto2.net) web server is a self-contained application built on [Go](https://go.dev/). 
-It can be quickly and easily built for all the common operating systems. 
-The web server relies on a [PostgreSQL database server](https://www.postgresql.org/) for data queries. 
-This is best provided using a container such as [Docker](https://www.docker.com/).
+```
+      ·      ▒██▀ ▀       ▒██▀ ▀              ▀ ▀▒██             ▀ ▀███ ·
+      : ▒██▀ ▓██ ▒██▀▀██▓ ▓██▀▀▒██▀▀███ ▒██▀▀██▓ ▓██▀ ▒██▀▀███ ▒██▀▀▀▀▀ :
+ · ··─┼─▓██──███─▓██─▄███─███──▓██──███─▓██──────███──▓██──███─▓██──███─┼─·· ·
+      │ ███▄▄██▓ ███▄▄▄▄▄▄██▓  ███▄ ███▄███▄▄███ ███▄▄███▄ ███▄███▄▄███ │
+· ··──┼─────────··                defacto2.net               ··─────────┼──·· ·
+      │                                                                 :
+```
 
-All configurations and settings for the web server are handled through system environment variables. 
-On a production setup such with a Docker container, these variables should also be handled within the container environment.
+The [Defacto2](https://defacto2.net) web server is a self-contained application, first created in 2023 and built with the [Go language](https://go.dev/). And can be easily compiled for [major operating systems](https://pkg.go.dev/internal/platform#pkg-variables).
+
+The web server relies on a [PostgreSQL database](https://www.postgresql.org/) for data queries, best provided using a container such as [Docker](https://www.docker.com/).
+
+All configurations and settings for the web application are through system environment variables.
+Variables are handled within the container's environment on a production setup, such as with a Docker container.
+
+## Download
+
+Numerous downloads are available for [Windows](https://github.com/Defacto2/server/releases/latest/download/defacto2-app_windows_amd64_v1.zip), [macOS](https://github.com/Defacto2/server/releases/latest/download/df2-server_darwin_all.zip), [Linux](https://github.com/Defacto2/server/releases/latest/download/defacto2-app_linux_amd64_v1.zip.zip) and more.
+
+The server app is a standalone, self-contained terminal program, but requires additional setups such as an running [Defacto2 PostgreSQL database](https://github.com/Defacto2/database-ps).
+
+## Installation
+
+All the instructions assume macOS, Linux or Windows Subsystem for Linux (WSL).
+
+### Docker
+
+The recommended way to run the server app is to use a [Docker](https://www.docker.com/) container. 
+#### Database
+
+Firstly, set up the [Defacto2 PostgreSQL database](https://github.com/Defacto2/database-ps).
+
+```sh
+# clone the database repository
+cd ~
+git clone git@github.com:Defacto2/database-ps.git
+
+cd ~/database-ps
+
+# migrate the Defacto2 data from MySQL to PostgreSQL
+docker compose --profile migrater up
+
+# start the database
+docker compose up -d
+```
+
+#### Web server
+
+A preconfigured docker-compose file exists for use with Docker Desktop or docker.
+
+[Download the `docker-compose.yml` file](https://github.com/Defacto2/server/blob/main/docker-compose.yml) to a local directory such as `~/df2-server`.
+
+```sh
+# create the local directory
+mkdir ~/df2-server
+
+# copy the downloaded docker-compose.yml file to the directory
+cp ~/Downloads/docker-compose.yml ~/df2-server
+```
+
+Create a `.env.local` file to store our environment variables for the container and copy [the .env.local example](#example-envlocal) content and save.
+
+```sh
+cd ~/df2-server
+
+# create the .env.local file
+touch .env.local
+
+# edit, paste and save the example content
+nano .env.local
+```
+
+Start the container and the web server will be available on the localhost with `1323`.
+
+#### http://localhost:1323
+
+```sh
+docker compose up -d
+```
+
+### Example `.env.local` 
+
+Docker uses the `.env.local` file to set container environment variables.
+
+```ini
+# ===================
+#  Database settings
+# ===================
+
+# Database username used to connect
+PS_USERNAME=root
+
+# Password for the database username
+PS_PASSWORD=example
+
+# ===================
+#  Directory paths for the serving of static files.
+# ===================
+
+# The directory path that holds the UUID named files for the downloads.
+D2_DOWNLOAD_DIR=/home/ben/defacto2/downloads
+
+# The directory path that holds the UUID named files for the images.
+D2_PREVIEW_DIR=/home/ben/defacto2/images
+
+# The directory path that holds the UUID named files for the thumbnails.
+D2_THUMBNAIL_DIR=/home/ben/defacto2/thumbnails
+
+# ===================
+#  Web application and server settings
+# ===================
+#
+# The unencrypted port number that the HTTP web server will listen on.
+D2_HTTP_PORT=1323
+```
+
+### Local
+
+
+
+## Usage
+
+### Source code
 
 # TODOs
 
