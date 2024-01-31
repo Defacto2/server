@@ -17,13 +17,6 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-// configRTS return the TrailingSlash middleware configuration.
-func configRTS() middleware.TrailingSlashConfig {
-	return middleware.TrailingSlashConfig{
-		RedirectCode: http.StatusMovedPermanently,
-	}
-}
-
 // NoCrawl middleware adds a `X-Robots-Tag` header to the response.
 // The header contains the noindex and nofollow values that tell search engine
 // crawlers to not index or crawl the page or asset.
@@ -74,5 +67,12 @@ func (c Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 			return echo.ErrForbidden
 		}
 		return next(e)
+	}
+}
+
+// configRTS return the TrailingSlash middleware configuration.
+func configRTS() middleware.TrailingSlashConfig {
+	return middleware.TrailingSlashConfig{
+		RedirectCode: http.StatusMovedPermanently,
 	}
 }

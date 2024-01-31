@@ -1,5 +1,7 @@
 // Package handler provides the HTTP handlers for the Defacto2 website.
-// Using the Echo Project web framework, the handler is the entry point for the web server.
+// Using the [Echo] web framework, the handler is the entry point for the web server.
+//
+// [Echo]: https://echo.labstack.com/
 package handler
 
 import (
@@ -8,6 +10,8 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"html/template"
+	"io"
 	"net"
 	"net/http"
 	"os"
@@ -29,6 +33,17 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	// ShutdownCounter is the number of iterations to wait before shutting down the server.
+	ShutdownCounter = 3
+
+	// ShutdownWait is the number of seconds to wait before shutting down the server.
+	ShutdownWait = ShutdownCounter * time.Second
+
+	// Downloader is the route for the file download handler.
+	Downloader = "/d/:id"
+)
+
 var (
 	ErrCtx    = errors.New("echo context is nil")
 	ErrData   = errors.New("data interface is nil")
@@ -39,14 +54,16 @@ var (
 	ErrZap    = errors.New("zap logger instance is nil")
 )
 
-const (
-	// ShutdownCounter is the number of iterations to wait before shutting down the server.
-	ShutdownCounter = 3
-	// ShutdownWait is the number of seconds to wait before shutting down the server.
-	ShutdownWait = ShutdownCounter * time.Second
-	// Downloader is the route for the file download handler.
-	Downloader = "/d/:id"
-)
+// Join multiple templates into one collection.
+func Join(srcs ...map[string]*template.Template) map[string]*template.Template {
+	m := make(map[string]*template.Template)
+	for _, src := range srcs {
+		for k, val := range src {
+			m[k] = val
+		}
+	}
+	return m
+}
 
 // Configuration of the handler.
 type Configuration struct {
@@ -57,52 +74,6 @@ type Configuration struct {
 	Public      embed.FS           // Public facing files.
 	View        embed.FS           // View contains Go templates.
 	RecordCount int                // The total number of file records in the database.
-}
-
-// Registry returns the template renderer.
-func (c Configuration) Registry() (*TemplateRegistry, error) {
-	webapp := app.Web{
-		Import:  c.Import,
-		Logger:  c.Logger,
-		Brand:   c.Brand,
-		Public:  c.Public,
-		Version: c.Version,
-		View:    c.View,
-	}
-	web, err := webapp.Templates()
-	if err != nil {
-		return nil, err
-	}
-	htm3 := html3.Templates(c.Logger, c.View)
-	return &TemplateRegistry{Templates: Join(web, htm3)}, nil
-}
-
-// EmbedDirs serves the static files from the directories embed to the binary.
-func (c Configuration) EmbedDirs(e *echo.Echo) *echo.Echo {
-	if e == nil {
-		c.Logger.Fatal(ErrRoutes)
-	}
-	dirs := map[string]string{
-		"/image/artpack":   "public/image/artpack",
-		"/image/html3":     "public/image/html3",
-		"/image/layout":    "public/image/layout",
-		"/image/milestone": "public/image/milestone",
-	}
-	for path, fsRoot := range dirs {
-		e.StaticFS(path, echo.MustSubFS(c.Public, fsRoot))
-		e.GET(path, func(ctx echo.Context) error {
-			return echo.NewHTTPError(http.StatusNotFound)
-		})
-	}
-	return e
-}
-
-// Rewrites for assets.
-// This is different to a redirect as it keeps the original URL in the browser.
-func rewrites() map[string]string {
-	return map[string]string{
-		"/logo.txt": "/text/defacto2.txt",
-	}
 }
 
 // Controller is the primary instance of the Echo router.
@@ -164,21 +135,24 @@ func (c Configuration) Controller() *echo.Echo {
 	return e
 }
 
-// downloader route for the file download handler under the html3 group.
-func (c Configuration) downloader(ctx echo.Context) error {
-	d := download.Download{
-		Inline: false,
-		Path:   c.Import.DownloadDir,
+// EmbedDirs serves the static files from the directories embed to the binary.
+func (c Configuration) EmbedDirs(e *echo.Echo) *echo.Echo {
+	if e == nil {
+		c.Logger.Fatal(ErrRoutes)
 	}
-	return d.HTTPSend(c.Logger, ctx)
-}
-
-// version returns the application version string.
-func (c Configuration) version() string {
-	if c.Version == "" {
-		return "  no version info, app compiled binary directly."
+	dirs := map[string]string{
+		"/image/artpack":   "public/image/artpack",
+		"/image/html3":     "public/image/html3",
+		"/image/layout":    "public/image/layout",
+		"/image/milestone": "public/image/milestone",
 	}
-	return fmt.Sprintf("  %s.", cmd.Commit(c.Version))
+	for path, fsRoot := range dirs {
+		e.StaticFS(path, echo.MustSubFS(c.Public, fsRoot))
+		e.GET(path, func(ctx echo.Context) error {
+			return echo.NewHTTPError(http.StatusNotFound)
+		})
+	}
+	return e
 }
 
 // Info prints the application information to the console.
@@ -206,6 +180,94 @@ func (c Configuration) Info() {
 	// All additional feedback should go in internal/config/check.go (c *Config) Checks()
 	//
 	w.Flush()
+}
+
+// PortErr handles the error when the HTTP or HTTPS server cannot start.
+func (c Configuration) PortErr(port uint, err error) {
+	s := "HTTP"
+	if port == c.Import.TLSPort {
+		s = "TLS"
+	}
+	var portErr *net.OpError
+	switch {
+	case !c.Import.ProductionMode && errors.As(err, &portErr):
+		c.Logger.Infof("air or task server could not start (this can probably be ignored): %s.", err)
+	case errors.Is(err, net.ErrClosed),
+		errors.Is(err, http.ErrServerClosed):
+		c.Logger.Infof("%s server shutdown gracefully.", s)
+	case errors.Is(err, os.ErrNotExist):
+		c.Logger.Fatalf("%s server on port %d could not start: %w.", s, port, err)
+	default:
+	}
+}
+
+// Registry returns the template renderer.
+func (c Configuration) Registry() (*TemplateRegistry, error) {
+	webapp := app.Web{
+		Import:  c.Import,
+		Logger:  c.Logger,
+		Brand:   c.Brand,
+		Public:  c.Public,
+		Version: c.Version,
+		View:    c.View,
+	}
+	web, err := webapp.Templates()
+	if err != nil {
+		return nil, err
+	}
+	htm3 := html3.Templates(c.Logger, c.View)
+	return &TemplateRegistry{Templates: Join(web, htm3)}, nil
+}
+
+// ShutdownHTTP waits for a Ctrl-C keyboard press to initiate a graceful shutdown of the HTTP web server.
+// The shutdown procedure occurs a few seconds after the key press.
+func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
+	// Wait for interrupt signal to gracefully shutdown the server
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	waitDuration := ShutdownWait
+	waitCount := ShutdownCounter
+	ticker := 1 * time.Second
+	if c.Import.LocalMode {
+		waitDuration = 0
+		waitCount = 0
+		ticker = 1 * time.Millisecond // this cannot be zero
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), waitDuration)
+	defer func() {
+		const alert = "Detected Ctrl-C, server will shutdown"
+		_ = c.Logger.Sync() // do not check error as there's false positives
+		dst := os.Stdout
+		w := bufio.NewWriter(dst)
+		fmt.Fprintf(w, "\n%s in %v ", alert, waitDuration)
+		w.Flush()
+		count := waitCount
+		pause := time.NewTicker(ticker)
+		for range pause.C {
+			count--
+			w := bufio.NewWriter(dst)
+			if count <= 0 {
+				fmt.Fprintf(w, "\r%s %s\n", alert, "now     ")
+				w.Flush()
+				break
+			}
+			fmt.Fprintf(w, "\r%s in %ds ", alert, count)
+			w.Flush()
+		}
+		select {
+		case <-quit:
+			cancel()
+		case <-ctx.Done():
+		}
+		if err := e.Shutdown(ctx); err != nil {
+			c.Logger.Fatalf("Server shutdown caused an error: %w.", err)
+		}
+		c.Logger.Infoln("Server shutdown complete.")
+		_ = c.Logger.Sync()
+		signal.Stop(quit)
+		cancel()
+	}()
 }
 
 // StartHTTP starts the insecure HTTP web server.
@@ -272,72 +334,54 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo) {
 	}
 }
 
-// PortErr handles the error when the HTTP or HTTPS server cannot start.
-func (c Configuration) PortErr(port uint, err error) {
-	s := "HTTP"
-	if port == c.Import.TLSPort {
-		s = "TLS"
+// downloader route for the file download handler under the html3 group.
+func (c Configuration) downloader(ctx echo.Context) error {
+	d := download.Download{
+		Inline: false,
+		Path:   c.Import.DownloadDir,
 	}
-	var portErr *net.OpError
-	switch {
-	case !c.Import.ProductionMode && errors.As(err, &portErr):
-		c.Logger.Infof("air or task server could not start (this can probably be ignored): %s.", err)
-	case errors.Is(err, net.ErrClosed),
-		errors.Is(err, http.ErrServerClosed):
-		c.Logger.Infof("%s server shutdown gracefully.", s)
-	case errors.Is(err, os.ErrNotExist):
-		c.Logger.Fatalf("%s server on port %d could not start: %w.", s, port, err)
-	default:
+	return d.HTTPSend(c.Logger, ctx)
+}
+
+// version returns the application version string.
+func (c Configuration) version() string {
+	if c.Version == "" {
+		return "  no version info, app compiled binary directly."
+	}
+	return fmt.Sprintf("  %s.", cmd.Commit(c.Version))
+}
+
+// Rewrites for assets.
+// This is different to a redirect as it keeps the original URL in the browser.
+func rewrites() map[string]string {
+	return map[string]string{
+		"/logo.txt": "/text/defacto2.txt",
 	}
 }
 
-// ShutdownHTTP waits for a Ctrl-C keyboard press to initiate a graceful shutdown of the HTTP web server.
-// The shutdown procedure occurs a few seconds after the key press.
-func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
-	// Wait for interrupt signal to gracefully shutdown the server
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
-	<-quit
-	waitDuration := ShutdownWait
-	waitCount := ShutdownCounter
-	ticker := 1 * time.Second
-	if c.Import.LocalMode {
-		waitDuration = 0
-		waitCount = 0
-		ticker = 1 * time.Millisecond // this cannot be zero
+// TemplateRegistry is template registry struct.
+type TemplateRegistry struct {
+	Templates map[string]*template.Template
+}
+
+// Render the layout template with the core HTML, META and BODY elements.
+func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	const layout = "layout"
+	if name == "" {
+		return ErrName
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), waitDuration)
-	defer func() {
-		const alert = "Detected Ctrl-C, server will shutdown"
-		_ = c.Logger.Sync() // do not check error as there's false positives
-		dst := os.Stdout
-		w := bufio.NewWriter(dst)
-		fmt.Fprintf(w, "\n%s in %v ", alert, waitDuration)
-		w.Flush()
-		count := waitCount
-		pause := time.NewTicker(ticker)
-		for range pause.C {
-			count--
-			w := bufio.NewWriter(dst)
-			if count <= 0 {
-				fmt.Fprintf(w, "\r%s %s\n", alert, "now     ")
-				w.Flush()
-				break
-			}
-			fmt.Fprintf(w, "\r%s in %ds ", alert, count)
-			w.Flush()
-		}
-		select {
-		case <-quit:
-			cancel()
-		case <-ctx.Done():
-		}
-		if err := e.Shutdown(ctx); err != nil {
-			c.Logger.Fatalf("Server shutdown caused an error: %w.", err)
-		}
-		c.Logger.Infoln("Server shutdown complete.")
-		_ = c.Logger.Sync()
-		signal.Stop(quit)
-		cancel()
-	}()
+	if w == nil {
+		return fmt.Errorf("%w: %w", echo.ErrRendererNotRegistered, ErrW)
+	}
+	if data == nil {
+		return fmt.Errorf("%w: %w", echo.ErrRendererNotRegistered, ErrData)
+	}
+	if c == nil {
+		return fmt.Errorf("%w: %w", echo.ErrRendererNotRegistered, ErrCtx)
+	}
+	tmpl, ok := t.Templates[name]
+	if !ok {
+		return fmt.Errorf("%w: %s", ErrTmpl, name)
+	}
+	return tmpl.ExecuteTemplate(w, layout, data)
 }
