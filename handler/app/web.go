@@ -5,7 +5,10 @@ package app
 
 import (
 	"embed"
+	"fmt"
 	"html/template"
+	"path/filepath"
+	"reflect"
 	"strings"
 	"time"
 
@@ -14,6 +17,7 @@ import (
 	"github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/volatiletech/null/v8"
 	"go.uber.org/zap"
 )
 
@@ -27,6 +31,91 @@ type Web struct {
 	Version     string             // Version is the current version of the app.
 	Public      embed.FS           // Public facing files.
 	View        embed.FS           // Views are Go templates.
+}
+
+// DownloadB returns a human readable string of the file size.
+func DownloadB(i any) template.HTML {
+	var s string
+	switch val := i.(type) {
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		i := reflect.ValueOf(val).Int()
+		s = helper.ByteCount(i)
+	case null.Int64:
+		if !val.Valid {
+			return ""
+		}
+		s = helper.ByteCount(val.Int64)
+	default:
+		return template.HTML(fmt.Sprintf("%sDownloadB: %s", typeErr, reflect.TypeOf(i).String()))
+	}
+	elm := fmt.Sprintf(" <small class=\"text-body-secondary\">(%s)</small>", s)
+	return template.HTML(elm)
+}
+
+// ImageSample returns a HTML image tag for the given uuid.
+func (web Web) ImageSample(uuid string) template.HTML {
+	const (
+		png  = png
+		webp = webp
+	)
+	ext, name, src := "", "", ""
+	for _, ext = range []string{webp, png} {
+		name = filepath.Join(web.Import.PreviewDir, fmt.Sprintf("%s%s", uuid, ext))
+		src = strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s%s", uuid, ext)}, "/")
+		if helper.IsStat(name) {
+			break
+		}
+	}
+	hash, err := helper.IntegrityFile(name)
+	if err != nil {
+		return template.HTML(err.Error())
+	}
+	return template.HTML(fmt.Sprintf("<img src=\"%s?%s\" loading=\"lazy\" "+
+		"class=\"img-fluid\" alt=\"%s sample\" integrity=\"%s\" />",
+		src, hash, ext, hash))
+}
+
+// Screenshot returns a picture elment with screenshots for the given uuid.
+func (web Web) Screenshot(uuid, desc string) template.HTML {
+	fw := filepath.Join(web.Import.PreviewDir, fmt.Sprintf("%s%s", uuid, webp))
+	fp := filepath.Join(web.Import.PreviewDir, fmt.Sprintf("%s%s", uuid, png))
+	fj := filepath.Join(web.Import.PreviewDir, fmt.Sprintf("%s%s", uuid, jpg))
+	webp := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s%s", uuid, webp)}, "/")
+	png := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s%s", uuid, png)}, "/")
+	jpg := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s%s", uuid, jpg)}, "/")
+	alt := strings.ToLower(desc) + " screenshot"
+	w, p, j := false, false, false
+	if helper.IsStat(fw) {
+		w = true
+	}
+	if helper.IsStat(fp) {
+		p = true
+	}
+	if !p {
+		// fallback to jpg on the odd chance that the png is missing
+		if helper.IsStat(fj) {
+			j = true
+		}
+	}
+	class := "rounded mx-auto d-block img-fluid"
+	if w && p {
+		elm := "<picture>" +
+			fmt.Sprintf("<source srcset=\"%s\" type=\"image/webp\" />", webp) +
+			string(img(png, alt, class, "")) +
+			"</picture>"
+		return template.HTML(elm)
+	}
+	elm := ""
+	if w {
+		return img(webp, alt, class, "")
+	}
+	if p {
+		return img(png, alt, class, "")
+	}
+	if j {
+		return img(jpg, alt, class, "")
+	}
+	return template.HTML(elm)
 }
 
 // TemplateFuncMap returns a map of all the template functions.
@@ -255,6 +344,72 @@ func (web *Web) Templates() (map[string]*template.Template, error) {
 	return tmpls, nil
 }
 
+// Thumb returns a HTML image tag or picture element for the given uuid.
+// The uuid is the filename of the thumbnail image without an extension.
+// The desc is the description of the image.
+func (web Web) Thumb(uuid, desc string, bottom bool) template.HTML {
+	fw := filepath.Join(web.Import.ThumbnailDir, fmt.Sprintf("%s.webp", uuid))
+	fp := filepath.Join(web.Import.ThumbnailDir, fmt.Sprintf("%s.png", uuid))
+	webp := strings.Join([]string{config.StaticThumb(), fmt.Sprintf("%s.webp", uuid)}, "/")
+	png := strings.Join([]string{config.StaticThumb(), fmt.Sprintf("%s.png", uuid)}, "/")
+	alt := strings.ToLower(desc) + " thumbnail"
+	w, p := false, false
+	if helper.IsStat(fw) {
+		w = true
+	}
+	if helper.IsStat(fp) {
+		p = true
+	}
+	const style = "min-height:5em;max-height:20em;"
+	class := "card-img-bottom"
+	if !bottom {
+		class = "card-img-top"
+	}
+	if !w && !p {
+		s := "<img src=\"\" loading=\"lazy\" alt=\"thumbnail placeholder\"" +
+			" class=\"" + class + " placeholder\" style=\"" + style + "\" />"
+		return template.HTML(s)
+	}
+	if w && p {
+		elm := "<picture class=\"" + class + "\">" +
+			fmt.Sprintf("<source srcset=\"%s\" type=\"image/webp\" />", webp) +
+			string(img(png, alt, class, style)) +
+			"</picture>"
+		return template.HTML(elm)
+	}
+	elm := ""
+	if w {
+		return img(webp, alt, class, style)
+	}
+	if p {
+		return img(png, alt, class, style)
+	}
+	return template.HTML(elm)
+}
+
+// ThumbSample returns a HTML image tag for the given uuid.
+func (web Web) ThumbSample(uuid string) template.HTML {
+	const (
+		png  = png
+		webp = webp
+	)
+	ext, name, src := "", "", ""
+	for _, ext = range []string{webp, png} {
+		name = filepath.Join(web.Import.ThumbnailDir, fmt.Sprintf("%s%s", uuid, ext))
+		src = strings.Join([]string{config.StaticThumb(), fmt.Sprintf("%s%s", uuid, ext)}, "/")
+		if helper.IsStat(name) {
+			break
+		}
+	}
+	hash, err := helper.IntegrityFile(name)
+	if err != nil {
+		return template.HTML(err.Error())
+	}
+	return template.HTML(fmt.Sprintf("<img src=\"%s?%s\" loading=\"lazy\" "+
+		"class=\"img-fluid\" alt=\"%s sample\" integrity=\"%s\" />",
+		src, hash, ext, hash))
+}
+
 // Web tmpl returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory.
 func (web Web) tmpl(name filename) *template.Template {
@@ -283,6 +438,29 @@ func (web Web) tmpl(name filename) *template.Template {
 }
 
 type filename string // filename is the name of the template file in the view directory.
+
+func aboutTmpls(lock bool, files ...string) []string {
+	files = append(files,
+		GlobTo("about_table.tmpl"),
+		GlobTo("about_jsdos.tmpl"),
+		GlobTo("about_editor_archive.tmpl"))
+	if lock {
+		return append(files,
+			GlobTo("about_editor_null.tmpl"),
+			GlobTo("about_editor_table_null.tmpl"),
+			GlobTo("about_table_switch_null.tmpl"))
+	}
+	return append(files,
+		GlobTo("about_editor.tmpl"),
+		GlobTo("about_editor_table.tmpl"),
+		GlobTo("about_table_switch.tmpl"))
+}
+
+// img returns a HTML image tag.
+func img(src, alt, class, style string) template.HTML {
+	return template.HTML(fmt.Sprintf("<img src=\"%s\" loading=\"lazy\" alt=\"%s\" class=\"%s\" style=\"%s\" />",
+		src, alt, class, style))
+}
 
 func templates() map[string]filename {
 	const releaser, scener = "releaser.tmpl", "scener.tmpl"
@@ -323,21 +501,4 @@ func uploaderTmpls(lock bool, files ...string) []string {
 		GlobTo("layout_editor.tmpl"),
 		GlobTo("layout_uploader.tmpl"),
 		GlobTo("uploader.tmpl"))
-}
-
-func aboutTmpls(lock bool, files ...string) []string {
-	files = append(files,
-		GlobTo("about_table.tmpl"),
-		GlobTo("about_jsdos.tmpl"),
-		GlobTo("about_editor_archive.tmpl"))
-	if lock {
-		return append(files,
-			GlobTo("about_editor_null.tmpl"),
-			GlobTo("about_editor_table_null.tmpl"),
-			GlobTo("about_table_switch_null.tmpl"))
-	}
-	return append(files,
-		GlobTo("about_editor.tmpl"),
-		GlobTo("about_editor_table.tmpl"),
-		GlobTo("about_table_switch.tmpl"))
 }

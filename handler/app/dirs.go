@@ -14,11 +14,11 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 
 	"github.com/Defacto2/releaser"
+	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magic"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -41,6 +41,13 @@ type Dirs struct {
 	Thumbnail string // path to the file thumbnail directory
 	URI       string // the URI of the file record
 }
+
+type extract int // extract target format for the file archive extractor
+
+const (
+	imgs  extract = iota // extract image
+	ansis                // extract ansilove compatible text
+)
 
 // About is the handler for the about page of the file record.
 func (dir Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error { //nolint:funlen
@@ -165,6 +172,45 @@ func (dir Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error
 	return nil
 }
 
+// AnsiLovePost handles the post submission for the Preview from text in archive.
+func (dir Dirs) AnsiLovePost(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor ansilove"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	return dir.extractor(z, c, ansis)
+}
+
+// PreviewDel handles the post submission for the Delete complementary images button.
+func (dir Dirs) PreviewDel(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor preview remove"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+
+	var f Form
+	if err := c.Bind(&f); err != nil {
+		return badRequest(c, err)
+	}
+	r, err := model.Record(z, c, f.ID)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if err = command.RemoveImgs(r.UUID.String, dir.Preview, dir.Thumbnail); err != nil {
+		return badRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, r)
+}
+
+// PreviewPost handles the post submission for the Preview from image in archive.
+func (dir Dirs) PreviewPost(z *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor preview"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	return dir.extractor(z, c, imgs)
+}
+
 // aboutReadme returns the readme data for the file record.
 func (dir Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) { //nolint:funlen
 	data := map[string]interface{}{}
@@ -260,6 +306,52 @@ func (dir Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) { 
 	data["readmeRows"] = helper.MaxLineLength(out.String())
 
 	return data, nil
+}
+
+// extractor is a helper function for the PreviewPost and AnsiLovePost handlers.
+func (dir Dirs) extractor(z *zap.SugaredLogger, c echo.Context, p extract) error {
+	if z == nil {
+		return InternalErr(z, c, "extractor", ErrZap)
+	}
+
+	var f Form
+	if err := c.Bind(&f); err != nil {
+		return badRequest(c, err)
+	}
+	r, err := model.Record(z, c, f.ID)
+	if err != nil {
+		return badRequest(c, err)
+	}
+
+	list := strings.Split(r.FileZipContent.String, "\n")
+	target := ""
+	for _, x := range list {
+		s := strings.TrimSpace(x)
+		if s == "" {
+			continue
+		}
+		if strings.EqualFold(s, f.Target) {
+			target = s
+		}
+	}
+	if target == "" {
+		return badRequest(c, ErrTarget)
+	}
+	src := filepath.Join(dir.Download, r.UUID.String)
+	cmd := command.Dirs{Download: dir.Download, Preview: dir.Preview, Thumbnail: dir.Thumbnail}
+	ext := filepath.Ext(strings.ToLower(r.Filename.String))
+	switch p {
+	case imgs:
+		err = cmd.ExtractImage(z, src, ext, r.UUID.String, target)
+	case ansis:
+		err = cmd.ExtractAnsiLove(z, src, ext, r.UUID.String, target)
+	default:
+		return InternalErr(z, c, "extractor", fmt.Errorf("%w: %d", ErrExtract, p))
+	}
+	if err != nil {
+		return badRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, r)
 }
 
 // aboutDesc returns the description for the file record.
@@ -579,73 +671,6 @@ func readmeFinds(content ...string) []string {
 	return finds
 }
 
-// ReadmeSug returns a suggested readme file name for the record.
-// It prioritizes the filename and group name with a priority extension,
-// such as ".nfo", ".txt", etc. If no priority extension is found,
-// it will return the first textfile in the content list.
-//
-// The filename should be the name of the file archive artifact.
-// The group should be a name or common abbreviation of the group that
-// released the artifact. The content should be a list of files contained
-// in the artifact.
-func ReadmeSug(filename, group string, content ...string) string {
-	// this is a port of the CFML function, variables.findTextfile found in File.cfc
-
-	finds := readmeFinds(content...)
-	if len(finds) == 1 {
-		return finds[0]
-	}
-	finds = SortContent(finds)
-
-	// match either the filename or the group name with a priority extension
-	// e.g. .nfo, .txt, .unp, .doc
-	base := filepath.Base(filename)
-	for _, ext := range priority() {
-		for _, name := range finds {
-			// match the filename + extension
-			if strings.EqualFold(base+ext, name) {
-				return name
-			}
-			// match the group name + extension
-			if strings.EqualFold(group+ext, name) {
-				return name
-			}
-		}
-	}
-	// match file_id.diz
-	for _, name := range finds {
-		if strings.EqualFold("file_id.diz", name) {
-			return name
-		}
-	}
-	// match either the filename or the group name with a candidate extension
-	for _, ext := range candidate() {
-		for _, name := range finds {
-			// match the filename + extension
-			if strings.EqualFold(base+ext, name) {
-				return name
-			}
-			// match the group name + extension
-			if strings.EqualFold(group+ext, name) {
-				return name
-			}
-		}
-	}
-	// match any finds that use a priority extension
-	for _, name := range finds {
-		s := strings.ToLower(name)
-		ext := filepath.Ext(s)
-		if slices.Contains(priority(), ext) {
-			return name
-		}
-	}
-	// match the first file in the list
-	for _, name := range finds {
-		return name
-	}
-	return ""
-}
-
 // priority returns a list of readme text file extensions in priority order.
 func priority() []string {
 	return []string{".nfo", ".txt", ".unp", ".doc"}
@@ -654,28 +679,4 @@ func priority() []string {
 // candidate returns a list of other, common text file extensions in priority order.
 func candidate() []string {
 	return []string{".diz", ".asc", ".1st", ".dox", ".me", ".cap", ".ans", ".pcb"}
-}
-
-// SortContent sorts the content list by the number of slashes in each string.
-// It prioritizes strings with fewer slashes (i.e., closer to the root).
-// If the number of slashes is the same, it sorts alphabetically.
-func SortContent(content []string) []string {
-	sort.Slice(content, func(i, j int) bool {
-		// Fix any Windows path separators
-		content[i] = strings.ReplaceAll(content[i], "\\", "/")
-		content[j] = strings.ReplaceAll(content[j], "\\", "/")
-		// Count the number of slashes in each string
-		iCount := strings.Count(content[i], "/")
-		jCount := strings.Count(content[j], "/")
-
-		// Prioritize strings with fewer slashes (i.e., closer to the root)
-		if iCount != jCount {
-			return iCount < jCount
-		}
-
-		// If the number of slashes is the same, sort alphabetically
-		return content[i] < content[j]
-	})
-
-	return content
 }

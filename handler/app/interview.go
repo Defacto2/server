@@ -10,6 +10,9 @@ type Group struct {
 	Interviews Interviews // Interviews is a list of interviews with members of the group.
 }
 
+// Interviews is a collection of Interviewee.
+type Interviews []Interviewee
+
 // Interviewee is a person who was interviewed with a link to the interview.
 type Interviewee struct {
 	Scener  string // Scener is the name of the person interviewed.
@@ -18,9 +21,6 @@ type Interviewee struct {
 	Content string // Content is a short description of the interview.
 	Link    string // Link is the URL to the interview.
 }
-
-// Interviews is a collection of Interviewee.
-type Interviews []Interviewee
 
 // Interviewees returns a list of interviewees and their interviews.
 // These are categorized by the group they were in at the time of the interview.
