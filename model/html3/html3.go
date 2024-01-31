@@ -1,7 +1,10 @@
 // Package htm3 is a sub-package of the model package that should only be used by the html3 handler.
+// It contains the database queries for the HTML3 templates used to display the file lists in a table format.
 package html3
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
@@ -9,8 +12,14 @@ import (
 
 	"github.com/Defacto2/server/internal/exts"
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/Defacto2/server/model/expr"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
+)
+
+const (
+	From = "files" // the name of the table containing records of files
 )
 
 var (
@@ -18,12 +27,15 @@ var (
 	ErrModel = fmt.Errorf("error, no file model")
 )
 
-const (
-	// From is the name of the table containing records of files.
-	From = "files"
+const padding = " "
 
-	padding = " "
-)
+// ArtExpr returns a query modifier for the digital or pixel art category.
+func ArtExpr() qm.QueryMod {
+	return qm.Expr(
+		models.FileWhere.Section.NEQ(expr.SBbs()),
+		models.FileWhere.Platform.EQ(expr.PImage()),
+	)
+}
 
 // Created returns the Createdat time to use a dd-mmm-yyyy format.
 func Created(f *models.File) string {
@@ -42,8 +54,18 @@ func Created(f *models.File) string {
 	return fmt.Sprintf("%02d-%s-%d", d, m, y)
 }
 
+// DocumentExpr returns a query modifier for the document category.
+func DocumentExpr() qm.QueryMod {
+	return qm.Expr(
+		models.FileWhere.Platform.EQ(expr.PAnsi()),
+		qm.Or2(models.FileWhere.Platform.EQ(expr.PText())),
+		qm.Or2(models.FileWhere.Platform.EQ(expr.PTextAmiga())),
+		qm.Or2(models.FileWhere.Platform.EQ(expr.PPdf())),
+	)
+}
+
 // Icon returns the extensionless name of a .gif image file to use as an icon
-// for the filename. The icons are found in /public/image/html3/.
+// for the filename. The icons are found in `public/image/html3/`.
 func Icon(f *models.File) string {
 	if f == nil {
 		return ErrModel.Error()
@@ -59,7 +81,6 @@ func Icon(f *models.File) string {
 }
 
 // LeadStr takes a string and returns the leading whitespace padding, characters wide.
-// the value of string is note returned.
 func LeadStr(width int, s string) string {
 	l := utf8.RuneCountInString(s)
 	if l >= width {
@@ -135,4 +156,75 @@ func SelectHTML3() qm.QueryMod {
 		models.FileColumns.GroupBrandFor,
 		models.FileColumns.RecordTitle,
 	)
+}
+
+// SoftwareExpr returns a query modifier for the software category.
+func SoftwareExpr() qm.QueryMod {
+	return qm.Expr(
+		models.FileWhere.Platform.EQ(expr.PJava()),
+		qm.Or2(models.FileWhere.Platform.EQ(expr.PLinux())),
+		qm.Or2(models.FileWhere.Platform.EQ(expr.PDos())),
+		qm.Or2(models.FileWhere.Platform.EQ(expr.PScript())),
+		qm.Or2(models.FileWhere.Platform.EQ(expr.PWindows())),
+	)
+}
+
+// Arts statistics for releases that are digital or pixel art.
+type Arts struct {
+	Bytes int `boil:"size_total"`  // the total bytes of all the files
+	Count int `boil:"count_total"` // the total number of files
+}
+
+// Stat sets the total bytes and total count.
+func (a *Arts) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
+	if a.Bytes > 0 && a.Count > 0 {
+		return nil
+	}
+	return models.NewQuery(
+		qm.Select(postgres.Stat()...),
+		ArtExpr(),
+		qm.From(From)).Bind(ctx, db, a)
+}
+
+// Documents statistics for releases that are documents.
+type Documents struct {
+	Bytes int `boil:"size_total"`  // the total bytes of all the files
+	Count int `boil:"count_total"` // the total number of files
+}
+
+// Stat sets the total bytes and total count.
+func (d *Documents) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
+	if d.Bytes > 0 && d.Count > 0 {
+		return nil
+	}
+	return models.NewQuery(
+		qm.Select(postgres.Stat()...),
+		DocumentExpr(),
+		qm.From(From)).Bind(ctx, db, d)
+}
+
+// Softwares contain statistics for releases that are software.
+type Softwares struct {
+	Bytes int `boil:"size_total"`  // the total bytes of all the files
+	Count int `boil:"count_total"` // the total number of files
+}
+
+// Stat sets the total bytes and total count.
+func (s *Softwares) Stat(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
+	if s.Bytes > 0 && s.Count > 0 {
+		return nil
+	}
+	return models.NewQuery(
+		qm.Select(postgres.Stat()...),
+		SoftwareExpr(),
+		qm.From(From)).Bind(ctx, db, s)
 }

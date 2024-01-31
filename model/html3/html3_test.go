@@ -1,9 +1,11 @@
 package html3_test
 
 import (
+	"context"
 	"testing"
 	"time"
 
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model/html3"
 	"github.com/stretchr/testify/assert"
@@ -103,4 +105,30 @@ func TestPublishedFW(t *testing.T) {
 func TestSelectHTML3(t *testing.T) {
 	qm := html3.SelectHTML3()
 	assert.NotEmpty(t, qm)
+}
+
+func TestArts_Stat(t *testing.T) {
+	t.Parallel()
+	a := html3.Arts{}
+	ctx := context.TODO()
+	err := a.Stat(ctx, nil)
+	assert.ErrorIs(t, err, html3.ErrDB)
+	db, err := postgres.ConnectDB()
+	assert.NoError(t, err)
+	defer db.Close()
+	err = a.Stat(ctx, db)
+	assert.Error(t, err)
+}
+
+func TestDocuments_Stat(t *testing.T) {
+	t.Parallel()
+	a := html3.Documents{}
+	ctx := context.TODO()
+	err := a.Stat(ctx, nil)
+	assert.ErrorIs(t, err, html3.ErrDB)
+	db, err := postgres.ConnectDB()
+	assert.NoError(t, err)
+	defer db.Close()
+	err = a.Stat(ctx, db)
+	assert.Error(t, err)
 }
