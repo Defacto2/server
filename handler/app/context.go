@@ -1759,7 +1759,8 @@ func Writer(z *zap.SugaredLogger, c echo.Context) error {
 	return scener(z, c, postgres.Writer, data)
 }
 
-type FileSearch int // FileSearch is the type of search to perform.
+// FileSearch is the type of search to perform.
+type FileSearch int
 
 const (
 	Filenames    FileSearch = iota // Filenames is the search for filenames.
