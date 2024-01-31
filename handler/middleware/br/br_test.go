@@ -131,7 +131,7 @@ func TestBrotliErrorReturned(t *testing.T) {
 func TestBrotliWithStatic(t *testing.T) {
 	e := echo.New()
 	e.Use(br.Brotli())
-	e.Static("/test", "../../public/image/layout")
+	e.Static("/test", "../../../public/image/layout")
 	req := httptest.NewRequest(http.MethodGet, "/test/favicon-152x152.png", nil)
 	req.Header.Set(echo.HeaderAcceptEncoding, br.BrotliScheme)
 	rec := httptest.NewRecorder()
@@ -144,7 +144,7 @@ func TestBrotliWithStatic(t *testing.T) {
 	}
 	r := brotli.NewReader(rec.Body)
 
-	want, err := os.ReadFile("../../public/image/layout/favicon-152x152.png")
+	want, err := os.ReadFile("../../../public/image/layout/favicon-152x152.png")
 	if assert.NoError(t, err) {
 		buf := new(bytes.Buffer)
 		_, err = buf.ReadFrom(r)
