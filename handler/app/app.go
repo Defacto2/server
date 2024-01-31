@@ -747,7 +747,7 @@ func ReadmeSug(filename, group string, content ...string) string {
 	if len(finds) == 1 {
 		return finds[0]
 	}
-	finds = SortContent(finds)
+	finds = SortContent(finds...)
 
 	// match either the filename or the group name with a priority extension
 	// e.g. .nfo, .txt, .unp, .doc
@@ -839,7 +839,7 @@ func SafeHTML(s string) template.HTML {
 // SortContent sorts the content list by the number of slashes in each string.
 // It prioritizes strings with fewer slashes (i.e., closer to the root).
 // If the number of slashes is the same, it sorts alphabetically.
-func SortContent(content []string) []string {
+func SortContent(content ...string) []string {
 	sort.Slice(content, func(i, j int) bool {
 		// Fix any Windows path separators
 		content[i] = strings.ReplaceAll(content[i], "\\", "/")

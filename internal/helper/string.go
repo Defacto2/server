@@ -68,7 +68,7 @@ func Capitalize(s string) string {
 
 // DeleteDupe removes duplicate strings from a slice.
 // The returned slice is sorted and compacted.
-func DeleteDupe(s []string) []string {
+func DeleteDupe(s ...string) []string {
 	slices.Sort(s)
 	s = slices.Compact(s)
 	x := make([]string, 0, len(s))

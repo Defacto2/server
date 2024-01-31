@@ -16,22 +16,20 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-var (
-	ErrDB = errors.New("database connection is nil")
-)
+var ErrDB = errors.New("database connection is nil")
 
-// Repair the database data.
+// Repair a column or type of data within the database.
 type Repair int
 
 const (
 	None     Repair = iota - 1 // None does nothing.
 	All                        // All repairs all the repairable data.
-	Releaser                   // Releaser repairs the releaser data.
+	Releaser                   // Releaser focuses on the releaser data using the group_brand_by and group_brand_for columns.
 )
 
 // In the future we may want to add a Debug or TestRun func.
 
-// Run the repair.
+// Run the database repair based on the repair option.
 func (r Repair) Run(ctx context.Context, w io.Writer, db *sql.DB) error {
 	if w == nil {
 		w = io.Discard

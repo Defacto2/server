@@ -13,7 +13,7 @@ import (
 type Cache int
 
 const (
-	Pouet Cache = iota // pouet data cache
+	Pouet Cache = iota // data cache for the Pouet website, API requests
 	Test               // test cache
 )
 

@@ -114,6 +114,10 @@ func TestSortContent(t *testing.T) {
 		expected []string
 	}{
 		{
+			content:  nil,
+			expected: nil,
+		},
+		{
 			content: []string{
 				"dir1/file1",
 				"dir2/file2",
@@ -150,7 +154,7 @@ func TestSortContent(t *testing.T) {
 			copy(originalContent, tt.content)
 
 			// Sort the content using the SortContent function
-			sortedContent := app.SortContent(tt.content)
+			sortedContent := app.SortContent(tt.content...)
 
 			for i, v := range sortedContent {
 				assert.Equal(t, tt.expected[i], v)

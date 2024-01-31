@@ -50,13 +50,13 @@ func TestCapitalize(t *testing.T) {
 }
 
 func TestDeleteDupe(t *testing.T) {
-	s := helper.DeleteDupe([]string{})
+	s := helper.DeleteDupe(nil...)
 	assert.EqualValues(t, []string{}, s)
-	s = helper.DeleteDupe([]string{"a"})
+	s = helper.DeleteDupe([]string{"a"}...)
 	assert.EqualValues(t, []string{"a"}, s)
-	s = helper.DeleteDupe([]string{"a", "b", "abcde"})
+	s = helper.DeleteDupe([]string{"a", "b", "abcde"}...)
 	assert.EqualValues(t, []string{"a", "abcde", "b"}, s) // sorted
-	s = helper.DeleteDupe([]string{"a", "b", "a"})
+	s = helper.DeleteDupe([]string{"a", "b", "a"}...)
 	assert.EqualValues(t, []string{"a", "b"}, s)
 }
 

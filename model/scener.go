@@ -123,5 +123,5 @@ func (s Sceners) Sort() []string {
 	for _, scener := range s {
 		sceners = append(sceners, strings.Split(string(scener.Name), ",")...)
 	}
-	return helper.DeleteDupe(sceners)
+	return helper.DeleteDupe(sceners...)
 }
