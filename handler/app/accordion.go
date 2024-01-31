@@ -2,32 +2,6 @@ package app
 
 // Package file website.go contains the website list and handler.
 
-import (
-	"net/http"
-
-	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
-)
-
-// Accordion is a collection of websites grouped by a category.
-type Accordion = []struct {
-	Name  string // Name of the category.
-	Title string // Title tab for the category.
-	ID    string // ID of the category.
-	Open  bool   // Whether the category is displayed or closed.
-	Sites Sites  // Sites are the websites shown in the category.
-}
-
-// Sites is a collection of websites.
-type Sites = []Site
-
-// Site is a website.
-type Site struct {
-	Title string // Title of the website.
-	URL   string // URL of the website, including the HTTP or HTTPS protocol.
-	Info  string // A short description of the website.
-}
-
 // TODO: add
 // https://www.youtube.com/watch?v=ockNRSt3Nsk I was a video game pirate VMG
 // https://www.youtube.com/watch?v=VheNpiSZxf0 Dungeon Master Clever..
@@ -62,43 +36,23 @@ type Site struct {
 // https://www.youtube.com/watch?v=ZUioVa-wdDk The Greatest pirate...
 // https://www.reddit.com/r/HobbyDrama/comments/rowk83/digital_piracy_the_rise_of_empress_how_one_woman/
 
-// Website is the handler for the websites page.
-// Open is the ID of the accordion section to open.
-func Website(z *zap.SugaredLogger, c echo.Context, open string) error {
-	const name = "websites"
-	if z == nil {
-		return InternalErr(z, c, name, ErrZap)
-	}
-	data := empty(c)
-	data["title"] = "Websites"
-	data["logo"] = "Websites, podcasts, videos, books and films"
-	data["description"] = "A collection of websites, podcasts, videos, books and films about the scene."
-	acc := List()
-	// Open the accordion section.
-	closeAll := true
-	for i, site := range acc {
-		if site.ID == open || open == "" {
-			site.Open = true
-			data["title"] = site.Title
-			closeAll = false
-			acc[i] = site
-			if open == "" {
-				continue
-			}
-			break
-		}
-	}
-	// If a section was requested but not found, return a 404.
-	if open != "hide" && closeAll {
-		return StatusErr(z, c, http.StatusNotFound, open)
-	}
-	// Render the page.
-	data["accordion"] = acc
-	err := c.Render(http.StatusOK, name, data)
-	if err != nil {
-		return InternalErr(z, c, name, err)
-	}
-	return nil
+// Accordion is a collection of websites grouped by a category.
+type Accordion = []struct {
+	Name  string // Name of the category.
+	Title string // Title tab for the category.
+	ID    string // ID of the category.
+	Open  bool   // Whether the category is displayed or closed.
+	Sites Sites  // Sites are the websites shown in the category.
+}
+
+// Sites is a collection of websites.
+type Sites = []Site
+
+// Site is a website.
+type Site struct {
+	Title string // Title of the website.
+	URL   string // URL of the website, including the HTTP or HTTPS protocol.
+	Info  string // A short description of the website.
 }
 
 // List is a collection of websites grouped by a category.

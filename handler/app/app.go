@@ -105,9 +105,9 @@ func Attribute(write, code, art, music, name string) string {
 
 // Brief returns a human readable brief description of a release.
 // Based on the platform, section, year and month.
-func Brief(plat, sect any) template.HTML {
+func Brief(platform, section any) template.HTML {
 	p, s := "", ""
-	switch val := plat.(type) {
+	switch val := platform.(type) {
 	case string:
 		p = val
 	case null.String:
@@ -115,10 +115,10 @@ func Brief(plat, sect any) template.HTML {
 			p = val.String
 		}
 	default:
-		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", plat))
+		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", platform))
 	}
 	p = strings.TrimSpace(p)
-	switch val := sect.(type) {
+	switch val := section.(type) {
 	case string:
 		s = val
 	case null.String:
@@ -126,7 +126,7 @@ func Brief(plat, sect any) template.HTML {
 			s = val.String
 		}
 	default:
-		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", sect))
+		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", section))
 	}
 	s = strings.TrimSpace(s)
 	if p == "" && s == "" {
@@ -161,9 +161,9 @@ func ByteFile(cnt, bytes any) template.HTML {
 }
 
 // ByteFileS returns a human readable string of the byte count with a named description.
-func ByteFileS(name string, cnt, bytes any) template.HTML {
+func ByteFileS(name string, count, bytes any) template.HTML {
 	var s string
-	switch val := cnt.(type) {
+	switch val := count.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
 		name = names(name)
@@ -173,7 +173,7 @@ func ByteFileS(name string, cnt, bytes any) template.HTML {
 		p := message.NewPrinter(language.English)
 		s = p.Sprintf("%d", i)
 	default:
-		s = fmt.Sprintf("%sByteFileS: %s", typeErr, reflect.TypeOf(cnt).String())
+		s = fmt.Sprintf("%sByteFileS: %s", typeErr, reflect.TypeOf(count).String())
 		return template.HTML(s)
 	}
 	switch val := bytes.(type) {
@@ -209,9 +209,9 @@ func Day(d any) template.HTML {
 
 // Describe returns a human readable description of a release.
 // Based on the platform, section, year and month.
-func Describe(plat, sect, year, month any) template.HTML {
+func Describe(platform, section, year, month any) template.HTML {
 	p, s, y, m := "", "", "", ""
-	switch val := plat.(type) {
+	switch val := platform.(type) {
 	case string:
 		p = val
 	case null.String:
@@ -219,10 +219,10 @@ func Describe(plat, sect, year, month any) template.HTML {
 			p = val.String
 		}
 	default:
-		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", plat))
+		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", platform))
 	}
 	p = strings.TrimSpace(p)
-	switch val := sect.(type) {
+	switch val := section.(type) {
 	case string:
 		s = val
 	case null.String:
@@ -230,7 +230,7 @@ func Describe(plat, sect, year, month any) template.HTML {
 			s = val.String
 		}
 	default:
-		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", sect))
+		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", section))
 	}
 	s = strings.TrimSpace(s)
 	switch val := year.(type) {
@@ -272,12 +272,12 @@ func LastUpdated(t any) string {
 }
 
 // LinkDownload creates a URL to link to the file download of the record.
-func LinkDownload(id any, alertURL string) template.HTML {
+func LinkDownload(id any, uri string) template.HTML {
 	s, err := linkID(id, "d")
 	if err != nil {
 		return template.HTML(err.Error())
 	}
-	if alertURL != "" {
+	if uri != "" {
 		return template.HTML(`<s class="card-link text-warning-emphasis" data-bs-toggle="tooltip" ` +
 			`data-bs-title="Use the About link to access this file download">Download</s>`)
 	}

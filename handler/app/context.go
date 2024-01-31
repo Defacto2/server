@@ -1709,6 +1709,45 @@ func VotePouet(z *zap.SugaredLogger, c echo.Context, id string) error {
 	return nil
 }
 
+// Website is the handler for the websites page.
+// Open is the ID of the accordion section to open.
+func Website(z *zap.SugaredLogger, c echo.Context, open string) error {
+	const name = "websites"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	data := empty(c)
+	data["title"] = "Websites"
+	data["logo"] = "Websites, podcasts, videos, books and films"
+	data["description"] = "A collection of websites, podcasts, videos, books and films about the scene."
+	acc := List()
+	// Open the accordion section.
+	closeAll := true
+	for i, site := range acc {
+		if site.ID == open || open == "" {
+			site.Open = true
+			data["title"] = site.Title
+			closeAll = false
+			acc[i] = site
+			if open == "" {
+				continue
+			}
+			break
+		}
+	}
+	// If a section was requested but not found, return a 404.
+	if open != "hide" && closeAll {
+		return StatusErr(z, c, http.StatusNotFound, open)
+	}
+	// Render the page.
+	data["accordion"] = acc
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(z, c, name, err)
+	}
+	return nil
+}
+
 // Writer is the handler for the Writer page.
 func Writer(z *zap.SugaredLogger, c echo.Context) error {
 	data := empty(c)
