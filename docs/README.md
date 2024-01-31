@@ -45,6 +45,9 @@ These items should be implemented and tested before going live.
 - [ ] `OrderBy` Name/Count /html3/groups?
 https://pkg.go.dev/sort#example-package-SortKeys
 - [ ] Move `OrderBy` params to cookies?
+- [ ] (long) group/releaser pages should have a link to the end of the document.
+- [ ] [model.Files.ListUpdates], rename the PSQL column from "updated_at" to "date_updated".
+- [ ] Fetch the DOD nfo for w95, https://scenelist.org/nfo/DOD95C1H.ZIP
 
 #### Support Unicode slug URLs as currently the regex removes all non alphanumeric chars.
 

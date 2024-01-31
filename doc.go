@@ -1,14 +1,26 @@
-// Copyright © 2023 Ben Garrett. All rights reserved.
+// Copyright © 2023-2024 Ben Garrett. All rights reserved.
 
 /*
-The [Defacto2] web server created in 2023 on Go.
+The [Defacto2] web server is a self-contained application, first created in 2023 and built with the Go language.
+And can be easily compiled for major operating systems.
+
+The web server relies on a [PostgreSQL database] for data queries, best provided using a container such as [Docker].
+
+All configurations and settings for the web application are through system environment variables.
+Variables are handled within the container's environment on a production setup, such as with a Docker container.
+
+# Installation
+
+TODO: Add installation instructions.
+
+# Usage
 
 Usage:
 
 	df2-server
 
 Launch the server and listen on the configured port (default: 1323).
-The server expects the [Defacto2 PostgreSQL database] running on the host system
+The server expects the Defacto2 [PostgreSQL database] running on the host system
 or in a container. But will run without a database connection for debugging.
 
 Usage commands:
@@ -35,70 +47,78 @@ The flags are:
 
 # Database
 
-This application expects the [Defacto2 PostgreSQL database] and if needed,
-the following environment variables to be set:
+This application expects the Defacto2 [PostgreSQL database] and the following environment variables to be set if needed:
 
-	1. "DEFACTO2_PORT" is the unencrypted port number the web server will listen on (default: 1323).
-	2. "DEFACTO2_PORTS" is the encrypted port number the web server will listen on (default: 0 [unused]).
+	1. PS_USERNAME is the PostgreSQL account username.
+	2. PS_PASSWORD is the PostgreSQL account password.
 
-# File downloads
+The following variables are optional:
 
-The following environment variables are required for the web server to
-offer file downloads:
+	1. PS_HOST_NAME is the PostgreSQL server hostname (default: localhost).
+	2. PS_HOST_PORT is the PostgreSQL server port number (default: 5432).
+	3. PS_DATABASE is the PostgreSQL database name (default: defacto2-ps).
+	4. PS_NO_SSL is the PostgreSQL connection is insecure and in plaintext (default: true).
 
-	1. "DEFACTO2_DOWNLOAD" is the absolute path to the file downloads directory.
+# File serving
 
-# Previews and thumbnails
+The following environment variables are used for the webserver to offer file downloads, software emulation, display previews and thumbnails:
 
-The following environment variables are required for the previews and thumbnails:
+	1. D2_DOWNLOAD is the absolute path to the file downloads directory.
+	2. D2_SCREENSHOTS is the absolute path to the screenshots directory.
+	3. D2_THUMBNAILS is the absolute path to the thumbnails directory.
 
-	1. "DEFACTO2_SCREENSHOTS" is the absolute path to the screenshots directory.
-	2. "DEFACTO2_THUMBNAILS" is the absolute path to the thumbnails directory.
+# Web server
 
-# Dependencies
+Finally, a couple of environment variables change the server-specific options.
 
-The following on the host system or in the container.
+	1. D2_HTTP_PORT is the unencrypted port number the web server will listen on (default: 1323).
+	2. D2_LOG_REQUESTS is the web server will log all HTTP requests to stdout (default: false).
 
-Coming soon.
+# Using the source code
 
-# Configuration overrides
+The repository configurations use [Task] for binary compiling, which needs local installation.
 
-A number of server configuration options can be overridden using hard coded values.
-Though these are not advised other than for debugging or testing in development.
+A new cloned repository needs to download dependencies.
 
-The following options can be added to [Override].
+	task _init
 
-	configs.ProductionMode = true		// This will enable the production logger
-	configs.HTTPSRedirect = true	// This requires HTTPS certificates to be installed and configured
-	configs.NoCrawl = true			// This will disable search engine crawling
-	configs.LogRequests = true		// This will log all HTTP requests to the server or stdout
+The list of available tasks can be shown.
 
-# Tasks
+	task --list-all (or just task)
 
-	- Finish this doc.go file.
-	- (long) group/releaser pages should have a link to the end of the document.
+To run a local server with live reloading, reflecting any source code changes.
+The task uses the `.env.local` file for configurations which should be in the repository root directory.
+A `example.env.local` file is provided as a template.
 
+	task serve
 
-# Mobile fixes
+To reflect any changes to the JS or CSS files, a task is available to minify and copy the assets.
 
-	- none
+	task assets
 
-# Bugs
+# Building the source code
 
-	-
+To build a binary for the local machine.
 
-# New features to deliver
+	task build
 
-	-
+	# run the binary
+	./df2-server --version
 
-# Database changes
+To build a collection of binaries for various platforms.
+The resulting packages are in the dist directory in the repository root.
 
-	- [model.Files.ListUpdates], rename the PSQL column from "updated_at" to "date_updated".
+	build-release
 
-# Milestones to add or fix
+	# or if the source code has changed
+	build-snapshot
 
-	- Fetch the DOD nfo for w95, https://scenelist.org/nfo/DOD95C1H.ZIP
+	# list the contents of the dist directory
+	ls -l dist/
+
 */
 // [Defacto2]: https://defacto2.net
-// [Defacto2 PostgreSQL database]: https://github.com/Defacto2/database-ps
+// [PostgreSQL database]: https://github.com/Defacto2/database-ps
+// [Docker]: https://www.docker.com/products/docker-desktop
+// [Task]: https://taskfile.dev/installation
 package main
