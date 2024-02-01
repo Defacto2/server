@@ -72,6 +72,11 @@ func releasers(ctx context.Context, w io.Writer, db *sql.DB) error {
 		trsifix   = "TRISTAR & RED SECTOR INC"
 		xpress    = "X-PRESSION"
 		xpressfix = "X-PRESSION DESIGN"
+		damn      = "DAMN EXCELLENT ANSI DESIGNERS"
+		damnfix   = "DAMN EXCELLENT ANSI DESIGN"
+		ofg       = "THE ORIGINAL FUNNY GUYS"
+		ofg1      = "ORIGINAL FUNNY GUYS"
+		ofgfix    = "ORIGINALLY FUNNY GUYS"
 	)
 	fixes := map[string]string{
 		acidbad: acidfix,
@@ -79,6 +84,9 @@ func releasers(ctx context.Context, w io.Writer, db *sql.DB) error {
 		pwabad:  pwafix,
 		trsibad: trsifix,
 		xpress:  xpressfix,
+		damn:    damnfix,
+		ofg:     ofgfix,
+		ofg1:    ofgfix,
 	}
 	var rowsAff int64
 	for bad, fix := range fixes {
