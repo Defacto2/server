@@ -61,8 +61,7 @@ func main() { //nolint:funlen
 
 	// Environment variables configuration
 	configs := config.Config{}
-	if err := env.ParseWithOptions(
-		&configs, env.Options{Prefix: config.EnvPrefix}); err != nil {
+	if err := env.Parse(&configs); err != nil {
 		logs.Fatalf("%w: %s", ErrEnv, err)
 	}
 	configs.Override(localMode())

@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/postgres"
 	"go.uber.org/zap"
 )
 
@@ -69,6 +70,9 @@ func (c *Config) Checks(z *zap.SugaredLogger) error {
 	}
 	if c.HTTPSRedirect && c.TLSPort > 0 {
 		z.Info("HTTPSRedirect is on, all HTTP requests will be redirected to HTTPS.")
+	}
+	if c.HostName == postgres.DockerHost {
+		z.Info("The application is configured for use in a Docker container.")
 	}
 
 	return c.SetupLogDir(z)

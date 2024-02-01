@@ -160,6 +160,7 @@ func SplitAsSpaces(s string) string {
 	x := result.String()
 	x = strings.ReplaceAll(x, "Dir", "Directory")
 	x = strings.ReplaceAll(x, "H T T P", "HTTP") //nolint:dupword
+	x = strings.ReplaceAll(x, "T L S", "TLS")    //nolint:dupword
 	x = strings.ReplaceAll(x, "P S ", "PS ")
 	x = strings.ReplaceAll(x, "I D", "ID")
 	x = strings.ReplaceAll(x, "  ", " ")
