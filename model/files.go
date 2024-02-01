@@ -131,7 +131,6 @@ func (f *Files) ListNewest(ctx context.Context, db *sql.DB, offset, limit int) (
 	const clause = "date_issued_year DESC NULLS LAST, " +
 		"date_issued_month DESC NULLS LAST, " +
 		"date_issued_day DESC NULLS LAST"
-	// boil.DebugMode = true
 	return models.Files(
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
@@ -151,4 +150,36 @@ func (f *Files) ListUpdates(ctx context.Context, db *sql.DB, offset, limit int) 
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit)).All(ctx, db)
+}
+
+func (f *Files) ListForApproval(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+	if db == nil {
+		return nil, ErrDB
+	}
+	if err := f.StatForApproval(ctx, db); err != nil {
+		return nil, err
+	}
+	//boil.DebugMode = true
+	const clause = "id DESC"
+	return models.Files(
+		models.FileWhere.Deletedat.IsNotNull(),
+		qm.WithDeleted(),
+		qm.OrderBy(clause),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
+}
+
+func (f *Files) StatForApproval(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
+	if f.Bytes > 0 && f.Count > 0 {
+		return nil
+	}
+	//boil.DebugMode = true
+	return models.NewQuery(
+		models.FileWhere.Deletedat.IsNotNull(),
+		qm.WithDeleted(),
+		qm.Select(postgres.Columns()...),
+		qm.From(From)).Bind(ctx, db, f)
 }

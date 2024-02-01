@@ -350,6 +350,29 @@ func FilesErr(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	return nil
 }
 
+// Files is the handler for the list and preview of the files page.
+// The uri is the category or collection of files to display.
+// The page is the page number of the results to display.
+func FilesWaiting(z *zap.SugaredLogger, c echo.Context, page string) error {
+	if z == nil {
+		return InternalErr(z, c, "filesWaiting", ErrZap)
+	}
+	uri := newForApproval.String()
+	// check the uri is valid
+	if !Valid(uri) {
+		return FilesErr(z, c, uri)
+	}
+	// check the page is valid
+	if page == "" {
+		return files(z, c, uri, 1)
+	}
+	p, err := strconv.Atoi(page)
+	if err != nil {
+		return PageErr(z, c, uri, page)
+	}
+	return files(z, c, uri, p)
+}
+
 // ForbiddenErr is the handler for handling Forbidden Errors, caused by clients requesting
 // pages that they do not have permission to access.
 func ForbiddenErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) error {
@@ -986,6 +1009,11 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 		return nil, ErrDB
 	}
 	switch Match(uri) {
+	// pulldown editor menu matches
+	case newForApproval:
+		r := model.Files{}
+		fmt.Println("newForApproval RECORDS")
+		return r.ListForApproval(ctx, db, page, limit)
 	// pulldown menu matches
 	case newUploads:
 		r := model.Files{}
@@ -2006,7 +2034,10 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 	data[records] = []models.FileSlice{}
 	data["unknownYears"] = true
 	switch uri {
-	case newUploads.String(), newUpdates.String():
+	case
+		newUploads.String(),
+		newUpdates.String(),
+		newForApproval.String():
 		data["unknownYears"] = false
 	}
 
@@ -2278,8 +2309,15 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 		return nil, 0, err
 	}
 	if errors.Is(err, model.ErrURI) {
-		if err := m.All(ctx, db); err != nil {
-			return nil, 0, err
+		switch uri {
+		case "new-for-approval":
+			if err := m.StatForApproval(ctx, db); err != nil {
+				return nil, 0, err
+			}
+		default:
+			if err := m.All(ctx, db); err != nil {
+				return nil, 0, err
+			}
 		}
 	}
 	// add the statistics to the data
@@ -2288,7 +2326,7 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 		"years": fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	switch uri {
-	case "new-updates", "newest":
+	case "new-updates", "newest", "new-for-approval":
 		d["years"] = fmt.Sprintf("%d - %d", m.MaxYear.Int16, m.MinYear.Int16)
 	}
 	return d, int(m.SumCount.Int64), nil

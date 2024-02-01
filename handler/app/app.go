@@ -1154,6 +1154,10 @@ func fileInfo(uri string) (string, string, string) {
 		logo = "new changes"
 		h1sub = "the new changes"
 		lead = "These are the recent file artifacts that have been modified or submitted on Defacto2."
+	case newForApproval.String():
+		logo = "new uploads for approval"
+		h1sub = "new uploads for approval"
+		lead = "These are the recent file artifacts that have been submitted for approval on Defacto2."
 	case oldest.String():
 		logo = "oldest releases"
 		h1sub = "the oldest releases"

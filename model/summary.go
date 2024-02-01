@@ -10,6 +10,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -66,6 +67,19 @@ func (s *Summary) SearchFilename(ctx context.Context, db *sql.DB, terms []string
 	}
 	sum = strings.TrimSpace(sum)
 	return queries.Raw(sum).Bind(ctx, db, s)
+}
+
+func (s *Summary) StatForApproval(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
+	fmt.Println("Stat for approval")
+	boil.DebugMode = true
+	return models.NewQuery(
+		models.FileWhere.Deletedat.IsNotNull(),
+		qm.WithDeleted(),
+		qm.Select(postgres.Columns()...),
+		qm.From(From)).Bind(ctx, db, s)
 }
 
 // All selects the summary statistics for all files.
