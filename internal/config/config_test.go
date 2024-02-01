@@ -3,6 +3,7 @@ package config_test
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/Defacto2/server/internal/config"
@@ -10,9 +11,17 @@ import (
 	"go.uber.org/zap"
 )
 
+func td(name string) string {
+	_, b, _, _ := runtime.Caller(0)
+	d := filepath.Join(filepath.Dir(b), "../..")
+	x := filepath.Join(d, "assets", "testdata", name)
+	return x
+}
+
 func z() *zap.SugaredLogger {
 	return zap.NewExample().Sugar()
 }
+
 func TestConfig_String(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
@@ -88,7 +97,7 @@ func TestCheckDir(t *testing.T) {
 	assert.Error(t, err)
 	err = config.CheckDir("nosuchdir", "")
 	assert.Error(t, err)
-	dir, err := filepath.Abs("../command/testdata")
+	dir, err := filepath.Abs(td(""))
 	assert.NoError(t, err)
 	err = config.CheckDir(dir, "")
 	assert.NoError(t, err)
