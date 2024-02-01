@@ -116,9 +116,16 @@ The resulting packages are in the dist directory in the repository root.
 	# list the contents of the dist directory
 	ls -l dist/
 
+# Lint source code changes
+
+The application is configured to use [golangci-lint] as the Go linter aggregator.
+
+	task lint
+
 */
 // [Defacto2]: https://defacto2.net
 // [PostgreSQL database]: https://github.com/Defacto2/database-ps
 // [Docker]: https://www.docker.com/products/docker-desktop
 // [Task]: https://taskfile.dev/installation
+// [golangci-lint]: https://golangci-lint.run/usage/install/#local-installation
 package main
