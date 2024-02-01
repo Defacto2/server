@@ -258,3 +258,10 @@ func SetUpper(column string) string {
 	return "UPDATE files " +
 		fmt.Sprintf("SET %s = UPPER(%s);", column, column)
 }
+
+// SetFilesize0 is an SQL statement to update filesize column NULLs with 0 values.
+// This is a fix for the error: failed to bind pointers to obj: sql:
+// Scan error on column index 2, name "size_total": converting NULL to int is unsupported
+func SetFilesize0() string {
+	return "UPDATE files SET filesize = 0 WHERE filesize IS NULL;"
+}

@@ -127,6 +127,10 @@ func releasers(ctx context.Context, w io.Writer, db *sql.DB) error {
 	if err != nil {
 		return err
 	}
+	_, err = queries.Raw(postgres.SetFilesize0()).Exec(db)
+	if err != nil {
+		return err
+	}
 
 	magics, err := models.Files(qm.Where("file_magic_type ILIKE ?", "ERROR: %")).All(ctx, db)
 	if err != nil {

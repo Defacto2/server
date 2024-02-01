@@ -76,7 +76,7 @@ func (r *Releasers) All(ctx context.Context, db *sql.DB, reorder bool, limit, pa
 	if db == nil {
 		return ErrDB
 	}
-	if len(*r) > 0 {
+	if r != nil && len(*r) > 0 {
 		return nil
 	}
 	query := string(postgres.DistReleaser())
