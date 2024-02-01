@@ -254,9 +254,6 @@ func localMode() bool {
 
 // RepairDB on startup checks the database connection and make any data corrections.
 func RepairDB() error {
-	if localMode() {
-		return nil
-	}
 	db, err := postgres.ConnectDB()
 	if err != nil {
 		return err
@@ -266,6 +263,9 @@ func RepairDB() error {
 	ctx := context.Background()
 	if err := ver.Query(); err != nil {
 		return ErrVer
+	}
+	if localMode() {
+		return nil
 	}
 	return fix.Releaser.Run(ctx, os.Stderr, db)
 }

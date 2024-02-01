@@ -18,7 +18,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// TODO Config checks.
 var (
 	ErrEnv = errors.New("environment variable probably contains an invalid value")
 	ErrZap = errors.New("zap logger instance is nil")
