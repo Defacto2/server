@@ -127,7 +127,6 @@ func (c Config) addresses(b *strings.Builder, intro bool) error {
 		default:
 			fmt.Fprintf(b, "%shttp://%s:%d\n", pad, host, port)
 		}
-		fmt.Println(host, c.TLSHost)
 		if c.TLSHost != "" && host != c.TLSHost {
 			continue
 		}

@@ -100,8 +100,9 @@ func Commit(ver string) string {
 	} else if s != "" {
 		x = append(x, s)
 	}
-	if l := LastCommit(); l != "" && !strings.Contains(ver, "built in") {
-		comm := fmt.Sprintf("built in %s", l)
+	built := "built at"
+	if l := LastCommit(); l != "" && !strings.Contains(ver, built) {
+		comm := fmt.Sprintf("%s %s", built, l)
 		x = append(x, comm)
 	}
 	if len(x) == 0 || x[0] == "devel" {
@@ -177,14 +178,15 @@ func OS() string {
 // [GoReleaser]: https://goreleaser.com/
 func Vers(version string) string {
 	const alpha, beta = "\u03b1", "β"
+	pref := fmt.Sprintf("%s version ", Program)
 	if version == "" {
-		return fmt.Sprintf("v0.0.0 %slpha", alpha)
+		return fmt.Sprintf("%s0.0.0 %slpha", pref, alpha)
 	}
 	const next = "-next"
 	if strings.HasSuffix(version, next) {
-		return fmt.Sprintf("v%s %seta", strings.TrimSuffix(version, next), beta)
+		return fmt.Sprintf("%s%s %seta", pref, strings.TrimSuffix(version, next), beta)
 	}
-	return version
+	return pref + version
 }
 
 // Version returns a formatted version string for this program
