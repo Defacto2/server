@@ -67,8 +67,8 @@ func Read(res *models.File, path string) ([]byte, error) {
 
 	var files struct {
 		uuidTxt string
-		uutxtOk bool
 		filepth string
+		uutxtOk bool
 		filepOk bool
 		txt     bool
 	}

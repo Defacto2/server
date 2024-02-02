@@ -166,6 +166,7 @@ tasks:
       - cmd: goreleaser --version
       - cmd: air -v
       - cmd: esbuild --version
+      - cmd: betteralign -V=full
   _init:
     silent: false
     desc: "Initialise this project for the first time after a git clone."
@@ -176,3 +177,4 @@ tasks:
       - cmd: go install github.com/evanw/esbuild/cmd/esbuild@latest
       - cmd: go install github.com/volatiletech/sqlboiler/v4@latest
       - cmd: go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql@latest
+      - cmd: go install github.com/dkorunic/betteralign/cmd/betteralign@latest

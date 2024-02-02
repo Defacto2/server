@@ -7,6 +7,7 @@ import (
 // Navigate handles offset and record limit pagination.
 type Navigate struct {
 	Current  string // Current name of the active record query.
+	QueryStr string // QueryStr to append to all pagination links.
 	Limit    int    // Limit the number of records to return per query.
 	Link1    int    // Link1 of the dynamic pagination.
 	Link2    int    // Link2 of the dynamic pagination.
@@ -15,7 +16,6 @@ type Navigate struct {
 	PagePrev int    // PagePrev is the page number to the previous record query.
 	PageNext int    // PageNext is the page number to the next record query.
 	PageMax  int    // PageMax is the maximum and last page number of the record query.
-	QueryStr string // QueryStr to append to all pagination links.
 }
 
 // Navi returns a populated Navigate struct for pagination.

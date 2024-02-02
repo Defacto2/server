@@ -20,10 +20,12 @@ const (
 )
 
 type Demozoo struct {
-	// ID is the production ID.
-	ID int `json:"id"`
 	// Title is the production title.
 	Title string `json:"title"`
+	// ReleaseDate is the production release date.
+	ReleaseDate string `json:"release_date"`
+	// Supertype is the production type.
+	Supertype string `json:"supertype"`
 	// Authors
 	Authors []struct {
 		Releaser struct {
@@ -31,20 +33,18 @@ type Demozoo struct {
 			IsGroup bool   `json:"is_group"`
 		} `json:"releaser"`
 	} `json:"author_nicks"`
-	// ReleaseDate is the production release date.
-	ReleaseDate string `json:"release_date"`
-	// Supertype is the production type.
-	Supertype string `json:"supertype"`
 	// Platforms is the production platform.
 	Platforms []struct {
-		ID   int    `json:"id"`
 		Name string `json:"name"`
+		ID   int    `json:"id"`
 	} `json:"platforms"`
 	// Types is the production type.
 	Types []struct {
-		ID   int    `json:"id"`
 		Name string `json:"name"`
+		ID   int    `json:"id"`
 	} `json:"types"`
+	// ID is the production ID.
+	ID int `json:"id"`
 }
 
 var (

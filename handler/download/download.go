@@ -50,8 +50,8 @@ func Checksum(z *zap.SugaredLogger, c echo.Context, id string) error {
 
 // Download configuration.
 type Download struct {
-	Inline bool   // Inline is true if the file should attempt to display in the browser.
 	Path   string // Path is the absolute path to the download directory.
+	Inline bool   // Inline is true if the file should attempt to display in the browser.
 }
 
 // HTTPSend serves files to the client and prompts for a save location.

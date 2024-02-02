@@ -41,8 +41,8 @@ type Accordion = []struct {
 	Name  string // Name of the category.
 	Title string // Title tab for the category.
 	ID    string // ID of the category.
-	Open  bool   // Whether the category is displayed or closed.
 	Sites Sites  // Sites are the websites shown in the category.
+	Open  bool   // Whether the category is displayed or closed.
 }
 
 // Sites is a collection of websites.
@@ -60,39 +60,39 @@ func List() Accordion {
 	return Accordion{
 		{
 			"Text art scene", "Text art pages",
-			"text", false, art(),
+			"text", art(), false,
 		},
 		{
 			"Bulletin Board Systems", "BBS pages",
-			"bbs", false, bbses(),
+			"bbs", bbses(), false,
 		},
 		{
 			"Crack and pirate scene", "Pirate pages",
-			"pirate", false, pir8(),
+			"pirate", pir8(), false,
 		},
 		{
 			"The demoscene", "Demoscene pages",
-			"demo", false, demos(),
+			"demo", demos(), false,
 		},
 		{
 			"Former groups", "Pages of former groups",
-			"exgroup", false, groups(),
+			"exgroup", groups(), false,
 		},
 		{
 			"Podcasts", "Podcasts",
-			"podcast", false, podcasts(),
+			"podcast", podcasts(), false,
 		},
 		{
 			"Books", "Books",
-			"book", false, books(),
+			"book", books(), false,
 		},
 		{
 			"Videos and documentaries", "Videos",
-			"video", false, videos(),
+			"video", videos(), false,
 		},
 		{
 			"ama ~ ask me anything", "AMAs",
-			"ama", false, ama(),
+			"ama", ama(), false,
 		},
 	}
 }

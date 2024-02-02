@@ -21,11 +21,11 @@ const (
 // File record details.
 type File struct {
 	Filename string // Filename of the file.
-	Size     int64  // Size of the file in bytes.
 	Title    string // Title of the file.
 	GroupBy  string // Group name that's is credited with the file.
 	Section  string // Section is a tag categorization.
 	Platform string // Platform or operating system of the file.
+	Size     int64  // Size of the file in bytes.
 }
 
 // Description returns a HTML3 friendly file description.

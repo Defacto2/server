@@ -70,9 +70,9 @@ type Configuration struct {
 	Import      *config.Config     // Import configurations from the host system environment.
 	Logger      *zap.SugaredLogger // Logger is the zap sugared logger.
 	Brand       *[]byte            // Brand points to the Defacto2 ASCII logo.
-	Version     string             // Version is the results of GoReleaser build command.
 	Public      embed.FS           // Public facing files.
 	View        embed.FS           // View contains Go templates.
+	Version     string             // Version is the results of GoReleaser build command.
 	RecordCount int                // The total number of file records in the database.
 }
 

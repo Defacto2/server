@@ -1243,16 +1243,16 @@ func relHTML(prime, second string) template.HTML {
 
 // Form is the form data for the editor.
 type Form struct {
-	ID       int    `query:"id"`       // ID is the auto incrementing database id of the record.
-	Online   bool   `query:"online"`   // Online is the record online and public toggle.
-	Readme   bool   `query:"readme"`   // Readme hides the readme textfile from the about page.
 	Target   string `query:"target"`   // Target is the name of the file to extract from the zip archive.
 	Value    string `query:"value"`    // Value is the value of the form input field to change.
+	Platform string `query:"platform"` // Platform is the platform of the release.
+	Tag      string `query:"tag"`      // Tag is the tag of the release.
+	ID       int    `query:"id"`       // ID is the auto incrementing database id of the record.
 	Year     int16  `query:"year"`     // Year is the year of the release.
 	Month    int16  `query:"month"`    // Month is the month of the release.
 	Day      int16  `query:"day"`      // Day is the day of the release.
-	Platform string `query:"platform"` // Platform is the platform of the release.
-	Tag      string `query:"tag"`      // Tag is the tag of the release.
+	Online   bool   `query:"online"`   // Online is the record online and public toggle.
+	Readme   bool   `query:"readme"`   // Readme hides the readme textfile from the about page.
 }
 
 const (

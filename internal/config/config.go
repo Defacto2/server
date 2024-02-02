@@ -24,33 +24,34 @@ var ErrNoPort = errors.New("the server cannot start without a http or a tls port
 //
 // [caarlos0/env]:https://github.com/caarlos0/env
 type Config struct {
-	ProductionMode bool   `env:"D2_PRODUCTION_MODE" help:"Use the production mode to log errors to a file and recover from panics"`
-	FastStart      bool   `env:"D2_FAST_START" help:"Skip the database connection and file checks on server startup"`
-	ReadMode       bool   `env:"D2_READ_ONLY" envDefault:"true" help:"Use the read-only mode to disable all POST, PUT and DELETE requests and any related user interface"`
 	Compression    string `env:"D2_COMPRESSION" envDefault:"gzip" help:"Enable either gzip or br compression of HTTP/HTTPS responses, you may want to disable this if using a reverse proxy"`
-	NoCrawl        bool   `env:"D2_NO_CRAWL" help:"Tell search engines to not crawl any of website pages or assets"`
-	LogRequests    bool   `env:"D2_LOG_REQUESTS" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`
 	LogDir         string `env:"D2_LOG_DIR" help:"The directory path that will store the program logs"`
 	DownloadDir    string `env:"D2_DOWNLOAD_DIR" help:"The directory path that holds the UUID named files that are served as artifact downloads"`
 	PreviewDir     string `env:"D2_PREVIEW_DIR" help:"The directory path that holds the UUID named image files that are served as previews of the artifact"`
 	ThumbnailDir   string `env:"D2_THUMBNAIL_DIR" help:"The directory path that holds the UUID named squared image files that are served as artifact thumbnails"`
-	HTTPPort       uint   `env:"D2_HTTP_PORT" envDefault:"1323" help:"The port number to be used by the unencrypted HTTP web server"`
-	MaxProcs       uint   `env:"D2_MAX_PROCS" help:"Limit the number of operating system threads the program can use"`
 	SessionKey     string `env:"D2_SESSION_KEY,unset" help:"The session key for the cookie store or leave blank to generate a random key"`
-	SessionMaxAge  int    `env:"D2_SESSION_MAX_AGE" envDefault:"3" help:"The maximum age in hours for the session cookie"`
 	GoogleClientID string `env:"D2_GOOGLE_CLIENT_ID" help:"The Google OAuth2 client ID"`
 	GoogleIDs      string `env:"D2_GOOGLE_IDS,unset" help:"The Google OAuth2 accounts that are allowed to login"`
-	TLSPort        uint   `env:"D2_TLS_PORT" help:"The port number to be used by the encrypted, HTTPS web server"`
 	TLSCert        string `env:"D2_TLS_CERT" help:"The TLS certificate file path, leave blank to use the self-signed, localhost certificate"`
 	TLSKey         string `env:"D2_TLS_KEY" help:"The TLS key file path, leave blank to use the self-signed, localhost key"`
 	TLSHost        string `env:"D2_TLS_HOST" help:"This recommended setting, limits TSL to the specific host or domain name, leave blank to permit TLS connections from any host"`
-	HTTPSRedirect  bool   `env:"D2_HTTPS_REDIRECT" help:"Redirect all HTTP requests to HTTPS"`
 
 	HostName string `env:"PS_HOST_NAME"` // this should only be used internally, instead see postgres.Connection
 
 	// GoogleAccounts is a slice of Google OAuth2 accounts that are allowed to login.
 	// Each account is a 48 byte slice of bytes that represents the SHA-384 hash of the unique Google ID.
 	GoogleAccounts [][48]byte
+	HTTPPort       uint `env:"D2_HTTP_PORT" envDefault:"1323" help:"The port number to be used by the unencrypted HTTP web server"`
+	MaxProcs       uint `env:"D2_MAX_PROCS" help:"Limit the number of operating system threads the program can use"`
+	SessionMaxAge  int  `env:"D2_SESSION_MAX_AGE" envDefault:"3" help:"The maximum age in hours for the session cookie"`
+	TLSPort        uint `env:"D2_TLS_PORT" help:"The port number to be used by the encrypted, HTTPS web server"`
+	ProductionMode bool `env:"D2_PRODUCTION_MODE" help:"Use the production mode to log errors to a file and recover from panics"`
+	FastStart      bool `env:"D2_FAST_START" help:"Skip the database connection and file checks on server startup"`
+	ReadMode       bool `env:"D2_READ_ONLY" envDefault:"true" help:"Use the read-only mode to disable all POST, PUT and DELETE requests and any related user interface"`
+	NoCrawl        bool `env:"D2_NO_CRAWL" help:"Tell search engines to not crawl any of website pages or assets"`
+	LogRequests    bool `env:"D2_LOG_REQUESTS" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`
+	HTTPSRedirect  bool `env:"D2_HTTPS_REDIRECT" help:"Redirect all HTTP requests to HTTPS"`
+
 	// LocalMode build ldflags is set to true.
 	LocalMode bool
 }

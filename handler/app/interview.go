@@ -16,10 +16,10 @@ type Interviews []Interviewee
 // Interviewee is a person who was interviewed with a link to the interview.
 type Interviewee struct {
 	Scener  string // Scener is the name of the person interviewed.
-	Year    int    // Year is the year the interview was conducted.
-	Month   int    // Month is the month the interview was conducted.
 	Content string // Content is a short description of the interview.
 	Link    string // Link is the URL to the interview.
+	Year    int    // Year is the year the interview was conducted.
+	Month   int    // Month is the month the interview was conducted.
 }
 
 // Interviewees returns a list of interviewees and their interviews.

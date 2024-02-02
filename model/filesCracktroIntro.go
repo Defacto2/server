@@ -99,11 +99,11 @@ func (i *IntroMsDos) List(ctx context.Context, db *sql.DB, offset, limit int) (m
 
 // IntroWindows contain statistics for releases that could be considered Windows intros or cracktros.
 type IntroWindows struct {
+	Cache   time.Time
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
-	Cache   time.Time
 }
 
 func (i *IntroWindows) Stat(ctx context.Context, db *sql.DB) error {

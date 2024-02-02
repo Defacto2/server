@@ -1820,6 +1820,7 @@ const (
 
 // Stats are the database statistics for the file categories.
 type Stats struct {
+	IntroW    model.IntroWindows
 	Record    model.Files
 	Ansi      model.Ansi
 	AnsiBBS   model.AnsiBBS
@@ -1830,7 +1831,6 @@ type Stats struct {
 	MsDos     model.MsDos
 	Intro     model.Intro
 	IntroD    model.IntroMsDos
-	IntroW    model.IntroWindows
 	Installer model.Installer
 	Java      model.Java
 	Linux     model.Linux

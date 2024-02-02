@@ -26,8 +26,8 @@ type TagData struct {
 // T is a lockable collection of tags, to stop potential race conditions
 // when writing to the map containing the tagdata list.
 type T struct {
-	Mu   sync.RWMutex
 	List []TagData
+	Mu   sync.RWMutex
 }
 
 // ByName returns the data of the named tag.

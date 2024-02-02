@@ -49,10 +49,10 @@ type Web struct {
 	Brand       *[]byte            // Brand points to the Defacto2 ASCII logo.
 	Import      *config.Config     // Import configurations from the host system environment.
 	Logger      *zap.SugaredLogger // Logger is the zap sugared logger.
-	Subresource SRI                // SRI are the Subresource Integrity hashes for the layout.
-	Version     string             // Version is the current version of the app.
 	Public      embed.FS           // Public facing files.
 	View        embed.FS           // Views are Go templates.
+	Subresource SRI                // SRI are the Subresource Integrity hashes for the layout.
+	Version     string             // Version is the current version of the app.
 }
 
 // DownloadB returns a human readable string of the file size.

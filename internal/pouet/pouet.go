@@ -37,24 +37,24 @@ var (
 // The Pouet API returns values as null or string, so this struct
 // is used to normalize the data types.
 type Pouet struct {
-	// ID is the prod ID.
-	ID int `json:"id"`
+	// Platforms are the platforms the prod runs on.
+	Platforms Platforms `json:"platforms"`
 	// Title is the prod title.
 	Title string `json:"title"`
 	// ReleaseDate is the prod release date.
 	ReleaseDate string `json:"release_date"`
+	// Platform is the prod platforms as a string.
+	// If the string is empty then the prod is not supported.
+	Platform string `json:"platform"`
 	// Groups are the releasers that produced the prod.
 	Groups []struct {
 		ID   string `json:"id"`
 		Name string `json:"name"`
 	} `json:"groups"`
-	// Platforms are the platforms the prod runs on.
-	Platforms Platforms `json:"platforms"`
 	// Types are the prod types.
 	Types Types `json:"types"`
-	// Platform is the prod platforms as a string.
-	// If the string is empty then the prod is not supported.
-	Platform string `json:"platform"`
+	// ID is the prod ID.
+	ID int `json:"id"`
 	// Valid is true if this prod is a supported type and platform.
 	Valid bool `json:"valid"`
 }
@@ -82,8 +82,7 @@ type Votes struct {
 
 // Response is the JSON response from the Pouet API with production voting data.
 type Response struct {
-	Success bool `json:"success"`
-	Prod    struct {
+	Prod struct {
 		// used by uploader and voter
 		ID string `json:"id"`
 		// used by voter
@@ -101,6 +100,7 @@ type Response struct {
 		Platforms Platforms `json:"platforms"`
 		Types     Types     `json:"types"`
 	} `json:"prod"`
+	Success bool `json:"success"`
 }
 
 // Platforms are the supported platforms from the Pouet API.
