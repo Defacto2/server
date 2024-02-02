@@ -26,6 +26,7 @@
 - [x] Fetch the DOD nfo for w95, https://scenelist.org/nfo/DOD95C1H.ZIP
 - [ ] ~~Move `OrderBy` params to cookies?~~
 - [ ] ~~Run an *automated test to confirm 200 status* for all routes. Run this on startup using a defer func?~~
+- [ ] [Implememnt a sheduling library for Go](https://github.com/reugn/go-quartz)
 
 #### Support Unicode slug URLs as currently the regex removes all non alphanumeric chars.
 
