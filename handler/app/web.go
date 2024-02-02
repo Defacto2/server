@@ -21,6 +21,31 @@ import (
 	"go.uber.org/zap"
 )
 
+func EditDownloadGET(filename, filesize, demozoo any) template.HTML {
+	// TODO confirm signin
+	switch val := filename.(type) {
+	case null.String:
+		if val.Valid && val.String != "" {
+			return ""
+		}
+	}
+	switch val := filesize.(type) {
+	case null.Int64:
+		if val.Valid && val.Int64 > 0 {
+			return ""
+		}
+	}
+	switch val := demozoo.(type) {
+	case null.Int64:
+		if !val.Valid || val.Int64 == 0 {
+			return ""
+		}
+	}
+	// zoo := demozoo.(null.Int64).Int64
+	// fmt.Sprintf("%d", zoo)
+	return template.HTML(`<a class="card-link" href="">GET a remote download</a>`)
+}
+
 // Web is the configuration and status of the web app.
 // Rename to app or template?
 type Web struct {
@@ -294,6 +319,7 @@ func (web Web) TemplateClosures() template.FuncMap {
 // TemplateFuncs are a collection of mapped functions that can be used in a template.
 func (web Web) TemplateFuncs() template.FuncMap {
 	funcMap := template.FuncMap{
+		"editDownloadGET":   EditDownloadGET,
 		"add":               helper.Add1,
 		"attribute":         Attribute,
 		"brief":             Brief,
