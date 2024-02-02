@@ -61,5 +61,4 @@ func TestDetermineEncoding(t *testing.T) {
 	p = append(p, []byte(" a DOS line glyph ")...)
 	e = helper.DetermineEncoding(p)
 	assert.Equal(t, charmap.CodePage437, e)
-
 }

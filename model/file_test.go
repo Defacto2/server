@@ -26,13 +26,13 @@ func TestOneRecord(t *testing.T) {
 
 	c := echo.New().NewContext(nil, nil)
 
-	errId := helper.ObfuscateID(-1)
-	mf, err = model.OneRecord(z(), c, false, errId)
+	errID := helper.ObfuscateID(-1)
+	mf, err = model.OneRecord(z(), c, false, errID)
 	assert.ErrorIs(t, err, model.ErrID)
 	assert.Nil(t, mf)
 
-	errId = helper.ObfuscateID(1)
-	mf, err = model.OneRecord(z(), c, false, errId)
+	errID = helper.ObfuscateID(1)
+	mf, err = model.OneRecord(z(), c, false, errID)
 	assert.ErrorIs(t, err, model.ErrDB)
 	assert.Nil(t, mf)
 }

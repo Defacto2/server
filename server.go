@@ -54,7 +54,7 @@ var (
 )
 
 // main is the entry point for the application.
-func main() { //nolint:funlen
+func main() {
 	// Logger
 	// Use the development log until the environment vars are parsed
 	logs := logger.CLI().Sugar()
@@ -75,25 +75,8 @@ func main() { //nolint:funlen
 	// By default the web server runs when no arguments are provided
 	commandLine(logs, configs)
 
-	// Configuration sanity checks
-	if err := configs.Checks(logs); err != nil {
-		logs.Errorf("%s: %s", ErrEnv, err)
-	}
-
-	// Confirm command requirements when not running in read-only mode
-	checks(logs, configs.ReadMode)
-
-	// Database connection checks
-	if conn, err := postgres.New(); err != nil {
-		logs.Errorf("%s: %s", ErrDB, err)
-	} else {
-		_ = conn.Check(logs, localMode())
-	}
-
-	// Repair assets on the host file system
-	if err := configs.RepairFS(logs); err != nil {
-		logs.Errorf("%s: %s", ErrFS, err)
-	}
+	// Sanity checks
+	sanity(logs, configs)
 
 	// Setup the logger and print the startup production/read-only message
 	logs = setupLogger(logs, configs)
@@ -109,11 +92,6 @@ func main() { //nolint:funlen
 	}
 	if server.Version == "" {
 		server.Version = cmd.Commit("")
-	}
-
-	// Repair the database on startup
-	if err := RepairDB(); err != nil {
-		repairdb(logs, err)
 	}
 	server.RecordCount = RecordCount()
 
@@ -180,6 +158,33 @@ func commandLine(logs *zap.SugaredLogger, c config.Config) {
 		os.Exit(int(code))
 	}
 	// after the command-line arguments are parsed, continue with the web server
+}
+
+// sanity is used to perform a number of sanity checks on the file system and database.
+func sanity(logs *zap.SugaredLogger, configs config.Config) {
+	if configs.FastStart || logs == nil {
+		return
+	}
+	// Configuration sanity checks
+	if err := configs.Checks(logs); err != nil {
+		logs.Errorf("%s: %s", ErrEnv, err)
+	}
+	// Confirm command requirements when not running in read-only mode
+	checks(logs, configs.ReadMode)
+	// Database connection checks
+	if conn, err := postgres.New(); err != nil {
+		logs.Errorf("%s: %s", ErrDB, err)
+	} else {
+		_ = conn.Check(logs, localMode())
+	}
+	// Repair assets on the host file system
+	if err := configs.RepairFS(logs); err != nil {
+		logs.Errorf("%s: %s", ErrFS, err)
+	}
+	// Repair the database on startup
+	if err := RepairDB(); err != nil {
+		repairdb(logs, err)
+	}
 }
 
 // setupLogger is used to setup the logger.

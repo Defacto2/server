@@ -28,22 +28,96 @@ linters:
     - godox
 issues:
   exclude-rules:
+    - path: cmd/cmd.go
+      linters:
+        - gosmopolitan
+    - path: doc.go
+      linters:
+        - lll
+    - path: handler/app/accordion.go
+      linters:
+        - lll
+    - path: handler/app/context.go
+      linters:
+        - lll
+    - path: handler/app/funchtml.go
+      linters:
+        - gosec
+    - path: handler/app/funcmap.go
+      linters:
+        - gosec
+        - funlen
+    - path: handler/app/interview.go
+      linters:
+        - funlen
+    - path: handler/app/milestone.go
+      linters:
+        - funlen
+        - lll
+        - maintidx
+    - path: handler/app/render_model.go
+      linters:
+        - cyclop
+        - funlen
+        - gocyclo
+        - maintidx
+    - path: handler/app/render_releaser.go
+      linters:
+        - lll
+    - path: handler/app/website.go
+      linters:
+        - lll
+    - path: handler/html3/list.go
+      linters:
+        - cyclop
+        - lll
+    - path: handler/router.go
+      linters:
+        - funlen
+        - maintidx
+    - path: internal/command/images.go
+      linters:
+        - lll
+    - path: internal/config/config.go
+      linters:
+        - gocognit
+        - lll
+        - tagalign
+    - path: internal/pouet/pouet.go
+      linters:
+        - tagliatelle
+    - path: internal/postgres/postgres.go
+      linters:
+        - lll
+        - tagalign
+    - path: internal/tags/tags.go
+      linters:
+        - gocyclo
+        - gochecknoglobals
+    - path: internal/web/web.go
+      linters:
+        - funlen
+    - path: internal/zoo/zoo.go
+      linters:
+        - tagliatelle
+    - path: model/repair.go
+      linters:
+        - funlen
+    - path: model/summary.go
+      linters:
+        - gocognit
+        - gocyclo
+        - maintidx
+    - path: runner/runner.go
+      linters:
+        - funlen
     - path: _test.go
       linters:
         - cyclop
         - funlen
-    - path: runner/runner.go
-      linters:
-        - funlen
-    - path: cmd/cmd.go
-      linters:
-        - gosmopolitan
-    - path: handler/html3/list.go
-      linters:
-        - cyclop
     - path: handler/app/funchtml.go
       linters:
-        - gosec    
+        - gosec
     - path: handler/app/funcmap.go
       linters:
         - gosec
@@ -93,19 +167,19 @@ issues:
     - path: internal/web/web.go
       linters:
         - funlen
-    - path: model/file_ansi_art.go
+    - path: model/filesAnsiArt.go
       linters:
         - dupl
-    - path: model/file_bbs_adverts.go
+    - path: model/filesBBSAdvert.go
       linters:
         - dupl
-    - path: model/file_filepacks.go
+    - path: model/filesFilepack.go
       linters:
         - dupl
-    - path: model/file_platforms.go
+    - path: model/filesPlatform.go
       linters:
         - dupl
-    - path: model/file_text_files.go
+    - path: model/filesText.go
       linters:
         - dupl
     - path: model/repair.go
@@ -114,12 +188,11 @@ issues:
     - path: model/summary.go
       linters:
         - gocognit
-        - maintidx
         - gocyclo
-    - path: internal/postgres/postgres.go
+        - maintidx
+    - path: runner/runner.go
       linters:
-        - lll
-        - tagalign
+        - funlen
       
 linters-settings:
   cyclop:

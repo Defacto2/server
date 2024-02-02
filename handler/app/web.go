@@ -23,20 +23,17 @@ import (
 
 func EditDownloadGET(filename, filesize, demozoo any) template.HTML {
 	// TODO confirm signin
-	switch val := filename.(type) {
-	case null.String:
+	if val, ok := filename.(null.String); ok {
 		if val.Valid && val.String != "" {
 			return ""
 		}
 	}
-	switch val := filesize.(type) {
-	case null.Int64:
+	if val, ok := filesize.(null.Int64); ok {
 		if val.Valid && val.Int64 > 0 {
 			return ""
 		}
 	}
-	switch val := demozoo.(type) {
-	case null.Int64:
+	if val, ok := demozoo.(null.Int64); ok {
 		if !val.Valid || val.Int64 == 0 {
 			return ""
 		}

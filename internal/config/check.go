@@ -154,23 +154,23 @@ func (c *Config) SetupLogDir(z *zap.SugaredLogger) error {
 	}
 	if c.LogDir == "" {
 		if err := c.LogStorage(); err != nil {
-			return fmt.Errorf("the server cannot log to files: %s", err)
+			return fmt.Errorf("%w: %w", ErrLog, err)
 		}
 	} else {
 		z.Info("The server logs are found in: ", c.LogDir)
 	}
 	dir, err := os.Stat(c.LogDir)
 	if os.IsNotExist(err) {
-		return fmt.Errorf("the log directory path does not exist: %s", c.LogDir)
+		return fmt.Errorf("log directory %w: %s", ErrDirNotExist, c.LogDir)
 	}
 	if !dir.IsDir() {
-		return fmt.Errorf("the log directory path points to the file: %s", dir.Name())
+		return fmt.Errorf("log directory %w: %s", ErrNotDir, dir.Name())
 	}
 	empty := filepath.Join(c.LogDir, ".defacto2_touch_test")
 	if _, err := os.Stat(empty); os.IsNotExist(err) {
 		f, err := os.Create(empty)
 		if err != nil {
-			return fmt.Errorf("the server cannot create a file in the log directory path: %s", err)
+			return fmt.Errorf("log directory %w: %w", ErrTouch, err)
 		}
 		defer func(f *os.File) {
 			f.Close()

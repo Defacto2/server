@@ -157,7 +157,6 @@ func TestHumanizes(t *testing.T) {
 
 	s = tags.Humanizes(tags.Image, tags.News)
 	assert.Equal(t, s, "images, pictures and photos")
-
 }
 
 func TestTags(t *testing.T) {

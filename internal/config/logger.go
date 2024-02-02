@@ -20,8 +20,10 @@ import (
 
 var (
 	ErrEchoNil     = errors.New("echo instance is nil")
-	ErrNotDir      = errors.New("not a directory")
+	ErrNotDir      = errors.New("directory path points to the file")
 	ErrDirNotExist = errors.New("directory does not exist or incorrectly typed")
+	ErrTouch       = errors.New("the server cannot create a file in the directory")
+	ErrLog         = errors.New("the server cannot log to files")
 )
 
 // https://github.com/labstack/echo/discussions/1820
@@ -130,7 +132,9 @@ func (c Config) CustomErrorHandler(err error, e echo.Context) {
 			if err1 != nil {
 				z.DPanic("Custom response handler broke: %s", err1)
 			}
-			e.String(c, s)
+			if err2 := e.String(c, s); err2 != nil {
+				z.DPanic("Custom response handler broke: %s", err2)
+			}
 		}
 		return
 	}
@@ -148,7 +152,7 @@ func StringErr(err error) (int, string, error) {
 		msg = fmt.Sprint(httpError.Message)
 	}
 	return code, fmt.Sprintf("%d - %s", code, msg), nil
-	//return c.String(code, fmt.Sprintf("%d - %s", code, msg))
+	// return c.String(code, fmt.Sprintf("%d - %s", code, msg))
 }
 
 // IsHTML3 returns true if the route is /html3.

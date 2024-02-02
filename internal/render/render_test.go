@@ -107,6 +107,7 @@ func TestRead(t *testing.T) {
 func stringToUTF16(s string) []uint16 {
 	return utf16.Encode([]rune(s))
 }
+
 func uint16ArrayToByteArray(nums []uint16) []byte {
 	bytes := make([]byte, len(nums)*2)
 	for i, num := range nums {

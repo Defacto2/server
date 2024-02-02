@@ -666,7 +666,7 @@ func counter(t Tag) (int64, error) {
 	sum, err := models.Files(
 		qm.Where(clause, URIs()[t])).Count(ctx, db)
 	if err != nil {
-		return -1, fmt.Errorf("could not count the records associated with tag: %s", err)
+		return -1, fmt.Errorf("could not count the records associated with tag: %w", err)
 	}
 	return sum, nil
 }

@@ -56,12 +56,12 @@ const (
 )
 
 var (
-	ErrConn = fmt.Errorf("the server cannot connect to the database")
-	ErrDB   = fmt.Errorf("database value is nil")
-	ErrSQL  = fmt.Errorf("database connection problem or a SQL error")
-	ErrTag  = fmt.Errorf("no database query was for the tag")
-	ErrTmpl = fmt.Errorf("the server could not render the HTML template for this page")
-	ErrZap  = fmt.Errorf("zap logger is nil")
+	ErrConn = errors.New("the server cannot connect to the database")
+	ErrDB   = errors.New("database value is nil")
+	ErrSQL  = errors.New("database connection problem or a SQL error")
+	ErrTag  = errors.New("no database query was for the tag")
+	ErrTmpl = errors.New("the server could not render the HTML template for this page")
+	ErrZap  = errors.New("zap logger is nil")
 )
 
 // Clauses for ordering file record queries.
@@ -156,7 +156,8 @@ func GlobTo(name string) string {
 func ID(c echo.Context) string {
 	x := strings.TrimSuffix(c.Path(), ":offset")
 	s := strings.Split(x, "/")
-	if len(s) != 4 {
+	const expected = 4
+	if len(s) != expected {
 		return ""
 	}
 	return s[3]

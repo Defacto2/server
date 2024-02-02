@@ -23,7 +23,8 @@ type Releaser struct {
 	URI   string   ``                  // URI slug for the releaser, with no boiler bind.
 	Bytes int      `boil:"size_total"` // Bytes are the total size of all the files under this releaser.
 	Count int      `boil:"count_sum"`  // Count is the total number of files under this releaser.
-	Year  null.Int `boil:"min_year"`   // Year is used for optional sorting and is the earliest year the releaser was active.
+	Year  null.Int `boil:"min_year"`   // Year is used for optional sorting
+	// and is the earliest year the releaser was active.
 }
 
 // Releasers is a collection of releasers.
@@ -97,10 +98,10 @@ func (r *Releasers) All(ctx context.Context, db *sql.DB, reorder bool, limit, pa
 	return nil
 }
 
-func calculateLimitAndOffset(pageNumber int, pageSize int) (limit int, offset int) {
-	limit = pageSize
-	offset = (pageNumber - 1) * pageSize
-	return
+func calculateLimitAndOffset(pageNumber int, pageSize int) (int, int) {
+	limit := pageSize
+	offset := (pageNumber - 1) * pageSize
+	return limit, offset
 }
 
 // Magazine gets the unique magazine titles and their total issue count and file sizes.

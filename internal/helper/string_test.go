@@ -90,6 +90,7 @@ func TestLastChr(t *testing.T) {
 		})
 	}
 }
+
 func TestMaxLineLength(t *testing.T) {
 	i := helper.MaxLineLength("")
 	assert.Equal(t, 0, i)

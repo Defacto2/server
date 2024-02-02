@@ -70,9 +70,9 @@ func TestSorter(t *testing.T) {
 		case html3.DescDes:
 			assert.Equal(t, html3.Sorter(s)[string(html3.Desc)], "A")
 		}
-
 	}
 }
+
 func TestFile_Description(t *testing.T) {
 	type fields struct {
 		Title    string

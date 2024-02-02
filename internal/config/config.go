@@ -3,6 +3,7 @@ package config
 
 import (
 	"crypto/sha512"
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -17,11 +18,14 @@ const (
 	HTTPPort  = 1323           // HTTPPort is the default port number for the unencrypted HTTP server.
 )
 
+var ErrNoPort = errors.New("the server cannot start without a http or a tls port")
+
 // Config options for the Defacto2 server using the [caarlos0/env] package.
 //
 // [caarlos0/env]:https://github.com/caarlos0/env
 type Config struct {
 	ProductionMode bool   `env:"D2_PRODUCTION_MODE" help:"Use the production mode to log errors to a file and recover from panics"`
+	FastStart      bool   `env:"D2_FAST_START" help:"Skip the database connection and file checks on server startup"`
 	ReadMode       bool   `env:"D2_READ_ONLY" envDefault:"true" help:"Use the read-only mode to disable all POST, PUT and DELETE requests and any related user interface"`
 	Compression    string `env:"D2_COMPRESSION" envDefault:"gzip" help:"Enable either gzip or br compression of HTTP/HTTPS responses, you may want to disable this if using a reverse proxy"`
 	NoCrawl        bool   `env:"D2_NO_CRAWL" help:"Tell search engines to not crawl any of website pages or assets"`
@@ -103,13 +107,7 @@ func (c Config) Startup() (string, error) {
 func (c Config) addresses(b *strings.Builder, intro bool) error {
 	pad := strings.Repeat(string(padchar), padding)
 	values := reflect.ValueOf(c)
-	if intro {
-		fmt.Fprintf(b, "%s\n",
-			"Depending on your firewall, network and certificate setup,")
-		fmt.Fprintf(b, "%s\n",
-			"this web server could be accessible from the following addresses:")
-		fmt.Fprintf(b, "\n")
-	}
+	addrIntro(b, intro)
 	hosts, err := helper.GetLocalHosts()
 	if err != nil {
 		return fmt.Errorf("the server cannot get the local host names: %w", err)
@@ -117,7 +115,7 @@ func (c Config) addresses(b *strings.Builder, intro bool) error {
 	port := values.FieldByName("HTTPPort").Uint()
 	tls := values.FieldByName("TLSPort").Uint()
 	if port == 0 && tls == 0 {
-		return fmt.Errorf("the server cannot start without a HTTP or a TLS port")
+		return ErrNoPort
 	}
 	const disable, text, secure = 0, 80, 443
 	for _, host := range hosts {
@@ -148,6 +146,21 @@ func (c Config) addresses(b *strings.Builder, intro bool) error {
 	if c.HostName == postgres.DockerHost {
 		return nil
 	}
+	return localIPs(b, port, pad)
+}
+
+func addrIntro(b *strings.Builder, intro bool) {
+	if !intro {
+		return
+	}
+	fmt.Fprintf(b, "%s\n",
+		"Depending on your firewall, network and certificate setup,")
+	fmt.Fprintf(b, "%s\n",
+		"this web server could be accessible from the following addresses:")
+	fmt.Fprintf(b, "\n")
+}
+
+func localIPs(b *strings.Builder, port uint64, pad string) error {
 	ips, err := helper.GetLocalIPs()
 	if err != nil {
 		return fmt.Errorf("the server cannot get the local IP addresses: %w", err)

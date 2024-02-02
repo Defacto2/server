@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func FilesFiles(t *testing.T) {
+func TestFiles(t *testing.T) {
 	t.Parallel()
 	files := model.Files{}
 	ctx := context.TODO()

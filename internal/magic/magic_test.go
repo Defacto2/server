@@ -16,6 +16,7 @@ func td(name string) string {
 	x := filepath.Join(d, "assets", "testdata", name)
 	return x
 }
+
 func tduncompress(name string) string {
 	_, b, _, _ := runtime.Caller(0)
 	d := filepath.Join(filepath.Dir(b), "../..")

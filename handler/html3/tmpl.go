@@ -58,7 +58,8 @@ func tagByName(name string) (tags.TagData, error) {
 		return t, err
 	}
 	s := strings.TrimSpace(t.Info)
-	if len(s) < 2 {
+	const tooSmall = 2
+	if len(s) < tooSmall {
 		return t, nil
 	}
 	t.Info = strings.ToUpper(string(s[0])) + s[1:]

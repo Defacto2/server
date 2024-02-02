@@ -83,7 +83,7 @@ func IntegrityBytes(b []byte) string {
 // Touch creates a new, empty named file.
 // If the file already exists, an error is returned.
 func Touch(name string) error {
-	file, err := os.OpenFile(name, os.O_CREATE|os.O_EXCL, 0666)
+	file, err := os.OpenFile(name, os.O_CREATE|os.O_EXCL, 0o666)
 	if err != nil {
 		return err
 	}
@@ -93,7 +93,7 @@ func Touch(name string) error {
 // TouchW creates a new named file with the given data.
 // If the file already exists, an error is returned.
 func TouchW(name string, data ...byte) (int, error) {
-	file, err := os.OpenFile(name, os.O_CREATE|os.O_WRONLY, 0666)
+	file, err := os.OpenFile(name, os.O_CREATE|os.O_WRONLY, 0o666)
 	if err != nil {
 		return 0, err
 	}

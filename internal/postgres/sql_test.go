@@ -59,5 +59,4 @@ func TestDist(t *testing.T) {
 	assert.Contains(t, s, "")
 	s = postgres.SumReleaser("magazine")
 	assert.Contains(t, s, "'magazine'")
-
 }

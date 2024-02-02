@@ -159,7 +159,7 @@ func (f *Files) ListForApproval(ctx context.Context, db *sql.DB, offset, limit i
 	if err := f.StatForApproval(ctx, db); err != nil {
 		return nil, err
 	}
-	//boil.DebugMode = true
+	// boil.DebugMode = true
 	const clause = "id DESC"
 	return models.Files(
 		models.FileWhere.Deletedat.IsNotNull(),
@@ -176,7 +176,7 @@ func (f *Files) StatForApproval(ctx context.Context, db *sql.DB) error {
 	if f.Bytes > 0 && f.Count > 0 {
 		return nil
 	}
-	//boil.DebugMode = true
+	// boil.DebugMode = true
 	return models.NewQuery(
 		models.FileWhere.Deletedat.IsNotNull(),
 		qm.WithDeleted(),
