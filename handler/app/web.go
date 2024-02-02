@@ -40,15 +40,16 @@ func DownloadB(i any) template.HTML {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
 		s = helper.ByteCount(i)
+		s = fmt.Sprintf("(%s)", s)
 	case null.Int64:
 		if !val.Valid {
-			return ""
+			return "(n/a)"
 		}
-		s = helper.ByteCount(val.Int64)
+		s = aboutByteCount(val)
 	default:
 		return template.HTML(fmt.Sprintf("%sDownloadB: %s", typeErr, reflect.TypeOf(i).String()))
 	}
-	elm := fmt.Sprintf(" <small class=\"text-body-secondary\">(%s)</small>", s)
+	elm := fmt.Sprintf(" <small class=\"text-body-secondary\">%s</small>", s)
 	return template.HTML(elm)
 }
 

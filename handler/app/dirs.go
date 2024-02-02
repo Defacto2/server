@@ -27,6 +27,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/h2non/filetype"
 	"github.com/labstack/echo/v4"
+	"github.com/volatiletech/null/v8"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -55,7 +56,14 @@ func (dir Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error
 	if z == nil {
 		return InternalErr(z, c, name, ErrZap)
 	}
-	res, err := model.OneRecord(z, c, dir.URI)
+	var res *models.File
+	var err error
+	fmt.Println("readonly", readonly, "editor", editor(c))
+	if editor(c) {
+		res, err = model.OneRecord(z, c, true, dir.URI)
+	} else {
+		res, err = model.OneRecord(z, c, false, dir.URI)
+	}
 	if err != nil {
 		if errors.Is(err, model.ErrID) {
 			return AboutErr(z, c, dir.URI)
@@ -102,7 +110,7 @@ func (dir Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error
 	data["comment"] = res.Comment.String
 	// file metadata
 	data["filename"] = fname
-	data["filesize"] = helper.ByteCount(res.Filesize.Int64)
+	data["filesize"] = aboutByteCount(res.Filesize)
 	data["filebyte"] = res.Filesize.Int64
 	data["lastmodified"] = aboutLM(res)
 	data["lastmodifiedAgo"] = aboutModAgo(res)
@@ -237,6 +245,9 @@ func (dir Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) { 
 		data["noDownload"] = true
 		return data, nil
 	}
+	if errors.Is(err, render.ErrFilename) {
+		return data, nil
+	}
 	if err != nil {
 		return data, err
 	}
@@ -352,6 +363,14 @@ func (dir Dirs) extractor(z *zap.SugaredLogger, c echo.Context, p extract) error
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, r)
+}
+
+// aboutByteCount returns the file size for the file record.
+func aboutByteCount(i null.Int64) string {
+	if !i.Valid || i.Int64 == 0 {
+		return "(n/a)"
+	}
+	return humanize.Bytes(uint64(i.Int64))
 }
 
 // aboutDesc returns the description for the file record.

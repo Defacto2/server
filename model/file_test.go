@@ -16,23 +16,23 @@ func z() *zap.SugaredLogger {
 
 func TestOneRecord(t *testing.T) {
 	t.Parallel()
-	mf, err := model.OneRecord(nil, nil, "")
+	mf, err := model.OneRecord(nil, nil, false, "")
 	assert.Error(t, err)
 	assert.Nil(t, mf)
 
-	mf, err = model.OneRecord(z(), nil, "")
+	mf, err = model.OneRecord(z(), nil, false, "")
 	assert.Error(t, err)
 	assert.Nil(t, mf)
 
 	c := echo.New().NewContext(nil, nil)
 
 	errId := helper.ObfuscateID(-1)
-	mf, err = model.OneRecord(z(), c, errId)
+	mf, err = model.OneRecord(z(), c, false, errId)
 	assert.ErrorIs(t, err, model.ErrID)
 	assert.Nil(t, mf)
 
 	errId = helper.ObfuscateID(1)
-	mf, err = model.OneRecord(z(), c, errId)
+	mf, err = model.OneRecord(z(), c, false, errId)
 	assert.ErrorIs(t, err, model.ErrDB)
 	assert.Nil(t, mf)
 }

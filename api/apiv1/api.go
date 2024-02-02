@@ -33,7 +33,7 @@ func Routes(z *zap.SugaredLogger, e *echo.Echo) *echo.Group {
 		if err != nil {
 			return c.JSON(http.StatusNotAcceptable, "")
 		}
-		one, err := model.One(ctx, db, key)
+		one, err := model.One(ctx, db, false, key)
 		if err != nil {
 			return c.JSON(http.StatusNotFound, "")
 		}

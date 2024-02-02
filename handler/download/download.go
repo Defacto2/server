@@ -23,7 +23,7 @@ var (
 // The response is a text file named "checksums.txt" with the checksum and filename.
 // The id string is the UID filename of the requested file.
 func Checksum(z *zap.SugaredLogger, c echo.Context, id string) error {
-	res, err := model.OneRecord(z, c, id)
+	res, err := model.OneRecord(z, c, false, id)
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ type Download struct {
 // HTTPSend serves files to the client and prompts for a save location.
 // The download relies on the URL ID parameter to determine the requested file.
 func (d Download) HTTPSend(z *zap.SugaredLogger, c echo.Context) error {
-	res, err := model.OneRecord(z, c, c.Param("id"))
+	res, err := model.OneRecord(z, c, false, c.Param("id"))
 	if err != nil {
 		return err
 	}

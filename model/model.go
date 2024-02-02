@@ -48,7 +48,7 @@ func Cache(b, c int, t time.Time) bool {
 }
 
 // One returns the record associated with the key ID.
-func One(ctx context.Context, db *sql.DB, key int) (*models.File, error) {
+func One(ctx context.Context, db *sql.DB, deleted bool, key int) (*models.File, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
@@ -56,7 +56,13 @@ func One(ctx context.Context, db *sql.DB, key int) (*models.File, error) {
 		return nil, fmt.Errorf("key value %d: %w", key, ErrKey)
 	}
 	mods := models.FileWhere.ID.EQ(int64(key))
-	file, err := models.Files(mods).One(ctx, db)
+	var file *models.File
+	var err error
+	if deleted {
+		file, err = models.Files(mods, qm.WithDeleted()).One(ctx, db)
+	} else {
+		file, err = models.Files(mods).One(ctx, db)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("one record %d: %w", key, err)
 	}

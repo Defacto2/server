@@ -13,11 +13,11 @@ import (
 func TestOne(t *testing.T) {
 	t.Parallel()
 	ctx := context.TODO()
-	one, err := model.One(ctx, nil, -1)
+	one, err := model.One(ctx, nil, false, -1)
 	assert.Error(t, err)
 	assert.Nil(t, one)
 
-	one, err = model.One(ctx, nil, -1)
+	one, err = model.One(ctx, nil, false, -1)
 	assert.Error(t, err)
 	assert.Nil(t, one)
 
@@ -25,11 +25,11 @@ func TestOne(t *testing.T) {
 	assert.NoError(t, err)
 	defer db.Close()
 
-	one, err = model.One(ctx, db, -1)
+	one, err = model.One(ctx, db, false, -1)
 	assert.Error(t, err)
 	assert.Nil(t, one)
 
-	one, err = model.One(ctx, db, 1)
+	one, err = model.One(ctx, db, false, 1)
 	// there's no db password so an error will be returned.
 	assert.Error(t, err)
 	assert.Nil(t, one)
