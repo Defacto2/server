@@ -1,7 +1,6 @@
 package command_test
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -14,15 +13,21 @@ import (
 )
 
 func td(name string) string {
-	_, b, _, _ := runtime.Caller(0)
-	d := filepath.Join(filepath.Dir(b), "../..")
+	_, file, _, ok := runtime.Caller(0)
+	if !ok {
+		panic("runtime.Caller failed")
+	}
+	d := filepath.Join(filepath.Dir(file), "../..")
 	x := filepath.Join(d, "assets", "testdata", name)
 	return x
 }
 
 func tduncompress(name string) string {
-	_, b, _, _ := runtime.Caller(0)
-	d := filepath.Join(filepath.Dir(b), "../..")
+	_, file, _, ok := runtime.Caller(0)
+	if !ok {
+		panic("runtime.Caller failed")
+	}
+	d := filepath.Join(filepath.Dir(file), "../..")
 	x := filepath.Join(d, "assets", "testdata", "uncompress", name)
 	return x
 }
@@ -243,7 +248,6 @@ func Test_LosslessScreenshot(t *testing.T) {
 	for _, name := range imgs {
 		fp := tduncompress(name)
 		err = dir.LosslessScreenshot(z(), fp, "000000ABCDE")
-		fmt.Println(err)
 		assert.NoError(t, err)
 	}
 

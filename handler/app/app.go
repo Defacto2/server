@@ -115,7 +115,8 @@ func Brief(platform, section any) template.HTML {
 			p = val.String
 		}
 	default:
-		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", platform))
+		s := fmt.Sprintf("%s %s %T", typeErr, "describe", platform)
+		return template.HTML(s)
 	}
 	p = strings.TrimSpace(p)
 	switch val := section.(type) {
@@ -132,9 +133,8 @@ func Brief(platform, section any) template.HTML {
 	if p == "" && s == "" {
 		return template.HTML("an unknown release")
 	}
-	x := tags.Humanize(tags.TagByURI(p), tags.TagByURI(s))
-	// x = helper.Capitalize(x)
-	return template.HTML(x + ".")
+	x := tags.Humanize(tags.TagByURI(p), tags.TagByURI(s)) + "."
+	return template.HTML(x)
 }
 
 // ByteFile returns a human readable string of the file count and bytes.
@@ -420,8 +420,7 @@ func LinkRelrs(performant bool, a, b any) template.HTML {
 		}
 		second = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, x)
 	}
-	s := relHTML(prime, second)
-	return template.HTML(s)
+	return relHTML(prime, second)
 }
 
 // LinkRelrs returns the groups associated with a release and a link to each group.

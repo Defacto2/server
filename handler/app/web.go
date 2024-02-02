@@ -315,6 +315,8 @@ func (web Web) TemplateClosures() template.FuncMap {
 
 // TemplateFuncs are a collection of mapped functions that can be used in a template.
 func (web Web) TemplateFuncs() template.FuncMap {
+	// releaser.Link is not performant for large lists,
+	// instead use fmtRangeURI in TemplateStrings().
 	funcMap := template.FuncMap{
 		"editDownloadGET":   EditDownloadGET,
 		"add":               helper.Add1,
@@ -328,7 +330,7 @@ func (web Web) TemplateFuncs() template.FuncMap {
 		"fmtMonth":          Month,
 		"fmtPrefix":         Prefix,
 		"fmtRoles":          helper.FmtSlice,
-		"fmtURI":            releaser.Link, // this is not performant for large lists, instead use fmtRangeURI in TemplateStrings()
+		"fmtURI":            releaser.Link,
 		"lastUpdated":       LastUpdated,
 		"linkDownload":      LinkDownload,
 		"linkHref":          LinkHref,

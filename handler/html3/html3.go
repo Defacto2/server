@@ -391,8 +391,6 @@ func QueryBySection(ctx context.Context, db *sql.DB, c echo.Context, offset int)
 	}
 	byteSum, err := model.ByteCountByCategory(ctx, db, id)
 	if err != nil {
-		fmt.Printf("ID is using %q\n", id)
-		fmt.Println(c.ParamNames(), c.ParamValues())
 		return statErr("byte by category:", err)
 	}
 	return limit, int(total), byteSum, records, nil

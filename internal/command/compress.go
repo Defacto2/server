@@ -15,7 +15,7 @@ import (
 // ExtractOne extracts the named file from the src archive.
 //
 // The extracted file is copied to the dst. It uses [exec.Command] and
-// relies on extractor being avaliable on the system host path.
+// relies on extractor being available on the system host path.
 // Using non-Go apps allows for better compatibility with retro zip archives,
 // such as those that use the [compression methods] prior to zip deflate.
 //

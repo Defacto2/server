@@ -58,7 +58,6 @@ func (dir Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error
 	}
 	var res *models.File
 	var err error
-	fmt.Println("readonly", readonly, "editor", editor(c))
 	if editor(c) {
 		res, err = model.OneRecord(z, c, true, dir.URI)
 	} else {

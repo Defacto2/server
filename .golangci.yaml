@@ -115,6 +115,9 @@ issues:
       linters:
         - cyclop
         - funlen
+    - path: handler/app/app.go
+      linters:
+        - gosec
     - path: handler/app/funchtml.go
       linters:
         - gosec
@@ -122,6 +125,9 @@ issues:
       linters:
         - gosec
         - funlen
+    - path: handler/html3/html3.go
+      linters:
+        - lll
     - path: handler/app/interview.go
       linters:
         - funlen
@@ -143,6 +149,13 @@ issues:
     - path: handler/app/render_releaser.go
       linters:
         - lll
+    - path: handler/app/uri.go
+      linters:
+        - funlen
+    - path: handler/app/web.go
+      linters:
+        - funlen
+        - gosec
     - path: handler/app/website.go
       linters:
         - lll
@@ -190,6 +203,9 @@ issues:
         - gocognit
         - gocyclo
         - maintidx
+    - path: model/fix/fix.go
+      linters:
+        - lll
     - path: runner/runner.go
       linters:
         - funlen

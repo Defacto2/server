@@ -2,7 +2,6 @@ package render_test
 
 import (
 	"encoding/binary"
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -136,7 +135,7 @@ func TestIsUTF16(t *testing.T) {
 
 func TestViewer(t *testing.T) {
 	t.Parallel()
-	res := models.File{}
+	var res models.File
 	assert.False(t, render.Viewer(&res))
 	res.Platform = null.StringFrom("textamiga")
 	assert.True(t, render.Viewer(&res))
@@ -144,7 +143,7 @@ func TestViewer(t *testing.T) {
 
 func TestNoScreenshot(t *testing.T) {
 	t.Parallel()
-	res := models.File{}
+	var res models.File
 	assert.True(t, render.NoScreenshot(nil, ""))
 	res = models.File{}
 	assert.True(t, render.NoScreenshot(&res, ""))
@@ -156,8 +155,8 @@ func TestNoScreenshot(t *testing.T) {
 	res.Platform = null.StringFrom("")
 	res.UUID = null.StringFrom(uuid)
 	name := filepath.Join(os.TempDir(), uuid) + ".webp"
-	fmt.Println(name)
-	helper.Touch(name)
+	err := helper.Touch(name)
+	assert.NoError(t, err)
 	defer os.Remove(name)
 	assert.False(t, render.NoScreenshot(&res, os.TempDir()))
 }

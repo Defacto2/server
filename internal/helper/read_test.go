@@ -10,8 +10,11 @@ import (
 )
 
 func td(name string) string {
-	_, b, _, _ := runtime.Caller(0)
-	d := filepath.Join(filepath.Dir(b), "../..")
+	_, file, _, ok := runtime.Caller(0)
+	if !ok {
+		panic("runtime.Caller failed")
+	}
+	d := filepath.Join(filepath.Dir(file), "../..")
 	x := filepath.Join(d, "assets", "testdata", name)
 	return x
 }

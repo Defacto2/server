@@ -1012,7 +1012,6 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 	// pulldown editor menu matches
 	case newForApproval:
 		r := model.Files{}
-		fmt.Println("newForApproval RECORDS")
 		return r.ListForApproval(ctx, db, page, limit)
 	// pulldown menu matches
 	case newUploads:
@@ -1868,6 +1867,10 @@ func (s *Stats) Get(ctx context.Context, db *sql.DB) error {
 	if err := s.Demoscene.Stat(ctx, db); err != nil {
 		return err
 	}
+	return s.get(ctx, db)
+}
+
+func (s *Stats) get(ctx context.Context, db *sql.DB) error {
 	if err := s.Macos.Stat(ctx, db); err != nil {
 		return err
 	}

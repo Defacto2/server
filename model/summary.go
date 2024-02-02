@@ -73,7 +73,6 @@ func (s *Summary) StatForApproval(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
-	fmt.Println("Stat for approval")
 	boil.DebugMode = true
 	return models.NewQuery(
 		models.FileWhere.Deletedat.IsNotNull(),

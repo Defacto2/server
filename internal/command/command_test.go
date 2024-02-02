@@ -33,7 +33,8 @@ func TestRemoveImgs(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(tmp.Name())
 
-	err = os.Rename(tmp.Name(), filepath.Join(tmp.Name()+".jpg"))
+	nname := tmp.Name() + ".jpg"
+	err = os.Rename(tmp.Name(), nname)
 	assert.NoError(t, err)
 
 	name := strings.TrimSuffix(filepath.Base(tmp.Name()), filepath.Ext(tmp.Name()))
@@ -52,7 +53,8 @@ func TestRemoveMe(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(tmp.Name())
 
-	err = os.Rename(tmp.Name(), filepath.Join(tmp.Name()+".txt"))
+	nname := tmp.Name() + ".txt"
+	err = os.Rename(tmp.Name(), nname)
 	assert.NoError(t, err)
 
 	name := strings.TrimSuffix(filepath.Base(tmp.Name()), filepath.Ext(tmp.Name()))
@@ -76,8 +78,7 @@ func TestCopyFile(t *testing.T) {
 
 	err = command.CopyFile(z, tmp.Name(), "")
 	assert.Error(t, err)
-
-	dst := filepath.Join(tmp.Name() + ".txt")
+	dst := tmp.Name() + ".txt"
 	err = command.CopyFile(z, tmp.Name(), dst)
 	assert.NoError(t, err)
 	defer os.Remove(dst)

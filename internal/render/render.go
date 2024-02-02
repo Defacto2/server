@@ -107,13 +107,12 @@ func IsUTF16(p []byte) bool {
 	if len(p) < minimum {
 		return false
 	}
-
-	littleEndian := p[0] == 0xff && p[1] == 0xfe
+	const y, thorn = 0xff, 0xfe
+	littleEndian := p[0] == y && p[1] == thorn
 	if littleEndian {
 		return true
 	}
-
-	bigEndian := p[0] == 0xfe && p[1] == 0xff
+	bigEndian := p[0] == thorn && p[1] == y
 	return bigEndian
 }
 
@@ -144,7 +143,6 @@ func NoScreenshot(res *models.File, path string) bool {
 	uuid := res.UUID.String
 	webp := strings.Join([]string{path, fmt.Sprintf("%s.webp", uuid)}, "/")
 	png := strings.Join([]string{path, fmt.Sprintf("%s.png", uuid)}, "/")
-	fmt.Println(webp, png, path)
 	if helper.IsStat(webp) || helper.IsStat(png) {
 		return false
 	}

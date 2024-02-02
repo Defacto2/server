@@ -1,7 +1,6 @@
 package command
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -313,7 +312,6 @@ func (dir Dirs) LosslessScreenshot(z *zap.SugaredLogger, src, uuid string) error
 	defer os.RemoveAll(tmp)        // remove temp dir
 	tmp = filepath.Join(tmp, name) // temp output file target
 	arg = append(arg, tmp)
-	fmt.Println(arg)
 	if err := RunQuiet(z, Convert, arg...); err != nil {
 		return err
 	}

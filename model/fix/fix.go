@@ -16,7 +16,10 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-var ErrDB = errors.New("database connection is nil")
+var (
+	ErrDB     = errors.New("database connection is nil")
+	ErrRepair = errors.New("invalid repair option")
+)
 
 // Repair a column or type of data within the database.
 type Repair int
@@ -41,9 +44,43 @@ func (r Repair) Run(ctx context.Context, w io.Writer, db *sql.DB) error {
 	case None:
 		return nil
 	case Releaser, All:
-		return releasers(context.Background(), w, db)
+
+		return releasers(ctx, w, db)
 	}
-	return fmt.Errorf("invalid repair option %d", r)
+	return fmt.Errorf("%w: %d", ErrRepair, r)
+}
+
+// Fix bad imported names, such as those from Demozoo data imports.
+// Each one of these fixes need a redirect.
+const (
+	acidbad   = "ACID"
+	acidfix   = "ACID PRODUCTIONS"
+	icebad    = "ICE"
+	icefix    = "INSANE CREATORS ENTERPRISE"
+	pwabad    = "pirates with attitude"
+	pwafix    = "pirates with attitudes"
+	trsibad   = "TRISTAR AND RED SECTOR INC"
+	trsifix   = "TRISTAR & RED SECTOR INC"
+	xpress    = "X-PRESSION"
+	xpressfix = "X-PRESSION DESIGN"
+	damn      = "DAMN EXCELLENT ANSI DESIGNERS"
+	damnfix   = "DAMN EXCELLENT ANSI DESIGN"
+	ofg       = "THE ORIGINAL FUNNY GUYS"
+	ofg1      = "ORIGINAL FUNNY GUYS"
+	ofgfix    = "ORIGINALLY FUNNY GUYS"
+)
+
+func fixes() map[string]string {
+	return map[string]string{
+		acidbad: acidfix,
+		icebad:  icefix,
+		pwabad:  pwafix,
+		trsibad: trsifix,
+		xpress:  xpressfix,
+		damn:    damnfix,
+		ofg:     ofgfix,
+		ofg1:    ofgfix,
+	}
 }
 
 // releasers will repair the group_brand_by and group_brand_for releasers data.
@@ -55,41 +92,11 @@ func releasers(ctx context.Context, w io.Writer, db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	_, err = f.UpdateAll(ctx, db, models.M{"group_brand_by": x})
-	if err != nil {
+	if _, err = f.UpdateAll(ctx, db, models.M{"group_brand_by": x}); err != nil {
 		return err
 	}
-	// fix bad imported names, such as those from Demozoo data imports
-	// each one of these fixes need a redirect
-	const (
-		acidbad   = "ACID"
-		acidfix   = "ACID PRODUCTIONS"
-		icebad    = "ICE"
-		icefix    = "INSANE CREATORS ENTERPRISE"
-		pwabad    = "pirates with attitude"
-		pwafix    = "pirates with attitudes"
-		trsibad   = "TRISTAR AND RED SECTOR INC"
-		trsifix   = "TRISTAR & RED SECTOR INC"
-		xpress    = "X-PRESSION"
-		xpressfix = "X-PRESSION DESIGN"
-		damn      = "DAMN EXCELLENT ANSI DESIGNERS"
-		damnfix   = "DAMN EXCELLENT ANSI DESIGN"
-		ofg       = "THE ORIGINAL FUNNY GUYS"
-		ofg1      = "ORIGINAL FUNNY GUYS"
-		ofgfix    = "ORIGINALLY FUNNY GUYS"
-	)
-	fixes := map[string]string{
-		acidbad: acidfix,
-		icebad:  icefix,
-		pwabad:  pwafix,
-		trsibad: trsifix,
-		xpress:  xpressfix,
-		damn:    damnfix,
-		ofg:     ofgfix,
-		ofg1:    ofgfix,
-	}
 	var rowsAff int64
-	for bad, fix := range fixes {
+	for bad, fix := range fixes() {
 		bad = strings.ToUpper(bad)
 		fix = strings.ToUpper(fix)
 		f, err = models.Files(
@@ -131,12 +138,15 @@ func releasers(ctx context.Context, w io.Writer, db *sql.DB) error {
 	if err != nil {
 		return err
 	}
+	return magics(ctx, w, db)
+}
 
+func magics(ctx context.Context, w io.Writer, db *sql.DB) error {
 	magics, err := models.Files(qm.Where("file_magic_type ILIKE ?", "ERROR: %")).All(ctx, db)
 	if err != nil {
 		return err
 	}
-	rowsAff, err = magics.UpdateAll(ctx, db, models.M{"file_magic_type": ""})
+	rowsAff, err := magics.UpdateAll(ctx, db, models.M{"file_magic_type": ""})
 	if err != nil {
 		return err
 	}

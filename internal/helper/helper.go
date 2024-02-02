@@ -13,6 +13,8 @@ import (
 const (
 	// Eraseline is an ANSI escape control to erase the active line of the terminal.
 	Eraseline = "\x1b[2K"
+	// ReadWrite is the file mode for read and write access.
+	ReadWrite = 0o666
 	// byteUnits is a list of units used for formatting byte sizes.
 	byteUnits = "kMGTPE"
 )
@@ -83,7 +85,7 @@ func IntegrityBytes(b []byte) string {
 // Touch creates a new, empty named file.
 // If the file already exists, an error is returned.
 func Touch(name string) error {
-	file, err := os.OpenFile(name, os.O_CREATE|os.O_EXCL, 0o666)
+	file, err := os.OpenFile(name, os.O_CREATE|os.O_EXCL, ReadWrite)
 	if err != nil {
 		return err
 	}
@@ -93,7 +95,7 @@ func Touch(name string) error {
 // TouchW creates a new named file with the given data.
 // If the file already exists, an error is returned.
 func TouchW(name string, data ...byte) (int, error) {
-	file, err := os.OpenFile(name, os.O_CREATE|os.O_WRONLY, 0o666)
+	file, err := os.OpenFile(name, os.O_CREATE|os.O_WRONLY, ReadWrite)
 	if err != nil {
 		return 0, err
 	}

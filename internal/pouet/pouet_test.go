@@ -68,7 +68,6 @@ func TestVotes(t *testing.T) {
 }
 
 func TestStars(t *testing.T) {
-	t.Parallel()
 	type args struct {
 		up   uint64
 		meh  uint64

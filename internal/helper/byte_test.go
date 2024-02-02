@@ -14,49 +14,46 @@ func TestDetermineEncoding(t *testing.T) {
 	e := helper.DetermineEncoding(p)
 	assert.Equal(t, charmap.ISO8859_1, e)
 
-	p = nil
 	p = []byte("Hello world!")
 	e = helper.DetermineEncoding(p)
 	assert.Equal(t, charmap.ISO8859_1, e)
 
-	p = nil
 	p = []byte("Hello world! 👾")
 	e = helper.DetermineEncoding(p)
 	assert.Nil(t, e)
 
-	p = nil
+	p = []byte("")
 	p = append(p, 0x1b)
 	p = append(p, []byte("[31mHelloWorld")...)
 	e = helper.DetermineEncoding(p)
 	assert.Equal(t, charmap.ISO8859_1, e)
 
-	p = nil
 	p = []byte("\nHello world!\n")
 	e = helper.DetermineEncoding(p)
 	assert.Equal(t, charmap.ISO8859_1, e)
 
-	p = nil
+	p = []byte("")
 	p = append(p, 0xb2)
 	p = append(p, []byte(" Hello world! ")...)
 	p = append(p, 0xb2)
 	e = helper.DetermineEncoding(p)
 	assert.Equal(t, charmap.CodePage437, e)
 
-	p = nil
+	p = []byte("")
 	p = append(p, 0x0D, 0x0E) // CP437 ♪ ♫
-	p = append(p, []byte(" lah lah lah")...)
+	p = append(p, []byte(" aah bah cah")...)
 	e = helper.DetermineEncoding(p)
 	assert.Equal(t, charmap.CodePage437, e)
 
-	p = nil
 	const house = 0x7f
+	p = []byte("")
 	p = append(p, house)
 	p = append(p, []byte(" a DOS house glyph ")...)
 	e = helper.DetermineEncoding(p)
 	assert.Equal(t, charmap.CodePage437, e)
 
-	p = nil
 	const line = 0xc4
+	p = []byte("")
 	p = append(p, line)
 	p = append(p, []byte(" a DOS line glyph ")...)
 	e = helper.DetermineEncoding(p)
