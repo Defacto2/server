@@ -35,6 +35,15 @@ tasks:
       - cmd: gofumpt -w .
       - cmd: gci write -s standard -s default .
       - cmd: golangci-lint run
+  lint+:
+    silent: false
+    desc: Runs the deadcode and betteralign linters on the source code.
+    ignore_error: true
+    cmds:
+      - cmd: clear
+        platforms: [linux, darwin, freebsd]
+      - cmd: betteralign ./...
+      - cmd: deadcode ./...
   build:
     desc: "Build the binary of the web server."
     deps: [assets]
@@ -178,3 +187,4 @@ tasks:
       - cmd: go install github.com/volatiletech/sqlboiler/v4@latest
       - cmd: go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql@latest
       - cmd: go install github.com/dkorunic/betteralign/cmd/betteralign@latest
+      - cmd: go install golang.org/x/tools/cmd/deadcode@latest
