@@ -1026,6 +1026,12 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 	case newest:
 		r := model.Files{}
 		return r.ListNewest(ctx, db, page, limit)
+	}
+	return recordsZ(ctx, db, uri, page, limit)
+}
+
+func recordsZ(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
+	switch Match(uri) {
 	// file categories matches
 	case advert:
 		r := model.Advert{}
@@ -1063,6 +1069,12 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 	case bbsText:
 		r := model.BBSText{}
 		return r.List(ctx, db, page, limit)
+	}
+	return records0(ctx, db, uri, page, limit)
+}
+
+func records0(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
+	switch Match(uri) {
 	case database:
 		r := model.Database{}
 		return r.List(ctx, db, page, limit)
@@ -1105,6 +1117,12 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 	case jobAdvert:
 		r := model.JobAdvert{}
 		return r.List(ctx, db, page, limit)
+	}
+	return records1(ctx, db, uri, page, limit)
+}
+
+func records1(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
+	switch Match(uri) {
 	case macos:
 		r := model.Macos{}
 		return r.List(ctx, db, page, limit)
@@ -1147,6 +1165,12 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 	case proof:
 		r := model.Proof{}
 		return r.List(ctx, db, page, limit)
+	}
+	return records2(ctx, db, uri, page, limit)
+}
+
+func records2(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
+	switch Match(uri) {
 	case restrict:
 		r := model.Restrict{}
 		return r.List(ctx, db, page, limit)

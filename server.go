@@ -60,17 +60,7 @@ func main() {
 	logs := logger.CLI().Sugar()
 
 	// Environment variables configuration
-	configs := config.Config{}
-	if err := env.Parse(&configs); err != nil {
-		logs.Fatalf("%w: %s", ErrEnv, err)
-	}
-	configs.Override(localMode())
-
-	// Go runtime customizations
-	// If not set, the automaxprocs lib automatically set GOMAXPROCS to match Linux container CPU quota
-	if i := configs.MaxProcs; i > 0 {
-		runtime.GOMAXPROCS(int(i))
-	}
+	configs := configure(logs)
 
 	// By default the web server runs when no arguments are provided
 	commandLine(logs, configs)
@@ -82,18 +72,7 @@ func main() {
 	logs = setupLogger(logs, configs)
 
 	// Echo router and controller instance
-	server := handler.Configuration{
-		Brand:   &brand,
-		Import:  &configs,
-		Logger:  logs,
-		Public:  public,
-		Version: version,
-		View:    view,
-	}
-	if server.Version == "" {
-		server.Version = cmd.Commit("")
-	}
-	server.RecordCount = RecordCount()
+	server := controller(logs, configs)
 
 	// Controllers and routes
 	e := server.Controller()
@@ -141,6 +120,39 @@ func main() {
 	}
 	// Gracefully shutdown the HTTP server
 	server.ShutdownHTTP(e)
+}
+
+// configure is used to parse the environment variables and set the Go runtime.
+func configure(logs *zap.SugaredLogger) config.Config {
+	configs := config.Config{}
+	if err := env.Parse(&configs); err != nil {
+		logs.Fatalf("%w: %s", ErrEnv, err)
+	}
+	configs.Override(localMode())
+
+	// Go runtime customizations
+	// If not set, the automaxprocs lib automatically set GOMAXPROCS to match Linux container CPU quota
+	if i := configs.MaxProcs; i > 0 {
+		runtime.GOMAXPROCS(int(i))
+	}
+	return configs
+}
+
+func controller(logs *zap.SugaredLogger, configs config.Config) handler.Configuration {
+	// Echo router and controller instance
+	server := handler.Configuration{
+		Brand:   &brand,
+		Import:  &configs,
+		Logger:  logs,
+		Public:  public,
+		Version: version,
+		View:    view,
+	}
+	if server.Version == "" {
+		server.Version = cmd.Commit("")
+	}
+	server.RecordCount = RecordCount()
+	return server
 }
 
 // commandLine is used to parse the command-line arguments.

@@ -618,7 +618,7 @@ func Prefix(s string) string {
 }
 
 // RecordsSub returns the records for the file category URI.
-func RecordsSub(uri string) string {
+func RecordsSub(uri string) string { //nolint:cyclop
 	const ignore = -1
 	switch Match(uri) {
 	case advert:
@@ -655,6 +655,13 @@ func RecordsSub(uri string) string {
 		return tags.Humanizes(ignore, tags.Ftp)
 	case hack:
 		return tags.Humanizes(ignore, tags.GameHack)
+	}
+	return recordsSub0(uri)
+}
+
+func recordsSub0(uri string) string {
+	const ignore = -1
+	switch Match(uri) {
 	case htm:
 		return uri
 	case howTo:
@@ -685,6 +692,13 @@ func RecordsSub(uri string) string {
 		return tags.Humanizes(ignore, tags.Nfo)
 	case nfoTool:
 		return tags.Humanizes(ignore, tags.NfoTool)
+	}
+	return recordsSub1(uri)
+}
+
+func recordsSub1(uri string) string { //nolint:cyclop
+	const ignore = -1
+	switch Match(uri) {
 	case standards:
 		return tags.Humanizes(ignore, tags.Rule)
 	case script:

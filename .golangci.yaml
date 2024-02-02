@@ -39,6 +39,7 @@ issues:
         - lll
     - path: handler/app/context.go
       linters:
+        - dupl
         - lll
     - path: handler/app/funchtml.go
       linters:
