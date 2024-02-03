@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/Defacto2/server/internal/helper"
 )
 
 const (
@@ -43,6 +45,11 @@ type Demozoo struct {
 		Name string `json:"name"`
 		ID   int    `json:"id"`
 	} `json:"types"`
+	// Download links to the remotely hosted files.
+	DownloadLinks []struct {
+		LinkClass string `json:"link_class"`
+		URL       string `json:"url"`
+	} `json:"download_links"`
 	// ID is the production ID.
 	ID int `json:"id"`
 }
@@ -67,8 +74,7 @@ func (d *Demozoo) Get(id int) error {
 	if err != nil {
 		return err
 	}
-	req.Header.Set("User-Agent",
-		"Defacto2 2023 app under construction (thanks!)")
+	req.Header.Set("User-Agent", helper.UserAgent)
 	res, err := client.Do(req)
 	if err != nil {
 		return err

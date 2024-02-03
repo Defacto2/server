@@ -12,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/Defacto2/server/internal/helper"
 )
 
 const (
@@ -21,8 +23,6 @@ const (
 	Timeout = 5 * time.Second
 	// StarRounder is the rounding value for the stars rating.
 	StarRounder = 0.5
-	// User-Agent to send with the HTTP request.
-	UserAgent = "Defacto2 2024 app, under construction (thanks!)"
 	// firstID is the first production ID on Pouet.
 	firstID = 1
 )
@@ -191,7 +191,7 @@ func (r *Response) Get(id int) error {
 	if err != nil {
 		return err
 	}
-	req.Header.Set("User-Agent", UserAgent)
+	req.Header.Set("User-Agent", helper.UserAgent)
 	res, err := client.Do(req)
 	if err != nil {
 		return err

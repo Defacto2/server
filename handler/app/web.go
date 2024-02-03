@@ -33,14 +33,15 @@ func EditDownloadGET(filename, filesize, demozoo any) template.HTML {
 			return ""
 		}
 	}
+	var zooID int64
 	if val, ok := demozoo.(null.Int64); ok {
 		if !val.Valid || val.Int64 == 0 {
 			return ""
 		}
+		zooID = val.Int64
 	}
-	// zoo := demozoo.(null.Int64).Int64
-	// fmt.Sprintf("%d", zoo)
-	return template.HTML(`<a class="card-link" href="">GET a remote download</a>`)
+	s := fmt.Sprintf("<a class=\"card-link\" href=\"/editor/new-for-approval/%d\">GET a remote download</a>", zooID)
+	return template.HTML(s)
 }
 
 // Web is the configuration and status of the web app.

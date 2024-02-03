@@ -5,6 +5,7 @@ import (
 	"crypto/sha512"
 	"embed"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -17,6 +18,11 @@ const (
 	ReadWrite = 0o666
 	// byteUnits is a list of units used for formatting byte sizes.
 	byteUnits = "kMGTPE"
+)
+
+var (
+	ErrFilePath  = errors.New("file path is a directory")
+	ErrExistPath = errors.New("path ready exists and will not overwrite")
 )
 
 // GetLocalIPs returns a list of local IP addresses.
