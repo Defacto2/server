@@ -54,7 +54,7 @@ func (c Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		id, ok := sess.Values["sub"].(string)
 		if !ok || id == "" {
-			return echo.ErrForbidden
+			return app.StatusErr(c.Logger, e, http.StatusForbidden, "")
 		}
 		check := false
 		for _, account := range c.Import.GoogleAccounts {
@@ -64,7 +64,7 @@ func (c Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 		if !check {
-			return echo.ErrForbidden
+			return app.StatusErr(c.Logger, e, http.StatusForbidden, "")
 		}
 		return next(e)
 	}

@@ -1054,20 +1054,21 @@ type Cache struct {
 
 // SRI are the Subresource Integrity hashes for the layout.
 type SRI struct {
-	Bootstrap   string // Bootstrap CSS verification hash.
-	BootstrapJS string // Bootstrap JS verification hash.
-	Editor      string // Editor JS verification hash.
-	EditAssets  string // Editor Assets JS verification hash.
-	EditArchive string // Editor Archive JS verification hash.
-	FontAwesome string // Font Awesome verification hash.
-	JSDosUI     string // JS DOS verification hash.
-	JSDosW      string // JS DOS emscripten verification hash.
-	Layout      string // Layout CSS verification hash.
-	Pouet       string // Pouet JS verification hash.
-	Readme      string // Readme JS verification hash.
-	RESTPouet   string // Pouet REST JS verification hash.
-	RESTZoo     string // Demozoo REST JS verification hash.
-	Uploader    string // Uploader JS verification hash.
+	Bootstrap          string // Bootstrap CSS verification hash.
+	BootstrapJS        string // Bootstrap JS verification hash.
+	Editor             string // Editor JS verification hash.
+	EditAssets         string // Editor Assets JS verification hash.
+	EditArchive        string // Editor Archive JS verification hash.
+	EditNewForApproval string // Editor New For Approval JS verification hash.
+	FontAwesome        string // Font Awesome verification hash.
+	JSDosUI            string // JS DOS verification hash.
+	JSDosW             string // JS DOS emscripten verification hash.
+	Layout             string // Layout CSS verification hash.
+	Pouet              string // Pouet JS verification hash.
+	Readme             string // Readme JS verification hash.
+	RESTPouet          string // Pouet REST JS verification hash.
+	RESTZoo            string // Demozoo REST JS verification hash.
+	Uploader           string // Uploader JS verification hash.
 }
 
 // Verify checks the integrity of the embedded CSS and JS files.
@@ -1092,6 +1093,10 @@ func (s *SRI) Verify(fs embed.FS) error {
 		return err
 	}
 	s.EditArchive, err = helper.Integrity(names[EditArchive], fs)
+	if err != nil {
+		return err
+	}
+	s.EditNewForApproval, err = helper.Integrity(names[EditNewForApproval], fs)
 	if err != nil {
 		return err
 	}

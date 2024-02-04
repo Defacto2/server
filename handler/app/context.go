@@ -9,6 +9,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -27,6 +28,7 @@ import (
 	"github.com/Defacto2/server/internal/web"
 	"github.com/Defacto2/server/internal/zoo"
 	"github.com/Defacto2/server/model"
+	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -408,6 +410,102 @@ func ForbiddenErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) e
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
+}
+
+// GotDemozoo is the response from the task of GetDemozooFile.
+type GotDemozoo struct {
+	// ID is the Demozoo production ID.
+	ID int `json:"id"`
+	// UUID is the file production UUID.
+	UUID string `json:"uuid"`
+	// Filename is the file name of the download.
+	Filename string `json:"filename"`
+	// Size is the file size in bytes.
+	FileSize int `json:"file_size"`
+	// Type is the file type.
+	FileType string `json:"file_type"`
+	// LinkURL is the download file link used to fetch the file.
+	LinkURL string `json:"link_url"`
+	// LinkClass is the download link class provided by Demozoo.
+	LinkClass string `json:"link_class"`
+	// Success is the success status of the download and record update.
+	Success bool `json:"success"`
+	// Error is the error message if the download or record update failed.
+	Error string `json:"error"`
+	// todo add more fields
+}
+
+// GetDemozooFile fetches the multiple download_links values from the
+// Demozoo production API and attempts to download and save one of the
+// linked files. If multiple links are found, the first link is used as
+// they should all point to the same asset.
+//
+// Both the Demozoo production ID param and the Defacto2 UUID query
+// param values are required as params to fetch the production data and
+// to save the file to the correct filename.
+func GetDemozooFile(z *zap.SugaredLogger, c echo.Context) error {
+	got := GotDemozoo{
+		Filename:  "",
+		FileSize:  0,
+		FileType:  "",
+		LinkURL:   "",
+		LinkClass: "",
+		Success:   false,
+		Error:     "",
+	}
+	sid := c.Param("id")
+	id, err := strconv.Atoi(sid)
+	if err != nil {
+		got.Error = "demozoo id must be a numeric value, " + sid
+		return c.JSON(http.StatusBadRequest, got)
+	}
+	got.ID = id
+	sid = c.QueryParam("uuid")
+	if err = uuid.Validate(sid); err != nil {
+		got.Error = "uuid syntax did not validate, " + sid
+		return c.JSON(http.StatusBadRequest, got)
+	}
+	got.UUID = sid
+	var rec zoo.Demozoo
+	if err := rec.Get(id); err != nil {
+		got.Error = fmt.Errorf("could not get record %d from demozoo api: %w", id, err).Error()
+		return c.JSON(http.StatusInternalServerError, got)
+	}
+	var path string
+	for _, link := range rec.DownloadLinks {
+		if link.URL == "" {
+			continue
+		}
+		path, err = helper.DownloadFile(link.URL)
+		if err != nil || path == "" {
+			// continue, to attempt the next download link
+			continue
+		}
+		base := filepath.Base(link.URL)
+		home, _ := os.UserHomeDir() // replace with UUID directory
+		dst := filepath.Join(home, base)
+		got.Filename = base
+		got.LinkClass = link.LinkClass
+		got.LinkURL = link.URL
+		if err := helper.RenameFile(path, dst); err != nil {
+			got.Error = fmt.Errorf("could not rename file, %s: %w", dst, err).Error()
+			return c.JSON(http.StatusInternalServerError, got)
+		}
+		got = GotDemozoo{
+			ID:        id,
+			UUID:      sid,
+			Filename:  base,
+			FileSize:  0,
+			FileType:  "",
+			LinkURL:   link.URL,
+			LinkClass: link.LinkClass,
+			Success:   true,
+			Error:     "",
+		}
+		return c.JSON(http.StatusOK, got)
+	}
+	got.Error = "no usable download links found, they either returned 404 or were empty"
+	return c.JSON(http.StatusNotModified, got)
 }
 
 // GoogleCallback is the handler for the Google OAuth2 callback page to verify

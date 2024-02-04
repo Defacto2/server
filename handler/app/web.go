@@ -21,8 +21,20 @@ import (
 	"go.uber.org/zap"
 )
 
-func EditDownloadGET(filename, filesize, demozoo any) template.HTML {
-	// TODO confirm signin
+// Web is the configuration and status of the web app.
+// Rename to app or template?
+type Web struct {
+	Brand       *[]byte            // Brand points to the Defacto2 ASCII logo.
+	Import      *config.Config     // Import configurations from the host system environment.
+	Logger      *zap.SugaredLogger // Logger is the zap sugared logger.
+	Public      embed.FS           // Public facing files.
+	View        embed.FS           // Views are Go templates.
+	Subresource SRI                // SRI are the Subresource Integrity hashes for the layout.
+	Version     string             // Version is the current version of the app.
+}
+
+// DemozooGetLink returns a HTML link to the Demozoo download links.
+func DemozooGetLink(filename, filesize, demozoo, uuid any) template.HTML {
 	if val, ok := filename.(null.String); ok {
 		if val.Valid && val.String != "" {
 			return ""
@@ -40,20 +52,16 @@ func EditDownloadGET(filename, filesize, demozoo any) template.HTML {
 		}
 		zooID = val.Int64
 	}
-	s := fmt.Sprintf("<a class=\"card-link\" href=\"/editor/new-for-approval/%d\">GET a remote download</a>", zooID)
+	var uID string
+	if val, ok := uuid.(null.String); ok {
+		if val.Valid && val.String == "" {
+			return ""
+		}
+		uID = val.String
+	}
+	s := fmt.Sprintf("<button type=\"button\" class=\"btn btn-outline-primary me-2\" name=\"editorGetDemozoo\" "+
+		"data-id=\"%d\" data-uid=\"%s\">GET from Demozoo</button>", zooID, uID)
 	return template.HTML(s)
-}
-
-// Web is the configuration and status of the web app.
-// Rename to app or template?
-type Web struct {
-	Brand       *[]byte            // Brand points to the Defacto2 ASCII logo.
-	Import      *config.Config     // Import configurations from the host system environment.
-	Logger      *zap.SugaredLogger // Logger is the zap sugared logger.
-	Public      embed.FS           // Public facing files.
-	View        embed.FS           // Views are Go templates.
-	Subresource SRI                // SRI are the Subresource Integrity hashes for the layout.
-	Version     string             // Version is the current version of the app.
 }
 
 // DownloadB returns a human readable string of the file size.
@@ -210,6 +218,9 @@ func (web Web) TemplateClosures() template.FuncMap {
 		"editAssets": func() string {
 			return hrefs[EditAssets]
 		},
+		"editNewForApproval": func() string {
+			return hrefs[EditNewForApproval]
+		},
 		"editor": func() string {
 			return hrefs[Editor]
 		},
@@ -274,6 +285,9 @@ func (web Web) TemplateClosures() template.FuncMap {
 		"sri_editAssets": func() string {
 			return web.Subresource.EditAssets
 		},
+		"sri_editNewForApproval": func() string {
+			return web.Subresource.EditNewForApproval
+		},
 		"sri_editor": func() string {
 			return web.Subresource.Editor
 		},
@@ -319,7 +333,6 @@ func (web Web) TemplateFuncs() template.FuncMap {
 	// releaser.Link is not performant for large lists,
 	// instead use fmtRangeURI in TemplateStrings().
 	funcMap := template.FuncMap{
-		"editDownloadGET":   EditDownloadGET,
 		"add":               helper.Add1,
 		"attribute":         Attribute,
 		"brief":             Brief,
@@ -327,6 +340,7 @@ func (web Web) TemplateFuncs() template.FuncMap {
 		"downloadB":         DownloadB,
 		"byteFile":          ByteFile,
 		"byteFileS":         ByteFileS,
+		"demozooGetLink":    DemozooGetLink,
 		"fmtDay":            Day,
 		"fmtMonth":          Month,
 		"fmtPrefix":         Prefix,

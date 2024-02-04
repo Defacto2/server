@@ -310,15 +310,20 @@
 <script async src="{{ jsdosW }}?{{ sri_jsdosW }}" integrity="{{ sri_jsdosW }}" crossorigin="anonymous"></script>
 {{- end}}
 {{- /*  Uploader  */}}
+{{- if eq false (index . "readOnly")}}
+{{/*  TODO: move condition to a different template  */}}
+{{- end}}
 <script async src="{{ uploader }}?{{ sri_uploader }}" integrity="{{ sri_uploader }}" crossorigin="anonymous"></script>
 <script asnyc src="{{ restPouet }}?{{ sri_restPouet }}" integrity="{{ sri_restPouet }}" crossorigin="anonymous"></script>
 <script asnyc src="{{ restZoo }}?{{ sri_restZoo }}" integrity="{{ sri_restZoo }}" crossorigin="anonymous"></script>
 {{- /*  Editor  */}}
-{{- if eq false (index . "readOnly")}}
+{{- if and (eq false (index . "readOnly")) (eq true (index . "editor"))}}
+{{/*  TODO: move condition to a different template ie editorJS.tmpl and editorJS_null.tmpl  */}}
+{{- end}}
 <script asnyc src="{{ editor }}?{{ sri_editor }}" integrity="{{ sri_editor }}" crossorigin="anonymous"></script>
 <script asnyc src="{{ editAssets }}?{{ sri_editAssets }}" integrity="{{ sri_editAssets }}" crossorigin="anonymous"></script>
 <script asnyc src="{{ editArchive }}?{{ sri_editArchive }}" integrity="{{ sri_editArchive }}" crossorigin="anonymous"></script>
-{{- end}}
+<script asnyc src="{{ editNewForApproval }}?{{ sri_editNewForApproval }}" integrity="{{ sri_editNewForApproval }}" crossorigin="anonymous"></script>
 {{- /*  Google Analytics  */}}
 {{- /*  Bootstrap tooltips get initialized on every page  */}}
 <script defer>

@@ -10,6 +10,7 @@
 {{- $scener := index .scener }}
 {{- $noYears := false}}
 {{- $unYears := index .unknownYears }}
+{{- $editor := index .editor}}
 {{- $rowCols := "row-cols-1 row-cols-md-2 row-cols-lg-3"}}
 <p class="text-start lead"><small>There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}}{{if ne $years ""}} from {{$years | safeHTML}}{{end}}.</small></p>
 {{- if or (ne $zoo "0") (ne $sixteen "") (gt (len $web) 0)}}
@@ -55,8 +56,11 @@
         {{- if ne $attr ""}}
         <p class="card-text"><small class="text-body-secondary">{{$attr}}</small></p>
         {{- end}}
+        {{- if eq $editor true}}
+        <p class="card-text"><small class="text-body-info" id="editorFeedback{{ .WebIDDemozoo.Int64 }}"></small></p>
+        {{- demozooGetLink .Filename .Filesize .WebIDDemozoo .UUID }}
+        {{- end}}
         {{- linkPage .ID}}
-        {{- editDownloadGET .Filename .Filesize .WebIDDemozoo }}
         {{- linkDownload .ID .FileSecurityAlertURL.String }}{{ downloadB .Filesize}}
         {{- linkPreview .ID .Filename.String .Platform.String}}
       </div>

@@ -7,20 +7,14 @@ import (
 	"embed"
 	"fmt"
 	"net/http"
-	"os"
-	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/internal/config"
-	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/zoo"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
 	"go.uber.org/zap"
 )
 
@@ -277,47 +271,14 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 	// Editor pages to update the database records.
 	editor := e.Group("/editor")
 	editor.Use(c.ReadOnlyLock, c.SessionLock)
-
-	editor.GET("/new-for-approval", func(x echo.Context) error {
-		return app.FilesWaiting(z, x, "1")
-	})
-	editor.GET("/new-for-approval/:id", func(x echo.Context) error {
-		// todo, placeholder
-		sid := x.Param("id")
-		id, err := strconv.Atoi(sid)
-		if err != nil {
-			return app.StatusErr(z, x, http.StatusNotFound, sid)
-		}
-		dz := zoo.Demozoo{}
-		if err = dz.Get(id); err != nil {
-			return app.StatusErr(z, x, http.StatusNotFound, sid)
-		}
-		var file string
-		for _, link := range dz.DownloadLinks {
-			if link.URL != "" {
-				file, err = helper.DownloadFile(link.URL)
-				if err != nil {
-					log.Debug(err)
-					continue
-				}
-				if file != "" {
-					base := filepath.Base(link.URL)
-					home, _ := os.UserHomeDir()
-					dst := filepath.Join(home, base)
-					if err = helper.RenameFile(file, dst); err != nil {
-						return app.StatusErr(z, x, http.StatusInternalServerError, sid)
-					}
-					return x.String(http.StatusOK,
-						fmt.Sprintf("File downloaded to %s", dst))
-				}
-			}
-		}
-		if file == "" {
-			return app.StatusErr(z, x, http.StatusNotFound, sid)
-		}
-		return x.JSON(http.StatusOK, dz)
-	})
-
+	editor.GET("/get/demozoo/download/:id",
+		func(x echo.Context) error {
+			return app.GetDemozooFile(z, x)
+		})
+	editor.GET("/new-for-approval",
+		func(x echo.Context) error {
+			return app.FilesWaiting(z, x, "1")
+		})
 	online := editor.Group("/online")
 	online.POST("/true", func(x echo.Context) error {
 		return app.RecordToggle(z, x, true)
