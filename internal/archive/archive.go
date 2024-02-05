@@ -45,7 +45,9 @@ var (
 	ErrUnknownExt = errors.New("the archive uses an unsupported file extension")
 )
 
-// ArjItem returns true if the string is a row from an ARJ list.
+// ArjItem returns true if the string is a row from the [arj program] list command.
+//
+// [arj program]: https://arj.sourceforge.net/
 func ARJItem(s string) bool {
 	const minLen = 6
 	if len(s) < minLen {
@@ -61,14 +63,16 @@ func ARJItem(s string) bool {
 	return true
 }
 
-// CheckyCharset checks the byte slice for valid UTF-8 encoding.
-// If the byte slice is not valid UTF-8, it will attempt to decode
-// the byte slice using the MS-DOS era, IBM CP-437 character set.
+// CheckyPath checks the byte slice for valid UTF-8 encoding.
+// If the byte slice is not valid, it will attempt to decode
+// the byte slice using the MS-DOS era, [charmap.CodePage437] character set.
 //
-// This is a historical oddity with BBS file archives, where the
-// file names were encoded using elite-speek and other untypable
+// This is for historical oddities with BBS file archives, where the
+// item names were encoded using [leetspeak] and other untypable
 // characters.
-func CheckyCharset(b []byte) string {
+//
+// [leetspeak]: https://www.oed.com/dictionary/leetspeak_n
+func CheckyPath(b []byte) string {
 	if utf8.Valid(b) {
 		return string(b)
 	}
@@ -80,14 +84,10 @@ func CheckyCharset(b []byte) string {
 	return string(result)
 }
 
-// Content returns both a list of files within an rar, tar, or zip archive;
-// as-well as a suitable filename string for the archive. This filename is
-// useful when the original archive filename has been given an invalid file
-// extension.
+// Content returns a list of files within an rar, tar, lha, or zip archive.
+// This filename extension is used to determine the archive format.
 //
-// An absolute path is required by src that points to the archive file named as a unique id.
-//
-// The original archive filename with extension is required to determine text compression format.
+// An absolute path is required by src that points to the source archive file.
 func Content(src, filename string) ([]string, error) {
 	st, err := os.Stat(src)
 	if errors.Is(err, fs.ErrNotExist) {
@@ -122,7 +122,7 @@ func walker(src, filename string) ([]string, error) {
 		if strings.TrimSpace(f.Name()) == "" {
 			return nil
 		}
-		name := CheckyCharset([]byte(f.Name()))
+		name := CheckyPath([]byte(f.Name()))
 		files = append(files, name)
 		return nil
 	})
@@ -146,20 +146,14 @@ func commander(src, filename string) ([]string, error) {
 	return files, nil
 }
 
-// Extract the targets file from src archive to the destination folder.
-// The archive format is selected implicitly.
-//
-// Archiver relies on the filename extension to determine which
-// decompression format to use, which must be supplied using filename.
-func Extract(src, dst, filename, targets string) error {
+// Extract the filename targets from the source archive file to the destination folder.
+// If no targets are provided, all files are extracted.
+// This filename extension is used to determine the archive format.
+func Extract(src, dst, filename string, targets ...string) error {
 	name := strings.ToLower(filename)
 	f, err := archiver.ByExtension(name)
 	if err != nil {
-		return fmt.Errorf("extract %q: %w", name, err)
-	}
-	format, ok := f.(archiver.Extractor)
-	if !ok {
-		return fmt.Errorf("extract %s (%T): %w", name, f, ErrArchive)
+		return extractor(src, dst, filename, targets...)
 	}
 	// recover from panic caused by mholt/archiver.
 	defer func() {
@@ -167,46 +161,34 @@ func Extract(src, dst, filename, targets string) error {
 			err = fmt.Errorf("extract panic %s: %v", name, r)
 		}
 	}()
-	// err := format.Extract(ctx, input, fileList, handler)
-	if err := format.Extract(src, targets, dst); err != nil {
-		// second attempt at extraction using a system archiver program
-		x := Extractor{Source: src, Destination: dst, OriginalName: filename}
-		if err := x.Extract(targets); err != nil {
-			return fmt.Errorf("command extract: %w", err)
+	extractAll := len(targets) == 0
+	if extractAll {
+		all, ok := f.(archiver.Unarchiver)
+		if !ok {
+			return fmt.Errorf("extract all %s (%T): %w", filename, f, ErrArchive)
 		}
-		return fmt.Errorf("extract: %w", err)
+		if err = all.Unarchive(src, dst); err == nil {
+			return nil
+		}
+	} else {
+		target, ok := f.(archiver.Extractor)
+		if !ok {
+			return fmt.Errorf("extract %s (%T): %w", name, f, ErrArchive)
+		}
+		t := strings.Join(targets, " ")
+		if err = target.Extract(src, t, dst); err == nil {
+			return nil
+		}
 	}
-	return nil
+	return extractor(src, dst, filename, targets...)
 }
 
-// ExtractAll decompresses the given archive file into the destination folder.
-// The archive format is selected implicitly.
-//
-// Archiver relies on the filename extension to determine which
-// decompression format to use, which must be supplied using filename.
-func ExtractAll(src, dst, filename string) error {
-	name := strings.ToLower(filename)
-	f, err := archiver.ByExtension(name)
+// extractor second attempt at extraction using a system archiver program
+func extractor(src, dst, filename string, targets ...string) error {
+	x := Extractor{Source: src, Destination: dst, OriginalName: filename}
+	err := x.Extract(targets...)
 	if err != nil {
-		return fmt.Errorf("%s: %w", filename, err)
-	}
-	format, ok := f.(archiver.Unarchiver)
-	if !ok {
-		return fmt.Errorf("extract all %s (%T): %w", filename, f, ErrArchive)
-	}
-	// recover from panic caused by mholt/archiver.
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf("extract all panic %s: %v", name, r)
-		}
-	}()
-	if err := format.Unarchive(src, dst); err != nil {
-		// second attempt at extraction using a system archiver program
-		x := Extractor{Source: src, Destination: dst, OriginalName: filename}
-		if err := x.Extract(); err != nil {
-			return fmt.Errorf("command extract all: %w", err)
-		}
-		return fmt.Errorf("extract all: %w", err)
+		return fmt.Errorf("command extract: %w", err)
 	}
 	return nil
 }

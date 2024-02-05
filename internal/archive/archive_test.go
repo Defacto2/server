@@ -5,6 +5,8 @@ package archive_test
 //
 // go test -timeout 30s -count 5 -race github.com/Defacto2/server/internal/archive
 
+// TODO: TEST ALL assets for extract all files using an array of file names.
+
 import (
 	"os"
 	"path/filepath"
@@ -102,28 +104,38 @@ func TestContent(t *testing.T) {
 
 func TestExtractAll(t *testing.T) {
 	t.Parallel()
-	err := archive.ExtractAll("", "", "")
+	err := archive.Extract("", "", "")
 	assert.Error(t, err)
 
-	err = archive.ExtractAll(td(""), "", "")
+	err = archive.Extract(td(""), "", "")
 	assert.Error(t, err)
 
-	err = archive.ExtractAll(td(""), os.TempDir(), "")
+	err = archive.Extract(td(""), os.TempDir(), "")
 	assert.Error(t, err)
 
-	err = archive.ExtractAll(td("PKZ204EX.ZIP"), os.TempDir(), "")
+	err = archive.Extract(td("PKZ204EX.ZIP"), os.TempDir(), "")
 	assert.Error(t, err)
 
-	err = archive.ExtractAll(td("PKZ204EX.ZIP"), os.TempDir(), "test.exe")
+	err = archive.Extract(td("PKZ204EX.ZIP"), os.TempDir(), "test.exe")
 	assert.Error(t, err)
 
 	tmp, err := os.MkdirTemp("", "testextractall-")
 	assert.NoError(t, err)
+	defer os.RemoveAll(tmp)
 
-	err = archive.ExtractAll(td("PKZ204EX.ZIP"), tmp, "PKZ204EX.ZIP")
+	err = archive.Extract(td("PKZ204EX.ZIP"), tmp, "PKZ204EX.ZIP")
 	assert.NoError(t, err)
 
-	defer os.RemoveAll(tmp)
+	tmp1, err := os.MkdirTemp("", "testextractall1-")
+	assert.NoError(t, err)
+	defer os.RemoveAll(tmp1)
+
+	name := "ARJ310.ARJ"
+	err = archive.Extract(td(name), tmp1, name)
+	assert.NoError(t, err)
+	count, err := helper.Count(tmp1)
+	assert.NoError(t, err)
+	assert.Equal(t, 15, count)
 }
 
 func TestExtract(t *testing.T) {
