@@ -21,6 +21,7 @@ const (
 )
 
 var (
+	ErrDirPath   = errors.New("directory path is a file")
 	ErrFilePath  = errors.New("file path is a directory")
 	ErrExistPath = errors.New("path ready exists and will not overwrite")
 	ErrOSFile    = errors.New("os file is nil")

@@ -1,6 +1,10 @@
 package helper
 
-import "reflect"
+import (
+	"fmt"
+	"os"
+	"reflect"
+)
 
 // Add1 returns the value of a + 1.
 // The type of a must be an integer type or the result is 0.
@@ -12,4 +16,27 @@ func Add1(a any) int64 {
 	default:
 		return 0
 	}
+}
+
+// Count returns the number of files in the given directory.
+func Count(dir string) (int, error) {
+	i := 0
+	st, err := os.Stat(dir)
+	if err != nil {
+		return 0, err
+	}
+	if !st.IsDir() {
+		return 0, fmt.Errorf("%w: %s", ErrDirPath, dir)
+	}
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		return 0, err
+	}
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		i++
+	}
+	return i, nil
 }

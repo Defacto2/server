@@ -18,8 +18,7 @@ require (
 	github.com/labstack/echo-contrib v0.15.0
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/lib/pq v1.10.9
-	github.com/mholt/archiver v3.1.1+incompatible
-	github.com/nwaples/rardecode v1.1.3
+	github.com/mholt/archiver/v3 v3.5.1
 	github.com/rosedblabs/rosedb/v2 v2.3.4
 	github.com/stretchr/testify v1.8.4
 	github.com/urfave/cli/v2 v2.27.1
@@ -40,7 +39,7 @@ require (
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.3 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/dsnet/compress v0.0.1 // indirect
+	github.com/dsnet/compress v0.0.2-0.20210315054119-f66993602bf5 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -59,10 +58,13 @@ require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
+	github.com/klauspost/compress v1.11.4 // indirect
+	github.com/klauspost/pgzip v1.2.5 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
+	github.com/nwaples/rardecode v1.1.3 // indirect
+	github.com/pierrec/lz4/v4 v4.1.2 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rosedblabs/wal v1.3.6 // indirect
