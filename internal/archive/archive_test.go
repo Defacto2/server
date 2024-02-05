@@ -1,5 +1,10 @@
 package archive_test
 
+// It is highly recommended to run these tests with -race flag to detect
+// race conditions.
+//
+// go test -timeout 30s -count 5 -race github.com/Defacto2/server/internal/archive
+
 import (
 	"os"
 	"path/filepath"
@@ -24,81 +29,75 @@ func td(name string) string {
 
 func TestContent(t *testing.T) {
 	t.Parallel()
-	files, name, err := archive.Content("", "")
+	files, err := archive.Content("", "")
 	assert.Error(t, err)
 	assert.Empty(t, files)
-	assert.Empty(t, name)
 
-	files, name, err = archive.Content(td(""), "")
+	files, err = archive.Content(td(""), "")
 	assert.Error(t, err)
 	assert.Empty(t, files)
-	assert.Empty(t, name)
 
 	// test a deflated zip file
-	files, name, err = archive.Content(td("PKZ204EX.ZIP"), "PKZ204EX.ZIP")
+	finename := "PKZ204EX.ZIP"
+	files, err = archive.Content(td(finename), finename)
 	assert.Nil(t, err)
 	assert.Len(t, files, 15)
-	assert.Equal(t, "PKZ204EX.ZIP", name)
 
 	// test the tar handler
-	files, name, err = archive.Content(td("TAR135.TAR"), "TAR135.TAR")
+	finename = "TAR135.TAR"
+	files, err = archive.Content(td(finename), finename)
 	assert.Nil(t, err)
 	assert.Len(t, files, 15)
-	assert.Equal(t, "TAR135.TAR", name)
 
 	// test the rar handler
-	files, name, err = archive.Content(td("RAR624.RAR"), "RAR624.RAR")
+	finename = "RAR624.RAR"
+	files, err = archive.Content(td(finename), finename)
 	assert.Nil(t, err)
 	assert.Len(t, files, 15)
-	assert.Equal(t, "RAR624.RAR", name)
 
 	// test the tar.gz handler
-	files, name, err = archive.Content(td("TAR135.GZ"), "TAR135.TAR.GZ")
+	finename = "TAR135.TAR.GZ"
+	files, err = archive.Content(td("TAR135.GZ"), finename)
 	assert.Nil(t, err)
 	assert.Len(t, files, 15)
-	assert.Equal(t, "TAR135.TAR.GZ", name)
 
 	// test an arj file
-	files, name, err = archive.Content(td("ARJ310.ARJ"), "ARJ310.ARJ")
+	files, err = archive.Content(td("ARJ310.ARJ"), "ARJ310.ARJ")
 	assert.Nil(t, err)
 	assert.Len(t, files, 15)
-	assert.Equal(t, "ARJ310.ARJ", name)
 
 	// test an unsupported arc file
-	files, name, err = archive.Content(td("ARC521P.ARC"), "ARC521P.ARC")
+	files, err = archive.Content(td("ARC521P.ARC"), "ARC521P.ARC")
 	assert.Error(t, err)
 	assert.Empty(t, files)
-	assert.Empty(t, name)
 
 	// test a legacy shrunk archive
-	files, name, err = archive.Content(td("PKZ80A1.ZIP"), "PKZ80A1.ZIP")
+	finename = "PKZ80A1.ZIP"
+	files, err = archive.Content(td(finename), finename)
 	assert.Nil(t, err)
 	assert.Len(t, files, 15)
-	assert.Equal(t, "PKZ80A1.ZIP", name)
-
 	// test an unsupported 7z file
-	files, name, err = archive.Content(td("TEST.7z"), "TEST.7z")
+	files, err = archive.Content(td("TEST.7z"), "TEST.7z")
 	assert.Error(t, err)
 	assert.Empty(t, files)
-	assert.Empty(t, name)
 
 	// test a xz archive
-	files, name, err = archive.Content(td("TEST.tar.xz"), "TEST.tar.xz")
+	finename = "TEST.tar.xz"
+	files, err = archive.Content(td(finename), finename)
 	assert.Nil(t, err)
 	assert.Len(t, files, 15)
-	assert.Equal(t, "TEST.tar.xz", name)
 
 	// test an unsupported lha archive
-	files, name, err = archive.Content(td("LHA114.LZH"), "LHA114.LZH")
-	assert.Error(t, err)
-	assert.Empty(t, files)
-	assert.Empty(t, name)
+	finename = "LHA114.LZH"
+	files, err = archive.Content(td(finename), finename)
+	assert.Nil(t, err)
+	assert.Len(t, files, 15)
 
 	// test non-latin text
-	files, name, err = archive.Content(td("τεχτƒιℓε.zip"), "τεχτƒιℓε.zip")
+	finename = "τεχτƒιℓε.zip"
+	files, err = archive.Content(td(finename), finename)
 	assert.Nil(t, err)
 	assert.Len(t, files, 1)
-	assert.Equal(t, "τεχτƒιℓε.zip", name)
 }
 
 func TestExtractAll(t *testing.T) {

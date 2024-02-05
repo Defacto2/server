@@ -556,9 +556,9 @@ func (got *DemozooLink) Stat(c echo.Context, downloadDir string) error {
 
 func (got *DemozooLink) ArchiveContent(c echo.Context, path string) error {
 	//return c.JSON(http.StatusOK, got)
-	files, _, err := archive.Content(path, got.Filename)
+	files, err := archive.Content(path, got.Filename)
 	if err != nil {
-		return c.JSON(http.StatusOK, got) // todo, handle unsupported archive types else return
+		return c.JSON(http.StatusOK, got)
 	}
 	got.Content = strings.Join(files, "\n")
 	return c.JSON(http.StatusOK, got)

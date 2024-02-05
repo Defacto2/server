@@ -25,6 +25,7 @@ const (
 	// 7z,arc,ark,arj,cab,gz,lha,lzh,rar,tar,tar.gz,zip.
 	arjx = ".arj" // Archived by Robert Jung
 	lhax = ".lha" // LHarc by Haruyasu Yoshizaki (Yoshi)
+	lhzx = ".lzh" // LHArc by Haruyasu Yoshizaki (Yoshi)
 	rarx = ".rar" // Roshal ARchive by Alexander Roshal
 	zipx = ".zip" // Phil Katz's ZIP for MSDOS systems
 )
@@ -63,6 +64,10 @@ func ARJItem(s string) bool {
 // CheckyCharset checks the byte slice for valid UTF-8 encoding.
 // If the byte slice is not valid UTF-8, it will attempt to decode
 // the byte slice using the MS-DOS era, IBM CP-437 character set.
+//
+// This is a historical oddity with BBS file archives, where the
+// file names were encoded using elite-speek and other untypable
+// characters.
 func CheckyCharset(b []byte) string {
 	if utf8.Valid(b) {
 		return string(b)
@@ -83,59 +88,27 @@ func CheckyCharset(b []byte) string {
 // An absolute path is required by src that points to the archive file named as a unique id.
 //
 // The original archive filename with extension is required to determine text compression format.
-func Content(src, filename string) ([]string, string, error) {
+func Content(src, filename string) ([]string, error) {
 	st, err := os.Stat(src)
 	if errors.Is(err, fs.ErrNotExist) {
-		return nil, "", fmt.Errorf("read %s: %w", filepath.Base(src), ErrFile)
+		return nil, fmt.Errorf("read %s: %w", filepath.Base(src), ErrFile)
 	}
 	if st.IsDir() {
-		return nil, "", fmt.Errorf("read %s: %w", filepath.Base(src), ErrDir)
+		return nil, fmt.Errorf("read %s: %w", filepath.Base(src), ErrDir)
 	}
-	files, fname, err := Readr(src, filename)
+	files, err := walker(src, filename)
 	if err != nil {
-		return nil, "", fmt.Errorf("read uuid/filename: %w", err)
+		return commander(src, filename)
 	}
-	return files, fname, nil
+	return files, nil
 }
 
-// Readr returns both a list of files within an rar, tar or zip archive,
-// and a suitable archive filename string.
-// If there are problems reading the archive due to an incorrect filename
-// extension, the returned filename string will be corrected.
-func Readr(src, filename string) ([]string, string, error) {
-	files, err := readr(src, filename)
-	if err != nil {
-		fmt.Println("readr error:", err)
-		return readCommand(src, filename)
-	}
-	return files, filename, nil
-}
-
-func readCommand(src, filename string) ([]string, string, error) {
-	files, ext, err := Readr(src, filename)
-	if errors.Is(err, ErrWrongExt) {
-		newname := Rename(ext, filename)
-		files, err = readr(src, newname)
-		if err != nil {
-			return nil, "", fmt.Errorf("readr fix: %w", err)
-		}
-		return files, newname, nil
-	}
-	if err != nil {
-		return nil, "", fmt.Errorf("readr: %w", err)
-	}
-	// remove empty entries
-	files = slices.DeleteFunc(files, func(s string) bool {
-		return strings.TrimSpace(s) == ""
-	})
-	return files, filename, nil
-}
-
-func readr(src, filename string) ([]string, error) {
+// walker uses the mholt/archiver package to walk the src archive file.
+func walker(src, filename string) ([]string, error) {
 	name := strings.ToLower(filename) // ByExtension is case sensitive
 	format, err := archiver.ByExtension(name)
 	if err != nil {
-		return nil, fmt.Errorf("by extension: %w", err)
+		return nil, err
 	}
 	w, ok := format.(archiver.Walker)
 	if !ok {
@@ -157,6 +130,20 @@ func readr(src, filename string) ([]string, error) {
 		return nil, err
 	}
 	return files, err
+}
+
+// commander uses system archiver and decompression programs to read the src archive file.
+func commander(src, filename string) ([]string, error) {
+	c := Contents{}
+	if err := c.Read(src, filename); err != nil {
+		return nil, fmt.Errorf("commander failed with %s (%q): %w", filename, c.Ext, err)
+	}
+	// remove empty entries
+	files := c.Files
+	files = slices.DeleteFunc(files, func(s string) bool {
+		return strings.TrimSpace(s) == ""
+	})
+	return files, nil
 }
 
 // Extract the targets file from src archive to the destination folder.
@@ -253,13 +240,13 @@ func MagicExt(src string) (string, error) {
 	}
 	s := strings.Split(strings.ToLower(string(out)), ",")
 	magic := strings.TrimSpace(s[0])
+	if MagicLHA(magic) {
+		return lhax, nil
+	}
 	for magic, ext := range magics {
 		if strings.TrimSpace(s[0]) == magic {
 			return ext, nil
 		}
-	}
-	if MagicLHA(magic) {
-		return lhax, nil
 	}
 	return "", fmt.Errorf("%w: %q", ErrMagic, magic)
 }
@@ -267,7 +254,10 @@ func MagicExt(src string) (string, error) {
 // MagicLHA returns true if the LHA file type is matched in the magic string.
 func MagicLHA(magic string) bool {
 	s := strings.Split(magic, " ")
-	const lha = "lha"
+	const lha, lharc = "lha", "lharc"
+	if s[0] == lharc {
+		return true
+	}
 	if s[0] != lha {
 		return false
 	}
@@ -313,14 +303,14 @@ func (c *Contents) Read(src, filename string) error {
 	if err != nil {
 		return fmt.Errorf("system reader: %w", err)
 	}
-	if !strings.EqualFold(ext, filepath.Ext(filename)) {
-		// retry using correct filename extension
-		return fmt.Errorf("system reader: %w", ErrWrongExt)
-	}
+	// if !strings.EqualFold(ext, filepath.Ext(filename)) {
+	// 	// retry using correct filename extension
+	// 	return fmt.Errorf("system reader: %w", ErrWrongExt)
+	// }
 	switch strings.ToLower(ext) {
 	case arjx:
 		return c.ARJ(src)
-	case lhax:
+	case lhax, lhzx:
 		return c.LHA(src)
 	case rarx:
 		return c.Rar(src)
@@ -497,7 +487,7 @@ func (x Extractor) Extract(targets ...string) error {
 	switch ext {
 	case arjx:
 		return x.ARJ(targets...)
-	case lhax:
+	case lhax, lhzx:
 		return x.LHA(targets...)
 	case zipx:
 		return x.Zip(targets...)
