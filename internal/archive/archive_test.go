@@ -390,8 +390,8 @@ func TestMagicExt(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, ".zip", magic)
 
-	// name := "LHA114.LZH"
-	// magic, err := archive.MagicExt(td(name))
-	// assert.NoError(t, err)
-	// assert.Equal(t, ".lha", magic)
+	name = "LHA114.LZH"
+	magic, err = archive.MagicExt(td(name))
+	assert.NoError(t, err)
+	assert.Equal(t, ".lha", magic)
 }
