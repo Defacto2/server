@@ -1,6 +1,10 @@
 (() => {
   "use strict";
-
+  const buttons = document.getElementsByName("editorGetDemozoo");
+  for (let button of buttons) {
+    button.addEventListener("click", handleClick, false);
+  }
+  
   function removeClick(event) {
     console.log("event listener removed");
     event.target.removeEventListener("click", handleClick, false);
@@ -35,7 +39,7 @@
           button.classList.remove("btn-outline-primary");
           feedback.classList.remove("text-primary-emphasis");
           feedback.classList.add("text-success-emphasis");
-          feedback.textContent = "Success, refresh the page to see changes";
+          feedback.textContent = `Success, got ${data.filename}, refresh the page to see changes`;
           button.disabled = true;
           removeClick(event);
         } else {
@@ -48,36 +52,5 @@
       });
   }
 
-  const buttons = document.getElementsByName("editorGetDemozoo");
-  console.log(buttons.length);
-  for (let button of buttons) {
-    // /get/demozoo/download/:id?uuid=:uuid
-    button.addEventListener("click", handleClick, false);
 
-    // button.addEventListener('click', () => {
-    //     fetch('/editor/getdemozoo/' + id, {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //             'X-CSRFToken': getCookie('csrftoken')
-    //         },
-    //         body: JSON.stringify({
-    //             'uuid': uuid
-    //         })
-    //     })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         console.log(data);
-    //         if (data.success) {
-    //             button.classList.add('btn-success');
-    //             button.classList.remove('btn-primary');
-    //             button.innerHTML = 'Got it!';
-    //         } else {
-    //             button.classList.add('btn-danger');
-    //             button.classList.remove('btn-primary');
-    //             button.innerHTML = 'Error';
-    //         }
-    //     });
-    // });
-  }
 })();

@@ -273,7 +273,7 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 	editor.Use(c.ReadOnlyLock, c.SessionLock)
 	editor.GET("/get/demozoo/download/:id",
 		func(x echo.Context) error {
-			return app.GetDemozooFile(z, x)
+			return app.GetDemozooLink(z, x, dir.Download)
 		})
 	editor.GET("/new-for-approval",
 		func(x echo.Context) error {

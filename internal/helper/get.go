@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -17,9 +19,40 @@ const (
 	UserAgent = "Defacto2 2024 app under construction (thanks!)"
 )
 
+// Redirect returns a new URL if the rawURL is a scene.org file URL.
+func Redirect(rawURL string) string {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return rawURL
+	}
+	if u.Host == "files.scene.org" {
+		p := u.Path
+		x := strings.Split(p, "/")
+		if len(x) > 0 && x[1] == "view" {
+			x[1] = "get"
+			newURL := &url.URL{
+				Scheme: "https",
+				Host:   "files.scene.org",
+				Path:   strings.Join(x, "/"),
+			}
+			return newURL.String()
+		}
+	}
+	return rawURL
+}
+
+type DownloadResponse struct {
+	ContentLength string
+	ContentType   string
+	LastModified  string
+	Path          string
+}
+
 // DownloadFile downloads a file from a remote URL and saves it to the default temp directory.
 // It returns the path to the downloaded file.
-func DownloadFile(url string) (string, error) {
+func DownloadFile(url string) (DownloadResponse, error) {
+	url = Redirect(url)
+
 	// Get the remote file
 	client := http.Client{
 		Timeout: Timeout,
@@ -27,28 +60,36 @@ func DownloadFile(url string) (string, error) {
 	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return "", err
+		return DownloadResponse{}, err
 	}
 	req.Header.Set("User-Agent", UserAgent)
 	res, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return DownloadResponse{}, err
 	}
 	defer res.Body.Close()
+
+	dlr := DownloadResponse{
+		ContentLength: res.Header.Get("Content-Length"),
+		ContentType:   res.Header.Get("Content-Type"),
+		LastModified:  res.Header.Get("Last-Modified"),
+	}
+	fmt.Printf("RESPONSE: %+v\n", res)
 
 	// Create the file in the default temp directory
 	tmpFile, err := os.CreateTemp("", "downloadfile-*")
 	if err != nil {
-		return "", err
+		return DownloadResponse{}, err
 	}
 	defer tmpFile.Close()
 
 	// Write the body to file
 	if _, err := io.Copy(tmpFile, res.Body); err != nil {
 		defer os.Remove(tmpFile.Name())
-		return "", err
+		return DownloadResponse{}, err
 	}
-	return tmpFile.Name(), nil
+	dlr.Path = tmpFile.Name()
+	return dlr, nil
 }
 
 // RenameFile renames a file from oldpath to newpath.

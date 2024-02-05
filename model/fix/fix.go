@@ -40,14 +40,26 @@ func (r Repair) Run(ctx context.Context, w io.Writer, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
-	switch r {
-	case None:
-		return nil
-	case Releaser, All:
-
-		return releasers(ctx, w, db)
+	if r < None || r > Releaser {
+		return fmt.Errorf("%w: %d", ErrRepair, r)
 	}
-	return fmt.Errorf("%w: %d", ErrRepair, r)
+	if r == None {
+		return nil
+	}
+	if err := invalidUUIDs(ctx, w, db); err != nil {
+		return err
+	}
+	if r == (All | Releaser) {
+		if err := releasers(ctx, w, db); err != nil {
+			return err
+		}
+	}
+	if r == All {
+		if err := contentWhiteSpace(ctx, w, db); err != nil {
+			return err
+		}
+	}
+	return optimize(ctx, w, db)
 }
 
 // Fix bad imported names, such as those from Demozoo data imports.
@@ -153,5 +165,38 @@ func magics(ctx context.Context, w io.Writer, db *sql.DB) error {
 	if rowsAff > 0 {
 		fmt.Fprintln(w, "removed", rowsAff, "file magic types with errors")
 	}
+	return nil
+}
+
+// contentWhiteSpace will remove any duplicate newline white space from file_zip_content.
+func contentWhiteSpace(ctx context.Context, w io.Writer, db *sql.DB) error {
+	_, err := queries.Raw("UPDATE files SET file_zip_content = RTRIM(regexp_replace(file_zip_content, '\n+', '\n', 'g'), '\r');").Exec(db)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// optimize reclaims storage occupied by dead tuples in the database and
+// also analyzes the most efficient execution plans for queries.
+func optimize(ctx context.Context, w io.Writer, db *sql.DB) error {
+	_, err := queries.Raw("VACUUM ANALYZE files").Exec(db)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// invalidUUIDs will count the number of invalid UUIDs in the database.
+// This should be part of a future function to repair the UUIDs and rename the file assets.
+func invalidUUIDs(ctx context.Context, w io.Writer, db *sql.DB) error {
+	//SELECT *
+	mods := qm.SQL("SELECT COUNT(*) FROM files WHERE files.uuid" +
+		" !~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}';")
+	i, err := models.Files(mods).Count(ctx, db)
+	if err != nil {
+		return err
+	}
+	fmt.Fprintln(w, i, "invalid UUIDs found")
 	return nil
 }

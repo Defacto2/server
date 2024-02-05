@@ -283,7 +283,7 @@ func RepairDB() error {
 	if localMode() {
 		return nil
 	}
-	return fix.Releaser.Run(ctx, os.Stderr, db)
+	return fix.All.Run(ctx, os.Stderr, db)
 }
 
 // repairdb is used to log the database repair error.

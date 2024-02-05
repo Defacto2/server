@@ -18,6 +18,7 @@ import (
 	"github.com/Defacto2/releaser/initialism"
 	namer "github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/handler/download"
+	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/cache"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/helper"
@@ -28,6 +29,7 @@ import (
 	"github.com/Defacto2/server/internal/web"
 	"github.com/Defacto2/server/internal/zoo"
 	"github.com/Defacto2/server/model"
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
@@ -412,8 +414,8 @@ func ForbiddenErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) e
 	return nil
 }
 
-// GotDemozoo is the response from the task of GetDemozooFile.
-type GotDemozoo struct {
+// DemozooLink is the response from the task of GetDemozooFile.
+type DemozooLink struct {
 	// ID is the Demozoo production ID.
 	ID int `json:"id"`
 	// UUID is the file production UUID.
@@ -424,6 +426,10 @@ type GotDemozoo struct {
 	FileSize int `json:"file_size"`
 	// Type is the file type.
 	FileType string `json:"file_type"`
+	// Hash is the file integrity hash.
+	FileHash string `json:"file_hash"`
+	// Content is the file archive content.
+	Content string `json:"content"`
 	// LinkURL is the download file link used to fetch the file.
 	LinkURL string `json:"link_url"`
 	// LinkClass is the download link class provided by Demozoo.
@@ -435,7 +441,7 @@ type GotDemozoo struct {
 	// todo add more fields
 }
 
-// GetDemozooFile fetches the multiple download_links values from the
+// GetDemozooLink fetches the multiple download_links values from the
 // Demozoo production API and attempts to download and save one of the
 // linked files. If multiple links are found, the first link is used as
 // they should all point to the same asset.
@@ -443,11 +449,17 @@ type GotDemozoo struct {
 // Both the Demozoo production ID param and the Defacto2 UUID query
 // param values are required as params to fetch the production data and
 // to save the file to the correct filename.
-func GetDemozooFile(z *zap.SugaredLogger, c echo.Context) error {
-	got := GotDemozoo{
+func GetDemozooLink(z *zap.SugaredLogger, c echo.Context, downloadDir string) error {
+	const name = "get/demozoo/download"
+	if z == nil {
+		return InternalErr(z, c, name, ErrZap)
+	}
+	got := DemozooLink{
 		Filename:  "",
 		FileSize:  0,
 		FileType:  "",
+		FileHash:  "",
+		Content:   "",
 		LinkURL:   "",
 		LinkClass: "",
 		Success:   false,
@@ -466,47 +478,137 @@ func GetDemozooFile(z *zap.SugaredLogger, c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, got)
 	}
 	got.UUID = sid
+	return got.Download(c, downloadDir)
+}
+
+func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 	var rec zoo.Demozoo
-	if err := rec.Get(id); err != nil {
-		got.Error = fmt.Errorf("could not get record %d from demozoo api: %w", id, err).Error()
+	if err := rec.Get(got.ID); err != nil {
+		got.Error = fmt.Errorf("could not get record %d from demozoo api: %w", got.ID, err).Error()
 		return c.JSON(http.StatusInternalServerError, got)
 	}
-	var path string
 	for _, link := range rec.DownloadLinks {
 		if link.URL == "" {
 			continue
 		}
-		path, err = helper.DownloadFile(link.URL)
-		if err != nil || path == "" {
+		df, err := helper.DownloadFile(link.URL)
+		if err != nil || df.Path == "" {
 			// continue, to attempt the next download link
 			continue
 		}
 		base := filepath.Base(link.URL)
-		home, _ := os.UserHomeDir() // replace with UUID directory
-		dst := filepath.Join(home, base)
+		dst := filepath.Join(downloadDir, got.UUID)
 		got.Filename = base
 		got.LinkClass = link.LinkClass
 		got.LinkURL = link.URL
-		if err := helper.RenameFile(path, dst); err != nil {
+		if err := helper.RenameFile(df.Path, dst); err != nil {
 			got.Error = fmt.Errorf("could not rename file, %s: %w", dst, err).Error()
 			return c.JSON(http.StatusInternalServerError, got)
 		}
-		got = GotDemozoo{
-			ID:        id,
-			UUID:      sid,
-			Filename:  base,
-			FileSize:  0,
-			FileType:  "",
-			LinkURL:   link.URL,
-			LinkClass: link.LinkClass,
-			Success:   true,
-			Error:     "",
+		// get the file size
+		size, err := strconv.Atoi(df.ContentLength)
+		if err == nil {
+			got.FileSize = size
 		}
-		return c.JSON(http.StatusOK, got)
+		// get the file type
+		if df.ContentType != "" {
+			got.FileType = df.ContentType
+		}
+		got.Filename = base
+		got.LinkURL = link.URL
+		got.LinkClass = link.LinkClass
+		got.Success = true
+		got.Error = ""
+		return got.Stat(c, downloadDir)
 	}
-	got.Error = "no usable download links found, they either returned 404 or were empty"
+	got.Error = "no usable download links found, they returned 404 or were empty"
 	return c.JSON(http.StatusNotModified, got)
 }
+
+func (got *DemozooLink) Stat(c echo.Context, downloadDir string) error {
+	path := filepath.Join(downloadDir, got.UUID)
+	// get the file size if not already set
+	if got.FileSize == 0 {
+		stat, err := os.Stat(path)
+		if err != nil {
+			got.Error = fmt.Errorf("could not stat file, %s: %w", path, err).Error()
+			return c.JSON(http.StatusInternalServerError, got)
+		}
+		got.FileSize = int(stat.Size())
+	}
+	// get the file integrity hash
+	strong, err := helper.StrongIntegrity(path)
+	if err != nil {
+		got.Error = fmt.Errorf("could not get strong integrity hash, %s: %w", path, err).Error()
+		return c.JSON(http.StatusInternalServerError, got)
+	}
+	got.FileHash = strong
+	// get the file type if not already set
+	if got.FileType == "" {
+		m, err := mimetype.DetectFile(path)
+		if err != nil {
+			return fmt.Errorf("content filemime failure on %q: %w", path, err)
+		}
+		got.FileType = m.String()
+	}
+	return got.ArchiveContent(c, path)
+}
+
+func (got *DemozooLink) ArchiveContent(c echo.Context, path string) error {
+	//return c.JSON(http.StatusOK, got)
+	files, _, err := archive.Content(path, got.Filename)
+	if err != nil {
+		return c.JSON(http.StatusOK, got) // todo, handle unsupported archive types else return
+	}
+	got.Content = strings.Join(files, "\n")
+	return c.JSON(http.StatusOK, got)
+}
+
+/*
+    "external_links": [
+        {
+            "link_class": "GithubRepo",
+            "url": "https://github.com/KoltesDigital/Those-Who-Leave"
+        },
+        {
+            "link_class": "PouetProduction",
+            "url": "https://www.pouet.net/prod.php?which=71562"
+        },
+        {
+            "link_class": "YoutubeVideo",
+            "url": "https://www.youtube.com/watch?v=x6QrKsBOERA"
+		}
+   "external_links": [
+       {
+           "link_class": "PouetProduction",
+           "url": "https://www.pouet.net/prod.php?which=95362"
+       },
+       {
+           "link_class": "YoutubeVideo",
+           "url": "https://www.youtube.com/watch?v=mbmNU5QVM8A"
+       }
+   ],
+
+   Broken URL: http://scene.org/file.php?id=299790
+   SKIP URL: https://files.scene.org/view/parties/2013/evoke13/demo/traction_brainstorm_muoto.avi
+
+       "download_links": [
+        {
+            "link_class": "SceneOrgFile",
+            "url": "https://files.scene.org/view/parties/2013/evoke13/demo/traction_brainstorm_muoto.zip"
+        },
+        {
+            "link_class": "UntergrundFile",
+            "url": "https://ftp.untergrund.net/users/brainstorm/Production/traction_brainstorm_muoto.zip"
+        }
+    ],
+*/
+
+/*
+	web_id_pouet, web_id_youtube, web_id_github, web_id_16colors ?
+	https://demozoo.org/api/v1/productions/1/
+	retrotxt_readme
+*/
 
 // GoogleCallback is the handler for the Google OAuth2 callback page to verify
 // the [Google ID token].
