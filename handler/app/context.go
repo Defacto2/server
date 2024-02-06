@@ -430,6 +430,8 @@ type DemozooLink struct {
 	FileHash string `json:"file_hash"`
 	// Content is the file archive content.
 	Content string `json:"content"`
+	// Readme is the file readme, text or NFO file.
+	Readme string `json:"readme"`
 	// LinkURL is the download file link used to fetch the file.
 	LinkURL string `json:"link_url"`
 	// LinkClass is the download link class provided by Demozoo.
@@ -438,7 +440,10 @@ type DemozooLink struct {
 	Success bool `json:"success"`
 	// Error is the error message if the download or record update failed.
 	Error string `json:"error"`
-	// todo add more fields
+	// The following data points are obtained from the ExternalLinks fields.
+	Github  string `json:"github_repo"`
+	Pouet   int    `json:"pouet_prod"`
+	YouTube string `json:"youtube_video"`
 }
 
 // GetDemozooLink fetches the multiple download_links values from the
@@ -460,6 +465,7 @@ func GetDemozooLink(z *zap.SugaredLogger, c echo.Context, downloadDir string) er
 		FileType:  "",
 		FileHash:  "",
 		Content:   "",
+		Readme:    "",
 		LinkURL:   "",
 		LinkClass: "",
 		Success:   false,
@@ -519,6 +525,10 @@ func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 		got.LinkClass = link.LinkClass
 		got.Success = true
 		got.Error = ""
+		// obtain data from the external links
+		got.Github = rec.GithubRepo()
+		got.Pouet = rec.PouetProd()
+		got.YouTube = rec.YouTubeVideo()
 		return got.Stat(c, downloadDir)
 	}
 	got.Error = "no usable download links found, they returned 404 or were empty"
@@ -555,60 +565,14 @@ func (got *DemozooLink) Stat(c echo.Context, downloadDir string) error {
 }
 
 func (got *DemozooLink) ArchiveContent(c echo.Context, path string) error {
-	//return c.JSON(http.StatusOK, got)
-	files, err := archive.Content(path, got.Filename)
+	files, err := archive.List(path, got.Filename)
 	if err != nil {
 		return c.JSON(http.StatusOK, got)
 	}
+	got.Readme = archive.Readme(got.Filename, files...)
 	got.Content = strings.Join(files, "\n")
 	return c.JSON(http.StatusOK, got)
 }
-
-/*
-    "external_links": [
-        {
-            "link_class": "GithubRepo",
-            "url": "https://github.com/KoltesDigital/Those-Who-Leave"
-        },
-        {
-            "link_class": "PouetProduction",
-            "url": "https://www.pouet.net/prod.php?which=71562"
-        },
-        {
-            "link_class": "YoutubeVideo",
-            "url": "https://www.youtube.com/watch?v=x6QrKsBOERA"
-		}
-   "external_links": [
-       {
-           "link_class": "PouetProduction",
-           "url": "https://www.pouet.net/prod.php?which=95362"
-       },
-       {
-           "link_class": "YoutubeVideo",
-           "url": "https://www.youtube.com/watch?v=mbmNU5QVM8A"
-       }
-   ],
-
-   Broken URL: http://scene.org/file.php?id=299790
-   SKIP URL: https://files.scene.org/view/parties/2013/evoke13/demo/traction_brainstorm_muoto.avi
-
-       "download_links": [
-        {
-            "link_class": "SceneOrgFile",
-            "url": "https://files.scene.org/view/parties/2013/evoke13/demo/traction_brainstorm_muoto.zip"
-        },
-        {
-            "link_class": "UntergrundFile",
-            "url": "https://ftp.untergrund.net/users/brainstorm/Production/traction_brainstorm_muoto.zip"
-        }
-    ],
-*/
-
-/*
-	web_id_pouet, web_id_youtube, web_id_github, web_id_16colors ?
-	https://demozoo.org/api/v1/productions/1/
-	retrotxt_readme
-*/
 
 // GoogleCallback is the handler for the Google OAuth2 callback page to verify
 // the [Google ID token].

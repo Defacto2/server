@@ -1,5 +1,8 @@
-// Package zoo provides data about releasers and groups on the Demozoo website.
-// https://demozoo.org
+// Package zoo handles the retrieval of [production records] from the
+// [Demozoo] API and the extraction of relevant data for the Defacto2 website.
+//
+// [production records]: https://demozoo.org/api/v1/productions/
+// [Demozoo]: https://demozoo.org
 package zoo
 
 import (
@@ -9,6 +12,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -21,6 +25,9 @@ const (
 	Timeout = 5 * time.Second
 )
 
+// Demozoo is a production record from the Demozoo API.
+// Only the fields required for the Defacto2 website are included,
+// with everything else being ignored.
 type Demozoo struct {
 	// Title is the production title.
 	Title string `json:"title"`
@@ -50,6 +57,11 @@ type Demozoo struct {
 		LinkClass string `json:"link_class"`
 		URL       string `json:"url"`
 	} `json:"download_links"`
+	// ExternalLinks links to the remotely hosted files.
+	ExternalLinks []struct {
+		LinkClass string `json:"link_class"`
+		URL       string `json:"url"`
+	} `json:"external_links"`
 	// ID is the production ID.
 	ID int `json:"id"`
 }
@@ -60,7 +72,11 @@ var (
 	ErrStatus  = errors.New("demozoo production status is not ok")
 )
 
-// Get returns the production data from the Demozoo API.
+// Get requests data for a production record from the [Demozoo API].
+// It returns an error if the production ID is invalid, when the request
+// reaches a [Timeout] or fails.
+//
+// [Demozoo API]: https://demozoo.org/api/v1/productions/
 func (d *Demozoo) Get(id int) error {
 	if id < 1 {
 		return fmt.Errorf("%w: %d", ErrID, id)
@@ -95,6 +111,86 @@ func (d *Demozoo) Get(id int) error {
 		return fmt.Errorf("%w: %d", ErrSuccess, id)
 	}
 	return nil
+}
+
+// GithubRepo returns the Github repository path of the production using
+// the Demozoo struct. It searches the external links for a link class that
+// matches GithubRepo.
+func (d Demozoo) GithubRepo() string {
+	for _, link := range d.ExternalLinks {
+		if link.LinkClass != "GithubRepo" {
+			continue
+		}
+		url, err := url.Parse(link.URL)
+		if err != nil {
+			continue
+		}
+		if url.Host != "github.com" {
+			continue
+		}
+		return url.Path
+	}
+	return ""
+}
+
+// PouetProd returns the Pouet ID of the production using
+// the Demozoo struct. It searches the external links for a
+// link class that matches PouetProduction.
+// A 0 is returned whenever the production does not have a recognized
+// Pouet production link.
+func (d Demozoo) PouetProd() int {
+	for _, link := range d.ExternalLinks {
+		if link.LinkClass != "PouetProduction" {
+			continue
+		}
+		url, err := url.Parse(link.URL)
+		if err != nil {
+			continue
+		}
+		id, err := strconv.Atoi(url.Query().Get("which"))
+		if err != nil {
+			continue
+		}
+		return id
+	}
+	return 0
+}
+
+// Unmarshal parses the JSON-encoded data and stores the result
+// in the Demozoo production struct. It returns an error if the JSON data is
+// invalid or the production ID is invalid.
+func (d *Demozoo) Unmarshal(data []byte) error {
+	if err := json.Unmarshal(data, &d); err != nil {
+		return err
+	}
+	if d.ID < 1 {
+		return fmt.Errorf("%w: %d", ErrID, d.ID)
+	}
+	return nil
+}
+
+// YouTubeVideo returns the ID of a video on YouTube. It searches the external links
+// for a link class that matches YoutubeVideo.
+// An empty string is returned whenever the production does not have a recognized
+// YouTube video link.
+func (d Demozoo) YouTubeVideo() string {
+	for _, link := range d.ExternalLinks {
+		if link.LinkClass != "YoutubeVideo" {
+			continue
+		}
+		url, err := url.Parse(link.URL)
+		if err != nil {
+			continue
+		}
+		if url.Host != "youtube.com" && url.Host != "www.youtube.com" {
+			continue
+		}
+		if url.Path != "/watch" {
+			continue
+		}
+		return url.Query().Get("v")
+	}
+	return ""
 }
 
 // URI is a the URL slug of the releaser.

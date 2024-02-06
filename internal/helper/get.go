@@ -25,6 +25,10 @@ func Redirect(rawURL string) string {
 	if err != nil {
 		return rawURL
 	}
+	if u.Host == "scene.org" && u.Path == "/file.php" {
+		// match broken legacy URLs: http://scene.org/file.php?id=299790
+		return rawURL
+	}
 	if u.Host == "files.scene.org" {
 		p := u.Path
 		x := strings.Split(p, "/")

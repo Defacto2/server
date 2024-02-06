@@ -31,73 +31,73 @@ func td(name string) string {
 
 func TestContent(t *testing.T) {
 	t.Parallel()
-	files, err := archive.Content("", "")
+	files, err := archive.List("", "")
 	assert.Error(t, err)
 	assert.Empty(t, files)
 
-	files, err = archive.Content(td(""), "")
+	files, err = archive.List(td(""), "")
 	assert.Error(t, err)
 	assert.Empty(t, files)
 
 	// test a deflated zip file
 	finename := "PKZ204EX.ZIP"
-	files, err = archive.Content(td(finename), finename)
+	files, err = archive.List(td(finename), finename)
 	assert.Nil(t, err)
 	assert.Len(t, files, 15)
 
 	// test the tar handler
 	finename = "TAR135.TAR"
-	files, err = archive.Content(td(finename), finename)
+	files, err = archive.List(td(finename), finename)
 	assert.Nil(t, err)
 	assert.Len(t, files, 15)
 
 	// test the rar handler
 	finename = "RAR624.RAR"
-	files, err = archive.Content(td(finename), finename)
+	files, err = archive.List(td(finename), finename)
 	assert.Nil(t, err)
 	assert.Len(t, files, 15)
 
 	// test the tar.gz handler
 	finename = "TAR135.TAR.GZ"
-	files, err = archive.Content(td("TAR135.GZ"), finename)
+	files, err = archive.List(td("TAR135.GZ"), finename)
 	assert.Nil(t, err)
 	assert.Len(t, files, 15)
 
 	// test an arj file
-	files, err = archive.Content(td("ARJ310.ARJ"), "ARJ310.ARJ")
+	files, err = archive.List(td("ARJ310.ARJ"), "ARJ310.ARJ")
 	assert.Nil(t, err)
 	assert.Len(t, files, 15)
 
 	// test an unsupported arc file
-	files, err = archive.Content(td("ARC521P.ARC"), "ARC521P.ARC")
+	files, err = archive.List(td("ARC521P.ARC"), "ARC521P.ARC")
 	assert.Error(t, err)
 	assert.Empty(t, files)
 
 	// test a legacy shrunk archive
 	finename = "PKZ80A1.ZIP"
-	files, err = archive.Content(td(finename), finename)
+	files, err = archive.List(td(finename), finename)
 	assert.Nil(t, err)
 	assert.Len(t, files, 15)
 	// test an unsupported 7z file
-	files, err = archive.Content(td("TEST.7z"), "TEST.7z")
+	files, err = archive.List(td("TEST.7z"), "TEST.7z")
 	assert.Error(t, err)
 	assert.Empty(t, files)
 
 	// test a xz archive
 	finename = "TEST.tar.xz"
-	files, err = archive.Content(td(finename), finename)
+	files, err = archive.List(td(finename), finename)
 	assert.Nil(t, err)
 	assert.Len(t, files, 15)
 
 	// test an unsupported lha archive
 	finename = "LHA114.LZH"
-	files, err = archive.Content(td(finename), finename)
+	files, err = archive.List(td(finename), finename)
 	assert.Nil(t, err)
 	assert.Len(t, files, 15)
 
 	// test non-latin text
 	finename = "τεχτƒιℓε.zip"
-	files, err = archive.Content(td(finename), finename)
+	files, err = archive.List(td(finename), finename)
 	assert.Nil(t, err)
 	assert.Len(t, files, 1)
 }
@@ -322,7 +322,7 @@ func TestZip(t *testing.T) {
 func TestBodyARJ(t *testing.T) {
 	t.Parallel()
 	const name = "ARJ310.ARJ"
-	x := archive.Contents{}
+	x := archive.Content{}
 	err := x.ARJ("")
 	assert.Error(t, err)
 
@@ -337,7 +337,7 @@ func TestBodyARJ(t *testing.T) {
 func TestBodyLHA(t *testing.T) {
 	t.Parallel()
 	const name = "LHA114.LZH"
-	x := archive.Contents{}
+	x := archive.Content{}
 	err := x.LHA("")
 	assert.Error(t, err)
 
@@ -352,7 +352,7 @@ func TestBodyLHA(t *testing.T) {
 func TestBodyRar(t *testing.T) {
 	t.Parallel()
 	const name = "RAR624.RAR"
-	x := archive.Contents{}
+	x := archive.Content{}
 	err := x.Rar("")
 	assert.Error(t, err)
 
@@ -367,7 +367,7 @@ func TestBodyRar(t *testing.T) {
 func TestBodyZip(t *testing.T) {
 	t.Parallel()
 	const name = "PKZ80A4.ZIP"
-	x := archive.Contents{}
+	x := archive.Content{}
 	err := x.Zip("")
 	assert.Error(t, err)
 

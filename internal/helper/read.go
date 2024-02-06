@@ -8,6 +8,29 @@ import (
 	"os"
 )
 
+// Files returns the filenames in the given directory.
+func Files(dir string) ([]string, error) {
+	st, err := os.Stat(dir)
+	if err != nil {
+		return nil, err
+	}
+	if !st.IsDir() {
+		return nil, fmt.Errorf("%w: %s", ErrDirPath, dir)
+	}
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	var names []string
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		names = append(names, file.Name())
+	}
+	return names, nil
+}
+
 // Lines returns the number of lines in the named file.
 func Lines(name string) (int, error) {
 	file, err := os.Open(name)

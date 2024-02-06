@@ -1,3 +1,21 @@
+// Package archive provides compressed and stored archive file extraction and content listing.
+//
+// The file archive formats supported are ARJ, LHA, LZH, RAR, TAR, and ZIP.
+//
+// The package uses the [mholt/archiver/v3] package and the following Linux programs
+// as a fallback for legacy file support.
+//
+//  1. [arj] - open-source ARJ v3.10
+//  2. [lha] - Lhasa v0.4 LHA tool found in the jlha-utils or lhasa packages
+//  3. [unrar] - 6.24 freeware by Alexander Roshal, not the common [unrar-free] which is feature incomplete
+//  4. [zipinfo] - ZipInfo v3 by the Info-ZIP workgroup
+//
+// [mholt/archiver/v3]: https://github.com/mholt/archiver/tree/v3.5.1
+// [arj]: https://arj.sourceforge.net/
+// [lha]: https://fragglet.github.io/lhasa/
+// [unrar]: https://www.rarlab.com/rar_add.htm
+// [unrar-free]: https://gitlab.com/bgermann/unrar-free
+// [zipinfo]: https://infozip.sourceforge.net/
 package archive
 
 import (
@@ -15,6 +33,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/Defacto2/server/internal/archive/internal"
 	"github.com/mholt/archiver/v3"
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/transform"
@@ -31,37 +50,13 @@ const (
 )
 
 var (
-	ErrArchive    = errors.New("format specified by source filename is not an archive format")
-	ErrDest       = errors.New("dest directory points to a file")
-	ErrDir        = errors.New("is a directory")
-	ErrFile       = errors.New("no such file")
-	ErrMagic      = errors.New("no unsupport for magic file type")
-	ErrReadr      = errors.New("system could not read the file archive")
-	ErrSilent     = errors.New("archiver program silently failed, it return no output or errors")
-	ErrProg       = errors.New("archive program error")
-	ErrTypeOut    = errors.New("magic file program result is empty")
-	ErrWriter     = errors.New("writer must be a file object")
-	ErrWrongExt   = errors.New("filename has the wrong file extension")
-	ErrUnknownExt = errors.New("the archive uses an unsupported file extension")
+	ErrExt     = errors.New("extension is not a supported archive format")
+	ErrRead    = errors.New("could not read the file archive")
+	ErrProg    = errors.New("program error")
+	ErrFile    = errors.New("path is a directory")
+	ErrPath    = errors.New("path is a file")
+	ErrMissing = errors.New("path does not exist")
 )
-
-// ArjItem returns true if the string is a row from the [arj program] list command.
-//
-// [arj program]: https://arj.sourceforge.net/
-func ARJItem(s string) bool {
-	const minLen = 6
-	if len(s) < minLen {
-		return false
-	}
-	if s[3:4] != ")" {
-		return false
-	}
-	x := s[:3]
-	if _, err := strconv.Atoi(x); err != nil {
-		return false
-	}
-	return true
-}
 
 // CheckyPath checks the byte slice for valid UTF-8 encoding.
 // If the byte slice is not valid, it will attempt to decode
@@ -85,15 +80,15 @@ func CheckyPath(b []byte) string {
 	return string(result)
 }
 
-// Content returns a list of files within an rar, tar, lha, or zip archive.
+// List returns the files within an rar, tar, lha, or zip archive.
 // This filename extension is used to determine the archive format.
-func Content(src, filename string) ([]string, error) {
+func List(src, filename string) ([]string, error) {
 	st, err := os.Stat(src)
 	if errors.Is(err, fs.ErrNotExist) {
-		return nil, fmt.Errorf("read %s: %w", filepath.Base(src), ErrFile)
+		return nil, fmt.Errorf("read %s: %w", filepath.Base(src), ErrMissing)
 	}
 	if st.IsDir() {
-		return nil, fmt.Errorf("read %s: %w", filepath.Base(src), ErrDir)
+		return nil, fmt.Errorf("read %s: %w", filepath.Base(src), ErrFile)
 	}
 	files, err := walker(src, filename)
 	if err != nil {
@@ -111,7 +106,7 @@ func walker(src, filename string) ([]string, error) {
 	}
 	w, ok := format.(archiver.Walker)
 	if !ok {
-		return nil, fmt.Errorf("readr %s (%T): %w", filename, format, ErrArchive)
+		return nil, fmt.Errorf("%w, %q", ErrExt, filename)
 	}
 	files := []string{}
 	err = w.Walk(src, func(f archiver.File) error {
@@ -133,7 +128,7 @@ func walker(src, filename string) ([]string, error) {
 
 // commander uses system archiver and decompression programs to read the src archive file.
 func commander(src, filename string) ([]string, error) {
-	c := Contents{}
+	c := Content{}
 	if err := c.Read(src, filename); err != nil {
 		return nil, fmt.Errorf("commander failed with %s (%q): %w", filename, c.Ext, err)
 	}
@@ -164,7 +159,7 @@ func Extract(src, dst, filename string, targets ...string) error {
 	if extractAll {
 		all, ok := f.(archiver.Unarchiver)
 		if !ok {
-			return fmt.Errorf("extract all %s (%T): %w", filename, f, ErrArchive)
+			return fmt.Errorf("%w, %q", ErrExt, filename)
 		}
 		if err = all.Unarchive(src, dst); err == nil {
 			return nil
@@ -172,7 +167,7 @@ func Extract(src, dst, filename string, targets ...string) error {
 	} else {
 		target, ok := f.(archiver.Extractor)
 		if !ok {
-			return fmt.Errorf("extract %s (%T): %w", name, f, ErrArchive)
+			return fmt.Errorf("%w, %q", ErrExt, filename)
 		}
 		t := strings.Join(targets, " ")
 		if err = target.Extract(src, t, dst); err == nil {
@@ -184,7 +179,7 @@ func Extract(src, dst, filename string, targets ...string) error {
 
 // extractor second attempt at extraction using a system archiver program
 func extractor(src, dst, filename string, targets ...string) error {
-	x := Extractor{Source: src, Destination: dst, OriginalName: filename}
+	x := Extractor{Source: src, Destination: dst, Filename: filename}
 	err := x.Extract(targets...)
 	if err != nil {
 		return fmt.Errorf("command extract: %w", err)
@@ -212,7 +207,7 @@ func MagicExt(src string) (string, error) {
 		return "", fmt.Errorf("magic file type: %w", err)
 	}
 	if len(out) == 0 {
-		return "", fmt.Errorf("magic file type: %w", ErrTypeOut)
+		return "", fmt.Errorf("magic file type: %w", ErrRead)
 	}
 	magics := map[string]string{
 		"7-zip archive data":    ".7z",
@@ -225,7 +220,7 @@ func MagicExt(src string) (string, error) {
 	}
 	s := strings.Split(strings.ToLower(string(out)), ",")
 	magic := strings.TrimSpace(s[0])
-	if MagicLHA(magic) {
+	if internal.MagicLHA(magic) {
 		return lhax, nil
 	}
 	for magic, ext := range magics {
@@ -233,34 +228,12 @@ func MagicExt(src string) (string, error) {
 			return ext, nil
 		}
 	}
-	return "", fmt.Errorf("%w: %q", ErrMagic, magic)
+	return "", fmt.Errorf("%w: %q", ErrExt, magic)
 }
 
-// MagicLHA returns true if the LHA file type is matched in the magic string.
-func MagicLHA(magic string) bool {
-	s := strings.Split(magic, " ")
-	const lha, lharc = "lha", "lharc"
-	if s[0] == lharc {
-		return true
-	}
-	if s[0] != lha {
-		return false
-	}
-	if len(s) < len(lha) {
-		return false
-	}
-	if strings.Join(s[0:3], " ") == "lha archive data" {
-		return true
-	}
-	if strings.Join(s[2:4], " ") == "archive data" {
-		return true
-	}
-	return false
-}
-
-// Rename the filename by replacing the file extension with the ext string.
+// Replace the filename file extension with the ext string.
 // Leaving ext empty returns the filename without a file extension.
-func Rename(ext, filename string) string {
+func Replace(ext, filename string) string {
 	const sep = "."
 	s := strings.Split(filename, sep)
 	if ext == "" && len(s) == 1 {
@@ -276,8 +249,8 @@ func Rename(ext, filename string) string {
 	return strings.Join(s, sep)
 }
 
-// Contents are the result of using system programs to read the file archives.
-type Contents struct {
+// Content are the result of using system programs to read the file archives.
+type Content struct {
 	Files []string // Files returns list of files within the archive.
 	Ext   string   // Ext returns file extension of the archive.
 }
@@ -286,7 +259,7 @@ type Contents struct {
 // credited to Robert Jung, using the [arj program].
 //
 // [arj program]: https://arj.sourceforge.net/
-func (c *Contents) ARJ(src string) error {
+func (c *Content) ARJ(src string) error {
 	prog, err := exec.LookPath("arj")
 	if err != nil {
 		return fmt.Errorf("arj reader: %w", err)
@@ -303,13 +276,13 @@ func (c *Contents) ARJ(src string) error {
 		return err
 	}
 	if len(out) == 0 {
-		return ErrReadr
+		return ErrRead
 	}
 	outs := strings.Split(string(out), "\n")
 	files := []string{}
 	const start = len("001) ")
 	for _, s := range outs {
-		if !ARJItem(s) {
+		if !internal.ARJItem(s) {
 			continue
 		}
 		files = append(files, s[start:])
@@ -324,8 +297,8 @@ func (c *Contents) ARJ(src string) error {
 // LHA returns the content of the src LHA or LZH archive,
 // credited to Haruyasu Yoshizaki (Yoshi), using the [lha program].
 //
-// [lha program]: http://justsolve.archiveteam.org/index.php?title=LHA
-func (c *Contents) LHA(src string) error {
+// [lha program]: https://fragglet.github.io/lhasa/
+func (c *Content) LHA(src string) error {
 	prog, err := exec.LookPath("lha")
 	if err != nil {
 		return fmt.Errorf("lha reader: %w", err)
@@ -342,7 +315,7 @@ func (c *Contents) LHA(src string) error {
 		return err
 	}
 	if len(out) == 0 {
-		return ErrReadr
+		return ErrRead
 	}
 	outs := strings.Split(string(out), "\n")
 
@@ -378,7 +351,7 @@ func (c *Contents) LHA(src string) error {
 // using the [unrar program].
 //
 // [unrar program]: https://www.rarlab.com/rar_add.htm
-func (c *Contents) Rar(src string) error {
+func (c *Content) Rar(src string) error {
 	prog, err := exec.LookPath("unrar")
 	if err != nil {
 		return fmt.Errorf("unrar reader: %w", err)
@@ -397,7 +370,7 @@ func (c *Contents) Rar(src string) error {
 		return fmt.Errorf("%q: %w", src, err)
 	}
 	if len(out) == 0 {
-		return ErrReadr
+		return ErrRead
 	}
 	c.Files = strings.Split(string(out), "\n")
 	c.Files = slices.DeleteFunc(c.Files, func(s string) bool {
@@ -410,7 +383,7 @@ func (c *Contents) Rar(src string) error {
 // Read returns the content of the src file archive using the system archiver programs.
 // The filename is used to determine the archive format.
 // Supported formats are ARJ, LHA, LZH, RAR, and ZIP.
-func (c *Contents) Read(src, filename string) error {
+func (c *Content) Read(src, filename string) error {
 	ext, err := MagicExt(src)
 	if err != nil {
 		return fmt.Errorf("system reader: %w", err)
@@ -429,14 +402,14 @@ func (c *Contents) Read(src, filename string) error {
 	case zipx:
 		return c.Zip(src)
 	}
-	return fmt.Errorf("system reader: %w", ErrReadr)
+	return fmt.Errorf("system reader: %w", ErrRead)
 }
 
 // Zip returns the content of the src ZIP archive, credited to Phil Katz,
 // using the [zipinfo program].
 //
-// [zipinfo program]: https://www.linux.org/docs/man1/zipinfo.html
-func (c *Contents) Zip(src string) error {
+// [zipinfo program]: https://infozip.sourceforge.net/
+func (c *Content) Zip(src string) error {
 	prog, err := exec.LookPath("zipinfo")
 	if err != nil {
 		return fmt.Errorf("zipinfo reader: %w", err)
@@ -458,7 +431,7 @@ func (c *Contents) Zip(src string) error {
 		return fmt.Errorf("%q: %w", src, err)
 	}
 	if len(out) == 0 {
-		return ErrReadr
+		return ErrRead
 	}
 	c.Files = strings.Split(string(out), "\n")
 	c.Files = slices.DeleteFunc(c.Files, func(s string) bool {
@@ -474,7 +447,7 @@ type Extractor struct {
 	Destination string // The extraction destination directory.
 
 	// The original filename of the archive, used by Extract to determine the archive format.
-	OriginalName string
+	Filename string
 }
 
 // ARJ extracts the targets from the source ARJ archive
@@ -487,7 +460,7 @@ func (x Extractor) ARJ(targets ...string) error {
 	if st, err := os.Stat(dst); err != nil {
 		return fmt.Errorf("%w: %s", err, dst)
 	} else if !st.IsDir() {
-		return fmt.Errorf("%w: %s", ErrDest, dst)
+		return fmt.Errorf("%w: %s", ErrPath, dst)
 	}
 	// note: only use arj, as unarj offers limited functionality
 	prog, err := exec.LookPath("arj")
@@ -516,9 +489,9 @@ func (x Extractor) ARJ(targets ...string) error {
 // to the destination directory a system archive program.
 // If the targets are empty then all files are extracted.
 //
-// The following archive formats are supported: ARJ, LHA, LZH, RAR, and ZIP.
+// The required Filename string is used to determine the archive format.
 func (x Extractor) Extract(targets ...string) error {
-	ext := strings.ToLower(filepath.Ext(x.OriginalName))
+	ext := strings.ToLower(filepath.Ext(x.Filename))
 	switch ext {
 	case arjx:
 		return x.ARJ(targets...)
@@ -527,7 +500,7 @@ func (x Extractor) Extract(targets ...string) error {
 	case zipx:
 		return x.Zip(targets...)
 	default:
-		return ErrUnknownExt
+		return ErrExt
 	}
 }
 
@@ -566,7 +539,7 @@ func (x Extractor) LHA(targets ...string) error {
 		return fmt.Errorf("%s: %w", prog, err)
 	}
 	if len(out) == 0 {
-		return ErrSilent
+		return ErrRead
 	}
 	return nil
 }
