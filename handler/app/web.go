@@ -60,7 +60,7 @@ func DemozooGetLink(filename, filesize, demozoo, uuid any) template.HTML {
 		uID = val.String
 	}
 	s := fmt.Sprintf("<button type=\"button\" class=\"btn btn-outline-primary me-2\" name=\"editorGetDemozoo\" "+
-		"data-id=\"%d\" data-uid=\"%s\">GET from Demozoo</button>", zooID, uID)
+		"data-id=\"%d\" data-uid=\"%s\" id=btn\"%s\">GET from Demozoo</button>", zooID, uID, uID)
 	return template.HTML(s)
 }
 

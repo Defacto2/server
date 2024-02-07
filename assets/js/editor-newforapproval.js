@@ -1,10 +1,15 @@
 (() => {
   "use strict";
   const buttons = document.getElementsByName("editorGetDemozoo");
+  const workQueue = [];
   for (let button of buttons) {
     button.addEventListener("click", handleClick, false);
+    const uuid = button.dataset.uid;
+    if (!uuid) console.error("No UUID found");
+    else workQueue.push(uuid);
   }
-  
+  console.log("workQueue", workQueue);
+
   function removeClick(event) {
     console.log("event listener removed");
     event.target.removeEventListener("click", handleClick, false);
@@ -51,6 +56,4 @@
         }
       });
   }
-
-
 })();
