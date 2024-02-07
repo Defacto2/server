@@ -34,6 +34,8 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
+	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"go.uber.org/zap"
 	"google.golang.org/api/idtoken"
 )
@@ -484,10 +486,10 @@ func GetDemozooLink(z *zap.SugaredLogger, c echo.Context, downloadDir string) er
 		return c.JSON(http.StatusBadRequest, got)
 	}
 	got.UUID = sid
-	return got.Download(c, downloadDir)
+	return got.Download(z, c, downloadDir)
 }
 
-func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
+func (got *DemozooLink) Download(z *zap.SugaredLogger, c echo.Context, downloadDir string) error {
 	var rec zoo.Demozoo
 	if err := rec.Get(got.ID); err != nil {
 		got.Error = fmt.Errorf("could not get record %d from demozoo api: %w", got.ID, err).Error()
@@ -508,9 +510,20 @@ func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 		got.LinkClass = link.LinkClass
 		got.LinkURL = link.URL
 		if err := helper.RenameFile(df.Path, dst); err != nil {
-			got.Error = fmt.Errorf("could not rename file, %s: %w", dst, err).Error()
-			return c.JSON(http.StatusInternalServerError, got)
+			// if the rename file fails, check if the uuid file asset already exists
+			// and if it is the same as the downloaded file, if not then return an error.
+			sameFiles, err := helper.FileMatch(df.Path, dst)
+			if err != nil {
+				got.Error = fmt.Errorf("could not rename file, %s: %w", dst, err).Error()
+				return c.JSON(http.StatusInternalServerError, got)
+			}
+			if !sameFiles {
+				got.Error = fmt.Errorf("file ready exists and will not overwrite, %s", dst).Error()
+				return c.JSON(http.StatusConflict, got)
+			}
 		}
+		// TODO save the checksum to the filesysttem.
+
 		// get the file size
 		size, err := strconv.Atoi(df.ContentLength)
 		if err == nil {
@@ -529,13 +542,13 @@ func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 		got.Github = rec.GithubRepo()
 		got.Pouet = rec.PouetProd()
 		got.YouTube = rec.YouTubeVideo()
-		return got.Stat(c, downloadDir)
+		return got.Stat(z, c, downloadDir)
 	}
 	got.Error = "no usable download links found, they returned 404 or were empty"
 	return c.JSON(http.StatusNotModified, got)
 }
 
-func (got *DemozooLink) Stat(c echo.Context, downloadDir string) error {
+func (got *DemozooLink) Stat(z *zap.SugaredLogger, c echo.Context, downloadDir string) error {
 	path := filepath.Join(downloadDir, got.UUID)
 	// get the file size if not already set
 	if got.FileSize == 0 {
@@ -561,16 +574,43 @@ func (got *DemozooLink) Stat(c echo.Context, downloadDir string) error {
 		}
 		got.FileType = m.String()
 	}
-	return got.ArchiveContent(c, path)
+	return got.ArchiveContent(z, c, path)
 }
 
-func (got *DemozooLink) ArchiveContent(c echo.Context, path string) error {
+func (got *DemozooLink) ArchiveContent(z *zap.SugaredLogger, c echo.Context, path string) error {
 	files, err := archive.List(path, got.Filename)
 	if err != nil {
 		return c.JSON(http.StatusOK, got)
 	}
 	got.Readme = archive.Readme(got.Filename, files...)
 	got.Content = strings.Join(files, "\n")
+	return got.Update(z, c)
+}
+
+func (got DemozooLink) Update(z *zap.SugaredLogger, c echo.Context) error {
+	uid := got.UUID
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := model.OneByUUID(ctx, db, true, uid)
+	if err != nil {
+		return err
+	}
+	f.Filename = null.StringFrom(got.Filename)
+	f.Filesize = null.Int64From(int64(got.FileSize))
+	f.FileMagicType = null.StringFrom(got.FileType)
+	f.FileIntegrityStrong = null.StringFrom(got.FileHash)
+	f.FileZipContent = null.StringFrom(got.Content)
+	f.RetrotxtReadme = null.StringFrom(got.Readme)
+	f.WebIDGithub = null.StringFrom(got.Github)
+	f.WebIDPouet = null.Int64From(int64(got.Pouet))
+	f.WebIDYoutube = null.StringFrom(got.YouTube)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return err
+	}
 	return c.JSON(http.StatusOK, got)
 }
 

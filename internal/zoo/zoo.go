@@ -19,10 +19,21 @@ import (
 	"github.com/Defacto2/server/internal/helper"
 )
 
+/*
+An example of a API v1 production call:
+As HTML
+https://demozoo.org/api/v1/productions/185828/
+
+As JSONP
+https://demozoo.org/api/v1/productions/185828/?format=jsonp
+
+As JSON
+https://demozoo.org/api/v1/productions/185828/?format=json
+*/
+
 const (
-	// https://demozoo.org/api/v1/productions/183715/?format=json
-	ProdURL = "https://demozoo.org/api/v1/productions/"
-	Timeout = 5 * time.Second
+	ProdURL = "https://demozoo.org/api/v1/productions/" // ProdURL is the base URL for the Demozoo production API.
+	Timeout = 10 * time.Second                          // HTTP client timeout, Demozoo replies can be slow.
 )
 
 // Demozoo is a production record from the Demozoo API.

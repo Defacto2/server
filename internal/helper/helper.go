@@ -21,10 +21,12 @@ const (
 )
 
 var (
-	ErrDirPath   = errors.New("directory path is a file")
-	ErrFilePath  = errors.New("file path is a directory")
-	ErrExistPath = errors.New("path ready exists and will not overwrite")
-	ErrOSFile    = errors.New("os file is nil")
+	ErrDiffLength = fmt.Errorf("files are of different lengths")
+	ErrDirPath    = errors.New("directory path is a file")
+	ErrFilePath   = errors.New("file path is a directory")
+	ErrExistPath  = errors.New("path ready exists and will not overwrite")
+	ErrOSFile     = errors.New("os file is nil")
+	ErrRead       = fmt.Errorf("could not read files")
 )
 
 // GetLocalIPs returns a list of local IP addresses.
