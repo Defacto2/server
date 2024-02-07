@@ -11,6 +11,7 @@ import (
 	namer "github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/google/uuid"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -65,6 +66,29 @@ func One(ctx context.Context, db *sql.DB, deleted bool, key int) (*models.File, 
 	}
 	if err != nil {
 		return nil, fmt.Errorf("one record %d: %w", key, err)
+	}
+	return file, err
+}
+
+// OneByUUID returns the record associated with the key UUID.
+func OneByUUID(ctx context.Context, db *sql.DB, deleted bool, uid string) (*models.File, error) {
+	if db == nil {
+		return nil, ErrDB
+	}
+	val, err := uuid.Parse(uid)
+	if err != nil {
+		return nil, fmt.Errorf("uuid validation %s: %w", uid, err)
+	}
+	fmt.Println("uuid type", val.Version(), val.String(), val.Variant())
+	mods := models.FileWhere.UUID.EQ(null.NewString(val.String(), true))
+	var file *models.File
+	if deleted {
+		file, err = models.Files(mods, qm.WithDeleted()).One(ctx, db)
+	} else {
+		file, err = models.Files(mods).One(ctx, db)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("one record %s: %w", uid, err)
 	}
 	return file, err
 }
