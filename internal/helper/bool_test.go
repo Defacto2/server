@@ -10,6 +10,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestFileMatch(t *testing.T) {
+	_, err := helper.FileMatch("", "")
+	assert.Error(t, err)
+	v, err := helper.FileMatch("bool.go", "bool.go")
+	assert.NoError(t, err)
+	assert.True(t, v)
+	v, err = helper.FileMatch("bool_test.go", "bool.go")
+	assert.NoError(t, err)
+	assert.False(t, v)
+}
+
 func TestFinds(t *testing.T) {
 	s := []string{"abc", "def", "ghi"}
 	type args struct {
