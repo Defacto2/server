@@ -380,6 +380,15 @@ func Collection() Milestones {
 				" Other microcomputer platforms, such as the <span class=\"text-nowrap\">Apple Macintosh <sup>1984</sup></span>, <span class=\"text-nowrap\">Commodore Amiga</span> and <span class=\"text-nowrap\">Atari ST <sup>1985</sup></span> came with a GUI as standard.",
 		},
 		{
+			Title: "First, dial-up Internet connections", Year: 1984,
+			Link:      "https://networkencyclopedia.com/serial-line-internet-protocol-slip/",
+			LinkTitle: "about SLIP",
+			Content: "Rick Adams created the Serial Line Internet Protocol (SLIP), the industry-standard protocol to connect dial-up modems to the Internet. " +
+				"This protocol allowed for the creation of Internet Service Providers, which provided Internet connections over standard copper telephone lines." +
+				"<br>In 1987, Rick would also go on to found one of the earliest ISPs, UUNET. " +
+				"Which in the following year would offer the first commercial connection to the Internet.",
+		},
+		{
 			Title: "Major game publishers enter the PC market", Year: 1984,
 			Content: "<a href=\"//www.polygon.com/a/how-ea-lost-its-soul/\">Electronic Arts</a>, " +
 				"<a href=\"//www.ign.com/articles/2010/10/01/the-history-of-activision\">Activision</a>, " +
