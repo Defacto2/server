@@ -1,28 +1,50 @@
 # SQLBoiler configuration file
 #
-# To rebuild run the command in the root of this repository:
+# This file is used to configure the SQLBoiler code generation tool.
+# It is used to generate Go code from a PostgreSQL database schema 
+# and requires an active PostgreSQL server to be running.
+# To rebuild run the command in the root of this repository, e.g.:
+#
 # $ go generate
 
-# Target directory.
-output = "internal/postgres/models" 
+# Configuration options
 
-# This should always be kept to true.
+# The name of the models package
+pkgname = "models"
+# The folder to generate the models into
+output = "internal/postgres/models" 
+# Struct tags to add to the generated models
+tag = []
+# Debug mode
+debug = false
+# Global variants
+add-global-variants = false
+# Panic variants
+add-panic-variants = false
+# Enum types
+add-enum-types = false
+# Enum null prefix
+enum-null-prefix = "Null"
+# No context
+no-context = false
+# No hooks
+no-hooks = true
+# No tests
+no-tests = true
+# No auto timestamps
+no-auto-timestamps = false
+# No rows affected
+no-rows-affected = false
+# No driver templates
+no-driver-templates = false
+# Tag ignore
+tag-ignore = []
+# This should always be kept to true
 wipe = true
 
-# Add generation for global variants.
-add-global-variants = false
-
-# Add generation for panic variants.
-add-panic-variants = false
-
-# Disable the before and after query hook models.
-no-hooks = true
-
-# Disable generated go test files.
-# The tests require a PostgreSQL client or server installation on the local machine.
-no-tests = true
-
 # PostgreSQL database connection.
+# https://github.com/volatiletech/sqlboiler?tab=readme-ov-file#database-driver-configuration
+
 [psql]
 schema = "public"
 dbname = "defacto2-ps"
