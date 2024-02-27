@@ -600,7 +600,7 @@ func (got DemozooLink) Update(z *zap.SugaredLogger, c echo.Context) error {
 		return err
 	}
 	f.Filename = null.StringFrom(got.Filename)
-	f.Filesize = null.Int64From(int64(got.FileSize))
+	f.Filesize = int64(got.FileSize)
 	f.FileMagicType = null.StringFrom(got.FileType)
 	f.FileIntegrityStrong = null.StringFrom(got.FileHash)
 	f.FileZipContent = null.StringFrom(got.Content)

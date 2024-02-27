@@ -76,7 +76,7 @@ func DownloadB(i any) template.HTML {
 		if !val.Valid {
 			return "(n/a)"
 		}
-		s = aboutByteCount(val)
+		s = aboutByteCount(val.Int64)
 	default:
 		return template.HTML(fmt.Sprintf("%sDownloadB: %s", typeErr, reflect.TypeOf(i).String()))
 	}

@@ -27,7 +27,6 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/h2non/filetype"
 	"github.com/labstack/echo/v4"
-	"github.com/volatiletech/null/v8"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -110,7 +109,7 @@ func (dir Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error
 	// file metadata
 	data["filename"] = fname
 	data["filesize"] = aboutByteCount(res.Filesize)
-	data["filebyte"] = res.Filesize.Int64
+	data["filebyte"] = res.Filesize
 	data["lastmodified"] = aboutLM(res)
 	data["lastmodifiedAgo"] = aboutModAgo(res)
 	data["checksum"] = strings.TrimSpace(res.FileIntegrityStrong.String)
@@ -365,11 +364,11 @@ func (dir Dirs) extractor(z *zap.SugaredLogger, c echo.Context, p extract) error
 }
 
 // aboutByteCount returns the file size for the file record.
-func aboutByteCount(i null.Int64) string {
-	if !i.Valid || i.Int64 == 0 {
+func aboutByteCount(i int64) string {
+	if i == 0 {
 		return "(n/a)"
 	}
-	return humanize.Bytes(uint64(i.Int64))
+	return humanize.Bytes(uint64(i))
 }
 
 // aboutDesc returns the description for the file record.
