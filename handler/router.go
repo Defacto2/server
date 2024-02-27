@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"embed"
 	"fmt"
+	"html"
 	"net/http"
 	"strings"
 
@@ -100,8 +101,9 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 		URI: %s<br>
 		Query: %s<br>
 		</code>`
-		return x.HTML(http.StatusOK, fmt.Sprintf(format,
+		s := html.EscapeString(fmt.Sprintf(format,
 			req.Proto, req.Host, req.RemoteAddr, req.Method, req.URL.Path, req.RequestURI, req.URL.RawQuery))
+		return x.HTML(http.StatusOK, s)
 	})
 
 	// Use session middleware for all routes but not the embedded files.
