@@ -51,3 +51,15 @@ func TestJoin(t *testing.T) {
 	})
 	assert.Equal(t, 6, len(m))
 }
+
+func TestCookieStore(t *testing.T) {
+	t.Parallel()
+	b, err := handler.CookieStore("")
+	assert.NoError(t, err)
+	assert.Len(t, b, 32)
+
+	const key = "my-secret-key"
+	b, err = handler.CookieStore(key)
+	assert.NoError(t, err)
+	assert.Len(t, b, len(key))
+}
