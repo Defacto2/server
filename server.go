@@ -1,3 +1,13 @@
+// Package main is the entry point for the Defacto2 server application.
+//
+// Use the Task runner / build tool (https://taskfile.dev) to build or run the source code.
+// $ task --list
+//
+// Repository: 	https://github.com/Defacto2/server
+// Website:		https://defacto2.net
+// License:
+//
+// © Defacto2, 2024
 package main
 
 import (

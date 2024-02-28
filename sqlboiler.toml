@@ -1,4 +1,5 @@
 # SQLBoiler configuration file
+# https://github.com/volatiletech/sqlboiler
 #
 # This file is used to configure the SQLBoiler code generation tool.
 # It is used to generate Go code from a PostgreSQL database schema 
