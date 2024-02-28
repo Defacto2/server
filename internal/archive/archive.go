@@ -253,8 +253,8 @@ func Replace(ext, filename string) string {
 
 // Content are the result of using system programs to read the file archives.
 type Content struct {
-	Files []string // Files returns list of files within the archive.
 	Ext   string   // Ext returns file extension of the archive.
+	Files []string // Files returns list of files within the archive.
 }
 
 // ARJ returns the content of the src ARJ archive,

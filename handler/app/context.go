@@ -462,34 +462,21 @@ func ForbiddenErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) e
 //
 //nolint:tagliatelle
 type DemozooLink struct {
-	// ID is the Demozoo production ID.
-	ID int `json:"id"`
-	// UUID is the file production UUID.
-	UUID string `json:"uuid"`
-	// Filename is the file name of the download.
-	Filename string `json:"filename"`
-	// Size is the file size in bytes.
-	FileSize int `json:"file_size"`
-	// Type is the file type.
-	FileType string `json:"file_type"`
-	// Hash is the file integrity hash.
-	FileHash string `json:"file_hash"`
-	// Content is the file archive content.
-	Content string `json:"content"`
-	// Readme is the file readme, text or NFO file.
-	Readme string `json:"readme"`
-	// LinkURL is the download file link used to fetch the file.
-	LinkURL string `json:"link_url"`
-	// LinkClass is the download link class provided by Demozoo.
-	LinkClass string `json:"link_class"`
-	// Success is the success status of the download and record update.
-	Success bool `json:"success"`
-	// Error is the error message if the download or record update failed.
-	Error string `json:"error"`
-	// The following data points are obtained from the ExternalLinks fields.
-	Github  string `json:"github_repo"`
-	Pouet   int    `json:"pouet_prod"`
-	YouTube string `json:"youtube_video"`
+	UUID      string `json:"uuid"`       // UUID is the file production UUID.
+	Filename  string `json:"filename"`   // Filename is the file name of the download.
+	FileType  string `json:"file_type"`  // Type is the file type.
+	FileHash  string `json:"file_hash"`  // Hash is the file integrity hash.
+	Content   string `json:"content"`    // Content is the file archive content.
+	Readme    string `json:"readme"`     // Readme is the file readme, text or NFO file.
+	LinkURL   string `json:"link_url"`   // LinkURL is the download file link used to fetch the file.
+	LinkClass string `json:"link_class"` // LinkClass is the download link class provided by Demozoo.
+	Error     string `json:"error"`      // Error is the error message if the download or record update failed.
+	Github    string `json:"github_repo"`
+	YouTube   string `json:"youtube_video"`
+	ID        int    `json:"id"`        // ID is the Demozoo production ID.
+	FileSize  int    `json:"file_size"` // Size is the file size in bytes.
+	Pouet     int    `json:"pouet_prod"`
+	Success   bool   `json:"success"` // Success is the success status of the download and record update.
 }
 
 // GetDemozooLink fetches the multiple download_links values from the
