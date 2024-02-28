@@ -30,13 +30,16 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 
 	// The session key, if empty a long randomized value is generated that changes on every restart.
 	if !c.Import.ReadMode {
-		key := []byte(c.Import.SessionKey)
-		if c.Import.SessionKey == "" {
-			const length = 32
-			key = make([]byte, length)
-			if _, err := rand.Read(key); err != nil {
-				return nil, err
-			}
+		if c.Import.SessionKey != "" {
+			key := []byte(c.Import.SessionKey)
+			e.Use(session.Middleware(sessions.NewCookieStore(key)))
+		}
+		const length = 32
+		key := make([]byte, length)
+		if n, err := rand.Read(key); err != nil {
+			return nil, fmt.Errorf("%w: %s", ErrKey, err.Error())
+		} else if n != length {
+			return nil, ErrKey
 		}
 		e.Use(session.Middleware(sessions.NewCookieStore(key)))
 	}
