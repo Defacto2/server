@@ -21,7 +21,7 @@ func Files(dir string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	var names []string
+	names := []string{}
 	for _, file := range files {
 		if file.IsDir() {
 			continue

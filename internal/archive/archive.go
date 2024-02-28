@@ -50,11 +50,13 @@ const (
 )
 
 var (
+	ErrDest    = errors.New("destination is empty")
 	ErrExt     = errors.New("extension is not a supported archive format")
 	ErrRead    = errors.New("could not read the file archive")
 	ErrProg    = errors.New("program error")
 	ErrFile    = errors.New("path is a directory")
 	ErrPath    = errors.New("path is a file")
+	ErrPanic   = errors.New("extract panic")
 	ErrMissing = errors.New("path does not exist")
 )
 
@@ -129,7 +131,7 @@ func walker(src, filename string) ([]string, error) {
 // commander uses system archiver and decompression programs to read the src archive file.
 func commander(src, filename string) ([]string, error) {
 	c := Content{}
-	if err := c.Read(src, filename); err != nil {
+	if err := c.Read(src); err != nil {
 		return nil, fmt.Errorf("commander failed with %s (%q): %w", filename, c.Ext, err)
 	}
 	// remove empty entries
@@ -152,7 +154,7 @@ func Extract(src, dst, filename string, targets ...string) error {
 	// recover from panic caused by mholt/archiver.
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("extract panic %s: %v", name, r)
+			err = fmt.Errorf("%w %s: %v", ErrPanic, name, r)
 		}
 	}()
 	extractAll := len(targets) == 0
@@ -164,20 +166,20 @@ func Extract(src, dst, filename string, targets ...string) error {
 		if err = all.Unarchive(src, dst); err == nil {
 			return nil
 		}
-	} else {
-		target, ok := f.(archiver.Extractor)
-		if !ok {
-			return fmt.Errorf("%w, %q", ErrExt, filename)
-		}
-		t := strings.Join(targets, " ")
-		if err = target.Extract(src, t, dst); err == nil {
-			return nil
-		}
+		return extractor(src, dst, filename, targets...)
+	}
+	target, ok := f.(archiver.Extractor)
+	if !ok {
+		return fmt.Errorf("%w, %q", ErrExt, filename)
+	}
+	t := strings.Join(targets, " ")
+	if err = target.Extract(src, t, dst); err == nil {
+		return nil
 	}
 	return extractor(src, dst, filename, targets...)
 }
 
-// extractor second attempt at extraction using a system archiver program
+// extractor second attempt at extraction using a system archiver program.
 func extractor(src, dst, filename string, targets ...string) error {
 	x := Extractor{Source: src, Destination: dst, Filename: filename}
 	err := x.Extract(targets...)
@@ -383,7 +385,7 @@ func (c *Content) Rar(src string) error {
 // Read returns the content of the src file archive using the system archiver programs.
 // The filename is used to determine the archive format.
 // Supported formats are ARJ, LHA, LZH, RAR, and ZIP.
-func (c *Content) Read(src, filename string) error {
+func (c *Content) Read(src string) error {
 	ext, err := MagicExt(src)
 	if err != nil {
 		return fmt.Errorf("system reader: %w", err)
@@ -424,7 +426,7 @@ func (c *Content) Zip(src string) error {
 	if err != nil {
 		// handle broken zips that still contain some valid files
 		if b.String() != "" && len(out) > 0 {
-			//return files, zipx, nil
+			// return files, zipx, nil
 			return nil
 		}
 		// otherwise the zipinfo threw an error
@@ -556,7 +558,7 @@ func (x Extractor) Zip(targets ...string) error {
 		return fmt.Errorf("unzip extract: %w", err)
 	}
 	if dst == "" {
-		return fmt.Errorf("unzip destination is empty")
+		return ErrDest
 	}
 	var b bytes.Buffer
 	ctx, cancel := context.WithCancel(context.Background())

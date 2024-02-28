@@ -55,11 +55,11 @@ func (r Repair) Run(ctx context.Context, w io.Writer, db *sql.DB) error {
 		}
 	}
 	if r == All {
-		if err := contentWhiteSpace(ctx, w, db); err != nil {
+		if err := contentWhiteSpace(db); err != nil {
 			return err
 		}
 	}
-	return optimize(ctx, w, db)
+	return optimize(db)
 }
 
 // Fix bad imported names, such as those from Demozoo data imports.
@@ -169,7 +169,7 @@ func magics(ctx context.Context, w io.Writer, db *sql.DB) error {
 }
 
 // contentWhiteSpace will remove any duplicate newline white space from file_zip_content.
-func contentWhiteSpace(ctx context.Context, w io.Writer, db *sql.DB) error {
+func contentWhiteSpace(db *sql.DB) error {
 	_, err := queries.Raw("UPDATE files SET file_zip_content = RTRIM(regexp_replace(file_zip_content, '\n+', '\n', 'g'), '\r');").Exec(db)
 	if err != nil {
 		return err
@@ -179,7 +179,7 @@ func contentWhiteSpace(ctx context.Context, w io.Writer, db *sql.DB) error {
 
 // optimize reclaims storage occupied by dead tuples in the database and
 // also analyzes the most efficient execution plans for queries.
-func optimize(ctx context.Context, w io.Writer, db *sql.DB) error {
+func optimize(db *sql.DB) error {
 	_, err := queries.Raw("VACUUM ANALYZE files").Exec(db)
 	if err != nil {
 		return err
@@ -190,7 +190,7 @@ func optimize(ctx context.Context, w io.Writer, db *sql.DB) error {
 // invalidUUIDs will count the number of invalid UUIDs in the database.
 // This should be part of a future function to repair the UUIDs and rename the file assets.
 func invalidUUIDs(ctx context.Context, w io.Writer, db *sql.DB) error {
-	//SELECT *
+	// SELECT *
 	mods := qm.SQL("SELECT COUNT(*) FROM files WHERE files.uuid" +
 		" !~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}';")
 	i, err := models.Files(mods).Count(ctx, db)

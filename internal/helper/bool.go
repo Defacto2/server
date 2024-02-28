@@ -33,9 +33,6 @@ func FileMatch(file1, file2 string) (bool, error) {
 	for {
 		n1, err1 := f1.Read(buf1)
 		n2, err2 := f2.Read(buf2)
-
-		fmt.Println(n1, n2, err1, err2)
-
 		if err1 != nil || err2 != nil {
 			if err1 == io.EOF && err2 == io.EOF {
 				break

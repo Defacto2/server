@@ -9,7 +9,6 @@ import (
 )
 
 func TestReadme(t *testing.T) {
-
 	s := archive.Readme("")
 	assert.Empty(t, s)
 

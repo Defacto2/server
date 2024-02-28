@@ -40,6 +40,8 @@ import (
 	"google.golang.org/api/idtoken"
 )
 
+var ErrExist = errors.New("file already exists")
+
 const (
 	demo    = "demo"
 	limit   = 198 // per-page record limit
@@ -457,6 +459,8 @@ func ForbiddenErr(z *zap.SugaredLogger, c echo.Context, uri string, err error) e
 }
 
 // DemozooLink is the response from the task of GetDemozooFile.
+//
+//nolint:tagliatelle
 type DemozooLink struct {
 	// ID is the Demozoo production ID.
 	ID int `json:"id"`
@@ -526,10 +530,10 @@ func GetDemozooLink(z *zap.SugaredLogger, c echo.Context, downloadDir string) er
 		return c.JSON(http.StatusBadRequest, got)
 	}
 	got.UUID = sid
-	return got.Download(z, c, downloadDir)
+	return got.Download(c, downloadDir)
 }
 
-func (got *DemozooLink) Download(z *zap.SugaredLogger, c echo.Context, downloadDir string) error {
+func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 	var rec zoo.Demozoo
 	if err := rec.Get(got.ID); err != nil {
 		got.Error = fmt.Errorf("could not get record %d from demozoo api: %w", got.ID, err).Error()
@@ -558,7 +562,7 @@ func (got *DemozooLink) Download(z *zap.SugaredLogger, c echo.Context, downloadD
 				return c.JSON(http.StatusInternalServerError, got)
 			}
 			if !sameFiles {
-				got.Error = fmt.Errorf("file ready exists and will not overwrite, %s", dst).Error()
+				got.Error = fmt.Errorf("%w, will not overwrite, %s", ErrExist, dst).Error()
 				return c.JSON(http.StatusConflict, got)
 			}
 		}
@@ -582,13 +586,13 @@ func (got *DemozooLink) Download(z *zap.SugaredLogger, c echo.Context, downloadD
 		got.Github = rec.GithubRepo()
 		got.Pouet = rec.PouetProd()
 		got.YouTube = rec.YouTubeVideo()
-		return got.Stat(z, c, downloadDir)
+		return got.Stat(c, downloadDir)
 	}
 	got.Error = "no usable download links found, they returned 404 or were empty"
 	return c.JSON(http.StatusNotModified, got)
 }
 
-func (got *DemozooLink) Stat(z *zap.SugaredLogger, c echo.Context, downloadDir string) error {
+func (got *DemozooLink) Stat(c echo.Context, downloadDir string) error {
 	path := filepath.Join(downloadDir, got.UUID)
 	// get the file size if not already set
 	if got.FileSize == 0 {
@@ -614,20 +618,20 @@ func (got *DemozooLink) Stat(z *zap.SugaredLogger, c echo.Context, downloadDir s
 		}
 		got.FileType = m.String()
 	}
-	return got.ArchiveContent(z, c, path)
+	return got.ArchiveContent(c, path)
 }
 
-func (got *DemozooLink) ArchiveContent(z *zap.SugaredLogger, c echo.Context, path string) error {
+func (got *DemozooLink) ArchiveContent(c echo.Context, path string) error {
 	files, err := archive.List(path, got.Filename)
 	if err != nil {
 		return c.JSON(http.StatusOK, got)
 	}
 	got.Readme = archive.Readme(got.Filename, files...)
 	got.Content = strings.Join(files, "\n")
-	return got.Update(z, c)
+	return got.Update(c)
 }
 
-func (got DemozooLink) Update(z *zap.SugaredLogger, c echo.Context) error {
+func (got DemozooLink) Update(c echo.Context) error {
 	uid := got.UUID
 	db, err := postgres.ConnectDB()
 	if err != nil {

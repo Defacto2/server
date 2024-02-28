@@ -79,7 +79,6 @@ func OneByUUID(ctx context.Context, db *sql.DB, deleted bool, uid string) (*mode
 	if err != nil {
 		return nil, fmt.Errorf("uuid validation %s: %w", uid, err)
 	}
-	fmt.Println("uuid type", val.Version(), val.String(), val.Variant())
 	mods := models.FileWhere.UUID.EQ(null.NewString(val.String(), true))
 	var file *models.File
 	if deleted {

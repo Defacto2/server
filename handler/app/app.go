@@ -1073,7 +1073,7 @@ type SRI struct {
 
 // Verify checks the integrity of the embedded CSS and JS files.
 // These are required for Subresource Integrity (SRI) verification in modern browsers.
-func (s *SRI) Verify(fs embed.FS) error {
+func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 	names := Names()
 	var err error
 	s.Bootstrap, err = helper.Integrity(names[Bootstrap], fs)
@@ -1183,7 +1183,8 @@ func fileInfo(uri string) (string, string, string) {
 	case unwanted.String():
 		logo = "unwanted releases"
 		h1sub = "edit the unwanted software releases"
-		lead = "These are the file artifacts that have been marked as potential unwanted software or containing viruses on Defacto2."
+		lead = "These are the file artifacts that have been marked as potential unwanted software " +
+			"or containing viruses on Defacto2."
 	case oldest.String():
 		logo = "oldest releases"
 		h1sub = "the oldest releases"

@@ -78,8 +78,6 @@ func DownloadFile(url string) (DownloadResponse, error) {
 		ContentType:   res.Header.Get("Content-Type"),
 		LastModified:  res.Header.Get("Last-Modified"),
 	}
-	fmt.Printf("RESPONSE: %+v\n", res)
-
 	// Create the file in the default temp directory
 	tmpFile, err := os.CreateTemp("", "downloadfile-*")
 	if err != nil {

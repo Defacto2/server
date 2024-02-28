@@ -26,7 +26,6 @@ func td(name string) string {
 	d := filepath.Join(filepath.Dir(file), "../..")
 	x := filepath.Join(d, "assets", "testdata", name)
 	return x
-
 }
 
 func TestContent(t *testing.T) {
