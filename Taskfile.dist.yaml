@@ -162,12 +162,14 @@ tasks:
     cmds:
       - cmd: go get -u=patch -x
       - cmd: go mod verify
+      - cmd: go mod tidy
   pkg-update:
     silent: false
     desc: Update the web server dependencies.
     cmds:
       - cmd: go get -u -x
       - cmd: go mod verify
+      - cmd: go mod tidy
   ver:
     silent: false
     desc: Print the versions of the build and compiler tools.
