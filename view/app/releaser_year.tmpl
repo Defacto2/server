@@ -18,7 +18,7 @@
     {{- if and (gt $prevYear 0) (gt $year 0) (gt $year $prevYear) }}
         {{- $prevYear = $rel.Unique.Year.Int }}
         </div>
-        <br>
+        <hr>
         <div class="{{$class}}">
     {{- end}}
     {{- if eq $prevYear 0}}

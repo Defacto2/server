@@ -61,7 +61,7 @@ func Collection() Milestones {
 				"It gives an early example of <strong>social engineering</strong>, defines the community of phreakers as the phone-phreak <strong>underground</strong>, and mentions the newer trend of <strong>computer phreaking</strong>, which we call <u>computer hacking</u> today.",
 		},
 		{
-			Year: 1971, Month: 11, Day: 15, Title: "The first microprocessor",
+			Year: 1971, Month: 11, Day: 15, Title: "The first civilian microprocessor",
 			Lead: "Intel 4004", LinkTitle: "The Story of the Intel 4004",
 			Link: "https://www.intel.com/content/www/us/en/history/museum-story-of-intel-4004.html",
 			Content: "Intel advertises the first-to-market general-purpose programmable processor or microprocessor, the 4-bit Intel 4004. " +
