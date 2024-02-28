@@ -23,6 +23,22 @@
 }
 
 @font-face {
+  font-family: font-opensans;
+  font-display: swap;
+  src: url("/font/opensans_variable.woff2") format("woff2"),
+    url("/font/opensans_variable.woff") format("woff"),
+    url("/font/opensans_variable.ttf") format("truetype");
+}
+
+.font-opensans {
+  font-family: font-opensans, sans-serif;
+  font-size: 100%;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1.5;
+}
+
+@font-face {
   font-family: font-vga-eight;
   font-display: swap;
   src: url("/font/pxplus_ibm_vga8.woff2") format("woff2"),

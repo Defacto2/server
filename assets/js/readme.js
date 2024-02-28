@@ -8,8 +8,10 @@
   const preLatin1 = document.getElementById("readmeLatin1");
   const pre437 = document.getElementById("readmeCP437");
   const copyBtn = document.getElementById(`copyReadme`);
+  const openSans = document.getElementById(`openSansFont`);
   const topaz = document.getElementById(`topazFont`);
   const vga = document.getElementById(`vgaFont`);
+  const blackBG = ["reader-invert", "border", "border-black", "rounded-1"];
 
   /**
    * Converts a file size in bytes to a human-readable format.
@@ -65,12 +67,25 @@
   }
 
   /**
+   * Event listener for the Open Sans font radio button.
+   * @function
+   */
+  if (openSans !== null) {
+    openSans.addEventListener("click", () => {
+      preLatin1.classList.remove(hide, "font-amiga", ...blackBG);
+      preLatin1.classList.add("font-opensans");
+      pre437.classList.add(hide);
+    });
+  }
+
+  /**
    * Event listener for the Topaz font radio button.
    * @function
    */
   if (topaz !== null) {
-    topaz.addEventListener("click", function () {
-      preLatin1.classList.remove(hide);
+    topaz.addEventListener("click", () => {
+      preLatin1.classList.remove(hide, "font-opensans");
+      preLatin1.classList.add("font-amiga", ...blackBG);
       pre437.classList.add(hide);
     });
   }
@@ -80,7 +95,7 @@
    * @function
    */
   if (vga !== null) {
-    vga.addEventListener("click", function () {
+    vga.addEventListener("click", () => {
       preLatin1.classList.add(hide);
       pre437.classList.remove(hide);
     });
