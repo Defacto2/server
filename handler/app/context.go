@@ -356,6 +356,46 @@ func FilesErr(z *zap.SugaredLogger, c echo.Context, uri string) error {
 	return nil
 }
 
+func FilesDeletions(z *zap.SugaredLogger, c echo.Context, page string) error {
+	if z == nil {
+		return InternalErr(z, c, "filesDeletions", ErrZap)
+	}
+	uri := deletions.String()
+	// check the uri is valid
+	if !Valid(uri) {
+		return FilesErr(z, c, uri)
+	}
+	// check the page is valid
+	if page == "" {
+		return files(z, c, uri, 1)
+	}
+	p, err := strconv.Atoi(page)
+	if err != nil {
+		return PageErr(z, c, uri, page)
+	}
+	return files(z, c, uri, p)
+}
+
+func FilesUnwanted(z *zap.SugaredLogger, c echo.Context, page string) error {
+	if z == nil {
+		return InternalErr(z, c, "filesUnwanted", ErrZap)
+	}
+	uri := unwanted.String()
+	// check the uri is valid
+	if !Valid(uri) {
+		return FilesErr(z, c, uri)
+	}
+	// check the page is valid
+	if page == "" {
+		return files(z, c, uri, 1)
+	}
+	p, err := strconv.Atoi(page)
+	if err != nil {
+		return PageErr(z, c, uri, page)
+	}
+	return files(z, c, uri, p)
+}
+
 // Files is the handler for the list and preview of the files page.
 // The uri is the category or collection of files to display.
 // The page is the page number of the results to display.
@@ -363,7 +403,7 @@ func FilesWaiting(z *zap.SugaredLogger, c echo.Context, page string) error {
 	if z == nil {
 		return InternalErr(z, c, "filesWaiting", ErrZap)
 	}
-	uri := newForApproval.String()
+	uri := forApproval.String()
 	// check the uri is valid
 	if !Valid(uri) {
 		return FilesErr(z, c, uri)
@@ -1214,9 +1254,15 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 	}
 	switch Match(uri) {
 	// pulldown editor menu matches
-	case newForApproval:
+	case forApproval:
 		r := model.Files{}
 		return r.ListForApproval(ctx, db, page, limit)
+	case deletions:
+		r := model.Files{}
+		return r.ListDeletions(ctx, db, page, limit)
+	case unwanted:
+		r := model.Files{}
+		return r.ListUnwanted(ctx, db, page, limit)
 	// pulldown menu matches
 	case newUploads:
 		r := model.Files{}
@@ -2268,7 +2314,9 @@ func files(z *zap.SugaredLogger, c echo.Context, uri string, page int) error {
 	case
 		newUploads.String(),
 		newUpdates.String(),
-		newForApproval.String():
+		forApproval.String(),
+		deletions.String(),
+		unwanted.String():
 		data["unknownYears"] = false
 	}
 
@@ -2541,8 +2589,16 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 	}
 	if errors.Is(err, model.ErrURI) {
 		switch uri {
-		case "new-for-approval":
+		case "for-approval":
 			if err := m.StatForApproval(ctx, db); err != nil {
+				return nil, 0, err
+			}
+		case "deletions":
+			if err := m.StatDeletions(ctx, db); err != nil {
+				return nil, 0, err
+			}
+		case "unwanted":
+			if err := m.StatUnwanted(ctx, db); err != nil {
 				return nil, 0, err
 			}
 		default:
@@ -2557,7 +2613,7 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 		"years": fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	switch uri {
-	case "new-updates", "newest", "new-for-approval":
+	case "new-updates", "newest", "for-approval":
 		d["years"] = fmt.Sprintf("%d - %d", m.MaxYear.Int16, m.MinYear.Int16)
 	}
 	return d, int(m.SumCount.Int64), nil

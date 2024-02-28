@@ -21,8 +21,10 @@ const (
 	bbsImage
 	bbsText
 	database
+	deletions
 	demoscene
 	drama
+	forApproval
 	ftp
 	hack
 	howTo
@@ -45,7 +47,6 @@ const (
 	newsArticle
 	newUpdates
 	newUploads
-	newForApproval
 	nfo
 	nfoTool
 	oldest
@@ -62,6 +63,7 @@ const (
 	textPack
 	tool
 	trialCrackme
+	unwanted
 	video
 	windows
 	windowsPack
@@ -84,8 +86,10 @@ func (u URI) String() string {
 		"bbs-image",
 		"bbs-text",
 		"database",
+		"deletions",
 		"demoscene",
 		"drama",
+		"for-approval",
 		"ftp",
 		"hack",
 		"how-to",
@@ -108,7 +112,6 @@ func (u URI) String() string {
 		"news-article",
 		"new-updates",
 		"new-uploads",
-		"new-for-approval",
 		"nfo",
 		"nfo-tool",
 		"oldest",
@@ -125,6 +128,7 @@ func (u URI) String() string {
 		"text-pack",
 		"tool",
 		"trial-crackme",
+		"unwanted",
 		"video",
 		"windows",
 		"windows-pack",

@@ -114,7 +114,7 @@
                 <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">Browse productions</h6></li>
                 {{- if eq (index . "editor") true }}
-                <li><a class="dropdown-item" href="/editor/new-for-approval">New <em>for approval</em></a></li>
+                <li><a class="dropdown-item" href="/editor/for-approval">New <em>for approval</em></a></li>
                 {{- end }}
                 <li><a class="dropdown-item" href="/files/new-uploads">New uploads</a></li>
                 <li><a class="dropdown-item" href="/files/new-updates">New changes</a></li>
@@ -323,7 +323,7 @@
 <script asnyc src="{{ editor }}?{{ sri_editor }}" integrity="{{ sri_editor }}" crossorigin="anonymous"></script>
 <script asnyc src="{{ editAssets }}?{{ sri_editAssets }}" integrity="{{ sri_editAssets }}" crossorigin="anonymous"></script>
 <script asnyc src="{{ editArchive }}?{{ sri_editArchive }}" integrity="{{ sri_editArchive }}" crossorigin="anonymous"></script>
-<script asnyc src="{{ editNewForApproval }}?{{ sri_editNewForApproval }}" integrity="{{ sri_editNewForApproval }}" crossorigin="anonymous"></script>
+<script asnyc src="{{ editForApproval }}?{{ sri_editForApproval }}" integrity="{{ sri_editForApproval }}" crossorigin="anonymous"></script>
 {{- /*  Google Analytics  */}}
 {{- /*  Bootstrap tooltips get initialized on every page  */}}
 <script defer>

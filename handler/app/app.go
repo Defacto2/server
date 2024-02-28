@@ -1054,21 +1054,21 @@ type Cache struct {
 
 // SRI are the Subresource Integrity hashes for the layout.
 type SRI struct {
-	Bootstrap          string // Bootstrap CSS verification hash.
-	BootstrapJS        string // Bootstrap JS verification hash.
-	Editor             string // Editor JS verification hash.
-	EditAssets         string // Editor Assets JS verification hash.
-	EditArchive        string // Editor Archive JS verification hash.
-	EditNewForApproval string // Editor New For Approval JS verification hash.
-	FontAwesome        string // Font Awesome verification hash.
-	JSDosUI            string // JS DOS verification hash.
-	JSDosW             string // JS DOS emscripten verification hash.
-	Layout             string // Layout CSS verification hash.
-	Pouet              string // Pouet JS verification hash.
-	Readme             string // Readme JS verification hash.
-	RESTPouet          string // Pouet REST JS verification hash.
-	RESTZoo            string // Demozoo REST JS verification hash.
-	Uploader           string // Uploader JS verification hash.
+	Bootstrap       string // Bootstrap CSS verification hash.
+	BootstrapJS     string // Bootstrap JS verification hash.
+	Editor          string // Editor JS verification hash.
+	EditAssets      string // Editor Assets JS verification hash.
+	EditArchive     string // Editor Archive JS verification hash.
+	EditForApproval string // Editor For Approval JS verification hash.
+	FontAwesome     string // Font Awesome verification hash.
+	JSDosUI         string // JS DOS verification hash.
+	JSDosW          string // JS DOS emscripten verification hash.
+	Layout          string // Layout CSS verification hash.
+	Pouet           string // Pouet JS verification hash.
+	Readme          string // Readme JS verification hash.
+	RESTPouet       string // Pouet REST JS verification hash.
+	RESTZoo         string // Demozoo REST JS verification hash.
+	Uploader        string // Uploader JS verification hash.
 }
 
 // Verify checks the integrity of the embedded CSS and JS files.
@@ -1096,7 +1096,7 @@ func (s *SRI) Verify(fs embed.FS) error {
 	if err != nil {
 		return err
 	}
-	s.EditNewForApproval, err = helper.Integrity(names[EditNewForApproval], fs)
+	s.EditForApproval, err = helper.Integrity(names[EditForApproval], fs)
 	if err != nil {
 		return err
 	}
@@ -1172,10 +1172,18 @@ func fileInfo(uri string) (string, string, string) {
 		logo = "new changes"
 		h1sub = "the new changes"
 		lead = "These are the recent file artifacts that have been modified or submitted on Defacto2."
-	case newForApproval.String():
-		logo = "new uploads for approval"
-		h1sub = "new uploads for approval"
+	case forApproval.String():
+		logo = "new uploads"
+		h1sub = "edit the new uploads"
 		lead = "These are the recent file artifacts that have been submitted for approval on Defacto2."
+	case deletions.String():
+		logo = "deletions"
+		h1sub = "edit the (hidden) deletions"
+		lead = "These are the file artifacts that have been removed from Defacto2."
+	case unwanted.String():
+		logo = "unwanted releases"
+		h1sub = "edit the unwanted software releases"
+		lead = "These are the file artifacts that have been marked as potential unwanted software or containing viruses on Defacto2."
 	case oldest.String():
 		logo = "oldest releases"
 		h1sub = "the oldest releases"

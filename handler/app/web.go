@@ -218,8 +218,8 @@ func (web Web) TemplateClosures() template.FuncMap {
 		"editAssets": func() string {
 			return hrefs[EditAssets]
 		},
-		"editNewForApproval": func() string {
-			return hrefs[EditNewForApproval]
+		"editForApproval": func() string {
+			return hrefs[EditForApproval]
 		},
 		"editor": func() string {
 			return hrefs[Editor]
@@ -285,8 +285,8 @@ func (web Web) TemplateClosures() template.FuncMap {
 		"sri_editAssets": func() string {
 			return web.Subresource.EditAssets
 		},
-		"sri_editNewForApproval": func() string {
-			return web.Subresource.EditNewForApproval
+		"sri_editForApproval": func() string {
+			return web.Subresource.EditForApproval
 		},
 		"sri_editor": func() string {
 			return web.Subresource.Editor

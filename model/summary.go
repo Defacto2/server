@@ -81,6 +81,31 @@ func (s *Summary) StatForApproval(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, s)
 }
 
+func (s *Summary) StatDeletions(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
+	boil.DebugMode = true
+	return models.NewQuery(
+		models.FileWhere.Deletedat.IsNotNull(),
+		models.FileWhere.Deletedby.IsNotNull(),
+		qm.WithDeleted(),
+		qm.Select(postgres.Columns()...),
+		qm.From(From)).Bind(ctx, db, s)
+}
+
+func (s *Summary) StatUnwanted(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
+	boil.DebugMode = true
+	return models.NewQuery(
+		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
+		qm.WithDeleted(),
+		qm.Select(postgres.Columns()...),
+		qm.From(From)).Bind(ctx, db, s)
+}
+
 // All selects the summary statistics for all files.
 func (s *Summary) All(ctx context.Context, db *sql.DB) error {
 	if db == nil {

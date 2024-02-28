@@ -134,13 +134,15 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 		return app.File(z, x, true)
 	})
 	s.GET("/files/:id/:page", func(x echo.Context) error {
-		if x.Param("id") == "new-for-approval" {
+		switch x.Param("id") {
+		case "for-approval", "deletions", "unwanted":
 			return app.StatusErr(z, x, http.StatusNotFound, x.Param("uri"))
 		}
 		return app.Files(z, x, x.Param("id"), x.Param("page"))
 	})
 	s.GET("/files/:id", func(x echo.Context) error {
-		if x.Param("id") == "new-for-approval" {
+		switch x.Param("id") {
+		case "for-approval", "deletions", "unwanted":
 			return app.StatusErr(z, x, http.StatusNotFound, x.Param("uri"))
 		}
 		return app.Files(z, x, x.Param("id"), "1")
@@ -277,9 +279,17 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 		func(x echo.Context) error {
 			return app.GetDemozooLink(z, x, dir.Download)
 		})
-	editor.GET("/new-for-approval",
+	editor.GET("/for-approval",
 		func(x echo.Context) error {
 			return app.FilesWaiting(z, x, "1")
+		})
+	editor.GET("/deletions",
+		func(x echo.Context) error {
+			return app.FilesDeletions(z, x, "1")
+		})
+	editor.GET("/unwanted",
+		func(x echo.Context) error {
+			return app.FilesUnwanted(z, x, "1")
 		})
 	online := editor.Group("/online")
 	online.POST("/true", func(x echo.Context) error {
@@ -422,7 +432,7 @@ func (c Configuration) Moved(z *zap.SugaredLogger, e *echo.Echo) (*echo.Echo, er
 		return x.Redirect(code, "/f/"+x.Param("id"))
 	})
 	retired.GET("/file/list/waitingapproval", func(x echo.Context) error {
-		return x.Redirect(code, "/files/new-for-approval")
+		return x.Redirect(code, "/files/for-approval")
 	})
 	retired.GET("/file/index", func(x echo.Context) error {
 		return x.Redirect(code, "/file")

@@ -4,22 +4,22 @@ package app
 type Asset int
 
 const (
-	Bootstrap          Asset = iota // Bootstrap is the path to the minified Bootstrap 5.3 CSS file.
-	BootstrapJS                     // BootstrapJS is the path to the minified Bootstrap 5.3 JS file.
-	Editor                          // Editor is the path to the minified Editor JS file.
-	EditAssets                      // EditAssets is the path to the minified Editor assets JS file.
-	EditArchive                     // EditArchive is the path to the minified Editor archive JS file.
-	EditNewForApproval              // EditNewForApproval is the path to the minified Editor new-for-approval JS file.
-	FontAwesome                     // FontAwesome is the path to the minified Font Awesome 3 JS file.
-	JSDosUI                         // JSDosUI is the path to the minified JS DOS user-interface JS file.
-	JSDosW                          // JSDosW is the JS DOS default variant compiled with emscripten.
-	JSDosWasm                       // JSDOSWasm is the JS DOS WASM binary file.
-	Layout                          // Layout is the path to the minified layout CSS file.
-	Pouet                           // Pouet is the path to the minified Pouet JS file.
-	Readme                          // Readme is the path to the minified Readme JS file.
-	RESTPouet                       // RESTPouet is the path to the minified Pouet REST JS file.
-	RESTZoo                         // RESTZoo is the path to the minified Demozoo REST JS file.
-	Uploader                        // Uploader is the path to the minified Uploader JS file.
+	Bootstrap       Asset = iota // Bootstrap is the path to the minified Bootstrap 5.3 CSS file.
+	BootstrapJS                  // BootstrapJS is the path to the minified Bootstrap 5.3 JS file.
+	Editor                       // Editor is the path to the minified Editor JS file.
+	EditAssets                   // EditAssets is the path to the minified Editor assets JS file.
+	EditArchive                  // EditArchive is the path to the minified Editor archive JS file.
+	EditForApproval              // EditForApproval is the path to the minified Editor for-approval JS file.
+	FontAwesome                  // FontAwesome is the path to the minified Font Awesome 3 JS file.
+	JSDosUI                      // JSDosUI is the path to the minified JS DOS user-interface JS file.
+	JSDosW                       // JSDosW is the JS DOS default variant compiled with emscripten.
+	JSDosWasm                    // JSDOSWasm is the JS DOS WASM binary file.
+	Layout                       // Layout is the path to the minified layout CSS file.
+	Pouet                        // Pouet is the path to the minified Pouet JS file.
+	Readme                       // Readme is the path to the minified Readme JS file.
+	RESTPouet                    // RESTPouet is the path to the minified Pouet REST JS file.
+	RESTZoo                      // RESTZoo is the path to the minified Demozoo REST JS file.
+	Uploader                     // Uploader is the path to the minified Uploader JS file.
 )
 
 // Paths are a map of the public facing CSS, JS and WASM files.
@@ -32,22 +32,22 @@ func Hrefs() Paths {
 	// note, the js-dos (JS DOS v6) are minified files,
 	// help: https://js-dos.com/6.22/examples/?arkanoid
 	return Paths{
-		Bootstrap:          "/css/bootstrap.min.css",
-		BootstrapJS:        "/js/bootstrap.bundle.min.js",
-		Editor:             "/js/editor.min.js",
-		EditAssets:         "/js/editor-assets.min.js",
-		EditArchive:        "/js/editor-archive.min.js",
-		EditNewForApproval: "/js/editor-newforapproval.min.js",
-		FontAwesome:        "/js/fontawesome.min.js",
-		JSDosW:             "/js/wdosbox.js",
-		JSDosWasm:          "/js/wdosbox.wasm",
-		JSDosUI:            "/js/js-dos.js",
-		Layout:             "/css/layout.min.css",
-		Pouet:              "/js/pouet.min.js",
-		Readme:             "/js/readme.min.js",
-		RESTPouet:          "/js/rest-pouet.min.js",
-		RESTZoo:            "/js/rest-zoo.min.js",
-		Uploader:           "/js/uploader.min.js",
+		Bootstrap:       "/css/bootstrap.min.css",
+		BootstrapJS:     "/js/bootstrap.bundle.min.js",
+		Editor:          "/js/editor.min.js",
+		EditAssets:      "/js/editor-assets.min.js",
+		EditArchive:     "/js/editor-archive.min.js",
+		EditForApproval: "/js/editor-forapproval.min.js",
+		FontAwesome:     "/js/fontawesome.min.js",
+		JSDosW:          "/js/wdosbox.js",
+		JSDosWasm:       "/js/wdosbox.wasm",
+		JSDosUI:         "/js/js-dos.js",
+		Layout:          "/css/layout.min.css",
+		Pouet:           "/js/pouet.min.js",
+		Readme:          "/js/readme.min.js",
+		RESTPouet:       "/js/rest-pouet.min.js",
+		RESTZoo:         "/js/rest-zoo.min.js",
+		Uploader:        "/js/uploader.min.js",
 	}
 }
 

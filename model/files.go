@@ -9,6 +9,7 @@ import (
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
@@ -152,6 +153,41 @@ func (f *Files) ListUpdates(ctx context.Context, db *sql.DB, offset, limit int) 
 		qm.Limit(limit)).All(ctx, db)
 }
 
+func (f *Files) ListDeletions(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+	if db == nil {
+		return nil, ErrDB
+	}
+	if err := f.StatDeletions(ctx, db); err != nil {
+		return nil, err
+	}
+	boil.DebugMode = true
+	const clause = "deletedat DESC"
+	return models.Files(
+		models.FileWhere.Deletedat.IsNotNull(),
+		models.FileWhere.Deletedby.IsNotNull(),
+		qm.WithDeleted(),
+		qm.OrderBy(clause),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
+}
+
+func (f *Files) ListUnwanted(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
+	if db == nil {
+		return nil, ErrDB
+	}
+	if err := f.StatUnwanted(ctx, db); err != nil {
+		return nil, err
+	}
+	// boil.DebugMode = true
+	const clause = "id DESC"
+	return models.Files(
+		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
+		qm.WithDeleted(),
+		qm.OrderBy(clause),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, db)
+}
+
 func (f *Files) ListForApproval(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
@@ -179,6 +215,37 @@ func (f *Files) StatForApproval(ctx context.Context, db *sql.DB) error {
 	// boil.DebugMode = true
 	return models.NewQuery(
 		models.FileWhere.Deletedat.IsNotNull(),
+		qm.WithDeleted(),
+		qm.Select(postgres.Columns()...),
+		qm.From(From)).Bind(ctx, db, f)
+}
+
+func (f *Files) StatDeletions(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
+	if f.Bytes > 0 && f.Count > 0 {
+		return nil
+	}
+	// boil.DebugMode = true
+	return models.NewQuery(
+		models.FileWhere.Deletedat.IsNotNull(),
+		models.FileWhere.Deletedby.IsNotNull(),
+		qm.WithDeleted(),
+		qm.Select(postgres.Columns()...),
+		qm.From(From)).Bind(ctx, db, f)
+}
+
+func (f *Files) StatUnwanted(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
+	if f.Bytes > 0 && f.Count > 0 {
+		return nil
+	}
+	// boil.DebugMode = true
+	return models.NewQuery(
+		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
 		qm.WithDeleted(),
 		qm.Select(postgres.Columns()...),
 		qm.From(From)).Bind(ctx, db, f)

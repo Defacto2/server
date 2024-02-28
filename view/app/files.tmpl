@@ -57,7 +57,7 @@
         <p class="card-text"><small class="text-body-secondary">{{$attr}}</small></p>
         {{- end}}
         {{- if eq $editor true}}
-        {{/*  TODO use a template to only render for /editor/new-for-approval  */}}
+        {{/*  TODO use a template to only render for /editor/for-approval  */}}
         <p class="card-text"><small class="text-body-info" id="editorFeedback{{ .WebIDDemozoo.Int64 }}"></small></p>
         {{- demozooGetLink .Filename .Filesize .WebIDDemozoo .UUID }}
         {{- end}}
