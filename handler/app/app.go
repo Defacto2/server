@@ -463,6 +463,11 @@ func LinkScnr(name string) (string, error) {
 	return href, nil
 }
 
+// LinkSVG returns an right-arrow SVG icon.
+func LinkSVG() template.HTML {
+	return link
+}
+
 // LinkWiki returns a HTML link with an embedded SVG icon to the Defacto2 wiki on GitHub.
 func LinkWiki(uri, name string) template.HTML {
 	if uri == "" {
@@ -476,7 +481,7 @@ func LinkWiki(uri, name string) template.HTML {
 		return template.HTML(err.Error())
 	}
 	a := fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover link-light" href="%s">%s %s</a>`,
-		href, name, wiki)
+		href, name, link)
 	return template.HTML(a)
 }
 
@@ -1290,8 +1295,6 @@ const (
 	typeErr                 = "error: received an invalid type to "
 	webp                    = ".webp"
 	link      template.HTML = `<svg class="bi" aria-hidden="true">` +
-		`<use xlink:href="/bootstrap-icons.svg#arrow-right-short"></use></svg>`
-	wiki template.HTML = `<svg class="bi" aria-hidden="true">` +
 		`<use xlink:href="/bootstrap-icons.svg#arrow-right-short"></use></svg>`
 )
 

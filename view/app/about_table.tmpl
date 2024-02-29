@@ -176,14 +176,14 @@
                     <tr>
                         <th scope="row">Demozoo</th>
                         <td>
-                            <small><a class="link-offset-3" href="https://demozoo.org/productions/{{$demozoo}}">Downloads, links and extras</a></small>
+                            <small><a class="link-offset-3 icon-link icon-link-hover" href="https://demozoo.org/productions/{{$demozoo}}">Downloads, links and extras{{linkSVG}}</a></small>
                         </td>
                     </tr>{{- end}}
                     {{- if ne $sixteenColors ""}}
                     <tr>
                         <th scope="row">16colors</th>
                         <td>
-                            <small><a class="link-offset-3" href="https://16colo.rs//{{$sixteenColors}}">Downloads, links and extras</a></small>
+                            <small><a class="link-offset-3 icon-link icon-link-hover" href="https://16colo.rs//{{$sixteenColors}}">Downloads, links and extras{{linkSVG}}</a></small>
                         </td>
                     </tr>{{- end}}
                     {{- /*  YouTube, GitHub and other links  */}}
@@ -191,21 +191,21 @@
                     <tr>
                         <th scope="row">YouTube</th>
                         <td>
-                            <small><a class="link-offset-3" href="https://www.youtube.com/watch?v={{$youtube}}">Watch on YouTube</a></small>
+                            <small><a class="link-offset-3 icon-link icon-link-hover" href="https://www.youtube.com/watch?v={{$youtube}}">Watch on YouTube{{linkSVG}}</a></small>
                         </td>
                     </tr>{{- end}}
                     {{- if ne $github ""}}
                     <tr>
                         <th scope="row">GitHub</th>
                         <td>
-                            <small><a class="link-offset-3" href="https://github.com{{$github}}"><var>{{$github}}</var></a></small>
+                            <small><a class="link-offset-3 icon-link icon-link-hover" href="https://github.com{{$github}}"><var>{{$github}}</var>{{linkSVG}}</a></small>
                         </td>
                     </tr>{{- end}}
                     {{- index . "listLinks" }}
                     {{- /*  File created and updated dates  */}}
                     {{- if (index . "filentry")}}
                     <tr>
-                        <th scope="row"><small>File entry</small></th>
+                        <th scope="row"><small>Artifact</small></th>
                         <td><small>{{index . "filentry" | safeHTML}}</small></td>
                     </tr>
                     {{- end}}

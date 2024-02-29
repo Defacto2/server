@@ -355,6 +355,7 @@ func (web Web) TemplateFuncs() template.FuncMap {
 		"linkRemote":        LinkRemote,
 		"linkRelrs":         LinkRelFast,
 		"linkScnr":          LinkScnr,
+		"linkSVG":           LinkSVG,
 		"linkWiki":          LinkWiki,
 		"logoText":          LogoText,
 		"mimeMagic":         MimeMagic,
