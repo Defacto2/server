@@ -6,17 +6,20 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"io"
 	"strings"
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/google/uuid"
 	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"go.uber.org/zap"
 )
 
 var (
+	ErrCtxLog = errors.New("context logger is invalid")
 	ErrDB     = errors.New("database connection is nil")
 	ErrRepair = errors.New("invalid repair option")
 )
@@ -33,10 +36,7 @@ const (
 // In the future we may want to add a Debug or TestRun func.
 
 // Run the database repair based on the repair option.
-func (r Repair) Run(ctx context.Context, w io.Writer, db *sql.DB) error {
-	if w == nil {
-		w = io.Discard
-	}
+func (r Repair) Run(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -46,11 +46,14 @@ func (r Repair) Run(ctx context.Context, w io.Writer, db *sql.DB) error {
 	if r == None {
 		return nil
 	}
-	if err := invalidUUIDs(ctx, w, db); err != nil {
+	if err := invalidUUIDs(ctx, db); err != nil {
+		return err
+	}
+	if err := coldfusionIDs(ctx, db); err != nil {
 		return err
 	}
 	if r == (All | Releaser) {
-		if err := releasers(ctx, w, db); err != nil {
+		if err := releasers(ctx, db); err != nil {
 			return err
 		}
 	}
@@ -60,6 +63,64 @@ func (r Repair) Run(ctx context.Context, w io.Writer, db *sql.DB) error {
 		}
 	}
 	return optimize(db)
+}
+
+// coldfusionIDs will fix the invalid [ColdFusion language syntax] UUIDs in the database
+// and rename the file assets using the new UUIDs.
+// ColdFusion uses an invalid 35 character UUID, which is a 32 character UUID with 3 hyphens,
+// while the standard UUID is 36 characters with 4 hyphens.
+//
+// A blank UUID is "00000000-0000-0000-0000-000000000000".
+//
+// A blank CFID is "00000000-0000-0000-0000000000000000".
+//
+// [ColdFusion language syntax]: https://cfdocs.org/createuuid
+func coldfusionIDs(ctx context.Context, db *sql.DB) error {
+	mods := qm.SQL("SELECT uuid FROM files WHERE length(uuid)=35")
+	fs, err := models.Files(mods).All(ctx, db)
+	if err != nil {
+		return err
+	}
+	i := len(fs)
+	if i == 0 {
+		return nil
+	}
+	logr, ok := ctx.Value("logger").(*zap.SugaredLogger)
+	if !ok {
+		return ErrCtxLog
+	}
+	logr.Infoln(i, "invalid UUIDs found using the ColdFusion syntax")
+	for i, f := range fs {
+		if !f.UUID.Valid {
+			continue
+		}
+
+		const pos = 23
+		// 35 character UUIDs in a 36 character fixed length string will have a tailing space.
+		oldUUID := strings.TrimSpace(f.UUID.String)
+		r := []rune(oldUUID)
+		r = append(r[:pos], append([]rune{'-'}, r[pos:]...)...)
+		newUUID := string(r)
+
+		err := uuid.Validate(newUUID)
+		if err != nil {
+			logr.Warnln("%d. %q is invalid, %s\n", i, newUUID, err)
+			continue
+		}
+
+		file, err := models.Files(qm.Where("uuid = ?", oldUUID)).One(ctx, db)
+		if err != nil {
+			logr.Warnln("%d. %q failed to find, %s\n", i, oldUUID, err)
+			continue
+		}
+		file.UUID = null.StringFrom(newUUID)
+		_, err = file.Update(ctx, db, boil.Infer())
+		if err != nil {
+			logr.Warnln("%d. %q failed to update, %s\n", i, oldUUID, err)
+			continue
+		}
+	}
+	return nil
 }
 
 // Fix bad imported names, such as those from Demozoo data imports.
@@ -96,7 +157,7 @@ func fixes() map[string]string {
 }
 
 // releasers will repair the group_brand_by and group_brand_for releasers data.
-func releasers(ctx context.Context, w io.Writer, db *sql.DB) error {
+func releasers(ctx context.Context, db *sql.DB) error {
 	x := null.NewString("", true)
 	f, err := models.Files(
 		qm.Where("group_brand_for = group_brand_by"),
@@ -106,6 +167,10 @@ func releasers(ctx context.Context, w io.Writer, db *sql.DB) error {
 	}
 	if _, err = f.UpdateAll(ctx, db, models.M{"group_brand_by": x}); err != nil {
 		return err
+	}
+	logr, ok := ctx.Value("logger").(*zap.SugaredLogger)
+	if !ok {
+		return ErrCtxLog
 	}
 	var rowsAff int64
 	for bad, fix := range fixes() {
@@ -122,7 +187,7 @@ func releasers(ctx context.Context, w io.Writer, db *sql.DB) error {
 			return err
 		}
 		if rowsAff > 0 {
-			fmt.Fprintln(w, "updated", rowsAff, "groups for to", fix)
+			logr.Infoln("updated", rowsAff, "groups for to", fix)
 		}
 		f, err = models.Files(
 			qm.Where("group_brand_by = ?", bad),
@@ -135,7 +200,7 @@ func releasers(ctx context.Context, w io.Writer, db *sql.DB) error {
 			return err
 		}
 		if rowsAff > 0 {
-			fmt.Fprintln(w, "updated", rowsAff, "groups by to", fix)
+			logr.Infoln("updated", rowsAff, "groups by to", fix)
 		}
 	}
 	_, err = queries.Raw(postgres.SetUpper("group_brand_for")).Exec(db)
@@ -150,10 +215,10 @@ func releasers(ctx context.Context, w io.Writer, db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	return magics(ctx, w, db)
+	return magics(ctx, db)
 }
 
-func magics(ctx context.Context, w io.Writer, db *sql.DB) error {
+func magics(ctx context.Context, db *sql.DB) error {
 	magics, err := models.Files(qm.Where("file_magic_type ILIKE ?", "ERROR: %")).All(ctx, db)
 	if err != nil {
 		return err
@@ -163,7 +228,10 @@ func magics(ctx context.Context, w io.Writer, db *sql.DB) error {
 		return err
 	}
 	if rowsAff > 0 {
-		fmt.Fprintln(w, "removed", rowsAff, "file magic types with errors")
+		logr, ok := ctx.Value("logger").(*zap.SugaredLogger)
+		if ok {
+			logr.Infoln("removed", rowsAff, "file magic types with errors")
+		}
 	}
 	return nil
 }
@@ -189,14 +257,19 @@ func optimize(db *sql.DB) error {
 
 // invalidUUIDs will count the number of invalid UUIDs in the database.
 // This should be part of a future function to repair the UUIDs and rename the file assets.
-func invalidUUIDs(ctx context.Context, w io.Writer, db *sql.DB) error {
-	// SELECT *
+func invalidUUIDs(ctx context.Context, db *sql.DB) error {
 	mods := qm.SQL("SELECT COUNT(*) FROM files WHERE files.uuid" +
 		" !~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}';")
 	i, err := models.Files(mods).Count(ctx, db)
 	if err != nil {
 		return err
 	}
-	fmt.Fprintln(w, i, "invalid UUIDs found")
+	if i == 0 {
+		return nil
+	}
+	logr, ok := ctx.Value("logger").(*zap.SugaredLogger)
+	if ok {
+		logr.Warnf("%d invalid UUIDs found", i)
+	}
 	return nil
 }

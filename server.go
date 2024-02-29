@@ -67,22 +67,22 @@ var (
 func main() {
 	// Logger
 	// Use the development log until the environment vars are parsed
-	logs := logger.CLI().Sugar()
+	logr := logger.CLI().Sugar()
 
 	// Environment variables configuration
-	configs := configure(logs)
+	configs := configure(logr)
 
 	// By default the web server runs when no arguments are provided
-	commandLine(logs, configs)
+	commandLine(logr, configs)
 
 	// Sanity checks
-	sanity(logs, configs)
+	sanity(logr, configs)
 
 	// Setup the logger and print the startup production/read-only message
-	logs = setupLogger(logs, configs)
+	logr = setupLogger(logr, configs)
 
 	// Echo router and controller instance
-	server := controller(logs, configs)
+	server := controller(logr, configs)
 
 	// Controllers and routes
 	e := server.Controller()
@@ -112,14 +112,14 @@ func main() {
 		go server.StartTLSLocal(e)
 	default:
 		// this should never happen as HTTPPort is always set to a default value
-		logs.Fatalf("No server ports are configured, please check the environment variables.")
+		logr.Fatalf("No server ports are configured, please check the environment variables.")
 	}
 
 	// List the local IP addresses that can also be used to access the server
 	go func() {
 		s, err := configs.Startup()
 		if err != nil {
-			logs.Errorf("%s: %s", ErrEnv, err)
+			logr.Errorf("%s: %s", ErrEnv, err)
 		}
 		fmt.Fprintf(os.Stdout, "%s\n", s)
 	}()
@@ -133,10 +133,10 @@ func main() {
 }
 
 // configure is used to parse the environment variables and set the Go runtime.
-func configure(logs *zap.SugaredLogger) config.Config {
+func configure(logr *zap.SugaredLogger) config.Config {
 	configs := config.Config{}
 	if err := env.Parse(&configs); err != nil {
-		logs.Fatalf("%w: %s", ErrEnv, err)
+		logr.Fatalf("%w: %s", ErrEnv, err)
 	}
 	configs.Override(localMode())
 
@@ -148,12 +148,12 @@ func configure(logs *zap.SugaredLogger) config.Config {
 	return configs
 }
 
-func controller(logs *zap.SugaredLogger, configs config.Config) handler.Configuration {
+func controller(logr *zap.SugaredLogger, configs config.Config) handler.Configuration {
 	// Echo router and controller instance
 	server := handler.Configuration{
 		Brand:   &brand,
 		Import:  &configs,
-		Logger:  logs,
+		Logger:  logr,
 		Public:  public,
 		Version: version,
 		View:    view,
@@ -166,13 +166,13 @@ func controller(logs *zap.SugaredLogger, configs config.Config) handler.Configur
 }
 
 // commandLine is used to parse the command-line arguments.
-func commandLine(logs *zap.SugaredLogger, c config.Config) {
-	if logs == nil {
+func commandLine(logr *zap.SugaredLogger, c config.Config) {
+	if logr == nil {
 		return
 	}
 	code, err := cmd.Run(version, &c)
 	if err != nil {
-		logs.Errorf("%s: %s", ErrCmd, err)
+		logr.Errorf("%s: %s", ErrCmd, err)
 		os.Exit(int(code))
 	}
 	useExitCode := code >= cmd.ExitOK
@@ -183,41 +183,41 @@ func commandLine(logs *zap.SugaredLogger, c config.Config) {
 }
 
 // sanity is used to perform a number of sanity checks on the file system and database.
-func sanity(logs *zap.SugaredLogger, configs config.Config) {
-	if configs.FastStart || logs == nil {
+func sanity(logr *zap.SugaredLogger, configs config.Config) {
+	if configs.FastStart || logr == nil {
 		return
 	}
 	// Configuration sanity checks
-	if err := configs.Checks(logs); err != nil {
-		logs.Errorf("%s: %s", ErrEnv, err)
+	if err := configs.Checks(logr); err != nil {
+		logr.Errorf("%s: %s", ErrEnv, err)
 	}
 	// Confirm command requirements when not running in read-only mode
-	checks(logs, configs.ReadMode)
+	checks(logr, configs.ReadMode)
 	// Database connection checks
 	if conn, err := postgres.New(); err != nil {
-		logs.Errorf("%s: %s", ErrDB, err)
+		logr.Errorf("%s: %s", ErrDB, err)
 	} else {
-		_ = conn.Check(logs, localMode())
+		_ = conn.Check(logr, localMode())
 	}
 	// Repair assets on the host file system
-	if err := configs.RepairFS(logs); err != nil {
-		logs.Errorf("%s: %s", ErrFS, err)
+	if err := configs.RepairFS(logr); err != nil {
+		logr.Errorf("%s: %s", ErrFS, err)
 	}
 	// Repair the database on startup
-	if err := RepairDB(); err != nil {
-		repairdb(logs, err)
+	if err := RepairDB(logr); err != nil {
+		repairdb(logr, err)
 	}
 }
 
 // setupLogger is used to setup the logger.
-func setupLogger(logs *zap.SugaredLogger, c config.Config) *zap.SugaredLogger {
-	if logs == nil {
+func setupLogger(logr *zap.SugaredLogger, c config.Config) *zap.SugaredLogger {
+	if logr == nil {
 		return nil
 	}
 	if localMode() {
 		s := "Welcome to the local Defacto2 web application."
-		logs.Info(s)
-		return logs
+		logr.Info(s)
+		return logr
 	}
 	mode := "read-only mode"
 	if !c.ReadMode {
@@ -226,24 +226,24 @@ func setupLogger(logs *zap.SugaredLogger, c config.Config) *zap.SugaredLogger {
 	switch c.ProductionMode {
 	case true:
 		if err := c.LogStorage(); err != nil {
-			logs.Fatalf("%w: %s", ErrLog, err)
+			logr.Fatalf("%w: %s", ErrLog, err)
 		}
-		logs = logger.Production(c.LogDir).Sugar()
+		logr = logger.Production(c.LogDir).Sugar()
 		s := "The server is running in a "
 		s += strings.ToUpper("production, "+mode) + "."
-		logs.Info(s)
+		logr.Info(s)
 	default:
 		s := "The server is running in a "
 		s += strings.ToUpper("development, "+mode) + "."
-		logs.Warn(s)
-		logs = logger.Development().Sugar()
+		logr.Warn(s)
+		logr = logger.Development().Sugar()
 	}
-	return logs
+	return logr
 }
 
 // checks is used to confirm the required commands are available.
-func checks(logs *zap.SugaredLogger, readonly bool) {
-	if logs == nil || readonly {
+func checks(logr *zap.SugaredLogger, readonly bool) {
+	if logr == nil || readonly {
 		return
 	}
 	var buf strings.Builder
@@ -254,17 +254,17 @@ func checks(logs *zap.SugaredLogger, readonly bool) {
 		}
 	}
 	if buf.Len() > 0 {
-		logs.Warnln("The following commands are required for the server to run in WRITE MODE",
+		logr.Warnln("The following commands are required for the server to run in WRITE MODE",
 			"\n\t\t\tThese need to be installed and accessible on the system path:"+
 				"\t\t\t"+buf.String())
 	}
 	if err := command.LookupUnrar(); err != nil {
 		if errors.Is(err, command.ErrVers) {
-			logs.Warnf("Found unrar but " +
+			logr.Warnf("Found unrar but " +
 				"could not find unrar by Alexander Roshal, " +
 				"is unrar-free mistakenly installed?")
 		} else {
-			logs.Warnf("%s: %s", ErrCmd, err)
+			logr.Warnf("%s: %s", ErrCmd, err)
 		}
 	}
 }
@@ -279,32 +279,36 @@ func localMode() bool {
 }
 
 // RepairDB on startup checks the database connection and make any data corrections.
-func RepairDB() error {
+func RepairDB(logr *zap.SugaredLogger) error {
+	type contextKey string
+	const loggerKey contextKey = "logger"
+
 	db, err := postgres.ConnectDB()
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 	var ver postgres.Version
-	ctx := context.Background()
 	if err := ver.Query(); err != nil {
 		return ErrVer
 	}
 	if localMode() {
 		return nil
 	}
-	return fix.All.Run(ctx, os.Stderr, db)
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, loggerKey, logr)
+	return fix.All.Run(ctx, db)
 }
 
 // repairdb is used to log the database repair error.
-func repairdb(z *zap.SugaredLogger, err error) {
-	if z == nil || err == nil {
+func repairdb(logr *zap.SugaredLogger, err error) {
+	if logr == nil || err == nil {
 		return
 	}
 	if errors.Is(err, ErrVer) {
-		z.Warnf("A %s, is the database server down?", ErrVer)
+		logr.Warnf("A %s, is the database server down?", ErrVer)
 	} else {
-		z.Errorf("%s: %s", ErrDB, err)
+		logr.Errorf("%s: %s", ErrDB, err)
 	}
 }
 

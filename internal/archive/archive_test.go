@@ -5,8 +5,6 @@ package archive_test
 //
 // go test -timeout 30s -count 5 -race github.com/Defacto2/server/internal/archive
 
-// TODO: TEST ALL assets for extract all files using an array of file names.
-
 import (
 	"os"
 	"path/filepath"

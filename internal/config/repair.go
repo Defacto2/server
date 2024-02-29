@@ -13,9 +13,6 @@ const (
 	cfid = "00000000-0000-0000-0000000000000000"  // coldfusion uuid example
 )
 
-// TODO: on startup, a func to unify the uuid and filenames to use the same length and format.
-// https://pkg.go.dev/github.com/google/uuid
-
 // RepairFS, on startup check the file system directories for any invalid or unknown files.
 // If any are found, they are removed without warning.
 func (c Config) RepairFS(z *zap.SugaredLogger) error {
