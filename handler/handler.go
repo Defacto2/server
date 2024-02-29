@@ -21,7 +21,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Defacto2/server/api/apiv1"
 	"github.com/Defacto2/server/cmd"
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/download"
@@ -121,8 +120,6 @@ func (c Configuration) Controller() *echo.Echo {
 	// Routes for the retro web tables
 	retro := html3.Routes(c.Logger, e)
 	retro.GET(Downloader, c.downloader)
-	// Route for the api
-	_ = apiv1.Routes(c.Logger, e)
 	return e
 }
 
