@@ -7,159 +7,83 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"time"
 
 	"github.com/evanw/esbuild/pkg/api"
 )
 
+const C = "© Defacto2"
+
+// NamedCSS returns the base filenames of the CSS files to build.
+// The files are located in the assets/css directory.
+func NamedCSS() []string {
+	return []string{"layout"}
+}
+
+// NamedJS returns the base filenames of the JS files to build.
+// The files are located in the assets/js directory.
+func NamedJS() []string {
+	return []string{"editor", "editor-assets", "editor-archive", "editor-forapproval", "pouet", "readme", "rest-zoo", "rest-pouet", "uploader"}
+}
+
+// CSS are the options to build the minified CSS files.
+func CSS(name string) api.BuildOptions {
+	min := fmt.Sprintf("%s.min.css", name)
+	entry := filepath.Join("assets", "css", fmt.Sprintf("%s.css", name))
+	output := filepath.Join("public", "css", min)
+	return api.BuildOptions{
+		EntryPoints:       []string{entry},
+		Outfile:           output,
+		Write:             true,
+		Bundle:            false,
+		MinifyWhitespace:  true,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		Banner: map[string]string{
+			"css": fmt.Sprintf("/* %s %s %s */", min, C, time.Now().Format("2006")),
+		},
+	}
+}
+
+/*!
+ * Bootstrap v5.3.0 (https://getbootstrap.com/)
+ * Copyright 2011-2023 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+ */
+
+/* readme.min.js */
+
+// JS are the options to build the minified JS files.
+func JS(name string) api.BuildOptions {
+	min := fmt.Sprintf("%s.min.js", name)
+	entry := filepath.Join("assets", "js", fmt.Sprintf("%s.js", name))
+	output := filepath.Join("public", "js", min)
+	return api.BuildOptions{
+		EntryPoints:       []string{entry},
+		Outfile:           output,
+		Write:             true,
+		Bundle:            false,
+		MinifyWhitespace:  true,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		Banner: map[string]string{
+			"js": fmt.Sprintf("/* %s %s %s */", min, C, time.Now().Format("2006")),
+		},
+	}
+}
+
 func main() {
-	layoutCSS := api.Build(api.BuildOptions{
-		EntryPoints:       []string{"./assets/css/layout.css"},
-		Outfile:           "./public/css/layout.min.css",
-		Write:             true,
-		Bundle:            false,
-		MinifyWhitespace:  true,
-		MinifyIdentifiers: true,
-		MinifySyntax:      true,
-		Banner: map[string]string{
-			"css": "/* layout.min.css */",
-		},
-	})
-	if len(layoutCSS.Errors) > 0 {
-		fmt.Fprintf(os.Stderr, "Build failed: %v\n", layoutCSS.Errors)
+	for _, name := range NamedCSS() {
+		result := api.Build(CSS(name))
+		if len(result.Errors) > 0 {
+			fmt.Fprintf(os.Stderr, "CSS build failed: %v\n", result.Errors)
+		}
 	}
-	editorJS := api.Build(api.BuildOptions{
-		EntryPoints:       []string{"./assets/js/editor.js"},
-		Outfile:           "./public/js/editor.min.js",
-		Write:             true,
-		Bundle:            false,
-		MinifyWhitespace:  true,
-		MinifyIdentifiers: true,
-		MinifySyntax:      true,
-		Banner: map[string]string{
-			"js": "/* editor.min.js */",
-		},
-	})
-	if len(editorJS.Errors) > 0 {
-		fmt.Fprintf(os.Stderr, "Build failed: %v\n", editorJS.Errors)
-	}
-	editorAssetsJS := api.Build(api.BuildOptions{
-		EntryPoints:       []string{"./assets/js/editor-assets.js"},
-		Outfile:           "./public/js/editor-assets.min.js",
-		Write:             true,
-		Bundle:            false,
-		MinifyWhitespace:  true,
-		MinifyIdentifiers: true,
-		MinifySyntax:      true,
-		Banner: map[string]string{
-			"js": "/* editor-assets.min.js */",
-		},
-	})
-	if len(editorAssetsJS.Errors) > 0 {
-		fmt.Fprintf(os.Stderr, "Build failed: %v\n", editorAssetsJS.Errors)
-	}
-	editorArchiveJS := api.Build(api.BuildOptions{
-		EntryPoints:       []string{"./assets/js/editor-archive.js"},
-		Outfile:           "./public/js/editor-archive.min.js",
-		Write:             true,
-		Bundle:            false,
-		MinifyWhitespace:  true,
-		MinifyIdentifiers: true,
-		MinifySyntax:      true,
-		Banner: map[string]string{
-			"js": "/* editor-archive.min.js */",
-		},
-	})
-	if len(editorArchiveJS.Errors) > 0 {
-		fmt.Fprintf(os.Stderr, "Build failed: %v\n", editorArchiveJS.Errors)
-	}
-	editorForApproval := api.Build(api.BuildOptions{
-		EntryPoints:       []string{"./assets/js/editor-forapproval.js"},
-		Outfile:           "./public/js/editor-forapproval.min.js",
-		Write:             true,
-		Bundle:            false,
-		MinifyWhitespace:  true,
-		MinifyIdentifiers: true,
-		MinifySyntax:      true,
-		Banner: map[string]string{
-			"js": "/* editor-forapproval.min.js */",
-		},
-	})
-	if len(editorForApproval.Errors) > 0 {
-		fmt.Fprintf(os.Stderr, "Build failed: %v\n", editorForApproval.Errors)
-	}
-	pouetJS := api.Build(api.BuildOptions{
-		EntryPoints:       []string{"./assets/js/pouet.js"},
-		Outfile:           "./public/js/pouet.min.js",
-		Write:             true,
-		Bundle:            false,
-		MinifyWhitespace:  true,
-		MinifyIdentifiers: true,
-		MinifySyntax:      true,
-		Banner: map[string]string{
-			"js": "/* pouet.min.js */",
-		},
-	})
-	if len(pouetJS.Errors) > 0 {
-		fmt.Fprintf(os.Stderr, "Build failed: %v\n", pouetJS.Errors)
-	}
-	readmeJS := api.Build(api.BuildOptions{
-		EntryPoints:       []string{"./assets/js/readme.js"},
-		Outfile:           "./public/js/readme.min.js",
-		Write:             true,
-		Bundle:            false,
-		MinifyWhitespace:  true,
-		MinifyIdentifiers: true,
-		MinifySyntax:      true,
-		Banner: map[string]string{
-			"js": "/* readme.min.js */",
-		},
-	})
-	if len(readmeJS.Errors) > 0 {
-		fmt.Fprintf(os.Stderr, "Build failed: %v\n", readmeJS.Errors)
-	}
-	restZooJS := api.Build(api.BuildOptions{
-		EntryPoints:       []string{"./assets/js/rest-zoo.js"},
-		Outfile:           "./public/js/rest-zoo.min.js",
-		Write:             true,
-		Bundle:            false,
-		MinifyWhitespace:  true,
-		MinifyIdentifiers: true,
-		MinifySyntax:      true,
-		Banner: map[string]string{
-			"js": "/* rest-zoo.min.js */",
-		},
-	})
-	if len(restZooJS.Errors) > 0 {
-		fmt.Fprintf(os.Stderr, "Build failed: %v\n", restZooJS.Errors)
-	}
-	restPouetJS := api.Build(api.BuildOptions{
-		EntryPoints:       []string{"./assets/js/rest-pouet.js"},
-		Outfile:           "./public/js/rest-pouet.min.js",
-		Write:             true,
-		Bundle:            false,
-		MinifyWhitespace:  true,
-		MinifyIdentifiers: true,
-		MinifySyntax:      true,
-		Banner: map[string]string{
-			"js": "/* rest-pouet.min.js */",
-		},
-	})
-	if len(restPouetJS.Errors) > 0 {
-		fmt.Fprintf(os.Stderr, "Build failed: %v\n", restPouetJS.Errors)
-	}
-	uploaderJS := api.Build(api.BuildOptions{
-		EntryPoints:       []string{"./assets/js/uploader.js"},
-		Outfile:           "./public/js/uploader.min.js",
-		Write:             true,
-		Bundle:            false,
-		MinifyWhitespace:  true,
-		MinifyIdentifiers: true,
-		MinifySyntax:      true,
-		Banner: map[string]string{
-			"js": "/* uploader.min.js */",
-		},
-	})
-	if len(uploaderJS.Errors) > 0 {
-		fmt.Fprintf(os.Stderr, "Build failed: %v\n", uploaderJS.Errors)
+	for _, name := range NamedJS() {
+		result := api.Build(JS(name))
+		if len(result.Errors) > 0 {
+			fmt.Fprintf(os.Stderr, "JS build failed: %v\n", result.Errors)
+		}
 	}
 }
