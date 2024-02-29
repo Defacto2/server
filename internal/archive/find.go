@@ -1,8 +1,9 @@
 package archive
 
 import (
+	"cmp"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strings"
 )
 
@@ -14,21 +15,21 @@ func (f Finds) BestMatch() string {
 	if len(f) == 0 {
 		return ""
 	}
-	type fp struct {
+	type match struct {
 		Filename  string
 		Usability Usability
 	}
-	ss := make([]fp, len(f))
+	matches := make([]match, len(f))
 	i := 0
 	for k, v := range f {
-		ss[i] = fp{k, v}
+		matches[i] = match{k, v}
 		i++
 	}
-	sort.SliceStable(ss, func(i, j int) bool {
-		return ss[i].Usability < ss[j].Usability // '<' equals assending order
+	slices.SortStableFunc(matches, func(a, b match) int {
+		return cmp.Compare(a.Usability, b.Usability)
 	})
-	for _, kv := range ss {
-		return kv.Filename // return first result
+	for _, m := range matches {
+		return m.Filename // return first result
 	}
 	return ""
 }
