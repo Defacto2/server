@@ -2,6 +2,7 @@
 package app
 
 import (
+	"cmp"
 	"embed"
 	"errors"
 	"fmt"
@@ -11,7 +12,6 @@ import (
 	"path/filepath"
 	"reflect"
 	"slices"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -853,23 +853,22 @@ func SafeHTML(s string) template.HTML {
 // It prioritizes strings with fewer slashes (i.e., closer to the root).
 // If the number of slashes is the same, it sorts alphabetically.
 func SortContent(content ...string) []string {
-	sort.Slice(content, func(i, j int) bool {
+	slices.SortFunc(content, func(a, b string) int {
 		// Fix any Windows path separators
-		content[i] = strings.ReplaceAll(content[i], "\\", "/")
-		content[j] = strings.ReplaceAll(content[j], "\\", "/")
+		a = strings.ReplaceAll(a, "\\", "/")
+		b = strings.ReplaceAll(b, "\\", "/")
 		// Count the number of slashes in each string
-		iCount := strings.Count(content[i], "/")
-		jCount := strings.Count(content[j], "/")
+		aCount := strings.Count(a, "/")
+		bCount := strings.Count(b, "/")
 
 		// Prioritize strings with fewer slashes (i.e., closer to the root)
-		if iCount != jCount {
-			return iCount < jCount
+		if aCount != bCount {
+			return aCount - bCount
 		}
 
 		// If the number of slashes is the same, sort alphabetically
-		return content[i] < content[j]
+		return cmp.Compare(strings.ToLower(a), strings.ToLower(b))
 	})
-
 	return content
 }
 
