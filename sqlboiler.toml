@@ -4,7 +4,7 @@
 # This file is used to configure the SQLBoiler code generation tool.
 # It is used to generate Go code from a PostgreSQL database schema 
 # and requires an active PostgreSQL server to be running.
-# To rebuild run the command in the root of this repository, e.g.:
+# To rebuild run this command in the root of this repository:
 #
 # $ go generate
 

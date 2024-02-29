@@ -1,13 +1,15 @@
-# The Defacto2 server GoReleaser configuration.
+# The GoReleaser configuration for rgw Defacto2 server.
 #
-# This releaser file is intended for the docker-compose.yml file
+# This goreleaser file is intended for the included docker-compose.yml file
 # to generate a release build of the server for Linux.
 #
-# The documentation is at https://goreleaser.com.
+# The configuration documentation is at https://goreleaser.com.
+#
 # To test any modifications to this configuration:
-# goreleaser check
-# goreleaser release --clean --snapshot
-# goreleaser build --clean --snapshot
+# $ goreleaser check
+# $ goreleaser release --clean --snapshot
+# $ goreleaser build --clean --snapshot
+#
 project_name: df2-server
 before:
   hooks:

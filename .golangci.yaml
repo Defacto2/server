@@ -1,3 +1,7 @@
+# The .golangci.yaml file is used to configure the golangci-lint linter.
+# A linter is a tool that analyzes source code to flag programming errors, 
+# bugs, stylistic errors, and suspicious constructs.
+# https://golangci-lint.run/
 linters:
   enable-all: true
   fast: false
@@ -24,7 +28,7 @@ linters:
     - varnamelen
     - wrapcheck
     - wsl               # fussy over whitespace.
-    # temporary disabled
+    # temporary disabled to hide todo comments.
     - godox
 issues:
   exclude-rules:

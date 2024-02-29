@@ -1,14 +1,16 @@
 version: '3'
 #
-# A placeholder container for the database migration and server.
-# Intended for the domain test.defacto2.net.
+# A Docker compose placeholder container for the database migration and server.
+# Currently intended for the domain test.defacto2.net.
 #
-# docker compose up --build
-# docker compose up --detach
-# docker compose run webapp --version
-# docker compose run webapp address
-# docker compose run webapp config
-# docker compose exec webapp ls -l /root/.config
+# $ docker compose up --build
+# $ docker compose up --detach
+#
+# $ docker compose run webapp --version
+# $ docker compose run webapp address
+# $ docker compose run webapp config
+#
+# $ docker compose exec webapp ls -l /root/.config
 services:
 
   webapp:
