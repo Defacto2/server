@@ -289,6 +289,19 @@ func LinkHref(id any) (string, error) {
 	return linkID(id, "f")
 }
 
+// LinkInterview returns a SVG arrow icon to indicate an interview link hosted on an external website.
+func LinkInterview(href string) template.HTML {
+	if href == "" {
+		return "error: href is empty"
+	}
+	p, err := url.Parse(href)
+	if err != nil || p.Scheme == "" {
+		// if href is not a valid URL, then it is a relative path to the site.
+		return template.HTML("")
+	}
+	return template.HTML(`<svg class="bi" aria-hidden="true"><use xlink:href="/bootstrap-icons.svg#arrow-right"></use></svg>`)
+}
+
 // LinkPage creates a URL anchor element to link to the file page for the record.
 func LinkPage(id any) template.HTML {
 	s, err := linkID(id, "f")
@@ -1005,7 +1018,7 @@ func ValidY(y int16) null.Int16 {
 func WebsiteIcon(url string) string {
 	switch {
 	case strings.Contains(url, "archive.org"):
-		return "bank"
+		return "bank2"
 	case strings.Contains(url, "reddit.com"):
 		return "reddit"
 	case strings.Contains(url, "yalebooks.yale.edu"),
@@ -1277,7 +1290,7 @@ const (
 	typeErr                 = "error: received an invalid type to "
 	webp                    = ".webp"
 	link      template.HTML = `<svg class="bi" aria-hidden="true">` +
-		`<use xlink:href="/bootstrap-icons.svg#link"></use></svg>`
+		`<use xlink:href="/bootstrap-icons.svg#arrow-right-short"></use></svg>`
 	wiki template.HTML = `<svg class="bi" aria-hidden="true">` +
 		`<use xlink:href="/bootstrap-icons.svg#arrow-right-short"></use></svg>`
 )

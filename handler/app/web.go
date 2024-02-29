@@ -349,6 +349,7 @@ func (web Web) TemplateFuncs() template.FuncMap {
 		"lastUpdated":       LastUpdated,
 		"linkDownload":      LinkDownload,
 		"linkHref":          LinkHref,
+		"linkInterview":     LinkInterview,
 		"linkPage":          LinkPage,
 		"linkPreview":       LinkPreview,
 		"linkRemote":        LinkRemote,
