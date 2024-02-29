@@ -1,7 +1,8 @@
 # Config file for Air (https://github.com/cosmtrek/air) in TOML format.
 #
-# go install github.com/cosmtrek/air@latest
-# air
+# $ go install github.com/cosmtrek/air@latest
+# $ air
+#
 
 # Working directory
 # . or absolute path, please note that the directories following must be under root.

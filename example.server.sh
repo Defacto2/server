@@ -5,6 +5,7 @@
 # this can be changed by modifying the FILENAME variable below.
 #
 # The df2-server binary should be in the same directory as this script.
+#
 
 # Filename containing the environment variables
 FILENAME=.env.local

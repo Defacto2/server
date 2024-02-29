@@ -7,6 +7,7 @@
 # To rebuild run this command in the root of this repository:
 #
 # $ go generate
+#
 
 # Configuration options
 

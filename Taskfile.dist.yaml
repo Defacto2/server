@@ -2,7 +2,7 @@
 # https://taskfile.dev/installation/
 #
 # $ task --list
-
+#
 version: '3'
 
 vars:

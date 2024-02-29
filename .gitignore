@@ -1,11 +1,19 @@
-# binaries
+# Git ignore file for the Defacto2 server repository.
+#
+
+# compiled binary files
 df2-server
 server
-*.exe
+
 # temp directories
 dist/
 tmp/
+
 # taskfile and docker compose
 .env.local
+
+# Windows
+*.exe
+
 # macOS
 *.DS_Store

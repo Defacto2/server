@@ -1,12 +1,22 @@
-# Always use LF line endings.
+# Git configuration for the Defacto2 server repository.
+#
+
+# Always use Unix LF line endings.
 * text=auto eol=lf
 
-# Binary files that should not be modified.
-*.webp binary
-*.png binary
-*.jpg binary
+# Binary file types found in the repository that should never be modified.
+
+# Images
 *.gif binary
 *.ico binary
+*.jpg binary
+*.png binary
+*.webp binary
+
+# Fonts
 *.ttf binary
 *.woff binary
 *.woff2 binary
+
+# JS bytecode files
+*.wasm binary
