@@ -46,14 +46,6 @@ func CSS(name string) api.BuildOptions {
 	}
 }
 
-/*!
- * Bootstrap v5.3.0 (https://getbootstrap.com/)
- * Copyright 2011-2023 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
- */
-
-/* readme.min.js */
-
 // JS are the options to build the minified JS files.
 func JS(name string) api.BuildOptions {
 	min := fmt.Sprintf("%s.min.js", name)
@@ -62,8 +54,9 @@ func JS(name string) api.BuildOptions {
 	return api.BuildOptions{
 		EntryPoints:       []string{entry},
 		Outfile:           output,
-		Write:             true,
-		Bundle:            false,
+		Target:            api.ES2020, // specify JS language version
+		Write:             true,       // write the output file to disk
+		Bundle:            false,      // bundle dependencies into the output file
 		MinifyWhitespace:  true,
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
