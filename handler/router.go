@@ -5,7 +5,6 @@ package handler
 import (
 	"embed"
 	"fmt"
-	"html"
 	"net/http"
 	"strings"
 
@@ -17,6 +16,21 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
+
+type debug struct {
+	Protocol       string `json:"protocol"`
+	Host           string `json:"host"`
+	RemoteAddress  string `json:"remoteAddress"`
+	Method         string `json:"method"`
+	Path           string `json:"path"`
+	URI            string `json:"uri"`
+	Query          string `json:"query"`
+	Referer        string `json:"referer"`
+	UserAgent      string `json:"userAgent"`
+	Accept         string `json:"accept"`
+	AcceptEncoding string `json:"acceptEncoding"`
+	AcceptLanguage string `json:"acceptLanguage"`
+}
 
 // Routes defines the routes for the web server.
 func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.FS) (*echo.Echo, error) {
@@ -84,22 +98,26 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 	})
 
 	// Request debug information
-	// TODO: hide in production, make json and xml output
-	e.GET("/debug", func(x echo.Context) error {
-		req := x.Request()
-		format := `<code>
-		Protocol: %s<br>
-		Host: %s<br>
-		Remote Address: %s<br>
-		Method: %s<br>
-		Path: %s<br>
-		URI: %s<br>
-		Query: %s<br>
-		</code>`
-		s := html.EscapeString(fmt.Sprintf(format,
-			req.Proto, req.Host, req.RemoteAddr, req.Method, req.URL.Path, req.RequestURI, req.URL.RawQuery))
-		return x.HTML(http.StatusOK, s)
-	})
+	if !c.Import.ProductionMode {
+		e.GET("/debug", func(x echo.Context) error {
+			req := x.Request()
+			d := debug{
+				Protocol:       req.Proto,
+				Host:           req.Host,
+				RemoteAddress:  req.RemoteAddr,
+				Method:         req.Method,
+				Path:           req.URL.Path,
+				URI:            req.RequestURI,
+				Query:          req.URL.RawQuery,
+				Referer:        req.Referer(),
+				UserAgent:      req.UserAgent(),
+				Accept:         req.Header.Get("Accept"),
+				AcceptEncoding: req.Header.Get("Accept-Encoding"),
+				AcceptLanguage: req.Header.Get("Accept-Language"),
+			}
+			return x.JSONPretty(http.StatusOK, d, "  ")
+		})
+	}
 
 	// Use session middleware for all routes but not the embedded files.
 	s := e.Group("")
