@@ -56,7 +56,7 @@ parserLogger := logger.WithGroup("parser")
 parseInput(input, parserLogger)
 ```
 
-New slices package for slice manipulation which are more efficient than `sort.`. // todo
+New slices package for slice manipulation which are more efficient than `sort.`.
 https://pkg.go.dev/slices
 
 ```go

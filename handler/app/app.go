@@ -54,8 +54,13 @@ var (
 	ErrTarget   = errors.New("target not found")
 	ErrTmpl     = errors.New("the server could not render the html template for this page")
 	ErrUser     = errors.New("unknown user")
+	ErrVal      = errors.New("value is empty")
 	ErrZap      = errors.New("the zap logger cannot be nil")
 )
+
+func errVal(name string) template.HTML {
+	return template.HTML(fmt.Sprintf("error, %s: %s", ErrVal, name))
+}
 
 // Caching are values that are used throughout the app or layouts.
 var Caching = Cache{} //nolint:gochecknoglobals
@@ -292,14 +297,14 @@ func LinkHref(id any) (string, error) {
 // LinkInterview returns a SVG arrow icon to indicate an interview link hosted on an external website.
 func LinkInterview(href string) template.HTML {
 	if href == "" {
-		return "error: href is empty"
+		return errVal("href")
 	}
 	p, err := url.Parse(href)
 	if err != nil || p.Scheme == "" {
 		// if href is not a valid URL, then it is a relative path to the site.
 		return template.HTML("")
 	}
-	return template.HTML(`<svg class="bi" aria-hidden="true"><use xlink:href="/bootstrap-icons.svg#arrow-right"></use></svg>`)
+	return arrowLink
 }
 
 // LinkPage creates a URL anchor element to link to the file page for the record.
@@ -444,13 +449,13 @@ func LinkRels(a, b any) template.HTML {
 // LinkRemote returns a HTML link with an embedded SVG icon to an external website.
 func LinkRemote(href, name string) template.HTML {
 	if href == "" {
-		return "error: href is empty"
+		return errVal("href")
 	}
 	if name == "" {
-		return "error: name is empty"
+		return errVal("name")
 	}
 	a := fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover link-light" href="%s">%s %s</a>`,
-		href, name, link)
+		href, name, arrowLink)
 	return template.HTML(a)
 }
 
@@ -465,23 +470,23 @@ func LinkScnr(name string) (string, error) {
 
 // LinkSVG returns an right-arrow SVG icon.
 func LinkSVG() template.HTML {
-	return link
+	return arrowLink
 }
 
 // LinkWiki returns a HTML link with an embedded SVG icon to the Defacto2 wiki on GitHub.
 func LinkWiki(uri, name string) template.HTML {
 	if uri == "" {
-		return "error: href is empty"
+		return errVal("uri")
 	}
 	if name == "" {
-		return "error: name is empty"
+		return errVal("name")
 	}
 	href, err := url.JoinPath("https://github.com/Defacto2/defacto2.net/wiki/", uri)
 	if err != nil {
 		return template.HTML(err.Error())
 	}
 	a := fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover link-light" href="%s">%s %s</a>`,
-		href, name, link)
+		href, name, arrowLink)
 	return template.HTML(a)
 }
 
@@ -1019,8 +1024,17 @@ func ValidY(y int16) null.Int16 {
 	return null.Int16{Int16: y, Valid: true}
 }
 
-// WebsiteIcon returns a Bootstrap icon name for the given website url.
-func WebsiteIcon(url string) string {
+// websiteIcon returns a Bootstrap icon name for the given website url.
+func WebsiteIcon(url string) template.HTML {
+	icon := websiteIcon(url)
+	if icon == "arrow-right" {
+		return `<svg class="bi" aria-hidden="true"><use xlink:href="/bootstrap-icons.svg#arrow-right"></use></svg>`
+	}
+	return template.HTML(fmt.Sprintf(`<svg class="bi" aria-hidden="true">`+
+		`<use xlink:href="/bootstrap-icons.svg#%s"></use></svg>`, icon))
+}
+
+func websiteIcon(url string) string {
 	switch {
 	case strings.Contains(url, "archive.org"):
 		return "bank2"
@@ -1294,8 +1308,9 @@ const (
 	textamiga               = "textamiga"
 	typeErr                 = "error: received an invalid type to "
 	webp                    = ".webp"
-	link      template.HTML = `<svg class="bi" aria-hidden="true">` +
-		`<use xlink:href="/bootstrap-icons.svg#arrow-right-short"></use></svg>`
+	arrowLink template.HTML = `<svg class="bi" aria-hidden="true">` +
+		`<use xlink:href="/bootstrap-icons.svg#arrow-right"></use>` +
+		`</svg>`
 )
 
 // archives returns a list of archive file extensions supported by this web application.

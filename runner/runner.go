@@ -24,7 +24,17 @@ func NamedCSS() []string {
 // NamedJS returns the base filenames of the JS files to build.
 // The files are located in the assets/js directory.
 func NamedJS() []string {
-	return []string{"editor", "editor-assets", "editor-archive", "editor-forapproval", "pouet", "readme", "rest-zoo", "rest-pouet", "uploader"}
+	return []string{
+		"editor",
+		"editor-assets",
+		"editor-archive",
+		"editor-forapproval",
+		"pouet",
+		"readme",
+		"rest-zoo",
+		"rest-pouet",
+		"uploader",
+	}
 }
 
 // CSS are the options to build the minified CSS files.

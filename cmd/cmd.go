@@ -225,7 +225,6 @@ func desc(c *config.Config) string {
 	if c == nil {
 		return ""
 	}
-	// todo: c.httpport vs c.tlsport
 	return fmt.Sprintf(`Launch the web server and listen on the configured port %d.
 The server expects the Defacto2 PostgreSQL database to run on the host system
 or in a container. But will run without a database connection, limiting functionality.

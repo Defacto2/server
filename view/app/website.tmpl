@@ -5,7 +5,7 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ .Title | safeHTML }}</h5>
                         <p class="card-text">{{ .Info }}</p>
-                        <a href="{{ .URL }}" class="icon-link icon-link-hover">Go surf<svg class="bi" aria-hidden="true"><use xlink:href="/bootstrap-icons.svg#{{websiteIcon .URL}}"></use></svg></a>
+                        <a href="{{ .URL }}" class="icon-link icon-link-hover">Go surf{{websiteIcon .URL}}</a>
                     </div>
                 </div>
             </div>
