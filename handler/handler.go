@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"maps"
 	"net"
 	"net/http"
 	"os"
@@ -54,17 +55,6 @@ var (
 	ErrW      = errors.New("w io.writer instance is nil")
 	ErrZap    = errors.New("zap logger instance is nil")
 )
-
-// Join multiple templates into one collection.
-func Join(srcs ...map[string]*template.Template) map[string]*template.Template {
-	m := make(map[string]*template.Template)
-	for _, src := range srcs {
-		for k, val := range src {
-			m[k] = val
-		}
-	}
-	return m
-}
 
 // Configuration of the handler.
 type Configuration struct {
@@ -212,12 +202,13 @@ func (c Configuration) Registry() (*TemplateRegistry, error) {
 		Version: c.Version,
 		View:    c.View,
 	}
-	web, err := webapp.Templates()
+	tmpls, err := webapp.Templates()
 	if err != nil {
 		return nil, err
 	}
 	htm3 := html3.Templates(c.Logger, c.View)
-	return &TemplateRegistry{Templates: Join(web, htm3)}, nil
+	maps.Copy(tmpls, htm3)
+	return &TemplateRegistry{Templates: tmpls}, nil
 }
 
 // ShutdownHTTP waits for a Ctrl-C keyboard press to initiate a graceful shutdown of the HTTP web server.

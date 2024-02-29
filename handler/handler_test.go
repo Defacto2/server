@@ -1,7 +1,6 @@
 package handler_test
 
 import (
-	"html/template"
 	"io"
 	"testing"
 
@@ -34,22 +33,6 @@ func TestRender(t *testing.T) {
 	c := echo.New().NewContext(nil, nil)
 	err = tr.Render(w, "name", "data", c)
 	assert.Error(t, handler.ErrTmpl, err)
-}
-
-func TestJoin(t *testing.T) {
-	t.Parallel()
-	m := handler.Join(nil, nil)
-	assert.Equal(t, 0, len(m))
-	m = handler.Join(map[string]*template.Template{
-		"one":   nil,
-		"two":   nil,
-		"three": nil,
-	}, map[string]*template.Template{
-		"four": nil,
-		"five": nil,
-		"six":  nil,
-	})
-	assert.Equal(t, 6, len(m))
 }
 
 func TestCookieStore(t *testing.T) {
