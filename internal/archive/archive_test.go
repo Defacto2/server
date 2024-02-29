@@ -28,8 +28,46 @@ func td(name string) string {
 	return x
 }
 
+func filenames() []string {
+	return []string{
+		"ARJ310.ARJ",
+		"LHA114.LZH",
+		"PKZ80A1.ZIP",
+		"PKZ80A2.ZIP",
+		"PKZ80A3.ZIP",
+		"PKZ80A4.ZIP",
+		"PKZ80B1.ZIP",
+		"PKZ80B2.ZIP",
+		"PKZ80B3.ZIP",
+		"PKZ80B4.ZIP",
+		"PKZ90A1.ZIP",
+		"PKZ90A2.ZIP",
+		"PKZ90A3.ZIP",
+		"PKZ90A4.ZIP",
+		"PKZ90B1.ZIP",
+		"PKZ90B2.ZIP",
+		"PKZ90B3.ZIP",
+		"PKZ90B4.ZIP",
+		"PKZ110.ZIP",
+		"PKZ110EI.ZIP",
+		"PKZ110ES.ZIP",
+		"PKZ110EX.ZIP",
+		"PKZ204E0.ZIP",
+		"PKZ204EF.ZIP",
+		"PKZ204EN.ZIP",
+		"PKZ204ES.ZIP",
+		"PKZ204EX.ZIP",
+		"RAR624.RAR",
+		"TAR135.TAR",
+		"TEST.tar.xz",
+	}
+}
+
 func TestContent(t *testing.T) {
 	t.Parallel()
+
+	const wantFiles = 15
+
 	files, err := archive.List("", "")
 	assert.Error(t, err)
 	assert.Empty(t, files)
@@ -38,67 +76,31 @@ func TestContent(t *testing.T) {
 	assert.Error(t, err)
 	assert.Empty(t, files)
 
-	// test a deflated zip file
-	finename := "PKZ204EX.ZIP"
-	files, err = archive.List(td(finename), finename)
-	assert.Nil(t, err)
-	assert.Len(t, files, 15)
-
-	// test the tar handler
-	finename = "TAR135.TAR"
-	files, err = archive.List(td(finename), finename)
-	assert.Nil(t, err)
-	assert.Len(t, files, 15)
-
-	// test the rar handler
-	finename = "RAR624.RAR"
-	files, err = archive.List(td(finename), finename)
-	assert.Nil(t, err)
-	assert.Len(t, files, 15)
-
-	// test the tar.gz handler
-	finename = "TAR135.TAR.GZ"
-	files, err = archive.List(td("TAR135.GZ"), finename)
-	assert.Nil(t, err)
-	assert.Len(t, files, 15)
-
-	// test an arj file
-	files, err = archive.List(td("ARJ310.ARJ"), "ARJ310.ARJ")
-	assert.Nil(t, err)
-	assert.Len(t, files, 15)
-
-	// test an unsupported arc file
+	// test the unsupported file types
 	files, err = archive.List(td("ARC521P.ARC"), "ARC521P.ARC")
 	assert.Error(t, err)
 	assert.Empty(t, files)
-
-	// test a legacy shrunk archive
-	finename = "PKZ80A1.ZIP"
-	files, err = archive.List(td(finename), finename)
-	assert.Nil(t, err)
-	assert.Len(t, files, 15)
-	// test an unsupported 7z file
 	files, err = archive.List(td("TEST.7z"), "TEST.7z")
 	assert.Error(t, err)
 	assert.Empty(t, files)
 
-	// test a xz archive
-	finename = "TEST.tar.xz"
-	files, err = archive.List(td(finename), finename)
-	assert.Nil(t, err)
-	assert.Len(t, files, 15)
+	// test the tar.gz handler
+	finename := "TAR135.TAR.GZ"
+	files, err = archive.List(td("TAR135.GZ"), finename)
+	assert.NoError(t, err)
+	assert.Len(t, files, wantFiles)
 
-	// test an unsupported lha archive
-	finename = "LHA114.LZH"
-	files, err = archive.List(td(finename), finename)
-	assert.Nil(t, err)
-	assert.Len(t, files, 15)
-
-	// test non-latin text
-	finename = "τεχτƒιℓε.zip"
-	files, err = archive.List(td(finename), finename)
-	assert.Nil(t, err)
+	// test unicode filename
+	files, err = archive.List(td("τεχτƒιℓε.zip"), "τεχτƒιℓε.zip")
+	assert.NoError(t, err)
 	assert.Len(t, files, 1)
+
+	// test all the supported files
+	for _, name := range filenames() {
+		files, err = archive.List(td(name), name)
+		assert.NoError(t, err)
+		assert.Len(t, files, wantFiles)
+	}
 }
 
 func TestExtractAll(t *testing.T) {

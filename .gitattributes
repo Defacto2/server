@@ -20,3 +20,15 @@
 
 # JS bytecode files
 *.wasm binary
+
+# Testdata
+*.7z binary
+*.ASC binary
+*.ARJ binary
+*.LZH binary
+*.RAR binary
+*.TAR binary
+*.TAR.GZ binary
+*.ZIP binary
+*.zip binary
+*.tar.xz binary
