@@ -164,11 +164,8 @@ func ID(c echo.Context) string {
 }
 
 // LeadFS formats the file size to the fixed-width length w value.
-func LeadFS(width int, size null.Int64) string {
-	if !size.Valid {
-		return Leading(width)
-	}
-	return File{Size: size.Int64}.LeadFS(width)
+func LeadFS(width int, size int64) string {
+	return File{Size: size}.LeadFS(width)
 }
 
 // LeadFSInt formats the file size to the fixed-width length w value.
