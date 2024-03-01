@@ -540,6 +540,7 @@ func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 		got.Filename = base
 		got.LinkClass = link.LinkClass
 		got.LinkURL = link.URL
+		// TODO: overwrite file if it already exists
 		if err := helper.RenameFile(df.Path, dst); err != nil {
 			// if the rename file fails, check if the uuid file asset already exists
 			// and if it is the same as the downloaded file, if not then return an error.

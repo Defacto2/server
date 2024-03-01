@@ -43,6 +43,7 @@ issues:
     - path: handler/app/accordion.go
       linters:
         - lll
+        - funlen
     - path: handler/app/context.go
       linters:
         - dupl
@@ -104,6 +105,7 @@ issues:
     - path: internal/web/web.go
       linters:
         - funlen
+        - maintidx
     - path: internal/zoo/zoo.go
       linters:
         - tagliatelle

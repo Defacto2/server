@@ -58,6 +58,7 @@ const (
 var (
 	ErrConn = errors.New("the server cannot connect to the database")
 	ErrDB   = errors.New("database value is nil")
+	ErrPage = errors.New("unknown records by type")
 	ErrSQL  = errors.New("database connection problem or a SQL error")
 	ErrTag  = errors.New("no database query was for the tag")
 	ErrTmpl = errors.New("the server could not render the HTML template for this page")
@@ -280,13 +281,13 @@ func Query(c echo.Context, tt RecordsBy, offset int) (int, int, int64, models.Fi
 	case ByGroup:
 		return QueryByGroup(ctx, db, c)
 	case AsArt:
-		return QueryAsArt(ctx, db, clause, offset) // TODO: no pagination display
+		return QueryAsArt(ctx, db, clause, offset)
 	case AsDocument:
 		return QueryAsDocument(ctx, db, clause, offset)
 	case AsSoftware:
 		return QueryAsSoftware(ctx, db, clause, offset)
 	}
-	return 0, 0, 0, nil, nil // TODO error
+	return 0, 0, 0, nil, fmt.Errorf("%w: %d", ErrPage, tt)
 }
 
 // QueryAsArt returns a slice of all the records filtered by "Digital + pixel art".
