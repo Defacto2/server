@@ -27,14 +27,14 @@ type Interviewee struct {
 func Interviewees() Groups {
 	i := Groups{
 		{
-			Name: "Retirements",
-			Link: "",
+			Name: "EMPRESS",
+			Link: "empress",
 			Interviews: Interviews{
 				{
-					Scener: "ChinaBlue",
-					Year:   1998, Month: 6,
-					Content: "Talks about her retirement and the 'bust or be busted' paranoia of the scene.",
-					Link:    "/wayback/scenelink-from-1998-june-25/features/issue/5/china-interview.html",
+					Scener: "EMPRESS",
+					Year:   2021, Month: 2,
+					Content: "WIRED - The Woman Bulldozing Video Games’ Toughest DRM.",
+					Link:    "https://www.wired.com/story/empress-drm-cracking-denuvo-video-game-piracy/",
 				},
 			},
 		},
@@ -213,6 +213,18 @@ func Interviewees() Groups {
 					Year:   2012, Month: 8,
 					Content: "The former member of The Humble Guys talks about his side group, \"Lamers of Power\".",
 					Link:    "/f/ae2f55",
+				},
+			},
+		},
+		{
+			Name: "Retirements",
+			Link: "",
+			Interviews: Interviews{
+				{
+					Scener: "ChinaBlue",
+					Year:   1998, Month: 6,
+					Content: "Talks about her retirement and the 'bust or be busted' paranoia of the scene.",
+					Link:    "/wayback/scenelink-from-1998-june-25/features/issue/5/china-interview.html",
 				},
 			},
 		},

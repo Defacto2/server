@@ -16,15 +16,15 @@
 {{- if or (ne $zoo "0") (ne $sixteen "") (gt (len $web) 0)}}
 <p class="text-start text-sm-center text-md-end lead">
   {{- if ne $zoo "0"}}
-  <small><a class="link-offset-2 icon-link icon-link-hover" href="https://demozoo.org/groups/{{$zoo}}/"><strong>Demozoo</strong>{{linkSVG}}</a> offers production and member lists</small><br>
+  <small><a class="link-offset-2 icon-link icon-link-hover" href="https://demozoo.org/groups/{{$zoo}}/"><strong>Demozoo</strong>{{linkSVG}}</a> <small>offers production and member lists</small></small><br>
   {{- end}}
   {{- if ne $sixteen ""}}
-  <small><a class="link-offset-2 icon-link icon-link-hover" href="https://16colo.rs/{{$sixteen}}"><strong>16colors</strong>{{linkSVG}}</a> collection of ANSI and text artworks</small><br>
+  <small><a class="link-offset-2 icon-link icon-link-hover" href="https://16colo.rs/{{$sixteen}}"><strong>16colors</strong>{{linkSVG}}</a> <small>collection of ANSI and text artworks</small></small><br>
   {{- end}}
   {{- if gt (len $web) 0}}
     {{- range $web }}
       {{- if and (ne .URL "") (eq .NotWorking false ) }}
-      <small><a class="link-offset-2 icon-link icon-link-hover" href="{{.URL}}"><strong>{{.Name}}</strong>{{linkSVG}}</a> website</small><br>
+      <small><a class="link-offset-2 icon-link icon-link-hover" href="{{.URL}}"><strong>{{.Name}}</strong>{{websiteIcon .URL}}</a></small><br>
       {{- end}}
       {{- if and (ne .URL "") (eq .NotWorking true ) }}
       <small><strong>{{.Name}}</strong></a> ex-site, <span class="text-decoration-line-through fw-lighter">{{.URL}}</span></small><br>

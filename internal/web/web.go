@@ -70,6 +70,21 @@ func groups() Groups {
 				NotWorking: true,
 			},
 		},
+		"empress": []Website{
+			{
+				URL:  "https://www.reddit.com/r/HobbyDrama/comments/rowk83/digital_piracy_the_rise_of_empress_how_one_woman/",
+				Name: "The rise of EMPRESS",
+			},
+			{
+				URL:  "https://www.wired.com/story/empress-drm-cracking-denuvo-video-game-piracy/",
+				Name: "WIRED interview",
+			},
+			{
+				URL:        "https://www.reddit.com/r/EmpressEvolution",
+				Name:       "EmpressEvolution",
+				NotWorking: true,
+			},
+		},
 		"fairlight": []Website{
 			{
 				URL:  "https://www.fairlight.to",
