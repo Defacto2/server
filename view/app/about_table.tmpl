@@ -1,15 +1,15 @@
 {{- /*  about_table.tmpl  */}}
 {{- define "aboutTable" -}}
-{{- $writers := (index . "writers") }}
-{{- $artists := (index . "artists") }}
-{{- $programmers := (index . "programmers") }}
-{{- $musicians := (index . "musicians") }}
+{{- $writers := trimSpace (index . "writers") }}
+{{- $artists := trimSpace (index . "artists") }}
+{{- $programmers := trimSpace (index . "programmers") }}
+{{- $musicians := trimSpace (index . "musicians") }}
 {{- $demozoo := (index . "demozoo")}}
 {{- $pouet := (index . "pouet")}}
-{{- $sixteenColors := (index . "sixteenColors")}}
-{{- $youtube := (index . "youtube")}}
-{{- $github := (index . "github")}}
-{{- $comment := (index . "comment")}}
+{{- $sixteenColors := trimSpace (index . "sixteenColors")}}
+{{- $youtube := trimSpace (index . "youtube")}}
+{{- $github := trimSpace (index . "github")}}
+{{- $comment := trimSpace (index . "comment")}}
 {{- $mimetype := mimeMagic (index . "magic")}}
 {{- /*  [FILENAME] Content  */}}
 {{- if (index . "content")}}
