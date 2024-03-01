@@ -980,8 +980,18 @@ func TrimSiteSuffix(s string) string {
 }
 
 // TrimSpace returns a string with all leading and trailing whitespace removed.
-func TrimSpace(s string) string {
-	return strings.TrimSpace(s)
+func TrimSpace(a any) string {
+	switch val := a.(type) {
+	case string:
+		return strings.TrimSpace(val)
+	case null.String:
+		if val.Valid {
+			return strings.TrimSpace(val.String)
+		}
+		return ""
+	default:
+		return fmt.Sprintf("%sTrimSpace: %s", typeErr, reflect.TypeOf(a).String())
+	}
 }
 
 // Updated returns a string of the time since the given time t.
