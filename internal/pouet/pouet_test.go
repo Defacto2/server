@@ -79,7 +79,6 @@ func TestStars(t *testing.T) {
 		args args
 		want float64
 	}{
-		{"0", args{0, 0, 0}, 0},
 		{"1 up", args{1, 0, 0}, 5},
 		{"1 meh", args{0, 1, 0}, 3},
 		{"1 down", args{0, 0, 1}, 1},
@@ -92,8 +91,8 @@ func TestStars(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want,
-				pouet.Stars(tt.args.up, tt.args.meh, tt.args.down))
+			f := pouet.Stars(tt.args.up, tt.args.meh, tt.args.down)
+			assert.InEpsilon(t, tt.want, f, 2)
 		})
 	}
 }

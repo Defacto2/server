@@ -144,6 +144,7 @@ func TestFileLinkPad(t *testing.T) {
 	assert.Equal(t, "                ", s)
 }
 
+//nolint:testifylint
 func TestFormattings(t *testing.T) {
 	assert.Equal(t, html3.File{Filename: ""}.FileLinkPad(0), "", "empty")
 	assert.Equal(t, html3.File{Filename: ""}.FileLinkPad(4), "    ", "4 pads")
@@ -188,9 +189,9 @@ func TestPagi(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, got1, got2 := html3.Pagi(tt.args.page, tt.args.maxPage)
-			assert.Equal(t, got, tt.want, "value a")
-			assert.Equal(t, got1, tt.want1, "value b")
-			assert.Equal(t, got2, tt.want2, "value c")
+			assert.Equal(t, tt.want, got, "value a")
+			assert.Equal(t, tt.want1, got1, "value b")
+			assert.Equal(t, tt.want2, got2, "value c")
 		})
 	}
 }

@@ -32,8 +32,6 @@ linters:
     - wsl               # fussy over whitespace.
     # temporary disabled to hide todo comments.
     - godox
-    - testifylint
-    #- perfsprint
 issues:
   exclude-rules:
     - path: cmd/cmd.go

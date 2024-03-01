@@ -165,16 +165,16 @@ func TestTags(t *testing.T) {
 	for i, uri := range tags.URIs() {
 		count++
 		// confirm tag uri strings
-		assert.NotEqual(t, uri, "")
+		assert.NotEqual(t, "", uri)
 		// confirm tag names
-		assert.NotEqual(t, tags.Names()[i], "")
+		assert.NotEqual(t, "", tags.Names()[i])
 		// confirm tag descriptions
-		assert.NotEqual(t, tags.Infos()[i], "")
+		assert.NotEqual(t, "", tags.Infos()[i])
 	}
 	u := tags.TagByURI
 	assert.Equal(t, int(u("")), -1)
-	assert.Equal(t, int(u(firstCategory)), 0)
-	assert.Equal(t, tags.Announcement.String(), firstCategory)
+	assert.Equal(t, 0, int(u(firstCategory)))
+	assert.Equal(t, firstCategory, tags.Announcement.String())
 	assert.Equal(t, tags.CategoryCount, 26)
 	assert.Equal(t, tags.PlatformCount, 16)
 	assert.Equal(t, tags.CategoryCount+tags.PlatformCount, count)
