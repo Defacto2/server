@@ -34,9 +34,7 @@ func TestRecordsSub(t *testing.T) {
 	t.Parallel()
 	s := app.RecordsSub("")
 	assert.Equal(t, "unknown uri", s)
-
-	// range to 57
-	for i := 1; i <= int(57); i++ {
+	for i := range 57 {
 		assert.NotEqual(t, "unknown uri", app.URI(i).String())
 	}
 }

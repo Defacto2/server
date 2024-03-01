@@ -141,7 +141,7 @@ func TestSummary_URI(t *testing.T) {
 	assert.NoError(t, err)
 	defer db.Close()
 
-	for i := 0; i <= 57; i++ {
+	for i := range 57 {
 		uri := app.URI(i).String()
 		err = s.URI(ctx, db, uri)
 		assert.Error(t, err)

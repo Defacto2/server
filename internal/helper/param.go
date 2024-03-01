@@ -38,14 +38,14 @@ func DeObfuscate(s string) string {
 	baseNum := strconv.Itoa(int(num))
 	l := len(baseNum) - 1
 	value := ""
-	for i := 0; i < l; i++ {
+	for i := range l {
 		f := baseNum[l-i:][:1]
 		value += f
 	}
 	// create checks
 	l = len(value)
 	chksumTest := 0
-	for i := 0; i < l; i++ {
+	for i := range l {
 		chr := value[i : i+1]
 		n, err1 := strconv.Atoi(chr)
 		if err1 != nil {
