@@ -540,8 +540,7 @@ func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 		got.Filename = base
 		got.LinkClass = link.LinkClass
 		got.LinkURL = link.URL
-		// TODO: overwrite file if it already exists
-		if err := helper.RenameFile(df.Path, dst); err != nil {
+		if err := helper.RenameFileOW(df.Path, dst); err != nil {
 			// if the rename file fails, check if the uuid file asset already exists
 			// and if it is the same as the downloaded file, if not then return an error.
 			sameFiles, err := helper.FileMatch(df.Path, dst)
@@ -636,10 +635,13 @@ func (got DemozooLink) Update(c echo.Context) error {
 	f.FileMagicType = null.StringFrom(got.FileType)
 	f.FileIntegrityStrong = null.StringFrom(got.FileHash)
 	f.FileZipContent = null.StringFrom(got.Content)
-	f.RetrotxtReadme = null.StringFrom(got.Readme)
-	f.WebIDGithub = null.StringFrom(got.Github)
+	rm := strings.TrimSpace(got.Readme)
+	f.RetrotxtReadme = null.StringFrom(rm)
+	gt := strings.TrimSpace(got.Github)
+	f.WebIDGithub = null.StringFrom(gt)
 	f.WebIDPouet = null.Int64From(int64(got.Pouet))
-	f.WebIDYoutube = null.StringFrom(got.YouTube)
+	yt := strings.TrimSpace(got.YouTube)
+	f.WebIDYoutube = null.StringFrom(yt)
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
 		return err
 	}
