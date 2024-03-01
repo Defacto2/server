@@ -6,6 +6,7 @@ import (
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -43,7 +44,7 @@ func TestMilestone(t *testing.T) {
 	t.Parallel()
 	ms := app.Collection()
 	assert.Equal(t, 108, ms.Len())
-	assert.Equal(t, 108, len(ms))
+	assert.Len(t, ms, 108)
 
 	one := ms[0]
 	assert.Equal(t, 1971, one.Year)
@@ -57,7 +58,7 @@ func TestMilestone(t *testing.T) {
 func TestInterviewees(t *testing.T) {
 	t.Parallel()
 	i := app.Interviewees()
-	assert.Equal(t, 9, len(i))
+	assert.Len(t, 9, len(i))
 
 	for _, x := range i {
 		assert.NotEmpty(t, x.Name)
@@ -278,5 +279,5 @@ func TestTemplates(t *testing.T) {
 
 	w := app.Web{}
 	_, err := w.Templates()
-	assert.Error(t, err)
+	require.Error(t, err)
 }

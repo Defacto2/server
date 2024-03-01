@@ -5,6 +5,7 @@ import (
 
 	"github.com/Defacto2/server/internal/zoo"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // Set to true to test against the remote servers.
@@ -14,16 +15,16 @@ func TestDemozoo_Get(t *testing.T) {
 	t.Parallel()
 	prod := zoo.Demozoo{}
 	err := prod.Get(-1)
-	assert.Error(t, err)
-	assert.ErrorAs(t, err, &zoo.ErrID)
+	require.Error(t, err)
+	require.ErrorIs(t, err, zoo.ErrID)
 
 	if !testRemoteServers {
 		return
 	}
 
 	err = prod.Get(1)
-	assert.NoError(t, err)
-	assert.ErrorAs(t, err, &zoo.ErrSuccess)
+	require.NoError(t, err)
+	require.ErrorIs(t, err, zoo.ErrSuccess)
 }
 
 func TestFind(t *testing.T) {

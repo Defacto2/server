@@ -3,6 +3,7 @@ package helper
 import (
 	"bufio"
 	"crypto/sha512"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
@@ -76,5 +77,6 @@ func Sum386(f *os.File) (string, error) {
 	if _, err := io.Copy(strong, f); err != nil {
 		return "", fmt.Errorf("%s: %w", f.Name(), err)
 	}
-	return fmt.Sprintf("%x", strong.Sum(nil)), nil
+	s := hex.EncodeToString(strong.Sum(nil))
+	return s, nil
 }

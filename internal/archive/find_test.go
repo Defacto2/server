@@ -6,6 +6,7 @@ import (
 	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestReadme(t *testing.T) {
@@ -14,8 +15,8 @@ func TestReadme(t *testing.T) {
 
 	dir := td("uncompress")
 	files, err := helper.Files(dir)
-	assert.NoError(t, err)
-	assert.Equal(t, 16, len(files))
+	require.NoError(t, err)
+	assert.Len(t, 16, len(files))
 
 	s = archive.Readme("", files...)
 	assert.Equal(t, "TEST.NFO", s)

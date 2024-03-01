@@ -7,6 +7,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestFiles(t *testing.T) {
@@ -14,15 +15,15 @@ func TestFiles(t *testing.T) {
 	files := model.Files{}
 	ctx := context.TODO()
 	err := files.Stat(ctx, nil)
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	db, err := postgres.ConnectDB()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer db.Close()
 	err = files.Stat(ctx, db)
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	fs, err := files.SearchFilename(ctx, db, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Empty(t, fs)
 }

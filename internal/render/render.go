@@ -141,8 +141,8 @@ func NoScreenshot(res *models.File, path string) bool {
 		return true
 	}
 	uuid := res.UUID.String
-	webp := strings.Join([]string{path, fmt.Sprintf("%s.webp", uuid)}, "/")
-	png := strings.Join([]string{path, fmt.Sprintf("%s.png", uuid)}, "/")
+	webp := strings.Join([]string{path, uuid + ".webp"}, "/")
+	png := strings.Join([]string{path, uuid + ".png"}, "/")
 	if helper.IsStat(webp) || helper.IsStat(png) {
 		return false
 	}

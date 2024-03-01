@@ -4,6 +4,7 @@ package model
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -17,10 +18,10 @@ import (
 )
 
 var (
-	ErrDB   = fmt.Errorf("database value is nil")
-	ErrKey  = fmt.Errorf("key value is zero or negative")
-	ErrName = fmt.Errorf("name value is empty")
-	ErrURI  = fmt.Errorf("uri value is invalid")
+	ErrDB   = errors.New("database value is nil")
+	ErrKey  = errors.New("key value is zero or negative")
+	ErrName = errors.New("name value is empty")
+	ErrURI  = errors.New("uri value is invalid")
 )
 
 type Pagination struct {

@@ -114,8 +114,8 @@ func Error(c echo.Context, err error) error {
 	}
 	return c.Render(code, "html3_error", map[string]interface{}{
 		"title":       fmt.Sprintf("%d error, there is a complication", code),
-		"description": fmt.Sprintf("%s.", msg),
-		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
+		"description": msg + ".",
+		"latency":     time.Since(*start).String() + ".",
 	})
 }
 
@@ -198,7 +198,7 @@ func LeadInt(width, i int) string {
 	if count > maxPad {
 		count = maxPad
 	}
-	return fmt.Sprintf("%s%s", strings.Repeat(padding, count), s)
+	return strings.Repeat(padding, count) + s
 }
 
 // ListInfo returns the title and description for the RecordsBy grouping.

@@ -62,6 +62,10 @@ func errVal(name string) template.HTML {
 	return template.HTML(fmt.Sprintf("error, %s: %s", ErrVal, name))
 }
 
+const (
+	attr = " attributions"
+)
+
 // Caching are values that are used throughout the app or layouts.
 var Caching = Cache{} //nolint:gochecknoglobals
 
@@ -101,11 +105,11 @@ func Attribute(write, code, art, music, name string) string {
 	}
 	const and = 2
 	if len(match) == and {
-		return strings.Join(match, " and ") + " attributions"
+		return strings.Join(match, " and ") + attr
 	}
 	last := len(match) - 1
 	match[last] = "and " + match[last]
-	return strings.Join(match, ", ") + " attributions"
+	return strings.Join(match, ", ") + attr
 }
 
 // Brief returns a human readable brief description of a release.
@@ -243,7 +247,7 @@ func Describe(platform, section, year, month any) template.HTML {
 		y = fmt.Sprintf("%v", val)
 	case null.Int16:
 		if val.Valid {
-			y = fmt.Sprintf("%v", val.Int16)
+			y = strconv.Itoa(int(val.Int16))
 		}
 	default:
 		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", year))
@@ -637,7 +641,7 @@ func Prefix(s string) string {
 	if s == "" {
 		return ""
 	}
-	return fmt.Sprintf("%s ", s)
+	return s + " "
 }
 
 // RecordsSub returns the records for the file category URI.

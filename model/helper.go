@@ -3,6 +3,7 @@ package model
 // Package file helper.go contains helper functions for the model package.
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -11,7 +12,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres/models"
 )
 
-var ErrModel = fmt.Errorf("error, no file model")
+var ErrModel = errors.New("error, no file model")
 
 func PublishedFmt(f *models.File) string {
 	if f == nil {
@@ -30,14 +31,14 @@ func PublishedFmt(f *models.File) string {
 	}
 	if f.DateIssuedDay.Valid {
 		if i := int(f.DateIssuedDay.Int16); helper.IsDay(i) {
-			ds = fmt.Sprintf("%d", i)
+			ds = strconv.Itoa(i)
 		}
 	}
 	if isYearOnly := ys != "" && ms == "" && ds == ""; isYearOnly {
 		return ys
 	}
 	if isInvalidDay := ys != "" && ms != "" && ds == ""; isInvalidDay {
-		return fmt.Sprintf("%s %s", ys, ms)
+		return ys + " " + ms
 	}
 	if isInvalid := ys == "" && ms == "" && ds == ""; isInvalid {
 		return "unknown date"

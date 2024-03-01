@@ -1619,7 +1619,7 @@ func Sceners(logr *zap.SugaredLogger, c echo.Context, uri string) error {
 		return ScenerErr(logr, c, uri)
 	}
 	data := emptyFiles(c)
-	data["title"] = s + " attributions"
+	data["title"] = s + attr
 	data["h1"] = s
 	data["lead"] = "Files attributed to " + s + "."
 	data["logo"] = s

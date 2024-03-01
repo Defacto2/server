@@ -8,16 +8,17 @@ import (
 	"github.com/Defacto2/server/internal/exts"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestFileMatch(t *testing.T) {
 	_, err := helper.FileMatch("", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 	v, err := helper.FileMatch("bool.go", "bool.go")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, v)
 	v, err = helper.FileMatch("bool_test.go", "bool.go")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, v)
 }
 

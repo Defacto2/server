@@ -11,8 +11,13 @@ import (
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/render"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/volatiletech/null/v8"
 	"golang.org/x/text/encoding/charmap"
+)
+
+const (
+	txt = ".txt"
 )
 
 func TestEncoder(t *testing.T) {
@@ -45,13 +50,13 @@ func TestEncoder(t *testing.T) {
 
 	b = []byte("Hello\nworld\nthis is some text. 👾\n")
 	ec = render.Encoder(&res, b...)
-	assert.Equal(t, ec, nil)
+	assert.Nil(t, ec)
 }
 
 func TestRead(t *testing.T) {
 	t.Parallel()
 	b, err := render.Read(nil, "")
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Equal(t, err, render.ErrFileModel)
 	assert.Nil(t, b)
 
@@ -60,45 +65,45 @@ func TestRead(t *testing.T) {
 		UUID:     null.StringFrom(""),
 	}
 	b, err = render.Read(&res, "")
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Equal(t, err, render.ErrFilename)
 	assert.Nil(t, b)
 
 	res.Filename = null.StringFrom("../testdata/TEST.DOC")
 	b, err = render.Read(&res, "")
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Equal(t, err, render.ErrUUID)
 	assert.Nil(t, b)
 
 	const uuid = "5b4c5f6e-8a1e-11e9-9f0e-000000000000"
 	res.UUID = null.StringFrom(uuid)
 	b, err = render.Read(&res, "")
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Nil(t, b)
 
 	dir, err := os.MkdirTemp(os.TempDir(), uuid)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer os.RemoveAll(dir)
 
-	err = helper.Touch(filepath.Join(dir, uuid+".txt"))
-	assert.NoError(t, err)
+	err = helper.Touch(filepath.Join(dir, uuid+txt))
+	require.NoError(t, err)
 	err = helper.Touch(filepath.Join(dir, uuid))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	b, err = render.Read(&res, dir)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Nil(t, b)
-	assert.Len(t, b, 0)
+	assert.Empty(t, b)
 
-	err = os.Remove(filepath.Join(dir, uuid+".txt"))
-	assert.NoError(t, err)
+	err = os.Remove(filepath.Join(dir, uuid+txt))
+	require.NoError(t, err)
 
 	s := []byte("This is a test file.\n")
-	i, err := helper.TouchW(filepath.Join(dir, uuid+".txt"), s...)
-	assert.NoError(t, err)
-	assert.Equal(t, i, len(s))
+	i, err := helper.TouchW(filepath.Join(dir, uuid+txt), s...)
+	require.NoError(t, err)
+	assert.Len(t, i, len(s))
 	b, err = render.Read(&res, dir)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, b)
 	assert.Equal(t, string(b), string(s))
 }
@@ -156,7 +161,7 @@ func TestNoScreenshot(t *testing.T) {
 	res.UUID = null.StringFrom(uuid)
 	name := filepath.Join(os.TempDir(), uuid) + ".webp"
 	err := helper.Touch(name)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer os.Remove(name)
 	assert.False(t, render.NoScreenshot(&res, os.TempDir()))
 }

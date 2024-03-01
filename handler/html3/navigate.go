@@ -1,9 +1,5 @@
 package html3
 
-import (
-	"fmt"
-)
-
 // Navigate handles offset and record limit pagination.
 type Navigate struct {
 	Current  string // Current name of the active record query.
@@ -36,7 +32,7 @@ func qs(s string) string {
 	if s == "" {
 		return ""
 	}
-	return fmt.Sprintf("?%s", s)
+	return "?" + s
 }
 
 // previous returns the previous page number.

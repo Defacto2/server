@@ -8,6 +8,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestScenerSQL(t *testing.T) {
@@ -26,7 +27,7 @@ func TestSceners(t *testing.T) {
 	var s model.Sceners
 	ctx := context.Background()
 	err := s.All(ctx, nil)
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -34,16 +35,16 @@ func TestSceners(t *testing.T) {
 	}
 	defer db.Close()
 	err = s.All(ctx, db)
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	err = s.Writer(ctx, db)
-	assert.Error(t, err)
+	require.Error(t, err)
 	err = s.Artist(ctx, db)
-	assert.Error(t, err)
+	require.Error(t, err)
 	err = s.Coder(ctx, db)
-	assert.Error(t, err)
+	require.Error(t, err)
 	err = s.Musician(ctx, db)
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	x := s.Sort()
 	assert.Empty(t, x)

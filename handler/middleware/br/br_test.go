@@ -12,6 +12,7 @@ import (
 	"github.com/andybalholm/brotli"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestBrotli(t *testing.T) {
@@ -26,7 +27,7 @@ func TestBrotli(t *testing.T) {
 		return nil
 	})
 	err := h(c)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	assert := assert.New(t)
 
@@ -38,14 +39,14 @@ func TestBrotli(t *testing.T) {
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
 	err = h(c)
-	assert.NoError(err)
+	require.NoError(t, err)
 	assert.Equal(br.BrotliScheme, rec.Header().Get(echo.HeaderContentEncoding))
 	assert.Contains(rec.Header().Get(echo.HeaderContentType), echo.MIMETextPlain)
 
 	r := brotli.NewReader(rec.Body)
 	buf := new(bytes.Buffer)
 	_, err = buf.ReadFrom(r)
-	assert.NoError(err)
+	require.NoError(t, err)
 	assert.Equal("test", buf.String())
 
 	chunkBuf := make([]byte, 5)
@@ -62,38 +63,38 @@ func TestBrotli(t *testing.T) {
 
 		// Write and flush the first part of the data
 		_, err = c.Response().Write([]byte("test\n"))
-		assert.NoError(err)
+		require.NoError(t, err)
 		c.Response().Flush()
 
 		// Read the first part of the data
 		assert.True(rec.Flushed)
 		assert.Equal(br.BrotliScheme, rec.Header().Get(echo.HeaderContentEncoding))
 		err := r.Reset(rec.Body)
-		assert.NoError(err)
+		require.NoError(t, err)
 
 		_, err = io.ReadFull(r, chunkBuf)
-		assert.NoError(err)
+		require.NoError(t, err)
 		assert.Equal("test\n", string(chunkBuf))
 
 		// Write and flush the second part of the data
 		_, err = c.Response().Write([]byte("test\n"))
-		assert.NoError(err)
+		require.NoError(t, err)
 		c.Response().Flush()
 
 		_, err = io.ReadFull(r, chunkBuf)
-		assert.NoError(err)
+		require.NoError(t, err)
 		assert.Equal("test\n", string(chunkBuf))
 
 		// Write the final part of the data and return
 		_, err = c.Response().Write([]byte("test"))
-		assert.NoError(err)
+		require.NoError(t, err)
 		return nil
 	})(c)
-	assert.NoError(err)
+	require.NoError(t, err)
 
 	buf = new(bytes.Buffer)
 	_, err = buf.ReadFrom(r)
-	assert.NoError(err)
+	require.NoError(t, err)
 	assert.Equal("test", buf.String())
 }
 
@@ -109,14 +110,14 @@ func TestBrotliNoContent(t *testing.T) {
 	if assert.NoError(t, h(c)) {
 		assert.Empty(t, rec.Header().Get(echo.HeaderContentEncoding))
 		assert.Empty(t, rec.Header().Get(echo.HeaderContentType))
-		assert.Equal(t, 0, len(rec.Body.Bytes()))
+		assert.Empty(t, len(rec.Body.Bytes()))
 	}
 }
 
 func TestBrotliErrorReturned(t *testing.T) {
 	e := echo.New()
 	e.Use(br.Brotli())
-	e.GET("/", func(c echo.Context) error {
+	e.GET("/", func(_ echo.Context) error {
 		return echo.ErrNotFound
 	})
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -148,7 +149,7 @@ func TestBrotliWithStatic(t *testing.T) {
 	if assert.NoError(t, err) {
 		buf := new(bytes.Buffer)
 		_, err = buf.ReadFrom(r)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.EqualValues(t, want, buf.Bytes())
 	}
 }

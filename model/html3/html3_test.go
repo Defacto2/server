@@ -9,6 +9,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model/html3"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/volatiletech/null/v8"
 )
 
@@ -38,13 +39,13 @@ func TestCreated(t *testing.T) {
 
 func TestIcon(t *testing.T) {
 	s := html3.Icon(nil)
-	assert.Equal(t, s, "error, no file model")
+	assert.Equal(t, "error, no file model", s)
 	f := models.File{}
 	s = html3.Icon(&f)
-	assert.Equal(t, s, "unknown")
+	assert.Equal(t, "unknown", s)
 	f.Filename = null.StringFrom("file.txt")
 	s = html3.Icon(&f)
-	assert.Equal(t, s, "doc")
+	assert.Equal(t, "doc", s)
 }
 
 func TestLeadStr(t *testing.T) {
@@ -112,12 +113,12 @@ func TestArts_Stat(t *testing.T) {
 	a := html3.Arts{}
 	ctx := context.TODO()
 	err := a.Stat(ctx, nil)
-	assert.ErrorIs(t, err, html3.ErrDB)
+	require.ErrorIs(t, err, html3.ErrDB)
 	db, err := postgres.ConnectDB()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer db.Close()
 	err = a.Stat(ctx, db)
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestDocuments_Stat(t *testing.T) {
@@ -125,10 +126,10 @@ func TestDocuments_Stat(t *testing.T) {
 	a := html3.Documents{}
 	ctx := context.TODO()
 	err := a.Stat(ctx, nil)
-	assert.ErrorIs(t, err, html3.ErrDB)
+	require.ErrorIs(t, err, html3.ErrDB)
 	db, err := postgres.ConnectDB()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer db.Close()
 	err = a.Stat(ctx, db)
-	assert.Error(t, err)
+	require.Error(t, err)
 }

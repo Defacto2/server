@@ -7,6 +7,7 @@ import (
 
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func td(name string) string {
@@ -21,22 +22,22 @@ func td(name string) string {
 
 func TestLines(t *testing.T) {
 	i, err := helper.Lines("")
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Equal(t, 0, i)
 
 	i, err = helper.Lines("nosuchfile")
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Equal(t, 0, i)
 
 	i, err = helper.Lines(td(""))
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Equal(t, 0, i)
 
 	i, err = helper.Lines(td("TEST.BMP"))
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Equal(t, 0, i)
 
 	i, err = helper.Lines(td("PKZ80A1.TXT"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 175, i)
 }

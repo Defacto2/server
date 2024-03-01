@@ -36,7 +36,7 @@ func Address(c *config.Config) *cli.Command {
 		Aliases:     []string{"a"},
 		Usage:       "list the server addresses",
 		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
-		Action: func(ctx *cli.Context) error {
+		Action: func(_ *cli.Context) error {
 			s, err := c.Addresses()
 			if err != nil {
 				return err
@@ -102,8 +102,7 @@ func Commit(ver string) string {
 	}
 	built := "built at"
 	if l := LastCommit(); l != "" && !strings.Contains(ver, built) {
-		comm := fmt.Sprintf("%s %s", built, l)
-		x = append(x, comm)
+		x = append(x, built+" "+l)
 	}
 	if len(x) == 0 || x[0] == "devel" {
 		return "n/a (not a build)"
@@ -118,7 +117,7 @@ func Config(c *config.Config) *cli.Command {
 		Aliases:     []string{"c"},
 		Usage:       "list the server configuration",
 		Description: "List the available server configuration options and the settings.",
-		Action: func(ctx *cli.Context) error {
+		Action: func(_ *cli.Context) error {
 			defer fmt.Fprintf(os.Stdout, "%s\n", c.String())
 			defer func() {
 				ds, _ := postgres.New()
@@ -178,7 +177,7 @@ func OS() string {
 // [GoReleaser]: https://goreleaser.com/
 func Vers(version string) string {
 	const alpha, beta = "\u03b1", "β"
-	pref := fmt.Sprintf("%s version ", Program)
+	pref := Program + " version "
 	if version == "" {
 		return fmt.Sprintf("%s0.0.0 %slpha", pref, alpha)
 	}

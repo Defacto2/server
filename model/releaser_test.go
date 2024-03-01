@@ -9,6 +9,7 @@ import (
 	"github.com/Defacto2/server/model"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestReleaserNames_List(t *testing.T) {
@@ -21,7 +22,7 @@ func TestReleaserNames_List(t *testing.T) {
 
 	var g model.ReleaserNames
 	err = g.List(ctx, db)
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Empty(t, g)
 }
 
@@ -35,11 +36,11 @@ func TestReleasers_List(t *testing.T) {
 
 	var g model.Releasers
 	list, err := g.List(ctx, db, "")
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Empty(t, list)
 
 	list, err = g.List(ctx, db, "defacto2")
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Empty(t, list)
 }
 
@@ -53,7 +54,7 @@ func TestReleasers_Magazine(t *testing.T) {
 
 	var r model.Releasers
 	err = r.Magazine(ctx, db)
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestReleasers_MagazineAZ(t *testing.T) {
@@ -66,7 +67,7 @@ func TestReleasers_MagazineAZ(t *testing.T) {
 
 	var r model.Releasers
 	err = r.MagazineAZ(ctx, db)
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestReleasers_BBS(t *testing.T) {
@@ -79,7 +80,7 @@ func TestReleasers_BBS(t *testing.T) {
 
 	var r model.Releasers
 	err = r.BBS(ctx, db, false)
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestReleasers_FTP(t *testing.T) {
@@ -92,5 +93,5 @@ func TestReleasers_FTP(t *testing.T) {
 
 	var r model.Releasers
 	err = r.FTP(ctx, db)
-	assert.Error(t, err)
+	require.Error(t, err)
 }

@@ -34,6 +34,10 @@ const (
 	Ver = "SELECT version();"
 )
 
+const (
+	ff = "FROM files "
+)
+
 // Query the database version.
 func (v *Version) Query() error {
 	conn, err := ConnectDB()
@@ -65,7 +69,7 @@ func (v *Version) String() string {
 		if err != nil {
 			return s
 		}
-		return fmt.Sprintf("and using %s", strings.Join(x[0:2], " "))
+		return "and using " + strings.Join(x[0:2], " ")
 	}
 	return s
 }
@@ -91,7 +95,7 @@ func Stat() []string {
 const releaserSEL SQL = "SELECT DISTINCT releaser, " +
 	"COUNT(files.filename) AS count_sum, " +
 	"SUM(files.filesize) AS size_total " +
-	"FROM files " +
+	ff +
 	"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
 	"WHERE NULLIF(releaser, '') IS NOT NULL "
 
@@ -103,7 +107,7 @@ const magazineSEL SQL = "SELECT DISTINCT releaser, " +
 	"COUNT(files.filename) AS count_sum, " +
 	"SUM(files.filesize) AS size_total, " +
 	"MIN(files.date_issued_year) AS min_year " +
-	"FROM files " +
+	ff +
 	"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
 	"WHERE NULLIF(releaser, '') IS NOT NULL " +
 	"AND section = 'magazine' " +
@@ -118,7 +122,7 @@ func Roles() Role {
 
 func (r Role) Select() SQL {
 	s := "SELECT DISTINCT ON(upper(scener)) scener " +
-		"FROM files " +
+		ff +
 		fmt.Sprintf("CROSS JOIN LATERAL (values%s) AS T(scener) ", r) +
 		"WHERE NULLIF(scener, '') IS NOT NULL " +
 		"GROUP BY scener " +
@@ -207,7 +211,7 @@ func SumReleaser(where string) SQL {
 		"SUM(files.filesize) AS size_total, " +
 		"MIN(files.date_issued_year) AS min_year, " +
 		"MAX(files.date_issued_year) AS max_year " +
-		"FROM files "
+		ff
 	switch where {
 	case "magazine":
 		s += "WHERE files.section = 'magazine'"

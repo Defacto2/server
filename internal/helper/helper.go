@@ -6,7 +6,6 @@ import (
 	"embed"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"net"
 	"os"
 )
@@ -21,12 +20,12 @@ const (
 )
 
 var (
-	ErrDiffLength = fmt.Errorf("files are of different lengths")
+	ErrDiffLength = errors.New("files are of different lengths")
 	ErrDirPath    = errors.New("directory path is a file")
 	ErrFilePath   = errors.New("file path is a directory")
 	ErrExistPath  = errors.New("path ready exists and will not overwrite")
 	ErrOSFile     = errors.New("os file is nil")
-	ErrRead       = fmt.Errorf("could not read files")
+	ErrRead       = errors.New("could not read files")
 )
 
 // GetLocalIPs returns a list of local IP addresses.
@@ -89,7 +88,7 @@ func IntegrityFile(name string) (string, error) {
 func IntegrityBytes(b []byte) string {
 	sum := sha512.Sum384(b)
 	b64 := base64.StdEncoding.EncodeToString(sum[:])
-	return fmt.Sprintf("sha384-%s", b64)
+	return "sha384-" + b64
 }
 
 // Touch creates a new, empty named file.

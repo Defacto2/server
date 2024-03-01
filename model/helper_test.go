@@ -12,14 +12,14 @@ import (
 func TestPublishedFmt(t *testing.T) {
 	t.Parallel()
 	s := model.PublishedFmt(nil)
-	assert.Equal(t, s, "error, no file model")
+	assert.Equal(t, "error, no file model", s)
 
 	ms := models.File{}
 	s = model.PublishedFmt(&ms)
-	assert.Equal(t, s, "unknown date")
+	assert.Equal(t, "unknown date", s)
 
 	ms.DateIssuedYear = null.Int16From(1999)
 	ms.DateIssuedMonth = null.Int16From(12)
 	s = model.PublishedFmt(&ms)
-	assert.Equal(t, s, "1999 December")
+	assert.Equal(t, "1999 December", s)
 }

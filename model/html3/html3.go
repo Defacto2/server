@@ -5,6 +5,7 @@ package html3
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -23,8 +24,8 @@ const (
 )
 
 var (
-	ErrDB    = fmt.Errorf("database value is nil")
-	ErrModel = fmt.Errorf("error, no file model")
+	ErrDB    = errors.New("database value is nil")
+	ErrModel = errors.New("error, no file model")
 )
 
 const padding = " "

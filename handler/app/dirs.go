@@ -593,7 +593,7 @@ func (dir Dirs) aboutAssets(uuid string) map[string]string {
 				matches[s] = fmt.Sprintf("%s bytes - %d lines", humanize.Comma(st.Size()), i)
 			case ".ZIP":
 				s = ".ZIP for emulator"
-				matches[s] = fmt.Sprintf("%s bytes", humanize.Comma(st.Size()))
+				matches[s] = humanize.Comma(st.Size()) + " bytes"
 			}
 		}
 	}
@@ -628,7 +628,7 @@ func aboutImgInfo(name string) string {
 		if err != nil {
 			return err.Error()
 		}
-		return fmt.Sprintf("%s bytes", humanize.Comma(st.Size()))
+		return humanize.Comma(st.Size()) + " bytes"
 	}
 	reader, err := os.Open(name)
 	if err != nil {

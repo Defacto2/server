@@ -35,7 +35,7 @@ func Checksum(logr *zap.SugaredLogger, c echo.Context, id string) error {
 		return fmt.Errorf("%w: %d", ErrSum, res.ID)
 	}
 	name := res.Filename.String
-	body := []byte(fmt.Sprintf("%s  %s", sum, name))
+	body := []byte(sum + " " + name)
 
 	file, err := os.CreateTemp(os.TempDir(), "checksum-server.*.txt")
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 	"github.com/Defacto2/server/handler"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRegister(t *testing.T) {
@@ -14,35 +15,35 @@ func TestRegister(t *testing.T) {
 	c := handler.Configuration{}
 	tr, err := c.Registry()
 	assert.Nil(t, tr)
-	assert.Error(t, handler.ErrTmpl, err)
+	require.Error(t, err)
 }
 
 func TestRender(t *testing.T) {
 	t.Parallel()
 	tr := new(handler.TemplateRegistry)
 	err := tr.Render(nil, "", nil, nil)
-	assert.Error(t, handler.ErrName, err)
+	require.Error(t, err)
 
 	err = tr.Render(nil, "name", nil, nil)
-	assert.Error(t, handler.ErrW, err)
+	require.Error(t, err)
 
 	w := io.Discard
 	err = tr.Render(w, "name", "data", nil)
-	assert.Error(t, handler.ErrCtx, err)
+	require.Error(t, err)
 
 	c := echo.New().NewContext(nil, nil)
 	err = tr.Render(w, "name", "data", c)
-	assert.Error(t, handler.ErrTmpl, err)
+	require.Error(t, err)
 }
 
 func TestCookieStore(t *testing.T) {
 	t.Parallel()
 	b, err := handler.CookieStore("")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Len(t, b, 32)
 
 	const key = "my-secret-key"
 	b, err = handler.CookieStore(key)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Len(t, b, len(key))
 }

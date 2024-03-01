@@ -18,7 +18,6 @@ func TestFind(t *testing.T) {
 
 	website = web.Find("notfound")
 	assert.Empty(t, website)
-	assert.Len(t, website, 0)
 
 	website = web.Find("razor-1911-demo")
 	assert.NotEmpty(t, website)

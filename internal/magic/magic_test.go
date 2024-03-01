@@ -8,6 +8,7 @@ import (
 
 	"github.com/Defacto2/server/internal/magic"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func td(name string) string {
@@ -33,25 +34,25 @@ func tduncompress(name string) string {
 func TestANSIMatch(t *testing.T) {
 	t.Parallel()
 	b, err := os.ReadFile(td("PKZ204EX.TXT"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, magic.ANSIMatcher(b))
 	b, err = os.ReadFile(tduncompress("TEST.ANS"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, magic.ANSIMatcher(b))
 }
 
 func TestArcSeaMatcher(t *testing.T) {
 	t.Parallel()
 	b, err := os.ReadFile(td("PKZ204EX.TXT"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, magic.ArcSeaMatcher(b))
 
 	match := []byte{0x1a, 0x10, 0x00, 0x00, 0x00, 0x00}
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, magic.ArcSeaMatcher(match))
 
 	b, err = os.ReadFile(td("ARJ310.ARJ"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, magic.ARJMatcher(b))
 
 	match = []byte{0xe9, 0xeb, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
@@ -66,10 +67,10 @@ func TestInterchangeMatcher(t *testing.T) {
 func TestPCXMatcher(t *testing.T) {
 	t.Parallel()
 	b, err := os.ReadFile(td("PKZ204EX.TXT"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, magic.PCXMatcher(b))
 
 	b, err = os.ReadFile(tduncompress("TEST.PCX"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, magic.PCXMatcher(b))
 }

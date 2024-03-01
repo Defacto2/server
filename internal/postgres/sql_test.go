@@ -5,12 +5,13 @@ import (
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestVersion_Query(t *testing.T) {
 	var v postgres.Version
 	err := v.Query()
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Empty(t, v)
 }
 

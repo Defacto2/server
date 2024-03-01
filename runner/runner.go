@@ -39,8 +39,8 @@ func NamedJS() []string {
 
 // CSS are the options to build the minified CSS files.
 func CSS(name string) api.BuildOptions {
-	min := fmt.Sprintf("%s.min.css", name)
-	entry := filepath.Join("assets", "css", fmt.Sprintf("%s.css", name))
+	min := name + ".min.css"
+	entry := filepath.Join("assets", "css", name+".css")
 	output := filepath.Join("public", "css", min)
 	return api.BuildOptions{
 		EntryPoints:       []string{entry},
@@ -58,8 +58,8 @@ func CSS(name string) api.BuildOptions {
 
 // JS are the options to build the minified JS files.
 func JS(name string) api.BuildOptions {
-	min := fmt.Sprintf("%s.min.js", name)
-	entry := filepath.Join("assets", "js", fmt.Sprintf("%s.js", name))
+	min := name + ".min.js"
+	entry := filepath.Join("assets", "js", name+".js")
 	output := filepath.Join("public", "js", min)
 	return api.BuildOptions{
 		EntryPoints:       []string{entry},

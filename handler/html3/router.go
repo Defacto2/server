@@ -63,7 +63,7 @@ func Routes(logr *zap.SugaredLogger, e *echo.Echo) *echo.Group {
 	// Custom 404 error, "The page cannot be found"
 	g.GET("/:uri", func(x echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound,
-			fmt.Sprintf("The page cannot be found: /html3/%s", x.Param("uri")))
+			"The page cannot be found: /html3/"+x.Param("uri"))
 	})
 	return g
 }

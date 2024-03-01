@@ -23,17 +23,17 @@ const (
 var (
 	ErrPortMax     = fmt.Errorf("http port value must be between 1-%d", PortMax)
 	ErrPortSys     = fmt.Errorf("http port values between 1-%d require system access", PortSys)
-	ErrDir         = fmt.Errorf("the directory path is not set")
-	ErrDir404      = fmt.Errorf("the directory path does not exist")
-	ErrDirIs       = fmt.Errorf("the directory path points to the file")
-	ErrDirRead     = fmt.Errorf("the directory path could not be read")
-	ErrDirFew      = fmt.Errorf("the directory path contains only a few items")
-	ErrUnencrypted = fmt.Errorf("the production server is configured to use unencrypted HTTP connections")
-	ErrNoOAuth2    = fmt.Errorf("the production server requires a google, oauth2 client id to allow admin logins")
-	ErrNoAccounts  = fmt.Errorf("the production server has no google oauth2 user accounts to allow admin logins")
-	ErrSessionKey  = fmt.Errorf("the production server has a session, " +
+	ErrDir         = errors.New("the directory path is not set")
+	ErrDir404      = errors.New("the directory path does not exist")
+	ErrDirIs       = errors.New("the directory path points to the file")
+	ErrDirRead     = errors.New("the directory path could not be read")
+	ErrDirFew      = errors.New("the directory path contains only a few items")
+	ErrUnencrypted = errors.New("the production server is configured to use unencrypted HTTP connections")
+	ErrNoOAuth2    = errors.New("the production server requires a google, oauth2 client id to allow admin logins")
+	ErrNoAccounts  = errors.New("the production server has no google oauth2 user accounts to allow admin logins")
+	ErrSessionKey  = errors.New("the production server has a session, " +
 		"encryption key set instead of using a randomized key")
-	ErrZap = fmt.Errorf("the zap logger instance is nil")
+	ErrZap = errors.New("the zap logger instance is nil")
 )
 
 // Checks runs a number of sanity checks for the environment variable configurations.
@@ -43,7 +43,8 @@ func (c *Config) Checks(logr *zap.SugaredLogger) error {
 	}
 
 	if c.HTTPSRedirect && c.TLSPort == 0 {
-		logr.Warn("HTTPSRedirect is on but the HTTPS port is not set, so the server will not redirect HTTP requests to HTTPS.")
+		logr.Warn("HTTPSRedirect is on but the HTTPS port is not set," +
+			" so the server will not redirect HTTP requests to HTTPS.")
 	}
 
 	c.httpPort(logr)

@@ -38,7 +38,7 @@ func (s *Sugared) Categories(c echo.Context) error {
 	err := c.Render(http.StatusOK, string(tag), map[string]interface{}{
 		"title":       title + "/categories",
 		"description": "File categories and classification tags.",
-		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
+		"latency":     time.Since(*start).String() + ".",
 		"path":        "category",
 		"tagFirst":    tags.FirstCategory,
 		"tagEnd":      tags.LastCategory,
@@ -120,7 +120,7 @@ func (s *Sugared) Groups(c echo.Context) error {
 		"description": "Listed is an exhaustive, distinct collection of scene groups and site brands." +
 			" Do note that Defacto2 is a file-serving site, so the list doesn't distinguish between" +
 			" different groups with the same name or brand.",
-		"latency":   fmt.Sprintf("%s.", time.Since(*start)),
+		"latency":   time.Since(*start).String() + ".",
 		"path":      "group",
 		"releasers": releasers, // model.Grps.List
 		"navigate":  navi,
@@ -175,7 +175,7 @@ func (s *Sugared) Index(c echo.Context) error {
 		"relstats":    stats,
 		"cat":         tags.CategoryCount,
 		"plat":        tags.PlatformCount,
-		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
+		"latency":     time.Since(*start).String() + ".",
 	})
 	if err != nil {
 		s.Log.Errorf("%s: %s", ErrTmpl, err)
@@ -228,9 +228,9 @@ func (s *Sugared) List(c echo.Context, tt RecordsBy) error { //nolint:funlen
 	current := strings.TrimPrefix(tt.String(), "html3_")
 	switch tt {
 	case BySection:
-		current = fmt.Sprintf("category/%s", id)
+		current = "category/" + id
 	case ByPlatform:
-		current = fmt.Sprintf("platform/%s", id)
+		current = "platform/" + id
 	}
 	navi := Navi(limit, page, maxPage, current, qs(c.QueryString()))
 	navi.Link1, navi.Link2, navi.Link3 = Pagi(page, maxPage)
@@ -245,7 +245,7 @@ func (s *Sugared) List(c echo.Context, tt RecordsBy) error { //nolint:funlen
 		"stats":       stat,
 		"sort":        Sorter(c.QueryString()),
 		"records":     records,
-		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
+		"latency":     time.Since(*start).String() + ".",
 		"navigate":    navi,
 	})
 	if err != nil {
@@ -266,7 +266,7 @@ func (s *Sugared) Platforms(c echo.Context) error {
 	err := c.Render(http.StatusOK, string(tag), map[string]interface{}{
 		"title":       title + "/platforms",
 		"description": "File platforms, operating systems and media types.",
-		"latency":     fmt.Sprintf("%s.", time.Since(*start)),
+		"latency":     time.Since(*start).String() + ".",
 		"path":        "platform",
 		"tagFirst":    tags.FirstPlatform,
 		"tagEnd":      tags.LastPlatform,

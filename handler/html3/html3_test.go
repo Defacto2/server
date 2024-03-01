@@ -47,28 +47,29 @@ func TestSorter(t *testing.T) {
 		html3.DescAsc,
 		html3.DescDes,
 	}
+	const a, d = "A", "D"
 	for _, s := range tests {
 		switch s {
 		case html3.NameAsc:
-			assert.Equal(t, html3.Sorter(s)[string(html3.Name)], "D")
+			assert.Equal(t, d, html3.Sorter(s)[string(html3.Name)])
 		case html3.NameDes:
-			assert.Equal(t, html3.Sorter(s)[string(html3.Name)], "A")
+			assert.Equal(t, a, html3.Sorter(s)[string(html3.Name)])
 		case html3.PublAsc:
-			assert.Equal(t, html3.Sorter(s)[string(html3.Publish)], "D")
+			assert.Equal(t, d, html3.Sorter(s)[string(html3.Publish)])
 		case html3.PublDes:
-			assert.Equal(t, html3.Sorter(s)[string(html3.Publish)], "A")
+			assert.Equal(t, a, html3.Sorter(s)[string(html3.Publish)])
 		case html3.PostAsc:
-			assert.Equal(t, html3.Sorter(s)[string(html3.Posted)], "D")
+			assert.Equal(t, d, html3.Sorter(s)[string(html3.Posted)])
 		case html3.PostDes:
-			assert.Equal(t, html3.Sorter(s)[string(html3.Posted)], "A")
+			assert.Equal(t, a, html3.Sorter(s)[string(html3.Posted)])
 		case html3.SizeAsc:
-			assert.Equal(t, html3.Sorter(s)[string(html3.Size)], "D")
+			assert.Equal(t, d, html3.Sorter(s)[string(html3.Size)])
 		case html3.SizeDes:
-			assert.Equal(t, html3.Sorter(s)[string(html3.Size)], "A")
+			assert.Equal(t, a, html3.Sorter(s)[string(html3.Size)])
 		case html3.DescAsc:
-			assert.Equal(t, html3.Sorter(s)[string(html3.Desc)], "D")
+			assert.Equal(t, d, html3.Sorter(s)[string(html3.Desc)])
 		case html3.DescDes:
-			assert.Equal(t, html3.Sorter(s)[string(html3.Desc)], "A")
+			assert.Equal(t, a, html3.Sorter(s)[string(html3.Desc)])
 		}
 	}
 }

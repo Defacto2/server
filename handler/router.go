@@ -38,6 +38,8 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 	}
 	logr := c.Logger
 
+	const mapExt = ".map"
+
 	// Cookie session key for the session store.
 	if !c.Import.ReadMode {
 		key, err := CookieStore(c.Import.SessionKey)
@@ -63,9 +65,9 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 		e.FileFS(href, names[key], public)
 	}
 	// Serve embedded CSS and JS map files
-	e.FileFS(hrefs[app.Bootstrap]+".map", names[app.Bootstrap]+".map", public)
-	e.FileFS(hrefs[app.BootstrapJS]+".map", names[app.BootstrapJS]+".map", public)
-	e.FileFS(hrefs[app.JSDosUI]+".map", names[app.JSDosUI]+".map", public)
+	e.FileFS(hrefs[app.Bootstrap]+mapExt, names[app.Bootstrap]+mapExt, public)
+	e.FileFS(hrefs[app.BootstrapJS]+mapExt, names[app.BootstrapJS]+mapExt, public)
+	e.FileFS(hrefs[app.JSDosUI]+mapExt, names[app.JSDosUI]+mapExt, public)
 
 	// Serve embedded SVG collections
 	e.FileFS("/bootstrap-icons.svg", "public/image/bootstrap-icons.svg", public)
@@ -548,17 +550,18 @@ func (c Configuration) Moved(e *echo.Echo) (*echo.Echo, error) {
 	})
 	// repaired, releaser database entry redirects
 	fixes := e.Group("/g")
+	const g = "/g/"
 	fixes.GET("/acid", func(x echo.Context) error {
-		return x.Redirect(code, "/g/"+releaser.Obfuscate("ACID PRODUCTIONS"))
+		return x.Redirect(code, g+releaser.Obfuscate("ACID PRODUCTIONS"))
 	})
 	fixes.GET("/ice", func(x echo.Context) error {
-		return x.Redirect(code, "/g/"+releaser.Obfuscate("INSANE CREATORS ENTERPRISE"))
+		return x.Redirect(code, g+releaser.Obfuscate("INSANE CREATORS ENTERPRISE"))
 	})
 	fixes.GET("/"+releaser.Obfuscate("pirates with attitude"), func(x echo.Context) error {
-		return x.Redirect(code, "/g/"+releaser.Obfuscate("pirates with attitudes"))
+		return x.Redirect(code, g+releaser.Obfuscate("pirates with attitudes"))
 	})
 	fixes.GET("/"+releaser.Obfuscate("TRISTAR AND RED SECTOR INC"), func(x echo.Context) error {
-		return x.Redirect(code, "/g/"+releaser.Obfuscate("TRISTAR & RED SECTOR INC"))
+		return x.Redirect(code, g+releaser.Obfuscate("TRISTAR & RED SECTOR INC"))
 	})
 	return e, nil
 }

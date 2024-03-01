@@ -5,6 +5,7 @@ import (
 
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -19,78 +20,78 @@ func TestByNames(t *testing.T) {
 	t.Parallel()
 	tee := tags.T{}
 	data, err := tee.ByName("")
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Empty(t, data)
 
 	data, err = tee.ByName("non-existing-name")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Empty(t, data)
 
 	data, err = tee.ByName("bbs")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotEmpty(t, data)
 }
 
 func TestHumanize(t *testing.T) {
 	t.Parallel()
 	s := tags.Humanize(-1, -1)
-	assert.Contains(t, s, "unknown")
+	assert.Contains(t, "unknown", s)
 	s = tags.Humanize(tags.ANSI, -1)
-	assert.Contains(t, s, "unknown")
+	assert.Contains(t, "unknown", s)
 
 	s = tags.Humanize(tags.ANSI, tags.News)
-	assert.Equal(t, s, "an ansi from a news outlet")
+	assert.Equal(t, "an ansi from a news outlet", s)
 
 	s = tags.Humanize(tags.ANSI, tags.Restrict)
-	assert.Equal(t, s, "an insider ansi textfile")
+	assert.Equal(t, "an insider ansi textfile", s)
 
 	s = tags.Humanize(tags.Video, tags.Intro)
-	assert.Equal(t, s, "a bumper video")
+	assert.Equal(t, "a bumper video", s)
 
 	s = tags.Humanize(tags.ANSI, tags.Interview)
-	assert.Equal(t, s, "an ansi interview")
+	assert.Equal(t, "an ansi interview", s)
 
 	s = tags.Humanize(tags.Audio, tags.Intro)
-	assert.Equal(t, s, "a chiptune or intro music")
+	assert.Equal(t, "a chiptune or intro music", s)
 
 	s = tags.Humanize(tags.DataB, tags.Nfo)
-	assert.Equal(t, s, "a database of releases")
+	assert.Equal(t, "a database of releases", s)
 
 	s = tags.Humanize(tags.DOS, tags.Demo)
-	assert.Equal(t, s, "a demo on MS Dos")
+	assert.Equal(t, "a demo on MS Dos", s)
 
 	s = tags.Humanize(tags.Markup, tags.Nfo)
-	assert.Equal(t, s, "a nfo file or scene release in HTML")
+	assert.Equal(t, "a nfo file or scene release in HTML", s)
 
 	s = tags.Humanize(tags.Image, tags.Nfo)
-	assert.Equal(t, s, "an image nfo file or scene release")
+	assert.Equal(t, "an image nfo file or scene release", s)
 
 	s = tags.Humanize(tags.PDF, tags.Proof)
-	assert.Equal(t, s, "a release proof as a PDF document")
+	assert.Equal(t, "a release proof as a PDF document", s)
 
 	s = tags.Humanize(tags.Text, tags.Nfo)
-	assert.Equal(t, s, "an nfo textfile")
+	assert.Equal(t, "an nfo textfile", s)
 
 	s = tags.Humanize(tags.TextAmiga, tags.Nfo)
-	assert.Equal(t, s, "an Amiga nfo textfile")
+	assert.Equal(t, "an Amiga nfo textfile", s)
 
 	s = tags.Humanize(tags.Video, tags.Guide)
-	assert.Equal(t, s, "a guide or how-to video")
+	assert.Equal(t, "a guide or how-to video", s)
 
 	s = tags.Humanize(tags.Windows, tags.Demo)
-	assert.Equal(t, s, "a demo on Windows")
+	assert.Equal(t, "a demo on Windows", s)
 
 	s = tags.Humanize(tags.Linux, tags.Install)
-	assert.Equal(t, s, "a Linux scene software installer")
+	assert.Equal(t, "a Linux scene software installer", s)
 
 	s = tags.Humanize(tags.ANSI, tags.Logo)
-	assert.Equal(t, s, "an ansi logo")
+	assert.Equal(t, "an ansi logo", s)
 
 	s = tags.Humanize(tags.Image, tags.Proof)
-	assert.Equal(t, s, "a proof of release photo")
+	assert.Equal(t, "a proof of release photo", s)
 
 	s = tags.Humanize(tags.Image, tags.News)
-	assert.Equal(t, s, "a screenshot of an article from a news outlet")
+	assert.Equal(t, "a screenshot of an article from a news outlet", s)
 }
 
 func TestHumanizes(t *testing.T) {
@@ -105,58 +106,58 @@ func TestHumanizes(t *testing.T) {
 	const aft = "ansi format textfiles"
 
 	s = tags.Humanizes(tags.ANSI, tags.News)
-	assert.Equal(t, s, aft)
+	assert.Equal(t, aft, s)
 
 	s = tags.Humanizes(tags.ANSI, tags.Restrict)
-	assert.Equal(t, s, aft)
+	assert.Equal(t, aft, s)
 
 	s = tags.Humanizes(tags.Video, tags.Intro)
-	assert.Equal(t, s, "videos and animations")
+	assert.Equal(t, "videos and animations", s)
 
 	s = tags.Humanizes(tags.ANSI, tags.Interview)
-	assert.Equal(t, s, aft)
+	assert.Equal(t, aft, s)
 
 	s = tags.Humanizes(tags.Audio, tags.Intro)
-	assert.Equal(t, s, "music, chiptunes and audio samples")
+	assert.Equal(t, "music, chiptunes and audio samples", s)
 
 	s = tags.Humanizes(tags.DataB, tags.Nfo)
-	assert.Equal(t, s, "databases of releases")
+	assert.Equal(t, "databases of releases", s)
 
 	s = tags.Humanizes(tags.DOS, tags.Demo)
-	assert.Equal(t, s, "demos on MS Dos")
+	assert.Equal(t, "demos on MS Dos", s)
 
 	s = tags.Humanizes(tags.Markup, tags.Nfo)
-	assert.Equal(t, s, "nfo file or scene release as HTML files")
+	assert.Equal(t, "nfo file or scene release as HTML files", s)
 
 	s = tags.Humanizes(tags.Image, tags.Nfo)
-	assert.Equal(t, s, "images, pictures and photos")
+	assert.Equal(t, "images, pictures and photos", s)
 
 	s = tags.Humanizes(tags.PDF, tags.Proof)
-	assert.Equal(t, s, "release proof as PDF documents")
+	assert.Equal(t, "release proof as PDF documents", s)
 
 	s = tags.Humanizes(tags.Text, tags.Nfo)
-	assert.Equal(t, s, "nfo textfiles")
+	assert.Equal(t, "nfo textfiles", s)
 
 	s = tags.Humanizes(tags.TextAmiga, tags.Nfo)
-	assert.Equal(t, s, "Amiga nfo textfiles")
+	assert.Equal(t, "Amiga nfo textfiles", s)
 
 	s = tags.Humanizes(tags.Video, tags.Guide)
-	assert.Equal(t, s, "videos and animations")
+	assert.Equal(t, "videos and animations", s)
 
 	s = tags.Humanizes(tags.Windows, tags.Demo)
-	assert.Equal(t, s, "demos on Windows")
+	assert.Equal(t, "demos on Windows", s)
 
 	s = tags.Humanizes(tags.Linux, tags.Install)
-	assert.Equal(t, s, "scene software installer programs for Linux and BSD")
+	assert.Equal(t, "scene software installer programs for Linux and BSD", s)
 
 	s = tags.Humanizes(tags.ANSI, tags.Logo)
-	assert.Equal(t, s, "ansi format logos")
+	assert.Equal(t, "ansi format logos", s)
 
 	s = tags.Humanizes(tags.Image, tags.Proof)
-	assert.Equal(t, s, "proof of release photos")
+	assert.Equal(t, "proof of release photos", s)
 
 	s = tags.Humanizes(tags.Image, tags.News)
-	assert.Equal(t, s, "images, pictures and photos")
+	assert.Equal(t, "images, pictures and photos", s)
 }
 
 func TestTags(t *testing.T) {
@@ -235,7 +236,7 @@ func TestIsTag(t *testing.T) {
 func TestOSTags(t *testing.T) {
 	t.Parallel()
 	oses := tags.OSTags()
-	assert.Equal(t, 5, len(oses))
+	assert.Len(t, 5, len(oses))
 	assert.Equal(t, "dos", oses[0])
 	assert.Equal(t, "mac10", oses[4])
 }

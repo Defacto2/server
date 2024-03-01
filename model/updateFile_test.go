@@ -6,6 +6,7 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/volatiletech/null/v8"
 )
 
@@ -14,11 +15,11 @@ func TestGetPlatformTagInfo(t *testing.T) {
 
 	c := echo.New().NewContext(nil, nil)
 	s, err := model.GetPlatformTagInfo(c, "", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Empty(t, s)
 
 	s, err = model.GetPlatformTagInfo(c, "ansi", "bbs")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotEmpty(t, s)
 }
 
@@ -27,11 +28,11 @@ func TestGetTagInfo(t *testing.T) {
 
 	c := echo.New().NewContext(nil, nil)
 	s, err := model.GetTagInfo(c, "")
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Empty(t, s)
 
 	s, err = model.GetTagInfo(c, "ansi")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotEmpty(t, s)
 }
 
@@ -40,7 +41,7 @@ func TestUpdateOnline(t *testing.T) {
 
 	c := echo.New().NewContext(nil, nil)
 	err := model.UpdateOnline(c, -1)
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestUpdateOffline(t *testing.T) {
@@ -48,7 +49,7 @@ func TestUpdateOffline(t *testing.T) {
 
 	c := echo.New().NewContext(nil, nil)
 	err := model.UpdateOffline(c, -1)
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestUpdateNoReadme(t *testing.T) {
@@ -56,7 +57,7 @@ func TestUpdateNoReadme(t *testing.T) {
 
 	c := echo.New().NewContext(nil, nil)
 	err := model.UpdateNoReadme(c, -1, false)
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestUpdatePlatform(t *testing.T) {
@@ -64,10 +65,10 @@ func TestUpdatePlatform(t *testing.T) {
 
 	c := echo.New().NewContext(nil, nil)
 	err := model.UpdatePlatform(c, -1, "")
-	assert.ErrorAs(t, err, &model.ErrPlatform)
+	require.ErrorIs(t, err, model.ErrPlatform)
 
 	err = model.UpdatePlatform(c, -1, "ansi")
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestUpdateTag(t *testing.T) {
@@ -75,10 +76,10 @@ func TestUpdateTag(t *testing.T) {
 
 	c := echo.New().NewContext(nil, nil)
 	err := model.UpdateTag(c, -1, "")
-	assert.ErrorAs(t, err, &model.ErrTag)
+	require.ErrorIs(t, err, model.ErrTag)
 
 	err = model.UpdateTag(c, -1, "bbs")
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestUpdateTitle(t *testing.T) {
@@ -86,7 +87,7 @@ func TestUpdateTitle(t *testing.T) {
 
 	c := echo.New().NewContext(nil, nil)
 	err := model.UpdateTitle(c, -1, "")
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestUpdateYMD(t *testing.T) {
@@ -95,17 +96,17 @@ func TestUpdateYMD(t *testing.T) {
 	c := echo.New().NewContext(nil, nil)
 	empty := null.Int16{}
 	err := model.UpdateYMD(c, -1, empty, empty, empty)
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	y := null.Int16From(1900)
 	err = model.UpdateYMD(c, -1, y, empty, empty)
-	assert.ErrorAs(t, err, &model.ErrYear)
+	require.ErrorIs(t, err, model.ErrYear)
 
 	m := null.Int16From(13)
 	err = model.UpdateYMD(c, -1, empty, m, empty)
-	assert.ErrorAs(t, err, &model.ErrMonth)
+	require.ErrorIs(t, err, model.ErrMonth)
 
 	d := null.Int16From(999)
 	err = model.UpdateYMD(c, -1, empty, empty, d)
-	assert.ErrorAs(t, err, &model.ErrDay)
+	require.ErrorIs(t, err, model.ErrDay)
 }

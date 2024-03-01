@@ -8,6 +8,7 @@ import (
 
 	"github.com/Defacto2/server/internal/config"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 )
 
@@ -36,10 +37,10 @@ func TestConfig_Addresses(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
 	_, err := c.Addresses()
-	assert.Error(t, err)
+	require.Error(t, err)
 	c.HTTPPort = 8080
 	s, err := c.Addresses()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, s, "http://localhost:8080")
 }
 
@@ -47,10 +48,10 @@ func TestConfig_Startup(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
 	_, err := c.Startup()
-	assert.Error(t, err)
+	require.Error(t, err)
 	c.HTTPPort = 8080
 	s, err := c.Startup()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, s, "http://localhost:8080")
 }
 
@@ -78,40 +79,40 @@ func TestConfig_Checks(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
 	err := c.Checks(nil)
-	assert.Error(t, err)
+	require.Error(t, err)
 	err = c.Checks(logr())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	c.HTTPPort = 8080
 	c.TLSPort = 8443
 	err = c.Checks(logr())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	c.ReadMode = false
 	c.ProductionMode = true
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	err = c.Checks(logr())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestCheckDir(t *testing.T) {
 	t.Parallel()
 	err := config.CheckDir("", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 	err = config.CheckDir("nosuchdir", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 	dir, err := filepath.Abs(td(""))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	err = config.CheckDir(dir, "")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestStringErr(t *testing.T) {
 	t.Parallel()
 	_, _, err := config.StringErr(nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	c, s, err := config.StringErr(os.ErrNotExist)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 500, c)
 	assert.Equal(t, "500 - internal server error", s)
 }

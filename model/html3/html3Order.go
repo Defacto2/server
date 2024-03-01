@@ -171,15 +171,15 @@ func orderClauses() map[Order]string {
 	fs := models.FileColumns.Filesize
 	rt := models.FileColumns.RecordTitle
 	m := make(map[Order]string, DescDes+1)
-	m[NameAsc] = fmt.Sprintf("%s %s", fn, a)
-	m[NameDes] = fmt.Sprintf("%s %s", fn, d)
+	m[NameAsc] = fn + " " + a
+	m[NameDes] = fn + " " + d
 	m[PublAsc] = fmt.Sprintf("%s %s, %s %s, %s %s", dy, a, dm, a, dd, a)
 	m[PublDes] = fmt.Sprintf("%s %s, %s %s, %s %s", dy, d, dm, d, dd, d)
-	m[PostAsc] = fmt.Sprintf("%s %s", ca, a)
-	m[PostDes] = fmt.Sprintf("%s %s", ca, d)
-	m[SizeAsc] = fmt.Sprintf("%s %s", fs, a)
-	m[SizeDes] = fmt.Sprintf("%s %s", fs, d)
-	m[DescAsc] = fmt.Sprintf("%s %s", rt, a)
-	m[DescDes] = fmt.Sprintf("%s %s", rt, d)
+	m[PostAsc] = ca + " " + a
+	m[PostDes] = ca + " " + d
+	m[SizeAsc] = fs + " " + a
+	m[SizeDes] = fs + " " + d
+	m[DescAsc] = rt + " " + a
+	m[DescDes] = rt + " " + d
 	return m
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // Set to true to test against the remote servers.
@@ -35,11 +36,11 @@ func TestResponseGet(t *testing.T) {
 	t.Parallel()
 	r := pouet.Response{}
 	err := r.Get(0)
-	assert.Error(t, err)
+	require.Error(t, err)
 	// this pings a remote server, so it is disabled.
 	if testRemoteServers {
 		err = r.Get(1)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}
 }
 
@@ -47,11 +48,11 @@ func TestPouet(t *testing.T) {
 	t.Parallel()
 	p := pouet.Pouet{}
 	err := p.Uploader(0)
-	assert.Error(t, err)
+	require.Error(t, err)
 	// this pings a remote server, so it is disabled.
 	if testRemoteServers {
 		err = p.Uploader(1)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}
 }
 
@@ -59,11 +60,11 @@ func TestVotes(t *testing.T) {
 	t.Parallel()
 	v := pouet.Votes{}
 	err := v.Votes(0)
-	assert.Error(t, err)
+	require.Error(t, err)
 	// this pings a remote server, so it is disabled.
 	if testRemoteServers {
 		err = v.Votes(1)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}
 }
 

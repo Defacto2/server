@@ -40,18 +40,18 @@ func (f File) Description() string {
 		if f.IsOS() {
 			desc += f.OS()
 		}
-		return fmt.Sprintf("%s.", desc)
+		return desc + "."
 	}
 	if t := helper.TrimPunct(f.Title); t == "" {
 		desc = "A release from "
 	} else {
-		desc = fmt.Sprintf("%s from ", t)
+		desc = t + " from "
 	}
 	desc += f.GroupBy
 	if f.IsOS() {
 		desc += f.OS()
 	}
-	return fmt.Sprintf("%s.", desc)
+	return desc + "."
 }
 
 // FileLinkPad adds whitespace padding after the hyperlinked filename.
@@ -88,7 +88,7 @@ func (f File) OS() string {
 		tags.Linux,
 		tags.Windows,
 		tags.Mac:
-		return fmt.Sprintf(" for %s", tags.Names()[p])
+		return " for " + tags.Names()[p]
 	default:
 		return ""
 	}

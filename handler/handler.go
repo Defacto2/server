@@ -137,7 +137,7 @@ func (c Configuration) EmbedDirs(e *echo.Echo) *echo.Echo {
 	}
 	for path, fsRoot := range dirs {
 		e.StaticFS(path, echo.MustSubFS(c.Public, fsRoot))
-		e.GET(path, func(ctx echo.Context) error {
+		e.GET(path, func(_ echo.Context) error {
 			return echo.NewHTTPError(http.StatusNotFound)
 		})
 	}

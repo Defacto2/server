@@ -11,6 +11,7 @@ import (
 	"crypto/sha512"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/labstack/echo-contrib/session"
@@ -37,7 +38,8 @@ func (c Configuration) NoCrawl(next echo.HandlerFunc) echo.HandlerFunc {
 // of the database and any related user interface.
 func (c Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(e echo.Context) error {
-		e.Response().Header().Set("X-Read-Only-Lock", fmt.Sprintf("%t", c.Import.ReadMode))
+		s := strconv.FormatBool(c.Import.ReadMode)
+		e.Response().Header().Set("X-Read-Only-Lock", s)
 		if c.Import.ReadMode {
 			return app.StatusErr(c.Logger, e, http.StatusForbidden, "")
 		}

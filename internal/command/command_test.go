@@ -8,6 +8,7 @@ import (
 
 	"github.com/Defacto2/server/internal/command"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 )
 
@@ -26,40 +27,40 @@ func TestLookups(t *testing.T) {
 func TestRemoveImgs(t *testing.T) {
 	t.Parallel()
 	err := command.RemoveImgs("", "", "")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	td := os.TempDir()
 
 	tmp, err := os.CreateTemp(td, "command_test")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer os.Remove(tmp.Name())
 
 	nname := tmp.Name() + ".jpg"
 	err = os.Rename(tmp.Name(), nname)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	name := strings.TrimSuffix(filepath.Base(tmp.Name()), filepath.Ext(tmp.Name()))
 
 	err = command.RemoveImgs(name, td, "somerandomname")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestRemoveMe(t *testing.T) {
 	t.Parallel()
 	err := command.RemoveMe("", "")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	td := os.TempDir()
 	tmp, err := os.CreateTemp(td, "command_test")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer os.Remove(tmp.Name())
 
 	nname := tmp.Name() + ".txt"
 	err = os.Rename(tmp.Name(), nname)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	name := strings.TrimSuffix(filepath.Base(tmp.Name()), filepath.Ext(tmp.Name()))
 	err = command.RemoveMe(name, td)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestCopyFile(t *testing.T) {
@@ -69,18 +70,18 @@ func TestCopyFile(t *testing.T) {
 
 	td := os.TempDir()
 	tmp, err := os.CreateTemp(td, "command_test")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer os.Remove(tmp.Name())
 
 	logr := zap.NewExample().Sugar()
 	err = command.CopyFile(logr, "", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	err = command.CopyFile(logr, tmp.Name(), "")
-	assert.Error(t, err)
+	require.Error(t, err)
 	dst := tmp.Name() + ".txt"
 	err = command.CopyFile(logr, tmp.Name(), dst)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer os.Remove(dst)
 }
 
@@ -129,30 +130,30 @@ func TestBaseNamePath(t *testing.T) {
 func TestLookCmd(t *testing.T) {
 	t.Parallel()
 	err := command.LookCmd("")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	err = command.LookCmd("thiscommanddoesnotexist")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	err = command.LookCmd("go")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestLookVersion(t *testing.T) {
 	t.Parallel()
 	err := command.LookVersion("", "", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	err = command.LookVersion("thiscommanddoesnotexist", "", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	err = command.LookVersion("go", "", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	// version arg output example:
 	// go version go1.16.5 linux/amd64
 	err = command.LookVersion("go", "version", "go version go1.")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestRun(t *testing.T) {
@@ -162,18 +163,18 @@ func TestRun(t *testing.T) {
 
 	logr := zap.NewExample().Sugar()
 	err = command.Run(logr, "", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	err = command.Run(logr, "thiscommanddoesnotexist", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	const noArgs = ""
 	err = command.Run(logr, "go", noArgs)
 	// go without args will return an unknown command error
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	err = command.Run(logr, "go", "version")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestRunOut(t *testing.T) {
@@ -183,18 +184,18 @@ func TestRunOut(t *testing.T) {
 
 	logr := zap.NewExample().Sugar()
 	_, err = command.RunOut(logr, "", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	_, err = command.RunOut(logr, "thiscommanddoesnotexist", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	const noArgs = ""
 	_, err = command.RunOut(logr, "go", noArgs)
 	// go without args will return an unknown command error
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	out, err := command.RunOut(logr, "go", "version")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(out), "go version go1.")
 }
 
@@ -204,18 +205,18 @@ func TestRunQuiet(t *testing.T) {
 	assert.Equal(t, command.ErrZap, err)
 
 	err = command.RunQuiet(logr(), "", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	err = command.RunQuiet(logr(), "thiscommanddoesnotexist", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	const noArgs = ""
 	err = command.RunQuiet(logr(), "go", noArgs)
 	// go without args will return an unknown command error
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	err = command.RunQuiet(logr(), "go", "version")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestRunWD(t *testing.T) {
@@ -223,10 +224,10 @@ func TestRunWD(t *testing.T) {
 	const noWD = ""
 	err := command.RunWD(logr(), "go", noWD, "")
 	// go without args will return an unknown command error
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	wd, err := os.Getwd()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	err = command.RunWD(logr(), "go", wd, "version")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }

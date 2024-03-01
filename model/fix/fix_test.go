@@ -6,7 +6,7 @@ import (
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model/fix"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRepair(t *testing.T) {
@@ -15,11 +15,11 @@ func TestRepair(t *testing.T) {
 
 	ctx := context.TODO()
 	err := r.Run(ctx, nil)
-	assert.ErrorIs(t, err, fix.ErrDB)
+	require.ErrorIs(t, err, fix.ErrDB)
 
 	db, err := postgres.ConnectDB()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	err = r.Run(ctx, db)
-	assert.Error(t, err)
+	require.Error(t, err)
 }

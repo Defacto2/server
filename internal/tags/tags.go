@@ -441,17 +441,17 @@ func Humanizes(platform, section Tag) string {
 	case Image:
 		return image(section)
 	case Java:
-		return fmt.Sprintf("%s for Java", Names()[section])
+		return Names()[section] + " for Java"
 	case Linux:
-		return fmt.Sprintf("%s programs for Linux and BSD", Names()[section])
+		return Names()[section] + " programs for Linux and BSD"
 	case Markup:
-		return fmt.Sprintf("%s as HTML files", Names()[section])
+		return Names()[section] + " as HTML files"
 	case Mac:
-		return fmt.Sprintf("%s for Macintosh and macOS", Names()[section])
+		return Names()[section] + " for Macintosh and macOS"
 	case PDF:
-		return fmt.Sprintf("%s as PDF documents", Names()[section])
+		return Names()[section] + " as PDF documents"
 	case PHP:
-		return fmt.Sprintf("%s for scripting languages", Names()[section])
+		return Names()[section] + " for scripting languages"
 	case Text:
 		return text(section)
 	case TextAmiga:
@@ -469,7 +469,7 @@ func database(section Tag) string {
 	case Nfo:
 		return "databases of releases"
 	default:
-		return fmt.Sprintf("%s databases", Names()[section])
+		return Names()[section] + " databases"
 	}
 }
 
@@ -481,7 +481,7 @@ func defaults(platform, section Tag) string {
 		return emptyPlatform(section)
 	}
 	if section < 0 {
-		return fmt.Sprintf("%ss", Names()[platform])
+		return Names()[platform] + "s"
 	}
 	return fmt.Sprintf("%ss %ss", Names()[platform], Names()[section])
 }
@@ -539,7 +539,7 @@ func text(section Tag) string {
 	case Restrict:
 		return "textfiles with restricted content"
 	default:
-		return fmt.Sprintf("%s textfiles", Names()[section])
+		return Names()[section] + " textfiles"
 	}
 }
 
@@ -558,7 +558,7 @@ func textAmiga(section Tag) string {
 	case Restrict:
 		return "Amiga textfiles with restricted content"
 	default:
-		return fmt.Sprintf("%s textfiles for the Amiga", Names()[section])
+		return Names()[section] + " textfiles for the Amiga"
 	}
 }
 
@@ -575,7 +575,7 @@ func windows(section Tag) string {
 	case Pack:
 		return "filepacks of Windows programs"
 	default:
-		return fmt.Sprintf("%s for Windows", Names()[section])
+		return Names()[section] + " for Windows"
 	}
 }
 
@@ -629,7 +629,7 @@ func emptyPlatform(section Tag) string {
 	case Tool:
 		return "software tools by the scene"
 	}
-	return fmt.Sprintf("%ss", Names()[section])
+	return Names()[section] + "s"
 }
 
 // Sum the numbers of files with the tag.

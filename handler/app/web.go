@@ -92,8 +92,8 @@ func (web Web) ImageSample(uuid string) template.HTML {
 	)
 	ext, name, src := "", "", ""
 	for _, ext = range []string{webp, png} {
-		name = filepath.Join(web.Import.PreviewDir, fmt.Sprintf("%s%s", uuid, ext))
-		src = strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s%s", uuid, ext)}, "/")
+		name = filepath.Join(web.Import.PreviewDir, uuid+ext)
+		src = strings.Join([]string{config.StaticOriginal(), uuid + ext}, "/")
 		if helper.IsStat(name) {
 			break
 		}
@@ -109,12 +109,12 @@ func (web Web) ImageSample(uuid string) template.HTML {
 
 // Screenshot returns a picture elment with screenshots for the given uuid.
 func (web Web) Screenshot(uuid, desc string) template.HTML {
-	fw := filepath.Join(web.Import.PreviewDir, fmt.Sprintf("%s%s", uuid, webp))
-	fp := filepath.Join(web.Import.PreviewDir, fmt.Sprintf("%s%s", uuid, png))
-	fj := filepath.Join(web.Import.PreviewDir, fmt.Sprintf("%s%s", uuid, jpg))
-	webp := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s%s", uuid, webp)}, "/")
-	png := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s%s", uuid, png)}, "/")
-	jpg := strings.Join([]string{config.StaticOriginal(), fmt.Sprintf("%s%s", uuid, jpg)}, "/")
+	fw := filepath.Join(web.Import.PreviewDir, uuid+webp)
+	fp := filepath.Join(web.Import.PreviewDir, uuid+png)
+	fj := filepath.Join(web.Import.PreviewDir, uuid+jpg)
+	webp := strings.Join([]string{config.StaticOriginal(), uuid + webp}, "/")
+	png := strings.Join([]string{config.StaticOriginal(), uuid + png}, "/")
+	jpg := strings.Join([]string{config.StaticOriginal(), uuid + jpg}, "/")
 	alt := strings.ToLower(desc) + " screenshot"
 	w, p, j := false, false, false
 	if helper.IsStat(fw) {
@@ -164,6 +164,7 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 
 // TemplateElms returns a map of functions that return HTML elements.
 func (web Web) TemplateElms() template.FuncMap {
+	const input = "<input class=\"form-check-input\""
 	return template.FuncMap{
 		"az": func() template.HTML {
 			return template.HTML(`<small><small class=\"fw-lighter\">A-Z</small></small>`)
@@ -185,18 +186,18 @@ func (web Web) TemplateElms() template.FuncMap {
 		},
 		"recordOnline": func(b bool) template.HTML {
 			if b {
-				return template.HTML("<input class=\"form-check-input\"" +
+				return template.HTML(input +
 					" name=\"online\" type=\"checkbox\" role=\"switch\" id=\"recordOnline\" checked>")
 			}
-			return template.HTML(("<input class=\"form-check-input\"" +
+			return template.HTML((input +
 				" name=\"online\" type=\"checkbox\" role=\"switch\" id=\"recordOnline\">"))
 		},
 		"recordReadme": func(b bool) template.HTML {
 			if b {
-				return template.HTML("<input class=\"form-check-input\"" +
+				return template.HTML(input +
 					" name=\"hide-readme\" type=\"checkbox\" role=\"switch\" id=\"edHideMe\" checked>")
 			}
-			return template.HTML(("<input class=\"form-check-input\"" +
+			return template.HTML((input +
 				" name=\"hide-readme\" type=\"checkbox\" role=\"switch\" id=\"edHideMe\">"))
 		},
 	}
@@ -391,10 +392,10 @@ func (web *Web) Templates() (map[string]*template.Template, error) {
 // The uuid is the filename of the thumbnail image without an extension.
 // The desc is the description of the image.
 func (web Web) Thumb(uuid, desc string, bottom bool) template.HTML {
-	fw := filepath.Join(web.Import.ThumbnailDir, fmt.Sprintf("%s.webp", uuid))
-	fp := filepath.Join(web.Import.ThumbnailDir, fmt.Sprintf("%s.png", uuid))
-	webp := strings.Join([]string{config.StaticThumb(), fmt.Sprintf("%s.webp", uuid)}, "/")
-	png := strings.Join([]string{config.StaticThumb(), fmt.Sprintf("%s.png", uuid)}, "/")
+	fw := filepath.Join(web.Import.ThumbnailDir, uuid+webp)
+	fp := filepath.Join(web.Import.ThumbnailDir, uuid+png)
+	webp := strings.Join([]string{config.StaticThumb(), uuid + webp}, "/")
+	png := strings.Join([]string{config.StaticThumb(), uuid + png}, "/")
 	alt := strings.ToLower(desc) + " thumbnail"
 	w, p := false, false
 	if helper.IsStat(fw) {
@@ -438,8 +439,8 @@ func (web Web) ThumbSample(uuid string) template.HTML {
 	)
 	ext, name, src := "", "", ""
 	for _, ext = range []string{webp, png} {
-		name = filepath.Join(web.Import.ThumbnailDir, fmt.Sprintf("%s%s", uuid, ext))
-		src = strings.Join([]string{config.StaticThumb(), fmt.Sprintf("%s%s", uuid, ext)}, "/")
+		name = filepath.Join(web.Import.ThumbnailDir, uuid+ext)
+		src = strings.Join([]string{config.StaticThumb(), uuid + ext}, "/")
 		if helper.IsStat(name) {
 			break
 		}

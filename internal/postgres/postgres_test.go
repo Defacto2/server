@@ -7,6 +7,7 @@ import (
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 )
 
@@ -19,7 +20,7 @@ func logr() *zap.SugaredLogger {
 func TestConnection_Open(t *testing.T) {
 	c := postgres.Connection{}
 	conn, err := c.Open()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer conn.Close()
 	assert.NotNil(t, conn)
 }
@@ -27,38 +28,38 @@ func TestConnection_Open(t *testing.T) {
 func TestConnection_Check(t *testing.T) {
 	c := postgres.Connection{}
 	err := c.Check(nil, false)
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	err = c.Check(logr(), false)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	c = postgres.Connection{}
 	c.Username = "abcde"
 	c.Password = ""
 	err = c.Check(logr(), false)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	c = postgres.Connection{}
 	c.Username = ""
 	c.Password = "password"
 	c.NoSSLMode = true
 	err = c.Check(logr(), false)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func TestConnection_New(t *testing.T) {
 	c, err := postgres.New()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, c)
 	s, err := c.Open()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, s)
 	defer s.Close()
 }
 
 func Test_ConnectDB(t *testing.T) {
 	conn, err := postgres.ConnectDB()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, conn)
 	defer conn.Close()
 }
