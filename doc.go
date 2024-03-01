@@ -11,7 +11,7 @@ Variables are handled within the container's environment on a production setup, 
 
 # Installation
 
-TODO: Add installation instructions.
+	*add installation instructions here*
 
 # Usage
 

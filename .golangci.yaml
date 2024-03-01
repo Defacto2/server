@@ -21,17 +21,17 @@ linters:
     - structcheck
     - varcheck
     # disabled
-    - depguard          # don't need this.
+    - depguard          # overkill.
     - exhaustive
     - exhaustruct
-    - ireturn
+    - ireturn           # conflicts with sqlboiler.
     - nlreturn          # fussy over whitespace.
-    - paralleltest
-    - varnamelen
+    - paralleltest      # overkill.
+    - varnamelen        # not idomatic?
     - wrapcheck
     - wsl               # fussy over whitespace.
-    # temporary disabled to hide todo comments.
-    - godox
+    # temporary disabled
+    #- godox
 issues:
   exclude-rules:
     - path: cmd/cmd.go
