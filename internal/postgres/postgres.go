@@ -52,26 +52,26 @@ func (c Connection) Open() (*sql.DB, error) {
 }
 
 // Check the connection values and print any issues or feedback to the logger.
-func (c Connection) Check(z *zap.SugaredLogger, local bool) error {
-	if z == nil {
+func (c Connection) Check(logr *zap.SugaredLogger, local bool) error {
+	if logr == nil {
 		return ErrZap
 	}
 	if c.HostName == "" {
-		z.Warn("The database connection host name is empty.")
+		logr.Warn("The database connection host name is empty.")
 	}
 	if c.HostPort == 0 {
-		z.Warn("The database connection host port is set to 0.")
+		logr.Warn("The database connection host port is set to 0.")
 	}
 	if !local && c.NoSSLMode {
-		z.Warn("The database connection is using an insecure, plain text connection.")
+		logr.Warn("The database connection is using an insecure, plain text connection.")
 	}
 	switch {
 	case c.Username == "" && c.Password != "":
-		z.Info("The database connection username is empty but the password is set.")
+		logr.Info("The database connection username is empty but the password is set.")
 	case c.Username == "":
-		z.Info("The database connection username is empty.")
+		logr.Info("The database connection username is empty.")
 	case c.Password == "":
-		z.Info("The database connection password is empty.")
+		logr.Info("The database connection password is empty.")
 	}
 	return nil
 }

@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func z() *zap.SugaredLogger {
+func logr() *zap.SugaredLogger {
 	return zap.NewExample().Sugar()
 }
 
@@ -131,7 +131,7 @@ func TestDescription(t *testing.T) {
 func TestFileHref(t *testing.T) {
 	s := html3.FileHref(nil, 0)
 	assert.Equal(t, "zap logger is nil", s)
-	s = html3.FileHref(z(), 0)
+	s = html3.FileHref(logr(), 0)
 	assert.Equal(t, "/html3/d/0", s)
 }
 

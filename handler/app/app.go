@@ -1055,17 +1055,17 @@ func websiteIcon(url string) string {
 }
 
 // YMDEdit handles the post submission for the Year, Month, Day selection fields.
-func YMDEdit(z *zap.SugaredLogger, c echo.Context) error {
+func YMDEdit(logr *zap.SugaredLogger, c echo.Context) error {
 	const name = "editor ymd"
-	if z == nil {
-		return InternalErr(z, c, name, ErrZap)
+	if logr == nil {
+		return InternalErr(logr, c, name, ErrZap)
 	}
 
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Record(z, c, f.ID)
+	r, err := model.Record(logr, c, f.ID)
 	if err != nil {
 		return err
 	}

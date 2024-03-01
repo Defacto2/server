@@ -38,27 +38,27 @@ func Test_ExtractOne(t *testing.T) {
 	assert.Error(t, err)
 
 	src, dst, hint, name := "", "", "", ""
-	err = command.ExtractOne(z(), src, dst, hint, name)
+	err = command.ExtractOne(logr(), src, dst, hint, name)
 	assert.Error(t, err)
 
 	src = td("PKZ80A1.TXT")
-	err = command.ExtractOne(z(), src, "", "", "")
+	err = command.ExtractOne(logr(), src, "", "", "")
 	assert.Error(t, err)
 
 	src = td("PKZ80A1.ZIP")
-	err = command.ExtractOne(z(), src, "", ".zip", "")
+	err = command.ExtractOne(logr(), src, "", ".zip", "")
 	assert.Error(t, err)
 
-	err = command.ExtractOne(z(), src, "", ".zip", "TEST.ASC")
+	err = command.ExtractOne(logr(), src, "", ".zip", "TEST.ASC")
 	assert.Error(t, err)
 
 	dst = os.TempDir()
-	err = command.ExtractOne(z(), src, dst, ".zip", "TEST.ASC")
+	err = command.ExtractOne(logr(), src, dst, ".zip", "TEST.ASC")
 	assert.Error(t, err)
 
 	src = td("PKZ204EX.ZIP")
 	dst, _ = filepath.Abs(filepath.Join(os.TempDir(), "PKZ204EX.ZIP"))
-	err = command.ExtractOne(z(), src, dst, ".zip", "TEST.ASC")
+	err = command.ExtractOne(logr(), src, dst, ".zip", "TEST.ASC")
 	assert.NoError(t, err)
 
 	ok := helper.IsFile(dst)
@@ -67,7 +67,7 @@ func Test_ExtractOne(t *testing.T) {
 
 	src = td("PKZ80A1.ZIP")
 	dst, _ = filepath.Abs(filepath.Join(os.TempDir(), "PKZ80A1.ZIP"))
-	err = command.ExtractOne(z(), src, dst, ".zip", "TEST.ASC")
+	err = command.ExtractOne(logr(), src, dst, ".zip", "TEST.ASC")
 	assert.NoError(t, err)
 
 	ok = helper.IsFile(dst)
@@ -76,7 +76,7 @@ func Test_ExtractOne(t *testing.T) {
 
 	src = td("ARC521P.ARC")
 	dst, _ = filepath.Abs(filepath.Join(os.TempDir(), "ARC521P.ARC"))
-	err = command.ExtractOne(z(), src, dst, ".arc", "TEST.JPG")
+	err = command.ExtractOne(logr(), src, dst, ".arc", "TEST.JPG")
 	assert.NoError(t, err)
 
 	ok = helper.IsFile(dst)
@@ -85,7 +85,7 @@ func Test_ExtractOne(t *testing.T) {
 
 	src = td("ARJ310.ARJ")
 	dst, _ = filepath.Abs(filepath.Join(os.TempDir(), "ARJ310.ARJ"))
-	err = command.ExtractOne(z(), src, dst, ".arj", "TEST.JPEG")
+	err = command.ExtractOne(logr(), src, dst, ".arj", "TEST.JPEG")
 	assert.NoError(t, err)
 
 	ok = helper.IsFile(dst)
@@ -94,7 +94,7 @@ func Test_ExtractOne(t *testing.T) {
 
 	src = td("RAR624.RAR")
 	dst, _ = filepath.Abs(filepath.Join(os.TempDir(), "RAR624.RAR"))
-	err = command.ExtractOne(z(), src, dst, ".rar", "TEST.JPG")
+	err = command.ExtractOne(logr(), src, dst, ".rar", "TEST.JPG")
 	assert.NoError(t, err)
 
 	ok = helper.IsFile(dst)
@@ -103,7 +103,7 @@ func Test_ExtractOne(t *testing.T) {
 
 	src = td("TAR135.TAR")
 	dst, _ = filepath.Abs(filepath.Join(os.TempDir(), "TAR135.TAR"))
-	err = command.ExtractOne(z(), src, dst, ".tar", "TEST.JPG")
+	err = command.ExtractOne(logr(), src, dst, ".tar", "TEST.JPG")
 	assert.NoError(t, err)
 
 	ok = helper.IsFile(dst)
@@ -112,7 +112,7 @@ func Test_ExtractOne(t *testing.T) {
 
 	src = td("TAR135.GZ")
 	dst, _ = filepath.Abs(filepath.Join(os.TempDir(), "TAR135.GZ"))
-	err = command.ExtractOne(z(), src, dst, ".gz", "TEST.JPG")
+	err = command.ExtractOne(logr(), src, dst, ".gz", "TEST.JPG")
 	assert.NoError(t, err)
 
 	ok = helper.IsFile(dst)
@@ -146,14 +146,14 @@ func Test_ExtractAnsiLove(t *testing.T) {
 	t.Parallel()
 	dir := command.Dirs{}
 
-	err := dir.ExtractAnsiLove(nil, "", "", "", "")
+	err := dir.ExtractAnsiLove("", "", "", "")
 	assert.Error(t, err)
 
-	err = dir.ExtractAnsiLove(z(), "", "", "", "")
+	err = dir.ExtractAnsiLove("", "", "", "")
 	assert.Error(t, err)
 
 	src := td("PKZ204EX.ZIP")
-	err = dir.ExtractAnsiLove(z(),
+	err = dir.ExtractAnsiLove(
 		src, ".zip", "000000ABCDE", "TEST.ANS")
 	assert.NoError(t, err)
 	ok := helper.IsFile("000000ABCDE.webp")
@@ -161,7 +161,7 @@ func Test_ExtractAnsiLove(t *testing.T) {
 	err = os.Remove("000000ABCDE.webp")
 	assert.NoError(t, err)
 
-	err = dir.ExtractAnsiLove(z(),
+	err = dir.ExtractAnsiLove(
 		src, ".zip", "000000ABCDE", "nosuchfile")
 	assert.Error(t, err)
 }
@@ -180,16 +180,15 @@ func Test_ExtractImage(t *testing.T) {
 		Thumbnail: thumb, // this is the cropped output dest
 	}
 	// intentional errors
-	err = dir.ExtractImage(nil, "", "", "", "")
+	err = dir.ExtractImage("", "", "", "")
 	assert.Error(t, err)
-	err = dir.ExtractImage(z(), "", "", "", "")
+	err = dir.ExtractImage("", "", "", "")
 	assert.Error(t, err)
 
 	broken := []string{"nosuchfile", "TEST.ASC", "TEST.JPEG", "TEST.ANS"}
 	for _, name := range broken {
 		src := td("PKZ204EX.ZIP")
-		err = dir.ExtractImage(z(),
-			src, ".zip", "000000ABCDE", name)
+		err = dir.ExtractImage(src, ".zip", "000000ABCDE", name)
 		assert.Error(t, err)
 	}
 	// cases that create webp files
@@ -198,8 +197,7 @@ func Test_ExtractImage(t *testing.T) {
 	ot := filepath.Join(thumb, "000000ABCDE.webp")
 	for _, name := range names {
 		src := td("PKZ204EX.ZIP")
-		err = dir.ExtractImage(z(),
-			src, ".zip", "000000ABCDE", name)
+		err = dir.ExtractImage(src, ".zip", "000000ABCDE", name)
 		assert.NoError(t, err)
 
 		ok := helper.IsFile(op)
@@ -217,8 +215,7 @@ func Test_ExtractImage(t *testing.T) {
 		ot = filepath.Join(thumb, "000000ABCDE.webp")
 		name := "TEST.PNG"
 		src := td("PKZ204EX.ZIP")
-		err = dir.ExtractImage(z(),
-			src, ".zip", "000000ABCDE", name)
+		err = dir.ExtractImage(src, ".zip", "000000ABCDE", name)
 		assert.NoError(t, err)
 		ok := helper.IsFile(op)
 		assert.True(t, ok)
@@ -247,10 +244,10 @@ func Test_LosslessScreenshot(t *testing.T) {
 	imgs := []string{"TEST.BMP", "TEST.GIF", "TEST.JPG", "TEST.PCX", "TEST.PNG"}
 	for _, name := range imgs {
 		fp := tduncompress(name)
-		err = dir.LosslessScreenshot(z(), fp, "000000ABCDE")
+		err = dir.LosslessScreenshot(fp, "000000ABCDE")
 		assert.NoError(t, err)
 	}
 
-	err = dir.LosslessScreenshot(nil, "", "")
+	err = dir.LosslessScreenshot("", "")
 	assert.Error(t, err)
 }

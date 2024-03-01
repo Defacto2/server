@@ -21,8 +21,8 @@ var (
 )
 
 // OneRecord retrieves a single file record from the database using the uid URL ID.
-func OneRecord(z *zap.SugaredLogger, c echo.Context, deleted bool, uid string) (*models.File, error) {
-	if z == nil {
+func OneRecord(logr *zap.SugaredLogger, c echo.Context, deleted bool, uid string) (*models.File, error) {
+	if logr == nil {
 		return nil, ErrZap
 	}
 	if c == nil {
@@ -50,8 +50,8 @@ func OneRecord(z *zap.SugaredLogger, c echo.Context, deleted bool, uid string) (
 }
 
 // Record retrieves a single file record from the database using the record key.
-func Record(z *zap.SugaredLogger, c echo.Context, key int) (*models.File, error) {
-	if z == nil {
+func Record(logr *zap.SugaredLogger, c echo.Context, key int) (*models.File, error) {
+	if logr == nil {
 		return nil, ErrZap
 	}
 	if c == nil {

@@ -15,8 +15,8 @@ const (
 
 // RepairFS, on startup check the file system directories for any invalid or unknown files.
 // If any are found, they are removed without warning.
-func (c Config) RepairFS(z *zap.SugaredLogger) error {
-	if z == nil {
+func (c Config) RepairFS(logr *zap.SugaredLogger) error {
+	if logr == nil {
 		return ErrZap
 	}
 	dirs := []string{c.PreviewDir, c.ThumbnailDir}
@@ -50,15 +50,15 @@ func (c Config) RepairFS(z *zap.SugaredLogger) error {
 		}
 		switch dir {
 		case c.PreviewDir:
-			z.Infof("The preview directory contains, %d images: %s", p, dir)
+			logr.Infof("The preview directory contains, %d images: %s", p, dir)
 		case c.ThumbnailDir:
-			z.Infof("The thumb directory contains, %d images: %s", t, dir)
+			logr.Infof("The thumb directory contains, %d images: %s", t, dir)
 		}
 	}
-	return c.downloadFS(z)
+	return c.downloadFS(logr)
 }
 
-func (c Config) downloadFS(z *zap.SugaredLogger) error {
+func (c Config) downloadFS(logr *zap.SugaredLogger) error {
 	dir := c.DownloadDir
 	if _, err := os.Stat(dir); err != nil {
 		var ignore error
@@ -81,7 +81,7 @@ func (c Config) downloadFS(z *zap.SugaredLogger) error {
 	if err != nil {
 		return err
 	}
-	z.Infof("The downloads directory contains, %d files: %s", d, dir)
+	logr.Infof("The downloads directory contains, %d files: %s", d, dir)
 	return nil
 }
 

@@ -120,14 +120,14 @@ func Error(c echo.Context, err error) error {
 }
 
 // FileHref creates a URL to link to the file download of the ID.
-func FileHref(z *zap.SugaredLogger, id int64) string {
-	if z == nil {
+func FileHref(logr *zap.SugaredLogger, id int64) string {
+	if logr == nil {
 		return ErrZap.Error()
 	}
 	href, err := url.JoinPath("/", "html3", "d",
 		helper.ObfuscateID(id))
 	if err != nil {
-		z.Error("FileHref ID %d could not be made into a valid URL: %s", err)
+		logr.Error("FileHref ID %d could not be made into a valid URL: %s", err)
 		return ""
 	}
 	return href
@@ -489,24 +489,24 @@ func Sortings() map[Sort]string {
 }
 
 // Templates returns a map of the templates used by the HTML3 sub-group route.
-func Templates(z *zap.SugaredLogger, fs embed.FS) map[string]*template.Template {
+func Templates(logr *zap.SugaredLogger, fs embed.FS) map[string]*template.Template {
 	t := make(map[string]*template.Template)
-	t["html3_index"] = index(z, fs)
-	t["html3_all"] = list(z, fs)
-	t["html3_art"] = list(z, fs)
-	t["html3_documents"] = list(z, fs)
-	t["html3_software"] = list(z, fs)
-	t["html3_groups"] = listGroups(z, fs)
-	t["html3_group"] = list(z, fs)
-	t[string(tag)] = listTags(z, fs)
-	t["html3_platform"] = list(z, fs)
-	t["html3_category"] = list(z, fs)
-	t["html3_error"] = httpErr(z, fs)
+	t["html3_index"] = index(logr, fs)
+	t["html3_all"] = list(logr, fs)
+	t["html3_art"] = list(logr, fs)
+	t["html3_documents"] = list(logr, fs)
+	t["html3_software"] = list(logr, fs)
+	t["html3_groups"] = listGroups(logr, fs)
+	t["html3_group"] = list(logr, fs)
+	t[string(tag)] = listTags(logr, fs)
+	t["html3_platform"] = list(logr, fs)
+	t["html3_category"] = list(logr, fs)
+	t["html3_error"] = httpErr(logr, fs)
 	return t
 }
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
-func TemplateFuncMap(z *zap.SugaredLogger) template.FuncMap {
+func TemplateFuncMap(logr *zap.SugaredLogger) template.FuncMap {
 	return template.FuncMap{
 		"byteInt":  LeadFSInt,
 		"descript": Description,
@@ -521,12 +521,12 @@ func TemplateFuncMap(z *zap.SugaredLogger) template.FuncMap {
 		"publish":  html3.PublishedFW,
 		"posted":   html3.Created,
 		"linkHref": func(id int64) string {
-			return FileHref(z, id)
+			return FileHref(logr, id)
 		},
 		"metaByName": func(s string) tags.TagData {
 			t, err := tagByName(s)
 			if err != nil {
-				z.Errorw("tag", "error", err)
+				logr.Errorw("tag", "error", err)
 				return tags.TagData{}
 			}
 			return t

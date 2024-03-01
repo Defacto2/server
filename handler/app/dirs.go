@@ -50,23 +50,23 @@ const (
 )
 
 // About is the handler for the about page of the file record.
-func (dir Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error { //nolint:funlen
+func (dir Dirs) About(logr *zap.SugaredLogger, c echo.Context, readonly bool) error { //nolint:funlen
 	const name = "about"
-	if z == nil {
-		return InternalErr(z, c, name, ErrZap)
+	if logr == nil {
+		return InternalErr(logr, c, name, ErrZap)
 	}
 	var res *models.File
 	var err error
 	if editor(c) {
-		res, err = model.OneRecord(z, c, true, dir.URI)
+		res, err = model.OneRecord(logr, c, true, dir.URI)
 	} else {
-		res, err = model.OneRecord(z, c, false, dir.URI)
+		res, err = model.OneRecord(logr, c, false, dir.URI)
 	}
 	if err != nil {
 		if errors.Is(err, model.ErrID) {
-			return AboutErr(z, c, dir.URI)
+			return AboutErr(logr, c, dir.URI)
 		}
-		return DatabaseErr(z, c, "f/"+dir.URI, err)
+		return DatabaseErr(logr, c, "f/"+dir.URI, err)
 	}
 	fname := res.Filename.String
 	uuid := res.UUID.String
@@ -168,37 +168,37 @@ func (dir Dirs) About(z *zap.SugaredLogger, c echo.Context, readonly bool) error
 	}
 	d, err := dir.aboutReadme(res)
 	if err != nil {
-		return InternalErr(z, c, name, err)
+		return InternalErr(logr, c, name, err)
 	}
 	maps.Copy(data, d)
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(z, c, name, err)
+		return InternalErr(logr, c, name, err)
 	}
 	return nil
 }
 
 // AnsiLovePost handles the post submission for the Preview from text in archive.
-func (dir Dirs) AnsiLovePost(z *zap.SugaredLogger, c echo.Context) error {
+func (dir Dirs) AnsiLovePost(logr *zap.SugaredLogger, c echo.Context) error {
 	const name = "editor ansilove"
-	if z == nil {
-		return InternalErr(z, c, name, ErrZap)
+	if logr == nil {
+		return InternalErr(logr, c, name, ErrZap)
 	}
-	return dir.extractor(z, c, ansis)
+	return dir.extractor(logr, c, ansis)
 }
 
 // PreviewDel handles the post submission for the Delete complementary images button.
-func (dir Dirs) PreviewDel(z *zap.SugaredLogger, c echo.Context) error {
+func (dir Dirs) PreviewDel(logr *zap.SugaredLogger, c echo.Context) error {
 	const name = "editor preview remove"
-	if z == nil {
-		return InternalErr(z, c, name, ErrZap)
+	if logr == nil {
+		return InternalErr(logr, c, name, ErrZap)
 	}
 
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Record(z, c, f.ID)
+	r, err := model.Record(logr, c, f.ID)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -209,12 +209,12 @@ func (dir Dirs) PreviewDel(z *zap.SugaredLogger, c echo.Context) error {
 }
 
 // PreviewPost handles the post submission for the Preview from image in archive.
-func (dir Dirs) PreviewPost(z *zap.SugaredLogger, c echo.Context) error {
+func (dir Dirs) PreviewPost(logr *zap.SugaredLogger, c echo.Context) error {
 	const name = "editor preview"
-	if z == nil {
-		return InternalErr(z, c, name, ErrZap)
+	if logr == nil {
+		return InternalErr(logr, c, name, ErrZap)
 	}
-	return dir.extractor(z, c, imgs)
+	return dir.extractor(logr, c, imgs)
 }
 
 // aboutReadme returns the readme data for the file record.
@@ -318,16 +318,16 @@ func (dir Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) { 
 }
 
 // extractor is a helper function for the PreviewPost and AnsiLovePost handlers.
-func (dir Dirs) extractor(z *zap.SugaredLogger, c echo.Context, p extract) error {
-	if z == nil {
-		return InternalErr(z, c, "extractor", ErrZap)
+func (dir Dirs) extractor(logr *zap.SugaredLogger, c echo.Context, p extract) error {
+	if logr == nil {
+		return InternalErr(logr, c, "extractor", ErrZap)
 	}
 
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Record(z, c, f.ID)
+	r, err := model.Record(logr, c, f.ID)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -351,11 +351,11 @@ func (dir Dirs) extractor(z *zap.SugaredLogger, c echo.Context, p extract) error
 	ext := filepath.Ext(strings.ToLower(r.Filename.String))
 	switch p {
 	case imgs:
-		err = cmd.ExtractImage(z, src, ext, r.UUID.String, target)
+		err = cmd.ExtractImage(src, ext, r.UUID.String, target)
 	case ansis:
-		err = cmd.ExtractAnsiLove(z, src, ext, r.UUID.String, target)
+		err = cmd.ExtractAnsiLove(src, ext, r.UUID.String, target)
 	default:
-		return InternalErr(z, c, "extractor", fmt.Errorf("%w: %d", ErrExtract, p))
+		return InternalErr(logr, c, "extractor", fmt.Errorf("%w: %d", ErrExtract, p))
 	}
 	if err != nil {
 		return badRequest(c, err)

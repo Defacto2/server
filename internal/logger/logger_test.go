@@ -8,16 +8,16 @@ import (
 )
 
 func TestCLI(t *testing.T) {
-	z := logger.CLI()
-	assert.NotNil(t, z)
+	logr := logger.CLI()
+	assert.NotNil(t, logr)
 }
 
 func TestLog(t *testing.T) {
-	z := logger.Development()
-	assert.NotNil(t, z)
+	logr := logger.Development()
+	assert.NotNil(t, logr)
 }
 
 func TestProduction(t *testing.T) {
-	z := logger.Production("")
-	assert.NotNil(t, z)
+	logr := logger.Production("")
+	assert.NotNil(t, logr)
 }

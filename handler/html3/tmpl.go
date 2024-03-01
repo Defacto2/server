@@ -23,32 +23,32 @@ const (
 )
 
 // Index template.
-func index(z *zap.SugaredLogger, fs embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(z)).ParseFS(fs,
+func index(logr *zap.SugaredLogger, fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap(logr)).ParseFS(fs,
 		GlobTo(layout), GlobTo(dirs), GlobTo("index.html")))
 }
 
 // List file records template.
-func list(z *zap.SugaredLogger, fs embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(z)).ParseFS(fs,
+func list(logr *zap.SugaredLogger, fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap(logr)).ParseFS(fs,
 		GlobTo(layout), GlobTo(files), GlobTo(pagination), GlobTo(files)))
 }
 
 // List and filter the tags template.
-func listTags(z *zap.SugaredLogger, fs embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(z)).ParseFS(fs,
+func listTags(logr *zap.SugaredLogger, fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap(logr)).ParseFS(fs,
 		GlobTo(layout), GlobTo(subDirs), GlobTo("tags.html")))
 }
 
 // List the distinct groups template.
-func listGroups(z *zap.SugaredLogger, fs embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(z)).ParseFS(fs,
+func listGroups(logr *zap.SugaredLogger, fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap(logr)).ParseFS(fs,
 		GlobTo(layout), GlobTo(dirs), GlobTo(pagination), GlobTo("groups.html")))
 }
 
 // Template for displaying HTTP error codes and feedback.
-func httpErr(z *zap.SugaredLogger, fs embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(z)).ParseFS(fs,
+func httpErr(logr *zap.SugaredLogger, fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap(logr)).ParseFS(fs,
 		GlobTo(layout)))
 }
 

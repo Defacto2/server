@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func z() *zap.SugaredLogger {
+func logr() *zap.SugaredLogger {
 	return zap.NewNop().Sugar()
 }
 
@@ -29,20 +29,20 @@ func TestConnection_Check(t *testing.T) {
 	err := c.Check(nil, false)
 	assert.Error(t, err)
 
-	err = c.Check(z(), false)
+	err = c.Check(logr(), false)
 	assert.Nil(t, err)
 
 	c = postgres.Connection{}
 	c.Username = "abcde"
 	c.Password = ""
-	err = c.Check(z(), false)
+	err = c.Check(logr(), false)
 	assert.Nil(t, err)
 
 	c = postgres.Connection{}
 	c.Username = ""
 	c.Password = "password"
 	c.NoSSLMode = true
-	err = c.Check(z(), false)
+	err = c.Check(logr(), false)
 	assert.Nil(t, err)
 }
 

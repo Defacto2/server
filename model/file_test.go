@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func z() *zap.SugaredLogger {
+func logr() *zap.SugaredLogger {
 	return zap.NewExample().Sugar()
 }
 
@@ -20,19 +20,19 @@ func TestOneRecord(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, mf)
 
-	mf, err = model.OneRecord(z(), nil, false, "")
+	mf, err = model.OneRecord(logr(), nil, false, "")
 	assert.Error(t, err)
 	assert.Nil(t, mf)
 
 	c := echo.New().NewContext(nil, nil)
 
 	errID := helper.ObfuscateID(-1)
-	mf, err = model.OneRecord(z(), c, false, errID)
+	mf, err = model.OneRecord(logr(), c, false, errID)
 	assert.ErrorIs(t, err, model.ErrID)
 	assert.Nil(t, mf)
 
 	errID = helper.ObfuscateID(1)
-	mf, err = model.OneRecord(z(), c, false, errID)
+	mf, err = model.OneRecord(logr(), c, false, errID)
 	assert.ErrorIs(t, err, model.ErrDB)
 	assert.Nil(t, mf)
 }
@@ -43,17 +43,17 @@ func TestRecord(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, mf)
 
-	mf, err = model.Record(z(), nil, 0)
+	mf, err = model.Record(logr(), nil, 0)
 	assert.Error(t, err)
 	assert.Nil(t, mf)
 
 	c := echo.New().NewContext(nil, nil)
 
-	mf, err = model.Record(z(), c, -1)
+	mf, err = model.Record(logr(), c, -1)
 	assert.ErrorIs(t, err, model.ErrDB)
 	assert.Nil(t, mf)
 
-	mf, err = model.Record(z(), c, 1)
+	mf, err = model.Record(logr(), c, 1)
 	assert.ErrorIs(t, err, model.ErrDB)
 	assert.Nil(t, mf)
 }

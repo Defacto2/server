@@ -31,15 +31,15 @@ var (
 // LoggerMiddleware handles the logging of HTTP servers.
 func (c Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	// Logger
-	var z *zap.SugaredLogger
+	var logr *zap.SugaredLogger
 	switch c.ProductionMode {
 	case true:
-		z = logger.Production(c.LogDir).Sugar()
+		logr = logger.Production(c.LogDir).Sugar()
 	default:
-		z = logger.Development().Sugar()
+		logr = logger.Development().Sugar()
 	}
 	defer func() {
-		_ = z.Sync()
+		_ = logr.Sync()
 	}()
 	return func(e echo.Context) error {
 		timeStarted := time.Now()
@@ -63,9 +63,9 @@ func (c Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 			switch status {
 			case http.StatusOK:
-				z.Debug(s)
+				logr.Debug(s)
 			default:
-				z.Warn(s)
+				logr.Warn(s)
 			}
 		}
 		switch status {
@@ -103,20 +103,20 @@ func (c *Config) LogStorage() error {
 
 // CustomErrorHandler handles customer error templates.
 func (c Config) CustomErrorHandler(err error, e echo.Context) {
-	var z *zap.SugaredLogger
+	var logr *zap.SugaredLogger
 	switch c.ProductionMode {
 	case true:
-		z = logger.Production(c.LogDir).Sugar()
+		logr = logger.Production(c.LogDir).Sugar()
 	default:
-		z = logger.Development().Sugar()
+		logr = logger.Development().Sugar()
 	}
 	defer func() {
-		_ = z.Sync()
+		_ = logr.Sync()
 	}()
 	switch {
 	case IsHTML3(e.Path()):
 		if err := html3.Error(e, err); err != nil {
-			z.DPanic("Custom HTML3 response handler broke: %s", err)
+			logr.DPanic("Custom HTML3 response handler broke: %s", err)
 		}
 		return
 	default:
@@ -130,10 +130,10 @@ func (c Config) CustomErrorHandler(err error, e echo.Context) {
 			// fallback to a string error if templates break
 			c, s, err1 := StringErr(err)
 			if err1 != nil {
-				z.DPanic("Custom response handler broke: %s", err1)
+				logr.DPanic("Custom response handler broke: %s", err1)
 			}
 			if err2 := e.String(c, s); err2 != nil {
-				z.DPanic("Custom response handler broke: %s", err2)
+				logr.DPanic("Custom response handler broke: %s", err2)
 			}
 		}
 		return

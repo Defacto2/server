@@ -12,8 +12,8 @@ import (
 // Routes for the /html3 sub-route group.
 // Any errors are logged and rendered to the client using HTTP codes
 // and the custom /html3, group errror template.
-func Routes(z *zap.SugaredLogger, e *echo.Echo) *echo.Group {
-	s := Sugared{Log: z}
+func Routes(logr *zap.SugaredLogger, e *echo.Echo) *echo.Group {
+	s := Sugared{Log: logr}
 	g := e.Group(Prefix)
 	g.GET("", s.Index)
 	g.GET("/all:offset", s.All)

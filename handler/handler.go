@@ -68,6 +68,7 @@ type Configuration struct {
 
 // Controller is the primary instance of the Echo router.
 func (c Configuration) Controller() *echo.Echo {
+	logr := c.Logger
 	// configurations
 	e := echo.New()
 	e.HideBanner = true                              // hide the Echo banner
@@ -75,7 +76,7 @@ func (c Configuration) Controller() *echo.Echo {
 	// register html templates
 	templates, err := c.Registry()
 	if err != nil {
-		c.Logger.Fatal(err)
+		logr.Fatal(err)
 	}
 	e.Renderer = templates
 	// middleware pre-configurations
@@ -109,16 +110,16 @@ func (c Configuration) Controller() *echo.Echo {
 	e = c.EmbedDirs(e)
 	// Routes for the web application
 	// that first handles the permanent redirects
-	e, err = c.Moved(c.Logger, e)
+	e, err = c.Moved(e)
 	if err != nil {
-		c.Logger.Fatal(err)
+		logr.Fatal(err)
 	}
-	e, err = c.Routes(c.Logger, e, c.Public)
+	e, err = c.Routes(e, c.Public)
 	if err != nil {
-		c.Logger.Fatal(err)
+		logr.Fatal(err)
 	}
 	// Routes for the retro web tables
-	retro := html3.Routes(c.Logger, e)
+	retro := html3.Routes(logr, e)
 	retro.GET(Downloader, c.downloader)
 	return e
 }

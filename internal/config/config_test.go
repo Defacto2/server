@@ -21,7 +21,7 @@ func td(name string) string {
 	return x
 }
 
-func z() *zap.SugaredLogger {
+func logr() *zap.SugaredLogger {
 	return zap.NewExample().Sugar()
 }
 
@@ -79,18 +79,18 @@ func TestConfig_Checks(t *testing.T) {
 	c := config.Config{}
 	err := c.Checks(nil)
 	assert.Error(t, err)
-	err = c.Checks(z())
+	err = c.Checks(logr())
 	assert.NoError(t, err)
 
 	c.HTTPPort = 8080
 	c.TLSPort = 8443
-	err = c.Checks(z())
+	err = c.Checks(logr())
 	assert.NoError(t, err)
 
 	c.ReadMode = false
 	c.ProductionMode = true
 	assert.NoError(t, err)
-	err = c.Checks(z())
+	err = c.Checks(logr())
 	assert.NoError(t, err)
 }
 

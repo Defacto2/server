@@ -14,7 +14,6 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 )
 
 type debug struct {
@@ -33,13 +32,11 @@ type debug struct {
 }
 
 // Routes defines the routes for the web server.
-func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.FS) (*echo.Echo, error) {
+func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error) {
 	if e == nil {
 		return nil, fmt.Errorf("%w: %s", ErrRoutes, "handler routes")
 	}
-	if z == nil {
-		return nil, fmt.Errorf("%w: %s", ErrZap, "handler routes")
-	}
+	logr := c.Logger
 
 	// Cookie session key for the session store.
 	if !c.Import.ReadMode {
@@ -94,7 +91,7 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 
 	// Custom 404 error, "The page cannot be found"
 	e.GET("/:uri", func(x echo.Context) error {
-		return app.StatusErr(z, x, http.StatusNotFound, x.Param("uri"))
+		return app.StatusErr(logr, x, http.StatusNotFound, x.Param("uri"))
 	})
 
 	// Request debug information
@@ -122,164 +119,164 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 	// Use session middleware for all routes but not the embedded files.
 	s := e.Group("")
 	s.GET("/", func(x echo.Context) error {
-		return app.Index(z, x)
+		return app.Index(logr, x)
 	})
 	s.GET("/artist", func(x echo.Context) error {
-		return app.Artist(z, x)
+		return app.Artist(logr, x)
 	})
 	s.GET("/bbs", func(x echo.Context) error {
-		return app.BBS(z, x)
+		return app.BBS(logr, x)
 	})
 	s.GET("/bbs/a-z", func(x echo.Context) error {
-		return app.BBSAZ(z, x)
+		return app.BBSAZ(logr, x)
 	})
 	s.GET("/coder", func(x echo.Context) error {
-		return app.Coder(z, x)
+		return app.Coder(logr, x)
 	})
 	s.GET(Downloader, func(x echo.Context) error {
-		return app.Download(z, x, c.Import.DownloadDir)
+		return app.Download(logr, x, c.Import.DownloadDir)
 	})
 	s.GET("/f/:id", func(x echo.Context) error {
 		dir.URI = x.Param("id")
-		return dir.About(z, x, c.Import.ReadMode)
+		return dir.About(logr, x, c.Import.ReadMode)
 	})
 	s.GET("/file/stats", func(x echo.Context) error {
-		return app.File(z, x, true)
+		return app.File(logr, x, true)
 	})
 	s.GET("/files/:id/:page", func(x echo.Context) error {
 		switch x.Param("id") {
 		case "for-approval", "deletions", "unwanted":
-			return app.StatusErr(z, x, http.StatusNotFound, x.Param("uri"))
+			return app.StatusErr(logr, x, http.StatusNotFound, x.Param("uri"))
 		}
-		return app.Files(z, x, x.Param("id"), x.Param("page"))
+		return app.Files(logr, x, x.Param("id"), x.Param("page"))
 	})
 	s.GET("/files/:id", func(x echo.Context) error {
 		switch x.Param("id") {
 		case "for-approval", "deletions", "unwanted":
-			return app.StatusErr(z, x, http.StatusNotFound, x.Param("uri"))
+			return app.StatusErr(logr, x, http.StatusNotFound, x.Param("uri"))
 		}
-		return app.Files(z, x, x.Param("id"), "1")
+		return app.Files(logr, x, x.Param("id"), "1")
 	})
 	s.GET("/file", func(x echo.Context) error {
-		return app.File(z, x, false)
+		return app.File(logr, x, false)
 	})
 	s.GET("/ftp", func(x echo.Context) error {
-		return app.FTP(z, x)
+		return app.FTP(logr, x)
 	})
 	s.GET("/g/:id", func(x echo.Context) error {
-		return app.Releasers(z, x, x.Param("id"))
+		return app.Releasers(logr, x, x.Param("id"))
 	})
 	s.GET("/history", func(x echo.Context) error {
-		return app.History(z, x)
+		return app.History(logr, x)
 	})
 	s.GET("/interview", func(x echo.Context) error {
-		return app.Interview(z, x)
+		return app.Interview(logr, x)
 	})
 	s.GET("/magazine", func(x echo.Context) error {
-		return app.Magazine(z, x)
+		return app.Magazine(logr, x)
 	})
 	s.GET("/magazine/a-z", func(x echo.Context) error {
-		return app.MagazineAZ(z, x)
+		return app.MagazineAZ(logr, x)
 	})
 	s.GET("/musician", func(x echo.Context) error {
-		return app.Musician(z, x)
+		return app.Musician(logr, x)
 	})
 	s.GET("/p/:id", func(x echo.Context) error {
-		return app.Sceners(z, x, x.Param("id"))
+		return app.Sceners(logr, x, x.Param("id"))
 	})
 	s.GET("/pouet/vote/:id", func(x echo.Context) error {
-		return app.VotePouet(z, x, x.Param("id"))
+		return app.VotePouet(logr, x, x.Param("id"))
 	})
 	s.GET("/pouet/prod/:id", func(x echo.Context) error {
-		return app.ProdPouet(z, x, x.Param("id"))
+		return app.ProdPouet(logr, x, x.Param("id"))
 	})
 	s.GET("/zoo/prod/:id", func(x echo.Context) error {
-		return app.ProdZoo(z, x, x.Param("id"))
+		return app.ProdZoo(logr, x, x.Param("id"))
 	})
 	s.GET("/r/:id", func(x echo.Context) error {
-		return app.Reader(z, x)
+		return app.Reader(logr, x)
 	})
 	s.GET("/releaser", func(x echo.Context) error {
-		return app.Releaser(z, x)
+		return app.Releaser(logr, x)
 	})
 	s.GET("/releaser/a-z", func(x echo.Context) error {
-		return app.ReleaserAZ(z, x)
+		return app.ReleaserAZ(logr, x)
 	})
 	s.GET("/scener", func(x echo.Context) error {
-		return app.Scener(z, x)
+		return app.Scener(logr, x)
 	})
 	s.GET("/sum/:id", func(x echo.Context) error {
-		return app.Checksum(z, x, x.Param("id"))
+		return app.Checksum(logr, x, x.Param("id"))
 	})
 	s.GET("/thanks", func(x echo.Context) error {
-		return app.Thanks(z, x)
+		return app.Thanks(logr, x)
 	})
 	s.GET("/thescene", func(x echo.Context) error {
-		return app.TheScene(z, x)
+		return app.TheScene(logr, x)
 	})
 	s.GET("/website/:id", func(x echo.Context) error {
-		return app.Website(z, x, x.Param("id"))
+		return app.Website(logr, x, x.Param("id"))
 	})
 	s.GET("/website", func(x echo.Context) error {
-		return app.Website(z, x, "")
+		return app.Website(logr, x, "")
 	})
 	s.GET("/writer", func(x echo.Context) error {
-		return app.Writer(z, x)
+		return app.Writer(logr, x)
 	})
 	s.GET("/v/:id", func(x echo.Context) error {
-		return app.Inline(z, x, c.Import.DownloadDir)
+		return app.Inline(logr, x, c.Import.DownloadDir)
 	})
 
 	// Search forms and results for database records.
 	search := s.Group("/search")
 	search.GET("/desc", func(x echo.Context) error {
-		return app.SearchDesc(z, x)
+		return app.SearchDesc(logr, x)
 	})
 	search.GET("/file", func(x echo.Context) error {
-		return app.SearchFile(z, x)
+		return app.SearchFile(logr, x)
 	})
 	search.GET("/releaser", func(x echo.Context) error {
-		return app.SearchReleaser(z, x)
+		return app.SearchReleaser(logr, x)
 	})
 	search.GET("/result", func(x echo.Context) error {
 		// this legacy get result should be kept for (osx.xml) opensearch compatibility
 		// and to keep possible backwards compatibility with third party site links.
 		terms := strings.ReplaceAll(x.QueryParam("query"), "+", " ") // AND replacement
 		terms = strings.ReplaceAll(terms, "|", ",")                  // OR replacement
-		return app.PostDesc(z, x, terms)
+		return app.PostDesc(logr, x, terms)
 	})
 	search.POST("/desc", func(x echo.Context) error {
-		return app.PostDesc(z, x, x.FormValue("search-term-query"))
+		return app.PostDesc(logr, x, x.FormValue("search-term-query"))
 	})
 	search.POST("/file", func(x echo.Context) error {
-		return app.PostFilename(z, x)
+		return app.PostFilename(logr, x)
 	})
 	search.POST("/releaser", func(x echo.Context) error {
-		return app.PostReleaser(z, x)
+		return app.PostReleaser(logr, x)
 	})
 
 	// Uploader for anonymous client uploads
 	uploader := e.Group("/uploader")
 	uploader.Use(c.ReadOnlyLock)
 	uploader.GET("", func(x echo.Context) error {
-		return app.PostIntro(z, x)
+		return app.PostIntro(logr, x)
 	})
 
 	// Sign in for operators.
 	signings := e.Group("")
 	signings.Use(c.ReadOnlyLock)
 	signings.GET("/signedout", func(x echo.Context) error {
-		return app.SignedOut(z, x)
+		return app.SignedOut(logr, x)
 	})
 	signings.GET("/signin", func(x echo.Context) error {
-		return app.Signin(z, x, c.Import.GoogleClientID)
+		return app.Signin(logr, x, c.Import.GoogleClientID)
 	})
 	signings.GET("/operator/signin", func(x echo.Context) error {
 		return x.Redirect(http.StatusMovedPermanently, "/signin")
 	})
 	google := signings.Group("/google")
 	google.POST("/callback", func(x echo.Context) error {
-		return app.GoogleCallback(z, x,
+		return app.GoogleCallback(logr, x,
 			c.Import.GoogleClientID,
 			c.Import.SessionMaxAge,
 			c.Import.GoogleAccounts...)
@@ -290,79 +287,76 @@ func (c Configuration) Routes(z *zap.SugaredLogger, e *echo.Echo, public embed.F
 	editor.Use(c.ReadOnlyLock, c.SessionLock)
 	editor.GET("/get/demozoo/download/:id",
 		func(x echo.Context) error {
-			return app.GetDemozooLink(z, x, dir.Download)
+			return app.GetDemozooLink(logr, x, dir.Download)
 		})
 	editor.GET("/for-approval",
 		func(x echo.Context) error {
-			return app.FilesWaiting(z, x, "1")
+			return app.FilesWaiting(logr, x, "1")
 		})
 	editor.GET("/deletions",
 		func(x echo.Context) error {
-			return app.FilesDeletions(z, x, "1")
+			return app.FilesDeletions(logr, x, "1")
 		})
 	editor.GET("/unwanted",
 		func(x echo.Context) error {
-			return app.FilesUnwanted(z, x, "1")
+			return app.FilesUnwanted(logr, x, "1")
 		})
 	online := editor.Group("/online")
 	online.POST("/true", func(x echo.Context) error {
-		return app.RecordToggle(z, x, true)
+		return app.RecordToggle(logr, x, true)
 	})
 	online.POST("/false", func(x echo.Context) error {
-		return app.RecordToggle(z, x, false)
+		return app.RecordToggle(logr, x, false)
 	})
 	readme := editor.Group("/readme")
 	readme.POST("/copy", func(x echo.Context) error {
-		return app.ReadmePost(z, x, dir.Download)
+		return app.ReadmePost(logr, x, dir.Download)
 	})
 	readme.POST("/delete", func(x echo.Context) error {
-		return app.ReadmeDel(z, x, dir.Download)
+		return app.ReadmeDel(logr, x, dir.Download)
 	})
 	readme.POST("/hide", func(x echo.Context) error {
 		dir.URI = x.Param("id")
-		return app.ReadmeToggle(z, x)
+		return app.ReadmeToggle(logr, x)
 	})
 	images := editor.Group("/images")
 	images.POST("/copy", func(x echo.Context) error {
-		return dir.PreviewPost(z, x)
+		return dir.PreviewPost(logr, x)
 	})
 	images.POST("/delete", func(x echo.Context) error {
-		return dir.PreviewDel(z, x)
+		return dir.PreviewDel(logr, x)
 	})
 	ansilove := editor.Group("/ansilove")
 	ansilove.POST("/copy", func(x echo.Context) error {
-		return dir.AnsiLovePost(z, x)
+		return dir.AnsiLovePost(logr, x)
 	})
 	editor.POST("/title", func(x echo.Context) error {
-		return app.TitleEdit(z, x)
+		return app.TitleEdit(logr, x)
 	})
 	editor.POST("/ymd", func(x echo.Context) error {
-		return app.YMDEdit(z, x)
+		return app.YMDEdit(logr, x)
 	})
 	editor.POST("/platform", func(x echo.Context) error {
-		return app.PlatformEdit(z, x)
+		return app.PlatformEdit(logr, x)
 	})
 	editor.POST("/platform+tag", func(x echo.Context) error {
-		return app.PlatformTagInfo(z, x)
+		return app.PlatformTagInfo(logr, x)
 	})
 	tag := editor.Group("/tag")
 	tag.POST("", func(x echo.Context) error {
-		return app.TagEdit(z, x)
+		return app.TagEdit(logr, x)
 	})
 	tag.POST("/info", func(x echo.Context) error {
-		return app.TagInfo(z, x)
+		return app.TagInfo(logr, x)
 	})
 
 	return e, nil
 }
 
 // Moved redirects are partial URL routers that are to be redirected with a HTTP 301 Moved Permanently.
-func (c Configuration) Moved(z *zap.SugaredLogger, e *echo.Echo) (*echo.Echo, error) {
+func (c Configuration) Moved(e *echo.Echo) (*echo.Echo, error) {
 	if e == nil {
 		return nil, fmt.Errorf("%w: %s", ErrRoutes, "handler routes")
-	}
-	if z == nil {
-		return nil, fmt.Errorf("%w: %s", ErrZap, "handler routes")
 	}
 	const code = http.StatusMovedPermanently
 	// nginx redirects

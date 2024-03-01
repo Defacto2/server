@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func z() *zap.SugaredLogger {
+func logr() *zap.SugaredLogger {
 	return zap.NewExample().Sugar()
 }
 
@@ -72,14 +72,14 @@ func TestCopyFile(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(tmp.Name())
 
-	z := zap.NewExample().Sugar()
-	err = command.CopyFile(z, "", "")
+	logr := zap.NewExample().Sugar()
+	err = command.CopyFile(logr, "", "")
 	assert.Error(t, err)
 
-	err = command.CopyFile(z, tmp.Name(), "")
+	err = command.CopyFile(logr, tmp.Name(), "")
 	assert.Error(t, err)
 	dst := tmp.Name() + ".txt"
-	err = command.CopyFile(z, tmp.Name(), dst)
+	err = command.CopyFile(logr, tmp.Name(), dst)
 	assert.NoError(t, err)
 	defer os.Remove(dst)
 }
@@ -160,19 +160,19 @@ func TestRun(t *testing.T) {
 	err := command.Run(nil, "", "")
 	assert.Equal(t, command.ErrZap, err)
 
-	z := zap.NewExample().Sugar()
-	err = command.Run(z, "", "")
+	logr := zap.NewExample().Sugar()
+	err = command.Run(logr, "", "")
 	assert.Error(t, err)
 
-	err = command.Run(z, "thiscommanddoesnotexist", "")
+	err = command.Run(logr, "thiscommanddoesnotexist", "")
 	assert.Error(t, err)
 
 	const noArgs = ""
-	err = command.Run(z, "go", noArgs)
+	err = command.Run(logr, "go", noArgs)
 	// go without args will return an unknown command error
 	assert.Error(t, err)
 
-	err = command.Run(z, "go", "version")
+	err = command.Run(logr, "go", "version")
 	assert.NoError(t, err)
 }
 
@@ -181,19 +181,19 @@ func TestRunOut(t *testing.T) {
 	_, err := command.RunOut(nil, "", "")
 	assert.Equal(t, command.ErrZap, err)
 
-	z := zap.NewExample().Sugar()
-	_, err = command.RunOut(z, "", "")
+	logr := zap.NewExample().Sugar()
+	_, err = command.RunOut(logr, "", "")
 	assert.Error(t, err)
 
-	_, err = command.RunOut(z, "thiscommanddoesnotexist", "")
+	_, err = command.RunOut(logr, "thiscommanddoesnotexist", "")
 	assert.Error(t, err)
 
 	const noArgs = ""
-	_, err = command.RunOut(z, "go", noArgs)
+	_, err = command.RunOut(logr, "go", noArgs)
 	// go without args will return an unknown command error
 	assert.Error(t, err)
 
-	out, err := command.RunOut(z, "go", "version")
+	out, err := command.RunOut(logr, "go", "version")
 	assert.NoError(t, err)
 	assert.Contains(t, string(out), "go version go1.")
 }
@@ -203,30 +203,30 @@ func TestRunQuiet(t *testing.T) {
 	err := command.RunQuiet(nil, "", "")
 	assert.Equal(t, command.ErrZap, err)
 
-	err = command.RunQuiet(z(), "", "")
+	err = command.RunQuiet(logr(), "", "")
 	assert.Error(t, err)
 
-	err = command.RunQuiet(z(), "thiscommanddoesnotexist", "")
+	err = command.RunQuiet(logr(), "thiscommanddoesnotexist", "")
 	assert.Error(t, err)
 
 	const noArgs = ""
-	err = command.RunQuiet(z(), "go", noArgs)
+	err = command.RunQuiet(logr(), "go", noArgs)
 	// go without args will return an unknown command error
 	assert.Error(t, err)
 
-	err = command.RunQuiet(z(), "go", "version")
+	err = command.RunQuiet(logr(), "go", "version")
 	assert.NoError(t, err)
 }
 
 func TestRunWD(t *testing.T) {
 	t.Parallel()
 	const noWD = ""
-	err := command.RunWD(z(), "go", noWD, "")
+	err := command.RunWD(logr(), "go", noWD, "")
 	// go without args will return an unknown command error
 	assert.Error(t, err)
 
 	wd, err := os.Getwd()
 	assert.NoError(t, err)
-	err = command.RunWD(z(), "go", wd, "version")
+	err = command.RunWD(logr(), "go", wd, "version")
 	assert.NoError(t, err)
 }

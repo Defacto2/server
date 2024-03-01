@@ -44,9 +44,10 @@ var (
 
 // Dirs is a struct of the download, preview and thumbnail directories.
 type Dirs struct {
-	Download  string
-	Preview   string
-	Thumbnail string
+	Download  string             // Download is the directory path for the file downloads.
+	Preview   string             // Preview is the directory path for the image previews.
+	Thumbnail string             // Thumbnail is the directory path for the image thumbnails.
+	Logr      *zap.SugaredLogger // Logr is the zap logger instance.
 }
 
 const (
@@ -147,8 +148,8 @@ func RemoveMe(uuid, dir string) error {
 }
 
 // CopyFile copies the src file to the dst file and path.
-func CopyFile(z *zap.SugaredLogger, src, dst string) error {
-	if z == nil {
+func CopyFile(logr *zap.SugaredLogger, src, dst string) error {
+	if logr == nil {
 		return ErrZap
 	}
 
@@ -168,7 +169,7 @@ func CopyFile(z *zap.SugaredLogger, src, dst string) error {
 	if err != nil {
 		return err
 	}
-	z.Infof("copyfile: copied %d bytes to %s\n", i, dst)
+	logr.Infof("copyfile: copied %d bytes to %s\n", i, dst)
 
 	return d.Sync()
 }
@@ -230,17 +231,17 @@ func LookVersion(name, flag, match string) error {
 
 // Run looks for the command in the system path and executes it with the arguments.
 // Any output to stderr is logged as a debug message.
-func Run(z *zap.SugaredLogger, name string, arg ...string) error {
-	if z == nil {
+func Run(logr *zap.SugaredLogger, name string, arg ...string) error {
+	if logr == nil {
 		return ErrZap
 	}
-	return run(z, name, "", arg...)
+	return run(logr, name, "", arg...)
 }
 
 // RunOut looks for the command in the system path and executes it with the arguments.
 // Any output is sent to the stdout buffer.
-func RunOut(z *zap.SugaredLogger, name string, arg ...string) ([]byte, error) {
-	if z == nil {
+func RunOut(logr *zap.SugaredLogger, name string, arg ...string) ([]byte, error) {
+	if logr == nil {
 		return nil, ErrZap
 	}
 	if err := LookCmd(name); err != nil {
@@ -256,8 +257,8 @@ func RunOut(z *zap.SugaredLogger, name string, arg ...string) ([]byte, error) {
 }
 
 // RunQuiet looks for the command in the system path and executes it with the arguments.
-func RunQuiet(z *zap.SugaredLogger, name string, arg ...string) error {
-	if z == nil {
+func RunQuiet(logr *zap.SugaredLogger, name string, arg ...string) error {
+	if logr == nil {
 		return ErrZap
 	}
 
@@ -274,14 +275,14 @@ func RunQuiet(z *zap.SugaredLogger, name string, arg ...string) error {
 // RunWD looks for the command in the system path and executes it with the arguments.
 // An optional working directory is set for the command.
 // Any output to stderr is logged as a debug message.
-func RunWD(z *zap.SugaredLogger, name, wdir string, arg ...string) error {
-	if z == nil {
+func RunWD(logr *zap.SugaredLogger, name, wdir string, arg ...string) error {
+	if logr == nil {
 		return ErrZap
 	}
-	return run(z, name, wdir, arg...)
+	return run(logr, name, wdir, arg...)
 }
 
-func run(z *zap.SugaredLogger, name, wdir string, arg ...string) error {
+func run(logr *zap.SugaredLogger, name, wdir string, arg ...string) error {
 	if err := LookCmd(name); err != nil {
 		return err
 	}
@@ -299,7 +300,7 @@ func run(z *zap.SugaredLogger, name, wdir string, arg ...string) error {
 		return fmt.Errorf("could not read stderr: %w", err)
 	}
 	if len(b) > 0 {
-		z.Debugf("run %q: %s\n", cmd, string(b))
+		logr.Debugf("run %q: %s\n", cmd, string(b))
 	}
 	return cmd.Wait()
 }

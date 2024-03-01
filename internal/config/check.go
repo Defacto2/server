@@ -37,76 +37,76 @@ var (
 )
 
 // Checks runs a number of sanity checks for the environment variable configurations.
-func (c *Config) Checks(z *zap.SugaredLogger) error {
-	if z == nil {
+func (c *Config) Checks(logr *zap.SugaredLogger) error {
+	if logr == nil {
 		return ErrZap
 	}
 
 	if c.HTTPSRedirect && c.TLSPort == 0 {
-		z.Warn("HTTPSRedirect is on but the HTTPS port is not set, so the server will not redirect HTTP requests to HTTPS.")
+		logr.Warn("HTTPSRedirect is on but the HTTPS port is not set, so the server will not redirect HTTP requests to HTTPS.")
 	}
 
-	c.httpPort(z)
-	c.tlsPort(z)
-	c.production(z)
+	c.httpPort(logr)
+	c.tlsPort(logr)
+	c.production(logr)
 
 	// Check the download, preview and thumbnail directories.
 	if err := DownloadDir(c.DownloadDir); err != nil {
 		s := helper.Capitalize(err.Error()) + "."
-		z.Warn(s)
+		logr.Warn(s)
 	}
 	if err := PreviewDir(c.PreviewDir); err != nil {
 		s := helper.Capitalize(err.Error()) + "."
-		z.Warn(s)
+		logr.Warn(s)
 	}
 	if err := ThumbnailDir(c.ThumbnailDir); err != nil {
 		s := helper.Capitalize(err.Error()) + "."
-		z.Warn(s)
+		logr.Warn(s)
 	}
 
 	// Reminds for the optional configuration values.
 	if c.NoCrawl {
-		z.Warn("NoCrawl is on, web crawlers should ignore this site.")
+		logr.Warn("NoCrawl is on, web crawlers should ignore this site.")
 	}
 	if c.HTTPSRedirect && c.TLSPort > 0 {
-		z.Info("HTTPSRedirect is on, all HTTP requests will be redirected to HTTPS.")
+		logr.Info("HTTPSRedirect is on, all HTTP requests will be redirected to HTTPS.")
 	}
 	if c.HostName == postgres.DockerHost {
-		z.Info("The application is configured for use in a Docker container.")
+		logr.Info("The application is configured for use in a Docker container.")
 	}
 
-	return c.SetupLogDir(z)
+	return c.SetupLogDir(logr)
 }
 
 // httpPort returns an error if the HTTP port is invalid.
-func (c Config) httpPort(z *zap.SugaredLogger) {
+func (c Config) httpPort(logr *zap.SugaredLogger) {
 	if c.HTTPPort == 0 {
 		return
 	}
 	if err := Validate(c.HTTPPort); err != nil {
 		switch {
 		case errors.Is(err, ErrPortMax):
-			z.Fatalf("The server could not use the HTTP port %d, %s.",
+			logr.Fatalf("The server could not use the HTTP port %d, %s.",
 				c.HTTPPort, err)
 		case errors.Is(err, ErrPortSys):
-			z.Infof("The server HTTP port %d, %s.",
+			logr.Infof("The server HTTP port %d, %s.",
 				c.HTTPPort, err)
 		}
 	}
 }
 
 // tlsPort returns an error if the TLS port is invalid.
-func (c Config) tlsPort(z *zap.SugaredLogger) {
+func (c Config) tlsPort(logr *zap.SugaredLogger) {
 	if c.TLSPort == 0 {
 		return
 	}
 	if err := Validate(c.TLSPort); err != nil {
 		switch {
 		case errors.Is(err, ErrPortMax):
-			z.Fatalf("The server could not use the HTTPS port %d, %s.",
+			logr.Fatalf("The server could not use the HTTPS port %d, %s.",
 				c.TLSPort, err)
 		case errors.Is(err, ErrPortSys):
-			z.Infof("The server HTTPS port %d, %s.",
+			logr.Infof("The server HTTPS port %d, %s.",
 				c.TLSPort, err)
 		}
 	}
@@ -115,41 +115,41 @@ func (c Config) tlsPort(z *zap.SugaredLogger) {
 // The production mode checks when not in read-only mode. It
 // expects the server to be configured with OAuth2 and Google IDs.
 // The server should be running over HTTPS and not unencrypted HTTP.
-func (c Config) production(z *zap.SugaredLogger) {
+func (c Config) production(logr *zap.SugaredLogger) {
 	if !c.ProductionMode || c.ReadMode {
 		return
 	}
 	if c.GoogleClientID == "" {
 		s := helper.Capitalize(ErrNoOAuth2.Error()) + "."
-		z.Warn(s)
+		logr.Warn(s)
 	}
 	if c.GoogleIDs == "" && len(c.GoogleAccounts) == 0 {
 		s := helper.Capitalize(ErrNoAccounts.Error()) + "."
-		z.Warn(s)
+		logr.Warn(s)
 	}
 	if c.HTTPPort > 0 {
 		s := fmt.Sprintf("%s over port %d.",
 			helper.Capitalize(ErrUnencrypted.Error()),
 			c.HTTPPort)
-		z.Info(s)
+		logr.Info(s)
 	}
 	if c.SessionKey != "" {
 		s := helper.Capitalize(ErrSessionKey.Error()) + "."
-		z.Warn(s)
-		z.Warn("This means that all signed in clients will not be logged out on a server restart.")
+		logr.Warn(s)
+		logr.Warn("This means that all signed in clients will not be logged out on a server restart.")
 	}
 	if c.SessionMaxAge > 0 {
-		z.Infof("A signed in client session lasts for %d hour(s).", c.SessionMaxAge)
+		logr.Infof("A signed in client session lasts for %d hour(s).", c.SessionMaxAge)
 	} else {
-		z.Warn("A signed in client session lasts forever.")
+		logr.Warn("A signed in client session lasts forever.")
 	}
 }
 
 // SetupLogDir runs checks against the configured log directory.
 // If no log directory is configured, a default directory is used.
 // Problems will either log warnings or fatal errors.
-func (c *Config) SetupLogDir(z *zap.SugaredLogger) error {
-	if z == nil {
+func (c *Config) SetupLogDir(logr *zap.SugaredLogger) error {
+	if logr == nil {
 		return ErrZap
 	}
 	if c.LogDir == "" {
@@ -157,7 +157,7 @@ func (c *Config) SetupLogDir(z *zap.SugaredLogger) error {
 			return fmt.Errorf("%w: %w", ErrLog, err)
 		}
 	} else {
-		z.Info("The server logs are found in: ", c.LogDir)
+		logr.Info("The server logs are found in: ", c.LogDir)
 	}
 	dir, err := os.Stat(c.LogDir)
 	if os.IsNotExist(err) {
@@ -175,14 +175,14 @@ func (c *Config) SetupLogDir(z *zap.SugaredLogger) error {
 		defer func(f *os.File) {
 			f.Close()
 			if err := os.Remove(empty); err != nil {
-				z.Warnf("Could not remove the empty test file in the log directory path: %s: %s", err, empty)
+				logr.Warnf("Could not remove the empty test file in the log directory path: %s: %s", err, empty)
 				return
 			}
 		}(f)
 		return nil
 	}
 	if err := os.Remove(empty); err != nil {
-		z.Warnf("Could not remove the empty test file in the log directory path: %s: %s", err, empty)
+		logr.Warnf("Could not remove the empty test file in the log directory path: %s: %s", err, empty)
 	}
 	return nil
 }

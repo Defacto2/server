@@ -22,8 +22,8 @@ var (
 // Checksum serves the checksums for the requested file.
 // The response is a text file named "checksums.txt" with the checksum and filename.
 // The id string is the UID filename of the requested file.
-func Checksum(z *zap.SugaredLogger, c echo.Context, id string) error {
-	res, err := model.OneRecord(z, c, false, id)
+func Checksum(logr *zap.SugaredLogger, c echo.Context, id string) error {
+	res, err := model.OneRecord(logr, c, false, id)
 	if err != nil {
 		return err
 	}
@@ -56,8 +56,8 @@ type Download struct {
 
 // HTTPSend serves files to the client and prompts for a save location.
 // The download relies on the URL ID parameter to determine the requested file.
-func (d Download) HTTPSend(z *zap.SugaredLogger, c echo.Context) error {
-	res, err := model.OneRecord(z, c, false, c.Param("id"))
+func (d Download) HTTPSend(logr *zap.SugaredLogger, c echo.Context) error {
+	res, err := model.OneRecord(logr, c, false, c.Param("id"))
 	if err != nil {
 		return err
 	}
@@ -66,13 +66,13 @@ func (d Download) HTTPSend(z *zap.SugaredLogger, c echo.Context) error {
 	uid := strings.TrimSpace(res.UUID.String)
 	file := filepath.Join(d.Path, uid)
 	if !helper.IsStat(file) {
-		z.Warnf("The hosted file download %q, for record %d does not exist.\n"+
+		logr.Warnf("The hosted file download %q, for record %d does not exist.\n"+
 			"Absolute path: %q", res.Filename.String, res.ID, file)
 		return fmt.Errorf("%w: %s", ErrStat, name)
 	}
 	// pass the original filename to the client browser
 	if name == "" {
-		z.Warnf("No filename exists for the record %d.", res.ID)
+		logr.Warnf("No filename exists for the record %d.", res.ID)
 		name = file
 	}
 	if d.Inline {
