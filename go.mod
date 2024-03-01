@@ -20,7 +20,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/mholt/archiver/v3 v3.5.1
 	github.com/rosedblabs/rosedb/v2 v2.3.4
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	github.com/urfave/cli/v2 v2.27.1
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler/v4 v4.16.2
