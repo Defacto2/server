@@ -553,8 +553,6 @@ func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 				return c.JSON(http.StatusConflict, got)
 			}
 		}
-		// TODO save the checksum to the filesysttem.
-
 		// get the file size
 		size, err := strconv.Atoi(df.ContentLength)
 		if err == nil {

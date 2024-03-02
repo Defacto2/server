@@ -23,7 +23,7 @@ var (
 // The response is a text file named "checksums.txt" with the checksum and filename.
 // The id string is the UID filename of the requested file.
 func Checksum(logr *zap.SugaredLogger, c echo.Context, id string) error {
-	res, err := model.OneRecord(logr, c, false, id)
+	res, err := model.OneRecord(logr, c, true, id)
 	if err != nil {
 		return err
 	}
