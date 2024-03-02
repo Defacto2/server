@@ -15,8 +15,11 @@ func TestReadme(t *testing.T) {
 
 	dir := td("uncompress")
 	files, err := helper.Files(dir)
+
 	require.NoError(t, err)
-	assert.Len(t, 16, len(files))
+	l := len(files)
+	const expectedFiles = 17
+	assert.Equal(t, expectedFiles, l)
 
 	s = archive.Readme("", files...)
 	assert.Equal(t, "TEST.NFO", s)

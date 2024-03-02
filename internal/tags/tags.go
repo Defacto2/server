@@ -191,6 +191,9 @@ func List() []Tag {
 
 // IsCategory returns true if the named tag is a category.
 func IsCategory(name string) bool {
+	if name == "" {
+		return false
+	}
 	for _, tag := range List() {
 		if strings.EqualFold(tag.String(), name) {
 			return tag >= FirstCategory && tag <= LastCategory
@@ -201,6 +204,9 @@ func IsCategory(name string) bool {
 
 // IsPlatform returns true if the named tag is a platform.
 func IsPlatform(name string) bool {
+	if name == "" {
+		return false
+	}
 	for _, tag := range List() {
 		if strings.EqualFold(tag.String(), name) {
 			return tag >= FirstPlatform && tag <= LastPlatform
@@ -211,6 +217,9 @@ func IsPlatform(name string) bool {
 
 // IsTag returns true if the named tag is a category or platform.
 func IsTag(name string) bool {
+	if name == "" {
+		return false
+	}
 	for _, tag := range List() {
 		if strings.EqualFold(tag.String(), name) {
 			return true

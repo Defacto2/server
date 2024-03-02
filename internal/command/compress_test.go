@@ -146,6 +146,7 @@ func Test_UnRarExitStatus(t *testing.T) {
 func Test_ExtractAnsiLove(t *testing.T) {
 	t.Parallel()
 	dir := command.Dirs{}
+	dir.Logr = logr()
 
 	err := dir.ExtractAnsiLove("", "", "", "")
 	require.Error(t, err)
@@ -179,6 +180,7 @@ func Test_ExtractImage(t *testing.T) {
 		Download:  dl,    // this prefixes to UUID
 		Preview:   prev,  // this is the output dest
 		Thumbnail: thumb, // this is the cropped output dest
+		Logr:      logr(),
 	}
 	// intentional errors
 	err = dir.ExtractImage("", "", "", "")
@@ -241,6 +243,7 @@ func Test_LosslessScreenshot(t *testing.T) {
 		Download:  dl,    // this prefixes to UUID
 		Preview:   prev,  // this is the output dest
 		Thumbnail: thumb, // this is the cropped output dest
+		Logr:      logr(),
 	}
 	imgs := []string{"TEST.BMP", "TEST.GIF", "TEST.JPG", "TEST.PCX", "TEST.PNG"}
 	for _, name := range imgs {

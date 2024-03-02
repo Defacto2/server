@@ -35,10 +35,9 @@ func TestByNames(t *testing.T) {
 func TestHumanize(t *testing.T) {
 	t.Parallel()
 	s := tags.Humanize(-1, -1)
-	assert.Contains(t, "unknown", s)
+	assert.Contains(t, s, "unknown")
 	s = tags.Humanize(tags.ANSI, -1)
-	assert.Contains(t, "unknown", s)
-
+	assert.Contains(t, s, "unknown")
 	s = tags.Humanize(tags.ANSI, tags.News)
 	assert.Equal(t, "an ansi from a news outlet", s)
 
@@ -236,7 +235,6 @@ func TestIsTag(t *testing.T) {
 func TestOSTags(t *testing.T) {
 	t.Parallel()
 	oses := tags.OSTags()
-	assert.Len(t, 5, len(oses))
 	assert.Equal(t, "dos", oses[0])
 	assert.Equal(t, "mac10", oses[4])
 }

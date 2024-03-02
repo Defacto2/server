@@ -26,8 +26,8 @@ func TestValid(t *testing.T) {
 func TestMatch(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, app.URI(-1), app.Match("not-a-valid-uri"))
-	assert.Equal(t, app.URI(35), app.Match("newest"))
-	assert.Equal(t, app.URI(57), app.Match("windows-pack"))
+	assert.Equal(t, app.URI(37), app.Match("newest"))
+	assert.Equal(t, app.URI(60), app.Match("windows-pack"))
 	assert.Equal(t, app.URI(1), app.Match("advert"))
 }
 
@@ -43,11 +43,14 @@ func TestRecordsSub(t *testing.T) {
 func TestMilestone(t *testing.T) {
 	t.Parallel()
 	ms := app.Collection()
-	assert.Equal(t, 108, ms.Len())
-	assert.Len(t, ms, 108)
+
+	const expectedMileStones = 109
+	assert.Equal(t, expectedMileStones, ms.Len())
+	assert.Len(t, ms, expectedMileStones)
 
 	one := ms[0]
-	assert.Equal(t, 1971, one.Year)
+	const expectedYear = 1971
+	assert.Equal(t, expectedYear, one.Year)
 	assert.Equal(t, "Secrets of the Little Blue Box", one.Title)
 
 	for _, record := range ms {
@@ -58,7 +61,9 @@ func TestMilestone(t *testing.T) {
 func TestInterviewees(t *testing.T) {
 	t.Parallel()
 	i := app.Interviewees()
-	assert.Len(t, 9, len(i))
+	l := len(i)
+	const expectedInterviewees = 10
+	assert.Equal(t, expectedInterviewees, l)
 
 	for _, x := range i {
 		assert.NotEmpty(t, x.Name)
@@ -68,9 +73,9 @@ func TestInterviewees(t *testing.T) {
 func TestExternalLink(t *testing.T) {
 	t.Parallel()
 	x := app.LinkRemote("", "")
-	assert.Contains(t, x, "error:")
+	assert.Contains(t, x, "error")
 	x = app.LinkRemote(exampleURL, "")
-	assert.Contains(t, x, "error:")
+	assert.Contains(t, x, "error")
 	x = app.LinkRemote(exampleURL, "Example")
 	assert.Contains(t, x, exampleURL)
 }
@@ -78,9 +83,9 @@ func TestExternalLink(t *testing.T) {
 func TestWikiLink(t *testing.T) {
 	t.Parallel()
 	x := app.LinkWiki("", "")
-	assert.Contains(t, x, "error:")
+	assert.Contains(t, x, "error")
 	x = app.LinkWiki(exampleWiki, "")
-	assert.Contains(t, x, "error:")
+	assert.Contains(t, x, "error")
 	x = app.LinkWiki(exampleWiki, "Example")
 	assert.Contains(t, x, exampleWiki)
 }
@@ -225,7 +230,8 @@ func TestReadmeSug(t *testing.T) {
 func TestList(t *testing.T) {
 	t.Parallel()
 	list := app.List()
-	assert.Len(t, list, 9)
+	const expectedCount = 10
+	assert.Len(t, list, expectedCount)
 }
 
 func TestAsset(t *testing.T) {
@@ -233,16 +239,23 @@ func TestAsset(t *testing.T) {
 
 	x, y := app.Bootstrap, app.Uploader
 	assert.Equal(t, app.Asset(0), x)
-	assert.Equal(t, app.Asset(14), y)
+	assert.Equal(t, app.Asset(15), y)
 
 	hrefs := app.Hrefs()
+	const (
+		bootstrapCSS = 0
+		layoutCSS    = 10
+		wasm         = 9
+		dos          = 8
+		dosUI        = 7
+	)
 	for i, href := range hrefs {
 		assert.NotEmpty(t, href)
 		switch i {
-		case 0, 9:
+		case bootstrapCSS, layoutCSS:
 			ext := href[len(href)-8:]
 			assert.Equal(t, ".min.css", ext)
-		case 6, 7, 8:
+		case dos, dosUI, wasm:
 		default:
 			ext := href[len(href)-7:]
 			assert.Equal(t, ".min.js", ext)

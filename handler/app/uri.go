@@ -137,7 +137,8 @@ func (u URI) String() string {
 
 // Match path to a URI type or return -1 if not found.
 func Match(path string) URI {
-	for i := range int(windowsPack) {
+	for val := range int(windowsPack) {
+		i := val + 1
 		if URI(i).String() == path {
 			return URI(i)
 		}
@@ -147,7 +148,8 @@ func Match(path string) URI {
 
 // Valid returns true if path is a valid URI for the list of files.
 func Valid(path string) bool {
-	for i := range int(windowsPack) {
+	for val := range int(windowsPack) {
+		i := val + 1
 		if URI(i).String() == path {
 			return true
 		}
