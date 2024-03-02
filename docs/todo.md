@@ -7,11 +7,6 @@
 - [ ] All SQL statements need a sign-in account to display records with `delete_at` ~ `qm.WithDeleted`
 - [x] In the app, confirm PS_HOST_NAME: "host.docker.internal" and handle Docker differently with startup messages.
 
-#### Automatic database corrections
-
-- [x] `/g/damn-excellent-ansi-designers` > `damn-excellent-ansi-design`
-- [x] `/g/the-original-funny-guys` > `originally-funny-guys`
-
 ### Pages
 
 - [ ] Show a *custom error page when the file download* is missing or the root directory is broken.
