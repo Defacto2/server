@@ -60,8 +60,15 @@ func TestArcSeaMatcher(t *testing.T) {
 }
 
 func TestInterchangeMatcher(t *testing.T) {
+	// Quick note, to create a test .IFF I used XnView MP.
 	t.Parallel()
-	// TODO create a IFF test file for testing.
+	b, err := os.ReadFile(td("PKZ204EX.TXT"))
+	require.NoError(t, err)
+	assert.False(t, magic.InterchangeMatcher(b))
+
+	b, err = os.ReadFile(tduncompress("TEST.IFF"))
+	require.NoError(t, err)
+	assert.True(t, magic.InterchangeMatcher(b))
 }
 
 func TestPCXMatcher(t *testing.T) {

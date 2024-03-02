@@ -127,7 +127,7 @@ func InterchangeMatcher(buf []byte) bool {
 	if len(buf) < min {
 		return false
 	}
-	if !bytes.Equal(buf[0:3], []byte{'F', 'O', 'R', 'M'}) {
+	if !bytes.Equal(buf[0:4], []byte{'F', 'O', 'R', 'M'}) {
 		return false
 	}
 	return bytes.Equal(buf[8:12], []byte{'I', 'L', 'B', 'M'})
