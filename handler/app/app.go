@@ -1079,7 +1079,7 @@ func YMDEdit(logr *zap.SugaredLogger, c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Record(logr, c, f.ID)
+	r, err := model.EditFind(f.ID)
 	if err != nil {
 		return err
 	}

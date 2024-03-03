@@ -903,7 +903,7 @@ func PlatformEdit(logr *zap.SugaredLogger, c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Record(logr, c, f.ID)
+	r, err := model.EditFind(f.ID)
 	if err != nil {
 		return err
 	}
@@ -1148,7 +1148,7 @@ func ReadmeDel(logr *zap.SugaredLogger, c echo.Context, downloadDir string) erro
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Record(logr, c, f.ID)
+	r, err := model.EditFind(f.ID)
 	if err != nil {
 		return err
 	}
@@ -1169,7 +1169,7 @@ func ReadmePost(logr *zap.SugaredLogger, c echo.Context, downloadDir string) err
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Record(logr, c, f.ID)
+	r, err := model.EditFind(f.ID)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -1874,7 +1874,7 @@ func TagEdit(logr *zap.SugaredLogger, c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Record(logr, c, f.ID)
+	r, err := model.EditFind(f.ID)
 	if err != nil {
 		return err
 	}
@@ -1955,7 +1955,8 @@ func TitleEdit(logr *zap.SugaredLogger, c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Record(logr, c, f.ID)
+	fmt.Printf("f: %+v\n", f)
+	r, err := model.EditFind(f.ID)
 	if err != nil {
 		return err
 	}

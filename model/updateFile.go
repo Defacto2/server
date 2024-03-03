@@ -9,7 +9,6 @@ import (
 
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
-	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/labstack/echo/v4"
 	"github.com/volatiletech/null/v8"
@@ -67,7 +66,7 @@ func UpdateOnline(c echo.Context, id int64) error {
 	}
 	defer db.Close()
 	ctx := context.Background()
-	f, err := models.FindFile(ctx, db, id)
+	f, err := FindFile(ctx, db, id)
 	if err != nil {
 		return err
 	}
@@ -90,7 +89,7 @@ func UpdateOffline(c echo.Context, id int64) error {
 	}
 	defer db.Close()
 	ctx := context.Background()
-	f, err := models.FindFile(ctx, db, id)
+	f, err := FindFile(ctx, db, id)
 	if err != nil {
 		return err
 	}
@@ -118,7 +117,7 @@ func UpdateNoReadme(c echo.Context, id int64, val bool) error {
 	defer db.Close()
 
 	ctx := context.Background()
-	f, err := models.FindFile(ctx, db, id)
+	f, err := FindFile(ctx, db, id)
 	if err != nil {
 		return err
 	}
@@ -153,7 +152,7 @@ func UpdatePlatform(c echo.Context, id int64, val string) error {
 	}
 	defer db.Close()
 	ctx := context.Background()
-	f, err := models.FindFile(ctx, db, id)
+	f, err := FindFile(ctx, db, id)
 	if err != nil {
 		return err
 	}
@@ -183,7 +182,7 @@ func UpdateTag(c echo.Context, id int64, val string) error {
 	}
 	defer db.Close()
 	ctx := context.Background()
-	f, err := models.FindFile(ctx, db, id)
+	f, err := FindFile(ctx, db, id)
 	if err != nil {
 		return err
 	}
@@ -207,10 +206,15 @@ func UpdateTitle(c echo.Context, id int64, val string) error {
 	}
 	defer db.Close()
 	ctx := context.Background()
-	f, err := models.FindFile(ctx, db, id)
+	f, err := FindFile(ctx, db, id)
 	if err != nil {
 		return err
 	}
+	// if deleted {
+	// 	f, err = models.Files(mods, qm.WithDeleted()).One(ctx, db)
+	// } else {
+	// 	file, err = models.Files(mods).One(ctx, db)
+	// }
 	f.RecordTitle = null.StringFrom(val)
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
 		return err
@@ -242,7 +246,7 @@ func UpdateYMD(c echo.Context, id int64, y, m, d null.Int16) error {
 	}
 	defer db.Close()
 	ctx := context.Background()
-	f, err := models.FindFile(ctx, db, id)
+	f, err := FindFile(ctx, db, id)
 	if err != nil {
 		return err
 	}

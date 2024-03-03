@@ -58,9 +58,9 @@ func (dir Dirs) About(logr *zap.SugaredLogger, c echo.Context, readonly bool) er
 	var res *models.File
 	var err error
 	if editor(c) {
-		res, err = model.OneRecord(logr, c, true, dir.URI)
+		res, err = model.EditUUID(dir.URI)
 	} else {
-		res, err = model.OneRecord(logr, c, false, dir.URI)
+		res, err = model.FindUUID(dir.URI)
 	}
 	if err != nil {
 		if errors.Is(err, model.ErrID) {
@@ -198,7 +198,7 @@ func (dir Dirs) PreviewDel(logr *zap.SugaredLogger, c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Record(logr, c, f.ID)
+	r, err := model.EditFind(f.ID)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -327,7 +327,7 @@ func (dir Dirs) extractor(logr *zap.SugaredLogger, c echo.Context, p extract) er
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Record(logr, c, f.ID)
+	r, err := model.EditFind(f.ID)
 	if err != nil {
 		return badRequest(c, err)
 	}

@@ -23,7 +23,7 @@ var (
 // The response is a text file named "checksums.txt" with the checksum and filename.
 // The id string is the UID filename of the requested file.
 func Checksum(logr *zap.SugaredLogger, c echo.Context, id string) error {
-	res, err := model.OneRecord(logr, c, true, id)
+	res, err := model.EditUUID(id) // TODO: check if signed in.
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,8 @@ type Download struct {
 // HTTPSend serves files to the client and prompts for a save location.
 // The download relies on the URL ID parameter to determine the requested file.
 func (d Download) HTTPSend(logr *zap.SugaredLogger, c echo.Context) error {
-	res, err := model.OneRecord(logr, c, false, c.Param("id"))
+	// todo check id is valid
+	res, err := model.EditUUID(c.Param("id")) // TODO: check if signed in. maybe use FindUUID and if err then do check
 	if err != nil {
 		return err
 	}
