@@ -23,130 +23,168 @@
   }
 
   // Modify the file metadata, File artifact is online and public
-  const online = document.getElementById(`recordOnline`);
-  const onlineL = document.getElementById(`recordOnlineLabel`);
-  if (online.checked != true) {
-    onlineL.classList.add(dang);
-  }
-  online.addEventListener(`change`, function () {
-    let path = `/editor/online/false`;
-    if (online.checked == true) {
-      path = `/editor/online/true`;
+  let elm = document.getElementById(`recordOnline`);
+  let label = document.getElementById(`recordOnlineLabel`);
+  if (elm == null) {
+    console.info(`the online checkbox is not present`);
+  } else if (label == null) {
+    console.info(`the online checkbox label is not present`);
+  } else {
+    if (elm.checked != true) {
+      label.classList.add(dang);
     }
-    fetch(path, {
-      method: "POST",
-      body: JSON.stringify({
-        id: parseInt(id.value),
-      }),
-      headers: header,
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(saveErr);
-        }
-        if (online.checked == true) {
-          onlineL.classList.remove(dang);
-        } else {
-          onlineL.classList.add(dang);
-        }
-        return response.json();
+    elm.addEventListener(`change`, () => {
+      let path = `/editor/online/false`;
+      if (elm.checked == true) {
+        path = `/editor/online/true`;
+      }
+      fetch(path, {
+        method: "POST",
+        body: JSON.stringify({
+          id: parseInt(id.value),
+        }),
+        headers: header,
       })
-      .catch((error) => {
-        console.log(error.message);
-      });
-  });
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(saveErr);
+          }
+          if (elm.checked == true) {
+            label.classList.remove(dang);
+          } else {
+            label.classList.add(dang);
+          }
+          return response.json();
+        })
+        .catch((error) => {
+          elm.checked = !elm.checked;
+          console.info(
+            `the artifact online status could not be saved: ${error.message}`
+          );
+        });
+    });
+  }
 
   // Modify the file metadata, Title
-  const recTitle = document.getElementById(`recordTitle`);
-  recTitle.addEventListener(`input`, function () {
-    const infoErr = document.getElementById(`recordTitleErr`);
-    const ogLabel = document.getElementById(`recordTitleOG`);
-    const ogText = document.getElementById(`recordTitleOGValue`).textContent;
-    if (recTitle.value != ogText && recTitle.value.length > 0) {
-      ogLabel.classList.remove(hide);
-    } else {
-      ogLabel.classList.add(hide);
-    }
-    recTitle.classList.remove(err);
-    infoErr.classList.add(hide);
-    fetch("/editor/title", {
-      method: "POST",
-      body: JSON.stringify({
-        id: parseInt(id.value),
-        value: recTitle.value,
-      }),
-      headers: header,
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(saveErr);
-        }
-        infoErr.classList.add(hide);
-        recTitle.classList.remove(err);
-        recTitle.classList.add(ok);
-        return response.json();
+  elm = document.getElementById(`recordTitle`);
+  if (elm == null) {
+    console.info(`the record title is not present`);
+  } else {
+    elm.addEventListener(`input`, () => {
+      const infoErr = document.getElementById(`recordTitleErr`);
+      if (infoErr == null) {
+        console.info(`the record title error is not present`);
+        return;
+      }
+      const label = document.getElementById(`recordTitleOG`);
+      if (label == null) {
+        console.info(`the record title original label is not present`);
+        return;
+      }
+      const text = document.getElementById(`recordTitleOGValue`).textContent;
+      if (text == null) {
+        console.info(`the record title original value is not present`);
+        return;
+      }
+      if (elm.value != text && elm.value.length > 0) {
+        label.classList.remove(hide);
+      } else {
+        label.classList.add(hide);
+      }
+      elm.classList.remove(err);
+      infoErr.classList.add(hide);
+      console.info(`id ${id.value} title ${elm.value} headers ${header}`);
+      fetch("/editor/title", {
+        method: "POST",
+        body: JSON.stringify({
+          id: parseInt(id.value),
+          value: elm.value,
+        }),
+        headers: header,
       })
-      .catch((error) => {
-        infoErr.classList.remove(hide);
-        recTitle.classList.add(err);
-        console.log(error.message);
-      });
-  });
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(saveErr);
+          }
+          infoErr.classList.add(hide);
+          elm.classList.remove(err);
+          elm.classList.add(ok);
+          return response.json();
+        })
+        .catch((error) => {
+          infoErr.classList.remove(hide);
+          elm.classList.add(err);
+          elm.value = text;
+          console.info(`the title could not be saved: ${error.message}`);
+        });
+    });
+  }
+
+  // Modify the file metadata, use last modification button
+  elm = document.getElementById(`recordLMBtn`);
+  if (elm == null) {
+    console.info(`the last modification button is not present`);
+  } else {
+    elm.addEventListener(`click`, function () {
+      year.classList.remove(err);
+      month.classList.remove(err);
+      day.classList.remove(err);
+      year.classList.remove(ok);
+      month.classList.remove(ok);
+      day.classList.remove(ok);
+      const split = document.getElementById(`recordLastMod`).value.split(`-`);
+      if (split.length != 3) {
+        console.error(`invalid last modified date provided by server`);
+        return;
+      }
+      year.value = split[0];
+      month.value = split[1];
+      day.value = split[2];
+    });
+  }
 
   // Modify the file metadata, Year, month, day of release, save button
-  const recYMDSave = document.getElementById(`recordYMDSave`);
-  recYMDSave.addEventListener(`click`, function () {
-    year.classList.remove(ok);
-    month.classList.remove(ok);
-    day.classList.remove(ok);
-    fetch("/editor/ymd", {
-      method: "POST",
-      body: JSON.stringify({
-        id: parseInt(id.value),
-        year: parseInt(year.value),
-        month: parseInt(month.value),
-        day: parseInt(day.value),
-      }),
-      headers: header,
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(saveErr);
-        }
-        year.classList.add(ok);
-        month.classList.add(ok);
-        day.classList.add(ok);
-        recYMDSave.classList.remove(dang);
-        return response.json();
+  const saveYMD = document.getElementById(`recordYMDSave`);
+  if (saveYMD == null) {
+    console.info(`the record ymd save button is not present`);
+  } else {
+    saveYMD.addEventListener(`click`, function () {
+      year.classList.remove(ok);
+      month.classList.remove(ok);
+      day.classList.remove(ok);
+      fetch("/editor/ymd", {
+        method: "POST",
+        body: JSON.stringify({
+          id: parseInt(id.value),
+          year: parseInt(year.value),
+          month: parseInt(month.value),
+          day: parseInt(day.value),
+        }),
+        headers: header,
       })
-      .catch((error) => {
-        recYMDSave.classList.add(dang);
-        console.log(error.message);
-      });
-  });
-
-  // Modify the file metadata, Year, month, day of release, Use last modification button
-  document.getElementById(`recordLMBtn`).addEventListener(`click`, function () {
-    year.classList.remove(err);
-    month.classList.remove(err);
-    day.classList.remove(err);
-    year.classList.remove(ok);
-    month.classList.remove(ok);
-    day.classList.remove(ok);
-    const split = document.getElementById(`recordLastMod`).value.split(`-`);
-    if (split.length != 3) {
-      console.error(`invalid last modified date provided by server`);
-      return;
-    }
-    year.value = split[0];
-    month.value = split[1];
-    day.value = split[2];
-  });
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(saveErr);
+          }
+          year.classList.add(ok);
+          month.classList.add(ok);
+          day.classList.add(ok);
+          saveYMD.classList.remove(dang);
+          return response.json();
+        })
+        .catch((error) => {
+          saveYMD.classList.add(dang);
+          console.info(`the ymd could not be saved: ${error.message}`);
+        });
+    });
+  }
 
   // Modify the file metadata, Year, month, day of release, reset button
-  document
-    .getElementById(`recordYMDReset`)
-    .addEventListener(`click`, function () {
+  elm = document.getElementById(`recordYMDReset`);
+  if (elm == null) {
+    console.info(`the record ymd reset button is not present`);
+  } else {
+    elm.addEventListener(`click`, function () {
       const ogy = document.getElementById(`recordOgY`).value;
       const ogm = document.getElementById(`recordOgM`).value;
       const ogd = document.getElementById(`recordOgD`).value;
@@ -159,81 +197,132 @@
       year.classList.remove(ok);
       month.classList.remove(ok);
       day.classList.remove(ok);
-      recYMDSave.disabled = false;
+      if (saveYMD != null) {
+        saveYMD.disabled = false;
+      }
     });
+  }
 
   // Modify the file metadata, Year, month, day of release
   const year = document.getElementById(`recordYear`);
+  if (year == null) {
+    console.info(`the record year is not present`);
+  } else {
+    year.addEventListener(`input`, function () {
+      if (year.value >= 1980 && year.value <= 2023) {
+        year.classList.remove(err);
+        if (saveYMD != null) {
+          saveYMD.disabled = false;
+        }
+        return;
+      }
+      if (year == null || month == null || day == null) {
+        console.info(`the record year, month, or day is not present`);
+        return;
+      }
+      // year can only be empty when month and day are empty
+      if (year.value == `` && month.value == `` && day.value == ``) {
+        year.classList.remove(err);
+        month.classList.remove(err);
+        day.classList.remove(err);
+        if (saveYMD != null) {
+          saveYMD.disabled = false;
+        }
+        return;
+      }
+      year.classList.add(err);
+      if (saveYMD != null) {
+        saveYMD.disabled = true;
+      }
+    });
+  }
   const month = document.getElementById(`recordMonth`);
+  if (month == null) {
+    console.info(`the record month is not present`);
+  } else {
+    month.addEventListener(`input`, function () {
+      if (month.value >= 1 && month.value <= 12) {
+        month.classList.remove(err);
+        if (saveYMD != null) {
+          saveYMD.disabled = false;
+        }
+        return;
+      }
+      if (year == null || month == null || day == null) {
+        console.info(`the record year, month, or day is not present`);
+        return;
+      }
+      if (year.value == `` && month.value == `` && day.value == ``) {
+        year.classList.remove(err);
+        month.classList.remove(err);
+        day.classList.remove(err);
+        if (saveYMD != null) {
+          saveYMD.disabled = false;
+        }
+        return;
+      }
+      // month can only be empty when day is empty
+      if (month.value == `` && day.value == ``) {
+        month.classList.remove(err);
+        if (day != null) {
+          day.classList.remove(err);
+        }
+        if (saveYMD != null) {
+          saveYMD.disabled = false;
+        }
+        return;
+      }
+      month.classList.add(err);
+      if (saveYMD != null) {
+        saveYMD.disabled = true;
+      }
+    });
+  }
   const day = document.getElementById(`recordDay`);
-  year.addEventListener(`input`, function () {
-    if (year.value >= 1980 && year.value <= 2023) {
-      year.classList.remove(err);
-      recYMDSave.disabled = false;
-      return;
-    }
-    // year can only be empty when month and day are empty
-    if (year.value == `` && month.value == `` && day.value == ``) {
-      year.classList.remove(err);
-      month.classList.remove(err);
-      day.classList.remove(err);
-      recYMDSave.disabled = false;
-      return;
-    }
-    year.classList.add(err);
-    recYMDSave.disabled = true;
-  });
-  month.addEventListener(`input`, function () {
-    if (month.value >= 1 && month.value <= 12) {
-      month.classList.remove(err);
-      recYMDSave.disabled = false;
-      return;
-    }
-    if (year.value == `` && month.value == `` && day.value == ``) {
-      year.classList.remove(err);
-      month.classList.remove(err);
-      day.classList.remove(err);
-      recYMDSave.disabled = false;
-      return;
-    }
-    // month can only be empty when day is empty
-    if (month.value == `` && day.value == ``) {
-      month.classList.remove(err);
-      day.classList.remove(err);
-      recYMDSave.disabled = false;
-      return;
-    }
-    month.classList.add(err);
-    recYMDSave.disabled = true;
-  });
-  day.addEventListener(`input`, function () {
-    if (day.value >= 1 && day.value <= 31) {
-      day.classList.remove(err);
-      recYMDSave.disabled = false;
-      return;
-    }
-    if (year.value == `` && month.value == `` && day.value == ``) {
-      year.classList.remove(err);
-      month.classList.remove(err);
-      day.classList.remove(err);
-      recYMDSave.disabled = false;
-      return;
-    }
-    if (month.value == `` && day.value == ``) {
-      month.classList.remove(err);
-      day.classList.remove(err);
-      recYMDSave.disabled = false;
-      return;
-    }
-    if (day.value == ``) {
-      day.classList.remove(err);
-      recYMDSave.disabled = false;
-      return;
-    }
-    day.classList.add(err);
-    recYMDSave.disabled = true;
-  });
-
+  if (day == null) {
+    console.info(`the record day is not present`);
+  } else {
+    day.addEventListener(`input`, function () {
+      if (day.value >= 1 && day.value <= 31) {
+        day.classList.remove(err);
+        if (saveYMD != null) {
+          saveYMD.disabled = false;
+        }
+        return;
+      }
+      if (year == null || month == null || day == null) {
+        console.info(`the record year, month, or day is not present`);
+        return;
+      }
+      if (year.value == `` && month.value == `` && day.value == ``) {
+        year.classList.remove(err);
+        month.classList.remove(err);
+        day.classList.remove(err);
+        saveYMD.disabled = false;
+        return;
+      }
+      if (month.value == `` && day.value == ``) {
+        month.classList.remove(err);
+        day.classList.remove(err);
+        if (saveYMD != null) {
+          saveYMD.disabled = false;
+        }
+        return;
+      }
+      if (day.value == ``) {
+        day.classList.remove(err);
+        if (saveYMD != null) {
+          saveYMD.disabled = false;
+        }
+        return;
+      }
+      day.classList.add(err);
+      if (saveYMD != null) {
+        saveYMD.disabled = true;
+      }
+    });
+  }
+  
   // releasers
   const releasers = document.getElementById(`recordReleasers`);
   const releasersMax = document.getElementById(`recordReleasersMax`);
@@ -749,25 +838,29 @@
   // create an fetch response to get the platform and section as text
 
   const reset = document.getElementById(`recordReset`);
-  // reset all input elements
-  reset.addEventListener(`click`, function () {
-    // delay execution to allow the reset action to complete
-    setTimeout(() => {
-      if (online.checked != true) {
-        onlineL.classList.add(dang);
-      } else {
-        onlineL.classList.remove(dang);
-      }
-      releasersMax.classList.remove(dang);
-      if (tag.value == `magazine`) {
-        magazineTag();
-      } else {
-        titleTag();
-      }
-      const inputs = document.querySelectorAll(`input`);
-      inputs.forEach((input) => {
-        input.classList.remove(err);
-      }, 0);
+  if (reset == null) {
+    console.info(`the editor reset button is not present`);
+  } else {
+    // reset all input elements
+    reset.addEventListener(`click`, function () {
+      // delay execution to allow the reset action to complete
+      setTimeout(() => {
+        if (online.checked != true) {
+          onlineL.classList.add(dang);
+        } else {
+          onlineL.classList.remove(dang);
+        }
+        releasersMax.classList.remove(dang);
+        if (tag.value == `magazine`) {
+          magazineTag();
+        } else {
+          titleTag();
+        }
+        const inputs = document.querySelectorAll(`input`);
+        inputs.forEach((input) => {
+          input.classList.remove(err);
+        }, 0);
+      });
     });
-  });
+  }
 })();

@@ -179,7 +179,8 @@ func (web Web) TemplateElms() template.FuncMap {
 		"recordLastMod": func(b bool) template.HTML {
 			if b {
 				// tooltips do not work on disabled buttons
-				return template.HTML("<button class=\"btn btn-outline-secondary\" type=\"button\" disabled>")
+				return template.HTML("<button id=\"recordLMBtn\" class=\"btn btn-outline-secondary\" type=\"button\" " +
+					"data-bs-toggle=\"tooltip\" data-bs-title=\"No last modification date found\" disabled>")
 			}
 			return template.HTML("<button id=\"recordLMBtn\" class=\"btn btn-outline-secondary\" type=\"button\" " +
 				"data-bs-toggle=\"tooltip\" data-bs-title=\"Apply the file last modified date\">")

@@ -203,9 +203,9 @@
                 <input type="number" name="release-day" id="recordDay" min="0" max="31" aria-label="Day of release" class="form-control input-date" value="{{index . "recDay"}}" placeholder="{{exampleDay}}">
               </div>
               <div class="input-group">
-                {{recordLastMod (index . "recLastMod") }}Use last modification</button>
-                <button id="recordYMDSave" class="btn btn-outline-success px-5" type="button">Save</button>
                 <button id="recordYMDReset" class="btn btn-outline-danger" type="button">Reset</button>
+                {{recordLastMod (index . "recLastMod") }}Set to last modification</button>
+                <button id="recordYMDSave" class="btn btn-success px-5" type="button">Save date</button>
               </div>
               <input type="hidden" id="recordOgY" value="{{index . "recYear"}}">
               <input type="hidden" id="recordOgM" value="{{index . "recMonth"}}">
