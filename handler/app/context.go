@@ -136,7 +136,10 @@ func BBSAZ(logr *zap.SugaredLogger, c echo.Context) error {
 
 // Checksum is the handler for the Checksum file record page.
 func Checksum(logr *zap.SugaredLogger, c echo.Context, id string) error {
-	return download.Checksum(logr, c, id)
+	if err := download.Checksum(logr, c, id); err != nil {
+		return DownloadErr(logr, c, "sum", err)
+	}
+	return nil
 }
 
 // Code is the handler for the Coder sceners page.
