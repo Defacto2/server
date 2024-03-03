@@ -10,6 +10,11 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode"
+
+	"golang.org/x/text/runes"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 )
 
 const (
@@ -139,6 +144,9 @@ func PageCount(sum, limit int) uint {
 // Slug returns a URL friendly string of the named group.
 func Slug(name string) string {
 	s := name
+	// remove diacritics
+	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
+	s, _, _ = transform.String(t, s)
 	// hyphen to underscore
 	re := regexp.MustCompile(`\-`)
 	s = re.ReplaceAllString(s, "_")

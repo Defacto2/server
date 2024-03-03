@@ -38,6 +38,7 @@ func TestSlug(t *testing.T) {
 		{"group1 & group2", "group1-ampersand-group2", assert.Equal},
 		{"group 1, group 2", "group-1*group-2", assert.Equal},
 		{"GROUP 👾", "group", assert.Equal},
+		{"Mooñpeople", "moonpeople", assert.Equal},
 	}
 	for _, tt := range tests {
 		t.Run(tt.expect, func(t *testing.T) {
