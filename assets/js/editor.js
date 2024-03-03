@@ -23,19 +23,19 @@
   }
 
   // Modify the file metadata, File artifact is online and public
-  let elm = document.getElementById(`recordOnline`);
-  let label = document.getElementById(`recordOnlineLabel`);
-  if (elm == null) {
+  const elm0 = document.getElementById(`recordOnline`);
+  const label0 = document.getElementById(`recordOnlineLabel`);
+  if (elm0 == null) {
     console.info(`the online checkbox is not present`);
-  } else if (label == null) {
+  } else if (label0 == null) {
     console.info(`the online checkbox label is not present`);
   } else {
-    if (elm.checked != true) {
-      label.classList.add(dang);
+    if (elm0.checked != true) {
+      label0.classList.add(dang);
     }
-    elm.addEventListener(`change`, () => {
+    elm0.addEventListener(`change`, () => {
       let path = `/editor/online/false`;
-      if (elm.checked == true) {
+      if (elm0.checked == true) {
         path = `/editor/online/true`;
       }
       fetch(path, {
@@ -49,15 +49,15 @@
           if (!response.ok) {
             throw new Error(saveErr);
           }
-          if (elm.checked == true) {
-            label.classList.remove(dang);
+          if (elm0.checked == true) {
+            label0.classList.remove(dang);
           } else {
-            label.classList.add(dang);
+            label0.classList.add(dang);
           }
           return response.json();
         })
         .catch((error) => {
-          elm.checked = !elm.checked;
+          elm0.checked = !elm0.checked;
           console.info(
             `the artifact online status could not be saved: ${error.message}`
           );
@@ -66,11 +66,11 @@
   }
 
   // Modify the file metadata, Title
-  elm = document.getElementById(`recordTitle`);
-  if (elm == null) {
+  const elm1 = document.getElementById(`recordTitle`);
+  if (elm1 == null) {
     console.info(`the record title is not present`);
   } else {
-    elm.addEventListener(`input`, () => {
+    elm1.addEventListener(`input`, () => {
       const infoErr = document.getElementById(`recordTitleErr`);
       if (infoErr == null) {
         console.info(`the record title error is not present`);
@@ -86,19 +86,18 @@
         console.info(`the record title original value is not present`);
         return;
       }
-      if (elm.value != text && elm.value.length > 0) {
+      if (elm1.value != text && elm1.value.length > 0) {
         label.classList.remove(hide);
       } else {
         label.classList.add(hide);
       }
-      elm.classList.remove(err);
+      elm1.classList.remove(err);
       infoErr.classList.add(hide);
-      console.info(`id ${id.value} title ${elm.value} headers ${header}`);
       fetch("/editor/title", {
         method: "POST",
         body: JSON.stringify({
           id: parseInt(id.value),
-          value: elm.value,
+          value: elm1.value,
         }),
         headers: header,
       })
@@ -107,25 +106,80 @@
             throw new Error(saveErr);
           }
           infoErr.classList.add(hide);
-          elm.classList.remove(err);
-          elm.classList.add(ok);
+          elm1.classList.remove(err);
+          elm1.classList.add(ok);
           return response.json();
         })
         .catch((error) => {
           infoErr.classList.remove(hide);
-          elm.classList.add(err);
-          elm.value = text;
+          elm1.classList.add(err);
+          elm1.value = text;
+          console.info(`the title could not be saved: ${error.message}`);
+        });
+    });
+  }
+
+  // Modify the Releasers and enforce a maximum of 2
+  const elm2 = document.getElementById(`recordReleasers`);
+  if (elm2 == null) {
+    console.info(`the record releasers is not present`);
+  } else {
+    elm2.addEventListener(`input`, function () {
+      // enforce text input
+      elm2.value = elm2.value.toUpperCase();
+      elm2.value = elm2.value.replace(/[^a-zA-Z0-9-+& ]/g, "");
+      if (elm2.value == ``) {
+        elm2.classList.add(err);
+        return;
+      }
+      elm2.classList.remove(err);
+      // enforce max releasers
+      const max = document.getElementById(`recordReleasersMax`);
+      if (max == null) {
+        console.info(`the record releasers max is not present`);
+        return;
+      }
+      const count = elm2.value.split(`+`).length;
+      const maximum = 2;
+      if (count > maximum) {
+        elm2.classList.add(err);
+        max.classList.add(dang);
+        return;
+      }
+      elm2.classList.remove(err);
+      max.classList.remove(dang);
+      fetch("/editor/releasers", {
+        method: "POST",
+        body: JSON.stringify({
+          id: parseInt(id.value),
+          value: elm2.value,
+        }),
+        headers: header,
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(saveErr);
+          }
+          // infoErr.classList.add(hide);
+          // elm1.classList.remove(err);
+          // elm1.classList.add(ok);
+          return response.json();
+        })
+        .catch((error) => {
+          // infoErr.classList.remove(hide);
+          // elm1.classList.add(err);
+          // elm1.value = text;
           console.info(`the title could not be saved: ${error.message}`);
         });
     });
   }
 
   // Modify the file metadata, use last modification button
-  elm = document.getElementById(`recordLMBtn`);
-  if (elm == null) {
+  const elm3 = document.getElementById(`recordLMBtn`);
+  if (elm3 == null) {
     console.info(`the last modification button is not present`);
   } else {
-    elm.addEventListener(`click`, function () {
+    elm3.addEventListener(`click`, function () {
       year.classList.remove(err);
       month.classList.remove(err);
       day.classList.remove(err);
@@ -180,11 +234,11 @@
   }
 
   // Modify the file metadata, Year, month, day of release, reset button
-  elm = document.getElementById(`recordYMDReset`);
-  if (elm == null) {
-    console.info(`the record ymd reset button is not present`);
+  const elm4 = document.getElementById(`recordYMDReset`);
+  if (elm4 == null || saveYMD == null) {
+    console.info(`the record ymd reset button is not present or usable`);
   } else {
-    elm.addEventListener(`click`, function () {
+    elm4.addEventListener(`click`, function () {
       const ogy = document.getElementById(`recordOgY`).value;
       const ogm = document.getElementById(`recordOgM`).value;
       const ogd = document.getElementById(`recordOgD`).value;
@@ -197,23 +251,19 @@
       year.classList.remove(ok);
       month.classList.remove(ok);
       day.classList.remove(ok);
-      if (saveYMD != null) {
-        saveYMD.disabled = false;
-      }
+      saveYMD.disabled = false;
     });
   }
 
   // Modify the file metadata, Year, month, day of release
   const year = document.getElementById(`recordYear`);
-  if (year == null) {
-    console.info(`the record year is not present`);
+  if (year == null || saveYMD == null) {
+    console.info(`the record year is not present or usable`);
   } else {
     year.addEventListener(`input`, function () {
       if (year.value >= 1980 && year.value <= 2023) {
         year.classList.remove(err);
-        if (saveYMD != null) {
-          saveYMD.disabled = false;
-        }
+        saveYMD.disabled = false;
         return;
       }
       if (year == null || month == null || day == null) {
@@ -225,27 +275,21 @@
         year.classList.remove(err);
         month.classList.remove(err);
         day.classList.remove(err);
-        if (saveYMD != null) {
-          saveYMD.disabled = false;
-        }
+        saveYMD.disabled = false;
         return;
       }
       year.classList.add(err);
-      if (saveYMD != null) {
-        saveYMD.disabled = true;
-      }
+      saveYMD.disabled = true;
     });
   }
   const month = document.getElementById(`recordMonth`);
-  if (month == null) {
-    console.info(`the record month is not present`);
+  if (month == null || saveYMD == null) {
+    console.info(`the record month is not present or usable`);
   } else {
     month.addEventListener(`input`, function () {
       if (month.value >= 1 && month.value <= 12) {
         month.classList.remove(err);
-        if (saveYMD != null) {
-          saveYMD.disabled = false;
-        }
+        saveYMD.disabled = false;
         return;
       }
       if (year == null || month == null || day == null) {
@@ -256,9 +300,7 @@
         year.classList.remove(err);
         month.classList.remove(err);
         day.classList.remove(err);
-        if (saveYMD != null) {
-          saveYMD.disabled = false;
-        }
+        saveYMD.disabled = false;
         return;
       }
       // month can only be empty when day is empty
@@ -267,27 +309,21 @@
         if (day != null) {
           day.classList.remove(err);
         }
-        if (saveYMD != null) {
-          saveYMD.disabled = false;
-        }
+        saveYMD.disabled = false;
         return;
       }
       month.classList.add(err);
-      if (saveYMD != null) {
-        saveYMD.disabled = true;
-      }
+      saveYMD.disabled = true;
     });
   }
   const day = document.getElementById(`recordDay`);
-  if (day == null) {
-    console.info(`the record day is not present`);
+  if (day == null || saveYMD == null) {
+    console.info(`the record day is not present or usable`);
   } else {
     day.addEventListener(`input`, function () {
       if (day.value >= 1 && day.value <= 31) {
         day.classList.remove(err);
-        if (saveYMD != null) {
-          saveYMD.disabled = false;
-        }
+        saveYMD.disabled = false;
         return;
       }
       if (year == null || month == null || day == null) {
@@ -304,70 +340,39 @@
       if (month.value == `` && day.value == ``) {
         month.classList.remove(err);
         day.classList.remove(err);
-        if (saveYMD != null) {
-          saveYMD.disabled = false;
-        }
+        saveYMD.disabled = false;
         return;
       }
       if (day.value == ``) {
         day.classList.remove(err);
-        if (saveYMD != null) {
-          saveYMD.disabled = false;
-        }
+        saveYMD.disabled = false;
         return;
       }
       day.classList.add(err);
-      if (saveYMD != null) {
-        saveYMD.disabled = true;
-      }
+      saveYMD.disabled = true;
     });
   }
-  
-  // releasers
-  const releasers = document.getElementById(`recordReleasers`);
-  const releasersMax = document.getElementById(`recordReleasersMax`);
-  releasers.addEventListener(`input`, function () {
-    // enforce text input
-    releasers.value = releasers.value.toUpperCase();
-    releasers.value = releasers.value.replace(/[^a-zA-Z0-9-+& ]/g, "");
-    if (releasers.value == ``) {
-      releasers.classList.add(err);
-      return;
-    }
-    releasers.classList.remove(err);
-    // enforce max releasers
-    const count = releasers.value.split(`+`).length;
-    const maximum = 2;
-    if (count > maximum) {
-      releasers.classList.add(err);
-      releasersMax.classList.add(dang);
-    } else {
-      releasers.classList.remove(err);
-      releasersMax.classList.remove(dang);
-    }
 
-    //     	// hyphen to underscore
-    // re := regexp.MustCompile(`\-`)
-    // s = re.ReplaceAllString(s, "_")
-    // // multiple groups get separated with asterisk
-    // re = regexp.MustCompile(`\, `)
-    // s = re.ReplaceAllString(s, "*")
-    // // any & characters need replacement due to HTML escaping
-    // re = regexp.MustCompile(` \& `)
-    // s = re.ReplaceAllString(s, " ampersand ")
-    // // numbers receive a leading hyphen
-    // re = regexp.MustCompile(` ([0-9])`)
-    // s = re.ReplaceAllString(s, "-$1")
-    // // delete all other characters
-    // const deleteAllExcept = `[^A-Za-z0-9 \-\+\.\_\*]`
-    // re = regexp.MustCompile(deleteAllExcept)
-    // s = re.ReplaceAllString(s, "")
-    // // trim whitespace and replace any space separators with hyphens
-    // s = strings.TrimSpace(strings.ToLower(s))
-    // re = regexp.MustCompile(` `)
-    // s = re.ReplaceAllString(s, "-")
-  });
-
+  //     	// hyphen to underscore
+  // re := regexp.MustCompile(`\-`)
+  // s = re.ReplaceAllString(s, "_")
+  // // multiple groups get separated with asterisk
+  // re = regexp.MustCompile(`\, `)
+  // s = re.ReplaceAllString(s, "*")
+  // // any & characters need replacement due to HTML escaping
+  // re = regexp.MustCompile(` \& `)
+  // s = re.ReplaceAllString(s, " ampersand ")
+  // // numbers receive a leading hyphen
+  // re = regexp.MustCompile(` ([0-9])`)
+  // s = re.ReplaceAllString(s, "-$1")
+  // // delete all other characters
+  // const deleteAllExcept = `[^A-Za-z0-9 \-\+\.\_\*]`
+  // re = regexp.MustCompile(deleteAllExcept)
+  // s = re.ReplaceAllString(s, "")
+  // // trim whitespace and replace any space separators with hyphens
+  // s = strings.TrimSpace(strings.ToLower(s))
+  // re = regexp.MustCompile(` `)
+  // s = re.ReplaceAllString(s, "-")
   // people
   function parseName(name) {
     let str = name;

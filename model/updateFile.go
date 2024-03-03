@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/tags"
@@ -20,6 +21,7 @@ const (
 )
 
 var (
+	ErrRels     = errors.New("too many releasers, only two are allowed")
 	ErrPlatform = errors.New("invalid platform")
 	ErrTag      = errors.New("invalid tag")
 	ErrYear     = errors.New("invalid year")
@@ -163,6 +165,53 @@ func UpdatePlatform(c echo.Context, id int64, val string) error {
 	return nil
 }
 
+// UpdateReleasers updates the the releasers values with val.
+// Two releases can be separated by a + (plus) character.
+// It returns nil if the update was successful.
+// Id is the database id of the record.
+func UpdateReleasers(c echo.Context, id int64, val string) error {
+	if c == nil {
+		return ErrCtx
+	}
+	const max = 2
+	val = strings.TrimSpace(val)
+	s := strings.Split(val, "+")
+	if len(s) > max {
+		return fmt.Errorf("%s: %w", s, ErrRels)
+	}
+
+	for i, v := range s {
+		s[i] = strings.ToUpper(releaser.Clean(v))
+	}
+
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return err
+	}
+
+	switch len(s) {
+	case max:
+		f.GroupBrandFor = null.StringFrom(s[0])
+		f.GroupBrandBy = null.StringFrom(s[1])
+	case 1:
+		f.GroupBrandFor = null.StringFrom(s[0])
+		f.GroupBrandBy = null.StringFrom("")
+	case 0:
+		f.GroupBrandFor = null.StringFrom("")
+		f.GroupBrandBy = null.StringFrom("")
+	}
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", val, err)
+	}
+	return nil
+}
+
 // UpdateTag updates the section column value with val.
 // It returns nil if the update was successful.
 // Id is the database id of the record.
@@ -188,7 +237,7 @@ func UpdateTag(c echo.Context, id int64, val string) error {
 	}
 	f.Section = null.StringFrom(val)
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
-		return err
+		return fmt.Errorf("%s: %w", val, err)
 	}
 	return nil
 }
@@ -210,14 +259,9 @@ func UpdateTitle(c echo.Context, id int64, val string) error {
 	if err != nil {
 		return err
 	}
-	// if deleted {
-	// 	f, err = models.Files(mods, qm.WithDeleted()).One(ctx, db)
-	// } else {
-	// 	file, err = models.Files(mods).One(ctx, db)
-	// }
 	f.RecordTitle = null.StringFrom(val)
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
-		return err
+		return fmt.Errorf("%s: %w", val, err)
 	}
 	return nil
 }

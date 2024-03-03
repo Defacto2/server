@@ -332,6 +332,9 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 	ansilove.POST("/copy", func(x echo.Context) error {
 		return dir.AnsiLovePost(logr, x)
 	})
+	editor.POST("/releasers", func(x echo.Context) error {
+		return app.ReleaserEdit(logr, x)
+	})
 	editor.POST("/title", func(x echo.Context) error {
 		return app.TitleEdit(logr, x)
 	})

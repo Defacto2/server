@@ -1493,6 +1493,27 @@ func ReleaserErr(logr *zap.SugaredLogger, c echo.Context, id string) error {
 	return nil
 }
 
+// ReleaserEdit handles the post submission for the Platform selection field.
+func ReleaserEdit(logr *zap.SugaredLogger, c echo.Context) error {
+	const name = "editor releasers"
+	if logr == nil {
+		return InternalErr(logr, c, name, ErrZap)
+	}
+
+	var f Form
+	if err := c.Bind(&f); err != nil {
+		return badRequest(c, err)
+	}
+	r, err := model.EditFind(f.ID)
+	if err != nil {
+		return err
+	}
+	if err = model.UpdateReleasers(c, int64(f.ID), f.Value); err != nil {
+		return badRequest(c, err)
+	}
+	return c.JSON(http.StatusOK, r)
+}
+
 // Releasers is the handler for the list and preview of files credited to a releaser.
 func Releasers(logr *zap.SugaredLogger, c echo.Context, uri string) error {
 	const name = "files"
