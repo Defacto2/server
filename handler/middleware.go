@@ -14,6 +14,7 @@ import (
 	"strconv"
 
 	"github.com/Defacto2/server/handler/app"
+	"github.com/Defacto2/server/handler/sess"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -51,7 +52,7 @@ func (c Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
 func (c Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(e echo.Context) error {
 		// https://pkg.go.dev/github.com/gorilla/sessions#Session
-		sess, err := session.Get(app.SessionName, e)
+		sess, err := session.Get(sess.Name, e)
 		if err != nil {
 			return err
 		}

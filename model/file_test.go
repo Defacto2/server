@@ -11,21 +11,21 @@ import (
 
 func TestOneRecord(t *testing.T) {
 	t.Parallel()
-	mf, err := model.FindUUID("")
+	mf, err := model.FindObf("")
 	require.Error(t, err)
 	assert.Nil(t, mf)
 
-	mf, err = model.FindUUID("")
+	mf, err = model.FindObf("")
 	require.Error(t, err)
 	assert.Nil(t, mf)
 
 	errID := helper.ObfuscateID(-1)
-	mf, err = model.FindUUID(errID)
+	mf, err = model.FindObf(errID)
 	require.ErrorIs(t, err, model.ErrID)
 	assert.Nil(t, mf)
 
 	errID = helper.ObfuscateID(1)
-	mf, err = model.FindUUID(errID)
+	mf, err = model.FindObf(errID)
 	require.ErrorIs(t, err, model.ErrDB)
 	assert.Nil(t, mf)
 }

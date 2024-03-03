@@ -18,6 +18,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/releaser"
+	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magic"
@@ -57,10 +58,10 @@ func (dir Dirs) About(logr *zap.SugaredLogger, c echo.Context, readonly bool) er
 	}
 	var res *models.File
 	var err error
-	if editor(c) {
-		res, err = model.EditUUID(dir.URI)
+	if sess.Editor(c) {
+		res, err = model.EditObf(dir.URI)
 	} else {
-		res, err = model.FindUUID(dir.URI)
+		res, err = model.FindObf(dir.URI)
 	}
 	if err != nil {
 		if errors.Is(err, model.ErrID) {

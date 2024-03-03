@@ -18,6 +18,7 @@ import (
 	"github.com/Defacto2/releaser/initialism"
 	namer "github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/handler/download"
+	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/cache"
 	"github.com/Defacto2/server/internal/command"
@@ -757,7 +758,7 @@ func Index(logr *zap.SugaredLogger, c echo.Context) error {
 	data["milestones"] = Collection()
 	{
 		// get the signed in given name
-		sess, err := session.Get(SessionName, c)
+		sess, err := session.Get(sess.Name, c)
 		if err == nil {
 			if name, ok := sess.Values["givenName"]; ok {
 				if nameStr, ok := name.(string); ok && nameStr != "" {
@@ -1728,7 +1729,7 @@ func SignedOut(logr *zap.SugaredLogger, c echo.Context) error {
 		return InternalErr(logr, c, name, ErrZap)
 	}
 	{ // get any existing session
-		sess, err := session.Get(SessionName, c)
+		sess, err := session.Get(sess.Name, c)
 		if err != nil {
 			return BadRequestErr(logr, c, name, err)
 		}
@@ -1778,7 +1779,7 @@ func Signin(logr *zap.SugaredLogger, c echo.Context, clientID string) error {
 	data["clientID"] = clientID
 	data["nonce"] = ""
 	{ // get any existing session
-		sess, err := session.Get(SessionName, c)
+		sess, err := session.Get(sess.Name, c)
 		if err != nil {
 			return remove(logr, c, name, data)
 		}
@@ -2228,19 +2229,6 @@ func counter() (Stats, error) {
 	return counter, nil
 }
 
-// editor returns true if the user is signed in and is an editor.
-func editor(c echo.Context) bool {
-	sess, err := session.Get(SessionName, c)
-	if err != nil {
-		return false
-	}
-	if id, ok := sess.Values["sub"]; ok && id != "" {
-		// additional check could be sub against DB
-		return true
-	}
-	return false
-}
-
 // empty is a map of default values for the app templates.
 func empty(c echo.Context) map[string]interface{} {
 	// the keys are listed in order of appearance in the templates.
@@ -2253,7 +2241,7 @@ func empty(c echo.Context) map[string]interface{} {
 		"counter":     Statistics(),        //   Empty database counts for files and categories.
 		"dbError":     false,               //   If true, the database is not available.
 		"description": "",                  // * A short description of the page that get inserted into the description meta element.
-		"editor":      editor(c),           //   If true, the editor mode is enabled.
+		"editor":      sess.Editor(c),      //   If true, the editor mode is enabled.
 		"h1":          "",                  // ! The H1 heading of the page.
 		"h1Sub":       "",                  //   The H1 sub-heading of the page.
 		"jsdos":       false,               //   If true, the large, JS-DOS emulator files will be loaded.
@@ -2444,7 +2432,7 @@ func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string
 
 // remove is a helper function to remove the session cookie by setting the MaxAge to -1.
 func remove(logr *zap.SugaredLogger, c echo.Context, name string, data map[string]interface{}) error {
-	sess, err := session.Get(SessionName, c)
+	sess, err := session.Get(sess.Name, c)
 	if err != nil {
 		const remove = -1
 		sess.Options.MaxAge = remove
@@ -2536,7 +2524,7 @@ func sessionHandler(
 	}
 
 	// get always returns a session, even if empty.
-	session, err := session.Get(SessionName, c)
+	session, err := session.Get(sess.Name, c)
 	if err != nil {
 		return err
 	}

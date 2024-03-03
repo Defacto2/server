@@ -29,15 +29,15 @@ func FindFile(ctx context.Context, db *sql.DB, id int64) (*models.File, error) {
 	return models.Files(models.FileWhere.ID.EQ(id), qm.WithDeleted()).One(ctx, db)
 }
 
-// FindUUID retrieves a single file record from the database using the Unique Universal ID.
-func FindUUID(uid string) (*models.File, error) {
-	return recordUID(false, uid)
+// FindObf retrieves a single file record from the database using the obfuscated record key.
+func FindObf(key string) (*models.File, error) {
+	return recordObf(false, key)
 }
 
-// EditUUID retrieves a single file record from the database using the Unique Universal ID.
+// EditObf retrieves a single file record from the database using the obfuscated record key.
 // This function will also return records that have been marked as deleted.
-func EditUUID(uid string) (*models.File, error) {
-	return recordUID(true, uid)
+func EditObf(key string) (*models.File, error) {
+	return recordObf(true, key)
 }
 
 // Find retrieves a single file record from the database using the record key.
@@ -67,11 +67,11 @@ func record(deleted bool, key int) (*models.File, error) {
 	return res, nil
 }
 
-// recordUID retrieves a single file record from the database using the uid URL ID.
-func recordUID(deleted bool, uid string) (*models.File, error) {
-	id := helper.DeobfuscateID(uid)
+// recordObf retrieves a single file record from the database using the uid URL ID.
+func recordObf(deleted bool, key string) (*models.File, error) {
+	id := helper.DeobfuscateID(key)
 	if id < startID {
-		return nil, fmt.Errorf("%w: %d ~ %s", ErrID, id, uid)
+		return nil, fmt.Errorf("%w: %d ~ %s", ErrID, id, key)
 	}
 	// get record id, filename, uuid
 	ctx := context.Background()
@@ -85,7 +85,7 @@ func recordUID(deleted bool, uid string) (*models.File, error) {
 		return nil, ErrDB
 	}
 	if res.ID != int64(id) {
-		return nil, fmt.Errorf("%w: %d ~ %s", ErrID, id, uid)
+		return nil, fmt.Errorf("%w: %d ~ %s", ErrID, id, key)
 	}
 	return res, nil
 }

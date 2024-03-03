@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
@@ -23,9 +24,14 @@ var (
 // The response is a text file named "checksums.txt" with the checksum and filename.
 // The id string is the UID filename of the requested file.
 func Checksum(logr *zap.SugaredLogger, c echo.Context, id string) error {
-	res, err := model.EditUUID(id) // TODO: check if signed in.
+	res, err := model.FindObf(id)
 	if err != nil {
-		return err
+		if errors.Is(err, model.ErrDB) && sess.Editor(c) {
+			res, err = model.EditObf(id)
+		}
+		if err != nil {
+			return err
+		}
 	}
 
 	// an example checksum file body created by `shasum`
@@ -57,11 +63,17 @@ type Download struct {
 // HTTPSend serves files to the client and prompts for a save location.
 // The download relies on the URL ID parameter to determine the requested file.
 func (d Download) HTTPSend(logr *zap.SugaredLogger, c echo.Context) error {
-	// todo check id is valid
-	res, err := model.EditUUID(c.Param("id")) // TODO: check if signed in. maybe use FindUUID and if err then do check
+	id := c.Param("id")
+	res, err := model.FindObf(id)
 	if err != nil {
-		return err
+		if errors.Is(err, model.ErrDB) && sess.Editor(c) {
+			res, err = model.EditObf(id)
+		}
+		if err != nil {
+			return err
+		}
 	}
+
 	// build the source filepath
 	name := res.Filename.String
 	uid := strings.TrimSpace(res.UUID.String)

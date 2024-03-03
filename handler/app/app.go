@@ -35,8 +35,6 @@ const (
 	Welcome = `:                    ` +
 		`·· WELCOME TO DEFACTO2 ··` +
 		`                    ·`
-	// SessionName is the name given to the session cookie.
-	SessionName = "d2_op"
 )
 
 var (
