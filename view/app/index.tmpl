@@ -55,10 +55,11 @@
     This site defines the <abbr title="personal computer" class="initialism">PC</abbr> as <span class="text-nowrap">Intel-compatible</span>, x86 architecture known initially as the IBM PC, that evolved into <abbr title="Microsoft disk operating system" class="initialism">MS-DOS</abbr> and now Microsoft Windows. 
     All other personal computer platforms get referenced as microcomputers.</small>
 </p>
-<div class="row row-cols-1 row-cols-lg-2 row-cols-xl-3 g-4 mt-5">
+{{/*  to add 3 columns, row-cols-xl-3   */}}
+<div class="row row-cols-1 row-cols-lg-2 g-4 mt-5">
 {{- range $index, $mile := .milestones }}
   <div class="col">
-    <div class="card h-100{{ if eq true .Highlight}} text-bg-light{{end}}">
+    <div class="card h-100{{ if eq true .Highlight}} border-dark text-bg-light{{end}}">
       {{- /*  Header & pictures  */}}
       {{- if and (eq "" .Picture.Png) (eq "" .Picture.Jpg)}}
       <div class="card-header">{{fmtPrefix .Prefix}}<strong>{{.Year}}</strong>{{fmtMonth .Month}}{{fmtDay .Day}}</div>
