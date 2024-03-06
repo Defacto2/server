@@ -215,25 +215,37 @@ func Collection() Milestones {
 				"Microsoft didn't invent the language, but its implementation was considered the gold standard.",
 		},
 		{
-			Title: "The birth of warez ?", Year: 1980, Highlight: true,
-			Lead: "The Apple II", Link: "http://artscene.textfiles.com/intros/APPLEII/", LinkTitle: "Apple II crack screens",
-			Content: "<p>There's no straightforward answer to this question, but a good guess would be <strong>sometime in 1980-81</strong> within well-to-do populations centers of the USA. " +
-				"<a href=\"https://www.apple2history.org/history/ah13/#09\">The first Apple II modem peripherals</a>, the Hayes Micromodem II and the Novation CAT were released in 1979 and 1980, respectively. " +
-				"These add-ons enabled Apple II microcomputer owners to connect, communicate, and exchange files remotely.</p>" +
-				"<p>For over a decade, long-distance <a href=\"https://www.slate.com/articles/technology/the_spectator/2011/10/the_article_that_inspired_steve_jobs_secrets_of_the_little_blue_.html\">phone phreaking had been a well-established movement</a>, and its monetary entry barrier was relatively low. " +
-				"But late-1970s microcomputers were useless*, <a href=\"http://www.apple-iigs.info/doc/fichiers/Apple%20Price%20List%201978-08.pdf\">expensive</a>, exotic machines, and getting them online with modems was even more so. " +
-				"So it makes sense that the rich kids who already phreaked and were into this niche, microcomputing side hobby would go out of their way to find anyone who shared in this, even if they resided interstate." +
-				"<br>* <small>The first \"killer app\" for the Apple II, <a href=\"https://www.apple2history.org/history/ah18/#07\">VisiCalc, the first spreadsheet for microcomputers</a>, was only released in the last few months of 1979.</small></p>" +
-				"<p>Some pirates on the Apple II were <a href=\"http://artscene.textfiles.com/intros/APPLEII/marscars.gif\">dating their cracks</a> by <strong>early 1982</strong>, but many tagged crack screens exist for games published in <strong>1981</strong>. " +
-				"While <a href=\"http://artscene.textfiles.com/intros/APPLEII/tcommand.gif\">a copyright year</a> doesn't always mean the game crack is from the same period, it is a fair assumption.</p>" +
-				"<p>Also, in 1981 is the publication of <a href=\"http://computist.textfiles.com/\">HardCore Computing</a>. A Seattle-based, printed magazine for the Apple II that came with \"How to back up your copy-protected disks.\" on the front cover.</p>" +
-				"<p>As for the other platforms, the TRS-80 from Radio Shack <a href=\"http://www.trs-80.org/telephone-interface/\">had a modem peripheral available</a> at the end of 1978. However, there needs to be more evidence of an underground culture first developing on this platform. Modem peripherals didn't exist on the <a href=\"http://www.atarimania.com/faq-atari-400-800-xl-xe-what-other-modems-can-i-use-with-my-atari_47.html\">Atari 400/800 until 1981 and 1983</a> or later on other platforms.</p>",
+			Title: "The first crackers ?", Year: 1979, Highlight: true,
+			Content: "<p>We have yet to learn when or who started cracking, but it would be after the introduction of copy protection on software on the Apple II and probably after it became more commonplace. " +
+				"Andrew McFadden has <a href=\"https://fadden.com/apple2/cassette-protect.html\">written about early copy protection</a> on specific Apple II games released on cassette tapes in 1978 and 1979, but these were probably unusual.</p>" +
+				"<p>However, Apple's July 1978 retail debut of the <A href=\"https://collections.museumsvictoria.com.au/articles/2787\">Disk II floppy drive</a> with the first <a href=\"https://www.apple2history.org/history/ah14/#01\">Apple operating system</a> was a significant factor. For the wealthy hobbyists who were Apple II owners, the drive and software became a must-have piece of kit that significantly improved the functionality of their machines. Compared to the initial outlay of a common Apple II setup, the floppy disk drive and interface were quite affordable and quickly caught on.</p>" +
+				"<p>The drive offered new benefits for software developers, including speed and reliability and complete control of the floppy drive hardware using software that the developers could write themselves. This ability encouraged them to embed <a href=\"https://www.bigmessowires.com/2015/08/27/apple-ii-copy-protection/\">disk copy protection methods</a> that are <a href=\"https://paleotronic.com/2024/01/28/confessions-of-a-disk-cracker-the-secrets-of-4am/\">still problematic for computer historians today</a>!</p>" +
+				"<p>A post on 8 BBS (<a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n60/mode/1up\">Message number 4342</a>) from Brain Litzinger at 23:37 02-Dec-80 includes, <code>I also have unbroken: Galaxion,<a href=\"http://artscene.textfiles.com/intros/APPLEII/mlab.gif\">Dogfight</a>,Hi-res shootout,and Astro-Apple</code>. The casual use of <strong>unbroken</strong> in this 1980 posts suggests disk copy protection and a need of cracking.</p>" +
+				"<p>In Christmas 1980, <a href=\"https://www.vice.com/en/article/qjvbem/dont-copy-that-floppy-the-untold-history-of-apple-ii-software-piracy\">Omega Software Systems was advertising Lock Smith</a>, a disk copy program that makes a bit-by-bit copy, claiming \"duplication of just about any disk is possible.\" This advertising suggests that disk copy protection was already problematic for Apple II owners who desired software backups and that there was a product market. " +
+				"The novel method of disk duplication implies that the anonymous Lock Smith author(s) were well-practiced in bypassing copy protection during its creation.</p>" +
+				"<p>Also, sometime in 1981 is the publication of <a href=\"http://computist.textfiles.com/\">HardCore Computing</a>. A Seattle-based, printed magazine for the Apple II that came with \"How to back up your copy-protected disks.\" on the front cover. " +
+				"Dave Alpert, the head of Omega Software Inc. and president of the <a href=\"https://archive.org/details/northernillinoisaugpaperlibrary1981\">Northern Illinois Apple Users Group</a>, " +
+				"<a href=\"http://computist.textfiles.com/ISSUE.001/page-08.jpg\">is interviewed</a>, and he says Lock Smith took over a year to develop. <a href=\"http://computist.textfiles.com/ISSUE.001/page-10.jpg\">On page 10 of the issue</a>, there is a review section of disk copying programs, including \"Locksmith,\" Copy II Plus, Back-It-Up, Quick and Dirty, and Old Faithful.</p>",
 		},
 		{
-			Title: "The first group ?", Year: 1980, Highlight: true,
+			Title: "The birth of warez ?", Year: 1980, Highlight: true,
+			Lead: "The Apple II", Link: "http://artscene.textfiles.com/intros/APPLEII/", LinkTitle: "Apple II crack screens",
+			Content: "<p>There's no straightforward answer to this question, but a good guess would be <strong>sometime in 1980</strong> within technology populations hubs of the USA. " +
+				"By then, people were exchanging real-life details, meeting to duplicate and exchange software collections, and finding ways to remove copy protections. " +
+				"<a href=\"https://www.apple2history.org/history/ah13/#09\">The first Apple II modem peripherals</a>, the Hayes Micromodem II and the Novation CAT were released in 1979 and 1980, respectively. " +
+				"These add-ons enabled microcomputer owners to connect to remote message boards, communicate, and even exchange files using the telephone.</p>" +
+				"<p>For over a decade, long-distance <a href=\"https://www.slate.com/articles/technology/the_spectator/2011/10/the_article_that_inspired_steve_jobs_secrets_of_the_little_blue_.html\">phone phreaking had been a well-established movement</a> in the USA, and its monetary entry barrier was relatively low. " +
+				"But late-1970s microcomputers were <a href=\"http://www.apple-iigs.info/doc/fichiers/Apple%20Price%20List%201978-08.pdf\">expensive</a>, exotic but mostly useless* machines, and getting them online with modems was challenging. " +
+				"So it makes sense that the rich kids who already phreaked (time-charged phone calls, gratis) and were into microcomputing would go out of their way to befriend anyone who shared in these niche hobbies, even if those people resided interstate." +
+				"<br>* <small>The \"killer app\" for the Apple II, <a href=\"https://www.apple2history.org/history/ah18/#07\">VisiCalc, the first spreadsheet for microcomputers</a>, was only released in the last few months of 1979.</small></p>" +
+				"<p>Some pirates on the Apple II were <a href=\"http://artscene.textfiles.com/intros/APPLEII/marscars.gif\">dating their cracks</a> in <strong>early 1982</strong>, but many tagged crack screens exist for games published in <strong>1980</strong> and 1981. (example <a href=\"http://artscene.textfiles.com/intros/APPLEII/tcommand.gif\">1</a>) " +
+				"While a copyright year doesn't always mean the game crack is from the same period, it is a fair assumption.</p>" +
+				"<p>As for the other microcomputer platforms, <a href=\"http://www.trs-80.org/was-the-trs-80-once-the-top-selling-computer/\">the far more popular TRS-80</a> from Radio Shack <a href=\"http://www.trs-80.org/telephone-interface/\">had a modem peripheral available</a> at the end of 1978. However, there needs to be more evidence of an underground culture first developing on this platform. Modem peripherals didn't exist on the <a href=\"http://www.atarimania.com/faq-atari-400-800-xl-xe-what-other-modems-can-i-use-with-my-atari_47.html\">Atari 400/800 until 1981</a> and the Commodore 64 was years away.</p>",
+		},
+		{
+			Title: "The first group", Year: 1980, Highlight: true,
 			Lead: "The Apple Mafia",
-			Content: "" +
-				"<p>In 1986, Red Ghost posted <a href=\"/f/a430f7\">The Apple Mafia Story</a>. In it, he claims " +
+			Content: "<p>In 1986, Red Ghost posted <a href=\"/f/a430f7\">The Apple Mafia Story</a>. In it, he claims " +
 				"<strong>The Untouchables</strong> (examples <a href=\"http://artscene.textfiles.com/intros/APPLEII/freitagc.gif\">1</a>, " +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/bellhop.gif\">2</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/sraid.gif\">3</a>, " +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/kenuston.gif\">4</a>), " +
@@ -243,7 +255,7 @@ func Collection() Milestones {
 				"), and <strong>The Dirty Dozen</strong> " +
 				"(examples <a href=\"http://artscene.textfiles.com/intros/APPLEII/bilestoadc.gif\">1</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/millipedec.gif\">2</a>, " +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/plasmania.gif\">3</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/wargle.gif\">4</a>) " +
-				"were some of the first-ever pirate groups. He grew up in Queens, New York, and suggests that is where many \"original\" phreakers and pirates originated. But we know that statement is partially incorrect, as in the early 1970s, <a href=\"https://www.slate.com/articles/technology/the_spectator/2011/10/the_article_that_inspired_steve_jobs_secrets_of_the_little_blue_.html\">people nationwide, were already freaking</a>.</p>" +
+				"were some of the first-ever pirate groups. He grew up in Queens, New York, and suggests that is where many \"original\" phreakers and pirates originated. But we know that statement is partially incorrect, as in the 1970s, people nationwide, <a href=\"http://www.flyingsnail.com/images/YIPL/YIPL_002.jpg\">were already freaking</a>.</p>" +
 				"<p>In the same post, an early 1984 quote from The Godfather states he founded <strong>The Apple Mafia in 1980</strong>, initially as a joke, but it became a more serious project in <strong>1981</strong>." +
 				"<br><q style=\"text-transform: lowercase;\">BRIEF HISTORY OF THE APPLE MAFIA. FOUNDED IN 1980 BY THE GODFATHER AS A JOKE. REDONE IN 1981 AS A SEMI SERIOUS GROUP. " +
 				"KICKED SOME ASS IN '82. BLEW EVERYONE AWAY IN 83, AND WILL DO MUCH BETTER IN 84. SINCE THE BEGINNING THE GROUP HAS DIED OUT AND BEEN REBORN SEVERAL TIMES, THIS TIME LETS KEEP IT GOING. IS CURRENTLY THE OLDEST ACTIVE GROUP,</q></p>" +
@@ -252,13 +264,28 @@ func Collection() Milestones {
 				" <q>I played around with various things, ... until " +
 				"I got an AppleII+ in 1978. I hung out with a group of people who were also " +
 				"starting to get into computers, most of them comprising the main attendees of " +
-				"<a href=\"https://archive.org/details/yipltap/YIPL_and_TAP_Issues_1-91.99-100/page/n165/mode/2up\">the soon-to-be-defunct TAP meetings in NYC</a>, a pretty eclectic collection of " +
+				"the soon-to-be-defunct TAP (<a href=\"http://www.flyingsnail.com/missingbbs/tap01.html\">1</a>, <a href=\"https://archive.org/details/yipltap/YIPL_and_TAP_Issues_1-91.99-100/page/n165/mode/2up\">2</a>) meetings in NYC, a pretty eclectic collection of " +
 				"dudes who have long since gone their separate ways to meet with whatever " +
 				"destinies life had in store for them.  Around 1980 there was an Apple Fest<strong>*</strong> that " +
 				"we went to, and found even more people with Apples and, from this, formed the " +
 				"Apple Mafia, which was, in our minds, really cool sounding and actually became " +
 				"the first WAreZ gRoUP to exist for the AppleII.</q>" +
 				"<br>* <small><a href=\"https://www.wap.org/journal/showcase/washingtonapplepijournal1981v3no4apr81.pdf\">The first AppleFest was actually held</a> on the weekend of June 6-7 <strong>1981</strong> in Boston.</small></p>",
+		},
+		{
+			Title: "8BBS", Year: 1980, Highlight: true,
+			Lead: "(+408) 296-5799. 110, 150 & 300 BAUD SUPPORTED.", LinkTitle: "the thousands of message logs", Link: "https://archive.org/details/8BBSArchiveP1V1/mode/1up",
+			Content: "<p>8BBS, out in San Jose, CA and online since March 1980. Is one of the <a href=\"https://everything2.com/title/8BBS\">earliest BBS message boards</a>, which early microcomputer hobbyists posted, including some early hackers, pirates, and phreaker personalities of the era name-dropped. But what stands out about the board today is that we have survived thousands of posts from its public message boards of the very earliest users of public online communities that anyone with the proper hardware could have access from their homes. These posts existed before Usenet, before the modern Internet. </p>" +
+				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n30/mode/1up\">Message number 3964 from CHUCK HUBERT</a><br>To ALL at 12:52 on 20-Nov-80.<br>Subject! CP/M BBS AND SOFTWARE EXCHANGE</p>" +
+				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n43/mode/1up\">Message number 4177 from Kevin O'Hare</a><br>To SF (SAN FRANCISCO) PHREAKS at 23:54 on 28-Nov-80.<br>Subject: HELP?</p>" +
+				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n54/mode/1up\">Message number 4311 from Len Freedman</a><br>To RICK BYRNE at 11:02 on 02-Dec-80.<br>Subject: PROG. TRADING</p>" +
+				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n76/mode/1up\">Message number 4496 from Susan Thunder</a><br>To Keith Johnson at 03:39 on 07-Dec-80.<br><small>I HAVE BEEN A PHONE PHREAK FOR MANY YEARS AND I WOULD LOVE TO TRADE INFO WITH YOU!!</small></p>" +
+				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n185/mode/1up\">Message number 7303 from DAVID LEE</a><br>To APPLE USERS at 16:51 on 15-Mar-81.<br>Subject: APPLE SOFTWARE</p>" +
+				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n197/mode/1up\">Message number 7434 from WALTER HORAT</a><br>To DAVID LEE at 22:22 on 18-Mar-81.<br>Subject: SOFTWARE</p>" +
+				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n259/mode/1up\">Message number 7853 from Sara Moore</a><br>To DAVID LEE at 05:08 on 02-Apr-81.<br>Subject: SOFTWARE</p>" +
+				"<ul><li><a href=\"http://www.flyingsnail.com/missingbbs/login-8BBS.html\">A login capture from 3-Feb-1981.</a></li>" +
+				"<li><a href=\"http://www.flyingsnail.com/missingbbs/CHAT-8BBS.html\">Realtime text chat with the system operator.</a></li>" +
+				"<li><a href=\"http://www.flyingsnail.com/missingbbs/6116.html\">The ridiculous costs of calling from long-distance.</a></li></ul>",
 		},
 		{
 			Title: "The first operating system for x86", Year: 1980, Month: 8,
