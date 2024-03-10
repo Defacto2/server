@@ -13,10 +13,10 @@
   aria-labelledby="assetEditorModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
-      {{/*  Modify the file assets for ID  */}}
+      {{/*  Modify the assets for ID  */}}
       <div class="modal-header">
         <i class="fal fa-file-alt {{ $faSize }}" title="Modify the record"></i> &nbsp;
-        <h1 class="modal-title fs-5" id="assetEditorModalLabel">Modify the file assets for ID {{index . "recID"}}</h1><br>
+        <h1 class="modal-title fs-5" id="assetEditorModalLabel">Modify the assets for ID {{index . "recID"}}</h1><br>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -149,11 +149,11 @@
 {{- /*  Artifact metadata editor  */}}
 <div class="modal fade" id="fileEditorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="fileEditorModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-      {{/*  Modify the file metadata for ID...  */}}
+      {{/*  Modify the metadata for ID...  */}}
       <div class="modal-content">
         <div class="modal-header">
           <i class="fal fa-file-alt {{ $faSize }}" title="Modify the record"></i> &nbsp;
-          <h1 class="modal-title fs-5" id="fileEditorModalLabel">Modify the file metadata for ID {{index . "recID"}}</h1><br>
+          <h1 class="modal-title fs-5" id="fileEditorModalLabel">Modify the metadata for ID {{index . "recID"}}</h1><br>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body container">

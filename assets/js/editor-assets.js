@@ -21,7 +21,7 @@
     return;
   }
 
-  // Modify the file metadata, delete images asset
+  // Modify the metadata, delete images asset
   document
     .getElementById(`edBtnImgs`)
     .addEventListener(`click`, function (event) {
@@ -56,7 +56,7 @@
   /// ==============
   /// TODO: below
 
-  // Modify the file assets, file artifact preview upload
+  // Modify the assets, file artifact preview upload
   const previewUp = document.getElementById(`edUploadPreview`);
   const previewUpB = document.getElementById(`edUploadPreviewBtn`);
   const previewUpR = document.getElementById(`edUploadPreviewReset`);
@@ -82,7 +82,7 @@
     previewUp.classList.remove(ok);
   });
 
-  // Modify the file assets, file artifact replacement upload
+  // Modify the assets, file replacement upload
   const artifact = document.getElementById(`edUploadArtifact`);
   const artifactB = document.getElementById(`edUploadArtifactBtn`);
   const artifactR = document.getElementById(`edUploadArtifactReset`);

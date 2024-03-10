@@ -22,7 +22,7 @@
     return;
   }
 
-  // Modify the file metadata, File artifact is online and public
+  // Modify the metadata, Artifact is online and public
   const elm0 = document.getElementById(`recordOnline`);
   const label0 = document.getElementById(`recordOnlineLabel`);
   if (elm0 == null) {
@@ -65,7 +65,7 @@
     });
   }
 
-  // Modify the file metadata, Title
+  // Modify the metadata, Title
   const elm1 = document.getElementById(`recordTitle`);
   if (elm1 == null) {
     console.info(`the record title is not present`);
@@ -174,7 +174,7 @@
     });
   }
 
-  // Modify the file metadata, use last modification button
+  // Modify the metadata, use last modification button
   const elm3 = document.getElementById(`recordLMBtn`);
   if (elm3 == null) {
     console.info(`the last modification button is not present`);
@@ -197,7 +197,7 @@
     });
   }
 
-  // Modify the file metadata, Year, month, day of release, save button
+  // Modify the metadata, Year, month, day of release, save button
   const saveYMD = document.getElementById(`recordYMDSave`);
   if (saveYMD == null) {
     console.info(`the record ymd save button is not present`);
@@ -233,7 +233,7 @@
     });
   }
 
-  // Modify the file metadata, Year, month, day of release, reset button
+  // Modify the metadata, Year, month, day of release, reset button
   const elm4 = document.getElementById(`recordYMDReset`);
   if (elm4 == null || saveYMD == null) {
     console.info(`the record ymd reset button is not present or usable`);
@@ -255,7 +255,7 @@
     });
   }
 
-  // Modify the file metadata, Year, month, day of release
+  // Modify the metadata, Year, month, day of release
   const year = document.getElementById(`recordYear`);
   if (year == null || saveYMD == null) {
     console.info(`the record year is not present or usable`);
@@ -606,7 +606,7 @@
     filename.classList.remove(err);
   });
 
-  // Modify the file metadata, Platform
+  // Modify the metadata, Platform
   const platform = document.getElementById(`recordPlatform`);
   platform.addEventListener(`change`, function (event) {
     platform.classList.remove(err);
@@ -643,7 +643,7 @@
     platformTagInfo(value, tag.value);
   }
 
-  // Modify the file metadata, Tag
+  // Modify the metadata, Tag
   const tag = document.getElementById(`recordTag`);
   tag.addEventListener(`change`, function (event) {
     const value = event.target.value;
@@ -712,7 +712,7 @@
       });
   }
 
-  // Modify the file metadata, Reset Platform and Tag
+  // Modify the metadata, Reset Platform and Tag
   document
     .getElementById(`recTagsReset`)
     .addEventListener(`click`, function () {

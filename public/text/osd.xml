@@ -2,7 +2,7 @@
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/" 
                        xmlns:moz="http://www.mozilla.org/2006/browser/search/">
   <ShortName>Defacto2</ShortName>
-  <Description>Search Defacto2 for historical articles, files and digital artefacts on The Scene, underground and online.</Description>
+  <Description>Search Defacto2 for historical articles, files and digital artifacts on The Scene, underground and online.</Description>
   <InputEncoding>UTF-8</InputEncoding>
   <Image height="192" width="192" type="image/png">https://defacto2.net/image/layout/favicon-192x192.png</Image>
   <Image height="16" width="16" type="image/x-icon">https://defacto2.net/favicon.ico</Image>

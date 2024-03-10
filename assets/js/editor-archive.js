@@ -23,7 +23,7 @@
     return;
   }
 
-  // Modify the file assets, readme in archive
+  // Modify the assets, readme in archive
   const readmeCP = document.getElementById(`edCopyMe`);
   if (readmeCP == null) {
     console.info(
@@ -71,7 +71,7 @@
         return;
       });
   });
-  // Modify the file assets, readme in archive reset
+  // Modify the assets, readme in archive reset
   document
     .getElementById(`edCopyMeReset`)
     .addEventListener(`click`, function () {
@@ -83,7 +83,7 @@
       document.getElementById(`edCopyMeList`).classList.remove(err);
     });
 
-  // Modify the file assets, record readme hide/show
+  // Modify the assets, record readme hide/show
   const readmeHide = document.getElementById(`edHideMe`);
   if (readmeHide.checked == true) {
     document.getElementById(`edHideMeLabel`).classList.add(danger);
@@ -119,7 +119,7 @@
       });
   });
 
-  // Modify the file assets, preview in archive
+  // Modify the assets, preview in archive
   const previewValue = document.getElementById(`edCopyPreview`);
   const previewList = document.getElementById(`edCopyPreviewList`);
   const previewB = document.getElementById(`edCopyPreviewBtn`);
@@ -167,7 +167,7 @@
         return;
       });
   });
-  // Modify the file assets, preview in archive reset
+  // Modify the assets, preview in archive reset
   document
     .getElementById(`edCopyPreviewReset`)
     .addEventListener(`click`, function () {
@@ -178,7 +178,7 @@
       previewList.classList.remove(err);
     });
 
-  // Modify the file assets, ansilove preview in archive
+  // Modify the assets, ansilove preview in archive
   const ansiloveValue = document.getElementById(`edAnsiLove`);
   const ansiloveList = document.getElementById(`edAnsiLoveList`);
   const ansiloveB = document.getElementById(`edAnsiLoveBtn`);
@@ -224,7 +224,7 @@
         return;
       });
   });
-  // Modify the file assets, ansilove preview in archive reset
+  // Modify the assets, ansilove preview in archive reset
   document
     .getElementById(`edAnsiLoveReset`)
     .addEventListener(`click`, function () {
@@ -235,7 +235,7 @@
       ansiloveList.classList.remove(err);
     });
 
-  // Modify the file metadata, delete readme asset
+  // Modify the metadata, delete readme asset
   const readmeDel = document.getElementById(`edBtnRead`)
   readmeDel.disabled = false;
   readmeDel.addEventListener(`click`, function () {
