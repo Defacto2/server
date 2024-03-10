@@ -133,6 +133,18 @@ func Interviewees() Groups {
 			},
 		},
 		{
+			Name: "Public Enemy",
+			Link: "public-enemy",
+			Interviews: Interviews{
+				{
+					Scener: "Minor Threat",
+					Year:   1994, Month: 9,
+					Content: "\"This guy is a real Renaissance Man, hacker, programmer, burglar, convict, star of stage and screen..\"",
+					Link:    "http://phrack.org/issues/46/5.html#article",
+				},
+			},
+		},
+		{
 			Name: "Razor 1911",
 			Link: "razor-1911",
 			Interviews: Interviews{
