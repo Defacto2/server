@@ -254,9 +254,12 @@ func (dir Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) { 
 		return data, nil
 	}
 
+	// check if the file is a zip archive.
+	// if unknown "application/octet-stream" is returned,
+	// but this can be a false positives with other legacy text files.
 	contentType := http.DetectContentType(b)
 	switch contentType {
-	case "archive/zip", "application/zip", "application/octet-stream":
+	case "archive/zip", "application/zip":
 		return data, nil
 	}
 
