@@ -76,7 +76,7 @@ func DownloadB(i any) template.HTML {
 		if !val.Valid {
 			return "(n/a)"
 		}
-		s = aboutByteCount(val.Int64)
+		s = artifactByteCount(val.Int64)
 	default:
 		return template.HTML(fmt.Sprintf("%sDownloadB: %s", typeErr, reflect.TypeOf(i).String()))
 	}
@@ -470,8 +470,8 @@ func (web Web) tmpl(name filename) *template.Template {
 	files = uploaderTmpls(config.ReadMode, files...)
 	// append any additional and embedded templates
 	switch name {
-	case "about.tmpl":
-		files = aboutTmpls(config.ReadMode, files...)
+	case "artifact.tmpl":
+		files = artifactTmpls(config.ReadMode, files...)
 	case "file.tmpl":
 		files = append(files, GlobTo("file_expand.tmpl"))
 	case "websites.tmpl":
@@ -484,21 +484,21 @@ func (web Web) tmpl(name filename) *template.Template {
 
 type filename string // filename is the name of the template file in the view directory.
 
-func aboutTmpls(lock bool, files ...string) []string {
+func artifactTmpls(lock bool, files ...string) []string {
 	files = append(files,
-		GlobTo("about_table.tmpl"),
-		GlobTo("about_jsdos.tmpl"),
-		GlobTo("about_editor_archive.tmpl"))
+		GlobTo("artifact_table.tmpl"),
+		GlobTo("artifact_jsdos.tmpl"),
+		GlobTo("artifact_editor_archive.tmpl"))
 	if lock {
 		return append(files,
-			GlobTo("about_editor_null.tmpl"),
-			GlobTo("about_editor_table_null.tmpl"),
-			GlobTo("about_table_switch_null.tmpl"))
+			GlobTo("artifact_editor_null.tmpl"),
+			GlobTo("artifact_editor_table_null.tmpl"),
+			GlobTo("artifact_table_switch_null.tmpl"))
 	}
 	return append(files,
-		GlobTo("about_editor.tmpl"),
-		GlobTo("about_editor_table.tmpl"),
-		GlobTo("about_table_switch.tmpl"))
+		GlobTo("artifact_editor.tmpl"),
+		GlobTo("artifact_editor_table.tmpl"),
+		GlobTo("artifact_table_switch.tmpl"))
 }
 
 // img returns a HTML image tag.
@@ -511,7 +511,7 @@ func templates() map[string]filename {
 	const releaser, scener = "releaser.tmpl", "scener.tmpl"
 	return map[string]filename{
 		"index":       "index.tmpl",
-		"about":       "about.tmpl",
+		"artifact":    "artifact.tmpl",
 		"bbs":         releaser,
 		"coder":       scener,
 		"file":        "file.tmpl",

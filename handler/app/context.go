@@ -52,8 +52,8 @@ const (
 	txt     = ".txt" // txt file extension
 )
 
-// AboutErr renders the about file error page for the About files links.
-func AboutErr(logr *zap.SugaredLogger, c echo.Context, id string) error {
+// ArtifactErr renders the error page for the artifact links.
+func ArtifactErr(logr *zap.SugaredLogger, c echo.Context, id string) error {
 	const name = "status"
 	if logr == nil {
 		return InternalErr(logr, c, name, ErrZap)
@@ -62,12 +62,12 @@ func AboutErr(logr *zap.SugaredLogger, c echo.Context, id string) error {
 		return InternalErr(logr, c, name, ErrCxt)
 	}
 	data := empty(c)
-	data["title"] = fmt.Sprintf("%d error, file about page not found", http.StatusNotFound)
+	data["title"] = fmt.Sprintf("%d error, artifact page not found", http.StatusNotFound)
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
 	data["code"] = http.StatusNotFound
-	data["logo"] = "About file not found"
-	data["alert"] = fmt.Sprintf("About file %q cannot be found", strings.ToLower(id))
-	data["probl"] = "The about file page does not exist, there is probably a typo with the URL."
+	data["logo"] = "Artifact not found"
+	data["alert"] = fmt.Sprintf("Artifact %q cannot be found", strings.ToLower(id))
+	data["probl"] = "The artifact page does not exist, there is probably a typo with the URL."
 	data["uriOkay"] = "f/"
 	data["uriErr"] = id
 	err := c.Render(http.StatusNotFound, name, data)

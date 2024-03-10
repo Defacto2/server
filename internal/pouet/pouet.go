@@ -242,7 +242,7 @@ func (p *Pouet) Uploader(id int) error {
 
 // Votes retrieves the production voting data from the Pouet API.
 // The id value is the Pouet production ID and must be greater than 0.
-// The data is intended for the About file page, Pouët reviews section.
+// The data is intended for the Artifact page, Pouët reviews section.
 func (v *Votes) Votes(id int) error {
 	if id < firstID {
 		return fmt.Errorf("%w: %d", ErrID, id)

@@ -286,7 +286,7 @@ func LinkDownload(id any, uri string) template.HTML {
 	}
 	if uri != "" {
 		return template.HTML(`<s class="card-link text-warning-emphasis" data-bs-toggle="tooltip" ` +
-			`data-bs-title="Use the About link to access this file download">Download</s>`)
+			`data-bs-title="Use the link to access this file download">Download</s>`)
 	}
 	return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">Download</a>`, s))
 }
@@ -315,7 +315,7 @@ func LinkPage(id any) template.HTML {
 	if err != nil {
 		return template.HTML(err.Error())
 	}
-	return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">About</a>`, s))
+	return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">Artifact</a>`, s))
 }
 
 // LinkPreview creates a URL to link to the file record in tab, to use as a preview.
@@ -1309,7 +1309,7 @@ type Form struct {
 	Month    int16  `query:"month"`    // Month is the month of the release.
 	Day      int16  `query:"day"`      // Day is the day of the release.
 	Online   bool   `query:"online"`   // Online is the record online and public toggle.
-	Readme   bool   `query:"readme"`   // Readme hides the readme textfile from the about page.
+	Readme   bool   `query:"readme"`   // Readme hides the readme textfile from the artifact page.
 }
 
 const (

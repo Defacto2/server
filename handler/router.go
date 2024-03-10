@@ -140,7 +140,7 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 	})
 	s.GET("/f/:id", func(x echo.Context) error {
 		dir.URI = x.Param("id")
-		return dir.About(logr, x, c.Import.ReadMode)
+		return dir.Artifact(logr, x, c.Import.ReadMode)
 	})
 	s.GET("/file/stats", func(x echo.Context) error {
 		return app.File(logr, x, true)
@@ -418,7 +418,7 @@ func (c Configuration) Moved(e *echo.Echo) (*echo.Echo, error) {
 		return x.Redirect(code, "/")
 	})
 	nginx.GET("/site-info.cfm", func(x echo.Context) error {
-		return x.Redirect(code, "/") // there's no dedicated about page
+		return x.Redirect(code, "/") // there's no dedicated about site page
 	})
 	// 2020 website redirects
 	retired := e.Group("")

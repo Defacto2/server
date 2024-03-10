@@ -1,5 +1,5 @@
-{{- /*  about_table.tmpl  */}}
-{{- define "aboutTable" -}}
+{{- /*  artifact_table.tmpl  */}}
+{{- define "artifactTable" -}}
 {{- $writers := trimSpace (index . "writers") }}
 {{- $artists := trimSpace (index . "artists") }}
 {{- $programmers := trimSpace (index . "programmers") }}
@@ -41,7 +41,7 @@
                         {{- /*  Switch to assets and Close button  */}}
                         <div class="modal-footer row g-3 mt-1">
                             <div class="col-md text-center">
-                                {{- template "aboutTableSwitch" . }}
+                                {{- template "artifactTableSwitch" . }}
                                 <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>
@@ -51,7 +51,7 @@
 {{- end}}
 {{- /*  About the file download link  */}}
             <div class="d-grid gap-2 d-sm-block mx-auto py-3 text-center">
-            {{- template "aboutTableEditor" . }}
+            {{- template "artifactTableEditor" . }}
             {{- if eq (index . "alertURL") "" }}
                 {{- /*  standard download  */}}
                 <a class="btn btn-success btn-lg m-1" href="/d/{{index . "download"}}" rel="nofollow" role="button">Download &nbsp; {{index . "filesize"}}</a>
@@ -88,7 +88,7 @@
                 <a class="d-inline btn btn-outline-secondary btn m-1" href="{{- index . "linkpreview" }}" role="button" data-bs-toggle="tooltip" data-bs-title="{{index . "linkpreviewTip"}}">preview</a>
             {{- end}}
             </div>
-{{- /*  Commant about the file  */}}
+{{- /*  Comment about the file  */}}
             {{- if ne $comment ""}}
             <div class="container p-2 text-start">
                 <q>{{index . "comment"}}</q>

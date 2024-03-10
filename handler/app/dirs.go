@@ -35,7 +35,7 @@ import (
 	"golang.org/x/text/encoding/charmap"
 )
 
-// Dirs contains the directories used by the about pages.
+// Dirs contains the directories used by the artifact pages.
 type Dirs struct {
 	Download  string // path to the artifact download directory
 	Preview   string // path to the preview and screenshot directory
@@ -50,9 +50,9 @@ const (
 	ansis                // extract ansilove compatible text
 )
 
-// About is the handler for the about page of the file record.
-func (dir Dirs) About(logr *zap.SugaredLogger, c echo.Context, readonly bool) error { //nolint:funlen
-	const name = "about"
+// Artifact is the handler for the of the file record.
+func (dir Dirs) Artifact(logr *zap.SugaredLogger, c echo.Context, readonly bool) error { //nolint:funlen
+	const name = "artifact"
 	if logr == nil {
 		return InternalErr(logr, c, name, ErrZap)
 	}
@@ -65,7 +65,7 @@ func (dir Dirs) About(logr *zap.SugaredLogger, c echo.Context, readonly bool) er
 	}
 	if err != nil {
 		if errors.Is(err, model.ErrID) {
-			return AboutErr(logr, c, dir.URI)
+			return ArtifactErr(logr, c, dir.URI)
 		}
 		return DatabaseErr(logr, c, "f/"+dir.URI, err)
 	}
@@ -73,7 +73,7 @@ func (dir Dirs) About(logr *zap.SugaredLogger, c echo.Context, readonly bool) er
 	uuid := res.UUID.String
 	abs := filepath.Join(dir.Download, uuid)
 	data := empty(c)
-	// about editor
+	// artifact editor
 	if !readonly {
 		data["readOnly"] = false
 		data["recID"] = res.ID
@@ -86,10 +86,10 @@ func (dir Dirs) About(logr *zap.SugaredLogger, c echo.Context, readonly bool) er
 		data["recLastMod"] = res.FileLastModified.IsZero()
 		data["recLastModValue"] = res.FileLastModified.Time.Format("2006-1-2") // value should not have no leading zeros
 		data["recAbsDownload"] = abs
-		data["recKind"] = aboutMagic(abs)
-		data["recStatMod"] = aboutStat(abs)[0]
-		data["recStatSize"] = aboutStat(abs)[1]
-		data["recAssets"] = dir.aboutAssets(uuid)
+		data["recKind"] = artifactMagic(abs)
+		data["recStatMod"] = artifactStat(abs)[0]
+		data["recStatSize"] = artifactStat(abs)[1]
+		data["recAssets"] = dir.artifactAssets(uuid)
 		data["recNoReadme"] = res.RetrotxtNoReadme.Int16 != 0
 		data["recReadmeList"] = OptionsReadme(res.FileZipContent.String)
 		data["recPreviewList"] = OptionsPreview(res.FileZipContent.String)
@@ -103,16 +103,16 @@ func (dir Dirs) About(logr *zap.SugaredLogger, c echo.Context, readonly bool) er
 	data["uuid"] = uuid
 	data["download"] = helper.ObfuscateID(res.ID)
 	data["title"] = fname
-	data["description"] = aboutDesc(res)
-	data["h1"] = aboutIssue(res)
-	data["lead"] = aboutLead(res)
+	data["description"] = artifactDesc(res)
+	data["h1"] = artifactIssue(res)
+	data["lead"] = artifactLead(res)
 	data["comment"] = res.Comment.String
 	// file metadata
 	data["filename"] = fname
-	data["filesize"] = aboutByteCount(res.Filesize)
+	data["filesize"] = artifactByteCount(res.Filesize)
 	data["filebyte"] = res.Filesize
-	data["lastmodified"] = aboutLM(res)
-	data["lastmodifiedAgo"] = aboutModAgo(res)
+	data["lastmodified"] = artifactLM(res)
+	data["lastmodifiedAgo"] = artifactModAgo(res)
 	data["checksum"] = strings.TrimSpace(res.FileIntegrityStrong.String)
 	data["magic"] = res.FileMagicType.String
 	data["releasers"] = string(LinkRels(res.GroupBrandBy, res.GroupBrandFor))
@@ -126,17 +126,17 @@ func (dir Dirs) About(logr *zap.SugaredLogger, c echo.Context, readonly bool) er
 	data["programmers"] = res.CreditProgram.String
 	data["musicians"] = res.CreditAudio.String
 	// links to other records and sites
-	data["listLinks"] = aboutLinks(res)
+	data["listLinks"] = artifactLinks(res)
 	data["listReleases"] = res.ListRelations.String
 	data["listWebsites"] = res.ListLinks.String
-	data["demozoo"] = aboutID(res.WebIDDemozoo.Int64)
-	data["pouet"] = aboutID(res.WebIDPouet.Int64)
+	data["demozoo"] = artifactID(res.WebIDDemozoo.Int64)
+	data["pouet"] = artifactID(res.WebIDPouet.Int64)
 	data["sixteenColors"] = res.WebID16colors.String
 	data["youtube"] = res.WebIDYoutube.String
 	data["github"] = res.WebIDGithub.String
 	// file archive content
-	data["jsdos"] = aboutJSDos(res)
-	ctt := aboutCtt(res)
+	data["jsdos"] = artifactJSDos(res)
+	ctt := artifactCtt(res)
 	data["content"] = ctt
 	data["contentDesc"] = ""
 	if len(ctt) == 1 {
@@ -167,7 +167,7 @@ func (dir Dirs) About(logr *zap.SugaredLogger, c echo.Context, readonly bool) er
 		u := Updated(res.Updatedat.Time, "Updated")
 		data["filentry"] = u
 	}
-	d, err := dir.aboutReadme(res)
+	d, err := dir.artifactReadme(res)
 	if err != nil {
 		return InternalErr(logr, c, name, err)
 	}
@@ -218,8 +218,8 @@ func (dir Dirs) PreviewPost(logr *zap.SugaredLogger, c echo.Context) error {
 	return dir.extractor(logr, c, imgs)
 }
 
-// aboutReadme returns the readme data for the file record.
-func (dir Dirs) aboutReadme(res *models.File) (map[string]interface{}, error) { //nolint:funlen
+// artifactReadme returns the readme data for the file record.
+func (dir Dirs) artifactReadme(res *models.File) (map[string]interface{}, error) { //nolint:funlen
 	data := map[string]interface{}{}
 	if res.RetrotxtNoReadme.Int16 != 0 {
 		return data, nil
@@ -367,19 +367,19 @@ func (dir Dirs) extractor(logr *zap.SugaredLogger, c echo.Context, p extract) er
 	return c.JSON(http.StatusOK, r)
 }
 
-// aboutByteCount returns the file size for the file record.
-func aboutByteCount(i int64) string {
+// artifactByteCount returns the file size for the file record.
+func artifactByteCount(i int64) string {
 	if i == 0 {
 		return "(n/a)"
 	}
 	return humanize.Bytes(uint64(i))
 }
 
-// aboutDesc returns the description for the file record.
-func aboutDesc(res *models.File) string {
+// artifactDesc returns the description for the file record.
+func artifactDesc(res *models.File) string {
 	s := res.Filename.String
 	if res.RecordTitle.String != "" {
-		s = aboutIssue(res)
+		s = artifactIssue(res)
 	}
 	r1 := releaser.Clean(strings.ToLower(res.GroupBrandBy.String))
 	r2 := releaser.Clean(strings.ToLower(res.GroupBrandFor.String))
@@ -400,9 +400,9 @@ func aboutDesc(res *models.File) string {
 	return s
 }
 
-// aboutIssue returns the title of the file,
+// artifactIssue returns the title of the file,
 // unless the file is a magazine issue, in which case it returns the issue number.
-func aboutIssue(res *models.File) string {
+func artifactIssue(res *models.File) string {
 	sect := strings.TrimSpace(strings.ToLower(res.Section.String))
 	if sect != "magazine" {
 		return res.RecordTitle.String
@@ -414,16 +414,16 @@ func aboutIssue(res *models.File) string {
 	return s
 }
 
-// aboutLead returns the lead for the file record which is the filename and releasers.
-func aboutLead(res *models.File) string {
+// artifactLead returns the lead for the file record which is the filename and releasers.
+func artifactLead(res *models.File) string {
 	fname := res.Filename.String
 	span := fmt.Sprintf("<span class=\"font-monospace fs-6 fw-light\">%s</span> ", fname)
 	rels := string(LinkRels(res.GroupBrandBy, res.GroupBrandFor))
 	return fmt.Sprintf("%s<br>%s", rels, span)
 }
 
-// aboutLM returns the last modified date for the file record.
-func aboutLM(res *models.File) string {
+// artifactLM returns the last modified date for the file record.
+func artifactLM(res *models.File) string {
 	const none = "no timestamp"
 	if !res.FileLastModified.Valid {
 		return none
@@ -441,8 +441,8 @@ func aboutLM(res *models.File) string {
 	return lm
 }
 
-// aboutMagic returns the MIME type for the file record.
-func aboutMagic(name string) string {
+// artifactMagic returns the MIME type for the file record.
+func artifactMagic(name string) string {
 	file, err := os.Open(name)
 	if err != nil {
 		return err.Error()
@@ -474,8 +474,8 @@ func aboutMagic(name string) string {
 	return http.DetectContentType(head)
 }
 
-// aboutModAgo returns the last modified date in a human readable format.
-func aboutModAgo(res *models.File) string {
+// artifactModAgo returns the last modified date in a human readable format.
+func artifactModAgo(res *models.File) string {
 	if !res.FileLastModified.Valid {
 		return ""
 	}
@@ -488,8 +488,8 @@ func aboutModAgo(res *models.File) string {
 	return Updated(res.FileLastModified.Time, "Modified")
 }
 
-// aboutCtt returns the file archive content for the file record.
-func aboutCtt(res *models.File) []string {
+// artifactCtt returns the file archive content for the file record.
+func artifactCtt(res *models.File) []string {
 	conts := strings.Split(res.FileZipContent.String, "\n")
 	conts = slices.DeleteFunc(conts, func(s string) bool {
 		return strings.TrimSpace(s) == "" // delete empty lines
@@ -498,8 +498,8 @@ func aboutCtt(res *models.File) []string {
 	return conts
 }
 
-// aboutLinks returns the list of links for the file record.
-func aboutLinks(res *models.File) template.HTML {
+// artifactLinks returns the list of links for the file record.
+func artifactLinks(res *models.File) template.HTML {
 	s := res.ListLinks.String
 	if s == "" {
 		return ""
@@ -522,8 +522,8 @@ func aboutLinks(res *models.File) template.HTML {
 	return template.HTML(rows) //nolint:gosec
 }
 
-// aboutJSDos returns true if the file record is a known, MS-DOS executable.
-func aboutJSDos(res *models.File) bool {
+// artifactJSDos returns true if the file record is a known, MS-DOS executable.
+func artifactJSDos(res *models.File) bool {
 	if strings.TrimSpace(strings.ToLower(res.Platform.String)) != "dos" {
 		return false
 	}
@@ -539,16 +539,16 @@ func aboutJSDos(res *models.File) bool {
 	}
 }
 
-// aboutID returns the record ID as a string.
-func aboutID(id int64) string {
+// artifactID returns the record ID as a string.
+func artifactID(id int64) string {
 	if id == 0 {
 		return ""
 	}
 	return strconv.FormatInt(id, 10)
 }
 
-// aboutStat returns the file last modified date and formatted file size.
-func aboutStat(name string) [2]string {
+// artifactStat returns the file last modified date and formatted file size.
+func artifactStat(name string) [2]string {
 	stat, err := os.Stat(name)
 	if err != nil {
 		return [2]string{err.Error(), err.Error()}
@@ -562,9 +562,9 @@ func aboutStat(name string) [2]string {
 	}
 }
 
-// aboutAssets returns a list of downloads and image assets belonging to the file record.
+// artifactAssets returns a list of downloads and image assets belonging to the file record.
 // any errors are appended to the list.
-func (dir Dirs) aboutAssets(uuid string) map[string]string {
+func (dir Dirs) artifactAssets(uuid string) map[string]string {
 	matches := map[string]string{}
 
 	downloads, err := os.ReadDir(dir.Download)
@@ -607,7 +607,7 @@ func (dir Dirs) aboutAssets(uuid string) map[string]string {
 			if s == ".WEBP" {
 				s = ".WebP"
 			}
-			matches[s+" preview "] = aboutImgInfo(filepath.Join(dir.Preview, file.Name()))
+			matches[s+" preview "] = artifactImgInfo(filepath.Join(dir.Preview, file.Name()))
 		}
 	}
 	for _, file := range thumbs {
@@ -616,15 +616,15 @@ func (dir Dirs) aboutAssets(uuid string) map[string]string {
 			if s == ".WEBP" {
 				s = ".WebP"
 			}
-			matches[s+" thumb"] = aboutImgInfo(filepath.Join(dir.Thumbnail, file.Name()))
+			matches[s+" thumb"] = artifactImgInfo(filepath.Join(dir.Thumbnail, file.Name()))
 		}
 	}
 
 	return matches
 }
 
-// aboutImgInfo returns the image file size and dimensions.
-func aboutImgInfo(name string) string {
+// artifactImgInfo returns the image file size and dimensions.
+func artifactImgInfo(name string) string {
 	switch filepath.Ext(strings.ToLower(name)) {
 	case ".jpg", ".jpeg", ".gif", ".png", ".webp":
 	default:

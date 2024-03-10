@@ -1,4 +1,6 @@
-{{- /* about.tmpl */}}
+{{- /* 
+    artifact.tmpl ~ Display the details of a file artifact from the database files table. 
+*/}}
 {{- define "content" }}
 {{- $colClass := "col-12 col-md-6"}}
 <div class="container">
@@ -7,7 +9,7 @@
             {{- /*  Lead including published, platform and section  */}}
             <h4 class="lead">{{index . "published"}}, {{brief (index . "platform") (index . "section")}}</h4>
             {{- /*  Table of details  */}}
-            {{- template "aboutTable" . }}
+            {{- template "artifactTable" . }}
         </div>
         {{- if not (index . "noScreenshot")}}
         <div class="{{$colClass}}">
@@ -70,6 +72,6 @@
         {{- end}}
     </div>
 </div>
-{{- template "aboutJSDOS" . }}
-{{- template "aboutEditor" . }}
+{{- template "artifactJSDOS" . }}
+{{- template "artifactEditor" . }}
 {{- end}}

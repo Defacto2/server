@@ -1,5 +1,5 @@
-{{- /* about_editor.tmpl */}}
-{{- define "aboutEditor" }}
+{{- /* artifact_editor.tmpl */}}
+{{- define "artifactEditor" }}
 {{- if eq false (index . "editor")}}
 {{- /* render nothing in the layout   */}}
 {{- else}}
@@ -80,8 +80,8 @@
             <tr><td colspan="2">{{/*  empty placeholder  */}}</td></tr>
           </tbody>
         </table>
-        {{/*  /view/app/about_editor_archive.tmpl  */}}
-        {{ template "aboutEditorArchive" . }}
+        {{/*  /view/app/artifact_editor_archive.tmpl  */}}
+        {{ template "artifactEditorArchive" . }}
         <hr class="m-0 mb-3 mt-3">
         {{- /*  Preview from upload  */}}
         <div class="mb-3 row">
@@ -190,6 +190,9 @@
                 <span id="recordReleasersMax">A maximum of two releasers</span>, 
                   example: <code class="">RAZOR 1911 + TITAN</code><code class="d-none">CONSOLE NEWS + TITAN</code>
                   <span class=""><br>A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q>,<br>example: <code>DARK DOMAIN BBS</code></span>
+              </div>
+              <div class="form-text">
+                <span>There are 2 other artifacts for XXX and 3 for XXX.</span>
               </div>
             </div>
           </div>
