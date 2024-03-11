@@ -1,7 +1,106 @@
 package app
 
-// Package file milestone.go contains the milestones for The Scene,
-// that are used by the home page.
+// What ever happened to real bulletin-board systems?
+// http://www.textfiles.com/100/bbsdeath.pro
+// http://www.textfiles.com/100/copyprot.pro
+// http://www.textfiles.com/100/krckwczt.app
+
+// *----------------------------------*
+// /      APPLESOURCE BBS LIST        \
+// \      *-*-*-*-*-*-*-*-*-*-        /
+// *----------------------------------*
+// =                                  =
+// = Applesource............ 722-4871 =
+// = The Board of 'ED'.......369-5972 =
+// = RCP/M of Somerville.....526-5988 =
+// = Stargazer...............369-5450 =
+// = Holiday Inn Cambodia....722-2711 =
+// = Easy Access.............526-6044 =
+// = C.I.E.E. ...............725-5028 =
+// = Pirate's Paradise.......231-1655 =
+// = The Two Towers..........463-7941 =
+// = ??? BBS.................229-5180 =
+// = Board at the Edge of Reality     =
+// = ^^^.....................766-9643 =
+// = The Mourge..............376-4462 =
+// = The Bank BBS............376-1587 =
+// = Camelot BBS.............341-7817 =
+// = The Rain Forest.........721-7914 =
+// = RCP/M of Rutgers Univ...932-3879 =
+// = Rutgers PMS.............932-3887 =
+// = Colorama................572-0617 =
+// = The Spectrum............494-8209 =
+// = Castle Westerburg.......238-9118 =
+// =                                  =
+// *----------------------------------*
+// _
+// http://www.textfiles.com/bbs/BBSLISTS/bbslist.txt.txt
+
+// The Mall.....................526-0420
+// Curcuit Board................369-8319
+// The Two Towers...............463-7941
+// The Time Machine.............572-5546
+// Zeplin BBS...................526-2524
+// Paradox......................725-0354
+// Stargazer....................369-5450
+// Colorama.....................572-0617
+// 64 Depot.....................563-1867
+// THE ZOO......................722-4871
+// http://www.textfiles.com/bbs/BBSLISTS/bbss.txt
+
+// *DAMIEN THE DREADED*
+// *=-THE UNTOUCHABLES-=*
+// http://www.textfiles.com/messages/compcond.txt
+
+// http://www.textfiles.com/messages/compconna.txt
+// 1982
+// --------------------------
+// - BULLETIN BOARD SYSTEMS -
+// --------------------------
+
+// PIRATE SYSTEMS
+// ------ -------
+
+// PIRATES COVE...............516-698-4008
+// PIRATES TREK...............914-634-1268
+// PIRATES BAY................415-775-2384
+// PIRATES SHIP...............312-935-2933
+// PIRATES LODGE..............516-627-9048
+// PIRATES CHEST..............617-891-1349
+// HARPOS BAR & GRILL.........618-254-6074
+// GALAXY ONE.................215-244-0864
+// SEVEN SEAS HOTEL...........516-487-1212
+// TREASURE ISLAND............617-444-6821
+// TREND NET..................313-775-1649
+// TRADERS INN................618-656-3321
+// PIRATES PARADISE...........512-477-2672
+// GPI CENTRAL ONLINE.........213-556-0433
+// --> UNKNOWN OPERATING PIRATE BOARDS <--
+// 212-580-9688
+// 313-663-0333
+// 907-344-8558
+// 313-547-7903
+
+// PHREAK SYSTEMS
+// ------ -------
+// OHIO SCIENTIFIC-OSUNY......914-725-4060
+// R A C S  I.................516-482-8491
+// R A C S  III...............914-942-2638
+// R A C S  IV................212-767-9881
+// FANTASY FORUM..............213-827-9175
+
+// BBSs
+// ~~~
+// Sherwood Forest II and III, OSUNY -- I just thought they were the greatest
+//                                      systems ever.
+// Pirate's Bay -- Run by Mr. KRACK-MAN, who considered himself the greatest Apple
+//                 pirate that ever lived.  It's still up, for all I know.
+// The 2600 Magazine BBS -- Run on a piece of Apple BBS software called
+//                          TBBS.  It is there that I met David Flory.
+// The Police Station -- Remember THAT one?
+// The Matrix, IDI, Lunatic Labs -- Three great Bay Area Forum-PC boards.
+// Catch-22 -- 25 Users, No Waiting!
+// http://phrack.org/issues/33/2.html
 
 const notable = "Notable group foundings,"
 
@@ -215,30 +314,47 @@ func Collection() Milestones {
 				"Microsoft didn't invent the language, but its implementation was considered the gold standard.",
 		},
 		{
+			Title: "The early underground", Year: 1979, Highlight: true,
+			Lead: "BBSes and the Apple II",
+			Content: "<p>Before the Internet, Computerized Bulletin Board Systems were a primary means of online communication between microcomputer owners. In these early days, the setups allowed people to dial in using their microcomputers to share and read public or private messages with other callers.</p>" +
+				"<p>The earliest CBBS setups ran off <a href=\"http://www.s100computers.com/\">S-100 bus-based computers</a>, which were simple, often incompatible microcomputers or motherboards of the 1970s manufactured by various system manufacturers that shared the same S-100 interface bus. " +
+				"When the Apple II received CBBS-like software in 1979, it was commonly called ABBS or Apple Bulletin Board System. " +
+				"By September 1979, nationwide listings (<a href=\"https://mirrors.apple2.org.za/ftp.apple.asimov.net/documentation/magazines/washington_apple_journal/washingtonapplepijournal1979v1no8sep79.pdf\">see page 3 under MODEMania</a>) for dozens of bulletin boards were running on ABBS, CBBS, and other platforms.</p>" +
+				"<p>A very early, underground ABBS is the 1979-1981, <a href=\"http://www.textfiles.com/phreak/tuc-intr.phk\">New Jersey-based board</a>, <strong>Sherwood Forest</strong>, created by Magnetic Surfer, and it runs off a floppy disc and a Micromodem. " +
+				"It became a hub for some active telephone phreakers who were early adopters of microcomputers in the New York Tri-state area—many became Scene pirates and notorious computer phreakers and hackers.</p>" +
+				"<p>MOM, or <strong>Modem Over Manhattan</strong> (+212-245-4363), as its name suggests, was based in Manhattan, New York, and probably went online in 1980. It is another famous open board with lax subject matter that was popular with the New York phreak community.</p>" +
+				"<p>In the early days of the BBS, the info-tech mainstream press paid attention to boards, <a href=\" https://books.google.com.au/books?id=3j4EAAAAMBAJ&pg=PA10&lpg=PA10&dq=%22Modem+Over+Manhattan%22&source=bl&ots=smYwZj_okV&sig=ACfU3U0kYG9RX-3uPfGTakGgtP_mVDcAhA&hl=en&sa=X&ved=2ahUKEwiVs-yi6-qEAxX-oWMGHYpwAPA4ChDoAXoECAIQAw#v=onepage&q=%22Modem%20Over%20Manhattan%22&f=false\">including write-ups</a> and listings of the phone numbers for known underground boards*." +
+				"<br>*<small>Though the article mislabels <strong>8</strong>BBS as BBBS.</small></p>" +
+				"<p>The original <strong>Pirate-Trek</strong> out of New York (+914-634-1268), possibly run by the famed Apple II cracker Krakowicz, <a href=\"http://artscene.textfiles.com/intros/APPLEII/cyclod.gif\">was first announced</a> in 1981.</p>" +
+				"<p>There is also the renowned <strong>8BBS</strong> out of San Jose, CA, which ran on a <a href=\"https://www.computerhistory.org/revolution/minicomputers/11/331\">PDP-8 minicomputer</a> in 1980-82 and has a separate article below.</p>",
+		},
+		{
 			Title: "The first crackers ?", Year: 1979, Highlight: true,
 			Content: "<p>We have yet to learn when or who started cracking, but it would be after the introduction of copy protection on software on the Apple II and probably after it became more commonplace. " +
 				"Andrew McFadden has <a href=\"https://fadden.com/apple2/cassette-protect.html\">written about early copy protection</a> on specific Apple II games released on cassette tapes in 1978 and 1979, but these were probably unusual.</p>" +
 				"<p>However, Apple's July 1978 retail debut of the <A href=\"https://collections.museumsvictoria.com.au/articles/2787\">Disk II floppy drive</a> with the first <a href=\"https://www.apple2history.org/history/ah14/#01\">Apple operating system</a> was a significant factor. For the wealthy hobbyists who were Apple II owners, the drive and software became a must-have piece of kit that significantly improved the functionality of their machines. Compared to the initial outlay of a common Apple II setup, the floppy disk drive and interface were quite affordable and quickly caught on.</p>" +
 				"<p>The drive offered new benefits for software developers, including speed and reliability and complete control of the floppy drive hardware using software that the developers could write themselves. This ability encouraged them to embed <a href=\"https://www.bigmessowires.com/2015/08/27/apple-ii-copy-protection/\">disk copy protection methods</a> that are <a href=\"https://paleotronic.com/2024/01/28/confessions-of-a-disk-cracker-the-secrets-of-4am/\">still problematic for computer historians today</a>!</p>" +
-				"<p>A post on 8 BBS (<a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n60/mode/1up\">Message number 4342</a>) from Brain Litzinger at 23:37 02-Dec-80 includes, <code>I also have unbroken: Galaxion,<a href=\"http://artscene.textfiles.com/intros/APPLEII/mlab.gif\">Dogfight</a>,Hi-res shootout,and Astro-Apple</code>. The casual use of <strong>unbroken</strong> in this 1980 posts suggests disk copy protection and a need of cracking.</p>" +
+				"<p>A post on 8BBS (<a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n60/mode/1up\">Message number 4342</a>) from Brain Litzinger at 23:37 02-Dec-80 includes," +
+				"<br><code>I also have unbroken: Galaxion,<a href=\"http://artscene.textfiles.com/intros/APPLEII/mlab.gif\">Dogfight</a>,Hi-res shootout,and Astro-Apple</code>.<br>The casual use of <em>unbroken</em> in this 1980 post suggests disk copy protection and a need of cracking.</p>" +
 				"<p>In Christmas 1980, <a href=\"https://www.vice.com/en/article/qjvbem/dont-copy-that-floppy-the-untold-history-of-apple-ii-software-piracy\">Omega Software Systems was advertising Lock Smith</a>, a disk copy program that makes a bit-by-bit copy, claiming \"duplication of just about any disk is possible.\" This advertising suggests that disk copy protection was already problematic for Apple II owners who desired software backups and that there was a product market. " +
-				"The novel method of disk duplication implies that the anonymous Lock Smith author(s) were well-practiced in bypassing copy protection during its creation.</p>" +
-				"<p>Also, sometime in 1981 is the publication of <a href=\"http://computist.textfiles.com/\">HardCore Computing</a>. A Seattle-based, printed magazine for the Apple II that came with \"How to back up your copy-protected disks.\" on the front cover. " +
+				"The novel method of disk duplication implies that the anonymous Lock Smith author(s) were well-practiced in bypassing copy protection by the time of print.</p>" +
+				"<p>Also, sometime in 1981 is the publication of <a href=\"http://computist.textfiles.com/\">HardCore Computing</a>. A Seattle-based, print magazine for the Apple II that came with \"How to back up your copy-protected disks.\" on the front cover. " +
 				"Dave Alpert, the head of Omega Software Inc. and president of the <a href=\"https://archive.org/details/northernillinoisaugpaperlibrary1981\">Northern Illinois Apple Users Group</a>, " +
 				"<a href=\"http://computist.textfiles.com/ISSUE.001/page-08.jpg\">is interviewed</a>, and he says Lock Smith took over a year to develop. <a href=\"http://computist.textfiles.com/ISSUE.001/page-10.jpg\">On page 10 of the issue</a>, there is a review section of disk copying programs, including \"Locksmith,\" Copy II Plus, Back-It-Up, Quick and Dirty, and Old Faithful.</p>",
 		},
 		{
 			Title: "The birth of warez ?", Year: 1980, Highlight: true,
 			Lead: "The Apple II", Link: "http://artscene.textfiles.com/intros/APPLEII/", LinkTitle: "Apple II crack screens",
-			Content: "<p>There's no straightforward answer to this question, but a good guess would be <strong>sometime in 1980</strong> within technology populations hubs of the USA. " +
+			Content: "<p>There's no straightforward answer to this question, but a good guess would be <strong>sometime in 1980</strong> within technology hubs of the USA. " +
 				"By then, people were exchanging real-life details, meeting to duplicate and exchange software collections, and finding ways to remove copy protections. " +
 				"<a href=\"https://www.apple2history.org/history/ah13/#09\">The first Apple II modem peripherals</a>, the Hayes Micromodem II and the Novation CAT were released in 1979 and 1980, respectively. " +
 				"These add-ons enabled microcomputer owners to connect to remote message boards, communicate, and even exchange files using the telephone.</p>" +
 				"<p>For over a decade, long-distance <a href=\"https://www.slate.com/articles/technology/the_spectator/2011/10/the_article_that_inspired_steve_jobs_secrets_of_the_little_blue_.html\">phone phreaking had been a well-established movement</a> in the USA, and its monetary entry barrier was relatively low. " +
 				"But late-1970s microcomputers were <a href=\"http://www.apple-iigs.info/doc/fichiers/Apple%20Price%20List%201978-08.pdf\">expensive</a>, exotic but mostly useless* machines, and getting them online with modems was challenging. " +
-				"So it makes sense that the rich kids who already phreaked (time-charged phone calls, gratis) and were into microcomputing would go out of their way to befriend anyone who shared in these niche hobbies, even if those people resided interstate." +
-				"<br>* <small>The \"killer app\" for the Apple II, <a href=\"https://www.apple2history.org/history/ah18/#07\">VisiCalc, the first spreadsheet for microcomputers</a>, was only released in the last few months of 1979.</small></p>" +
-				"<p>Some pirates on the Apple II were <a href=\"http://artscene.textfiles.com/intros/APPLEII/marscars.gif\">dating their cracks</a> in <strong>early 1982</strong>, but many tagged crack screens exist for games published in <strong>1980</strong> and 1981. (example <a href=\"http://artscene.textfiles.com/intros/APPLEII/tcommand.gif\">1</a>) " +
+				"So it makes sense that the kids who already phreaked (time-charged phone calls, gratis) and were into microcomputing would go out of their way to befriend anyone who shared in these niche hobbies, to exchange software, information, and ideas, even if those people resided interstate." +
+				"<br>* <small>The first \"killer app\" for the Apple II, <a href=\"https://www.apple2history.org/history/ah18/#07\">VisiCalc, the first spreadsheet for microcomputers</a>, was only released in the last few months of 1979.</small></p>" +
+				"<p>Some pirates on the Apple II were <a href=\"http://artscene.textfiles.com/intros/APPLEII/marscars.gif\">dating their cracks</a> in <strong>early 1982</strong>, but many tagged crack screens exist for games published in <strong>1980</strong> and 1981 " +
+				"(example <a href=\"http://artscene.textfiles.com/intros/APPLEII/tcommand.gif\">1</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/bezmanc.gif\">2</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/borgc.gif\">3</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/torax.gif\">4</a>.) " +
 				"While a copyright year doesn't always mean the game crack is from the same period, it is a fair assumption.</p>" +
 				"<p>As for the other microcomputer platforms, <a href=\"http://www.trs-80.org/was-the-trs-80-once-the-top-selling-computer/\">the far more popular TRS-80</a> from Radio Shack <a href=\"http://www.trs-80.org/telephone-interface/\">had a modem peripheral available</a> at the end of 1978. However, there needs to be more evidence of an underground culture first developing on this platform. Modem peripherals didn't exist on the <a href=\"http://www.atarimania.com/faq-atari-400-800-xl-xe-what-other-modems-can-i-use-with-my-atari_47.html\">Atari 400/800 until 1981</a> and the Commodore 64 was years away.</p>",
 		},
@@ -259,7 +375,6 @@ func Collection() Milestones {
 				"<p>In the same post, an early 1984 quote from The Godfather states he founded <strong>The Apple Mafia in 1980</strong>, initially as a joke, but it became a more serious project in <strong>1981</strong>." +
 				"<br><q style=\"text-transform: lowercase;\">BRIEF HISTORY OF THE APPLE MAFIA. FOUNDED IN 1980 BY THE GODFATHER AS A JOKE. REDONE IN 1981 AS A SEMI SERIOUS GROUP. " +
 				"KICKED SOME ASS IN '82. BLEW EVERYONE AWAY IN 83, AND WILL DO MUCH BETTER IN 84. SINCE THE BEGINNING THE GROUP HAS DIED OUT AND BEEN REBORN SEVERAL TIMES, THIS TIME LETS KEEP IT GOING. IS CURRENTLY THE OLDEST ACTIVE GROUP,</q></p>" +
-				"<p>A very early, underground BBS is discussed, the 1979-1981 (<a href=\"http://www.textfiles.com/phreak/tuc-intr.phk\">New Jersey based?</a>) board, <strong>Sherwood Forest</strong>, created by Magnetic Surfer and running an expensive, Apple II with a single floppy disc and a Micromodem.</p>" +
 				"<p><a href=\"http://phrack.org/issues/42/3.html\">Phrack Magazine issue 42</a> has a 1993 interview with <a href=\"https://en.wikipedia.org/wiki/Patrick_K._Kroupa\">Lord Digital</a>, who clarifies the Apple Mafia founding." +
 				" <q>I played around with various things, ... until " +
 				"I got an AppleII+ in 1978. I hung out with a group of people who were also " +
@@ -270,12 +385,25 @@ func Collection() Milestones {
 				"we went to, and found even more people with Apples and, from this, formed the " +
 				"Apple Mafia, which was, in our minds, really cool sounding and actually became " +
 				"the first WAreZ gRoUP to exist for the AppleII.</q>" +
-				"<br>* <small><a href=\"https://www.wap.org/journal/showcase/washingtonapplepijournal1981v3no4apr81.pdf\">The first AppleFest was actually held</a> on the weekend of June 6-7 <strong>1981</strong> in Boston.</small></p>",
+				"<br>* <small><a href=\"https://www.wap.org/journal/showcase/washingtonapplepijournal1981v3no4apr81.pdf\">The first AppleFest was actually held</a> on the weekend of June 6-7 <strong>1981</strong> in Boston.</small></p>" +
+				"<p>Another early group outside of New York was the famed <strong>Super Pirates of Minneapolis</strong> " +
+				"(<a href=\"http://artscene.textfiles.com/intros/APPLEII/ribbitc.gif\">1</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/spirates.gif\">2</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/succession.gif\">3</a>). " +
+				"This uncredited quote is from the Red-Sector-A BBS in <a href=\"http://www.textfiles.com/bbs/boardsims2.txt\">a 1987 log file</a>, and the year maybe misremembered. However, it does suggest the Super Pirates were around in 1980, the year of <a href=\"https://www.mobygames.com/game/47942/cyber-strike/\">Cyber Strike's publication</a>. " +
+				"<br><q>The 1st ware I got was back in 1980. It was Cyber Strike. Along with about 35 other disks, most cracked by the Super Pirates!</q><br>" +
+				"There is anecdotal evidence suggesting the SPoM was involved in the first-ever BBS bust, and the members left formed or joined the <strong>Midwest Pirate's Guild</strong>. " +
+				"A group strongly associated with the cracker Apple Bandit and his Minneapolis-based board, The Safehouse (+612-724-7066).</p>",
 		},
 		{
 			Title: "8BBS", Year: 1980, Highlight: true,
 			Lead: "(+408) 296-5799. 110, 150 & 300 BAUD SUPPORTED.", LinkTitle: "the thousands of message logs", Link: "https://archive.org/details/8BBSArchiveP1V1/mode/1up",
-			Content: "<p>8BBS, out in San Jose, CA and online since March 1980. Is one of the <a href=\"https://everything2.com/title/8BBS\">earliest BBS message boards</a>, which early microcomputer hobbyists posted, including some early hackers, pirates, and phreaker personalities of the era name-dropped. But what stands out about the board today is that we have survived thousands of posts from its public message boards of the very earliest users of public online communities that anyone with the proper hardware could have access from their homes. These posts existed before Usenet, before the modern Internet. </p>" +
+			Content: "<p>In San Jose, CA, 8BBS came online in March 1980. It is one of the <a href=\"https://everything2.com/title/8BBS\">first BBS message boards</a>, which early microcomputer hobbyists posted, including some early hackers, pirates, and named-dropped phreaker personalities of the era " +
+				"(<a href=\"https://privacy-pc.com/articles/history-of-hacking-john-captain-crunch-drapers-perspective.html#Early_BBS_Days\">1</a>, " +
+				"<a href=\"https://www.lysator.liu.se/etexts/hacker/digital1.html\">2</a>, " +
+				"<a href=\"http://phrack.org/issues/8/2.html\">3</a>, " +
+				"<a href=\"http://phrack.org/issues/42/3.html\">4</a>, " +
+				"<a href=\"http://phrack.org/issues/10/2.html\">5</a>, " +
+				"<a href=\"https://www.theverge.com/c/22889425/susy-thunder-headley-hackers-phone-phreakers-claire-evans\">6</a>). " +
+				"But what stands out about the board today is that <a href=\"https://silent700.blogspot.com/2014/12/is-this-something.html\">we have survived thousands of posts</a> from the earliest open online community that anyone in 1980 with the right hardware could access from home. These posts existed before the web, before IRC, before Usenet, before the Internet. </p>" +
 				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n30/mode/1up\">Message number 3964 from CHUCK HUBERT</a><br>To ALL at 12:52 on 20-Nov-80.<br>Subject! CP/M BBS AND SOFTWARE EXCHANGE</p>" +
 				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n43/mode/1up\">Message number 4177 from Kevin O'Hare</a><br>To SF (SAN FRANCISCO) PHREAKS at 23:54 on 28-Nov-80.<br>Subject: HELP?</p>" +
 				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n54/mode/1up\">Message number 4311 from Len Freedman</a><br>To RICK BYRNE at 11:02 on 02-Dec-80.<br>Subject: PROG. TRADING</p>" +

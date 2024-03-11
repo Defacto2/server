@@ -5,13 +5,11 @@
 - [ ] Create PostgreSQL *indexes* with case-sensitive strings.
 - [ ] Some form of database timeout.
 - [ ] All SQL statements need a sign-in account to display records with `delete_at` ~ `qm.WithDeleted`
-- [x] In the app, confirm PS_HOST_NAME: "host.docker.internal" and handle Docker differently with startup messages.
 
 ### Pages
 
 - [ ] Show a *custom error page when the file download* is missing or the root directory is broken.
 - [ ] Tests for routes and templates.
-
 
 ### Possible TODOs
 
