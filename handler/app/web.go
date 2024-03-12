@@ -1,6 +1,6 @@
 package app
 
-// Package file funcmap.go contains the custom template functions for the web framework.
+// Package file web.go contains the custom template functions for the web framework.
 // The functions are used by the HTML templates to format data.
 
 import (
@@ -367,6 +367,7 @@ func (web Web) TemplateFuncs() template.FuncMap {
 		"recordTagInfo":     TagBrief,
 		"safeHTML":          SafeHTML,
 		"screenshot":        web.Screenshot,
+		"slugify":           helper.Slug,
 		"subTitle":          SubTitle,
 		"thumb":             web.Thumb,
 		"trimSiteSuffix":    TrimSiteSuffix,

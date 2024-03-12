@@ -351,7 +351,7 @@ func Collection() Milestones {
 				"These add-ons enabled microcomputer owners to connect to remote message boards, communicate, and even exchange files using the telephone.</p>" +
 				"<p>For over a decade, long-distance <a href=\"https://www.slate.com/articles/technology/the_spectator/2011/10/the_article_that_inspired_steve_jobs_secrets_of_the_little_blue_.html\">phone phreaking had been a well-established movement</a> in the USA, and its monetary entry barrier was relatively low. " +
 				"But late-1970s microcomputers were <a href=\"http://www.apple-iigs.info/doc/fichiers/Apple%20Price%20List%201978-08.pdf\">expensive</a>, exotic but mostly useless* machines, and getting them online with modems was challenging. " +
-				"So it makes sense that the kids who already phreaked (time-charged phone calls, gratis) and were into microcomputing would go out of their way to befriend anyone who shared in these niche hobbies, to exchange software, information, and ideas, even if those people resided interstate." +
+				"So it makes sense that the kids who already phreaked (make time-charged phone calls, gratis) and were into microcomputing would go out of their way to befriend anyone who shared in these niche hobbies, to exchange software, information, and ideas, even if those people resided interstate." +
 				"<br>* <small>The first \"killer app\" for the Apple II, <a href=\"https://www.apple2history.org/history/ah18/#07\">VisiCalc, the first spreadsheet for microcomputers</a>, was only released in the last few months of 1979.</small></p>" +
 				"<p>Some pirates on the Apple II were <a href=\"http://artscene.textfiles.com/intros/APPLEII/marscars.gif\">dating their cracks</a> in <strong>early 1982</strong>, but many tagged crack screens exist for games published in <strong>1980</strong> and 1981 " +
 				"(example <a href=\"http://artscene.textfiles.com/intros/APPLEII/tcommand.gif\">1</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/bezmanc.gif\">2</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/borgc.gif\">3</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/torax.gif\">4</a>.) " +
@@ -388,7 +388,7 @@ func Collection() Milestones {
 				"<br>* <small><a href=\"https://www.wap.org/journal/showcase/washingtonapplepijournal1981v3no4apr81.pdf\">The first AppleFest was actually held</a> on the weekend of June 6-7 <strong>1981</strong> in Boston.</small></p>" +
 				"<p>Another early group outside of New York was the famed <strong>Super Pirates of Minneapolis</strong> " +
 				"(<a href=\"http://artscene.textfiles.com/intros/APPLEII/ribbitc.gif\">1</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/spirates.gif\">2</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/succession.gif\">3</a>). " +
-				"This uncredited quote is from the Red-Sector-A BBS in <a href=\"http://www.textfiles.com/bbs/boardsims2.txt\">a 1987 log file</a>, and the year maybe misremembered. However, it does suggest the Super Pirates were around in 1980, the year of <a href=\"https://www.mobygames.com/game/47942/cyber-strike/\">Cyber Strike's publication</a>. " +
+				"This uncredited quote is from the Red-Sector-A BBS in <a href=\"http://www.textfiles.com/bbs/boardsims2.txt\">a 1987 log file</a>, and the year might be misremembering. However, it does suggest the Super Pirates were around in 1980, the year of <a href=\"https://www.mobygames.com/game/47942/cyber-strike/\">Cyber Strike's publication</a>. " +
 				"<br><q>The 1st ware I got was back in 1980. It was Cyber Strike. Along with about 35 other disks, most cracked by the Super Pirates!</q><br>" +
 				"There is anecdotal evidence suggesting the SPoM was involved in the first-ever BBS bust, and the members left formed or joined the <strong>Midwest Pirate's Guild</strong>. " +
 				"A group strongly associated with the cracker Apple Bandit and his Minneapolis-based board, The Safehouse (+612-724-7066).</p>",
@@ -471,10 +471,10 @@ func Collection() Milestones {
 			Title: "Earliest dated crack", Year: 1982, Month: 3,
 			Lead:      "Dung Beetles breakage by Black Bart",
 			LinkTitle: "view the crack", Link: "http://artscene.textfiles.com/intros/APPLEII/dungbeetles.gif",
-			Content: "The earliest dated or timestamped crack is probably on the Apple II, Dung Beetles broken by Black Bart in March 1982. " +
+			Content: "The earliest dated or timestamped crack is probably on the Apple II, <strong>Dung Beetles broken by Black Bart in March 1982</strong>. " +
 				"<p><a href=\"http://artscene.textfiles.com/intros/APPLEII/thepirate.gif\">A screenshot of an earlier serial key exists</a>, <strong>Broken by The Pirate 09/26/81</strong>, " +
 				"<a href=\"https://www.pouet.net/prod.php?which=33926\">apparently for Crush Crumble & Chomp</a>, but the file lacks context.</p>" +
-				"<p>Broken or krack were common words used in this era to describe the removal of disk copy protection.</p>" +
+				"<p><em>Broken</em>, <em>unprotect</em> or <em>crack</em> were common words used in this era to describe the removal of disk copy protection.</p>" +
 				"Other early dated cracks include<br><a href=\"http://artscene.textfiles.com/intros/APPLEII/marscars.gif\">Mars Cars</a> Cracked by Mr Krac-Man 1982.<br>" +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/tattackm.gif\">Type Attack</a>, (B) 1982 Broken by Krakowicz NY.<br>" +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/aec.gif\">A.E.</a> Cracked by Mr. Krac-Man 12/17/82.<br>" +
@@ -498,19 +498,30 @@ func Collection() Milestones {
 		{
 			Title: "The earliest cracktro?", Year: 1982,
 			Content: "<p>Firstly, a crack intro should be defined as a computer animation advertising the crackers of a and included in a pirated software release. So, modified \"broken by\" texts or <a href=\"http://artscene.textfiles.com/intros/APPLEII/flockland.gif\">static images</a> do not count.</p>" +
-				"<p>Unfortunately, it is challenging to date early pirated releases for the PC, Commodore 64, or Apple II. Many crackers didn't date their releases, and the systems themselves didn't track or timestamp the files. <a href=\"http://artscene.textfiles.com/intros/APPLEII/.thumbs.html\">But given the proliferation</a> of \"broken by\" texts and graphic hacks early on the Apple II, the crack intro probably evolved on this platform.</p>" +
-				"<p>The prolific, early Apple cracker <strong>Mr. Xerox</strong> probably created one of the <a href=\"https://archive.org/details/a2_Starblaster_19xx_C_G_cr_Star_Trek_1983_Sega_cr_Shuttle_Intercept_19xx__cr\">earliest scrollers in his crack screen for <strong>Star Blaster</strong></a> from 1982.</p>" +
-				"<p>Or cracker <strong>Copycatter</strong> may have created <a href=\"https://archive.org/details/a2_Pro_Football_The_Gold_Edition_1982_System_Design_Lab_cr_Copycatter\">the first scroller in a release of <strong>Pro Football</strong></a>." +
-				"<p>February 1984's, <strong>Black Belt from Creative Cracker and High Technology</strong> of The Apple Mafia. <a href=\"https://archive.org/details/3d0g_022b_Black_Belt\">While newer, is a candidate</a> for an early intro, given it has a timestamp and from a well-known group.</p>" +
-				"<p>Penqueriel Mazes by Electronic Dimension <a href=\"https://archive.org/details/a2_Penqueriel_Mazes_19xx_Sadistic_cr_Electronic_Dimension\">initially looks like a good candidate</a>. Except while the game is (c) 1982, the loader effects look far too modern for that era.</p>" +
-				"<p>For a long time in the Demoscene, many argued that a \"1982\" Berlin Cracking Service image of the Berlin Bear was the first cracktro " +
+				"<p>Unfortunately, it is challenging to date early pirated releases for the PC, Commodore 64, or Apple II. Many crackers didn't date their releases, and the systems themselves didn't track time or stamp the files. " +
+				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/.thumbs.html\">But given the proliferation</a> of \"broken by\" texts and graphic hacks in 1980-81 and 1982 on the Apple II in the USA, the early crack intro probably evolved here.</p>" +
+				"<p>The prolific, early Apple cracker <strong>Mr. Xerox</strong> probably created one of the earliest scrollers in <a href=\"https://archive.org/details/a2_Starblaster_19xx_C_G_cr_Star_Trek_1983_Sega_cr_Shuttle_Intercept_19xx__cr\">his crack screen</a> for <strong>Star Blaster</strong> from 1982.</p>" +
+				"<p>Or cracker <strong>Copycatter</strong> <a href=\"https://archive.org/details/a2_Pro_Football_The_Gold_Edition_1982_System_Design_Lab_cr_Copycatter\">may have created</a> the first scroller in a release of <strong>Pro Football</strong>." +
+				"<p>February 1984's, <strong>Black Belt</strong> from <strong>Creative Cracker and High Technology</strong> of The Apple Mafia. While newer, <a href=\"https://archive.org/details/3d0g_022b_Black_Belt\">it is a candidate</a> for an early intro, given it has a timestamp and from a well-known group.</p>" +
+				"<p>Penqueriel Mazes by Electronic Dimension <a href=\"https://archive.org/details/a2_Penqueriel_Mazes_19xx_Sadistic_cr_Electronic_Dimension\">initially looks like</a> a good candidate. Except while the game is (c) 1982, the loader effects look far too modern for that era.</p>" +
+				"<hr>" +
+				"<p>Many long argued in the Demoscene that a \"1982\" Berlin Cracking Service <a href=\"https://www.atlantis-prophecy.org/recollection/gfx/BCS.png\">image of the Berlin Bear</a> was the first cracktro (" +
 				"<a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">1</a>, " +
 				"<a href=\"https://csdb.dk/release/?id=35670\">2</a>, " +
 				"<a href=\"https://m.pouet.net/prod.php?which=17555\">3</a>, " +
-				"<a href=\"https://intros.c64.org/main.php?module=showintro&iid=156\">4</a>. " +
-				"But this seems far-fetched, given that the image was never used in a Commodore 64 release before 1984.</p>" +
-				"<p>In late 1982, the Commodore 64 was still an expensive machine in the USA and Japan (where it flopped), with limited distribution due to last-minute design changes and poor quality assurance issues. Consequently, the platform needed software, and the few titles available were often sold on cartridges.</p>" +
-				"<p>Over a year after the NTSC US release, Commodore advertised the UK PAL machine in the October 1983 <a href=\"https://worldradiohistory.com/UK/Practical-Computing/80s/Practical-Computing-1983-10-S-OCR.pdf\">editions of magazines (see page 74-75)</a>, targeting the business user. Despite this gap of a year between NTSC and PAL hardware, the Commodore Braunschweig factory could have tested, assembled, and delivered retail PAL machines in the last few months of <u>1982</u>, but it's unlikely.</p>",
+				"<a href=\"https://intros.c64.org/main.php?module=showintro&iid=156\">4</a>). " +
+				"But this seems far-fetched, and <a href=\"https://www.atlantis-prophecy.org/recollection/?load=crackers_map&country=germany\">anecdotal proof</a> suggests it originates from 1984.</p>" +
+				"<p><q>The first intro was a picture of the Berlin Bear from the city flag and was released by BCS in 1982. It was a kind of co-production by several people...</q>" +
+				"<br><q>A positive moment for me was when the father of a classmate who was working for Apple, was able to through his connections, obtain a C64 on Christmas 1982.</q>" +
+				"<br><q>Copying games wasn't really illegal in most countries back in 1982 or 1983. ... Most early releases weren't \"cracked\", they were just released or spread.</q> " +
+				"<br><small>(<a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">2005-06 interview conducted over multiple emails</a>)</small></p>" +
+				"<p>In late 1982, the Commodore 64 was a pricey machine that <a href=\"https://www.power8bit.com/assets/images/screen-shot-2023-03-27-at-5.27.40-pm-508x698.webp\">targeted business users</a> (<a href=\"https://www.power8bit.com/C64.html\">ad source</a>) in the USA and Japan (where it flopped). " +
+				"Due to last-minute design changes and poor quality assurance issues, it had limited distribution and software that year.</p>" +
+				"<p>By all accounts, the Commodore Braunschweig factory didn't have the (European friendly) PAL Commodore 64 machines ready for retail <a href=\"https://www.zock.com/8-Bit/D_C64.HTML\">until 1983</a>. " +
+				"In the UK, advertising first hit <a href=\"https://web.archive.org/web/20160611085947if_/http://archive.6502.org/publications/commodore_computing_intl/commodore_computing_intl_1983_02.pdf\">Commodore Computing in February 1983</a> (pages 36-37) for the <a href=\"https://static.nosher.net/archives/computers/images/comm64_comci_1983-02-m.jpg\">business market</a> (<a href=\"https://nosher.net/archives/computers/comm64_comci_1983-02?idx=Designed\">ad source</a>) and potential programmers, " +
+				"and a different business focus advert ran in October 1983 (<a href=\"https://worldradiohistory.com/UK/Practical-Computing/80s/Practical-Computing-1983-10-S-OCR.pdf\">see pages 74-75)</a>.</p>" +
+				"<p>It seems unlikely that a number of isolated West German kids had independent access to the yet-to-release Commodore <u>in 1982</u>. They could share one machine, but the cited year is presumably late 1983 or 1984, misremembered. " +
+				"However, the claim is that they got together in 1982 and formed a Berlin \"cracking\" group, to trade in software and create art on this yet-to-release, affordable business platform, even though Commodore 64 software didn't need cracking then.</p>",
 		},
 		{
 			Title: "Third-party PC games", Year: 1982,

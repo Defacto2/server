@@ -41,6 +41,11 @@
 <p class="lead">
   The remainder of this page shows the milestones of the early microcomputing industry, piracy, and The Scene on the <abbr title="personal computer" class="initialism">PC</abbr> platform. 
   Chronologically ordered the list of events offers insight into the birth of The Scene on the PC and the links to piracy in the earliest days of personal computing.
+  Some entries include 
+  <a href="#the-early-underground">the early underground</a>, 
+  <a href="#the-birth-of-warez">the birth of warez</a>, 
+  <a href="#the-earliest-cracktro">the earliest cracktro</a>, and 
+  <a href="#the-earliest-pc-loaders">the earliest PC loaders</a>.
 </p>
 <p class="lead">
   <small>During the 1980s and 1990s, the PC was one of many competing microcomputer platforms. 
@@ -59,6 +64,7 @@
 <div class="row row-cols-1 row-cols-lg-2 g-4 mt-5">
 {{- range $index, $mile := .milestones }}
   <div class="col">
+    <a id="{{slugify .Title}}"></a>
     <div class="card h-100{{ if eq true .Highlight}} border-dark text-bg-light{{end}}">
       {{- /*  Header & pictures  */}}
       {{- if and (eq "" .Picture.Png) (eq "" .Picture.Jpg)}}
@@ -98,9 +104,10 @@
         {{- if (ne "" .Content)}}
         <p class="card-text"><small>{{.Content | safeHTML}}</small></p>
         {{- end}}
-        {{- if or (ne "" .Link) (ne "" .Picture.Attribution)}}
+        {{- if or (ne "" .Link) (ne "" .Picture.Attribution) (ne "" .Title)}}
         <p class="card-text">
           <small>
+          {{- if ne "" .Title}}<a href="#{{slugify .Title}}" class="link-underline-secondary">Link this milestone</a><br>{{- end}}
           {{- if ne "" .Link}}<a href="{{.Link}}" class="link-offset-2 link-underline link-underline-opacity-50">Read {{.LinkTitle}}</a>{{- end}}
           {{- if ne "" .Picture.Attribution}}
             <br>
