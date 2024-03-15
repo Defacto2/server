@@ -79,6 +79,8 @@
         <source srcset="/image/milestone/{{.Picture.Webp}}" type="image/webp" class="card-img-top">
         <img src="/image/milestone/{{.Picture.Png}}" loading="lazy" class="card-img-top" alt="{{.Picture.Alt}}">
       </picture>
+      {{- else if ne "" .Picture.Png}}
+      <img src="/image/milestone/{{.Picture.Png}}" loading="lazy" class="card-img-top" alt="{{.Picture.Alt}}">
       {{- end}}
       {{- /*  Lists, aligned to the top  */}}
       {{- if and (.List) (eq "" .Content)}}
@@ -109,7 +111,7 @@
         {{- if or (ne "" .Link) (ne "" .Picture.Attribution) (ne "" .Title)}}
         <p class="card-text">
           <small>
-          {{- if ne "" .Title}}<a href="#{{slugify .Title}}" class="link-underline-secondary">Link this milestone</a><br>{{- end}}
+          {{- if ne "" .Title}}<a href="#{{slugify .Title}}" class="link-underline-secondary">Bookmark this milestone</a><br>{{- end}}
           {{- if ne "" .Link}}<a href="{{.Link}}" class="link-offset-2 link-underline link-underline-opacity-50">Read {{.LinkTitle}}</a>{{- end}}
           {{- if ne "" .Picture.Attribution}}
             <br>
