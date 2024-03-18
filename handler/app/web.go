@@ -541,11 +541,15 @@ func uploaderTmpls(lock bool, files ...string) []string {
 	if lock {
 		return append(files,
 			GlobTo("layout_editor_null.tmpl"),
+			GlobTo("layout_editorJS_null.tmpl"),
 			GlobTo("layout_uploader_null.tmpl"),
+			GlobTo("layout_uploaderJS_null.tmpl"),
 			GlobTo("uploader_null.tmpl"))
 	}
 	return append(files,
 		GlobTo("layout_editor.tmpl"),
+		GlobTo("layout_editorJS.tmpl"),
 		GlobTo("layout_uploader.tmpl"),
+		GlobTo("layout_uploaderJS.tmpl"),
 		GlobTo("uploader.tmpl"))
 }

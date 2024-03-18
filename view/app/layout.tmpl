@@ -294,7 +294,7 @@
   &copy; <span data-bs-toggle="tooltip" data-bs-title="version: {{ version }}">Defacto2</span>
 </footer>
 </div>
-{{- /*  Do not defer, or async load the JS for Bootstrap  */}}
+{{- /*  Do not defer, or async load the Bootstrap JS  */}}
 <script src="{{ bootstrapJS }}?{{ sri_bootstrapJS }}" integrity="{{ sri_bootstrapJS }}" crossorigin="anonymous"></script>
 {{- /*  FontAwesome  */}}
 <script async src="{{ fontAwesome }}?{{ sri_fontAwesome }}" integrity="{{ sri_fontAwesome }}" crossorigin="anonymous"></script>
@@ -304,26 +304,15 @@
 {{- if or (index . "readmeLatin1") (index . "readmeCP437")}}
 <script async src="{{ readme }}?{{ sri_readme }}" integrity="{{ sri_readme }}" crossorigin="anonymous"></script>
 {{- end}}
-{{- /*  JS DOS v6  */}}
+{{- /*  js-dos v6.22  */}}
 {{- if index . "jsdos"}}
 <script async src="{{ jsdosUI }}?{{ sri_jsdosUI }}" integrity="{{ sri_jsdosUI }}" crossorigin="anonymous"></script>
 <script async src="{{ jsdosW }}?{{ sri_jsdosW }}" integrity="{{ sri_jsdosW }}" crossorigin="anonymous"></script>
 {{- end}}
 {{- /*  Uploader  */}}
-{{- if eq false (index . "readOnly")}}
-{{/*  TODO: move condition to a different template  */}}
-{{- end}}
-<script async src="{{ uploader }}?{{ sri_uploader }}" integrity="{{ sri_uploader }}" crossorigin="anonymous"></script>
-<script asnyc src="{{ restPouet }}?{{ sri_restPouet }}" integrity="{{ sri_restPouet }}" crossorigin="anonymous"></script>
-<script asnyc src="{{ restZoo }}?{{ sri_restZoo }}" integrity="{{ sri_restZoo }}" crossorigin="anonymous"></script>
+{{- template "layoutUploaderJS" . }}
 {{- /*  Editor  */}}
-{{- if and (eq false (index . "readOnly")) (eq true (index . "editor"))}}
-{{/*  TODO: move condition to a different template ie editorJS.tmpl and editorJS_null.tmpl  */}}
-{{- end}}
-<script asnyc src="{{ editor }}?{{ sri_editor }}" integrity="{{ sri_editor }}" crossorigin="anonymous"></script>
-<script asnyc src="{{ editAssets }}?{{ sri_editAssets }}" integrity="{{ sri_editAssets }}" crossorigin="anonymous"></script>
-<script asnyc src="{{ editArchive }}?{{ sri_editArchive }}" integrity="{{ sri_editArchive }}" crossorigin="anonymous"></script>
-<script asnyc src="{{ editForApproval }}?{{ sri_editForApproval }}" integrity="{{ sri_editForApproval }}" crossorigin="anonymous"></script>
+{{- template "aboutLayoutEditorJS" . }}
 {{- /*  Google Analytics  */}}
 {{- /*  Bootstrap tooltips get initialized on every page  */}}
 <script defer>

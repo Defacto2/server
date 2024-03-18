@@ -1,0 +1,7 @@
+{{- /*  layout_uploaderJS.tmpl  */}}
+{{- define "layoutUploaderJS" -}}
+{{- if eq false (index . "readOnly")}}
+<script async src="{{ uploader }}?{{ sri_uploader }}" integrity="{{ sri_uploader }}" crossorigin="anonymous"></script>
+<script asnyc src="{{ restPouet }}?{{ sri_restPouet }}" integrity="{{ sri_restPouet }}" crossorigin="anonymous"></script>
+<script asnyc src="{{ restZoo }}?{{ sri_restZoo }}" integrity="{{ sri_restZoo }}" crossorigin="anonymous"></script>
+{{- end}}{{end}}

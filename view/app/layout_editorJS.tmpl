@@ -1,0 +1,8 @@
+{{- /* layout_editorJS.tmpl */}}
+{{- define "aboutLayoutEditorJS" }}
+{{- if and (eq false (index . "readOnly")) (eq true (index . "editor"))}}
+<script asnyc src="{{ editor }}?{{ sri_editor }}" integrity="{{ sri_editor }}" crossorigin="anonymous"></script>
+<script asnyc src="{{ editAssets }}?{{ sri_editAssets }}" integrity="{{ sri_editAssets }}" crossorigin="anonymous"></script>
+<script asnyc src="{{ editArchive }}?{{ sri_editArchive }}" integrity="{{ sri_editArchive }}" crossorigin="anonymous"></script>
+<script asnyc src="{{ editForApproval }}?{{ sri_editForApproval }}" integrity="{{ sri_editForApproval }}" crossorigin="anonymous"></script>
+{{- end}}{{end}}
