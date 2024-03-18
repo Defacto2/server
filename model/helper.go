@@ -44,6 +44,7 @@ const (
 	SVGA                    // Force SuperVGA s3 Trio 64 chip.
 	Tandy                   // Force Tandy 1000 emulation which uses the Tandy Graphics Adapter and the 3-channel Tandy speaker circa 1984.
 	VGAOnly                 // Force VGA graphics mode for compatibility with software that fails with SuperVGA.
+	Default                 // The recommended DOSBox settings.
 )
 
 // todo struct machine, cpu, sound, memory
@@ -123,6 +124,14 @@ func DosConfig(cfg DosConf) []string {
 		return []string{box, "machine=tandy", "memsize=1", beep, "pcspeaker=true", "pcrate=44100", "tandy=auto", "tandyrate=44100"}
 	case VGAOnly:
 		return []string{box, "machine=vga", "memsize=16"}
+	case Default:
+		s := []string{cpu, "core=auto", "cputype=auto", "cycles=auto"} // dosee:speed=auto
+		s = append(s, []string{box, "machine=vga", "memsize=16"}...)   // dosee:graphic=vga
+		s = append(s, noMidi...)                                       // dosee:audio=sb16
+		s = append(s, sb, "sbtype=sb16", "sbbase=220", "irq=7", "dma=1", "hdma=5", "sbmixer=true", "oplmode=auto", "oplrate=44100", "oplemu=default")
+		s = append(s, gus, "gus=false")
+		s = append(s, beep, "pcspeaker=true", "pcrate=44100", "tandy=off", "disney=false")
+		return s
 	}
 	return []string{}
 }
