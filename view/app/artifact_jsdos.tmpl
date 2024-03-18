@@ -53,7 +53,7 @@
     }
     function startBinary(options) {
         Dos(canvas, options).ready((fs, main) => {
-            fs.createFile("dosbox.conf", `\t[dosbox]\n\tmachine=ega\n`);
+            fs.createFile("dosbox.conf", `\t[dosbox]\n\tmachine=vga\n`);
             fetch('/d/{{$download}}')
             .then(response => response.arrayBuffer())
             .then(arrayBuffer => {
@@ -68,7 +68,7 @@
     function startZip(options) {
         Dos(canvas, options).ready((fs, main) => {
             fs.extract("/d/{{$download}}").then(() => {
-                fs.createFile("dosbox.conf", `\t[dosbox]\n\tmachine=ega\n`);
+                fs.createFile("dosbox.conf", `\t[dosbox]\n\tmachine=vga\n`);
                 main(["-conf", "dosbox.conf", "-c", "{{$runProgram}}"]).then((ci) => {
                     window.ci = ci;
                     console.log(`width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.width}`);
