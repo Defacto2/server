@@ -18,9 +18,10 @@
                 <label class="form-check-label">
                     {{$filename}} &nbsp;
                 </label>
-                <button id="jsdosFullscreen" class="btn btn-outline-secondary">Fullscreen</button>
+                {{- /*  the onclick attributes are more resilient than addEventListeners for the ci object.  */}}
+                <button id="jsdosFullscreen" class="btn btn-outline-secondary" onclick="ci.fullscreen();">Fullscreen</button>
                 <button id="jsdosScreenshot" class="btn btn-outline-secondary">Screenshot</button>
-                <button id="jsdosStop" class="btn btn-outline-danger">Stop</button>
+                <button id="jsdosStop" class="btn btn-outline-danger" onclick="ci.exit();">Stop</button>
                 <button type="button" id="jsdosCloser" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
@@ -28,13 +29,7 @@
 </div>
 <script defer>
     const canvas = document.getElementById("jsdos");
-    document.getElementById(`jsdosFullscreen`).addEventListener("click", () => {
-        ci.fullscreen();
-    });
     document.getElementById(`jsdosScreenshot`).addEventListener("click", screenshot);
-    document.getElementById(`jsdosStop`).addEventListener("click", () => {
-        ci.exit();
-    });
     function screenshot() {
         console.log("screenshot: for canvas of {{$filename}}");
         let dataURL = canvas.toDataURL("image/png");
