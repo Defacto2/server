@@ -208,11 +208,11 @@ func (web Web) TemplateElms() template.FuncMap {
 func (web Web) TemplateClosures() template.FuncMap {
 	hrefs := Hrefs()
 	return template.FuncMap{
-		"bootstrap": func() string {
-			return hrefs[Bootstrap]
+		"bootstrap5": func() string {
+			return hrefs[Bootstrap5]
 		},
-		"bootstrapJS": func() string {
-			return hrefs[BootstrapJS]
+		"bootstrap5JS": func() string {
+			return hrefs[Bootstrap5JS]
 		},
 		"editArchive": func() string {
 			return hrefs[EditArchive]
@@ -275,11 +275,11 @@ func (web Web) TemplateClosures() template.FuncMap {
 		"restZoo": func() string {
 			return hrefs[RESTZoo]
 		},
-		"sri_bootstrap": func() string {
-			return web.Subresource.Bootstrap
+		"sri_bootstrap5": func() string {
+			return web.Subresource.Bootstrap5
 		},
-		"sri_bootstrapJS": func() string {
-			return web.Subresource.BootstrapJS
+		"sri_bootstrap5JS": func() string {
+			return web.Subresource.Bootstrap5JS
 		},
 		"sri_editArchive": func() string {
 			return web.Subresource.EditArchive

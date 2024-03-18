@@ -86,7 +86,7 @@
     {{- /*  opensearch.org  */}}
     <link rel="search" href="/osd.xml" type="application/opensearchdescription+xml" title="Defacto2 search">
     {{- /*  cascading style sheets  */}}
-    <link href="{{ bootstrap }}?{{ sri_bootstrap }}" rel="stylesheet" integrity="{{ sri_bootstrap }}" crossorigin="anonymous">
+    <link href="{{ bootstrap5 }}?{{ sri_bootstrap5 }}" rel="stylesheet" integrity="{{ sri_bootstrap5 }}" crossorigin="anonymous">
     <link href="{{ layout }}?{{ sri_layout }}" rel="stylesheet" integrity="{{ sri_layout }}" crossorigin="anonymous">
   </head>
   <body>
@@ -294,8 +294,8 @@
   &copy; <span data-bs-toggle="tooltip" data-bs-title="version: {{ version }}">Defacto2</span>
 </footer>
 </div>
-{{- /*  Do not defer, or async load the Bootstrap JS  */}}
-<script src="{{ bootstrapJS }}?{{ sri_bootstrapJS }}" integrity="{{ sri_bootstrapJS }}" crossorigin="anonymous"></script>
+{{- /*  Do not defer, or async load the Bootstrap 5.x JS  */}}
+<script src="{{ bootstrap5JS }}?{{ sri_bootstrap5JS }}" integrity="{{ sri_bootstrap5JS }}" crossorigin="anonymous"></script>
 {{- /*  FontAwesome  */}}
 <script async src="{{ fontAwesome }}?{{ sri_fontAwesome }}" integrity="{{ sri_fontAwesome }}" crossorigin="anonymous"></script>
 {{- if index . "pouet"}}

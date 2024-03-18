@@ -49,7 +49,7 @@
                 </div>
             </div>
 {{- end}}
-{{- /*  About the file download link  */}}
+{{- /*  Artifact file download link  */}}
             <div class="d-grid gap-2 d-sm-block mx-auto py-3 text-center">
             {{- template "artifactTableEditor" . }}
             {{- if eq (index . "alertURL") "" }}
@@ -88,7 +88,7 @@
                 <a class="d-inline btn btn-outline-secondary btn m-1" href="{{- index . "linkpreview" }}" role="button" data-bs-toggle="tooltip" data-bs-title="{{index . "linkpreviewTip"}}">preview</a>
             {{- end}}
             </div>
-{{- /*  Comment about the file  */}}
+{{- /*  Comment on the artifact  */}}
             {{- if ne $comment ""}}
             <div class="container p-2 text-start">
                 <q>{{index . "comment"}}</q>

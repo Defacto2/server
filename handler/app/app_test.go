@@ -237,7 +237,7 @@ func TestList(t *testing.T) {
 func TestAsset(t *testing.T) {
 	t.Parallel()
 
-	x, y := app.Bootstrap, app.Uploader
+	x, y := app.Bootstrap5, app.Uploader
 	assert.Equal(t, app.Asset(0), x)
 	assert.Equal(t, app.Asset(15), y)
 

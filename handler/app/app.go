@@ -1103,8 +1103,8 @@ type Cache struct {
 
 // SRI are the Subresource Integrity hashes for the layout.
 type SRI struct {
-	Bootstrap       string // Bootstrap CSS verification hash.
-	BootstrapJS     string // Bootstrap JS verification hash.
+	Bootstrap5      string // Bootstrap CSS verification hash.
+	Bootstrap5JS    string // Bootstrap JS verification hash.
 	Editor          string // Editor JS verification hash.
 	EditAssets      string // Editor Assets JS verification hash.
 	EditArchive     string // Editor Archive JS verification hash.
@@ -1125,11 +1125,11 @@ type SRI struct {
 func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 	names := Names()
 	var err error
-	s.Bootstrap, err = helper.Integrity(names[Bootstrap], fs)
+	s.Bootstrap5, err = helper.Integrity(names[Bootstrap5], fs)
 	if err != nil {
 		return err
 	}
-	s.BootstrapJS, err = helper.Integrity(names[BootstrapJS], fs)
+	s.Bootstrap5JS, err = helper.Integrity(names[Bootstrap5JS], fs)
 	if err != nil {
 		return err
 	}

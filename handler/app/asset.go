@@ -4,8 +4,8 @@ package app
 type Asset int
 
 const (
-	Bootstrap       Asset = iota // Bootstrap is the path to the minified Bootstrap 5.3 CSS file.
-	BootstrapJS                  // BootstrapJS is the path to the minified Bootstrap 5.3 JS file.
+	Bootstrap5      Asset = iota // Bootstrap is the path to the minified Bootstrap 5.3 CSS file.
+	Bootstrap5JS                 // BootstrapJS is the path to the minified Bootstrap 5.3 JS file.
 	Editor                       // Editor is the path to the minified Editor JS file.
 	EditAssets                   // EditAssets is the path to the minified Editor assets JS file.
 	EditArchive                  // EditArchive is the path to the minified Editor archive JS file.
@@ -32,8 +32,8 @@ func Hrefs() Paths {
 	// note, the js-dos (JS DOS v6) are minified files,
 	// help: https://js-dos.com/6.22/examples/?arkanoid
 	return Paths{
-		Bootstrap:       "/css/bootstrap.min.css",
-		BootstrapJS:     "/js/bootstrap.bundle.min.js",
+		Bootstrap5:      "/css/bootstrap.min.css",
+		Bootstrap5JS:    "/js/bootstrap.bundle.min.js",
 		Editor:          "/js/editor.min.js",
 		EditAssets:      "/js/editor-assets.min.js",
 		EditArchive:     "/js/editor-archive.min.js",

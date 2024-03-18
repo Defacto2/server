@@ -65,8 +65,8 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 		e.FileFS(href, names[key], public)
 	}
 	// Serve embedded CSS and JS map files
-	e.FileFS(hrefs[app.Bootstrap]+mapExt, names[app.Bootstrap]+mapExt, public)
-	e.FileFS(hrefs[app.BootstrapJS]+mapExt, names[app.BootstrapJS]+mapExt, public)
+	e.FileFS(hrefs[app.Bootstrap5]+mapExt, names[app.Bootstrap5]+mapExt, public)
+	e.FileFS(hrefs[app.Bootstrap5JS]+mapExt, names[app.Bootstrap5JS]+mapExt, public)
 	e.FileFS(hrefs[app.JSDosUI]+mapExt, names[app.JSDosUI]+mapExt, public)
 
 	// Serve embedded SVG collections
