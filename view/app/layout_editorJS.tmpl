@@ -1,5 +1,5 @@
 {{- /* layout_editorJS.tmpl */}}
-{{- define "aboutLayoutEditorJS" }}
+{{- define "layoutEditorJS" }}
 {{- if and (eq false (index . "readOnly")) (eq true (index . "editor"))}}
 <script asnyc src="{{ editor }}?{{ sri_editor }}" integrity="{{ sri_editor }}" crossorigin="anonymous"></script>
 <script asnyc src="{{ editAssets }}?{{ sri_editAssets }}" integrity="{{ sri_editAssets }}" crossorigin="anonymous"></script>
