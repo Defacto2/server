@@ -874,6 +874,12 @@ func SafeHTML(s string) template.HTML {
 	return template.HTML(s)
 }
 
+// SafeJS returns a string as a template.JS type.
+// This is intended to be used to prevent JS escaping.
+func SafeJS(s string) template.JS {
+	return template.JS(s)
+}
+
 // SortContent sorts the content list by the number of slashes in each string.
 // It prioritizes strings with fewer slashes (i.e., closer to the root).
 // If the number of slashes is the same, it sorts alphabetically.

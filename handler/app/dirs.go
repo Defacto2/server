@@ -136,6 +136,9 @@ func (dir Dirs) Artifact(logr *zap.SugaredLogger, c echo.Context, readonly bool)
 	data["github"] = res.WebIDGithub.String
 	// file archive content
 	data["jsdos"] = artifactJSDos(res)
+	nameBin := model.JsDosBinary(res)
+	data["jsdosBinary"] = nameBin
+	data["jsdosZip"] = filepath.Ext(strings.ToLower(fname)) == ".zip"
 	ctt := artifactCtt(res)
 	data["content"] = ctt
 	data["contentDesc"] = ""
@@ -530,10 +533,13 @@ func artifactJSDos(res *models.File) bool {
 	// check supported filename extensions
 	ext := filepath.Ext(strings.ToLower(res.Filename.String))
 	switch ext {
-	case ".zip":
-		// ".exe", ".com", /f/b03550
-		// legacy zip, not supported, /f/a319104
+	case ".zip": // js-dos only supports zip archives
 		return true
+	case ".exe", ".com":
+		return true
+	case ".bat", ".cmd":
+		// do not support the emulation of batch scripts
+		return false
 	default:
 		return false
 	}

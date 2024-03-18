@@ -103,6 +103,13 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {{- if eq (index . "jsdos") true}}
+                    <tr>
+                        <th scope="row">Emulation</th>
+                        <td>
+                            <a href="#" id="jsdosRunLink" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#jsDOSModal">Run in the browser</a>
+                        </td>
+                    </tr>{{- end}}
                     {{- if (index . "noDownload")}}
                     <tr>
                         <td colspan="2" class="text-warning-emphasis p-3">Error the file download is missing on the server</td>
@@ -154,13 +161,6 @@
                     <tr>
                         <th scope="row">Musicians</th>
                         <td>{{fmtRoles $musicians}}</td>
-                    </tr>{{- end}}
-                    {{- if eq (index . "jsdos") true}}
-                    <tr>
-                        <th scope="row">Emulation</th>
-                        <td>
-                            <a href="#" id="jsdosRunLink" class="dropdown-item text-success" data-bs-toggle="modal" data-bs-target="#jsDOSModal">Run in your browser</a>
-                        </td>
                     </tr>{{- end}}
                     {{- /*  Pouet, Demozoo, 16colors links  */}}
                     {{- if ne $pouet ""}}

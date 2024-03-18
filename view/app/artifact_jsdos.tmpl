@@ -2,7 +2,12 @@
 {{- define "artifactJSDOS" -}}
 {{- if eq (index . "jsdos") true}}
 {{- $download := index . "download"}}
-{{- /*  JS DOS  */}}
+{{- $filename := index . "filename"}}
+{{- $runProgram := index . "jsdosBinary"}}
+{{- $extract := index . "jsdosZip"}}
+{{- $runJS := "startBinary(DosBoxConfig);"}}
+{{- if eq $extract true}}{{ $runJS = "startZip(DosBoxConfig);" }}{{end}}
+{{- /*  js-dos v6.22 ~ canvas and user interface. */}}
 <div class="modal fade" id="jsDOSModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="jsDOSModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -11,44 +16,56 @@
             </div>
             <div class="modal-footer">
                 <label class="form-check-label">
-                    This emulator is currently just a placeholder
+                    {{$filename}} &nbsp;
                 </label>
-                <button type="button" id="jsdosCloser" class="btn btn-secondary" data-bs-dismiss="modal">Close &amp; refresh</button>
+                <button id="jsdosFullscreen" class="btn btn-outline-secondary">Fullscreen</button>
+                <button id="jsdosScreenshot" class="btn btn-outline-secondary">Screenshot</button>
+                <button id="jsdosStop" class="btn btn-outline-danger">Stop</button>
+                <button type="button" id="jsdosCloser" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
-{{- /*  <script src="https://js-dos.com/6.22/current/js-dos.js" defer></script>  */}}
-{{- /*  Archive ZIP info, http://fileformats.archiveteam.org/wiki/ZIP  */}}
 <script defer>
-    // create a function
-    function startJSDOS() {
-        Dos(document.getElementById("jsdos"), {
-            wdosboxUrl: "/js/wdosbox.js",
-            cycles: 1000,
-            autolock: true,
-        }).ready(function (fs, main) {
-            // multiple archives
-            //fs.extractAll([
-            //    { url: "ultrsound.zip", mountPoint: "/snd" },
-            //    { url: "game.zip", mountPoint: "/game" },
-            //}).then(() => {
-            //    main(["-c", "cd game", "-c", "game.exe"])
-            //});
-            // todo, ignore fs.extract if already extracted ie a .com or .exe file.
-            fs.extract("/d/{{$download}}").then(function () {
-                // custom dosbox.conf file
-                //fs.createFile("dosbox.conf", `
-                //    [autoexec]
-                //    mount c .
-                //    c:
-                //    type dosbox~1.con
-                //`);
-                //main(["-conf", "dosbox.conf"]);
-                main(["-c", "dir"]).then(function (ci) {
-                    // querty keyboard popup.
-                    // DosController.Qwerty(ci.getParentDiv(), ci.getKeyEventConsumer());
+    const canvas = document.getElementById("jsdos");
+    document.getElementById(`jsdosFullscreen`).addEventListener("click", () => {
+        ci.fullscreen();
+    });
+    document.getElementById(`jsdosScreenshot`).addEventListener("click", screenshot);
+    document.getElementById(`jsdosStop`).addEventListener("click", () => {
+        ci.exit();
+    });
+    function screenshot() {
+        console.log("screenshot: for canvas of {{$filename}}");
+        let dataURL = canvas.toDataURL("image/png");
+        let a = document.createElement("a");
+        a.href = dataURL;
+        a.download = "{{$filename}}.png";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+    function startBinary(options) {
+        Dos(canvas, options).ready((fs, main) => {
+            fs.createFile("dosbox.conf", `\t[dosbox]\n\tmachine=ega\n`);
+            fetch('/d/{{$download}}')
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => {
+                fs.createFile("{{$filename}}", arrayBuffer);
+                main(["-conf", "dosbox.conf", "-c", "{{$filename}}"]).then((ci) => {
                     window.ci = ci;
+                    console.log(`width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.width}`);
+                });
+            })
+        });
+    }
+    function startZip(options) {
+        Dos(canvas, options).ready((fs, main) => {
+            fs.extract("/d/{{$download}}").then(() => {
+                fs.createFile("dosbox.conf", `\t[dosbox]\n\tmachine=ega\n`);
+                main(["-conf", "dosbox.conf", "-c", "dir", "{{$runProgram}}"]).then((ci) => {
+                    window.ci = ci;
+                    console.log(`width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.width}`);
                 });
             });
         });
@@ -56,11 +73,16 @@
     const jsdos = document.getElementById("jsdosRunLink");
     jsdos.addEventListener("click", function () {
         this.style.pointerEvents = "none";
-        this.textContent = "Started... reload this tab to stop";
-        startJSDOS();
+        this.textContent = "Running, reload tab to stop";
+        DosBoxConfig = {
+            wdosboxUrl: "/js/wdosbox.js",
+            cycles: "auto", // int value, "max" or "auto"
+            autolock: false,
+        };
+        {{ $runJS | safeJS }}
     });
-    const jsCls = document.getElementById("jsdosCloser");
-    jsCls.addEventListener("click", function () {
+    const jsQuit = document.getElementById("jsdosCloser");
+    jsQuit.addEventListener("click", () => {
         location.reload();
     });
 </script>

@@ -366,6 +366,7 @@ func (web Web) TemplateFuncs() template.FuncMap {
 		"recordInfoOSTag":   TagWithOS,
 		"recordTagInfo":     TagBrief,
 		"safeHTML":          SafeHTML,
+		"safeJS":            SafeJS,
 		"screenshot":        web.Screenshot,
 		"slugify":           helper.Slug,
 		"subTitle":          SubTitle,
