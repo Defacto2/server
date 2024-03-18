@@ -18,10 +18,9 @@
                 <label class="form-check-label">
                     {{$filename}} &nbsp;
                 </label>
-                {{- /*  the onclick attributes are more resilient than addEventListeners for the ci object.  */}}
-                <button id="jsdosFullscreen" class="btn btn-outline-secondary" onclick="ci.fullscreen();">Fullscreen</button>
+                <button id="jsdosFullscreen" class="btn btn-outline-secondary">Fullscreen</button>
                 <button id="jsdosScreenshot" class="btn btn-outline-secondary">Screenshot</button>
-                <button id="jsdosStop" class="btn btn-outline-danger" onclick="ci.exit();">Stop</button>
+                <button id="jsdosStop" class="btn btn-outline-danger">Stop</button>
                 <button type="button" id="jsdosCloser" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
@@ -29,6 +28,18 @@
 </div>
 <script defer>
     const canvas = document.getElementById("jsdos");
+    const stopButton = document.getElementById("jsdosStop")
+    stopButton.addEventListener("click", () => {
+        try {
+            ci.exit();
+            stopButton.disabled = true;
+        } catch (error) {
+            console.log("ci.exit() error: ", error);
+        }
+    });
+    document.getElementById(`jsdosFullscreen`).addEventListener("click", () => {
+        canvas.requestFullscreen();
+    });
     document.getElementById(`jsdosScreenshot`).addEventListener("click", screenshot);
     function screenshot() {
         console.log("screenshot: for canvas of {{$filename}}");
@@ -58,7 +69,7 @@
         Dos(canvas, options).ready((fs, main) => {
             fs.extract("/d/{{$download}}").then(() => {
                 fs.createFile("dosbox.conf", `\t[dosbox]\n\tmachine=ega\n`);
-                main(["-conf", "dosbox.conf", "-c", "dir", "{{$runProgram}}"]).then((ci) => {
+                main(["-conf", "dosbox.conf", "-c", "{{$runProgram}}"]).then((ci) => {
                     window.ci = ci;
                     console.log(`width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.width}`);
                 });

@@ -479,14 +479,15 @@ func artifactMagic(name string) string {
 
 // artifactModAgo returns the last modified date in a human readable format.
 func artifactModAgo(res *models.File) string {
+	const none = "No recorded timestamp"
 	if !res.FileLastModified.Valid {
-		return "No recorded timestamp"
+		return none
 	}
 	year, _ := strconv.Atoi(res.FileLastModified.Time.Format("2006"))
 	const epoch = 1980
 	if year <= epoch {
 		// 1980 is the default date for MS-DOS files without a timestamp
-		return ""
+		return none
 	}
 	return Updated(res.FileLastModified.Time, "Modified")
 }

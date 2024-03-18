@@ -134,6 +134,21 @@ func DosBinary(filename, zipContent string) string {
 	return DosBin(paths...)
 }
 
+func DosFmt(filename string) string {
+	const maxLength, extLength = 8, 4
+	ext := filepath.Ext(filename)
+	name := strings.TrimSuffix(filename, ext)
+
+	if len(name) <= maxLength && len(ext) <= extLength {
+		return filename
+	}
+
+	if len(name) > maxLength {
+		return name[:maxLength-2] + "~1" + ext[:extLength]
+	}
+	return name + ext[:extLength]
+}
+
 func JsDosBinary(f *models.File) string {
 	if f == nil {
 		return ErrModel.Error()
@@ -147,12 +162,12 @@ func JsDosBinary(f *models.File) string {
 	name := strings.ToLower(f.Filename.String)
 	switch filepath.Ext(name) {
 	case ".com", ".exe":
-		return f.Filename.String
+		return DosFmt(f.Filename.String)
 	}
 	if !f.FileZipContent.Valid || f.FileZipContent.IsZero() || f.FileZipContent.String == "" {
 		return ""
 	}
-	return DosBinary(f.Filename.String, f.FileZipContent.String)
+	return DosFmt(DosBinary(f.Filename.String, f.FileZipContent.String))
 }
 
 func PublishedFmt(f *models.File) string {
