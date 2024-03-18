@@ -480,7 +480,7 @@ func artifactMagic(name string) string {
 // artifactModAgo returns the last modified date in a human readable format.
 func artifactModAgo(res *models.File) string {
 	if !res.FileLastModified.Valid {
-		return ""
+		return "No recorded timestamp"
 	}
 	year, _ := strconv.Atoi(res.FileLastModified.Time.Format("2006"))
 	const epoch = 1980
