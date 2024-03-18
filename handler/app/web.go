@@ -167,7 +167,7 @@ func (web Web) TemplateElms() template.FuncMap {
 	const input = "<input class=\"form-check-input\""
 	return template.FuncMap{
 		"az": func() template.HTML {
-			return template.HTML(`<small><small class=\"fw-lighter\">A-Z</small></small>`)
+			return template.HTML(`<small><small class="fw-lighter">A-Z</small></small>`)
 		},
 		"mergeIcon": func() template.HTML {
 			return template.HTML(`<svg class="bi" aria-hidden="true" fill="currentColor">` +
