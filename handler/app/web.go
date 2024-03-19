@@ -245,17 +245,17 @@ func (web Web) TemplateClosures() template.FuncMap {
 			}
 			return helper.Capitalize(x)
 		},
-		"fontAwesome": func() string {
-			return hrefs[FontAwesome]
+		"fa5Pro": func() string {
+			return hrefs[FA5Pro]
 		},
 		"initialisms": func(s string) string {
 			return initialism.Join(initialism.Path(s))
 		},
-		"jsdos6UI": func() string {
-			return hrefs[JSDos6UI]
+		"jsdos6JS": func() string {
+			return hrefs[Jsdos6JS]
 		},
-		"jsdos6W": func() string {
-			return hrefs[JSDos6W]
+		"dosboxJS": func() string {
+			return hrefs[DosboxJS]
 		},
 		"layout": func() string {
 			return hrefs[Layout]
@@ -293,14 +293,14 @@ func (web Web) TemplateClosures() template.FuncMap {
 		"sri_editor": func() string {
 			return web.Subresource.Editor
 		},
-		"sri_fontAwesome": func() string {
-			return web.Subresource.FontAwesome
+		"sri_fa5Pro": func() string {
+			return web.Subresource.FA5Pro
 		},
-		"sri_jsdos6UI": func() string {
-			return web.Subresource.JSDos6UI
+		"sri_jsdos6JS": func() string {
+			return web.Subresource.Jsdos6JS
 		},
-		"sri_jsdos6W": func() string {
-			return web.Subresource.JSDos6W
+		"sri_dosboxJS": func() string {
+			return web.Subresource.DosboxJS
 		},
 		"sri_layout": func() string {
 			return web.Subresource.Layout

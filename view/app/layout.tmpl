@@ -296,8 +296,8 @@
 </div>
 {{- /*  Do not defer, or async load the Bootstrap 5.x JS  */}}
 <script src="{{ bootstrap5JS }}?{{ sri_bootstrap5JS }}" integrity="{{ sri_bootstrap5JS }}" crossorigin="anonymous"></script>
-{{- /*  FontAwesome  */}}
-<script async src="{{ fontAwesome }}?{{ sri_fontAwesome }}" integrity="{{ sri_fontAwesome }}" crossorigin="anonymous"></script>
+{{- /*  FontAwesome Pro v5 */}}
+<script async src="{{ fa5Pro }}?{{ sri_fa5Pro }}" integrity="{{ sri_fa5Pro }}" crossorigin="anonymous"></script>
 {{- if index . "pouet"}}
 <script async src="{{ pouet }}?{{ sri_pouet }}" integrity="{{ sri_pouet }}" crossorigin="anonymous"></script>
 {{- end}}
@@ -306,8 +306,8 @@
 {{- end}}
 {{- /*  js-dos v6.22  */}}
 {{- if index . "jsdos6"}}
-<script async src="{{ jsdos6UI }}?{{ sri_jsdos6UI }}" integrity="{{ sri_jsdos6UI }}" crossorigin="anonymous"></script>
-<script async src="{{ jsdos6W }}?{{ sri_jsdos6W }}" integrity="{{ sri_jsdos6W }}" crossorigin="anonymous"></script>
+<script async src="{{ jsdos6JS }}?{{ sri_jsdos6JS }}" integrity="{{ sri_jsdos6JS }}" crossorigin="anonymous"></script>
+<script async src="{{ dosboxJS }}?{{ sri_dosboxJS }}" integrity="{{ sri_dosboxJS }}" crossorigin="anonymous"></script>
 {{- end}}
 {{- /*  Uploader  */}}
 {{- template "layoutUploaderJS" . }}
