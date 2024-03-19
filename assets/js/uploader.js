@@ -32,7 +32,9 @@
   // Pagination button elements
   const pageS = document.getElementById("paginationStart");
   const pageP = document.getElementById("paginationPrev");
+  const pageP2 = document.getElementById("paginationPrev2");
   const pageN = document.getElementById("paginationNext");
+  const pageN2 = document.getElementById("paginationNext2");
   const pageE = document.getElementById("paginationEnd");
 
   // Keyboard shortcuts event listener
@@ -65,23 +67,36 @@
           break;
       }
     }
+
+    const right = "ArrowRight",
+      left = "ArrowLeft";
     // Ctrl + Left arrow key to go to the start page
-    if (event.ctrlKey && event.key == "ArrowLeft") {
+    if (event.ctrlKey && event.key == left) {
       if (pageS != null) pageS.click();
       return;
     }
     // Ctrl + Right arrow key to go to the end page
-    if (event.ctrlKey && event.key == "ArrowRight") {
+    if (event.ctrlKey && event.key == right) {
       if (pageE != null) pageE.click();
       return;
     }
+    // Shift + Left arrow key to go to the start page
+    if (event.shiftKey && event.key == left) {
+      if (pageP2 != null) pageP2.click();
+      return;
+    }
+    // Shift + Right arrow key to go to the end page
+    if (event.shiftKey && event.key == right) {
+      if (pageN2 != null) pageN2.click();
+      return;
+    }
     // Left arrow key to go to the previous page
-    if (event.key == "ArrowLeft") {
+    if (event.key == left) {
       if (pageP != null) pageP.click();
       return;
     }
     // Right arrow key to go to the next page
-    if (event.key == "ArrowRight") {
+    if (event.key == right) {
       if (pageN != null) pageN.click();
       return;
     }

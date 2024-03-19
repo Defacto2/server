@@ -8,8 +8,8 @@
     </li>
     {{- end}}
     {{- if ge (index .Pagination.TwoBelow) 1}}
-    <li class="page-item">
-        <a class="page-link" href="{{$base}}/{{index .Pagination.TwoBelow}}">{{index .Pagination.TwoBelow}}</a>
+    <li class="page-item" data-bs-toggle="tooltip" data-bs-title="Shift     ←">
+        <a class="page-link" href="{{$base}}/{{index .Pagination.TwoBelow}}" id="paginationPrev2">{{index .Pagination.TwoBelow}}</a>
     </li>
     {{- end}}
     {{- if ge (index .Pagination.PrevPage) 1}}
@@ -26,8 +26,8 @@
     </li>
     {{- end}}
     {{- if (le (index .Pagination.TwoAfter) (index .Pagination.SumPages))}}
-    <li class="page-item">
-        <a class="page-link" href="{{$base}}/{{index .Pagination.TwoAfter}}">{{index .Pagination.TwoAfter}}</a>
+    <li class="page-item" data-bs-toggle="tooltip" data-bs-title="Shift →">
+        <a class="page-link" href="{{$base}}/{{index .Pagination.TwoAfter}}" id="paginationNext2">{{index .Pagination.TwoAfter}}</a>
     </li>
     {{- end}}
     {{- if (lt (index .Pagination.TwoAfter) (index .Pagination.SumPages))}}
