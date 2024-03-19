@@ -1,10 +1,10 @@
-{{- /*  artifact_jsdos.tmpl  */}}
-{{- define "artifactJSDOS" -}}
-{{- if eq (index . "jsdos") true}}
+{{- /*  artifact_jsdos6.tmpl  */}}
+{{- define "artifactJSDOS6" -}}
+{{- if eq (index . "jsdos6") true}}
 {{- $download := index . "download"}}
 {{- $filename := index . "filename"}}
-{{- $runProgram := index . "jsdosBinary"}}
-{{- $extract := index . "jsdosZip"}}
+{{- $runProgram := index . "jsdos6Run"}}
+{{- $extract := index . "jsdos6Zip"}}
 {{- $runJS := "startBinary(DosBoxConfig);"}}
 {{- if eq $extract true}}{{ $runJS = "startZip(DosBoxConfig);" }}{{end}}
 {{- /*  js-dos v6.22 ~ canvas and user interface. */}}
@@ -12,7 +12,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-body">  
-                <canvas id="jsdos"></canvas>  
+                <canvas id="jsdos6"></canvas>  
             </div>
             <div class="modal-footer">
                 <label class="form-check-label">
@@ -27,7 +27,7 @@
     </div>
 </div>
 <script defer>
-    const canvas = document.getElementById("jsdos");
+    const canvas = document.getElementById("jsdos6");
     const stopButton = document.getElementById("jsdosStop")
     stopButton.addEventListener("click", () => {
         try {

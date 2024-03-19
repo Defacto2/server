@@ -305,9 +305,9 @@
 <script async src="{{ readme }}?{{ sri_readme }}" integrity="{{ sri_readme }}" crossorigin="anonymous"></script>
 {{- end}}
 {{- /*  js-dos v6.22  */}}
-{{- if index . "jsdos"}}
-<script async src="{{ jsdosUI }}?{{ sri_jsdosUI }}" integrity="{{ sri_jsdosUI }}" crossorigin="anonymous"></script>
-<script async src="{{ jsdosW }}?{{ sri_jsdosW }}" integrity="{{ sri_jsdosW }}" crossorigin="anonymous"></script>
+{{- if index . "jsdos6"}}
+<script async src="{{ jsdos6UI }}?{{ sri_jsdos6UI }}" integrity="{{ sri_jsdos6UI }}" crossorigin="anonymous"></script>
+<script async src="{{ jsdos6W }}?{{ sri_jsdos6W }}" integrity="{{ sri_jsdos6W }}" crossorigin="anonymous"></script>
 {{- end}}
 {{- /*  Uploader  */}}
 {{- template "layoutUploaderJS" . }}

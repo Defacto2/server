@@ -11,9 +11,9 @@ const (
 	EditArchive                  // EditArchive is the path to the minified Editor archive JS file.
 	EditForApproval              // EditForApproval is the path to the minified Editor for-approval JS file.
 	FontAwesome                  // FontAwesome is the path to the minified Font Awesome 3 JS file.
-	JSDosUI                      // JSDosUI is the path to the minified JS DOS user-interface JS file.
-	JSDosW                       // JSDosW is the JS DOS default variant compiled with emscripten.
-	JSDosWasm                    // JSDOSWasm is the JS DOS WASM binary file.
+	JSDos6UI                     // JSDos6UI is the path to the minified JS DOS user-interface JS file.
+	JSDos6W                      // JSDos6W is the JS DOS default variant compiled with emscripten.
+	JSDos6Wasm                   // JSDOS6Wasm is the JS DOS WASM binary file.
 	Layout                       // Layout is the path to the minified layout CSS file.
 	Pouet                        // Pouet is the path to the minified Pouet JS file.
 	Readme                       // Readme is the path to the minified Readme JS file.
@@ -39,9 +39,9 @@ func Hrefs() Paths {
 		EditArchive:     "/js/editor-archive.min.js",
 		EditForApproval: "/js/editor-forapproval.min.js",
 		FontAwesome:     "/js/fontawesome.min.js",
-		JSDosW:          "/js/wdosbox.js",
-		JSDosWasm:       "/js/wdosbox.wasm",
-		JSDosUI:         "/js/js-dos.js",
+		JSDos6W:         "/js/wdosbox.js",
+		JSDos6Wasm:      "/js/wdosbox.wasm",
+		JSDos6UI:        "/js/js-dos.js",
 		Layout:          "/css/layout.min.css",
 		Pouet:           "/js/pouet.min.js",
 		Readme:          "/js/readme.min.js",

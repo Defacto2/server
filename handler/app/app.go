@@ -1110,8 +1110,8 @@ type SRI struct {
 	EditArchive     string // Editor Archive JS verification hash.
 	EditForApproval string // Editor For Approval JS verification hash.
 	FontAwesome     string // Font Awesome verification hash.
-	JSDosUI         string // JS DOS verification hash.
-	JSDosW          string // JS DOS emscripten verification hash.
+	JSDos6UI        string // JS DOS verification hash.
+	JSDos6W         string // JS DOS emscripten verification hash.
 	Layout          string // Layout CSS verification hash.
 	Pouet           string // Pouet JS verification hash.
 	Readme          string // Readme JS verification hash.
@@ -1153,11 +1153,11 @@ func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 	if err != nil {
 		return err
 	}
-	s.JSDosUI, err = helper.Integrity(names[JSDosUI], fs)
+	s.JSDos6UI, err = helper.Integrity(names[JSDos6UI], fs)
 	if err != nil {
 		return err
 	}
-	s.JSDosW, err = helper.Integrity(names[JSDosW], fs)
+	s.JSDos6W, err = helper.Integrity(names[JSDos6W], fs)
 	if err != nil {
 		return err
 	}

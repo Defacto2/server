@@ -251,11 +251,11 @@ func (web Web) TemplateClosures() template.FuncMap {
 		"initialisms": func(s string) string {
 			return initialism.Join(initialism.Path(s))
 		},
-		"jsdosUI": func() string {
-			return hrefs[JSDosUI]
+		"jsdos6UI": func() string {
+			return hrefs[JSDos6UI]
 		},
-		"jsdosW": func() string {
-			return hrefs[JSDosW]
+		"jsdos6W": func() string {
+			return hrefs[JSDos6W]
 		},
 		"layout": func() string {
 			return hrefs[Layout]
@@ -296,11 +296,11 @@ func (web Web) TemplateClosures() template.FuncMap {
 		"sri_fontAwesome": func() string {
 			return web.Subresource.FontAwesome
 		},
-		"sri_jsdosUI": func() string {
-			return web.Subresource.JSDosUI
+		"sri_jsdos6UI": func() string {
+			return web.Subresource.JSDos6UI
 		},
-		"sri_jsdosW": func() string {
-			return web.Subresource.JSDosW
+		"sri_jsdos6W": func() string {
+			return web.Subresource.JSDos6W
 		},
 		"sri_layout": func() string {
 			return web.Subresource.Layout
@@ -489,7 +489,7 @@ type filename string // filename is the name of the template file in the view di
 func artifactTmpls(lock bool, files ...string) []string {
 	files = append(files,
 		GlobTo("artifact_table.tmpl"),
-		GlobTo("artifact_jsdos.tmpl"),
+		GlobTo("artifact_jsdos6.tmpl"),
 		GlobTo("artifact_editor_archive.tmpl"))
 	if lock {
 		return append(files,

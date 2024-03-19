@@ -135,10 +135,9 @@ func (dir Dirs) Artifact(logr *zap.SugaredLogger, c echo.Context, readonly bool)
 	data["youtube"] = res.WebIDYoutube.String
 	data["github"] = res.WebIDGithub.String
 	// file archive content
-	data["jsdos"] = artifactJSDos(res)
-	nameBin := model.JsDosBinary(res)
-	data["jsdosBinary"] = nameBin
-	data["jsdosZip"] = filepath.Ext(strings.ToLower(fname)) == ".zip"
+	data["jsdos6"] = artifactJSDos(res)
+	data["jsdos6Run"] = model.JsDosBinary(res)
+	data["jsdos6Zip"] = filepath.Ext(strings.ToLower(fname)) == ".zip"
 	ctt := artifactCtt(res)
 	data["content"] = ctt
 	data["contentDesc"] = ""

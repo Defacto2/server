@@ -2265,7 +2265,7 @@ func empty(c echo.Context) map[string]interface{} {
 		"editor":      sess.Editor(c),      //   If true, the editor mode is enabled.
 		"h1":          "",                  // ! The H1 heading of the page.
 		"h1Sub":       "",                  //   The H1 sub-heading of the page.
-		"jsdos":       false,               //   If true, the large, JS-DOS emulator files will be loaded.
+		"jsdos6":      false,               //   If true, the large, js-dos v6.22 emulator files will be loaded.
 		"lead":        "",                  // ! The enlarged, lead paragraph of the page.
 		"logo":        "",                  // ! Text to insert into the monospaced, ASCII art logo.
 		"readOnly":    true,                //   If true, the application is in read-only mode.
