@@ -469,7 +469,7 @@ func (web Web) tmpl(name filename) *template.Template {
 		GlobTo("pagination.tmpl"),
 	}
 	config := web.Import
-	files = uploaderTmpls(config.ReadMode, files...)
+	files = lockTmpls(config.ReadMode, files...)
 	// append any additional and embedded templates
 	switch name {
 	case "artifact.tmpl":
@@ -537,7 +537,7 @@ func templates() map[string]filename {
 	}
 }
 
-func uploaderTmpls(lock bool, files ...string) []string {
+func lockTmpls(lock bool, files ...string) []string {
 	if lock {
 		return append(files,
 			GlobTo("layout_editor_null.tmpl"),
