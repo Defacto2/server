@@ -2349,19 +2349,33 @@ func files(logr *zap.SugaredLogger, c echo.Context, uri string, page int) error 
 	}
 	const pages = 2
 	data["Pagination"] = model.Pagination{
-		TwoAfter: page + pages,
-		NextPage: page + 1,
-		CurrPage: page,
-		PrevPage: page - 1,
-		TwoBelow: page - pages,
-		SumPages: int(lastPage),
-		BaseURL:  "/files/" + uri,
+		TwoAfter:  page + pages,
+		NextPage:  page + 1,
+		CurrPage:  page,
+		PrevPage:  page - 1,
+		TwoBelow:  page - pages,
+		SumPages:  int(lastPage),
+		BaseURL:   "/files/" + uri,
+		RangeStep: steps(lastPage),
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(logr, c, name, err)
 	}
 	return nil
+}
+
+func steps(lastPage float64) int {
+	const one, two, four = 1, 2, 4
+	const skip2Pages, skip4Pages = 39, 99
+	switch {
+	case lastPage > skip4Pages:
+		return four
+	case lastPage > skip2Pages:
+		return two
+	default:
+		return one
+	}
 }
 
 // mag is the handler for the magazine page.

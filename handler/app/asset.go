@@ -30,7 +30,7 @@ type Paths map[Asset]string
 // The strings are intended for href attributes in HTML link elements and
 // the src attribute in HTML script elements.
 func Hrefs() Paths {
-	// note, the js-dos (JS DOS v6) are minified files,
+	// note, the js-dos v6.22 are minified files,
 	// help: https://js-dos.com/6.22/examples/?arkanoid
 	return Paths{
 		Bootstrap5:      "/css/bootstrap.min.css",

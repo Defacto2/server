@@ -269,6 +269,10 @@
   <ul class="pagination pagination-sm justify-content-end mb-0">
     {{ template "paginationList" . }}
   </ul>
+  <div>
+    <input type="range" class="form-range" id="paginationRange" name="paginationRange" min="1" max="{{ index .Pagination.SumPages }}" value="{{ index .Pagination.CurrPage }}" step="{{ index .Pagination.RangeStep }}" />
+    <label for="paginationRange" id="paginationRangeLabel" class="form-label">&nbsp;</label>
+  </div>
 </nav>
 {{- end }}
 <main>

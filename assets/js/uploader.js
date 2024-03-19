@@ -37,6 +37,28 @@
   const pageN2 = document.getElementById("paginationNext2");
   const pageE = document.getElementById("paginationEnd");
 
+  const pageRange = document.getElementById("paginationRange");
+  if (typeof pageRange !== "undefined" && pageRange != null) {
+    pageRange.addEventListener("change", function () {
+      const range = pageRange.value;
+      const url = new URL(window.location.href);
+      let path = url.pathname;
+      let paths = path.split("/");
+      const page = paths[paths.length - 1];
+      if (!isNaN(page) && typeof Number(page) === "number") {
+        paths[paths.length - 1] = range;
+      } else {
+        paths.push(range);
+      }
+      url.pathname = paths.join("/");
+      window.location.href = url.href;
+    });
+    const pageRangeLabel = document.getElementById("paginationRangeLabel");
+    pageRange.addEventListener("input", function () {
+      pageRangeLabel.textContent = "Jump to page " + pageRange.value;
+    });
+  }
+
   // Keyboard shortcuts event listener
   document.addEventListener("keydown", function (event) {
     if (event.ctrlKey && event.altKey) {
