@@ -248,6 +248,9 @@ func (web Web) TemplateClosures() template.FuncMap {
 		"fa5Pro": func() string {
 			return hrefs[FA5Pro]
 		},
+		"htmx": func() string {
+			return hrefs[Htmx]
+		},
 		"initialisms": func(s string) string {
 			return initialism.Join(initialism.Path(s))
 		},
@@ -295,6 +298,9 @@ func (web Web) TemplateClosures() template.FuncMap {
 		},
 		"sri_fa5Pro": func() string {
 			return web.Subresource.FA5Pro
+		},
+		"sri_htmx": func() string {
+			return web.Subresource.Htmx
 		},
 		"sri_jsdos6JS": func() string {
 			return web.Subresource.Jsdos6JS

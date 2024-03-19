@@ -293,6 +293,7 @@
   &copy; <span data-bs-toggle="tooltip" data-bs-title="version: {{ version }}">Defacto2</span>
 </footer>
 </div>
+<script async src="{{ htmx }}?{{ sri_htmx }}" integrity="{{ sri_htmx }}" crossorigin="anonymous"></script>
 {{- /*  Do not defer, or async load the Bootstrap 5.x JS  */}}
 <script src="{{ bootstrap5JS }}?{{ sri_bootstrap5JS }}" integrity="{{ sri_bootstrap5JS }}" crossorigin="anonymous"></script>
 {{- /*  FontAwesome Pro v5 */}}

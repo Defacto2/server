@@ -1118,6 +1118,7 @@ type SRI struct {
 	RESTPouet       string // Pouet REST JS verification hash.
 	RESTZoo         string // Demozoo REST JS verification hash.
 	Uploader        string // Uploader JS verification hash.
+	Htmx            string // htmx JS verification hash.
 }
 
 // Verify checks the integrity of the embedded CSS and JS files.
@@ -1182,6 +1183,10 @@ func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 		return err
 	}
 	s.Uploader, err = helper.Integrity(names[Uploader], fs)
+	if err != nil {
+		return err
+	}
+	s.Htmx, err = helper.Integrity(names[Htmx], fs)
 	if err != nil {
 		return err
 	}

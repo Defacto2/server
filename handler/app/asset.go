@@ -6,14 +6,15 @@ type Asset int
 const (
 	Bootstrap5      Asset = iota // Bootstrap is the path to the minified Bootstrap 5.3 CSS file.
 	Bootstrap5JS                 // BootstrapJS is the path to the minified Bootstrap 5.3 JS file.
+	DosboxJS                     // DosboxJS is the js-dos v6 default variant compiled with emscripten.
+	DosboxWasm                   // DosboxWasm is the js-dos v6 WASM binary file.
 	Editor                       // Editor is the path to the minified Editor JS file.
 	EditAssets                   // EditAssets is the path to the minified Editor assets JS file.
 	EditArchive                  // EditArchive is the path to the minified Editor archive JS file.
 	EditForApproval              // EditForApproval is the path to the minified Editor for-approval JS file.
 	FA5Pro                       // FA5Pro is the path to the minified Font Awesome Pro v5 JS file.
+	Htmx                         // Htmx is the path to the minified htmx AJAX JS file.
 	Jsdos6JS                     // Jsdos6JS is the path to the minified js-dos v6 JS file.
-	DosboxJS                     // DosboxJS is the js-dos v6 default variant compiled with emscripten.
-	DosboxWasm                   // DosboxWasm is the js-dos v6 WASM binary file.
 	Layout                       // Layout is the path to the minified layout CSS file.
 	Pouet                        // Pouet is the path to the minified Pouet JS file.
 	Readme                       // Readme is the path to the minified Readme JS file.
@@ -34,13 +35,14 @@ func Hrefs() Paths {
 	return Paths{
 		Bootstrap5:      "/css/bootstrap.min.css",
 		Bootstrap5JS:    "/js/bootstrap.bundle.min.js",
+		DosboxJS:        "/js/wdosbox.js",
+		DosboxWasm:      "/js/wdosbox.wasm",
 		Editor:          "/js/editor.min.js",
 		EditAssets:      "/js/editor-assets.min.js",
 		EditArchive:     "/js/editor-archive.min.js",
 		EditForApproval: "/js/editor-forapproval.min.js",
 		FA5Pro:          "/js/fontawesome.min.js",
-		DosboxJS:        "/js/wdosbox.js",
-		DosboxWasm:      "/js/wdosbox.wasm",
+		Htmx:            "/js/htmx.min.js",
 		Jsdos6JS:        "/js/js-dos.js",
 		Layout:          "/css/layout.min.css",
 		Pouet:           "/js/pouet.min.js",
