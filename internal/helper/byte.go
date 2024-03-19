@@ -2,6 +2,8 @@ package helper
 
 import (
 	"bytes"
+	"crypto/rand"
+	"fmt"
 
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/charmap"
@@ -73,4 +75,26 @@ func DetermineEncoding(p []byte) encoding.Encoding {
 		}
 	}
 	return charmap.ISO8859_1
+}
+
+// CookieStore generates a key for use with the sessions cookie store middleware.
+// envKey is the value of an imported environment session key. But if it is empty,
+// a 32-bit randomized value is generated that changes on every restart.
+//
+// The effect of using a randomized key will invalidate all existing sessions on every restart.
+func CookieStore(envKey string) ([]byte, error) {
+	if envKey != "" {
+		key := []byte(envKey)
+		return key, nil
+	}
+	const length = 32
+	key := make([]byte, length)
+	n, err := rand.Read(key)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrKey, err.Error())
+	}
+	if n != length {
+		return nil, ErrKey
+	}
+	return key, nil
 }

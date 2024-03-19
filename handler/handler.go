@@ -47,7 +47,6 @@ const (
 var (
 	ErrCtx    = errors.New("echo context is nil")
 	ErrData   = errors.New("data interface is nil")
-	ErrKey    = errors.New("could not generate a random session key")
 	ErrName   = errors.New("template name string is empty")
 	ErrRoutes = errors.New("e echo instance is nil")
 	ErrTmpl   = errors.New("named template cannot be found")

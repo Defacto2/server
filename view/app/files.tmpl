@@ -19,10 +19,10 @@
 {{- if or (ne $zoo "0") (ne $sixteen "") (gt (len $web) 0)}}
 <p class="text-start text-sm-center text-md-end lead">
   {{- if ne $zoo "0"}}
-  <small><a class="link-offset-2 icon-link icon-link-hover" href="https://demozoo.org/groups/{{$zoo}}/"><strong>Demozoo</strong>{{linkSVG}}</a> <small>offers production and member lists</small></small><br>
+  <small><small>Production and member lists</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://demozoo.org/groups/{{$zoo}}/"><strong>Demozoo</strong>{{linkSVG}}</a></small><br>
   {{- end}}
   {{- if ne $sixteen ""}}
-  <small><a class="link-offset-2 icon-link icon-link-hover" href="https://16colo.rs/{{$sixteen}}"><strong>16colors</strong>{{linkSVG}}</a> <small>collection of ANSI and text artworks</small></small><br>
+  <small><small>ANSI and text artworks</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://16colo.rs/{{$sixteen}}"><strong>16colors</strong>{{linkSVG}}</a></small><br>
   {{- end}}
   {{- if gt (len $web) 0}}
     {{- range $web }}

@@ -11,6 +11,7 @@ import (
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/helper"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -41,12 +42,13 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 	const mapExt = ".map"
 
 	// Cookie session key for the session store.
+	nonce := ""
 	if !c.Import.ReadMode {
-		key, err := CookieStore(c.Import.SessionKey)
+		nonce, err := helper.CookieStore(c.Import.SessionKey)
 		if err != nil {
 			return nil, err
 		}
-		e.Use(session.Middleware(sessions.NewCookieStore(key)))
+		e.Use(session.Middleware(sessions.NewCookieStore(nonce)))
 	}
 
 	// Cache the database record count.
@@ -271,7 +273,7 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 		return app.SignedOut(logr, x)
 	})
 	signings.GET("/signin", func(x echo.Context) error {
-		return app.Signin(logr, x, c.Import.GoogleClientID)
+		return app.Signin(logr, x, c.Import.GoogleClientID, nonce)
 	})
 	signings.GET("/operator/signin", func(x echo.Context) error {
 		return x.Redirect(http.StatusMovedPermanently, "/signin")

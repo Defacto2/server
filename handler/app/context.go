@@ -1786,7 +1786,7 @@ func SignOut(logr *zap.SugaredLogger, c echo.Context) error {
 }
 
 // Signin is the handler for the Sign in session page.
-func Signin(logr *zap.SugaredLogger, c echo.Context, clientID string) error {
+func Signin(logr *zap.SugaredLogger, c echo.Context, clientID, nonce string) error {
 	const name = "signin"
 	if logr == nil {
 		return InternalErr(logr, c, name, ErrZap)
@@ -1798,7 +1798,7 @@ func Signin(logr *zap.SugaredLogger, c echo.Context, clientID string) error {
 	data["lead"] = "This sign-in is not open to the general public, and no registration is available."
 	data["callback"] = "/google/callback"
 	data["clientID"] = clientID
-	data["nonce"] = ""
+	data["nonce"] = nonce
 	{ // get any existing session
 		sess, err := session.Get(sess.Name, c)
 		if err != nil {
@@ -2632,7 +2632,7 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 		"years": fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	switch uri {
-	case "new-updates", "newest", "for-approval":
+	case "new-updates", "new-uploads", "newest", "for-approval":
 		d["years"] = fmt.Sprintf("%d - %d", m.MaxYear.Int16, m.MinYear.Int16)
 	}
 	return d, int(m.SumCount.Int64), nil

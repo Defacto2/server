@@ -35,15 +35,3 @@ func TestRender(t *testing.T) {
 	err = tr.Render(w, "name", "data", c)
 	require.Error(t, err)
 }
-
-func TestCookieStore(t *testing.T) {
-	t.Parallel()
-	b, err := handler.CookieStore("")
-	require.NoError(t, err)
-	assert.Len(t, b, 32)
-
-	const key = "my-secret-key"
-	b, err = handler.CookieStore(key)
-	require.NoError(t, err)
-	assert.Len(t, b, len(key))
-}

@@ -5,6 +5,7 @@ import (
 
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"golang.org/x/text/encoding/charmap"
 )
 
@@ -58,4 +59,16 @@ func TestDetermineEncoding(t *testing.T) {
 	p = append(p, []byte(" a DOS line glyph ")...)
 	e = helper.DetermineEncoding(p)
 	assert.Equal(t, charmap.CodePage437, e)
+}
+
+func TestCookieStore(t *testing.T) {
+	t.Parallel()
+	b, err := helper.CookieStore("")
+	require.NoError(t, err)
+	assert.Len(t, b, 32)
+
+	const key = "my-secret-key"
+	b, err = helper.CookieStore(key)
+	require.NoError(t, err)
+	assert.Len(t, b, len(key))
 }
