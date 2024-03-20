@@ -25,6 +25,7 @@ import (
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/handler/html3"
+	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/handler/middleware/br"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/helper"
@@ -120,6 +121,8 @@ func (c Configuration) Controller() *echo.Echo {
 	// Routes for the retro web tables
 	retro := html3.Routes(logr, e)
 	retro.GET(Downloader, c.downloader)
+	// Routes for the htmx responses
+	e = htmx.Routes(logr, e)
 	return e
 }
 
@@ -203,8 +206,10 @@ func (c Configuration) Registry() (*TemplateRegistry, error) {
 	if err != nil {
 		return nil, err
 	}
-	htm3 := html3.Templates(c.Logger, c.View)
-	maps.Copy(tmpls, htm3)
+	src := html3.Templates(c.Logger, c.View)
+	maps.Copy(tmpls, src)
+	src = htmx.Templates(c.Logger, c.View)
+	maps.Copy(tmpls, src)
 	return &TemplateRegistry{Templates: tmpls}, nil
 }
 

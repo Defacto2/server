@@ -255,9 +255,9 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 	search.POST("/file", func(x echo.Context) error {
 		return app.PostFilename(logr, x)
 	})
-	search.POST("/releaser", func(x echo.Context) error {
-		return app.PostReleaser(logr, x)
-	})
+	// search.POST("/releaser", func(x echo.Context) error {
+	// 	return app.PostReleaser(logr, x)
+	// })
 
 	// Uploader for anonymous client uploads
 	uploader := e.Group("/uploader")
