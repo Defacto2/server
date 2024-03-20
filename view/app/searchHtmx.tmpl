@@ -1,0 +1,35 @@
+{{- /*  searchHtmx.tmpl  */}}
+{{- define "content" }} 
+<div class="row justify-content-md-center">
+    <div class="col-sm-6">
+        <div class="card border-dark mb-3 p-3">      
+            <div class="card-body">
+                <h5 class="card-title text-info-emphasis fs-2 lead">
+                    {{index . "title"}}<br>
+                    <small class="fs-5 fw-lighter">{{index . "info"}}</small>
+                </h5>
+                <form>
+                <p class="card-text">
+                <div class="input-group">
+                    <div class="input-group-text">
+                        <div id="indicator" class="htmx-indicator spinner-border spinner-border-sm text-secondary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>              
+                    <input type="search" spellcheck="false"
+                        hx-post="/search/releaser-x" 
+                        hx-target="#search-results" 
+                        hx-trigger="keyup changed delay:500ms" 
+                        hx-indicator="#indicator"
+                        autofocus class="form-control" id="relDataList" name="releaser-data-list" 
+                        placeholder="Type to search for a releaser…">
+                    <button type="reset" class="btn btn-dark">Clear</button>
+                </div>
+                </p>
+                </form>
+            </div>
+        </div>
+        <div id="search-results" class="p-3"></div>
+    </div>
+</div>
+{{- end }}

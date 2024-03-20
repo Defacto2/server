@@ -1,1 +1,16 @@
-{{define "content"}}Hello, {{.}}!{{end}}
+{{define "content"}}
+{{- $path := "g" }}
+{{- $name := "name"}}
+Hello, {{ index . "name" }}! {{ index . "releasers" }} count.
+<div class="row row-cols-1 row-cols-sm-2 row-col-md-3 g-2">
+    {{- range $index, $rel := .releasers -}}
+    {{- $title := fmtRangeURI $rel.Unique.URI }}
+    {{- $initialism := initialisms $rel.Unique.URI }}
+            <div class="col">
+                <div class="p-3 border bg-light"><h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{$title}}</a></h5>
+                <span class="text-muted">{{ $initialism }} &nbsp; </span>
+                {{- byteFileS $name $rel.Unique.Count $rel.Unique.Bytes }}</div>
+            </div>
+    {{- end}}
+</div>
+{{end}}

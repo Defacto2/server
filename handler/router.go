@@ -242,6 +242,9 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 	search.GET("/releaser", func(x echo.Context) error {
 		return app.SearchReleaser(logr, x)
 	})
+	search.GET("/releaser-x", func(x echo.Context) error {
+		return app.SearchReleaserX(logr, x)
+	})
 	search.GET("/result", func(x echo.Context) error {
 		// this legacy get result should be kept for (osx.xml) opensearch compatibility
 		// and to keep possible backwards compatibility with third party site links.
@@ -255,9 +258,9 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 	search.POST("/file", func(x echo.Context) error {
 		return app.PostFilename(logr, x)
 	})
-	// search.POST("/releaser", func(x echo.Context) error {
-	// 	return app.PostReleaser(logr, x)
-	// })
+	search.POST("/releaser", func(x echo.Context) error {
+		return app.PostReleaser(logr, x)
+	})
 
 	// Uploader for anonymous client uploads
 	uploader := e.Group("/uploader")

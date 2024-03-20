@@ -1700,6 +1700,24 @@ func SearchFile(logr *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
+// SearchReleaserX is the handler for the Releaser Search page.
+func SearchReleaserX(logr *zap.SugaredLogger, c echo.Context) error {
+	const title, name = "Search for releasers", "searchHtmx"
+	if logr == nil {
+		return InternalErr(logr, c, name, ErrZap)
+	}
+	data := empty(c)
+	data["description"] = "Search form to discover releasers."
+	data["logo"] = title
+	data["title"] = title
+	data["info"] = "search for a group, initialism, magazine, board, or site"
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(logr, c, name, err)
+	}
+	return nil
+}
+
 // SearchReleaser is the handler for the Releaser Search page.
 func SearchReleaser(logr *zap.SugaredLogger, c echo.Context) error {
 	const title, name = "Search for releasers", "searchList"

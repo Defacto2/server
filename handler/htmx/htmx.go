@@ -3,10 +3,14 @@ package htmx
 import (
 	"context"
 	"embed"
+	"fmt"
 	"html/template"
 	"net/http"
 	"strings"
 
+	"github.com/Defacto2/releaser/initialism"
+	"github.com/Defacto2/releaser/name"
+	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
@@ -18,7 +22,7 @@ import (
 // Any errors are logged and rendered to the client using HTTP codes
 // and the custom /html3, group errror template.
 func Routes(logr *zap.SugaredLogger, e *echo.Echo) *echo.Echo {
-	e.POST("/search/releaser", func(x echo.Context) error {
+	e.POST("/search/releaser-x", func(x echo.Context) error {
 		return PostReleaser(logr, x)
 	})
 	return e
@@ -28,6 +32,7 @@ func GlobTo(name string) string {
 	// note: the path is relative to the embed.FS root and must not use the OS path separator.
 	return strings.Join([]string{"view", "htmx", name}, "/")
 }
+
 func PostReleaser(logr *zap.SugaredLogger, c echo.Context) error {
 	const name = "postReleaser"
 	ctx := context.Background()
@@ -44,16 +49,28 @@ func PostReleaser(logr *zap.SugaredLogger, c echo.Context) error {
 	// }
 
 	input := c.FormValue("releaser-data-list")
-	val := helper.TrimRoundBraket(input)
-	slug := helper.Slug(val)
-
+	slug := helper.Slug(helper.TrimRoundBraket(input))
 	if err := r.Find(ctx, db, slug, 10); err != nil {
 		return err
 		//DatabaseErr(logr, c, name, err)
 	}
 
+	fmt.Println("slug", slug)
+	inits := initialism.Initialisms()
+	for key, values := range inits {
+		for _, value := range values {
+			if strings.Contains(strings.ToLower(value), strings.ToLower(slug)) {
+				fmt.Println(key, value)
+			}
+		}
+		//hasInitialism := slices.Contains[]()
+		//fmt.Println(key, values)
+	}
+	//fmt.Println(inits)
+
 	return c.Render(http.StatusOK, "hello", map[string]interface{}{
-		"name": "Dolly!",
+		"name":      slug,
+		"releasers": r,
 	})
 
 	//err = c.HTML(http.StatusOK, fmt.Sprintf("%s", r))
@@ -89,6 +106,17 @@ func Templates(logr *zap.SugaredLogger, fs embed.FS) map[string]*template.Templa
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func TemplateFuncMap(logr *zap.SugaredLogger) template.FuncMap {
 	return template.FuncMap{
+		"byteFileS": app.ByteFileS,
+		"fmtRangeURI": func(s string) string {
+			x, err := name.Humanize(name.Path(s))
+			if err != nil {
+				return err.Error()
+			}
+			return helper.Capitalize(x)
+		},
+		"initialisms": func(s string) string {
+			return initialism.Join(initialism.Path(s))
+		},
 		"safeHTML": func(s string) template.HTML {
 			return template.HTML(s) //nolint:gosec
 		},

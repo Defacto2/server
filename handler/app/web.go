@@ -532,6 +532,7 @@ func templates() map[string]filename {
 		"reader":      "reader.tmpl",
 		"releaser":    releaser,
 		"scener":      scener,
+		"searchHtmx":  "searchHtmx.tmpl",
 		"searchList":  "searchList.tmpl",
 		"searchPost":  "searchPost.tmpl",
 		"signin":      "signin.tmpl",
