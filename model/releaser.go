@@ -98,6 +98,35 @@ func (r *Releasers) All(ctx context.Context, db *sql.DB, reorder bool, limit, pa
 	return nil
 }
 
+// Find the unique releaser names that are like the named string.
+// The results are ordered by the total file counts.
+// The required limit is the maximum number of results to return.
+func (r *Releasers) Find(ctx context.Context, db *sql.DB, name string, limit uint) error {
+	if db == nil {
+		return ErrDB
+	}
+	if r != nil && len(*r) > 0 {
+		return nil
+	}
+
+	s, err := namer.Humanize(namer.Path(name))
+	if err != nil {
+		return err
+	}
+	query := string(postgres.ReleaserLike(strings.ToUpper(s)))
+	{
+		const page = 1
+		size := int(limit) | 10
+		val, offset := calculateLimitAndOffset(page, size)
+		query += fmt.Sprintf(" LIMIT %d OFFSET %d", val, offset)
+	}
+	if err := queries.Raw(query).Bind(ctx, db, r); err != nil {
+		return err
+	}
+	r.Slugs()
+	return nil
+}
+
 func calculateLimitAndOffset(pageNumber int, pageSize int) (int, int) {
 	limit := pageSize
 	offset := (pageNumber - 1) * pageSize

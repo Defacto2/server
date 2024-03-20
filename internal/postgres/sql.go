@@ -203,6 +203,15 @@ func DistFTP() SQL {
 	return releaserSEL + "AND releaser ~ 'FTP\\M' " + releaserBy
 }
 
+// ReleaserLike selects a list of distinct releasers or groups,
+// like the query string and ordered by the file count.
+func ReleaserLike(like string) SQL {
+	query := SQL(strings.ToUpper(strings.TrimSpace(like)))
+	return "SELECT * FROM (" + releaserSEL + releaserBy +
+		") sub WHERE sub.releaser LIKE '%" + query +
+		"%' ORDER BY sub.count_sum DESC"
+}
+
 // SumReleaser is an SQL statement to total the file count and filesize sum of releasers,
 // as well as the minimum, oldest and maximum, newest year values.
 // The where parameter is used to filter the releasers by section, either all, magazine, bbs or ftp.
