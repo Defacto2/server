@@ -746,15 +746,14 @@ func Index(logr *zap.SugaredLogger, c echo.Context) error {
 	if logr == nil {
 		return InternalErr(logr, c, name, ErrZap)
 	}
-	const lead = "a website maintaining the historic PC cracking and warez scene subcultures." +
-		" It covers digital objects including text files, demos, music, art, " +
+	const lead = "the website preserving the historic PC cracking scene subculture. " +
+		"It covers digital artifacts including text files, demos, music, art, " +
 		"magazines, and other projects."
 	const desc = "Defacto2 is " + lead
 	data := empty(c)
 	data["title"] = "Home"
 	data["description"] = desc
 	data["h1"] = "Welcome,"
-	data["lead"] = "You're at " + lead
 	data["milestones"] = Collection()
 	{
 		// get the signed in given name

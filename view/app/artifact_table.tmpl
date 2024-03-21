@@ -77,6 +77,9 @@
                     </div>
                 </div>               
             {{- end }}
+            {{- if eq (index . "jsdos6") true}}
+                <a href="#" id="jsdosRunLink" class="btn btn-primary btn-lg m-1" data-bs-toggle="modal" data-bs-target="#jsDOSModal">Run in browser</a>
+            {{- end}}
             {{- if ne "" (index . "checksum")}}
                 <a class="d-none d-sm-inline btn btn-outline-secondary btn m-1" href="/sum/{{index . "download"}}" role="button" data-bs-toggle="tooltip" data-bs-title="Checksum download">#sum</a>
                 <a class="d-inline d-sm-none btn btn-outline-secondary btn m-1" href="/sum/{{index . "download"}}" role="button">Checksum</a>
@@ -103,13 +106,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{- if eq (index . "jsdos6") true}}
-                    <tr>
-                        <th scope="row">Emulation</th>
-                        <td>
-                            <a href="#" id="jsdosRunLink" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#jsDOSModal">Run in the browser</a>
-                        </td>
-                    </tr>{{- end}}
                     {{- if (index . "noDownload")}}
                     <tr>
                         <td colspan="2" class="text-warning-emphasis p-3">Error the file download is missing on the server</td>
