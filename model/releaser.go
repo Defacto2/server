@@ -98,10 +98,13 @@ func (r *Releasers) All(ctx context.Context, db *sql.DB, reorder bool, limit, pa
 	return nil
 }
 
-// Find the unique releaser names that are like the named string.
+// Find the unique releaser names that are similar to the named strings.
 // The results are ordered by the total file counts.
-// The required limit is the maximum number of results to return.
-func (r *Releasers) Find(ctx context.Context, db *sql.DB, name string, limit uint) error {
+// The required limit is the maximum number of results to return or defaults to 10.
+func (r *Releasers) Similar(ctx context.Context, db *sql.DB, limit uint, names ...string) error {
+	if len(names) == 0 {
+		return nil
+	}
 	if db == nil {
 		return ErrDB
 	}
@@ -109,11 +112,15 @@ func (r *Releasers) Find(ctx context.Context, db *sql.DB, name string, limit uin
 		return nil
 	}
 
-	s, err := namer.Humanize(namer.Path(name))
-	if err != nil {
-		return err
+	like := names
+	for i, name := range names {
+		x, err := namer.Humanize(namer.Path(name))
+		if err != nil {
+			return err
+		}
+		like[i] = strings.ToUpper(x)
 	}
-	query := string(postgres.ReleaserLike(strings.ToUpper(s)))
+	query := string(postgres.ReleaserSimilarTo(like...))
 	{
 		const page = 1
 		size := int(limit) | 10
@@ -121,6 +128,7 @@ func (r *Releasers) Find(ctx context.Context, db *sql.DB, name string, limit uin
 		query += fmt.Sprintf(" LIMIT %d OFFSET %d", val, offset)
 	}
 	if err := queries.Raw(query).Bind(ctx, db, r); err != nil {
+		fmt.Println(err)
 		return err
 	}
 	r.Slugs()

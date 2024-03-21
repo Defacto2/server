@@ -212,6 +212,18 @@ func ReleaserLike(like string) SQL {
 		"%' ORDER BY sub.count_sum DESC"
 }
 
+// ReleaserLike selects a list of distinct releasers or groups,
+// like the query strings and ordered by the file count.
+func ReleaserSimilarTo(like ...string) SQL {
+	query := like
+	for i, val := range query {
+		query[i] = strings.ToUpper(strings.TrimSpace(val))
+	}
+	return "SELECT * FROM (" + releaserSEL + releaserBy +
+		SQL(fmt.Sprintf(") sub WHERE sub.releaser SIMILAR TO '%%(%s)%%'", strings.Join(query, "|"))) +
+		" ORDER BY sub.count_sum DESC"
+}
+
 // SumReleaser is an SQL statement to total the file count and filesize sum of releasers,
 // as well as the minimum, oldest and maximum, newest year values.
 // The where parameter is used to filter the releasers by section, either all, magazine, bbs or ftp.

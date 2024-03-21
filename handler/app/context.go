@@ -287,9 +287,9 @@ func FTP(logr *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
-// File is the handler for the file categories page.
+// File is the handler for the artifact categories page.
 func File(logr *zap.SugaredLogger, c echo.Context, stats bool) error {
-	const title, name = "File categories", "file"
+	const title, name = "Artifact categories", "file"
 	if logr == nil {
 		return InternalErr(logr, c, name, ErrZap)
 	}
@@ -1243,7 +1243,7 @@ func RecordToggle(logr *zap.SugaredLogger, c echo.Context, state bool) error {
 	return c.JSON(http.StatusOK, f)
 }
 
-// Records returns the records for the file category URI.
+// Records returns the records for the artifacts category URI.
 func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
@@ -1278,7 +1278,7 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 
 func recordsZ(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
 	switch Match(uri) {
-	// file categories matches
+	// artifacts categories matches
 	case advert:
 		r := model.Advert{}
 		return r.List(ctx, db, page, limit)
@@ -1838,7 +1838,7 @@ func Signin(logr *zap.SugaredLogger, c echo.Context, clientID, nonce string) err
 	return nil
 }
 
-// Statistics returns the empty database statistics for the file categories.
+// Statistics returns the empty database statistics for the artifacts categories.
 func Statistics() Stats {
 	return Stats{}
 }
@@ -2104,7 +2104,7 @@ const (
 	Descriptions                   // Descriptions is the search for file descriptions and titles.
 )
 
-// Stats are the database statistics for the file categories.
+// Stats are the database statistics for the artifacts categories.
 type Stats struct {
 	IntroW    model.IntroWindows
 	Record    model.Files
@@ -2130,7 +2130,7 @@ type Stats struct {
 	Windows   model.Windows
 }
 
-// Get and store the database statistics for the file categories.
+// Get and store the database statistics for the artifacts categories.
 func (s *Stats) Get(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
@@ -2253,7 +2253,7 @@ func bbsHandler(logr *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	return nil
 }
 
-// counter returns the statistics for the file categories.
+// counter returns the statistics for the artifacts categories.
 func counter() (Stats, error) {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
@@ -2312,8 +2312,8 @@ func fileWStats(data map[string]interface{}, stats bool) (map[string]interface{}
 		return data, err
 	}
 	data["counter"] = c
-	data["logo"] = "File category statistics"
-	data["lead"] = "This page shows the file categories with selected statistics, " +
+	data["logo"] = "Artifact category statistics"
+	data["lead"] = "This page shows the artifacts categories with selected statistics, " +
 		"such as the number of files in the category or platform." +
 		fmt.Sprintf(" The total number of files in the database is %d.", c.Record.Count) +
 		fmt.Sprintf(" The total size of all file artifacts are %s.", helper.ByteCount(int64(c.Record.Bytes)))

@@ -1,13 +1,14 @@
+// Package htmx handles the routes and views for the AJAX responses using the htmx library.
 package htmx
 
 import (
 	"context"
 	"embed"
-	"fmt"
 	"html/template"
 	"net/http"
 	"strings"
 
+	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/handler/app"
@@ -18,9 +19,8 @@ import (
 	"go.uber.org/zap"
 )
 
-// Routes for the /html3 sub-route group.
-// Any errors are logged and rendered to the client using HTTP codes
-// and the custom /html3, group errror template.
+// Routes for the /htmx sub-route group that returns HTML fragments
+// using the htmx library for AJAX responses.
 func Routes(logr *zap.SugaredLogger, e *echo.Echo) *echo.Echo {
 	e.POST("/search/releaser-x", func(x echo.Context) error {
 		return PostReleaser(logr, x)
@@ -28,91 +28,92 @@ func Routes(logr *zap.SugaredLogger, e *echo.Echo) *echo.Echo {
 	return e
 }
 
+// GlobTo returns the path to the template file.
 func GlobTo(name string) string {
 	// note: the path is relative to the embed.FS root and must not use the OS path separator.
 	return strings.Join([]string{"view", "htmx", name}, "/")
 }
 
+// PostReleaser is a handler for the /search/releaser-x route.
 func PostReleaser(logr *zap.SugaredLogger, c echo.Context) error {
-	const name = "postReleaser"
+	const maxResults = 14
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return err
-		//InternalErr(logr, c, name, err)
+		logr.Error(err)
+		return c.String(http.StatusServiceUnavailable,
+			"cannot connect to the database")
 	}
 	defer db.Close()
-	var r model.Releasers
-	//const prolificOrder = true
-	// if err := r.All(ctx, db, prolificOrder, 0, 0); err != nil {
-	// 	return DatabaseErr(logr, c, name, err)
-	// }
 
-	input := c.FormValue("releaser-data-list")
+	input := c.FormValue("releaser-search")
 	slug := helper.Slug(helper.TrimRoundBraket(input))
-	if err := r.Find(ctx, db, slug, 10); err != nil {
-		return err
-		//DatabaseErr(logr, c, name, err)
+	if slug == "" {
+		return c.HTML(http.StatusOK, "<!-- empty search query -->")
 	}
 
-	fmt.Println("slug", slug)
-	inits := initialism.Initialisms()
-	for key, values := range inits {
+	lookup := []string{}
+	for key, values := range initialism.Initialisms() {
 		for _, value := range values {
 			if strings.Contains(strings.ToLower(value), strings.ToLower(slug)) {
-				fmt.Println(key, value)
+				lookup = append(lookup, string(key))
 			}
 		}
-		//hasInitialism := slices.Contains[]()
-		//fmt.Println(key, values)
 	}
-	//fmt.Println(inits)
-
-	return c.Render(http.StatusOK, "hello", map[string]interface{}{
-		"name":      slug,
-		"releasers": r,
+	lookup = append(lookup, slug)
+	var r model.Releasers
+	if err := r.Similar(ctx, db, maxResults, lookup...); err != nil {
+		logr.Error(err)
+		return c.String(http.StatusServiceUnavailable,
+			"the search query failed")
+	}
+	if len(r) == 0 {
+		return c.HTML(http.StatusOK, "No releasers found.")
+	}
+	err = c.Render(http.StatusOK, "releasers", map[string]interface{}{
+		"maximum": maxResults,
+		"name":    slug,
+		"result":  r,
 	})
-
-	//err = c.HTML(http.StatusOK, fmt.Sprintf("%s", r))
-	// if err != nil {
-	// 	return InternalErr(logr, c, name, err)
-	// }
-	// return nil
-
-	// err = c.Render(http.StatusOK, "html3_groups", map[string]interface{}{
-	// 	"title": title + "/groups",
-	// 	"description": "Listed is an exhaustive, distinct collection of scene groups and site brands." +
-	// 		" Do note that Defacto2 is a file-serving site, so the list doesn't distinguish between" +
-	// 		" different groups with the same name or brand.",
-	// 	"latency":   time.Since(*start).String() + ".",
-	// 	"path":      "group",
-	// 	"releasers": releasers, // model.Grps.List
-	// 	"navigate":  navi,
-	// })
+	if err != nil {
+		return c.String(http.StatusInternalServerError,
+			"cannot render the htmx template")
+	}
+	return nil
 }
 
-func hello(logr *zap.SugaredLogger, fs embed.FS) *template.Template {
+func releasers(logr *zap.SugaredLogger, fs embed.FS) *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap(logr)).ParseFS(fs,
-		GlobTo("layout.tmpl"), GlobTo("hello.tmpl")))
+		GlobTo("layout.tmpl"), GlobTo("releasers.tmpl")))
 }
 
 // Templates returns a map of the templates used by the HTML3 sub-group route.
 func Templates(logr *zap.SugaredLogger, fs embed.FS) map[string]*template.Template {
 	t := make(map[string]*template.Template)
-	t["hello"] = hello(logr, fs)
+	t["releasers"] = releasers(logr, fs)
 	return t
 }
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func TemplateFuncMap(logr *zap.SugaredLogger) template.FuncMap {
 	return template.FuncMap{
-		"byteFileS": app.ByteFileS,
-		"fmtRangeURI": func(s string) string {
-			x, err := name.Humanize(name.Path(s))
-			if err != nil {
-				return err.Error()
+		"borderClass": func(name, path string) string {
+			const mark = "border border-primary"
+			if strings.EqualFold(name, path) {
+				return mark
 			}
-			return helper.Capitalize(x)
+			init := initialism.Join(initialism.Path(path))
+			if strings.EqualFold(name, init) {
+				return mark
+			}
+			return "border"
+		},
+		"byteFileS": app.ByteFileS,
+		"fmtPath": func(path string) string {
+			if val := name.Path(path); val.String() != "" {
+				return val.String()
+			}
+			return releaser.Humanize(path)
 		},
 		"initialisms": func(s string) string {
 			return initialism.Join(initialism.Path(s))

@@ -1,0 +1,24 @@
+{{- /*  releasers.tmpl  */}}
+{{define "content"}}
+{{- $slug := index . "name" }}
+{{- $maximum := index . "maximum" }}
+{{- $path := "g" }}
+{{- $border := "border-success"}}
+{{- $class := "row-cols-1"}}
+{{- $limit := "d-none" }}
+{{- if gt (len .result) 1}}{{ $class = "row-cols-1 row-cols-sm-2 row-col-md-3"}}{{end}}
+{{- if ge (len .result) $maximum}}{{ $limit = "" }}{{end}}
+<div class="row {{ $class }} g-2 mb-2">
+    {{- range $index, $rel := .result -}}
+        {{- $title := fmtPath $rel.Unique.URI }}
+        {{- $initialism := initialisms $rel.Unique.URI }}
+        {{- $border = borderClass $slug $rel.Unique.URI }}
+            <div class="col">
+                <div class="p-3 border {{$border}} bg-light h-100"><h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{$title}}</a></h5>
+                <span class="text-muted">{{ $initialism }} &nbsp; </span>
+                {{- byteFileS "file" $rel.Unique.Count $rel.Unique.Bytes }}</div>
+            </div>
+    {{- end}}
+</div>
+<p class="{{$limit}}">A limit of {{$maximum}} results has been reached.</p>
+{{end}}

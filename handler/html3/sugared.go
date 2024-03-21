@@ -37,7 +37,7 @@ func (s *Sugared) Categories(c echo.Context) error {
 	start := helper.Latency()
 	err := c.Render(http.StatusOK, string(tag), map[string]interface{}{
 		"title":       title + "/categories",
-		"description": "File categories and classification tags.",
+		"description": "Artifact categories and classification tags.",
 		"latency":     time.Since(*start).String() + ".",
 		"path":        "category",
 		"tagFirst":    tags.FirstCategory,

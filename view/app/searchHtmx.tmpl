@@ -2,13 +2,12 @@
 {{- define "content" }} 
 <div class="row justify-content-md-center">
     <div class="col-sm-6">
-        <div class="card border-dark mb-3 p-3">      
+        <div class="card border-dark mb-3">      
             <div class="card-body">
                 <h5 class="card-title text-info-emphasis fs-2 lead">
                     {{index . "title"}}<br>
                     <small class="fs-5 fw-lighter">{{index . "info"}}</small>
                 </h5>
-                <form>
                 <p class="card-text">
                 <div class="input-group">
                     <div class="input-group-text">
@@ -16,20 +15,54 @@
                             <span class="visually-hidden">Loading...</span>
                         </div>
                     </div>              
-                    <input type="search" spellcheck="false"
+                    <input type="text" spellcheck="false" autofocus 
+                        class="form-control" id="releaserSearch" name="releaser-search" 
                         hx-post="/search/releaser-x" 
                         hx-target="#search-results" 
                         hx-trigger="keyup changed delay:500ms" 
                         hx-indicator="#indicator"
-                        autofocus class="form-control" id="relDataList" name="releaser-data-list" 
                         placeholder="Type to search for a releaser…">
-                    <button type="reset" class="btn btn-dark">Clear</button>
+                    <button type="button" id="htmx-clear" class="btn btn-dark">Clear</button>
                 </div>
                 </p>
-                </form>
             </div>
         </div>
-        <div id="search-results" class="p-3"></div>
+        <div id="htmx-alert" hidden class="alert alert-warning" role="alert"></div>
     </div>
+    <div class="col-sm-8" id="search-results"></div>
 </div>
+<script defer>
+    document.body.addEventListener('htmx:afterRequest', function (evt) {
+        const alert = document.getElementById("htmx-alert")
+        if (typeof alert === "undefined" || alert === null) {
+            return;
+        }
+        if (evt.detail.successful) {
+            alert.setAttribute("hidden", "true")
+            alert.innerText = "";
+            return;
+        } 
+        if (evt.detail.failed && evt.detail.xhr) {
+            const xhr = evt.detail.xhr;
+            alert.innerText = `Something on the server is not working, ${xhr.status} status: ${xhr.responseText}.`;
+            alert.removeAttribute("hidden");
+            return;
+        }
+        alert.innerText = "Something with the browser is not working, please refresh the page.";
+        alert.removeAttribute("hidden");
+    });
+    const clear = document.getElementById("htmx-clear");
+    if (typeof alert !== "undefined" && alert !== null) {
+        clear.addEventListener("click", function() {
+            const input = document.getElementById("releaserSearch");
+            input.value = "";
+            input.focus();
+            const alert = document.getElementById("htmx-alert");
+            alert.setAttribute("hidden", "true");
+            const indicator = document.getElementById("indicator");
+            indicator.style.opacity = 0;
+            document.getElementById("search-results").innerHTML = "";
+        });
+    }
+</script>
 {{- end }}

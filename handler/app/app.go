@@ -38,7 +38,7 @@ const (
 )
 
 var (
-	ErrCategory = errors.New("unknown file category")
+	ErrCategory = errors.New("unknown artifacts categories")
 	ErrClaims   = errors.New("no sub id in the claims playload")
 	ErrCode     = errors.New("the http status code is not valid")
 	ErrCxt      = errors.New("the server could not create a context")
@@ -642,7 +642,7 @@ func Prefix(s string) string {
 	return s + " "
 }
 
-// RecordsSub returns the records for the file category URI.
+// RecordsSub returns the records for the artifacts category URI.
 func RecordsSub(uri string) string { //nolint:cyclop
 	const ignore = -1
 	switch Match(uri) {
