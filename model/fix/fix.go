@@ -61,6 +61,15 @@ func (r Repair) Run(ctx context.Context, db *sql.DB) error {
 		if err := contentWhiteSpace(db); err != nil {
 			return err
 		}
+		if err := nullifyEmpty(db); err != nil {
+			return err
+		}
+		if err := nullifyZero(db); err != nil {
+			return err
+		}
+		if err := trimFwdSlash(db); err != nil {
+			return err
+		}
 	}
 	return optimize(db)
 }
@@ -270,6 +279,45 @@ func invalidUUIDs(ctx context.Context, db *sql.DB) error {
 	logr, ok := ctx.Value("logger").(*zap.SugaredLogger)
 	if ok {
 		logr.Warnf("%d invalid UUIDs found", i)
+	}
+	return nil
+}
+
+func nullifyEmpty(db *sql.DB) error {
+	query := ""
+	columns := []string{"list_relations", "web_id_github", "web_id_youtube",
+		"group_brand_for", "group_brand_by", "record_title",
+		"credit_text", "credit_program", "credit_illustration", "credit_audio", "comment"}
+	for _, column := range columns {
+		query += "UPDATE files SET " + column + " = NULL WHERE " + column + " = ''; "
+	}
+	if _, err := queries.Raw(query).Exec(db); err != nil {
+		return err
+	}
+	return nil
+}
+
+func nullifyZero(db *sql.DB) error {
+	query := ""
+	columns := []string{"web_id_pouet", "web_id_demozoo",
+		"date_issued_year", "date_issued_month", "date_issued_day"}
+	for _, column := range columns {
+		query += "UPDATE files SET " + column + " = NULL WHERE " + column + " = 0; "
+	}
+	if _, err := queries.Raw(query).Exec(db); err != nil {
+		return err
+	}
+	return nil
+}
+
+func trimFwdSlash(db *sql.DB) error {
+	query := ""
+	columns := []string{"web_id_16colors"}
+	for _, column := range columns {
+		query += "UPDATE files SET " + column + " = LTRIM(web_id_16colors, '/') WHERE web_id_16colors LIKE '/%'; "
+	}
+	if _, err := queries.Raw(query).Exec(db); err != nil {
+		return err
 	}
 	return nil
 }
