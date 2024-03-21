@@ -154,13 +154,15 @@ func Coder(logr *zap.SugaredLogger, c echo.Context) error {
 	return scener(logr, c, postgres.Writer, data)
 }
 
-// DatabaseErr is the handler for handling database connection errors.
+// DatabaseErr is the handler for database connection issues.
+// A HTTP 503 Service Unavailable error is returned, to reflect the database
+// connection issue but where the server is still running and usable for the client.
 func DatabaseErr(logr *zap.SugaredLogger, c echo.Context, uri string, err error) error {
-	const code = http.StatusInternalServerError
+	const unavailable = http.StatusServiceUnavailable
 	if logr == nil {
 		zapNil(err)
 	} else if err != nil {
-		logr.Errorf("%d error for %q: %s", code, uri, err)
+		logr.Errorf("%d error for %q: %s", unavailable, uri, err)
 	}
 	// render the fallback, text only error page
 	if c == nil {
@@ -174,18 +176,18 @@ func DatabaseErr(logr *zap.SugaredLogger, c echo.Context, uri string, err error)
 	}
 	// render a user friendly error page
 	data := empty(c)
-	data["description"] = fmt.Sprintf("HTTP status %d error", code)
-	data["title"] = "500 error, there is a complication"
-	data["code"] = code
+	data["description"] = fmt.Sprintf("HTTP status %d error", unavailable)
+	data["title"] = fmt.Sprintf("%d error, there is a complication", unavailable)
+	data["code"] = fmt.Sprintf("%d service unavailable", unavailable)
 	data["logo"] = "Database error"
 	data["alert"] = "Cannot connect to the database!"
 	data["uriErr"] = ""
 	data["probl"] = "This is not your fault, but the server cannot communicate with the database to display this page."
-	if err := c.Render(code, "status", data); err != nil {
+	if err := c.Render(unavailable, "status", data); err != nil {
 		if logr != nil {
 			logr.Errorf("%s: %s", ErrTmpl, err)
 		}
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		return echo.NewHTTPError(unavailable, ErrTmpl)
 	}
 	return nil
 }
