@@ -5,6 +5,7 @@ package model
 import (
 	"errors"
 	"fmt"
+	"html/template"
 	"path/filepath"
 	"slices"
 	"sort"
@@ -288,9 +289,9 @@ func JsDosBinary(f *models.File) string {
 	return DosFmt(DosBinary(f.Filename.String, f.FileZipContent.String))
 }
 
-func PublishedFmt(f *models.File) string {
+func PublishedFmt(f *models.File) template.HTML {
 	if f == nil {
-		return ErrModel.Error()
+		return template.HTML(ErrModel.Error())
 	}
 	ys, ms, ds := "", "", ""
 	if f.DateIssuedYear.Valid {
@@ -308,16 +309,19 @@ func PublishedFmt(f *models.File) string {
 			ds = strconv.Itoa(i)
 		}
 	}
+	strong := func(s string) template.HTML {
+		return template.HTML("<strong>" + s + "</strong>")
+	}
 	if isYearOnly := ys != "" && ms == "" && ds == ""; isYearOnly {
-		return ys
+		return template.HTML(strong(ys))
 	}
 	if isInvalidDay := ys != "" && ms != "" && ds == ""; isInvalidDay {
-		return ys + " " + ms
+		return strong(ys) + template.HTML(" "+ms)
 	}
 	if isInvalid := ys == "" && ms == "" && ds == ""; isInvalid {
 		return "unknown date"
 	}
-	return fmt.Sprintf("%s %s %s", ys, ms, ds)
+	return strong(ys) + template.HTML(fmt.Sprintf(" %s %s", ms, ds))
 }
 
 func calc(o, l int) int {
