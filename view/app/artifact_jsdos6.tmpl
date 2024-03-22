@@ -5,6 +5,7 @@
 {{- $filename := index . "filename"}}
 {{- $runProgram := index . "jsdos6Run"}}
 {{- $extract := index . "jsdos6Zip"}}
+{{- $cpu := index . "jsdos6CPU"}}
 {{- $runJS := "startBinary(DosBoxConfig);"}}
 {{- if eq $extract true}}{{ $runJS = "startZip(DosBoxConfig);" }}{{end}}
 {{- /*  js-dos v6.22 ~ canvas and user interface. */}}

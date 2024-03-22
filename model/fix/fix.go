@@ -287,7 +287,8 @@ func nullifyEmpty(db *sql.DB) error {
 	query := ""
 	columns := []string{"list_relations", "web_id_github", "web_id_youtube",
 		"group_brand_for", "group_brand_by", "record_title",
-		"credit_text", "credit_program", "credit_illustration", "credit_audio", "comment"}
+		"credit_text", "credit_program", "credit_illustration", "credit_audio", "comment",
+		"dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio"}
 	for _, column := range columns {
 		query += "UPDATE files SET " + column + " = NULL WHERE " + column + " = ''; "
 	}

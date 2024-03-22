@@ -138,6 +138,7 @@ func (dir Dirs) Artifact(logr *zap.SugaredLogger, c echo.Context, readonly bool)
 	data["jsdos6"] = artifactJSDos(res)
 	data["jsdos6Run"] = model.JsDosBinary(res)
 	data["jsdos6Zip"] = filepath.Ext(strings.ToLower(fname)) == ".zip"
+	data["jsdos6CPU"] = res.DoseeHardwareCPU.String
 	ctt := artifactCtt(res)
 	data["content"] = ctt
 	data["contentDesc"] = ""
