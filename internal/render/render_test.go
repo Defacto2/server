@@ -25,31 +25,31 @@ func TestEncoder(t *testing.T) {
 	ec := render.Encoder(nil)
 	assert.Nil(t, ec)
 
-	res := models.File{
+	art := models.File{
 		Platform: null.StringFrom("textamiga"),
 	}
-	ec = render.Encoder(&res)
+	ec = render.Encoder(&art)
 	assert.Equal(t, ec, charmap.ISO8859_1)
 
-	res = models.File{
+	art = models.File{
 		Platform: null.StringFrom(""),
 	}
-	res.Section = null.StringFrom("appleii")
-	ec = render.Encoder(&res)
+	art.Section = null.StringFrom("appleii")
+	ec = render.Encoder(&art)
 	assert.Equal(t, ec, charmap.ISO8859_1)
 
-	res.Section = null.StringFrom("atarist")
-	ec = render.Encoder(&res)
+	art.Section = null.StringFrom("atarist")
+	ec = render.Encoder(&art)
 	assert.Equal(t, ec, charmap.ISO8859_1)
 
-	res.Platform = null.StringFrom("textdos")
-	res.Section = null.StringFrom("")
+	art.Platform = null.StringFrom("textdos")
+	art.Section = null.StringFrom("")
 	b := []byte("Hello\nworld\nthis is some text.\n")
-	ec = render.Encoder(&res, b...)
+	ec = render.Encoder(&art, b...)
 	assert.Equal(t, ec, charmap.ISO8859_1)
 
 	b = []byte("Hello\nworld\nthis is some text. 👾\n")
-	ec = render.Encoder(&res, b...)
+	ec = render.Encoder(&art, b...)
 	assert.Nil(t, ec)
 }
 
@@ -60,24 +60,24 @@ func TestRead(t *testing.T) {
 	assert.Equal(t, err, render.ErrFileModel)
 	assert.Nil(t, b)
 
-	res := models.File{
+	art := models.File{
 		Filename: null.StringFrom(""),
 		UUID:     null.StringFrom(""),
 	}
-	b, err = render.Read(&res, "")
+	b, err = render.Read(&art, "")
 	require.Error(t, err)
 	assert.Equal(t, err, render.ErrFilename)
 	assert.Nil(t, b)
 
-	res.Filename = null.StringFrom("../testdata/TEST.DOC")
-	b, err = render.Read(&res, "")
+	art.Filename = null.StringFrom("../testdata/TEST.DOC")
+	b, err = render.Read(&art, "")
 	require.Error(t, err)
 	assert.Equal(t, err, render.ErrUUID)
 	assert.Nil(t, b)
 
 	const uuid = "5b4c5f6e-8a1e-11e9-9f0e-000000000000"
-	res.UUID = null.StringFrom(uuid)
-	b, err = render.Read(&res, "")
+	art.UUID = null.StringFrom(uuid)
+	b, err = render.Read(&art, "")
 	require.Error(t, err)
 	assert.Nil(t, b)
 
@@ -90,7 +90,7 @@ func TestRead(t *testing.T) {
 	err = helper.Touch(filepath.Join(dir, uuid))
 	require.NoError(t, err)
 
-	b, err = render.Read(&res, dir)
+	b, err = render.Read(&art, dir)
 	require.NoError(t, err)
 	assert.Nil(t, b)
 	assert.Empty(t, b)
@@ -103,7 +103,7 @@ func TestRead(t *testing.T) {
 	require.NoError(t, err)
 	l := len(s)
 	assert.Equal(t, i, l)
-	b, err = render.Read(&res, dir)
+	b, err = render.Read(&art, dir)
 	require.NoError(t, err)
 	assert.NotNil(t, b)
 	assert.Equal(t, string(b), string(s))
@@ -141,28 +141,28 @@ func TestIsUTF16(t *testing.T) {
 
 func TestViewer(t *testing.T) {
 	t.Parallel()
-	var res models.File
-	assert.False(t, render.Viewer(&res))
-	res.Platform = null.StringFrom("textamiga")
-	assert.True(t, render.Viewer(&res))
+	var art models.File
+	assert.False(t, render.Viewer(&art))
+	art.Platform = null.StringFrom("textamiga")
+	assert.True(t, render.Viewer(&art))
 }
 
 func TestNoScreenshot(t *testing.T) {
 	t.Parallel()
-	var res models.File
+	var art models.File
 	assert.True(t, render.NoScreenshot(nil, ""))
-	res = models.File{}
-	assert.True(t, render.NoScreenshot(&res, ""))
-	res = models.File{}
-	res.Platform = null.StringFrom("textamiga")
-	assert.True(t, render.NoScreenshot(&res, ""))
+	art = models.File{}
+	assert.True(t, render.NoScreenshot(&art, ""))
+	art = models.File{}
+	art.Platform = null.StringFrom("textamiga")
+	assert.True(t, render.NoScreenshot(&art, ""))
 
 	const uuid = "5b4c5f6e-8a1e-11e9-9f0e-000000000000"
-	res.Platform = null.StringFrom("")
-	res.UUID = null.StringFrom(uuid)
+	art.Platform = null.StringFrom("")
+	art.UUID = null.StringFrom(uuid)
 	name := filepath.Join(os.TempDir(), uuid) + ".webp"
 	err := helper.Touch(name)
 	require.NoError(t, err)
 	defer os.Remove(name)
-	assert.False(t, render.NoScreenshot(&res, os.TempDir()))
+	assert.False(t, render.NoScreenshot(&art, os.TempDir()))
 }

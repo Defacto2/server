@@ -28,13 +28,13 @@ const textamiga = "textamiga"
 // Encoder returns the encoding for the model file entry.
 // Based on the platform and section.
 // Otherwise it will attempt to determine the encoding from the file byte content.
-func Encoder(res *models.File, b ...byte) encoding.Encoding {
-	if res == nil {
+func Encoder(art *models.File, b ...byte) encoding.Encoding {
+	if art == nil {
 		return nil
 	}
 
-	platform := strings.ToLower(strings.TrimSpace(res.Platform.String))
-	section := strings.ToLower(strings.TrimSpace(res.Section.String))
+	platform := strings.ToLower(strings.TrimSpace(art.Platform.String))
+	section := strings.ToLower(strings.TrimSpace(art.Section.String))
 
 	switch platform {
 	case textamiga:
@@ -50,13 +50,13 @@ func Encoder(res *models.File, b ...byte) encoding.Encoding {
 
 // Read returns the content of either the file download or an extracted text file.
 // The text is intended to be used as a readme, preview or an in-browser viewer.
-func Read(res *models.File, path string) ([]byte, error) {
-	if res == nil {
+func Read(art *models.File, path string) ([]byte, error) {
+	if art == nil {
 		return nil, ErrFileModel
 	}
 
-	fname := res.Filename.String
-	uuid := res.UUID.String
+	fname := art.Filename.String
+	uuid := art.UUID.String
 
 	if fname == "" {
 		return nil, ErrFilename
@@ -82,7 +82,7 @@ func Read(res *models.File, path string) ([]byte, error) {
 		return nil, fmt.Errorf("%w: %s", ErrDownload, filepath.Join(path, uuid))
 	}
 
-	if !files.uutxtOk && !Viewer(res) {
+	if !files.uutxtOk && !Viewer(art) {
 		return nil, nil
 	}
 
@@ -117,11 +117,11 @@ func IsUTF16(p []byte) bool {
 }
 
 // Viewer returns true if the file entry should display the file download in the browser plain text viewer.
-func Viewer(res *models.File) bool {
-	if res == nil {
+func Viewer(art *models.File) bool {
+	if art == nil {
 		return false
 	}
-	platform := strings.ToLower(strings.TrimSpace(res.Platform.String))
+	platform := strings.ToLower(strings.TrimSpace(art.Platform.String))
 	switch platform {
 	case "text", textamiga:
 		return true
@@ -131,16 +131,16 @@ func Viewer(res *models.File) bool {
 
 // NoScreenshot returns true when the file entry should not attempt to display a screenshot.
 // This is based on the platform, section or if the screenshot is missing on the server.
-func NoScreenshot(res *models.File, path string) bool {
-	if res == nil {
+func NoScreenshot(art *models.File, path string) bool {
+	if art == nil {
 		return true
 	}
-	platform := strings.ToLower(strings.TrimSpace(res.Platform.String))
+	platform := strings.ToLower(strings.TrimSpace(art.Platform.String))
 	switch platform {
 	case textamiga, "text":
 		return true
 	}
-	uuid := res.UUID.String
+	uuid := art.UUID.String
 	webp := strings.Join([]string{path, uuid + ".webp"}, "/")
 	png := strings.Join([]string{path, uuid + ".png"}, "/")
 	if helper.IsStat(webp) || helper.IsStat(png) {

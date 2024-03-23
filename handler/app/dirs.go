@@ -56,12 +56,12 @@ func (dir Dirs) Artifact(logr *zap.SugaredLogger, c echo.Context, readonly bool)
 	if logr == nil {
 		return InternalErr(logr, c, name, ErrZap)
 	}
-	var res *models.File
+	var art *models.File
 	var err error
 	if sess.Editor(c) {
-		res, err = model.EditObf(dir.URI)
+		art, err = model.EditObf(dir.URI)
 	} else {
-		res, err = model.FindObf(dir.URI)
+		art, err = model.FindObf(dir.URI)
 	}
 	if err != nil {
 		if errors.Is(err, model.ErrID) {
@@ -69,106 +69,55 @@ func (dir Dirs) Artifact(logr *zap.SugaredLogger, c echo.Context, readonly bool)
 		}
 		return DatabaseErr(logr, c, "f/"+dir.URI, err)
 	}
-	fname := res.Filename.String
-	uuid := res.UUID.String
-	abs := filepath.Join(dir.Download, uuid)
+	fname := art.Filename.String
+	uuid := art.UUID.String
 	data := empty(c)
 	// artifact editor
-	if !readonly {
-		data["readOnly"] = false
-		data["recID"] = res.ID
-		data["recTitle"] = res.RecordTitle.String
-		data["recOnline"] = res.Deletedat.Time.IsZero()
-		data["recReleasers"] = string(RecordRels(res.GroupBrandBy, res.GroupBrandFor))
-		data["recYear"] = res.DateIssuedYear.Int16
-		data["recMonth"] = res.DateIssuedMonth.Int16
-		data["recDay"] = res.DateIssuedDay.Int16
-		data["recLastMod"] = res.FileLastModified.IsZero()
-		data["recLastModValue"] = res.FileLastModified.Time.Format("2006-1-2") // value should not have no leading zeros
-		data["recAbsDownload"] = abs
-		data["recKind"] = artifactMagic(abs)
-		data["recStatMod"] = artifactStat(abs)[0]
-		data["recStatSize"] = artifactStat(abs)[1]
-		data["recAssets"] = dir.artifactAssets(uuid)
-		data["recNoReadme"] = res.RetrotxtNoReadme.Int16 != 0
-		data["recReadmeList"] = OptionsReadme(res.FileZipContent.String)
-		data["recPreviewList"] = OptionsPreview(res.FileZipContent.String)
-		data["recAnsiLoveList"] = OptionsAnsiLove(res.FileZipContent.String)
-		data["recReadmeSug"] = readmeSuggest(res)
-		data["recZipContent"] = strings.TrimSpace(res.FileZipContent.String)
-		data["recOS"] = strings.ToLower(strings.TrimSpace(res.Platform.String))
-		data["recTag"] = strings.ToLower(strings.TrimSpace(res.Section.String))
-	}
+	data = dir.editor(art, data, readonly)
 	// page metadata
 	data["uuid"] = uuid
-	data["download"] = helper.ObfuscateID(res.ID)
+	data["download"] = helper.ObfuscateID(art.ID)
 	data["title"] = fname
-	data["description"] = artifactDesc(res)
-	data["h1"] = artifactIssue(res)
-	data["lead"] = artifactLead(res)
-	data["comment"] = res.Comment.String
+	data["description"] = artifactDesc(art)
+	data["h1"] = artifactIssue(art)
+	data["lead"] = artifactLead(art)
+	data["comment"] = art.Comment.String
 	// file metadata
 	data["filename"] = fname
-	data["filesize"] = artifactByteCount(res.Filesize)
-	data["filebyte"] = res.Filesize
-	data["lastmodified"] = artifactLM(res)
-	data["lastmodifiedAgo"] = artifactModAgo(res)
-	data["checksum"] = strings.TrimSpace(res.FileIntegrityStrong.String)
-	data["magic"] = res.FileMagicType.String
-	data["releasers"] = string(LinkRels(res.GroupBrandBy, res.GroupBrandFor))
-	data["published"] = model.PublishedFmt(res)
-	data["section"] = strings.TrimSpace(res.Section.String)
-	data["platform"] = strings.TrimSpace(res.Platform.String)
-	data["alertURL"] = res.FileSecurityAlertURL.String
+	data["filesize"] = artifactByteCount(art.Filesize)
+	data["filebyte"] = art.Filesize
+	data["lastmodified"] = artifactLM(art)
+	data["lastmodifiedAgo"] = artifactModAgo(art)
+	data["checksum"] = strings.TrimSpace(art.FileIntegrityStrong.String)
+	data["magic"] = art.FileMagicType.String
+	data["releasers"] = string(LinkRels(art.GroupBrandBy, art.GroupBrandFor))
+	data["published"] = model.PublishedFmt(art)
+	data["section"] = strings.TrimSpace(art.Section.String)
+	data["platform"] = strings.TrimSpace(art.Platform.String)
+	data["alertURL"] = art.FileSecurityAlertURL.String
 	// attributions and credits
-	data["writers"] = res.CreditText.String
-	data["artists"] = res.CreditIllustration.String
-	data["programmers"] = res.CreditProgram.String
-	data["musicians"] = res.CreditAudio.String
+	data["writers"] = art.CreditText.String
+	data["artists"] = art.CreditIllustration.String
+	data["programmers"] = art.CreditProgram.String
+	data["musicians"] = art.CreditAudio.String
 	// links to other records and sites
-	data["listLinks"] = artifactLinks(res)
-	data["listReleases"] = res.ListRelations.String
-	data["listWebsites"] = res.ListLinks.String
-	data["demozoo"] = artifactID(res.WebIDDemozoo.Int64)
-	data["pouet"] = artifactID(res.WebIDPouet.Int64)
-	data["sixteenColors"] = res.WebID16colors.String
-	data["youtube"] = res.WebIDYoutube.String
-	data["github"] = res.WebIDGithub.String
+	data["listLinks"] = artifactLinks(art)
+	data["listReleases"] = art.ListRelations.String
+	data["listWebsites"] = art.ListLinks.String
+	data["demozoo"] = artifactID(art.WebIDDemozoo.Int64)
+	data["pouet"] = artifactID(art.WebIDPouet.Int64)
+	data["sixteenColors"] = art.WebID16colors.String
+	data["youtube"] = art.WebIDYoutube.String
+	data["github"] = art.WebIDGithub.String
 	// js-dos emulator
-	data = jsdos(logr, res, data, fname)
+	data = jsdos(logr, art, data, fname)
 	// archive file content
-	ctt := artifactCtt(res)
-	data["content"] = ctt
-	data["contentDesc"] = ""
-	if len(ctt) == 1 {
-		data["contentDesc"] = "contains one file"
-	}
-	if len(ctt) > 1 {
-		data["contentDesc"] = fmt.Sprintf("contains %d files", len(ctt))
-	}
+	data = content(art, data)
 	// record metadata
-	data["linkpreview"] = LinkPreviewHref(res.ID, res.Filename.String, res.Platform.String)
-	data["linkpreviewTip"] = LinkPreviewTip(res.Filename.String, res.Platform.String)
-	switch {
-	case res.Createdat.Valid && res.Updatedat.Valid:
-		c := Updated(res.Createdat.Time, "")
-		u := Updated(res.Updatedat.Time, "")
-		if c != u {
-			c = Updated(res.Createdat.Time, "Created")
-			u = Updated(res.Updatedat.Time, "Updated")
-			data["filentry"] = c + "<br>" + u
-		} else {
-			c = Updated(res.Createdat.Time, "Created")
-			data["filentry"] = c
-		}
-	case res.Createdat.Valid:
-		c := Updated(res.Createdat.Time, "Created")
-		data["filentry"] = c
-	case res.Updatedat.Valid:
-		u := Updated(res.Updatedat.Time, "Updated")
-		data["filentry"] = u
-	}
-	d, err := dir.artifactReadme(res)
+	data["linkpreview"] = LinkPreviewHref(art.ID, art.Filename.String, art.Platform.String)
+	data["linkpreviewTip"] = LinkPreviewTip(art.Filename.String, art.Platform.String)
+	data = filentry(art, data)
+	d, err := dir.artifactReadme(art)
 	if err != nil {
 		return InternalErr(logr, c, name, err)
 	}
@@ -180,29 +129,114 @@ func (dir Dirs) Artifact(logr *zap.SugaredLogger, c echo.Context, readonly bool)
 	return nil
 }
 
-func jsdos(logr *zap.SugaredLogger, res *models.File, data map[string]interface{}, fname string) map[string]interface{} {
-	if logr == nil || res == nil {
+func (dir Dirs) editor(art *models.File, data map[string]interface{}, readonly bool) map[string]interface{} {
+	if readonly || art == nil {
+		return data
+	}
+	uuid := art.UUID.String
+	abs := filepath.Join(dir.Download, uuid)
+	data["readOnly"] = false
+	data["recID"] = art.ID
+	data["recTitle"] = art.RecordTitle.String
+	data["recOnline"] = art.Deletedat.Time.IsZero()
+	data["recReleasers"] = string(RecordRels(art.GroupBrandBy, art.GroupBrandFor))
+	data["recYear"] = art.DateIssuedYear.Int16
+	data["recMonth"] = art.DateIssuedMonth.Int16
+	data["recDay"] = art.DateIssuedDay.Int16
+	data["recLastMod"] = art.FileLastModified.IsZero()
+	data["recLastModValue"] = art.FileLastModified.Time.Format("2006-1-2") // value should not have no leading zeros
+	data["recAbsDownload"] = abs
+	data["recKind"] = artifactMagic(abs)
+	data["recStatMod"] = artifactStat(abs)[0]
+	data["recStatSize"] = artifactStat(abs)[1]
+	data["recAssets"] = dir.artifactAssets(uuid)
+	data["recNoReadme"] = art.RetrotxtNoReadme.Int16 != 0
+	data["recReadmeList"] = OptionsReadme(art.FileZipContent.String)
+	data["recPreviewList"] = OptionsPreview(art.FileZipContent.String)
+	data["recAnsiLoveList"] = OptionsAnsiLove(art.FileZipContent.String)
+	data["recReadmeSug"] = readmeSuggest(art)
+	data["recZipContent"] = strings.TrimSpace(art.FileZipContent.String)
+	data["recOS"] = strings.ToLower(strings.TrimSpace(art.Platform.String))
+	data["recTag"] = strings.ToLower(strings.TrimSpace(art.Section.String))
+	return data
+}
+
+func content(art *models.File, data map[string]interface{}) map[string]interface{} {
+	if art == nil {
+		return data
+	}
+	// split the file content based on newlines
+	x := strings.Split(art.FileZipContent.String, "\n")
+	// delete any empty lines
+	x = slices.DeleteFunc(x, func(s string) bool {
+		return strings.TrimSpace(s) == ""
+	})
+	paths := slices.Compact(x)
+	data["content"] = paths
+	data["contentDesc"] = ""
+
+	l := len(paths)
+	switch l {
+	case 0:
+		return data
+	case 1:
+		data["contentDesc"] = "contains one file"
+	default:
+		data["contentDesc"] = fmt.Sprintf("contains %d files", l)
+	}
+	return data
+}
+
+func jsdos(logr *zap.SugaredLogger, art *models.File, data map[string]interface{}, fname string) map[string]interface{} {
+	if logr == nil || art == nil {
 		return data
 	}
 	data["jsdos6"] = false
 	data["jsdos6Run"] = ""
 	data["jsdos6Config"] = ""
 	data["jsdos6Zip"] = false
-	if emulate := artifactJSDos(res); emulate {
+	if emulate := artifactJSDos(art); emulate {
 		data["jsdos6"] = emulate
-		run, err := model.JsDosBinary(res)
+		run, err := model.JsDosBinary(art)
 		if err != nil {
 			logr.Error(err)
 			return data
 		}
 		data["jsdos6Run"] = run
-		cfg, err := model.JsDosConfig(res)
+		cfg, err := model.JsDosConfig(art)
 		if err != nil {
 			logr.Error(err)
 			return data
 		}
 		data["jsdos6Config"] = cfg
 		data["jsdos6Zip"] = filepath.Ext(strings.ToLower(fname)) == ".zip"
+	}
+	return data
+}
+
+func filentry(art *models.File, data map[string]interface{}) map[string]interface{} {
+	if art == nil {
+		return data
+	}
+	data["filentry"] = ""
+	switch {
+	case art.Createdat.Valid && art.Updatedat.Valid:
+		c := Updated(art.Createdat.Time, "")
+		u := Updated(art.Updatedat.Time, "")
+		if c != u {
+			c = Updated(art.Createdat.Time, "Created")
+			u = Updated(art.Updatedat.Time, "Updated")
+			data["filentry"] = c + "<br>" + u
+			return data
+		}
+		c = Updated(art.Createdat.Time, "Created")
+		data["filentry"] = c
+	case art.Createdat.Valid:
+		c := Updated(art.Createdat.Time, "Created")
+		data["filentry"] = c
+	case art.Updatedat.Valid:
+		u := Updated(art.Updatedat.Time, "Updated")
+		data["filentry"] = u
 	}
 	return data
 }
@@ -247,27 +281,27 @@ func (dir Dirs) PreviewPost(logr *zap.SugaredLogger, c echo.Context) error {
 }
 
 // artifactReadme returns the readme data for the file record.
-func (dir Dirs) artifactReadme(res *models.File) (map[string]interface{}, error) { //nolint:funlen
+func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error) { //nolint:funlen
 	data := map[string]interface{}{}
-	if res.RetrotxtNoReadme.Int16 != 0 {
+	if art.RetrotxtNoReadme.Int16 != 0 {
 		return data, nil
 	}
-	platform := strings.TrimSpace(res.Platform.String)
+	platform := strings.TrimSpace(art.Platform.String)
 	switch platform {
 	case "markup", "pdf":
 		return data, nil
 	}
-	if render.NoScreenshot(res, dir.Preview) {
+	if render.NoScreenshot(art, dir.Preview) {
 		data["noScreenshot"] = true
 	}
 	// the bbs era, remote images protcol is not supported
 	// example: /f/b02392f
 	const ripScrip = ".rip"
-	if filepath.Ext(strings.ToLower(res.Filename.String)) == ripScrip {
+	if filepath.Ext(strings.ToLower(art.Filename.String)) == ripScrip {
 		return data, nil
 	}
 
-	b, err := render.Read(res, dir.Download)
+	b, err := render.Read(art, dir.Download)
 	if errors.Is(err, render.ErrDownload) {
 		data["noDownload"] = true
 		return data, nil
@@ -300,7 +334,7 @@ func (dir Dirs) artifactReadme(res *models.File) (map[string]interface{}, error)
 	re := regexp.MustCompile(reAnsi + `|` + reAmiga + `|` + reSauce)
 	b = re.ReplaceAll(b, []byte{})
 
-	e := render.Encoder(res, b...)
+	e := render.Encoder(art, b...)
 	const (
 		sp      = 0x20 // space
 		hyphen  = 0x2d // hyphen-minus
@@ -405,13 +439,13 @@ func artifactByteCount(i int64) string {
 }
 
 // artifactDesc returns the description for the file record.
-func artifactDesc(res *models.File) string {
-	s := res.Filename.String
-	if res.RecordTitle.String != "" {
-		s = artifactIssue(res)
+func artifactDesc(art *models.File) string {
+	s := art.Filename.String
+	if art.RecordTitle.String != "" {
+		s = artifactIssue(art)
 	}
-	r1 := releaser.Clean(strings.ToLower(res.GroupBrandBy.String))
-	r2 := releaser.Clean(strings.ToLower(res.GroupBrandFor.String))
+	r1 := releaser.Clean(strings.ToLower(art.GroupBrandBy.String))
+	r2 := releaser.Clean(strings.ToLower(art.GroupBrandFor.String))
 	r := ""
 	switch {
 	case r1 != "" && r2 != "":
@@ -422,7 +456,7 @@ func artifactDesc(res *models.File) string {
 		r = r2
 	}
 	s = fmt.Sprintf("%s released by %s", s, r)
-	y := res.DateIssuedYear.Int16
+	y := art.DateIssuedYear.Int16
 	if y > 0 {
 		s = fmt.Sprintf("%s in %d", s, y)
 	}
@@ -431,12 +465,12 @@ func artifactDesc(res *models.File) string {
 
 // artifactIssue returns the title of the file,
 // unless the file is a magazine issue, in which case it returns the issue number.
-func artifactIssue(res *models.File) string {
-	sect := strings.TrimSpace(strings.ToLower(res.Section.String))
+func artifactIssue(art *models.File) string {
+	sect := strings.TrimSpace(strings.ToLower(art.Section.String))
 	if sect != "magazine" {
-		return res.RecordTitle.String
+		return art.RecordTitle.String
 	}
-	s := res.RecordTitle.String
+	s := art.RecordTitle.String
 	if i, err := strconv.Atoi(s); err == nil {
 		return fmt.Sprintf("Issue %d", i)
 	}
@@ -444,26 +478,26 @@ func artifactIssue(res *models.File) string {
 }
 
 // artifactLead returns the lead for the file record which is the filename and releasers.
-func artifactLead(res *models.File) string {
-	fname := res.Filename.String
+func artifactLead(art *models.File) string {
+	fname := art.Filename.String
 	span := fmt.Sprintf("<span class=\"font-monospace fs-6 fw-light\">%s</span> ", fname)
-	rels := string(LinkRels(res.GroupBrandBy, res.GroupBrandFor))
+	rels := string(LinkRels(art.GroupBrandBy, art.GroupBrandFor))
 	return fmt.Sprintf("%s<br>%s", rels, span)
 }
 
 // artifactLM returns the last modified date for the file record.
-func artifactLM(res *models.File) string {
+func artifactLM(art *models.File) string {
 	const none = "no timestamp"
-	if !res.FileLastModified.Valid {
+	if !art.FileLastModified.Valid {
 		return none
 	}
-	year, _ := strconv.Atoi(res.FileLastModified.Time.Format("2006"))
+	year, _ := strconv.Atoi(art.FileLastModified.Time.Format("2006"))
 	const epoch = 1980
 	if year <= epoch {
 		// 1980 is the default date for MS-DOS files without a timestamp
 		return none
 	}
-	lm := res.FileLastModified.Time.Format("2006 Jan 2, 15:04")
+	lm := art.FileLastModified.Time.Format("2006 Jan 2, 15:04")
 	if lm == "0001 Jan 1, 00:00" {
 		return none
 	}
@@ -504,33 +538,23 @@ func artifactMagic(name string) string {
 }
 
 // artifactModAgo returns the last modified date in a human readable format.
-func artifactModAgo(res *models.File) string {
+func artifactModAgo(art *models.File) string {
 	const none = "No recorded timestamp"
-	if !res.FileLastModified.Valid {
+	if !art.FileLastModified.Valid {
 		return none
 	}
-	year, _ := strconv.Atoi(res.FileLastModified.Time.Format("2006"))
+	year, _ := strconv.Atoi(art.FileLastModified.Time.Format("2006"))
 	const epoch = 1980
 	if year <= epoch {
 		// 1980 is the default date for MS-DOS files without a timestamp
 		return none
 	}
-	return Updated(res.FileLastModified.Time, "Modified")
-}
-
-// artifactCtt returns the file archive content for the file record.
-func artifactCtt(res *models.File) []string {
-	conts := strings.Split(res.FileZipContent.String, "\n")
-	conts = slices.DeleteFunc(conts, func(s string) bool {
-		return strings.TrimSpace(s) == "" // delete empty lines
-	})
-	conts = slices.Compact(conts)
-	return conts
+	return Updated(art.FileLastModified.Time, "Modified")
 }
 
 // artifactLinks returns the list of links for the file record.
-func artifactLinks(res *models.File) template.HTML {
-	s := res.ListLinks.String
+func artifactLinks(art *models.File) template.HTML {
+	s := art.ListLinks.String
 	if s == "" {
 		return ""
 	}
@@ -553,12 +577,12 @@ func artifactLinks(res *models.File) template.HTML {
 }
 
 // artifactJSDos returns true if the file record is a known, MS-DOS executable.
-func artifactJSDos(res *models.File) bool {
-	if strings.TrimSpace(strings.ToLower(res.Platform.String)) != "dos" {
+func artifactJSDos(art *models.File) bool {
+	if strings.TrimSpace(strings.ToLower(art.Platform.String)) != "dos" {
 		return false
 	}
 	// check supported filename extensions
-	ext := filepath.Ext(strings.ToLower(res.Filename.String))
+	ext := filepath.Ext(strings.ToLower(art.Filename.String))
 	switch ext {
 	case ".zip": // js-dos only supports zip archives
 		return true

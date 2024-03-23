@@ -60,11 +60,11 @@ func record(deleted bool, key int) (*models.File, error) {
 		return nil, ErrDB
 	}
 	defer db.Close()
-	res, err := One(ctx, db, deleted, key)
+	art, err := One(ctx, db, deleted, key)
 	if err != nil {
 		return nil, ErrDB
 	}
-	return res, nil
+	return art, nil
 }
 
 // recordObf retrieves a single file record from the database using the uid URL ID.
@@ -80,12 +80,12 @@ func recordObf(deleted bool, key string) (*models.File, error) {
 		return nil, ErrDB
 	}
 	defer db.Close()
-	res, err := One(ctx, db, deleted, id)
+	art, err := One(ctx, db, deleted, id)
 	if err != nil {
 		return nil, ErrDB
 	}
-	if res.ID != int64(id) {
+	if art.ID != int64(id) {
 		return nil, fmt.Errorf("%w: %d ~ %s", ErrID, id, key)
 	}
-	return res, nil
+	return art, nil
 }
