@@ -1,10 +1,10 @@
 {{- /* artifact_editor_archive.tmpl */}}
 {{- define "artifactEditorArchive" }}
-{{- $readmeSug := index . "recReadmeSug"}}
+{{- $readmeSug := index . "modReadmeSuggest"}}
 {{- $replace := "refresh the page to see the changes"}}
 {{/*  Readme suggestion  */}}
 {{- if ne "" $readmeSug}}<p><strong>Readme suggestion</strong> <var>{{$readmeSug}}</var></p>{{end}}
-{{- if eq "" (index . "recZipContent")}}
+{{- if eq "" (index . "modZipContent")}}
 <hr class="m-0 mb-3 mt-3">
 <div class="alert alert-primary" role="alert">
     As this file artifact is a single-file instead of an archive, the <em>Use a named file</em> options are not available.
@@ -18,7 +18,7 @@
   <div class="col-10 col-lg-5">
     <input list="edCopyMeList" name="title" class="form-control" id="edCopyMe" value="" placeholder="Use a named file">
     <datalist id="edCopyMeList">
-      {{index . "recReadmeList"}}
+      {{index . "modReadmeList"}}
     </datalist>
     <div class="valid-feedback">Readme replaced, {{$replace}}</div>
     <div class="invalid-feedback" id="edCopyMeErr">something went wrong</div>
@@ -29,7 +29,7 @@
   {{- /*  Hide readme from view  */}}
   <div class="col-lg-3">
     <div class="form-check form-switch">
-      {{recordReadme (index . "recNoReadme") }}
+      {{recordReadme (index . "modNoReadme") }}
       <label class="form-check-label" id="edHideMeLabel" for="edHideMe">Hide readme from view</label>
       <div class="valid-feedback">Saved, {{$replace}}</div>
       <div class="invalid-feedback" id="edHideMeErr">error placeholder</div>  
@@ -45,7 +45,7 @@
     {{- /*  TODO: default disabled based on hide value  */}}
     <input list="edCopyPreviewList" name="title" class="form-control" id="edCopyPreview" value="" placeholder="Use a named file">
     <datalist id="edCopyPreviewList">
-      {{index . "recPreviewList"}}
+      {{index . "modPreviewList"}}
     </datalist>
     <div class="valid-feedback">Previews replaced, {{$replace}}</div>
     <div class="invalid-feedback" id="edCopyPreviewErr">something went wrong</div>
@@ -67,7 +67,7 @@
     {{- /*  TODO: default disabled based on hide value  */}}
     <input list="edAnsiLoveList" name="title" class="form-control" id="edAnsiLove" value="" placeholder="Use a named file">
     <datalist id="edAnsiLoveList">
-      {{index . "recAnsiLoveList"}}
+      {{index . "modAnsiLoveList"}}
     </datalist>
     <div class="valid-feedback">Previews replaced, {{$replace}}</div>
     <div class="invalid-feedback" id="edAnsiLoveErr">something went wrong</div>

@@ -4,7 +4,7 @@
 {{- /* render nothing in the layout   */}}
 {{- else}}
 {{- $faSize := "fa-fw fa-2x" -}}
-{{- $id := index . "recID"}}
+{{- $id := index . "modID"}}
 {{- $previewImg := recordImgSample (index . "uuid")}}
 {{- $thumbImg := recordThumbSample (index . "uuid")}}
 {{- $replace := "refresh the page to see the changes"}}
@@ -16,7 +16,7 @@
       {{/*  Modify the assets for ID  */}}
       <div class="modal-header">
         <i class="fal fa-file-alt {{ $faSize }}" title="Modify the record"></i> &nbsp;
-        <h1 class="modal-title fs-5" id="assetEditorModalLabel">Modify the assets for ID {{index . "recID"}}</h1><br>
+        <h1 class="modal-title fs-5" id="assetEditorModalLabel">Modify the assets for ID {{index . "modID"}}</h1><br>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -48,18 +48,18 @@
         {{/*  Metadata - last modified and size  */}}
         <dl class="row mb-0">
           <dt class="col-xl-2" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Last modified date and sizes of the artifact">Metadata</dt>
-          <dd class="col-xl-5"><strong>last modified on server</strong> {{index . "recStatMod"}}</dd>
-          <dd class="col-xl-5"><strong>size</strong> {{index . "recStatSize"}}</dd>
+          <dd class="col-xl-5"><strong>last modified on server</strong> {{index . "modStatModify"}}</dd>
+          <dd class="col-xl-5"><strong>size</strong> {{index . "modStatSize"}}</dd>
         </dl>
         {{/*  Quick type  */}}
         <dl class="row mb-0">
           <dt class="col-xl-2" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Common media type, this maybe inaccurate">Quick type</dt>
-          <dd class="col-xl-10">{{index . "recKind"}}</dd>
+          <dd class="col-xl-10">{{index . "modKind"}}</dd>
         </dl>
         {{/*  Location  */}}
         <dl class="row mb-0">
           <dt class="col-xl-2" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Path to file artifact on the server">Location</dt>
-          <dd class="col-xl-10">{{index . "recAbsDownload"}}</dd>
+          <dd class="col-xl-10">{{index . "modAbsDownload"}}</dd>
         </dl>
         <hr class="m-0 mb-3">
         {{/*  Complementary assets  */}}
@@ -71,7 +71,7 @@
             </tr>
           </thead>
           <tbody>
-            {{- range $name, $info := .recAssets}}
+            {{- range $name, $info := .modAssets}}
             <tr>
               <td scope="row">{{$name}}</td>
               <td>{{$info}}</td>
@@ -153,7 +153,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <i class="fal fa-file-alt {{ $faSize }}" title="Modify the record"></i> &nbsp;
-          <h1 class="modal-title fs-5" id="fileEditorModalLabel">Modify the metadata for ID {{index . "recID"}}</h1><br>
+          <h1 class="modal-title fs-5" id="fileEditorModalLabel">Modify the metadata for ID {{index . "modID"}}</h1><br>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body container">
@@ -163,7 +163,7 @@
             <div class="col-xl-6 text-start">{{index . "uuid"}}</div>
             <div class="col-xl-5 text-start">
               <div class="form-check form-switch">
-                {{recordOnline (index . "recOnline") }}
+                {{recordOnline (index . "modOnline") }}
                 <label class="form-check-label" id="recordOnlineLabel" for="recordOnline">File artifact is <strong>online and public</strong></label>
                 <div class="invalid-feedback" id="recordOnlineErr">error placeholder</div>  
               </div>  
@@ -174,18 +174,18 @@
             <label for="recordTitle" id="recordTitleLabel" class="col-xl-1 col-form-label"><strong>Title</strong></label>
             <div class="col-xl-5">
               <input type="text" name="title" class="form-control" id="recordTitle" 
-                value="{{index . "recTitle"}}" placeholder="{{index . "filename"}}">
+                value="{{index . "modTitle"}}" placeholder="{{index . "filename"}}">
               <div class="invalid-feedback" id="recordTitleErr" class="d-none">something went wrong</div>
               <div class="form-text">
                 A title can be the name of the release or title of the document,<br>
                 or a very brief description of the file artifact.<br>
                 The title is optional, otherwise the filename is used.
-                <div id="recordTitleOG" class="text-info d-none">previous title: <span id="recordTitleOGValue">{{index . "recTitle"}}</span></div>
+                <div id="recordTitleOG" class="text-info d-none">previous title: <span id="recordTitleOGValue">{{index . "modTitle"}}</span></div>
               </div>
             </div>
             <label for="recordReleasers" id="recordReleasersLabel" class="col-xl-1 col-form-label"><strong>Releasers</strong></label>
             <div class="col-xl-5">
-              <input type="text" name="releasers" class="form-control" id="recordReleasers" value="{{index . "recReleasers"}}">
+              <input type="text" name="releasers" class="form-control" id="recordReleasers" value="{{index . "modReleasers"}}">
               <div class="form-text">
                 <span id="recordReleasersMax">A maximum of two releasers</span>, 
                   example: <code class="">RAZOR 1911 + TITAN</code><code class="d-none">CONSOLE NEWS + TITAN</code>
@@ -201,20 +201,20 @@
             <label for="recordReleasers" id="recordReleasersLabel" class="col-xl-3 col-form-label">Year, month, day <strong>of release</strong></label>
             <div class="col-xl-9">
               <div class="input-group mb-1">
-                <input type="number" name="release-year" id="recordYear" min="1980" max="2023" aria-label="Year of release" class="form-control input-date" value="{{index . "recYear"}}" placeholder="{{exampleYear}}">
-                <input type="number" name="release-month" id="recordMonth" min="0" max="12" aria-label="Month of release" class="form-control input-date" value="{{index . "recMonth"}}" placeholder="{{exampleMonth}}">
-                <input type="number" name="release-day" id="recordDay" min="0" max="31" aria-label="Day of release" class="form-control input-date" value="{{index . "recDay"}}" placeholder="{{exampleDay}}">
+                <input type="number" name="release-year" id="recordYear" min="1980" max="2023" aria-label="Year of release" class="form-control input-date" value="{{index . "modYear"}}" placeholder="{{exampleYear}}">
+                <input type="number" name="release-month" id="recordMonth" min="0" max="12" aria-label="Month of release" class="form-control input-date" value="{{index . "modMonth"}}" placeholder="{{exampleMonth}}">
+                <input type="number" name="release-day" id="recordDay" min="0" max="31" aria-label="Day of release" class="form-control input-date" value="{{index . "modDay"}}" placeholder="{{exampleDay}}">
               </div>
               <div class="input-group">
                 <button id="recordYMDReset" class="btn btn-outline-danger" type="button">Reset</button>
-                {{recordLastMod (index . "recLastMod") }}Set to last modification</button>
+                {{recordLastMod (index . "modLastMod") }}Set to last modification</button>
                 <button id="recordYMDSave" class="btn btn-success px-5" type="button">Save date</button>
               </div>
-              <input type="hidden" id="recordOgY" value="{{index . "recYear"}}">
-              <input type="hidden" id="recordOgM" value="{{index . "recMonth"}}">
-              <input type="hidden" id="recordOgD" value="{{index . "recDay"}}">
+              <input type="hidden" id="recordOgY" value="{{index . "modYear"}}">
+              <input type="hidden" id="recordOgM" value="{{index . "modMonth"}}">
+              <input type="hidden" id="recordOgD" value="{{index . "modDay"}}">
             </div>
-            <input type="hidden" id="recordLastMod" value="{{index . "recLastModValue"}}">
+            <input type="hidden" id="recordLastMod" value="{{index . "modLastModValue"}}">
           </div>
           {{/*  Platform and tag (popular) */}}
           <div class="mb-3 row">
@@ -240,8 +240,8 @@
                 <button class="btn btn-sm btn-link" id="recordTextMag" type="button">Magazine as text</button>
                 <button class="btn btn-sm btn-link" id="recordDosMag" type="button">Magazine on MsDos</button>
               </div>
-              <input type="hidden" id="recOSOg" value="{{index . "recOS"}}">
-              <input type="hidden" id="recTagOg" value="{{index . "recTag"}}">
+              <input type="hidden" id="recOSOg" value="{{index . "modOS"}}">
+              <input type="hidden" id="recTagOg" value="{{index . "modTag"}}">
             </div>
             {{/*  Platform and tag (inputs) */}}
             <div class="mb-1 row">
@@ -262,10 +262,10 @@
             {{/*  Briefs  */}}
             <div class="row">
               <div class="form-text mb-3 col-xl-6">
-                <span>Platform and tag brief: <span id="platformTagInfo" class="text-primary-emphasis">{{recordInfoOSTag (index . "recOS") (index . "recTag") }}</span></span>
+                <span>Platform and tag brief: <span id="platformTagInfo" class="text-primary-emphasis">{{recordInfoOSTag (index . "modOS") (index . "modTag") }}</span></span>
               </div>
               <div class="form-text mb-3 col-xl-6">
-                <span>Tag brief: <span id="tagInfo" class="text-primary-emphasis">{{recordTagInfo (index . "recTag") }}</span></span>
+                <span>Tag brief: <span id="tagInfo" class="text-primary-emphasis">{{recordTagInfo (index . "modTag") }}</span></span>
               </div>
             </div>
           </div>

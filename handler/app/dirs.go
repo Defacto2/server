@@ -136,28 +136,28 @@ func (dir Dirs) editor(art *models.File, data map[string]interface{}, readonly b
 	uuid := art.UUID.String
 	abs := filepath.Join(dir.Download, uuid)
 	data["readOnly"] = false
-	data["recID"] = art.ID
-	data["recTitle"] = art.RecordTitle.String
-	data["recOnline"] = art.Deletedat.Time.IsZero()
-	data["recReleasers"] = string(RecordRels(art.GroupBrandBy, art.GroupBrandFor))
-	data["recYear"] = art.DateIssuedYear.Int16
-	data["recMonth"] = art.DateIssuedMonth.Int16
-	data["recDay"] = art.DateIssuedDay.Int16
-	data["recLastMod"] = art.FileLastModified.IsZero()
-	data["recLastModValue"] = art.FileLastModified.Time.Format("2006-1-2") // value should not have no leading zeros
-	data["recAbsDownload"] = abs
-	data["recKind"] = artifactMagic(abs)
-	data["recStatMod"] = artifactStat(abs)[0]
-	data["recStatSize"] = artifactStat(abs)[1]
-	data["recAssets"] = dir.artifactAssets(uuid)
-	data["recNoReadme"] = art.RetrotxtNoReadme.Int16 != 0
-	data["recReadmeList"] = OptionsReadme(art.FileZipContent.String)
-	data["recPreviewList"] = OptionsPreview(art.FileZipContent.String)
-	data["recAnsiLoveList"] = OptionsAnsiLove(art.FileZipContent.String)
-	data["recReadmeSug"] = readmeSuggest(art)
-	data["recZipContent"] = strings.TrimSpace(art.FileZipContent.String)
-	data["recOS"] = strings.ToLower(strings.TrimSpace(art.Platform.String))
-	data["recTag"] = strings.ToLower(strings.TrimSpace(art.Section.String))
+	data["modID"] = art.ID
+	data["modTitle"] = art.RecordTitle.String
+	data["modOnline"] = art.Deletedat.Time.IsZero()
+	data["modReleasers"] = string(RecordRels(art.GroupBrandBy, art.GroupBrandFor))
+	data["modYear"] = art.DateIssuedYear.Int16
+	data["modMonth"] = art.DateIssuedMonth.Int16
+	data["modDay"] = art.DateIssuedDay.Int16
+	data["modLastMod"] = art.FileLastModified.IsZero()
+	data["modLastModValue"] = art.FileLastModified.Time.Format("2006-1-2") // value should not have no leading zeros
+	data["modAbsDownload"] = abs
+	data["modKind"] = artifactMagic(abs)
+	data["modStatModify"] = artifactStat(abs)[0]
+	data["modStatSize"] = artifactStat(abs)[1]
+	data["modAssets"] = dir.artifactAssets(uuid)
+	data["modNoReadme"] = art.RetrotxtNoReadme.Int16 != 0
+	data["modReadmeList"] = OptionsReadme(art.FileZipContent.String)
+	data["modPreviewList"] = OptionsPreview(art.FileZipContent.String)
+	data["modAnsiLoveList"] = OptionsAnsiLove(art.FileZipContent.String)
+	data["modReadmeSuggest"] = readmeSuggest(art)
+	data["modZipContent"] = strings.TrimSpace(art.FileZipContent.String)
+	data["modOS"] = strings.ToLower(strings.TrimSpace(art.Platform.String))
+	data["modTag"] = strings.ToLower(strings.TrimSpace(art.Section.String))
 	return data
 }
 
