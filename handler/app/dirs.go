@@ -134,11 +134,9 @@ func (dir Dirs) Artifact(logr *zap.SugaredLogger, c echo.Context, readonly bool)
 	data["sixteenColors"] = res.WebID16colors.String
 	data["youtube"] = res.WebIDYoutube.String
 	data["github"] = res.WebIDGithub.String
-	// file archive content
-	data["jsdos6"] = artifactJSDos(res)
-	data["jsdos6Run"] = model.JsDosBinary(res)
-	data["jsdos6Zip"] = filepath.Ext(strings.ToLower(fname)) == ".zip"
-	data["jsdos6CPU"] = res.DoseeHardwareCPU.String
+	// js-dos emulator
+	data = jsdos(logr, res, data, fname)
+	// archive file content
 	ctt := artifactCtt(res)
 	data["content"] = ctt
 	data["contentDesc"] = ""
@@ -180,6 +178,33 @@ func (dir Dirs) Artifact(logr *zap.SugaredLogger, c echo.Context, readonly bool)
 		return InternalErr(logr, c, name, err)
 	}
 	return nil
+}
+
+func jsdos(logr *zap.SugaredLogger, res *models.File, data map[string]interface{}, fname string) map[string]interface{} {
+	if logr == nil || res == nil {
+		return data
+	}
+	data["jsdos6"] = false
+	data["jsdos6Run"] = ""
+	data["jsdos6Config"] = ""
+	data["jsdos6Zip"] = false
+	if emulate := artifactJSDos(res); emulate {
+		data["jsdos6"] = emulate
+		run, err := model.JsDosBinary(res)
+		if err != nil {
+			logr.Error(err)
+			return data
+		}
+		data["jsdos6Run"] = run
+		cfg, err := model.JsDosConfig(res)
+		if err != nil {
+			logr.Error(err)
+			return data
+		}
+		data["jsdos6Config"] = cfg
+		data["jsdos6Zip"] = filepath.Ext(strings.ToLower(fname)) == ".zip"
+	}
+	return data
 }
 
 // AnsiLovePost handles the post submission for the Preview from text in archive.

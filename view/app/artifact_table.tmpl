@@ -49,15 +49,15 @@
                 </div>
             </div>
 {{- end}}
-{{- /*  Artifact file download link  */}}
-            <div class="d-grid gap-2 d-sm-block mx-auto py-3 text-center">
+{{- /*  Artifact file download link  */}} 
+            <div class="d-grid gap-2 d-xl-block">
             {{- template "artifactTableEditor" . }}
             {{- if eq (index . "alertURL") "" }}
                 {{- /*  standard download  */}}
-                <a class="btn btn-success btn-lg m-1" href="/d/{{index . "download"}}" rel="nofollow" role="button">Download &nbsp; {{index . "filesize"}}</a>
+                <a class="btn btn-success btn-lg" href="/d/{{index . "download"}}" rel="nofollow" role="button">Download &nbsp; {{index . "filesize"}}</a>
             {{- else }}
                 {{- /*  google download warning  */}}
-                <a class="btn btn-outline-danger btn-lg m-1" data-bs-toggle="modal" data-bs-target="#exampleModal">Download &nbsp; {{index . "filesize"}}</a>
+                <a class="btn btn-outline-danger btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal">Download &nbsp; {{index . "filesize"}}</a>
                 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
@@ -78,17 +78,19 @@
                 </div>               
             {{- end }}
             {{- if eq (index . "jsdos6") true}}
-                <a href="#" id="jsdosRunLink" class="btn btn-primary btn-lg m-1" data-bs-toggle="modal" data-bs-target="#jsDOSModal">Run in browser</a>
+                <a href="#" id="jsdosRunLink" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#jsDOSModal">Run in browser</a>
             {{- end}}
+            </div>
+            <div class="mt-2 mb-2 d-grid gap-2 d-xl-flex justify-content-xl-end">
             {{- if ne "" (index . "checksum")}}
-                <a class="d-none d-sm-inline btn btn-outline-secondary btn m-1" href="/sum/{{index . "download"}}" role="button" data-bs-toggle="tooltip" data-bs-title="Checksum download">#sum</a>
-                <a class="d-inline d-sm-none btn btn-outline-secondary btn m-1" href="/sum/{{index . "download"}}" role="button">Checksum</a>
+                <a class="d-none d-sm-inline btn btn-outline-secondary btn-sm" href="/sum/{{index . "download"}}" role="button" data-bs-toggle="tooltip" data-bs-title="Checksum download">#sum</a>
+                <a class="d-inline d-sm-none btn btn-outline-secondary btn-sm" href="/sum/{{index . "download"}}" role="button">Checksum</a>
             {{- end}}
             {{- if (index . "content")}}
-                <a class="d-inline btn btn-outline-secondary btn m-1" data-bs-toggle="modal" data-bs-target="#viewContentModal">view content</a>
+                <a class="d-inline btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#viewContentModal">view content</a>
             {{- end}}
             {{- if ne "" (index . "linkpreview")}}
-                <a class="d-inline btn btn-outline-secondary btn m-1" href="{{- index . "linkpreview" }}" role="button" data-bs-toggle="tooltip" data-bs-title="{{index . "linkpreviewTip"}}">preview</a>
+                <a class="d-inline btn btn-outline-secondary btn-sm" href="{{- index . "linkpreview" }}" role="button" data-bs-toggle="tooltip" data-bs-title="{{index . "linkpreviewTip"}}">preview</a>
             {{- end}}
             </div>
 {{- /*  Comment on the artifact  */}}

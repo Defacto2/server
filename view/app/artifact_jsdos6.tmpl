@@ -5,7 +5,7 @@
 {{- $filename := index . "filename"}}
 {{- $runProgram := index . "jsdos6Run"}}
 {{- $extract := index . "jsdos6Zip"}}
-{{- $cpu := index . "jsdos6CPU"}}
+{{- $config := index . "jsdos6Config"}}
 {{- $runJS := "startBinary(DosBoxConfig);"}}
 {{- if eq $extract true}}{{ $runJS = "startZip(DosBoxConfig);" }}{{end}}
 {{- /*  js-dos v6.22 ~ canvas and user interface. */}}
@@ -58,11 +58,15 @@
     }
     function startBinary(options) {
         Dos(canvas, options).ready((fs, main) => {
-            fs.createFile("dosbox.conf", `\t[dosbox]\n\tmachine=vga\n`);
+            // create a dosbox configuration file within the virtual file system.
+            fs.createFile("dosbox.conf", "{{$config}}");
+            // fetch the artifact file download.
             fetch('/d/{{$download}}')
             .then(response => response.arrayBuffer())
             .then(arrayBuffer => {
+                // recreate the artifact file download within the virtual file system.
                 fs.createFile("{{$filename}}", arrayBuffer);
+                // start the dosbox with the configuration and the artifact file.
                 main(["-conf", "dosbox.conf", "-c", "{{$filename}}"]).then((ci) => {
                     window.ci = ci;
                     console.log(`width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.width}`);
@@ -72,8 +76,12 @@
     }
     function startZip(options) {
         Dos(canvas, options).ready((fs, main) => {
+            // create a dosbox configuration file within the virtual file system.
+            fs.createFile("dosbox.conf", "{{$config}}");
+            console.log("{{$config}}")
+            // fetch the artifact file download and if it is a zip file, extract it to the virtual file system.
             fs.extract("/d/{{$download}}").then(() => {
-                fs.createFile("dosbox.conf", `\t[dosbox]\n\tmachine=vga\n`);
+                // start the dosbox with the configuration and the extracted artifact file.
                 main(["-conf", "dosbox.conf", "-c", "{{$runProgram}}"]).then((ci) => {
                     window.ci = ci;
                     console.log(`width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.width}`);
