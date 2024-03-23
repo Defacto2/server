@@ -122,13 +122,12 @@ func (r *Releasers) Similar(ctx context.Context, db *sql.DB, limit uint, names .
 	}
 	query := string(postgres.ReleaserSimilarTo(like...))
 	{
-		const page = 1
-		size := int(limit) | 10
+		const page, max = 1, 10
+		size := int(limit) | max
 		val, offset := calculateLimitAndOffset(page, size)
 		query += fmt.Sprintf(" LIMIT %d OFFSET %d", val, offset)
 	}
 	if err := queries.Raw(query).Bind(ctx, db, r); err != nil {
-		fmt.Println(err)
 		return err
 	}
 	r.Slugs()

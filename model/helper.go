@@ -85,7 +85,7 @@ func JsDosConfig(f *models.File) (string, error) {
 // PublishedFmt returns a formatted date string for the artifact's published date.
 func PublishedFmt(f *models.File) template.HTML {
 	if f == nil {
-		return template.HTML(ErrModel.Error())
+		return template.HTML(ErrModel.Error()) //nolint: gosec
 	}
 	ys, ms, ds := "", "", ""
 	if f.DateIssuedYear.Valid {
@@ -104,18 +104,18 @@ func PublishedFmt(f *models.File) template.HTML {
 		}
 	}
 	strong := func(s string) template.HTML {
-		return template.HTML("<strong>" + s + "</strong>")
+		return template.HTML("<strong>" + s + "</strong>") //nolint: gosec
 	}
 	if isYearOnly := ys != "" && ms == "" && ds == ""; isYearOnly {
-		return template.HTML(strong(ys))
+		return strong(ys)
 	}
 	if isInvalidDay := ys != "" && ms != "" && ds == ""; isInvalidDay {
-		return strong(ys) + template.HTML(" "+ms)
+		return strong(ys) + template.HTML(" "+ms) //nolint: gosec
 	}
 	if isInvalid := ys == "" && ms == "" && ds == ""; isInvalid {
 		return "unknown date"
 	}
-	return strong(ys) + template.HTML(fmt.Sprintf(" %s %s", ms, ds))
+	return strong(ys) + template.HTML(fmt.Sprintf(" %s %s", ms, ds)) //nolint: gosec
 }
 
 func calc(o, l int) int {

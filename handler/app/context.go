@@ -137,7 +137,7 @@ func BBSAZ(logr *zap.SugaredLogger, c echo.Context) error {
 
 // Checksum is the handler for the Checksum file record page.
 func Checksum(logr *zap.SugaredLogger, c echo.Context, id string) error {
-	if err := download.Checksum(logr, c, id); err != nil {
+	if err := download.Checksum(c, id); err != nil {
 		return DownloadErr(logr, c, "sum", err)
 	}
 	return nil
@@ -1999,7 +1999,6 @@ func TitleEdit(logr *zap.SugaredLogger, c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	fmt.Printf("f: %+v\n", f)
 	r, err := model.EditFind(f.ID)
 	if err != nil {
 		return err

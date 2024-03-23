@@ -269,14 +269,14 @@ func Collection() Milestones {
 			Content: "Steve Wozniak and Steve Jobs release the Apple&nbsp;I, a single-board computer with a <a href=\"https://spectrum.ieee.org/chip-hall-of-fame-mos-technology-6502-microprocessor\">MOS 6502 CPU</a>, 4KB of RAM, and a 40-column display controller. " +
 				"<p>Unlike the more popular and earlier Altair 8800, the Apple Computer wasn't usable out of the box and didn't come with a case. However, <a href=\"https://upload.wikimedia.org/wikipedia/commons/4/48/Apple_1_Advertisement_Oct_1976.jpg\">it did offer a convenient video terminal, cassette, and keyboard interface</a>, requiring owners to supply peripherals for output, storage, and input." +
 				"</p><p>The choice of the new, powerful, and affordable <strong>MOS 6502</strong> CPU showed foresight, as it later became the basis of far more successful microcomputer and consoles.<p>" +
-				"<ul>" +
+				ul0 +
 				"<li>Atari 2600 <sup>1977</sup></li>" +
 				"<li>Apple II <sup>1977</sup></li>" +
 				"<li>Commodore PET <sup>1977</sup></li>" +
 				"<li>Commodore VIC-20 <sup>1981</sup></li>" +
 				"<li>Commodore&nbsp;64 <sup>1982</sup></li>" +
 				"<li>Nintendo Entertainment System <sup>1983</sup></li>" +
-				"</ul>",
+				ul1,
 		},
 		{
 			Year: 1977, Month: 1, Title: "CP/M operating system",
@@ -530,14 +530,14 @@ func Collection() Milestones {
 				"apparently for <a href=\"https://www.pouet.net/prod.php?which=33926\">Crush Crumble & Chomp</a>, but the file lacks context.</p>" +
 				"<p><em>Broken</em>, <em>unprotect</em> or <em>crack</em> were common words used in this era to describe the removal of disk copy protection.</p>" +
 				"Other early dated cracks include" +
-				"<ul>" +
+				ul0 +
 				"<li><a href=\"http://artscene.textfiles.com/intros/APPLEII/marscars.gif\">Mars Cars</a> Cracked by Mr Krac-Man 1982</li>" +
 				"<li><a href=\"http://artscene.textfiles.com/intros/APPLEII/tattackm.gif\">Type Attack</a>, (B) 1982 Broken by Krakowicz NY</li>" +
 				"<li><a href=\"http://artscene.textfiles.com/intros/APPLEII/aec.gif\">A.E.</a> Cracked by Mr. Krac-Man 12/17/82</li>" +
 				"<li><a href=\"http://artscene.textfiles.com/intros/APPLEII/boloc.gif\">Bolo</a> Cracked -- 1982 Trystan II</a> 1982</li>" +
 				"<li><a href=\"http://artscene.textfiles.com/intros/APPLEII/ccomputing.gif\">Warp Destroyer</a> The Stack of Corrupt Computing 1982</li>" +
 				"<li><a href=\"http://artscene.textfiles.com/intros/APPLEII/sinterceptm.gif\">Shuttle Intercept</a> Copy/OK (B) 1982 <abbr title=\"Apple Pirated Program Library Exchange\">A.P.P.L.E.</abbr> by The Clone Stranger</li>" +
-				"</ul>",
+				ul1,
 			Picture: Picture{
 				Title: "Dung Beetles breakage by Black Bart",
 				Alt:   "Dung Beetles broken screenshot",
@@ -550,7 +550,7 @@ func Collection() Milestones {
 			Lead: "MicroSoft Disk Operating System v1.25", LinkTitle: "about MS-DOS 1 and 1.25",
 			Link: "https://www.os2museum.com/wp/dos/dos-1-0-and-1-1/",
 			Content: "Microsoft releases the first edition of <strong>MS-DOS</strong> v1.25, <a href=\"https://www.os2museum.com/wp/dos/dos-1-0-and-1-1/msdos-ad-1982/\">readily available</a> to all OEM computer manufacturers. " +
-				"Prior releases were exclusive to IBM. The next release, MS-DOS 2, is also sold boxed at retail and and will help Microsoft to become the de facto operating system provider for personal computers." +
+				"Prior releases were exclusive to IBM. The next release, MS-DOS 2, is also sold boxed at retail and will help Microsoft to become the de facto operating system provider for personal computers." +
 				"<p>In 2014, the Computer History Museum <a href=\"https://computerhistory.org/blog/microsoft-ms-dos-early-source-code/\">published the source code</a> for this operating system edition, and Microsoft later made a <a href=\"https://github.com/microsoft/MS-DOS\">GitHub repository</a>.</p>",
 			Picture: Picture{
 				Title:       "Compaq's MS-DOS based on MS-DOS v1.25",
@@ -594,26 +594,26 @@ func Collection() Milestones {
 				"<p>It seems unlikely that a number of isolated West Berlin kids had access to the unreleased PAL&nbsp;Commodore&nbsp;64 <u>in 1982</u>. The cited year is presumably late 1983 or 1984, misremembered. " +
 				"However, the claim is that various Berliners got together in 1982 and formed multiple \"cracking\" groups, to also trade in software and create art on an unreleased business microcomputer, even though most software didn't need cracking then.</p>" +
 				"<small>Select quotes from an often referenced <a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">interview conducted in 2005-06</a>.</small>" +
-				"<ul>" +
+				ul0 +
 				"<li><q>The first intro was a picture of the Berlin Bear from the city flag and was released by BCS in 1982. It was a kind of co-production by several people...</q></li>" +
 				"<li><q>A positive moment for me was when the father of a classmate who was working for Apple, was able to through his connections, obtain a C64 on Christmas 1982... Plutonium&nbsp;<u>Crackers</u> 2001 (PC) was born.</q></li>" +
 				"<li><q>Some of our close friends/posse in Berlin started their C64 scene-careers nearly at the same time. I'm speaking of <u>Cracking</u> Force Berlin (CFB)... and&nbsp;Berlin&nbsp;<u>Cracking</u>&nbsp;Service&nbsp;(BCS).</q></li>" +
 				"<li><q>We were primarily <u>cracking games from 1982</u> until late 1987.</q></li>" +
 				"<li><q>Copying games wasn't really illegal in most countries back in 1982 or 1983. ... Most early releases <strong>weren't \"cracked\"</strong>, they were just released or spread.</q></li>" +
-				"</ul>",
+				ul1,
 		},
 		{
 			Title: "Third-party PC games", Year: 1982,
 			Content: "<p>The first set of published games on the PC platform is sold without IBM's involvement.</p>" +
 				"Some early publishers include" +
-				"<ul>" +
+				ul0 +
 				"<li><a href=\"//s3data.computerhistory.org/brochures/broderbund.software.1982.102646180.pdf\">Brøderbund</a></li>" +
 				"<li><a href=\"//archive.org/details/avalon-hill-game-company-catal-fall-1982\">The Avalon Hill Game Company</a></li>" +
 				"<li><a href=\"//archive.org/details/strategic-simulations-inc-summer-1982-catalog/mode/2up\">Strategic Simulations</a>, Inc.</li>" +
 				"<li><a href=\"//www.uvlist.net/companies/info/1023-Windmill+Software\">Windmill Software</a></li>" +
 				"<li><a href=\"//retro365.blog/2019/09/23/bits-from-my-personal-collection-the-original-ibm-pc-and-orion-software/\">Orion Software</a></li>" +
 				"<li><a href=\"//www.uvlist.net/companies/info/1029-Spinnaker+Software\">Spinnaker Software</a>" +
-				"</ul>",
+				ul1,
 		},
 		{
 			Title: "The great online reboot", Year: 1983, Month: 1, Day: 1,
@@ -671,13 +671,13 @@ func Collection() Milestones {
 			Title: "Major videogame publishers enter the PC market", Year: 1983,
 			Content: "<p>1983 saw some major arcade and video game publishers release software on the PC. Despite the business-centric marketing of the platform, game software sold on a floppy disk was a popular seller. " +
 				"For publishers, it is less risky than manufacturing the expensive cartridges required by some other game systems.</p>" +
-				"<ul>" +
+				ul0 +
 				"<li><a href=\"//dfarq.homeip.net/atarisoft-if-you-cant-beat-em-join-em/\">Atarisoft</a></li>" +
 				"<li><a href=\"//www.uvlist.net/companies/info/243-Infocom\">Infocom</a></li>" +
 				"<li><a href=\"//www.resetera.com/threads/lets-look-back-at-game-company-datasoft.587093/##post-87110411\">Datasoft</a></li>" +
 				"<li><a href=\"//www.uvlist.net/companies/info/83-Mattel%20Electronics\">Mattel</a></li>" +
 				"<li><a href=\"//www.wired.com/story/sierra-online-ken-williams-interview-memoir/\">Sierra On-Line</a></li>" +
-				"</ul>",
+				ul1,
 		},
 		{
 			Title: "Earliest unprotect text", Year: 1983, Month: 5, Day: 12, Highlight: true,
@@ -710,12 +710,12 @@ func Collection() Milestones {
 		{
 			Title: "Major game publishers enter the PC market", Year: 1984,
 			Content: "<p>Electronic Arts, Activision, Sega, and MicroProse Software publish on the platform.</p>" +
-				"<ul>" +
+				ul0 +
 				"<li><a href=\"//www.polygon.com/a/how-ea-lost-its-soul/\">Electronic Arts</a> was founded in 1982 by former Apple employee Trip Hawkins and initially developed for the Atari&nbsp;400/800 and later Commodore&nbsp;64.</li>" +
 				"<li><a href=\"//www.ign.com/articles/2010/10/01/the-history-of-activision\">Activision</a> originated in late 1979 as the first 3rd-party developer for the Atari&nbsp;2600, comprising former Atari employees.</li>" +
 				"<li><a href=\"//segaretro.org/IBM_PC\">Sega</a> was a significant arcade game developer.</li>" +
 				"<li><a href=\"//corporate-ient.com/microprose/\">MicroProse Software</a> was the company founded by Sid Meier and Bill Stealey in 1982 to create games for the Atari&nbsp;400/800.</li>" +
-				"</ul>",
+				ul1,
 		},
 		{
 			Title: "The first 16 color PC game", Year: 1984, Month: 8,
@@ -1006,24 +1006,24 @@ func Collection() Milestones {
 			Content: "<p><strong>NFO</strong> information text files are usually distributed with pirated software to provide usage instructions, promote the release group, and occasionally encourage group propaganda.</p>" +
 				"<p>Bentley Sidwell Productions may have released the earliest NFO-like document for the 1988 game <a href=\"https://www.mobygames.com/game/9093/romance-of-the-three-kingdoms/cover/group-9976/cover-249195/\">Romance of The Three Kingdoms</a>.</p>" +
 				"<pre>" +
-				"************************************************************************<br>" +
-				"<br>" +
-				"  Romance of The Three Kingdoms<br>" +
-				"    - (KOEI) -<br>" +
-				"  \"We Supply The Past, You Make The History\"<br>" +
-				"<br>" +
-				"***********************************************************************<br>" +
-				"<br>" +
-				"Welcome to the wonderful world of second century China.. China's<br>" +
-				"second dynasty has collapsed and the entire nation battles itself for<br>" +
-				"supremacy in this most interesting action game from Koei..<br>" +
-				"<br>" +
-				"Floppy users: UnARC - ROTK-1.ARC onto Disk #1...<br>" +
-				"                      ROTK-2.ARC onto Disk #2...<br>" +
-				"                      ROTK-3.ARC onto Disk #3...<br>" +
-				"<br>" +
-				"Hard Drive:   UnARC - All Files Into One Directory...<br>" +
-				"<br>" +
+				"************************************************************************" + br +
+				br +
+				"  Romance of The Three Kingdoms" + br +
+				"    - (KOEI) -" + br +
+				"  \"We Supply The Past, You Make The History\"" + br +
+				br +
+				"***********************************************************************" + br +
+				br +
+				"Welcome to the wonderful world of second century China.. China's" + br +
+				"second dynasty has collapsed and the entire nation battles itself for" + br +
+				"supremacy in this most interesting action game from Koei.." + br +
+				br +
+				"Floppy users: UnARC - ROTK-1.ARC onto Disk #1..." + br +
+				"                      ROTK-2.ARC onto Disk #2..." + br +
+				"                      ROTK-3.ARC onto Disk #3..." + br +
+				br +
+				"Hard Drive:   UnARC - All Files Into One Directory..." + br +
+				br +
 				"Nothing to edit... nothing.</pre>",
 		},
 		{
@@ -1573,13 +1573,13 @@ func Collection() Milestones {
 			Year:  1998,
 			Title: "ISO scene picks up steam",
 			Content: "<p>The <strong>ISO scene</strong> is still in its infancy but snowballs after some top groups start releasing with the file format.</p>" +
-				"<ul>" +
+				ul0 +
 				"<li>Razor 1911 merges the separate <a href=\"/f/a82c49\">ISO division</a> back into the Razor 1911 label.</li>" +
 				"<li><a href=\"/f/ac2be5\">Fairlight returns</a> after 4-years and is exclusively releasing with the format.</li>" +
 				"<li>The famed couriers RiSC created <a href=\"/f/b04dac\">RiSCiSO</a> to become one of the largest ISO release groups.</li>" +
 				"<li><a href=\"/f/ae48b0\">PDM ISO</a> becomes the ISO division of <a href=\"/g/paradigm\">Paradigm</a> and Zeus.</li>" +
 				"<li><a href=\"/g/dvniso\">DVNiSO</a> becomes an ISO division of Divine and Deviance.</li>" +
-				"</ul>" +
+				ul1 +
 				"<p>Other early users of the format include<br><a class=\"text-nowrap\" href=\"/g/cd-images-for-the-elite\">CD Images for the Elite</a> (CiFE), <a href=\"/g/kalisto\">Kalisto</a>, <a href=\"/g/isolation\">ISOlation</a>, <a class=\"text-nowrap\" href=\"/g/in-search-of-cd\">In Search of CD</a>, and CaLiSO.</p>" +
 				"<p><q>Paradigm - we do rips, we do ISO - we do it all with style</q></p>",
 		},

@@ -142,7 +142,7 @@ chmod +x df2-server
 touch .env
 nano .env
 
-# create, paste and save the the shell script example content (listed below) to a file named run.sh
+# create, paste and save the shell script example content (listed below) to a file named run.sh
 touch run.sh
 nano run.sh
 

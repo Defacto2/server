@@ -62,6 +62,10 @@ func errVal(name string) template.HTML {
 
 const (
 	attr = " attributions"
+	br   = "<br>"
+	ul0  = "<ul>"
+	ul1  = "</ul>"
+	fzip = ".zip"
 )
 
 // Caching are values that are used throughout the app or layouts.
@@ -591,7 +595,7 @@ func OptionsAnsiLove(zipContent string) template.HTML {
 		switch filepath.Ext(x) {
 		case ".com", ".exe", ".dll", gif, png, jpg, jpeg, webp, ".bmp",
 			".ico", ".avi", ".mpg", ".mpeg", ".mp1", ".mp2", ".mp3", ".mp4", ".ogg", ".wmv",
-			".zip", ".arc", ".arj", ".ace", ".lha", ".lzh", ".7z", ".tar", ".gz", ".bz2", ".xz", ".z",
+			fzip, ".arc", ".arj", ".ace", ".lha", ".lzh", ".7z", ".tar", ".gz", ".bz2", ".xz", ".z",
 			".───", ".──-", ".-", ".--", ".---":
 			continue
 		}
@@ -1338,7 +1342,7 @@ const (
 
 // archives returns a list of archive file extensions supported by this web application.
 func archives() []string {
-	return []string{".zip", ".rar", ".7z", ".tar", ".lha", ".lzh", ".arc", ".arj", ".ace", ".tar"}
+	return []string{fzip, ".rar", ".7z", ".tar", ".lha", ".lzh", ".arc", ".arj", ".ace", ".tar"}
 }
 
 // documents returns a list of document file extensions that can be read as text in the browser.

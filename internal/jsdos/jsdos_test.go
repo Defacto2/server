@@ -5,62 +5,65 @@ import (
 
 	"github.com/Defacto2/server/internal/jsdos"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/subpop/go-ini"
 )
+
+const mockZipContent = "filename.zip\nreadme.txt\nrunme.bat\napp.com\ndata.dat"
 
 func TestIni(t *testing.T) {
 	t.Parallel()
 	cfg := jsdos.Jsdos{}
 	cfg.CPU("8086")
 	b, err := ini.Marshal(cfg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), "cputype=386_slow")
 	assert.Contains(t, string(b), "core=simple")
 	assert.Contains(t, string(b), "cycles=fixed 330")
 	cfg.Machine("vga")
 	b, err = ini.Marshal(cfg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), "machine=vga")
 	assert.Contains(t, string(b), "memsize=16")
 	cfg.Sound("pcspeaker")
 	b, err = ini.Marshal(cfg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), "pcspeaker=true")
 	assert.Contains(t, string(b), "pcrate=44100")
 	assert.Contains(t, string(b), "tandy=off")
 	assert.Contains(t, string(b), "disney=false")
 	cfg.Tandy()
 	b, err = ini.Marshal(cfg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), "tandy=true")
 	assert.Contains(t, string(b), "tandyrate=44100")
 	cfg.NoEMS(true)
 	b, err = ini.Marshal(cfg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), "ems=false")
 	cfg.NoXMS(true)
 	b, err = ini.Marshal(cfg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), "xms=false")
 	cfg.NoUMB(true)
 	b, err = ini.Marshal(cfg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), "umb=false")
 	cfg.NoMIDI()
 	b, err = ini.Marshal(cfg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), "mididevice=none")
 	cfg.NoGUS()
 	b, err = ini.Marshal(cfg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), "gus=false")
 	cfg.NoBlaster()
 	b, err = ini.Marshal(cfg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), "sbtype=none")
 	cfg.NoBeeper()
 	b, err = ini.Marshal(cfg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), "pcspeaker=false")
 }
 
@@ -69,7 +72,7 @@ func TestFM(t *testing.T) {
 	cfg := jsdos.Jsdos{}
 	cfg.FM()
 	b, err := ini.Marshal(cfg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), "oplmode=auto")
 }
 
@@ -78,7 +81,7 @@ func TestCovox(t *testing.T) {
 	cfg := jsdos.Jsdos{}
 	cfg.Covox()
 	b, err := ini.Marshal(cfg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), "disney=true")
 }
 
@@ -87,27 +90,27 @@ func TestSound(t *testing.T) {
 	cfg := jsdos.Jsdos{}
 	cfg.Sound("sb16")
 	b, err := ini.Marshal(cfg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), "sbtype=sb16")
 	cfg = jsdos.Jsdos{}
 	cfg.Sound("sb1")
 	b, err = ini.Marshal(cfg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), "sbtype=sb1")
 	cfg = jsdos.Jsdos{}
 	cfg.Sound("none")
 	b, err = ini.Marshal(cfg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), "mpu401=none")
 	cfg = jsdos.Jsdos{}
 	cfg.Sound("gus")
 	b, err = ini.Marshal(cfg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), "gus=true")
 	cfg = jsdos.Jsdos{}
 	cfg.Sound("covox")
 	b, err = ini.Marshal(cfg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Contains(t, string(b), "disney=true")
 }
 
@@ -119,12 +122,12 @@ func TestPlatform(t *testing.T) {
 	assert.EqualValues(t, "pcjr", jsdos.PCjr)
 	assert.EqualValues(t, "ega", jsdos.EGA)
 	assert.EqualValues(t, "vgaonly", jsdos.VGAOnly)
-	assert.EqualValues(t, "svga_s3", jsdos.SVGA_S3)
-	assert.EqualValues(t, "svga_et3000", jsdos.SVGA_ET3000)
-	assert.EqualValues(t, "svga_et4000", jsdos.SVGA_ET4000)
-	assert.EqualValues(t, "svga_paradise", jsdos.SVGA_Paradise)
-	assert.EqualValues(t, "vesa_nolfb", jsdos.VESA_NoLFB)
-	assert.EqualValues(t, "vesa_oldvbe", jsdos.VESA_OldVBE)
+	assert.EqualValues(t, "svga_s3", jsdos.SuperVgaS3)
+	assert.EqualValues(t, "svga_et3000", jsdos.SuperVgaET3000)
+	assert.EqualValues(t, "svga_et4000", jsdos.SuperVgaET4000)
+	assert.EqualValues(t, "svga_paradise", jsdos.SuperVgaParadise)
+	assert.EqualValues(t, "vesa_nolfb", jsdos.VesaNoFrameBuff)
+	assert.EqualValues(t, "vesa_oldvbe", jsdos.VesaV1)
 }
 
 func TestCore(t *testing.T) {
@@ -164,13 +167,12 @@ func TestDosPaths(t *testing.T) {
 	s := jsdos.Paths("")
 	assert.Empty(t, s)
 
-	x := "filename.zip\nreadme.txt\nrunme.bat\napp.com\ndata.dat"
-	s = jsdos.Paths(x)
-	assert.Equal(t, 5, len(s))
+	s = jsdos.Paths(mockZipContent)
+	assert.Len(t, len(s), 5)
 
-	x = "filename.zip\rreadme.txt\nrunme.bat\r\nAPP.COM\ndata.dat"
+	x := "filename.zip\rreadme.txt\nrunme.bat\r\nAPP.COM\ndata.dat"
 	s = jsdos.Paths(x)
-	assert.Equal(t, 5, len(s))
+	assert.Len(t, len(s), 5)
 }
 
 func TestDosBins(t *testing.T) {
@@ -178,15 +180,14 @@ func TestDosBins(t *testing.T) {
 	bins := jsdos.Binaries()
 	assert.Empty(t, bins)
 
-	x := "filename.zip\nreadme.xxx\nrunme.xxx\napp.xxx\ndata.dat"
-	p := jsdos.Paths(x)
+	p := jsdos.Paths(mockZipContent)
 	bins = jsdos.Binaries(p...)
 	assert.Empty(t, bins)
 
-	x = "filename.zip\rreadme.txt\nrunme.bat\r\nAPP.COM\ndata.dat"
+	x := "filename.zip\rreadme.txt\nrunme.bat\r\nAPP.COM\ndata.dat"
 	p = jsdos.Paths(x)
 	bins = jsdos.Binaries(p...)
-	assert.Equal(t, 2, len(bins))
+	assert.Len(t, len(bins), 2)
 }
 
 func TestFinds(t *testing.T) {
@@ -194,11 +195,11 @@ func TestFinds(t *testing.T) {
 	s := jsdos.Finds("", "")
 	assert.Empty(t, s)
 
-	x := "filename.zip\nreadme.xxx\nrunme.xxx\napp.xxx\ndata.dat"
-	p := jsdos.Paths(x)
+	p := jsdos.Paths(mockZipContent)
 	s = jsdos.Finds("filename.zip", p...)
 	assert.Empty(t, s)
 
+	x := mockZipContent
 	x += "\nFILENAME.EXE\nfilename.xxx"
 	p = jsdos.Paths(x)
 	s = jsdos.Finds("filename.zip", p...)
@@ -215,7 +216,7 @@ func TestDosBin(t *testing.T) {
 	s := jsdos.Binary()
 	assert.Empty(t, s)
 
-	x := "filename.zip\nreadme.xxx\nrunme.xxx\napp.xxx\ndata.dat"
+	x := mockZipContent
 	p := jsdos.Paths(x)
 	s = jsdos.Binary(p...)
 	assert.Empty(t, s)
@@ -237,7 +238,6 @@ func TestDosBin(t *testing.T) {
 }
 
 func TestFindBinary(t *testing.T) {
-
 	example := "readme.txt\nRUN.BAT\napp.com\ndata.dat"
 
 	t.Parallel()

@@ -23,7 +23,7 @@ var (
 // Checksum serves the checksums for the requested file.
 // The response is a text file named "checksums.txt" with the checksum and filename.
 // The id string is the UID filename of the requested file.
-func Checksum(logr *zap.SugaredLogger, c echo.Context, id string) error {
+func Checksum(c echo.Context, id string) error {
 	art, err := model.FindObf(id)
 	if err != nil {
 		if errors.Is(err, model.ErrDB) && sess.Editor(c) {

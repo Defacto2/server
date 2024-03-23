@@ -208,7 +208,7 @@ func (c Configuration) Registry() (*TemplateRegistry, error) {
 	}
 	src := html3.Templates(c.Logger, c.View)
 	maps.Copy(tmpls, src)
-	src = htmx.Templates(c.Logger, c.View)
+	src = htmx.Templates(c.View)
 	maps.Copy(tmpls, src)
 	return &TemplateRegistry{Templates: tmpls}, nil
 }

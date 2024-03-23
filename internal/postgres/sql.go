@@ -32,6 +32,8 @@ const (
 	MaxYear = "MAX(date_issued_year) AS max_year"
 	// Ver is a SQL statement to select the version of the PostgreSQL database server in use.
 	Ver = "SELECT version();"
+
+	SelAll = "SELECT * FROM ("
 )
 
 const (
@@ -167,7 +169,7 @@ func DistReleaser() SQL {
 // SelectRelsPros selects a list of distinct releasers or groups,
 // excluding BBS and FTP sites and ordered by the file count.
 func DistReleaserSummed() SQL {
-	return "SELECT * FROM (" +
+	return SelAll +
 		releaserSEL +
 		"AND releaser !~ 'BBS\\M' " +
 		"AND releaser !~ 'FTP\\M' " +
@@ -191,7 +193,7 @@ func DistBBS() SQL {
 
 // DistBBSSummed selects a list of distinct BBS names ordered by the file count.
 func DistBBSSummed() SQL {
-	return "SELECT * FROM (" +
+	return SelAll +
 		releaserSEL +
 		"AND releaser ~ 'BBS\\M' " +
 		releaserBy +
@@ -207,7 +209,7 @@ func DistFTP() SQL {
 // like the query string and ordered by the file count.
 func ReleaserLike(like string) SQL {
 	query := SQL(strings.ToUpper(strings.TrimSpace(like)))
-	return "SELECT * FROM (" + releaserSEL + releaserBy +
+	return SelAll + releaserSEL + releaserBy +
 		") sub WHERE sub.releaser LIKE '%" + query +
 		"%' ORDER BY sub.count_sum DESC"
 }
@@ -219,7 +221,7 @@ func ReleaserSimilarTo(like ...string) SQL {
 	for i, val := range query {
 		query[i] = strings.ToUpper(strings.TrimSpace(val))
 	}
-	return "SELECT * FROM (" + releaserSEL + releaserBy +
+	return SelAll + releaserSEL + releaserBy +
 		SQL(fmt.Sprintf(") sub WHERE sub.releaser SIMILAR TO '%%(%s)%%'", strings.Join(query, "|"))) +
 		" ORDER BY sub.count_sum DESC"
 }

@@ -82,20 +82,20 @@ func PostReleaser(logr *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
-func releasers(logr *zap.SugaredLogger, fs embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(logr)).ParseFS(fs,
+func releasers(fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fs,
 		GlobTo("layout.tmpl"), GlobTo("releasers.tmpl")))
 }
 
 // Templates returns a map of the templates used by the HTML3 sub-group route.
-func Templates(logr *zap.SugaredLogger, fs embed.FS) map[string]*template.Template {
+func Templates(fs embed.FS) map[string]*template.Template {
 	t := make(map[string]*template.Template)
-	t["releasers"] = releasers(logr, fs)
+	t["releasers"] = releasers(fs)
 	return t
 }
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
-func TemplateFuncMap(logr *zap.SugaredLogger) template.FuncMap {
+func TemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
 		"borderClass": func(name, path string) string {
 			const mark = "border border-primary"

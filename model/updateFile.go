@@ -165,7 +165,7 @@ func UpdatePlatform(c echo.Context, id int64, val string) error {
 	return nil
 }
 
-// UpdateReleasers updates the the releasers values with val.
+// UpdateReleasers updates the releasers values with val.
 // Two releases can be separated by a + (plus) character.
 // It returns nil if the update was successful.
 // Id is the database id of the record.

@@ -224,6 +224,9 @@ issues:
     - path: zoo_test.go
       linters:
         - tagliatelle
+    - path: jsdos.go
+      linters:
+        - lll
       
 linters-settings:
   cyclop:

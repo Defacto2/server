@@ -33,6 +33,10 @@ const (
 	Releaser                   // Releaser focuses on the releaser data using the group_brand_by and group_brand_for columns.
 )
 
+const (
+	UpdateSet = "UPDATE files SET "
+)
+
 // In the future we may want to add a Debug or TestRun func.
 
 // Run the database repair based on the repair option.
@@ -285,12 +289,14 @@ func invalidUUIDs(ctx context.Context, db *sql.DB) error {
 
 func nullifyEmpty(db *sql.DB) error {
 	query := ""
-	columns := []string{"list_relations", "web_id_github", "web_id_youtube",
+	columns := []string{
+		"list_relations", "web_id_github", "web_id_youtube",
 		"group_brand_for", "group_brand_by", "record_title",
 		"credit_text", "credit_program", "credit_illustration", "credit_audio", "comment",
-		"dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio"}
+		"dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio",
+	}
 	for _, column := range columns {
-		query += "UPDATE files SET " + column + " = NULL WHERE " + column + " = ''; "
+		query += UpdateSet + column + " = NULL WHERE " + column + " = ''; "
 	}
 	if _, err := queries.Raw(query).Exec(db); err != nil {
 		return err
@@ -300,10 +306,12 @@ func nullifyEmpty(db *sql.DB) error {
 
 func nullifyZero(db *sql.DB) error {
 	query := ""
-	columns := []string{"web_id_pouet", "web_id_demozoo",
-		"date_issued_year", "date_issued_month", "date_issued_day"}
+	columns := []string{
+		"web_id_pouet", "web_id_demozoo",
+		"date_issued_year", "date_issued_month", "date_issued_day",
+	}
 	for _, column := range columns {
-		query += "UPDATE files SET " + column + " = NULL WHERE " + column + " = 0; "
+		query += UpdateSet + column + " = NULL WHERE " + column + " = 0; "
 	}
 	if _, err := queries.Raw(query).Exec(db); err != nil {
 		return err
@@ -315,7 +323,7 @@ func trimFwdSlash(db *sql.DB) error {
 	query := ""
 	columns := []string{"web_id_16colors"}
 	for _, column := range columns {
-		query += "UPDATE files SET " + column + " = LTRIM(web_id_16colors, '/') WHERE web_id_16colors LIKE '/%'; "
+		query += UpdateSet + column + " = LTRIM(web_id_16colors, '/') WHERE web_id_16colors LIKE '/%'; "
 	}
 	if _, err := queries.Raw(query).Exec(db); err != nil {
 		return err

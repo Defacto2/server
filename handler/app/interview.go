@@ -139,8 +139,9 @@ func Interviewees() Groups {
 				{
 					Scener: "Minor Threat",
 					Year:   1994, Month: 9,
-					Content: "\"This guy is a real Renaissance Man, hacker, programmer, burglar, convict, star of stage and screen..\"",
-					Link:    "http://phrack.org/issues/46/5.html#article",
+					Content: "\"This guy is a real Renaissance Man, hacker, programmer, " +
+						"burglar, convict, star of stage and screen..\"",
+					Link: "http://phrack.org/issues/46/5.html#article",
 				},
 			},
 		},

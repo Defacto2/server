@@ -187,7 +187,11 @@ func content(art *models.File, data map[string]interface{}) map[string]interface
 	return data
 }
 
-func jsdos(logr *zap.SugaredLogger, art *models.File, data map[string]interface{}, fname string) map[string]interface{} {
+func jsdos(logr *zap.SugaredLogger,
+	art *models.File,
+	data map[string]interface{},
+	fname string,
+) map[string]interface{} {
 	if logr == nil || art == nil {
 		return data
 	}
@@ -226,7 +230,7 @@ func filentry(art *models.File, data map[string]interface{}) map[string]interfac
 		if c != u {
 			c = Updated(art.Createdat.Time, "Created")
 			u = Updated(art.Updatedat.Time, "Updated")
-			data["filentry"] = c + "<br>" + u
+			data["filentry"] = c + br + u
 			return data
 		}
 		c = Updated(art.Createdat.Time, "Created")
