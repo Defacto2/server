@@ -312,10 +312,6 @@ func groups() []Site {
 			"The former demo-division of the Deviance pirate group.",
 		},
 		Site{
-			"Fairlight", "http://www.fairlight.fi/",
-			"The multi-platform pirate and demo group.",
-		},
-		Site{
 			"Quartex", "https://www.quartex.org/",
 			"The Amiga and console pirate group, with a site under construction since 2001.",
 		},

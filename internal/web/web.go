@@ -91,6 +91,10 @@ func groups() Groups {
 				Name: "Fairlight Commodore 64",
 			},
 			{
+				URL:  "https://www.fairlight.fi",
+				Name: "Fairlight Finland",
+			},
+			{
 				URL:        "www.fairlight.org",
 				Name:       "Fairlight",
 				NotWorking: true,
@@ -176,6 +180,10 @@ func groups() Groups {
 			},
 		},
 		"quartex": []Website{
+			{
+				URL:  "www.quartex.org",
+				Name: "Quartex",
+			},
 			{
 				URL:        "www.quartex.demon.co.uk",
 				Name:       "Quartex",
