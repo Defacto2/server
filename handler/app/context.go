@@ -1461,12 +1461,17 @@ func records2(ctx context.Context, db *sql.DB, uri string, page, limit int) (mod
 
 // Releaser is the handler for the releaser page ordered by the most files.
 func Releaser(logr *zap.SugaredLogger, c echo.Context) error {
-	return rel(logr, c, true)
+	return rel(logr, c, model.Prolific)
 }
 
 // ReleaserAZ is the handler for the releaser page ordered alphabetically.
 func ReleaserAZ(logr *zap.SugaredLogger, c echo.Context) error {
-	return rel(logr, c, false)
+	return rel(logr, c, model.Alphabetical)
+}
+
+// ReleaserYear is the handler for the releaser page ordered by year of the first release.
+func ReleaserYear(logr *zap.SugaredLogger, c echo.Context) error {
+	return rel(logr, c, model.Oldest)
 }
 
 // ReleaserErr renders the files error page for the Groups menu and invalid releasers.
@@ -2657,7 +2662,7 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 }
 
 // rel is the handler for the Releaser page.
-func rel(logr *zap.SugaredLogger, c echo.Context, prolific bool) error {
+func rel(logr *zap.SugaredLogger, c echo.Context, orderBy model.OrderBy) error {
 	const title, name = "Releaser", "releaser"
 	if logr == nil {
 		return InternalErr(logr, c, name, ErrZap)
@@ -2682,7 +2687,7 @@ func rel(logr *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	}
 	defer db.Close()
 	var r model.Releasers
-	if err := r.All(ctx, db, prolific, 0, 0); err != nil {
+	if err := r.All(ctx, db, orderBy, 0, 0); err != nil {
 		return DatabaseErr(logr, c, name, err)
 	}
 	var m model.Summary
@@ -2695,9 +2700,16 @@ func rel(logr *zap.SugaredLogger, c echo.Context, prolific bool) error {
 		"issues": string(ByteFileS("file artifact", m.SumCount.Int64, m.SumBytes.Int64)),
 		"years":  helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
 	}
-	err = c.Render(http.StatusOK, name, data)
+	tmpl := name
+	if orderBy == model.Oldest {
+		tmpl = "releaser-year"
+		s := lead + " The list is sorted by the year of the first release and " +
+			"only lists releasers from before 2000. For performance, releasers from 1991-99 require at least 3 file artifacts."
+		data["lead"] = s
+	}
+	err = c.Render(http.StatusOK, tmpl, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(logr, c, tmpl, err)
 	}
 	return nil
 }

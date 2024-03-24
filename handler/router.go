@@ -206,6 +206,9 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 	s.GET("/releaser/a-z", func(x echo.Context) error {
 		return app.ReleaserAZ(logr, x)
 	})
+	s.GET("/releaser/year", func(x echo.Context) error {
+		return app.ReleaserYear(logr, x)
+	})
 	s.GET("/scener", func(x echo.Context) error {
 		return app.Scener(logr, x)
 	})

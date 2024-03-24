@@ -40,6 +40,15 @@ type ReleaserName struct {
 // ReleaserNames is a distinct data list of releasers.
 type ReleaserNames []ReleaserName
 
+// OrderBy is the sorting order for ALL the releasers.
+type OrderBy uint
+
+const (
+	Prolific     OrderBy = iota // Prolific orders by the total artifact count.
+	Alphabetical                // Alphabetical orders by the releaser name.
+	Oldest                      // Oldest orders by the year of the first artifact.
+)
+
 // List gets the unique releaser names.
 func (r *ReleaserNames) List(ctx context.Context, db *sql.DB) error {
 	if db == nil {
@@ -73,16 +82,23 @@ func (r *Releasers) List(ctx context.Context, db *sql.DB, name string) (models.F
 
 // All gets the unique releaser names and their total file count and file sizes.
 // When reorder is true the results are ordered by the total file counts.
-func (r *Releasers) All(ctx context.Context, db *sql.DB, reorder bool, limit, page int) error {
+func (r *Releasers) All(ctx context.Context, db *sql.DB, order OrderBy, limit, page int) error {
 	if db == nil {
 		return ErrDB
 	}
 	if r != nil && len(*r) > 0 {
 		return nil
 	}
-	query := string(postgres.DistReleaser())
-	if reorder {
+	query := ""
+	switch order {
+	case Prolific:
 		query = string(postgres.DistReleaserSummed())
+	case Alphabetical:
+		query = string(postgres.DistReleaser())
+	case Oldest:
+		query = string(postgres.DistReleaserByYear())
+	default:
+		return ErrOrderBy
 	}
 	if limit > 0 {
 		if page < 1 {

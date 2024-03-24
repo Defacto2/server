@@ -6,14 +6,14 @@
 {{- $issues := index .stats.issues }}
 {{- $years := index .stats.years}}
 <div class="container px-4 text-center">
-    <p class="text-start lead"><small>There are {{$pubs}} with {{$issues | safeHTML}} 
+    <p class="text-start lead"><small>Showing {{$pubs}}. Overall there are {{$issues | safeHTML}} 
         from {{$years}}.</small></p>
     <div class="row row-cols-1 row-cols-sm-2 row-col-md-3 g-2">
 {{- range $index, $rel := .releasers -}}
 {{- $title := fmtRangeURI $rel.Unique.URI }}
 {{- $initialism := initialisms $rel.Unique.URI }}
         <div class="col">
-            <div class="p-3 border bg-light"><h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{trimSiteSuffix $title}}</a></h5>
+            <div class="p-3 border bg-light h-100"><h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{trimSiteSuffix $title}}</a></h5>
             <span class="text-muted">{{ $initialism }} &nbsp; </span>
             {{- byteFileS $name $rel.Unique.Count $rel.Unique.Bytes }}</div>
         </div>

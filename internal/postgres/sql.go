@@ -37,7 +37,7 @@ const (
 )
 
 const (
-	ff = "FROM files "
+	fromFiles = "FROM files "
 )
 
 // Query the database version.
@@ -97,7 +97,7 @@ func Stat() []string {
 const releaserSEL SQL = "SELECT DISTINCT releaser, " +
 	"COUNT(files.filename) AS count_sum, " +
 	"SUM(files.filesize) AS size_total " +
-	ff +
+	fromFiles +
 	"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
 	"WHERE NULLIF(releaser, '') IS NOT NULL "
 
@@ -105,11 +105,30 @@ const releaserSEL SQL = "SELECT DISTINCT releaser, " +
 const releaserBy SQL = "GROUP BY releaser " +
 	"ORDER BY releaser ASC"
 
+// releaserYear is a partial SQL statement to group the results by the releaser name,
+// and filter the results by the file count and the oldest year.
+// Releasers before 1991 must have at least one file, and releasers before 2000 must have at least 3 files.
+// For performance, Releasers after the year 1999 are excluded from the results.
+const releaserYear SQL = "SELECT DISTINCT releaser, " +
+	"COUNT(files.filename) AS count_sum, " +
+	"SUM(files.filesize) AS size_total, " +
+	"MIN(files.date_issued_year) AS min_year " +
+	fromFiles +
+	"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
+	"WHERE NULLIF(releaser, '') IS NOT NULL " +
+	"AND releaser !~ 'BBS\\M' " +
+	"AND releaser !~ 'FTP\\M' " +
+	"GROUP BY releaser " +
+	"HAVING (COUNT(files.filename) > 0 AND MIN(files.date_issued_year) < 1991) " +
+	"OR (COUNT(files.filename) > 2 AND MIN(files.date_issued_year) < 2000)" +
+	"ORDER BY min_year ASC, releaser ASC"
+
+// magazineSEL is a partial SQL statement to select the magazine titles, file count and filesize sum.
 const magazineSEL SQL = "SELECT DISTINCT releaser, " +
 	"COUNT(files.filename) AS count_sum, " +
 	"SUM(files.filesize) AS size_total, " +
 	"MIN(files.date_issued_year) AS min_year " +
-	ff +
+	fromFiles +
 	"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
 	"WHERE NULLIF(releaser, '') IS NOT NULL " +
 	"AND section = 'magazine' " +
@@ -124,7 +143,7 @@ func Roles() Role {
 
 func (r Role) Select() SQL {
 	s := "SELECT DISTINCT ON(upper(scener)) scener " +
-		ff +
+		fromFiles +
 		fmt.Sprintf("CROSS JOIN LATERAL (values%s) AS T(scener) ", r) +
 		"WHERE NULLIF(scener, '') IS NOT NULL " +
 		"GROUP BY scener " +
@@ -175,6 +194,13 @@ func DistReleaserSummed() SQL {
 		"AND releaser !~ 'FTP\\M' " +
 		releaserBy +
 		") sub WHERE sub.count_sum > 2 ORDER BY sub.count_sum DESC"
+}
+
+// DistReleaserByYear selects a list of distinct releasers or groups,
+// excluding BBS and FTP sites and ordered by the oldest year.
+func DistReleaserByYear() SQL {
+	fmt.Println(releaserYear)
+	return releaserYear
 }
 
 // DistMagazine selects a list of distinct magazine titles.
@@ -234,7 +260,7 @@ func SumReleaser(where string) SQL {
 		"SUM(files.filesize) AS size_total, " +
 		"MIN(files.date_issued_year) AS min_year, " +
 		"MAX(files.date_issued_year) AS max_year " +
-		ff
+		fromFiles
 	switch where {
 	case "magazine":
 		s += "WHERE files.section = 'magazine'"

@@ -137,9 +137,10 @@ func coldfusionIDs(ctx context.Context, db *sql.DB) error {
 }
 
 // Fix bad imported names, such as those from Demozoo data imports.
-// Each one of these fixes need a redirect.
+// Each one of these fixes also need an echo.redirect in router.go.
 const (
 	acidbad   = "ACID"
+	ansibad   = "ANSI Creators in Demand"
 	acidfix   = "ACID PRODUCTIONS"
 	icebad    = "ICE"
 	icefix    = "INSANE CREATORS ENTERPRISE"
@@ -154,11 +155,19 @@ const (
 	ofg       = "THE ORIGINAL FUNNY GUYS"
 	ofg1      = "ORIGINAL FUNNY GUYS"
 	ofgfix    = "ORIGINALLY FUNNY GUYS"
+	dsi       = "DARKSIDE INC"
+	dsifix    = "DARKSIDE INCORPORATED"
+	rss       = "RSS"
+	rssfix    = "renaissance"
 )
+
+// TODO ANSI Creators in Demand
+// /ansi-creators-in-demand
 
 func fixes() map[string]string {
 	return map[string]string{
 		acidbad: acidfix,
+		ansibad: acidfix,
 		icebad:  icefix,
 		pwabad:  pwafix,
 		trsibad: trsifix,
@@ -166,6 +175,8 @@ func fixes() map[string]string {
 		damn:    damnfix,
 		ofg:     ofgfix,
 		ofg1:    ofgfix,
+		dsi:     dsifix,
+		rss:     rssfix,
 	}
 }
 

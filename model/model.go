@@ -18,10 +18,11 @@ import (
 )
 
 var (
-	ErrDB   = errors.New("database value is nil")
-	ErrKey  = errors.New("key value is zero or negative")
-	ErrName = errors.New("name value is empty")
-	ErrURI  = errors.New("uri value is invalid")
+	ErrDB      = errors.New("database value is nil")
+	ErrKey     = errors.New("key value is zero or negative")
+	ErrOrderBy = errors.New("order by value is invalid")
+	ErrName    = errors.New("name value is empty")
+	ErrURI     = errors.New("uri value is invalid")
 )
 
 type Pagination struct {

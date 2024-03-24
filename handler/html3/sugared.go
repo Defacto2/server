@@ -111,7 +111,7 @@ func (s *Sugared) Groups(c echo.Context) error {
 
 	// releasers are the distinct groups from the file table.
 	releasers := model.Releasers{}
-	if err := releasers.All(ctx, db, false, model.Maximum, page); err != nil {
+	if err := releasers.All(ctx, db, model.Alphabetical, model.Maximum, page); err != nil {
 		s.Log.Errorf("group and releaser list: %w", err)
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}

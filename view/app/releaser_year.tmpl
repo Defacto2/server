@@ -11,7 +11,7 @@
 {{- $years := index .stats.years}}
 {{- $class := "row row-cols-1 row-cols-sm-2 row-col-md-3 g-2"}}
 <div class="container px-4 text-center">
-    <p class="text-start lead"><small>There are {{$pubs}} with {{$issues | safeHTML}} 
+    <p class="text-start lead"><small>Showing {{$pubs}}. Overall there are {{$issues | safeHTML}} 
         from {{$years}}.</small></p>
 {{- $prevYear := 0 }}
 {{- range $index, $rel := .releasers -}}
@@ -19,7 +19,7 @@
     {{- $initialism := initialisms $rel.Unique.URI }}
     {{- $year := $rel.Unique.Year.Int }}
     {{ if eq $index 0}}
-        {{ if (gt $year 0) }}<h3 class="text-start lead p-3">first issue or publication in {{$year}}</h3>{{end}}
+        {{ if (gt $year 0) }}<h3 class="text-start lead p-3">the first release in {{$year}}</h3>{{end}}
         <div class="{{$class}}">
     {{- end}}
     {{- if and (gt $prevYear 0) (gt $year 0) (gt $year $prevYear) }}
@@ -32,7 +32,7 @@
     {{- $prevYear = $rel.Unique.Year.Int }}
     {{- end}}
         <div class="col">
-            <div class="p-3 border bg-light"><h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{trimSiteSuffix $title}}</a></h5>
+            <div class="p-3 border bg-light h-100"><h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{trimSiteSuffix $title}}</a></h5>
             <span class="text-muted">{{ $initialism }} &nbsp; </span>
             {{- byteFileS $name $rel.Unique.Count $rel.Unique.Bytes }}
             </div>
