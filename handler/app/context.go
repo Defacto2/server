@@ -16,7 +16,6 @@ import (
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/releaser/initialism"
-	namer "github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/archive"
@@ -1030,22 +1029,6 @@ func PostName(logr *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
 	return nil
 }
 
-// PostReleaser is the handler for the releaser search form post page.
-func PostReleaser(logr *zap.SugaredLogger, c echo.Context) error {
-	const name = "searchList"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
-	input := c.FormValue("releaser-data-list")
-	val := helper.TrimRoundBraket(input)
-	slug := helper.Slug(val)
-	if slug == "" {
-		return SearchReleaser(logr, c)
-	}
-	// note, the redirect to a GET only works with 301 and 404 status codes.
-	return c.Redirect(http.StatusMovedPermanently, "/g/"+slug)
-}
-
 // PouetCache parses the cached data for the Pouet production votes.
 // If the cache is valid it is returned as JSON response.
 // If the cache is invalid or corrupt an error will be returned
@@ -1711,8 +1694,8 @@ func SearchFile(logr *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
-// SearchReleaserX is the handler for the Releaser Search page.
-func SearchReleaserX(logr *zap.SugaredLogger, c echo.Context) error {
+// SearchReleaser is the handler for the Releaser Search page.
+func SearchReleaser(logr *zap.SugaredLogger, c echo.Context) error {
 	const title, name = "Search for releasers", "searchHtmx"
 	if logr == nil {
 		return InternalErr(logr, c, name, ErrZap)
@@ -1723,49 +1706,6 @@ func SearchReleaserX(logr *zap.SugaredLogger, c echo.Context) error {
 	data["title"] = title
 	data["info"] = "search for a group, initialism, magazine, board, or site"
 	err := c.Render(http.StatusOK, name, data)
-	if err != nil {
-		return InternalErr(logr, c, name, err)
-	}
-	return nil
-}
-
-// SearchReleaser is the handler for the Releaser Search page.
-func SearchReleaser(logr *zap.SugaredLogger, c echo.Context) error {
-	const title, name = "Search for releasers", "searchList"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
-	data := empty(c)
-	data["description"] = "Search form to discover releasers."
-	data["logo"] = title
-	data["title"] = title
-	data["info"] = "search for a group, initialism, magazine, board, or site"
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return DatabaseErr(logr, c, name, err)
-	}
-	defer db.Close()
-	x := model.ReleaserNames{}
-	if err := x.List(ctx, db); err != nil {
-		return DatabaseErr(logr, c, name, err)
-	}
-	s := make([]string, len(x))
-	for i, v := range x {
-		id := strings.TrimSpace(v.Name)
-		slug := helper.Slug(id)
-		// use namer.Humanized instead of the releaser.link func as it is far more performant
-		name, _ := namer.Humanize(namer.Path(slug))
-		ism := initialism.Initialism(initialism.Path(slug))
-		opt := name
-		if len(ism) > 0 {
-			opt = fmt.Sprintf("%s (%s)", name, strings.Join(ism, ", "))
-		}
-		s[i] = opt
-	}
-	data["releasers"] = s
-
-	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(logr, c, name, err)
 	}

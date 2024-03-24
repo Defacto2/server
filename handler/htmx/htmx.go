@@ -22,7 +22,7 @@ import (
 // Routes for the /htmx sub-route group that returns HTML fragments
 // using the htmx library for AJAX responses.
 func Routes(logr *zap.SugaredLogger, e *echo.Echo) *echo.Echo {
-	e.POST("/search/releaser-x", func(x echo.Context) error {
+	e.POST("/search/releaser", func(x echo.Context) error {
 		return PostReleaser(logr, x)
 	})
 	return e
@@ -34,7 +34,7 @@ func GlobTo(name string) string {
 	return strings.Join([]string{"view", "htmx", name}, "/")
 }
 
-// PostReleaser is a handler for the /search/releaser-x route.
+// PostReleaser is a handler for the /search/releaser route.
 func PostReleaser(logr *zap.SugaredLogger, c echo.Context) error {
 	const maxResults = 14
 	ctx := context.Background()
