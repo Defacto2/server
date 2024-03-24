@@ -231,39 +231,42 @@ func Roles() Role {
 	return Role(s)
 }
 
-func (r Role) Select() SQL {
-	s := "SELECT DISTINCT ON(upper(scener)) scener " +
+func (r Role) Distinct() SQL {
+	s := "SELECT DISTINCT ON(upper(scener)) scener " + // select distinct scener names
 		"FROM files " +
+		// combine the Role column name as sceners
 		fmt.Sprintf("CROSS JOIN LATERAL (values%s) AS T(scener) ", r) +
-		"WHERE NULLIF(scener, '') IS NOT NULL " +
-		"GROUP BY scener " +
-		"ORDER BY upper(scener) ASC"
+		"WHERE NULLIF(scener, '') IS NOT NULL " + // exclude empty scener names
+		"GROUP BY scener, files.deletedat " + // group the results by the scener name and deleteat
+		// filter the results by the file count and only include releasers with public records
+		"HAVING (COUNT(files.filename) > 0) AND files.deletedat IS NULL " +
+		"ORDER BY upper(scener) ASC" // order by the scener name
 	return SQL(s)
 }
 
-// DistScener selects a list of distinct sceners.
-func DistScener() SQL {
-	return Roles().Select()
+// Sceners selects a list of distinct sceners.
+func Sceners() SQL {
+	return Roles().Distinct()
 }
 
-// DistWriter selects a list of distinct writers.
-func DistWriter() SQL {
-	return Writer.Select()
+// Writers selects a list of distinct writers.
+func Writers() SQL {
+	return Writer.Distinct()
 }
 
-// DistArtist selects a list of distinct artists.
-func DistArtist() SQL {
-	return Artist.Select()
+// Artists selects a list of distinct artists.
+func Artists() SQL {
+	return Artist.Distinct()
 }
 
-// DistCoder selects a list of distinct coders.
-func DistCoder() SQL {
-	return Coder.Select()
+// Coders selects a list of distinct coders.
+func Coders() SQL {
+	return Coder.Distinct()
 }
 
-// DistMusician selects a list of distinct musicians.
-func DistMusician() SQL {
-	return Musician.Select()
+// Musicians selects a list of distinct musicians.
+func Musicians() SQL {
+	return Musician.Distinct()
 }
 
 // SumSection is an SQL statement to sum the filesizes of records matching the section.

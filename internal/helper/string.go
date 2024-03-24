@@ -167,6 +167,27 @@ func SplitAsSpaces(s string) string {
 	return x
 }
 
+// Titleize returns a string with the first letter each word capitalized.
+// If a word is an acronym, it is capitalized as a word.
+func Titleize(s string) string {
+	if s == "" {
+		return ""
+	}
+	const sep = " "
+	caser := cases.Title(language.English)
+	x := strings.Split(s, sep)
+	if len(x) == 1 {
+		return caser.String(s)
+	}
+	for i, word := range x {
+		if word == "" {
+			continue
+		}
+		x[i] = caser.String(word)
+	}
+	return strings.Join(x, sep)
+}
+
 // TruncFilename reduces a filename to the length of w characters.
 // The file extension is always preserved with the truncation.
 func TruncFilename(w int, name string) string {

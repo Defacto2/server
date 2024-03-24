@@ -246,7 +246,7 @@ func (web Web) TemplateClosures() template.FuncMap {
 			if err != nil {
 				return err.Error()
 			}
-			return helper.Capitalize(x)
+			return helper.Titleize(x)
 		},
 		"fa5Pro": func() string {
 			return hrefs[FA5Pro]

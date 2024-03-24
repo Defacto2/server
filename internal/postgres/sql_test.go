@@ -27,6 +27,6 @@ func TestRole_Role(t *testing.T) {
 
 func TestRole_Select(t *testing.T) {
 	var r postgres.Role
-	s := r.Select()
+	s := r.Distinct()
 	assert.Contains(t, s, "SELECT DISTINCT")
 }
