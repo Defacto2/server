@@ -117,30 +117,6 @@ func (s *Summary) All(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, s)
 }
 
-// BBS selects the summary statistics for all BBS files.
-func (s *Summary) BBS(ctx context.Context, db *sql.DB) error {
-	if db == nil {
-		return ErrDB
-	}
-	return queries.Raw(string(postgres.SumBBS())).Bind(ctx, db, s)
-}
-
-// FTP selects the summary statistics for all FTP files.
-func (s *Summary) FTP(ctx context.Context, db *sql.DB) error {
-	if db == nil {
-		return ErrDB
-	}
-	return queries.Raw(string(postgres.SumFTP())).Bind(ctx, db, s)
-}
-
-// Magazine selects the summary statistics for all magazine files.
-func (s *Summary) Magazine(ctx context.Context, db *sql.DB) error {
-	if db == nil {
-		return ErrDB
-	}
-	return queries.Raw(string(postgres.SumMag())).Bind(ctx, db, s)
-}
-
 // Scener selects the summary statistics for the named sceners.
 func (s *Summary) Scener(ctx context.Context, db *sql.DB, name string) error {
 	if db == nil {

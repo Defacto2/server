@@ -259,7 +259,7 @@ func FTP(logr *zap.SugaredLogger, c echo.Context) error {
 	const key = "releasers"
 	data["title"] = title
 	data["description"] = lead
-	data["logo"] = "FTP sites"
+	data["logo"] = "FTP sites, A-Z"
 	data["h1"] = title
 	data["lead"] = lead
 	// releaser.html specific data items
@@ -276,15 +276,10 @@ func FTP(logr *zap.SugaredLogger, c echo.Context) error {
 	if err := r.FTP(ctx, db); err != nil {
 		return DatabaseErr(logr, c, name, err)
 	}
-	m := model.Summary{}
-	if err := m.FTP(ctx, db); err != nil {
-		return DatabaseErr(logr, c, name, err)
-	}
 	data[key] = r
 	data["stats"] = map[string]string{
-		"pubs":   fmt.Sprintf("%d sites", len(r)),
-		"issues": string(ByteFileS("file artifact", m.SumCount.Int64, m.SumBytes.Int64)),
-		"years":  fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
+		"pubs":    fmt.Sprintf("%d sites", len(r)),
+		"orderBy": "alphabetically",
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -856,12 +851,12 @@ func Interview(logr *zap.SugaredLogger, c echo.Context) error {
 
 // Magazine is the handler for the Magazine page.
 func Magazine(logr *zap.SugaredLogger, c echo.Context) error {
-	return mag(logr, c, true)
+	return magazines(logr, c, true)
 }
 
 // MagazineAZ is the handler for the Magazine page ordered chronologically.
 func MagazineAZ(logr *zap.SugaredLogger, c echo.Context) error {
-	return mag(logr, c, false)
+	return magazines(logr, c, false)
 }
 
 // Musician is the handler for the Musiciansceners page.
@@ -1449,17 +1444,17 @@ func records2(ctx context.Context, db *sql.DB, uri string, page, limit int) (mod
 
 // Releaser is the handler for the releaser page ordered by the most files.
 func Releaser(logr *zap.SugaredLogger, c echo.Context) error {
-	return rel(logr, c, model.Prolific)
+	return releasers(logr, c, model.Prolific)
 }
 
 // ReleaserAZ is the handler for the releaser page ordered alphabetically.
 func ReleaserAZ(logr *zap.SugaredLogger, c echo.Context) error {
-	return rel(logr, c, model.Alphabetical)
+	return releasers(logr, c, model.Alphabetical)
 }
 
 // ReleaserYear is the handler for the releaser page ordered by year of the first release.
 func ReleaserYear(logr *zap.SugaredLogger, c echo.Context) error {
-	return rel(logr, c, model.Oldest)
+	return releasers(logr, c, model.Oldest)
 }
 
 // ReleaserErr renders the files error page for the Groups menu and invalid releasers.
@@ -2164,11 +2159,12 @@ func bbsHandler(logr *zap.SugaredLogger, c echo.Context, orderBy model.OrderBy) 
 	const lead = "Bulletin Board Systems are historical, " +
 		"networked personal computer servers connected using the landline telephone network and provide forums, " +
 		"real-time chat, mail, and file sharing for The Scene \"elites.\""
+	const logo = "Bulletin Board Systems"
 	const key = "releasers"
 	data := empty(c)
 	data["title"] = title
 	data["description"] = lead
-	data["logo"] = "Bulletin Board Systems"
+	data["logo"] = logo
 	data["h1"] = title
 	data["lead"] = lead
 	// releaser.html specific data items
@@ -2186,23 +2182,29 @@ func bbsHandler(logr *zap.SugaredLogger, c echo.Context, orderBy model.OrderBy) 
 	if err := r.BBS(ctx, db, orderBy); err != nil {
 		return DatabaseErr(logr, c, name, err)
 	}
-	m := model.Summary{}
-	if err := m.BBS(ctx, db); err != nil {
-		return DatabaseErr(logr, c, name, err)
-	}
 	data[key] = r
-	data["stats"] = map[string]string{
-		"pubs":   fmt.Sprintf("%d boards", len(r)),
-		"issues": string(ByteFileS("file artifact", m.SumCount.Int64, m.SumBytes.Int64)),
-		"years":  fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
-	}
 	tmpl := name
-	if orderBy == model.Oldest {
+	var order string
+	switch orderBy {
+	case model.Alphabetical:
+		s := logo + ", a-z"
+		data["logo"] = s
+		order = "alphabetically"
+	case model.Prolific:
+		s := logo + ", by count"
+		data["logo"] = s
+		order = "by file artifact count"
+	case model.Oldest:
 		tmpl = "bbs-year"
-		s := lead + " The list is sorted by the year of the first release and " +
-			"for performance, boards from 1993 require at least 2 file artifacts."
-		data["lead"] = s
+		s := logo + ", by year"
+		data["logo"] = s
+		order = "by year"
 	}
+	data["stats"] = map[string]string{
+		"pubs":    fmt.Sprintf("%d boards", len(r)),
+		"orderBy": order,
+	}
+
 	err = c.Render(http.StatusOK, tmpl, data)
 	if err != nil {
 		return InternalErr(logr, c, name, err)
@@ -2353,9 +2355,9 @@ func steps(lastPage float64) int {
 	}
 }
 
-// mag is the handler for the magazine page.
-func mag(logr *zap.SugaredLogger, c echo.Context, chronological bool) error {
-	const title, name = "Magazine", "magazine"
+// magazines is the handler for the magazine page.
+func magazines(logr *zap.SugaredLogger, c echo.Context, chronological bool) error {
+	const title, name = "Magazines", "magazine"
 	if logr == nil {
 		return InternalErr(logr, c, name, ErrZap)
 	}
@@ -2379,25 +2381,28 @@ func mag(logr *zap.SugaredLogger, c echo.Context, chronological bool) error {
 		return InternalErr(logr, c, name, err)
 	}
 	defer db.Close()
+	var order string
 	r := model.Releasers{}
-	if chronological {
+	switch chronological {
+	case true:
 		if err := r.Magazine(ctx, db); err != nil {
 			return DatabaseErr(logr, c, name, err)
 		}
-	} else {
+		s := title + ", by year"
+		data["logo"] = s
+		order = "by year"
+	case false:
 		if err := r.MagazineAZ(ctx, db); err != nil {
 			return DatabaseErr(logr, c, name, err)
 		}
-	}
-	m := model.Summary{}
-	if err := m.Magazine(ctx, db); err != nil {
-		return DatabaseErr(logr, c, name, err)
+		s := title + ", a-z"
+		data["logo"] = s
+		order = "alphabetically"
 	}
 	data[key] = r
 	data["stats"] = map[string]string{
-		"pubs":   fmt.Sprintf("%d publications", len(r)),
-		"issues": string(ByteFileS(issue, m.SumCount.Int64, m.SumBytes.Int64)),
-		"years":  fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
+		"pubs":    fmt.Sprintf("%d publications", len(r)),
+		"orderBy": order,
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -2613,18 +2618,19 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 	return d, int(m.SumCount.Int64), nil
 }
 
-// rel is the handler for the Releaser page.
-func rel(logr *zap.SugaredLogger, c echo.Context, orderBy model.OrderBy) error {
+// releasers is the handler for the Releaser page.
+func releasers(logr *zap.SugaredLogger, c echo.Context, orderBy model.OrderBy) error {
 	const title, name = "Releaser", "releaser"
 	if logr == nil {
 		return InternalErr(logr, c, name, ErrZap)
 	}
 	data := empty(c)
 	const lead = "A releaser is a brand or a collective group of sceners responsible for releasing or distributing products."
+	const logo = "Groups and releasers"
 	const key = "releasers"
 	data["title"] = title
 	data["description"] = fmt.Sprint(title, " ", lead)
-	data["logo"] = "Groups, organizations and publications"
+	data["logo"] = logo
 	data["h1"] = title
 	data["lead"] = lead
 	// releaser.html specific data items
@@ -2642,22 +2648,27 @@ func rel(logr *zap.SugaredLogger, c echo.Context, orderBy model.OrderBy) error {
 	if err := r.All(ctx, db, orderBy, 0, 0); err != nil {
 		return DatabaseErr(logr, c, name, err)
 	}
-	var m model.Summary
-	if err := m.All(ctx, db); err != nil {
-		return DatabaseErr(logr, c, name, err)
-	}
 	data[key] = r
-	data["stats"] = map[string]string{
-		"pubs":   fmt.Sprintf("%d releasers and groups", len(r)),
-		"issues": string(ByteFileS("file artifact", m.SumCount.Int64, m.SumBytes.Int64)),
-		"years":  helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
-	}
 	tmpl := name
-	if orderBy == model.Oldest {
+	var order string
+	switch orderBy {
+	case model.Alphabetical:
+		s := logo + ", a-z"
+		data["logo"] = s
+		order = "alphabetically"
+	case model.Prolific:
+		s := logo + ", by count"
+		data["logo"] = s
+		order = "by file artifact count"
+	case model.Oldest:
 		tmpl = "releaser-year"
-		s := lead + " The list is sorted by the year of the first release and " +
-			"only lists releasers from before 2000. For performance, releasers from 1991-99 require at least 3 file artifacts."
-		data["lead"] = s
+		s := logo + ", by year"
+		data["logo"] = s
+		order = "by year"
+	}
+	data["stats"] = map[string]string{
+		"pubs":    fmt.Sprintf("%d releasers and groups", len(r)),
+		"orderBy": order,
 	}
 	err = c.Render(http.StatusOK, tmpl, data)
 	if err != nil {

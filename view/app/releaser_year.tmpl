@@ -7,19 +7,17 @@
 {{- $path := "g" }}
 {{- $name := index .itemName}}
 {{- $pubs := index .stats.pubs }}
-{{- $issues := index .stats.issues }}
-{{- $years := index .stats.years}}
+{{- $orderBy := index .stats.orderBy }}
 {{- $class := "row row-cols-1 row-cols-sm-2 row-col-md-3 g-2"}}
 <div class="container px-4 text-center">
-    <p class="text-start lead"><small>Showing {{$pubs}}.{{if ne $issues ""}} Overall there are {{$issues | safeHTML}} 
-        from {{$years}}{{end}}.</small></p>
+    <p class="text-start lead"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
 {{- $prevYear := 0 }}
 {{- range $index, $rel := .releasers -}}
-    {{- $title := fmtURI $rel.Unique.URI }}
+    {{- $title := fmtRangeURI $rel.Unique.URI }}
     {{- $initialism := initialisms $rel.Unique.URI }}
     {{- $year := $rel.Unique.Year.Int }}
     {{ if eq $index 0}}
-        {{ if (gt $year 0) }}<h3 class="text-start lead p-3">the first release in {{$year}}</h3>{{end}}
+        {{ if (gt $year 0) }}<h3 class="text-start lead p-3">The first release in {{$year}}</h3>{{end}}
         <div class="{{$class}}">
     {{- end}}
     {{- if and (gt $prevYear 0) (gt $year 0) (gt $year $prevYear) }}

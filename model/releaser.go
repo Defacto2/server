@@ -92,11 +92,11 @@ func (r *Releasers) All(ctx context.Context, db *sql.DB, order OrderBy, limit, p
 	var query string
 	switch order {
 	case Prolific:
-		query = string(postgres.DistReleaserSummed())
+		query = string(postgres.ReleasersProlific())
 	case Alphabetical:
-		query = string(postgres.DistReleaser())
+		query = string(postgres.ReleasersAlphabetical())
 	case Oldest:
-		query = string(postgres.DistReleaserByYear())
+		query = string(postgres.ReleasersOldest())
 	default:
 		return ErrOrderBy
 	}
@@ -164,7 +164,7 @@ func (r *Releasers) MagazineAZ(ctx context.Context, db *sql.DB) error {
 	if len(*r) > 0 {
 		return nil
 	}
-	if err := queries.Raw(string(postgres.DistMagazine())).Bind(ctx, db, r); err != nil {
+	if err := queries.Raw(string(postgres.MagazinesAlphabetical())).Bind(ctx, db, r); err != nil {
 		return err
 	}
 	r.Slugs()
@@ -179,7 +179,7 @@ func (r *Releasers) Magazine(ctx context.Context, db *sql.DB) error {
 	if len(*r) > 0 {
 		return nil
 	}
-	if err := queries.Raw(string(postgres.DistMagazineByYear())).Bind(ctx, db, r); err != nil {
+	if err := queries.Raw(string(postgres.MagazinesOldest())).Bind(ctx, db, r); err != nil {
 		return err
 	}
 	r.Slugs()
@@ -194,15 +194,14 @@ func (r *Releasers) BBS(ctx context.Context, db *sql.DB, order OrderBy) error {
 	if len(*r) > 0 {
 		return nil
 	}
-
 	var query string
 	switch order {
 	case Prolific:
-		query = string(postgres.DistBBSSummed())
+		query = string(postgres.BBSsProlific())
 	case Alphabetical:
-		query = string(postgres.DistBBS())
+		query = string(postgres.BBSsAlphabetical())
 	case Oldest:
-		query = string(postgres.DistBBSYear())
+		query = string(postgres.BBSsOldest())
 	default:
 		return ErrOrderBy
 	}
@@ -221,7 +220,7 @@ func (r *Releasers) FTP(ctx context.Context, db *sql.DB) error {
 	if len(*r) > 0 {
 		return nil
 	}
-	if err := queries.Raw(string(postgres.DistFTP())).Bind(ctx, db, r); err != nil {
+	if err := queries.Raw(string(postgres.FTPsAlphabetical())).Bind(ctx, db, r); err != nil {
 		return err
 	}
 	r.Slugs()

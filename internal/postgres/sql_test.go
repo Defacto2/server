@@ -30,34 +30,3 @@ func TestRole_Select(t *testing.T) {
 	s := r.Select()
 	assert.Contains(t, s, "SELECT DISTINCT")
 }
-
-func TestDist(t *testing.T) {
-	s := postgres.DistScener()
-	assert.Contains(t, s, "scener")
-
-	s = postgres.DistWriter()
-	assert.Contains(t, s, "credit_text")
-	s = postgres.DistArtist()
-	assert.Contains(t, s, "credit_illustration")
-	s = postgres.DistCoder()
-	assert.Contains(t, s, "credit_program")
-	s = postgres.DistMusician()
-	assert.Contains(t, s, "credit_audio")
-	s = postgres.DistMagazine()
-	assert.Contains(t, s, "magazine")
-
-	s = postgres.DistReleaser()
-	assert.Contains(t, s, "BBS")
-	assert.Contains(t, s, "FTP")
-
-	s = postgres.DistReleaserSummed()
-	assert.Contains(t, s, "sub.count_sum")
-
-	s = postgres.DistBBSSummed()
-	assert.Contains(t, s, "sub.count_sum")
-
-	s = postgres.SumReleaser("")
-	assert.Contains(t, s, "")
-	s = postgres.SumReleaser("magazine")
-	assert.Contains(t, s, "'magazine'")
-}

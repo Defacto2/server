@@ -3,11 +3,9 @@
 {{- $path := "g" }}
 {{- $name := index .itemName}}
 {{- $pubs := index .stats.pubs }}
-{{- $issues := index .stats.issues }}
-{{- $years := index .stats.years}}
+{{- $orderBy := index .stats.orderBy }}
 <div class="container px-4 text-center">
-    <p class="text-start lead"><small>Showing {{$pubs}}.{{if ne $issues ""}} Overall there are {{$issues | safeHTML}} 
-        from {{$years}}{{end}}.</small></p>
+    <p class="text-start lead"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
     <div class="row row-cols-1 row-cols-sm-2 row-col-md-3 g-2">
 {{- range $index, $rel := .releasers -}}
 {{- $title := fmtRangeURI $rel.Unique.URI }}

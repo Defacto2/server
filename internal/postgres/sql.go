@@ -34,10 +34,6 @@ const (
 	Ver = "SELECT version();"
 )
 
-const (
-	fromFiles = "FROM files "
-)
-
 // Query the database version.
 func (v *Version) Query() error {
 	conn, err := ConnectDB()
@@ -85,53 +81,149 @@ func Stat() []string {
 }
 
 // releaserSEL is a partial SQL statement to select the releasers name, file count and filesize sum.
-// The distinct on clause is used in PostreSQL to create a non-case sensitive list of releasers.
-// It requires a matching order by upper clause to be valid.
-// The cross join lateral clause is used to create a distinct list of releasers from
-// the group_brand_for and group_brand_by columns.
-//
-// Note these SQLs may cause inconsistent results when used with the count_sum and size_total columns.
-// This is because there SelectRels and SelectRelsPros excludes some files from the count and sum.
-const releaserSEL SQL = "SELECT DISTINCT releaser, " +
-	"COUNT(files.filename) AS count_sum, " +
-	"SUM(files.filesize) AS size_total " +
-	fromFiles +
+const releaserSEL SQL = "SELECT DISTINCT releaser, " + // select distinct releaser names
+	"COUNT(files.filename) AS count_sum, " + // count the number of files per releaser
+	"SUM(files.filesize) AS size_total " + // sum the filesize of files per releaser
+	"FROM files " +
+	// combine the group_brand_for and group_brand_by columns as releasers
 	"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
-	"WHERE NULLIF(releaser, '') IS NOT NULL "
+	"WHERE NULLIF(releaser, '') IS NOT NULL " // exclude empty releaser names
 
 // releaserBy is a partial SQL statement to group the results by the releaser name.
-const releaserBy SQL = "GROUP BY releaser " +
-	"ORDER BY releaser ASC"
+const releaserBy SQL = "GROUP BY releaser ORDER BY releaser ASC"
 
-// releaserYear is a partial SQL statement to group the results by the releaser name,
-// and filter the results by the file count and the oldest year.
-// Releasers before 1991 must have at least one file, and releasers before 2000 must have at least 3 files.
-// For performance, Releasers after the year 1999 are excluded from the results.
-const releaserYear SQL = "SELECT DISTINCT releaser, " +
-	"COUNT(files.filename) AS count_sum, " +
-	"SUM(files.filesize) AS size_total, " +
-	"MIN(files.date_issued_year) AS min_year " +
-	fromFiles +
-	"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
-	"WHERE NULLIF(releaser, '') IS NOT NULL " +
-	"AND releaser !~ 'BBS\\M' " +
-	"AND releaser !~ 'FTP\\M' " +
-	"GROUP BY releaser " +
-	"HAVING (COUNT(files.filename) > 0 AND MIN(files.date_issued_year) < 1991) " +
-	"OR (COUNT(files.filename) > 2 AND MIN(files.date_issued_year) < 2000)" +
-	"ORDER BY min_year ASC, releaser ASC"
+// ReleasersAlphabetical selects a list of distinct releasers or groups,
+// excluding BBS and FTP sites.
+func ReleasersAlphabetical() SQL {
+	return releaserSEL +
+		"AND releaser !~ 'BBS\\M' AND releaser !~ 'FTP\\M' " + // exclude BBS and FTP sites
+		"GROUP BY releaser, files.deletedat " + // group the results by the releaser name and deleteat
+		"HAVING (COUNT(files.filename) > 0) " +
+		"AND files.deletedat IS NULL " + // only include releasers with public records
+		"ORDER BY releaser ASC" // order the list by the oldest year and the releaser name
+}
 
-// magazineSEL is a partial SQL statement to select the magazine titles, file count and filesize sum.
-const magazineSEL SQL = "SELECT DISTINCT releaser, " +
-	"COUNT(files.filename) AS count_sum, " +
-	"SUM(files.filesize) AS size_total, " +
-	"MIN(files.date_issued_year) AS min_year " +
-	fromFiles +
-	"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
-	"WHERE NULLIF(releaser, '') IS NOT NULL " +
-	"AND section = 'magazine' " +
-	"GROUP BY releaser " +
-	"ORDER BY min_year ASC, releaser ASC"
+// BBSsAlphabetical selects a list of distinct BBS names.
+func BBSsAlphabetical() SQL {
+	return releaserSEL +
+		"AND releaser ~ 'BBS\\M' " + // require BBS sites
+		"GROUP BY releaser, files.deletedat " + // group the results by the releaser name and deleteat
+		"HAVING (COUNT(files.filename) > 0) " +
+		"AND files.deletedat IS NULL " + // only include releasers with public records
+		"ORDER BY releaser ASC" // order the list by the oldest year and the releaser name
+}
+
+// FTPsAlphabetical selects a list of distinct FTP site names.
+func FTPsAlphabetical() SQL {
+	return releaserSEL +
+		"AND releaser ~ 'FTP\\M' " + // require FTP sites
+		"GROUP BY releaser, files.deletedat " + // group the results by the releaser name and deleteat
+		"HAVING (COUNT(files.filename) > 0) " +
+		"AND files.deletedat IS NULL " + // only include releasers with public records
+		"ORDER BY releaser ASC" // order the list by the oldest year and the releaser name
+}
+
+// MagazinesAlphabetical selects a list of distinct magazine titles.
+func MagazinesAlphabetical() SQL {
+	return releaserSEL +
+		"AND section = 'magazine' " + // require magazines
+		"GROUP BY releaser, files.deletedat " + // group the results by the releaser name and deleteat
+		"HAVING (COUNT(files.filename) > 0) " +
+		"AND files.deletedat IS NULL " + // only include releasers with public records
+		"ORDER BY releaser ASC" // order the list by the oldest year and the releaser name
+}
+
+// ReleasersProlific selects a list of distinct releasers or groups,
+// excluding BBS and FTP sites and ordered by the file count.
+func ReleasersProlific() SQL {
+	return releaserSEL +
+		"AND releaser !~ 'BBS\\M' AND releaser !~ 'FTP\\M' " + // exclude BBS and FTP sites
+		"GROUP BY releaser, files.deletedat " + // group the results by the releaser name and deleteat
+		"HAVING (COUNT(files.filename) > 0) " +
+		"AND files.deletedat IS NULL " + // only include releasers with public records
+		"ORDER BY count_sum DESC, releaser ASC" // order the list by the oldest year and the releaser name
+}
+
+// BBSsProlific selects a list of distinct releasers or groups,
+// only showing BBS sites and ordered by the file count.
+func BBSsProlific() SQL {
+	return releaserSEL +
+		"AND releaser ~ 'BBS\\M' " + // require BBS sites
+		"GROUP BY releaser, files.deletedat " + // group the results by the releaser name and deleteat
+		"HAVING (COUNT(files.filename) > 0) " +
+		"AND files.deletedat IS NULL " + // only include releasers with public records
+		"ORDER BY count_sum DESC, releaser ASC" // order the list by the oldest year and the releaser name
+}
+
+// ReleasersOldest selects a list of distinct releasers or groups,
+// excluding BBS and FTP sites and ordered by the oldest year.
+func ReleasersOldest() SQL {
+	return "SELECT DISTINCT releaser, " + // select distinct releaser names
+		"COUNT(files.filename) AS count_sum, " + // count the number of files per releaser
+		"SUM(files.filesize) AS size_total, " + // sum the filesize of files per releaser
+		"MIN(files.date_issued_year) AS min_year " + // select the oldest year per releaser
+		"FROM files " +
+		// combine the group_brand_for and group_brand_by columns as releasers
+		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
+		"WHERE NULLIF(releaser, '') IS NOT NULL " + // exclude empty releaser names
+		"AND releaser !~ 'BBS\\M' AND releaser !~ 'FTP\\M' " + // exclude BBS and FTP sites
+		"GROUP BY releaser, files.deletedat " + // group the results by the releaser name and deleteat
+		// filter the results by the file count and the oldest year,
+		// this is to exclude releasers with less than 1 file or an unknown release year
+		"HAVING (COUNT(files.filename) > 0) AND (MIN(files.date_issued_year) > 1970) " +
+		"AND files.deletedat IS NULL " + // only include releasers with public records
+		"ORDER BY min_year ASC, releaser ASC" // order the list by the oldest year and the releaser name
+}
+
+// BBSsOldest selects a list of distinct releasers or groups,
+// only showing BBS sites and ordered by the file count.
+func BBSsOldest() SQL {
+	return "SELECT DISTINCT releaser, " + // select distinct releaser names
+		"COUNT(files.filename) AS count_sum, " + // count the number of files per releaser
+		"SUM(files.filesize) AS size_total, " + // sum the filesize of files per releaser
+		"MIN(files.date_issued_year) AS min_year " + // select the oldest year per releaser
+		"FROM files " +
+		// combine the group_brand_for and group_brand_by columns as releasers
+		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
+		"WHERE NULLIF(releaser, '') IS NOT NULL " + // exclude empty releaser names
+		"AND releaser ~ 'BBS\\M' " + // require BBS sites
+		"GROUP BY releaser, files.deletedat " + // group the results by the releaser name and deleteat
+		// filter the results by the file count and the oldest year,
+		// this is to exclude releasers with less than 1 file or an unknown release year
+		"HAVING (COUNT(files.filename) > 0) AND (MIN(files.date_issued_year) > 1970) " +
+		"AND files.deletedat IS NULL " + // only include releasers with public records
+		"ORDER BY min_year ASC, releaser ASC" // order the list by the oldest year and the releaser name
+}
+
+func MagazinesOldest() SQL {
+	return "SELECT DISTINCT releaser, " + // select distinct releaser names
+		"COUNT(files.filename) AS count_sum, " + // count the number of files per releaser
+		"SUM(files.filesize) AS size_total, " + // sum the filesize of files per releaser
+		"MIN(files.date_issued_year) AS min_year " + // select the oldest year per releaser
+		"FROM files " +
+		// combine the group_brand_for and group_brand_by columns as releasers
+		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
+		"WHERE NULLIF(releaser, '') IS NOT NULL " + // exclude empty releaser names
+		"AND section = 'magazine' " + // require magazines
+		"GROUP BY releaser, files.deletedat " + // group the results by the releaser name and deleteat
+		// filter the results by the file count and the oldest year,
+		// this is to exclude releasers with less than 1 file or an unknown release year
+		"HAVING (COUNT(files.filename) > 0) AND (MIN(files.date_issued_year) > 1970) " +
+		"AND files.deletedat IS NULL " + // only include releasers with public records
+		"ORDER BY min_year ASC, releaser ASC" // order the list by the oldest year and the releaser name
+}
+
+// ReleaserSimilarTo selects a list of distinct releasers or groups,
+// like the query strings and ordered by the file count.
+func ReleaserSimilarTo(like ...string) SQL {
+	query := like
+	for i, val := range query {
+		query[i] = strings.ToUpper(strings.TrimSpace(val))
+	}
+	return "SELECT * FROM (" + releaserSEL + releaserBy +
+		SQL(fmt.Sprintf(") sub WHERE sub.releaser SIMILAR TO '%%(%s)%%'", strings.Join(query, "|"))) +
+		" ORDER BY sub.count_sum DESC"
+}
 
 // Roles returns all of the sceners reguardless of the attribution.
 func Roles() Role {
@@ -141,7 +233,7 @@ func Roles() Role {
 
 func (r Role) Select() SQL {
 	s := "SELECT DISTINCT ON(upper(scener)) scener " +
-		fromFiles +
+		"FROM files " +
 		fmt.Sprintf("CROSS JOIN LATERAL (values%s) AS T(scener) ", r) +
 		"WHERE NULLIF(scener, '') IS NOT NULL " +
 		"GROUP BY scener " +
@@ -172,136 +264,6 @@ func DistCoder() SQL {
 // DistMusician selects a list of distinct musicians.
 func DistMusician() SQL {
 	return Musician.Select()
-}
-
-// DistReleaser selects a list of distinct releasers or groups,
-// excluding BBS and FTP sites.
-func DistReleaser() SQL {
-	return releaserSEL +
-		"AND releaser !~ 'BBS\\M' " +
-		"AND releaser !~ 'FTP\\M' " +
-		releaserBy
-}
-
-// SelectRelsPros selects a list of distinct releasers or groups,
-// excluding BBS and FTP sites and ordered by the file count.
-func DistReleaserSummed() SQL {
-	return "SELECT * FROM (" +
-		releaserSEL +
-		"AND releaser !~ 'BBS\\M' " +
-		"AND releaser !~ 'FTP\\M' " +
-		releaserBy +
-		") sub WHERE sub.count_sum > 2 ORDER BY sub.count_sum DESC"
-}
-
-// DistReleaserByYear selects a list of distinct releasers or groups,
-// excluding BBS and FTP sites and ordered by the oldest year.
-func DistReleaserByYear() SQL {
-	return releaserYear
-}
-
-// DistMagazine selects a list of distinct magazine titles.
-func DistMagazine() SQL {
-	return releaserSEL + "AND section = 'magazine'" + releaserBy
-}
-
-func DistMagazineByYear() SQL {
-	return magazineSEL
-}
-
-// DistBBS selects a list of distinct BBS names.
-func DistBBS() SQL {
-	return releaserSEL + "AND releaser ~ 'BBS\\M' " + releaserBy
-}
-
-// DistBBSSummed selects a list of distinct BBS names ordered by the file count.
-func DistBBSSummed() SQL {
-	return "SELECT * FROM (" +
-		releaserSEL +
-		"AND releaser ~ 'BBS\\M' " +
-		releaserBy +
-		") sub WHERE sub.count_sum > 2 ORDER BY sub.count_sum DESC"
-}
-
-// DistBBS selects a list of distinct BBS names.
-func DistBBSYear() SQL {
-	return "SELECT DISTINCT releaser, " +
-		"COUNT(files.filename) AS count_sum, " +
-		"SUM(files.filesize) AS size_total, " +
-		"MIN(files.date_issued_year) AS min_year " +
-		fromFiles +
-		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
-		"WHERE NULLIF(releaser, '') IS NOT NULL " +
-		"AND releaser ~ 'BBS\\M' " +
-		"GROUP BY releaser " +
-		"HAVING (COUNT(files.filename) > 0 AND MIN(files.date_issued_year) < 1992) " +
-		"OR (COUNT(files.filename) > 2 AND MIN(files.date_issued_year) > 1992)" +
-		"ORDER BY min_year ASC, releaser ASC"
-}
-
-// DistFTP selects a list of distinct FTP site names.
-func DistFTP() SQL {
-	return releaserSEL + "AND releaser ~ 'FTP\\M' " + releaserBy
-}
-
-// ReleaserLike selects a list of distinct releasers or groups,
-// like the query string and ordered by the file count.
-func ReleaserLike(like string) SQL {
-	query := SQL(strings.ToUpper(strings.TrimSpace(like)))
-	return "SELECT * FROM (" + releaserSEL + releaserBy +
-		") sub WHERE sub.releaser LIKE '%" + query +
-		"%' ORDER BY sub.count_sum DESC"
-}
-
-// ReleaserLike selects a list of distinct releasers or groups,
-// like the query strings and ordered by the file count.
-func ReleaserSimilarTo(like ...string) SQL {
-	query := like
-	for i, val := range query {
-		query[i] = strings.ToUpper(strings.TrimSpace(val))
-	}
-	return "SELECT * FROM (" + releaserSEL + releaserBy +
-		SQL(fmt.Sprintf(") sub WHERE sub.releaser SIMILAR TO '%%(%s)%%'", strings.Join(query, "|"))) +
-		" ORDER BY sub.count_sum DESC"
-}
-
-// SumReleaser is an SQL statement to total the file count and filesize sum of releasers,
-// as well as the minimum, oldest and maximum, newest year values.
-// The where parameter is used to filter the releasers by section, either all, magazine, bbs or ftp.
-func SumReleaser(where string) SQL {
-	s := "SELECT COUNT(files.id) AS count_total, " +
-		"SUM(files.filesize) AS size_total, " +
-		"MIN(files.date_issued_year) AS min_year, " +
-		"MAX(files.date_issued_year) AS max_year " +
-		fromFiles
-	switch where {
-	case "magazine":
-		s += "WHERE files.section = 'magazine'"
-	case "bbs":
-		s += "WHERE files.group_brand_for ~ 'BBS\\M' " +
-			"OR files.group_brand_by ~ 'BBS\\M'"
-	case "ftp":
-		s += "WHERE files.group_brand_for ~ 'FTP\\M' " +
-			"OR files.group_brand_by ~ 'FTP\\M'"
-	default:
-		return ""
-	}
-	return SQL(strings.TrimSpace(s))
-}
-
-// SumBBS is an SQL statement to total the file count and filesize sum of BBS sites.
-func SumBBS() SQL {
-	return SumReleaser("bbs")
-}
-
-// SumFTP is an SQL statement to total the file count and filesize sum of FTP sites.
-func SumFTP() SQL {
-	return SumReleaser("ftp")
-}
-
-// SumMag is an SQL statement to total the file count and filesize sum of magazine titles.
-func SumMag() SQL {
-	return SumReleaser("magazine")
 }
 
 // SumSection is an SQL statement to sum the filesizes of records matching the section.

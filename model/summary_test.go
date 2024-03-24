@@ -69,24 +69,6 @@ func TestSummary_All(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestSummary_BBS(t *testing.T) {
-	t.Parallel()
-	ctx := context.TODO()
-	var s model.Summary
-	err := s.BBS(ctx, nil)
-	require.Error(t, err)
-
-	err = s.BBS(ctx, nil)
-	require.Error(t, err)
-
-	db, err := postgres.ConnectDB()
-	require.NoError(t, err)
-	defer db.Close()
-
-	err = s.BBS(ctx, db)
-	require.Error(t, err)
-}
-
 func TestSummary_Scener(t *testing.T) {
 	t.Parallel()
 	var s model.Summary

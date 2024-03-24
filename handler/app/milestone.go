@@ -360,7 +360,7 @@ func Collection() Milestones {
 				"<br>*<small>Other sources have claimed Sherwood Forest operated out of Manhattan, NY.</small></p>" +
 				"<p>MOM, or <strong>Modem&nbsp;Over&nbsp;Manhattan</strong> (+212-245-4363), as its name suggests, was based in Manhattan, New York, and probably went online in 1980. It is another famous open board with lax subject matter that was popular with the New York phreak community.</p>" +
 				"<p>The original <strong>Pirate-Trek</strong> out of New York (+914-634-1268), possibly run by the famed Apple&nbsp;II cracker Krakowicz, <a href=\"http://artscene.textfiles.com/intros/APPLEII/cyclod.gif\">was first announced</a> in 1981.</p>" +
-				"<p>There is also the renowned <strong>8BBS</strong> out of San Jose, CA, which ran on a <a href=\"https://www.computerhistory.org/revolution/minicomputers/11/331\">PDP-8 minicomputer</a> in 1980-82 and has a separate article below.</p>" +
+				"<p>There is also the renowned <strong>8BBS</strong> out of San Jose, CA, which ran on a <a href=\"https://www.computerhistory.org/revolution/minicomputers/11/331\">PDP-8 minicomputer</a> in 1980-82 and <a href=\"#8bbs\">has a separate article</a>.</p>" +
 				"<p>In the early days of the BBS, the mainstream computer-press paid attention to boards, <a href=\" https://books.google.com.au/books?id=3j4EAAAAMBAJ&pg=PA10&lpg=PA10&dq=%22Modem+Over+Manhattan%22&source=bl&ots=smYwZj_okV&sig=ACfU3U0kYG9RX-3uPfGTakGgtP_mVDcAhA&hl=en&sa=X&ved=2ahUKEwiVs-yi6-qEAxX-oWMGHYpwAPA4ChDoAXoECAIQAw#v=onepage&q=%22Modem%20Over%20Manhattan%22&f=false\">including write-ups</a> and listings of the phone numbers for known underground boards*." +
 				"<br>*<small>Though this article in InfoWorld mislabels <strong>8</strong>BBS as BBBS.</small></p>",
 		},
@@ -440,7 +440,7 @@ func Collection() Milestones {
 				"<a href=\"http://phrack.org/issues/42/3.html\">4</a>, " +
 				"<a href=\"http://phrack.org/issues/10/2.html\">5</a>, " +
 				"<a href=\"https://www.theverge.com/c/22889425/susy-thunder-headley-hackers-phone-phreakers-claire-evans\">6</a>). " +
-				"But what stands out about the board today is that <a href=\"https://silent700.blogspot.com/2014/12/is-this-something.html\">we have survived thousands of posts</a> from the earliest open online community that anyone in 1980 with the right hardware could access from home. These posts existed before the web, before IRC, before Usenet, before the Internet. </p>" +
+				"But what stands out about the board today is that <a href=\"https://silent700.blogspot.com/2014/12/is-this-something.html\">we have survived thousands of posts</a> from the earliest open online community that anyone in 1980 with the right hardware could access from home. These posts existed before Reddit, before the web, before Usenet, before the Internet. </p>" +
 				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n30/mode/1up\">Message number 3964 from CHUCK HUBERT</a><br>To ALL at 12:52 on 20-Nov-80.<br>Subject! CP/M BBS AND SOFTWARE EXCHANGE</p>" +
 				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n43/mode/1up\">Message number 4177 from Kevin O'Hare</a><br>To SF (SAN FRANCISCO) PHREAKS at 23:54 on 28-Nov-80.<br>Subject: HELP?</p>" +
 				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n54/mode/1up\">Message number 4311 from Len Freedman</a><br>To RICK BYRNE at 11:02 on 02-Dec-80.<br>Subject: PROG. TRADING</p>" +
