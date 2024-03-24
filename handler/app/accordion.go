@@ -41,10 +41,6 @@ func List() Accordion {
 			"demo", demos(), false,
 		},
 		{
-			"Former groups", "Pages of former groups",
-			"exgroup", groups(), false,
-		},
-		{
 			"YouTube videos", "YouTube",
 			"youtube", youtube(), false,
 		},
@@ -292,48 +288,6 @@ func demos() []Site {
 		Site{
 			"Scenery", "https://www.exotica.org.uk/wiki/Scenery",
 			"Scenery is the guide to the C64 and Amiga demoscenes with comprehensive information on releases, parties and groups.",
-		},
-	}
-}
-
-// groups is a collection of scene group websites.
-func groups() []Site {
-	return Sites{
-		Site{
-			"ACiD Productions", "https://www.acid.org/",
-			"The pioneering ANSI art group.",
-		},
-		Site{
-			"iCE", "https://www.ice.org/",
-			"The other pioneering ANSI art group.",
-		},
-		Site{
-			"Deviance Demo", "http://deviance.untergrund.net/",
-			"The former demo-division of the Deviance pirate group.",
-		},
-		Site{
-			"Quartex", "https://www.quartex.org/",
-			"The Amiga and console pirate group, with a site under construction since 2001.",
-		},
-		Site{
-			"Scoopex", "http://www.scoopex1988.org/",
-			"The Amiga pirate and demo group.",
-		},
-		Site{
-			"Razor 1911", "https://www.razor1911.com/",
-			"The famed pirate and demo group, the website is down as of 2023.",
-		},
-		Site{
-			"Titan", "http://www.titancrew.org/",
-			"The active, multi-platform demo group and former cracktro producers.",
-		},
-		Site{
-			"TRIAD", "https://www.triad.se/",
-			"The Commodore 64 demo and cracking group, active since 1986.",
-		},
-		Site{
-			"TRSi", "http://www.trsi.org/",
-			"The Amiga and PC demo and cracking group.",
 		},
 	}
 }

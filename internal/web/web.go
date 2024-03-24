@@ -6,9 +6,13 @@ type URI string
 
 // URL is the historical URL of the releaser website.
 type Website struct {
-	URL        string // the website URL
-	Name       string // the website name
-	NotWorking bool   // the website is not working
+	// URL of the website, not working sites should exclude the protocol, e.g. www.example.com.
+	// While working sites MUST include the protocol, e.g. https://www.example.com.
+	URL string
+	// Name of the website.
+	Name string
+	// NotWorking will not apply a hyperlink to the URL.
+	NotWorking bool
 }
 
 // Groups is a map of releasers URIs mapped to their websites.
@@ -49,6 +53,12 @@ func groups() Groups {
 				Name: "Defacto2",
 			},
 		},
+		"deviance": []Website{
+			{
+				URL:  "https://deviance.untergrund.net",
+				Name: "Deviance Demo Division",
+			},
+		},
 		"devotion": []Website{
 			{
 				URL:        "www.devotion.pp.se",
@@ -80,7 +90,7 @@ func groups() Groups {
 				Name: "WIRED interview",
 			},
 			{
-				URL:        "https://www.reddit.com/r/EmpressEvolution",
+				URL:        "www.reddit.com/r/EmpressEvolution",
 				Name:       "EmpressEvolution",
 				NotWorking: true,
 			},
@@ -181,7 +191,7 @@ func groups() Groups {
 		},
 		"quartex": []Website{
 			{
-				URL:  "www.quartex.org",
+				URL:  "https://www.quartex.org",
 				Name: "Quartex",
 			},
 			{
@@ -246,6 +256,12 @@ func groups() Groups {
 				NotWorking: true,
 			},
 		},
+		"scoopex": []Website{
+			{
+				URL:  "http://www.scoopex1988.org",
+				Name: "Scoopex",
+			},
+		},
 		"scenelink": []Website{
 			{
 				URL:  "/wayback/scenelink-from-1998-june-25/index.html",
@@ -282,6 +298,17 @@ func groups() Groups {
 			{
 				URL:        "www.sac2000.home.ml.org",
 				Name:       "SAC2000",
+				NotWorking: true,
+			},
+		},
+		"titan": []Website{
+			{
+				URL:  "https://titandemo.org",
+				Name: "Titan",
+			},
+			{
+				URL:        "www.titancrew.org",
+				Name:       "Titan",
 				NotWorking: true,
 			},
 		},
