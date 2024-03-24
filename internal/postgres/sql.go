@@ -223,6 +223,22 @@ func DistBBSSummed() SQL {
 		") sub WHERE sub.count_sum > 2 ORDER BY sub.count_sum DESC"
 }
 
+// DistBBS selects a list of distinct BBS names.
+func DistBBSYear() SQL {
+	return "SELECT DISTINCT releaser, " +
+		"COUNT(files.filename) AS count_sum, " +
+		"SUM(files.filesize) AS size_total, " +
+		"MIN(files.date_issued_year) AS min_year " +
+		fromFiles +
+		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
+		"WHERE NULLIF(releaser, '') IS NOT NULL " +
+		"AND releaser ~ 'BBS\\M' " +
+		"GROUP BY releaser " +
+		"HAVING (COUNT(files.filename) > 0 AND MIN(files.date_issued_year) < 1992) " +
+		"OR (COUNT(files.filename) > 2 AND MIN(files.date_issued_year) > 1992)" +
+		"ORDER BY min_year ASC, releaser ASC"
+}
+
 // DistFTP selects a list of distinct FTP site names.
 func DistFTP() SQL {
 	return releaserSEL + "AND releaser ~ 'FTP\\M' " + releaserBy

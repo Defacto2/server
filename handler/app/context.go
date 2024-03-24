@@ -127,12 +127,17 @@ func BadRequestErr(logr *zap.SugaredLogger, c echo.Context, uri string, err erro
 
 // BBS is the handler for the BBS page ordered by the most files.
 func BBS(logr *zap.SugaredLogger, c echo.Context) error {
-	return bbsHandler(logr, c, true)
+	return bbsHandler(logr, c, model.Prolific)
 }
 
 // BBSAZ is the handler for the BBS page ordered alphabetically.
 func BBSAZ(logr *zap.SugaredLogger, c echo.Context) error {
-	return bbsHandler(logr, c, false)
+	return bbsHandler(logr, c, model.Alphabetical)
+}
+
+// BBSYear is the handler for the BBS page ordered by the year.
+func BBSYear(logr *zap.SugaredLogger, c echo.Context) error {
+	return bbsHandler(logr, c, model.Oldest)
 }
 
 // Checksum is the handler for the Checksum file record page.
@@ -2211,7 +2216,7 @@ func (s *Stats) get(ctx context.Context, db *sql.DB) error {
 }
 
 // bbsHandler is the handler for the BBS page.
-func bbsHandler(logr *zap.SugaredLogger, c echo.Context, prolific bool) error {
+func bbsHandler(logr *zap.SugaredLogger, c echo.Context, orderBy model.OrderBy) error {
 	const title, name = "BBS", "bbs"
 	if logr == nil {
 		return InternalErr(logr, c, name, ErrZap)
@@ -2238,7 +2243,7 @@ func bbsHandler(logr *zap.SugaredLogger, c echo.Context, prolific bool) error {
 	}
 	defer db.Close()
 	r := model.Releasers{}
-	if err := r.BBS(ctx, db, prolific); err != nil {
+	if err := r.BBS(ctx, db, orderBy); err != nil {
 		return DatabaseErr(logr, c, name, err)
 	}
 	m := model.Summary{}
@@ -2251,7 +2256,14 @@ func bbsHandler(logr *zap.SugaredLogger, c echo.Context, prolific bool) error {
 		"issues": string(ByteFileS("file artifact", m.SumCount.Int64, m.SumBytes.Int64)),
 		"years":  fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
 	}
-	err = c.Render(http.StatusOK, name, data)
+	tmpl := name
+	if orderBy == model.Oldest {
+		tmpl = "bbs-year"
+		s := lead + " The list is sorted by the year of the first release and " +
+			"for performance, boards from 1993 require at least 2 file artifacts."
+		data["lead"] = s
+	}
+	err = c.Render(http.StatusOK, tmpl, data)
 	if err != nil {
 		return InternalErr(logr, c, name, err)
 	}

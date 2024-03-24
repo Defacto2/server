@@ -79,7 +79,7 @@ func TestReleasers_BBS(t *testing.T) {
 	defer db.Close()
 
 	var r model.Releasers
-	err = r.BBS(ctx, db, false)
+	err = r.BBS(ctx, db, model.Alphabetical)
 	require.Error(t, err)
 }
 

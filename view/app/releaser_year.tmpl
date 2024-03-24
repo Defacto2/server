@@ -11,8 +11,8 @@
 {{- $years := index .stats.years}}
 {{- $class := "row row-cols-1 row-cols-sm-2 row-col-md-3 g-2"}}
 <div class="container px-4 text-center">
-    <p class="text-start lead"><small>Showing {{$pubs}}. Overall there are {{$issues | safeHTML}} 
-        from {{$years}}.</small></p>
+    <p class="text-start lead"><small>Showing {{$pubs}}.{{if ne $issues ""}} Overall there are {{$issues | safeHTML}} 
+        from {{$years}}{{end}}.</small></p>
 {{- $prevYear := 0 }}
 {{- range $index, $rel := .releasers -}}
     {{- $title := fmtURI $rel.Unique.URI }}

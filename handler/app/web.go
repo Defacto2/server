@@ -169,6 +169,9 @@ func (web Web) TemplateElms() template.FuncMap {
 		"az": func() template.HTML {
 			return template.HTML(`<small><small class="fw-lighter">A-Z</small></small>`)
 		},
+		"year": func() template.HTML {
+			return template.HTML(`<small><small class="fw-lighter">YEARS</small></small>`)
+		},
 		"mergeIcon": func() template.HTML {
 			return template.HTML(`<svg class="bi" aria-hidden="true" fill="currentColor">` +
 				`<use xlink:href="/bootstrap-icons.svg#forward"></use></svg>`)
@@ -521,6 +524,7 @@ func templates() map[string]filename {
 		"index":         "index.tmpl",
 		"artifact":      "artifact.tmpl",
 		"bbs":           releaser,
+		"bbs-year":      "releaser_year.tmpl",
 		"coder":         scener,
 		"file":          "file.tmpl",
 		"files":         "files.tmpl",

@@ -6,8 +6,8 @@
 {{- $issues := index .stats.issues }}
 {{- $years := index .stats.years}}
 <div class="container px-4 text-center">
-    <p class="text-start lead"><small>Showing {{$pubs}}. Overall there are {{$issues | safeHTML}} 
-        from {{$years}}.</small></p>
+    <p class="text-start lead"><small>Showing {{$pubs}}.{{if ne $issues ""}} Overall there are {{$issues | safeHTML}} 
+        from {{$years}}{{end}}.</small></p>
     <div class="row row-cols-1 row-cols-sm-2 row-col-md-3 g-2">
 {{- range $index, $rel := .releasers -}}
 {{- $title := fmtRangeURI $rel.Unique.URI }}

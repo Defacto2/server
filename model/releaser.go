@@ -187,16 +187,24 @@ func (r *Releasers) Magazine(ctx context.Context, db *sql.DB) error {
 }
 
 // BBS gets the unique BBS site names and their total file count and file sizes.
-func (r *Releasers) BBS(ctx context.Context, db *sql.DB, reorder bool) error {
+func (r *Releasers) BBS(ctx context.Context, db *sql.DB, order OrderBy) error {
 	if db == nil {
 		return ErrDB
 	}
 	if len(*r) > 0 {
 		return nil
 	}
-	query := string(postgres.DistBBS())
-	if reorder {
+
+	var query string
+	switch order {
+	case Prolific:
 		query = string(postgres.DistBBSSummed())
+	case Alphabetical:
+		query = string(postgres.DistBBS())
+	case Oldest:
+		query = string(postgres.DistBBSYear())
+	default:
+		return ErrOrderBy
 	}
 	if err := queries.Raw(query).Bind(ctx, db, r); err != nil {
 		return err

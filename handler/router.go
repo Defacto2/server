@@ -134,6 +134,9 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 	s.GET("/bbs/a-z", func(x echo.Context) error {
 		return app.BBSAZ(logr, x)
 	})
+	s.GET("/bbs/year", func(x echo.Context) error {
+		return app.BBSYear(logr, x)
+	})
 	s.GET("/coder", func(x echo.Context) error {
 		return app.Coder(logr, x)
 	})
