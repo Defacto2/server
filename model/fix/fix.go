@@ -40,7 +40,7 @@ const (
 // In the future we may want to add a Debug or TestRun func.
 
 // Run the database repair based on the repair option.
-func (r Repair) Run(ctx context.Context, db *sql.DB) error {
+func (r Repair) Run(ctx context.Context, logr *zap.SugaredLogger, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -56,12 +56,8 @@ func (r Repair) Run(ctx context.Context, db *sql.DB) error {
 	if err := coldfusionIDs(ctx, db); err != nil {
 		return err
 	}
-	if r == (All | Releaser) {
-		if err := releasers(ctx, db); err != nil {
-			return err
-		}
-	}
-	if r == All {
+	switch r {
+	case All:
 		if err := contentWhiteSpace(db); err != nil {
 			return err
 		}
@@ -72,6 +68,11 @@ func (r Repair) Run(ctx context.Context, db *sql.DB) error {
 			return err
 		}
 		if err := trimFwdSlash(db); err != nil {
+			return err
+		}
+		fallthrough
+	case Releaser:
+		if err := releasers(ctx, logr, db); err != nil {
 			return err
 		}
 	}
@@ -161,9 +162,6 @@ const (
 	rssfix    = "renaissance"
 )
 
-// TODO ANSI Creators in Demand
-// /ansi-creators-in-demand
-
 func fixes() map[string]string {
 	return map[string]string{
 		acidbad: acidfix,
@@ -181,7 +179,7 @@ func fixes() map[string]string {
 }
 
 // releasers will repair the group_brand_by and group_brand_for releasers data.
-func releasers(ctx context.Context, db *sql.DB) error {
+func releasers(ctx context.Context, logr *zap.SugaredLogger, db *sql.DB) error {
 	x := null.NewString("", true)
 	f, err := models.Files(
 		qm.Where("group_brand_for = group_brand_by"),
@@ -191,10 +189,6 @@ func releasers(ctx context.Context, db *sql.DB) error {
 	}
 	if _, err = f.UpdateAll(ctx, db, models.M{"group_brand_by": x}); err != nil {
 		return err
-	}
-	logr, ok := ctx.Value("logger").(*zap.SugaredLogger)
-	if !ok {
-		return ErrCtxLog
 	}
 	var rowsAff int64
 	for bad, fix := range fixes() {

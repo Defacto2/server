@@ -14,12 +14,12 @@ func TestRepair(t *testing.T) {
 	var r fix.Repair
 
 	ctx := context.TODO()
-	err := r.Run(ctx, nil)
+	err := r.Run(ctx, nil, nil)
 	require.ErrorIs(t, err, fix.ErrDB)
 
 	db, err := postgres.ConnectDB()
 	require.NoError(t, err)
 
-	err = r.Run(ctx, db)
+	err = r.Run(ctx, nil, db)
 	require.Error(t, err)
 }

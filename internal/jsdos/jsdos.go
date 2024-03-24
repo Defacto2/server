@@ -493,6 +493,6 @@ func Paths(zipContent string) []string {
 	archive = strings.ReplaceAll(archive, "\n", delimiter)   // replace Unix LF with delimiter
 	archive = strings.ReplaceAll(archive, "\r", delimiter)   // replace 8-bit microcomputer era CR with delimiter
 	paths := strings.Split(archive, delimiter)
-	// TODO convert into DOS 8.3 filename format?
+	// FOR LATER, convert into DOS 8.3 filename format?
 	return paths
 }

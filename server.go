@@ -280,9 +280,9 @@ func localMode() bool {
 
 // RepairDB on startup checks the database connection and make any data corrections.
 func RepairDB(logr *zap.SugaredLogger) error {
-	type contextKey string
-	const loggerKey contextKey = "logger"
-
+	if logr == nil {
+		return fmt.Errorf("%w: %s", ErrLog, "no logger")
+	}
 	db, err := postgres.ConnectDB()
 	if err != nil {
 		return err
@@ -296,8 +296,7 @@ func RepairDB(logr *zap.SugaredLogger) error {
 		return nil
 	}
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, loggerKey, logr)
-	return fix.All.Run(ctx, db)
+	return fix.All.Run(ctx, logr, db)
 }
 
 // repairdb is used to log the database repair error.

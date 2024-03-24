@@ -227,6 +227,9 @@ issues:
     - path: jsdos.go
       linters:
         - lll
+    - path: internal/postgres/sql.go
+      linters:
+        - goconst
       
 linters-settings:
   cyclop:

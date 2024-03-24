@@ -89,7 +89,7 @@ func (r *Releasers) All(ctx context.Context, db *sql.DB, order OrderBy, limit, p
 	if r != nil && len(*r) > 0 {
 		return nil
 	}
-	query := ""
+	var query string
 	switch order {
 	case Prolific:
 		query = string(postgres.DistReleaserSummed())

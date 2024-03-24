@@ -559,10 +559,13 @@ func (c Configuration) Moved(e *echo.Echo) (*echo.Echo, error) {
 	wayback.GET("/web.pages/warez_world-1.htm", func(x echo.Context) error {
 		return x.Redirect(code, "/wayback/warez-world-from-2001-july-26/index.html")
 	})
-	// repaired, releaser database entry redirects
+	// repaired, releaser database entry redirects that are contained in the model fix package.
 	fixes := e.Group("/g")
 	const g = "/g/"
 	fixes.GET("/acid", func(x echo.Context) error {
+		return x.Redirect(code, g+releaser.Obfuscate("ACID PRODUCTIONS"))
+	})
+	fixes.GET("/ansi-creators-in-demand", func(x echo.Context) error {
 		return x.Redirect(code, g+releaser.Obfuscate("ACID PRODUCTIONS"))
 	})
 	fixes.GET("/ice", func(x echo.Context) error {
@@ -573,6 +576,24 @@ func (c Configuration) Moved(e *echo.Echo) (*echo.Echo, error) {
 	})
 	fixes.GET("/"+releaser.Obfuscate("TRISTAR AND RED SECTOR INC"), func(x echo.Context) error {
 		return x.Redirect(code, g+releaser.Obfuscate("TRISTAR & RED SECTOR INC"))
+	})
+	fixes.GET("/x-pression", func(x echo.Context) error {
+		return x.Redirect(code, g+releaser.Obfuscate("X-PRESSION DESIGN"))
+	})
+	fixes.GET("/"+releaser.Obfuscate("DAMN EXCELLENT ANSI DESIGNERS"), func(x echo.Context) error {
+		return x.Redirect(code, g+releaser.Obfuscate("DAMN EXCELLENT ANSI DESIGN"))
+	})
+	fixes.GET("/"+releaser.Obfuscate("THE ORIGINAL FUNNY GUYS"), func(x echo.Context) error {
+		return x.Redirect(code, g+releaser.Obfuscate("ORIGINALLY FUNNY GUYS"))
+	})
+	fixes.GET("/"+releaser.Obfuscate("ORIGINAL FUNNY GUYS"), func(x echo.Context) error {
+		return x.Redirect(code, g+releaser.Obfuscate("ORIGINALLY FUNNY GUYS"))
+	})
+	fixes.GET("/"+releaser.Obfuscate("DARKSIDE INC"), func(x echo.Context) error {
+		return x.Redirect(code, g+releaser.Obfuscate("DARKSIDE INCORPORATED"))
+	})
+	fixes.GET("/"+releaser.Obfuscate("RSS"), func(x echo.Context) error {
+		return x.Redirect(code, g+releaser.Obfuscate("renaissance"))
 	})
 	return e, nil
 }
