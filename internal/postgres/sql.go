@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/Defacto2/releaser"
 )
 
 type (
@@ -195,6 +197,8 @@ func BBSsOldest() SQL {
 		"ORDER BY min_year ASC, releaser ASC" // order the list by the oldest year and the releaser name
 }
 
+// MagazinesOldest selects a list of distinct releasers or groups,
+// only showing magazines and ordered by the file count.
 func MagazinesOldest() SQL {
 	return "SELECT DISTINCT releaser, " + // select distinct releaser names
 		"COUNT(files.filename) AS count_sum, " + // count the number of files per releaser
@@ -211,6 +215,48 @@ func MagazinesOldest() SQL {
 		"HAVING (COUNT(files.filename) > 0) AND (MIN(files.date_issued_year) > 1970) " +
 		"AND files.deletedat IS NULL " + // only include releasers with public records
 		"ORDER BY min_year ASC, releaser ASC" // order the list by the oldest year and the releaser name
+}
+
+// ScenerSQL is the SQL query for getting sceners.
+func ScenerSQL(name string) string {
+	n := strings.ToUpper(releaser.Humanize(name))
+	exact := fmt.Sprintf("(upper(credit_text) = '%s')"+
+		" OR (upper(credit_program) = '%s')"+
+		" OR (upper(credit_illustration) = '%s')"+
+		" OR (upper(credit_audio) = '%s')", n, n, n, n)
+	first := fmt.Sprintf("(upper(credit_text) LIKE '%s,%%')"+
+		" OR (upper(credit_program) LIKE '%s,%%')"+
+		" OR (upper(credit_illustration) LIKE '%s,%%')"+
+		" OR (upper(credit_audio) LIKE '%s,%%')", n, n, n, n)
+	middle := fmt.Sprintf("(upper(credit_text) LIKE '%%,%s,%%')"+
+		" OR (upper(credit_program) LIKE '%%,%s,%%')"+
+		" OR (upper(credit_illustration) LIKE '%%,%s,%%')"+
+		" OR (upper(credit_audio) LIKE '%%,%s,%%')", n, n, n, n)
+	last := fmt.Sprintf("(upper(credit_text) LIKE '%%,%s')"+
+		" OR (upper(credit_program) LIKE '%%,%s')"+
+		" OR (upper(credit_illustration) LIKE '%%,%s')"+
+		" OR (upper(credit_audio) LIKE '%%,%s')", n, n, n, n)
+	return fmt.Sprintf("(%s) OR (%s) OR (%s) OR (%s)", exact, first, middle, last)
+}
+
+func Releasers() string {
+	return "SELECT DISTINCT releaser " +
+		"FROM files " +
+		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
+		"WHERE NULLIF(releaser, '') IS NOT NULL " +
+		"GROUP BY releaser " +
+		"ORDER BY releaser ASC"
+}
+
+// Summary is an SQL statement to count the number of files, sum the filesize,
+// select the oldest year and the newest year.
+func Summary() SQL {
+	return "SELECT COUNT(files.id) AS count_total, " + // count the number of files
+		"SUM(files.filesize) AS size_total, " + // sum the filesize of files
+		"MIN(files.date_issued_year) AS min_year, " + // select the oldest year
+		"MAX(files.date_issued_year) AS max_year " + // select the newest year
+		"FROM files " +
+		"WHERE "
 }
 
 // ReleaserSimilarTo selects a list of distinct releasers or groups,

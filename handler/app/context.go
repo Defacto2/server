@@ -2000,8 +2000,9 @@ func Website(logr *zap.SugaredLogger, c echo.Context, open string) error {
 	}
 	data := empty(c)
 	data["title"] = "Websites"
-	data["logo"] = "Websites, podcasts, videos, books and films"
-	data["description"] = "A collection of websites, podcasts, videos, books and films about the scene."
+	const logo = "Videos, Books, Films, Sites, Podcasts"
+	data["logo"] = logo
+	data["description"] = "A collection of " + logo + " about the scene."
 	acc := List()
 	// Open the accordion section.
 	closeAll := true

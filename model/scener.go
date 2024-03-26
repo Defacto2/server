@@ -3,10 +3,8 @@ package model
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"strings"
 
-	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -30,31 +28,9 @@ func (s *Scener) List(ctx context.Context, db *sql.DB, name string) (models.File
 	}
 	boil.DebugMode = true
 	return models.Files(
-		qm.Where(ScenerSQL(name)),
+		qm.Where(string(postgres.ScenerSQL(name))),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
-}
-
-// ScenerSQL is the SQL query for getting sceners.
-func ScenerSQL(name string) string {
-	n := strings.ToUpper(releaser.Humanize(name))
-	exact := fmt.Sprintf("(upper(credit_text) = '%s')"+
-		" OR (upper(credit_program) = '%s')"+
-		" OR (upper(credit_illustration) = '%s')"+
-		" OR (upper(credit_audio) = '%s')", n, n, n, n)
-	first := fmt.Sprintf("(upper(credit_text) LIKE '%s,%%')"+
-		" OR (upper(credit_program) LIKE '%s,%%')"+
-		" OR (upper(credit_illustration) LIKE '%s,%%')"+
-		" OR (upper(credit_audio) LIKE '%s,%%')", n, n, n, n)
-	middle := fmt.Sprintf("(upper(credit_text) LIKE '%%,%s,%%')"+
-		" OR (upper(credit_program) LIKE '%%,%s,%%')"+
-		" OR (upper(credit_illustration) LIKE '%%,%s,%%')"+
-		" OR (upper(credit_audio) LIKE '%%,%s,%%')", n, n, n, n)
-	last := fmt.Sprintf("(upper(credit_text) LIKE '%%,%s')"+
-		" OR (upper(credit_program) LIKE '%%,%s')"+
-		" OR (upper(credit_illustration) LIKE '%%,%s')"+
-		" OR (upper(credit_audio) LIKE '%%,%s')", n, n, n, n)
-	return fmt.Sprintf("(%s) OR (%s) OR (%s) OR (%s)", exact, first, middle, last)
 }
 
 // All gets a list of all sceners.

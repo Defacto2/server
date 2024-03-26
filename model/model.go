@@ -18,11 +18,21 @@ import (
 )
 
 var (
-	ErrDB      = errors.New("database value is nil")
-	ErrKey     = errors.New("key value is zero or negative")
-	ErrOrderBy = errors.New("order by value is invalid")
-	ErrName    = errors.New("name value is empty")
-	ErrURI     = errors.New("uri value is invalid")
+	ErrCtx      = errors.New("echo context is nil")
+	ErrDay      = errors.New("invalid day")
+	ErrDB       = errors.New("database value is nil")
+	ErrID       = errors.New("file download database id cannot be found")
+	ErrKey      = errors.New("key value is zero or negative")
+	ErrModel    = errors.New("error, no file model")
+	ErrMonth    = errors.New("invalid month")
+	ErrName     = errors.New("name value is empty")
+	ErrOrderBy  = errors.New("order by value is invalid")
+	ErrRels     = errors.New("too many releasers, only two are allowed")
+	ErrPlatform = errors.New("invalid platform")
+	ErrTag      = errors.New("invalid tag")
+	ErrURI      = errors.New("uri value is invalid")
+	ErrYear     = errors.New("invalid year")
+	ErrZap      = errors.New("zap logger instance is nil")
 )
 
 type Pagination struct {
@@ -36,6 +46,14 @@ type Pagination struct {
 	RangeStep int    // RangeStep is the number of pages to skip in the pagination range.
 }
 
+const (
+	startID        = 1                                      // startID is the default, first ID value.
+	uidPlaceholder = `ADB7C2BF-7221-467B-B813-3636FE4AE16B` // UID of the user who deleted the file.
+)
+
+// Maximum number of files to return per query.
+const Maximum = 998
+
 // From is the name of the table containing records of files.
 const From = "files"
 
@@ -44,6 +62,7 @@ const ClauseOldDate = "date_issued_year ASC NULLS LAST, " +
 	"date_issued_month ASC NULLS LAST, " +
 	"date_issued_day ASC NULLS LAST"
 
+// ClauseNoSoftDel is the clause to exclude soft deleted records.
 const ClauseNoSoftDel = "deletedat IS NULL"
 
 // Cache returns true if the statistics are considered to be valid.

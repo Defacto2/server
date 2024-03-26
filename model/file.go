@@ -3,21 +3,12 @@ package model
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
-)
-
-const startID = 1 // startID is the default, first ID value.
-
-var (
-	ErrCtx = errors.New("echo context is nil")
-	ErrID  = errors.New("file download database id cannot be found")
-	ErrZap = errors.New("zap logger instance is nil")
 )
 
 // FindFile retrieves a single file record from the database using the record key.

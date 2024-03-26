@@ -11,16 +11,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestScenerSQL(t *testing.T) {
-	t.Parallel()
-
-	s := model.ScenerSQL("")
-	assert.NotEmpty(t, s, "")
-
-	s = model.ScenerSQL("defacto2")
-	assert.Contains(t, s, "DEFACTO2")
-}
-
 func TestSceners(t *testing.T) {
 	t.Parallel()
 

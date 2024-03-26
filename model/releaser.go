@@ -54,12 +54,7 @@ func (r *ReleaserNames) List(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
-	query := "SELECT DISTINCT releaser " +
-		"FROM files " +
-		"CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) " +
-		"WHERE NULLIF(releaser, '') IS NOT NULL " +
-		"GROUP BY releaser " +
-		"ORDER BY releaser ASC"
+	query := postgres.Releasers()
 	return queries.Raw(query).Bind(ctx, db, r)
 }
 

@@ -2,7 +2,6 @@ package model
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -14,19 +13,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
-)
-
-const (
-	uidPlaceholder = `ADB7C2BF-7221-467B-B813-3636FE4AE16B` // UID of the user who deleted the file.
-)
-
-var (
-	ErrRels     = errors.New("too many releasers, only two are allowed")
-	ErrPlatform = errors.New("invalid platform")
-	ErrTag      = errors.New("invalid tag")
-	ErrYear     = errors.New("invalid year")
-	ErrMonth    = errors.New("invalid month")
-	ErrDay      = errors.New("invalid day")
 )
 
 // GetPlatformTagInfo returns the human readable platform and tag name.

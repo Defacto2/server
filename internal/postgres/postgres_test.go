@@ -90,3 +90,13 @@ func TestConnection_Configuration(t *testing.T) {
 	assert.Contains(t, b.String(),
 		"******  Password for the database username.")
 }
+
+func TestScenerSQL(t *testing.T) {
+	t.Parallel()
+
+	s := postgres.ScenerSQL("")
+	assert.NotEmpty(t, s, "")
+
+	s = postgres.ScenerSQL("defacto2")
+	assert.Contains(t, s, "DEFACTO2")
+}

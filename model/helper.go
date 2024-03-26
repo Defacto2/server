@@ -3,7 +3,6 @@ package model
 // Package file helper.go contains helper functions for the model package.
 
 import (
-	"errors"
 	"fmt"
 	"html/template"
 	"path/filepath"
@@ -16,8 +15,6 @@ import (
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/subpop/go-ini"
 )
-
-var ErrModel = errors.New("error, no file model")
 
 // JsDosBinary returns the program executable to run in the js-dos emulator.
 // If the dosee_run_program is set then it is the preferred executable.

@@ -13,9 +13,6 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// Maximum number of files to return per query.
-const Maximum = 998
-
 // Files contain statistics for every release.
 type Files struct {
 	Bytes   int `boil:"size_total"`

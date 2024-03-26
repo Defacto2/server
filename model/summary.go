@@ -25,19 +25,12 @@ type Summary struct {
 	MaxYear  sql.NullInt16 `boil:"max_year"`    // Maximum or latest year of the files.
 }
 
-const summary = "SELECT COUNT(files.id) AS count_total, " +
-	"SUM(files.filesize) AS size_total, " +
-	"MIN(files.date_issued_year) AS min_year, " +
-	"MAX(files.date_issued_year) AS max_year " +
-	"FROM files " +
-	"WHERE "
-
 // SearchDesc saves the summary statistics for the file description search.
 func (s *Summary) SearchDesc(ctx context.Context, db *sql.DB, terms []string) error {
 	if db == nil {
 		return ErrDB
 	}
-	sum := summary
+	sum := string(postgres.Summary())
 	for i := range terms {
 		const clauseT = "to_tsvector('english', concat_ws(' ', files.record_title, files.comment)) @@ to_tsquery"
 		if i == 0 {
@@ -55,7 +48,7 @@ func (s *Summary) SearchFilename(ctx context.Context, db *sql.DB, terms []string
 	if db == nil {
 		return ErrDB
 	}
-	sum := summary
+	sum := string(postgres.Summary())
 	for i, term := range terms {
 		if i == 0 {
 			sum += fmt.Sprintf(" filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
@@ -69,6 +62,7 @@ func (s *Summary) SearchFilename(ctx context.Context, db *sql.DB, terms []string
 	return queries.Raw(sum).Bind(ctx, db, s)
 }
 
+// StatForApproval returns the summary statistics for files that require approval.
 func (s *Summary) StatForApproval(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
@@ -81,6 +75,7 @@ func (s *Summary) StatForApproval(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, s)
 }
 
+// StatDeletions returns the summary statistics for files that have been deleted.
 func (s *Summary) StatDeletions(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
@@ -94,6 +89,7 @@ func (s *Summary) StatDeletions(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, s)
 }
 
+// StatUnwanted returns the summary statistics for files that have been marked as unwanted.
 func (s *Summary) StatUnwanted(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
@@ -124,7 +120,7 @@ func (s *Summary) Scener(ctx context.Context, db *sql.DB, name string) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
-		qm.Where(ScenerSQL(name)),
+		qm.Where(postgres.ScenerSQL(name)),
 		qm.From(From)).Bind(ctx, db, s)
 }
 
