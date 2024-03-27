@@ -268,7 +268,8 @@ func Collection() Milestones {
 			Year: 1976, Month: 3, Title: "The first Apple computer",
 			Lead: "Apple-1", LinkTitle: "about the Apple-1",
 			Link: "https://www.computerhistory.org/revolution/personal-computers/17/312/1132",
-			Content: "<p>Steve Wozniak and Steve Jobs release the Apple&nbsp;I, a single-board computer with a <a href=\"https://spectrum.ieee.org/chip-hall-of-fame-mos-technology-6502-microprocessor\">MOS 6502 CPU</a>, 4KB of RAM, and a 40-column display controller.</p>" +
+			Content: "<p>Steve Wozniak and Steve Jobs release the Apple&nbsp;I, a single-board computer with a " +
+				"<a href=\"https://spectrum.ieee.org/chip-hall-of-fame-mos-technology-6502-microprocessor\">MOS 6502</a> CPU, 4KB of RAM, and a 40-column display controller.</p>" +
 				"<p>Unlike the more popular and earlier Altair 8800, the Apple Computer wasn't usable out of the box and didn't come with a case. However, <a href=\"https://upload.wikimedia.org/wikipedia/commons/4/48/Apple_1_Advertisement_Oct_1976.jpg\">it did offer</a> a convenient video terminal, cassette, and keyboard interface, requiring owners to supply peripherals for output, storage, and input." +
 				"</p><p>The choice of the new, powerful, and affordable <strong>MOS 6502</strong> CPU showed foresight, as it later became the basis of far more successful microcomputer and consoles.<p>" +
 				ul0 +
@@ -608,7 +609,7 @@ func Collection() Milestones {
 		{
 			Title: "Earliest dated crack", Year: 1982, Month: 3,
 			Lead:      "Dung Beetles breakage by Black Bart",
-			LinkTitle: "view the Dung Beetle crack", Link: "http://artscene.textfiles.com/intros/APPLEII/dungbeetles.gif",
+			LinkTitle: "and view the Dung Beetle crack", Link: "http://artscene.textfiles.com/intros/APPLEII/dungbeetles.gif",
 			Content: "The earliest dated or timestamped crack is probably on the Apple&nbsp;II, " +
 				"<q><strong>Dung Beetles broken by Black Bart in March 1982</strong></q>. " +
 				"<p><a href=\"http://artscene.textfiles.com/intros/APPLEII/thepirate.gif\">A screenshot</a> of an earlier serial key exists, <strong>Broken by The Pirate 09/26/81</strong>, " +
@@ -670,21 +671,21 @@ func Collection() Milestones {
 			Content: "<p>Many long argued in the Demoscene that a <q>1982</q> " +
 				"Berlin Cracking Service image<sup><a href=\"#berlin-bear-controversy-fn1\">[1]</a> <a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup> of the <a href=\"https://www.atlantis-prophecy.org/recollection/gfx/BCS.png\">Berlin&nbsp;Bear</a> was the first cracktro. " +
 				"But this seems far-fetched, and anecdotal proof suggests it originates from 1984.</p>" +
-
+				// us and japan
 				"<p>In late 1982, selling at $595, the Commodore&nbsp;64 was a pricey machine that <a href=\"https://www.power8bit.com/assets/images/screen-shot-2023-03-27-at-5.27.40-pm-508x698.webp\">targeted</a> <u>business</u> users in the USA and Japan (where it flopped). " +
 				"Due to last-minute design changes and poor quality assurance issues, the machine had limited distribution and software that year.<sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a> <a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup></p>" +
-
+				// germany and uk
 				"<p>By all accounts, the Commodore Braunschweig factory didn't have the (European-friendly) PAL Commodore&nbsp;64 machines " +
 				"ready for retail <a href=\"https://www.zock.com/8-Bit/D_C64.HTML\">until&nbsp;1983</a>. " +
 				"In the UK, advertising first hit Commodore&nbsp;Computing<sup><a href=\"#berlin-bear-controversy-fn5\">[5]</a></sup> in February 1983, " +
 				"which focused on potential developers, but mostly the <a href=\"https://static.nosher.net/archives/computers/images/comm64_comci_1983-02-m.jpg\">business&nbsp;market</a>,<sup><a href=\"#berlin-bear-controversy-fn6\">[6]</a></sup> " +
 				"and a revised business focus advert ran in October 1983.<sup><a href=\"#berlin-bear-controversy-fn7\">[7]</a></sup></p>" +
-
+				// west berlin kids
 				"<p>We believe it unlikely that several kids from West Berlin, a city deep within the Soviet GDR, had access to the unreleased PAL Commodore 64 in <u>1982</u>. " +
 				"It is more believable that these Berlin cracking groups were formed in late 1983 or 1984. " +
 				"However, the claim<sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup> is that various Berliners got together in 1982 and formed multiple <q>cracking</q> " +
 				"groups to trade in software and create art on an unreleased business microcomputer, even though the software didn't need cracking then.</p>" +
-
+				// citations
 				"<strong>Quotes</strong><sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup>" +
 				ul0 +
 				"<li><q>The first intro was a picture of the Berlin Bear from the city flag and was released by BCS in <strong>1982</strong>. It was a kind of <u>co-production by several people</u>...</q></li>" +
@@ -724,26 +725,30 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The great online reboot", Year: 1983, Month: 1, Day: 1,
-			Lead: "Internetworking", LinkTitle: "the notable computer networks", Link: "https://dl.acm.org/doi/pdf/10.1145/6617.6618",
-			Content: "On the 1st of January, 1983, the US Department of Defense coordinated the massive shutdown of its existing experimental wide-area network, <abbr title=\"Advanced Research Projects Agency Network\">ARPAnet</abbr>." +
-				"<p>Referred to as \"Flag Day,\" the event meant that all systems associated with the US military network were required to reconnect using a new <abbr title=\"Transfer Control Protocol\">TCP</abbr>/<abbr title=\"Internetwork Protocol\">IP</abbr> protocol.</p>" +
-				"<p>The replacement protocol decentralized the networks operations and is somewhat inspired by the earlier French <a href=\"https://www.inria.fr/en/between-stanford-and-cyclades-transatlantic-perspective-creation-internet\">CYCLADES packet-switch network</a>. By demanding the connected hosts handle data delivery and error correction. The connecting of various academic, research, and commercial computer networks is possible, removing the ARPAnet's expense and inability to scale.</p>" +
-				"<p>Later in the year, <a href=\"https://www.washingtonpost.com/archive/business/1983/10/04/big-computer-network-split-by-pentagon/d12feaba-c0c7-45fb-a851-25267f8dca9c/\">due to a fear of civilian hackers</a>, the systems associated with the US military were to disconnect again and join a new isolated Defense Data Network (MILnet). The few remaining non-military systems that adopted the TCP/IP protocol standard formed the basis of the new ARPA internetwork or APRA Internet.</p>" +
+			Lead: "Internetworking", LinkTitle: "the Notable computer networks", Link: "https://dl.acm.org/doi/pdf/10.1145/6617.6618",
+			Content: "On January 1, 1983, the US Department of Defense coordinated the massive shutdown of its existing experimental wide-area network, <abbr title=\"Advanced Research Projects Agency Network\">ARPAnet</abbr>." +
+				"Referred to as <q>Flag Day,</q> the event required all systems associated with the US military network to reconnect using a new <abbr title=\"Transfer Control Protocol\">TCP</abbr>/<abbr title=\"Internetwork Protocol\">IP</abbr> protocol. " +
+				"The replacement protocol decentralized the network's operations and is somewhat inspired by the earlier French " +
+				"<a href=\"https://www.inria.fr/en/between-stanford-and-cyclades-transatlantic-perspective-creation-internet\">CYCLADES</a> packet-switch network. " +
+				"By demanding that the connected hosts handle data delivery and error correction, connecting various academic, research and commercial computer networks is possible, removing ARPAnet's excessive expense and inability to scale.</p>" +
+				"<p>Later in the year, due to a <a href=\"https://www.washingtonpost.com/archive/business/1983/10/04/big-computer-network-split-by-pentagon/d12feaba-c0c7-45fb-a851-25267f8dca9c/\">fear of civilian hackers</a>, the systems associated with the US military were to disconnect again and join a new isolated Defense Data Network (MILnet). The few remaining non-military systems that adopted the TCP/IP protocol standard formed the basis of the new ARPA internetwork or APRA Internet.</p>" +
 				"<p>The other alternative networks of the era:</p>" +
-				"<abbr title=\"Because It's Time NETwork\">BITNet</abbr> <sup>1981</sup>, a cross-continental, research center and university network for file transfers and messaging." +
-				"<br><abbr title=\"European Unix Network\">EUnet</abbr> <sup>1982</sup>, the first public wide area network of Europe." +
-				"<br>Janet <sup>1984</sup>, an extensive UK academic network." +
-				"<br>Corporate networks from Xerox Internet, DEC Easynet and IBM VNET.",
+				ul0 +
+				"<li><abbr title=\"Because It's Time NETwork\">BITNet</abbr> <sup>1981</sup>, a cross-continental, research center and university network for file transfers and messaging." +
+				"<li><abbr title=\"European Unix Network\">EUnet</abbr> <sup>1982</sup>, the first public wide area network of Europe.</li>" +
+				"<li>Janet <sup>1984</sup>, an extensive UK academic network.</li>" +
+				"<li>Corporate networks from Xerox Internet, DEC Easynet and IBM VNET.</li>" +
+				ul1,
 		},
 		{
 			Title: "The year of the Commodore 64", Year: 1983, Month: 1,
 			Lead: "Computers goes mainstream", LinkTitle: "about the Commodore 64", Link: "http://variantpress.com/books/commodore-a-company-on-the-edge/",
-			Content: "January 1983 saw the beginning of the juggernaut that would be the <strong>Commodore&nbsp;64</strong> microcomputer, a platform that became the world's best-selling computer for decades. " +
-				"It released in limited numbers in August 1982 for the US market, but sales blew up in the lead to Christmas, and with multiple mass price cuts, it became a massive worldwide success in the following years. " +
+			Content: "<p>January 1983 saw the beginning of the juggernaut, the <strong>Commodore&nbsp;64</strong> microcomputer, a platform that became the world's best-selling computer for decades. " +
+				"It was released in limited numbers in August 1982 for the US market, but sales blew up in the lead to Christmas, and with multiple mass price cuts, it became a massive worldwide success in the following years.</p>" +
 				"<p>The Commodore&nbsp;64 became the first mass-market computer and piracy platform.</p>" +
 				"Ironically, it is a Scene that at least partly materialized out of Commodore itself, according to Brian Bagnall's book On the Edge. For <a href=\"https://computerhistory.org/profile/bil-herd/\">Bil Herd</a>, " +
-				"\"The worst thing you could do was submit a copy of something to the (Commodore) games and applications group.\" " +
-				"He felt several bad actors were employed in that department, claiming that by late 1983, \"There were a few nefarious types that would generally make sure a cracked version of the game was available within a week.\"",
+				"<q>The worst thing you could do was submit a copy of something to the (Commodore) games and applications group.</q> " +
+				"He felt several bad actors were employed in that department, claiming that by late 1983, <q>There were a few nefarious types that would generally make sure a cracked version of the game was available within a week.</q>",
 		},
 		{
 			Title: "The first PC clone", Year: 1983, Month: 3,
@@ -760,8 +765,8 @@ func Collection() Milestones {
 				"<p>ANSI was a text terminal display standard from the mid-1970s that formatted onscreen text and controlled cursor movement. The implementation in DOS was only partially complete but became its own sub-standard over time.</p>",
 		},
 		{
-			Title: "The earliest cracked PC game", Year: 1983,
-			Lead: "Atarisoft presents: Galaxian broken by The Koyote Kid", LinkTitle: "about and view the crack",
+			Title: "The earliest cracked PC game ?", Year: 1983,
+			Lead: "Atarisoft presents: Galaxian broken by The Koyote Kid", LinkTitle: "and view the crack",
 			Link: "/f/ab2edbc", Highlight: true,
 			Content: "<p>This modified Galaxian title screen is known as a <strong>crack screen</strong> and was a typical way for crackers on the Apple&nbsp;II to credit themselves. Crackers modified and removed disk copy protection from software for the sole purpose of allowing duplication.</p>" +
 				"<p>The online Apple II community commonly used the verbs \"broken\" or unprotected, cracked, and kracked. Given the popularity of the IBM&nbsp;PC in the USA, it is most likely The Koyote Kid was based in the USA and also interacted in the <a href=\"#the-first-crackers\">Apple II underground</a> Scene.</p>" +
@@ -787,19 +792,19 @@ func Collection() Milestones {
 				ul1,
 		},
 		{
-			Title: "Earliest unprotect text", Year: 1983, Month: 5, Day: 12, Highlight: true,
+			Title: "Earliest unprotect text ?", Year: 1983, Month: 5, Day: 12, Highlight: true,
 			Lead: "Directions by Randy Day for unprotecting SPOC the Chess Master", LinkTitle: "the unprotect text",
 			Link: "/f/a91c702",
 			Content: "<code>SPOC.UNP</code><br>" +
 				"<p><strong>Unprotects</strong> were text documents describing methods to remove software (floppy) disk copy protection. " +
-				"Many authors were legitimate owners who were frustrated that publishers would not permit them to create backup copies of their expensive but fragile 5¼-inch floppy disks for daily driving.</p>" +
+				"Many authors were legitimate owners frustrated that publishers would not permit them to create backup copies of their expensive but fragile 5¼-inch floppy disks for daily driving.</p>" +
 				"<p><q>The disk is close to a normal disk. There is one file in the directory, spoc.exe, which is most of the program. However, track 20, sector 5 is a bad sector. In what manner it is bad, I don't know, but nothing can read it.</q></p>" +
-				"<p>The origins of the unprotected document go back to the Apple&nbsp;II and other early microcomputer platforms, where BBS users would publically post simple hacks to defeat basic disk copy protection schemes, <a href=\"http://www.textfiles.com/apple/parameters.txt\">such as this 1982 log</a>.</p>",
+				"<p>The origins of the unprotected document go back to the Apple&nbsp;II and other early microcomputer platforms, where BBS users would publically post simple hacks to defeat basic disk copy protection schemes, such as this <a href=\"http://www.textfiles.com/apple/parameters.txt\">1982 log</a>.</p>",
 		},
 		{
 			Title: "Microsoft Windows announced", Year: 1983, Month: 11, Day: 10,
 			Link:      "https://www.poynter.org/reporting-editing/2014/today-in-media-history-in-1983-bill-gates-and-microsoft-introduced-windows/",
-			LinkTitle: "about the announcement",
+			LinkTitle: "the announcement",
 			Content: "<p>Around this time, <abbr title=\"graphical user interface\" class=\"initialism\">GUI</abbr> for microcomputing was all the hype within the technology industry and media. " +
 				"In hindsight, this premature announcement from Microsoft aimed to keep customers from jumping ship to competitor platforms and GUI offerings.</p>" +
 				"<p>It took a decade before graphical interfaces on the PC replaced text in business computing with Windows NT <sup>1993</sup> and even longer with Windows 95 <sup>1995</sup> before it became commonplace in the home." +
@@ -833,7 +838,7 @@ func Collection() Milestones {
 				"The other pioneering aspect of the game was the pseudo-3D landscape. The player controlled a human avatar from a 3rd person perspective and could use it to walk around set pieces, both in front and from behind, and interact with the onscreen objects.",
 		},
 		{
-			Title: "The earliest information text", Year: 1984, Month: 10, Day: 17, Highlight: true,
+			Title: "The earliest information text ?", Year: 1984, Month: 10, Day: 17, Highlight: true,
 			Lead:      "SOFTWARE PIRATES Inc. - ZORKTOOLS 1.0",
 			LinkTitle: "the information text",
 			Link:      "/f/ae2da98",
@@ -865,14 +870,14 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "The earliest text loader", Year: 1985, Month: 5, Day: 26, Highlight: true,
+			Title: "The earliest text loader ?", Year: 1985, Month: 5, Day: 26, Highlight: true,
 			Lead:      "Spy Hunter cracked by Spartacus",
 			LinkTitle: "and view the text loader",
 			Link:      "/f/aa2be75",
 			Content: "<p><strong>Loaders</strong> are bits of code that crackers and pirate groups insert to promote themselves and their game releases. As the name suggests, they are loaded and shown before the game starts. " +
-				"Loaders first originated on the Apple&nbsp;II and later the Commodore&nbsp;64 piracy Scenes.</p>" +
+				"Loaders originated on the Apple&nbsp;II and later the Commodore&nbsp;64 piracy Scenes.</p>" +
 				"<p>While text loaders and ANSI art look similar, the execution is entirely different. ANSI art relies on plain text files encoded with ASCII escape control codes. " +
-				"In contrast, text loaders are computer applications that use the computer's text characters stored in the system <a href=\"https://minuszerodegrees.net/video/bios_video_modes.htm\">graphics card ROM</a>, acting as a text programming interface.</p>" +
+				"In contrast, text loaders are computer applications that use the computer's text characters stored in the system graphics card <a href=\"https://minuszerodegrees.net/video/bios_video_modes.htm\">ROM</a>, acting as a text programming interface.</p>" +
 				"<p>Little is known about the Imperial Warlords that released this 1984 PC game port, though the two BBS advertised are from San Francisco and Minneapolis, which suggests a national group.</p>",
 			Picture: Picture{
 				Title: "Spy Hunter",
@@ -882,11 +887,11 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest ANSI ad", Year: 1985, Month: 8, Highlight: false,
+			Title: "Earliest ANSI ad ?", Year: 1985, Month: 8, Highlight: false,
 			Lead: "The Game Gallery 300 1200", LinkTitle: "and view the file",
 			Link: "/f/ba2bcbb",
-			Content: "<p>The earliest <strong>ANSI ad</strong>vert is for the Manhattan based BBS, The Game Gallery (+212-799-6987). ANSI art is a computer art form that became widely used to create art and advertisements for online bulletin board systems.</p>" +
-				"<p>The output uses ANSI escape codes, a standard Digital Equipment Corporation (DEC) pioneered for its <a href=\"https://vt100.net/dec/vt_history\">minicomputer video terminals</a>. Later, it was used on IBM and other PCs using software drivers and video <a href=\"https://vt100.net/emu/\">terminal emulators</a>.</p>",
+			Content: "<p>The earliest <strong>ANSI ad</strong>vertisement is for the Manhattan based BBS, <strong>The&nbsp;Game&nbsp;Gallery</strong>&nbsp;(+212-799-6987). ANSI art is a computer art form that became widely used to create art and advertisements for online bulletin board systems.</p>" +
+				"<p>The output uses ANSI escape codes, a standard Digital Equipment Corporation (DEC) pioneered for its minicomputer <a href=\"https://vt100.net/dec/vt_history\">video terminals</a>. Later, it was used on IBM and other PCs using software drivers and video <a href=\"https://vt100.net/emu/\">terminal emulators</a>.</p>",
 			Picture: Picture{
 				Title: "The Game Gallery",
 				Alt:   "The Game Gallery ad screenshot",
@@ -899,9 +904,11 @@ func Collection() Milestones {
 			Lead: "On the Commodore 64", LinkTitle: "about the early days of Razor 1911",
 			Link: "https://csdb.dk/group/?id=431",
 			Content: "<p><strong>Razor 1911</strong>, the oldest and most famed brand in the Scene, was founded in <strong>Norway</strong> and has three members. " +
-				"The group released demos and later cracked exclusively for the Commodore&nbsp;64 and then the Amiga. Co-founder Sector 9 took the brand to the <a href=\"/f/a12d5e\">PC in late 1990</a>.</p>" +
-				"<p>The distinctive number suffix was a fad with groups of the Commodore&nbsp;64 era*. <q>1911</q> denotes the decimal value of hexadecimal <code>$777</code>.</p>" +
-				"<p><small>* other named examples, 1001 Crew, 1701 Crackware, The Gamebusters 1541, The Professionals 2010.</small></p>",
+				"The group released demos and later cracked exclusively for the Commodore&nbsp;64 and then the Amiga. Co-founder Sector 9 took the brand to the PC in <a href=\"/f/a12d5e\">late 1990</a>.</p>" +
+				"<p>The distinctive number suffix was a fad with groups of the Commodore&nbsp;64 era<sup><a href=\"#razor-1911-is-named-fn1\">[1]</a></sup>.<br><q>1911</q> denotes the decimal value of hexadecimal <code>$777</code>.</p>" +
+				"<section>" +
+				"<div id=\"razor-1911-is-named-fn1\">[1] Other named examples include, 1001&nbsp;Crew, 1701&nbsp;Crackware, The&nbsp;Gamebusters&nbsp;1541, The&nbsp;Professionals&nbsp;2010.</div>" +
+				"</section>",
 			Picture: Picture{
 				Title:       "Amazing Demo I",
 				Alt:         "Amazing Demo I by Razor 1911 screenshot",
@@ -924,13 +931,13 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "The earliest \"DOX\"", Year: 1986, Highlight: true,
+			Title: "The earliest \"DOX\" ?", Year: 1986, Highlight: true,
 			Lead: "Dam Buster documentation by Brew Associates", LinkTitle: "the documentation",
 			Link: "/f/a61db76",
 			Content: "<code>DAMBUST1.DOC</code><br>" +
 				"<p><strong>DOX</strong> is an abbreviation for documentation, which are text files that provide instructions on playing more complicated games. " +
 				"Games not in the arcade or action genre were usually unintuitive and relied on printed gameplay instruction manuals sold with the purchased game box to be usable. " +
-				"These titles often relied on <a href=\"https://archive.org/details/extras_msdos_Microsoft_Flight_Simulator_v1.0_1982/mode/2up\">printed instruction manuals</a> included in the purchased game box to be usable.</p>" +
+				"These titles often relied on printed <a href=\"https://archive.org/details/extras_msdos_Microsoft_Flight_Simulator_v1.0_1982/mode/2up\">instruction manuals</a> included in the purchased game box to be usable.</p>" +
 				"<p>Piracy groups had been including forms of gameplay instructions as text documents for the more complicated game releases for years, so it is unlikely this example is the first DOX.</p>" +
 				"<p><q>The primary reason for the writing of this file is the fact that people may not be fully appreciating the Dam Buster game.  I have seen some documentation out, but it is lame at best. What I have given you here is the actual text of the actual documentation distributed with the game. Enjoy!</q></p>" +
 				"<p>Dam Buster is a misname of <a href=\"https://archive.org/details/msdos_The_Dam_Busters_1985\">The Dam Busters</a>, a 1984-85 game published by Accolade.</p>",
@@ -942,8 +949,8 @@ func Collection() Milestones {
 			Content: "While the Commodore, Apple and IBM are common platforms in the US, the European market doesn't always share the same popular platforms. " +
 				"Import duties, slow international distribution channels and a lack of localized software and hardware often hampers the adoption of some platforms. " +
 				"<br>The Western European market is dominated by Acorn, Amstrad, Commodore, Sinclair but the PC clones produced by local electronic manufactures gain popularity. " +
-				"Popular machines include the <a href=\"https://www.dosdays.co.uk/computers/Amstrad%20PC1000/amstrad_pc1000.php\">Amstrad PC1512</a>, " +
-				"the Philips P2000T and the <a href=\"https://www.dosdays.co.uk/computers/Olivetti%20M24/olivetti_m24.php\">Olivetti M24</a>.",
+				"Popular machines include the <a href=\"https://www.dosdays.co.uk/computers/Amstrad%20PC1000/amstrad_pc1000.php\">Amstrad&nbsp;PC1512</a>, " +
+				"the Philips&nbsp;P2000T and the <a href=\"https://www.dosdays.co.uk/computers/Olivetti%20M24/olivetti_m24.php\">Olivetti&nbsp;M24</a>.",
 			Picture: Picture{
 				Title:       "The Olivetti M24",
 				Jpg:         "olivetti-m24.jpg",
@@ -969,8 +976,10 @@ func Collection() Milestones {
 		{
 			Title: "The first 16 color EGA game", Year: 1986, Month: 3,
 			Lead: "Accolade's Mean 18", LinkTitle: "the moby games entry",
-			Link:    "https://www.mobygames.com/game/152/mean-18/",
-			Content: "It may seem strange today, but golf games were popular in the 1980s and 1990s. The real-life sport was aspirational for plenty of white collar US and Japanese workers, so it isn't surprising that video game golf simulations targeting expensive computer platforms and arcades became popular.",
+			Link: "https://www.mobygames.com/game/152/mean-18/",
+			Content: "It may seem strange today, but golf games were popular in the 1980s and 1990s. " +
+				"Real-life sports were aspirational for many white-collar US and Japanese workers, " +
+				"so it isn't surprising that video game golf simulations targeting expensive computer platforms and arcades have become popular.",
 			Picture: Picture{
 				Title:       "Mean 18",
 				Alt:         "Mean 18 by Accolade screenshot",
@@ -982,9 +991,10 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The earliest PC loaders", Year: 1986, Month: 6, Highlight: true,
-			Content: "<p><strong>Loaders</strong> were named as they would be the first thing to load and display each time the cracked game is run. " +
+			Content: "<p><strong>Loaders</strong> acted as they were named, given that they would be the first thing to load and display each time the cracked game was run. " +
 				"These screens were static images in the early days and sometimes contained ripped screens from other games. Some users found these annoying and a cause of unwanted file bloat.</p>" +
-				"<p>The first static loaders originated on the Apple&nbsp;II underground, such as <a href=\"http://artscene.textfiles.com/intros/APPLEII/cbaseball.gif\">this example</a> by The Digital Gang for the crack release of Championship Baseball that likely came out in 1983.</p>",
+				"<p>The first static loaders originated on the Apple&nbsp;II underground, such as <a href=\"http://artscene.textfiles.com/intros/APPLEII/cbaseball.gif\">this example</a> " +
+				"by The&nbsp;Digital&nbsp;Gang for the crack release of Championship&nbsp;Baseball that likely came out in 1983.</p>",
 			List: Links{
 				{LinkTitle: "Atarisoft's Gremlins by Mr. Turbo", Link: "/f/b44cac"},
 				{LinkTitle: "Exodus: Ultima 3 by ESP Pirates", Link: "/f/a83eec"},
@@ -1015,7 +1025,7 @@ func Collection() Milestones {
 			Lead: "On the Commodore 64 and Amiga", LinkTitle: "about the early days of Fairlight",
 			Link: "http://janeway.exotica.org.uk/target.php?idp=6375&idr=1940&tgt=1",
 			Content: "<strong>Fairlight</strong>, one of the oldest brands in the Scene, is founded in <strong>Sweden</strong> with just three members. " +
-				"The group cracked and released demos exclusively for the Commodore&nbsp;64 and Amiga platforms before expanding to consoles and the <a href=\"/f/b04615\">PC in February 1991</a>.",
+				"The group cracked and released demos exclusively for the Commodore&nbsp;64 and Amiga platforms before expanding to consoles and the <a href=\"/f/b04615\">PC</a> in February 1991.",
 			Picture: Picture{
 				Title:       "Fairlight Intro (the Legendary one)",
 				Alt:         "Commodore 64, Fairlight Intro (the Legendary one) screenshot",
@@ -1075,10 +1085,11 @@ func Collection() Milestones {
 			Title: "The first 32 color VGA game", Year: 1988, Month: 3,
 			Lead: "Arcadia's Rockford: The Arcade Game", LinkTitle: "the discussion",
 			Link: "https://forum.winworldpc.com/discussion/comment/174818/#Comment_174818",
-			Content: "<p><a href=\"https://www.mobygames.com/game/4019/rockford-the-arcade-game/\">Rockford</a> is a strange game, being a port of the arcade game of the same name—a machine, created as a port of the then-popular microcomputer videogame series, " +
+			Content: "<p><a href=\"https://www.mobygames.com/game/4019/rockford-the-arcade-game/\">Rockford</a> is a strange game. " +
+				"It is a port of the arcade game of the same name—a machine created as a port of the then-popular microcomputer video game series, " +
 				"<a href=\"https://boulder-dash.com/history/\">Boulder Dash</a>.</p>" +
-				"<p>More unusual is the use of <strong>32 color VGA</strong> for a home computer port of an arcade game on the PC, in an era when ports were done on the cheap using lowest common denominator 4 color CGA graphics. " +
-				"The crossover of players who owned expensive VGA graphic cards and monitors in 1988 who were playing arcade ports was probably low.</p>",
+				"<p>More unusual is the use of <strong>32-color VGA</strong> for a home computer port of an arcade game on the PC in an era when ports were done on the cheap using the lowest common denominator four-color CGA graphics. " +
+				"The crossover of players who owned expensive VGA graphic cards and monitors in 1988 who were playing arcade ports was low.</p>",
 			Picture: Picture{
 				Title:       "Rockford: The Arcade Game",
 				Alt:         "Rockford: The Arcade Game screenshot",
@@ -1089,10 +1100,11 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest, standalone elite BBS advert", Year: 1988, Month: 4, Day: 4, Highlight: false,
+			Title: "Earliest, standalone elite BBS advert ?", Year: 1988, Month: 4, Day: 4, Highlight: false,
 			Lead: "Swashbucklers II", LinkTitle: "the file",
 			Link: "/f/b844ef",
-			Content: "<p>While novel in 1988, <strong>BBS adverts</strong> like these would plague releases as spam in the years to come, with boards injecting numerous texts and tagging the releases with their names, often under the guise of documentation or readme texts.</p>" +
+			Content: "<p>While novel in 1988, <strong>BBS adverts</strong> like these would plague releases as spam in the years to come, " +
+				"with boards injecting numerous texts and tagging the releases with their names, often under the guise of documentation or readme texts.</p>" +
 				"<pre>Another Quality Ware Downloaded off:<br>" +
 				"S W A S H B U C K L E R S   I I<br>" + "Home of PTL/CPI<br>" +
 				"100 megs Online!<br>" +
@@ -1108,10 +1120,10 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest NFO-like text document", Year: 1988, Month: 7, Day: 30, Highlight: false,
+			Title: "Earliest NFO-like text document ?", Year: 1988, Month: 7, Day: 30, Highlight: false,
 			Lead: "Bentley Sidwell Productions", LinkTitle: "the file", Link: "/f/ad417f",
 			Content: "<p><strong>NFO</strong> information text files are usually distributed with pirated software to provide usage instructions, promote the release group, and occasionally encourage group propaganda.</p>" +
-				"<p>Bentley Sidwell Productions may have released the earliest NFO-like document for the 1988 game <a href=\"https://www.mobygames.com/game/9093/romance-of-the-three-kingdoms/cover/group-9976/cover-249195/\">Romance of The Three Kingdoms</a>.</p>" +
+				"<p>Bentley Sidwell Productions may have released the earliest NFO-like document for the 1988 <a href=\"https://www.mobygames.com/game/9093/romance-of-the-three-kingdoms/cover/group-9976/cover-249195/\">Romance of The Three Kingdoms</a> game.</p>" +
 				"<pre>" +
 				"************************************************************************" + br +
 				br +
@@ -1134,10 +1146,10 @@ func Collection() Milestones {
 				"Nothing to edit... nothing.</pre>",
 		},
 		{
-			Title: "The earliest ASCII art on PC", Year: 1988, Month: 10, Day: 6, Highlight: true,
+			Title: "The earliest ASCII art on PC ?", Year: 1988, Month: 10, Day: 6, Highlight: true,
 			Lead: "Another quality ware from $print", LinkTitle: "and view the file", Link: "/f/ab3dc1",
-			Content: "The earliest <strong>ASCII art</strong> known so-far is released by $print for the game " +
-				"Fire Power. The ASCII text logo is relatively crude and is not as detailed as later ASCII art. " +
+			Content: "<strong>$print</strong> for the game Fire Power released the earliest known <strong>ASCII art</strong>. " +
+				"The ASCII text logo is relatively crude and less detailed than later ASCII art. " +
 				"<pre> ╔═══════════════════════════════╗<br>" +
 				"╔╝      Another Quality Ware     ╚╗<br>" +
 				"║          F  R  O  M             ║<br>" +
@@ -1157,12 +1169,13 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "The earliest PC Scene drama", Year: 1988, Month: 11, Day: 25,
+			Title: "The earliest PC Scene drama ?", Year: 1988, Month: 11, Day: 25,
 			Lead: "TNWC accusing PTL of stealing a release", LinkTitle: "and view the file",
 			Link: "/f/aa356d",
-			Content: "<p>The earliest <strong>scene drama</strong> known so far involves a release by <a href=\"/g/the-north-west-connection\">The North West Connection</a> (TNWC) for the game Paladin. " +
-				"The drama accuses <a href=\"/g/ptl-club?\">PTL Club</a> of stealing and \"re-releasing\" an early game released by TNWC. " +
-				"Scene drama often involves texts that call out other groups for poor behavior, breaking commonly accepted rules, or being \"lame\".</p>" +
+			Content: "<p>The earliest <strong>scene drama</strong> known so far involves a release by " +
+				"<a href=\"/g/the-north-west-connection\">The&nbsp;North&nbsp;West&nbsp;Connection</a>&nbsp;(TNWC) for the game Paladin. " +
+				"The drama accuses <a href=\"/g/ptl-club?\">PTL Club</a> of stealing and <q>re-releasing</q> an early game released by TNWC. " +
+				"Scene drama often involves texts that call out other groups for poor behavior, breaking commonly accepted rules, or being <q>lame.</q></p>" +
 				"<p><q>DO NOT TAKE THIS FILE FROM THE ARCHIVE!!!!<br>" +
 				"Well unlike PTL I won't sacrifice some game code to put up a fancy title screen for the group that released this (TNWC). " +
 				"This is officially out third release, but really it's our second major one since PTL took Paladin and \"re-released\" it by taking off the doc check.<br>" +
@@ -1187,8 +1200,10 @@ func Collection() Milestones {
 		{
 			Title: "The first 256 color VGA game", Year: 1989, Month: 3,
 			Lead: "688 Attack Sub from Electronic Arts", LinkTitle: "the mobygames page",
-			Link:    "https://www.mobygames.com/game/2099/688-attack-sub",
-			Content: "Driving, flying, and military simulation games were once a popular genre of video games on the PC. Before dedicated <abbr title=\"graphics processing unit\">GPUs</abbr> existed, this genre created demanding open-world landscapes requiring expensive CPUs and even co-processors! Which was great for those with high-end hardware who wanted to show off.",
+			Link: "https://www.mobygames.com/game/2099/688-attack-sub",
+			Content: "Driving, flying, and military simulation games were once a popular genre of video games on the PC. " +
+				"Before dedicated <abbr title=\"graphics processing unit\">GPUs</abbr> existed, this genre created demanding open-world landscapes requiring expensive CPUs and even co-processors! " +
+				"Which was great for those with high-end hardware who wanted to show off.",
 			Picture: Picture{
 				Title:       "688 Attack Sub",
 				Alt:         "688 Attack Sub in-game screenshot",
@@ -1199,10 +1214,12 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest ANSI loader", Year: 1989, Month: 3,
-			Lead: "The Rogues Gallery", LinkTitle: "the file",
+			Title: "Earliest ANSI loader ?", Year: 1989, Month: 3,
+			Lead: "The Rogues Gallery", LinkTitle: "and view the loader",
 			Link: "/f/ad21da8",
-			Content: "<p><strong>ANSI loaders</strong> were text files with ASCII escape control characters to provide color and cursor movement. However, a specific display driver on IBM and other PCs often needed to load at boot before viewing the texts. So, to avoid this, Sceners converted their ANSI artworks into simple, self-displaying applications or \"loaders.\"</p>" +
+			Content: "<p><strong>ANSI loaders</strong> were text files with ASCII escape control characters to provide color and cursor movement. " +
+				"However, a specific display driver on IBM and other PCs often needed to load at boot before viewing the texts. " +
+				"So, to avoid this, Sceners converted their ANSI artworks into simple, self-displaying applications or <q>loaders.</q></p>" +
 				"<p><a href=\"https://demozoo.org/bbs/1762/\">The Rogues Gallery</a> (+516-361-9846) was a BBS based in Long Island, New York.</p>",
 			Picture: Picture{
 				Title: "Rogues Gallery BBS",
@@ -1212,13 +1229,12 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest PC intro", Year: 1989, Month: 4, Highlight: true,
-			Lead: "First intro by Sorcerers", LinkTitle: "the file",
+			Title: "Earliest PC intro ?", Year: 1989, Month: 4, Highlight: true,
+			Lead: "First intro by Sorcerers", LinkTitle: "and run the intro",
 			Link: "/f/ab2843",
-			Content: "An <strong>intro</strong> or the later cractrkro are small, usually short, demonstration programs designed to display text with are or animations. " +
-				"Oddly, this first intro was created by a group of teenagers out of <strong>Findland</strong>, a country not known for its use of the expensive PC platform. " +
-				"<br>Other more popular 16-bit platforms such as the Commodore Amiga and Atari&nbsp;ST offered much better graphics and audio than CGA on the PC.",
-
+			Content: "<p>An <strong>intro</strong>, or the later cracktro, is a small, usually short, demonstration program designed to display text with graphics or animations. " +
+				"Oddly, the <q>First Intro</q> was written by some teenagers in Finland, a country not known for using expensive PC platforms.</p>" +
+				"<p>Other popular 16-bit microcomputers, such as the Commodore Amiga and Atari ST, offered much better graphics and audio than CGA on the PC.</p>",
 			Picture: Picture{
 				Title: "First intro by Sorcerers",
 				Alt:   "First intro by Sorcerers screenshot",
@@ -1227,13 +1243,13 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest PC cracktro", Year: 1989, Month: 4, Day: 29, Highlight: true,
-			Lead: "Future Brain Inc", LinkTitle: "and run the cracktro",
+			Title: "Earliest PC cracktro ?", Year: 1989, Month: 4, Day: 29, Highlight: true,
+			Lead: "Future Brain Inc.", LinkTitle: "and run the cracktro",
 			Link: "/f/b83fd7",
-			Content: "This first <strong>cracktro</strong> is released by Future Brain Inc for the game <a href=\"https://www.mobygames.com/game/2161/lombard-rac-rally/cover/group-99392/cover-270796/\">Lombard RAC Rally</a>. " +
-				"Future Brain Inc were a group from the <strong>Netherlands</strong>, and were one of the first groups to release cracktros on the PC platform.<br>" +
-				"Early cracktros on the PC platform lacked music, and were usually a simple screen of text and a logo. " +
-				"On other platforms, the Commodore&nbsp;64, Amiga 500, and Atari&nbsp;ST, cracktros offered music and graphic effects which were easier to create due to their unified hardware. ",
+			Content: "<p><strong>Future Brain Inc.</strong>, a group from the <strong>Netherlands</strong> that was among the first to release a cracktro on the PC platform, " +
+				"released this for the game <a href=\"https://www.mobygames.com/game/2161/lombard-rac-rally/cover/group-99392/cover-270796/\">Lombard RAC Rally</a>.</p>" +
+				"<p>Early cracktros on the PC lacked music and were usually a simple screen of text and a logo. " +
+				"On other microcomputer platforms, the Commodore&nbsp;64, Amiga&nbsp;500, and Atari&nbsp;ST, cracktros offered music and graphic effects that were easier to create due to their unified hardware.</p>",
 			Picture: Picture{
 				Title: "Lombard RAC Rally cracktro",
 				Alt:   "Lombard RAC Rally cracktro screenshot",
@@ -1243,14 +1259,15 @@ func Collection() Milestones {
 		},
 		{
 			Title: "First issue of Pirate magazine", Year: 1989, Month: 6, Day: 1,
-			Lead: "The earlist known scene newsletter for the Scene on the PC", LinkTitle: "the issues",
+			Lead: "The earliest known scene newsletter for the Scene on the PC", LinkTitle: "the issues",
 			Link: "/g/pirate",
-			Content: "<p>Created in Chicago, Pirate magazine was a bi-monthly text newsletter for the Scene on the PC platform and distributed through bulletin boards. It ran for at least five issues between June 1989 and April 1990.</p>" +
-				"<q>What's a pirate? COMPUTER PIRACY is copying and distribution of copyright software (warez). Pirates are hobbyists who enjoy collecting and playing with the latest programs. " +
+			Content: "<p>Created in Chicago, Pirate magazine was a bi-monthly text newsletter for the Scene on the PC platform and distributed through bulletin boards. " +
+				"It ran for at least five issues between June 1989 and April 1990.</p>" +
+				"<p><q>What's a pirate? COMPUTER PIRACY is copying and distribution of copyright software (warez). Pirates are hobbyists who enjoy collecting and playing with the latest programs. " +
 				"Most pirates enjoy collecting warez, getting them running, and then generally archive them, or store them away. A PIRATE IS NOT A BOOTLEGGER. " +
 				"Bootleggers are to piracy what a chop-shop is to a home auto mechanic. Bootleggers are people who DEAL stolen merchandise for personal gain. " +
 				"Bootleggers are crooks. They sell stolen goods. Pirates are not crooks, and most pirates consider bootleggers to be lower life forms...</q>" +
-				"<br><q>Pirates SHARE warez to learn, trade information, and have fun! But, being a pirate is more than swapping warez. It's a life style and a passion.</q>",
+				"<br><q>Pirates SHARE warez to learn, trade information, and have fun! But, being a pirate is more than swapping warez. It's a life style and a passion.</q></p>",
 		},
 		{
 			Year: 1989, Prefix: notable,
@@ -1277,30 +1294,39 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Origin of the \".NFO\" file extension", Year: 1990, Month: 1, Day: 23, Highlight: true,
-			Lead: "The Humble Guys, Knights of Legend or Bubble Booble", LinkTitle: "the file",
+			Title: "\".NFO\" file extension origins", Year: 1990, Month: 1, Day: 23, Highlight: true,
+			Lead: "The Humble Guys, Knights of Legend or Bubble Booble", LinkTitle: "the Knights text file",
 			Link: "/f/ab3945",
 			Content: "<code>KNIGHTS.NFO</code> <small>or</small> <code>BUBBLE.NFO</code><br>" +
-				"<p>The <code>.NFO</code> file extension is used to denote a text file containing information about a release. " +
+				// extension
+				"<p>The <strong>.NFO</strong> file extension denotes a text file containing information about a release. " +
 				"Still in use today, the dot nfo file contains information about the release group, the release itself, and how to install.</p>" +
-				"<p>While disputed, it is not too important which release from <strong>The Humble Guys</strong> is the first to use the dot \"nfo\" file extension. " +
-				"The timestamps of the release files suggest the text file for Knights of Legend predates Bubble Bobble by a few days. But famed, former cracker Fabulous Furlough has always stated Bubble Bobble was the release that first used the naming standard.</p>" +
+				// thg
+				"<p>While disputed, it is not too important which release from <strong>The Humble Guys</strong> is the first to use the dot <q>nfo</q> file extension. " +
+				// knights
+				"The timestamps of the release files suggest the text file for Knights of Legend predates Bubble Bobble by a few days. " +
+				"But famed, former cracker Fabulous Furlough has always stated Bubble Bobble was the release that first used the naming standard.</p>" +
+				// bubble bobble
 				"<p>Bubble Bobble was the far more notable game of the era and may have been the more memorable game title when recalling the event. " +
-				"Meanwhile, Knights didn't require a crack, and the filenaming convention was possibly retroactively applied.</p>" +
-				"<figure><blockquote class=\"blockquote\"><q><small>It happened like this, I'd just used <a href=\"http://nerdlypleasures.blogspot.com/2011/05/scourge-of-preservation-disk-based-copy.html\">\"Unguard\"</a> to crack the SuperLock off of <a href=\"/f/ad4195\">Bubble Bobble</a>, and I said \"I need some file to put the info about the crack in. Hmmm.. Info, NFO!\", and that was it.</small></q></blockquote>" +
+				"Meanwhile, Knights didn't require a crack, and the file naming convention was possibly retroactively applied.</p>" +
+				// quote
+				"<figure><blockquote class=\"blockquote\"><q><small>It happened like this, I'd just used " +
+				"<q><a href=\"http://nerdlypleasures.blogspot.com/2011/05/scourge-of-preservation-disk-based-copy.html\">Unguard</a></q> " +
+				"to crack the SuperLock off of <a href=\"/f/ad4195\">Bubble&nbsp;Bobble</a>, and I said " +
+				"<q>I need some file to put the info about the crack in. Hmmm.. Info, NFO!</q>, and that was it.</small></q></blockquote>" +
 				"<figcaption class=\"blockquote-footer\">Famed, former cracker for The Humble Guys, Fabulous Furlough recalls Bubble Bobble as the first THG release that used the .NFO file extension.</figcaption></figure>" +
-				"<p><q>Bubble Bobble by Nova Logic Through Taito<br>Broken by Fabulous Furlough<br>Normal Taito Loader - 5 minutes</q></p>" +
-				"<p><q>Knights of Legend by Origin Systems<br>It seems to be unprotected, if you find anything leave us a message..</q></p>",
+				"<p>Notes from each file.</p>" +
+				"<p><pre>Bubble Bobble by Nova Logic Through Taito<br>Broken by Fabulous Furlough<br>Normal Taito Loader - 5 minutes</pre></p>" +
+				"<hr>" +
+				"<p><pre>Knights of Legend by Origin Systems<br>It seems to be unprotected, if you find anything leave us a message..</pre></p>",
 		},
 		{
-			Title: "Earliest PC cracktro with music", Year: 1990, Month: 12, Day: 2,
+			Title: "Earliest PC cracktro with music ?", Year: 1990, Month: 12, Day: 2,
 			Lead: "The Cat, M1 Tank Plattoon", LinkTitle: "about and view cractrko",
 			Link: "/f/ab25f0e",
-			Content: "<p>This <strong>cracktro</strong> was released by The Cat for the game <a class=\"text-nowrap\" href=\"https://www.mobygames.com/game/1499/m1-tank-platoon/cover/group-3004/cover-230986/\">M1 Tank Platoon</a>. " +
-				"It is the first known cracktro on the PC platform to feature music. " +
-				"But <em>music</em> in a loose sense, as it relies on the terrible internal PC speaker to produce the melody.</p>" +
-				"<p>While the 8-bit consoles and some microcomputers offered dedicated music audio chips, most famously the Commodore&nbsp;64 with its SID chip, " +
-				"the IBM&nbsp;PC which targeted business did not.</p>",
+			Content: "<p>The Cat released this cracktro for the game <a class=\"text-nowrap\" href=\"https://www.mobygames.com/game/1499/m1-tank-platoon/cover/group-3004/cover-230986/\">M1 Tank Platoon</a>. " +
+				"It is the first known cracktro on the PC platform to feature music. But music is in a loose sense, as it relies on the terrible internal PC speaker to produce the melody.</p>" +
+				"<p>While 8-bit consoles and some microcomputers offered dedicated music audio chips, most famously the Commodore 64 with its SID chip, the IBM PC, which targeted business, did not.</p>",
 			Picture: Picture{
 				Title: "Tank Platoon cracktro",
 				Alt:   "Tank Platoon cracktro screenshot",
@@ -1314,17 +1340,19 @@ func Collection() Milestones {
 			LinkTitle: "The Sound Blaster Story", Link: "https://www.custompc.com/retro-tech/the-sound-blaster-story",
 			Content: "<p>The <strong>Sound Blaster</strong> audio standard came about in 1990 after the Sound Blaster 1.5 audio card was released by Creative Labs, with the box proudly proclaiming" +
 				" it <q><a href=\"https://vgmpf.com/Wiki/index.php?title=File:Sound_Blaster_1.5_-_Box_-_Back.jpg\">The PC Sound Standard</a></q>. " +
-				"It was the first digital audio standard for the IBM&nbsp;PC to be widely adopted on the PC platform, despite its poor quality, mono 8-bit digital audio." +
+				"It was the first digital audio standard for the IBM&nbsp;PC to be widely adopted on the PC platform, despite its poor quality, mono 8-bit digital audio. " +
 				"Previous audio standards such as the AdLib and the MT-32, were limited to FM synthesis or MIDI-like samples.</p>" +
 				"<p>The Sound Blaster was the first audio standard widely adopted by the PC platform and was the de facto audio option in games for many years.</p>",
 		},
 		{
 			Title: "CD-ROM multimedia", Year: 1990, Prefix: "Winter",
-			Lead: "Mixed-Up Mother Goose", LinkTitle: "the Catalog listing the game",
+			Lead: "Mixed-Up Mother Goose", LinkTitle: "the catalog listing the game",
 			Link: "https://archive.org/details/vgmuseum_sierra_sierra-90catalog-alt3/page/n21",
 			Content: "<p>The first widely available enhanced PC game on <strong>CD-ROM</strong> was <a href=\"https://www.mocagh.org/sierra/mothergoose-alt-manual.pdf\">Mixed-Up Mother Goose</a>, announced by Sierra On-Line in 1990 and released in 1991. " +
-				"The children's game was a high-technology remake of <a href=\"https://www.mobygames.com/game/758/mixed-up-mother-goose/cover/group-27001/cover-70129/\">a fun title from 1987</a>, but the CD-ROM remake featured new, enhanced VGA graphics and interface, digital audio with speech, singing, and music.</p>" +
-				"<p>With the newest of the technology and a lack of standards for CD media, <a href=\"https://sierrachest.com/index.php?a=games&id=544&title=mother-goose-vga&fld=box&pid=3\">the box came with two identical discs</a>, one red and one blue. The red disc supported Red Book CD audio, while the blue disc lower quality digital samples playback.</p>",
+				"The children's game was a high-technology remake of <a href=\"https://www.mobygames.com/game/758/mixed-up-mother-goose/cover/group-27001/cover-70129/\">a fun title</a> from 1987, but the CD-ROM remake featured new, enhanced VGA graphics and interface, digital audio with speech, singing, and music.</p>" +
+				"<p>With the newest technology and a lack of standards for CD media, <a href=\"https://sierrachest.com/index.php?a=games&id=544&title=mother-goose-vga&fld=box&pid=3\">the box</a> " +
+				"came with two identical discs, one red and one blue. " +
+				"The red disc supported Red Book CD audio, while the blue disc supported lower-quality digital playback samples.</p>",
 		},
 		{
 			Year: 1990, Prefix: notable,
@@ -1359,9 +1387,10 @@ func Collection() Milestones {
 		{
 			Title: "The contemporary PC cracktro", Year: 1991, Month: 3, Day: 12, Highlight: true,
 			Lead: "The Dream Team Presents Blues Brothers", LinkTitle: "about and view the cracktro", Link: "/f/b249b1",
-			Content: "A collaboration of <a href=\"/g/the-dream-team\">The Dream Team</a> with <a href=\"/g/tristar-ampersand-red-sector-inc\">Tristar &amp; Red Sector Inc.</a> released this 1991 <strong>cracktro</strong>. " +
-				"TDT founder <a href=\"/p/hard-core\">Hard Core</a> programmed it, which is the first known cracktro on the PC platform to feature a modern presentation with a logo, music, and a scroller. " +
-				"Cracktros on the PC platform had previously been limited to primarily static logo screens or, in the case of the earliest cracktros, no graphics.",
+			Content: "This 1991 cracktro was released by a collaboration of " +
+				"<a href=\"/g/the-dream-team\">The Dream Team</a> with <a href=\"/g/tristar-ampersand-red-sector-inc\">Tristar, and Red Sector Inc.</a>. " +
+				"Dream Team founder <a href=\"/p/hard-core\">Hard Core</a> programmed it, which is the first known cracktro on the PC platform to feature a modern presentation with a logo, music, and a scroller. " +
+				"Cracktros on the PC had previously been limited to primarily static logo screens or, in the case of the earliest cracktros, no graphics.",
 			Picture: Picture{
 				Title: "Blues Brothers cracktro",
 				Alt:   "Blues Brothers cracktro screenshot",
@@ -1465,24 +1494,27 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest CD image release", Year: 1994, Month: 11, Day: 17, Highlight: true,
+			Title: "Earliest CD image release ?", Year: 1994, Month: 11, Day: 17, Highlight: true,
 			Lead: "ROM 1911", LinkTitle: "about the release", Link: "/f/ab3e0b",
-			Content: "<p>The earliest known release was a <strong>CD image</strong> of the game <a href=\"https://www.mobygames.com/game/3350/hurl/cover/group-2469/cover-13273/\">Slob Zone</a> later known as H.U.R.L.</p>" +
+			Content: "<p>The earliest known release was a <strong>CD image</strong> of the game " +
+				"<a href=\"https://www.mobygames.com/game/3350/hurl/cover/group-2469/cover-13273/\">Slob Zone</a> later known as HURL. " +
 				"CD images were generally disliked in the Scene, as they had no copy protection to crack and occupied too much space on the file site or bulletin board's costly hard drives. " +
-				"<p>ROM 1911 was used by Razor 1911 as a dumping ground for CD titles.</p>" +
+				"<p>The <q>ROM 1911</q> brand was used by Razor 1911 as a dumping ground for CD titles.</p>" +
 				"<q>ROM 1911 is dedicated to bringing you the best CD titles available on PC, with a catch : we must be able to zip these games down to 10 1.44 meg files or less, or we won't release it. " +
 				"We know that a large portion of the scene would like to play these games, but the size of many CD titles is prohibitive to the pirate gamer. But not all games are too big to release! Which brings us here ..</q>",
 		},
 		{
 			Title: "Copyright infringement legal precedent", Year: 1994, Month: 12, Day: 28, Highlight: true,
-			Lead: "No criminal liability for the sharing of software", LinkTitle: "David LaMacchia Defense Fund with press releases", Link: "https://web.archive.org/web/19990224000548/http://photo.net/dldf/home.html",
-			Content: "In April 1994, David LaMacchia, a 20 year old junior at the Massachusetts Institute of Technology, <a href=\"/f/b628640\">is indicted</a> for conspiring to commit wire fraud. A 1950s law intended to stop defrauding another out of money using the U.S. landline telephone network. " +
-				"<br>David ran two anonymous <a href=\"https://fsp.sourceforge.net/index.html\">File Service Protocol</a> sites using MIT's internal network connected to the Internet to share software with users without financial gain. The primary site, <a href=\"https://web.archive.org/web/19991018194139/http://photo.net/dldf/indictment.html\">Cynosure, offered downloads, while Cynosure II</a> also permitted uploads with requests." +
-				"<p></p>Months later, David's defense lawyers filed a motion to dismiss, " +
-				"<q>LaMacchia contends that the indictment invents a criminal charge, primarily by distorting the wire fraud statute, in order to circumvent Congress's decision not to apply a criminal sanction to LaMacchia's alleged conduct.</q>" +
-				"<br>And just days after Christmas, the motion to dismiss was allowed by District Judge Stearns." +
-				"<br><q>The Court dismissed the indictment, holding that <strong>there was no clearly expressed Congressional intent to permit prosecution of copyright " +
-				"infringement</strong> under the wire fraud statute. There was no allegation that LaMacchia infringed copyrighted software for commercial advantage or private financial gain.</q>",
+			Lead: "No criminal liability for the sharing of software", LinkTitle: "the David LaMacchia Defense Fund with press releases", Link: "https://web.archive.org/web/19990224000548/http://photo.net/dldf/home.html",
+			Content: "<p>In April 1994, David LaMacchia, a 20-year-old junior at the Massachusetts Institute of Technology, was <a href=\"/f/b628640\">indicted</a> for conspiring to commit wire fraud. " +
+				"A 1950s law intended to stop defrauding another out of money using the U.S. landline telephone network.</p>" +
+				"<p>David ran two anonymous <a href=\"https://fsp.sourceforge.net/index.html\">File Service Protocol</a> sites using MIT's internal network connected to the Internet to share software with users without financial gain. " +
+				"The primary site, <a href=\"https://web.archive.org/web/19991018194139/http://photo.net/dldf/indictment.html\">Cynosure</a>, offered downloads, while Cynosure II also permitted uploads with requests.</p>" +
+				"<p>Months later, David's defense lawyers filed a motion to dismiss, " +
+				"<q>LaMacchia contends that the indictment invents a criminal charge, primarily by distorting the wire fraud statute, in order to circumvent Congress's decision not to apply a criminal sanction to LaMacchia's alleged conduct.</q></p>" +
+				"<p>And just days after Christmas, the motion to dismiss was allowed by District Judge Stearns.</p>" +
+				"<p><q>The Court dismissed the indictment, holding that <u>there was no clearly expressed Congressional intent to permit prosecution of copyright infringement</u> " +
+				"under the wire fraud statute. There was no allegation that LaMacchia infringed copyrighted software for commercial advantage or private financial gain.</q></p>",
 		},
 		{
 			Year: 1994, Prefix: notable,
@@ -1499,9 +1531,9 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest CD-RIP release", Year: 1995, Month: 6, Day: 3, Highlight: true,
+			Title: "Earliest CD-RIP release ?", Year: 1995, Month: 6, Day: 3, Highlight: true,
 			Lead: "Hybrid", LinkTitle: "about the release", Link: "/f/a938e5",
-			Content: "<p>A play on the media, CD-ROM, the earliest known <strong>CD-RIP</strong> (later simplified to \"rip\") release, was by Hybrid for the game <a href=\"https://www.mobygames.com/game/3328/virtual-pool/cover/group-119259/cover-316591/\">Virtual Pool from Interplay</a>. " +
+			Content: "<p>A play on the media, CD-ROM, the earliest known <strong>CD-RIP</strong> (later simplified to <q>rip</q>) release, was by Hybrid for the game <a href=\"https://www.mobygames.com/game/3328/virtual-pool/cover/group-119259/cover-316591/\">Virtual Pool</a> from Interplay. " +
 				"Hybrid was a group formed by ex-members of <a href=\"/g/pyradical\">Pyradical</a> and <a href=\"/g/pentagram\">Pentagram</a>.</p>" +
 				"The <u>CD RIP</u> type came about due to CD-ROM-only games being unable to get a proper Scene release. For PC game publishers, " +
 				"CD-ROMs were cheaper to produce and had far more storage capacity than the standard floppy disks. However, large hard drives were too expensive to store the content of complete CD images. " +
@@ -1510,20 +1542,27 @@ func Collection() Milestones {
 		{
 			Title: "Windows 95 warez release", Year: 1995, Month: 8, Day: 12,
 			Lead: "Drink or Die", Link: "/f/bb2b71f", LinkTitle: "about the release",
-			Content: "<p><strong>Drink or Die</strong> became notorious for releasing the CD media for the box retail edition of <strong>Windows&nbsp;95</strong> two weeks before the official worldwide release.</p>" +
+			Content: "<p><strong>Drink or Die</strong> became notorious for releasing the CD media for the box retail edition of <strong>Windows&nbsp;95</strong> " +
+				"two weeks before the official worldwide release.</p>" +
 				"<p>In an era when global, same-day product launches were logistically costly and uncommon, this operating system launch was probably the most hyped Microsoft consumer product ever. " +
-				"Over a decade before Apple cemented the marketing tactic, <a href=\"https://rarehistoricalphotos.com/windows-95-launch-day-1995/\">Windows 95 had fans queuing at midnight in retail stores worldwide</a>.</p>" +
+				"Over a decade before Apple cemented the marketing tactic, Windows 95 had fans <a href=\"https://rarehistoricalphotos.com/windows-95-launch-day-1995/\">queuing&nbsp;at&nbsp;midnight</a> in retail stores worldwide.</p>" +
 				"<p>The release also highlighted a significant problem for software and game publishers: for pirates to get access to the retail packaging weeks before launch meant some company employees were either members of these warez groups or receiving kickbacks.</p>" +
 				"<p>Years later, competitor <a href=\"/g/pirates-with-attitudes\">Pirates With Attitudes</a> would release the <a href=\"/f/a52a8c\" class=\"text-nowrap\">Windows 98 media</a> five weeks and <a href=\"/f/b42e2f6\">Windows 2000</a> two months before the official launches! " +
-				"But in the following decade, a global, coordinated law enforcement effort would take down both groups.</p>" +
-				"<p>The other Microsoft-sourced releases from DOD during this two-week period were the Windows 95 <a href=\"/f/b82406f\" class=\"text-nowrap\">floppy edition</a>, <a href=\"/f/b721b5\" class=\"text-nowrap\">upgrade edition</a>, <a href=\"/f/b92697\" class=\"text-nowrap\">Plus Pack</a>, Microsoft <a href=\"/f/ba28e0f\">BOB</a>, and <a href=\"/f/bc2dc2f\">Word</a>.</p>",
+				"However, a global, coordinated law enforcement effort would take down both groups in the following decade.<sup><a href=\"#windows-95-warez-release-fn1\">[1]</a></sup></p>" +
+				"<p>The other Microsoft-sourced releases from DOD during these two weeks were the Windows 95 <a href=\"/f/b82406f\" class=\"text-nowrap\">floppy edition</a>, <a href=\"/f/b721b5\" class=\"text-nowrap\">upgrade edition</a>, <a href=\"/f/b92697\" class=\"text-nowrap\">Plus Pack</a>, Microsoft <a href=\"/f/ba28e0f\">BOB</a>, and <a href=\"/f/bc2dc2f\">Word</a>.</p>" +
+				"<section>" +
+				"<div id=\"windows-95-warez-release-fn1\">[1] In <a href=\"#the-copy-party-is-over\">Operation Cyberstrike</a> and <a href=\"#the-global-takedown-of-drink-or-die\">Operation Buccaneer</a>.</div>" +
+				"</section>",
 		},
 		{
 			Title: "Windows 95", Year: 1995, Month: 8, Day: 24,
 			Lead: "Worldwide retail release", LinkTitle: "about the day in history",
 			Link: "https://www.theverge.com/21398999/windows-95-anniversary-release-date-history",
-			Content: "<p>Microsoft's biggest and most hyped mainstream product release was hugely successful in the market and finally began the PC's transition away from the archaic IBM and Microsoft DOS <small>(Disk&nbsp;Operating&nbsp;System)</small>.</p>" +
-				"<p>Windows 95 had been a long time coming, over a decade late, and offered a fully graphical user interface as the default. It also introduced <a href=\"https://arstechnica.com/gadgets/2015/08/the-windows-start-menu-saga-from-1993-to-today/\">the famed Start menu concept</a> that would later become favored by many Windows and, ironically, <a href=\"https://fossforce.com/2019/07/why-gnome-2-continues-to-win-the-desktop-popularity-contest/\">desktop Linux users</a>.</p>",
+			Content: "<p>Microsoft's biggest and most hyped mainstream product release was hugely successful in the market and " +
+				"finally began the PC's transition away from the archaic IBM and Microsoft DOS <small>(Disk&nbsp;Operating&nbsp;System)</small>.</p>" +
+				"<p>Windows 95 had been a long time coming, over a decade late, and offered a fully graphical user interface as the default. " +
+				"It also introduced the famed <a href=\"https://arstechnica.com/gadgets/2015/08/the-windows-start-menu-saga-from-1993-to-today/\">Start menu</a> concept " +
+				"that would later become favored by many Windows and, ironically, <a href=\"https://fossforce.com/2019/07/why-gnome-2-continues-to-win-the-desktop-popularity-contest/\">desktop</a> Linux users.</p>",
 			Picture: Picture{
 				Title: "Windows 95 startup",
 				Alt:   "Windows 95 startup screenshot",
@@ -1554,7 +1593,7 @@ func Collection() Milestones {
 			Lead: "Razor 1911 Tenth Anniversary CD-ROM", LinkTitle: "the order form", Link: "/f/a42df1",
 			Content: "<p>The first major <strong>Scene merchandise</strong> was selling a CD-ROM by <a href=\"/g/razor-1911\">Razor 1911</a> to celebrate their 10th anniversary. " +
 				"The disc was a collection of their PC releases from 1991 to 1995 and, including worldwide postage, sold for $40 each, or about the cost of a full-priced, boxed PC game. " +
-				"Before online or consumer digital transactions, buyers had to post in an envelope the physical cash and an order form to a PO Box in Florida.</p>" +
+				"Before online or consumer digital transactions, buyers had to post the physical cash and an order form in an envelope to a PO Box in Florida.</p>" +
 				"<p>The disc was controversial as <strong>reselling</strong> scene-released software was criminal and frowned upon. But its success meant other group merchandise soon followed suit, with the most popular items being branded <a href=\"/f/b4484e\">t-shirts</a>.</p>",
 			Picture: Picture{
 				Title: "Razor 1911 Tenth Anniversary CD-ROM",
@@ -1586,8 +1625,8 @@ func Collection() Milestones {
 			Title: "The first popular 3D graphics chipset", Year: 1996, Month: 10,
 			Lead: "3Dfx Voodoo 1", LinkTitle: "The Voodoo That They Righteously Do", Link: "https://computeme.tripod.com/voodoo1.html",
 			Content: "<p>The <a href=\"https://www.pixelrefresh.com/3dfx-orchid-righteous-voodoo-1-where-3d-acceleration-truly-began\">Orchid Righteous</a> is available in retail. " +
-				"Later cards from other manufacturers, such as the <a href=\"https://www.tomshardware.com/reviews/3d-accelerator-card-reviews,42-7.html\">Diamond Monster 3D</a>, quickly followed, and within a year, the 3Dfx chipset dominated the market.</p>" +
-				"<p>Before the 3Dfx Voodoo release, the fragmented 3D graphics market for consumer PCs had abysmal software support. " +
+				"Later, cards from other manufacturers, such as the <a href=\"https://www.tomshardware.com/reviews/3d-accelerator-card-reviews,42-7.html\">Diamond Monster 3D</a>, quickly followed, and within a year, the 3Dfx chipset dominated the market.</p>" +
+				"<p>Before the 3Dfx Voodoo release, consumer PCs' fragmented 3D graphics market needed more software support. " +
 				"3Dfx coordinated with publishers to target their Glide API with new game releases so gamers had confidence in their Voodoo card purchases.</p>" +
 				"<p>3Dfx also extended the life of existing PC hardware and broke the endless cycle of aggressive, expensive CPU upgrades to support the current generation of games. " +
 				"A new 3Dfx card would double the resolution, add fantastic color support, and even improve the frames-per-second on what would otherwise be an older machine.</p>",
@@ -1605,29 +1644,28 @@ func Collection() Milestones {
 		{
 			Title: "Release standards broken", Year: 1997, Month: 1, Day: 13,
 			Lead: "Hybrid presents Diablo", LinkTitle: "the release", Link: "/f/ab49cd",
-			Content: "<p>The Standards of Piracy Association <a href=\"/f/aa3b26\">CD-RIP standards</a> were <strong>broken by founding member</strong> " +
-				"Hybrid with this release of <a href=\"https://news.blizzard.com/en-us/diablo3/22887361/diablo-now-available-on-gog-com\">Diablo</a>.</p>" +
-				"Less than a year prior, <strong>SPA</strong> had agreed that <strong>CD-RIP</strong>s should be ripped to a maximum permitted size and any titles where this wasn't possible should be skipped. " +
-				"It wasn't uncommon for major games such as <a href=\"https://www.imdb.com/title/tt0131537/\">Sierra's Phantasmagoria</a> " +
-				"to be passed over by release groups due to their massive size and game play reliance on unrippable video and audio content.",
+			Content: "<p>Founding member Hybrid is the first to break the CD-RIP standard <a href=\"/f/aa3b26\">rules</a> set by The Standards of Piracy Association with the release of " +
+				"<a href=\"https://news.blizzard.com/en-us/diablo3/22887361/diablo-now-available-on-gog-com\">Diablo</a>.</p>" +
+				"<p>Less than a year prior, SPA had agreed that CD-RIPs should be ripped to a maximum permitted size and titles that weren't possible should be skipped. " +
+				"Release groups often passed over significant games such as Sierra's <a href=\"https://www.imdb.com/title/tt0131537/\">Phantasmagoria</a> due to their massive size and gameplay reliance on un-rippable video and audio content.</p>",
 			List: Links{
 				{LinkTitle: "Diablo from Razor 1911", Link: "/f/a72ced", SubTitle: "full CD rip"},
 			},
 		},
 		{
-			Title: "Earliest ISO release", Year: 1997, Month: 11, Day: 27, Highlight: true,
-			Lead: "CD Images For the Elite", LinkTitle: "the release", Link: "/f/ad40ce",
-			Content: "An <a href=\"https://www.loc.gov/preservation/digital/formats/fdd/fdd000348.shtml\">ISO is a common file archive format</a> containing the entire CD and later DVD data. It enables the copying and exact replication of data onto consumable blank discs." +
-				"<p>Trading <strong>ISO images</strong> between individuals has happened for years prior, but <a href=\"https://www.mobygames.com/game/2082/lords-of-magic/covers/\">Lords of Magic</a> was the earliest known ISO release pushed to the Scene.</p>" +
-				"<p>A formalization of an ISO trading scene occurred sometime in late 1997, but it took years before the medium became the dominant format.</p>",
+			Title: "Earliest ISO release ?", Year: 1997, Month: 11, Day: 27, Highlight: true,
+			Lead: "CD Images For the Elite ~ CiFE", LinkTitle: "the release", Link: "/f/ad40ce",
+			Content: "An <a href=\"https://www.loc.gov/preservation/digital/formats/fdd/fdd000348.shtml\">ISO</a> is a standard file archive format containing the entire CD and later DVD data. It enables the copying and exact replication of data onto consumable blank discs. " +
+				"Trading <strong>ISO images</strong> between individuals has happened for years prior, but <a href=\"https://www.mobygames.com/game/2082/lords-of-magic/covers/\">Lords of Magic</a> was the earliest known ISO release pushed to the Scene.</p>" +
+				"<p>A formalization of an ISO trading scene occurred sometime in late 1997, but it took years before the medium became the dominant format in the Scene.</p>",
 		},
 		{
-			Title: "Overnight, many Warez Scene activities become criminal", Year: 1997, Month: 12, Day: 16, Highlight: true,
-			Lead: "No Electronic Theft (NET) Act", LinkTitle: "Forbes article Stealing code", Link: "https://www.forbes.com/1997/11/28/feat.html?sh=5fc911fb2c1c",
+			Title: "Overnight, Warez becomes criminal", Year: 1997, Month: 12, Day: 16, Highlight: true,
+			Lead: "No Electronic Theft (NET) Act", LinkTitle: "the Forbes article Stealing code", Link: "https://www.forbes.com/1997/11/28/feat.html?sh=5fc911fb2c1c",
 			Content: "<p><q><strong>The NET Act</strong> was signed into law by President Clinton in December 1997, <u>making it illegal to reproduce or distribute copyrighted works</u>, such as software programs and musical recordings, even if the defendant acts without a commercial purpose or for private financial gain.</q></p>" +
-				"<p>The law is a response to the failed prosecution against David LaMacchia from a few years earlier. The dismissal of his case brought attention to the legal anomaly named after his win, <a href=\"https://www.newscientist.com/article/mg15621113-000-publish-on-the-net-and-be-damned/\">the LaMacchia loophole</a>.</p>" +
-				"<p>Under the new law, <q>if the defendant reproduces or distributes 10 or more copyrighted works that have a total value of more than $2,500, he or she can be charged with a felony, and faces a sentence of up to 3 years imprisonment and a fine of up to $250,000.</p>" +
-				"<p>A defendant who reproduces or distributes one or more copies of copyrighted works with a value of more than $1,000 can be charged with a misdemeanor, and face up to one year in prison and a fine of up to $100,000.</q></p>",
+				"<p>The law is a response to the failed prosecution against David LaMacchia from a few years earlier. The dismissal of his case brought attention to the legal anomaly named after his win, the <a href=\"https://www.newscientist.com/article/mg15621113-000-publish-on-the-net-and-be-damned/\">LaMacchia loophole</a>.</p>" +
+				"<p>Under the new law, <q>if the defendant reproduces or distributes 10 or more copyrighted works that have a total value of more than $2,500, he or she can be charged with a felony, and faces a sentence of up to 3 years imprisonment and a fine of up to $250,000. " +
+				"A defendant who reproduces or distributes one or more copies of copyrighted works with a value of more than $1,000 can be charged with a misdemeanor, and face up to one year in prison and a fine of up to $100,000.</q></p>",
 		},
 		{
 			Year: 1997, Prefix: notable,
@@ -1660,10 +1698,10 @@ func Collection() Milestones {
 		},
 		{
 			Year: 1998, Month: 4, Day: 1,
-			Title: "Starcraft", LinkTitle: "the release", Link: "/f/a9353d",
+			Title: "Starcraft", LinkTitle: "about the release", Link: "/f/a9353d",
 			Lead: "Razor 1911",
-			Content: "The credited release of StarCraft went to <a href=\"/g/razor-1911\">Razor 1911</a> and famed cracker <a href=\"/p/beowulf\">Beowulf</a>, who together put out a CD-RIP of the game. " +
-				"However, the package took time to compile and lacked the unique CD keys required to play the desirable online multiplayer." +
+			Content: "<p><a href=\"/g/razor-1911\">Razor 1911</a> and famed cracker <a href=\"/p/beowulf\">Beowulf</a> were credited with the release of StarCraft. " +
+				"Together, they released a CD-RIP of the game. However, the package took time to compile and lacked the unique CD keys required to play the desirable online multiplayer.</p>" +
 				"<p><q>Well, what can I say. This has got to be one of the hardest titles I have ever ripped. " +
 				"The crack was trivial, but ripping this game involved understanding and coding utilities for Blizzard's file packer. It is ...a veritable nightmare.</q></p>",
 			List: Links{
@@ -1680,14 +1718,15 @@ func Collection() Milestones {
 			Year:  1998,
 			Title: "ISO scene picks up steam",
 			Content: "<p>The <strong>ISO scene</strong> is still in its infancy but snowballs after some top groups start releasing with the file format.</p>" +
+				"<p>Some key events of 1998.</p>" +
 				ul0 +
 				"<li>Razor 1911 merges the separate <a href=\"/f/a82c49\">ISO division</a> back into the Razor 1911 label.</li>" +
-				"<li><a href=\"/f/ac2be5\">Fairlight returns</a> after 4-years and is exclusively releasing with the format.</li>" +
+				"<li><a href=\"/f/ac2be5\">Fairlight returns</a> after 4-years and is exclusively released with the format.</li>" +
 				"<li>The famed couriers RiSC created <a href=\"/f/b04dac\">RiSCiSO</a> to become one of the largest ISO release groups.</li>" +
 				"<li><a href=\"/f/ae48b0\">PDM ISO</a> becomes the ISO division of <a href=\"/g/paradigm\">Paradigm</a> and Zeus.</li>" +
 				"<li><a href=\"/g/dvniso\">DVNiSO</a> becomes an ISO division of Divine and Deviance.</li>" +
 				ul1 +
-				"<p>Other early users of the format include<br><a class=\"text-nowrap\" href=\"/g/cd-images-for-the-elite\">CD Images for the Elite</a> (CiFE), <a href=\"/g/kalisto\">Kalisto</a>, <a href=\"/g/isolation\">ISOlation</a>, <a class=\"text-nowrap\" href=\"/g/in-search-of-cd\">In Search of CD</a>, and CaLiSO.</p>" +
+				"<p>Other early users of the format include <a class=\"text-nowrap\" href=\"/g/cd-images-for-the-elite\">CD Images for the Elite</a> (CiFE), <a href=\"/g/kalisto\">Kalisto</a>, <a href=\"/g/isolation\">ISOlation</a>, <a class=\"text-nowrap\" href=\"/g/in-search-of-cd\">In Search of CD</a>, and CaLiSO.</p>" +
 				"<p><q>Paradigm - we do rips, we do ISO - we do it all with style</q></p>",
 		},
 		{
@@ -1702,11 +1741,14 @@ func Collection() Milestones {
 			Year:  1999,
 			Title: "3Dfx vs. Nvidia", LinkTitle: "a short story of 3dfx - 5 steps to fall", Link: "https://level2.vc/a-short-story-of-3dfx/",
 			Lead: "1999 was a complex year for PC gamers",
-			Content: "The market pioneer, 3Dfx, with its Voodoo 3 GPU, had abandoned OEM manufacturers and decided to produce both the chips and graphic boards in-house. The change, intended to boost profits, led to manufacturing and global distribution shortages and decreased retail shelf space for 3Dfx products." +
-				"<br>In the same year, Nvidia released its TNT and <strong>GeForce series</strong> of GPUs and became the go-to supplier of chips for OEM card manufacturers. Unlike 3Dfx, Nvidia was API agnostic and happy to prioritize Direct3D and OpenGL." +
-				"<br>For gamers, the new 3Dfx cards were more challenging to obtain but offered the best compatibility for 3D games of the past few years. Plus, current games ran fast with better frames per second." +
-				"<br>The high-end Nvidia products offered improved resolutions and graphic feature sets but poorer compatibility for older games developed primarily for the proprietary 3Dfx Glide API." +
-				"<br>But by the end of 2000, 3Dfx was bankrupt, having taken on too much debt and railroaded themselves into a dead-end architecture. <a href=\"https://www.cnet.com/culture/nvidia-buys-out-3dfx-graphics-chip-business\">By April 2002</a>, the company's assets and intellectual property were owned by Nvidia.",
+			Content: "<p>The market pioneer, 3Dfx, with its Voodoo 3 GPU, had abandoned OEM manufacturers and decided to produce both the chips and graphic boards in-house. " +
+				"The change, intended to boost profits, led to manufacturing and global distribution shortages and decreased retail shelf space for 3Dfx products.</p>" +
+				"<p>In the same year, Nvidia released its TNT and <strong>GeForce series</strong> of GPUs and became the go-to supplier of chips for OEM card manufacturers. " +
+				"Unlike 3Dfx, Nvidia was API agnostic and happy to prioritize Direct3D and OpenGL.</p>" +
+				"<p>For gamers, the new 3Dfx cards were more challenging to obtain but offered the best compatibility for 3D games of the past few years. " +
+				"Plus, current games ran fast with better frames per second.</p>" +
+				"<p>The high-end Nvidia products offered improved resolutions and graphic feature sets but poorer compatibility for older games developed primarily for the proprietary 3Dfx Glide API. " +
+				"But by the end of 2000, 3Dfx was bankrupt, having taken on too much debt and railroaded themselves into a dead-end architecture. <a href=\"https://www.cnet.com/culture/nvidia-buys-out-3dfx-graphics-chip-business\">By April 2002</a>, the company's assets and intellectual property were owned by Nvidia.</p>",
 		},
 		{
 			Year: 1999, Prefix: notable,
@@ -1723,17 +1765,37 @@ func Collection() Milestones {
 		{
 			Title: "The copy party is over", Year: 2000, Month: 5, Day: 5, Highlight: true,
 			Lead: "The end of Pirates with Attitude", LinkTitle: "the US DOJ press release", Link: "https://web.archive.org/web/20120114174415/http://www.justice.gov/criminal/cybercrime/pirates.htm",
-			Content: "The US Department of Justice <strong>indicted 17 members</strong> of <a href=\"/g/pirates-with-attitudes\">Pirates with Attitudes</a> who got caught up in a honey pot scheme where, for months, Canadian law enforcement had taken control of the primary PWA FTP distribution (World HQ) site, Sentinel, running out of the University of Sherbrooke in Quebec." +
-				"<p>A day later, <a href=\"/f/a23b69\">PWA published their final release</a>, a farewell NFO written by the fugitive Shiffie out of Belgium.</p>" +
-				"Of the US defendants, 13 pleaded guilty. Five members were active employees of Intel Corp, and one was an employee of Microsoft Corp." +
-				"<p><br>Less than a week later, Christian Morley, aka <q>Mercy,</q> a former senior organizer of PWA, <a href=\"https://ipmall.law.unh.edu/sites/default/files/hosted_resources/CyberCrime/pwa_verdict.pdf\">became the first person to be found guilty</a> under the No Electronic Theft (NET) Act and <u>the first to be guilty of conspiracy to infringe software copyrights</u>.</p>",
+			Content: "<p>The US Department of Justice <strong>indicted 17 members</strong> of <a href=\"/g/pirates-with-attitudes\">Pirates with Attitudes</a> " +
+				"who got caught up in a honey pot scheme where, for months, Canadian law enforcement had taken control of the primary " +
+				"PWA FTP distribution site, Sentinel, running out of the University of Sherbrooke in Quebec. " +
+				"A day later, PWA published its <a href=\"/f/a23b69\">final release</a>, a farewell NFO by the fugitive Shiffie out of Belgium.</p>" +
+				"<p>Of the US defendants, 13 pleaded guilty. Five members were active employees of Intel Corp, and one was an employee of Microsoft Corp. " +
+				"Less than a week later, Christian Morley, aka <q>Mercy,</q> a former senior organizer of PWA, became the first person to be " +
+				"<a href=\"https://ipmall.law.unh.edu/sites/default/files/hosted_resources/CyberCrime/pwa_verdict.pdf\">found guilty</a> under the No Electronic Theft (NET) Act and " +
+				"the first to be guilty of <u>conspiracy to infringe software copyrights</u>.</p>" +
+				"<hr><pre>" +
+				"                                 PWA Sites<sup><a href=\"#the-copy-party-is-over-fn1\">[1]</a></sup><br>" +
+				"┌──────────────────────┬─────────────────────────────┬──────────────────────┐<br>" +
+				"│ FTP Site Names       │ Status ···················· │ SiteOP ············· │<br>" +
+				"├──────────────────────┼─────────────────────────────┼──────────────────────┤<br>" +
+				"│ Sentinel ··········  │ World HQ ·················· │ Xxxxxxx ············ │<br>" +
+				"│ The Rock      ·····  │ US HQ ····················· │ Xxxxxxx ············ │<br>" +
+				"│ Major Malfunction ·  │ EURO HQ ··················· │ Xxxxxxx ············ │<br>" +
+				"│ MidNite Resistence·  │ World Courier HQ ·········· │ Xxxxxxx ············ │<br>" +
+				"</pre>" +
+				"<section>" +
+				"<div id=\"the-copy-party-is-over-fn1\">[1] PWA were <a href=\"/f/ac38f0\">advertising</a> sites in 1999.</div>" +
+				"</section>",
+			//
 		},
 		{
 			Title: "Direct3D, the 3D graphic standard", Year: 2000, Month: 11,
 			Lead: "DirectX 8.0 (4.08.00.0400)", LinkTitle: "the press release", Link: "https://news.microsoft.com/2000/11/09/microsoft-announces-release-of-directx-8-0",
-			Content: "<p>The release of Microsoft's <strong>Direct3D</strong> 8 for all active editions of Windows from 95 through to XP was the beginning of the dominance of the proprietary 3D graphics API, as it is the first release offering compelling features for game developers.</p>" +
-				"<p>For Microsoft, this helps to lock in Windows as the only operating system for modern PC gaming.</p>" +
-				"<p>Prior editions of Direct3D, since 1996, have been clumsy and lacking features compared to the competing proprietary 3Dfx Glide or the industry OpenGL standard. Direct3D was instead a hardware fallback API for developers to support.</p>",
+			Content: "<p>The release of Microsoft's <strong>Direct3D</strong> 8 for all active editions of Windows from 95 through to XP was the beginning of the dominance " +
+				"of the proprietary 3D graphics API, as it is the first release offering compelling features for game developers.</p>" +
+				"<p>For Microsoft, this helps to lock in Windows as the only operating system for modern PC gaming. " +
+				"Since 1996, prior editions of Direct3D have been clumsy and lacking features compared to the competing proprietary 3Dfx Glide or the industry OpenGL standard. " +
+				"Direct3D was instead a hardware fallback API for developers to support.</p>",
 		},
 		{
 			Year: 2000, Prefix: notable + " onward,",
@@ -1750,38 +1812,42 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "The global takedown of Drink or Die", Year: 2001, Month: 12, Day: 11,
+			Title: "The global takedown of Drink or Die", Year: 2001, Month: 12, Day: 11, Highlight: true,
 			Lead: "Operation Buccaneer", LinkTitle: "the Department of Justice overview", Link: "https://www.ojp.gov/ncjrs/virtual-library/abstracts/cross-national-investigation-and-prosecution-intellectual-property",
-			Content: "<p><strong>Operation Buccaneer</strong> was the first global effort to target a specific warez group for criminal prosecution. Because of the nature of warez groups on the Internet, members operate in numerous countries and time zones. " +
-				"The operation needed multiple law enforcement agencies in the USA, UK, Australia, Norway, Sweden, and Finland to coordinate the execution of <strong>70&nbsp;search&nbsp;warrants</strong>.</p>" +
-				"<p>The target, <a href=\"/g/drink-or-die\">Drink&nbsp;or&nbsp;Die</a> is singled out for their multiple, pirate releases of Microsoft&nbsp;<a href=\"/f/bb2b71f\">Windows&nbsp;95</a> that occurred back in August 1995, over six years prior with a different group membership.</p>",
+			Content: "<p><strong>Operation Buccaneer</strong> was the first global effort to target a specific warez group for criminal prosecution. " +
+				"Because of the nature of warez groups on the Internet, members operate in numerous countries and time zones. " +
+				"The operation needed multiple law enforcement agencies in the USA, UK, Australia, Norway, Sweden, and Finland to coordinate the execution " +
+				"of <strong>70&nbsp;search&nbsp;warrants</strong>.</p>" +
+				"<p>The target, <a href=\"/g/drink-or-die\">Drink&nbsp;or&nbsp;Die</a> is singled out for its multiple pirate releases of " +
+				"Microsoft&nbsp;<a href=\"/f/bb2b71f\">Windows&nbsp;95</a> that occurred back in August 1995, over six years prior with a different group membership.</p>",
 		},
 		{
 			Title: "Digital only scene releases", Year: 2004, Month: 10, Day: 7,
 			Lead: "Counter-Strike: Source Final from Emporio", LinkTitle: "the release", Link: "/f/b1282e1",
-			Content: "The online multiplayer title, <a href=\"https://www.mobygames.com/game/15518/counter-strike-source/cover/group-80271/cover-733563/\">Counter-Strike Source</a> was exclusively distributed on <strong><a href=\"https://steampowered.com\">Steam</a></strong>, Valve's digital distribution platform. " +
-				"As there was no physical media available, this became a <strong>dubious&nbsp;release</strong> within the Scene and many groups didn't acknowledge the <a href=\"/g/emporio\">Emporio</a> package as a legitimate \"retail\" product or a \"final\" release. " +
-				"<p>Due to the ease of supply and constant online patching, digital distribution was not well received.</p>" +
-				"<p><q>SOME may contend the fact that this is BETA. <a href=\"https://web.archive.org/web/20050208205808/http://www.steampowered.com/index.php?area=news&archive=yes&id=327\">This is the version that is released on STEAM AS FINAL</a>. " +
+			Content: "<p>Counter-Strike <a href=\"https://www.mobygames.com/game/15518/counter-strike-source/cover/group-80271/cover-733563/\">Source</a>, the online multiplayer title, was exclusively distributed on <a href=\"https://steampowered.com\">Steam</a>, Valve's digital distribution platform. " +
+				"As no physical media was available, this became a dubious release within the Scene, and many groups didn't acknowledge the <a href=\"/g/emporio\">Emporio</a> package as a legitimate <q>retail</q> " +
+				"product or a <q>final</q> release. The release of Steam-only games was poorly received due to the ease of supply and constant online patching.</p>" +
+				"<p><q>SOME may contend the fact that this is BETA. This is the version that is released on <a href=\"https://web.archive.org/web/20050208205808/http://www.steampowered.com/index.php?area=news&archive=yes&id=327\">STEAM AS FINAL</a>. " +
 				"You cannot do any better than this. The ... thing with STEAM is they can easily release many patches BUT EXPECT the EMPORiO crew to bring each and every patch CRACKED to your doorstep!</q></p>",
 		},
 		{
 			Title: "Digital distribution and online activation", Year: 2004, Month: 11, Day: 16,
 			Lead: "Half-Life 2", LinkTitle: "the and view the Steam page", Link: "https://store.steampowered.com/app/220/HalfLife_2",
-			Content: "Half-Life 2 was once of the most anticipated games of the decade, and it was the first major game to use <strong><a href=\"https://steampowered.com\">Steam</a></strong>, Valve's digital distribution platform. " +
-				"Steam was a huge shift in the way games were distributed, and it was the first time a major game <strong>required online activation</strong>. " +
-				"<a href=\"https://www.amazon.com/product-reviews/B00006I02Z/ref=acr_dp_hist_1?ie=UTF8&filterByStar=one_star&reviewerType=all_reviews#reviews-filter-bar\">Steam often was not well received</a> by the gaming community, but it was a big success for Valve, and it paved the way for other digital distribution platforms. " +
-				"Half-Life 2 was simultaneously released on <a href=\"https://store.steampowered.com/app/220/HalfLife_2/\">Steam</a>, " +
-				"<a href=\"https://www.mobygames.com/game/15564/half-life-2/cover/group-90348/cover-246334/\">DVD</a> " +
-				"and <a href=\"https://www.mobygames.com/game/15564/half-life-2/cover/group-16318/cover-38738/\">on CD</a>, but all three formats required Steam activation. ",
+			Content: "<p>Half-Life 2 was one of the most anticipated games of the decade, and it was the first major game to use <a href=\"https://steampowered.com\">Steam</a>, " +
+				"Valve's digital distribution platform. Steam was a massive shift in how games got distributed, and it was the first time a significant game required online activation. " +
+				"Steam often was not well received by the gaming <a href=\"https://www.amazon.com/product-reviews/B00006I02Z/ref=acr_dp_hist_1?ie=UTF8&filterByStar=one_star&reviewerType=all_reviews#reviews-filter-bar\">community</a>, " +
+				"but it was a big success for Valve and paved the way for other digital distribution platforms. " +
+				"Half-Life 2 was released simultaneously on <a href=\"https://store.steampowered.com/app/220/HalfLife_2/\">Steam</a>, " +
+				"<a href=\"https://www.mobygames.com/game/15564/half-life-2/cover/group-90348/cover-246334/\">DVD</a>, " +
+				"and <a href=\"https://www.mobygames.com/game/15564/half-life-2/cover/group-16318/cover-38738/\">CD</a>, but all three formats required Steam activation.</p>",
 		},
 		{
 			Title: "Half-Life 2 *Retail*", Year: 2004, Month: 11, Day: 28,
 			Lead: "Vengeance", LinkTitle: "the release", Link: "/f/b24c10",
-			Content: "Half-Life 2 was one of the most anticipated games of the decade, and it was the first major game to use <strong>Steam</strong>, Valve's digital distribution platform. " +
-				"<a href=\"/g/vengeance\">Vengeance</a> is the <u>first attempt to crack the Steam activation</u>, and it used an unusual Steam client and activation emulator. " +
-				"But while playable, their pirate release of the game suffered with slower frame rates, load times, and the lack of multiplayer gameplay." +
-				"<p>Vengeance would release the DVD *Retail* version with a tweaked crack two days later.</p>",
+			Content: "<p>Half-Life 2 was one of the most anticipated games of the decade, and it was the first major game to use Steam, Valve's digital distribution platform.</p>" +
+				"<p><a href=\"/g/vengeance\">Vengeance</a> is the first attempt to crack the Steam activation, and it used an unusual Steam client and activation emulator. " +
+				"But while playable, their pirate release of the game suffered with slower frame rates, load times, and the lack of multiplayer gameplay. " +
+				"Vengeance would release the DVD *Retail* version with a tweaked crack two days later.</p>",
 			List: Links{
 				{LinkTitle: "Half Life 2 *Retail* [CD]", Link: "/f/b24c10"},
 				{LinkTitle: "Half Life 2 DVD *Retail*", Link: "/f/a126f6"},
@@ -1793,21 +1859,26 @@ func Collection() Milestones {
 		{
 			Title: "End of the line for RIPS", Year: 2005, Month: 10, Day: 9,
 			Lead: "Farewell © Myth", LinkTitle: "the release", Link: "/f/a94129",
-			Content: "Farewell © Myth is the <strong>final release</strong> from Myth, a group founded as <a href=\"/f/a53f3c\">Zeus</a> then <a href=\"/g/paradigm\">Paradigm</a> in 1996 and focused on <strong>ripping</strong> PC games from CD and later DVDs. " +
-				"By the mid-2000s, broadband use was widespread and the desire for ripped CD or DVD games with missing content was dwindling. " +
-				"Myth's longtime rival, <a href=\"/f/a53505\">Class, had already quit in early 2004</a>, and the other major competitor, <a href=\"/g/divine\">Divine</a>, finished up the following year." +
+			Content: "<p>Farewell © Myth is the final release from Myth, a group founded as <a href=\"/f/a53f3c\">Zeus</a>, " +
+				"then <a href=\"/g/paradigm\">Paradigm</a> in 1996 and focused on ripping PC games from CD and later DVDs. " +
+				"By the mid-2000s, broadband use was widespread, and the desire for ripped CD or DVD games with missing content was dwindling. " +
+				"Myth's longtime rival, Class, had already <a href=\"/f/a53505\">quit</a> in early 2004, and the other major competitor, " +
+				"<a href=\"/g/divine\">Divine</a>, finished up the following year.</p>" +
 				"<p><q>We believe that the rip scene is one of incredible skill. " +
 				"Not only is there the cracking talent needed to be successful like that of ISO, you must have dedicated coders and rippers to fully complete the task. " +
-				"Much time is needed to perfect a rip like that of Neverwinter Nights. (We'll never forget you old friend) With the faster speed of the internet, equates to less usage of rips and just makes it not worth it. " +
+				"Much time is needed to perfect a rip like that of Neverwinter Nights. (We'll never forget you old friend) With the faster speed of the internet, " +
+				"equates to less usage of rips and just makes it not worth it. " +
 				"When you are releasing upwards of 30 games a month some months, and you know not many people are downloading them. " +
-				"It hardly gives you the rush of winning the title. We see groups throw out games now with stolen cracks and are completely non-working. These titles are not nuked, as no one even notices anymore, indeed a sad time in the scene.</q></p>",
+				"It hardly gives you the rush of winning the title. We see groups throw out games now with stolen cracks and are completely non-working. " +
+				"These titles are not nuked, as no one even notices anymore, indeed a sad time in the scene.</q></p>",
 		},
 		{
 			Year: 2016, Prefix: "", Highlight: true,
 			Title: "The twilight of the cracktro",
-			Content: "The first decade of the 2000s was the last time original <strong>quality cracktros</strong> were common in the Scene, primarily thanks to a few nostalgic Demosceners and warez sceners. " +
+			Content: "<p>The first decade of the 2000s was the last time original-quality cracktros were common in the Scene, " +
+				"primarily thanks to a few nostalgic Demosceners and warez programmers. " +
 				"However, the number of people who could and were willing to create a decent cracktro dwindled as the skillset requirements got more specific and complex. " +
-				"And so the cracktro was often forsaken for more straightforward methods of displaying the release information and branding. ",
+				"So, cracktros were often forsaken by more straightforward methods of displaying the release information and branding.</p>",
 			List: Links{
 				{LinkTitle: "Fairlight's 500th release", Link: "/f/a61ba0f", SubTitle: "2002"},
 				{LinkTitle: "Hoodlum Cracktro #3", Link: "/f/a229a8", SubTitle: "2005"},
