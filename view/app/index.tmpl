@@ -43,16 +43,19 @@
       {{- if and (eq "" .Picture.Png) (eq "" .Picture.Jpg)}}
       <div class="card-header">{{fmtPrefix .Prefix}}<strong>{{.Year}}</strong>{{fmtMonth .Month}}{{fmtDay .Day}}</div>
       {{- end}}
-      {{- if ne "" .Picture.Jpg}}
-      <img src="/image/milestone/{{.Picture.Jpg}}" loading="lazy" class="card-img-top" alt="{{.Picture.Alt}}">  
-      {{- else if ne "" .Picture.Webp}}
       <picture title="{{.Picture.Title}}">
+        {{- if ne "" .Picture.Avif}}
+        <source srcset="/image/milestone/{{.Picture.Avif}}" type="image/avif" class="card-img-top">
+        {{- end}}
+        {{- if ne "" .Picture.Webp}}
         <source srcset="/image/milestone/{{.Picture.Webp}}" type="image/webp" class="card-img-top">
+        {{- end}}
+        {{- if ne "" .Picture.Jpg}}
+        <img src="/image/milestone/{{.Picture.Jpg}}" loading="lazy" class="card-img-top" alt="{{.Picture.Alt}}">
+        {{- else if ne "" .Picture.Png}}
         <img src="/image/milestone/{{.Picture.Png}}" loading="lazy" class="card-img-top" alt="{{.Picture.Alt}}">
+        {{- end}}
       </picture>
-      {{- else if ne "" .Picture.Png}}
-      <img src="/image/milestone/{{.Picture.Png}}" loading="lazy" class="card-img-top" alt="{{.Picture.Alt}}">
-      {{- end}}
       {{- /*  Lists, aligned to the top  */}}
       {{- if and (.List) (eq "" .Content)}}
       <ul class="list-group list-group-flush text-center">

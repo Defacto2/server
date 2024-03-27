@@ -130,6 +130,7 @@ type Picture struct {
 	Webp        string // Webp is the filename of the WebP screenshot.
 	Png         string // Png is the filename of the PNG screenshot.
 	Jpg         string // Jpg is the filename of the JPG photo.
+	Avif        string // Avif is the filename of the AVIF photo.
 }
 
 // Links is a collection of Links.
@@ -179,6 +180,7 @@ func Collection() Milestones {
 				Title:       "Intel 8008 CPU chip",
 				Alt:         "A photo of an Intel C8008-1 CPU chip.",
 				Jpg:         "intel-8008.jpg",
+				Avif:        "intel-8008.avif",
 				Attribution: "Konstantin Lanzet",
 				License:     "CC BY-SA 4.0",
 				LicenseLink: "https://creativecommons.org/licenses/by-sa/4.0/",
@@ -193,6 +195,7 @@ func Collection() Milestones {
 				Title:       "A blue box device",
 				Alt:         "Blue box designed and built by Steve Wozniak.",
 				Jpg:         "blue-box.jpg",
+				Avif:        "blue-box.avif",
 				Attribution: "Maksym Kozlenko",
 				License:     "CC BY-SA 4.0",
 				LicenseLink: "https://creativecommons.org/licenses/by-sa/4.0/",
@@ -227,6 +230,7 @@ func Collection() Milestones {
 				Title:       "Can anyone beat the Altair System?",
 				Alt:         "A May 1976 advertisement for the Altair 8800 computer.",
 				Jpg:         "altair-ad.jpg",
+				Avif:        "altair-ad.avif",
 				Attribution: "Michael Holley",
 				License:     "public domain",
 				LicenseLink: "https://commons.wikimedia.org/wiki/File:Altair_Computer_Ad_May_1976.jpg",
@@ -243,6 +247,7 @@ func Collection() Milestones {
 			Picture: Picture{
 				Title:       "Homebrew Computer Club invitation",
 				Jpg:         "homebrew-computer-club.jpg",
+				Avif:        "homebrew-computer-club.avif",
 				Attribution: "Gotanero",
 				License:     "CC BY-SA 3.0",
 				LicenseLink: "https://creativecommons.org/licenses/by-sa/3.0/",
@@ -259,6 +264,7 @@ func Collection() Milestones {
 				Title:       "An Open Letter to Hobbyists",
 				Alt:         "A photo of the first page of the letter.",
 				Jpg:         "an-open-letter-to-hobbyists.jpg",
+				Avif:        "an-open-letter-to-hobbyists.avif",
 				Attribution: "Len Shustek",
 				License:     "public domain",
 				LicenseLink: "https://commons.wikimedia.org/wiki/File:Bill_Gates_Letter_to_Hobbyists.jpg",
@@ -337,6 +343,7 @@ func Collection() Milestones {
 				Title:       "A recreation of CBBS",
 				Alt:         "A recreation screen capture of the first BBS.",
 				Png:         "intel-8086.jpg",
+				Avif:        "intel-8086.avif",
 				Attribution: "Thomas Nguyen",
 				License:     "CC BY-SA 4.0",
 				LicenseLink: "https://creativecommons.org/licenses/by-sa/4.0/deed.en",
@@ -584,6 +591,7 @@ func Collection() Milestones {
 				Title:       "IBM PC 5150",
 				Alt:         "A photo of the IBM PC 5150",
 				Jpg:         "ibm-pc-5150.jpg",
+				Avif:        "ibm-pc-5150.avif",
 				Attribution: "Rama & Musée Bolo",
 				License:     "CC BY-SA 2.0 FR",
 				LicenseLink: "https://creativecommons.org/licenses/by-sa/2.0/fr/deed.en",
@@ -601,6 +609,7 @@ func Collection() Milestones {
 				Title:       "IBM Microsoft Adventure",
 				Alt:         "A photo of the 1981, Microsoft Adventure floppy disk media.",
 				Jpg:         "ibm-microsoft-adventure.jpg",
+				Avif:        "ibm-microsoft-adventure.avif",
 				Attribution: "Jack Lightbeard & MobyGames",
 				License:     "© MobyGames",
 				LicenseLink: "https://www.mobygames.com/game/4074/microsoft-adventure/cover/group-3242/cover-176506/",
@@ -642,6 +651,7 @@ func Collection() Milestones {
 				Title:       "Compaq's MS-DOS based on MS-DOS v1.25",
 				Alt:         "MS-DOS Version 1.12 for the Compaq Personal Computer.",
 				Jpg:         "ms-dos-floppy-disks.jpg",
+				Avif:        "ms-dos-floppy-disks.avif",
 				Attribution: "Brian R. Lueck",
 				License:     "public domain",
 				LicenseLink: "https://en.wikipedia.org/wiki/MS-DOS#/media/File:Compaq_mddos_ver1-12.jpg",
@@ -926,7 +936,6 @@ func Collection() Milestones {
 			Picture: Picture{
 				Title: "Microsoft Windows 1.01",
 				Alt:   "Microsoft Windows 1.01 booting up screenshot",
-				Webp:  "windows-version-1.webp",
 				Png:   "windows-version-1.png",
 			},
 		},
@@ -954,6 +963,7 @@ func Collection() Milestones {
 			Picture: Picture{
 				Title:       "The Olivetti M24",
 				Jpg:         "olivetti-m24.jpg",
+				Avif:        "olivetti-m24.avif",
 				Attribution: "Federigo Federighi",
 				License:     "CC-BY-4.0",
 				LicenseLink: "https://creativecommons.org/licenses/by-sa/4.0",
@@ -968,6 +978,7 @@ func Collection() Milestones {
 				Title:       "A hex dump of the Brain",
 				Alt:         "A hex dump of the boot sector of a floppy disk containing the PC virus, Brain.",
 				Jpg:         "brain-virus.jpg",
+				Avif:        "brain-virus.avif",
 				Attribution: "Avinash Meetoo",
 				License:     "CC-BY-2.5",
 				LicenseLink: "https://creativecommons.org/licenses/by/2.5/deed.en",
@@ -1058,6 +1069,7 @@ func Collection() Milestones {
 			Picture: Picture{
 				Title:       "An AdLib Music Synthesizer ISA slot card",
 				Jpg:         "adlib-card.jpg",
+				Avif:        "adlib-card.avif",
 				Attribution: "TheAlmightyGuru",
 				License:     "GNU FDL",
 				LicenseLink: "https://www.vgmpf.com/Wiki/index.php?title=File:AdLib_-_1987.jpg",
@@ -1094,6 +1106,7 @@ func Collection() Milestones {
 				Title:       "Rockford: The Arcade Game",
 				Alt:         "Rockford: The Arcade Game screenshot",
 				Png:         "rockford-32-color-vga.png",
+				Avif:        "rockford-32-color-vga.avif",
 				Attribution: "486pc & MobyGames",
 				License:     "© Arcadia",
 				LicenseLink: "https://www.mobygames.com/game/4019/rockford-the-arcade-game",
@@ -1208,6 +1221,7 @@ func Collection() Milestones {
 				Title:       "688 Attack Sub",
 				Alt:         "688 Attack Sub in-game screenshot",
 				Png:         "688-attack-sub.png",
+				Avif:        "688-attack-sub.avif",
 				Attribution: "Defacto2",
 				License:     "© Electronic Arts",
 				LicenseLink: "https://www.mobygames.com/game/2099/688-attack-sub/screenshots/dos/9155/",
@@ -1394,7 +1408,7 @@ func Collection() Milestones {
 			Picture: Picture{
 				Title: "Blues Brothers cracktro",
 				Alt:   "Blues Brothers cracktro screenshot",
-				Webp:  "b249b1.webp",
+				Avif:  "b249b1.avif",
 				Png:   "b249b1.png",
 			},
 		},
@@ -1455,6 +1469,7 @@ func Collection() Milestones {
 				Title:       "Links 386 Pro",
 				Alt:         "Links 386 Pro in-game screenshot",
 				Png:         "links-386-pro-svga.png",
+				Avif:        "links-386-pro-svga.avif",
 				Attribution: "Servo & MobyGames",
 				License:     "© Access Software",
 				LicenseLink: "https://www.mobygames.com/game/3757/links-386-pro/",
@@ -1473,7 +1488,7 @@ func Collection() Milestones {
 			},
 			Picture: Picture{
 				Title: "The One and Only",
-				Webp:  "b13a93.webp",
+				Avif:  "b13a93.avif",
 				Png:   "b13a93.png",
 			},
 		},
@@ -1598,8 +1613,8 @@ func Collection() Milestones {
 			Picture: Picture{
 				Title: "Razor 1911 Tenth Anniversary CD-ROM",
 				Alt:   "Razor 1911 Tenth Anniversary CD-ROM disc",
-				Webp:  "razor-1911-tenth-anniversary-cd-rom.webp",
 				Png:   "razor-1911-tenth-anniversary-cd-rom.png",
+				Avif:  "razor-1911-tenth-anniversary-cd-rom.avif",
 			},
 		},
 		{
@@ -1675,7 +1690,7 @@ func Collection() Milestones {
 			},
 			Picture: Picture{
 				Title: "Divine cracktro",
-				Webp:  "a424a4c.webp",
+				Avif:  "a424a4c.avif",
 				Png:   "a424a4c.png",
 			},
 		},
@@ -1692,8 +1707,8 @@ func Collection() Milestones {
 				Attribution: "MES392",
 				License:     "©",
 				LicenseLink: "https://www.reddit.com/r/starcraft/comments/aaz4es/cleaned_up_the_office_who_needs_an_original/",
-				// Webp:  "starcraft-case.webp",
-				Jpg: "starcraft-case.jpg",
+				Jpg:         "starcraft-case.jpg",
+				Avif:        "starcraft-case.avif",
 			},
 		},
 		{
@@ -1710,7 +1725,7 @@ func Collection() Milestones {
 			},
 			Picture: Picture{
 				Title: "Razor 1911 Starcraft Broodwar cracktro",
-				Webp:  "b22b15d.webp",
+				Avif:  "b22b15d.avif",
 				Png:   "b22b15d.png",
 			},
 		},
@@ -1760,6 +1775,7 @@ func Collection() Milestones {
 				Title: "Razor 1911 Demo production",
 				Webp:  "a92f47.webp",
 				Png:   "a92f47.png",
+				Avif:  "a92f47.avif",
 			},
 		},
 		{
@@ -1893,7 +1909,7 @@ func Collection() Milestones {
 			Picture: Picture{
 				Title: "Razor 1911 XT-95 Checker Cracktro",
 				Alt:   "Razor 1911 XT-95 Checker Cracktro screenshot",
-				Webp:  "b230776.webp",
+				Avif:  "b230776.avif",
 				Png:   "b230776.png",
 			},
 		},
