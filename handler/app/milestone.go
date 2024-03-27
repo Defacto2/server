@@ -1876,7 +1876,7 @@ func Collection() Milestones {
 			Year: 2016, Prefix: "", Highlight: true,
 			Title: "The twilight of the cracktro",
 			Content: "<p>The first decade of the 2000s was the last time original-quality cracktros were common in the Scene, " +
-				"primarily thanks to a few nostalgic Demosceners and warez programmers. " +
+				"primarily thanks to a few nostalgic Demosceners and warez crackers. " +
 				"However, the number of people who could and were willing to create a decent cracktro dwindled as the skillset requirements got more specific and complex. " +
 				"So, cracktros were often forsaken by more straightforward methods of displaying the release information and branding.</p>",
 			List: Links{
