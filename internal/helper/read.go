@@ -53,6 +53,16 @@ func Lines(name string) (int, error) {
 	return lines, nil
 }
 
+// Size returns the size of the named file.
+// If the file does not exist, it returns -1.
+func Size(name string) int64 {
+	st, err := os.Stat(name)
+	if err != nil {
+		return -1
+	}
+	return st.Size()
+}
+
 // StrongIntegrity returns the SHA-386 checksum value of the named file.
 func StrongIntegrity(name string) (string, error) {
 	// strong hashes require the named file to be reopened after being read.
