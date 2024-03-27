@@ -1328,6 +1328,7 @@ type Form struct {
 }
 
 const (
+	avif                    = ".avif"
 	gif                     = ".gif"
 	jpeg                    = ".jpeg"
 	jpg                     = ".jpg"

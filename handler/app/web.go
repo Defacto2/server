@@ -86,10 +86,6 @@ func DownloadB(i any) template.HTML {
 
 // ImageSample returns a HTML image tag for the given uuid.
 func (web Web) ImageSample(uuid string) template.HTML {
-	const (
-		png  = png
-		webp = webp
-	)
 	ext, name, src := "", "", ""
 	for _, ext = range []string{webp, png} {
 		name = filepath.Join(web.Import.PreviewDir, uuid+ext)
@@ -108,46 +104,55 @@ func (web Web) ImageSample(uuid string) template.HTML {
 }
 
 // Screenshot returns a picture elment with screenshots for the given uuid.
+// The uuid is the filename of the screenshot image without an extension.
+// The desc is the description of the image used for the alt attribute in the img tag.
+// Supported formats are webp, png, jpg and avif.
 func (web Web) Screenshot(uuid, desc string) template.HTML {
-	fw := filepath.Join(web.Import.PreviewDir, uuid+webp)
-	fp := filepath.Join(web.Import.PreviewDir, uuid+png)
-	fj := filepath.Join(web.Import.PreviewDir, uuid+jpg)
-	webp := strings.Join([]string{config.StaticOriginal(), uuid + webp}, "/")
-	png := strings.Join([]string{config.StaticOriginal(), uuid + png}, "/")
-	jpg := strings.Join([]string{config.StaticOriginal(), uuid + jpg}, "/")
-	alt := strings.ToLower(desc) + " screenshot"
-	w, p, j := false, false, false
-	if helper.IsStat(fw) {
-		w = true
-	}
-	if helper.IsStat(fp) {
-		p = true
-	}
-	if !p {
-		// fallback to jpg on the odd chance that the png is missing
-		if helper.IsStat(fj) {
-			j = true
-		}
-	}
 	class := "rounded mx-auto d-block img-fluid"
-	if w && p {
-		elm := "<picture>" +
-			fmt.Sprintf("<source srcset=\"%s\" type=\"image/webp\" />", webp) +
-			string(img(png, alt, class, "")) +
-			"</picture>"
+	alt := strings.ToLower(desc) + " screenshot"
+	srcW := strings.Join([]string{config.StaticOriginal(), uuid + webp}, "/")
+	srcP := strings.Join([]string{config.StaticOriginal(), uuid + png}, "/")
+	srcJ := strings.Join([]string{config.StaticOriginal(), uuid + jpg}, "/")
+	srcA := strings.Join([]string{config.StaticOriginal(), uuid + avif}, "/")
+	// determine the best screenshot format to use based on browser support and filesize
+	sizeA := helper.Size(filepath.Join(web.Import.PreviewDir, uuid+avif))
+	sizeJ := helper.Size(filepath.Join(web.Import.PreviewDir, uuid+jpg))
+	sizeP := helper.Size(filepath.Join(web.Import.PreviewDir, uuid+png))
+	sizeW := helper.Size(filepath.Join(web.Import.PreviewDir, uuid+webp))
+
+	// if the legacy jpg is the smallest, use it
+	if sizeJ > 0 && sizeJ < sizeA && sizeJ < sizeP && sizeJ < sizeW {
+		return img(srcJ, alt, class, "")
+	}
+	// if the legacy png is the smallest, use it
+	if sizeP > 0 && sizeP < sizeA && sizeP < sizeW {
+		return img(srcP, alt, class, "")
+	}
+	// use the modern formats
+	if sizeA > 0 || sizeW > 0 {
+		elm := template.HTML("<picture>")
+		if sizeA > 0 {
+			elm += template.HTML(fmt.Sprintf("<source srcset=\"%s\" type=\"image/avif\" />", srcA))
+		}
+		if sizeW > 0 {
+			elm += template.HTML(fmt.Sprintf("<source srcset=\"%s\" type=\"image/webp\" />", srcW))
+		}
+		if sizeJ > 0 && sizeJ < sizeP {
+			elm += img(srcJ, alt, class, "")
+		} else if sizeP > 0 {
+			elm += img(srcP, alt, class, "")
+		}
+		elm += "</picture>"
 		return template.HTML(elm)
 	}
-	elm := ""
-	if w {
-		return img(webp, alt, class, "")
+	// fallback to the legacy formats
+	if sizeJ > 0 {
+		return img(srcJ, alt, class, "")
 	}
-	if p {
-		return img(png, alt, class, "")
+	if sizeP > 0 {
+		return img(srcP, alt, class, "")
 	}
-	if j {
-		return img(jpg, alt, class, "")
-	}
-	return template.HTML(elm)
+	return ""
 }
 
 // TemplateFuncMap returns a map of all the template functions.
