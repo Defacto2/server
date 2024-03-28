@@ -568,5 +568,6 @@ func lockTmpls(lock bool, files ...string) []string {
 		GlobTo("layout_editorJS.tmpl"),
 		GlobTo("layout_uploader.tmpl"),
 		GlobTo("layout_uploaderJS.tmpl"),
-		GlobTo("uploader.tmpl"))
+		GlobTo("uploader.tmpl"),
+		GlobTo("uploaderHtmx.tmpl"))
 }

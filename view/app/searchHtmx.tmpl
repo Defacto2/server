@@ -33,6 +33,10 @@
 </div>
 <script defer>
     document.body.addEventListener('htmx:afterRequest', function (evt) {
+        if(evt.detail.elt === null || evt.detail.elt.id !== "releaserSearch") {
+            return;
+        }
+        console.log(evt.detail.elt.id)
         const alert = document.getElementById("htmx-alert")
         if (typeof alert === "undefined" || alert === null) {
             return;

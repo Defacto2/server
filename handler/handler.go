@@ -122,7 +122,7 @@ func (c Configuration) Controller() *echo.Echo {
 	retro := html3.Routes(logr, e)
 	retro.GET(Downloader, c.downloader)
 	// Routes for the htmx responses
-	e = htmx.Routes(logr, e)
+	e = htmx.Routes(logr, e, c.Import.DownloadDir)
 	return e
 }
 

@@ -21,9 +21,12 @@ import (
 
 // Routes for the /htmx sub-route group that returns HTML fragments
 // using the htmx library for AJAX responses.
-func Routes(logr *zap.SugaredLogger, e *echo.Echo) *echo.Echo {
+func Routes(logr *zap.SugaredLogger, e *echo.Echo, dlDir string) *echo.Echo {
 	e.POST("/search/releaser", func(x echo.Context) error {
 		return PostReleaser(logr, x)
+	})
+	e.POST("/demozoo/download", func(x echo.Context) error {
+		return PostDemozooLink(logr, x, dlDir) // dir.Download
 	})
 	return e
 }

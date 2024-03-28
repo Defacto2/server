@@ -1,0 +1,83 @@
+{{- /*  uploaderHtmx.tmpl  */}}
+{{- define "uploaderX" -}}
+    {{- /*  Submit a Demozoo production using htmx */}}
+    <div class="modal fade" id="uploaderDZX" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploaderDZXLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="uploaderDZXLabel">Demozoo production or graphic</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form>
+                <p>
+                  Know a <a href="https://demozoo.org/productions/?platform=1">Windows</a>, 
+                  <a href="https://demozoo.org/productions/?platform=4">MS-Dos</a> production or a 
+                  <a href="https://demozoo.org/graphics/">graphic</a> on <a href="https://demozoo.org">Demozoo</a> that should be on this site?
+                  Submit its ID.
+                </p>
+                <label for="demozoo-submission" id="demozoo-submission-label" class="form-label">Demozoo production ID</label>
+                <div class="input-group">
+                    <div class="input-group-text">
+                        <div id="demozoo-indicator" class="htmx-indicator spinner-border spinner-border-sm text-secondary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    <input type="number" spellcheck="false" autofocus 
+                        required min="1" max="999999"
+                        class="form-control" id="demozoo-submission" name="demozoo-submission" 
+                        hx-post="/demozoo/download" 
+                        hx-target="#demozoo-submission-results" 
+                        hx-trigger="keyup changed delay:500ms" 
+                        hx-indicator="#demozoo-indicator"
+                        hx-validate="true"
+                        placeholder="Lookup a production…">
+                    <button type="button" id="" class="btn btn-success">Submit</button>
+                    <button type="reset" id="demozoo-submission-clear" class="btn btn-outline-dark">Clear</button>
+                </div>   
+                <div class="btn-group" role="group" aria-label="Demozoo submussion lookup, production or graphic">
+                    <input type="radio" class="btn-check" name="btnradio" id="demozoo-submission-production" autocomplete="off" checked>
+                    <label class="btn btn-link btn-sm" for="btnradio1">Production</label>
+                    <input type="radio" class="btn-check" name="btnradio" id="demozoo-submission-graphic" autocomplete="off">
+                    <label class="btn btn-link btn-sm" for="btnradio2">Graphic</label>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+                <div id="demozoo-submission-error" class="d-none text-danger"></div>
+                <div id="demozoo-submission-results" class="col-lg-8"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+<script defer>
+    document.body.addEventListener('htmx:afterRequest', function (evt) {
+        console.log(evt.detail.elt.id)
+        if(evt.detail.elt === null || evt.detail.elt.id !== "demozoo-submission") {
+            return;
+        }
+        console.log(`errror`)
+        const alert = document.getElementById("demozoo-submission-error")
+        console.log(`alert`,alert)
+        if (typeof alert === "undefined" || alert === null) {
+            return;
+        }
+        console.log(`post error`)
+        if (evt.detail.successful) {
+            alert.classList.add("d-none");
+            alert.innerText = "";
+            return;
+        } 
+        console.log(`detail`,evt.detail.failed, evt.detail.xhr)
+        if (evt.detail.failed && evt.detail.xhr) {
+            const xhr = evt.detail.xhr;
+            alert.innerText = `Something on the server is not working, ${xhr.status} status: ${xhr.responseText}.`;
+            alert.classList.remove("d-none");
+            return;
+        }
+        console.log(`browser error`)
+        alert.innerText = "Something with the browser is not working, please refresh the page.";
+        alert.removeAttribute("hidden");
+    });
+</script>
+{{- end }}
