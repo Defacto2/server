@@ -11,9 +11,9 @@ import (
 	"strings"
 
 	"github.com/Defacto2/server/internal/archive"
+	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
-	"github.com/Defacto2/server/internal/zoo"
 	"github.com/Defacto2/server/model"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/labstack/echo/v4"
@@ -27,10 +27,107 @@ var (
 	ErrExist = errors.New("file already exists")
 )
 
-// DemozooLink is the response from the task of GetDemozooFile.
+// DemozooProd fetches the multiple download_links values from the
+// Demozoo production API and attempts to download and save one of the
+// linked files. If multiple links are found, the first link is used as
+// they should all point to the same asset.
+//
+// Both the Demozoo production ID param and the Defacto2 UUID query
+// param values are required as params to fetch the production data and
+// to save the file to the correct filename.
+func DemozooProd(logr *zap.SugaredLogger, c echo.Context, downloadDir string) error {
+	if logr == nil {
+		return c.String(http.StatusInternalServerError, "Error, demozoo prod logger is nil")
+	}
+	sid := c.FormValue("demozoo-submission")
+	id, err := strconv.Atoi(sid)
+	if err != nil {
+		return c.String(http.StatusNotAcceptable,
+			"The Demozoo production ID must be a numeric value, "+sid)
+	}
+
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+
+	key, err := model.FindDemozooFile(ctx, db, int64(id))
+	if err != nil {
+		return c.String(http.StatusServiceUnavailable, "Error, the database query failed")
+	}
+	if key != 0 {
+		// ID to test: 198232
+		html := fmt.Sprintf("This Demozoo production is already <a href=\"/f/%s\">in use</a>.", helper.ObfuscateID(key))
+		return c.HTML(http.StatusOK, html)
+	}
+
+	info, err := DemozooValid(c, id)
+	if err != nil {
+		return err
+	}
+	if info == "" {
+		return nil
+	}
+	// ID to test: 66654
+	html := `<div class="d-grid gap-2 col-6 mx-auto">`
+	html += fmt.Sprintf(`<button type="button" class="btn btn-outline-success">Submit ID %d</button>`, id)
+	html += `</div>`
+	html += fmt.Sprintf(`<p class="mt-3">%s</p>`, info)
+	return c.HTML(http.StatusOK, html)
+}
+
+// DemozooValid fetches the first usable download link from the Demozoo API.
+// The production ID is validated and the production is checked to see if it
+// is suitable for Defacto2. If suitable, the production title and
+// author groups are returned.
+func DemozooValid(c echo.Context, id int) (string, error) {
+	if id < 1 {
+		return "", c.String(http.StatusNotAcceptable, fmt.Sprintf("invalid id: %d", id))
+	}
+	var prod demozoo.Production
+	if code, err := prod.Get(id); err != nil {
+		return "", c.String(code, err.Error())
+	}
+	plat, sect := prod.SuperType()
+	if plat == -1 || sect == -1 {
+		s := []string{}
+		for _, p := range prod.Platforms {
+			s = append(s, p.Name)
+		}
+		for _, t := range prod.Types {
+			s = append(s, t.Name)
+		}
+		return "", c.HTML(http.StatusOK,
+			fmt.Sprintf("Production %d is probably not suitable for Defacto2.<br>Types: %s",
+				id, strings.Join(s, " - ")))
+	}
+
+	var ok string
+	for _, link := range prod.DownloadLinks {
+		if link.URL == "" {
+			continue
+		}
+		ok = link.URL
+		break
+	}
+	if ok == "" {
+		return "", c.String(http.StatusOK, "This Demozoo production has no suitable download links.")
+	}
+	s := []string{fmt.Sprintf("%q", prod.Title)}
+	for _, a := range prod.Authors {
+		if a.Releaser.IsGroup {
+			s = append(s, a.Releaser.Name)
+		}
+	}
+	return strings.Join(s, " "), nil
+}
+
+// Production is the response from the task of GetDemozooFile.
 //
 //nolint:tagliatelle
-type DemozooLink struct {
+type Production struct {
 	UUID      string `json:"uuid"`       // UUID is the file production UUID.
 	Filename  string `json:"filename"`   // Filename is the file name of the download.
 	FileType  string `json:"file_type"`  // Type is the file type.
@@ -48,9 +145,9 @@ type DemozooLink struct {
 	Success   bool   `json:"success"` // Success is the success status of the download and record update.
 }
 
-func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
-	var rec zoo.Demozoo
-	if err := rec.Get(got.ID); err != nil {
+func (got *Production) Download(c echo.Context, downloadDir string) error {
+	var rec demozoo.Production
+	if _, err := rec.Get(got.ID); err != nil {
 		got.Error = fmt.Errorf("could not get record %d from demozoo api: %w", got.ID, err).Error()
 		return c.JSON(http.StatusInternalServerError, got)
 	}
@@ -105,7 +202,7 @@ func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 	return c.JSON(http.StatusNotModified, got)
 }
 
-func (got *DemozooLink) Stat(c echo.Context, downloadDir string) error {
+func (got *Production) Stat(c echo.Context, downloadDir string) error {
 	path := filepath.Join(downloadDir, got.UUID)
 	// get the file size if not already set
 	if got.FileSize == 0 {
@@ -134,7 +231,7 @@ func (got *DemozooLink) Stat(c echo.Context, downloadDir string) error {
 	return got.ArchiveContent(c, path)
 }
 
-func (got *DemozooLink) ArchiveContent(c echo.Context, path string) error {
+func (got *Production) ArchiveContent(c echo.Context, path string) error {
 	files, err := archive.List(path, got.Filename)
 	if err != nil {
 		return c.JSON(http.StatusOK, got)
@@ -144,7 +241,7 @@ func (got *DemozooLink) ArchiveContent(c echo.Context, path string) error {
 	return got.Update(c)
 }
 
-func (got DemozooLink) Update(c echo.Context) error {
+func (got Production) Update(c echo.Context) error {
 	uid := got.UUID
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -172,59 +269,4 @@ func (got DemozooLink) Update(c echo.Context) error {
 		return err
 	}
 	return c.JSON(http.StatusOK, got)
-}
-
-// PostDemozooLink fetches the multiple download_links values from the
-// Demozoo production API and attempts to download and save one of the
-// linked files. If multiple links are found, the first link is used as
-// they should all point to the same asset.
-//
-// Both the Demozoo production ID param and the Defacto2 UUID query
-// param values are required as params to fetch the production data and
-// to save the file to the correct filename.
-func PostDemozooLink(logr *zap.SugaredLogger, c echo.Context, downloadDir string) error {
-	const name = "demozoo/download"
-	if logr == nil {
-		return c.String(http.StatusInternalServerError, "logger is nil")
-		//return InternalErr(logr, c, name, ErrZap)
-	}
-	got := DemozooLink{
-		Filename:  "",
-		FileSize:  0,
-		FileType:  "",
-		FileHash:  "",
-		Content:   "",
-		Readme:    "",
-		LinkURL:   "",
-		LinkClass: "",
-		Success:   false,
-		Error:     "",
-	}
-	sid := c.FormValue("demozoo-submission")
-	id, err := strconv.Atoi(sid)
-	if err != nil {
-		return c.String(http.StatusNotAcceptable,
-			"demozoo id must be a numeric value, "+sid)
-	}
-	got.ID = id
-
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return ErrDB
-	}
-	defer db.Close()
-	ctx := context.Background()
-	dz, err := model.FindDemozooFile(ctx, db, int64(id))
-	if err != nil {
-		return c.String(http.StatusServiceUnavailable, "the database query failed")
-	}
-	if dz != 0 {
-		// todo: html link with the record id
-		return c.String(http.StatusOK, "the record already exists")
-	}
-	// 198232
-	// todo: lookup demozoo id from database, throw error if found
-	//return c.String(http.StatusOK, fmt.Sprint("TODO: LOOKUP!"))
-	//
-	return got.Download(c, downloadDir)
 }

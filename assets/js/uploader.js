@@ -12,7 +12,7 @@
   // Modal elements
   const zooM = document.getElementById("uploaderDZ");
   const pouetM = document.getElementById("uploaderPouet");
-  const introM = document.getElementById("uploaderIntro");
+  const introM = document.getElementById("uploaderDZX"); //uploaderIntro
   const txtM = document.getElementById("uploaderText");
   const imgM = document.getElementById("uploaderImg");
   const magM = document.getElementById("uploaderMag");

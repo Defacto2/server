@@ -1,9 +1,9 @@
-package zoo_test
+package demozoo_test
 
 import (
 	"testing"
 
-	"github.com/Defacto2/server/internal/zoo"
+	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -13,33 +13,33 @@ const testRemoteServers = false
 
 func TestDemozoo_Get(t *testing.T) {
 	t.Parallel()
-	prod := zoo.Demozoo{}
-	err := prod.Get(-1)
+	prod := demozoo.Production{}
+	_, err := prod.Get(-1)
 	require.Error(t, err)
-	require.ErrorIs(t, err, zoo.ErrID)
+	require.ErrorIs(t, err, demozoo.ErrID)
 
 	if !testRemoteServers {
 		return
 	}
 
-	err = prod.Get(1)
+	_, err = prod.Get(1)
 	require.NoError(t, err)
-	require.ErrorIs(t, err, zoo.ErrSuccess)
+	require.ErrorIs(t, err, demozoo.ErrSuccess)
 }
 
 func TestFind(t *testing.T) {
 	t.Parallel()
-	prod := zoo.Find("defacto2")
-	want := zoo.GroupID(10000)
+	prod := demozoo.Find("defacto2")
+	want := demozoo.GroupID(10000)
 	assert.Equal(t, want, prod)
 
-	prod = zoo.Find("notfound")
-	assert.Equal(t, prod, zoo.GroupID(0))
+	prod = demozoo.Find("notfound")
+	assert.Equal(t, prod, demozoo.GroupID(0))
 }
 
 func TestExternalLinks(t *testing.T) {
 	t.Parallel()
-	d := zoo.Demozoo{}
+	d := demozoo.Production{}
 	assert.Equal(t, 0, d.PouetProd())
 
 	d.ExternalLinks = append(d.ExternalLinks, struct {

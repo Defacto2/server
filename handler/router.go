@@ -263,7 +263,7 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 		return app.PostFilename(logr, x)
 	})
 	search.POST("/releaser", func(x echo.Context) error {
-		return htmx.PostReleaser(logr, x)
+		return htmx.SearchReleaser(logr, x)
 	})
 
 	// Uploader for anonymous client uploads

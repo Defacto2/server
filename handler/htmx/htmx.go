@@ -23,10 +23,10 @@ import (
 // using the htmx library for AJAX responses.
 func Routes(logr *zap.SugaredLogger, e *echo.Echo, dlDir string) *echo.Echo {
 	e.POST("/search/releaser", func(x echo.Context) error {
-		return PostReleaser(logr, x)
+		return SearchReleaser(logr, x)
 	})
-	e.POST("/demozoo/download", func(x echo.Context) error {
-		return PostDemozooLink(logr, x, dlDir) // dir.Download
+	e.POST("/demozoo/production", func(x echo.Context) error {
+		return DemozooProd(logr, x, dlDir) // dir.Download
 	})
 	return e
 }
@@ -37,8 +37,8 @@ func GlobTo(name string) string {
 	return strings.Join([]string{"view", "htmx", name}, "/")
 }
 
-// PostReleaser is a handler for the /search/releaser route.
-func PostReleaser(logr *zap.SugaredLogger, c echo.Context) error {
+// SearchReleaser is a handler for the /search/releaser route.
+func SearchReleaser(logr *zap.SugaredLogger, c echo.Context) error {
 	const maxResults = 14
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()

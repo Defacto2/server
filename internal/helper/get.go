@@ -45,11 +45,35 @@ func Redirect(rawURL string) string {
 	return rawURL
 }
 
+// DownloadStat returns the content length of a remote URL.
+// It returns an error if the URL is invalid or the request fails.
+// The content length is -1 if it is unknown.
+func DownloadStat(url string) (int64, error) {
+	const unknown = -1
+	url = Redirect(url)
+	client := http.Client{
+		Timeout: Timeout,
+	}
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return unknown, err
+	}
+	req.Header.Set("User-Agent", UserAgent)
+	res, err := client.Do(req)
+	if err != nil {
+		return unknown, err
+	}
+	defer res.Body.Close()
+	return res.ContentLength, nil
+}
+
+// DownloadResponse contains the details of a downloaded file.
 type DownloadResponse struct {
-	ContentLength string
-	ContentType   string
-	LastModified  string
-	Path          string
+	ContentLength string // ContentLength is the size of the file in bytes.
+	ContentType   string // ContentType is the MIME type of the file.
+	LastModified  string // LastModified is the last modified date of the file.
+	Path          string // Path is the path to the downloaded file.
 }
 
 // DownloadFile downloads a file from a remote URL and saves it to the default temp directory.

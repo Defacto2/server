@@ -21,13 +21,13 @@ import (
 	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/cache"
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/internal/sixteen"
 	"github.com/Defacto2/server/internal/web"
-	"github.com/Defacto2/server/internal/zoo"
 	"github.com/Defacto2/server/model"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/google/uuid"
@@ -526,12 +526,12 @@ func GetDemozooLink(logr *zap.SugaredLogger, c echo.Context, downloadDir string)
 }
 
 func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
-	var rec zoo.Demozoo
-	if err := rec.Get(got.ID); err != nil {
+	var prod demozoo.Production
+	if _, err := prod.Get(got.ID); err != nil {
 		got.Error = fmt.Errorf("could not get record %d from demozoo api: %w", got.ID, err).Error()
 		return c.JSON(http.StatusInternalServerError, got)
 	}
-	for _, link := range rec.DownloadLinks {
+	for _, link := range prod.DownloadLinks {
 		if link.URL == "" {
 			continue
 		}
@@ -573,9 +573,9 @@ func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 		got.Success = true
 		got.Error = ""
 		// obtain data from the external links
-		got.Github = rec.GithubRepo()
-		got.Pouet = rec.PouetProd()
-		got.YouTube = rec.YouTubeVideo()
+		got.Github = prod.GithubRepo()
+		got.Pouet = prod.PouetProd()
+		got.YouTube = prod.YouTubeVideo()
 		return got.Stat(c, downloadDir)
 	}
 	got.Error = "no usable download links found, they returned 404 or were empty"
@@ -1090,15 +1090,15 @@ func ProdZoo(logr *zap.SugaredLogger, c echo.Context, id string) error {
 	if logr == nil {
 		return InternalErr(logr, c, name, ErrZap)
 	}
-	data := zoo.Demozoo{}
+	prod := demozoo.Production{}
 	i, err := strconv.Atoi(id)
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
-	if err = data.Get(i); err != nil {
-		return c.String(http.StatusNotFound, err.Error())
+	if code, err := prod.Get(i); err != nil {
+		return c.String(code, err.Error())
 	}
-	if err = c.JSON(http.StatusOK, data); err != nil {
+	if err = c.JSON(http.StatusOK, prod); err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	return nil
@@ -1531,7 +1531,7 @@ func Releasers(logr *zap.SugaredLogger, c echo.Context, uri string) error {
 	data["lead"] = initialism.Join(initialism.Path(uri))
 	data["logo"] = s
 	data["description"] = "The collection of files for " + s + "."
-	data["demozoo"] = strconv.Itoa(int(zoo.Find(uri)))
+	data["demozoo"] = strconv.Itoa(int(demozoo.Find(uri)))
 	data["sixteen"] = sixteen.Find(uri)
 	data["website"] = web.Find(uri)
 	data[records] = fs
