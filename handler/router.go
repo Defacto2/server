@@ -16,6 +16,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 type debug struct {
@@ -32,6 +33,8 @@ type debug struct {
 	AcceptEncoding string `json:"acceptEncoding"`
 	AcceptLanguage string `json:"acceptLanguage"`
 }
+
+const code = http.StatusMovedPermanently
 
 // Routes defines the routes for the web server.
 func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error) {
@@ -292,8 +295,21 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 			c.Import.SessionMaxAge,
 			c.Import.GoogleAccounts...)
 	})
+	e, err := c.editor(logr, e, dir)
+	if err != nil {
+		return nil, err
+	}
+	return e, nil
+}
 
-	// Editor pages to update the database records.
+// editor pages to update the database records.
+func (c Configuration) editor(logr *zap.SugaredLogger, e *echo.Echo, dir app.Dirs) (*echo.Echo, error) {
+	if logr == nil {
+		return nil, ErrZap
+	}
+	if e == nil {
+		return nil, ErrRoutes
+	}
 	editor := e.Group("/editor")
 	editor.Use(c.ReadOnlyLock, c.SessionLock)
 	editor.GET("/get/demozoo/download/:id",
@@ -363,17 +379,38 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 	tag.POST("/info", func(x echo.Context) error {
 		return app.TagInfo(logr, x)
 	})
-
 	return e, nil
 }
 
 // Moved redirects are partial URL routers that are to be redirected with a HTTP 301 Moved Permanently.
 func (c Configuration) Moved(e *echo.Echo) (*echo.Echo, error) {
 	if e == nil {
-		return nil, fmt.Errorf("%w: %s", ErrRoutes, "handler routes")
+		return nil, ErrRoutes
 	}
-	const code = http.StatusMovedPermanently
-	// nginx redirects
+	e, err := nginx(e)
+	if err != nil {
+		return nil, err
+	}
+	e, err = retired(e)
+	if err != nil {
+		return nil, err
+	}
+	e, err = wayback(e)
+	if err != nil {
+		return nil, err
+	}
+	e, err = fixes(e)
+	if err != nil {
+		return nil, err
+	}
+	return e, nil
+}
+
+// nginx redirects
+func nginx(e *echo.Echo) (*echo.Echo, error) {
+	if e == nil {
+		return nil, ErrRoutes
+	}
 	nginx := e.Group("")
 	nginx.GET("/welcome", func(x echo.Context) error {
 		return x.Redirect(code, "/")
@@ -429,7 +466,14 @@ func (c Configuration) Moved(e *echo.Echo) (*echo.Echo, error) {
 	nginx.GET("/site-info.cfm", func(x echo.Context) error {
 		return x.Redirect(code, "/") // there's no dedicated about site page
 	})
-	// 2020 website redirects
+	return e, nil
+}
+
+// retired, redirects from the 2020 edition of the website
+func retired(e *echo.Echo) (*echo.Echo, error) {
+	if e == nil {
+		return nil, ErrRoutes
+	}
 	retired := e.Group("")
 	retired.GET("/code", func(x echo.Context) error {
 		return x.Redirect(code, "https://github.com/Defacto2/server")
@@ -540,7 +584,14 @@ func (c Configuration) Moved(e *echo.Echo) (*echo.Echo, error) {
 	retired.GET("/upload/other", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	// wayback redirects
+	return e, nil
+}
+
+// wayback redirects
+func wayback(e *echo.Echo) (*echo.Echo, error) {
+	if e == nil {
+		return nil, ErrRoutes
+	}
 	wayback := e.Group("")
 	wayback.GET("/scene-archive/:uri", func(x echo.Context) error {
 		return x.Redirect(code, "/")
@@ -560,7 +611,14 @@ func (c Configuration) Moved(e *echo.Echo) (*echo.Echo, error) {
 	wayback.GET("/web.pages/warez_world-1.htm", func(x echo.Context) error {
 		return x.Redirect(code, "/wayback/warez-world-from-2001-july-26/index.html")
 	})
-	// repaired, releaser database entry redirects that are contained in the model fix package.
+	return e, nil
+}
+
+// fixes redirects repaired, releaser database entry redirects that are contained in the model fix package.
+func fixes(e *echo.Echo) (*echo.Echo, error) {
+	if e == nil {
+		return nil, ErrRoutes
+	}
 	fixes := e.Group("/g")
 	const g = "/g/"
 	fixes.GET("/acid", func(x echo.Context) error {

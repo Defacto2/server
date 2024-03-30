@@ -69,38 +69,46 @@ type Configuration struct {
 // Controller is the primary instance of the Echo router.
 func (c Configuration) Controller() *echo.Echo {
 	logr := c.Logger
-	// configurations
+
 	e := echo.New()
-	e.HideBanner = true                              // hide the Echo banner
-	e.HTTPErrorHandler = c.Import.CustomErrorHandler // custom error handler (see: internal/config/logger.go)
-	// register html templates
+	e.HideBanner = true
+	e.HTTPErrorHandler = c.Import.CustomErrorHandler // (see: internal/config/logger.go)
+
 	templates, err := c.Registry()
 	if err != nil {
 		logr.Fatal(err)
 	}
 	e.Renderer = templates
-	// middleware pre-configurations
+
 	e.Pre(
-		middleware.Rewrite(rewrites()), // rewrites for assets
-		middleware.NonWWWRedirect(),    // redirect www.defacto2.net requests to defacto2.net
+		middleware.Rewrite(rewrites()),
+		// redirect www.defacto2.net requests to defacto2.net
+		middleware.NonWWWRedirect(),
 	)
 	httpsRedirect := c.Import.HTTPSRedirect && c.Import.TLSPort > 0
 	if httpsRedirect {
-		e.Pre(middleware.HTTPSRedirect()) // http://defacto2.net to https://defacto2.net redirect
+		// redirect http://defacto2.net requests to https://defacto2.net
+		e.Pre(middleware.HTTPSRedirect())
 	}
-	// middleware configurations
-	// Note: NEVER USE the middleware.Timeout(),
-	// it shouldn't be in the echo library and will cause server crashes
+	// ********************************************************************************
+	//  Middleware configurations note
+	//  NEVER USE the middleware.Timeout()
+	//  It is broken and should not be in the echo library as it causes server crashes.
+	// ********************************************************************************
 	e.Use(
-		middleware.Secure(),       // XSS cross-site scripting protection
-		c.Import.LoggerMiddleware, // custom HTTP logging middleware
-		c.NoCrawl,                 // add X-Robots-Tag to all responses
-		middleware.RemoveTrailingSlashWithConfig(configRTS()), // remove trailing slashes
+		// XSS cross-site scripting protection
+		middleware.Secure(),
+		// custom HTTP logging middleware
+		c.Import.LoggerMiddleware,
+		// add X-Robots-Tag to all responses
+		c.NoCrawl,
+		// remove trailing slashes
+		middleware.RemoveTrailingSlashWithConfig(configRTS()),
 	)
 	switch strings.ToLower(c.Import.Compression) {
-	case "gzip": // Gzip HTTP compression
+	case "gzip":
 		e.Use(middleware.Gzip())
-	case "br": // experimental Brotli HTTP compression
+	case "br":
 		e.Use(br.Brotli())
 	}
 	if c.Import.ProductionMode {
@@ -109,7 +117,6 @@ func (c Configuration) Controller() *echo.Echo {
 	// Static embedded web assets that get distributed in the binary
 	e = c.EmbedDirs(e)
 	// Routes for the web application
-	// that first handles the permanent redirects
 	e, err = c.Moved(e)
 	if err != nil {
 		logr.Fatal(err)
@@ -118,11 +125,10 @@ func (c Configuration) Controller() *echo.Echo {
 	if err != nil {
 		logr.Fatal(err)
 	}
+	e = htmx.Routes(logr, e)
 	// Routes for the retro web tables
-	retro := html3.Routes(logr, e)
-	retro.GET(Downloader, c.downloader)
-	// Routes for the htmx responses
-	e = htmx.Routes(logr, e, c.Import.DownloadDir)
+	old := html3.Routes(logr, e)
+	old.GET(Downloader, c.downloader)
 	return e
 }
 
@@ -231,7 +237,7 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
 	ctx, cancel := context.WithTimeout(context.Background(), waitDuration)
 	defer func() {
 		const alert = "Detected Ctrl-C, server will shutdown"
-		_ = c.Logger.Sync() // do not check error as there's false positives
+		_ = c.Logger.Sync() // do not check Sync errors as there can be false positives
 		dst := os.Stdout
 		w := bufio.NewWriter(dst)
 		fmt.Fprintf(w, "\n%s in %v ", alert, waitDuration)
@@ -317,10 +323,11 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo) {
 	}
 	lock := strings.TrimSpace(c.Import.TLSHost)
 	var address string
+	const showAllConnections = ""
 	switch lock {
-	case "": // allow all connections
+	case showAllConnections:
 		address = fmt.Sprintf(":%d", port)
-	default: // only allow connections from the
+	default:
 		address = fmt.Sprintf("%s:%d", lock, port)
 	}
 	if err := e.StartTLS(address, cpem, kpem); err != nil {

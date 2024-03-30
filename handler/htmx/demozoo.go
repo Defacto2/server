@@ -23,11 +23,7 @@ import (
 // Both the Demozoo production ID param and the Defacto2 UUID query
 // param values are required as params to fetch the production data and
 // to save the file to the correct filename.
-func DemozooProd(logr *zap.SugaredLogger, c echo.Context) error {
-	if logr == nil {
-		return c.String(http.StatusInternalServerError,
-			"error, demozoo prod logger is nil")
-	}
+func DemozooProd(c echo.Context) error {
 	sid := c.FormValue("demozoo-submission")
 	id, err := strconv.Atoi(sid)
 	if err != nil {

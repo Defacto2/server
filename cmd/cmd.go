@@ -199,7 +199,7 @@ func Version(s string) string {
 type ExitCode int // ExitCode is the exit code for this program.
 
 const (
-	NoExit       ExitCode = iota - 1 // NoExit is a special case to indicate the program should not exit.
+	Continue     ExitCode = iota - 1 // Continue is a special case to indicate the program should not exit.
 	ExitOK                           // ExitOK is the exit code for a successful run.
 	GenericError                     // GenericError is the exit code for a generic error.
 	UsageError                       // UsageError is the exit code for an incorrect command line argument or usage.
@@ -207,16 +207,14 @@ const (
 
 // Run parses optional command line arguments for this program.
 func Run(ver string, c *config.Config) (ExitCode, error) {
-	// return an error if the config is nil
 	if c == nil {
 		return UsageError, ErrCmd
 	}
-	// if there are command-line arguments, parse them
-	if args := len(os.Args[1:]); args > 0 {
+	useArguments := len(os.Args[1:]) > 0
+	if useArguments {
 		return setup(ver, c)
 	}
-	// otherwise run the web server
-	return NoExit, nil
+	return Continue, nil
 }
 
 // desc returns the description for this program.

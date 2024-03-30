@@ -23,10 +23,10 @@ var (
 
 // Routes for the /htmx sub-route group that returns HTML fragments
 // using the htmx library for AJAX responses.
-func Routes(logr *zap.SugaredLogger, e *echo.Echo, dirDownload string) *echo.Echo {
+func Routes(logr *zap.SugaredLogger, e *echo.Echo) *echo.Echo {
 	submit := e.Group("/", middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(2)))
 	submit.POST("/demozoo/production", func(x echo.Context) error {
-		return DemozooProd(logr, x)
+		return DemozooProd(x)
 	})
 	submit.POST("/demozoo/production/submit/:id", func(x echo.Context) error {
 		return DemozooSubmit(logr, x)
