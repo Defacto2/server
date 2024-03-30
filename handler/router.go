@@ -16,115 +16,207 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 )
-
-type debug struct {
-	Protocol       string `json:"protocol"`
-	Host           string `json:"host"`
-	RemoteAddress  string `json:"remoteAddress"`
-	Method         string `json:"method"`
-	Path           string `json:"path"`
-	URI            string `json:"uri"`
-	Query          string `json:"query"`
-	Referer        string `json:"referer"`
-	UserAgent      string `json:"userAgent"`
-	Accept         string `json:"accept"`
-	AcceptEncoding string `json:"acceptEncoding"`
-	AcceptLanguage string `json:"acceptLanguage"`
-}
 
 const code = http.StatusMovedPermanently
 
 // Routes defines the routes for the web server.
 func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error) {
+	if c.Logger == nil {
+		return nil, fmt.Errorf("%w: %s", ErrZap, "handler routes")
+	}
 	if e == nil {
 		return nil, fmt.Errorf("%w: %s", ErrRoutes, "handler routes")
 	}
-	logr := c.Logger
-
-	const mapExt = ".map"
-
-	// Cookie session key for the session store.
-	nonce := ""
-	if !c.Import.ReadMode {
-		nonce, err := helper.CookieStore(c.Import.SessionKey)
-		if err != nil {
-			return nil, err
-		}
-		e.Use(session.Middleware(sessions.NewCookieStore(nonce)))
+	if d, err := public.ReadDir("."); err != nil || len(d) == 0 {
+		return nil, fmt.Errorf("%w: %s", ErrFS, "public")
 	}
 
-	// Cache the database record count.
-	app.Caching.RecordCount = c.RecordCount
-
-	// Set the application configuration for paths.
+	app.Caching.Records(c.RecordCount)
 	dir := app.Dirs{
 		Download:  c.Import.DownloadDir,
 		Preview:   c.Import.PreviewDir,
 		Thumbnail: c.Import.ThumbnailDir,
 	}
 
-	// Serve embedded CSS, JS and WASM files
+	nonce, err := c.nonce(e)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", err, "nonce")
+	}
+	if e, err = c.html(e, public); err != nil {
+		return nil, fmt.Errorf("%w: %s", err, "html")
+	}
+	if e, err = c.fonts(e, public); err != nil {
+		return nil, fmt.Errorf("%w: %s", err, "fonts")
+	}
+	if e, err = c.embedded(e, public); err != nil {
+		return nil, fmt.Errorf("%w: %s", err, "embedded")
+	}
+	if e, err = c.static(e); err != nil {
+		return nil, fmt.Errorf("%w: %s", err, "static")
+	}
+	if e, err = c.custom404(e); err != nil {
+		return nil, fmt.Errorf("%w: %s", err, "custom404")
+	}
+	if e, err = c.debugInfo(e); err != nil {
+		return nil, fmt.Errorf("%w: %s", err, "debugInfo")
+	}
+	if e, err = c.website(e, dir); err != nil {
+		return nil, fmt.Errorf("%w: %s", err, "website")
+	}
+	if e, err = c.search(e); err != nil {
+		return nil, fmt.Errorf("%w: %s", err, "search")
+	}
+	if e, err = c.uploader(e); err != nil {
+		return nil, fmt.Errorf("%w: %s", err, "uploader")
+	}
+	if e, err = c.signings(e, nonce); err != nil {
+		return nil, fmt.Errorf("%w: %s", err, "signings")
+	}
+	if e, err = c.editor(e, dir); err != nil {
+		return nil, fmt.Errorf("%w: %s", err, "editor")
+	}
+	return e, nil
+}
+
+// nonce configures and returns the session key for the cookie store.
+// If the read mode is enabled then an empty session key is returned.
+func (c Configuration) nonce(e *echo.Echo) (string, error) {
+	if e == nil {
+		return "", ErrRoutes
+	}
+	if c.Import.ReadMode {
+		return "", nil
+	}
+	b, err := helper.CookieStore(c.Import.SessionKey)
+	if err != nil {
+		return "", err
+	}
+	e.Use(session.Middleware(sessions.NewCookieStore(b)))
+	return string(b), nil
+}
+
+// html serves the embedded CSS, JS, WASM, and source map files for the HTML website layout.
+func (c Configuration) html(e *echo.Echo, public embed.FS) (*echo.Echo, error) {
+	if e == nil {
+		return nil, ErrRoutes
+	}
 	hrefs, names := app.Hrefs(), app.Names()
 	for key, href := range hrefs {
 		e.FileFS(href, names[key], public)
 	}
-	// Serve embedded CSS and JS map files
+	// source map files
+	const mapExt = ".map"
 	e.FileFS(hrefs[app.Bootstrap5]+mapExt, names[app.Bootstrap5]+mapExt, public)
 	e.FileFS(hrefs[app.Bootstrap5JS]+mapExt, names[app.Bootstrap5JS]+mapExt, public)
 	e.FileFS(hrefs[app.Jsdos6JS]+mapExt, names[app.Jsdos6JS]+mapExt, public)
+	return e, nil
+}
 
-	// Serve embedded SVG collections
-	e.FileFS("/bootstrap-icons.svg", "public/image/bootstrap-icons.svg", public)
-
-	// Serve embedded font files
-	fonts, fnames := app.FontRefs(), app.FontNames()
-	font := e.Group("/font")
-	for key, href := range fonts {
-		font.FileFS(href, fnames[key], public)
+// fonts serves the embedded woff2, woff, and ttf font files for the website layout.
+func (c Configuration) fonts(e *echo.Echo, public embed.FS) (*echo.Echo, error) {
+	if e == nil {
+		return nil, ErrRoutes
 	}
+	paths, names := app.FontRefs(), app.FontNames()
+	font := e.Group("/font")
+	for key, href := range paths {
+		font.FileFS(href, names[key], public)
+	}
+	return e, nil
+}
 
-	// Serve embedded image files
+// embedded serves the miscellaneous embedded files for the website layout.
+// This includes the favicon, robots.txt, site.webmanifest, osd.xml, and the SVG icons.
+func (c Configuration) embedded(e *echo.Echo, public embed.FS) (*echo.Echo, error) {
+	if e == nil {
+		return nil, ErrRoutes
+	}
+	e.FileFS("/bootstrap-icons.svg", "public/image/bootstrap-icons.svg", public)
 	e.FileFS("/favicon.ico", "public/image/favicon.ico", public)
-
-	// Serve embedded text files
 	e.FileFS("/osd.xml", "public/text/osd.xml", public)
 	e.FileFS("/robots.txt", "public/text/robots.txt", public)
 	e.FileFS("/site.webmanifest", "public/text/site.webmanifest.json", public)
+	return e, nil
+}
 
-	// Serve asset images
+// static serves the static assets for the website such as the thumbnail and preview images.
+func (c Configuration) static(e *echo.Echo) (*echo.Echo, error) {
+	if e == nil {
+		return nil, ErrRoutes
+	}
 	e.Static(config.StaticThumb(), c.Import.ThumbnailDir)
 	e.Static(config.StaticOriginal(), c.Import.PreviewDir)
+	return e, nil
+}
 
-	// Custom 404 error, "The page cannot be found"
+// custom404 is a custom 404 error handler for the website, "The page cannot be found."
+func (c Configuration) custom404(e *echo.Echo) (*echo.Echo, error) {
+	logr := c.Logger
+	if logr == nil {
+		return nil, ErrZap
+	}
+	if e == nil {
+		return nil, ErrRoutes
+	}
 	e.GET("/:uri", func(x echo.Context) error {
-		return app.StatusErr(logr, x, http.StatusNotFound, x.Param("uri"))
+		return app.StatusErr(c.Logger, x, http.StatusNotFound, x.Param("uri"))
 	})
+	return e, nil
+}
 
-	// Request debug information
-	if !c.Import.ProductionMode {
-		e.GET("/debug", func(x echo.Context) error {
-			req := x.Request()
-			d := debug{
-				Protocol:       req.Proto,
-				Host:           req.Host,
-				RemoteAddress:  req.RemoteAddr,
-				Method:         req.Method,
-				Path:           req.URL.Path,
-				URI:            req.RequestURI,
-				Query:          req.URL.RawQuery,
-				Referer:        req.Referer(),
-				UserAgent:      req.UserAgent(),
-				Accept:         req.Header.Get("Accept"),
-				AcceptEncoding: req.Header.Get("Accept-Encoding"),
-				AcceptLanguage: req.Header.Get("Accept-Language"),
-			}
-			return x.JSONPretty(http.StatusOK, d, "  ")
-		})
+// debugInfo returns detailed information about the HTTP request.
+func (c Configuration) debugInfo(e *echo.Echo) (*echo.Echo, error) {
+	if e == nil {
+		return nil, ErrRoutes
+	}
+	if c.Import.ProductionMode {
+		return e, nil
 	}
 
-	// Use session middleware for all routes but not the embedded files.
+	type debug struct {
+		Protocol       string `json:"protocol"`
+		Host           string `json:"host"`
+		RemoteAddress  string `json:"remoteAddress"`
+		Method         string `json:"method"`
+		Path           string `json:"path"`
+		URI            string `json:"uri"`
+		Query          string `json:"query"`
+		Referer        string `json:"referer"`
+		UserAgent      string `json:"userAgent"`
+		Accept         string `json:"accept"`
+		AcceptEncoding string `json:"acceptEncoding"`
+		AcceptLanguage string `json:"acceptLanguage"`
+	}
+
+	e.GET("/debug", func(x echo.Context) error {
+		req := x.Request()
+		d := debug{
+			Protocol:       req.Proto,
+			Host:           req.Host,
+			RemoteAddress:  req.RemoteAddr,
+			Method:         req.Method,
+			Path:           req.URL.Path,
+			URI:            req.RequestURI,
+			Query:          req.URL.RawQuery,
+			Referer:        req.Referer(),
+			UserAgent:      req.UserAgent(),
+			Accept:         req.Header.Get("Accept"),
+			AcceptEncoding: req.Header.Get("Accept-Encoding"),
+			AcceptLanguage: req.Header.Get("Accept-Language"),
+		}
+		return x.JSONPretty(http.StatusOK, d, "  ")
+	})
+	return e, nil
+}
+
+// website routes for the main site.
+func (c Configuration) website(e *echo.Echo, dir app.Dirs) (*echo.Echo, error) {
+	if e == nil {
+		return nil, ErrRoutes
+	}
+	logr := c.Logger
+
 	s := e.Group("")
 	s.GET("/", func(x echo.Context) error {
 		return app.Index(logr, x)
@@ -240,9 +332,16 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 	s.GET("/v/:id", func(x echo.Context) error {
 		return app.Inline(logr, x, c.Import.DownloadDir)
 	})
+	return e, nil
+}
 
-	// Search forms and results for database records.
-	search := s.Group("/search")
+// search forms and the results for database queries.
+func (c Configuration) search(e *echo.Echo) (*echo.Echo, error) {
+	if e == nil {
+		return nil, ErrRoutes
+	}
+	logr := c.Logger
+	search := e.Group("/search")
 	search.GET("/desc", func(x echo.Context) error {
 		return app.SearchDesc(logr, x)
 	})
@@ -268,15 +367,29 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 	search.POST("/releaser", func(x echo.Context) error {
 		return htmx.SearchReleaser(logr, x)
 	})
+	return e, nil
+}
 
-	// Uploader for anonymous client uploads
+// uploader for anonymous client uploads
+func (c Configuration) uploader(e *echo.Echo) (*echo.Echo, error) {
+	if e == nil {
+		return nil, ErrRoutes
+	}
+	logr := c.Logger
 	uploader := e.Group("/uploader")
 	uploader.Use(c.ReadOnlyLock)
 	uploader.GET("", func(x echo.Context) error {
 		return app.PostIntro(logr, x)
 	})
+	return e, nil
+}
 
-	// Sign in for operators.
+// signins for operators.
+func (c Configuration) signings(e *echo.Echo, nonce string) (*echo.Echo, error) {
+	if e == nil {
+		return nil, ErrRoutes
+	}
+	logr := c.Logger
 	signings := e.Group("")
 	signings.Use(c.ReadOnlyLock)
 	signings.GET("/signedout", func(x echo.Context) error {
@@ -295,21 +408,15 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 			c.Import.SessionMaxAge,
 			c.Import.GoogleAccounts...)
 	})
-	e, err := c.editor(logr, e, dir)
-	if err != nil {
-		return nil, err
-	}
 	return e, nil
 }
 
 // editor pages to update the database records.
-func (c Configuration) editor(logr *zap.SugaredLogger, e *echo.Echo, dir app.Dirs) (*echo.Echo, error) {
-	if logr == nil {
-		return nil, ErrZap
-	}
+func (c Configuration) editor(e *echo.Echo, dir app.Dirs) (*echo.Echo, error) {
 	if e == nil {
 		return nil, ErrRoutes
 	}
+	logr := c.Logger
 	editor := e.Group("/editor")
 	editor.Use(c.ReadOnlyLock, c.SessionLock)
 	editor.GET("/get/demozoo/download/:id",

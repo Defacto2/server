@@ -71,6 +71,11 @@ const (
 // Caching are values that are used throughout the app or layouts.
 var Caching = Cache{} //nolint:gochecknoglobals
 
+// Records caches the database record count.
+func (c *Cache) Records(i int) {
+	c.RecordCount = i
+}
+
 // Attribute returns a formatted string of the roles for the given scener name.
 func Attribute(write, code, art, music, name string) string {
 	name = strings.ToLower(name)

@@ -48,6 +48,7 @@ const (
 var (
 	ErrCtx    = errors.New("echo context is nil")
 	ErrData   = errors.New("data interface is nil")
+	ErrFS     = errors.New("embed filesystem instance is empty")
 	ErrName   = errors.New("template name string is empty")
 	ErrRoutes = errors.New("e echo instance is nil")
 	ErrTmpl   = errors.New("named template cannot be found")
