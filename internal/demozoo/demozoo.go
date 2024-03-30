@@ -28,6 +28,7 @@ import (
 const (
 	ProdURL = "https://demozoo.org/api/v1/productions/" // ProdURL is the base URL for the Demozoo production API.
 	Timeout = 10 * time.Second                          // HTTP client timeout, Demozoo replies can be slow.
+	Sanity  = 450000                                    // Sanity is to check the maximum permitted production ID.
 )
 
 // Production is a Demozoo production record.
@@ -42,6 +43,7 @@ type Production struct {
 	Supertype string `json:"supertype"`
 	// Authors
 	Authors []struct {
+		Name     string `json:"name"`
 		Releaser struct {
 			Name    string `json:"name"`
 			IsGroup bool   `json:"is_group"`

@@ -2,31 +2,37 @@
 package htmx
 
 import (
-	"context"
 	"embed"
+	"errors"
 	"html/template"
-	"net/http"
 	"strings"
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/handler/app"
-	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/postgres"
-	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
+)
+
+var (
+	ErrDB    = errors.New("database connection is nil")
+	ErrExist = errors.New("file already exists")
 )
 
 // Routes for the /htmx sub-route group that returns HTML fragments
 // using the htmx library for AJAX responses.
-func Routes(logr *zap.SugaredLogger, e *echo.Echo, dlDir string) *echo.Echo {
-	e.POST("/search/releaser", func(x echo.Context) error {
-		return SearchReleaser(logr, x)
+func Routes(logr *zap.SugaredLogger, e *echo.Echo, dirDownload string) *echo.Echo {
+	submit := e.Group("/", middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(2)))
+	submit.POST("/demozoo/production", func(x echo.Context) error {
+		return DemozooProd(logr, x)
 	})
-	e.POST("/demozoo/production", func(x echo.Context) error {
-		return DemozooProd(logr, x, dlDir) // dir.Download
+	submit.POST("/demozoo/production/submit/:id", func(x echo.Context) error {
+		return DemozooSubmit(logr, x)
+	})
+	submit.POST("/search/releaser", func(x echo.Context) error {
+		return SearchReleaser(logr, x)
 	})
 	return e
 }
@@ -35,54 +41,6 @@ func Routes(logr *zap.SugaredLogger, e *echo.Echo, dlDir string) *echo.Echo {
 func GlobTo(name string) string {
 	// note: the path is relative to the embed.FS root and must not use the OS path separator.
 	return strings.Join([]string{"view", "htmx", name}, "/")
-}
-
-// SearchReleaser is a handler for the /search/releaser route.
-func SearchReleaser(logr *zap.SugaredLogger, c echo.Context) error {
-	const maxResults = 14
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		logr.Error(err)
-		return c.String(http.StatusServiceUnavailable,
-			"cannot connect to the database")
-	}
-	defer db.Close()
-
-	input := c.FormValue("releaser-search")
-	slug := helper.Slug(helper.TrimRoundBraket(input))
-	if slug == "" {
-		return c.HTML(http.StatusOK, "<!-- empty search query -->")
-	}
-
-	lookup := []string{}
-	for key, values := range initialism.Initialisms() {
-		for _, value := range values {
-			if strings.Contains(strings.ToLower(value), strings.ToLower(slug)) {
-				lookup = append(lookup, string(key))
-			}
-		}
-	}
-	lookup = append(lookup, slug)
-	var r model.Releasers
-	if err := r.Similar(ctx, db, maxResults, lookup...); err != nil {
-		logr.Error(err)
-		return c.String(http.StatusServiceUnavailable,
-			"the search query failed")
-	}
-	if len(r) == 0 {
-		return c.HTML(http.StatusOK, "No releasers found.")
-	}
-	err = c.Render(http.StatusOK, "releasers", map[string]interface{}{
-		"maximum": maxResults,
-		"name":    slug,
-		"result":  r,
-	})
-	if err != nil {
-		return c.String(http.StatusInternalServerError,
-			"cannot render the htmx template")
-	}
-	return nil
 }
 
 func releasers(fs embed.FS) *template.Template {

@@ -31,12 +31,11 @@
     </div>
     <div class="col-lg-8" id="search-results"></div>
 </div>
-<script defer>
+<script defer>(() => {
     document.body.addEventListener('htmx:afterRequest', function (evt) {
         if(evt.detail.elt === null || evt.detail.elt.id !== "releaserSearch") {
             return;
         }
-        console.log(evt.detail.elt.id)
         const alert = document.getElementById("htmx-alert")
         if (typeof alert === "undefined" || alert === null) {
             return;
@@ -68,5 +67,6 @@
             document.getElementById("search-results").innerHTML = "";
         });
     }
+})();
 </script>
 {{- end }}

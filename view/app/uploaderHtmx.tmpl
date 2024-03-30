@@ -1,12 +1,11 @@
 {{- /*  uploaderHtmx.tmpl  */}}
 {{- define "uploaderX" -}}
-    {{- /*  Submit a Demozoo production using htmx */}}
     <div class="modal fade" id="uploaderDZX" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploaderDZXLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
               <h1 class="modal-title fs-5" id="uploaderDZXLabel">Demozoo production or graphic</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <button type="button" id="demozoo-submission-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
               <form>
@@ -23,26 +22,26 @@
                             <span class="visually-hidden">Loading...</span>
                         </div>
                     </div>
-                    <input type="number" spellcheck="false" autofocus required min="1" max="500000" value=""
+                    <input type="number" spellcheck="false" autofocus required min="1" max="{{ demozooSanity }}" value=""
                         class="form-control" id="demozoo-submission" name="demozoo-submission" 
                         hx-post="/demozoo/production" 
                         hx-target="#demozoo-submission-results" 
-                        hx-trigger="keyup changed delay:500ms" 
+                        hx-trigger="input changed delay:500ms, search" 
                         hx-indicator="#demozoo-indicator"
                         hx-validate="true"
                         placeholder="Lookup a production…">
                     <button type="reset" id="demozoo-submission-clear" class="btn btn-outline-dark">Clear</button>
                 </div>
               </form>
+              <div id="demozoo-submission-error" class="d-none text-danger mt-3"></div>
+              <div id="demozoo-submission-results" class="justify-content-center mt-3"></div>
             </div>
-            <div class="modal-footer justify-content-start">
-                <div id="demozoo-submission-error" class="d-none text-danger"></div>
-                <div id="demozoo-submission-results" class=""></div>
-            </div>
+            <div class="modal-footer"></div>
           </div>
         </div>
       </div>
-<script defer>
+<script defer>(() => {
+    const closeBtn = document.getElementById("demozoo-submission-close");
     const input = document.getElementById("demozoo-submission");
     const clear = document.getElementById("demozoo-submission-clear");
     const alert = document.getElementById("demozoo-submission-error")
@@ -76,13 +75,15 @@
         alert.innerText = "Something with the browser is not working, please refresh the page.";
         alert.removeAttribute("hidden");
     });
-    clear.addEventListener("click", function() {
+    function reset() {
         input.value = "";
         input.focus();
-        const alert = document.getElementById("demozoo-submission-error");
-        input.innerHTML = "";
-        const results = document.getElementById("demozoo-submission-results");
+        alert.innerText = "";
+        alert.classList.add("d-none");
         results.innerHTML = "";
-    });
+    }
+    closeBtn.addEventListener("click", reset);
+    clear.addEventListener("click", reset);
+})();
 </script>
 {{- end }}

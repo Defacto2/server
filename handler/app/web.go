@@ -9,6 +9,7 @@ import (
 	"html/template"
 	"path/filepath"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/volatiletech/null/v8"
 	"go.uber.org/zap"
@@ -221,6 +223,9 @@ func (web Web) TemplateClosures() template.FuncMap {
 		},
 		"bootstrap5JS": func() string {
 			return hrefs[Bootstrap5JS]
+		},
+		"demozooSanity": func() string {
+			return strconv.Itoa(demozoo.Sanity)
 		},
 		"editArchive": func() string {
 			return hrefs[EditArchive]
