@@ -726,7 +726,7 @@ func readmeSuggest(r *models.File) string {
 	}
 	cont := strings.ReplaceAll(r.FileZipContent.String, "\r\n", "\n")
 	content := strings.Split(cont, "\n")
-	return ReadmeSug(filename, group, content...)
+	return ReadmeSuggest(filename, group, content...)
 }
 
 // readmeFinds returns a list of readme text files found in the file archive.

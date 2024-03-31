@@ -30,8 +30,6 @@ type Paths map[Asset]string
 // The strings are intended for href attributes in HTML link elements and
 // the src attribute in HTML script elements.
 func Hrefs() Paths {
-	// note, the js-dos v6.22 are minified files,
-	// help: https://js-dos.com/6.22/examples/?arkanoid
 	return Paths{
 		Bootstrap5:      "/css/bootstrap.min.css",
 		Bootstrap5JS:    "/js/bootstrap.bundle.min.js",
@@ -58,7 +56,6 @@ func Hrefs() Paths {
 func Names() Paths {
 	const public = "public"
 	href := Hrefs()
-	// iterate and return HRefs() with the public prefix
 	paths := make(Paths, len(href))
 	for k, v := range href {
 		paths[k] = public + v

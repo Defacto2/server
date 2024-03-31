@@ -157,7 +157,8 @@ func Brief(platform, section any) template.HTML {
 func ByteFile(cnt, bytes any) template.HTML {
 	var s string
 	switch val := cnt.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+	case int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
 		p := message.NewPrinter(language.English)
 		s = p.Sprintf("%d", i)
@@ -166,7 +167,8 @@ func ByteFile(cnt, bytes any) template.HTML {
 		return template.HTML(s)
 	}
 	switch val := bytes.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+	case int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
 		s = fmt.Sprintf("%s <small>(%s)</small>", s, helper.ByteCount(i))
 	default:
@@ -180,7 +182,8 @@ func ByteFile(cnt, bytes any) template.HTML {
 func ByteFileS(name string, count, bytes any) template.HTML {
 	var s string
 	switch val := count.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+	case int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
 		name = names(name)
 		if i != 1 {
@@ -193,7 +196,8 @@ func ByteFileS(name string, count, bytes any) template.HTML {
 		return template.HTML(s)
 	}
 	switch val := bytes.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+	case int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
 		s = fmt.Sprintf("%s %s <small>(%s)</small>", s, name, helper.ByteCount(i))
 	default:
@@ -226,6 +230,7 @@ func Day(d any) template.HTML {
 // Describe returns a human readable description of a release.
 // Based on the platform, section, year and month.
 func Describe(platform, section, year, month any) template.HTML {
+	const tmpl = "describe"
 	p, s, y, m := "", "", "", ""
 	switch val := platform.(type) {
 	case string:
@@ -235,7 +240,7 @@ func Describe(platform, section, year, month any) template.HTML {
 			p = val.String
 		}
 	default:
-		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", platform))
+		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, tmpl, platform))
 	}
 	p = strings.TrimSpace(p)
 	switch val := section.(type) {
@@ -246,7 +251,7 @@ func Describe(platform, section, year, month any) template.HTML {
 			s = val.String
 		}
 	default:
-		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", section))
+		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, tmpl, section))
 	}
 	s = strings.TrimSpace(s)
 	switch val := year.(type) {
@@ -257,7 +262,7 @@ func Describe(platform, section, year, month any) template.HTML {
 			y = strconv.Itoa(int(val.Int16))
 		}
 	default:
-		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", year))
+		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, tmpl, year))
 	}
 	switch val := month.(type) {
 	case int, int8, int16, int32, int64:
@@ -268,7 +273,7 @@ func Describe(platform, section, year, month any) template.HTML {
 			m = helper.ShortMonth(int(val.Int16))
 		}
 	default:
-		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", month))
+		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, tmpl, month))
 	}
 	return template.HTML(desc(p, s, y, m))
 }
@@ -342,6 +347,8 @@ func LinkPreview(id any, name, platform string) template.HTML {
 }
 
 // LinkPreviewHref creates a URL path to link to the file record in tab, to use as a preview.
+//
+// A list of supported file types: https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
 func LinkPreviewHref(id any, name, platform string) template.HTML {
 	if name == "" {
 		return template.HTML("")
@@ -381,7 +388,7 @@ func LinkPreviewTip(name, platform string) string {
 	ext := strings.ToLower(filepath.Ext(name))
 	switch {
 	case slices.Contains(archives(), ext):
-		// this must always be first
+		// this case must always be first
 		return ""
 	case platform == textamiga, platform == "text":
 		return "Read this as text"
@@ -508,18 +515,17 @@ func LogoText(s string) string {
 	if s == "" {
 		return indent + Welcome
 	}
-
-	const padder = " ·· "
-	const wl, pl = len(Welcome), len(padder)
-	const limit = wl - (pl + pl) - 3
 	// odd returns true if the given integer is odd.
 	odd := func(i int) bool {
 		return i%2 != 0
 	}
+	const padder = " ·· "
+	const wl, pl = len(Welcome), len(padder)
+	const limit = wl - (pl + pl) - 3
 	s = strings.ToUpper(s)
 
-	// Truncate the string to the limit.
-	if len(s) > limit {
+	truncateStr := len(s) > limit
+	if truncateStr {
 		return fmt.Sprintf("%s:%s%s%s·",
 			indent, padder, s[:limit], padder)
 	}
@@ -527,13 +533,12 @@ func LogoText(s string) string {
 	if !odd(len(s)) {
 		styled = fmt.Sprintf(" %s%s%s", padder, s, padder)
 	}
-	// Pad the string with spaces to center it.
 	const split = 2
-	count := (wl / split) - (len(styled) / split) - split
+	padding := (wl / split) - (len(styled) / split) - split
 	text := fmt.Sprintf(":%s%s%s·",
-		strings.Repeat(" ", count),
+		strings.Repeat(" ", padding),
 		styled,
-		strings.Repeat(" ", count))
+		strings.Repeat(" ", padding))
 	return indent + text
 }
 
@@ -555,7 +560,8 @@ func MimeMagic(s string) template.HTML {
 // Mod returns true if the given integer is a multiple of the given max integer.
 func Mod(i any, max int) bool {
 	switch val := i.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+	case int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64:
 		v := reflect.ValueOf(val).Int()
 		return v%int64(max) == 0
 	default:
@@ -573,7 +579,8 @@ func Mod3(i any) bool {
 func Month(m any) template.HTML {
 	var s string
 	switch val := m.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+	case int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
 		if i == 0 {
 			return ""
@@ -778,7 +785,7 @@ func recordsSub1(uri string) string { //nolint:cyclop
 	}
 }
 
-// ReadmeSug returns a suggested readme file name for the record.
+// ReadmeSuggest returns a suggested readme file name for the record.
 // It prioritizes the filename and group name with a priority extension,
 // such as ".nfo", ".txt", etc. If no priority extension is found,
 // it will return the first textfile in the content list.
@@ -787,9 +794,9 @@ func recordsSub1(uri string) string { //nolint:cyclop
 // The group should be a name or common abbreviation of the group that
 // released the artifact. The content should be a list of files contained
 // in the artifact.
-func ReadmeSug(filename, group string, content ...string) string {
-	// this is a port of the CFML function, variables.findTextfile found in File.cfc
-
+//
+// This is a port of the CFML function, variables.findTextfile found in File.cfc
+func ReadmeSuggest(filename, group string, content ...string) string {
 	finds := readmeFinds(content...)
 	if len(finds) == 1 {
 		return finds[0]
@@ -801,30 +808,26 @@ func ReadmeSug(filename, group string, content ...string) string {
 	base := filepath.Base(filename)
 	for _, ext := range priority() {
 		for _, name := range finds {
-			// match the filename + extension
 			if strings.EqualFold(base+ext, name) {
 				return name
 			}
-			// match the group name + extension
 			if strings.EqualFold(group+ext, name) {
 				return name
 			}
 		}
 	}
-	// match file_id.diz
+	const matchFileId = "file_id.diz"
 	for _, name := range finds {
-		if strings.EqualFold("file_id.diz", name) {
+		if strings.EqualFold(matchFileId, name) {
 			return name
 		}
 	}
 	// match either the filename or the group name with a candidate extension
 	for _, ext := range candidate() {
 		for _, name := range finds {
-			// match the filename + extension
 			if strings.EqualFold(base+ext, name) {
 				return name
 			}
-			// match the group name + extension
 			if strings.EqualFold(group+ext, name) {
 				return name
 			}
@@ -893,20 +896,16 @@ func SafeJS(s string) template.JS {
 // It prioritizes strings with fewer slashes (i.e., closer to the root).
 // If the number of slashes is the same, it sorts alphabetically.
 func SortContent(content ...string) []string {
+	const windowsPath = "\\"
+	const pathSeparator = "/"
 	slices.SortFunc(content, func(a, b string) int {
-		// Fix any Windows path separators
-		a = strings.ReplaceAll(a, "\\", "/")
-		b = strings.ReplaceAll(b, "\\", "/")
-		// Count the number of slashes in each string
-		aCount := strings.Count(a, "/")
-		bCount := strings.Count(b, "/")
-
-		// Prioritize strings with fewer slashes (i.e., closer to the root)
+		a = strings.ReplaceAll(a, windowsPath, pathSeparator)
+		b = strings.ReplaceAll(b, windowsPath, pathSeparator)
+		aCount := strings.Count(a, pathSeparator)
+		bCount := strings.Count(b, pathSeparator)
 		if aCount != bCount {
 			return aCount - bCount
 		}
-
-		// If the number of slashes is the same, sort alphabetically
 		return cmp.Compare(strings.ToLower(a), strings.ToLower(b))
 	})
 	return content
@@ -1214,7 +1213,6 @@ func desc(p, s, y, m string) string {
 	}
 	x := tags.Humanize(tags.TagByURI(p), tags.TagByURI(s))
 	x = helper.Capitalize(x)
-	// x := HumanizeDescription(p, s)
 	if m != "" && y != "" {
 		x = fmt.Sprintf("%s published in <span class=\"text-nowrap\">%s, %s</a>", x, m, y)
 	} else if y != "" {

@@ -167,7 +167,7 @@ func TestSortContent(t *testing.T) {
 	}
 }
 
-func TestReadmeSug(t *testing.T) {
+func TestReadmeSuggest(t *testing.T) {
 	tests := []struct {
 		filename string
 		group    string
@@ -221,7 +221,7 @@ func TestReadmeSug(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.filename+"_"+tt.group, func(t *testing.T) {
-			result := app.ReadmeSug(tt.filename, tt.group, tt.content...)
+			result := app.ReadmeSuggest(tt.filename, tt.group, tt.content...)
 			assert.Equal(t, tt.expected, result)
 		})
 	}
