@@ -50,6 +50,7 @@ var (
 	ErrData   = errors.New("data interface is nil")
 	ErrFS     = errors.New("embed filesystem instance is empty")
 	ErrName   = errors.New("template name string is empty")
+	ErrPorts  = errors.New("the server ports are not configured")
 	ErrRoutes = errors.New("e echo instance is nil")
 	ErrTmpl   = errors.New("named template cannot be found")
 	ErrW      = errors.New("w io.writer instance is nil")
@@ -156,24 +157,23 @@ func (c Configuration) EmbedDirs(e *echo.Echo) *echo.Echo {
 // Info prints the application information to the console.
 func (c Configuration) Info() {
 	w := bufio.NewWriter(os.Stdout)
-	// Startup logo
-	if logo := string(*c.Brand); len(logo) > 0 {
-		w := bufio.NewWriter(os.Stdout)
-		if _, err := fmt.Fprintf(w, "%s\n\n", logo); err != nil {
+	if startupLogo := string(*c.Brand); len(startupLogo) > 0 {
+		if _, err := fmt.Fprintf(w, "%s\n\n", startupLogo); err != nil {
 			c.Logger.Warnf("Could not print the brand logo: %s.", err)
 		}
 		w.Flush()
 	}
-	// Legal info
+
 	fmt.Fprintf(w, "  %s.\n", cmd.Copyright())
-	// Brief version
-	fmt.Fprintf(w, "%s\n", c.version())
-	// CPU info
-	fmt.Fprintf(w, "  %d active routines sharing %d usable threads on %d CPU cores.\n",
+	fmt.Fprintf(w, "%s\n", c.versionBrief())
+
+	cpuInfo := fmt.Sprintf("  %d active routines sharing %d usable threads on %d CPU cores.",
 		runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
-	// Go info
-	fmt.Fprintf(w, "  compiled with Go %s for %s on %s.\n\n",
+	fmt.Fprintln(w, cpuInfo)
+
+	golangInfo := fmt.Sprintf("  compiled with Go %s for %s on %s.\n",
 		runtime.Version()[2:], cmd.OS(), cmd.Arch())
+	fmt.Fprintln(w, golangInfo)
 	//
 	// All additional feedback should go in internal/config/check.go (c *Config) Checks()
 	//
@@ -237,7 +237,7 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), waitDuration)
 	defer func() {
-		const alert = "Detected Ctrl-C, server will shutdown"
+		const alert = "Detected Ctrl + C, server will shutdown"
 		_ = c.Logger.Sync() // do not check Sync errors as there can be false positives
 		dst := os.Stdout
 		w := bufio.NewWriter(dst)
@@ -271,6 +271,33 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
 	}()
 }
 
+// Start the HTTP, and-or the TLS servers.
+func (c *Configuration) Start(e *echo.Echo, configs config.Config) error {
+	switch {
+	case configs.UseTLS() && configs.UseHTTP():
+		go func() {
+			e2 := e // we need a new echo instance, otherwise the server may use the wrong port
+			c.StartHTTP(e2)
+		}()
+		go c.StartTLS(e)
+	case configs.UseTLSLocal() && configs.UseHTTP():
+		go func() {
+			e2 := e // we need a new echo instance, otherwise the server may use the wrong port
+			c.StartHTTP(e2)
+		}()
+		go c.StartTLSLocal(e)
+	case configs.UseTLS():
+		go c.StartTLS(e)
+	case configs.UseHTTP():
+		go c.StartHTTP(e)
+	case configs.UseTLSLocal():
+		go c.StartTLSLocal(e)
+	default:
+		return ErrPorts
+	}
+	return nil
+}
+
 // StartHTTP starts the insecure HTTP web server.
 func (c *Configuration) StartHTTP(e *echo.Echo) {
 	port := c.Import.HTTPPort
@@ -291,14 +318,15 @@ func (c *Configuration) StartTLS(e *echo.Echo) {
 	}
 	cert := c.Import.TLSCert
 	key := c.Import.TLSKey
+	const failure = "Could not start the TLS server"
 	if cert == "" || key == "" {
-		c.Logger.Fatalf("Could not start the TLS server, missing certificate or key file.")
+		c.Logger.Fatalf("%s, missing certificate or key file.", failure)
 	}
 	if !helper.IsFile(cert) {
-		c.Logger.Fatalf("Could not start the TLS server, certificate file does not exist: %s.", cert)
+		c.Logger.Fatalf("%s, certificate file does not exist: %s.", failure, cert)
 	}
 	if !helper.IsFile(key) {
-		c.Logger.Fatalf("Could not start the TLS server, key file does not exist: %s.", key)
+		c.Logger.Fatalf("%s, key file does not exist: %s.", failure, key)
 	}
 	address := fmt.Sprintf(":%d", port)
 	if err := e.StartTLS(address, "", ""); err != nil {
@@ -314,13 +342,14 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo) {
 		return
 	}
 	const cert, key = "public/certs/cert.pem", "public/certs/key.pem"
+	const failure = "Could not read the internal localhost"
 	cpem, err := c.Public.ReadFile(cert)
 	if err != nil {
-		c.Logger.Fatalf("Could not read the internal localhost, TLS certificate: %s.", err)
+		c.Logger.Fatalf("%s, TLS certificate: %s.", failure, err)
 	}
 	kpem, err := c.Public.ReadFile(key)
 	if err != nil {
-		c.Logger.Fatalf("Could not read the internal localhost, TLS key: %s.", err)
+		c.Logger.Fatalf("%s, TLS key: %s.", failure, err)
 	}
 	lock := strings.TrimSpace(c.Import.TLSHost)
 	var address string
@@ -345,8 +374,8 @@ func (c Configuration) downloader(ctx echo.Context) error {
 	return d.HTTPSend(c.Logger, ctx)
 }
 
-// version returns the application version string.
-func (c Configuration) version() string {
+// versionBrief returns the application version string.
+func (c Configuration) versionBrief() string {
 	if c.Version == "" {
 		return "  no version info, app compiled binary directly."
 	}

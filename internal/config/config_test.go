@@ -36,10 +36,10 @@ func TestConfig_String(t *testing.T) {
 func TestConfig_Addresses(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
-	_, err := c.Addresses()
+	_, err := c.AddressesCLI()
 	require.Error(t, err)
 	c.HTTPPort = 8080
-	s, err := c.Addresses()
+	s, err := c.AddressesCLI()
 	require.NoError(t, err)
 	assert.Contains(t, s, "http://localhost:8080")
 }
@@ -47,10 +47,10 @@ func TestConfig_Addresses(t *testing.T) {
 func TestConfig_Startup(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
-	_, err := c.Startup()
+	_, err := c.Addresses()
 	require.Error(t, err)
 	c.HTTPPort = 8080
-	s, err := c.Startup()
+	s, err := c.Addresses()
 	require.NoError(t, err)
 	assert.Contains(t, s, "http://localhost:8080")
 }

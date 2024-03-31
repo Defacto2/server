@@ -64,93 +64,63 @@ var (
 )
 
 // main is the entry point for the application.
+// By default the web server runs when no arguments are provided.
+// Otherwise, the command-line arguments are parsed and the application exits.
 func main() {
-	// Logger
-	// Use the development log until the environment vars are parsed
-	logr := logger.CLI().Sugar()
+	dev := developmentLog()
+	configs := environmentVars(dev)
 
-	// Environment variables configuration
-	configs := configure(logr)
+	parseArguments(dev, configs)
+	sanityChecks(dev, configs)
+	repairs(dev, configs)
 
-	// By default the web server runs when no arguments are provided
-	commandLine(logr, configs)
-
-	// Sanity checks
-	sanity(logr, configs)
-
-	// Setup the logger and print the startup production/read-only message
-	logr = setupLogger(logr, configs)
-
-	// Echo router and controller instance
-	server := controller(logr, configs)
-
-	// Controllers and routes
-	e := server.Controller()
-
-	// Startup information and warnings
-	server.Info()
-
-	// Start the HTTP and the TLS server
-	switch {
-	case configs.UseTLS() && configs.UseHTTP():
-		go func() {
-			e2 := e // we need a new echo instance, otherwise the server may use the wrong port
-			server.StartHTTP(e2)
-		}()
-		go server.StartTLS(e)
-	case configs.UseTLSLocal() && configs.UseHTTP():
-		go func() {
-			e2 := e // we need a new echo instance, otherwise the server may use the wrong port
-			server.StartHTTP(e2)
-		}()
-		go server.StartTLSLocal(e)
-	case configs.UseTLS():
-		go server.StartTLS(e)
-	case configs.UseHTTP():
-		go server.StartHTTP(e)
-	case configs.UseTLSLocal():
-		go server.StartTLSLocal(e)
-	default:
-		// this should never happen as HTTPPort is always set to a default value
-		logr.Fatalf("No server ports are configured, please check the environment variables.")
+	prod := welcomeLog(configs)
+	website := new(prod, configs)
+	e := website.Controller()
+	website.Info()
+	if err := website.Start(e, configs); err != nil {
+		prod.Fatalf("%s: please check the enviroment variables.", err)
 	}
 
-	// List the local IP addresses that can also be used to access the server
+	w := os.Stdout
 	go func() {
-		s, err := configs.Startup()
+		localIPs, err := configs.Addresses()
 		if err != nil {
-			logr.Errorf("%s: %s", ErrEnv, err)
+			prod.Errorf("%s: %s", ErrEnv, err)
 		}
-		fmt.Fprintf(os.Stdout, "%s\n", s)
+		fmt.Fprintf(w, "%s\n", localIPs)
 	}()
+
 	if localMode() {
 		go func() {
-			fmt.Fprint(os.Stdout, "Tap Ctrl + C, to exit at anytime.\n")
+			fmt.Fprint(w, "Tap Ctrl + C, to exit at anytime.\n")
 		}()
 	}
-	// Gracefully shutdown the HTTP server
-	server.ShutdownHTTP(e)
+	website.ShutdownHTTP(e)
 }
 
-// configure is used to parse the environment variables and set the Go runtime.
-func configure(logr *zap.SugaredLogger) config.Config {
+// developmentLog is used to create a development logger before the environment variables are parsed.
+func developmentLog() *zap.SugaredLogger {
+	return logger.Development().Sugar()
+}
+
+// environmentVars is used to parse the environment variables and set the Go runtime.
+func environmentVars(logr *zap.SugaredLogger) config.Config {
 	configs := config.Config{}
 	if err := env.Parse(&configs); err != nil {
 		logr.Fatalf("%w: %s", ErrEnv, err)
 	}
 	configs.Override(localMode())
 
-	// Go runtime customizations
-	// If not set, the automaxprocs lib automatically set GOMAXPROCS to match Linux container CPU quota
 	if i := configs.MaxProcs; i > 0 {
 		runtime.GOMAXPROCS(int(i))
 	}
 	return configs
 }
 
-func controller(logr *zap.SugaredLogger, configs config.Config) handler.Configuration {
-	// Echo router and controller instance
-	server := handler.Configuration{
+// new is used to create the server controller instance.
+func new(logr *zap.SugaredLogger, configs config.Config) handler.Configuration {
+	c := handler.Configuration{
 		Brand:   &brand,
 		Import:  &configs,
 		Logger:  logr,
@@ -158,15 +128,15 @@ func controller(logr *zap.SugaredLogger, configs config.Config) handler.Configur
 		Version: version,
 		View:    view,
 	}
-	if server.Version == "" {
-		server.Version = cmd.Commit("")
+	if c.Version == "" {
+		c.Version = cmd.Commit("")
 	}
-	server.RecordCount = RecordCount()
-	return server
+	c.RecordCount = RecordCount()
+	return c
 }
 
-// commandLine is used to parse the command-line arguments.
-func commandLine(logr *zap.SugaredLogger, c config.Config) {
+// parseArguments is used to parse the commandline arguments.
+func parseArguments(logr *zap.SugaredLogger, c config.Config) {
 	if logr == nil {
 		return
 	}
@@ -179,69 +149,28 @@ func commandLine(logr *zap.SugaredLogger, c config.Config) {
 	if useExitCode {
 		os.Exit(int(code))
 	}
-	// after the command-line arguments are parsed, continue with the web server
 }
 
-// sanity is used to perform a number of sanity checks on the file system and database.
-func sanity(logr *zap.SugaredLogger, configs config.Config) {
+// sanityChecks is used to perform a number of sanity checks on the file assets and database.
+// These are skipped if the FastStart environment variable is set.
+func sanityChecks(logr *zap.SugaredLogger, configs config.Config) {
 	if configs.FastStart || logr == nil {
 		return
 	}
-	// Configuration sanity checks
 	if err := configs.Checks(logr); err != nil {
 		logr.Errorf("%s: %s", ErrEnv, err)
 	}
-	// Confirm command requirements when not running in read-only mode
 	checks(logr, configs.ReadMode)
-	// Database connection checks
-	if conn, err := postgres.New(); err != nil {
+	conn, err := postgres.New()
+	if err != nil {
 		logr.Errorf("%s: %s", ErrDB, err)
-	} else {
-		_ = conn.Check(logr, localMode())
+		return
 	}
-	// Repair assets on the host file system
-	if err := configs.RepairFS(logr); err != nil {
-		logr.Errorf("%s: %s", ErrFS, err)
-	}
-	// Repair the database on startup
-	if err := RepairDB(logr); err != nil {
-		repairdb(logr, err)
-	}
-}
-
-// setupLogger is used to setup the logger.
-func setupLogger(logr *zap.SugaredLogger, c config.Config) *zap.SugaredLogger {
-	if logr == nil {
-		return nil
-	}
-	if localMode() {
-		s := "Welcome to the local Defacto2 web application."
-		logr.Info(s)
-		return logr
-	}
-	mode := "read-only mode"
-	if !c.ReadMode {
-		mode = "write mode"
-	}
-	switch c.ProductionMode {
-	case true:
-		if err := c.LogStorage(); err != nil {
-			logr.Fatalf("%w: %s", ErrLog, err)
-		}
-		logr = logger.Production(c.LogDir).Sugar()
-		s := "The server is running in a "
-		s += strings.ToUpper("production, "+mode) + "."
-		logr.Info(s)
-	default:
-		s := "The server is running in a "
-		s += strings.ToUpper("development, "+mode) + "."
-		logr.Warn(s)
-		logr = logger.Development().Sugar()
-	}
-	return logr
+	_ = conn.Check(logr, localMode())
 }
 
 // checks is used to confirm the required commands are available.
+// These are skipped if readonly is true.
 func checks(logr *zap.SugaredLogger, readonly bool) {
 	if logr == nil || readonly {
 		return
@@ -263,10 +192,53 @@ func checks(logr *zap.SugaredLogger, readonly bool) {
 			logr.Warnf("Found unrar but " +
 				"could not find unrar by Alexander Roshal, " +
 				"is unrar-free mistakenly installed?")
-		} else {
-			logr.Warnf("%s: %s", ErrCmd, err)
+			return
 		}
+		logr.Warnf("%s: %s", ErrCmd, err)
 	}
+}
+
+// repairs is used to fix any known issues with the file assets and the database entries.
+// These are skipped if the FastStart environment variable is set.
+func repairs(logr *zap.SugaredLogger, configs config.Config) {
+	if configs.FastStart || logr == nil {
+		return
+	}
+	if err := configs.RepairFS(logr); err != nil {
+		logr.Errorf("%s: %s", ErrFS, err)
+	}
+	if err := RepairDB(logr); err != nil {
+		repairdb(logr, err)
+	}
+}
+
+// welcomeLog is used to setup the logger for the server and print the startup message.
+func welcomeLog(c config.Config) *zap.SugaredLogger {
+	logr := logger.Development().Sugar()
+	const welcome = "Welcome to the local Defacto2 web application."
+	logr.Info(welcome)
+	if localMode() {
+		return logr
+	}
+	mode := "read-only mode"
+	if !c.ReadMode {
+		mode = "write mode"
+	}
+	switch c.ProductionMode {
+	case true:
+		if err := c.LogStorage(); err != nil {
+			logr.Fatalf("%w: %s", ErrLog, err)
+		}
+		logr = logger.Production(c.LogDir).Sugar()
+		s := "The server is running in a "
+		s += strings.ToUpper("production, "+mode) + "."
+		logr.Info(s)
+	default:
+		s := "The server is running in a "
+		s += strings.ToUpper("development, "+mode) + "."
+		logr.Warn(s)
+	}
+	return logr
 }
 
 // localMode is used to always override the PRODUCTION_MODE and READ_ONLY environment variables.

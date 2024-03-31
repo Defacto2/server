@@ -37,7 +37,7 @@ func Address(c *config.Config) *cli.Command {
 		Usage:       "list the server addresses",
 		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
 		Action: func(_ *cli.Context) error {
-			s, err := c.Addresses()
+			s, err := c.AddressesCLI()
 			if err != nil {
 				return err
 			}

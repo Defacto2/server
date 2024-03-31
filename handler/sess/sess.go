@@ -15,7 +15,7 @@ func Editor(c echo.Context) bool {
 		return false
 	}
 	if id, ok := sess.Values["sub"]; ok && id != "" {
-		// an additional could be added against a hard coded list of editor IDs.
+		// an additional check could be added against a hard coded list of editor IDs.
 		return true
 	}
 	return false

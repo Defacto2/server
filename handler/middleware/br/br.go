@@ -32,7 +32,6 @@ func Brotli() echo.MiddlewareFunc {
 
 // BrotliWithConfig returns the [Brotli] middleware with config.
 func BrotliWithConfig(config BrotliConfig) echo.MiddlewareFunc {
-	// Defaults
 	if config.Skipper == nil {
 		config.Skipper = DefaultBrotliConfig().Skipper
 	}
@@ -46,29 +45,27 @@ func BrotliWithConfig(config BrotliConfig) echo.MiddlewareFunc {
 				return next(c)
 			}
 
-			res := c.Response()
-			res.Header().Add(echo.HeaderVary, echo.HeaderAcceptEncoding)
+			resp := c.Response()
+			resp.Header().Add(echo.HeaderVary, echo.HeaderAcceptEncoding)
 			if strings.Contains(c.Request().Header.Get(echo.HeaderAcceptEncoding), BrotliScheme) {
-				res.Header().Set(echo.HeaderContentEncoding, BrotliScheme) // Issue #806
-				rw := res.Writer
-
+				resp.Header().Set(echo.HeaderContentEncoding, BrotliScheme) // Issue #806
+				rw := resp.Writer
 				w := brotli.NewWriterOptions(rw, brotli.WriterOptions{Quality: config.Level})
-
 				defer func() {
-					if res.Size == 0 {
-						if res.Header().Get(echo.HeaderContentEncoding) == BrotliScheme {
-							res.Header().Del(echo.HeaderContentEncoding)
+					if resp.Size == 0 {
+						if resp.Header().Get(echo.HeaderContentEncoding) == BrotliScheme {
+							resp.Header().Del(echo.HeaderContentEncoding)
 						}
 						// We have to reset response to it's pristine state when
 						// nothing is written to body or error is returned.
 						// See issue #424, #407.
-						res.Writer = rw
+						resp.Writer = rw
 						w.Reset(io.Discard)
 					}
 					w.Close()
 				}()
 				grw := &brotliResponseWriter{Writer: w, ResponseWriter: rw}
-				res.Writer = grw
+				resp.Writer = grw
 			}
 			return next(c)
 		}
