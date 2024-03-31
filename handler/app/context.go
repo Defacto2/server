@@ -96,8 +96,8 @@ func BadRequestErr(logr *zap.SugaredLogger, c echo.Context, uri string, err erro
 	} else if err != nil {
 		logr.Errorf("%d error for %q: %s", code, uri, err)
 	}
-	// render the fallback, text only error page
-	if c == nil {
+	useTextFallback := c == nil
+	if useTextFallback {
 		if logr == nil {
 			zapNil(fmt.Errorf("%w: internalerr", ErrCxt))
 		} else {
@@ -106,7 +106,6 @@ func BadRequestErr(logr *zap.SugaredLogger, c echo.Context, uri string, err erro
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Errorf("%w: handler app status", ErrCxt))
 	}
-	// render a user friendly error page
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
 	data["title"] = "400 error, there is a complication"
@@ -168,8 +167,8 @@ func DatabaseErr(logr *zap.SugaredLogger, c echo.Context, uri string, err error)
 	} else if err != nil {
 		logr.Errorf("%d error for %q: %s", unavailable, uri, err)
 	}
-	// render the fallback, text only error page
-	if c == nil {
+	useTextFallback := c == nil
+	if useTextFallback {
 		if logr == nil {
 			zapNil(fmt.Errorf("%w: databaserr", ErrCxt))
 		} else {
@@ -178,7 +177,6 @@ func DatabaseErr(logr *zap.SugaredLogger, c echo.Context, uri string, err error)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Errorf("%w: handler app status", ErrCxt))
 	}
-	// render a user friendly error page
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", unavailable)
 	data["title"] = fmt.Sprintf("%d error, there is a complication", unavailable)
@@ -218,8 +216,8 @@ func DownloadErr(logr *zap.SugaredLogger, c echo.Context, uri string, err error)
 	} else if err != nil {
 		logr.Errorf("%d error for %q: %s", code, id, err)
 	}
-	// render the fallback, text only error page
-	if c == nil {
+	useTextFallback := c == nil
+	if useTextFallback {
 		if logr == nil {
 			zapNil(fmt.Errorf("%w: downloaderr", ErrCxt))
 		} else {
@@ -228,7 +226,6 @@ func DownloadErr(logr *zap.SugaredLogger, c echo.Context, uri string, err error)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Errorf("%w: handler app status", ErrCxt))
 	}
-	// render a user friendly error page
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
 	data["title"] = "404 download error"
@@ -322,11 +319,9 @@ func Files(logr *zap.SugaredLogger, c echo.Context, uri, page string) error {
 	if logr == nil {
 		return InternalErr(logr, c, "files", ErrZap)
 	}
-	// check the uri is valid
 	if !Valid(uri) {
 		return FilesErr(logr, c, uri)
 	}
-	// check the page is valid
 	if page == "" {
 		return files(logr, c, uri, 1)
 	}
@@ -368,11 +363,9 @@ func FilesDeletions(logr *zap.SugaredLogger, c echo.Context, page string) error 
 		return InternalErr(logr, c, "filesDeletions", ErrZap)
 	}
 	uri := deletions.String()
-	// check the uri is valid
 	if !Valid(uri) {
 		return FilesErr(logr, c, uri)
 	}
-	// check the page is valid
 	if page == "" {
 		return files(logr, c, uri, 1)
 	}
@@ -388,11 +381,9 @@ func FilesUnwanted(logr *zap.SugaredLogger, c echo.Context, page string) error {
 		return InternalErr(logr, c, "filesUnwanted", ErrZap)
 	}
 	uri := unwanted.String()
-	// check the uri is valid
 	if !Valid(uri) {
 		return FilesErr(logr, c, uri)
 	}
-	// check the page is valid
 	if page == "" {
 		return files(logr, c, uri, 1)
 	}
@@ -411,11 +402,9 @@ func FilesWaiting(logr *zap.SugaredLogger, c echo.Context, page string) error {
 		return InternalErr(logr, c, "filesWaiting", ErrZap)
 	}
 	uri := forApproval.String()
-	// check the uri is valid
 	if !Valid(uri) {
 		return FilesErr(logr, c, uri)
 	}
-	// check the page is valid
 	if page == "" {
 		return files(logr, c, uri, 1)
 	}
@@ -435,8 +424,8 @@ func ForbiddenErr(logr *zap.SugaredLogger, c echo.Context, uri string, err error
 	} else if err != nil {
 		logr.Errorf("%d error for %q: %s", code, uri, err)
 	}
-	// render the fallback, text only error page
-	if c == nil {
+	useTextFallback := c == nil
+	if useTextFallback {
 		if logr == nil {
 			zapNil(fmt.Errorf("%w: internalerr", ErrCxt))
 		} else {
@@ -445,7 +434,6 @@ func ForbiddenErr(logr *zap.SugaredLogger, c echo.Context, uri string, err error
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Errorf("%w: handler app status", ErrCxt))
 	}
-	// render a user friendly error page
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
 	data["title"] = "403, forbidden"
@@ -536,8 +524,8 @@ func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 			continue
 		}
 		df, err := helper.DownloadFile(link.URL)
-		if err != nil || df.Path == "" {
-			// continue, to attempt the next download link
+		tryNextLink := err != nil || df.Path == ""
+		if tryNextLink {
 			continue
 		}
 		base := filepath.Base(link.URL)
@@ -546,8 +534,6 @@ func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 		got.LinkClass = link.LinkClass
 		got.LinkURL = link.URL
 		if err := helper.RenameFileOW(df.Path, dst); err != nil {
-			// if the rename file fails, check if the uuid file asset already exists
-			// and if it is the same as the downloaded file, if not then return an error.
 			sameFiles, err := helper.FileMatch(df.Path, dst)
 			if err != nil {
 				got.Error = fmt.Errorf("could not rename file, %s: %w", dst, err).Error()
@@ -558,12 +544,10 @@ func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 				return c.JSON(http.StatusConflict, got)
 			}
 		}
-		// get the file size
 		size, err := strconv.Atoi(df.ContentLength)
 		if err == nil {
 			got.FileSize = size
 		}
-		// get the file type
 		if df.ContentType != "" {
 			got.FileType = df.ContentType
 		}
@@ -572,7 +556,6 @@ func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 		got.LinkClass = link.LinkClass
 		got.Success = true
 		got.Error = ""
-		// obtain data from the external links
 		got.Github = prod.GithubRepo()
 		got.Pouet = prod.PouetProd()
 		got.YouTube = prod.YouTubeVideo()
@@ -584,7 +567,6 @@ func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 
 func (got *DemozooLink) Stat(c echo.Context, downloadDir string) error {
 	path := filepath.Join(downloadDir, got.UUID)
-	// get the file size if not already set
 	if got.FileSize == 0 {
 		stat, err := os.Stat(path)
 		if err != nil {
@@ -593,14 +575,12 @@ func (got *DemozooLink) Stat(c echo.Context, downloadDir string) error {
 		}
 		got.FileSize = int(stat.Size())
 	}
-	// get the file integrity hash
 	strong, err := helper.StrongIntegrity(path)
 	if err != nil {
 		got.Error = fmt.Errorf("could not get strong integrity hash, %s: %w", path, err).Error()
 		return c.JSON(http.StatusInternalServerError, got)
 	}
 	got.FileHash = strong
-	// get the file type if not already set
 	if got.FileType == "" {
 		m, err := mimetype.DetectFile(path)
 		if err != nil {
@@ -799,8 +779,8 @@ func InternalErr(logr *zap.SugaredLogger, c echo.Context, uri string, err error)
 	} else if err != nil {
 		logr.Errorf("%d error for %q: %s", code, uri, err)
 	}
-	// render the fallback, text only error page
-	if c == nil {
+	useTextFallback := c == nil
+	if useTextFallback {
 		if logr == nil {
 			zapNil(fmt.Errorf("%w: internalerr", ErrCxt))
 		} else {
@@ -809,7 +789,6 @@ func InternalErr(logr *zap.SugaredLogger, c echo.Context, uri string, err error)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Errorf("%w: handler app status", ErrCxt))
 	}
-	// render a user friendly error page
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
 	data["title"] = "500 error, there is a complication"
@@ -957,14 +936,9 @@ func PostDesc(logr *zap.SugaredLogger, c echo.Context, input string) error {
 	}
 	defer db.Close()
 
-	// input := c.FormValue("search-term-query")
 	terms := helper.SearchTerm(input)
 	rel := model.Files{}
-
 	fs, _ := rel.SearchDescription(ctx, db, terms)
-	if err != nil {
-		return DatabaseErr(logr, c, name, err)
-	}
 	d := Descriptions.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
 	data := emptyFiles(c)
@@ -1003,9 +977,6 @@ func PostName(logr *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
 	rel := model.Files{}
 
 	fs, _ := rel.SearchFilename(ctx, db, terms)
-	if err != nil {
-		return DatabaseErr(logr, c, name, err)
-	}
 	d := mode.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
 	data := emptyFiles(c)
@@ -1262,7 +1233,6 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 
 func recordsZ(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
 	switch Match(uri) {
-	// artifacts categories matches
 	case advert:
 		r := model.Advert{}
 		return r.List(ctx, db, page, limit)
@@ -1562,12 +1532,10 @@ func releaserSum(ctx context.Context, db *sql.DB, uri string) (map[string]string
 	if db == nil {
 		return nil, ErrDB
 	}
-	// fetch the statistics of the category
 	m := model.Summary{}
 	if err := m.Releaser(ctx, db, uri); err != nil {
 		return nil, err
 	}
-	// add the statistics to the data
 	d := map[string]string{
 		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
 		"years": helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
@@ -1796,8 +1764,8 @@ func StatusErr(logr *zap.SugaredLogger, c echo.Context, code int, uri string) er
 	if logr == nil {
 		zapNil(fmt.Errorf("%w: statuserr", ErrZap))
 	}
-	// render the fallback, text only error page
-	if c == nil {
+	useTextFallback := c == nil
+	if useTextFallback {
 		if logr == nil {
 			zapNil(fmt.Errorf("%w: statuserr", ErrCxt))
 		} else {
@@ -1806,7 +1774,6 @@ func StatusErr(logr *zap.SugaredLogger, c echo.Context, code int, uri string) er
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Errorf("%w: handler app status", ErrCxt))
 	}
-	// render a user friendly error page
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
 	var title, alert, logo, probl string
@@ -2168,7 +2135,6 @@ func bbsHandler(logr *zap.SugaredLogger, c echo.Context, orderBy model.OrderBy) 
 	data["logo"] = logo
 	data["h1"] = title
 	data["lead"] = lead
-	// releaser.html specific data items
 	data["itemName"] = name
 	data[key] = model.Releasers{}
 	data["stats"] = map[string]string{}
@@ -2309,7 +2275,6 @@ func files(logr *zap.SugaredLogger, c echo.Context, uri string, page int) error 
 		return InternalErr(logr, c, name, err)
 	}
 	defer db.Close()
-	// fetch the records by category
 	r, err := Records(ctx, db, uri, page, limit)
 	if err != nil {
 		return DatabaseErr(logr, c, name, err)
@@ -2371,7 +2336,6 @@ func magazines(logr *zap.SugaredLogger, c echo.Context, chronological bool) erro
 	data["logo"] = title
 	data["h1"] = title
 	data["lead"] = lead
-	// releaser.html specific data items
 	data["itemName"] = issue
 	data[key] = model.Releasers{}
 	data["stats"] = map[string]string{}
@@ -2423,7 +2387,6 @@ func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string
 			"years": "",
 		}
 	}
-	// fetch the statistics of the category
 	m := model.Summary{}
 	switch mode {
 	case Filenames:
@@ -2438,7 +2401,6 @@ func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string
 	if m.SumCount.Int64 == 0 {
 		return none()
 	}
-	// add the statistics to the data
 	d := map[string]string{
 		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
 		"years": helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
@@ -2466,12 +2428,10 @@ func scenerSum(ctx context.Context, db *sql.DB, uri string) (map[string]string, 
 	if db == nil {
 		return nil, ErrDB
 	}
-	// fetch the statistics of the category
 	m := model.Summary{}
 	if err := m.Scener(ctx, db, uri); err != nil {
 		return nil, err
 	}
-	// add the statistics to the data
 	d := map[string]string{
 		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
 		"years": helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
@@ -2538,13 +2498,10 @@ func sessionHandler(
 	if logr == nil {
 		return InternalErr(logr, c, name, ErrZap)
 	}
-
-	// get always returns a session, even if empty.
 	session, err := session.Get(sess.Name, c)
 	if err != nil {
 		return err
 	}
-
 	// session Options are cookie options and are all optional
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
 	const hour = 60 * 60
@@ -2557,14 +2514,12 @@ func sessionHandler(
 		SameSite: http.SameSiteLaxMode, // LaxMode (default) or StrictMode
 	}
 
-	// sub is the unique user id from google
-	val, ok := claims["sub"]
+	const uniqueGoogleID = "sub"
+	val, ok := claims[uniqueGoogleID]
 	if !ok {
 		return ErrClaims
 	}
-	session.Values["sub"] = val
-
-	// optionals
+	session.Values[uniqueGoogleID] = val
 	session.Values["givenName"] = claims["given_name"]
 	session.Values["email"] = claims["email"]
 	session.Values["emailVerified"] = claims["email_verified"]
@@ -2581,7 +2536,6 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 	if !Valid(uri) {
 		return nil, 0, nil
 	}
-	// fetch the statistics of the uri
 	m := model.Summary{}
 	err := m.URI(ctx, db, uri)
 	if err != nil && !errors.Is(err, model.ErrURI) {
@@ -2607,7 +2561,6 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 			}
 		}
 	}
-	// add the statistics to the data
 	d := map[string]string{
 		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
 		"years": fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
@@ -2634,7 +2587,6 @@ func releasers(logr *zap.SugaredLogger, c echo.Context, orderBy model.OrderBy) e
 	data["logo"] = logo
 	data["h1"] = title
 	data["lead"] = lead
-	// releaser.html specific data items
 	data["itemName"] = "file"
 	data[key] = model.Releasers{}
 	data["stats"] = map[string]string{}

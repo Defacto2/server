@@ -147,9 +147,10 @@ func Filename(width int, name null.String) string {
 	return helper.TruncFilename(width, name.String)
 }
 
+// GlobTo returns the path to the template file.
 func GlobTo(name string) string {
-	// note: the path is relative to the embed.FS root and must not use the OS path separator.
-	return strings.Join([]string{"view", "html3", name}, "/")
+	const pathSeparator = "/"
+	return strings.Join([]string{"view", "html3", name}, pathSeparator)
 }
 
 // ID returns the ID from the URL path.

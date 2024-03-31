@@ -70,7 +70,8 @@ func DemozooGetLink(filename, filesize, demozoo, uuid any) template.HTML {
 func DownloadB(i any) template.HTML {
 	var s string
 	switch val := i.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+	case int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
 		s = helper.ByteCount(i)
 		s = fmt.Sprintf("(%s)", s)
@@ -110,28 +111,30 @@ func (web Web) ImageSample(uuid string) template.HTML {
 // The desc is the description of the image used for the alt attribute in the img tag.
 // Supported formats are webp, png, jpg and avif.
 func (web Web) Screenshot(uuid, desc string) template.HTML {
+	const separator = "/"
 	class := "rounded mx-auto d-block img-fluid"
 	alt := strings.ToLower(desc) + " screenshot"
-	srcW := strings.Join([]string{config.StaticOriginal(), uuid + webp}, "/")
-	srcP := strings.Join([]string{config.StaticOriginal(), uuid + png}, "/")
-	srcJ := strings.Join([]string{config.StaticOriginal(), uuid + jpg}, "/")
-	srcA := strings.Join([]string{config.StaticOriginal(), uuid + avif}, "/")
-	// determine the best screenshot format to use based on browser support and filesize
+
+	srcW := strings.Join([]string{config.StaticOriginal(), uuid + webp}, separator)
+	srcP := strings.Join([]string{config.StaticOriginal(), uuid + png}, separator)
+	srcJ := strings.Join([]string{config.StaticOriginal(), uuid + jpg}, separator)
+	srcA := strings.Join([]string{config.StaticOriginal(), uuid + avif}, separator)
+
 	sizeA := helper.Size(filepath.Join(web.Import.PreviewDir, uuid+avif))
 	sizeJ := helper.Size(filepath.Join(web.Import.PreviewDir, uuid+jpg))
 	sizeP := helper.Size(filepath.Join(web.Import.PreviewDir, uuid+png))
 	sizeW := helper.Size(filepath.Join(web.Import.PreviewDir, uuid+webp))
 
-	// if the legacy jpg is the smallest, use it
-	if sizeJ > 0 && sizeJ < sizeA && sizeJ < sizeP && sizeJ < sizeW {
+	useLegacyJpg := sizeJ > 0 && sizeJ < sizeA && sizeJ < sizeP && sizeJ < sizeW
+	if useLegacyJpg {
 		return img(srcJ, alt, class, "")
 	}
-	// if the legacy png is the smallest, use it
-	if sizeP > 0 && sizeP < sizeA && sizeP < sizeW {
+	useLegacyPng := sizeP > 0 && sizeP < sizeA && sizeP < sizeW
+	if useLegacyPng {
 		return img(srcP, alt, class, "")
 	}
-	// use the modern formats
-	if sizeA > 0 || sizeW > 0 {
+	useModernFmts := sizeA > 0 || sizeW > 0
+	if useModernFmts {
 		elm := template.HTML("<picture>")
 		if sizeA > 0 {
 			elm += template.HTML(fmt.Sprintf("<source srcset=\"%s\" type=\"image/avif\" />", srcA))
@@ -147,7 +150,6 @@ func (web Web) Screenshot(uuid, desc string) template.HTML {
 		elm += "</picture>"
 		return template.HTML(elm)
 	}
-	// fallback to the legacy formats
 	if sizeJ > 0 {
 		return img(srcJ, alt, class, "")
 	}
@@ -350,10 +352,11 @@ func (web Web) TemplateClosures() template.FuncMap {
 }
 
 // TemplateFuncs are a collection of mapped functions that can be used in a template.
+//
+// The "fmtURI" function is not performant for large lists,
+// instead use "fmtRangeURI" in TemplateStrings().
 func (web Web) TemplateFuncs() template.FuncMap {
-	// releaser.Link is not performant for large lists,
-	// instead use fmtRangeURI in TemplateStrings().
-	funcMap := template.FuncMap{
+	return template.FuncMap{
 		"add":               helper.Add1,
 		"attribute":         Attribute,
 		"brief":             Brief,
@@ -394,7 +397,6 @@ func (web Web) TemplateFuncs() template.FuncMap {
 		"trimSpace":         TrimSpace,
 		"websiteIcon":       WebsiteIcon,
 	}
-	return funcMap
 }
 
 // Templates returns a map of the templates used by the route.

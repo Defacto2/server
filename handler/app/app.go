@@ -275,8 +275,8 @@ func Describe(platform, section, year, month any) template.HTML {
 
 // GlobTo returns the path to the template file.
 func GlobTo(name string) string {
-	// The path is relative to the embed.FS root and must not use the OS path separator.
-	return strings.Join([]string{"view", "app", name}, "/")
+	const pathSeparator = "/"
+	return strings.Join([]string{"view", "app", name}, pathSeparator)
 }
 
 // LastUpdated returns a string of the time since the given time t.

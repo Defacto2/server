@@ -39,8 +39,8 @@ func Routes(logr *zap.SugaredLogger, e *echo.Echo) *echo.Echo {
 
 // GlobTo returns the path to the template file.
 func GlobTo(name string) string {
-	// note: the path is relative to the embed.FS root and must not use the OS path separator.
-	return strings.Join([]string{"view", "htmx", name}, "/")
+	const pathSeparator = "/"
+	return strings.Join([]string{"view", "htmx", name}, pathSeparator)
 }
 
 func releasers(fs embed.FS) *template.Template {

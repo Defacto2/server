@@ -14,30 +14,14 @@ import (
 // and the custom /html3, group errror template.
 func Routes(logr *zap.SugaredLogger, e *echo.Echo) *echo.Group {
 	s := Sugared{Log: logr}
+
 	g := e.Group(Prefix)
 	g.GET("", s.Index)
 	g.GET("/all:offset", s.All)
 	g.GET("/all", s.All)
-	// dynamic routes for the category tags
-	// example: "/category/announcements/:offset"
 	g.GET("/categories", s.Categories)
-	category := g.Group("/category")
-	for _, tag := range tags.List() {
-		if tags.IsCategory(tag.String()) {
-			category.GET(fmt.Sprintf("/%s:offset", tag), s.Category)
-			category.GET(fmt.Sprintf("/%s", tag), s.Category)
-		}
-	}
-	// dynamic routes for the platform tags
-	// example: "/platform/dos/:offset"
 	g.GET("/platforms", s.Platforms)
-	platform := g.Group("/platform")
-	for _, tag := range tags.List() {
-		if tags.IsPlatform(tag.String()) {
-			platform.GET(fmt.Sprintf("/%s:offset", tag), s.Platform)
-			platform.GET(fmt.Sprintf("/%s", tag), s.Platform)
-		}
-	}
+	g = getTags(s, g)
 	g.GET("/groups:offset", s.Groups)
 	g.GET("/groups", s.Groups)
 	g.GET("/group/:id", s.Group)
@@ -47,8 +31,40 @@ func Routes(logr *zap.SugaredLogger, e *echo.Echo) *echo.Group {
 	g.GET("/documents", s.Documents)
 	g.GET("/software:offset", s.Software)
 	g.GET("/software", s.Software)
+	g = moved(g)
+	return custom404(g)
+}
 
-	// append legacy redirects
+// getTags creates the get routes for the category and platform tags.
+func getTags(s Sugared, g *echo.Group) *echo.Group {
+	category := g.Group("/category")
+	for _, tag := range tags.List() {
+		if tags.IsCategory(tag.String()) {
+			category.GET(fmt.Sprintf("/%s:offset", tag), s.Category)
+			category.GET(fmt.Sprintf("/%s", tag), s.Category)
+		}
+	}
+	platform := g.Group("/platform")
+	for _, tag := range tags.List() {
+		if tags.IsPlatform(tag.String()) {
+			platform.GET(fmt.Sprintf("/%s:offset", tag), s.Platform)
+			platform.GET(fmt.Sprintf("/%s", tag), s.Platform)
+		}
+	}
+	return g
+}
+
+// custom404 is a custom 404 error handler for the website, "The page cannot be found."
+func custom404(g *echo.Group) *echo.Group {
+	g.GET("/:uri", func(x echo.Context) error {
+		return echo.NewHTTPError(http.StatusNotFound,
+			"The page cannot be found: /html3/"+x.Param("uri"))
+	})
+	return g
+}
+
+// moved handles the moved permanently redirects.
+func moved(g *echo.Group) *echo.Group {
 	const code = http.StatusMovedPermanently
 	redirect := g.Group("")
 	redirect.GET("/index", func(c echo.Context) error {
@@ -59,11 +75,6 @@ func Routes(logr *zap.SugaredLogger, e *echo.Echo) *echo.Group {
 	})
 	redirect.GET("/platforms/index", func(c echo.Context) error {
 		return c.Redirect(code, "/html3/platforms")
-	})
-	// Custom 404 error, "The page cannot be found"
-	g.GET("/:uri", func(x echo.Context) error {
-		return echo.NewHTTPError(http.StatusNotFound,
-			"The page cannot be found: /html3/"+x.Param("uri"))
 	})
 	return g
 }

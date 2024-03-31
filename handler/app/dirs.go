@@ -50,6 +50,10 @@ const (
 	ansis                // extract ansilove compatible text
 )
 
+const (
+	epoch = 1980 // epoch is the default year for MS-DOS files without a timestamp
+)
+
 // Artifact is the handler for the of the file record.
 func (dir Dirs) Artifact(logr *zap.SugaredLogger, c echo.Context, readonly bool) error { //nolint:funlen
 	const name = "artifact"
@@ -72,8 +76,7 @@ func (dir Dirs) Artifact(logr *zap.SugaredLogger, c echo.Context, readonly bool)
 	fname := art.Filename.String
 	uuid := art.UUID.String
 	data := empty(c)
-	// artifact editor
-	data = dir.editor(art, data, readonly)
+	data = dir.artifactEditor(art, data, readonly)
 	// page metadata
 	data["uuid"] = uuid
 	data["download"] = helper.ObfuscateID(art.ID)
@@ -129,7 +132,7 @@ func (dir Dirs) Artifact(logr *zap.SugaredLogger, c echo.Context, readonly bool)
 	return nil
 }
 
-func (dir Dirs) editor(art *models.File, data map[string]interface{}, readonly bool) map[string]interface{} {
+func (dir Dirs) artifactEditor(art *models.File, data map[string]interface{}, readonly bool) map[string]interface{} {
 	if readonly || art == nil {
 		return data
 	}
@@ -165,13 +168,11 @@ func content(art *models.File, data map[string]interface{}) map[string]interface
 	if art == nil {
 		return data
 	}
-	// split the file content based on newlines
-	x := strings.Split(art.FileZipContent.String, "\n")
-	// delete any empty lines
-	x = slices.DeleteFunc(x, func(s string) bool {
+	items := strings.Split(art.FileZipContent.String, "\n")
+	items = slices.DeleteFunc(items, func(s string) bool {
 		return strings.TrimSpace(s) == ""
 	})
-	paths := slices.Compact(x)
+	paths := slices.Compact(items)
 	data["content"] = paths
 	data["contentDesc"] = ""
 
@@ -300,8 +301,8 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	}
 	// the bbs era, remote images protcol is not supported
 	// example: /f/b02392f
-	const ripScrip = ".rip"
-	if filepath.Ext(strings.ToLower(art.Filename.String)) == ripScrip {
+	const unsupported = ".rip"
+	if filepath.Ext(strings.ToLower(art.Filename.String)) == unsupported {
 		return data, nil
 	}
 
@@ -316,19 +317,9 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	if err != nil {
 		return data, err
 	}
-	if b == nil || render.IsUTF16(b) {
+	if b == nil || render.IsUTF16(b) || isZip(b) {
 		return data, nil
 	}
-
-	// check if the file is a zip archive.
-	// if unknown "application/octet-stream" is returned,
-	// but this can be a false positives with other legacy text files.
-	contentType := http.DetectContentType(b)
-	switch contentType {
-	case "archive/zip", "application/zip":
-		return data, nil
-	}
-
 	// Remove control codes and metadata from byte array
 	const (
 		reAnsi  = `\x1b\[[0-9;]*[a-zA-Z]` // ANSI escape codes
@@ -361,31 +352,46 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 		b = bytes.ReplaceAll(b, []byte{nbsp437}, []byte{sp})
 	}
 
-	// render both ISO8859 and CP437 encodings of the readme
-	// and let the client choose which one to display
 	r := charmap.ISO8859_1.NewDecoder().Reader(bytes.NewReader(b))
-	out := strings.Builder{}
-	if _, err := io.Copy(&out, r); err != nil {
+	readme, err := decode(r)
+	if err != nil {
 		return data, err
 	}
-	if !strings.HasSuffix(out.String(), "\n\n") {
-		out.WriteString("\n")
-	}
-	data["readmeLatin1"] = out.String()
-	r = charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
-	out = strings.Builder{}
-	if _, err := io.Copy(&out, r); err != nil {
-		return data, err
-	}
-	if !strings.HasSuffix(out.String(), "\n\n") {
-		out.WriteString("\n")
-	}
-	data["readmeCP437"] = out.String()
+	data["readmeLatin1"] = readme
 
-	data["readmeLines"] = strings.Count(out.String(), "\n")
-	data["readmeRows"] = helper.MaxLineLength(out.String())
+	r = charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
+	readme, err = decode(r)
+	if err != nil {
+		return data, err
+	}
+	data["readmeCP437"] = readme
+
+	data["readmeLines"] = strings.Count(readme, "\n")
+	data["readmeRows"] = helper.MaxLineLength(readme)
 
 	return data, nil
+}
+
+// isZip checks if b is a known zip archive.
+// when b is unknown, "application/octet-stream" is returned
+// which can be a false positive with other legacy text files.
+func isZip(b []byte) bool {
+	switch http.DetectContentType(b) {
+	case "archive/zip", "application/zip":
+		return true
+	}
+	return false
+}
+
+func decode(r io.Reader) (string, error) {
+	out := strings.Builder{}
+	if _, err := io.Copy(&out, r); err != nil {
+		return "", err
+	}
+	if !strings.HasSuffix(out.String(), "\n\n") {
+		out.WriteString("\n")
+	}
+	return out.String(), nil
 }
 
 // extractor is a helper function for the PreviewPost and AnsiLovePost handlers.
@@ -496,9 +502,7 @@ func artifactLM(art *models.File) string {
 		return none
 	}
 	year, _ := strconv.Atoi(art.FileLastModified.Time.Format("2006"))
-	const epoch = 1980
 	if year <= epoch {
-		// 1980 is the default date for MS-DOS files without a timestamp
 		return none
 	}
 	lm := art.FileLastModified.Time.Format("2006 Jan 2, 15:04")
@@ -522,8 +526,6 @@ func artifactMagic(name string) string {
 	if err != nil {
 		return err.Error()
 	}
-
-	// add custom magic matchers
 	filetype.AddMatcher(magic.ANSIType(), magic.ANSIMatcher)
 	filetype.AddMatcher(magic.ArcSeaType(), magic.ArcSeaMatcher)
 	filetype.AddMatcher(magic.ARJType(), magic.ARJMatcher)
@@ -548,9 +550,7 @@ func artifactModAgo(art *models.File) string {
 		return none
 	}
 	year, _ := strconv.Atoi(art.FileLastModified.Time.Format("2006"))
-	const epoch = 1980
 	if year <= epoch {
-		// 1980 is the default date for MS-DOS files without a timestamp
 		return none
 	}
 	return Updated(art.FileLastModified.Time, "Modified")
@@ -581,19 +581,19 @@ func artifactLinks(art *models.File) template.HTML {
 }
 
 // artifactJSDos returns true if the file record is a known, MS-DOS executable.
+// The supported file types are .zip archives and .exe, .com. binaries.
+// Script files such as .bat and .cmd are not supported.
 func artifactJSDos(art *models.File) bool {
 	if strings.TrimSpace(strings.ToLower(art.Platform.String)) != "dos" {
 		return false
 	}
-	// check supported filename extensions
 	ext := filepath.Ext(strings.ToLower(art.Filename.String))
 	switch ext {
-	case ".zip": // js-dos only supports zip archives
+	case ".zip":
 		return true
 	case ".exe", ".com":
 		return true
 	case ".bat", ".cmd":
-		// do not support the emulation of batch scripts
 		return false
 	default:
 		return false

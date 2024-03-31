@@ -74,7 +74,6 @@ func (d Download) HTTPSend(logr *zap.SugaredLogger, c echo.Context) error {
 		}
 	}
 
-	// build the source filepath
 	name := art.Filename.String
 	uid := strings.TrimSpace(art.UUID.String)
 	file := filepath.Join(d.Path, uid)
@@ -83,7 +82,7 @@ func (d Download) HTTPSend(logr *zap.SugaredLogger, c echo.Context) error {
 			"Absolute path: %q", art.Filename.String, art.ID, file)
 		return fmt.Errorf("%w: %s", ErrStat, name)
 	}
-	// pass the original filename to the client browser
+
 	if name == "" {
 		logr.Warnf("No filename exists for the record %d.", art.ID)
 		name = file
