@@ -18,7 +18,6 @@ const (
 	Layout                       // Layout is the path to the minified layout CSS file.
 	Pouet                        // Pouet is the path to the minified Pouet JS file.
 	Readme                       // Readme is the path to the minified Readme JS file.
-	RESTPouet                    // RESTPouet is the path to the minified Pouet REST JS file.
 	Uploader                     // Uploader is the path to the minified Uploader JS file.
 )
 
@@ -44,7 +43,6 @@ func Hrefs() Paths {
 		Layout:          "/css/layout.min.css",
 		Pouet:           "/js/pouet.min.js",
 		Readme:          "/js/readme.min.js",
-		RESTPouet:       "/js/rest-pouet.min.js",
 		Uploader:        "/js/uploader.min.js",
 	}
 }

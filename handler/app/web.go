@@ -287,9 +287,6 @@ func (web Web) TemplateClosures() template.FuncMap {
 		"readme": func() string {
 			return hrefs[Readme]
 		},
-		"restPouet": func() string {
-			return hrefs[RESTPouet]
-		},
 		"sri_bootstrap5": func() string {
 			return web.Subresource.Bootstrap5
 		},
@@ -328,9 +325,6 @@ func (web Web) TemplateClosures() template.FuncMap {
 		},
 		"sri_readme": func() string {
 			return web.Subresource.Readme
-		},
-		"sri_restPouet": func() string {
-			return web.Subresource.RESTPouet
 		},
 		"sri_uploader": func() string {
 			return web.Subresource.Uploader
