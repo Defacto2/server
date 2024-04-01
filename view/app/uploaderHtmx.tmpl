@@ -1,10 +1,10 @@
 {{- /*  uploaderHtmx.tmpl  */}}
-{{- define "uploaderX" -}}
-    <div class="modal fade" id="uploader-demozoo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploaderDZXLabel" aria-hidden="true">
+{{- define "uploaderHtmx" -}}
+    <div class="modal fade" id="uploader-demozoo" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploader-demozoo-label" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
-              <h1 class="modal-title fs-5" id="uploaderDZXLabel">Demozoo production or graphic</h1>
+              <h1 class="modal-title fs-5" id="uploader-demozoo-label">Demozoo production or graphic</h1>
               <button type="button" id="demozoo-submission-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -39,7 +39,7 @@
             <div class="modal-footer"></div>
           </div>
         </div>
-      </div>
+    </div>
 <script defer>(() => {
     const closeBtn = document.getElementById("demozoo-submission-close");
     const input = document.getElementById("demozoo-submission");
