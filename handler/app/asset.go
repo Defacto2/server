@@ -41,7 +41,7 @@ func Hrefs() Paths {
 		Htmx:            "/js/htmx.min.js",
 		Jsdos6JS:        "/js/js-dos.js",
 		Layout:          "/css/layout.min.css",
-		Pouet:           "/js/pouet.min.js",
+		Pouet:           "/js/votes-pouet.min.js",
 		Readme:          "/js/readme.min.js",
 		Uploader:        "/js/uploader.min.js",
 	}

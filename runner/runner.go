@@ -29,9 +29,9 @@ func NamedJS() []string {
 		"editor-assets",
 		"editor-archive",
 		"editor-forapproval",
-		"pouet",
 		"readme",
 		"uploader",
+		"votes-pouet",
 	}
 }
 
