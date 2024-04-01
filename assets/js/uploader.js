@@ -10,9 +10,22 @@
   const invalid = "is-invalid";
 
   // Modal elements
-  const zooM = document.getElementById("uploaderDZ");
   const pouetM = document.getElementById("uploaderPouet");
-  const introM = document.getElementById("uploaderDZX"); //uploaderIntro
+  if (pouetM == null) {
+    throw new Error("The uploader-pouet element is null.");
+  }
+  const pouetModal = new bootstrap.Modal(pouetM);
+
+  const demozooM = document.getElementById("uploader-demozoo"); 
+  if (demozooM == null) {
+    throw new Error("The uploader-demozoo element is null.");
+  }
+  const demozooModal = new bootstrap.Modal(demozooM);
+  const demozooInput = document.getElementById("demozoo-submission");
+  if (demozooInput == null) {
+    throw new Error("The demozoo-submission element is null.");
+  }
+
   const txtM = document.getElementById("uploaderText");
   const imgM = document.getElementById("uploaderImg");
   const magM = document.getElementById("uploaderMag");
@@ -20,9 +33,6 @@
   const glossM = document.getElementById("termsModal"); // not part of uploader but still a modal
 
   // Modal objects
-  const zooModal = new bootstrap.Modal(zooM);
-  const pouetModal = new bootstrap.Modal(pouetM);
-  const introModal = new bootstrap.Modal(introM);
   const txtModal = new bootstrap.Modal(txtM);
   const imgModal = new bootstrap.Modal(imgM);
   const magModal = new bootstrap.Modal(magM);
@@ -64,13 +74,13 @@
     if (event.ctrlKey && event.altKey) {
       switch (event.key) {
         case "d":
-          zooModal.show();
+          demozooModal.show();
           break;
         case "p":
           pouetModal.show();
           break;
         case "i":
-          introModal.show();
+          demozooModal.show();
           break;
         case "n": // n for nfo
           txtModal.show();
@@ -176,13 +186,9 @@
   const imgFrm = document.getElementById("imageUploader");
   const magFrm = document.getElementById("magUploader");
   const advFrm = document.getElementById("advancedUploader");
-
   // Focus on the first input field when the modal is shown
-  const dzId = document.getElementById("demozooProdID");
-  document
-    .getElementById("uploaderDZ")
-    .addEventListener("shown.bs.modal", function () {
-      dzId.focus();
+  demozooM.addEventListener("shown.bs.modal", function () {
+      demozooInput.focus();
     });
   // Focus on the first input field when the modal is shown
   const pouetId = document.getElementById("pouetProdsID");

@@ -31,7 +31,6 @@ func NamedJS() []string {
 		"editor-forapproval",
 		"pouet",
 		"readme",
-		"rest-zoo",
 		"rest-pouet",
 		"uploader",
 	}

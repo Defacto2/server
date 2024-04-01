@@ -33,44 +33,6 @@
         </div>
       </div>
     </div>
-    {{- /*  Submit a Demozoo production */}}
-    <div class="modal fade" id="uploaderDZ" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploaderDZLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="uploaderDZLabel">Demozoo production</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form id="demozooProdUploader" action="/uploader" method="post">
-              <p>
-                Know a <a href="https://demozoo.org/productions/?platform=1">Windows</a>, 
-                <a href="https://demozoo.org/productions/?platform=4">MS-Dos</a> production or a 
-                <a href="https://demozoo.org/graphics/">graphic</a> on <a href="https://demozoo.org">Demozoo</a> that should be on this site?
-                Submit its production ID and we will handle the rest.
-              </p>
-              <label for="demozooProdID" id="demozooProdIDLabel" class="form-label">Demozoo production ID</label>
-              <div class="input-group mb-3">
-                <span class="input-group-text">https://demozoo.org/productions/</span>
-                <input type="text" name="demozoo-prod-id" class="form-control" id="demozooProdID" aria-describedby="demozooProdIDLabel">
-              </div>
-              <button id="demozooProdReset" type="reset" class="btn btn-sm btn-outline-dark">Reset</button>              
-              <div id="demozooProd" class="d-none mt-2">
-                <span id="demozooProdTitle"></span>
-                <span id="demozooProdAuthors"></span>
-                <small id="demozooProdPlat"></small>
-                <small id="demozooProdDate"></small>
-              </div>
-              <div id="demozooProdInvalid" class="d-none text-danger"></div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Close</button>
-            <button type="button" id="demozooSubmit" class="btn btn-primary" disabled>Save result</button>
-          </div>
-        </div>
-      </div>
-    </div>
     {{- /*  Submit a Pouët production  */}}
     <div class="modal fade" id="uploaderPouet" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploaderPouetLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">

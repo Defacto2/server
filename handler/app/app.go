@@ -1124,7 +1124,6 @@ type SRI struct {
 	Pouet           string // Pouet JS verification hash.
 	Readme          string // Readme JS verification hash.
 	RESTPouet       string // Pouet REST JS verification hash.
-	RESTZoo         string // Demozoo REST JS verification hash.
 	Uploader        string // Uploader JS verification hash.
 	Htmx            string // htmx JS verification hash.
 }
@@ -1183,10 +1182,6 @@ func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 		return err
 	}
 	s.RESTPouet, err = helper.Integrity(names[RESTPouet], fs)
-	if err != nil {
-		return err
-	}
-	s.RESTZoo, err = helper.Integrity(names[RESTZoo], fs)
 	if err != nil {
 		return err
 	}

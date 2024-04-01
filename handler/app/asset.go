@@ -19,7 +19,6 @@ const (
 	Pouet                        // Pouet is the path to the minified Pouet JS file.
 	Readme                       // Readme is the path to the minified Readme JS file.
 	RESTPouet                    // RESTPouet is the path to the minified Pouet REST JS file.
-	RESTZoo                      // RESTZoo is the path to the minified Demozoo REST JS file.
 	Uploader                     // Uploader is the path to the minified Uploader JS file.
 )
 
@@ -46,7 +45,6 @@ func Hrefs() Paths {
 		Pouet:           "/js/pouet.min.js",
 		Readme:          "/js/readme.min.js",
 		RESTPouet:       "/js/rest-pouet.min.js",
-		RESTZoo:         "/js/rest-zoo.min.js",
 		Uploader:        "/js/uploader.min.js",
 	}
 }
