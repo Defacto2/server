@@ -26,6 +26,17 @@ func ExistFile(ctx context.Context, db *sql.DB, id int64) (bool, error) {
 	return models.Files(models.FileWhere.ID.EQ(id), qm.WithDeleted()).Exists(ctx, db)
 }
 
+// ExistsHash returns true if the file record exists in the database using a SHA-384 hash.
+func ExistsHash(ctx context.Context, db *sql.DB, sha384 []byte) (bool, error) {
+	if db == nil {
+		return false, ErrDB
+	}
+	hash := fmt.Sprintf("%x", sha384)
+	// todo validate sha384 is not empty, is valid
+	strong := null.String{String: hash, Valid: true}
+	return models.Files(models.FileWhere.FileIntegrityStrong.EQ(strong), qm.WithDeleted()).Exists(ctx, db)
+}
+
 // FindFile retrieves a single file record from the database using the record key.
 // This function will also return records that have been marked as deleted.
 func FindFile(ctx context.Context, db *sql.DB, id int64) (*models.File, error) {

@@ -37,6 +37,19 @@
     throw new Error("The demozoo-submission element is null.");
   }
 
+  const introM = document.getElementById("uploader-intro");
+  if (introM == null) {
+    throw new Error("The uploader-intro element is null.");
+  }
+  introM.addEventListener("shown.bs.modal", function () {
+    introInput.focus();
+  });
+  const introModal = new bootstrap.Modal(introM);
+  const introInput = document.getElementById("uploader-intro-file");
+  if (introInput == null) {
+    throw new Error("The uploader-intro-file element is null.");
+  }
+
   const txtM = document.getElementById("uploaderText");
   const imgM = document.getElementById("uploaderImg");
   const magM = document.getElementById("uploaderMag");
@@ -99,7 +112,7 @@
           pouetModal.show();
           break;
         case intro:
-          demozooModal.show();
+          introModal.show();
           break;
         case nfo:
           txtModal.show();

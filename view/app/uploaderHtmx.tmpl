@@ -79,7 +79,102 @@
         </div>
       </div>
     </div>
+    <script defer>
+      document.body.addEventListener('htmx:load', function(evt) {   
+        console.log('htmx:load event fired')
+        //htmx.logAll();   
+        htmx.on('#uploader-intro-form', 'htmx:xhr:progress', function(evt) {
+          htmx.find('#uploader-intro-progress').setAttribute('value', evt.detail.loaded/evt.detail.total * 100)
+        });
+      });
+  </script>
+    <div class="modal fade" id="uploader-intro" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploader-intro-label" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="uploader-intro-label">Intro, Cracktro, BBS/FTPtro</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form id="uploader-intro-form" 
+                hx-encoding="multipart/form-data" 
+                hx-post="/uploader/intro"
+                hx-target="#search-results">
+          <div class="modal-body">
+              <button class="btn btn-outline-success">
+                Upload
+              </button>          
+              <progress id='uploader-intro-progress' value='0' max='100'></progress>
+              <div class="input-group mb-3">
+                <input type="file" name="uploader-intro-file" class="form-control" id="uploader-intro-file">
+                <label class="input-group-text" for="introFile">File uploader</label>
+              </div>
+              <div class="btn-group mb-3 w-100" role="group" aria-label="Basic radio toggle button group">
+                <span class="input-group-text">Operating system &nbsp; </span>
+                <input type="radio" value="windows" class="btn-check" name="operating-system" id="windowsOS" autocomplete="off" checked>
+                <label class="btn btn-outline-primary" for="windowsOS" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Microsoft Windows">Windows PC</label>
+                <input type="radio" value="msdos" class="btn-check" name="operating-system" id="msdosOS" autocomplete="off">
+                <label class="btn btn-outline-primary" for="msdosOS" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="IBM PC or MS-DOS compatible">Dos PC</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="text" name="title" class="form-control" id="intro-title" aria-describedby="intro-title-help" placeholder="example: 500000th release!">
+                <label for="intro-title">Title</label>
+                <div id="intro-title-help" class="form-text">A brief description or name of the release</div>
+              </div>      
+              <div class="mb-4">
+                <label for="introReleasers" class="form-label">Releasers <small>maximum of 2</small></label>
+                <input type="text" name="releasers" class="form-control" id="introReleasers" aria-describedby="introHeleasersHelp" placeholder="example: Razor 1911 + Titan">
+                <div id="introHeleasersHelp" class="form-text">
+                  A releaser can be a group name, bbs name or ftp site<br>
+                  A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q><br>
+                  example: <q>Dark Domain BBS</q> or <q>Dark Domain FTP</q>
+                </div>
+              </div>
+              <div class="input-group mb-3">
+                <span class="input-group-text">Year and month of release</span>
+                <input type="number" name="release-year" min="1980" max="2023" id="introYear" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
+                <input type="number" name="release-month" min="1" max="12" id="introMonth" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
+              </div>
+              <div class="input-group input-group-sm mb-3">
+                  <span class="input-group-text" id="youtubeHelp">YouTube video</span>
+                  <input type="text" name="youtube" class="form-control" id="youtube" aria-describedby="youtubeHelp">
+              </div>
+              <div class="row g-2">
+                <div class="col text-start">
+                  <button type="button" id="introSubmit" class="btn btn-outline-success">Upload and submit</button>
+                </div>
+                <div class="col text-end">
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="reset" id="introReset" class="btn btn-outline-danger">Reset</button>
+                </div>
+              </div>
+
+    <div class="col-lg-8" id="search-results"></div>
+          </div>
+          </form>
+          <div class="modal-footer">
+            <div class="form-check ">
+              <label class="form-check-label" for="introCF">
+                Clear form after submit
+              </label>
+              <input class="form-check-input" type="checkbox" id="introCF" disabled>
+            </div> 
+          </div>
+        </div>
+      </div>
+    </div>
+
 <script defer>(() => {
+    const inputFile = document.getElementById("uploader-intro-file");
+    inputFile.addEventListener("change", function() {
+        const file = this.files[0];
+        const xxx = document.getElementById("search-results");
+        if (file.size > 10485760) {
+            // todo lock upload and form
+            xxx.innerText = "File is too big, maximum size is 10MB.";
+            this.value = "";
+        }
+    });
+
     const closeBtn = document.getElementById("demozoo-submission-close");
     const input = document.getElementById("demozoo-submission");
     const clear = document.getElementById("demozoo-submission-clear");
