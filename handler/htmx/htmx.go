@@ -31,6 +31,12 @@ func Routes(logr *zap.SugaredLogger, e *echo.Echo) *echo.Echo {
 	submit.POST("/demozoo/production/submit/:id", func(x echo.Context) error {
 		return DemozooSubmit(logr, x)
 	})
+	submit.POST("/pouet/production", func(x echo.Context) error {
+		return PouetProd(x)
+	})
+	submit.POST("/pouet/production/submit/:id", func(x echo.Context) error {
+		return PouetSubmit(logr, x)
+	})
 	submit.POST("/search/releaser", func(x echo.Context) error {
 		return SearchReleaser(logr, x)
 	})

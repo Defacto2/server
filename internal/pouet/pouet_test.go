@@ -13,8 +13,8 @@ const testRemoteServers = false
 
 func TestPlatforms(t *testing.T) {
 	t.Parallel()
-	p := pouet.Platforms{
-		DosGus: pouet.Platform{
+	p := pouet.Platfs{
+		DosGus: pouet.Platf{
 			Name: "DOS/GUS",
 			Slug: "msdosgus",
 		},
@@ -46,7 +46,7 @@ func TestResponseGet(t *testing.T) {
 
 func TestPouet(t *testing.T) {
 	t.Parallel()
-	p := pouet.Pouet{}
+	p := pouet.Production{}
 	err := p.Uploader(0)
 	require.Error(t, err)
 	// this pings a remote server, so it is disabled.

@@ -23,6 +23,8 @@ const (
 	Timeout = 5 * time.Second
 	// StarRounder is the rounding value for the stars rating.
 	StarRounder = 0.5
+	// Sanity is to check the maximum permitted production ID.
+	Sanity = 200000
 	// firstID is the first production ID on Pouet.
 	firstID = 1
 )
@@ -33,12 +35,12 @@ var (
 	ErrStatus  = errors.New("pouet production status is not ok")
 )
 
-// Pouet is the production data from the Pouet API.
+// Production is the production data from the Pouet API.
 // The Pouet API returns values as null or string, so this struct
 // is used to normalize the data types.
-type Pouet struct {
+type Production struct {
 	// Platforms are the platforms the prod runs on.
-	Platforms Platforms `json:"platforms"`
+	Platforms Platfs `json:"platforms"`
 	// Title is the prod title.
 	Title string `json:"title"`
 	// ReleaseDate is the prod release date.
@@ -83,34 +85,36 @@ type Votes struct {
 // Response is the JSON response from the Pouet API with production voting data.
 type Response struct {
 	Prod struct {
-		// used by uploader and voter
-		ID string `json:"id"`
-		// used by voter
-		Voteup   string `json:"voteup"`
-		Votepig  string `json:"votepig"`
-		Votedown string `json:"votedown"`
-		Voteavg  string `json:"voteavg"`
-		// used by uploader
-		Title       string `json:"name"`
-		ReleaseDate string `json:"releaseDate"`
+		ID          string `json:"id"`          // ID is the prod ID.
+		Voteup      string `json:"voteup"`      // Voteup is the number of thumbs up votes.
+		Votepig     string `json:"votepig"`     // Votepig is the number of meh votes.
+		Votedown    string `json:"votedown"`    // Votedown is the number of thumbs down votes.
+		Voteavg     string `json:"voteavg"`     // Voteavg is the average votes, the maximum value is 1.0.
+		Title       string `json:"name"`        // Title is the prod title.
+		ReleaseDate string `json:"releaseDate"` // ReleaseDate is the prod release date.
 		Groups      []struct {
 			ID   string `json:"id"`
 			Name string `json:"name"`
-		} `json:"groups"`
-		Platforms Platforms `json:"platforms"`
-		Types     Types     `json:"types"`
-	} `json:"prod"`
-	Success bool `json:"success"`
+		} `json:"groups"` // Groups are the releasers that produced the prod.
+		Platfs        Platfs `json:"platforms"` // Platforms are the platforms the prod runs on.
+		Types         Types  `json:"types"`     // Types are the prod types.
+		Download      string `json:"download"`  // Download is the first download link.
+		DownloadLinks []struct {
+			Type string `json:"type"`
+			Link string `json:"link"`
+		} `json:"downloadLinks"` // DownloadLinks are the additional download links.
+	} `json:"prod"` // Prod is the production data.
+	Success bool `json:"success"` // Success is true if the prod data was found.
 }
 
-// Platforms are the supported platforms from the Pouet API.
-type Platforms struct {
-	DosGus  Platform `json:"69"` // MS-Dos with GUS
-	Windows Platform `json:"68"` // Windows
-	MSDos   Platform `json:"67"` // MS-Dos
+// Platfs are the supported platforms from the Pouet API.
+type Platfs struct {
+	DosGus  Platf `json:"69"` // MS-Dos with GUS
+	Windows Platf `json:"68"` // Windows
+	MSDos   Platf `json:"67"` // MS-Dos
 }
 
-func (p Platforms) String() string {
+func (p Platfs) String() string {
 	s := []string{}
 	if p.DosGus.Name != "" {
 		s = append(s, p.DosGus.Name)
@@ -124,7 +128,7 @@ func (p Platforms) String() string {
 	return strings.Join(s, ", ")
 }
 
-func (p Platforms) Valid() bool {
+func (p Platfs) Valid() bool {
 	if p.DosGus.Slug == "msdosgus" {
 		return true
 	}
@@ -137,8 +141,8 @@ func (p Platforms) Valid() bool {
 	return false
 }
 
-// Platform is the production platform data from the Pouet API.
-type Platform struct {
+// Platf is the production platform data from the Pouet API.
+type Platf struct {
 	Name string `json:"name"`
 	Slug string `json:"slug"`
 }
@@ -217,7 +221,7 @@ func (r *Response) Get(id int) error {
 // Uploader retrieves and parses the production data from the Pouet API.
 // The id value is the Pouet production ID and must be greater than 0.
 // The data is intended for the Pouet Uploader.
-func (p *Pouet) Uploader(id int) error {
+func (p *Production) Uploader(id int) error {
 	if id < firstID {
 		return fmt.Errorf("%w: %d", ErrID, id)
 	}
@@ -233,10 +237,10 @@ func (p *Pouet) Uploader(id int) error {
 	p.Title = r.Prod.Title
 	p.ReleaseDate = r.Prod.ReleaseDate
 	p.Groups = r.Prod.Groups
-	p.Platforms = r.Prod.Platforms
+	p.Platforms = r.Prod.Platfs
 	p.Types = r.Prod.Types
-	p.Platform = r.Prod.Platforms.String()
-	p.Valid = r.Prod.Platforms.Valid() && r.Prod.Types.Valid()
+	p.Platform = r.Prod.Platfs.String()
+	p.Valid = r.Prod.Platfs.Valid() && r.Prod.Types.Valid()
 	return nil
 }
 

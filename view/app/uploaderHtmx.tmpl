@@ -40,6 +40,45 @@
           </div>
         </div>
     </div>
+    <div class="modal fade" id="uploader-pouet" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploader-pouet-label" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="uploader-pouet-label">Pouët production</h1>
+            <button type="button" id="pouet-submission-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <p>
+                Know a <a href="https://www.pouet.net/prodlist.php?platform%5B%5D=Windows&page=1">Windows</a>, 
+                <a href="https://www.pouet.net/prodlist.php?platform%5B%5D=MS-Dos&page=1">MS-Dos</a> production 
+                on <a href="https://www.pouet.net">Pouët</a> that should be on this site? Submit its ID.
+              </p>
+              <label for="pouet-submission" id="pouet-submission-label" class="form-label">Pouët production ID</label>
+              <div class="input-group">
+                  <div class="input-group-text">
+                      <div id="pouet-indicator" class="htmx-indicator spinner-border spinner-border-sm text-secondary" role="status">
+                          <span class="visually-hidden">Loading...</span>
+                      </div>
+                  </div>
+                  <input type="number" spellcheck="false" autofocus required min="1" max="{{ demozooSanity }}" value=""
+                      class="form-control" id="pouet-submission" name="pouet-submission" 
+                      hx-post="/pouet/production" 
+                      hx-target="#pouet-submission-results" 
+                      hx-trigger="input changed delay:500ms, search" 
+                      hx-indicator="#pouet-indicator"
+                      hx-validate="true"
+                      placeholder="Lookup a production…">
+                  <button type="reset" id="pouet-submission-clear" class="btn btn-outline-dark">Clear</button>
+              </div>
+            </form>
+            <div id="pouet-submission-error" class="d-none text-danger mt-3"></div>
+            <div id="pouet-submission-results" class="justify-content-center mt-3"></div>
+          </div>
+          <div class="modal-footer"></div>
+        </div>
+      </div>
+    </div>
 <script defer>(() => {
     const closeBtn = document.getElementById("demozoo-submission-close");
     const input = document.getElementById("demozoo-submission");
@@ -84,6 +123,51 @@
     }
     closeBtn.addEventListener("click", reset);
     clear.addEventListener("click", reset);
+})();
+(() => {
+  const closeBtn = document.getElementById("pouet-submission-close");
+  const input = document.getElementById("pouet-submission");
+  const clear = document.getElementById("pouet-submission-clear");
+  const alert = document.getElementById("pouet-submission-error")
+  const results = document.getElementById("pouet-submission-results");
+  document.body.addEventListener('htmx:beforeRequest', function (evt) {
+    results.innerHTML = "";
+    alert.innerText = "";
+    alert.classList.add("d-none");
+  });
+  document.body.addEventListener('htmx:afterRequest', function (evt) {
+      if(evt.detail.elt === null || evt.detail.elt.id !== "pouet-submission") {
+          return;
+      }
+      if (evt.detail.successful) {
+          alert.classList.add("d-none");
+          alert.innerText = "";
+          return;
+      }
+      if (evt.detail.failed && evt.detail.xhr) {
+          const xhr = evt.detail.xhr;
+          if (xhr.status === 404) {
+              results.innerText = `Production not found on Pouet.`;            
+              alert.classList.add("d-none");
+              alert.innerText = "";
+              return;
+          }
+          alert.innerText = `Something went wrong, ${xhr.status} status: ${xhr.responseText}.`;
+          alert.classList.remove("d-none");
+          return;
+      }
+      alert.innerText = "Something with the browser is not working, please refresh the page.";
+      alert.removeAttribute("hidden");
+  });
+  function reset() {
+      input.value = "";
+      input.focus();
+      alert.innerText = "";
+      alert.classList.add("d-none");
+      results.innerHTML = "";
+  }
+  closeBtn.addEventListener("click", reset);
+  clear.addEventListener("click", reset);
 })();
 </script>
 {{- end }}

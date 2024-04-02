@@ -1041,7 +1041,7 @@ func ProdPouet(logr *zap.SugaredLogger, c echo.Context, id string) error {
 	if logr == nil {
 		return InternalErr(logr, c, name, ErrZap)
 	}
-	p := pouet.Pouet{}
+	p := pouet.Production{}
 	i, err := strconv.Atoi(id)
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())

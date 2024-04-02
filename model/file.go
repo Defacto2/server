@@ -91,6 +91,62 @@ func InsertDemozooFile(ctx context.Context, db *sql.DB, id int64) (int64, error)
 	return f.ID, nil
 }
 
+// ExistPouetFile returns true if the file record exists in the database using a Pouet production ID.
+// This function will also return true for records that have been marked as deleted.
+func ExistPouetFile(ctx context.Context, db *sql.DB, id int64) (bool, error) {
+	if db == nil {
+		return false, ErrDB
+	}
+	return models.Files(models.FileWhere.WebIDPouet.EQ(null.Int64From(id)), qm.WithDeleted()).Exists(ctx, db)
+}
+
+// FindPouetFile retrieves the ID or key of a single file record from the database using a Pouet production ID.
+// This function will also return records that have been marked as deleted and flag those with the boolean.
+// If the record is not found then the function will return an ID of 0 but without an error.
+func FindPouetFile(ctx context.Context, db *sql.DB, id int64) (bool, int64, error) {
+	if db == nil {
+		return false, 0, ErrDB
+	}
+	f, err := models.Files(
+		qm.Select("id", "deletedat"),
+		models.FileWhere.WebIDPouet.EQ(null.Int64From(id)),
+		qm.WithDeleted()).One(ctx, db)
+	if errors.Is(err, sql.ErrNoRows) {
+		return false, 0, nil
+	}
+	if err != nil {
+		return false, 0, err
+	}
+	deleted := !f.Deletedat.IsZero()
+	return deleted, f.ID, nil
+}
+
+// InsertPouetFile inserts a new file record into the database using a Pouet production ID.
+// This will not check if the Pouet production ID already exists in the database.
+// When successful the function will return the new record ID.
+func InsertPouetFile(ctx context.Context, db *sql.DB, id int64) (int64, error) {
+	if db == nil {
+		return 0, ErrDB
+	}
+	if id < startID || id > demozoo.Sanity {
+		return 0, fmt.Errorf("%w: %d", ErrID, id)
+	}
+	uid, err := uuid.NewV7()
+	if err != nil {
+		return 0, err
+	}
+	now := time.Now()
+	f := models.File{
+		UUID:       null.StringFrom(uid.String()),
+		WebIDPouet: null.Int64From(id),
+		Deletedat:  null.TimeFromPtr(&now),
+	}
+	if err = f.Insert(ctx, db, boil.Infer()); err != nil {
+		return 0, err
+	}
+	return f.ID, nil
+}
+
 // FindObf retrieves a single file record from the database using the obfuscated record key.
 func FindObf(key string) (*models.File, error) {
 	return recordObf(false, key)

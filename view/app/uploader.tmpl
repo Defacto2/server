@@ -21,6 +21,8 @@
             <hr>
             <div class="lead">Uploader keyboard shortcuts</div>
             <div class="my-1"><kbd>ctrl</kbd> <strong>+</strong> <kbd>alt</kbd> <strong>+</strong></div>
+            <kbd>d</kbd> &nbsp; <small>demozoo productions</small><br>
+            <kbd>p</kbd> &nbsp; <small>pouet productions</small><br>
             <kbd>i</kbd> &nbsp; <small>intro, cracktro, bbstros</small><br>
             <kbd>n</kbd> &nbsp; <small>nfo, ansi, text</small><br>
             <kbd>g</kbd> &nbsp; <small>graphic, photo, artworks</small><br>
@@ -29,43 +31,6 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    {{- /*  Submit a Pouët production  */}}
-    <div class="modal fade" id="uploaderPouet" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploaderPouetLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="uploaderPouetLabel">Pouët production</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form id="pouetUploader" action="/uploader" method="post">
-              <p>
-                Know a <a href="https://www.pouet.net/prodlist.php?platform%5B%5D=Windows&page=1">Windows</a> 
-                or <a href="https://www.pouet.net/prodlist.php?platform%5B%5D=MS-Dos&page=1">MS-Dos</a> production on <a href="https://www.pouet.net">Pouët</a> that should be on this site?
-                Submit its Prods ID and we will handle the rest.
-              </p>
-              <label for="pouetProdsID" id="pouetProdsIDLabel" class="form-label">Pouët Prods ID</label>
-              <div class="input-group mb-3">
-                <span class="input-group-text">https://www.pouet.net/prod.php?which=</span>
-                <input type="text" name="pouet-prod-id" class="form-control" id="pouetProdsID" aria-describedby="pouetProdsIDLabel">
-              </div>
-              <button id="pouetProdReset" type="reset" class="btn btn-sm btn-outline-dark">Reset</button>
-              <div id="pouetProd" class="d-none mt-2">
-                <span id="pouetProdTitle"></span>
-                <span id="pouetProdGroups"></span>
-                <small id="pouetProdPlat"></small>
-                <small id="pouetProdDate"></small>
-              </div>
-              <div id="pouetProdInvalid" class="d-none text-danger"></div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Close</button>
-            <button type="button" id="pouetSubmit" class="btn btn-primary" disabled>Save result</button>
           </div>
         </div>
       </div>

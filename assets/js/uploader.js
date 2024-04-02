@@ -9,17 +9,28 @@
 
   const invalid = "is-invalid";
 
-  // Modal elements
-  const pouetM = document.getElementById("uploaderPouet");
+  // Poeut modal elements
+  const pouetM = document.getElementById("uploader-pouet");
   if (pouetM == null) {
     throw new Error("The uploader-pouet element is null.");
   }
+  pouetM.addEventListener("shown.bs.modal", function () {
+    poeutInput.focus();
+  });
   const pouetModal = new bootstrap.Modal(pouetM);
+  const poeutInput = document.getElementById("pouet-submission");
+  if (poeutInput == null) {
+    throw new Error("The pouet-submission element is null.");
+  }
 
-  const demozooM = document.getElementById("uploader-demozoo"); 
+  // Demozoo modal elements
+  const demozooM = document.getElementById("uploader-demozoo");
   if (demozooM == null) {
     throw new Error("The uploader-demozoo element is null.");
   }
+  demozooM.addEventListener("shown.bs.modal", function () {
+    demozooInput.focus();
+  });
   const demozooModal = new bootstrap.Modal(demozooM);
   const demozooInput = document.getElementById("demozoo-submission");
   if (demozooInput == null) {
@@ -71,30 +82,38 @@
 
   // Keyboard shortcuts event listener
   document.addEventListener("keydown", function (event) {
+    const demozoo = "d",
+      pouet = "p",
+      intro = "i",
+      nfo = "n",
+      graphic = "g",
+      magazine = "m",
+      advanced = "a",
+      glossaryOfTerms = "t";
     if (event.ctrlKey && event.altKey) {
       switch (event.key) {
-        case "d":
+        case demozoo:
           demozooModal.show();
           break;
-        case "p":
+        case pouet:
           pouetModal.show();
           break;
-        case "i":
+        case intro:
           demozooModal.show();
           break;
-        case "n": // n for nfo
+        case nfo:
           txtModal.show();
           break;
-        case "g": // g for gfx
+        case graphic:
           imgModal.show();
           break;
-        case "m":
+        case magazine:
           magModal.show();
           break;
-        case "a":
+        case advanced:
           advModal.show();
           break;
-        case "t": // t for terms
+        case glossaryOfTerms:
           glossModal.show();
           break;
       }
@@ -186,17 +205,6 @@
   const imgFrm = document.getElementById("imageUploader");
   const magFrm = document.getElementById("magUploader");
   const advFrm = document.getElementById("advancedUploader");
-  // Focus on the first input field when the modal is shown
-  demozooM.addEventListener("shown.bs.modal", function () {
-      demozooInput.focus();
-    });
-  // Focus on the first input field when the modal is shown
-  const pouetId = document.getElementById("pouetProdsID");
-  document
-    .getElementById("uploaderPouet")
-    .addEventListener("shown.bs.modal", function () {
-      pouetId.focus();
-    });
 
   // Elements for the intro uploader
   const introFile = document.getElementById("introFile");
