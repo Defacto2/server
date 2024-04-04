@@ -11,6 +11,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"reflect"
 	"strings"
 
 	"github.com/Defacto2/releaser"
@@ -22,6 +23,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 var (
@@ -51,6 +54,9 @@ func Routes(logr *zap.SugaredLogger, e *echo.Echo) *echo.Echo {
 	submit.POST("/uploader/intro", func(x echo.Context) error {
 		return holder(x)
 	})
+	submit.POST("/uploader/releasers", func(x echo.Context) error {
+		return DataListReleasers(logr, x)
+	})
 	return e
 }
 
@@ -58,7 +64,7 @@ func holder(c echo.Context) error {
 	// Source
 	input, err := c.FormFile("uploader-intro-file")
 	if err != nil {
-		return err
+		return c.HTML(http.StatusBadRequest, fmt.Sprintf("<p>Form file error: %s</p>", err))
 	}
 	src, err := input.Open()
 	if err != nil {
@@ -121,10 +127,16 @@ func releasers(fs embed.FS) *template.Template {
 		GlobTo("layout.tmpl"), GlobTo("releasers.tmpl")))
 }
 
+func datalistReleasers(fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fs,
+		GlobTo("layout.tmpl"), GlobTo("datalist-releasers.tmpl")))
+}
+
 // Templates returns a map of the templates used by the HTML3 sub-group route.
 func Templates(fs embed.FS) map[string]*template.Template {
 	t := make(map[string]*template.Template)
 	t["releasers"] = releasers(fs)
+	t["datalist-releasers"] = datalistReleasers(fs)
 	return t
 }
 
@@ -142,7 +154,8 @@ func TemplateFuncMap() template.FuncMap {
 			}
 			return "border"
 		},
-		"byteFileS": app.ByteFileS,
+		"byteFileS":  app.ByteFileS,
+		"suggestion": Suggestion,
 		"fmtPath": func(path string) string {
 			if val := name.Path(path); val.String() != "" {
 				return val.String()
@@ -156,4 +169,27 @@ func TemplateFuncMap() template.FuncMap {
 			return template.HTML(s) //nolint:gosec
 		},
 	}
+}
+
+// Suggestion returns a human readable string of the byte count with a named description.
+func Suggestion(name, initialism string, count any) string {
+	s := name
+	if initialism != "" {
+		s += fmt.Sprintf(", %s", initialism)
+	}
+	switch val := count.(type) {
+	case int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64:
+		i := reflect.ValueOf(val).Int()
+		p := message.NewPrinter(language.English)
+		s += p.Sprintf(" (%d item", i)
+		if i > 1 {
+			s += "s"
+		}
+		s += ")"
+	default:
+		s += fmt.Sprintf("suggestion type error: %s", reflect.TypeOf(count).String())
+		return s
+	}
+	return s
 }
