@@ -55,7 +55,12 @@ func Routes(logr *zap.SugaredLogger, e *echo.Echo) *echo.Echo {
 		return holder(x)
 	})
 	submit.POST("/uploader/releasers", func(x echo.Context) error {
-		return DataListReleasers(logr, x)
+		input := x.FormValue("uploader-intro-releasers")
+		return DataListReleasers(logr, x, input)
+	})
+	submit.POST("/uploader/releasers-b", func(x echo.Context) error {
+		input := x.FormValue("uploader-intro-releasers-b")
+		return DataListReleasers(logr, x, input)
 	})
 	return e
 }

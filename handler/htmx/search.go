@@ -61,7 +61,7 @@ func SearchReleaser(logr *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
-func DataListReleasers(logr *zap.SugaredLogger, c echo.Context) error {
+func DataListReleasers(logr *zap.SugaredLogger, c echo.Context, input string) error {
 	const maxResults = 14
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
@@ -72,13 +72,9 @@ func DataListReleasers(logr *zap.SugaredLogger, c echo.Context) error {
 	}
 	defer db.Close()
 
-	input := c.FormValue("uploader-intro-releasers")
-
-	// todo split input by +
-
 	slug := helper.Slug(helper.TrimRoundBraket(input))
 	if slug == "" {
-		return c.HTML(http.StatusOK, "<!-- empty search query -->")
+		return c.HTML(http.StatusOK, "")
 	}
 
 	lookup := []string{}
@@ -93,8 +89,7 @@ func DataListReleasers(logr *zap.SugaredLogger, c echo.Context) error {
 	var r model.Releasers
 	if err := r.Similar(ctx, db, maxResults, lookup...); err != nil {
 		logr.Error(err)
-		return c.String(http.StatusServiceUnavailable,
-			"the search query failed")
+		return c.String(http.StatusOK, "")
 	}
 	if len(r) == 0 {
 		return c.HTML(http.StatusOK, "")
@@ -109,10 +104,4 @@ func DataListReleasers(logr *zap.SugaredLogger, c echo.Context) error {
 			"cannot render the htmx template")
 	}
 	return nil
-	// s := `<option value="Edge">`
-	// s += `<option value="Firefox">`
-	// s += `<option value="Chrome">`
-	// s += `<option value="Opera">`
-	// s += `<option value="Safari">`
-	// return c.HTML(http.StatusOK, s)
 }

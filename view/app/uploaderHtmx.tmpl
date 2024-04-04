@@ -116,13 +116,23 @@
               </div>      
               <div class="mb-4">
                 <label for="uploader-intro-releasers" class="form-label">Releasers <small>maximum of 2</small></label>
-                <input type="text" list="browsers" name="uploader-intro-releasers" class="form-control" id="uploader-intro-releasers" 
-                    aria-describedby="uploader-intro-releasers-help" placeholder="example: Razor 1911 + Titan" 
-                    hx-post="/uploader/releasers" 
-                    hx-trigger="input changed" 
-                    hx-target="#browsers" 
-                    required>
+                <div class="input-group mb-3">
+                  <input type="text" list="browsers" name="uploader-intro-releasers" class="form-control" id="uploader-intro-releasers" 
+                      aria-describedby="uploader-intro-releasers-help" placeholder="example: Razor 1911" 
+                      hx-post="/uploader/releasers" 
+                      hx-trigger="input changed" 
+                      hx-target="#browsers" 
+                      required>
+                  <span class="input-group-text">+</span>
+                  <input type="text" list="browsers-b" name="uploader-intro-releasers-b" class="form-control" id="uploader-intro-releasers-b" 
+                      aria-describedby="uploader-intro-releasers-help" placeholder="example: Titan" 
+                      hx-post="/uploader/releasers-b" 
+                      hx-trigger="input changed" 
+                      hx-target="#browsers-b" 
+                      required>
+                </div>
                 <datalist id="browsers"></datalist>
+                <datalist id="browsers-b"></datalist>
                 <div id="uploader-intro-releasers-help" class="form-text">
                   A releaser can be a group name, bbs name or ftp site<br>
                   A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q><br>
