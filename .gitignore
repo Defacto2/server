@@ -7,6 +7,7 @@ server
 
 # temp directories
 dist/
+node_modules/
 tmp/
 
 # taskfile and docker compose
