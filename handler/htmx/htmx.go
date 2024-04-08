@@ -7,6 +7,7 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"html"
 	"html/template"
 	"io"
 	"net/http"
@@ -94,7 +95,8 @@ func holder(c echo.Context) error {
 	if exist, err := model.ExistsHash(ctx, db, sum); err != nil {
 		return err
 	} else if exist {
-		return c.HTML(http.StatusOK, fmt.Sprintf("<p>File %s already exists.</p>", input.Filename))
+		return c.HTML(http.StatusOK, fmt.Sprintf("<p>File %s already exists.</p>",
+			html.EscapeString(input.Filename)))
 	}
 
 	// reopen the file
@@ -117,7 +119,8 @@ func holder(c echo.Context) error {
 	}
 
 	return c.HTML(http.StatusOK,
-		fmt.Sprintf("<p>File %s uploaded successfully with fields.</p><p>%s</p>", input.Filename, dst.Name()))
+		fmt.Sprintf("<p>File %s uploaded successfully with fields.</p><p>%s</p>",
+			html.EscapeString(input.Filename), html.EscapeString(dst.Name())))
 
 }
 
