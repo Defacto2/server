@@ -8,10 +8,9 @@ export default [
     ignores: ["**/*.min.js"],
   },
   {
-    files: ["assets/js/**/*.js"],
+    files: ["assets/js/**/*.js", "assets/js/**/*.mjs"],
     languageOptions: {
       ecmaVersion: "latest",
-      sourceType: "script",
       globals: {
         ...globals.browser,
         bootstrap: "readonly",

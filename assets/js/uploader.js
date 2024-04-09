@@ -4,94 +4,30 @@
  * @module uploader
  * @requires bootstrap
  */
+import {
+  getModalById,
+  focusModalById,
+  pagination,
+  validYear,
+  validMonth,
+  validDay,
+} from "./uploader.mjs";
+
 (() => {
   "use strict";
 
   const invalid = "is-invalid";
 
-  // Poeut modal elements
-  const pouetM = document.getElementById("uploader-pouet");
-  if (pouetM == null) {
-    throw new Error("The uploader-pouet element is null.");
-  }
-  pouetM.addEventListener("shown.bs.modal", function () {
-    poeutInput.focus();
-  });
-  const pouetModal = new bootstrap.Modal(pouetM);
-  const poeutInput = document.getElementById("pouet-submission");
-  if (poeutInput == null) {
-    throw new Error("The pouet-submission element is null.");
-  }
+  const pouetModal = focusModalById("uploader-pouet", "pouet-submission");
+  const demozooModal = focusModalById("uploader-demozoo", "demozoo-submission");
+  const introModal = focusModalById("uploader-intro", "uploader-intro-file");
+  const txtModal = getModalById("uploaderText");
+  const imgModal = getModalById("uploaderImg");
+  const magModal = getModalById("uploaderMag");
+  const advModal = getModalById("uploaderAdv");
+  const glossModal = getModalById("termsModal"); // TODO: move to layout.js or main.js
 
-  // Demozoo modal elements
-  const demozooM = document.getElementById("uploader-demozoo");
-  if (demozooM == null) {
-    throw new Error("The uploader-demozoo element is null.");
-  }
-  demozooM.addEventListener("shown.bs.modal", function () {
-    demozooInput.focus();
-  });
-  const demozooModal = new bootstrap.Modal(demozooM);
-  const demozooInput = document.getElementById("demozoo-submission");
-  if (demozooInput == null) {
-    throw new Error("The demozoo-submission element is null.");
-  }
-
-  const introM = document.getElementById("uploader-intro");
-  if (introM == null) {
-    throw new Error("The uploader-intro element is null.");
-  }
-  introM.addEventListener("shown.bs.modal", function () {
-    introInput.focus();
-  });
-  const introModal = new bootstrap.Modal(introM);
-  const introInput = document.getElementById("uploader-intro-file");
-  if (introInput == null) {
-    throw new Error("The uploader-intro-file element is null.");
-  }
-
-  const txtM = document.getElementById("uploaderText");
-  const imgM = document.getElementById("uploaderImg");
-  const magM = document.getElementById("uploaderMag");
-  const advM = document.getElementById("uploaderAdv");
-  const glossM = document.getElementById("termsModal"); // not part of uploader but still a modal
-
-  // Modal objects
-  const txtModal = new bootstrap.Modal(txtM);
-  const imgModal = new bootstrap.Modal(imgM);
-  const magModal = new bootstrap.Modal(magM);
-  const advModal = new bootstrap.Modal(advM);
-  const glossModal = new bootstrap.Modal(glossM);
-
-  // Pagination button elements
-  const pageS = document.getElementById("paginationStart");
-  const pageP = document.getElementById("paginationPrev");
-  const pageP2 = document.getElementById("paginationPrev2");
-  const pageN = document.getElementById("paginationNext");
-  const pageN2 = document.getElementById("paginationNext2");
-  const pageE = document.getElementById("paginationEnd");
-
-  const pageRange = document.getElementById("paginationRange");
-  if (typeof pageRange !== "undefined" && pageRange != null) {
-    pageRange.addEventListener("change", function () {
-      const range = pageRange.value;
-      const url = new URL(window.location.href);
-      const path = url.pathname;
-      const paths = path.split("/");
-      const page = paths[paths.length - 1];
-      if (!isNaN(page) && typeof Number(page) === "number") {
-        paths[paths.length - 1] = range;
-      } else {
-        paths.push(range);
-      }
-      url.pathname = paths.join("/");
-      window.location.href = url.href;
-    });
-    const pageRangeLabel = document.getElementById("paginationRangeLabel");
-    pageRange.addEventListener("input", function () {
-      pageRangeLabel.textContent = "Jump to page " + pageRange.value;
-    });
-  }
+  pagination("paginationRange");
 
   // Keyboard shortcuts event listener
   document.addEventListener("keydown", function (event) {
@@ -132,6 +68,13 @@
       }
     }
 
+    // Pagination button elements
+    const pageS = document.getElementById("paginationStart");
+    const pageP = document.getElementById("paginationPrev");
+    const pageP2 = document.getElementById("paginationPrev2");
+    const pageN = document.getElementById("paginationNext");
+    const pageN2 = document.getElementById("paginationNext2");
+    const pageE = document.getElementById("paginationEnd");
     const right = "ArrowRight",
       left = "ArrowLeft";
     // Ctrl + Left arrow key to go to the start page
@@ -165,52 +108,6 @@
       return;
     }
   });
-
-  /**
-   * Checks if a given year is valid, i.e. between 1980 and the current year.
-   * @param {number} year - The year to be validated.
-   * @returns {boolean} - Returns true if the year is valid, false otherwise.
-   */
-  function validYear(year) {
-    if (`${year}` == "") {
-      return true;
-    }
-    const currentYear = new Date().getFullYear();
-    if (year < 1980 || year > currentYear) {
-      return false;
-    }
-    return true;
-  }
-
-  /**
-   * Checks if a given month is valid.
-   * @param {number} month - The month to be validated.
-   * @returns {boolean} - Returns true if the month is valid, false otherwise.
-   */
-  function validMonth(month) {
-    if (`${month}` == "") {
-      return true;
-    }
-    if (month < 1 || month > 12) {
-      return false;
-    }
-    return true;
-  }
-
-  /**
-   * Checks if a given day is valid.
-   * @param {number} day - The day to be checked.
-   * @returns {boolean} - Returns true if the day is valid, false otherwise.
-   */
-  function validDay(day) {
-    if (`${day}` == "") {
-      return true;
-    }
-    if (day < 1 || day > 31) {
-      return false;
-    }
-    return true;
-  }
 
   // Uploader forms
   const introFrm = document.getElementById("introUploader");

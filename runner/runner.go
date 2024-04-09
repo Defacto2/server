@@ -30,7 +30,7 @@ func NamedJS() []string {
 		"editor-archive",
 		"editor-forapproval",
 		"readme",
-		"uploader",
+		//"uploader",
 		"votes-pouet",
 	}
 }
@@ -74,6 +74,26 @@ func JS(name string) api.BuildOptions {
 	}
 }
 
+func Uploader() api.BuildOptions {
+	min := "uploader.min.js"
+	entryjs := filepath.Join("assets", "js", "uploader.js")
+	//entrymjs := filepath.Join("assets", "js", "uploader.mjs")
+	output := filepath.Join("public", "js", min)
+	return api.BuildOptions{
+		EntryPoints:       []string{entryjs},
+		Outfile:           output,
+		Target:            api.ES2020, // specify JS language version
+		Write:             true,       // write the output file to disk
+		Bundle:            true,       // bundle dependencies into the output file
+		MinifyWhitespace:  true,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		Banner: map[string]string{
+			"js": fmt.Sprintf("/* %s %s %s */", min, C, time.Now().Format("2006")),
+		},
+	}
+}
+
 func main() {
 	for _, name := range NamedCSS() {
 		result := api.Build(CSS(name))
@@ -83,6 +103,12 @@ func main() {
 	}
 	for _, name := range NamedJS() {
 		result := api.Build(JS(name))
+		if len(result.Errors) > 0 {
+			fmt.Fprintf(os.Stderr, "JS build failed: %v\n", result.Errors)
+		}
+	}
+	{
+		result := api.Build(Uploader())
 		if len(result.Errors) > 0 {
 			fmt.Fprintf(os.Stderr, "JS build failed: %v\n", result.Errors)
 		}
