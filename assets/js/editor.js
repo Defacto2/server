@@ -1,3 +1,4 @@
+/*eslint no-unused-vars: ["error", { "caughtErrors": "all", "caughtErrorsIgnorePattern": "^ignore" }]*/
 (() => {
   "use strict";
 
@@ -408,7 +409,7 @@
           dz.classList.add(err);
           return;
         }
-      } catch (error) {
+      } catch (ignoreErr) {
         // do nothing, incase a partial URL was pasted
         return;
       }
@@ -435,7 +436,7 @@
             return;
         }
         dz.classList.remove(err);
-      } catch (error) {
+      } catch (ignoreErr) {
         // if a URL was pasted, but it's not a prod.php URL
         dz.classList.add(err);
       }
@@ -443,7 +444,7 @@
   });
   // demozoo input
   dz.addEventListener(`input`, function () {
-    let id = Number(dz.value); // remove leading zeros
+    const id = Number(dz.value); // remove leading zeros
     if (isNaN(id)) {
       dz.classList.add(err);
       return;
@@ -469,7 +470,7 @@
           pouet.classList.add(err);
           return;
         }
-      } catch (error) {
+      } catch (ignoreErr) {
         // do nothing, incase a partial URL was pasted
         return;
       }
@@ -485,7 +486,7 @@
         const prod = params.get("which");
         pouet.value = prod;
         pouet.classList.remove(err);
-      } catch (error) {
+      } catch (ignoreErr) {
         // if a URL was pasted, but it's not a prod.php URL
         pouet.classList.add(err);
       }
@@ -493,7 +494,7 @@
   });
   // pouet input
   pouet.addEventListener(`input`, function () {
-    let id = Number(pouet.value); // remove leading zeros
+    const id = Number(pouet.value); // remove leading zeros
     if (isNaN(id)) {
       pouet.classList.add(err);
       return;
@@ -521,7 +522,7 @@
         const pathname = urlObj.pathname;
         sixteen.value = pathname;
         sixteen.classList.remove(err);
-      } catch (error) {
+      } catch (ignoreErr) {
         // do nothing, incase a partial URL was pasted
       }
     }, 0);
@@ -546,7 +547,7 @@
         const pathname = urlObj.pathname;
         gh.value = pathname;
         gh.classList.remove(err);
-      } catch (error) {
+      } catch (ignoreErr) {
         // do nothing, incase a partial URL was pasted
       }
     }, 0);
@@ -575,7 +576,7 @@
         const videoId = params.get("v");
         yt.value = videoId;
         gh.classList.remove(err);
-      } catch (error) {
+      } catch (ignoreErr) {
         // do nothing, incase an ID was pasted
       }
     }, 0);
@@ -847,25 +848,25 @@
     console.info(`the editor reset button is not present`);
   } else {
     // reset all input elements
-    reset.addEventListener(`click`, function () {
-      // delay execution to allow the reset action to complete
-      setTimeout(() => {
-        if (online.checked != true) {
-          onlineL.classList.add(dang);
-        } else {
-          onlineL.classList.remove(dang);
-        }
-        releasersMax.classList.remove(dang);
-        if (tag.value == `magazine`) {
-          magazineTag();
-        } else {
-          titleTag();
-        }
-        const inputs = document.querySelectorAll(`input`);
-        inputs.forEach((input) => {
-          input.classList.remove(err);
-        }, 0);
-      });
-    });
+    // reset.addEventListener(`click`, function () {
+    //   // delay execution to allow the reset action to complete
+    //   setTimeout(() => {
+    //     if (online.checked != true) {
+    //       onlineL.classList.add(dang);
+    //     } else {
+    //       onlineL.classList.remove(dang);
+    //     }
+    //     releasersMax.classList.remove(dang);
+    //     if (tag.value == `magazine`) {
+    //       magazineTag();
+    //     } else {
+    //       titleTag();
+    //     }
+    //     const inputs = document.querySelectorAll(`input`);
+    //     inputs.forEach((input) => {
+    //       input.classList.remove(err);
+    //     }, 0);
+    //   });
+    // });
   }
 })();

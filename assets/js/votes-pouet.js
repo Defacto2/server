@@ -16,14 +16,14 @@
     return `${location.protocol}//${location.host}/pouet/vote/${id}`;
   };
 
-  let prodElm = document.getElementById(`pouetVoteID`);
-  let row = document.getElementById(`pouetRow`);
-  let stars = document.getElementById(`pouetStars`);
-  let votes = document.getElementById(`pouetVotes`);
+  const prodElm = document.getElementById(`pouetVoteID`);
+  const row = document.getElementById(`pouetRow`);
+  const stars = document.getElementById(`pouetStars`);
+  const votes = document.getElementById(`pouetVotes`);
   if (prodElm === null || row === null || stars === null || votes === null)
     return;
 
-  let prodID = prodElm.innerHTML.trim();
+    const prodID = prodElm.innerHTML.trim();
   console.info(`Requesting the Pouët API for production #${prodID}`);
   fetch(url(prodID), {
     method: `GET`,
@@ -39,7 +39,7 @@
       return response.json();
     })
     .then((result) => {
-      let v = result.votes_up + result.votes_down + result.votes_meh;
+      const v = result.votes_up + result.votes_down + result.votes_meh;
       if (v === 0) {
         row.classList.add(`d-none`);
         return;

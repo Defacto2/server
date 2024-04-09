@@ -2,7 +2,7 @@
   "use strict";
   const buttons = document.getElementsByName("editorGetDemozoo");
   const workQueue = [];
-  for (let button of buttons) {
+  for (const button of buttons) {
     button.addEventListener("click", handleClick, false);
     const uuid = button.dataset.uid;
     if (!uuid) console.error("No UUID found");

@@ -76,8 +76,8 @@
     pageRange.addEventListener("change", function () {
       const range = pageRange.value;
       const url = new URL(window.location.href);
-      let path = url.pathname;
-      let paths = path.split("/");
+      const path = url.pathname;
+      const paths = path.split("/");
       const page = paths[paths.length - 1];
       if (!isNaN(page) && typeof Number(page) === "number") {
         paths[paths.length - 1] = range;

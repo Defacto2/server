@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const danger = `text-danger`;
+  //const danger = `text-danger`;
   const err = `is-invalid`;
   const ok = `is-valid`;
   const fok = `valid-feedback`;
@@ -24,7 +24,7 @@
   // Modify the metadata, delete images asset
   document
     .getElementById(`edBtnImgs`)
-    .addEventListener(`click`, function (event) {
+    .addEventListener(`click`, function () {
       if (!window.confirm("Delete the previews and thumbnail?")) {
         return;
       }
@@ -60,12 +60,12 @@
   const previewUp = document.getElementById(`edUploadPreview`);
   const previewUpB = document.getElementById(`edUploadPreviewBtn`);
   const previewUpR = document.getElementById(`edUploadPreviewReset`);
-  previewUp.addEventListener(`change`, function (event) {
+  previewUp.addEventListener(`change`, function () {
     if (previewUp.value != ``) {
       previewUp.classList.remove(err);
     }
   });
-  previewUpB.addEventListener(`click`, function (event) {
+  previewUpB.addEventListener(`click`, function () {
     if (previewUp.value == ``) {
       previewUp.classList.add(err);
       previewUp.classList.remove(ok);
@@ -76,7 +76,7 @@
     // upload here
     previewUp.classList.add(ok);
   });
-  previewUpR.addEventListener(`click`, function (event) {
+  previewUpR.addEventListener(`click`, function () {
     previewUp.value = ``;
     previewUp.classList.remove(err);
     previewUp.classList.remove(ok);
@@ -86,12 +86,12 @@
   const artifact = document.getElementById(`edUploadArtifact`);
   const artifactB = document.getElementById(`edUploadArtifactBtn`);
   const artifactR = document.getElementById(`edUploadArtifactReset`);
-  artifact.addEventListener(`change`, function (event) {
+  artifact.addEventListener(`change`, function () {
     if (artifact.value != ``) {
       artifact.classList.remove(err);
     }
   });
-  artifactB.addEventListener(`click`, function (event) {
+  artifactB.addEventListener(`click`, function () {
     if (artifact.value == ``) {
       artifact.classList.add(err);
       artifact.classList.remove(ok);
@@ -100,7 +100,7 @@
     artifact.classList.remove(err);
     artifact.classList.remove(ok);
     // Prompt for upload replacement
-    let confirmation = window.prompt(
+    const confirmation = window.prompt(
       `Replace ` + artifact.value + `?\nType "yes" to confirm.`
     );
     if (confirmation.toLowerCase() != `yes`) {
@@ -109,7 +109,7 @@
     // upload here
     artifact.classList.add(ok);
   });
-  artifactR.addEventListener(`click`, function (event) {
+  artifactR.addEventListener(`click`, function () {
     artifact.value = ``;
     artifact.classList.remove(err);
     artifact.classList.remove(ok);
