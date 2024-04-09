@@ -23,7 +23,7 @@
   if (prodElm === null || row === null || stars === null || votes === null)
     return;
 
-    const prodID = prodElm.innerHTML.trim();
+  const prodID = prodElm.innerHTML.trim();
   console.info(`Requesting the Pouët API for production #${prodID}`);
   fetch(url(prodID), {
     method: `GET`,

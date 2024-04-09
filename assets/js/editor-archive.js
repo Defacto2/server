@@ -136,9 +136,8 @@
     );
     if (!exists) {
       previewValue.classList.add(err);
-      document.getElementById(
-        `edCopyPreviewErr`
-      ).textContent = `unknown filename`;
+      document.getElementById(`edCopyPreviewErr`).textContent =
+        `unknown filename`;
       previewList.classList.remove(err);
       return;
     }

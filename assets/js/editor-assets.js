@@ -17,41 +17,41 @@
   // It is also used to confirm the existence of the editor modal
   const id = document.getElementById(`recordID`);
   if (id == null) {
-    console.info(`the editor modal is not open so editor assets script is not needed`);
+    console.info(
+      `the editor modal is not open so editor assets script is not needed`
+    );
     return;
   }
 
   // Modify the metadata, delete images asset
-  document
-    .getElementById(`edBtnImgs`)
-    .addEventListener(`click`, function () {
-      if (!window.confirm("Delete the previews and thumbnail?")) {
-        return;
-      }
-      const info = document.getElementById(`edBtnsHide`);
-      const feed = document.getElementById(`edBtnsFeedback`);
-      fetch("/editor/images/delete", {
-        method: "POST",
-        body: JSON.stringify({
-          id: parseInt(id.value),
-        }),
-        headers: header,
+  document.getElementById(`edBtnImgs`).addEventListener(`click`, function () {
+    if (!window.confirm("Delete the previews and thumbnail?")) {
+      return;
+    }
+    const info = document.getElementById(`edBtnsHide`);
+    const feed = document.getElementById(`edBtnsFeedback`);
+    fetch("/editor/images/delete", {
+      method: "POST",
+      body: JSON.stringify({
+        id: parseInt(id.value),
+      }),
+      headers: header,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(saveErr);
+        }
+        info.classList.add(ok);
+        feed.classList.add(fok);
+        feed.textContent = `images deleted, refresh the page to see the change`;
+        return response.json();
       })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(saveErr);
-          }
-          info.classList.add(ok);
-          feed.classList.add(fok);
-          feed.textContent = `images deleted, refresh the page to see the change`;
-          return response.json();
-        })
-        .catch((error) => {
-          info.classList.add(err);
-          feed.classList.add(ferr);
-          feed.textContent = error.message;
-        });
-    });
+      .catch((error) => {
+        info.classList.add(err);
+        feed.classList.add(ferr);
+        feed.textContent = error.message;
+      });
+  });
 
   /// ==============
   /// TODO: below
@@ -114,5 +114,4 @@
     artifact.classList.remove(err);
     artifact.classList.remove(ok);
   });
-
 })();
