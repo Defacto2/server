@@ -4,23 +4,20 @@
  * Copies the text content of an HTML element to the clipboard.
  * @async
  * @function clipText
- * @param {string} [id=""] - The ID of the HTML element to copy the text from.
+ * @param {string} elementId - The ID of the HTML element to copy the text from.
  * @throws {Error} Throws an error if the specified element is missing.
  * @returns {Promise<void>} A Promise that resolves when the text has been copied to the clipboard.
  */
-export async function clipText(id = ``) {
-  const element = document.getElementById(id);
-  if (element === null) {
-    throw Error(`select text element "${id}" is missing`);
-  }
+export async function clipText(elementId) {
+  const oneSecond = 1000
+  const element = getElmById(elementId);
   element.focus(); // select the element to avoid NotAllowedError: Clipboard write is not allowed in this context
   await navigator.clipboard.writeText(`${element.textContent}`).then(
     function () {
       console.log(
         `Copied ${humanFilesize(element.textContent.length)} to the clipboard`
       );
-      const button = document.getElementById(`copyReadme`),
-        oneSecond = 1000;
+      const button = document.getElementById(`copyReadme`);
       if (button === null) return;
       const save = button.textContent;
       button.textContent = `✓ Copied`;
