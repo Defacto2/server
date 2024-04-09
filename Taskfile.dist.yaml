@@ -36,6 +36,8 @@ tasks:
         platforms: [linux, darwin, freebsd]
       - cmd: gofumpt -w .
       - cmd: gci write -s standard -s default .
+      - cmd: pnpm exec eslint assets/js/*.js
+      - cmd: pnpm exec stylelint assets/css/*.css
       - cmd: golangci-lint run
   lint+:
     silent: false

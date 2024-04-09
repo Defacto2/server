@@ -107,7 +107,7 @@ func holder(c echo.Context) error {
 	defer src.Close()
 	// Destination
 	dst, err := os.CreateTemp("tmp", "upload-*.zip")
-	//dst, err := os.Create(file.Filename)
+	// dst, err := os.Create(file.Filename)
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,6 @@ func holder(c echo.Context) error {
 	return c.HTML(http.StatusOK,
 		fmt.Sprintf("<p>File %s uploaded successfully with fields.</p><p>%s</p>",
 			html.EscapeString(input.Filename), html.EscapeString(dst.Name())))
-
 }
 
 // GlobTo returns the path to the template file.

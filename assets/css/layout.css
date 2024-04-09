@@ -48,7 +48,6 @@
 
 .font-dos {
   font-family: font-vga-eight, monospace;
-  /* font-size: 125%; */
   font-style: normal;
   font-weight: normal;
   line-height: 1;
@@ -64,7 +63,6 @@
 
 .font-amiga {
   font-family: font-topaz-two, font-vga-eight, monospace;
-  /* font-size: 125%; */
   font-style: normal;
   font-weight: normal;
   line-height: 1;
@@ -78,7 +76,7 @@
 
 #logo-container {
   container-type: inline-size;
-  container-name: cardContainer;
+  container-name: cardcontainer;
 }
 
 #logo-text {
@@ -90,17 +88,19 @@
   color: #fff;
 }
 
-@container cardContainer (width > 575px) {
+@container cardcontainer (width > 575px) {
   pre {
     font-size: 100%;
   }
 }
-@container cardContainer (width < 576px) {
+
+@container cardcontainer (width < 576px) {
   pre {
     font-size: 0.75rem;
   }
 }
-@container cardContainer (width < 422px) {
+
+@container cardcontainer (width < 422px) {
   pre {
     font-size: 0.5rem;
   }
