@@ -20,5 +20,5 @@ import { keyboardShortcuts } from "./uploader-keyboard.mjs";
   imageSubmit(`imageSubmit`);
   introSubmit(`introSubmit`);
   magazineSubmit(`magSubmit`);
-  textSubmit(`textSubmit`);
+  textSubmit(`textSubmit`, `textUploader`);
 })();

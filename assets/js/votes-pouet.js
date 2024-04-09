@@ -16,14 +16,14 @@
     return `${location.protocol}//${location.host}/pouet/vote/${id}`;
   };
 
-  const prodElm = document.getElementById(`pouetVoteID`);
+  const element = document.getElementById(`pouetVoteID`);
   const row = document.getElementById(`pouetRow`);
   const stars = document.getElementById(`pouetStars`);
   const votes = document.getElementById(`pouetVotes`);
-  if (prodElm === null || row === null || stars === null || votes === null)
+  if (element === null || row === null || stars === null || votes === null)
     return;
 
-  const prodID = prodElm.innerHTML.trim();
+  const prodID = element.innerHTML.trim();
   console.info(`Requesting the Pouët API for production #${prodID}`);
   fetch(url(prodID), {
     method: `GET`,
@@ -44,6 +44,7 @@
         row.classList.add(`d-none`);
         return;
       }
+      
       let s = `${result.stars} star`;
       if (result.stars !== 1) s += `s`;
       stars.innerHTML = s;

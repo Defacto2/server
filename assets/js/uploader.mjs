@@ -1,26 +1,49 @@
-export default getModalById;
+export default getElmById;
 
-export function getModalById(uploaderId) {
-  const element = document.getElementById(uploaderId);
+/**
+ * Retrieves an element from the DOM using its ID.
+ *
+ * @param {string} elementId - The ID of the element to retrieve.
+ * @returns {HTMLElement} - The retrieved element.
+ * @throws {Error} - If the element is not found in the DOM.
+ */
+export function getElmById(elementId) {
+  const element = document.getElementById(elementId);
   if (element == null) {
-    throw new Error(`The ${uploaderId} element is null.`);
+    throw new Error(`The ${elementId} element is null.`);
   }
+  return element;
+}
+
+/**
+ * Retrieves a modal object by its element ID.
+ *
+ * @param {string} elementId - The ID of the element representing the modal.
+ * @returns {Object} - The modal object.
+ * @throws {Error} - If the bootstrap object is undefined.
+ */
+export function getModalById(elementId) {
   if (bootstrap === undefined) {
     throw new Error(`The bootstrap object is undefined.`);
   }
+  const element = getElmById(elementId);
   const modal = new bootstrap.Modal(element);
   return modal;
 }
 
-export function focusModalById(uploaderId, submissionId) {
-  const element = document.getElementById(uploaderId);
-  if (element == null) {
-    throw new Error(`The ${uploaderId} element is null.`);
-  }
+/**
+ * Focuses the modal by its element ID and submission ID.
+ * @param {string} elementId - The ID of the modal element.
+ * @param {string} submissionId - The ID of the submission element.
+ * @returns {Object} - The modal object.
+ * @throws {Error} - If the submission element is null or if the bootstrap object is undefined.
+ */
+export function focusModalById(elementId, submissionId) {
   const input = document.getElementById(submissionId);
   if (input == null) {
     throw new Error(`The ${submissionId} element is null.`);
   }
+  const element = getElmById(elementId);
   element.addEventListener("shown.bs.modal", function () {
     input.focus();
   });
@@ -31,6 +54,10 @@ export function focusModalById(uploaderId, submissionId) {
   return modal;
 }
 
+/**
+ * Adds pagination functionality to an element.
+ * @param {string} elementId - The ID of the element to add pagination to.
+ */
 export function pagination(elementId) {
   const pageRange = document.getElementById(elementId);
   if (typeof pageRange === "undefined" || pageRange === null) {
@@ -59,6 +86,7 @@ export function pagination(elementId) {
     pageRangeLabel.textContent = "Jump to page " + pageRange.value;
   });
 }
+
 /**
  * Checks if a given year is valid, i.e. between 1980 and the current year.
  * @param {number} year - The year to be validated.
@@ -68,8 +96,9 @@ export function validYear(year) {
   if (`${year}` == "") {
     return true;
   }
+  const epochYear = 1980;
   const currentYear = new Date().getFullYear();
-  if (year < 1980 || year > currentYear) {
+  if (year < epochYear || year > currentYear) {
     return false;
   }
   return true;
@@ -84,7 +113,9 @@ export function validMonth(month) {
   if (`${month}` == "") {
     return true;
   }
-  if (month < 1 || month > 12) {
+  const jan = 1,
+    dec = 12;
+  if (month < jan || month > dec) {
     return false;
   }
   return true;
@@ -99,7 +130,9 @@ export function validDay(day) {
   if (`${day}` == "") {
     return true;
   }
-  if (day < 1 || day > 31) {
+  const first = 1,
+    last = 31;
+  if (day < first || day > last) {
     return false;
   }
   return true;

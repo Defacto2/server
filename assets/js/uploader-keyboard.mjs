@@ -1,6 +1,34 @@
 import { getModalById, focusModalById } from "./uploader.mjs";
 export default keyboardShortcuts;
 
+const pouetModal = focusModalById("uploader-pouet", "pouet-submission");
+const demozooModal = focusModalById("uploader-demozoo", "demozoo-submission");
+const introModal = focusModalById("uploader-intro", "uploader-intro-file");
+const txtModal = getModalById("uploaderText");
+const imgModal = getModalById("uploaderImg");
+const magModal = getModalById("uploaderMag");
+const advModal = getModalById("uploaderAdv");
+const glossModal = getModalById("termsModal"); // TODO: move to layout.js or main.js
+
+const demozoo = "d",
+  pouet = "p",
+  intro = "i",
+  nfo = "n",
+  graphic = "g",
+  magazine = "m",
+  advanced = "a",
+  glossaryOfTerms = "t";
+
+const pageS = document.getElementById("paginationStart"),
+  pageP = document.getElementById("paginationPrev"),
+  pageP2 = document.getElementById("paginationPrev2"),
+  pageN = document.getElementById("paginationNext"),
+  pageN2 = document.getElementById("paginationNext2"),
+  pageE = document.getElementById("paginationEnd");
+
+const right = "ArrowRight",
+  left = "ArrowLeft";
+  
 export function keyboardShortcuts() {
   document.addEventListener("keydown", function (event) {
     if (event.ctrlKey && event.altKey) {
@@ -63,32 +91,3 @@ export function keyboardShortcuts() {
     }
   });
 }
-
-const pouetModal = focusModalById("uploader-pouet", "pouet-submission");
-const demozooModal = focusModalById("uploader-demozoo", "demozoo-submission");
-const introModal = focusModalById("uploader-intro", "uploader-intro-file");
-const txtModal = getModalById("uploaderText");
-const imgModal = getModalById("uploaderImg");
-const magModal = getModalById("uploaderMag");
-const advModal = getModalById("uploaderAdv");
-const glossModal = getModalById("termsModal"); // TODO: move to layout.js or main.js
-
-const demozoo = "d",
-  pouet = "p",
-  intro = "i",
-  nfo = "n",
-  graphic = "g",
-  magazine = "m",
-  advanced = "a",
-  glossaryOfTerms = "t";
-
-const pageS = document.getElementById("paginationStart");
-const pageP = document.getElementById("paginationPrev");
-const pageP2 = document.getElementById("paginationPrev2");
-const pageN = document.getElementById("paginationNext");
-const pageN2 = document.getElementById("paginationNext2");
-const pageE = document.getElementById("paginationEnd");
-const right = "ArrowRight",
-  left = "ArrowLeft";
-
-// Keyboard shortcuts event listener
