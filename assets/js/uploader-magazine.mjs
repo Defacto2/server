@@ -1,4 +1,4 @@
-import { validYear, validMonth, validDay } from "./uploader.mjs";
+import { validYear, validMonth, validDay } from "./helper.mjs";
 export default magazineSubmit;
 // Elements for the magazine uploader
 const magFile = document.getElementById("magFile");

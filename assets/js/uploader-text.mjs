@@ -1,6 +1,7 @@
 // uploader-text.mjs
-import { getElmById, validYear, validMonth } from "./uploader.mjs";
-export default textSubmit;
+
+import { getElmById, validYear, validMonth } from "./helper.mjs";
+export default textUploader;
 
 /**
  * Submits the text form when the specified element is clicked.
@@ -8,7 +9,7 @@ export default textSubmit;
  * @param {string} formId - The ID of the form to be submitted.
  * @throws {Error} If the specified element or form is null.
  */
-export function textSubmit(elementId, formId) {
+export function textUploader(elementId, formId) {
   const element = document.getElementById(elementId);
   if (element == null) {
     throw new Error(`The ${elementId} element is null.`);

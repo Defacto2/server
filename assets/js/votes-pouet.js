@@ -16,10 +16,10 @@
     return `${location.protocol}//${location.host}/pouet/vote/${id}`;
   };
 
-  const element = document.getElementById(`pouetVoteID`);
-  const row = document.getElementById(`pouetRow`);
-  const stars = document.getElementById(`pouetStars`);
-  const votes = document.getElementById(`pouetVotes`);
+  const element = document.getElementById(`pouetVoteID`),
+    row = document.getElementById(`pouetRow`),
+    stars = document.getElementById(`pouetStars`),
+    votes = document.getElementById(`pouetVotes`);
   if (element === null || row === null || stars === null || votes === null)
     return;
 
@@ -44,7 +44,7 @@
         row.classList.add(`d-none`);
         return;
       }
-      
+
       let s = `${result.stars} star`;
       if (result.stars !== 1) s += `s`;
       stars.innerHTML = s;

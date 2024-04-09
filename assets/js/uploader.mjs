@@ -1,19 +1,6 @@
-export default getElmById;
+// uploader.mjs
 
-/**
- * Retrieves an element from the DOM using its ID.
- *
- * @param {string} elementId - The ID of the element to retrieve.
- * @returns {HTMLElement} - The retrieved element.
- * @throws {Error} - If the element is not found in the DOM.
- */
-export function getElmById(elementId) {
-  const element = document.getElementById(elementId);
-  if (element == null) {
-    throw new Error(`The ${elementId} element is null.`);
-  }
-  return element;
-}
+import { getElmById } from "./helper.mjs";
 
 /**
  * Retrieves a modal object by its element ID.
@@ -85,55 +72,4 @@ export function pagination(elementId) {
   pageRange.addEventListener("input", function () {
     pageRangeLabel.textContent = "Jump to page " + pageRange.value;
   });
-}
-
-/**
- * Checks if a given year is valid, i.e. between 1980 and the current year.
- * @param {number} year - The year to be validated.
- * @returns {boolean} - Returns true if the year is valid, false otherwise.
- */
-export function validYear(year) {
-  if (`${year}` == "") {
-    return true;
-  }
-  const epochYear = 1980;
-  const currentYear = new Date().getFullYear();
-  if (year < epochYear || year > currentYear) {
-    return false;
-  }
-  return true;
-}
-
-/**
- * Checks if a given month is valid.
- * @param {number} month - The month to be validated.
- * @returns {boolean} - Returns true if the month is valid, false otherwise.
- */
-export function validMonth(month) {
-  if (`${month}` == "") {
-    return true;
-  }
-  const jan = 1,
-    dec = 12;
-  if (month < jan || month > dec) {
-    return false;
-  }
-  return true;
-}
-
-/**
- * Checks if a given day is valid.
- * @param {number} day - The day to be checked.
- * @returns {boolean} - Returns true if the day is valid, false otherwise.
- */
-export function validDay(day) {
-  if (`${day}` == "") {
-    return true;
-  }
-  const first = 1,
-    last = 31;
-  if (day < first || day > last) {
-    return false;
-  }
-  return true;
 }

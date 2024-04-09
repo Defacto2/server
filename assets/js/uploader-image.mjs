@@ -1,4 +1,4 @@
-import { validYear, validMonth } from "./uploader.mjs";
+import { validYear, validMonth } from "./helper.mjs";
 export default imageSubmit;
 
 const imgFile = document.getElementById("imageFile");
