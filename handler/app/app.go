@@ -1121,6 +1121,7 @@ type SRI struct {
 	Jsdos6JS        string // js-dos v6 verification hash.
 	DosboxJS        string // DOSBox Emscripten verification hash.
 	Layout          string // Layout CSS verification hash.
+	LayoutJS        string // Layout JS verification hash.
 	Pouet           string // Pouet JS verification hash.
 	Readme          string // Readme JS verification hash.
 	Uploader        string // Uploader JS verification hash.
@@ -1137,6 +1138,10 @@ func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 		return err
 	}
 	s.Bootstrap5JS, err = helper.Integrity(names[Bootstrap5JS], fs)
+	if err != nil {
+		return err
+	}
+	s.LayoutJS, err = helper.Integrity(names[LayoutJS], fs)
 	if err != nil {
 		return err
 	}

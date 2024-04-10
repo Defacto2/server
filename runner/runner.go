@@ -29,6 +29,7 @@ func NamedJS() []string {
 		"editor-assets",
 		"editor-archive",
 		"editor-forapproval",
+		"layout",
 		"votes-pouet",
 	}
 }

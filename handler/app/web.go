@@ -278,6 +278,9 @@ func (web Web) TemplateClosures() template.FuncMap {
 		"layout": func() string {
 			return hrefs[Layout]
 		},
+		"layoutJS": func() string {
+			return hrefs[LayoutJS]
+		},
 		"logo": func() string {
 			return string(*web.Brand)
 		},
@@ -319,6 +322,9 @@ func (web Web) TemplateClosures() template.FuncMap {
 		},
 		"sri_layout": func() string {
 			return web.Subresource.Layout
+		},
+		"sri_layoutJS": func() string {
+			return web.Subresource.LayoutJS
 		},
 		"sri_pouet": func() string {
 			return web.Subresource.Pouet

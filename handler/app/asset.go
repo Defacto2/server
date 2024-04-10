@@ -16,6 +16,7 @@ const (
 	Htmx                         // Htmx is the path to the minified htmx AJAX JS file.
 	Jsdos6JS                     // Jsdos6JS is the path to the minified js-dos v6 JS file.
 	Layout                       // Layout is the path to the minified layout CSS file.
+	LayoutJS                     // LayoutJS is the path to the minified layout JS file.
 	Pouet                        // Pouet is the path to the minified Pouet JS file.
 	Readme                       // Readme is the path to the minified Readme JS file.
 	Uploader                     // Uploader is the path to the minified Uploader JS file.
@@ -41,6 +42,7 @@ func Hrefs() Paths {
 		Htmx:            "/js/htmx.min.js",
 		Jsdos6JS:        "/js/js-dos.js",
 		Layout:          "/css/layout.min.css",
+		LayoutJS:        "/js/layout.min.js",
 		Pouet:           "/js/votes-pouet.min.js",
 		Readme:          "/js/readme.min.js",
 		Uploader:        "/js/uploader.min.js",
