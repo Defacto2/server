@@ -1,7 +1,7 @@
 // layout-carousel.js
 //
-// This is test code the embedded JS script in the layout.html template.
-// It is not intended to be minified or bundled with the rest of the JS code.
+// This is test, embedded JS script used in the layout.html template.
+// It is not intended to be minified or bundled with the rest of the layout JS.
 //
 (() => {
   const myCarouselElement = document.querySelector("#carouselDf2Artpacks");

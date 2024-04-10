@@ -40,36 +40,3 @@ export function focusModalById(elementId, submissionId) {
   const modal = new bootstrap.Modal(element);
   return modal;
 }
-
-/**
- * Adds pagination functionality to an element.
- * @param {string} elementId - The ID of the element to add pagination to.
- */
-export function pagination(elementId) {
-  const pageRange = document.getElementById(elementId);
-  if (typeof pageRange === "undefined" || pageRange === null) {
-    return;
-  }
-  pageRange.addEventListener("change", function () {
-    const range = pageRange.value;
-    const url = new URL(window.location.href);
-    const path = url.pathname;
-    const paths = path.split("/");
-    const page = paths[paths.length - 1];
-    if (!isNaN(page) && typeof Number(page) === "number") {
-      paths[paths.length - 1] = range;
-    } else {
-      paths.push(range);
-    }
-    url.pathname = paths.join("/");
-    window.location.href = url.href;
-  });
-  const label = `paginationRangeLabel`;
-  const pageRangeLabel = document.getElementById(label);
-  if (pageRangeLabel === null) {
-    throw new Error(`The ${label} element is null.`);
-  }
-  pageRange.addEventListener("input", function () {
-    pageRangeLabel.textContent = "Jump to page " + pageRange.value;
-  });
-}

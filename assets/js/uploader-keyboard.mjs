@@ -4,11 +4,10 @@ export default keyboardShortcuts;
 const pouetModal = focusModalById("uploader-pouet", "pouet-submission");
 const demozooModal = focusModalById("uploader-demozoo", "demozoo-submission");
 const introModal = focusModalById("uploader-intro", "uploader-intro-file");
-const txtModal = getModalById("uploaderText");
-const imgModal = getModalById("uploaderImg");
-const magModal = getModalById("uploaderMag");
-const advModal = getModalById("uploaderAdv");
-const glossModal = getModalById("termsModal"); // TODO: move to layout.js or main.js
+const textModal = getModalById("uploaderText");
+const graphicModal = getModalById("uploaderImg");
+const magazineModal = getModalById("uploaderMag");
+const advancedModal = getModalById("uploaderAdv");
 
 const demozoo = "d",
   pouet = "p",
@@ -16,78 +15,38 @@ const demozoo = "d",
   nfo = "n",
   graphic = "g",
   magazine = "m",
-  advanced = "a",
-  glossaryOfTerms = "t";
+  advanced = "a";
 
-const pageS = document.getElementById("paginationStart"),
-  pageP = document.getElementById("paginationPrev"),
-  pageP2 = document.getElementById("paginationPrev2"),
-  pageN = document.getElementById("paginationNext"),
-  pageN2 = document.getElementById("paginationNext2"),
-  pageE = document.getElementById("paginationEnd");
-
-const right = "ArrowRight",
-  left = "ArrowLeft";
-  
+/**
+ * Binds keyboard shortcuts to specific actions.
+ */
 export function keyboardShortcuts() {
   document.addEventListener("keydown", function (event) {
-    if (event.ctrlKey && event.altKey) {
-      switch (event.key) {
-        case demozoo:
-          demozooModal.show();
-          break;
-        case pouet:
-          pouetModal.show();
-          break;
-        case intro:
-          introModal.show();
-          break;
-        case nfo:
-          txtModal.show();
-          break;
-        case graphic:
-          imgModal.show();
-          break;
-        case magazine:
-          magModal.show();
-          break;
-        case advanced:
-          advModal.show();
-          break;
-        case glossaryOfTerms:
-          glossModal.show();
-          break;
-      }
-    }
-    // Ctrl + Left arrow key to go to the start page
-    if (event.ctrlKey && event.key == left) {
-      if (pageS != null) pageS.click();
+    if (!event.ctrlKey || !event.altKey) {
       return;
     }
-    // Ctrl + Right arrow key to go to the end page
-    if (event.ctrlKey && event.key == right) {
-      if (pageE != null) pageE.click();
-      return;
-    }
-    // Shift + Left arrow key to go to the start page
-    if (event.shiftKey && event.key == left) {
-      if (pageP2 != null) pageP2.click();
-      return;
-    }
-    // Shift + Right arrow key to go to the end page
-    if (event.shiftKey && event.key == right) {
-      if (pageN2 != null) pageN2.click();
-      return;
-    }
-    // Left arrow key to go to the previous page
-    if (event.key == left) {
-      if (pageP != null) pageP.click();
-      return;
-    }
-    // Right arrow key to go to the next page
-    if (event.key == right) {
-      if (pageN != null) pageN.click();
-      return;
+    switch (event.key) {
+      case demozoo:
+        demozooModal.show();
+        break;
+      case pouet:
+        pouetModal.show();
+        break;
+      case intro:
+        introModal.show();
+        break;
+      case nfo:
+        textModal.show();
+        break;
+      case graphic:
+        graphicModal.show();
+        break;
+      case magazine:
+        magazineModal.show();
+        break;
+      case advanced:
+        advancedModal.show();
+        break;
     }
   });
 }

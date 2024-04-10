@@ -13,7 +13,10 @@ import (
 	"github.com/evanw/esbuild/pkg/api"
 )
 
-const C = "© Defacto2"
+const (
+	C          = "© Defacto2"
+	ECMAScript = api.ES2020
+)
 
 // NamedCSS returns the base filenames of the CSS files to build.
 // The files are located in the assets/css directory.
@@ -29,7 +32,6 @@ func NamedJS() []string {
 		"editor-assets",
 		"editor-archive",
 		"editor-forapproval",
-		"layout",
 		"votes-pouet",
 	}
 }
@@ -61,9 +63,28 @@ func JS(name string) api.BuildOptions {
 	return api.BuildOptions{
 		EntryPoints:       []string{entry},
 		Outfile:           output,
-		Target:            api.ES2020, // specify JS language version
-		Write:             true,       // write the output file to disk
-		Bundle:            false,      // bundle dependencies into the output file
+		Target:            ECMAScript,
+		Write:             true,
+		Bundle:            false,
+		MinifyWhitespace:  true,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		Banner: map[string]string{
+			"js": fmt.Sprintf("/* %s %s %s */", min, C, time.Now().Format("2006")),
+		},
+	}
+}
+
+func Layout() api.BuildOptions {
+	min := "layout.min.js"
+	entryjs := filepath.Join("assets", "js", "layout.js")
+	output := filepath.Join("public", "js", min)
+	return api.BuildOptions{
+		EntryPoints:       []string{entryjs},
+		Outfile:           output,
+		Target:            ECMAScript,
+		Write:             true,
+		Bundle:            true,
 		MinifyWhitespace:  true,
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
@@ -80,9 +101,9 @@ func Readme() api.BuildOptions {
 	return api.BuildOptions{
 		EntryPoints:       []string{entryjs},
 		Outfile:           output,
-		Target:            api.ES2020, // specify JS language version
-		Write:             true,       // write the output file to disk
-		Bundle:            true,       // bundle dependencies into the output file
+		Target:            ECMAScript,
+		Write:             true,
+		Bundle:            true,
 		MinifyWhitespace:  true,
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
@@ -99,9 +120,9 @@ func Uploader() api.BuildOptions {
 	return api.BuildOptions{
 		EntryPoints:       []string{entryjs},
 		Outfile:           output,
-		Target:            api.ES2020, // specify JS language version
-		Write:             true,       // write the output file to disk
-		Bundle:            true,       // bundle dependencies into the output file
+		Target:            ECMAScript,
+		Write:             true,
+		Bundle:            true,
 		MinifyWhitespace:  true,
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
@@ -120,6 +141,12 @@ func main() {
 	}
 	for _, name := range NamedJS() {
 		result := api.Build(JS(name))
+		if len(result.Errors) > 0 {
+			fmt.Fprintf(os.Stderr, "JS build failed: %v\n", result.Errors)
+		}
+	}
+	{
+		result := api.Build(Layout())
 		if len(result.Errors) > 0 {
 			fmt.Fprintf(os.Stderr, "JS build failed: %v\n", result.Errors)
 		}
