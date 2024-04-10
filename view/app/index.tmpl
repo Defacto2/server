@@ -80,7 +80,7 @@
         </h5>
         {{- end}}
         {{- if (ne "" .Content)}}
-        <p class="card-text"><small>{{.Content | safeHTML}}</small></p>
+        <div class="card-text my-2"><small>{{.Content | safeHTML}}</small></div>
         {{- end}}
         {{- if or (ne "" .Link) (ne "" .Picture.Attribution) (ne "" .Title)}}
         <p class="card-text">

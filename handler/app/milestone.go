@@ -694,15 +694,17 @@ func Collection() Milestones {
 				"<p>We believe it unlikely that several kids from West Berlin, a city deep within the Soviet GDR, had access to the unreleased PAL Commodore 64 in <u>1982</u>. " +
 				"It is more believable that these Berlin cracking groups were formed in late 1983 or 1984. " +
 				"However, the claim<sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup> is that various Berliners got together in 1982 and formed multiple <q>cracking</q> " +
-				"groups to trade in software and create art on an unreleased business microcomputer, even though the software didn't need cracking then.</p>" +
+				"groups to trade in software and create art on an unreleased business microcomputer, even though software for it didn't need cracking.</p>" +
 				// citations
 				"<strong>Quotes</strong><sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup>" +
 				ul0 +
-				"<li><q>The first intro was a picture of the Berlin Bear from the city flag and was released by BCS in <strong>1982</strong>. It was a kind of <u>co-production by several people</u>...</q></li>" +
-				"<li><q>A positive moment for me was when the father of a classmate who was working for Apple, was able to <u>through his connections, obtain a C64 on Christmas</u> <strong>1982</strong>... Plutonium&nbsp;<u>Crackers</u> 2001 (PC) was born.</q></li>" +
-				"<li><q>Some of our close friends/posse <u>in Berlin started their C64 scene-careers nearly at the same time</u>. I'm speaking of <u>Cracking</u> Force Berlin (CFB)... and&nbsp;Berlin&nbsp;<u>Cracking</u>&nbsp;Service&nbsp;(BCS).</q></li>" +
-				"<li><q>We were primarily <u>cracking games from 1982</u> until late 1987.</q></li>" +
-				"<li><q>Copying games wasn't really illegal in most countries back in 1982 or 1983. ... Most early releases <u>weren't <q>cracked</q></u>, they were just released or spread.</q></li>" +
+				"<li><q>The first intro was a picture of the Berlin Bear from the city flag and was released by BCS in <strong>1982</strong>. " +
+				"It was a kind of co-production by several people...</q> <sup><a href=\"#berlin-bear-controversy-fn9\">[9]</a></sup></li>" +
+				"<li><q>A positive moment for me was when the father of a classmate who was working for Apple, was able to through his connections, obtain a C64 on Christmas <strong>1982</strong>... Plutonium&nbsp;Crackers&nbsp;2001&nbsp;(PC) was born.</q> <sup><a href=\"#berlin-bear-controversy-fn10\">[10]</a></sup></li>" +
+				"<li><q>Some of our close friends/posse in Berlin started their C64 scene-careers nearly at the same time. " +
+				"I'm speaking of Cracking Force Berlin (CFB)... and&nbsp;Berlin&nbsp;Cracking&nbsp;Service&nbsp;(BCS).</q> <sup><a href=\"#berlin-bear-controversy-fn11\">[11]</a></sup></li>" +
+				"<li><q>We were primarily <u>cracking games from 1982</u> until late 1987.</q> <sup><a href=\"#berlin-bear-controversy-fn12\">[12]</a></sup></li>" +
+				"<li><q>Copying games wasn't really illegal in most countries back in 1982 or 1983. <sup><a href=\"#berlin-bear-controversy-fn13\">[13]</a></sup> ... Most early releases <u>weren't <q>cracked</q></u>, they were just released or spread.</q></li>" +
 				ul1 +
 				"<section>" +
 				"<div id=\"berlin-bear-controversy-fn1\">[1] Conversations on the Berlin Bear, " +
@@ -718,6 +720,12 @@ func Collection() Milestones {
 				"<div id=\"berlin-bear-controversy-fn6\">[6] Advert source <a href=\"https://nosher.net/archives/computers/comm64_comci_1983-02?idx=Designed\">nosher.net</a>.</div>" +
 				"<div id=\"berlin-bear-controversy-fn7\">[7] See the October 1993 issue of Practical Computing, <a href=\"https://worldradiohistory.com/UK/Practical-Computing/80s/Practical-Computing-1983-10-S-OCR.pdf\">pages 74-75</a>.</div>" +
 				"<div id=\"berlin-bear-controversy-fn8\">[8] Select quotes from an often referenced <a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">interview conducted in 2005-06</a>.</div>" +
+				"<div id=\"berlin-bear-controversy-fn9\">[9] This quote claims multiple Berlin-based sceners had access to the Commodore 64 in 1982 and were knowledgeable enough to program on it.</div>" +
+				"<div id=\"berlin-bear-controversy-fn10\">[10] This conflicting quote claims the Commodore 64 was unreleased or unavailable during Christmas 1982. " +
+				"It also needs to be clarified why an Apple employee, through connections, would get a family friend access to a competitor machine.</div>" +
+				"<div id=\"berlin-bear-controversy-fn11\">[11] This quote suggests multiple Berlin cracking groups existed on the Commodore 64 in 1982 despite this and other sources stating the machine was unavailable in Germany.</div>" +
+				"<div id=\"berlin-bear-controversy-fn12\">[12] Cracking games in this era means removing <q>disk</q> copy protection. Yet the German manual for the VC-1541 floppy disk drive is dated June 1983, which suggests it didn't sell in Germany until the latter half of 1983. The other early significant titles on the Commodore&nbsp;64 came on cartridges.</div>" +
+				"<div id=\"berlin-bear-controversy-fn13\">[13] Copying and sharing software wasn't criminal in the USA until the NET Act was signed in December 1997. Other countries passed similar laws in the 2000s.</div>" +
 				"</section>",
 		},
 		{
