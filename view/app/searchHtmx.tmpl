@@ -11,23 +11,23 @@
                 <p class="card-text">
                 <div class="input-group">
                     <div class="input-group-text">
-                        <div id="indicator" class="htmx-indicator spinner-border spinner-border-sm text-secondary" role="status">
+                        <div id="search-releaser-indicator" class="htmx-indicator spinner-border spinner-border-sm text-secondary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
                     </div>              
                     <input type="text" spellcheck="false" autofocus 
-                        class="form-control" id="releaserSearch" name="releaser-search" 
+                        class="form-control" id="search-releaser-input" name="releaser-search" 
                         hx-post="/search/releaser" 
                         hx-target="#search-releaser-results" 
                         hx-trigger="keyup changed delay:500ms" 
-                        hx-indicator="#indicator"
+                        hx-indicator="#search-releaser-indicator"
                         placeholder="Type to search for a releaser…">
-                    <button type="button" id="htmx-clear" class="btn btn-dark">Clear</button>
+                    <button type="button" id="search-releaser-clear" class="btn btn-dark">Clear</button>
                 </div>
                 </p>
             </div>
         </div>
-        <div id="htmx-alert" hidden class="alert alert-warning" role="alert"></div>
+        <div id="search-releaser-alert" hidden class="alert alert-warning" role="alert"></div>
     </div>
     <div class="col-lg-8" id="search-releaser-results"></div>
 </div>

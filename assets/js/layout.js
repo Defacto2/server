@@ -4,10 +4,11 @@ import {
   keyboardShortcuts as layoutKeys,
   pagination,
 } from "./layout-keyboard.mjs";
+import htmxLoader from "./layout-htmx.mjs";
 
 (() => {
   "use strict";
-  console.log("layout.js")
+  htmxLoader();
   layoutKeys();
   pagination("paginationRange");
   const tooltipTriggerList = document.querySelectorAll(

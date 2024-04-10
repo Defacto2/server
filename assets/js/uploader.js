@@ -7,7 +7,6 @@ import { keyboardShortcuts as uploadKeys } from "./uploader-keyboard.mjs";
 import { magazineSubmit } from "./uploader-magazine.mjs";
 import { textUploader } from "./uploader-text.mjs";
 import { submitter } from "./uploader-submitter.mjs";
-import load from "./uploader-htmx.mjs";
 
 (() => {
   "use strict";
@@ -19,5 +18,4 @@ import load from "./uploader-htmx.mjs";
   textUploader(`textSubmit`, `textUploader`);
   submitter(`demozoo-submission`, `uploader-intro-file`, `Demozoo`);
   submitter(`pouet-submission`, `uploader-intro-file`, `Pouët`);
-  load();
 })();

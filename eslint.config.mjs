@@ -14,6 +14,7 @@ export default [
       globals: {
         ...globals.browser,
         bootstrap: "readonly",
+        htmx: "readonly",
       },
     },
     rules: {},
