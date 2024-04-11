@@ -1,4 +1,4 @@
 {{- /*  layout_uploaderJS.tmpl  */}}
 {{- define "layoutUploaderJS"}}
-<script async src="{{ uploader }}?{{ sri_uploader }}" integrity="{{ sri_uploader }}" crossorigin="anonymous"></script>
+<script defer src="{{ uploader }}?{{ sri_uploader }}" integrity="{{ sri_uploader }}" crossorigin="anonymous"></script>
 {{- end}}

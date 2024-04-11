@@ -9,10 +9,9 @@ const none = "d-none";
  * Submits the number input and handles the response from a remote API.
  *
  * @param {string} elementId - The ID of the submitter element.
- * @param {string} fileInputId - The ID of the file input element.
  * @param {string} api - The title of the API endpoint, e.g., "Demozoo" or "Pouët".
  */
-export function submitter(elementId, fileInputId, api) {
+export function submitter(elementId, api) {
   const input = getElmById(elementId);
   const alert = getElmById(`${elementId}-error`);
   const results = getElmById(`${elementId}-results`);
@@ -29,17 +28,6 @@ export function submitter(elementId, fileInputId, api) {
     alert.classList.add(none);
     results.innerHTML = "";
   }
-
-  const inputFile = getElmById(fileInputId);
-  inputFile.addEventListener("change", function () {
-    const file = this.files[0];
-    const xxx = document.getElementById("search-results");
-    if (file.size > 10485760) {
-      // todo lock upload and form
-      xxx.innerText = "File is too big, maximum size is 10MB.";
-      this.value = "";
-    }
-  });
 
   document.body.addEventListener("htmx:beforeRequest", function () {
     beforeReset(alert, results);

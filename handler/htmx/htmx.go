@@ -53,24 +53,24 @@ func Routes(logr *zap.SugaredLogger, e *echo.Echo) *echo.Echo {
 		return SearchReleaser(logr, x)
 	})
 	submit.POST("/uploader/intro", func(x echo.Context) error {
-		return holder(x)
+		return holder(x, "uploader-introfile")
 	})
-	submit.POST("/uploader/releasers", func(x echo.Context) error {
-		input := x.FormValue("uploader-intro-releasers")
+	submit.POST("/uploader/releaser/1", func(x echo.Context) error {
+		input := x.FormValue("uploader-intro-releaser1")
 		return DataListReleasers(logr, x, input)
 	})
-	submit.POST("/uploader/releasers-b", func(x echo.Context) error {
-		input := x.FormValue("uploader-intro-releasers-b")
+	submit.POST("/uploader/releaser/2", func(x echo.Context) error {
+		input := x.FormValue("uploader-intro-releaser2")
 		return DataListReleasers(logr, x, input)
 	})
 	return e
 }
 
-func holder(c echo.Context) error {
+func holder(c echo.Context, name string) error {
 	// Source
-	input, err := c.FormFile("uploader-intro-file")
+	input, err := c.FormFile(name)
 	if err != nil {
-		return c.HTML(http.StatusBadRequest, fmt.Sprintf("<p>Form file error: %s</p>", err))
+		return c.HTML(http.StatusBadRequest, fmt.Sprintf("<p>Form file error, %s: %s</p>", name, err))
 	}
 	src, err := input.Open()
 	if err != nil {
