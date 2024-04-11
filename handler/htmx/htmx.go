@@ -37,31 +37,31 @@ var (
 // using the htmx library for AJAX responses.
 func Routes(logr *zap.SugaredLogger, e *echo.Echo) *echo.Echo {
 	submit := e.Group("", middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(2)))
-	submit.POST("/demozoo/production", func(x echo.Context) error {
-		return DemozooProd(x)
+	submit.POST("/demozoo/production", func(c echo.Context) error {
+		return DemozooProd(c)
 	})
-	submit.POST("/demozoo/production/submit/:id", func(x echo.Context) error {
-		return DemozooSubmit(logr, x)
+	submit.POST("/demozoo/production/submit/:id", func(c echo.Context) error {
+		return DemozooSubmit(logr, c)
 	})
-	submit.POST("/pouet/production", func(x echo.Context) error {
-		return PouetProd(x)
+	submit.POST("/pouet/production", func(c echo.Context) error {
+		return PouetProd(c)
 	})
-	submit.POST("/pouet/production/submit/:id", func(x echo.Context) error {
-		return PouetSubmit(logr, x)
+	submit.POST("/pouet/production/submit/:id", func(c echo.Context) error {
+		return PouetSubmit(logr, c)
 	})
-	submit.POST("/search/releaser", func(x echo.Context) error {
-		return SearchReleaser(logr, x)
+	submit.POST("/search/releaser", func(c echo.Context) error {
+		return SearchReleaser(logr, c)
 	})
-	submit.POST("/uploader/intro", func(x echo.Context) error {
-		return holder(x, "uploader-introfile")
+	submit.POST("/uploader/intro", func(c echo.Context) error {
+		return holder(c, "uploader-introfile")
 	})
-	submit.POST("/uploader/releaser/1", func(x echo.Context) error {
-		input := x.FormValue("uploader-intro-releaser1")
-		return DataListReleasers(logr, x, input)
+	submit.POST("/uploader/releaser/1", func(c echo.Context) error {
+		input := c.FormValue("uploader-intro-releaser1")
+		return DataListReleasers(logr, c, input)
 	})
-	submit.POST("/uploader/releaser/2", func(x echo.Context) error {
-		input := x.FormValue("uploader-intro-releaser2")
-		return DataListReleasers(logr, x, input)
+	submit.POST("/uploader/releaser/2", func(c echo.Context) error {
+		input := c.FormValue("uploader-intro-releaser2")
+		return DataListReleasers(logr, c, input)
 	})
 	return e
 }
@@ -95,7 +95,7 @@ func holder(c echo.Context, name string) error {
 	if exist, err := model.ExistsHash(ctx, db, sum); err != nil {
 		return err
 	} else if exist {
-		return c.HTML(http.StatusOK, fmt.Sprintf("<p>File %s already exists.</p>",
+		return c.HTML(http.StatusOK, fmt.Sprintf("<p>Thanks, but the chosen file already exists on Defacto2.</p>%s",
 			html.EscapeString(input.Filename)))
 	}
 

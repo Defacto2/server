@@ -1,25 +1,30 @@
 import { validYear, validMonth } from "./helper.mjs";
 import { getElmById } from "./helper.mjs";
+import { intro as mime } from "./uploader-mime.mjs";
 export default submit;
 
 const formId = `uploader-intro-form`,
   invalid = "is-invalid",
   none = "d-none",
   megabyte = 1024 * 1024,
-  percentage = 100;
+  percentage = 100,
+  sizeLimit = 100 * megabyte;
 
-const form = getElmById(formId);
-const file = getElmById("uploader-intro-file");
-const year = getElmById("uploader-intro-year");
-const month = getElmById("uploader-intro-month");
-const releaser1 = getElmById("uploader-intro-releaser-1");
-const list1 = getElmById("uploader-intro-list-1"),
-  list2 = getElmById("uploader-intro-list-2");
-const youtube = getElmById("uploader-intro-youtube");
-const alert = getElmById("uploader-intro-alert");
-const results = getElmById("uploader-intro-results");
+const form = getElmById(formId),
+  alert = getElmById("uploader-intro-alert"),
+  file = getElmById("uploader-intro-file"),
+  list1 = getElmById("uploader-intro-list-1"),
+  list2 = getElmById("uploader-intro-list-2"),
+  month = getElmById("uploader-intro-month"),
+  releaser1 = getElmById("uploader-intro-releaser-1"),
+  results = getElmById("uploader-intro-results"),
+  year = getElmById("uploader-intro-year"),
+  youtube = getElmById("uploader-intro-youtube");
 
 form.addEventListener("reset", reset);
+
+file.addEventListener("change", checks);
+
 releaser1.addEventListener("input", validateRel1);
 year.addEventListener("input", validateY);
 month.addEventListener("input", validateM);
@@ -68,18 +73,39 @@ export function progress() {
         (event.detail.loaded / event.detail.total) * percentage
       );
   });
-  file.addEventListener("change", function () {
-    const file1 = this.files[0],
-      removeSelection = "";
-    alert.innerText = "";
-    alert.classList.add(none);
-    if (file1.size > 10 * megabyte) {
-      errSize = Math.round(file1.size / megabyte);
-      alert.innerText = `The chosen file is too big at ${errSize}MB, maximum size is 100MB.`;
-      alert.classList.remove(none);
-      this.value = removeSelection;
-    }
-  });
+}
+
+function checks() {
+  const file1 = this.files[0],
+    removeSelection = "";
+
+  alert.innerText = "";
+  alert.classList.add(none);
+
+  let errors = [checkSize(file1), checkMime(file1)];
+  errors = errors.filter((error) => error != "");
+
+  if (errors.length > 0) {
+    alert.innerText = errors.join(" ");
+    alert.classList.remove(none);
+    this.value = removeSelection;
+    return;
+  }
+}
+
+function checkSize(file) {
+  if (file.size > sizeLimit) {
+    errSize = Math.round(file.size / megabyte);
+    return `The chosen file is too big at ${errSize}MB, maximum size is ${sizeLimit / megabyte}MB.`;
+  }
+  return ``;
+}
+
+function checkMime(file) {
+  if (!mime(file.type)) {
+    return `The chosen file mime type ${file.type} is probably not suitable for an intro.`;
+  }
+  return ``;
 }
 
 function reset() {
