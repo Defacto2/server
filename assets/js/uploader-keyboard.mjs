@@ -1,9 +1,9 @@
 import { getModalById, focusModalById } from "./uploader.mjs";
 export default keyboardShortcuts;
 
-const pouetModal = focusModalById("uploader-pouet", "pouet-submission");
-const demozooModal = focusModalById("uploader-demozoo", "demozoo-submission");
-const introModal = focusModalById("uploader-intro", "uploader-intro-file");
+const pouetModal = focusModalById("uploader-pouet-modal", "pouet-submission");
+const demozooModal = focusModalById("uploader-demozoo-modal", "demozoo-submission");
+const introModal = focusModalById("uploader-intro-modal", "uploader-intro-file");
 const textModal = getModalById("uploaderText");
 const graphicModal = getModalById("uploaderImg");
 const magazineModal = getModalById("uploaderMag");

@@ -1,4 +1,5 @@
 // layout-htmx-search.mjs
+
 const releaserId = "search-releaser-alert",
   releaserReset = "search-releaser-clear",
   releaserIndi = "search-releaser-indicator",
@@ -17,8 +18,6 @@ export function releaserInit() {
 
 /**
  * Clears the input field, hides the alert, and resets the search results.
- * @param {string} alertId - The ID of the alert element.
- * @param {string} inputId - The ID of the input element.
  * @throws {Error} If any of the required elements are null.
  */
 export function clearer() {
@@ -50,9 +49,7 @@ export function clearer() {
 /**
  * Handles the search a releaser input event.
  *
- * @param {string} inputId - The ID of the input element.
  * @param {Event} event - The event object.
- * @param {HTMLElement} alert - The htmx alert element.
  * @throws {Error} If the htmx alert element is null.
  */
 export function releaser(event) {
@@ -60,7 +57,9 @@ export function releaser(event) {
     return;
   }
   if (typeof alert === "undefined" || alert === null) {
-    throw new Error(`The htmx alert element ${releaserId} for releaser search is null`);
+    throw new Error(
+      `The htmx alert element ${releaserId} for releaser search is null`
+    );
   }
   if (event.detail.successful) {
     return successful(alert);
