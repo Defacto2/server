@@ -56,13 +56,14 @@ const (
 )
 
 var (
-	ErrConn = errors.New("the server cannot connect to the database")
-	ErrDB   = errors.New("database value is nil")
-	ErrPage = errors.New("unknown records by type")
-	ErrSQL  = errors.New("database connection problem or a SQL error")
-	ErrTag  = errors.New("no database query was for the tag")
-	ErrTmpl = errors.New("the server could not render the HTML template for this page")
-	ErrZap  = errors.New("zap logger is nil")
+	ErrConn   = errors.New("the server cannot connect to the database")
+	ErrDB     = errors.New("database value is nil")
+	ErrPage   = errors.New("unknown records by type")
+	ErrRoutes = errors.New("echo instance is nil")
+	ErrSQL    = errors.New("database connection problem or a SQL error")
+	ErrTag    = errors.New("no database query was for the tag")
+	ErrTmpl   = errors.New("the server could not render the HTML template for this page")
+	ErrZap    = errors.New("zap logger is nil")
 )
 
 // Clauses for ordering file record queries.

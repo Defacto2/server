@@ -20,13 +20,13 @@ import (
 
 const code = http.StatusMovedPermanently
 
-// Routes defines the routes for the web server.
-func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error) {
+// FilesRoutes defines the file locations and routes for the web server.
+func (c Configuration) FilesRoutes(e *echo.Echo, public embed.FS) (*echo.Echo, error) {
+	if e == nil {
+		panic(ErrRoutes)
+	}
 	if c.Logger == nil {
 		return nil, fmt.Errorf("%w: %s", ErrZap, "handler routes")
-	}
-	if e == nil {
-		return nil, fmt.Errorf("%w: %s", ErrRoutes, "handler routes")
 	}
 	if d, err := public.ReadDir("."); err != nil || len(d) == 0 {
 		return nil, fmt.Errorf("%w: %s", ErrFS, "public")
@@ -43,39 +43,19 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s", err, "nonce")
 	}
-	if e, err = c.html(e, public); err != nil {
-		return nil, fmt.Errorf("%w: %s", err, "html")
-	}
-	if e, err = c.fonts(e, public); err != nil {
-		return nil, fmt.Errorf("%w: %s", err, "fonts")
-	}
-	if e, err = c.embedded(e, public); err != nil {
-		return nil, fmt.Errorf("%w: %s", err, "embedded")
-	}
-	if e, err = c.static(e); err != nil {
-		return nil, fmt.Errorf("%w: %s", err, "static")
-	}
 	if e, err = c.custom404(e); err != nil {
 		return nil, fmt.Errorf("%w: %s", err, "custom404")
 	}
-	if e, err = c.debugInfo(e); err != nil {
-		return nil, fmt.Errorf("%w: %s", err, "debugInfo")
-	}
-	if e, err = c.website(e, dir); err != nil {
-		return nil, fmt.Errorf("%w: %s", err, "website")
-	}
-	if e, err = c.search(e); err != nil {
-		return nil, fmt.Errorf("%w: %s", err, "search")
-	}
-	if e, err = c.uploader(e); err != nil {
-		return nil, fmt.Errorf("%w: %s", err, "uploader")
-	}
-	if e, err = c.signings(e, nonce); err != nil {
-		return nil, fmt.Errorf("%w: %s", err, "signings")
-	}
-	if e, err = c.editor(e, dir); err != nil {
-		return nil, fmt.Errorf("%w: %s", err, "editor")
-	}
+	e = c.html(e, public)
+	e = c.font(e, public)
+	e = c.embed(e, public)
+	e = c.static(e)
+	e = c.debugInfo(e)
+	e = c.website(e, dir)
+	e = c.search(e)
+	e = c.signin(e, nonce)
+	e = c.editor(e, dir)
+	e = c.uploader(e)
 	return e, nil
 }
 
@@ -83,7 +63,7 @@ func (c Configuration) Routes(e *echo.Echo, public embed.FS) (*echo.Echo, error)
 // If the read mode is enabled then an empty session key is returned.
 func (c Configuration) nonce(e *echo.Echo) (string, error) {
 	if e == nil {
-		return "", ErrRoutes
+		panic(ErrRoutes)
 	}
 	if c.Import.ReadMode {
 		return "", nil
@@ -97,9 +77,9 @@ func (c Configuration) nonce(e *echo.Echo) (string, error) {
 }
 
 // html serves the embedded CSS, JS, WASM, and source map files for the HTML website layout.
-func (c Configuration) html(e *echo.Echo, public embed.FS) (*echo.Echo, error) {
+func (c Configuration) html(e *echo.Echo, public embed.FS) *echo.Echo {
 	if e == nil {
-		return nil, ErrRoutes
+		panic(ErrRoutes)
 	}
 	hrefs, names := app.Hrefs(), app.Names()
 	for key, href := range hrefs {
@@ -110,54 +90,54 @@ func (c Configuration) html(e *echo.Echo, public embed.FS) (*echo.Echo, error) {
 	e.FileFS(hrefs[app.Bootstrap5]+mapExt, names[app.Bootstrap5]+mapExt, public)
 	e.FileFS(hrefs[app.Bootstrap5JS]+mapExt, names[app.Bootstrap5JS]+mapExt, public)
 	e.FileFS(hrefs[app.Jsdos6JS]+mapExt, names[app.Jsdos6JS]+mapExt, public)
-	return e, nil
+	return e
 }
 
-// fonts serves the embedded woff2, woff, and ttf font files for the website layout.
-func (c Configuration) fonts(e *echo.Echo, public embed.FS) (*echo.Echo, error) {
+// font serves the embedded woff2, woff, and ttf font files for the website layout.
+func (c Configuration) font(e *echo.Echo, public embed.FS) *echo.Echo {
 	if e == nil {
-		return nil, ErrRoutes
+		panic(ErrRoutes)
 	}
 	paths, names := app.FontRefs(), app.FontNames()
 	font := e.Group("/font")
 	for key, href := range paths {
 		font.FileFS(href, names[key], public)
 	}
-	return e, nil
+	return e
 }
 
-// embedded serves the miscellaneous embedded files for the website layout.
+// embed serves the miscellaneous embedded files for the website layout.
 // This includes the favicon, robots.txt, site.webmanifest, osd.xml, and the SVG icons.
-func (c Configuration) embedded(e *echo.Echo, public embed.FS) (*echo.Echo, error) {
+func (c Configuration) embed(e *echo.Echo, public embed.FS) *echo.Echo {
 	if e == nil {
-		return nil, ErrRoutes
+		panic(ErrRoutes)
 	}
 	e.FileFS("/bootstrap-icons.svg", "public/image/bootstrap-icons.svg", public)
 	e.FileFS("/favicon.ico", "public/image/favicon.ico", public)
 	e.FileFS("/osd.xml", "public/text/osd.xml", public)
 	e.FileFS("/robots.txt", "public/text/robots.txt", public)
 	e.FileFS("/site.webmanifest", "public/text/site.webmanifest.json", public)
-	return e, nil
+	return e
 }
 
 // static serves the static assets for the website such as the thumbnail and preview images.
-func (c Configuration) static(e *echo.Echo) (*echo.Echo, error) {
+func (c Configuration) static(e *echo.Echo) *echo.Echo {
 	if e == nil {
-		return nil, ErrRoutes
+		panic(ErrRoutes)
 	}
 	e.Static(config.StaticThumb(), c.Import.ThumbnailDir)
 	e.Static(config.StaticOriginal(), c.Import.PreviewDir)
-	return e, nil
+	return e
 }
 
-// custom404 is a custom 404 error handler for the website, "The page cannot be found."
+// custom404 is a custom 404 error handler for the website,
+// "The page cannot be found".
 func (c Configuration) custom404(e *echo.Echo) (*echo.Echo, error) {
-	logr := c.Logger
-	if logr == nil {
-		return nil, ErrZap
-	}
 	if e == nil {
-		return nil, ErrRoutes
+		panic(ErrRoutes)
+	}
+	if c.Logger == nil {
+		return nil, ErrZap
 	}
 	e.GET("/:uri", func(x echo.Context) error {
 		return app.StatusErr(c.Logger, x, http.StatusNotFound, x.Param("uri"))
@@ -166,12 +146,12 @@ func (c Configuration) custom404(e *echo.Echo) (*echo.Echo, error) {
 }
 
 // debugInfo returns detailed information about the HTTP request.
-func (c Configuration) debugInfo(e *echo.Echo) (*echo.Echo, error) {
+func (c Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 	if e == nil {
-		return nil, ErrRoutes
+		panic(ErrRoutes)
 	}
 	if c.Import.ProductionMode {
-		return e, nil
+		return e
 	}
 
 	type debug struct {
@@ -188,7 +168,6 @@ func (c Configuration) debugInfo(e *echo.Echo) (*echo.Echo, error) {
 		AcceptEncoding string `json:"acceptEncoding"`
 		AcceptLanguage string `json:"acceptLanguage"`
 	}
-
 	e.GET("/debug", func(x echo.Context) error {
 		req := x.Request()
 		d := debug{
@@ -207,13 +186,13 @@ func (c Configuration) debugInfo(e *echo.Echo) (*echo.Echo, error) {
 		}
 		return x.JSONPretty(http.StatusOK, d, "  ")
 	})
-	return e, nil
+	return e
 }
 
 // website routes for the main site.
-func (c Configuration) website(e *echo.Echo, dir app.Dirs) (*echo.Echo, error) {
+func (c Configuration) website(e *echo.Echo, dir app.Dirs) *echo.Echo {
 	if e == nil {
-		return nil, ErrRoutes
+		panic(ErrRoutes)
 	}
 	logr := c.Logger
 
@@ -332,13 +311,13 @@ func (c Configuration) website(e *echo.Echo, dir app.Dirs) (*echo.Echo, error) {
 	s.GET("/v/:id", func(x echo.Context) error {
 		return app.Inline(logr, x, c.Import.DownloadDir)
 	})
-	return e, nil
+	return e
 }
 
 // search forms and the results for database queries.
-func (c Configuration) search(e *echo.Echo) (*echo.Echo, error) {
+func (c Configuration) search(e *echo.Echo) *echo.Echo {
 	if e == nil {
-		return nil, ErrRoutes
+		panic(ErrRoutes)
 	}
 	logr := c.Logger
 	search := e.Group("/search")
@@ -367,13 +346,13 @@ func (c Configuration) search(e *echo.Echo) (*echo.Echo, error) {
 	search.POST("/releaser", func(x echo.Context) error {
 		return htmx.SearchReleaser(logr, x)
 	})
-	return e, nil
+	return e
 }
 
-// uploader for anonymous client uploads
-func (c Configuration) uploader(e *echo.Echo) (*echo.Echo, error) {
+// uploader for anonymous client uploads.
+func (c Configuration) uploader(e *echo.Echo) *echo.Echo {
 	if e == nil {
-		return nil, ErrRoutes
+		panic(ErrRoutes)
 	}
 	logr := c.Logger
 	uploader := e.Group("/uploader")
@@ -381,13 +360,13 @@ func (c Configuration) uploader(e *echo.Echo) (*echo.Echo, error) {
 	uploader.GET("", func(x echo.Context) error {
 		return app.PostIntro(logr, x)
 	})
-	return e, nil
+	return e
 }
 
-// signins for operators.
-func (c Configuration) signings(e *echo.Echo, nonce string) (*echo.Echo, error) {
+// signin for operators.
+func (c Configuration) signin(e *echo.Echo, nonce string) *echo.Echo {
 	if e == nil {
-		return nil, ErrRoutes
+		panic(ErrRoutes)
 	}
 	logr := c.Logger
 	signings := e.Group("")
@@ -408,13 +387,13 @@ func (c Configuration) signings(e *echo.Echo, nonce string) (*echo.Echo, error) 
 			c.Import.SessionMaxAge,
 			c.Import.GoogleAccounts...)
 	})
-	return e, nil
+	return e
 }
 
 // editor pages to update the database records.
-func (c Configuration) editor(e *echo.Echo, dir app.Dirs) (*echo.Echo, error) {
+func (c Configuration) editor(e *echo.Echo, dir app.Dirs) *echo.Echo {
 	if e == nil {
-		return nil, ErrRoutes
+		panic(ErrRoutes)
 	}
 	logr := c.Logger
 	editor := e.Group("/editor")
@@ -486,37 +465,25 @@ func (c Configuration) editor(e *echo.Echo, dir app.Dirs) (*echo.Echo, error) {
 	tag.POST("/info", func(x echo.Context) error {
 		return app.TagInfo(logr, x)
 	})
-	return e, nil
+	return e
 }
 
-// Moved redirects are partial URL routers that are to be redirected with a HTTP 301 Moved Permanently.
-func (c Configuration) Moved(e *echo.Echo) (*echo.Echo, error) {
+// MovedPermanently redirects are partial URL routers that are to be redirected with a HTTP 301 Moved Permanently.
+func MovedPermanently(e *echo.Echo) *echo.Echo {
 	if e == nil {
-		return nil, ErrRoutes
+		panic(ErrRoutes)
 	}
-	e, err := nginx(e)
-	if err != nil {
-		return nil, err
-	}
-	e, err = retired(e)
-	if err != nil {
-		return nil, err
-	}
-	e, err = wayback(e)
-	if err != nil {
-		return nil, err
-	}
-	e, err = fixes(e)
-	if err != nil {
-		return nil, err
-	}
-	return e, nil
+	e = nginx(e)
+	e = retired(e)
+	e = wayback(e)
+	e = fixes(e)
+	return e
 }
 
-// nginx redirects
-func nginx(e *echo.Echo) (*echo.Echo, error) {
+// nginx redirects.
+func nginx(e *echo.Echo) *echo.Echo {
 	if e == nil {
-		return nil, ErrRoutes
+		panic(ErrRoutes)
 	}
 	nginx := e.Group("")
 	nginx.GET("/welcome", func(x echo.Context) error {
@@ -573,13 +540,13 @@ func nginx(e *echo.Echo) (*echo.Echo, error) {
 	nginx.GET("/site-info.cfm", func(x echo.Context) error {
 		return x.Redirect(code, "/") // there's no dedicated about site page
 	})
-	return e, nil
+	return e
 }
 
-// retired, redirects from the 2020 edition of the website
-func retired(e *echo.Echo) (*echo.Echo, error) {
+// retired, redirects from the 2020 edition of the website.
+func retired(e *echo.Echo) *echo.Echo {
 	if e == nil {
-		return nil, ErrRoutes
+		panic(ErrRoutes)
 	}
 	retired := e.Group("")
 	retired.GET("/code", func(x echo.Context) error {
@@ -691,13 +658,13 @@ func retired(e *echo.Echo) (*echo.Echo, error) {
 	retired.GET("/upload/other", func(x echo.Context) error {
 		return x.Redirect(code, "/")
 	})
-	return e, nil
+	return e
 }
 
-// wayback redirects
-func wayback(e *echo.Echo) (*echo.Echo, error) {
+// wayback redirects.
+func wayback(e *echo.Echo) *echo.Echo {
 	if e == nil {
-		return nil, ErrRoutes
+		panic(ErrRoutes)
 	}
 	wayback := e.Group("")
 	wayback.GET("/scene-archive/:uri", func(x echo.Context) error {
@@ -718,13 +685,13 @@ func wayback(e *echo.Echo) (*echo.Echo, error) {
 	wayback.GET("/web.pages/warez_world-1.htm", func(x echo.Context) error {
 		return x.Redirect(code, "/wayback/warez-world-from-2001-july-26/index.html")
 	})
-	return e, nil
+	return e
 }
 
 // fixes redirects repaired, releaser database entry redirects that are contained in the model fix package.
-func fixes(e *echo.Echo) (*echo.Echo, error) {
+func fixes(e *echo.Echo) *echo.Echo {
 	if e == nil {
-		return nil, ErrRoutes
+		panic(ErrRoutes)
 	}
 	fixes := e.Group("/g")
 	const g = "/g/"
@@ -761,5 +728,5 @@ func fixes(e *echo.Echo) (*echo.Echo, error) {
 	fixes.GET("/"+releaser.Obfuscate("RSS"), func(x echo.Context) error {
 		return x.Redirect(code, g+releaser.Obfuscate("renaissance"))
 	})
-	return e, nil
+	return e
 }

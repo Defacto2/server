@@ -49,6 +49,10 @@ const (
 	records = "records"
 	sep     = ";"
 	txt     = ".txt" // txt file extension
+	az      = ", a-z"
+	byyear  = ", by year"
+	alpha   = "alphabetically"
+	year    = "by year"
 )
 
 // ArtifactErr renders the error page for the artifact links.
@@ -276,7 +280,7 @@ func FTP(logr *zap.SugaredLogger, c echo.Context) error {
 	data[key] = r
 	data["stats"] = map[string]string{
 		"pubs":    fmt.Sprintf("%d sites", len(r)),
-		"orderBy": "alphabetically",
+		"orderBy": alpha,
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -2154,18 +2158,18 @@ func bbsHandler(logr *zap.SugaredLogger, c echo.Context, orderBy model.OrderBy) 
 	var order string
 	switch orderBy {
 	case model.Alphabetical:
-		s := logo + ", a-z"
+		s := logo + az
 		data["logo"] = s
-		order = "alphabetically"
+		order = alpha
 	case model.Prolific:
 		s := logo + ", by count"
 		data["logo"] = s
 		order = "by file artifact count"
 	case model.Oldest:
 		tmpl = "bbs-year"
-		s := logo + ", by year"
+		s := logo + byyear
 		data["logo"] = s
-		order = "by year"
+		order = year
 	}
 	data["stats"] = map[string]string{
 		"pubs":    fmt.Sprintf("%d boards", len(r)),
@@ -2353,16 +2357,16 @@ func magazines(logr *zap.SugaredLogger, c echo.Context, chronological bool) erro
 		if err := r.Magazine(ctx, db); err != nil {
 			return DatabaseErr(logr, c, name, err)
 		}
-		s := title + ", by year"
+		s := title + byyear
 		data["logo"] = s
-		order = "by year"
+		order = year
 	case false:
 		if err := r.MagazineAZ(ctx, db); err != nil {
 			return DatabaseErr(logr, c, name, err)
 		}
-		s := title + ", a-z"
+		s := title + az
 		data["logo"] = s
-		order = "alphabetically"
+		order = alpha
 	}
 	data[key] = r
 	data["stats"] = map[string]string{
@@ -2606,18 +2610,18 @@ func releasers(logr *zap.SugaredLogger, c echo.Context, orderBy model.OrderBy) e
 	var order string
 	switch orderBy {
 	case model.Alphabetical:
-		s := logo + ", a-z"
+		s := logo + az
 		data["logo"] = s
-		order = "alphabetically"
+		order = alpha
 	case model.Prolific:
 		s := logo + ", by count"
 		data["logo"] = s
 		order = "by file artifact count"
 	case model.Oldest:
 		tmpl = "releaser-year"
-		s := logo + ", by year"
+		s := logo + byyear
 		data["logo"] = s
-		order = "by year"
+		order = year
 	}
 	data["stats"] = map[string]string{
 		"pubs":    fmt.Sprintf("%d releasers and groups", len(r)),

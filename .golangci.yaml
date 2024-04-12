@@ -1,5 +1,5 @@
 # The .golangci.yaml file is used to configure the golangci-lint linter.
-# A linter is a tool that analyzes source code to flag programming errors, 
+# A linter is a tool that analyzes source code to flag programming errors,
 # bugs, stylistic errors, and suspicious constructs.
 #
 # https://golangci-lint.run/
@@ -21,15 +21,15 @@ linters:
     - structcheck
     - varcheck
     # disabled
-    - depguard          # overkill.
+    - depguard # overkill.
     - exhaustive
     - exhaustruct
-    - ireturn           # conflicts with sqlboiler.
-    - nlreturn          # fussy over whitespace.
-    - paralleltest      # overkill.
-    - varnamelen        # not idomatic?
+    - ireturn # conflicts with sqlboiler.
+    - nlreturn # fussy over whitespace.
+    - paralleltest # overkill.
+    - varnamelen # not idomatic?
     - wrapcheck
-    - wsl               # fussy over whitespace.
+    - wsl # fussy over whitespace.
     # temporary disabled
     #- godox
 issues:
@@ -91,6 +91,9 @@ issues:
         - gocognit
         - lll
         - tagalign
+    - path: internal/demozoo/demozoo.go
+      linters:
+        - tagliatelle
     - path: internal/pouet/pouet.go
       linters:
         - tagliatelle
@@ -230,7 +233,7 @@ issues:
     - path: internal/postgres/sql.go
       linters:
         - goconst
-      
+
 linters-settings:
   cyclop:
     # The maximal code complexity to report.
@@ -248,9 +251,9 @@ linters-settings:
     # Values always ignored: `.+_test.go`
     # Default: []
     ignored-files: # magic number false positives.
-      - 'milestone.go'
-      - 'interview.go'
-      - 'zoo.go'      
+      - "milestone.go"
+      - "interview.go"
+      - "zoo.go"
   misspell:
     # Correct spellings using locale preferences for US or UK.
     # Setting locale to US will correct the British spelling of 'colour' to 'color'.
@@ -258,4 +261,4 @@ linters-settings:
     locale: US
     # Default: []
     ignore-words:
-      - 'Teh' # Teh Scene.
+      - "Teh" # Teh Scene.

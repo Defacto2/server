@@ -29,39 +29,44 @@ import (
 )
 
 var (
-	ErrDB    = errors.New("database connection is nil")
-	ErrExist = errors.New("file already exists")
+	ErrDB     = errors.New("database connection is nil")
+	ErrExist  = errors.New("file already exists")
+	ErrRoutes = errors.New("echo instance is nil")
 )
 
 // Routes for the /htmx sub-route group that returns HTML fragments
 // using the htmx library for AJAX responses.
-func Routes(logr *zap.SugaredLogger, e *echo.Echo) *echo.Echo {
-	submit := e.Group("", middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(2)))
+func Routes(e *echo.Echo, logger *zap.SugaredLogger) *echo.Echo {
+	if e == nil {
+		panic(ErrRoutes)
+	}
+	submit := e.Group("",
+		middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(2)))
 	submit.POST("/demozoo/production", func(c echo.Context) error {
 		return DemozooProd(c)
 	})
 	submit.POST("/demozoo/production/submit/:id", func(c echo.Context) error {
-		return DemozooSubmit(logr, c)
+		return DemozooSubmit(logger, c)
 	})
 	submit.POST("/pouet/production", func(c echo.Context) error {
 		return PouetProd(c)
 	})
 	submit.POST("/pouet/production/submit/:id", func(c echo.Context) error {
-		return PouetSubmit(logr, c)
+		return PouetSubmit(logger, c)
 	})
 	submit.POST("/search/releaser", func(c echo.Context) error {
-		return SearchReleaser(logr, c)
+		return SearchReleaser(logger, c)
 	})
 	submit.POST("/uploader/intro", func(c echo.Context) error {
 		return holder(c, "uploader-introfile")
 	})
 	submit.POST("/uploader/releaser/1", func(c echo.Context) error {
 		input := c.FormValue("uploader-intro-releaser1")
-		return DataListReleasers(logr, c, input)
+		return DataListReleasers(logger, c, input)
 	})
 	submit.POST("/uploader/releaser/2", func(c echo.Context) error {
 		input := c.FormValue("uploader-intro-releaser2")
-		return DataListReleasers(logr, c, input)
+		return DataListReleasers(logger, c, input)
 	})
 	return e
 }

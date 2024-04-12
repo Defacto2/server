@@ -81,7 +81,7 @@ func main() {
 	website.Info()
 	err := website.Start(router, configs)
 	if err != nil {
-		logger.Fatalf("%s: please check the enviroment variables.", err)
+		logger.Fatalf("%s: please check the environment variables.", err)
 	}
 
 	w := os.Stdout

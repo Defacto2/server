@@ -86,7 +86,7 @@ func configRTS() middleware.TrailingSlashConfig {
 func (c Configuration) configZapLogger() middleware.RequestLoggerConfig {
 	if !c.Import.LogRequests {
 		return middleware.RequestLoggerConfig{
-			LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+			LogValuesFunc: func(_ echo.Context, _ middleware.RequestLoggerValues) error {
 				return nil
 			},
 		}
@@ -104,7 +104,7 @@ func (c Configuration) configZapLogger() middleware.RequestLoggerConfig {
 		LogStatus:       true,
 		LogLatency:      true,
 		LogResponseSize: true,
-		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+		LogValuesFunc: func(_ echo.Context, v middleware.RequestLoggerValues) error {
 			const template = "HTTP %s %d: %s %s %dB"
 			if v.Status > http.StatusAlreadyReported {
 				logger.Warnf(template,

@@ -22,7 +22,7 @@ func td(name string) string {
 	return x
 }
 
-func logr() *zap.SugaredLogger {
+func logger() *zap.SugaredLogger {
 	return zap.NewExample().Sugar()
 }
 
@@ -80,18 +80,18 @@ func TestConfig_Checks(t *testing.T) {
 	c := config.Config{}
 	err := c.Checks(nil)
 	require.Error(t, err)
-	err = c.Checks(logr())
+	err = c.Checks(logger())
 	require.NoError(t, err)
 
 	c.HTTPPort = 8080
 	c.TLSPort = 8443
-	err = c.Checks(logr())
+	err = c.Checks(logger())
 	require.NoError(t, err)
 
 	c.ReadMode = false
 	c.ProductionMode = true
 	require.NoError(t, err)
-	err = c.Checks(logr())
+	err = c.Checks(logger())
 	require.NoError(t, err)
 }
 

@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"database/sql"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"time"
@@ -31,7 +32,7 @@ func ExistsHash(ctx context.Context, db *sql.DB, sha384 []byte) (bool, error) {
 	if db == nil {
 		return false, ErrDB
 	}
-	hash := fmt.Sprintf("%x", sha384)
+	hash := hex.EncodeToString(sha384)
 	// todo validate sha384 is not empty, is valid
 	strong := null.String{String: hash, Valid: true}
 	return models.Files(models.FileWhere.FileIntegrityStrong.EQ(strong), qm.WithDeleted()).Exists(ctx, db)

@@ -22,17 +22,17 @@ var (
 )
 
 // CustomErrorHandler handles customer error templates.
-func (cfg Config) CustomErrorHandler(err error, c echo.Context) {
+func (c Config) CustomErrorHandler(err error, ctx echo.Context) {
 	logger := zaplog.Development().Sugar()
-	if cfg.ProductionMode {
-		root := cfg.LogDir
+	if c.ProductionMode {
+		root := c.LogDir
 		logger = zaplog.Production(root).Sugar()
 	}
 	defer func() {
 		_ = logger.Sync()
 	}()
-	if IsHTML3(c.Path()) {
-		if err := html3.Error(c, err); err != nil {
+	if IsHTML3(ctx.Path()) {
+		if err := html3.Error(ctx, err); err != nil {
 			logger.DPanic("Custom HTML3 response handler broke: %s", err)
 		}
 		return
@@ -44,13 +44,13 @@ func (cfg Config) CustomErrorHandler(err error, c echo.Context) {
 		statusCode = httpError.Code
 	}
 	errorPage := fmt.Sprintf("%d.html", statusCode)
-	if err := c.File(errorPage); err != nil {
+	if err := ctx.File(errorPage); err != nil {
 		// fallback to a string error if templates break
 		code, s, err1 := StringErr(err)
 		if err1 != nil {
 			logger.DPanic("Custom response handler broke: %s", err1)
 		}
-		if err2 := c.String(code, s); err2 != nil {
+		if err2 := ctx.String(code, s); err2 != nil {
 			logger.DPanic("Custom response handler broke: %s", err2)
 		}
 	}

@@ -70,7 +70,7 @@ const (
 	line     = "─"
 	donotuse = 7
 	down     = "DownloadDir"
-	logr     = "LogDir"
+	logger   = "LogDir"
 	prev     = "PreviewDir"
 	thumb    = "ThumbnailDir"
 )
@@ -194,7 +194,7 @@ func dir(w *tabwriter.Writer, id, s string) {
 		fmt.Fprintf(w, "\tNo preview images will be shown.\n")
 	case thumb:
 		fmt.Fprintf(w, "\tNo thumbnails will be shown.\n")
-	case logr:
+	case logger:
 		fmt.Fprintf(w, "\tLogs will be printed to this terminal.\n")
 	default:
 		fmt.Fprintln(w)
@@ -340,7 +340,7 @@ func (c Config) fmtField(w *tabwriter.Writer,
 		nl(w)
 		path(w, id, name, field)
 		dir(w, id, c.ThumbnailDir)
-	case logr:
+	case logger:
 		nl(w)
 		path(w, id, name, field)
 		dir(w, id, c.LogDir)
@@ -362,7 +362,7 @@ func LocalSkip(name string) bool {
 		"TLSPort",
 		"HTTPSRedirect",
 		"NoCrawl",
-		logr,
+		logger,
 		"MaxProcs":
 		return true
 	}

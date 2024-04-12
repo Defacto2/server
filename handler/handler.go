@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"io/fs"
 	"maps"
 	"net"
 	"net/http"
@@ -70,75 +71,66 @@ type Configuration struct {
 
 // Controller is the primary instance of the Echo router.
 func (c Configuration) Controller() *echo.Echo {
-	logr := c.Logger
+	configs := c.Import
 
 	e := echo.New()
 	e.HideBanner = true
-	e.HTTPErrorHandler = c.Import.CustomErrorHandler
+	e.HTTPErrorHandler = configs.CustomErrorHandler
 
-	templates, err := c.Registry()
-	if err != nil {
-		logr.Fatal(err)
+	logger := c.Logger
+	if tmpl, err := c.Registry(); err != nil {
+		logger.Fatal(err)
+	} else {
+		e.Renderer = tmpl
 	}
-	e.Renderer = templates
 
-	e.Pre(
+	middlewares := []echo.MiddlewareFunc{
 		middleware.Rewrite(rewrites()),
-		// redirect www.defacto2.net requests to defacto2.net
 		middleware.NonWWWRedirect(),
-	)
-	httpsRedirect := c.Import.HTTPSRedirect && c.Import.TLSPort > 0
-	if httpsRedirect {
-		// redirect http://defacto2.net requests to https://defacto2.net
-		e.Pre(middleware.HTTPSRedirect())
 	}
-	// ********************************************************************************
-	//  Middleware configurations note
-	//  NEVER USE the middleware.Timeout()
-	//  It is broken and should not be in the echo library as it causes server crashes.
-	// ********************************************************************************
-	e.Use(
-		// XSS cross-site scripting protection
+	if httpsRedirect := configs.HTTPSRedirect && configs.TLSPort > 0; httpsRedirect {
+		middlewares = append(middlewares, middleware.HTTPSRedirect())
+	}
+	e.Pre(middlewares...)
+
+	// *******************************************
+	//  NOTEL: NEVER USE the middleware.Timeout()
+	//  It is broken and should not be in the
+	//  echo library as it causes server crashes.
+	// *******************************************
+	middlewares = []echo.MiddlewareFunc{
 		middleware.Secure(),
-		// custom HTTP logging middleware
 		middleware.RequestLoggerWithConfig(c.configZapLogger()),
-		// add X-Robots-Tag to all responses
 		c.NoCrawl,
-		// remove trailing slashes
 		middleware.RemoveTrailingSlashWithConfig(configRTS()),
-	)
-	logr.Info("Middleware configured.")
-	switch strings.ToLower(c.Import.Compression) {
+	}
+	switch strings.ToLower(configs.Compression) {
 	case "gzip":
-		e.Use(middleware.Gzip())
+		middlewares = append(middlewares, middleware.Gzip())
 	case "br":
-		e.Use(br.Brotli())
+		middlewares = append(middlewares, br.Brotli())
 	}
-	if c.Import.ProductionMode {
-		e.Use(middleware.Recover()) // recover from panics
+	if configs.ProductionMode {
+		middlewares = append(middlewares, middleware.Recover()) // recover from panics
 	}
-	// Static embedded web assets that get distributed in the binary
-	e = c.EmbedDirs(e)
-	// Routes for the web application
-	e, err = c.Moved(e)
+	e.Use(middlewares...)
+
+	e = EmbedDirs(e, c.Public)
+	e = MovedPermanently(e)
+	e = htmx.Routes(e, logger)
+	e, err := c.FilesRoutes(e, c.Public)
 	if err != nil {
-		logr.Fatal(err)
+		logger.Fatal(err)
 	}
-	e, err = c.Routes(e, c.Public)
-	if err != nil {
-		logr.Fatal(err)
-	}
-	e = htmx.Routes(logr, e)
-	// Routes for the retro web tables
-	old := html3.Routes(logr, e)
-	old.GET(Downloader, c.downloader)
+	group := html3.Routes(e, logger)
+	group.GET(Downloader, c.downloader)
 	return e
 }
 
 // EmbedDirs serves the static files from the directories embed to the binary.
-func (c Configuration) EmbedDirs(e *echo.Echo) *echo.Echo {
+func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 	if e == nil {
-		c.Logger.Fatal(ErrRoutes)
+		panic(ErrRoutes)
 	}
 	dirs := map[string]string{
 		"/image/artpack":   "public/image/artpack",
@@ -147,7 +139,7 @@ func (c Configuration) EmbedDirs(e *echo.Echo) *echo.Echo {
 		"/image/milestone": "public/image/milestone",
 	}
 	for path, fsRoot := range dirs {
-		e.StaticFS(path, echo.MustSubFS(c.Public, fsRoot))
+		e.StaticFS(path, echo.MustSubFS(currentFs, fsRoot))
 		e.GET(path, func(_ echo.Context) error {
 			return echo.NewHTTPError(http.StatusNotFound)
 		})
@@ -224,6 +216,9 @@ func (c Configuration) Registry() (*TemplateRegistry, error) {
 // ShutdownHTTP waits for a Ctrl-C keyboard press to initiate a graceful shutdown of the HTTP web server.
 // The shutdown procedure occurs a few seconds after the key press.
 func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
+	if e == nil {
+		panic(ErrRoutes)
+	}
 	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
@@ -274,6 +269,9 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo) {
 
 // Start the HTTP, and-or the TLS servers.
 func (c *Configuration) Start(e *echo.Echo, configs config.Config) error {
+	if e == nil {
+		panic(ErrRoutes)
+	}
 	switch {
 	case configs.UseTLS() && configs.UseHTTP():
 		go func() {
@@ -301,6 +299,9 @@ func (c *Configuration) Start(e *echo.Echo, configs config.Config) error {
 
 // StartHTTP starts the insecure HTTP web server.
 func (c *Configuration) StartHTTP(e *echo.Echo) {
+	if e == nil {
+		panic(ErrRoutes)
+	}
 	port := c.Import.HTTPPort
 	if port == 0 {
 		return
@@ -313,6 +314,9 @@ func (c *Configuration) StartHTTP(e *echo.Echo) {
 
 // StartTLS starts the encrypted TLS web server.
 func (c *Configuration) StartTLS(e *echo.Echo) {
+	if e == nil {
+		panic(ErrRoutes)
+	}
 	port := c.Import.TLSPort
 	if port == 0 {
 		return
@@ -338,6 +342,9 @@ func (c *Configuration) StartTLS(e *echo.Echo) {
 // StartTLSLocal starts the localhost, encrypted TLS web server.
 // This should only be triggered when the server is running in local mode.
 func (c *Configuration) StartTLSLocal(e *echo.Echo) {
+	if e == nil {
+		panic(ErrRoutes)
+	}
 	port := c.Import.TLSPort
 	if port == 0 {
 		return

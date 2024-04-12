@@ -28,7 +28,7 @@ func (s *Scener) List(ctx context.Context, db *sql.DB, name string) (models.File
 	}
 	boil.DebugMode = true
 	return models.Files(
-		qm.Where(string(postgres.ScenerSQL(name))),
+		qm.Where(postgres.ScenerSQL(name)),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
