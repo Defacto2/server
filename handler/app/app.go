@@ -61,11 +61,14 @@ func errVal(name string) template.HTML {
 }
 
 const (
-	attr = " attributions"
-	br   = "<br>"
-	ul0  = "<ul>"
-	ul1  = "</ul>"
-	fzip = ".zip"
+	attr  = " attributions"
+	br    = "<br>"
+	div1  = "</div>"
+	sect0 = "<section>"
+	sect1 = "</section>"
+	ul0   = "<ul>"
+	ul1   = "</ul>"
+	fzip  = ".zip"
 )
 
 // Caching are values that are used throughout the app or layouts.
@@ -795,7 +798,7 @@ func recordsSub1(uri string) string { //nolint:cyclop
 // released the artifact. The content should be a list of files contained
 // in the artifact.
 //
-// This is a port of the CFML function, variables.findTextfile found in File.cfc
+// This is a port of the CFML function, variables.findTextfile found in File.cfc.
 func ReadmeSuggest(filename, group string, content ...string) string {
 	finds := readmeFinds(content...)
 	if len(finds) == 1 {
@@ -816,9 +819,9 @@ func ReadmeSuggest(filename, group string, content ...string) string {
 			}
 		}
 	}
-	const matchFileId = "file_id.diz"
+	const matchFileID = "file_id.diz"
 	for _, name := range finds {
-		if strings.EqualFold(matchFileId, name) {
+		if strings.EqualFold(matchFileID, name) {
 			return name
 		}
 	}

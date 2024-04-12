@@ -1,107 +1,5 @@
 package app
 
-// What ever happened to real bulletin-board systems?
-// http://www.textfiles.com/100/bbsdeath.pro
-// http://www.textfiles.com/100/copyprot.pro
-// http://www.textfiles.com/100/krckwczt.app
-
-// *----------------------------------*
-// /      APPLESOURCE BBS LIST        \
-// \      *-*-*-*-*-*-*-*-*-*-        /
-// *----------------------------------*
-// =                                  =
-// = Applesource............ 722-4871 =
-// = The Board of 'ED'.......369-5972 =
-// = RCP/M of Somerville.....526-5988 =
-// = Stargazer...............369-5450 =
-// = Holiday Inn Cambodia....722-2711 =
-// = Easy Access.............526-6044 =
-// = C.I.E.E. ...............725-5028 =
-// = Pirate's Paradise.......231-1655 =
-// = The Two Towers..........463-7941 =
-// = ??? BBS.................229-5180 =
-// = Board at the Edge of Reality     =
-// = ^^^.....................766-9643 =
-// = The Mourge..............376-4462 =
-// = The Bank BBS............376-1587 =
-// = Camelot BBS.............341-7817 =
-// = The Rain Forest.........721-7914 =
-// = RCP/M of Rutgers Univ...932-3879 =
-// = Rutgers PMS.............932-3887 =
-// = Colorama................572-0617 =
-// = The Spectrum............494-8209 =
-// = Castle Westerburg.......238-9118 =
-// =                                  =
-// *----------------------------------*
-// _
-// http://www.textfiles.com/bbs/BBSLISTS/bbslist.txt.txt
-
-// The Mall.....................526-0420
-// Curcuit Board................369-8319
-// The Two Towers...............463-7941
-// The Time Machine.............572-5546
-// Zeplin BBS...................526-2524
-// Paradox......................725-0354
-// Stargazer....................369-5450
-// Colorama.....................572-0617
-// 64 Depot.....................563-1867
-// THE ZOO......................722-4871
-// http://www.textfiles.com/bbs/BBSLISTS/bbss.txt
-
-// *DAMIEN THE DREADED*
-// *=-THE UNTOUCHABLES-=*
-// http://www.textfiles.com/messages/compcond.txt
-
-// http://www.textfiles.com/messages/compconna.txt
-// 1982
-// --------------------------
-// - BULLETIN BOARD SYSTEMS -
-// --------------------------
-
-// PIRATE SYSTEMS
-// ------ -------
-
-// PIRATES COVE...............516-698-4008
-// PIRATES TREK...............914-634-1268
-// PIRATES BAY................415-775-2384
-// PIRATES SHIP...............312-935-2933
-// PIRATES LODGE..............516-627-9048
-// PIRATES CHEST..............617-891-1349
-// HARPOS BAR & GRILL.........618-254-6074
-// GALAXY ONE.................215-244-0864
-// SEVEN SEAS HOTEL...........516-487-1212
-// TREASURE ISLAND............617-444-6821
-// TREND NET..................313-775-1649
-// TRADERS INN................618-656-3321
-// PIRATES PARADISE...........512-477-2672
-// GPI CENTRAL ONLINE.........213-556-0433
-// --> UNKNOWN OPERATING PIRATE BOARDS <--
-// 212-580-9688
-// 313-663-0333
-// 907-344-8558
-// 313-547-7903
-
-// PHREAK SYSTEMS
-// ------ -------
-// OHIO SCIENTIFIC-OSUNY......914-725-4060
-// R A C S  I.................516-482-8491
-// R A C S  III...............914-942-2638
-// R A C S  IV................212-767-9881
-// FANTASY FORUM..............213-827-9175
-
-// BBSs
-// ~~~
-// Sherwood Forest II and III, OSUNY -- I just thought they were the greatest
-//                                      systems ever.
-// Pirate's Bay -- Run by Mr. KRACK-MAN, who considered himself the greatest Apple
-//                 pirate that ever lived.  It's still up, for all I know.
-// The 2600 Magazine BBS -- Run on a piece of Apple BBS software called
-//                          TBBS.  It is there that I met David Flory.
-// The Police Station -- Remember THAT one?
-// The Matrix, IDI, Lunatic Labs -- Three great Bay Area Forum-PC boards.
-// Catch-22 -- 25 Users, No Waiting!
-// http://phrack.org/issues/33/2.html
-
 const notable = "Notable group foundings,"
 
 // Milestone is an accomplishment for a year and optional month.
@@ -296,9 +194,9 @@ func Collection() Milestones {
 				"It dominated the remainder of the 1970s and is the default platform for most computers running an <strong>Intel 8080</strong>, <strong>8085</strong> or its compatible competitor, the <strong>Zilog Z-80</strong>.</p>" +
 				"<p>IBM and Microsoft's later PC-DOS / MS-DOS took a lot of inspiration<sup><a href=\"#cpm-operating-system-fn1\">[1]</a></sup> from CP/M and supplanted " +
 				"it as the dominant, open hardware, microcomputing operating system.</p>" +
-				"<section>" +
+				sect0 +
 				"<div id=\"cpm-operating-system-fn1\">[1] Many <a href=\"https://www.wired.com/2012/08/ms-dos-examined-for-thef/\">argue</a> the design and even source code was stolen.</div>" +
-				"</section>",
+				sect1,
 		},
 		{
 			Year: 1977, Title: "The trinity of microcomputers",
@@ -308,10 +206,10 @@ func Collection() Milestones {
 				"By the end of the year, a potential customer in the USA could walk into a mall or retail shop and walk out with a complete personal computer, ready to use.</p>" +
 				"<p>The <strong>MOS 6502</strong> CPU <sup>1975</sup> is found in the Commodore&nbsp;PET<sup><a href=\"#the-trinity-of-microcomputers-fn1\">[1]</a></sup> and the Apple II.<br>" +
 				"While <strong>Zilog Z-80</strong> <sup>1976</sup> is in use with the TRS-80<sup><a href=\"#the-trinity-of-microcomputers-fn2\">[2]</a></sup>.</p>" +
-				"<section>" +
+				sect0 +
 				"<div id=\"the-trinity-of-microcomputers-fn1\">[1] Personal Electronic Transactor.</div>" +
 				"<div id=\"the-trinity-of-microcomputers-fn2\">[2] <a href=\"https://cybernews.com/editorial/from-hero-to-zero-meteoric-rise-and-fall-of-tandy-computers/\">Tandy RadioShack</a>.</div>" +
-				"</section>",
+				sect1,
 		},
 		{
 			Year: 1978, Month: 2, Title: "The first Bulletin Board System",
@@ -391,11 +289,11 @@ func Collection() Milestones {
 				// 8BBS
 				"<p>There is also the renowned <strong>8BBS</strong> out of San Jose, CA, which ran on a <a href=\"https://www.computerhistory.org/revolution/minicomputers/11/331\">PDP-8 minicomputer</a> " +
 				"in 1980-82 and <a href=\"#8bbs\">has a separate article</a>.</p>" +
-				"<section>" +
+				sect0 +
 				"<div id=\"the-early-underground-fn1\">[1] See page 3 under <em>MODEMania</em> in the <a href=\"https://mirrors.apple2.org.za/ftp.apple.asimov.net/documentation/magazines/washington_apple_journal/washingtonapplepijournal1979v1no8sep79.pdf\">Washington Apple Journal</a>.</div>" +
 				"<div id=\"the-early-underground-fn2\">[2] In the Innovative Bulletin Boards list, InfoWorld mislabels <strong>8</strong>BBS as BBBS.</div>" +
 				"<div id=\"the-early-underground-fn3\">[3] In a 1987 interview, <a href=\"http://www.textfiles.com/phreak/tuc-intr.phk\">TUC states</a> the first Sherwood Forest was in New Jersey, but other sources suggest it was in Manhattan, NY.</div>" +
-				"</section>",
+				sect1,
 		},
 		{
 			Title: "The first crackers ?", Year: 1979, Highlight: true,
@@ -422,10 +320,10 @@ func Collection() Milestones {
 				"Dave Alpert, the head of Omega Software Inc. and president of the Northern Illinois Apple Users Group<sup><a href=\"#the-first-crackers-fn2\">[2]</a></sup>, " +
 				"is <a href=\"http://computist.textfiles.com/ISSUE.001/page-08.jpg\">interviewed</a>, and he says Lock Smith took over a year to develop. " +
 				"On <a href=\"http://computist.textfiles.com/ISSUE.001/page-10.jpg\">page 10</a> of the issue, there is a review section of disk copying programs, including <q>Locksmith,</q> Copy II Plus, Back-It-Up, Quick and Dirty, and Old Faithful.</p>" +
-				"<section>" +
+				sect0 +
 				"<div id=\"the-first-crackers-fn1\">[1] See message <a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n60/mode/1up\">number 4342</a>.</div>" +
 				"<div id=\"the-first-crackers-fn2\">[2] Northern Illinois Apple Users Group <a href=\"https://archive.org/details/northernillinoisaugpaperlibrary1981\">Paper Library Index 1981</a>.</div>" +
-				"</section>",
+				sect1,
 		},
 		{
 			Title: "The birth of warez ?", Year: 1980, Highlight: true,
@@ -452,7 +350,7 @@ func Collection() Milestones {
 				"TRS-80 from Radio Shack had a <a href=\"http://www.trs-80.org/telephone-interface/\">modem peripheral</a> available at the end of 1978. " +
 				"Yet, there needs to be evidence of an underground culture first developing on this platform. Modem peripherals didn't exist on the " +
 				"Atari&nbsp;400/800 <a href=\"http://www.atarimania.com/faq-atari-400-800-xl-xe-what-other-modems-can-i-use-with-my-atari_47.html\">until 1981</a>. And the Commodore&nbsp;64 was years away.</p>" +
-				"<section>" +
+				sect0 +
 				"<div id=\"the-birth-of-warez-fn1\">[1] Warez was originally spelt with an <q>s</q> after the dictionary spelling.</div>" +
 				"<div id=\"the-birth-of-warez-fn2\">[2] The first <q>killer app</q> for the Apple&nbsp;II, <a href=\"https://www.apple2history.org/history/ah18/#07\">VisiCalc</a>," +
 				" the first spreadsheet for microcomputers, was only released in the last few months of 1979.</div>" +
@@ -462,7 +360,7 @@ func Collection() Milestones {
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/bezmanc.gif\">2</a>, " +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/borgc.gif\">3</a>, " +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/torax.gif\">4</a>.</div>" +
-				"</section>",
+				sect1,
 		},
 		{
 			Title: "The first group", Year: 1980, Highlight: true,
@@ -498,23 +396,23 @@ func Collection() Milestones {
 				// midwest guild
 				"<p>There is anecdotal evidence suggesting the Super Pirates was involved in the first-ever BBS bust, and the members left formed or joined the <strong>Midwest Pirate's Guild</strong>. " +
 				"A group strongly associated with the cracker Apple Bandit and his Minneapolis-based board, <strong>The&nbsp;Safehouse</strong>&nbsp;(+612-724-7066).</p>" +
-				"<section>" +
+				sect0 +
 				"<div id=\"the-first-group-fn1\">[1] The Untouchables crack screen examples, " +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/freitagc.gif\">1</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/bellhop.gif\">2</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/sraid.gif\">3</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/kenuston.gif\">4</a>." +
-				"</div>" +
+				div1 +
 				"<div id=\"the-first-group-fn2\">[2] The Apple Mafia crack screen examples, " +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/amafia.gif\">1</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/digem.gif\">2</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/random.gif\">3</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/snoopyc.gif\">4</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/zkeeperc.gif\">5</a>." +
-				"</div>" +
+				div1 +
 				"<div id=\"the-first-group-fn3\">[3] The Dirty Dozen crack screen examples, " +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/bilestoadc.gif\">1</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/millipedec.gif\">2</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/plasmania.gif\">3</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/wargle.gif\">4</a>." +
-				"</div>" +
+				div1 +
 				"<div id=\"the-first-group-fn4\">[4] <a href=\"http://www.flyingsnail.com/missingbbs/tap01.html\">TAP</a> was formerly named as " +
 				"The <a href=\"https://archive.org/details/yipltap/YIPL_and_TAP_Issues_1-91.99-100/page/n165/mode/2up\">Youth International Party Line</a> (YIPL).</div>" +
 				"<div id=\"the-first-group-fn5\">[5] The first <a href=\"https://www.wap.org/journal/showcase/washingtonapplepijournal1981v3no4apr81.pdf\">AppleFest</a> was held on the weekend of June 6-7, <strong>1981</strong>, in Boston.</div>" +
 				"<div id=\"the-first-group-fn6\">[6] Super Pirates of Minneapolis crack screen examples, " +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/ribbitc.gif\">1</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/spirates.gif\">2</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/succession.gif\">3</a>." +
-				"</div>" +
-				"</section>",
+				div1 +
+				sect1,
 		},
 		{
 			Title: "8BBS", Year: 1980, Highlight: true,
@@ -533,7 +431,7 @@ func Collection() Milestones {
 				"<ul><li><a href=\"http://www.flyingsnail.com/missingbbs/login-8BBS.html\">A login capture from 3-Feb-1981.</a></li>" +
 				"<li><a href=\"http://www.flyingsnail.com/missingbbs/CHAT-8BBS.html\">Realtime text chat with the system operator.</a></li>" +
 				"<li><a href=\"http://www.flyingsnail.com/missingbbs/6116.html\">The ridiculous costs of calling from long-distance.</a></li></ul>" +
-				"<section>" +
+				sect0 +
 				"<div id=\"8bbs-fn1\">[1] Publications and phreaker personalities mentioning 8BBS, " +
 				"<a href=\"https://privacy-pc.com/articles/history-of-hacking-john-captain-crunch-drapers-perspective.html#Early_BBS_Days\">Captain&nbsp;Crunch</a>, " +
 				"<a href=\"https://www.lysator.liu.se/etexts/hacker/digital1.html\">The&nbsp;Hacker&nbsp;Crackdown</a>, " +
@@ -541,8 +439,8 @@ func Collection() Milestones {
 				"<a href=\"http://phrack.org/issues/42/3.html\">Lord&nbsp;Digital</a>, " +
 				"<a href=\"http://phrack.org/issues/10/2.html\">Dave&nbsp;Starr</a>, " +
 				"<a href=\"https://www.theverge.com/c/22889425/susy-thunder-headley-hackers-phone-phreakers-claire-evans\">Susan&nbsp;Headley</a>. " +
-				"</div>" +
-				"</section>",
+				div1 +
+				sect1,
 		},
 		{
 			Title: "The first operating system for x86", Year: 1980, Month: 8,
@@ -706,13 +604,13 @@ func Collection() Milestones {
 				"<li><q>We were primarily <u>cracking games from 1982</u> until late 1987.</q> <sup><a href=\"#berlin-bear-controversy-fn12\">[12]</a></sup></li>" +
 				"<li><q>Copying games wasn't really illegal in most countries back in 1982 or 1983. <sup><a href=\"#berlin-bear-controversy-fn13\">[13]</a></sup> ... Most early releases <u>weren't <q>cracked</q></u>, they were just released or spread.</q></li>" +
 				ul1 +
-				"<section>" +
+				sect0 +
 				"<div id=\"berlin-bear-controversy-fn1\">[1] Conversations on the Berlin Bear, " +
 				"<a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">Interview in Vandalism News #46</a>, " +
 				"<a href=\"https://csdb.dk/release/?id=35670\">conversation on CSDb</a>, " +
 				"<a href=\"https://m.pouet.net/prod.php?which=17555\">conversation on Pouët</a>, and " +
 				"<a href=\"https://intros.c64.org/main.php?module=showintro&iid=156\">conversation on intros.c64.org</a>." +
-				"</div>" +
+				div1 +
 				"<div id=\"berlin-bear-controversy-fn2\">[2] Jazzcat <a href=\"https://www.atlantis-prophecy.org/recollection/?load=crackers_map&country=germany\">writes</a> the image was created in an paint application that first came out in 1983.</div>" +
 				"<div id=\"berlin-bear-controversy-fn3\">[3] Commodore priced the $199 VIC-20 for home users. It is the Business Machines department of Commodore that advertises the $595 Commodore 64, <a href=\"https://www.power8bit.com/C64.html\">ad source</a>.</div>" +
 				"<div id=\"berlin-bear-controversy-fn4\">[4] Commodore: a company on the edge.</div>" +
@@ -726,7 +624,7 @@ func Collection() Milestones {
 				"<div id=\"berlin-bear-controversy-fn11\">[11] This quote suggests multiple Berlin cracking groups existed on the Commodore 64 in 1982 despite this and other sources stating the machine was unavailable in Germany.</div>" +
 				"<div id=\"berlin-bear-controversy-fn12\">[12] Cracking games in this era means removing <q>disk</q> copy protection. Yet the German manual for the VC-1541 floppy disk drive is dated June 1983, which suggests it didn't sell in Germany until the latter half of 1983. The other early significant titles on the Commodore&nbsp;64 came on cartridges.</div>" +
 				"<div id=\"berlin-bear-controversy-fn13\">[13] Copying and sharing software wasn't criminal in the USA until the NET Act was signed in December 1997. Other countries passed similar laws in the 2000s.</div>" +
-				"</section>",
+				sect1,
 		},
 		{
 			Title: "Third-party PC games", Year: 1982,
@@ -924,9 +822,9 @@ func Collection() Milestones {
 			Content: "<p><strong>Razor 1911</strong>, the oldest and most famed brand in the Scene, was founded in <strong>Norway</strong> and has three members. " +
 				"The group released demos and later cracked exclusively for the Commodore&nbsp;64 and then the Amiga. Co-founder Sector 9 took the brand to the PC in <a href=\"/f/a12d5e\">late 1990</a>.</p>" +
 				"<p>The distinctive number suffix was a fad with groups of the Commodore&nbsp;64 era<sup><a href=\"#razor-1911-is-named-fn1\">[1]</a></sup>.<br><q>1911</q> denotes the decimal value of hexadecimal <code>$777</code>.</p>" +
-				"<section>" +
+				sect0 +
 				"<div id=\"razor-1911-is-named-fn1\">[1] Other named examples include, 1001&nbsp;Crew, 1701&nbsp;Crackware, The&nbsp;Gamebusters&nbsp;1541, The&nbsp;Professionals&nbsp;2010.</div>" +
-				"</section>",
+				sect1,
 			Picture: Picture{
 				Title:       "Amazing Demo I",
 				Alt:         "Amazing Demo I by Razor 1911 screenshot",
@@ -1573,9 +1471,9 @@ func Collection() Milestones {
 				"<p>Years later, competitor <a href=\"/g/pirates-with-attitudes\">Pirates With Attitudes</a> would release the <a href=\"/f/a52a8c\" class=\"text-nowrap\">Windows 98 media</a> five weeks and <a href=\"/f/b42e2f6\">Windows 2000</a> two months before the official launches! " +
 				"However, a global, coordinated law enforcement effort would take down both groups in the following decade.<sup><a href=\"#windows-95-warez-release-fn1\">[1]</a></sup></p>" +
 				"<p>The other Microsoft-sourced releases from DOD during these two weeks were the Windows 95 <a href=\"/f/b82406f\" class=\"text-nowrap\">floppy edition</a>, <a href=\"/f/b721b5\" class=\"text-nowrap\">upgrade edition</a>, <a href=\"/f/b92697\" class=\"text-nowrap\">Plus Pack</a>, Microsoft <a href=\"/f/ba28e0f\">BOB</a>, and <a href=\"/f/bc2dc2f\">Word</a>.</p>" +
-				"<section>" +
+				sect0 +
 				"<div id=\"windows-95-warez-release-fn1\">[1] In <a href=\"#the-copy-party-is-over\">Operation Cyberstrike</a> and <a href=\"#the-global-takedown-of-drink-or-die\">Operation Buccaneer</a>.</div>" +
-				"</section>",
+				sect1,
 		},
 		{
 			Title: "Windows 95", Year: 1995, Month: 8, Day: 24,
@@ -1805,11 +1703,11 @@ func Collection() Milestones {
 				"│ Sentinel ··········  │ World HQ ·················· │ Xxxxxxx ············ │<br>" +
 				"│ The Rock      ·····  │ US HQ ····················· │ Xxxxxxx ············ │<br>" +
 				"│ Major Malfunction ·  │ EURO HQ ··················· │ Xxxxxxx ············ │<br>" +
-				"│ MidNite Resistence·  │ World Courier HQ ·········· │ Xxxxxxx ············ │<br>" +
+				"│ MidNite Resistence·  │ World Courier HQ ·········· │ Xxxxxxx ············ │<br>" + //nolint:misspell
 				"</pre>" +
-				"<section>" +
+				sect0 +
 				"<div id=\"the-copy-party-is-over-fn1\">[1] PWA were <a href=\"/f/ac38f0\">advertising</a> sites in 1999.</div>" +
-				"</section>",
+				sect1,
 			//
 		},
 		{

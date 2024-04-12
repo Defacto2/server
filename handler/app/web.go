@@ -148,7 +148,7 @@ func (web Web) Screenshot(uuid, desc string) template.HTML {
 			elm += img(srcP, alt, class, "")
 		}
 		elm += "</picture>"
-		return template.HTML(elm)
+		return elm
 	}
 	if sizeJ > 0 {
 		return img(srcJ, alt, class, "")
@@ -439,14 +439,13 @@ func (web Web) Thumb(uuid, desc string, bottom bool) template.HTML {
 			"</picture>"
 		return template.HTML(elm)
 	}
-	elm := ""
 	if w {
 		return img(webp, alt, class, style)
 	}
 	if p {
 		return img(png, alt, class, style)
 	}
-	return template.HTML(elm)
+	return ""
 }
 
 // ThumbSample returns a HTML image tag for the given uuid.

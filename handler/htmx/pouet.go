@@ -126,8 +126,13 @@ func PouetValid(c echo.Context, id int) (pouet.Response, error) {
 		if link.Link == "" {
 			continue
 		}
-		switch strings.ToLower(link.Type) {
-		case "youtube":
+		if strings.Contains(link.Link, "youtube") {
+			continue
+		}
+		if strings.Contains(link.Link, "sourceforge") {
+			continue
+		}
+		if strings.Contains(link.Link, "github") {
 			continue
 		}
 		valid = link.Link

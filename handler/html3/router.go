@@ -56,7 +56,8 @@ func getTags(s Sugared, g *echo.Group) *echo.Group {
 	return g
 }
 
-// custom404 is a custom 404 error handler for the website, "The page cannot be found."
+// custom404 is a custom 404 error handler for the website,
+// "The page cannot be found.".
 func custom404(g *echo.Group) *echo.Group {
 	g.GET("/:uri", func(x echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound,

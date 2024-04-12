@@ -34,6 +34,8 @@ var (
 	ErrRoutes = errors.New("echo instance is nil")
 )
 
+const rateLimit = 2
+
 // Routes for the /htmx sub-route group that returns HTML fragments
 // using the htmx library for AJAX responses.
 func Routes(e *echo.Echo, logger *zap.SugaredLogger) *echo.Echo {
@@ -41,16 +43,12 @@ func Routes(e *echo.Echo, logger *zap.SugaredLogger) *echo.Echo {
 		panic(ErrRoutes)
 	}
 	submit := e.Group("",
-		middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(2)))
-	submit.POST("/demozoo/production", func(c echo.Context) error {
-		return DemozooProd(c)
-	})
+		middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rateLimit)))
+	submit.POST("/demozoo/production", DemozooProd)
 	submit.POST("/demozoo/production/submit/:id", func(c echo.Context) error {
 		return DemozooSubmit(logger, c)
 	})
-	submit.POST("/pouet/production", func(c echo.Context) error {
-		return PouetProd(c)
-	})
+	submit.POST("/pouet/production", PouetProd)
 	submit.POST("/pouet/production/submit/:id", func(c echo.Context) error {
 		return PouetSubmit(logger, c)
 	})
@@ -100,8 +98,8 @@ func holder(c echo.Context, name string) error {
 	if exist, err := model.ExistsHash(ctx, db, sum); err != nil {
 		return err
 	} else if exist {
-		return c.HTML(http.StatusOK, fmt.Sprintf("<p>Thanks, but the chosen file already exists on Defacto2.</p>%s",
-			html.EscapeString(input.Filename)))
+		return c.HTML(http.StatusOK, "<p>Thanks, but the chosen file already exists on Defacto2.</p>"+
+			html.EscapeString(input.Filename))
 	}
 
 	// reopen the file
@@ -187,7 +185,7 @@ func TemplateFuncMap() template.FuncMap {
 func Suggestion(name, initialism string, count any) string {
 	s := name
 	if initialism != "" {
-		s += fmt.Sprintf(", %s", initialism)
+		s += ", " + initialism
 	}
 	switch val := count.(type) {
 	case int, int8, int16, int32, int64,
@@ -200,7 +198,7 @@ func Suggestion(name, initialism string, count any) string {
 		}
 		s += ")"
 	default:
-		s += fmt.Sprintf("suggestion type error: %s", reflect.TypeOf(count).String())
+		s += "suggestion type error: " + reflect.TypeOf(count).String()
 		return s
 	}
 	return s

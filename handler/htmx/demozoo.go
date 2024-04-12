@@ -77,7 +77,8 @@ func DemozooProd(c echo.Context) error {
 	}
 	html := `<div class="d-grid gap-2">`
 	html += fmt.Sprintf(`<button type="button" class="btn btn-outline-success" `+
-		`hx-post="/demozoo/production/submit/%d" hx-target="#demozoo-submission-results" hx-trigger="click once delay:500ms" `+
+		`hx-post="/demozoo/production/submit/%d" `+
+		`hx-target="#demozoo-submission-results" hx-trigger="click once delay:500ms" `+
 		`autofocus>Submit ID %d</button>`, id, id)
 	html += `</div>`
 	html += fmt.Sprintf(`<p class="mt-3">%s</p>`, strings.Join(info, " "))
