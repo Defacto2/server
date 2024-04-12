@@ -146,6 +146,26 @@ func (c Config) production(logr *zap.SugaredLogger) {
 	}
 }
 
+// LogStore determines the local storage path for all log files created by this web application.
+func (cfg *Config) LogStore() error {
+	const ownerGroupAll = 0o770
+	logs := cfg.LogDir
+	if logs == "" {
+		dir, err := os.UserConfigDir()
+		if err != nil {
+			return err
+		}
+		logs = filepath.Join(dir, ConfigDir)
+	}
+	if ok := helper.IsStat(logs); !ok {
+		if err := os.MkdirAll(logs, ownerGroupAll); err != nil {
+			return fmt.Errorf("%w: %s", err, logs)
+		}
+	}
+	cfg.LogDir = logs
+	return nil
+}
+
 // SetupLogDir runs checks against the configured log directory.
 // If no log directory is configured, a default directory is used.
 // Problems will either log warnings or fatal errors.
@@ -154,7 +174,7 @@ func (c *Config) SetupLogDir(logr *zap.SugaredLogger) error {
 		return ErrZap
 	}
 	if c.LogDir == "" {
-		if err := c.LogStorage(); err != nil {
+		if err := c.LogStore(); err != nil {
 			return fmt.Errorf("%w: %w", ErrLog, err)
 		}
 	} else {

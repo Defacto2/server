@@ -74,7 +74,7 @@ func (c Configuration) Controller() *echo.Echo {
 
 	e := echo.New()
 	e.HideBanner = true
-	e.HTTPErrorHandler = c.Import.CustomErrorHandler // (see: internal/config/logger.go)
+	e.HTTPErrorHandler = c.Import.CustomErrorHandler
 
 	templates, err := c.Registry()
 	if err != nil {
@@ -102,7 +102,6 @@ func (c Configuration) Controller() *echo.Echo {
 		middleware.Secure(),
 		// custom HTTP logging middleware
 		middleware.RequestLoggerWithConfig(c.configZapLogger()),
-		//c.Import.LoggerMiddleware,
 		// add X-Robots-Tag to all responses
 		c.NoCrawl,
 		// remove trailing slashes

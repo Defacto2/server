@@ -8,16 +8,15 @@ package handler
 
 import (
 	"crypto/sha512"
-	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/sess"
+	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"go.uber.org/zap"
 )
 
 // NoCrawl middleware adds a `X-Robots-Tag` header to the response.
@@ -81,18 +80,39 @@ func configRTS() middleware.TrailingSlashConfig {
 	}
 }
 
+// configZapLogger returns the RequestLogger middleware configuration
+// based on the application configuration. The logger is set to the CLI
+// logger for development mode and the Production logger for production mode.
 func (c Configuration) configZapLogger() middleware.RequestLoggerConfig {
-	logger, _ := zap.NewProduction()
+	if !c.Import.LogRequests {
+		return middleware.RequestLoggerConfig{
+			LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+				return nil
+			},
+		}
+	}
+	logger := zaplog.CLI().Sugar()
+	if c.Import.ProductionMode {
+		root := c.Import.LogDir
+		logger = zaplog.Production(root).Sugar()
+	}
+	defer func() {
+		_ = logger.Sync()
+	}()
 	return middleware.RequestLoggerConfig{
-		LogURI:    true,
-		LogStatus: true,
+		LogURI:          true,
+		LogStatus:       true,
+		LogLatency:      true,
+		LogResponseSize: true,
 		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
-			fmt.Println("logger HELLO WORLD")
-			logger.Info("request",
-				zap.String("URI", v.URI),
-				zap.Int("status", v.Status),
-			)
-
+			const template = "HTTP %s %d: %s %s %dB"
+			if v.Status > http.StatusAlreadyReported {
+				logger.Warnf(template,
+					v.Method, v.Status, v.URI, v.Latency, v.ResponseSize)
+				return nil
+			}
+			logger.Infof(template,
+				v.Method, v.Status, v.URI, v.Latency, v.ResponseSize)
 			return nil
 		},
 	}

@@ -67,12 +67,12 @@ var (
 // By default the web server runs when no arguments are provided.
 // Otherwise, the command-line arguments are parsed and the application exits.
 func main() {
-	logger := startupLog()
-	configs := environmentVars(logger)
-
-	parseArguments(logger, configs)
+	logger, configs := environmentVars()
+	if code := parseFlags(logger, configs); code >= 0 {
+		os.Exit(code)
+	}
 	sanityChecks(logger, configs)
-	repairs(logger, configs)
+	repairChecks(logger, configs)
 
 	logger = serverLog(configs)
 
@@ -101,13 +101,9 @@ func main() {
 	website.ShutdownHTTP(router)
 }
 
-// startupLog is used to create a development logger before the environment variables are parsed.
-func startupLog() *zap.SugaredLogger {
-	return zaplog.Development().Sugar()
-}
-
 // environmentVars is used to parse the environment variables and set the Go runtime.
-func environmentVars(logger *zap.SugaredLogger) config.Config {
+func environmentVars() (*zap.SugaredLogger, config.Config) {
+	logger := zaplog.Development().Sugar()
 	configs := config.Config{}
 	if err := env.Parse(&configs); err != nil {
 		logger.Fatalf("%w: %s", ErrEnv, err)
@@ -117,7 +113,7 @@ func environmentVars(logger *zap.SugaredLogger) config.Config {
 	if i := configs.MaxProcs; i > 0 {
 		runtime.GOMAXPROCS(int(i))
 	}
-	return configs
+	return logger, configs
 }
 
 // newInstance is used to create the server controller instance.
@@ -133,24 +129,27 @@ func newInstance(logger *zap.SugaredLogger, configs config.Config) handler.Confi
 	if c.Version == "" {
 		c.Version = cmd.Commit("")
 	}
-	c.RecordCount = RecordCount()
+	c.RecordCount = recordCount()
 	return c
 }
 
-// parseArguments is used to parse the commandline arguments.
-func parseArguments(logger *zap.SugaredLogger, configs config.Config) {
+// parseFlags is used to parse the commandline arguments.
+// If an error is returned, the application will exit with the error code.
+// Otherwise, a negative value is returned to indicate the application should continue.
+func parseFlags(logger *zap.SugaredLogger, configs config.Config) int {
 	if logger == nil {
-		return
+		return -1
 	}
 	code, err := cmd.Run(version, &configs)
 	if err != nil {
 		logger.Errorf("%s: %s", ErrCmd, err)
-		os.Exit(int(code))
+		return int(code)
 	}
 	useExitCode := code >= cmd.ExitOK
 	if useExitCode {
-		os.Exit(int(code))
+		return int(code)
 	}
+	return -1
 }
 
 // sanityChecks is used to perform a number of sanity checks on the file assets and database.
@@ -200,16 +199,16 @@ func checks(logger *zap.SugaredLogger, readonly bool) {
 	}
 }
 
-// repairs is used to fix any known issues with the file assets and the database entries.
+// repairChecks is used to fix any known issues with the file assets and the database entries.
 // These are skipped if the FastStart environment variable is set.
-func repairs(logger *zap.SugaredLogger, configs config.Config) {
+func repairChecks(logger *zap.SugaredLogger, configs config.Config) {
 	if configs.FastStart || logger == nil {
 		return
 	}
 	if err := configs.RepairFS(logger); err != nil {
 		logger.Errorf("%s: %s", ErrFS, err)
 	}
-	if err := RepairDB(logger); err != nil {
+	if err := repairDB(logger); err != nil {
 		repairdb(logger, err)
 	}
 }
@@ -228,7 +227,7 @@ func serverLog(configs config.Config) *zap.SugaredLogger {
 	}
 	switch configs.ProductionMode {
 	case true:
-		if err := configs.LogStorage(); err != nil {
+		if err := configs.LogStore(); err != nil {
 			logger.Fatalf("%w: %s", ErrLog, err)
 		}
 		logger = zaplog.Production(configs.LogDir).Sugar()
@@ -252,8 +251,8 @@ func localMode() bool {
 	return val
 }
 
-// RepairDB on startup checks the database connection and make any data corrections.
-func RepairDB(logger *zap.SugaredLogger) error {
+// repairDB on startup checks the database connection and make any data corrections.
+func repairDB(logger *zap.SugaredLogger) error {
 	if logger == nil {
 		return fmt.Errorf("%w: %s", ErrLog, "no logger")
 	}
@@ -285,8 +284,8 @@ func repairdb(logger *zap.SugaredLogger, err error) {
 	}
 }
 
-// RecordCount returns the number of records in the database.
-func RecordCount() int {
+// recordCount returns the number of records in the database.
+func recordCount() int {
 	db, err := postgres.ConnectDB()
 	if err != nil {
 		return 0
