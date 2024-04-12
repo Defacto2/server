@@ -40,13 +40,12 @@ func (c Configuration) FilesRoutes(e *echo.Echo, logger *zap.SugaredLogger, publ
 		Thumbnail: c.Import.ThumbnailDir,
 	}
 
-	nonce, err := c.nonce(e)
-	if err != nil {
+	if nonce, err := c.nonce(e); err != nil {
 		return nil, fmt.Errorf("%w: %s", err, "nonce")
+	} else {
+		e = c.signin(e, nonce)
 	}
-	if e, err = c.custom404(e); err != nil {
-		return nil, fmt.Errorf("%w: %s", err, "custom404")
-	}
+	e = c.custom404(e)
 	e = c.html(e, public)
 	e = c.font(e, public)
 	e = c.embed(e, public)
@@ -54,7 +53,6 @@ func (c Configuration) FilesRoutes(e *echo.Echo, logger *zap.SugaredLogger, publ
 	e = c.debugInfo(e)
 	e = c.website(e, logger, dir)
 	e = c.search(e, logger)
-	e = c.signin(e, nonce)
 	e = c.editor(e, logger, dir)
 	e = c.uploader(e)
 	return e, nil
@@ -133,14 +131,14 @@ func (c Configuration) static(e *echo.Echo) *echo.Echo {
 
 // custom404 is a custom 404 error handler for the website,
 // "The page cannot be found".
-func (c Configuration) custom404(e *echo.Echo) (*echo.Echo, error) {
+func (c Configuration) custom404(e *echo.Echo) *echo.Echo {
 	if e == nil {
 		panic(ErrRoutes)
 	}
 	e.GET("/:uri", func(cx echo.Context) error {
 		return app.StatusErr(cx, http.StatusNotFound, cx.Param("uri"))
 	})
-	return e, nil
+	return e
 }
 
 // debugInfo returns detailed information about the HTTP request.
