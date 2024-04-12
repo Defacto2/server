@@ -181,21 +181,21 @@ func File(c echo.Context, logger *zap.SugaredLogger, stats bool) error {
 // The page is the page number of the results to display.
 func Files(c echo.Context, uri, page string) error {
 	if !Valid(uri) {
-		return FilesErr(c, uri)
+		return Files404(c, uri)
 	}
 	if page == "" {
 		return files(c, uri, 1)
 	}
 	p, err := strconv.Atoi(page)
 	if err != nil {
-		return PageErr(c, uri, page)
+		return Page404(c, uri, page)
 	}
 	return files(c, uri, p)
 }
 
 // FilesErr renders the files error page for the Files menu and categories.
 // It provides different error messages to the standard error page.
-func FilesErr(c echo.Context, uri string) error {
+func Files404(c echo.Context, uri string) error {
 	const name = "status"
 	if c == nil {
 		return InternalErr(c, name, ErrCxt)
@@ -219,14 +219,14 @@ func FilesErr(c echo.Context, uri string) error {
 func FilesDeletions(c echo.Context, page string) error {
 	uri := deletions.String()
 	if !Valid(uri) {
-		return FilesErr(c, uri)
+		return Files404(c, uri)
 	}
 	if page == "" {
 		return files(c, uri, 1)
 	}
 	p, err := strconv.Atoi(page)
 	if err != nil {
-		return PageErr(c, uri, page)
+		return Page404(c, uri, page)
 	}
 	return files(c, uri, p)
 }
@@ -234,14 +234,14 @@ func FilesDeletions(c echo.Context, page string) error {
 func FilesUnwanted(c echo.Context, page string) error {
 	uri := unwanted.String()
 	if !Valid(uri) {
-		return FilesErr(c, uri)
+		return Files404(c, uri)
 	}
 	if page == "" {
 		return files(c, uri, 1)
 	}
 	p, err := strconv.Atoi(page)
 	if err != nil {
-		return PageErr(c, uri, page)
+		return Page404(c, uri, page)
 	}
 	return files(c, uri, p)
 }
@@ -252,14 +252,14 @@ func FilesUnwanted(c echo.Context, page string) error {
 func FilesWaiting(c echo.Context, page string) error {
 	uri := forApproval.String()
 	if !Valid(uri) {
-		return FilesErr(c, uri)
+		return Files404(c, uri)
 	}
 	if page == "" {
 		return files(c, uri, 1)
 	}
 	p, err := strconv.Atoi(page)
 	if err != nil {
-		return PageErr(c, uri, page)
+		return Page404(c, uri, page)
 	}
 	return files(c, uri, p)
 }
@@ -606,9 +606,9 @@ func Musician(c echo.Context) error {
 	return scener(c, postgres.Musician, data)
 }
 
-// PageErr renders the files page error page for the Files menu and categories.
+// Page404 renders the files page error page for the Files menu and categories.
 // It provides different error messages to the standard error page.
-func PageErr(c echo.Context, uri, page string) error {
+func Page404(c echo.Context, uri, page string) error {
 	const name = "status"
 	if c == nil {
 		return InternalErr(c, name, ErrCxt)
@@ -1143,8 +1143,8 @@ func ReleaserYear(c echo.Context) error {
 	return releasers(c, model.Oldest)
 }
 
-// ReleaserErr renders the files error page for the Groups menu and invalid releasers.
-func ReleaserErr(c echo.Context, id string) error {
+// Releaser404 renders the files error page for the Groups menu and invalid releasers.
+func Releaser404(c echo.Context, id string) error {
 	const name = "status"
 	if c == nil {
 		return InternalErr(c, name, ErrCxt)
@@ -1199,7 +1199,7 @@ func Releasers(c echo.Context, uri string) error {
 		return InternalErr(c, name, err)
 	}
 	if len(fs) == 0 {
-		return ReleaserErr(c, uri)
+		return Releaser404(c, uri)
 	}
 	data := emptyFiles(c)
 	data["title"] = "Files for " + s
@@ -1260,8 +1260,8 @@ func Scener(c echo.Context) error {
 	return scener(c, postgres.Roles(), data)
 }
 
-// ScenerErr renders the files error page for the People menu and invalid sceners.
-func ScenerErr(c echo.Context, id string) error {
+// Scener404 renders the files error page for the People menu and invalid sceners.
+func Scener404(c echo.Context, id string) error {
 	const name = "status"
 	if c == nil {
 		return InternalErr(c, name, ErrCxt)
@@ -1299,7 +1299,7 @@ func Sceners(c echo.Context, uri string) error {
 		return InternalErr(c, name, err)
 	}
 	if len(fs) == 0 {
-		return ScenerErr(c, uri)
+		return Scener404(c, uri)
 	}
 	data := emptyFiles(c)
 	data["title"] = s + attr
@@ -1882,7 +1882,7 @@ func files(c echo.Context, uri string, page int) error {
 	lastPage := math.Ceil(float64(sum) / float64(limit))
 	if page > int(lastPage) {
 		i := strconv.Itoa(page)
-		return PageErr(c, uri, i)
+		return Page404(c, uri, i)
 	}
 	const pages = 2
 	data["Pagination"] = model.Pagination{
