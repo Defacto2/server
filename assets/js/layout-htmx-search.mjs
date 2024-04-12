@@ -1,17 +1,15 @@
 // layout-htmx-search.mjs
 
-const releaserId = "search-releaser-alert",
+const releaserAlert = "search-releaser-alert",
   releaserReset = "search-releaser-clear",
   releaserIndi = "search-releaser-indicator",
   releaserInput = "search-releaser-input";
-
-const alert = document.getElementById(releaserId);
 
 export function releaserInit() {
   const clear = document.getElementById(releaserReset);
   if (clear !== null) {
     clear.addEventListener("click", function () {
-      clearer(releaserId, releaserInput, releaserIndi);
+      clearer(releaserAlert, releaserInput, releaserIndi);
     });
   }
 }
@@ -25,9 +23,9 @@ export function clearer() {
   if (input === null) {
     throw new Error(`The ${releaserInput} element is null`);
   }
-  const alert = document.getElementById(releaserId);
+  const alert = document.getElementById(releaserAlert);
   if (alert === null) {
-    throw new Error(`The htmx alert element ${releaserId} is null`);
+    throw new Error(`The htmx alert element ${releaserAlert} is null`);
   }
   const indicator = document.getElementById(releaserIndi);
   if (indicator === null) {
@@ -44,45 +42,4 @@ export function clearer() {
   alert.setAttribute("hidden", "true");
   indicator.style.opacity = 0;
   results.innerHTML = "";
-}
-
-/**
- * Handles the search a releaser input event.
- *
- * @param {Event} event - The event object.
- * @throws {Error} If the htmx alert element is null.
- */
-export function releaser(event) {
-  if (event.detail.elt === null || event.detail.elt.id !== `${releaserInput}`) {
-    return;
-  }
-  if (typeof alert === "undefined" || alert === null) {
-    throw new Error(
-      `The htmx alert element ${releaserId} for releaser search is null`
-    );
-  }
-  if (event.detail.successful) {
-    return successful(alert);
-  }
-  if (event.detail.failed && event.detail.xhr) {
-    return errorXhr(alert, event);
-  }
-  errorBrowser(alert);
-}
-
-function successful(alert) {
-  alert.setAttribute("hidden", "true");
-  alert.innerText = "";
-}
-
-function errorXhr(alert, event) {
-  const xhr = event.detail.xhr;
-  alert.innerText = `Something on the server is not working, ${xhr.status} status: ${xhr.responseText}.`;
-  alert.removeAttribute("hidden");
-}
-
-function errorBrowser(alert) {
-  alert.innerText =
-    "Something with the browser is not working, please refresh the page.";
-  alert.removeAttribute("hidden");
 }

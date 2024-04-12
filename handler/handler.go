@@ -94,7 +94,7 @@ func (c Configuration) Controller(logger *zap.SugaredLogger) *echo.Echo {
 	// *******************************************
 	//  NOTEL: NEVER USE the middleware.Timeout()
 	//  It is broken and should not be in the
-	//  echo library as it causes server crashes.
+	//  labstack/echo library as it can crash!
 	// *******************************************
 	middlewares = []echo.MiddlewareFunc{
 		middleware.Secure(),
