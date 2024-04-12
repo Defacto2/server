@@ -99,15 +99,6 @@
                   hx-post="/uploader/intro"
                   hx-target="#uploader-intro-results"
                   hx-validate="true">
-              {{/*  <div class="btn-group mb-3 w-100" role="group" aria-label="Basic radio toggle button group">
-                <span class="input-group-text">Operating system &nbsp; </span>
-                <input type="radio" value="windows" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-windows" autocomplete="off" checked>
-                <label class="btn btn-outline-primary" for="uploader-intro-windows" data-bs-toggle="tooltip" data-bs-placement="top" 
-                    data-bs-title="Microsoft Windows">Windows PC</label>
-                <input type="radio" value="msdos" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-msdos" autocomplete="off">
-                <label class="btn btn-outline-primary" for="uploader-intro-msdos" data-bs-toggle="tooltip" data-bs-placement="top" 
-                    data-bs-title="IBM PC or MS-DOS compatible">Dos PC</label>
-              </div>  */}}
               <div class="form-floating mb-3">
                 <input type="text" name="title" class="form-control" id="uploader-intro-title" aria-describedby="uploader-intro-title-help" placeholder="example: 500000th release!">
                 <label for="uploader-intro-title">Title</label>
@@ -149,6 +140,17 @@
                 <input type="text" name="uploader-intro-youtube" minlength="11" maxlength="11" class="form-control" id="uploader-intro-youtube" 
                   aria-describedby="uploader-intro-youtube-help" spellcheck="false" placeholder="example: 62BuDfBIcMo">
               </div>
+
+              <div class="btn-group mb-3 w-100" role="group" aria-label="Basic radio toggle button group">
+                <span class="input-group-text">Operating system &nbsp; </span>
+                <input type="radio" value="windows" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-windows" autocomplete="off" checked>
+                <label class="btn btn-outline-primary" for="uploader-intro-windows" data-bs-toggle="tooltip" data-bs-placement="top" 
+                    data-bs-title="Microsoft Windows">Windows PC</label>
+                <input type="radio" value="msdos" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-msdos" autocomplete="off">
+                <label class="btn btn-outline-primary" for="uploader-intro-msdos" data-bs-toggle="tooltip" data-bs-placement="top" 
+                    data-bs-title="IBM PC or MS-DOS compatible">Dos PC</label>
+              </div>
+
               <div class="row g-2">
                 <div class="input-group mt-3">
                   <input type="file" name="uploader-introfile" id="uploader-intro-file" class="form-control" required>
