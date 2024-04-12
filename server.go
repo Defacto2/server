@@ -67,26 +67,28 @@ var (
 // By default the web server runs when no arguments are provided.
 // Otherwise, the command-line arguments are parsed and the application exits.
 func main() {
-	dev := developmentLog()
-	configs := environmentVars(dev)
+	logger := startupLog()
+	configs := environmentVars(logger)
 
-	parseArguments(dev, configs)
-	sanityChecks(dev, configs)
-	repairs(dev, configs)
+	parseArguments(logger, configs)
+	sanityChecks(logger, configs)
+	repairs(logger, configs)
 
-	prod := welcomeLog(configs)
-	website := new(prod, configs)
-	e := website.Controller()
+	logger = serverLog(configs)
+
+	website := newInstance(logger, configs)
+	router := website.Controller()
 	website.Info()
-	if err := website.Start(e, configs); err != nil {
-		prod.Fatalf("%s: please check the enviroment variables.", err)
+	err := website.Start(router, configs)
+	if err != nil {
+		logger.Fatalf("%s: please check the enviroment variables.", err)
 	}
 
 	w := os.Stdout
 	go func() {
 		localIPs, err := configs.Addresses()
 		if err != nil {
-			prod.Errorf("%s: %s", ErrEnv, err)
+			logger.Errorf("%s: %s", ErrEnv, err)
 		}
 		fmt.Fprintf(w, "%s\n", localIPs)
 	}()
@@ -96,19 +98,19 @@ func main() {
 			fmt.Fprint(w, "Tap Ctrl + C, to exit at anytime.\n")
 		}()
 	}
-	website.ShutdownHTTP(e)
+	website.ShutdownHTTP(router)
 }
 
-// developmentLog is used to create a development logger before the environment variables are parsed.
-func developmentLog() *zap.SugaredLogger {
+// startupLog is used to create a development logger before the environment variables are parsed.
+func startupLog() *zap.SugaredLogger {
 	return zaplog.Development().Sugar()
 }
 
 // environmentVars is used to parse the environment variables and set the Go runtime.
-func environmentVars(logr *zap.SugaredLogger) config.Config {
+func environmentVars(logger *zap.SugaredLogger) config.Config {
 	configs := config.Config{}
 	if err := env.Parse(&configs); err != nil {
-		logr.Fatalf("%w: %s", ErrEnv, err)
+		logger.Fatalf("%w: %s", ErrEnv, err)
 	}
 	configs.Override(localMode())
 
@@ -118,12 +120,12 @@ func environmentVars(logr *zap.SugaredLogger) config.Config {
 	return configs
 }
 
-// new is used to create the server controller instance.
-func new(logr *zap.SugaredLogger, configs config.Config) handler.Configuration {
+// newInstance is used to create the server controller instance.
+func newInstance(logger *zap.SugaredLogger, configs config.Config) handler.Configuration {
 	c := handler.Configuration{
 		Brand:   &brand,
 		Import:  &configs,
-		Logger:  logr,
+		Logger:  logger,
 		Public:  public,
 		Version: version,
 		View:    view,
@@ -136,13 +138,13 @@ func new(logr *zap.SugaredLogger, configs config.Config) handler.Configuration {
 }
 
 // parseArguments is used to parse the commandline arguments.
-func parseArguments(logr *zap.SugaredLogger, c config.Config) {
-	if logr == nil {
+func parseArguments(logger *zap.SugaredLogger, configs config.Config) {
+	if logger == nil {
 		return
 	}
-	code, err := cmd.Run(version, &c)
+	code, err := cmd.Run(version, &configs)
 	if err != nil {
-		logr.Errorf("%s: %s", ErrCmd, err)
+		logger.Errorf("%s: %s", ErrCmd, err)
 		os.Exit(int(code))
 	}
 	useExitCode := code >= cmd.ExitOK
@@ -153,26 +155,26 @@ func parseArguments(logr *zap.SugaredLogger, c config.Config) {
 
 // sanityChecks is used to perform a number of sanity checks on the file assets and database.
 // These are skipped if the FastStart environment variable is set.
-func sanityChecks(logr *zap.SugaredLogger, configs config.Config) {
-	if configs.FastStart || logr == nil {
+func sanityChecks(logger *zap.SugaredLogger, configs config.Config) {
+	if configs.FastStart || logger == nil {
 		return
 	}
-	if err := configs.Checks(logr); err != nil {
-		logr.Errorf("%s: %s", ErrEnv, err)
+	if err := configs.Checks(logger); err != nil {
+		logger.Errorf("%s: %s", ErrEnv, err)
 	}
-	checks(logr, configs.ReadMode)
+	checks(logger, configs.ReadMode)
 	conn, err := postgres.New()
 	if err != nil {
-		logr.Errorf("%s: %s", ErrDB, err)
+		logger.Errorf("%s: %s", ErrDB, err)
 		return
 	}
-	_ = conn.Check(logr, localMode())
+	_ = conn.Check(logger, localMode())
 }
 
 // checks is used to confirm the required commands are available.
 // These are skipped if readonly is true.
-func checks(logr *zap.SugaredLogger, readonly bool) {
-	if logr == nil || readonly {
+func checks(logger *zap.SugaredLogger, readonly bool) {
+	if logger == nil || readonly {
 		return
 	}
 	var buf strings.Builder
@@ -183,62 +185,62 @@ func checks(logr *zap.SugaredLogger, readonly bool) {
 		}
 	}
 	if buf.Len() > 0 {
-		logr.Warnln("The following commands are required for the server to run in WRITE MODE",
+		logger.Warnln("The following commands are required for the server to run in WRITE MODE",
 			"\n\t\t\tThese need to be installed and accessible on the system path:"+
 				"\t\t\t"+buf.String())
 	}
 	if err := command.LookupUnrar(); err != nil {
 		if errors.Is(err, command.ErrVers) {
-			logr.Warnf("Found unrar but " +
+			logger.Warnf("Found unrar but " +
 				"could not find unrar by Alexander Roshal, " +
 				"is unrar-free mistakenly installed?")
 			return
 		}
-		logr.Warnf("%s: %s", ErrCmd, err)
+		logger.Warnf("%s: %s", ErrCmd, err)
 	}
 }
 
 // repairs is used to fix any known issues with the file assets and the database entries.
 // These are skipped if the FastStart environment variable is set.
-func repairs(logr *zap.SugaredLogger, configs config.Config) {
-	if configs.FastStart || logr == nil {
+func repairs(logger *zap.SugaredLogger, configs config.Config) {
+	if configs.FastStart || logger == nil {
 		return
 	}
-	if err := configs.RepairFS(logr); err != nil {
-		logr.Errorf("%s: %s", ErrFS, err)
+	if err := configs.RepairFS(logger); err != nil {
+		logger.Errorf("%s: %s", ErrFS, err)
 	}
-	if err := RepairDB(logr); err != nil {
-		repairdb(logr, err)
+	if err := RepairDB(logger); err != nil {
+		repairdb(logger, err)
 	}
 }
 
-// welcomeLog is used to setup the logger for the server and print the startup message.
-func welcomeLog(c config.Config) *zap.SugaredLogger {
-	logr := zaplog.Development().Sugar()
+// serverLog is used to setup the logger for the server and print the startup message.
+func serverLog(configs config.Config) *zap.SugaredLogger {
+	logger := zaplog.Development().Sugar()
 	const welcome = "Welcome to the local Defacto2 web application."
-	logr.Info(welcome)
+	logger.Info(welcome)
 	if localMode() {
-		return logr
+		return logger
 	}
 	mode := "read-only mode"
-	if !c.ReadMode {
+	if !configs.ReadMode {
 		mode = "write mode"
 	}
-	switch c.ProductionMode {
+	switch configs.ProductionMode {
 	case true:
-		if err := c.LogStorage(); err != nil {
-			logr.Fatalf("%w: %s", ErrLog, err)
+		if err := configs.LogStorage(); err != nil {
+			logger.Fatalf("%w: %s", ErrLog, err)
 		}
-		logr = zaplog.Production(c.LogDir).Sugar()
+		logger = zaplog.Production(configs.LogDir).Sugar()
 		s := "The server is running in a "
 		s += strings.ToUpper("production, "+mode) + "."
-		logr.Info(s)
+		logger.Info(s)
 	default:
 		s := "The server is running in a "
 		s += strings.ToUpper("development, "+mode) + "."
-		logr.Warn(s)
+		logger.Warn(s)
 	}
-	return logr
+	return logger
 }
 
 // localMode is used to always override the PRODUCTION_MODE and READ_ONLY environment variables.
@@ -251,8 +253,8 @@ func localMode() bool {
 }
 
 // RepairDB on startup checks the database connection and make any data corrections.
-func RepairDB(logr *zap.SugaredLogger) error {
-	if logr == nil {
+func RepairDB(logger *zap.SugaredLogger) error {
+	if logger == nil {
 		return fmt.Errorf("%w: %s", ErrLog, "no logger")
 	}
 	db, err := postgres.ConnectDB()
@@ -268,18 +270,18 @@ func RepairDB(logr *zap.SugaredLogger) error {
 		return nil
 	}
 	ctx := context.Background()
-	return fix.All.Run(ctx, logr, db)
+	return fix.All.Run(ctx, logger, db)
 }
 
 // repairdb is used to log the database repair error.
-func repairdb(logr *zap.SugaredLogger, err error) {
-	if logr == nil || err == nil {
+func repairdb(logger *zap.SugaredLogger, err error) {
+	if logger == nil || err == nil {
 		return
 	}
 	if errors.Is(err, ErrVer) {
-		logr.Warnf("A %s, is the database server down?", ErrVer)
+		logger.Warnf("A %s, is the database server down?", ErrVer)
 	} else {
-		logr.Errorf("%s: %s", ErrDB, err)
+		logger.Errorf("%s: %s", ErrDB, err)
 	}
 }
 
