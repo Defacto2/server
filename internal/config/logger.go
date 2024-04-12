@@ -13,7 +13,7 @@ import (
 
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/logger"
+	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -34,9 +34,9 @@ func (c Config) LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	var logr *zap.SugaredLogger
 	switch c.ProductionMode {
 	case true:
-		logr = logger.Production(c.LogDir).Sugar()
+		logr = zaplog.Production(c.LogDir).Sugar()
 	default:
-		logr = logger.Development().Sugar()
+		logr = zaplog.Development().Sugar()
 	}
 	defer func() {
 		_ = logr.Sync()
@@ -106,9 +106,9 @@ func (c Config) CustomErrorHandler(err error, e echo.Context) {
 	var logr *zap.SugaredLogger
 	switch c.ProductionMode {
 	case true:
-		logr = logger.Production(c.LogDir).Sugar()
+		logr = zaplog.Production(c.LogDir).Sugar()
 	default:
-		logr = logger.Development().Sugar()
+		logr = zaplog.Development().Sugar()
 	}
 	defer func() {
 		_ = logr.Sync()

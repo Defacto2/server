@@ -101,12 +101,14 @@ func (c Configuration) Controller() *echo.Echo {
 		// XSS cross-site scripting protection
 		middleware.Secure(),
 		// custom HTTP logging middleware
-		c.Import.LoggerMiddleware,
+		middleware.RequestLoggerWithConfig(c.configZapLogger()),
+		//c.Import.LoggerMiddleware,
 		// add X-Robots-Tag to all responses
 		c.NoCrawl,
 		// remove trailing slashes
 		middleware.RemoveTrailingSlashWithConfig(configRTS()),
 	)
+	logr.Info("Middleware configured.")
 	switch strings.ToLower(c.Import.Compression) {
 	case "gzip":
 		e.Use(middleware.Gzip())

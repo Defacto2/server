@@ -24,9 +24,9 @@ import (
 	"github.com/Defacto2/server/handler"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/config"
-	"github.com/Defacto2/server/internal/logger"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/fix"
 	"github.com/caarlos0/env/v10"
@@ -101,7 +101,7 @@ func main() {
 
 // developmentLog is used to create a development logger before the environment variables are parsed.
 func developmentLog() *zap.SugaredLogger {
-	return logger.Development().Sugar()
+	return zaplog.Development().Sugar()
 }
 
 // environmentVars is used to parse the environment variables and set the Go runtime.
@@ -214,7 +214,7 @@ func repairs(logr *zap.SugaredLogger, configs config.Config) {
 
 // welcomeLog is used to setup the logger for the server and print the startup message.
 func welcomeLog(c config.Config) *zap.SugaredLogger {
-	logr := logger.Development().Sugar()
+	logr := zaplog.Development().Sugar()
 	const welcome = "Welcome to the local Defacto2 web application."
 	logr.Info(welcome)
 	if localMode() {
@@ -229,7 +229,7 @@ func welcomeLog(c config.Config) *zap.SugaredLogger {
 		if err := c.LogStorage(); err != nil {
 			logr.Fatalf("%w: %s", ErrLog, err)
 		}
-		logr = logger.Production(c.LogDir).Sugar()
+		logr = zaplog.Production(c.LogDir).Sugar()
 		s := "The server is running in a "
 		s += strings.ToUpper("production, "+mode) + "."
 		logr.Info(s)

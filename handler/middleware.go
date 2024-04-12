@@ -8,6 +8,7 @@ package handler
 
 import (
 	"crypto/sha512"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -16,6 +17,7 @@ import (
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"go.uber.org/zap"
 )
 
 // NoCrawl middleware adds a `X-Robots-Tag` header to the response.
@@ -76,5 +78,22 @@ func (c Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 func configRTS() middleware.TrailingSlashConfig {
 	return middleware.TrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,
+	}
+}
+
+func (c Configuration) configZapLogger() middleware.RequestLoggerConfig {
+	logger, _ := zap.NewProduction()
+	return middleware.RequestLoggerConfig{
+		LogURI:    true,
+		LogStatus: true,
+		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+			fmt.Println("logger HELLO WORLD")
+			logger.Info("request",
+				zap.String("URI", v.URI),
+				zap.Int("status", v.Status),
+			)
+
+			return nil
+		},
 	}
 }

@@ -1,8 +1,8 @@
-// Package logger uses the zap logging library for application logs.
+// Package zaplog uses the zap logging library for application logs.
 // There are two logging modes, development and production.
 // The production mode saves the logs to file and automatically rotates
 // older files. While the development mode prints all feedback to stdout.
-package logger
+package zaplog
 
 import (
 	"os"
