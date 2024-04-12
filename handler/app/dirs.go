@@ -54,11 +54,33 @@ const (
 	epoch = 1980 // epoch is the default year for MS-DOS files without a timestamp
 )
 
+// Artifact404 renders the error page for the artifact links.
+func Artifact404(c echo.Context, id string) error {
+	const name = "status"
+	if c == nil {
+		return InternalErr(c, name, ErrCxt)
+	}
+	data := empty(c)
+	data["title"] = fmt.Sprintf("%d error, artifact page not found", http.StatusNotFound)
+	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
+	data["code"] = http.StatusNotFound
+	data["logo"] = "Artifact not found"
+	data["alert"] = fmt.Sprintf("Artifact %q cannot be found", strings.ToLower(id))
+	data["probl"] = "The artifact page does not exist, there is probably a typo with the URL."
+	data["uriOkay"] = "f/"
+	data["uriErr"] = id
+	err := c.Render(http.StatusNotFound, name, data)
+	if err != nil {
+		return InternalErr(c, name, err)
+	}
+	return nil
+}
+
 // Artifact is the handler for the of the file record.
-func (dir Dirs) Artifact(logr *zap.SugaredLogger, c echo.Context, readonly bool) error { //nolint:funlen
+func (dir Dirs) Artifact(logger *zap.SugaredLogger, c echo.Context, readonly bool) error { //nolint:funlen
 	const name = "artifact"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
+	if logger == nil {
+		return InternalErr(c, name, ErrZap)
 	}
 	var art *models.File
 	var err error
@@ -69,9 +91,9 @@ func (dir Dirs) Artifact(logr *zap.SugaredLogger, c echo.Context, readonly bool)
 	}
 	if err != nil {
 		if errors.Is(err, model.ErrID) {
-			return ArtifactErr(logr, c, dir.URI)
+			return Artifact404(c, dir.URI)
 		}
-		return DatabaseErr(logr, c, "f/"+dir.URI, err)
+		return DatabaseErr(c, "f/"+dir.URI, err)
 	}
 	fname := art.Filename.String
 	uuid := art.UUID.String
@@ -113,7 +135,7 @@ func (dir Dirs) Artifact(logr *zap.SugaredLogger, c echo.Context, readonly bool)
 	data["youtube"] = art.WebIDYoutube.String
 	data["github"] = art.WebIDGithub.String
 	// js-dos emulator
-	data = jsdos(logr, art, data, fname)
+	data = jsdos(logger, art, data, fname)
 	// archive file content
 	data = content(art, data)
 	// record metadata
@@ -122,12 +144,12 @@ func (dir Dirs) Artifact(logr *zap.SugaredLogger, c echo.Context, readonly bool)
 	data = filentry(art, data)
 	d, err := dir.artifactReadme(art)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	maps.Copy(data, d)
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
@@ -188,12 +210,12 @@ func content(art *models.File, data map[string]interface{}) map[string]interface
 	return data
 }
 
-func jsdos(logr *zap.SugaredLogger,
+func jsdos(logger *zap.SugaredLogger,
 	art *models.File,
 	data map[string]interface{},
 	fname string,
 ) map[string]interface{} {
-	if logr == nil || art == nil {
+	if logger == nil || art == nil {
 		return data
 	}
 	data["jsdos6"] = false
@@ -204,13 +226,13 @@ func jsdos(logr *zap.SugaredLogger,
 		data["jsdos6"] = emulate
 		run, err := model.JsDosBinary(art)
 		if err != nil {
-			logr.Error(err)
+			logger.Error(err)
 			return data
 		}
 		data["jsdos6Run"] = run
 		cfg, err := model.JsDosConfig(art)
 		if err != nil {
-			logr.Error(err)
+			logger.Error(err)
 			return data
 		}
 		data["jsdos6Config"] = cfg
@@ -247,21 +269,12 @@ func filentry(art *models.File, data map[string]interface{}) map[string]interfac
 }
 
 // AnsiLovePost handles the post submission for the Preview from text in archive.
-func (dir Dirs) AnsiLovePost(logr *zap.SugaredLogger, c echo.Context) error {
-	const name = "editor ansilove"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
-	return dir.extractor(logr, c, ansis)
+func (dir Dirs) AnsiLovePost(c echo.Context) error {
+	return dir.extractor(c, ansis)
 }
 
 // PreviewDel handles the post submission for the Delete complementary images button.
-func (dir Dirs) PreviewDel(logr *zap.SugaredLogger, c echo.Context) error {
-	const name = "editor preview remove"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
-
+func (dir Dirs) PreviewDel(c echo.Context) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
@@ -277,12 +290,8 @@ func (dir Dirs) PreviewDel(logr *zap.SugaredLogger, c echo.Context) error {
 }
 
 // PreviewPost handles the post submission for the Preview from image in archive.
-func (dir Dirs) PreviewPost(logr *zap.SugaredLogger, c echo.Context) error {
-	const name = "editor preview"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
-	return dir.extractor(logr, c, imgs)
+func (dir Dirs) PreviewPost(c echo.Context) error {
+	return dir.extractor(c, imgs)
 }
 
 // artifactReadme returns the readme data for the file record.
@@ -395,11 +404,7 @@ func decode(r io.Reader) (string, error) {
 }
 
 // extractor is a helper function for the PreviewPost and AnsiLovePost handlers.
-func (dir Dirs) extractor(logr *zap.SugaredLogger, c echo.Context, p extract) error {
-	if logr == nil {
-		return InternalErr(logr, c, "extractor", ErrZap)
-	}
-
+func (dir Dirs) extractor(c echo.Context, p extract) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
@@ -432,7 +437,7 @@ func (dir Dirs) extractor(logr *zap.SugaredLogger, c echo.Context, p extract) er
 	case ansis:
 		err = cmd.ExtractAnsiLove(src, ext, r.UUID.String, target)
 	default:
-		return InternalErr(logr, c, "extractor", fmt.Errorf("%w: %d", ErrExtract, p))
+		return InternalErr(c, "extractor", fmt.Errorf("%w: %d", ErrExtract, p))
 	}
 	if err != nil {
 		return badRequest(c, err)

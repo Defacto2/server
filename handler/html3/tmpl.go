@@ -23,32 +23,32 @@ const (
 )
 
 // Index template.
-func index(logr *zap.SugaredLogger, fs embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(logr)).ParseFS(fs,
+func index(logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap(logger)).ParseFS(fs,
 		GlobTo(layout), GlobTo(dirs), GlobTo("index.html")))
 }
 
 // List file records template.
-func list(logr *zap.SugaredLogger, fs embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(logr)).ParseFS(fs,
+func list(logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap(logger)).ParseFS(fs,
 		GlobTo(layout), GlobTo(files), GlobTo(pagination), GlobTo(files)))
 }
 
 // List and filter the tags template.
-func listTags(logr *zap.SugaredLogger, fs embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(logr)).ParseFS(fs,
+func listTags(logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap(logger)).ParseFS(fs,
 		GlobTo(layout), GlobTo(subDirs), GlobTo("tags.html")))
 }
 
 // List the distinct groups template.
-func listGroups(logr *zap.SugaredLogger, fs embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(logr)).ParseFS(fs,
+func listGroups(logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap(logger)).ParseFS(fs,
 		GlobTo(layout), GlobTo(dirs), GlobTo(pagination), GlobTo("groups.html")))
 }
 
 // Template for displaying HTTP error codes and feedback.
-func httpErr(logr *zap.SugaredLogger, fs embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(logr)).ParseFS(fs,
+func httpErr(logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap(logger)).ParseFS(fs,
 		GlobTo(layout)))
 }
 

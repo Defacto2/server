@@ -62,7 +62,7 @@ type Download struct {
 
 // HTTPSend serves files to the client and prompts for a save location.
 // The download relies on the URL ID parameter to determine the requested file.
-func (d Download) HTTPSend(logr *zap.SugaredLogger, c echo.Context) error {
+func (d Download) HTTPSend(c echo.Context, logger *zap.SugaredLogger) error {
 	id := c.Param("id")
 	art, err := model.FindObf(id)
 	if err != nil {
@@ -78,13 +78,13 @@ func (d Download) HTTPSend(logr *zap.SugaredLogger, c echo.Context) error {
 	uid := strings.TrimSpace(art.UUID.String)
 	file := filepath.Join(d.Path, uid)
 	if !helper.IsStat(file) {
-		logr.Warnf("The hosted file download %q, for record %d does not exist.\n"+
+		logger.Warnf("The hosted file download %q, for record %d does not exist.\n"+
 			"Absolute path: %q", art.Filename.String, art.ID, file)
 		return fmt.Errorf("%w: %s", ErrStat, name)
 	}
 
 	if name == "" {
-		logr.Warnf("No filename exists for the record %d.", art.ID)
+		logger.Warnf("No filename exists for the record %d.", art.ID)
 		name = file
 	}
 	if d.Inline {

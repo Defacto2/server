@@ -41,7 +41,7 @@ func (c Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
 		s := strconv.FormatBool(c.Import.ReadMode)
 		e.Response().Header().Set("X-Read-Only-Lock", s)
 		if c.Import.ReadMode {
-			return app.StatusErr(c.Logger, e, http.StatusForbidden, "")
+			return app.StatusErr(e, http.StatusForbidden, "")
 		}
 		return next(e)
 	}
@@ -57,7 +57,7 @@ func (c Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		id, ok := sess.Values["sub"].(string)
 		if !ok || id == "" {
-			return app.StatusErr(c.Logger, e, http.StatusForbidden, "")
+			return app.StatusErr(e, http.StatusForbidden, "")
 		}
 		check := false
 		for _, account := range c.Import.GoogleAccounts {
@@ -67,7 +67,7 @@ func (c Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 		if !check {
-			return app.StatusErr(c.Logger, e, http.StatusForbidden, "")
+			return app.StatusErr(e, http.StatusForbidden, "")
 		}
 		return next(e)
 	}

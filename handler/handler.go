@@ -374,12 +374,12 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo) {
 }
 
 // downloader route for the file download handler under the html3 group.
-func (c Configuration) downloader(ctx echo.Context) error {
+func (c Configuration) downloader(cx echo.Context) error {
 	d := download.Download{
 		Inline: false,
 		Path:   c.Import.DownloadDir,
 	}
-	return d.HTTPSend(c.Logger, ctx)
+	return d.HTTPSend(cx, c.Logger)
 }
 
 // versionBrief returns the application version string.

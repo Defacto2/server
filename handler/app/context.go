@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"math"
 	"net/http"
 	"os"
@@ -55,206 +54,67 @@ const (
 	year    = "by year"
 )
 
-// ArtifactErr renders the error page for the artifact links.
-func ArtifactErr(logr *zap.SugaredLogger, c echo.Context, id string) error {
-	const name = "status"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
-	if c == nil {
-		return InternalErr(logr, c, name, ErrCxt)
-	}
-	data := empty(c)
-	data["title"] = fmt.Sprintf("%d error, artifact page not found", http.StatusNotFound)
-	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
-	data["code"] = http.StatusNotFound
-	data["logo"] = "Artifact not found"
-	data["alert"] = fmt.Sprintf("Artifact %q cannot be found", strings.ToLower(id))
-	data["probl"] = "The artifact page does not exist, there is probably a typo with the URL."
-	data["uriOkay"] = "f/"
-	data["uriErr"] = id
-	err := c.Render(http.StatusNotFound, name, data)
-	if err != nil {
-		return InternalErr(logr, c, name, err)
-	}
-	return nil
-}
-
 // Artist is the handler for the Artist sceners page.
-func Artist(logr *zap.SugaredLogger, c echo.Context) error {
+func Artist(c echo.Context) error {
 	data := empty(c)
 	title := "Pixel artists and graphic designers"
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
 	data["description"] = demo
-	return scener(logr, c, postgres.Artist, data)
-}
-
-// BadRequestErr is the handler for handling Bad Request Errors, caused by invalid user input
-// or a malformed client requests.
-func BadRequestErr(logr *zap.SugaredLogger, c echo.Context, uri string, err error) error {
-	const code = http.StatusBadRequest
-	if logr == nil {
-		zapNil(err)
-	} else if err != nil {
-		logr.Errorf("%d error for %q: %s", code, uri, err)
-	}
-	useTextFallback := c == nil
-	if useTextFallback {
-		if logr == nil {
-			zapNil(fmt.Errorf("%w: internalerr", ErrCxt))
-		} else {
-			logr.Errorf("%s: %s", ErrTmpl, ErrCxt)
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app status", ErrCxt))
-	}
-	data := empty(c)
-	data["description"] = fmt.Sprintf("HTTP status %d error", code)
-	data["title"] = "400 error, there is a complication"
-	data["code"] = code
-	data["logo"] = "Client error"
-	data["alert"] = "Something went wrong, " + err.Error()
-	data["probl"] = "It might be a settings or configuration problem or a legacy browser issue."
-	data["uriErr"] = uri
-	if err := c.Render(code, "status", data); err != nil {
-		if logr != nil {
-			logr.Errorf("%s: %s", ErrTmpl, err)
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-	}
-	return nil
+	return scener(c, postgres.Artist, data)
 }
 
 // BBS is the handler for the BBS page ordered by the most files.
-func BBS(logr *zap.SugaredLogger, c echo.Context) error {
-	return bbsHandler(logr, c, model.Prolific)
+func BBS(c echo.Context) error {
+	return bbsHandler(c, model.Prolific)
 }
 
 // BBSAZ is the handler for the BBS page ordered alphabetically.
-func BBSAZ(logr *zap.SugaredLogger, c echo.Context) error {
-	return bbsHandler(logr, c, model.Alphabetical)
+func BBSAZ(c echo.Context) error {
+	return bbsHandler(c, model.Alphabetical)
 }
 
 // BBSYear is the handler for the BBS page ordered by the year.
-func BBSYear(logr *zap.SugaredLogger, c echo.Context) error {
-	return bbsHandler(logr, c, model.Oldest)
+func BBSYear(c echo.Context) error {
+	return bbsHandler(c, model.Oldest)
 }
 
 // Checksum is the handler for the Checksum file record page.
-func Checksum(logr *zap.SugaredLogger, c echo.Context, id string) error {
+func Checksum(c echo.Context, id string) error {
 	if err := download.Checksum(c, id); err != nil {
-		return DownloadErr(logr, c, "sum", err)
+		return DownloadErr(c, "sum", err)
 	}
 	return nil
 }
 
 // Code is the handler for the Coder sceners page.
-func Coder(logr *zap.SugaredLogger, c echo.Context) error {
+func Coder(c echo.Context) error {
 	data := empty(c)
 	title := "Coder and programmers"
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
 	data["description"] = demo
-	return scener(logr, c, postgres.Writer, data)
-}
-
-// DatabaseErr is the handler for database connection issues.
-// A HTTP 503 Service Unavailable error is returned, to reflect the database
-// connection issue but where the server is still running and usable for the client.
-func DatabaseErr(logr *zap.SugaredLogger, c echo.Context, uri string, err error) error {
-	const unavailable = http.StatusServiceUnavailable
-	if logr == nil {
-		zapNil(err)
-	} else if err != nil {
-		logr.Errorf("%d error for %q: %s", unavailable, uri, err)
-	}
-	useTextFallback := c == nil
-	if useTextFallback {
-		if logr == nil {
-			zapNil(fmt.Errorf("%w: databaserr", ErrCxt))
-		} else {
-			logr.Warnf("%s: %s", ErrTmpl, ErrCxt)
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app status", ErrCxt))
-	}
-	data := empty(c)
-	data["description"] = fmt.Sprintf("HTTP status %d error", unavailable)
-	data["title"] = fmt.Sprintf("%d error, there is a complication", unavailable)
-	data["code"] = fmt.Sprintf("%d service unavailable", unavailable)
-	data["logo"] = "Database error"
-	data["alert"] = "Cannot connect to the database!"
-	data["uriErr"] = ""
-	data["probl"] = "This is not your fault, but the server cannot communicate with the database to display this page."
-	if err := c.Render(unavailable, "status", data); err != nil {
-		if logr != nil {
-			logr.Errorf("%s: %s", ErrTmpl, err)
-		}
-		return echo.NewHTTPError(unavailable, ErrTmpl)
-	}
-	return nil
+	return scener(c, postgres.Writer, data)
 }
 
 // Download is the handler for the Download file record page.
-func Download(logr *zap.SugaredLogger, c echo.Context, path string) error {
+func Download(c echo.Context, logger *zap.SugaredLogger, path string) error {
 	d := download.Download{
 		Inline: false,
 		Path:   path,
 	}
-	err := d.HTTPSend(logr, c)
+	err := d.HTTPSend(c, logger)
 	if err != nil {
-		return DownloadErr(logr, c, "d", err)
-	}
-	return nil
-}
-
-// DownloadErr is the handler for missing download files and database ID errors.
-func DownloadErr(logr *zap.SugaredLogger, c echo.Context, uri string, err error) error {
-	const code = http.StatusNotFound
-	id := c.Param("id")
-	if logr == nil {
-		zapNil(err)
-	} else if err != nil {
-		logr.Errorf("%d error for %q: %s", code, id, err)
-	}
-	useTextFallback := c == nil
-	if useTextFallback {
-		if logr == nil {
-			zapNil(fmt.Errorf("%w: downloaderr", ErrCxt))
-		} else {
-			logr.Errorf("%s: %s", ErrTmpl, ErrCxt)
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app status", ErrCxt))
-	}
-	data := empty(c)
-	data["description"] = fmt.Sprintf("HTTP status %d error", code)
-	data["title"] = "404 download error"
-	data["code"] = code
-	data["logo"] = "Download problem"
-	data["alert"] = "Cannot send you this download"
-	data["probl"] = "The download you are looking for might have been removed, " +
-		"had its filename changed, or is temporarily unavailable. " +
-		"Is the URL correct?"
-	data["uriErr"] = strings.Join([]string{uri, id}, "/")
-	if err := c.Render(code, "status", data); err != nil {
-		if logr != nil {
-			logr.Errorf("%s: %s", ErrTmpl, err)
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		return DownloadErr(c, "d", err)
 	}
 	return nil
 }
 
 // FTP is the handler for the FTP page.
-func FTP(logr *zap.SugaredLogger, c echo.Context) error {
+func FTP(c echo.Context) error {
 	const title, name = "FTP", "ftp"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	data := empty(c)
 	const lead = "FTP sites are historical, internet-based file servers for uploading and downloading \"elite\" scene releases."
 	const key = "releasers"
@@ -270,12 +130,12 @@ func FTP(logr *zap.SugaredLogger, c echo.Context) error {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	defer db.Close()
 	r := model.Releasers{}
 	if err := r.FTP(ctx, db); err != nil {
-		return DatabaseErr(logr, c, name, err)
+		return DatabaseErr(c, name, err)
 	}
 	data[key] = r
 	data["stats"] = map[string]string{
@@ -284,16 +144,16 @@ func FTP(logr *zap.SugaredLogger, c echo.Context) error {
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
 
 // File is the handler for the artifact categories page.
-func File(logr *zap.SugaredLogger, c echo.Context, stats bool) error {
+func File(c echo.Context, logger *zap.SugaredLogger, stats bool) error {
 	const title, name = "Artifact categories", "file"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
+	if logger == nil {
+		return InternalErr(c, "name", ErrZap)
 	}
 	data := empty(c)
 	data["title"] = title
@@ -306,12 +166,12 @@ func File(logr *zap.SugaredLogger, c echo.Context, stats bool) error {
 
 	data, err := fileWStats(data, stats)
 	if err != nil {
-		logr.Warn(err)
+		logger.Warn(err)
 		data["dbError"] = true
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
@@ -319,32 +179,26 @@ func File(logr *zap.SugaredLogger, c echo.Context, stats bool) error {
 // Files is the handler for the list and preview of the files page.
 // The uri is the category or collection of files to display.
 // The page is the page number of the results to display.
-func Files(logr *zap.SugaredLogger, c echo.Context, uri, page string) error {
-	if logr == nil {
-		return InternalErr(logr, c, "files", ErrZap)
-	}
+func Files(c echo.Context, uri, page string) error {
 	if !Valid(uri) {
-		return FilesErr(logr, c, uri)
+		return FilesErr(c, uri)
 	}
 	if page == "" {
-		return files(logr, c, uri, 1)
+		return files(c, uri, 1)
 	}
 	p, err := strconv.Atoi(page)
 	if err != nil {
-		return PageErr(logr, c, uri, page)
+		return PageErr(c, uri, page)
 	}
-	return files(logr, c, uri, p)
+	return files(c, uri, p)
 }
 
 // FilesErr renders the files error page for the Files menu and categories.
 // It provides different error messages to the standard error page.
-func FilesErr(logr *zap.SugaredLogger, c echo.Context, uri string) error {
+func FilesErr(c echo.Context, uri string) error {
 	const name = "status"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	if c == nil {
-		return InternalErr(logr, c, name, ErrCxt)
+		return InternalErr(c, name, ErrCxt)
 	}
 	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, files page not found", http.StatusNotFound)
@@ -357,102 +211,57 @@ func FilesErr(logr *zap.SugaredLogger, c echo.Context, uri string) error {
 	data["uriErr"] = uri
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
 
-func FilesDeletions(logr *zap.SugaredLogger, c echo.Context, page string) error {
-	if logr == nil {
-		return InternalErr(logr, c, "filesDeletions", ErrZap)
-	}
+func FilesDeletions(c echo.Context, page string) error {
 	uri := deletions.String()
 	if !Valid(uri) {
-		return FilesErr(logr, c, uri)
+		return FilesErr(c, uri)
 	}
 	if page == "" {
-		return files(logr, c, uri, 1)
+		return files(c, uri, 1)
 	}
 	p, err := strconv.Atoi(page)
 	if err != nil {
-		return PageErr(logr, c, uri, page)
+		return PageErr(c, uri, page)
 	}
-	return files(logr, c, uri, p)
+	return files(c, uri, p)
 }
 
-func FilesUnwanted(logr *zap.SugaredLogger, c echo.Context, page string) error {
-	if logr == nil {
-		return InternalErr(logr, c, "filesUnwanted", ErrZap)
-	}
+func FilesUnwanted(c echo.Context, page string) error {
 	uri := unwanted.String()
 	if !Valid(uri) {
-		return FilesErr(logr, c, uri)
+		return FilesErr(c, uri)
 	}
 	if page == "" {
-		return files(logr, c, uri, 1)
+		return files(c, uri, 1)
 	}
 	p, err := strconv.Atoi(page)
 	if err != nil {
-		return PageErr(logr, c, uri, page)
+		return PageErr(c, uri, page)
 	}
-	return files(logr, c, uri, p)
+	return files(c, uri, p)
 }
 
 // Files is the handler for the list and preview of the files page.
 // The uri is the category or collection of files to display.
 // The page is the page number of the results to display.
-func FilesWaiting(logr *zap.SugaredLogger, c echo.Context, page string) error {
-	if logr == nil {
-		return InternalErr(logr, c, "filesWaiting", ErrZap)
-	}
+func FilesWaiting(c echo.Context, page string) error {
 	uri := forApproval.String()
 	if !Valid(uri) {
-		return FilesErr(logr, c, uri)
+		return FilesErr(c, uri)
 	}
 	if page == "" {
-		return files(logr, c, uri, 1)
+		return files(c, uri, 1)
 	}
 	p, err := strconv.Atoi(page)
 	if err != nil {
-		return PageErr(logr, c, uri, page)
+		return PageErr(c, uri, page)
 	}
-	return files(logr, c, uri, p)
-}
-
-// ForbiddenErr is the handler for handling Forbidden Errors, caused by clients requesting
-// pages that they do not have permission to access.
-func ForbiddenErr(logr *zap.SugaredLogger, c echo.Context, uri string, err error) error {
-	const code = http.StatusForbidden
-	if logr == nil {
-		zapNil(err)
-	} else if err != nil {
-		logr.Errorf("%d error for %q: %s", code, uri, err)
-	}
-	useTextFallback := c == nil
-	if useTextFallback {
-		if logr == nil {
-			zapNil(fmt.Errorf("%w: internalerr", ErrCxt))
-		} else {
-			logr.Errorf("%s: %s", ErrTmpl, ErrCxt)
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app status", ErrCxt))
-	}
-	data := empty(c)
-	data["description"] = fmt.Sprintf("HTTP status %d error", code)
-	data["title"] = "403, forbidden"
-	data["code"] = code
-	data["logo"] = "Forbidden"
-	data["alert"] = "This page is locked"
-	data["probl"] = fmt.Sprintf("This page is not intended for the general public, %s.", err.Error())
-	data["uriErr"] = uri
-	if err := c.Render(code, "status", data); err != nil {
-		if logr != nil {
-			logr.Errorf("%s: %s", ErrTmpl, err)
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-	}
-	return nil
+	return files(c, uri, p)
 }
 
 // DemozooLink is the response from the task of GetDemozooFile.
@@ -484,11 +293,7 @@ type DemozooLink struct {
 // Both the Demozoo production ID param and the Defacto2 UUID query
 // param values are required as params to fetch the production data and
 // to save the file to the correct filename.
-func GetDemozooLink(logr *zap.SugaredLogger, c echo.Context, downloadDir string) error {
-	const name = "get/demozoo/download"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
+func GetDemozooLink(c echo.Context, downloadDir string) error {
 	got := DemozooLink{
 		Filename:  "",
 		FileSize:  0,
@@ -639,11 +444,8 @@ func (got DemozooLink) Update(c echo.Context) error {
 // the [Google ID token].
 //
 // [Google ID token]: https://developers.google.com/identity/gsi/web/guides/verify-google-id-token
-func GoogleCallback(logr *zap.SugaredLogger, c echo.Context, clientID string, maxAge int, accounts ...[48]byte) error {
+func GoogleCallback(c echo.Context, clientID string, maxAge int, accounts ...[48]byte) error {
 	const name = "google/callback"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 
 	// Cross-Site Request Forgery cookie token
 	const csrf = "g_csrf_token"
@@ -652,14 +454,14 @@ func GoogleCallback(logr *zap.SugaredLogger, c echo.Context, clientID string, ma
 		if errors.Is(err, http.ErrNoCookie) {
 			return c.Redirect(http.StatusForbidden, "/signin")
 		}
-		return BadRequestErr(logr, c, name, err)
+		return BadRequestErr(c, name, err)
 	}
 	token := cookie.Value
 
 	// Cross-Site Request Forgery post token
 	bodyToken := c.FormValue(csrf)
 	if token != bodyToken {
-		return BadRequestErr(logr, c, name, ErrMisMatch)
+		return BadRequestErr(c, name, ErrMisMatch)
 	}
 
 	// Create a new token verifier.
@@ -667,14 +469,14 @@ func GoogleCallback(logr *zap.SugaredLogger, c echo.Context, clientID string, ma
 	ctx := context.Background()
 	validator, err := idtoken.NewValidator(ctx)
 	if err != nil {
-		return BadRequestErr(logr, c, name, err)
+		return BadRequestErr(c, name, err)
 	}
 
 	// Verify the ID token and using the client ID from the Google API.
 	credential := c.FormValue("credential")
 	playload, err := validator.Validate(ctx, credential, clientID)
 	if err != nil {
-		return BadRequestErr(logr, c, name, err)
+		return BadRequestErr(c, name, err)
 	}
 
 	// Verify the sub value against the list of allowed accounts.
@@ -690,24 +492,21 @@ func GoogleCallback(logr *zap.SugaredLogger, c echo.Context, clientID string, ma
 	if !check {
 		fullname := playload.Claims["name"]
 		sub := playload.Claims["sub"]
-		return ForbiddenErr(logr, c, name,
+		return ForbiddenErr(c, name,
 			fmt.Errorf("%w %s. "+
 				"If this is a mistake, contact Defacto2 admin and give them this Google account ID: %s",
 				ErrUser, fullname, sub))
 	}
 
-	if err = sessionHandler(logr, c, maxAge, playload.Claims); err != nil {
-		return BadRequestErr(logr, c, name, err)
+	if err = sessionHandler(c, maxAge, playload.Claims); err != nil {
+		return BadRequestErr(c, name, err)
 	}
 	return c.Redirect(http.StatusFound, "/")
 }
 
 // History is the handler for the History page.
-func History(logr *zap.SugaredLogger, c echo.Context) error {
+func History(c echo.Context) error {
 	const name = "history"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	const lead = "In the past, alternative iterations of the name have included" +
 		" De Facto, DF, DeFacto, Defacto II, Defacto 2, and the defacto2.com domain."
 	const h1 = "The history of the brand"
@@ -720,17 +519,14 @@ func History(logr *zap.SugaredLogger, c echo.Context) error {
 	data["title"] = h1
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
 
 // Index is the handler for the Home page.
-func Index(logr *zap.SugaredLogger, c echo.Context) error {
+func Index(c echo.Context) error {
 	const name = "index"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	const lead = "the website preserving the historic PC cracking scene subculture. " +
 		"It covers digital artifacts including text files, demos, music, art, " +
 		"magazines, and other projects."
@@ -753,70 +549,27 @@ func Index(logr *zap.SugaredLogger, c echo.Context) error {
 	}
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
 
 // Inline is the handler for the Download file record page.
-func Inline(logr *zap.SugaredLogger, c echo.Context, path string) error {
+func Inline(c echo.Context, logger *zap.SugaredLogger, path string) error {
 	d := download.Download{
 		Inline: true,
 		Path:   path,
 	}
-	err := d.HTTPSend(logr, c)
+	err := d.HTTPSend(c, logger)
 	if err != nil {
-		return DownloadErr(logr, c, "v", err)
-	}
-	return nil
-}
-
-// InternalErr is the handler for handling Internal Server Errors, caused by programming bugs or crashes.
-// The uri string is the part of the URL that caused the error.
-// The optional error value is logged using the zap sugared logger.
-// If the zap logger is nil then the error page is returned but no error is logged.
-// If the echo context is nil then a user hostile, fallback error in raw text is returned.
-func InternalErr(logr *zap.SugaredLogger, c echo.Context, uri string, err error) error {
-	const code = http.StatusInternalServerError
-	if logr == nil {
-		zapNil(err)
-	} else if err != nil {
-		logr.Errorf("%d error for %q: %s", code, uri, err)
-	}
-	useTextFallback := c == nil
-	if useTextFallback {
-		if logr == nil {
-			zapNil(fmt.Errorf("%w: internalerr", ErrCxt))
-		} else {
-			logr.Errorf("%s: %s", ErrTmpl, ErrCxt)
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app status", ErrCxt))
-	}
-	data := empty(c)
-	data["description"] = fmt.Sprintf("HTTP status %d error", code)
-	data["title"] = "500 error, there is a complication"
-	data["code"] = code
-	data["logo"] = "Server error"
-	data["alert"] = "Something crashed!"
-	data["probl"] = "This is not your fault," +
-		" but the server encountered an internal error or misconfiguration and cannot display this page."
-	data["uriErr"] = uri
-	if err := c.Render(code, "status", data); err != nil {
-		if logr != nil {
-			logr.Errorf("%s: %s", ErrTmpl, err)
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		return DownloadErr(c, "v", err)
 	}
 	return nil
 }
 
 // Interview is the handler for the People Interviews page.
-func Interview(logr *zap.SugaredLogger, c echo.Context) error {
+func Interview(c echo.Context) error {
 	const title, name = "Interviews with sceners", "interview"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	data := empty(c)
 	data["title"] = title
 	data["description"] = "Discussions with scene members."
@@ -827,41 +580,38 @@ func Interview(logr *zap.SugaredLogger, c echo.Context) error {
 	data["interviews"] = Interviewees()
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
 
 // Magazine is the handler for the Magazine page.
-func Magazine(logr *zap.SugaredLogger, c echo.Context) error {
-	return magazines(logr, c, true)
+func Magazine(c echo.Context) error {
+	return magazines(c, true)
 }
 
 // MagazineAZ is the handler for the Magazine page ordered chronologically.
-func MagazineAZ(logr *zap.SugaredLogger, c echo.Context) error {
-	return magazines(logr, c, false)
+func MagazineAZ(c echo.Context) error {
+	return magazines(c, false)
 }
 
 // Musician is the handler for the Musiciansceners page.
-func Musician(logr *zap.SugaredLogger, c echo.Context) error {
+func Musician(c echo.Context) error {
 	data := empty(c)
 	title := "Musicians and composers"
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
 	data["description"] = demo
-	return scener(logr, c, postgres.Musician, data)
+	return scener(c, postgres.Musician, data)
 }
 
 // PageErr renders the files page error page for the Files menu and categories.
 // It provides different error messages to the standard error page.
-func PageErr(logr *zap.SugaredLogger, c echo.Context, uri, page string) error {
+func PageErr(c echo.Context, uri, page string) error {
 	const name = "status"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	if c == nil {
-		return InternalErr(logr, c, name, ErrCxt)
+		return InternalErr(c, name, ErrCxt)
 	}
 	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, files page not found", http.StatusNotFound)
@@ -874,18 +624,13 @@ func PageErr(logr *zap.SugaredLogger, c echo.Context, uri, page string) error {
 	data["uriErr"] = page
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
 
 // PlatformEdit handles the post submission for the Platform selection field.
-func PlatformEdit(logr *zap.SugaredLogger, c echo.Context) error {
-	const name = "editor platform"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
-
+func PlatformEdit(c echo.Context) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
@@ -901,11 +646,7 @@ func PlatformEdit(logr *zap.SugaredLogger, c echo.Context) error {
 }
 
 // PlatformTagInfo handles the POST submission for the platform and tag info.
-func PlatformTagInfo(logr *zap.SugaredLogger, c echo.Context) error {
-	const name = "editor platform tag info"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
+func PlatformTagInfo(c echo.Context) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
@@ -918,25 +659,22 @@ func PlatformTagInfo(logr *zap.SugaredLogger, c echo.Context) error {
 }
 
 // PostIntro handles the POST request for the intro upload form.
-func PostIntro(logr *zap.SugaredLogger, c echo.Context) error {
+func PostIntro(c echo.Context) error {
 	const name = "post intro"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	x, err := c.FormParams()
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return c.JSON(http.StatusOK, x)
 }
 
 // PostDesc is the handler for the Search for file descriptions form post page.
-func PostDesc(logr *zap.SugaredLogger, c echo.Context, input string) error {
+func PostDesc(c echo.Context, input string) error {
 	const name = "files"
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return DatabaseErr(logr, c, name, err)
+		return DatabaseErr(c, name, err)
 	}
 	defer db.Close()
 
@@ -956,23 +694,23 @@ func PostDesc(logr *zap.SugaredLogger, c echo.Context, input string) error {
 	data["stats"] = d
 	err = c.Render(http.StatusOK, "files", data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
 
 // PostFilename is the handler for the Search for filenames form post page.
-func PostFilename(logr *zap.SugaredLogger, c echo.Context) error {
-	return PostName(logr, c, Filenames)
+func PostFilename(c echo.Context) error {
+	return PostName(c, Filenames)
 }
 
 // PostName is the handler for the Search for filenames form post page.
-func PostName(logr *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
+func PostName(c echo.Context, mode FileSearch) error {
 	const name = "files"
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return DatabaseErr(logr, c, name, err)
+		return DatabaseErr(c, name, err)
 	}
 	defer db.Close()
 
@@ -994,7 +732,7 @@ func PostName(logr *zap.SugaredLogger, c echo.Context, mode FileSearch) error {
 	data["stats"] = d
 	err = c.Render(http.StatusOK, "files", data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
@@ -1040,11 +778,7 @@ func PouetCache(c echo.Context, data string) error {
 }
 
 // ProdPouet is the handler for the Pouet prod JSON page.
-func ProdPouet(logr *zap.SugaredLogger, c echo.Context, id string) error {
-	const name = "pouet"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
+func ProdPouet(c echo.Context, id string) error {
 	p := pouet.Production{}
 	i, err := strconv.Atoi(id)
 	if err != nil {
@@ -1060,11 +794,7 @@ func ProdPouet(logr *zap.SugaredLogger, c echo.Context, id string) error {
 }
 
 // ProdZoo is the handler for the Demozoo production JSON page.
-func ProdZoo(logr *zap.SugaredLogger, c echo.Context, id string) error {
-	const name = "demozoo"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
+func ProdZoo(c echo.Context, id string) error {
 	prod := demozoo.Production{}
 	i, err := strconv.Atoi(id)
 	if err != nil {
@@ -1080,11 +810,8 @@ func ProdZoo(logr *zap.SugaredLogger, c echo.Context, id string) error {
 }
 
 // Interview is the handler for the People Interviews page.
-func Reader(logr *zap.SugaredLogger, c echo.Context) error {
+func Reader(c echo.Context) error {
 	const title, name = "Textfile reader", "reader"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	data := empty(c)
 	data["title"] = title
 	data["description"] = "Discussions with scene members."
@@ -1095,18 +822,13 @@ func Reader(logr *zap.SugaredLogger, c echo.Context) error {
 	data["interviews"] = Interviewees()
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
 
 // ReadmeDel handles the post submission for the Delete readme asset button.
-func ReadmeDel(logr *zap.SugaredLogger, c echo.Context, downloadDir string) error {
-	const name = "editor readme delete"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
-
+func ReadmeDel(c echo.Context, downloadDir string) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
@@ -1122,10 +844,10 @@ func ReadmeDel(logr *zap.SugaredLogger, c echo.Context, downloadDir string) erro
 }
 
 // ReadmePost handles the post submission for the Readme in archive.
-func ReadmePost(logr *zap.SugaredLogger, c echo.Context, downloadDir string) error {
+func ReadmePost(c echo.Context, logger *zap.SugaredLogger, downloadDir string) error {
 	const name = "editor readme"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
+	if logger == nil {
+		return InternalErr(c, name, ErrZap)
 	}
 
 	var f Form
@@ -1155,7 +877,7 @@ func ReadmePost(logr *zap.SugaredLogger, c echo.Context, downloadDir string) err
 	src := filepath.Join(downloadDir, r.UUID.String)
 	dst := filepath.Join(downloadDir, r.UUID.String+txt)
 	ext := filepath.Ext(strings.ToLower(r.Filename.String))
-	err = command.ExtractOne(logr, src, dst, ext, target)
+	err = command.ExtractOne(logger, src, dst, ext, target)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -1163,12 +885,7 @@ func ReadmePost(logr *zap.SugaredLogger, c echo.Context, downloadDir string) err
 }
 
 // ReadmeToggle handles the post submission for the Hide readme from view toggle.
-func ReadmeToggle(logr *zap.SugaredLogger, c echo.Context) error {
-	const name = "editor readme toggle"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
-
+func ReadmeToggle(c echo.Context) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
@@ -1180,12 +897,7 @@ func ReadmeToggle(logr *zap.SugaredLogger, c echo.Context) error {
 }
 
 // RecordToggle handles the post submission for the File artifact is online and public toggle.
-func RecordToggle(logr *zap.SugaredLogger, c echo.Context, state bool) error {
-	const name = "editor record toggle"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
-
+func RecordToggle(c echo.Context, state bool) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
@@ -1417,28 +1129,25 @@ func records2(ctx context.Context, db *sql.DB, uri string, page, limit int) (mod
 }
 
 // Releaser is the handler for the releaser page ordered by the most files.
-func Releaser(logr *zap.SugaredLogger, c echo.Context) error {
-	return releasers(logr, c, model.Prolific)
+func Releaser(c echo.Context) error {
+	return releasers(c, model.Prolific)
 }
 
 // ReleaserAZ is the handler for the releaser page ordered alphabetically.
-func ReleaserAZ(logr *zap.SugaredLogger, c echo.Context) error {
-	return releasers(logr, c, model.Alphabetical)
+func ReleaserAZ(c echo.Context) error {
+	return releasers(c, model.Alphabetical)
 }
 
 // ReleaserYear is the handler for the releaser page ordered by year of the first release.
-func ReleaserYear(logr *zap.SugaredLogger, c echo.Context) error {
-	return releasers(logr, c, model.Oldest)
+func ReleaserYear(c echo.Context) error {
+	return releasers(c, model.Oldest)
 }
 
 // ReleaserErr renders the files error page for the Groups menu and invalid releasers.
-func ReleaserErr(logr *zap.SugaredLogger, c echo.Context, id string) error {
+func ReleaserErr(c echo.Context, id string) error {
 	const name = "status"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	if c == nil {
-		return InternalErr(logr, c, name, ErrCxt)
+		return InternalErr(c, name, ErrCxt)
 	}
 	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, releaser page not found", http.StatusNotFound)
@@ -1451,18 +1160,13 @@ func ReleaserErr(logr *zap.SugaredLogger, c echo.Context, id string) error {
 	data["uriErr"] = id
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
 
 // ReleaserEdit handles the post submission for the Platform selection field.
-func ReleaserEdit(logr *zap.SugaredLogger, c echo.Context) error {
-	const name = "editor releasers"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
-
+func ReleaserEdit(c echo.Context) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
@@ -1478,15 +1182,13 @@ func ReleaserEdit(logr *zap.SugaredLogger, c echo.Context) error {
 }
 
 // Releasers is the handler for the list and preview of files credited to a releaser.
-func Releasers(logr *zap.SugaredLogger, c echo.Context, uri string) error {
+func Releasers(c echo.Context, uri string) error {
 	const name = "files"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
+
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	defer db.Close()
 
@@ -1494,10 +1196,10 @@ func Releasers(logr *zap.SugaredLogger, c echo.Context, uri string) error {
 	rel := model.Releasers{}
 	fs, err := rel.List(ctx, db, uri)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	if len(fs) == 0 {
-		return ReleaserErr(logr, c, uri)
+		return ReleaserErr(c, uri)
 	}
 	data := emptyFiles(c)
 	data["title"] = "Files for " + s
@@ -1521,12 +1223,12 @@ func Releasers(logr *zap.SugaredLogger, c echo.Context, uri string) error {
 	}
 	d, err := releaserSum(ctx, db, uri)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	data["stats"] = d
 	err = c.Render(http.StatusOK, "files", data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
@@ -1548,24 +1250,21 @@ func releaserSum(ctx context.Context, db *sql.DB, uri string) (map[string]string
 }
 
 // Scener is the handler for the page to list all the sceners.
-func Scener(logr *zap.SugaredLogger, c echo.Context) error {
+func Scener(c echo.Context) error {
 	data := empty(c)
 	title := "Sceners, the people of The Scene"
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
 	data["description"] = demo
-	return scener(logr, c, postgres.Roles(), data)
+	return scener(c, postgres.Roles(), data)
 }
 
 // ScenerErr renders the files error page for the People menu and invalid sceners.
-func ScenerErr(logr *zap.SugaredLogger, c echo.Context, id string) error {
+func ScenerErr(c echo.Context, id string) error {
 	const name = "status"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	if c == nil {
-		return InternalErr(logr, c, name, ErrCxt)
+		return InternalErr(c, name, ErrCxt)
 	}
 	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, scener page not found", http.StatusNotFound)
@@ -1578,21 +1277,18 @@ func ScenerErr(logr *zap.SugaredLogger, c echo.Context, id string) error {
 	data["uriErr"] = id
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
 
 // Sceners is the handler for the list and preview of files credited to a scener.
-func Sceners(logr *zap.SugaredLogger, c echo.Context, uri string) error {
+func Sceners(c echo.Context, uri string) error {
 	const name = "files"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	defer db.Close()
 
@@ -1600,10 +1296,10 @@ func Sceners(logr *zap.SugaredLogger, c echo.Context, uri string) error {
 	var rel model.Scener
 	fs, err := rel.List(ctx, db, uri)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	if len(fs) == 0 {
-		return ScenerErr(logr, c, uri)
+		return ScenerErr(c, uri)
 	}
 	data := emptyFiles(c)
 	data["title"] = s + attr
@@ -1615,22 +1311,19 @@ func Sceners(logr *zap.SugaredLogger, c echo.Context, uri string) error {
 	data[records] = fs
 	d, err := scenerSum(ctx, db, uri)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	data["stats"] = d
 	err = c.Render(http.StatusOK, "files", data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
 
 // SearchDesc is the handler for the Search for file descriptions page.
-func SearchDesc(logr *zap.SugaredLogger, c echo.Context) error {
+func SearchDesc(c echo.Context) error {
 	const title, name = "Search titles and descriptions", "searchPost"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	data := empty(c)
 	data["description"] = "Search form to scan through file descriptions."
 	data["logo"] = title
@@ -1638,17 +1331,14 @@ func SearchDesc(logr *zap.SugaredLogger, c echo.Context) error {
 	data["info"] = "search the metadata descriptions of file artifacts"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
 
 // SearchFile is the handler for the Search for files page.
-func SearchFile(logr *zap.SugaredLogger, c echo.Context) error {
+func SearchFile(c echo.Context) error {
 	const title, name = "Search for filenames", "searchPost"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	data := empty(c)
 	data["description"] = "Search form to discover files."
 	data["logo"] = title
@@ -1656,17 +1346,14 @@ func SearchFile(logr *zap.SugaredLogger, c echo.Context) error {
 	data["info"] = "search for filenames or extensions"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
 
 // SearchReleaser is the handler for the Releaser Search page.
-func SearchReleaser(logr *zap.SugaredLogger, c echo.Context) error {
+func SearchReleaser(c echo.Context) error {
 	const title, name = "Search for releasers", "searchHtmx"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	data := empty(c)
 	data["description"] = "Search form to discover releasers."
 	data["logo"] = title
@@ -1674,59 +1361,50 @@ func SearchReleaser(logr *zap.SugaredLogger, c echo.Context) error {
 	data["info"] = "search for a group, initialism, magazine, board, or site"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
 
 // SignedOut is the handler to sign out and remove the current session.
-func SignedOut(logr *zap.SugaredLogger, c echo.Context) error {
+func SignedOut(c echo.Context) error {
 	const name = "signedout"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	{ // get any existing session
 		sess, err := session.Get(sess.Name, c)
 		if err != nil {
-			return BadRequestErr(logr, c, name, err)
+			return BadRequestErr(c, name, err)
 		}
 		id, ok := sess.Values["sub"]
 		if !ok || id == "" {
-			return ForbiddenErr(logr, c, name, ErrSession)
+			return ForbiddenErr(c, name, ErrSession)
 		}
 		const remove = -1
 		sess.Options.MaxAge = remove
 		err = sess.Save(c.Request(), c.Response())
 		if err != nil {
-			return InternalErr(logr, c, name, err)
+			return InternalErr(c, name, err)
 		}
 	}
 	return c.Redirect(http.StatusFound, "/")
 }
 
 // SignOut is the handler for the Sign out of Defacto2 page.
-func SignOut(logr *zap.SugaredLogger, c echo.Context) error {
+func SignOut(c echo.Context) error {
 	const name = "signout"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	data := empty(c)
 	data["title"] = "Sign out"
 	data["description"] = "Sign out of Defacto2."
 	data["h1"] = "Sign out"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
 
 // Signin is the handler for the Sign in session page.
-func Signin(logr *zap.SugaredLogger, c echo.Context, clientID, nonce string) error {
+func Signin(c echo.Context, clientID, nonce string) error {
 	const name = "signin"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	data := empty(c)
 	data["title"] = "Sign in"
 	data["description"] = "Sign in to Defacto2."
@@ -1738,20 +1416,20 @@ func Signin(logr *zap.SugaredLogger, c echo.Context, clientID, nonce string) err
 	{ // get any existing session
 		sess, err := session.Get(sess.Name, c)
 		if err != nil {
-			return remove(logr, c, name, data)
+			return remove(c, name, data)
 		}
 		id, ok := sess.Values["sub"]
 		if !ok {
-			return remove(logr, c, name, data)
+			return remove(c, name, data)
 		}
 		idStr, ok := id.(string)
 		if ok && idStr != "" {
-			return SignOut(logr, c)
+			return SignOut(c)
 		}
 	}
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
@@ -1761,75 +1439,8 @@ func Statistics() Stats {
 	return Stats{}
 }
 
-// StatusErr is the handler for the HTTP status pages such as the 404 - not found.
-// If the zap logger is nil then the error page is returned but no error is logged.
-// If the echo context is nil then a user hostile, fallback error in raw text is returned.
-func StatusErr(logr *zap.SugaredLogger, c echo.Context, code int, uri string) error {
-	if logr == nil {
-		zapNil(fmt.Errorf("%w: statuserr", ErrZap))
-	}
-	useTextFallback := c == nil
-	if useTextFallback {
-		if logr == nil {
-			zapNil(fmt.Errorf("%w: statuserr", ErrCxt))
-		} else {
-			logr.Errorf("%s: %s", ErrTmpl, ErrCxt)
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app status", ErrCxt))
-	}
-	data := empty(c)
-	data["description"] = fmt.Sprintf("HTTP status %d error", code)
-	var title, alert, logo, probl string
-	switch code {
-	case http.StatusNotFound:
-		title = "404 error, page not found"
-		logo = "Page not found"
-		alert = "The page cannot be found"
-		probl = "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable."
-	case http.StatusForbidden:
-		title = "403 error, forbidden"
-		logo = "Forbidden"
-		alert = "The page is locked"
-		probl = "You don't have permission to access this resource."
-	case http.StatusInternalServerError:
-		return InternalErr(logr, c, uri, nil)
-	default:
-		s := http.StatusText(code)
-		if s == "" {
-			err := fmt.Errorf("%w: %d", ErrCode, code)
-			if logr != nil {
-				logr.Error(err)
-			}
-			return echo.NewHTTPError(http.StatusInternalServerError, err)
-		}
-		title = fmt.Sprintf("%d error, %s", code, s)
-		logo = s
-		alert = s
-		probl = fmt.Sprintf("%d error, %s", code, s)
-	}
-	data["title"] = title
-	data["code"] = code
-	data["logo"] = logo
-	data["alert"] = alert
-	data["probl"] = probl
-	data["uriErr"] = uri
-	if err := c.Render(code, "status", data); err != nil {
-		if logr != nil {
-			logr.Errorf("%s: %s", ErrTmpl, err)
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
-	}
-	return nil
-}
-
 // TagEdit handles the post submission for the Tag selection field.
-func TagEdit(logr *zap.SugaredLogger, c echo.Context) error {
-	const name = "editor tag"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
-
+func TagEdit(c echo.Context) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
@@ -1845,11 +1456,7 @@ func TagEdit(logr *zap.SugaredLogger, c echo.Context) error {
 }
 
 // TagInfo handles the POST submission for the platform and tag info.
-func TagInfo(logr *zap.SugaredLogger, c echo.Context) error {
-	const name = "editor tag info"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
+func TagInfo(c echo.Context) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
@@ -1862,11 +1469,8 @@ func TagInfo(logr *zap.SugaredLogger, c echo.Context) error {
 }
 
 // Thanks is the handler for the Thanks page.
-func Thanks(logr *zap.SugaredLogger, c echo.Context) error {
+func Thanks(c echo.Context) error {
 	const name = "thanks"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	data := empty(c)
 	data["description"] = "Defacto2 thankyous."
 	data["h1"] = "Thank you!"
@@ -1876,17 +1480,14 @@ func Thanks(logr *zap.SugaredLogger, c echo.Context) error {
 	data["title"] = "Thanks!"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
 
 // TheScene is the handler for the The Scene page.
-func TheScene(logr *zap.SugaredLogger, c echo.Context) error {
+func TheScene(c echo.Context) error {
 	const name = "thescene"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	const h1 = "The Scene?"
 	const lead = "Collectively referred to as The Scene," +
 		" it is a subculture of different computer activities where participants" +
@@ -1899,18 +1500,13 @@ func TheScene(logr *zap.SugaredLogger, c echo.Context) error {
 	data["title"] = h1
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
 
 // TitleEdit handles the post submission for the Delete readme asset button.
-func TitleEdit(logr *zap.SugaredLogger, c echo.Context) error {
-	const name = "editor title"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
-
+func TitleEdit(c echo.Context) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
@@ -1926,10 +1522,10 @@ func TitleEdit(logr *zap.SugaredLogger, c echo.Context) error {
 }
 
 // VotePouet is the handler for the Pouet production votes JSON page.
-func VotePouet(logr *zap.SugaredLogger, c echo.Context, id string) error {
+func VotePouet(c echo.Context, logger *zap.SugaredLogger, id string) error {
 	const title, name, sep = "Pouet", "pouet", ";"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
+	if logger == nil {
+		return InternalErr(c, name, ErrZap)
 	}
 	pv := pouet.Votes{}
 	i, err := strconv.Atoi(id)
@@ -1940,11 +1536,11 @@ func VotePouet(logr *zap.SugaredLogger, c echo.Context, id string) error {
 	cp := cache.Pouet
 	if s, err := cp.Read(id); err == nil {
 		if err := PouetCache(c, s); err == nil {
-			logr.Debugf("cache hit for pouet id %s", id)
+			logger.Debugf("cache hit for pouet id %s", id)
 			return nil
 		}
 	}
-	logr.Debugf("cache miss for pouet id %s", id)
+	logger.Debugf("cache miss for pouet id %s", id)
 
 	if err = pv.Votes(i); err != nil {
 		return c.String(http.StatusNotFound, err.Error())
@@ -1957,18 +1553,15 @@ func VotePouet(logr *zap.SugaredLogger, c echo.Context, id string) error {
 	val := fmt.Sprintf("%.1f%s%d%s%d%s%d",
 		pv.Stars, sep, pv.VotesDown, sep, pv.VotesUp, sep, pv.VotesMeh)
 	if err := cp.Write(id, val, cache.ExpiredAt); err != nil {
-		logr.Errorf("failed to write pouet id %s to cache db: %s", id, err)
+		logger.Errorf("failed to write pouet id %s to cache db: %s", id, err)
 	}
 	return nil
 }
 
 // Website is the handler for the websites page.
 // Open is the ID of the accordion section to open.
-func Website(logr *zap.SugaredLogger, c echo.Context, open string) error {
+func Website(c echo.Context, open string) error {
 	const name = "websites"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	data := empty(c)
 	data["title"] = "Websites"
 	const logo = "Videos, Books, Films, Sites, Podcasts"
@@ -1991,26 +1584,26 @@ func Website(logr *zap.SugaredLogger, c echo.Context, open string) error {
 	}
 	// If a section was requested but not found, return a 404.
 	if open != "hide" && closeAll {
-		return StatusErr(logr, c, http.StatusNotFound, open)
+		return StatusErr(c, http.StatusNotFound, open)
 	}
 	// Render the page.
 	data["accordion"] = acc
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
 
 // Writer is the handler for the Writer page.
-func Writer(logr *zap.SugaredLogger, c echo.Context) error {
+func Writer(c echo.Context) error {
 	data := empty(c)
 	title := "Writers, editors and authors"
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
 	data["description"] = demo
-	return scener(logr, c, postgres.Writer, data)
+	return scener(c, postgres.Writer, data)
 }
 
 // FileSearch is the type of search to perform.
@@ -2123,11 +1716,8 @@ func (s *Stats) get(ctx context.Context, db *sql.DB) error {
 }
 
 // bbsHandler is the handler for the BBS page.
-func bbsHandler(logr *zap.SugaredLogger, c echo.Context, orderBy model.OrderBy) error {
+func bbsHandler(c echo.Context, orderBy model.OrderBy) error {
 	const title, name = "BBS", "bbs"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	const lead = "Bulletin Board Systems are historical, " +
 		"networked personal computer servers connected using the landline telephone network and provide forums, " +
 		"real-time chat, mail, and file sharing for The Scene \"elites.\""
@@ -2146,12 +1736,12 @@ func bbsHandler(logr *zap.SugaredLogger, c echo.Context, orderBy model.OrderBy) 
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	defer db.Close()
 	r := model.Releasers{}
 	if err := r.BBS(ctx, db, orderBy); err != nil {
-		return DatabaseErr(logr, c, name, err)
+		return DatabaseErr(c, name, err)
 	}
 	data[key] = r
 	tmpl := name
@@ -2178,7 +1768,7 @@ func bbsHandler(logr *zap.SugaredLogger, c echo.Context, orderBy model.OrderBy) 
 
 	err = c.Render(http.StatusOK, tmpl, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
@@ -2251,7 +1841,7 @@ func fileWStats(data map[string]interface{}, stats bool) (map[string]interface{}
 }
 
 // files is a helper function for Files that returns the data map for the files page.
-func files(logr *zap.SugaredLogger, c echo.Context, uri string, page int) error {
+func files(c echo.Context, uri string, page int) error {
 	const title, name = "Files", "files"
 	logo, h1sub, lead := fileInfo(uri)
 	data := emptyFiles(c)
@@ -2276,23 +1866,23 @@ func files(logr *zap.SugaredLogger, c echo.Context, uri string, page int) error 
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	defer db.Close()
 	r, err := Records(ctx, db, uri, page, limit)
 	if err != nil {
-		return DatabaseErr(logr, c, name, err)
+		return DatabaseErr(c, name, err)
 	}
 	data[records] = r
 	d, sum, err := stats(ctx, db, uri)
 	if err != nil {
-		return DatabaseErr(logr, c, name, err)
+		return DatabaseErr(c, name, err)
 	}
 	data["stats"] = d
 	lastPage := math.Ceil(float64(sum) / float64(limit))
 	if page > int(lastPage) {
 		i := strconv.Itoa(page)
-		return PageErr(logr, c, uri, i)
+		return PageErr(c, uri, i)
 	}
 	const pages = 2
 	data["Pagination"] = model.Pagination{
@@ -2307,7 +1897,7 @@ func files(logr *zap.SugaredLogger, c echo.Context, uri string, page int) error 
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
@@ -2326,11 +1916,8 @@ func steps(lastPage float64) int {
 }
 
 // magazines is the handler for the magazine page.
-func magazines(logr *zap.SugaredLogger, c echo.Context, chronological bool) error {
+func magazines(c echo.Context, chronological bool) error {
 	const title, name = "Magazines", "magazine"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	data := empty(c)
 	const lead = "The magazines are newsletters, reports, and publications about activities within The Scene subculture."
 	const issue = "issue"
@@ -2347,7 +1934,7 @@ func magazines(logr *zap.SugaredLogger, c echo.Context, chronological bool) erro
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	defer db.Close()
 	var order string
@@ -2355,14 +1942,14 @@ func magazines(logr *zap.SugaredLogger, c echo.Context, chronological bool) erro
 	switch chronological {
 	case true:
 		if err := r.Magazine(ctx, db); err != nil {
-			return DatabaseErr(logr, c, name, err)
+			return DatabaseErr(c, name, err)
 		}
 		s := title + byyear
 		data["logo"] = s
 		order = year
 	case false:
 		if err := r.MagazineAZ(ctx, db); err != nil {
-			return DatabaseErr(logr, c, name, err)
+			return DatabaseErr(c, name, err)
 		}
 		s := title + az
 		data["logo"] = s
@@ -2375,7 +1962,7 @@ func magazines(logr *zap.SugaredLogger, c echo.Context, chronological bool) erro
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
@@ -2413,7 +2000,7 @@ func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string
 }
 
 // remove is a helper function to remove the session cookie by setting the MaxAge to -1.
-func remove(logr *zap.SugaredLogger, c echo.Context, name string, data map[string]interface{}) error {
+func remove(c echo.Context, name string, data map[string]interface{}) error {
 	sess, err := session.Get(sess.Name, c)
 	if err != nil {
 		const remove = -1
@@ -2422,7 +2009,7 @@ func remove(logr *zap.SugaredLogger, c echo.Context, name string, data map[strin
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
@@ -2444,18 +2031,15 @@ func scenerSum(ctx context.Context, db *sql.DB, uri string) (map[string]string, 
 }
 
 // scener is the handler for the scener pages.
-func scener(logr *zap.SugaredLogger, c echo.Context, r postgres.Role,
+func scener(c echo.Context, r postgres.Role,
 	data map[string]interface{},
 ) error {
 	const name = "scener"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	s := model.Sceners{}
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	switch r {
 	case postgres.Writer:
@@ -2470,7 +2054,7 @@ func scener(logr *zap.SugaredLogger, c echo.Context, r postgres.Role,
 		err = s.All(ctx, db)
 	}
 	if err != nil {
-		return DatabaseErr(logr, c, name, err)
+		return DatabaseErr(c, name, err)
 	}
 	data["sceners"] = s.Sort()
 	data["description"] = "Sceners and people who have been credited for their work in The Scene."
@@ -2483,7 +2067,7 @@ func scener(logr *zap.SugaredLogger, c echo.Context, r postgres.Role,
 		"</small>"
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	return nil
 }
@@ -2494,14 +2078,9 @@ func scener(logr *zap.SugaredLogger, c echo.Context, r postgres.Role,
 // [new session]: https://pkg.go.dev/github.com/gorilla/sessions
 // [ID Tokens for Google HTTP APIs]: https://pkg.go.dev/google.golang.org/api/idtoken
 func sessionHandler(
-	logr *zap.SugaredLogger,
 	c echo.Context, maxAge int,
 	claims map[string]interface{},
 ) error {
-	const name = "google/callback"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	session, err := session.Get(sess.Name, c)
 	if err != nil {
 		return err
@@ -2577,11 +2156,8 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 }
 
 // releasers is the handler for the Releaser page.
-func releasers(logr *zap.SugaredLogger, c echo.Context, orderBy model.OrderBy) error {
+func releasers(c echo.Context, orderBy model.OrderBy) error {
 	const title, name = "Releaser", "releaser"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
 	data := empty(c)
 	const lead = "A releaser is a brand or a collective group of sceners responsible for releasing or distributing products."
 	const logo = "Groups and releasers"
@@ -2598,12 +2174,12 @@ func releasers(logr *zap.SugaredLogger, c echo.Context, orderBy model.OrderBy) e
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return InternalErr(logr, c, name, err)
+		return InternalErr(c, name, err)
 	}
 	defer db.Close()
 	var r model.Releasers
 	if err := r.All(ctx, db, orderBy, 0, 0); err != nil {
-		return DatabaseErr(logr, c, name, err)
+		return DatabaseErr(c, name, err)
 	}
 	data[key] = r
 	tmpl := name
@@ -2629,12 +2205,7 @@ func releasers(logr *zap.SugaredLogger, c echo.Context, orderBy model.OrderBy) e
 	}
 	err = c.Render(http.StatusOK, tmpl, data)
 	if err != nil {
-		return InternalErr(logr, c, tmpl, err)
+		return InternalErr(c, tmpl, err)
 	}
 	return nil
-}
-
-// zapNil is a helper function to log an error when the zap logger is nil.
-func zapNil(err error) {
-	log.Println(fmt.Errorf("cannot log the following error: %w", err))
 }

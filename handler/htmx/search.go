@@ -14,12 +14,12 @@ import (
 )
 
 // SearchReleaser is a handler for the /search/releaser route.
-func SearchReleaser(logr *zap.SugaredLogger, c echo.Context) error {
+func SearchReleaser(logger *zap.SugaredLogger, c echo.Context) error {
 	const maxResults = 14
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		logr.Error(err)
+		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
 			"cannot connect to the database")
 	}
@@ -42,7 +42,7 @@ func SearchReleaser(logr *zap.SugaredLogger, c echo.Context) error {
 	lookup = append(lookup, slug)
 	var r model.Releasers
 	if err := r.Similar(ctx, db, maxResults, lookup...); err != nil {
-		logr.Error(err)
+		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
 			"the search query failed")
 	}
@@ -61,12 +61,12 @@ func SearchReleaser(logr *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
-func DataListReleasers(logr *zap.SugaredLogger, c echo.Context, input string) error {
+func DataListReleasers(logger *zap.SugaredLogger, c echo.Context, input string) error {
 	const maxResults = 14
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		logr.Error(err)
+		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
 			"cannot connect to the database")
 	}
@@ -88,7 +88,7 @@ func DataListReleasers(logr *zap.SugaredLogger, c echo.Context, input string) er
 	lookup = append(lookup, slug)
 	var r model.Releasers
 	if err := r.Similar(ctx, db, maxResults, lookup...); err != nil {
-		logr.Error(err)
+		logger.Error(err)
 		return c.String(http.StatusOK, "")
 	}
 	if len(r) == 0 {

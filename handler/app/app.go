@@ -22,7 +22,6 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
 	"github.com/volatiletech/null/v8"
-	"go.uber.org/zap"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
@@ -1084,12 +1083,7 @@ func websiteIcon(url string) string {
 }
 
 // YMDEdit handles the post submission for the Year, Month, Day selection fields.
-func YMDEdit(logr *zap.SugaredLogger, c echo.Context) error {
-	const name = "editor ymd"
-	if logr == nil {
-		return InternalErr(logr, c, name, ErrZap)
-	}
-
+func YMDEdit(c echo.Context) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)

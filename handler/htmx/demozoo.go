@@ -132,8 +132,8 @@ func DemozooValid(c echo.Context, id int) (demozoo.Production, error) {
 // This will attempt to insert a new file record into the database using
 // the Demozoo production ID. If the Demozoo production ID is already in
 // use, an error message is returned.
-func DemozooSubmit(logr *zap.SugaredLogger, c echo.Context) error {
-	if logr == nil {
+func DemozooSubmit(logger *zap.SugaredLogger, c echo.Context) error {
+	if logger == nil {
 		return c.String(http.StatusInternalServerError,
 			"error, demozoo submit logger is nil")
 	}
@@ -166,7 +166,7 @@ func DemozooSubmit(logr *zap.SugaredLogger, c echo.Context) error {
 
 	key, err := model.InsertDemozooFile(ctx, db, int64(id))
 	if err != nil || key == 0 {
-		logr.Error(err, id)
+		logger.Error(err, id)
 		return c.String(http.StatusServiceUnavailable,
 			"error, the database insert failed")
 	}
