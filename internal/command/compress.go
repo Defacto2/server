@@ -30,8 +30,8 @@ import (
 // [compression methods]: https://www.hanshq.net/zip.html
 //
 // [unzip]: https://sourceforge.net/projects/infozip
-func ExtractOne(logr *zap.SugaredLogger, src, dst, extHint, name string) error {
-	if logr == nil {
+func ExtractOne(logger *zap.SugaredLogger, src, dst, extHint, name string) error {
+	if logger == nil {
 		return ErrZap
 	}
 
@@ -52,7 +52,7 @@ func ExtractOne(logr *zap.SugaredLogger, src, dst, extHint, name string) error {
 	}
 	defer os.RemoveAll(tmp)
 
-	r := runner{src: src, tmp: tmp, name: name, logr: logr}
+	r := runner{src: src, tmp: tmp, name: name, logger: logger}
 	if err = r.extract(extHint); err != nil {
 		return err
 	}
@@ -69,14 +69,14 @@ func ExtractOne(logr *zap.SugaredLogger, src, dst, extHint, name string) error {
 		return fmt.Errorf("%w: %q", ErrEmpty, extracted)
 	}
 
-	return CopyFile(logr, extracted, dst)
+	return CopyFile(logger, extracted, dst)
 }
 
 type runner struct {
-	src  string // src is the absolute path to the source archive.
-	tmp  string // tmp is the absolute path to a temporary, destination directory.
-	name string // name is the name of the file to extract from the archive.
-	logr *zap.SugaredLogger
+	src    string // src is the absolute path to the source archive.
+	tmp    string // tmp is the absolute path to a temporary, destination directory.
+	name   string // name is the name of the file to extract from the archive.
+	logger *zap.SugaredLogger
 }
 
 // extract extracts the named file from the src archive.
@@ -101,7 +101,7 @@ func (r runner) extract(ext string) error {
 func (r runner) arc() error {
 	// the arc command doesn't offer a target directory option
 	tmpArc := filepath.Join(r.tmp, "archive.arc")
-	if err := CopyFile(r.logr, r.src, tmpArc); err != nil {
+	if err := CopyFile(r.logger, r.src, tmpArc); err != nil {
 		return err
 	}
 	arg := []string{
@@ -109,14 +109,14 @@ func (r runner) arc() error {
 		tmpArc, // Source archive.
 		r.name, // File to extract from the archive.
 	}
-	return RunWD(r.logr, Arc, r.tmp, arg...)
+	return RunWD(r.logger, Arc, r.tmp, arg...)
 }
 
 // arj extracts the named file from the src arj archive.
 func (r runner) arj() error {
 	// the arj command requires the source archive to have an .arj extension
 	tmpArj := filepath.Join(r.tmp, "archive.arj")
-	if err := CopyFile(r.logr, r.src, tmpArj); err != nil {
+	if err := CopyFile(r.logger, r.src, tmpArj); err != nil {
 		return err
 	}
 	arg := []string{
@@ -125,9 +125,9 @@ func (r runner) arj() error {
 		r.name,        // File to extract from the archive.
 		"-ht" + r.tmp, // Set Target directory, ie: "ht/destdir".
 	}
-	if err := Run(r.logr, Arj, arg...); err != nil {
+	if err := Run(r.logger, Arj, arg...); err != nil {
 		s := ArjExitStatus(err)
-		r.logr.Warnf("arj exit status: %s", s)
+		r.logger.Warnf("arj exit status: %s", s)
 		return fmt.Errorf("%w: %s", err, s)
 	}
 	return nil
@@ -147,12 +147,12 @@ func (r *runner) p7zip() error {
 		r.src,        // Source archive.
 		name,         // File to extract from the archive.
 	}
-	if err := Run(r.logr, P7zip, arg...); err != nil {
+	if err := Run(r.logger, P7zip, arg...); err != nil {
 		return err
 	}
 	// handle file extraction from a directory in the archive
 	r.name = filepath.Base(name)
-	return Run(r.logr, P7zip, arg...)
+	return Run(r.logger, P7zip, arg...)
 }
 
 // rar extracts the named file from the src rar archive.
@@ -163,9 +163,9 @@ func (r *runner) rar() error {
 		r.src,  // Source archive.
 		r.name, // File to extract from the archive.
 	}
-	if err := RunWD(r.logr, Unrar, r.tmp, arg...); err != nil {
+	if err := RunWD(r.logger, Unrar, r.tmp, arg...); err != nil {
 		s := UnRarExitStatus(err)
-		r.logr.Warnf("unrar exit status: %s", s)
+		r.logger.Warnf("unrar exit status: %s", s)
 		return fmt.Errorf("%w: %s", err, s)
 	}
 	// handle file extraction from a directory in the archive
@@ -182,7 +182,7 @@ func (r runner) tar() error {
 		"-C", r.tmp, // Target directory.
 		r.name, // File to extract from the archive.
 	}
-	return Run(r.logr, Tar, arg...)
+	return Run(r.logger, Tar, arg...)
 }
 
 // zip extracts the named file from the src zip archive.
@@ -190,9 +190,9 @@ func (r runner) zip() error {
 	arg := []string{r.src}         // source zip archive
 	arg = append(arg, r.name)      // target file to extract
 	arg = append(arg, "-d", r.tmp) // extract destination
-	if err := Run(r.logr, Unzip, arg...); err != nil {
+	if err := Run(r.logger, Unzip, arg...); err != nil {
 		s := unzipExitStatus(err)
-		r.logr.Warnf("unzip exit status: %s", s)
+		r.logger.Warnf("unzip exit status: %s", s)
 		return fmt.Errorf("%w: %s", err, s)
 	}
 	return nil
@@ -301,28 +301,28 @@ func unzipExitStatus(err error) string {
 // The text file is converted to a PNG preview and a webp thumbnails.
 // Any text file usable by the ansilove command is supported,
 // including ANSI, codepage plain text, PCBoard, etc.
-func (dir Dirs) ExtractAnsiLove(src, extHint, uuid, name string) error {
-	if dir.Logr == nil {
+func (dir Dirs) ExtractAnsiLove(logger *zap.SugaredLogger, src, extHint, uuid, name string) error {
+	if logger == nil {
 		return ErrZap
 	}
 
-	dst, err := extract(dir.Logr, src, extHint, name)
+	dst, err := extract(logger, src, extHint, name)
 	if err != nil {
 		return err
 	}
 	defer os.RemoveAll(dst)
-	return dir.AnsiLove(dst, uuid)
+	return dir.AnsiLove(logger, dst, uuid)
 }
 
 // ExtractImage extracts the named image file from a zip archive.
 // Based on the file extension, the image is converted to a webp preview and thumbnails.
 // Named files with a PNG extension are optimized but kept as the preview image.
-func (dir Dirs) ExtractImage(src, extHint, uuid, name string) error {
-	if dir.Logr == nil {
+func (dir Dirs) ExtractImage(logger *zap.SugaredLogger, src, extHint, uuid, name string) error {
+	if logger == nil {
 		return ErrZap
 	}
 
-	dst, err := extract(dir.Logr, src, extHint, name)
+	dst, err := extract(logger, src, extHint, name)
 	if err != nil {
 		return err
 	}
@@ -330,17 +330,17 @@ func (dir Dirs) ExtractImage(src, extHint, uuid, name string) error {
 
 	switch filepath.Ext(strings.ToLower(dst)) {
 	case gif:
-		err = dir.PreviewGIF(dst, uuid)
+		err = dir.PreviewGIF(logger, dst, uuid)
 	case bmp:
-		err = dir.PreviewLossy(dst, uuid)
+		err = dir.PreviewLossy(logger, dst, uuid)
 	case png:
 		// optimize but keep the original png file as preview
-		err = dir.PreviewPNG(dst, uuid)
+		err = dir.PreviewPNG(logger, dst, uuid)
 	case jpeg, jpg, tiff, webp:
 		// convert to the optimal webp format
 		// as of 2023, webp is supported by all current browsers
 		// these format cases are supported by cwebp conversion tool
-		err = dir.PreviewWebP(dst, uuid)
+		err = dir.PreviewWebP(logger, dst, uuid)
 	default:
 		return fmt.Errorf("%w: %q", ErrImg, filepath.Ext(dst))
 	}
@@ -351,8 +351,8 @@ func (dir Dirs) ExtractImage(src, extHint, uuid, name string) error {
 }
 
 // extract extracts the named file from a zip archive and returns the path to the file.
-func extract(logr *zap.SugaredLogger, src, extHint, name string) (string, error) {
-	if logr == nil {
+func extract(logger *zap.SugaredLogger, src, extHint, name string) (string, error) {
+	if logger == nil {
 		return "", ErrZap
 	}
 	tmp, err := os.MkdirTemp(os.TempDir(), pattern)
@@ -361,7 +361,7 @@ func extract(logr *zap.SugaredLogger, src, extHint, name string) (string, error)
 	}
 
 	dst := filepath.Join(tmp, filepath.Base(name))
-	if err = ExtractOne(logr, src, dst, extHint, name); err != nil {
+	if err = ExtractOne(logger, src, dst, extHint, name); err != nil {
 		return "", err
 	}
 	st, err := os.Stat(dst)

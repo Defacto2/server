@@ -14,7 +14,7 @@ import (
 )
 
 // SearchReleaser is a handler for the /search/releaser route.
-func SearchReleaser(logger *zap.SugaredLogger, c echo.Context) error {
+func SearchReleaser(c echo.Context, logger *zap.SugaredLogger) error {
 	const maxResults = 14
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
@@ -61,7 +61,7 @@ func SearchReleaser(logger *zap.SugaredLogger, c echo.Context) error {
 	return nil
 }
 
-func DataListReleasers(logger *zap.SugaredLogger, c echo.Context, input string) error {
+func DataListReleasers(c echo.Context, logger *zap.SugaredLogger, input string) error {
 	const maxResults = 14
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()

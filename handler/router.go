@@ -16,16 +16,17 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 const code = http.StatusMovedPermanently
 
 // FilesRoutes defines the file locations and routes for the web server.
-func (c Configuration) FilesRoutes(e *echo.Echo, public embed.FS) (*echo.Echo, error) {
+func (c Configuration) FilesRoutes(e *echo.Echo, logger *zap.SugaredLogger, public embed.FS) (*echo.Echo, error) {
 	if e == nil {
 		panic(ErrRoutes)
 	}
-	if c.Logger == nil {
+	if logger == nil {
 		return nil, fmt.Errorf("%w: %s", ErrZap, "handler routes")
 	}
 	if d, err := public.ReadDir("."); err != nil || len(d) == 0 {
@@ -51,10 +52,10 @@ func (c Configuration) FilesRoutes(e *echo.Echo, public embed.FS) (*echo.Echo, e
 	e = c.embed(e, public)
 	e = c.static(e)
 	e = c.debugInfo(e)
-	e = c.website(e, dir)
-	e = c.search(e)
+	e = c.website(e, logger, dir)
+	e = c.search(e, logger)
 	e = c.signin(e, nonce)
-	e = c.editor(e, dir)
+	e = c.editor(e, logger, dir)
 	e = c.uploader(e)
 	return e, nil
 }
@@ -187,37 +188,23 @@ func (c Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 }
 
 // website routes for the main site.
-func (c Configuration) website(e *echo.Echo, dir app.Dirs) *echo.Echo {
+func (c Configuration) website(e *echo.Echo, logger *zap.SugaredLogger, dir app.Dirs) *echo.Echo {
 	if e == nil {
 		panic(ErrRoutes)
 	}
-	logger := c.Logger
-
 	s := e.Group("")
-	s.GET("/", func(cx echo.Context) error {
-		return app.Index(cx)
-	})
-	s.GET("/artist", func(cx echo.Context) error {
-		return app.Artist(cx)
-	})
-	s.GET("/bbs", func(cx echo.Context) error {
-		return app.BBS(cx)
-	})
-	s.GET("/bbs/a-z", func(cx echo.Context) error {
-		return app.BBSAZ(cx)
-	})
-	s.GET("/bbs/year", func(cx echo.Context) error {
-		return app.BBSYear(cx)
-	})
-	s.GET("/coder", func(cx echo.Context) error {
-		return app.Coder(cx)
-	})
+	s.GET("/", app.Index)
+	s.GET("/artist", app.Artist)
+	s.GET("/bbs", app.BBS)
+	s.GET("/bbs/a-z", app.BBSAZ)
+	s.GET("/bbs/year", app.BBSYear)
+	s.GET("/coder", app.Coder)
 	s.GET(Downloader, func(cx echo.Context) error {
 		return app.Download(cx, logger, c.Import.DownloadDir)
 	})
 	s.GET("/f/:id", func(cx echo.Context) error {
 		dir.URI = cx.Param("id")
-		return dir.Artifact(logger, cx, c.Import.ReadMode)
+		return dir.Artifact(cx, logger, c.Import.ReadMode)
 	})
 	s.GET("/file/stats", func(cx echo.Context) error {
 		return app.File(cx, logger, true)
@@ -239,27 +226,15 @@ func (c Configuration) website(e *echo.Echo, dir app.Dirs) *echo.Echo {
 	s.GET("/file", func(cx echo.Context) error {
 		return app.File(cx, logger, false)
 	})
-	s.GET("/ftp", func(cx echo.Context) error {
-		return app.FTP(cx)
-	})
+	s.GET("/ftp", app.FTP)
 	s.GET("/g/:id", func(cx echo.Context) error {
 		return app.Releasers(cx, cx.Param("id"))
 	})
-	s.GET("/history", func(cx echo.Context) error {
-		return app.History(cx)
-	})
-	s.GET("/interview", func(cx echo.Context) error {
-		return app.Interview(cx)
-	})
-	s.GET("/magazine", func(cx echo.Context) error {
-		return app.Magazine(cx)
-	})
-	s.GET("/magazine/a-z", func(cx echo.Context) error {
-		return app.MagazineAZ(cx)
-	})
-	s.GET("/musician", func(cx echo.Context) error {
-		return app.Musician(cx)
-	})
+	s.GET("/history", app.History)
+	s.GET("/interview", app.Interview)
+	s.GET("/magazine", app.Magazine)
+	s.GET("/magazine/a-z", app.MagazineAZ)
+	s.GET("/musician", app.Musician)
 	s.GET("/p/:id", func(cx echo.Context) error {
 		return app.Sceners(cx, cx.Param("id"))
 	})
@@ -272,39 +247,23 @@ func (c Configuration) website(e *echo.Echo, dir app.Dirs) *echo.Echo {
 	s.GET("/zoo/prod/:id", func(cx echo.Context) error {
 		return app.ProdZoo(cx, cx.Param("id"))
 	})
-	s.GET("/r/:id", func(cx echo.Context) error {
-		return app.Reader(cx)
-	})
-	s.GET("/releaser", func(cx echo.Context) error {
-		return app.Releaser(cx)
-	})
-	s.GET("/releaser/a-z", func(cx echo.Context) error {
-		return app.ReleaserAZ(cx)
-	})
-	s.GET("/releaser/year", func(cx echo.Context) error {
-		return app.ReleaserYear(cx)
-	})
-	s.GET("/scener", func(cx echo.Context) error {
-		return app.Scener(cx)
-	})
+	s.GET("/r/:id", app.Reader)
+	s.GET("/releaser", app.Releaser)
+	s.GET("/releaser/a-z", app.ReleaserAZ)
+	s.GET("/releaser/year", app.ReleaserYear)
+	s.GET("/scener", app.Scener)
 	s.GET("/sum/:id", func(cx echo.Context) error {
 		return app.Checksum(cx, cx.Param("id"))
 	})
-	s.GET("/thanks", func(cx echo.Context) error {
-		return app.Thanks(cx)
-	})
-	s.GET("/thescene", func(cx echo.Context) error {
-		return app.TheScene(cx)
-	})
+	s.GET("/thanks", app.Thanks)
+	s.GET("/thescene", app.TheScene)
 	s.GET("/website/:id", func(cx echo.Context) error {
 		return app.Website(cx, cx.Param("id"))
 	})
 	s.GET("/website", func(cx echo.Context) error {
 		return app.Website(cx, "")
 	})
-	s.GET("/writer", func(cx echo.Context) error {
-		return app.Writer(cx)
-	})
+	s.GET("/writer", app.Writer)
 	s.GET("/v/:id", func(cx echo.Context) error {
 		return app.Inline(cx, logger, c.Import.DownloadDir)
 	})
@@ -312,21 +271,14 @@ func (c Configuration) website(e *echo.Echo, dir app.Dirs) *echo.Echo {
 }
 
 // search forms and the results for database queries.
-func (c Configuration) search(e *echo.Echo) *echo.Echo {
+func (c Configuration) search(e *echo.Echo, logger *zap.SugaredLogger) *echo.Echo {
 	if e == nil {
 		panic(ErrRoutes)
 	}
-	logr := c.Logger
 	search := e.Group("/search")
-	search.GET("/desc", func(cx echo.Context) error {
-		return app.SearchDesc(cx)
-	})
-	search.GET("/file", func(cx echo.Context) error {
-		return app.SearchFile(cx)
-	})
-	search.GET("/releaser", func(cx echo.Context) error {
-		return app.SearchReleaser(cx)
-	})
+	search.GET("/desc", app.SearchDesc)
+	search.GET("/file", app.SearchFile)
+	search.GET("/releaser", app.SearchReleaser)
 	search.GET("/result", func(cx echo.Context) error {
 		// this legacy get result should be kept for (osx.xml) opensearch compatibility
 		// and to keep possible backwards compatibility with third party site links.
@@ -337,11 +289,9 @@ func (c Configuration) search(e *echo.Echo) *echo.Echo {
 	search.POST("/desc", func(cx echo.Context) error {
 		return app.PostDesc(cx, cx.FormValue("search-term-query"))
 	})
-	search.POST("/file", func(cx echo.Context) error {
-		return app.PostFilename(cx)
-	})
+	search.POST("/file", app.PostFilename)
 	search.POST("/releaser", func(cx echo.Context) error {
-		return htmx.SearchReleaser(logr, cx)
+		return htmx.SearchReleaser(cx, logger)
 	})
 	return e
 }
@@ -353,9 +303,7 @@ func (c Configuration) uploader(e *echo.Echo) *echo.Echo {
 	}
 	uploader := e.Group("/uploader")
 	uploader.Use(c.ReadOnlyLock)
-	uploader.GET("", func(cx echo.Context) error {
-		return app.PostIntro(cx)
-	})
+	uploader.GET("", app.PostIntro)
 	return e
 }
 
@@ -366,9 +314,7 @@ func (c Configuration) signin(e *echo.Echo, nonce string) *echo.Echo {
 	}
 	signings := e.Group("")
 	signings.Use(c.ReadOnlyLock)
-	signings.GET("/signedout", func(cx echo.Context) error {
-		return app.SignedOut(cx)
-	})
+	signings.GET("/signedout", app.SignedOut)
 	signings.GET("/signin", func(cx echo.Context) error {
 		return app.Signin(cx, c.Import.GoogleClientID, nonce)
 	})
@@ -386,11 +332,10 @@ func (c Configuration) signin(e *echo.Echo, nonce string) *echo.Echo {
 }
 
 // editor pages to update the database records.
-func (c Configuration) editor(e *echo.Echo, dir app.Dirs) *echo.Echo {
+func (c Configuration) editor(e *echo.Echo, logger *zap.SugaredLogger, dir app.Dirs) *echo.Echo {
 	if e == nil {
 		panic(ErrRoutes)
 	}
-	logger := c.Logger
 	editor := e.Group("/editor")
 	editor.Use(c.ReadOnlyLock, c.SessionLock)
 	editor.GET("/get/demozoo/download/:id",
@@ -428,38 +373,22 @@ func (c Configuration) editor(e *echo.Echo, dir app.Dirs) *echo.Echo {
 		return app.ReadmeToggle(cx)
 	})
 	images := editor.Group("/images")
-	images.POST("/copy", func(cx echo.Context) error {
-		return dir.PreviewPost(cx)
+	images.POST("/copy", func(c echo.Context) error {
+		return dir.PreviewPost(c, logger)
 	})
-	images.POST("/delete", func(cx echo.Context) error {
-		return dir.PreviewDel(cx)
-	})
+	images.POST("/delete", dir.PreviewDel)
 	ansilove := editor.Group("/ansilove")
-	ansilove.POST("/copy", func(cx echo.Context) error {
-		return dir.AnsiLovePost(cx)
+	ansilove.POST("/copy", func(c echo.Context) error {
+		return dir.AnsiLovePost(c, logger)
 	})
-	editor.POST("/releasers", func(cx echo.Context) error {
-		return app.ReleaserEdit(cx)
-	})
-	editor.POST("/title", func(cx echo.Context) error {
-		return app.TitleEdit(cx)
-	})
-	editor.POST("/ymd", func(cx echo.Context) error {
-		return app.YMDEdit(cx)
-	})
-	editor.POST("/platform", func(cx echo.Context) error {
-		return app.PlatformEdit(cx)
-	})
-	editor.POST("/platform+tag", func(cx echo.Context) error {
-		return app.PlatformTagInfo(cx)
-	})
+	editor.POST("/releasers", app.ReleaserEdit)
+	editor.POST("/title", app.TitleEdit)
+	editor.POST("/ymd", app.YMDEdit)
+	editor.POST("/platform", app.PlatformEdit)
+	editor.POST("/platform+tag", app.PlatformTagInfo)
 	tag := editor.Group("/tag")
-	tag.POST("", func(cx echo.Context) error {
-		return app.TagEdit(cx)
-	})
-	tag.POST("/info", func(cx echo.Context) error {
-		return app.TagInfo(cx)
-	})
+	tag.POST("", app.TagEdit)
+	tag.POST("/info", app.TagInfo)
 	return e
 }
 

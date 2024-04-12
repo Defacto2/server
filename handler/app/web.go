@@ -20,19 +20,17 @@ import (
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/volatiletech/null/v8"
-	"go.uber.org/zap"
 )
 
 // Web is the configuration and status of the web app.
 // Rename to app or template?
 type Web struct {
-	Brand       *[]byte            // Brand points to the Defacto2 ASCII logo.
-	Import      *config.Config     // Import configurations from the host system environment.
-	Logger      *zap.SugaredLogger // Logger is the zap sugared logger.
-	Public      embed.FS           // Public facing files.
-	View        embed.FS           // Views are Go templates.
-	Subresource SRI                // SRI are the Subresource Integrity hashes for the layout.
-	Version     string             // Version is the current version of the app.
+	Brand       *[]byte        // Brand points to the Defacto2 ASCII logo.
+	Import      *config.Config // Import configurations from the host system environment.
+	Public      embed.FS       // Public facing files.
+	View        embed.FS       // Views are Go templates.
+	Subresource SRI            // SRI are the Subresource Integrity hashes for the layout.
+	Version     string         // Version is the current version of the app.
 }
 
 // DemozooGetLink returns a HTML link to the Demozoo download links.

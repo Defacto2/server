@@ -101,36 +101,34 @@ func (a *Args) GWebp() {
 
 // AnsiLove converts the src text file and creates a PNG image in the preview directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
-func (dir Dirs) AnsiLove(src, uuid string) error {
-	logr := dir.Logr
-	if logr == nil {
+func (dir Dirs) AnsiLove(logger *zap.SugaredLogger, src, uuid string) error {
+	if logger == nil {
 		return ErrZap
 	}
-
 	args := Args{}
 	args.AnsiDOS()
 	arg := []string{src}           // source file
 	arg = append(arg, args...)     // command line arguments
 	tmp := BaseNamePath(src) + png // destination
 	arg = append(arg, "-o", tmp)
-	if err := Run(logr, Ansilove, arg...); err != nil {
+	if err := Run(logger, Ansilove, arg...); err != nil {
 		return err
 	}
 
 	dst := filepath.Join(dir.Preview, uuid+png)
-	if err := CopyFile(logr, tmp, dst); err != nil {
+	if err := CopyFile(logger, tmp, dst); err != nil {
 		return err
 	}
 	defer func() {
-		err := OptimizePNG(logr, dst)
+		err := OptimizePNG(dst)
 		if err != nil {
-			logr.Warnln("ansilove: ", err)
+			logger.Warnln("ansilove: ", err)
 		}
 	}()
 	defer func() {
 		err := dir.AnsiThumbnail(tmp, uuid)
 		if err != nil {
-			logr.Warnln("ansilove: ", err)
+			logger.Warnln("ansilove: ", err)
 		}
 	}()
 	return nil
@@ -138,9 +136,8 @@ func (dir Dirs) AnsiLove(src, uuid string) error {
 
 // PreviewPNG copies and optimizes the src PNG image to the screenshot directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
-func (dir Dirs) PreviewGIF(src, uuid string) error {
-	logr := dir.Logr
-	if logr == nil {
+func (dir Dirs) PreviewGIF(logger *zap.SugaredLogger, src, uuid string) error {
+	if logger == nil {
 		return ErrZap
 	}
 
@@ -150,19 +147,19 @@ func (dir Dirs) PreviewGIF(src, uuid string) error {
 	arg = append(arg, args...)      // command line arguments
 	tmp := BaseNamePath(src) + webp // destination
 	arg = append(arg, "-o", tmp)
-	if err := Run(logr, Gwebp, arg...); err != nil {
+	if err := Run(logger, Gwebp, arg...); err != nil {
 		return err
 	}
 
 	dst := filepath.Join(dir.Preview, uuid+webp)
-	if err := CopyFile(logr, tmp, dst); err != nil {
+	if err := CopyFile(logger, tmp, dst); err != nil {
 		return err
 	}
 
 	defer func() {
 		err := dir.WebpThumbnail(tmp, uuid)
 		if err != nil {
-			logr.Warnln("gif: ", err)
+			logger.Warnln("gif: ", err)
 		}
 	}()
 	return nil
@@ -170,26 +167,25 @@ func (dir Dirs) PreviewGIF(src, uuid string) error {
 
 // PreviewPNG copies and optimizes the src PNG image to the screenshot directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
-func (dir Dirs) PreviewPNG(src, uuid string) error {
-	logr := dir.Logr
-	if logr == nil {
+func (dir Dirs) PreviewPNG(logger *zap.SugaredLogger, src, uuid string) error {
+	if logger == nil {
 		return ErrZap
 	}
 
 	dst := filepath.Join(dir.Preview, uuid+png)
-	if err := CopyFile(logr, src, dst); err != nil {
+	if err := CopyFile(logger, src, dst); err != nil {
 		return err
 	}
 	defer func() {
-		err := OptimizePNG(logr, dst)
+		err := OptimizePNG(dst)
 		if err != nil {
-			logr.Warnln("png: ", err)
+			logger.Warnln("png: ", err)
 		}
 	}()
 	defer func() {
 		err := dir.WebpThumbnail(src, uuid)
 		if err != nil {
-			logr.Warnln("png: ", err)
+			logger.Warnln("png: ", err)
 		}
 	}()
 	return nil
@@ -200,9 +196,8 @@ func (dir Dirs) PreviewPNG(src, uuid string) error {
 //
 // The conversion is done using the cwebp command, which supports either
 // a PNG, JPEG, TIFF or WebP source image file.
-func (dir Dirs) PreviewWebP(src, uuid string) error {
-	logr := dir.Logr
-	if logr == nil {
+func (dir Dirs) PreviewWebP(logger *zap.SugaredLogger, src, uuid string) error {
+	if logger == nil {
 		return ErrZap
 	}
 
@@ -212,18 +207,18 @@ func (dir Dirs) PreviewWebP(src, uuid string) error {
 	arg = append(arg, args...)      // command line arguments
 	tmp := BaseNamePath(src) + webp // destination
 	arg = append(arg, "-o", tmp)
-	if err := RunQuiet(logr, Cwebp, arg...); err != nil {
+	if err := RunQuiet(Cwebp, arg...); err != nil {
 		return err
 	}
 
 	dst := filepath.Join(dir.Preview, uuid+webp)
-	if err := CopyFile(logr, tmp, dst); err != nil {
+	if err := CopyFile(logger, tmp, dst); err != nil {
 		return err
 	}
 	defer func() {
 		err := dir.WebpThumbnail(tmp, uuid)
 		if err != nil {
-			logr.Warnln("webp: ", err)
+			logger.Warnln("webp: ", err)
 		}
 	}()
 	return nil
@@ -232,11 +227,6 @@ func (dir Dirs) PreviewWebP(src, uuid string) error {
 // AnsiThumbnail converts the src image to a 400x400 pixel, webp image in the thumbnail directory.
 // The conversion is done using a temporary, lossless PNG image.
 func (dir Dirs) AnsiThumbnail(src, uuid string) error {
-	logr := dir.Logr
-	if logr == nil {
-		return ErrZap
-	}
-
 	tmp := filepath.Join(dir.Thumbnail, uuid+png)
 	args := Args{}
 	args.Thumb()
@@ -244,7 +234,7 @@ func (dir Dirs) AnsiThumbnail(src, uuid string) error {
 	arg := []string{src}       // source file
 	arg = append(arg, args...) // command line arguments
 	arg = append(arg, tmp)     // destination
-	if err := RunQuiet(logr, Convert, arg...); err != nil {
+	if err := RunQuiet(Convert, arg...); err != nil {
 		return err
 	}
 
@@ -254,7 +244,7 @@ func (dir Dirs) AnsiThumbnail(src, uuid string) error {
 	arg = []string{tmp}          // source file
 	arg = append(arg, args...)   // command line arguments
 	arg = append(arg, "-o", dst) // destination
-	if err := RunQuiet(logr, Cwebp, arg...); err != nil {
+	if err := RunQuiet(Cwebp, arg...); err != nil {
 		return err
 	}
 	defer os.Remove(tmp)
@@ -264,11 +254,6 @@ func (dir Dirs) AnsiThumbnail(src, uuid string) error {
 // WebpThumbnail converts the src image to a 400x400 pixel, webp image in the thumbnail directory.
 // The conversion is done using a temporary, lossy PNG image.
 func (dir Dirs) WebpThumbnail(src, uuid string) error {
-	logr := dir.Logr
-	if logr == nil {
-		return ErrZap
-	}
-
 	tmp := BaseNamePath(src) + jpg
 	args := Args{}
 	args.Thumb()
@@ -276,7 +261,7 @@ func (dir Dirs) WebpThumbnail(src, uuid string) error {
 	arg := []string{src}       // source file
 	arg = append(arg, args...) // command line arguments
 	arg = append(arg, tmp)     // destination
-	if err := RunQuiet(logr, Convert, arg...); err != nil {
+	if err := RunQuiet(Convert, arg...); err != nil {
 		return err
 	}
 
@@ -286,7 +271,7 @@ func (dir Dirs) WebpThumbnail(src, uuid string) error {
 	arg = []string{tmp}          // source file
 	arg = append(arg, args...)   // command line arguments
 	arg = append(arg, "-o", dst) // destination
-	if err := RunQuiet(logr, Cwebp, arg...); err != nil {
+	if err := RunQuiet(Cwebp, arg...); err != nil {
 		return err
 	}
 	defer os.Remove(tmp)
@@ -300,9 +285,8 @@ func (dir Dirs) WebpThumbnail(src, uuid string) error {
 // The lossless conversion is done using the ImageMagick [convert] command.
 //
 // [convert]: https://imagemagick.org/script/convert.php
-func (dir Dirs) LosslessScreenshot(src, uuid string) error {
-	logr := dir.Logr
-	if logr == nil {
+func (dir Dirs) LosslessScreenshot(logger *zap.SugaredLogger, src, uuid string) error {
+	if logger == nil {
 		return ErrZap
 	}
 
@@ -319,19 +303,19 @@ func (dir Dirs) LosslessScreenshot(src, uuid string) error {
 	defer os.RemoveAll(tmp)        // remove temp dir
 	tmp = filepath.Join(tmp, name) // temp output file target
 	arg = append(arg, tmp)
-	if err := RunQuiet(logr, Convert, arg...); err != nil {
+	if err := RunQuiet(Convert, arg...); err != nil {
 		return err
 	}
 
 	dst := filepath.Join(dir.Preview, uuid+png)
-	if err := CopyFile(logr, tmp, dst); err != nil {
+	if err := CopyFile(logger, tmp, dst); err != nil {
 		return err
 	}
 
 	defer func() {
 		err := dir.WebpThumbnail(tmp, uuid)
 		if err != nil {
-			logr.Warnln("lossless screenshot: ", err)
+			logger.Warnln("lossless screenshot: ", err)
 		}
 	}()
 	return nil
@@ -344,9 +328,8 @@ func (dir Dirs) LosslessScreenshot(src, uuid string) error {
 // The lossy conversion is done using the ImageMagick [convert] command.
 //
 // [convert]: https://imagemagick.org/script/convert.php
-func (dir Dirs) PreviewLossy(src, uuid string) error {
-	logr := dir.Logr
-	if logr == nil {
+func (dir Dirs) PreviewLossy(logger *zap.SugaredLogger, src, uuid string) error {
+	if logger == nil {
 		return ErrZap
 	}
 
@@ -363,7 +346,7 @@ func (dir Dirs) PreviewLossy(src, uuid string) error {
 	defer os.RemoveAll(tmp)        // remove temp dir
 	tmp = filepath.Join(tmp, name) // temp output file target
 	arg = append(arg, tmp)         // destination
-	if err := RunQuiet(logr, Convert, arg...); err != nil {
+	if err := RunQuiet(Convert, arg...); err != nil {
 		return err
 	}
 
@@ -373,7 +356,7 @@ func (dir Dirs) PreviewLossy(src, uuid string) error {
 	arg = []string{tmp}          // source file
 	arg = append(arg, args...)   // command line arguments
 	arg = append(arg, "-o", dst) // destination
-	if err := RunQuiet(logr, Cwebp, arg...); err != nil {
+	if err := RunQuiet(Cwebp, arg...); err != nil {
 		return err
 	}
 	defer os.Remove(tmp)
@@ -381,7 +364,7 @@ func (dir Dirs) PreviewLossy(src, uuid string) error {
 	defer func() {
 		err := dir.WebpThumbnail(tmp, uuid)
 		if err != nil {
-			logr.Warnln("lossy screenshot: ", err)
+			logger.Warnln("lossy screenshot: ", err)
 		}
 	}()
 	return nil
@@ -390,13 +373,9 @@ func (dir Dirs) PreviewLossy(src, uuid string) error {
 // OptimizePNG optimizes the src PNG image using the optipng command.
 // The optimization is done in-place, overwriting the src file.
 // It should be used in a deferred function.
-func OptimizePNG(logr *zap.SugaredLogger, src string) error {
-	if logr == nil {
-		return ErrZap
-	}
-
+func OptimizePNG(src string) error {
 	args := Args{}
 	arg := []string{src}       // source file
 	arg = append(arg, args...) // command line arguments
-	return RunQuiet(logr, Optipng, arg...)
+	return RunQuiet(Optipng, arg...)
 }

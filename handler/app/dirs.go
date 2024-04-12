@@ -77,7 +77,7 @@ func Artifact404(c echo.Context, id string) error {
 }
 
 // Artifact is the handler for the of the file record.
-func (dir Dirs) Artifact(logger *zap.SugaredLogger, c echo.Context, readonly bool) error { //nolint:funlen
+func (dir Dirs) Artifact(c echo.Context, logger *zap.SugaredLogger, readonly bool) error { //nolint:funlen
 	const name = "artifact"
 	if logger == nil {
 		return InternalErr(c, name, ErrZap)
@@ -269,8 +269,8 @@ func filentry(art *models.File, data map[string]interface{}) map[string]interfac
 }
 
 // AnsiLovePost handles the post submission for the Preview from text in archive.
-func (dir Dirs) AnsiLovePost(c echo.Context) error {
-	return dir.extractor(c, ansis)
+func (dir Dirs) AnsiLovePost(c echo.Context, logger *zap.SugaredLogger) error {
+	return dir.extractor(c, logger, ansis)
 }
 
 // PreviewDel handles the post submission for the Delete complementary images button.
@@ -290,8 +290,8 @@ func (dir Dirs) PreviewDel(c echo.Context) error {
 }
 
 // PreviewPost handles the post submission for the Preview from image in archive.
-func (dir Dirs) PreviewPost(c echo.Context) error {
-	return dir.extractor(c, imgs)
+func (dir Dirs) PreviewPost(c echo.Context, logger *zap.SugaredLogger) error {
+	return dir.extractor(c, logger, imgs)
 }
 
 // artifactReadme returns the readme data for the file record.
@@ -404,7 +404,7 @@ func decode(r io.Reader) (string, error) {
 }
 
 // extractor is a helper function for the PreviewPost and AnsiLovePost handlers.
-func (dir Dirs) extractor(c echo.Context, p extract) error {
+func (dir Dirs) extractor(c echo.Context, logger *zap.SugaredLogger, p extract) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
@@ -433,9 +433,9 @@ func (dir Dirs) extractor(c echo.Context, p extract) error {
 	ext := filepath.Ext(strings.ToLower(r.Filename.String))
 	switch p {
 	case imgs:
-		err = cmd.ExtractImage(src, ext, r.UUID.String, target)
+		err = cmd.ExtractImage(logger, src, ext, r.UUID.String, target)
 	case ansis:
-		err = cmd.ExtractAnsiLove(src, ext, r.UUID.String, target)
+		err = cmd.ExtractAnsiLove(logger, src, ext, r.UUID.String, target)
 	default:
 		return InternalErr(c, "extractor", fmt.Errorf("%w: %d", ErrExtract, p))
 	}

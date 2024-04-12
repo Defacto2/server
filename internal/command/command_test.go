@@ -179,43 +179,42 @@ func TestRun(t *testing.T) {
 
 func TestRunOut(t *testing.T) {
 	t.Parallel()
-	_, err := command.RunOut(nil, "", "")
+	_, err := command.RunOut("", "")
 	assert.Equal(t, command.ErrZap, err)
 
-	logr := zap.NewExample().Sugar()
-	_, err = command.RunOut(logr, "", "")
+	_, err = command.RunOut("", "")
 	require.Error(t, err)
 
-	_, err = command.RunOut(logr, "thiscommanddoesnotexist", "")
+	_, err = command.RunOut("thiscommanddoesnotexist", "")
 	require.Error(t, err)
 
 	const noArgs = ""
-	_, err = command.RunOut(logr, "go", noArgs)
+	_, err = command.RunOut("go", noArgs)
 	// go without args will return an unknown command error
 	require.Error(t, err)
 
-	out, err := command.RunOut(logr, "go", "version")
+	out, err := command.RunOut("go", "version")
 	require.NoError(t, err)
 	assert.Contains(t, string(out), "go version go1.")
 }
 
 func TestRunQuiet(t *testing.T) {
 	t.Parallel()
-	err := command.RunQuiet(nil, "", "")
+	err := command.RunQuiet("", "")
 	assert.Equal(t, command.ErrZap, err)
 
-	err = command.RunQuiet(logr(), "", "")
+	err = command.RunQuiet("", "")
 	require.Error(t, err)
 
-	err = command.RunQuiet(logr(), "thiscommanddoesnotexist", "")
+	err = command.RunQuiet("thiscommanddoesnotexist", "")
 	require.Error(t, err)
 
 	const noArgs = ""
-	err = command.RunQuiet(logr(), "go", noArgs)
+	err = command.RunQuiet("go", noArgs)
 	// go without args will return an unknown command error
 	require.Error(t, err)
 
-	err = command.RunQuiet(logr(), "go", "version")
+	err = command.RunQuiet("go", "version")
 	require.NoError(t, err)
 }
 

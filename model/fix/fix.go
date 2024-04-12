@@ -40,7 +40,7 @@ const (
 // In the future we may want to add a Debug or TestRun func.
 
 // Run the database repair based on the repair option.
-func (r Repair) Run(ctx context.Context, logr *zap.SugaredLogger, db *sql.DB) error {
+func (r Repair) Run(ctx context.Context, logger *zap.SugaredLogger, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -72,7 +72,7 @@ func (r Repair) Run(ctx context.Context, logr *zap.SugaredLogger, db *sql.DB) er
 		}
 		fallthrough
 	case Releaser:
-		if err := releasers(ctx, logr, db); err != nil {
+		if err := releasers(ctx, logger, db); err != nil {
 			return err
 		}
 	}
@@ -99,11 +99,11 @@ func coldfusionIDs(ctx context.Context, db *sql.DB) error {
 	if i == 0 {
 		return nil
 	}
-	logr, ok := ctx.Value("logger").(*zap.SugaredLogger)
+	logger, ok := ctx.Value("logger").(*zap.SugaredLogger)
 	if !ok {
 		return ErrCtxLog
 	}
-	logr.Infoln(i, "invalid UUIDs found using the ColdFusion syntax")
+	logger.Infoln(i, "invalid UUIDs found using the ColdFusion syntax")
 	for i, f := range fs {
 		if !f.UUID.Valid {
 			continue
@@ -118,19 +118,19 @@ func coldfusionIDs(ctx context.Context, db *sql.DB) error {
 
 		err := uuid.Validate(newUUID)
 		if err != nil {
-			logr.Warnln("%d. %q is invalid, %s\n", i, newUUID, err)
+			logger.Warnln("%d. %q is invalid, %s\n", i, newUUID, err)
 			continue
 		}
 
 		file, err := models.Files(qm.Where("uuid = ?", oldUUID)).One(ctx, db)
 		if err != nil {
-			logr.Warnln("%d. %q failed to find, %s\n", i, oldUUID, err)
+			logger.Warnln("%d. %q failed to find, %s\n", i, oldUUID, err)
 			continue
 		}
 		file.UUID = null.StringFrom(newUUID)
 		_, err = file.Update(ctx, db, boil.Infer())
 		if err != nil {
-			logr.Warnln("%d. %q failed to update, %s\n", i, oldUUID, err)
+			logger.Warnln("%d. %q failed to update, %s\n", i, oldUUID, err)
 			continue
 		}
 	}
@@ -179,7 +179,7 @@ func fixes() map[string]string {
 }
 
 // releasers will repair the group_brand_by and group_brand_for releasers data.
-func releasers(ctx context.Context, logr *zap.SugaredLogger, db *sql.DB) error {
+func releasers(ctx context.Context, logger *zap.SugaredLogger, db *sql.DB) error {
 	x := null.NewString("", true)
 	f, err := models.Files(
 		qm.Where("group_brand_for = group_brand_by"),
@@ -205,7 +205,7 @@ func releasers(ctx context.Context, logr *zap.SugaredLogger, db *sql.DB) error {
 			return err
 		}
 		if rowsAff > 0 {
-			logr.Infoln("updated", rowsAff, "groups for to", fix)
+			logger.Infoln("updated", rowsAff, "groups for to", fix)
 		}
 		f, err = models.Files(
 			qm.Where("group_brand_by = ?", bad),
@@ -218,7 +218,7 @@ func releasers(ctx context.Context, logr *zap.SugaredLogger, db *sql.DB) error {
 			return err
 		}
 		if rowsAff > 0 {
-			logr.Infoln("updated", rowsAff, "groups by to", fix)
+			logger.Infoln("updated", rowsAff, "groups by to", fix)
 		}
 	}
 	_, err = queries.Raw(postgres.SetUpper("group_brand_for")).Exec(db)
@@ -246,9 +246,9 @@ func magics(ctx context.Context, db *sql.DB) error {
 		return err
 	}
 	if rowsAff > 0 {
-		logr, ok := ctx.Value("logger").(*zap.SugaredLogger)
+		logger, ok := ctx.Value("logger").(*zap.SugaredLogger)
 		if ok {
-			logr.Infoln("removed", rowsAff, "file magic types with errors")
+			logger.Infoln("removed", rowsAff, "file magic types with errors")
 		}
 	}
 	return nil
@@ -285,9 +285,9 @@ func invalidUUIDs(ctx context.Context, db *sql.DB) error {
 	if i == 0 {
 		return nil
 	}
-	logr, ok := ctx.Value("logger").(*zap.SugaredLogger)
+	logger, ok := ctx.Value("logger").(*zap.SugaredLogger)
 	if ok {
-		logr.Warnf("%d invalid UUIDs found", i)
+		logger.Warnf("%d invalid UUIDs found", i)
 	}
 	return nil
 }

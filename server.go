@@ -76,10 +76,10 @@ func main() {
 
 	logger = serverLog(configs)
 
-	website := newInstance(logger, configs)
-	router := website.Controller()
-	website.Info()
-	err := website.Start(router, configs)
+	website := newInstance(configs)
+	router := website.Controller(logger)
+	website.Info(logger)
+	err := website.Start(router, logger, configs)
 	if err != nil {
 		logger.Fatalf("%s: please check the environment variables.", err)
 	}
@@ -98,7 +98,7 @@ func main() {
 			fmt.Fprint(w, "Tap Ctrl + C, to exit at anytime.\n")
 		}()
 	}
-	website.ShutdownHTTP(router)
+	website.ShutdownHTTP(router, logger)
 }
 
 // environmentVars is used to parse the environment variables and set the Go runtime.
@@ -117,11 +117,10 @@ func environmentVars() (*zap.SugaredLogger, config.Config) {
 }
 
 // newInstance is used to create the server controller instance.
-func newInstance(logger *zap.SugaredLogger, configs config.Config) handler.Configuration {
+func newInstance(configs config.Config) handler.Configuration {
 	c := handler.Configuration{
 		Brand:   &brand,
 		Import:  &configs,
-		Logger:  logger,
 		Public:  public,
 		Version: version,
 		View:    view,

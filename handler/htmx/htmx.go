@@ -46,25 +46,25 @@ func Routes(e *echo.Echo, logger *zap.SugaredLogger) *echo.Echo {
 		middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rateLimit)))
 	submit.POST("/demozoo/production", DemozooProd)
 	submit.POST("/demozoo/production/submit/:id", func(c echo.Context) error {
-		return DemozooSubmit(logger, c)
+		return DemozooSubmit(c, logger)
 	})
 	submit.POST("/pouet/production", PouetProd)
 	submit.POST("/pouet/production/submit/:id", func(c echo.Context) error {
-		return PouetSubmit(logger, c)
+		return PouetSubmit(c, logger)
 	})
 	submit.POST("/search/releaser", func(c echo.Context) error {
-		return SearchReleaser(logger, c)
+		return SearchReleaser(c, logger)
 	})
 	submit.POST("/uploader/intro", func(c echo.Context) error {
 		return holder(c, "uploader-introfile")
 	})
 	submit.POST("/uploader/releaser/1", func(c echo.Context) error {
 		input := c.FormValue("uploader-intro-releaser1")
-		return DataListReleasers(logger, c, input)
+		return DataListReleasers(c, logger, input)
 	})
 	submit.POST("/uploader/releaser/2", func(c echo.Context) error {
 		input := c.FormValue("uploader-intro-releaser2")
-		return DataListReleasers(logger, c, input)
+		return DataListReleasers(c, logger, input)
 	})
 	return e
 }

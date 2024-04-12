@@ -149,7 +149,7 @@ func PouetValid(c echo.Context, id int) (pouet.Response, error) {
 // This will attempt to insert a new file record into the database using
 // the Pouet production ID. If the Pouet production ID is already in
 // use, an error message is returned.
-func PouetSubmit(logger *zap.SugaredLogger, c echo.Context) error {
+func PouetSubmit(c echo.Context, logger *zap.SugaredLogger) error {
 	if logger == nil {
 		return c.String(http.StatusInternalServerError,
 			"error, pouet submit logger is nil")

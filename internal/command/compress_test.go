@@ -146,16 +146,15 @@ func Test_UnRarExitStatus(t *testing.T) {
 func Test_ExtractAnsiLove(t *testing.T) {
 	t.Parallel()
 	dir := command.Dirs{}
-	dir.Logr = logr()
 
-	err := dir.ExtractAnsiLove("", "", "", "")
+	err := dir.ExtractAnsiLove(nil, "", "", "", "")
 	require.Error(t, err)
 
-	err = dir.ExtractAnsiLove("", "", "", "")
+	err = dir.ExtractAnsiLove(logr(), "", "", "", "")
 	require.Error(t, err)
 
 	src := td("PKZ204EX.ZIP")
-	err = dir.ExtractAnsiLove(
+	err = dir.ExtractAnsiLove(logr(),
 		src, ".zip", "000000ABCDE", "TEST.ANS")
 	require.NoError(t, err)
 	ok := helper.IsFile("000000ABCDE.webp")
@@ -163,7 +162,7 @@ func Test_ExtractAnsiLove(t *testing.T) {
 	err = os.Remove("000000ABCDE.webp")
 	require.NoError(t, err)
 
-	err = dir.ExtractAnsiLove(
+	err = dir.ExtractAnsiLove(logr(),
 		src, ".zip", "000000ABCDE", "nosuchfile")
 	require.Error(t, err)
 }
@@ -180,18 +179,17 @@ func Test_ExtractImage(t *testing.T) {
 		Download:  dl,    // this prefixes to UUID
 		Preview:   prev,  // this is the output dest
 		Thumbnail: thumb, // this is the cropped output dest
-		Logr:      logr(),
 	}
 	// intentional errors
-	err = dir.ExtractImage("", "", "", "")
+	err = dir.ExtractImage(nil, "", "", "", "")
 	require.Error(t, err)
-	err = dir.ExtractImage("", "", "", "")
+	err = dir.ExtractImage(logr(), "", "", "", "")
 	require.Error(t, err)
 
 	broken := []string{"nosuchfile", "TEST.ASC", "TEST.JPEG", "TEST.ANS"}
 	for _, name := range broken {
 		src := td("PKZ204EX.ZIP")
-		err = dir.ExtractImage(src, ".zip", "000000ABCDE", name)
+		err = dir.ExtractImage(logr(), src, ".zip", "000000ABCDE", name)
 		require.Error(t, err)
 	}
 	// cases that create webp files
@@ -200,7 +198,7 @@ func Test_ExtractImage(t *testing.T) {
 	ot := filepath.Join(thumb, "000000ABCDE.webp")
 	for _, name := range names {
 		src := td("PKZ204EX.ZIP")
-		err = dir.ExtractImage(src, ".zip", "000000ABCDE", name)
+		err = dir.ExtractImage(logr(), src, ".zip", "000000ABCDE", name)
 		require.NoError(t, err)
 
 		ok := helper.IsFile(op)
@@ -218,7 +216,7 @@ func Test_ExtractImage(t *testing.T) {
 		ot = filepath.Join(thumb, "000000ABCDE.webp")
 		name := "TEST.PNG"
 		src := td("PKZ204EX.ZIP")
-		err = dir.ExtractImage(src, ".zip", "000000ABCDE", name)
+		err = dir.ExtractImage(logr(), src, ".zip", "000000ABCDE", name)
 		require.NoError(t, err)
 		ok := helper.IsFile(op)
 		assert.True(t, ok)
@@ -243,15 +241,14 @@ func Test_LosslessScreenshot(t *testing.T) {
 		Download:  dl,    // this prefixes to UUID
 		Preview:   prev,  // this is the output dest
 		Thumbnail: thumb, // this is the cropped output dest
-		Logr:      logr(),
 	}
 	imgs := []string{"TEST.BMP", "TEST.GIF", "TEST.JPG", "TEST.PCX", "TEST.PNG"}
 	for _, name := range imgs {
 		fp := tduncompress(name)
-		err = dir.LosslessScreenshot(fp, "000000ABCDE")
+		err = dir.LosslessScreenshot(logr(), fp, "000000ABCDE")
 		require.NoError(t, err)
 	}
 
-	err = dir.LosslessScreenshot("", "")
+	err = dir.LosslessScreenshot(logr(), "", "")
 	require.Error(t, err)
 }
