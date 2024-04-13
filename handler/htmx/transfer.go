@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha512"
 	"database/sql"
+	"encoding/hex"
 	"fmt"
 	"html"
 	"io"
@@ -17,7 +18,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// transfer is a generic file transfer handler that uploads and validates a chosen file upload.
+// Transfer is a generic file transfer handler that uploads and validates a chosen file upload.
 // The provided name is that of the form input field. The logger is optional and if nil then
 // the function will not log any debug information.
 func transfer(c echo.Context, logger *zap.SugaredLogger, name string) error {
@@ -43,26 +44,27 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, name string) error {
 		if logger != nil {
 			logger.Error(fmt.Sprintf("The chosen file input could not be hashed, %s: %s", name, err))
 		}
-		return c.HTML(http.StatusBadRequest, "The chosen file input cannot be hashed.")
+		return c.HTML(http.StatusInternalServerError, "The chosen file input cannot be hashed.")
 	}
 	sum := hasher.Sum(nil)
+	fmt.Println("sha512.New384", hex.EncodeToString(sum))
 
 	db, err := postgres.ConnectDB()
 	if err != nil {
 		if logger != nil {
 			logger.Error(fmt.Sprintf("%s: %s", ErrDB, err))
 		}
-		return c.HTML(http.StatusBadRequest, "Cannot connect to the database.")
+		return c.HTML(http.StatusServiceUnavailable, "Cannot connect to the database.")
 	}
 	defer db.Close()
 
 	ctx := context.Background()
-	exist, err := model.ExistsHash(ctx, db, sum)
+	exist, err := model.ExistSumHash(ctx, db, sum)
 	if err != nil {
 		if logger != nil {
 			logger.Error(fmt.Sprintf("%s: %s", ErrDB, err))
 		}
-		return c.HTML(http.StatusBadRequest, "Cannot confirm the hash with the database.")
+		return c.HTML(http.StatusServiceUnavailable, "Cannot confirm the hash with the database.")
 	}
 	if exist {
 		return c.HTML(http.StatusOK, "<p>Thanks, but the chosen file already exists on Defacto2.</p>"+
@@ -87,7 +89,7 @@ func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeade
 		if logger != nil {
 			logger.Error(fmt.Sprintf("The chosen file input could not be opened, %s: %s", name, err))
 		}
-		return c.HTML(http.StatusBadRequest, "The chosen file input cannot be opened.")
+		return c.HTML(http.StatusInternalServerError, "The chosen file input cannot be opened.")
 	}
 	defer src.Close()
 
@@ -96,7 +98,7 @@ func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeade
 		if logger != nil {
 			logger.Error(fmt.Sprintf("Cannot create a temporary destination file, %s: %s", name, err))
 		}
-		return c.HTML(http.StatusBadRequest, "The temporary save cannot be created.")
+		return c.HTML(http.StatusInternalServerError, "The temporary save cannot be created.")
 	}
 	defer dst.Close()
 
@@ -104,7 +106,7 @@ func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeade
 		if logger != nil {
 			logger.Error(fmt.Sprintf("Cannot copy to the temporary destination file, %s: %s", name, err))
 		}
-		return c.HTML(http.StatusBadRequest, "The temporary save cannot be written.")
+		return c.HTML(http.StatusInternalServerError, "The temporary save cannot be written.")
 	}
 	return nil
 }

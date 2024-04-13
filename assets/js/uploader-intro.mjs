@@ -1,6 +1,7 @@
 import { validYear, validMonth } from "./helper.mjs";
 import { getElmById } from "./helper.mjs";
 import { intro as mime } from "./uploader-mime.mjs";
+import { checkSHA } from "./uploader.mjs";
 export default submit;
 
 const formId = `uploader-intro-form`,
@@ -23,7 +24,7 @@ const form = getElmById(formId),
 
 form.addEventListener("reset", reset);
 
-file.addEventListener("change", checks);
+file.addEventListener("change", checker);
 
 releaser1.addEventListener("input", validateRel1);
 year.addEventListener("input", validateY);
@@ -84,25 +85,33 @@ export function progress() {
   });
 }
 
-class checks {
-  constructor() {
-    const file1 = this.files[0],
-      removeSelection = "";
+async function checker() {
+  const file1 = this.files[0],
+    removeSelection = "";
 
-    file.classList.remove(invalid);
-    alert.innerText = "";
-    alert.classList.add(none);
+  file.classList.remove(invalid);
+  alert.innerText = "";
+  alert.classList.add(none);
 
-    let errors = [checkSize(file1), checkMime(file1)];
-    errors = errors.filter((error) => error != "");
+  let errors = [checkSize(file1), checkMime(file1)];
+  errors = errors.filter((error) => error != "");
 
-    if (errors.length > 0) {
-      alert.innerText = errors.join(" ");
-      alert.classList.remove(none);
-      this.value = removeSelection;
-      this.classList.add(invalid);
-      return;
-    }
+  if (errors.length > 0) {
+    alert.innerText = errors.join(" ");
+    alert.classList.remove(none);
+    this.value = removeSelection;
+    this.classList.add(invalid);
+    return;
+  }
+
+  // only hash the file if it passes the size and mime checks
+  const alreadyExists = await checkSHA(file1);
+  if (alreadyExists == true) {
+    alert.innerText = `The chosen file already exists in the database: ${file1.name}`;
+    alert.classList.remove(none);
+    this.value = removeSelection;
+    this.classList.add(invalid);
+    return;
   }
 }
 

@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"crypto/sha512"
 	"database/sql"
 	"encoding/hex"
 	"errors"
@@ -27,15 +28,24 @@ func ExistFile(ctx context.Context, db *sql.DB, id int64) (bool, error) {
 	return models.Files(models.FileWhere.ID.EQ(id), qm.WithDeleted()).Exists(ctx, db)
 }
 
-// ExistsHash returns true if the file record exists in the database using a SHA-384 hash.
-func ExistsHash(ctx context.Context, db *sql.DB, sha384 []byte) (bool, error) {
+// ExistSumHash returns true if the file record exists in the database using a SHA-384 hash.
+func ExistSumHash(ctx context.Context, db *sql.DB, sha384 []byte) (bool, error) {
 	if db == nil {
 		return false, ErrDB
 	}
 	hash := hex.EncodeToString(sha384)
-	// todo validate sha384 is not empty, is valid
-	strong := null.String{String: hash, Valid: true}
-	return models.Files(models.FileWhere.FileIntegrityStrong.EQ(strong), qm.WithDeleted()).Exists(ctx, db)
+	return ExistHash(ctx, db, hash)
+}
+
+// ExistHash returns true if the file record exists in the database using a SHA-384 hexadecimal hash.
+func ExistHash(ctx context.Context, db *sql.DB, hash string) (bool, error) {
+	if db == nil {
+		return false, ErrDB
+	}
+	if len(hash) != sha512.Size384*2 {
+		return false, fmt.Errorf("%w: %d characters", ErrSha384, len(hash))
+	}
+	return models.Files(models.FileWhere.FileIntegrityStrong.EQ(null.StringFrom(hash)), qm.WithDeleted()).Exists(ctx, db)
 }
 
 // FindFile retrieves a single file record from the database using the record key.

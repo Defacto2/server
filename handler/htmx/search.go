@@ -3,6 +3,7 @@ package htmx
 import (
 	"context"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/Defacto2/releaser/initialism"
@@ -12,6 +13,46 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
+
+// LookupSHA384 is a handler for the /uploader/sha384 route.
+func LookupSHA384(c echo.Context, logger *zap.SugaredLogger) error {
+	hash := c.Param("hash")
+	if hash == "" {
+		return c.String(http.StatusBadRequest, "empty hash error")
+	}
+	match, err := regexp.MatchString("^[a-fA-F0-9]{96}$", hash)
+	if err != nil {
+		logger.Error(err)
+		return c.String(http.StatusBadRequest, "regex match error")
+	}
+	if !match {
+		return c.String(http.StatusBadRequest, "invalid hash error: "+hash)
+	}
+
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		logger.Error(err)
+		return c.String(http.StatusServiceUnavailable,
+			"cannot connect to the database")
+	}
+	defer db.Close()
+
+	exist, err := model.ExistHash(ctx, db, hash)
+	if err != nil {
+		logger.Error(err)
+		return c.String(http.StatusServiceUnavailable,
+			"cannot confirm the hash with the database")
+	}
+	switch exist {
+	case true:
+		return c.String(http.StatusOK, "true")
+	case false:
+		return c.String(http.StatusOK, "false")
+	}
+	return c.String(http.StatusServiceUnavailable,
+		"unexpected boolean error occurred")
+}
 
 // SearchReleaser is a handler for the /search/releaser route.
 func SearchReleaser(c echo.Context, logger *zap.SugaredLogger) error {

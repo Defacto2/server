@@ -1,6 +1,5 @@
 // uploader-submitter.mjs
 
-import { getElmById } from "./helper.mjs";
 export default intro;
 
 const arc = "application/x-freearc",
@@ -27,7 +26,7 @@ export function unknown(mime) {
 }
 
 export function intro(mime) {
-  ok = false;
+  let ok = false;
   ok = unknown(mime);
   if (ok) {
     return true;

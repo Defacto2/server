@@ -47,6 +47,9 @@ func Routes(e *echo.Echo, logger *zap.SugaredLogger, prod bool) *echo.Echo {
 	submit.POST("/search/releaser", func(c echo.Context) error {
 		return SearchReleaser(c, logger)
 	})
+	submit.PUT("/uploader/sha384/:hash", func(c echo.Context) error {
+		return LookupSHA384(c, logger)
+	})
 	submit.POST("/uploader/intro", func(c echo.Context) error {
 		if prod {
 			return transfer(c, nil, "uploader-introfile")
