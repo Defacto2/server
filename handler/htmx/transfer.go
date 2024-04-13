@@ -119,6 +119,7 @@ func debug(c echo.Context, html string) (string, error) {
 		html += fmt.Sprintf("<li>%s: %s</li>", k, v)
 	}
 	html += "</ul>"
+	html += "<small>The debug information is not shown in production.</small>"
 	return html, nil
 }
 

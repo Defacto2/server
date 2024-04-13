@@ -4,13 +4,22 @@ import {
   keyboardShortcuts as layoutKeys,
   pagination,
 } from "./layout-keyboard.mjs";
-import htmxLoader from "./layout-htmx.mjs";
+import htmxEvents from "./layout-htmx.mjs";
 
 (() => {
   "use strict";
-  htmxLoader();
+
+  htmxEvents();
   layoutKeys();
   pagination("paginationRange");
+  toolTips();
+})();
+
+/**
+ * Initializes tooltips for elements with the data-bs-toggle="tooltip" attribute.
+ * @throws {Error} If tooltip trigger list is not found or if Bootstrap Tooltip is undefined.
+ */
+function toolTips() {
   const tooltipTriggerList = document.querySelectorAll(
     '[data-bs-toggle="tooltip"]'
   );
@@ -24,4 +33,4 @@ import htmxLoader from "./layout-htmx.mjs";
   const tooltipList = [...tooltipTriggerList].map(
     (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
   );
-})();
+}

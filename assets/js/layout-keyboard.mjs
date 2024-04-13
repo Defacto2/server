@@ -18,7 +18,6 @@ const start = document.getElementById("paginationStart"),
  * Binds keyboard shortcuts to specific actions.
  */
 export function keyboardShortcuts() {
-  console.log("keyboardShortcuts");
   document.addEventListener("keydown", function (event) {
     if (event.ctrlKey && event.altKey) {
       switch (event.key) {

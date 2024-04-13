@@ -2,14 +2,17 @@
 
 const releaserAlert = "search-releaser-alert",
   releaserReset = "search-releaser-clear",
-  releaserIndi = "search-releaser-indicator",
+  releaserIndic = "search-releaser-indicator",
   releaserInput = "search-releaser-input";
 
-export function releaserInit() {
+/**
+ * Handles search releaser specific events such as the Clear button.
+ */
+export function releaserEvents() {
   const clear = document.getElementById(releaserReset);
   if (clear !== null) {
     clear.addEventListener("click", function () {
-      clearer(releaserAlert, releaserInput, releaserIndi);
+      clearer(releaserAlert, releaserInput, releaserIndic);
     });
   }
 }
@@ -27,10 +30,10 @@ export function clearer() {
   if (alert === null) {
     throw new Error(`The htmx alert element ${releaserAlert} is null`);
   }
-  const indicator = document.getElementById(releaserIndi);
+  const indicator = document.getElementById(releaserIndic);
   if (indicator === null) {
     throw new Error(
-      `The releaser search indicator element ${releaserIndi} is null`
+      `The releaser search indicator element ${releaserIndic} is null`
     );
   }
   const results = document.getElementById("search-releaser-results");

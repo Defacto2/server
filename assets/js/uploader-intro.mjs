@@ -7,8 +7,8 @@ const formId = `uploader-intro-form`,
   invalid = "is-invalid",
   none = "d-none",
   megabyte = 1024 * 1024,
-  percentage = 100,
-  sizeLimit = 100 * megabyte;
+  sizeLimit = 100 * megabyte,
+  percentage = 100;
 
 const form = getElmById(formId),
   alert = getElmById("uploader-intro-alert"),
@@ -30,6 +30,10 @@ year.addEventListener("input", validateY);
 month.addEventListener("input", validateM);
 youtube.addEventListener("input", validateYT);
 
+/**
+ * After performing input validations this submits the form when the specified element is clicked.
+ * @param {string} elementId - The ID of the element that triggers the form submission, e.g. a button element type.
+ */
 export function submit(elementId) {
   const element = getElmById(elementId);
   element.addEventListener("click", function () {
@@ -55,7 +59,8 @@ export function submit(elementId) {
       pass = false;
     }
     if (pass == false) {
-      console.error("Submit failed. Please check the form.");
+      alert.innerText = "Please correct the problems with the form.";
+      alert.classList.remove(none);
       return;
     }
     reset();
@@ -63,6 +68,10 @@ export function submit(elementId) {
   });
 }
 
+/**
+ * Updates the progress bar based on the upload progress.
+ * Based on the htmx:xhr:progress example from https://htmx.org/examples/file-upload/.
+ */
 export function progress() {
   htmx.on(`#${formId}`, "htmx:xhr:progress", function (event) {
     if (event.target.id != `${formId}`) return;
@@ -75,27 +84,31 @@ export function progress() {
   });
 }
 
-function checks() {
-  const file1 = this.files[0],
-    removeSelection = "";
+class checks {
+  constructor() {
+    const file1 = this.files[0],
+      removeSelection = "";
 
-  alert.innerText = "";
-  alert.classList.add(none);
+    file.classList.remove(invalid);
+    alert.innerText = "";
+    alert.classList.add(none);
 
-  let errors = [checkSize(file1), checkMime(file1)];
-  errors = errors.filter((error) => error != "");
+    let errors = [checkSize(file1), checkMime(file1)];
+    errors = errors.filter((error) => error != "");
 
-  if (errors.length > 0) {
-    alert.innerText = errors.join(" ");
-    alert.classList.remove(none);
-    this.value = removeSelection;
-    return;
+    if (errors.length > 0) {
+      alert.innerText = errors.join(" ");
+      alert.classList.remove(none);
+      this.value = removeSelection;
+      this.classList.add(invalid);
+      return;
+    }
   }
 }
 
 function checkSize(file) {
   if (file.size > sizeLimit) {
-    errSize = Math.round(file.size / megabyte);
+    const errSize = Math.round(file.size / megabyte);
     return `The chosen file is too big at ${errSize}MB, maximum size is ${sizeLimit / megabyte}MB.`;
   }
   return ``;
