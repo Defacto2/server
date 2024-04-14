@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"mime"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/google/uuid"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -90,6 +92,16 @@ func trimShort(s string) string {
 	return s
 }
 
+// trimName returns a string that is no longer than the long filename limit.
+// It will also remove any leading or trailing white space.
+func trimName(s string) string {
+	s = strings.TrimSpace(s)
+	if len(s) > longFilename {
+		return s[:longFilename]
+	}
+	return s
+}
+
 // ValidReleasers returns two valid releaser group strings or null values.
 func ValidReleasers(s1, s2 string) (null.String, null.String) {
 	invalid := null.String{String: "", Valid: false}
@@ -136,6 +148,49 @@ func ValidYouTube(s string) (null.String, error) {
 
 }
 
+// ValidFilename returns a valid filename or a null value.
+// The filename is trimmed and shortened to the long filename limit.
+func ValidFilename(s string) null.String {
+	invalid := null.String{String: "", Valid: false}
+	t := trimName(s)
+	if len(t) == 0 {
+		return invalid
+	}
+	return null.StringFrom(t)
+}
+
+// ValidMagic returns a valid media type or a null value.
+// It is validated using the mime package.
+// The media type is trimmed and validated using the mime package.
+func ValidMagic(mediatype string) null.String {
+	invalid := null.String{String: "", Valid: false}
+	mtype := strings.TrimSpace(mediatype)
+	if len(mtype) == 0 {
+		return invalid
+	}
+	params := map[string]string{}
+	result := mime.FormatMediaType(mtype, params)
+	if result != "" {
+		return invalid
+	}
+	return null.StringFrom(mtype)
+}
+
+// ValidFilesize returns a valid file size or an error.
+// The file size is parsed as an unsigned integer.
+// An error is returned if the string cannot be parsed as an integer.
+func ValidFilesize(size string) (int64, error) {
+	size = strings.TrimSpace(size)
+	if len(size) == 0 {
+		return 0, nil
+	}
+	s, err := strconv.ParseUint(size, 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("%w: %q, %s", ErrSize, size, err)
+	}
+	return int64(s), nil
+}
+
 // InsertUpload inserts a new file record into the database using a URL values map.
 // This will not check if the file already exists in the database.
 // Invalid values will be ignored, but will not prevent the record from being inserted.
@@ -162,7 +217,15 @@ func InsertUpload(ctx context.Context, db *sql.DB, values url.Values) (int64, er
 		return 0, fmt.Errorf("%w: %v", ErrTime, makeTime.Time)
 	}
 
-	fname := null.StringFrom(values.Get("filename")) // validate
+	fname := ValidFilename(values.Get("filename"))
+	if !fname.Valid || fname.IsZero() {
+		return 0, fmt.Errorf("%w: %v", ErrName, "filename is required")
+	}
+
+	section := null.StringFrom(tags.Intro.String())
+	if !section.Valid || section.IsZero() {
+		return 0, fmt.Errorf("%w: %v", ErrSection, "section is required")
+	}
 
 	// handle optional table fields
 	year, month, _ := dateIssue(values.Get("year"), values.Get("month"), "0")
@@ -173,9 +236,12 @@ func InsertUpload(ctx context.Context, db *sql.DB, values url.Values) (int64, er
 	rel1, rel2 := ValidReleasers(values.Get("group"), values.Get("brand"))
 	title := ValidTitle(values.Get("title"))
 
-	s, _ := strconv.ParseInt(values.Get("size"), 10, 64)
+	magic := ValidMagic(values.Get("magic"))
 
-	size := int64(s)
+	size, err := ValidFilesize(values.Get("size"))
+	if err != nil {
+		return 0, err
+	}
 
 	f := models.File{
 		UUID:                uniqueID,
@@ -189,11 +255,11 @@ func InsertUpload(ctx context.Context, db *sql.DB, values url.Values) (int64, er
 		DateIssuedMonth:     month,
 		Filename:            fname,
 		Filesize:            size,
-		FileMagicType:       null.StringFrom(values.Get("magic")),     // validate
+		FileMagicType:       magic,
 		FileIntegrityStrong: null.StringFrom(values.Get("integrity")), // validate
 		FileLastModified:    null.TimeFromPtr(&now),                   // collect from form and validate
 		Platform:            null.StringFrom(values.Get("platform")),  // validate
-		Section:             null.StringFrom(values.Get("section")),   // hardcode value and validate
+		Section:             section,
 	}
 	if err = f.Insert(ctx, db, boil.Infer()); err != nil {
 		return 0, err

@@ -27,6 +27,8 @@ var (
 	ErrMonth    = errors.New("invalid month")
 	ErrName     = errors.New("name value is empty")
 	ErrOrderBy  = errors.New("order by value is invalid")
+	ErrSection  = errors.New("section tag value is empty")
+	ErrSize     = errors.New("size value is invalid")
 	ErrRels     = errors.New("too many releasers, only two are allowed")
 	ErrPlatform = errors.New("invalid platform")
 	ErrSha384   = errors.New("sha384 value is invalid")
