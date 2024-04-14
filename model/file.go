@@ -7,17 +7,11 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"net/url"
-	"strconv"
-	"time"
 
-	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
-	"github.com/google/uuid"
 	"github.com/volatiletech/null/v8"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
@@ -89,32 +83,6 @@ func FindDemozooFile(ctx context.Context, db *sql.DB, id int64) (bool, int64, er
 	return deleted, f.ID, nil
 }
 
-// InsertDemozooFile inserts a new file record into the database using a Demozoo production ID.
-// This will not check if the Demozoo production ID already exists in the database.
-// When successful the function will return the new record ID.
-func InsertDemozooFile(ctx context.Context, db *sql.DB, id int64) (int64, error) {
-	if db == nil {
-		return 0, ErrDB
-	}
-	if id < startID || id > demozoo.Sanity {
-		return 0, fmt.Errorf("%w: %d", ErrID, id)
-	}
-	uid, err := uuid.NewV7()
-	if err != nil {
-		return 0, err
-	}
-	now := time.Now()
-	f := models.File{
-		UUID:         null.StringFrom(uid.String()),
-		WebIDDemozoo: null.Int64From(id),
-		Deletedat:    null.TimeFromPtr(&now),
-	}
-	if err = f.Insert(ctx, db, boil.Infer()); err != nil {
-		return 0, err
-	}
-	return f.ID, nil
-}
-
 // ExistPouetFile returns true if the file record exists in the database using a Pouet production ID.
 // This function will also return true for records that have been marked as deleted.
 func ExistPouetFile(ctx context.Context, db *sql.DB, id int64) (bool, error) {
@@ -143,73 +111,6 @@ func FindPouetFile(ctx context.Context, db *sql.DB, id int64) (bool, int64, erro
 	}
 	deleted := !f.Deletedat.IsZero()
 	return deleted, f.ID, nil
-}
-
-// InsertPouetFile inserts a new file record into the database using a Pouet production ID.
-// This will not check if the Pouet production ID already exists in the database.
-// When successful the function will return the new record ID.
-func InsertPouetFile(ctx context.Context, db *sql.DB, id int64) (int64, error) {
-	if db == nil {
-		return 0, ErrDB
-	}
-	if id < startID || id > demozoo.Sanity {
-		return 0, fmt.Errorf("%w: %d", ErrID, id)
-	}
-	uid, err := uuid.NewV7()
-	if err != nil {
-		return 0, err
-	}
-	now := time.Now()
-	f := models.File{
-		UUID:       null.StringFrom(uid.String()),
-		WebIDPouet: null.Int64From(id),
-		Deletedat:  null.TimeFromPtr(&now),
-	}
-	if err = f.Insert(ctx, db, boil.Infer()); err != nil {
-		return 0, err
-	}
-	return f.ID, nil
-}
-
-func InsertUpload(ctx context.Context, db *sql.DB, values url.Values) (int64, error) {
-	if db == nil {
-		return 0, ErrDB
-	}
-	uid, err := uuid.NewV7()
-	if err != nil {
-		return 0, err
-	}
-	now := time.Now()
-
-	y, _ := strconv.ParseInt(values.Get("year"), 10, 16)
-	year := int16(y)
-	m, _ := strconv.ParseInt(values.Get("month"), 10, 16)
-	month := int16(m)
-	s, _ := strconv.ParseInt(values.Get("size"), 10, 64)
-	size := int64(s)
-
-	f := models.File{
-		UUID:                null.StringFrom(uid.String()),
-		Deletedat:           null.TimeFromPtr(&now),
-		Createdat:           null.TimeFromPtr(&now),
-		WebIDYoutube:        null.StringFrom(values.Get("youtube")), // validate
-		GroupBrandFor:       null.StringFrom(values.Get("group")),   // validate and format
-		GroupBrandBy:        null.StringFrom(values.Get("brand")),   // validate and format
-		RecordTitle:         null.StringFrom(values.Get("title")),   // validate and format
-		DateIssuedYear:      null.Int16From(year),
-		DateIssuedMonth:     null.Int16From(month),
-		Filename:            null.StringFrom(values.Get("filename")), // validate
-		Filesize:            size,
-		FileMagicType:       null.StringFrom(values.Get("magic")),     // validate
-		FileIntegrityStrong: null.StringFrom(values.Get("integrity")), // validate
-		FileLastModified:    null.TimeFromPtr(&now),                   // collect from form and validate
-		Platform:            null.StringFrom(values.Get("platform")),  // validate
-		Section:             null.StringFrom(values.Get("section")),   // hardcode value and validate
-	}
-	if err = f.Insert(ctx, db, boil.Infer()); err != nil {
-		return 0, err
-	}
-	return f.ID, nil
 }
 
 // FindObf retrieves a single file record from the database using the obfuscated record key.

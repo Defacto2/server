@@ -51,7 +51,7 @@ const (
 )
 
 const (
-	epoch = 1980 // epoch is the default year for MS-DOS files without a timestamp
+	epoch = model.EpochYear // epoch is the default year for MS-DOS files without a timestamp
 )
 
 // Artifact404 renders the error page for the artifact links.

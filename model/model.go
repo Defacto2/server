@@ -31,7 +31,9 @@ var (
 	ErrPlatform = errors.New("invalid platform")
 	ErrSha384   = errors.New("sha384 value is invalid")
 	ErrTag      = errors.New("invalid tag")
+	ErrTime     = errors.New("time value is invalid")
 	ErrURI      = errors.New("uri value is invalid")
+	ErrUUID     = errors.New("could not create a new universial unique identifier")
 	ErrYear     = errors.New("invalid year")
 	ErrZap      = errors.New("zap logger instance is nil")
 )
@@ -51,6 +53,10 @@ const (
 	startID        = 1                                      // startID is the default, first ID value.
 	uidPlaceholder = `ADB7C2BF-7221-467B-B813-3636FE4AE16B` // UID of the user who deleted the file.
 )
+
+// EpochYear is the epoch year for the website,
+// ie. the year 0 of the MS-DOS era.
+const EpochYear = 1980
 
 // Maximum number of files to return per query.
 const Maximum = 998

@@ -1028,30 +1028,6 @@ func Updated(t any, s string) string {
 	}
 }
 
-// ValidD returns a valid day or a null value.
-func ValidD(d int16) null.Int16 {
-	if d < 1 || d > 31 {
-		return null.Int16{Int16: 0, Valid: false}
-	}
-	return null.Int16{Int16: d, Valid: true}
-}
-
-// ValidM returns a valid month or a null value.
-func ValidM(m int16) null.Int16 {
-	if m < 1 || m > 12 {
-		return null.Int16{Int16: 0, Valid: false}
-	}
-	return null.Int16{Int16: m, Valid: true}
-}
-
-// ValidY returns a valid year or a null value.
-func ValidY(y int16) null.Int16 {
-	if y < 1980 || y > int16(time.Now().Year()) {
-		return null.Int16{Int16: 0, Valid: false}
-	}
-	return null.Int16{Int16: y, Valid: true}
-}
-
 // websiteIcon returns a Bootstrap icon name for the given website url.
 func WebsiteIcon(url string) template.HTML {
 	icon := websiteIcon(url)
@@ -1092,9 +1068,9 @@ func YMDEdit(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	y := ValidY(f.Year)
-	m := ValidM(f.Month)
-	d := ValidD(f.Day)
+	y := model.ValidY(f.Year)
+	m := model.ValidM(f.Month)
+	d := model.ValidD(f.Day)
 	if err = model.UpdateYMD(c, int64(f.ID), y, m, d); err != nil {
 		return badRequest(c, err)
 	}
