@@ -1,9 +1,10 @@
 // uploader-submitter.mjs
 
-import { getElmById } from "./helper.mjs";
+import { getElmById, validId } from "./helper.mjs";
 export default submitter;
 
-const none = "d-none";
+const invalid = "is-invalid",
+  none = "d-none";
 
 /**
  * Submits the number input and handles the response from a remote API.
@@ -24,9 +25,21 @@ export function submitter(elementId, api) {
   function reset() {
     input.value = "";
     input.focus();
+    input.classList.remove(invalid);
     alert.innerText = "";
     alert.classList.add(none);
     results.innerHTML = "";
+  }
+
+  const demozooSanity = 450000,
+    pouetSanity = 200000;
+  switch (elementId) {
+    case "demozoo-submission":
+      validate(input, demozooSanity);
+      break;
+    case "pouet-submission":
+      validate(input, pouetSanity);
+      break;
   }
 
   document.body.addEventListener("htmx:beforeRequest", function () {
@@ -48,6 +61,16 @@ export function submitter(elementId, api) {
       return errorXhr(alert, xhr);
     }
     errorBrowser(alert);
+  });
+}
+
+function validate(input, sanity) {
+  input.addEventListener("input", function () {
+    if (!validId(input.value, sanity)) {
+      input.classList.add(invalid);
+      return;
+    }
+    input.classList.remove(invalid);
   });
 }
 

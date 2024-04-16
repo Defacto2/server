@@ -9,7 +9,7 @@
  * @returns {Promise<void>} A Promise that resolves when the text has been copied to the clipboard.
  */
 export async function clipText(elementId) {
-  const oneSecond = 1000
+  const oneSecond = 1000;
   const element = getElmById(elementId);
   element.focus(); // select the element to avoid NotAllowedError: Clipboard write is not allowed in this context
   await navigator.clipboard.writeText(`${element.textContent}`).then(
@@ -116,4 +116,19 @@ export function validDay(day) {
     return false;
   }
   return true;
+}
+
+// Validate a database ID.
+// @param {string} id - The ID to be validated.
+// @returns {boolean} - Returns true if the ID is valid, false otherwise.
+export function validId(id, sanity) {
+  if (id == "") {
+    return true;
+  }
+  const nid = Number(id),
+    max = Number(sanity);
+  if (!Number.isInteger(max) || max < 1) {
+    throw new Error(`The ID sanity value is invalid: ${max}`);
+  }
+  return Number.isInteger(nid) && nid > 0 && nid <= max;
 }
