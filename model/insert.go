@@ -2,7 +2,9 @@ package model
 
 import (
 	"context"
+	"crypto/sha512"
 	"database/sql"
+	"encoding/hex"
 	"fmt"
 	"mime"
 	"net/url"
@@ -191,6 +193,48 @@ func ValidFilesize(size string) (int64, error) {
 	return int64(s), nil
 }
 
+// ValidIntegrity confirms the integrity as a valid SHA-384 hexadecimal hash
+// or returns a null value.
+func ValidIntegrity(integrity string) null.String {
+	invalid := null.String{String: "", Valid: false}
+	if len(integrity) == 0 {
+		return invalid
+	}
+	if len(integrity) != sha512.Size384*2 {
+		return invalid
+	}
+	_, err := hex.DecodeString(integrity)
+	if err != nil {
+		return invalid
+	}
+	return null.StringFrom(integrity)
+}
+
+// ValidLastMod returns a valid last modified time or a null value.
+// The lastmod time is parsed as a Unix time in milliseconds.
+// An error is returned if the string cannot be parsed as an integer.
+// The lastmod time is validated to be within the current year and the epoch year of 1980.
+func ValidLastMod(lastmod string) null.Time {
+	invalid := null.Time{Time: time.Time{}, Valid: false}
+	if len(lastmod) == 0 {
+		return invalid
+	}
+	i, err := strconv.ParseInt(lastmod, 10, 64)
+	if err != nil {
+		return invalid
+	}
+	val := time.UnixMilli(i)
+	now := time.Now()
+	if val.After(now) {
+		return invalid
+	}
+	eposh := time.Date(EpochYear, time.January, 1, 0, 0, 0, 0, time.UTC)
+	if val.Before(eposh) {
+		return invalid
+	}
+	return null.TimeFrom(val)
+}
+
 // InsertUpload inserts a new file record into the database using a URL values map.
 // This will not check if the file already exists in the database.
 // Invalid values will be ignored, but will not prevent the record from being inserted.
@@ -222,9 +266,16 @@ func InsertUpload(ctx context.Context, db *sql.DB, values url.Values) (int64, er
 		return 0, fmt.Errorf("%w: %v", ErrName, "filename is required")
 	}
 
-	section := null.StringFrom(tags.Intro.String())
-	if !section.Valid || section.IsZero() {
-		return 0, fmt.Errorf("%w: %v", ErrSection, "section is required")
+	s := tags.Intro.String()
+	var section null.String
+	if tags.IsCategory(s) {
+		section = null.StringFrom(s)
+	}
+
+	p := values.Get("platform")
+	var platform null.String
+	if tags.IsPlatform(p) {
+		platform = null.StringFrom(p)
 	}
 
 	// handle optional table fields
@@ -243,6 +294,10 @@ func InsertUpload(ctx context.Context, db *sql.DB, values url.Values) (int64, er
 		return 0, err
 	}
 
+	integrity := ValidIntegrity(values.Get("integrity"))
+
+	lastMod := ValidLastMod(values.Get("lastmod"))
+
 	f := models.File{
 		UUID:                uniqueID,
 		Deletedat:           delTime,
@@ -256,12 +311,20 @@ func InsertUpload(ctx context.Context, db *sql.DB, values url.Values) (int64, er
 		Filename:            fname,
 		Filesize:            size,
 		FileMagicType:       magic,
-		FileIntegrityStrong: null.StringFrom(values.Get("integrity")), // validate
-		FileLastModified:    null.TimeFromPtr(&now),                   // collect from form and validate
-		Platform:            null.StringFrom(values.Get("platform")),  // validate
+		FileIntegrityStrong: integrity,
+		FileLastModified:    lastMod,
+		Platform:            platform,
 		Section:             section,
 	}
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, err
+	}
 	if err = f.Insert(ctx, db, boil.Infer()); err != nil {
+		return 0, err
+	}
+	if err = tx.Rollback(); err != nil {
 		return 0, err
 	}
 	return f.ID, nil

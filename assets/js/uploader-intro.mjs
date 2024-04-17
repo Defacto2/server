@@ -14,6 +14,7 @@ const formId = `uploader-intro-form`,
 const form = getElmById(formId),
   alert = getElmById("uploader-intro-alert"),
   file = getElmById("uploader-intro-file"),
+  lastMod = getElmById("uploader-intro-last-modified"),
   list1 = getElmById("uploader-intro-list-1"),
   list2 = getElmById("uploader-intro-list-2"),
   month = getElmById("uploader-intro-month"),
@@ -22,7 +23,10 @@ const form = getElmById(formId),
   year = getElmById("uploader-intro-year"),
   youtube = getElmById("uploader-intro-youtube");
 
-form.addEventListener("reset", reset);
+form.addEventListener("reset", function () {
+  lastMod.value = "";
+  reset();
+});
 
 file.addEventListener("change", checker);
 
@@ -115,6 +119,17 @@ async function checker() {
     this.classList.add(invalid);
     results.classList.remove(none);
     return;
+  }
+
+  // obtain and set the lastModified value
+  const lastModified = file1.lastModified;
+  const currentTime = new Date().getTime();
+  const oneHourMs = 60 * 60 * 1000;
+  // if no lastModified value was set, the browser returns the current time.
+  const underOneHour = currentTime - lastModified < oneHourMs;
+  if (!underOneHour) {
+    console.log(`The file was last modified more than an hour ago.`);
+    lastMod.value = lastModified;
   }
 }
 

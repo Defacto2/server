@@ -46,8 +46,8 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, name string) error {
 		}
 		return c.HTML(http.StatusInternalServerError, "The chosen file input cannot be hashed.")
 	}
-	sum := hasher.Sum(nil)
-	fmt.Println("sha512.New384", hex.EncodeToString(sum))
+	checksum := hasher.Sum(nil)
+	fmt.Println("sha512.New384", hex.EncodeToString(checksum))
 
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -59,7 +59,7 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, name string) error {
 	defer db.Close()
 
 	ctx := context.Background()
-	exist, err := model.ExistSumHash(ctx, db, sum)
+	exist, err := model.ExistSumHash(ctx, db, checksum)
 	if err != nil {
 		if logger != nil {
 			logger.Error(fmt.Sprintf("%s: %s", ErrDB, err))
@@ -70,12 +70,19 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, name string) error {
 		return c.HTML(http.StatusOK, "<p>Thanks, but the chosen file already exists on Defacto2.</p>"+
 			html.EscapeString(file.Filename))
 	}
+	fmt.Println("pre-copier")
 	if err = copier(c, logger, file, name); err != nil {
 		return err
 	}
-	if err = creator(c, ctx, db, file.Filename); err != nil {
+	fmt.Println("pre-creator")
+	id, err := creator(c, logger, ctx, db, checksum, file.Filename)
+	if err != nil {
 		return err
 	}
+	if id == 0 {
+		return nil
+	}
+	fmt.Println("pre-success", id, err)
 	return success(c, logger, file.Filename)
 }
 
@@ -116,6 +123,7 @@ func debug(c echo.Context, html string) (string, error) {
 	if err != nil {
 		return html, err
 	}
+	fmt.Println(values)
 	html += "<ul>"
 	for k, v := range values {
 		html += fmt.Sprintf("<li>%s: %s</li>", k, v)
@@ -125,15 +133,37 @@ func debug(c echo.Context, html string) (string, error) {
 	return html, nil
 }
 
-func creator(c echo.Context, _ context.Context, _ *sql.DB, filename string) error {
-	_, err := c.FormParams()
+func creator(c echo.Context, logger *zap.SugaredLogger, ctx context.Context, db *sql.DB, checksum []byte, filename string) (int64, error) {
+	values, err := c.FormParams()
 	if err != nil {
-		return err
+		if logger != nil {
+			logger.Error(err)
+		}
+		return 0, c.HTML(http.StatusInternalServerError,
+			"The form parameters could not be read.")
 	}
-	return nil
+	values.Add("filename", filename)
+	values.Add("integrity", hex.EncodeToString(checksum))
+
+	id, err := model.InsertUpload(ctx, db, values)
+	if err != nil {
+		if logger != nil {
+			logger.Error(err)
+		}
+		return 0, c.HTML(http.StatusInternalServerError,
+			"The form submission could not be inserted.")
+	}
+	// InsertUpload(ctx context.Context, db *sql.DB, values url.Values) (int64, error) {
+	fmt.Println("creator", id, checksum, filename, id)
+	fmt.Println(values)
+	// todo insert values into form submission.
+	// hex.EncodeToString(checksum) is the checksum / integrity of the file.
+
+	return id, nil
 }
 
 func success(c echo.Context, logger *zap.SugaredLogger, filename string) error {
+
 	html := fmt.Sprintf("<p>Thanks, the chosen file submission was a success.<br> ✓ %s</p>",
 		html.EscapeString(filename))
 	if production := logger == nil; production {
