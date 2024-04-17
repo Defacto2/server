@@ -130,7 +130,8 @@ func DataListReleasers(c echo.Context, logger *zap.SugaredLogger, input string) 
 	var r model.Releasers
 	if err := r.Similar(ctx, db, maxResults, lookup...); err != nil {
 		logger.Error(err)
-		return c.String(http.StatusOK, "")
+		return c.String(http.StatusServiceUnavailable,
+			"cannot connect to the database")
 	}
 	if len(r) == 0 {
 		return c.HTML(http.StatusOK, "")

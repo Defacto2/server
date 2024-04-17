@@ -65,6 +65,7 @@ export function submit(elementId) {
       return;
     }
     reset();
+    results.innerText = "...";
     results.classList.remove(none);
   });
 }
@@ -101,6 +102,7 @@ async function checker() {
     alert.classList.remove(none);
     this.value = removeSelection;
     this.classList.add(invalid);
+    results.classList.remove(none);
     return;
   }
 
@@ -111,6 +113,7 @@ async function checker() {
     alert.classList.remove(none);
     this.value = removeSelection;
     this.classList.add(invalid);
+    results.classList.remove(none);
     return;
   }
 }

@@ -14,7 +14,9 @@ export function getModalById(elementId) {
     throw new Error(`The bootstrap object is undefined.`);
   }
   const element = getElmById(elementId);
-  const modal = new bootstrap.Modal(element);
+  const modal = new bootstrap.Modal(element, {
+    keyboard: true,
+  });
   return modal;
 }
 
@@ -37,7 +39,9 @@ export function focusModalById(elementId, submissionId) {
   if (bootstrap === undefined) {
     throw new Error(`The bootstrap object is undefined.`);
   }
-  const modal = new bootstrap.Modal(element);
+  const modal = new bootstrap.Modal(element, {
+    keyboard: true,
+  });
   return modal;
 }
 
