@@ -100,8 +100,9 @@
                   hx-target="#uploader-intro-results"
                   hx-validate="true">
               <input type="hidden" name="uploader-intro-lastmodified" id="uploader-intro-last-modified">
+              <input type="hidden" name="uploader-intro-magic" id="uploader-intro-magic">
               <div class="form-floating mb-3">
-                <input type="text" name="title" class="form-control" id="uploader-intro-title" aria-describedby="uploader-intro-title-help" placeholder="example: 500000th release!">
+                <input type="text" name="uploader-intro-title" class="form-control" id="uploader-intro-title" aria-describedby="uploader-intro-title-help" placeholder="example: 500000th release!">
                 <label for="uploader-intro-title">Title</label>
                 <div id="uploader-intro-title-help" class="form-text">An optional brief description or name of the release</div>
               </div>
@@ -146,7 +147,7 @@
                 <input type="radio" value="windows" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-windows" autocomplete="off" checked>
                 <label class="btn btn-outline-primary" for="uploader-intro-windows" data-bs-toggle="tooltip" data-bs-placement="top" 
                     data-bs-title="Microsoft Windows">Windows PC</label>
-                <input type="radio" value="msdos" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-msdos" autocomplete="off">
+                <input type="radio" value="dos" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-msdos" autocomplete="off">
                 <label class="btn btn-outline-primary" for="uploader-intro-msdos" data-bs-toggle="tooltip" data-bs-placement="top" 
                     data-bs-title="IBM PC or MS-DOS compatible">Dos PC</label>
               </div>

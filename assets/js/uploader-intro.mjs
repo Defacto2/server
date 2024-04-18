@@ -17,6 +17,7 @@ const form = getElmById(formId),
   lastMod = getElmById("uploader-intro-last-modified"),
   list1 = getElmById("uploader-intro-list-1"),
   list2 = getElmById("uploader-intro-list-2"),
+  magic = getElmById("uploader-intro-magic"),
   month = getElmById("uploader-intro-month"),
   releaser1 = getElmById("uploader-intro-releaser-1"),
   results = getElmById("uploader-intro-results"),
@@ -25,6 +26,7 @@ const form = getElmById(formId),
 
 form.addEventListener("reset", function () {
   lastMod.value = "";
+  magic.value = "";
   reset();
 });
 
@@ -130,6 +132,10 @@ async function checker() {
   if (!underOneHour) {
     console.log(`The file was last modified more than an hour ago.`);
     lastMod.value = lastModified;
+  }
+  if (file1.type != "") {
+    console.log(`The file mime type is ${file1.type}.`);
+    magic.value = file1.type;
   }
 }
 

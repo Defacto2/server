@@ -52,9 +52,9 @@ func Routes(e *echo.Echo, logger *zap.SugaredLogger, prod bool) *echo.Echo {
 	})
 	submit.POST("/uploader/intro", func(c echo.Context) error {
 		if prod {
-			return transfer(c, nil, "uploader-introfile")
+			return transfer(c, nil, "uploader-intro")
 		}
-		return transfer(c, logger, "uploader-introfile")
+		return transfer(c, logger, "uploader-intro")
 	})
 	submit.POST("/uploader/releaser/1", func(c echo.Context) error {
 		input := c.FormValue("uploader-intro-releaser1")

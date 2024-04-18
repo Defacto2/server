@@ -172,7 +172,7 @@ func ValidMagic(mediatype string) null.String {
 	}
 	params := map[string]string{}
 	result := mime.FormatMediaType(mtype, params)
-	if result != "" {
+	if result == "" {
 		return invalid
 	}
 	return null.StringFrom(mtype)
@@ -235,96 +235,105 @@ func ValidLastMod(lastmod string) null.Time {
 	return null.TimeFrom(val)
 }
 
+// ValidPlatform returns a valid platform or a null value.
+func ValidPlatform(platform string) null.String {
+	invalid := null.String{String: "", Valid: false}
+	p := strings.TrimSpace(platform)
+	if tags.IsPlatform(p) {
+		return null.StringFrom(p)
+	}
+	return invalid
+}
+
+// ValidSection returns a valid section or a null value.
+func ValidSection(section string) null.String {
+	invalid := null.String{String: "", Valid: false}
+	s := strings.TrimSpace(section)
+	if tags.IsCategory(s) {
+		return null.StringFrom(s)
+	}
+	return invalid
+
+}
+
 // InsertUpload inserts a new file record into the database using a URL values map.
 // This will not check if the file already exists in the database.
 // Invalid values will be ignored, but will not prevent the record from being inserted.
 // When successful the function will return the new record ID.
-func InsertUpload(ctx context.Context, db *sql.DB, values url.Values) (int64, error) {
-	if db == nil {
+func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string) (int64, error) {
+	if tx == nil {
 		return 0, ErrDB
 	}
 
-	// handle required table fields
+	for k, v := range values {
+		fmt.Printf("%s: %s\n", k, v)
+	}
+
+	// obtain zip content
+
 	now, uid, err := uuidV7()
 	if err != nil {
 		return 0, err
 	}
-	uniqueID := null.StringFrom(uid.String())
-
-	delTime := null.TimeFromPtr(&now)
-	if !delTime.Valid || delTime.Time.IsZero() {
-		return 0, fmt.Errorf("%w: %v", ErrTime, delTime.Time)
+	unique := null.StringFrom(uid.String())
+	deleteT := null.TimeFromPtr(&now)
+	if !deleteT.Valid || deleteT.Time.IsZero() {
+		return 0, fmt.Errorf("%w: %v", ErrTime, deleteT.Time)
 	}
-
-	makeTime := null.TimeFromPtr(&now)
-	if !makeTime.Valid || makeTime.Time.IsZero() {
-		return 0, fmt.Errorf("%w: %v", ErrTime, makeTime.Time)
+	createT := null.TimeFromPtr(&now)
+	if !createT.Valid || createT.Time.IsZero() {
+		return 0, fmt.Errorf("%w: %v", ErrTime, createT.Time)
 	}
-
-	fname := ValidFilename(values.Get("filename"))
-	if !fname.Valid || fname.IsZero() {
-		return 0, fmt.Errorf("%w: %v", ErrName, "filename is required")
-	}
-
-	s := tags.Intro.String()
-	var section null.String
-	if tags.IsCategory(s) {
-		section = null.StringFrom(s)
-	}
-
-	p := values.Get("platform")
-	var platform null.String
-	if tags.IsPlatform(p) {
-		platform = null.StringFrom(p)
-	}
-
-	// handle optional table fields
-	year, month, _ := dateIssue(values.Get("year"), values.Get("month"), "0")
-	tube, err := ValidYouTube(values.Get("youtube"))
+	youtube, err := ValidYouTube(values.Get(key + "-youtube"))
 	if err != nil {
 		return 0, err
 	}
-	rel1, rel2 := ValidReleasers(values.Get("group"), values.Get("brand"))
-	title := ValidTitle(values.Get("title"))
-
-	magic := ValidMagic(values.Get("magic"))
-
-	size, err := ValidFilesize(values.Get("size"))
+	releaser1, releaser2 := ValidReleasers(
+		values.Get(key+"-releaser1"),
+		values.Get(key+"-releaser2"),
+	)
+	title := ValidTitle(values.Get(key + "-title"))
+	year, month, _ := dateIssue(
+		values.Get(key+"-year"),
+		values.Get(key+"-month"),
+		"0",
+	)
+	filename := ValidFilename(values.Get(key + "-filename"))
+	if !filename.Valid || filename.IsZero() {
+		return 0, fmt.Errorf("%w: %v", ErrName, key+"-filename is required")
+	}
+	filesize, err := ValidFilesize(values.Get(key + "-size"))
 	if err != nil {
 		return 0, err
 	}
-
-	integrity := ValidIntegrity(values.Get("integrity"))
-
-	lastMod := ValidLastMod(values.Get("lastmod"))
+	filemagic := ValidMagic(values.Get(key + "-magic"))
+	integrity := ValidIntegrity(values.Get(key + "-integrity"))
+	lastMod := ValidLastMod(values.Get(key + "-lastmodified"))
+	platform := ValidPlatform(values.Get(key + "-operating-system"))
+	section := ValidSection(tags.Intro.String())
 
 	f := models.File{
-		UUID:                uniqueID,
-		Deletedat:           delTime,
-		Createdat:           makeTime,
-		WebIDYoutube:        tube,
-		GroupBrandFor:       rel1,
-		GroupBrandBy:        rel2,
+		UUID:                unique,
+		Deletedat:           deleteT,
+		Createdat:           createT,
+		WebIDYoutube:        youtube,
+		GroupBrandFor:       releaser1,
+		GroupBrandBy:        releaser2,
 		RecordTitle:         title,
 		DateIssuedYear:      year,
 		DateIssuedMonth:     month,
-		Filename:            fname,
-		Filesize:            size,
-		FileMagicType:       magic,
+		Filename:            filename,
+		Filesize:            filesize,
+		FileMagicType:       filemagic,
 		FileIntegrityStrong: integrity,
 		FileLastModified:    lastMod,
 		Platform:            platform,
 		Section:             section,
 	}
-
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
+	if err = f.Insert(ctx, tx, boil.Infer()); err != nil {
 		return 0, err
 	}
-	if err = f.Insert(ctx, db, boil.Infer()); err != nil {
-		return 0, err
-	}
-	if err = tx.Rollback(); err != nil {
+	if err = tx.Commit(); err != nil {
 		return 0, err
 	}
 	return f.ID, nil
