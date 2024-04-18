@@ -1,68 +1,193 @@
 // uploader-text.mjs
+import { validYear, validMonth } from "./helper.mjs";
+import { getElmById } from "./helper.mjs";
+import { intro as mime } from "./uploader-mime.mjs";
+import { checkSHA } from "./uploader.mjs";
+export default submit;
 
-import { getElmById, validYear, validMonth } from "./helper.mjs";
-export default textUploader;
+const formId = `uploader-text-form`,
+  invalid = "is-invalid",
+  none = "d-none",
+  megabyte = 1024 * 1024,
+  sizeLimit = 100 * megabyte,
+  percentage = 100;
+
+const form = getElmById(formId),
+  alert = getElmById("uploader-text-alert"),
+  file = getElmById("uploader-text-file"),
+  lastMod = getElmById("uploader-text-last-modified"),
+  list1 = getElmById("uploader-text-list-1"),
+  list2 = getElmById("uploader-text-list-2"),
+  magic = getElmById("uploader-text-magic"),
+  month = getElmById("uploader-text-month"),
+  releaser1 = getElmById("uploader-text-releaser-1"),
+  results = getElmById("uploader-text-results"),
+  year = getElmById("uploader-text-year");
+
+form.addEventListener("reset", function () {
+  lastMod.value = "";
+  magic.value = "";
+  reset();
+});
+
+file.addEventListener("change", checker);
+releaser1.addEventListener("input", validateRel1);
+year.addEventListener("input", validateY);
+month.addEventListener("input", validateM);
 
 /**
- * Submits the text form when the specified element is clicked.
- * @param {string} elementId - The ID of the element that triggers the form submission.
- * @param {string} formId - The ID of the form to be submitted.
- * @throws {Error} If the specified element or form is null.
+ * After performing input validations this submits the form when the specified element is clicked.
+ * @param {string} elementId - The ID of the element that triggers the form submission, e.g. a button element type.
  */
-export function textUploader(elementId, formId) {
-  const element = document.getElementById(elementId);
-  if (element == null) {
-    throw new Error(`The ${elementId} element is null.`);
-  }
-  const form = document.getElementById(formId);
-  if (form == null) {
-    throw new Error(`The ${formId} form element is null.`);
-  }
-  form.addEventListener("reset", reset);
+export function submit(elementId) {
+  const element = getElmById(elementId);
   element.addEventListener("click", function () {
-    if (validate() == true) {
-      form.submit();
+    let pass = true;
+    if (releaser1.value == "") {
+      releaser1.classList.add(invalid);
+      pass = false;
     }
+    if (validYear(year.value) == false) {
+      year.classList.add(invalid);
+      pass = false;
+    }
+    if (validMonth(month.value) == false) {
+      month.classList.add(invalid);
+      pass = false;
+    }
+    if (month.value != "" && year.value == "") {
+      year.classList.add(invalid);
+      pass = false;
+    }
+    if (file.value == "") {
+      file.classList.add(invalid);
+      pass = false;
+    }
+    if (pass == false) {
+      alert.innerText = "Please correct the problems with the form.";
+      alert.classList.remove(none);
+      return;
+    }
+    reset();
+    results.innerText = "...";
+    results.classList.remove(none);
   });
 }
 
-const file = getElmById("textFile"),
-  title = getElmById("textTitle"),
-  releasers = getElmById("textReleasers"),
-  year = getElmById("textYear"),
-  month = getElmById("textMonth"),
-  invalid = "is-invalid";
-
-function reset() {
-  file.classList.remove(invalid);
-  title.classList.remove(invalid);
-  releasers.classList.remove(invalid);
-  year.classList.remove(invalid);
-  month.classList.remove(invalid);
+/**
+ * Updates the progress bar based on the upload progress.
+ * Based on the htmx:xhr:progress example from https://htmx.org/examples/file-upload/.
+ */
+export function progress() {
+  htmx.on(`#${formId}`, "htmx:xhr:progress", function (event) {
+    if (event.target.id != `${formId}`) return;
+    htmx
+      .find("#uploader-text-progress")
+      .setAttribute(
+        "value",
+        (event.detail.loaded / event.detail.total) * percentage
+      );
+  });
 }
 
-function validate() {
-  let pass = true;
-  reset();
-  if (file.value == "") {
-    file.classList.add(invalid);
-    pass = false;
+async function checker() {
+  const file1 = this.files[0],
+    removeSelection = "";
+
+  file.classList.remove(invalid);
+  alert.innerText = "";
+  alert.classList.add(none);
+
+  let errors = [checkSize(file1), checkMime(file1)];
+  errors = errors.filter((error) => error != "");
+
+  if (errors.length > 0) {
+    alert.innerText = errors.join(" ");
+    alert.classList.remove(none);
+    this.value = removeSelection;
+    this.classList.add(invalid);
+    results.classList.remove(none);
+    return;
   }
-  if (title.value == "") {
-    title.classList.add(invalid);
-    pass = false;
+
+  // only hash the file if it passes the size and mime checks
+  const alreadyExists = await checkSHA(file1);
+  if (alreadyExists == true) {
+    alert.innerText = `The chosen file already exists in the database: ${file1.name}`;
+    alert.classList.remove(none);
+    this.value = removeSelection;
+    this.classList.add(invalid);
+    results.classList.remove(none);
+    return;
   }
-  if (releasers.value == "") {
-    releasers.classList.add(invalid);
-    pass = false;
+
+  // obtain and set the lastModified value
+  const lastModified = file1.lastModified;
+  const currentTime = new Date().getTime();
+  const oneHourMs = 60 * 60 * 1000;
+  // if no lastModified value was set, the browser returns the current time.
+  const underOneHour = currentTime - lastModified < oneHourMs;
+  if (!underOneHour) {
+    console.log(`The file was last modified more than an hour ago.`);
+    lastMod.value = lastModified;
   }
-  if (validYear(year.value) == false) {
-    year.classList.add(invalid);
-    pass = false;
+  if (file1.type != "") {
+    console.log(`The file mime type is ${file1.type}.`);
+    magic.value = file1.type;
   }
+}
+
+function checkSize(file) {
+  if (file.size > sizeLimit) {
+    const errSize = Math.round(file.size / megabyte);
+    return `The chosen file is too big at ${errSize}MB, maximum size is ${sizeLimit / megabyte}MB.`;
+  }
+  return ``;
+}
+
+function checkMime(file) {
+  if (!mime(file.type)) {
+    return `The chosen file mime type ${file.type} is probably not suitable for an intro.`;
+  }
+  return ``;
+}
+
+function reset() {
+  list1.innerHTML = "";
+  list2.innerHTML = "";
+  results.innerHTML = "";
+  results.classList.add(none);
+  alert.innerText = "";
+  alert.classList.add(none);
+  year.classList.remove(invalid);
+  month.classList.remove(invalid);
+  releaser1.classList.remove(invalid);
+  file.classList.remove(invalid);
+}
+
+function validateRel1() {
+  if (releaser1.value == "") {
+    releaser1.classList.add(invalid);
+    return false;
+  }
+  releaser1.classList.remove(invalid);
+  return true;
+}
+
+function validateM() {
   if (validMonth(month.value) == false) {
     month.classList.add(invalid);
-    pass = false;
+    return false;
   }
-  return pass;
+  month.classList.remove(invalid);
+  return true;
+}
+
+function validateY() {
+  if (validYear(year.value) == false) {
+    year.classList.add(invalid);
+    return false;
+  }
+  year.classList.remove(invalid);
+  return true;
 }

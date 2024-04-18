@@ -57,11 +57,25 @@ func Routes(e *echo.Echo, logger *zap.SugaredLogger, prod bool) *echo.Echo {
 		return transfer(c, logger, "uploader-intro")
 	})
 	submit.POST("/uploader/releaser/1", func(c echo.Context) error {
-		input := c.FormValue("uploader-intro-releaser1")
+		input := ""
+		lookups := []string{"uploader-intro-releaser1", "uploader-text-releaser1"}
+		for _, lookup := range lookups {
+			if val := c.FormValue(lookup); val != "" {
+				input = val
+				break
+			}
+		}
 		return DataListReleasers(c, logger, input)
 	})
 	submit.POST("/uploader/releaser/2", func(c echo.Context) error {
-		input := c.FormValue("uploader-intro-releaser2")
+		input := ""
+		lookups := []string{"uploader-intro-releaser2", "uploader-text-releaser2"}
+		for _, lookup := range lookups {
+			if val := c.FormValue(lookup); val != "" {
+				input = val
+				break
+			}
+		}
 		return DataListReleasers(c, logger, input)
 	})
 	return e

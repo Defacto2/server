@@ -18,18 +18,18 @@
   "runOnSave.commands": [
     {
       "globMatch": "**/assets/js/*.js",
-      "command": "task assets",
-      "runIn": "terminal"
+      "command": "task assets"
+      //"runIn": "terminal"
     },
     {
       "globMatch": "**/assets/js/*.mjs",
-      "command": "task assets",
-      "runIn": "terminal"
+      "command": "task assets"
+      //"runIn": "terminal"
     },
     {
       "globMatch": "**/assets/css/*.css",
-      "command": "task assets",
-      "runIn": "terminal"
+      "command": "task assets"
+      //"runIn": "terminal"
     }
   ]
 }

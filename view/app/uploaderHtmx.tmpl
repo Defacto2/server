@@ -170,4 +170,94 @@
         </div>
       </div>
     </div>
+    {{/*  text writer, text art  */}}
+    <div class="modal fade" id="uploader-text-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploader-text-label" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="uploader-text-label">Text, ANSI or NFO</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="uploader-text-form" 
+                  hx-encoding="multipart/form-data" 
+                  hx-post="/uploader/text"
+                  hx-target="#uploader-text-results"
+                  hx-validate="true">
+              <input type="hidden" name="uploader-text-lastmodified" id="uploader-text-last-modified">
+              <input type="hidden" name="uploader-text-magic" id="uploader-text-magic">
+              <div class="form-floating mb-3">
+                <input type="text" name="uploader-text-title" class="form-control" id="uploader-text-title" aria-describedby="uploader-text-title-help" placeholder="example: 500000th release!">
+                <label for="uploader-text-title">Title</label>
+                <div id="uploader-text-title-help" class="form-text">An optional brief description or name of the release</div>
+              </div>
+              <div class="mb-4">
+                <label for="uploader-text-releaser-1" class="form-label">Releasers <small>maximum of 2</small></label>
+                <div class="input-group mb-3">
+                  <input type="text" list="uploader-text-list-1" name="uploader-text-releaser1" class="form-control" id="uploader-text-releaser-1" 
+                      aria-describedby="uploader-text-releasers-help" placeholder="example: Razor 1911" 
+                      hx-post="/uploader/releaser/1" 
+                      hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:25ms"
+                      hx-target="#uploader-text-list-1" 
+                      required>
+                  <span class="input-group-text">+</span>
+                  <input type="text" list="uploader-text-list-2" name="uploader-text-releaser2" class="form-control" id="uploader-text-releaser-2" 
+                      aria-describedby="uploader-text-releasers-help" placeholder="example: Titan" 
+                      hx-post="/uploader/releaser/2" 
+                      hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:25ms"
+                      hx-target="#uploader-text-list-2">
+                </div>
+                <datalist id="uploader-text-list-1"></datalist>
+                <datalist id="uploader-text-list-2"></datalist>
+                <div id="uploader-text-releasers-help" class="form-text">
+                  A releaser can be a group name, bbs name or ftp site<br>
+                  A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q><br>
+                  example: <q>Dark Domain BBS</q> or <q>Dark Domain FTP</q>
+                </div>
+              </div>
+              <div class="input-group mb-3">
+                <span class="input-group-text">Year and month of release</span>
+                <input type="number" name="uploader-text-year" min="1980" max="{{exampleYear}}" 
+                  id="uploader-text-year" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
+                <input type="number" name="uploader-text-month" min="1" max="12" 
+                  id="uploader-text-month" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
+              </div>
+              <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text" id="uploader-text-credit-help">Writers of the text</span>
+                <input type="text" name="uploader-text-credit" class="form-control" id="uploader-text-credit" 
+                  aria-describedby="uploader-text-credit-help" spellcheck="false" placeholder="example: Name1, Name2">
+              </div>
+              <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text" id="uploader-text-artist-help">Text artists</span>
+                <input type="text" name="uploader-text-artist" class="form-control" id="uploader-text-artist" 
+                  aria-describedby="uploader-text-artist-help" spellcheck="false" placeholder="example: Name1, Name2">
+              </div>
+              <div class="btn-group mb-3 w-100" role="group" aria-label="Basic radio toggle button group">
+                <span class="input-group-text">Format &nbsp; </span>
+                <input type="radio" value="textamiga" class="btn-check" name="uploader-text-operating-system" id="uploader-text-amiga" autocomplete="off" checked>
+                <label class="btn btn-outline-primary" for="uploader-text-amiga" data-bs-toggle="tooltip" data-bs-placement="top" 
+                    data-bs-title="Microsoft Windows">PC text</label>
+                <input type="radio" value="text" class="btn-check" name="uploader-text-operating-system" id="uploader-text-msdos" autocomplete="off">
+                <label class="btn btn-outline-primary" for="uploader-text-msdos" data-bs-toggle="tooltip" data-bs-placement="top" 
+                    data-bs-title="IBM PC or MS-DOS compatible">Amiga text</label>
+              </div>
+              <div class="row g-2">
+                <div class="input-group mt-3">
+                  <input type="file" name="uploader-introfile" id="uploader-text-file" class="form-control" required>
+                </div>
+                <div class="d-none alert alert-danger mt-2" role="alert" id="uploader-text-alert"></div>
+                <progress id="uploader-text-progress" value="0" max="100"></progress>
+                <button id="uploader-text-submit" class="btn btn-success">Upload</button>     
+                <div class="col text-end">
+                  <button type="reset" id="uploader-text-reset" class="btn btn-outline-danger">Reset</button>
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+              </div>
+              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-text-results"></div>
+            </form>
+          </div>
+          <div class="modal-footer"></div>
+        </div>
+      </div>
+    </div>
 {{- end }}

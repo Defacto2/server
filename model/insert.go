@@ -42,8 +42,8 @@ func uuidV7() (time.Time, uuid.UUID, error) {
 	return now, uid, nil
 }
 
-// dateIssue returns a valid year, month and day or a null value.
-func dateIssue(y, m, d string) (null.Int16, null.Int16, null.Int16) {
+// DateIssue returns a valid year, month and day or a null value.
+func DateIssue(y, m, d string) (null.Int16, null.Int16, null.Int16) {
 	const base, bitSize = 10, 16
 	i, _ := strconv.ParseInt(y, base, bitSize)
 	year := ValidY(int16(i))
@@ -84,14 +84,14 @@ func ValidY(y int16) null.Int16 {
 	return null.Int16{Int16: y, Valid: true}
 }
 
-// trimShort returns a string that is no longer than the short limit.
+// TrimShort returns a string that is no longer than the short limit.
 // It will also remove any leading or trailing white space.
-func trimShort(s string) string {
-	s = strings.TrimSpace(s)
-	if len(s) > shortLimit {
-		return s[:shortLimit]
+func TrimShort(s string) string {
+	x := strings.TrimSpace(s)
+	if len(x) > shortLimit {
+		return x[:shortLimit]
 	}
-	return s
+	return x
 }
 
 // trimName returns a string that is no longer than the long filename limit.
@@ -107,15 +107,15 @@ func trimName(s string) string {
 // ValidReleasers returns two valid releaser group strings or null values.
 func ValidReleasers(s1, s2 string) (null.String, null.String) {
 	invalid := null.String{String: "", Valid: false}
-	t1, t2 := trimShort(s1), trimShort(s2)
+	t1, t2 := TrimShort(s1), TrimShort(s2)
 	t1, t2 = releaser.Clean(t1), releaser.Clean(t2)
 	t1, t2 = strings.ToUpper(t1), strings.ToUpper(t2)
 	x1, x2 := invalid, invalid
 	if len(t1) > 0 {
-		x1 = null.StringFrom(s1)
+		x1 = null.StringFrom(t1)
 	}
 	if len(t2) > 0 {
-		x2 = null.StringFrom(s2)
+		x2 = null.StringFrom(t2)
 	}
 	return x1, x2
 }
@@ -124,7 +124,7 @@ func ValidReleasers(s1, s2 string) (null.String, null.String) {
 // The title is trimmed and shortened to the short limit.
 func ValidTitle(s string) null.String {
 	invalid := null.String{String: "", Valid: false}
-	t := trimShort(s)
+	t := TrimShort(s)
 	if len(t) == 0 {
 		return invalid
 	}
@@ -256,6 +256,16 @@ func ValidSection(section string) null.String {
 
 }
 
+// ValidString returns a valid string or a null value.
+func ValidString(s string) null.String {
+	invalid := null.String{String: "", Valid: false}
+	x := strings.TrimSpace(s)
+	if len(x) == 0 {
+		return invalid
+	}
+	return null.StringFrom(x)
+}
+
 // InsertUpload inserts a new file record into the database using a URL values map.
 // This will not check if the file already exists in the database.
 // Invalid values will be ignored, but will not prevent the record from being inserted.
@@ -264,13 +274,6 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 	if tx == nil {
 		return 0, ErrDB
 	}
-
-	for k, v := range values {
-		fmt.Printf("%s: %s\n", k, v)
-	}
-
-	// obtain zip content
-
 	now, uid, err := uuidV7()
 	if err != nil {
 		return 0, err
@@ -293,12 +296,13 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 		values.Get(key+"-releaser2"),
 	)
 	title := ValidTitle(values.Get(key + "-title"))
-	year, month, _ := dateIssue(
+	year, month, _ := DateIssue(
 		values.Get(key+"-year"),
 		values.Get(key+"-month"),
 		"0",
 	)
-	filename := ValidFilename(values.Get(key + "-filename"))
+	fname := values.Get(key + "-filename")
+	filename := ValidFilename(fname)
 	if !filename.Valid || filename.IsZero() {
 		return 0, fmt.Errorf("%w: %v", ErrName, key+"-filename is required")
 	}
@@ -306,6 +310,8 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 	if err != nil {
 		return 0, err
 	}
+	content := ValidString(values.Get(key + "-content"))
+	readme := ValidFilename(values.Get(key + "-readme"))
 	filemagic := ValidMagic(values.Get(key + "-magic"))
 	integrity := ValidIntegrity(values.Get(key + "-integrity"))
 	lastMod := ValidLastMod(values.Get(key + "-lastmodified"))
@@ -324,6 +330,8 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 		DateIssuedMonth:     month,
 		Filename:            filename,
 		Filesize:            filesize,
+		FileZipContent:      content,
+		RetrotxtReadme:      readme,
 		FileMagicType:       filemagic,
 		FileIntegrityStrong: integrity,
 		FileLastModified:    lastMod,

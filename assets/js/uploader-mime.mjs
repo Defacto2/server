@@ -37,3 +37,8 @@ export function intro(mime) {
   }
   return false;
 }
+
+export function text(mime) {
+  const allowedTypes = ["text/plain"];
+  return allowedTypes.includes(mime);
+}

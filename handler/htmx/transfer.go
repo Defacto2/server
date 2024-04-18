@@ -11,7 +11,9 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strings"
 
+	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
@@ -89,11 +91,20 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key string) error {
 				html.EscapeString(file.Filename))
 	}
 
-	if err = copier(c, logger, file, key); err != nil {
+	dst, err := copier(c, logger, file, key)
+	if err != nil {
 		return err
 	}
+	if dst == "" {
+		return c.HTML(http.StatusInternalServerError,
+			"The temporary save cannot be created.")
+	}
 
-	id, err := creator(c, logger, ctx, tx, checksum, file, key)
+	content, _ := archive.List(dst, file.Filename)
+	readme := archive.Readme(file.Filename, content...)
+
+	id, err := creator(c, logger, ctx, tx,
+		checksum, file, content, readme, key)
 	if err != nil {
 		return err
 	}
@@ -104,9 +115,9 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key string) error {
 }
 
 // copier is a generic file writer that saves the chosen file upload to a temporary file.
-func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeader, key string) error {
+func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeader, key string) (string, error) {
 	if file == nil {
-		return ErrFileHead
+		return "", ErrFileHead
 	}
 	const pattern = "upload-*.zip"
 	name := key + "file"
@@ -117,7 +128,7 @@ func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeade
 			s := fmt.Sprintf("The chosen file input could not be opened, %s: %s", name, err)
 			logger.Error(s)
 		}
-		return c.HTML(http.StatusInternalServerError,
+		return "", c.HTML(http.StatusInternalServerError,
 			"The chosen file input cannot be opened.")
 	}
 	defer src.Close()
@@ -128,7 +139,7 @@ func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeade
 			s := fmt.Sprintf("Cannot create a temporary destination file, %s: %s", name, err)
 			logger.Error(s)
 		}
-		return c.HTML(http.StatusInternalServerError,
+		return "", c.HTML(http.StatusInternalServerError,
 			"The temporary save cannot be created.")
 	}
 	defer dst.Close()
@@ -138,10 +149,10 @@ func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeade
 			s := fmt.Sprintf("Cannot copy to the temporary destination file, %s: %s", name, err)
 			logger.Error(s)
 		}
-		return c.HTML(http.StatusInternalServerError,
+		return "", c.HTML(http.StatusInternalServerError,
 			"The temporary save cannot be written.")
 	}
-	return nil
+	return dst.Name(), nil
 }
 
 func debug(c echo.Context, html string) (string, error) {
@@ -160,7 +171,11 @@ func debug(c echo.Context, html string) (string, error) {
 
 func creator(
 	c echo.Context, logger *zap.SugaredLogger, ctx context.Context, tx *sql.Tx,
-	checksum []byte, file *multipart.FileHeader, key string) (int64, error) {
+	checksum []byte,
+	file *multipart.FileHeader,
+	content []string,
+	readme, key string,
+) (int64, error) {
 	values, err := c.FormParams()
 	if err != nil {
 		if logger != nil {
@@ -172,6 +187,8 @@ func creator(
 	values.Add(key+"-filename", file.Filename)
 	values.Add(key+"-integrity", hex.EncodeToString(checksum))
 	values.Add(key+"-size", fmt.Sprintf("%d", file.Size))
+	values.Add(key+"-content", strings.Join(content, "\n"))
+	values.Add(key+"-readme", readme)
 
 	id, err := model.InsertUpload(ctx, tx, values, key)
 	if err != nil {
