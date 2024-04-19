@@ -1,57 +1,107 @@
-import { validYear, validMonth, validDay } from "./helper.mjs";
-export default magazineSubmit;
-// Elements for the magazine uploader
-const magFile = document.getElementById("magFile");
-const magTitl = document.getElementById("magTitle");
-const magIssu = document.getElementById("magIssue");
-const magYear = document.getElementById("magYear");
-const magMonth = document.getElementById("magMonth");
-const magDay = document.getElementById("magDay");
-const invalid = "is-invalid";
-function magReset() {
-  magFile.classList.remove(invalid);
-  magTitl.classList.remove(invalid);
-  magIssu.classList.remove(invalid);
-  magYear.classList.remove(invalid);
-  magMonth.classList.remove(invalid);
-  magDay.classList.remove(invalid);
-}
-const magFrm = document.getElementById("magUploader");
+// uploader-magazine.mjs
+import { getElmById } from "./helper.mjs";
+import { checkMagazine as mime } from "./uploader-mime.mjs";
+import {
+  checkDuplicate,
+  checkErrors,
+  checkSize,
+  checkMonth,
+  checkYear,
+  checkReleaser,
+  hiddenDetails,
+  submitError,
+  resetInput,
+} from "./uploader.mjs";
+import { validYear, validMonth } from "./helper.mjs";
+export default submit;
 
-export function magazineSubmit(elementId) {
-  const element = document.getElementById(elementId);
-  if (element == null) {
-    throw new Error(`The ${elementId} element is null.`);
-  }
+const formId = `uploader-magazine-form`,
+  invalid = "is-invalid",
+  none = "d-none";
+
+const form = getElmById(formId),
+  alert = getElmById("uploader-magazine-alert"),
+  fileInput = getElmById("uploader-magazine-file"),
+  lastMod = getElmById("uploader-magazine-last-modified"),
+  list1 = getElmById("uploader-magazine-list-1"),
+  magic = getElmById("uploader-magazine-magic"),
+  month = getElmById("uploader-magazine-month"),
+  releaser1 = getElmById("uploader-magazine-releaser-1"),
+  results = getElmById("uploader-magazine-results"),
+  year = getElmById("uploader-magazine-year");
+
+form.addEventListener("reset", function () {
+  lastMod.value = "";
+  magic.value = "";
+  resetForm();
+});
+
+fileInput.addEventListener("change", checkFile);
+releaser1.addEventListener("input", checkReleaser);
+year.addEventListener("input", checkYear);
+month.addEventListener("input", checkMonth);
+
+/**
+ * After performing input validations this submits the form when the specified element is clicked.
+ * @param {string} elementId - The ID of the element that triggers the form submission, e.g. a button element type.
+ */
+export function submit(elementId) {
+  const element = getElmById(elementId);
   element.addEventListener("click", function () {
     let pass = true;
-    magReset();
-    if (magFile.value == "") {
-      magFile.classList.add(invalid);
+    if (releaser1.value == "") {
+      releaser1.classList.add(invalid);
       pass = false;
     }
-    if (magTitl.value == "") {
-      magTitl.classList.add(invalid);
+    if (validYear(year.value) == false) {
+      year.classList.add(invalid);
       pass = false;
     }
-    if (magIssu.value == "") {
-      magIssu.classList.add(invalid);
+    if (validMonth(month.value) == false) {
+      month.classList.add(invalid);
       pass = false;
     }
-    if (validYear(magYear.value) == false) {
-      magYear.classList.add(invalid);
+    if (month.value != "" && year.value == "") {
+      year.classList.add(invalid);
       pass = false;
     }
-    if (validMonth(magMonth.value) == false) {
-      magMonth.classList.add(invalid);
+    if (fileInput.value == "") {
+      fileInput.classList.add(invalid);
       pass = false;
     }
-    if (validDay(magDay.value) == false) {
-      magDay.classList.add(invalid);
-      pass = false;
+    if (pass == false) {
+      return submitError(alert, results);
     }
-    if (pass == true) {
-      magFrm.submit();
-    }
+    resetForm();
+    results.innerText = "...";
+    results.classList.remove(none);
   });
+}
+
+async function checkFile() {
+  resetInput(fileInput, alert, results);
+  const file1 = this.files[0];
+  let errors = [checkSize(file1), checkMime(file1)];
+  checkErrors(errors, alert, fileInput, results);
+  checkDuplicate(file1, alert, fileInput, results);
+  hiddenDetails(file1, lastMod, magic);
+}
+
+function checkMime(file) {
+  if (!mime(file.type)) {
+    return `The chosen file mime type ${file.type} is probably not suitable for an image.`;
+  }
+  return ``;
+}
+
+function resetForm() {
+  list1.innerHTML = "";
+  results.innerHTML = "";
+  results.classList.add(none);
+  alert.innerText = "";
+  alert.classList.add(none);
+  year.classList.remove(invalid);
+  month.classList.remove(invalid);
+  releaser1.classList.remove(invalid);
+  fileInput.classList.remove(invalid);
 }

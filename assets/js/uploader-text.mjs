@@ -1,20 +1,27 @@
 // uploader-text.mjs
-import { validYear, validMonth } from "./helper.mjs";
 import { getElmById } from "./helper.mjs";
-import { intro as mime } from "./uploader-mime.mjs";
-import { checkSHA } from "./uploader.mjs";
+import { checkText as mime } from "./uploader-mime.mjs";
+import {
+  checkDuplicate,
+  checkErrors,
+  checkSize,
+  checkMonth,
+  checkYear,
+  checkReleaser,
+  hiddenDetails,
+  submitError,
+  resetInput,
+} from "./uploader.mjs";
+import { validYear, validMonth } from "./helper.mjs";
 export default submit;
 
 const formId = `uploader-text-form`,
   invalid = "is-invalid",
-  none = "d-none",
-  megabyte = 1024 * 1024,
-  sizeLimit = 100 * megabyte,
-  percentage = 100;
+  none = "d-none";
 
 const form = getElmById(formId),
   alert = getElmById("uploader-text-alert"),
-  file = getElmById("uploader-text-file"),
+  fileInput = getElmById("uploader-text-file"),
   lastMod = getElmById("uploader-text-last-modified"),
   list1 = getElmById("uploader-text-list-1"),
   list2 = getElmById("uploader-text-list-2"),
@@ -27,13 +34,13 @@ const form = getElmById(formId),
 form.addEventListener("reset", function () {
   lastMod.value = "";
   magic.value = "";
-  reset();
+  resetForm();
 });
 
-file.addEventListener("change", checker);
-releaser1.addEventListener("input", validateRel1);
-year.addEventListener("input", validateY);
-month.addEventListener("input", validateM);
+fileInput.addEventListener("change", checkFile);
+releaser1.addEventListener("input", checkReleaser);
+year.addEventListener("input", checkYear);
+month.addEventListener("input", checkMonth);
 
 /**
  * After performing input validations this submits the form when the specified element is clicked.
@@ -59,100 +66,36 @@ export function submit(elementId) {
       year.classList.add(invalid);
       pass = false;
     }
-    if (file.value == "") {
-      file.classList.add(invalid);
+    if (fileInput.value == "") {
+      fileInput.classList.add(invalid);
       pass = false;
     }
     if (pass == false) {
-      alert.innerText = "Please correct the problems with the form.";
-      alert.classList.remove(none);
-      return;
+      return submitError(alert, results);
     }
-    reset();
+    resetForm();
     results.innerText = "...";
     results.classList.remove(none);
   });
 }
 
-/**
- * Updates the progress bar based on the upload progress.
- * Based on the htmx:xhr:progress example from https://htmx.org/examples/file-upload/.
- */
-export function progress() {
-  htmx.on(`#${formId}`, "htmx:xhr:progress", function (event) {
-    if (event.target.id != `${formId}`) return;
-    htmx
-      .find("#uploader-text-progress")
-      .setAttribute(
-        "value",
-        (event.detail.loaded / event.detail.total) * percentage
-      );
-  });
-}
-
-async function checker() {
-  const file1 = this.files[0],
-    removeSelection = "";
-
-  file.classList.remove(invalid);
-  alert.innerText = "";
-  alert.classList.add(none);
-
+async function checkFile() {
+  resetInput(fileInput, alert, results);
+  const file1 = this.files[0];
   let errors = [checkSize(file1), checkMime(file1)];
-  errors = errors.filter((error) => error != "");
-
-  if (errors.length > 0) {
-    alert.innerText = errors.join(" ");
-    alert.classList.remove(none);
-    this.value = removeSelection;
-    this.classList.add(invalid);
-    results.classList.remove(none);
-    return;
-  }
-
-  // only hash the file if it passes the size and mime checks
-  const alreadyExists = await checkSHA(file1);
-  if (alreadyExists == true) {
-    alert.innerText = `The chosen file already exists in the database: ${file1.name}`;
-    alert.classList.remove(none);
-    this.value = removeSelection;
-    this.classList.add(invalid);
-    results.classList.remove(none);
-    return;
-  }
-
-  // obtain and set the lastModified value
-  const lastModified = file1.lastModified;
-  const currentTime = new Date().getTime();
-  const oneHourMs = 60 * 60 * 1000;
-  // if no lastModified value was set, the browser returns the current time.
-  const underOneHour = currentTime - lastModified < oneHourMs;
-  if (!underOneHour) {
-    console.log(`The file was last modified more than an hour ago.`);
-    lastMod.value = lastModified;
-  }
-  if (file1.type != "") {
-    console.log(`The file mime type is ${file1.type}.`);
-    magic.value = file1.type;
-  }
-}
-
-function checkSize(file) {
-  if (file.size > sizeLimit) {
-    const errSize = Math.round(file.size / megabyte);
-    return `The chosen file is too big at ${errSize}MB, maximum size is ${sizeLimit / megabyte}MB.`;
-  }
-  return ``;
+  checkErrors(errors, alert, fileInput, results);
+  checkDuplicate(file1, alert, fileInput, results);
+  hiddenDetails(file1, lastMod, magic);
 }
 
 function checkMime(file) {
   if (!mime(file.type)) {
-    return `The chosen file mime type ${file.type} is probably not suitable for an intro.`;
+    return `The chosen file mime type ${file.type} is probably not suitable for a text.`;
   }
   return ``;
 }
 
-function reset() {
+function resetForm() {
   list1.innerHTML = "";
   list2.innerHTML = "";
   results.innerHTML = "";
@@ -162,32 +105,5 @@ function reset() {
   year.classList.remove(invalid);
   month.classList.remove(invalid);
   releaser1.classList.remove(invalid);
-  file.classList.remove(invalid);
-}
-
-function validateRel1() {
-  if (releaser1.value == "") {
-    releaser1.classList.add(invalid);
-    return false;
-  }
-  releaser1.classList.remove(invalid);
-  return true;
-}
-
-function validateM() {
-  if (validMonth(month.value) == false) {
-    month.classList.add(invalid);
-    return false;
-  }
-  month.classList.remove(invalid);
-  return true;
-}
-
-function validateY() {
-  if (validYear(year.value) == false) {
-    year.classList.add(invalid);
-    return false;
-  }
-  year.classList.remove(invalid);
-  return true;
+  fileInput.classList.remove(invalid);
 }

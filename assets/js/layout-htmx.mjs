@@ -14,10 +14,20 @@ export function htmxEvents() {
   // This event is triggered after an AJAX request has finished.
   // https://htmx.org/events/#htmx:afterRequest
   document.body.addEventListener("htmx:afterRequest", function (event) {
+    // search releaser.
     afterRequest(event, `search-releaser-input`, `search-releaser-alert`);
+    // image uploader.
+    afterRequest(event, `uploader-image-form`, `uploader-image-alert`);
+    afterRequest(event, `uploader-image-releaser-1`, `uploader-image-alert`);
+    afterRequest(event, `uploader-image-releaser-2`, `uploader-image-alert`);
+    // intro uploader.
     afterRequest(event, `uploader-intro-form`, `uploader-intro-alert`);
     afterRequest(event, `uploader-intro-releaser-1`, `uploader-intro-alert`);
     afterRequest(event, `uploader-intro-releaser-2`, `uploader-intro-alert`);
+    // text uploader.
+    afterRequest(event, `uploader-text-form`, `uploader-text-alert`);
+    afterRequest(event, `uploader-text-releaser-1`, `uploader-text-alert`);
+    afterRequest(event, `uploader-text-releaser-2`, `uploader-text-alert`);
   });
 }
 
@@ -57,8 +67,12 @@ function afterRequest(event, inputId, alertId) {
 function successful(event, alert) {
   alert.classList.add("d-none");
   alert.innerText = "";
-  if (event.target.id === "uploader-intro-form") {
-    resetFile(event, "#uploader-intro-file");
+  const match = "-form",
+    id = event.target.id;
+  const suffix = id.slice(-match.length);
+  if (suffix == match) {
+    const select = id.replace(match, "-file");
+    resetFile(event, `#${select}`);
   }
 }
 
@@ -68,9 +82,10 @@ function successful(event, alert) {
  * @param {string} selector - The selector of the file input element.
  */
 function resetFile(event, selector) {
-  const input = event.target.querySelector("#uploader-intro-file");
+  const input = event.target.querySelector(selector);
   if (input) {
     input.value = "";
+    input.innerText = "";
     return;
   }
   console.error(`The reset file ${selector} element is null`);

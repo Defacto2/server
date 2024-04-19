@@ -316,7 +316,7 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 	integrity := ValidIntegrity(values.Get(key + "-integrity"))
 	lastMod := ValidLastMod(values.Get(key + "-lastmodified"))
 	platform := ValidPlatform(values.Get(key + "-operating-system"))
-	section := ValidSection(tags.Intro.String())
+	section := ValidSection(values.Get(key + "-category"))
 
 	f := models.File{
 		UUID:                unique,

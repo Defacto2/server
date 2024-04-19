@@ -11,8 +11,14 @@ const introModal = focusModalById(
   "uploader-intro-file"
 );
 const textModal = focusModalById("uploader-text-modal", "uploader-text-file");
-const graphicModal = getModalById("uploaderImg");
-const magazineModal = getModalById("uploaderMag");
+const graphicModal = focusModalById(
+  "uploader-image-modal",
+  "uploader-image-file"
+);
+const magazineModal = focusModalById(
+  "uploader-magazine-modal",
+  "uploader-magazine-file"
+);
 const advancedModal = getModalById("uploaderAdv");
 
 const demozoo = "d",

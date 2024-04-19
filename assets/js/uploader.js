@@ -1,34 +1,32 @@
 // uploader.js
 
 import { advancedUploader } from "./uploader-advanced.mjs";
-import { imageSubmit } from "./uploader-image.mjs";
 import { keyboardShortcuts as uploadKeys } from "./uploader-keyboard.mjs";
-import { magazineSubmit } from "./uploader-magazine.mjs";
-//import { textUploader } from "./uploader-text.mjs";
 import { submitter } from "./uploader-submitter.mjs";
-import {
-  submit as introSubmit,
-  progress as introProgress,
-} from "./uploader-intro.mjs";
-import {
-  submit as textSubmit,
-  progress as textProgress,
-} from "./uploader-text.mjs";
+import { submit as imageSubmit } from "./uploader-image.mjs";
+import { submit as introSubmit } from "./uploader-intro.mjs";
+import { submit as magazineSubmit } from "./uploader-magazine.mjs";
+import { submit as textSubmit } from "./uploader-text.mjs";
+import { progress } from "./uploader.mjs";
 
 (() => {
   "use strict";
   uploadKeys();
-  advancedUploader(`advSubmit`);
-  imageSubmit(`imageSubmit`);
 
-  introSubmit(`uploader-intro-submit`);
-  introProgress();
-
-  textSubmit(`uploader-text-submit`);
-  textProgress();
-
-  magazineSubmit(`magSubmit`);
-  //textUploader(`textSubmit`, `textUploader`);
   submitter(`demozoo-submission`, `Demozoo`);
   submitter(`pouet-submission`, `Pouët`);
+
+  imageSubmit(`uploader-image-submit`);
+  progress(`uploader-image-form`, `uploader-image-progress`);
+
+  introSubmit(`uploader-intro-submit`);
+  progress(`uploader-intro-form`, `uploader-intro-progress`);
+
+  magazineSubmit(`uploader-magazine-submit`);
+  progress(`uploader-magazine-form`, `uploader-magazine-progress`);
+
+  textSubmit(`uploader-text-submit`);
+  progress(`uploader-text-form`, `uploader-text-progress`);
+
+  advancedUploader(`advSubmit`);
 })();

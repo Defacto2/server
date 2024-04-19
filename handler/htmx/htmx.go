@@ -50,35 +50,49 @@ func Routes(e *echo.Echo, logger *zap.SugaredLogger, prod bool) *echo.Echo {
 	submit.PUT("/uploader/sha384/:hash", func(c echo.Context) error {
 		return LookupSHA384(c, logger)
 	})
+	submit.POST("/uploader/image", func(c echo.Context) error {
+		return ImageSubmit(c, logger, prod)
+	})
 	submit.POST("/uploader/intro", func(c echo.Context) error {
-		if prod {
-			return transfer(c, nil, "uploader-intro")
-		}
-		return transfer(c, logger, "uploader-intro")
+		return IntroSubmit(c, logger, prod)
+	})
+	submit.POST("/uploader/magazine", func(c echo.Context) error {
+		return MagazineSubmit(c, logger, prod)
+	})
+	submit.POST("/uploader/text", func(c echo.Context) error {
+		return TextSubmit(c, logger, prod)
 	})
 	submit.POST("/uploader/releaser/1", func(c echo.Context) error {
-		input := ""
-		lookups := []string{"uploader-intro-releaser1", "uploader-text-releaser1"}
-		for _, lookup := range lookups {
-			if val := c.FormValue(lookup); val != "" {
-				input = val
-				break
-			}
-		}
-		return DataListReleasers(c, logger, input)
+		return DataListReleasers(c, logger, releaser1(c))
 	})
 	submit.POST("/uploader/releaser/2", func(c echo.Context) error {
-		input := ""
-		lookups := []string{"uploader-intro-releaser2", "uploader-text-releaser2"}
-		for _, lookup := range lookups {
-			if val := c.FormValue(lookup); val != "" {
-				input = val
-				break
-			}
-		}
-		return DataListReleasers(c, logger, input)
+		return DataListReleasers(c, logger, releaser2(c))
+	})
+	submit.POST("/uploader/releaser/magazine", func(c echo.Context) error {
+		lookup := c.FormValue("uploader-magazine-releaser1")
+		return DataListMagazines(c, logger, lookup)
 	})
 	return e
+}
+
+func releaser1(c echo.Context) string {
+	lookups := []string{"uploader-intro-releaser1", "uploader-text-releaser1", "uploader-image-releaser1"}
+	for _, lookup := range lookups {
+		if val := c.FormValue(lookup); val != "" {
+			return val
+		}
+	}
+	return ""
+}
+
+func releaser2(c echo.Context) string {
+	lookups := []string{"uploader-intro-releaser2", "uploader-text-releaser2", "uploader-image-releaser2"}
+	for _, lookup := range lookups {
+		if val := c.FormValue(lookup); val != "" {
+			return val
+		}
+	}
+	return ""
 }
 
 // GlobTo returns the path to the template file.

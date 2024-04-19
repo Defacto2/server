@@ -15,10 +15,47 @@ import (
 
 	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/postgres"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
+
+func ImageSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
+	if prod {
+		logger = nil
+	}
+	const key = "uploader-image"
+	c.Set(key+"-operating-system", tags.Image.String())
+	return transfer(c, logger, key)
+}
+
+func IntroSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
+	if prod {
+		logger = nil
+	}
+	const key = "uploader-intro"
+	c.Set(key+"-category", tags.Intro.String())
+	return transfer(c, logger, key)
+}
+
+func MagazineSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
+	if prod {
+		logger = nil
+	}
+	const key = "uploader-magazine"
+	c.Set(key+"-category", tags.Mag.String())
+	return transfer(c, logger, key)
+}
+
+func TextSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
+	if prod {
+		logger = nil
+	}
+	const key = "uploader-text"
+	// TODO: Set the category tag.
+	return transfer(c, logger, key)
+}
 
 // Transfer is a generic file transfer handler that uploads and validates a chosen file upload.
 // The provided name is that of the form input field. The logger is optional and if nil then

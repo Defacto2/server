@@ -1,9 +1,6 @@
 // uploader-submitter.mjs
 
-export default intro;
-
 const arc = "application/x-freearc",
-  binary = "application/octet-stream",
   bz = "application/x-bzip",
   bz2 = "application/x-bzip2",
   gzip = "application/gzip",
@@ -12,33 +9,53 @@ const arc = "application/x-freearc",
   zip = "application/zip",
   zip7 = "application/x-7z-compressed";
 
-export function archive(mime) {
-  const allowedTypes = [arc, bz, bz2, gzip, rar, tar, zip, zip7];
-  if (allowedTypes.includes(mime) == false) {
-    return false;
-  }
-  return true;
+const dos = "application/x-msdos-program";
+
+const gif = "image/gif",
+  jpeg = "image/jpeg",
+  png = "image/png";
+
+export function apps() {
+  const allowedTypes = [dos];
+  return allowedTypes;
 }
 
-export function unknown(mime) {
-  const allowedTypes = [binary];
+export function archives() {
+  const allowedTypes = [arc, bz, bz2, gzip, rar, tar, zip, zip7];
+  return allowedTypes;
+}
+
+export function binaries() {
+  const allowedTypes = ["application/octet-stream", "application/x-binary"];
+  return allowedTypes;
+}
+
+export function images() {
+  const allowedTypes = [gif, jpeg, png];
+  return allowedTypes;
+}
+
+export function texts() {
+  const allowedTypes = ["text/plain"];
+  return allowedTypes;
+}
+
+export function checkImage(mime) {
+  const allowedTypes = images().concat(archives());
   return allowedTypes.includes(mime);
 }
 
-export function intro(mime) {
-  let ok = false;
-  ok = unknown(mime);
-  if (ok) {
-    return true;
-  }
-  ok = archive(mime);
-  if (ok) {
-    return true;
-  }
-  return false;
+export function checkIntro(mime) {
+  const allowedTypes = apps().concat(archives(), binaries());
+  return allowedTypes.includes(mime);
 }
 
-export function text(mime) {
-  const allowedTypes = ["text/plain"];
+export function checkMagazine(mime) {
+  const allowedTypes = texts().concat(archives(), apps(), binaries());
+  return allowedTypes.includes(mime);
+}
+
+export function checkText(mime) {
+  const allowedTypes = texts().concat(archives());
   return allowedTypes.includes(mime);
 }

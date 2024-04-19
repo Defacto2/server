@@ -1,58 +1,109 @@
+// uploader-image.mjs
+import { getElmById } from "./helper.mjs";
+import { checkImage as mime } from "./uploader-mime.mjs";
+import {
+  checkDuplicate,
+  checkErrors,
+  checkSize,
+  checkMonth,
+  checkYear,
+  checkReleaser,
+  hiddenDetails,
+  submitError,
+  resetInput,
+} from "./uploader.mjs";
 import { validYear, validMonth } from "./helper.mjs";
-export default imageSubmit;
+export default submit;
 
-const imgFile = document.getElementById("imageFile");
-const imgTitl = document.getElementById("imageTitle");
-const imgRels = document.getElementById("imageReleasers");
-const imgYear = document.getElementById("imageYear");
-const imgMonth = document.getElementById("imageMonth");
+const formId = `uploader-image-form`,
+  invalid = "is-invalid",
+  none = "d-none";
 
-const imgFrm = document.getElementById("imageUploader");
-const invalid = "is-invalid";
+const form = getElmById(formId),
+  alert = getElmById("uploader-image-alert"),
+  fileInput = getElmById("uploader-image-file"),
+  lastMod = getElmById("uploader-image-last-modified"),
+  list1 = getElmById("uploader-image-list-1"),
+  list2 = getElmById("uploader-image-list-2"),
+  magic = getElmById("uploader-image-magic"),
+  month = getElmById("uploader-image-month"),
+  releaser1 = getElmById("uploader-image-releaser-1"),
+  results = getElmById("uploader-image-results"),
+  year = getElmById("uploader-image-year");
+
+form.addEventListener("reset", function () {
+  lastMod.value = "";
+  magic.value = "";
+  resetForm();
+});
+
+fileInput.addEventListener("change", checkFile);
+releaser1.addEventListener("input", checkReleaser);
+year.addEventListener("input", checkYear);
+month.addEventListener("input", checkMonth);
 
 /**
- * Resets the input fields for image upload.
+ * After performing input validations this submits the form when the specified element is clicked.
+ * @param {string} elementId - The ID of the element that triggers the form submission, e.g. a button element type.
  */
-function imgReset() {
-  imgFile.classList.remove(invalid);
-  imgTitl.classList.remove(invalid);
-  imgRels.classList.remove(invalid);
-  imgYear.classList.remove(invalid);
-  imgMonth.classList.remove(invalid);
-}
-// Event listener for the image reset button
-imgFrm.addEventListener("reset", imgReset);
-
-export function imageSubmit(elementId) {
-  const element = document.getElementById(elementId);
-  if (element == null) {
-    throw new Error(`The ${elementId} element is null.`);
-  }
+export function submit(elementId) {
+  const element = getElmById(elementId);
   element.addEventListener("click", function () {
     let pass = true;
-    imgReset();
-    if (imgFile.value == "") {
-      imgFile.classList.add(invalid);
+    if (releaser1.value == "") {
+      releaser1.classList.add(invalid);
       pass = false;
     }
-    if (imgTitl.value == "") {
-      imgTitl.classList.add(invalid);
+    if (validYear(year.value) == false) {
+      year.classList.add(invalid);
       pass = false;
     }
-    if (imgRels.value == "") {
-      imgRels.classList.add(invalid);
+    if (validMonth(month.value) == false) {
+      month.classList.add(invalid);
       pass = false;
     }
-    if (validYear(imgYear.value) == false) {
-      imgYear.classList.add(invalid);
+    if (month.value != "" && year.value == "") {
+      year.classList.add(invalid);
       pass = false;
     }
-    if (validMonth(imgMonth.value) == false) {
-      imgMonth.classList.add(invalid);
+    if (fileInput.value == "") {
+      fileInput.classList.add(invalid);
       pass = false;
     }
-    if (pass == true) {
-      imgFrm.submit();
+    if (pass == false) {
+      return submitError(alert, results);
     }
+    resetForm();
+    results.innerText = "...";
+    results.classList.remove(none);
   });
+}
+
+async function checkFile() {
+  resetInput(fileInput, alert, results);
+  const file1 = this.files[0];
+  let errors = [checkSize(file1), checkMime(file1)];
+  checkErrors(errors, alert, fileInput, results);
+  checkDuplicate(file1, alert, fileInput, results);
+  hiddenDetails(file1, lastMod, magic);
+}
+
+function checkMime(file) {
+  if (!mime(file.type)) {
+    return `The chosen file mime type ${file.type} is probably not suitable for an image.`;
+  }
+  return ``;
+}
+
+function resetForm() {
+  list1.innerHTML = "";
+  list2.innerHTML = "";
+  results.innerHTML = "";
+  results.classList.add(none);
+  alert.innerText = "";
+  alert.classList.add(none);
+  year.classList.remove(invalid);
+  month.classList.remove(invalid);
+  releaser1.classList.remove(invalid);
+  fileInput.classList.remove(invalid);
 }

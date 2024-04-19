@@ -103,6 +103,14 @@ func SearchReleaser(c echo.Context, logger *zap.SugaredLogger) error {
 }
 
 func DataListReleasers(c echo.Context, logger *zap.SugaredLogger, input string) error {
+	return datalist(c, logger, input, false)
+}
+
+func DataListMagazines(c echo.Context, logger *zap.SugaredLogger, input string) error {
+	return datalist(c, logger, input, true)
+}
+
+func datalist(c echo.Context, logger *zap.SugaredLogger, input string, magazine bool) error {
 	const maxResults = 14
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
@@ -128,7 +136,12 @@ func DataListReleasers(c echo.Context, logger *zap.SugaredLogger, input string) 
 	}
 	lookup = append(lookup, slug)
 	var r model.Releasers
-	if err := r.Similar(ctx, db, maxResults, lookup...); err != nil {
+	if magazine {
+		err = r.SimilarMagazine(ctx, db, maxResults, lookup...)
+	} else {
+		err = r.Similar(ctx, db, maxResults, lookup...)
+	}
+	if err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
 			"cannot connect to the database")

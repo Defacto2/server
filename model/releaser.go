@@ -109,7 +109,7 @@ func (r *Releasers) All(ctx context.Context, db *sql.DB, order OrderBy, limit, p
 	return nil
 }
 
-// Find the unique releaser names that are similar to the named strings.
+// Similar finds the unique releaser names that are similar to the named strings.
 // The results are ordered by the total file counts.
 // The required limit is the maximum number of results to return or defaults to 10.
 func (r *Releasers) Similar(ctx context.Context, db *sql.DB, limit uint, names ...string) error {
@@ -131,7 +131,43 @@ func (r *Releasers) Similar(ctx context.Context, db *sql.DB, limit uint, names .
 		}
 		like[i] = strings.ToUpper(x)
 	}
-	query := string(postgres.ReleaserSimilarTo(like...))
+	query := string(postgres.SimilarToReleaser(like...))
+	{
+		const page, max = 1, 10
+		size := int(limit) | max
+		val, offset := calculateLimitAndOffset(page, size)
+		query += fmt.Sprintf(" LIMIT %d OFFSET %d", val, offset)
+	}
+	if err := queries.Raw(query).Bind(ctx, db, r); err != nil {
+		return err
+	}
+	r.Slugs()
+	return nil
+}
+
+// SimilarMagazine finds the unique releaser names that are similar to the named strings.
+// The results are ordered by the total file counts.
+// The required limit is the maximum number of results to return or defaults to 10.
+func (r *Releasers) SimilarMagazine(ctx context.Context, db *sql.DB, limit uint, names ...string) error {
+	if len(names) == 0 {
+		return nil
+	}
+	if db == nil {
+		return ErrDB
+	}
+	if r != nil && len(*r) > 0 {
+		return nil
+	}
+
+	like := names
+	for i, name := range names {
+		x, err := namer.Humanize(namer.Path(name))
+		if err != nil {
+			return err
+		}
+		like[i] = strings.ToUpper(x)
+	}
+	query := string(postgres.SimilarToMagazine(like...))
 	{
 		const page, max = 1, 10
 		size := int(limit) | max
