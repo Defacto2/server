@@ -139,9 +139,14 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key string) error {
 
 	content, _ := archive.List(dst, file.Filename)
 	readme := archive.Readme(file.Filename, content...)
-
-	id, err := creator(c, logger, ctx, tx,
-		checksum, file, content, readme, key)
+	creator := creator{
+		file:     file,
+		readme:   readme,
+		key:      key,
+		checksum: checksum,
+		content:  content,
+	}
+	id, err := creator.insert(c, logger, ctx, tx)
 	if err != nil {
 		return err
 	}
@@ -206,12 +211,15 @@ func debug(c echo.Context, html string) (string, error) {
 	return html, nil
 }
 
-func creator(
-	c echo.Context, logger *zap.SugaredLogger, ctx context.Context, tx *sql.Tx,
-	checksum []byte,
-	file *multipart.FileHeader,
-	content []string,
-	readme, key string,
+type creator struct {
+	file     *multipart.FileHeader
+	readme   string
+	key      string
+	checksum []byte
+	content  []string
+}
+
+func (cr creator) insert(c echo.Context, logger *zap.SugaredLogger, ctx context.Context, tx *sql.Tx,
 ) (int64, error) {
 	values, err := c.FormParams()
 	if err != nil {
@@ -221,13 +229,13 @@ func creator(
 		return 0, c.HTML(http.StatusInternalServerError,
 			"The form parameters could not be read.")
 	}
-	values.Add(key+"-filename", file.Filename)
-	values.Add(key+"-integrity", hex.EncodeToString(checksum))
-	values.Add(key+"-size", fmt.Sprintf("%d", file.Size))
-	values.Add(key+"-content", strings.Join(content, "\n"))
-	values.Add(key+"-readme", readme)
+	values.Add(cr.key+"-filename", cr.file.Filename)
+	values.Add(cr.key+"-integrity", hex.EncodeToString(cr.checksum))
+	values.Add(cr.key+"-size", fmt.Sprintf("%d", cr.file.Size))
+	values.Add(cr.key+"-content", strings.Join(cr.content, "\n"))
+	values.Add(cr.key+"-readme", cr.readme)
 
-	id, err := model.InsertUpload(ctx, tx, values, key)
+	id, err := model.InsertUpload(ctx, tx, values, cr.key)
 	if err != nil {
 		if logger != nil {
 			logger.Error(err)
