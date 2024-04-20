@@ -1,76 +1,114 @@
-import { validYear, validMonth, validDay } from "./helper.mjs";
+// uploader-advanced.mjs
+import { validYear, validMonth } from "./helper.mjs";
+import { getElmById } from "./helper.mjs";
+import { checkIntro as mime } from "./uploader-mime.mjs";
+import {
+  checkDuplicate,
+  checkErrors,
+  checkSize,
+  checkMonth,
+  checkYear,
+  checkReleaser,
+  checkYouTube,
+  hiddenDetails,
+  submitError,
+  resetInput,
+} from "./uploader.mjs";
 
-export default advancedUploader;
+export default submit;
 
-export function advancedUploader(uploaderId) {
-  const element = document.getElementById(uploaderId);
-  if (element == null) {
-    throw new Error(`The ${uploaderId} element is null.`);
-  }
+const formId = `uploader-intro-form`,
+  invalid = "is-invalid",
+  none = "d-none";
+
+const form = getElmById(formId),
+  alert = getElmById("uploader-intro-alert"),
+  fileInput = getElmById("uploader-intro-file"),
+  lastMod = getElmById("uploader-intro-last-modified"),
+  list1 = getElmById("uploader-intro-list-1"),
+  list2 = getElmById("uploader-intro-list-2"),
+  magic = getElmById("uploader-intro-magic"),
+  month = getElmById("uploader-intro-month"),
+  releaser1 = getElmById("uploader-intro-releaser-1"),
+  results = getElmById("uploader-intro-results"),
+  year = getElmById("uploader-intro-year"),
+  youtube = getElmById("uploader-intro-youtube");
+
+form.addEventListener("reset", function () {
+  lastMod.value = "";
+  magic.value = "";
+  resetForm();
+});
+
+fileInput.addEventListener("change", checkFile);
+releaser1.addEventListener("input", checkReleaser);
+year.addEventListener("input", checkYear);
+month.addEventListener("input", checkMonth);
+youtube.addEventListener("input", checkYouTube);
+
+/**
+ * After performing input validations this submits the form when the specified element is clicked.
+ * @param {string} elementId - The ID of the element that triggers the form submission, e.g. a button element type.
+ */
+export function submit(elementId) {
+  const element = getElmById(elementId);
   element.addEventListener("click", function () {
-    const choose = "Choose...";
     let pass = true;
-    advReset();
-    if (advFile.value == "") {
-      advFile.classList.add(invalid);
+    if (releaser1.value == "") {
+      releaser1.classList.add(invalid);
       pass = false;
     }
-    if (advOS.value == "" || advOS.value == choose) {
-      advOS.classList.add(invalid);
+    if (validYear(year.value) == false) {
+      year.classList.add(invalid);
       pass = false;
     }
-    if (advCat.value == "" || advCat.value == choose) {
-      advCat.classList.add(invalid);
+    if (validMonth(month.value) == false) {
+      month.classList.add(invalid);
       pass = false;
     }
-    if (advTitl.value == "") {
-      advTitl.classList.add(invalid);
+    if (month.value != "" && year.value == "") {
+      year.classList.add(invalid);
       pass = false;
     }
-    if (advRels.value == "") {
-      advRels.classList.add(invalid);
+    if (fileInput.value == "") {
+      fileInput.classList.add(invalid);
       pass = false;
     }
-    if (validYear(advYear.value) == false) {
-      advYear.classList.add(invalid);
-      pass = false;
+    if (pass == false) {
+      return submitError(alert, results);
     }
-    if (validMonth(advMonth.value) == false) {
-      advMonth.classList.add(invalid);
-      pass = false;
-    }
-    if (validDay(advDay.value) == false) {
-      advDay.classList.add(invalid);
-      pass = false;
-    }
-    if (pass == true) {
-      advFrm.submit();
-    }
+    resetForm();
+    results.innerText = "...";
+    results.classList.remove(none);
   });
 }
 
-const invalid = "is-invalid";
-
-const advFrm = document.getElementById("advancedUploader");
-// Event listener for the advanced reset button
-advFrm.addEventListener("reset", advReset);
-function advReset() {
-  advFile.classList.remove(invalid);
-  advOS.classList.remove(invalid);
-  advCat.classList.remove(invalid);
-  advTitl.classList.remove(invalid);
-  advRels.classList.remove(invalid);
-  advYear.classList.remove(invalid);
-  advMonth.classList.remove(invalid);
-  advDay.classList.remove(invalid);
+async function checkFile() {
+  resetInput(fileInput, alert, results);
+  const file1 = this.files[0];
+  let errors = [checkSize(file1), checkMime(file1)];
+  checkErrors(errors, alert, fileInput, results);
+  checkDuplicate(file1, alert, fileInput, results);
+  hiddenDetails(file1, lastMod, magic);
 }
 
-// Elements for the advanced uploader
-const advFile = document.getElementById("advFile");
-const advOS = document.getElementById("advSelOS");
-const advCat = document.getElementById("advSelCat");
-const advTitl = document.getElementById("advTitle");
-const advRels = document.getElementById("releasersAdv");
-const advYear = document.getElementById("advYear");
-const advMonth = document.getElementById("advMonth");
-const advDay = document.getElementById("advDay");
+function checkMime(file) {
+  if (!mime(file.type)) {
+    return `The chosen file mime type ${file.type} is probably not suitable for an intro.`;
+  }
+  return ``;
+}
+
+function resetForm() {
+  list1.innerHTML = "";
+  list2.innerHTML = "";
+  results.innerHTML = "";
+  results.classList.add(none);
+  alert.innerText = "";
+  alert.classList.add(none);
+  year.classList.remove(invalid);
+  month.classList.remove(invalid);
+  releaser1.classList.remove(invalid);
+  youtube.classList.remove(invalid);
+  fileInput.classList.remove(invalid);
+}

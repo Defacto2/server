@@ -438,4 +438,115 @@
         </div>
       </div>
     </div>
+    {{- /*  advanced  */}}
+    <div class="modal fade" id="uploader-advanced-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploader-advanced-label" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="uploader-advanced-label">Advanced uploader</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="uploader-advanced-form" 
+                  hx-encoding="multipart/form-data" 
+                  hx-post="/uploader/advanced"
+                  hx-target="#uploader-advanced-results"
+                  hx-validate="true">
+              <input type="hidden" name="uploader-advanced-lastmodified" id="uploader-advanced-last-modified">
+              <input type="hidden" name="uploader-advanced-magic" id="uploader-advanced-magic">
+              <div class="form-floating mb-3">
+                <input type="text" name="uploader-advanced-title" class="form-control" id="uploader-advanced-title" aria-describedby="uploader-advanced-title-help" placeholder="example: 500000th release!">
+                <label for="uploader-advanced-title">Title</label>
+                <div id="uploader-advanced-title-help" class="form-text">An optional brief description or name of the release</div>
+              </div>
+              <div class="mb-4">
+                <label for="uploader-advanced-releaser-1" class="form-label">Releasers <small>maximum of 2</small></label>
+                <div class="input-group">
+                  <input type="text" list="uploader-advanced-list-1" name="uploader-advanced-releaser1" class="form-control" id="uploader-advanced-releaser-1" 
+                      aria-describedby="uploader-advanced-releasers-help" placeholder="example: Razor 1911" 
+                      hx-post="/uploader/releaser/1" 
+                      hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
+                      hx-target="#uploader-advanced-list-1" 
+                      required>
+                  <span class="input-group-text">+</span>
+                  <input type="text" list="uploader-advanced-list-2" name="uploader-advanced-releaser2" class="form-control" id="uploader-advanced-releaser-2" 
+                      aria-describedby="uploader-advanced-releasers-help" placeholder="example: Titan" 
+                      hx-post="/uploader/releaser/2" 
+                      hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
+                      hx-target="#uploader-advanced-list-2">
+                </div>
+                <datalist id="uploader-advanced-list-1"></datalist>
+                <datalist id="uploader-advanced-list-2"></datalist>
+                <div id="uploader-advanced-releasers-help" class="form-text">
+                  A releaser can be a group name, bbs name or ftp site<br>
+                  A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q><br>
+                  example: <q>Dark Domain BBS</q> or <q>Dark Domain FTP</q>
+                </div>
+              </div>
+              <label class="form-label">Date of release</label>
+              <div class="input-group mb-3">
+                <span class="input-group-text">Year, month and day</span>
+                <input type="number" name="uploader-advanced-year" min="1980" max="{{exampleYear}}" 
+                  id="uploader-advanced-year" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
+                <input type="number" name="uploader-advanced-month" min="1" max="12" 
+                  id="uploader-advanced-month" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
+                <input type="number" name="uploader-advanced-day" min="1" max="31" 
+                  id="uploader-advanced-day" aria-label="Day of release" class="form-control input-date" placeholder="{{exampleDay}}">
+              </div>
+              <label class="form-label">Creators</label>
+              <div class="input-group input-group-sm mb-1">
+                <span class="input-group-text w-25" id="uploader-advanced-credit-help">Writers</span>
+                <input type="text" name="uploader-advanced-credit" class="form-control" id="uploader-advanced-credit" 
+                  aria-describedby="uploader-advanced-credit-help" spellcheck="false" placeholder="example: Name1, Name2">
+              </div>
+              <div class="input-group input-group-sm mb-1">
+                <span class="input-group-text w-25" id="uploader-advanced-credit-help">Visual artists</span>
+                <input type="text" name="uploader-advanced-credit" class="form-control" id="uploader-advanced-credit" 
+                  aria-describedby="uploader-advanced-credit-help" spellcheck="false" placeholder="example: Name1, Name2">
+              </div>
+              <div class="input-group input-group-sm mb-1">
+                <span class="input-group-text w-25" id="uploader-advanced-credit-help">Programmers</span>
+                <input type="text" name="uploader-advanced-credit" class="form-control" id="uploader-advanced-credit" 
+                  aria-describedby="uploader-advanced-credit-help" spellcheck="false" placeholder="example: Name1, Name2">              
+              </div>
+              <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text w-25" id="uploader-advanced-credit-help">Musicians</span>
+                <input type="text" name="uploader-advanced-credit" class="form-control" id="uploader-advanced-credit" 
+                  aria-describedby="uploader-advanced-credit-help" spellcheck="false" placeholder="example: Name1, Name2">
+              </div>
+              <label class="form-label">Classifications</label>
+              <div class="input-group mb-1">
+                <select name="uploader-advanced-operatingsystem" id="uploader-advanced-operating-system" class="form-select">
+                {{- template "optionOS" . }}
+                </select>
+                <label class="input-group-text" for="uploader-advanced-operating-system">Operating system</label>
+              </div>
+              <div class="input-group">
+                <label class="input-group-text" for="uploader-advanced-category">Tag as category</label>
+                <select name="uploader-advanced-category" id="uploader-advanced-category" class="form-select">
+                {{- template "optionTag" . }}
+                </select>
+              </div>
+              <div id="uploader-advanced-releasers-help" class="form-text mb-3">
+                An insider ansi textfile.
+              </div>
+              <div class="row g-2">
+                <div class="input-group mt-3">
+                  <input type="file" name="uploader-advancedfile" id="uploader-advanced-file" class="form-control" required>
+                </div>
+                <div class="d-none alert alert-danger mt-2" role="alert" id="uploader-advanced-alert"></div>
+                <progress id="uploader-advanced-progress" value="0" max="100"></progress>
+                <button id="uploader-advanced-submit" class="btn btn-success">Upload</button>     
+                <div class="col text-end">
+                  <button type="reset" id="uploader-advanced-reset" class="btn btn-outline-danger">Reset</button>
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+              </div>
+              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-advanced-results"></div>
+            </form>
+          </div>
+          <div class="modal-footer"></div>
+        </div>
+      </div>
+    </div>
 {{- end }}

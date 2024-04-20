@@ -57,6 +57,14 @@ func TextSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
 	return transfer(c, logger, key)
 }
 
+func AdvancedSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
+	if prod {
+		logger = nil
+	}
+	const key = "uploader-advanced"
+	return transfer(c, logger, key)
+}
+
 // Transfer is a generic file transfer handler that uploads and validates a chosen file upload.
 // The provided name is that of the form input field. The logger is optional and if nil then
 // the function will not log any debug information.

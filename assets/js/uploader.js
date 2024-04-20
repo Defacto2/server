@@ -1,12 +1,11 @@
 // uploader.js
-
-import { advancedUploader } from "./uploader-advanced.mjs";
 import { keyboardShortcuts as uploadKeys } from "./uploader-keyboard.mjs";
 import { submitter } from "./uploader-submitter.mjs";
 import { submit as imageSubmit } from "./uploader-image.mjs";
 import { submit as introSubmit } from "./uploader-intro.mjs";
 import { submit as magazineSubmit } from "./uploader-magazine.mjs";
 import { submit as textSubmit } from "./uploader-text.mjs";
+import { submit as advancedSubmit } from "./uploader-advanced.mjs";
 import { progress } from "./uploader.mjs";
 
 (() => {
@@ -28,5 +27,6 @@ import { progress } from "./uploader.mjs";
   textSubmit(`uploader-text-submit`);
   progress(`uploader-text-form`, `uploader-text-progress`);
 
-  advancedUploader(`advSubmit`);
+  advancedSubmit(`uploader-advanced-submit`);
+  progress(`uploader-advanced-form`, `uploader-advanced-progress`);
 })();

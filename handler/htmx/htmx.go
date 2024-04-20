@@ -50,6 +50,9 @@ func Routes(e *echo.Echo, logger *zap.SugaredLogger, prod bool) *echo.Echo {
 	submit.PUT("/uploader/sha384/:hash", func(c echo.Context) error {
 		return LookupSHA384(c, logger)
 	})
+	submit.POST("/uploader/advanced", func(c echo.Context) error {
+		return AdvancedSubmit(c, logger, prod)
+	})
 	submit.POST("/uploader/image", func(c echo.Context) error {
 		return ImageSubmit(c, logger, prod)
 	})
@@ -76,7 +79,7 @@ func Routes(e *echo.Echo, logger *zap.SugaredLogger, prod bool) *echo.Echo {
 }
 
 func releaser1(c echo.Context) string {
-	lookups := []string{"uploader-intro-releaser1", "uploader-text-releaser1", "uploader-image-releaser1"}
+	lookups := []string{"uploader-intro-releaser1", "uploader-text-releaser1", "uploader-image-releaser1", "uploader-advanced-releaser1"}
 	for _, lookup := range lookups {
 		if val := c.FormValue(lookup); val != "" {
 			return val
@@ -86,7 +89,7 @@ func releaser1(c echo.Context) string {
 }
 
 func releaser2(c echo.Context) string {
-	lookups := []string{"uploader-intro-releaser2", "uploader-text-releaser2", "uploader-image-releaser2"}
+	lookups := []string{"uploader-intro-releaser2", "uploader-text-releaser2", "uploader-image-releaser2", "uploader-advanced-releaser2"}
 	for _, lookup := range lookups {
 		if val := c.FormValue(lookup); val != "" {
 			return val
