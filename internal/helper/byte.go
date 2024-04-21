@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"fmt"
+	"io"
 
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/charmap"
@@ -12,7 +13,10 @@ import (
 // DetermineEncoding returns the encoding of the plain text byte slice.
 // If the byte slice contains Unicode multi-byte characters then nil is returned.
 // Otherwise a charmap.ISO8859_1 or charmap.CodePage437 encoding is returned.
-func DetermineEncoding(p []byte) encoding.Encoding {
+func DetermineEncoding(reader io.Reader) encoding.Encoding {
+	if reader == nil {
+		return nil
+	}
 	const (
 		controlStart   = 0x00
 		controlEnd     = 0x1f
@@ -25,6 +29,10 @@ func DetermineEncoding(p []byte) encoding.Encoding {
 		multiByte      = 0x100
 		unknownChr     = 65533
 	)
+	p, err := io.ReadAll(reader)
+	if err != nil {
+		return nil
+	}
 	s := string(p)
 	for i, r := range s {
 		switch {
@@ -60,7 +68,7 @@ func DetermineEncoding(p []byte) encoding.Encoding {
 		mediumShade    = 0xb1
 		fullBlock      = 0xdb
 	)
-	chrs := []byte{
+	patterns := []byte{
 		lowerHalfBlock,
 		upperHalfBlock,
 		doubleHorizBar,
@@ -68,9 +76,10 @@ func DetermineEncoding(p []byte) encoding.Encoding {
 		mediumShade,
 		fullBlock,
 	}
-	for _, chr := range chrs {
+	for _, pattern := range patterns {
 		const count = 4
-		if bytes.Contains(p, bytes.Repeat([]byte{chr}, count)) {
+		subslice := bytes.Repeat([]byte{pattern}, count)
+		if bytes.Contains(p, subslice) {
 			return charmap.CodePage437
 		}
 	}

@@ -70,11 +70,11 @@ var (
 // easily typed out on a standard North American keyboard in MS-DOS.
 //
 // [leetspeak]: https://www.oed.com/dictionary/leetspeak_n
-func CheckyPath(b []byte) string {
-	if utf8.Valid(b) {
-		return string(b)
+func CheckyPath(p []byte) string {
+	if utf8.Valid(p) {
+		return string(p)
 	}
-	r := transform.NewReader(bytes.NewReader(b), charmap.CodePage437.NewDecoder())
+	r := transform.NewReader(bytes.NewReader(p), charmap.CodePage437.NewDecoder())
 	result, err := io.ReadAll(r)
 	if err != nil {
 		return ""

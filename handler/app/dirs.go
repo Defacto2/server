@@ -315,7 +315,7 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 		return data, nil
 	}
 
-	b, err := render.Read(art, dir.Download)
+	r, err := render.Read(art, dir.Download)
 	if errors.Is(err, render.ErrDownload) {
 		data["noDownload"] = true
 		return data, nil
@@ -326,7 +326,14 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	if err != nil {
 		return data, err
 	}
-	if b == nil || render.IsUTF16(b) || isZip(b) {
+	if render.IsUTF16(r) {
+		return data, nil
+	}
+	b, err := io.ReadAll(r)
+	if err != nil {
+		return data, err
+	}
+	if b == nil || isZip(b) {
 		return data, nil
 	}
 	// Remove control codes and metadata from byte array
@@ -338,7 +345,8 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	re := regexp.MustCompile(reAnsi + `|` + reAmiga + `|` + reSauce)
 	b = re.ReplaceAll(b, []byte{})
 
-	e := render.Encoder(art, b...)
+	nr := bytes.NewReader(b)
+	e := render.Encoder(art, nr)
 	const (
 		sp      = 0x20 // space
 		hyphen  = 0x2d // hyphen-minus
@@ -360,16 +368,16 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 		data["vgaCheck"] = "checked"
 		b = bytes.ReplaceAll(b, []byte{nbsp437}, []byte{sp})
 	}
-
-	r := charmap.ISO8859_1.NewDecoder().Reader(bytes.NewReader(b))
-	readme, err := decode(r)
+	r = bytes.NewReader(b)
+	d := charmap.ISO8859_1.NewDecoder().Reader(r)
+	readme, err := decode(d)
 	if err != nil {
 		return data, err
 	}
 	data["readmeLatin1"] = readme
 
-	r = charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
-	readme, err = decode(r)
+	d = charmap.CodePage437.NewDecoder().Reader(r)
+	readme, err = decode(d)
 	if err != nil {
 		return data, err
 	}

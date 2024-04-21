@@ -167,8 +167,8 @@ func (d Production) PouetProd() int {
 // Unmarshal parses the JSON-encoded data and stores the result
 // in the Production struct. It returns an error if the JSON data is
 // invalid or the production ID is invalid.
-func (d *Production) Unmarshal(data []byte) error {
-	if err := json.Unmarshal(data, &d); err != nil {
+func (d *Production) Unmarshal(r io.Reader) error {
+	if err := json.NewDecoder(r).Decode(d); err != nil {
 		return err
 	}
 	if d.ID < 1 {

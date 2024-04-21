@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -28,14 +29,13 @@ const textamiga = "textamiga"
 // Encoder returns the encoding for the model file entry.
 // Based on the platform and section.
 // Otherwise it will attempt to determine the encoding from the file byte content.
-func Encoder(art *models.File, b ...byte) encoding.Encoding {
+func Encoder(art *models.File, r io.Reader) encoding.Encoding {
 	if art == nil {
 		return nil
 	}
 
 	platform := strings.ToLower(strings.TrimSpace(art.Platform.String))
 	section := strings.ToLower(strings.TrimSpace(art.Section.String))
-
 	switch platform {
 	case textamiga:
 		return charmap.ISO8859_1
@@ -45,12 +45,12 @@ func Encoder(art *models.File, b ...byte) encoding.Encoding {
 			return charmap.ISO8859_1
 		}
 	}
-	return helper.DetermineEncoding(b)
+	return helper.DetermineEncoding(r)
 }
 
 // Read returns the content of either the file download or an extracted text file.
 // The text is intended to be used as a readme, preview or an in-browser viewer.
-func Read(art *models.File, path string) ([]byte, error) {
+func Read(art *models.File, path string) (*bytes.Reader, error) {
 	if art == nil {
 		return nil, ErrFileModel
 	}
@@ -98,12 +98,17 @@ func Read(art *models.File, path string) ([]byte, error) {
 
 	const nul = 0x00
 	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
-	return b, nil
+	r := bytes.NewReader(b)
+	return r, nil
 }
 
 // IsUTF16 returns true if the byte slice is embedded with a UTF-16 BOM (byte order mark).
-func IsUTF16(p []byte) bool {
+func IsUTF16(r io.Reader) bool {
 	const minimum = 2
+	p := make([]byte, 2)
+	if _, err := io.ReadFull(r, p); err != nil {
+		return false
+	}
 	if len(p) < minimum {
 		return false
 	}
