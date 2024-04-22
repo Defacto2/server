@@ -24,7 +24,7 @@ import (
 // crawlers to not index or crawl the page or asset.
 // See https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag#xrobotstag
 func (c Configuration) NoCrawl(next echo.HandlerFunc) echo.HandlerFunc {
-	if !c.Import.NoCrawl {
+	if !c.Environment.NoCrawl {
 		return next
 	}
 	return func(e echo.Context) error {
@@ -38,9 +38,9 @@ func (c Configuration) NoCrawl(next echo.HandlerFunc) echo.HandlerFunc {
 // of the database and any related user interface.
 func (c Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(e echo.Context) error {
-		s := strconv.FormatBool(c.Import.ReadMode)
+		s := strconv.FormatBool(c.Environment.ReadMode)
 		e.Response().Header().Set("X-Read-Only-Lock", s)
-		if c.Import.ReadMode {
+		if c.Environment.ReadMode {
 			return app.StatusErr(e, http.StatusForbidden, "")
 		}
 		return next(e)
@@ -60,7 +60,7 @@ func (c Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 			return app.StatusErr(e, http.StatusForbidden, "")
 		}
 		check := false
-		for _, account := range c.Import.GoogleAccounts {
+		for _, account := range c.Environment.GoogleAccounts {
 			if sum := sha512.Sum384([]byte(id)); sum == account {
 				check = true
 				break
@@ -84,7 +84,7 @@ func configRTS() middleware.TrailingSlashConfig {
 // based on the application configuration. The logger is set to the CLI
 // logger for development mode and the Production logger for production mode.
 func (c Configuration) configZapLogger() middleware.RequestLoggerConfig {
-	if !c.Import.LogRequests {
+	if !c.Environment.LogRequests {
 		return middleware.RequestLoggerConfig{
 			LogValuesFunc: func(_ echo.Context, _ middleware.RequestLoggerValues) error {
 				return nil
@@ -92,8 +92,8 @@ func (c Configuration) configZapLogger() middleware.RequestLoggerConfig {
 		}
 	}
 	logger := zaplog.CLI().Sugar()
-	if c.Import.ProductionMode {
-		root := c.Import.LogDir
+	if c.Environment.ProductionMode {
+		root := c.Environment.LogDir
 		logger = zaplog.Production(root).Sugar()
 	}
 	defer func() {

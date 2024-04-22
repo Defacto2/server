@@ -11,6 +11,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"embed"
 	"errors"
@@ -118,12 +119,13 @@ func environmentVars() (*zap.SugaredLogger, config.Config) {
 
 // newInstance is used to create the server controller instance.
 func newInstance(configs config.Config) handler.Configuration {
+	brander := bytes.NewReader(brand)
 	c := handler.Configuration{
-		Brand:   &brand,
-		Import:  &configs,
-		Public:  public,
-		Version: version,
-		View:    view,
+		Brand:       brander,
+		Environment: configs,
+		Public:      public,
+		Version:     version,
+		View:        view,
 	}
 	if c.Version == "" {
 		c.Version = cmd.Commit("")

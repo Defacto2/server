@@ -7,6 +7,7 @@ import (
 	"embed"
 	"fmt"
 	"html/template"
+	"io"
 	"path/filepath"
 	"reflect"
 	"strconv"
@@ -25,8 +26,8 @@ import (
 // Web is the configuration and status of the web app.
 // Rename to app or template?
 type Web struct {
-	Brand       *[]byte        // Brand points to the Defacto2 ASCII logo.
-	Import      *config.Config // Import configurations from the host system environment.
+	Brand       io.Reader      // Brand points to the Defacto2 ASCII logo.
+	Environment *config.Config // Environment configurations from the host system environment.
 	Public      embed.FS       // Public facing files.
 	View        embed.FS       // Views are Go templates.
 	Subresource SRI            // SRI are the Subresource Integrity hashes for the layout.
@@ -89,7 +90,7 @@ func DownloadB(i any) template.HTML {
 func (web Web) ImageSample(uuid string) template.HTML {
 	ext, name, src := "", "", ""
 	for _, ext = range []string{webp, png} {
-		name = filepath.Join(web.Import.PreviewDir, uuid+ext)
+		name = filepath.Join(web.Environment.PreviewDir, uuid+ext)
 		src = strings.Join([]string{config.StaticOriginal(), uuid + ext}, "/")
 		if helper.IsStat(name) {
 			break
@@ -118,10 +119,10 @@ func (web Web) Screenshot(uuid, desc string) template.HTML {
 	srcJ := strings.Join([]string{config.StaticOriginal(), uuid + jpg}, separator)
 	srcA := strings.Join([]string{config.StaticOriginal(), uuid + avif}, separator)
 
-	sizeA := helper.Size(filepath.Join(web.Import.PreviewDir, uuid+avif))
-	sizeJ := helper.Size(filepath.Join(web.Import.PreviewDir, uuid+jpg))
-	sizeP := helper.Size(filepath.Join(web.Import.PreviewDir, uuid+png))
-	sizeW := helper.Size(filepath.Join(web.Import.PreviewDir, uuid+webp))
+	sizeA := helper.Size(filepath.Join(web.Environment.PreviewDir, uuid+avif))
+	sizeJ := helper.Size(filepath.Join(web.Environment.PreviewDir, uuid+jpg))
+	sizeP := helper.Size(filepath.Join(web.Environment.PreviewDir, uuid+png))
+	sizeW := helper.Size(filepath.Join(web.Environment.PreviewDir, uuid+webp))
 
 	useLegacyJpg := sizeJ > 0 && sizeJ < sizeA && sizeJ < sizeP && sizeJ < sizeW
 	if useLegacyJpg {
@@ -280,7 +281,11 @@ func (web Web) TemplateClosures() template.FuncMap {
 			return hrefs[LayoutJS]
 		},
 		"logo": func() string {
-			return string(*web.Brand)
+			b, err := io.ReadAll(web.Brand)
+			if err != nil {
+				return err.Error()
+			}
+			return string(b)
 		},
 		"pouet": func() string {
 			return hrefs[Pouet]
@@ -408,8 +413,8 @@ func (web *Web) Templates() (map[string]*template.Template, error) {
 // The uuid is the filename of the thumbnail image without an extension.
 // The desc is the description of the image.
 func (web Web) Thumb(uuid, desc string, bottom bool) template.HTML {
-	fw := filepath.Join(web.Import.ThumbnailDir, uuid+webp)
-	fp := filepath.Join(web.Import.ThumbnailDir, uuid+png)
+	fw := filepath.Join(web.Environment.ThumbnailDir, uuid+webp)
+	fp := filepath.Join(web.Environment.ThumbnailDir, uuid+png)
 	webp := strings.Join([]string{config.StaticThumb(), uuid + webp}, "/")
 	png := strings.Join([]string{config.StaticThumb(), uuid + png}, "/")
 	alt := strings.ToLower(desc) + " thumbnail"
@@ -454,7 +459,7 @@ func (web Web) ThumbSample(uuid string) template.HTML {
 	)
 	ext, name, src := "", "", ""
 	for _, ext = range []string{webp, png} {
-		name = filepath.Join(web.Import.ThumbnailDir, uuid+ext)
+		name = filepath.Join(web.Environment.ThumbnailDir, uuid+ext)
 		src = strings.Join([]string{config.StaticThumb(), uuid + ext}, "/")
 		if helper.IsStat(name) {
 			break
@@ -480,7 +485,7 @@ func (web Web) tmpl(name filename) *template.Template {
 		GlobTo(string(name)),
 		GlobTo("pagination.tmpl"),
 	}
-	config := web.Import
+	config := web.Environment
 	files = lockTmpls(config.ReadMode, files...)
 	// append any additional and embedded templates
 	switch name {

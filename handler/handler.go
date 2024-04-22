@@ -60,17 +60,17 @@ var (
 
 // Configuration of the handler.
 type Configuration struct {
-	Import      *config.Config // Import configurations from the host system environment.
-	Brand       *[]byte        // Brand points to the Defacto2 ASCII logo.
-	Public      embed.FS       // Public facing files.
-	View        embed.FS       // View contains Go templates.
-	Version     string         // Version is the results of GoReleaser build command.
-	RecordCount int            // The total number of file records in the database.
+	Environment config.Config // Environment configurations from the host system.
+	Brand       io.Reader     // Brand contains the Defacto2 ASCII logo.
+	Public      embed.FS      // Public facing files.
+	View        embed.FS      // View contains Go templates.
+	Version     string        // Version is the results of GoReleaser build command.
+	RecordCount int           // The total number of file records in the database.
 }
 
 // Controller is the primary instance of the Echo router.
 func (c Configuration) Controller(logger *zap.SugaredLogger) *echo.Echo {
-	configs := c.Import
+	configs := c.Environment
 
 	e := echo.New()
 	e.HideBanner = true
@@ -115,7 +115,7 @@ func (c Configuration) Controller(logger *zap.SugaredLogger) *echo.Echo {
 
 	e = EmbedDirs(e, c.Public)
 	e = MovedPermanently(e)
-	e = htmx.Routes(e, logger, c.Import.ProductionMode)
+	e = htmx.Routes(e, logger, c.Environment.ProductionMode)
 	e, err := c.FilesRoutes(e, logger, c.Public)
 	if err != nil {
 		logger.Fatal(err)
@@ -150,10 +150,10 @@ func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 // Info prints the application information to the console.
 func (c Configuration) Info(logger *zap.SugaredLogger) {
 	w := bufio.NewWriter(os.Stdout)
-	if startupLogo := string(*c.Brand); len(startupLogo) > 0 {
-		if _, err := fmt.Fprintf(w, "%s\n\n", startupLogo); err != nil {
-			logger.Warnf("Could not print the brand logo: %s.", err)
-		}
+	if l, err := io.Copy(w, c.Brand); err != nil {
+		logger.Warnf("Could not print the brand logo: %s.", err)
+	} else if l > 0 {
+		fmt.Fprint(w, "\n\n")
 		w.Flush()
 	}
 
@@ -176,12 +176,12 @@ func (c Configuration) Info(logger *zap.SugaredLogger) {
 // PortErr handles the error when the HTTP or HTTPS server cannot start.
 func (c Configuration) PortErr(logger *zap.SugaredLogger, port uint, err error) {
 	s := "HTTP"
-	if port == c.Import.TLSPort {
+	if port == c.Environment.TLSPort {
 		s = "TLS"
 	}
 	var portErr *net.OpError
 	switch {
-	case !c.Import.ProductionMode && errors.As(err, &portErr):
+	case !c.Environment.ProductionMode && errors.As(err, &portErr):
 		logger.Infof("air or task server could not start (this can probably be ignored): %s.", err)
 	case errors.Is(err, net.ErrClosed),
 		errors.Is(err, http.ErrServerClosed):
@@ -195,11 +195,11 @@ func (c Configuration) PortErr(logger *zap.SugaredLogger, port uint, err error) 
 // Registry returns the template renderer.
 func (c Configuration) Registry(logger *zap.SugaredLogger) (*TemplateRegistry, error) {
 	webapp := app.Web{
-		Import:  c.Import,
-		Brand:   c.Brand,
-		Public:  c.Public,
-		Version: c.Version,
-		View:    c.View,
+		Environment: &c.Environment,
+		Brand:       c.Brand,
+		Public:      c.Public,
+		Version:     c.Version,
+		View:        c.View,
 	}
 	tmpls, err := webapp.Templates()
 	if err != nil {
@@ -225,7 +225,7 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 	waitDuration := ShutdownWait
 	waitCount := ShutdownCounter
 	ticker := 1 * time.Second
-	if c.Import.LocalMode {
+	if c.Environment.LocalMode {
 		waitDuration = 0
 		waitCount = 0
 		ticker = 1 * time.Millisecond // this cannot be zero
@@ -301,7 +301,7 @@ func (c *Configuration) StartHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 	if e == nil {
 		panic(ErrRoutes)
 	}
-	port := c.Import.HTTPPort
+	port := c.Environment.HTTPPort
 	if port == 0 {
 		return
 	}
@@ -316,12 +316,12 @@ func (c *Configuration) StartTLS(e *echo.Echo, logger *zap.SugaredLogger) {
 	if e == nil {
 		panic(ErrRoutes)
 	}
-	port := c.Import.TLSPort
+	port := c.Environment.TLSPort
 	if port == 0 {
 		return
 	}
-	cert := c.Import.TLSCert
-	key := c.Import.TLSKey
+	cert := c.Environment.TLSCert
+	key := c.Environment.TLSKey
 	const failure = "Could not start the TLS server"
 	if cert == "" || key == "" {
 		logger.Fatalf("%s, missing certificate or key file.", failure)
@@ -344,7 +344,7 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo, logger *zap.SugaredLogger) {
 	if e == nil {
 		panic(ErrRoutes)
 	}
-	port := c.Import.TLSPort
+	port := c.Environment.TLSPort
 	if port == 0 {
 		return
 	}
@@ -358,7 +358,7 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo, logger *zap.SugaredLogger) {
 	if err != nil {
 		logger.Fatalf("%s, TLS key: %s.", failure, err)
 	}
-	lock := strings.TrimSpace(c.Import.TLSHost)
+	lock := strings.TrimSpace(c.Environment.TLSHost)
 	var address string
 	const showAllConnections = ""
 	switch lock {
@@ -376,7 +376,7 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo, logger *zap.SugaredLogger) {
 func (c Configuration) downloader(cx echo.Context, logger *zap.SugaredLogger) error {
 	d := download.Download{
 		Inline: false,
-		Path:   c.Import.DownloadDir,
+		Path:   c.Environment.DownloadDir,
 	}
 	return d.HTTPSend(cx, logger)
 }

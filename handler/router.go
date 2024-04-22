@@ -35,9 +35,9 @@ func (c Configuration) FilesRoutes(e *echo.Echo, logger *zap.SugaredLogger, publ
 
 	app.Caching.Records(c.RecordCount)
 	dir := app.Dirs{
-		Download:  c.Import.DownloadDir,
-		Preview:   c.Import.PreviewDir,
-		Thumbnail: c.Import.ThumbnailDir,
+		Download:  c.Environment.DownloadDir,
+		Preview:   c.Environment.PreviewDir,
+		Thumbnail: c.Environment.ThumbnailDir,
 	}
 
 	if nonce, err := c.nonce(e); err != nil {
@@ -64,10 +64,10 @@ func (c Configuration) nonce(e *echo.Echo) (string, error) {
 	if e == nil {
 		panic(ErrRoutes)
 	}
-	if c.Import.ReadMode {
+	if c.Environment.ReadMode {
 		return "", nil
 	}
-	b, err := helper.CookieStore(c.Import.SessionKey)
+	b, err := helper.CookieStore(c.Environment.SessionKey)
 	if err != nil {
 		return "", err
 	}
@@ -124,8 +124,8 @@ func (c Configuration) static(e *echo.Echo) *echo.Echo {
 	if e == nil {
 		panic(ErrRoutes)
 	}
-	e.Static(config.StaticThumb(), c.Import.ThumbnailDir)
-	e.Static(config.StaticOriginal(), c.Import.PreviewDir)
+	e.Static(config.StaticThumb(), c.Environment.ThumbnailDir)
+	e.Static(config.StaticOriginal(), c.Environment.PreviewDir)
 	return e
 }
 
@@ -146,7 +146,7 @@ func (c Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 	if e == nil {
 		panic(ErrRoutes)
 	}
-	if c.Import.ProductionMode {
+	if c.Environment.ProductionMode {
 		return e
 	}
 
@@ -198,11 +198,11 @@ func (c Configuration) website(e *echo.Echo, logger *zap.SugaredLogger, dir app.
 	s.GET("/bbs/year", app.BBSYear)
 	s.GET("/coder", app.Coder)
 	s.GET(Downloader, func(cx echo.Context) error {
-		return app.Download(cx, logger, c.Import.DownloadDir)
+		return app.Download(cx, logger, c.Environment.DownloadDir)
 	})
 	s.GET("/f/:id", func(cx echo.Context) error {
 		dir.URI = cx.Param("id")
-		return dir.Artifact(cx, logger, c.Import.ReadMode)
+		return dir.Artifact(cx, logger, c.Environment.ReadMode)
 	})
 	s.GET("/file/stats", func(cx echo.Context) error {
 		return app.File(cx, logger, true)
@@ -263,7 +263,7 @@ func (c Configuration) website(e *echo.Echo, logger *zap.SugaredLogger, dir app.
 	})
 	s.GET("/writer", app.Writer)
 	s.GET("/v/:id", func(cx echo.Context) error {
-		return app.Inline(cx, logger, c.Import.DownloadDir)
+		return app.Inline(cx, logger, c.Environment.DownloadDir)
 	})
 	return e
 }
@@ -314,7 +314,7 @@ func (c Configuration) signin(e *echo.Echo, nonce string) *echo.Echo {
 	signings.Use(c.ReadOnlyLock)
 	signings.GET("/signedout", app.SignedOut)
 	signings.GET("/signin", func(cx echo.Context) error {
-		return app.Signin(cx, c.Import.GoogleClientID, nonce)
+		return app.Signin(cx, c.Environment.GoogleClientID, nonce)
 	})
 	signings.GET("/operator/signin", func(cx echo.Context) error {
 		return cx.Redirect(http.StatusMovedPermanently, "/signin")
@@ -322,9 +322,9 @@ func (c Configuration) signin(e *echo.Echo, nonce string) *echo.Echo {
 	google := signings.Group("/google")
 	google.POST("/callback", func(cx echo.Context) error {
 		return app.GoogleCallback(cx,
-			c.Import.GoogleClientID,
-			c.Import.SessionMaxAge,
-			c.Import.GoogleAccounts...)
+			c.Environment.GoogleClientID,
+			c.Environment.SessionMaxAge,
+			c.Environment.GoogleAccounts...)
 	})
 	return e
 }
