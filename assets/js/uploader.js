@@ -1,4 +1,7 @@
-// uploader.js
+/**
+ * uploader.js
+ * This script is the entry point for the uploader page.
+ */
 import { keyboardShortcuts as uploadKeys } from "./uploader-keyboard.mjs";
 import { submitter } from "./uploader-submitter.mjs";
 import { submit as imageSubmit } from "./uploader-image.mjs";

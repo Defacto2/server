@@ -1,5 +1,7 @@
-// uploader.mjs
-
+/**
+ * @module uploader
+ * This module provides functions for handling file uploads.
+ */
 import { getElmById, validYear, validMonth, validDay } from "./helper.mjs";
 
 const invalid = "is-invalid",
@@ -137,6 +139,13 @@ export function progress(formId, elementId) {
   });
 }
 
+/**
+ * Checks if the size of the file is within the specified limit.
+ *
+ * @param {File} file - The file to check the size of.
+ * @returns {string} - An error message if the file size exceeds the limit, otherwise an empty string.
+ * @throws {Error} - If the file parameter is null.
+ */
 export function checkSize(file) {
   if (file == null) {
     throw new Error(`The file value of checkSize is null.`);
@@ -148,15 +157,10 @@ export function checkSize(file) {
   return ``;
 }
 
-export function checkReleaser() {
-  if (this.value == "") {
-    this.classList.add(invalid);
-    return false;
-  }
-  this.classList.remove(invalid);
-  return true;
-}
-
+/**
+ * Checks if the value of the element represents a valid day.
+ * @returns {boolean} Returns true if the value is a valid day, false otherwise.
+ */
 export function checkDay() {
   if (validDay(this.value) == false) {
     this.classList.add(invalid);
@@ -166,6 +170,10 @@ export function checkDay() {
   return true;
 }
 
+/**
+ * Checks if the month value is valid.
+ * @returns {boolean} Returns true if the month value is valid, false otherwise.
+ */
 export function checkMonth() {
   console.log(`The month value is ${this.value}.`);
   if (validMonth(this.value) == false) {
@@ -176,6 +184,10 @@ export function checkMonth() {
   return true;
 }
 
+/**
+ * Checks if the value of the input field represents a valid year.
+ * @returns {boolean} Returns true if the year is valid, false otherwise.
+ */
 export function checkYear() {
   if (validYear(this.value) == false) {
     this.classList.add(invalid);
@@ -185,6 +197,15 @@ export function checkYear() {
   return true;
 }
 
+/**
+ * Checks for errors and updates the UI accordingly.
+ *
+ * @param {Array} errors - The array of errors.
+ * @param {HTMLElement} alert - The alert element to display the errors.
+ * @param {HTMLElement} fileInput - The file input element.
+ * @param {HTMLElement} results - The results element.
+ * @throws {Error} If any of the parameters are null.
+ */
 export function checkErrors(errors, alert, fileInput, results) {
   if (errors == null) {
     throw new Error(`The errors value of checkErrors is null.`);
@@ -209,6 +230,15 @@ export function checkErrors(errors, alert, fileInput, results) {
   results.classList.add(none);
 }
 
+/**
+ * Checks if a file is a duplicate and performs necessary actions.
+ *
+ * @param {File} file - The file to check for duplication.
+ * @param {HTMLElement} alert - The element to display the alert message.
+ * @param {HTMLElement} fileInput - The element to clear the file input value.
+ * @param {HTMLElement} results - The element to hide the results.
+ * @throws {Error} If any of the parameters are null.
+ */
 export async function checkDuplicate(file, alert, fileInput, results) {
   if (file == null) {
     throw new Error(`The file value of checkDuplicate is null.`);
@@ -234,6 +264,14 @@ export async function checkDuplicate(file, alert, fileInput, results) {
   results.classList.add(none);
 }
 
+/**
+ * Updates the hidden details based on the provided file information.
+ *
+ * @param {File} file1 - The file object.
+ * @param {HTMLInputElement} lastMod - The input element for the last modified value.
+ * @param {HTMLInputElement} magic - The input element for the magic value.
+ * @throws {Error} If any of the parameters are null.
+ */
 export function hiddenDetails(file1, lastMod, magic) {
   if (file1 == null) {
     throw new Error(`The file1 value of hiddenDetails is null.`);
@@ -257,6 +295,23 @@ export function hiddenDetails(file1, lastMod, magic) {
   }
 }
 
+/**
+ * Checks if the value of an input element is empty.
+ * @returns {boolean} Returns true if the value is not empty, false otherwise.
+ */
+export function checkValue() {
+  if (this.value == "") {
+    this.classList.add(invalid);
+    return false;
+  }
+  this.classList.remove(invalid);
+  return true;
+}
+
+/**
+ * Checks if the value of an input field is a valid YouTube video ID.
+ * @returns {boolean} Returns true if the value is empty or a valid YouTube video ID, otherwise returns false.
+ */
 export function checkYouTube() {
   if (this.value == "") {
     this.classList.remove(invalid);
@@ -271,6 +326,14 @@ export function checkYouTube() {
   return true;
 }
 
+/**
+ * Resets the input fields and elements associated with file uploading.
+ *
+ * @param {HTMLElement} fileInput - The file input element.
+ * @param {HTMLElement} alert - The alert element.
+ * @param {HTMLElement} results - The results element.
+ * @throws {Error} If any of the input parameters are null.
+ */
 export function resetInput(fileInput, alert, results) {
   if (fileInput == null) {
     throw new Error(`The fileInput value of resetInput is null.`);
@@ -289,6 +352,12 @@ export function resetInput(fileInput, alert, results) {
   results.classList.add(none);
 }
 
+/**
+ * Updates the error message and results display based on the provided alert and results elements.
+ * @param {HTMLElement} alert - The alert element to update.
+ * @param {HTMLElement} results - The results element to update.
+ * @throws {Error} If the alert or results value is null.
+ */
 export function submitError(alert, results) {
   if (alert == null) {
     throw new Error(`The alert value of submitError is null.`);
@@ -300,13 +369,4 @@ export function submitError(alert, results) {
   alert.classList.remove(none);
   results.innerText = "";
   results.classList.add(none);
-}
-
-export function checkValue() {
-  if (this.value == "") {
-    this.classList.add(invalid);
-    return false;
-  }
-  this.classList.remove(invalid);
-  return true;
 }

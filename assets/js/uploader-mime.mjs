@@ -1,5 +1,7 @@
-// uploader-submitter.mjs
-
+/**
+ * @module uploader-mime
+ * This module provides functions for handling file uploads mime types.
+ */
 const arc = "application/x-freearc",
   arj = "application/x-arj",
   bz = "application/x-bzip",
@@ -66,26 +68,55 @@ export function texts() {
   return allowedTypes;
 }
 
+/**
+ * Checks if the given MIME type is in the list of rejected types.
+ *
+ * @param {string} mime - The MIME type to check.
+ * @returns {boolean} - Returns true if the MIME type is in the list of rejected types, otherwise false.
+ */
 export function checkAdvanced(mime) {
   const rejectTypes = reject();
   return rejectTypes.includes(mime);
 }
 
+/**
+ * Checks if the given MIME type is allowed for images.
+ * @param {string} mime - The MIME type to check.
+ * @returns {boolean} - Returns true if the MIME type is allowed for images, otherwise false.
+ */
 export function checkImage(mime) {
   const allowedTypes = images().concat(archives());
   return allowedTypes.includes(mime);
 }
 
+/**
+ * Checks if the given MIME type is allowed for intros, demos and cracktros.
+ *
+ * @param {string} mime - The MIME type to check.
+ * @returns {boolean} - Returns true if the MIME type is allowed, otherwise false.
+ */
 export function checkIntro(mime) {
   const allowedTypes = apps().concat(archives(), binaries());
   return allowedTypes.includes(mime);
 }
 
+/**
+ * Checks if the given MIME type is allowed for magazines and newletters.
+ *
+ * @param {string} mime - The MIME type to check.
+ * @returns {boolean} - Returns true if the MIME type is allowed, otherwise false.
+ */
 export function checkMagazine(mime) {
   const allowedTypes = texts().concat(archives(), apps(), binaries());
   return allowedTypes.includes(mime);
 }
 
+/**
+ * Checks if the given MIME type is allowed for text files.
+ *
+ * @param {string} mime - The MIME type to check.
+ * @returns {boolean} - Returns true if the MIME type is allowed for text files, otherwise false.
+ */
 export function checkText(mime) {
   const allowedTypes = texts().concat(archives());
   return allowedTypes.includes(mime);

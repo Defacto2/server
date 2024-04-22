@@ -1,4 +1,7 @@
-// uploader-magazine.mjs
+/**
+ * @module uploader-magazine
+ * This module provides functions for handling file uploads magazine UI.
+ */
 import { getElmById } from "./helper.mjs";
 import { checkMagazine as mime } from "./uploader-mime.mjs";
 import {
@@ -7,7 +10,7 @@ import {
   checkSize,
   checkMonth,
   checkYear,
-  checkReleaser,
+  checkValue,
   hiddenDetails,
   submitError,
   resetInput,
@@ -37,7 +40,7 @@ form.addEventListener("reset", function () {
 });
 
 fileInput.addEventListener("change", checkFile);
-releaser1.addEventListener("input", checkReleaser);
+releaser1.addEventListener("input", checkValue);
 year.addEventListener("input", checkYear);
 month.addEventListener("input", checkMonth);
 

@@ -1,4 +1,5 @@
 /**
+ * @file votes-pouet.js
  * This function fetches data from Pouët's API and updates the DOM with the production, user votes results.
  * @returns {void}
  */

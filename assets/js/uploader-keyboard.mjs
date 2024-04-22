@@ -1,3 +1,7 @@
+/**
+ * @module uploader-keyboard
+ * This module provides keyboard shortcuts for handling file uploads.
+ */
 import { focusModalById } from "./uploader.mjs";
 export default keyboardShortcuts;
 

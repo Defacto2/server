@@ -1,4 +1,7 @@
-// uploader-advanced.mjs
+/**
+ * @module uploader-advanced
+ * This module provides functions for handling file uploads advanced UI.
+ */
 import { validYear, validMonth, validDay } from "./helper.mjs";
 import { getElmById } from "./helper.mjs";
 import { checkAdvanced as mime } from "./uploader-mime.mjs";
@@ -9,9 +12,7 @@ import {
   checkDay,
   checkMonth,
   checkYear,
-  checkReleaser,
   checkValue,
-  //checkYouTube,
   hiddenDetails,
   submitError,
   resetInput,
@@ -47,7 +48,7 @@ form.addEventListener("reset", function () {
 });
 
 fileInput.addEventListener("change", checkFile);
-releaser1.addEventListener("input", checkReleaser);
+releaser1.addEventListener("input", checkValue);
 year.addEventListener("input", checkYear);
 month.addEventListener("input", checkMonth);
 day.addEventListener("input", checkDay);

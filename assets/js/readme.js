@@ -1,7 +1,9 @@
-// readme.js
+/**
+ * @module readme
+ * This module provides functions for handling readme and nfo file display.
 
+ */
 import { clipText, getElmById } from "./helper.mjs";
-
 (() => {
   "use strict";
   const hide = `d-none`;

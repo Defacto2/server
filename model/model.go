@@ -208,6 +208,7 @@ func CountByPlatform(ctx context.Context, db *sql.DB, name string) (int64, error
 	return i, nil
 }
 
+// CountByClassification counts the files that match the named category and platform.
 func CountByClassification(ctx context.Context, db *sql.DB, section, platform string) (int64, error) {
 	if db == nil {
 		return 0, ErrDB

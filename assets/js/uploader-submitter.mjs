@@ -1,5 +1,7 @@
-// uploader-submitter.mjs
-
+/**
+ * @module uploader-submitter
+ * This module provides functions for handling file upload submissions.
+ */
 import { getElmById, validId } from "./helper.mjs";
 export default submitter;
 

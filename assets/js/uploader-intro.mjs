@@ -1,4 +1,7 @@
-// uploader-intro.mjs
+/**
+ * @module uploader-intro
+ * This module provides functions for handling file uploads intro UI.
+ */
 import { validYear, validMonth } from "./helper.mjs";
 import { getElmById } from "./helper.mjs";
 import { checkIntro as mime } from "./uploader-mime.mjs";
@@ -8,7 +11,7 @@ import {
   checkSize,
   checkMonth,
   checkYear,
-  checkReleaser,
+  checkValue,
   checkYouTube,
   hiddenDetails,
   submitError,
@@ -40,7 +43,7 @@ form.addEventListener("reset", function () {
 });
 
 fileInput.addEventListener("change", checkFile);
-releaser1.addEventListener("input", checkReleaser);
+releaser1.addEventListener("input", checkValue);
 year.addEventListener("input", checkYear);
 month.addEventListener("input", checkMonth);
 youtube.addEventListener("input", checkYouTube);
