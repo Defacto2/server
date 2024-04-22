@@ -6,6 +6,7 @@ package handler
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"embed"
 	"errors"
@@ -61,7 +62,7 @@ var (
 // Configuration of the handler.
 type Configuration struct {
 	Environment config.Config // Environment configurations from the host system.
-	Brand       io.Reader     // Brand contains the Defacto2 ASCII logo.
+	Brand       *[]byte       // Brand contains the Defacto2 ASCII logo.
 	Public      embed.FS      // Public facing files.
 	View        embed.FS      // View contains Go templates.
 	Version     string        // Version is the results of GoReleaser build command.
@@ -150,7 +151,8 @@ func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 // Info prints the application information to the console.
 func (c Configuration) Info(logger *zap.SugaredLogger) {
 	w := bufio.NewWriter(os.Stdout)
-	if l, err := io.Copy(w, c.Brand); err != nil {
+	nr := bytes.NewReader(*c.Brand)
+	if l, err := io.Copy(w, nr); err != nil {
 		logger.Warnf("Could not print the brand logo: %s.", err)
 	} else if l > 0 {
 		fmt.Fprint(w, "\n\n")

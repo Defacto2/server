@@ -7,7 +7,6 @@ import (
 	"embed"
 	"fmt"
 	"html/template"
-	"io"
 	"path/filepath"
 	"reflect"
 	"strconv"
@@ -26,7 +25,7 @@ import (
 // Web is the configuration and status of the web app.
 // Rename to app or template?
 type Web struct {
-	Brand       io.Reader      // Brand points to the Defacto2 ASCII logo.
+	Brand       *[]byte        // Brand contains to the Defacto2 ASCII logo.
 	Environment *config.Config // Environment configurations from the host system environment.
 	Public      embed.FS       // Public facing files.
 	View        embed.FS       // Views are Go templates.
@@ -281,11 +280,7 @@ func (web Web) TemplateClosures() template.FuncMap {
 			return hrefs[LayoutJS]
 		},
 		"logo": func() string {
-			b, err := io.ReadAll(web.Brand)
-			if err != nil {
-				return err.Error()
-			}
-			return string(b)
+			return string(*web.Brand)
 		},
 		"pouet": func() string {
 			return hrefs[Pouet]
