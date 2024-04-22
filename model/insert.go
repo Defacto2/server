@@ -117,6 +117,10 @@ func ValidReleasers(s1, s2 string) (null.String, null.String) {
 	if len(t2) > 0 {
 		x2 = null.StringFrom(t2)
 	}
+	if len(t1) == 0 && len(t2) > 0 {
+		x1 = null.StringFrom(t2)
+		x2 = invalid
+	}
 	return x1, x2
 }
 
