@@ -1,4 +1,4 @@
-{{- /*  option_os.tmpl  */}}
+{{- /*  option_os.tmpl &#x2713; */}}
 {{- define "optionOS" -}}
 {{- $os := (index . "platform") }}
 {{- $windows := tagSel $os "windows" }}
@@ -18,23 +18,28 @@
 {{- $markup := tagSel $os "markup" }}
 {{- $database := tagSel $os "database" }}
                 <option value="" selected>Choose...</option>
-                {{$windows}}Windows PC app</option>
-                {{$dos}}Dos PC app</option>
-                <option></option>
-                {{$text}}Text Dos (or CP-437 encoding)</option>
-                {{$textamiga}}Text Amiga (or Latin-1 encoding)</option>
-                {{$ansi}}Text ANSI</option>
-                {{$pcb}}Text PCBoard BBS</option>
+                <optgroup label="Programs or apps">
+                {{$windows}}for Windows PC</option>
+                {{$dos}}for Dos PC</option>
+                </optgroup>
+                <optgroup label="Texts or documents">
+                {{$ansi}}using ANSI encoding</option>
+                {{$text}}for Dos (inc. CP-437 encoding)</option>
+                {{$textamiga}}for Amiga</option>
+                {{$pcb}}for PCBoard</option>
                 {{$pdf}}PDF document</option>
-                <option></option>
-                {{$image}}Image or photo (.png .jpg .gif .webp etc.)</option>
+                </optgroup>
+                <optgroup label="Multimedia">
+                {{$image}}Image or photo</option>
                 {{$audio}}Music or audio</option>
                 {{$video}}Video</option>
-                <option></option>
+                </optgroup>
+                <optgroup label="Uncommon">
                 {{$linux}}Linux app</option>
                 {{$mac10}}Apple Mac app</option>
                 {{$php}}Shell script app</option>
                 {{$java}}Java web app</option>
                 {{$markup}}Html webpage</option>
                 {{$database}}Database</option>
+                </optgroup>
 {{- end -}}

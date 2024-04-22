@@ -207,3 +207,19 @@ func CountByPlatform(ctx context.Context, db *sql.DB, name string) (int64, error
 	}
 	return i, nil
 }
+
+func CountByClassification(ctx context.Context, db *sql.DB, section, platform string) (int64, error) {
+	if db == nil {
+		return 0, ErrDB
+	}
+	if section == "" || platform == "" {
+		return 0, ErrName
+	}
+	sect := models.FileWhere.Section.EQ(null.StringFrom(section))
+	plat := models.FileWhere.Platform.EQ(null.StringFrom(platform))
+	i, err := models.Files(sect, plat).Count(ctx, db)
+	if err != nil {
+		return 0, fmt.Errorf("count by classification %q %q: %w", section, platform, err)
+	}
+	return i, nil
+}

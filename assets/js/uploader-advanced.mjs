@@ -1,15 +1,17 @@
 // uploader-advanced.mjs
-import { validYear, validMonth } from "./helper.mjs";
+import { validYear, validMonth, validDay } from "./helper.mjs";
 import { getElmById } from "./helper.mjs";
-import { checkIntro as mime } from "./uploader-mime.mjs";
+import { checkAdvanced as mime } from "./uploader-mime.mjs";
 import {
   checkDuplicate,
   checkErrors,
   checkSize,
+  checkDay,
   checkMonth,
   checkYear,
   checkReleaser,
-  checkYouTube,
+  checkValue,
+  //checkYouTube,
   hiddenDetails,
   submitError,
   resetInput,
@@ -17,22 +19,26 @@ import {
 
 export default submit;
 
-const formId = `uploader-intro-form`,
+const formId = `uploader-advanced-form`,
   invalid = "is-invalid",
   none = "d-none";
 
 const form = getElmById(formId),
-  alert = getElmById("uploader-intro-alert"),
-  fileInput = getElmById("uploader-intro-file"),
-  lastMod = getElmById("uploader-intro-last-modified"),
-  list1 = getElmById("uploader-intro-list-1"),
-  list2 = getElmById("uploader-intro-list-2"),
-  magic = getElmById("uploader-intro-magic"),
-  month = getElmById("uploader-intro-month"),
-  releaser1 = getElmById("uploader-intro-releaser-1"),
-  results = getElmById("uploader-intro-results"),
-  year = getElmById("uploader-intro-year"),
-  youtube = getElmById("uploader-intro-youtube");
+  alert = getElmById("uploader-advanced-alert"),
+  category = getElmById("uploader-advanced-category"),
+  classification = getElmById("uploader-advanced-classification-help"),
+  day = getElmById("uploader-advanced-day"),
+  fileInput = getElmById("uploader-advanced-file"),
+  lastMod = getElmById("uploader-advanced-last-modified"),
+  list1 = getElmById("uploader-advanced-list-1"),
+  list2 = getElmById("uploader-advanced-list-2"),
+  magic = getElmById("uploader-advanced-magic"),
+  month = getElmById("uploader-advanced-month"),
+  os = getElmById("uploader-advanced-operating-system"),
+  releaser1 = getElmById("uploader-advanced-releaser-1"),
+  results = getElmById("uploader-advanced-results"),
+  year = getElmById("uploader-advanced-year"); //,
+//youtube = getElmById("uploader-advanced-youtube");
 
 form.addEventListener("reset", function () {
   lastMod.value = "";
@@ -44,7 +50,9 @@ fileInput.addEventListener("change", checkFile);
 releaser1.addEventListener("input", checkReleaser);
 year.addEventListener("input", checkYear);
 month.addEventListener("input", checkMonth);
-youtube.addEventListener("input", checkYouTube);
+day.addEventListener("input", checkDay);
+category.addEventListener("change", checkValue);
+os.addEventListener("change", checkValue);
 
 /**
  * After performing input validations this submits the form when the specified element is clicked.
@@ -66,12 +74,24 @@ export function submit(elementId) {
       month.classList.add(invalid);
       pass = false;
     }
+    if (validDay(day.value) == false) {
+      day.classList.add(invalid);
+      pass = false;
+    }
     if (month.value != "" && year.value == "") {
       year.classList.add(invalid);
       pass = false;
     }
     if (fileInput.value == "") {
       fileInput.classList.add(invalid);
+      pass = false;
+    }
+    if (os.value == "") {
+      os.classList.add(invalid);
+      pass = false;
+    }
+    if (category.value == "") {
+      category.classList.add(invalid);
       pass = false;
     }
     if (pass == false) {
@@ -93,8 +113,8 @@ async function checkFile() {
 }
 
 function checkMime(file) {
-  if (!mime(file.type)) {
-    return `The chosen file mime type ${file.type} is probably not suitable for an intro.`;
+  if (mime(file.type)) {
+    return `The chosen file mime type ${file.type} is probably not suitable for an upload.`;
   }
   return ``;
 }
@@ -103,12 +123,15 @@ function resetForm() {
   list1.innerHTML = "";
   list2.innerHTML = "";
   results.innerHTML = "";
+  classification.innerHTML = "";
   results.classList.add(none);
   alert.innerText = "";
   alert.classList.add(none);
   year.classList.remove(invalid);
   month.classList.remove(invalid);
+  day.classList.remove(invalid);
   releaser1.classList.remove(invalid);
-  youtube.classList.remove(invalid);
   fileInput.classList.remove(invalid);
+  os.classList.remove(invalid);
+  category.classList.remove(invalid);
 }

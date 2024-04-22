@@ -75,6 +75,9 @@ func Routes(e *echo.Echo, logger *zap.SugaredLogger, prod bool) *echo.Echo {
 		lookup := c.FormValue("uploader-magazine-releaser1")
 		return DataListMagazines(c, logger, lookup)
 	})
+	submit.POST("/uploader/classifications", func(c echo.Context) error {
+		return Classification(c, logger)
+	})
 	return e
 }
 

@@ -1,6 +1,6 @@
 // uploader.mjs
 
-import { getElmById, validYear, validMonth } from "./helper.mjs";
+import { getElmById, validYear, validMonth, validDay } from "./helper.mjs";
 
 const invalid = "is-invalid",
   none = "d-none",
@@ -157,6 +157,15 @@ export function checkReleaser() {
   return true;
 }
 
+export function checkDay() {
+  if (validDay(this.value) == false) {
+    this.classList.add(invalid);
+    return false;
+  }
+  this.classList.remove(invalid);
+  return true;
+}
+
 export function checkMonth() {
   console.log(`The month value is ${this.value}.`);
   if (validMonth(this.value) == false) {
@@ -291,4 +300,13 @@ export function submitError(alert, results) {
   alert.classList.remove(none);
   results.innerText = "";
   results.classList.add(none);
+}
+
+export function checkValue() {
+  if (this.value == "") {
+    this.classList.add(invalid);
+    return false;
+  }
+  this.classList.remove(invalid);
+  return true;
 }
