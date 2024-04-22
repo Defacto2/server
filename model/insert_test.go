@@ -1,7 +1,7 @@
 package model_test
 
 import (
-	"fmt"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -487,9 +487,11 @@ func TestValidIntegrity(t *testing.T) {
 			expected:  null.String{String: "", Valid: false},
 		},
 		{
-			name:      "Valid integrity",
-			integrity: "2d28edf3bd78230486ad52ae31f13a031a97e3b377d64826965d68174a5815d36f18c5a14394eeeb3cce491d356c8689",
-			expected:  null.StringFrom("2d28edf3bd78230486ad52ae31f13a031a97e3b377d64826965d68174a5815d36f18c5a14394eeeb3cce491d356c8689"),
+			name: "Valid integrity",
+			integrity: "2d28edf3bd78230486ad52ae31f13a031a97e3b377d6482696" +
+				"5d68174a5815d36f18c5a14394eeeb3cce491d356c8689",
+			expected: null.StringFrom("2d28edf3bd78230486ad52ae31f13a031a97e3b377d6482" +
+				"6965d68174a5815d36f18c5a14394eeeb3cce491d356c8689"),
 		},
 	}
 
@@ -526,7 +528,7 @@ func TestValidLastMod(t *testing.T) {
 		},
 		{
 			name:     "Invalid lastmod (before EpochYear)",
-			lastmod:  fmt.Sprintf("%d", time.Date(1979, 1, 1, 0, 0, 0, 0, time.UTC).UnixNano()),
+			lastmod:  strconv.FormatInt(time.Date(1979, 1, 1, 0, 0, 0, 0, time.UTC).UnixNano(), 10),
 			expected: null.Time{Time: time.Time{}, Valid: false},
 		},
 		{

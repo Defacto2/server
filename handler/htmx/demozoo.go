@@ -133,44 +133,5 @@ func DemozooValid(c echo.Context, id int) (demozoo.Production, error) {
 // the Demozoo production ID. If the Demozoo production ID is already in
 // use, an error message is returned.
 func DemozooSubmit(c echo.Context, logger *zap.SugaredLogger) error {
-	if logger == nil {
-		return c.String(http.StatusInternalServerError,
-			"error, demozoo submit logger is nil")
-	}
-
-	sid := c.Param("id")
-	id, err := strconv.ParseUint(sid, 10, 64)
-	if err != nil {
-		return c.String(http.StatusNotAcceptable,
-			"The Demozoo production ID must be a numeric value, "+sid)
-	}
-	if id < 1 || id > demozoo.Sanity {
-		return c.String(http.StatusNotAcceptable,
-			"The Demozoo production ID is invalid, "+sid)
-	}
-
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return ErrDB
-	}
-	defer db.Close()
-	ctx := context.Background()
-
-	if exist, err := model.ExistDemozooFile(ctx, db, int64(id)); err != nil {
-		return c.String(http.StatusServiceUnavailable,
-			"error, the database query failed")
-	} else if exist {
-		return c.String(http.StatusForbidden,
-			"error, the demozoo key is already in use")
-	}
-
-	key, err := model.InsertDemozooFile(ctx, db, int64(id))
-	if err != nil || key == 0 {
-		logger.Error(err, id)
-		return c.String(http.StatusServiceUnavailable,
-			"error, the database insert failed")
-	}
-
-	html := fmt.Sprintf("Thanks for the submission of Demozoo production: %d", id)
-	return c.HTML(http.StatusOK, html)
+	return submit(c, logger, "demozoo")
 }

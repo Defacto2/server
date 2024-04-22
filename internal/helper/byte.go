@@ -60,6 +60,13 @@ func DetermineEncoding(reader io.Reader) encoding.Encoding {
 			return nil
 		}
 	}
+	return patternCheck(p)
+}
+
+// patternCheck returns the encoding based on the presence of common CP-437 or ISO-8859-1 patterns.
+// Such patterns as full block, medium shade, horizontal bars and half blocks are sequences of
+// characters that are unique to the CP-437 encoding.
+func patternCheck(p []byte) encoding.Encoding {
 	const (
 		lowerHalfBlock = 0xdc
 		upperHalfBlock = 0xdf

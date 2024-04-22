@@ -37,7 +37,7 @@ func uuidV7() (time.Time, uuid.UUID, error) {
 	}
 	uid, err = uuid.NewUUID()
 	if err != nil {
-		return now, uuid.Nil, fmt.Errorf("%w: %s", ErrUUID, err)
+		return now, uuid.Nil, fmt.Errorf("%w: %w", ErrUUID, err)
 	}
 	return now, uid, nil
 }
@@ -167,7 +167,6 @@ func ValidYouTube(s string) (null.String, error) {
 		return invalid, nil
 	}
 	return null.String{String: s, Valid: true}, nil
-
 }
 
 // ValidFilename returns a valid filename or a null value.
@@ -208,7 +207,7 @@ func ValidFilesize(size string) (int64, error) {
 	}
 	s, err := strconv.ParseUint(size, 10, 64)
 	if err != nil {
-		return 0, fmt.Errorf("%w: %q, %s", ErrSize, size, err)
+		return 0, fmt.Errorf("%w: %q, %w", ErrSize, size, err)
 	}
 	return int64(s), nil
 }
@@ -273,7 +272,6 @@ func ValidSection(section string) null.String {
 		return null.StringFrom(s)
 	}
 	return invalid
-
 }
 
 // ValidString returns a valid string or a null value.
@@ -307,9 +305,28 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 	if !createT.Valid || createT.Time.IsZero() {
 		return 0, fmt.Errorf("%w: %v", ErrTime, createT.Time)
 	}
-	youtube, err := ValidYouTube(values.Get(key + "-youtube"))
+	f := models.File{
+		UUID:      unique,
+		Deletedat: deleteT,
+		Createdat: createT,
+	}
+	f, err = upload(f, values, key)
 	if err != nil {
 		return 0, err
+	}
+	if err = f.Insert(ctx, tx, boil.Infer()); err != nil {
+		return 0, err
+	}
+	if err = tx.Commit(); err != nil {
+		return 0, err
+	}
+	return f.ID, nil
+}
+
+func upload(f models.File, values url.Values, key string) (models.File, error) {
+	youtube, err := ValidYouTube(values.Get(key + "-youtube"))
+	if err != nil {
+		return f, err
 	}
 	releaser1, releaser2 := ValidReleasers(
 		values.Get(key+"-releaser1"),
@@ -324,11 +341,11 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 	fname := values.Get(key + "-filename")
 	filename := ValidFilename(fname)
 	if !filename.Valid || filename.IsZero() {
-		return 0, fmt.Errorf("%w: %v", ErrName, key+"-filename is required")
+		return f, fmt.Errorf("%w: %v", ErrName, key+"-filename is required")
 	}
 	filesize, err := ValidFilesize(values.Get(key + "-size"))
 	if err != nil {
-		return 0, err
+		return f, err
 	}
 	content := ValidString(values.Get(key + "-content"))
 	readme := ValidFilename(values.Get(key + "-readme"))
@@ -342,38 +359,27 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 	creditP := ValidSceners(values.Get(key + "-creditprog"))
 	creditA := ValidSceners(values.Get(key + "-creditaudio"))
 
-	f := models.File{
-		UUID:                unique,
-		Deletedat:           deleteT,
-		Createdat:           createT,
-		WebIDYoutube:        youtube,
-		GroupBrandFor:       releaser1,
-		GroupBrandBy:        releaser2,
-		RecordTitle:         title,
-		DateIssuedYear:      year,
-		DateIssuedMonth:     month,
-		DateIssuedDay:       day,
-		Filename:            filename,
-		Filesize:            filesize,
-		FileZipContent:      content,
-		RetrotxtReadme:      readme,
-		FileMagicType:       filemagic,
-		FileIntegrityStrong: integrity,
-		FileLastModified:    lastMod,
-		Platform:            platform,
-		Section:             section,
-		CreditText:          creditT,
-		CreditIllustration:  creditI,
-		CreditProgram:       creditP,
-		CreditAudio:         creditA,
-	}
-	if err = f.Insert(ctx, tx, boil.Infer()); err != nil {
-		return 0, err
-	}
-	if err = tx.Commit(); err != nil {
-		return 0, err
-	}
-	return f.ID, nil
+	f.WebIDYoutube = youtube
+	f.GroupBrandFor = releaser1
+	f.GroupBrandBy = releaser2
+	f.RecordTitle = title
+	f.DateIssuedYear = year
+	f.DateIssuedMonth = month
+	f.DateIssuedDay = day
+	f.Filename = filename
+	f.Filesize = filesize
+	f.FileZipContent = content
+	f.RetrotxtReadme = readme
+	f.FileMagicType = filemagic
+	f.FileIntegrityStrong = integrity
+	f.FileLastModified = lastMod
+	f.Platform = platform
+	f.Section = section
+	f.CreditText = creditT
+	f.CreditIllustration = creditI
+	f.CreditProgram = creditP
+	f.CreditAudio = creditA
+	return f, nil
 }
 
 // InsertDemozooFile inserts a new file record into the database using a Demozoo production ID.

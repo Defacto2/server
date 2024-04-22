@@ -77,13 +77,14 @@ func Read(art *models.File, path string) (*bytes.Reader, error) {
 	files.filepth = filepath.Join(path, uuid)
 	files.filepOk = helper.IsStat(files.filepth)
 	files.txt = !exts.IsArchive(fname)
+	var r *bytes.Reader
 
 	if !files.uutxtOk && !files.filepOk {
 		return nil, fmt.Errorf("%w: %s", ErrDownload, filepath.Join(path, uuid))
 	}
 
 	if !files.uutxtOk && !Viewer(art) {
-		return nil, nil
+		return r, nil
 	}
 
 	name := files.filepth
@@ -98,14 +99,14 @@ func Read(art *models.File, path string) (*bytes.Reader, error) {
 
 	const nul = 0x00
 	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
-	r := bytes.NewReader(b)
+	r = bytes.NewReader(b)
 	return r, nil
 }
 
 // IsUTF16 returns true if the byte slice is embedded with a UTF-16 BOM (byte order mark).
 func IsUTF16(r io.Reader) bool {
 	const minimum = 2
-	p := make([]byte, 2)
+	p := make([]byte, minimum)
 	if _, err := io.ReadFull(r, p); err != nil {
 		return false
 	}

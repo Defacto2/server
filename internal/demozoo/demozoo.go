@@ -31,6 +31,39 @@ const (
 	Sanity  = 450000                                    // Sanity is to check the maximum permitted production ID.
 )
 
+const (
+	Demo           = 1
+	Intro64K       = 2
+	Intro4K        = 3
+	Intro          = 4
+	DiskMag        = 5
+	Tool           = 6
+	MusicDisk      = 7
+	ProductionPack = 9
+	Intro40K       = 10
+	ChipMusicPack  = 12
+	Cracktro       = 13
+	Music          = 14
+	Intro32b       = 15
+	Intro64b       = 16
+	Intro128b      = 18
+	Intro256b      = 19
+	Intro512b      = 20
+	Intro1K        = 21
+	Intro32K       = 22
+	Game           = 33
+	Intro16K       = 35
+	Intro2K        = 37
+	Intro100K      = 39
+	BBStro         = 41
+	Intro8K        = 43
+	Magazine       = 47
+	TextMag        = 49
+	Intro96K       = 50
+	Intro8b        = 54
+	Intro16b       = 55
+)
+
 // Production is a Demozoo production record.
 // Only the fields required for the Defacto2 website are included,
 // with everything else being ignored.
@@ -245,38 +278,6 @@ func (d Production) platforms(platform, section tags.Tag) (tags.Tag, tags.Tag) {
 // prodSuperType returns the platform and section tags for the "production" supertype.
 // A list of the types can be found at https://demozoo.org/api/v1/production_types/?ordering=id
 func (d Production) prodSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
-	const (
-		Demo           = 1
-		Intro64K       = 2
-		Intro4K        = 3
-		Intro          = 4
-		DiskMag        = 5
-		Tool           = 6
-		MusicDisk      = 7
-		ProductionPack = 9
-		Intro40K       = 10
-		ChipMusicPack  = 12
-		Cracktro       = 13
-		Music          = 14
-		Intro32b       = 15
-		Intro64b       = 16
-		Intro128b      = 18
-		Intro256b      = 19
-		Intro512b      = 20
-		Intro1K        = 21
-		Intro32K       = 22
-		Game           = 33
-		Intro16K       = 35
-		Intro2K        = 37
-		Intro100K      = 39
-		BBStro         = 41
-		Intro8K        = 43
-		Magazine       = 47
-		TextMag        = 49
-		Intro96K       = 50
-		Intro8b        = 54
-		Intro16b       = 55
-	)
 	for _, p := range d.Platforms {
 		switch p.ID {
 		case Demo:
@@ -316,8 +317,8 @@ func (d Production) prodSuperType(platform, section tags.Tag) (tags.Tag, tags.Ta
 func (d Production) graphicsSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
 	const (
 		Graphics   = 23
-		Ascii      = 24
-		PackAscii  = 25
+		ASCII      = 24
+		PackASCII  = 25
 		Ansi       = 26
 		ExeGFX     = 27
 		ExeGFX4K   = 28
@@ -330,10 +331,10 @@ func (d Production) graphicsSuperType(platform, section tags.Tag) (tags.Tag, tag
 		case Graphics:
 			platform = tags.Image
 			section = tags.Logo
-		case Ascii:
+		case ASCII:
 			platform = tags.Text
 			section = tags.Logo
-		case PackAscii:
+		case PackASCII:
 			platform = tags.Text
 			section = tags.Pack
 		case Ansi:

@@ -82,7 +82,12 @@ func Routes(e *echo.Echo, logger *zap.SugaredLogger, prod bool) *echo.Echo {
 }
 
 func releaser1(c echo.Context) string {
-	lookups := []string{"uploader-intro-releaser1", "uploader-text-releaser1", "uploader-image-releaser1", "uploader-advanced-releaser1"}
+	lookups := []string{
+		"uploader-intro-releaser1",
+		"uploader-text-releaser1",
+		"uploader-image-releaser1",
+		"uploader-advanced-releaser1",
+	}
 	for _, lookup := range lookups {
 		if val := c.FormValue(lookup); val != "" {
 			return val
@@ -92,7 +97,12 @@ func releaser1(c echo.Context) string {
 }
 
 func releaser2(c echo.Context) string {
-	lookups := []string{"uploader-intro-releaser2", "uploader-text-releaser2", "uploader-image-releaser2", "uploader-advanced-releaser2"}
+	lookups := []string{
+		"uploader-intro-releaser2",
+		"uploader-text-releaser2",
+		"uploader-image-releaser2",
+		"uploader-advanced-releaser2",
+	}
 	for _, lookup := range lookups {
 		if val := c.FormValue(lookup); val != "" {
 			return val

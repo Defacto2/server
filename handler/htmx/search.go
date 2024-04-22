@@ -188,6 +188,6 @@ func Classification(c echo.Context, logger *zap.SugaredLogger) error {
 		return c.String(http.StatusServiceUnavailable,
 			"cannot count the classification")
 	}
-	s = fmt.Sprintf("%s, %d existing artefacts", s, count)
+	s = fmt.Sprintf("%s, %d existing artifacts", s, count)
 	return c.HTML(http.StatusOK, s)
 }

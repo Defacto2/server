@@ -81,14 +81,17 @@ func PouetProd(c echo.Context) error {
 	if prod.Platfs.String() != "" {
 		info = append(info, "for", prod.Platfs.String())
 	}
+	return c.HTML(http.StatusOK, htmler(id, info...))
+}
 
-	html := `<div class="d-grid gap-2">`
-	html += fmt.Sprintf(`<button type="button" class="btn btn-outline-success" `+
+func htmler(id int, info ...string) string {
+	s := `<div class="d-grid gap-2">`
+	s += fmt.Sprintf(`<button type="button" class="btn btn-outline-success" `+
 		`hx-post="/pouet/production/submit/%d" hx-target="#pouet-submission-results" hx-trigger="click once delay:500ms" `+
 		`autofocus>Submit ID %d</button>`, id, id)
-	html += `</div>`
-	html += fmt.Sprintf(`<p class="mt-3">%s</p>`, strings.Join(info, " "))
-	return c.HTML(http.StatusOK, html)
+	s += `</div>`
+	s += fmt.Sprintf(`<p class="mt-3">%s</p>`, strings.Join(info, " "))
+	return s
 }
 
 // PouetValid fetches the first usable download link from the Pouet API.
@@ -150,44 +153,5 @@ func PouetValid(c echo.Context, id int) (pouet.Response, error) {
 // the Pouet production ID. If the Pouet production ID is already in
 // use, an error message is returned.
 func PouetSubmit(c echo.Context, logger *zap.SugaredLogger) error {
-	if logger == nil {
-		return c.String(http.StatusInternalServerError,
-			"error, pouet submit logger is nil")
-	}
-
-	sid := c.Param("id")
-	id, err := strconv.ParseUint(sid, 10, 64)
-	if err != nil {
-		return c.String(http.StatusNotAcceptable,
-			"The Pouet production ID must be a numeric value, "+sid)
-	}
-	if id < 1 || id > pouet.Sanity {
-		return c.String(http.StatusNotAcceptable,
-			"The Pouet production ID is invalid, "+sid)
-	}
-
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return ErrDB
-	}
-	defer db.Close()
-	ctx := context.Background()
-
-	if exist, err := model.ExistPouetFile(ctx, db, int64(id)); err != nil {
-		return c.String(http.StatusServiceUnavailable,
-			"error, the database query failed")
-	} else if exist {
-		return c.String(http.StatusForbidden,
-			"error, the pouet key is already in use")
-	}
-
-	key, err := model.InsertPouetFile(ctx, db, int64(id))
-	if err != nil || key == 0 {
-		logger.Error(err, id)
-		return c.String(http.StatusServiceUnavailable,
-			"error, the database insert failed")
-	}
-
-	html := fmt.Sprintf("Thanks for the submission of Pouet production: %d", id)
-	return c.HTML(http.StatusOK, html)
+	return submit(c, logger, "pouet")
 }

@@ -517,7 +517,9 @@
               <label class="form-label">Classifications</label>
               <div class="input-group mb-1">
                 <select name="uploader-advanced-operatingsystem" id="uploader-advanced-operating-system" class="form-select"
-                  hx-post="/uploader/classifications" hx-target="#uploader-advanced-classification-help" placeholder="Lookup a production…">
+                  placeholder="Lookup classifications…" 
+                  hx-post="/uploader/classifications" 
+                  hx-target="#uploader-advanced-classification-help">
                 {{- template "optionOS" . }}
                 </select>
                 <label class="input-group-text" for="uploader-advanced-operating-system">Operating system</label>
@@ -525,7 +527,9 @@
               <div class="input-group">
                 <label class="input-group-text" for="uploader-advanced-category">Tag as category</label>
                 <select name="uploader-advanced-category" id="uploader-advanced-category" class="form-select"
-                  hx-post="/uploader/classifications" hx-target="#uploader-advanced-classification-help" placeholder="Lookup a production…">
+                  placeholder="Lookup classifications…"
+                  hx-post="/uploader/classifications" 
+                  hx-target="#uploader-advanced-classification-help">
                 {{- template "optionTag" . }}
                 </select>
               </div>

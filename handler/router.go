@@ -40,21 +40,21 @@ func (c Configuration) FilesRoutes(e *echo.Echo, logger *zap.SugaredLogger, publ
 		Thumbnail: c.Environment.ThumbnailDir,
 	}
 
-	if nonce, err := c.nonce(e); err != nil {
+	nonce, err := c.nonce(e)
+	if err != nil {
 		return nil, fmt.Errorf("%w: %s", err, "nonce")
-	} else {
-		e = c.signin(e, nonce)
 	}
+	e = c.signin(e, nonce)
 	e = c.custom404(e)
+	e = c.debugInfo(e)
+	e = c.static(e)
+	e = c.uploader(e)
 	e = c.html(e, public)
 	e = c.font(e, public)
 	e = c.embed(e, public)
-	e = c.static(e)
-	e = c.debugInfo(e)
-	e = c.website(e, logger, dir)
 	e = c.search(e, logger)
+	e = c.website(e, logger, dir)
 	e = c.editor(e, logger, dir)
-	e = c.uploader(e)
 	return e, nil
 }
 
