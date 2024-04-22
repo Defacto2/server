@@ -1,4 +1,7 @@
-// helper.mjs
+/**
+ * @module helper
+ * This module provides functions for handling common tasks.
+ */
 
 /**
  * Copies the text content of an HTML element to the clipboard.

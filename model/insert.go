@@ -120,6 +120,22 @@ func ValidReleasers(s1, s2 string) (null.String, null.String) {
 	return x1, x2
 }
 
+// ValidSceners returns a valid sceners string or a null value.
+func ValidSceners(s string) null.String {
+	invalid := null.String{String: "", Valid: false}
+	t := TrimShort(s)
+	if len(t) == 0 {
+		return invalid
+	}
+	const sep = ","
+	ts := strings.Split(t, sep)
+	for i, v := range ts {
+		ts[i] = releaser.Clean(strings.TrimSpace(v))
+	}
+	t = strings.Join(ts, sep)
+	return null.StringFrom(t)
+}
+
 // ValidTitle returns a valid title or a null value.
 // The title is trimmed and shortened to the short limit.
 func ValidTitle(s string) null.String {
@@ -296,10 +312,10 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 		values.Get(key+"-releaser2"),
 	)
 	title := ValidTitle(values.Get(key + "-title"))
-	year, month, _ := DateIssue(
+	year, month, day := DateIssue(
 		values.Get(key+"-year"),
 		values.Get(key+"-month"),
-		"0",
+		values.Get(key+"-day"),
 	)
 	fname := values.Get(key + "-filename")
 	filename := ValidFilename(fname)
@@ -317,6 +333,10 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 	lastMod := ValidLastMod(values.Get(key + "-lastmodified"))
 	platform := ValidPlatform(values.Get(key + "-operating-system"))
 	section := ValidSection(values.Get(key + "-category"))
+	creditT := ValidSceners(values.Get(key + "-credittext"))
+	creditI := ValidSceners(values.Get(key + "-creditill"))
+	creditP := ValidSceners(values.Get(key + "-creditprog"))
+	creditA := ValidSceners(values.Get(key + "-creditaudio"))
 
 	f := models.File{
 		UUID:                unique,
@@ -328,6 +348,7 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 		RecordTitle:         title,
 		DateIssuedYear:      year,
 		DateIssuedMonth:     month,
+		DateIssuedDay:       day,
 		Filename:            filename,
 		Filesize:            filesize,
 		FileZipContent:      content,
@@ -337,6 +358,10 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 		FileLastModified:    lastMod,
 		Platform:            platform,
 		Section:             section,
+		CreditText:          creditT,
+		CreditIllustration:  creditI,
+		CreditProgram:       creditP,
+		CreditAudio:         creditA,
 	}
 	if err = f.Insert(ctx, tx, boil.Infer()); err != nil {
 		return 0, err
