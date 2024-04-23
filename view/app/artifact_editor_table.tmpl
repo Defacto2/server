@@ -2,6 +2,7 @@
 {{- define "artifactTableEditor" }}
 {{- if eq true (index . "editor")}}
 <div class="btn-group w-100 p-3">
+    <a href="#" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal" class="btn btn-lg btn-dark">Data editor*</a>
     <a href="#" data-bs-toggle="modal" data-bs-target="#assetEditorModal" class="btn btn-lg btn-outline-success">File assets editor</a>
     <a href="#" data-bs-toggle="modal" data-bs-target="#fileEditorModal" class="btn btn-lg btn-outline-primary">Metadata editor</a>
 </div>

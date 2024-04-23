@@ -1,0 +1,472 @@
+{{- /*  artifact_editorHtmx.tmpl  */}}
+{{- define "artifactEditorHtmx" -}}
+{{- if eq false (index . "editor")}}{{/*  render nothing  */}}{{else}}
+{{- $faSize := "fa-fw fa-2x" -}}
+{{- $id := index . "modID"}}
+{{- $previewImg := recordImgSample (index . "uuid")}}
+{{- $thumbImg := recordThumbSample (index . "uuid")}}
+{{- $replace := "refresh the page to see the changes"}}
+{{- $delay := "500ms" }}
+{{- /*  Artifact metadata editor  */}}
+<div class="modal fade" id="artifact-editor-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
+  aria-labelledby="artifact-editor-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    {{- /*  Modify the metadata for ID...  */}}
+    <div class="modal-content">
+      <div class="modal-header">
+        <i class="fal fa-file-alt {{ $faSize }}" title="Modify the record"></i> &nbsp;
+        <h1 class="modal-title fs-5" id="artifact-editor-modal-label">Data editor for record key, {{index . "modID"}}</h1><br>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body container">
+        <div class="row">
+          {{- /*  Public or hidden record  */}}
+          <div class="col-xl-2">
+            <div class="d-grid">
+              <input type="radio" class="btn-check" name="artifact-editor-record" id="artifact-editor-public" autocomplete="off">
+              <label class="btn btn-outline-success" for="artifact-editor-public">Public record</label>
+            </div>
+          </div>
+          <div class="col-xl-2">
+            <div class="d-grid">
+              <input type="radio" class="btn-check" name="artifact-editor-record" id="artifact-editor-hidden" autocomplete="off">
+              <label class="btn btn-outline-danger" for="artifact-editor-hidden">Hidden record</label>
+            </div>
+          </div>
+          {{- /*  Record key and Unique ID  */}}
+          <div class="col-xl-3">
+            <div class="input-group">
+              <span class="input-group-text" id="artifact-editor-key">Record Key</span>
+              <input type="text" value='{{index . "modID"}}' class="form-control" aria-describedby="artifact-editor-key" readonly>
+            </div>
+          </div>
+          <div class="col-xl-5">
+            <div class="input-group">
+              <span class="input-group-text" id="artifact-editor-unique-id">Unique ID</span>
+              <input type="text" value='{{index . "uuid"}}' class="form-control" aria-describedby="artifact-editor-unique-id" readonly>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <div class="row align-items-center">
+          <div class="col-xl-6">
+            {{- /*  Classifications  */}}
+            <label class="form-label mt-2">Classifications
+              <span id="artifact-editor-classification-help">, <small>details will go here</small></span>
+            </label>
+            <div class="input-group mb-1">
+              <select name="artifact-editor-operatingsystem" id="artifact-editor-operating-system" class="form-select"
+                placeholder="Lookup classifications…" 
+                hx-post="/uploader/classifications" 
+                hx-target="#artifact-editor-classification-help">
+              {{- template "optionOS" . }}
+              </select>
+              <label class="input-group-text" for="artifact-editor-operating-system">Operating system</label>
+            </div>
+            <div class="input-group">
+              <label class="input-group-text" for="artifact-editor-category">Tag as category</label>
+              <select name="artifact-editor-category" id="artifact-editor-category" class="form-select"
+                placeholder="Lookup classifications…"
+                hx-post="/uploader/classifications" 
+                hx-target="#artifact-editor-classification-help">
+              {{- template "optionTag" . }}
+              </select>
+            </div>
+          </div>
+          <div class="col-xl-6">
+            {{- /*  Popular classifications  */}}
+            <div class="btn-group">
+              <span class="form-text ms-3">Popular</span>
+              <button class="btn btn-link" id="artifact-editor-text-for-dos" type="button">Text for MsDos</button>
+              <button class="btn btn-link" id="artifact-editor-text-for-amiga" type="button">Text for Amiga</button>
+              <button class="btn btn-link" id="artifact-editor-proof-of-release" type="button">Proof of release</button>
+            </div>
+            <div class="btn-group">
+              <span class="form-text ms-3">Intros</span>
+              <button class="btn btn-link" id="artifact-editor-intro-for-dos" type="button">MsDos intro</button>
+              <button class="btn btn-link" id="artifact-editor-intro-for-win" type="button">Windows intro</button>
+              <button class="btn btn-link" id="artifact-editor-intro-for-bbs" type="button">BBS-tro</button>
+              <button class="btn btn-link" id="artifact-editor-ansi-for-bbs" type="button">BBS ANSI ad</button>
+            </div>
+            <div class="btn-group">
+              <span class="form-text ms-3">Magazine</span>
+              <button class="btn btn-link" id="artifact-editor-magazine-for-text" type="button">Magazine as text</button>
+              <button class="btn btn-link" id="artifact-editor-magazine-for-dos" type="button">Magazine for MsDos</button>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          {{- /*  Releasers  */}}
+          <div class="col-xl-10 offset-xl-1">
+            <label for="artifact-editor-releaser-1" class="form-label">Releasers <small>maximum of 2</small></label>
+            <div class="input-group">
+              <input type="text" list="artifact-editor-list-1" name="artifact-editor-releaser1" class="form-control" id="artifact-editor-releaser-1" 
+                  aria-describedby="artifact-editor-releasers-help" placeholder="example: Razor 1911" 
+                  hx-post="/uploader/releaser/1" 
+                  hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
+                  hx-target="#artifact-editor-list-1" 
+                  required>
+              <span class="input-group-text">+</span>
+              <input type="text" list="artifact-editor-list-2" name="artifact-editor-releaser2" class="form-control" id="artifact-editor-releaser-2" 
+                  aria-describedby="artifact-editor-releasers-help" placeholder="example: Titan" 
+                  hx-post="/uploader/releaser/2" 
+                  hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
+                  hx-target="#artifact-editor-list-2">
+            </div>
+            <datalist id="artifact-editor-list-1"></datalist>
+            <datalist id="artifact-editor-list-2"></datalist>
+            <div id="artifact-editor-releasers-help" class="form-text">
+              A releaser can be a group name, bbs name or ftp site.<br> 
+              A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q>,
+              for example: <q>Dark Domain BBS</q> or <q>Dark Domain FTP</q>.
+            </div>
+          </div>
+        </div>
+        {{- /*  Title or brief description  */}}
+        <div class="form-floating col-xl-10 offset-xl-1">
+          <input type="text" name="artifact-editor-title" class="form-control" id="artifact-editor-title" aria-describedby="artifact-editor-title-help" placeholder="example: 500000th release!">
+          <label for="artifact-editor-title">Title</label>
+          <div id="artifact-editor-title-help" class="form-text">An optional brief description or name of the release.</div>
+        </div>
+        <div class="row">
+          {{- /*  Date of release  */}}
+          <div class="col-xl-10 offset-xl-1">
+            <label class="form-label">Date of release</label>
+            <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+              <div class="input-group">
+                <span class="input-group-text">Year, month and day</span>
+                <input type="number" name="artifact-editor-year" min="1980" max="{{exampleYear}}" 
+                  id="artifact-editor-year" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
+                <input type="number" name="artifact-editor-month" min="1" max="12" 
+                  id="artifact-editor-month" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
+                <input type="number" name="artifact-editor-day" min="1" max="31" 
+                  id="artifact-editor-day" aria-label="Day of release" class="form-control input-date" placeholder="{{exampleDay}}">
+              </div>
+              <div class="btn-group" role="group" aria-label="First group">
+                <button type="button" class="btn btn-link">Reset date</button>
+                <button type="button" class="btn btn-link">Use artifact last modification date</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          {{- /*  Creators  */}}
+          <label class="form-label">Creators</label>
+          <div class="input-group">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="artifact-editor-pouet">
+              <label for="artifact-editor-pouet">Writers</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="artifact-editor-credit-ill" value="{{index . "artists"}}">
+              <label for="artifact-editor-credit-ill">Visual artists</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="artifact-editor-credit-prog" value="{{index . "programmers"}}">
+              <label for="artifact-editor-credit-prog">Programmers</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="artifact-editor-credit-audio" value="{{index . "musicians"}}">
+              <label for="artifact-editor-credit-audio">Musicians</label>
+            </div>
+          </div>
+          <div class="form-text">Join multiple artists, coders, musicians and writers with commas, for example: <q>Name 1,Name 2,Name 3</q>.</div>
+        </div>
+        <div class="row">
+          <label class="form-label">Links</label>
+          <div class="col-xl-6 form-floating">
+            <input type="text" class="form-control" id="artifact-editor-link-releasers">
+            <label for="artifact-editor-link-releasers" placeholder="">Link to releases</label>
+          </div>
+          <div class="col-xl-6 form-floating">
+            <input type="text" class="form-control" id="artifact-editor-link-releasers">
+            <label for="artifact-editor-link-releasers" placeholder="">Link to websites</label>
+          </div>
+        </div>
+        <div class="row">
+          <label class="form-label">Other links</label>
+          <div class="col-xl-2">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="artifact-editor-youtube" value="">
+              <label for="artifact-editor-youtube">YouTube ID</label>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            www.youtube.com/watch?v=
+          </div>
+          <div class="col-xl-2">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="artifact-editor-virustotal" value="">
+              <label for="artifact-editor-virustotal">VirusTotal</label>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            www.virustotal.com/gui/file/5343f669df0f6586d98e11851f5de5a9113a4a526c98a2530f0eb99c160e2a8c
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xl-2">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="artifact-editor-demozoo" value="">
+              <label for="artifact-editor-demozoo">Demozoo prod</label>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            demozoo.org/productions/123456
+          </div>
+          <div class="col-xl-2">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="artifact-editor-pouet" value="">
+              <label for="artifact-editor-pouet">Pouet prod</label>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            www.pouet.net/prod.php?which=
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xl-2">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="artifact-editor-16colors" value="">
+              <label for="artifact-editor-16colors">16colors partial</label>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            16colo.rs/
+          </div>
+          <div class="col-xl-2">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="artifact-editor-github" value="">
+              <label for="artifact-editor-github">GitHub repo</label>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            github.com/
+          </div>
+        </div>
+        {{- /*  Title or brief description  */}}
+        <div class="form-floating col-xl-10 offset-xl-1">
+          <input type="text" name="artifact-editor-title" class="form-control" id="artifact-editor-title" aria-describedby="artifact-editor-title-help" placeholder="example: 500000th release!">
+          <label for="artifact-editor-title">Title</label>
+          <div id="artifact-editor-title-help" class="form-text">An optional brief description or name of the release.</div>
+        </div>
+
+
+        <hr>
+
+        <div class="mb-3 row">
+          <div class="col-xl-1" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Internal identifiers"><strong>ID</strong></div>
+          <div class="col-xl-6 text-start">{{index . "uuid"}}</div>
+          <div class="col-xl-5 text-start">
+            <div class="form-check form-switch">
+              {{recordOnline (index . "modOnline") }}
+              <label class="form-check-label" id="recordOnlineLabel" for="recordOnline">File artifact is <strong>online and public</strong></label>
+              <div class="invalid-feedback" id="recordOnlineErr">error placeholder</div>  
+            </div>  
+          </div>
+        </div>
+        {{/*  Title  */}}
+        <div class="mb-3 row">
+          <label for="recordTitle" id="recordTitleLabel" class="col-xl-1 col-form-label"><strong>Title</strong></label>
+          <div class="col-xl-5">
+            <input type="text" name="title" class="form-control" id="recordTitle" 
+              value="{{index . "modTitle"}}" placeholder="{{index . "filename"}}">
+            <div class="invalid-feedback" id="recordTitleErr" class="d-none">something went wrong</div>
+            <div class="form-text">
+              A title can be the name of the release or title of the document,<br>
+              or a very brief description of the file artifact.<br>
+              The title is optional, otherwise the filename is used.
+              <div id="recordTitleOG" class="text-info d-none">previous title: <span id="recordTitleOGValue">{{index . "modTitle"}}</span></div>
+            </div>
+          </div>
+          <label for="recordReleasers" id="recordReleasersLabel" class="col-xl-1 col-form-label"><strong>Releasers</strong></label>
+          <div class="col-xl-5">
+            <input type="text" name="releasers" class="form-control" id="recordReleasers" value="{{index . "modReleasers"}}">
+            <div class="form-text">
+              <span id="recordReleasersMax">A maximum of two releasers</span>, 
+                example: <code class="">RAZOR 1911 + TITAN</code><code class="d-none">CONSOLE NEWS + TITAN</code>
+                <span class=""><br>A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q>,<br>example: <code>DARK DOMAIN BBS</code></span>
+            </div>
+            <div class="form-text">
+              <span>There are 2 other artifacts for XXX and 3 for XXX.</span>
+            </div>
+          </div>
+        </div>
+        {{/*  Year, month and day of release  */}}
+        <div class="mb-3 row">
+          <label for="recordReleasers" id="recordReleasersLabel" class="col-xl-3 col-form-label">Year, month, day <strong>of release</strong></label>
+          <div class="col-xl-9">
+            <div class="input-group mb-1">
+              <input type="number" name="release-year" id="recordYear" min="1980" max="2023" aria-label="Year of release" class="form-control input-date" value="{{index . "modYear"}}" placeholder="{{exampleYear}}">
+              <input type="number" name="release-month" id="recordMonth" min="0" max="12" aria-label="Month of release" class="form-control input-date" value="{{index . "modMonth"}}" placeholder="{{exampleMonth}}">
+              <input type="number" name="release-day" id="recordDay" min="0" max="31" aria-label="Day of release" class="form-control input-date" value="{{index . "modDay"}}" placeholder="{{exampleDay}}">
+            </div>
+            <div class="input-group">
+              <button id="recordYMDReset" class="btn btn-outline-danger" type="button">Reset</button>
+              {{recordLastMod (index . "modLastMod") }}Set to last modification</button>
+              <button id="recordYMDSave" class="btn btn-success px-5" type="button">Save date</button>
+            </div>
+            <input type="hidden" id="recordOgY" value="{{index . "modYear"}}">
+            <input type="hidden" id="recordOgM" value="{{index . "modMonth"}}">
+            <input type="hidden" id="recordOgD" value="{{index . "modDay"}}">
+          </div>
+          <input type="hidden" id="recordLastMod" value="{{index . "modLastModValue"}}">
+        </div>
+        {{/*  Platform and tag (popular) */}}
+        <div class="mb-3 row">
+          <label for="recordTitle" id="recordTitleLabel" class="col-xl-2 col-form-label"><strong>Platform</strong> and <strong>tag</strong></label>
+          <div class="col-sm-10 mb-3 text-end">
+            <div class="btn-group">
+              <button class="btn btn-sm btn-link link-danger" id="recTagsReset" type="button">Reset</button>
+            </div>
+            <div class="btn-group">
+              <span class="form-text ms-3">Popular</span>
+              <button class="btn btn-sm btn-link" id="recordDosText" type="button">MsDos text</button>
+              <button class="btn btn-sm btn-link" id="recordAmigaText" type="button">Amiga text</button>
+              <button class="btn btn-sm btn-link" id="recordProof" type="button">Proof</button>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-link" id="recordDostro" type="button">MsDos intro</button>
+              <button class="btn btn-sm btn-link" id="recordWintro" type="button">Windows intro</button>
+              <button class="btn btn-sm btn-link" id="recordBBStro" type="button">BBStro</button>
+              <button class="btn btn-sm btn-link" id="recordBBSAnsi" type="button">BBS ANSI ad</button>
+            </div>
+            <div class="btn-group">
+              <span class="form-text ms-3">Magazine</span>
+              <button class="btn btn-sm btn-link" id="recordTextMag" type="button">Magazine as text</button>
+              <button class="btn btn-sm btn-link" id="recordDosMag" type="button">Magazine on MsDos</button>
+            </div>
+            <input type="hidden" id="recOSOg" value="{{index . "modOS"}}">
+            <input type="hidden" id="recTagOg" value="{{index . "modTag"}}">
+          </div>
+          {{/*  Platform and tag (inputs) */}}
+          <div class="mb-1 row">
+            <div class="input-group">
+              <label class="input-group-text col-xl-1" name="platform" for="recordPlatform">Platform</label>
+              <select class="form-select col-xl-10" id="recordPlatform">
+                {{ template "optionOS" . }}
+              </select>
+              <span class="input-group-text col-xl-1" name="tag" for="recordTag">Tag</span>
+              <select class="form-select col-xl-10" id="recordTag">
+                {{ template "optionTag" . }}
+              </select>
+            </div>
+            <div id="optionsTags" class="invalid-feedback text-center">
+              Both the Platform and the Tag must be selected.
+            </div>
+          </div>
+          {{/*  Briefs  */}}
+          <div class="row">
+            <div class="form-text mb-3 col-xl-6">
+              <span>Platform and tag brief: <span id="platformTagInfo" class="text-primary-emphasis">{{recordInfoOSTag (index . "modOS") (index . "modTag") }}</span></span>
+            </div>
+            <div class="form-text mb-3 col-xl-6">
+              <span>Tag brief: <span id="tagInfo" class="text-primary-emphasis">{{recordTagInfo (index . "modTag") }}</span></span>
+            </div>
+          </div>
+        </div>
+        {{/*  Artists, coders...  */}}
+        <div class="mb-3">
+          <div class="input-group">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="artifact-editor-credit-ill" value="{{index . "artists"}}">
+              <label for="artifact-editor-credit-ill">Artists</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="artifact-editor-credit-prog" value="{{index . "programmers"}}">
+              <label for="artifact-editor-credit-prog">Coders</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="artifact-editor-credit-audio" value="{{index . "musicians"}}">
+              <label for="artifact-editor-credit-audio">Musicians</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="artifact-editor-pouet" value="{{index . "writers"}}">
+              <label for="artifact-editor-pouet">Writers</label>
+            </div>
+          </div>
+          <div class="form-text">Join multiple artists, coders, musicians and writers with commas, example: <code>nick1,nick2,nick3</code></div>
+        </div>
+        {{/*  horizontal rule  */}}
+        <hr>
+        <div class="form-text text-info-emphasis mb-2">All the fields below are optional and usually don't need modification</div>
+        <div class="mb-3 input-group">
+          <div class="form-floating">
+            <input type="text" class="form-control" id="recordDemozoo" value="{{index . "demozoo"}}">
+            <label for="recordDemozoo">Demozoo prod</label>
+            <p class="form-text"><a href="demozoo.org/productions/{{index . "demozoo"}}">link to demozoo</a></p>
+          </div>
+          <div class="form-floating">
+            <input type="text" class="form-control" id="recordPouet" value="{{index . "pouet"}}">
+            <label for="recordPouet">Pouet prod</label>
+            <p class="form-text"><a href="www.pouet.net/prod.php?which={{index . "pouet"}}">link to pouet</a></p>
+          </div>
+          <div class="form-floating">
+            <input type="text" class="form-control" id="record16colors" value="{{index . "sixteenColors"}}">
+            <label for="record16colors">16colors partial</label>
+            <p class="form-text"><a href="16colo.rs/{{index . "sixteenColors"}}">link to 16colors</a></p>
+          </div>
+          <div class="form-floating">
+            <input type="text" class="form-control" id="recordGitHub" value="{{index . "github"}}">
+            <label for="recordGitHub">GitHub repository</label>
+            <p class="form-text"><a href="github.com{{index . "github"}}">link to github</a></p>
+          </div>
+        </div>
+        {{/*  Releases and website examples  */}}
+        <div class="mb-3">
+          <div class="row">
+            <div class="form-text col-md-6">releases example: <code>NFO;9b1c6 | Intro;a92116e</code></div>
+            <div class="form-text col-md-6 text-end">websites example: <code>Web;example.com | Docs;docs.example.com</code></div>
+          </div>
+          <div class="input-group">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="recordLinks" value="{{index . "listReleases"}}">
+              <label for="recordLinks">Links to other releases</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="recordWebsites" value="{{index . "listWebsites"}}">
+              <label for="recordWebsites">Websites</label>
+            </div>
+          </div>
+        </div>
+        <div class="row g-2 mb-3">
+          {{/*  YouTube and VirusTotal  */}}
+          <div class="col-md">
+            <div class="input-group">
+              <div class="form-floating">
+                <input type="text" class="form-control" id="recordYouTube" value="{{index . "youtube"}}">
+                <label for="recordYouTube">YouTube ID</label>
+              </div>
+              <div class="form-floating">
+                <input type="text" class="form-control" id="recordVTotal">
+                <label for="recordVTotal">VirusTotal URL</label>
+              </div>
+            </div>
+          </div>
+          {{/*  Filename  */}}
+          <div class="col-md">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="recordFilename" value="{{index . "filename"}}">
+              <label for="recordFilename">Filename</label>
+            </div>
+          </div>
+        </div>
+        {{/*  Comments  */}}
+        <div class="form-floating">
+          <textarea class="form-control" id="recordComment" style="height:5em;">{{index . "comment"}}</textarea>
+          <label for="recordComment">Comments</label>
+        </div>
+      </div>
+      {{/*  Switch to assets and reset buttons  */}}
+      <div class="modal-footer row g-3 mt-1">
+        <div class="col-md text-center">
+          <button class="btn btn-primary" data-bs-target="#assetEditorModal" data-bs-toggle="modal">Switch to assets</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{- end}}
+{{- end}}
