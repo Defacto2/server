@@ -1,45 +1,49 @@
 {{- /*  option_os.tmpl &#x2713; */}}
 {{- define "optionOS" -}}
 {{- $os := (index . "platform") }}
-{{- $windows := tagSel $os "windows" }}
-{{- $dos := tagSel $os "dos" }}
-{{- $text := tagSel $os "text" }}
-{{- $textamiga := tagSel $os "textamiga" }}
-{{- $ansi := tagSel $os "ansi" }}
-{{- $pcb := tagSel $os "pcb" }}
-{{- $pdf := tagSel $os "pdf" }}
-{{- $image := tagSel $os "image" }}
-{{- $audio := tagSel $os "audio" }}
-{{- $video := tagSel $os "video" }}
-{{- $linux := tagSel $os "linux" }}
-{{- $mac10 := tagSel $os "mac10" }}
-{{- $php := tagSel $os "php" }}
-{{- $java := tagSel $os "java" }}
-{{- $markup := tagSel $os "markup" }}
-{{- $database := tagSel $os "database" }}
+{{- $windows := tagOption $os "windows" }}
+{{- $dos := tagOption $os "dos" }}
+{{- $text := tagOption $os "text" }}
+{{- $textamiga := tagOption $os "textamiga" }}
+{{- $ansi := tagOption $os "ansi" }}
+{{- $pcb := tagOption $os "pcb" }}
+{{- $pdf := tagOption $os "pdf" }}
+{{- $image := tagOption $os "image" }}
+{{- $audio := tagOption $os "audio" }}
+{{- $video := tagOption $os "video" }}
+{{- $linux := tagOption $os "linux" }}
+{{- $mac10 := tagOption $os "mac10" }}
+{{- $php := tagOption $os "php" }}
+{{- $java := tagOption $os "java" }}
+{{- $markup := tagOption $os "markup" }}
+{{- $database := tagOption $os "database" }}
+{{- if eq $os "" }}
                 <option value="" selected>Choose...</option>
+{{- else }}
+                <option value="">Choose...</option>
+{{- end }}
                 <optgroup label="Programs or apps">
-                {{$windows}}for Windows PC</option>
-                {{$dos}}for Dos PC</option>
+                    {{$windows}}for Windows PC</option>
+                    {{$dos}}for Dos PC</option>
                 </optgroup>
                 <optgroup label="Texts or documents">
-                {{$ansi}}using ANSI encoding</option>
-                {{$text}}for Dos (inc. CP-437 encoding)</option>
-                {{$textamiga}}for Amiga</option>
-                {{$pcb}}for PCBoard</option>
-                {{$pdf}}PDF document</option>
+                    {{$ansi}}using ANSI encoding</option>
+                    {{$text}}for Dos (inc. CP-437 encoding)</option>
+                    {{$textamiga}}for Amiga</option>
+                    {{$pcb}}for PCBoard</option>
+                    {{$pdf}}PDF document</option>
                 </optgroup>
                 <optgroup label="Multimedia">
-                {{$image}}Image or photo</option>
-                {{$audio}}Music or audio</option>
-                {{$video}}Video</option>
+                    {{$image}}Image or photo</option>
+                    {{$audio}}Music or audio</option>
+                    {{$video}}Video</option>
                 </optgroup>
                 <optgroup label="Uncommon">
-                {{$linux}}Linux app</option>
-                {{$mac10}}Apple Mac app</option>
-                {{$php}}Shell script app</option>
-                {{$java}}Java web app</option>
-                {{$markup}}Html webpage</option>
-                {{$database}}Database</option>
+                    {{$linux}}Linux app</option>
+                    {{$mac10}}Apple Mac app</option>
+                    {{$php}}Shell script app</option>
+                    {{$java}}Java web app</option>
+                    {{$markup}}Html webpage</option>
+                    {{$database}}Database</option>
                 </optgroup>
 {{- end -}}

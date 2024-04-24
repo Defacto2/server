@@ -882,6 +882,38 @@ func RecordRels(a, b any) template.HTML {
 	return template.HTML(s)
 }
 
+func RecordReleasers(a, b any) [2]string {
+	av, bv := "", ""
+	switch val := a.(type) {
+	case string:
+		av = reflect.ValueOf(val).String()
+	case null.String:
+		if val.Valid {
+			av = val.String
+		}
+	}
+	switch val := b.(type) {
+	case string:
+		bv = reflect.ValueOf(val).String()
+	case null.String:
+		if val.Valid {
+			bv = val.String
+		}
+	}
+	av = strings.TrimSpace(av)
+	bv = strings.TrimSpace(bv)
+	switch {
+	case av != "" && bv != "":
+		return [2]string{av, bv}
+	case bv != "":
+		return [2]string{bv, ""}
+	case av != "":
+		return [2]string{av, ""}
+	}
+	return [2]string{}
+
+}
+
 // SafeHTML returns a string as a template.HTML type.
 // This is intended to be used to prevent HTML escaping.
 func SafeHTML(s string) template.HTML {
@@ -945,31 +977,31 @@ func TagBrief(tag string) template.HTML {
 	return template.HTML(s)
 }
 
-// TagSel returns a HTML option tag with the selected attribute if the check value matches the option value.
-func TagSel(check, option any) template.HTML {
-	x, s := "", ""
-	switch val := check.(type) {
+// TagOption returns a HTML option tag with the selected attribute if the selected matches the value.
+func TagOption(selected, value any) template.HTML {
+	sel, val := "", ""
+	switch i := selected.(type) {
 	case string:
-		x = reflect.ValueOf(val).String()
+		sel = reflect.ValueOf(i).String()
 	case null.String:
-		if val.Valid {
-			x = val.String
+		if i.Valid {
+			sel = i.String
 		}
 	}
-	switch val := option.(type) {
+	switch i := value.(type) {
 	case string:
-		s = reflect.ValueOf(val).String()
+		val = reflect.ValueOf(i).String()
 	case null.String:
-		if val.Valid {
-			s = val.String
+		if i.Valid {
+			val = i.String
 		}
 	}
-	x = strings.TrimSpace(x)
-	s = strings.TrimSpace(s)
-	if x != "" && x == s {
-		return template.HTML(fmt.Sprintf("<option value=\"%s\" selected>", s))
+	sel = strings.TrimSpace(sel)
+	val = strings.TrimSpace(val)
+	if sel != "" && sel == val {
+		return template.HTML(fmt.Sprintf("<option value=\"%s\" selected>", val))
 	}
-	return template.HTML(fmt.Sprintf("<option value=\"%s\">", s))
+	return template.HTML(fmt.Sprintf("<option value=\"%s\">", val))
 }
 
 // TagWithOS returns a small summary of the tag with the operating system.
@@ -1084,6 +1116,7 @@ type Cache struct {
 
 // SRI are the Subresource Integrity hashes for the layout.
 type SRI struct {
+	ArtifactEditor  string // Artifact Editor JS verification hash.
 	Bootstrap5      string // Bootstrap CSS verification hash.
 	Bootstrap5JS    string // Bootstrap JS verification hash.
 	Editor          string // Editor JS verification hash.
@@ -1106,6 +1139,10 @@ type SRI struct {
 func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 	names := Names()
 	var err error
+	s.ArtifactEditor, err = helper.Integrity(names[ArtifactEditor], fs)
+	if err != nil {
+		return err
+	}
 	s.Bootstrap5, err = helper.Integrity(names[Bootstrap5], fs)
 	if err != nil {
 		return err

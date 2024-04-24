@@ -29,69 +29,73 @@
 */}}
 {{- define "optionTag" -}}
 {{- $tag := (index . "section") }}
-{{- $package := tagSel $tag "package" }}
-{{- $magazine := tagSel $tag "magazine" }}
-{{- $releaseinstall := tagSel $tag "releaseinstall" }}
-{{- $gamehack := tagSel $tag "gamehack" }}
-{{- $demo := tagSel $tag "demo" }}
-{{- $releaseadvert := tagSel $tag "releaseadvert" }}
-{{- $ftp := tagSel $tag "ftp" }}
-{{- $bbs := tagSel $tag "bbs" }}
-{{- $releaseinformation := tagSel $tag "releaseinformation" }}
-{{- $logo := tagSel $tag "logo" }}
-{{- $releaseproof := tagSel $tag "releaseproof" }}
-{{- $ansieditor := tagSel $tag "ansieditor" }}
-{{- $programmingtool := tagSel $tag "programmingtool" }}
-{{- $nfotool := tagSel $tag "nfotool" }}
-{{- $scenerules := tagSel $tag "scenerules" }}
-{{- $newsmedia := tagSel $tag "newsmedia" }}
-{{- $groupapplication := tagSel $tag "groupapplication" }}
-{{- $interview := tagSel $tag "interview" }}
-{{- $internaldocument := tagSel $tag "internaldocument" }}
-{{- $guide := tagSel $tag "guide" }}
-{{- $forsale := tagSel $tag "forsale" }}
-{{- $politics := tagSel $tag "politics" }}
-{{- $takedown := tagSel $tag "takedown" }}
-{{- $announcements := tagSel $tag "announcements" }}
-{{- $appleii := tagSel "appleii" $tag }}
-{{- $atarist := tagSel "atarist" $tag }}
+{{- $package := tagOption $tag "package" }}
+{{- $magazine := tagOption $tag "magazine" }}
+{{- $releaseinstall := tagOption $tag "releaseinstall" }}
+{{- $gamehack := tagOption $tag "gamehack" }}
+{{- $demo := tagOption $tag "demo" }}
+{{- $releaseadvert := tagOption $tag "releaseadvert" }}
+{{- $ftp := tagOption $tag "ftp" }}
+{{- $bbs := tagOption $tag "bbs" }}
+{{- $releaseinformation := tagOption $tag "releaseinformation" }}
+{{- $logo := tagOption $tag "logo" }}
+{{- $releaseproof := tagOption $tag "releaseproof" }}
+{{- $ansieditor := tagOption $tag "ansieditor" }}
+{{- $programmingtool := tagOption $tag "programmingtool" }}
+{{- $nfotool := tagOption $tag "nfotool" }}
+{{- $scenerules := tagOption $tag "scenerules" }}
+{{- $newsmedia := tagOption $tag "newsmedia" }}
+{{- $groupapplication := tagOption $tag "groupapplication" }}
+{{- $interview := tagOption $tag "interview" }}
+{{- $internaldocument := tagOption $tag "internaldocument" }}
+{{- $guide := tagOption $tag "guide" }}
+{{- $forsale := tagOption $tag "forsale" }}
+{{- $politics := tagOption $tag "politics" }}
+{{- $takedown := tagOption $tag "takedown" }}
+{{- $announcements := tagOption $tag "announcements" }}
+{{- $appleii := tagOption "appleii" $tag }}
+{{- $atarist := tagOption "atarist" $tag }}
+{{- if eq $tag "" }}
                 <option value="" selected>Choose...</option>
+{{- else }}
+                <option value="">Choose...</option>
+{{- end }}
                 <optgroup label="Releaser artefacts">
-                {{$releaseproof}}Proof of release</option>
-                {{$logo}}Logo, brand or releaser ad</option>
-                {{$releaseinformation}}NFO or README text</option>
-                {{$magazine}}Magazine or newsletter</option>
-                {{$package}}Filepack archive</option>
+                    {{$releaseproof}}Proof of release</option>
+                    {{$logo}}Logo, brand or releaser ad</option>
+                    {{$releaseinformation}}NFO or README text</option>
+                    {{$magazine}}Magazine or newsletter</option>
+                    {{$package}}Filepack archive</option>
                 </optgroup>
                 <optgroup label="Releaser apps">
-                {{$releaseadvert}}Cracktro or intro app</option>
-                {{$demo}}Demoscene prod app</option>
-                {{$gamehack}}Trainer or game hack app</option>
-                {{$releaseinstall}}Installer app</option>
+                    {{$releaseadvert}}Cracktro or intro app</option>
+                    {{$demo}}Demoscene prod app</option>
+                    {{$gamehack}}Trainer or game hack app</option>
+                    {{$releaseinstall}}Installer app</option>
                 </optgroup>
                 <optgroup label="Site and board apps">
-                {{$bbs}}BBS ad or bbstro app</option>
-                {{$ftp}}FTP ad or ftptro app</option>
+                    {{$bbs}}BBS ad or bbstro app</option>
+                    {{$ftp}}FTP ad or ftptro app</option>
                 </optgroup>
                 <optgroup label="Document subjects">
-                {{$announcements}}Announcement</option>
-                {{$takedown}}Bust or takedown</option>
-                {{$politics}}Drama</option>
-                {{$forsale}}For sale ad</option>
-                {{$guide}}How-To or guide</option>
-                {{$internaldocument}}Insider or not-for-public</option>
-                {{$interview}}Interview</option>
-                {{$groupapplication}}Job ad or application</option>
-                {{$newsmedia}}Mainstream news article</option>
-                {{$scenerules}}Standards or rules</option>
+                    {{$announcements}}Announcement</option>
+                    {{$takedown}}Bust or takedown</option>
+                    {{$politics}}Drama</option>
+                    {{$forsale}}For sale ad</option>
+                    {{$guide}}How-To or guide</option>
+                    {{$internaldocument}}Insider or not-for-public</option>
+                    {{$interview}}Interview</option>
+                    {{$groupapplication}}Job ad or application</option>
+                    {{$newsmedia}}Mainstream news article</option>
+                    {{$scenerules}}Standards or rules</option>
                 </optgroup>
                 <optgroup label="App tools">
-                {{$nfotool}}NFO tool app</option>
-                {{$programmingtool}}Coding tool app</option>
-                {{$ansieditor}}ANSI tool app</option>
+                    {{$nfotool}}NFO tool app</option>
+                    {{$programmingtool}}Coding tool app</option>
+                    {{$ansieditor}}ANSI tool app</option>
                 </optgroup>
                 <optgroup label="Other Scenes">
-                {{$appleii}}Apple II</option>
-                {{$atarist}}Atari ST</option>
+                    {{$appleii}}Apple II</option>
+                    {{$atarist}}Atari ST</option>
                 </optgroup>
 {{- end -}}

@@ -4,7 +4,8 @@ package app
 type Asset int
 
 const (
-	Bootstrap5      Asset = iota // Bootstrap is the path to the minified Bootstrap 5.3 CSS file.
+	ArtifactEditor  Asset = iota // ArtifactEditor is the path to the minified Artifact Editor JS file.
+	Bootstrap5                   // Bootstrap is the path to the minified Bootstrap 5.3 CSS file.
 	Bootstrap5JS                 // BootstrapJS is the path to the minified Bootstrap 5.3 JS file.
 	DosboxJS                     // DosboxJS is the js-dos v6 default variant compiled with emscripten.
 	DosboxWasm                   // DosboxWasm is the js-dos v6 WASM binary file.
@@ -30,6 +31,7 @@ type Paths map[Asset]string
 // the src attribute in HTML script elements.
 func Hrefs() Paths {
 	return Paths{
+		ArtifactEditor:  "/js/artifact-editor.min.js",
 		Bootstrap5:      "/css/bootstrap.min.css",
 		Bootstrap5JS:    "/js/bootstrap.bundle.min.js",
 		DosboxJS:        "/js/wdosbox.js",

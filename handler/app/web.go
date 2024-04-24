@@ -19,6 +19,7 @@ import (
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/pouet"
 	"github.com/volatiletech/null/v8"
 )
 
@@ -218,6 +219,9 @@ func (web Web) TemplateElms() template.FuncMap {
 func (web Web) TemplateClosures() template.FuncMap {
 	hrefs := Hrefs()
 	return template.FuncMap{
+		"artifactEditor": func() string {
+			return hrefs[ArtifactEditor]
+		},
 		"bootstrap5": func() string {
 			return hrefs[Bootstrap5]
 		},
@@ -285,8 +289,14 @@ func (web Web) TemplateClosures() template.FuncMap {
 		"pouet": func() string {
 			return hrefs[Pouet]
 		},
+		"pouetSanity": func() string {
+			return strconv.Itoa(pouet.Sanity)
+		},
 		"readme": func() string {
 			return hrefs[Readme]
+		},
+		"sri_artifactEditor": func() string {
+			return web.Subresource.ArtifactEditor
 		},
 		"sri_bootstrap5": func() string {
 			return web.Subresource.Bootstrap5
@@ -333,7 +343,7 @@ func (web Web) TemplateClosures() template.FuncMap {
 		"sri_uploader": func() string {
 			return web.Subresource.Uploader
 		},
-		"tagSel": TagSel,
+		"tagOption": TagOption,
 		"uploader": func() string {
 			return hrefs[Uploader]
 		},

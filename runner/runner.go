@@ -28,6 +28,7 @@ func NamedCSS() []string {
 // The files are located in the assets/js directory.
 func NamedJS() []string {
 	return []string{
+		"artifact-editor",
 		"editor",
 		"editor-assets",
 		"editor-archive",

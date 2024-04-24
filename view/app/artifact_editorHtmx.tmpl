@@ -19,6 +19,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body container">
+        <form><button type="reset">Reset</button>
         <div class="row">
           {{- /*  Public or hidden record  */}}
           <div class="col-xl-2">
@@ -52,46 +53,52 @@
           <div class="col-xl-6">
             {{- /*  Classifications  */}}
             <label class="form-label mt-2">Classifications
-              <span id="artifact-editor-classification-help">, <small>details will go here</small></span>
+              <span id="artifact-editor-classification-help">, <small>details will go here ~ {{index . "modOS"}} / {{index . "modTag"}}</small></span>
             </label>
             <div class="input-group mb-1">
+              <label class="input-group-text w-50" for="artifact-editor-operating-system" id="artifact-editor-os-label">Operating system</label>
               <select name="artifact-editor-operatingsystem" id="artifact-editor-operating-system" class="form-select"
-                placeholder="Lookup classifications…" 
-                hx-post="/uploader/classifications" 
-                hx-target="#artifact-editor-classification-help">
+                placeholder="Lookup classifications…">
               {{- template "optionOS" . }}
               </select>
-              <label class="input-group-text" for="artifact-editor-operating-system">Operating system</label>
             </div>
             <div class="input-group">
-              <label class="input-group-text" for="artifact-editor-category">Tag as category</label>
-              <select name="artifact-editor-category" id="artifact-editor-category" class="form-select"
-                placeholder="Lookup classifications…"
-                hx-post="/uploader/classifications" 
-                hx-target="#artifact-editor-classification-help">
+              <label class="input-group-text w-50" for="artifact-editor-category">Tag as category</label>
+              <select name="artifact-editor-categories" id="artifact-editor-category" class="form-select"
+                placeholder="Lookup classifications…">
               {{- template "optionTag" . }}
               </select>
             </div>
+            <div class="btn-group" role="group" aria-label="First group">
+              <button type="button" class="btn btn-link"
+                name="reset-classifications" data-reset-os="{{index . "modOS"}}" data-reset-cat="{{index . "modTag"}}">Reset classifications</button>
+            </div>
           </div>
-          <div class="col-xl-6">
+          <div class="col-xl-5">
             {{- /*  Popular classifications  */}}
             <div class="btn-group">
-              <span class="form-text ms-3">Popular</span>
-              <button class="btn btn-link" id="artifact-editor-text-for-dos" type="button">Text for MsDos</button>
-              <button class="btn btn-link" id="artifact-editor-text-for-amiga" type="button">Text for Amiga</button>
-              <button class="btn btn-link" id="artifact-editor-proof-of-release" type="button">Proof of release</button>
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-text-for-dos" type="button" 
+                data-reset-os="text" data-reset-cat="releaseinformation">Text NFO</button>
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-text-for-amiga" type="button"
+                data-reset-os="textamiga" data-reset-cat="releaseinformation">Text for Amiga</button>
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-proof-of-release" type="button"
+                data-reset-os="image" data-reset-cat="releaseproof">Proof of release</button>
             </div>
             <div class="btn-group">
-              <span class="form-text ms-3">Intros</span>
-              <button class="btn btn-link" id="artifact-editor-intro-for-dos" type="button">MsDos intro</button>
-              <button class="btn btn-link" id="artifact-editor-intro-for-win" type="button">Windows intro</button>
-              <button class="btn btn-link" id="artifact-editor-intro-for-bbs" type="button">BBS-tro</button>
-              <button class="btn btn-link" id="artifact-editor-ansi-for-bbs" type="button">BBS ANSI ad</button>
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-intro-for-dos" type="button"
+                data-reset-os="dos" data-reset-cat="releaseadvert">MsDos intro</button>
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-intro-for-win" type="button"
+                data-reset-os="windows" data-reset-cat="releaseadvert">Windows intro</button>
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-intro-for-bbs" type="button"
+                data-reset-os="dos" data-reset-cat="bbs">BBS-tro</button>
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-ansi-for-bbs" type="button"
+                data-reset-os="ansi" data-reset-cat="bbs">BBS ANSI</button>
             </div>
             <div class="btn-group">
-              <span class="form-text ms-3">Magazine</span>
-              <button class="btn btn-link" id="artifact-editor-magazine-for-text" type="button">Magazine as text</button>
-              <button class="btn btn-link" id="artifact-editor-magazine-for-dos" type="button">Magazine for MsDos</button>
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-magazine-for-text" type="button"
+                data-reset-os="text" data-reset-cat="magazine">Magazine as text</button>
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-magazine-for-dos" type="button"
+                data-reset-os="dos" data-reset-cat="magazine">Magazine for MsDos</button>
             </div>
           </div>
         </div>
@@ -103,6 +110,7 @@
             <div class="input-group">
               <input type="text" list="artifact-editor-list-1" name="artifact-editor-releaser1" class="form-control" id="artifact-editor-releaser-1" 
                   aria-describedby="artifact-editor-releasers-help" placeholder="example: Razor 1911" 
+                  value="{{index . "modReleaser1"}}" data-reset-rel1="{{index . "modReleaser1"}}"
                   hx-post="/uploader/releaser/1" 
                   hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                   hx-target="#artifact-editor-list-1" 
@@ -110,6 +118,7 @@
               <span class="input-group-text">+</span>
               <input type="text" list="artifact-editor-list-2" name="artifact-editor-releaser2" class="form-control" id="artifact-editor-releaser-2" 
                   aria-describedby="artifact-editor-releasers-help" placeholder="example: Titan" 
+                  value="{{index . "modReleaser2"}}" data-reset-rel2="{{index . "modReleaser2"}}"
                   hx-post="/uploader/releaser/2" 
                   hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                   hx-target="#artifact-editor-list-2">
@@ -125,7 +134,9 @@
         </div>
         {{- /*  Title or brief description  */}}
         <div class="form-floating col-xl-10 offset-xl-1">
-          <input type="text" name="artifact-editor-title" class="form-control" id="artifact-editor-title" aria-describedby="artifact-editor-title-help" placeholder="example: 500000th release!">
+          <input type="text" name="artifact-editor-title" class="form-control" id="artifact-editor-title" 
+            aria-describedby="artifact-editor-title-help" placeholder="example: 500000th release!"
+            value="{{index . "modTitle"}}" data-reset-title="{{index . "modTitle"}}">
           <label for="artifact-editor-title">Title</label>
           <div id="artifact-editor-title-help" class="form-text">An optional brief description or name of the release.</div>
         </div>
@@ -137,11 +148,14 @@
               <div class="input-group">
                 <span class="input-group-text">Year, month and day</span>
                 <input type="number" name="artifact-editor-year" min="1980" max="{{exampleYear}}" 
-                  id="artifact-editor-year" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
+                  id="artifact-editor-year" aria-label="Year of release" class="form-control input-date" 
+                  value="{{index . "modYear"}}" data-reset-year="{{index . "modYear"}}" placeholder="{{exampleYear}}">
                 <input type="number" name="artifact-editor-month" min="1" max="12" 
-                  id="artifact-editor-month" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
+                  id="artifact-editor-month" aria-label="Month of release" class="form-control input-date" 
+                  value="{{index . "modMonth"}}" data-reset-month="{{index . "modMonth"}}" placeholder="{{exampleMonth}}">
                 <input type="number" name="artifact-editor-day" min="1" max="31" 
-                  id="artifact-editor-day" aria-label="Day of release" class="form-control input-date" placeholder="{{exampleDay}}">
+                  id="artifact-editor-day" aria-label="Day of release" class="form-control input-date" 
+                  value="{{index . "modDay"}}" data-reset-day="{{index . "modDay"}}" placeholder="{{exampleDay}}">
               </div>
               <div class="btn-group" role="group" aria-label="First group">
                 <button type="button" class="btn btn-link">Reset date</button>
@@ -155,101 +169,90 @@
           <label class="form-label">Creators</label>
           <div class="input-group">
             <div class="form-floating">
-              <input type="text" class="form-control" id="artifact-editor-pouet">
-              <label for="artifact-editor-pouet">Writers</label>
+              <input type="text" class="form-control" id="artifact-editor-credit-text"
+                value="{{index . "writers"}}" data-reset-credit-text="{{index . "writers"}}" placeholder="example: Name 1">
+              <label for="artifact-editor-credit-text">Writers</label>
             </div>
             <div class="form-floating">
-              <input type="text" class="form-control" id="artifact-editor-credit-ill" value="{{index . "artists"}}">
+              <input type="text" class="form-control" id="artifact-editor-credit-ill" 
+                value="{{index . "artists"}}" data-reset-credit-ill="{{index . "artists"}}" placeholder="example: Name 1">
               <label for="artifact-editor-credit-ill">Visual artists</label>
             </div>
             <div class="form-floating">
-              <input type="text" class="form-control" id="artifact-editor-credit-prog" value="{{index . "programmers"}}">
+              <input type="text" class="form-control" id="artifact-editor-credit-prog" 
+                value="{{index . "programmers"}}" data-reset-credit-prog="{{index . "programmers"}}" placeholder="example: Name 1">
               <label for="artifact-editor-credit-prog">Programmers</label>
             </div>
             <div class="form-floating">
-              <input type="text" class="form-control" id="artifact-editor-credit-audio" value="{{index . "musicians"}}">
+              <input type="text" class="form-control" id="artifact-editor-credit-audio" 
+                value="{{index . "musicians"}}" data-reset-credit-audio="{{index . "musicians"}}" placeholder="example: Name 1">
               <label for="artifact-editor-credit-audio">Musicians</label>
             </div>
           </div>
           <div class="form-text">Join multiple artists, coders, musicians and writers with commas, for example: <q>Name 1,Name 2,Name 3</q>.</div>
         </div>
+        {{/*  Comments  */}}
+        <div class="form-floating">
+          <textarea class="form-control" id="recordComment" style="height:6em;" 
+            placeholder="example: Some longer form notes about the artifact can go here.">{{index . "comment"}}</textarea>
+          <label for="recordComment">Comments</label>
+        </div>
+        {{- /*  Links  */}}
         <div class="row">
           <label class="form-label">Links</label>
-          <div class="col-xl-6 form-floating">
-            <input type="text" class="form-control" id="artifact-editor-link-releasers">
-            <label for="artifact-editor-link-releasers" placeholder="">Link to releases</label>
-          </div>
-          <div class="col-xl-6 form-floating">
-            <input type="text" class="form-control" id="artifact-editor-link-releasers">
-            <label for="artifact-editor-link-releasers" placeholder="">Link to websites</label>
-          </div>
-        </div>
-        <div class="row">
-          <label class="form-label">Other links</label>
           <div class="col-xl-2">
             <div class="form-floating">
-              <input type="text" class="form-control" id="artifact-editor-youtube" value="">
+              <input type="text" class="form-control" id="artifact-editor-youtube" 
+                value="{{index . "youtube"}}" data-reset-youtube="{{index . "youtube"}}" placeholder="62BuDfBIcMo">
               <label for="artifact-editor-youtube">YouTube ID</label>
             </div>
           </div>
-          <div class="col-xl-4">
-            www.youtube.com/watch?v=
-          </div>
           <div class="col-xl-2">
             <div class="form-floating">
-              <input type="text" class="form-control" id="artifact-editor-virustotal" value="">
-              <label for="artifact-editor-virustotal">VirusTotal</label>
-            </div>
-          </div>
-          <div class="col-xl-4">
-            www.virustotal.com/gui/file/5343f669df0f6586d98e11851f5de5a9113a4a526c98a2530f0eb99c160e2a8c
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-xl-2">
-            <div class="form-floating">
-              <input type="text" class="form-control" id="artifact-editor-demozoo" value="">
+              <input type="number" min="1" max="{{ demozooSanity }}" class="form-control" id="artifact-editor-demozoo" 
+                value="{{index . "demozoo"}}" data-reset-demozoo="{{index . "demozoo"}}" placeholder="185828">
               <label for="artifact-editor-demozoo">Demozoo prod</label>
             </div>
           </div>
-          <div class="col-xl-4">
-            demozoo.org/productions/123456
-          </div>
           <div class="col-xl-2">
             <div class="form-floating">
-              <input type="text" class="form-control" id="artifact-editor-pouet" value="">
+              <input type="number" min="1" max="{{ pouetSanity }}" class="form-control" id="artifact-editor-pouet" 
+                value="{{index . "pouet"}}" data-reset-pouet="{{index . "pouet"}}" placeholder="75854">
               <label for="artifact-editor-pouet">Pouet prod</label>
             </div>
           </div>
-          <div class="col-xl-4">
-            www.pouet.net/prod.php?which=
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-xl-2">
+          <div class="col-xl-3">
             <div class="form-floating">
-              <input type="text" class="form-control" id="artifact-editor-16colors" value="">
+              <input type="text" class="form-control" id="artifact-editor-16colors" 
+                value="{{index . "sixteenColors"}}" data-reset-16colors="{{index . "sixteenColors"}}" placeholder="/tags/magazine/dreadloc">
               <label for="artifact-editor-16colors">16colors partial</label>
             </div>
           </div>
-          <div class="col-xl-4">
-            16colo.rs/
-          </div>
-          <div class="col-xl-2">
+          <div class="col-xl-3">
             <div class="form-floating">
-              <input type="text" class="form-control" id="artifact-editor-github" value="">
+              <input type="text" class="form-control" id="artifact-editor-github" 
+                value="{{index . "github"}}" data-reset-github="{{index . "github"}}" placeholder="/Defacto2/database">
               <label for="artifact-editor-github">GitHub repo</label>
             </div>
           </div>
-          <div class="col-xl-4">
-            github.com/
-          </div>
         </div>
-        {{- /*  Title or brief description  */}}
-        <div class="form-floating col-xl-10 offset-xl-1">
-          <input type="text" name="artifact-editor-title" class="form-control" id="artifact-editor-title" aria-describedby="artifact-editor-title-help" placeholder="example: 500000th release!">
-          <label for="artifact-editor-title">Title</label>
-          <div id="artifact-editor-title-help" class="form-text">An optional brief description or name of the release.</div>
+        <div class="row">
+          <div class="col-xl-6">
+            <div class="form-floating">
+            <input type="text" class="form-control" id="artifact-editor-link-releasers" 
+              value="{{index . "listReleases"}}" data-reset-linkreleases="{{index . "listReleases"}}" placeholder="example: NFO;9f1c2">
+            <label for="artifact-editor-link-releasers">Link to releases</label>
+            </div>
+            <div class="form-text">Description and file ID, for example: <q>NFO;<a href="/f/9f1c2">9f1c2</a>|Intro;<a href="/f/a92116e">a92116e</a></q>.</div>
+          </div>
+          <div class="col-xl-6">
+            <div class="form-floating">
+            <input type="text" class="form-control" id="artifact-editor-link-websites" 
+              value="{{index . "listWebsites"}}" data-reset-linkwebsites="{{index . "listWebsites"}}" placeholder="Web;example.com">
+            <label for="artifact-editor-link-websites">Link to websites</label>
+            </div>
+            <div class="form-text">Description and link, for example: <q>Web;<a href="https://example.com">example.com</a>|Docs;<a href="https://docs.example.com">docs.example.com</a></q>.</div>
+          </div>
         </div>
 
 
@@ -457,6 +460,7 @@
           <textarea class="form-control" id="recordComment" style="height:5em;">{{index . "comment"}}</textarea>
           <label for="recordComment">Comments</label>
         </div>
+</form>
       </div>
       {{/*  Switch to assets and reset buttons  */}}
       <div class="modal-footer row g-3 mt-1">
