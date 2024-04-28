@@ -341,13 +341,15 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	}
 	// Remove control codes and metadata from byte array
 	const (
-		reAnsi  = `\x1b\[[0-9;]*[a-zA-Z]` // ANSI escape codes
-		reAmiga = `\x1b\[[0-9;]*[ ]p`     // unknown control code found in Amiga texts
-		reSauce = `SAUCE00.*`             // SAUCE metadata that is appended to some files
+		reAnsi    = `\x1b\[[0-9;]*[a-zA-Z]` // ANSI escape codes
+		reAmiga   = `\x1b\[[0-9;]*[ ]p`     // unknown control code found in Amiga texts
+		reSauce   = `SAUCE00.*`             // SAUCE metadata that is appended to some files
+		nlWindows = "\r\n"                  // Windows line endings
+		nlUnix    = "\n"                    // Unix line endings
 	)
 	re := regexp.MustCompile(reAnsi + `|` + reAmiga + `|` + reSauce)
 	b = re.ReplaceAll(b, []byte{})
-
+	b = bytes.ReplaceAll(b, []byte(nlWindows), []byte(nlUnix))
 	nr := bytes.NewReader(b)
 	e := render.Encoder(art, nr)
 	const (
@@ -378,17 +380,15 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 		return data, err
 	}
 	data["readmeLatin1"] = readme
-
+	r = bytes.NewReader(b)
 	d = charmap.CodePage437.NewDecoder().Reader(r)
 	readme, err = decode(d)
 	if err != nil {
 		return data, err
 	}
 	data["readmeCP437"] = readme
-
 	data["readmeLines"] = strings.Count(readme, "\n")
 	data["readmeRows"] = helper.MaxLineLength(readme)
-
 	return data, nil
 }
 
