@@ -28,7 +28,66 @@ export function htmxEvents() {
     afterRequest(event, `uploader-text-form`, `uploader-text-alert`);
     afterRequest(event, `uploader-text-releaser-1`, `uploader-text-alert`);
     afterRequest(event, `uploader-text-releaser-2`, `uploader-text-alert`);
+
+    afterRecord(event, `artifact-editor-hidden`, `artifact-editor-alert`);
+    afterRecord(event, `artifact-editor-public`, `artifact-editor-alert`);
   });
+}
+
+function afterRecord(event, inputId, alertId) {
+  if (event.detail.elt === null) return;
+  if (event.detail.elt.id !== `${inputId}`) return;
+
+  const liveAlert = document.getElementById(alertId);
+  if (typeof liveAlert === "undefined" || liveAlert === null) {
+    throw new Error(`The htmx alert element ${alertId} is null`);
+  }
+
+  if (event.detail.successful) {
+    return recordSuccess(event, inputId, liveAlert);
+  }
+  if (event.detail.failed && event.detail.xhr) {
+    return recordError(event, liveAlert);
+  }
+  errorBrowser(liveAlert);
+}
+
+/**
+ * Handles the successful event.
+ *
+ * @param {Event} event - The event object.
+ * @param {HTMLElement} alertElm - The alert element.
+ */
+function recordSuccess(event, inputId, alertElm) {
+  alertElm.classList.add("d-none");
+  alertElm.innerText = "";
+  console.log(event.detail.elt.textContent);
+  console.log(inputId);
+  const elm = document.getElementById(`artifact-editor-modal-header`);
+  switch (inputId) {
+    case "artifact-editor-hidden":
+      elm.classList.remove("bg-success-subtle");
+      elm.classList.add("bg-danger-subtle");
+      break;
+    case "artifact-editor-public":
+      elm.classList.add("bg-success-subtle");
+      elm.classList.remove("bg-danger-subtle");
+      break;
+    default:
+      console.error(`The record success ${inputId} is not supported.`);
+  }
+}
+
+/**
+ * Handles the error response from an XHR request.
+ *
+ * @param {CustomEvent} event - The event object containing the XHR details.
+ * @param {HTMLElement} alertElm - The alert element to display the error message.
+ */
+function recordError(event, alertElm) {
+  const xhr = event.detail.xhr;
+  alertElm.innerText = `Could not update the database record, ${xhr.responseText}.`;
+  alertElm.classList.remove("d-none");
 }
 
 /**
@@ -44,29 +103,29 @@ function afterRequest(event, inputId, alertId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${inputId}`) return;
 
-  const alert = document.getElementById(alertId);
-  if (typeof alert === "undefined" || alert === null) {
+  const liveAlert = document.getElementById(alertId);
+  if (typeof liveAlert === "undefined" || liveAlert === null) {
     throw new Error(`The htmx alert element ${alertId} is null`);
   }
 
   if (event.detail.successful) {
-    return successful(event, alert);
+    return successful(event, liveAlert);
   }
   if (event.detail.failed && event.detail.xhr) {
-    return errorXhr(alert, event);
+    return errorXhr(liveAlert, event);
   }
-  errorBrowser(alert);
+  errorBrowser(liveAlert);
 }
 
 /**
  * Handles the successful event.
  *
  * @param {Event} event - The event object.
- * @param {HTMLElement} alert - The alert element.
+ * @param {HTMLElement} alertElm - The alert element.
  */
-function successful(event, alert) {
-  alert.classList.add("d-none");
-  alert.innerText = "";
+function successful(event, alertElm) {
+  alertElm.classList.add("d-none");
+  alertElm.innerText = "";
   const match = "-form",
     id = event.target.id;
   const suffix = id.slice(-match.length);
@@ -94,21 +153,21 @@ function resetFile(event, selector) {
 /**
  * Handles the error response from an XHR request.
  *
- * @param {HTMLElement} alert - The alert element to display the error message.
+ * @param {HTMLElement} alertElm - The alert element to display the error message.
  * @param {CustomEvent} event - The event object containing the XHR details.
  */
-function errorXhr(alert, event) {
+function errorXhr(alertElm, event) {
   const xhr = event.detail.xhr;
-  alert.innerText = `Something on the server is not working, ${xhr.status} status: ${xhr.responseText}.`;
-  alert.classList.remove("d-none");
+  alertElm.innerText = `Something on the server is not working, ${xhr.status} status: ${xhr.responseText}.`;
+  alertElm.classList.remove("d-none");
 }
 
 /**
  * Displays an error message usually caused by the browser.
- * @param {HTMLElement} alert - The alert element where the error message will be displayed.
+ * @param {HTMLElement} alertElm - The alert element where the error message will be displayed.
  */
-function errorBrowser(alert) {
-  alert.innerText =
+function errorBrowser(alertElm) {
+  alertElm.innerText =
     "Something with the browser is not working, please try again or refresh the page.";
-  alert.classList.remove("d-none");
+  alertElm.classList.remove("d-none");
 }

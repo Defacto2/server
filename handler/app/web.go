@@ -171,6 +171,7 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 }
 
 // TemplateElms returns a map of functions that return HTML elements.
+// hx-target="previous .modal-header"`
 func (web Web) TemplateElms() template.FuncMap {
 	const input = "<input class=\"form-check-input\""
 	return template.FuncMap{
@@ -195,6 +196,26 @@ func (web Web) TemplateElms() template.FuncMap {
 			}
 			return template.HTML("<button id=\"recordLMBtn\" class=\"btn btn-outline-secondary\" type=\"button\" " +
 				"data-bs-toggle=\"tooltip\" data-bs-title=\"Apply the file last modified date\">")
+		},
+		"radioPublic": func(b bool) template.HTML {
+			const htmx = ` hx-post="/editor/online/true"
+			hx-include="[name='artifact-editor-key']"`
+			if b {
+				return template.HTML(`<input type="radio" class="btn-check" name="artifact-editor-record"` +
+					htmx + ` id="artifact-editor-public" autocomplete="off" checked>`)
+			}
+			return template.HTML(`<input type="radio" class="btn-check" name="artifact-editor-record" ` +
+				htmx + ` id="artifact-editor-public" autocomplete="off">`)
+		},
+		"radioHidden": func(b bool) template.HTML {
+			const htmx = ` hx-post="/editor/online/false"
+			hx-include="[name='artifact-editor-key']"`
+			if !b {
+				return template.HTML(`<input type="radio" class="btn-check" name="artifact-editor-record"` +
+					htmx + ` id="artifact-editor-hidden" autocomplete="off" checked>`)
+			}
+			return template.HTML(`<input type="radio" class="btn-check" name="artifact-editor-record"` +
+				htmx + ` id="artifact-editor-hidden" autocomplete="off">`)
 		},
 		"recordOnline": func(b bool) template.HTML {
 			if b {

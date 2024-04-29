@@ -354,10 +354,10 @@ func (c Configuration) editor(e *echo.Echo, logger *zap.SugaredLogger, dir app.D
 		})
 	online := editor.Group("/online")
 	online.POST("/true", func(cx echo.Context) error {
-		return app.RecordToggle(cx, true)
+		return htmx.RecordToggle(cx, true)
 	})
 	online.POST("/false", func(cx echo.Context) error {
-		return app.RecordToggle(cx, false)
+		return htmx.RecordToggle(cx, false)
 	})
 	readme := editor.Group("/readme")
 	readme.POST("/copy", func(cx echo.Context) error {

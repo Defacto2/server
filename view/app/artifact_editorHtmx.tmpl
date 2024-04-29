@@ -5,6 +5,7 @@
 {{- $id := index . "modID"}}
 {{- $previewImg := recordImgSample (index . "uuid")}}
 {{- $thumbImg := recordThumbSample (index . "uuid")}}
+{{- $record := index . "modOnline"}}
 {{- $replace := "refresh the page to see the changes"}}
 {{- $delay := "500ms" }}
 {{- /*  Artifact metadata editor  */}}
@@ -13,32 +14,37 @@
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
     {{- /*  Modify the metadata for ID...  */}}
     <div class="modal-content">
-      <div class="modal-header">
+      <div id="artifact-editor-modal-header" class="modal-header {{if eq $record true}}bg-success-subtle{{else}}bg-danger-subtle{{end}}">
         <i class="fal fa-file-alt {{ $faSize }}" title="Modify the record"></i> &nbsp;
         <h1 class="modal-title fs-5" id="artifact-editor-modal-label">Data editor for record key, {{index . "modID"}}</h1><br>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body container">
-        <form><button type="reset">Reset</button>
+
+<div id="artifact-editor-alert" class="alert alert-warning d-none" role="alert">
+  A simple warning alert—check it out!
+</div>
+
         <div class="row">
-          {{- /*  Public or hidden record  */}}
+          {{- /*  Public or hidden record  hx-swap="outerHTML settle:3s" */}}
           <div class="col-xl-2">
             <div class="d-grid">
-              <input type="radio" class="btn-check" name="artifact-editor-record" id="artifact-editor-public" autocomplete="off">
+              {{radioPublic ($record)}}
               <label class="btn btn-outline-success" for="artifact-editor-public">Public record</label>
             </div>
           </div>
           <div class="col-xl-2">
             <div class="d-grid">
-              <input type="radio" class="btn-check" name="artifact-editor-record" id="artifact-editor-hidden" autocomplete="off">
+              {{radioHidden ($record)}}
               <label class="btn btn-outline-danger" for="artifact-editor-hidden">Hidden record</label>
             </div>
           </div>
           {{- /*  Record key and Unique ID  */}}
           <div class="col-xl-3">
             <div class="input-group">
-              <span class="input-group-text" id="artifact-editor-key">Record Key</span>
-              <input type="text" value='{{index . "modID"}}' class="form-control" aria-describedby="artifact-editor-key" readonly>
+              <span class="input-group-text" id="artifact-editor-key-label">Record Key</span>
+              <input type="text" value='{{index . "modID"}}' class="form-control" name="artifact-editor-key" 
+                aria-describedby="artifact-editor-key-label" readonly>
             </div>
           </div>
           <div class="col-xl-5">
@@ -263,7 +269,7 @@
           <div class="col-xl-6 text-start">{{index . "uuid"}}</div>
           <div class="col-xl-5 text-start">
             <div class="form-check form-switch">
-              {{recordOnline (index . "modOnline") }}
+              {{recordOnline $record }}
               <label class="form-check-label" id="recordOnlineLabel" for="recordOnline">File artifact is <strong>online and public</strong></label>
               <div class="invalid-feedback" id="recordOnlineErr">error placeholder</div>  
             </div>  
@@ -460,7 +466,6 @@
           <textarea class="form-control" id="recordComment" style="height:5em;">{{index . "comment"}}</textarea>
           <label for="recordComment">Comments</label>
         </div>
-</form>
       </div>
       {{/*  Switch to assets and reset buttons  */}}
       <div class="modal-footer row g-3 mt-1">
