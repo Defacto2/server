@@ -29,12 +29,22 @@ export function htmxEvents() {
     afterRequest(event, `uploader-text-releaser-1`, `uploader-text-alert`);
     afterRequest(event, `uploader-text-releaser-2`, `uploader-text-alert`);
 
-    afterRecord(event, `artifact-editor-hidden`, `artifact-editor-alert`);
-    afterRecord(event, `artifact-editor-public`, `artifact-editor-alert`);
+    afterRecord(
+      event,
+      `artifact-editor-hidden`,
+      `artifact-editor-public`,
+      `artifact-editor-alert`
+    );
+    afterRecord(
+      event,
+      `artifact-editor-public`,
+      `artifact-editor-hidden`,
+      `artifact-editor-alert`
+    );
   });
 }
 
-function afterRecord(event, inputId, alertId) {
+function afterRecord(event, inputId, revertId, alertId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${inputId}`) return;
 
@@ -47,7 +57,7 @@ function afterRecord(event, inputId, alertId) {
     return recordSuccess(event, inputId, liveAlert);
   }
   if (event.detail.failed && event.detail.xhr) {
-    return recordError(event, liveAlert);
+    return recordError(event, revertId, liveAlert);
   }
   errorBrowser(liveAlert);
 }
@@ -84,10 +94,21 @@ function recordSuccess(event, inputId, alertElm) {
  * @param {CustomEvent} event - The event object containing the XHR details.
  * @param {HTMLElement} alertElm - The alert element to display the error message.
  */
-function recordError(event, alertElm) {
+function recordError(event, revertId, alertElm) {
   const xhr = event.detail.xhr;
-  alertElm.innerText = `Could not update the database record, ${xhr.responseText}.`;
+  alertElm.innerText = `${timeNow()} Could not update the database record, ${xhr.responseText}.`;
   alertElm.classList.remove("d-none");
+  document.getElementById(revertId).checked = true;
+}
+
+function timeNow() {
+  let now = new Date();
+  let hours = now.getHours();
+  let minutes = now.getMinutes();
+  let seconds = now.getSeconds();
+  minutes = (minutes < 10 ? "0" : "") + minutes;
+  seconds = (seconds < 10 ? "0" : "") + seconds;
+  return hours + ":" + minutes + ":" + seconds;
 }
 
 /**
