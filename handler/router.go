@@ -352,6 +352,9 @@ func (c Configuration) editor(e *echo.Echo, logger *zap.SugaredLogger, dir app.D
 		func(cx echo.Context) error {
 			return app.FilesUnwanted(cx, "1")
 		})
+	editor.POST("/classifications", func(c echo.Context) error {
+		return htmx.RecordClassification(c, logger)
+	})
 	online := editor.Group("/online")
 	online.POST("/true", func(cx echo.Context) error {
 		return htmx.RecordToggle(cx, true)

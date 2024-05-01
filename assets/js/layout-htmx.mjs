@@ -28,7 +28,7 @@ export function htmxEvents() {
     afterRequest(event, `uploader-text-form`, `uploader-text-alert`);
     afterRequest(event, `uploader-text-releaser-1`, `uploader-text-alert`);
     afterRequest(event, `uploader-text-releaser-2`, `uploader-text-alert`);
-
+    // record toggle.
     afterRecord(
       event,
       `artifact-editor-hidden`,
@@ -39,11 +39,56 @@ export function htmxEvents() {
       event,
       `artifact-editor-public`,
       `artifact-editor-hidden`,
+      `artifact-editor-alert`
+    );
+    // record classification.
+    afterClassification(
+      event,
+      `artifact-editor-operating-system`,
+      `artifact-editor-alert`
+    );
+    afterClassification(
+      event,
+      `artifact-editor-category`,
       `artifact-editor-alert`
     );
   });
 }
 
+function afterClassification(event, inputId, alertId) {
+  if (event.detail.elt === null) return;
+  if (event.detail.elt.id !== `${inputId}`) return;
+
+  const liveAlert = document.getElementById(alertId);
+  if (typeof liveAlert === "undefined" || liveAlert === null) {
+    throw new Error(`The htmx alert element ${alertId} is null`);
+  }
+
+  if (event.detail.successful) {
+    return;
+  }
+  if (event.detail.failed && event.detail.xhr) {
+    return classificationError(event, liveAlert);
+  }
+  errorBrowser(liveAlert);
+}
+
+function classificationError(event, alertElm) {
+  const xhr = event.detail.xhr;
+  alertElm.innerText = `${timeNow()} Could not update the database record, ${xhr.responseText}.`;
+  alertElm.classList.remove("d-none");
+}
+
+/**
+ * Handles the logic after a record event.
+ *
+ * @param {Event} event - The event object.
+ * @param {string} inputId - The ID of the input element.
+ * @param {string} revertId - The ID of the revert element.
+ * @param {string} alertId - The ID of the alert element.
+ * @returns {void}
+ * @throws {Error} If the htmx alert element is null.
+ */
 function afterRecord(event, inputId, revertId, alertId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${inputId}`) return;
@@ -71,8 +116,6 @@ function afterRecord(event, inputId, revertId, alertId) {
 function recordSuccess(event, inputId, alertElm) {
   alertElm.classList.add("d-none");
   alertElm.innerText = "";
-  console.log(event.detail.elt.textContent);
-  console.log(inputId);
   const elm = document.getElementById(`artifact-editor-modal-header`);
   switch (inputId) {
     case "artifact-editor-hidden":

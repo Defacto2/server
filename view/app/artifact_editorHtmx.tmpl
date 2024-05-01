@@ -8,6 +8,7 @@
 {{- $record := index . "modOnline"}}
 {{- $replace := "refresh the page to see the changes"}}
 {{- $delay := "500ms" }}
+{{- $hxClassification := "[name='artifact-editor-categories'],[name='artifact-editor-operatingsystem'],[name='artifact-editor-key']"}}
 {{- /*  Artifact metadata editor  */}}
 <div class="modal fade" id="artifact-editor-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
   aria-labelledby="artifact-editor-modal-label" aria-hidden="true">
@@ -20,13 +21,11 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body container">
-
-<div id="artifact-editor-alert" class="alert alert-warning d-none" role="alert">
-  A simple warning alert—check it out!
-</div>
-
+        <div id="artifact-editor-alert" class="alert alert-warning d-none" role="alert">
+          {{/*  Error alerts will be written here  */}}
+        </div>
         <div class="row">
-          {{- /*  Public or hidden record  hx-swap="outerHTML settle:3s" */}}
+          {{- /*  Public or hidden record */}}
           <div class="col-xl-2">
             <div class="d-grid">
               {{radioPublic ($record)}}
@@ -58,53 +57,90 @@
         <div class="row align-items-center">
           <div class="col-xl-6">
             {{- /*  Classifications  */}}
-            <label class="form-label mt-2">Classifications
-              <span id="artifact-editor-classification-help">, <small>details will go here ~ {{index . "modOS"}} / {{index . "modTag"}}</small></span>
+            <label class="form-label mt-2">Classifications, 
+              <span id="artifact-editor-classification-help">{{classification (index . "modTag") (index . "modOS")}}</small></span>.
             </label>
             <div class="input-group mb-1">
               <label class="input-group-text w-50" for="artifact-editor-operating-system" id="artifact-editor-os-label">Operating system</label>
               <select name="artifact-editor-operatingsystem" id="artifact-editor-operating-system" class="form-select"
-                placeholder="Lookup classifications…">
+                placeholder="Lookup classifications…"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">
               {{- template "optionOS" . }}
               </select>
             </div>
             <div class="input-group">
-              <label class="input-group-text w-50" for="artifact-editor-category">Tag as category</label>
+              <label class="input-group-text w-50" for="artifact-editor-category" id="artifact-editor-category-label">Tag as category</label>
               <select name="artifact-editor-categories" id="artifact-editor-category" class="form-select"
-                placeholder="Lookup classifications…">
+                placeholder="Lookup classifications…"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">
               {{- template "optionTag" . }}
               </select>
             </div>
             <div class="btn-group" role="group" aria-label="First group">
-              <button type="button" class="btn btn-link"
-                name="reset-classifications" data-reset-os="{{index . "modOS"}}" data-reset-cat="{{index . "modTag"}}">Reset classifications</button>
+              <button class="btn btn-link" name="reset-classifications" type="button" 
+                data-reset-os="{{index . "modOS"}}" data-reset-cat="{{index . "modTag"}}"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">
+                  Reset classifications <small>to {{index . "modOS"}}/{{index . "modTag"}}</small></button>
             </div>
           </div>
           <div class="col-xl-5">
             {{- /*  Popular classifications  */}}
             <div class="btn-group">
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-text-for-dos" type="button" 
-                data-reset-os="text" data-reset-cat="releaseinformation">Text NFO</button>
+                data-reset-os="text" data-reset-cat="releaseinformation"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">Text NFO</button>
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-text-for-amiga" type="button"
-                data-reset-os="textamiga" data-reset-cat="releaseinformation">Text for Amiga</button>
+                data-reset-os="textamiga" data-reset-cat="releaseinformation"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">Text for Amiga</button>
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-proof-of-release" type="button"
-                data-reset-os="image" data-reset-cat="releaseproof">Proof of release</button>
+                data-reset-os="image" data-reset-cat="releaseproof"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">Proof of release</button>
             </div>
             <div class="btn-group">
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-intro-for-dos" type="button"
-                data-reset-os="dos" data-reset-cat="releaseadvert">MsDos intro</button>
+                data-reset-os="dos" data-reset-cat="releaseadvert"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">MsDos intro</button>
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-intro-for-win" type="button"
-                data-reset-os="windows" data-reset-cat="releaseadvert">Windows intro</button>
+                data-reset-os="windows" data-reset-cat="releaseadvert"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">Windows intro</button>
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-intro-for-bbs" type="button"
-                data-reset-os="dos" data-reset-cat="bbs">BBS-tro</button>
+                data-reset-os="dos" data-reset-cat="bbs"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">BBS-tro</button>
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-ansi-for-bbs" type="button"
-                data-reset-os="ansi" data-reset-cat="bbs">BBS ANSI</button>
+                data-reset-os="ansi" data-reset-cat="bbs"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">BBS ANSI</button>
             </div>
             <div class="btn-group">
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-magazine-for-text" type="button"
-                data-reset-os="text" data-reset-cat="magazine">Magazine as text</button>
+                data-reset-os="text" data-reset-cat="magazine"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">Magazine as text</button>
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-magazine-for-dos" type="button"
-                data-reset-os="dos" data-reset-cat="magazine">Magazine for MsDos</button>
+                data-reset-os="dos" data-reset-cat="magazine"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">Magazine for MsDos</button>
             </div>
           </div>
         </div>

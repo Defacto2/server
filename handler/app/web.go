@@ -18,6 +18,7 @@ import (
 	"github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/demozoo"
+	"github.com/Defacto2/server/internal/form"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/volatiletech/null/v8"
@@ -248,6 +249,10 @@ func (web Web) TemplateClosures() template.FuncMap {
 		},
 		"bootstrap5JS": func() string {
 			return hrefs[Bootstrap5JS]
+		},
+		"classification": func(s, p string) string {
+			count, _ := form.HumanizeAndCount(s, p)
+			return count
 		},
 		"demozooSanity": func() string {
 			return strconv.Itoa(demozoo.Sanity)

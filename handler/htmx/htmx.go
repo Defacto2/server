@@ -47,11 +47,11 @@ func Routes(e *echo.Echo, logger *zap.SugaredLogger, prod bool) *echo.Echo {
 	submit.POST("/search/releaser", func(c echo.Context) error {
 		return SearchReleaser(c, logger)
 	})
-	submit.PUT("/uploader/sha384/:hash", func(c echo.Context) error {
-		return LookupSHA384(c, logger)
-	})
 	submit.POST("/uploader/advanced", func(c echo.Context) error {
 		return AdvancedSubmit(c, logger, prod)
+	})
+	submit.POST("/uploader/classifications", func(c echo.Context) error {
+		return HumanizeAndCount(c, logger, "uploader-advanced")
 	})
 	submit.POST("/uploader/image", func(c echo.Context) error {
 		return ImageSubmit(c, logger, prod)
@@ -75,8 +75,8 @@ func Routes(e *echo.Echo, logger *zap.SugaredLogger, prod bool) *echo.Echo {
 		lookup := c.FormValue("uploader-magazine-releaser1")
 		return DataListMagazines(c, logger, lookup)
 	})
-	submit.POST("/uploader/classifications", func(c echo.Context) error {
-		return Classification(c, logger)
+	submit.PUT("/uploader/sha384/:hash", func(c echo.Context) error {
+		return LookupSHA384(c, logger)
 	})
 	return e
 }
@@ -149,8 +149,7 @@ func TemplateFuncMap() template.FuncMap {
 			}
 			return "border"
 		},
-		"byteFileS":  app.ByteFileS,
-		"suggestion": Suggestion,
+		"byteFileS": app.ByteFileS,
 		"fmtPath": func(path string) string {
 			if val := name.Path(path); val.String() != "" {
 				return val.String()
@@ -163,6 +162,7 @@ func TemplateFuncMap() template.FuncMap {
 		"safeHTML": func(s string) template.HTML {
 			return template.HTML(s) //nolint:gosec
 		},
+		"suggestion": Suggestion,
 	}
 }
 

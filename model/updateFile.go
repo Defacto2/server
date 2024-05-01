@@ -30,6 +30,42 @@ func GetPlatformTagInfo(c echo.Context, platform, tag string) (string, error) {
 	return tags.Humanize(p, t), nil
 }
 
+// UpdateClassification updates the classification of a file in the database.
+// It takes an ID, platform, and tag as parameters and returns an error if any.
+// Both platform and tag must be valid values.
+func UpdateClassification(id int64, platform, tag string) error {
+	p, t := tags.TagByURI(platform), tags.TagByURI(tag)
+	if p == -1 {
+		return fmt.Errorf("%s: %w", platform, ErrPlatform)
+	}
+	if !tags.IsPlatform(platform) {
+		return fmt.Errorf("%s: %w", platform, ErrPlatform)
+	}
+	if t == -1 {
+		return fmt.Errorf("%s: %w", tag, ErrTag)
+	}
+	if !tags.IsTag(tag) {
+		return fmt.Errorf("%s: %w", tag, ErrTag)
+	}
+
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return err
+	}
+	f.Platform = null.StringFrom(p.String())
+	f.Section = null.StringFrom(t.String())
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return err
+	}
+	return nil
+}
+
 // GetTagInfo returns the human readable tag name.
 func GetTagInfo(c echo.Context, tag string) (string, error) {
 	if c == nil {

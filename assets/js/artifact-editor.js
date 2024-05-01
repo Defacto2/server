@@ -4,12 +4,15 @@
  */
 (() => {
   "use strict";
-  const elms = document.getElementsByName("reset-classifications");
+  const resets = document.getElementsByName("reset-classifications");
+  const osLabel = document.getElementById("artifact-editor-os-label");
   const osInput = document.getElementById("artifact-editor-operating-system");
   const catInput = document.getElementById("artifact-editor-category");
-  const osLabel = document.getElementById("artifact-editor-os-label");
-  for (let i = 0; i < elms.length; i++) {
-    const elm = elms[i];
+
+  updateLabelOS();
+
+  for (let i = 0; i < resets.length; i++) {
+    const elm = resets[i];
     const os = elm.getAttribute("data-reset-os");
     if (os === null) {
       throw new Error("data-reset-os attribute is required for ${elm.id}.");
@@ -22,42 +25,19 @@
       e.preventDefault();
       osInput.value = os;
       catInput.value = cat;
-
-      console.log(osInput.parentNode);
-      // const selected = e.target.options[e.target.selectedIndex];
-      // let group = selected.parentNode.label;
-      // console.log(`Selected OS: ${os}, Group: ${group}`);
+      updateLabelOS();
     });
   }
-  //.addEventListener(
-  //   "mouseup",
-  //   handleMouseUp,
-  //   passiveSupported ? { passive: true } : false,
-  // );
-  osInput.addEventListener("", (e) => {
-    console.log(`honkee: ${e.type}`);
-  });
-  osInput.addEventListener("change", (e) => {
-    console.log(`honkee: ${e.type}`);
-    console.log(`HONK z`);
-    e.preventDefault();
-  });
-  osInput.addEventListener(
-    "input",
-    (e) => {
-      console.log(`honkee: ${e.type}`);
-      console.log(`HONK y`);
-      e.preventDefault();
-      console.log(`Selected OS: ${e.target.value}`);
-      const os = e.target.value;
-      const selected = e.target.options[e.target.selectedIndex];
-      let group = selected.parentNode.label;
-      if (typeof group == "undefined" || group == "") {
-        group = `Operating system`;
-      }
-      console.log(`Selected OS: ${os}, Group: ${group}`);
-      osLabel.textContent = `${group}`;
-    },
-    { capture: true, once: false, passive: true }
-  );
+  osInput.addEventListener("input", updateLabelOS);
+
+  function updateLabelOS() {
+    const index = osInput.selectedIndex;
+    const sel = osInput.options[index];
+    let group = sel.parentNode.label;
+
+    if (typeof group == "undefined" || group == "") {
+      group = `Operating system`;
+    }
+    osLabel.textContent = `${group}`;
+  }
 })();

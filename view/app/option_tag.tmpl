@@ -1,32 +1,4 @@
 {{- /*  option_tag.tmpl  */}}
-{{- /*  
-    ansieditor          app-ansi-tool
-    programmingtool     app-coding-tool
-    nfotool             app-nfo-tool
-
-    scenerules          text-rules
-    newsmedia           text-news-media
-    groupapplication    app-text-job
-    interview           text-interview
-    internaldocument    text-insider
-    guide               text-how-to
-    forsale             text-for-sale
-    politics            text-drama
-    takedown            text-bust
-    announcements       text-announce
-
-    package             zip-filepack
-    magazine            app-text-magazine
-    releaseinstall      app-installer
-    gamehack            app-trainer
-    demo                app-demo
-    releaseadvert       app-intro-cracktro
-    ftp                 ftp-ftptro
-    bbs                 bbs-bbstro
-    releaseinformation  app-text-nfo
-    logo                app-text-logo
-    releaseproof        img-proof
-*/}}
 {{- define "optionTag" -}}
 {{- $tag := (index . "section") }}
 {{- $package := tagOption $tag "package" }}
@@ -53,8 +25,8 @@
 {{- $politics := tagOption $tag "politics" }}
 {{- $takedown := tagOption $tag "takedown" }}
 {{- $announcements := tagOption $tag "announcements" }}
-{{- $appleii := tagOption "appleii" $tag }}
-{{- $atarist := tagOption "atarist" $tag }}
+{{- $appleii := tagOption $tag "appleii" }}
+{{- $atarist := tagOption $tag "atarist" }}
 {{- if eq $tag "" }}
                 <option value="" selected>Choose...</option>
 {{- else }}

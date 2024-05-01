@@ -2,7 +2,6 @@ package htmx
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -10,7 +9,6 @@ import (
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
-	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -104,14 +102,17 @@ func SearchReleaser(c echo.Context, logger *zap.SugaredLogger) error {
 	return nil
 }
 
+// DataListReleasers is a handler for the /datalist/releasers route.
 func DataListReleasers(c echo.Context, logger *zap.SugaredLogger, input string) error {
 	return datalist(c, logger, input, false)
 }
 
+// DataListMagazines is a handler for the /datalist/magazines route.
 func DataListMagazines(c echo.Context, logger *zap.SugaredLogger, input string) error {
 	return datalist(c, logger, input, true)
 }
 
+// datalist is a shared handler for the /datalist/releasers and /datalist/magazines routes.
 func datalist(c echo.Context, logger *zap.SugaredLogger, input string, magazine bool) error {
 	const maxResults = 14
 	ctx := context.Background()
@@ -161,33 +162,4 @@ func datalist(c echo.Context, logger *zap.SugaredLogger, input string, magazine 
 			"cannot render the htmx template")
 	}
 	return nil
-}
-
-func Classification(c echo.Context, logger *zap.SugaredLogger) error {
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		logger.Error(err)
-		return c.String(http.StatusServiceUnavailable,
-			"cannot connect to the database")
-	}
-	defer db.Close()
-
-	v1 := c.FormValue("uploader-advanced-category")
-	v2 := c.FormValue("uploader-advanced-operatingsystem")
-	sec := tags.TagByURI(v1)
-	pla := tags.TagByURI(v2)
-	s := tags.Humanize(pla, sec)
-	if strings.HasPrefix(s, "unknown") {
-		return c.HTML(http.StatusOK, "<p>unknown classification</p>")
-	}
-
-	count, err := model.CountByClassification(ctx, db, sec.String(), pla.String())
-	if err != nil {
-		logger.Error(err)
-		return c.String(http.StatusServiceUnavailable,
-			"cannot count the classification")
-	}
-	s = fmt.Sprintf("%s, %d existing artifacts", s, count)
-	return c.HTML(http.StatusOK, s)
 }
