@@ -42,20 +42,27 @@ export function htmxEvents() {
       `artifact-editor-alert`
     );
     // record classification.
-    afterClassification(
+    afterUpdate(
       event,
       `artifact-editor-operating-system`,
       `artifact-editor-alert`
     );
-    afterClassification(
+    afterUpdate(event, `artifact-editor-category`, `artifact-editor-alert`);
+    // record releaser.
+    afterUpdate(
       event,
-      `artifact-editor-category`,
+      `artifact-editor-releaser-reset`,
+      `artifact-editor-alert`
+    );
+    afterUpdate(
+      event,
+      `artifact-editor-releaser-update`,
       `artifact-editor-alert`
     );
   });
 }
 
-function afterClassification(event, inputId, alertId) {
+function afterUpdate(event, inputId, alertId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${inputId}`) return;
 
@@ -65,15 +72,20 @@ function afterClassification(event, inputId, alertId) {
   }
 
   if (event.detail.successful) {
-    return;
+    return updateSuccess(liveAlert);
   }
   if (event.detail.failed && event.detail.xhr) {
-    return classificationError(event, liveAlert);
+    return updateError(event, liveAlert);
   }
   errorBrowser(liveAlert);
 }
 
-function classificationError(event, alertElm) {
+function updateSuccess(alertElm) {
+  alertElm.innerText = "";
+  alertElm.classList.add("d-none");
+}
+
+function updateError(event, alertElm) {
   const xhr = event.detail.xhr;
   alertElm.innerText = `${timeNow()} Could not update the database record, ${xhr.responseText}.`;
   alertElm.classList.remove("d-none");

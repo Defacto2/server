@@ -12,6 +12,7 @@ import (
 
 // HumanizeAndCount handles the post submission for the File artifact classification,
 // such as the platform, operating system, section or category tags.
+// The return value is either the humanized and counted classification or an error.
 func HumanizeAndCount(c echo.Context, logger *zap.SugaredLogger, name string) error {
 	echo.FormFieldBinder(c) // todo replace with a struct, see: https://echo.labstack.com/docs/binding
 	section := c.FormValue(name + "-categories")
@@ -26,6 +27,7 @@ func HumanizeAndCount(c echo.Context, logger *zap.SugaredLogger, name string) er
 
 // RecordClassification handles the post submission for the File artifact classification,
 // such as the platform, operating system, section or category tags.
+// The return value is either the humanized and counted classification or an error.
 func RecordClassification(c echo.Context, logger *zap.SugaredLogger) error {
 	section := c.FormValue("artifact-editor-categories")
 	platform := c.FormValue("artifact-editor-operatingsystem")
@@ -52,17 +54,29 @@ func RecordClassification(c echo.Context, logger *zap.SugaredLogger) error {
 	return c.HTML(http.StatusOK, s)
 }
 
+// RecordReleasers handles the post submission for the File artifact releaser.
+// It will only update the releaser1 and the releaser2 values if they have changed.
+// The return value is either "Updated" or "Update" depending on if the values have changed.
 func RecordReleasers(c echo.Context, logger *zap.SugaredLogger) error {
+	reset1 := c.FormValue("releaser1")
+	reset2 := c.FormValue("releaser2")
 	rel1 := c.FormValue("artifact-editor-releaser1")
 	rel2 := c.FormValue("artifact-editor-releaser2")
 	key := c.FormValue("artifact-editor-key")
 
+	notModified := (rel1 == reset1 && rel2 == reset2)
+	if notModified {
+		return c.String(http.StatusOK, "Update")
+	}
 	if err := recordReleases(rel1, rel2, key); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "Updated")
 }
 
+// RecordReleasersReset handles the post submission for the File artifact releaser reset.
+// It will always reset and save the releaser1 and the releaser2 values.
+// The return value is always "Resetted" unless an error occurs.
 func RecordReleasersReset(c echo.Context, logger *zap.SugaredLogger) error {
 	reset1 := c.FormValue("releaser1")
 	reset2 := c.FormValue("releaser2")
@@ -90,6 +104,7 @@ func recordReleases(rel1, rel2, key string) error {
 }
 
 // RecordToggle handles the post submission for the File artifact is online and public toggle.
+// The return value is either "online" or "offline" depending on the state.
 func RecordToggle(c echo.Context, state bool) error {
 	key := c.FormValue("artifact-editor-key")
 	id, err := strconv.Atoi(key)

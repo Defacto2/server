@@ -9,6 +9,8 @@
 {{- $replace := "refresh the page to see the changes"}}
 {{- $delay := "500ms" }}
 {{- $hxClassification := "[name='artifact-editor-categories'],[name='artifact-editor-operatingsystem'],[name='artifact-editor-key']"}}
+{{- $rel1 := (index . "modReleaser1")}}
+{{- $rel2 := (index . "modReleaser2")}}
 {{- /*  Artifact metadata editor  */}}
 <div class="modal fade" id="artifact-editor-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
   aria-labelledby="artifact-editor-modal-label" aria-hidden="true">
@@ -145,30 +147,6 @@
           </div>
         </div>
         <hr>
-{{/*  
-        <label for="uploader-intro-releaser-1" class="form-label">Releasers <small>maximum of 2</small></label>
-        <div class="input-group">
-          <input type="text" list="uploader-intro-list-1" name="uploader-intro-releaser1" class="form-control" id="uploader-intro-releaser-1" 
-              aria-describedby="uploader-intro-releasers-help" placeholder="example: Razor 1911" 
-              hx-post="/uploader/releaser/1" 
-              hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
-              hx-target="#uploader-intro-list-1" 
-              required>
-          <span class="input-group-text">+</span>
-          <input type="text" list="uploader-intro-list-2" name="uploader-intro-releaser2" class="form-control" id="uploader-intro-releaser-2" 
-              aria-describedby="uploader-intro-releasers-help" placeholder="example: Titan" 
-              hx-post="/uploader/releaser/2" 
-              hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
-              hx-target="#uploader-intro-list-2">
-        </div>
-        <datalist id="uploader-intro-list-1"></datalist>
-        <datalist id="uploader-intro-list-2"></datalist>
-        <div id="uploader-intro-releasers-help" class="form-text">
-          A releaser can be a group name, bbs name or ftp site<br>
-          A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q><br>
-          example: <q>Dark Domain BBS</q> or <q>Dark Domain FTP</q>
-        </div>
-  */}}
         <div class="row">
           {{- /*  Releasers  */}}
           <div class="col-xl-10 offset-xl-1 mb-3">
@@ -177,21 +155,22 @@
             <div class="input-group">
               <button class="btn btn-outline-secondary" type="button" id="artifact-editor-releaser-reset"
                 hx-post="/editor/releasers-reset"
-                hx-include="[name='artifact-editor-key']"
-                hx-vals='{"releaser1": "{{index . "modReleaser1"}}","releaser2": "{{index . "modReleaser2"}}"}'>Reset</button>
+                hx-include="[name='artifact-editor-key'],[name='artifact-editor-releaser1'],[name='artifact-editor-releaser2']"
+                hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Reset</button>
               <button class="btn btn-outline-success" type="button" id="artifact-editor-releaser-update"
                 hx-post="/editor/releaserz"
-                hx-include="[name='artifact-editor-key']">Update</button>
-              <input type="text" list="artifact-editor-list-1" name="artifact-editor-releaser1" class="form-control" id="artifact-editor-releaser-1" 
+                hx-include="[name='artifact-editor-key']"
+                hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Update</button>
+              <input type="text" list="artifact-editor-list-1" name="artifact-editor-releaser1" class="form-control{{if eq $rel1 ""}} is-invalid{{end}}" id="artifact-editor-releaser-1" 
                   aria-describedby="artifact-editor-releasers-help" placeholder="example: Razor 1911" 
-                  value="{{index . "modReleaser1"}}" data-reset-rel1="{{index . "modReleaser1"}}"
+                  value="{{$rel1}}" data-reset-rel1="{{$rel1}}"
                   hx-post="/uploader/releaser/1" 
                   hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                   hx-target="#artifact-editor-list-1" minlength="2" maxlength="100" required>
               <span class="input-group-text">+</span>
               <input type="text" list="artifact-editor-list-2" name="artifact-editor-releaser2" class="form-control" id="artifact-editor-releaser-2" 
                   aria-describedby="artifact-editor-releasers-help" placeholder="example: Titan" 
-                  value="{{index . "modReleaser2"}}" data-reset-rel2="{{index . "modReleaser2"}}"
+                  value="{{$rel2}}" data-reset-rel2="{{$rel2}}"
                   hx-post="/uploader/releaser/2" 
                   hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                   hx-target="#artifact-editor-list-2" minlength="2" maxlength="100">

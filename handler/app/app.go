@@ -418,12 +418,10 @@ func LinkRelrs(performant bool, a, b any) template.HTML {
 	switch val := a.(type) {
 	case string:
 		av = reflect.ValueOf(val).String()
-		fmt.Println("av0", av)
 	case null.String:
 		if val.Valid {
 			av = val.String
 		}
-		fmt.Println("av1", av)
 	}
 	switch val := b.(type) {
 	case string:
@@ -438,16 +436,13 @@ func LinkRelrs(performant bool, a, b any) template.HTML {
 	if av == "" && bv == "" {
 		return template.HTML("error: unknown group")
 	}
-	fmt.Println(av, bv)
 	if av != "" {
 		ref, err := linkRelr(av)
-		fmt.Println("ref", ref, err)
 		if err != nil {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
 		x := helper.Capitalize(strings.ToLower(av))
 		title := x
-		fmt.Println("x0", x, "-", helper.Slug(av))
 		if !performant {
 			title = releaser.Link(helper.Slug(av))
 		}

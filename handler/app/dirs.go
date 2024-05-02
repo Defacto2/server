@@ -165,7 +165,7 @@ func (dir Dirs) artifactEditor(art *models.File, data map[string]interface{}, re
 	data["modTitle"] = art.RecordTitle.String
 	data["modOnline"] = art.Deletedat.Time.IsZero()
 	data["modReleasers"] = string(RecordRels(art.GroupBrandBy, art.GroupBrandFor)) // TODO: remove
-	rr := RecordReleasers(art.GroupBrandBy, art.GroupBrandFor)
+	rr := RecordReleasers(art.GroupBrandFor, art.GroupBrandBy)
 	data["modReleaser1"] = rr[0]
 	data["modReleaser2"] = rr[1]
 	data["modYear"] = art.DateIssuedYear.Int16

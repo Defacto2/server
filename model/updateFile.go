@@ -178,12 +178,9 @@ func UpdateReleasers(id int64, val string) error {
 	if len(s) > max {
 		return fmt.Errorf("%s: %w", s, ErrRels)
 	}
-
 	for i, v := range s {
 		s[i] = releaser.Cell(v)
 	}
-
-	fmt.Println(s)
 
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -195,7 +192,6 @@ func UpdateReleasers(id int64, val string) error {
 	if err != nil {
 		return err
 	}
-
 	switch len(s) {
 	case max:
 		f.GroupBrandFor = null.StringFrom(s[0])
