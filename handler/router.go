@@ -355,6 +355,14 @@ func (c Configuration) editor(e *echo.Echo, logger *zap.SugaredLogger, dir app.D
 	editor.POST("/classifications", func(c echo.Context) error {
 		return htmx.RecordClassification(c, logger)
 	})
+
+	editor.POST("/releaserz", func(c echo.Context) error {
+		return htmx.RecordReleasers(c, logger)
+	})
+	editor.POST("/releasers-reset", func(c echo.Context) error {
+		return htmx.RecordReleasersReset(c, logger)
+	})
+
 	online := editor.Group("/online")
 	online.POST("/true", func(cx echo.Context) error {
 		return htmx.RecordToggle(cx, true)

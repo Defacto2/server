@@ -3,7 +3,7 @@ module github.com/Defacto2/server
 go 1.22
 
 require (
-	github.com/Defacto2/releaser v1.0.2
+	github.com/Defacto2/releaser v1.0.3
 	github.com/andybalholm/brotli v1.1.0
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/carlmjohnson/versioninfo v0.22.5

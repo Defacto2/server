@@ -83,6 +83,7 @@ func Routes(e *echo.Echo, logger *zap.SugaredLogger, prod bool) *echo.Echo {
 
 func releaser1(c echo.Context) string {
 	lookups := []string{
+		"artifact-editor-releaser1",
 		"uploader-intro-releaser1",
 		"uploader-text-releaser1",
 		"uploader-image-releaser1",
@@ -98,6 +99,7 @@ func releaser1(c echo.Context) string {
 
 func releaser2(c echo.Context) string {
 	lookups := []string{
+		"artifact-editor-releaser2",
 		"uploader-intro-releaser2",
 		"uploader-text-releaser2",
 		"uploader-image-releaser2",

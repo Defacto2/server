@@ -418,10 +418,12 @@ func LinkRelrs(performant bool, a, b any) template.HTML {
 	switch val := a.(type) {
 	case string:
 		av = reflect.ValueOf(val).String()
+		fmt.Println("av0", av)
 	case null.String:
 		if val.Valid {
 			av = val.String
 		}
+		fmt.Println("av1", av)
 	}
 	switch val := b.(type) {
 	case string:
@@ -436,16 +438,23 @@ func LinkRelrs(performant bool, a, b any) template.HTML {
 	if av == "" && bv == "" {
 		return template.HTML("error: unknown group")
 	}
+	fmt.Println(av, bv)
 	if av != "" {
 		ref, err := linkRelr(av)
+		fmt.Println("ref", ref, err)
 		if err != nil {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
 		x := helper.Capitalize(strings.ToLower(av))
+		title := x
+		fmt.Println("x0", x, "-", helper.Slug(av))
 		if !performant {
-			x = releaser.Link(helper.Slug(av))
+			title = releaser.Link(helper.Slug(av))
 		}
-		prime = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, x)
+		prime = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, title)
+		if x != "" && title == "" {
+			prime = "error: could not link group"
+		}
 	}
 	if bv != "" {
 		ref, err := linkRelr(bv)
@@ -453,10 +462,14 @@ func LinkRelrs(performant bool, a, b any) template.HTML {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
 		x := helper.Capitalize(strings.ToLower(bv))
+		title := x
 		if !performant {
-			x = releaser.Link(helper.Slug(bv))
+			title = releaser.Link(helper.Slug(bv))
 		}
-		second = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, x)
+		second = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, title)
+		if x != "" && title == "" {
+			second = "error: could not link group"
+		}
 	}
 	return relHTML(prime, second)
 }
@@ -1103,7 +1116,7 @@ func YMDEdit(c echo.Context) error {
 	y := model.ValidY(f.Year)
 	m := model.ValidM(f.Month)
 	d := model.ValidD(f.Day)
-	if err = model.UpdateYMD(c, int64(f.ID), y, m, d); err != nil {
+	if err = model.UpdateYMD(int64(f.ID), y, m, d); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, r)

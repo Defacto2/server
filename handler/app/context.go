@@ -639,7 +639,7 @@ func PlatformEdit(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	if err = model.UpdatePlatform(c, int64(f.ID), f.Value); err != nil {
+	if err = model.UpdatePlatform(int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, r)
@@ -651,7 +651,7 @@ func PlatformTagInfo(c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	info, err := model.GetPlatformTagInfo(c, f.Platform, f.Tag)
+	info, err := model.GetPlatformTagInfo(f.Platform, f.Tag)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -890,7 +890,7 @@ func ReadmeToggle(c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	if err := model.UpdateNoReadme(c, int64(f.ID), f.Readme); err != nil {
+	if err := model.UpdateNoReadme(int64(f.ID), f.Readme); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, f)
@@ -903,12 +903,12 @@ func RecordToggle(c echo.Context, state bool) error {
 		return badRequest(c, err)
 	}
 	if state {
-		if err := model.UpdateOnline(c, int64(f.ID)); err != nil {
+		if err := model.UpdateOnline(int64(f.ID)); err != nil {
 			return badRequest(c, err)
 		}
 		return c.JSON(http.StatusOK, f)
 	}
-	if err := model.UpdateOffline(c, int64(f.ID)); err != nil {
+	if err := model.UpdateOffline(int64(f.ID)); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, f)
@@ -1175,7 +1175,7 @@ func ReleaserEdit(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	if err = model.UpdateReleasers(c, int64(f.ID), f.Value); err != nil {
+	if err = model.UpdateReleasers(int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, r)
@@ -1449,7 +1449,7 @@ func TagEdit(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	if err = model.UpdateTag(c, int64(f.ID), f.Value); err != nil {
+	if err = model.UpdateTag(int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, r)
@@ -1461,7 +1461,7 @@ func TagInfo(c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	info, err := model.GetTagInfo(c, f.Tag)
+	info, err := model.GetTagInfo(f.Tag)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -1515,7 +1515,7 @@ func TitleEdit(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	if err = model.UpdateTitle(c, int64(f.ID), f.Value); err != nil {
+	if err = model.UpdateTitle(int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, r)

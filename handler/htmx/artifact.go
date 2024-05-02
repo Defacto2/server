@@ -45,12 +45,48 @@ func RecordClassification(c echo.Context, logger *zap.SugaredLogger) error {
 	if err != nil {
 		return badRequest(c, err)
 	}
-
 	if err := model.UpdateClassification(int64(id), platform, section); err != nil {
 		return badRequest(c, err)
 	}
 
 	return c.HTML(http.StatusOK, s)
+}
+
+func RecordReleasers(c echo.Context, logger *zap.SugaredLogger) error {
+	rel1 := c.FormValue("artifact-editor-releaser1")
+	rel2 := c.FormValue("artifact-editor-releaser2")
+	key := c.FormValue("artifact-editor-key")
+
+	if err := recordReleases(rel1, rel2, key); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "Updated")
+}
+
+func RecordReleasersReset(c echo.Context, logger *zap.SugaredLogger) error {
+	reset1 := c.FormValue("releaser1")
+	reset2 := c.FormValue("releaser2")
+	key := c.FormValue("artifact-editor-key")
+
+	if err := recordReleases(reset1, reset2, key); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "Resetted")
+}
+
+func recordReleases(rel1, rel2, key string) error {
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return err
+	}
+	val := rel1
+	if rel2 != "" {
+		val = rel1 + "+" + rel2
+	}
+	if err := model.UpdateReleasers(int64(id), val); err != nil {
+		return err
+	}
+	return nil
 }
 
 // RecordToggle handles the post submission for the File artifact is online and public toggle.
@@ -61,12 +97,12 @@ func RecordToggle(c echo.Context, state bool) error {
 		return badRequest(c, err)
 	}
 	if state {
-		if err := model.UpdateOnline(c, int64(id)); err != nil {
+		if err := model.UpdateOnline(int64(id)); err != nil {
 			return badRequest(c, err)
 		}
 		return c.String(http.StatusOK, "online")
 	}
-	if err := model.UpdateOffline(c, int64(id)); err != nil {
+	if err := model.UpdateOffline(int64(id)); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "offline")

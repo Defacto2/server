@@ -10,16 +10,12 @@ import (
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/tags"
-	"github.com/labstack/echo/v4"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 // GetPlatformTagInfo returns the human readable platform and tag name.
-func GetPlatformTagInfo(c echo.Context, platform, tag string) (string, error) {
-	if c == nil {
-		return "", ErrCtx
-	}
+func GetPlatformTagInfo(platform, tag string) (string, error) {
 	p, t := tags.TagByURI(platform), tags.TagByURI(tag)
 	if p == -1 {
 		return "", fmt.Errorf("%s: %w", platform, ErrPlatform)
@@ -67,10 +63,7 @@ func UpdateClassification(id int64, platform, tag string) error {
 }
 
 // GetTagInfo returns the human readable tag name.
-func GetTagInfo(c echo.Context, tag string) (string, error) {
-	if c == nil {
-		return "", ErrCtx
-	}
+func GetTagInfo(tag string) (string, error) {
 	t := tags.TagByURI(tag)
 	if t == -1 {
 		return "", fmt.Errorf("%s: %w", tag, ErrTag)
@@ -80,10 +73,7 @@ func GetTagInfo(c echo.Context, tag string) (string, error) {
 }
 
 // UpdateOnline updates the record to be online and public.
-func UpdateOnline(c echo.Context, id int64) error {
-	if c == nil {
-		return ErrCtx
-	}
+func UpdateOnline(id int64) error {
 	db, err := postgres.ConnectDB()
 	if err != nil {
 		return ErrDB
@@ -103,10 +93,7 @@ func UpdateOnline(c echo.Context, id int64) error {
 }
 
 // UpdateOffline updates the record to be offline and inaccessible to the public.
-func UpdateOffline(c echo.Context, id int64) error {
-	if c == nil {
-		return ErrCtx
-	}
+func UpdateOffline(id int64) error {
 	db, err := postgres.ConnectDB()
 	if err != nil {
 		return ErrDB
@@ -129,11 +116,7 @@ func UpdateOffline(c echo.Context, id int64) error {
 // UpdateNoReadme updates the retrotxt_no_readme column value with val.
 // It returns nil if the update was successful.
 // Id is the database id of the record.
-func UpdateNoReadme(c echo.Context, id int64, val bool) error {
-	if c == nil {
-		return ErrCtx
-	}
-
+func UpdateNoReadme(id int64, val bool) error {
 	db, err := postgres.ConnectDB()
 	if err != nil {
 		return ErrDB
@@ -161,10 +144,7 @@ func UpdateNoReadme(c echo.Context, id int64, val bool) error {
 // UpdatePlatform updates the platform column value with val.
 // It returns nil if the update was successful.
 // Id is the database id of the record.
-func UpdatePlatform(c echo.Context, id int64, val string) error {
-	if c == nil {
-		return ErrCtx
-	}
+func UpdatePlatform(id int64, val string) error {
 	val = strings.ToLower(val)
 	if p := tags.TagByURI(val); p == -1 {
 		return fmt.Errorf("%s: %w", val, ErrPlatform)
@@ -191,10 +171,7 @@ func UpdatePlatform(c echo.Context, id int64, val string) error {
 // Two releases can be separated by a + (plus) character.
 // It returns nil if the update was successful.
 // Id is the database id of the record.
-func UpdateReleasers(c echo.Context, id int64, val string) error {
-	if c == nil {
-		return ErrCtx
-	}
+func UpdateReleasers(id int64, val string) error {
 	const max = 2
 	val = strings.TrimSpace(val)
 	s := strings.Split(val, "+")
@@ -203,8 +180,10 @@ func UpdateReleasers(c echo.Context, id int64, val string) error {
 	}
 
 	for i, v := range s {
-		s[i] = strings.ToUpper(releaser.Clean(v))
+		s[i] = releaser.Cell(v)
 	}
+
+	fmt.Println(s)
 
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -237,11 +216,7 @@ func UpdateReleasers(c echo.Context, id int64, val string) error {
 // UpdateTag updates the section column value with val.
 // It returns nil if the update was successful.
 // Id is the database id of the record.
-func UpdateTag(c echo.Context, id int64, val string) error {
-	if c == nil {
-		return ErrCtx
-	}
-
+func UpdateTag(id int64, val string) error {
 	val = strings.ToLower(val)
 	if t := tags.TagByURI(val); t == -1 {
 		return fmt.Errorf("%s: %w", val, ErrTag)
@@ -267,10 +242,7 @@ func UpdateTag(c echo.Context, id int64, val string) error {
 // UpdateTitle updates the title column value with val.
 // It returns nil if the update was successful.
 // Id is the database id of the record.
-func UpdateTitle(c echo.Context, id int64, val string) error {
-	if c == nil {
-		return ErrCtx
-	}
+func UpdateTitle(id int64, val string) error {
 	db, err := postgres.ConnectDB()
 	if err != nil {
 		return ErrDB
@@ -291,11 +263,7 @@ func UpdateTitle(c echo.Context, id int64, val string) error {
 // UpdateYMD updates the title column value with val.
 // It returns nil if the update was successful.
 // Id is the database id of the record.
-func UpdateYMD(c echo.Context, id int64, y, m, d null.Int16) error {
-	if c == nil {
-		return ErrCtx
-	}
-
+func UpdateYMD(id int64, y, m, d null.Int16) error {
 	if !y.IsZero() && !helper.IsYear(int(y.Int16)) {
 		return fmt.Errorf("%d: %w", y.Int16, ErrYear)
 	}
