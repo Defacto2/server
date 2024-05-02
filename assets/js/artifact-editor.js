@@ -75,9 +75,17 @@
       throw new Error(`The maxlength attribute is required for ${elm.id}.`);
     }
 
+    const error = document.getElementById("artifact-editor-releasers-error");
+    if (error === null) {
+      throw new Error("The releasers error element is null.");
+    }
+
     const requireBounds = value.length < min || value.length > max;
     if (req != null && requireBounds) {
       elm.classList.add("is-invalid");
+      if (elm.id === "artifact-editor-releaser-1") {
+        error.classList.add("d-block");
+      }
       return;
     }
     const emptyBounds =
@@ -87,6 +95,7 @@
       return;
     }
     elm.classList.remove("is-invalid");
+    error.classList.remove("d-block");
   }
 
   function updateLabelOS() {

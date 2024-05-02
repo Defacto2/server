@@ -152,7 +152,7 @@
           <div class="col-xl-10 offset-xl-1 mb-3">
             <label for="artifact-editor-releaser-1" class="form-label">Releasers <small>maximum of 2</small></label>
             <form id="artifact-editor-releasers-form">
-            <div class="input-group">
+            <div class="input-group col-xl-3">
               <button class="btn btn-outline-secondary" type="button" id="artifact-editor-releaser-reset"
                 hx-post="/editor/releasers-reset"
                 hx-include="[name='artifact-editor-key'],[name='artifact-editor-releaser1'],[name='artifact-editor-releaser2']"
@@ -161,6 +161,7 @@
                 hx-post="/editor/releaserz"
                 hx-include="[name='artifact-editor-key']"
                 hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Update</button>
+              <span class="input-group-text"> </span>
               <input type="text" list="artifact-editor-list-1" name="artifact-editor-releaser1" class="form-control{{if eq $rel1 ""}} is-invalid{{end}}" id="artifact-editor-releaser-1" 
                   aria-describedby="artifact-editor-releasers-help" placeholder="example: Razor 1911" 
                   value="{{$rel1}}" data-reset-rel1="{{$rel1}}"
@@ -177,7 +178,10 @@
             </div>
             </form>
             <datalist id="artifact-editor-list-1"></datalist>
-            <datalist id="artifact-editor-list-2"></datalist>
+            <datalist id="artifact-editor-list-2"></datalist>            
+            <div id="artifact-editor-releasers-error" class="invalid-feedback{{if eq $rel1 ""}} d-block{{end}}">
+              A releaser is required, for example: <q>Razor 1911</q>.
+            </div>
             <div id="artifact-editor-releasers-help" class="form-text">
               A releaser can be a group name, bbs name or ftp site.<br> 
               A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q>,
