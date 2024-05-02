@@ -103,6 +103,32 @@ func recordReleases(rel1, rel2, key string) error {
 	return nil
 }
 
+func RecordTitle(c echo.Context, logger *zap.SugaredLogger) error {
+	title := c.FormValue("artifact-editor-title")
+	key := c.FormValue("artifact-editor-key")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if err := model.UpdateTitle(int64(id), title); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "Updated")
+}
+
+func RecordTitleReset(c echo.Context, logger *zap.SugaredLogger) error {
+	reset := c.FormValue("artifact-editor-title-resetter")
+	key := c.FormValue("artifact-editor-key")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if err := model.UpdateTitle(int64(id), reset); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, reset)
+}
+
 // RecordToggle handles the post submission for the File artifact is online and public toggle.
 // The return value is either "online" or "offline" depending on the state.
 func RecordToggle(c echo.Context, state bool) error {

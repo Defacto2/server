@@ -59,6 +59,14 @@ export function htmxEvents() {
       `artifact-editor-releaser-update`,
       `artifact-editor-alert`
     );
+    // record title.
+    afterUpdate(event, `artifact-editor-title`, `artifact-editor-alert`);
+    afterReset(
+      event,
+      `artifact-editor-title-reset`,
+      `artifact-editor-title`,
+      `artifact-editor-alert`
+    );
   });
 }
 
@@ -72,7 +80,7 @@ function afterUpdate(event, inputId, alertId) {
   }
 
   if (event.detail.successful) {
-    return updateSuccess(liveAlert);
+    return updateSuccess(liveAlert, inputId);
   }
   if (event.detail.failed && event.detail.xhr) {
     return updateError(event, liveAlert);
@@ -80,9 +88,35 @@ function afterUpdate(event, inputId, alertId) {
   errorBrowser(liveAlert);
 }
 
-function updateSuccess(alertElm) {
+function afterReset(event, buttonId, inputId, alertId) {
+  if (event.detail.elt === null) return;
+  if (event.detail.elt.id !== `${buttonId}`) return;
+
+  const liveAlert = document.getElementById(alertId);
+  if (typeof liveAlert === "undefined" || liveAlert === null) {
+    throw new Error(`The htmx alert element ${alertId} is null`);
+  }
+
+  if (event.detail.successful) {
+    return updateSuccess(liveAlert, inputId);
+  }
+  if (event.detail.failed && event.detail.xhr) {
+    return updateError(event, liveAlert);
+  }
+  errorBrowser(liveAlert);
+}
+
+function updateSuccess(alertElm, successId) {
   alertElm.innerText = "";
   alertElm.classList.add("d-none");
+  if (typeof successId === "undefined" || successId === null) {
+    return;
+  }
+  const elm = document.getElementById(successId);
+  if (typeof elm === "undefined" || elm === null) {
+    return;
+  }
+  elm.classList.add("is-valid");
 }
 
 function updateError(event, alertElm) {

@@ -11,6 +11,7 @@
 {{- $hxClassification := "[name='artifact-editor-categories'],[name='artifact-editor-operatingsystem'],[name='artifact-editor-key']"}}
 {{- $rel1 := (index . "modReleaser1")}}
 {{- $rel2 := (index . "modReleaser2")}}
+{{- $title := (index . "modTitle")}}
 {{- /*  Artifact metadata editor  */}}
 <div class="modal fade" id="artifact-editor-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
   aria-labelledby="artifact-editor-modal-label" aria-hidden="true">
@@ -153,24 +154,19 @@
             <label for="artifact-editor-releaser-1" class="form-label">Releasers <small>maximum of 2</small></label>
             <form id="artifact-editor-releasers-form">
             <div class="input-group col-xl-3">
-              <button class="btn btn-outline-secondary" type="button" id="artifact-editor-releaser-reset"
-                hx-post="/editor/releasers-reset"
-                hx-include="[name='artifact-editor-key'],[name='artifact-editor-releaser1'],[name='artifact-editor-releaser2']"
-                hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Reset</button>
               <button class="btn btn-outline-success" type="button" id="artifact-editor-releaser-update"
                 hx-post="/editor/releaserz"
                 hx-include="[name='artifact-editor-key']"
-                hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Update</button>
-              <span class="input-group-text"> </span>
-              <input type="text" list="artifact-editor-list-1" name="artifact-editor-releaser1" class="form-control{{if eq $rel1 ""}} is-invalid{{end}}" id="artifact-editor-releaser-1" 
-                  aria-describedby="artifact-editor-releasers-help" placeholder="example: Razor 1911" 
+                hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Update releasers</button>
+              <input type="text" list="artifact-editor-list-1" name="artifact-editor-releaser1" id="artifact-editor-releaser-1" autocomplete="off"
+                  aria-describedby="artifact-editor-releasers-help" placeholder="example: Razor 1911" class="form-control{{if eq $rel1 ""}} is-invalid{{end}}" 
                   value="{{$rel1}}" data-reset-rel1="{{$rel1}}"
                   hx-post="/uploader/releaser/1" 
                   hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                   hx-target="#artifact-editor-list-1" minlength="2" maxlength="100" required>
               <span class="input-group-text">+</span>
-              <input type="text" list="artifact-editor-list-2" name="artifact-editor-releaser2" class="form-control" id="artifact-editor-releaser-2" 
-                  aria-describedby="artifact-editor-releasers-help" placeholder="example: Titan" 
+              <input type="text" list="artifact-editor-list-2" name="artifact-editor-releaser2" id="artifact-editor-releaser-2" autocomplete="off"
+                  aria-describedby="artifact-editor-releasers-help" placeholder="example: Titan" class="form-control" 
                   value="{{$rel2}}" data-reset-rel2="{{$rel2}}"
                   hx-post="/uploader/releaser/2" 
                   hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
@@ -187,15 +183,32 @@
               A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q>,
               for example: <q>Dark Domain BBS</q> or <q>Dark Domain FTP</q>.
             </div>
+            <div class="btn-group" role="group" aria-label="First group">
+              <button class="btn btn-link" type="button" id="artifact-editor-releaser-reset"
+              hx-post="/editor/releasers/reset"
+              hx-include="[name='artifact-editor-key'],[name='artifact-editor-releaser1'],[name='artifact-editor-releaser2']"
+              hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Reset releasers <small>to <q>{{$rel1}}</q>+<q>{{$rel2}}</q></small></button>
+            </div>
           </div>
         </div>
         {{- /*  Title or brief description  */}}
         <div class="form-floating col-xl-10 offset-xl-1 mb-3">
-          <input type="text" name="artifact-editor-title" class="form-control" id="artifact-editor-title" 
-            aria-describedby="artifact-editor-title-help" placeholder="example: 500000th release!"
-            value="{{index . "modTitle"}}" data-reset-title="{{index . "modTitle"}}">
+          <input type="text" name="artifact-editor-title" id="artifact-editor-title" autocomplete="off" maxlength="100"
+            aria-describedby="artifact-editor-title-help" placeholder="example: 500000th release!" class="form-control" 
+            value="{{$title}}"
+            hx-post="/editor/title" 
+            hx-trigger="keyup changed delay:1s"
+            hx-include="[name='artifact-editor-key']">
           <label for="artifact-editor-title">Title</label>
           <div id="artifact-editor-title-help" class="form-text">An optional brief description or name of the release.</div>
+          <div class="btn-group" role="group" aria-label="First group">
+            <input type="hidden" name="artifact-editor-title-resetter" value="{{$title}}" readonly>
+            <button class="btn btn-link" type="button" id="artifact-editor-title-reset"
+              hx-post="/editor/title/reset"
+              hx-target="#artifact-editor-title-quote"
+              hx-include="[name='artifact-editor-key'],[name='artifact-editor-title-resetter']">
+                Reset title <small>to <q id="artifact-editor-title-quote">{{$title}}</q></small></button>
+          </div>
         </div>
         <div class="row">
           {{- /*  Date of release  */}}

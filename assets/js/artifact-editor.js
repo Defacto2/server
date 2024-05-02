@@ -12,6 +12,11 @@
   const rel1Input = document.getElementById("artifact-editor-releaser-1");
   const rel2Input = document.getElementById("artifact-editor-releaser-2");
   const relsReset = document.getElementById("artifact-editor-releaser-reset");
+  const titleInput = document.getElementById("artifact-editor-title");
+  const titleReset = document.getElementById("artifact-editor-title-reset");
+  const titleResetter = document.getElementsByName(
+    "artifact-editor-title-resetter"
+  );
 
   updateLabelOS();
   for (let i = 0; i < resets.length; i++) {
@@ -21,6 +26,17 @@
   rel1Input.addEventListener("input", (e) => validateReleaser(e.target));
   rel2Input.addEventListener("input", (e) => validateReleaser(e.target));
   relsReset.addEventListener("click", resetRleasers);
+  titleInput.addEventListener("input", (e) => {
+    e.target.classList.remove("is-valid");
+  });
+  titleReset.addEventListener("click", () => {
+    titleInput.classList.remove("is-valid");
+    if (titleResetter.length === 0) {
+      throw new Error("The title resetter is missing.");
+    }
+    titleInput.value = titleResetter[0].value;
+    titleInput.classList.add("is-valid");
+  });
 
   function resetClassifications(i) {
     const elm = resets[i];

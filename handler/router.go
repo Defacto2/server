@@ -356,11 +356,18 @@ func (c Configuration) editor(e *echo.Echo, logger *zap.SugaredLogger, dir app.D
 		return htmx.RecordClassification(c, logger)
 	})
 
-	editor.POST("/releaserz", func(c echo.Context) error {
+	editor.POST("/releasers", func(c echo.Context) error {
 		return htmx.RecordReleasers(c, logger)
 	})
-	editor.POST("/releasers-reset", func(c echo.Context) error {
+	editor.POST("/releasers/reset", func(c echo.Context) error {
 		return htmx.RecordReleasersReset(c, logger)
+	})
+	title := editor.Group("/title")
+	title.POST("", func(c echo.Context) error {
+		return htmx.RecordTitle(c, logger)
+	})
+	title.POST("/reset", func(c echo.Context) error {
+		return htmx.RecordTitleReset(c, logger)
 	})
 
 	online := editor.Group("/online")
@@ -390,8 +397,8 @@ func (c Configuration) editor(e *echo.Echo, logger *zap.SugaredLogger, dir app.D
 	ansilove.POST("/copy", func(c echo.Context) error {
 		return dir.AnsiLovePost(c, logger)
 	})
-	editor.POST("/releasers", app.ReleaserEdit)
-	editor.POST("/title", app.TitleEdit)
+	// editor.POST("/releasers", app.ReleaserEdit)
+	// editor.POST("/title", app.TitleEdit)
 	editor.POST("/ymd", app.YMDEdit)
 	editor.POST("/platform", app.PlatformEdit)
 	editor.POST("/platform+tag", app.PlatformTagInfo)
