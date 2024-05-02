@@ -11,69 +11,85 @@ export function htmxEvents() {
   //htmx.logAll();
   releaserEvents();
 
+  document.body.addEventListener("htmx:beforeRequest", function (event) {
+    removeSelectsValid(event, `artifact-editor-reset-classifications`);
+    removeSelectsValid(event, `artifact-editor-text-for-dos`);
+    removeSelectsValid(event, `artifact-editor-text-for-amiga`);
+    removeSelectsValid(event, `artifact-editor-proof-of-release`);
+    removeSelectsValid(event, `artifact-editor-intro-for-dos`);
+    removeSelectsValid(event, `artifact-editor-intro-for-win`);
+    removeSelectsValid(event, `artifact-editor-intro-for-bbs`);
+    removeSelectsValid(event, `artifact-editor-ansi-for-bbs`);
+    removeSelectsValid(event, `artifact-editor-magazine-for-text`);
+    removeSelectsValid(event, `artifact-editor-magazine-for-dos`);
+  });
   // This event is triggered after an AJAX request has finished.
   // https://htmx.org/events/#htmx:afterRequest
   document.body.addEventListener("htmx:afterRequest", function (event) {
     // search releaser.
     afterRequest(event, `search-releaser-input`, `search-releaser-alert`);
     // image uploader.
-    afterRequest(event, `uploader-image-form`, `uploader-image-alert`);
-    afterRequest(event, `uploader-image-releaser-1`, `uploader-image-alert`);
-    afterRequest(event, `uploader-image-releaser-2`, `uploader-image-alert`);
+    const alertImg = `uploader-image-alert`;
+    afterRequest(event, `uploader-image-form`, alertImg);
+    afterRequest(event, `uploader-image-releaser-1`, alertImg);
+    afterRequest(event, `uploader-image-releaser-2`, alertImg);
     // intro uploader.
-    afterRequest(event, `uploader-intro-form`, `uploader-intro-alert`);
-    afterRequest(event, `uploader-intro-releaser-1`, `uploader-intro-alert`);
-    afterRequest(event, `uploader-intro-releaser-2`, `uploader-intro-alert`);
+    const alertIntro = `uploader-intro-alert`;
+    afterRequest(event, `uploader-intro-form`, alertIntro);
+    afterRequest(event, `uploader-intro-releaser-1`, alertIntro);
+    afterRequest(event, `uploader-intro-releaser-2`, alertIntro);
     // text uploader.
-    afterRequest(event, `uploader-text-form`, `uploader-text-alert`);
-    afterRequest(event, `uploader-text-releaser-1`, `uploader-text-alert`);
-    afterRequest(event, `uploader-text-releaser-2`, `uploader-text-alert`);
+    const alertText = `uploader-text-alert`;
+    afterRequest(event, `uploader-text-form`, alertText);
+    afterRequest(event, `uploader-text-releaser-1`, alertText);
+    afterRequest(event, `uploader-text-releaser-2`, alertText);
     // record toggle.
-    afterRecord(
-      event,
-      `artifact-editor-hidden`,
-      `artifact-editor-public`,
-      `artifact-editor-alert`
-    );
-    afterRecord(
-      event,
-      `artifact-editor-public`,
-      `artifact-editor-hidden`,
-      `artifact-editor-alert`
-    );
+    afterRecord(event, `artifact-editor-hidden`, `artifact-editor-public`);
+    afterRecord(event, `artifact-editor-public`, `artifact-editor-hidden`);
     // record classification.
-    afterUpdate(
-      event,
-      `artifact-editor-operating-system`,
-      `artifact-editor-alert`
-    );
-    afterUpdate(event, `artifact-editor-category`, `artifact-editor-alert`);
+    afterUpdate(event, `artifact-editor-operating-system`);
+    afterUpdate(event, `artifact-editor-category`);
+    afterClassifications(event, `artifact-editor-text-for-dos`);
+    afterClassifications(event, `artifact-editor-text-for-amiga`);
+    afterClassifications(event, `artifact-editor-proof-of-release`);
+    afterClassifications(event, `artifact-editor-intro-for-dos`);
+    afterClassifications(event, `artifact-editor-intro-for-win`);
+    afterClassifications(event, `artifact-editor-intro-for-bbs`);
+    afterClassifications(event, `artifact-editor-ansi-for-bbs`);
+    afterClassifications(event, `artifact-editor-magazine-for-text`);
+    afterClassifications(event, `artifact-editor-magazine-for-dos`);
     // record releaser.
-    afterUpdate(
-      event,
-      `artifact-editor-releaser-reset`,
-      `artifact-editor-alert`
-    );
-    afterUpdate(
-      event,
-      `artifact-editor-releaser-update`,
-      `artifact-editor-alert`
-    );
+    afterUpdate(event, `artifact-editor-releaser-reset`);
+    afterUpdate(event, `artifact-editor-releaser-update`);
     // record title.
-    afterUpdate(event, `artifact-editor-title`, `artifact-editor-alert`);
-    afterReset(
-      event,
-      `artifact-editor-title-reset`,
-      `artifact-editor-title`,
-      `artifact-editor-alert`
-    );
+    afterUpdate(event, `artifact-editor-title`);
+    afterReset(event, `artifact-editor-title-reset`, `artifact-editor-title`);
   });
 }
 
-function afterUpdate(event, inputId, alertId) {
+function removeSelectsValid(event, buttonId) {
+  if (event.detail.elt === null) return;
+  if (event.detail.elt.id !== `${buttonId}`) return;
+
+  const select1Id = "artifact-editor-operating-system";
+  const select2Id = "artifact-editor-category";
+  const elm1 = document.getElementById(select1Id);
+  if (typeof elm1 === "undefined" || elm1 === null) {
+    return;
+  }
+  elm1.classList.remove("is-valid");
+  const elm2 = document.getElementById(select2Id);
+  if (typeof elm2 === "undefined" || elm2 === null) {
+    return;
+  }
+  elm2.classList.remove("is-valid");
+}
+
+function afterUpdate(event, inputId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${inputId}`) return;
 
+  const alertId = "artifact-editor-alert";
   const liveAlert = document.getElementById(alertId);
   if (typeof liveAlert === "undefined" || liveAlert === null) {
     throw new Error(`The htmx alert element ${alertId} is null`);
@@ -88,10 +104,35 @@ function afterUpdate(event, inputId, alertId) {
   errorBrowser(liveAlert);
 }
 
-function afterReset(event, buttonId, inputId, alertId) {
+function afterClassifications(event, buttonId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${buttonId}`) return;
 
+  const alertId = "artifact-editor-alert";
+  const select1Id = "artifact-editor-operating-system";
+  const select2Id = "artifact-editor-category";
+
+  const liveAlert = document.getElementById(alertId);
+  if (typeof liveAlert === "undefined" || liveAlert === null) {
+    throw new Error(`The htmx alert element ${alertId} is null`);
+  }
+
+  if (event.detail.successful) {
+    updateSuccess(liveAlert, select1Id);
+    updateSuccess(liveAlert, select2Id);
+    return;
+  }
+  if (event.detail.failed && event.detail.xhr) {
+    return updateError(event, liveAlert);
+  }
+  errorBrowser(liveAlert);
+}
+
+function afterReset(event, buttonId, inputId) {
+  if (event.detail.elt === null) return;
+  if (event.detail.elt.id !== `${buttonId}`) return;
+
+  const alertId = "artifact-editor-alert";
   const liveAlert = document.getElementById(alertId);
   if (typeof liveAlert === "undefined" || liveAlert === null) {
     throw new Error(`The htmx alert element ${alertId} is null`);
@@ -135,10 +176,11 @@ function updateError(event, alertElm) {
  * @returns {void}
  * @throws {Error} If the htmx alert element is null.
  */
-function afterRecord(event, inputId, revertId, alertId) {
+function afterRecord(event, inputId, revertId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${inputId}`) return;
 
+  const alertId = "artifact-editor-alert";
   const liveAlert = document.getElementById(alertId);
   if (typeof liveAlert === "undefined" || liveAlert === null) {
     throw new Error(`The htmx alert element ${alertId} is null`);

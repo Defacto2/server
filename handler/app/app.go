@@ -432,41 +432,32 @@ func LinkRelrs(performant bool, a, b any) template.HTML {
 		}
 	}
 	av, bv = strings.TrimSpace(av), strings.TrimSpace(bv)
-	prime, second := "", ""
-	if av == "" && bv == "" {
-		return template.HTML("error: unknown group")
+	prime, err := makeLink(av, class, performant)
+	if err != nil {
+		return template.HTML(fmt.Sprintf("error: %s", err))
 	}
-	if av != "" {
-		ref, err := linkRelr(av)
-		if err != nil {
-			return template.HTML(fmt.Sprintf("error: %s", err))
-		}
-		x := helper.Capitalize(strings.ToLower(av))
-		title := x
-		if !performant {
-			title = releaser.Link(helper.Slug(av))
-		}
-		prime = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, title)
-		if x != "" && title == "" {
-			prime = "error: could not link group"
-		}
-	}
-	if bv != "" {
-		ref, err := linkRelr(bv)
-		if err != nil {
-			return template.HTML(fmt.Sprintf("error: %s", err))
-		}
-		x := helper.Capitalize(strings.ToLower(bv))
-		title := x
-		if !performant {
-			title = releaser.Link(helper.Slug(bv))
-		}
-		second = fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, title)
-		if x != "" && title == "" {
-			second = "error: could not link group"
-		}
+	second, err := makeLink(bv, class, performant)
+	if err != nil {
+		return template.HTML(fmt.Sprintf("error: %s", err))
 	}
 	return relHTML(prime, second)
+}
+
+func makeLink(name, class string, performant bool) (string, error) {
+	ref, err := linkRelr(name)
+	if err != nil {
+		return "", err
+	}
+	x := helper.Capitalize(strings.ToLower(name))
+	title := x
+	if !performant {
+		title = releaser.Link(helper.Slug(name))
+	}
+	s := fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, title)
+	if x != "" && title == "" {
+		s = "error: could not link group"
+	}
+	return s, nil
 }
 
 // LinkRelrs returns the groups associated with a release and a link to each group.
@@ -919,7 +910,6 @@ func RecordReleasers(a, b any) [2]string {
 		return [2]string{av, ""}
 	}
 	return [2]string{}
-
 }
 
 // SafeHTML returns a string as a template.HTML type.

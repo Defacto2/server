@@ -57,7 +57,7 @@ func RecordClassification(c echo.Context, logger *zap.SugaredLogger) error {
 // RecordReleasers handles the post submission for the File artifact releaser.
 // It will only update the releaser1 and the releaser2 values if they have changed.
 // The return value is either "Updated" or "Update" depending on if the values have changed.
-func RecordReleasers(c echo.Context, logger *zap.SugaredLogger) error {
+func RecordReleasers(c echo.Context) error {
 	reset1 := c.FormValue("releaser1")
 	reset2 := c.FormValue("releaser2")
 	rel1 := c.FormValue("artifact-editor-releaser1")
@@ -66,18 +66,18 @@ func RecordReleasers(c echo.Context, logger *zap.SugaredLogger) error {
 
 	notModified := (rel1 == reset1 && rel2 == reset2)
 	if notModified {
-		return c.String(http.StatusOK, "Update")
+		return c.String(http.StatusOK, "Update releasers")
 	}
 	if err := recordReleases(rel1, rel2, key); err != nil {
 		return badRequest(c, err)
 	}
-	return c.String(http.StatusOK, "Updated")
+	return c.String(http.StatusOK, "Updated releasers")
 }
 
 // RecordReleasersReset handles the post submission for the File artifact releaser reset.
 // It will always reset and save the releaser1 and the releaser2 values.
 // The return value is always "Resetted" unless an error occurs.
-func RecordReleasersReset(c echo.Context, logger *zap.SugaredLogger) error {
+func RecordReleasersReset(c echo.Context) error {
 	reset1 := c.FormValue("releaser1")
 	reset2 := c.FormValue("releaser2")
 	key := c.FormValue("artifact-editor-key")
@@ -103,7 +103,7 @@ func recordReleases(rel1, rel2, key string) error {
 	return nil
 }
 
-func RecordTitle(c echo.Context, logger *zap.SugaredLogger) error {
+func RecordTitle(c echo.Context) error {
 	title := c.FormValue("artifact-editor-title")
 	key := c.FormValue("artifact-editor-key")
 	id, err := strconv.Atoi(key)
@@ -116,7 +116,7 @@ func RecordTitle(c echo.Context, logger *zap.SugaredLogger) error {
 	return c.String(http.StatusOK, "Updated")
 }
 
-func RecordTitleReset(c echo.Context, logger *zap.SugaredLogger) error {
+func RecordTitleReset(c echo.Context) error {
 	reset := c.FormValue("artifact-editor-title-resetter")
 	key := c.FormValue("artifact-editor-key")
 	id, err := strconv.Atoi(key)
