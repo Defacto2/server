@@ -593,7 +593,7 @@ func artifactLinks(art *models.File) template.HTML {
 		rows += fmt.Sprintf("<tr><th scope=\"row\"><small>Link</small></th>"+
 			"<td><small><a class=\"text-truncate\" href=\"%s\">%s</a></small></td></tr>", href, name)
 	}
-	return template.HTML(rows) //nolint:gosec
+	return template.HTML(rows)
 }
 
 // artifactJSDos returns true if the file record is a known, MS-DOS executable.

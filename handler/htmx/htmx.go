@@ -162,7 +162,7 @@ func TemplateFuncMap() template.FuncMap {
 			return initialism.Join(initialism.Path(s))
 		},
 		"safeHTML": func(s string) template.HTML {
-			return template.HTML(s) //nolint:gosec
+			return template.HTML(s)
 		},
 		"suggestion": Suggestion,
 	}

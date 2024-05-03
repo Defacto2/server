@@ -546,7 +546,7 @@ func TemplateFuncMap(logger *zap.SugaredLogger) template.FuncMap {
 			return t
 		},
 		"safeHTML": func(s string) template.HTML {
-			return template.HTML(s) //nolint:gosec
+			return template.HTML(s)
 		},
 	}
 }

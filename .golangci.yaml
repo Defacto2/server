@@ -33,24 +33,22 @@ linters:
     - varnamelen # a popular linter but is not idiomatic.
     - wsl # fussy over whitespace.
     # temporary disabled
-    - godox
-    - dupl
-    - gosec
+    #- godox
 issues:
   exclude-rules:
     - path: _test\.go$
       linters: # Tests are allowed to be longer and don't need error wrapping.
+        - dupl
         - funlen
         - wrapcheck
     - path: handler/router.go
       linters: # The router is allowed to be longer.
+        - dupl # This causes false positives.
         - funlen
         - wrapcheck
-    - path: handler/app/app.go
-      linters: # temporary disabled.
-        - gosec
     - path: handler/app/context.go
-      linters: # temporary disabled.
+      linters: # These cause false positives.
+        - dupl
         - wrapcheck
     - path: handler/app/accordion.go
       linters: # HTML content containing long form text.
@@ -88,6 +86,9 @@ issues:
       linters: # A custom map that reads easier with long declarations.
         - funlen
         - maintidx
+    - path: model/files.*\.go$
+      linters:
+        - dupl
 
 linters-settings:
   cyclop:
@@ -109,6 +110,11 @@ linters-settings:
       - "milestone.go"
       - "interview.go"
       - "zoo.go"
+  gosec:
+    # To select a subset of rules to run.
+    # Available rules: https://github.com/securego/gosec#available-rules
+    excludes:
+      - G203
   misspell:
     # Correct spellings using locale preferences for US or UK.
     # Setting locale to US will correct the British spelling of 'colour' to 'color'.
@@ -135,10 +141,12 @@ linters-settings:
       - .HTML(
       - .Inline(
       - .JSON(
+      - .JSONPretty(
       - .Redirect(
       - .Render(
       - .String(
       - .Text(
+      - app.StatusErr(
     ignorePackageGlobs:
       - github.com/volatiletech/sqlboiler/*
       - github.com/Defacto2/server/internal/postgres/*
