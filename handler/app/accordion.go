@@ -1,6 +1,6 @@
 package app
 
-// Package file website.go contains the website list and handler.
+// Package file accordion.go contains the website list and handler.
 
 // Accordion is a collection of websites grouped by a category.
 type Accordion = []struct {

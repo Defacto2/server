@@ -1,5 +1,7 @@
 package htmx
 
+// Package file demozoo.go provides functions for handling the HTMX requests for the Demozoo production uploader.
+
 import (
 	"context"
 	"fmt"

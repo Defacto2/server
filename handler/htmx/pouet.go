@@ -1,5 +1,7 @@
 package htmx
 
+// Package file pouet.go provides functions for handling the HTMX requests for the Pouet production uploader.
+
 import (
 	"context"
 	"fmt"

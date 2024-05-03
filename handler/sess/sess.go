@@ -1,3 +1,4 @@
+// Package sess provides a function to check if a user is signed in and is an editor.
 package sess
 
 import (

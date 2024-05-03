@@ -1,7 +1,5 @@
 package html3
 
-// Helper functions for the TemplateFuncMap var.
-
 import (
 	"fmt"
 	"strings"

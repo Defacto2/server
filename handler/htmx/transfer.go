@@ -1,5 +1,7 @@
 package htmx
 
+// Package file transfer.go provides functions for handling the HTMX requests for uploading files.
+
 import (
 	"context"
 	"crypto/sha512"
@@ -11,6 +13,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -29,6 +32,47 @@ const (
 	pt = "pouet"
 )
 
+// LookupSHA384 is a handler for the /uploader/sha384 route.
+func LookupSHA384(c echo.Context, logger *zap.SugaredLogger) error {
+	hash := c.Param("hash")
+	if hash == "" {
+		return c.String(http.StatusBadRequest, "empty hash error")
+	}
+	match, err := regexp.MatchString("^[a-fA-F0-9]{96}$", hash)
+	if err != nil {
+		logger.Error(err)
+		return c.String(http.StatusBadRequest, "regex match error")
+	}
+	if !match {
+		return c.String(http.StatusBadRequest, "invalid hash error: "+hash)
+	}
+
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		logger.Error(err)
+		return c.String(http.StatusServiceUnavailable,
+			"cannot connect to the database")
+	}
+	defer db.Close()
+
+	exist, err := model.ExistHash(ctx, db, hash)
+	if err != nil {
+		logger.Error(err)
+		return c.String(http.StatusServiceUnavailable,
+			"cannot confirm the hash with the database")
+	}
+	switch exist {
+	case true:
+		return c.String(http.StatusOK, "true")
+	case false:
+		return c.String(http.StatusOK, "false")
+	}
+	return c.String(http.StatusServiceUnavailable,
+		"unexpected boolean error occurred")
+}
+
+// ImageSubmit is a handler for the /uploader/image route.
 func ImageSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
 	if prod {
 		logger = nil
@@ -38,6 +82,7 @@ func ImageSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
 	return transfer(c, logger, key)
 }
 
+// IntroSubmit is a handler for the /uploader/intro route.
 func IntroSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
 	if prod {
 		logger = nil
@@ -47,6 +92,7 @@ func IntroSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
 	return transfer(c, logger, key)
 }
 
+// MagazineSubmit is a handler for the /uploader/magazine route.
 func MagazineSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
 	if prod {
 		logger = nil
@@ -56,6 +102,7 @@ func MagazineSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error 
 	return transfer(c, logger, key)
 }
 
+// TextSubmit is a handler for the /uploader/text route.
 func TextSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
 	if prod {
 		logger = nil
@@ -64,6 +111,7 @@ func TextSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
 	return transfer(c, logger, key)
 }
 
+// AdvancedSubmit is a handler for the /uploader/advanced route.
 func AdvancedSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
 	if prod {
 		logger = nil

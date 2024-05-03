@@ -1,6 +1,6 @@
 package model
 
-// Package filePlatform.go contains the database queries for operating systems.
+// Package fileplatform.go contains the database queries for operating systems.
 
 import (
 	"context"

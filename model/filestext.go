@@ -1,6 +1,6 @@
 package model
 
-// Package fileText.go contains the database queries for text, markdown and document files.
+// Package filestext.go contains the database queries for text, markdown and document files.
 
 import (
 	"context"

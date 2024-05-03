@@ -1,5 +1,7 @@
 package htmx
 
+// Package file artifact.go provides functions for handling the HTMX requests for the artifact editor.
+
 import (
 	"fmt"
 	"net/http"

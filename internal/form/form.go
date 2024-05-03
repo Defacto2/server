@@ -1,3 +1,4 @@
+// Package form provides functions for providing data for form and input elements.
 package form
 
 import (

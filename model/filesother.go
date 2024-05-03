@@ -1,6 +1,6 @@
 package model
 
-// Package fileOther.go contains the database queries the all other categories.
+// Package filesother.go contains the database queries the all other categories.
 
 import (
 	"context"
