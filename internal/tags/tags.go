@@ -34,7 +34,7 @@ type T struct {
 func (t *T) ByName(name string) (TagData, error) {
 	if t.List == nil {
 		if err := t.Build(); err != nil {
-			return TagData{}, err
+			return TagData{}, fmt.Errorf("tags.Build: %w", err)
 		}
 	}
 	for _, m := range t.List {
@@ -72,7 +72,7 @@ func (t *T) Build() (err error) {
 			t.Mu.Unlock()
 		}(i, tg)
 		if err != nil {
-			return err
+			return fmt.Errorf("defer counter: %w", err)
 		}
 	}
 	return nil

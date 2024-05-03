@@ -37,7 +37,7 @@ func ExtractOne(logger *zap.SugaredLogger, src, dst, extHint, name string) error
 
 	st, err := os.Stat(src)
 	if err != nil {
-		return err
+		return fmt.Errorf("os.Stat: %w", err)
 	}
 	if st.IsDir() {
 		return fmt.Errorf("%w: %q", ErrIsDir, src)
@@ -48,19 +48,19 @@ func ExtractOne(logger *zap.SugaredLogger, src, dst, extHint, name string) error
 
 	tmp, err := os.MkdirTemp(os.TempDir(), pattern)
 	if err != nil {
-		return err
+		return fmt.Errorf("os.MkdirTemp: %w", err)
 	}
 	defer os.RemoveAll(tmp)
 
 	r := runner{src: src, tmp: tmp, name: name, logger: logger}
 	if err = r.extract(extHint); err != nil {
-		return err
+		return fmt.Errorf("r.extract: %w", err)
 	}
 
 	extracted := filepath.Join(tmp, r.name) // p7zip manipulates the r.name
 	st, err = os.Stat(extracted)
 	if err != nil {
-		return err
+		return fmt.Errorf("os.Stat: %w", err)
 	}
 	if st.IsDir() {
 		return fmt.Errorf("%w: %q", ErrIsDir, extracted)
@@ -68,8 +68,10 @@ func ExtractOne(logger *zap.SugaredLogger, src, dst, extHint, name string) error
 	if st.Size() == 0 {
 		return fmt.Errorf("%w: %q", ErrEmpty, extracted)
 	}
-
-	return CopyFile(logger, extracted, dst)
+	if err := CopyFile(logger, extracted, dst); err != nil {
+		return fmt.Errorf("CopyFile: %w", err)
+	}
+	return nil
 }
 
 type runner struct {
@@ -102,7 +104,7 @@ func (r runner) arc() error {
 	// the arc command doesn't offer a target directory option
 	tmpArc := filepath.Join(r.tmp, "archive.arc")
 	if err := CopyFile(r.logger, r.src, tmpArc); err != nil {
-		return err
+		return fmt.Errorf("CopyFile: %w", err)
 	}
 	arg := []string{
 		"xwo",  // Extract files from archive.
@@ -117,7 +119,7 @@ func (r runner) arj() error {
 	// the arj command requires the source archive to have an .arj extension
 	tmpArj := filepath.Join(r.tmp, "archive.arj")
 	if err := CopyFile(r.logger, r.src, tmpArj); err != nil {
-		return err
+		return fmt.Errorf("CopyFile: %w", err)
 	}
 	arg := []string{
 		"e",           // Extract files from archive.
@@ -148,11 +150,14 @@ func (r *runner) p7zip() error {
 		name,         // File to extract from the archive.
 	}
 	if err := Run(r.logger, P7zip, arg...); err != nil {
-		return err
+		return fmt.Errorf("7z: %w", err)
 	}
 	// handle file extraction from a directory in the archive
 	r.name = filepath.Base(name)
-	return Run(r.logger, P7zip, arg...)
+	if err := Run(r.logger, P7zip, arg...); err != nil {
+		return fmt.Errorf("7z: %w, %s", err, r.name)
+	}
+	return nil
 }
 
 // rar extracts the named file from the src rar archive.
@@ -308,7 +313,7 @@ func (dir Dirs) ExtractAnsiLove(logger *zap.SugaredLogger, src, extHint, uuid, n
 
 	dst, err := extract(logger, src, extHint, name)
 	if err != nil {
-		return err
+		return fmt.Errorf("extract: %w", err)
 	}
 	defer os.RemoveAll(dst)
 	return dir.AnsiLove(logger, dst, uuid)
@@ -324,11 +329,12 @@ func (dir Dirs) ExtractImage(logger *zap.SugaredLogger, src, extHint, uuid, name
 
 	dst, err := extract(logger, src, extHint, name)
 	if err != nil {
-		return err
+		return fmt.Errorf("extract: %w", err)
 	}
 	defer os.RemoveAll(dst)
 
-	switch filepath.Ext(strings.ToLower(dst)) {
+	ext := filepath.Ext(strings.ToLower(dst))
+	switch ext {
 	case gif:
 		err = dir.PreviewGIF(logger, dst, uuid)
 	case bmp:
@@ -345,7 +351,7 @@ func (dir Dirs) ExtractImage(logger *zap.SugaredLogger, src, extHint, uuid, name
 		return fmt.Errorf("%w: %q", ErrImg, filepath.Ext(dst))
 	}
 	if err != nil {
-		return err
+		return fmt.Errorf("dir.Preview%s: %w", ext, err)
 	}
 	return nil
 }
@@ -357,16 +363,16 @@ func extract(logger *zap.SugaredLogger, src, extHint, name string) (string, erro
 	}
 	tmp, err := os.MkdirTemp(os.TempDir(), pattern)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("os.MkdirTemp: %w", err)
 	}
 
 	dst := filepath.Join(tmp, filepath.Base(name))
 	if err = ExtractOne(logger, src, dst, extHint, name); err != nil {
-		return "", err
+		return "", fmt.Errorf("ExtractOne: %w", err)
 	}
 	st, err := os.Stat(dst)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("os.Stat: %w", err)
 	}
 	if st.IsDir() {
 		return "", fmt.Errorf("%w: %q", ErrIsDir, dst)

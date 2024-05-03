@@ -23,14 +23,14 @@ func Count(dir string) (int, error) {
 	i := 0
 	st, err := os.Stat(dir)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("os.Stat: %w", err)
 	}
 	if !st.IsDir() {
 		return 0, fmt.Errorf("%w: %s", ErrDirPath, dir)
 	}
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("os.ReadDir: %w", err)
 	}
 	for _, file := range files {
 		if file.IsDir() {

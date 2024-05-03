@@ -98,7 +98,7 @@ func One(ctx context.Context, db *sql.DB, deleted bool, key int) (*models.File, 
 	if err != nil {
 		return nil, fmt.Errorf("one record %d: %w", key, err)
 	}
-	return file, err
+	return file, nil
 }
 
 // OneByUUID returns the record associated with the key UUID.
@@ -120,7 +120,7 @@ func OneByUUID(ctx context.Context, db *sql.DB, deleted bool, uid string) (*mode
 	if err != nil {
 		return nil, fmt.Errorf("one record %s: %w", uid, err)
 	}
-	return file, err
+	return file, nil
 }
 
 // ByteCountByCategory sums the byte file sizes for all the files that match the category name.
@@ -149,7 +149,7 @@ func ByteCountByReleaser(ctx context.Context, db *sql.DB, name string) (int64, e
 	}
 	s, err := namer.Humanize(namer.Path(name))
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("namer.Humanize: %w", err)
 	}
 	n := strings.ToUpper(s)
 	mods := qm.SQL(string(postgres.SumGroup()), null.StringFrom(n))

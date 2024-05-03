@@ -118,7 +118,7 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key string) error {
 	}
 	dst, err := copier(c, logger, file, key)
 	if err != nil {
-		return err
+		return fmt.Errorf("copier: %w", err)
 	}
 	if dst == "" {
 		return c.HTML(http.StatusInternalServerError,
@@ -130,7 +130,7 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key string) error {
 		file: file, readme: readme, key: key, checksum: checksum, content: content,
 	}
 	if id, err := creator.insert(ctx, c, logger, tx); err != nil {
-		return err
+		return fmt.Errorf("creator.insert: %w", err)
 	} else if id == 0 {
 		return nil
 	}
@@ -226,7 +226,7 @@ func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeade
 func debug(c echo.Context, html string) (string, error) {
 	values, err := c.FormParams()
 	if err != nil {
-		return html, err
+		return html, fmt.Errorf("c.FormParams: %w", err)
 	}
 	html += "<ul>"
 	for k, v := range values {

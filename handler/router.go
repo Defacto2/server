@@ -69,7 +69,7 @@ func (c Configuration) nonce(e *echo.Echo) (string, error) {
 	}
 	b, err := helper.CookieStore(c.Environment.SessionKey)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("helper.CookieStore: %w", err)
 	}
 	e.Use(session.Middleware(sessions.NewCookieStore(b)))
 	return string(b), nil

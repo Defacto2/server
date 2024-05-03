@@ -132,7 +132,7 @@ func (s *Summary) Releaser(ctx context.Context, db *sql.DB, name string) error {
 	}
 	ns, err := namer.Humanize(namer.Path(name))
 	if err != nil {
-		return err
+		return fmt.Errorf("namer.Humanize: %w", err)
 	}
 	n := strings.ToUpper(ns)
 	x := null.StringFrom(n)
@@ -371,7 +371,7 @@ func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error { //nol
 func textAmiga(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := TextAmiga{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("textAmiga.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -379,7 +379,7 @@ func textAmiga(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func textApple2(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := TextApple2{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("textApple2.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -387,7 +387,7 @@ func textApple2(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func textAtariST(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := TextAtariST{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("textAtariST.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -395,7 +395,7 @@ func textAtariST(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func pdf(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := PDF{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("pdf.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -403,7 +403,7 @@ func pdf(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func html(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := HTML{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("html.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -411,7 +411,7 @@ func html(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func newsArticle(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := NewsArticle{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("newsArticle.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -419,7 +419,7 @@ func newsArticle(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func standards(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := Standard{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("standards.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -427,7 +427,7 @@ func standards(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func announcement(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := Announcement{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("announcement.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -435,7 +435,7 @@ func announcement(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func jobAdvert(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := JobAdvert{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("jobAdvert.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -443,7 +443,7 @@ func jobAdvert(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func trialCrackme(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := TrialCrackme{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("trailCrackme.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -451,7 +451,7 @@ func trialCrackme(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func hack(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := Hack{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("hack.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -459,7 +459,7 @@ func hack(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func tool(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := Tool{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("tool.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -467,7 +467,7 @@ func tool(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func takedown(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := Takedown{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("takedown.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -475,7 +475,7 @@ func takedown(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func drama(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := Drama{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("drama.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -483,7 +483,7 @@ func drama(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func advert(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := Advert{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("advert.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -491,7 +491,7 @@ func advert(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func restrict(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := Restrict{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("restrict.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -499,7 +499,7 @@ func restrict(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func howTo(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := HowTo{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("howTo.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -507,7 +507,7 @@ func howTo(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func nfoTool(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := NfoTool{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("nfoTool.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -515,7 +515,7 @@ func nfoTool(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func image(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := Image{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("image.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -523,7 +523,7 @@ func image(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func music(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := Music{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("music.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -531,7 +531,7 @@ func music(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func video(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := Video{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("video.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -539,7 +539,7 @@ func video(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func msdos(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := MsDos{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("msdos.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -547,7 +547,7 @@ func msdos(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func windows(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := Windows{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("windows.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -555,7 +555,7 @@ func windows(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func macos(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := Macos{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("macos.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -563,7 +563,7 @@ func macos(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func linux(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := Linux{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("linux.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -571,7 +571,7 @@ func linux(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func java(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := Java{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("java.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
@@ -579,7 +579,7 @@ func java(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 func script(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
 	m := Script{}
 	if err := m.Stat(ctx, db); err != nil {
-		return 0, 0, 0, 0, err
+		return 0, 0, 0, 0, fmt.Errorf("script.Stat: %w", err)
 	}
 	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }

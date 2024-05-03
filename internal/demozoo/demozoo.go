@@ -129,12 +129,12 @@ func (d *Production) Get(id int) (int, error) {
 	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("http.NewRequestWithContext: %w", err)
 	}
 	req.Header.Set("User-Agent", helper.UserAgent)
 	res, err := client.Do(req)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("client.Do: %w", err)
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
@@ -142,11 +142,11 @@ func (d *Production) Get(id int) (int, error) {
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("io.ReadAll: %w", err)
 	}
 	err = json.Unmarshal(body, &d)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("json.Unmarshal: %w", err)
 	}
 	if d.ID != id {
 		return 0, fmt.Errorf("%w: %d", ErrSuccess, id)
@@ -202,7 +202,7 @@ func (d Production) PouetProd() int {
 // invalid or the production ID is invalid.
 func (d *Production) Unmarshal(r io.Reader) error {
 	if err := json.NewDecoder(r).Decode(d); err != nil {
-		return err
+		return fmt.Errorf("json decode: %w", err)
 	}
 	if d.ID < 1 {
 		return fmt.Errorf("%w: %d", ErrID, d.ID)

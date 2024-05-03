@@ -65,7 +65,7 @@ func (r *Releasers) List(ctx context.Context, db *sql.DB, name string) (models.F
 	}
 	s, err := namer.Humanize(namer.Path(name))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("namer.Humanize: %w", err)
 	}
 	n := strings.ToUpper(s)
 	x := null.StringFrom(n)
@@ -103,7 +103,7 @@ func (r *Releasers) All(ctx context.Context, db *sql.DB, order OrderBy, limit, p
 		query += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
 	}
 	if err := queries.Raw(query).Bind(ctx, db, r); err != nil {
-		return err
+		return fmt.Errorf("queries.Raw: %w", err)
 	}
 	r.Slugs()
 	return nil
@@ -138,7 +138,7 @@ func (r *Releasers) similar(ctx context.Context, db *sql.DB, limit uint, lookup 
 	for i, name := range names {
 		x, err := namer.Humanize(namer.Path(name))
 		if err != nil {
-			return err
+			return fmt.Errorf("namer.Humanize: %w", err)
 		}
 		like[i] = strings.ToUpper(x)
 	}
@@ -155,7 +155,7 @@ func (r *Releasers) similar(ctx context.Context, db *sql.DB, limit uint, lookup 
 		query += fmt.Sprintf(" LIMIT %d OFFSET %d", val, offset)
 	}
 	if err := queries.Raw(query).Bind(ctx, db, r); err != nil {
-		return err
+		return fmt.Errorf("queries.Raw: %w", err)
 	}
 	r.Slugs()
 	return nil
@@ -176,7 +176,7 @@ func (r *Releasers) MagazineAZ(ctx context.Context, db *sql.DB) error {
 		return nil
 	}
 	if err := queries.Raw(string(postgres.MagazinesAlphabetical())).Bind(ctx, db, r); err != nil {
-		return err
+		return fmt.Errorf("queries.Raw: %w", err)
 	}
 	r.Slugs()
 	return nil
@@ -191,7 +191,7 @@ func (r *Releasers) Magazine(ctx context.Context, db *sql.DB) error {
 		return nil
 	}
 	if err := queries.Raw(string(postgres.MagazinesOldest())).Bind(ctx, db, r); err != nil {
-		return err
+		return fmt.Errorf("queries.Raw: %w", err)
 	}
 	r.Slugs()
 	return nil
@@ -217,7 +217,7 @@ func (r *Releasers) BBS(ctx context.Context, db *sql.DB, order OrderBy) error {
 		return ErrOrderBy
 	}
 	if err := queries.Raw(query).Bind(ctx, db, r); err != nil {
-		return err
+		return fmt.Errorf("queries.Raw: %w", err)
 	}
 	r.Slugs()
 	return nil
@@ -232,7 +232,7 @@ func (r *Releasers) FTP(ctx context.Context, db *sql.DB) error {
 		return nil
 	}
 	if err := queries.Raw(string(postgres.FTPsAlphabetical())).Bind(ctx, db, r); err != nil {
-		return err
+		return fmt.Errorf("queries.Raw: %w", err)
 	}
 	r.Slugs()
 	return nil

@@ -57,12 +57,12 @@ func DownloadStat(url string) (int64, error) {
 	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return unknown, err
+		return unknown, fmt.Errorf("http.NewRequestWithContext: %w", err)
 	}
 	req.Header.Set("User-Agent", UserAgent)
 	res, err := client.Do(req)
 	if err != nil {
-		return unknown, err
+		return unknown, fmt.Errorf("client.Do: %w", err)
 	}
 	defer res.Body.Close()
 	return res.ContentLength, nil
@@ -88,12 +88,12 @@ func DownloadFile(url string) (DownloadResponse, error) {
 	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return DownloadResponse{}, err
+		return DownloadResponse{}, fmt.Errorf("http.NewRequestWithContext: %w", err)
 	}
 	req.Header.Set("User-Agent", UserAgent)
 	res, err := client.Do(req)
 	if err != nil {
-		return DownloadResponse{}, err
+		return DownloadResponse{}, fmt.Errorf("client.Do: %w", err)
 	}
 	defer res.Body.Close()
 
@@ -105,14 +105,14 @@ func DownloadFile(url string) (DownloadResponse, error) {
 	// Create the file in the default temp directory
 	tmpFile, err := os.CreateTemp("", "downloadfile-*")
 	if err != nil {
-		return DownloadResponse{}, err
+		return DownloadResponse{}, fmt.Errorf("os.CreateTemp: %w", err)
 	}
 	defer tmpFile.Close()
 
 	// Write the body to file
 	if _, err := io.Copy(tmpFile, res.Body); err != nil {
 		defer os.Remove(tmpFile.Name())
-		return DownloadResponse{}, err
+		return DownloadResponse{}, fmt.Errorf("io.Copy: %w", err)
 	}
 	dlr.Path = tmpFile.Name()
 	return dlr, nil
@@ -124,7 +124,7 @@ func DownloadFile(url string) (DownloadResponse, error) {
 func RenameFile(oldpath, newpath string) error {
 	st, err := os.Stat(oldpath)
 	if err != nil {
-		return err
+		return fmt.Errorf("os.Stat: %w", err)
 	}
 	if st.IsDir() {
 		return fmt.Errorf("oldpath %w: %s", ErrFilePath, oldpath)
@@ -137,7 +137,7 @@ func RenameFile(oldpath, newpath string) error {
 		if errors.As(err, &linkErr) && linkErr.Err.Error() == "invalid cross-device link" {
 			return RenameCrossDevice(oldpath, newpath)
 		}
-		return err
+		return fmt.Errorf("os.Rename: %w", err)
 	}
 	return nil
 }
@@ -148,7 +148,7 @@ func RenameFile(oldpath, newpath string) error {
 func RenameFileOW(oldpath, newpath string) error {
 	st, err := os.Stat(oldpath)
 	if err != nil {
-		return err
+		return fmt.Errorf("os.Stat: %w", err)
 	}
 	if st.IsDir() {
 		return fmt.Errorf("oldpath %w: %s", ErrFilePath, oldpath)
@@ -166,7 +166,7 @@ func RenameFileOW(oldpath, newpath string) error {
 		if errors.As(err, &linkErr) && linkErr.Err.Error() == "invalid cross-device link" {
 			return RenameCrossDevice(oldpath, newpath)
 		}
-		return err
+		return fmt.Errorf("os.Rename: %w", err)
 	}
 	return nil
 }
@@ -176,26 +176,26 @@ func RenameFileOW(oldpath, newpath string) error {
 func RenameCrossDevice(oldpath, newpath string) error {
 	src, err := os.Open(oldpath)
 	if err != nil {
-		return err
+		return fmt.Errorf("os.Open: %w", err)
 	}
 	defer src.Close()
 	dst, err := os.Create(newpath)
 	if err != nil {
-		return err
+		return fmt.Errorf("os.Create: %w", err)
 	}
 	defer dst.Close()
 
 	if _, err = io.Copy(dst, src); err != nil {
-		return err
+		return fmt.Errorf("io.Copy: %w", err)
 	}
 	fi, err := os.Stat(oldpath)
 	if err != nil {
 		defer os.Remove(newpath)
-		return err
+		return fmt.Errorf("os.Stat: %w", err)
 	}
 	if err = os.Chmod(newpath, fi.Mode()); err != nil {
 		defer os.Remove(newpath)
-		return err
+		return fmt.Errorf("os.Chmod: %w", err)
 	}
 	defer os.Remove(oldpath)
 	return nil

@@ -53,7 +53,7 @@ func DemozooProd(c echo.Context) error {
 
 	prod, err := DemozooValid(c, id)
 	if err != nil {
-		return err
+		return fmt.Errorf("demozoo.DemozooValid: %w", err)
 	}
 	if prod.ID < 1 {
 		return nil

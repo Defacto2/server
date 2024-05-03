@@ -161,7 +161,7 @@ func ValidYouTube(s string) (null.String, error) {
 	}
 	match, err := regexp.MatchString("^[a-zA-Z0-9_-]{11}$", s)
 	if err != nil {
-		return invalid, err
+		return invalid, fmt.Errorf("regexp.MatchString: %w", err)
 	}
 	if !match {
 		return invalid, nil
@@ -294,7 +294,7 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 	}
 	now, uid, err := uuidV7()
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("uuid.NewV7: %w", err)
 	}
 	unique := null.StringFrom(uid.String())
 	deleteT := null.TimeFromPtr(&now)
@@ -312,13 +312,13 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 	}
 	f, err = upload(f, values, key)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("upload: %w", err)
 	}
 	if err = f.Insert(ctx, tx, boil.Infer()); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("f.Insert: %w", err)
 	}
 	if err = tx.Commit(); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("tx.Commit: %w", err)
 	}
 	return f.ID, nil
 }
@@ -326,7 +326,7 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 func upload(f models.File, values url.Values, key string) (models.File, error) {
 	youtube, err := ValidYouTube(values.Get(key + "-youtube"))
 	if err != nil {
-		return f, err
+		return f, fmt.Errorf("ValidYouTube: %w", err)
 	}
 	releaser1, releaser2 := ValidReleasers(
 		values.Get(key+"-releaser1"),
@@ -345,7 +345,7 @@ func upload(f models.File, values url.Values, key string) (models.File, error) {
 	}
 	filesize, err := ValidFilesize(values.Get(key + "-size"))
 	if err != nil {
-		return f, err
+		return f, fmt.Errorf("ValidFilesize: %w", err)
 	}
 	content := ValidString(values.Get(key + "-content"))
 	readme := ValidFilename(values.Get(key + "-readme"))
@@ -395,7 +395,7 @@ func InsertDemozooFile(ctx context.Context, db *sql.DB, id int64) (int64, error)
 
 	now, uid, err := uuidV7()
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("uuid.NewV7: %w", err)
 	}
 
 	f := models.File{
@@ -404,7 +404,7 @@ func InsertDemozooFile(ctx context.Context, db *sql.DB, id int64) (int64, error)
 		Deletedat:    null.TimeFromPtr(&now),
 	}
 	if err = f.Insert(ctx, db, boil.Infer()); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("f.Insert: %w", err)
 	}
 	return f.ID, nil
 }
@@ -422,7 +422,7 @@ func InsertPouetFile(ctx context.Context, db *sql.DB, id int64) (int64, error) {
 
 	now, uid, err := uuidV7()
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("uuid.NewV7: %w", err)
 	}
 
 	f := models.File{
@@ -431,7 +431,7 @@ func InsertPouetFile(ctx context.Context, db *sql.DB, id int64) (int64, error) {
 		Deletedat:  null.TimeFromPtr(&now),
 	}
 	if err = f.Insert(ctx, db, boil.Infer()); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("f.Insert: %w", err)
 	}
 	return f.ID, nil
 }

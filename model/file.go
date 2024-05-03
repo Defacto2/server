@@ -77,7 +77,7 @@ func FindDemozooFile(ctx context.Context, db *sql.DB, id int64) (bool, int64, er
 		return false, 0, nil
 	}
 	if err != nil {
-		return false, 0, err
+		return false, 0, fmt.Errorf("find demozoo file: %w", err)
 	}
 	deleted := !f.Deletedat.IsZero()
 	return deleted, f.ID, nil
@@ -107,7 +107,7 @@ func FindPouetFile(ctx context.Context, db *sql.DB, id int64) (bool, int64, erro
 		return false, 0, nil
 	}
 	if err != nil {
-		return false, 0, err
+		return false, 0, fmt.Errorf("find pouet file: %w", err)
 	}
 	deleted := !f.Deletedat.IsZero()
 	return deleted, f.ID, nil

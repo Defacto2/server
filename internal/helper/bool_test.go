@@ -13,7 +13,7 @@ import (
 
 func TestFileMatch(t *testing.T) {
 	_, err := helper.FileMatch("", "")
-	require.Error(t, err)
+	require.NoError(t, err)
 	v, err := helper.FileMatch("bool.go", "bool.go")
 	require.NoError(t, err)
 	assert.True(t, v)

@@ -41,7 +41,7 @@ func (c Cache) Path() (string, error) {
 	}
 	err = os.MkdirAll(tmp, DirMode)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("os.MkdirAll: %w", err)
 	}
 	return tmp, nil
 }
@@ -55,11 +55,11 @@ func (c Cache) Write(key, value string, ttl time.Duration) error {
 	options := rosedb.DefaultOptions
 	options.DirPath, err = c.Path()
 	if err != nil {
-		return err
+		return fmt.Errorf("cache.Path: %w", err)
 	}
 	db, err := rosedb.Open(options)
 	if err != nil {
-		return err
+		return fmt.Errorf("rosedb.Open: %w", err)
 	}
 	defer db.Close()
 
@@ -74,11 +74,11 @@ func (c Cache) WriteNoExpire(key, value string) error {
 	options := rosedb.DefaultOptions
 	options.DirPath, err = c.Path()
 	if err != nil {
-		return err
+		return fmt.Errorf("cache.Path: %w", err)
 	}
 	db, err := rosedb.Open(options)
 	if err != nil {
-		return err
+		return fmt.Errorf("rosedb.Open: %w", err)
 	}
 	defer db.Close()
 
@@ -89,14 +89,14 @@ func (c Cache) WriteNoExpire(key, value string) error {
 func (c Cache) Read(id string) (string, error) {
 	path, err := c.Path()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("cache.Path: %w", err)
 	}
 
 	options := rosedb.DefaultOptions
 	options.DirPath = path
 	db, err := rosedb.Open(options)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("rosedb.Open: %w", err)
 	}
 	defer db.Close()
 
@@ -112,14 +112,14 @@ func (c Cache) Read(id string) (string, error) {
 func (c Cache) Delete(id string) error {
 	path, err := c.Path()
 	if err != nil {
-		return err
+		return fmt.Errorf("cache.Path: %w", err)
 	}
 
 	options := rosedb.DefaultOptions
 	options.DirPath = path
 	db, err := rosedb.Open(options)
 	if err != nil {
-		return err
+		return fmt.Errorf("rosedb.Open: %w", err)
 	}
 	defer db.Close()
 

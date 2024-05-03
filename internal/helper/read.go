@@ -13,14 +13,14 @@ import (
 func Files(dir string) ([]string, error) {
 	st, err := os.Stat(dir)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("os.Stat: %w", err)
 	}
 	if !st.IsDir() {
 		return nil, fmt.Errorf("%w: %s", ErrDirPath, dir)
 	}
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("os.ReadDir: %w", err)
 	}
 	names := []string{}
 	for _, file := range files {
@@ -36,7 +36,7 @@ func Files(dir string) ([]string, error) {
 func Lines(name string) (int, error) {
 	file, err := os.Open(name)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("os.Open: %w", err)
 	}
 	defer file.Close()
 
@@ -47,7 +47,7 @@ func Lines(name string) (int, error) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("scanner.Scan: %w", err)
 	}
 
 	return lines, nil
@@ -68,12 +68,12 @@ func StrongIntegrity(name string) (string, error) {
 	// strong hashes require the named file to be reopened after being read.
 	f, err := os.Open(name)
 	if err != nil {
-		return "", fmt.Errorf("%w: %s", err, name)
+		return "", fmt.Errorf("os.Open: %w: %s", err, name)
 	}
 	defer f.Close()
 	strong, err := Sum386(f)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("Sum386: %w", err)
 	}
 	return strong, nil
 }
@@ -85,7 +85,7 @@ func Sum386(f *os.File) (string, error) {
 	}
 	strong := sha512.New384()
 	if _, err := io.Copy(strong, f); err != nil {
-		return "", fmt.Errorf("%s: %w", f.Name(), err)
+		return "", fmt.Errorf("io.Copy %s: %w", f.Name(), err)
 	}
 	s := hex.EncodeToString(strong.Sum(nil))
 	return s, nil

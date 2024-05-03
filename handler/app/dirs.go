@@ -328,14 +328,14 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	case errors.Is(err, render.ErrFilename), r == nil:
 		return data, nil
 	case err != nil:
-		return data, err
+		return data, fmt.Errorf("render.Read: %w", err)
 	case render.IsUTF16(r):
 		return data, nil
 	}
 	b, err := io.ReadAll(r)
 	switch {
 	case err != nil:
-		return data, err
+		return data, fmt.Errorf("io.ReadAll: %w", err)
 	case b == nil, isZip(b):
 		return data, nil
 	}
@@ -377,14 +377,14 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	d := charmap.ISO8859_1.NewDecoder().Reader(r)
 	readme, err := decode(d)
 	if err != nil {
-		return data, err
+		return data, fmt.Errorf("decode: %w", err)
 	}
 	data["readmeLatin1"] = readme
 	r = bytes.NewReader(b)
 	d = charmap.CodePage437.NewDecoder().Reader(r)
 	readme, err = decode(d)
 	if err != nil {
-		return data, err
+		return data, fmt.Errorf("decode: %w", err)
 	}
 	data["readmeCP437"] = readme
 	data["readmeLines"] = strings.Count(readme, "\n")
@@ -406,7 +406,7 @@ func isZip(b []byte) bool {
 func decode(r io.Reader) (string, error) {
 	out := strings.Builder{}
 	if _, err := io.Copy(&out, r); err != nil {
-		return "", err
+		return "", fmt.Errorf("io.Copy: %w", err)
 	}
 	if !strings.HasSuffix(out.String(), "\n\n") {
 		out.WriteString("\n")

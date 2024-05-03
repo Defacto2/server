@@ -153,7 +153,7 @@ func (c *Config) LogStore() error {
 	if logs == "" {
 		dir, err := os.UserConfigDir()
 		if err != nil {
-			return err
+			return fmt.Errorf("os.UserConfigDir: %w", err)
 		}
 		logs = filepath.Join(dir, ConfigDir)
 	}

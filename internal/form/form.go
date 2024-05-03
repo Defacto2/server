@@ -16,7 +16,8 @@ func HumanizeAndCount(section, platform string) (string, error) {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return "cannot connect to the database", err
+		return "cannot connect to the database",
+			fmt.Errorf("postgres.ConnectDB: %w", err)
 	}
 	defer db.Close()
 
@@ -28,7 +29,8 @@ func HumanizeAndCount(section, platform string) (string, error) {
 	}
 	count, err := model.CountByClassification(ctx, db, section, platform)
 	if err != nil {
-		return "cannot count the classification", err
+		return "cannot count the classification",
+			fmt.Errorf("model.CountByClassification: %w", err)
 	}
 	return fmt.Sprintf("%s, %d existing artifacts", tag, count), nil
 }

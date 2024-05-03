@@ -92,7 +92,7 @@ func (f *Files) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 		return nil, ErrDB
 	}
 	if err := f.Stat(ctx, db); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("f.Stat: %w", err)
 	}
 	const clause = "id DESC"
 	return models.Files(
@@ -107,7 +107,7 @@ func (f *Files) ListOldest(ctx context.Context, db *sql.DB, offset, limit int) (
 		return nil, ErrDB
 	}
 	if err := f.Stat(ctx, db); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("f.Stat: %w", err)
 	}
 	const clause = "date_issued_year ASC NULLS LAST, " +
 		"date_issued_month ASC NULLS LAST, " +
@@ -124,7 +124,7 @@ func (f *Files) ListNewest(ctx context.Context, db *sql.DB, offset, limit int) (
 		return nil, ErrDB
 	}
 	if err := f.Stat(ctx, db); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("f.Stat: %w", err)
 	}
 	const clause = "date_issued_year DESC NULLS LAST, " +
 		"date_issued_month DESC NULLS LAST, " +
@@ -141,7 +141,7 @@ func (f *Files) ListUpdates(ctx context.Context, db *sql.DB, offset, limit int) 
 		return nil, ErrDB
 	}
 	if err := f.Stat(ctx, db); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("f.Stat: %w", err)
 	}
 	const clause = "updatedat DESC"
 	return models.Files(
@@ -155,7 +155,7 @@ func (f *Files) ListDeletions(ctx context.Context, db *sql.DB, offset, limit int
 		return nil, ErrDB
 	}
 	if err := f.StatDeletions(ctx, db); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("f.Stat: %w", err)
 	}
 	boil.DebugMode = true
 	const clause = "deletedat DESC"
@@ -173,7 +173,7 @@ func (f *Files) ListUnwanted(ctx context.Context, db *sql.DB, offset, limit int)
 		return nil, ErrDB
 	}
 	if err := f.StatUnwanted(ctx, db); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("f.StatUnwanted: %w", err)
 	}
 	// boil.DebugMode = true
 	const clause = "id DESC"
@@ -190,7 +190,7 @@ func (f *Files) ListForApproval(ctx context.Context, db *sql.DB, offset, limit i
 		return nil, ErrDB
 	}
 	if err := f.StatForApproval(ctx, db); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("f.StatForApproval: %w", err)
 	}
 	// boil.DebugMode = true
 	const clause = "id DESC"

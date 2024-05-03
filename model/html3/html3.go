@@ -71,14 +71,14 @@ func Icon(f *models.File) string {
 	if f == nil {
 		return ErrModel.Error()
 	}
-	const err = "unknown"
+	const unknown = "unknown"
 	if !f.Filename.Valid {
-		return err
+		return unknown
 	}
 	if n := exts.IconName(f.Filename.String); n != "" {
 		return n
 	}
-	return err
+	return unknown
 }
 
 // LeadStr takes a string and returns the leading whitespace padding, characters wide.

@@ -104,7 +104,7 @@ func walker(src, filename string) ([]string, error) {
 	name := strings.ToLower(filename) // ByExtension is case sensitive
 	format, err := archiver.ByExtension(name)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("archiver.ByExtension: %w", err)
 	}
 	w, ok := format.(archiver.Walker)
 	if !ok {
@@ -123,9 +123,9 @@ func walker(src, filename string) ([]string, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("walk: %w", err)
 	}
-	return files, err
+	return files, nil
 }
 
 // commander uses system archiver and decompression programs to read the src archive file.
@@ -275,7 +275,7 @@ func (c *Content) ARJ(src string) error {
 	cmd.Stderr = &b
 	out, err := cmd.Output()
 	if err != nil {
-		return err
+		return fmt.Errorf("cmd.Output: %w", err)
 	}
 	if len(out) == 0 {
 		return ErrRead
@@ -314,7 +314,7 @@ func (c *Content) LHA(src string) error {
 	cmd.Stderr = &b
 	out, err := cmd.Output()
 	if err != nil {
-		return err
+		return fmt.Errorf("cmd.Output: %w", err)
 	}
 	if len(out) == 0 {
 		return ErrRead

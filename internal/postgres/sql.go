@@ -40,11 +40,11 @@ const (
 func (v *Version) Query() error {
 	conn, err := ConnectDB()
 	if err != nil {
-		return err
+		return fmt.Errorf("connectDB: %w", err)
 	}
 	rows, err := conn.Query(Ver)
 	if err != nil {
-		return err
+		return fmt.Errorf("conn.Query: %w", err)
 	}
 	if rows.Err() != nil {
 		return rows.Err()
@@ -53,7 +53,7 @@ func (v *Version) Query() error {
 	defer conn.Close()
 	for rows.Next() {
 		if err := rows.Scan(v); err != nil {
-			return err
+			return fmt.Errorf("rows.Scan: %w", err)
 		}
 	}
 	return nil

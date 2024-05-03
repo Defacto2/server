@@ -30,10 +30,9 @@ func Checksum(c echo.Context, id string) error {
 			art, err = model.EditObf(id)
 		}
 		if err != nil {
-			return err
+			return fmt.Errorf("model.FindObf: %w", err)
 		}
 	}
-
 	// an example checksum file body created by `shasum`
 	// 72f8a29d75993487b7ad5ad3a17d2f65ed4c41be155adbda88258d0458fcfe29f55e2e31b0316f01d57f4427ca9e2422  sk8-01.jpg
 	sum := strings.TrimSpace(art.FileIntegrityStrong.String)
@@ -45,13 +44,17 @@ func Checksum(c echo.Context, id string) error {
 
 	file, err := os.CreateTemp(os.TempDir(), "checksum-server.*.txt")
 	if err != nil {
-		return err
+		return fmt.Errorf("os.CreateTemp: %w", err)
 	}
 	defer os.Remove(file.Name())
 	if _, err := file.Write(body); err != nil {
-		return err
+		return fmt.Errorf("file.Write: %w", err)
 	}
-	return c.Attachment(file.Name(), "checksums.txt")
+	err = c.Attachment(file.Name(), "checksums.txt")
+	if err != nil {
+		return fmt.Errorf("c.Attachment: %w", err)
+	}
+	return nil
 }
 
 // Download configuration.
@@ -70,7 +73,7 @@ func (d Download) HTTPSend(c echo.Context, logger *zap.SugaredLogger) error {
 			art, err = model.EditObf(id)
 		}
 		if err != nil {
-			return err
+			return fmt.Errorf("model.FindObf: %w", err)
 		}
 	}
 
@@ -90,5 +93,8 @@ func (d Download) HTTPSend(c echo.Context, logger *zap.SugaredLogger) error {
 	if d.Inline {
 		return c.Inline(file, name)
 	}
-	return c.Attachment(file, name)
+	if err := c.Attachment(file, name); err != nil {
+		return fmt.Errorf("c.Attachment: %w", err)
+	}
+	return nil
 }

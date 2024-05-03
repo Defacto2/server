@@ -8,6 +8,7 @@ package handler
 
 import (
 	"crypto/sha512"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -41,7 +42,10 @@ func (c Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
 		s := strconv.FormatBool(c.Environment.ReadMode)
 		e.Response().Header().Set("X-Read-Only-Lock", s)
 		if c.Environment.ReadMode {
-			return app.StatusErr(e, http.StatusForbidden, "")
+			if err := app.StatusErr(e, http.StatusForbidden, ""); err != nil {
+				return fmt.Errorf("app.StatusErr: %w", err)
+			}
+			return nil
 		}
 		return next(e)
 	}
@@ -53,11 +57,14 @@ func (c Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 		// https://pkg.go.dev/github.com/gorilla/sessions#Session
 		sess, err := session.Get(sess.Name, e)
 		if err != nil {
-			return err
+			return fmt.Errorf("session.Get: %w", err)
 		}
 		id, ok := sess.Values["sub"].(string)
 		if !ok || id == "" {
-			return app.StatusErr(e, http.StatusForbidden, "")
+			if err := app.StatusErr(e, http.StatusForbidden, ""); err != nil {
+				return fmt.Errorf("app.StatusErr: %w", err)
+			}
+			return nil
 		}
 		check := false
 		for _, account := range c.Environment.GoogleAccounts {
@@ -67,7 +74,10 @@ func (c Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 		if !check {
-			return app.StatusErr(e, http.StatusForbidden, "")
+			if err := app.StatusErr(e, http.StatusForbidden, ""); err != nil {
+				return fmt.Errorf("app.StatusErr: %w", err)
+			}
+			return nil
 		}
 		return next(e)
 	}

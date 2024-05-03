@@ -77,7 +77,7 @@ func (o Order) ByGroup(ctx context.Context, db *sql.DB, name string) (models.Fil
 	}
 	s, err := namer.Humanize(namer.Path(name))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("namer.Humanize: %w", err)
 	}
 	n := strings.ToUpper(s)
 	mods := models.FileWhere.GroupBrandFor.EQ(null.StringFrom(n))

@@ -39,7 +39,7 @@ func Address(c *config.Config) *cli.Command {
 		Action: func(_ *cli.Context) error {
 			s, err := c.AddressesCLI()
 			if err != nil {
-				return err
+				return fmt.Errorf("c.AddressesCLI: %w", err)
 			}
 			defer fmt.Fprintf(os.Stdout, "%s\n", s)
 			return nil
@@ -241,7 +241,7 @@ func setup(ver string, c *config.Config) (ExitCode, error) {
 	app.HideVersion = false
 	app.Suggest = true
 	if err := app.Run(os.Args); err != nil {
-		return GenericError, err
+		return GenericError, fmt.Errorf("app.Run: %w", err)
 	}
 	return ExitOK, nil
 }

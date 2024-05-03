@@ -1,6 +1,7 @@
 package htmx
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -91,14 +92,14 @@ func RecordReleasersReset(c echo.Context) error {
 func recordReleases(rel1, rel2, key string) error {
 	id, err := strconv.Atoi(key)
 	if err != nil {
-		return err
+		return fmt.Errorf("strconv.Atoi: %w", err)
 	}
 	val := rel1
 	if rel2 != "" {
 		val = rel1 + "+" + rel2
 	}
 	if err := model.UpdateReleasers(int64(id), val); err != nil {
-		return err
+		return fmt.Errorf("model.UpdateReleasers: %w", err)
 	}
 	return nil
 }

@@ -52,12 +52,12 @@ func UpdateClassification(id int64, platform, tag string) error {
 	ctx := context.Background()
 	f, err := FindFile(ctx, db, id)
 	if err != nil {
-		return err
+		return fmt.Errorf("find file: %w", err)
 	}
 	f.Platform = null.StringFrom(p.String())
 	f.Section = null.StringFrom(t.String())
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
-		return err
+		return fmt.Errorf("f.update: %w", err)
 	}
 	return nil
 }
@@ -82,12 +82,12 @@ func UpdateOnline(id int64) error {
 	ctx := context.Background()
 	f, err := FindFile(ctx, db, id)
 	if err != nil {
-		return err
+		return fmt.Errorf("find file: %w", err)
 	}
 	f.Deletedat = null.TimeFromPtr(nil)
 	f.Deletedby = null.String{}
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
-		return err
+		return fmt.Errorf("f.update: %w", err)
 	}
 	return nil
 }
@@ -102,13 +102,13 @@ func UpdateOffline(id int64) error {
 	ctx := context.Background()
 	f, err := FindFile(ctx, db, id)
 	if err != nil {
-		return err
+		return fmt.Errorf("find file: %w", err)
 	}
 	now := time.Now()
 	f.Deletedat = null.TimeFromPtr(&now)
 	f.Deletedby = null.StringFrom(strings.ToLower(uidPlaceholder))
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
-		return err
+		return fmt.Errorf("f.update: %w", err)
 	}
 	return nil
 }
@@ -126,7 +126,7 @@ func UpdateNoReadme(id int64, val bool) error {
 	ctx := context.Background()
 	f, err := FindFile(ctx, db, id)
 	if err != nil {
-		return err
+		return fmt.Errorf("find file: %w", err)
 	}
 
 	i := int16(0)
@@ -136,7 +136,7 @@ func UpdateNoReadme(id int64, val bool) error {
 	f.RetrotxtNoReadme = null.NewInt16(i, true)
 
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
-		return err
+		return fmt.Errorf("f.update: %w", err)
 	}
 	return nil
 }
@@ -158,11 +158,11 @@ func UpdatePlatform(id int64, val string) error {
 	ctx := context.Background()
 	f, err := FindFile(ctx, db, id)
 	if err != nil {
-		return err
+		return fmt.Errorf("find file: %w", err)
 	}
 	f.Platform = null.StringFrom(val)
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
-		return err
+		return fmt.Errorf("f.update: %w", err)
 	}
 	return nil
 }
@@ -190,7 +190,7 @@ func UpdateReleasers(id int64, val string) error {
 	ctx := context.Background()
 	f, err := FindFile(ctx, db, id)
 	if err != nil {
-		return err
+		return fmt.Errorf("find file: %w", err)
 	}
 	switch len(s) {
 	case max:
@@ -226,7 +226,7 @@ func UpdateTag(id int64, val string) error {
 	ctx := context.Background()
 	f, err := FindFile(ctx, db, id)
 	if err != nil {
-		return err
+		return fmt.Errorf("find file: %w", err)
 	}
 	f.Section = null.StringFrom(val)
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
@@ -247,7 +247,7 @@ func UpdateTitle(id int64, val string) error {
 	ctx := context.Background()
 	f, err := FindFile(ctx, db, id)
 	if err != nil {
-		return err
+		return fmt.Errorf("find file: %w", err)
 	}
 	f.RecordTitle = null.StringFrom(val)
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
@@ -278,13 +278,13 @@ func UpdateYMD(id int64, y, m, d null.Int16) error {
 	ctx := context.Background()
 	f, err := FindFile(ctx, db, id)
 	if err != nil {
-		return err
+		return fmt.Errorf("find file: %w", err)
 	}
 	f.DateIssuedYear = y
 	f.DateIssuedMonth = m
 	f.DateIssuedDay = d
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
-		return err
+		return fmt.Errorf("f.update: %w", err)
 	}
 	return nil
 }

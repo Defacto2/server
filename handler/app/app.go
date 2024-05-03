@@ -459,7 +459,7 @@ func LinkRelrs(performant bool, a, b any) template.HTML {
 func makeLink(name, class string, performant bool) (string, error) {
 	ref, err := linkRelr(name)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("linkRelr: %w", err)
 	}
 	x := helper.Capitalize(strings.ToLower(name))
 	title := x
@@ -1109,7 +1109,7 @@ func YMDEdit(c echo.Context) error {
 	}
 	r, err := model.EditFind(f.ID)
 	if err != nil {
-		return err
+		return fmt.Errorf("model.EditFind: %w", err)
 	}
 	y := model.ValidY(f.Year)
 	m := model.ValidM(f.Month)
@@ -1152,67 +1152,67 @@ func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 	var err error
 	s.ArtifactEditor, err = helper.Integrity(names[ArtifactEditor], fs)
 	if err != nil {
-		return err
+		return fmt.Errorf("helper.Integrity: %w", err)
 	}
 	s.Bootstrap5, err = helper.Integrity(names[Bootstrap5], fs)
 	if err != nil {
-		return err
+		return fmt.Errorf("helper.Integrity: %w", err)
 	}
 	s.Bootstrap5JS, err = helper.Integrity(names[Bootstrap5JS], fs)
 	if err != nil {
-		return err
+		return fmt.Errorf("helper.Integrity: %w", err)
 	}
 	s.LayoutJS, err = helper.Integrity(names[LayoutJS], fs)
 	if err != nil {
-		return err
+		return fmt.Errorf("helper.Integrity: %w", err)
 	}
 	s.Editor, err = helper.Integrity(names[Editor], fs)
 	if err != nil {
-		return err
+		return fmt.Errorf("helper.Integrity: %w", err)
 	}
 	s.EditAssets, err = helper.Integrity(names[EditAssets], fs)
 	if err != nil {
-		return err
+		return fmt.Errorf("helper.Integrity: %w", err)
 	}
 	s.EditArchive, err = helper.Integrity(names[EditArchive], fs)
 	if err != nil {
-		return err
+		return fmt.Errorf("helper.Integrity: %w", err)
 	}
 	s.EditForApproval, err = helper.Integrity(names[EditForApproval], fs)
 	if err != nil {
-		return err
+		return fmt.Errorf("helper.Integrity: %w", err)
 	}
 	s.FA5Pro, err = helper.Integrity(names[FA5Pro], fs)
 	if err != nil {
-		return err
+		return fmt.Errorf("helper.Integrity: %w", err)
 	}
 	s.Jsdos6JS, err = helper.Integrity(names[Jsdos6JS], fs)
 	if err != nil {
-		return err
+		return fmt.Errorf("helper.Integrity: %w", err)
 	}
 	s.DosboxJS, err = helper.Integrity(names[DosboxJS], fs)
 	if err != nil {
-		return err
+		return fmt.Errorf("helper.Integrity: %w", err)
 	}
 	s.Layout, err = helper.Integrity(names[Layout], fs)
 	if err != nil {
-		return err
+		return fmt.Errorf("helper.Integrity: %w", err)
 	}
 	s.Pouet, err = helper.Integrity(names[Pouet], fs)
 	if err != nil {
-		return err
+		return fmt.Errorf("helper.Integrity: %w", err)
 	}
 	s.Readme, err = helper.Integrity(names[Readme], fs)
 	if err != nil {
-		return err
+		return fmt.Errorf("helper.Integrity: %w", err)
 	}
 	s.Uploader, err = helper.Integrity(names[Uploader], fs)
 	if err != nil {
-		return err
+		return fmt.Errorf("helper.Integrity: %w", err)
 	}
 	s.Htmx, err = helper.Integrity(names[Htmx], fs)
 	if err != nil {
-		return err
+		return fmt.Errorf("helper.Integrity: %w", err)
 	}
 	return nil
 }

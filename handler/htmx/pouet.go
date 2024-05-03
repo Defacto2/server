@@ -53,7 +53,7 @@ func PouetProd(c echo.Context) error {
 
 	resp, err := PouetValid(c, id)
 	if err != nil {
-		return err
+		return fmt.Errorf("PouetValid: %w", err)
 	} else if resp.Prod.ID == "" {
 		return nil
 	}

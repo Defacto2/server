@@ -3,11 +3,14 @@ package helper
 // Package file bool.go contains functions that return a boolean.
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"time"
 )
+
+var ErrFileMatch = errors.New("helper filematch")
 
 // FileMatch returns true if the two named files are the same.
 // It returns false if the files are of different lengths or
@@ -16,13 +19,13 @@ import (
 func FileMatch(name1, name2 string) (bool, error) {
 	f1, err := os.Open(name1)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("%w: %w", ErrFileMatch, err)
 	}
 	defer f1.Close()
 
 	f2, err := os.Open(name2)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("%w: %w", ErrFileMatch, err)
 	}
 	defer f2.Close()
 

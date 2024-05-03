@@ -86,7 +86,7 @@ func (c Config) String() string {
 func (c Config) AddressesCLI() (string, error) {
 	b := new(strings.Builder)
 	if err := c.addresses(b, true); err != nil {
-		return "", err
+		return "", fmt.Errorf("c.addresses: %w", err)
 	}
 	return b.String(), nil
 }
@@ -96,7 +96,7 @@ func (c Config) AddressesCLI() (string, error) {
 func (c Config) Addresses() (string, error) {
 	b := new(strings.Builder)
 	if err := c.addresses(b, false); err != nil {
-		return "", err
+		return "", fmt.Errorf("c.addresses: %w", err)
 	}
 	return b.String(), nil
 }

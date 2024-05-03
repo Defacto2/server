@@ -27,7 +27,7 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 		}
 		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
-				return err
+				return fmt.Errorf("walk: %w", err)
 			}
 			name := info.Name()
 			if info.IsDir() {
@@ -46,7 +46,7 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 			return images(name, path)
 		})
 		if err != nil {
-			return err
+			return fmt.Errorf("filepath.Walk: %w", err)
 		}
 		switch dir {
 		case c.PreviewDir:
@@ -67,7 +67,7 @@ func (c Config) downloadFS(logger *zap.SugaredLogger) error {
 	d := 0
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return err
+			return fmt.Errorf("walk: %w", err)
 		}
 		name := info.Name()
 		if filepath.Ext(name) == "" {
@@ -79,7 +79,7 @@ func (c Config) downloadFS(logger *zap.SugaredLogger) error {
 		return downloads(name, path)
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("filepath.Walk: %w", err)
 	}
 	logger.Infof("The downloads directory contains, %d files: %s", d, dir)
 	return nil

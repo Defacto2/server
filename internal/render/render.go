@@ -94,7 +94,7 @@ func Read(art *models.File, path string) (*bytes.Reader, error) {
 
 	b, err := os.ReadFile(name)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("os.ReadFile: %w", err)
 	}
 
 	const nul = 0x00

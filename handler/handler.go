@@ -205,7 +205,7 @@ func (c Configuration) Registry(logger *zap.SugaredLogger) (*TemplateRegistry, e
 	}
 	tmpls, err := webapp.Templates()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("webapp.Templates: %w", err)
 	}
 	src := html3.Templates(logger, c.View)
 	maps.Copy(tmpls, src)
@@ -380,7 +380,10 @@ func (c Configuration) downloader(cx echo.Context, logger *zap.SugaredLogger) er
 		Inline: false,
 		Path:   c.Environment.DownloadDir,
 	}
-	return d.HTTPSend(cx, logger)
+	if err := d.HTTPSend(cx, logger); err != nil {
+		return fmt.Errorf("d.HTTPSend: %w", err)
+	}
+	return nil
 }
 
 // versionBrief returns the application version string.
@@ -423,5 +426,8 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c 
 	if !ok {
 		return fmt.Errorf("%w: %s", ErrTmpl, name)
 	}
-	return tmpl.ExecuteTemplate(w, layout, data)
+	if err := tmpl.ExecuteTemplate(w, layout, data); err != nil {
+		return fmt.Errorf("tmpl.ExecuteTemplate layout: %w", err)
+	}
+	return nil
 }

@@ -1,6 +1,7 @@
 package command
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -158,12 +159,12 @@ func (dir Dirs) AnsiLove(logger *zap.SugaredLogger, src, uuid string) error {
 	tmp := BaseNamePath(src) + png // destination
 	arg = append(arg, "-o", tmp)
 	if err := Run(logger, Ansilove, arg...); err != nil {
-		return err
+		return fmt.Errorf("ansilove: %w", err)
 	}
 
 	dst := filepath.Join(dir.Preview, uuid+png)
 	if err := CopyFile(logger, tmp, dst); err != nil {
-		return err
+		return fmt.Errorf("copy file: %w", err)
 	}
 	defer func() {
 		err := OptimizePNG(dst)
@@ -194,12 +195,12 @@ func (dir Dirs) PreviewGIF(logger *zap.SugaredLogger, src, uuid string) error {
 	tmp := BaseNamePath(src) + webp // destination
 	arg = append(arg, "-o", tmp)
 	if err := Run(logger, Gwebp, arg...); err != nil {
-		return err
+		return fmt.Errorf("gif2webp: %w", err)
 	}
 
 	dst := filepath.Join(dir.Preview, uuid+webp)
 	if err := CopyFile(logger, tmp, dst); err != nil {
-		return err
+		return fmt.Errorf("copy file: %w", err)
 	}
 
 	defer func() {
@@ -220,7 +221,7 @@ func (dir Dirs) PreviewPNG(logger *zap.SugaredLogger, src, uuid string) error {
 
 	dst := filepath.Join(dir.Preview, uuid+png)
 	if err := CopyFile(logger, src, dst); err != nil {
-		return err
+		return fmt.Errorf("copy file: %w", err)
 	}
 	defer func() {
 		err := OptimizePNG(dst)
@@ -254,12 +255,12 @@ func (dir Dirs) PreviewWebP(logger *zap.SugaredLogger, src, uuid string) error {
 	tmp := BaseNamePath(src) + webp // destination
 	arg = append(arg, "-o", tmp)
 	if err := RunQuiet(Cwebp, arg...); err != nil {
-		return err
+		return fmt.Errorf("cwebp: %w", err)
 	}
 
 	dst := filepath.Join(dir.Preview, uuid+webp)
 	if err := CopyFile(logger, tmp, dst); err != nil {
-		return err
+		return fmt.Errorf("copy file: %w", err)
 	}
 	defer func() {
 		err := dir.WebpThumbnail(tmp, uuid)
@@ -281,7 +282,7 @@ func (dir Dirs) AnsiThumbnail(src, uuid string) error {
 	arg = append(arg, args...) // command line arguments
 	arg = append(arg, tmp)     // destination
 	if err := RunQuiet(Convert, arg...); err != nil {
-		return err
+		return fmt.Errorf("convert: %w", err)
 	}
 
 	dst := filepath.Join(dir.Thumbnail, uuid+webp)
@@ -291,7 +292,7 @@ func (dir Dirs) AnsiThumbnail(src, uuid string) error {
 	arg = append(arg, args...)   // command line arguments
 	arg = append(arg, "-o", dst) // destination
 	if err := RunQuiet(Cwebp, arg...); err != nil {
-		return err
+		return fmt.Errorf("cwebp: %w", err)
 	}
 	defer os.Remove(tmp)
 	return nil
@@ -308,7 +309,7 @@ func (dir Dirs) WebpThumbnail(src, uuid string) error {
 	arg = append(arg, args...) // command line arguments
 	arg = append(arg, tmp)     // destination
 	if err := RunQuiet(Convert, arg...); err != nil {
-		return err
+		return fmt.Errorf("convert: %w", err)
 	}
 
 	dst := filepath.Join(dir.Thumbnail, uuid+webp)
@@ -318,7 +319,7 @@ func (dir Dirs) WebpThumbnail(src, uuid string) error {
 	arg = append(arg, args...)   // command line arguments
 	arg = append(arg, "-o", dst) // destination
 	if err := RunQuiet(Cwebp, arg...); err != nil {
-		return err
+		return fmt.Errorf("cwebp: %w", err)
 	}
 	defer os.Remove(tmp)
 	return nil
@@ -344,18 +345,18 @@ func (dir Dirs) LosslessScreenshot(logger *zap.SugaredLogger, src, uuid string) 
 	name := filepath.Base(src) + png                             // temp file name
 	tmp, err := os.MkdirTemp(os.TempDir(), "losslessscreenshot") // create temp dir
 	if err != nil {
-		return err
+		return fmt.Errorf("os.MkdirTemp: %w", err)
 	}
 	defer os.RemoveAll(tmp)        // remove temp dir
 	tmp = filepath.Join(tmp, name) // temp output file target
 	arg = append(arg, tmp)
 	if err := RunQuiet(Convert, arg...); err != nil {
-		return err
+		return fmt.Errorf("convert: %w", err)
 	}
 
 	dst := filepath.Join(dir.Preview, uuid+png)
 	if err := CopyFile(logger, tmp, dst); err != nil {
-		return err
+		return fmt.Errorf("copy file: %w", err)
 	}
 
 	defer func() {
@@ -387,13 +388,13 @@ func (dir Dirs) PreviewLossy(logger *zap.SugaredLogger, src, uuid string) error 
 	name := filepath.Base(src) + jpg                       // temp file name
 	tmp, err := os.MkdirTemp(os.TempDir(), "lossypreview") // create temp dir
 	if err != nil {
-		return err
+		return fmt.Errorf("os.MkdirTemp: %w", err)
 	}
 	defer os.RemoveAll(tmp)        // remove temp dir
 	tmp = filepath.Join(tmp, name) // temp output file target
 	arg = append(arg, tmp)         // destination
 	if err := RunQuiet(Convert, arg...); err != nil {
-		return err
+		return fmt.Errorf("convert: %w", err)
 	}
 
 	dst := filepath.Join(dir.Preview, uuid+webp)
@@ -403,7 +404,7 @@ func (dir Dirs) PreviewLossy(logger *zap.SugaredLogger, src, uuid string) error 
 	arg = append(arg, args...)   // command line arguments
 	arg = append(arg, "-o", dst) // destination
 	if err := RunQuiet(Cwebp, arg...); err != nil {
-		return err
+		return fmt.Errorf("cwebp: %w", err)
 	}
 	defer os.Remove(tmp)
 

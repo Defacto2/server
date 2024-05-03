@@ -193,12 +193,12 @@ func (r *Response) Get(id int) error {
 	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("http.NewRequestWithContext: %w", err)
 	}
 	req.Header.Set("User-Agent", helper.UserAgent)
 	res, err := client.Do(req)
 	if err != nil {
-		return err
+		return fmt.Errorf("client.Do: %w", err)
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
@@ -206,11 +206,11 @@ func (r *Response) Get(id int) error {
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return err
+		return fmt.Errorf("io.ReadAll: %w", err)
 	}
 	err = json.Unmarshal(body, &r)
 	if err != nil {
-		return err
+		return fmt.Errorf("json.Unmarshal: %w", err)
 	}
 	if !r.Success {
 		return fmt.Errorf("%w: %d", ErrSuccess, id)
@@ -228,11 +228,11 @@ func (p *Production) Uploader(id int) error {
 	r := Response{}
 	err := r.Get(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("response.Get: %w", err)
 	}
 	p.ID, err = strconv.Atoi(r.Prod.ID)
 	if err != nil {
-		return err
+		return fmt.Errorf("strconv.Atoi: %w", err)
 	}
 	p.Title = r.Prod.Title
 	p.ReleaseDate = r.Prod.ReleaseDate
@@ -254,28 +254,28 @@ func (v *Votes) Votes(id int) error {
 	r := Response{}
 	err := r.Get(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("response.Get: %w", err)
 	}
 	v.ID, err = strconv.Atoi(r.Prod.ID)
 	if err != nil {
-		return err
+		return fmt.Errorf("strconv.Atoi: %w", err)
 	}
 	const base, bitSize = 10, 64
 	v.VotesUp, err = strconv.ParseUint(r.Prod.Voteup, base, bitSize)
 	if err != nil {
-		return err
+		return fmt.Errorf("strconv.ParseUint: %w", err)
 	}
 	v.VotesMeh, err = strconv.ParseUint(r.Prod.Votepig, base, bitSize)
 	if err != nil {
-		return err
+		return fmt.Errorf("strconv.ParseUint: %w", err)
 	}
 	v.VotesDown, err = strconv.ParseUint(r.Prod.Votedown, base, bitSize)
 	if err != nil {
-		return err
+		return fmt.Errorf("strconv.ParseUint: %w", err)
 	}
 	v.VotesAvg, err = strconv.ParseFloat(r.Prod.Voteavg, 64)
 	if err != nil {
-		return err
+		return fmt.Errorf("strconv.ParseFloat: %w", err)
 	}
 	v.Stars = Stars(v.VotesUp, v.VotesMeh, v.VotesDown)
 	return nil

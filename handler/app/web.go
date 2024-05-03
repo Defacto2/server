@@ -442,7 +442,7 @@ func (web Web) TemplateFuncs() template.FuncMap {
 // Templates returns a map of the templates used by the route.
 func (web *Web) Templates() (map[string]*template.Template, error) {
 	if err := web.Subresource.Verify(web.Public); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("web.Subresource.Verify: %w", err)
 	}
 	tmpls := make(map[string]*template.Template)
 	for k, name := range templates() {

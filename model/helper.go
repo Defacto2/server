@@ -74,7 +74,7 @@ func JsDosConfig(f *models.File) (string, error) {
 	}
 	b, err := ini.Marshal(j)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("ini.Marshal: %w", err)
 	}
 	return string(b), nil
 }

@@ -257,7 +257,7 @@ func repairDB(logger *zap.SugaredLogger) error {
 	}
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return err
+		return fmt.Errorf("postgres.ConnectDB: %w", err)
 	}
 	defer db.Close()
 	var ver postgres.Version
@@ -268,7 +268,11 @@ func repairDB(logger *zap.SugaredLogger) error {
 		return nil
 	}
 	ctx := context.Background()
-	return fix.All.Run(ctx, logger, db)
+	err = fix.All.Run(ctx, logger, db)
+	if err != nil {
+		return fmt.Errorf("fix.All.Run: %w", err)
+	}
+	return nil
 }
 
 // repairdb is used to log the database repair error.

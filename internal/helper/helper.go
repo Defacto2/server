@@ -6,6 +6,7 @@ import (
 	"embed"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"net"
 	"os"
 )
@@ -35,7 +36,7 @@ func GetLocalIPs() ([]net.IP, error) {
 	var ips []net.IP
 	addresses, err := net.InterfaceAddrs()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("net.InterfaceAddrs: %w", err)
 	}
 
 	for _, addr := range addresses {
@@ -52,13 +53,13 @@ func GetLocalIPs() ([]net.IP, error) {
 func GetLocalHosts() ([]string, error) {
 	hostname, err := os.Hostname()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("os.Hostname: %w", err)
 	}
 	hosts := []string{}
 	hosts = append(hosts, hostname)
 	// confirm localhost is resolvable
 	if _, err = net.LookupHost("localhost"); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("net.LookupHost: %w", err)
 	}
 	hosts = append(hosts, "localhost")
 	return hosts, nil
@@ -70,7 +71,7 @@ func GetLocalHosts() ([]string, error) {
 func Integrity(name string, fs embed.FS) (string, error) {
 	b, err := fs.ReadFile(name)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("fs.ReadFile: %w", err)
 	}
 	return IntegrityBytes(b), nil
 }
@@ -80,7 +81,7 @@ func Integrity(name string, fs embed.FS) (string, error) {
 func IntegrityFile(name string) (string, error) {
 	b, err := os.ReadFile(name)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("os.ReadFile: %w", err)
 	}
 	return IntegrityBytes(b), nil
 }
@@ -97,9 +98,12 @@ func IntegrityBytes(b []byte) string {
 func Touch(name string) error {
 	file, err := os.OpenFile(name, os.O_CREATE|os.O_EXCL, ReadWrite)
 	if err != nil {
-		return err
+		return fmt.Errorf("os.OpenFile: %w", err)
 	}
-	return file.Close()
+	if err := file.Close(); err != nil {
+		return fmt.Errorf("file.Close: %w", err)
+	}
+	return nil
 }
 
 // TouchW creates a new named file with the given data.
@@ -107,14 +111,17 @@ func Touch(name string) error {
 func TouchW(name string, data ...byte) (int, error) {
 	file, err := os.OpenFile(name, os.O_CREATE|os.O_WRONLY, ReadWrite)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("os.OpenFile: %w", err)
 	}
 	if len(data) == 0 {
 		return 0, file.Close()
 	}
 	i, err := file.Write(data)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("file.Write: %w", err)
 	}
-	return i, file.Close()
+	if err := file.Close(); err != nil {
+		return 0, fmt.Errorf("file.Close: %w", err)
+	}
+	return i, nil
 }

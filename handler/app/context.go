@@ -421,7 +421,7 @@ func (got DemozooLink) Update(c echo.Context) error {
 	ctx := context.Background()
 	f, err := model.OneByUUID(ctx, db, true, uid)
 	if err != nil {
-		return err
+		return fmt.Errorf("model.OneByUUID: %w", err)
 	}
 	f.Filename = null.StringFrom(got.Filename)
 	f.Filesize = int64(got.FileSize)
@@ -436,7 +436,7 @@ func (got DemozooLink) Update(c echo.Context) error {
 	yt := strings.TrimSpace(got.YouTube)
 	f.WebIDYoutube = null.StringFrom(yt)
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
-		return err
+		return fmt.Errorf("f.Update: %w", err)
 	}
 	return c.JSON(http.StatusOK, got)
 }
@@ -638,7 +638,7 @@ func PlatformEdit(c echo.Context) error {
 	}
 	r, err := model.EditFind(f.ID)
 	if err != nil {
-		return err
+		return fmt.Errorf("model.EditFind: %w", err)
 	}
 	if err = model.UpdatePlatform(int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
@@ -836,7 +836,7 @@ func ReadmeDel(c echo.Context, downloadDir string) error {
 	}
 	r, err := model.EditFind(f.ID)
 	if err != nil {
-		return err
+		return fmt.Errorf("model.EditFind: %w", err)
 	}
 	if err = command.RemoveMe(r.UUID.String, downloadDir); err != nil {
 		return badRequest(c, err)
@@ -1174,7 +1174,7 @@ func ReleaserEdit(c echo.Context) error {
 	}
 	r, err := model.EditFind(f.ID)
 	if err != nil {
-		return err
+		return fmt.Errorf("model.EditFind: %w", err)
 	}
 	if err = model.UpdateReleasers(int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
@@ -1241,7 +1241,7 @@ func releaserSum(ctx context.Context, db *sql.DB, uri string) (map[string]string
 	}
 	m := model.Summary{}
 	if err := m.Releaser(ctx, db, uri); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("m.Releaser: %w", err)
 	}
 	d := map[string]string{
 		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
@@ -1448,7 +1448,7 @@ func TagEdit(c echo.Context) error {
 	}
 	r, err := model.EditFind(f.ID)
 	if err != nil {
-		return err
+		return fmt.Errorf("model.EditFind: %w", err)
 	}
 	if err = model.UpdateTag(int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
@@ -1514,7 +1514,7 @@ func TitleEdit(c echo.Context) error {
 	}
 	r, err := model.EditFind(f.ID)
 	if err != nil {
-		return err
+		return fmt.Errorf("model.EditFind: %w", err)
 	}
 	if err = model.UpdateTitle(int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
@@ -1647,71 +1647,71 @@ func (s *Stats) Get(ctx context.Context, db *sql.DB) error {
 		return ErrDB
 	}
 	if err := s.Record.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.Record.Stat: %w", err)
 	}
 	if err := s.Ansi.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.Ansi.Stat: %w", err)
 	}
 	if err := s.AnsiBBS.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.AnsiBBS.Stat: %w", err)
 	}
 	if err := s.BBS.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.BBS.Stat: %w", err)
 	}
 	if err := s.BBSText.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.BBSText.Stat: %w", err)
 	}
 	if err := s.BBStro.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.BBStro.Stat: %w", err)
 	}
 	if err := s.MsDos.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.MsDos.Stat: %w", err)
 	}
 	if err := s.Intro.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.Intro.Stat: %w", err)
 	}
 	if err := s.IntroD.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.IntroD.Stat: %w", err)
 	}
 	if err := s.IntroW.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.IntroW.Stat: %w", err)
 	}
 	if err := s.Installer.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.Installer.Stat: %w", err)
 	}
 	if err := s.Java.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.Java.Stat: %w", err)
 	}
 	if err := s.Linux.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.Linux.Stat: %w", err)
 	}
 	if err := s.Demoscene.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.Demoscene.Stat: %w", err)
 	}
 	return s.get(ctx, db)
 }
 
 func (s *Stats) get(ctx context.Context, db *sql.DB) error {
 	if err := s.Macos.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.Macos.Stat: %w", err)
 	}
 	if err := s.Magazine.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.Magazine.Stat: %w", err)
 	}
 	if err := s.Nfo.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.Nfo.Stat: %w", err)
 	}
 	if err := s.NfoTool.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.NfoTool.Stat: %w", err)
 	}
 	if err := s.Proof.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.Proof.Stat: %w", err)
 	}
 	if err := s.Script.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.Script.Stat: %w", err)
 	}
 	if err := s.Text.Stat(ctx, db); err != nil {
-		return err
+		return fmt.Errorf("s.Text.Stat: %w", err)
 	}
 	return s.Windows.Stat(ctx, db)
 }
@@ -1779,12 +1779,12 @@ func counter() (Stats, error) {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return Stats{}, err
+		return Stats{}, fmt.Errorf("postgres.ConnectDB: %w", err)
 	}
 	defer db.Close()
 	counter := Stats{}
 	if err := counter.Get(ctx, db); err != nil {
-		return Stats{}, err
+		return Stats{}, fmt.Errorf("counter.Get: %w", err)
 	}
 	return counter, nil
 }
@@ -1844,7 +1844,7 @@ func fileWStats(data map[string]interface{}, stats bool) (map[string]interface{}
 	}
 	c, err := counter()
 	if err != nil {
-		return data, err
+		return data, fmt.Errorf("counter: %w", err)
 	}
 	data["counter"] = c
 	data["logo"] = "Artifact category statistics"
@@ -2037,7 +2037,7 @@ func scenerSum(ctx context.Context, db *sql.DB, uri string) (map[string]string, 
 	}
 	m := model.Summary{}
 	if err := m.Scener(ctx, db, uri); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("m.Scener: %w", err)
 	}
 	d := map[string]string{
 		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
@@ -2099,7 +2099,7 @@ func sessionHandler(
 ) error {
 	session, err := session.Get(sess.Name, c)
 	if err != nil {
-		return err
+		return fmt.Errorf("session.Get: %w", err)
 	}
 	// session Options are cookie options and are all optional
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
@@ -2138,25 +2138,25 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 	m := model.Summary{}
 	err := m.URI(ctx, db, uri)
 	if err != nil && !errors.Is(err, model.ErrURI) {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("m.URI: %w", err)
 	}
 	if errors.Is(err, model.ErrURI) {
 		switch uri {
 		case "for-approval":
 			if err := m.StatForApproval(ctx, db); err != nil {
-				return nil, 0, err
+				return nil, 0, fmt.Errorf("m.StatForApproval: %w", err)
 			}
 		case "deletions":
 			if err := m.StatDeletions(ctx, db); err != nil {
-				return nil, 0, err
+				return nil, 0, fmt.Errorf("m.StatDeletions: %w", err)
 			}
 		case "unwanted":
 			if err := m.StatUnwanted(ctx, db); err != nil {
-				return nil, 0, err
+				return nil, 0, fmt.Errorf("m.StatUnwanted: %w", err)
 			}
 		default:
 			if err := m.All(ctx, db); err != nil {
-				return nil, 0, err
+				return nil, 0, fmt.Errorf("m.All: %w", err)
 			}
 		}
 	}

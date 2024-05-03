@@ -45,7 +45,7 @@ type Connection struct {
 func (c Connection) Open() (*sql.DB, error) {
 	conn, err := sql.Open(DriverName, c.URL())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sql.Open: %w", err)
 	}
 	return conn, nil
 }
@@ -91,11 +91,11 @@ func New() (Connection, error) {
 func ConnectDB() (*sql.DB, error) {
 	ds, err := New()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("new connection db: %w", err)
 	}
 	conn, err := sql.Open(DriverName, ds.URL())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sql.Open: %w", err)
 	}
 	return conn, nil
 }
