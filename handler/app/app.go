@@ -123,7 +123,7 @@ func Attribute(write, code, art, music, name string) string {
 
 // Brief returns a human readable brief description of a release.
 // Based on the platform, section, year and month.
-func Brief(platform, section any) template.HTML {
+func Brief(platform, section any) string {
 	p, s := "", ""
 	switch val := platform.(type) {
 	case string:
@@ -134,7 +134,7 @@ func Brief(platform, section any) template.HTML {
 		}
 	default:
 		s := fmt.Sprintf("%s %s %T", typeErr, "describe", platform)
-		return template.HTML(s)
+		return s
 	}
 	p = strings.TrimSpace(p)
 	switch val := section.(type) {
@@ -145,14 +145,15 @@ func Brief(platform, section any) template.HTML {
 			s = val.String
 		}
 	default:
-		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, "describe", section))
+		s := fmt.Sprintf("%s %s %T", typeErr, "describe", section)
+		return s
 	}
 	s = strings.TrimSpace(s)
 	if p == "" && s == "" {
-		return template.HTML("an unknown release")
+		return "an unknown release"
 	}
 	x := tags.Humanize(tags.TagByURI(p), tags.TagByURI(s)) + "."
-	return template.HTML(x)
+	return x
 }
 
 // ByteFile returns a human readable string of the file count and bytes.
@@ -210,7 +211,7 @@ func ByteFileS(name string, count, bytes any) template.HTML {
 }
 
 // Day returns a string of the day number from the day d number between 1 and 31.
-func Day(d any) template.HTML {
+func Day(d any) string {
 	var s string
 	switch val := d.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
@@ -220,13 +221,13 @@ func Day(d any) template.HTML {
 		}
 		if i < 0 || i > 31 {
 			s = fmt.Sprintf(" error: day out of range %d", i)
-			return template.HTML(s)
+			return s
 		}
 		s = fmt.Sprintf(" %d", i)
 	default:
 		s = fmt.Sprintf("%sDay: %s", typeErr, reflect.TypeOf(d).String())
 	}
-	return template.HTML(s)
+	return s
 }
 
 // Describe returns a human readable description of a release.
@@ -351,9 +352,9 @@ func LinkPreview(id any, name, platform string) template.HTML {
 // LinkPreviewHref creates a URL path to link to the file record in tab, to use as a preview.
 //
 // A list of supported file types: https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
-func LinkPreviewHref(id any, name, platform string) template.HTML {
+func LinkPreviewHref(id any, name, platform string) string {
 	if name == "" {
-		return template.HTML("")
+		return ""
 	}
 	platform = strings.TrimSpace(platform)
 	// supported formats
@@ -362,7 +363,7 @@ func LinkPreviewHref(id any, name, platform string) template.HTML {
 	switch {
 	case slices.Contains(archives(), ext):
 		// this must always be first
-		return template.HTML("")
+		return ""
 	case platform == textamiga, platform == "text":
 		break
 	case slices.Contains(documents(), ext):
@@ -372,13 +373,13 @@ func LinkPreviewHref(id any, name, platform string) template.HTML {
 	case slices.Contains(media(), ext):
 		break
 	default:
-		return template.HTML("")
+		return ""
 	}
 	s, err := linkID(id, "v")
 	if err != nil {
-		return template.HTML(err.Error())
+		return fmt.Sprint("error: ", err)
 	}
-	return template.HTML(s)
+	return s
 }
 
 // LinkPreviewTip returns a tooltip to describe the preview link.
@@ -431,14 +432,26 @@ func LinkRelrs(performant bool, a, b any) template.HTML {
 			bv = val.String
 		}
 	}
+
 	av, bv = strings.TrimSpace(av), strings.TrimSpace(bv)
-	prime, err := makeLink(av, class, performant)
-	if err != nil {
-		return template.HTML(fmt.Sprintf("error: %s", err))
+	if av == "" && bv != "" {
+		av = bv
+		bv = ""
 	}
-	second, err := makeLink(bv, class, performant)
-	if err != nil {
-		return template.HTML(fmt.Sprintf("error: %s", err))
+
+	var prime, second string
+	var err error
+	if av != "" {
+		prime, err = makeLink(av, class, performant)
+		if err != nil {
+			return template.HTML(fmt.Sprintf("error: %s", err))
+		}
+	}
+	if bv != "" {
+		second, err = makeLink(bv, class, performant)
+		if err != nil {
+			return template.HTML(fmt.Sprintf("error: %s", err))
+		}
 	}
 	return relHTML(prime, second)
 }
@@ -545,17 +558,17 @@ func LogoText(s string) string {
 
 // MimeMagic overrides some of the default linux file (magic) results.
 // This is intended to be used to provide a more human readable description.
-func MimeMagic(s string) template.HTML {
+func MimeMagic(s string) string {
 	x := strings.ToLower(s)
 	const zipV1 = "zip archive data, at least v1.0 to extract"
 	if strings.Contains(x, zipV1) {
-		return template.HTML("Obsolete zip archive, implode or shrink")
+		return "Obsolete zip archive, implode or shrink"
 	}
 	const zipV2 = "zip archive data, at least v2.0 to extract"
 	if strings.Contains(x, zipV2) {
-		return template.HTML("Zip archive")
+		return "Zip archive"
 	}
-	return template.HTML(s)
+	return s
 }
 
 // Mod returns true if the given integer is a multiple of the given max integer.
@@ -577,7 +590,7 @@ func Mod3(i any) bool {
 }
 
 // Month returns a string of the month name from the month m number between 1 and 12.
-func Month(m any) template.HTML {
+func Month(m any) string {
 	var s string
 	switch val := m.(type) {
 	case int, int8, int16, int32, int64,
@@ -588,13 +601,13 @@ func Month(m any) template.HTML {
 		}
 		if i < 0 || i > 12 {
 			s = fmt.Sprintf(" error: month out of range %d", i)
-			return template.HTML(s)
+			return s
 		}
 		s = " " + time.Month(i).String()
 	default:
 		s = fmt.Sprintf("%sFmtMonth: %s", typeErr, reflect.TypeOf(m).String())
 	}
-	return template.HTML(s)
+	return s
 }
 
 // OptionsAnsiLove returns a list of possible text or ANSI files in the archive content.
@@ -850,7 +863,7 @@ func ReadmeSuggest(filename, group string, content ...string) string {
 }
 
 // RecordRels returns the groups associated with a release and joins them with a plus sign.
-func RecordRels(a, b any) template.HTML {
+func RecordRels(a, b any) string {
 	av, bv, s := "", "", ""
 	switch val := a.(type) {
 	case string:
@@ -878,7 +891,7 @@ func RecordRels(a, b any) template.HTML {
 	case bv != "":
 		s = bv
 	}
-	return template.HTML(s)
+	return s
 }
 
 func RecordReleasers(a, b any) [2]string {
@@ -969,10 +982,10 @@ func SubTitle(section null.String, s any) template.HTML {
 }
 
 // TagBrief returns a small summary of the tag.
-func TagBrief(tag string) template.HTML {
+func TagBrief(tag string) string {
 	t := tags.TagByURI(tag)
 	s := tags.Infos()[t]
-	return template.HTML(s)
+	return s
 }
 
 // TagOption returns a HTML option tag with the selected attribute if the selected matches the value.
@@ -1003,10 +1016,10 @@ func TagOption(selected, value any) template.HTML {
 }
 
 // TagWithOS returns a small summary of the tag with the operating system.
-func TagWithOS(os, tag string) template.HTML {
+func TagWithOS(os, tag string) string {
 	p, t := tags.TagByURI(os), tags.TagByURI(tag)
 	s := tags.Humanize(p, t)
-	return template.HTML(s)
+	return s
 }
 
 // TrimSiteSuffix returns a string with the last 4 characters removed if they are " FTP" or " BBS".

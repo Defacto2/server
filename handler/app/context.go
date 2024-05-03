@@ -116,7 +116,8 @@ func Download(c echo.Context, logger *zap.SugaredLogger, path string) error {
 func FTP(c echo.Context) error {
 	const title, name = "FTP", "ftp"
 	data := empty(c)
-	const lead = "FTP sites are historical, internet-based file servers for uploading and downloading \"elite\" scene releases."
+	const lead = "FTP sites are historical, internet-based file servers for uploading " +
+		"and downloading \"elite\" scene releases."
 	const key = "releasers"
 	data["title"] = title
 	data["description"] = lead
@@ -1794,20 +1795,34 @@ func empty(c echo.Context) map[string]interface{} {
 	// * marked keys are required.
 	// ! marked keys are suggested.
 	return map[string]interface{}{
-		"cacheFiles":  Caching.RecordCount, //   The number of records of files in the database.
-		"canonical":   "",                  //   A canonical URL is the URL of the best representative page from a group of duplicate pages.
-		"carousel":    "",                  //   The ID of the carousel to display.
-		"counter":     Statistics(),        //   Empty database counts for files and categories.
-		"dbError":     false,               //   If true, the database is not available.
-		"description": "",                  // * A short description of the page that get inserted into the description meta element.
-		"editor":      sess.Editor(c),      //   If true, the editor mode is enabled.
-		"h1":          "",                  // ! The H1 heading of the page.
-		"h1Sub":       "",                  //   The H1 sub-heading of the page.
-		"jsdos6":      false,               //   If true, the large, js-dos v6.22 emulator files will be loaded.
-		"lead":        "",                  // ! The enlarged, lead paragraph of the page.
-		"logo":        "",                  // ! Text to insert into the monospaced, ASCII art logo.
-		"readOnly":    true,                //   If true, the application is in read-only mode.
-		"title":       "",                  // * The title of the page that get inserted into the title meta element.
+		// The number of records of files in the database.
+		"cacheFiles": Caching.RecordCount,
+		// A canonical URL is the URL of the best representative page from a group of duplicate pages.
+		"canonical": "",
+		// The ID of the carousel to display.
+		"carousel": "",
+		// Empty database counts for files and categories.
+		"counter": Statistics(),
+		// If true, the database is not available.
+		"dbError": false,
+		// * A short description of the page that get inserted into the description meta element.
+		"description": "",
+		// If true, the editor mode is enabled.
+		"editor": sess.Editor(c),
+		// ! The H1 heading of the page.
+		"h1": "",
+		// The H1 sub-heading of the page.
+		"h1Sub": "",
+		// If true, the large, js-dos v6.22 emulator files will be loaded.
+		"jsdos6": false,
+		// ! The enlarged, lead paragraph of the page.
+		"lead": "",
+		// ! Text to insert into the monospaced, ASCII art logo.
+		"logo": "",
+		// If true, the application is in read-only mode.
+		"readOnly": true,
+		// * The title of the page that get inserted into the title meta element.
+		"title": "",
 	}
 }
 
@@ -1919,7 +1934,8 @@ func steps(lastPage float64) int {
 func magazines(c echo.Context, chronological bool) error {
 	const title, name = "Magazines", "magazine"
 	data := empty(c)
-	const lead = "The magazines are newsletters, reports, and publications about activities within The Scene subculture."
+	const lead = "The magazines are newsletters, reports, " +
+		"and publications about activities within The Scene subculture."
 	const issue = "issue"
 	const key = "releasers"
 	data["title"] = title
@@ -2159,7 +2175,8 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 func releasers(c echo.Context, orderBy model.OrderBy) error {
 	const title, name = "Releaser", "releaser"
 	data := empty(c)
-	const lead = "A releaser is a brand or a collective group of sceners responsible for releasing or distributing products."
+	const lead = "A releaser is a brand or a collective group of " +
+		"sceners responsible for releasing or distributing products."
 	const logo = "Groups and releasers"
 	const key = "releasers"
 	data["title"] = title

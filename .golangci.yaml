@@ -34,208 +34,246 @@ linters:
     - wrapcheck
     - wsl # fussy over whitespace.
     # temporary disabled
-    #- godox
+    - godox
+    - dupl
+    - gosec
 issues:
   exclude-rules:
-    - path: cmd/cmd.go
-      linters:
-        - gosmopolitan
-    - path: doc.go
-      linters:
-        - lll
-    - path: handler/app/accordion.go
-      linters:
-        - lll
-        - funlen
-    - path: handler/app/context.go
-      linters:
-        - dupl
-        - lll
-    - path: handler/app/funchtml.go
-      linters:
-        - gosec
-    - path: handler/app/funcmap.go
-      linters:
-        - gosec
-        - funlen
-    - path: handler/app/interview.go
-      linters:
-        - funlen
-    - path: handler/app/milestone.go
-      linters:
-        - funlen
-        - lll
-        - maintidx
-    - path: handler/app/render_model.go
-      linters:
-        - cyclop
-        - funlen
-        - gocyclo
-        - maintidx
-    - path: handler/app/render_releaser.go
-      linters:
-        - lll
-    - path: handler/app/website.go
-      linters:
-        - lll
-    - path: handler/html3/list.go
-      linters:
-        - cyclop
-        - lll
-    - path: handler/router.go
-      linters:
-        - funlen
-        - maintidx
-    - path: internal/command/images.go
-      linters:
-        - lll
-    - path: internal/config/config.go
-      linters:
-        - gocognit
-        - lll
-        - tagalign
     - path: internal/demozoo/demozoo.go
-      linters:
+      linters: # false positives with the Demozoo API.
+        - tagliatelle
+    - path: internal/demozoo/demozoo_test.go
+      linters: # false positives with the Demozoo API.
         - tagliatelle
     - path: internal/pouet/pouet.go
-      linters:
+      linters: # false positives with the Pouet API.
         - tagliatelle
+
+    - path: handler/app/accordion.go
+      linters: # HTML content containing long form text.
+        - funlen
+        - lll
+    - path: handler/app/milestone.go
+      linters: # HTML content containing long form text.
+        - funlen
+        - lll
+        - maintidx
+    - path: internal/web/web.go
+      linters: # A custom map that reads easier with long declarations.
+        - funlen
+        - maintidx
+
+    - path: internal/config/config.go
+      linters:
+        #- gocognit
+        - lll # caarlos0/env package uses structs with long declarations.
+        - tagalign # caarlos0/env package uses structs with long declarations.
+    #        - maintidx
     - path: internal/postgres/postgres.go
       linters:
-        - lll
-        - tagalign
-    - path: internal/tags/tags.go
+        #- gocognit
+        - lll # caarlos0/env package uses structs with long declarations.
+        - tagalign # caarlos0/env package uses structs with long declarations.
+    - path: internal/jsdos/jsdos.go
       linters:
-        - gocyclo
-        - gochecknoglobals
-    - path: internal/web/web.go
-      linters:
-        - funlen
-        - maintidx
-    - path: internal/zoo/zoo.go
-      linters:
-        - tagliatelle
-    - path: model/repair.go
-      linters:
-        - funlen
-    - path: model/summary.go
-      linters:
-        - gocognit
-        - gocyclo
-        - maintidx
-    - path: runner/runner.go
-      linters:
-        - funlen
-    - path: _test.go
-      linters:
-        - cyclop
-        - funlen
+        - lll # long struct comments.
     - path: handler/app/app.go
       linters:
-        - gosec
-    - path: handler/app/funchtml.go
-      linters:
-        - gosec
-    - path: handler/app/funcmap.go
-      linters:
-        - gosec
-        - funlen
-    - path: handler/html3/html3.go
-      linters:
-        - lll
-    - path: handler/app/interview.go
-      linters:
-        - funlen
-    - path: handler/router.go
-      linters:
-        - funlen
-        - maintidx
-    - path: handler/app/milestone.go
-      linters:
-        - funlen
-        - maintidx
-        - lll
-    - path: handler/app/render_model.go
-      linters:
-        - cyclop
-        - gocyclo
-        - maintidx
-        - funlen
-    - path: handler/app/render_releaser.go
-      linters:
-        - lll
-    - path: handler/app/uri.go
-      linters:
-        - funlen
-    - path: handler/app/web.go
-      linters:
-        - funlen
-        - gosec
-    - path: handler/app/website.go
-      linters:
-        - lll
-    - path: internal/command/images.go
-      linters:
-        - lll
-    - path: internal/config/config.go
-      linters:
-        - gocognit
-        - lll
-        - tagalign
-    - path: internal/pouet/pouet.go
-      linters:
-        - tagliatelle
-    - path: internal/zoo/zoo.go
-      linters:
-        - tagliatelle
-    - path: internal/tags/tags.go
-      linters:
-        - gocyclo
-        - gochecknoglobals
-    - path: internal/web/web.go
-      linters:
-        - funlen
-    - path: model/filesAnsiArt.go
-      linters:
-        - dupl
-    - path: model/filesBBSAdvert.go
-      linters:
-        - dupl
-    - path: model/filesFilepack.go
-      linters:
-        - dupl
-    - path: model/filesPlatform.go
-      linters:
-        - dupl
-    - path: model/filesText.go
-      linters:
-        - dupl
-    - path: model/repair.go
-      linters:
-        - funlen
-    - path: model/summary.go
-      linters:
-        - gocognit
-        - gocyclo
-        - maintidx
-    - path: model/fix/fix.go
-      linters:
-        - lll
-    - path: runner/runner.go
-      linters:
-        - funlen
-    - path: archive_test.go
-      linters:
-        - dupl
-    - path: zoo_test.go
-      linters:
-        - tagliatelle
-    - path: jsdos.go
-      linters:
-        - lll
-    - path: internal/postgres/sql.go
-      linters:
-        - goconst
+        - gosec # temporary disabled.
+#     - path: cmd/cmd.go
+#       linters:
+#         - gosmopolitan
+#     - path: doc.go
+#       linters:
+#         - lll
+#     - path: handler/app/accordion.go
+#       linters:
+#         - lll
+#         - funlen
+#     - path: handler/app/context.go
+#       linters:
+#         - dupl
+#         - lll
+#     - path: handler/app/funchtml.go
+#       linters:
+#         - gosec
+#     - path: handler/app/funcmap.go
+#       linters:
+#         - gosec
+#         - funlen
+#     - path: handler/app/interview.go
+#       linters:
+#         - funlen
+#     - path: handler/app/milestone.go
+#       linters:
+#         - funlen
+#         - lll
+#         - maintidx
+#     - path: handler/app/render_model.go
+#       linters:
+#         - cyclop
+#         - funlen
+#         - gocyclo
+#         - maintidx
+#     - path: handler/app/render_releaser.go
+#       linters:
+#         - lll
+#     - path: handler/app/website.go
+#       linters:
+#         - lll
+#     - path: handler/html3/list.go
+#       linters:
+#         - cyclop
+#         - lll
+#     - path: handler/router.go
+#       linters:
+#         - funlen
+#         - maintidx
+#     - path: internal/command/images.go
+#       linters:
+#         - lll
+#     - path: internal/config/config.go
+#       linters:
+#         - gocognit
+#         - lll
+#         - tagalign
+
+#     - path: internal/postgres/postgres.go
+#       linters:
+#         - lll
+#         - tagalign
+#     - path: internal/tags/tags.go
+#       linters:
+#         - gocyclo
+#         - gochecknoglobals
+#     - path: internal/web/web.go
+#       linters:
+#         - funlen
+#         - maintidx
+#     - path: internal/zoo/zoo.go
+#       linters:
+#         - tagliatelle
+#     - path: model/repair.go
+#       linters:
+#         - funlen
+#     - path: model/summary.go
+#       linters:
+#         - gocognit
+#         - gocyclo
+#         - maintidx
+#     - path: runner/runner.go
+#       linters:
+#         - funlen
+#     - path: _test.go
+#       linters:
+#         - cyclop
+#         - funlen
+#     - path: handler/app/app.go
+#       linters:
+#         - gosec
+#     - path: handler/app/funchtml.go
+#       linters:
+#         - gosec
+#     - path: handler/app/funcmap.go
+#       linters:
+#         - gosec
+#         - funlen
+#     - path: handler/html3/html3.go
+#       linters:
+#         - lll
+#     - path: handler/app/interview.go
+#       linters:
+#         - funlen
+#     - path: handler/router.go
+#       linters:
+#         - funlen
+#         - maintidx
+#     - path: handler/app/milestone.go
+#       linters:
+#         - funlen
+#         - maintidx
+#         - lll
+#     - path: handler/app/render_model.go
+#       linters:
+#         - cyclop
+#         - gocyclo
+#         - maintidx
+#         - funlen
+#     - path: handler/app/render_releaser.go
+#       linters:
+#         - lll
+#     - path: handler/app/uri.go
+#       linters:
+#         - funlen
+#     - path: handler/app/web.go
+#       linters:
+#         - funlen
+#         - gosec
+#     - path: handler/app/website.go
+#       linters:
+#         - lll
+#     - path: internal/command/images.go
+#       linters:
+#         - lll
+#     - path: internal/config/config.go
+#       linters:
+#         - gocognit
+#         - lll
+#         - tagalign
+#     - path: internal/pouet/pouet.go
+#       linters:
+#         - tagliatelle
+#     - path: internal/zoo/zoo.go
+#       linters:
+#         - tagliatelle
+#     - path: internal/tags/tags.go
+#       linters:
+#         - gocyclo
+#         - gochecknoglobals
+#     - path: internal/web/web.go
+#       linters:
+#         - funlen
+#     - path: model/filesAnsiArt.go
+#       linters:
+#         - dupl
+#     - path: model/filesBBSAdvert.go
+#       linters:
+#         - dupl
+#     - path: model/filesFilepack.go
+#       linters:
+#         - dupl
+#     - path: model/filesPlatform.go
+#       linters:
+#         - dupl
+#     - path: model/filesText.go
+#       linters:
+#         - dupl
+#     - path: model/repair.go
+#       linters:
+#         - funlen
+#     - path: model/summary.go
+#       linters:
+#         - gocognit
+#         - gocyclo
+#         - maintidx
+#     - path: model/fix/fix.go
+#       linters:
+#         - lll
+#     - path: runner/runner.go
+#       linters:
+#         - funlen
+#     - path: archive_test.go
+#       linters:
+#         - dupl
+#     - path: zoo_test.go
+#       linters:
+#         - tagliatelle
+#     - path: jsdos.go
+#       linters:
+#         - lll
+#     - path: internal/postgres/sql.go
+#       linters:
+#         - goconst
 
 linters-settings:
   cyclop:

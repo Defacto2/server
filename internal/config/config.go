@@ -35,24 +35,21 @@ type Config struct {
 	TLSCert        string `env:"D2_TLS_CERT" help:"An absolute file path to the TLS certificate, or leave blank to use a self-signed, localhost certificate"`
 	TLSKey         string `env:"D2_TLS_KEY" help:"An absolute file path to the TLS key, or leave blank to use a self-signed, localhost key"`
 	TLSHost        string `env:"D2_TLS_HOST" help:"An advised setting limits TLS to the specific host or domain name; leave it blank to permit TLS connections from any host"`
-
-	HostName string `env:"PS_HOST_NAME"` // this should only be used internally, instead see postgres.Connection
-
+	HostName       string `env:"PS_HOST_NAME"` // this should only be used internally, instead see postgres.Connection{}
+	HTTPPort       uint   `env:"D2_HTTP_PORT" envDefault:"1323" help:"The port number to be used by the unencrypted HTTP web server"`
+	MaxProcs       uint   `env:"D2_MAX_PROCS" help:"Limit the number of operating system threads the program can use"`
+	SessionMaxAge  int    `env:"D2_SESSION_MAX_AGE" envDefault:"3" help:"List the maximum number of hours for the session cookie to remain active before expiring and requiring a new login"`
+	TLSPort        uint   `env:"D2_TLS_PORT" help:"The port number to be used by the encrypted, HTTPS web server"`
+	ProductionMode bool   `env:"D2_PRODUCTION_MODE" help:"Use the production mode to log errors to a file and recover from panics"`
+	FastStart      bool   `env:"D2_FAST_START" help:"Skip the database connection and file checks on server startup to speed up the initialization"`
+	ReadMode       bool   `env:"D2_READ_ONLY" envDefault:"true" help:"Use the read-only mode to turn off all POST, PUT, and DELETE requests and any related user interface"`
+	NoCrawl        bool   `env:"D2_NO_CRAWL" help:"Tell search engines to not crawl any of website pages or assets"`
+	LogRequests    bool   `env:"D2_LOG_REQUESTS" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`
+	HTTPSRedirect  bool   `env:"D2_HTTPS_REDIRECT" help:"Redirect all HTTP requests to HTTPS"`
 	// GoogleAccounts is a slice of Google OAuth2 accounts that are allowed to login.
 	// Each account is a 48 byte slice of bytes that represents the SHA-384 hash of the unique Google ID.
 	GoogleAccounts [][48]byte
-	HTTPPort       uint `env:"D2_HTTP_PORT" envDefault:"1323" help:"The port number to be used by the unencrypted HTTP web server"`
-	MaxProcs       uint `env:"D2_MAX_PROCS" help:"Limit the number of operating system threads the program can use"`
-	SessionMaxAge  int  `env:"D2_SESSION_MAX_AGE" envDefault:"3" help:"List the maximum number of hours for the session cookie to remain active before expiring and requiring a new login"`
-	TLSPort        uint `env:"D2_TLS_PORT" help:"The port number to be used by the encrypted, HTTPS web server"`
-	ProductionMode bool `env:"D2_PRODUCTION_MODE" help:"Use the production mode to log errors to a file and recover from panics"`
-	FastStart      bool `env:"D2_FAST_START" help:"Skip the database connection and file checks on server startup to speed up the initialization"`
-	ReadMode       bool `env:"D2_READ_ONLY" envDefault:"true" help:"Use the read-only mode to turn off all POST, PUT, and DELETE requests and any related user interface"`
-	NoCrawl        bool `env:"D2_NO_CRAWL" help:"Tell search engines to not crawl any of website pages or assets"`
-	LogRequests    bool `env:"D2_LOG_REQUESTS" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`
-	HTTPSRedirect  bool `env:"D2_HTTPS_REDIRECT" help:"Redirect all HTTP requests to HTTPS"`
-
-	// LocalMode build ldflags is set to true.
+	// LocalMode is a "go build -ldflags" to fix the server to always run in local mode.
 	LocalMode bool
 }
 

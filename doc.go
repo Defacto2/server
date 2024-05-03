@@ -61,7 +61,8 @@ The following variables are optional:
 
 # File serving
 
-The following environment variables are used for the webserver to offer file downloads, software emulation, display previews and thumbnails:
+The following environment variables are used for the webserver to offer file downloads,
+software emulation, display previews and thumbnails:
 
 	1. D2_DOWNLOAD is the absolute path to the file downloads directory.
 	2. D2_SCREENSHOTS is the absolute path to the screenshots directory.

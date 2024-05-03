@@ -19,10 +19,14 @@ type Args []string
 //
 // [ansilove command]: https://github.com/ansilove/ansilove
 func (a *Args) AnsiAmiga() {
+	// Output font.
+	const f = "-f"
+	// Rendering mode set to Amiga Workbench palette.
+	const m = "-m"
+	// Use SAUCE record for render options.
+	const s = "-S"
 	*a = append(*a,
-		"-f", "topaz+", // Output font.
-		"-m", "workbench", // Rendering mode set to Amiga Workbench palette.
-		"-S", // Use SAUCE record for render options.
+		f, "topaz+", m, "workbench", s,
 	)
 }
 
@@ -31,49 +35,83 @@ func (a *Args) AnsiAmiga() {
 //
 // [ansilove command]: https://github.com/ansilove/ansilove
 func (a *Args) AnsiDOS() {
+	// DOS aspect ratio.
+	const d = "-d"
+	// Output font.
+	const f = "-f"
+	// Use iCE colors.
+	const i = "-i"
+	// Use SAUCE record for render options.
+	const s = "-S"
 	*a = append(*a,
-		"-d",          // DOS aspect ratio.
-		"-f", "80x25", // Output font.
-		"-i", // Use iCE colors.
-		"-S", // Use SAUCE record for render options.
+		d, f, "80x25", i, s,
 	)
 }
 
 // Jpeg appends the command line arguments for the convert command to
 // transform an image into a JPEG image.
 func (a *Args) Jpeg() {
+	// Horizontal and vertical sampling factors to be used by the JPEG encoder for chroma downsampling.
+	const sampleFactor = "-sampling-factor"
+	// Strip the image of any profiles and comments.
+	const strip = "-strip"
+	// See: https://imagemagick.org/script/command-line-options.php#quality
+	const quality = "-quality"
+	// Type of interlacing scheme, see: https://imagemagick.org/script/command-line-options.php#interlace
+	const interlace = "-interlace"
+	// Blur the image with a Gaussian operator.
+	const gaussianBlur = "-gaussian-blur"
+	// Set the image colorspace.
+	const colorspace = "-colorspace"
 	*a = append(*a,
-		"-sampling-factor", "4:2:0", // Horizontal and vertical sampling factors to be used by the JPEG encoder for chroma downsampling.
-		"-strip",         // Strip the image of any profiles and comments.
-		"-quality", "90", // See: https://imagemagick.org/script/command-line-options.php#quality
-		"-interlace", "plane", // Type of interlacing scheme, see: https://imagemagick.org/script/command-line-options.php#interlace
-		"-gaussian-blur", "0.05", // Blur the image with a Gaussian operator.
-		"-colorspace", "RGB", // Set the image colorspace.
+		sampleFactor, "4:2:0", strip,
+		quality, "90",
+		interlace, "plane",
+		gaussianBlur, "0.05",
+		colorspace, "RGB",
 	)
 }
 
 // Png appends the command line arguments for the convert command to transform an image into a PNG image.
 func (a *Args) Png() {
+	// Defined PNG compression options, these replace the -quality option.
+	const define = "-define"
+	// Create a canvas the size of the first images virtual canvas using the
+	// current -background color, and -compose each image in turn onto that canvas.
+	const flatten = "-flatten"
+	// Strip the image of any profiles, comments or PNG chunks.
+	const strip = "-strip"
+	// Reduce the image to a limited number of color levels per channel.
+	const posterize = "-posterize"
 	*a = append(*a,
-		// Defined PNG compression options, these replace the -quality option.
-		"-define", "png:compression-filter=5",
-		"-define", "png:compression-level=9",
-		"-define", "png:compression-strategy=1",
-		"-define", "png:exclude-chunk=all",
-		"-flatten",          // Create a canvas the size of the first images virtual canvas using the current -background color, and -compose each image in turn onto that canvas.
-		"-strip",            // Strip the image of any profiles, comments or PNG chunks.
-		"-posterize", "136", // Reduce the image to a limited number of color levels per channel.
+		define, "png:compression-filter=5",
+		define, "png:compression-level=9",
+		define, "png:compression-strategy=1",
+		define, "png:exclude-chunk=all",
+		flatten,
+		strip,
+		posterize, "136",
 	)
 }
 
 // Thumb appends the command line arguments for the convert command to transform an image into a thumbnail image.
 func (a *Args) Thumb() {
+	// Use this type of filter when resizing or distorting an image.
+	const filter = "-filter"
+	// Create a thumbnail of the image, more performant than -resize.
+	const thumbnail = "-thumbnail"
+	// Set the background color.
+	const background = "-background"
+	// Sets the current gravity suggestion for various other settings and options.
+	const gravity = "-gravity"
+	// Set the image size and offset.
+	const extent = "-extent"
 	*a = append(*a,
-		"-filter", "Triangle", // Use this type of filter when resizing or distorting an image.
-		"-thumbnail", "400x400", // Create a thumbnail of the image, more performant than -resize.
-		"-background", "#999", // Set the background color.
-		"-gravity", "center", // Sets the current gravity suggestion for various other settings and options.
-		"-extent", "400x400", // Set the image size and offset.
+		filter, "Triangle",
+		thumbnail, "400x400",
+		background, "#999",
+		gravity, "center",
+		extent, "400x400",
 	)
 }
 
@@ -81,9 +119,13 @@ func (a *Args) Thumb() {
 //
 // [cwebp command]: https://developers.google.com/speed/webp/docs/cwebp
 func (a *Args) CWebp() {
+	// Auto-filter will spend additional time optimizing the
+	// filtering strength to reach a well-balanced quality.
+	const af = "-af"
+	// Preserve RGB values in transparent area. The default is off, to help compressibility.
+	const exact = "-exact"
 	*a = append(*a,
-		"-af",    // Auto-filter will spend additional time optimizing the filtering strength to reach a well-balanced quality.
-		"-exact", // Preserve RGB values in transparent area. The default is off, to help compressibility.
+		af, exact,
 		// "-v", // Print extra information.
 	)
 }
@@ -92,9 +134,13 @@ func (a *Args) CWebp() {
 //
 // [gif2webp command]: https://developers.google.com/speed/webp/docs/gif2webp
 func (a *Args) GWebp() {
+	// Compression factor for RGB channels between 0 and 100.
+	const q = "-q"
+	// Use multi-threading if available.
+	const mt = "-mt"
 	*a = append(*a,
-		"-q", "100", // Compression factor for RGB channels between 0 and 100.
-		"-mt", // Use multi-threading if available.
+		q, "100",
+		mt,
 		// "-v", // Print extra information.
 	)
 }

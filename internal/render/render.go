@@ -105,6 +105,9 @@ func Read(art *models.File, path string) (*bytes.Reader, error) {
 
 // IsUTF16 returns true if the byte slice is embedded with a UTF-16 BOM (byte order mark).
 func IsUTF16(r io.Reader) bool {
+	if r == nil {
+		return false
+	}
 	const minimum = 2
 	p := make([]byte, minimum)
 	if _, err := io.ReadFull(r, p); err != nil {

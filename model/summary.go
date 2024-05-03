@@ -144,11 +144,12 @@ func (s *Summary) Releaser(ctx context.Context, db *sql.DB, name string) error {
 }
 
 // URI returns the summary statistics for the named URI.
-func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error { //nolint:cyclop,funlen
+func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error {
 	if db == nil {
 		return ErrDB
 	}
 	var c, b, y0, y1 int
+	var err error
 	switch uri {
 	case "intro-windows":
 		m := IntroWindows{}
@@ -349,125 +350,204 @@ func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error { //nol
 		}
 		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
 	case "job-advert":
-		m := JobAdvert{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = jobAdvert(ctx, db)
 	case "trial-crackme":
-		m := TrialCrackme{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = trialCrackme(ctx, db)
 	case "hack":
-		m := Hack{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = hack(ctx, db)
 	case "tool":
-		m := Tool{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = tool(ctx, db)
 	case "takedown":
-		m := Takedown{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = takedown(ctx, db)
 	case "drama":
-		m := Drama{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = drama(ctx, db)
 	case "advert":
-		m := Advert{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = advert(ctx, db)
 	case "restrict":
-		m := Restrict{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = restrict(ctx, db)
 	case "how-to":
-		m := HowTo{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = howTo(ctx, db)
 	case "nfo-tool":
-		m := NfoTool{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = nfoTool(ctx, db)
 	case "image":
-		m := Image{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = image(ctx, db)
 	case "music":
-		m := Music{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = music(ctx, db)
 	case "video":
-		m := Video{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = video(ctx, db)
 	case "msdos":
-		m := MsDos{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = msdos(ctx, db)
 	case "windows":
-		m := Windows{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = windows(ctx, db)
 	case "macos":
-		m := Macos{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = macos(ctx, db)
 	case "linux":
-		m := Linux{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = linux(ctx, db)
 	case "java":
-		m := Java{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = java(ctx, db)
 	case "script":
-		m := Script{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = script(ctx, db)
 	default:
 		return fmt.Errorf("%w: %q", ErrURI, uri)
+	}
+	if err != nil {
+		return err
 	}
 	s.SumBytes = sql.NullInt64{Int64: int64(b)}
 	s.SumCount = sql.NullInt64{Int64: int64(c)}
 	s.MinYear = sql.NullInt16{Int16: int16(y0)}
 	s.MaxYear = sql.NullInt16{Int16: int16(y1)}
 	return nil
+}
+
+func jobAdvert(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := JobAdvert{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func trialCrackme(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := TrialCrackme{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func hack(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := Hack{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func tool(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := Tool{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func takedown(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := Takedown{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func drama(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := Drama{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func advert(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := Advert{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func restrict(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := Restrict{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func howTo(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := HowTo{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func nfoTool(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := NfoTool{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func image(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := Image{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func music(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := Music{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func video(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := Video{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func msdos(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := MsDos{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func windows(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := Windows{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func macos(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := Macos{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func linux(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := Linux{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func java(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := Java{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func script(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := Script{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }

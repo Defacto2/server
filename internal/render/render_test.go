@@ -128,8 +128,13 @@ func uint16ArrayToByteArray(nums []uint16) []byte {
 
 func TestIsUTF16(t *testing.T) {
 	t.Parallel()
+	assert.False(t, render.IsUTF16(nil))
+
+	r := bytes.NewReader(nil)
+	assert.False(t, render.IsUTF16(r))
+
 	b := []byte{0xff, 0xfe, 0x00, 0x00, 0x00, 0x00}
-	r := bytes.NewReader(b)
+	r = bytes.NewReader(b)
 	assert.True(t, render.IsUTF16(r))
 
 	b = []byte{0x00, 0x00, 0xfe, 0xff, 0x00, 0x00}

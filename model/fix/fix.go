@@ -28,9 +28,12 @@ var (
 type Repair int
 
 const (
-	None     Repair = iota - 1 // None does nothing.
-	All                        // All repairs all the repairable data.
-	Releaser                   // Releaser focuses on the releaser data using the group_brand_by and group_brand_for columns.
+	// None does nothing.
+	None Repair = iota - 1
+	// All repairs all the repairable data.
+	All
+	// Releaser focuses on the releaser data using the group_brand_by and group_brand_for columns.
+	Releaser
 )
 
 const (
@@ -256,7 +259,8 @@ func magics(ctx context.Context, db *sql.DB) error {
 
 // contentWhiteSpace will remove any duplicate newline white space from file_zip_content.
 func contentWhiteSpace(db *sql.DB) error {
-	_, err := queries.Raw("UPDATE files SET file_zip_content = RTRIM(regexp_replace(file_zip_content, '\n+', '\n', 'g'), '\r');").Exec(db)
+	_, err := queries.Raw("UPDATE files SET file_zip_content = " +
+		"RTRIM(regexp_replace(file_zip_content, '\n+', '\n', 'g'), '\r');").Exec(db)
 	if err != nil {
 		return err
 	}

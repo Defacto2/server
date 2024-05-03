@@ -34,8 +34,8 @@ const (
 type Connection struct {
 	HostName  string `env:"HOST_NAME" envDefault:"localhost" help:"Provide the name of the server host to which to connect"`
 	Database  string `env:"DATABASE" envDefault:"defacto2-ps" help:"Provide the name of the database to which to connect"`
-	Username  string `env:"USERNAME" help:"Provide a username of a database account used to connect"`
-	Password  string `env:"PASSWORD" help:"Provide a password for the database account used to connect"`
+	Username  string `env:"USERNAME"  help:"Provide a username of a database account used to connect"`
+	Password  string `env:"PASSWORD"  help:"Provide a password for the database account used to connect"`
 	Protocol  string // Protocol scheme of the PostgreSQL database. Defaults to postgres.
 	HostPort  int    `env:"HOST_PORT" envDefault:"5432" help:"Port number the Postgres database server is listening on"`
 	NoSSLMode bool   `env:"NO_SSL" envDefault:"true" help:"Connect to the database using an insecure, plain text connection"`

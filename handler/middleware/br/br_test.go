@@ -20,7 +20,6 @@ func TestBrotli(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-
 	// Skip if no Accept-Encoding header
 	h := br.Brotli()(func(c echo.Context) error {
 		_, _ = c.Response().Write([]byte("test")) // For Content-Type sniffing
@@ -28,11 +27,8 @@ func TestBrotli(t *testing.T) {
 	})
 	err := h(c)
 	require.NoError(t, err)
-
 	assert := assert.New(t)
-
 	assert.Equal("test", rec.Body.String())
-
 	// Brotli
 	req = httptest.NewRequest(http.MethodGet, "/", nil)
 	req.Header.Set(echo.HeaderAcceptEncoding, br.BrotliScheme)
@@ -42,56 +38,45 @@ func TestBrotli(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(br.BrotliScheme, rec.Header().Get(echo.HeaderContentEncoding))
 	assert.Contains(rec.Header().Get(echo.HeaderContentType), echo.MIMETextPlain)
-
 	r := brotli.NewReader(rec.Body)
 	buf := new(bytes.Buffer)
 	_, err = buf.ReadFrom(r)
 	require.NoError(t, err)
 	assert.Equal("test", buf.String())
-
 	chunkBuf := make([]byte, 5)
-
 	// Brotli chunked
 	req = httptest.NewRequest(http.MethodGet, "/", nil)
 	req.Header.Set(echo.HeaderAcceptEncoding, br.BrotliScheme)
 	rec = httptest.NewRecorder()
-
 	c = e.NewContext(req, rec)
 	err = br.Brotli()(func(c echo.Context) error {
 		c.Response().Header().Set("Content-Type", "text/event-stream")
 		c.Response().Header().Set("Transfer-Encoding", "chunked")
-
 		// Write and flush the first part of the data
 		_, err = c.Response().Write([]byte("test\n"))
 		require.NoError(t, err)
 		c.Response().Flush()
-
 		// Read the first part of the data
 		assert.True(rec.Flushed)
 		assert.Equal(br.BrotliScheme, rec.Header().Get(echo.HeaderContentEncoding))
 		err := r.Reset(rec.Body)
 		require.NoError(t, err)
-
 		_, err = io.ReadFull(r, chunkBuf)
 		require.NoError(t, err)
 		assert.Equal("test\n", string(chunkBuf))
-
 		// Write and flush the second part of the data
 		_, err = c.Response().Write([]byte("test\n"))
 		require.NoError(t, err)
 		c.Response().Flush()
-
 		_, err = io.ReadFull(r, chunkBuf)
 		require.NoError(t, err)
 		assert.Equal("test\n", string(chunkBuf))
-
 		// Write the final part of the data and return
 		_, err = c.Response().Write([]byte("test"))
 		require.NoError(t, err)
 		return nil
 	})(c)
 	require.NoError(t, err)
-
 	buf = new(bytes.Buffer)
 	_, err = buf.ReadFrom(r)
 	require.NoError(t, err)

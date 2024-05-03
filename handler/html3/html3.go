@@ -293,7 +293,9 @@ func Query(c echo.Context, tt RecordsBy, offset int) (int, int, int64, models.Fi
 }
 
 // QueryAsArt returns a slice of all the records filtered by "Digital + pixel art".
-func QueryAsArt(ctx context.Context, db *sql.DB, clause string, offset int) (int, int, int64, models.FileSlice, error) {
+func QueryAsArt(ctx context.Context, db *sql.DB, clause string, offset int) (
+	int, int, int64, models.FileSlice, error,
+) {
 	if db == nil {
 		return dbErr()
 	}
@@ -313,7 +315,9 @@ func QueryAsArt(ctx context.Context, db *sql.DB, clause string, offset int) (int
 }
 
 // QueryAsDocument returns a slice of all the records filtered by "Document + text art".
-func QueryAsDocument(ctx context.Context, db *sql.DB, clause string, offset int) (int, int, int64, models.FileSlice, error) {
+func QueryAsDocument(ctx context.Context, db *sql.DB, clause string, offset int) (
+	int, int, int64, models.FileSlice, error,
+) {
 	if db == nil {
 		return dbErr()
 	}
@@ -333,7 +337,9 @@ func QueryAsDocument(ctx context.Context, db *sql.DB, clause string, offset int)
 }
 
 // QueryAsSoftware returns a slice of all the records filtered by "Software".
-func QueryAsSoftware(ctx context.Context, db *sql.DB, clause string, offset int) (int, int, int64, models.FileSlice, error) {
+func QueryAsSoftware(ctx context.Context, db *sql.DB, clause string, offset int) (
+	int, int, int64, models.FileSlice, error,
+) {
 	if db == nil {
 		return dbErr()
 	}
@@ -354,7 +360,9 @@ func QueryAsSoftware(ctx context.Context, db *sql.DB, clause string, offset int)
 
 // QueryByGroup returns a slice of all the records filtered by the group id, "by Group".
 // The group records do not use pagination limits or offsets.
-func QueryByGroup(ctx context.Context, db *sql.DB, c echo.Context) (int, int, int64, models.FileSlice, error) {
+func QueryByGroup(ctx context.Context, db *sql.DB, c echo.Context) (
+	int, int, int64, models.FileSlice, error,
+) {
 	if db == nil {
 		return dbErr()
 	}
@@ -374,7 +382,9 @@ func QueryByGroup(ctx context.Context, db *sql.DB, c echo.Context) (int, int, in
 }
 
 // QueryBySection returns a slice of all the records filtered by the section id, "by Category".
-func QueryBySection(ctx context.Context, db *sql.DB, c echo.Context, offset int) (int, int, int64, models.FileSlice, error) {
+func QueryBySection(ctx context.Context, db *sql.DB, c echo.Context, offset int) (
+	int, int, int64, models.FileSlice, error,
+) {
 	if db == nil {
 		return dbErr()
 	}
@@ -397,7 +407,9 @@ func QueryBySection(ctx context.Context, db *sql.DB, c echo.Context, offset int)
 }
 
 // QueryByPlatform returns a slice of all the records filtered by the platform id, "by Platform and media".
-func QueryByPlatform(ctx context.Context, db *sql.DB, c echo.Context, offset int) (int, int, int64, models.FileSlice, error) {
+func QueryByPlatform(ctx context.Context, db *sql.DB, c echo.Context, offset int) (
+	int, int, int64, models.FileSlice, error,
+) {
 	if db == nil {
 		return dbErr()
 	}
@@ -420,7 +432,9 @@ func QueryByPlatform(ctx context.Context, db *sql.DB, c echo.Context, offset int
 }
 
 // QueryEverything returns a slice of all the records, "Everything".
-func QueryEverything(ctx context.Context, db *sql.DB, clause string, offset int) (int, int, int64, models.FileSlice, error) {
+func QueryEverything(ctx context.Context, db *sql.DB, clause string, offset int) (
+	int, int, int64, models.FileSlice, error,
+) {
 	if db == nil {
 		return dbErr()
 	}

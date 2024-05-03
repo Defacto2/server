@@ -101,60 +101,41 @@ func TestHumanizes(t *testing.T) {
 	assert.Equal(t, "ansi format textfiles", s)
 	s = tags.Humanizes(-1, tags.News)
 	assert.Equal(t, "articles from mainstream news outlets", s)
-
 	const aft = "ansi format textfiles"
-
 	s = tags.Humanizes(tags.ANSI, tags.News)
 	assert.Equal(t, aft, s)
-
 	s = tags.Humanizes(tags.ANSI, tags.Restrict)
 	assert.Equal(t, aft, s)
-
 	s = tags.Humanizes(tags.Video, tags.Intro)
 	assert.Equal(t, "videos and animations", s)
-
 	s = tags.Humanizes(tags.ANSI, tags.Interview)
 	assert.Equal(t, aft, s)
-
 	s = tags.Humanizes(tags.Audio, tags.Intro)
 	assert.Equal(t, "music, chiptunes and audio samples", s)
-
 	s = tags.Humanizes(tags.DataB, tags.Nfo)
 	assert.Equal(t, "databases of releases", s)
-
 	s = tags.Humanizes(tags.DOS, tags.Demo)
 	assert.Equal(t, "demos on MS Dos", s)
-
 	s = tags.Humanizes(tags.Markup, tags.Nfo)
 	assert.Equal(t, "nfo file or scene release as HTML files", s)
-
 	s = tags.Humanizes(tags.Image, tags.Nfo)
 	assert.Equal(t, "images, pictures and photos", s)
-
 	s = tags.Humanizes(tags.PDF, tags.Proof)
 	assert.Equal(t, "release proof as PDF documents", s)
-
 	s = tags.Humanizes(tags.Text, tags.Nfo)
 	assert.Equal(t, "nfo textfiles", s)
-
 	s = tags.Humanizes(tags.TextAmiga, tags.Nfo)
 	assert.Equal(t, "Amiga nfo textfiles", s)
-
 	s = tags.Humanizes(tags.Video, tags.Guide)
 	assert.Equal(t, "videos and animations", s)
-
 	s = tags.Humanizes(tags.Windows, tags.Demo)
 	assert.Equal(t, "demos on Windows", s)
-
 	s = tags.Humanizes(tags.Linux, tags.Install)
 	assert.Equal(t, "scene software installer programs for Linux and BSD", s)
-
 	s = tags.Humanizes(tags.ANSI, tags.Logo)
 	assert.Equal(t, "ansi format logos", s)
-
 	s = tags.Humanizes(tags.Image, tags.Proof)
 	assert.Equal(t, "proof of release photos", s)
-
 	s = tags.Humanizes(tags.Image, tags.News)
 	assert.Equal(t, "images, pictures and photos", s)
 }

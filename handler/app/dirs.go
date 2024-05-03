@@ -164,7 +164,7 @@ func (dir Dirs) artifactEditor(art *models.File, data map[string]interface{}, re
 	data["modID"] = art.ID
 	data["modTitle"] = art.RecordTitle.String
 	data["modOnline"] = art.Deletedat.Time.IsZero()
-	data["modReleasers"] = string(RecordRels(art.GroupBrandBy, art.GroupBrandFor)) // TODO: remove
+	data["modReleasers"] = RecordRels(art.GroupBrandBy, art.GroupBrandFor)
 	rr := RecordReleasers(art.GroupBrandFor, art.GroupBrandBy)
 	data["modReleaser1"] = rr[0]
 	data["modReleaser2"] = rr[1]
@@ -298,7 +298,7 @@ func (dir Dirs) PreviewPost(c echo.Context, logger *zap.SugaredLogger) error {
 }
 
 // artifactReadme returns the readme data for the file record.
-func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error) { //nolint:funlen
+func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error) {
 	data := map[string]interface{}{}
 	if art == nil {
 		return data, nil
@@ -320,26 +320,23 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	if filepath.Ext(strings.ToLower(art.Filename.String)) == unsupported {
 		return data, nil
 	}
-
 	r, err := render.Read(art, dir.Download)
-	if errors.Is(err, render.ErrDownload) {
+	switch {
+	case errors.Is(err, render.ErrDownload):
 		data["noDownload"] = true
 		return data, nil
-	}
-	if errors.Is(err, render.ErrFilename) || r == nil {
+	case errors.Is(err, render.ErrFilename), r == nil:
 		return data, nil
-	}
-	if err != nil {
+	case err != nil:
 		return data, err
-	}
-	if render.IsUTF16(r) {
+	case render.IsUTF16(r):
 		return data, nil
 	}
 	b, err := io.ReadAll(r)
-	if err != nil {
+	switch {
+	case err != nil:
 		return data, err
-	}
-	if b == nil || isZip(b) {
+	case b == nil, isZip(b):
 		return data, nil
 	}
 	// Remove control codes and metadata from byte array
