@@ -114,7 +114,10 @@ func TouchW(name string, data ...byte) (int, error) {
 		return 0, fmt.Errorf("os.OpenFile: %w", err)
 	}
 	if len(data) == 0 {
-		return 0, file.Close()
+		if err := file.Close(); err != nil {
+			return 0, fmt.Errorf("file.Close: %w", err)
+		}
+		return 0, nil
 	}
 	i, err := file.Write(data)
 	if err != nil {

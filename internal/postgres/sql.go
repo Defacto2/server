@@ -47,7 +47,7 @@ func (v *Version) Query() error {
 		return fmt.Errorf("conn.Query: %w", err)
 	}
 	if rows.Err() != nil {
-		return rows.Err()
+		return fmt.Errorf("rows.Err: %w", rows.Err())
 	}
 	defer rows.Close()
 	defer conn.Close()

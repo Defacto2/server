@@ -56,7 +56,11 @@ func (f *Files) SearchFilename(ctx context.Context, db *sql.DB, terms []string) 
 			term, term+"%", "%"+term, "%"+term+"%"))
 	}
 	mods = append(mods, qm.OrderBy("filename ASC"), qm.Limit(Maximum))
-	return models.Files(mods...).All(ctx, db)
+	fs, err := models.Files(mods...).All(ctx, db)
+	if err != nil {
+		return nil, fmt.Errorf("models all files: %w", err)
+	}
+	return fs, nil
 }
 
 // SearchDescription returns a list of files that match the search terms.
@@ -83,7 +87,11 @@ func (f *Files) SearchDescription(ctx context.Context, db *sql.DB, terms []strin
 		mods = append(mods, qm.Or(clauseC, term))
 	}
 	mods = append(mods, qm.Limit(Maximum))
-	return models.Files(mods...).All(ctx, db)
+	fs, err := models.Files(mods...).All(ctx, db)
+	if err != nil {
+		return nil, fmt.Errorf("models all files: %w", err)
+	}
+	return fs, nil
 }
 
 // List returns a list of files reversed ordered by the ID column.

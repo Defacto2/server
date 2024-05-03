@@ -63,7 +63,10 @@ func (c Cache) Write(key, value string, ttl time.Duration) error {
 	}
 	defer db.Close()
 
-	return db.PutWithTTL([]byte(key), []byte(value), ttl)
+	if err := db.PutWithTTL([]byte(key), []byte(value), ttl); err != nil {
+		return fmt.Errorf("db.PutWithTTL: %w", err)
+	}
+	return nil
 }
 
 // WriteNoExpire writes a key/value pair to the storage engine.
@@ -82,7 +85,10 @@ func (c Cache) WriteNoExpire(key, value string) error {
 	}
 	defer db.Close()
 
-	return db.Put([]byte(key), []byte(value))
+	if err := db.Put([]byte(key), []byte(value)); err != nil {
+		return fmt.Errorf("db.Put: %w", err)
+	}
+	return nil
 }
 
 // Read returns value from the storage engine.
@@ -124,5 +130,8 @@ func (c Cache) Delete(id string) error {
 	defer db.Close()
 
 	key := []byte(id)
-	return db.Delete(key)
+	if err := db.Delete(key); err != nil {
+		return fmt.Errorf("db.Delete %q: %w", key, err)
+	}
+	return nil
 }

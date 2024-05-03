@@ -3,6 +3,7 @@ package br
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -109,7 +110,11 @@ func (w *brotliResponseWriter) Write(b []byte) (int, error) {
 	if w.Header().Get(echo.HeaderContentType) == "" {
 		w.Header().Set(echo.HeaderContentType, http.DetectContentType(b))
 	}
-	return w.Writer.Write(b)
+	i, err := w.Writer.Write(b)
+	if err != nil {
+		return 0, fmt.Errorf("brotli.Writer.Write: %w", err)
+	}
+	return i, nil
 }
 
 func (w *brotliResponseWriter) Flush() {
@@ -123,7 +128,7 @@ func (w *brotliResponseWriter) Flush() {
 
 func (w *brotliResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 	if hijacker, ok := w.ResponseWriter.(http.Hijacker); ok {
-		return hijacker.Hijack()
+		return hijacker.Hijack() //nolint:wrapcheck
 	}
 	return nil, nil, ErrHijack
 }

@@ -21,7 +21,11 @@ func ExistFile(ctx context.Context, db *sql.DB, id int64) (bool, error) {
 	if db == nil {
 		return false, ErrDB
 	}
-	return models.Files(models.FileWhere.ID.EQ(id), qm.WithDeleted()).Exists(ctx, db)
+	ok, err := models.Files(models.FileWhere.ID.EQ(id), qm.WithDeleted()).Exists(ctx, db)
+	if err != nil {
+		return false, fmt.Errorf("models file exist %d: %w", id, err)
+	}
+	return ok, nil
 }
 
 // ExistSumHash returns true if the file record exists in the database using a SHA-384 hash.
@@ -41,7 +45,12 @@ func ExistHash(ctx context.Context, db *sql.DB, hash string) (bool, error) {
 	if len(hash) != sha512.Size384*2 {
 		return false, fmt.Errorf("%w: %d characters", ErrSha384, len(hash))
 	}
-	return models.Files(models.FileWhere.FileIntegrityStrong.EQ(null.StringFrom(hash)), qm.WithDeleted()).Exists(ctx, db)
+	ok, err := models.Files(models.FileWhere.FileIntegrityStrong.EQ(null.StringFrom(hash)),
+		qm.WithDeleted()).Exists(ctx, db)
+	if err != nil {
+		return false, fmt.Errorf("models file hash %s: %w", hash, err)
+	}
+	return ok, nil
 }
 
 // FindFile retrieves a single file record from the database using the record key.
@@ -50,7 +59,11 @@ func FindFile(ctx context.Context, db *sql.DB, id int64) (*models.File, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
-	return models.Files(models.FileWhere.ID.EQ(id), qm.WithDeleted()).One(ctx, db)
+	f, err := models.Files(models.FileWhere.ID.EQ(id), qm.WithDeleted()).One(ctx, db)
+	if err != nil {
+		return nil, fmt.Errorf("models file one %d: %w", id, err)
+	}
+	return f, nil
 }
 
 // ExistDemozooFile returns true if the file record exists in the database using a Demozoo production ID.
@@ -59,7 +72,12 @@ func ExistDemozooFile(ctx context.Context, db *sql.DB, id int64) (bool, error) {
 	if db == nil {
 		return false, ErrDB
 	}
-	return models.Files(models.FileWhere.WebIDDemozoo.EQ(null.Int64From(id)), qm.WithDeleted()).Exists(ctx, db)
+	ok, err := models.Files(models.FileWhere.WebIDDemozoo.EQ(null.Int64From(id)),
+		qm.WithDeleted()).Exists(ctx, db)
+	if err != nil {
+		return false, fmt.Errorf("exist demozoo file %d: %w", id, err)
+	}
+	return ok, nil
 }
 
 // FindDemozooFile retrieves the ID or key of a single file record from the database using a Demozoo production ID.
@@ -89,7 +107,12 @@ func ExistPouetFile(ctx context.Context, db *sql.DB, id int64) (bool, error) {
 	if db == nil {
 		return false, ErrDB
 	}
-	return models.Files(models.FileWhere.WebIDPouet.EQ(null.Int64From(id)), qm.WithDeleted()).Exists(ctx, db)
+	ok, err := models.Files(models.FileWhere.WebIDPouet.EQ(null.Int64From(id)),
+		qm.WithDeleted()).Exists(ctx, db)
+	if err != nil {
+		return false, fmt.Errorf("exist pouet file %d: %w", id, err)
+	}
+	return ok, nil
 }
 
 // FindPouetFile retrieves the ID or key of a single file record from the database using a Pouet production ID.

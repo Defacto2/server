@@ -31,7 +31,6 @@ linters:
     - nlreturn # fussy over whitespace.
     - paralleltest # requires a lot of refactoring.
     - varnamelen # a popular linter but is not idiomatic.
-    #- wrapcheck # check that errors from external packages are wrapped during return to help identify the error source.
     - wsl # fussy over whitespace.
     # temporary disabled
     - godox
@@ -40,8 +39,9 @@ linters:
 issues:
   exclude-rules:
     - path: _test\.go$
-      linters: # Tests are allowed to be longer.
+      linters: # Tests are allowed to be longer and don't need error wrapping.
         - funlen
+        - wrapcheck
     - path: handler/router.go
       linters: # The router is allowed to be longer.
         - funlen
@@ -117,3 +117,28 @@ linters-settings:
     # Default: []
     ignore-words:
       - "Teh" # Teh Scene.
+  wrapcheck:
+    # An array of strings that specify substrings of signatures to ignore.
+    # If this set, it will override the default set of ignored signatures.
+    # See https://github.com/tomarrell/wrapcheck#configuration for more information.
+    # Default: [".Errorf(", "errors.New(", "errors.Unwrap(", "errors.Join(", ".Wrap(", ".Wrapf(", ".WithMessage(", ".WithMessagef(", ".WithStack("]
+    ignoreSigs:
+      - .Errorf(
+      - errors.New(
+      - errors.Unwrap(
+      - errors.Join(
+      - .Wrap(
+      - .Wrapf(
+      - .WithMessage(
+      - .WithMessagef(
+      - .WithStack(
+      - .HTML(
+      - .Inline(
+      - .JSON(
+      - .Redirect(
+      - .Render(
+      - .String(
+      - .Text(
+    ignorePackageGlobs:
+      - github.com/volatiletech/sqlboiler/*
+      - github.com/Defacto2/server/internal/postgres/*
