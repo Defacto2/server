@@ -1,3 +1,5 @@
+// eslint.config.mjs
+// ESLint flat configuration for JavaScript and JavaScript modules.
 import globals from "globals";
 import js from "@eslint/js";
 

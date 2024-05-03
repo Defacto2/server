@@ -1,3 +1,5 @@
+# .goreleaser-release.yaml
+#
 # The GoReleaser configuration for rgw Defacto2 server.
 #
 # This goreleaser file is intended for the included docker-compose.yml file
@@ -29,14 +31,15 @@ archives:
       - src: public/text/defacto2.txt
         strip_parent: true
 checksum:
-  name_template: 'checksums.txt'
+  name_template: "checksums.txt"
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
-      - '^tmp:'
-      - '.env.local'
+      - "^docs:"
+      - "^test:"
+      - "^tmp:"
+      - ".env.local"
+      - ".env"

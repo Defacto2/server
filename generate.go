@@ -2,8 +2,8 @@
 // https://github.com/volatiletech/sqlboiler
 //
 // It requires an active PostgreSQL server to be running.
-// To rebuild run this command in the terminal:
 //
+// To rebuild run this command in the terminal:
 // $ go generate
 package main
 

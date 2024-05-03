@@ -1,8 +1,10 @@
-# Config file for Air (https://github.com/cosmtrek/air) in TOML format.
+# .air.toml
+#
+# A config file for Air, the live reload server for Go apps.
+# https://github.com/cosmtrek/air
 #
 # $ go install github.com/cosmtrek/air@latest
 # $ air
-#
 
 # Working directory
 # . or absolute path, please note that the directories following must be under root.

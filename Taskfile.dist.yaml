@@ -1,14 +1,17 @@
+# Taskfile.dist.yaml
+#
 # Task is a task runner / build tool that aims to be simpler and easier to use than, for example, GNU Make.
 # https://taskfile.dev/installation/
 #
+# To see all available tasks:
 # $ task --list
 #
-version: '3'
+version: "3"
 
 vars:
-  BINNAME: df2-server # build output, binary filename (without any extensions) 
+  BINNAME: df2-server # build output, binary filename (without any extensions)
 
-dotenv: ['.env.local']
+dotenv: [".env.local"]
 
 tasks:
   default:
@@ -70,7 +73,7 @@ tasks:
       - cmd: go build -o {{.BINNAME}}.exe -race -v server.go
         platforms: [windows]
       - cmd: ./{{.BINNAME}} --version
-        platforms: [linux,darwin]
+        platforms: [linux, darwin]
       - cmd: ./{{.BINNAME}}.exe --version
         platforms: [windows]
       - cmd: echo "Done!"
@@ -149,7 +152,7 @@ tasks:
       D2_PRODUCTION: false
     deps: [assets]
     cmds:
-      - air -c .air.windows.toml 
+      - air -c .air.windows.toml
   serve-windows-prod:
     internal: true
     platforms: [windows]
@@ -157,7 +160,7 @@ tasks:
       D2_PRODUCTION: true
     deps: [assets]
     cmds:
-      - air -c .air.windows.toml 
+      - air -c .air.windows.toml
   pkg-patch:
     silent: false
     desc: Update and apply patches to the web server dependencies.

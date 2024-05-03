@@ -1,11 +1,13 @@
+# sqlboiler.toml
+#
 # SQLBoiler configuration file
 # https://github.com/volatiletech/sqlboiler
 #
 # This file is used to configure the SQLBoiler code generation tool.
 # It is used to generate Go code from a PostgreSQL database schema 
 # and requires an active PostgreSQL server to be running.
-# To rebuild run this command in the root of this repository:
 #
+# To rebuild run this command in the root of this repository:
 # $ go generate
 #
 
@@ -14,7 +16,7 @@
 # The name of the models package
 pkgname = "models"
 # The folder to generate the models into
-output = "internal/postgres/models" 
+output = "internal/postgres/models"
 # Struct tags to add to the generated models
 tag = []
 # Debug mode
@@ -44,7 +46,7 @@ tag-ignore = []
 # This should always be kept to true
 wipe = true
 
-# PostgreSQL database connection.
+# PostgreSQL database connection settings and defaults.
 # https://github.com/volatiletech/sqlboiler?tab=readme-ov-file#database-driver-configuration
 
 [psql]

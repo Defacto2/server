@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# example.server.sh
+#
 # The following script is used to run the server with environment variables.
 # The environment variables are loaded from a file named ".env.local" but 
 # this can be changed by modifying the FILENAME variable below.
