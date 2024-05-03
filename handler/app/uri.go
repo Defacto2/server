@@ -69,7 +69,7 @@ const (
 	windowsPack
 )
 
-func (u URI) String() string {
+func (u URI) String() string { //nolint:funlen
 	return [...]string{
 		"",
 		"advert",

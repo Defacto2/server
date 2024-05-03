@@ -54,7 +54,7 @@ func (r *ReleaserNames) List(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
-	query := postgres.Releasers()
+	query := string(postgres.Releasers())
 	return queries.Raw(query).Bind(ctx, db, r)
 }
 

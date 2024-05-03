@@ -39,6 +39,10 @@ linters:
     - gosec
 issues:
   exclude-rules:
+    - path: _test\.go$
+      linters: # Tests are allowed to be longer.
+        - funlen
+
     - path: internal/demozoo/demozoo.go
       linters: # false positives with the Demozoo API.
         - tagliatelle
@@ -53,6 +57,9 @@ issues:
       linters: # HTML content containing long form text.
         - funlen
         - lll
+    - path: handler/app/interview.go
+      linters:
+        - funlen
     - path: handler/app/milestone.go
       linters: # HTML content containing long form text.
         - funlen
@@ -80,6 +87,10 @@ issues:
     - path: handler/app/app.go
       linters:
         - gosec # temporary disabled.
+    - path: handler/router.go
+      linters:
+        - funlen
+
 #     - path: cmd/cmd.go
 #       linters:
 #         - gosmopolitan

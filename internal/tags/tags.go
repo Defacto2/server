@@ -51,7 +51,7 @@ func (t *T) Build() (err error) {
 	i := -1
 	for key, val := range URIs() {
 		i++
-		count := Sums[key]
+		count := sums()[key]
 		t.Mu.Lock()
 		t.List[i] = TagData{
 			URI:   val,
@@ -645,10 +645,17 @@ func emptyPlatform(section Tag) string {
 type Sum map[Tag]int
 
 // Sums stores the results of file count query for each tag.
-var Sums = make(Sum, Windows+1)
+func sums() Sum {
+	s := make(Sum, Windows+1)
+	// var sums = make(Sum, Windows+1)
+	return s
+}
 
 // Tags contains data for all the tags used by the web application.
-var Tags = T{}
+func Tags() *T {
+	// var Tags = T{} // replacement
+	return &T{}
+}
 
 // OSTags returns the tags that flag an operating system.
 func OSTags() [5]string {

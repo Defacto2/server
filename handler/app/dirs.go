@@ -298,7 +298,7 @@ func (dir Dirs) PreviewPost(c echo.Context, logger *zap.SugaredLogger) error {
 }
 
 // artifactReadme returns the readme data for the file record.
-func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error) {
+func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error) { //nolint:funlen
 	data := map[string]interface{}{}
 	if art == nil {
 		return data, nil

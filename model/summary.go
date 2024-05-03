@@ -144,7 +144,7 @@ func (s *Summary) Releaser(ctx context.Context, db *sql.DB, name string) error {
 }
 
 // URI returns the summary statistics for the named URI.
-func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error {
+func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error { //nolint:lll,funlen,gocognit,gocyclo,cyclop,maintidx
 	if db == nil {
 		return ErrDB
 	}
@@ -302,53 +302,21 @@ func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error {
 		}
 		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
 	case "text-amiga":
-		m := TextAmiga{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = textAmiga(ctx, db)
 	case "text-apple2":
-		m := TextApple2{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = textApple2(ctx, db)
 	case "text-atari-st":
-		m := TextAtariST{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = textAtariST(ctx, db)
 	case "pdf":
-		m := PDF{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = pdf(ctx, db)
 	case "html":
-		m := HTML{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = html(ctx, db)
 	case "news-article":
-		m := NewsArticle{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = newsArticle(ctx, db)
 	case "standards":
-		m := Standard{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = standards(ctx, db)
 	case "announcement":
-		m := Announcement{}
-		if err := m.Stat(ctx, db); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
+		c, b, y0, y1, err = announcement(ctx, db)
 	case "job-advert":
 		c, b, y0, y1, err = jobAdvert(ctx, db)
 	case "trial-crackme":
@@ -398,6 +366,70 @@ func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error {
 	s.MinYear = sql.NullInt16{Int16: int16(y0)}
 	s.MaxYear = sql.NullInt16{Int16: int16(y1)}
 	return nil
+}
+
+func textAmiga(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := TextAmiga{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func textApple2(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := TextApple2{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func textAtariST(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := TextAtariST{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func pdf(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := PDF{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func html(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := HTML{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func newsArticle(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := NewsArticle{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func standards(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := Standard{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+}
+
+func announcement(ctx context.Context, db *sql.DB) (int, int, int, int, error) {
+	m := Announcement{}
+	if err := m.Stat(ctx, db); err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
 }
 
 func jobAdvert(ctx context.Context, db *sql.DB) (int, int, int, int, error) {

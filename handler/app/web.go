@@ -171,11 +171,13 @@ func (web Web) TemplateFuncMap() template.FuncMap {
 	return funcMap
 }
 
+const (
+	input = "<input class=\"form-check-input\""
+	radio = `<input type="radio" class="btn-check" name="artifact-editor-record"`
+)
+
 // TemplateElms returns a map of functions that return HTML elements.
-// hx-target="previous .modal-header"`
 func (web Web) TemplateElms() template.FuncMap {
-	const input = "<input class=\"form-check-input\""
-	const radio = `<input type="radio" class="btn-check" name="artifact-editor-record"`
 	return template.FuncMap{
 		"az": func() template.HTML {
 			return template.HTML(`<small><small class="fw-lighter">A-Z</small></small>`)
@@ -190,56 +192,65 @@ func (web Web) TemplateElms() template.FuncMap {
 		"msdos": func() template.HTML {
 			return template.HTML(`<span class="text-nowrap">MS Dos</span>`)
 		},
-		"recordLastMod": func(b bool) template.HTML {
-			if b {
-				// tooltips do not work on disabled buttons
-				return template.HTML("<button id=\"recordLMBtn\" class=\"btn btn-outline-secondary\" type=\"button\" " +
-					"data-bs-toggle=\"tooltip\" data-bs-title=\"No last modification date found\" disabled>")
-			}
-			return template.HTML("<button id=\"recordLMBtn\" class=\"btn btn-outline-secondary\" type=\"button\" " +
-				"data-bs-toggle=\"tooltip\" data-bs-title=\"Apply the file last modified date\">")
-		},
-		"radioPublic": func(b bool) template.HTML {
-			const htmx = ` hx-post="/editor/online/true"
-			hx-include="[name='artifact-editor-key']"`
-			if b {
-				return template.HTML(radio +
-					htmx + ` id="artifact-editor-public" autocomplete="off" checked>`)
-			}
-			return template.HTML(radio +
-				htmx + ` id="artifact-editor-public" autocomplete="off">`)
-		},
-		"radioHidden": func(b bool) template.HTML {
-			const htmx = ` hx-post="/editor/online/false"
-			hx-include="[name='artifact-editor-key']"`
-			if !b {
-				return template.HTML(radio +
-					htmx + ` id="artifact-editor-hidden" autocomplete="off" checked>`)
-			}
-			return template.HTML(radio +
-				htmx + ` id="artifact-editor-hidden" autocomplete="off">`)
-		},
-		"recordOnline": func(b bool) template.HTML {
-			if b {
-				return template.HTML(input +
-					" name=\"online\" type=\"checkbox\" role=\"switch\" id=\"recordOnline\" checked>")
-			}
-			return template.HTML((input +
-				" name=\"online\" type=\"checkbox\" role=\"switch\" id=\"recordOnline\">"))
-		},
-		"recordReadme": func(b bool) template.HTML {
-			if b {
-				return template.HTML(input +
-					" name=\"hide-readme\" type=\"checkbox\" role=\"switch\" id=\"edHideMe\" checked>")
-			}
-			return template.HTML((input +
-				" name=\"hide-readme\" type=\"checkbox\" role=\"switch\" id=\"edHideMe\">"))
-		},
+		"recordLastMod": recordLastMod,
+		"radioPublic":   radioPublic,
+		"radioHidden":   radioHidden,
+		"recordOnline":  recordOnline,
+		"recordReadme":  recordReadme,
 	}
 }
 
+func recordLastMod(b bool) template.HTML {
+	if b { // tooltips do not work on disabled buttons
+		return template.HTML("<button id=\"recordLMBtn\" class=\"btn btn-outline-secondary\" type=\"button\" " +
+			"data-bs-toggle=\"tooltip\" data-bs-title=\"No last modification date found\" disabled>")
+	}
+	return template.HTML("<button id=\"recordLMBtn\" class=\"btn btn-outline-secondary\" type=\"button\" " +
+		"data-bs-toggle=\"tooltip\" data-bs-title=\"Apply the file last modified date\">")
+}
+
+func radioPublic(b bool) template.HTML {
+	const htmx = ` hx-post="/editor/online/true"
+	hx-include="[name='artifact-editor-key']"`
+	if b {
+		return template.HTML(radio +
+			htmx + ` id="artifact-editor-public" autocomplete="off" checked>`)
+	}
+	return template.HTML(radio +
+		htmx + ` id="artifact-editor-public" autocomplete="off">`)
+}
+
+func radioHidden(b bool) template.HTML {
+	const htmx = ` hx-post="/editor/online/false"
+	hx-include="[name='artifact-editor-key']"`
+	if !b {
+		return template.HTML(radio +
+			htmx + ` id="artifact-editor-hidden" autocomplete="off" checked>`)
+	}
+	return template.HTML(radio +
+		htmx + ` id="artifact-editor-hidden" autocomplete="off">`)
+}
+
+func recordOnline(b bool) template.HTML {
+	if b {
+		return template.HTML(input +
+			" name=\"online\" type=\"checkbox\" role=\"switch\" id=\"recordOnline\" checked>")
+	}
+	return template.HTML((input +
+		" name=\"online\" type=\"checkbox\" role=\"switch\" id=\"recordOnline\">"))
+}
+
+func recordReadme(b bool) template.HTML {
+	if b {
+		return template.HTML(input +
+			" name=\"hide-readme\" type=\"checkbox\" role=\"switch\" id=\"edHideMe\" checked>")
+	}
+	return template.HTML((input +
+		" name=\"hide-readme\" type=\"checkbox\" role=\"switch\" id=\"edHideMe\">"))
+}
+
 // TemplateClosures returns a map of closures that return converted type or modified strings.
-func (web Web) TemplateClosures() template.FuncMap {
+func (web Web) TemplateClosures() template.FuncMap { //nolint:funlen
 	hrefs := Hrefs()
 	return template.FuncMap{
 		"artifactEditor": func() string {

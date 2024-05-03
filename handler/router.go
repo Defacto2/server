@@ -355,7 +355,6 @@ func (c Configuration) editor(e *echo.Echo, logger *zap.SugaredLogger, dir app.D
 	editor.POST("/classifications", func(c echo.Context) error {
 		return htmx.RecordClassification(c, logger)
 	})
-
 	editor.POST("/releasers", htmx.RecordReleasers)
 	editor.POST("/releasers/reset", htmx.RecordReleasersReset)
 	title := editor.Group("/title")
@@ -532,62 +531,88 @@ func retired(e *echo.Echo) *echo.Echo {
 	retired.GET("/link/list/:id", func(c echo.Context) error {
 		return c.Redirect(code, "/website")
 	})
-	//nolint:misspell
-	retired.GET("/organisation/list/bbs", func(c echo.Context) error {
-		return c.Redirect(code, "/bbs")
-	})
-	//nolint:misspell
-	retired.GET("/organisation/list/group", func(c echo.Context) error {
+	e = retiredOrg(e)
+	e = retiredPerson(e)
+	e = retiredUpload(e)
+	return e
+}
+
+func retiredOrg(e *echo.Echo) *echo.Echo {
+	if e == nil {
+		panic(ErrRoutes)
+	}
+	org := e.Group("/organisation/list") //nolint:misspell
+	org.GET("", func(c echo.Context) error {
 		return c.Redirect(code, "/releaser")
 	})
-	//nolint:misspell
-	retired.GET("/organisation/list/ftp", func(c echo.Context) error {
+	org.GET("/bbs", func(c echo.Context) error {
+		return c.Redirect(code, "/bbs")
+	})
+	org.GET("/group", func(c echo.Context) error {
+		return c.Redirect(code, "/releaser")
+	})
+	org.GET("/ftp", func(c echo.Context) error {
 		return c.Redirect(code, "/ftp")
 	})
-	//nolint:misspell
-	retired.GET("/organisation/list/magazine", func(c echo.Context) error {
+	org.GET("/magazine", func(c echo.Context) error {
 		return c.Redirect(code, "/magazine")
 	})
-	retired.GET("/person/list", func(c echo.Context) error {
+	return e
+}
+
+func retiredPerson(e *echo.Echo) *echo.Echo {
+	if e == nil {
+		panic(ErrRoutes)
+	}
+	person := e.Group("/person/list")
+	person.GET("/person/list", func(c echo.Context) error {
 		return c.Redirect(code, "/scener")
 	})
-	retired.GET("/person/list/artists", func(c echo.Context) error {
+	person.GET("/artists", func(c echo.Context) error {
 		return c.Redirect(code, "/artist")
 	})
-	retired.GET("/person/list/coders", func(c echo.Context) error {
+	person.GET("/coders", func(c echo.Context) error {
 		return c.Redirect(code, "/coder")
 	})
-	retired.GET("/person/list/musicians", func(c echo.Context) error {
+	person.GET("/musicians", func(c echo.Context) error {
 		return c.Redirect(code, "/musician")
 	})
-	retired.GET("/person/list/writers", func(c echo.Context) error {
+	person.GET("/writers", func(c echo.Context) error {
 		return c.Redirect(code, "/writer")
 	})
-	retired.GET("/upload", func(c echo.Context) error {
+	return e
+}
+
+func retiredUpload(e *echo.Echo) *echo.Echo {
+	if e == nil {
+		panic(ErrRoutes)
+	}
+	upload := e.Group("/upload")
+	upload.GET("", func(c echo.Context) error {
 		return c.Redirect(code, "/")
 	})
-	retired.GET("/upload/file", func(c echo.Context) error {
+	upload.GET("/file", func(c echo.Context) error {
 		return c.Redirect(code, "/")
 	})
-	retired.GET("/upload/external", func(c echo.Context) error {
+	upload.GET("/external", func(c echo.Context) error {
 		return c.Redirect(code, "/")
 	})
-	retired.GET("/upload/intro", func(c echo.Context) error {
+	upload.GET("/intro", func(c echo.Context) error {
 		return c.Redirect(code, "/")
 	})
-	retired.GET("/upload/site", func(c echo.Context) error {
+	upload.GET("/site", func(c echo.Context) error {
 		return c.Redirect(code, "/")
 	})
-	retired.GET("/upload/document", func(c echo.Context) error {
+	upload.GET("/document", func(c echo.Context) error {
 		return c.Redirect(code, "/")
 	})
-	retired.GET("/upload/magazine", func(c echo.Context) error {
+	upload.GET("/magazine", func(c echo.Context) error {
 		return c.Redirect(code, "/")
 	})
-	retired.GET("/upload/art", func(c echo.Context) error {
+	upload.GET("/art", func(c echo.Context) error {
 		return c.Redirect(code, "/")
 	})
-	retired.GET("/upload/other", func(c echo.Context) error {
+	upload.GET("/other", func(c echo.Context) error {
 		return c.Redirect(code, "/")
 	})
 	return e

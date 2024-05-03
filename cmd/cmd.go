@@ -137,7 +137,7 @@ func Copyright() string {
 	years := strconv.Itoa(initYear)
 	t := versioninfo.LastCommit
 	if t.Year() > initYear {
-		years += "-" + t.Local().Format("06")
+		years += "-" + t.Local().Format("06") //nolint:gosmopolitan
 	}
 	s := fmt.Sprintf("© %s Defacto2 & %s", years, Author)
 	return s
@@ -149,7 +149,7 @@ func LastCommit() string {
 	if d.IsZero() {
 		return ""
 	}
-	return d.Local().Format("2006 Jan 2 15:04")
+	return d.Local().Format("2006 Jan 2 15:04") //nolint:gosmopolitan
 }
 
 // OS returns the program operating system.

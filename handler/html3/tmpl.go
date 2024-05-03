@@ -53,7 +53,7 @@ func httpErr(logger *zap.SugaredLogger, fs embed.FS) *template.Template {
 }
 
 func tagByName(name string) (tags.TagData, error) {
-	t, err := tags.Tags.ByName(name)
+	t, err := tags.Tags().ByName(name)
 	if err != nil {
 		return t, err
 	}
