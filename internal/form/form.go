@@ -47,3 +47,7 @@ func SanitizeFilename(name string) string {
 	s = strings.ReplaceAll(s, windowsDir, hyphen)
 	return s
 }
+
+func SanitizeDate(y, m, d string) (string, string, string) {
+	return "", "", ""
+}

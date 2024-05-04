@@ -58,6 +58,21 @@ func RecordClassification(c echo.Context, logger *zap.SugaredLogger) error {
 	return c.HTML(http.StatusOK, s)
 }
 
+func RecordDateIssued(c echo.Context) error {
+	year := c.FormValue("artifact-editor-year")
+	month := c.FormValue("artifact-editor-month")
+	day := c.FormValue("artifact-editor-day")
+	key := c.FormValue("artifact-editor-key")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if err := model.UpdateDateIssued(int64(id), year, month, day); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "Updated")
+}
+
 // RecordReleasers handles the post submission for the File artifact releaser.
 // It will only update the releaser1 and the releaser2 values if they have changed.
 // The return value is either "Updated" or "Update" depending on if the values have changed.

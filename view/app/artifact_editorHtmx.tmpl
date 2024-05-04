@@ -15,6 +15,10 @@
 {{- $dateYear := index . "modYear"}}
 {{- $dateMonth := index . "modMonth"}}
 {{- $dateDay := index . "modDay"}}
+{{- $lastMod := index . "modLastMod"}}
+{{- $lmYear := index . "modLMYear"}}
+{{- $lmMonth := index . "modLMMonth"}}
+{{- $lmDay := index . "modLMDay"}}
 {{- $writers := index . "writers"}}
 {{- $artists := index . "artists"}}
 {{- $programmers := index . "programmers"}}
@@ -280,21 +284,31 @@
             <div class="btn-toolbar" role="toolbar">
               <div class="input-group">
                 <span class="input-group-text">Year of release</span>
-                <input type="number" name="artifact-editor-year" min="1980" max="{{exampleYear}}" 
+                <input type="number" name="artifact-editor-year" min="1980" max="{{exampleYear}}" autocomplete="off"
                   id="artifact-editor-year" aria-label="Year of release" class="form-control input-date" 
                   value="{{$dateYear}}" data-reset-year="{{$dateYear}}" placeholder="{{exampleYear}}">
                 <span class="input-group-text">Month</span>
-                <input type="number" name="artifact-editor-month" min="1" max="12" 
+                <input type="number" name="artifact-editor-month" min="1" max="12" autocomplete="off"
                   id="artifact-editor-month" aria-label="Month of release" class="form-control input-date" 
                   value="{{$dateMonth}}" data-reset-month="{{$dateMonth}}" placeholder="{{exampleMonth}}">
                 <span class="input-group-text">Day</span>
-                <input type="number" name="artifact-editor-day" min="1" max="31" 
+                <input type="number" name="artifact-editor-day" min="1" max="31" autocomplete="off"
                   id="artifact-editor-day" aria-label="Day of release" class="form-control input-date" 
                   value="{{$dateDay}}" data-reset-day="{{$dateDay}}" placeholder="{{exampleDay}}">
               </div>
               <div class="btn-group" role="group" aria-label="First group">
-                <button type="button" class="btn btn-link">Reset date</button>
-                <button type="button" class="btn btn-link">Use artifact last modification date</button>
+                <button type="button" class="btn btn-link">Reset date <small>to 
+                  <q>{{- if ne $dateYear 0}}{{$dateYear}}{{end}}
+                  {{- if ne $dateMonth 0}}-{{$dateMonth}}{{end}}
+                  {{- if ne $dateDay 0}}-{{$dateDay}}{{end}}</q></small>
+                </button>
+                {{- if eq $lastMod true}}
+                <button type="button" class="btn btn-link">Use the last modification date
+                  {{- if ne $lmYear 0}}<small><q>{{$lmYear}}
+                  {{- if ne $lmMonth 0}}-{{$lmMonth}}{{end}}
+                  {{- if ne $lmDay 0}}-{{$lmDay}}{{end}}</q></small>{{end}}
+                </button>
+                {{- end}}
               </div>
             </div>
           </div>

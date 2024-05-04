@@ -171,8 +171,10 @@ func (dir Dirs) artifactEditor(art *models.File, data map[string]interface{}, re
 	data["modYear"] = art.DateIssuedYear.Int16
 	data["modMonth"] = art.DateIssuedMonth.Int16
 	data["modDay"] = art.DateIssuedDay.Int16
-	data["modLastMod"] = art.FileLastModified.IsZero()
-	data["modLastModValue"] = art.FileLastModified.Time.Format("2006-1-2") // value should not have no leading zeros
+	data["modLastMod"] = !art.FileLastModified.IsZero()
+	data["modLMYear"] = art.FileLastModified.Time.Year()
+	data["modLMMonth"] = art.FileLastModified.Time.Month()
+	data["modLMDay"] = art.FileLastModified.Time.Day()
 	data["modAbsDownload"] = abs
 	data["modKind"] = artifactMagic(abs)
 	data["modStatModify"] = artifactStat(abs)[0]

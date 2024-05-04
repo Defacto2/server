@@ -72,6 +72,29 @@ func UpdateClassification(id int64, platform, tag string) error {
 	return nil
 }
 
+func UpdateDateIssued(id int64, y, m, d string) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	// todo: confirm year is valid
+
+	year, month, day := DateIssue(y, m, d)
+	f.DateIssuedYear = year
+	f.DateIssuedMonth = month
+	f.DateIssuedDay = day
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%q %q %q: %w", y, m, d, err)
+	}
+	return nil
+}
+
 // UpdateFilename updates the filename column value with val.
 // It returns nil if the update was successful.
 // Id is the database id of the record.
