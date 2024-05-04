@@ -35,3 +35,15 @@ func HumanizeAndCount(section, platform string) (string, error) {
 	}
 	return fmt.Sprintf("%s, %d existing artifacts", tag, count), nil
 }
+
+func SanitizeFilename(name string) string {
+	const hyphen = "-"
+	s := strings.TrimSpace(name)
+	const parentDir = "../"
+	s = strings.ReplaceAll(s, parentDir, "")
+	const linuxDir = "/"
+	s = strings.ReplaceAll(s, linuxDir, hyphen)
+	const windowsDir = "\\"
+	s = strings.ReplaceAll(s, windowsDir, hyphen)
+	return s
+}

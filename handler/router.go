@@ -357,9 +357,16 @@ func (c Configuration) editor(e *echo.Echo, logger *zap.SugaredLogger, dir app.D
 	})
 	editor.POST("/releasers", htmx.RecordReleasers)
 	editor.POST("/releasers/reset", htmx.RecordReleasersReset)
+
+	name := editor.Group("/filename")
+	name.POST("", htmx.RecordFilename)
+	name.POST("/reset", htmx.RecordFilenameReset)
+
 	title := editor.Group("/title")
 	title.POST("", htmx.RecordTitle)
 	title.POST("/reset", htmx.RecordTitleReset)
+
+	editor.POST("/virustotal", htmx.RecordVirusTotal)
 
 	online := editor.Group("/online")
 	online.POST("/true", func(cx echo.Context) error {

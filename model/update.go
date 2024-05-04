@@ -26,6 +26,16 @@ func GetPlatformTagInfo(platform, tag string) (string, error) {
 	return tags.Humanize(p, t), nil
 }
 
+// GetTagInfo returns the human readable tag name.
+func GetTagInfo(tag string) (string, error) {
+	t := tags.TagByURI(tag)
+	if t == -1 {
+		return "", fmt.Errorf("%s: %w", tag, ErrTag)
+	}
+	s := tags.Infos()[t]
+	return s, nil
+}
+
 // UpdateClassification updates the classification of a file in the database.
 // It takes an ID, platform, and tag as parameters and returns an error if any.
 // Both platform and tag must be valid values.
@@ -62,14 +72,25 @@ func UpdateClassification(id int64, platform, tag string) error {
 	return nil
 }
 
-// GetTagInfo returns the human readable tag name.
-func GetTagInfo(tag string) (string, error) {
-	t := tags.TagByURI(tag)
-	if t == -1 {
-		return "", fmt.Errorf("%s: %w", tag, ErrTag)
+// UpdateFilename updates the filename column value with val.
+// It returns nil if the update was successful.
+// Id is the database id of the record.
+func UpdateFilename(id int64, val string) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
 	}
-	s := tags.Infos()[t]
-	return s, nil
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	f.Filename = null.StringFrom(val)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", val, err)
+	}
+	return nil
 }
 
 // UpdateOnline updates the record to be online and public.
@@ -250,6 +271,30 @@ func UpdateTitle(id int64, val string) error {
 		return fmt.Errorf("find file: %w", err)
 	}
 	f.RecordTitle = null.StringFrom(val)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", val, err)
+	}
+	return nil
+}
+
+func UpdateVirusTotal(id int64, val string) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	val = strings.TrimSpace(val)
+	const link = "https://www.virustotal.com/"
+	if len(val) > 0 && !strings.HasPrefix(val, link) {
+		var ErrURL = fmt.Errorf("value must start with " + link)
+		return fmt.Errorf("%s: %w", val, ErrURL)
+	}
+	f.FileSecurityAlertURL = null.StringFrom(val)
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
 		return fmt.Errorf("%s: %w", val, err)
 	}

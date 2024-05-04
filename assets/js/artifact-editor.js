@@ -9,14 +9,29 @@
   const osLabel = document.getElementById("artifact-editor-os-label");
   const osInput = document.getElementById("artifact-editor-operating-system");
   const catInput = document.getElementById("artifact-editor-category");
-  const rel1Input = document.getElementById("artifact-editor-releaser-1");
-  const rel2Input = document.getElementById("artifact-editor-releaser-2");
-  const relsReset = document.getElementById("artifact-editor-releaser-reset");
-  const titleInput = document.getElementById("artifact-editor-title");
-  const titleReset = document.getElementById("artifact-editor-title-reset");
-  const titleResetter = document.getElementsByName(
-    "artifact-editor-title-resetter"
-  );
+  const name = "artifact-editor-filename";
+  const nameInput = document.getElementById(name);
+  const nameReset = document.getElementById(name + "-reset");
+  const nameResetter = document.getElementsByName(name + "-resetter");
+  const rel = "artifact-editor-releaser";
+  const rel1Input = document.getElementById(rel + "-1");
+  const rel2Input = document.getElementById(rel + "-2");
+  const relsReset = document.getElementById(rel + "-reset");
+  const title = "artifact-editor-title";
+  const titleInput = document.getElementById(title);
+  const titleReset = document.getElementById(title + "-reset");
+  const titleResetter = document.getElementsByName(title + "-resetter");
+
+  const virustotalInput = document.getElementById("artifact-editor-virustotal");
+  virustotalInput.addEventListener("input", (e) => {
+    e.target.classList.remove("is-valid", "is-invalid");
+    const value = e.target.value.trim();
+    if (value.length != 0) {
+      if (!value.startsWith("https://www.virustotal.com/")) {
+        e.target.classList.add("is-invalid");
+      }
+    }
+  });
 
   updateLabelOS();
   for (let i = 0; i < resets.length; i++) {
@@ -36,6 +51,25 @@
     }
     titleInput.value = titleResetter[0].value;
     titleInput.classList.add("is-valid");
+  });
+  nameInput.addEventListener("input", (e) => {
+    e.target.classList.remove("is-valid");
+    e.target.classList.remove("is-invalid");
+    if (e.target.value.trim().length === 0) {
+      e.target.classList.add("is-invalid");
+    }
+  });
+  nameReset.addEventListener("click", () => {
+    nameInput.classList.remove("is-valid");
+    if (nameResetter.length === 0) {
+      throw new Error("The filename resetter is missing.");
+    }
+    nameInput.value = nameResetter[0].value;
+    nameInput.classList.add("is-valid");
+    nameInput.classList.remove("is-invalid");
+    if (nameInput.value.trim().length === 0) {
+      nameInput.classList.add("is-invalid");
+    }
   });
 
   function resetClassifications(i) {
@@ -77,6 +111,8 @@
     if (elm == null) {
       throw new Error("The element of the releaser validator is null.");
     }
+    elm.classList.remove("is-valid", "is-invalid");
+
     let value = elm.value.trim().toUpperCase();
     value = value.replace(/[^A-ZÀ-ÖØ-Þ0-9\-,& ]/g, "");
     elm.value = value;
@@ -99,7 +135,7 @@
     const requireBounds = value.length < min || value.length > max;
     if (req != null && requireBounds) {
       elm.classList.add("is-invalid");
-      if (elm.id === "artifact-editor-releaser-1") {
+      if (elm.id === "-1") {
         error.classList.add("d-block");
       }
       return;

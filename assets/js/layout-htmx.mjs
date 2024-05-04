@@ -64,11 +64,43 @@ export function htmxEvents() {
     afterClassifications(event, `artifact-editor-magazine-for-dos`);
     // record releaser.
     afterUpdate(event, `artifact-editor-releaser-reset`);
-    afterUpdate(event, `artifact-editor-releaser-update`);
+    afterUpdateRels(event, `artifact-editor-releaser-update`);
     // record title.
     afterUpdate(event, `artifact-editor-title`);
     afterReset(event, `artifact-editor-title-reset`, `artifact-editor-title`);
+    // record filename.
+    afterUpdate(event, `artifact-editor-filename`);
+    afterReset(
+      event,
+      `artifact-editor-filename-reset`,
+      `artifact-editor-filename`
+    );
+    // record virustotal.
+    afterUpdate(event, `artifact-editor-virustotal`);
   });
+}
+
+function afterUpdateRels(event, buttonId) {
+  if (event.detail.elt === null) return;
+  if (event.detail.elt.id !== `${buttonId}`) return;
+
+  const alertId = "artifact-editor-alert";
+  const liveAlert = document.getElementById(alertId);
+  if (typeof liveAlert === "undefined" || liveAlert === null) {
+    throw new Error(`The htmx alert element ${alertId} is null`);
+  }
+
+  const rel1 = "artifact-editor-releaser-1";
+  const rel2 = "artifact-editor-releaser-2";
+  if (event.detail.successful) {
+    updateSuccess(liveAlert, rel1);
+    return updateSuccess(liveAlert, rel2);
+  }
+  if (event.detail.failed && event.detail.xhr) {
+    updateError(event, rel1, liveAlert);
+    return updateError(event, rel2, liveAlert);
+  }
+  errorBrowser(liveAlert);
 }
 
 function removeSelectsValid(event, buttonId) {
@@ -103,7 +135,7 @@ function afterUpdate(event, inputId) {
     return updateSuccess(liveAlert, inputId);
   }
   if (event.detail.failed && event.detail.xhr) {
-    return updateError(event, liveAlert);
+    return updateError(event, inputId, liveAlert);
   }
   errorBrowser(liveAlert);
 }
@@ -127,7 +159,7 @@ function afterClassifications(event, buttonId) {
     return;
   }
   if (event.detail.failed && event.detail.xhr) {
-    return updateError(event, liveAlert);
+    return updateError(event, null, liveAlert);
   }
   errorBrowser(liveAlert);
 }
@@ -141,12 +173,14 @@ function afterReset(event, buttonId, inputId) {
   if (typeof liveAlert === "undefined" || liveAlert === null) {
     throw new Error(`The htmx alert element ${alertId} is null`);
   }
-
+  console.log(`afterReset ${buttonId} ${inputId}`, event.detail);
   if (event.detail.successful) {
+    console.log(event.detail.successful, `sucessful`);
     return updateSuccess(liveAlert, inputId);
   }
   if (event.detail.failed && event.detail.xhr) {
-    return updateError(event, liveAlert);
+    console.log(event.detail.failed, `failed`);
+    return updateError(event, inputId, liveAlert);
   }
   errorBrowser(liveAlert);
 }
@@ -164,10 +198,14 @@ function updateSuccess(alertElm, successId) {
   elm.classList.add("is-valid");
 }
 
-function updateError(event, alertElm) {
+function updateError(event, inputId, alertElm) {
   const xhr = event.detail.xhr;
   alertElm.innerText = `${timeNow()} Could not update the database record, ${xhr.responseText}.`;
   alertElm.classList.remove("d-none");
+  if (inputId !== null) {
+    const inputElm = document.getElementById(inputId);
+    inputElm.classList.remove("is-valid");
+  }
 }
 
 /**

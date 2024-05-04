@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/Defacto2/server/internal/form"
 	"github.com/Defacto2/server/model"
@@ -69,12 +70,12 @@ func RecordReleasers(c echo.Context) error {
 
 	notModified := (rel1 == reset1 && rel2 == reset2)
 	if notModified {
-		return c.String(http.StatusOK, "Update releasers")
+		return c.String(http.StatusNoContent, "")
 	}
-	if err := recordReleases(rel1, rel2, key); err != nil {
+	if _, err := recordReleases(rel1, rel2, key); err != nil {
 		return badRequest(c, err)
 	}
-	return c.String(http.StatusOK, "Updated releasers")
+	return c.String(http.StatusOK, "Update releasers")
 }
 
 // RecordReleasersReset handles the post submission for the File artifact releaser reset.
@@ -83,27 +84,67 @@ func RecordReleasers(c echo.Context) error {
 func RecordReleasersReset(c echo.Context) error {
 	reset1 := c.FormValue("releaser1")
 	reset2 := c.FormValue("releaser2")
+	rel1 := c.FormValue("artifact-editor-releaser1")
+	rel2 := c.FormValue("artifact-editor-releaser2")
 	key := c.FormValue("artifact-editor-key")
 
-	if err := recordReleases(reset1, reset2, key); err != nil {
+	notModified := (rel1 == reset1 && rel2 == reset2)
+	if notModified {
+		return c.String(http.StatusNoContent, "")
+	}
+	val, err := recordReleases(reset1, reset2, key)
+	if err != nil {
 		return badRequest(c, err)
 	}
-	return c.String(http.StatusOK, "Resetted")
+	html := ""
+	s := strings.Split(val, "+")
+	for i, x := range s {
+		s[i] = "<q>" + x + "</q>"
+	}
+	html = strings.Join(s, " + ")
+	return c.HTML(http.StatusOK, html)
 }
 
-func recordReleases(rel1, rel2, key string) error {
+func recordReleases(rel1, rel2, key string) (string, error) {
 	id, err := strconv.Atoi(key)
 	if err != nil {
-		return fmt.Errorf("strconv.Atoi: %w", err)
+		return "", fmt.Errorf("strconv.Atoi: %w", err)
 	}
 	val := rel1
 	if rel2 != "" {
 		val = rel1 + "+" + rel2
 	}
 	if err := model.UpdateReleasers(int64(id), val); err != nil {
-		return fmt.Errorf("model.UpdateReleasers: %w", err)
+		return "", fmt.Errorf("model.UpdateReleasers: %w", err)
 	}
-	return nil
+	return val, nil
+}
+
+func RecordFilename(c echo.Context) error {
+	name := c.FormValue("artifact-editor-filename")
+	key := c.FormValue("artifact-editor-key")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	name = form.SanitizeFilename(name)
+	if err := model.UpdateFilename(int64(id), name); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "Updated")
+}
+
+func RecordFilenameReset(c echo.Context) error {
+	reset := c.FormValue("artifact-editor-filename-resetter")
+	key := c.FormValue("artifact-editor-key")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if err := model.UpdateFilename(int64(id), reset); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, reset)
 }
 
 func RecordTitle(c echo.Context) error {
@@ -150,6 +191,19 @@ func RecordToggle(c echo.Context, state bool) error {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "offline")
+}
+
+func RecordVirusTotal(c echo.Context) error {
+	link := c.FormValue("artifact-editor-virustotal")
+	key := c.FormValue("artifact-editor-key")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if err := model.UpdateVirusTotal(int64(id), link); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "Updated")
 }
 
 // badRequest returns an error response with a 400 status code,
