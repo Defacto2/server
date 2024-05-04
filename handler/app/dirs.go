@@ -186,6 +186,7 @@ func (dir Dirs) artifactEditor(art *models.File, data map[string]interface{}, re
 	data["modZipContent"] = strings.TrimSpace(art.FileZipContent.String)
 	data["modOS"] = strings.ToLower(strings.TrimSpace(art.Platform.String))
 	data["modTag"] = strings.ToLower(strings.TrimSpace(art.Section.String))
+	data["virusTotal"] = strings.TrimSpace(art.FileSecurityAlertURL.String)
 	return data
 }
 

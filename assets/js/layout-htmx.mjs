@@ -19,6 +19,8 @@ export function htmxEvents() {
     removeSelectsValid(event, `artifact-editor-intro-for-dos`);
     removeSelectsValid(event, `artifact-editor-intro-for-win`);
     removeSelectsValid(event, `artifact-editor-intro-for-bbs`);
+    removeSelectsValid(event, `artifact-editor-trainer-for-dos`);
+    removeSelectsValid(event, `artifact-editor-trainer-for-win`);
     removeSelectsValid(event, `artifact-editor-ansi-for-bbs`);
     removeSelectsValid(event, `artifact-editor-magazine-for-text`);
     removeSelectsValid(event, `artifact-editor-magazine-for-dos`);
@@ -55,6 +57,8 @@ export function htmxEvents() {
     afterClassifications(event, `artifact-editor-intro-for-dos`);
     afterClassifications(event, `artifact-editor-intro-for-win`);
     afterClassifications(event, `artifact-editor-intro-for-bbs`);
+    afterClassifications(event, `artifact-editor-trainer-for-dos`);
+    afterClassifications(event, `artifact-editor-trainer-for-win`);
     afterClassifications(event, `artifact-editor-ansi-for-bbs`);
     afterClassifications(event, `artifact-editor-magazine-for-text`);
     afterClassifications(event, `artifact-editor-magazine-for-dos`);
