@@ -236,10 +236,10 @@
             <label for="artifact-editor-releaser-1" class="form-label"><span class="col-form-label-lg">Releasers</span> <small>maximum of 2</small></label>
             <form id="artifact-editor-releasers-form">
             <div class="input-group col-xl-3">
-              <button class="btn btn-success" type="button" id="artifact-editor-releaser-update"
+              <button class="btn btn-success w-25" type="button" id="artifact-editor-releaser-update"
                 hx-post="/editor/releasers"
                 hx-include="[name='artifact-editor-key']"
-                hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Update releasers</button>
+                hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Save the releasers</button>
               <input type="text" list="artifact-editor-list-1" name="artifact-editor-releaser1" id="artifact-editor-releaser-1" autocomplete="off"
                   aria-describedby="artifact-editor-releasers-help" placeholder="example: Razor 1911" class="form-control{{if eq $rel1 ""}} is-invalid{{end}}" 
                   value="{{$rel1}}" data-reset-rel1="{{$rel1}}"
@@ -283,6 +283,10 @@
             <label class="form-label col-form-label-lg">Date of release</label>
             <div class="btn-toolbar" role="toolbar">
               <div class="input-group">
+                <button class="btn btn-success w-25" type="button" id="artifact-editor-date-update"
+                  hx-post="/editor/date"
+                  hx-include="[name='artifact-editor-key'],[name='artifact-editor-year'],[name='artifact-editor-month'],[name='artifact-editor-day']"
+                  hx-vals=''>Save the date</button>
                 <span class="input-group-text">Year of release</span>
                 <input type="number" name="artifact-editor-year" min="1980" max="{{exampleYear}}" autocomplete="off"
                   id="artifact-editor-year" aria-label="Year of release" class="form-control input-date" 
@@ -296,20 +300,23 @@
                   id="artifact-editor-day" aria-label="Day of release" class="form-control input-date" 
                   value="{{$dateDay}}" data-reset-day="{{$dateDay}}" placeholder="{{exampleDay}}">
               </div>
-              <div class="btn-group" role="group" aria-label="First group">
-                <button type="button" class="btn btn-link">Reset date <small>to 
-                  <q>{{- if ne $dateYear 0}}{{$dateYear}}{{end}}
-                  {{- if ne $dateMonth 0}}-{{$dateMonth}}{{end}}
-                  {{- if ne $dateDay 0}}-{{$dateDay}}{{end}}</q></small>
-                </button>
-                {{- if eq $lastMod true}}
-                <button type="button" class="btn btn-link">Use the last modification date
-                  {{- if ne $lmYear 0}}<small><q>{{$lmYear}}
-                  {{- if ne $lmMonth 0}}-{{$lmMonth}}{{end}}
-                  {{- if ne $lmDay 0}}-{{$lmDay}}{{end}}</q></small>{{end}}
-                </button>
-                {{- end}}
-              </div>
+            </div>
+            <div id="artifact-editor-date-help" class="form-text">
+              A year of release is recommended.
+            </div>
+            <div class="btn-group" role="group" aria-label="First group">
+              <button type="button" class="btn btn-link">Reset date <small>to 
+                <q>{{- if ne $dateYear 0}}{{$dateYear}}{{end}}
+                {{- if ne $dateMonth 0}}-{{$dateMonth}}{{end}}
+                {{- if ne $dateDay 0}}-{{$dateDay}}{{end}}</q></small>
+              </button>
+              {{- if eq $lastMod true}}
+              <button type="button" class="btn btn-link">Use the last modification date
+                {{- if ne $lmYear 0}}<small><q>{{$lmYear}}
+                {{- if ne $lmMonth 0}}-{{$lmMonth}}{{end}}
+                {{- if ne $lmDay 0}}-{{$lmDay}}{{end}}</q></small>{{end}}
+              </button>
+              {{- end}}
             </div>
           </div>
         </div>

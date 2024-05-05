@@ -33,6 +33,60 @@
     }
   });
 
+  const yearInput = document.getElementById("artifact-editor-year");
+  const monthInput = document.getElementById("artifact-editor-month");
+  const dayInput = document.getElementById("artifact-editor-day");
+  yearInput.addEventListener("input", validateDate);
+  monthInput.addEventListener("input", validateDate);
+  dayInput.addEventListener("input", validateDate);
+
+  function validateDate() {
+    yearInput.classList.remove("is-invalid", "is-valid");
+    monthInput.classList.remove("is-invalid", "is-valid");
+    dayInput.classList.remove("is-invalid", "is-valid");
+
+    const year = parseInt(yearInput.value, 10);
+    if (isNaN(year)) {
+      yearInput.value = "0";
+    } else {
+      yearInput.value = year; // remove leading zeros
+    }
+    const month = parseInt(monthInput.value, 10);
+    if (isNaN(month)) {
+      monthInput.value = "0";
+    } else {
+      monthInput.value = month;
+    }
+    const day = parseInt(dayInput.value, 10);
+    if (isNaN(day)) {
+      dayInput.value = "0";
+    } else {
+      dayInput.value = day;
+    }
+
+    const none = 0;
+    const currentYear = new Date().getFullYear();
+    const validYear = year >= 1980 && year <= currentYear;
+    // use greater than instead of != none to avoid a isNaN condition
+    if (year > none && !validYear) {
+      yearInput.classList.add("is-invalid");
+    }
+    const validMonth = month >= 1 && month <= 12;
+    if (month > none && !validMonth) {
+      monthInput.classList.add("is-invalid");
+    }
+    const validDay = day >= 1 && day <= 31;
+    if (day > none && !validDay) {
+      dayInput.classList.add("is-invalid");
+    }
+    if (year == none || (isNaN(year) && (validMonth || validDay))) {
+      yearInput.classList.add("is-invalid");
+    }
+    if ((month == none || isNaN(month)) && validDay) {
+      monthInput.classList.add("is-invalid");
+    }
+  }
+
   updateLabelOS();
   for (let i = 0; i < resets.length; i++) {
     resetClassifications(i);

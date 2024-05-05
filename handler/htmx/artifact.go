@@ -67,10 +67,15 @@ func RecordDateIssued(c echo.Context) error {
 	if err != nil {
 		return badRequest(c, err)
 	}
+
+	y, m, d := form.ValidDate(year, month, day)
+	if !y || !m || !d {
+		return c.NoContent(http.StatusNoContent)
+	}
 	if err := model.UpdateDateIssued(int64(id), year, month, day); err != nil {
 		return badRequest(c, err)
 	}
-	return c.String(http.StatusOK, "Updated")
+	return c.String(http.StatusOK, "Save the date")
 }
 
 // RecordReleasers handles the post submission for the File artifact releaser.
@@ -90,7 +95,7 @@ func RecordReleasers(c echo.Context) error {
 	if _, err := recordReleases(rel1, rel2, key); err != nil {
 		return badRequest(c, err)
 	}
-	return c.String(http.StatusOK, "Update releasers")
+	return c.String(http.StatusOK, "Save the releasers")
 }
 
 // RecordReleasersReset handles the post submission for the File artifact releaser reset.

@@ -4,7 +4,9 @@ package form
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/tags"
@@ -48,6 +50,45 @@ func SanitizeFilename(name string) string {
 	return s
 }
 
-func SanitizeDate(y, m, d string) (string, string, string) {
-	return "", "", ""
+func ValidDate(y, m, d string) (bool, bool, bool) {
+	yOk, mOk, dOk := true, true, true
+
+	year, err := strconv.Atoi(y)
+	if err != nil {
+		yOk = false
+	}
+	currentYear := time.Now().Year()
+	useYear := year != 0 && y != ""
+	validYear := year >= model.EpochYear && year <= currentYear
+	if useYear && !validYear {
+		yOk = false
+	}
+
+	month, err := strconv.Atoi(m)
+	if err != nil {
+		mOk = false
+	}
+	useMonth := month != 0 && m != ""
+	validMonth := month >= 1 && month <= 12
+	if useMonth && !validMonth {
+		mOk = false
+	}
+
+	day, err := strconv.Atoi(d)
+	if err != nil {
+		dOk = false
+	}
+	useDay := day != 0 && d != ""
+	validDay := day >= 1 && day <= 31
+	if useDay && !validDay {
+		dOk = false
+	}
+
+	if !useYear && (validMonth || validDay) {
+		yOk = false
+	}
+	if !useMonth && validDay {
+		mOk = false
+	}
+	return yOk, mOk, dOk
 }

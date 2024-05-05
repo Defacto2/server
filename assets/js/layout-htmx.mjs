@@ -77,7 +77,34 @@ export function htmxEvents() {
     );
     // record virustotal.
     afterUpdate(event, `artifact-editor-virustotal`);
+    // record date.
+    afterUpdateDate(event, `artifact-editor-date-update`);
   });
+}
+
+function afterUpdateDate(event, buttonId) {
+  if (event.detail.elt === null) return;
+  if (event.detail.elt.id !== `${buttonId}`) return;
+
+  const alertId = "artifact-editor-alert";
+  const liveAlert = document.getElementById(alertId);
+  if (typeof liveAlert === "undefined" || liveAlert === null) {
+    throw new Error(`The htmx alert element ${alertId} is null`);
+  }
+  const year = "artifact-editor-year";
+  const month = "artifact-editor-month";
+  const day = "artifact-editor-day";
+  if (event.detail.successful) {
+    updateSuccess(liveAlert, year);
+    updateSuccess(liveAlert, month);
+    return updateSuccess(liveAlert, day);
+  }
+  if (event.detail.failed && event.detail.xhr) {
+    updateError(event, year, liveAlert);
+    updateError(event, month, liveAlert);
+    return updateError(event, day, liveAlert);
+  }
+  errorBrowser(liveAlert);
 }
 
 function afterUpdateRels(event, buttonId) {
