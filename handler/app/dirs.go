@@ -127,7 +127,7 @@ func (dir Dirs) Artifact(c echo.Context, logger *zap.SugaredLogger, readonly boo
 	data["musicians"] = art.CreditAudio.String
 	// links to other records and sites
 	data["listLinks"] = artifactLinks(art)
-	data["listReleases"] = art.ListRelations.String
+	data["listRelations"] = art.ListRelations.String
 	data["listWebsites"] = art.ListLinks.String
 	data["demozoo"] = artifactID(art.WebIDDemozoo.Int64)
 	data["pouet"] = artifactID(art.WebIDPouet.Int64)
