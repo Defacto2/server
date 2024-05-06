@@ -22,6 +22,58 @@
   const titleReset = document.getElementById(title + "-reset");
   const titleResetter = document.getElementsByName(title + "-resetter");
 
+  const creTextInput = document.getElementById("artifact-editor-credit-text");
+  creTextInput.addEventListener("input", (e) => {
+    e.target.classList.remove("is-valid");
+  });
+  const creIllInput = document.getElementById("artifact-editor-credit-ill");
+  creIllInput.addEventListener("input", (e) => {
+    e.target.classList.remove("is-valid");
+  });
+  const creProgInput = document.getElementById("artifact-editor-credit-prog");
+  creProgInput.addEventListener("input", (e) => {
+    e.target.classList.remove("is-valid");
+  });
+  const creAudioInput = document.getElementById("artifact-editor-credit-audio");
+  creAudioInput.addEventListener("input", (e) => {
+    e.target.classList.remove("is-valid");
+  });
+  const creResetter = document.getElementById(
+    "artifact-editor-credit-resetter"
+  );
+  const creReset = document.getElementById("artifact-editor-credit-reset");
+  creReset.addEventListener("click", () => {
+    console.log("resetting credits");
+    if (creResetter.length === 0) {
+      throw new Error("The creator resetter is missing.");
+    }
+    const creators = creResetter.value.split(";");
+    if (creators.length != 4) {
+      throw new Error("The creator resetter values are invalid.");
+    }
+    const text = creators[0];
+    const ill = creators[1];
+    const prog = creators[2];
+    const audio = creators[3];
+    creTextInput.value = text;
+    creIllInput.value = ill;
+    creProgInput.value = prog;
+    creAudioInput.value = audio;
+  });
+
+  const cmmtInput = document.getElementById("artifact-editor-comment");
+  cmmtInput.addEventListener("input", (e) => {
+    e.target.classList.remove("is-valid");
+  });
+  const cmmtReset = document.getElementById("artifact-editor-comment-reset");
+  const cmmtResetter = document.getElementById(
+    "artifact-editor-comment-resetter"
+  );
+  cmmtReset.addEventListener("click", () => {
+    cmmtInput.classList.remove("is-valid");
+    cmmtInput.value = cmmtResetter.value;
+  });
+
   const virustotalInput = document.getElementById("artifact-editor-virustotal");
   virustotalInput.addEventListener("input", (e) => {
     e.target.classList.remove("is-valid", "is-invalid");
@@ -39,6 +91,39 @@
   yearInput.addEventListener("input", validateDate);
   monthInput.addEventListener("input", validateDate);
   dayInput.addEventListener("input", validateDate);
+  const dateReset = document.getElementById("artifact-editor-date-reset");
+  const dateResetter = document.getElementById("artifact-editor-date-resetter");
+  const dateLastMod = document.getElementById("artifact-editor-date-lastmod");
+  const dateLastModder = document.getElementById(
+    "artifact-editor-date-lastmodder"
+  );
+  dateReset.addEventListener("click", () => {
+    yearInput.classList.remove("is-invalid", "is-valid");
+    monthInput.classList.remove("is-invalid", "is-valid");
+    dayInput.classList.remove("is-invalid", "is-valid");
+    const value = dateResetter.value;
+    const values = value.split("-");
+    if (values.length != 3) {
+      throw new Error("The date resetter values are invalid.");
+    }
+    yearInput.value = values[0];
+    monthInput.value = values[1];
+    dayInput.value = values[2];
+  });
+
+  dateLastMod.addEventListener("click", () => {
+    yearInput.classList.remove("is-invalid", "is-valid");
+    monthInput.classList.remove("is-invalid", "is-valid");
+    dayInput.classList.remove("is-invalid", "is-valid");
+    const value = dateLastModder.value;
+    const values = value.split("-");
+    if (values.length != 3) {
+      throw new Error("The date last modder values are invalid.");
+    }
+    yearInput.value = values[0];
+    monthInput.value = values[1];
+    dayInput.value = values[2];
+  });
 
   function validateDate() {
     yearInput.classList.remove("is-invalid", "is-valid");
@@ -79,7 +164,7 @@
     if (day > none && !validDay) {
       dayInput.classList.add("is-invalid");
     }
-    if (year == none || (isNaN(year) && (validMonth || validDay))) {
+    if (isNaN(year) && (validMonth || validDay)) {
       yearInput.classList.add("is-invalid");
     }
     if ((month == none || isNaN(month)) && validDay) {

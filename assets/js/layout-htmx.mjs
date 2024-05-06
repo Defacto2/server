@@ -78,8 +78,47 @@ export function htmxEvents() {
     // record virustotal.
     afterUpdate(event, `artifact-editor-virustotal`);
     // record date.
+    afterUpdate(event, `artifact-editor-date-reset`);
+    afterUpdate(event, `artifact-editor-date-lastmod`);
     afterUpdateDate(event, `artifact-editor-date-update`);
+    // record creators.
+    afterUpdate(event, `artifact-editor-credit-text`);
+    afterUpdate(event, `artifact-editor-credit-ill`);
+    afterUpdate(event, `artifact-editor-credit-prog`);
+    afterUpdate(event, `artifact-editor-credit-audio`);
+    afterCreators(event, `artifact-editor-credit-resetter`);
+    // record comment.
+    afterUpdate(event, `artifact-editor-comment`);
+    afterReset(
+      event,
+      `artifact-editor-comment-reset`,
+      `artifact-editor-comment`
+    );
   });
+}
+
+function afterCreators(event, buttonId) {
+  if (event.detail.elt === null) return;
+  if (event.detail.elt.id !== `${buttonId}`) return;
+
+  const alertId = "artifact-editor-alert";
+  const liveAlert = document.getElementById(alertId);
+  if (typeof liveAlert === "undefined" || liveAlert === null) {
+    throw new Error(`The htmx alert element ${alertId} is null`);
+  }
+  if (event.detail.successful) {
+    updateSuccess(liveAlert, `artifact-editor-credit-text`);
+    updateSuccess(liveAlert, `artifact-editor-credit-ill`);
+    updateSuccess(liveAlert, `artifact-editor-credit-prog`);
+    return updateSuccess(liveAlert, `artifact-editor-credit-audio`);
+  }
+  if (event.detail.failed && event.detail.xhr) {
+    updateError(event, `artifact-editor-credit-text`, liveAlert);
+    updateError(event, `artifact-editor-credit-ill`, liveAlert);
+    updateError(event, `artifact-editor-credit-prog`, liveAlert);
+    return updateError(event, `artifact-editor-credit-audio`, liveAlert);
+  }
+  errorBrowser(liveAlert);
 }
 
 function afterUpdateDate(event, buttonId) {

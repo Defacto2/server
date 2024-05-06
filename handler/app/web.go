@@ -559,7 +559,7 @@ func artifactTmpls(lock bool, files ...string) []string {
 	}
 	return append(files,
 		GlobTo("artifact_editor.tmpl"),
-		GlobTo("artifact_editorHtmx.tmpl"),
+		GlobTo("artifactedit_htmx.tmpl"),
 		GlobTo("artifact_editor_table.tmpl"),
 		GlobTo("artifact_table_switch.tmpl"))
 }

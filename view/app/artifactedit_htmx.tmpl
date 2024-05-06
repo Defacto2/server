@@ -1,4 +1,4 @@
-{{- /*  artifact_editorHtmx.tmpl  */}}
+{{- /*  artifactedit_htmx.tmpl  */}}
 {{- define "artifactEditorHtmx" -}}
 {{- if eq false (index . "editor")}}{{/*  render nothing  */}}{{else}}
 {{- $faSize := "fa-fw fa-2x" -}}
@@ -210,10 +210,9 @@
             </div>
           </div>
         </div>
-        <hr>
         <div class="row">
           {{- /*  Title or brief description  */}}
-          <div class="col-xl-10 offset-xl-1 mb-3">
+          <div class="col-xl-11 mb-3">
             <label for="artifact-editor-title" class="col-form-label-lg">Title</label>
             <input type="text" name="artifact-editor-title" id="artifact-editor-title" autocomplete="off" maxlength="100"
               aria-describedby="artifact-editor-title-help" placeholder="example: 500000th release!" class="form-control form-control-lg" 
@@ -232,7 +231,7 @@
             </div>
           </div>
           {{- /*  Releasers  */}}
-          <div class="col-xl-10 offset-xl-1 mb-3">
+          <div class="col-xl-11 mb-3">
             <label for="artifact-editor-releaser-1" class="form-label"><span class="col-form-label-lg">Releasers</span> <small>maximum of 2</small></label>
             <form id="artifact-editor-releasers-form">
             <div class="input-group col-xl-3">
@@ -279,7 +278,7 @@
         </div>
         <div class="row">
           {{- /*  Date of release  */}}
-          <div class="col-xl-10 offset-xl-1">
+          <div class="col-xl-11">
             <label class="form-label col-form-label-lg">Date of release</label>
             <div class="btn-toolbar" role="toolbar">
               <div class="input-group">
@@ -304,15 +303,25 @@
             <div id="artifact-editor-date-help" class="form-text">
               A year of release is recommended.
             </div>
-            <div class="btn-group" role="group" aria-label="First group">
-              <button type="button" class="btn btn-link">Reset date <small>to 
-                <q>{{- if ne $dateYear 0}}{{$dateYear}}{{end}}
+            <div class="btn-group" role="group">
+              <input type="hidden" id="artifact-editor-date-resetter" name="artifact-editor-date-resetter" value="{{$dateYear}}-{{$dateMonth}}-{{$dateDay}}" readonly>
+              <button type="button" class="btn btn-link" id="artifact-editor-date-reset"
+                  hx-post="/editor/date/reset"
+                  hx-target="#artifact-editor-date-quote"
+                  hx-include="[name='artifact-editor-key'],[name='artifact-editor-date-resetter']">
+                  Reset date <small>to 
+                <q id="artifact-editor-date-quote">{{- if ne $dateYear 0}}{{$dateYear}}{{end}}
                 {{- if ne $dateMonth 0}}-{{$dateMonth}}{{end}}
                 {{- if ne $dateDay 0}}-{{$dateDay}}{{end}}</q></small>
               </button>
               {{- if eq $lastMod true}}
-              <button type="button" class="btn btn-link">Use the last modification date
-                {{- if ne $lmYear 0}}<small><q>{{$lmYear}}
+              <input type="hidden" id="artifact-editor-date-lastmodder" name="artifact-editor-date-lastmodder" value="{{$lmYear}}-{{$lmMonth}}-{{$lmDay}}" readonly>
+              <button type="button" class="btn btn-link" id="artifact-editor-date-lastmod"
+                  hx-post="/editor/date/lastmod"
+                  hx-target="#artifact-editor-date-lastmod-quote"
+                  hx-include="[name='artifact-editor-key'],[name='artifact-editor-date-lastmodder']">
+                  Use the last modification date
+                {{- if ne $lmYear 0}}<small><q id="artifact-editor-date-lastmod-quote">{{$lmYear}}
                 {{- if ne $lmMonth 0}}-{{$lmMonth}}{{end}}
                 {{- if ne $lmDay 0}}-{{$lmDay}}{{end}}</q></small>{{end}}
               </button>
@@ -320,42 +329,76 @@
             </div>
           </div>
         </div>
-        <div class="row col-xl-10 offset-xl-1 mt-3">
+        <div class="row col-xl-11 mt-3">
           {{- /*  Creators  */}}
           <label class="form-label col-form-label-lg">Creators</label>
           <div class="input-group mb-1">
             <div class="form-floating">
-              <input type="text" class="form-control" id="artifact-editor-credit-text" autocomplete="off" maxlength="1024"
-                value="{{$writers}}" data-reset-credit-text="{{$writers}}" placeholder="example: Name" aria-details="artifact-editor-credit-help">
+              <input type="text" class="form-control" name="artifact-editor-credittext" id="artifact-editor-credit-text" autocomplete="off" maxlength="1024"
+                value="{{$writers}}" data-reset-credit-text="{{$writers}}" placeholder="example: Name" aria-details="artifact-editor-credit-help"
+                hx-post="/editor/creator/text" 
+                hx-trigger="keyup changed delay:1s"
+                hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-credit-text">Writers</label>
             </div>
             <div class="form-floating">
-              <input type="text" class="form-control" id="artifact-editor-credit-ill" autocomplete="off" maxlength="1024"
-                value="{{$artists}}" data-reset-credit-ill="{{$artists}}" placeholder="example: Name" aria-details="artifact-editor-credit-help">
+              <input type="text" class="form-control" name="artifact-editor-creditill" id="artifact-editor-credit-ill" autocomplete="off" maxlength="1024"
+                value="{{$artists}}" data-reset-credit-ill="{{$artists}}" placeholder="example: Name" aria-details="artifact-editor-credit-help"
+                hx-post="/editor/creator/ill" 
+                hx-trigger="keyup changed delay:1s"
+                hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-credit-ill">Visual artists</label>
             </div>
           </div>
           <div class="input-group">
             <div class="form-floating">
-              <input type="text" class="form-control" id="artifact-editor-credit-prog" autocomplete="off" maxlength="100" 
-                value="{{$programmers}}" data-reset-credit-prog="{{$programmers}}" placeholder="example: Name" aria-details="artifact-editor-credit-help">
+              <input type="text" class="form-control" name="artifact-editor-creditprog" id="artifact-editor-credit-prog" autocomplete="off" maxlength="100" 
+                value="{{$programmers}}" data-reset-credit-prog="{{$programmers}}" placeholder="example: Name" aria-details="artifact-editor-credit-help"
+                hx-post="/editor/creator/prog" 
+                hx-trigger="keyup changed delay:1s"
+                hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-credit-prog">Programmers</label>
             </div>
             <div class="form-floating">
-              <input type="text" class="form-control" id="artifact-editor-credit-audio" autocomplete="off" maxlength="100"
-                value="{{$musicians}}" data-reset-credit-audio="{{$musicians}}" placeholder="example: Name" aria-details="artifact-editor-credit-help">
+              <input type="text" class="form-control" name="artifact-editor-creditaudio" id="artifact-editor-credit-audio" autocomplete="off" maxlength="100"
+                value="{{$musicians}}" data-reset-credit-audio="{{$musicians}}" placeholder="example: Name" aria-details="artifact-editor-credit-help"
+                hx-post="/editor/creator/audio" 
+                hx-trigger="keyup changed delay:1s"
+                hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-credit-audio">Musicians</label>
             </div>
           </div>
           <div class="form-text" id="artifact-editor-credit-help">Join multiple creators with commas, for example: <q>Name,Name two,Name3</q>.</div>
         </div>
+        <div class="btn-group" role="group">
+          <input type="hidden" id="artifact-editor-credit-resetter" name="artifact-editor-credit-resetter" value="{{$writers}};{{$artists}};{{$programmers}};{{$musicians}}" readonly>
+          <button type="button" class="btn btn-link" id="artifact-editor-credit-reset"
+              hx-post="/editor/creator/reset"
+              hx-include="[name='artifact-editor-key'],
+              [name='artifact-editor-credit-resetter'],
+              [name='artifact-editor-credittext'],
+              [name='artifact-editor-creditill'],
+              [name='artifact-editor-creditprog'],
+              [name='artifact-editor-creditaudio']">
+              Undo creators
+          </button>
+        </div>
         {{/*  Comments  */}}
-        <div class="row col-xl-10 offset-xl-1 mt-3 pb-3">
+        <div class="row col-xl-11 mt-3 pb-3">
           <label class="form-label col-form-label-lg">Comment</label>
           <div>
-            <textarea class="form-control" id="artifact-editor-comment" style="height:6em;" 
-              aria-describedby="artifact-editor-comment-help">{{index . "comment"}}</textarea>
+            <textarea class="form-control" name="artifact-editor-comment" id="artifact-editor-comment" 
+              style="height:6em;" autocomplete="off" aria-describedby="artifact-editor-comment-help"                
+              hx-post="/editor/comment" 
+              hx-trigger="keyup changed delay:1s"
+              hx-include="[name='artifact-editor-key']">{{index . "comment"}}</textarea>
             <div class="form-text" id="artifact-editor-comment-help">Optional, comments can be used to store longer form notes about the artifact.</div>
+            <input type="hidden" id="artifact-editor-comment-resetter" name="artifact-editor-comment-resetter" value="{{index . "comment"}}" readonly>
+            <button type="button" class="btn btn-link" id="artifact-editor-comment-reset"
+                hx-post="/editor/comment/reset"
+                hx-include="[name='artifact-editor-key'],[name='artifact-editor-comment'],[name='artifact-editor-comment-resetter']">
+                Undo comment
+            </button>
           </div>
         </div>
         {{- /*  Links  */}}

@@ -367,7 +367,25 @@ func (c Configuration) editor(e *echo.Echo, logger *zap.SugaredLogger, dir app.D
 	title.POST("/reset", htmx.RecordTitleReset)
 
 	editor.POST("/virustotal", htmx.RecordVirusTotal)
-	editor.POST("/date", htmx.RecordDateIssued)
+
+	date := editor.Group("/date")
+	date.POST("", htmx.RecordDateIssued)
+	date.POST("/reset", func(cx echo.Context) error {
+		return htmx.RecordDateIssuedReset(cx, "artifact-editor-date-resetter")
+	})
+	date.POST("/lastmod", func(cx echo.Context) error {
+		return htmx.RecordDateIssuedReset(cx, "artifact-editor-date-lastmodder")
+	})
+
+	creator := editor.Group("/creator")
+	creator.POST("/text", htmx.RecordCreatorText)
+	creator.POST("/ill", htmx.RecordCreatorIll)
+	creator.POST("/prog", htmx.RecordCreatorProg)
+	creator.POST("/audio", htmx.RecordCreatorAudio)
+	creator.POST("/reset", htmx.RecordCreatorReset)
+
+	editor.POST("/comment", htmx.RecordComment)
+	editor.POST("/comment/reset", htmx.RecordCommentReset)
 
 	online := editor.Group("/online")
 	online.POST("/true", func(cx echo.Context) error {

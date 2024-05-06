@@ -95,6 +95,118 @@ func UpdateDateIssued(id int64, y, m, d string) error {
 	return nil
 }
 
+func UpdateCreatorText(id int64, val string) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	f.CreditText = null.StringFrom(val)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", val, err)
+	}
+	return nil
+}
+
+func UpdateCreatorIll(id int64, val string) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	f.CreditIllustration = null.StringFrom(val)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", val, err)
+	}
+	return nil
+}
+
+func UpdateCreatorProg(id int64, val string) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	f.CreditProgram = null.StringFrom(val)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", val, err)
+	}
+	return nil
+}
+
+func UpdateCreatorAudio(id int64, val string) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	f.CreditAudio = null.StringFrom(val)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", val, err)
+	}
+	return nil
+}
+
+func UpdateCreators(id int64, text, ill, prog, audio string) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	f.CreditText = null.StringFrom(text)
+	f.CreditIllustration = null.StringFrom(ill)
+	f.CreditProgram = null.StringFrom(prog)
+	f.CreditAudio = null.StringFrom(audio)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", "updatecreators", err)
+	}
+	return nil
+}
+
+func UpdateComment(id int64, val string) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	val = strings.TrimSpace(val)
+	f.Comment = null.StringFrom(val)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", val, err)
+	}
+	return nil
+}
+
 // UpdateFilename updates the filename column value with val.
 // It returns nil if the update was successful.
 // Id is the database id of the record.
