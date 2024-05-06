@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -201,6 +202,152 @@ func UpdateComment(id int64, val string) error {
 	}
 	val = strings.TrimSpace(val)
 	f.Comment = null.StringFrom(val)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", val, err)
+	}
+	return nil
+}
+
+func UpdateYouTube(id int64, watch string) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	// todo move to form, confirm length and chars
+	watch = strings.TrimSpace(watch)
+	f.WebIDYoutube = null.StringFrom(watch)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", watch, err)
+	}
+	return nil
+}
+
+func UpdateDemozoo(id int64, val string) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	// todo validate range
+	i, err := strconv.ParseInt(val, 10, 64)
+	if err != nil {
+		return fmt.Errorf("%s: %w", val, err)
+	}
+	f.WebIDDemozoo = null.Int64From(i)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", val, err)
+	}
+	return nil
+}
+
+func UpdatePouet(id int64, val string) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	// todo validate range
+	i, err := strconv.ParseInt(val, 10, 64)
+	if err != nil {
+		return fmt.Errorf("%s: %w", val, err)
+	}
+	f.WebIDPouet = null.Int64From(i)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", val, err)
+	}
+	return nil
+}
+
+func Update16Colors(id int64, val string) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	// todo validate 16colors, drop url etc
+	val = strings.TrimSpace(val)
+	f.WebID16colors = null.StringFrom(val)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", val, err)
+	}
+	return nil
+}
+
+func UpdateGitHub(id int64, val string) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	// todo validate github repo name/repo fmt etc
+	val = strings.TrimSpace(val)
+	f.WebIDGithub = null.StringFrom(val)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", val, err)
+	}
+	return nil
+}
+
+func UpdateRelations(id int64, val string) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	// todo validate github repo name/repo fmt etc
+	val = strings.TrimSpace(val)
+	f.ListRelations = null.StringFrom(val)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", val, err)
+	}
+	return nil
+}
+
+func UpdateSites(id int64, val string) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	// todo validate github repo name/repo fmt etc
+	val = strings.TrimSpace(val)
+	f.ListLinks = null.StringFrom(val)
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
 		return fmt.Errorf("%s: %w", val, err)
 	}

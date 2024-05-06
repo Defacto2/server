@@ -402,41 +402,76 @@
           </div>
         </div>
         {{- /*  Links  */}}
-        <hr>
+        <form       
+            hx-post="/editor/links"
+            hx-trigger="input from:#artifact-editor-youtube,
+                        input from:#artifact-editor-demozoo,
+                        input from:#artifact-editor-pouet,
+                        input from:#artifact-editor-16colors,
+                        input from:#artifact-editor-github,
+                        input from:#artifact-editor-link-releasers,
+                        input from:#artifact-editor-link-websites"
+            hx-include="[name='artifact-editor-key']"
+            hx-target="#toast">
         <div class="row mt-3">
           <label class="form-label col-form-label-lg">Links</label>
           <div class="col-xl-2">
             <div class="form-floating">
-              <input type="text" class="form-control" id="artifact-editor-youtube" autocomplete="off" maxlength="11" minlength="11"
-                value="{{index . "youtube"}}" data-reset-youtube="{{index . "youtube"}}" placeholder="62BuDfBIcMo">
+              <input type="hidden" name="artifact-editor-youtubeval" value="{{index . "youtube"}}" readonly>
+              <input type="text" class="form-control" name="artifact-editor-youtube" id="artifact-editor-youtube" 
+                autocomplete="off" maxlength="11" minlength="11"
+                value="{{index . "youtube"}}" data-reset-youtube="{{index . "youtube"}}" placeholder="62BuDfBIcMo"
+                hx-post="/editor/youtube"
+                hx-trigger="keyup changed delay:1s"
+                hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-youtube">YouTube ID</label>
             </div>
           </div>
           <div class="col-xl-2">
             <div class="form-floating">
-              <input type="number" min="1" max="{{ demozooSanity }}" class="form-control" id="artifact-editor-demozoo" 
-                value="{{index . "demozoo"}}" data-reset-demozoo="{{index . "demozoo"}}" placeholder="185828">
+              <input type="hidden" name="artifact-editor-demozooval" value="{{index . "demozoo"}}" readonly>
+              <input type="number" class="form-control" name="artifact-editor-demozoo" id="artifact-editor-demozoo" 
+                autocomplete="off" min="1" max="{{ demozooSanity }}" 
+                value="{{index . "demozoo"}}" data-reset-demozoo="{{index . "demozoo"}}" placeholder="185828"
+                hx-post="/editor/demozoo"
+                hx-trigger="keyup changed delay:1s"
+                hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-demozoo">Demozoo prod</label>
             </div>
           </div>
           <div class="col-xl-2">
             <div class="form-floating">
-              <input type="number" min="1" max="{{ pouetSanity }}" class="form-control" id="artifact-editor-pouet" 
-                value="{{index . "pouet"}}" data-reset-pouet="{{index . "pouet"}}" placeholder="75854">
+              <input type="hidden" name="artifact-editor-pouetval" value="{{index . "pouet"}}" readonly>
+              <input type="number" class="form-control" name="artifact-editor-pouet" id="artifact-editor-pouet" 
+                autocomplete="off" min="1" max="{{ pouetSanity }}" 
+                value="{{index . "pouet"}}" data-reset-pouet="{{index . "pouet"}}" placeholder="75854"
+                hx-post="/editor/pouet"
+                hx-trigger="keyup changed delay:1s"
+                hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-pouet">Pouet prod</label>
             </div>
           </div>
           <div class="col-xl-3">
             <div class="form-floating">
-              <input type="text" class="form-control" id="artifact-editor-16colors" autocomplete="off" maxlength="1024" 
-                value="{{index . "sixteenColors"}}" data-reset-16colors="{{index . "sixteenColors"}}" placeholder="/tags/magazine/dreadloc">
+              <input type="hidden" name="artifact-editor-16colorstval" value="{{index . "sixteenColors"}}" readonly>
+              <input type="text" class="form-control" name="artifact-editor-16colors" id="artifact-editor-16colors" 
+                autocomplete="off" maxlength="1024" 
+                value="{{index . "sixteenColors"}}" data-reset-16colors="{{index . "sixteenColors"}}" placeholder="/tags/magazine/dreadloc"
+                hx-post="/editor/16colors"
+                hx-trigger="keyup changed delay:1s"
+                hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-16colors">16colors partial</label>
             </div>
           </div>
           <div class="col-xl-3">
             <div class="form-floating">
-              <input type="text" class="form-control" id="artifact-editor-github" autocomplete="off" maxlength="1024"
-                value="{{index . "github"}}" data-reset-github="{{index . "github"}}" placeholder="/Defacto2/database">
+              <input type="hidden" name="artifact-editor-githubval" value="{{index . "github"}}" readonly>
+              <input type="text" class="form-control" name="artifact-editor-github" id="artifact-editor-github" 
+                autocomplete="off" maxlength="1024"
+                value="{{index . "github"}}" data-reset-github="{{index . "github"}}" placeholder="/Defacto2/database"
+                hx-post="/editor/github"
+                hx-trigger="keyup changed delay:1s"
+                hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-github">GitHub repo</label>
             </div>
           </div>
@@ -444,27 +479,38 @@
         <div class="row mt-1 pb-3">
           <div class="col-xl-6">
             <div class="form-floating">
-            <input type="text" class="form-control" id="artifact-editor-link-releasers" autocomplete="off" maxlength="255"
-              value="{{index . "listReleases"}}" data-reset-linkreleases="{{index . "listReleases"}}"  
-              placeholder="example: NFO;9f1c2" aria-describedby="artifact-editor-link-releasers-help">
-            <label for="artifact-editor-link-releasers">Link to releases</label>
+              <input type="hidden" name="artifact-editor-relationsval" value="{{index . "listReleases"}}" readonly>
+              <input type="text" class="form-control" name="artifact-editor-relations" id="artifact-editor-relations" 
+                autocomplete="off" maxlength="255"
+                value="{{index . "listReleases"}}" data-reset-linkreleases="{{index . "listReleases"}}"  
+                placeholder="example: NFO;9f1c2" aria-describedby="artifact-editor-relations-help"
+                hx-post="/editor/relations"
+                hx-trigger="keyup changed delay:1s"
+                hx-include="[name='artifact-editor-key']">
+              <label for="artifact-editor-relations">Link to releases</label>
             </div>
-            <div class="form-text" id="artifact-editor-link-releasers-help">Brief description and file ID, for example: 
+            <div class="form-text" id="artifact-editor-relations-help">Brief description and file ID, for example: 
               <q>NFO;<a href="/f/9f1c2">9f1c2</a>|Intro;<a href="/f/a92116e">a92116e</a></q>.
             </div>
           </div>
           <div class="col-xl-6">
             <div class="form-floating">
-            <input type="text" class="form-control" id="artifact-editor-link-websites" autocomplete="off" maxlength="2048" 
+            <input type="text" class="form-control" name="artifact-editor-websites" id="artifact-editor-websites" 
+              autocomplete="off" maxlength="2048" 
               value="{{index . "listWebsites"}}" data-reset-linkwebsites="{{index . "listWebsites"}}" 
-              placeholder="Web;example.com" aria-describedby="artifact-editor-link-websites-help">
-            <label for="artifact-editor-link-websites">Link to websites</label>
+              placeholder="Web;example.com" aria-describedby="artifact-editor-websites-help"
+              hx-post="/editor/sites"
+              hx-trigger="keyup changed delay:1s"
+              hx-include="[name='artifact-editor-key']">
+            <label for="artifact-editor-websites">Link to websites</label>
             </div>
-            <div class="form-text" id="artifact-editor-link-websites-help">Brief description and link, for example: 
+            <div class="form-text" id="artifact-editor-websites-help">Brief description and link, for example: 
               <q>Web;<a href="https://example.com">example.com</a>|Docs;<a href="https://docs.example.com">docs.example.com</a></q>.
             </div>
           </div>
         </div>
+        <span id="toast"></span>
+        </form>
       </div>
       {{/*  Switch to assets and reset buttons  */}}
       <div class="modal-footer g-3 mt-1">

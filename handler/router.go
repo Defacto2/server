@@ -387,6 +387,15 @@ func (c Configuration) editor(e *echo.Echo, logger *zap.SugaredLogger, dir app.D
 	editor.POST("/comment", htmx.RecordComment)
 	editor.POST("/comment/reset", htmx.RecordCommentReset)
 
+	editor.POST("/links", htmx.RecordLinks)
+	editor.POST("/demozoo", htmx.RecordDemozoo)
+	editor.POST("/youtube", htmx.RecordYouTube)
+	editor.POST("/pouet", htmx.RecordPouet)
+	editor.POST("/16colors", htmx.Record16Colors)
+	editor.POST("/github", htmx.RecordGitHub)
+	editor.POST("/relations", htmx.RecordRelations)
+	editor.POST("/sites", htmx.RecordSites)
+
 	online := editor.Group("/online")
 	online.POST("/true", func(cx echo.Context) error {
 		return htmx.RecordToggle(cx, true)

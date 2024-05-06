@@ -94,6 +94,14 @@ export function htmxEvents() {
       `artifact-editor-comment-reset`,
       `artifact-editor-comment`
     );
+    // record links.
+    afterUpdate(event, `artifact-editor-youtube`);
+    afterUpdate(event, `artifact-editor-demozoo`);
+    afterUpdate(event, `artifact-editor-pouet`);
+    afterUpdate(event, `artifact-editor-16colors`);
+    afterUpdate(event, `artifact-editor-github`);
+    afterUpdate(event, `artifact-editor-relations`);
+    afterUpdate(event, `artifact-editor-websites`);
   });
 }
 
@@ -252,6 +260,7 @@ function afterReset(event, buttonId, inputId) {
 }
 
 function updateSuccess(alertElm, successId) {
+  console.log(`updateSuccess ${successId}`);
   alertElm.innerText = "";
   alertElm.classList.add("d-none");
   if (typeof successId === "undefined" || successId === null) {

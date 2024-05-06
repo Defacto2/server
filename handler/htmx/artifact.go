@@ -226,6 +226,198 @@ func RecordCommentReset(c echo.Context) error {
 	return c.String(http.StatusOK, "Undo comment")
 }
 
+func RecordYouTube(c echo.Context) error {
+	key := c.FormValue("artifact-editor-key")
+	watch := c.FormValue("artifact-editor-youtube")
+	val := c.FormValue("artifact-editor-youtubeval")
+	if watch == val {
+		return c.NoContent(http.StatusNoContent)
+	}
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if err := model.UpdateYouTube(int64(id), watch); err != nil {
+		return badRequest(c, err)
+	}
+	return RecordLinks(c)
+}
+
+func RecordDemozoo(c echo.Context) error {
+	key := c.FormValue("artifact-editor-key")
+	prod := c.FormValue("artifact-editor-demozoo")
+	val := c.FormValue("artifact-editor-demozooval")
+	if prod == val {
+		return c.NoContent(http.StatusNoContent)
+	}
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if err := model.UpdateDemozoo(int64(id), prod); err != nil {
+		return badRequest(c, err)
+	}
+	return RecordLinks(c)
+}
+
+func RecordPouet(c echo.Context) error {
+	key := c.FormValue("artifact-editor-key")
+	pouet := c.FormValue("artifact-editor-pouet")
+	val := c.FormValue("artifact-editor-pouetval")
+	if pouet == val {
+		return c.NoContent(http.StatusNoContent)
+	}
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if err := model.UpdatePouet(int64(id), pouet); err != nil {
+		return badRequest(c, err)
+	}
+	return RecordLinks(c)
+}
+
+func Record16Colors(c echo.Context) error {
+	key := c.FormValue("artifact-editor-key")
+	colors := c.FormValue("artifact-editor-16colors")
+	val := c.FormValue("artifact-editor-16colorsval")
+	if colors == val {
+		return c.NoContent(http.StatusNoContent)
+	}
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if err := model.Update16Colors(int64(id), colors); err != nil {
+		return badRequest(c, err)
+	}
+	return RecordLinks(c)
+}
+
+func RecordGitHub(c echo.Context) error {
+	key := c.FormValue("artifact-editor-key")
+	github := c.FormValue("artifact-editor-github")
+	val := c.FormValue("artifact-editor-githubval")
+	if github == val {
+		return c.NoContent(http.StatusNoContent)
+	}
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if err := model.UpdateGitHub(int64(id), github); err != nil {
+		return badRequest(c, err)
+	}
+	return RecordLinks(c)
+}
+
+func RecordRelations(c echo.Context) error {
+	key := c.FormValue("artifact-editor-key")
+	rels := c.FormValue("artifact-editor-relations")
+	val := c.FormValue("artifact-editor-relationsval")
+	if rels == val {
+		return c.NoContent(http.StatusNoContent)
+	}
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if err := model.UpdateRelations(int64(id), rels); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "Updated")
+}
+
+func RecordSites(c echo.Context) error {
+	key := c.FormValue("artifact-editor-key")
+	rels := c.FormValue("artifact-editor-websites")
+	val := c.FormValue("artifact-editor-websitesval")
+	if rels == val {
+		return c.NoContent(http.StatusNoContent)
+	}
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if err := model.UpdateSites(int64(id), rels); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "Updated")
+}
+
+func RecordLinks(c echo.Context) error {
+	links := []string{}
+	youtube := c.FormValue("artifact-editor-youtube")
+	if youtube != "" {
+		links = append(links, recordlinksRel("youtube.com/watch?v="+youtube))
+	}
+	demozoo := c.FormValue("artifact-editor-demozoo")
+	if demozoo != "" {
+		links = append(links, recordlinksRel("demozoo.org/productions/"+demozoo))
+	}
+	pouet := c.FormValue("artifact-editor-pouet")
+	if pouet != "" {
+		links = append(links, recordlinksRel("pouet.net/prod.php?which="+pouet))
+	}
+	colors16 := c.FormValue("artifact-editor-16colors")
+	if colors16 != "" {
+		links = append(links, recordlinksRel("16colo.rs/"+colors16))
+	}
+	github := c.FormValue("artifact-editor-github")
+	if github != "" {
+		links = append(links, recordlinksRel("github.com/"+github))
+	}
+	rels := c.FormValue("artifact-editor-link-releasers")
+	if rels != "" {
+		links = append(links, recordlinksRels(rels))
+	}
+	sites := c.FormValue("artifact-editor-link-websites")
+	if sites != "" {
+		links = append(links, recordlinksSites(sites))
+	}
+	s := strings.Join(links, "<br>")
+	return c.HTML(http.StatusOK, s)
+}
+
+func recordlinksRel(url string) string {
+	return `<a href="https://` + url + `">` + url + `</a>`
+}
+
+func recordlinksSites(rels string) string {
+	links := strings.Split(rels, "|")
+	hrefs := []string{}
+	for _, link := range links {
+		s := strings.Split(link, ";")
+		if len(s) != 2 {
+			continue
+		}
+		name := s[0]
+		id := s[1]
+		ref := `<a href="https://` + id + `">` + name + `</a>`
+		hrefs = append(hrefs, ref)
+	}
+	return strings.Join(hrefs, " + ")
+}
+
+func recordlinksRels(sites string) string {
+	//  "NFO;9f1c2|Intro;a92116e". Split by | and then by ;
+	links := strings.Split(sites, "|")
+	hrefs := []string{}
+	for _, link := range links {
+		// 0 = NFO, 1 = 9f1c2
+		// 0 = Intro, 1 = a92116e
+		s := strings.Split(link, ";")
+		if len(s) != 2 {
+			continue
+		}
+		name := s[0]
+		id := s[1]
+		ref := `<a href="/f/` + id + `">` + name + `</a>`
+		hrefs = append(hrefs, ref)
+	}
+	return strings.Join(hrefs, " + ")
+}
+
 // RecordReleasers handles the post submission for the File artifact releaser.
 // It will only update the releaser1 and the releaser2 values if they have changed.
 // The return value is either "Updated" or "Update" depending on if the values have changed.
