@@ -519,6 +519,7 @@
                 <select name="uploader-advanced-operatingsystem" id="uploader-advanced-operating-system" class="form-select"
                   placeholder="Lookup classifications…" 
                   hx-post="/uploader/classifications" 
+                  hx-include="[name='uploader-advanced-category']"
                   hx-target="#uploader-advanced-classification-help">
                 {{- template "optionOS" . }}
                 </select>
@@ -529,6 +530,7 @@
                 <select name="uploader-advanced-category" id="uploader-advanced-category" class="form-select"
                   placeholder="Lookup classifications…"
                   hx-post="/uploader/classifications" 
+                  hx-include="[name='uploader-advanced-operatingsystem']"
                   hx-target="#uploader-advanced-classification-help">
                 {{- template "optionTag" . }}
                 </select>
