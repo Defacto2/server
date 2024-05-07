@@ -91,6 +91,9 @@ const (
 		combineGroup +
 		whereRelNull
 
+	// all SQL statements must have a tailing space,
+	// otherwise the statement can break when concatenated with other SQL statements.
+
 	fromFiles SQL = "FROM files "
 	// select distinct releaser names.
 	distReleaser SQL = "SELECT DISTINCT releaser, "
@@ -99,11 +102,11 @@ const (
 	// exclude empty releaser names.
 	whereRelNull SQL = "WHERE NULLIF(releaser, '') IS NOT NULL "
 	// releaserBy is a partial SQL statement to group the results by the releaser name.
-	releaserBy SQL = "GROUP BY releaser ORDER BY releaser ASC"
+	releaserBy SQL = "GROUP BY releaser ORDER BY releaser ASC "
 	// only include releasers with public records.
-	deletedatIsNull SQL = "AND files.deletedat IS NULL"
+	deletedatIsNull SQL = "AND files.deletedat IS NULL "
 	// order the list by the oldest year and the releaser name.
-	orderReleaser SQL = "ORDER BY releaser ASC"
+	orderReleaser SQL = "ORDER BY releaser ASC "
 	// require the releaser name to be not empty.
 	havingCount SQL = "HAVING (COUNT(files.filename) > 0) "
 	// group the results by the releaser name and deleteat.
@@ -121,10 +124,13 @@ const (
 	// filter the results by the file count and the oldest year,
 	// this is to exclude releasers with less than 1 file or an unknown release year.
 	filterCountAndYear SQL = "HAVING (COUNT(files.filename) > 0) AND (MIN(files.date_issued_year) > 1970) "
+	// // order the list by the oldest year and the releaser name
+	orderSumDesc SQL = "ORDER BY count_sum DESC, releaser ASC "
 	// order the list by the oldest year and the releaser name.
-	orderMinYearRel SQL = "ORDER BY min_year ASC, releaser ASC"
+	orderMinYearRel SQL = "ORDER BY min_year ASC, releaser ASC "
 	// sum the filesize of files per releaser.
-	sumSize SQL = "SUM(files.filesize) AS size_total "
+	sumSize      SQL = "SUM(files.filesize) AS size_total "
+	sumSizeComma SQL = "SUM(files.filesize) AS size_total, "
 )
 
 // ReleasersAlphabetical selects a list of distinct releasers or groups,
@@ -176,7 +182,7 @@ func ReleasersProlific() SQL {
 		groupbyRel +
 		havingCount +
 		deletedatIsNull +
-		"ORDER BY count_sum DESC, releaser ASC" // order the list by the oldest year and the releaser name
+		orderSumDesc
 }
 
 // BBSsProlific selects a list of distinct releasers or groups,
@@ -187,7 +193,7 @@ func BBSsProlific() SQL {
 		groupbyRel +
 		havingCount +
 		deletedatIsNull +
-		"ORDER BY count_sum DESC, releaser ASC" // order the list by the oldest year and the releaser name
+		orderSumDesc
 }
 
 // ReleasersOldest selects a list of distinct releasers or groups,
@@ -195,7 +201,7 @@ func BBSsProlific() SQL {
 func ReleasersOldest() SQL {
 	return distReleaser +
 		countSum +
-		sumSize +
+		sumSizeComma +
 		minYear +
 		fromFiles +
 		combineGroup +
@@ -212,7 +218,7 @@ func ReleasersOldest() SQL {
 func BBSsOldest() SQL {
 	return distReleaser +
 		countSum +
-		sumSize +
+		sumSizeComma +
 		minYear +
 		fromFiles +
 		combineGroup +
@@ -229,7 +235,7 @@ func BBSsOldest() SQL {
 func MagazinesOldest() SQL {
 	return distReleaser +
 		countSum +
-		sumSize +
+		sumSizeComma +
 		minYear +
 		fromFiles +
 		combineGroup +
