@@ -23,6 +23,12 @@ const (
 	tag        Templ = "html3_tag"
 )
 
+// GlobTo returns the path to the template file.
+func GlobTo(name string) string {
+	const pathSeparator = "/"
+	return strings.Join([]string{"view", "html3", name}, pathSeparator)
+}
+
 // Index template.
 func index(logger *zap.SugaredLogger, fs embed.FS) *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap(logger)).ParseFS(fs,

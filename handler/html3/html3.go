@@ -148,12 +148,6 @@ func Filename(width int, name null.String) string {
 	return helper.TruncFilename(width, name.String)
 }
 
-// GlobTo returns the path to the template file.
-func GlobTo(name string) string {
-	const pathSeparator = "/"
-	return strings.Join([]string{"view", "html3", name}, pathSeparator)
-}
-
 // ID returns the ID from the URL path.
 // This is only used for the category and platform routes.
 func ID(c echo.Context) string {

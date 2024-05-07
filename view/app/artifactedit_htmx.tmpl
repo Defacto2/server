@@ -87,12 +87,12 @@
           <div class="col-xl-6">
             {{- /*  Classifications  */}}
             <label class="form-label mt-2"><span class="col-form-label-lg">Classifications</span>, 
-              <small id="artifact-editor-classification-help">{{classification $tag $os}}</small>.
+              <small id="artifact-editor-classification-help">{{classification $tag $os | safeHTML}}</small>.
             </label>
             <div class="input-group mb-1">
               <label class="input-group-text w-50" for="artifact-editor-operating-system" id="artifact-editor-os-label">Operating system</label>
               <select name="artifact-editor-operatingsystem" id="artifact-editor-operating-system" class="form-select"
-                aria-describedby="artifact-editor-os-label"
+                aria-describedby="artifact-editor-os-label" autocomplete="off"
                 hx-post="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">
@@ -102,7 +102,7 @@
             <div class="input-group">
               <label class="input-group-text w-50" for="artifact-editor-category" id="artifact-editor-category-label">Tag as category</label>
               <select name="artifact-editor-categories" id="artifact-editor-category" class="form-select"
-                aria-describedby="artifact-editor-category-label"
+                aria-describedby="artifact-editor-category-label" autocomplete="off"
                 hx-post="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">
@@ -184,8 +184,7 @@
             </div>
           </div>
         </div>
-        <hr>
-        <div class="row pb-3">
+        <div class="row mt-3 pb-3">
           {{/*  Filename  */}}
           <div class="col-xl-6">
             <label for="artifact-editor-filename" class="col-form-label-lg">Filename</label>
@@ -225,7 +224,7 @@
         </div>
         <div class="row">
           {{- /*  Title or brief description  */}}
-          <div class="col-xl-11 mb-3">
+          <div class="col-xl-6">
             <label for="artifact-editor-title" class="col-form-label-lg">Title</label>
             <input type="text" name="artifact-editor-title" id="artifact-editor-title" autocomplete="off" maxlength="{{$hundred}}"
               aria-describedby="artifact-editor-title-help" placeholder="example: 500000th release!" class="form-control form-control-lg" 
@@ -244,15 +243,34 @@
                   Reset title <small>to <q id="artifact-editor-title-quote">{{$title}}</q></small></button>
             </div>
           </div>
+          {{/*  Comments  */}}
+          <div class="col-xl-6">
+            <label class="form-label col-form-label-lg">Comment</label>
+              <textarea class="form-control" name="artifact-editor-comment" id="artifact-editor-comment" 
+                style="height:6em;" autocomplete="off" aria-describedby="artifact-editor-comment-help"                
+                hx-post="/editor/comment" 
+                hx-trigger="keyup changed delay:{{$lDelay}}"
+                hx-include="[name='artifact-editor-key']">{{$comment}}</textarea>
+              <div class="form-text" id="artifact-editor-comment-help">Optional, comments can be used to store longer form notes about the artifact.</div>
+              <input type="hidden" id="artifact-editor-comment-resetter" name="artifact-editor-comment-resetter" value="{{$comment}}" readonly>
+              <button type="button" class="btn btn-link" id="artifact-editor-comment-reset"
+                  hx-post="/editor/comment/reset"
+                  hx-include="[name='artifact-editor-key'],
+                              [name='artifact-editor-comment'],
+                              [name='artifact-editor-comment-resetter']">
+                              Undo comment</button>
+          </div>
+        </div>
+        <div class="row mt-3">
           {{- /*  Releasers  */}}
-          <div class="col-xl-11 mb-3">
-            <label for="artifact-editor-releaser-1" class="form-label"><span class="col-form-label-lg">Releasers</span> <small>maximum of 2</small></label>
+          <div class="col-xl-6">
+            <label for="artifact-editor-releaser-1" class="form-label col-form-label-lg"><span class="">Releasers</span> <small>maximum of 2</small></label>
             <form id="artifact-editor-releasers-form">
               <div class="input-group col-xl-3">
-                <button class="btn btn-success w-25" type="button" id="artifact-editor-releaser-update"
+                <button class="btn btn-success" type="button" id="artifact-editor-releaser-update"
                     hx-post="/editor/releasers"
                     hx-include="[name='artifact-editor-key']"
-                    hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Save the releasers</button>
+                    hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Save</button>
                 <input type="text" list="artifact-editor-list-1" name="artifact-editor-releaser1" id="artifact-editor-releaser-1" autocomplete="off"
                     aria-describedby="artifact-editor-releasers-help" placeholder="example: Razor 1911" class="form-control{{if eq $rel1 ""}} is-invalid{{end}}" 
                     value="{{$rel1}}" data-reset-rel1="{{$rel1}}"
@@ -275,7 +293,7 @@
             </div>
             <div id="artifact-editor-releasers-help" class="form-text">
               A releaser can be a group name, bbs name or ftp site.<br> 
-              A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q>,
+              A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q>,<br>
               for example: <q>Dark Domain BBS</q> or <q>Dark Domain FTP</q>.
             </div>
             <div class="btn-group" role="group">
@@ -291,31 +309,33 @@
                   {{if ne $rel2 ""}}+<q>{{$rel2}}</q>{{end}}</span></small></button>
             </div>
           </div>
-        </div>
-        <div class="row">
           {{- /*  Date of release  */}}
-          <div class="col-xl-11">
+          <div class="col-xl-6">
             <label class="form-label col-form-label-lg">Date of release</label>
             <div class="btn-toolbar" role="toolbar">
               <div class="input-group">
-                <button class="btn btn-success w-25" type="button" id="artifact-editor-date-update"
+                <span class="input-group-text">Year</span>
+                <input type="hidden" name="artifact-editor-yearval" value="{{$dateYear}}" readonly>
+                <input type="number" name="artifact-editor-year" min="1980" max="{{exampleYear}}" autocomplete="off"
+                  id="artifact-editor-year" aria-label="Year of release" class="form-control input-date" 
+                  value="{{$dateYear}}" placeholder="{{exampleYear}}">
+                <span class="input-group-text">Month</span>
+                <input type="hidden" name="artifact-editor-monthval" value="{{$dateYear}}" readonly>
+                <input type="number" name="artifact-editor-month" min="1" max="12" autocomplete="off"
+                  id="artifact-editor-month" aria-label="Month of release" class="form-control input-date" 
+                  value="{{$dateMonth}}" placeholder="{{exampleMonth}}">
+                <span class="input-group-text">Day</span>
+                <input type="hidden" name="artifact-editor-dayval" value="{{$dateYear}}" readonly>
+                <input type="number" name="artifact-editor-day" min="1" max="31" autocomplete="off"
+                  id="artifact-editor-day" aria-label="Day of release" class="form-control input-date" 
+                  value="{{$dateDay}}" placeholder="{{exampleDay}}">
+                <button class="btn btn-success" type="button" id="artifact-editor-date-update"
                   hx-post="/editor/date"
                   hx-include="[name='artifact-editor-key'],
                               [name='artifact-editor-year'],
+                              [name='artifact-editor-year-resetter']
                               [name='artifact-editor-month'],
-                              [name='artifact-editor-day']">Save the date</button>
-                <span class="input-group-text">Year of release</span>
-                <input type="number" name="artifact-editor-year" min="1980" max="{{exampleYear}}" autocomplete="off"
-                  id="artifact-editor-year" aria-label="Year of release" class="form-control input-date" 
-                  value="{{$dateYear}}" data-reset-year="{{$dateYear}}" placeholder="{{exampleYear}}">
-                <span class="input-group-text">Month</span>
-                <input type="number" name="artifact-editor-month" min="1" max="12" autocomplete="off"
-                  id="artifact-editor-month" aria-label="Month of release" class="form-control input-date" 
-                  value="{{$dateMonth}}" data-reset-month="{{$dateMonth}}" placeholder="{{exampleMonth}}">
-                <span class="input-group-text">Day</span>
-                <input type="number" name="artifact-editor-day" min="1" max="31" autocomplete="off"
-                  id="artifact-editor-day" aria-label="Day of release" class="form-control input-date" 
-                  value="{{$dateDay}}" data-reset-day="{{$dateDay}}" placeholder="{{exampleDay}}">
+                              [name='artifact-editor-day']">Save</button>
               </div>
             </div>
             <div id="artifact-editor-date-help" class="form-text">
@@ -403,25 +423,6 @@
               [name='artifact-editor-creditaudio']">
               Undo creators
           </button>
-        </div>
-        {{/*  Comments  */}}
-        <div class="row col-xl-11 mt-3">
-          <label class="form-label col-form-label-lg">Comment</label>
-          <div>
-            <textarea class="form-control" name="artifact-editor-comment" id="artifact-editor-comment" 
-              style="height:6em;" autocomplete="off" aria-describedby="artifact-editor-comment-help"                
-              hx-post="/editor/comment" 
-              hx-trigger="keyup changed delay:{{$lDelay}}"
-              hx-include="[name='artifact-editor-key']">{{$comment}}</textarea>
-            <div class="form-text" id="artifact-editor-comment-help">Optional, comments can be used to store longer form notes about the artifact.</div>
-            <input type="hidden" id="artifact-editor-comment-resetter" name="artifact-editor-comment-resetter" value="{{$comment}}" readonly>
-            <button type="button" class="btn btn-link" id="artifact-editor-comment-reset"
-                hx-post="/editor/comment/reset"
-                hx-include="[name='artifact-editor-key'],
-                            [name='artifact-editor-comment'],
-                            [name='artifact-editor-comment-resetter']">
-                            Undo comment</button>
-          </div>
         </div>
         {{- /*  Links  */}}
         <form class="mt-3"      

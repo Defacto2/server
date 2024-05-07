@@ -173,10 +173,12 @@
   }
 
   updateLabelOS();
+  updateLabelCat();
   for (let i = 0; i < resets.length; i++) {
     resetClassifications(i);
   }
   osInput.addEventListener("input", updateLabelOS);
+  catInput.addEventListener("input", updateLabelCat);
   rel1Input.addEventListener("input", (e) => validateReleaser(e.target));
   rel2Input.addEventListener("input", (e) => validateReleaser(e.target));
   relsReset.addEventListener("click", resetRleasers);
@@ -224,8 +226,11 @@
     elm.addEventListener("click", (e) => {
       e.preventDefault();
       osInput.value = os;
+      osInput.classList.remove("is-invalid");
       catInput.value = cat;
+      catInput.classList.remove("is-invalid");
       updateLabelOS();
+      updateLabelCat();
     });
   }
 
@@ -295,8 +300,17 @@
     let group = sel.parentNode.label;
 
     if (typeof group == "undefined" || group == "") {
+      osInput.classList.add("is-invalid");
+      osInput.classList.remove("is-valid");
       group = `Operating system`;
     }
     osLabel.textContent = `${group}`;
+  }
+  function updateLabelCat() {
+    const index = catInput.selectedIndex;
+    if (index == 0) {
+      catInput.classList.remove("is-valid");
+      catInput.classList.add("is-invalid");
+    }
   }
 })();

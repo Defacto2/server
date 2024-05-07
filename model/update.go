@@ -15,6 +15,47 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
+// UpdateOnline updates the record to be online and public.
+func UpdateOnline(id int64) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	f.Deletedat = null.TimeFromPtr(nil)
+	f.Deletedby = null.String{}
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("f.update: %w", err)
+	}
+	return nil
+}
+
+// UpdateOffline updates the record to be offline and inaccessible to the public.
+func UpdateOffline(id int64) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := FindFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	now := time.Now()
+	f.Deletedat = null.TimeFromPtr(&now)
+	f.Deletedby = null.StringFrom(strings.ToLower(uidPlaceholder))
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("f.update: %w", err)
+	}
+	return nil
+}
+
 // GetPlatformTagInfo returns the human readable platform and tag name.
 func GetPlatformTagInfo(platform, tag string) (string, error) {
 	p, t := tags.TagByURI(platform), tags.TagByURI(tag)
@@ -371,47 +412,6 @@ func UpdateFilename(id int64, val string) error {
 	f.Filename = null.StringFrom(val)
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
 		return fmt.Errorf("%s: %w", val, err)
-	}
-	return nil
-}
-
-// UpdateOnline updates the record to be online and public.
-func UpdateOnline(id int64) error {
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return ErrDB
-	}
-	defer db.Close()
-	ctx := context.Background()
-	f, err := FindFile(ctx, db, id)
-	if err != nil {
-		return fmt.Errorf("find file: %w", err)
-	}
-	f.Deletedat = null.TimeFromPtr(nil)
-	f.Deletedby = null.String{}
-	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
-		return fmt.Errorf("f.update: %w", err)
-	}
-	return nil
-}
-
-// UpdateOffline updates the record to be offline and inaccessible to the public.
-func UpdateOffline(id int64) error {
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return ErrDB
-	}
-	defer db.Close()
-	ctx := context.Background()
-	f, err := FindFile(ctx, db, id)
-	if err != nil {
-		return fmt.Errorf("find file: %w", err)
-	}
-	now := time.Now()
-	f.Deletedat = null.TimeFromPtr(&now)
-	f.Deletedby = null.StringFrom(strings.ToLower(uidPlaceholder))
-	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
-		return fmt.Errorf("f.update: %w", err)
 	}
 	return nil
 }

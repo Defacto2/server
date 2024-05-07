@@ -4,6 +4,7 @@ package form
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"strconv"
 	"strings"
 	"time"
@@ -14,8 +15,10 @@ import (
 )
 
 // HumanizeAndCount returns the human readable name of the platform and section tags combined
-// and the number of existing artifacts.
-func HumanizeAndCount(section, platform string) (string, error) {
+// and the number of existing artifacts. The number of existing artifacts is colored based on
+// the count. If the count is 0, the text is red. If the count is 1, the text is blue. If the
+// count is greater than 1, the text is unmodified.
+func HumanizeAndCount(section, platform string) (template.HTML, error) {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -23,7 +26,6 @@ func HumanizeAndCount(section, platform string) (string, error) {
 			fmt.Errorf("postgres.ConnectDB: %w", err)
 	}
 	defer db.Close()
-
 	s := tags.TagByURI(section)
 	p := tags.TagByURI(platform)
 	tag := tags.Humanize(p, s)
@@ -35,7 +37,18 @@ func HumanizeAndCount(section, platform string) (string, error) {
 		return "cannot count the classification",
 			fmt.Errorf("model.CountByClassification: %w", err)
 	}
-	return fmt.Sprintf("%s, %d existing artifacts", tag, count), nil
+	html := ""
+	switch count {
+	case 0:
+		html = fmt.Sprintf("%s, %d existing artifacts", tag, count)
+		html = `<span class="text-danger-emphasis">` + html + `</span>`
+	case 1:
+		html = fmt.Sprintf("%s, %d existing artifacts", tag, count)
+		html = `<span class="text-info-emphasis">` + html + `</span>`
+	default:
+		html = fmt.Sprintf("%s, %d existing artifacts", tag, count)
+	}
+	return template.HTML(html), nil
 }
 
 func SanitizeFilename(name string) string {
