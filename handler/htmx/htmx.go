@@ -23,6 +23,7 @@ var (
 	ErrDB       = errors.New("database connection is nil")
 	ErrExist    = errors.New("file already exists")
 	ErrFileHead = errors.New("file header is nil")
+	ErrKey      = errors.New("numeric record key is invalid")
 	ErrRoutes   = errors.New("echo instance is nil")
 )
 

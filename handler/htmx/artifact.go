@@ -15,9 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var ErrKey = fmt.Errorf("numeric record key is invalid")
-
-// RecordToggle handles the post submission for the File artifact is online and public toggle.
+// RecordToggle handles the post submission for the file artifact record toggle.
 // The return value is either "online" or "offline" depending on the state.
 func RecordToggle(c echo.Context, state bool) error {
 	key := c.FormValue("artifact-editor-key")
@@ -37,7 +35,7 @@ func RecordToggle(c echo.Context, state bool) error {
 	return c.String(http.StatusOK, "offline")
 }
 
-// RecordClassification handles the post submission for the File artifact classification,
+// RecordClassification handles the post submission for the file artifact classifications,
 // such as the platform, operating system, section or category tags.
 // The return value is either the humanized and counted classification or an error.
 func RecordClassification(c echo.Context, logger *zap.SugaredLogger) error {
@@ -63,20 +61,180 @@ func RecordClassification(c echo.Context, logger *zap.SugaredLogger) error {
 	return c.HTML(http.StatusOK, string(html))
 }
 
-// RecordDateIssued handles the post submission for the File artifact date issued.
+// RecordFilename handles the post submission for the file artifact filename.
+func RecordFilename(c echo.Context) error {
+	name := c.FormValue("artifact-editor-filename")
+	key := c.FormValue("artifact-editor-key")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+	}
+	name = form.SanitizeFilename(name)
+	if err := model.UpdateFilename(int64(id), name); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "Updated")
+}
+
+// RecordFilenameReset handles the post submission for the file artifact filename reset.
+func RecordFilenameReset(c echo.Context) error {
+	val := c.FormValue("artifact-editor-filename-resetter")
+	key := c.FormValue("artifact-editor-key")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+	}
+	if err := model.UpdateFilename(int64(id), val); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, val)
+}
+
+// RecordVirusTotal handles the post submission for the file artifact VirusTotal report link.
+func RecordVirusTotal(c echo.Context) error {
+	link := c.FormValue("artifact-editor-virustotal")
+	key := c.FormValue("artifact-editor-key")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+	}
+	if !form.ValidVT(link) {
+		return c.NoContent(http.StatusNoContent)
+	}
+	if err := model.UpdateVirusTotal(int64(id), link); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "Updated")
+}
+
+// RecordTitle handles the post submission for the file artifact title.
+func RecordTitle(c echo.Context) error {
+	title := c.FormValue("artifact-editor-title")
+	key := c.FormValue("artifact-editor-key")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+	}
+	if err := model.UpdateTitle(int64(id), title); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "Updated")
+}
+
+// RecordTitleReset handles the post submission for the file artifact title reset.
+func RecordTitleReset(c echo.Context) error {
+	val := c.FormValue("artifact-editor-title-resetter")
+	key := c.FormValue("artifact-editor-key")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+	}
+	if err := model.UpdateTitle(int64(id), val); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, val)
+}
+
+// RecordComment handles the post submission for the file artifact comment.
+func RecordComment(c echo.Context) error {
+	comment := c.FormValue("artifact-editor-comment")
+	key := c.FormValue("artifact-editor-key")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+	}
+	if err := model.UpdateComment(int64(id), comment); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "Updated")
+}
+
+// RecordCommentReset handles the post submission for the file artifact comment reset.
+func RecordCommentReset(c echo.Context) error {
+	val := c.FormValue("artifact-editor-comment-resetter")
+	key := c.FormValue("artifact-editor-key")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+	}
+	if err := model.UpdateComment(int64(id), val); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "Undo comment")
+}
+
+// RecordReleasers handles the post submission for the file artifact releasers.
+// It will only update the releaser1 and the releaser2 values if they have changed.
+// The return value is either "Updated" or "Update" depending on if the values have changed.
+func RecordReleasers(c echo.Context) error {
+	val1 := c.FormValue("releaser1")
+	val2 := c.FormValue("releaser2")
+	rel1 := c.FormValue("artifact-editor-releaser1")
+	rel2 := c.FormValue("artifact-editor-releaser2")
+	key := c.FormValue("artifact-editor-key")
+	unchanged := (rel1 == val1 && rel2 == val2)
+	if unchanged {
+		return c.NoContent(http.StatusNoContent)
+	}
+	if _, err := recordReleases(rel1, rel2, key); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "Save")
+}
+
+// RecordReleasersReset handles the post submission for the file artifact releasers reset.
+// It will always reset and save the releaser1 and the releaser2 values.
+// The return value is always "Resetted" unless an error occurs.
+func RecordReleasersReset(c echo.Context) error {
+	val1 := c.FormValue("releaser1")
+	val2 := c.FormValue("releaser2")
+	rel1 := c.FormValue("artifact-editor-releaser1")
+	rel2 := c.FormValue("artifact-editor-releaser2")
+	key := c.FormValue("artifact-editor-key")
+	unchanged := (rel1 == val1 && rel2 == val2)
+	if unchanged {
+		return c.String(http.StatusNoContent, "")
+	}
+	val, err := recordReleases(val1, val2, key)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	html := ""
+	s := strings.Split(val, "+")
+	for i, x := range s {
+		s[i] = "<q>" + x + "</q>"
+	}
+	html = strings.Join(s, " + ")
+	return c.HTML(http.StatusOK, html)
+}
+
+func recordReleases(rel1, rel2, key string) (string, error) {
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return "", fmt.Errorf("%w: %w: %q", ErrKey, err, key)
+	}
+	val := rel1
+	if rel2 != "" {
+		val = rel1 + "+" + rel2
+	}
+	if err := model.UpdateReleasers(int64(id), val); err != nil {
+		return "", fmt.Errorf("model.UpdateReleasers: %w", err)
+	}
+	return val, nil
+}
+
+// RecordDateIssued handles the post submission for the file artifact date of release.
 func RecordDateIssued(c echo.Context) error {
 	year := c.FormValue("artifact-editor-year")
 	month := c.FormValue("artifact-editor-month")
 	day := c.FormValue("artifact-editor-day")
 	key := c.FormValue("artifact-editor-key")
-
 	yearval := c.FormValue("artifact-editor-yearval")
 	monthval := c.FormValue("artifact-editor-monthval")
 	dayval := c.FormValue("artifact-editor-dayval")
 	if year == yearval && month == monthval && day == dayval {
 		return c.NoContent(http.StatusNoContent)
 	}
-
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
@@ -91,7 +249,7 @@ func RecordDateIssued(c echo.Context) error {
 	return c.String(http.StatusOK, "Save")
 }
 
-// RecordDateIssuedReset handles the post submission for the File artifact date issued reset.
+// RecordDateIssuedReset handles the post submission for the file artifact date of release reset.
 func RecordDateIssuedReset(c echo.Context, elmId string) error {
 	reset := c.FormValue(elmId)
 	key := c.FormValue("artifact-editor-key")
@@ -99,12 +257,10 @@ func RecordDateIssuedReset(c echo.Context, elmId string) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-
 	vals := strings.Split(reset, "-")
 	if len(vals) != 3 {
 		return badRequest(c, fmt.Errorf("invalid reset date format, requires YYYY-MM-DD"))
 	}
-
 	year, month, day := vals[0], vals[1], vals[2]
 	y, m, d := form.ValidDate(year, month, day)
 	if !y || !m || !d {
@@ -113,7 +269,6 @@ func RecordDateIssuedReset(c echo.Context, elmId string) error {
 	if err := model.UpdateDateIssued(int64(id), year, month, day); err != nil {
 		return badRequest(c, err)
 	}
-
 	s := string(year)
 	if month != "0" {
 		s += "-" + month
@@ -124,15 +279,7 @@ func RecordDateIssuedReset(c echo.Context, elmId string) error {
 	return c.String(http.StatusOK, s)
 }
 
-func creatorFix(s string) string {
-	creators := strings.Split(s, ",")
-	for i, c := range creators {
-		creators[i] = releaser.Clean(c)
-	}
-	return strings.Join(creators, ",")
-}
-
-// RecordCreatorText handles the post submission for the File artifact creator text.
+// RecordCreatorText handles the post submission for the file artifact creator text.
 func RecordCreatorText(c echo.Context) error {
 	creator := c.FormValue("artifact-editor-credittext")
 	key := c.FormValue("artifact-editor-key")
@@ -147,7 +294,7 @@ func RecordCreatorText(c echo.Context) error {
 	return c.String(http.StatusOK, "Updated")
 }
 
-// RecordCreatorIll handles the post submission for the File artifact creator illustrator.
+// RecordCreatorIll handles the post submission for the file artifact creator illustrator.
 func RecordCreatorIll(c echo.Context) error {
 	creator := c.FormValue("artifact-editor-creditill")
 	key := c.FormValue("artifact-editor-key")
@@ -162,7 +309,7 @@ func RecordCreatorIll(c echo.Context) error {
 	return c.String(http.StatusOK, "Updated")
 }
 
-// RecordCreatorProg handles the post submission for the File artifact creator programmer.
+// RecordCreatorProg handles the post submission for the file artifact creator programmer.
 func RecordCreatorProg(c echo.Context) error {
 	creator := c.FormValue("artifact-editor-creditprog")
 	key := c.FormValue("artifact-editor-key")
@@ -177,7 +324,7 @@ func RecordCreatorProg(c echo.Context) error {
 	return c.String(http.StatusOK, "Updated")
 }
 
-// RecordCreatorAudio handles the post submission for the File artifact creator musician.
+// RecordCreatorAudio handles the post submission for the file artifact creator musician.
 func RecordCreatorAudio(c echo.Context) error {
 	creator := c.FormValue("artifact-editor-creditaudio")
 	key := c.FormValue("artifact-editor-key")
@@ -192,7 +339,15 @@ func RecordCreatorAudio(c echo.Context) error {
 	return c.String(http.StatusOK, "Updated")
 }
 
-// RecordCreatorReset handles the post submission for the File artifact creator reset.
+func creatorFix(s string) string {
+	creators := strings.Split(s, ",")
+	for i, c := range creators {
+		creators[i] = releaser.Clean(c)
+	}
+	return strings.Join(creators, ",")
+}
+
+// RecordCreatorReset handles the post submission for the file artifact creators reset.
 func RecordCreatorReset(c echo.Context) error {
 	reset := c.FormValue("artifact-editor-credit-resetter")
 	textval := c.FormValue("artifact-editor-credittext")
@@ -221,35 +376,7 @@ func RecordCreatorReset(c echo.Context) error {
 	return c.String(http.StatusOK, "Undo creators")
 }
 
-// RecordComment handles the post submission for the File artifact comment.
-func RecordComment(c echo.Context) error {
-	comment := c.FormValue("artifact-editor-comment")
-	key := c.FormValue("artifact-editor-key")
-	id, err := strconv.Atoi(key)
-	if err != nil {
-		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
-	}
-	if err := model.UpdateComment(int64(id), comment); err != nil {
-		return badRequest(c, err)
-	}
-	return c.String(http.StatusOK, "Updated")
-}
-
-// RecordCommentReset handles the post submission for the File artifact comment reset.
-func RecordCommentReset(c echo.Context) error {
-	val := c.FormValue("artifact-editor-comment-resetter")
-	key := c.FormValue("artifact-editor-key")
-	id, err := strconv.Atoi(key)
-	if err != nil {
-		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
-	}
-	if err := model.UpdateComment(int64(id), val); err != nil {
-		return badRequest(c, err)
-	}
-	return c.String(http.StatusOK, "Undo comment")
-}
-
-// RecordYouTube handles the post submission for the File artifact YouTube link.
+// RecordYouTube handles the post submission for the file artifact YouTube watch video link.
 func RecordYouTube(c echo.Context) error {
 	key := c.FormValue("artifact-editor-key")
 	watch := c.FormValue("artifact-editor-youtube")
@@ -267,7 +394,7 @@ func RecordYouTube(c echo.Context) error {
 	return RecordLinks(c)
 }
 
-// RecordDemozoo handles the post submission for the File artifact Demozoo link.
+// RecordDemozoo handles the post submission for the file artifact Demozoo production link.
 func RecordDemozoo(c echo.Context) error {
 	key := c.FormValue("artifact-editor-key")
 	prod := c.FormValue("artifact-editor-demozoo")
@@ -285,7 +412,7 @@ func RecordDemozoo(c echo.Context) error {
 	return RecordLinks(c)
 }
 
-// RecordPouet handles the post submission for the File artifact Pouet link.
+// RecordPouet handles the post submission for the file artifact Pouet production link.
 func RecordPouet(c echo.Context) error {
 	key := c.FormValue("artifact-editor-key")
 	pouet := c.FormValue("artifact-editor-pouet")
@@ -303,7 +430,7 @@ func RecordPouet(c echo.Context) error {
 	return RecordLinks(c)
 }
 
-// Record16Colors handles the post submission for the File artifact 16Colors link.
+// Record16Colors handles the post submission for the file artifact 16 Colors link.
 func Record16Colors(c echo.Context) error {
 	key := c.FormValue("artifact-editor-key")
 	colors := c.FormValue("artifact-editor-16colors")
@@ -315,13 +442,14 @@ func Record16Colors(c echo.Context) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.Update16Colors(int64(id), colors); err != nil {
+	link := form.SanitizeURLPath(colors)
+	if err := model.Update16Colors(int64(id), link); err != nil {
 		return badRequest(c, err)
 	}
 	return RecordLinks(c)
 }
 
-// RecordGitHub handles the post submission for the File artifact GitHub link.
+// RecordGitHub handles the post submission for the file artifact GitHub repository link.
 func RecordGitHub(c echo.Context) error {
 	key := c.FormValue("artifact-editor-key")
 	github := c.FormValue("artifact-editor-github")
@@ -333,13 +461,14 @@ func RecordGitHub(c echo.Context) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateGitHub(int64(id), github); err != nil {
+	link := form.SanitizeURLPath(github)
+	if err := model.UpdateGitHub(int64(id), link); err != nil {
 		return badRequest(c, err)
 	}
 	return RecordLinks(c)
 }
 
-// RecordRelations handles the post submission for the File artifact relations.
+// RecordRelations handles the post submission for the file artifact releaser relationships.
 func RecordRelations(c echo.Context) error {
 	key := c.FormValue("artifact-editor-key")
 	rels := c.FormValue("artifact-editor-relations")
@@ -357,7 +486,7 @@ func RecordRelations(c echo.Context) error {
 	return RecordLinks(c)
 }
 
-// RecordSites handles the post submission for the File artifact releaser.
+// RecordSites handles the post submission for the file artifact website links.
 func RecordSites(c echo.Context) error {
 	key := c.FormValue("artifact-editor-key")
 	rels := c.FormValue("artifact-editor-websites")
@@ -375,7 +504,8 @@ func RecordSites(c echo.Context) error {
 	return RecordLinks(c)
 }
 
-// RecordLinks handles the post submission for the File artifact links.
+// RecordLinks handles the post submission for a form submission to provide the
+// HTML formatted links for the "Links" section of the artifact editor.
 func RecordLinks(c echo.Context) error {
 	links := []string{}
 	youtube := c.FormValue("artifact-editor-youtube")
@@ -447,137 +577,6 @@ func recordlinksRels(sites string) string {
 		hrefs = append(hrefs, ref)
 	}
 	return strings.Join(hrefs, " + ")
-}
-
-// RecordReleasers handles the post submission for the File artifact releaser.
-// It will only update the releaser1 and the releaser2 values if they have changed.
-// The return value is either "Updated" or "Update" depending on if the values have changed.
-func RecordReleasers(c echo.Context) error {
-	val1 := c.FormValue("releaser1")
-	val2 := c.FormValue("releaser2")
-	rel1 := c.FormValue("artifact-editor-releaser1")
-	rel2 := c.FormValue("artifact-editor-releaser2")
-	key := c.FormValue("artifact-editor-key")
-	unchanged := (rel1 == val1 && rel2 == val2)
-	if unchanged {
-		return c.NoContent(http.StatusNoContent)
-	}
-	if _, err := recordReleases(rel1, rel2, key); err != nil {
-		return badRequest(c, err)
-	}
-	return c.String(http.StatusOK, "Save")
-}
-
-// RecordReleasersReset handles the post submission for the File artifact releaser reset.
-// It will always reset and save the releaser1 and the releaser2 values.
-// The return value is always "Resetted" unless an error occurs.
-func RecordReleasersReset(c echo.Context) error {
-	val1 := c.FormValue("releaser1")
-	val2 := c.FormValue("releaser2")
-	rel1 := c.FormValue("artifact-editor-releaser1")
-	rel2 := c.FormValue("artifact-editor-releaser2")
-	key := c.FormValue("artifact-editor-key")
-	unchanged := (rel1 == val1 && rel2 == val2)
-	if unchanged {
-		return c.String(http.StatusNoContent, "")
-	}
-	val, err := recordReleases(val1, val2, key)
-	if err != nil {
-		return badRequest(c, err)
-	}
-	html := ""
-	s := strings.Split(val, "+")
-	for i, x := range s {
-		s[i] = "<q>" + x + "</q>"
-	}
-	html = strings.Join(s, " + ")
-	return c.HTML(http.StatusOK, html)
-}
-
-func recordReleases(rel1, rel2, key string) (string, error) {
-	id, err := strconv.Atoi(key)
-	if err != nil {
-		return "", fmt.Errorf("%w: %w: %q", ErrKey, err, key)
-	}
-	val := rel1
-	if rel2 != "" {
-		val = rel1 + "+" + rel2
-	}
-	if err := model.UpdateReleasers(int64(id), val); err != nil {
-		return "", fmt.Errorf("model.UpdateReleasers: %w", err)
-	}
-	return val, nil
-}
-
-// RecordFilename handles the post submission for the File artifact filename.
-func RecordFilename(c echo.Context) error {
-	name := c.FormValue("artifact-editor-filename")
-	key := c.FormValue("artifact-editor-key")
-	id, err := strconv.Atoi(key)
-	if err != nil {
-		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
-	}
-	name = form.SanitizeFilename(name)
-	if err := model.UpdateFilename(int64(id), name); err != nil {
-		return badRequest(c, err)
-	}
-	return c.String(http.StatusOK, "Updated")
-}
-
-// RecordFilenameReset handles the post submission for the File artifact filename reset.
-func RecordFilenameReset(c echo.Context) error {
-	val := c.FormValue("artifact-editor-filename-resetter")
-	key := c.FormValue("artifact-editor-key")
-	id, err := strconv.Atoi(key)
-	if err != nil {
-		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
-	}
-	if err := model.UpdateFilename(int64(id), val); err != nil {
-		return badRequest(c, err)
-	}
-	return c.String(http.StatusOK, val)
-}
-
-// RecordTitle handles the post submission for the File artifact title.
-func RecordTitle(c echo.Context) error {
-	title := c.FormValue("artifact-editor-title")
-	key := c.FormValue("artifact-editor-key")
-	id, err := strconv.Atoi(key)
-	if err != nil {
-		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
-	}
-	if err := model.UpdateTitle(int64(id), title); err != nil {
-		return badRequest(c, err)
-	}
-	return c.String(http.StatusOK, "Updated")
-}
-
-// RecordTitleReset handles the post submission for the File artifact title reset.
-func RecordTitleReset(c echo.Context) error {
-	val := c.FormValue("artifact-editor-title-resetter")
-	key := c.FormValue("artifact-editor-key")
-	id, err := strconv.Atoi(key)
-	if err != nil {
-		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
-	}
-	if err := model.UpdateTitle(int64(id), val); err != nil {
-		return badRequest(c, err)
-	}
-	return c.String(http.StatusOK, val)
-}
-
-// RecordVirusTotal handles the post submission for the File artifact VirusTotal link.
-func RecordVirusTotal(c echo.Context) error {
-	link := c.FormValue("artifact-editor-virustotal")
-	key := c.FormValue("artifact-editor-key")
-	id, err := strconv.Atoi(key)
-	if err != nil {
-		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
-	}
-	if err := model.UpdateVirusTotal(int64(id), link); err != nil {
-		return badRequest(c, err)
-	}
-	return c.String(http.StatusOK, "Updated")
 }
 
 // badRequest returns an error response with a 400 status code,

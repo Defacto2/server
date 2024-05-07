@@ -5,6 +5,8 @@ import (
 	"context"
 	"fmt"
 	"html/template"
+	"log"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -51,6 +53,10 @@ func HumanizeAndCount(section, platform string) (template.HTML, error) {
 	return template.HTML(html), nil
 }
 
+// SanitizeFilename returns a sanitized version of the filename.
+// The filename is trimmed of any leading or trailing whitespace,
+// and any parent directory references are removed. Any Linux or
+// Windows directory separators are replaced with a "-" hyphen.
 func SanitizeFilename(name string) string {
 	const hyphen = "-"
 	s := strings.TrimSpace(name)
@@ -63,45 +69,80 @@ func SanitizeFilename(name string) string {
 	return s
 }
 
+// SanitizeURLPath returns a sanitized version of the URL path.
+// The path is trimmed of any URL scheme, host or query parameters, as well
+// as any invalid path separators.
+func SanitizeURLPath(rawPath string) string {
+	const separator = "/"
+	raw := strings.TrimSpace(rawPath)
+	raw = strings.Trim(raw, separator)
+	raw = strings.ReplaceAll(raw, separator+separator, separator)
+	u, err := url.Parse(raw)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return u.Path
+}
+
+// ValidDate returns three boolean values that indicate if the year, month, and day are valid.
+// If any of the bool values are false, the date syntax is invalid and should not be used.
+//
+// The year must be between 1980 and the current year.
+// If the year is not in use, the month and day must not be in use.
+// And if the month is not in use, the day must not in use.
+//
+// A not in use value is either "0" or an empty string.
 func ValidDate(y, m, d string) (bool, bool, bool) {
-	yOk, mOk, dOk := true, true, true
+	yok, mok, dok := true, true, true
+	current := time.Now().Year()
 
 	year, err := strconv.Atoi(y)
 	if err != nil {
-		yOk = false
+		yok = false
 	}
-	currentYear := time.Now().Year()
 	useYear := year != 0 && y != ""
-	validYear := year >= model.EpochYear && year <= currentYear
+	validYear := year >= model.EpochYear && year <= current
 	if useYear && !validYear {
-		yOk = false
+		yok = false
 	}
 
 	month, err := strconv.Atoi(m)
 	if err != nil {
-		mOk = false
+		mok = false
 	}
 	useMonth := month != 0 && m != ""
-	validMonth := month >= 1 && month <= 12
+	const jan, dec = 1, 12
+	validMonth := month >= jan && month <= dec
 	if useMonth && !validMonth {
-		mOk = false
+		mok = false
 	}
 
 	day, err := strconv.Atoi(d)
 	if err != nil {
-		dOk = false
+		dok = false
 	}
 	useDay := day != 0 && d != ""
-	validDay := day >= 1 && day <= 31
+	const first, last = 1, 31
+	validDay := day >= first && day <= last
 	if useDay && !validDay {
-		dOk = false
+		dok = false
 	}
 
 	if !useYear && (validMonth || validDay) {
-		yOk = false
+		yok = false
 	}
 	if !useMonth && validDay {
-		mOk = false
+		mok = false
 	}
-	return yOk, mOk, dOk
+	return yok, mok, dok
+}
+
+// ValidVT returns true if the link is a valid VirusTotal URL
+// or if it is an empty string.
+func ValidVT(link string) bool {
+	const expect = "https://www.virustotal.com/"
+	if len(link) > 0 && !strings.HasPrefix(link, expect) {
+		return false
+	}
+	return true
 }
