@@ -532,16 +532,18 @@
         </form>
       </div>
       {{/*  Switch to assets and reset buttons  */}}
-      <div class="modal-footer g-3 mt-1">
+      <div class="modal-footer bg-dark-subtle g-3 mt-1">
         <div class="row col-12">
-        <div class="col-md-4 text-start">
-          <button type="button" class="btn btn-warning">Permenently delete record</button>
+          {{/*  TODO: move to template?  */}}
+          <div class="col-md-4 text-start">
+            <button type="button" class="btn btn-warning">Permenently delete record</button>
+          </div>
+          <div class="col-md-8 text-end">
+            <button class="btn btn-dark">Data editor</button>
+            <button class="btn btn-primary" data-bs-target="#assetEditorModal" data-bs-toggle="modal">File assets editor</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
         </div>
-        <div class="col-md-8 text-end">
-          <button class="btn btn-dark">Data editor</button>
-          <button class="btn btn-primary" data-bs-target="#assetEditorModal" data-bs-toggle="modal">File assets editor</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div></div>
       </div>
     </div>
   </div>

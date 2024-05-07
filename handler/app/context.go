@@ -1868,15 +1868,18 @@ func files(c echo.Context, uri string, page int) error {
 	data["lead"] = lead
 	data[records] = []models.FileSlice{}
 	data["unknownYears"] = true
+	data["forApproval"] = false
 	switch uri {
 	case
 		newUploads.String(),
 		newUpdates.String(),
-		forApproval.String(),
 		deletions.String(),
 		unwanted.String():
 		data["unknownYears"] = false
+	case forApproval.String():
+		data["forApproval"] = true
 	}
+	fmt.Println(uri, forApproval.String(), data["forApproval"])
 
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
