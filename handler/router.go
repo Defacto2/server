@@ -54,7 +54,7 @@ func (c Configuration) FilesRoutes(e *echo.Echo, logger *zap.SugaredLogger, publ
 	e = c.embed(e, public)
 	e = c.search(e, logger)
 	e = c.website(e, logger, dir)
-	e = c.editor(e, logger, dir)
+	e = c.lock(e, logger, dir)
 	return e, nil
 }
 
@@ -326,111 +326,6 @@ func (c Configuration) signin(e *echo.Echo, nonce string) *echo.Echo {
 			c.Environment.SessionMaxAge,
 			c.Environment.GoogleAccounts...)
 	})
-	return e
-}
-
-// editor pages to update the database records.
-func (c Configuration) editor(e *echo.Echo, logger *zap.SugaredLogger, dir app.Dirs) *echo.Echo {
-	if e == nil {
-		panic(ErrRoutes)
-	}
-	editor := e.Group("/editor")
-	editor.Use(c.ReadOnlyLock, c.SessionLock)
-	editor.GET("/get/demozoo/download/:id",
-		func(cx echo.Context) error {
-			return app.GetDemozooLink(cx, dir.Download)
-		})
-	editor.GET("/for-approval",
-		func(cx echo.Context) error {
-			return app.FilesWaiting(cx, "1")
-		})
-	editor.GET("/deletions",
-		func(cx echo.Context) error {
-			return app.FilesDeletions(cx, "1")
-		})
-	editor.GET("/unwanted",
-		func(cx echo.Context) error {
-			return app.FilesUnwanted(cx, "1")
-		})
-	editor.POST("/classifications", func(c echo.Context) error {
-		return htmx.RecordClassification(c, logger)
-	})
-	editor.POST("/releasers", htmx.RecordReleasers)
-	editor.POST("/releasers/reset", htmx.RecordReleasersReset)
-
-	name := editor.Group("/filename")
-	name.POST("", htmx.RecordFilename)
-	name.POST("/reset", htmx.RecordFilenameReset)
-
-	title := editor.Group("/title")
-	title.POST("", htmx.RecordTitle)
-	title.POST("/reset", htmx.RecordTitleReset)
-
-	editor.POST("/virustotal", htmx.RecordVirusTotal)
-
-	date := editor.Group("/date")
-	date.POST("", htmx.RecordDateIssued)
-	date.POST("/reset", func(cx echo.Context) error {
-		return htmx.RecordDateIssuedReset(cx, "artifact-editor-date-resetter")
-	})
-	date.POST("/lastmod", func(cx echo.Context) error {
-		return htmx.RecordDateIssuedReset(cx, "artifact-editor-date-lastmodder")
-	})
-
-	creator := editor.Group("/creator")
-	creator.POST("/text", htmx.RecordCreatorText)
-	creator.POST("/ill", htmx.RecordCreatorIll)
-	creator.POST("/prog", htmx.RecordCreatorProg)
-	creator.POST("/audio", htmx.RecordCreatorAudio)
-	creator.POST("/reset", htmx.RecordCreatorReset)
-
-	editor.POST("/comment", htmx.RecordComment)
-	editor.POST("/comment/reset", htmx.RecordCommentReset)
-
-	editor.POST("/links", htmx.RecordLinks)
-	editor.POST("/demozoo", htmx.RecordDemozoo)
-	editor.POST("/youtube", htmx.RecordYouTube)
-	editor.POST("/pouet", htmx.RecordPouet)
-	editor.POST("/16colors", htmx.Record16Colors)
-	editor.POST("/github", htmx.RecordGitHub)
-	editor.POST("/relations", htmx.RecordRelations)
-	editor.POST("/sites", htmx.RecordSites)
-
-	online := editor.Group("/online")
-	online.POST("/true", func(cx echo.Context) error {
-		return htmx.RecordToggle(cx, true)
-	})
-	online.POST("/false", func(cx echo.Context) error {
-		return htmx.RecordToggle(cx, false)
-	})
-	readme := editor.Group("/readme")
-	readme.POST("/copy", func(cx echo.Context) error {
-		return app.ReadmePost(cx, logger, dir.Download)
-	})
-	readme.POST("/delete", func(cx echo.Context) error {
-		return app.ReadmeDel(cx, dir.Download)
-	})
-	readme.POST("/hide", func(cx echo.Context) error {
-		dir.URI = cx.Param("id")
-		return app.ReadmeToggle(cx)
-	})
-	images := editor.Group("/images")
-	images.POST("/copy", func(c echo.Context) error {
-		return dir.PreviewPost(c, logger)
-	})
-	images.POST("/delete", dir.PreviewDel)
-	ansilove := editor.Group("/ansilove")
-	ansilove.POST("/copy", func(c echo.Context) error {
-		return dir.AnsiLovePost(c, logger)
-	})
-	// editor.POST("/releasers", app.ReleaserEdit)
-	// editor.POST("/title", app.TitleEdit)
-	editor.POST("/ymd", app.YMDEdit)
-	editor.POST("/platform", app.PlatformEdit)
-	editor.POST("/platform+tag", app.PlatformTagInfo)
-	tag := editor.Group("/tag")
-	tag.POST("", app.TagEdit)
-	tag.POST("/info", app.TagInfo)
 	return e
 }
 
