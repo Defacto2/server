@@ -1130,7 +1130,6 @@ type SRI struct {
 	ArtifactEditor  string // Artifact Editor JS verification hash.
 	Bootstrap5      string // Bootstrap CSS verification hash.
 	Bootstrap5JS    string // Bootstrap JS verification hash.
-	Editor          string // Editor JS verification hash.
 	EditAssets      string // Editor Assets JS verification hash.
 	EditArchive     string // Editor Archive JS verification hash.
 	EditForApproval string // Editor For Approval JS verification hash.
@@ -1163,10 +1162,6 @@ func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 		return fmt.Errorf("helper.Integrity: %w", err)
 	}
 	s.LayoutJS, err = helper.Integrity(names[LayoutJS], fs)
-	if err != nil {
-		return fmt.Errorf("helper.Integrity: %w", err)
-	}
-	s.Editor, err = helper.Integrity(names[Editor], fs)
 	if err != nil {
 		return fmt.Errorf("helper.Integrity: %w", err)
 	}

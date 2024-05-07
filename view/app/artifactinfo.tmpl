@@ -1,5 +1,5 @@
-{{- /*  artifact_table.tmpl  */}}
-{{- define "artifactTable" -}}
+{{- /*  artifactinfo.tmpl  */}}
+{{- define "artifactinfo" -}}
 {{- $writers := trimSpace (index . "writers") }}
 {{- $artists := trimSpace (index . "artists") }}
 {{- $programmers := trimSpace (index . "programmers") }}
@@ -41,7 +41,6 @@
                         {{- /*  Switch to assets and Close button  */}}
                         <div class="modal-footer row g-3 mt-1">
                             <div class="col-md text-center">
-                                {{- template "artifactTableSwitch" . }}
                                 <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>
@@ -51,7 +50,7 @@
 {{- end}}
 {{- /*  Artifact file download link  */}} 
             <div class="d-grid gap-2 d-xl-block">
-            {{- template "artifactTableEditor" . }}
+            {{- template "artifactlock" . }}
             {{- if eq (index . "alertURL") "" }}
                 {{- /*  standard download  */}}
                 <a class="btn btn-success btn-lg" href="/d/{{index . "download"}}" rel="nofollow" role="button">Download &nbsp; {{index . "filesize"}}</a>

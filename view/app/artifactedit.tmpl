@@ -1,5 +1,7 @@
-{{- /*  artifactedit_htmx.tmpl  */}}
-{{- define "artifactEditorHtmx" -}}
+{{- /* 
+    artifactedit.tmpl ~ Edit the details of a file artifact from the database files table. 
+*/ -}}
+{{- define "artifactedit" -}}
 {{- if eq false (index . "editor")}}{{/*  render nothing  */}}{{else}}
 {{- $faSize := "fa-fw fa-2x" -}}
 {{- $delay := "500ms" }}
@@ -42,7 +44,7 @@
 <div class="modal fade" id="artifact-editor-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
   aria-labelledby="artifact-editor-modal-label" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-    {{- /*  Modify the metadata for ID...  */}}
+    {{- /*  Data editor for record key, ...  */}}
     <div class="modal-content">
       <div id="artifact-editor-modal-header" class="modal-header {{if eq $record true}}bg-success-subtle{{else}}bg-danger-subtle{{end}}">
         <i class="fal fa-file-alt {{ $faSize }}" title="Modify the record"></i> &nbsp;

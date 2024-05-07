@@ -9,7 +9,6 @@ const (
 	Bootstrap5JS                 // BootstrapJS is the path to the minified Bootstrap 5.3 JS file.
 	DosboxJS                     // DosboxJS is the js-dos v6 default variant compiled with emscripten.
 	DosboxWasm                   // DosboxWasm is the js-dos v6 WASM binary file.
-	Editor                       // Editor is the path to the minified Editor JS file.
 	EditAssets                   // EditAssets is the path to the minified Editor assets JS file.
 	EditArchive                  // EditArchive is the path to the minified Editor archive JS file.
 	EditForApproval              // EditForApproval is the path to the minified Editor for-approval JS file.
@@ -36,7 +35,6 @@ func Hrefs() Paths {
 		Bootstrap5JS:    "/js/bootstrap.bundle.min.js",
 		DosboxJS:        "/js/wdosbox.js",
 		DosboxWasm:      "/js/wdosbox.wasm",
-		Editor:          "/js/editor.min.js",
 		EditAssets:      "/js/editor-assets.min.js",
 		EditArchive:     "/js/editor-archive.min.js",
 		EditForApproval: "/js/editor-forapproval.min.js",

@@ -277,9 +277,6 @@ func (web Templ) TemplateClosures() template.FuncMap { //nolint:funlen
 		"editForApproval": func() string {
 			return hrefs[EditForApproval]
 		},
-		"editor": func() string {
-			return hrefs[Editor]
-		},
 		"exampleDay": func() string {
 			return time.Now().Format("2")
 		},
@@ -349,9 +346,6 @@ func (web Templ) TemplateClosures() template.FuncMap { //nolint:funlen
 		},
 		"sri_editForApproval": func() string {
 			return web.Subresource.EditForApproval
-		},
-		"sri_editor": func() string {
-			return web.Subresource.Editor
 		},
 		"sri_fa5Pro": func() string {
 			return web.Subresource.FA5Pro
@@ -547,20 +541,18 @@ type filename string // filename is the name of the template file in the view di
 
 func artifactTmpls(lock bool, files ...string) []string {
 	files = append(files,
-		GlobTo("artifact_table.tmpl"),
-		GlobTo("artifact_jsdos6.tmpl"),
-		GlobTo("artifact_editor_archive.tmpl"))
+		GlobTo("artifactinfo.tmpl"),
+		GlobTo("artifactjsdos.tmpl"),
+		GlobTo("artifactzip.tmpl"))
 	if lock {
 		return append(files,
-			GlobTo("artifact_editor_null.tmpl"),
-			GlobTo("artifact_editor_table_null.tmpl"),
-			GlobTo("artifact_table_switch_null.tmpl"))
+			GlobTo("artifactedit_null.tmpl"),
+			GlobTo("artifactlock_null.tmpl"))
 	}
 	return append(files,
-		GlobTo("artifact_editor.tmpl"),
-		GlobTo("artifactedit_htmx.tmpl"),
-		GlobTo("artifact_editor_table.tmpl"),
-		GlobTo("artifact_table_switch.tmpl"))
+		GlobTo("artifactfile.tmpl"),
+		GlobTo("artifactedit.tmpl"),
+		GlobTo("artifactlock.tmpl"))
 }
 
 // img returns a HTML image tag.

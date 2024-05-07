@@ -1,23 +1,34 @@
 {{- /* 
     artifact.tmpl ~ Display the details of a file artifact from the database files table. 
-*/}}
+*/ -}}
 {{- define "content" }}
 {{- $colClass := "col-12 col-md-6"}}
+{{- $published := index . "published"}}
+{{- $desc := index . "description"}}
+{{- $classification := brief (index . "platform") (index . "section")}}
+{{- $screenElm := screenshot (index . "uuid") ($desc)}}
+{{- $screenNone := index . "noScreenshot"}}
+{{- $opensans := index . "openSansCheck"}}
+{{- $topaz := index . "topazCheck"}}
+{{- $vga := index . "vgaCheck"}}
+{{- $readmeCls := index . "readmeCls"}}
+{{- $readmeL := index . "readmeLatin1"}}
+{{- $readmeLS := index . "readmeLatin1Cls"}}
+{{- $readmeC := index . "readmeCP437"}}
+{{- $readmeCS := index . "readmeCP437Cls"}}
 <div class="container">
     <div class="row g-2">
         <div class="{{$colClass}}">
             {{- /*  Lead including published, platform and section  */}}
-            <h4 class="lead">{{index . "published"}}, {{brief (index . "platform") (index . "section")}}</h4>
+            <h4 class="lead">{{$published}}, {{$classification}}</h4>
             {{- /*  Table of details  */}}
-            {{- template "artifactTable" . }}
+            {{- template "artifactinfo" . }}
         </div>
-        {{- if not (index . "noScreenshot")}}
+        {{- if not $screenNone}}
         <div class="{{$colClass}}">
             {{- /*  Screenshot of the file  */}}
             <div class="p-3 text-center">
-                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#screenshotModal">
-                {{ screenshot (index . "uuid") (index . "description") }}
-                </a>
+                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#screenshotModal">{{$screenElm}}</a>
                 <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#screenshotModal">Enlarge</a>
             </div>
         </div>
@@ -26,12 +37,10 @@
             <div class="modal-dialog modal-fullscreen">
                 <div class="modal-content">
                     <div class="modal-header">
-                    <h5 class="modal-title">{{ (index . "description") }} screenshot</h5>
+                    <h5 class="modal-title">{{$desc}} screenshot</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
-                        {{ screenshot (index . "uuid") (index . "description") }}
-                    </div>
+                    <div class="modal-body">{{$screenElm}}</div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
@@ -39,40 +48,40 @@
             </div>
         </div>
         {{- end}}
-        {{- if or (index . "readmeLatin1") (index . "readmeCP437")}}
+        {{- if or ($readmeL) ($readmeC)}}
         <div class="col-12">
-            {{- if not (index . "noScreenshot")}}
-                <h6 class="fs-6 fw-lighter">Readme or information text <small>{{index . "readmeName"}}</small></h6>
-                {{- end}}
-                {{- if (index . "noScreenshot")}}
-                <h6 class="fs-6 fw-lighter">Textfile content</small></h6>
-                {{- end}}
-                <div class="m-3">                    
-                    <input type="radio" class="btn-check" name="readme-base" id="openSansFont" autocomplete="off" {{index . "openSansCheck"}}>
-                    <label class="btn btn-sm btn-outline-dark" for="openSansFont" 
-                        data-bs-toggle="tooltip" data-bs-title="Use the OpenSans font with Latin-1 encoding">Open Sans</label>
-                    <input type="radio" class="btn-check" name="readme-base" id="topazFont" autocomplete="off" {{index . "topazCheck"}}>
-                    <label class="btn btn-sm btn-outline-dark" for="topazFont" 
-                        data-bs-toggle="tooltip" data-bs-title="Use the TopazPlus font with Latin-1 encoding">Amiga style</label>
-                    <input type="radio" class="btn-check" name="readme-base" id="vgaFont" autocomplete="off" {{index . "vgaCheck"}}>
-                    <label class="btn btn-sm btn-outline-dark" for="vgaFont"
-                        data-bs-toggle="tooltip" data-bs-title="Use a classic IBM VGA font with OEM-US encoding">DOS style</label>
-                    &nbsp;
-                    <button class="btn btn-sm btn-outline-secondary" id="copyReadme" 
-                        data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard">Copy</button>
-                </div>
-                <hr>
-            {{- if index . "readmeLatin1" -}}
-                <pre id="readmeLatin1" class="{{index . "readmeLatin1Cls"}}font-amiga reader reader-invert border border-black rounded-1 p-1">{{(index . "readmeLatin1")}}</pre>
-            {{- end -}}
-            {{- if index . "readmeCP437" -}}
-                <pre id="readmeCP437" class="{{index . "readmeCP437Cls"}}font-dos reader reader-invert border border-black rounded-1 p-1">{{(index . "readmeCP437")}}</pre>
-            {{- end -}}
+        {{- if not $screenNone}}
+            <h6 class="fs-6 fw-lighter">Readme or information text <small>{{index . "readmeName"}}</small></h6>
+            {{- end}}
+            {{- if $screenNone}}
+            <h6 class="fs-6 fw-lighter">Textfile content</small></h6>
+            {{- end}}
+            <div class="m-3">                    
+                <input type="radio" class="btn-check" name="readme-base" id="openSansFont" autocomplete="off" {{$opensans}}>
+                <label class="btn btn-sm btn-outline-dark" for="openSansFont" 
+                    data-bs-toggle="tooltip" data-bs-title="Use the OpenSans font with Latin-1 encoding">Open Sans</label>
+                <input type="radio" class="btn-check" name="readme-base" id="topazFont" autocomplete="off" {{$topaz}}>
+                <label class="btn btn-sm btn-outline-dark" for="topazFont" 
+                    data-bs-toggle="tooltip" data-bs-title="Use the TopazPlus font with Latin-1 encoding">Amiga style</label>
+                <input type="radio" class="btn-check" name="readme-base" id="vgaFont" autocomplete="off" {{$vga}}>
+                <label class="btn btn-sm btn-outline-dark" for="vgaFont"
+                    data-bs-toggle="tooltip" data-bs-title="Use a classic IBM VGA font with OEM-US encoding">DOS style</label>
+                &nbsp;
+                <button class="btn btn-sm btn-outline-secondary" id="copyReadme" 
+                    data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard">Copy</button>
+            </div>
+            <hr>
+        {{- if $readmeL -}}
+            <pre id="readmeLatin1" class="{{$readmeLS}}font-amiga {{$readmeCls}}">{{$readmeL}}</pre>
+        {{- end -}}
+        {{- if $readmeC -}}
+            <pre id="readmeCP437" class="{{$readmeCS}}font-dos {{$readmeCls}}">{{$readmeC}}</pre>
+        {{- end -}}
             </div>
         {{- end}}
     </div>
 </div>
-{{- template "artifactJSDOS6" . }}
-{{- template "artifactEditor" . }}
-{{- template "artifactEditorHtmx" . }}
+{{- template "artifactjsdos" . }}
+{{- template "artifactfile" . }}
+{{- template "artifactedit" . }}
 {{- end}}

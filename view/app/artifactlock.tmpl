@@ -1,0 +1,10 @@
+{{- /* artifactlock.tmpl */}}
+{{- define "artifactlock" }}
+{{- $locked := index . "editor"}}
+{{- if ne true $locked}}{{/*  render nothing  */}}{{else}}
+<div class="btn-group w-100 p-3">
+    <a href="#" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal" class="btn btn-lg btn-dark">Data editor</a>
+    <a href="#" data-bs-toggle="modal" data-bs-target="#assetEditorModal" class="btn btn-lg btn-outline-success">File assets editor</a>
+</div>
+{{- end}}
+{{- end}}
