@@ -19,7 +19,7 @@ const (
 	dirs             = "dirs.html"
 	files            = "files.html"
 	pagination       = "pagination.html"
-	subDirs          = "dirs_sub.html"
+	subDirs          = "dirssub.html"
 	tag        Templ = "html3_tag"
 )
 

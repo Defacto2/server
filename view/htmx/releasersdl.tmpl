@@ -1,4 +1,6 @@
-{{- /*  datalist-releasers.tmpl  */}}
+{{- /* 
+    releasersdl.tmpl ~ htmx releasers datalist template.
+*/ -}}
 {{define "content"}}
 {{- $slug := index . "name" }}
     {{- range $index, $rel := .result -}}

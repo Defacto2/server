@@ -26,7 +26,7 @@ func GlobTo(name string) string {
 func Templates(fs embed.FS) map[string]*template.Template {
 	t := make(map[string]*template.Template)
 	t["releasers"] = releasers(fs)
-	t["datalist-releasers"] = datalistReleasers(fs)
+	t["releasersdl"] = datalistReleasers(fs)
 	return t
 }
 
@@ -37,7 +37,7 @@ func releasers(fs embed.FS) *template.Template {
 
 func datalistReleasers(fs embed.FS) *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fs,
-		GlobTo("layout.tmpl"), GlobTo("datalist-releasers.tmpl")))
+		GlobTo("layout.tmpl"), GlobTo("releasersdl.tmpl")))
 }
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.

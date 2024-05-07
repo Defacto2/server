@@ -1,5 +1,7 @@
-{{- /*  releasers.tmpl  */}}
-{{define "content"}}
+{{- /* 
+    releasers.tmpl ~ htmx releasers results template.
+*/ -}}
+{{- define "content"}}
 {{- $slug := index . "name" }}
 {{- $maximum := index . "maximum" }}
 {{- $path := "g" }}
@@ -21,4 +23,4 @@
     {{- end}}
 </div>
 <p class="{{$limit}}">A limit of {{$maximum}} results has been reached.</p>
-{{end}}
+{{- end}}

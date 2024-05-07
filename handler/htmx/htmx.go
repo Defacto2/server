@@ -387,7 +387,7 @@ func datalist(c echo.Context, logger *zap.SugaredLogger, input string, magazine 
 	if len(r) == 0 {
 		return c.HTML(http.StatusOK, "")
 	}
-	err = c.Render(http.StatusOK, "datalist-releasers", map[string]interface{}{
+	err = c.Render(http.StatusOK, "releasersdl", map[string]interface{}{
 		"maximum": maxResults,
 		"name":    slug,
 		"result":  r,
