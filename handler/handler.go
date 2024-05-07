@@ -92,11 +92,11 @@ func (c Configuration) Controller(logger *zap.SugaredLogger) *echo.Echo {
 	}
 	e.Pre(middlewares...)
 
-	// *******************************************
-	//  NOTEL: NEVER USE the middleware.Timeout()
-	//  It is broken and should not be in the
-	//  labstack/echo library as it can crash!
-	// *******************************************
+	// *************************************************
+	//  NOTE: NEVER USE the middleware.Timeout()
+	//   It is broken and should not be in the
+	//   labstack/echo library, as it can easily crash!
+	// *************************************************
 	middlewares = []echo.MiddlewareFunc{
 		middleware.Secure(),
 		middleware.RequestLoggerWithConfig(c.configZapLogger()),
@@ -116,7 +116,7 @@ func (c Configuration) Controller(logger *zap.SugaredLogger) *echo.Echo {
 
 	e = EmbedDirs(e, c.Public)
 	e = MovedPermanently(e)
-	e = htmx.Routes(e, logger, c.Environment.ProductionMode)
+	e = htmxGroup(e, logger, c.Environment.ProductionMode)
 	e, err := c.FilesRoutes(e, logger, c.Public)
 	if err != nil {
 		logger.Fatal(err)
@@ -196,7 +196,7 @@ func (c Configuration) PortErr(logger *zap.SugaredLogger, port uint, err error) 
 
 // Registry returns the template renderer.
 func (c Configuration) Registry(logger *zap.SugaredLogger) (*TemplateRegistry, error) {
-	webapp := app.Web{
+	webapp := app.Templ{
 		Environment: &c.Environment,
 		Brand:       c.Brand,
 		Public:      c.Public,

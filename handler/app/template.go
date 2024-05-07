@@ -24,9 +24,8 @@ import (
 	"github.com/volatiletech/null/v8"
 )
 
-// Web is the configuration and status of the web app.
-// Rename to app or template?
-type Web struct {
+// Templ is the configuration and status of the web application templates.
+type Templ struct {
 	Brand       *[]byte        // Brand contains to the Defacto2 ASCII logo.
 	Environment *config.Config // Environment configurations from the host system environment.
 	Public      embed.FS       // Public facing files.
@@ -88,7 +87,7 @@ func DownloadB(i any) template.HTML {
 }
 
 // ImageSample returns a HTML image tag for the given uuid.
-func (web Web) ImageSample(uuid string) template.HTML {
+func (web Templ) ImageSample(uuid string) template.HTML {
 	ext, name, src := "", "", ""
 	for _, ext = range []string{webp, png} {
 		name = filepath.Join(web.Environment.PreviewDir, uuid+ext)
@@ -110,7 +109,7 @@ func (web Web) ImageSample(uuid string) template.HTML {
 // The uuid is the filename of the screenshot image without an extension.
 // The desc is the description of the image used for the alt attribute in the img tag.
 // Supported formats are webp, png, jpg and avif.
-func (web Web) Screenshot(uuid, desc string) template.HTML {
+func (web Templ) Screenshot(uuid, desc string) template.HTML {
 	const separator = "/"
 	class := "rounded mx-auto d-block img-fluid"
 	alt := strings.ToLower(desc) + " screenshot"
@@ -160,7 +159,7 @@ func (web Web) Screenshot(uuid, desc string) template.HTML {
 }
 
 // TemplateFuncMap returns a map of all the template functions.
-func (web Web) TemplateFuncMap() template.FuncMap {
+func (web Templ) TemplateFuncMap() template.FuncMap {
 	funcMap := web.TemplateFuncs()
 	for k, v := range web.TemplateClosures() {
 		funcMap[k] = v
@@ -177,7 +176,7 @@ const (
 )
 
 // TemplateElms returns a map of functions that return HTML elements.
-func (web Web) TemplateElms() template.FuncMap {
+func (web Templ) TemplateElms() template.FuncMap {
 	return template.FuncMap{
 		"az": func() template.HTML {
 			return template.HTML(`<small><small class="fw-lighter">A-Z</small></small>`)
@@ -250,7 +249,7 @@ func recordReadme(b bool) template.HTML {
 }
 
 // TemplateClosures returns a map of closures that return converted type or modified strings.
-func (web Web) TemplateClosures() template.FuncMap { //nolint:funlen
+func (web Templ) TemplateClosures() template.FuncMap { //nolint:funlen
 	hrefs := Hrefs()
 	return template.FuncMap{
 		"artifactEditor": func() string {
@@ -264,7 +263,7 @@ func (web Web) TemplateClosures() template.FuncMap { //nolint:funlen
 		},
 		"classification": func(s, p string) string {
 			count, _ := form.HumanizeAndCount(s, p)
-			return count
+			return string(count)
 		},
 		"demozooSanity": func() string {
 			return strconv.Itoa(demozoo.Sanity)
@@ -395,7 +394,7 @@ func (web Web) TemplateClosures() template.FuncMap { //nolint:funlen
 //
 // The "fmtURI" function is not performant for large lists,
 // instead use "fmtRangeURI" in TemplateStrings().
-func (web Web) TemplateFuncs() template.FuncMap {
+func (web Templ) TemplateFuncs() template.FuncMap {
 	return template.FuncMap{
 		"add":               helper.Add1,
 		"attribute":         Attribute,
@@ -440,7 +439,7 @@ func (web Web) TemplateFuncs() template.FuncMap {
 }
 
 // Templates returns a map of the templates used by the route.
-func (web *Web) Templates() (map[string]*template.Template, error) {
+func (web *Templ) Templates() (map[string]*template.Template, error) {
 	if err := web.Subresource.Verify(web.Public); err != nil {
 		return nil, fmt.Errorf("web.Subresource.Verify: %w", err)
 	}
@@ -455,7 +454,7 @@ func (web *Web) Templates() (map[string]*template.Template, error) {
 // Thumb returns a HTML image tag or picture element for the given uuid.
 // The uuid is the filename of the thumbnail image without an extension.
 // The desc is the description of the image.
-func (web Web) Thumb(uuid, desc string, bottom bool) template.HTML {
+func (web Templ) Thumb(uuid, desc string, bottom bool) template.HTML {
 	fw := filepath.Join(web.Environment.ThumbnailDir, uuid+webp)
 	fp := filepath.Join(web.Environment.ThumbnailDir, uuid+png)
 	webp := strings.Join([]string{config.StaticThumb(), uuid + webp}, "/")
@@ -495,7 +494,7 @@ func (web Web) Thumb(uuid, desc string, bottom bool) template.HTML {
 }
 
 // ThumbSample returns a HTML image tag for the given uuid.
-func (web Web) ThumbSample(uuid string) template.HTML {
+func (web Templ) ThumbSample(uuid string) template.HTML {
 	const (
 		png  = png
 		webp = webp
@@ -519,7 +518,7 @@ func (web Web) ThumbSample(uuid string) template.HTML {
 
 // Web tmpl returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory.
-func (web Web) tmpl(name filename) *template.Template {
+func (web Templ) tmpl(name filename) *template.Template {
 	files := []string{
 		GlobTo("layout.tmpl"),
 		GlobTo("modal.tmpl"),

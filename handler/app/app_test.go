@@ -290,7 +290,7 @@ func TestGlobTo(t *testing.T) {
 func TestTemplates(t *testing.T) {
 	t.Parallel()
 
-	w := app.Web{}
+	w := app.Templ{}
 	_, err := w.Templates()
 	require.Error(t, err)
 }

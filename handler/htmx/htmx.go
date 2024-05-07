@@ -29,6 +29,14 @@ func GlobTo(name string) string {
 	return strings.Join([]string{"view", "htmx", name}, pathSeparator)
 }
 
+// Templates returns a map of the templates used by the HTML3 sub-group route.
+func Templates(fs embed.FS) map[string]*template.Template {
+	t := make(map[string]*template.Template)
+	t["releasers"] = releasers(fs)
+	t["datalist-releasers"] = datalistReleasers(fs)
+	return t
+}
+
 func releasers(fs embed.FS) *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fs,
 		GlobTo("layout.tmpl"), GlobTo("releasers.tmpl")))
@@ -37,14 +45,6 @@ func releasers(fs embed.FS) *template.Template {
 func datalistReleasers(fs embed.FS) *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fs,
 		GlobTo("layout.tmpl"), GlobTo("datalist-releasers.tmpl")))
-}
-
-// Templates returns a map of the templates used by the HTML3 sub-group route.
-func Templates(fs embed.FS) map[string]*template.Template {
-	t := make(map[string]*template.Template)
-	t["releasers"] = releasers(fs)
-	t["datalist-releasers"] = datalistReleasers(fs)
-	return t
 }
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
