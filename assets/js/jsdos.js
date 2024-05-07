@@ -1,3 +1,7 @@
+/**
+ * jsdos.js
+ * JS-DOS 6.22 configuration and initialization.
+ */
 const canvas = document.getElementById("jsdos6");
 const ctx = canvas.getContext("2d");
 ctx.font = "18px serif";

@@ -1,5 +1,7 @@
-// layout.js
-
+/**
+ * @file layout.js
+ * This script is the entry point for the website layout.
+ */
 import {
   keyboardShortcuts as layoutKeys,
   pagination,
@@ -8,7 +10,6 @@ import htmxEvents from "./layout-htmx.mjs";
 
 (() => {
   "use strict";
-
   htmxEvents();
   layoutKeys();
   pagination("paginationRange");

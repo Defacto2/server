@@ -1,5 +1,7 @@
-// layout-htmx-search.mjs
-
+/**
+ * @module layout-htmx-search
+ * This module provides functions for htmx, search releaser events.
+ */
 const releaserAlert = "search-releaser-alert",
   releaserReset = "search-releaser-clear",
   releaserIndic = "search-releaser-indicator",

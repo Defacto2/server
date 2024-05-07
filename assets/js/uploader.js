@@ -1,5 +1,5 @@
 /**
- * uploader.js
+ * @file uploader.js
  * This script is the entry point for the uploader page.
  */
 import { keyboardShortcuts as uploadKeys } from "./uploader-keyboard.mjs";

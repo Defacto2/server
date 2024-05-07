@@ -1,4 +1,7 @@
-// layout-keyboard.mjs
+/**
+ * @module layout-keyboard
+ * This module provides keyboard shortcuts for the website layout.
+ */
 import { getModalById } from "./uploader.mjs";
 
 const glossaryModal = getModalById("termsModal");

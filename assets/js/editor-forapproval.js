@@ -1,3 +1,4 @@
+// THIS FILE IS SET FOR DELETION
 (() => {
   "use strict";
   const buttons = document.getElementsByName("editorGetDemozoo");

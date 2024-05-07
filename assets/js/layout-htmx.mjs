@@ -1,5 +1,7 @@
-// layout-htmx.mjs
-
+/**
+ * @module layout-htmx
+ * This module provides beforeRequest and afterRequest handlers to htmx submissions.
+ */
 import { releaserEvents } from "./layout-htmx-search.mjs";
 
 export default htmxEvents;

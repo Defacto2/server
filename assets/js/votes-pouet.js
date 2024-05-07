@@ -1,7 +1,6 @@
 /**
  * @file votes-pouet.js
- * This function fetches data from Pouët's API and updates the DOM with the production, user votes results.
- * @returns {void}
+ * This function fetches data from Pouët API and updates the DOM with a production's user-vote results.
  */
 (() => {
   "use strict";
