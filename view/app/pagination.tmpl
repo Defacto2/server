@@ -1,4 +1,6 @@
-{{- /*  pagination.tmpl  */}}
+{{- /* 
+    pagination.tmpl ~ Pagination links for the lists of artifacts.
+*/ -}}
 {{- define "paginationList" -}}
 {{- $base := index .Pagination.BaseURL }}
 {{- if and (.Pagination) (gt (index  .Pagination.SumPages) 1)}}

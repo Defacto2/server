@@ -1,4 +1,6 @@
-{{- /*  layout_uploaderJS.tmpl  */}}
-{{- define "layoutUploaderJS"}}
+{{- /* 
+    layoutjsup.tmpl ~ Deferred loaded uploader scripts.
+*/ -}}
+{{- define "layoutjsup"}}
 <script defer src="{{ uploader }}?{{ sri_uploader }}" integrity="{{ sri_uploader }}" crossorigin="anonymous"></script>
 {{- end}}

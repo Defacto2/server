@@ -528,7 +528,7 @@ func (web Templ) tmpl(name filename) *template.Template {
 	case "artifact.tmpl":
 		files = artifactTmpls(config.ReadMode, files...)
 	case "file.tmpl":
-		files = append(files, GlobTo("file_expand.tmpl"))
+		files = append(files, GlobTo("filemore.tmpl"))
 	case "websites.tmpl":
 		const individualWebsite = "website.tmpl"
 		files = append(files, GlobTo(individualWebsite))
@@ -567,45 +567,45 @@ func templates() map[string]filename {
 		"index":         "index.tmpl",
 		"artifact":      "artifact.tmpl",
 		"bbs":           releaser,
-		"bbs-year":      "releaser_year.tmpl",
+		"bbs-year":      "releaseryear.tmpl",
 		"coder":         scener,
 		"file":          "file.tmpl",
 		"files":         "files.tmpl",
 		"ftp":           releaser,
 		"history":       "history.tmpl",
 		"interview":     "interview.tmpl",
-		"magazine":      "releaser_year.tmpl",
+		"magazine":      "releaseryear.tmpl",
 		"magazine-az":   releaser,
-		"reader":        "reader.tmpl",
+		"reader":        "reader_todo.tmpl",
 		"releaser":      releaser,
-		"releaser-year": "releaser_year.tmpl",
+		"releaser-year": "releaseryear.tmpl",
 		"scener":        scener,
-		"searchHtmx":    "searchHtmx.tmpl",
-		"searchList":    "searchList.tmpl",
-		"searchPost":    "searchPost.tmpl",
+		"searchhtmx":    "searchhtmx.tmpl",
+		"searchpost":    "searchpost.tmpl",
 		"signin":        "signin.tmpl",
 		"signout":       "signout.tmpl",
 		"status":        "status.tmpl",
 		"thanks":        "thanks.tmpl",
-		"thescene":      "the_scene.tmpl",
+		"thescene":      "thescene.tmpl",
 		"websites":      "websites.tmpl",
 	}
 }
 
 func lockTmpls(lock bool, files ...string) []string {
+	files = append(files, GlobTo("layoutup.tmpl"))
 	if lock {
 		return append(files,
-			GlobTo("layout_editor_null.tmpl"),
-			GlobTo("layout_editorJS_null.tmpl"),
-			GlobTo("layout_uploader_null.tmpl"),
-			GlobTo("layout_uploaderJS_null.tmpl"),
+			GlobTo("layoutlock_null.tmpl"),
+			GlobTo("layoutjs_null.tmpl"),
+			GlobTo("layoutjsup_null.tmpl"),
+			GlobTo("layoutup_null.tmpl"),
 			GlobTo("uploader_null.tmpl"))
 	}
 	return append(files,
-		GlobTo("layout_editor.tmpl"),
-		GlobTo("layout_editorJS.tmpl"),
-		GlobTo("layout_uploader.tmpl"),
-		GlobTo("layout_uploaderJS.tmpl"),
+		GlobTo("layoutlock.tmpl"),
+		GlobTo("layoutjs.tmpl"),
+		GlobTo("layoutjsup.tmpl"),
+		GlobTo("layoutup.tmpl"),
 		GlobTo("uploader.tmpl"),
-		GlobTo("uploaderHtmx.tmpl"))
+		GlobTo("uploaderhtmx.tmpl"))
 }

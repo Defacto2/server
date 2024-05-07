@@ -1,18 +1,34 @@
-{{- /*  layout.tmpl  */}}
+{{- /* 
+    layout.tmpl ~ Template layout page for the website.
+*/ -}}
 {{define "layout" -}}<!doctype html>
-{{$fallbackDesc := "Defacto2 is the premier destination for old school files and historical texts of the underground PC cracking, BBS and art scenes" -}}
-{{$cc           := "https://creativecommons.org/licenses/by/4.0/" -}}
-{{$github       := "https://github.com/defacto2" -}}
+{{- $descDefault  := "Defacto2 is the premier destination for old school files and historical texts of the underground PC cracking, BBS and art scenes"}}
+{{- $cc           := "https://creativecommons.org/licenses/by/4.0/"}}
+{{- $github       := "https://github.com/defacto2"}}
+{{- $h1sub := index . "h1Sub"}}
+{{- $canonical := index . "canonical"}}
+{{- $desc := index . "description"}}
+{{- $cachef :=  index . "cacheFiles" }}
+{{- $carousel := index . "carousel"}}
+{{- $h1 := index . "h1"}}
+{{- $lead := index . "lead"}}
+{{- $lock := index . "editor"}}
+{{- $jsdos := index . "jsdos"}}
+{{- $logo := index . "logo"}}
+{{- $pouet := index . "pouet"}}
+{{- $readmeL := index . "readmeLatin1"}}
+{{- $readmeC := index . "readmeCP437"}}
+{{- $databaseErr := index . "dbError"}}
 <html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ .title }}{{if ne (index . "h1Sub") ""}} {{ index . "h1Sub" }}{{end}} | Defacto2</title>
-    {{if ne (index . "canonical") ""}}<link rel="canonical" href="https://defacto2.net/{{index . "canonical"}}">{{end -}}
-    {{if ne (index . "description") ""}}<meta name="description" content="{{ index . "description" }}">{{end -}}
-    {{if eq (index . "description") ""}}<meta name="description" content="{{$fallbackDesc}}">{{end}}
+    <title>{{.title}}{{if ne $h1sub ""}} {{$h1sub}}{{end}} | Defacto2</title>
+    {{if ne $canonical ""}}<link rel="canonical" href="https://defacto2.net/{{$canonical}}">{{end -}}
+    {{if ne $desc ""}}<meta name="description" content="{{$desc}}">{{end -}}
+    {{if eq $desc ""}}<meta name="description" content="{{$descDefault}}">{{end}}
     <meta name="theme-color" content="rgb(153, 153, 153)">
-    <meta name="defacto2:file-count" content="{{ index . "cacheFiles" }}">
+    <meta name="defacto2:file-count" content="{{$cachef}}">
     <meta name="monetization" content="$ilp.uphold.com/RpWPnb88yLaF">
     <meta name="format-detection" content="telephone=no">
     <meta name="format-detection" content="address=no">
@@ -109,7 +125,7 @@
               </a>
               <ul class="dropdown-menu">
                 <li><h6 class="dropdown-header">Artifacts</h6></li>
-                {{- if eq (index . "editor") true }}
+                {{- if eq $lock true }}
                 <li><a class="dropdown-item" href="/editor/for-approval">New <em>for approval</em></a></li>
                 {{- end }}
                 <li><a class="dropdown-item" href="/files/new-uploads">New uploads</a></li>
@@ -243,54 +259,55 @@
             </li>
           </ul>
         </div>
-        {{- template "layoutEditor" . }}
-        {{- template "layoutUploader" . }}
+        {{- template "layoutlock" . }}
+        {{- template "layoutup" . }}
       </div>
     </nav>
   </div>
   <div class="container-xxl">
   {{- block "modal" . -}}{{ "<!-- Modal popup content here -->" | safeHTML -}}{{end}}
   {{- block "uploader" . -}}{{ "<!-- Uploader content here -->" | safeHTML -}}{{end}}
-  {{- block "uploaderHtmx" . -}}{{ "<!-- Uploader htmx content here -->" | safeHTML -}}{{end}}
+  {{- block "uploaderhtmx" . -}}{{ "<!-- Uploader htmx content here -->" | safeHTML -}}{{end}}
   <hr>
-{{- if eq (index . "dbError") true -}}
+{{- if eq $databaseErr true -}}
 <div class="alert alert-danger" role="alert">
   The database is down, this means the website is not fully working. We are working on it.
 </div>{{- end}}
-{{- if ne (index . "logo") "" -}}
+{{- if ne $logo "" -}}
 <div class="d-flex justify-content-center" id="logo-container">
 <pre class="text-start text-bg-dark rounded font-dos px-1 py-2" id="logo-text">
   {{- /*  
     the monospace brand logo should be padded with the Bootstrap classes
     and not with pre whitespace characters */ -}}
 {{- logo }}
-{{logoText (index . "logo") -}}
+{{logoText $logo -}}
 </pre>
 </div>
 {{- end}}
-{{- if and (.Pagination) (gt (index  .Pagination.SumPages) 1)}}
+{{- if and (.Pagination) (gt (index .Pagination.SumPages) 1)}}
 <nav aria-label="Compact pagination navigation at the header">
   <ul class="pagination pagination-sm justify-content-end mb-0">
     {{ template "paginationList" . }}
   </ul>
   <div>
-    <input type="range" class="form-range" id="paginationRange" name="paginationRange" min="1" max="{{ index .Pagination.SumPages }}" value="{{ index .Pagination.CurrPage }}" step="{{ index .Pagination.RangeStep }}" />
+    <input type="range" class="form-range" id="paginationRange" name="paginationRange" 
+      min="1" max="{{index .Pagination.SumPages}}" value="{{index .Pagination.CurrPage}}" step="{{index .Pagination.RangeStep}}" />
     <label for="paginationRange" id="paginationRangeLabel" class="form-label">&nbsp;</label>
   </div>
 </nav>
 {{- end }}
 <main>
-    {{- if ne (index . "h1") ""}}
-    <h1 class="fs-1 fw-light">{{ index . "h1" }}{{if ne (index . "h1Sub") ""}} <small>{{ index . "h1Sub" }}</small>{{end}}</h1>
+    {{- if ne $h1 ""}}
+    <h1 class="fs-1 fw-light">{{$h1}}{{if ne $h1sub ""}} <small>{{$h1sub}}</small>{{end}}</h1>
     {{- end}}
-    {{- if ne (index . "lead") ""}}
+    {{- if ne $lead ""}}
     <p class="lead">
-      {{ index . "lead" | safeHTML }}
+      {{ $lead | safeHTML }}
     </p>
     {{- end}}
     {{- block "content" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
 </main>
-{{- if and (.Pagination) (gt (index  .Pagination.SumPages) 1)}}
+{{- if and (.Pagination) (gt (index .Pagination.SumPages) 1)}}
 <nav aria-label="Pagination navigation at the footer">
   <ul class="pagination justify-content-end mt-4">
     {{ template "paginationList" . }}
@@ -307,30 +324,28 @@
 <script src="{{ bootstrap5JS }}?{{ sri_bootstrap5JS }}" integrity="{{ sri_bootstrap5JS }}" crossorigin="anonymous"></script>
 {{- /*  FontAwesome Pro v5 */}}
 <script async src="{{ fa5Pro }}?{{ sri_fa5Pro }}" integrity="{{ sri_fa5Pro }}" crossorigin="anonymous"></script>
-{{- if index . "pouet"}}
+{{- if $pouet}}
 <script async src="{{ pouet }}?{{ sri_pouet }}" integrity="{{ sri_pouet }}" crossorigin="anonymous"></script>
 {{- end}}
-{{- if or (index . "readmeLatin1") (index . "readmeCP437")}}
+{{- if or $readmeL $readmeC}}
 <script async src="{{ readme }}?{{ sri_readme }}" integrity="{{ sri_readme }}" crossorigin="anonymous"></script>
 {{- end}}
 {{- /*  js-dos v6.22  */}}
-{{- if index . "jsdos6"}}
+{{- if $jsdos}}
 <script async src="{{ jsdos6JS }}?{{ sri_jsdos6JS }}" integrity="{{ sri_jsdos6JS }}" crossorigin="anonymous"></script>
 <script async src="{{ dosboxJS }}?{{ sri_dosboxJS }}" integrity="{{ sri_dosboxJS }}" crossorigin="anonymous"></script>
 {{- end}}
-{{- /*  Uploader  */}}
-{{- template "layoutUploaderJS" . }}
-{{- /*  Editor  */}}
-{{- template "layoutEditorJS" . }}
+{{- template "layoutjsup" . }}
+{{- template "layoutjs" . }}
 {{- /*  Layout JS  */}}
 <script defer src="{{ layoutJS }}?{{ sri_layoutJS }}" integrity="{{ sri_layoutJS }}" crossorigin="anonymous"></script>
 {{- /*  Bootstrap carousel initalizer (relies on the template and cannot be moved to a JS file)  */}}
-{{- if ne (index . "carousel") ""}}
+{{- if ne $carousel ""}}
 <script defer>
   (() => {
-    const myCarouselElement = document.querySelector('{{index . "carousel"}}');
+    const myCarouselElement = document.querySelector('{{$carousel}}');
     if (myCarouselElement === null) {
-      throw new Error(`Carousel {{index . "carousel"}} element not found`);
+      throw new Error(`Carousel {{$carousel}} element not found`);
     }
     const twoSeconds = 2000;
     const carousel = new bootstrap.Carousel(myCarouselElement, {

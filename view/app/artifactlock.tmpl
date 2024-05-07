@@ -1,10 +1,12 @@
-{{- /* artifactlock.tmpl */}}
+{{- /* 
+    artifactlock.tmpl ~ Buttons to launch the artifact editor modals.
+*/ -}}
 {{- define "artifactlock" }}
 {{- $locked := index . "editor"}}
 {{- if ne true $locked}}{{/*  render nothing  */}}{{else}}
-<div class="btn-group w-100 p-3">
-    <a href="#" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal" class="btn btn-lg btn-dark">Data editor</a>
-    <a href="#" data-bs-toggle="modal" data-bs-target="#assetEditorModal" class="btn btn-lg btn-outline-success">File assets editor</a>
+<div class="btn-group bg-dark w-100 p-2 m-1 mb-3 rounded-1 border-0">
+    <a href="#" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal"  class="btn btn-lg btn-outline-info w-50">Data editor</a>
+    <a href="#" data-bs-toggle="modal" data-bs-target="#assetEditorModal"       class="btn btn-lg btn-outline-info w-50">File editor</a>
 </div>
 {{- end}}
 {{- end}}

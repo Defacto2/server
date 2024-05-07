@@ -1324,7 +1324,7 @@ func Sceners(c echo.Context, uri string) error {
 
 // SearchDesc is the handler for the Search for file descriptions page.
 func SearchDesc(c echo.Context) error {
-	const title, name = "Search titles and descriptions", "searchPost"
+	const title, name = "Search titles and descriptions", "searchpost"
 	data := empty(c)
 	data["description"] = "Search form to scan through file descriptions."
 	data["logo"] = title
@@ -1339,7 +1339,7 @@ func SearchDesc(c echo.Context) error {
 
 // SearchFile is the handler for the Search for files page.
 func SearchFile(c echo.Context) error {
-	const title, name = "Search for filenames", "searchPost"
+	const title, name = "Search for filenames", "searchpost"
 	data := empty(c)
 	data["description"] = "Search form to discover files."
 	data["logo"] = title
@@ -1354,7 +1354,7 @@ func SearchFile(c echo.Context) error {
 
 // SearchReleaser is the handler for the Releaser Search page.
 func SearchReleaser(c echo.Context) error {
-	const title, name = "Search for releasers", "searchHtmx"
+	const title, name = "Search for releasers", "searchhtmx"
 	data := empty(c)
 	data["description"] = "Search form to discover releasers."
 	data["logo"] = title

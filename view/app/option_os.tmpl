@@ -1,4 +1,6 @@
-{{- /*  option_os.tmpl &#x2713; */}}
+{{- /* 
+    option_os.tmpl ~ Options and sections for the artifact platform (operating system) field.
+*/ -}}
 {{- define "optionOS" -}}
 {{- $os := (index . "platform") }}
 {{- $windows := tagOption $os "windows" }}

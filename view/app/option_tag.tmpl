@@ -1,4 +1,6 @@
-{{- /*  option_tag.tmpl  */}}
+{{- /* 
+    option_tag.tmpl ~ Options and sections for the artifact section (category tag) field.
+*/ -}}
 {{- define "optionTag" -}}
 {{- $tag := (index . "section") }}
 {{- $package := tagOption $tag "package" }}

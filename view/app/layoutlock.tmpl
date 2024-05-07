@@ -1,6 +1,9 @@
-{{- /* layout_editor.tmpl */}}
-{{- define "layoutEditor" }}
-{{- if eq false (index . "editor")}}{{/*  render nothing  */}}{{else}}
+{{- /* 
+    layoutlock.tmpl ~ Artifact editor pull-down menu.
+*/ -}}
+{{- define "layoutlock" }}
+{{- $lock := index . "editor" }}
+{{- if ne true $lock}}{{/*  render nothing  */}}{{else}}
 <div class="btn-group me-1">
   <button class="btn btn-outline-info btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
     Site editor
