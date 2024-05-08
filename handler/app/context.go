@@ -1879,7 +1879,6 @@ func files(c echo.Context, uri string, page int) error {
 	case forApproval.String():
 		data["forApproval"] = true
 	}
-	fmt.Println(uri, forApproval.String(), data["forApproval"])
 
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()

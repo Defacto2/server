@@ -2,8 +2,17 @@
     artifactinfo.tmpl ~ Artifact information template.
 */ -}}
 {{- define "artifactinfo" -}}
+{{- $content := index . "content"}}
+{{- $alert := index . "alertURL"}}
+{{- $checksum := index . "checksum"}}
+{{- $preview := index . "linkpreview"}}
+{{- $previewTip := index . "linkpreviewTip"}}
+{{- $jsdos6 := index . "jsdos6"}}
 {{- $writers := trimSpace (index . "writers") }}
 {{- $artists := trimSpace (index . "artists") }}
+{{- $readmeL := index . "readmeLatin1"}}
+{{- $readmeLines := index . "readmeLines"}}
+{{- $readmeRows := index . "readmeRows"}}
 {{- $programmers := trimSpace (index . "programmers") }}
 {{- $musicians := trimSpace (index . "musicians") }}
 {{- $demozoo := (index . "demozoo")}}
@@ -13,13 +22,24 @@
 {{- $github := trimSpace (index . "github")}}
 {{- $comment := trimSpace (index . "comment")}}
 {{- $mimetype := mimeMagic (index . "magic")}}
-{{- /*  [FILENAME] Content  */}}
-{{- if (index . "content")}}
+{{- $noDownload := index . "noDownload"}}
+{{- $contentDesc := index . "contentDesc"}}
+{{- $lastModAgo := index . "lastmodifiedAgo"}}
+{{- $lastMod := index . "lastmodified"}}
+{{- $filesize := index . "filesize"}}
+{{- $filebyte := index . "filebyte"}}
+{{- $filename := index . "filename"}}
+{{- $download := index . "download"}}
+{{- $downloadText := print "Download &nbsp; " print $filesize}}
+{{- $fileEntry := index . "filentry"}}
+{{- if $noDownload}}{{$downloadText = print `<span class="text-decoration-line-through">` print $downloadText print "</span>"}}{{end}}
+            {{- /*  [FILENAME] Content  */}}
+            {{- if $content}}
             <div class="modal fade" id="viewContentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="viewContentModalLabel">{{index . "filename"}} <small>content</small></h1>
+                            <h1 class="modal-title fs-5" id="viewContentModalLabel">{{$filename}} <small>content</small></h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -31,7 +51,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {{- range $i, $v := (index . "content") }}
+                                {{- range $i, $v := $content }}
                                 <tr>
                                     <th scope="row">{{add $i}}</th>
                                     <td><code>{{trimSpace $v}}</code></td>
@@ -49,16 +69,16 @@
                     </div>
                 </div>
             </div>
-{{- end}}
-{{- /*  Artifact file download link  */}} 
+            {{- end}}
+            {{- /*  Artifact file download link  */}} 
             <div class="d-grid gap-2 d-xl-block">
-            {{- template "artifactlock" . }}
-            {{- if eq (index . "alertURL") "" }}
+            {{/*  text-decoration-line-through  */}}
+            {{- if eq $alert "" }}
                 {{- /*  standard download  */}}
-                <a class="btn btn-success btn-lg" href="/d/{{index . "download"}}" rel="nofollow" role="button">Download &nbsp; {{index . "filesize"}}</a>
+                <a class="btn btn-success btn-lg" href="/d/{{$download}}" rel="nofollow" role="button">{{$downloadText | safeHTML}}</a>
             {{- else }}
                 {{- /*  google download warning  */}}
-                <a class="btn btn-outline-danger btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal">Download &nbsp; {{index . "filesize"}}</a>
+                <a class="btn btn-outline-danger btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal">{{$downloadText | safeHTML}}</a>
                 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
@@ -67,9 +87,11 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body text-start">
-                                Google Search has flagged this download as an unsafe or unwanted download. It can be a false positive, but we recommend carefully running the file in a virtualized environment or an emulator.
-                                <p class="m-3 text-center"><a class="link-offset-2" href="{{index . "alertURL"}}">You should read this scan report before downloading</a></p>
-                                <p class="m-5 text-center"><small><a class="link-secondary link-offset-3" href="/d/{{index . "download"}}" rel="nofollow" role="button">I understand, download anyway</a></small></p>
+                                Google Search has flagged this download as an unsafe or unwanted download. 
+                                It can be a false positive, but we recommend carefully running the file in a virtualized environment or an emulator.
+                                <p class="m-3 text-center"><a class="link-offset-2" href="{{$alert}}">You should read this scan report before downloading</a></p>
+                                <p class="m-5 text-center">
+                                    <small><a class="link-secondary link-offset-3" href="/d/{{$download}}" rel="nofollow" role="button">I understand, download anyway</a></small></p>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cancel</button>
@@ -78,29 +100,31 @@
                     </div>
                 </div>               
             {{- end }}
-            {{- if eq (index . "jsdos6") true}}
+            {{- if eq $jsdos6 true}}
                 <a href="#" id="jsdosRunLink" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#jsDOSModal">Run in browser</a>
             {{- end}}
             </div>
             <div class="mt-2 mb-2 d-grid gap-2 d-xl-flex justify-content-xl-end">
-            {{- if ne "" (index . "checksum")}}
-                <a class="d-none d-sm-inline btn btn-outline-secondary btn-sm" href="/sum/{{index . "download"}}" role="button" data-bs-toggle="tooltip" data-bs-title="Checksum download">#sum</a>
-                <a class="d-inline d-sm-none btn btn-outline-secondary btn-sm" href="/sum/{{index . "download"}}" role="button">Checksum</a>
+            {{- if ne "" $checksum}}
+                <a class="d-none d-sm-inline btn btn-outline-secondary btn-sm" href="/sum/{{$download}}" role="button" 
+                    data-bs-toggle="tooltip" data-bs-title="Checksum download">#sum</a>
+                <a class="d-inline d-sm-none btn btn-outline-secondary btn-sm" href="/sum/{{$download}}" role="button">Checksum</a>
             {{- end}}
-            {{- if (index . "content")}}
+            {{- if $content}}
                 <a class="d-inline btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#viewContentModal">view content</a>
             {{- end}}
-            {{- if ne "" (index . "linkpreview")}}
-                <a class="d-inline btn btn-outline-secondary btn-sm" href="{{- index . "linkpreview" }}" role="button" data-bs-toggle="tooltip" data-bs-title="{{index . "linkpreviewTip"}}">preview</a>
+            {{- if ne "" $preview}}
+                <a class="d-inline btn btn-outline-secondary btn-sm" href="{{$preview}}" role="button" 
+                    data-bs-toggle="tooltip" data-bs-title="{{$previewTip}}">preview</a>
             {{- end}}
             </div>
-{{- /*  Comment on the artifact  */}}
+            {{- /*  Comment on the artifact  */}}
             {{- if ne $comment ""}}
             <div class="container p-2 text-start">
-                <q>{{index . "comment"}}</q>
+                <q>{{$comment}}</q>
             </div>
             {{- end}}
-{{- /*  Table with details  */}}
+            {{- /*  Table with details  */}}
             <table class="table table-sm">
                 <thead>
                     <tr>
@@ -109,20 +133,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{- if (index . "noDownload")}}
-                    <tr>
-                        <td colspan="2" class="text-warning-emphasis p-3">Error the file download is missing on the server</td>
-                    </tr>
-                    {{- end}}
                     <tr>
                         <th scope="row"><span class="text-nowrap">Download info</span></th>
-                        <td><span data-bs-toggle="tooltip" data-bs-title="{{- index . "filebyte"}} bytes">{{- index . "filesize" -}}</span>
-                            {{- if ne "" (index . "contentDesc")}}, {{index . "contentDesc"}}{{end -}}
+                        <td><span data-bs-toggle="tooltip" data-bs-title="{{$filebyte}} bytes">{{$filesize}}</span>
+                            {{- if ne "" $contentDesc}}, {{$contentDesc}}{{end -}}
                         </td>
                     </tr>
                     <tr>
                         <th scope="row"><span class="text-nowrap">Last modification</span></th>
-                        <td><span data-bs-toggle="tooltip" data-bs-title="{{index . "lastmodifiedAgo"}}">{{index . "lastmodified"}}</span></td>
+                        <td><span data-bs-toggle="tooltip" data-bs-title="{{$lastModAgo}}">{{$lastMod}}</span></td>
                     </tr>
                     {{- if ne $mimetype ""}}
                     <tr>
@@ -130,10 +149,11 @@
                         <td>{{$mimetype}}</td>
                     </tr>
                     {{- end}}
-                    {{- if index . "readmeLatin1"}}
+                    {{- if $readmeL}}
                     <tr>
                         <th scope="row"><span class="text-nowrap">Text dimensions</span></th>
-                        <td><span data-bs-toggle="tooltip" data-bs-title="Number of lines in the text">{{index . "readmeLines"}}</span> x <span data-bs-toggle="tooltip" data-bs-title="Maximum number of rows or characters per-line">{{index . "readmeRows"}}</span></td>
+                        <td><span data-bs-toggle="tooltip" data-bs-title="Number of lines in the text">{{$readmeLines}}</span> x 
+                            <span data-bs-toggle="tooltip" data-bs-title="Maximum number of rows or characters per-line">{{$readmeRows}}</span></td>
                     </tr>
                     {{- end}}
                     <tr>
@@ -197,15 +217,17 @@
                     <tr>
                         <th scope="row">GitHub</th>
                         <td>
-                            <small><a class="link-offset-3 icon-link icon-link-hover" href="https://github.com{{$github}}"><var>{{$github}}</var>{{linkSVG}}</a></small>
+                            <small><a class="link-offset-3 icon-link icon-link-hover" href="https://github.com/{{$github}}"><var>{{$github}}</var>{{linkSVG}}</a></small>
                         </td>
                     </tr>{{- end}}
-                    {{- index . "listLinks" }}
+                    {{- /*  "Link to" items  */}}
+                    {{- index . "websites" }}
+                    {{- index . "relations" }}
                     {{- /*  File created and updated dates  */}}
-                    {{- if (index . "filentry")}}
+                    {{- if $fileEntry}}
                     <tr>
                         <th scope="row"><small>Artifact</small></th>
-                        <td><small>{{index . "filentry" | safeHTML}}</small></td>
+                        <td><small>{{$fileEntry | safeHTML}}</small></td>
                     </tr>
                     {{- end}}
                 </tbody>

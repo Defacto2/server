@@ -7,8 +7,14 @@
 {{- else}}
 {{- $faSize := "fa-fw fa-2x" -}}
 {{- $id := index . "modID"}}
-{{- $previewImg := recordImgSample (index . "uuid")}}
-{{- $thumbImg := recordThumbSample (index . "uuid")}}
+{{- $uuid := index . "uuid"}}
+{{- $filename := index . "filename"}}
+{{- $statMod := index . "modStatModify"}}
+{{- $statSize := index . "modStatSize"}}
+{{- $kind := index . "modKind"}}
+{{- $absDownload := index . "modAbsDownload"}}
+{{- $previewImg := recordImgSample $id}}
+{{- $thumbImg := recordThumbSample $id}}
 {{- $replace := "refresh the page to see the changes"}}
 {{- /*  File assets and metadata editors  */}}
 <div class="modal fade" id="assetEditorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
@@ -18,7 +24,7 @@
       {{/*  Modify the assets for ID  */}}
       <div class="modal-header">
         <i class="fal fa-file-alt {{ $faSize }}" title="Modify the record"></i> &nbsp;
-        <h1 class="modal-title fs-5" id="assetEditorModalLabel">Modify the assets for ID {{index . "modID"}}</h1><br>
+        <h1 class="modal-title fs-5" id="assetEditorModalLabel">Modify the assets for ID {{$id}}</h1><br>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -27,7 +33,7 @@
           <div class="row">
             <div class="col-xl-5">
               {{- /*  UUID used for the filename of assets  */}}
-                <input type="text" readonly class="form-control-plaintext" id="recordUUID" value="{{index . "uuid"}}"
+                <input type="text" readonly class="form-control-plaintext" id="recordUUID" value="{{$id}}"
                 data-bs-toggle="tooltip" data-bs-title="Universal Unique Identifier">
             </div>
             <div class="col-xl-2">
@@ -45,23 +51,23 @@
         {{/*  Filename  */}}
         <dl class="row mb-0">
           <dt class="col-xl-2" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Original filename of the artifact">Filename</dt>
-          <dd class="col-xl-10">{{index . "filename"}}</dd>
+          <dd class="col-xl-10">{{$filename}}</dd>
         </dl>
         {{/*  Metadata - last modified and size  */}}
         <dl class="row mb-0">
           <dt class="col-xl-2" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Last modified date and sizes of the artifact">Metadata</dt>
-          <dd class="col-xl-5"><strong>last modified on server</strong> {{index . "modStatModify"}}</dd>
-          <dd class="col-xl-5"><strong>size</strong> {{index . "modStatSize"}}</dd>
+          <dd class="col-xl-5"><strong>last modified on server</strong> {{$statMod}}</dd>
+          <dd class="col-xl-5"><strong>size</strong> {{$statSize}}</dd>
         </dl>
         {{/*  Quick type  */}}
         <dl class="row mb-0">
           <dt class="col-xl-2" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Common media type, this maybe inaccurate">Quick type</dt>
-          <dd class="col-xl-10">{{index . "modKind"}}</dd>
+          <dd class="col-xl-10">{{$kind}}</dd>
         </dl>
         {{/*  Location  */}}
         <dl class="row mb-0">
           <dt class="col-xl-2" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Path to file artifact on the server">Location</dt>
-          <dd class="col-xl-10">{{index . "modAbsDownload"}}</dd>
+          <dd class="col-xl-10">{{$absDownload}}</dd>
         </dl>
         <hr class="m-0 mb-3">
         {{/*  Complementary assets  */}}
@@ -137,12 +143,8 @@
           </div>
         </div>
       </div>
-      <div class="modal-footer row g-3 mt-1">
-        <div class="col-md text-center">
-          <button class="btn btn-secondary" data-bs-target="#viewContentModal" data-bs-toggle="modal">List archive content</button>
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
+      {{/*  Switch to assets and reset buttons  */}}
+      {{- template "artifactfooter" . }}
     </div>
   </div>
 </div>

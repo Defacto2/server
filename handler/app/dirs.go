@@ -126,9 +126,8 @@ func (dir Dirs) Artifact(c echo.Context, logger *zap.SugaredLogger, readonly boo
 	data["programmers"] = art.CreditProgram.String
 	data["musicians"] = art.CreditAudio.String
 	// links to other records and sites
-	data["listLinks"] = artifactLinks(art)
-	data["listRelations"] = art.ListRelations.String
-	data["listWebsites"] = art.ListLinks.String
+	data["relations"] = artifactRelations(art)
+	data["websites"] = artifactWebsites(art)
 	data["demozoo"] = artifactID(art.WebIDDemozoo.Int64)
 	data["pouet"] = artifactID(art.WebIDPouet.Int64)
 	data["sixteenColors"] = art.WebID16colors.String
@@ -186,9 +185,13 @@ func (dir Dirs) artifactEditor(art *models.File, data map[string]interface{}, re
 	data["modAnsiLoveList"] = OptionsAnsiLove(art.FileZipContent.String)
 	data["modReadmeSuggest"] = readmeSuggest(art)
 	data["modZipContent"] = strings.TrimSpace(art.FileZipContent.String)
+	data["modRelations"] = art.ListRelations.String
+	data["modWebsites"] = art.ListLinks.String
 	data["modOS"] = strings.ToLower(strings.TrimSpace(art.Platform.String))
 	data["modTag"] = strings.ToLower(strings.TrimSpace(art.Section.String))
 	data["virusTotal"] = strings.TrimSpace(art.FileSecurityAlertURL.String)
+	data["forApproval"] = !art.Deletedat.IsZero() && !art.Deletedby.IsZero()
+	data["disableRecord"] = !art.Deletedat.IsZero() && art.Deletedby.IsZero()
 	return data
 }
 
@@ -575,8 +578,32 @@ func artifactModAgo(art *models.File) string {
 	return Updated(art.FileLastModified.Time, "Modified")
 }
 
-// artifactLinks returns the list of links for the file record.
-func artifactLinks(art *models.File) template.HTML {
+// artifactRelations returns the list of relationships for the file record.
+func artifactRelations(art *models.File) template.HTML {
+	s := art.ListRelations.String
+	if s == "" {
+		return ""
+	}
+	links := strings.Split(s, "|")
+	if len(links) == 0 {
+		return ""
+	}
+	rows := ""
+	const expected = 2
+	for _, link := range links {
+		x := strings.Split(link, ";")
+		if len(x) != expected {
+			continue
+		}
+		name, href := x[0], x[1]
+		rows += fmt.Sprintf("<tr><th scope=\"row\"><small>Link to</small></th>"+
+			"<td><small><a class=\"text-truncate\" href=\"%s\">%s</a></small></td></tr>", href, name)
+	}
+	return template.HTML(rows)
+}
+
+// artifactWebsites returns the list of links for the file record.
+func artifactWebsites(art *models.File) template.HTML {
 	s := art.ListLinks.String
 	if s == "" {
 		return ""
@@ -593,8 +620,8 @@ func artifactLinks(art *models.File) template.HTML {
 			continue
 		}
 		name, href := x[0], x[1]
-		rows += fmt.Sprintf("<tr><th scope=\"row\"><small>Link</small></th>"+
-			"<td><small><a class=\"text-truncate\" href=\"%s\">%s</a></small></td></tr>", href, name)
+		rows += fmt.Sprintf("<tr><th scope=\"row\"><small>Link to</small></th>"+
+			"<td><small><a class=\"link-offset-3 icon-link icon-link-hover\" href=\"https://%s\">%s %s</a></small></td></tr>", href, name, LinkSVG())
 	}
 	return template.HTML(rows)
 }

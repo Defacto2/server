@@ -32,10 +32,11 @@
 {{- $pouet := index . "pouet"}}
 {{- $github := index . "github"}}
 {{- $comment := index . "comment"}}
-{{- $relations := index . "listRelations"}}
-{{- $websites := index . "listWebsites"}}
+{{- $relations := index . "modRelations"}}
+{{- $websites := index . "modWebsites"}}
 {{- $programmers := index . "programmers"}}
 {{- $musicians := index . "musicians"}}
+{{- $virusTotal := index . "virusTotal"}}
 {{- $previewImg := recordImgSample $uuid}}
 {{- $thumbImg := recordThumbSample $uuid}}
 {{- $replace := "refresh the page to see the changes"}}
@@ -214,7 +215,7 @@
           <div class="col-xl-6">
             <label for="artifact-editor-virustotal" class="col-form-label-lg">VirusTotal alert</label>
             <input type="text" class="form-control" name="artifact-editor-virustotal" id="artifact-editor-virustotal" autocomplete="off" maxlength="256"
-              aria-describedby="artifact-editor-virustotal-help" value="{{index . "virusTotal"}}"
+              aria-describedby="artifact-editor-virustotal-help" value="{{$virusTotal}}"
               hx-post="/editor/virustotal" 
               hx-trigger="keyup changed delay:{{$lDelay}}"
               hx-include="[name='artifact-editor-key']">
@@ -517,14 +518,14 @@
               <input type="hidden" name="artifact-editor-websitesval" value="{{$websites}}" readonly>
               <input type="text" class="form-control" name="artifact-editor-websites" id="artifact-editor-websites" 
                 autocomplete="off" maxlength="2048" value="{{$websites}}"
-                placeholder="Web;example.com" aria-describedby="artifact-editor-websites-help"
+                placeholder="Website;example.com" aria-describedby="artifact-editor-websites-help"
                 hx-post="/editor/sites"
                 hx-trigger="keyup changed delay:{{$lDelay}}"
                 hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-websites">Link to websites</label>
             </div>
-            <div class="form-text" id="artifact-editor-websites-help">Brief description and link, for example: 
-              <q>Web;<a href="https://example.com">example.com</a>|Docs;<a href="https://docs.example.com">docs.example.com</a></q>.
+            <div class="form-text" id="artifact-editor-websites-help">Description &amp; link, example: 
+              <q>Site;<a href="https://example.com">example.com</a>|Documentation;<a href="https://example.com/doc">example.com/doc</a></q>.
             </div>
           </div>
         </div>
@@ -532,19 +533,7 @@
         </form>
       </div>
       {{/*  Switch to assets and reset buttons  */}}
-      <div class="modal-footer bg-dark-subtle g-3 mt-1">
-        <div class="row col-12">
-          {{/*  TODO: move to template?  */}}
-          <div class="col-md-4 text-start">
-            <button type="button" class="btn btn-warning">Permenently delete record</button>
-          </div>
-          <div class="col-md-8 text-end">
-            <button class="btn btn-dark">Data editor</button>
-            <button class="btn btn-primary" data-bs-target="#assetEditorModal" data-bs-toggle="modal">File assets editor</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
+      {{- template "artifactfooter" . }}
     </div>
   </div>
 </div>

@@ -4,9 +4,30 @@
 {{- define "artifactlock" }}
 {{- $locked := index . "editor"}}
 {{- if ne true $locked}}{{/*  render nothing  */}}{{else}}
-<div class="btn-group bg-dark w-100 p-2 m-1 mb-3 rounded-1 border-0">
-    <a href="#" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal"  class="btn btn-lg btn-outline-info w-50">Data editor</a>
-    <a href="#" data-bs-toggle="modal" data-bs-target="#assetEditorModal"       class="btn btn-lg btn-outline-info w-50">File editor</a>
+{{- $alertCls := "w-100 my-0 text-center"}}
+{{- $forApproval := index . "forApproval"}}
+{{- $disableRecord := index . "disableRecord"}}
+<div>
+    <div class="alert alert-dark w-50 p-2" role="alert">
+        <div class="d-grid gap-1 d-xl-flex justify-content-xl-center w-100">
+            <a href="#" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal"  class="btn btn-primary w-25">Data editor</a>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#assetEditorModal"       class="btn btn-primary w-25">File editor</a>
+            <a href="#" data-bs-toggle="modal" data-bs-target=""                        class="btn btn-primary w-25">Emulate editor</a>
+        </div>
+        <hr class="my-2">
+        {{- if $disableRecord}}
+        <p class="{{$alertCls}} text-danger-emphasis">❌ Record is disabled and hidden from public access. ❌</p>
+        {{- else if $forApproval}}
+        <p class="{{$alertCls}} text-primary-emphasis">
+            ❓ This new record is hidden from public access. ❓<br>
+            {{- /*  todo: create a htmx element to approve and refresh  */}}
+            If the data and images are correct, <a href="">it can be approved</a>.
+        </p>
+        {{- else}}
+        <p class="{{$alertCls}} text-success-emphasis">Record is visible to the public.</p>
+        {{- end}}
+        {{- /*  todo: alerts for obvious issues, no cat/platform/releasers/etc  */}}
+    </div>
 </div>
 {{- end}}
 {{- end}}

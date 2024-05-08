@@ -552,6 +552,7 @@ func artifactTmpls(lock bool, files ...string) []string {
 	return append(files,
 		GlobTo("artifactfile.tmpl"),
 		GlobTo("artifactedit.tmpl"),
+		GlobTo("artifactfooter.tmpl"),
 		GlobTo("artifactlock.tmpl"))
 }
 
