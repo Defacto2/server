@@ -13,8 +13,8 @@
 {{- $statSize := index . "modStatSize"}}
 {{- $kind := index . "modKind"}}
 {{- $absDownload := index . "modAbsDownload"}}
-{{- $previewImg := recordImgSample $id}}
-{{- $thumbImg := recordThumbSample $id}}
+{{- $previewImg := recordImgSample $uuid}}
+{{- $thumbImg := recordThumbSample $uuid}}
 {{- $replace := "refresh the page to see the changes"}}
 {{- /*  File assets and metadata editors  */}}
 <div class="modal fade" id="assetEditorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
