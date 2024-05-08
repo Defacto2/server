@@ -2,15 +2,6 @@
 
   * (star) prefix indicates a low priority task.
 
-### URL /v/xxx pattern fixes.
-
-- [ ] detect if the file contains /r/n or /n and replace with /n only.
-		example, http://localhost:1323/v/af18f9b
-- [ ] detect if the file uses cp437 or unicode and convert to utf8.
-        example, http://localhost:1323/v/b01de5b 
-		         http://localhost:1323/v/b521c83
-				 http://localhost:1323/v/b8297cf
-
 ### Files
 
 - [ ] Listing files for approval should have a colored border.
@@ -57,3 +48,12 @@ Error:      	Not equal:
 				use utf8 lib to detect extended chars?
 */
 ```
+
+### URL /v/xxx pattern tests.
+
+- [X] detect if the file contains /r/n or /n and replace with /n only.
+		example, http://localhost:1323/v/af18f9b
+- [X] detect if the file uses cp437 or unicode and convert to utf8.
+        example, http://localhost:1323/v/b01de5b 
+		         http://localhost:1323/v/b521c83
+				 http://localhost:1323/v/b8297cf
