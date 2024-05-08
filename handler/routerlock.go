@@ -92,7 +92,7 @@ func get(g *echo.Group, dir app.Dirs) {
 	}
 	g.GET("/deletions",
 		func(cx echo.Context) error {
-			return app.FilesDeletions(cx, "1")
+			return app.Deletions(cx, "1")
 		})
 	g.GET("/get/demozoo/download/:id",
 		func(cx echo.Context) error {
@@ -100,11 +100,11 @@ func get(g *echo.Group, dir app.Dirs) {
 		})
 	g.GET("/for-approval",
 		func(cx echo.Context) error {
-			return app.FilesWaiting(cx, "1")
+			return app.ForApproval(cx, "1")
 		})
 	g.GET("/unwanted",
 		func(cx echo.Context) error {
-			return app.FilesUnwanted(cx, "1")
+			return app.Unwanted(cx, "1")
 		})
 }
 

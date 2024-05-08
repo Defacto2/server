@@ -54,6 +54,46 @@ const (
 	year    = "by year"
 )
 
+// Artifacts is the handler for the list and preview of the files page.
+// The uri is the category or collection of files to display.
+// The page is the page number of the results to display.
+func Artifacts(c echo.Context, uri, page string) error {
+	if !Valid(uri) {
+		return Artifacts404(c, uri)
+	}
+	if page == "" {
+		return artifacts(c, uri, 1)
+	}
+	p, err := strconv.Atoi(page)
+	if err != nil {
+		return Page404(c, uri, page)
+	}
+	return artifacts(c, uri, p)
+}
+
+// Artifacts404 renders the files error page for the Files menu and categories.
+// It provides different error messages to the standard error page.
+func Artifacts404(c echo.Context, uri string) error {
+	const name = "status"
+	if c == nil {
+		return InternalErr(c, name, ErrCxt)
+	}
+	data := empty(c)
+	data["title"] = fmt.Sprintf("%d error, files page not found", http.StatusNotFound)
+	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
+	data["code"] = http.StatusNotFound
+	data["logo"] = "Files not found"
+	data["alert"] = "Files page cannot be found"
+	data["probl"] = "The files category or menu option does not exist, there is probably a typo with the URL."
+	data["uriOkay"] = "files/"
+	data["uriErr"] = uri
+	err := c.Render(http.StatusNotFound, name, data)
+	if err != nil {
+		return InternalErr(c, name, err)
+	}
+	return nil
+}
+
 // Artist is the handler for the Artist sceners page.
 func Artist(c echo.Context) error {
 	data := empty(c)
@@ -157,8 +197,8 @@ func FTP(c echo.Context) error {
 	return nil
 }
 
-// File is the handler for the artifact categories page.
-func File(c echo.Context, logger *zap.SugaredLogger, stats bool) error {
+// Categories is the handler for the artifact categories page.
+func Categories(c echo.Context, logger *zap.SugaredLogger, stats bool) error {
 	const title, name = "Artifact categories", "categories"
 	if logger == nil {
 		return InternalErr(c, "name", ErrZap)
@@ -184,92 +224,52 @@ func File(c echo.Context, logger *zap.SugaredLogger, stats bool) error {
 	return nil
 }
 
-// Files is the handler for the list and preview of the files page.
-// The uri is the category or collection of files to display.
-// The page is the page number of the results to display.
-func Files(c echo.Context, uri, page string) error {
-	if !Valid(uri) {
-		return Files404(c, uri)
-	}
-	if page == "" {
-		return files(c, uri, 1)
-	}
-	p, err := strconv.Atoi(page)
-	if err != nil {
-		return Page404(c, uri, page)
-	}
-	return files(c, uri, p)
-}
-
-// FilesErr renders the files error page for the Files menu and categories.
-// It provides different error messages to the standard error page.
-func Files404(c echo.Context, uri string) error {
-	const name = "status"
-	if c == nil {
-		return InternalErr(c, name, ErrCxt)
-	}
-	data := empty(c)
-	data["title"] = fmt.Sprintf("%d error, files page not found", http.StatusNotFound)
-	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
-	data["code"] = http.StatusNotFound
-	data["logo"] = "Files not found"
-	data["alert"] = "Files page cannot be found"
-	data["probl"] = "The files category or menu option does not exist, there is probably a typo with the URL."
-	data["uriOkay"] = "files/"
-	data["uriErr"] = uri
-	err := c.Render(http.StatusNotFound, name, data)
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	return nil
-}
-
-func FilesDeletions(c echo.Context, page string) error {
+func Deletions(c echo.Context, page string) error {
 	uri := deletions.String()
 	if !Valid(uri) {
-		return Files404(c, uri)
+		return Artifacts404(c, uri)
 	}
 	if page == "" {
-		return files(c, uri, 1)
+		return artifacts(c, uri, 1)
 	}
 	p, err := strconv.Atoi(page)
 	if err != nil {
 		return Page404(c, uri, page)
 	}
-	return files(c, uri, p)
+	return artifacts(c, uri, p)
 }
 
-func FilesUnwanted(c echo.Context, page string) error {
+func Unwanted(c echo.Context, page string) error {
 	uri := unwanted.String()
 	if !Valid(uri) {
-		return Files404(c, uri)
+		return Artifacts404(c, uri)
 	}
 	if page == "" {
-		return files(c, uri, 1)
+		return artifacts(c, uri, 1)
 	}
 	p, err := strconv.Atoi(page)
 	if err != nil {
 		return Page404(c, uri, page)
 	}
-	return files(c, uri, p)
+	return artifacts(c, uri, p)
 }
 
-// Files is the handler for the list and preview of the files page.
+// ForApproval is the handler for the list and preview of the files page.
 // The uri is the category or collection of files to display.
 // The page is the page number of the results to display.
-func FilesWaiting(c echo.Context, page string) error {
+func ForApproval(c echo.Context, page string) error {
 	uri := forApproval.String()
 	if !Valid(uri) {
-		return Files404(c, uri)
+		return Artifacts404(c, uri)
 	}
 	if page == "" {
-		return files(c, uri, 1)
+		return artifacts(c, uri, 1)
 	}
 	p, err := strconv.Atoi(page)
 	if err != nil {
 		return Page404(c, uri, page)
 	}
-	return files(c, uri, p)
+	return artifacts(c, uri, p)
 }
 
 // DemozooLink is the response from the task of GetDemozooFile.
@@ -1725,6 +1725,83 @@ func (s *Stats) get(ctx context.Context, db *sql.DB) error {
 	return s.Windows.Stat(ctx, db)
 }
 
+// artifacts is a helper function for Files that returns the data map for the files page.
+func artifacts(c echo.Context, uri string, page int) error {
+	const title, name = "Files", "artifacts"
+	logo, h1sub, lead := fileInfo(uri)
+	data := emptyFiles(c)
+	data["title"] = title
+	data["description"] = "Table of contents for the files."
+	data["logo"] = logo
+	data["h1"] = title
+	data["h1Sub"] = h1sub
+	data["lead"] = lead
+	data[records] = []models.FileSlice{}
+	data["unknownYears"] = true
+	data["forApproval"] = false
+	switch uri {
+	case
+		newUploads.String(),
+		newUpdates.String(),
+		deletions.String(),
+		unwanted.String():
+		data["unknownYears"] = false
+	case forApproval.String():
+		data["forApproval"] = true
+	}
+
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return InternalErr(c, name, err)
+	}
+	defer db.Close()
+	r, err := Records(ctx, db, uri, page, limit)
+	if err != nil {
+		return DatabaseErr(c, name, err)
+	}
+	data[records] = r
+	d, sum, err := stats(ctx, db, uri)
+	if err != nil {
+		return DatabaseErr(c, name, err)
+	}
+	data["stats"] = d
+	lastPage := math.Ceil(float64(sum) / float64(limit))
+	if page > int(lastPage) {
+		i := strconv.Itoa(page)
+		return Page404(c, uri, i)
+	}
+	const pages = 2
+	data["Pagination"] = model.Pagination{
+		TwoAfter:  page + pages,
+		NextPage:  page + 1,
+		CurrPage:  page,
+		PrevPage:  page - 1,
+		TwoBelow:  page - pages,
+		SumPages:  int(lastPage),
+		BaseURL:   "/files/" + uri,
+		RangeStep: steps(lastPage),
+	}
+	err = c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(c, name, err)
+	}
+	return nil
+}
+
+func steps(lastPage float64) int {
+	const one, two, four = 1, 2, 4
+	const skip2Pages, skip4Pages = 39, 99
+	switch {
+	case lastPage > skip4Pages:
+		return four
+	case lastPage > skip2Pages:
+		return two
+	default:
+		return one
+	}
+}
+
 // bbsHandler is the handler for the BBS page.
 func bbsHandler(c echo.Context, orderBy model.OrderBy) error {
 	const title, name = "BBS", "bbs"
@@ -1862,83 +1939,6 @@ func fileWStats(data map[string]interface{}, stats bool) (map[string]interface{}
 		fmt.Sprintf(" The total number of files in the database is %d.", c.Record.Count) +
 		fmt.Sprintf(" The total size of all file artifacts are %s.", helper.ByteCount(int64(c.Record.Bytes)))
 	return data, nil
-}
-
-// files is a helper function for Files that returns the data map for the files page.
-func files(c echo.Context, uri string, page int) error {
-	const title, name = "Files", "artifacts"
-	logo, h1sub, lead := fileInfo(uri)
-	data := emptyFiles(c)
-	data["title"] = title
-	data["description"] = "Table of contents for the files."
-	data["logo"] = logo
-	data["h1"] = title
-	data["h1Sub"] = h1sub
-	data["lead"] = lead
-	data[records] = []models.FileSlice{}
-	data["unknownYears"] = true
-	data["forApproval"] = false
-	switch uri {
-	case
-		newUploads.String(),
-		newUpdates.String(),
-		deletions.String(),
-		unwanted.String():
-		data["unknownYears"] = false
-	case forApproval.String():
-		data["forApproval"] = true
-	}
-
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	defer db.Close()
-	r, err := Records(ctx, db, uri, page, limit)
-	if err != nil {
-		return DatabaseErr(c, name, err)
-	}
-	data[records] = r
-	d, sum, err := stats(ctx, db, uri)
-	if err != nil {
-		return DatabaseErr(c, name, err)
-	}
-	data["stats"] = d
-	lastPage := math.Ceil(float64(sum) / float64(limit))
-	if page > int(lastPage) {
-		i := strconv.Itoa(page)
-		return Page404(c, uri, i)
-	}
-	const pages = 2
-	data["Pagination"] = model.Pagination{
-		TwoAfter:  page + pages,
-		NextPage:  page + 1,
-		CurrPage:  page,
-		PrevPage:  page - 1,
-		TwoBelow:  page - pages,
-		SumPages:  int(lastPage),
-		BaseURL:   "/files/" + uri,
-		RangeStep: steps(lastPage),
-	}
-	err = c.Render(http.StatusOK, name, data)
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	return nil
-}
-
-func steps(lastPage float64) int {
-	const one, two, four = 1, 2, 4
-	const skip2Pages, skip4Pages = 39, 99
-	switch {
-	case lastPage > skip4Pages:
-		return four
-	case lastPage > skip2Pages:
-		return two
-	default:
-		return one
-	}
 }
 
 // magazines is the handler for the magazine page.

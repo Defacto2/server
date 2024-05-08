@@ -205,24 +205,24 @@ func (c Configuration) website(e *echo.Echo, logger *zap.SugaredLogger, dir app.
 		return dir.Artifact(cx, logger, c.Environment.ReadMode)
 	})
 	s.GET("/file/stats", func(cx echo.Context) error {
-		return app.File(cx, logger, true)
+		return app.Categories(cx, logger, true)
 	})
 	s.GET("/files/:id/:page", func(cx echo.Context) error {
 		switch cx.Param("id") {
 		case "for-approval", "deletions", "unwanted":
 			return app.StatusErr(cx, http.StatusNotFound, cx.Param("uri"))
 		}
-		return app.Files(cx, cx.Param("id"), cx.Param("page"))
+		return app.Artifacts(cx, cx.Param("id"), cx.Param("page"))
 	})
 	s.GET("/files/:id", func(cx echo.Context) error {
 		switch cx.Param("id") {
 		case "for-approval", "deletions", "unwanted":
 			return app.StatusErr(cx, http.StatusNotFound, cx.Param("uri"))
 		}
-		return app.Files(cx, cx.Param("id"), "1")
+		return app.Artifacts(cx, cx.Param("id"), "1")
 	})
 	s.GET("/file", func(cx echo.Context) error {
-		return app.File(cx, logger, false)
+		return app.Categories(cx, logger, false)
 	})
 	s.GET("/ftp", app.FTP)
 	s.GET("/g/:id", func(cx echo.Context) error {
