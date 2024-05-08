@@ -40,7 +40,8 @@ import { clipText, getElmById } from "./helper.mjs";
   }
   function useIBM() {
     preLatin1.classList.add(none);
-    pre437.classList.remove(none, wrap);
+    pre437.classList.remove(none);
+    pre437.classList.add(...blackBG);
   }
 
   const copier = getElmById(`copyReadme`);

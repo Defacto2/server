@@ -351,8 +351,9 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	re := regexp.MustCompile(reAnsi + `|` + reAmiga + `|` + reSauce)
 	b = re.ReplaceAll(b, []byte{})
 	b = bytes.ReplaceAll(b, []byte(nlWindows), []byte(nlUnix))
-	nr := bytes.NewReader(b)
-	e := render.Encoder(art, nr)
+	if len(b) == 0 {
+		return data, nil
+	}
 	const (
 		sp      = 0x20 // space
 		hyphen  = 0x2d // hyphen-minus
@@ -361,7 +362,7 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 		nbsp437 = 0xff // non-breaking space for CP437
 		space   = " "  // intentional space
 	)
-	switch e {
+	switch render.Encoder(art, bytes.NewReader(b)) {
 	case charmap.ISO8859_1:
 		data["readmeLatin1Cls"] = ""
 		data["readmeCP437Cls"] = "d-none" + space
