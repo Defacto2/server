@@ -43,7 +43,8 @@
   {{- range .records }}
   {{- $filename := .Filename.String}}
   {{- if eq $filename ""}}{{$filename = "no filename provided"}}{{end}}
-  {{- if and (eq $unYears true) (eq $noYears false) (eq .DateIssuedYear.Int16 0)}}
+  {{- $forApproval := and (eq .Deletedat.IsZero false) (eq .Deletedby.String "")}}
+  {{- if and (ne $forApproval true) (eq $unYears true) (eq $noYears false) (eq .DateIssuedYear.Int16 0)}}
     {{- /*  
         Create a break in the the iteration of the records when $noYears is true.
         This should never display with search or order by date of records listings.
@@ -57,7 +58,6 @@
   {{- $attr := attribute .CreditText.String .CreditProgram.String .CreditIllustration.String .CreditAudio.String $scener}}
   {{- $cardClass := "h-100"}}
   {{- $forClass := " border border-1 border-info"}}
-  {{- $forApproval := and (eq .Deletedat.IsZero false) (eq .Deletedby.String "")}}
   {{if $forApproval}}{{$cardClass = print $cardClass print $forClass}}{{end}}
   {{- $removedClass := " border border-2 border-danger"}}
   {{- $removed := and (eq .Deletedat.IsZero false) (ne .Deletedby.String "")}}

@@ -4,13 +4,13 @@
 
 ### Files
 
-- [ ] Listing files for approval should have a colored border.
+- [X] Listing files for approval should have a colored border.
 		example, http://localhost:1323/editor/for-approval
-- [ ] Listing files for approval should have a colored border.
+- [X] Listing files for approval should have a colored border.
 		example, http://localhost:1323/editor/deletions
-- [ ] Listing unwanted files should have a colored border.
+- [X] Listing unwanted files should have a colored border.
 		example, http://localhost:1323/editor/unwanted
-- [ ] Viewing artifact pages should have colored background?
+- [X] Viewing artifact pages should have colored background?
 - [ ] Handle magazines with the file editor.
 - [ ] GitHub repo should always trim single forward slash, both prefix and suffix, for save and fix.
 - [ ] 16colors should always trim single forward slash, both prefix and suffix, for save and fix.
