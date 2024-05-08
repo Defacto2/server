@@ -159,7 +159,7 @@ func FTP(c echo.Context) error {
 
 // File is the handler for the artifact categories page.
 func File(c echo.Context, logger *zap.SugaredLogger, stats bool) error {
-	const title, name = "Artifact categories", "file"
+	const title, name = "Artifact categories", "categories"
 	if logger == nil {
 		return InternalErr(c, "name", ErrZap)
 	}
@@ -681,7 +681,7 @@ func PostIntro(c echo.Context) error {
 
 // PostDesc is the handler for the Search for file descriptions form post page.
 func PostDesc(c echo.Context, input string) error {
-	const name = "files"
+	const name = "artifacts"
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -703,7 +703,7 @@ func PostDesc(c echo.Context, input string) error {
 	data["unknownYears"] = false
 	data[records] = fs
 	data["stats"] = d
-	err = c.Render(http.StatusOK, "files", data)
+	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, name, err)
 	}
@@ -717,7 +717,7 @@ func PostFilename(c echo.Context) error {
 
 // PostName is the handler for the Search for filenames form post page.
 func PostName(c echo.Context, mode FileSearch) error {
-	const name = "files"
+	const name = "artifacts"
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -741,7 +741,7 @@ func PostName(c echo.Context, mode FileSearch) error {
 	data["unknownYears"] = false
 	data[records] = fs
 	data["stats"] = d
-	err = c.Render(http.StatusOK, "files", data)
+	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, name, err)
 	}
@@ -1194,8 +1194,7 @@ func ReleaserEdit(c echo.Context) error {
 
 // Releasers is the handler for the list and preview of files credited to a releaser.
 func Releasers(c echo.Context, uri string) error {
-	const name = "files"
-
+	const name = "artifacts"
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -1237,7 +1236,7 @@ func Releasers(c echo.Context, uri string) error {
 		return InternalErr(c, name, err)
 	}
 	data["stats"] = d
-	err = c.Render(http.StatusOK, "files", data)
+	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, name, err)
 	}
@@ -1295,7 +1294,7 @@ func Scener404(c echo.Context, id string) error {
 
 // Sceners is the handler for the list and preview of files credited to a scener.
 func Sceners(c echo.Context, uri string) error {
-	const name = "files"
+	const name = "artifacts"
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -1325,7 +1324,7 @@ func Sceners(c echo.Context, uri string) error {
 		return InternalErr(c, name, err)
 	}
 	data["stats"] = d
-	err = c.Render(http.StatusOK, "files", data)
+	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, name, err)
 	}
@@ -1867,7 +1866,7 @@ func fileWStats(data map[string]interface{}, stats bool) (map[string]interface{}
 
 // files is a helper function for Files that returns the data map for the files page.
 func files(c echo.Context, uri string, page int) error {
-	const title, name = "Files", "files"
+	const title, name = "Files", "artifacts"
 	logo, h1sub, lead := fileInfo(uri)
 	data := emptyFiles(c)
 	data["title"] = title

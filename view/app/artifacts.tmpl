@@ -1,6 +1,6 @@
 {{- /* 
-    files.tmpl ~ the file template is for the files, browse categories menu
-    see the artifact.tmpl for the file artifact template
+    artifacts.tmpl ~ the template is for the artifact cards.
+    see the artifact.tmpl for the single artifact page template.
 */ -}}
 {{- define "content" }}
 {{- $files := index .stats.files }}
@@ -38,6 +38,8 @@
 {{- end}}
 <div class="row justify-content-md-center {{$rowCols}} g-4 mt-1">
   {{- range .records }}
+  {{- $filename := .Filename.String}}
+  {{- if eq $filename ""}}{{$filename = "no filename provided"}}{{end}}
 {{- /*  this should not display with search or order by date of records listings */}}
 {{- if and (eq $unYears true) (eq $noYears false) (eq .DateIssuedYear.Int16 0)}}
   {{- $noYears = true}}
@@ -49,7 +51,7 @@
   <div class="col">
     <div class="card{{$cardClass}}">
       <div class="card-header text-body-secondary text-center">
-        <code>{{.Filename.String}}</code>
+        <code>{{$filename}}</code>
       </div>
       <div class="card-body">
         <h2 class="card-title text-truncate fs-5">{{linkRelrs .GroupBrandFor .GroupBrandBy }}</h2>

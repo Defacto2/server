@@ -527,8 +527,8 @@ func (web Templ) tmpl(name filename) *template.Template {
 	switch name {
 	case "artifact.tmpl":
 		files = artifactTmpls(config.ReadMode, files...)
-	case "file.tmpl":
-		files = append(files, GlobTo("filemore.tmpl"))
+	case "categories.tmpl":
+		files = append(files, GlobTo("categoriesmore.tmpl"))
 	case "websites.tmpl":
 		const individualWebsite = "website.tmpl"
 		files = append(files, GlobTo(individualWebsite))
@@ -567,11 +567,11 @@ func templates() map[string]filename {
 	return map[string]filename{
 		"index":         "index.tmpl",
 		"artifact":      "artifact.tmpl",
+		"artifacts":     "artifacts.tmpl",
 		"bbs":           releaser,
 		"bbs-year":      "releaseryear.tmpl",
+		"categories":    "categories.tmpl",
 		"coder":         scener,
-		"file":          "file.tmpl",
-		"files":         "files.tmpl",
 		"ftp":           releaser,
 		"history":       "history.tmpl",
 		"interview":     "interview.tmpl",
