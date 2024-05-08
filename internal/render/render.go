@@ -50,7 +50,7 @@ func Encoder(art *models.File, r io.Reader) encoding.Encoding {
 
 // Read returns the content of either the file download or an extracted text file.
 // The text is intended to be used as a readme, preview or an in-browser viewer.
-func Read(art *models.File, path string) (*bytes.Reader, error) {
+func Read(art *models.File, path string) ([]byte, error) {
 	if art == nil {
 		return nil, ErrFileModel
 	}
@@ -77,14 +77,14 @@ func Read(art *models.File, path string) (*bytes.Reader, error) {
 	files.filepth = filepath.Join(path, uuid)
 	files.filepOk = helper.IsStat(files.filepth)
 	files.txt = !exts.IsArchive(fname)
-	var r *bytes.Reader
 
 	if !files.uutxtOk && !files.filepOk {
 		return nil, fmt.Errorf("%w: %s", ErrDownload, filepath.Join(path, uuid))
 	}
 
 	if !files.uutxtOk && !Viewer(art) {
-		return r, nil
+		doNothing := []byte{}
+		return doNothing, nil
 	}
 
 	name := files.filepth
@@ -99,8 +99,7 @@ func Read(art *models.File, path string) (*bytes.Reader, error) {
 
 	const nul = 0x00
 	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
-	r = bytes.NewReader(b)
-	return r, nil
+	return b, nil
 }
 
 // IsUTF16 returns true if the byte slice is embedded with a UTF-16 BOM (byte order mark).

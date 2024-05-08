@@ -3,7 +3,6 @@ package render_test
 import (
 	"bytes"
 	"encoding/binary"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -95,8 +94,8 @@ func TestRead(t *testing.T) {
 
 	r, err = render.Read(&art, dir)
 	require.NoError(t, err)
-	assert.NotNil(t, r)
-	assert.NotEmpty(t, r)
+	assert.Nil(t, r)
+	assert.Empty(t, r)
 
 	err = os.Remove(filepath.Join(dir, uuid+txt))
 	require.NoError(t, err)
@@ -106,9 +105,7 @@ func TestRead(t *testing.T) {
 	require.NoError(t, err)
 	l := len(s)
 	assert.Equal(t, i, l)
-	r, err = render.Read(&art, dir)
-	require.NoError(t, err)
-	b, err := io.ReadAll(r)
+	b, err := render.Read(&art, dir)
 	require.NoError(t, err)
 	assert.NotNil(t, b)
 	assert.Equal(t, string(b), string(s))
