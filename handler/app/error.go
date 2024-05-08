@@ -95,6 +95,35 @@ func DownloadErr(c echo.Context, uri string, err error) error {
 	return nil
 }
 
+// FileMissingErr is the handler for missing download files and database ID errors.
+func FileMissingErr(c echo.Context, uri string, err error) error {
+	const code = http.StatusServiceUnavailable
+	id := c.Param("id")
+	logger := zaplog.Development()
+	if err != nil {
+		logger.Error(fmt.Sprintf("%d error for %q: %s", code, id, err))
+	}
+	if nilContext := c == nil; nilContext {
+		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, ErrCxt))
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			fmt.Errorf("%w: handler app status", ErrCxt))
+	}
+	data := empty(c)
+	data["description"] = fmt.Sprintf("HTTP status %d error", code)
+	data["title"] = "503 download unavailable"
+	data["code"] = code
+	data["logo"] = "Download unavailable"
+	data["alert"] = "Cannot send you this download"
+	data["probl"] = "The file download needs to be added to the server; " +
+		"otherwise, there may be a problem with the server configuration, or the file may be lost."
+	data["uriErr"] = strings.Join([]string{uri, id}, "/")
+	if err := c.Render(code, "status", data); err != nil {
+		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, err))
+		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+	}
+	return nil
+}
+
 // ForbiddenErr is the handler for handling Forbidden Errors, caused by clients requesting
 // pages that they do not have permission to access.
 func ForbiddenErr(c echo.Context, uri string, err error) error {

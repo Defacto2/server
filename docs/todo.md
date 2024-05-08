@@ -28,7 +28,7 @@
 ### Layout
 
 - [X] Uploader menu alignment is cut off when on a resized, half-width browser window.
-- [ ] Show a *custom error page when the file download* is missing or the root directory is broken.
+- [X] Show a *custom error page when the file download* is missing or the root directory is broken.
 - [ ] Textfile content using Open Sans should wrap any preformatted text to the width of the page, example, http://localhost:1323/f/a1377e
 - [ ] * (long) group/releaser pages should have a link to the end of the document.
 

@@ -82,8 +82,12 @@ func BBSYear(c echo.Context) error {
 
 // Checksum is the handler for the Checksum file record page.
 func Checksum(c echo.Context, id string) error {
+	const uri = "sum"
 	if err := download.Checksum(c, id); err != nil {
-		return DownloadErr(c, "sum", err)
+		if errors.Is(err, download.ErrStat) {
+			return FileMissingErr(c, uri, err)
+		}
+		return DownloadErr(c, uri, err)
 	}
 	return nil
 }
@@ -105,9 +109,12 @@ func Download(c echo.Context, logger *zap.SugaredLogger, path string) error {
 		Inline: false,
 		Path:   path,
 	}
-	err := d.HTTPSend(c, logger)
-	if err != nil {
-		return DownloadErr(c, "d", err)
+	const uri = "d"
+	if err := d.HTTPSend(c, logger); err != nil {
+		if errors.Is(err, download.ErrStat) {
+			return FileMissingErr(c, uri, err)
+		}
+		return DownloadErr(c, uri, err)
 	}
 	return nil
 }
@@ -561,9 +568,12 @@ func Inline(c echo.Context, logger *zap.SugaredLogger, path string) error {
 		Inline: true,
 		Path:   path,
 	}
-	err := d.HTTPSend(c, logger)
-	if err != nil {
-		return DownloadErr(c, "v", err)
+	const uri = "v"
+	if err := d.HTTPSend(c, logger); err != nil {
+		if errors.Is(err, download.ErrStat) {
+			return FileMissingErr(c, uri, err)
+		}
+		return DownloadErr(c, uri, err)
 	}
 	return nil
 }
