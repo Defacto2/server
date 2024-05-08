@@ -75,6 +75,10 @@
   line-height: 1;
 }
 
+.pre-wrap {
+  white-space: pre-wrap;
+}
+
 .reader {
   font-size: 110%;
   white-space: pre-wrap;

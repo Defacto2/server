@@ -5,7 +5,8 @@
 import { clipText, getElmById } from "./helper.mjs";
 (() => {
   "use strict";
-  const hide = `d-none`;
+  const none = `d-none`;
+  const wrap = "pre-wrap";
   const blackBG = ["reader-invert", "border", "border-black", "rounded-1"];
 
   const latin = "readmeLatin1",
@@ -18,9 +19,9 @@ import { clipText, getElmById } from "./helper.mjs";
     openSans.addEventListener("click", useBrowser);
   }
   function useBrowser() {
-    preLatin1.classList.remove(hide, "font-amiga", ...blackBG);
-    preLatin1.classList.add("font-opensans");
-    pre437.classList.add(hide);
+    preLatin1.classList.remove(none, "font-amiga", ...blackBG);
+    preLatin1.classList.add("font-opensans", wrap);
+    pre437.classList.add(none);
   }
 
   const topaz = document.getElementById(`topazFont`);
@@ -28,9 +29,9 @@ import { clipText, getElmById } from "./helper.mjs";
     topaz.addEventListener("click", useAmiga);
   }
   function useAmiga() {
-    preLatin1.classList.remove(hide, "font-opensans");
+    preLatin1.classList.remove(none, "font-opensans", wrap);
     preLatin1.classList.add("font-amiga", ...blackBG);
-    pre437.classList.add(hide);
+    pre437.classList.add(none);
   }
 
   const vga = document.getElementById(`vgaFont`);
@@ -38,13 +39,13 @@ import { clipText, getElmById } from "./helper.mjs";
     vga.addEventListener("click", useIBM);
   }
   function useIBM() {
-    preLatin1.classList.add(hide);
-    pre437.classList.remove(hide);
+    preLatin1.classList.add(none);
+    pre437.classList.remove(none, wrap);
   }
 
   const copier = getElmById(`copyReadme`);
   if (typeof navigator.clipboard === `undefined`) {
-    copier.classList.add(hide);
+    copier.classList.add(none);
   } else {
     copier.addEventListener(`click`, copyText);
   }
