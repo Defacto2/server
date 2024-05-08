@@ -204,6 +204,7 @@ func (f *Files) ListForApproval(ctx context.Context, db *sql.DB, offset, limit i
 	const clause = "id DESC"
 	return models.Files(
 		models.FileWhere.Deletedat.IsNotNull(),
+		models.FileWhere.Deletedby.IsNull(),
 		qm.WithDeleted(),
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
@@ -220,6 +221,7 @@ func (f *Files) StatForApproval(ctx context.Context, db *sql.DB) error {
 	// boil.DebugMode = true
 	return models.NewQuery(
 		models.FileWhere.Deletedat.IsNotNull(),
+		models.FileWhere.Deletedby.IsNull(),
 		qm.WithDeleted(),
 		qm.Select(postgres.Columns()...),
 		qm.From(From)).Bind(ctx, db, f)

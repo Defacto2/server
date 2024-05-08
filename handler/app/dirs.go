@@ -191,8 +191,8 @@ func (dir Dirs) artifactEditor(art *models.File, data map[string]interface{}, re
 	data["modOS"] = strings.ToLower(strings.TrimSpace(art.Platform.String))
 	data["modTag"] = strings.ToLower(strings.TrimSpace(art.Section.String))
 	data["virusTotal"] = strings.TrimSpace(art.FileSecurityAlertURL.String)
-	data["forApproval"] = !art.Deletedat.IsZero() && !art.Deletedby.IsZero()
-	data["disableRecord"] = !art.Deletedat.IsZero() && art.Deletedby.IsZero()
+	data["forApproval"] = !art.Deletedat.IsZero() && art.Deletedby.IsZero()
+	data["disableRecord"] = !art.Deletedat.IsZero() && !art.Deletedby.IsZero()
 	return data
 }
 

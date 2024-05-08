@@ -926,6 +926,7 @@ func RecordToggle(c echo.Context, state bool) error {
 }
 
 // Records returns the records for the artifacts category URI.
+// Note that the record statistics and counts get cached.
 func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
