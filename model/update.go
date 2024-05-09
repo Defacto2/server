@@ -26,6 +26,91 @@ const (
 	pouetProd
 )
 
+// Update16Colors updates the WebID16colors column value with val.
+func Update16Colors(id int64, val string) error {
+	return UpdateStringFrom(colors16, id, val)
+}
+
+// UpdateComment updates the Comment column value with val.
+func UpdateComment(id int64, val string) error {
+	return UpdateStringFrom(comment, id, val)
+}
+
+// UpdateCreatorAudio updates the CreditAudio column with val.
+func UpdateCreatorAudio(id int64, val string) error {
+	return UpdateStringFrom(credAudio, id, val)
+}
+
+// UpdateCreatorIll updates the CreditIllustration column with val.
+func UpdateCreatorIll(id int64, val string) error {
+	return UpdateStringFrom(credIll, id, val)
+}
+
+// UpdateCreatorProg updates the CreditProgram column with val.
+func UpdateCreatorProg(id int64, val string) error {
+	return UpdateStringFrom(credProg, id, val)
+}
+
+// UpdateCreatorText updates the CreditText column with val.
+func UpdateCreatorText(id int64, val string) error {
+	return UpdateStringFrom(creText, id, val)
+}
+
+// UpdateDemozoo updates the WebIDDemozoo column with val.
+func UpdateDemozoo(id int64, val string) error {
+	return UpdateInt64From(demozooProd, id, val)
+}
+
+// UpdateFilename updates the Filename column with val.
+func UpdateFilename(id int64, val string) error {
+	return UpdateStringFrom(filename, id, val)
+}
+
+// UpdateGitHub updates the WebIDGithub column with val.
+func UpdateGitHub(id int64, val string) error {
+	return UpdateStringFrom(github, id, val)
+}
+
+// UpdatePlatform updates the Platform column value with val.
+func UpdatePlatform(id int64, val string) error {
+	return UpdateStringFrom(platform, id, val)
+}
+
+// UpdatePouet updates the WebIDPouet column with val.
+func UpdatePouet(id int64, val string) error {
+	return UpdateInt64From(pouetProd, id, val)
+}
+
+// UpdateRelations updates the ListRelations column value with val.
+func UpdateRelations(id int64, val string) error {
+	return UpdateStringFrom(relations, id, val)
+}
+
+// UpdateSites updates the ListLinks column with val.
+func UpdateSites(id int64, val string) error {
+	return UpdateStringFrom(sites, id, val)
+}
+
+// UpdateTag updates the Section column with val.
+func UpdateTag(id int64, val string) error {
+	return UpdateStringFrom(section, id, val)
+}
+
+// UpdateTitle updates the RecordTitle column with val.
+func UpdateTitle(id int64, val string) error {
+	return UpdateStringFrom(title, id, val)
+}
+
+// UpdateVirusTotal updates the FileSecurityAlertURL value with val.
+func UpdateVirusTotal(id int64, val string) error {
+	return UpdateStringFrom(virusTotal, id, val)
+}
+
+// UpdateYouTube updates the WebIDYoutube column value with val.
+func UpdateYouTube(id int64, val string) error {
+	return UpdateStringFrom(youtube, id, val)
+}
+
 // UpdateInt64From updates the column int64 from value with val.
 // The int64From columns are table columns that can either be null, empty, or have an int64 value.
 // The demoZooProd and pouetProd values are also validated to be within a sane range.
@@ -145,9 +230,26 @@ func UpdateStringFrom(column stringFrom, id int64, val string) error {
 	return nil
 }
 
-// Update16Colors updates the WebID16colors column value with val.
-func Update16Colors(id int64, val string) error {
-	return UpdateStringFrom(colors16, id, val)
+// UpdateCreators updates the text, illustration, program, and audio credit columns with the values provided.
+func UpdateCreators(id int64, text, ill, prog, audio string) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := OneFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("find file: %w", err)
+	}
+	f.CreditText = null.StringFrom(text)
+	f.CreditIllustration = null.StringFrom(ill)
+	f.CreditProgram = null.StringFrom(prog)
+	f.CreditAudio = null.StringFrom(audio)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", "updatecreators", err)
+	}
+	return nil
 }
 
 // UpdateClassification updates the classification of a file in the database.
@@ -185,53 +287,6 @@ func UpdateClassification(id int64, platform, tag string) error {
 	return nil
 }
 
-// UpdateComment updates the Comment column value with val.
-func UpdateComment(id int64, val string) error {
-	return UpdateStringFrom(comment, id, val)
-}
-
-// UpdateCreators updates the text, illustration, program, and audio credit columns with the values provided.
-func UpdateCreators(id int64, text, ill, prog, audio string) error {
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return ErrDB
-	}
-	defer db.Close()
-	ctx := context.Background()
-	f, err := OneFile(ctx, db, id)
-	if err != nil {
-		return fmt.Errorf("find file: %w", err)
-	}
-	f.CreditText = null.StringFrom(text)
-	f.CreditIllustration = null.StringFrom(ill)
-	f.CreditProgram = null.StringFrom(prog)
-	f.CreditAudio = null.StringFrom(audio)
-	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
-		return fmt.Errorf("%s: %w", "updatecreators", err)
-	}
-	return nil
-}
-
-// UpdateCreatorAudio updates the CreditAudio column with val.
-func UpdateCreatorAudio(id int64, val string) error {
-	return UpdateStringFrom(credAudio, id, val)
-}
-
-// UpdateCreatorIll updates the CreditIllustration column with val.
-func UpdateCreatorIll(id int64, val string) error {
-	return UpdateStringFrom(credIll, id, val)
-}
-
-// UpdateCreatorProg updates the CreditProgram column with val.
-func UpdateCreatorProg(id int64, val string) error {
-	return UpdateStringFrom(credProg, id, val)
-}
-
-// UpdateCreatorText updates the CreditText column with val.
-func UpdateCreatorText(id int64, val string) error {
-	return UpdateStringFrom(creText, id, val)
-}
-
 // UpdateDateIssued updates the date issued year, month and day columns with the values provided.
 // Columns updated are DateIssuedYear, DateIssuedMonth, and DateIssuedDay.
 func UpdateDateIssued(id int64, y, m, d string) error {
@@ -253,21 +308,6 @@ func UpdateDateIssued(id int64, y, m, d string) error {
 		return fmt.Errorf("%q %q %q: %w", y, m, d, err)
 	}
 	return nil
-}
-
-// UpdateDemozoo updates the WebIDDemozoo column with val.
-func UpdateDemozoo(id int64, val string) error {
-	return UpdateInt64From(demozooProd, id, val)
-}
-
-// UpdateFilename updates the Filename column with val.
-func UpdateFilename(id int64, val string) error {
-	return UpdateStringFrom(filename, id, val)
-}
-
-// UpdateGitHub updates the WebIDGithub column with val.
-func UpdateGitHub(id int64, val string) error {
-	return UpdateStringFrom(github, id, val)
 }
 
 // UpdateNoReadme updates the retrotxt_no_readme column value with val.
@@ -336,21 +376,6 @@ func UpdateOnline(id int64) error {
 	return nil
 }
 
-// UpdatePlatform updates the Platform column value with val.
-func UpdatePlatform(id int64, val string) error {
-	return UpdateStringFrom(platform, id, val)
-}
-
-// UpdatePouet updates the WebIDPouet column with val.
-func UpdatePouet(id int64, val string) error {
-	return UpdateInt64From(pouetProd, id, val)
-}
-
-// UpdateRelations updates the ListRelations column value with val.
-func UpdateRelations(id int64, val string) error {
-	return UpdateStringFrom(relations, id, val)
-}
-
 // UpdateReleasers updates the releasers values with val.
 // Two releases can be separated by a + (plus) character.
 // The columns updated are GroupBrandFor and GroupBrandBy.
@@ -392,26 +417,6 @@ func UpdateReleasers(id int64, val string) error {
 	return nil
 }
 
-// UpdateSites updates the ListLinks column with val.
-func UpdateSites(id int64, val string) error {
-	return UpdateStringFrom(sites, id, val)
-}
-
-// UpdateTag updates the Section column with val.
-func UpdateTag(id int64, val string) error {
-	return UpdateStringFrom(section, id, val)
-}
-
-// UpdateTitle updates the RecordTitle column with val.
-func UpdateTitle(id int64, val string) error {
-	return UpdateStringFrom(title, id, val)
-}
-
-// UpdateVirusTotal updates the FileSecurityAlertURL value with val.
-func UpdateVirusTotal(id int64, val string) error {
-	return UpdateStringFrom(virusTotal, id, val)
-}
-
 func UpdateYMD(id int64, y, m, d null.Int16) error {
 	if !y.IsZero() && !helper.Year(int(y.Int16)) {
 		return fmt.Errorf("%d: %w", y.Int16, ErrYear)
@@ -440,9 +445,4 @@ func UpdateYMD(id int64, y, m, d null.Int16) error {
 		return fmt.Errorf("f.update: %w", err)
 	}
 	return nil
-}
-
-// UpdateYouTube updates the WebIDYoutube column value with val.
-func UpdateYouTube(id int64, val string) error {
-	return UpdateStringFrom(youtube, id, val)
 }

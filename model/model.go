@@ -2,21 +2,18 @@
 package model
 
 import (
-	"context"
-	"database/sql"
 	"errors"
 	"fmt"
+	"path/filepath"
+	"strings"
 	"time"
 
-	"github.com/Defacto2/server/internal/postgres"
+	"github.com/Defacto2/server/internal/jsdos"
 	"github.com/Defacto2/server/internal/postgres/models"
-	"github.com/google/uuid"
-	"github.com/volatiletech/null/v8"
-	"github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"github.com/subpop/go-ini"
 )
 
 var (
-	ErrCtx      = errors.New("echo context is nil")
 	ErrDay      = errors.New("invalid day")
 	ErrDB       = errors.New("database value is nil")
 	ErrID       = errors.New("file download database id cannot be found")
@@ -25,7 +22,6 @@ var (
 	ErrMonth    = errors.New("invalid month")
 	ErrName     = errors.New("name value is empty")
 	ErrOrderBy  = errors.New("order by value is invalid")
-	ErrSection  = errors.New("section tag value is empty")
 	ErrSize     = errors.New("size value is invalid")
 	ErrRels     = errors.New("too many releasers, only two are allowed")
 	ErrPlatform = errors.New("invalid platform")
@@ -34,19 +30,7 @@ var (
 	ErrURI      = errors.New("uri value is invalid")
 	ErrUUID     = errors.New("could not create a new universial unique identifier")
 	ErrYear     = errors.New("invalid year")
-	ErrZap      = errors.New("zap logger instance is nil")
 )
-
-type Pagination struct {
-	BaseURL   string // BaseURL is the base URL for the pagination links.
-	CurrPage  int    // CurrPage is the current page number.
-	SumPages  int    // SumPages is the total number of pages.
-	PrevPage  int    // PrevPage is the previous page number.
-	NextPage  int    // NextPage is the next page number.
-	TwoBelow  int    // TwoBelow is the page number two below the current page.
-	TwoAfter  int    // TwoAfter is the page number two after the current page.
-	RangeStep int    // RangeStep is the number of pages to skip in the pagination range.
-}
 
 const (
 	startID        = 1                                      // startID is the default, first ID value.
@@ -76,73 +60,72 @@ func Cache(b, c int, t time.Time) bool {
 	return b > 0 && c > 0 && t.Before(time.Now().Add(-time.Hour*1))
 }
 
-// One returns the record associated with the key ID.
-func One(ctx context.Context, db *sql.DB, deleted bool, key int) (*models.File, error) {
-	if db == nil {
-		return nil, ErrDB
+func calc(o, l int) int {
+	if o < 1 {
+		o = 1
 	}
-	if key <= 0 {
-		return nil, fmt.Errorf("key value %d: %w", key, ErrKey)
-	}
-	mods := models.FileWhere.ID.EQ(int64(key))
-	var file *models.File
-	var err error
-	if deleted {
-		file, err = models.Files(mods, qm.WithDeleted()).One(ctx, db)
-	} else {
-		file, err = models.Files(mods).One(ctx, db)
-	}
-	if err != nil {
-		return nil, fmt.Errorf("one record %d: %w", key, err)
-	}
-	return file, nil
+	return (o - 1) * l
 }
 
-// OneByUUID returns the record associated with the key UUID.
-func OneByUUID(ctx context.Context, db *sql.DB, deleted bool, uid string) (*models.File, error) {
-	if db == nil {
-		return nil, ErrDB
+// JsDosBinary returns the program executable to run in the js-dos emulator.
+// If the dosee_run_program is set then it is the preferred executable.
+// If the filename is a .com or .exe then it will return the filename.
+// Otherwise, it will attempt to find the most likely executable in the archive.
+func JsDosBinary(f *models.File) (string, error) {
+	if f == nil {
+		return "", ErrModel
 	}
-	val, err := uuid.Parse(uid)
-	if err != nil {
-		return nil, fmt.Errorf("uuid validation %s: %w", uid, err)
+	// if set, the dosee_run_program is the preferred executable to run
+	if f.DoseeRunProgram.Valid && f.DoseeRunProgram.String != "" {
+		return f.DoseeRunProgram.String, nil
 	}
-	mods := models.FileWhere.UUID.EQ(null.NewString(val.String(), true))
-	var file *models.File
-	if deleted {
-		file, err = models.Files(mods, qm.WithDeleted()).One(ctx, db)
-	} else {
-		file, err = models.Files(mods).One(ctx, db)
+	if !f.Filename.Valid || f.Filename.IsZero() || f.Filename.String == "" {
+		return "", nil
 	}
-	if err != nil {
-		return nil, fmt.Errorf("one record %s: %w", uid, err)
+	name := strings.ToLower(f.Filename.String)
+	switch filepath.Ext(name) {
+	case ".com", ".exe":
+		return jsdos.Fmt8dot3(f.Filename.String), nil
 	}
-	return file, nil
+	if !f.FileZipContent.Valid || f.FileZipContent.IsZero() || f.FileZipContent.String == "" {
+		return "", nil
+	}
+	return jsdos.Fmt8dot3(jsdos.FindBinary(f.Filename.String, f.FileZipContent.String)), nil
 }
 
-// Find retrieves a single file record from the database using the record key.
-func Find(key int) (*models.File, error) {
-	return record(false, key)
-}
-
-// EditFind retrieves a single file record from the database using the record key.
-// This function will also return records that have been marked as deleted.
-func EditFind(key int) (*models.File, error) {
-	return record(true, key)
-}
-
-// Record retrieves a single file record from the database using the record key.
-func record(deleted bool, key int) (*models.File, error) {
-	// get record id, filename, uuid
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return nil, ErrDB
+// JsDosConfig creates a js-dos .ini configuration for the emulator.
+func JsDosConfig(f *models.File) (string, error) {
+	if f == nil {
+		return "", ErrModel
 	}
-	defer db.Close()
-	art, err := One(ctx, db, deleted, key)
-	if err != nil {
-		return nil, fmt.Errorf("%w, %w: %d", ErrID, err, key)
+	j := jsdos.Jsdos{}
+	cpu := f.DoseeHardwareCPU.String
+	if f.DoseeHardwareCPU.Valid && cpu != "" {
+		j.CPU(cpu)
 	}
-	return art, nil
+	hw := f.DoseeHardwareGraphic.String
+	if f.DoseeHardwareGraphic.Valid && hw != "" {
+		j.Machine(hw)
+	}
+	sfx := f.DoseeHardwareAudio.String
+	if f.DoseeHardwareAudio.Valid && sfx != "" {
+		j.Sound(sfx)
+	}
+	mem := f.DoseeNoEms.Int16
+	if f.DoseeNoEms.Valid && mem == 1 {
+		j.NoEMS(true)
+	}
+	mem = f.DoseeNoXMS.Int16
+	if f.DoseeNoXMS.Valid && mem == 1 {
+		j.NoXMS(true)
+	}
+	mem = f.DoseeNoUmb.Int16
+	if f.DoseeNoUmb.Valid && mem == 1 {
+		j.NoUMB(true)
+	}
+	b, err := ini.Marshal(j)
+	if err != nil {
+		return "", fmt.Errorf("ini.Marshal: %w", err)
+	}
+	return string(b), nil
 }

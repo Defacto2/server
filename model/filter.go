@@ -27,6 +27,7 @@ func (a *Advert) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.AdvertExpr(),
 		qm.From(From)).Bind(ctx, db, a)
 }
@@ -55,6 +56,7 @@ func (a *Announcement) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.AnnouncementExpr(),
 		qm.From(From)).Bind(ctx, db, a)
 }
@@ -93,7 +95,9 @@ func (a *Ansi) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 	}
 	return models.Files(
 		expr.AnsiExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 	).All(ctx, db)
 }
 
@@ -111,6 +115,7 @@ func (a *AnsiBrand) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.AnsiBrandExpr(),
 		qm.From(From)).Bind(ctx, db, a)
 }
@@ -121,7 +126,9 @@ func (a *AnsiBrand) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 	}
 	return models.Files(
 		expr.AnsiBrandExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 	).All(ctx, db)
 }
 
@@ -139,6 +146,7 @@ func (a *AnsiBBS) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.AnsiBBSExpr(),
 		qm.From(From)).Bind(ctx, db, a)
 }
@@ -149,7 +157,7 @@ func (a *AnsiBBS) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 	}
 	return models.Files(
 		expr.AnsiBBSExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -167,6 +175,7 @@ func (a *AnsiFTP) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.AnsiFTPExpr(),
 		qm.From(From)).Bind(ctx, db, a)
 }
@@ -177,7 +186,7 @@ func (a *AnsiFTP) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 	}
 	return models.Files(
 		expr.AnsiFTPExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -195,6 +204,7 @@ func (a *AnsiNfo) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.AnsiNfoExpr(),
 		qm.From(From)).Bind(ctx, db, a)
 }
@@ -205,7 +215,7 @@ func (a *AnsiNfo) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 	}
 	return models.Files(
 		expr.AnsiNfoExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -223,6 +233,7 @@ func (a *AnsiPack) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.AnsiPackExpr(),
 		qm.From(From)).Bind(ctx, db, a)
 }
@@ -233,7 +244,7 @@ func (a *AnsiPack) List(ctx context.Context, db *sql.DB, offset, limit int) (mod
 	}
 	return models.Files(
 		expr.AnsiPackExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -251,6 +262,7 @@ func (b *BBS) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.BBSExpr(),
 		qm.From(From)).Bind(ctx, db, b)
 }
@@ -261,7 +273,7 @@ func (b *BBS) List(ctx context.Context, db *sql.DB, offset, limit int) (models.F
 	}
 	return models.Files(
 		expr.BBSExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -279,6 +291,7 @@ func (b *BBStro) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.BBStroExpr(),
 		qm.From(From)).Bind(ctx, db, b)
 }
@@ -289,7 +302,7 @@ func (b *BBStro) List(ctx context.Context, db *sql.DB, offset, limit int) (model
 	}
 	return models.Files(
 		expr.BBStroExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -307,6 +320,7 @@ func (b *BBSImage) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.BBSImageExpr(),
 		qm.From(From)).Bind(ctx, db, b)
 }
@@ -317,7 +331,7 @@ func (b *BBSImage) List(ctx context.Context, db *sql.DB, offset, limit int) (mod
 	}
 	return models.Files(
 		expr.BBSImageExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -335,6 +349,7 @@ func (b *BBSText) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.BBSTextExpr(),
 		qm.From(From)).Bind(ctx, db, b)
 }
@@ -345,7 +360,7 @@ func (b *BBSText) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 	}
 	return models.Files(
 		expr.BBSTextExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -363,6 +378,7 @@ func (d *Database) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.DatabaseExpr(),
 		qm.From(From)).Bind(ctx, db, d)
 }
@@ -373,7 +389,7 @@ func (d *Database) List(ctx context.Context, db *sql.DB, offset, limit int) (mod
 	}
 	return models.Files(
 		expr.DatabaseExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -391,6 +407,7 @@ func (d *Demoscene) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.DemoExpr(),
 		qm.From(From)).Bind(ctx, db, d)
 }
@@ -401,7 +418,7 @@ func (d *Demoscene) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 	}
 	return models.Files(
 		expr.DemoExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -419,6 +436,7 @@ func (d *Drama) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.DramaExpr(),
 		qm.From(From)).Bind(ctx, db, d)
 }
@@ -447,6 +465,7 @@ func (f *FTP) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.FTPExpr(),
 		qm.From(From)).Bind(ctx, db, f)
 }
@@ -457,7 +476,7 @@ func (f *FTP) List(ctx context.Context, db *sql.DB, offset, limit int) (models.F
 	}
 	return models.Files(
 		expr.FTPExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -475,6 +494,7 @@ func (h *Hack) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.HackExpr(),
 		qm.From(From)).Bind(ctx, db, h)
 }
@@ -503,6 +523,7 @@ func (h *HowTo) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.HowToExpr(),
 		qm.From(From)).Bind(ctx, db, h)
 }
@@ -531,6 +552,7 @@ func (h *HTML) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.HTMLExpr(),
 		qm.From(From)).Bind(ctx, db, h)
 }
@@ -541,7 +563,7 @@ func (h *HTML) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 	}
 	return models.Files(
 		expr.HTMLExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -559,6 +581,7 @@ func (i *Image) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.ImageExpr(),
 		qm.From(From)).Bind(ctx, db, i)
 }
@@ -587,6 +610,7 @@ func (i *ImagePack) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.ImagePackExpr(),
 		qm.From(From)).Bind(ctx, db, i)
 }
@@ -597,7 +621,7 @@ func (i *ImagePack) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 	}
 	return models.Files(
 		expr.ImagePackExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -615,6 +639,7 @@ func (i *Intro) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.IntroExpr(),
 		qm.From(From)).Bind(ctx, db, i)
 }
@@ -625,7 +650,7 @@ func (i *Intro) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 	}
 	return models.Files(
 		expr.IntroExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -643,6 +668,7 @@ func (i *IntroMsDos) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.IntroDOSExpr(),
 		qm.From(From)).Bind(ctx, db, i)
 }
@@ -653,7 +679,7 @@ func (i *IntroMsDos) List(ctx context.Context, db *sql.DB, offset, limit int) (m
 	}
 	return models.Files(
 		expr.IntroDOSExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -672,6 +698,7 @@ func (i *IntroWindows) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.IntroWindowsExpr(),
 		qm.From(From)).Bind(ctx, db, i)
 }
@@ -682,7 +709,7 @@ func (i *IntroWindows) List(ctx context.Context, db *sql.DB, offset, limit int) 
 	}
 	return models.Files(
 		expr.IntroWindowsExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -700,6 +727,7 @@ func (i *Installer) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.InstallExpr(),
 		qm.From(From)).Bind(ctx, db, i)
 }
@@ -710,7 +738,7 @@ func (i *Installer) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 	}
 	return models.Files(
 		expr.InstallExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -728,6 +756,7 @@ func (j *Java) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.JavaExpr(),
 		qm.From(From)).Bind(ctx, db, j)
 }
@@ -738,7 +767,7 @@ func (j *Java) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 	}
 	return models.Files(
 		expr.JavaExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -756,6 +785,7 @@ func (j *JobAdvert) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.JobAdvertExpr(),
 		qm.From(From)).Bind(ctx, db, j)
 }
@@ -784,6 +814,7 @@ func (l *Linux) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.LinuxExpr(),
 		qm.From(From)).Bind(ctx, db, l)
 }
@@ -794,7 +825,7 @@ func (l *Linux) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 	}
 	return models.Files(
 		expr.LinuxExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -812,6 +843,7 @@ func (m *Magazine) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.MagExpr(),
 		qm.From(From)).Bind(ctx, db, m)
 }
@@ -822,7 +854,7 @@ func (m *Magazine) List(ctx context.Context, db *sql.DB, offset, limit int) (mod
 	}
 	return models.Files(
 		expr.MagExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -840,6 +872,7 @@ func (m *Macos) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.MacExpr(),
 		qm.From(From)).Bind(ctx, db, m)
 }
@@ -850,7 +883,7 @@ func (m *Macos) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 	}
 	return models.Files(
 		expr.MacExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -868,6 +901,7 @@ func (d *MsDos) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.DOSExpr(),
 		qm.From(From)).Bind(ctx, db, d)
 }
@@ -878,7 +912,7 @@ func (d *MsDos) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 	}
 	return models.Files(
 		expr.DOSExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -896,6 +930,7 @@ func (d *MsDosPack) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.DosPackExpr(),
 		qm.From(From)).Bind(ctx, db, d)
 }
@@ -906,7 +941,7 @@ func (d *MsDosPack) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 	}
 	return models.Files(
 		expr.DosPackExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -924,6 +959,7 @@ func (m *Music) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.MusicExpr(),
 		qm.From(From)).Bind(ctx, db, m)
 }
@@ -952,6 +988,7 @@ func (n *NewsArticle) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.NewsArticleExpr(),
 		qm.From(From)).Bind(ctx, db, n)
 }
@@ -980,6 +1017,7 @@ func (n *Nfo) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.NfoExpr(),
 		qm.From(From)).Bind(ctx, db, n)
 }
@@ -990,7 +1028,7 @@ func (n *Nfo) List(ctx context.Context, db *sql.DB, offset, limit int) (models.F
 	}
 	return models.Files(
 		expr.NfoExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -1008,6 +1046,7 @@ func (n *NfoTool) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.NfoToolExpr(),
 		qm.From(From)).Bind(ctx, db, n)
 }
@@ -1018,7 +1057,7 @@ func (n *NfoTool) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 	}
 	return models.Files(
 		expr.NfoToolExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -1036,6 +1075,7 @@ func (p *PDF) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.PDFExpr(),
 		qm.From(From)).Bind(ctx, db, p)
 }
@@ -1046,7 +1086,7 @@ func (p *PDF) List(ctx context.Context, db *sql.DB, offset, limit int) (models.F
 	}
 	return models.Files(
 		expr.PDFExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -1064,6 +1104,7 @@ func (p *Proof) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.ProofExpr(),
 		qm.From(From)).Bind(ctx, db, p)
 }
@@ -1074,7 +1115,7 @@ func (p *Proof) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 	}
 	return models.Files(
 		expr.ProofExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -1091,6 +1132,7 @@ func (r *Restrict) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.RestrictExpr(),
 		qm.From(From)).Bind(ctx, db, r)
 }
@@ -1119,6 +1161,7 @@ func (s *Script) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.ScriptExpr(),
 		qm.From(From)).Bind(ctx, db, s)
 }
@@ -1129,7 +1172,7 @@ func (s *Script) List(ctx context.Context, db *sql.DB, offset, limit int) (model
 	}
 	return models.Files(
 		expr.ScriptExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -1147,6 +1190,7 @@ func (s *Standard) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.StandardExpr(),
 		qm.From(From)).Bind(ctx, db, s)
 }
@@ -1175,6 +1219,7 @@ func (t *Takedown) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.TakedownExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
@@ -1198,6 +1243,7 @@ func (t *Text) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.TextExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
@@ -1208,7 +1254,7 @@ func (t *Text) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 	}
 	return models.Files(
 		expr.TextExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -1226,6 +1272,7 @@ func (t *TextAmiga) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.TextAmigaExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
@@ -1236,7 +1283,7 @@ func (t *TextAmiga) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 	}
 	return models.Files(
 		expr.TextAmigaExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -1254,6 +1301,7 @@ func (t *TextApple2) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.AppleIIExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
@@ -1264,7 +1312,7 @@ func (t *TextApple2) List(ctx context.Context, db *sql.DB, offset, limit int) (m
 	}
 	return models.Files(
 		expr.AppleIIExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -1282,6 +1330,7 @@ func (t *TextAtariST) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.AtariSTExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
@@ -1292,7 +1341,7 @@ func (t *TextAtariST) List(ctx context.Context, db *sql.DB, offset, limit int) (
 	}
 	return models.Files(
 		expr.AtariSTExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -1310,6 +1359,7 @@ func (t *TextPack) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.TextPackExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
@@ -1320,7 +1370,7 @@ func (t *TextPack) List(ctx context.Context, db *sql.DB, offset, limit int) (mod
 	}
 	return models.Files(
 		expr.TextPackExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -1338,6 +1388,7 @@ func (t *Tool) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.ToolExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
@@ -1366,6 +1417,7 @@ func (t *TrialCrackme) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.TrialCrackmeExpr(),
 		qm.From(From)).Bind(ctx, db, t)
 }
@@ -1394,6 +1446,7 @@ func (v *Video) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.VideoExpr(),
 		qm.From(From)).Bind(ctx, db, v)
 }
@@ -1422,6 +1475,7 @@ func (w *Windows) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.WindowsExpr(),
 		qm.From(From)).Bind(ctx, db, w)
 }
@@ -1432,7 +1486,7 @@ func (w *Windows) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 	}
 	return models.Files(
 		expr.WindowsExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
@@ -1450,6 +1504,7 @@ func (w *WindowsPack) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
+		qm.Where(ClauseNoSoftDel),
 		expr.WindowsPackExpr(),
 		qm.From(From)).Bind(ctx, db, w)
 }
@@ -1460,6 +1515,6 @@ func (w *WindowsPack) List(ctx context.Context, db *sql.DB, offset, limit int) (
 	}
 	return models.Files(
 		expr.WindowsPackExpr(),
-		qm.OrderBy(ClauseOldDate), qm.Offset(calc(offset, limit)), qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }

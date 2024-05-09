@@ -11,14 +11,79 @@ import (
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/google/uuid"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
+
+// Edit retrieves a single file record from the database using the record key.
+// This function will also return records that have been marked as deleted.
+//
+// Deprecated?
+func Edit(key int) (*models.File, error) {
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return nil, ErrDB
+	}
+	defer db.Close()
+	const deleted = true
+	art, err := One(ctx, db, deleted, key)
+	if err != nil {
+		return nil, fmt.Errorf("%w, %w: %d", ErrID, err, key)
+	}
+	return art, nil
+}
+
+// One retrieves the single file record for the key ID.
+func One(ctx context.Context, db *sql.DB, deleted bool, key int) (*models.File, error) {
+	if db == nil {
+		return nil, ErrDB
+	}
+	if key <= 0 {
+		return nil, fmt.Errorf("key value %d: %w", key, ErrKey)
+	}
+	mods := models.FileWhere.ID.EQ(int64(key))
+	var file *models.File
+	var err error
+	if deleted {
+		file, err = models.Files(mods, qm.WithDeleted()).One(ctx, db)
+	} else {
+		file, err = models.Files(mods).One(ctx, db)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("one record %d: %w", key, err)
+	}
+	return file, nil
+}
 
 // OneEditByKey retrieves a single file record from the database using the obfuscated record key.
 // This function will also return records that have been marked as deleted.
 func OneEditByKey(key string) (*models.File, error) {
 	return recordObf(true, key)
+}
+
+// OneByUUID returns the record associated with the UUID key.
+// Generally this method of retrieval is less efficient than using the numeric, record key ID.
+func OneByUUID(ctx context.Context, db *sql.DB, deleted bool, uid string) (*models.File, error) {
+	if db == nil {
+		return nil, ErrDB
+	}
+	val, err := uuid.Parse(uid)
+	if err != nil {
+		return nil, fmt.Errorf("uuid validation %s: %w", uid, err)
+	}
+	mods := models.FileWhere.UUID.EQ(null.NewString(val.String(), true))
+	var file *models.File
+	if deleted {
+		file, err = models.Files(mods, qm.WithDeleted()).One(ctx, db)
+	} else {
+		file, err = models.Files(mods).One(ctx, db)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("one record %s: %w", uid, err)
+	}
+	return file, nil
 }
 
 // OneFile retrieves a single file record from the database using the record key.

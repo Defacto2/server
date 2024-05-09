@@ -647,9 +647,9 @@ func PlatformEdit(c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.EditFind(f.ID)
+	r, err := model.Edit(f.ID)
 	if err != nil {
-		return fmt.Errorf("model.EditFind: %w", err)
+		return fmt.Errorf("model.Edit: %w", err)
 	}
 	if err = model.UpdatePlatform(int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
@@ -845,9 +845,9 @@ func ReadmeDel(c echo.Context, downloadDir string) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.EditFind(f.ID)
+	r, err := model.Edit(f.ID)
 	if err != nil {
-		return fmt.Errorf("model.EditFind: %w", err)
+		return fmt.Errorf("model.Edit: %w", err)
 	}
 	if err = command.RemoveMe(r.UUID.String, downloadDir); err != nil {
 		return badRequest(c, err)
@@ -866,7 +866,7 @@ func ReadmePost(c echo.Context, logger *zap.SugaredLogger, downloadDir string) e
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.EditFind(f.ID)
+	r, err := model.Edit(f.ID)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -1184,9 +1184,9 @@ func ReleaserEdit(c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.EditFind(f.ID)
+	r, err := model.Edit(f.ID)
 	if err != nil {
-		return fmt.Errorf("model.EditFind: %w", err)
+		return fmt.Errorf("model.Edit: %w", err)
 	}
 	if err = model.UpdateReleasers(int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
@@ -1457,9 +1457,9 @@ func TagEdit(c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.EditFind(f.ID)
+	r, err := model.Edit(f.ID)
 	if err != nil {
-		return fmt.Errorf("model.EditFind: %w", err)
+		return fmt.Errorf("model.Edit: %w", err)
 	}
 	if err = model.UpdateTag(int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
@@ -1523,9 +1523,9 @@ func TitleEdit(c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.EditFind(f.ID)
+	r, err := model.Edit(f.ID)
 	if err != nil {
-		return fmt.Errorf("model.EditFind: %w", err)
+		return fmt.Errorf("model.Edit: %w", err)
 	}
 	if err = model.UpdateTitle(int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
@@ -1727,6 +1727,17 @@ func (s *Stats) get(ctx context.Context, db *sql.DB) error {
 	return s.Windows.Stat(ctx, db)
 }
 
+type Pagination struct {
+	BaseURL   string // BaseURL is the base URL for the pagination links.
+	CurrPage  int    // CurrPage is the current page number.
+	SumPages  int    // SumPages is the total number of pages.
+	PrevPage  int    // PrevPage is the previous page number.
+	NextPage  int    // NextPage is the next page number.
+	TwoBelow  int    // TwoBelow is the page number two below the current page.
+	TwoAfter  int    // TwoAfter is the page number two after the current page.
+	RangeStep int    // RangeStep is the number of pages to skip in the pagination range.
+}
+
 // artifacts is a helper function for Artifacts that returns the data map for the files page.
 func artifacts(c echo.Context, uri string, page int) error {
 	const title, name = "Artifacts", "artifacts"
@@ -1774,7 +1785,7 @@ func artifacts(c echo.Context, uri string, page int) error {
 		return Page404(c, uri, i)
 	}
 	const pages = 2
-	data["Pagination"] = model.Pagination{
+	data["Pagination"] = Pagination{
 		TwoAfter:  page + pages,
 		NextPage:  page + 1,
 		CurrPage:  page,

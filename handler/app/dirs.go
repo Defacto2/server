@@ -17,6 +17,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/sess"
@@ -117,7 +118,7 @@ func (dir Dirs) Artifact(c echo.Context, logger *zap.SugaredLogger, readonly boo
 	data["checksum"] = strings.TrimSpace(art.FileIntegrityStrong.String)
 	data["magic"] = art.FileMagicType.String
 	data["releasers"] = string(LinkRels(art.GroupBrandBy, art.GroupBrandFor))
-	data["published"] = model.PublishedFmt(art)
+	data["published"] = dateIssued(art)
 	data["section"] = strings.TrimSpace(art.Section.String)
 	data["platform"] = strings.TrimSpace(art.Platform.String)
 	data["alertURL"] = art.FileSecurityAlertURL.String
@@ -289,7 +290,7 @@ func (dir Dirs) PreviewDel(c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.EditFind(f.ID)
+	r, err := model.Edit(f.ID)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -420,7 +421,7 @@ func (dir Dirs) extractor(c echo.Context, logger *zap.SugaredLogger, p extract) 
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.EditFind(f.ID)
+	r, err := model.Edit(f.ID)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -801,4 +802,40 @@ func priority() []string {
 // candidate returns a list of other, common text file extensions in priority order.
 func candidate() []string {
 	return []string{".diz", ".asc", ".1st", ".dox", ".me", ".cap", ".ans", ".pcb"}
+}
+
+// dateIssued returns a formatted date string for the artifact's published date.
+func dateIssued(f *models.File) template.HTML {
+	if f == nil {
+		return template.HTML(model.ErrModel.Error())
+	}
+	ys, ms, ds := "", "", ""
+	if f.DateIssuedYear.Valid {
+		if i := int(f.DateIssuedYear.Int16); helper.Year(i) {
+			ys = strconv.Itoa(i)
+		}
+	}
+	if f.DateIssuedMonth.Valid {
+		if s := time.Month(f.DateIssuedMonth.Int16); s.String() != "" {
+			ms = s.String()
+		}
+	}
+	if f.DateIssuedDay.Valid {
+		if i := int(f.DateIssuedDay.Int16); helper.Day(i) {
+			ds = strconv.Itoa(i)
+		}
+	}
+	strong := func(s string) template.HTML {
+		return template.HTML("<strong>" + s + "</strong>")
+	}
+	if isYearOnly := ys != "" && ms == "" && ds == ""; isYearOnly {
+		return strong(ys)
+	}
+	if isInvalidDay := ys != "" && ms != "" && ds == ""; isInvalidDay {
+		return strong(ys) + template.HTML(" "+ms)
+	}
+	if isInvalid := ys == "" && ms == "" && ds == ""; isInvalid {
+		return "unknown date"
+	}
+	return strong(ys) + template.HTML(fmt.Sprintf(" %s %s", ms, ds))
 }
