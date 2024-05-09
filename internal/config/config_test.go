@@ -1,16 +1,235 @@
 package config_test
 
 import (
+	"io/fs"
 	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
 
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/helper"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 )
+
+const (
+	unid = "00000000-0000-0000-0000-000000000000" // common universal unique identifier example
+	cfid = "00000000-0000-0000-0000000000000000"  // coldfusion uuid example
+)
+
+func TestCFToUUID(t *testing.T) {
+	t.Parallel()
+	err := uuid.Validate(unid)
+	require.NoError(t, err)
+
+	newID := config.CFToUUID(cfid)
+	err = uuid.Validate(newID)
+	require.NoError(t, err)
+}
+
+func TestDownloadFS(t *testing.T) {
+	t.Parallel()
+	unid := uuid.New()
+	dir, err := os.MkdirTemp(os.TempDir(), "testdownloadfs")
+	require.NoError(t, err)
+	defer os.RemoveAll(dir)
+
+	// create and test empty, mock image files
+	exts := []string{
+		".txt",
+		".webp",
+		".png",
+		".chiptune",
+		".zip",
+		".tiff",
+		".svg"}
+	const invalid = "invalid-base-name"
+	for _, ext := range exts {
+		name := filepath.Join(dir, unid.String()+ext)
+		helper.Touch(name)
+		badName := filepath.Join(dir, invalid+ext)
+		helper.Touch(badName)
+		cfName := filepath.Join(dir, cfid+ext)
+		helper.Touch(cfName)
+	}
+
+	const expectedCount = 21
+	i, err := helper.Count(dir)
+	require.NoError(t, err)
+	assert.Equal(t, expectedCount, i)
+
+	// test the images function with invalid parameters
+	err = config.DownloadFS(nil, "")
+	require.NoError(t, err)
+
+	i, err = helper.Count(dir)
+	require.NoError(t, err)
+	assert.Equal(t, expectedCount, i)
+
+	// test the images function with valid parameters
+	err = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+		err = config.DownloadFS(nil, path)
+		require.NoError(t, err)
+		return nil
+	})
+	assert.NoError(t, err)
+
+	i, err = helper.Count(dir)
+	require.NoError(t, err)
+
+	const expectedResult = 8
+	assert.Equal(t, expectedResult, i)
+}
+
+func TestRemoveDownload(t *testing.T) {
+	t.Parallel()
+	unid := uuid.New()
+	dir, err := os.MkdirTemp(os.TempDir(), "testdownload")
+	require.NoError(t, err)
+	defer os.RemoveAll(dir)
+
+	// create and test empty, mock image files
+	exts := []string{
+		".txt",
+		".webp",
+		".png",
+		".chiptune",
+		".zip",
+		".tiff",
+		".svg"}
+	const invalid = "invalid-base-name"
+	for _, ext := range exts {
+		name := filepath.Join(dir, unid.String()+ext)
+		helper.Touch(name)
+		badName := filepath.Join(dir, invalid+ext)
+		helper.Touch(badName)
+		cfName := filepath.Join(dir, cfid+ext)
+		helper.Touch(cfName)
+	}
+
+	const expectedCount = 21
+	i, err := helper.Count(dir)
+	require.NoError(t, err)
+	assert.Equal(t, expectedCount, i)
+
+	// test the images function with invalid parameters
+	err = config.RemoveDownload("", dir)
+	require.Error(t, err)
+
+	i, err = helper.Count(dir)
+	require.NoError(t, err)
+	assert.Equal(t, expectedCount, i)
+
+	// test the images function with valid parameters
+	err = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+		name := filepath.Base(path)
+		err = config.RemoveDownload(name, path)
+		require.NoError(t, err)
+		return nil
+	})
+	assert.NoError(t, err)
+
+	i, err = helper.Count(dir)
+	require.NoError(t, err)
+
+	const expectedResult = 8
+	assert.Equal(t, expectedResult, i)
+}
+
+func TestRemoveImage(t *testing.T) {
+	t.Parallel()
+	unid := uuid.New()
+	dir, err := os.MkdirTemp(os.TempDir(), "testimage")
+	require.NoError(t, err)
+	defer os.RemoveAll(dir)
+
+	// create and test empty, mock image files
+	exts := []string{
+		".jpg",
+		".webp",
+		".png",
+		".gif",
+		".bmp",
+		".tiff",
+		".svg"}
+	const invalid = "invalid-base-name"
+	for _, ext := range exts {
+		name := filepath.Join(dir, unid.String()+ext)
+		helper.Touch(name)
+		badName := filepath.Join(dir, invalid+ext)
+		helper.Touch(badName)
+		cfName := filepath.Join(dir, cfid+ext)
+		helper.Touch(cfName)
+	}
+
+	const expectedCount = 21
+	i, err := helper.Count(dir)
+	require.NoError(t, err)
+	assert.Equal(t, expectedCount, i)
+
+	// test the images function with invalid parameters
+	err = config.RemoveImage("", dir)
+	require.Error(t, err)
+
+	i, err = helper.Count(dir)
+	require.NoError(t, err)
+	assert.Equal(t, expectedCount, i)
+
+	// test the images function with valid parameters
+	err = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+		name := filepath.Base(path)
+		err = config.RemoveImage(name, path)
+		require.NoError(t, err)
+		return nil
+	})
+	assert.NoError(t, err)
+
+	i, err = helper.Count(dir)
+	require.NoError(t, err)
+
+	const expectedResult = 4
+	assert.Equal(t, expectedResult, i)
+}
+
+func TestOverride(t *testing.T) {
+	t.Parallel()
+	c := config.Config{}
+	assert.Empty(t, c)
+	c.GoogleIDs = "googleids,googleids2,googleids3"
+	c.Override(false)
+	// confirm override
+	assert.Empty(t, c.GoogleIDs)
+	// confirm, required default port if not set
+	assert.Equal(t, uint(config.HTTPPort), c.HTTPPort)
+	// defaults
+	assert.False(t, c.LocalMode)
+	assert.False(t, c.ReadMode)
+
+	c.Override(true)
+	assert.True(t, c.LocalMode)
+	assert.True(t, c.ReadMode)
+}
 
 func td(name string) string {
 	_, file, _, ok := runtime.Caller(0)

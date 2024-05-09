@@ -14,11 +14,11 @@ import (
 )
 
 var (
-	ErrEchoNil     = errors.New("echo instance is nil")
-	ErrNotDir      = errors.New("directory path points to the file")
 	ErrDirNotExist = errors.New("directory does not exist or incorrectly typed")
-	ErrTouch       = errors.New("the server cannot create a file in the directory")
+	ErrEchoNil     = errors.New("echo instance is nil")
 	ErrLog         = errors.New("the server cannot log to files")
+	ErrNotDir      = errors.New("directory path points to the file")
+	ErrTouch       = errors.New("the server cannot create a file in the directory")
 )
 
 // CustomErrorHandler handles customer error templates.

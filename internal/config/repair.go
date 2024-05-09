@@ -1,17 +1,23 @@
 package config
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
 const (
-	uuid = "00000000-0000-0000-0000-000000000000" // common universal unique identifier example
+	unid = "00000000-0000-0000-0000-000000000000" // common universal unique identifier example
 	cfid = "00000000-0000-0000-0000000000000000"  // coldfusion uuid example
 )
+
+var ErrIsDir = errors.New("is directory")
 
 // RepairFS, on startup check the file system directories for any invalid or unknown files.
 // If any are found, they are removed without warning.
@@ -25,13 +31,13 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 		if _, err := os.Stat(dir); err != nil {
 			continue
 		}
-		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return fmt.Errorf("walk: %w", err)
 			}
-			name := info.Name()
-			if info.IsDir() {
-				return directories(name, path, dir)
+			name := d.Name()
+			if d.IsDir() {
+				return RemoveDir(name, path, dir)
 			}
 			switch dir {
 			case c.PreviewDir:
@@ -43,7 +49,7 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 					t++
 				}
 			}
-			return images(name, path)
+			return RemoveImage(name, path)
 		})
 		if err != nil {
 			return fmt.Errorf("filepath.Walk: %w", err)
@@ -55,92 +61,147 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 			logger.Infof("The thumb directory contains, %d images: %s", t, dir)
 		}
 	}
-	return c.downloadFS(logger)
+	return DownloadFS(logger, c.DownloadDir)
 }
 
-func (c Config) downloadFS(logger *zap.SugaredLogger) error {
-	dir := c.DownloadDir
+// DownloadFS, on startup check the download directory for any invalid or unknown files.
+func DownloadFS(logger *zap.SugaredLogger, dir string) error {
 	if _, err := os.Stat(dir); err != nil {
-		var ignore error
-		return ignore //nolint:nilerr
+		var exit error
+		return exit //nolint:nilerr
 	}
-	d := 0
-	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+	count := 0
+	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			return fmt.Errorf("walk: %w", err)
+			return fmt.Errorf("filepath.WalkDir: %w", err)
 		}
-		name := info.Name()
+		name := d.Name()
 		if filepath.Ext(name) == "" {
-			d++
+			count++
 		}
-		if info.IsDir() {
-			return directories(name, path, dir)
+		if d.IsDir() {
+			return RemoveDir(name, path, dir)
 		}
-		return downloads(name, path)
+		return RemoveDownload(name, path)
 	})
 	if err != nil {
-		return fmt.Errorf("filepath.Walk: %w", err)
+		return fmt.Errorf("filepath.WalkDir: %w", err)
 	}
-	logger.Infof("The downloads directory contains, %d files: %s", d, dir)
+	if logger != nil {
+		logger.Infof("The downloads directory contains, %d files: %s", count, dir)
+	}
 	return nil
 }
 
-func directories(name, path, dir string) error {
-	const st = ".stfolder" // st is a syncthing directory
+// RemoveDir, check the directory for invalid names.
+// If any are found, they are printed to stderr.
+// Any directory that matches the name ".stfolder" is removed.
+func RemoveDir(name, path, root string) error {
+	const syncthing = ".stfolder"
+	rootDir := filepath.Base(root)
 	switch name {
-	case filepath.Base(dir):
-		// skip the root directory
-	case st:
+	case rootDir:
+		return nil
+	case syncthing:
 		defer os.RemoveAll(path)
 	default:
 		fmt.Fprintln(os.Stderr, "unknown dir:", path)
+		return nil
 	}
-	return nil // always skip
+	return nil
 }
 
-func downloads(name, path string) error {
-	l := len(name)
-	switch filepath.Ext(name) {
+// RemoveDownload, check the download files for invalid names and extensions.
+// If any are found, they are removed without warning.
+// Basename must be the name of the file with a valid file extension.
+//
+// Valid file extensions are .chiptune, .txt, and .zip.
+func RemoveDownload(basename, path string) error {
+	st, err := os.Stat(path)
+	if err != nil {
+		return fmt.Errorf("os.Stat: %w", err)
+	}
+	if st.IsDir() {
+		return fmt.Errorf("%w: %s", ErrIsDir, path)
+	}
+
+	const cflen = len(cfid) // coldfusion uuid length
+
+	ext := filepath.Ext(basename)
+	switch ext {
 	case ".chiptune", ".txt":
 		return nil
-	case ".zip":
-		if l != len(uuid)+4 && l != len(cfid)+4 {
-			rm(name, "remove", path)
+	}
+	if filename, found := strings.CutSuffix(basename, ext); found {
+		if len(filename) == cflen {
+			filename = CFToUUID(filename)
 		}
+		if err := uuid.Validate(filename); err != nil {
+			remove(basename, "remove invalid uuid", path)
+			return nil
+		}
+	}
+	switch ext {
+	case ".zip":
 		return nil
 	default:
-		if l != len(uuid) && l != len(cfid) {
-			rm(name, "unknown", path)
-		}
+		remove(basename, "remove invalid ext", path)
 	}
 	return nil
 }
 
-func images(name, path string) error {
+// RemoveImage, check the image files for invalid names and extensions.
+// If any are found, they are removed without warning.
+// Basename must be the name of the file with a valid file extension.
+//
+// Valid file extensions are .png and .webp, and basename must be a
+// valid uuid or cfid with the correct length.
+func RemoveImage(basename, path string) error {
+	st, err := os.Stat(path)
+	if err != nil {
+		return fmt.Errorf("os.Stat: %w", err)
+	}
+	if st.IsDir() {
+		return fmt.Errorf("%w: %s", ErrIsDir, path)
+	}
 	const (
-		png  = ".png"    // png file extension
-		webp = ".webp"   // webp file extension
-		lpng = len(png)  // length of png file extension
-		lweb = len(webp) // length of webp file extension
+		png   = ".png"    // png file extension
+		webp  = ".webp"   // webp file extension
+		valid = len(unid) // valid uuid length
+		cflen = len(cfid) // coldfusion uuid length
 	)
-	ext := filepath.Ext(name)
-	l := len(name)
+
+	ext := filepath.Ext(basename)
+	if filename, found := strings.CutSuffix(basename, ext); found {
+		if len(filename) == cflen {
+			filename = CFToUUID(filename)
+		}
+		if err := uuid.Validate(filename); err != nil {
+			remove(basename, "remove invalid uuid", path)
+			return nil
+		}
+	}
 	switch ext {
-	case png:
-		if l != len(uuid)+lpng && l != len(cfid)+lpng {
-			rm(name, "remove", path)
-		}
-	case webp:
-		if l != len(uuid)+lweb && l != len(cfid)+lweb {
-			rm(name, "remove", path)
-		}
+	case png, webp:
+		return nil
 	default:
-		rm(name, "unknown", path)
+		remove(basename, "remove invalid ext", path)
 	}
 	return nil
 }
 
-func rm(name, info, path string) {
+func remove(name, info, path string) {
 	fmt.Fprintf(os.Stderr, "%s: %s\n", info, name)
 	defer os.Remove(path)
+}
+
+// CFToUUID formats a 31 character, Coldfusion Universally Unique Identifier
+// to a standard, 32 character, Universally Unique Identifier.
+func CFToUUID(cfid string) string {
+	const require = 35
+	if len(cfid) != require {
+		return cfid
+	}
+	const index = 23
+	return cfid[:index] + "-" + cfid[index:]
 }

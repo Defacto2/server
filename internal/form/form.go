@@ -89,12 +89,12 @@ func SanitizeSeparators(rawPath string) string {
 // SanitizeURLPath returns a sanitized version of the URL path.
 // Invalid characters are removed as are as incorrect path separators.
 func SanitizeURLPath(rawPath string) string {
-	s := SanitizeSeparators(rawPath)
-	if strings.Contains(s, "://") {
+	if strings.Contains(rawPath, "://") {
 		return ""
 	}
 	re := regexp.MustCompile(ReSanitizePath)
-	s = re.ReplaceAllString(s, "")
+	s := re.ReplaceAllString(rawPath, "")
+	s = SanitizeSeparators(s)
 	return s
 }
 
@@ -162,9 +162,15 @@ func ValidDate(y, m, d string) (bool, bool, bool) { //nolint:cyclop
 // ValidVT returns true if the link is a valid VirusTotal URL
 // or if it is an empty string.
 func ValidVT(link string) bool {
+	link = strings.TrimSpace(link)
 	const expect = "https://www.virustotal.com/"
 	if len(link) > 0 && !strings.HasPrefix(link, expect) {
 		return false
+	}
+	const hash = 64
+	fmt.Println(len(link), len(expect), hash)
+	if len(link) > (len(expect) + hash) {
+		return true
 	}
 	return true
 }
