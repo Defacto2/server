@@ -31,6 +31,7 @@ type T struct {
 }
 
 // ByName returns the data of the named tag.
+// It requires the database to be connected to build the tags if they have not already been.
 func (t *T) ByName(name string) (TagData, error) {
 	if t.List == nil {
 		if err := t.Build(); err != nil {

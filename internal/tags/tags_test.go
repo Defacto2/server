@@ -5,7 +5,6 @@ import (
 
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -16,20 +15,50 @@ const (
 	noname        = "non-existing-name"
 )
 
-func TestByNames(t *testing.T) {
-	t.Parallel()
-	tee := tags.T{}
-	data, err := tee.ByName("")
+func TestNameByURI(t *testing.T) {
+	uri := "programmingtool"
+	expected := "computer tool"
+	name := tags.NameByURI(uri)
+	assert.Equal(t, expected, name)
+
+	errs := "error: unknown slug"
+	name = tags.NameByURI(noname)
+	assert.Contains(t, name, errs)
+}
+
+func TestDescription(t *testing.T) {
+	tag := "announcements"
+	expected := "public announcements by Scene groups and organizations"
+
+	desc, err := tags.Description(tag)
 	assert.Nil(t, err)
-	assert.Empty(t, data)
+	assert.Equal(t, expected, desc)
 
-	data, err = tee.ByName("non-existing-name")
-	require.NoError(t, err)
-	assert.Empty(t, data)
+	desc, err = tags.Description(noname)
+	assert.ErrorIs(t, err, tags.ErrTag)
+	assert.Empty(t, desc)
+}
 
-	data, err = tee.ByName("bbs")
-	require.NoError(t, err)
-	assert.NotEmpty(t, data)
+func TestPlatform(t *testing.T) {
+	tag := "announcements"
+	platform := "ansi"
+	expected := "an ansi announcement"
+
+	desc, err := tags.Platform(platform, tag)
+	assert.Nil(t, err)
+	assert.Equal(t, expected, desc)
+
+	desc, err = tags.Platform(platform, noname)
+	assert.ErrorIs(t, err, tags.ErrTag)
+	assert.Empty(t, desc)
+
+	desc, err = tags.Platform(noname, platform)
+	assert.ErrorIs(t, err, tags.ErrPlatform)
+	assert.Empty(t, desc)
+
+	desc, err = tags.Platform(noname, noname)
+	assert.ErrorIs(t, err, tags.ErrPlatform)
+	assert.Empty(t, desc)
 }
 
 func TestHumanize(t *testing.T) {

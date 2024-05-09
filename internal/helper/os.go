@@ -200,29 +200,11 @@ func RenameFile(oldpath, newpath string) error {
 // It returns an error if the oldpath does not exist or is a directory
 // or the rename fails.
 func RenameFileOW(oldpath, newpath string) error {
-	st, err := os.Stat(oldpath)
-	if err != nil {
-		return fmt.Errorf("os.Stat: %w", err)
+	st, err := os.Stat(newpath)
+	if err == nil && st.IsDir() {
+		_ = os.Remove(newpath)
 	}
-	if st.IsDir() {
-		return fmt.Errorf("oldpath %w: %s", ErrFilePath, oldpath)
-	}
-	if st, err = os.Stat(newpath); err == nil {
-		if st.IsDir() {
-			return fmt.Errorf("newpath %w: %s", ErrFilePath, newpath)
-		}
-		if err = os.Remove(newpath); err != nil {
-			return fmt.Errorf("newpath %w: %s", err, newpath)
-		}
-	}
-	if err := os.Rename(oldpath, newpath); err != nil {
-		var linkErr *os.LinkError
-		if errors.As(err, &linkErr) && linkErr.Err.Error() == "invalid cross-device link" {
-			return RenameCrossDevice(oldpath, newpath)
-		}
-		return fmt.Errorf("os.Rename: %w", err)
-	}
-	return nil
+	return RenameFile(oldpath, newpath)
 }
 
 // RenameCrossDevice is a workaround for renaming files across different devices.

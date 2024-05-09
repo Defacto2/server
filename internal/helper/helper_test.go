@@ -18,6 +18,22 @@ import (
 //go:embed testdata
 var testdataFS embed.FS
 
+func TestGetExampleCom(t *testing.T) {
+	t.Parallel()
+	r, err := helper.GetFile("http://example.com")
+	assert.NotEqual(t, "", r.Path)
+	assert.Equal(t, "text/html; charset=UTF-8", r.ContentType)
+	require.Nil(t, err)
+}
+
+func TestStatExampleCom(t *testing.T) {
+	t.Parallel()
+	r, err := helper.GetStat("http://example.com")
+	const unknown = int64(-1)
+	assert.Equal(t, r, unknown)
+	require.Nil(t, err)
+}
+
 func TestFixSceneOrg(t *testing.T) {
 	s := "http://files.scene.org/view/demos/groups/trsi/ms-dos/trsiscxt.zip"
 	w := helper.FixSceneOrg(s)

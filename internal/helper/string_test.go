@@ -294,3 +294,14 @@ func TestSearchTerm(t *testing.T) {
 		})
 	}
 }
+
+func TestTitleize(t *testing.T) {
+	s := helper.Titleize("")
+	assert.Empty(t, s)
+
+	s = helper.Titleize("hello")
+	assert.Equal(t, "Hello", s)
+
+	s = helper.Titleize("hello world, how are you?")
+	assert.Equal(t, "Hello World, How Are You?", s)
+}
