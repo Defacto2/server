@@ -250,8 +250,8 @@ func RecordDateIssued(c echo.Context) error {
 }
 
 // RecordDateIssuedReset handles the post submission for the file artifact date of release reset.
-func RecordDateIssuedReset(c echo.Context, elmId string) error {
-	reset := c.FormValue(elmId)
+func RecordDateIssuedReset(c echo.Context, elmID string) error {
+	reset := c.FormValue(elmID)
 	key := c.FormValue("artifact-editor-key")
 	id, err := strconv.Atoi(key)
 	if err != nil {

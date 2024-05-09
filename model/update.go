@@ -174,7 +174,7 @@ const (
 
 // UpdateStringFrom updates the column string from value with val.
 // The stringFrom columns are table columns that can either be null, empty, or have a string value.
-func UpdateStringFrom(column stringFrom, id int64, val string) error {
+func UpdateStringFrom(column stringFrom, id int64, val string) error { //nolint:cyclop
 	db, err := postgres.ConnectDB()
 	if err != nil {
 		return ErrDB

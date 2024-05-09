@@ -93,18 +93,13 @@ func SanitizeURLPath(rawPath string) string {
 	if strings.Contains(s, "://") {
 		return ""
 	}
-	re, err := regexp.Compile(ReSanitizePath)
-	if err != nil {
-		return "regexp.Compile error: " + err.Error()
-	}
+	re := regexp.MustCompile(ReSanitizePath)
 	s = re.ReplaceAllString(s, "")
 	return s
 }
 
 // SanitizeGitHub returns a sanitized version of the GitHub repository.
-// The repo is trimmed of any invalid characters listed in the [GitHub documentation].
-//
-// [GitHub documentation]: https://docs.github.com/en/get-started/using-git/dealing-with-special-characters-in-branch-and-tag-names#naming-branches-and-tags
+// The repo is trimmed of any invalid characters listed in the GitHub documentation.
 func SanitizeGitHub(repo string) string {
 	s := SanitizeURLPath(repo)
 	s = strings.TrimPrefix(s, "refs/")
@@ -119,7 +114,7 @@ func SanitizeGitHub(repo string) string {
 // And if the month is not in use, the day must not in use.
 //
 // A not in use value is either "0" or an empty string.
-func ValidDate(y, m, d string) (bool, bool, bool) {
+func ValidDate(y, m, d string) (bool, bool, bool) { //nolint:cyclop
 	yok, mok, dok := true, true, true
 	current := time.Now().Year()
 

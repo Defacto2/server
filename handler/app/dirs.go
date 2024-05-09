@@ -616,7 +616,8 @@ func artifactWebsites(art *models.File) template.HTML {
 		}
 		name, href := x[0], x[1]
 		rows += fmt.Sprintf("<tr><th scope=\"row\"><small>Link to</small></th>"+
-			"<td><small><a class=\"link-offset-3 icon-link icon-link-hover\" href=\"https://%s\">%s %s</a></small></td></tr>", href, name, LinkSVG())
+			"<td><small><a class=\"link-offset-3 icon-link icon-link-hover\" "+
+			"href=\"https://%s\">%s %s</a></small></td></tr>", href, name, LinkSVG())
 	}
 	return template.HTML(rows)
 }
