@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Defacto2/server/internal/exts"
+	"github.com/Defacto2/server/internal/ext"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"golang.org/x/text/encoding"
@@ -76,7 +76,7 @@ func Read(art *models.File, path string) ([]byte, error) {
 	files.uutxtOk = helper.Stat(files.uuidTxt)
 	files.filepth = filepath.Join(path, uuid)
 	files.filepOk = helper.Stat(files.filepth)
-	files.txt = !exts.IsArchive(fname)
+	files.txt = !ext.IsArchive(fname)
 
 	if !files.uutxtOk && !files.filepOk {
 		return nil, fmt.Errorf("%w: %s", ErrDownload, filepath.Join(path, uuid))

@@ -1,5 +1,5 @@
-// Package exts contains common filename extensions used by the file records.
-package exts
+// Package ext contains common filename extensions used by the file records.
+package ext
 
 import (
 	"path/filepath"

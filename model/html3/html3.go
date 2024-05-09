@@ -11,7 +11,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/Defacto2/server/internal/exts"
+	"github.com/Defacto2/server/internal/ext"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -75,7 +75,7 @@ func Icon(f *models.File) string {
 	if !f.Filename.Valid {
 		return unknown
 	}
-	if n := exts.IconName(f.Filename.String); n != "" {
+	if n := ext.IconName(f.Filename.String); n != "" {
 		return n
 	}
 	return unknown
