@@ -30,7 +30,7 @@ func (s *Summary) ByDescription(ctx context.Context, db *sql.DB, terms []string)
 	if db == nil {
 		return ErrDB
 	}
-	sum := string(postgres.Summary()) // TODO: confirm ClauseNoSoftDel is required.
+	sum := string(postgres.Summary())
 	for i := range terms {
 		const clauseT = "to_tsvector('english', concat_ws(' ', files.record_title, files.comment)) @@ to_tsquery"
 		if i == 0 {
@@ -39,6 +39,7 @@ func (s *Summary) ByDescription(ctx context.Context, db *sql.DB, terms []string)
 		}
 		sum = fmt.Sprintf("%sOR %s($%d) ", sum, clauseT, i+1)
 	}
+	sum += "AND " + ClauseNoSoftDel
 	sum = strings.TrimSpace(sum)
 	return queries.Raw(sum, "'"+strings.Join(terms, "','")+"'").Bind(ctx, db, s)
 }
@@ -58,6 +59,7 @@ func (s *Summary) ByFilename(ctx context.Context, db *sql.DB, terms []string) er
 		sum += fmt.Sprintf(" OR filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
 			term, term+"%", "%"+term, "%"+term+"%")
 	}
+	sum += "AND " + ClauseNoSoftDel
 	sum = strings.TrimSpace(sum)
 	return queries.Raw(sum).Bind(ctx, db, s)
 }
