@@ -1,5 +1,7 @@
 package model
 
+// Package file count.go contains the database queries for the counting of records and summing of column values.
+
 import (
 	"context"
 	"database/sql"

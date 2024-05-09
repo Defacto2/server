@@ -397,9 +397,9 @@ func submit(c echo.Context, logger *zap.SugaredLogger, prod string) error {
 	var key int64
 	switch prod {
 	case dz:
-		key, err = model.InsertDemozooFile(ctx, db, int64(id))
+		key, err = model.InsertDemozoo(ctx, db, int64(id))
 	case pt:
-		key, err = model.InsertPouetFile(ctx, db, int64(id))
+		key, err = model.InsertPouet(ctx, db, int64(id))
 	}
 	if err != nil || key == 0 {
 		logger.Error(err, id)

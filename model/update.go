@@ -267,7 +267,7 @@ func UpdateDateIssued(id int64, y, m, d string) error {
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
 	}
-	year, month, day := DateIssue(y, m, d)
+	year, month, day := ValidDateIssue(y, m, d)
 	f.DateIssuedYear = year
 	f.DateIssuedMonth = month
 	f.DateIssuedDay = day

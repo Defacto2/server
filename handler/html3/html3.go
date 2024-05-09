@@ -438,8 +438,8 @@ func QueryEverything(ctx context.Context, db *sql.DB, clause string, offset int)
 	if err != nil {
 		return queryErr("all releases:", err)
 	}
-	var stat model.Files
-	if err = stat.Stat(ctx, db); err != nil {
+	var stat model.Artifacts
+	if err = stat.Public(ctx, db); err != nil {
 		return statErr("all releases:", err)
 	}
 	total := stat.Count

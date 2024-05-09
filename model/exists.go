@@ -1,5 +1,7 @@
 package model
 
+// Package exists.go contains the database queries for checking if a record exists.
+
 import (
 	"context"
 	"crypto/sha512"

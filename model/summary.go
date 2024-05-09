@@ -1,5 +1,7 @@
 package model
 
+// Package file summary.go contains the database queries for the statistics of files.
+
 import (
 	"context"
 	"database/sql"
@@ -15,8 +17,6 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// Package file summary.go contains the database queries for the statistics of files.
-
 // Summary counts the total number files, file sizes and the earliest and latest years.
 type Summary struct {
 	SumBytes sql.NullInt64 `boil:"size_total"`  // Sum total of the file sizes.
@@ -25,12 +25,12 @@ type Summary struct {
 	MaxYear  sql.NullInt16 `boil:"max_year"`    // Maximum or latest year of the files.
 }
 
-// Description saves the summary statistics for the file description search.
-func (s *Summary) Description(ctx context.Context, db *sql.DB, terms []string) error {
+// ByDescription saves the summary statistics for the file description search.
+func (s *Summary) ByDescription(ctx context.Context, db *sql.DB, terms []string) error {
 	if db == nil {
 		return ErrDB
 	}
-	sum := string(postgres.Summary())
+	sum := string(postgres.Summary()) // TODO: confirm ClauseNoSoftDel is required.
 	for i := range terms {
 		const clauseT = "to_tsvector('english', concat_ws(' ', files.record_title, files.comment)) @@ to_tsquery"
 		if i == 0 {
@@ -43,8 +43,8 @@ func (s *Summary) Description(ctx context.Context, db *sql.DB, terms []string) e
 	return queries.Raw(sum, "'"+strings.Join(terms, "','")+"'").Bind(ctx, db, s)
 }
 
-// Filename saves the summary statistics for the filename search.
-func (s *Summary) Filename(ctx context.Context, db *sql.DB, terms []string) error {
+// ByFilename saves the summary statistics for the filename search.
+func (s *Summary) ByFilename(ctx context.Context, db *sql.DB, terms []string) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -62,8 +62,8 @@ func (s *Summary) Filename(ctx context.Context, db *sql.DB, terms []string) erro
 	return queries.Raw(sum).Bind(ctx, db, s)
 }
 
-// ForApproval returns the summary statistics for files that require approval.
-func (s *Summary) ForApproval(ctx context.Context, db *sql.DB) error {
+// ByForApproval returns the summary statistics for files that require approval.
+func (s *Summary) ByForApproval(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -75,8 +75,8 @@ func (s *Summary) ForApproval(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, s)
 }
 
-// Hidden returns the summary statistics for files that have been deleted.
-func (s *Summary) Hidden(ctx context.Context, db *sql.DB) error {
+// ByHidden returns the summary statistics for files that have been deleted.
+func (s *Summary) ByHidden(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -89,8 +89,8 @@ func (s *Summary) Hidden(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, s)
 }
 
-// Public selects the summary statistics for all public files.
-func (s *Summary) Public(ctx context.Context, db *sql.DB) error {
+// ByPublic selects the summary statistics for all public files.
+func (s *Summary) ByPublic(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -100,20 +100,21 @@ func (s *Summary) Public(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, s)
 }
 
-// Scener selects the summary statistics for the named sceners.
-func (s *Summary) Scener(ctx context.Context, db *sql.DB, name string) error {
+// ByScener selects the summary statistics for the named sceners.
+func (s *Summary) ByScener(ctx context.Context, db *sql.DB, name string) error {
 	if db == nil {
 		return ErrDB
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(postgres.ScenerSQL(name)),
+		qm.Where(ClauseNoSoftDel),
 		qm.From(From)).Bind(ctx, db, s)
 }
 
-// Releaser returns the summary statistics for the named releaser.
+// ByReleaser returns the summary statistics for the named releaser.
 // The name is case insensitive and should be the URI slug of the releaser.
-func (s *Summary) Releaser(ctx context.Context, db *sql.DB, name string) error {
+func (s *Summary) ByReleaser(ctx context.Context, db *sql.DB, name string) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -126,12 +127,12 @@ func (s *Summary) Releaser(ctx context.Context, db *sql.DB, name string) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where("upper(group_brand_for) = ? OR upper(group_brand_by) = ?", x, x),
-		// qm.Or2(models.FileWhere.Platform.EQ(expr.PText())
+		qm.Where(ClauseNoSoftDel),
 		qm.From(From)).Bind(ctx, db, s)
 }
 
-// Unwanted returns the summary statistics for files that have been marked as unwanted.
-func (s *Summary) Unwanted(ctx context.Context, db *sql.DB) error {
+// ByUnwanted returns the summary statistics for files that have been marked as unwanted.
+func (s *Summary) ByUnwanted(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -143,8 +144,8 @@ func (s *Summary) Unwanted(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, s)
 }
 
-// URI returns the summary statistics for the named URI.
-func (s *Summary) URI(ctx context.Context, db *sql.DB, uri string) error { //nolint:lll,funlen,gocognit,gocyclo,cyclop,maintidx
+// ByMatch returns the summary statistics for the named uri.
+func (s *Summary) ByMatch(ctx context.Context, db *sql.DB, uri string) error { //nolint:lll,funlen,gocognit,gocyclo,cyclop,maintidx
 	if db == nil {
 		return ErrDB
 	}

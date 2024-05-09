@@ -1,5 +1,7 @@
 package model
 
+// Package one.go contains the database queries for retrieving a single record.
+
 import (
 	"context"
 	"database/sql"

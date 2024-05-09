@@ -1,5 +1,7 @@
 package model
 
+// Package scener.go contains the database queries for the sceners.
+
 import (
 	"context"
 	"database/sql"

@@ -138,7 +138,7 @@ func (s *Sugared) Index(c echo.Context) error {
 	const desc = firefox
 	// Stats are the database statistics.
 	var stats struct {
-		All      model.Files
+		All      model.Artifacts
 		Art      html3.Arts
 		Document html3.Documents
 		Software html3.Softwares
@@ -150,7 +150,7 @@ func (s *Sugared) Index(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusServiceUnavailable, ErrConn)
 	}
 	defer db.Close()
-	if err := stats.All.Stat(ctx, db); err != nil {
+	if err := stats.All.Public(ctx, db); err != nil {
 		s.Log.Warnf("index stats all: %s", err)
 	}
 	if err := stats.Art.Stat(ctx, db); err != nil {

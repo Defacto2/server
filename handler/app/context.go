@@ -71,7 +71,7 @@ func Artifacts(c echo.Context, uri, page string) error {
 	return artifacts(c, uri, p)
 }
 
-// Artifacts404 renders the files error page for the Files menu and categories.
+// Artifacts404 renders the files error page for the Artifacts menu and categories.
 // It provides different error messages to the standard error page.
 func Artifacts404(c echo.Context, uri string) error {
 	const name = "status"
@@ -82,8 +82,8 @@ func Artifacts404(c echo.Context, uri string) error {
 	data["title"] = fmt.Sprintf("%d error, files page not found", http.StatusNotFound)
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
 	data["code"] = http.StatusNotFound
-	data["logo"] = "Files not found"
-	data["alert"] = "Files page cannot be found"
+	data["logo"] = "Artifacts not found"
+	data["alert"] = "Artifacts page cannot be found"
 	data["probl"] = "The files category or menu option does not exist, there is probably a typo with the URL."
 	data["uriOkay"] = "files/"
 	data["uriErr"] = uri
@@ -617,7 +617,7 @@ func Musician(c echo.Context) error {
 	return scener(c, postgres.Musician, data)
 }
 
-// Page404 renders the files page error page for the Files menu and categories.
+// Page404 renders the files page error page for the Artifacts menu and categories.
 // It provides different error messages to the standard error page.
 func Page404(c echo.Context, uri, page string) error {
 	const name = "status"
@@ -629,7 +629,7 @@ func Page404(c echo.Context, uri, page string) error {
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
 	data["code"] = http.StatusNotFound
 	data["logo"] = "Page not found"
-	data["alert"] = fmt.Sprintf("Files %s page does not exist", uri)
+	data["alert"] = fmt.Sprintf("Artifacts %s page does not exist", uri)
 	data["probl"] = "The files page does not exist, there is probably a typo with the URL."
 	data["uriOkay"] = fmt.Sprintf("files/%s/", uri)
 	data["uriErr"] = page
@@ -690,8 +690,8 @@ func PostDesc(c echo.Context, input string) error {
 	defer db.Close()
 
 	terms := helper.SearchTerm(input)
-	rel := model.Files{}
-	fs, _ := rel.SearchDescription(ctx, db, terms)
+	rel := model.Artifacts{}
+	fs, _ := rel.Description(ctx, db, terms)
 	d := Descriptions.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
 	data := emptyFiles(c)
@@ -727,9 +727,9 @@ func PostName(c echo.Context, mode FileSearch) error {
 
 	input := c.FormValue("search-term-query")
 	terms := helper.SearchTerm(input)
-	rel := model.Files{}
+	rel := model.Artifacts{}
 
-	fs, _ := rel.SearchFilename(ctx, db, terms)
+	fs, _ := rel.Filename(ctx, db, terms)
 	d := mode.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
 	data := emptyFiles(c)
@@ -934,27 +934,27 @@ func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (mode
 	switch Match(uri) {
 	// pulldown editor menu matches
 	case forApproval:
-		r := model.Files{}
-		return r.ListForApproval(ctx, db, page, limit)
+		r := model.Artifacts{}
+		return r.ByForApproval(ctx, db, page, limit)
 	case deletions:
-		r := model.Files{}
-		return r.ListDeletions(ctx, db, page, limit)
+		r := model.Artifacts{}
+		return r.ByHidden(ctx, db, page, limit)
 	case unwanted:
-		r := model.Files{}
-		return r.ListUnwanted(ctx, db, page, limit)
+		r := model.Artifacts{}
+		return r.ByUnwanted(ctx, db, page, limit)
 	// pulldown menu matches
 	case newUploads:
-		r := model.Files{}
-		return r.List(ctx, db, page, limit)
+		r := model.Artifacts{}
+		return r.ByKey(ctx, db, page, limit)
 	case newUpdates:
-		r := model.Files{}
-		return r.ListUpdates(ctx, db, page, limit)
+		r := model.Artifacts{}
+		return r.ByUpdated(ctx, db, page, limit)
 	case oldest:
-		r := model.Files{}
-		return r.ListOldest(ctx, db, page, limit)
+		r := model.Artifacts{}
+		return r.ByOldest(ctx, db, page, limit)
 	case newest:
-		r := model.Files{}
-		return r.ListNewest(ctx, db, page, limit)
+		r := model.Artifacts{}
+		return r.ByNewest(ctx, db, page, limit)
 	}
 	return recordsZ(ctx, db, uri, page, limit)
 }
@@ -1213,7 +1213,7 @@ func Releasers(c echo.Context, uri string) error {
 		return Releaser404(c, uri)
 	}
 	data := emptyFiles(c)
-	data["title"] = "Files for " + s
+	data["title"] = "Artifacts for " + s
 	data["h1"] = s
 	data["lead"] = initialism.Join(initialism.Path(uri))
 	data["logo"] = s
@@ -1250,7 +1250,7 @@ func releaserSum(ctx context.Context, db *sql.DB, uri string) (map[string]string
 		return nil, ErrDB
 	}
 	m := model.Summary{}
-	if err := m.Releaser(ctx, db, uri); err != nil {
+	if err := m.ByReleaser(ctx, db, uri); err != nil {
 		return nil, fmt.Errorf("m.Releaser: %w", err)
 	}
 	d := map[string]string{
@@ -1315,7 +1315,7 @@ func Sceners(c echo.Context, uri string) error {
 	data := emptyFiles(c)
 	data["title"] = s + attr
 	data["h1"] = s
-	data["lead"] = "Files attributed to " + s + "."
+	data["lead"] = "Artifacts attributed to " + s + "."
 	data["logo"] = s
 	data["description"] = "The collection of files attributed to " + s + "."
 	data["scener"] = s
@@ -1628,7 +1628,7 @@ const (
 // Stats are the database statistics for the artifacts categories.
 type Stats struct {
 	IntroW    model.IntroWindows
-	Record    model.Files
+	Record    model.Artifacts
 	Ansi      model.Ansi
 	AnsiBBS   model.AnsiBBS
 	BBS       model.BBS
@@ -1656,7 +1656,7 @@ func (s *Stats) Get(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
-	if err := s.Record.Stat(ctx, db); err != nil {
+	if err := s.Record.Public(ctx, db); err != nil {
 		return fmt.Errorf("s.Record.Stat: %w", err)
 	}
 	if err := s.Ansi.Stat(ctx, db); err != nil {
@@ -1726,9 +1726,9 @@ func (s *Stats) get(ctx context.Context, db *sql.DB) error {
 	return s.Windows.Stat(ctx, db)
 }
 
-// artifacts is a helper function for Files that returns the data map for the files page.
+// artifacts is a helper function for Artifacts that returns the data map for the files page.
 func artifacts(c echo.Context, uri string, page int) error {
-	const title, name = "Files", "artifacts"
+	const title, name = "Artifacts", "artifacts"
 	logo, h1sub, lead := fileInfo(uri)
 	data := emptyFiles(c)
 	data["title"] = title
@@ -2009,11 +2009,11 @@ func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string
 	m := model.Summary{}
 	switch mode {
 	case Filenames:
-		if err := m.Filename(ctx, db, terms); err != nil {
+		if err := m.ByFilename(ctx, db, terms); err != nil {
 			return none()
 		}
 	case Descriptions:
-		if err := m.Description(ctx, db, terms); err != nil {
+		if err := m.ByDescription(ctx, db, terms); err != nil {
 			return none()
 		}
 	}
@@ -2048,8 +2048,8 @@ func scenerSum(ctx context.Context, db *sql.DB, uri string) (map[string]string, 
 		return nil, ErrDB
 	}
 	m := model.Summary{}
-	if err := m.Scener(ctx, db, uri); err != nil {
-		return nil, fmt.Errorf("m.Scener: %w", err)
+	if err := m.ByScener(ctx, db, uri); err != nil {
+		return nil, fmt.Errorf("m.ByScener: %w", err)
 	}
 	d := map[string]string{
 		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
@@ -2139,7 +2139,7 @@ func sessionHandler(
 	return session.Save(c.Request(), c.Response())
 }
 
-// stats is a helper function for Files that returns the statistics for the files page.
+// stats is a helper function for Artifacts that returns the statistics for the files page.
 func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int, error) {
 	if db == nil {
 		return nil, 0, ErrDB
@@ -2148,27 +2148,27 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 		return nil, 0, nil
 	}
 	m := model.Summary{}
-	err := m.URI(ctx, db, uri)
+	err := m.ByMatch(ctx, db, uri)
 	if err != nil && !errors.Is(err, model.ErrURI) {
 		return nil, 0, fmt.Errorf("m.URI: %w", err)
 	}
 	if errors.Is(err, model.ErrURI) {
 		switch uri {
 		case "for-approval":
-			if err := m.ForApproval(ctx, db); err != nil {
-				return nil, 0, fmt.Errorf("m.ForApproval: %w", err)
+			if err := m.ByForApproval(ctx, db); err != nil {
+				return nil, 0, fmt.Errorf("m.ByForApproval: %w", err)
 			}
 		case "deletions":
-			if err := m.Hidden(ctx, db); err != nil {
-				return nil, 0, fmt.Errorf("m.Hidden: %w", err)
+			if err := m.ByHidden(ctx, db); err != nil {
+				return nil, 0, fmt.Errorf("m.ByHidden: %w", err)
 			}
 		case "unwanted":
-			if err := m.Unwanted(ctx, db); err != nil {
+			if err := m.ByUnwanted(ctx, db); err != nil {
 				return nil, 0, fmt.Errorf("m.Unwanted: %w", err)
 			}
 		default:
-			if err := m.Public(ctx, db); err != nil {
-				return nil, 0, fmt.Errorf("m.Public: %w", err)
+			if err := m.ByPublic(ctx, db); err != nil {
+				return nil, 0, fmt.Errorf("m.ByPublic: %w", err)
 			}
 		}
 	}
