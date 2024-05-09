@@ -5,6 +5,8 @@
 import {
   date as validateDate,
   releaser as validateReleaser,
+  repository as validateGitHub,
+  color16 as validate16color,
 } from "./artifact-validate.mjs";
 
 (() => {
@@ -330,5 +332,30 @@ import {
     yearInput.value = values[0];
     monthInput.value = values[1];
     dayInput.value = values[2];
+  });
+
+  const github = document.getElementById("artifact-editor-github");
+  if (github === null) {
+    throw new Error("The GitHub input is missing.");
+  }
+  github.addEventListener("input", (e) => validateGitHub(e.target));
+
+  const colors16 = document.getElementById("artifact-editor-16colors");
+  if (colors16 === null) {
+    throw new Error("The 16colors input is missing.");
+  }
+  colors16.addEventListener("input", (e) => validate16color(e.target));
+
+  const youtube = document.getElementById("artifact-editor-youtube");
+  if (youtube === null) {
+    throw new Error("The YouTube input is missing.");
+  }
+  youtube.addEventListener("input", (e) => {
+    e.target.classList.remove("is-valid", "is-invalid");
+    const value = e.target.value.trim();
+    const required = 11;
+    if (value.length > 0 && value.length != required) {
+      e.target.classList.add("is-invalid");
+    }
   });
 })();

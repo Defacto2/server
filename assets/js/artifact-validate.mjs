@@ -67,6 +67,59 @@ export function date(yearInput, monthInput, dayInput) {
   }
 }
 
+export function repository(elm) {
+  return urlPath(elm, true);
+}
+
+export function color16(elm) {
+  return urlPath(elm, false);
+}
+
+/**
+ * Validates the URL path and updates the element's classList accordingly.
+ *
+ * @param {HTMLInputElement} elm - The repository URL element.
+ * @param {boolean} github - Indicates whether the URL element value is for a GitHub repository.
+ * @throws {Error} If the repository URL element is null or if the maxlength attribute is missing.
+ */
+function urlPath(elm, github) {
+  if (elm == null) {
+    throw new Error("The repository URL element is null.");
+  }
+  elm.classList.remove("is-valid", "is-invalid");
+
+  let value = elm.value.trim();
+  if (value.length === 0) {
+    return;
+  }
+  // valid characters were determined by this document,
+  // https://docs.github.com/en/get-started/using-git/dealing-with-special-characters-in-branch-and-tag-names#naming-branches-and-tags
+  if (github == true && value.startsWith("refs/")) {
+    elm.classList.add("is-invalid");
+    return;
+  }
+  const rawURL = "://";
+  if (value.includes(rawURL)) {
+    elm.classList.add("is-invalid");
+    return;
+  }
+  const permittedChrs = /[^A-Za-z0-9-._/]/g;
+  value = value.replace(permittedChrs, "");
+  value = value.replaceAll("//", "/");
+  const regLeadSeparators = /^\//;
+  value = value.replace(regLeadSeparators, "");
+  elm.value = value;
+
+  const max = elm.getAttribute("maxlength");
+  if (max === null) {
+    throw new Error(`The maxlength attribute is required for ${elm.id}.`);
+  }
+  if (value.length > max) {
+    elm.classList.add("is-invalid");
+    return;
+  }
+}
+
 /**
  * Validates and updates the releaser element.
  *

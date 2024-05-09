@@ -5,8 +5,8 @@ import (
 	"context"
 	"fmt"
 	"html/template"
-	"log"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -15,6 +15,8 @@ import (
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 )
+
+const ReSanitizePath = "[^a-zA-Z0-9-._/]+" // Regular expression to sanitize the URL path.
 
 // HumanizeAndCount returns the human readable name of the platform and section tags combined
 // and the number of existing artifacts. The number of existing artifacts is colored based on
@@ -69,19 +71,44 @@ func SanitizeFilename(name string) string {
 	return s
 }
 
-// SanitizeURLPath returns a sanitized version of the URL path.
+// SanitizeSeparators returns a sanitized version of the URL path.
 // The path is trimmed of any URL scheme, host or query parameters, as well
 // as any invalid path separators.
-func SanitizeURLPath(rawPath string) string {
+func SanitizeSeparators(rawPath string) string {
 	const separator = "/"
 	raw := strings.TrimSpace(rawPath)
-	raw = strings.Trim(raw, separator)
 	raw = strings.ReplaceAll(raw, separator+separator, separator)
+	raw = strings.Trim(raw, separator)
 	u, err := url.Parse(raw)
 	if err != nil {
-		log.Fatal(err)
+		return "url.Parse error: " + err.Error()
 	}
 	return u.Path
+}
+
+// SanitizeURLPath returns a sanitized version of the URL path.
+// Invalid characters are removed as are as incorrect path separators.
+func SanitizeURLPath(rawPath string) string {
+	s := SanitizeSeparators(rawPath)
+	if strings.Contains(s, "://") {
+		return ""
+	}
+	re, err := regexp.Compile(ReSanitizePath)
+	if err != nil {
+		return "regexp.Compile error: " + err.Error()
+	}
+	s = re.ReplaceAllString(s, "")
+	return s
+}
+
+// SanitizeGitHub returns a sanitized version of the GitHub repository.
+// The repo is trimmed of any invalid characters listed in the [GitHub documentation].
+//
+// [GitHub documentation]: https://docs.github.com/en/get-started/using-git/dealing-with-special-characters-in-branch-and-tag-names#naming-branches-and-tags
+func SanitizeGitHub(repo string) string {
+	s := SanitizeURLPath(repo)
+	s = strings.TrimPrefix(s, "refs/")
+	return s
 }
 
 // ValidDate returns three boolean values that indicate if the year, month, and day are valid.

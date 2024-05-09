@@ -39,6 +39,7 @@
 {{- $virusTotal := index . "virusTotal"}}
 {{- $previewImg := recordImgSample $uuid}}
 {{- $thumbImg := recordThumbSample $uuid}}
+{{- $linkExamples := recordLinkPreviews $youtube $demozoo $pouet $sixteen $github $relations $websites | safeHTML }}
 {{- $replace := "refresh the page to see the changes"}}
 {{- $hxClassification := "[name='artifact-editor-categories'],[name='artifact-editor-operatingsystem'],[name='artifact-editor-key']"}}
 {{- /*  Artifact metadata editor  */}}
@@ -428,15 +429,15 @@
           </button>
         </div>
         {{- /*  Links  */}}
-        <form class="mt-3"      
+        <form class="mt-3" autocomplete="off"     
             hx-post="/editor/links"
             hx-trigger="input from:#artifact-editor-youtube,
                         input from:#artifact-editor-demozoo,
                         input from:#artifact-editor-pouet,
                         input from:#artifact-editor-16colors,
                         input from:#artifact-editor-github,
-                        input from:#artifact-editor-link-releasers,
-                        input from:#artifact-editor-link-websites"
+                        input from:#artifact-editor-releasers,
+                        input from:#artifact-editor-websites"
             hx-include="[name='artifact-editor-key']"
             hx-target="#artifact-editor-link-examples">
         <div class="row">
@@ -500,7 +501,6 @@
         <div class="row mt-1 pb-3">
           <div class="col-xl-6">
             <div class="form-floating">
-              <input type="hidden" name="artifact-editor-relationsval" value="{{$relations}}" readonly>
               <input type="text" class="form-control" name="artifact-editor-relations" id="artifact-editor-relations" 
                 autocomplete="off" maxlength="255" value="{{$relations}}"
                 placeholder="example: NFO;9f1c2" aria-describedby="artifact-editor-relations-help"
@@ -515,7 +515,6 @@
           </div>
           <div class="col-xl-6">
             <div class="form-floating">
-              <input type="hidden" name="artifact-editor-websitesval" value="{{$websites}}" readonly>
               <input type="text" class="form-control" name="artifact-editor-websites" id="artifact-editor-websites" 
                 autocomplete="off" maxlength="2048" value="{{$websites}}"
                 placeholder="Website;example.com" aria-describedby="artifact-editor-websites-help"
@@ -529,7 +528,7 @@
             </div>
           </div>
         </div>
-        <span id="artifact-editor-link-examples"></span>
+        <span id="artifact-editor-link-examples">{{$linkExamples}}</span>
         </form>
       </div>
       {{/*  Switch to assets and reset buttons  */}}

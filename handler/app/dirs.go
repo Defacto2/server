@@ -132,7 +132,7 @@ func (dir Dirs) Artifact(c echo.Context, logger *zap.SugaredLogger, readonly boo
 	data["demozoo"] = artifactID(art.WebIDDemozoo.Int64)
 	data["pouet"] = artifactID(art.WebIDPouet.Int64)
 	data["sixteenColors"] = art.WebID16colors.String
-	data["youtube"] = art.WebIDYoutube.String
+	data["youtube"] = strings.TrimSpace(art.WebIDYoutube.String)
 	data["github"] = art.WebIDGithub.String
 	// js-dos emulator
 	data = jsdos(logger, art, data, fname)

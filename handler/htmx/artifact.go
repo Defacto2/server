@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/releaser"
+	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/internal/form"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
@@ -381,12 +382,18 @@ func RecordYouTube(c echo.Context) error {
 	key := c.FormValue("artifact-editor-key")
 	watch := c.FormValue("artifact-editor-youtube")
 	val := c.FormValue("artifact-editor-youtubeval")
+	watch = strings.TrimSpace(watch)
+	val = strings.TrimSpace(val)
 	if watch == val {
 		return c.NoContent(http.StatusNoContent)
 	}
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+	}
+	const requirement = 11
+	if len(watch) > 0 && len(watch) < requirement {
+		return c.NoContent(http.StatusNoContent)
 	}
 	if err := model.UpdateYouTube(int64(id), watch); err != nil {
 		return badRequest(c, err)
@@ -461,7 +468,7 @@ func RecordGitHub(c echo.Context) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	link := form.SanitizeURLPath(github)
+	link := form.SanitizeGitHub(github)
 	if err := model.UpdateGitHub(int64(id), link); err != nil {
 		return badRequest(c, err)
 	}
@@ -472,10 +479,6 @@ func RecordGitHub(c echo.Context) error {
 func RecordRelations(c echo.Context) error {
 	key := c.FormValue("artifact-editor-key")
 	rels := c.FormValue("artifact-editor-relations")
-	val := c.FormValue("artifact-editor-relationsval")
-	if rels == val {
-		return c.NoContent(http.StatusNoContent)
-	}
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
@@ -490,10 +493,6 @@ func RecordRelations(c echo.Context) error {
 func RecordSites(c echo.Context) error {
 	key := c.FormValue("artifact-editor-key")
 	rels := c.FormValue("artifact-editor-websites")
-	val := c.FormValue("artifact-editor-websitesval")
-	if rels == val {
-		return c.NoContent(http.StatusNoContent)
-	}
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
@@ -507,76 +506,15 @@ func RecordSites(c echo.Context) error {
 // RecordLinks handles the post submission for a form submission to provide the
 // HTML formatted links for the "Links" section of the artifact editor.
 func RecordLinks(c echo.Context) error {
-	links := []string{}
 	youtube := c.FormValue("artifact-editor-youtube")
-	if youtube != "" {
-		links = append(links, recordlinksRel("youtube.com/watch?v="+youtube))
-	}
 	demozoo := c.FormValue("artifact-editor-demozoo")
-	if demozoo != "" {
-		links = append(links, recordlinksRel("demozoo.org/productions/"+demozoo))
-	}
 	pouet := c.FormValue("artifact-editor-pouet")
-	if pouet != "" {
-		links = append(links, recordlinksRel("pouet.net/prod.php?which="+pouet))
-	}
 	colors16 := c.FormValue("artifact-editor-16colors")
-	if colors16 != "" {
-		links = append(links, recordlinksRel("16colo.rs/"+colors16))
-	}
 	github := c.FormValue("artifact-editor-github")
-	if github != "" {
-		links = append(links, recordlinksRel("github.com/"+github))
-	}
-	rels := c.FormValue("artifact-editor-link-releasers")
-	if rels != "" {
-		links = append(links, recordlinksRels(rels))
-	}
-	sites := c.FormValue("artifact-editor-link-websites")
-	if sites != "" {
-		links = append(links, recordlinksSites(sites))
-	}
-	s := strings.Join(links, "<br>")
+	rels := c.FormValue("artifact-editor-relations")
+	sites := c.FormValue("artifact-editor-websites")
+	s := app.LinkSamples(youtube, demozoo, pouet, colors16, github, rels, sites)
 	return c.HTML(http.StatusOK, s)
-}
-
-func recordlinksRel(url string) string {
-	return `<a href="https://` + url + `">` + url + `</a>`
-}
-
-func recordlinksSites(rels string) string {
-	links := strings.Split(rels, "|")
-	hrefs := []string{}
-	for _, link := range links {
-		s := strings.Split(link, ";")
-		if len(s) != 2 {
-			continue
-		}
-		name := s[0]
-		id := s[1]
-		ref := `<a href="https://` + id + `">` + name + `</a>`
-		hrefs = append(hrefs, ref)
-	}
-	return strings.Join(hrefs, " + ")
-}
-
-func recordlinksRels(sites string) string {
-	//  "NFO;9f1c2|Intro;a92116e". Split by | and then by ;
-	links := strings.Split(sites, "|")
-	hrefs := []string{}
-	for _, link := range links {
-		// 0 = NFO, 1 = 9f1c2
-		// 0 = Intro, 1 = a92116e
-		s := strings.Split(link, ";")
-		if len(s) != 2 {
-			continue
-		}
-		name := s[0]
-		id := s[1]
-		ref := `<a href="/f/` + id + `">` + name + `</a>`
-		hrefs = append(hrefs, ref)
-	}
-	return strings.Join(hrefs, " + ")
 }
 
 // badRequest returns an error response with a 400 status code,

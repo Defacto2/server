@@ -4,23 +4,10 @@
 
 ### Files
 
-- [X] Listing files for approval should have a colored border.
-		example, http://localhost:1323/editor/for-approval
-- [X] Listing files for approval should have a colored border.
-		example, http://localhost:1323/editor/deletions
-- [X] Listing unwanted files should have a colored border.
-		example, http://localhost:1323/editor/unwanted
-- [X] Viewing artifact pages should have colored background?
 - [ ] Handle magazines with the file editor.
-- [ ] GitHub repo should always trim single forward slash, both prefix and suffix, for save and fix.
-- [ ] 16colors should always trim single forward slash, both prefix and suffix, for save and fix.
-- [ ] List relationships should reverse all the IDs and confirm they're valid int Ids.
 
 ### Layout
 
-- [X] Uploader menu alignment is cut off when on a resized, half-width browser window.
-- [X] Show a *custom error page when the file download* is missing or the root directory is broken.
-- [X] Textfile content using Open Sans should wrap any preformatted text to the width of the page, example, http://localhost:1323/f/a1377e
 - [ ] * (long) group/releaser pages should have a link to the end of the document.
 
 ### Database

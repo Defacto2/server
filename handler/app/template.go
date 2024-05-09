@@ -86,6 +86,91 @@ func DownloadB(i any) template.HTML {
 	return template.HTML(elm)
 }
 
+// LinkSample returns a collection of HTML formatted links for the artifact editor.
+func LinkSamples(youtube, demozoo, pouet, colors16, github, rels, sites string) string {
+	links := LinkPreviews(youtube, demozoo, pouet, colors16, github, rels, sites)
+	return strings.Join(links, "<br>")
+}
+
+// LinkPreviews returns a slice of HTML formatted links for the artifact editor.
+func LinkPreviews(youtube, demozoo, pouet, colors16, github, rels, sites string) []string {
+	rel := func(url string) string {
+		return `<a href="https://` + url + `">` + url + `</a>`
+	}
+
+	links := []string{}
+	if youtube != "" {
+		links = append(links, rel("youtube.com/watch?v="+youtube))
+	}
+	if demozoo != "" {
+		links = append(links, rel("demozoo.org/productions/"+demozoo))
+	}
+	if pouet != "" {
+		links = append(links, rel("pouet.net/prod.php?which="+pouet))
+	}
+	if colors16 != "" {
+		links = append(links, rel("16colo.rs/"+colors16))
+	}
+	if github != "" {
+		links = append(links, rel("github.com/"+github))
+	}
+	if rels != "" {
+		links = append(links, string(LinkRelations(rels)))
+	}
+	if sites != "" {
+		links = append(links, string(LinkSites(sites)))
+	}
+	return links
+}
+
+// LinkSites returns a collection of HTML anchor links that point to websites.
+//
+// The val string is a list of website descriptions and their URL ID separated by a semicolon ";".
+// Multiple website entries are separated by a pipe "|".
+//
+// For example, "Site;example.com|Documentation;example.com/doc"
+func LinkSites(val string) template.HTML {
+	links := strings.Split(val, "|")
+	hrefs := []string{}
+	for _, link := range links {
+		s := strings.Split(link, ";")
+		if len(s) != 2 {
+			continue
+		}
+		name, id := s[0], s[1]
+		ref := `<a href="https://` + id + `">` + name + `</a>`
+		hrefs = append(hrefs, ref)
+	}
+	html := strings.Join(hrefs, " + ")
+	return template.HTML(html)
+}
+
+// LinkRelations returns a collection of HTML anchor links that point to artifacts.
+//
+// The val string is a list of artifact descriptions and their URL ID separated by a semicolon ";".
+// Multiple artifact entries are separated by a pipe "|".
+//
+// For example, "NFO;9f1c2|Intro;a92116e"
+func LinkRelations(val string) template.HTML {
+	links := strings.Split(val, "|")
+	hrefs := []string{}
+	for _, link := range links {
+		s := strings.Split(link, ";")
+		if len(s) != 2 {
+			continue
+		}
+		name := s[0]
+		id := s[1]
+		ref := `<a href="/f/` + id + `">` + name + `</a>`
+		if key := helper.DeObfuscate(id); key == "" || key == id {
+			ref = fmt.Sprintf("%s ❌ link /f/%s is an invalid download path.", ref, id)
+		}
+		hrefs = append(hrefs, ref)
+	}
+	html := strings.Join(hrefs, " + ")
+	return template.HTML(html)
+}
+
 // ImageSample returns a HTML image tag for the given uuid.
 func (web Templ) ImageSample(uuid string) template.HTML {
 	ext, name, src := "", "", ""
@@ -390,45 +475,46 @@ func (web Templ) TemplateClosures() template.FuncMap { //nolint:funlen
 // instead use "fmtRangeURI" in TemplateStrings().
 func (web Templ) TemplateFuncs() template.FuncMap {
 	return template.FuncMap{
-		"add":               helper.Add1,
-		"attribute":         Attribute,
-		"brief":             Brief,
-		"describe":          Describe,
-		"downloadB":         DownloadB,
-		"byteFile":          ByteFile,
-		"byteFileS":         ByteFileS,
-		"demozooGetLink":    DemozooGetLink,
-		"fmtDay":            Day,
-		"fmtMonth":          Month,
-		"fmtPrefix":         Prefix,
-		"fmtRoles":          helper.FmtSlice,
-		"fmtURI":            releaser.Link,
-		"lastUpdated":       LastUpdated,
-		"linkDownload":      LinkDownload,
-		"linkHref":          LinkHref,
-		"linkInterview":     LinkInterview,
-		"linkPage":          LinkPage,
-		"linkPreview":       LinkPreview,
-		"linkRemote":        LinkRemote,
-		"linkRelrs":         LinkRelFast,
-		"linkScnr":          LinkScnr,
-		"linkSVG":           LinkSVG,
-		"linkWiki":          LinkWiki,
-		"logoText":          LogoText,
-		"mimeMagic":         MimeMagic,
-		"recordImgSample":   web.ImageSample,
-		"recordThumbSample": web.ThumbSample,
-		"recordInfoOSTag":   TagWithOS,
-		"recordTagInfo":     TagBrief,
-		"safeHTML":          SafeHTML,
-		"safeJS":            SafeJS,
-		"screenshot":        web.Screenshot,
-		"slugify":           helper.Slug,
-		"subTitle":          SubTitle,
-		"thumb":             web.Thumb,
-		"trimSiteSuffix":    TrimSiteSuffix,
-		"trimSpace":         TrimSpace,
-		"websiteIcon":       WebsiteIcon,
+		"add":                helper.Add1,
+		"attribute":          Attribute,
+		"brief":              Brief,
+		"describe":           Describe,
+		"downloadB":          DownloadB,
+		"byteFile":           ByteFile,
+		"byteFileS":          ByteFileS,
+		"demozooGetLink":     DemozooGetLink,
+		"fmtDay":             Day,
+		"fmtMonth":           Month,
+		"fmtPrefix":          Prefix,
+		"fmtRoles":           helper.FmtSlice,
+		"fmtURI":             releaser.Link,
+		"lastUpdated":        LastUpdated,
+		"linkDownload":       LinkDownload,
+		"linkHref":           LinkHref,
+		"linkInterview":      LinkInterview,
+		"linkPage":           LinkPage,
+		"linkPreview":        LinkPreview,
+		"linkRemote":         LinkRemote,
+		"linkRelrs":          LinkRelFast,
+		"linkScnr":           LinkScnr,
+		"linkSVG":            LinkSVG,
+		"linkWiki":           LinkWiki,
+		"logoText":           LogoText,
+		"mimeMagic":          MimeMagic,
+		"recordImgSample":    web.ImageSample,
+		"recordThumbSample":  web.ThumbSample,
+		"recordInfoOSTag":    TagWithOS,
+		"recordLinkPreviews": LinkSamples,
+		"recordTagInfo":      TagBrief,
+		"safeHTML":           SafeHTML,
+		"safeJS":             SafeJS,
+		"screenshot":         web.Screenshot,
+		"slugify":            helper.Slug,
+		"subTitle":           SubTitle,
+		"thumb":              web.Thumb,
+		"trimSiteSuffix":     TrimSiteSuffix,
+		"trimSpace":          TrimSpace,
+		"websiteIcon":        WebsiteIcon,
 	}
 }
 
