@@ -25,8 +25,8 @@ import (
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/pouet"
+	"github.com/Defacto2/server/internal/site"
 	"github.com/Defacto2/server/internal/sixteen"
-	"github.com/Defacto2/server/internal/web"
 	"github.com/Defacto2/server/model"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/google/uuid"
@@ -1220,7 +1220,7 @@ func Releasers(c echo.Context, uri string) error {
 	data["description"] = "The collection of files for " + s + "."
 	data["demozoo"] = strconv.Itoa(int(demozoo.Find(uri)))
 	data["sixteen"] = sixteen.Find(uri)
-	data["website"] = web.Find(uri)
+	data["website"] = site.Find(uri)
 	data[records] = fs
 	switch uri {
 	case "independent":

@@ -1,5 +1,5 @@
 // Package web proves links and titles for recommended websites.
-package web
+package site
 
 // URI is the URL slug of the releaser.
 type URI string
