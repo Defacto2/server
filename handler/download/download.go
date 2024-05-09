@@ -24,10 +24,10 @@ var (
 // The response is a text file named "checksums.txt" with the checksum and filename.
 // The id string is the UID filename of the requested file.
 func Checksum(c echo.Context, id string) error {
-	art, err := model.FindObf(id)
+	art, err := model.OneFileByKey(id)
 	if err != nil {
 		if errors.Is(err, model.ErrDB) && sess.Editor(c) {
-			art, err = model.EditObf(id)
+			art, err = model.OneEditByKey(id)
 		}
 		if err != nil {
 			return fmt.Errorf("model.FindObf: %w", err)
@@ -67,10 +67,10 @@ type Download struct {
 // The download relies on the URL ID parameter to determine the requested file.
 func (d Download) HTTPSend(c echo.Context, logger *zap.SugaredLogger) error {
 	id := c.Param("id")
-	art, err := model.FindObf(id)
+	art, err := model.OneFileByKey(id)
 	if err != nil {
 		if errors.Is(err, model.ErrDB) && sess.Editor(c) {
-			art, err = model.EditObf(id)
+			art, err = model.OneEditByKey(id)
 		}
 		if err != nil {
 			return fmt.Errorf("model.FindObf: %w", err)

@@ -367,7 +367,7 @@ func QueryByGroup(ctx context.Context, db *sql.DB, c echo.Context) (
 		return queryErr("by group:", err)
 	}
 	total := len(records)
-	byteSum, err := model.ByteCountByReleaser(ctx, db, id)
+	byteSum, err := model.ReleaserByteSum(ctx, db, id)
 	// name := releaser.Clean(id)
 	if err != nil {
 		return statErr("bytes by group:", err)
@@ -389,11 +389,11 @@ func QueryBySection(ctx context.Context, db *sql.DB, c echo.Context, offset int)
 	if err != nil {
 		return queryErr("by category:", err)
 	}
-	total, err := model.CountByCategory(ctx, db, id)
+	total, err := model.CategoryCount(ctx, db, id)
 	if err != nil {
 		return statErr("total by category:", err)
 	}
-	byteSum, err := model.ByteCountByCategory(ctx, db, id)
+	byteSum, err := model.CategoryByteSum(ctx, db, id)
 	if err != nil {
 		return statErr("byte by category:", err)
 	}
@@ -414,11 +414,11 @@ func QueryByPlatform(ctx context.Context, db *sql.DB, c echo.Context, offset int
 	if err != nil {
 		return queryErr("by platform:", err)
 	}
-	total, err := model.CountByPlatform(ctx, db, id)
+	total, err := model.PlatformCount(ctx, db, id)
 	if err != nil {
 		return statErr("total by platform:", err)
 	}
-	byteSum, err := model.ByteCountByPlatform(ctx, db, id)
+	byteSum, err := model.PlatformByteSum(ctx, db, id)
 	if err != nil {
 		return statErr("bytes by platform:", err)
 	}

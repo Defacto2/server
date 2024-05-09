@@ -86,9 +86,9 @@ func (dir Dirs) Artifact(c echo.Context, logger *zap.SugaredLogger, readonly boo
 	var art *models.File
 	var err error
 	if sess.Editor(c) {
-		art, err = model.EditObf(dir.URI)
+		art, err = model.OneEditByKey(dir.URI)
 	} else {
-		art, err = model.FindObf(dir.URI)
+		art, err = model.OneFileByKey(dir.URI)
 	}
 	if err != nil {
 		if errors.Is(err, model.ErrID) {

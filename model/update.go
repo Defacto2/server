@@ -59,7 +59,7 @@ func UpdateInt64From(column int64From, id int64, val string) error {
 	defer db.Close()
 	ctx := context.Background()
 
-	f, err := FindFile(ctx, db, id)
+	f, err := OneFile(ctx, db, id)
 	if err != nil {
 		return fmt.Errorf("find file for %q: %w", column, err)
 	}
@@ -121,7 +121,7 @@ func UpdateStringFrom(column stringFrom, id int64, val string) error {
 	defer db.Close()
 	ctx := context.Background()
 
-	f, err := FindFile(ctx, db, id)
+	f, err := OneFile(ctx, db, id)
 	if err != nil {
 		return fmt.Errorf("find file for %q: %w", column, err)
 	}
@@ -195,7 +195,7 @@ func UpdateClassification(id int64, platform, tag string) error {
 	}
 	defer db.Close()
 	ctx := context.Background()
-	f, err := FindFile(ctx, db, id)
+	f, err := OneFile(ctx, db, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
 	}
@@ -220,7 +220,7 @@ func UpdateCreators(id int64, text, ill, prog, audio string) error {
 	}
 	defer db.Close()
 	ctx := context.Background()
-	f, err := FindFile(ctx, db, id)
+	f, err := OneFile(ctx, db, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
 	}
@@ -263,7 +263,7 @@ func UpdateDateIssued(id int64, y, m, d string) error {
 	}
 	defer db.Close()
 	ctx := context.Background()
-	f, err := FindFile(ctx, db, id)
+	f, err := OneFile(ctx, db, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
 	}
@@ -302,7 +302,7 @@ func UpdateNoReadme(id int64, val bool) error {
 	}
 	defer db.Close()
 	ctx := context.Background()
-	f, err := FindFile(ctx, db, id)
+	f, err := OneFile(ctx, db, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
 	}
@@ -325,7 +325,7 @@ func UpdateOffline(id int64) error {
 	}
 	defer db.Close()
 	ctx := context.Background()
-	f, err := FindFile(ctx, db, id)
+	f, err := OneFile(ctx, db, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
 	}
@@ -346,7 +346,7 @@ func UpdateOnline(id int64) error {
 	}
 	defer db.Close()
 	ctx := context.Background()
-	f, err := FindFile(ctx, db, id)
+	f, err := OneFile(ctx, db, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
 	}
@@ -393,7 +393,7 @@ func UpdateReleasers(id int64, val string) error {
 	}
 	defer db.Close()
 	ctx := context.Background()
-	f, err := FindFile(ctx, db, id)
+	f, err := OneFile(ctx, db, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
 	}
@@ -451,7 +451,7 @@ func UpdateYMD(id int64, y, m, d null.Int16) error {
 	}
 	defer db.Close()
 	ctx := context.Background()
-	f, err := FindFile(ctx, db, id)
+	f, err := OneFile(ctx, db, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
 	}

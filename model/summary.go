@@ -25,8 +25,8 @@ type Summary struct {
 	MaxYear  sql.NullInt16 `boil:"max_year"`    // Maximum or latest year of the files.
 }
 
-// SearchDesc saves the summary statistics for the file description search.
-func (s *Summary) SearchDesc(ctx context.Context, db *sql.DB, terms []string) error {
+// Description saves the summary statistics for the file description search.
+func (s *Summary) Description(ctx context.Context, db *sql.DB, terms []string) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -43,8 +43,8 @@ func (s *Summary) SearchDesc(ctx context.Context, db *sql.DB, terms []string) er
 	return queries.Raw(sum, "'"+strings.Join(terms, "','")+"'").Bind(ctx, db, s)
 }
 
-// SearchFilename saves the summary statistics for the filename search.
-func (s *Summary) SearchFilename(ctx context.Context, db *sql.DB, terms []string) error {
+// Filename saves the summary statistics for the filename search.
+func (s *Summary) Filename(ctx context.Context, db *sql.DB, terms []string) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -62,8 +62,8 @@ func (s *Summary) SearchFilename(ctx context.Context, db *sql.DB, terms []string
 	return queries.Raw(sum).Bind(ctx, db, s)
 }
 
-// StatForApproval returns the summary statistics for files that require approval.
-func (s *Summary) StatForApproval(ctx context.Context, db *sql.DB) error {
+// ForApproval returns the summary statistics for files that require approval.
+func (s *Summary) ForApproval(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -75,8 +75,8 @@ func (s *Summary) StatForApproval(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, s)
 }
 
-// StatDeletions returns the summary statistics for files that have been deleted.
-func (s *Summary) StatDeletions(ctx context.Context, db *sql.DB) error {
+// Hidden returns the summary statistics for files that have been deleted.
+func (s *Summary) Hidden(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -89,21 +89,8 @@ func (s *Summary) StatDeletions(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, s)
 }
 
-// StatUnwanted returns the summary statistics for files that have been marked as unwanted.
-func (s *Summary) StatUnwanted(ctx context.Context, db *sql.DB) error {
-	if db == nil {
-		return ErrDB
-	}
-	boil.DebugMode = true
-	return models.NewQuery(
-		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
-		qm.WithDeleted(),
-		qm.Select(postgres.Columns()...),
-		qm.From(From)).Bind(ctx, db, s)
-}
-
-// All selects the summary statistics for all files.
-func (s *Summary) All(ctx context.Context, db *sql.DB) error {
+// Public selects the summary statistics for all public files.
+func (s *Summary) Public(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -140,6 +127,19 @@ func (s *Summary) Releaser(ctx context.Context, db *sql.DB, name string) error {
 		qm.Select(postgres.Columns()...),
 		qm.Where("upper(group_brand_for) = ? OR upper(group_brand_by) = ?", x, x),
 		// qm.Or2(models.FileWhere.Platform.EQ(expr.PText())
+		qm.From(From)).Bind(ctx, db, s)
+}
+
+// Unwanted returns the summary statistics for files that have been marked as unwanted.
+func (s *Summary) Unwanted(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
+	boil.DebugMode = true
+	return models.NewQuery(
+		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
+		qm.WithDeleted(),
+		qm.Select(postgres.Columns()...),
 		qm.From(From)).Bind(ctx, db, s)
 }
 

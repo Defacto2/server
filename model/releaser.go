@@ -17,29 +17,6 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// Releaser is a collective, group or individual, that releases files.
-type Releaser struct {
-	Name  string   `boil:"releaser"`   // Name of the releaser.
-	URI   string   ``                  // URI slug for the releaser, with no boiler bind.
-	Bytes int      `boil:"size_total"` // Bytes are the total size of all the files under this releaser.
-	Count int      `boil:"count_sum"`  // Count is the total number of files under this releaser.
-	Year  null.Int `boil:"min_year"`   // Year is used for optional sorting
-	// and is the earliest year the releaser was active.
-}
-
-// Releasers is a collection of releasers.
-type Releasers []*struct {
-	Unique Releaser `boil:",bind"` // Unique releaser.
-}
-
-// ReleaserName is a releaser name.
-type ReleaserName struct {
-	Name string `boil:"releaser"`
-}
-
-// ReleaserNames is a distinct data list of releasers.
-type ReleaserNames []ReleaserName
-
 // OrderBy is the sorting order for ALL the releasers.
 type OrderBy uint
 
@@ -49,8 +26,16 @@ const (
 	Oldest                      // Oldest orders by the year of the first artifact.
 )
 
-// List gets the unique releaser names.
-func (r *ReleaserNames) List(ctx context.Context, db *sql.DB) error {
+// ReleaserNames is a distinct data list of releasers.
+type ReleaserNames []ReleaserName
+
+// ReleaserName is a releaser name.
+type ReleaserName struct {
+	Name string `boil:"releaser"`
+}
+
+// Distinct gets the unique releaser names.
+func (r *ReleaserNames) Distinct(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -58,8 +43,23 @@ func (r *ReleaserNames) List(ctx context.Context, db *sql.DB) error {
 	return queries.Raw(query).Bind(ctx, db, r)
 }
 
-// List gets the unique releaser names.
-func (r *Releasers) List(ctx context.Context, db *sql.DB, name string) (models.FileSlice, error) {
+// Releasers is a collection of releasers.
+type Releasers []*struct {
+	Unique Releaser `boil:",bind"` // Unique releaser.
+}
+
+// Releaser is a collective, group or individual, that releases files.
+type Releaser struct {
+	Name  string `boil:"releaser"`   // Name of the releaser.
+	URI   string ``                  // URI slug for the releaser, with no boiler bind.
+	Bytes int    `boil:"size_total"` // Bytes are the total size of all the files under this releaser.
+	Count int    `boil:"count_sum"`  // Count is the total number of files under this releaser.
+	// Year is used for optional sorting and is the earliest year the releaser was active.
+	Year null.Int `boil:"min_year"`
+}
+
+// Where gets the records that match the named releaser.
+func (r *Releasers) Where(ctx context.Context, db *sql.DB, name string) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
@@ -75,9 +75,9 @@ func (r *Releasers) List(ctx context.Context, db *sql.DB, name string) (models.F
 	).All(ctx, db)
 }
 
-// All gets the unique releaser names and their total file count and file sizes.
+// Limit gets the unique releaser names and their total file count and file sizes.
 // When reorder is true the results are ordered by the total file counts.
-func (r *Releasers) All(ctx context.Context, db *sql.DB, order OrderBy, limit, page int) error {
+func (r *Releasers) Limit(ctx context.Context, db *sql.DB, order OrderBy, limit, page int) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -167,36 +167,6 @@ func calculateLimitAndOffset(pageNumber int, pageSize int) (int, int) {
 	return limit, offset
 }
 
-// Magazine gets the unique magazine titles and their total issue count and file sizes.
-func (r *Releasers) MagazineAZ(ctx context.Context, db *sql.DB) error {
-	if db == nil {
-		return ErrDB
-	}
-	if len(*r) > 0 {
-		return nil
-	}
-	if err := queries.Raw(string(postgres.MagazinesAlphabetical())).Bind(ctx, db, r); err != nil {
-		return fmt.Errorf("queries.Raw: %w", err)
-	}
-	r.Slugs()
-	return nil
-}
-
-// Magazine gets the unique magazine titles and their total issue count and file sizes.
-func (r *Releasers) Magazine(ctx context.Context, db *sql.DB) error {
-	if db == nil {
-		return ErrDB
-	}
-	if len(*r) > 0 {
-		return nil
-	}
-	if err := queries.Raw(string(postgres.MagazinesOldest())).Bind(ctx, db, r); err != nil {
-		return fmt.Errorf("queries.Raw: %w", err)
-	}
-	r.Slugs()
-	return nil
-}
-
 // BBS gets the unique BBS site names and their total file count and file sizes.
 func (r *Releasers) BBS(ctx context.Context, db *sql.DB, order OrderBy) error {
 	if db == nil {
@@ -232,6 +202,36 @@ func (r *Releasers) FTP(ctx context.Context, db *sql.DB) error {
 		return nil
 	}
 	if err := queries.Raw(string(postgres.FTPsAlphabetical())).Bind(ctx, db, r); err != nil {
+		return fmt.Errorf("queries.Raw: %w", err)
+	}
+	r.Slugs()
+	return nil
+}
+
+// Magazine gets the unique magazine titles and their total issue count and file sizes.
+func (r *Releasers) MagazineAZ(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
+	if len(*r) > 0 {
+		return nil
+	}
+	if err := queries.Raw(string(postgres.MagazinesAlphabetical())).Bind(ctx, db, r); err != nil {
+		return fmt.Errorf("queries.Raw: %w", err)
+	}
+	r.Slugs()
+	return nil
+}
+
+// Magazine gets the unique magazine titles and their total issue count and file sizes.
+func (r *Releasers) Magazine(ctx context.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
+	if len(*r) > 0 {
+		return nil
+	}
+	if err := queries.Raw(string(postgres.MagazinesOldest())).Bind(ctx, db, r); err != nil {
 		return fmt.Errorf("queries.Raw: %w", err)
 	}
 	r.Slugs()

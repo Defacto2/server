@@ -8,7 +8,6 @@ import (
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -21,20 +20,19 @@ type Sceners []*struct {
 	Name Scener `boil:"scener"`
 }
 
-// List gets the unique scener names.
-func (s *Scener) List(ctx context.Context, db *sql.DB, name string) (models.FileSlice, error) {
+// Where gets the records of all files that have been credited to the named scener.
+func (s *Scener) Where(ctx context.Context, db *sql.DB, name string) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
-	boil.DebugMode = true
 	return models.Files(
 		qm.Where(postgres.ScenerSQL(name)),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
 
-// All gets a list of all sceners.
-func (s *Sceners) All(ctx context.Context, db *sql.DB) error {
+// Distinct gets a list of all, distinct sceners.
+func (s *Sceners) Distinct(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}

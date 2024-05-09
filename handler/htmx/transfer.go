@@ -71,7 +71,7 @@ func LookupSHA384(c echo.Context, logger *zap.SugaredLogger) error {
 	}
 	defer db.Close()
 
-	exist, err := model.ExistHash(ctx, db, hash)
+	exist, err := model.HashExists(ctx, db, hash)
 	if err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
@@ -170,7 +170,7 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key string) error {
 			logger.Error(err)
 		}
 	}()
-	exist, err := model.ExistSumHash(ctx, db, checksum)
+	exist, err := model.SHA384Exists(ctx, db, checksum)
 	if err != nil {
 		return checkExist(c, logger, err)
 	}
@@ -382,9 +382,9 @@ func submit(c echo.Context, logger *zap.SugaredLogger, prod string) error {
 	var exist bool
 	switch prod {
 	case dz:
-		exist, err = model.ExistDemozooFile(ctx, db, int64(id))
+		exist, err = model.DemozooExists(ctx, db, int64(id))
 	case pt:
-		exist, err = model.ExistPouetFile(ctx, db, int64(id))
+		exist, err = model.PouetExists(ctx, db, int64(id))
 	}
 	if err != nil {
 		return c.String(http.StatusServiceUnavailable,

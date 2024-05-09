@@ -6,10 +6,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
-	namer "github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/google/uuid"
@@ -123,104 +121,29 @@ func OneByUUID(ctx context.Context, db *sql.DB, deleted bool, uid string) (*mode
 	return file, nil
 }
 
-// ByteCountByCategory sums the byte file sizes for all the files that match the category name.
-func ByteCountByCategory(ctx context.Context, db *sql.DB, name string) (int64, error) {
-	if db == nil {
-		return 0, ErrDB
-	}
-	if name == "" {
-		return 0, ErrName
-	}
-	mods := qm.SQL(string(postgres.SumSection()), null.StringFrom(name))
-	i, err := models.Files(mods).Count(ctx, db)
-	if err != nil {
-		return 0, fmt.Errorf("bytecount by category %q: %w", name, err)
-	}
-	return i, nil
+// Find retrieves a single file record from the database using the record key.
+func Find(key int) (*models.File, error) {
+	return record(false, key)
 }
 
-// ByteCountByReleaser sums the byte file sizes for all the files that match the group name.
-func ByteCountByReleaser(ctx context.Context, db *sql.DB, name string) (int64, error) {
-	if db == nil {
-		return 0, ErrDB
-	}
-	if name == "" {
-		return 0, ErrName
-	}
-	s, err := namer.Humanize(namer.Path(name))
-	if err != nil {
-		return 0, fmt.Errorf("namer.Humanize: %w", err)
-	}
-	n := strings.ToUpper(s)
-	mods := qm.SQL(string(postgres.SumGroup()), null.StringFrom(n))
-	i, err := models.Files(mods).Count(ctx, db)
-	if err != nil {
-		return 0, fmt.Errorf("bytecount by releaser %q: %w", name, err)
-	}
-	return i, nil
+// EditFind retrieves a single file record from the database using the record key.
+// This function will also return records that have been marked as deleted.
+func EditFind(key int) (*models.File, error) {
+	return record(true, key)
 }
 
-// ByteCountByPlatform sums the byte filesizes for all the files that match the category name.
-func ByteCountByPlatform(ctx context.Context, db *sql.DB, name string) (int64, error) {
-	if db == nil {
-		return 0, ErrDB
-	}
-	if name == "" {
-		return 0, ErrName
-	}
-	mods := qm.SQL(string(postgres.SumPlatform()), null.StringFrom(name))
-	i, err := models.Files(mods).Count(ctx, db)
+// Record retrieves a single file record from the database using the record key.
+func record(deleted bool, key int) (*models.File, error) {
+	// get record id, filename, uuid
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
 	if err != nil {
-		return 0, fmt.Errorf("bytecount by platform %q: %w", name, err)
+		return nil, ErrDB
 	}
-	return i, nil
-}
-
-// CountByCategory counts the files that match the named category.
-func CountByCategory(ctx context.Context, db *sql.DB, name string) (int64, error) {
-	if db == nil {
-		return 0, ErrDB
-	}
-	if name == "" {
-		return 0, ErrName
-	}
-	mods := models.FileWhere.Section.EQ(null.StringFrom(name))
-	i, err := models.Files(mods).Count(ctx, db)
+	defer db.Close()
+	art, err := One(ctx, db, deleted, key)
 	if err != nil {
-		return 0, fmt.Errorf("count by category %q: %w", name, err)
+		return nil, fmt.Errorf("%w, %w: %d", ErrID, err, key)
 	}
-	return i, nil
-}
-
-// CountByPlatform counts the files that match the named category.
-func CountByPlatform(ctx context.Context, db *sql.DB, name string) (int64, error) {
-	if db == nil {
-		return 0, ErrDB
-	}
-	if name == "" {
-		return 0, ErrName
-	}
-	mods := models.FileWhere.Platform.EQ(null.StringFrom(name))
-	i, err := models.Files(mods).Count(ctx, db)
-	if err != nil {
-		return 0, fmt.Errorf("count by platform %q: %w", name, err)
-	}
-	return i, nil
-}
-
-// CountByClassification counts the files that match the named category and platform.
-func CountByClassification(ctx context.Context, db *sql.DB, section, platform string) (int64, error) {
-	if db == nil {
-		return 0, ErrDB
-	}
-	if section == "" || platform == "" {
-		return 0, ErrName
-	}
-	sect := models.FileWhere.Section.EQ(null.StringFrom(section))
-	plat := models.FileWhere.Platform.EQ(null.StringFrom(platform))
-	i, err := models.Files(sect, plat).Count(ctx, db)
-	if err != nil {
-		return 0, fmt.Errorf("count by classification %q %q: %w", section, platform, err)
-	}
-	return i, nil
+	return art, nil
 }

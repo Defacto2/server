@@ -90,7 +90,7 @@ func (s *Sugared) Groups(c echo.Context) error {
 	// releasers are the distinct groups from the file table.
 
 	var unique model.ReleaserNames
-	if err := unique.List(ctx, db); err != nil {
+	if err := unique.Distinct(ctx, db); err != nil {
 		s.Log.Errorf("%s: %w", ErrSQL, err)
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
@@ -111,7 +111,7 @@ func (s *Sugared) Groups(c echo.Context) error {
 
 	// releasers are the distinct groups from the file table.
 	releasers := model.Releasers{}
-	if err := releasers.All(ctx, db, model.Alphabetical, model.Maximum, page); err != nil {
+	if err := releasers.Limit(ctx, db, model.Alphabetical, model.Maximum, page); err != nil {
 		s.Log.Errorf("group and releaser list: %w", err)
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}

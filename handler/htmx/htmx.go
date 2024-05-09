@@ -50,7 +50,7 @@ func DemozooProd(c echo.Context) error {
 	defer db.Close()
 	ctx := context.Background()
 
-	deleted, key, err := model.FindDemozooFile(ctx, db, int64(id))
+	deleted, key, err := model.OneDemozoo(ctx, db, int64(id))
 	if err != nil {
 		return c.String(http.StatusServiceUnavailable,
 			"error, the database query failed")
@@ -171,7 +171,7 @@ func PouetProd(c echo.Context) error {
 	defer db.Close()
 	ctx := context.Background()
 
-	deleted, key, err := model.FindPouetFile(ctx, db, int64(id))
+	deleted, key, err := model.OnePouet(ctx, db, int64(id))
 	if err != nil {
 		return c.String(http.StatusServiceUnavailable,
 			"error, the database query failed")

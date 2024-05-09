@@ -1205,7 +1205,7 @@ func Releasers(c echo.Context, uri string) error {
 
 	s := releaser.Link(uri)
 	rel := model.Releasers{}
-	fs, err := rel.List(ctx, db, uri)
+	fs, err := rel.Where(ctx, db, uri)
 	if err != nil {
 		return InternalErr(c, name, err)
 	}
@@ -1304,8 +1304,8 @@ func Sceners(c echo.Context, uri string) error {
 	defer db.Close()
 
 	s := releaser.Link(uri)
-	var rel model.Scener
-	fs, err := rel.List(ctx, db, uri)
+	var ms model.Scener
+	fs, err := ms.Where(ctx, db, uri)
 	if err != nil {
 		return InternalErr(c, name, err)
 	}
@@ -2009,11 +2009,11 @@ func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string
 	m := model.Summary{}
 	switch mode {
 	case Filenames:
-		if err := m.SearchFilename(ctx, db, terms); err != nil {
+		if err := m.Filename(ctx, db, terms); err != nil {
 			return none()
 		}
 	case Descriptions:
-		if err := m.SearchDesc(ctx, db, terms); err != nil {
+		if err := m.Description(ctx, db, terms); err != nil {
 			return none()
 		}
 	}
@@ -2079,7 +2079,7 @@ func scener(c echo.Context, r postgres.Role,
 	case postgres.Coder:
 		err = s.Coder(ctx, db)
 	case postgres.Roles():
-		err = s.All(ctx, db)
+		err = s.Distinct(ctx, db)
 	}
 	if err != nil {
 		return DatabaseErr(c, name, err)
@@ -2155,20 +2155,20 @@ func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int,
 	if errors.Is(err, model.ErrURI) {
 		switch uri {
 		case "for-approval":
-			if err := m.StatForApproval(ctx, db); err != nil {
-				return nil, 0, fmt.Errorf("m.StatForApproval: %w", err)
+			if err := m.ForApproval(ctx, db); err != nil {
+				return nil, 0, fmt.Errorf("m.ForApproval: %w", err)
 			}
 		case "deletions":
-			if err := m.StatDeletions(ctx, db); err != nil {
-				return nil, 0, fmt.Errorf("m.StatDeletions: %w", err)
+			if err := m.Hidden(ctx, db); err != nil {
+				return nil, 0, fmt.Errorf("m.Hidden: %w", err)
 			}
 		case "unwanted":
-			if err := m.StatUnwanted(ctx, db); err != nil {
-				return nil, 0, fmt.Errorf("m.StatUnwanted: %w", err)
+			if err := m.Unwanted(ctx, db); err != nil {
+				return nil, 0, fmt.Errorf("m.Unwanted: %w", err)
 			}
 		default:
-			if err := m.All(ctx, db); err != nil {
-				return nil, 0, fmt.Errorf("m.All: %w", err)
+			if err := m.Public(ctx, db); err != nil {
+				return nil, 0, fmt.Errorf("m.Public: %w", err)
 			}
 		}
 	}
@@ -2207,7 +2207,7 @@ func releasers(c echo.Context, orderBy model.OrderBy) error {
 	}
 	defer db.Close()
 	var r model.Releasers
-	if err := r.All(ctx, db, orderBy, 0, 0); err != nil {
+	if err := r.Limit(ctx, db, orderBy, 0, 0); err != nil {
 		return DatabaseErr(c, name, err)
 	}
 	data[key] = r

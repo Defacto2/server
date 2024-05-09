@@ -36,10 +36,10 @@ func HumanizeAndCount(section, platform string) (template.HTML, error) {
 	if strings.HasPrefix(tag, "unknown") {
 		return "unknown classification", nil
 	}
-	count, err := model.CountByClassification(ctx, db, section, platform)
+	count, err := model.ClassificationCount(ctx, db, section, platform)
 	if err != nil {
 		return "cannot count the classification",
-			fmt.Errorf("model.CountByClassification: %w", err)
+			fmt.Errorf("model.ClassificationCount: %w", err)
 	}
 	html := ""
 	switch count {
