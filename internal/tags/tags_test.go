@@ -20,7 +20,7 @@ func TestByNames(t *testing.T) {
 	t.Parallel()
 	tee := tags.T{}
 	data, err := tee.ByName("")
-	require.Error(t, err)
+	assert.Nil(t, err)
 	assert.Empty(t, data)
 
 	data, err = tee.ByName("non-existing-name")

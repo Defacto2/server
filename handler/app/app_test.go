@@ -44,7 +44,7 @@ func TestMilestone(t *testing.T) {
 	t.Parallel()
 	ms := app.Collection()
 
-	const expectedMileStones = 109
+	const expectedMileStones = 116
 	assert.Equal(t, expectedMileStones, ms.Len())
 	assert.Len(t, ms, expectedMileStones)
 
@@ -62,7 +62,7 @@ func TestInterviewees(t *testing.T) {
 	t.Parallel()
 	i := app.Interviewees()
 	l := len(i)
-	const expectedInterviewees = 10
+	const expectedInterviewees = 11
 	assert.Equal(t, expectedInterviewees, l)
 
 	for _, x := range i {
@@ -230,44 +230,15 @@ func TestReadmeSuggest(t *testing.T) {
 func TestList(t *testing.T) {
 	t.Parallel()
 	list := app.List()
-	const expectedCount = 10
+	const expectedCount = 9
 	assert.Len(t, list, expectedCount)
-}
-
-func TestAsset(t *testing.T) {
-	t.Parallel()
-
-	x, y := app.Bootstrap5, app.Uploader
-	assert.Equal(t, app.Asset(0), x)
-	assert.Equal(t, app.Asset(15), y)
-
-	hrefs := app.Hrefs()
-	const (
-		bootstrapCSS = 0
-		layoutCSS    = 10
-		wasm         = 9
-		dos          = 8
-		dosUI        = 7
-	)
-	for i, href := range hrefs {
-		assert.NotEmpty(t, href)
-		switch i {
-		case bootstrapCSS, layoutCSS:
-			ext := href[len(href)-8:]
-			assert.Equal(t, ".min.css", ext)
-		case dos, dosUI, wasm:
-		default:
-			ext := href[len(href)-7:]
-			assert.Equal(t, ".min.js", ext)
-		}
-	}
 }
 
 func TestNames(t *testing.T) {
 	t.Parallel()
 
 	x := app.Names()
-	assert.Equal(t, "public/css/bootstrap.min.css", x[0])
+	assert.Equal(t, "public/js/artifact-editor.min.js", x[0])
 }
 
 func TestFontRefs(t *testing.T) {

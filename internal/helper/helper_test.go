@@ -202,11 +202,11 @@ func TestAdd1(t *testing.T) {
 
 func TestFileMatch(t *testing.T) {
 	_, err := helper.FileMatch("", "")
-	require.NoError(t, err)
-	v, err := helper.FileMatch("bool.go", "bool.go")
+	require.Error(t, err)
+	v, err := helper.FileMatch("helper.go", "helper.go")
 	require.NoError(t, err)
 	assert.True(t, v)
-	v, err = helper.FileMatch("bool_test.go", "bool.go")
+	v, err = helper.FileMatch("helper_test.go", "helper.go")
 	require.NoError(t, err)
 	assert.False(t, v)
 }
@@ -235,7 +235,7 @@ func TestFinds(t *testing.T) {
 }
 
 func TestIsFile(t *testing.T) {
-	self := filepath.Join(".", "bool_test.go")
+	self := filepath.Join(".", "helper_test.go")
 	tests := []struct {
 		name      string
 		expect    bool
@@ -254,7 +254,7 @@ func TestIsFile(t *testing.T) {
 }
 
 func TestIsStat(t *testing.T) {
-	self := filepath.Join(".", "bool_test.go")
+	self := filepath.Join(".", "helper_test.go")
 	tests := []struct {
 		name      string
 		expect    bool

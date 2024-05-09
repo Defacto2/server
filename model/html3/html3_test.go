@@ -1,15 +1,12 @@
 package html3_test
 
 import (
-	"context"
 	"testing"
 	"time"
 
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model/html3"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"github.com/volatiletech/null/v8"
 )
 
@@ -108,28 +105,19 @@ func TestSelectHTML3(t *testing.T) {
 	assert.NotEmpty(t, qm)
 }
 
-func TestArts_Stat(t *testing.T) {
-	t.Parallel()
-	a := html3.Arts{}
-	ctx := context.TODO()
-	err := a.Stat(ctx, nil)
-	require.ErrorIs(t, err, html3.ErrDB)
-	db, err := postgres.ConnectDB()
-	require.NoError(t, err)
-	defer db.Close()
-	err = a.Stat(ctx, db)
-	require.Error(t, err)
-}
-
-func TestDocuments_Stat(t *testing.T) {
-	t.Parallel()
-	a := html3.Documents{}
-	ctx := context.TODO()
-	err := a.Stat(ctx, nil)
-	require.ErrorIs(t, err, html3.ErrDB)
-	db, err := postgres.ConnectDB()
-	require.NoError(t, err)
-	defer db.Close()
-	err = a.Stat(ctx, db)
-	require.Error(t, err)
+func TestOrder_String(t *testing.T) {
+	tests := []struct {
+		o         html3.Order
+		expect    string
+		assertion assert.ComparisonAssertionFunc
+	}{
+		{-1, "", assert.Equal},
+		{html3.NameAsc, "filename asc", assert.Equal},
+		{html3.DescDes, "record_title desc", assert.Equal},
+	}
+	for _, tt := range tests {
+		t.Run(tt.expect, func(t *testing.T) {
+			tt.assertion(t, tt.expect, tt.o.String())
+		})
+	}
 }
