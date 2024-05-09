@@ -27,6 +27,7 @@ import (
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/internal/site"
 	"github.com/Defacto2/server/internal/sixteen"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/google/uuid"
@@ -662,7 +663,7 @@ func PlatformTagInfo(c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	info, err := model.GetPlatformTagInfo(f.Platform, f.Tag)
+	info, err := tags.Platform(f.Platform, f.Tag)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -1472,7 +1473,7 @@ func TagInfo(c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	info, err := model.GetTagInfo(f.Tag)
+	info, err := tags.Description(f.Tag)
 	if err != nil {
 		return badRequest(c, err)
 	}

@@ -18,28 +18,6 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
-// GetPlatformTagInfo returns the human readable platform and tag name.
-func GetPlatformTagInfo(platform, tag string) (string, error) {
-	p, t := tags.TagByURI(platform), tags.TagByURI(tag)
-	if p == -1 {
-		return "", fmt.Errorf("%s: %w", platform, ErrPlatform)
-	}
-	if t == -1 {
-		return "", fmt.Errorf("%s: %w", tag, ErrTag)
-	}
-	return tags.Humanize(p, t), nil
-}
-
-// GetTagInfo returns the human readable tag name.
-func GetTagInfo(tag string) (string, error) {
-	t := tags.TagByURI(tag)
-	if t == -1 {
-		return "", fmt.Errorf("%s: %w", tag, ErrTag)
-	}
-	s := tags.Infos()[t]
-	return s, nil
-}
-
 // int64From is a type for the int64 columns that can be updated.
 type int64From int
 
@@ -184,10 +162,10 @@ func UpdateClassification(id int64, platform, tag string) error {
 		return fmt.Errorf("%s: %w", platform, ErrPlatform)
 	}
 	if t == -1 {
-		return fmt.Errorf("%s: %w", tag, ErrTag)
+		return fmt.Errorf("%s: %w", tag, tags.ErrTag)
 	}
 	if !tags.IsTag(tag) {
-		return fmt.Errorf("%s: %w", tag, ErrTag)
+		return fmt.Errorf("%s: %w", tag, tags.ErrTag)
 	}
 	db, err := postgres.ConnectDB()
 	if err != nil {

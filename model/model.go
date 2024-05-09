@@ -30,7 +30,6 @@ var (
 	ErrRels     = errors.New("too many releasers, only two are allowed")
 	ErrPlatform = errors.New("invalid platform")
 	ErrSha384   = errors.New("sha384 value is invalid")
-	ErrTag      = errors.New("invalid tag")
 	ErrTime     = errors.New("time value is invalid")
 	ErrURI      = errors.New("uri value is invalid")
 	ErrUUID     = errors.New("could not create a new universial unique identifier")

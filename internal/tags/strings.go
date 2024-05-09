@@ -1,8 +1,14 @@
 package tags
 
 import (
+	"errors"
 	"fmt"
 	"strings"
+)
+
+var (
+	ErrPlatform = errors.New("invalid platform")
+	ErrTag      = errors.New("invalid tag")
 )
 
 // URIS is a unique string for the tag.
@@ -235,4 +241,26 @@ func Infos() Info {
 		Video:     "a film, video, or multimedia animation",
 		Windows:   "these programs require the use of Microsoft's Windows operating system, working on Intel-compatible CPUs",
 	}
+}
+
+// Description returns the short description of the tag.
+func Description(tag string) (string, error) {
+	t := TagByURI(tag)
+	if t == -1 {
+		return "", fmt.Errorf("%s: %w", tag, ErrTag)
+	}
+	s := Infos()[t]
+	return s, nil
+}
+
+// Platform returns the human readable platform and tag name.
+func Platform(platform, tag string) (string, error) {
+	p, t := TagByURI(platform), TagByURI(tag)
+	if p == -1 {
+		return "", fmt.Errorf("%s: %w", platform, ErrPlatform)
+	}
+	if t == -1 {
+		return "", fmt.Errorf("%s: %w", tag, ErrTag)
+	}
+	return Humanize(p, t), nil
 }
