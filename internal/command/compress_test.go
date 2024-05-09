@@ -62,7 +62,7 @@ func Test_ExtractOne(t *testing.T) {
 	err = command.ExtractOne(logr(), src, dst, ".zip", "TEST.ASC")
 	require.NoError(t, err)
 
-	ok := helper.IsFile(dst)
+	ok := helper.File(dst)
 	assert.True(t, ok)
 	defer os.Remove(dst)
 
@@ -71,7 +71,7 @@ func Test_ExtractOne(t *testing.T) {
 	err = command.ExtractOne(logr(), src, dst, ".zip", "TEST.ASC")
 	require.NoError(t, err)
 
-	ok = helper.IsFile(dst)
+	ok = helper.File(dst)
 	assert.True(t, ok)
 	defer os.Remove(dst)
 
@@ -80,7 +80,7 @@ func Test_ExtractOne(t *testing.T) {
 	err = command.ExtractOne(logr(), src, dst, ".arc", "TEST.JPG")
 	require.NoError(t, err)
 
-	ok = helper.IsFile(dst)
+	ok = helper.File(dst)
 	assert.True(t, ok)
 	defer os.Remove(dst)
 
@@ -89,7 +89,7 @@ func Test_ExtractOne(t *testing.T) {
 	err = command.ExtractOne(logr(), src, dst, ".arj", "TEST.JPEG")
 	require.NoError(t, err)
 
-	ok = helper.IsFile(dst)
+	ok = helper.File(dst)
 	assert.True(t, ok)
 	defer os.Remove(dst)
 
@@ -98,7 +98,7 @@ func Test_ExtractOne(t *testing.T) {
 	err = command.ExtractOne(logr(), src, dst, ".rar", "TEST.JPG")
 	require.NoError(t, err)
 
-	ok = helper.IsFile(dst)
+	ok = helper.File(dst)
 	assert.True(t, ok)
 	defer os.Remove(dst)
 
@@ -107,7 +107,7 @@ func Test_ExtractOne(t *testing.T) {
 	err = command.ExtractOne(logr(), src, dst, ".tar", "TEST.JPG")
 	require.NoError(t, err)
 
-	ok = helper.IsFile(dst)
+	ok = helper.File(dst)
 	assert.True(t, ok)
 	defer os.Remove(dst)
 
@@ -116,7 +116,7 @@ func Test_ExtractOne(t *testing.T) {
 	err = command.ExtractOne(logr(), src, dst, ".gz", "TEST.JPG")
 	require.NoError(t, err)
 
-	ok = helper.IsFile(dst)
+	ok = helper.File(dst)
 	assert.True(t, ok)
 	defer os.Remove(dst)
 }
@@ -157,7 +157,7 @@ func Test_ExtractAnsiLove(t *testing.T) {
 	err = dir.ExtractAnsiLove(logr(),
 		src, ".zip", "000000ABCDE", "TEST.ANS")
 	require.NoError(t, err)
-	ok := helper.IsFile("000000ABCDE.webp")
+	ok := helper.File("000000ABCDE.webp")
 	assert.True(t, ok)
 	err = os.Remove("000000ABCDE.webp")
 	require.NoError(t, err)
@@ -201,9 +201,9 @@ func Test_ExtractImage(t *testing.T) {
 		err = dir.ExtractImage(logr(), src, ".zip", "000000ABCDE", name)
 		require.NoError(t, err)
 
-		ok := helper.IsFile(op)
+		ok := helper.File(op)
 		assert.True(t, ok)
-		ok = helper.IsFile(ot)
+		ok = helper.File(ot)
 		assert.True(t, ok)
 		err = os.Remove(op)
 		require.NoError(t, err)
@@ -218,9 +218,9 @@ func Test_ExtractImage(t *testing.T) {
 		src := td("PKZ204EX.ZIP")
 		err = dir.ExtractImage(logr(), src, ".zip", "000000ABCDE", name)
 		require.NoError(t, err)
-		ok := helper.IsFile(op)
+		ok := helper.File(op)
 		assert.True(t, ok)
-		ok = helper.IsFile(ot)
+		ok = helper.File(ot)
 		assert.True(t, ok)
 		err = os.Remove(op)
 		require.NoError(t, err)

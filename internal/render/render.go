@@ -45,7 +45,7 @@ func Encoder(art *models.File, r io.Reader) encoding.Encoding {
 			return charmap.ISO8859_1
 		}
 	}
-	return helper.DetermineEncoding(r)
+	return helper.Determine(r)
 }
 
 // Read returns the content of either the file download or an extracted text file.
@@ -73,9 +73,9 @@ func Read(art *models.File, path string) ([]byte, error) {
 		txt     bool
 	}
 	files.uuidTxt = filepath.Join(path, uuid+".txt")
-	files.uutxtOk = helper.IsStat(files.uuidTxt)
+	files.uutxtOk = helper.Stat(files.uuidTxt)
 	files.filepth = filepath.Join(path, uuid)
-	files.filepOk = helper.IsStat(files.filepth)
+	files.filepOk = helper.Stat(files.filepth)
 	files.txt = !exts.IsArchive(fname)
 
 	if !files.uutxtOk && !files.filepOk {
@@ -151,7 +151,7 @@ func NoScreenshot(art *models.File, path string) bool {
 	uuid := art.UUID.String
 	webp := strings.Join([]string{path, uuid + ".webp"}, "/")
 	png := strings.Join([]string{path, uuid + ".png"}, "/")
-	if helper.IsStat(webp) || helper.IsStat(png) {
+	if helper.Stat(webp) || helper.Stat(png) {
 		return false
 	}
 	return true

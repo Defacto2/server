@@ -106,7 +106,7 @@ func (c Config) addresses(b *strings.Builder, intro bool) error {
 	pad := strings.Repeat(string(padchar), padding)
 	values := reflect.ValueOf(c)
 	addrIntro(b, intro)
-	hosts, err := helper.GetLocalHosts()
+	hosts, err := helper.LocalHosts()
 	if err != nil {
 		return fmt.Errorf("the server cannot get the local host names: %w", err)
 	}
@@ -159,7 +159,7 @@ func addrIntro(b *strings.Builder, intro bool) {
 }
 
 func localIPs(b *strings.Builder, port uint64, pad string) error {
-	ips, err := helper.GetLocalIPs()
+	ips, err := helper.LocalIPs()
 	if err != nil {
 		return fmt.Errorf("the server cannot get the local IP addresses: %w", err)
 	}

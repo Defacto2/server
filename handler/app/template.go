@@ -177,7 +177,7 @@ func (web Templ) ImageSample(uuid string) template.HTML {
 	for _, ext = range []string{webp, png} {
 		name = filepath.Join(web.Environment.PreviewDir, uuid+ext)
 		src = strings.Join([]string{config.StaticOriginal(), uuid + ext}, "/")
-		if helper.IsStat(name) {
+		if helper.Stat(name) {
 			break
 		}
 	}
@@ -541,10 +541,10 @@ func (web Templ) Thumb(uuid, desc string, bottom bool) template.HTML {
 	png := strings.Join([]string{config.StaticThumb(), uuid + png}, "/")
 	alt := strings.ToLower(desc) + " thumbnail"
 	w, p := false, false
-	if helper.IsStat(fw) {
+	if helper.Stat(fw) {
 		w = true
 	}
-	if helper.IsStat(fp) {
+	if helper.Stat(fp) {
 		p = true
 	}
 	const style = "min-height:5em;max-height:20em;"
@@ -583,7 +583,7 @@ func (web Templ) ThumbSample(uuid string) template.HTML {
 	for _, ext = range []string{webp, png} {
 		name = filepath.Join(web.Environment.ThumbnailDir, uuid+ext)
 		src = strings.Join([]string{config.StaticThumb(), uuid + ext}, "/")
-		if helper.IsStat(name) {
+		if helper.Stat(name) {
 			break
 		}
 	}

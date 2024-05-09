@@ -435,13 +435,13 @@ func UpdateVirusTotal(id int64, val string) error {
 }
 
 func UpdateYMD(id int64, y, m, d null.Int16) error {
-	if !y.IsZero() && !helper.IsYear(int(y.Int16)) {
+	if !y.IsZero() && !helper.Year(int(y.Int16)) {
 		return fmt.Errorf("%d: %w", y.Int16, ErrYear)
 	}
 	if !m.IsZero() && helper.ShortMonth(int(m.Int16)) == "" {
 		return fmt.Errorf("%d: %w", m.Int16, ErrMonth)
 	}
-	if !d.IsZero() && !helper.IsDay(int(d.Int16)) {
+	if !d.IsZero() && !helper.Day(int(d.Int16)) {
 		return fmt.Errorf("%d: %w", d.Int16, ErrDay)
 	}
 

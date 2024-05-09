@@ -157,7 +157,7 @@ func (c *Config) LogStore() error {
 		}
 		logs = filepath.Join(dir, ConfigDir)
 	}
-	if ok := helper.IsStat(logs); !ok {
+	if ok := helper.Stat(logs); !ok {
 		if err := os.MkdirAll(logs, ownerGroupAll); err != nil {
 			return fmt.Errorf("%w: %s", err, logs)
 		}

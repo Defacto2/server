@@ -86,7 +86,7 @@ func PublishedFmt(f *models.File) template.HTML {
 	}
 	ys, ms, ds := "", "", ""
 	if f.DateIssuedYear.Valid {
-		if i := int(f.DateIssuedYear.Int16); helper.IsYear(i) {
+		if i := int(f.DateIssuedYear.Int16); helper.Year(i) {
 			ys = strconv.Itoa(i)
 		}
 	}
@@ -96,7 +96,7 @@ func PublishedFmt(f *models.File) template.HTML {
 		}
 	}
 	if f.DateIssuedDay.Valid {
-		if i := int(f.DateIssuedDay.Int16); helper.IsDay(i) {
+		if i := int(f.DateIssuedDay.Int16); helper.Day(i) {
 			ds = strconv.Itoa(i)
 		}
 	}

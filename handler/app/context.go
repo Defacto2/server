@@ -340,7 +340,7 @@ func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 		if link.URL == "" {
 			continue
 		}
-		df, err := helper.DownloadFile(link.URL)
+		df, err := helper.GetFile(link.URL)
 		tryNextLink := err != nil || df.Path == ""
 		if tryNextLink {
 			continue

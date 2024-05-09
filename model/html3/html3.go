@@ -49,7 +49,7 @@ func Created(f *models.File) string {
 	d := f.Createdat.Time.Day()
 	m := helper.ShortMonth(int(f.Createdat.Time.Month()))
 	y := f.Createdat.Time.Year()
-	if !helper.IsYear(y) {
+	if !helper.Year(y) {
 		return "-- --- ----"
 	}
 	return fmt.Sprintf("%02d-%s-%d", d, m, y)
@@ -107,7 +107,7 @@ func Published(f *models.File) string {
 	)
 	ys, ms, ds := yx, mx, dx
 	if f.DateIssuedYear.Valid {
-		if i := int(f.DateIssuedYear.Int16); helper.IsYear(i) {
+		if i := int(f.DateIssuedYear.Int16); helper.Year(i) {
 			ys = strconv.Itoa(i)
 		}
 	}
@@ -117,7 +117,7 @@ func Published(f *models.File) string {
 		}
 	}
 	if f.DateIssuedDay.Valid {
-		if i := int(f.DateIssuedDay.Int16); helper.IsDay(i) {
+		if i := int(f.DateIssuedDay.Int16); helper.Day(i) {
 			ds = fmt.Sprintf("%02d", i)
 		}
 	}
