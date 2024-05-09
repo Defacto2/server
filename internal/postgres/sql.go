@@ -124,7 +124,7 @@ const (
 	// filter the results by the file count and the oldest year,
 	// this is to exclude releasers with less than 1 file or an unknown release year.
 	filterCountAndYear SQL = "HAVING (COUNT(files.filename) > 0) AND (MIN(files.date_issued_year) > 1970) "
-	// // order the list by the oldest year and the releaser name
+	// order the list by the oldest year and the releaser name.
 	orderSumDesc SQL = "ORDER BY count_sum DESC, releaser ASC "
 	// order the list by the oldest year and the releaser name.
 	orderMinYearRel SQL = "ORDER BY min_year ASC, releaser ASC "

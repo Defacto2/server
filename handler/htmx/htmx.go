@@ -20,6 +20,8 @@ import (
 )
 
 var (
+	ErrCreators = errors.New("invalid reset creators format")
+	ErrDate     = errors.New("invalid reset date format")
 	ErrDB       = errors.New("database connection is nil")
 	ErrExist    = errors.New("file already exists")
 	ErrFileHead = errors.New("file header is nil")

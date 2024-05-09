@@ -14,6 +14,7 @@ import (
 )
 
 var (
+	ErrColumn   = errors.New("column not implemented")
 	ErrDay      = errors.New("invalid day")
 	ErrDB       = errors.New("database value is nil")
 	ErrID       = errors.New("file download database id cannot be found")

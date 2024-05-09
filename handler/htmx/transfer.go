@@ -29,15 +29,16 @@ import (
 )
 
 const (
-	dz = "demozoo"
-	pt = "pouet"
+	dz       = "demozoo"
+	pt       = "pouet"
+	category = "-category"
 )
 
 // HumanizeAndCount handles the post submission for the Uploader classification,
 // such as the platform, operating system, section or category tags.
 // The return value is either the humanized and counted classification or an error.
 func HumanizeAndCount(c echo.Context, logger *zap.SugaredLogger, name string) error {
-	section := c.FormValue(name + "-category")
+	section := c.FormValue(name + category)
 	platform := c.FormValue(name + "-operatingsystem")
 	html, err := form.HumanizeAndCount(section, platform)
 	if err != nil {

@@ -24,6 +24,8 @@ import (
 	"github.com/volatiletech/null/v8"
 )
 
+const closeAnchor = "</a>"
+
 // Templ is the configuration and status of the web application templates.
 type Templ struct {
 	Brand       *[]byte        // Brand contains to the Defacto2 ASCII logo.
@@ -95,7 +97,7 @@ func LinkSamples(youtube, demozoo, pouet, colors16, github, rels, sites string) 
 // LinkPreviews returns a slice of HTML formatted links for the artifact editor.
 func LinkPreviews(youtube, demozoo, pouet, colors16, github, rels, sites string) []string {
 	rel := func(url string) string {
-		return `<a href="https://` + url + `">` + url + `</a>`
+		return `<a href="https://` + url + `">` + url + closeAnchor
 	}
 
 	links := []string{}
@@ -128,17 +130,18 @@ func LinkPreviews(youtube, demozoo, pouet, colors16, github, rels, sites string)
 // The val string is a list of website descriptions and their URL ID separated by a semicolon ";".
 // Multiple website entries are separated by a pipe "|".
 //
-// For example, "Site;example.com|Documentation;example.com/doc"
+// For example, "Site;example.com|Documentation;example.com/doc".
 func LinkSites(val string) template.HTML {
 	links := strings.Split(val, "|")
 	hrefs := []string{}
+	const expected = 2
 	for _, link := range links {
 		s := strings.Split(link, ";")
-		if len(s) != 2 {
+		if len(s) != expected {
 			continue
 		}
 		name, id := s[0], s[1]
-		ref := `<a href="https://` + id + `">` + name + `</a>`
+		ref := `<a href="https://` + id + `">` + name + closeAnchor
 		hrefs = append(hrefs, ref)
 	}
 	html := strings.Join(hrefs, " + ")
@@ -150,18 +153,19 @@ func LinkSites(val string) template.HTML {
 // The val string is a list of artifact descriptions and their URL ID separated by a semicolon ";".
 // Multiple artifact entries are separated by a pipe "|".
 //
-// For example, "NFO;9f1c2|Intro;a92116e"
+// For example, "NFO;9f1c2|Intro;a92116e".
 func LinkRelations(val string) template.HTML {
 	links := strings.Split(val, "|")
 	hrefs := []string{}
+	const expected = 2
 	for _, link := range links {
 		s := strings.Split(link, ";")
-		if len(s) != 2 {
+		if len(s) != expected {
 			continue
 		}
 		name := s[0]
 		id := s[1]
-		ref := `<a href="/f/` + id + `">` + name + `</a>`
+		ref := `<a href="/f/` + id + `">` + name + closeAnchor
 		if key := helper.DeObfuscate(id); key == "" || key == id {
 			ref = fmt.Sprintf("%s ❌ link /f/%s is an invalid download path.", ref, id)
 		}

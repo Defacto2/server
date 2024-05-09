@@ -2,7 +2,6 @@ package model
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -132,7 +131,7 @@ func UpdateInt64From(column int64From, id int64, val string) error {
 		return fmt.Errorf("%s: %w", val, err)
 	}
 
-	invalid := false
+	var invalid bool
 	switch column {
 	case demozooProd:
 		invalid = i64 < 0 || i64 > demozoo.Sanity
@@ -141,8 +140,7 @@ func UpdateInt64From(column int64From, id int64, val string) error {
 		invalid = i64 < 0 || i64 > pouet.Sanity
 		f.WebIDPouet = null.Int64From(i64)
 	default:
-		var err = errors.New("updateint64from column not implemented")
-		return err
+		return fmt.Errorf("updateint64from: %w", ErrColumn)
 	}
 	if invalid {
 		return fmt.Errorf("%d: %w", i64, ErrID)
@@ -183,7 +181,6 @@ func UpdateStringFrom(column stringFrom, id int64, val string) error {
 	}
 	defer db.Close()
 	ctx := context.Background()
-
 	f, err := OneFile(ctx, db, id)
 	if err != nil {
 		return fmt.Errorf("find file for %q: %w", column, err)
@@ -221,8 +218,7 @@ func UpdateStringFrom(column stringFrom, id int64, val string) error {
 	case youtube:
 		f.WebIDYoutube = null.StringFrom(val)
 	default:
-		var err = errors.New("updatestringfrom column not implemented")
-		return err
+		return fmt.Errorf("updatestringfrom: %w", ErrColumn)
 	}
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
 		return fmt.Errorf("%q %s: %w", column, val, err)

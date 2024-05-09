@@ -976,28 +976,28 @@ func recordsZ(ctx context.Context, db *sql.DB, uri string, page, limit int) (mod
 		return r.List(ctx, db, page, limit)
 	case ansiBBS:
 		r := model.AnsiBBS{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case ansiFTP:
 		r := model.AnsiFTP{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case ansiNfo:
 		r := model.AnsiNfo{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case ansiPack:
 		r := model.AnsiPack{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case bbs:
 		r := model.BBS{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case bbsImage:
 		r := model.BBSImage{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case bbstro:
 		r := model.BBStro{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case bbsText:
 		r := model.BBSText{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	}
 	return records0(ctx, db, uri, page, limit)
 }
@@ -1006,22 +1006,22 @@ func records0(ctx context.Context, db *sql.DB, uri string, page, limit int) (mod
 	switch Match(uri) {
 	case database:
 		r := model.Database{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case demoscene:
 		r := model.Demoscene{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case drama:
 		r := model.Drama{}
 		return r.List(ctx, db, page, limit)
 	case ftp:
 		r := model.FTP{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case hack:
 		r := model.Hack{}
 		return r.List(ctx, db, page, limit)
 	case htm:
 		r := model.HTML{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case howTo:
 		r := model.HowTo{}
 		return r.List(ctx, db, page, limit)
@@ -1030,19 +1030,19 @@ func records0(ctx context.Context, db *sql.DB, uri string, page, limit int) (mod
 		return r.List(ctx, db, page, limit)
 	case imagePack:
 		r := model.ImagePack{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case installer:
 		r := model.Installer{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case intro:
 		r := model.Intro{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case linux:
 		r := model.Linux{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case java:
 		r := model.Java{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case jobAdvert:
 		r := model.JobAdvert{}
 		return r.List(ctx, db, page, limit)
@@ -1054,10 +1054,10 @@ func records1(ctx context.Context, db *sql.DB, uri string, page, limit int) (mod
 	switch Match(uri) {
 	case macos:
 		r := model.Macos{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case msdosPack:
 		r := model.MsDosPack{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case music:
 		r := model.Music{}
 		return r.List(ctx, db, page, limit)
@@ -1066,34 +1066,34 @@ func records1(ctx context.Context, db *sql.DB, uri string, page, limit int) (mod
 		return r.List(ctx, db, page, limit)
 	case nfo:
 		r := model.Nfo{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case nfoTool:
 		r := model.NfoTool{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case standards:
 		r := model.Standard{}
 		return r.List(ctx, db, page, limit)
 	case script:
 		r := model.Script{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case introMsdos:
 		r := model.IntroMsDos{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case introWindows:
 		r := model.IntroWindows{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case magazine:
 		r := model.Magazine{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case msdos:
 		r := model.MsDos{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case pdf:
 		r := model.PDF{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case proof:
 		r := model.Proof{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	}
 	return records2(ctx, db, uri, page, limit)
 }
@@ -1108,19 +1108,19 @@ func records2(ctx context.Context, db *sql.DB, uri string, page, limit int) (mod
 		return r.List(ctx, db, page, limit)
 	case text:
 		r := model.Text{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case textAmiga:
 		r := model.TextAmiga{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case textApple2:
 		r := model.TextApple2{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case textAtariST:
 		r := model.TextAtariST{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case textPack:
 		r := model.TextPack{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case tool:
 		r := model.Tool{}
 		return r.List(ctx, db, page, limit)
@@ -1132,10 +1132,10 @@ func records2(ctx context.Context, db *sql.DB, uri string, page, limit int) (mod
 		return r.List(ctx, db, page, limit)
 	case windows:
 		r := model.Windows{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	case windowsPack:
 		r := model.WindowsPack{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, db)
 	default:
 		return nil, fmt.Errorf("%w: %s", ErrCategory, uri)
 	}

@@ -200,12 +200,11 @@ func RecordReleasersReset(c echo.Context) error {
 	if err != nil {
 		return badRequest(c, err)
 	}
-	html := ""
 	s := strings.Split(val, "+")
 	for i, x := range s {
 		s[i] = "<q>" + x + "</q>"
 	}
-	html = strings.Join(s, " + ")
+	html := strings.Join(s, " + ")
 	return c.HTML(http.StatusOK, html)
 }
 
@@ -259,18 +258,19 @@ func RecordDateIssuedReset(c echo.Context, elmId string) error {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	vals := strings.Split(reset, "-")
-	if len(vals) != 3 {
-		return badRequest(c, fmt.Errorf("invalid reset date format, requires YYYY-MM-DD"))
+	const expected = 3
+	if len(vals) != expected {
+		return badRequest(c, fmt.Errorf("%w, requires YYYY-MM-DD", ErrDate))
 	}
 	year, month, day := vals[0], vals[1], vals[2]
 	y, m, d := form.ValidDate(year, month, day)
 	if !y || !m || !d {
-		return badRequest(c, fmt.Errorf("invalid reset date format, requires YYYY-MM-DD"))
+		return badRequest(c, fmt.Errorf("%w, requires YYYY-MM-DD", ErrDate))
 	}
 	if err := model.UpdateDateIssued(int64(id), year, month, day); err != nil {
 		return badRequest(c, err)
 	}
-	s := string(year)
+	s := year
 	if month != "0" {
 		s += "-" + month
 	}
@@ -361,8 +361,9 @@ func RecordCreatorReset(c echo.Context) error {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	vals := strings.Split(reset, ";")
-	if len(vals) != 4 {
-		return badRequest(c, fmt.Errorf("invalid reset creators format, requires string;string;string;string"))
+	const expected = 4
+	if len(vals) != expected {
+		return badRequest(c, fmt.Errorf("%w, requires string;string;string;string", ErrCreators))
 	}
 	text := vals[0]
 	ill := vals[1]

@@ -41,7 +41,7 @@ func HumanizeAndCount(section, platform string) (template.HTML, error) {
 		return "cannot count the classification",
 			fmt.Errorf("model.ClassificationCount: %w", err)
 	}
-	html := ""
+	var html string
 	switch count {
 	case 0:
 		html = fmt.Sprintf("%s, %d existing artifacts", tag, count)
