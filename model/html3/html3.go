@@ -20,7 +20,12 @@ import (
 )
 
 const (
-	From = "files" // the name of the table containing records of files
+	// From is the name of the table containing records of files.
+	From = "files"
+	// ClauseNoSoftDel is the clause to exclude soft deleted records.
+	ClauseNoSoftDel = "deletedat IS NULL"
+
+	padding = " "
 )
 
 var (
@@ -28,11 +33,10 @@ var (
 	ErrModel = errors.New("error, no file model")
 )
 
-const padding = " "
-
 // ArtExpr returns a query modifier for the digital or pixel art category.
 func ArtExpr() qm.QueryMod {
 	return qm.Expr(
+		qm.Where(ClauseNoSoftDel),
 		models.FileWhere.Section.NEQ(expr.SBbs()),
 		models.FileWhere.Platform.EQ(expr.PImage()),
 	)
@@ -58,6 +62,7 @@ func Created(f *models.File) string {
 // DocumentExpr returns a query modifier for the document category.
 func DocumentExpr() qm.QueryMod {
 	return qm.Expr(
+		qm.Where(ClauseNoSoftDel),
 		models.FileWhere.Platform.EQ(expr.PAnsi()),
 		qm.Or2(models.FileWhere.Platform.EQ(expr.PText())),
 		qm.Or2(models.FileWhere.Platform.EQ(expr.PTextAmiga())),
@@ -162,6 +167,7 @@ func SelectHTML3() qm.QueryMod {
 // SoftwareExpr returns a query modifier for the software category.
 func SoftwareExpr() qm.QueryMod {
 	return qm.Expr(
+		qm.Where(ClauseNoSoftDel),
 		models.FileWhere.Platform.EQ(expr.PJava()),
 		qm.Or2(models.FileWhere.Platform.EQ(expr.PLinux())),
 		qm.Or2(models.FileWhere.Platform.EQ(expr.PDos())),
@@ -186,6 +192,7 @@ func (a *Arts) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Stat()...),
+		qm.Where(ClauseNoSoftDel),
 		ArtExpr(),
 		qm.From(From)).Bind(ctx, db, a)
 }
@@ -206,6 +213,7 @@ func (d *Documents) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Stat()...),
+		qm.Where(ClauseNoSoftDel),
 		DocumentExpr(),
 		qm.From(From)).Bind(ctx, db, d)
 }
@@ -226,6 +234,7 @@ func (s *Softwares) Stat(ctx context.Context, db *sql.DB) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Stat()...),
+		qm.Where(ClauseNoSoftDel),
 		SoftwareExpr(),
 		qm.From(From)).Bind(ctx, db, s)
 }

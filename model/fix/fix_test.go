@@ -1,25 +1,16 @@
 package fix_test
 
 import (
-	"context"
 	"testing"
 
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model/fix"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestRepair(t *testing.T) {
-	t.Parallel()
-	var r fix.Repair
-
-	ctx := context.TODO()
-	err := r.Run(ctx, nil, nil)
-	require.ErrorIs(t, err, fix.ErrDB)
-
-	db, err := postgres.ConnectDB()
-	require.NoError(t, err)
-
-	err = r.Run(ctx, nil, db)
-	require.Error(t, err)
+func TestCFToUUIDv1(t *testing.T) {
+	cfid := "00000000-0000-0000-0000000000000000"
+	expected := "00000000-0000-0000-0000-000000000000"
+	result, err := fix.CFToUUIDv1(cfid)
+	assert.NoError(t, err)
+	assert.Equal(t, expected, result)
 }

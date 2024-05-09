@@ -41,11 +41,13 @@ func (o Order) Art(ctx context.Context, db *sql.DB, offset, limit int) (models.F
 		return models.Files(
 			SelectHTML3(),
 			ArtExpr(),
+			qm.Where(ClauseNoSoftDel),
 			qm.OrderBy(o.String())).All(ctx, db)
 	}
 	return models.Files(
 		SelectHTML3(),
 		ArtExpr(),
+		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit)).All(ctx, db)
@@ -62,9 +64,11 @@ func (o Order) ByCategory(
 	mods := models.FileWhere.Section.EQ(null.StringFrom(name))
 	if limit == all {
 		return models.Files(mods,
+			qm.Where(ClauseNoSoftDel),
 			qm.OrderBy(o.String())).All(ctx, db)
 	}
 	return models.Files(mods,
+		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit)).All(ctx, db)
@@ -82,6 +86,7 @@ func (o Order) ByGroup(ctx context.Context, db *sql.DB, name string) (models.Fil
 	n := strings.ToUpper(s)
 	mods := models.FileWhere.GroupBrandFor.EQ(null.StringFrom(n))
 	return models.Files(mods,
+		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(o.String())).All(ctx, db)
 }
 
@@ -96,9 +101,11 @@ func (o Order) ByPlatform(
 	mods := models.FileWhere.Platform.EQ(null.StringFrom(name))
 	if limit == all {
 		return models.Files(mods,
+			qm.Where(ClauseNoSoftDel),
 			qm.OrderBy(o.String())).All(ctx, db)
 	}
 	return models.Files(mods,
+		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit)).All(ctx, db)
@@ -112,10 +119,12 @@ func (o Order) Document(ctx context.Context, db *sql.DB, offset, limit int) (mod
 	if limit == all {
 		return models.Files(
 			DocumentExpr(),
+			qm.Where(ClauseNoSoftDel),
 			qm.OrderBy(o.String())).All(ctx, db)
 	}
 	return models.Files(
 		DocumentExpr(),
+		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit)).All(ctx, db)
@@ -127,6 +136,7 @@ func (o Order) Everything(ctx context.Context, db *sql.DB, offset, limit int) (m
 		return nil, ErrDB
 	}
 	return models.Files(
+		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit)).All(ctx, db)
@@ -140,10 +150,12 @@ func (o Order) Software(ctx context.Context, db *sql.DB, offset, limit int) (mod
 	if limit == all {
 		return models.Files(
 			SoftwareExpr(),
+			qm.Where(ClauseNoSoftDel),
 			qm.OrderBy(o.String())).All(ctx, db)
 	}
 	return models.Files(
 		SoftwareExpr(),
+		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
 }
