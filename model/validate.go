@@ -16,8 +16,8 @@ import (
 )
 
 const (
-	shortLimit   = 100
-	longFilename = 255
+	ShortLimit   = 100
+	LongFilename = 255
 )
 
 // ValidDateIssue returns a valid year, month and day or a null value.
@@ -139,12 +139,13 @@ func ValidMagic(mediatype string) null.String {
 	if len(mtype) == 0 {
 		return invalid
 	}
-	params := map[string]string{}
-	result := mime.FormatMediaType(mtype, params)
-	if result == "" {
+	r, err := mime.ExtensionsByType(mtype)
+	if err != nil || len(r) == 0 {
 		return invalid
 	}
-	return null.StringFrom(mtype)
+	var param = map[string]string{}
+	result := mime.FormatMediaType(mediatype, param)
+	return null.StringFrom(result)
 }
 
 // ValidPlatform returns a valid platform or a null value.
@@ -246,8 +247,8 @@ func ValidYouTube(s string) (null.String, error) {
 // It will also remove any leading or trailing white space.
 func trimShort(s string) string {
 	x := strings.TrimSpace(s)
-	if len(x) > shortLimit {
-		return x[:shortLimit]
+	if len(x) > ShortLimit {
+		return x[:ShortLimit]
 	}
 	return x
 }
@@ -256,8 +257,8 @@ func trimShort(s string) string {
 // It will also remove any leading or trailing white space.
 func trimName(s string) string {
 	s = strings.TrimSpace(s)
-	if len(s) > longFilename {
-		return s[:longFilename]
+	if len(s) > LongFilename {
+		return s[:LongFilename]
 	}
 	return s
 }
