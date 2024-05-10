@@ -23,15 +23,15 @@ func TestGetExampleCom(t *testing.T) {
 	r, err := helper.GetFile("http://example.com")
 	assert.NotEqual(t, "", r.Path)
 	assert.Equal(t, "text/html; charset=UTF-8", r.ContentType)
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func TestStatExampleCom(t *testing.T) {
 	t.Parallel()
 	r, err := helper.GetStat("http://example.com")
 	const unknown = int64(-1)
-	assert.Equal(t, r, unknown)
-	require.Nil(t, err)
+	assert.Equal(t, unknown, r)
+	require.NoError(t, err)
 }
 
 func TestFixSceneOrg(t *testing.T) {

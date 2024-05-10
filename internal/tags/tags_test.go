@@ -5,6 +5,7 @@ import (
 
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -31,11 +32,11 @@ func TestDescription(t *testing.T) {
 	expected := "public announcements by Scene groups and organizations"
 
 	desc, err := tags.Description(tag)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, expected, desc)
 
 	desc, err = tags.Description(noname)
-	assert.ErrorIs(t, err, tags.ErrTag)
+	require.ErrorIs(t, err, tags.ErrTag)
 	assert.Empty(t, desc)
 }
 
@@ -45,19 +46,19 @@ func TestPlatform(t *testing.T) {
 	expected := "an ansi announcement"
 
 	desc, err := tags.Platform(platform, tag)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, expected, desc)
 
 	desc, err = tags.Platform(platform, noname)
-	assert.ErrorIs(t, err, tags.ErrTag)
+	require.ErrorIs(t, err, tags.ErrTag)
 	assert.Empty(t, desc)
 
 	desc, err = tags.Platform(noname, platform)
-	assert.ErrorIs(t, err, tags.ErrPlatform)
+	require.ErrorIs(t, err, tags.ErrPlatform)
 	assert.Empty(t, desc)
 
 	desc, err = tags.Platform(noname, noname)
-	assert.ErrorIs(t, err, tags.ErrPlatform)
+	require.ErrorIs(t, err, tags.ErrPlatform)
 	assert.Empty(t, desc)
 }
 

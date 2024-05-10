@@ -86,7 +86,7 @@ func (r Repair) Run(ctx context.Context, logger *zap.SugaredLogger, db *sql.DB) 
 }
 
 // coldfusionIDs will fix the invalid [ColdFusion language syntax] UUIDs in the database
-// and rename the file assets using the new UUIDs.
+// and rename the file assets using the newid UUIDs.
 // ColdFusion uses an invalid 35 character UUID, which is a 32 character UUID with 3 hyphens,
 // while the standard UUID is 36 characters with 4 hyphens.
 //
@@ -116,9 +116,9 @@ func coldfusionIDs(ctx context.Context, db *sql.DB) error {
 		}
 		// 35 character UUIDs in a 36 character fixed length string will have a tailing space.
 		old := strings.TrimSpace(f.UUID.String)
-		new, err := helper.CFToUUID(old)
+		newid, err := helper.CFToUUID(old)
 		if err != nil {
-			logger.Warnln("%d. %q is invalid, %s\n", i, new, err)
+			logger.Warnln("%d. %q is invalid, %s\n", i, newid, err)
 			continue
 		}
 		file, err := models.Files(qm.Where("uuid = ?", old)).One(ctx, db)
@@ -126,7 +126,7 @@ func coldfusionIDs(ctx context.Context, db *sql.DB) error {
 			logger.Warnln("%d. %q failed to find, %s\n", i, old, err)
 			continue
 		}
-		file.UUID = null.StringFrom(new)
+		file.UUID = null.StringFrom(newid)
 		_, err = file.Update(ctx, db, boil.Infer())
 		if err != nil {
 			logger.Warnln("%d. %q failed to update, %s\n", i, old, err)

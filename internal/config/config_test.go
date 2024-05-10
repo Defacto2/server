@@ -35,15 +35,16 @@ func TestDownloadFS(t *testing.T) {
 		".chiptune",
 		".zip",
 		".tiff",
-		".svg"}
+		".svg",
+	}
 	const invalid = "invalid-base-name"
 	for _, ext := range exts {
 		name := filepath.Join(dir, unid.String()+ext)
-		helper.Touch(name)
+		_ = helper.Touch(name)
 		badName := filepath.Join(dir, invalid+ext)
-		helper.Touch(badName)
+		_ = helper.Touch(badName)
 		cfName := filepath.Join(dir, cfid+ext)
-		helper.Touch(cfName)
+		_ = helper.Touch(cfName)
 	}
 
 	const expectedCount = 21
@@ -71,7 +72,7 @@ func TestDownloadFS(t *testing.T) {
 		require.NoError(t, err)
 		return nil
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	i, err = helper.Count(dir)
 	require.NoError(t, err)
@@ -95,15 +96,16 @@ func TestRemoveDownload(t *testing.T) {
 		".chiptune",
 		".zip",
 		".tiff",
-		".svg"}
+		".svg",
+	}
 	const invalid = "invalid-base-name"
 	for _, ext := range exts {
 		name := filepath.Join(dir, unid.String()+ext)
-		helper.Touch(name)
+		_ = helper.Touch(name)
 		badName := filepath.Join(dir, invalid+ext)
-		helper.Touch(badName)
+		_ = helper.Touch(badName)
 		cfName := filepath.Join(dir, cfid+ext)
-		helper.Touch(cfName)
+		_ = helper.Touch(cfName)
 	}
 
 	const expectedCount = 21
@@ -132,7 +134,7 @@ func TestRemoveDownload(t *testing.T) {
 		require.NoError(t, err)
 		return nil
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	i, err = helper.Count(dir)
 	require.NoError(t, err)
@@ -156,15 +158,16 @@ func TestRemoveImage(t *testing.T) {
 		".gif",
 		".bmp",
 		".tiff",
-		".svg"}
+		".svg",
+	}
 	const invalid = "invalid-base-name"
 	for _, ext := range exts {
 		name := filepath.Join(dir, unid.String()+ext)
-		helper.Touch(name)
+		_ = helper.Touch(name)
 		badName := filepath.Join(dir, invalid+ext)
-		helper.Touch(badName)
+		_ = helper.Touch(badName)
 		cfName := filepath.Join(dir, cfid+ext)
-		helper.Touch(cfName)
+		_ = helper.Touch(cfName)
 	}
 
 	const expectedCount = 21
@@ -193,7 +196,7 @@ func TestRemoveImage(t *testing.T) {
 		require.NoError(t, err)
 		return nil
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	i, err = helper.Count(dir)
 	require.NoError(t, err)

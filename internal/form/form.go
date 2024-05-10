@@ -168,7 +168,6 @@ func ValidVT(link string) bool {
 		return false
 	}
 	const hash = 64
-	fmt.Println(len(link), len(expect), hash)
 	if len(link) > (len(expect) + hash) {
 		return true
 	}

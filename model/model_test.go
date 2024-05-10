@@ -10,6 +10,7 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestValidDateIssue(t *testing.T) {
@@ -55,15 +56,15 @@ func TestValidFilesize(t *testing.T) {
 	t.Parallel()
 	size := ""
 	i, err := model.ValidFilesize(size)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, int64(0), i)
 	size = "100"
 	i, err = model.ValidFilesize(size)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, int64(100), i)
 	size = "-100"
 	i, err = model.ValidFilesize(size)
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Equal(t, int64(0), i)
 }
 
@@ -258,29 +259,29 @@ func TestValidYouTube(t *testing.T) {
 	t.Parallel()
 	yt := ""
 	r, err := model.ValidYouTube(yt)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, r.Valid)
 
 	yt = strings.Repeat("x", model.ShortLimit+10)
 	r, err = model.ValidYouTube(yt)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, r.Valid)
 
 	const invalid = "$6BuDfBIcM!"
 	r, err = model.ValidYouTube(invalid)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, r.Valid)
 
 	const valid = "62BuDfBIcMo"
 	r, err = model.ValidYouTube(valid)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, r.Valid)
 }
 
 func TestValidNewV7(t *testing.T) {
 	t.Parallel()
 	now1, unid, err := model.NewV7()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	now2 := time.Now()
 	diff := now2.Sub(now1).Minutes()
@@ -288,5 +289,5 @@ func TestValidNewV7(t *testing.T) {
 	assert.LessOrEqual(t, diff, oneMinute)
 
 	err = uuid.Validate(unid.String())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }

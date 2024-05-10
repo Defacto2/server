@@ -1,7 +1,7 @@
 package form_test
 
 import (
-	"fmt"
+	"strconv"
 	"testing"
 	"time"
 
@@ -47,8 +47,8 @@ func TestSanitizeURLPath(t *testing.T) {
 func TestValidDate(t *testing.T) {
 	t.Parallel()
 	x := time.Now().Year()
-	year := fmt.Sprint(x)
-	next := fmt.Sprint(x + 1)
+	year := strconv.Itoa(x)
+	next := strconv.Itoa(x + 1)
 	y, m, d := form.ValidDate("", "", "")
 	assert.False(t, y)
 	assert.False(t, m)
@@ -95,5 +95,6 @@ func TestValidVT(t *testing.T) {
 	t.Parallel()
 	assert.False(t, form.ValidVT("https://example.com"))
 	assert.False(t, form.ValidVT("https://virustotal.com"))
-	assert.True(t, form.ValidVT("https://www.virustotal.com/gui/file/50c69b4e65380a0ada587656225ef260ffb9f352e1c1adb3f2222588eadf836d"))
+	assert.True(t, form.ValidVT("https://www.virustotal.com/gui/file/"+
+		"50c69b4e65380a0ada587656225ef260ffb9f352e1c1adb3f2222588eadf836d"))
 }

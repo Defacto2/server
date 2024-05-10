@@ -137,9 +137,9 @@ func RemoveDownload(basename, path string) error {
 		if len(filename) == cflen {
 			filename, _ = helper.CFToUUID(filename)
 		}
-		if err := uuid.Validate(filename); err != nil {
+		if err1 := uuid.Validate(filename); err1 != nil {
 			remove(basename, "remove invalid uuid", path)
-			return nil
+			return nil //nolint:nilerr
 		}
 	}
 	switch ext {
@@ -179,7 +179,7 @@ func RemoveImage(basename, path string) error {
 		}
 		if err := uuid.Validate(filename); err != nil {
 			remove(basename, "remove invalid uuid", path)
-			return nil
+			return nil //nolint:nilerr
 		}
 	}
 	switch ext {

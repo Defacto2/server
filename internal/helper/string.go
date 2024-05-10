@@ -91,12 +91,12 @@ func CFToUUID(cfid string) (string, error) {
 	old := strings.TrimSpace(cfid)
 	r := []rune(old)
 	r = append(r[:pos], append([]rune{hyphen}, r[pos:]...)...)
-	new := string(r)
-	err := uuid.Validate(new)
+	newid := string(r)
+	err := uuid.Validate(newid)
 	if err != nil {
 		return "", fmt.Errorf("uuid.Validate: %w", err)
 	}
-	return new, nil
+	return newid, nil
 }
 
 // CFToUUID formats a 31 character, Coldfusion Universally Unique Identifier

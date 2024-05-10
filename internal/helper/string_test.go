@@ -20,14 +20,14 @@ func TestCFToUUID(t *testing.T) {
 	err := uuid.Validate(unid)
 	require.NoError(t, err)
 
-	new, err := helper.CFToUUID(unid)
+	newid, err := helper.CFToUUID(unid)
 	require.NoError(t, err)
-	err = uuid.Validate(new)
+	err = uuid.Validate(newid)
 	require.NoError(t, err)
 
-	new, err = helper.CFToUUID(cfid)
+	newid, err = helper.CFToUUID(cfid)
 	require.NoError(t, err)
-	err = uuid.Validate(new)
+	err = uuid.Validate(newid)
 	require.NoError(t, err)
 }
 

@@ -15,7 +15,7 @@ const testDataFileCount = 60
 
 func TestCount(t *testing.T) {
 	dir, err := filepath.Abs("../../assets/testdata")
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	i, err := helper.Count("")
 	require.Error(t, err)
@@ -26,13 +26,13 @@ func TestCount(t *testing.T) {
 	assert.Equal(t, 0, i)
 
 	i, err = helper.Count(dir)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, testDataFileCount, i)
 }
 
 func TestFiles(t *testing.T) {
 	dir, err := filepath.Abs("../../assets/testdata")
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	r, err := helper.Files("")
 	require.Error(t, err)
@@ -43,7 +43,7 @@ func TestFiles(t *testing.T) {
 	assert.Empty(t, r)
 
 	r, err = helper.Files(dir)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	assert.Len(t, r, testDataFileCount)
 }
 

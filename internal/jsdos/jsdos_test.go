@@ -211,31 +211,31 @@ func TestFinds(t *testing.T) {
 	assert.Equal(t, "FILENAME.EXE", s)
 }
 
-func TestDosBin(t *testing.T) {
-	// t.Parallel()
-	// s := jsdos.Binary()
-	// assert.Empty(t, s)
+// func TestDosBin(t *testing.T) {
+// t.Parallel()
+// s := jsdos.Binary()
+// assert.Empty(t, s)
 
-	// x := mockZipContent
-	// p := jsdos.Paths(x)
-	// s = jsdos.Binary(p...)
-	// assert.Empty(t, s)
+// x := mockZipContent
+// p := jsdos.Paths(x)
+// s = jsdos.Binary(p...)
+// assert.Empty(t, s)
 
-	// x += "\nfilename.exe\nfilename.xxx"
-	// p = jsdos.Paths(x)
-	// s = jsdos.Binary(p...)
-	// assert.Equal(t, "filename.exe", s)
+// x += "\nfilename.exe\nfilename.xxx"
+// p = jsdos.Paths(x)
+// s = jsdos.Binary(p...)
+// assert.Equal(t, "filename.exe", s)
 
-	// x = "FILENAME.COM\n" + x
-	// p = jsdos.Paths(x)
-	// s = jsdos.Binary(p...)
-	// assert.Equal(t, "FILENAME.COM", s)
+// x = "FILENAME.COM\n" + x
+// p = jsdos.Paths(x)
+// s = jsdos.Binary(p...)
+// assert.Equal(t, "FILENAME.COM", s)
 
-	// x += "\nrunme.bat"
-	// p = jsdos.Paths(x)
-	// s = jsdos.Binary(p...)
-	// assert.Equal(t, "runme.bat", s)
-}
+// x += "\nrunme.bat"
+// p = jsdos.Paths(x)
+// s = jsdos.Binary(p...)
+// assert.Equal(t, "runme.bat", s)
+//}
 
 func TestFindBinary(t *testing.T) {
 	example := "readme.txt\nRUN.BAT\napp.com\ndata.dat"

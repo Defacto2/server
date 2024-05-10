@@ -143,7 +143,7 @@ func ValidMagic(mediatype string) null.String {
 	if err != nil || len(r) == 0 {
 		return invalid
 	}
-	var param = map[string]string{}
+	param := map[string]string{}
 	result := mime.FormatMediaType(mediatype, param)
 	return null.StringFrom(result)
 }
