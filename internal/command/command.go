@@ -106,14 +106,14 @@ func LookupUnrar() error {
 	return LookVersion(Unrar, "", "Alexander Roshal")
 }
 
-// RemoveImgs removes uuid named images with .jpg, .png and .webp extensions from the directory paths.
-// A nil is returned if the directory or the named uuid files do not exist.
-func RemoveImgs(uuid string, dirs ...string) error {
+// RemoveImgs removes unid named images with .jpg, .png and .webp extensions from the directory paths.
+// A nil is returned if the directory or the named unid files do not exist.
+func RemoveImgs(unid string, dirs ...string) error {
 	exts := []string{jpg, png, webp}
 	for _, path := range dirs {
 		// remove images
 		for _, ext := range exts {
-			name := filepath.Join(path, uuid+ext)
+			name := filepath.Join(path, unid+ext)
 			st, err := os.Stat(name)
 			if errors.Is(err, os.ErrNotExist) {
 				continue
@@ -129,10 +129,10 @@ func RemoveImgs(uuid string, dirs ...string) error {
 	return nil
 }
 
-// RemoveMe removes the file with the uuid name combined with a ".txt" extension
+// RemoveMe removes the file with the unid name combined with a ".txt" extension
 // from the download directory path. It returns nil if the file does not exist.
-func RemoveMe(uuid, dir string) error {
-	name := filepath.Join(dir, uuid+txt)
+func RemoveMe(unid, dir string) error {
+	name := filepath.Join(dir, unid+txt)
 	st, err := os.Stat(name)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {

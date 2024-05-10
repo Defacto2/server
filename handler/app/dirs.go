@@ -98,11 +98,11 @@ func (dir Dirs) Artifact(c echo.Context, logger *zap.SugaredLogger, readonly boo
 		return DatabaseErr(c, "f/"+dir.URI, err)
 	}
 	fname := art.Filename.String
-	uuid := art.UUID.String
+	unid := art.UUID.String
 	data := empty(c)
 	data = dir.artifactEditor(art, data, readonly)
 	// page metadata
-	data["uuid"] = uuid
+	data["unid"] = unid
 	data["download"] = helper.ObfuscateID(art.ID)
 	data["title"] = fname
 	data["description"] = artifactDesc(art)
@@ -159,8 +159,8 @@ func (dir Dirs) artifactEditor(art *models.File, data map[string]interface{}, re
 	if readonly || art == nil {
 		return data
 	}
-	uuid := art.UUID.String
-	abs := filepath.Join(dir.Download, uuid)
+	unid := art.UUID.String
+	abs := filepath.Join(dir.Download, unid)
 	data["readOnly"] = false
 	data["modID"] = art.ID
 	data["modTitle"] = art.RecordTitle.String
@@ -180,7 +180,7 @@ func (dir Dirs) artifactEditor(art *models.File, data map[string]interface{}, re
 	data["modKind"] = artifactMagic(abs)
 	data["modStatModify"] = artifactStat(abs)[0]
 	data["modStatSize"] = artifactStat(abs)[1]
-	data["modAssets"] = dir.artifactAssets(uuid)
+	data["modAssets"] = dir.artifactAssets(unid)
 	data["modNoReadme"] = art.RetrotxtNoReadme.Int16 != 0
 	data["modReadmeList"] = OptionsReadme(art.FileZipContent.String)
 	data["modPreviewList"] = OptionsPreview(art.FileZipContent.String)
@@ -667,7 +667,7 @@ func artifactStat(name string) [2]string {
 
 // artifactAssets returns a list of downloads and image assets belonging to the file record.
 // any errors are appended to the list.
-func (dir Dirs) artifactAssets(uuid string) map[string]string {
+func (dir Dirs) artifactAssets(unid string) map[string]string {
 	matches := map[string]string{}
 
 	downloads, err := os.ReadDir(dir.Download)
@@ -684,7 +684,7 @@ func (dir Dirs) artifactAssets(uuid string) map[string]string {
 	}
 
 	for _, file := range downloads {
-		if strings.HasPrefix(file.Name(), uuid) {
+		if strings.HasPrefix(file.Name(), unid) {
 			if filepath.Ext(file.Name()) == "" {
 				continue
 			}
@@ -705,7 +705,7 @@ func (dir Dirs) artifactAssets(uuid string) map[string]string {
 		}
 	}
 	for _, file := range images {
-		if strings.HasPrefix(file.Name(), uuid) {
+		if strings.HasPrefix(file.Name(), unid) {
 			s := strings.ToUpper(filepath.Ext(file.Name()))
 			if s == ".WEBP" {
 				s = ".WebP"
@@ -714,7 +714,7 @@ func (dir Dirs) artifactAssets(uuid string) map[string]string {
 		}
 	}
 	for _, file := range thumbs {
-		if strings.HasPrefix(file.Name(), uuid) {
+		if strings.HasPrefix(file.Name(), unid) {
 			s := strings.ToUpper(filepath.Ext(file.Name()))
 			if s == ".WEBP" {
 				s = ".WebP"

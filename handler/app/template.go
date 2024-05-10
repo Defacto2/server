@@ -37,7 +37,7 @@ type Templ struct {
 }
 
 // DemozooGetLink returns a HTML link to the Demozoo download links.
-func DemozooGetLink(filename, filesize, demozoo, uuid any) template.HTML {
+func DemozooGetLink(filename, filesize, demozoo, unid any) template.HTML {
 	if val, ok := filename.(null.String); ok {
 		if val.Valid && val.String != "" {
 			return ""
@@ -56,7 +56,7 @@ func DemozooGetLink(filename, filesize, demozoo, uuid any) template.HTML {
 		zooID = val.Int64
 	}
 	var uID string
-	if val, ok := uuid.(null.String); ok {
+	if val, ok := unid.(null.String); ok {
 		if val.Valid && val.String == "" {
 			return ""
 		}
@@ -175,12 +175,12 @@ func LinkRelations(val string) template.HTML {
 	return template.HTML(html)
 }
 
-// ImageSample returns a HTML image tag for the given uuid.
-func (web Templ) ImageSample(uuid string) template.HTML {
+// ImageSample returns a HTML image tag for the given unid.
+func (web Templ) ImageSample(unid string) template.HTML {
 	ext, name, src := "", "", ""
 	for _, ext = range []string{webp, png} {
-		name = filepath.Join(web.Environment.PreviewDir, uuid+ext)
-		src = strings.Join([]string{config.StaticOriginal(), uuid + ext}, "/")
+		name = filepath.Join(web.Environment.PreviewDir, unid+ext)
+		src = strings.Join([]string{config.StaticOriginal(), unid + ext}, "/")
 		if helper.Stat(name) {
 			break
 		}
@@ -194,24 +194,24 @@ func (web Templ) ImageSample(uuid string) template.HTML {
 		src, hash, ext, hash))
 }
 
-// Screenshot returns a picture elment with screenshots for the given uuid.
-// The uuid is the filename of the screenshot image without an extension.
+// Screenshot returns a picture elment with screenshots for the given unid.
+// The unid is the filename of the screenshot image without an extension.
 // The desc is the description of the image used for the alt attribute in the img tag.
 // Supported formats are webp, png, jpg and avif.
-func (web Templ) Screenshot(uuid, desc string) template.HTML {
+func (web Templ) Screenshot(unid, desc string) template.HTML {
 	const separator = "/"
 	class := "rounded mx-auto d-block img-fluid"
 	alt := strings.ToLower(desc) + " screenshot"
 
-	srcW := strings.Join([]string{config.StaticOriginal(), uuid + webp}, separator)
-	srcP := strings.Join([]string{config.StaticOriginal(), uuid + png}, separator)
-	srcJ := strings.Join([]string{config.StaticOriginal(), uuid + jpg}, separator)
-	srcA := strings.Join([]string{config.StaticOriginal(), uuid + avif}, separator)
+	srcW := strings.Join([]string{config.StaticOriginal(), unid + webp}, separator)
+	srcP := strings.Join([]string{config.StaticOriginal(), unid + png}, separator)
+	srcJ := strings.Join([]string{config.StaticOriginal(), unid + jpg}, separator)
+	srcA := strings.Join([]string{config.StaticOriginal(), unid + avif}, separator)
 
-	sizeA := helper.Size(filepath.Join(web.Environment.PreviewDir, uuid+avif))
-	sizeJ := helper.Size(filepath.Join(web.Environment.PreviewDir, uuid+jpg))
-	sizeP := helper.Size(filepath.Join(web.Environment.PreviewDir, uuid+png))
-	sizeW := helper.Size(filepath.Join(web.Environment.PreviewDir, uuid+webp))
+	sizeA := helper.Size(filepath.Join(web.Environment.PreviewDir, unid+avif))
+	sizeJ := helper.Size(filepath.Join(web.Environment.PreviewDir, unid+jpg))
+	sizeP := helper.Size(filepath.Join(web.Environment.PreviewDir, unid+png))
+	sizeW := helper.Size(filepath.Join(web.Environment.PreviewDir, unid+webp))
 
 	useLegacyJpg := sizeJ > 0 && sizeJ < sizeA && sizeJ < sizeP && sizeJ < sizeW
 	if useLegacyJpg {
@@ -535,14 +535,14 @@ func (web *Templ) Templates() (map[string]*template.Template, error) {
 	return tmpls, nil
 }
 
-// Thumb returns a HTML image tag or picture element for the given uuid.
-// The uuid is the filename of the thumbnail image without an extension.
+// Thumb returns a HTML image tag or picture element for the given unid.
+// The unid is the filename of the thumbnail image without an extension.
 // The desc is the description of the image.
-func (web Templ) Thumb(uuid, desc string, bottom bool) template.HTML {
-	fw := filepath.Join(web.Environment.ThumbnailDir, uuid+webp)
-	fp := filepath.Join(web.Environment.ThumbnailDir, uuid+png)
-	webp := strings.Join([]string{config.StaticThumb(), uuid + webp}, "/")
-	png := strings.Join([]string{config.StaticThumb(), uuid + png}, "/")
+func (web Templ) Thumb(unid, desc string, bottom bool) template.HTML {
+	fw := filepath.Join(web.Environment.ThumbnailDir, unid+webp)
+	fp := filepath.Join(web.Environment.ThumbnailDir, unid+png)
+	webp := strings.Join([]string{config.StaticThumb(), unid + webp}, "/")
+	png := strings.Join([]string{config.StaticThumb(), unid + png}, "/")
 	alt := strings.ToLower(desc) + " thumbnail"
 	w, p := false, false
 	if helper.Stat(fw) {
@@ -577,16 +577,16 @@ func (web Templ) Thumb(uuid, desc string, bottom bool) template.HTML {
 	return ""
 }
 
-// ThumbSample returns a HTML image tag for the given uuid.
-func (web Templ) ThumbSample(uuid string) template.HTML {
+// ThumbSample returns a HTML image tag for the given unid.
+func (web Templ) ThumbSample(unid string) template.HTML {
 	const (
 		png  = png
 		webp = webp
 	)
 	ext, name, src := "", "", ""
 	for _, ext = range []string{webp, png} {
-		name = filepath.Join(web.Environment.ThumbnailDir, uuid+ext)
-		src = strings.Join([]string{config.StaticThumb(), uuid + ext}, "/")
+		name = filepath.Join(web.Environment.ThumbnailDir, unid+ext)
+		src = strings.Join([]string{config.StaticThumb(), unid + ext}, "/")
 		if helper.Stat(name) {
 			break
 		}

@@ -77,19 +77,19 @@ func TestRead(t *testing.T) {
 	assert.Equal(t, err, render.ErrUUID)
 	assert.Nil(t, r)
 
-	const uuid = "5b4c5f6e-8a1e-11e9-9f0e-000000000000"
-	art.UUID = null.StringFrom(uuid)
+	const unid = "5b4c5f6e-8a1e-11e9-9f0e-000000000000"
+	art.UUID = null.StringFrom(unid)
 	r, err = render.Read(&art, "")
 	require.Error(t, err)
 	assert.Nil(t, r)
 
-	dir, err := os.MkdirTemp(os.TempDir(), uuid)
+	dir, err := os.MkdirTemp(os.TempDir(), unid)
 	require.NoError(t, err)
 	defer os.RemoveAll(dir)
 
-	err = helper.Touch(filepath.Join(dir, uuid+txt))
+	err = helper.Touch(filepath.Join(dir, unid+txt))
 	require.NoError(t, err)
-	err = helper.Touch(filepath.Join(dir, uuid))
+	err = helper.Touch(filepath.Join(dir, unid))
 	require.NoError(t, err)
 
 	r, err = render.Read(&art, dir)
@@ -97,11 +97,11 @@ func TestRead(t *testing.T) {
 	assert.Nil(t, r)
 	assert.Empty(t, r)
 
-	err = os.Remove(filepath.Join(dir, uuid+txt))
+	err = os.Remove(filepath.Join(dir, unid+txt))
 	require.NoError(t, err)
 
 	s := []byte("This is a test file.\n")
-	i, err := helper.TouchW(filepath.Join(dir, uuid+txt), s...)
+	i, err := helper.TouchW(filepath.Join(dir, unid+txt), s...)
 	require.NoError(t, err)
 	l := len(s)
 	assert.Equal(t, i, l)
@@ -168,10 +168,10 @@ func TestNoScreenshot(t *testing.T) {
 	art.Platform = null.StringFrom("textamiga")
 	assert.True(t, render.NoScreenshot(&art, ""))
 
-	const uuid = "5b4c5f6e-8a1e-11e9-9f0e-000000000000"
+	const unid = "5b4c5f6e-8a1e-11e9-9f0e-000000000000"
 	art.Platform = null.StringFrom("")
-	art.UUID = null.StringFrom(uuid)
-	name := filepath.Join(os.TempDir(), uuid) + ".webp"
+	art.UUID = null.StringFrom(unid)
+	name := filepath.Join(os.TempDir(), unid) + ".webp"
 	err := helper.Touch(name)
 	require.NoError(t, err)
 	defer os.Remove(name)

@@ -56,12 +56,12 @@ func Read(art *models.File, path string) ([]byte, error) {
 	}
 
 	fname := art.Filename.String
-	uuid := art.UUID.String
+	unid := art.UUID.String
 
 	if fname == "" {
 		return nil, ErrFilename
 	}
-	if uuid == "" {
+	if unid == "" {
 		return nil, ErrUUID
 	}
 
@@ -72,14 +72,14 @@ func Read(art *models.File, path string) ([]byte, error) {
 		filepOk bool
 		txt     bool
 	}
-	files.uuidTxt = filepath.Join(path, uuid+".txt")
+	files.uuidTxt = filepath.Join(path, unid+".txt")
 	files.uutxtOk = helper.Stat(files.uuidTxt)
-	files.filepth = filepath.Join(path, uuid)
+	files.filepth = filepath.Join(path, unid)
 	files.filepOk = helper.Stat(files.filepth)
 	files.txt = !ext.IsArchive(fname)
 
 	if !files.uutxtOk && !files.filepOk {
-		return nil, fmt.Errorf("%w: %s", ErrDownload, filepath.Join(path, uuid))
+		return nil, fmt.Errorf("%w: %s", ErrDownload, filepath.Join(path, unid))
 	}
 
 	if !files.uutxtOk && !Viewer(art) {
@@ -148,9 +148,9 @@ func NoScreenshot(art *models.File, path string) bool {
 	case textamiga, "text":
 		return true
 	}
-	uuid := art.UUID.String
-	webp := strings.Join([]string{path, uuid + ".webp"}, "/")
-	png := strings.Join([]string{path, uuid + ".png"}, "/")
+	unid := art.UUID.String
+	webp := strings.Join([]string{path, unid + ".webp"}, "/")
+	png := strings.Join([]string{path, unid + ".png"}, "/")
 	if helper.Stat(webp) || helper.Stat(png) {
 		return false
 	}

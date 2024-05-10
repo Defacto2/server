@@ -148,7 +148,7 @@ func (a *Args) GWebp() {
 
 // AnsiLove converts the src text file and creates a PNG image in the preview directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
-func (dir Dirs) AnsiLove(logger *zap.SugaredLogger, src, uuid string) error {
+func (dir Dirs) AnsiLove(logger *zap.SugaredLogger, src, unid string) error {
 	if logger == nil {
 		return ErrZap
 	}
@@ -162,7 +162,7 @@ func (dir Dirs) AnsiLove(logger *zap.SugaredLogger, src, uuid string) error {
 		return fmt.Errorf("ansilove: %w", err)
 	}
 
-	dst := filepath.Join(dir.Preview, uuid+png)
+	dst := filepath.Join(dir.Preview, unid+png)
 	if err := CopyFile(logger, tmp, dst); err != nil {
 		return fmt.Errorf("copy file: %w", err)
 	}
@@ -173,7 +173,7 @@ func (dir Dirs) AnsiLove(logger *zap.SugaredLogger, src, uuid string) error {
 		}
 	}()
 	defer func() {
-		err := dir.AnsiThumbnail(tmp, uuid)
+		err := dir.AnsiThumbnail(tmp, unid)
 		if err != nil {
 			logger.Warnln("ansilove: ", err)
 		}
@@ -183,7 +183,7 @@ func (dir Dirs) AnsiLove(logger *zap.SugaredLogger, src, uuid string) error {
 
 // PreviewPNG copies and optimizes the src PNG image to the screenshot directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
-func (dir Dirs) PreviewGIF(logger *zap.SugaredLogger, src, uuid string) error {
+func (dir Dirs) PreviewGIF(logger *zap.SugaredLogger, src, unid string) error {
 	if logger == nil {
 		return ErrZap
 	}
@@ -198,13 +198,13 @@ func (dir Dirs) PreviewGIF(logger *zap.SugaredLogger, src, uuid string) error {
 		return fmt.Errorf("gif2webp: %w", err)
 	}
 
-	dst := filepath.Join(dir.Preview, uuid+webp)
+	dst := filepath.Join(dir.Preview, unid+webp)
 	if err := CopyFile(logger, tmp, dst); err != nil {
 		return fmt.Errorf("copy file: %w", err)
 	}
 
 	defer func() {
-		err := dir.WebpThumbnail(tmp, uuid)
+		err := dir.WebpThumbnail(tmp, unid)
 		if err != nil {
 			logger.Warnln("gif: ", err)
 		}
@@ -214,12 +214,12 @@ func (dir Dirs) PreviewGIF(logger *zap.SugaredLogger, src, uuid string) error {
 
 // PreviewPNG copies and optimizes the src PNG image to the screenshot directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
-func (dir Dirs) PreviewPNG(logger *zap.SugaredLogger, src, uuid string) error {
+func (dir Dirs) PreviewPNG(logger *zap.SugaredLogger, src, unid string) error {
 	if logger == nil {
 		return ErrZap
 	}
 
-	dst := filepath.Join(dir.Preview, uuid+png)
+	dst := filepath.Join(dir.Preview, unid+png)
 	if err := CopyFile(logger, src, dst); err != nil {
 		return fmt.Errorf("copy file: %w", err)
 	}
@@ -230,7 +230,7 @@ func (dir Dirs) PreviewPNG(logger *zap.SugaredLogger, src, uuid string) error {
 		}
 	}()
 	defer func() {
-		err := dir.WebpThumbnail(src, uuid)
+		err := dir.WebpThumbnail(src, unid)
 		if err != nil {
 			logger.Warnln("png: ", err)
 		}
@@ -243,7 +243,7 @@ func (dir Dirs) PreviewPNG(logger *zap.SugaredLogger, src, uuid string) error {
 //
 // The conversion is done using the cwebp command, which supports either
 // a PNG, JPEG, TIFF or WebP source image file.
-func (dir Dirs) PreviewWebP(logger *zap.SugaredLogger, src, uuid string) error {
+func (dir Dirs) PreviewWebP(logger *zap.SugaredLogger, src, unid string) error {
 	if logger == nil {
 		return ErrZap
 	}
@@ -258,12 +258,12 @@ func (dir Dirs) PreviewWebP(logger *zap.SugaredLogger, src, uuid string) error {
 		return fmt.Errorf("cwebp: %w", err)
 	}
 
-	dst := filepath.Join(dir.Preview, uuid+webp)
+	dst := filepath.Join(dir.Preview, unid+webp)
 	if err := CopyFile(logger, tmp, dst); err != nil {
 		return fmt.Errorf("copy file: %w", err)
 	}
 	defer func() {
-		err := dir.WebpThumbnail(tmp, uuid)
+		err := dir.WebpThumbnail(tmp, unid)
 		if err != nil {
 			logger.Warnln("webp: ", err)
 		}
@@ -273,8 +273,8 @@ func (dir Dirs) PreviewWebP(logger *zap.SugaredLogger, src, uuid string) error {
 
 // AnsiThumbnail converts the src image to a 400x400 pixel, webp image in the thumbnail directory.
 // The conversion is done using a temporary, lossless PNG image.
-func (dir Dirs) AnsiThumbnail(src, uuid string) error {
-	tmp := filepath.Join(dir.Thumbnail, uuid+png)
+func (dir Dirs) AnsiThumbnail(src, unid string) error {
+	tmp := filepath.Join(dir.Thumbnail, unid+png)
 	args := Args{}
 	args.Thumb()
 	args.Png()
@@ -285,7 +285,7 @@ func (dir Dirs) AnsiThumbnail(src, uuid string) error {
 		return fmt.Errorf("convert: %w", err)
 	}
 
-	dst := filepath.Join(dir.Thumbnail, uuid+webp)
+	dst := filepath.Join(dir.Thumbnail, unid+webp)
 	args = Args{}
 	args.CWebp()
 	arg = []string{tmp}          // source file
@@ -300,7 +300,7 @@ func (dir Dirs) AnsiThumbnail(src, uuid string) error {
 
 // WebpThumbnail converts the src image to a 400x400 pixel, webp image in the thumbnail directory.
 // The conversion is done using a temporary, lossy PNG image.
-func (dir Dirs) WebpThumbnail(src, uuid string) error {
+func (dir Dirs) WebpThumbnail(src, unid string) error {
 	tmp := BaseNamePath(src) + jpg
 	args := Args{}
 	args.Thumb()
@@ -312,7 +312,7 @@ func (dir Dirs) WebpThumbnail(src, uuid string) error {
 		return fmt.Errorf("convert: %w", err)
 	}
 
-	dst := filepath.Join(dir.Thumbnail, uuid+webp)
+	dst := filepath.Join(dir.Thumbnail, unid+webp)
 	args = Args{}
 	args.CWebp()
 	arg = []string{tmp}          // source file
@@ -332,7 +332,7 @@ func (dir Dirs) WebpThumbnail(src, uuid string) error {
 // The lossless conversion is done using the ImageMagick [convert] command.
 //
 // [convert]: https://imagemagick.org/script/convert.php
-func (dir Dirs) LosslessScreenshot(logger *zap.SugaredLogger, src, uuid string) error {
+func (dir Dirs) LosslessScreenshot(logger *zap.SugaredLogger, src, unid string) error {
 	if logger == nil {
 		return ErrZap
 	}
@@ -354,13 +354,13 @@ func (dir Dirs) LosslessScreenshot(logger *zap.SugaredLogger, src, uuid string) 
 		return fmt.Errorf("convert: %w", err)
 	}
 
-	dst := filepath.Join(dir.Preview, uuid+png)
+	dst := filepath.Join(dir.Preview, unid+png)
 	if err := CopyFile(logger, tmp, dst); err != nil {
 		return fmt.Errorf("copy file: %w", err)
 	}
 
 	defer func() {
-		err := dir.WebpThumbnail(tmp, uuid)
+		err := dir.WebpThumbnail(tmp, unid)
 		if err != nil {
 			logger.Warnln("lossless screenshot: ", err)
 		}
@@ -375,7 +375,7 @@ func (dir Dirs) LosslessScreenshot(logger *zap.SugaredLogger, src, uuid string) 
 // The lossy conversion is done using the ImageMagick [convert] command.
 //
 // [convert]: https://imagemagick.org/script/convert.php
-func (dir Dirs) PreviewLossy(logger *zap.SugaredLogger, src, uuid string) error {
+func (dir Dirs) PreviewLossy(logger *zap.SugaredLogger, src, unid string) error {
 	if logger == nil {
 		return ErrZap
 	}
@@ -397,7 +397,7 @@ func (dir Dirs) PreviewLossy(logger *zap.SugaredLogger, src, uuid string) error 
 		return fmt.Errorf("convert: %w", err)
 	}
 
-	dst := filepath.Join(dir.Preview, uuid+webp)
+	dst := filepath.Join(dir.Preview, unid+webp)
 	args = Args{}
 	args.CWebp()
 	arg = []string{tmp}          // source file
@@ -409,7 +409,7 @@ func (dir Dirs) PreviewLossy(logger *zap.SugaredLogger, src, uuid string) error 
 	defer os.Remove(tmp)
 
 	defer func() {
-		err := dir.WebpThumbnail(tmp, uuid)
+		err := dir.WebpThumbnail(tmp, unid)
 		if err != nil {
 			logger.Warnln("lossy screenshot: ", err)
 		}

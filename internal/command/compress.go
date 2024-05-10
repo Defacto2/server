@@ -306,7 +306,7 @@ func unzipExitStatus(err error) string {
 // The text file is converted to a PNG preview and a webp thumbnails.
 // Any text file usable by the ansilove command is supported,
 // including ANSI, codepage plain text, PCBoard, etc.
-func (dir Dirs) ExtractAnsiLove(logger *zap.SugaredLogger, src, extHint, uuid, name string) error {
+func (dir Dirs) ExtractAnsiLove(logger *zap.SugaredLogger, src, extHint, unid, name string) error {
 	if logger == nil {
 		return ErrZap
 	}
@@ -316,13 +316,13 @@ func (dir Dirs) ExtractAnsiLove(logger *zap.SugaredLogger, src, extHint, uuid, n
 		return fmt.Errorf("extract: %w", err)
 	}
 	defer os.RemoveAll(dst)
-	return dir.AnsiLove(logger, dst, uuid)
+	return dir.AnsiLove(logger, dst, unid)
 }
 
 // ExtractImage extracts the named image file from a zip archive.
 // Based on the file extension, the image is converted to a webp preview and thumbnails.
 // Named files with a PNG extension are optimized but kept as the preview image.
-func (dir Dirs) ExtractImage(logger *zap.SugaredLogger, src, extHint, uuid, name string) error {
+func (dir Dirs) ExtractImage(logger *zap.SugaredLogger, src, extHint, unid, name string) error {
 	if logger == nil {
 		return ErrZap
 	}
@@ -336,17 +336,17 @@ func (dir Dirs) ExtractImage(logger *zap.SugaredLogger, src, extHint, uuid, name
 	ext := filepath.Ext(strings.ToLower(dst))
 	switch ext {
 	case gif:
-		err = dir.PreviewGIF(logger, dst, uuid)
+		err = dir.PreviewGIF(logger, dst, unid)
 	case bmp:
-		err = dir.PreviewLossy(logger, dst, uuid)
+		err = dir.PreviewLossy(logger, dst, unid)
 	case png:
 		// optimize but keep the original png file as preview
-		err = dir.PreviewPNG(logger, dst, uuid)
+		err = dir.PreviewPNG(logger, dst, unid)
 	case jpeg, jpg, tiff, webp:
 		// convert to the optimal webp format
 		// as of 2023, webp is supported by all current browsers
 		// these format cases are supported by cwebp conversion tool
-		err = dir.PreviewWebP(logger, dst, uuid)
+		err = dir.PreviewWebP(logger, dst, unid)
 	default:
 		return fmt.Errorf("%w: %q", ErrImg, filepath.Ext(dst))
 	}
