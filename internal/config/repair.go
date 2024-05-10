@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/Defacto2/server/internal/helper"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
@@ -134,7 +135,7 @@ func RemoveDownload(basename, path string) error {
 	}
 	if filename, found := strings.CutSuffix(basename, ext); found {
 		if len(filename) == cflen {
-			filename = CFToUUID(filename)
+			filename, _ = helper.CFToUUID(filename)
 		}
 		if err := uuid.Validate(filename); err != nil {
 			remove(basename, "remove invalid uuid", path)
@@ -174,7 +175,7 @@ func RemoveImage(basename, path string) error {
 	ext := filepath.Ext(basename)
 	if filename, found := strings.CutSuffix(basename, ext); found {
 		if len(filename) == cflen {
-			filename = CFToUUID(filename)
+			filename, _ = helper.CFToUUID(filename)
 		}
 		if err := uuid.Validate(filename); err != nil {
 			remove(basename, "remove invalid uuid", path)
@@ -193,15 +194,4 @@ func RemoveImage(basename, path string) error {
 func remove(name, info, path string) {
 	fmt.Fprintf(os.Stderr, "%s: %s\n", info, name)
 	defer os.Remove(path)
-}
-
-// CFToUUID formats a 31 character, Coldfusion Universally Unique Identifier
-// to a standard, 32 character, Universally Unique Identifier.
-func CFToUUID(cfid string) string {
-	const require = 35
-	if len(cfid) != require {
-		return cfid
-	}
-	const index = 23
-	return cfid[:index] + "-" + cfid[index:]
 }

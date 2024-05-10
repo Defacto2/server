@@ -20,16 +20,6 @@ const (
 	cfid = "00000000-0000-0000-0000000000000000"  // coldfusion uuid example
 )
 
-func TestCFToUUID(t *testing.T) {
-	t.Parallel()
-	err := uuid.Validate(unid)
-	require.NoError(t, err)
-
-	newID := config.CFToUUID(cfid)
-	err = uuid.Validate(newID)
-	require.NoError(t, err)
-}
-
 func TestDownloadFS(t *testing.T) {
 	t.Parallel()
 	unid := uuid.New()

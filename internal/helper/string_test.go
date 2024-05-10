@@ -5,8 +5,31 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+const (
+	unid = "00000000-0000-0000-0000-000000000000" // common universal unique identifier example
+	cfid = "00000000-0000-0000-0000000000000000"  // coldfusion uuid example
+)
+
+func TestCFToUUID(t *testing.T) {
+	t.Parallel()
+	err := uuid.Validate(unid)
+	require.NoError(t, err)
+
+	new, err := helper.CFToUUID(unid)
+	require.NoError(t, err)
+	err = uuid.Validate(new)
+	require.NoError(t, err)
+
+	new, err = helper.CFToUUID(cfid)
+	require.NoError(t, err)
+	err = uuid.Validate(new)
+	require.NoError(t, err)
+}
 
 func TestByteCount(t *testing.T) {
 	s := helper.ByteCount(0)

@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
-	"github.com/google/uuid"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
@@ -115,40 +115,25 @@ func coldfusionIDs(ctx context.Context, db *sql.DB) error {
 			continue
 		}
 		// 35 character UUIDs in a 36 character fixed length string will have a tailing space.
-		oldUUID := strings.TrimSpace(f.UUID.String)
-		newUUID, err := CFToUUIDv1(oldUUID)
+		old := strings.TrimSpace(f.UUID.String)
+		new, err := helper.CFToUUID(old)
 		if err != nil {
-			logger.Warnln("%d. %q is invalid, %s\n", i, newUUID, err)
+			logger.Warnln("%d. %q is invalid, %s\n", i, new, err)
 			continue
 		}
-		file, err := models.Files(qm.Where("uuid = ?", oldUUID)).One(ctx, db)
+		file, err := models.Files(qm.Where("uuid = ?", old)).One(ctx, db)
 		if err != nil {
-			logger.Warnln("%d. %q failed to find, %s\n", i, oldUUID, err)
+			logger.Warnln("%d. %q failed to find, %s\n", i, old, err)
 			continue
 		}
-		file.UUID = null.StringFrom(newUUID)
+		file.UUID = null.StringFrom(new)
 		_, err = file.Update(ctx, db, boil.Infer())
 		if err != nil {
-			logger.Warnln("%d. %q failed to update, %s\n", i, oldUUID, err)
+			logger.Warnln("%d. %q failed to update, %s\n", i, old, err)
 			continue
 		}
 	}
 	return nil
-}
-
-// CFToUUIDv1 converts a ColdFusion UUID to a standard UUID version 1.
-// If the input is not a valid UUID, an error is returned.
-func CFToUUIDv1(cfid string) (string, error) {
-	const pos = 23
-	oldUUID := strings.TrimSpace(cfid)
-	r := []rune(oldUUID)
-	r = append(r[:pos], append([]rune{'-'}, r[pos:]...)...)
-	replacement := string(r)
-	err := uuid.Validate(replacement)
-	if err != nil {
-		return "", fmt.Errorf("invalid UUID: %w", err)
-	}
-	return replacement, nil
 }
 
 // Fix bad imported names, such as those from Demozoo data imports.

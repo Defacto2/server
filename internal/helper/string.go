@@ -13,6 +13,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/google/uuid"
 	"golang.org/x/exp/slices"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -78,6 +79,36 @@ func Capitalize(s string) string {
 	}
 	return caser.String(x[0]) + sep + strings.Join(x[1:], sep)
 }
+
+// CFToUUID formats a 35 character, Coldfusion Universally Unique Identifier
+// to a standard, 36 character, Universally Unique Identifier.
+func CFToUUID(cfid string) (string, error) {
+	if err := uuid.Validate(cfid); err == nil {
+		return cfid, nil
+	}
+	const pos = 23
+	const hyphen = '-'
+	old := strings.TrimSpace(cfid)
+	r := []rune(old)
+	r = append(r[:pos], append([]rune{hyphen}, r[pos:]...)...)
+	new := string(r)
+	err := uuid.Validate(new)
+	if err != nil {
+		return "", fmt.Errorf("uuid.Validate: %w", err)
+	}
+	return new, nil
+}
+
+// CFToUUID formats a 31 character, Coldfusion Universally Unique Identifier
+// to a standard, 32 character, Universally Unique Identifier.
+// func CFToUUID(cfid string) string {
+// 	const require = 35
+// 	if len(cfid) != require {
+// 		return cfid
+// 	}
+// 	const index = 23
+// 	return cfid[:index] + "-" + cfid[index:]
+// }
 
 // DeleteDupe removes duplicate strings from a slice.
 // The returned slice is sorted and compacted.
