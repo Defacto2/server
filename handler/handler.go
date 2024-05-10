@@ -200,8 +200,8 @@ func (c Configuration) PortErr(logger *zap.SugaredLogger, port uint, err error) 
 // Registry returns the template renderer.
 func (c Configuration) Registry(logger *zap.SugaredLogger) (*TemplateRegistry, error) {
 	webapp := app.Templ{
-		Environment: &c.Environment,
-		Brand:       c.Brand,
+		Environment: c.Environment,
+		Brand:       *c.Brand,
 		Public:      c.Public,
 		Version:     c.Version,
 		View:        c.View,

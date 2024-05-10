@@ -5,9 +5,7 @@
 ### Files
 
 - [ ] Handle magazines with the file editor.
-- [ ] Create an Installer / Trainer uploader modal.
-- [ ] Mention about including a screenshot in the archive.
-- [ ] Create an alert for 10 minutes before logout, include a link to re-login.
+- [ ] Create an alert for 10 minutes before logout, include a link to re-login. **cannot be done**
 
 ### Layout
 

@@ -404,9 +404,9 @@ func isZip(b []byte) bool {
 	return false
 }
 
-func decode(r io.Reader) (string, error) {
+func decode(src io.Reader) (string, error) {
 	out := strings.Builder{}
-	if _, err := io.Copy(&out, r); err != nil {
+	if _, err := io.Copy(&out, src); err != nil {
 		return "", fmt.Errorf("io.Copy: %w", err)
 	}
 	if !strings.HasSuffix(out.String(), "\n\n") {
@@ -771,8 +771,8 @@ func readmeSuggest(r *models.File) string {
 	return ReadmeSuggest(filename, group, content...)
 }
 
-// readmeFinds returns a list of readme text files found in the file archive.
-func readmeFinds(content ...string) []string {
+// Readmes returns a list of readme text files found in the file archive.
+func Readmes(content ...string) []string {
 	finds := []string{}
 	skip := []string{"scene.org", "scene.org.txt"}
 	for _, name := range content {

@@ -291,12 +291,18 @@ func GlobTo(name string) string {
 // The time is formatted as "Last updated 1 hour ago".
 // If the time is not valid, an empty string is returned.
 func LastUpdated(t any) string {
+	if t == nil {
+		return ""
+	}
 	const s = "Last updated"
 	return Updated(t, s)
 }
 
 // LinkDownload creates a URL to link to the file download of the record.
 func LinkDownload(id any, uri string) template.HTML {
+	if id == nil {
+		return ""
+	}
 	s, err := linkID(id, "d")
 	if err != nil {
 		return template.HTML(err.Error())
@@ -310,6 +316,9 @@ func LinkDownload(id any, uri string) template.HTML {
 
 // LinkHref creates a URL path to link to the file page for the record.
 func LinkHref(id any) (string, error) {
+	if id == nil {
+		return "", fmt.Errorf("id is nil, %w", ErrLinkID)
+	}
 	return linkID(id, "f")
 }
 
@@ -328,6 +337,9 @@ func LinkInterview(href string) template.HTML {
 
 // LinkPage creates a URL anchor element to link to the file page for the record.
 func LinkPage(id any) template.HTML {
+	if id == nil {
+		return ""
+	}
 	s, err := linkID(id, "f")
 	if err != nil {
 		return template.HTML(err.Error())
@@ -338,7 +350,7 @@ func LinkPage(id any) template.HTML {
 // LinkPreview creates a URL to link to the file record in tab, to use as a preview.
 // The preview link will only show with compatible file types based on their extension.
 func LinkPreview(id any, name, platform string) template.HTML {
-	if name == "" {
+	if id == nil || name == "" {
 		return template.HTML("")
 	}
 	s := LinkPreviewHref(id, name, platform)
@@ -353,7 +365,7 @@ func LinkPreview(id any, name, platform string) template.HTML {
 //
 // A list of supported file types: https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
 func LinkPreviewHref(id any, name, platform string) string {
-	if name == "" {
+	if id == nil || name == "" {
 		return ""
 	}
 	platform = strings.TrimSpace(platform)
@@ -408,6 +420,9 @@ func LinkPreviewTip(name, platform string) string {
 // LinkRelFast returns the groups associated with a release and a link to each group.
 // It is a faster version of LinkRelrs and should be used with the templates that have large lists of group names.
 func LinkRelFast(a, b any) template.HTML {
+	if a == nil || b == nil {
+		return ""
+	}
 	return LinkRelrs(true, a, b)
 }
 
@@ -475,6 +490,9 @@ func makeLink(name, class string, performant bool) (string, error) {
 
 // LinkRelrs returns the groups associated with a release and a link to each group.
 func LinkRels(a, b any) template.HTML {
+	if a == nil || b == nil {
+		return ""
+	}
 	return LinkRelrs(false, a, b)
 }
 
@@ -573,6 +591,9 @@ func MimeMagic(s string) string {
 
 // Mod returns true if the given integer is a multiple of the given max integer.
 func Mod(i any, max int) bool {
+	if max == 0 {
+		return false
+	}
 	switch val := i.(type) {
 	case int, int8, int16, int32, int64,
 		uint, uint8, uint16, uint32, uint64:
@@ -591,6 +612,9 @@ func Mod3(i any) bool {
 
 // Month returns a string of the month name from the month m number between 1 and 12.
 func Month(m any) string {
+	if m == nil {
+		return ""
+	}
 	var s string
 	switch val := m.(type) {
 	case int, int8, int16, int32, int64,
@@ -811,7 +835,7 @@ func recordsSub1(uri string) string { //nolint:cyclop
 //
 // This is a port of the CFML function, variables.findTextfile found in File.cfc.
 func ReadmeSuggest(filename, group string, content ...string) string {
-	finds := readmeFinds(content...)
+	finds := Readmes(content...)
 	if len(finds) == 1 {
 		return finds[0]
 	}
@@ -1038,6 +1062,9 @@ func TrimSiteSuffix(s string) string {
 
 // TrimSpace returns a string with all leading and trailing whitespace removed.
 func TrimSpace(a any) string {
+	if a == nil {
+		return ""
+	}
 	switch val := a.(type) {
 	case string:
 		return strings.TrimSpace(val)
@@ -1055,6 +1082,9 @@ func TrimSpace(a any) string {
 // The time is formatted as "Last updated 1 hour ago".
 // If the time is not valid, an empty string is returned.
 func Updated(t any, s string) string {
+	if t == nil {
+		return ""
+	}
 	if s == "" {
 		s = "Time"
 	}

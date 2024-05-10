@@ -14,6 +14,18 @@ func logr() *zap.SugaredLogger {
 	return zap.NewExample().Sugar()
 }
 
+func TestRecordsBy(t *testing.T) {
+	by := html3.Everything
+	assert.Equal(t, "html3_all", by.String())
+	assert.Equal(t, "", by.Parent())
+	by = html3.AsSoftware
+	assert.Equal(t, "html3_software", by.String())
+	assert.Equal(t, "", by.Parent())
+	by = html3.BySection
+	assert.Equal(t, "html3_category", by.String())
+	assert.Equal(t, "categories", by.Parent())
+}
+
 func TestClauses(t *testing.T) {
 	tests := []string{
 		html3.NameAsc,

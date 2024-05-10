@@ -28,23 +28,25 @@ const closeAnchor = "</a>"
 
 // Templ is the configuration and status of the web application templates.
 type Templ struct {
-	Brand       *[]byte        // Brand contains to the Defacto2 ASCII logo.
-	Environment *config.Config // Environment configurations from the host system environment.
-	Public      embed.FS       // Public facing files.
-	View        embed.FS       // Views are Go templates.
-	Subresource SRI            // SRI are the Subresource Integrity hashes for the layout.
-	Version     string         // Version is the current version of the app.
+	Brand       []byte        // Brand contains to the Defacto2 ASCII logo.
+	Environment config.Config // Environment configurations from the host system environment.
+	Public      embed.FS      // Public facing files.
+	View        embed.FS      // Views are Go templates.
+	Subresource SRI           // SRI are the Subresource Integrity hashes for the layout.
+	Version     string        // Version is the current version of the app.
 }
 
 // DemozooGetLink returns a HTML link to the Demozoo download links.
 func DemozooGetLink(filename, filesize, demozoo, unid any) template.HTML {
 	if val, ok := filename.(null.String); ok {
-		if val.Valid && val.String != "" {
+		fileExists := val.Valid && val.String != ""
+		if fileExists {
 			return ""
 		}
 	}
 	if val, ok := filesize.(null.Int64); ok {
-		if val.Valid && val.Int64 > 0 {
+		fileExists := val.Valid && val.Int64 > 0
+		if fileExists {
 			return ""
 		}
 	}
@@ -62,7 +64,11 @@ func DemozooGetLink(filename, filesize, demozoo, unid any) template.HTML {
 		}
 		uID = val.String
 	}
-	s := fmt.Sprintf("<button type=\"button\" class=\"btn btn-outline-primary me-2\" name=\"editorGetDemozoo\" "+
+	if uID == "" || zooID == 0 {
+		return "no id provided"
+	}
+	s := fmt.Sprintf("<button type=\"button\" "+
+		"class=\"btn btn-outline-primary me-2\" name=\"editorGetDemozoo\" "+
 		"data-id=\"%d\" data-uid=\"%s\" id=btn\"%s\">GET from Demozoo</button>", zooID, uID, uID)
 	return template.HTML(s)
 }
@@ -407,7 +413,7 @@ func (web Templ) TemplateClosures() template.FuncMap { //nolint:funlen
 			return hrefs[LayoutJS]
 		},
 		"logo": func() string {
-			return string(*web.Brand)
+			return string(web.Brand)
 		},
 		"pouet": func() string {
 			return hrefs[Pouet]
