@@ -198,8 +198,9 @@ func ValidSceners(s string) null.String {
 // ValidSection returns a valid section or a null value.
 func ValidSection(section string) null.String {
 	invalid := null.String{String: "", Valid: false}
-	s := strings.TrimSpace(section)
-	if tags.IsCategory(s) {
+	tag := strings.TrimSpace(section)
+	if tags.IsCategory(tag) {
+		s := tags.TagByURI(tag).String()
 		return null.StringFrom(s)
 	}
 	return invalid
