@@ -7,14 +7,14 @@
 {{- else}}
 {{- $faSize := "fa-fw fa-2x" -}}
 {{- $id := index . "modID"}}
-{{- $uuid := index . "uuid"}}
+{{- $unid := index . "unid"}}
 {{- $filename := index . "filename"}}
 {{- $statMod := index . "modStatModify"}}
 {{- $statSize := index . "modStatSize"}}
 {{- $kind := index . "modKind"}}
 {{- $absDownload := index . "modAbsDownload"}}
-{{- $previewImg := recordImgSample $uuid}}
-{{- $thumbImg := recordThumbSample $uuid}}
+{{- $previewImg := recordImgSample $unid}}
+{{- $thumbImg := recordThumbSample $unid}}
 {{- $replace := "refresh the page to see the changes"}}
 {{- /*  File assets and metadata editors  */}}
 <div class="modal fade" id="assetEditorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
@@ -32,8 +32,8 @@
         <div class="container">
           <div class="row">
             <div class="col-xl-5">
-              {{- /*  UUID used for the filename of assets  */}}
-                <input type="text" readonly class="form-control-plaintext" id="recordUUID" value="{{$id}}"
+              {{- /*  unid used for the filename of assets  */}}
+                <input type="text" readonly class="form-control-plaintext" id="recordunid" value="{{$id}}"
                 data-bs-toggle="tooltip" data-bs-title="Universal Unique Identifier">
             </div>
             <div class="col-xl-2">

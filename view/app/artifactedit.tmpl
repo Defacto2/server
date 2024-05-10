@@ -9,7 +9,7 @@
 {{- $hundred := "100"}}
 {{- $oneK := "1024" }}
 {{- $key := index . "modID"}}
-{{- $uuid := index . "uuid"}}
+{{- $unid := index . "unid"}}
 {{- $record := index . "modOnline"}}
 {{- $rel1 := index . "modReleaser1"}}
 {{- $rel2 := index . "modReleaser2"}}
@@ -37,8 +37,8 @@
 {{- $programmers := index . "programmers"}}
 {{- $musicians := index . "musicians"}}
 {{- $virusTotal := index . "virusTotal"}}
-{{- $previewImg := recordImgSample $uuid}}
-{{- $thumbImg := recordThumbSample $uuid}}
+{{- $previewImg := recordImgSample $unid}}
+{{- $thumbImg := recordThumbSample $unid}}
 {{- $linkExamples := recordLinkPreviews $youtube $demozoo $pouet $sixteen $github $relations $websites | safeHTML }}
 {{- $replace := "refresh the page to see the changes"}}
 {{- $hxClassification := "[name='artifact-editor-categories'],[name='artifact-editor-operatingsystem'],[name='artifact-editor-key']"}}
@@ -82,7 +82,7 @@
           <div class="col-xl-5">
             <div class="input-group">
               <span class="input-group-text" id="artifact-editor-unique-id">Unique ID</span>
-              <input type="text" value='{{$uuid}}' class="form-control" aria-describedby="artifact-editor-unique-id" readonly>
+              <input type="text" value='{{$unid}}' class="form-control" aria-describedby="artifact-editor-unique-id" readonly>
             </div>
           </div>
         </div>

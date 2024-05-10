@@ -6,7 +6,7 @@
 {{- $published := index . "published"}}
 {{- $desc := index . "description"}}
 {{- $classification := brief (index . "platform") (index . "section")}}
-{{- $screenElm := screenshot (index . "uuid") ($desc)}}
+{{- $screenElm := screenshot (index . "unid") ($desc)}}
 {{- $screenNone := index . "noScreenshot"}}
 {{- $opensans := index . "openSansCheck"}}
 {{- $topaz := index . "topazCheck"}}
