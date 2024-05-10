@@ -153,7 +153,8 @@ func ValidPlatform(platform string) null.String {
 	invalid := null.String{String: "", Valid: false}
 	p := strings.TrimSpace(platform)
 	if tags.IsPlatform(p) {
-		return null.StringFrom(p)
+		s := tags.TagByURI(p).String()
+		return null.StringFrom(s)
 	}
 	return invalid
 }

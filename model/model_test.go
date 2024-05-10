@@ -130,3 +130,23 @@ func TestValidMagic(t *testing.T) {
 	assert.True(t, r.Valid)
 	assert.Equal(t, "text/html", r.String)
 }
+
+func TestValidPlatform(t *testing.T) {
+	t.Parallel()
+	platform := ""
+	r := model.ValidPlatform(platform)
+	assert.False(t, r.Valid)
+
+	platform = "100"
+	r = model.ValidPlatform(platform)
+	assert.False(t, r.Valid)
+
+	platform = "bbs"
+	r = model.ValidPlatform(platform)
+	assert.False(t, r.Valid)
+
+	platform = "Windows"
+	r = model.ValidPlatform(platform)
+	assert.True(t, r.Valid)
+	assert.Equal(t, "windows", r.String)
+}
