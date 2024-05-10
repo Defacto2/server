@@ -2,12 +2,7 @@
  * @module layout-keyboard
  * This module provides keyboard shortcuts for the website layout.
  */
-import { getModalById } from "./uploader.mjs";
-
-const glossaryModal = getModalById("termsModal");
-
-const glossaryOfTerms = "t",
-  right = "ArrowRight",
+const right = "ArrowRight",
   left = "ArrowLeft";
 
 const start = document.getElementById("paginationStart"),
@@ -22,14 +17,6 @@ const start = document.getElementById("paginationStart"),
  */
 export function keyboardShortcuts() {
   document.addEventListener("keydown", function (event) {
-    if (event.ctrlKey && event.altKey) {
-      switch (event.key) {
-        case glossaryOfTerms:
-          glossaryModal.show();
-          break;
-      }
-      return;
-    }
     if (event.ctrlKey && event.key == left) {
       if (start != null) start.click();
       return;

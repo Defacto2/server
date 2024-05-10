@@ -47,6 +47,11 @@ export function htmxEvents() {
     afterRequest(event, `uploader-text-form`, alertText);
     afterRequest(event, `uploader-text-releaser-1`, alertText);
     afterRequest(event, `uploader-text-releaser-2`, alertText);
+    // trainer uploader.
+    const alertTrainer = `uploader-trainer-alert`;
+    afterRequest(event, `uploader-trainer-form`, alertTrainer);
+    afterRequest(event, `uploader-trainer-releaser-1`, alertTrainer);
+    afterRequest(event, `uploader-trainer-releaser-2`, alertTrainer);
     // record toggle.
     afterRecord(event, `artifact-editor-hidden`, `artifact-editor-public`);
     afterRecord(event, `artifact-editor-public`, `artifact-editor-hidden`);

@@ -2,6 +2,13 @@
     uploaderhtmx.tmpl ~ About the htmx uploader modals.
 */ -}}
 {{- define "uploaderhtmx" -}}
+{{- /*  
+    To add a new form the following JS steps are required for the form element.
+    - `uploader-xxxx.mjs`, a dedicated module must be created to handle the form submission.
+    - `uploader.js`, a progress(`uploader-xxxx-form`, `uploader-xxxx-progress`) method to show the upload progress.
+    - `layout-htmx.js`, a `afterRequest()` method must be used to handle the server response.
+  - */}}
+{{- $screenshot := "A screenshot can be included in the archive."}}
 {{- $delay := "500ms" }}
     {{- /*  check if the event is a KeyboardEvent to prevent double rendering on datalists
             source: https://turriate.com/articles/using-datalist-for-typeahead-htmx  */ -}}
@@ -110,7 +117,7 @@
               <div class="form-floating mb-3">
                 <input type="text" name="uploader-intro-title" class="form-control" id="uploader-intro-title" aria-describedby="uploader-intro-title-help" placeholder="example: 500000th release!">
                 <label for="uploader-intro-title">Title</label>
-                <div id="uploader-intro-title-help" class="form-text">An optional brief description or name of the release</div>
+                <div id="uploader-intro-title-help" class="form-text">The name of the release or a brief description</div>
               </div>
               <div class="mb-4">
                 <label for="uploader-intro-releaser-1" class="form-label">Releasers <small>maximum of 2</small></label>
@@ -166,12 +173,104 @@
                 <div class="d-none alert alert-danger mt-2" role="alert" id="uploader-intro-alert"></div>
                 <progress id="uploader-intro-progress" value="0" max="100"></progress>
                 <button id="uploader-intro-submit" class="btn btn-success">Upload</button>     
-                <div class="col text-end">
+                <div class="col-8 form-text">{{$screenshot}}</div>
+                <div class="col-4 text-end">
                   <button type="reset" id="uploader-intro-reset" class="btn btn-outline-danger">Reset</button>
                   <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
               </div>
               <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-intro-results"></div>
+            </form>
+          </div>
+          <div class="modal-footer"></div>
+        </div>
+      </div>
+    </div>
+    {{- /*  Trainer, game hack or installer app  */}}
+    <div class="modal fade" id="uploader-trainer-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploader-trainer-label" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="uploader-trainer-label">Trainer, game hack or installer app</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="uploader-trainer-form" 
+                  hx-encoding="multipart/form-data" 
+                  hx-post="/uploader/trainer"
+                  hx-target="#uploader-trainer-results"
+                  hx-validate="true">
+              <input type="hidden" name="uploader-trainer-lastmodified" id="uploader-trainer-last-modified">
+              <input type="hidden" name="uploader-trainer-magic" id="uploader-trainer-magic">
+              <div class="form-floating mb-3">
+                <input type="text" name="uploader-trainer-title" class="form-control" id="uploader-trainer-title" aria-describedby="uploader-trainer-title-help" placeholder="example: 500000th release!">
+                <label for="uploader-trainer-title">Title</label>
+                <div id="uploader-trainer-title-help" class="form-text">The name of the release</div>
+              </div>
+              <div class="mb-4">
+                <label for="uploader-trainer-releaser-1" class="form-label">Releasers <small>maximum of 2</small></label>
+                <div class="input-group">
+                  <input type="text" list="uploader-trainer-list-1" name="uploader-trainer-releaser1" class="form-control" id="uploader-trainer-releaser-1" 
+                      aria-describedby="uploader-trainer-releasers-help" placeholder="example: Razor 1911" 
+                      hx-post="/uploader/releaser/1" 
+                      hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
+                      hx-target="#uploader-trainer-list-1" 
+                      required>
+                  <span class="input-group-text">+</span>
+                  <input type="text" list="uploader-trainer-list-2" name="uploader-trainer-releaser2" class="form-control" id="uploader-trainer-releaser-2" 
+                      aria-describedby="uploader-trainer-releasers-help" placeholder="example: Titan" 
+                      hx-post="/uploader/releaser/2" 
+                      hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
+                      hx-target="#uploader-trainer-list-2">
+                </div>
+                <datalist id="uploader-trainer-list-1"></datalist>
+                <datalist id="uploader-trainer-list-2"></datalist>
+                <div id="uploader-trainer-releasers-help" class="form-text">
+                  A releaser can be a group name, bbs name or ftp site<br>
+                  A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q><br>
+                  example: <q>Dark Domain BBS</q> or <q>Dark Domain FTP</q>
+                </div>
+              </div>
+              <div class="input-group mb-3">
+                <span class="input-group-text">Year and month of release</span>
+                <input type="number" name="uploader-trainer-year" min="1980" max="{{exampleYear}}" 
+                  id="uploader-trainer-year" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
+                <input type="number" name="uploader-trainer-month" min="1" max="12" 
+                  id="uploader-trainer-month" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
+              </div>
+              <div class="input-group mb-3">
+                <label class="form-label">Type of release and operating system</label>
+                <div class="btn-group w-100" role="group" aria-label="Basic radio toggle button group">
+                  <input type="radio" value="gamehack" class="btn-check" name="uploader-trainer-category" id="uploader-trainer-gamehack" autocomplete="off" checked>
+                  <label class="btn btn-outline-primary w-50" for="uploader-trainer-gamehack" data-bs-toggle="tooltip" data-bs-placement="top" 
+                      data-bs-title="A game cheat, trainer or hack">Trainer</label>
+                  <input type="radio" value="installer" class="btn-check" name="uploader-trainer-category" id="uploader-trainer-installer" autocomplete="off">
+                  <label class="btn btn-outline-primary w-50" for="uploader-trainer-installer" data-bs-toggle="tooltip" data-bs-placement="top" 
+                      data-bs-title="A installation app for a release">Installer</label>
+                </div>
+                <div class="btn-group w-100 mt-1" role="group" aria-label="Basic radio toggle button group">
+                  <input type="radio" value="windows" class="btn-check" name="uploader-trainer-operating-system" id="uploader-trainer-windows" autocomplete="off" checked>
+                  <label class="btn btn-outline-primary w-50" for="uploader-trainer-windows" data-bs-toggle="tooltip" data-bs-placement="top" 
+                      data-bs-title="Microsoft&nbsp;Windows">Windows PC</label>
+                  <input type="radio" value="dos" class="btn-check" name="uploader-trainer-operating-system" id="uploader-trainer-msdos" autocomplete="off">
+                  <label class="btn btn-outline-primary w-50" for="uploader-trainer-msdos" data-bs-toggle="tooltip" data-bs-placement="top" 
+                      data-bs-title="IBM&nbsp;PC or MS-DOS compatible">Dos PC</label>
+                </div>
+              </div>
+              <div class="row g-2">
+                <div class="input-group mt-3">
+                  <input type="file" name="uploader-trainerfile" id="uploader-trainer-file" class="form-control" required>
+                </div>
+                <div class="d-none alert alert-danger mt-2" role="alert" id="uploader-trainer-alert"></div>
+                <progress id="uploader-trainer-progress" value="0" max="100"></progress>
+                <button id="uploader-trainer-submit" class="btn btn-success">Upload</button>     
+                <div class="col-8 form-text">{{$screenshot}}</div>
+                <div class="col-4 text-end">
+                  <button type="reset" id="uploader-trainer-reset" class="btn btn-outline-danger">Reset</button>
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+              </div>
+              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-trainer-results"></div>
             </form>
           </div>
           <div class="modal-footer"></div>
@@ -346,7 +445,7 @@
                 <div class="d-none alert alert-danger mt-2" role="alert" id="uploader-image-alert"></div>
                 <progress id="uploader-image-progress" value="0" max="100"></progress>
                 <button id="uploader-image-submit" class="btn btn-success">Upload</button>     
-                <div class="col image-end">
+                <div class="col text-end">
                   <button type="reset" id="uploader-image-reset" class="btn btn-outline-danger">Reset</button>
                   <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
@@ -428,7 +527,8 @@
                 <div class="d-none alert alert-danger mt-2" role="alert" id="uploader-magazine-alert"></div>
                 <progress id="uploader-magazine-progress" value="0" max="100"></progress>
                 <button id="uploader-magazine-submit" class="btn btn-success">Upload</button>     
-                <div class="col text-end">
+                <div class="col-8 form-text">{{$screenshot}}</div>
+                <div class="col-4 text-end">
                   <button type="reset" id="uploader-magazine-reset" class="btn btn-outline-danger">Reset</button>
                   <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
@@ -545,7 +645,8 @@
                 <div class="d-none alert alert-danger mt-2" role="alert" id="uploader-advanced-alert"></div>
                 <progress id="uploader-advanced-progress" value="0" max="100"></progress>
                 <button id="uploader-advanced-submit" class="btn btn-success">Upload</button>     
-                <div class="col text-end">
+                <div class="col-8 form-text">{{$screenshot}}</div>
+                <div class="col-4 text-end">
                   <button type="reset" id="uploader-advanced-reset" class="btn btn-outline-danger">Reset</button>
                   <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>

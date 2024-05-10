@@ -8,6 +8,7 @@ import { submit as imageSubmit } from "./uploader-image.mjs";
 import { submit as introSubmit } from "./uploader-intro.mjs";
 import { submit as magazineSubmit } from "./uploader-magazine.mjs";
 import { submit as textSubmit } from "./uploader-text.mjs";
+import { submit as trainerSubmit } from "./uploader-trainer.mjs";
 import { submit as advancedSubmit } from "./uploader-advanced.mjs";
 import { progress } from "./uploader.mjs";
 
@@ -23,6 +24,9 @@ import { progress } from "./uploader.mjs";
 
   introSubmit(`uploader-intro-submit`);
   progress(`uploader-intro-form`, `uploader-intro-progress`);
+
+  trainerSubmit(`uploader-trainer-submit`);
+  progress(`uploader-trainer-form`, `uploader-trainer-progress`);
 
   magazineSubmit(`uploader-magazine-submit`);
   progress(`uploader-magazine-form`, `uploader-magazine-progress`);

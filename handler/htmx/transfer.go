@@ -127,6 +127,15 @@ func TextSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
 	return transfer(c, logger, key)
 }
 
+// TrainerSubmit is a handler for the /uploader/trainer route.
+func TrainerSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
+	if prod {
+		logger = nil
+	}
+	const key = "uploader-trainer"
+	return transfer(c, logger, key)
+}
+
 // AdvancedSubmit is a handler for the /uploader/advanced route.
 func AdvancedSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
 	if prod {
@@ -166,11 +175,6 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key string) error {
 		return c.HTML(http.StatusServiceUnavailable,
 			"Cannot begin the database transaction.")
 	}
-	defer func() {
-		if err := tx.Rollback(); err != nil {
-			logger.Error(err)
-		}
-	}()
 	exist, err := model.SHA384Exists(ctx, db, checksum)
 	if err != nil {
 		return checkExist(c, logger, err)
@@ -324,6 +328,11 @@ func (cr creator) insert(ctx context.Context, c echo.Context, logger *zap.Sugare
 	values.Add(cr.key+"-size", strconv.FormatInt(cr.file.Size, 10))
 	values.Add(cr.key+"-content", strings.Join(cr.content, "\n"))
 	values.Add(cr.key+"-readme", cr.readme)
+
+	fmt.Println("KEY: ", cr.readme, cr.key)
+	for k, v := range values {
+		fmt.Println(k, v)
+	}
 
 	id, err := model.InsertUpload(ctx, tx, values, cr.key)
 	if err != nil {

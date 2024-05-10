@@ -62,6 +62,9 @@ func htmxGroup(e *echo.Echo, logger *zap.SugaredLogger, prod bool) *echo.Echo {
 	g.POST("/uploader/text", func(c echo.Context) error {
 		return htmx.TextSubmit(c, logger, prod)
 	})
+	g.POST("/uploader/trainer", func(c echo.Context) error {
+		return htmx.TrainerSubmit(c, logger, prod)
+	})
 	return e
 }
 
@@ -69,6 +72,7 @@ func releaser1(c echo.Context) string {
 	lookups := []string{
 		"artifact-editor-releaser1",
 		"uploader-intro-releaser1",
+		"uploader-trainer-releaser1",
 		"uploader-text-releaser1",
 		"uploader-image-releaser1",
 		"uploader-advanced-releaser1",
@@ -85,6 +89,7 @@ func releaser2(c echo.Context) string {
 	lookups := []string{
 		"artifact-editor-releaser2",
 		"uploader-intro-releaser2",
+		"uploader-trainer-releaser2",
 		"uploader-text-releaser2",
 		"uploader-image-releaser2",
 		"uploader-advanced-releaser2",

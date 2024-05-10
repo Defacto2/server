@@ -14,6 +14,10 @@ const introModal = focusModalById(
   "uploader-intro-modal",
   "uploader-intro-file"
 );
+const trainerModal = focusModalById(
+  "uploader-trainer-modal",
+  "uploader-trainer-file"
+);
 const textModal = focusModalById("uploader-text-modal", "uploader-text-file");
 const graphicModal = focusModalById(
   "uploader-image-modal",
@@ -31,6 +35,7 @@ const advancedModal = focusModalById(
 const demozoo = "d",
   pouet = "p",
   intro = "i",
+  trainer = "t",
   nfo = "n",
   graphic = "g",
   magazine = "m",
@@ -53,6 +58,9 @@ export function keyboardShortcuts() {
         break;
       case intro:
         introModal.show();
+        break;
+      case trainer:
+        trainerModal.show();
         break;
       case nfo:
         textModal.show();
