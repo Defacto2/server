@@ -23,6 +23,7 @@ var (
 	ErrCreators     = errors.New("invalid reset creators format")
 	ErrDate         = errors.New("invalid reset date format")
 	ErrDB           = errors.New("database connection is nil")
+	ErrDir          = errors.New("cannot be a directory")
 	ErrExist        = errors.New("file already exists")
 	ErrFile         = errors.New("cannot be a file")
 	ErrFileHead     = errors.New("file header is nil")
@@ -30,6 +31,7 @@ var (
 	ErrRoutes       = errors.New("echo instance is nil")
 	ErrUploaderDest = errors.New("invalid uploader destination")
 	ErrUploaderSave = errors.New("cannot save a file to the uploader destination")
+	ErrUUID         = errors.New("invalid or an empty UUID")
 )
 
 // DemozooProd fetches the multiple download_links values from the

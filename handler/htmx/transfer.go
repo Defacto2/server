@@ -13,6 +13,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -20,10 +21,12 @@ import (
 	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/form"
+	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -200,14 +203,42 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key, downloadDir string
 	creator := creator{
 		file: file, readme: readme, key: key, checksum: checksum, content: content,
 	}
-	if id, err := creator.insert(ctx, c, logger, tx); err != nil {
+	id, uid, err := creator.insert(ctx, c, logger, tx)
+	if err != nil {
 		return fmt.Errorf("creator.insert: %w", err)
 	} else if id == 0 {
 		return nil
 	}
-	// defer copying the file to the archive directory
-
+	defer Duplicate(logger, uid, dst, downloadDir)
 	return success(c, logger, file.Filename)
+}
+
+// Duplicate copies the chosen file to the destination directory.
+// The UUID needs be provided as a unique identifier for the filename.
+// The source path is the temporary file that was uploaded.
+// The destination directory is where the file will be copied to.
+func Duplicate(logger *zap.SugaredLogger, uid uuid.UUID, srcPath, dstDir string) {
+	if uid.String() == "" {
+		logger.Errorf("%w, %s", ErrUUID, uid)
+		return
+	}
+	st, err := os.Stat(srcPath)
+	if err != nil {
+		logger.Errorf("os.Stat: %w, %s", err, srcPath)
+		return
+	}
+	if st.IsDir() {
+		logger.Errorf("%w, %s", ErrDir, srcPath)
+		return
+	}
+	newPath := filepath.Join(dstDir, uid.String())
+	i, err := helper.Duplicate(srcPath, newPath)
+	if err != nil {
+		logger.Errorf("helper.Duplicate: %w,%q,  %s",
+			err, uid.String(), srcPath)
+		return
+	}
+	logger.Infof("Uploader copied %d bytes for %s, to the destination dir", i, uid.String())
 }
 
 func checkDest(dest string) (string, error) {
@@ -339,13 +370,14 @@ type creator struct {
 }
 
 func (cr creator) insert(ctx context.Context, c echo.Context, logger *zap.SugaredLogger, tx *sql.Tx,
-) (int64, error) {
+) (int64, uuid.UUID, error) {
+	noID := uuid.UUID{}
 	values, err := c.FormParams()
 	if err != nil {
 		if logger != nil {
 			logger.Error(err)
 		}
-		return 0, c.HTML(http.StatusInternalServerError,
+		return 0, noID, c.HTML(http.StatusInternalServerError,
 			"The form parameters could not be read")
 	}
 	values.Add(cr.key+"-filename", cr.file.Filename)
@@ -354,20 +386,15 @@ func (cr creator) insert(ctx context.Context, c echo.Context, logger *zap.Sugare
 	values.Add(cr.key+"-content", strings.Join(cr.content, "\n"))
 	values.Add(cr.key+"-readme", cr.readme)
 
-	fmt.Println("KEY: ", cr.readme, cr.key)
-	for k, v := range values {
-		fmt.Println(k, v)
-	}
-
-	id, err := model.InsertUpload(ctx, tx, values, cr.key)
+	id, uid, err := model.InsertUpload(ctx, tx, values, cr.key)
 	if err != nil {
 		if logger != nil {
 			logger.Error(err)
 		}
-		return 0, c.HTML(http.StatusInternalServerError,
+		return 0, noID, c.HTML(http.StatusInternalServerError,
 			"The form submission could not be inserted")
 	}
-	return id, nil
+	return id, uid, nil
 }
 
 func success(c echo.Context, logger *zap.SugaredLogger, filename string) error {

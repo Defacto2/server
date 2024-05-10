@@ -71,23 +71,24 @@ func InsertPouet(ctx context.Context, db *sql.DB, id int64) (int64, error) {
 // InsertUpload inserts a new file record into the database using a URL values map.
 // This will not check if the file already exists in the database.
 // Invalid values will be ignored, but will not prevent the record from being inserted.
-// When successful the function will return the new record ID.
-func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string) (int64, error) {
+// When successful the function will return the new record ID key and the UUID.
+func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string) (int64, uuid.UUID, error) {
+	noID := uuid.UUID{}
 	if tx == nil {
-		return 0, ErrDB
+		return 0, noID, ErrDB
 	}
 	now, uid, err := NewV7()
 	if err != nil {
-		return 0, fmt.Errorf("uuid.NewV7: %w", err)
+		return 0, noID, fmt.Errorf("uuid.NewV7: %w", err)
 	}
 	unique := null.StringFrom(uid.String())
 	deleteT := null.TimeFromPtr(&now)
 	if !deleteT.Valid || deleteT.Time.IsZero() {
-		return 0, fmt.Errorf("%w: %v", ErrTime, deleteT.Time)
+		return 0, noID, fmt.Errorf("%w: %v", ErrTime, deleteT.Time)
 	}
 	createT := null.TimeFromPtr(&now)
 	if !createT.Valid || createT.Time.IsZero() {
-		return 0, fmt.Errorf("%w: %v", ErrTime, createT.Time)
+		return 0, noID, fmt.Errorf("%w: %v", ErrTime, createT.Time)
 	}
 	f := models.File{
 		UUID:      unique,
@@ -96,15 +97,15 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 	}
 	f, err = upload(f, values, key)
 	if err != nil {
-		return 0, fmt.Errorf("upload: %w", err)
+		return 0, noID, fmt.Errorf("upload: %w", err)
 	}
 	if err = f.Insert(ctx, tx, boil.Infer()); err != nil {
-		return 0, fmt.Errorf("f.Insert: %w", err)
+		return 0, noID, fmt.Errorf("f.Insert: %w", err)
 	}
 	if err = tx.Commit(); err != nil {
-		return 0, fmt.Errorf("tx.Commit: %w", err)
+		return 0, noID, fmt.Errorf("tx.Commit: %w", err)
 	}
-	return f.ID, nil
+	return f.ID, uid, nil
 }
 
 func upload(f models.File, values url.Values, key string) (models.File, error) {

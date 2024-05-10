@@ -9,7 +9,15 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
+)
+
+const (
+	// WriteWriteRead is the file mode for read and write access.
+	// The file owner and group has read and write access, and others have read access.
+	WriteWriteRead fs.FileMode = 0o664
+	// TODO: user and group chown of file?
 )
 
 // Count returns the number of files in the given directory.
@@ -33,6 +41,31 @@ func Count(dir string) (int, error) {
 		i++
 	}
 	return i, nil
+}
+
+// Duplicate is a workaround for renaming files across different devices.
+// A cross device can also be a different file system such as a Docker volume.
+func Duplicate(oldpath, newpath string) (int64, error) {
+	src, err := os.Open(oldpath)
+	if err != nil {
+		return 0, fmt.Errorf("os.Open: %w", err)
+	}
+	defer src.Close()
+	dst, err := os.Create(newpath)
+	if err != nil {
+		return 0, fmt.Errorf("os.Create: %w", err)
+	}
+	defer dst.Close()
+
+	written, err := io.Copy(dst, src)
+	if err != nil {
+		return 0, fmt.Errorf("io.Copy: %w", err)
+	}
+	if err = os.Chmod(newpath, WriteWriteRead); err != nil {
+		defer os.Remove(newpath)
+		return 0, fmt.Errorf("os.Chmod %d: %w", WriteWriteRead, err)
+	}
+	return written, nil
 }
 
 // File returns true if the named file exists on the system.
