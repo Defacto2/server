@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/Defacto2/server/internal/jsdos"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -55,11 +54,6 @@ const ClauseOldDate = "date_issued_year ASC NULLS LAST, " +
 
 // ClauseNoSoftDel is the clause to exclude soft deleted records.
 const ClauseNoSoftDel = "deletedat IS NULL"
-
-// Cache returns true if the statistics are considered to be valid.
-func Cache(b, c int, t time.Time) bool {
-	return b > 0 && c > 0 && t.Before(time.Now().Add(-time.Hour*1))
-}
 
 func calc(o, l int) int {
 	if o < 1 {
