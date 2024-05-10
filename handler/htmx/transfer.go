@@ -89,66 +89,69 @@ func LookupSHA384(c echo.Context, logger *zap.SugaredLogger) error {
 }
 
 // ImageSubmit is a handler for the /uploader/image route.
-func ImageSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
+func ImageSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool, downloadDir string) error {
 	if prod {
 		logger = nil
 	}
 	const key = "uploader-image"
 	c.Set(key+"-operating-system", tags.Image.String())
-	return transfer(c, logger, key)
+	return transfer(c, logger, key, downloadDir)
 }
 
 // IntroSubmit is a handler for the /uploader/intro route.
-func IntroSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
+func IntroSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool, downloadDir string) error {
 	if prod {
 		logger = nil
 	}
 	const key = "uploader-intro"
 	c.Set(key+"-category", tags.Intro.String())
-	return transfer(c, logger, key)
+	return transfer(c, logger, key, downloadDir)
 }
 
 // MagazineSubmit is a handler for the /uploader/magazine route.
-func MagazineSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
+func MagazineSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool, downloadDir string) error {
 	if prod {
 		logger = nil
 	}
 	const key = "uploader-magazine"
 	c.Set(key+"-category", tags.Mag.String())
-	return transfer(c, logger, key)
+	return transfer(c, logger, key, downloadDir)
 }
 
 // TextSubmit is a handler for the /uploader/text route.
-func TextSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
+func TextSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool, downloadDir string) error {
 	if prod {
 		logger = nil
 	}
 	const key = "uploader-text"
-	return transfer(c, logger, key)
+	return transfer(c, logger, key, downloadDir)
 }
 
 // TrainerSubmit is a handler for the /uploader/trainer route.
-func TrainerSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
+func TrainerSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool, downloadDir string) error {
 	if prod {
 		logger = nil
 	}
 	const key = "uploader-trainer"
-	return transfer(c, logger, key)
+	return transfer(c, logger, key, downloadDir)
 }
 
 // AdvancedSubmit is a handler for the /uploader/advanced route.
-func AdvancedSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool) error {
+func AdvancedSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool, downloadDir string) error {
 	if prod {
 		logger = nil
 	}
 	const key = "uploader-advanced"
-	return transfer(c, logger, key)
+	return transfer(c, logger, key, downloadDir)
 }
 
 // Transfer is a generic file transfer handler that uploads and validates a chosen file upload.
 // The provided name is that of the form input field. The logger is optional and if nil then
 // the function will not log any debug information.
-func transfer(c echo.Context, logger *zap.SugaredLogger, key string) error {
+func transfer(c echo.Context, logger *zap.SugaredLogger, key, downloadDir string) error {
+	if s, err := checkDest(downloadDir); err != nil {
+		return c.HTML(http.StatusInternalServerError, s)
+	}
 	name := key + "file"
 	file, err := c.FormFile(name)
 	if err != nil {
@@ -173,7 +176,7 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key string) error {
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return c.HTML(http.StatusServiceUnavailable,
-			"Cannot begin the database transaction.")
+			"Cannot begin the database transaction")
 	}
 	exist, err := model.SHA384Exists(ctx, db, checksum)
 	if err != nil {
@@ -190,7 +193,7 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key string) error {
 	}
 	if dst == "" {
 		return c.HTML(http.StatusInternalServerError,
-			"The temporary save cannot be created.")
+			"The temporary save cannot be created")
 	}
 	content, _ := archive.List(dst, file.Filename)
 	readme := archive.Readme(file.Filename, content...)
@@ -202,7 +205,29 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key string) error {
 	} else if id == 0 {
 		return nil
 	}
+	// defer copying the file to the archive directory
+
 	return success(c, logger, file.Filename)
+}
+
+func checkDest(dest string) (string, error) {
+	st, err := os.Stat(dest)
+	if err != nil {
+		return "The uploader is misconfigured and cannot save your file",
+			fmt.Errorf("%w, %w", ErrUploaderDest, err)
+	}
+	if !st.IsDir() {
+		return "The uploader is misconfigured and cannot save your file",
+			fmt.Errorf("%w, %w", ErrUploaderDest, ErrFile)
+	}
+	f, err := os.CreateTemp(dest, "uploader-*.zip")
+	if err != nil {
+		return "The uploader cannot save your file to the host system.",
+			fmt.Errorf("%w, %w", ErrUploaderSave, err)
+	}
+	defer f.Close()
+	defer os.Remove(f.Name())
+	return "", nil
 }
 
 func checkFormFile(c echo.Context, logger *zap.SugaredLogger, name string, err error) error {
@@ -211,7 +236,7 @@ func checkFormFile(c echo.Context, logger *zap.SugaredLogger, name string, err e
 		logger.Error(s)
 	}
 	return c.HTML(http.StatusBadRequest,
-		"The chosen file form input caused an error.")
+		"The chosen file form input caused an error")
 }
 
 func checkFileOpen(c echo.Context, logger *zap.SugaredLogger, name string, err error) error {
@@ -220,7 +245,7 @@ func checkFileOpen(c echo.Context, logger *zap.SugaredLogger, name string, err e
 		logger.Error(s)
 	}
 	return c.HTML(http.StatusBadRequest,
-		"The chosen file input cannot be opened.")
+		"The chosen file input cannot be opened")
 }
 
 func checkHasher(c echo.Context, logger *zap.SugaredLogger, name string, err error) error {
@@ -229,7 +254,7 @@ func checkHasher(c echo.Context, logger *zap.SugaredLogger, name string, err err
 		logger.Error(s)
 	}
 	return c.HTML(http.StatusInternalServerError,
-		"The chosen file input cannot be hashed.")
+		"The chosen file input cannot be hashed")
 }
 
 func checkDB(c echo.Context, logger *zap.SugaredLogger, err error) error {
@@ -238,7 +263,7 @@ func checkDB(c echo.Context, logger *zap.SugaredLogger, err error) error {
 		logger.Error(s)
 	}
 	return c.HTML(http.StatusServiceUnavailable,
-		"Cannot connect to the database.")
+		"Cannot connect to the database")
 }
 
 func checkExist(c echo.Context, logger *zap.SugaredLogger, err error) error {
@@ -247,7 +272,7 @@ func checkExist(c echo.Context, logger *zap.SugaredLogger, err error) error {
 		logger.Error(s)
 	}
 	return c.HTML(http.StatusServiceUnavailable,
-		"Cannot confirm the hash with the database.")
+		"Cannot confirm the hash with the database")
 }
 
 // copier is a generic file writer that saves the chosen file upload to a temporary file.
@@ -265,7 +290,7 @@ func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeade
 			logger.Error(s)
 		}
 		return "", c.HTML(http.StatusInternalServerError,
-			"The chosen file input cannot be opened.")
+			"The chosen file input cannot be opened")
 	}
 	defer src.Close()
 
@@ -276,7 +301,7 @@ func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeade
 			logger.Error(s)
 		}
 		return "", c.HTML(http.StatusInternalServerError,
-			"The temporary save cannot be created.")
+			"The temporary save cannot be created")
 	}
 	defer dst.Close()
 
@@ -286,7 +311,7 @@ func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeade
 			logger.Error(s)
 		}
 		return "", c.HTML(http.StatusInternalServerError,
-			"The temporary save cannot be written.")
+			"The temporary save cannot be written")
 	}
 	return dst.Name(), nil
 }
@@ -321,7 +346,7 @@ func (cr creator) insert(ctx context.Context, c echo.Context, logger *zap.Sugare
 			logger.Error(err)
 		}
 		return 0, c.HTML(http.StatusInternalServerError,
-			"The form parameters could not be read.")
+			"The form parameters could not be read")
 	}
 	values.Add(cr.key+"-filename", cr.file.Filename)
 	values.Add(cr.key+"-integrity", hex.EncodeToString(cr.checksum))
@@ -340,7 +365,7 @@ func (cr creator) insert(ctx context.Context, c echo.Context, logger *zap.Sugare
 			logger.Error(err)
 		}
 		return 0, c.HTML(http.StatusInternalServerError,
-			"The form submission could not be inserted.")
+			"The form submission could not be inserted")
 	}
 	return id, nil
 }
