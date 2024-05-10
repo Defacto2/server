@@ -68,13 +68,14 @@ type Download struct {
 func (d Download) HTTPSend(c echo.Context, logger *zap.SugaredLogger) error {
 	id := c.Param("id")
 	art, err := model.OneFileByKey(id)
-	if err != nil {
-		if errors.Is(err, model.ErrDB) && sess.Editor(c) {
-			art, err = model.OneEditByKey(id)
-		}
+	switch {
+	case err != nil && sess.Editor(c):
+		art, err = model.OneEditByKey(id)
 		if err != nil {
-			return fmt.Errorf("model.FindObf: %w", err)
+			return fmt.Errorf("model.OneEditByKey: %w", err)
 		}
+	case err != nil:
+		return fmt.Errorf("model.OneFileByKey: %w", err)
 	}
 	name := art.Filename.String
 	uid := strings.TrimSpace(art.UUID.String)
