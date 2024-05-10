@@ -25,7 +25,7 @@ func InsertDemozoo(ctx context.Context, db *sql.DB, id int64) (int64, error) {
 		return 0, fmt.Errorf("%w: %d", ErrID, id)
 	}
 
-	now, uid, err := uuidV7()
+	now, uid, err := NewV7()
 	if err != nil {
 		return 0, fmt.Errorf("uuid.NewV7: %w", err)
 	}
@@ -52,7 +52,7 @@ func InsertPouet(ctx context.Context, db *sql.DB, id int64) (int64, error) {
 		return 0, fmt.Errorf("%w: %d", ErrID, id)
 	}
 
-	now, uid, err := uuidV7()
+	now, uid, err := NewV7()
 	if err != nil {
 		return 0, fmt.Errorf("uuid.NewV7: %w", err)
 	}
@@ -76,7 +76,7 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 	if tx == nil {
 		return 0, ErrDB
 	}
-	now, uid, err := uuidV7()
+	now, uid, err := NewV7()
 	if err != nil {
 		return 0, fmt.Errorf("uuid.NewV7: %w", err)
 	}
@@ -166,9 +166,9 @@ func upload(f models.File, values url.Values, key string) (models.File, error) {
 	return f, nil
 }
 
-// uuidV7 generates a new UUID version 7, if that fails then it will fallback to version 1.
+// NewV7 generates a new UUID version 7, if that fails then it will fallback to version 1.
 // It also returns the current time.
-func uuidV7() (time.Time, uuid.UUID, error) {
+func NewV7() (time.Time, uuid.UUID, error) {
 	now := time.Now()
 	uid, err := uuid.NewV7()
 	if err == nil {

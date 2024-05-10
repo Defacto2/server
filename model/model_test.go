@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/model"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -274,4 +275,18 @@ func TestValidYouTube(t *testing.T) {
 	r, err = model.ValidYouTube(valid)
 	assert.NoError(t, err)
 	assert.True(t, r.Valid)
+}
+
+func TestValidNewV7(t *testing.T) {
+	t.Parallel()
+	now1, unid, err := model.NewV7()
+	assert.NoError(t, err)
+
+	now2 := time.Now()
+	diff := now2.Sub(now1).Minutes()
+	const oneMinute = 1.0
+	assert.LessOrEqual(t, diff, oneMinute)
+
+	err = uuid.Validate(unid.String())
+	assert.NoError(t, err)
 }
