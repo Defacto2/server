@@ -60,9 +60,9 @@ func Collection() Milestones {
 		},
 		{
 			Year: 1971, Month: 11, Day: 15, Title: "The first civilian microprocessor",
-			Lead: "Intel 4004", LinkTitle: "The Story of the Intel 4004",
+			Lead: "Intel 4004", LinkTitle: "The Story of the Intel&nbsp;4004",
 			Link: "https://www.intel.com/content/www/us/en/history/museum-story-of-intel-4004.html",
-			Content: "<p>Intel advertises the first-to-market general-purpose programmable processor or microprocessor, the 4-bit Intel 4004. " +
+			Content: "<p>Intel advertises the first-to-market general-purpose programmable processor or microprocessor, the 4-bit Intel&nbsp;4004. " +
 				"Its main uses were in <a href=\"http://www.vintagecalculators.com/html/busicom_141-pf.html\">calculators</a>, some early automatic teller machines, and other embedded devices.</p>" +
 				"<p>Busicom (formerly Nippon Calculating Machine Corp) <a href=\"http://nascojp.com/about.html\">first commissioned</a> the 4004 as part of a chipset for its 141PF Printing Calculator. " +
 				"The 4000 chipset comprises four branded components: the 4001 read-only memory, 4002 RAM, 4003 shift register memory, and the <strong>4004 processor</strong>.</p>",
@@ -71,7 +71,7 @@ func Collection() Milestones {
 			Year: 1972, Month: 4, Title: "The first 8-bit microprocessor",
 			Lead: "Intel 8008", LinkTitle: "The Story of the Intel 8008",
 			Link: "https://www.intel.com/content/www/us/en/history/virtual-vault/articles/the-8008.html",
-			Content: "<p>Intel released the world's first 8-bit microprocessor, the Intel 8008. Despite the branding, it was not an 8-bit extension of the 4-bit Intel 4004 but a new architecture.</p>" +
+			Content: "<p>Intel released the world's first 8-bit microprocessor, the Intel&nbsp;8008. Despite the branding, it was not an 8-bit extension of the 4-bit Intel&nbsp;4004 but a new architecture.</p>" +
 				"<p>Computer Terminal Corporation of Texas commissioned the new Intel chip for their cost-effective <a href=\"https://history-computer.com/datapoint-2200-guide/\">Datapoint 2200</a> computer terminal. Designed as a dumb terminal, CTC realized it could also operate as a programmable device with a central processing unit.</p>" +
 				"<p>Manufacturing issues with the 8008 and deadlines meant that the Datapoint 2200 ditched the CPU. Instead, CTC followed the common practice of building the internals from discrete transistor-transistor (TTL) logic.</p>",
 			Picture: Picture{
@@ -114,7 +114,7 @@ func Collection() Milestones {
 			Year: 1975, Month: 1, Title: "The first popular microcomputer",
 			Lead: "Altair 8800", LinkTitle: "about the Altair 8800",
 			Link: "https://americanhistory.si.edu/collections/search/object/nmah_334396",
-			Content: "<p>The worlds first popular microcomputer appears on the <a href=\"https://archive.org/details/197501PopularElectronics\">front cover</a> of Popular Electronics in the USA, the <strong>Altair 8800</strong> by MITS running on the Intel <strong>8080 CPU</strong>. " +
+			Content: "<p>The worlds first popular microcomputer appears on the <a href=\"https://archive.org/details/197501PopularElectronics\">front cover</a> of Popular Electronics in the USA, the <strong>Altair&nbsp;8800</strong> by MITS running on the Intel <strong>8080 CPU</strong>. " +
 				"Even for the time, the Altair was a primitive device, requiring toggle on/off switches for input and blinking red LED lights for output, and there was no way to save programs. But it was the first widely available programmable computer that didn't cost an arm, a leg, or a house.</p>" +
 				"<p>Eventually, with the system's popularity and its use of the modular <a href=\"http://www.s100computers.com/History.htm#The%20S-100%20Bus\">S-100 bus interface</a>, an upgraded Altair platform allowed for storage, teletype-keyboard input, printer output and displays.</p>",
 		},
@@ -122,7 +122,7 @@ func Collection() Milestones {
 			Year: 1975, Month: 2, Title: "The first microcomputer software",
 			Lead: "Altair BASIC", LinkTitle: "about origins of BASIC",
 			Link: "https://time.com/69316/basic/",
-			Content: "Paul Allen and Bill Gates program and sell <strong>Altair BASIC</strong> for the computer they first saw a month prior. " +
+			Content: "Paul Allen and Bill Gates program and sell <strong>Altair&nbsp;BASIC</strong> for the computer they first saw a month prior. " +
 				"BASIC (Beginner's All-Purpose Symbolic Instruction Code) was a programming language conceived by John Kemeny and Thomas Jurtz of Dartmouth College in early 1964 to be as approachable as possible.",
 			Picture: Picture{
 				Title:       "Can anyone beat the Altair System?",
@@ -155,7 +155,7 @@ func Collection() Milestones {
 			Year: 1976, Month: 1, Title: "Software piracy", Highlight: true,
 			Lead: "An Open Letter to Hobbyists", LinkTitle: "the letter",
 			Link: "https://archive.org/details/hcc0201/Homebrew.Computer.Club.Volume.02.Issue.01.Len.Shustek/page/n1/mode/2up",
-			Content: "<p>Bill Gates of <em>Micro-Soft</em> writes a letter to the hobbyists of the Homebrew Computer Club requesting they <u>stop stealing</u> <strong>Altair BASIC</strong>. " +
+			Content: "<p>Bill Gates of <em>Micro-Soft</em> writes a letter to the hobbyists of the Homebrew Computer Club requesting they <u>stop stealing</u> <strong>Altair&nbsp;BASIC</strong>. " +
 				"However, US copyright law generally did not apply to software then. Copying an application was the same as sharing the instructions of a cooking recipe.</p>" +
 				"<p><q>As the majority of hobbyists must be aware, most of you steal your software. Hardware must be paid for, but software is something to share. Who cares if the people who worked on it get paid.</q></p>",
 			Picture: Picture{
@@ -174,15 +174,15 @@ func Collection() Milestones {
 			Link: "https://www.computerhistory.org/revolution/personal-computers/17/312/1132",
 			Content: "<p>Steve Wozniak and Steve Jobs release the Apple&nbsp;I, a single-board computer with a " +
 				"<a href=\"https://spectrum.ieee.org/chip-hall-of-fame-mos-technology-6502-microprocessor\">MOS 6502</a> CPU, 4KB of RAM, and a 40-column display controller.</p>" +
-				"<p>Unlike the more popular and earlier Altair 8800, the Apple Computer wasn't usable out of the box and didn't come with a case. However, <a href=\"https://upload.wikimedia.org/wikipedia/commons/4/48/Apple_1_Advertisement_Oct_1976.jpg\">it did offer</a> a convenient video terminal, cassette, and keyboard interface, requiring owners to supply peripherals for output, storage, and input." +
+				"<p>Unlike the more popular and earlier Altair&nbsp;8800, the Apple Computer wasn't usable out of the box and didn't come with a case. However, <a href=\"https://upload.wikimedia.org/wikipedia/commons/4/48/Apple_1_Advertisement_Oct_1976.jpg\">it did offer</a> a convenient video terminal, cassette, and keyboard interface, requiring owners to supply peripherals for output, storage, and input." +
 				"</p><p>The choice of the new, powerful, and affordable <strong>MOS 6502</strong> CPU showed foresight, as it later became the basis of far more successful microcomputer and consoles.<p>" +
 				ul0 +
-				"<li>Atari 2600 <sup>1977</sup></li>" +
-				"<li>Apple II <sup>1977</sup></li>" +
-				"<li>Commodore PET <sup>1977</sup></li>" +
-				"<li>Commodore VIC-20 <sup>1981</sup></li>" +
+				"<li>Atari&nbsp;2600 <sup>1977</sup></li>" +
+				"<li>Apple&nbsp;II <sup>1977</sup></li>" +
+				"<li>Commodore&nbsp;PET <sup>1977</sup></li>" +
+				"<li>Commodore&nbsp;VIC-20 <sup>1981</sup></li>" +
 				"<li>Commodore&nbsp;64 <sup>1982</sup></li>" +
-				"<li>Nintendo Entertainment System <sup>1983</sup></li>" +
+				"<li>Nintendo&nbsp;Entertainment&nbsp;System <sup>1983</sup></li>" +
 				ul1,
 		},
 		{
@@ -231,7 +231,7 @@ func Collection() Milestones {
 			Year: 1978, Month: 6, Title: "The first x86 CPU",
 			Lead: "Intel 8086", LinkTitle: "about the Intel 8086",
 			Link: "https://www.pcworld.com/article/535966/article-7512.html",
-			Content: "<p>Intel released the 16-bit programmable microprocessor, the <strong>Intel 8086</strong>, which began the <em>x86-architecture</em> and Intel PC platform.</p>" +
+			Content: "<p>Intel released the 16-bit programmable microprocessor, the <strong>Intel&nbsp;8086</strong>, which began the <em>x86-architecture</em> and Intel PC platform.</p>" +
 				"<p>In July 1976, the startup Zilog launched its first product, the <a href=\"https://spectrum.ieee.org/chip-hall-of-fame-zilog-z80-microprocessor\">Z80 CPU</a>, an enhanced, cheaper and software-compatible 8080 clone. " +
 				"Eventually, the Z80 became one of the most successful 8-bit CPUs. " +
 				"Months later, Intel released the <a href=\"https://timeline.intel.com/1976/8085-microprocessor\">8085</a>, an update to the 8080 CPU line, improving circuitry power requirements and reducing implementation costs.</p>" +
@@ -251,8 +251,8 @@ func Collection() Milestones {
 			Title: "The first popular x86 CPU", Year: 1979, Month: 6,
 			Lead: "Intel 8088", LinkTitle: "about the Intel 8088",
 			Link: "https://spectrum.ieee.org/chip-hall-of-fame-intel-8088-microprocessor",
-			Content: "Intel releases a lesser 16-bit microprocessor, the <strong>Intel 8088</strong>. " +
-				"While <u>fully compatible</u> with the earlier Intel 8086 CPU, this model is intentionally \"castrated\" with an 8-bit external data bus. " +
+			Content: "Intel releases a lesser 16-bit microprocessor, the <strong>Intel&nbsp;8088</strong>. " +
+				"While <u>fully compatible</u> with the earlier Intel&nbsp;8086 CPU, this model is intentionally \"castrated\" with an 8-bit external data bus. " +
 				"The revision is an improvement for some buyers as it needs less expensive mainboard support chips and is compatible with the more readily available 8-bit hardware. " +
 				"<p>Software written for either CPU often gets quoted as <a href=\"https://archive.org/details/msdos-200-users-guide-1983/page/n3/mode/2up\">8086/8088 compatible</a>.</p>",
 		},
@@ -271,7 +271,7 @@ func Collection() Milestones {
 			Lead: "BBSes and the Apple II",
 			Content: "<p>Before the Internet, the <em>Computerized Bulletin Board System</em> was the primary tool for communication between microcomputer owners. In these early days, the setups allowed people to dial in using their computers to share and read public or private messages with other callers.</p>" +
 				"<p>The earliest <strong>CBBS</strong> setups ran off <a href=\"http://www.s100computers.com/\">S-100 bus-based computers</a>." +
-				"These systems shared the same S-100 interface bus but were incompatible microcomputers and motherboards of the 1970s fabricated by various manufacturers. When the Apple II received CBBS-like software in 1979, it was typically called ABBS or the Apple Bulletin Board System. " +
+				"These systems shared the same S-100 interface bus but were incompatible microcomputers and motherboards of the 1970s fabricated by various manufacturers. When the Apple&nbsp;II received CBBS-like software in 1979, it was typically called ABBS or the Apple Bulletin Board System. " +
 				"By September 1979, nationwide listings<sup><a href=\"#the-early-underground-fn1\">[1]</a></sup> for dozens of bulletin boards were running on ABBS, CBBS, and other platforms.</p>" +
 				// press attention
 				"<p>In the early days of the BBS, the mainstream computer press paid attention to boards, " +
@@ -297,12 +297,12 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The first crackers ?", Year: 1979, Highlight: true,
-			Content: "<p>We have yet to learn when or who started <strong>cracking</strong>, but it must have been after disk copy protection became common on Apple II software. " +
+			Content: "<p>We have yet to learn when or who started <strong>cracking</strong>, but it must have been after disk copy protection became common on Apple&nbsp;II software. " +
 				"Andrew McFadden has written about <a href=\"https://fadden.com/apple2/cassette-protect.html\">early copy protection</a> on specific Apple&nbsp;II games released on cassette tapes in 1978 and 1979, but these were probably unusual.</p>" +
 				// disk ii drive
 				"<p>However, the July 1978 retail debut of the <a href=\"https://collections.museumsvictoria.com.au/articles/2787\">Disk II</a> floppy drive with the first " +
 				"<a href=\"https://www.apple2history.org/history/ah14/#01\">Apple operating system</a> was a significant point. " +
-				"For the moneyed Apple II hobbyists, the drive and software became a must-have piece of kit that significantly improved the functionality of their machines and quickly caught on.</p>" +
+				"For the moneyed Apple&nbsp;II hobbyists, the drive and software became a must-have piece of kit that significantly improved the functionality of their machines and quickly caught on.</p>" +
 				// disk copy protection
 				"<p>The drive offered new benefits for software developers, including speed and reliability and complete control of the floppy drive hardware using software that the developers could write themselves. " +
 				"This ability encouraged them to embed <a href=\"https://www.bigmessowires.com/2015/08/27/apple-ii-copy-protection/\">disk copy protection methods</a> into software that are " +
@@ -450,7 +450,7 @@ func Collection() Milestones {
 				"8086 CPU <a href=\"http://www.s100computers.com/Hardware%20Folder/Seattle%20Computer%20Products/8086%20CPU%20Board/8086%20Board.htm\">plugin&nbsp;board</a> for the S-100 bus standard. " +
 				"Needing an operating system for the 16-bit Intel CPU, he programmed a half-complete, unauthorized clone of the CP/M operating system within four months. " +
 				"He called it <strong>QDOS</strong> (Quick and Dirty OS), and it sold few copies.</p>" +
-				"<p>Initially, QDOS got bundled with an Intel 8086 CPU and hardware <a href=\"http://www.s100computers.com/Hardware%20Folder/Seattle%20Computer%20Products/8086%20CPU%20Board/8086%20Board.htm\">package</a> for the S-100 bus. " +
+				"<p>Initially, QDOS got bundled with an Intel&nbsp;8086 CPU and hardware <a href=\"http://www.s100computers.com/Hardware%20Folder/Seattle%20Computer%20Products/8086%20CPU%20Board/8086%20Board.htm\">package</a> for the S-100 bus. " +
 				"But after poor sales, the OS was promptly renamed with the more business-friendly <a href=\"https://archive.org/details/bitsavers_seattleComanual1980_2120639/mode/2up\">86-DOS</a>.</p>",
 			Picture: Picture{
 				Title:       "Seattle Computer Products 86-DOS startup",
@@ -467,8 +467,8 @@ func Collection() Milestones {
 				"The Motorola series competed and operated in parallel with the incompatible Intel chips for the burgeoning microprocessor market. " +
 				"And like Intel, Motorola found its 8-bit chip designs reversed-engineered, enhanced, and undercut by its other competitors.</p>" +
 				"<p>But the 68000 was the 16-bit chip of the 1980s, powering everything from the Sega <a href=\"https://www.lifewire.com/history-of-sega-genesis-dawn-729670\">Megadrive/Genesis</a>, the Sega 16, the SNK NeoGeo, and various arcade games.</p>" +
-				"<p>Significantly, it was at the heart of a future generation personal computing platforms, the Apple Lisa <sup>1983</sup>, <a href=\"https://spectrum.ieee.org/apple-macintosh\">Apple Macintosh</a> <sup>1984</sup>, " +
-				"<a href=\"https://daily.redbullmusicacademy.com/2017/10/atari-st-instrumental-instruments\">Atari&nbsp;ST</a> <sup>1985</sup>, and the Commodore <a href=\"https://arstechnica.com/gadgets/2007/07/a-history-of-the-amiga-part-1/\">Amiga 1000</a> <sup>1985</sup>. " +
+				"<p>Significantly, it was at the heart of a future generation personal computing platforms, the Apple&nbsp;Lisa&nbsp;<sup>1983</sup>, <a href=\"https://spectrum.ieee.org/apple-macintosh\">Apple&nbsp;Macintosh</a>&nbsp;<sup>1984</sup>, " +
+				"<a href=\"https://daily.redbullmusicacademy.com/2017/10/atari-st-instrumental-instruments\">Atari&nbsp;ST</a>&nbsp;<sup>1985</sup>, and the Commodore&nbsp;<a href=\"https://arstechnica.com/gadgets/2007/07/a-history-of-the-amiga-part-1/\">Amiga&nbsp;1000</a>&nbsp;<sup>1985</sup>. " +
 				"These incompatible systems offered high-resolution graphics and their own mouse-driven <abbr title=\"Graphical User Interface\">GUI</abbr> operating system as standard. " +
 				"At a time when the typical microcomputer or PC relied upon dated, user-hostile text interaction." +
 				"<br><span title=\"The common input prompt for an IBM or Microsoft disk operating system\"><strong>A>_</strong></span></p>",
@@ -484,7 +484,7 @@ func Collection() Milestones {
 			Title: "The first PC", Year: 1981, Month: 8, Day: 12, Highlight: true,
 			Lead: "IBM Personal Computer", LinkTitle: "about the IBM PC",
 			Link:    "https://www.ibm.com/ibm/history/exhibits/pc25/pc25_birth.html",
-			Content: "Built on the 4.77 MHz <strong>Intel 8088</strong> microprocessor, 16KB of RAM and Microsoft's PC-DOS, this expensive and underpowered machine heralds the <u><strong>PC platform</strong></u>.",
+			Content: "Built on the 4.77 MHz <strong>Intel&nbsp;8088</strong> microprocessor, 16KB of RAM and Microsoft's PC-DOS, this expensive and underpowered machine heralds the <u><strong>PC platform</strong></u>.",
 			Picture: Picture{
 				Title:       "IBM PC 5150",
 				Alt:         "A photo of the IBM PC 5150",
@@ -561,7 +561,7 @@ func Collection() Milestones {
 				"So, modified <q><a href=\"http://artscene.textfiles.com/intros/APPLEII/thepirate.gif\">broken&nbsp;by</a></q> texts or <a href=\"http://artscene.textfiles.com/intros/APPLEII/flockland.gif\">static images</a> do not count.</p>" +
 				// apple ii
 				"<p>Unfortunately, it is challenging to date early pirated releases for the PC, Commodore&nbsp;64, or Apple&nbsp;II. Many crackers didn't date their releases, and the systems themselves didn't track time or stamp the files. " +
-				"But given the <a href=\"http://artscene.textfiles.com/intros/APPLEII/.thumbs.html\">proliferation</a> of <q>broken by</q> texts and graphic hacks in 1980-81 and 1982 on the Apple II in the USA, the early crack intro probably evolved here.</p>" +
+				"But given the <a href=\"http://artscene.textfiles.com/intros/APPLEII/.thumbs.html\">proliferation</a> of <q>broken by</q> texts and graphic hacks in 1980-81 and 1982 on the Apple&nbsp;II in the USA, the early crack intro probably evolved here.</p>" +
 				// mr xerox
 				"<p>The prolific, early Apple cracker <strong>Mr. Xerox</strong> probably created one of the first intro and scrollers in his <a href=\"https://archive.org/details/a2_Starblaster_19xx_C_G_cr_Star_Trek_1983_Sega_cr_Shuttle_Intercept_19xx__cr\">crack screen</a> " +
 				"for <strong>Star Blaster</strong> (c) 1981, which you can compare to the <a href=\"https://archive.org/details/Starblaster4amCrack\">original opening</a>.</p>" +
@@ -589,7 +589,7 @@ func Collection() Milestones {
 				"which focused on potential developers, but mostly the <a href=\"https://static.nosher.net/archives/computers/images/comm64_comci_1983-02-m.jpg\">business&nbsp;market</a>,<sup><a href=\"#berlin-bear-controversy-fn6\">[6]</a></sup> " +
 				"and a revised business focus advert ran in October 1983.<sup><a href=\"#berlin-bear-controversy-fn7\">[7]</a></sup></p>" +
 				// west berlin kids
-				"<p>We believe it unlikely that several kids from West Berlin, a city deep within the Soviet GDR, had access to the unreleased PAL Commodore 64 in <u>1982</u>. " +
+				"<p>We believe it unlikely that several kids from West Berlin, a city deep within the Soviet GDR, had access to the unreleased PAL Commodore&nbsp;64 in <u>1982</u>. " +
 				"It is more believable that these Berlin cracking groups were formed in late 1983 or 1984. " +
 				"However, the claim<sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup> is that various Berliners got together in 1982 and formed multiple <q>cracking</q> " +
 				"groups to trade in software and create art on an unreleased business microcomputer, even though software for it didn't need cracking.</p>" +
@@ -612,16 +612,16 @@ func Collection() Milestones {
 				"<a href=\"https://intros.c64.org/main.php?module=showintro&iid=156\">conversation on intros.c64.org</a>." +
 				div1 +
 				"<div id=\"berlin-bear-controversy-fn2\">[2] Jazzcat <a href=\"https://www.atlantis-prophecy.org/recollection/?load=crackers_map&country=germany\">writes</a> the image was created in an paint application that first came out in 1983.</div>" +
-				"<div id=\"berlin-bear-controversy-fn3\">[3] Commodore priced the $199 VIC-20 for home users. It is the Business Machines department of Commodore that advertises the $595 Commodore 64, <a href=\"https://www.power8bit.com/C64.html\">ad source</a>.</div>" +
+				"<div id=\"berlin-bear-controversy-fn3\">[3] Commodore priced the $199 VIC-20 for home users. It is the Business Machines department of Commodore that advertises the $595 Commodore&nbsp;64, <a href=\"https://www.power8bit.com/C64.html\">ad source</a>.</div>" +
 				"<div id=\"berlin-bear-controversy-fn4\">[4] Commodore: a company on the edge.</div>" +
 				"<div id=\"berlin-bear-controversy-fn5\">[5] See the February 1983 issue of Commodore Computing, <a href=\"https://web.archive.org/web/20160611085947if_/http://archive.6502.org/publications/commodore_computing_intl/commodore_computing_intl_1983_02.pdf\">pages 36-37</a>.</div>" +
 				"<div id=\"berlin-bear-controversy-fn6\">[6] Advert source <a href=\"https://nosher.net/archives/computers/comm64_comci_1983-02?idx=Designed\">nosher.net</a>.</div>" +
 				"<div id=\"berlin-bear-controversy-fn7\">[7] See the October 1993 issue of Practical Computing, <a href=\"https://worldradiohistory.com/UK/Practical-Computing/80s/Practical-Computing-1983-10-S-OCR.pdf\">pages 74-75</a>.</div>" +
 				"<div id=\"berlin-bear-controversy-fn8\">[8] Select quotes from an often referenced <a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">interview conducted in 2005-06</a>.</div>" +
-				"<div id=\"berlin-bear-controversy-fn9\">[9] This quote claims multiple Berlin-based sceners had access to the Commodore 64 in 1982 and were knowledgeable enough to program on it.</div>" +
-				"<div id=\"berlin-bear-controversy-fn10\">[10] This conflicting quote claims the Commodore 64 was unreleased or unavailable during Christmas 1982. " +
+				"<div id=\"berlin-bear-controversy-fn9\">[9] This quote claims multiple Berlin-based sceners had access to the Commodore&nbsp;64 in 1982 and were knowledgeable enough to program on it.</div>" +
+				"<div id=\"berlin-bear-controversy-fn10\">[10] This conflicting quote claims the Commodore&nbsp;64 was unreleased or unavailable during Christmas 1982. " +
 				"It also needs to be clarified why an Apple employee, through connections, would get a family friend access to a competitor machine.</div>" +
-				"<div id=\"berlin-bear-controversy-fn11\">[11] This quote suggests multiple Berlin cracking groups existed on the Commodore 64 in 1982 despite this and other sources stating the machine was unavailable in Germany.</div>" +
+				"<div id=\"berlin-bear-controversy-fn11\">[11] This quote suggests multiple Berlin cracking groups existed on the Commodore&nbsp;64 in 1982 despite this and other sources stating the machine was unavailable in Germany.</div>" +
 				"<div id=\"berlin-bear-controversy-fn12\">[12] Cracking games in this era means removing <q>disk</q> copy protection. Yet the German manual for the VC-1541 floppy disk drive is dated June 1983, which suggests it didn't sell in Germany until the latter half of 1983. The other early significant titles on the Commodore&nbsp;64 came on cartridges.</div>" +
 				"<div id=\"berlin-bear-controversy-fn13\">[13] Copying and sharing software wasn't criminal in the USA until the NET Act was signed in December 1997. Other countries passed similar laws in the 2000s.</div>" +
 				sect1,
@@ -642,7 +642,7 @@ func Collection() Milestones {
 		{
 			Title: "The great online reboot", Year: 1983, Month: 1, Day: 1,
 			Lead: "Internetworking", LinkTitle: "the Notable computer networks", Link: "https://dl.acm.org/doi/pdf/10.1145/6617.6618",
-			Content: "On January 1, 1983, the US Department of Defense coordinated the massive shutdown of its existing experimental wide-area network, <abbr title=\"Advanced Research Projects Agency Network\">ARPAnet</abbr>." +
+			Content: "On January 1, 1983, the US Department of Defense coordinated the massive shutdown of its existing experimental wide-area network, <abbr title=\"Advanced Research Projects Agency Network\">ARPAnet</abbr>. " +
 				"Referred to as <q>Flag Day,</q> the event required all systems associated with the US military network to reconnect using a new <abbr title=\"Transfer Control Protocol\">TCP</abbr>/<abbr title=\"Internetwork Protocol\">IP</abbr> protocol. " +
 				"The replacement protocol decentralized the network's operations and is somewhat inspired by the earlier French " +
 				"<a href=\"https://www.inria.fr/en/between-stanford-and-cyclades-transatlantic-perspective-creation-internet\">CYCLADES</a> packet-switch network. " +
@@ -684,8 +684,8 @@ func Collection() Milestones {
 			Title: "The earliest cracked PC game ?", Year: 1983,
 			Lead: "Atarisoft presents: Galaxian broken by The Koyote Kid", LinkTitle: "and view the crack",
 			Link: "/f/ab2edbc", Highlight: true,
-			Content: "<p>This modified Galaxian title screen is known as a <strong>crack screen</strong> and was a typical way for crackers on the Apple&nbsp;II to credit themselves. Crackers modified and removed disk copy protection from software for the sole purpose of allowing duplication.</p>" +
-				"<p>The online Apple II community commonly used the verbs \"broken\" or unprotected, cracked, and kracked. Given the popularity of the IBM&nbsp;PC in the USA, it is most likely The Koyote Kid was based in the USA and also interacted in the <a href=\"#the-first-crackers\">Apple II underground</a> Scene.</p>" +
+			Content: "<p>This modified Galaxian title screen is known as a <strong>crack&nbsp;screen</strong> and was a typical way for crackers on the Apple&nbsp;II to credit themselves. Crackers modified and removed disk copy protection from software for the sole purpose of allowing duplication.</p>" +
+				"<p>The online Apple&nbsp;II community commonly used the verbs \"broken\" or unprotected, cracked, and kracked. Given the popularity of the IBM&nbsp;PC in the USA, it is most likely The Koyote Kid was based in the USA and also interacted in the <a href=\"#the-first-crackers\">Apple&nbsp;II underground</a> Scene.</p>" +
 				"<p>Atarisoft released Galaxian on a floppy disk for IBM&nbsp;PC in 1983. Compared to the many other console and microcomputer ports, the PC conversion of a highly successful arcade title lacked color and sound.</p>" +
 				"<p><a href=\"https://www.mobygames.com/game/137/galaxian/screenshots/pc-booter/951/\">The original text</a> read <code>(C) 1983 ATARI, INC. PRESS SPACE TO CONTINUE.</code></p>",
 			Picture: Picture{
@@ -723,8 +723,8 @@ func Collection() Milestones {
 			LinkTitle: "the announcement",
 			Content: "<p>Around this time, <abbr title=\"graphical user interface\" class=\"initialism\">GUI</abbr> for microcomputing was all the hype within the technology industry and media. " +
 				"In hindsight, this premature announcement from Microsoft aimed to keep customers from jumping ship to competitor platforms and GUI offerings.</p>" +
-				"<p>It took a decade before graphical interfaces on the PC replaced text in business computing with Windows NT <sup>1993</sup> and even longer with Windows 95 <sup>1995</sup> before it became commonplace in the home." +
-				" Other microcomputer platforms, such as the <span class=\"text-nowrap\">Apple&nbsp;Macintosh <sup>1984</sup></span>, <span class=\"text-nowrap\">Commodore Amiga</span> and <span class=\"text-nowrap\">Atari&nbsp;ST <sup>1985</sup></span> came with a GUI as standard.</p>",
+				"<p>It took a decade before graphical interfaces on the PC replaced text in business computing with Windows&nbsp;NT&nbsp;<sup>1993</sup> and even longer with Windows&nbsp;95&nbsp;<sup>1995</sup> before it became commonplace in the home." +
+				" Other microcomputer platforms, such as the <span class=\"text-nowrap\">Apple&nbsp;Macintosh <sup>1984</sup></span>, <span class=\"text-nowrap\">Commodore&nbsp;Amiga</span> and <span class=\"text-nowrap\">Atari&nbsp;ST&nbsp;<sup>1985</sup></span> came with a GUI as standard.</p>",
 		},
 		{
 			Title: "First, dial-up Internet connections", Year: 1984,
@@ -970,7 +970,7 @@ func Collection() Milestones {
 			Lead: "AdLib Music Synthesizer Card", LinkTitle: "about the AdLib sound card",
 			Link: "https://www.computinghistory.org.uk/det/23724/AdLib-Music-Synthesizer-Card/",
 			Content: "The Music Synthesizer Card sound card is released. It was the first sound card to use FM synthesis and the first widely adopted by game developers. " +
-				"<strong>AdLib</strong>'s success was short-lived, as competitor <a href=\"https://www.creative.com\">Creative Labs</a> released the <a href=\"https://www.vgmpf.com/Wiki/index.php?title=Sound_Blaster\">Sound Blaster</a> in 1989, " +
+				"<strong>AdLib</strong>'s success was short-lived, as competitor <a href=\"https://www.creative.com\">Creative&nbsp;Labs</a> released the <a href=\"https://www.vgmpf.com/Wiki/index.php?title=Sound_Blaster\">Sound&nbsp;Blaster</a> in 1989, " +
 				"a clone of the AdLib card that included a simple digital sound processor for speech and sound effects.",
 			Picture: Picture{
 				Title:       "An AdLib Music Synthesizer ISA slot card",
@@ -1154,7 +1154,7 @@ func Collection() Milestones {
 			Link: "/f/ab2843",
 			Content: "<p>An <strong>intro</strong>, or the later cracktro, is a small, usually short, demonstration program designed to display text with graphics or animations. " +
 				"Oddly, the <q>First Intro</q> was written by some teenagers in Finland, a country not known for using expensive PC platforms.</p>" +
-				"<p>Other popular 16-bit microcomputers, such as the Commodore Amiga and Atari ST, offered much better graphics and audio than CGA on the PC.</p>",
+				"<p>Other popular 16-bit microcomputers, such as the Commodore&nbsp;Amiga and Atari&nbsp;ST, offered much better graphics and audio than CGA on the PC.</p>",
 			Picture: Picture{
 				Title: "First intro by Sorcerers",
 				Alt:   "First intro by Sorcerers screenshot",
@@ -1222,7 +1222,7 @@ func Collection() Milestones {
 				"<p>The <strong>.NFO</strong> file extension denotes a text file containing information about a release. " +
 				"Still in use today, the dot nfo file contains information about the release group, the release itself, and how to install.</p>" +
 				// thg
-				"<p>While disputed, it is not too important which release from <strong>The Humble Guys</strong> is the first to use the dot <q>nfo</q> file extension. " +
+				"<p>While disputed, it is not too important which release from <strong>The&nbsp;Humble&nbsp;Guys</strong> is the first to use the dot <q>nfo</q> file extension. " +
 				// knights
 				"The timestamps of the release files suggest the text file for Knights of Legend predates Bubble Bobble by a few days. " +
 				"But famed, former cracker Fabulous Furlough has always stated Bubble Bobble was the release that first used the naming standard.</p>" +
@@ -1234,7 +1234,7 @@ func Collection() Milestones {
 				"<q><a href=\"http://nerdlypleasures.blogspot.com/2011/05/scourge-of-preservation-disk-based-copy.html\">Unguard</a></q> " +
 				"to crack the SuperLock off of <a href=\"/f/ad4195\">Bubble&nbsp;Bobble</a>, and I said " +
 				"<q>I need some file to put the info about the crack in. Hmmm.. Info, NFO!</q>, and that was it.</small></q></blockquote>" +
-				"<figcaption class=\"blockquote-footer\">Famed, former cracker for The Humble Guys, Fabulous Furlough recalls Bubble Bobble as the first THG release that used the .NFO file extension.</figcaption></figure>" +
+				"<figcaption class=\"blockquote-footer\">Famed, former cracker for The&nbsp;Humble&nbsp;Guys, Fabulous&nbsp;Furlough recalls Bubble Bobble as the first THG release that used the .NFO file extension.</figcaption></figure>" +
 				"<p>Notes from each file.</p>" +
 				"<p><pre>Bubble Bobble by Nova Logic Through Taito<br>Broken by Fabulous Furlough<br>Normal Taito Loader - 5 minutes</pre></p>" +
 				"<hr>" +
@@ -1246,7 +1246,7 @@ func Collection() Milestones {
 			Link: "/f/ab25f0e",
 			Content: "<p>The Cat released this cracktro for the game <a class=\"text-nowrap\" href=\"https://www.mobygames.com/game/1499/m1-tank-platoon/cover/group-3004/cover-230986/\">M1 Tank Platoon</a>. " +
 				"It is the first known cracktro on the PC platform to feature music. But music is in a loose sense, as it relies on the terrible internal PC speaker to produce the melody.</p>" +
-				"<p>While 8-bit consoles and some microcomputers offered dedicated music audio chips, most famously the Commodore 64 with its SID chip, the IBM PC, which targeted business, did not.</p>",
+				"<p>While 8-bit consoles and some microcomputers offered dedicated music audio chips, most famously the Commodore&nbsp;64 with its SID chip, the IBM&nbsp;PC, which targeted business, did not.</p>",
 			Picture: Picture{
 				Title: "Tank Platoon cracktro",
 				Alt:   "Tank Platoon cracktro screenshot",
@@ -1258,11 +1258,11 @@ func Collection() Milestones {
 			Title: "Digital audio standard", Year: 1990,
 			Lead:      "SoundBlaster",
 			LinkTitle: "The Sound Blaster Story", Link: "https://www.custompc.com/retro-tech/the-sound-blaster-story",
-			Content: "<p>The <strong>Sound Blaster</strong> audio standard came about in 1990 after the Sound Blaster 1.5 audio card was released by Creative Labs, with the box proudly proclaiming" +
+			Content: "<p>The <strong>Sound&nbsp;Blaster</strong> audio standard came about in 1990 after the Sound&nbsp;Blaster 1.5 audio card was released by Creative&nbsp;Labs, with the box proudly proclaiming" +
 				" it <q><a href=\"https://vgmpf.com/Wiki/index.php?title=File:Sound_Blaster_1.5_-_Box_-_Back.jpg\">The PC Sound Standard</a></q>. " +
 				"It was the first digital audio standard for the IBM&nbsp;PC to be widely adopted on the PC platform, despite its poor quality, mono 8-bit digital audio. " +
 				"Previous audio standards such as the AdLib and the MT-32, were limited to FM synthesis or MIDI-like samples.</p>" +
-				"<p>The Sound Blaster was the first audio standard widely adopted by the PC platform and was the de facto audio option in games for many years.</p>",
+				"<p>The Sound&nbsp;Blaster was the first audio standard widely adopted by the PC platform and was the de facto audio option in games for many years.</p>",
 		},
 		{
 			Title: "CD-ROM multimedia", Year: 1990, Prefix: "Winter",
@@ -1367,8 +1367,8 @@ func Collection() Milestones {
 			Title: "First SuperVGA / VESA game", Year: 1992, Month: 6,
 			Lead: "Links 386 Pro", LinkTitle: "the mobygames page", Link: "https://www.mobygames.com/game/3757/links-386-pro/",
 			Content: "<p>The first widely available <strong>SuperVGA</strong> game was Links 386 Pro from Access. Here, another popular golf simulation pushed the baseline PC gaming requirements with the need for higher-end hardware. " +
-				"The 386 in the title stated the minimum requirement of an Intel 386 CPU when 286 systems were the commodity.</p>" +
-				"<p>The problem for consumers is that ordinarily, most PC software never took advantage of the enhancements offered by the more expensive Intel 386 or 486 CPUs.</p>" +
+				"The 386 in the title stated the minimum requirement of an Intel&nbsp;386 CPU when 286 systems were the commodity.</p>" +
+				"<p>The problem for consumers is that ordinarily, most PC software never took advantage of the enhancements offered by the more expensive Intel&nbsp;386 or 486 CPUs.</p>" +
 				"<p>Some caveats to the first SVGA/VESA claim: we are talking about a retail, boxed game requiring a resolution/color depth that a standard VGA setup cannot handle, " +
 				"so at least a constant 600x400 resolution with 256 colors.</p>",
 			Picture: Picture{
@@ -1466,11 +1466,11 @@ func Collection() Milestones {
 			Content: "<p><strong>Drink or Die</strong> became notorious for releasing the CD media for the box retail edition of <strong>Windows&nbsp;95</strong> " +
 				"two weeks before the official worldwide release.</p>" +
 				"<p>In an era when global, same-day product launches were logistically costly and uncommon, this operating system launch was probably the most hyped Microsoft consumer product ever. " +
-				"Over a decade before Apple cemented the marketing tactic, Windows 95 had fans <a href=\"https://rarehistoricalphotos.com/windows-95-launch-day-1995/\">queuing&nbsp;at&nbsp;midnight</a> in retail stores worldwide.</p>" +
+				"Over a decade before Apple cemented the marketing tactic, Windows&nbsp;95 had fans <a href=\"https://rarehistoricalphotos.com/windows-95-launch-day-1995/\">queuing&nbsp;at&nbsp;midnight</a> in retail stores worldwide.</p>" +
 				"<p>The release also highlighted a significant problem for software and game publishers: for pirates to get access to the retail packaging weeks before launch meant some company employees were either members of these warez groups or receiving kickbacks.</p>" +
-				"<p>Years later, competitor <a href=\"/g/pirates-with-attitudes\">Pirates With Attitudes</a> would release the <a href=\"/f/a52a8c\" class=\"text-nowrap\">Windows 98 media</a> five weeks and <a href=\"/f/b42e2f6\">Windows 2000</a> two months before the official launches! " +
+				"<p>Years later, competitor <a href=\"/g/pirates-with-attitudes\">Pirates&nbsp;With&nbsp;Attitudes</a> would release the <a href=\"/f/a52a8c\" class=\"text-nowrap\">Windows 98 media</a> five weeks and <a href=\"/f/b42e2f6\">Windows&nbsp;2000</a> two months before the official launches! " +
 				"However, a global, coordinated law enforcement effort would take down both groups in the following decade.<sup><a href=\"#windows-95-warez-release-fn1\">[1]</a></sup></p>" +
-				"<p>The other Microsoft-sourced releases from DOD during these two weeks were the Windows 95 <a href=\"/f/b82406f\" class=\"text-nowrap\">floppy edition</a>, <a href=\"/f/b721b5\" class=\"text-nowrap\">upgrade edition</a>, <a href=\"/f/b92697\" class=\"text-nowrap\">Plus Pack</a>, Microsoft <a href=\"/f/ba28e0f\">BOB</a>, and <a href=\"/f/bc2dc2f\">Word</a>.</p>" +
+				"<p>The other Microsoft-sourced releases from DOD during these two weeks were the Windows&nbsp;95 <a href=\"/f/b82406f\" class=\"text-nowrap\">floppy edition</a>, <a href=\"/f/b721b5\" class=\"text-nowrap\">upgrade edition</a>, <a href=\"/f/b92697\" class=\"text-nowrap\">Plus Pack</a>, Microsoft <a href=\"/f/ba28e0f\">BOB</a>, and <a href=\"/f/bc2dc2f\">Word</a>.</p>" +
 				sect0 +
 				"<div id=\"windows-95-warez-release-fn1\">[1] In <a href=\"#the-copy-party-is-over\">Operation Cyberstrike</a> and <a href=\"#the-global-takedown-of-drink-or-die\">Operation Buccaneer</a>.</div>" +
 				sect1,
@@ -1481,7 +1481,7 @@ func Collection() Milestones {
 			Link: "https://www.theverge.com/21398999/windows-95-anniversary-release-date-history",
 			Content: "<p>Microsoft's biggest and most hyped mainstream product release was hugely successful in the market and " +
 				"finally began the PC's transition away from the archaic IBM and Microsoft DOS <small>(Disk&nbsp;Operating&nbsp;System)</small>.</p>" +
-				"<p>Windows 95 had been a long time coming, over a decade late, and offered a fully graphical user interface as the default. " +
+				"<p>Windows&nbsp;95 had been a long time coming, over a decade late, and offered a fully graphical user interface as the default. " +
 				"It also introduced the famed <a href=\"https://arstechnica.com/gadgets/2015/08/the-windows-start-menu-saga-from-1993-to-today/\">Start menu</a> concept " +
 				"that would later become favored by many Windows and, ironically, <a href=\"https://fossforce.com/2019/07/why-gnome-2-continues-to-win-the-desktop-popularity-contest/\">desktop</a> Linux users.</p>",
 			Picture: Picture{
@@ -1687,7 +1687,7 @@ func Collection() Milestones {
 		{
 			Title: "The copy party is over", Year: 2000, Month: 5, Day: 5, Highlight: true,
 			Lead: "The end of Pirates with Attitude", LinkTitle: "the US DOJ press release", Link: "https://web.archive.org/web/20120114174415/http://www.justice.gov/criminal/cybercrime/pirates.htm",
-			Content: "<p>The US Department of Justice <strong>indicted 17 members</strong> of <a href=\"/g/pirates-with-attitudes\">Pirates with Attitudes</a> " +
+			Content: "<p>The US Department of Justice <strong>indicted 17 members</strong> of <a href=\"/g/pirates-with-attitudes\">Pirates&nbsp;with&nbsp;Attitudes</a> " +
 				"who got caught up in a honey pot scheme where, for months, Canadian law enforcement had taken control of the primary " +
 				"PWA FTP distribution site, Sentinel, running out of the University of Sherbrooke in Quebec. " +
 				"A day later, PWA published its <a href=\"/f/a23b69\">final release</a>, a farewell NFO by the fugitive Shiffie out of Belgium.</p>" +
