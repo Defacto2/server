@@ -14,7 +14,6 @@ import (
 	"html/template"
 	"io"
 	"io/fs"
-	"maps"
 	"net"
 	"net/http"
 	"os"
@@ -34,6 +33,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
+	"maps"
 )
 
 const (
@@ -425,8 +425,8 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c 
 	if c == nil {
 		return fmt.Errorf("%w: %w", echo.ErrRendererNotRegistered, ErrCtx)
 	}
-	tmpl, ok := t.Templates[name]
-	if !ok {
+	tmpl, exists := t.Templates[name]
+	if !exists {
 		return fmt.Errorf("%w: %s", ErrTmpl, name)
 	}
 	if err := tmpl.ExecuteTemplate(w, layout, data); err != nil {

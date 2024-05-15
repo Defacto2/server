@@ -28,7 +28,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"slices"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -37,6 +36,7 @@ import (
 	"github.com/mholt/archiver/v3"
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/transform"
+	"slices"
 )
 
 const (
@@ -106,8 +106,8 @@ func walker(src, filename string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("archiver.ByExtension: %w", err)
 	}
-	w, ok := format.(archiver.Walker)
-	if !ok {
+	w, walkerExists := format.(archiver.Walker)
+	if !walkerExists {
 		return nil, fmt.Errorf("%w, %q", ErrExt, filename)
 	}
 	files := []string{}
@@ -159,8 +159,8 @@ func Extract(src, dst, filename string, targets ...string) error {
 	}()
 	extractAll := len(targets) == 0
 	if extractAll {
-		all, ok := f.(archiver.Unarchiver)
-		if !ok {
+		all, unarchiverExists := f.(archiver.Unarchiver)
+		if !unarchiverExists {
 			return fmt.Errorf("%w, %q", ErrExt, filename)
 		}
 		if err = all.Unarchive(src, dst); err == nil {
@@ -168,8 +168,8 @@ func Extract(src, dst, filename string, targets ...string) error {
 		}
 		return extractor(src, dst, filename, targets...)
 	}
-	target, ok := f.(archiver.Extractor)
-	if !ok {
+	target, extractorExists := f.(archiver.Extractor)
+	if !extractorExists {
 		return fmt.Errorf("%w, %q", ErrExt, filename)
 	}
 	t := strings.Join(targets, " ")

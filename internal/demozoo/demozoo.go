@@ -215,24 +215,24 @@ func (d *Production) Unmarshal(r io.Reader) error {
 // It returns -1 for an unknown platform or section, in which case the
 // caller should invalidate the Demozoo production.
 func (d Production) SuperType() (tags.Tag, tags.Tag) {
-	ok := func(s, p tags.Tag) bool {
+	superType := func(s, p tags.Tag) bool {
 		return s > -1 && p > -1
 	}
 	var platform tags.Tag = -1
 	var section tags.Tag = -1
 
 	platform, section = d.platforms(platform, section)
-	if ok(section, platform) {
+	if superType(section, platform) {
 		return platform, section
 	}
 
 	platform, section = d.prodSuperType(platform, section)
-	if ok(section, platform) {
+	if superType(section, platform) {
 		return platform, section
 	}
 
 	platform, section = d.graphicsSuperType(platform, section)
-	if ok(section, platform) {
+	if superType(section, platform) {
 		return platform, section
 	}
 
@@ -440,7 +440,7 @@ func groups() Groups {
 // Find returns the Demozoo group ID for the given uri.
 // It returns 0 if the uri is not known.
 func Find(uri string) GroupID {
-	if _, ok := groups()[URI(uri)]; ok {
+	if _, groupExists := groups()[URI(uri)]; groupExists {
 		return groups()[URI(uri)]
 	}
 	return 0

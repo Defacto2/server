@@ -1,10 +1,11 @@
 package archive
 
 import (
-	"cmp"
 	"path/filepath"
-	"slices"
 	"strings"
+
+	"cmp"
+	"slices"
 )
 
 // Finds are a collection of matched filenames and their usability ranking.

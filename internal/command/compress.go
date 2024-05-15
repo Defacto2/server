@@ -225,9 +225,9 @@ func ArjExitStatus(err error) string {
 	}
 	var exitError *exec.ExitError
 	if errors.As(err, &exitError) {
-		if status, ok := exitError.Sys().(syscall.WaitStatus); ok {
-			if s, ok := statuses[status.ExitStatus()]; ok {
-				return s
+		if waitStatus, statusExists := exitError.Sys().(syscall.WaitStatus); statusExists {
+			if status, exitStatus := statuses[waitStatus.ExitStatus()]; exitStatus {
+				return status
 			}
 		}
 	}
@@ -256,9 +256,9 @@ func UnRarExitStatus(err error) string {
 	}
 	var exitError *exec.ExitError
 	if errors.As(err, &exitError) {
-		if status, ok := exitError.Sys().(syscall.WaitStatus); ok {
-			if s, ok := statuses[status.ExitStatus()]; ok {
-				return s
+		if waitStatus, statusExists := exitError.Sys().(syscall.WaitStatus); statusExists {
+			if status, exitStatus := statuses[waitStatus.ExitStatus()]; exitStatus {
+				return status
 			}
 		}
 	}
@@ -272,7 +272,7 @@ func unzipExitStatus(err error) string {
 	}
 	var exitError *exec.ExitError
 	if errors.As(err, &exitError) {
-		if status, ok := exitError.Sys().(syscall.WaitStatus); ok {
+		if waitStatus, statusExists := exitError.Sys().(syscall.WaitStatus); statusExists {
 			statuses := map[int]string{
 				0:  "success",
 				1:  "success with warning",
@@ -294,8 +294,8 @@ func unzipExitStatus(err error) string {
 					"unsupported compression methods or unsupported decryption",
 				82: "no files were found due to bad decryption password",
 			}
-			if s, ok := statuses[status.ExitStatus()]; ok {
-				return s
+			if status, exitStatus := statuses[waitStatus.ExitStatus()]; exitStatus {
+				return status
 			}
 		}
 	}

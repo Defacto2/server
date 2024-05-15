@@ -490,9 +490,9 @@ func GoogleCallback(c echo.Context, clientID string, maxAge int, accounts ...[48
 
 	// Verify the sub value against the list of allowed accounts.
 	check := false
-	if sub, ok := playload.Claims["sub"]; ok {
+	if sub, subExists := playload.Claims["sub"]; subExists {
 		for _, account := range accounts {
-			if id, ok := sub.(string); ok && sha512.Sum384([]byte(id)) == account {
+			if id, subString := sub.(string); subString && sha512.Sum384([]byte(id)) == account {
 				check = true
 				break
 			}
@@ -549,9 +549,9 @@ func Index(c echo.Context) error {
 		// get the signed in given name
 		sess, err := session.Get(sess.Name, c)
 		if err == nil {
-			if name, ok := sess.Values["givenName"]; ok {
-				if nameStr, ok := name.(string); ok && nameStr != "" {
-					data["h1"] = "Welcome, " + nameStr
+			if givenName, givenExists := sess.Values["givenName"]; givenExists {
+				if name, nameStr := givenName.(string); nameStr && name != "" {
+					data["h1"] = "Welcome, " + name
 				}
 			}
 		}
@@ -1386,8 +1386,8 @@ func SignedOut(c echo.Context) error {
 		if err != nil {
 			return BadRequestErr(c, name, err)
 		}
-		id, ok := sess.Values["sub"]
-		if !ok || id == "" {
+		id, subExists := sess.Values["sub"]
+		if !subExists || id == "" {
 			return ForbiddenErr(c, name, ErrSession)
 		}
 		const remove = -1
@@ -1430,12 +1430,12 @@ func Signin(c echo.Context, clientID, nonce string) error {
 		if err != nil {
 			return remove(c, name, data)
 		}
-		id, ok := sess.Values["sub"]
-		if !ok {
+		subID, subExists := sess.Values["sub"]
+		if !subExists {
 			return remove(c, name, data)
 		}
-		idStr, ok := id.(string)
-		if ok && idStr != "" {
+		val, valExists := subID.(string)
+		if valExists && val != "" {
 			return SignOut(c)
 		}
 	}
@@ -2138,8 +2138,8 @@ func sessionHandler(
 	}
 
 	const uniqueGoogleID = "sub"
-	val, ok := claims[uniqueGoogleID]
-	if !ok {
+	val, valExists := claims[uniqueGoogleID]
+	if !valExists {
 		return ErrClaims
 	}
 	session.Values[uniqueGoogleID] = val

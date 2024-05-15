@@ -372,7 +372,7 @@ func groups() Groups {
 // Find returns the website for the given uri.
 // It returns an empty string if the uri is not known.
 func Find(uri string) []Website {
-	if _, ok := groups()[URI(uri)]; ok {
+	if _, groupExists := groups()[URI(uri)]; groupExists {
 		return groups()[URI(uri)]
 	}
 	return []Website{}

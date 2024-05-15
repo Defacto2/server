@@ -3,9 +3,10 @@ package jsdos
 
 import (
 	"path/filepath"
-	"slices"
 	"sort"
 	"strings"
+
+	"slices"
 )
 
 const AudioRate = "44100" // AudioRate is the sample rate of the audio that is emulated.

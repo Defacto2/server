@@ -118,16 +118,16 @@ func (w *brotliResponseWriter) Write(b []byte) (int, error) {
 }
 
 func (w *brotliResponseWriter) Flush() {
-	if writer, ok := w.Writer.(*brotli.Writer); ok {
+	if writer, writerExists := w.Writer.(*brotli.Writer); writerExists {
 		writer.Flush()
 	}
-	if flusher, ok := w.ResponseWriter.(http.Flusher); ok {
+	if flusher, flusherExists := w.ResponseWriter.(http.Flusher); flusherExists {
 		flusher.Flush()
 	}
 }
 
 func (w *brotliResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
-	if hijacker, ok := w.ResponseWriter.(http.Hijacker); ok {
+	if hijacker, hijackerExists := w.ResponseWriter.(http.Hijacker); hijackerExists {
 		return hijacker.Hijack() //nolint:wrapcheck
 	}
 	return nil, nil, ErrHijack

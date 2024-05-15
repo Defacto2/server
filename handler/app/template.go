@@ -38,27 +38,27 @@ type Templ struct {
 
 // DemozooGetLink returns a HTML link to the Demozoo download links.
 func DemozooGetLink(filename, filesize, demozoo, unid any) template.HTML {
-	if val, ok := filename.(null.String); ok {
+	if val, valExists := filename.(null.String); valExists {
 		fileExists := val.Valid && val.String != ""
 		if fileExists {
 			return ""
 		}
 	}
-	if val, ok := filesize.(null.Int64); ok {
+	if val, valExists := filesize.(null.Int64); valExists {
 		fileExists := val.Valid && val.Int64 > 0
 		if fileExists {
 			return ""
 		}
 	}
 	var zooID int64
-	if val, ok := demozoo.(null.Int64); ok {
+	if val, valExists := demozoo.(null.Int64); valExists {
 		if !val.Valid || val.Int64 == 0 {
 			return ""
 		}
 		zooID = val.Int64
 	}
 	var uID string
-	if val, ok := unid.(null.String); ok {
+	if val, valExists := unid.(null.String); valExists {
 		if val.Valid && val.String == "" {
 			return ""
 		}

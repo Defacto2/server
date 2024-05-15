@@ -289,7 +289,7 @@ func LocalIPs() ([]net.IP, error) {
 	}
 
 	for _, addr := range addresses {
-		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+		if ipnet, ipnetExists := addr.(*net.IPNet); ipnetExists && !ipnet.IP.IsLoopback() {
 			if ipnet.IP.To4() != nil {
 				ips = append(ips, ipnet.IP)
 			}

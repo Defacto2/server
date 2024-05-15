@@ -59,8 +59,8 @@ func (c Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 		if err != nil {
 			return fmt.Errorf("session.Get: %w", err)
 		}
-		id, ok := sess.Values["sub"].(string)
-		if !ok || id == "" {
+		id, subExists := sess.Values["sub"].(string)
+		if !subExists || id == "" {
 			if err := app.StatusErr(e, http.StatusForbidden, ""); err != nil {
 				return fmt.Errorf("app.StatusErr: %w", err)
 			}

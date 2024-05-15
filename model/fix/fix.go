@@ -105,8 +105,8 @@ func coldfusionIDs(ctx context.Context, db *sql.DB) error {
 	if i == 0 {
 		return nil
 	}
-	logger, ok := ctx.Value("logger").(*zap.SugaredLogger)
-	if !ok {
+	logger, loggerExists := ctx.Value("logger").(*zap.SugaredLogger)
+	if !loggerExists {
 		return ErrCtxLog
 	}
 	logger.Infoln(i, "invalid UUIDs found using the ColdFusion syntax")
@@ -248,8 +248,8 @@ func magics(ctx context.Context, db *sql.DB) error {
 		return fmt.Errorf("magics.UpdateAll file_magic_type: %w", err)
 	}
 	if rowsAff > 0 {
-		logger, ok := ctx.Value("logger").(*zap.SugaredLogger)
-		if ok {
+		logger, loggerExists := ctx.Value("logger").(*zap.SugaredLogger)
+		if loggerExists {
 			logger.Infoln("removed", rowsAff, "file magic types with errors")
 		}
 	}
@@ -288,8 +288,8 @@ func invalidUUIDs(ctx context.Context, db *sql.DB) error {
 	if i == 0 {
 		return nil
 	}
-	logger, ok := ctx.Value("logger").(*zap.SugaredLogger)
-	if ok {
+	logger, loggerExists := ctx.Value("logger").(*zap.SugaredLogger)
+	if loggerExists {
 		logger.Warnf("%d invalid UUIDs found", i)
 	}
 	return nil
