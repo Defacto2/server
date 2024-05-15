@@ -2,6 +2,7 @@
 package app
 
 import (
+	"cmp"
 	"embed"
 	"errors"
 	"fmt"
@@ -10,11 +11,11 @@ import (
 	"net/url"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
 
-	"cmp"
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/tags"
@@ -23,7 +24,6 @@ import (
 	"github.com/volatiletech/null/v8"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
-	"slices"
 )
 
 const (

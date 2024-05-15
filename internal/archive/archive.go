@@ -28,6 +28,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -36,7 +37,6 @@ import (
 	"github.com/mholt/archiver/v3"
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/transform"
-	"slices"
 )
 
 const (

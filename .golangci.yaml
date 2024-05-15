@@ -13,16 +13,8 @@ linters:
   # Disable specific linters.
   disable:
     # deprecated
-    - deadcode
-    - exhaustivestruct
-    - golint
-    - ifshort
-    - interfacer
-    - maligned
-    - nosnakecase
-    - scopelint
-    - structcheck
-    - varcheck
+    - gomnd
+    - execinquery
     # disabled
     - depguard # imports are in a list of acceptable packages.
     - exhaustive # checks exhaustiveness of enum switch statements.
@@ -116,7 +108,7 @@ linters-settings:
     lines: 60
     statements: 45
     ignore-comments: true
-  gomnd:
+  mnd:
     # List of file patterns to exclude from analysis.
     # Values always ignored: `.+_test.go`
     # Default: []

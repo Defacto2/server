@@ -37,8 +37,8 @@ tasks:
     cmds:
       - cmd: clear
         platforms: [linux, darwin, freebsd]
-      - cmd: gofumpt -w .
-      - cmd: gci write -s standard -s default .
+      #- cmd: gci write -s standard -s default .
+      - cmd: gofumpt -l -w .
       - cmd: pnpm exec eslint assets/js/*.js
       - cmd: pnpm exec stylelint assets/css/*.css
       - cmd: golangci-lint run
