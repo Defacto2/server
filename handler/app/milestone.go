@@ -60,7 +60,7 @@ func Collection() Milestones {
 		},
 		{
 			Year: 1971, Month: 11, Day: 15, Title: "The first civilian microprocessor",
-			Lead: "Intel 4004", LinkTitle: "The Story of the Intel&nbsp;4004",
+			Lead: "Intel 4004", LinkTitle: "The Story of the Intel 4004",
 			Link: "https://www.intel.com/content/www/us/en/history/museum-story-of-intel-4004.html",
 			Content: "<p>Intel advertises the first-to-market general-purpose programmable processor or microprocessor, the 4-bit Intel&nbsp;4004. " +
 				"Its main uses were in <a href=\"http://www.vintagecalculators.com/html/busicom_141-pf.html\">calculators</a>, some early automatic teller machines, and other embedded devices.</p>" +
@@ -268,9 +268,9 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The early underground", Year: 1979, Highlight: true,
-			Lead: "BBSes and the Apple II",
+			Lead: "CBBS, ABBS, and the Apple II",
 			Content: "<p>Before the Internet, the <em>Computerized Bulletin Board System</em> was the primary tool for communication between microcomputer owners. In these early days, the setups allowed people to dial in using their computers to share and read public or private messages with other callers.</p>" +
-				"<p>The earliest <strong>CBBS</strong> setups ran off <a href=\"http://www.s100computers.com/\">S-100 bus-based computers</a>." +
+				"<p>The earliest <strong>CBBS</strong> setups ran off <a href=\"http://www.s100computers.com/\">S-100 bus-based computers</a>. " +
 				"These systems shared the same S-100 interface bus but were incompatible microcomputers and motherboards of the 1970s fabricated by various manufacturers. When the Apple&nbsp;II received CBBS-like software in 1979, it was typically called ABBS or the Apple Bulletin Board System. " +
 				"By September 1979, nationwide listings<sup><a href=\"#the-early-underground-fn1\">[1]</a></sup> for dozens of bulletin boards were running on ABBS, CBBS, and other platforms.</p>" +
 				// press attention
@@ -296,7 +296,8 @@ func Collection() Milestones {
 				sect1,
 		},
 		{
-			Title: "The first crackers ?", Year: 1979, Highlight: true,
+			Title: "The first crackers", Year: 1979, Highlight: true,
+			Lead: "?",
 			Content: "<p>We have yet to learn when or who started <strong>cracking</strong>, but it must have been after disk copy protection became common on Apple&nbsp;II software. " +
 				"Andrew McFadden has written about <a href=\"https://fadden.com/apple2/cassette-protect.html\">early copy protection</a> on specific Apple&nbsp;II games released on cassette tapes in 1978 and 1979, but these were probably unusual.</p>" +
 				// disk ii drive
@@ -326,30 +327,31 @@ func Collection() Milestones {
 				sect1,
 		},
 		{
-			Title: "The birth of warez ?", Year: 1980, Highlight: true,
-			Lead: "The Apple II", Link: "http://artscene.textfiles.com/intros/APPLEII/", LinkTitle: "and browse the Apple II crack screens",
+			Title: "The birth of warez", Year: 1980, Highlight: true,
+			Lead: "The Apple II ?", Link: "http://artscene.textfiles.com/intros/APPLEII/", LinkTitle: "and browse the Apple II crack screens",
 			Content: "<p>When was the birth of Wares?<sup><a href=\"#the-birth-of-warez-fn1\">[1]</a></sup> There's no clear answer to this question, but a good guess would be <strong>sometime&nbsp;in&nbsp;1980</strong> within the established technology regions of the USA. " +
 				"By then, microcomputer owners exchanged real-life details to meet up, duplicate and exchange software collections, and find ways to remove copy protections.</p>" +
 				// apple modems
 				"<p>1979-1980 saw the sale of the first Apple&nbsp;II <a href=\"https://www.apple2history.org/history/ah13/#09\">modem peripherals</a>, the Hayes&nbsp;Micromodem&nbsp;II and the Novation&nbsp;CAT. " +
-				"These modem add-ons enabled microcomputer owners to connect to electronic message boards, communicate, and even exchange files remotely using the telephone.</p>" +
+				"These modem additions enabled microcomputer owners to connect to electronic message boards, communicate, and even exchange files remotely using the telephone.</p>" +
 				// telephone costs
-				"<p>One problem with the telephone was the cost; explicitly making calls outside the phone's local area was charged per minute. " +
-				"So, combining a slow microcomputer with an even slower modem communication device often led to a costly monthly phone bill. But in the 1970s, long-distance " +
+				"<p>One problem with the telephone was the cost; explicitly making calls outside the caller's local area was charged by the minute. " +
+				"So, combining a slow microcomputer with an even slower modem communication device often led to a costly phone bill. But long-distance " +
 				"<a href=\"https://www.slate.com/articles/technology/the_spectator/2011/10/the_article_that_inspired_steve_jobs_secrets_of_the_little_blue_.html\">phone phreaking</a> had been a well-established underground movement, " +
-				" allowing people to trick the phone network into misbilling or giving away long-distance phone calls.</p>" +
+				" allowing callers to trick the phone network into misbilling or giving away long-distance phone calls.</p>" +
 				// kids with micros
-				"<p>Microcomputers were <a href=\"http://www.apple-iigs.info/doc/fichiers/Apple%20Price%20List%201978-08.pdf\">expensive</a>, exotic, but mostly useless machines<sup><a href=\"#the-birth-of-warez-fn2\">[2]</a></sup> in the late 1970s, " +
-				"and getting them online with modems was challenging. It makes sense that the kids who already phone phreaked and were into microcomputing would befriend anyone who shared these niche pursuits and then collaborate to exchange software, information, and ideas.</p>" +
+				"<p>Microcomputers of the era were <a href=\"http://www.apple-iigs.info/doc/fichiers/Apple%20Price%20List%201978-08.pdf\">expensive</a>, exotic, but mostly useless machines<sup><a href=\"#the-birth-of-warez-fn2\">[2]</a></sup>. " +
+				"Getting them online with modems was challenging. " +
+				"So understandably, the kids who already phone phreaked and were into microcomputing would befriend like-minded people who shared these niche pursuits and then collaborate to exchange software, information, and ideas.</p>" +
 				// warez dating
-				"<p>On the topic of Warez, some pirates on the Apple&nbsp;II were dating their cracks<sup><a href=\"#the-birth-of-warez-fn3\">[3]</a></sup> in <strong>early 1982</strong>, " +
-				"but many tagged crack screens exist for games published in <strong>1980</strong><sup><a href=\"#the-birth-of-warez-fn4\">[4]</a></sup> and 1981. " +
+				"<p>Regarding Warez, some pirates on the Apple&nbsp;II were dating their cracks<sup><a href=\"#the-birth-of-warez-fn3\">[3]</a></sup> in <strong>early 1982</strong>, " +
+				"but many modified, tagged crack screens exist for games published in <strong>1980</strong><sup><a href=\"#the-birth-of-warez-fn4\">[4]</a></sup> and 1981. " +
 				"While a copyright year doesn't always mean the game crack is from the same period, it is a fair assumption.</p>" +
 				// other platforms
 				"<p>As for the other microcomputer platforms, the far more <a href=\"http://www.trs-80.org/was-the-trs-80-once-the-top-selling-computer/\">popular</a> " +
 				"TRS-80 from Radio Shack had a <a href=\"http://www.trs-80.org/telephone-interface/\">modem peripheral</a> available at the end of 1978. " +
-				"Yet, there needs to be evidence of an underground culture first developing on this platform. Modem peripherals didn't exist on the " +
-				"Atari&nbsp;400/800 <a href=\"http://www.atarimania.com/faq-atari-400-800-xl-xe-what-other-modems-can-i-use-with-my-atari_47.html\">until 1981</a>. And the Commodore&nbsp;64 was years away.</p>" +
+				"However, there is no evidence of an underground culture developing on this machine. A modem didn't exist on the " +
+				"Atari&nbsp;400/800 <a href=\"http://www.atarimania.com/faq-atari-400-800-xl-xe-what-other-modems-can-i-use-with-my-atari_47.html\">until 1981</a>, and the famous Commodore&nbsp;64 was years away.</p>" +
 				sect0 +
 				"<div id=\"the-birth-of-warez-fn1\">[1] Warez was originally spelt with an <q>s</q> after the dictionary spelling.</div>" +
 				"<div id=\"the-birth-of-warez-fn2\">[2] The first <q>killer app</q> for the Apple&nbsp;II, <a href=\"https://www.apple2history.org/history/ah18/#07\">VisiCalc</a>," +
@@ -365,9 +367,9 @@ func Collection() Milestones {
 		{
 			Title: "The first group", Year: 1980, Highlight: true,
 			Lead: "The Apple Mafia ?",
-			Content: "<q><strong>The Untouchables</strong><sup><a href=\"#the-first-group-fn1\">[1]</a></sup> - " +
-				"<strong>The Apple Mafia</strong><sup><a href=\"#the-first-group-fn2\">[2]</a></sup> - " +
-				"<strong>The Dirty Dozen</strong><sup><a href=\"#the-first-group-fn3\">[3]</a></sup></q>" +
+			Content: "<p class=\"fw-light fs-6 mb-1\"><q>The Untouchables - " +
+				"The Apple Mafia - " +
+				"The Dirty Dozen</q> <sup><a href=\"#the-first-group-fn1\">[1]</a></sup></strong><sup><a href=\"#the-first-group-fn2\">[2]</a></sup><sup><a href=\"#the-first-group-fn3\">[3]</a></sup></p>" +
 				// the apple marfia story
 				"<p>In 1986, Red Ghost posted <a href=\"/f/a430f7\">The Apple Mafia Story</a>, claiming these were some of the first-ever pirate groups. " +
 				"He grew up in Queens, New York, and suggests that is where many <q>original</q> phreakers and pirates originated. " +
@@ -394,8 +396,8 @@ func Collection() Milestones {
 				"The year might be misremembered. However, it suggests the Super Pirates were around in 1980, the same year the game <a href=\"https://www.mobygames.com/game/47942/cyber-strike/\">Cyber&nbsp;Strike</a> was published. " +
 				"<p><q>The 1st ware I got was back in 1980. It was Cyber Strike. Along with about 35 other disks, most cracked by the Super Pirates!</q></p>" +
 				// midwest guild
-				"<p>There is anecdotal evidence suggesting the Super Pirates was involved in the first-ever BBS bust, and the members left formed or joined the <strong>Midwest Pirate's Guild</strong>. " +
-				"A group strongly associated with the cracker Apple Bandit and his Minneapolis-based board, <strong>The&nbsp;Safehouse</strong>&nbsp;(+612-724-7066).</p>" +
+				"<p>Anecdotal evidence suggests the Super Pirates were involved in the first-ever BBS bust. The members left to form or joined the <strong>Midwest Pirate's Guild</strong>, " +
+				"a group strongly associated with the cracker Apple Bandit and his Minneapolis-based board, <strong>The&nbsp;Safehouse</strong>&nbsp;(+612-724-7066).</p>" +
 				sect0 +
 				"<div id=\"the-first-group-fn1\">[1] The Untouchables crack screen examples, " +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/freitagc.gif\">1</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/bellhop.gif\">2</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/sraid.gif\">3</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/kenuston.gif\">4</a>." +
@@ -420,7 +422,8 @@ func Collection() Milestones {
 			Content: "<p>In San Jose, CA, <strong>8BBS</strong> (+408-296-5799) came online in March 1980. It is one of the first BBS <a href=\"https://everything2.com/title/8BBS\">message boards</a>," +
 				" which early microcomputer hobbyists posted, including some early hackers, pirates, and named-dropped phreaker personalities of the era<sup><a href=\"#the-first-group-fn6\">[6]</a></sup>. " +
 				// message logs
-				"But what stands out about the board today is that we have survived <a href=\"https://silent700.blogspot.com/2014/12/is-this-something.html\">thousands of posts</a> from the earliest open online community that anyone in 1980 with the right hardware could access from home. These posts existed before Reddit, before the web, before Usenet, before the Internet. </p>" +
+				"But what stands out about the board today, we have surviving, <a href=\"https://silent700.blogspot.com/2014/12/is-this-something.html\">thousands of posts</a> from the earliest open online community that anyone in 1980 with the proper hardware could access from home. " +
+				"These posts existed before Reddit, the web, Usenet, and the Internet.</p>" +
 				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n30/mode/1up\">Message number 3964 from CHUCK HUBERT</a><br>To ALL at 12:52 on 20-Nov-80.<br>Subject! CP/M BBS AND SOFTWARE EXCHANGE</p>" +
 				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n43/mode/1up\">Message number 4177 from Kevin O'Hare</a><br>To SF (SAN FRANCISCO) PHREAKS at 23:54 on 28-Nov-80.<br>Subject: HELP?</p>" +
 				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n54/mode/1up\">Message number 4311 from Len Freedman</a><br>To RICK BYRNE at 11:02 on 02-Dec-80.<br>Subject: PROG. TRADING</p>" +
@@ -515,7 +518,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Earliest dated crack", Year: 1982, Month: 3,
-			Lead:      "Dung Beetles breakage by Black Bart",
+			Lead:      "Dung Beetles breakage by Black Bart ?",
 			LinkTitle: "and view the Dung Beetle crack", Link: "http://artscene.textfiles.com/intros/APPLEII/dungbeetles.gif",
 			Content: "The earliest dated or timestamped crack is probably on the Apple&nbsp;II, " +
 				"<q><strong>Dung Beetles broken by Black Bart in March 1982</strong></q>. " +
@@ -556,7 +559,8 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "The earliest cracktro ?", Year: 1982, Highlight: true,
+			Title: "The earliest cracktro", Year: 1982, Highlight: true,
+			Lead: "Star Blaster cracked by: Mr. Xerox ?",
 			Content: "A <strong>crack intro</strong> definition should be a computer animation advertising the crackers of a pirated software release. " +
 				"So, modified <q><a href=\"http://artscene.textfiles.com/intros/APPLEII/thepirate.gif\">broken&nbsp;by</a></q> texts or <a href=\"http://artscene.textfiles.com/intros/APPLEII/flockland.gif\">static images</a> do not count.</p>" +
 				// apple ii
@@ -577,28 +581,34 @@ func Collection() Milestones {
 		{
 			Title: "The Berlin Bear controversy", Year: 1982,
 			Content: "<p>Many long argued in the Demoscene that a <q>1982</q> " +
-				"Berlin Cracking Service image<sup><a href=\"#berlin-bear-controversy-fn1\">[1]</a> <a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup> of the <a href=\"https://www.atlantis-prophecy.org/recollection/gfx/BCS.png\">Berlin&nbsp;Bear</a> was the first cracktro. " +
+				"Berlin Cracking Service image <sup><a href=\"#berlin-bear-controversy-fn1\">[1]</a><a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup> of the <a href=\"https://www.atlantis-prophecy.org/recollection/gfx/BCS.png\">Berlin&nbsp;Bear</a> was the first cracktro. " +
 				"But this seems far-fetched, and anecdotal proof suggests it originates from 1984.</p>" +
 				// us and japan
-				"<p>In late 1982, selling at $595, the Commodore&nbsp;64 was a pricey machine that <a href=\"https://www.power8bit.com/assets/images/screen-shot-2023-03-27-at-5.27.40-pm-508x698.webp\">targeted</a> <u>business</u> users in the USA and Japan (where it flopped). " +
-				"Due to last-minute design changes and poor quality assurance issues, the machine had limited distribution and software that year.<sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a> <a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup></p>" +
+				"<p>But even taking the claim at its face value, back in late 1982 and selling at $595<sup><a href=\"#berlin-bear-controversy-fn14\">[14]</a></sup>, the Commodore&nbsp;64 was a pricey machine that <a href=\"https://www.power8bit.com/assets/images/screen-shot-2023-03-27-at-5.27.40-pm-508x698.webp\">targeted</a> <u>business users</u> in the USA and Japan (where it flopped). " +
+				"Due to last-minute design changes and poor quality assurance issues, the machine had limited distribution and software that year. <sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a><a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup></p>" +
 				// germany and uk
-				"<p>By all accounts, the Commodore Braunschweig factory didn't have the (European-friendly) PAL Commodore&nbsp;64 machines " +
+				"<p>By all accounts, the Commodore Braunschweig factory didn't have the European PAL Commodore&nbsp;64 machines " +
 				"ready for retail <a href=\"https://www.zock.com/8-Bit/D_C64.HTML\">until&nbsp;1983</a>. " +
-				"In the UK, advertising first hit Commodore&nbsp;Computing<sup><a href=\"#berlin-bear-controversy-fn5\">[5]</a></sup> in February 1983, " +
-				"which focused on potential developers, but mostly the <a href=\"https://static.nosher.net/archives/computers/images/comm64_comci_1983-02-m.jpg\">business&nbsp;market</a>,<sup><a href=\"#berlin-bear-controversy-fn6\">[6]</a></sup> " +
-				"and a revised business focus advert ran in October 1983.<sup><a href=\"#berlin-bear-controversy-fn7\">[7]</a></sup></p>" +
+				"Advertising in the UK first hit Commodore&nbsp;Computing<sup><a href=\"#berlin-bear-controversy-fn5\">[5]</a></sup> in February 1983, " +
+				"and throughout that year focused on developers but primarily on the <a href=\"https://static.nosher.net/archives/computers/images/comm64_comci_1983-02-m.jpg\">business&nbsp;market</a>. " +
+				"<sup><a href=\"#berlin-bear-controversy-fn6\">[6]</a></sup><sup><a href=\"#berlin-bear-controversy-fn7\">[7]</a></sup></p>" +
+				// C64 ad quotes
+				"<p><q>Interface adaptors will allow the use of a complete range of hardware peripherals including disk units, plotter, dot matrix and daisy wheel printers, Prestel communications, networking and much, much more.</q> " +
+				"<q>A complete range of business software including word processing, information handling, financial modelling, accounting and many more specific application packages will be available.</q></p>" +
 				// west berlin kids
-				"<p>We believe it unlikely that several kids from West Berlin, a city deep within the Soviet GDR, had access to the unreleased PAL Commodore&nbsp;64 in <u>1982</u>. " +
-				"It is more believable that these Berlin cracking groups were formed in late 1983 or 1984. " +
-				"However, the claim<sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup> is that various Berliners got together in 1982 and formed multiple <q>cracking</q> " +
-				"groups to trade in software and create art on an unreleased business microcomputer, even though software for it didn't need cracking.</p>" +
+				"<p>West Berlin was an isolated city deep within the Soviet-controlled Deutsche Demokratische Republik, and its economy depended on mass subsidies from the West German Federal Republic. " +
+				"It is unlikely that several kids from here had early access to the European PAL Commodore&nbsp;64 in <u>1982</u>. " +
+				"It is more believable that the kids formed these Berlin cracking groups a year or so later, in late 1983 or 1984, " +
+				"after the Commodore 64 dropped massively in price and became readily available.</p>" +
+				"<p>However, the Berlin Bear argument claims that various Berliners got together in 1982 and formed multiple cracking groups on an unreleased business microcomputer, even though its software didn't need cracking." +
+				"<sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup></p>" +
 				// citations
 				"<strong>Quotes</strong><sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup>" +
 				ul0 +
-				"<li><q>The first intro was a picture of the Berlin Bear from the city flag and was released by BCS in <strong>1982</strong>. " +
+				"<li><q>The first intro was a picture of the Berlin Bear from the city flag and was released by <abbr title=\"Berlin Cracking Service\">BCS</abbr> in <strong>1982</strong>. " +
 				"It was a kind of co-production by several people...</q> <sup><a href=\"#berlin-bear-controversy-fn9\">[9]</a></sup></li>" +
-				"<li><q>A positive moment for me was when the father of a classmate who was working for Apple, was able to through his connections, obtain a C64 on Christmas <strong>1982</strong>... Plutonium&nbsp;Crackers&nbsp;2001&nbsp;(PC) was born.</q> <sup><a href=\"#berlin-bear-controversy-fn10\">[10]</a></sup></li>" +
+				"<li><q>A positive moment for me was when the father of a classmate who was working for Apple, was able to through his connections, " +
+				"obtain a <abbr title=\"Commodore 64\">C64</abbr> on Christmas <strong>1982</strong>... Plutonium&nbsp;Crackers&nbsp;2001&nbsp;(PC) was born.</q> <sup><a href=\"#berlin-bear-controversy-fn10\">[10]</a></sup></li>" +
 				"<li><q>Some of our close friends/posse in Berlin started their C64 scene-careers nearly at the same time. " +
 				"I'm speaking of Cracking Force Berlin (CFB)... and&nbsp;Berlin&nbsp;Cracking&nbsp;Service&nbsp;(BCS).</q> <sup><a href=\"#berlin-bear-controversy-fn11\">[11]</a></sup></li>" +
 				"<li><q>We were primarily <u>cracking games from 1982</u> until late 1987.</q> <sup><a href=\"#berlin-bear-controversy-fn12\">[12]</a></sup></li>" +
@@ -618,12 +628,13 @@ func Collection() Milestones {
 				"<div id=\"berlin-bear-controversy-fn6\">[6] Advert source <a href=\"https://nosher.net/archives/computers/comm64_comci_1983-02?idx=Designed\">nosher.net</a>.</div>" +
 				"<div id=\"berlin-bear-controversy-fn7\">[7] See the October 1993 issue of Practical Computing, <a href=\"https://worldradiohistory.com/UK/Practical-Computing/80s/Practical-Computing-1983-10-S-OCR.pdf\">pages 74-75</a>.</div>" +
 				"<div id=\"berlin-bear-controversy-fn8\">[8] Select quotes from an often referenced <a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">interview conducted in 2005-06</a>.</div>" +
-				"<div id=\"berlin-bear-controversy-fn9\">[9] This quote claims multiple Berlin-based sceners had access to the Commodore&nbsp;64 in 1982 and were knowledgeable enough to program on it.</div>" +
+				"<div id=\"berlin-bear-controversy-fn9\">[9] This quote claims multiple Berlin-based sceners had early access to the Commodore&nbsp;64 in 1982 and were knowledgeable enough to program on it.</div>" +
 				"<div id=\"berlin-bear-controversy-fn10\">[10] This conflicting quote claims the Commodore&nbsp;64 was unreleased or unavailable during Christmas 1982. " +
 				"It also needs to be clarified why an Apple employee, through connections, would get a family friend access to a competitor machine.</div>" +
 				"<div id=\"berlin-bear-controversy-fn11\">[11] This quote suggests multiple Berlin cracking groups existed on the Commodore&nbsp;64 in 1982 despite this and other sources stating the machine was unavailable in Germany.</div>" +
-				"<div id=\"berlin-bear-controversy-fn12\">[12] Cracking games in this era means removing <q>disk</q> copy protection. Yet the German manual for the VC-1541 floppy disk drive is dated June 1983, which suggests it didn't sell in Germany until the latter half of 1983. The other early significant titles on the Commodore&nbsp;64 came on cartridges.</div>" +
+				"<div id=\"berlin-bear-controversy-fn12\">[12] Cracking games in this era means removing <q>disk</q> copy protection. Yet the German manual for the VC-1541 floppy disk drive is dated June 1983, which suggests it didn't sell in Germany until the latter half of 1983. Other early noteworthy titles on the Commodore&nbsp;64 came on cartridges.</div>" +
 				"<div id=\"berlin-bear-controversy-fn13\">[13] Copying and sharing software wasn't criminal in the USA until the NET Act was signed in December 1997. Other countries passed similar laws in the 2000s.</div>" +
+				"<div id=\"berlin-bear-controversy-fn14\">[14] With inflation, it is priced at $1,900 in mid-2024, or more expensive than a new Apple 14-inch MacBook Pro laptop selling at $1,599.</div>" +
 				sect1,
 		},
 		{
@@ -681,8 +692,8 @@ func Collection() Milestones {
 				"<p>ANSI was a text terminal display standard from the mid-1970s that formatted onscreen text and controlled cursor movement. The implementation in DOS was only partially complete but became its own sub-standard over time.</p>",
 		},
 		{
-			Title: "The earliest cracked PC game ?", Year: 1983,
-			Lead: "Atarisoft presents: Galaxian broken by The Koyote Kid", LinkTitle: "and view the crack",
+			Title: "The earliest cracked PC game", Year: 1983,
+			Lead: "Atarisoft presents: Galaxian broken by The Koyote Kid ?", LinkTitle: "and view the crack",
 			Link: "/f/ab2edbc", Highlight: true,
 			Content: "<p>This modified Galaxian title screen is known as a <strong>crack&nbsp;screen</strong> and was a typical way for crackers on the Apple&nbsp;II to credit themselves. Crackers modified and removed disk copy protection from software for the sole purpose of allowing duplication.</p>" +
 				"<p>The online Apple&nbsp;II community commonly used the verbs \"broken\" or unprotected, cracked, and kracked. Given the popularity of the IBM&nbsp;PC in the USA, it is most likely The Koyote Kid was based in the USA and also interacted in the <a href=\"#the-first-crackers\">Apple&nbsp;II underground</a> Scene.</p>" +
@@ -708,8 +719,8 @@ func Collection() Milestones {
 				ul1,
 		},
 		{
-			Title: "Earliest unprotect text ?", Year: 1983, Month: 5, Day: 12, Highlight: true,
-			Lead: "Directions by Randy Day for unprotecting SPOC the Chess Master", LinkTitle: "the unprotect text",
+			Title: "Earliest unprotect text", Year: 1983, Month: 5, Day: 12, Highlight: true,
+			Lead: "Directions by Randy Day for unprotecting SPOC the Chess Master ?", LinkTitle: "the unprotect text",
 			Link: "/f/a91c702",
 			Content: "<code>SPOC.UNP</code><br>" +
 				"<p><strong>Unprotects</strong> were text documents describing methods to remove software (floppy) disk copy protection. " +
@@ -754,8 +765,8 @@ func Collection() Milestones {
 				"The other pioneering aspect of the game was the pseudo-3D landscape. The player controlled a human avatar from a 3rd person perspective and could use it to walk around set pieces, both in front and from behind, and interact with the onscreen objects.",
 		},
 		{
-			Title: "The earliest information text ?", Year: 1984, Month: 10, Day: 17, Highlight: true,
-			Lead:      "SOFTWARE PIRATES Inc. - ZORKTOOLS 1.0",
+			Title: "The earliest information text", Year: 1984, Month: 10, Day: 17, Highlight: true,
+			Lead:      "SOFTWARE PIRATES Inc. - ZORKTOOLS 1.0 ?",
 			LinkTitle: "the information text",
 			Link:      "/f/ae2da98",
 			Content: "<code>INFOCOM.DOC</code><br>" +
@@ -786,8 +797,8 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "The earliest text loader ?", Year: 1985, Month: 5, Day: 26, Highlight: true,
-			Lead:      "Spy Hunter cracked by Spartacus",
+			Title: "The earliest text loader", Year: 1985, Month: 5, Day: 26, Highlight: true,
+			Lead:      "Spy Hunter cracked by Spartacus ?",
 			LinkTitle: "and view the text loader",
 			Link:      "/f/aa2be75",
 			Content: "<p><strong>Loaders</strong> are bits of code that crackers and pirate groups insert to promote themselves and their game releases. As the name suggests, they are loaded and shown before the game starts. " +
@@ -803,8 +814,8 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest ANSI ad ?", Year: 1985, Month: 8, Highlight: false,
-			Lead: "The Game Gallery 300 1200", LinkTitle: "and view the file",
+			Title: "Earliest ANSI ad", Year: 1985, Month: 8, Highlight: false,
+			Lead: "The Game Gallery 300 1200 ?", LinkTitle: "and view the file",
 			Link: "/f/ba2bcbb",
 			Content: "<p>The earliest <strong>ANSI ad</strong>vertisement is for the Manhattan based BBS, <strong>The&nbsp;Game&nbsp;Gallery</strong>&nbsp;(+212-799-6987). ANSI art is a computer art form that became widely used to create art and advertisements for online bulletin board systems.</p>" +
 				"<p>The output uses ANSI escape codes, a standard Digital Equipment Corporation (DEC) pioneered for its minicomputer <a href=\"https://vt100.net/dec/vt_history\">video terminals</a>. Later, it was used on IBM and other PCs using software drivers and video <a href=\"https://vt100.net/emu/\">terminal emulators</a>.</p>",
@@ -846,8 +857,8 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "The earliest \"DOX\" ?", Year: 1986, Highlight: true,
-			Lead: "Dam Buster documentation by Brew Associates", LinkTitle: "the documentation",
+			Title: "The earliest \"DOX\"", Year: 1986, Highlight: true,
+			Lead: "Dam Buster documentation by Brew Associates ?", LinkTitle: "the documentation",
 			Link: "/f/a61db76",
 			Content: "<code>DAMBUST1.DOC</code><br>" +
 				"<p><strong>DOX</strong> is an abbreviation for documentation, which are text files that provide instructions on playing more complicated games. " +
@@ -1019,8 +1030,8 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest, standalone elite BBS advert ?", Year: 1988, Month: 4, Day: 4, Highlight: false,
-			Lead: "Swashbucklers II", LinkTitle: "the file",
+			Title: "Earliest, standalone elite BBS advert", Year: 1988, Month: 4, Day: 4, Highlight: false,
+			Lead: "Swashbucklers II ?", LinkTitle: "the file",
 			Link: "/f/b844ef",
 			Content: "<p>While novel in 1988, <strong>BBS adverts</strong> like these would plague releases as spam in the years to come, " +
 				"with boards injecting numerous texts and tagging the releases with their names, often under the guise of documentation or readme texts.</p>" +
@@ -1039,8 +1050,8 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest NFO-like text document ?", Year: 1988, Month: 7, Day: 30, Highlight: false,
-			Lead: "Bentley Sidwell Productions", LinkTitle: "the file", Link: "/f/ad417f",
+			Title: "Earliest, proto NFO text", Year: 1988, Month: 7, Day: 30, Highlight: false,
+			Lead: "Bentley Sidwell Productions ?", LinkTitle: "the file", Link: "/f/ad417f",
 			Content: "<p><strong>NFO</strong> information text files are usually distributed with pirated software to provide usage instructions, promote the release group, and occasionally encourage group propaganda.</p>" +
 				"<p>Bentley Sidwell Productions may have released the earliest NFO-like document for the 1988 <a href=\"https://www.mobygames.com/game/9093/romance-of-the-three-kingdoms/cover/group-9976/cover-249195/\">Romance of The Three Kingdoms</a> game.</p>" +
 				"<pre>" +
@@ -1065,8 +1076,8 @@ func Collection() Milestones {
 				"Nothing to edit... nothing.</pre>",
 		},
 		{
-			Title: "The earliest ASCII art on PC ?", Year: 1988, Month: 10, Day: 6, Highlight: true,
-			Lead: "Another quality ware from $print", LinkTitle: "and view the file", Link: "/f/ab3dc1",
+			Title: "The earliest ASCII art on PC", Year: 1988, Month: 10, Day: 6, Highlight: true,
+			Lead: "Another quality ware from $print ?", LinkTitle: "and view the file", Link: "/f/ab3dc1",
 			Content: "<strong>$print</strong> for the game Fire Power released the earliest known <strong>ASCII art</strong>. " +
 				"The ASCII text logo is relatively crude and less detailed than later ASCII art. " +
 				"<pre> ╔═══════════════════════════════╗<br>" +
@@ -1088,8 +1099,8 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "The earliest PC Scene drama ?", Year: 1988, Month: 11, Day: 25,
-			Lead: "TNWC accusing PTL of stealing a release", LinkTitle: "and view the file",
+			Title: "The earliest PC Scene drama", Year: 1988, Month: 11, Day: 25,
+			Lead: "TNWC accusing PTL of stealing a release ?", LinkTitle: "and view the file",
 			Link: "/f/aa356d",
 			Content: "<p>The earliest <strong>scene drama</strong> known so far involves a release by " +
 				"<a href=\"/g/the-north-west-connection\">The&nbsp;North&nbsp;West&nbsp;Connection</a>&nbsp;(TNWC) for the game Paladin. " +
@@ -1134,8 +1145,8 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest ANSI loader ?", Year: 1989, Month: 3,
-			Lead: "The Rogues Gallery", LinkTitle: "and view the loader",
+			Title: "Earliest ANSI loader", Year: 1989, Month: 3,
+			Lead: "The Rogues Gallery ?", LinkTitle: "and view the loader",
 			Link: "/f/ad21da8",
 			Content: "<p><strong>ANSI loaders</strong> were text files with ASCII escape control characters to provide color and cursor movement. " +
 				"However, a specific display driver on IBM and other PCs often needed to load at boot before viewing the texts. " +
@@ -1149,8 +1160,8 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest PC intro ?", Year: 1989, Month: 4, Highlight: true,
-			Lead: "First intro by Sorcerers", LinkTitle: "and run the intro",
+			Title: "Earliest PC intro", Year: 1989, Month: 4, Highlight: true,
+			Lead: "First intro by Sorcerers ?", LinkTitle: "and run the intro",
 			Link: "/f/ab2843",
 			Content: "<p>An <strong>intro</strong>, or the later cracktro, is a small, usually short, demonstration program designed to display text with graphics or animations. " +
 				"Oddly, the <q>First Intro</q> was written by some teenagers in Finland, a country not known for using expensive PC platforms.</p>" +
@@ -1163,8 +1174,8 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest PC cracktro ?", Year: 1989, Month: 4, Day: 29, Highlight: true,
-			Lead: "Future Brain Inc.", LinkTitle: "and run the cracktro",
+			Title: "Earliest PC cracktro", Year: 1989, Month: 4, Day: 29, Highlight: true,
+			Lead: "Future Brain Inc. ?", LinkTitle: "and run the cracktro",
 			Link: "/f/b83fd7",
 			Content: "<p><strong>Future Brain Inc.</strong>, a group from the <strong>Netherlands</strong> that was among the first to release a cracktro on the PC platform, " +
 				"released this for the game <a href=\"https://www.mobygames.com/game/2161/lombard-rac-rally/cover/group-99392/cover-270796/\">Lombard RAC Rally</a>.</p>" +
@@ -1241,8 +1252,8 @@ func Collection() Milestones {
 				"<p><pre>Knights of Legend by Origin Systems<br>It seems to be unprotected, if you find anything leave us a message..</pre></p>",
 		},
 		{
-			Title: "Earliest PC cracktro with music ?", Year: 1990, Month: 12, Day: 2,
-			Lead: "The Cat, M1 Tank Plattoon", LinkTitle: "about and view cractrko",
+			Title: "Earliest PC cracktro with music", Year: 1990, Month: 12, Day: 2,
+			Lead: "The Cat, M1 Tank Plattoon ?", LinkTitle: "about and view cractrko",
 			Link: "/f/ab25f0e",
 			Content: "<p>The Cat released this cracktro for the game <a class=\"text-nowrap\" href=\"https://www.mobygames.com/game/1499/m1-tank-platoon/cover/group-3004/cover-230986/\">M1 Tank Platoon</a>. " +
 				"It is the first known cracktro on the PC platform to feature music. But music is in a loose sense, as it relies on the terrible internal PC speaker to produce the melody.</p>" +
@@ -1293,7 +1304,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Earliest BBS VGA loader", Year: 1991, Month: 3,
-			Lead: "XTC Systems BBS", LinkTitle: "the loader", Link: "/f/a41dcd9",
+			Lead: "XTC Systems BBS ?", LinkTitle: "the loader", Link: "/f/a41dcd9",
 			Content: "<p><code>XTC-AD.COM</code></p>" +
 				"<p>This <strong>VGA loader</strong> is an advert for the well-known bulletin board <a href=\"https://demozoo.org/bbs/4009/\">XTC Systems</a> in Dallas, Texas. " +
 				"It served as the <em>World Headquarters</em> for the famed art group <a href=\"/g/acid-productions\">ACiD Productions</a> and as a distribution board for <a href=\"/g/fairlight\">Fairlight</a>, <a href=\"/g/razor-1911\">Razor 1911</a>, and some popular magazines.",
@@ -1330,7 +1341,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Earliest elite BBStro", Year: 1991, Month: 10, Day: 21,
-			Lead: "Splatterhouse BBS", LinkTitle: "about and view the BBStro", Link: "/f/b11acdf",
+			Lead: "Splatterhouse BBS ?", LinkTitle: "about and view the BBStro", Link: "/f/b11acdf",
 			Content: "<p><a href=\"https://demozoo.org/bbs/7179/\">Splatterhouse, or Splatter House</a>, was a San Jose, California bulletin board " +
 				"heavily affiliated with the <a href=\"/g/international-network-of-crackers\">International Network of Crackers</a>, the art group <a href=\"/g/acid-productions\">ACiD Productions</a>, " +
 				"and the designers of this <strong>BBStro</strong>, <a href=\"/g/insane-creators-enterprise\">Insane Creators Enterprise</a>.",
@@ -1415,8 +1426,8 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest CD image release ?", Year: 1994, Month: 11, Day: 17, Highlight: true,
-			Lead: "ROM 1911", LinkTitle: "about the release", Link: "/f/ab3e0b",
+			Title: "Earliest CD image release", Year: 1994, Month: 11, Day: 17, Highlight: true,
+			Lead: "ROM 1911 ?", LinkTitle: "about the release", Link: "/f/ab3e0b",
 			Content: "<p>The earliest known release was a <strong>CD image</strong> of the game " +
 				"<a href=\"https://www.mobygames.com/game/3350/hurl/cover/group-2469/cover-13273/\">Slob Zone</a> later known as HURL. " +
 				"CD images were generally disliked in the Scene, as they had no copy protection to crack and occupied too much space on the file site or bulletin board's costly hard drives. " +
@@ -1452,8 +1463,8 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest CD-RIP release ?", Year: 1995, Month: 6, Day: 3, Highlight: true,
-			Lead: "Hybrid", LinkTitle: "about the release", Link: "/f/a938e5",
+			Title: "Earliest CD-RIP release", Year: 1995, Month: 6, Day: 3, Highlight: true,
+			Lead: "Hybrid ?", LinkTitle: "about the release", Link: "/f/a938e5",
 			Content: "<p>A play on the media, CD-ROM, the earliest known <strong>CD-RIP</strong> (later simplified to <q>rip</q>) release, was by Hybrid for the game <a href=\"https://www.mobygames.com/game/3328/virtual-pool/cover/group-119259/cover-316591/\">Virtual Pool</a> from Interplay. " +
 				"Hybrid was a group formed by ex-members of <a href=\"/g/pyradical\">Pyradical</a> and <a href=\"/g/pentagram\">Pentagram</a>.</p>" +
 				"The <u>CD RIP</u> type came about due to CD-ROM-only games being unable to get a proper Scene release. For PC game publishers, " +
@@ -1574,8 +1585,8 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest ISO release ?", Year: 1997, Month: 11, Day: 27, Highlight: true,
-			Lead: "CD Images For the Elite ~ CiFE", LinkTitle: "the release", Link: "/f/ad40ce",
+			Title: "Earliest ISO release", Year: 1997, Month: 11, Day: 27, Highlight: true,
+			Lead: "CD Images For the Elite ~ CiFE ?", LinkTitle: "the release", Link: "/f/ad40ce",
 			Content: "An <a href=\"https://www.loc.gov/preservation/digital/formats/fdd/fdd000348.shtml\">ISO</a> is a standard file archive format containing the entire CD and later DVD data. It enables the copying and exact replication of data onto consumable blank discs. " +
 				"Trading <strong>ISO images</strong> between individuals has happened for years prior, but <a href=\"https://www.mobygames.com/game/2082/lords-of-magic/covers/\">Lords of Magic</a> was the earliest known ISO release pushed to the Scene.</p>" +
 				"<p>A formalization of an ISO trading scene occurred sometime in late 1997, but it took years before the medium became the dominant format in the Scene.</p>",
