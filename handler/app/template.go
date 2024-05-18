@@ -32,6 +32,7 @@ type Templ struct {
 	Environment config.Config // Environment configurations from the host system environment.
 	Public      embed.FS      // Public facing files.
 	View        embed.FS      // Views are Go templates.
+	RecordCount int           // RecordCount is the total number of records in the database.
 	Subresource SRI           // SRI are the Subresource Integrity hashes for the layout.
 	Version     string        // Version is the current version of the app.
 }
@@ -619,6 +620,8 @@ func (web Templ) tmpl(name filename) *template.Template {
 	}
 	config := web.Environment
 	files = lockTmpls(config.ReadMode, files...)
+	offline := web.RecordCount < 1
+	files = dbTmpls(offline, files...)
 	// append any additional and embedded templates
 	switch name {
 	case "artifact.tmpl":
@@ -688,21 +691,31 @@ func templates() map[string]filename {
 	}
 }
 
+func dbTmpls(offline bool, files ...string) []string {
+	if offline {
+		return append(files,
+			GlobTo("layoutup_null.tmpl"),
+			GlobTo("layoutjsup_null.tmpl"),
+			GlobTo("uploader_null.tmpl"),
+		)
+	}
+	return append(files,
+		GlobTo("layoutup.tmpl"),
+		GlobTo("layoutjsup.tmpl"),
+		GlobTo("uploader.tmpl"),
+		GlobTo("uploaderhtmx.tmpl"),
+	)
+}
+
 func lockTmpls(lock bool, files ...string) []string {
-	files = append(files, GlobTo("layoutup.tmpl"))
 	if lock {
 		return append(files,
 			GlobTo("layoutlock_null.tmpl"),
 			GlobTo("layoutjs_null.tmpl"),
-			GlobTo("layoutjsup_null.tmpl"),
-			GlobTo("layoutup_null.tmpl"),
-			GlobTo("uploader_null.tmpl"))
+		)
 	}
 	return append(files,
 		GlobTo("layoutlock.tmpl"),
 		GlobTo("layoutjs.tmpl"),
-		GlobTo("layoutjsup.tmpl"),
-		GlobTo("layoutup.tmpl"),
-		GlobTo("uploader.tmpl"),
-		GlobTo("uploaderhtmx.tmpl"))
+	)
 }

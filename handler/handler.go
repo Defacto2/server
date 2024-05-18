@@ -203,6 +203,7 @@ func (c Configuration) Registry(logger *zap.SugaredLogger) (*TemplateRegistry, e
 		Environment: c.Environment,
 		Brand:       *c.Brand,
 		Public:      c.Public,
+		RecordCount: c.RecordCount,
 		Version:     c.Version,
 		View:        c.View,
 	}
