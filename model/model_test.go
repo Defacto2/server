@@ -57,15 +57,15 @@ func TestValidFilesize(t *testing.T) {
 	size := ""
 	i, err := model.ValidFilesize(size)
 	require.NoError(t, err)
-	assert.Equal(t, int64(0), i)
+	assert.Equal(t, uint64(0), i)
 	size = "100"
 	i, err = model.ValidFilesize(size)
 	require.NoError(t, err)
-	assert.Equal(t, int64(100), i)
+	assert.Equal(t, uint64(100), i)
 	size = "-100"
 	i, err = model.ValidFilesize(size)
 	require.Error(t, err)
-	assert.Equal(t, int64(0), i)
+	assert.Equal(t, uint64(0), i)
 }
 
 func TestValidIntegrity(t *testing.T) {

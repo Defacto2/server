@@ -152,7 +152,7 @@ func upload(f models.File, values url.Values, key string) (models.File, error) {
 	f.DateIssuedMonth = month
 	f.DateIssuedDay = day
 	f.Filename = filename
-	f.Filesize = filesize
+	f.Filesize = int64(filesize)
 	f.FileZipContent = content
 	f.RetrotxtReadme = readme
 	f.FileMagicType = filemagic

@@ -76,7 +76,7 @@ func ValidFilename(s string) null.String {
 // ValidFilesize returns a valid file size or an error.
 // The file size is parsed as an unsigned integer.
 // An error is returned if the string cannot be parsed as an integer.
-func ValidFilesize(size string) (int64, error) {
+func ValidFilesize(size string) (uint64, error) {
 	size = strings.TrimSpace(size)
 	if len(size) == 0 {
 		return 0, nil
@@ -85,7 +85,7 @@ func ValidFilesize(size string) (int64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("%w: %q, %w", ErrSize, size, err)
 	}
-	return int64(s), nil
+	return s, nil
 }
 
 // ValidIntegrity confirms the integrity as a valid SHA-384 hexadecimal hash
