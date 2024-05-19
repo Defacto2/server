@@ -62,7 +62,7 @@ var (
 // Configuration of the handler.
 type Configuration struct {
 	Environment config.Config // Environment configurations from the host system.
-	Brand       *[]byte       // Brand contains the Defacto2 ASCII logo.
+	Brand       []byte        // Brand contains the Defacto2 ASCII logo.
 	Public      embed.FS      // Public facing files.
 	View        embed.FS      // View contains Go templates.
 	Version     string        // Version is the results of GoReleaser build command.
@@ -154,7 +154,7 @@ func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 // Info prints the application information to the console.
 func (c Configuration) Info(logger *zap.SugaredLogger) {
 	w := bufio.NewWriter(os.Stdout)
-	nr := bytes.NewReader(*c.Brand)
+	nr := bytes.NewReader(c.Brand)
 	if l, err := io.Copy(w, nr); err != nil {
 		logger.Warnf("Could not print the brand logo: %s.", err)
 	} else if l > 0 {
@@ -201,7 +201,7 @@ func (c Configuration) PortErr(logger *zap.SugaredLogger, port uint, err error) 
 func (c Configuration) Registry(logger *zap.SugaredLogger) (*TemplateRegistry, error) {
 	webapp := app.Templ{
 		Environment: c.Environment,
-		Brand:       *c.Brand,
+		Brand:       c.Brand,
 		Public:      c.Public,
 		RecordCount: c.RecordCount,
 		Version:     c.Version,

@@ -119,7 +119,7 @@ func environmentVars() (*zap.SugaredLogger, config.Config) {
 // newInstance is used to create the server controller instance.
 func newInstance(configs config.Config) handler.Configuration {
 	c := handler.Configuration{
-		Brand:       &brand,
+		Brand:       brand,
 		Environment: configs,
 		Public:      public,
 		Version:     version,

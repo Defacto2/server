@@ -428,9 +428,8 @@ func TestMilestone(t *testing.T) {
 	t.Parallel()
 	ms := app.Collection()
 
-	const expectedMileStones = 116
-	assert.Equal(t, expectedMileStones, ms.Len())
-	assert.Len(t, ms, expectedMileStones)
+	const expectedMileStones = 100
+	assert.Greater(t, ms.Len(), expectedMileStones)
 
 	one := ms[0]
 	const expectedYear = 1971

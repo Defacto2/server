@@ -18,6 +18,7 @@ const (
 	// The file owner and group has read and write access, and others have read access.
 	WriteWriteRead fs.FileMode = 0o664
 	// TODO: user and group chown of file?
+	DSStore = ".DS_Store" // DSStore is the macOS directory service store file.
 )
 
 // Count returns the number of files in the given directory.
@@ -36,6 +37,9 @@ func Count(dir string) (int, error) {
 	}
 	for _, file := range files {
 		if file.IsDir() {
+			continue
+		}
+		if file.Name() == DSStore {
 			continue
 		}
 		i++
@@ -99,6 +103,9 @@ func Files(dir string) ([]string, error) {
 	names := []string{}
 	for _, file := range files {
 		if file.IsDir() {
+			continue
+		}
+		if file.Name() == DSStore {
 			continue
 		}
 		names = append(names, file.Name())
