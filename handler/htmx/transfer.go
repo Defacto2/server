@@ -419,7 +419,7 @@ func submit(c echo.Context, logger *zap.SugaredLogger, prod string) error {
 	}
 
 	sid := c.Param("id")
-	id, err := strconv.ParseUint(sid, 10, 64)
+	id, err := strconv.ParseInt(sid, 10, 64)
 	if err != nil {
 		return c.String(http.StatusNotAcceptable,
 			"The "+name+" production ID must be a numeric value, "+sid)
@@ -431,7 +431,7 @@ func submit(c echo.Context, logger *zap.SugaredLogger, prod string) error {
 	case pt:
 		sanity = pouet.Sanity
 	}
-	if id < 1 || id > sanity {
+	if id < 1 || id > int64(sanity) {
 		return c.String(http.StatusNotAcceptable,
 			"The "+name+" production ID is invalid, "+sid)
 	}
@@ -444,9 +444,9 @@ func submit(c echo.Context, logger *zap.SugaredLogger, prod string) error {
 	var exist bool
 	switch prod {
 	case dz:
-		exist, err = model.DemozooExists(ctx, db, int64(id))
+		exist, err = model.DemozooExists(ctx, db, id)
 	case pt:
-		exist, err = model.PouetExists(ctx, db, int64(id))
+		exist, err = model.PouetExists(ctx, db, id)
 	}
 	if err != nil {
 		return c.String(http.StatusServiceUnavailable,
