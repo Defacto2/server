@@ -329,7 +329,7 @@ func Collection() Milestones {
 		{
 			Title: "The birth of warez", Year: 1980, Highlight: true,
 			Lead: "The Apple II ?", Link: "http://artscene.textfiles.com/intros/APPLEII/", LinkTitle: "and browse the Apple II crack screens",
-			Content: "<p>When was the birth of Wares?<sup><a href=\"#the-birth-of-warez-fn1\">[1]</a></sup> There's no clear answer to this question, but a good guess would be <strong>sometime&nbsp;in&nbsp;1980</strong> within the established technology regions of the USA. " +
+			Content: "<p>When was the birth of Wares?<sup><a href=\"#the-birth-of-warez-fn1\">[1]</a></sup> There's no clear answer to this question, but a good guess would be <strong>sometime&nbsp;in&nbsp;1980</strong> within the established technology hubs of the USA. " +
 				"By then, microcomputer owners exchanged real-life details to meet up, duplicate and exchange software collections, and find ways to remove copy protections.</p>" +
 				// apple modems
 				"<p>1979-1980 saw the sale of the first Apple&nbsp;II <a href=\"https://www.apple2history.org/history/ah13/#09\">modem peripherals</a>, the Hayes&nbsp;Micromodem&nbsp;II and the Novation&nbsp;CAT. " +
@@ -517,6 +517,28 @@ func Collection() Milestones {
 			},
 		},
 		{
+			Title: "The first demo", Year: 1981, Month: 12, Highlight: true,
+			Lead:      "Untitled Christmas greeting ?",
+			LinkTitle: "the Demozoo entry with a YouTube link",
+			Link:      "https://demozoo.org/productions/144652/",
+			Content: "<p>The earliest known demo or demonstration program is probably this great but untitled animated Christmas greeting created on the Atari 400 or 800 and signed as <q>CB'81</q>. " +
+				"CB is believed to be Claus Buchholz, a known <a href=\"https://archive.org/details/Atari40048KUpgrade/mode/2up\">hardware hacker</a> for the platform. " +
+				"We presume this demo software got shared on Atari-centric bulletin boards in the USA around late 81.</p>" +
+				"<p>Earlier demonstration software existed for various machines, including " +
+				"1978's <a href=\"https://demozoo.org/productions/121614/\">Apple&nbsp;Vision</a>, " +
+				"1979's <a href=\"https://demozoo.org/productions/151537/\">Dancing&nbsp;Demon</a> on the TRS-80, and " +
+				"1980's <a href=\"https://demozoo.org/productions/98550/\">Atari In-Store Demonstration Program</a>. " +
+				"However, these were commercials created by Apple, Radio Shack, or Atari employees and designed to demonstrate the machines' capabilities in a retail store.</p>" +
+				"<p>The untitled Christmas greeting by CB is the earliest known demonstration software created by a hobbyist with no commercial intent.</p>",
+		},
+		{
+			Title: "Atari's Graphics/Sound Demonstration", Year: 1981,
+			Link:      "https://www.atarimania.com/8bit/files/APX_Graphics_Sound_Demonstration.pdf",
+			LinkTitle: "the Graphics/Sound Demonstration manual",
+			Content: "Under its Atari Program Exchange (APX) label, Atari publishes the Graphics/Sound Demonstration, a mail order title containing a diskette and manual with instructions on running several graphic and sound demonstrations on the Atari 400/800 line of computers. " +
+				"The disk also includes the assembly and BASIC source codes, allowing programmers and hobbyists to adapt these vanity effects in their software.",
+		},
+		{
 			Title: "Earliest dated crack", Year: 1982, Month: 3,
 			Lead:      "Dung Beetles breakage by Black Bart ?",
 			LinkTitle: "and view the Dung Beetle crack", Link: "http://artscene.textfiles.com/intros/APPLEII/dungbeetles.gif",
@@ -562,7 +584,7 @@ func Collection() Milestones {
 			Title: "The earliest cracktro", Year: 1982, Highlight: true,
 			Lead: "Star Blaster cracked by: Mr. Xerox ?",
 			Content: "A <strong>crack intro</strong> definition should be a computer animation advertising the crackers of a pirated software release. " +
-				"So, modified <q><a href=\"http://artscene.textfiles.com/intros/APPLEII/thepirate.gif\">broken&nbsp;by</a></q> texts or <a href=\"http://artscene.textfiles.com/intros/APPLEII/flockland.gif\">static images</a> do not count.</p>" +
+				"So, modified <q><a href=\"http://artscene.textfiles.com/intros/APPLEII/thepirate.gif\">broken&nbsp;by</a></q> texts or static <a href=\"http://artscene.textfiles.com/intros/APPLEII/flockland.gif\"> crack screen</a> images do not count.</p>" +
 				// apple ii
 				"<p>Unfortunately, it is challenging to date early pirated releases for the PC, Commodore&nbsp;64, or Apple&nbsp;II. Many crackers didn't date their releases, and the systems themselves didn't track time or stamp the files. " +
 				"But given the <a href=\"http://artscene.textfiles.com/intros/APPLEII/.thumbs.html\">proliferation</a> of <q>broken by</q> texts and graphic hacks in 1980-81 and 1982 on the Apple&nbsp;II in the USA, the early crack intro probably evolved here.</p>" +
@@ -571,7 +593,7 @@ func Collection() Milestones {
 				"for <strong>Star Blaster</strong> (c) 1981, which you can compare to the <a href=\"https://archive.org/details/Starblaster4amCrack\">original opening</a>.</p>" +
 				// others
 				"<p>Or cracker <strong>Copycatter</strong> <a href=\"https://archive.org/details/a2_Pro_Football_The_Gold_Edition_1982_System_Design_Lab_cr_Copycatter\">may have created</a> the first scroller in a release of <strong>Pro Football</strong> (c) 1982. " +
-				"While newer, the February 1984 <strong>Black Belt</strong> release is from <strong>The Apple Mafia</strong> is a <a href=\"https://archive.org/details/3d0g_022b_Black_Belt\">candidate</a> for an early intro, given it has a timestamp and from a well-known group. " +
+				"While younger, the February 1984 <strong>Black Belt</strong> release is from <strong>The Apple Mafia</strong> is a <a href=\"https://archive.org/details/3d0g_022b_Black_Belt\">candidate</a> for an early intro, given it has a timestamp and from a well-known group. " +
 				"Penqueriel Mazes by Electronic Dimension initially looked like a <a href=\"https://archive.org/details/a2_Penqueriel_Mazes_19xx_Sadistic_cr_Electronic_Dimension\">candidate</a>, but the intro-loader effects are far too modern for the <q>(c) 1982</q> notice.</p>",
 			Picture: Picture{
 				Title: "Mr. Xerox's Star Blaster cracktro",
@@ -584,7 +606,7 @@ func Collection() Milestones {
 				"Berlin Cracking Service image <sup><a href=\"#berlin-bear-controversy-fn1\">[1]</a><a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup> of the <a href=\"https://www.atlantis-prophecy.org/recollection/gfx/BCS.png\">Berlin&nbsp;Bear</a> was the first cracktro. " +
 				"But this seems far-fetched, and anecdotal proof suggests it originates from 1984.</p>" +
 				// us and japan
-				"<p>But even taking the claim at its face value, back in late 1982 and selling at $595<sup><a href=\"#berlin-bear-controversy-fn14\">[14]</a></sup>, the Commodore&nbsp;64 was a pricey machine that <a href=\"https://www.power8bit.com/assets/images/screen-shot-2023-03-27-at-5.27.40-pm-508x698.webp\">targeted</a> <u>business users</u> in the USA and Japan (where it flopped). " +
+				"<p>But even taking the claim at its face value, back in late 1982 and selling at $595<sup><a href=\"#berlin-bear-controversy-fn14\">[14]</a></sup>, the Commodore&nbsp;64 was a pricey machine that <a href=\"https://www.power8bit.com/assets/images/screen-shot-2023-03-27-at-5.27.40-pm-508x698.webp\">targeted</a> <u>business users</u> in the USA and Japan. " +
 				"Due to last-minute design changes and poor quality assurance issues, the machine had limited distribution and software that year. <sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a><a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup></p>" +
 				// germany and uk
 				"<p>By all accounts, the Commodore Braunschweig factory didn't have the European PAL Commodore&nbsp;64 machines " +
@@ -597,13 +619,11 @@ func Collection() Milestones {
 				"<q>A complete range of business software including word processing, information handling, financial modelling, accounting and many more specific application packages will be available.</q></p>" +
 				// west berlin kids
 				"<p>West Berlin was an isolated city deep within the Soviet-controlled Deutsche Demokratische Republik, and its economy depended on mass subsidies from the West German Federal Republic. " +
-				"It is unlikely that several kids from here had early access to the European PAL Commodore&nbsp;64 in <u>1982</u>. " +
+				"It is unlikely that several kids from here had early access to the European PAL Commodore&nbsp;64 in 1982. " +
 				"It is more believable that the kids formed these Berlin cracking groups a year or so later, in late 1983 or 1984, " +
 				"after the Commodore 64 dropped massively in price and became readily available.</p>" +
-				"<p>However, the Berlin Bear argument claims that various Berliners got together in 1982 and formed multiple cracking groups on an unreleased business microcomputer, even though its software didn't need cracking." +
-				"<sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup></p>" +
 				// citations
-				"<strong>Quotes</strong><sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup>" +
+				"</p><strong>citations</strong>" +
 				ul0 +
 				"<li><q>The first intro was a picture of the Berlin Bear from the city flag and was released by <abbr title=\"Berlin Cracking Service\">BCS</abbr> in <strong>1982</strong>. " +
 				"It was a kind of co-production by several people...</q> <sup><a href=\"#berlin-bear-controversy-fn9\">[9]</a></sup></li>" +
@@ -1696,7 +1716,7 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "The copy party is over", Year: 2000, Month: 5, Day: 5, Highlight: true,
+			Title: "The giveaway safe habor is over", Year: 2000, Month: 5, Day: 5, Highlight: true,
 			Lead: "The end of Pirates with Attitude", LinkTitle: "the US DOJ press release", Link: "https://web.archive.org/web/20120114174415/http://www.justice.gov/criminal/cybercrime/pirates.htm",
 			Content: "<p>The US Department of Justice <strong>indicted 17 members</strong> of <a href=\"/g/pirates-with-attitudes\">Pirates&nbsp;with&nbsp;Attitudes</a> " +
 				"who got caught up in a honey pot scheme where, for months, Canadian law enforcement had taken control of the primary " +
