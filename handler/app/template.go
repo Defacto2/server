@@ -625,7 +625,7 @@ func (web Templ) tmpl(name filename) *template.Template {
 	config := web.Environment
 	files = lockTmpls(config.ReadMode, files...)
 	offline := web.RecordCount < 1
-	files = dbTmpls(offline, files...)
+	files = dbTmpls(config.ReadMode, offline, files...)
 	// append any additional and embedded templates
 	switch name {
 	case "artifact.tmpl":
@@ -695,8 +695,8 @@ func templates() map[string]filename {
 	}
 }
 
-func dbTmpls(offline bool, files ...string) []string {
-	if offline {
+func dbTmpls(lock, offline bool, files ...string) []string {
+	if offline || lock {
 		return append(files,
 			GlobTo("layoutup_null.tmpl"),
 			GlobTo("layoutjsup_null.tmpl"),

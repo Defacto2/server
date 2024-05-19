@@ -9,6 +9,7 @@
 # Binary file types found in the repository that should never be modified.
 
 # Images
+*.avif binary
 *.gif binary
 *.ico binary
 *.jpg binary

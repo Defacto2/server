@@ -5,7 +5,7 @@
 ### Files
 
 - [ ] Handle magazines with the file editor.
-- [ ] Create an alert for 10 minutes before logout, include a link to re-login. **cannot be done**
+- [ ] ~~Create an alert for 10 minutes before logout, include a link to re-login.~~ **cannot be done**
 
 ### Layout
 
