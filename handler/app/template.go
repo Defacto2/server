@@ -6,6 +6,7 @@ package app
 import (
 	"embed"
 	"fmt"
+	"html"
 	"html/template"
 	"path/filepath"
 	"reflect"
@@ -98,6 +99,9 @@ func DownloadB(i any) template.HTML {
 // LinkSample returns a collection of HTML formatted links for the artifact editor.
 func LinkSamples(youtube, demozoo, pouet, colors16, github, rels, sites string) string {
 	links := LinkPreviews(youtube, demozoo, pouet, colors16, github, rels, sites)
+	for i, link := range links {
+		links[i] = html.EscapeString(link)
+	}
 	return strings.Join(links, "<br>")
 }
 

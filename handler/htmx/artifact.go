@@ -4,6 +4,7 @@ package htmx
 
 import (
 	"fmt"
+	"html"
 	"net/http"
 	"strconv"
 	"strings"
@@ -202,7 +203,7 @@ func RecordReleasersReset(c echo.Context) error {
 	}
 	s := strings.Split(val, "+")
 	for i, x := range s {
-		s[i] = "<q>" + x + "</q>"
+		s[i] = "<q>" + html.EscapeString(x) + "</q>"
 	}
 	html := strings.Join(s, " + ")
 	return c.HTML(http.StatusOK, html)

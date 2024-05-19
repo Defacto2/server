@@ -347,18 +347,19 @@ func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeade
 	return dst.Name(), nil
 }
 
-func debug(c echo.Context, html string) (string, error) {
+func debug(c echo.Context, htm string) (string, error) {
 	values, err := c.FormParams()
 	if err != nil {
-		return html, fmt.Errorf("c.FormParams: %w", err)
+		return htm, fmt.Errorf("c.FormParams: %w", err)
 	}
-	html += "<ul>"
+	htm += "<ul>"
 	for k, v := range values {
-		html += fmt.Sprintf("<li>%s: %s</li>", k, v)
+		val := html.EscapeString(strings.Join(v, " "))
+		htm += fmt.Sprintf("<li>%s: %s</li>", k, val)
 	}
-	html += "</ul>"
-	html += "<small>The debug information is not shown in production.</small>"
-	return html, nil
+	htm += "</ul>"
+	htm += "<small>The debug information is not shown in production.</small>"
+	return htm, nil
 }
 
 type creator struct {
