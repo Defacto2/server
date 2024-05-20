@@ -5,24 +5,18 @@
 ### Files
 
 - [ ] Handle magazines with the file editor.
-- [ ] ~~Create an alert for 10 minutes before logout, include a link to re-login.~~ **cannot be done**
 
 ### Layout
-
-- [ ] * ~~(long) group/releaser pages should have a link to the end of the document.~~ **users can use the keyboard to navigate**
 
 ### Database
 
 - [ ] Create DB fix to detect and rebadge msdos and windows trainers.
 - [ ] Create PostgreSQL *indexes* with case-sensitive strings.
-- [ ] Some form of database timeout.
-- [X] All SQL statements need a sign-in account to display records with `delete_at` ~ `qm.WithDeleted`
 - [ ] `OrderBy` Name/Count /html3/groups? https://pkg.go.dev/sort#example-package-SortKeys
 - [ ] [model.Files.ListUpdates], rename the PSQL column from "updated_at" to "date_updated".
 
 ### Backend
 
-- [ ] Tests for routes and templates.
 - [ ] * [Implememnt a sheduling library for Go](https://github.com/reugn/go-quartz)
 
 #### Support Unicode slug URLs as currently the regex removes all non alphanumeric chars.

@@ -71,16 +71,15 @@ func main() {
 	if code := parseFlags(logger, configs); code >= 0 {
 		os.Exit(code)
 	}
-	sanityChecks(logger, configs)
-	repairChecks(logger, configs)
+
+	defer sanityChecks(logger, configs)
+	defer repairChecks(logger, configs)
 
 	logger = serverLog(configs)
-
 	website := newInstance(configs)
 	router := website.Controller(logger)
 	website.Info(logger)
-	err := website.Start(router, logger, configs)
-	if err != nil {
+	if err := website.Start(router, logger, configs); err != nil {
 		logger.Fatalf("%s: please check the environment variables.", err)
 	}
 
