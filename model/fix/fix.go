@@ -21,6 +21,7 @@ import (
 var (
 	ErrCtxLog = errors.New("context logger is invalid")
 	ErrDB     = errors.New("database connection is nil")
+	ErrLog    = errors.New("the server cannot save any logs")
 	ErrRepair = errors.New("invalid repair option")
 )
 
@@ -44,6 +45,9 @@ const (
 
 // Run the database repair based on the repair option.
 func (r Repair) Run(ctx context.Context, logger *zap.SugaredLogger, db *sql.DB) error {
+	if logger == nil {
+		return fmt.Errorf("%w: %s", ErrLog, "no logger")
+	}
 	if db == nil {
 		return ErrDB
 	}
@@ -56,7 +60,7 @@ func (r Repair) Run(ctx context.Context, logger *zap.SugaredLogger, db *sql.DB) 
 	if err := invalidUUIDs(ctx, db); err != nil {
 		return fmt.Errorf("invalid UUIDs: %w", err)
 	}
-	if err := coldfusionIDs(ctx, db); err != nil {
+	if err := coldfusionIDs(ctx, logger, db); err != nil {
 		return fmt.Errorf("coldfusion IDs: %w", err)
 	}
 	switch r {
@@ -95,7 +99,7 @@ func (r Repair) Run(ctx context.Context, logger *zap.SugaredLogger, db *sql.DB) 
 // A blank CFID is "00000000-0000-0000-0000000000000000".
 //
 // [ColdFusion language syntax]: https://cfdocs.org/createuuid
-func coldfusionIDs(ctx context.Context, db *sql.DB) error {
+func coldfusionIDs(ctx context.Context, logger *zap.SugaredLogger, db *sql.DB) error {
 	mods := qm.SQL("SELECT uuid FROM files WHERE length(uuid)=35")
 	fs, err := models.Files(mods).All(ctx, db)
 	if err != nil {
@@ -104,10 +108,6 @@ func coldfusionIDs(ctx context.Context, db *sql.DB) error {
 	i := len(fs)
 	if i == 0 {
 		return nil
-	}
-	logger, loggerExists := ctx.Value("logger").(*zap.SugaredLogger)
-	if !loggerExists {
-		return ErrCtxLog
 	}
 	logger.Infoln(i, "invalid UUIDs found using the ColdFusion syntax")
 	for i, f := range fs {
