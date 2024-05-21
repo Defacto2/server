@@ -366,7 +366,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The first group", Year: 1980, Highlight: true,
-			Lead: "The Apple Mafia ?",
+			Lead: "The Apple Mafia, Super Pirates of Minneapolis, or someone else ?",
 			Content: "<p class=\"fw-light fs-6 mb-1\"><q>The Untouchables - " +
 				"The Apple Mafia - " +
 				"The Dirty Dozen</q> <sup><a href=\"#the-first-group-fn1\">[1]</a></sup></strong><sup><a href=\"#the-first-group-fn2\">[2]</a></sup><sup><a href=\"#the-first-group-fn3\">[3]</a></sup></p>" +
@@ -377,9 +377,10 @@ func Collection() Milestones {
 				// godfather quote
 				"<p>In the same post, an early 1984 quote from The Godfather states he founded <strong>The Apple Mafia in 1980</strong>, initially as a joke, but it became a more serious project in <strong>1981</strong>.</p>" +
 				"<p><q style=\"text-transform: lowercase;\">BRIEF HISTORY OF THE APPLE MAFIA. FOUNDED IN 1980 BY THE GODFATHER AS A JOKE. REDONE IN 1981 AS A SEMI SERIOUS GROUP. " +
-				"KICKED SOME ASS IN '82. BLEW EVERYONE AWAY IN 83, AND WILL DO MUCH BETTER IN 84. SINCE THE BEGINNING THE GROUP HAS DIED OUT AND BEEN REBORN SEVERAL TIMES, THIS TIME LETS KEEP IT GOING. IS CURRENTLY THE OLDEST ACTIVE GROUP,</q></p>" +
+				"KICKED SOME ASS IN '82. BLEW EVERYONE AWAY IN 83, AND WILL DO MUCH BETTER IN 84. SINCE THE BEGINNING THE GROUP HAS DIED OUT AND BEEN REBORN SEVERAL TIMES, THIS TIME LETS KEEP IT GOING. " +
+				"IS CURRENTLY THE OLDEST ACTIVE GROUP</q><sup><a href=\"#the-first-group-fn7\">[7]</a></sup></p>" +
 				// phrack magazine quote
-				"<p>Phrack Magazine issue 42 has a 1993 <a href=\"http://phrack.org/issues/42/3.html\">interview</a> with <a href=\"https://en.wikipedia.org/wiki/Patrick_K._Kroupa\">Lord Digital</a>, who clarifies the Apple Mafia founding." +
+				"<p>Phrack Magazine issue 42 has a 1993 <a href=\"http://phrack.org/issues/42/3.html\">interview</a> with <a href=\"https://en.wikipedia.org/wiki/Patrick_K._Kroupa\">Lord Digital</a>, who attempts to clarify the Apple Mafia founding." +
 				" <q>I played around with various things, ... until " +
 				"I got an Apple&nbsp;II+ in 1978. I hung out with a group of people who were also " +
 				"starting to get into computers, most of them comprising the main attendees of " +
@@ -414,6 +415,7 @@ func Collection() Milestones {
 				"<div id=\"the-first-group-fn6\">[6] Super Pirates of Minneapolis crack screen examples, " +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/ribbitc.gif\">1</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/spirates.gif\">2</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/succession.gif\">3</a>." +
 				div1 +
+				"<div id=\"the-first-group-fn7\">[7] Unusually, Godfather states that it is the oldest <q>active group</q> rather than just the oldest group.</div>" +
 				sect1,
 		},
 		{
