@@ -386,7 +386,7 @@ func Collection() Milestones {
 				"starting to get into computers, most of them comprising the main attendees of " +
 				"the soon-to-be-defunct TAP<sup><a href=\"#the-first-group-fn4\">[4]</a></sup> meetings in NYC, a pretty eclectic collection of " +
 				"dudes who have long since gone their separate ways to meet with whatever " +
-				"destinies life had in store for them.  Around 1980<sup><a href=\"#the-first-group-fn5\">[5]</a></sup> there was an Apple Fest that " +
+				"destinies life had in store for them.  <s>Around 1980</s><sup><a href=\"#the-first-group-fn5\">[5]</a></sup> there was an Apple Fest that " +
 				"we went to, and found even more people with Apples and, from this, formed the " +
 				"Apple Mafia, which was, in our minds, really cool sounding and actually became " +
 				"the first WAreZ gRoUP to exist for the Apple&nbsp;II.</q>" +
