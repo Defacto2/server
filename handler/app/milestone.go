@@ -484,6 +484,20 @@ func Collection() Milestones {
 				"<p>But the law was <a href=\"https://repository.law.uic.edu/cgi/viewcontent.cgi?article=1571&context=jitpl\">confusing</a> as software documentation and software source code are protected, but the object code or the compiled software that ran on the computer hardware is probably not.</p>",
 		},
 		{
+			Title: "Atari's Graphics/Sound Demonstration", Year: 1981, Month: 5,
+			Link:      "https://www.atarimania.com/8bit/files/APX_Graphics_Sound_Demonstration.pdf",
+			LinkTitle: "the Graphics/Sound Demonstration manual",
+			Content: "Under its <a href=\"https://archive.org/details/APXCatalogWinter1981/page/n41/mode/2up?view=theater\">Atari Program Exchange</a> (APX) label, " +
+				"Atari publishes the Graphics/Sound Demonstration, a mail order title containing a diskette and manual with instructions on running several graphic and sound demonstrations on the Atari 400/800 line of computers. " +
+				"The disk also includes the assembly and BASIC source codes, allowing programmers and hobbyists to adapt these vanity effects in their software.",
+			Picture: Picture{
+				Title: "Graphics/Sound Demonstration catalog page",
+				Alt:   "A photo snippet of the 1981, Atari Program Exchange catalog page for the Graphics/Sound Demonstration.",
+				Jpg:   "atari-graphics-sound-demonstration.png",
+				Avif:  "atari-graphics-sound-demonstration.avif",
+			},
+		},
+		{
 			Title: "The first PC", Year: 1981, Month: 8, Day: 12, Highlight: true,
 			Lead: "IBM Personal Computer", LinkTitle: "about the IBM PC",
 			Link:    "https://www.ibm.com/ibm/history/exhibits/pc25/pc25_birth.html",
@@ -530,13 +544,11 @@ func Collection() Milestones {
 				"1980's <a href=\"https://demozoo.org/productions/98550/\">Atari In-Store Demonstration Program</a>. " +
 				"However, these were commercials created by Apple, Radio Shack, or Atari employees and designed to demonstrate the machines' capabilities in a retail store.</p>" +
 				"<p>The untitled Christmas greeting by CB is the earliest known demonstration software created by a hobbyist with no commercial intent.</p>",
-		},
-		{
-			Title: "Atari's Graphics/Sound Demonstration", Year: 1981,
-			Link:      "https://www.atarimania.com/8bit/files/APX_Graphics_Sound_Demonstration.pdf",
-			LinkTitle: "the Graphics/Sound Demonstration manual",
-			Content: "Under its Atari Program Exchange (APX) label, Atari publishes the Graphics/Sound Demonstration, a mail order title containing a diskette and manual with instructions on running several graphic and sound demonstrations on the Atari 400/800 line of computers. " +
-				"The disk also includes the assembly and BASIC source codes, allowing programmers and hobbyists to adapt these vanity effects in their software.",
+			Picture: Picture{
+				Title: "The untitled Christmas greeting by CB",
+				Alt:   "A photo of the 1981, Christmas greeting for the Atari.",
+				Png:   "cb-81.png",
+			},
 		},
 		{
 			Title: "Earliest dated crack", Year: 1982, Month: 3,
