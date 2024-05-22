@@ -169,7 +169,7 @@ func (c Configuration) Info(logger *zap.SugaredLogger) {
 		runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
 	fmt.Fprintln(w, cpuInfo)
 
-	golangInfo := fmt.Sprintf("  compiled with Go %s for %s on %s.\n",
+	golangInfo := fmt.Sprintf("  Compiled on Go %s for %s with %s.\n",
 		runtime.Version()[2:], cmd.OS(), cmd.Arch())
 	fmt.Fprintln(w, golangInfo)
 	//
