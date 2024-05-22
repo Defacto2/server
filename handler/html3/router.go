@@ -1,5 +1,7 @@
 package html3
 
+// Package file router.go contains the HTML3 website route functions.
+
 import (
 	"fmt"
 	"net/http"

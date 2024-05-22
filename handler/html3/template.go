@@ -1,6 +1,6 @@
 package html3
 
-// HTML templates for the /html3 router group.
+// Package file template.go contains the HTML3 website template functions.
 
 import (
 	"embed"

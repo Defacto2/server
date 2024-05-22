@@ -1,5 +1,7 @@
 package app
 
+// Package file interview.go contains the functions for the interview page.
+
 // Groups is a collection of group interviews.
 type Groups []Group
 

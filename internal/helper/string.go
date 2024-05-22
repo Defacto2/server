@@ -1,5 +1,7 @@
 package helper
 
+// Package file string.go contains the helper functions for string operations.
+
 import (
 	"fmt"
 	"math"

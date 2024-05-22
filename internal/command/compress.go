@@ -1,5 +1,8 @@
 package command
 
+// Package file compress.go contains the functions for extracting files from archives
+// using external command-line tools like 7-Zip, Unrar, Unzip, etc.
+
 import (
 	"errors"
 	"fmt"

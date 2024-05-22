@@ -1,6 +1,6 @@
 package model
 
-// Package file files.go contains the database queries for the listing of sorted files.
+// Package file artifacts.go contains the database queries for the listing of sorted files.
 
 import (
 	"context"
@@ -103,6 +103,7 @@ func (f *Artifacts) ByUpdated(ctx context.Context, db *sql.DB, offset, limit int
 		qm.Limit(limit)).All(ctx, db)
 }
 
+// ByHidden returns all of the file records that are hidden ~ soft deleted.
 func (f *Artifacts) ByHidden(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
@@ -136,6 +137,7 @@ func (f *Artifacts) byHidden(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, f)
 }
 
+// ByForApproval returns all of the file records that are waiting to be marked for approval.
 func (f *Artifacts) ByForApproval(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
@@ -168,6 +170,7 @@ func (f *Artifacts) byForApproval(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, f)
 }
 
+// ByUnwanted returns all of the file records that are flagged by Google as unwanted.
 func (f *Artifacts) ByUnwanted(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB

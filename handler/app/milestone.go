@@ -1,5 +1,7 @@
 package app
 
+// Package file milestone.go contains the listings of the milestone page.
+
 const notable = "Notable group foundings,"
 
 // Milestone is an accomplishment for a year and optional month.

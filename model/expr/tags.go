@@ -1,5 +1,7 @@
 package expr
 
+// Package expr contains functions that return a null.String type for use in SQL queries.
+
 import (
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/volatiletech/null/v8"

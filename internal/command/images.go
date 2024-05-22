@@ -1,5 +1,9 @@
 package command
 
+// Package file images.go contains the image conversion functions for
+// converting images to PNG and WebP formats using ANSILOVE, ImageMagick
+// and other command-line tools.
+
 import (
 	"fmt"
 	"os"

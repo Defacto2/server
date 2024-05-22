@@ -1,5 +1,7 @@
 package app
 
+// Package file context.go contains the router handlers for the Defacto2 website.
+
 import (
 	"context"
 	"crypto/sha512"

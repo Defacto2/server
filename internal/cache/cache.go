@@ -10,7 +10,7 @@ import (
 	"github.com/rosedblabs/rosedb/v2"
 )
 
-type Cache int
+type Cache int // Cache is the type of storage engine.
 
 const (
 	Pouet Cache = iota // data cache for the Pouet website, API requests

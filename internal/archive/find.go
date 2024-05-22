@@ -1,5 +1,7 @@
 package archive
 
+// Package file archive/find.go contains the filename search and matching functions.
+
 import (
 	"cmp"
 	"path/filepath"

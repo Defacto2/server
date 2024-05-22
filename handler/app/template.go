@@ -1,7 +1,6 @@
 package app
 
-// Package file web.go contains the custom template functions for the web framework.
-// The functions are used by the HTML templates to format data.
+// Package file template.go contains the template functions for the application.
 
 import (
 	"embed"

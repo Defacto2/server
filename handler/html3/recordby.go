@@ -1,5 +1,7 @@
 package html3
 
+// Package file recordby.go contains the record grouping functions.
+
 const (
 	title   = "Index of " + Prefix
 	textAll = "list every file or release hosted on the website"

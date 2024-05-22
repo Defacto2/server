@@ -1,5 +1,7 @@
 package html3
 
+// Package file sugared.go contains the HTML3 website route functions.
+
 import (
 	"context"
 	"fmt"

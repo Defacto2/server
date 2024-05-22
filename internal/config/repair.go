@@ -1,5 +1,7 @@
 package config
 
+// Package file repair.go contains the repair functions for assets and downloads.
+
 import (
 	"errors"
 	"fmt"

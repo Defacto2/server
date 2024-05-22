@@ -1,5 +1,7 @@
 package app
 
+// Package file dirs.go contains the artifact page directories and handlers.
+
 import (
 	"bufio"
 	"bytes"

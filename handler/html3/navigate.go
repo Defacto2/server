@@ -1,5 +1,7 @@
 package html3
 
+// Package file navigate.go contains the pagination navigation functions.
+
 // Navigate handles offset and record limit pagination.
 type Navigate struct {
 	Current  string // Current name of the active record query.

@@ -1,5 +1,7 @@
 package tags
 
+// Package file strings.go contains the tag strings and their descriptions.
+
 import (
 	"errors"
 	"fmt"

@@ -1,3 +1,4 @@
+// Package internal contains the internal functions for the archive package.
 package internal
 
 import (

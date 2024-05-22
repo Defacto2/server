@@ -1,5 +1,7 @@
 package app
 
+// Package file asset.go contains the public facing CSS, JS and WASM file paths.
+
 // Asset is a relative path to a public facing CSS, JS or WASM file.
 type Asset int
 

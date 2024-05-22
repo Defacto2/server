@@ -1,5 +1,7 @@
 package app
 
+// Package file font.go contains the functions for the website fonts.
+
 // Fonts are a map of the public facing font files.
 type Fonts map[Font]string
 

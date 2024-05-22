@@ -16,8 +16,8 @@ import (
 )
 
 const (
-	ShortLimit   = 100
-	LongFilename = 255
+	ShortLimit   = 100 // ShortLimit is the maximum length of a short string.
+	LongFilename = 255 // LongFilename is the maximum length of a filename.
 )
 
 // ValidDateIssue returns a valid year, month and day or a null value.

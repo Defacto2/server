@@ -1,5 +1,7 @@
 package helper
 
+// Package file os.go contains the helper functions for file system operations.
+
 import (
 	"bufio"
 	"crypto/sha512"
