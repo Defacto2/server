@@ -419,10 +419,10 @@ func Collection() Milestones {
 				sect1,
 		},
 		{
-			Title: "8BBS", Year: 1980, Highlight: true,
+			Title: "8BBS", Year: 1980, Month: 3, Highlight: true,
 			Lead: "+408-296-5799", LinkTitle: "the thousands of message logs", Link: "https://archive.org/details/8BBSArchiveP1V1/mode/1up",
-			Content: "<p>In San Jose, CA, <strong>8BBS</strong> (+408-296-5799) came online in March 1980. It is one of the first BBS <a href=\"https://everything2.com/title/8BBS\">message boards</a>," +
-				" which early microcomputer hobbyists posted, including some early hackers, pirates, and named-dropped phreaker personalities of the era<sup><a href=\"#the-first-group-fn6\">[6]</a></sup>. " +
+			Content: "<p>In San Jose, CA, <strong>8BBS</strong> (+408-296-5799) came online in March 1980. It is one of the first electronic <a href=\"https://everything2.com/title/8BBS\">message boards</a>," +
+				" which early microcomputer hobbyists used, including posts by some early hackers, pirates, and named-drop phreaker personalities of the era<sup><a href=\"#the-first-group-fn6\">[6]</a></sup>. " +
 				// message logs
 				"But what stands out about the board today, we have surviving, <a href=\"https://silent700.blogspot.com/2014/12/is-this-something.html\">thousands of posts</a> from the earliest open online community that anyone in 1980 with the proper hardware could access from home. " +
 				"These posts existed before Reddit, the web, Usenet, and the Internet.</p>" +
