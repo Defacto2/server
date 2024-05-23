@@ -31,6 +31,7 @@ const form = getElmById(formId),
   month = getElmById("uploader-magazine-month"),
   releaser1 = getElmById("uploader-magazine-releaser-1"),
   results = getElmById("uploader-magazine-results"),
+  title = getElmById("uploader-magazine-title"),
   year = getElmById("uploader-magazine-year");
 
 form.addEventListener("reset", function () {
@@ -52,6 +53,10 @@ export function submit(elementId) {
   const element = getElmById(elementId);
   element.addEventListener("click", function () {
     let pass = true;
+    if (title.value == "") {
+      title.classList.add(invalid);
+      pass = false;
+    }
     if (releaser1.value == "") {
       releaser1.classList.add(invalid);
       pass = false;
@@ -107,4 +112,5 @@ function resetForm() {
   month.classList.remove(invalid);
   releaser1.classList.remove(invalid);
   fileInput.classList.remove(invalid);
+  title.classList.remove(invalid);
 }

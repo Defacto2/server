@@ -5,6 +5,7 @@
 ### Files
 
 - [ ] Handle magazines with the file editor.
+- [ ] Create a htmx live classifications page for editors, using the adv uploader <select> fields.
 
 ### Layout
 
