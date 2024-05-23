@@ -34,7 +34,16 @@ func HumanizeAndCount(section, platform string) (template.HTML, error) {
 	p := tags.TagByURI(platform)
 	tag := tags.Humanize(p, s)
 	if strings.HasPrefix(tag, "unknown") {
-		return "unknown classification", nil
+		switch {
+		case p.String() == "" && s.String() == "":
+			return "please choose both classifcations", nil
+		case s.String() == "":
+			return "please choose a tag as category", nil
+		case p.String() == "":
+			return "please choose an operating system", nil
+		default:
+			return "unknown classification", nil
+		}
 	}
 	count, err := model.ClassificationCount(ctx, db, section, platform)
 	if err != nil {

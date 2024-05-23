@@ -12,6 +12,12 @@
 
 - [ ] Create DB fix to detect and rebadge msdos and windows trainers.
 - [ ] Create PostgreSQL *indexes* with case-sensitive strings.
+   https://wirekat.com/optimizing-sql-based-on-postgresql/
+  | Partial Indexes: Use partial indexes when you only need to index a subset of rows, such as CREATE INDEX ON orders (order_date) WHERE status = 'SHIPPED';
+  | Over-Indexing: Creating too many indexes can slow down write operations, as each index needs to be updated on INSERT, UPDATE, or DELETE.
+  | Index Maintenance: Rebuild indexes periodically to deal with bloat using REINDEX.
+  | Indexing Join Columns: Index columns that are used in JOIN conditions to improve join performance.
+  > `combineGroup` and `(r Role) Distinct()`
 - [ ] `OrderBy` Name/Count /html3/groups? https://pkg.go.dev/sort#example-package-SortKeys
 - [ ] [model.Files.ListUpdates], rename the PSQL column from "updated_at" to "date_updated".
 
