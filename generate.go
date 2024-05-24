@@ -8,10 +8,10 @@
 package main
 
 /*
-	--config "sqlboiler.toml"		- Use the configuration file "sqlboiler.toml".
+	--config ".sqlboiler.toml"		- Use the configuration file "sqlboiler.toml".
 	--wipe							- Wipe any existing generated files before re-generation.
 	--add-soft-deletes				- [REQUIRED] Add soft delete support to the generated models.
 	psql							- Use the PostgreSQL database driver.
 */
 
-//go:generate sqlboiler --config "sqlboiler.toml" --wipe --add-soft-deletes psql
+//go:generate sqlboiler --config ".sqlboiler.toml" --wipe --add-soft-deletes psql
