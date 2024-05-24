@@ -1,6 +1,11 @@
 # TODOs and tasks
 
-  * (star) prefix indicates a low priority task.
+  * (star) prefix indicates a *low priority* task.
+
+### CLI
+
+- [ ] * Command to cleanup the database?
+- [ ] * Command to reindex the database? Both to erase and rebuild the indexes.
 
 ### Files
 
@@ -8,6 +13,8 @@
 - [ ] Create a htmx live classifications page for editors, using the adv uploader <select> fields.
 
 ### Layout
+
+- [ ] Create a menu link to DO referal page, or/and add a link to the thanks page.
 
 ### Database
 
