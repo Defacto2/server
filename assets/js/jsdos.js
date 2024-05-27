@@ -4,9 +4,9 @@
  */
 const canvas = document.getElementById("jsdos6");
 const ctx = canvas.getContext("2d");
-ctx.font = "18px serif";
-ctx.fillText("Not loading?", 10, 50);
-ctx.fillText("Try the Console log for errors.", 10, 70);
+ctx.font = "16px serif";
+ctx.fillText("Not working?", 10, 50);
+ctx.fillText("Try the browser Console for errors.", 10, 70);
 const stopButton = document.getElementById("jsdosStop");
 stopButton.addEventListener("click", () => {
   try {

@@ -15,6 +15,7 @@
 ### Layout
 
 - [ ] Create a menu link to DO referal page, or/and add a link to the thanks page.
+- [ ] Create a locked menu option to search by database ID or UUID or ~~URL~~.
 
 ### Database
 
