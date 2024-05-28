@@ -77,21 +77,27 @@ func JsDosBinary(f *models.File) (string, error) {
 	if !f.Filename.Valid || f.Filename.IsZero() || f.Filename.String == "" {
 		return "", nil
 	}
+
 	name := strings.ToLower(f.Filename.String)
 	switch filepath.Ext(name) {
 	case ".com", ".exe", ".bat":
-		return jsdos.Fmt8dot3(f.Filename.String), nil
-	}
-	if !f.FileZipContent.Valid || f.FileZipContent.IsZero() || f.FileZipContent.String == "" {
-		return "", nil
+		break
+	default:
+		if !f.FileZipContent.Valid || f.FileZipContent.IsZero() || f.FileZipContent.String == "" {
+			return "", nil
+		}
 	}
 
-	const dosPathSeparator = "\\"
+	const dosPathSeparator, winPathSeparator = "\\", "/"
 	findname := jsdos.FindBinary(f.Filename.String, f.FileZipContent.String)
-	if !strings.Contains(findname, dosPathSeparator) {
+	if !strings.Contains(findname, dosPathSeparator) && !strings.Contains(findname, winPathSeparator) {
 		return jsdos.Fmt8dot3(findname), nil
 	}
 	dir := filepath.Dir(findname)
+	// replace all windows path separators with dos path separators,
+	// as often the FileZipContent paths use non-dos path separators
+	// despite the zipfile being a DOS file.
+	dir = strings.ReplaceAll(dir, winPathSeparator, dosPathSeparator)
 	base := jsdos.Fmt8dot3(filepath.Base(findname))
 	return strings.Join([]string{dir, base}, dosPathSeparator), nil
 }
