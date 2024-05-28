@@ -23,7 +23,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{.title}}{{if ne $h1sub ""}} {{$h1sub}}{{end}} | Defacto2</title>
+    <title>{{if ne $h1sub ""}}{{titleize $h1sub}} {{.title}}{{end}} | Defacto2</title>
     {{if ne $canonical ""}}<link rel="canonical" href="https://defacto2.net/{{$canonical}}">{{end -}}
     {{if ne $desc ""}}<meta name="description" content="{{$desc}}">{{end -}}
     {{if eq $desc ""}}<meta name="description" content="{{$descDefault}}">{{end}}

@@ -151,12 +151,14 @@ func (a *AnsiBBS) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, a)
 }
 
-func (a *AnsiBBS) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (a *AnsiBBS) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.AnsiBBSExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -180,12 +182,14 @@ func (a *AnsiFTP) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, a)
 }
 
-func (a *AnsiFTP) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (a *AnsiFTP) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.AnsiFTPExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -209,12 +213,14 @@ func (a *AnsiNfo) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, a)
 }
 
-func (a *AnsiNfo) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (a *AnsiNfo) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.AnsiNfoExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -238,12 +244,14 @@ func (a *AnsiPack) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, a)
 }
 
-func (a *AnsiPack) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (a *AnsiPack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.AnsiPackExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -267,12 +275,14 @@ func (b *BBS) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, b)
 }
 
-func (b *BBS) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (b *BBS) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.BBSExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -296,12 +306,14 @@ func (b *BBStro) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, b)
 }
 
-func (b *BBStro) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (b *BBStro) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.BBStroExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -325,12 +337,14 @@ func (b *BBSImage) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, b)
 }
 
-func (b *BBSImage) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (b *BBSImage) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.BBSImageExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -354,12 +368,14 @@ func (b *BBSText) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, b)
 }
 
-func (b *BBSText) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (b *BBSText) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.BBSTextExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -383,12 +399,14 @@ func (d *Database) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, d)
 }
 
-func (d *Database) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (d *Database) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.DatabaseExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -412,12 +430,14 @@ func (d *Demoscene) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, d)
 }
 
-func (d *Demoscene) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (d *Demoscene) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.DemoExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -470,12 +490,14 @@ func (f *FTP) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, f)
 }
 
-func (f *FTP) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (f *FTP) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.FTPExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -557,12 +579,14 @@ func (h *HTML) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, h)
 }
 
-func (h *HTML) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (h *HTML) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.HTMLExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -593,6 +617,8 @@ func (i *Image) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 	return models.Files(
 		expr.ImageExpr(),
 		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
+		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit)).All(ctx, db)
 }
 
@@ -615,12 +641,14 @@ func (i *ImagePack) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, i)
 }
 
-func (i *ImagePack) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (i *ImagePack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.ImagePackExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -644,13 +672,15 @@ func (i *Intro) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, i)
 }
 
-func (i *Intro) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (i *Intro) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.IntroExpr(),
 		qm.OrderBy(ClauseOldDate),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 	).All(ctx, db)
 }
 
@@ -673,13 +703,15 @@ func (i *IntroMsDos) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, i)
 }
 
-func (i *IntroMsDos) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (i *IntroMsDos) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.IntroDOSExpr(),
 		qm.OrderBy(ClauseOldDate),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 	).All(ctx, db)
 }
 
@@ -703,13 +735,15 @@ func (i *IntroWindows) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, i)
 }
 
-func (i *IntroWindows) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (i *IntroWindows) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.IntroWindowsExpr(),
 		qm.OrderBy(ClauseOldDate),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 	).All(ctx, db)
 }
 
@@ -732,13 +766,15 @@ func (i *Installer) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, i)
 }
 
-func (i *Installer) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (i *Installer) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.InstallExpr(),
 		qm.OrderBy(ClauseOldDate),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 	).All(ctx, db)
 }
 
@@ -761,12 +797,14 @@ func (j *Java) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, j)
 }
 
-func (j *Java) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (j *Java) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.JavaExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -819,12 +857,14 @@ func (l *Linux) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, l)
 }
 
-func (l *Linux) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (l *Linux) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.LinuxExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -848,12 +888,14 @@ func (m *Magazine) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, m)
 }
 
-func (m *Magazine) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (m *Magazine) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.MagExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -877,12 +919,14 @@ func (m *Macos) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, m)
 }
 
-func (m *Macos) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (m *Macos) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.MacExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -906,12 +950,14 @@ func (d *MsDos) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, d)
 }
 
-func (d *MsDos) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (d *MsDos) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.DOSExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -935,12 +981,14 @@ func (d *MsDosPack) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, d)
 }
 
-func (d *MsDosPack) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (d *MsDosPack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.DosPackExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -1022,12 +1070,14 @@ func (n *Nfo) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, n)
 }
 
-func (n *Nfo) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (n *Nfo) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.NfoExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -1051,12 +1101,14 @@ func (n *NfoTool) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, n)
 }
 
-func (n *NfoTool) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (n *NfoTool) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.NfoToolExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -1080,12 +1132,14 @@ func (p *PDF) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, p)
 }
 
-func (p *PDF) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (p *PDF) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.PDFExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -1109,12 +1163,14 @@ func (p *Proof) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, p)
 }
 
-func (p *Proof) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (p *Proof) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.ProofExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -1166,12 +1222,14 @@ func (s *Script) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, s)
 }
 
-func (s *Script) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (s *Script) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.ScriptExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -1249,12 +1307,14 @@ func (t *Text) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, t)
 }
 
-func (t *Text) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (t *Text) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.TextExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -1278,12 +1338,14 @@ func (t *TextAmiga) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, t)
 }
 
-func (t *TextAmiga) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (t *TextAmiga) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.TextAmigaExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -1307,12 +1369,14 @@ func (t *TextApple2) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, t)
 }
 
-func (t *TextApple2) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (t *TextApple2) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.AppleIIExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -1336,12 +1400,14 @@ func (t *TextAtariST) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, t)
 }
 
-func (t *TextAtariST) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (t *TextAtariST) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.AtariSTExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -1365,12 +1431,14 @@ func (t *TextPack) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, t)
 }
 
-func (t *TextPack) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (t *TextPack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.TextPackExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -1481,12 +1549,14 @@ func (w *Windows) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, w)
 }
 
-func (w *Windows) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (w *Windows) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		expr.WindowsExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)
 }
@@ -1510,11 +1580,13 @@ func (w *WindowsPack) Stat(ctx context.Context, db *sql.DB) error {
 		qm.From(From)).Bind(ctx, db, w)
 }
 
-func (w *WindowsPack) List(ctx context.Context, db *sql.DB) (models.FileSlice, error) {
+func (w *WindowsPack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
 	if db == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
 		expr.WindowsPackExpr(),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, db)

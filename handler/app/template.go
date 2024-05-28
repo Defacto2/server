@@ -477,6 +477,7 @@ func (web Templ) TemplateClosures() template.FuncMap { //nolint:funlen
 		"uploader": func() string {
 			return hrefs[Uploader]
 		},
+		"titleize": helper.Titleize,
 		"version": func() string {
 			return web.Version
 		},
