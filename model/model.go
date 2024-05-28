@@ -79,13 +79,21 @@ func JsDosBinary(f *models.File) (string, error) {
 	}
 	name := strings.ToLower(f.Filename.String)
 	switch filepath.Ext(name) {
-	case ".com", ".exe":
+	case ".com", ".exe", ".bat":
 		return jsdos.Fmt8dot3(f.Filename.String), nil
 	}
 	if !f.FileZipContent.Valid || f.FileZipContent.IsZero() || f.FileZipContent.String == "" {
 		return "", nil
 	}
-	return jsdos.Fmt8dot3(jsdos.FindBinary(f.Filename.String, f.FileZipContent.String)), nil
+
+	const dosPathSeparator = "\\"
+	findname := jsdos.FindBinary(f.Filename.String, f.FileZipContent.String)
+	if !strings.Contains(findname, dosPathSeparator) {
+		return jsdos.Fmt8dot3(findname), nil
+	}
+	dir := filepath.Dir(findname)
+	base := jsdos.Fmt8dot3(filepath.Base(findname))
+	return strings.Join([]string{dir, base}, dosPathSeparator), nil
 }
 
 // JsDosConfig creates a js-dos .ini configuration for the emulator.
