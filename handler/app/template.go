@@ -360,6 +360,7 @@ func (web Templ) TemplateClosures() template.FuncMap { //nolint:funlen
 		"bootstrap5JS": func() string {
 			return hrefs[Bootstrap5JS]
 		},
+		"capitalize": helper.Capitalize,
 		"classification": func(s, p string) string {
 			count, _ := form.HumanizeAndCount(s, p)
 			return string(count)
@@ -474,10 +475,10 @@ func (web Templ) TemplateClosures() template.FuncMap { //nolint:funlen
 			return web.Subresource.Uploader
 		},
 		"tagOption": TagOption,
+		"toLower":   strings.ToLower,
 		"uploader": func() string {
 			return hrefs[Uploader]
 		},
-		"titleize": helper.Titleize,
 		"version": func() string {
 			return web.Version
 		},

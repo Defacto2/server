@@ -543,7 +543,7 @@ func Index(c echo.Context) error {
 		"magazines, and other projects."
 	const desc = "Defacto2 is " + lead
 	data := empty(c)
-	data["title"] = "Home"
+	data["title"] = "Milestones"
 	data["description"] = desc
 	data["h1"] = "Welcome,"
 	data["milestones"] = Collection()
@@ -1587,7 +1587,6 @@ func Website(c echo.Context, open string) error {
 	for i, site := range acc {
 		if site.ID == open || open == "" {
 			site.Open = true
-			data["title"] = site.Title
 			closeAll = false
 			acc[i] = site
 			if open == "" {
@@ -1595,6 +1594,9 @@ func Website(c echo.Context, open string) error {
 			}
 			break
 		}
+	}
+	if closeAll {
+		data["title"] = "Website categories"
 	}
 	// If a section was requested but not found, return a 404.
 	if open != "hide" && closeAll {
@@ -1852,6 +1854,7 @@ func bbsHandler(c echo.Context, orderBy model.OrderBy) error {
 	case model.Alphabetical:
 		s := logo + az
 		data["logo"] = s
+		data["title"] = title + az
 		order = alpha
 	case model.Prolific:
 		s := logo + ", by count"
@@ -1860,6 +1863,7 @@ func bbsHandler(c echo.Context, orderBy model.OrderBy) error {
 	case model.Oldest:
 		tmpl = "bbs-year"
 		s := logo + byyear
+		data["title"] = title + byyear
 		data["logo"] = s
 		order = year
 	}
@@ -1988,6 +1992,7 @@ func magazines(c echo.Context, chronological bool) error {
 		}
 		s := title + byyear
 		data["logo"] = s
+		data["title"] = title + byyear
 		order = year
 	case false:
 		if err := r.MagazineAZ(ctx, db); err != nil {
@@ -1995,6 +2000,7 @@ func magazines(c echo.Context, chronological bool) error {
 		}
 		s := title + az
 		data["logo"] = s
+		data["title"] = title + az
 		order = alpha
 	}
 	data[key] = r
@@ -2231,6 +2237,7 @@ func releasers(c echo.Context, orderBy model.OrderBy) error {
 	case model.Alphabetical:
 		s := logo + az
 		data["logo"] = s
+		data["title"] = title + az
 		order = alpha
 	case model.Prolific:
 		s := logo + ", by count"
@@ -2240,6 +2247,7 @@ func releasers(c echo.Context, orderBy model.OrderBy) error {
 		tmpl = "releaser-year"
 		s := logo + byyear
 		data["logo"] = s
+		data["title"] = title + byyear
 		order = year
 	}
 	data["stats"] = map[string]string{
