@@ -72,7 +72,7 @@ function startZip(options) {
 const jsdos = document.getElementById("jsdosRunLink");
 jsdos.addEventListener("click", function () {
   this.style.pointerEvents = "none";
-  this.textContent = "Running";
+  this.textContent = "Running app";
   DosBoxConfig = {
     wdosboxUrl: "/js/wdosbox.js",
     cycles: "auto", // int value, "max" or "auto"

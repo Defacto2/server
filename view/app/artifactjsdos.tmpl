@@ -5,25 +5,28 @@
 {{- if eq (index . "jsdos6") true}}
 {{- $download := index . "download"}}
 {{- $filename := index . "filename"}}
+{{- $lead := index . "lead"}}
 {{- $runProgram := index . "jsdos6Run"}}
 {{- $extract := index . "jsdos6Zip"}}
 {{- $config := index . "jsdos6Config"}}
 {{- $runJS := "startBinary(DosBoxConfig);"}}
 {{- if eq $extract true}}{{ $runJS = "startZip(DosBoxConfig);" }}{{end}}
+{{- $prog := toLower $runProgram}}
+{{- $fname := toLower $filename}}
 {{- /*  js-dos v6.22 ~ canvas and user interface. */}}
 <div class="modal fade" id="jsDOSModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="jsDOSModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
+            <div class="modal-header">
+              {{if ne $prog $fname}}{{toLower $prog}} - {{else}}{{end}}{{toLower $fname}}
+            </div>
             <div class="modal-body">  
                 <canvas id="jsdos6"></canvas>  
             </div>
             <div class="modal-footer">
-                <label class="form-check-label">
-                    {{$filename}} &nbsp;
-                </label>
-                <button id="jsdosFullscreen" class="btn btn-outline-secondary">Fullscreen</button>
-                <button id="jsdosScreenshot" class="btn btn-outline-secondary">Screenshot</button>
-                <button id="jsdosStop" class="btn btn-outline-danger">Stop</button>
+                <button id="jsdosFullscreen" class="btn btn-dark">Fullscreen</button>
+                <button id="jsdosScreenshot" class="btn btn-dark">Screenshot</button>
+                <button id="jsdosStop" class="btn btn-danger">Stop</button>
                 <button type="button" id="jsdosCloser" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
@@ -100,7 +103,7 @@
     const jsdos = document.getElementById("jsdosRunLink");
     jsdos.addEventListener("click", function () {
       this.style.pointerEvents = "none";
-      this.textContent = "Running";
+      this.textContent = "Running app";
       DosBoxConfig = {
         wdosboxUrl: "/js/wdosbox.js",
         cycles: "auto", // int value, "max" or "auto"

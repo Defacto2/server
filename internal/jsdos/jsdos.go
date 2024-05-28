@@ -115,10 +115,10 @@ const (
 type Core string // Core used in the CPU emulation.
 
 const (
-	AutoCore Core = auto      // Auto sets real-mode programs to use the normal core, for protected mode programs it switches to dynamic core.
-	Dynamic  Core = "dynamic" // Dynamic is the optimal core for most games, except for programs that employ massive self-modifying code.
-	Normal   Core = "normal"  // Normal has the program interpreted instruction by instruction.
-	Simple   Core = "simple"  // Simple has the program interpreted instruction by instruction, optimized for (8088/8086/286) real-mode games.
+	AutoCore Core = auto     // Auto sets real-mode programs to use the normal core, for protected mode programs it switches to dynamic core.
+	Dynamic  Core = auto     // [unsupported] "dynamic"  Dynamic is the optimal core for most games, except for programs that employ massive self-modifying code.
+	Normal   Core = "normal" // Normal has the program interpreted instruction by instruction.
+	Simple   Core = "simple" // Simple has the program interpreted instruction by instruction, optimized for (8088/8086/286) real-mode games.
 )
 
 type CPU string // CPU model and method used in the emulation.
