@@ -274,6 +274,9 @@ func TestFmt8dot3(t *testing.T) {
 	s = jsdos.Fmt8dot3("filename.exe")
 	assert.Equal(t, "filename.exe", s)
 
+	s = jsdos.Fmt8dot3("file_name.exe")
+	assert.Equal(t, "file_n~1.exe", s)
+
 	s = jsdos.Fmt8dot3("my backup collection.7zip")
 	assert.Equal(t, "my bac~1.7zi", s)
 

@@ -74,7 +74,7 @@
             // recreate the artifact file download within the virtual file system.
             fs.createFile("{{$filename}}", arrayBuffer);
             // start the dosbox with the configuration and the artifact file.
-            main(["-conf", "dosbox.conf", "-c", "{{$filename}}"]).then((ci) => {
+            main(["-conf", "dosbox.conf", "-c", "{{$runProgram}}"]).then((ci) => {
               window.ci = ci;
               console.log(
                 `width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.width}`
