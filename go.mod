@@ -8,13 +8,13 @@ require (
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/dustin/go-humanize v1.0.1
-	github.com/evanw/esbuild v0.21.1
+	github.com/evanw/esbuild v0.21.4
 	github.com/friendsofgo/errors v0.9.2
-	github.com/gabriel-vasile/mimetype v1.4.3
+	github.com/gabriel-vasile/mimetype v1.4.4
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/sessions v1.2.2
 	github.com/h2non/filetype v1.1.3
-	github.com/jackc/pgx/v5 v5.5.5
+	github.com/jackc/pgx/v5 v5.6.0
 	github.com/labstack/echo-contrib v0.17.1
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/lib/pq v1.10.9
@@ -30,7 +30,7 @@ require (
 	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842
 	golang.org/x/image v0.16.0
 	golang.org/x/text v0.15.0
-	google.golang.org/api v0.181.0
+	google.golang.org/api v0.182.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
@@ -92,7 +92,7 @@ require (
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240515191416-fc5f0ca64291 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240521202816-d264139d666e // indirect
 	google.golang.org/grpc v1.64.0 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
