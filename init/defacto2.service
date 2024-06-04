@@ -1,0 +1,39 @@
+# /etc/systemd/system/defacto2.service
+#
+# For using Defacto2 with a config file.
+#
+# systemctl daemon-reload
+# systemctl enable defacto2.service
+# systemctl start defacto2.service
+# systemctl status defacto2.service
+# journalctl -e -u defacto2.service
+#
+# About these commands, see:
+# https://www.freedesktop.org/software/systemd/man/latest/systemd.directives.html
+
+
+[Unit]
+Description=Defacto2
+Documentation=https://github.com/Defacto2/server
+After=network.target network-online.target
+Requires=network-online.target
+
+[Service]
+Environment="D2_PRODUCTION_MODE=true" "D2_READ_ONLY=false" "D2_NO_CRAWL=true"
+Environment="D2_DOWNLOAD_DIR=/mnt/volume_sfo3_01/assets/downloads"
+Environment="D2_PREVIEW_DIR=/mnt/volume_sfo3_01/assets/images000"
+Environment="D2_THUMBNAIL_DIR=/mnt/volume_sfo3_01/assets/images400"
+Environment="D2_LOG_DIR=/var/log/caddy"
+User=caddy
+Group=caddy
+ExecStart=/usr/bin/df2-server
+ProtectHome=true
+ProtectSystem=full
+PrivateTmp=yes
+TimeoutStopSec=15s
+
+[Install]
+WantedBy=multi-user.target
+
+#ExecStart=/usr/bin/caddy run --environ --config /etc/caddy/Caddyfile
+#ExecReload=/usr/bin/caddy reload --config /etc/caddy/Caddyfile --force

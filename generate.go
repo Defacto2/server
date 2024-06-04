@@ -14,4 +14,4 @@ package main
 	psql							- Use the PostgreSQL database driver.
 */
 
-//go:generate sqlboiler --config ".sqlboiler.toml" --wipe --add-soft-deletes psql
+//go:generate sqlboiler --config "init/.sqlboiler.toml" --wipe --add-soft-deletes psql

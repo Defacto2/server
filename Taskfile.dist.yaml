@@ -9,9 +9,9 @@
 version: "3"
 
 vars:
-  BINNAME: df2-server # build output, binary filename (without any extensions)
+  BINNAME: dist/df2-server # build output, binary filename (without any extensions)
 
-dotenv: [".env.local"]
+dotenv: ["/init/.env.local"]
 
 tasks:
   default:
@@ -19,12 +19,6 @@ tasks:
     cmds:
       - task --list-all
     silent: true
-  file-sync:
-    desc: "Sync the source code to the remote server."
-    cmds:
-      - rsync --info=progress2 --recursive --human-readable ben@dz.defacto2.net:/opt/assets-defacto2/downloads /home/ben/defacto2-assets/
-      - rsync --info=progress2 --recursive --human-readable ben@dz.defacto2.net:/opt/assets-defacto2/images000 /home/ben/defacto2-assets/
-      - rsync --info=progress2 --recursive --human-readable ben@dz.defacto2.net:/opt/assets-defacto2/images400 /home/ben/defacto2-assets/
   doc:
     desc: "Generate and browse the application module documentation."
     cmds:
@@ -41,7 +35,7 @@ tasks:
       - cmd: gofumpt -l -w .
       - cmd: pnpm exec eslint assets/js/*.js
       - cmd: pnpm exec stylelint assets/css/*.css
-      - cmd: golangci-lint run
+      - cmd: golangci-lint run -c init/.golangci.yaml
   lint+:
     silent: false
     desc: Runs the deadcode and betteralign linters on the source code.
@@ -58,9 +52,6 @@ tasks:
       - cmd: echo "Building..."
       - cmd: go build -o {{.BINNAME}} -v server.go
         platforms: [linux, darwin, freebsd]
-      - cmd: go build -o {{.BINNAME}}.exe -v server.go
-        platforms: [windows]
-      - cmd: echo "Done!"
   build-race:
     aliases:
       - "buildx"
@@ -70,12 +61,8 @@ tasks:
       - cmd: echo "Building with race conditions..."
       - cmd: go build -o {{.BINNAME}} -race -v server.go
         platforms: [linux, darwin, freebsd]
-      - cmd: go build -o {{.BINNAME}}.exe -race -v server.go
-        platforms: [windows]
       - cmd: ./{{.BINNAME}} --version
         platforms: [linux, darwin]
-      - cmd: ./{{.BINNAME}}.exe --version
-        platforms: [windows]
       - cmd: echo "Done!"
   build-snapshot:
     aliases:
@@ -84,7 +71,7 @@ tasks:
     deps: [assets]
     cmds:
       - cmd: echo "Building snapshot..."
-      - cmd: goreleaser build --snapshot --clean
+      - cmd: goreleaser build --snapshot --clean --config init/.goreleaser.yaml
       - cmd: echo "Done!"
   build-release:
     aliases:
@@ -95,7 +82,7 @@ tasks:
       - cmd: echo "Git status results:"
       - cmd: git status
       - cmd: echo "Building snapshot..."
-      - cmd: goreleaser build --clean
+      - cmd: goreleaser build --clean --config init/.goreleaser.yaml
       - cmd: echo "Done!"
   assets:
     desc: "Build, compile and compress the web serve CSS and JS assets."
@@ -121,46 +108,28 @@ tasks:
     desc: "Run the internal web server in development mode with live reload."
     cmds:
       - task: serve-linux
-      - task: serve-windows
   serve-prod:
     aliases:
       - "server"
     desc: "Run the internal web server with live reload."
     cmds:
       - task: serve-linux
-      - task: serve-windows-prod
   serve-linux:
     internal: true
-    platforms: [linux, freebsd, darwin] # other supported os can be added here
+    platforms: [linux, freebsd, darwin]
     env:
       D2_PRODUCTION: false
       PS_HOST: localhost
     deps: [assets]
     cmds:
-      - air
+      - air -c init/.air.toml
   serve-air-prod:
     internal: true
-    platforms: [darwin, linux, freebsd] # other supported os can be added here
+    platforms: [darwin, linux, freebsd]
     env:
       D2_PRODUCTION: true
     cmds:
-      - air
-  serve-windows:
-    internal: true
-    platforms: [windows]
-    env:
-      D2_PRODUCTION: false
-    deps: [assets]
-    cmds:
-      - air -c .air.windows.toml
-  serve-windows-prod:
-    internal: true
-    platforms: [windows]
-    env:
-      D2_PRODUCTION: true
-    deps: [assets]
-    cmds:
-      - air -c .air.windows.toml
+      - air -c init/.air.toml
   pkg-patch:
     silent: false
     desc: Update and apply patches to the web server dependencies.
