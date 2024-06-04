@@ -212,7 +212,7 @@ func serverLog(configs config.Config) *zap.SugaredLogger {
 		if err := configs.LogStore(); err != nil {
 			logger.Fatalf("%w: %s", ErrLog, err)
 		}
-		logger = zaplog.Production(configs.LogDir).Sugar()
+		logger = zaplog.Production(configs.AbsLog).Sugar()
 		s := "The server is running in a "
 		s += strings.ToUpper("production, "+mode) + "."
 		logger.Info(s)

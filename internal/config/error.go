@@ -25,7 +25,7 @@ var (
 func (c Config) CustomErrorHandler(err error, ctx echo.Context) {
 	logger := zaplog.Development().Sugar()
 	if c.ProductionMode {
-		root := c.LogDir
+		root := c.AbsLog
 		logger = zaplog.Production(root).Sugar()
 	}
 	defer func() {

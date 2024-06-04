@@ -104,13 +104,13 @@ PS_PASSWORD=example
 # ===================
 
 # The absolute directory path that holds the UUID named files for the downloads.
-D2_DOWNLOAD_DIR=/home/ben/defacto2/downloads
+D2_DIR_DOWNLOAD=/home/ben/defacto2/downloads
 
 # The absolute directory path that holds the UUID named files for the images.
-D2_PREVIEW_DIR=/home/ben/defacto2/images
+D2_DIR_PREVIEW=/home/ben/defacto2/images
 
 # The absolute directory path that holds the UUID named files for the thumbnails.
-D2_THUMBNAIL_DIR=/home/ben/defacto2/thumbnails
+D2_DIR_THUMBNAIL=/home/ben/defacto2/thumbnails
 
 # ===================
 #  Web application and server settings

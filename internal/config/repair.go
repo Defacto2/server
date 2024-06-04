@@ -28,7 +28,7 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 	if logger == nil {
 		return ErrZap
 	}
-	dirs := []string{c.PreviewDir, c.ThumbnailDir}
+	dirs := []string{c.AbsPreview, c.AbsThumbnail}
 	p, t := 0, 0
 	for _, dir := range dirs {
 		if _, err := os.Stat(dir); err != nil {
@@ -43,11 +43,11 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 				return RemoveDir(name, path, dir)
 			}
 			switch dir {
-			case c.PreviewDir:
+			case c.AbsPreview:
 				if filepath.Ext(name) != ".webp" {
 					p++
 				}
-			case c.ThumbnailDir:
+			case c.AbsThumbnail:
 				if filepath.Ext(name) != ".webp" {
 					t++
 				}
@@ -58,13 +58,13 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 			return fmt.Errorf("filepath.Walk: %w", err)
 		}
 		switch dir {
-		case c.PreviewDir:
+		case c.AbsPreview:
 			logger.Infof("The preview directory contains, %d images: %s", p, dir)
-		case c.ThumbnailDir:
+		case c.AbsThumbnail:
 			logger.Infof("The thumb directory contains, %d images: %s", t, dir)
 		}
 	}
-	return DownloadFS(logger, c.DownloadDir)
+	return DownloadFS(logger, c.AbsDownload)
 }
 
 // DownloadFS, on startup check the download directory for any invalid or unknown files.

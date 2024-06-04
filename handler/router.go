@@ -35,9 +35,9 @@ func (c Configuration) FilesRoutes(e *echo.Echo, logger *zap.SugaredLogger, publ
 
 	app.Caching.Records(c.RecordCount)
 	dir := app.Dirs{
-		Download:  c.Environment.DownloadDir,
-		Preview:   c.Environment.PreviewDir,
-		Thumbnail: c.Environment.ThumbnailDir,
+		Download:  c.Environment.AbsDownload,
+		Preview:   c.Environment.AbsPreview,
+		Thumbnail: c.Environment.AbsThumbnail,
 	}
 
 	nonce, err := c.nonce(e)
@@ -124,8 +124,8 @@ func (c Configuration) static(e *echo.Echo) *echo.Echo {
 	if e == nil {
 		panic(ErrRoutes)
 	}
-	e.Static(config.StaticThumb(), c.Environment.ThumbnailDir)
-	e.Static(config.StaticOriginal(), c.Environment.PreviewDir)
+	e.Static(config.StaticThumb(), c.Environment.AbsThumbnail)
+	e.Static(config.StaticOriginal(), c.Environment.AbsPreview)
 	return e
 }
 
@@ -198,7 +198,7 @@ func (c Configuration) website(e *echo.Echo, logger *zap.SugaredLogger, dir app.
 	s.GET("/bbs/year", app.BBSYear)
 	s.GET("/coder", app.Coder)
 	s.GET(Downloader, func(cx echo.Context) error {
-		return app.Download(cx, logger, c.Environment.DownloadDir)
+		return app.Download(cx, logger, c.Environment.AbsDownload)
 	})
 	s.GET("/f/:id", func(cx echo.Context) error {
 		dir.URI = cx.Param("id")
@@ -263,7 +263,7 @@ func (c Configuration) website(e *echo.Echo, logger *zap.SugaredLogger, dir app.
 	})
 	s.GET("/writer", app.Writer)
 	s.GET("/v/:id", func(cx echo.Context) error {
-		return app.Inline(cx, logger, c.Environment.DownloadDir)
+		return app.Inline(cx, logger, c.Environment.AbsDownload)
 	})
 	return e
 }

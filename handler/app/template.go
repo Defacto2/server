@@ -189,7 +189,7 @@ func LinkRelations(val string) template.HTML {
 func (web Templ) ImageSample(unid string) template.HTML {
 	ext, name, src := "", "", ""
 	for _, ext = range []string{webp, png} {
-		name = filepath.Join(web.Environment.PreviewDir, unid+ext)
+		name = filepath.Join(web.Environment.AbsPreview, unid+ext)
 		src = strings.Join([]string{config.StaticOriginal(), unid + ext}, "/")
 		if helper.Stat(name) {
 			break
@@ -218,10 +218,10 @@ func (web Templ) Screenshot(unid, desc string) template.HTML {
 	srcJ := strings.Join([]string{config.StaticOriginal(), unid + jpg}, separator)
 	srcA := strings.Join([]string{config.StaticOriginal(), unid + avif}, separator)
 
-	sizeA := helper.Size(filepath.Join(web.Environment.PreviewDir, unid+avif))
-	sizeJ := helper.Size(filepath.Join(web.Environment.PreviewDir, unid+jpg))
-	sizeP := helper.Size(filepath.Join(web.Environment.PreviewDir, unid+png))
-	sizeW := helper.Size(filepath.Join(web.Environment.PreviewDir, unid+webp))
+	sizeA := helper.Size(filepath.Join(web.Environment.AbsPreview, unid+avif))
+	sizeJ := helper.Size(filepath.Join(web.Environment.AbsPreview, unid+jpg))
+	sizeP := helper.Size(filepath.Join(web.Environment.AbsPreview, unid+png))
+	sizeW := helper.Size(filepath.Join(web.Environment.AbsPreview, unid+webp))
 
 	useLegacyJpg := sizeJ > 0 && sizeJ < sizeA && sizeJ < sizeP && sizeJ < sizeW
 	if useLegacyJpg {
@@ -551,8 +551,8 @@ func (web *Templ) Templates() (map[string]*template.Template, error) {
 // The unid is the filename of the thumbnail image without an extension.
 // The desc is the description of the image.
 func (web Templ) Thumb(unid, desc string, bottom bool) template.HTML {
-	fw := filepath.Join(web.Environment.ThumbnailDir, unid+webp)
-	fp := filepath.Join(web.Environment.ThumbnailDir, unid+png)
+	fw := filepath.Join(web.Environment.AbsThumbnail, unid+webp)
+	fp := filepath.Join(web.Environment.AbsThumbnail, unid+png)
 	webp := strings.Join([]string{config.StaticThumb(), unid + webp}, "/")
 	png := strings.Join([]string{config.StaticThumb(), unid + png}, "/")
 	alt := strings.ToLower(desc) + " thumbnail"
@@ -597,7 +597,7 @@ func (web Templ) ThumbSample(unid string) template.HTML {
 	)
 	ext, name, src := "", "", ""
 	for _, ext = range []string{webp, png} {
-		name = filepath.Join(web.Environment.ThumbnailDir, unid+ext)
+		name = filepath.Join(web.Environment.AbsThumbnail, unid+ext)
 		src = strings.Join([]string{config.StaticThumb(), unid + ext}, "/")
 		if helper.Stat(name) {
 			break

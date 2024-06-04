@@ -47,15 +47,15 @@ func (c *Config) Checks(logger *zap.SugaredLogger) error {
 	c.production(logger)
 
 	// Check the download, preview and thumbnail directories.
-	if err := DownloadDir(c.DownloadDir); err != nil {
+	if err := DownloadDir(c.AbsDownload); err != nil {
 		s := helper.Capitalize(err.Error()) + "."
 		logger.Warn(s)
 	}
-	if err := PreviewDir(c.PreviewDir); err != nil {
+	if err := PreviewDir(c.AbsPreview); err != nil {
 		s := helper.Capitalize(err.Error()) + "."
 		logger.Warn(s)
 	}
-	if err := ThumbnailDir(c.ThumbnailDir); err != nil {
+	if err := ThumbnailDir(c.AbsThumbnail); err != nil {
 		s := helper.Capitalize(err.Error()) + "."
 		logger.Warn(s)
 	}
@@ -141,7 +141,7 @@ func (c Config) production(logger *zap.SugaredLogger) {
 // LogStore determines the local storage path for all log files created by this web application.
 func (c *Config) LogStore() error {
 	const ownerGroupAll = 0o770
-	logs := c.LogDir
+	logs := c.AbsLog
 	if logs == "" {
 		dir, err := os.UserConfigDir()
 		if err != nil {
@@ -154,7 +154,7 @@ func (c *Config) LogStore() error {
 			return fmt.Errorf("%w: %s", err, logs)
 		}
 	}
-	c.LogDir = logs
+	c.AbsLog = logs
 	return nil
 }
 
@@ -165,21 +165,21 @@ func (c *Config) SetupLogDir(logger *zap.SugaredLogger) error {
 	if logger == nil {
 		return ErrZap
 	}
-	if c.LogDir == "" {
+	if c.AbsLog == "" {
 		if err := c.LogStore(); err != nil {
 			return fmt.Errorf("%w: %w", ErrLog, err)
 		}
 	} else {
-		logger.Info("The server logs are found in: ", c.LogDir)
+		logger.Info("The server logs are found in: ", c.AbsLog)
 	}
-	dir, err := os.Stat(c.LogDir)
+	dir, err := os.Stat(c.AbsLog)
 	if os.IsNotExist(err) {
-		return fmt.Errorf("log directory %w: %s", ErrDirNotExist, c.LogDir)
+		return fmt.Errorf("log directory %w: %s", ErrDirNotExist, c.AbsLog)
 	}
 	if !dir.IsDir() {
 		return fmt.Errorf("log directory %w: %s", ErrNotDir, dir.Name())
 	}
-	empty := filepath.Join(c.LogDir, ".defacto2_touch_test")
+	empty := filepath.Join(c.AbsLog, ".defacto2_touch_test")
 	if _, err := os.Stat(empty); os.IsNotExist(err) {
 		f, err := os.Create(empty)
 		if err != nil {

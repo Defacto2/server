@@ -103,7 +103,7 @@ func (c Configuration) configZapLogger() middleware.RequestLoggerConfig {
 	}
 	logger := zaplog.CLI().Sugar()
 	if c.Environment.ProductionMode {
-		root := c.Environment.LogDir
+		root := c.Environment.AbsLog
 		logger = zaplog.Production(root).Sugar()
 	}
 	defer func() {

@@ -113,7 +113,7 @@ func (c Configuration) Controller(logger *zap.SugaredLogger) *echo.Echo {
 	e = htmxGroup(e,
 		logger,
 		c.Environment.ProductionMode,
-		c.Environment.DownloadDir)
+		c.Environment.AbsDownload)
 	e, err := c.FilesRoutes(e, logger, c.Public)
 	if err != nil {
 		logger.Fatal(err)
@@ -371,7 +371,7 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo, logger *zap.SugaredLogger) {
 func (c Configuration) downloader(cx echo.Context, logger *zap.SugaredLogger) error {
 	d := download.Download{
 		Inline: false,
-		Path:   c.Environment.DownloadDir,
+		Path:   c.Environment.AbsDownload,
 	}
 	if err := d.HTTPSend(cx, logger); err != nil {
 		return fmt.Errorf("d.HTTPSend: %w", err)
