@@ -28,7 +28,6 @@ import (
 	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/handler/htmx"
-	"github.com/Defacto2/server/handler/middleware/br"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/labstack/echo/v4"
@@ -103,11 +102,9 @@ func (c Configuration) Controller(logger *zap.SugaredLogger) *echo.Echo {
 		c.NoCrawl,
 		middleware.RemoveTrailingSlashWithConfig(configRTS()),
 	}
-	switch strings.ToLower(configs.Compression) {
-	case "gzip":
+	switch configs.Compression {
+	case true:
 		middlewares = append(middlewares, middleware.Gzip())
-	case "br":
-		middlewares = append(middlewares, br.Brotli())
 	}
 	if configs.ProductionMode {
 		middlewares = append(middlewares, middleware.Recover()) // recover from panics

@@ -4,7 +4,6 @@ go 1.22.3
 
 require (
 	github.com/Defacto2/releaser v1.0.3
-	github.com/andybalholm/brotli v1.1.0
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/dustin/go-humanize v1.0.1
@@ -38,6 +37,7 @@ require (
 	cloud.google.com/go/auth v0.5.1 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.2 // indirect
 	cloud.google.com/go/compute/metadata v0.3.0 // indirect
+	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect

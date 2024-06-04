@@ -115,7 +115,7 @@ tasks:
       - "server"
     desc: "Run the internal web server with live reload."
     cmds:
-      - task: serve-linux
+      - task: serve-air-prod
   serve-linux:
     internal: true
     platforms: [linux, freebsd, darwin]
