@@ -335,8 +335,6 @@ func MovedPermanently(e *echo.Echo) *echo.Echo {
 		panic(ErrRoutes)
 	}
 	e = nginx(e)
-	e = retired(e)
-	e = wayback(e)
 	e = fixes(e)
 	return e
 }
@@ -347,8 +345,8 @@ func nginx(e *echo.Echo) *echo.Echo {
 		panic(ErrRoutes)
 	}
 	nginx := e.Group("")
-	nginx.GET("/welcome", func(c echo.Context) error {
-		return c.Redirect(code, "/")
+	nginx.GET("/file/detail/:id", func(c echo.Context) error {
+		return c.Redirect(code, "/f/"+c.Param("id"))
 	})
 	nginx.GET("/file/download/:id", func(c echo.Context) error {
 		return c.Redirect(code, "/d/"+c.Param("id"))
@@ -356,221 +354,12 @@ func nginx(e *echo.Echo) *echo.Echo {
 	nginx.GET("/file/view/:id", func(c echo.Context) error {
 		return c.Redirect(code, "/v/"+c.Param("id"))
 	})
-	nginx.GET("/apollo-x/fc.htm", func(c echo.Context) error {
-		return c.Redirect(code, "/wayback/apollo-x-demo-resources-1999-december-17/fc.htm")
-	})
-	nginx.GET("/bbs.cfm", func(c echo.Context) error {
-		return c.Redirect(code, "/bbs")
-	})
-	nginx.GET("/contact.cfm", func(c echo.Context) error {
-		return c.Redirect(code, "/") // there's no dedicated contact page
-	})
-	nginx.GET("/cracktros.cfm", func(c echo.Context) error {
-		return c.Redirect(code, "/files/intro")
-	})
-	nginx.GET("/cracktros-detail.cfm:/:id", func(c echo.Context) error {
+	nginx.GET("/cracktros-detail.cfm/:id", func(c echo.Context) error {
 		return c.Redirect(code, "/f/"+c.Param("id"))
 	})
-	nginx.GET("/documents.cfm", func(c echo.Context) error {
-		return c.Redirect(code, "/files/text")
-	})
-	nginx.GET("/index.cfm", func(c echo.Context) error {
-		return c.Redirect(code, "/")
-	})
-	nginx.GET("/index.cfm/:uri", func(c echo.Context) error {
-		return c.Redirect(code, "/")
-	})
-	nginx.GET("/index.cfml/:uri", func(c echo.Context) error {
-		return c.Redirect(code, "/")
-	})
-	nginx.GET("/groups.cfm", func(c echo.Context) error {
-		return c.Redirect(code, "/releaser")
-	})
-	nginx.GET("/magazines.cfm", func(c echo.Context) error {
-		return c.Redirect(code, "/magazine")
-	})
-	nginx.GET("/nfo-files.cfm", func(c echo.Context) error {
-		return c.Redirect(code, "/files/nfo")
-	})
-	nginx.GET("/portal.cfm", func(c echo.Context) error {
-		return c.Redirect(code, "/website")
-	})
-	nginx.GET("/rewrite.cfm", func(c echo.Context) error {
-		return c.Redirect(code, "/")
-	})
-	nginx.GET("/site-info.cfm", func(c echo.Context) error {
-		return c.Redirect(code, "/") // there's no dedicated about site page
-	})
-	return e
-}
-
-// retired, redirects from the 2020 edition of the website.
-func retired(e *echo.Echo) *echo.Echo {
-	if e == nil {
-		panic(ErrRoutes)
-	}
-	retired := e.Group("")
-	retired.GET("/code", func(c echo.Context) error {
-		return c.Redirect(code, "https://github.com/Defacto2/server")
-	})
-	retired.GET("/commercial", func(c echo.Context) error {
-		return c.Redirect(code, "/")
-	})
-	retired.GET("/defacto", func(c echo.Context) error {
-		return c.Redirect(code, "/history")
-	})
-	retired.GET("/defacto2/donate", func(c echo.Context) error {
-		return c.Redirect(code, "/thanks")
-	})
-	retired.GET("/defacto2/history", func(c echo.Context) error {
-		return c.Redirect(code, "/history")
-	})
-	retired.GET("/defacto2/subculture", func(c echo.Context) error {
-		return c.Redirect(code, "/thescene")
-	})
-	retired.GET("/file/detail/:id", func(c echo.Context) error {
-		return c.Redirect(code, "/f/"+c.Param("id"))
-	})
-	retired.GET("/file/list/waitingapproval", func(c echo.Context) error {
-		return c.Redirect(code, "/files/for-approval")
-	})
-	retired.GET("/file/index", func(c echo.Context) error {
-		return c.Redirect(code, "/file")
-	})
-	retired.GET("/file/list/:uri", func(c echo.Context) error {
-		return c.Redirect(code, "/files/new-uploads")
-	})
-	retired.GET("/files/json/site.webmanifest", func(c echo.Context) error {
-		return c.Redirect(code, "/site.webmanifest")
-	})
-	retired.GET("/help/cc", func(c echo.Context) error {
-		return c.Redirect(code, "/") // there's no dedicated contact page
-	})
-	retired.GET("/help/privacy", func(c echo.Context) error {
-		return c.Redirect(code, "/") // there's no dedicated privacy page
-	})
-	retired.GET("/help/viruses", func(c echo.Context) error {
-		return c.Redirect(code, "/") // there's no dedicated virus page
-	})
-	retired.GET("/home", func(c echo.Context) error {
-		return c.Redirect(code, "/")
-	})
-	retired.GET("/link/list", func(c echo.Context) error {
-		return c.Redirect(code, "/website")
-	})
-	retired.GET("/link/list/:id", func(c echo.Context) error {
-		return c.Redirect(code, "/website")
-	})
-	e = retiredOrg(e)
-	e = retiredPerson(e)
-	e = retiredUpload(e)
-	return e
-}
-
-func retiredOrg(e *echo.Echo) *echo.Echo {
-	if e == nil {
-		panic(ErrRoutes)
-	}
-	org := e.Group("/organisation/list") //nolint:misspell
-	org.GET("", func(c echo.Context) error {
-		return c.Redirect(code, "/releaser")
-	})
-	org.GET("/bbs", func(c echo.Context) error {
-		return c.Redirect(code, "/bbs")
-	})
-	org.GET("/group", func(c echo.Context) error {
-		return c.Redirect(code, "/releaser")
-	})
-	org.GET("/ftp", func(c echo.Context) error {
-		return c.Redirect(code, "/ftp")
-	})
-	org.GET("/magazine", func(c echo.Context) error {
-		return c.Redirect(code, "/magazine")
-	})
-	return e
-}
-
-func retiredPerson(e *echo.Echo) *echo.Echo {
-	if e == nil {
-		panic(ErrRoutes)
-	}
-	person := e.Group("/person/list")
-	person.GET("/person/list", func(c echo.Context) error {
-		return c.Redirect(code, "/scener")
-	})
-	person.GET("/artists", func(c echo.Context) error {
-		return c.Redirect(code, "/artist")
-	})
-	person.GET("/coders", func(c echo.Context) error {
-		return c.Redirect(code, "/coder")
-	})
-	person.GET("/musicians", func(c echo.Context) error {
-		return c.Redirect(code, "/musician")
-	})
-	person.GET("/writers", func(c echo.Context) error {
-		return c.Redirect(code, "/writer")
-	})
-	return e
-}
-
-func retiredUpload(e *echo.Echo) *echo.Echo {
-	if e == nil {
-		panic(ErrRoutes)
-	}
-	upload := e.Group("/upload")
-	upload.GET("", func(c echo.Context) error {
-		return c.Redirect(code, "/")
-	})
-	upload.GET("/file", func(c echo.Context) error {
-		return c.Redirect(code, "/")
-	})
-	upload.GET("/external", func(c echo.Context) error {
-		return c.Redirect(code, "/")
-	})
-	upload.GET("/intro", func(c echo.Context) error {
-		return c.Redirect(code, "/")
-	})
-	upload.GET("/site", func(c echo.Context) error {
-		return c.Redirect(code, "/")
-	})
-	upload.GET("/document", func(c echo.Context) error {
-		return c.Redirect(code, "/")
-	})
-	upload.GET("/magazine", func(c echo.Context) error {
-		return c.Redirect(code, "/")
-	})
-	upload.GET("/art", func(c echo.Context) error {
-		return c.Redirect(code, "/")
-	})
-	upload.GET("/other", func(c echo.Context) error {
-		return c.Redirect(code, "/")
-	})
-	return e
-}
-
-// wayback redirects.
-func wayback(e *echo.Echo) *echo.Echo {
-	if e == nil {
-		panic(ErrRoutes)
-	}
-	wayback := e.Group("")
-	wayback.GET("/scene-archive/:uri", func(c echo.Context) error {
-		return c.Redirect(code, "/")
-	})
-	wayback.GET("/includes/documentsweb/df2web99/scene-archive/history.html", func(c echo.Context) error {
-		return c.Redirect(code, "/wayback/defacto2-from-1999-september-26/scene-archive/history.html")
-	})
-	wayback.GET("/includes/documentsweb/tKC_history.html", func(c echo.Context) error {
-		return c.Redirect(code, "/wayback/the-life-and-legend-of-tkc-2000-october-10/index.html")
-	})
-	wayback.GET("/legacy/apollo-x/:uri", func(c echo.Context) error {
-		return c.Redirect(code, "/wayback/apollo-x-demo-resources-1999-december-17/:uri")
-	})
-	wayback.GET("/web/20120827022026/http:/www.defacto2.net:80/file/list/nfotool", func(c echo.Context) error {
-		return c.Redirect(code, "/files/nfo-tool")
-	})
-	wayback.GET("/web.pages/warez_world-1.htm", func(c echo.Context) error {
-		return c.Redirect(code, "/wayback/warez-world-from-2001-july-26/index.html")
+	nginx.GET("/wayback/:url", func(c echo.Context) error {
+		// todo: Test this redirect.
+		return c.Redirect(code, "https://wayback.defacto2.net/"+c.Param("url"))
 	})
 	return e
 }
