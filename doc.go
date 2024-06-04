@@ -73,7 +73,7 @@ software emulation, display previews and thumbnails:
 Finally, a couple of environment variables change the server-specific options.
 
 	1. D2_HTTP_PORT is the unencrypted port number the web server will listen on (default: 1323).
-	2. D2_LOG_REQUESTS is the web server will log all HTTP requests to stdout (default: false).
+	2. D2_LOG_ALL is the web server will log all HTTP requests to stdout (default: false).
 
 # Using the source code
 

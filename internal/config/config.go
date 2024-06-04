@@ -40,11 +40,10 @@ type Config struct {
 	SessionMaxAge  int    `env:"D2_SESSION_MAX_AGE" envDefault:"3" help:"List the maximum number of hours for the session cookie to remain active before expiring and requiring a new login"`
 	TLSPort        uint   `env:"D2_TLS_PORT" help:"The port number to be used by the encrypted, HTTPS web server"`
 	Compression    bool   `env:"D2_COMPRESSION" envDefault:"true" help:"Enable gzip compression of the HTTP/HTTPS responses; you may turn this off when using a reverse proxy"`
-	ProductionMode bool   `env:"D2_PRODUCTION_MODE" help:"Use the production mode to log errors to a file and recover from panics"`
-	FastStart      bool   `env:"D2_FAST_START" help:"Skip the database connection and file checks on server startup to speed up the initialization"`
-	ReadMode       bool   `env:"D2_READ_ONLY" envDefault:"true" help:"Use the read-only mode to turn off all POST, PUT, and DELETE requests and any related user interface"`
+	Production     bool   `env:"D2_PRODUCTION" help:"Use the production mode to log errors to a file and recover from panics"`
+	ReadOnly       bool   `env:"D2_READ_ONLY" envDefault:"true" help:"Use the read-only mode to turn off all POST, PUT, and DELETE requests and any related user interface"`
 	NoCrawl        bool   `env:"D2_NO_CRAWL" help:"Tell search engines to not crawl any of website pages or assets"`
-	LogRequests    bool   `env:"D2_LOG_REQUESTS" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`
+	LogAll         bool   `env:"D2_LOG_ALL" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`
 	// GoogleAccounts is a slice of Google OAuth2 accounts that are allowed to login.
 	// Each account is a 48 byte slice of bytes that represents the SHA-384 hash of the unique Google ID.
 	GoogleAccounts [][48]byte
@@ -257,7 +256,7 @@ func maxProcs(w *tabwriter.Writer, id, name string, val reflect.Value, field ref
 
 // googleHead prints a header for the Google OAuth2 configurations.
 func googleHead(w *tabwriter.Writer, c Config) {
-	if !c.ProductionMode && c.ReadMode {
+	if !c.Production && c.ReadOnly {
 		return
 	}
 	nl(w)
@@ -290,7 +289,7 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 		default:
 		}
 		// mode for development and readonly which is set using the go build flags.
-		if !c.ProductionMode && c.ReadMode {
+		if !c.Production && c.ReadOnly {
 			if AccountSkip(field.Name) {
 				continue
 			}

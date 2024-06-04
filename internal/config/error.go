@@ -24,7 +24,7 @@ var (
 // CustomErrorHandler handles customer error templates.
 func (c Config) CustomErrorHandler(err error, ctx echo.Context) {
 	logger := zaplog.Development().Sugar()
-	if c.ProductionMode {
+	if c.Production {
 		root := c.AbsLog
 		logger = zaplog.Production(root).Sugar()
 	}

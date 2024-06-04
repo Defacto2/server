@@ -624,13 +624,13 @@ func (web Templ) tmpl(name filename) *template.Template {
 		GlobTo("pagination.tmpl"),
 	}
 	config := web.Environment
-	files = lockTmpls(config.ReadMode, files...)
+	files = lockTmpls(config.ReadOnly, files...)
 	offline := web.RecordCount < 1
-	files = dbTmpls(config.ReadMode, offline, files...)
+	files = dbTmpls(config.ReadOnly, offline, files...)
 	// append any additional and embedded templates
 	switch name {
 	case "artifact.tmpl":
-		files = artifactTmpls(config.ReadMode, files...)
+		files = artifactTmpls(config.ReadOnly, files...)
 	case "categories.tmpl":
 		files = append(files, GlobTo("categoriesmore.tmpl"))
 	case "websites.tmpl":

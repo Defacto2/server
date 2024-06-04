@@ -138,15 +138,15 @@ func parseFlags(logger *zap.SugaredLogger, configs config.Config) int {
 }
 
 // sanityChecks is used to perform a number of sanity checks on the file assets and database.
-// These are skipped if the FastStart environment variable is set.
+// These are skipped if the Production environment variable is set.to false.
 func sanityChecks(logger *zap.SugaredLogger, configs config.Config) {
-	if configs.FastStart || logger == nil {
+	if !configs.Production || logger == nil {
 		return
 	}
 	if err := configs.Checks(logger); err != nil {
 		logger.Errorf("%s: %s", ErrEnv, err)
 	}
-	checks(logger, configs.ReadMode)
+	checks(logger, configs.ReadOnly)
 	conn, err := postgres.New()
 	if err != nil {
 		logger.Errorf("%s: %s", ErrDB, err)
@@ -185,9 +185,9 @@ func checks(logger *zap.SugaredLogger, readonly bool) {
 }
 
 // repairChecks is used to fix any known issues with the file assets and the database entries.
-// These are skipped if the FastStart environment variable is set.
+// These are skipped if the Production environment variable is set to false.
 func repairChecks(logger *zap.SugaredLogger, configs config.Config) {
-	if configs.FastStart || logger == nil {
+	if !configs.Production || logger == nil {
 		return
 	}
 	if err := configs.RepairFS(logger); err != nil {
@@ -204,10 +204,10 @@ func serverLog(configs config.Config) *zap.SugaredLogger {
 	const welcome = "Welcome to the local Defacto2 web application."
 	logger.Info(welcome)
 	mode := "read-only mode"
-	if !configs.ReadMode {
+	if !configs.ReadOnly {
 		mode = "write mode"
 	}
-	switch configs.ProductionMode {
+	switch configs.Production {
 	case true:
 		if err := configs.LogStore(); err != nil {
 			logger.Fatalf("%w: %s", ErrLog, err)

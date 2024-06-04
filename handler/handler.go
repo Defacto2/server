@@ -103,7 +103,7 @@ func (c Configuration) Controller(logger *zap.SugaredLogger) *echo.Echo {
 	case true:
 		middlewares = append(middlewares, middleware.Gzip())
 	}
-	if configs.ProductionMode {
+	if configs.Production {
 		middlewares = append(middlewares, middleware.Recover()) // recover from panics
 	}
 	e.Use(middlewares...)
@@ -112,7 +112,7 @@ func (c Configuration) Controller(logger *zap.SugaredLogger) *echo.Echo {
 	e = MovedPermanently(e)
 	e = htmxGroup(e,
 		logger,
-		c.Environment.ProductionMode,
+		c.Environment.Production,
 		c.Environment.AbsDownload)
 	e, err := c.FilesRoutes(e, logger, c.Public)
 	if err != nil {
@@ -180,7 +180,7 @@ func (c Configuration) PortErr(logger *zap.SugaredLogger, port uint, err error) 
 	}
 	var portErr *net.OpError
 	switch {
-	case !c.Environment.ProductionMode && errors.As(err, &portErr):
+	case !c.Environment.Production && errors.As(err, &portErr):
 		logger.Infof("air or task server could not start (this can probably be ignored): %s.", err)
 	case errors.Is(err, net.ErrClosed),
 		errors.Is(err, http.ErrServerClosed):

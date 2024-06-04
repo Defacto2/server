@@ -64,7 +64,7 @@ func (c Configuration) nonce(e *echo.Echo) (string, error) {
 	if e == nil {
 		panic(ErrRoutes)
 	}
-	if c.Environment.ReadMode {
+	if c.Environment.ReadOnly {
 		return "", nil
 	}
 	b, err := helper.CookieStore(c.Environment.SessionKey)
@@ -146,7 +146,7 @@ func (c Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 	if e == nil {
 		panic(ErrRoutes)
 	}
-	if c.Environment.ProductionMode {
+	if c.Environment.Production {
 		return e
 	}
 
@@ -202,7 +202,7 @@ func (c Configuration) website(e *echo.Echo, logger *zap.SugaredLogger, dir app.
 	})
 	s.GET("/f/:id", func(cx echo.Context) error {
 		dir.URI = cx.Param("id")
-		return dir.Artifact(cx, logger, c.Environment.ReadMode)
+		return dir.Artifact(cx, logger, c.Environment.ReadOnly)
 	})
 	s.GET("/file/stats", func(cx echo.Context) error {
 		return app.Categories(cx, logger, true)

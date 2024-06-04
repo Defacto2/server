@@ -216,10 +216,10 @@ func TestOverride(t *testing.T) {
 	// confirm, required default port if not set
 	assert.Equal(t, uint(config.HTTPPort), c.HTTPPort)
 	// defaults
-	assert.False(t, c.ReadMode)
+	assert.False(t, c.ReadOnly)
 
 	c.Override()
-	assert.True(t, c.ReadMode)
+	assert.True(t, c.ReadOnly)
 }
 
 func td(name string) string {
@@ -288,8 +288,8 @@ func TestConfig_Checks(t *testing.T) {
 	err = c.Checks(logger())
 	require.NoError(t, err)
 
-	c.ReadMode = false
-	c.ProductionMode = true
+	c.ReadOnly = false
+	c.Production = true
 	require.NoError(t, err)
 	err = c.Checks(logger())
 	require.NoError(t, err)

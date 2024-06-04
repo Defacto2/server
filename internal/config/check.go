@@ -109,7 +109,7 @@ func (c Config) tlsPort(logger *zap.SugaredLogger) {
 // expects the server to be configured with OAuth2 and Google IDs.
 // The server should be running over HTTPS and not unencrypted HTTP.
 func (c Config) production(logger *zap.SugaredLogger) {
-	if !c.ProductionMode || c.ReadMode {
+	if !c.Production || c.ReadOnly {
 		return
 	}
 	if c.GoogleClientID == "" {
