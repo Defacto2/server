@@ -48,8 +48,6 @@ type Config struct {
 	// GoogleAccounts is a slice of Google OAuth2 accounts that are allowed to login.
 	// Each account is a 48 byte slice of bytes that represents the SHA-384 hash of the unique Google ID.
 	GoogleAccounts [][48]byte
-	// LocalMode is a "go build -ldflags" to fix the server to always run in local mode.
-	LocalMode bool
 }
 
 const (
@@ -287,18 +285,15 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 			continue
 		}
 		switch field.Name {
-		case "GoogleAccounts", "LocalMode", "HostName":
+		case "GoogleAccounts", "HostName":
 			continue
 		default:
 		}
 		// mode for development and readonly which is set using the go build flags.
-		if c.LocalMode || (!c.ProductionMode && c.ReadMode) {
+		if !c.ProductionMode && c.ReadMode {
 			if AccountSkip(field.Name) {
 				continue
 			}
-		}
-		if c.LocalMode && LocalSkip(field.Name) {
-			continue
 		}
 		val := values.FieldByName(field.Name)
 		id := field.Name
@@ -349,21 +344,6 @@ func (c Config) fmtField(w *tabwriter.Writer,
 	}
 }
 
-// LocalSkip skips the configurations that are inaccessible in local mode.
-func LocalSkip(name string) bool {
-	switch name {
-	case
-		"ReadMode",
-		"ProductionMode",
-		"TLSPort",
-		"NoCrawl",
-		logger,
-		"MaxProcs":
-		return true
-	}
-	return false
-}
-
 // AccountSkip skips the configurations that are not used when using Google OAuth2
 // is not enabled or when the server is in read-only mode.
 func AccountSkip(name string) bool {
@@ -404,28 +384,7 @@ func (c Config) UseTLSLocal() bool {
 }
 
 // Override the configuration settings fetched from the environment.
-func (c *Config) Override(localMode bool) {
-	// Build binary, environment variables overrides using,
-	// go build -ldflags="-X 'main.LocalMode=true'"
-	if localMode {
-		if c.HTTPPort == 0 {
-			c.HTTPPort = HTTPPort
-		}
-		c.LocalMode = true
-		c.ProductionMode = false
-		c.ReadMode = true
-		c.NoCrawl = true
-		c.LogDir = ""
-		c.GoogleClientID = ""
-		c.GoogleIDs = ""
-		c.SessionKey = ""
-		c.SessionMaxAge = 0
-		c.TLSPort = 0
-		c.TLSCert = ""
-		c.TLSKey = ""
-		c.MaxProcs = 0
-		return
-	}
+func (c *Config) Override() {
 	// hash and delete any supplied google ids
 	ids := strings.Split(c.GoogleIDs, ",")
 	for _, id := range ids {

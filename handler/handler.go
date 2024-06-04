@@ -225,11 +225,6 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 	waitDuration := ShutdownWait
 	waitCount := ShutdownCounter
 	ticker := 1 * time.Second
-	if c.Environment.LocalMode {
-		waitDuration = 0
-		waitCount = 0
-		ticker = 1 * time.Millisecond // this cannot be zero
-	}
 	ctx, cancel := context.WithTimeout(context.Background(), waitDuration)
 	defer func() {
 		const alert = "Detected Ctrl + C, server will shutdown"

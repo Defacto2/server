@@ -51,7 +51,7 @@ func (c Connection) Open() (*sql.DB, error) {
 }
 
 // Check the connection values and print any issues or feedback to the logger.
-func (c Connection) Check(logger *zap.SugaredLogger, local bool) error {
+func (c Connection) Check(logger *zap.SugaredLogger) error {
 	if logger == nil {
 		return ErrZap
 	}
@@ -61,7 +61,7 @@ func (c Connection) Check(logger *zap.SugaredLogger, local bool) error {
 	if c.HostPort == 0 {
 		logger.Warn("The database connection host port is set to 0.")
 	}
-	if !local && c.NoSSLMode {
+	if c.NoSSLMode {
 		logger.Warn("The database connection is using an insecure, plain text connection.")
 	}
 	switch {

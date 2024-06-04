@@ -210,17 +210,15 @@ func TestOverride(t *testing.T) {
 	c := config.Config{}
 	assert.Empty(t, c)
 	c.GoogleIDs = "googleids,googleids2,googleids3"
-	c.Override(false)
+	c.Override()
 	// confirm override
 	assert.Empty(t, c.GoogleIDs)
 	// confirm, required default port if not set
 	assert.Equal(t, uint(config.HTTPPort), c.HTTPPort)
 	// defaults
-	assert.False(t, c.LocalMode)
 	assert.False(t, c.ReadMode)
 
-	c.Override(true)
-	assert.True(t, c.LocalMode)
+	c.Override()
 	assert.True(t, c.ReadMode)
 }
 
@@ -265,16 +263,6 @@ func TestConfig_Startup(t *testing.T) {
 	s, err := c.Addresses()
 	require.NoError(t, err)
 	assert.Contains(t, s, "http://localhost:8080")
-}
-
-func TestLocalSkip(t *testing.T) {
-	t.Parallel()
-	skip := config.LocalSkip("")
-	assert.False(t, skip)
-	skip = config.LocalSkip("readmode")
-	assert.False(t, skip)
-	skip = config.LocalSkip("ReadMode")
-	assert.True(t, skip)
 }
 
 func TestAccountSkip(t *testing.T) {
