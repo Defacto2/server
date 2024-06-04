@@ -75,7 +75,7 @@ tasks:
       - cmd: echo "Done!"
   build-release:
     aliases:
-      - "buildr"
+      - "release"
     desc: "Build the release binary of the web server embeded with the git version tag."
     deps: [assets]
     cmds:
@@ -104,7 +104,9 @@ tasks:
     cmds:
       #- set -o pipefail && go test ./... -json | tparse -all
       - go test -count 1 -race ./...
-  serve:
+  serve-dev:
+    aliases:
+      - "serve"
     desc: "Run the internal web server in development mode with live reload."
     cmds:
       - task: serve-linux
