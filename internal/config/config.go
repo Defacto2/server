@@ -10,7 +10,6 @@ import (
 	"text/tabwriter"
 
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/postgres"
 )
 
 const (
@@ -113,10 +112,6 @@ func (c Config) addresses(b *strings.Builder, intro bool) error {
 	}
 	const disable, text, secure = 0, 80, 443
 	for _, host := range hosts {
-		if c.HostName == postgres.DockerHost && host != "localhost" {
-			// skip all but localhost when running in docker
-			continue
-		}
 		switch port {
 		case text:
 			fmt.Fprintf(b, "%shttp://%s\n", pad, host)
@@ -136,9 +131,6 @@ func (c Config) addresses(b *strings.Builder, intro bool) error {
 		default:
 			fmt.Fprintf(b, "%shttps://%s:%d\n", pad, host, tls)
 		}
-	}
-	if c.HostName == postgres.DockerHost {
-		return nil
 	}
 	return localIPs(b, port, pad)
 }

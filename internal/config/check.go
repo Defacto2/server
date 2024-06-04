@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/postgres"
 	"go.uber.org/zap"
 )
 
@@ -63,9 +62,6 @@ func (c *Config) Checks(logger *zap.SugaredLogger) error {
 	// Reminds for the optional configuration values.
 	if c.NoCrawl {
 		logger.Warn("NoCrawl is on, web crawlers should ignore this site.")
-	}
-	if c.HostName == postgres.DockerHost {
-		logger.Info("The application is configured for use in a Docker container.")
 	}
 
 	return c.SetupLogDir(logger)

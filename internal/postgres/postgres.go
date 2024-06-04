@@ -24,10 +24,9 @@ var (
 )
 
 const (
-	EnvPrefix  = "PS_"                  // EnvPrefix is the prefix for all server environment variables.
-	DockerHost = "host.docker.internal" // DockerHost is the hostname of the internal Docker container.
-	DriverName = "pgx"                  // DriverName of the database.
-	Protocol   = "postgres"             // Protocol of the database driver.
+	EnvPrefix  = "PS_"      // EnvPrefix is the prefix for all server environment variables.
+	DriverName = "pgx"      // DriverName of the database.
+	Protocol   = "postgres" // Protocol of the database driver.
 )
 
 // Connection details of the PostgreSQL database connection.
