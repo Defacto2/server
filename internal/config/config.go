@@ -45,7 +45,6 @@ type Config struct {
 	ReadMode       bool   `env:"D2_READ_ONLY" envDefault:"true" help:"Use the read-only mode to turn off all POST, PUT, and DELETE requests and any related user interface"`
 	NoCrawl        bool   `env:"D2_NO_CRAWL" help:"Tell search engines to not crawl any of website pages or assets"`
 	LogRequests    bool   `env:"D2_LOG_REQUESTS" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`
-	HTTPSRedirect  bool   `env:"D2_HTTPS_REDIRECT" help:"Redirect all HTTP requests to HTTPS"`
 	// GoogleAccounts is a slice of Google OAuth2 accounts that are allowed to login.
 	// Each account is a 48 byte slice of bytes that represents the SHA-384 hash of the unique Google ID.
 	GoogleAccounts [][48]byte
@@ -357,7 +356,6 @@ func LocalSkip(name string) bool {
 		"ReadMode",
 		"ProductionMode",
 		"TLSPort",
-		"HTTPSRedirect",
 		"NoCrawl",
 		logger,
 		"MaxProcs":
@@ -425,7 +423,6 @@ func (c *Config) Override(localMode bool) {
 		c.TLSPort = 0
 		c.TLSCert = ""
 		c.TLSKey = ""
-		c.HTTPSRedirect = false
 		c.MaxProcs = 0
 		return
 	}

@@ -86,9 +86,6 @@ func (c Configuration) Controller(logger *zap.SugaredLogger) *echo.Echo {
 		middleware.Rewrite(rewrites()),
 		middleware.NonWWWRedirect(),
 	}
-	if httpsRedirect := configs.HTTPSRedirect && configs.TLSPort > 0; httpsRedirect {
-		middlewares = append(middlewares, middleware.HTTPSRedirect())
-	}
 	e.Pre(middlewares...)
 
 	// *************************************************

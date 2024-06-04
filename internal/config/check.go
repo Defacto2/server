@@ -42,11 +42,6 @@ func (c *Config) Checks(logger *zap.SugaredLogger) error {
 		return ErrZap
 	}
 
-	if c.HTTPSRedirect && c.TLSPort == 0 {
-		logger.Warn("HTTPSRedirect is on but the HTTPS port is not set," +
-			" so the server will not redirect HTTP requests to HTTPS.")
-	}
-
 	c.httpPort(logger)
 	c.tlsPort(logger)
 	c.production(logger)
@@ -68,9 +63,6 @@ func (c *Config) Checks(logger *zap.SugaredLogger) error {
 	// Reminds for the optional configuration values.
 	if c.NoCrawl {
 		logger.Warn("NoCrawl is on, web crawlers should ignore this site.")
-	}
-	if c.HTTPSRedirect && c.TLSPort > 0 {
-		logger.Info("HTTPSRedirect is on, all HTTP requests will be redirected to HTTPS.")
 	}
 	if c.HostName == postgres.DockerHost {
 		logger.Info("The application is configured for use in a Docker container.")
