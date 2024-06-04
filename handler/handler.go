@@ -99,12 +99,11 @@ func (c Configuration) Controller(logger *zap.SugaredLogger) *echo.Echo {
 		c.NoCrawl,
 		middleware.RemoveTrailingSlashWithConfig(configRTS()),
 	}
-	switch configs.Compression {
-	case true:
+	if configs.Compression {
 		middlewares = append(middlewares, middleware.Gzip())
 	}
 	if configs.Production {
-		middlewares = append(middlewares, middleware.Recover()) // recover from panics
+		middlewares = append(middlewares, middleware.Recover())
 	}
 	e.Use(middlewares...)
 
