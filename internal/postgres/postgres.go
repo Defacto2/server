@@ -79,5 +79,4 @@ func (c Connection) Validate(logger *zap.SugaredLogger) error {
 		logger.Warnf("The database connection scheme is not: %s", Protocol)
 	}
 	return nil
-
 }

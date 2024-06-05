@@ -130,7 +130,10 @@ func (c Config) addresses(b *strings.Builder, intro bool) error {
 			fmt.Fprintf(b, "%shttps://%s:%d\n", pad, host, tls)
 		}
 	}
-	return localIPs(b, port, pad)
+	if c.MatchHost == "" {
+		return localIPs(b, port, pad)
+	}
+	return nil
 }
 
 func addrIntro(b *strings.Builder, intro bool) {

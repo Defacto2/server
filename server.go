@@ -59,13 +59,17 @@ var (
 // By default the web server runs when no arguments are provided.
 // Otherwise, the command-line arguments are parsed and the application exits.
 func main() {
+	w := os.Stdout
 	logger, configs := environmentVars()
+	go func() {
+		fmt.Fprintf(w, "%s\n", configs)
+	}()
 	if code := parseFlags(logger, configs); code >= 0 {
 		os.Exit(code)
 	}
 
-	defer sanityChecks(logger, configs)
-	defer repairChecks(logger, configs)
+	sanityChecks(logger, configs)
+	repairChecks(logger, configs)
 
 	logger = serverLog(configs)
 	website := newInstance(configs)
@@ -75,7 +79,6 @@ func main() {
 		logger.Fatalf("%s: please check the environment variables.", err)
 	}
 
-	w := os.Stdout
 	go func() {
 		localIPs, err := configs.Addresses()
 		if err != nil {
@@ -83,7 +86,6 @@ func main() {
 		}
 		fmt.Fprintf(w, "%s\n", localIPs)
 	}()
-
 	website.ShutdownHTTP(router, logger)
 }
 
@@ -148,6 +150,7 @@ func parseFlags(logger *zap.SugaredLogger, configs config.Config) int {
 // sanityChecks is used to perform a number of sanity checks on the file assets and database.
 // These are skipped if the Production environment variable is set.to false.
 func sanityChecks(logger *zap.SugaredLogger, configs config.Config) {
+	logger.Info("Performing sanity checks...")
 	if !configs.Production || logger == nil {
 		return
 	}
