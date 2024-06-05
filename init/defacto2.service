@@ -19,11 +19,13 @@ After=network.target network-online.target
 Requires=network-online.target
 
 [Service]
-Environment="D2_PRODUCTION_MODE=true" "D2_READ_ONLY=false" "D2_NO_CRAWL=true"
+Environment="D2_MATCH_HOST=localhost"
+Environment="D2_DATABASE_URL=postgres://root:example@localhost:5432/defacto2_ps"
 Environment="D2_DIR_DOWNLOAD=/mnt/volume_sfo3_01/assets/downloads"
 Environment="D2_DIR_PREVIEW=/mnt/volume_sfo3_01/assets/images000"
 Environment="D2_DIR_THUMBNAIL=/mnt/volume_sfo3_01/assets/images400"
 Environment="D2_DIR_LOG=/var/log/caddy"
+Environment="D2_PRODUCTION=true" "D2_READ_ONLY=false" "D2_NO_CRAWL=true"
 User=caddy
 Group=caddy
 ExecStart=/usr/bin/df2-server

@@ -93,11 +93,8 @@ Docker uses the `.env` file to set container environment variables.
 #  Database settings
 # ===================
 
-# Database username used to connect
-PS_USERNAME=root
-
-# Password for the database username
-PS_PASSWORD=example
+# The connection string to the PostgreSQL database.
+D2_DATABASE_URL=postgres://root:example@localhost:5432/defacto2_ps
 
 # ===================
 #  Optional, directory paths for the serving of static files.
