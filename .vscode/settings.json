@@ -10,9 +10,10 @@
   },
   "editor.formatOnSave": true,
   "files.associations": {
+    "*.env.local": "ini",
     "*.gohtml": "html",
-    "*.tmpl": "html",
-    "*.env.local": "ini"
+    "*.service": "ini",
+    "*.tmpl": "html"
   },
   "files.eol": "\n",
   "runOnSave.statusMessageTimeout": 3000,

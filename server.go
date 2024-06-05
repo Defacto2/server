@@ -88,9 +88,16 @@ func main() {
 }
 
 // environmentVars is used to parse the environment variables and set the Go runtime.
+// Defaults are used if the environment variables are not set.
 func environmentVars() (*zap.SugaredLogger, config.Config) {
 	logger := zaplog.Development().Sugar()
-	configs := config.Config{}
+	configs := config.Config{
+		Compression:   true,
+		DatabaseURL:   postgres.DefaultURL,
+		HTTPPort:      config.HTTPPort,
+		ReadOnly:      true,
+		SessionMaxAge: config.SessionHours,
+	}
 	if err := env.Parse(&configs); err != nil {
 		logger.Fatalf("%w: %s", ErrEnv, err)
 	}
@@ -152,7 +159,7 @@ func sanityChecks(logger *zap.SugaredLogger, configs config.Config) {
 		logger.Errorf("%s: %s", ErrDB, err)
 		return
 	}
-	_ = conn.Check(logger)
+	_ = conn.Validate(logger)
 }
 
 // checks is used to confirm the required commands are available.

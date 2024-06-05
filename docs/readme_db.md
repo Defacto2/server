@@ -58,7 +58,7 @@ This would replace the `file_zip_content` column and also, create a CLI tool to 
 > pgloader loads data into PostgreSQL and allows you to implement Continuous Migration from your current database to PostgreSQL. 
 
 - `defacto2-inno` is the name of the MySQL database.
-- `defacto2-ps` is the name of the PostgreSQL database.
+- `defacto2_ps` is the name of the PostgreSQL database.
 
 ```sh
 docker run --network host --rm -it dimitri/pgloader:latest \

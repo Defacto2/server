@@ -47,26 +47,22 @@ The flags are:
 
 # Database
 
-This application expects the Defacto2 [PostgreSQL database] and the following environment variables to be set if needed:
+This application expects the Defacto2, PostgreSQL database and the connection URL configured in the D2_DATABASE_URL environment variable.
 
-	1. PS_USERNAME is the PostgreSQL account username.
-	2. PS_PASSWORD is the PostgreSQL account password.
+Some examples:
 
-The following variables are optional:
-
-	1. PS_HOST_NAME is the PostgreSQL server hostname (default: localhost).
-	2. PS_HOST_PORT is the PostgreSQL server port number (default: 5432).
-	3. PS_DATABASE is the PostgreSQL database name (default: defacto2-ps).
-	4. PS_NO_SSL is the PostgreSQL connection is insecure and in plaintext (default: true).
+	1. D2_DATABASE_URL=postgres://root:example@localhost:5432/defacto2_ps
+	2. D2_DATABASE_URL=postgres://username:password@localhost:5432/database_name
+	3. D2_DATABASE_URL=postgres://username:password@host.docker.internal:5432/database_name
 
 # File serving
 
 The following environment variables are used for the webserver to offer file downloads,
 software emulation, display previews and thumbnails:
 
-	1. D2_DOWNLOAD is the absolute path to the file downloads directory.
-	2. D2_SCREENSHOTS is the absolute path to the screenshots directory.
-	3. D2_THUMBNAILS is the absolute path to the thumbnails directory.
+	1. D2_DIR_DOWNLOAD is the absolute path to the file downloads directory.
+	2. D2_DIR_PREVIEW is the absolute path to the screenshots directory.
+	3. D2_DIR_THUMBNAIL is the absolute path to the thumbnails directory.
 
 # Web server
 

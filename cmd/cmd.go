@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/Defacto2/server/internal/config"
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/carlmjohnson/versioninfo"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/text/cases"
@@ -120,9 +119,7 @@ func Config(c *config.Config) *cli.Command {
 		Action: func(_ *cli.Context) error {
 			defer fmt.Fprintf(os.Stdout, "%s\n", c.String())
 			defer func() {
-				ds, _ := postgres.New()
 				b := new(strings.Builder)
-				ds.Configurations(b)
 				fmt.Fprintf(os.Stdout, "%s\n", b.String())
 			}()
 			return nil

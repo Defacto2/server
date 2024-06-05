@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	ConfigDir = "defacto2-app" // ConfigDir is the subdirectory for the home user ".config".
-	HTTPPort  = 1323           // HTTPPort is the default port number for the unencrypted HTTP server.
+	ConfigDir    = "defacto2-app" // ConfigDir is the subdirectory for the home user ".config".
+	HTTPPort     = 1323           // HTTPPort is the default port number for the unencrypted HTTP server.
+	SessionHours = 3              // SessionHours is the default number of hours for the session cookie to remain active.
 )
 
 var ErrNoPort = errors.New("the server cannot start without a http or a tls port")
@@ -27,20 +28,20 @@ type Config struct {
 	AbsDownload    string `env:"D2_DIR_DOWNLOAD" help:"The directory path that holds the UUID named files that are served as artifact downloads"`
 	AbsPreview     string `env:"D2_DIR_PREVIEW" help:"The directory path that holds the UUID named image files that are served as previews of the artifact"`
 	AbsThumbnail   string `env:"D2_DIR_THUMBNAIL" help:"The directory path that holds the UUID named squared image files that are served as artifact thumbnails"`
+	DatabaseURL    string `env:"D2_DATABASE_URL" help:"Provide the URL of the database to which to connect"`
 	SessionKey     string `env:"D2_SESSION_KEY,unset" help:"Use a fixed session key for the cookie store, which can be left blank to generate a random key"`
 	GoogleClientID string `env:"D2_GOOGLE_CLIENT_ID" help:"The Google OAuth2 client ID"`
 	GoogleIDs      string `env:"D2_GOOGLE_IDS,unset" help:"Create a comma-separated list of Google account IDs to permit access to the editor mode"`
 	TLSCert        string `env:"D2_TLS_CERT" help:"An absolute file path to the TLS certificate, or leave blank to use a self-signed, localhost certificate"`
 	TLSKey         string `env:"D2_TLS_KEY" help:"An absolute file path to the TLS key, or leave blank to use a self-signed, localhost key"`
 	TLSHost        string `env:"D2_TLS_HOST" help:"An advised setting limits TLS to the specific host or domain name; leave it blank to permit TLS connections from any host"`
-	HostName       string `env:"PS_HOST_NAME"` // this should only be used internally, instead see postgres.Connection{}
-	HTTPPort       uint   `env:"D2_HTTP_PORT" envDefault:"1323" help:"The port number to be used by the unencrypted HTTP web server"`
+	HTTPPort       uint   `env:"D2_HTTP_PORT" help:"The port number to be used by the unencrypted HTTP web server"`
 	MaxProcs       uint   `env:"D2_MAX_PROCS" help:"Limit the number of operating system threads the program can use"`
-	SessionMaxAge  int    `env:"D2_SESSION_MAX_AGE" envDefault:"3" help:"List the maximum number of hours for the session cookie to remain active before expiring and requiring a new login"`
+	SessionMaxAge  int    `env:"D2_SESSION_MAX_AGE" help:"List the maximum number of hours for the session cookie to remain active before expiring and requiring a new login"`
 	TLSPort        uint   `env:"D2_TLS_PORT" help:"The port number to be used by the encrypted, HTTPS web server"`
-	Compression    bool   `env:"D2_COMPRESSION" envDefault:"true" help:"Enable gzip compression of the HTTP/HTTPS responses; you may turn this off when using a reverse proxy"`
+	Compression    bool   `env:"D2_COMPRESSION" help:"Enable gzip compression of the HTTP/HTTPS responses; you may turn this off when using a reverse proxy"`
 	Production     bool   `env:"D2_PRODUCTION" help:"Use the production mode to log errors to a file and recover from panics"`
-	ReadOnly       bool   `env:"D2_READ_ONLY" envDefault:"true" help:"Use the read-only mode to turn off all POST, PUT, and DELETE requests and any related user interface"`
+	ReadOnly       bool   `env:"D2_READ_ONLY" help:"Use the read-only mode to turn off all POST, PUT, and DELETE requests and any related user interface"`
 	NoCrawl        bool   `env:"D2_NO_CRAWL" help:"Tell search engines to not crawl any of website pages or assets"`
 	LogAll         bool   `env:"D2_LOG_ALL" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`
 	// GoogleAccounts is a slice of Google OAuth2 accounts that are allowed to login.
@@ -276,7 +277,7 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 			continue
 		}
 		switch field.Name {
-		case "GoogleAccounts", "HostName":
+		case "GoogleAccounts":
 			continue
 		default:
 		}

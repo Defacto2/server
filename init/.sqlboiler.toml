@@ -48,10 +48,17 @@ wipe = true
 
 # PostgreSQL database connection settings and defaults.
 # https://github.com/volatiletech/sqlboiler?tab=readme-ov-file#database-driver-configuration
+#
+# These values are used by the Go generate command to connect to the PostgreSQL database.
+# It is only required when the database schema has changed and the Go models need to be regenerated.
+# Production deployment SECRETS MUST NOT be stored in this file.
+#
+# example connection URL: postgres://pglogrepl:secret@127.0.0.1/pglogrepl?replication=database
+#
 
 [psql]
 schema = "public"
-dbname = "defacto2-ps"
+dbname = "defacto2_ps"
 host = "localhost"
 port = 5432
 user = "root"
