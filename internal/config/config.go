@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sort"
 	"strings"
 	"text/tabwriter"
 
@@ -32,9 +33,9 @@ type Config struct {
 	SessionKey     string `env:"D2_SESSION_KEY,unset" help:"Use a fixed session key for the cookie store, which can be left blank to generate a random key"`
 	GoogleClientID string `env:"D2_GOOGLE_CLIENT_ID" help:"The Google OAuth2 client ID"`
 	GoogleIDs      string `env:"D2_GOOGLE_IDS,unset" help:"Create a comma-separated list of Google account IDs to permit access to the editor mode"`
+	MatchHost      string `env:"D2_MATCH_HOST" help:"Limits connections to the specific host or domain name; leave blank to permit connections from anywhere"`
 	TLSCert        string `env:"D2_TLS_CERT" help:"An absolute file path to the TLS certificate, or leave blank to use a self-signed, localhost certificate"`
 	TLSKey         string `env:"D2_TLS_KEY" help:"An absolute file path to the TLS key, or leave blank to use a self-signed, localhost key"`
-	TLSHost        string `env:"D2_TLS_HOST" help:"An advised setting limits TLS to the specific host or domain name; leave it blank to permit TLS connections from any host"`
 	HTTPPort       uint   `env:"D2_HTTP_PORT" help:"The port number to be used by the unencrypted HTTP web server"`
 	MaxProcs       uint   `env:"D2_MAX_PROCS" help:"Limit the number of operating system threads the program can use"`
 	SessionMaxAge  int    `env:"D2_SESSION_MAX_AGE" help:"List the maximum number of hours for the session cookie to remain active before expiring and requiring a new login"`
@@ -62,7 +63,7 @@ const (
 	h5       = "Information"
 	line     = "─"
 	donotuse = 7
-	down     = "DownloadDir"
+	down     = "AbsDownload"
 	logger   = "AbsLog"
 	prev     = "AbsPreview"
 	thumb    = "AbsThumbnail"
@@ -74,7 +75,6 @@ const (
 func (c Config) String() string {
 	b := new(strings.Builder)
 	c.configurations(b)
-	fmt.Fprintf(b, "\n")
 	return b.String()
 }
 
@@ -113,6 +113,9 @@ func (c Config) addresses(b *strings.Builder, intro bool) error {
 	}
 	const disable, text, secure = 0, 80, 443
 	for _, host := range hosts {
+		if c.MatchHost != "" && host != c.MatchHost {
+			continue
+		}
 		switch port {
 		case text:
 			fmt.Fprintf(b, "%shttp://%s\n", pad, host)
@@ -120,9 +123,6 @@ func (c Config) addresses(b *strings.Builder, intro bool) error {
 			continue
 		default:
 			fmt.Fprintf(b, "%shttp://%s:%d\n", pad, host, port)
-		}
-		if c.TLSHost != "" && host != c.TLSHost {
-			continue
 		}
 		switch tls {
 		case secure:
@@ -161,116 +161,178 @@ func localIPs(b *strings.Builder, port uint64, pad string) error {
 	return nil
 }
 
-// nl prints a new line to the tabwriter.
-func nl(w *tabwriter.Writer) {
-	fmt.Fprintf(w, "\t\t\t\t\n")
-}
-
 // dir prints the directory path to the tabwriter or a warning if the path is empty.
-func dir(w *tabwriter.Writer, id, s string) {
-	if s != "" {
-		fmt.Fprintf(w, "\t\t\tPATH →\t%s\n", s)
+func dir(w *tabwriter.Writer, id, name, val string) {
+	fmt.Fprintf(w, "\t%s\t%s", fmtID(id), name)
+	if val != "" {
+		// todo: stat the directory
+		fmt.Fprintf(w, "\t%s\n", val)
 		return
 	}
-	fmt.Fprintf(w, "\t\t\tPATH →\t%s", "[NO DIRECTORY SET]")
 	switch id {
 	case down:
-		fmt.Fprintf(w, "\tNo downloads will be served.\n")
+		fmt.Fprintf(w, "\tEmpty, no downloads will be served\n")
 	case prev:
-		fmt.Fprintf(w, "\tNo preview images will be shown.\n")
+		fmt.Fprintf(w, "\tEmpty, no preview images will be shown\n")
 	case thumb:
-		fmt.Fprintf(w, "\tNo thumbnails will be shown.\n")
+		fmt.Fprintf(w, "\tEmpty, no thumbnails will be shown\n")
 	case logger:
-		fmt.Fprintf(w, "\tLogs will be printed to this terminal.\n")
+		fmt.Fprintf(w, "\tEmpty, logs print to the terminal (stdout)\n")
 	default:
 		fmt.Fprintln(w)
 	}
 }
 
-// lead prints the id, name, value and help text to the tabwriter.
-func lead(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
-	help := field.Tag.Get("help")
-	fmt.Fprintf(w, "\t%s\t%s\t%v\t%s.\n", helper.SplitAsSpaces(id), name, val, help)
-}
-
-// path prints the file and image paths to the tabwriter.
-func path(w *tabwriter.Writer, id, name string, field reflect.StructField) {
-	help := field.Tag.Get("help")
+func fmtID(id string) string {
 	switch id {
 	case down:
-		help = strings.Replace(help, "UUID named files", "UUID named files\n\t\t\t\t", 1)
+		return "Downloads, directory path"
 	case prev:
-		help = strings.Replace(help, "UUID named image", "UUID named image\n\t\t\t\t", 1)
+		return "Previews, directory path"
 	case thumb:
-		help = strings.Replace(help, "UUID named squared image", "UUID named squared image\n\t\t\t\t", 1)
+		return "Thumbnails, directory path"
+	case logger:
+		return "Logs, directory path"
+	case "Compression":
+		return "Gzip compression"
+	case "DatabaseURL":
+		return "Database connection, URL"
+	case "GoogleClientID":
+		return "Google OAuth2 client ID"
+	case "GoogleIDs":
+		return "Google IDs for sign-in"
+	case "LogAll":
+		return "Log all HTTP requests"
+	case "MaxProcs":
+		return "Maximum CPU processes"
+	case "MatchHost":
+		return "Match hostname, domain or IP address"
+	case "NoCrawl":
+		return "Disallow search engine crawling"
+	case "Production":
+		return "Production mode"
+	case "ReadOnly":
+		return "Read-only mode"
+	case "SessionKey":
+		return "Session key"
+	case "SessionMaxAge":
+		return "Session, maximum age"
+	case "TLSCert":
+		return "TLS certificate, file path"
+	case "TLSHost":
+		return "TLS hostname"
+	case "TLSKey":
+		return "TLS key, file path"
+	default:
+		return helper.SplitAsSpaces(id)
 	}
-	fmt.Fprintf(w, "\t%s\t%s\t\t%s.\n", helper.SplitAsSpaces(id), name, help)
 }
 
-// isProd prints a warning if the production mode is disabled.
-func isProd(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
-	lead(w, id, name, val, field)
-	if val.Kind() == reflect.Bool && !val.Bool() {
-		fmt.Fprintf(w, "\t\t\t\t%s\n",
-			"All errors and warnings will be logged to this console.")
+// value prints the id, name, value and help text to the tabwriter.
+func value(w *tabwriter.Writer, id, name string, val reflect.Value) {
+	if val.Kind() == reflect.Bool {
+		status := "Off"
+		if val.Bool() {
+			status = "On"
+		}
+		fmt.Fprintf(w, "\t%s\t%s\t%v\n", fmtID(id), name, status)
+		return
+	}
+	fmt.Fprintf(w, "\t%s\t%s\t", fmtID(id), name)
+	switch id {
+	case "GoogleClientID":
+		if val.String() == "" {
+			fmt.Fprint(w, "Empty, no account sign-in for web administration\n")
+			return
+		}
+		fmt.Fprint(w, val.String())
+	case "MatchHost":
+		if val.String() == "" {
+			fmt.Fprint(w, "Empty, no address restrictions\n")
+			return
+		}
+		fmt.Fprint(w, val.String())
+	case "GoogleIDs":
+		if val.String() == "" {
+			fmt.Fprint(w, "Empty, no accounts for web administration\n")
+			return
+		}
+		fmt.Fprint(w, val.String())
+	case "SessionKey":
+		if val.String() == "" {
+			fmt.Fprint(w, "Empty, a random key will be generated during the server start\n")
+			return
+		}
+		fmt.Fprint(w, val.String())
+	case "SessionMaxAge":
+		fmt.Fprintf(w, "%v hours\n", val.Int())
+	default:
+		if val.String() == "" {
+			fmt.Fprint(w, "Empty\n")
+			return
+		}
+		fmt.Fprintf(w, "%v\n", val)
 	}
 }
 
 // httpPort prints the HTTP port number to the tabwriter.
-func httpPort(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
-	nl(w)
-	lead(w, id, name, val, field)
-	fmt.Fprintf(w, "\t\t\t\t%s\n",
-		"The typical HTTP port number is 80, while for proxies it is 8080.")
+func httpPort(w *tabwriter.Writer, id, name string, val reflect.Value) {
+	fmt.Fprintf(w, "\t%s\t%s\t", fmtID(id), name)
 	if val.Kind() == reflect.Uint && val.Uint() == 0 {
-		fmt.Fprintf(w, "\t\t\t\t%s\n", "The server will use the default port number 1323.")
+		fmt.Fprintf(w, "%s\n", "0, the web server will not use HTTP")
+		return
 	}
+	port := val.Uint()
+	const common = 80
+	if port == common {
+		fmt.Fprintf(w, "%d, the web server will use HTTP, example: http://localhost\n", port)
+		return
+	}
+	fmt.Fprintf(w, "%d, the web server will use HTTP, example: http://localhost:%d\n", port, port)
 }
 
 // tlsPort prints the HTTPS port number to the tabwriter.
-func tlsPort(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
-	nl(w)
-	lead(w, id, name, val, field)
-	fmt.Fprintf(w, "\t\t\t\t%s\n",
-		"The typical TLS port number is 443, while for proxies it is 8443.")
+func tlsPort(w *tabwriter.Writer, id, name string, val reflect.Value) {
+	fmt.Fprintf(w, "\t%s\t%s\t", fmtID(id), name)
 	if val.Kind() == reflect.Uint && val.Uint() == 0 {
-		fmt.Fprintf(w, "\t\t\t\t%s\n", "The server will not use TLS.")
+		fmt.Fprintf(w, "%s\n", "0, the web server will not use HTTPS")
+		return
 	}
+	port := val.Uint()
+	const common = 443
+	if port == common {
+		fmt.Fprintf(w, "%d, the web server will use HTTPS, example: https://localhost\n", port)
+		return
+	}
+	fmt.Fprintf(w, "%d, the web server will use HTTPS, example: https://localhost:%d\n", port, port)
 }
 
 // maxProcs prints the number of CPU cores to the tabwriter.
-func maxProcs(w *tabwriter.Writer, id, name string, val reflect.Value, field reflect.StructField) {
-	nl(w)
-	fmt.Fprintf(w, "\t%s\t%s\t%v\t%s.", id, name, 0, field.Tag.Get("help"))
+func maxProcs(w *tabwriter.Writer, id, name string, val reflect.Value) {
+	fmt.Fprintf(w, "\t%s\t%s\t", fmtID(id), name)
 	if val.Kind() == reflect.Uint && val.Uint() == 0 {
-		fmt.Fprintf(w, "\n\t\t\t\t%s\n", "This application will use all available CPU cores.")
-	}
-}
-
-// googleHead prints a header for the Google OAuth2 configurations.
-func googleHead(w *tabwriter.Writer, c Config) {
-	if !c.Production && c.ReadOnly {
+		fmt.Fprintf(w, "%s\n", "0, the application will use all available CPU threads")
 		return
 	}
-	nl(w)
-	fmt.Fprintf(w, "\t \t \t\t──────────────────────────────────────────────────────────────────────\n")
-	fmt.Fprintf(w, "\t \t \t\t  The following configurations can usually be left at their defaults\n")
-	fmt.Fprintf(w, "\t \t \t\t──────────────────────────────────────────────────────────────────────")
+	fmt.Fprintf(w, "%d, the application will limit access to CPU threads\n", val.Uint())
 }
 
 // configurations prints a list of active configurations options.
 func (c Config) configurations(b *strings.Builder) *strings.Builder {
 	fields := reflect.VisibleFields(reflect.TypeOf(c))
+	sort.Slice(fields, func(i, j int) bool {
+		return fields[i].Name < fields[j].Name
+	})
 	values := reflect.ValueOf(c)
+
 	w := tabwriter.NewWriter(b, minwidth, tabwidth, padding, padchar, flags)
-	fmt.Fprint(b, "Defacto2 server active configuration options.\n\n")
-	fmt.Fprintf(w, "\t%s\t%s\t%s\t%s\n",
-		h1, h3, h2, h5)
-	fmt.Fprintf(w, "\t%s\t%s\t%s\t%s\n",
+	fmt.Fprint(b, "The Defacto2 server configuration:\n\n")
+	fmt.Fprintf(w, "\t%s\t%s\t%s\n",
+		h1, h3, h2)
+	fmt.Fprintf(w, "\t%s\t%s\t%s\n",
 		strings.Repeat(line, len(h1)),
 		strings.Repeat(line, len(h3)),
-		strings.Repeat(line, len(h2)),
-		strings.Repeat(line, len(h5)))
+		strings.Repeat(line, len(h2)))
 
 	for _, field := range fields {
 		if !field.IsExported() {
@@ -281,19 +343,13 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 			continue
 		default:
 		}
-		// mode for development and readonly which is set using the go build flags.
-		if !c.Production && c.ReadOnly {
-			if AccountSkip(field.Name) {
-				continue
-			}
-		}
 		val := values.FieldByName(field.Name)
 		id := field.Name
 		name := field.Tag.Get("env")
 		if before, found := strings.CutSuffix(name, ",unset"); found {
 			name = before
 		}
-		c.fmtField(w, id, name, val, field)
+		c.fmtField(w, id, name, val)
 	}
 	w.Flush()
 	return b
@@ -302,52 +358,21 @@ func (c Config) configurations(b *strings.Builder) *strings.Builder {
 // fmtField prints the id, name, value and help text to the tabwriter.
 func (c Config) fmtField(w *tabwriter.Writer,
 	id, name string,
-	val reflect.Value, field reflect.StructField,
+	val reflect.Value,
 ) {
+	fmt.Fprintf(w, "\t\t\t\t\n")
 	switch id {
-	case "ProductionMode":
-		isProd(w, id, name, val, field)
 	case "HTTPPort":
-		httpPort(w, id, name, val, field)
+		httpPort(w, id, name, val)
 	case "TLSPort":
-		tlsPort(w, id, name, val, field)
-	case down:
-		nl(w)
-		path(w, id, name, field)
-		dir(w, id, c.AbsPreview)
-	case prev:
-		nl(w)
-		path(w, id, name, field)
-		dir(w, id, c.AbsPreview)
-	case thumb:
-		nl(w)
-		path(w, id, name, field)
-		dir(w, id, c.AbsThumbnail)
-	case logger:
-		nl(w)
-		path(w, id, name, field)
-		dir(w, id, c.AbsLog)
+		tlsPort(w, id, name, val)
+	case down, prev, thumb, logger:
+		dir(w, id, name, val.String())
 	case "MaxProcs":
-		maxProcs(w, id, name, val, field)
-		googleHead(w, c)
+		maxProcs(w, id, name, val)
 	default:
-		nl(w)
-		lead(w, id, name, val, field)
+		value(w, id, name, val)
 	}
-}
-
-// AccountSkip skips the configurations that are not used when using Google OAuth2
-// is not enabled or when the server is in read-only mode.
-func AccountSkip(name string) bool {
-	switch name {
-	case
-		"GoogleClientID",
-		"GoogleIDs",
-		"SessionKey",
-		"SessionMaxAge":
-		return true
-	}
-	return false
 }
 
 // StaticThumb returns the path to the thumbnail directory.
@@ -386,6 +411,7 @@ func (c *Config) Override() {
 	c.GoogleIDs = "overwrite placeholder"
 	c.GoogleIDs = "" // empty the string
 
+	// set the default HTTP port if both ports are configured to zero
 	if c.HTTPPort == 0 && c.TLSPort == 0 {
 		c.HTTPPort = HTTPPort
 	}

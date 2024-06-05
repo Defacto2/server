@@ -95,6 +95,7 @@ func environmentVars() (*zap.SugaredLogger, config.Config) {
 		Compression:   true,
 		DatabaseURL:   postgres.DefaultURL,
 		HTTPPort:      config.HTTPPort,
+		Production:    true,
 		ReadOnly:      true,
 		SessionMaxAge: config.SessionHours,
 	}

@@ -20,7 +20,6 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
-	"strings"
 	"time"
 
 	"github.com/Defacto2/server/cmd"
@@ -296,13 +295,24 @@ func (c *Configuration) StartHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 		panic(ErrRoutes)
 	}
 	port := c.Environment.HTTPPort
-	if port == 0 {
+	address := c.address(port)
+	if address == "" {
 		return
 	}
-	address := fmt.Sprintf(":%d", port)
 	if err := e.Start(address); err != nil {
 		c.PortErr(logger, port, err)
 	}
+}
+
+func (c *Configuration) address(port uint) string {
+	if port == 0 {
+		return ""
+	}
+	address := fmt.Sprintf(":%d", port)
+	if c.Environment.MatchHost != "" {
+		address = fmt.Sprintf("%s:%d", c.Environment.MatchHost, port)
+	}
+	return address
 }
 
 // StartTLS starts the encrypted TLS web server.
@@ -311,23 +321,23 @@ func (c *Configuration) StartTLS(e *echo.Echo, logger *zap.SugaredLogger) {
 		panic(ErrRoutes)
 	}
 	port := c.Environment.TLSPort
-	if port == 0 {
+	address := c.address(port)
+	if address == "" {
 		return
 	}
-	cert := c.Environment.TLSCert
-	key := c.Environment.TLSKey
+	certFile := c.Environment.TLSCert
+	keyFile := c.Environment.TLSKey
 	const failure = "Could not start the TLS server"
-	if cert == "" || key == "" {
+	if certFile == "" || keyFile == "" {
 		logger.Fatalf("%s, missing certificate or key file.", failure)
 	}
-	if !helper.File(cert) {
-		logger.Fatalf("%s, certificate file does not exist: %s.", failure, cert)
+	if !helper.File(certFile) {
+		logger.Fatalf("%s, certificate file does not exist: %s.", failure, certFile)
 	}
-	if !helper.File(key) {
-		logger.Fatalf("%s, key file does not exist: %s.", failure, key)
+	if !helper.File(keyFile) {
+		logger.Fatalf("%s, key file does not exist: %s.", failure, keyFile)
 	}
-	address := fmt.Sprintf(":%d", port)
-	if err := e.StartTLS(address, "", ""); err != nil {
+	if err := e.StartTLS(address, certFile, keyFile); err != nil {
 		c.PortErr(logger, port, err)
 	}
 }
@@ -339,29 +349,21 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo, logger *zap.SugaredLogger) {
 		panic(ErrRoutes)
 	}
 	port := c.Environment.TLSPort
-	if port == 0 {
+	address := c.address(port)
+	if address == "" {
 		return
 	}
 	const cert, key = "public/certs/cert.pem", "public/certs/key.pem"
 	const failure = "Could not read the internal localhost"
-	cpem, err := c.Public.ReadFile(cert)
+	certB, err := c.Public.ReadFile(cert)
 	if err != nil {
 		logger.Fatalf("%s, TLS certificate: %s.", failure, err)
 	}
-	kpem, err := c.Public.ReadFile(key)
+	keyB, err := c.Public.ReadFile(key)
 	if err != nil {
 		logger.Fatalf("%s, TLS key: %s.", failure, err)
 	}
-	lock := strings.TrimSpace(c.Environment.TLSHost)
-	var address string
-	const showAllConnections = ""
-	switch lock {
-	case showAllConnections:
-		address = fmt.Sprintf(":%d", port)
-	default:
-		address = fmt.Sprintf("%s:%d", lock, port)
-	}
-	if err := e.StartTLS(address, cpem, kpem); err != nil {
+	if err := e.StartTLS(address, certB, keyB); err != nil {
 		c.PortErr(logger, port, err)
 	}
 }

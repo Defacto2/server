@@ -265,16 +265,6 @@ func TestConfig_Startup(t *testing.T) {
 	assert.Contains(t, s, "http://localhost:8080")
 }
 
-func TestAccountSkip(t *testing.T) {
-	t.Parallel()
-	skip := config.AccountSkip("")
-	assert.False(t, skip)
-	skip = config.AccountSkip("googleids")
-	assert.False(t, skip)
-	skip = config.AccountSkip("GoogleIDs")
-	assert.True(t, skip)
-}
-
 func TestConfig_Checks(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
