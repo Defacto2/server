@@ -10,10 +10,79 @@
 {{- /* note row-cols-sm-* is the smallest row-cols value */}}
 {{- $rowCols := "row row-cols-1 row-cols-sm-2 row-cols-md-5 g-3 p-3 g-md-0 p-md-0"}}
 <div class="row row-cols-1 row-cols-lg-2 g-4 mt-1">
+    {{- if .stats }}
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h1 class="card-title {{$titleClass}}">Cracktros and intros</h1>
+                <h2 class="card-title h5">Count and filesize</h2>
+                <h6 class="card-subtitle mb-2 text-body-secondary">statistics</h6>
+                <p class="card-text">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <small>
+                                ansi art: {{ byteFile $rels.AnsiBBS.Count $rels.AnsiBBS.Bytes }}<br>
+                                ansi art and texts: {{ byteFile $rels.Ansi.Count $rels.Ansi.Bytes }}<br>
+                                BBS adverts: {{ byteFile $rels.BBS.Count $rels.BBS.Bytes }}<br>
+                                BBStros: {{ byteFile $rels.BBStro.Count $rels.BBStro.Bytes }}<br>
+                                cracktros and intros: {{ byteFile $rels.Intro.Count $rels.Intro.Bytes }}<br>
+                                cracktros and intros on {{msdos}}: {{ byteFile $rels.IntroD.Count $rels.IntroD.Bytes }}<br>
+                                cracktros and intros on Windows: {{ byteFile $rels.IntroW.Count $rels.IntroW.Bytes }}<br>
+                                Demoscene productions: {{ byteFile $rels.Demoscene.Count $rels.Demoscene.Bytes }}<br>
+                                editors: {{ byteFile $rels.NfoTool.Count $rels.NfoTool.Bytes }}<br>
+                                installers: {{ byteFile $rels.Installer.Count $rels.Installer.Bytes }}<br>
+                                Java files: {{ byteFile $rels.Java.Count $rels.Java.Bytes }}<br>
+                                Linux files: {{ byteFile $rels.Linux.Count $rels.Linux.Bytes }}<br>
+                                MacOS files: {{ byteFile $rels.Macos.Count $rels.Macos.Bytes }}<br>
+                                {{msdos}} files: {{ byteFile $rels.MsDos.Count $rels.MsDos.Bytes }}<br>
+                                nfo texts: {{ byteFile $rels.Nfo.Count $rels.Nfo.Bytes }}<br>
+                                proofs: {{ byteFile $rels.Proof.Count $rels.Proof.Bytes }}<br>
+                                scripts: {{ byteFile $rels.Script.Count $rels.Script.Bytes }}<br>
+                                text files: {{ byteFile $rels.BBSText.Count $rels.BBSText.Bytes }}<br>
+                                Windows files: {{ byteFile $rels.Windows.Count $rels.Windows.Bytes }}<br>
+                            </small>
+                        </li>
+                        <li class="list-group-item">
+                            Sum: {{ byteFile $rels.Record.Count $rels.Record.Bytes }}
+                        </li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card{{$cardClass}}">
+            <div class="card-body">
+                <h2 class="card-title h5">Publish date range</h2>
+                <h6 class="card-subtitle mb-2 text-body-secondary">statistics</h6>
+                <p class="card-text">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <small>
+                            ansi art date range: {{$rels.Ansi.MinYear}}-{{$rels.Ansi.MaxYear}}<br>
+                            bbs ads date range: {{$rels.BBS.MinYear}}-{{$rels.BBS.MaxYear}}<br>
+                            cracktros and intros date range: {{$rels.Intro.MinYear}}-{{$rels.Intro.MaxYear}}<br>
+                            linux date range: {{$rels.Linux.MinYear}}-{{$rels.Linux.MaxYear}}<br>
+                            java date range: {{$rels.Java.MinYear}}-{{$rels.Java.MaxYear}}<br>
+                            magazine date range: {{$rels.Magazine.MinYear}}-{{$rels.Magazine.MaxYear}}<br>
+                            MacOS date range: {{$rels.Macos.MinYear}}-{{$rels.Macos.MaxYear}}<br>
+                            {{msdos}} date range: {{$rels.MsDos.MinYear}}-{{$rels.MsDos.MaxYear}}<br>
+                            nfo date range: {{$rels.Nfo.MinYear}}-{{$rels.Nfo.MaxYear}}<br>
+                            script date range: {{$rels.Script.MinYear}}-{{$rels.Script.MaxYear}}<br>
+                            texts date range: {{$rels.Text.MinYear}}-{{$rels.Text.MaxYear}}<br>
+                            Windows date range: {{$rels.Windows.MinYear}}-{{$rels.Windows.MaxYear}}<br>
+                            </small>
+                        </li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+    {{- end}}
+    <div class="col">
+        <div class="card{{$cardClass}}">
+            <div class="card-body">
+                <h1 class="card-title {{$titleClass}}">Included programs</h1>
+                <h2 class="card-title h5">Cracktros and intros</h2>
                 <h6 class="card-subtitle mb-2 text-body-secondary">loader, crack screen, crack-intro</h6>
                 <p class="card-text">
                     Cracktros and loaders are mini adverts created by cracking groups to announce their
@@ -41,38 +110,14 @@
                     As software repackaging by Scene groups became more complicated, there was a need to develop installation programs that walk the users through installing their ill-gotten wares.
                 </p>
                 <span class="{{$linkClass}}">Browse the <a href="/files/installer" class="{{$linkClass}}">installers</a></span>
-                <hr>
-                <h2 class="card-title h5">Demos</h2>
-                <h6 class="card-subtitle mb-2 text-body-secondary">Demoscene production</h6>
-                <p class="card-text">
-                    Demoscene productions are artistic apps that generate visuals and audio to show the creators' programming, audio, and graphic abilities. Early demo productions developed within warez scene before they distanced themselves and spun into their own community.
-                </p>
-                <span class="{{$linkClass}}">Browse the <a href="/files/demoscene" class="{{$linkClass}}">demos</a></span>
-
-                {{- if .stats }}
-                <hr>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <small>
-                            Cracktros and intros: {{ byteFile $rels.Intro.Count $rels.Intro.Bytes }}<br>
-                            Windows cracktros and intros: {{ byteFile $rels.IntroW.Count $rels.IntroW.Bytes }}<br>
-                            {{msdos}} cracktros and intros: {{ byteFile $rels.IntroD.Count $rels.IntroD.Bytes }}<br>
-                            Installers: {{ byteFile $rels.Installer.Count $rels.Installer.Bytes }}<br>
-                            Demoscene productions: {{ byteFile $rels.Demoscene.Count $rels.Demoscene.Bytes }}<br>
-                        </small>
-                    </li>
-                    <li class="list-group-item">
-                        <small>releases date range: {{$rels.Intro.MinYear}}-{{$rels.Intro.MaxYear}}</small>
-                    </li>
-                </ul>
-                {{- end}}
             </div>
         </div>
     </div>
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h1 class="card-title {{$titleClass}}"><small>Scene release texts</small></h1>
+                <h1 class="card-title {{$titleClass}}">Releases of the Scene</h1>
+                <h2 class="card-title h5">Release texts</h2>
                 <h6 class="card-subtitle mb-2 text-body-secondary">NFO, information text, README, info</h6>
                 <p class="card-text">
                     Text files are generally in every scene release.
@@ -88,28 +133,21 @@
                     A proof of a release is usually a photograph to verify that physical media sold in retail stores is the source of the warez release.
                 </p>
                 <span class="{{$linkClass}}">Browse the <a href="/files/proof" class="{{$linkClass}}">proofs</a></span>
-                {{- if .stats }}
                 <hr>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <small>
-                            nfo texts: {{ byteFile $rels.Nfo.Count $rels.Nfo.Bytes }}<br>
-                            proofs: {{ byteFile $rels.Proof.Count $rels.Proof.Bytes }}<br>
-                            editors: {{ byteFile $rels.NfoTool.Count $rels.NfoTool.Bytes }}<br>
-                        </small>
-                    </li>
-                    <li class="list-group-item">
-                        <small>nfo date range: {{$rels.Nfo.MinYear}}-{{$rels.Nfo.MaxYear}}</small>
-                    </li>
-                </ul>
-                {{- end}}
+                <h2 class="card-title h5">Demos</h2>
+                <h6 class="card-subtitle mb-2 text-body-secondary">Demoscene production</h6>
+                <p class="card-text">
+                    Demoscene productions are artistic apps that generate visuals and audio to show the creators' programming, audio, and graphic abilities. Early demo productions developed within warez scene before they distanced themselves and spun into their own community.
+                </p>
+                <span class="{{$linkClass}}">Browse the <a href="/files/demoscene" class="{{$linkClass}}">demos</a></span>
             </div>
         </div>
     </div>
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h1 class="card-title {{$titleClass}}">Ansi art</h1>
+                <h1 class="card-title {{$titleClass}}">Text artwork</h1>
+                <h2 class="card-title h5">Ansi art</h2>
                 <h6 class="card-subtitle mb-2 text-body-secondary">color text</h6>
                 <p class="card-text">
                     Stylized ANSI text art was commonly created for the theming and advertising of Bulletin Board Systems.
@@ -127,29 +165,17 @@
                 <hr>
                 <h2 class="card-title h5">Ansi nfos</h2>
                 <span class="{{$linkClass}}">Browse the <a href="/files/ansi-nfo" class="{{$linkClass}}">ansi nfos</a></span>
-                {{- if .stats }}
-                <hr>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <small>
-                            ansi art and texts: {{ byteFile $rels.Ansi.Count $rels.Ansi.Bytes }}<br>
-                        </small>
-                    </li>
-                    <li class="list-group-item">
-                        <small>ansi art date range: {{$rels.Ansi.MinYear}}-{{$rels.Ansi.MaxYear}}</small>
-                    </li>
-                </ul>
-                {{- end}}
             </div>
         </div>
     </div>
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h1 class="card-title {{$titleClass}}">Adverts for the Scene</h1>
-                <h6 class="card-subtitle mb-2 text-body-secondary">BBS, system ad</h6>
+                <h1 class="card-title {{$titleClass}}">Adverting</h1>
+                <h2 class="card-title h5">BBS</h2>
+                <h6 class="card-subtitle mb-2 text-body-secondary">bulletin board systems</h6>
                 <p class="card-text">
-                    Bulletin Board System swere like proto-websites that offered message forums, real-time chat, and file sharing but used a text user interface and ran on the landline telephone network. 
+                    Bulletin Board Systems were like proto-websites that offered message forums, real-time chat, and file sharing but used a text user interface and ran on the landline telephone network. 
                     Users had to use their PCs or microcomputers with a modem peripheral to dial and connect to the individual boards.
                 </p>
                 <span class="{{$linkClass}}">Browse the <a href="/files/bbs" class="{{$linkClass}}">adverts</a></span>
@@ -172,27 +198,12 @@
                     </div>
                 </div>
                 <hr>
-                <h6 class="card-subtitle mb-2 text-body-secondary">FTP, site ad</h6>
+                <h2 class="card-title h5">FTP</h2>
+                <h6 class="card-subtitle mb-2 text-body-secondary">file sites</h6>
                 <p class="card-text">
                     FTP sites eventually supplanted BBS boards as The Scene moved onto the Internet in the early to mid-1990s. The utilitarian sites were more efficient at organizing and transferring files but lacked the social features of the earlier boards.
                 </p>
                 <span class="{{$linkClass}}">Browse the <a href="/files/ftp" class="{{$linkClass}}">adverts</a></span> 
-                {{- if .stats }}
-                <hr>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <small>
-                            BBS adverts: {{ byteFile $rels.BBS.Count $rels.BBS.Bytes }}<br>
-                            BBStros: {{ byteFile $rels.BBStro.Count $rels.BBStro.Bytes }}<br>
-                            ansi art: {{ byteFile $rels.AnsiBBS.Count $rels.AnsiBBS.Bytes }}<br>
-                            text files: {{ byteFile $rels.BBSText.Count $rels.BBSText.Bytes }}<br>
-                        </small>
-                    </li>
-                    <li class="list-group-item">
-                        <small>bbs ads date range: {{$rels.BBS.MinYear}}-{{$rels.BBS.MaxYear}}</small>
-                    </li>
-                </ul>
-                {{- end}}
             </div>
         </div>
     </div>
@@ -229,16 +240,7 @@
                 <div class="d-none d-sm-inline">
                     <a href="/magazine" class="{{$linkClass}}">magazine titles</a>
                 </div>
-                {{- if .stats }}
-                <hr>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <small>magazine date range: {{$rels.Magazine.MinYear}}-{{$rels.Magazine.MaxYear}}</small>
-                    </li>
-                </ul>
-                {{- end}}
             </div>
-
         </div>
     </div>
     <div class="col">
@@ -320,14 +322,6 @@
                         </div>
                     </div>
                 </div>
-                {{- if .stats }}
-                <hr>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <small>texts date range: {{$rels.Text.MinYear}}-{{$rels.Text.MaxYear}}</small>
-                    </li>
-                </ul>
-                {{- end}}
             </div>
         </div>
     </div>
