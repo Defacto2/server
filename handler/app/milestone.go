@@ -329,7 +329,7 @@ func Collection() Milestones {
 				sect1,
 		},
 		{
-			Title: "The birth of warez", Year: 1980, Highlight: true,
+			Title: "The birth of Warez", Year: 1980, Highlight: true,
 			Lead: "The Apple II ?", Link: "http://artscene.textfiles.com/intros/APPLEII/", LinkTitle: "and browse the Apple II crack screens",
 			Content: "<p>When was the birth of Wares?<sup><a href=\"#the-birth-of-warez-fn1\">[1]</a></sup> There's no clear answer to this question, but a good guess would be <strong>sometime&nbsp;in&nbsp;1980</strong> within the established technology hubs of the USA. " +
 				"By then, microcomputer owners exchanged real-life details to meet up, duplicate and exchange software collections, and find ways to remove copy protections.</p>" +
@@ -518,7 +518,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The first published PC game", Year: 1981, Month: 9,
-			Lead: "IBM's Microsoft Adventure", LinkTitle: "about Microsoft Adventure",
+			Lead: "Microsoft Adventure from IBM", LinkTitle: "about Microsoft Adventure",
 			Link: "https://www.filfre.net/2011/07/microsoft-adventure/",
 			Content: "<p><strong>Microsoft Adventure</strong> is an IBM&nbsp;PC port of the text game <em>Colossal Cave Adventure</em>.</p>" +
 				"<p>Adventure was a highly influential and popular text-only adventuring game of exploration and puzzle solving for mainframe computers of the 1970s. " +
@@ -598,7 +598,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The earliest cracktro", Year: 1982, Highlight: true,
-			Lead: "Star Blaster cracked by: Mr. Xerox ?",
+			Lead: "STARBLASTER cracked by: Mr. Xerox, from 1981 or 1982 ?",
 			Content: "A <strong>crack intro</strong> definition should be a computer animation advertising the crackers of a pirated software release. " +
 				"So, modified <q><a href=\"http://artscene.textfiles.com/intros/APPLEII/thepirate.gif\">broken&nbsp;by</a></q> texts or static <a href=\"http://artscene.textfiles.com/intros/APPLEII/flockland.gif\"> crack screen</a> images do not count.</p>" +
 				// apple ii
@@ -608,8 +608,8 @@ func Collection() Milestones {
 				"<p>The prolific, early Apple cracker <strong>Mr. Xerox</strong> probably created one of the first intro and scrollers in his <a href=\"https://archive.org/details/a2_Starblaster_19xx_C_G_cr_Star_Trek_1983_Sega_cr_Shuttle_Intercept_19xx__cr\">crack screen</a> " +
 				"for <strong>Star Blaster</strong> (c) 1981, which you can compare to the <a href=\"https://archive.org/details/Starblaster4amCrack\">original opening</a>.</p>" +
 				// others
-				"<p>Or cracker <strong>Copycatter</strong> <a href=\"https://archive.org/details/a2_Pro_Football_The_Gold_Edition_1982_System_Design_Lab_cr_Copycatter\">may have created</a> the first scroller in a release of <strong>Pro Football</strong> (c) 1982. " +
-				"While younger, the February 1984 <strong>Black Belt</strong> release is from <strong>The Apple Mafia</strong> is a <a href=\"https://archive.org/details/3d0g_022b_Black_Belt\">candidate</a> for an early intro, given it has a timestamp and from a well-known group. " +
+				"<p>Or cracker <strong>Copycatter</strong> <a href=\"https://archive.org/details/a2_Pro_Football_The_Gold_Edition_1982_System_Design_Lab_cr_Copycatter\">may have created</a> the first scroller in a release of <strong>Pro Football</strong> (c) 1982.</p>" +
+				"<p>While younger, the February 1984 <strong>Black Belt</strong> release is from <strong>The Apple Mafia</strong> is a <a href=\"https://archive.org/details/3d0g_022b_Black_Belt\">candidate</a> for an early intro, given it has a timestamp and from a well-known group. " +
 				"Penqueriel Mazes by Electronic Dimension initially looked like a <a href=\"https://archive.org/details/a2_Penqueriel_Mazes_19xx_Sadistic_cr_Electronic_Dimension\">candidate</a>, but the intro-loader effects are far too modern for the <q>(c) 1982</q> notice.</p>",
 			Picture: Picture{
 				Title: "Mr. Xerox's Star Blaster cracktro",
@@ -634,17 +634,15 @@ func Collection() Milestones {
 				"<p><q>Interface adaptors will allow the use of a complete range of hardware peripherals including disk units, plotter, dot matrix and daisy wheel printers, Prestel communications, networking and much, much more.</q> " +
 				"<q>A complete range of business software including word processing, information handling, financial modelling, accounting and many more specific application packages will be available.</q></p>" +
 				// west berlin kids
-				"<p>West Berlin was an isolated city deep within the Soviet-controlled Deutsche Demokratische Republik, and its economy depended on mass subsidies from the West German Federal Republic. " +
+				"<p>West Berlin was an isolated city deep within the Soviet-controlled East German Democratic Republic, and its economy depended on mass subsidies from the West German Federal Republic. " +
 				"It is unlikely that several kids from here had early access to the European PAL Commodore&nbsp;64 in 1982. " +
 				"It is more believable that the kids formed these Berlin cracking groups a year or so later, in late 1983 or 1984, " +
 				"after the Commodore 64 dropped massively in price and became readily available.</p>" +
 				// citations
-				"</p><strong>citations</strong>" +
+				"</p><strong>citations</strong> <sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup>" +
 				ul0 +
 				"<li><q>The first intro was a picture of the Berlin Bear from the city flag and was released by <abbr title=\"Berlin Cracking Service\">BCS</abbr> in <strong>1982</strong>. " +
 				"It was a kind of co-production by several people...</q> <sup><a href=\"#berlin-bear-controversy-fn9\">[9]</a></sup></li>" +
-				"<li><q>A positive moment for me was when the father of a classmate who was working for Apple, was able to through his connections, " +
-				"obtain a <abbr title=\"Commodore 64\">C64</abbr> on Christmas <strong>1982</strong>... Plutonium&nbsp;Crackers&nbsp;2001&nbsp;(PC) was born.</q> <sup><a href=\"#berlin-bear-controversy-fn10\">[10]</a></sup></li>" +
 				"<li><q>Some of our close friends/posse in Berlin started their C64 scene-careers nearly at the same time. " +
 				"I'm speaking of Cracking Force Berlin (CFB)... and&nbsp;Berlin&nbsp;Cracking&nbsp;Service&nbsp;(BCS).</q> <sup><a href=\"#berlin-bear-controversy-fn11\">[11]</a></sup></li>" +
 				"<li><q>We were primarily <u>cracking games from 1982</u> until late 1987.</q> <sup><a href=\"#berlin-bear-controversy-fn12\">[12]</a></sup></li>" +
@@ -665,8 +663,6 @@ func Collection() Milestones {
 				"<div id=\"berlin-bear-controversy-fn7\">[7] See the October 1993 issue of Practical Computing, <a href=\"https://worldradiohistory.com/UK/Practical-Computing/80s/Practical-Computing-1983-10-S-OCR.pdf\">pages 74-75</a>.</div>" +
 				"<div id=\"berlin-bear-controversy-fn8\">[8] Select quotes from an often referenced <a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">interview conducted in 2005-06</a>.</div>" +
 				"<div id=\"berlin-bear-controversy-fn9\">[9] This quote claims multiple Berlin-based sceners had early access to the Commodore&nbsp;64 in 1982 and were knowledgeable enough to program on it.</div>" +
-				"<div id=\"berlin-bear-controversy-fn10\">[10] This conflicting quote claims the Commodore&nbsp;64 was unreleased or unavailable during Christmas 1982. " +
-				"It also needs to be clarified why an Apple employee, through connections, would get a family friend access to a competitor machine.</div>" +
 				"<div id=\"berlin-bear-controversy-fn11\">[11] This quote suggests multiple Berlin cracking groups existed on the Commodore&nbsp;64 in 1982 despite this and other sources stating the machine was unavailable in Germany.</div>" +
 				"<div id=\"berlin-bear-controversy-fn12\">[12] Cracking games in this era means removing <q>disk</q> copy protection. Yet the German manual for the VC-1541 floppy disk drive is dated June 1983, which suggests it didn't sell in Germany until the latter half of 1983. Other early noteworthy titles on the Commodore&nbsp;64 came on cartridges.</div>" +
 				"<div id=\"berlin-bear-controversy-fn13\">[13] Copying and sharing software wasn't criminal in the USA until the NET Act was signed in December 1997. Other countries passed similar laws in the 2000s.</div>" +
@@ -1282,9 +1278,9 @@ func Collection() Milestones {
 				"to crack the SuperLock off of <a href=\"/f/ad4195\">Bubble&nbsp;Bobble</a>, and I said " +
 				"<q>I need some file to put the info about the crack in. Hmmm.. Info, NFO!</q>, and that was it.</small></q></blockquote>" +
 				"<figcaption class=\"blockquote-footer\">Famed, former cracker for The&nbsp;Humble&nbsp;Guys, Fabulous&nbsp;Furlough recalls Bubble Bobble as the first THG release that used the .NFO file extension.</figcaption></figure>" +
-				"<p>Notes from each file.</p>" +
+				"<p>Notes from BUBBLE.NFO</p>" +
 				"<p><pre>Bubble Bobble by Nova Logic Through Taito<br>Broken by Fabulous Furlough<br>Normal Taito Loader - 5 minutes</pre></p>" +
-				"<hr>" +
+				"<p>Notes from KNIGHTS.NFO</p>" +
 				"<p><pre>Knights of Legend by Origin Systems<br>It seems to be unprotected, if you find anything leave us a message..</pre></p>",
 		},
 		{
