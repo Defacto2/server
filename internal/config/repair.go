@@ -102,13 +102,13 @@ func DownloadFS(logger *zap.SugaredLogger, dir string) error {
 }
 
 // RenameDownload, rename the download file if the basename uses an invalid coldfusion uuid.
-func RenameDownload(basename, path string) error {
-	st, err := os.Stat(path)
+func RenameDownload(basename, absPath string) error {
+	st, err := os.Stat(absPath)
 	if err != nil {
 		return nil
 	}
 	if st.IsDir() {
-		return fmt.Errorf("%w: %s", ErrIsDir, path)
+		return fmt.Errorf("%w: %s", ErrIsDir, absPath)
 	}
 
 	ext := filepath.Ext(basename)
@@ -120,12 +120,15 @@ func RenameDownload(basename, path string) error {
 	if len(rawname) != cflen {
 		return nil
 	}
+
 	newname, _ := helper.CFToUUID(rawname)
 	if err := uuid.Validate(newname); err != nil {
 		return fmt.Errorf("uuid.Validate %q: %w", newname, err)
 	}
-	oldpath := filepath.Join(path, basename)
-	newpath := filepath.Join(path, newname+ext)
+	dir := filepath.Dir(absPath)
+	oldpath := filepath.Join(dir, basename)
+	newpath := filepath.Join(dir, newname+ext)
+
 	rename(oldpath, "renamed invalid cfid", newpath)
 	return nil
 }

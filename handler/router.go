@@ -146,7 +146,7 @@ func (c Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 	if e == nil {
 		panic(ErrRoutes)
 	}
-	if c.Environment.Production {
+	if c.Environment.ProdMode {
 		return e
 	}
 

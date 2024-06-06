@@ -25,7 +25,7 @@ Environment="D2_DIR_DOWNLOAD=/mnt/volume_sfo3_01/assets/downloads"
 Environment="D2_DIR_PREVIEW=/mnt/volume_sfo3_01/assets/images000"
 Environment="D2_DIR_THUMBNAIL=/mnt/volume_sfo3_01/assets/images400"
 Environment="D2_DIR_LOG=/var/log/caddy"
-Environment="D2_PRODUCTION=true" "D2_READ_ONLY=false" "D2_NO_CRAWL=true"
+Environment="D2_PROD_MODE=true" "D2_READ_ONLY=false" "D2_NO_CRAWL=true"
 User=caddy
 Group=caddy
 ExecStart=/usr/bin/df2-server

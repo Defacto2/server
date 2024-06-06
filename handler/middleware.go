@@ -30,7 +30,7 @@ func (c Configuration) NoCrawl(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 	return func(e echo.Context) error {
 		const HeaderXRobotsTag = "X-Robots-Tag"
-		e.Response().Header().Set(HeaderXRobotsTag, "noindex, nofollow")
+		e.Response().Header().Set(HeaderXRobotsTag, "none")
 		return next(e)
 	}
 }
@@ -102,7 +102,7 @@ func (c Configuration) configZapLogger() middleware.RequestLoggerConfig {
 		}
 	}
 	logger := zaplog.CLI().Sugar()
-	if c.Environment.Production {
+	if c.Environment.ProdMode {
 		root := c.Environment.AbsLog
 		logger = zaplog.Production(root).Sugar()
 	}

@@ -97,7 +97,7 @@ func environmentVars() (*zap.SugaredLogger, config.Config) {
 		Compression:   true,
 		DatabaseURL:   postgres.DefaultURL,
 		HTTPPort:      config.HTTPPort,
-		Production:    true,
+		ProdMode:      true,
 		ReadOnly:      true,
 		SessionMaxAge: config.SessionHours,
 	}
@@ -148,10 +148,10 @@ func parseFlags(logger *zap.SugaredLogger, configs config.Config) int {
 }
 
 // sanityChecks is used to perform a number of sanity checks on the file assets and database.
-// These are skipped if the Production environment variable is set.to false.
+// These are skipped if the Production mode environment variable is set.to false.
 func sanityChecks(logger *zap.SugaredLogger, configs config.Config) {
 	logger.Info("Performing sanity checks...")
-	if !configs.Production || logger == nil {
+	if !configs.ProdMode || logger == nil {
 		return
 	}
 	if err := configs.Checks(logger); err != nil {
@@ -196,9 +196,9 @@ func checks(logger *zap.SugaredLogger, readonly bool) {
 }
 
 // repairChecks is used to fix any known issues with the file assets and the database entries.
-// These are skipped if the Production environment variable is set to false.
+// These are skipped if the Production mode environment variable is set to false.
 func repairChecks(logger *zap.SugaredLogger, configs config.Config) {
-	if !configs.Production || logger == nil {
+	if !configs.ProdMode || logger == nil {
 		return
 	}
 	if err := configs.RepairFS(logger); err != nil {
@@ -218,7 +218,7 @@ func serverLog(configs config.Config) *zap.SugaredLogger {
 	if !configs.ReadOnly {
 		mode = "write mode"
 	}
-	switch configs.Production {
+	switch configs.ProdMode {
 	case true:
 		if err := configs.LogStore(); err != nil {
 			logger.Fatalf("%w: %s", ErrLog, err)

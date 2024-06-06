@@ -41,7 +41,7 @@ type Config struct {
 	SessionMaxAge  int    `env:"D2_SESSION_MAX_AGE" help:"List the maximum number of hours for the session cookie to remain active before expiring and requiring a new login"`
 	TLSPort        uint   `env:"D2_TLS_PORT" help:"The port number to be used by the encrypted, HTTPS web server"`
 	Compression    bool   `env:"D2_COMPRESSION" help:"Enable gzip compression of the HTTP/HTTPS responses; you may turn this off when using a reverse proxy"`
-	Production     bool   `env:"D2_PRODUCTION" help:"Use the production mode to log errors to a file and recover from panics"`
+	ProdMode       bool   `env:"D2_PROD_MODE" help:"Use the production mode to log errors to a file and recover from panics"`
 	ReadOnly       bool   `env:"D2_READ_ONLY" help:"Use the read-only mode to turn off all POST, PUT, and DELETE requests and any related user interface"`
 	NoCrawl        bool   `env:"D2_NO_CRAWL" help:"Tell search engines to not crawl any of website pages or assets"`
 	LogAll         bool   `env:"D2_LOG_ALL" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`
@@ -209,12 +209,12 @@ func fmtID(id string) string {
 		return "Match hostname, domain or IP address"
 	case "NoCrawl":
 		return "Disallow search engine crawling"
-	case "Production":
+	case "ProdMode":
 		return "Production mode"
 	case "ReadOnly":
 		return "Read-only mode"
 	case "SessionKey":
-		return "Session key"
+		return "Session encryption key"
 	case "SessionMaxAge":
 		return "Session, maximum age"
 	case "TLSCert":
@@ -249,12 +249,6 @@ func value(w *tabwriter.Writer, id, name string, val reflect.Value) {
 	case "MatchHost":
 		if val.String() == "" {
 			fmt.Fprint(w, "Empty, no address restrictions\n")
-			return
-		}
-		fmt.Fprint(w, val.String())
-	case "GoogleIDs":
-		if val.String() == "" {
-			fmt.Fprint(w, "Empty, no accounts for web administration\n")
 			return
 		}
 		fmt.Fprint(w, val.String())
@@ -370,6 +364,17 @@ func (c Config) fmtField(w *tabwriter.Writer,
 		dir(w, id, name, val.String())
 	case "MaxProcs":
 		maxProcs(w, id, name, val)
+	case "GoogleIDs":
+		l := len(c.GoogleAccounts)
+		fmt.Fprintf(w, "\t%s\t%s\t", fmtID(id), name)
+		switch l {
+		case 0:
+			fmt.Fprint(w, "Empty, no accounts for web administration\n")
+		case 1:
+			fmt.Fprint(w, "1 Google account allowed to sign-in\n")
+		default:
+			fmt.Fprintf(w, "%d Google accounts allowed to sign-in\n", l)
+		}
 	default:
 		value(w, id, name, val)
 	}

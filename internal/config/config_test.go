@@ -286,7 +286,7 @@ func TestConfig_Checks(t *testing.T) {
 	require.NoError(t, err)
 
 	c.ReadOnly = false
-	c.Production = true
+	c.ProdMode = true
 	require.NoError(t, err)
 	err = c.Checks(logger())
 	require.NoError(t, err)

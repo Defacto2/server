@@ -120,7 +120,7 @@ tasks:
     internal: true
     platforms: [linux, freebsd, darwin]
     env:
-      D2_PRODUCTION: false
+      D2_PROD_MODE: false
       PS_HOST: localhost
     deps: [assets]
     cmds:
@@ -129,7 +129,7 @@ tasks:
     internal: true
     platforms: [darwin, linux, freebsd]
     env:
-      D2_PRODUCTION: true
+      D2_PROD_MODE: true
     cmds:
       - air -c init/.air.toml
   pkg-patch:
