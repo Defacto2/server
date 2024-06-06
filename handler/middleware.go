@@ -101,10 +101,10 @@ func (c Configuration) configZapLogger() middleware.RequestLoggerConfig {
 			},
 		}
 	}
-	logger := zaplog.CLI().Sugar()
+	logger := zaplog.Status().Sugar()
 	if c.Environment.ProdMode {
 		root := c.Environment.AbsLog
-		logger = zaplog.Production(root).Sugar()
+		logger = zaplog.Store(root).Sugar()
 	}
 	defer func() {
 		_ = logger.Sync()

@@ -92,7 +92,7 @@ func main() {
 // environmentVars is used to parse the environment variables and set the Go runtime.
 // Defaults are used if the environment variables are not set.
 func environmentVars() (*zap.SugaredLogger, config.Config) {
-	logger := zaplog.Development().Sugar()
+	logger := zaplog.Status().Sugar()
 	configs := config.Config{
 		Compression:   true,
 		DatabaseURL:   postgres.DefaultURL,
@@ -150,7 +150,6 @@ func parseFlags(logger *zap.SugaredLogger, configs config.Config) int {
 // sanityChecks is used to perform a number of sanity checks on the file assets and database.
 // These are skipped if the Production mode environment variable is set.to false.
 func sanityChecks(logger *zap.SugaredLogger, configs config.Config) {
-	logger.Info("Performing sanity checks...")
 	if !configs.ProdMode || logger == nil {
 		return
 	}
@@ -211,8 +210,8 @@ func repairChecks(logger *zap.SugaredLogger, configs config.Config) {
 
 // serverLog is used to setup the logger for the server and print the startup message.
 func serverLog(configs config.Config) *zap.SugaredLogger {
-	logger := zaplog.Development().Sugar()
-	const welcome = "Welcome to the local Defacto2 web application."
+	logger := zaplog.Timestamp().Sugar()
+	const welcome = "Welcome to the Defacto2 web application"
 	logger.Info(welcome)
 	mode := "read-only mode"
 	if !configs.ReadOnly {
@@ -223,7 +222,7 @@ func serverLog(configs config.Config) *zap.SugaredLogger {
 		if err := configs.LogStore(); err != nil {
 			logger.Fatalf("%w: %s", ErrLog, err)
 		}
-		logger = zaplog.Production(configs.AbsLog).Sugar()
+		logger = zaplog.Store(configs.AbsLog).Sugar()
 		s := "The server is running in a "
 		s += strings.ToUpper("production, "+mode) + "."
 		logger.Info(s)

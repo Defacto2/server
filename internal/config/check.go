@@ -61,7 +61,7 @@ func (c *Config) Checks(logger *zap.SugaredLogger) error {
 
 	// Reminds for the optional configuration values.
 	if c.NoCrawl {
-		logger.Warn("NoCrawl is on, web crawlers should ignore this site.")
+		logger.Warn("Disallow search engine crawling is enabled")
 	}
 
 	return c.SetupLogDir(logger)
@@ -165,8 +165,6 @@ func (c *Config) SetupLogDir(logger *zap.SugaredLogger) error {
 		if err := c.LogStore(); err != nil {
 			return fmt.Errorf("%w: %w", ErrLog, err)
 		}
-	} else {
-		logger.Info("The server logs are found in: ", c.AbsLog)
 	}
 	dir, err := os.Stat(c.AbsLog)
 	if os.IsNotExist(err) {

@@ -61,9 +61,9 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 		}
 		switch dir {
 		case c.AbsPreview:
-			logger.Infof("The preview directory contains, %d images: %s", p, dir)
+			logger.Infof("The preview directory contains %d images", p)
 		case c.AbsThumbnail:
-			logger.Infof("The thumb directory contains, %d images: %s", t, dir)
+			logger.Infof("The thumb directory contains %d images", t)
 		}
 	}
 	return DownloadFS(logger, c.AbsDownload)
@@ -96,7 +96,7 @@ func DownloadFS(logger *zap.SugaredLogger, dir string) error {
 		return fmt.Errorf("filepath.WalkDir: %w", err)
 	}
 	if logger != nil {
-		logger.Infof("The downloads directory contains, %d files: %s", count, dir)
+		logger.Infof("The downloads directory contains %d files", count)
 	}
 	return nil
 }

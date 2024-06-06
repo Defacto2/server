@@ -8,16 +8,16 @@ import (
 )
 
 func TestCLI(t *testing.T) {
-	logr := zaplog.CLI()
+	logr := zaplog.Status()
 	assert.NotNil(t, logr)
 }
 
 func TestLog(t *testing.T) {
-	logr := zaplog.Development()
+	logr := zaplog.Debug()
 	assert.NotNil(t, logr)
 }
 
 func TestProduction(t *testing.T) {
-	logr := zaplog.Production("")
+	logr := zaplog.Store("")
 	assert.NotNil(t, logr)
 }
