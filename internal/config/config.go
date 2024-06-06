@@ -5,6 +5,7 @@ import (
 	"crypto/sha512"
 	"errors"
 	"fmt"
+	"net/url"
 	"reflect"
 	"sort"
 	"strings"
@@ -17,6 +18,7 @@ const (
 	ConfigDir    = "defacto2-app" // ConfigDir is the subdirectory for the home user ".config".
 	HTTPPort     = 1323           // HTTPPort is the default port number for the unencrypted HTTP server.
 	SessionHours = 3              // SessionHours is the default number of hours for the session cookie to remain active.
+	hide         = "XXXXXXXX"
 )
 
 var ErrNoPort = errors.New("the server cannot start without a http or a tls port")
@@ -257,9 +259,11 @@ func value(w *tabwriter.Writer, id, name string, val reflect.Value) {
 			fmt.Fprint(w, "Empty, a random key will be generated during the server start\n")
 			return
 		}
-		fmt.Fprint(w, val.String())
+		fmt.Fprint(w, hide)
 	case "SessionMaxAge":
 		fmt.Fprintf(w, "%v hours\n", val.Int())
+	case "DatabaseURL":
+		fmt.Fprint(w, hidePassword(val.String()))
 	default:
 		if val.String() == "" {
 			fmt.Fprint(w, "Empty\n")
@@ -309,6 +313,20 @@ func maxProcs(w *tabwriter.Writer, id, name string, val reflect.Value) {
 		return
 	}
 	fmt.Fprintf(w, "%d, the application will limit access to CPU threads\n", val.Uint())
+}
+
+// hidePassword replaces the password in the URL with XXXXXs.
+func hidePassword(rawURL string) string {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return rawURL
+	}
+	_, exists := u.User.Password()
+	if !exists {
+		return rawURL
+	}
+	u.User = url.UserPassword(u.User.Username(), hide)
+	return u.String()
 }
 
 // configurations prints a list of active configurations options.
