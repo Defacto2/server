@@ -15,8 +15,6 @@ import (
 const (
 	PortMax = 65534 // PortMax is the highest valid port number.
 	PortSys = 1024  // PortSys is the lowest valid port number that does not require system access.
-
-	toFewFiles = 10 // toFewFiles is the minimum number of files required in a directory.
 )
 
 var (
@@ -46,22 +44,25 @@ func (c *Config) Checks(logger *zap.SugaredLogger) error {
 	c.production(logger)
 
 	// Check the download, preview and thumbnail directories.
-	if err := DownloadDir(c.AbsDownload); err != nil {
-		s := helper.Capitalize(err.Error()) + "."
-		logger.Warn(s)
+	if err := CheckDir(c.AbsDownload, "downloads"); err != nil {
+		s := helper.Capitalize(err.Error())
+		logger.Error(s)
 	}
-	if err := PreviewDir(c.AbsPreview); err != nil {
-		s := helper.Capitalize(err.Error()) + "."
-		logger.Warn(s)
+	if err := CheckDir(c.AbsPreview, "previews"); err != nil {
+		s := helper.Capitalize(err.Error())
+		logger.Error(s)
 	}
-	if err := ThumbnailDir(c.AbsThumbnail); err != nil {
-		s := helper.Capitalize(err.Error()) + "."
-		logger.Warn(s)
+	if err := CheckDir(c.AbsThumbnail, "thumbnails"); err != nil {
+		s := helper.Capitalize(err.Error())
+		logger.Error(s)
 	}
 
 	// Reminds for the optional configuration values.
 	if c.NoCrawl {
 		logger.Warn("Disallow search engine crawling is enabled")
+	}
+	if c.ReadOnly {
+		logger.Warn("The server is running in read-only mode, edits to the database are not allowed")
 	}
 
 	return c.SetupLogDir(logger)
@@ -109,11 +110,11 @@ func (c Config) production(logger *zap.SugaredLogger) {
 		return
 	}
 	if c.GoogleClientID == "" {
-		s := helper.Capitalize(ErrNoOAuth2.Error()) + "."
+		s := helper.Capitalize(ErrNoOAuth2.Error())
 		logger.Warn(s)
 	}
 	if c.GoogleIDs == "" && len(c.GoogleAccounts) == 0 {
-		s := helper.Capitalize(ErrNoAccounts.Error()) + "."
+		s := helper.Capitalize(ErrNoAccounts.Error())
 		logger.Warn(s)
 	}
 	if c.HTTPPort > 0 {
@@ -123,7 +124,7 @@ func (c Config) production(logger *zap.SugaredLogger) {
 		logger.Info(s)
 	}
 	if c.SessionKey != "" {
-		s := helper.Capitalize(ErrSessionKey.Error()) + "."
+		s := helper.Capitalize(ErrSessionKey.Error())
 		logger.Warn(s)
 		logger.Warn("This means that all signed in clients will not be logged out on a server restart.")
 	}
@@ -208,32 +209,7 @@ func CheckDir(name, desc string) error {
 	if !dir.IsDir() {
 		return fmt.Errorf("%w, %s: %s", ErrDirIs, desc, dir.Name())
 	}
-	files, err := os.ReadDir(name)
-	if err != nil {
-		return fmt.Errorf("%w, %s: %w", ErrDirRead, desc, err)
-	}
-	if len(files) < toFewFiles {
-		return fmt.Errorf("%w, %s: %s", ErrDirFew, desc, dir.Name())
-	}
 	return nil
-}
-
-// DownloadDir runs checks against the named directory containing the UUID artifact downloads.
-// Problems will either log warnings or fatal errors.
-func DownloadDir(name string) error {
-	return CheckDir(name, "download")
-}
-
-// PreviewDir runs checks against the named directory containing the preview and screenshot images.
-// Problems will either log warnings or fatal errors.
-func PreviewDir(name string) error {
-	return CheckDir(name, "preview")
-}
-
-// ThumbnailDir runs checks against the named directory containing the thumbnail images.
-// Problems will either log warnings or fatal errors.
-func ThumbnailDir(name string) error {
-	return CheckDir(name, "thumbnail")
 }
 
 // Validate returns an error if the HTTP or TLS port is invalid.

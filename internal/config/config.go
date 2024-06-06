@@ -18,6 +18,7 @@ const (
 	ConfigDir    = "defacto2-app" // ConfigDir is the subdirectory for the home user ".config".
 	HTTPPort     = 1323           // HTTPPort is the default port number for the unencrypted HTTP server.
 	SessionHours = 3              // SessionHours is the default number of hours for the session cookie to remain active.
+	MinimumFiles = 40000          // MinimumFiles is the minimum number of unique filenames expected in an asset subdirectory.
 	hide         = "XXXXXXXX"
 )
 

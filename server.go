@@ -68,8 +68,8 @@ func main() {
 		os.Exit(code)
 	}
 
-	sanityChecks(logger, configs)
 	repairChecks(logger, configs)
+	sanityChecks(logger, configs)
 
 	logger = serverLog(configs)
 	website := newInstance(configs)
@@ -213,23 +213,11 @@ func serverLog(configs config.Config) *zap.SugaredLogger {
 	logger := zaplog.Timestamp().Sugar()
 	const welcome = "Welcome to the Defacto2 web application"
 	logger.Info(welcome)
-	mode := "read-only mode"
-	if !configs.ReadOnly {
-		mode = "write mode"
-	}
-	switch configs.ProdMode {
-	case true:
+	if configs.ProdMode {
 		if err := configs.LogStore(); err != nil {
 			logger.Fatalf("%w: %s", ErrLog, err)
 		}
 		logger = zaplog.Store(configs.AbsLog).Sugar()
-		s := "The server is running in a "
-		s += strings.ToUpper("production, "+mode) + "."
-		logger.Info(s)
-	default:
-		s := "The server is running in a "
-		s += strings.ToUpper("development, "+mode) + "."
-		logger.Warn(s)
 	}
 	return logger
 }

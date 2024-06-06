@@ -61,12 +61,23 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 		}
 		switch dir {
 		case c.AbsPreview:
-			logger.Infof("The preview directory contains %d images", p)
+			containsInfo(logger, "preview", p)
 		case c.AbsThumbnail:
-			logger.Infof("The thumb directory contains %d images", t)
+			containsInfo(logger, "thumb", t)
 		}
 	}
 	return DownloadFS(logger, c.AbsDownload)
+}
+
+func containsInfo(logger *zap.SugaredLogger, name string, count int) {
+	if logger == nil {
+		return
+	}
+	if MinimumFiles > count {
+		logger.Warnf("The %s directory contains %d files, which is less than the minimum of %d", name, count, MinimumFiles)
+		return
+	}
+	logger.Infof("The %s directory contains %d files", name, count)
 }
 
 // DownloadFS, on startup check the download directory for any invalid or unknown files.
@@ -95,9 +106,7 @@ func DownloadFS(logger *zap.SugaredLogger, dir string) error {
 	if err != nil {
 		return fmt.Errorf("filepath.WalkDir: %w", err)
 	}
-	if logger != nil {
-		logger.Infof("The downloads directory contains %d files", count)
-	}
+	containsInfo(logger, "downloads", count)
 	return nil
 }
 
