@@ -190,6 +190,9 @@ func (c Configuration) website(e *echo.Echo, logger *zap.SugaredLogger, dir app.
 	if e == nil {
 		panic(ErrRoutes)
 	}
+	e.GET("/health-check", func(c echo.Context) error {
+		return c.NoContent(http.StatusOK)
+	})
 	s := e.Group("")
 	s.GET("/", app.Index)
 	s.GET("/artist", app.Artist)
