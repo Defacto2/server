@@ -16,6 +16,7 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"runtime"
 	"strings"
@@ -60,10 +61,13 @@ var (
 // By default the web server runs when no arguments are provided.
 // Otherwise, the command-line arguments are parsed and the application exits.
 func main() {
-	w := os.Stdout
 	logger, configs := environmentVars()
 	if code := parseFlags(logger, configs); code >= 0 {
 		os.Exit(code)
+	}
+	var w io.Writer = os.Stdout
+	if configs.Quiet {
+		w = io.Discard
 	}
 	fmt.Fprintf(w, "%s\n", configs)
 
@@ -81,11 +85,9 @@ func main() {
 	sanityChecks(logger, configs)
 
 	website := newInstance(configs, db)
-	logger.Infof("The database contains %d records\n", website.RecordCount)
-
-	logger = serverLog(configs)
+	logger = serverLog(configs, website.RecordCount)
 	router := website.Controller(logger)
-	website.Info(logger)
+	website.Info(logger, w)
 	if err := website.Start(router, logger, configs); err != nil {
 		logger.Fatalf("%s: please check the environment variables.", err)
 	}
@@ -220,10 +222,17 @@ func repairChecks(logger *zap.SugaredLogger, db *sql.DB, configs config.Config) 
 }
 
 // serverLog is used to setup the logger for the server and print the startup message.
-func serverLog(configs config.Config) *zap.SugaredLogger {
+func serverLog(configs config.Config, count int) *zap.SugaredLogger {
 	logger := zaplog.Timestamp().Sugar()
 	const welcome = "Welcome to the Defacto2 web application"
-	logger.Info(welcome)
+	switch {
+	case count == 0:
+		logger.Error(welcome + " with no database records")
+	case config.MinimumFiles > count:
+		logger.Warnf(welcome+" with only %d records, expecting at least %d+", count, config.MinimumFiles)
+	default:
+		logger.Infof(welcome+" containing %d records", count)
+	}
 	if configs.ProdMode {
 		if err := configs.LogStore(); err != nil {
 			logger.Fatalf("%w: %s", ErrLog, err)

@@ -43,6 +43,7 @@ type Config struct {
 	MaxProcs       uint   `env:"D2_MAX_PROCS" help:"Limit the number of operating system threads the program can use"`
 	SessionMaxAge  int    `env:"D2_SESSION_MAX_AGE" help:"List the maximum number of hours for the session cookie to remain active before expiring and requiring a new login"`
 	TLSPort        uint   `env:"D2_TLS_PORT" help:"The port number to be used by the encrypted, HTTPS web server"`
+	Quiet          bool   `env:"D2_QUIET" help:"Suppress most startup output to the terminal, intended for use with systemd or other process managers"`
 	Compression    bool   `env:"D2_COMPRESSION" help:"Enable gzip compression of the HTTP/HTTPS responses; you may turn this off when using a reverse proxy"`
 	ProdMode       bool   `env:"D2_PROD_MODE" help:"Use the production mode to log errors to a file and recover from panics"`
 	ReadOnly       bool   `env:"D2_READ_ONLY" help:"Use the read-only mode to turn off all POST, PUT, and DELETE requests and any related user interface"`
@@ -214,6 +215,8 @@ func fmtID(id string) string {
 		return "Disallow search engine crawling"
 	case "ProdMode":
 		return "Production mode"
+	case "Quiet":
+		return "Quiet mode"
 	case "ReadOnly":
 		return "Read-only mode"
 	case "SessionKey":
@@ -248,23 +251,23 @@ func value(w *tabwriter.Writer, id, name string, val reflect.Value) {
 			fmt.Fprint(w, "Empty, no account sign-in for web administration\n")
 			return
 		}
-		fmt.Fprint(w, val.String())
+		fmt.Fprintln(w, hide)
 	case "MatchHost":
 		if val.String() == "" {
 			fmt.Fprint(w, "Empty, no address restrictions\n")
 			return
 		}
-		fmt.Fprint(w, val.String())
+		fmt.Fprintln(w, val.String())
 	case "SessionKey":
 		if val.String() == "" {
 			fmt.Fprint(w, "Empty, a random key will be generated during the server start\n")
 			return
 		}
-		fmt.Fprint(w, hide)
+		fmt.Fprintln(w, hide)
 	case "SessionMaxAge":
 		fmt.Fprintf(w, "%v hours\n", val.Int())
 	case "DatabaseURL":
-		fmt.Fprint(w, hidePassword(val.String()))
+		fmt.Fprintln(w, hidePassword(val.String()))
 	default:
 		if val.String() == "" {
 			fmt.Fprint(w, "Empty\n")

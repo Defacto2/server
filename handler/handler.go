@@ -144,14 +144,12 @@ func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 }
 
 // Info prints the application information to the console.
-func (c Configuration) Info(logger *zap.SugaredLogger) {
-	w := bufio.NewWriter(os.Stdout)
+func (c Configuration) Info(logger *zap.SugaredLogger, w io.Writer) {
 	nr := bytes.NewReader(c.Brand)
 	if l, err := io.Copy(w, nr); err != nil {
 		logger.Warnf("Could not print the brand logo: %s.", err)
 	} else if l > 0 {
 		fmt.Fprint(w, "\n\n")
-		w.Flush()
 	}
 
 	fmt.Fprintf(w, "  %s.\n", cmd.Copyright())
@@ -167,7 +165,6 @@ func (c Configuration) Info(logger *zap.SugaredLogger) {
 	//
 	// All additional feedback should go in internal/config/check.go (c *Config) Checks()
 	//
-	w.Flush()
 }
 
 // PortErr handles the error when the HTTP or HTTPS server cannot start.
