@@ -16,10 +16,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// MUST IMPLEMENT: https://github.com/jackc/pgx/wiki/Getting-started-with-pgx
-
-// Server Configuration - Connections and Authentication, https://www.postgresql.org/docs/current/runtime-config-connection.html
-
 var (
 	ErrEnv = errors.New("environment variable probably contains an invalid value")
 	ErrZap = errors.New("zap logger instance is nil")
@@ -42,6 +38,7 @@ func New() (Connection, error) {
 	if err := env.Parse(&c); err != nil {
 		return Connection{}, fmt.Errorf("%w: %w", ErrEnv, err)
 	}
+	fmt.Println(c.URL)
 	return c, nil
 }
 
@@ -69,7 +66,7 @@ func (c Connection) Validate(logger *zap.SugaredLogger) error {
 		return ErrZap
 	}
 	if c.URL == "" {
-		logger.Warn("The database connection host name is empty.")
+		logger.Warn("The database connection host name is empty")
 	}
 	u, err := url.Parse(c.URL)
 	if err != nil {

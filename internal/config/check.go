@@ -18,19 +18,16 @@ const (
 )
 
 var (
-	ErrPortMax     = fmt.Errorf("http port value must be between 1-%d", PortMax)
-	ErrPortSys     = fmt.Errorf("http port values between 1-%d require system access", PortSys)
-	ErrDir         = errors.New("the directory path is not set")
-	ErrDir404      = errors.New("the directory path does not exist")
-	ErrDirIs       = errors.New("the directory path points to the file")
-	ErrDirRead     = errors.New("the directory path could not be read")
-	ErrDirFew      = errors.New("the directory path contains only a few items")
-	ErrUnencrypted = errors.New("the production server is configured to use unencrypted HTTP connections")
-	ErrNoOAuth2    = errors.New("the production server requires a google, oauth2 client id to allow admin logins")
-	ErrNoAccounts  = errors.New("the production server has no google oauth2 user accounts to allow admin logins")
-	ErrSessionKey  = errors.New("the production server has a session, " +
-		"encryption key set instead of using a randomized key")
-	ErrZap = errors.New("the zap logger instance is nil")
+	ErrPortMax    = fmt.Errorf("http port value must be between 1-%d", PortMax)
+	ErrPortSys    = fmt.Errorf("http port values between 1-%d require system access", PortSys)
+	ErrDir        = errors.New("the directory path is not set")
+	ErrDir404     = errors.New("the directory path does not exist")
+	ErrDirIs      = errors.New("the directory path points to the file")
+	ErrDirRead    = errors.New("the directory path could not be read")
+	ErrDirFew     = errors.New("the directory path contains only a few items")
+	ErrNoOAuth2   = errors.New("the production server requires a google, oauth2 client id to allow admin logins")
+	ErrNoAccounts = errors.New("the production server has no google oauth2 user accounts to allow admin logins")
+	ErrZap        = errors.New("the zap logger instance is nil")
 )
 
 // Checks runs a number of sanity checks for the environment variable configurations.
@@ -117,21 +114,8 @@ func (c Config) production(logger *zap.SugaredLogger) {
 		s := helper.Capitalize(ErrNoAccounts.Error())
 		logger.Warn(s)
 	}
-	if c.HTTPPort > 0 {
-		s := fmt.Sprintf("%s over port %d.",
-			helper.Capitalize(ErrUnencrypted.Error()),
-			c.HTTPPort)
-		logger.Info(s)
-	}
-	if c.SessionKey != "" {
-		s := helper.Capitalize(ErrSessionKey.Error())
-		logger.Warn(s)
-		logger.Warn("This means that all signed in clients will not be logged out on a server restart.")
-	}
-	if c.SessionMaxAge > 0 {
-		logger.Infof("A signed in client session lasts for %d hour(s).", c.SessionMaxAge)
-	} else {
-		logger.Warn("A signed in client session lasts forever.")
+	if c.SessionMaxAge == 0 {
+		logger.Warn("A signed in client session lasts forever, this is a security risk")
 	}
 }
 

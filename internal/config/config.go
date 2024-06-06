@@ -32,7 +32,7 @@ type Config struct {
 	AbsDownload    string `env:"D2_DIR_DOWNLOAD" help:"The directory path that holds the UUID named files that are served as artifact downloads"`
 	AbsPreview     string `env:"D2_DIR_PREVIEW" help:"The directory path that holds the UUID named image files that are served as previews of the artifact"`
 	AbsThumbnail   string `env:"D2_DIR_THUMBNAIL" help:"The directory path that holds the UUID named squared image files that are served as artifact thumbnails"`
-	DatabaseURL    string `env:"D2_DATABASE_URL,unset" help:"Provide the URL of the database to which to connect"`
+	DatabaseURL    string `env:"D2_DATABASE_URL" help:"Provide the URL of the database to which to connect"`
 	SessionKey     string `env:"D2_SESSION_KEY,unset" help:"Use a fixed session key for the cookie store, which can be left blank to generate a random key"`
 	GoogleClientID string `env:"D2_GOOGLE_CLIENT_ID,unset" help:"The Google OAuth2 client ID"`
 	GoogleIDs      string `env:"D2_GOOGLE_IDS,unset" help:"Create a comma-separated list of Google account IDs to permit access to the editor mode"`

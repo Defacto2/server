@@ -12,6 +12,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"embed"
 	"errors"
 	"fmt"
@@ -61,18 +62,28 @@ var (
 func main() {
 	w := os.Stdout
 	logger, configs := environmentVars()
-	go func() {
-		fmt.Fprintf(w, "%s\n", configs)
-	}()
 	if code := parseFlags(logger, configs); code >= 0 {
 		os.Exit(code)
 	}
+	fmt.Fprintf(w, "%s\n", configs)
 
-	repairChecks(logger, configs)
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		logger.Errorf("%s: %s", ErrDB, err)
+	}
+	defer db.Close()
+	var ver postgres.Version
+	if err := ver.Query(); err != nil {
+		logger.Errorf("ver.Query: %w", err)
+	}
+
+	repairChecks(logger, db, configs)
 	sanityChecks(logger, configs)
 
+	website := newInstance(configs, db)
+	logger.Infof("The database contains %d records\n", website.RecordCount)
+
 	logger = serverLog(configs)
-	website := newInstance(configs)
 	router := website.Controller(logger)
 	website.Info(logger)
 	if err := website.Start(router, logger, configs); err != nil {
@@ -113,7 +124,7 @@ func environmentVars() (*zap.SugaredLogger, config.Config) {
 }
 
 // newInstance is used to create the server controller instance.
-func newInstance(configs config.Config) handler.Configuration {
+func newInstance(configs config.Config, db *sql.DB) handler.Configuration {
 	c := handler.Configuration{
 		Brand:       brand,
 		Environment: configs,
@@ -124,7 +135,7 @@ func newInstance(configs config.Config) handler.Configuration {
 	if c.Version == "" {
 		c.Version = cmd.Commit("")
 	}
-	c.RecordCount = recordCount()
+	c.RecordCount = recordCount(db)
 	return c
 }
 
@@ -196,14 +207,14 @@ func checks(logger *zap.SugaredLogger, readonly bool) {
 
 // repairChecks is used to fix any known issues with the file assets and the database entries.
 // These are skipped if the Production mode environment variable is set to false.
-func repairChecks(logger *zap.SugaredLogger, configs config.Config) {
+func repairChecks(logger *zap.SugaredLogger, db *sql.DB, configs config.Config) {
 	if !configs.ProdMode || logger == nil {
 		return
 	}
 	if err := configs.RepairFS(logger); err != nil {
 		logger.Errorf("%s: %s", ErrFS, err)
 	}
-	if err := repairDB(logger); err != nil {
+	if err := repairDB(logger, db); err != nil {
 		repairdb(logger, err)
 	}
 }
@@ -223,21 +234,12 @@ func serverLog(configs config.Config) *zap.SugaredLogger {
 }
 
 // repairDB on startup checks the database connection and make any data corrections.
-func repairDB(logger *zap.SugaredLogger) error {
+func repairDB(logger *zap.SugaredLogger, db *sql.DB) error {
 	if logger == nil {
 		return fmt.Errorf("%w: %s", ErrLog, "no logger")
 	}
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return fmt.Errorf("postgres.ConnectDB: %w", err)
-	}
-	defer db.Close()
-	var ver postgres.Version
-	if err := ver.Query(); err != nil {
-		return ErrVer
-	}
 	ctx := context.Background()
-	err = fix.All.Run(ctx, logger, db)
+	err := fix.All.Run(ctx, logger, db)
 	if err != nil {
 		return fmt.Errorf("fix.All.Run: %w", err)
 	}
@@ -257,12 +259,7 @@ func repairdb(logger *zap.SugaredLogger, err error) {
 }
 
 // recordCount returns the number of records in the database.
-func recordCount() int {
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return 0
-	}
-	defer db.Close()
+func recordCount(db *sql.DB) int {
 	ctx := context.Background()
 	fs, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, db)
 	if err != nil {
