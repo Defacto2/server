@@ -15,9 +15,11 @@
         <div class="card{{$cardClass}}">
             <div class="card-body">
                 <h2 class="card-title h5">Count and filesize</h2>
-                <h6 class="card-subtitle mb-2 text-body-secondary">statistics</h6>
                 <p class="card-text">
                     <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            Sum: {{ byteFile $rels.Record.Count $rels.Record.Bytes }}
+                        </li>
                         <li class="list-group-item">
                             <small>
                                 ansi art: {{ byteFile $rels.AnsiBBS.Count $rels.AnsiBBS.Bytes }}<br>
@@ -41,9 +43,6 @@
                                 Windows files: {{ byteFile $rels.Windows.Count $rels.Windows.Bytes }}<br>
                             </small>
                         </li>
-                        <li class="list-group-item">
-                            Sum: {{ byteFile $rels.Record.Count $rels.Record.Bytes }}
-                        </li>
                     </ul>
                 </p>
             </div>
@@ -52,24 +51,26 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h2 class="card-title h5">Publish date range</h2>
-                <h6 class="card-subtitle mb-2 text-body-secondary">statistics</h6>
+                <h2 class="card-title h5">Publish dates</h2>
                 <p class="card-text">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
+                            Years: {{$rels.Record.MinYear}} - {{$rels.Record.MaxYear }}
+                        </li>
+                        <li class="list-group-item">
                             <small>
-                            ansi art date range: {{$rels.Ansi.MinYear}}-{{$rels.Ansi.MaxYear}}<br>
-                            bbs ads date range: {{$rels.BBS.MinYear}}-{{$rels.BBS.MaxYear}}<br>
-                            cracktros and intros date range: {{$rels.Intro.MinYear}}-{{$rels.Intro.MaxYear}}<br>
-                            linux date range: {{$rels.Linux.MinYear}}-{{$rels.Linux.MaxYear}}<br>
-                            java date range: {{$rels.Java.MinYear}}-{{$rels.Java.MaxYear}}<br>
-                            magazine date range: {{$rels.Magazine.MinYear}}-{{$rels.Magazine.MaxYear}}<br>
-                            MacOS date range: {{$rels.Macos.MinYear}}-{{$rels.Macos.MaxYear}}<br>
-                            {{msdos}} date range: {{$rels.MsDos.MinYear}}-{{$rels.MsDos.MaxYear}}<br>
-                            nfo date range: {{$rels.Nfo.MinYear}}-{{$rels.Nfo.MaxYear}}<br>
-                            script date range: {{$rels.Script.MinYear}}-{{$rels.Script.MaxYear}}<br>
-                            texts date range: {{$rels.Text.MinYear}}-{{$rels.Text.MaxYear}}<br>
-                            Windows date range: {{$rels.Windows.MinYear}}-{{$rels.Windows.MaxYear}}<br>
+                            ansi art: {{$rels.Ansi.MinYear}}-{{$rels.Ansi.MaxYear}}<br>
+                            BBS ads: {{$rels.BBS.MinYear}}-{{$rels.BBS.MaxYear}}<br>
+                            cracktros and intros: {{$rels.Intro.MinYear}}-{{$rels.Intro.MaxYear}}<br>
+                            Java: {{$rels.Java.MinYear}}-{{$rels.Java.MaxYear}}<br>
+                            Linux: {{$rels.Linux.MinYear}}-{{$rels.Linux.MaxYear}}<br>
+                            magazine: {{$rels.Magazine.MinYear}}-{{$rels.Magazine.MaxYear}}<br>
+                            MacOS: {{$rels.Macos.MinYear}}-{{$rels.Macos.MaxYear}}<br>
+                            {{msdos}}: {{$rels.MsDos.MinYear}}-{{$rels.MsDos.MaxYear}}<br>
+                            nfo: {{$rels.Nfo.MinYear}}-{{$rels.Nfo.MaxYear}}<br>
+                            script: {{$rels.Script.MinYear}}-{{$rels.Script.MaxYear}}<br>
+                            texts: {{$rels.Text.MinYear}}-{{$rels.Text.MaxYear}}<br>
+                            Windows: {{$rels.Windows.MinYear}}-{{$rels.Windows.MaxYear}}<br>
                             </small>
                         </li>
                     </ul>
