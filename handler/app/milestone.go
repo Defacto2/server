@@ -202,18 +202,23 @@ func Collection() Milestones {
 		},
 		{
 			Year: 1977, Title: "Apple II, Commodore PET, Tandy TRS-80",
-			Lead: "The trinity of successful microcomputers", LinkTitle: "about the Apple II, Commodore PET and Tandy TRS-80",
+			Lead: "The second generation of microcomputers", LinkTitle: "about the Apple II, Commodore PET and Tandy TRS-80",
 			Link: "https://cybernews.com/editorial/the-1977-trinity-and-other-era-defining-pcs/",
-			Content: "<p>The <strong>Apple&nbsp;II</strong>, <strong>Commodore&nbsp;PET</strong> and the <strong>Tandy TRS-80</strong> are released, the first microcomputers to be readily available to the public. " +
-				"By the end of the year, a potential customer in the USA could walk into a mall or specialist retail shop and walk out with a complete personal computer, ready to use.</p>" +
-				"<p>Thanks to the wide distribution through RadioShack retail franchises, the Tandy would sell most of the three machines. " +
-				"The more expensive Apple ecosystem would be the more influential machine for software and industry personalities.</p>" +
-				"<p>The <strong>MOS 6502</strong> CPU <sup>1975</sup> is found in the Commodore&nbsp;PET<sup><a href=\"#the-trinity-of-microcomputers-fn1\">[1]</a></sup> and the Apple II.<br>" +
-				"While <strong>Zilog Z-80</strong> <sup>1976</sup> is in use with the TRS-80<sup><a href=\"#the-trinity-of-microcomputers-fn2\">[2]</a></sup>.</p>" +
-				sect0 +
-				"<div id=\"the-trinity-of-microcomputers-fn1\">[1] Personal Electronic Transactor.</div>" +
-				"<div id=\"the-trinity-of-microcomputers-fn2\">[2] <a href=\"https://cybernews.com/editorial/from-hero-to-zero-meteoric-rise-and-fall-of-tandy-computers/\">Tandy RadioShack</a>.</div>" +
-				sect1,
+			Content: "<p>The <strong>Commodore&nbsp;PET</strong>, <strong>Apple&nbsp;II</strong>, and the <strong>Tandy TRS-80</strong> " +
+				"were released as the first widely available microcomputers. " +
+				"By the end of the year, a potential customer in the USA could walk into a mall or specialist retail shop and walk out with a complete personal computer ready to use.</p>" +
+				"<strong>Commodore PET</strong> <em>Personal Electronic Transactor</em><br>" +
+				"<p>Commodore was the first to announce its machine in January at CES, but shipping only occurred in mid-October. Even then, the numbers were tiny, with the end-of-year batches reaching just 500 boxed machines.</p>" +
+				"<strong>Apple II</strong><br>" +
+				"<p>Apple didn't fare much better, as its <a href=\"https://www.fastcompany.com/4001956/apples-sales-grew-150x-between-1977-1980-2\">revenue until the end of September 1977</a> was just USD&nbsp;774,000, which includes sales of both the Apple&nbsp;I and the mid-April launch of the Apple&nbsp;II. " +
+				"Its <a href=\"https://web.archive.org/web/20140124082855/https://www.swtpc.com/mholley/Apple/Apple_IPO.pdf\">December 1980 stock perspective</a> states, <q>Net sales in fiscal 1977 occurred primarily in the fourth fiscal quarter and consisted principally of sales of the basic Apple II mainframe computer.</q> " +
+				"Given the expensive Apple&nbsp;II <a href=\"https://www.applefritter.com/node/2703\">is priced at</a> $1300-2600, the number of machines sold could have been in the hundreds.</p>" +
+				"<strong>Tandy TRS-80</strong><br>" +
+				"<p>The Tandy fared considerably better. It was <a href=\"https://www.radioshackcatalogs.com/flipbook/c1977_rsc-01.html\">announced at</a> the end of July and priced from $400 or $500, including a display. " +
+				"It was widely available nationally through the thousands of RadioShack retail stores, and took 10,000 unit <a href=\"https://www.wired.com/2010/08/0803trs-80-computer-launch/\">orders in the first month</a>, birthing the microcomputer revolution!</p>" +
+				"<strong>CPUs</strong><br>" +
+				"<p>The <strong>MOS 6502</strong> CPU <sup>1975</sup> is found in the Commodore&nbsp;PET and the Apple II.<br>" +
+				"The <strong>Zilog Z-80</strong> <sup>1976</sup> is in use with the TRS-80.</p>",
 		},
 		{
 			Year: 1978, Month: 2, Title: "The first Bulletin Board System",
@@ -280,17 +285,21 @@ func Collection() Milestones {
 				// press attention
 				"<p>In the early days of the BBS, the mainstream computer press paid attention to boards, " +
 				"<a href=\" https://books.google.com.au/books?id=3j4EAAAAMBAJ&pg=PA10&lpg=PA10&dq=%22Modem+Over+Manhattan%22&source=bl&ots=smYwZj_okV&sig=ACfU3U0kYG9RX-3uPfGTakGgtP_mVDcAhA&hl=en&sa=X&ved=2ahUKEwiVs-yi6-qEAxX-oWMGHYpwAPA4ChDoAXoECAIQAw#v=onepage&q=%22Modem%20Over%20Manhattan%22&f=false\">including write-ups</a>" +
-				"<sup><a href=\"#the-early-underground-fn2\">[2]</a></sup> and listings of the phone numbers for known underground boards." +
+				"<sup><a href=\"#the-early-underground-fn2\">[2]</a></sup> and listings of the phone numbers for known underground boards.</p>" +
 				// Sherwood Forest
+				"<strong>Sherwood Forest</strong><br>" +
 				"<p>A very early, underground ABBS is the 1979-1981 New Jersey-based<sup><a href=\"#the-early-underground-fn3\">[3]</a></sup> board, <strong>Sherwood&nbsp;Forest</strong>, created by Magnetic Surfer. " +
-				"It runs off a floppy disc and a Micromodem and became a hub for some active telephone hackers who were early adopters of microcomputers in the New York Tri-state area—many became Scene pirates and notorious computer phreakers and hackers." +
+				"It runs off a floppy disc and a Micromodem and became a hub for some active telephone hackers who were early adopters of microcomputers in the New York Tri-state area—many became Scene pirates and notorious computer phreakers and hackers.</p>" +
 				// Modem over Manhattan
+				"<strong>Modem Over Manhattan</strong><br>" +
 				"<p>As its name suggests, <strong>MOM</strong>, or <strong>Modem&nbsp;Over&nbsp;Manhattan</strong> (+212-245-4363, +212-912-9141), was based in Manhattan, New York, and probably went online in 1980. " +
 				"It is another famous open board with lax rules that was popular with the New York phreak community.</p>" +
 				// Pirate Trek
+				"<strong>Pirate-Trek</strong><br>" +
 				"<p>A very early pirate board, the original <strong>Pirate-Trek</strong> out of New York (+914-634-1268), possibly run by the famed Apple&nbsp;II cracker Krakowicz, " +
 				"was <a href=\"http://artscene.textfiles.com/intros/APPLEII/cyclod.gif\">first announced</a> in 1981.</p>" +
 				// 8BBS
+				"<strong>8BBS</strong><br>" +
 				"<p>There is also the renowned <strong>8BBS</strong> out of San Jose, CA, which ran on a <a href=\"https://www.computerhistory.org/revolution/minicomputers/11/331\">PDP-8 minicomputer</a> " +
 				"in 1980-82 and <a href=\"#8bbs\">has a separate article</a>.</p>" +
 				sect0 +
@@ -301,20 +310,32 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The first crackers", Year: 1979, Highlight: true,
-			Content: "<p>We have yet to learn when or who started <strong>cracking</strong>, but it must have been after the discovery of disk copy protection in Apple&nbsp;II software. " +
-				"Andrew McFadden has written about <a href=\"https://fadden.com/apple2/cassette-protect.html\">early copy protection</a> on specific Apple&nbsp;II games released on cassette tapes in 1978 and 1979, but these were probably unusual.</p>" +
+			Content: "<p>We have yet to learn when or who started cracking, but it must have been after discovering disk copy protection in Apple&nbsp;II software. " +
+				"Andrew McFadden wrote about early <a href=\"https://fadden.com/apple2/cassette-protect.html\">copy protection on cassette tapes</a>. " +
+				"This form of copy protection was uncommon, but the games include Microchess 2 from Personal Software, Module 6 from Softape in 1978, and 1979's Sargon II from Hayden.</p>" +
 				// disk ii drive
 				"<p>However, the July 1978 retail debut of the <a href=\"https://collections.museumsvictoria.com.au/articles/2787\">Disk II</a> floppy drive with the first " +
 				"<a href=\"https://www.apple2history.org/history/ah14/#01\">Apple operating system</a> was a significant point. " +
-				"For the moneyed Apple&nbsp;II hobbyists, the drive and software became a must-have piece of kit that significantly improved the functionality of their machines and quickly caught on.</p>" +
+				"For the moneyed Apple&nbsp;II hobbyists, the drive and software became a must-have piece of kit that significantly improved the functionality of their machines and quickly caught on. " +
 				// disk copy protection
-				"<p>The drive offered new benefits for software developers, including speed and reliability and complete control of the floppy drive hardware using software that the developers could write themselves. " +
+				"The drive offered new benefits for software developers, including speed and reliability and complete control of the floppy drive hardware using software that the developers could write themselves. " +
 				"This ability encouraged them to embed <a href=\"https://www.bigmessowires.com/2015/08/27/apple-ii-copy-protection/\">disk copy protection methods</a> into software that are " +
 				"<a href=\"https://paleotronic.com/2024/01/28/confessions-of-a-disk-cracker-the-secrets-of-4am/\">still problematic</a> for computer historians today!</p>" +
+				// yahtzee
+				"<p>A computerized version of the popular board game Yahtzee was completed in April 1978 and published by Apple Computer. " +
+				"The original media seems lost, but the <a href=\"https://archive.org/details/a2_Yahtzee_1978_Apple_cr\">surviving digital image</a> has been noted as being <q>cracked</q> due to its loader message, <q>Yahtzee - for the moose!</q>. " +
+				"But is the modification a copy protection crack or simply a note to a friend written years after the publish date?</p>" +
+				// dunjonquest
+				"<p><a href=\"https://retro365.blog/wp-content/uploads/2023/09/automated_simulations_8828.jpg\">Dunjonquest Temple of Apshai</a> from Automated Simulations could be one of the oldest titles with disk copy protection. " +
+				"However, the game has been reprinted a few times under the Epyx branding, which complicates things. " +
+				"The <a href=\"https://archive.org/details/wozaday_Dunjonquest_The_Temple_of_Apshai_v2\">second reprint</a> from 1980 included a title screen and possibly disk copy protection, but the first edition with a (c) 1979 Automated Simulations notice seems free of copy protection? " +
+				"<a href=\"https://ia600901.us.archive.org/BookReader/BookReaderImages.php?zip=/28/items/1980-01-compute-magazine/Compute_Issue_002_1980_Jan_Feb_jp2.zip&file=Compute_Issue_002_1980_Jan_Feb_jp2/Compute_Issue_002_1980_Jan_Feb_0096.jp2&id=1980-01-compute-magazine&scale=2&rotate=0\">It is also unsure</a> " +
+				"if the <a href=\"https://archive.org/details/wozaday_Dunjonquest_The_Temple_of_Apshai_v1\">first Apple edition</a> was available in 1979 or more likely, <a href=\"https://retro365.blog/2023/09/27/automated-simulations-one-of-the-first-a-revisit/\">later in 1980</a>.</p>" +
 				// unbroken quote
+				"<hr>" +
 				"<p>A December 1980 the post on 8BBS from Brain Litzinger<sup><a href=\"#the-first-crackers-fn1\">[1]</a></sup> includes," +
-				"<br><q>I also have <u>unbroken</u>: Galaxion, <a href=\"http://artscene.textfiles.com/intros/APPLEII/mlab.gif\">Dogfight</a>, Hi-res shootout, and Astro-Apple</q>.</p>" +
-				"<p>The casual use of <em>unbroken</em> in the post indicates that knowledge of cracking or removing disk copy protection was already commonplace, at least among the online, underground communities.</p>" +
+				"<q>I also have <u>unbroken</u>: Galaxion, <a href=\"http://artscene.textfiles.com/intros/APPLEII/mlab.gif\">Dogfight</a>, Hi-res shootout, and Astro-Apple</q>. " +
+				"The casual use of <em>unbroken</em> in the post indicates that knowledge of cracking or removing disk copy protection was already commonplace, at least among the online, underground communities.</p>" +
 				// lock smith ad.
 				"<p>In Christmas 1980, Omega Software Systems was <a href=\"https://www.vice.com/en/article/qjvbem/dont-copy-that-floppy-the-untold-history-of-apple-ii-software-piracy\">advertising Lock Smith</a>, " +
 				"a disk copy program that makes a <em>bit-by-bit</em> copy, claiming <q>duplication of just about any disk is possible.</q> The advertising suggests that disk copy protection was already problematic for Apple&nbsp;II owners who desired software backups and that there was a product market. " +
@@ -344,13 +365,13 @@ func Collection() Milestones {
 				"So, combining a slow microcomputer with an even slower modem communication device often led to a costly phone bill. But long-distance " +
 				"<a href=\"https://www.slate.com/articles/technology/the_spectator/2011/10/the_article_that_inspired_steve_jobs_secrets_of_the_little_blue_.html\">phone phreaking</a> had been a well-established underground movement, " +
 				" allowing callers to trick the company operating the phone network into misbilling or giving away long-distance phone calls.</p>" +
-				// warez dating
-				"<p>Individual pirates who removed or cracked disk copy protection from software on the Apple&nbsp;II were dating their activity in early 1982.<sup><a href=\"#the-birth-of-warez-fn3\">[3]</a></sup> " +
-				"Still, many modified, <q>cracked</q>, or <q>broken</q> by ingame title screens<sup><a href=\"#the-birth-of-warez-fn4\">[4]</a></sup> exist for games published in <strong>1980</strong> and 1981. " +
-				"While an unmodified copyright notice doesn't always mean the game crack is from the same year, it is a fair assumption.</p>" +
 				// birth of warez
 				"<p>So when was the birth of wares<sup><a href=\"#the-birth-of-warez-fn1\">[1]</a></sup> and a Warez scene? There's no exact answer, but a good guess would be <strong>sometime&nbsp;in&nbsp;1980</strong> in the USA. " +
 				"By then, microcomputer owners exchanged real-life details online to meet up, duplicate, and exchange software collections. And, importantly, to find ways to remove Apple II disk copy protections and show off the results.</p>" +
+				// warez dating
+				"<p>Individual pirates who removed or cracked disk copy protection from software on the Apple&nbsp;II were dating their activity at the end of 1980 and in 1981. " +
+				"Still, many modified, <q>cracked</q>, or <q>broken</q> by ingame title screens<sup><a href=\"#the-birth-of-warez-fn4\">[4]</a></sup> exist for games published in <strong>1980</strong> and 1981. " +
+				"While an unmodified copyright notice doesn't always mean the game crack is from the same year, it is a fair assumption.</p>" +
 				// other platforms
 				"<p>As for the other microcomputer platforms, the far more <a href=\"http://www.trs-80.org/was-the-trs-80-once-the-top-selling-computer/\">popular</a> " +
 				"TRS-80 from Tandy had a <a href=\"http://www.trs-80.org/telephone-interface/\">modem peripheral</a> available at the end of 1978. " +
@@ -412,7 +433,7 @@ func Collection() Milestones {
 				"<p><strong>Super Pirates of Minneapolis</strong><sup><a href=\"#the-first-group-fn6\">[6]</a></sup>" +
 				"<br>The Super Pirates were a famous, early group outside of New York. " +
 				"Claims suggest the Super Pirates were around in 1980, the same year the game <a href=\"https://www.mobygames.com/game/47942/cyber-strike/\">Cyber&nbsp;Strike</a> from Sirius Software was published; " +
-				"however the year should be viewed with skepticism, and the known releases present a 1982 date.</p>" +
+				"however the year should be viewed with skepticism, and the <a href=\"https://archive.org/details/B-29AP_Japanese_Twerps_Horizon_V\">known releases</a> present a 1982 date.</p>" +
 				"<p><q>The 1st ware I got was back in 1980. It was Cyber Strike. Along with about 35 other disks, most cracked by the Super Pirates!</q> " +
 				"The quote is from Pirate History by The Incognito reposted on the Red Sector A BBS <small>(313) 591-1024</small> and found in the <a href=\"http://www.textfiles.com/bbs/boardsims2.txt\">Board Simulations 2</a> text from 1987.</p>" +
 				// midwest guild
