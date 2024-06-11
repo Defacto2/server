@@ -1,5 +1,8 @@
 # Defacto2, <small>web application server</small>
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/Defacto2/server.svg)](https://pkg.go.dev/github.com/Defacto2/server)
+
+
 ```
       ·      ▒██▀ ▀       ▒██▀ ▀              ▀ ▀▒██             ▀ ▀███ ·
       : ▒██▀ ▓██ ▒██▀▀██▓ ▓██▀▀▒██▀▀███ ▒██▀▀██▓ ▓██▀ ▒██▀▀███ ▒██▀▀▀▀▀ :
@@ -14,8 +17,6 @@ It is built with the Go language and can be easily compiled for significant serv
 The application relies on a [PostgreSQL](https://www.postgresql.org/) database setup for data queries using a PostgreSQL [database connection](https://www.postgresql.org/docs/current/ecpg-sql-connect.html).
 
 All configurations and modifications to this web application's default settings are through system environment variables.
-
-While you can compile the application to target Windows environments, it is ill-advised as it needs to work correctly with NTFS file paths. Instead, it is advisable to use Windows Subsystem for Linux.
 
 ## Download
 
@@ -63,6 +64,12 @@ There are examples of the environment variables in the [example .env](../init/ex
 
 The source code requires a local [installation of Go](https://go.dev/doc/install) version 1.22 or newer. 
 
+```sh
+$ go version
+
+> go version go1.22.3 linux/amd64
+```
+
 > [!IMPORTANT]
 > While you can compile the application to target Windows environments, it will not function correctly with NTFS file paths. Instead, it is advisable to use Windows Subsystem for Linux.
 
@@ -77,14 +84,23 @@ cd server
 
 # optional, download the dependencies
 go mod download
+```
 
-# test the application
-go run . --version
+Test the application.
+
+```sh
+$ go run . --version
+
+> Defacto2 web application version n/a (not a build) for Linux on Intel/AMD 64
 ```
 
 ## Source code tasks
 
-The repository is configured to use the [Task](https://taskfile.dev/installation/) application which needs local installation.
+The repository is configured to use the [Task](https://taskfile.dev/installation/) application which needs local installation. The following of tools are expected to be installed on the local machine.
+
+1. [Task](https://taskfile.dev/installation/) is a task runner / build tool.
+2. [golangci-lint](https://golangci-lint.run/) is a Go linters aggregator.
+3. [GoReleaser](https://goreleaser.com/install/) is a release automation tool for Go projects.
 
 ### First time initialization
 
@@ -127,8 +143,51 @@ task: Available tasks for this project:
 * ver:                  Print the versions of the build and compiler tools.
 ```
 
-### Configuration
+### Configurations
 
+As the application relies on environmental variables for configuration, the Taskfile can use a dot-env file to read in variables for use on tasks.
+
+For example, you can configure various variables while running the `task serve-dev` or `task serve-prod` tasks to point to the downloads, image screenshots, image thumbnails, and a customized database connection URL.
+
+```sh
+# change to the server repository directory init directory
+cd server/init
+
+# copy the example .env file to the local .env file
+cp example.env.local .env.local
+
+# edit the .env file to set the environment variables
+nano .env.local
+```
+
+An example, the `.env.local` file can be configured as follows.
+
+```ini
+# ==============================================================================
+#  These are the directory paths serving static files for the artifacts.
+#  All directories must be absolute paths and any empty values will disable the
+#  relevent feature. For example, an invalid D2_DIR_DOWN will disable the 
+#  artifact downloads.
+#  The directories must be readable and writable by the web server.
+# ==============================================================================
+
+# List the directory path that holds the named UUID files for the artifact downloads.
+D2_DIR_DOWNLOAD=/home/defacto2/downloads
+
+# List the directory path that holds the named UUID files for the artifact images.
+D2_DIR_PREVIEW=/home/defacto2/previews
+
+# List the directory path that holds the named UUID files for the artifact thumbnails.
+D2_DIR_THUMBNAIL=/home/defacto2/thumbnails
+
+# ==============================================================================
+#  These are the PostgreSQL database connection settings.
+#  The database is required for accessing and displaying the artifact data.
+# ==============================================================================
+
+# The connection string to the PostgreSQL database.
+D2_DATABASE_URL=postgres://root:example@localhost:5432/defacto2_ps
+```
 
 ### Run the development server
 
