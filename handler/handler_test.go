@@ -14,7 +14,7 @@ import (
 func TestRegister(t *testing.T) {
 	t.Parallel()
 	c := handler.Configuration{}
-	logger := zaplog.CLI().Sugar()
+	logger := zaplog.Status().Sugar()
 	tr, err := c.Registry(logger)
 	assert.Nil(t, tr)
 	require.Error(t, err)

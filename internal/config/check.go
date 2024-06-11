@@ -9,31 +9,25 @@ import (
 	"path/filepath"
 
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/postgres"
 	"go.uber.org/zap"
 )
 
 const (
 	PortMax = 65534 // PortMax is the highest valid port number.
 	PortSys = 1024  // PortSys is the lowest valid port number that does not require system access.
-
-	toFewFiles = 10 // toFewFiles is the minimum number of files required in a directory.
 )
 
 var (
-	ErrPortMax     = fmt.Errorf("http port value must be between 1-%d", PortMax)
-	ErrPortSys     = fmt.Errorf("http port values between 1-%d require system access", PortSys)
-	ErrDir         = errors.New("the directory path is not set")
-	ErrDir404      = errors.New("the directory path does not exist")
-	ErrDirIs       = errors.New("the directory path points to the file")
-	ErrDirRead     = errors.New("the directory path could not be read")
-	ErrDirFew      = errors.New("the directory path contains only a few items")
-	ErrUnencrypted = errors.New("the production server is configured to use unencrypted HTTP connections")
-	ErrNoOAuth2    = errors.New("the production server requires a google, oauth2 client id to allow admin logins")
-	ErrNoAccounts  = errors.New("the production server has no google oauth2 user accounts to allow admin logins")
-	ErrSessionKey  = errors.New("the production server has a session, " +
-		"encryption key set instead of using a randomized key")
-	ErrZap = errors.New("the zap logger instance is nil")
+	ErrPortMax    = fmt.Errorf("http port value must be between 1-%d", PortMax)
+	ErrPortSys    = fmt.Errorf("http port values between 1-%d require system access", PortSys)
+	ErrDir        = errors.New("the directory path is not set")
+	ErrDir404     = errors.New("the directory path does not exist")
+	ErrDirIs      = errors.New("the directory path points to the file")
+	ErrDirRead    = errors.New("the directory path could not be read")
+	ErrDirFew     = errors.New("the directory path contains only a few items")
+	ErrNoOAuth2   = errors.New("the production server requires a google, oauth2 client id to allow admin logins")
+	ErrNoAccounts = errors.New("the production server has no google oauth2 user accounts to allow admin logins")
+	ErrZap        = errors.New("the zap logger instance is nil")
 )
 
 // Checks runs a number of sanity checks for the environment variable configurations.
@@ -42,38 +36,30 @@ func (c *Config) Checks(logger *zap.SugaredLogger) error {
 		return ErrZap
 	}
 
-	if c.HTTPSRedirect && c.TLSPort == 0 {
-		logger.Warn("HTTPSRedirect is on but the HTTPS port is not set," +
-			" so the server will not redirect HTTP requests to HTTPS.")
-	}
-
 	c.httpPort(logger)
 	c.tlsPort(logger)
 	c.production(logger)
 
 	// Check the download, preview and thumbnail directories.
-	if err := DownloadDir(c.DownloadDir); err != nil {
-		s := helper.Capitalize(err.Error()) + "."
-		logger.Warn(s)
+	if err := CheckDir(c.AbsDownload, "downloads"); err != nil {
+		s := helper.Capitalize(err.Error())
+		logger.Error(s)
 	}
-	if err := PreviewDir(c.PreviewDir); err != nil {
-		s := helper.Capitalize(err.Error()) + "."
-		logger.Warn(s)
+	if err := CheckDir(c.AbsPreview, "previews"); err != nil {
+		s := helper.Capitalize(err.Error())
+		logger.Error(s)
 	}
-	if err := ThumbnailDir(c.ThumbnailDir); err != nil {
-		s := helper.Capitalize(err.Error()) + "."
-		logger.Warn(s)
+	if err := CheckDir(c.AbsThumbnail, "thumbnails"); err != nil {
+		s := helper.Capitalize(err.Error())
+		logger.Error(s)
 	}
 
 	// Reminds for the optional configuration values.
 	if c.NoCrawl {
-		logger.Warn("NoCrawl is on, web crawlers should ignore this site.")
+		logger.Warn("Disallow search engine crawling is enabled")
 	}
-	if c.HTTPSRedirect && c.TLSPort > 0 {
-		logger.Info("HTTPSRedirect is on, all HTTP requests will be redirected to HTTPS.")
-	}
-	if c.HostName == postgres.DockerHost {
-		logger.Info("The application is configured for use in a Docker container.")
+	if c.ReadOnly {
+		logger.Warn("The server is running in read-only mode, edits to the database are not allowed")
 	}
 
 	return c.SetupLogDir(logger)
@@ -117,39 +103,26 @@ func (c Config) tlsPort(logger *zap.SugaredLogger) {
 // expects the server to be configured with OAuth2 and Google IDs.
 // The server should be running over HTTPS and not unencrypted HTTP.
 func (c Config) production(logger *zap.SugaredLogger) {
-	if !c.ProductionMode || c.ReadMode {
+	if !c.ProdMode || c.ReadOnly {
 		return
 	}
 	if c.GoogleClientID == "" {
-		s := helper.Capitalize(ErrNoOAuth2.Error()) + "."
+		s := helper.Capitalize(ErrNoOAuth2.Error())
 		logger.Warn(s)
 	}
 	if c.GoogleIDs == "" && len(c.GoogleAccounts) == 0 {
-		s := helper.Capitalize(ErrNoAccounts.Error()) + "."
+		s := helper.Capitalize(ErrNoAccounts.Error())
 		logger.Warn(s)
 	}
-	if c.HTTPPort > 0 {
-		s := fmt.Sprintf("%s over port %d.",
-			helper.Capitalize(ErrUnencrypted.Error()),
-			c.HTTPPort)
-		logger.Info(s)
-	}
-	if c.SessionKey != "" {
-		s := helper.Capitalize(ErrSessionKey.Error()) + "."
-		logger.Warn(s)
-		logger.Warn("This means that all signed in clients will not be logged out on a server restart.")
-	}
-	if c.SessionMaxAge > 0 {
-		logger.Infof("A signed in client session lasts for %d hour(s).", c.SessionMaxAge)
-	} else {
-		logger.Warn("A signed in client session lasts forever.")
+	if c.SessionMaxAge == 0 {
+		logger.Warn("A signed in client session lasts forever, this is a security risk")
 	}
 }
 
 // LogStore determines the local storage path for all log files created by this web application.
 func (c *Config) LogStore() error {
 	const ownerGroupAll = 0o770
-	logs := c.LogDir
+	logs := c.AbsLog
 	if logs == "" {
 		dir, err := os.UserConfigDir()
 		if err != nil {
@@ -162,7 +135,7 @@ func (c *Config) LogStore() error {
 			return fmt.Errorf("%w: %s", err, logs)
 		}
 	}
-	c.LogDir = logs
+	c.AbsLog = logs
 	return nil
 }
 
@@ -173,21 +146,19 @@ func (c *Config) SetupLogDir(logger *zap.SugaredLogger) error {
 	if logger == nil {
 		return ErrZap
 	}
-	if c.LogDir == "" {
+	if c.AbsLog == "" {
 		if err := c.LogStore(); err != nil {
 			return fmt.Errorf("%w: %w", ErrLog, err)
 		}
-	} else {
-		logger.Info("The server logs are found in: ", c.LogDir)
 	}
-	dir, err := os.Stat(c.LogDir)
+	dir, err := os.Stat(c.AbsLog)
 	if os.IsNotExist(err) {
-		return fmt.Errorf("log directory %w: %s", ErrDirNotExist, c.LogDir)
+		return fmt.Errorf("log directory %w: %s", ErrDirNotExist, c.AbsLog)
 	}
 	if !dir.IsDir() {
 		return fmt.Errorf("log directory %w: %s", ErrNotDir, dir.Name())
 	}
-	empty := filepath.Join(c.LogDir, ".defacto2_touch_test")
+	empty := filepath.Join(c.AbsLog, ".defacto2_touch_test")
 	if _, err := os.Stat(empty); os.IsNotExist(err) {
 		f, err := os.Create(empty)
 		if err != nil {
@@ -222,32 +193,7 @@ func CheckDir(name, desc string) error {
 	if !dir.IsDir() {
 		return fmt.Errorf("%w, %s: %s", ErrDirIs, desc, dir.Name())
 	}
-	files, err := os.ReadDir(name)
-	if err != nil {
-		return fmt.Errorf("%w, %s: %w", ErrDirRead, desc, err)
-	}
-	if len(files) < toFewFiles {
-		return fmt.Errorf("%w, %s: %s", ErrDirFew, desc, dir.Name())
-	}
 	return nil
-}
-
-// DownloadDir runs checks against the named directory containing the UUID artifact downloads.
-// Problems will either log warnings or fatal errors.
-func DownloadDir(name string) error {
-	return CheckDir(name, "download")
-}
-
-// PreviewDir runs checks against the named directory containing the preview and screenshot images.
-// Problems will either log warnings or fatal errors.
-func PreviewDir(name string) error {
-	return CheckDir(name, "preview")
-}
-
-// ThumbnailDir runs checks against the named directory containing the thumbnail images.
-// Problems will either log warnings or fatal errors.
-func ThumbnailDir(name string) error {
-	return CheckDir(name, "thumbnail")
 }
 
 // Validate returns an error if the HTTP or TLS port is invalid.

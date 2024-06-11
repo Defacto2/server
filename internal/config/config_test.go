@@ -1,6 +1,8 @@
 package config_test
 
 import (
+	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -28,14 +30,16 @@ func TestDownloadFS(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	// create and test empty, mock image files
+	const noExt = ""
 	exts := []string{
-		".txt",
-		".webp",
-		".png",
-		".chiptune",
-		".zip",
-		".tiff",
-		".svg",
+		".txt",      // valid
+		".webp",     // invalid
+		".png",      // invalid
+		".chiptune", // valid
+		".zip",      // valid
+		".tiff",     // invalid
+		".svg",      // invalid
+		noExt,       // valid
 	}
 	const invalid = "invalid-base-name"
 	for _, ext := range exts {
@@ -47,7 +51,9 @@ func TestDownloadFS(t *testing.T) {
 		_ = helper.Touch(cfName)
 	}
 
-	const expectedCount = 21
+	const expectedCount = 24
+	const expectedResult = 12
+
 	i, err := helper.Count(dir)
 	require.NoError(t, err)
 	assert.Equal(t, expectedCount, i)
@@ -69,6 +75,7 @@ func TestDownloadFS(t *testing.T) {
 			return nil
 		}
 		err = config.DownloadFS(nil, path)
+		fmt.Fprintln(io.Discard, path)
 		require.NoError(t, err)
 		return nil
 	})
@@ -77,7 +84,6 @@ func TestDownloadFS(t *testing.T) {
 	i, err = helper.Count(dir)
 	require.NoError(t, err)
 
-	const expectedResult = 8
 	assert.Equal(t, expectedResult, i)
 }
 
@@ -89,14 +95,16 @@ func TestRemoveDownload(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	// create and test empty, mock image files
+	const noExt = ""
 	exts := []string{
-		".txt",
-		".webp",
-		".png",
-		".chiptune",
-		".zip",
-		".tiff",
-		".svg",
+		".txt",      // valid
+		".webp",     // invalid
+		".png",      // invalid
+		".chiptune", // valid
+		".zip",      // valid
+		".tiff",     // invalid
+		".svg",      // invalid
+		noExt,       // valid
 	}
 	const invalid = "invalid-base-name"
 	for _, ext := range exts {
@@ -108,7 +116,9 @@ func TestRemoveDownload(t *testing.T) {
 		_ = helper.Touch(cfName)
 	}
 
-	const expectedCount = 21
+	const expectedCount = 24
+	const expectedResult = 12
+
 	i, err := helper.Count(dir)
 	require.NoError(t, err)
 	assert.Equal(t, expectedCount, i)
@@ -130,6 +140,7 @@ func TestRemoveDownload(t *testing.T) {
 			return nil
 		}
 		name := filepath.Base(path)
+		fmt.Fprintln(io.Discard, name, path)
 		err = config.RemoveDownload(name, path)
 		require.NoError(t, err)
 		return nil
@@ -139,7 +150,6 @@ func TestRemoveDownload(t *testing.T) {
 	i, err = helper.Count(dir)
 	require.NoError(t, err)
 
-	const expectedResult = 8
 	assert.Equal(t, expectedResult, i)
 }
 
@@ -210,18 +220,13 @@ func TestOverride(t *testing.T) {
 	c := config.Config{}
 	assert.Empty(t, c)
 	c.GoogleIDs = "googleids,googleids2,googleids3"
-	c.Override(false)
+	c.Override()
 	// confirm override
 	assert.Empty(t, c.GoogleIDs)
 	// confirm, required default port if not set
 	assert.Equal(t, uint(config.HTTPPort), c.HTTPPort)
 	// defaults
-	assert.False(t, c.LocalMode)
-	assert.False(t, c.ReadMode)
-
-	c.Override(true)
-	assert.True(t, c.LocalMode)
-	assert.True(t, c.ReadMode)
+	assert.False(t, c.ReadOnly)
 }
 
 func td(name string) string {
@@ -242,7 +247,7 @@ func TestConfig_String(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
 	s := c.String()
-	assert.Contains(t, s, "active configuration options")
+	assert.Contains(t, s, "Defacto2 server configuration")
 }
 
 func TestConfig_Addresses(t *testing.T) {
@@ -267,26 +272,6 @@ func TestConfig_Startup(t *testing.T) {
 	assert.Contains(t, s, "http://localhost:8080")
 }
 
-func TestLocalSkip(t *testing.T) {
-	t.Parallel()
-	skip := config.LocalSkip("")
-	assert.False(t, skip)
-	skip = config.LocalSkip("readmode")
-	assert.False(t, skip)
-	skip = config.LocalSkip("ReadMode")
-	assert.True(t, skip)
-}
-
-func TestAccountSkip(t *testing.T) {
-	t.Parallel()
-	skip := config.AccountSkip("")
-	assert.False(t, skip)
-	skip = config.AccountSkip("googleids")
-	assert.False(t, skip)
-	skip = config.AccountSkip("GoogleIDs")
-	assert.True(t, skip)
-}
-
 func TestConfig_Checks(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
@@ -300,8 +285,8 @@ func TestConfig_Checks(t *testing.T) {
 	err = c.Checks(logger())
 	require.NoError(t, err)
 
-	c.ReadMode = false
-	c.ProductionMode = true
+	c.ReadOnly = false
+	c.ProdMode = true
 	require.NoError(t, err)
 	err = c.Checks(logger())
 	require.NoError(t, err)

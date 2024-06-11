@@ -57,8 +57,8 @@ const (
 )
 */
 
-// CLI logger prints all log levels to stdout but without callers.
-func CLI() *zap.Logger {
+// Status logger prints all log levels to stdout but without callers.
+func Status() *zap.Logger {
 	enc := consoleNoTime()
 	defaultLogLevel := zapcore.InfoLevel
 	core := zapcore.NewTee(
@@ -71,9 +71,23 @@ func CLI() *zap.Logger {
 	return zap.New(core)
 }
 
-// Development logger prints all log levels to stdout.
-func Development() *zap.Logger {
-	enc := console()
+// Timestamp logger prints all log levels to stdout but without callers.
+func Timestamp() *zap.Logger {
+	enc := consoleWithTime()
+	defaultLogLevel := zapcore.InfoLevel
+	core := zapcore.NewTee(
+		zapcore.NewCore(
+			enc,
+			zapcore.AddSync(os.Stdout),
+			defaultLogLevel,
+		),
+	)
+	return zap.New(core)
+}
+
+// Debug logger prints all log levels to stdout.
+func Debug() *zap.Logger {
+	enc := consoleWithTime()
 	defaultLogLevel := zapcore.DebugLevel
 	core := zapcore.NewTee(
 		zapcore.NewCore(
@@ -85,17 +99,17 @@ func Development() *zap.Logger {
 	return zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
 }
 
-// Production logger prints all info and higher log levels to files.
+// Store logger prints all info and higher log levels to files.
 // Fatal and Panics are also returned to os.Stderr.
-func Production(root string) *zap.Logger {
+func Store(absPath string) *zap.Logger {
 	config := zap.NewProductionEncoderConfig()
 	config.EncodeTime = zapcore.TimeEncoderOfLayout("Jan-02-15:04:05.00")
 	jsonEnc := zapcore.NewJSONEncoder(config)
-	enc := console()
+	enc := consoleWithTime()
 
 	// server breakage log
 	serverWr := zapcore.AddSync(&lumberjack.Logger{
-		Filename:   filepath.Join(root, ServerLog),
+		Filename:   filepath.Join(absPath, ServerLog),
 		MaxSize:    MaxSizeMB,
 		MaxBackups: MaxBackups,
 		MaxAge:     MaxDays,
@@ -105,7 +119,7 @@ func Production(root string) *zap.Logger {
 
 	// information and warning log
 	infoWr := zapcore.AddSync(&lumberjack.Logger{
-		Filename:   filepath.Join(root, InfoLog),
+		Filename:   filepath.Join(absPath, InfoLog),
 		MaxSize:    MaxSizeMB,
 		MaxBackups: MaxBackups,
 		MaxAge:     MaxDays,
@@ -127,7 +141,7 @@ func Production(root string) *zap.Logger {
 }
 
 // console returns a logger in color and time.
-func console() zapcore.Encoder {
+func consoleWithTime() zapcore.Encoder {
 	config := zap.NewDevelopmentEncoderConfig()
 	config.EncodeTime = zapcore.TimeEncoderOfLayout("15:04:05")
 	config.EncodeLevel = zapcore.CapitalColorLevelEncoder

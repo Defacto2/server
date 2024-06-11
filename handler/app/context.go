@@ -1954,9 +1954,7 @@ func fileWStats(data map[string]interface{}, stats bool) (map[string]interface{}
 	data["counter"] = c
 	data["logo"] = "Artifact category statistics"
 	data["lead"] = "This page shows the artifacts categories with selected statistics, " +
-		"such as the number of files in the category or platform." +
-		fmt.Sprintf(" The total number of files in the database is %d.", c.Record.Count) +
-		fmt.Sprintf(" The total size of all file artifacts are %s.", helper.ByteCount(int64(c.Record.Bytes)))
+		"such as the number of files in the category or platform."
 	return data, nil
 }
 

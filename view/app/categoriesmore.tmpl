@@ -56,10 +56,6 @@
                         <p>
                             <span class="card-link"><a href="/files/msdos" class="card-link">Browse the files for {{msdos}}</a></span>
                         </p>
-                        {{- if .stats }}
-                        <hr>
-                        <p><small>dos date range: {{$rels.MsDos.MinYear}}-{{$rels.MsDos.MaxYear}} and dos count: {{ byteFile $rels.MsDos.Count $rels.MsDos.Bytes }}</small></p>
-                        {{- end }}
                     </div>
                     <div class="tab-pane fade" id="windows-tab-pane" role="tabpanel" aria-labelledby="windows-tab"
                         tabindex="0">
@@ -71,10 +67,6 @@
                         <p>
                             <span class="card-link"><a href="/files/windows" class="card-link">Browse the files for Windows</a></span>
                         </p>
-                        {{- if .stats }}
-                        <hr>
-                        <p><small>windows date range: {{$rels.Windows.MinYear}}-{{$rels.Windows.MaxYear}} and windows count: {{ byteFile $rels.Windows.Count $rels.Windows.Bytes }}</small></p>
-                        {{- end }}
                     </div>
                     <div class="tab-pane fade" id="mac-tab-pane" role="tabpanel" aria-labelledby="mac-tab"
                         tabindex="0">
@@ -86,10 +78,6 @@
                         <p>
                             <span class="card-link"><a href="/files/macos" class="card-link">Browse the files for macOS</a></span>
                         </p>
-                        {{- if .stats }}
-                        <hr>
-                        <p><small>mac date range: {{$rels.Macos.MinYear}}-{{$rels.Macos.MaxYear}} and mac count: {{ byteFile $rels.Macos.Count $rels.Macos.Bytes }}</small></p>
-                        {{- end }}
                     </div>
                     <div class="tab-pane fade" id="linux-tab-pane" role="tabpanel" aria-labelledby="linux-tab"
                         tabindex="0">
@@ -100,10 +88,6 @@
                         <p>
                             <span class="card-link"><a href="/files/linux" class="card-link">Browse the files for Linux</a></span>
                         </p>
-                        {{- if .stats }}
-                        <hr>
-                        <p><small>linux date range: {{$rels.Linux.MinYear}}-{{$rels.Linux.MaxYear}} and linux count: {{ byteFile $rels.Linux.Count $rels.Linux.Bytes }}</small></p>
-                        {{- end }}
                     </div>
                     <div class="tab-pane fade" id="script-tab-pane" role="tabpanel" aria-labelledby="script-tab"
                         tabindex="0">
@@ -114,10 +98,6 @@
                         <p>
                             <span class="card-link"><a href="/files/script" class="card-link">Browse the shell scripts and software</a></span>
                         </p>
-                        {{- if .stats }}
-                        <hr>
-                        <p><small>script date range: {{$rels.Script.MinYear}}-{{$rels.Script.MaxYear}} and script count: {{ byteFile $rels.Script.Count $rels.Script.Bytes }}</small></p>
-                        {{- end }}
                     </div>
                     <div class="tab-pane fade" id="java-tab-pane" role="tabpanel" aria-labelledby="java-tab"
                         tabindex="0">
@@ -128,10 +108,6 @@
                         <p>
                             <span class="card-link"><a href="/files/java" class="card-link">Browse the files for Java</a></span>
                         </p>
-                        {{- if .stats }}
-                        <hr>
-                        <p><small>java date range: {{$rels.Java.MinYear}}-{{$rels.Java.MaxYear}} and java count: {{ byteFile $rels.Java.Count $rels.Java.Bytes }}</small></p>
-                        {{- end }}
                     </div>
                 </div>
             </div>

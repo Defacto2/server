@@ -15,7 +15,7 @@ import (
 // or a malformed client requests.
 func BadRequestErr(c echo.Context, uri string, err error) error {
 	const code = http.StatusBadRequest
-	logger := zaplog.Development()
+	logger := zaplog.Debug()
 	if err != nil {
 		logger.Error(fmt.Sprintf("%d error for %q: %s", code, uri, err))
 	}
@@ -43,7 +43,7 @@ func BadRequestErr(c echo.Context, uri string, err error) error {
 // connection issue but where the server is still running and usable for the client.
 func DatabaseErr(c echo.Context, uri string, err error) error {
 	const unavailable = http.StatusServiceUnavailable
-	logger := zaplog.Development()
+	logger := zaplog.Debug()
 	if err != nil {
 		logger.Error(fmt.Sprintf("%d error for %q: %s", unavailable, uri, err))
 	}
@@ -71,7 +71,7 @@ func DatabaseErr(c echo.Context, uri string, err error) error {
 func DownloadErr(c echo.Context, uri string, err error) error {
 	const code = http.StatusNotFound
 	id := c.Param("id")
-	logger := zaplog.Development()
+	logger := zaplog.Debug()
 	if err != nil {
 		logger.Error(fmt.Sprintf("%d error for %q: %s", code, id, err))
 	}
@@ -101,7 +101,7 @@ func DownloadErr(c echo.Context, uri string, err error) error {
 func FileMissingErr(c echo.Context, uri string, err error) error {
 	const code = http.StatusServiceUnavailable
 	id := c.Param("id")
-	logger := zaplog.Development()
+	logger := zaplog.Debug()
 	if err != nil {
 		logger.Error(fmt.Sprintf("%d error for %q: %s", code, id, err))
 	}
@@ -130,7 +130,7 @@ func FileMissingErr(c echo.Context, uri string, err error) error {
 // pages that they do not have permission to access.
 func ForbiddenErr(c echo.Context, uri string, err error) error {
 	const code = http.StatusForbidden
-	logger := zaplog.Development()
+	logger := zaplog.Debug()
 	if err != nil {
 		logger.Error(fmt.Sprintf("%d error for %q: %s", code, uri, err))
 	}
@@ -160,7 +160,7 @@ func ForbiddenErr(c echo.Context, uri string, err error) error {
 // If the echo context is nil then a user hostile, fallback error in raw text is returned.
 func InternalErr(c echo.Context, uri string, err error) error {
 	const code = http.StatusInternalServerError
-	logger := zaplog.Development()
+	logger := zaplog.Debug()
 	if err != nil {
 		logger.Error(fmt.Sprintf("%d error for %q: %s", code, uri, err))
 	}
@@ -189,7 +189,7 @@ func InternalErr(c echo.Context, uri string, err error) error {
 // If the zap logger is nil then the error page is returned but no error is logged.
 // If the echo context is nil then a user hostile, fallback error in raw text is returned.
 func StatusErr(c echo.Context, code int, uri string) error {
-	logger := zaplog.Development()
+	logger := zaplog.Debug()
 	if nilContext := c == nil; nilContext {
 		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, ErrCxt))
 		return echo.NewHTTPError(http.StatusInternalServerError,

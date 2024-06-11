@@ -20,7 +20,6 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
-	"strings"
 	"time"
 
 	"github.com/Defacto2/server/cmd"
@@ -28,7 +27,6 @@ import (
 	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/handler/htmx"
-	"github.com/Defacto2/server/handler/middleware/br"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/labstack/echo/v4"
@@ -87,9 +85,6 @@ func (c Configuration) Controller(logger *zap.SugaredLogger) *echo.Echo {
 		middleware.Rewrite(rewrites()),
 		middleware.NonWWWRedirect(),
 	}
-	if httpsRedirect := configs.HTTPSRedirect && configs.TLSPort > 0; httpsRedirect {
-		middlewares = append(middlewares, middleware.HTTPSRedirect())
-	}
 	e.Pre(middlewares...)
 
 	// *************************************************
@@ -103,14 +98,11 @@ func (c Configuration) Controller(logger *zap.SugaredLogger) *echo.Echo {
 		c.NoCrawl,
 		middleware.RemoveTrailingSlashWithConfig(configRTS()),
 	}
-	switch strings.ToLower(configs.Compression) {
-	case "gzip":
+	if configs.Compression {
 		middlewares = append(middlewares, middleware.Gzip())
-	case "br":
-		middlewares = append(middlewares, br.Brotli())
 	}
-	if configs.ProductionMode {
-		middlewares = append(middlewares, middleware.Recover()) // recover from panics
+	if configs.ProdMode {
+		middlewares = append(middlewares, middleware.Recover())
 	}
 	e.Use(middlewares...)
 
@@ -118,8 +110,8 @@ func (c Configuration) Controller(logger *zap.SugaredLogger) *echo.Echo {
 	e = MovedPermanently(e)
 	e = htmxGroup(e,
 		logger,
-		c.Environment.ProductionMode,
-		c.Environment.DownloadDir)
+		c.Environment.ProdMode,
+		c.Environment.AbsDownload)
 	e, err := c.FilesRoutes(e, logger, c.Public)
 	if err != nil {
 		logger.Fatal(err)
@@ -152,14 +144,12 @@ func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 }
 
 // Info prints the application information to the console.
-func (c Configuration) Info(logger *zap.SugaredLogger) {
-	w := bufio.NewWriter(os.Stdout)
+func (c Configuration) Info(logger *zap.SugaredLogger, w io.Writer) {
 	nr := bytes.NewReader(c.Brand)
 	if l, err := io.Copy(w, nr); err != nil {
 		logger.Warnf("Could not print the brand logo: %s.", err)
 	} else if l > 0 {
 		fmt.Fprint(w, "\n\n")
-		w.Flush()
 	}
 
 	fmt.Fprintf(w, "  %s.\n", cmd.Copyright())
@@ -175,7 +165,6 @@ func (c Configuration) Info(logger *zap.SugaredLogger) {
 	//
 	// All additional feedback should go in internal/config/check.go (c *Config) Checks()
 	//
-	w.Flush()
 }
 
 // PortErr handles the error when the HTTP or HTTPS server cannot start.
@@ -186,7 +175,7 @@ func (c Configuration) PortErr(logger *zap.SugaredLogger, port uint, err error) 
 	}
 	var portErr *net.OpError
 	switch {
-	case !c.Environment.ProductionMode && errors.As(err, &portErr):
+	case !c.Environment.ProdMode && errors.As(err, &portErr):
 		logger.Infof("air or task server could not start (this can probably be ignored): %s.", err)
 	case errors.Is(err, net.ErrClosed),
 		errors.Is(err, http.ErrServerClosed):
@@ -231,11 +220,6 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 	waitDuration := ShutdownWait
 	waitCount := ShutdownCounter
 	ticker := 1 * time.Second
-	if c.Environment.LocalMode {
-		waitDuration = 0
-		waitCount = 0
-		ticker = 1 * time.Millisecond // this cannot be zero
-	}
 	ctx, cancel := context.WithTimeout(context.Background(), waitDuration)
 	defer func() {
 		const alert = "Detected Ctrl + C, server will shutdown"
@@ -308,13 +292,24 @@ func (c *Configuration) StartHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 		panic(ErrRoutes)
 	}
 	port := c.Environment.HTTPPort
-	if port == 0 {
+	address := c.address(port)
+	if address == "" {
 		return
 	}
-	address := fmt.Sprintf(":%d", port)
 	if err := e.Start(address); err != nil {
 		c.PortErr(logger, port, err)
 	}
+}
+
+func (c *Configuration) address(port uint) string {
+	if port == 0 {
+		return ""
+	}
+	address := fmt.Sprintf(":%d", port)
+	if c.Environment.MatchHost != "" {
+		address = fmt.Sprintf("%s:%d", c.Environment.MatchHost, port)
+	}
+	return address
 }
 
 // StartTLS starts the encrypted TLS web server.
@@ -323,23 +318,23 @@ func (c *Configuration) StartTLS(e *echo.Echo, logger *zap.SugaredLogger) {
 		panic(ErrRoutes)
 	}
 	port := c.Environment.TLSPort
-	if port == 0 {
+	address := c.address(port)
+	if address == "" {
 		return
 	}
-	cert := c.Environment.TLSCert
-	key := c.Environment.TLSKey
+	certFile := c.Environment.TLSCert
+	keyFile := c.Environment.TLSKey
 	const failure = "Could not start the TLS server"
-	if cert == "" || key == "" {
+	if certFile == "" || keyFile == "" {
 		logger.Fatalf("%s, missing certificate or key file.", failure)
 	}
-	if !helper.File(cert) {
-		logger.Fatalf("%s, certificate file does not exist: %s.", failure, cert)
+	if !helper.File(certFile) {
+		logger.Fatalf("%s, certificate file does not exist: %s.", failure, certFile)
 	}
-	if !helper.File(key) {
-		logger.Fatalf("%s, key file does not exist: %s.", failure, key)
+	if !helper.File(keyFile) {
+		logger.Fatalf("%s, key file does not exist: %s.", failure, keyFile)
 	}
-	address := fmt.Sprintf(":%d", port)
-	if err := e.StartTLS(address, "", ""); err != nil {
+	if err := e.StartTLS(address, certFile, keyFile); err != nil {
 		c.PortErr(logger, port, err)
 	}
 }
@@ -351,29 +346,21 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo, logger *zap.SugaredLogger) {
 		panic(ErrRoutes)
 	}
 	port := c.Environment.TLSPort
-	if port == 0 {
+	address := c.address(port)
+	if address == "" {
 		return
 	}
 	const cert, key = "public/certs/cert.pem", "public/certs/key.pem"
 	const failure = "Could not read the internal localhost"
-	cpem, err := c.Public.ReadFile(cert)
+	certB, err := c.Public.ReadFile(cert)
 	if err != nil {
 		logger.Fatalf("%s, TLS certificate: %s.", failure, err)
 	}
-	kpem, err := c.Public.ReadFile(key)
+	keyB, err := c.Public.ReadFile(key)
 	if err != nil {
 		logger.Fatalf("%s, TLS key: %s.", failure, err)
 	}
-	lock := strings.TrimSpace(c.Environment.TLSHost)
-	var address string
-	const showAllConnections = ""
-	switch lock {
-	case showAllConnections:
-		address = fmt.Sprintf(":%d", port)
-	default:
-		address = fmt.Sprintf("%s:%d", lock, port)
-	}
-	if err := e.StartTLS(address, cpem, kpem); err != nil {
+	if err := e.StartTLS(address, certB, keyB); err != nil {
 		c.PortErr(logger, port, err)
 	}
 }
@@ -382,7 +369,7 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo, logger *zap.SugaredLogger) {
 func (c Configuration) downloader(cx echo.Context, logger *zap.SugaredLogger) error {
 	d := download.Download{
 		Inline: false,
-		Path:   c.Environment.DownloadDir,
+		Path:   c.Environment.AbsDownload,
 	}
 	if err := d.HTTPSend(cx, logger); err != nil {
 		return fmt.Errorf("d.HTTPSend: %w", err)

@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/Defacto2/server/internal/config"
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/carlmjohnson/versioninfo"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/text/cases"
@@ -28,24 +27,6 @@ const (
 )
 
 var ErrCmd = errors.New("cannot run command as config is nil")
-
-// Address is the `address` command help and action.
-func Address(c *config.Config) *cli.Command {
-	return &cli.Command{
-		Name:        "address",
-		Aliases:     []string{"a"},
-		Usage:       "list the server addresses",
-		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
-		Action: func(_ *cli.Context) error {
-			s, err := c.AddressesCLI()
-			if err != nil {
-				return fmt.Errorf("c.AddressesCLI: %w", err)
-			}
-			defer fmt.Fprintf(os.Stdout, "%s\n", s)
-			return nil
-		},
-	}
-}
 
 // App returns the command line interface for this program.
 // It uses the [github.com/urfave.cli] package.
@@ -68,9 +49,48 @@ func App(ver string, c *config.Config) *cli.App {
 				Email: Email,
 			},
 		},
-		Commands: []*cli.Command{Config(c), Address(c)},
+		Commands: []*cli.Command{
+			Config(c),
+			Address(c),
+		},
 	}
 	return app
+}
+
+// Address is the `address` command help and action.
+func Address(c *config.Config) *cli.Command {
+	return &cli.Command{
+		Name:        "address",
+		Aliases:     []string{"a"},
+		Usage:       "list the server addresses",
+		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
+		Action: func(_ *cli.Context) error {
+			s, err := c.AddressesCLI()
+			if err != nil {
+				return fmt.Errorf("c.AddressesCLI: %w", err)
+			}
+			defer fmt.Fprintf(os.Stdout, "%s\n", s)
+			return nil
+		},
+	}
+}
+
+// Config is the `config` command help and action.
+func Config(c *config.Config) *cli.Command {
+	return &cli.Command{
+		Name:        "config",
+		Aliases:     []string{"c"},
+		Usage:       "list the server configuration",
+		Description: "List the available server configuration options and the settings.",
+		Action: func(_ *cli.Context) error {
+			defer fmt.Fprintf(os.Stdout, "%s\n", c.String())
+			defer func() {
+				b := new(strings.Builder)
+				fmt.Fprintf(os.Stdout, "%s\n", b.String())
+			}()
+			return nil
+		},
+	}
 }
 
 // Arch returns the program CPU architecture.
@@ -108,26 +128,6 @@ func Commit(ver string) string {
 		return "n/a (not a build)"
 	}
 	return strings.Join(x, ", ")
-}
-
-// Config is the `config` command help and action.
-func Config(c *config.Config) *cli.Command {
-	return &cli.Command{
-		Name:        "config",
-		Aliases:     []string{"c"},
-		Usage:       "list the server configuration",
-		Description: "List the available server configuration options and the settings.",
-		Action: func(_ *cli.Context) error {
-			defer fmt.Fprintf(os.Stdout, "%s\n", c.String())
-			defer func() {
-				ds, _ := postgres.New()
-				b := new(strings.Builder)
-				ds.Configurations(b)
-				fmt.Fprintf(os.Stdout, "%s\n", b.String())
-			}()
-			return nil
-		},
-	}
 }
 
 // Copyright returns the © symbol, years and author of this program.
@@ -210,7 +210,8 @@ func Run(ver string, c *config.Config) (ExitCode, error) {
 	if c == nil {
 		return UsageError, ErrCmd
 	}
-	useArguments := len(os.Args[1:]) > 0
+	args := os.Args[1:]
+	useArguments := len(args) > 0
 	if useArguments {
 		return setup(ver, c)
 	}

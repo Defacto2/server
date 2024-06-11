@@ -19,6 +19,7 @@ before:
     - go mod tidy
 builds:
   - id: server
+    main: server.go
     env:
       - CGO_ENABLED=0
     targets:
