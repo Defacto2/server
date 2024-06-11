@@ -188,3 +188,64 @@ More detailed information is available in the [package documentation](https://pk
 ### Source code
 
 Instructions for editing, testing and running the source code are available in the [package documentation](https://pkg.go.dev/github.com/Defacto2/server).
+
+
+# Installation
+
+Installation instructions are provided for [Ubuntu Server] but should be similar for other Linux distributions.
+
+	// this is a placeholder
+	cd ~
+	// todo rename the download file archive not include the version number
+	wget https://github.com/Defacto2/server/releases/latest/download/df2-server_0.5.0_linux.zip
+	unzip df2-server_0.5.0_linux.zip
+	sudo dpkg -i df2-server_0.5.0_linux.deb
+	df2-server --version
+
+# Using the source code
+
+The repository configurations use [Task] for binary compiling, which needs local installation.
+
+A new cloned repository needs to download dependencies.
+
+	task _init
+
+The list of available tasks can be shown.
+
+	task --list-all (or just task)
+
+To run a local server with live reloading, reflecting any source code changes.
+The task uses the `.env.local` file for configurations which should be in the repository root directory.
+A `example.env.local` file is provided as a template.
+
+	task serve
+
+To reflect any changes to the JS or CSS files, a task is available to minify and copy the assets.
+
+	task assets
+
+# Building the source code
+
+To build a binary for the local machine.
+
+	task build
+
+	# run the binary
+	./df2-server --version
+
+To build a collection of binaries for various platforms.
+The resulting packages are in the dist directory in the repository root.
+
+	build-release
+
+	# or if the source code has changed
+	build-snapshot
+
+	# list the contents of the dist directory
+	ls -l dist/
+
+# Lint source code changes
+
+The application is configured to use [golangci-lint] as the Go linter aggregator.
+
+	task lint
