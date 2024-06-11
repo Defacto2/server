@@ -7,7 +7,7 @@ require (
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/dustin/go-humanize v1.0.1
-	github.com/evanw/esbuild v0.21.4
+	github.com/evanw/esbuild v0.21.5
 	github.com/friendsofgo/errors v0.9.2
 	github.com/gabriel-vasile/mimetype v1.4.4
 	github.com/google/uuid v1.6.0
@@ -27,9 +27,9 @@ require (
 	github.com/volatiletech/strmangle v0.0.6
 	go.uber.org/zap v1.27.0
 	golang.org/x/exp v0.0.0-20240531132922-fd00a4e0eefc
-	golang.org/x/image v0.16.0
-	golang.org/x/text v0.15.0
-	google.golang.org/api v0.182.0
+	golang.org/x/image v0.17.0
+	golang.org/x/text v0.16.0
+	google.golang.org/api v0.183.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
@@ -87,7 +87,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
-	golang.org/x/oauth2 v0.20.0 // indirect
+	golang.org/x/oauth2 v0.21.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
