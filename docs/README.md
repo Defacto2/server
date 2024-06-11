@@ -1,4 +1,4 @@
-# Defacto2, the web application server
+# Defacto2, <small>web application server</small>
 
 ```
       ·      ▒██▀ ▀       ▒██▀ ▀              ▀ ▀▒██             ▀ ▀███ ·
@@ -9,243 +9,205 @@
       │                                                                 :
 ```
 
-The [Defacto2](https://defacto2.net) web server is a self-contained application, first created in 2023 and built with the [Go language](https://go.dev/). And can be easily compiled for [major operating systems](https://pkg.go.dev/internal/platform#pkg-variables).
+The Defacto2 application is a self-contained web server first devised in 2023.
+It is built with the Go language and can be easily compiled for significant server operating systems.
+The application relies on a [PostgreSQL](https://www.postgresql.org/) database setup for data queries using a PostgreSQL [database connection](https://www.postgresql.org/docs/current/ecpg-sql-connect.html).
 
-The web server relies on a [PostgreSQL database](https://www.postgresql.org/) for data queries, best provided using a container such as [Docker](https://www.docker.com/).
+All configurations and modifications to this web application's default settings are through system environment variables.
 
-All configurations and settings for the web application are through system environment variables.
-Variables are handled within the container's environment on a production setup, such as with a Docker container.
+While you can compile the application to target Windows environments, it is ill-advised as it needs to work correctly with NTFS file paths. Instead, it is advisable to use Windows Subsystem for Linux.
 
 ## Download
 
-Numerous downloads are available for [Windows](https://github.com/Defacto2/server/releases/latest/download/defacto2-app_windows_amd64_v1.zip), [macOS](https://github.com/Defacto2/server/releases/latest/download/df2-server_darwin_all.zip), [Linux](https://github.com/Defacto2/server/releases/latest/download/defacto2-app_linux_amd64_v1.zip.zip) and more.
-
-The server app is a standalone, self-contained terminal program, but requires additional setups such as an running [Defacto2 PostgreSQL database](https://github.com/Defacto2/database-ps).
+Currently the application is available as a [standalone binary for Linux](https://github.com/Defacto2/server/releases/download/v0.5.0/df2-server_0.5.0_linux.zip).
 
 ## Installation
 
-All the instructions assume macOS, Linux or Windows Subsystem for Linux (WSL).
-
-### Docker
-
-The recommended way to run the server app is to use a [Docker](https://www.docker.com/) container. 
-
-#### Database
-
-Firstly, set up the [Defacto2 PostgreSQL database](https://github.com/Defacto2/database-ps).
+Installation instructions are provided for [Ubuntu Server](https://ubuntu.com/server) but should be similar for other Linux distributions.
 
 ```sh
-# clone the database repository
+# change to the home directory
 cd ~
-git clone git@github.com:Defacto2/database-ps.git
-cd ~/database-ps
 
-# migrate the Defacto2 data from MySQL to PostgreSQL
-docker compose --profile migrater up
+# download and unzip the latest release
+wget https://github.com/Defacto2/server/releases/latest/download/df2-server_0.5.0_linux.zip
+unzip df2-server_0.5.0_linux.zip
 
-# stop the running database by pressing CTRL+C
-# cleanup the unnecessary volumes and containers
-docker compose rm migrate mysql dbdump --stop
-docker volume rm database-ps_tmpdump database-ps_tmpsql
+# make the binary executable
+sudo chmod +x df2-server
 
-# restart the database to run in the background
-docker compose up -d
-```
-
-#### Web server
-
-A preconfigured docker-compose file exists for use with Docker Desktop or docker.
-
-[Download the `docker-compose.yml` file](https://github.com/Defacto2/server/blob/main/docker-compose.yml) to a local directory such as `~/df2-server`.
-
-```sh
-# create the local directory
-mkdir ~/df2-server
-
-# copy the downloaded docker-compose.yml file to the directory
-cp ~/downloads/docker-compose.yml ~/df2-server
-```
-
-Create a `.env` file to store our environment variables for the container and copy [the .env example](#example-env) content and save.
-
-```sh
-cd ~/df2-server
-
-# create the .env file and paste then save the example content
-touch .env
-nano .env
-```
-
-Start the container and the web server will be available on the _localhost_ with port `1323`.
-
-#### http://localhost:1323
-
-```sh
-docker compose up -d
-```
-
-### Example `.env` 
-
-Docker uses the `.env` file to set container environment variables.
-
-```ini
-# ===================
-#  Database settings
-# ===================
-
-# The connection string to the PostgreSQL database.
-D2_DATABASE_URL=postgres://root:example@localhost:5432/defacto2_ps
-
-# ===================
-#  Optional, directory paths for the serving of static files.
-# ===================
-
-# The absolute directory path that holds the UUID named files for the downloads.
-D2_DIR_DOWNLOAD=/home/ben/defacto2/downloads
-
-# The absolute directory path that holds the UUID named files for the images.
-D2_DIR_PREVIEW=/home/ben/defacto2/images
-
-# The absolute directory path that holds the UUID named files for the thumbnails.
-D2_DIR_THUMBNAIL=/home/ben/defacto2/thumbnails
-
-# ===================
-#  Web application and server settings
-# ===================
-#
-# The unencrypted port number that the HTTP web server will listen on.
-D2_HTTP_PORT=1323
-```
-
-### Local
-
-Download the latest release for your operating system from the [releases page](https://github.com/Defacto2/server/releases).
-
-Uncompress the downloaded file and run the binary. The application uses environment variables to configure the database connection and other settings. But these can be set and unset using a `.env` file and a shell script.
-
-```sh
-# create the local directory for the binary and configuration
-mkdir ~/df2-server
-
-# uncompressed the downloaded file to the directory
-unzip ~/downloads/defacto2-app_linux_amd64_v1.zip -d ~/df2-server
-cd ~/df2-server
+# move the binary to the system path
+sudo mv df2-server /usr/local/bin
 
 # confirm the binary is executable
-chmod +x df2-server
-./df2-server --version
-
-# create the .env file and edit, paste and save the example content
-touch .env
-nano .env
-
-# create, paste and save the shell script example content (listed below) to a file named run.sh
-touch run.sh
-nano run.sh
-
-# make the shell script executable and run it
-chmod +x run.sh
-./run.sh
-```
-
-#### Example `run.sh` shell script
-
-```sh
-#!/bin/bash
-
-# The following script is used to run the server with environment variables.
-# The environment variables are loaded from a file named ".env" but 
-# this can be changed by modifying the FILENAME variable below.
-#
-# The df2-server binary should be in the same directory as this script.
-
-# Filename containing the environment variables
-FILENAME=.env
-
-# Load environment variables from .env
-echo -e "Loading environment variables from $FILENAME\n"
-export $(grep -E -v '^#' $FILENAME | xargs)
-
-# Run the server
-./df2-server
-
-# Unset environment variables from .env
-echo -e "\nUnset environment variables from $FILENAME\n"
-unset $(grep -E -v '^#' $FILENAME | sed -E 's/(.*)=.*/\1/' | xargs)
-
+df2-server --version
 ```
 
 ## Usage
 
-The web application has a basic help for the command line interface.
+The web server will run with out any arguments and will be available on the _[localhost](http://localhost)_ with port `1323`.
 
 ```sh
-./df2-server --help
+df2-server
 ```
 
-More detailed information is available in the [package documentation](https://pkg.go.dev/github.com/Defacto2/server).
+To stop the server, press `CTRL+C`.
 
-### Source code
+## Configuration
 
-Instructions for editing, testing and running the source code are available in the [package documentation](https://pkg.go.dev/github.com/Defacto2/server).
+The application uses environment variables to configure the database connection and other settings. These are documented in the [software package documentation](https://pkg.go.dev/github.com/Defacto2/server). 
 
+There are examples of the environment variables in the [example .env](../init/example.env.local) and the [example .service](../init/defacto2.service) files found in the `init/` directory.
 
-# Installation
+## Source code
 
-Installation instructions are provided for [Ubuntu Server] but should be similar for other Linux distributions.
+The source code requires a local [installation of Go](https://go.dev/doc/install) version 1.22 or newer. 
 
-	// this is a placeholder
-	cd ~
-	// todo rename the download file archive not include the version number
-	wget https://github.com/Defacto2/server/releases/latest/download/df2-server_0.5.0_linux.zip
-	unzip df2-server_0.5.0_linux.zip
-	sudo dpkg -i df2-server_0.5.0_linux.deb
-	df2-server --version
+> [!IMPORTANT]
+> While you can compile the application to target Windows environments, it will not function correctly with NTFS file paths. Instead, it is advisable to use Windows Subsystem for Linux.
 
-# Using the source code
+Clone the source code repository and download the dependencies.
 
-The repository configurations use [Task] for binary compiling, which needs local installation.
+```sh
+# clone the repository
+git clone
 
-A new cloned repository needs to download dependencies.
+# change to the server repository directory
+cd server
 
-	task _init
+# optional, download the dependencies
+go mod download
+
+# test the application
+go run . --version
+```
+
+## Source code tasks
+
+The repository is configured to use the [Task](https://taskfile.dev/installation/) application which needs local installation.
+
+### First time initialization
+
+A new cloned repository needs to download a number of developer specific dependencies.
+
+```sh
+# change to the server repository directory
+cd server
+
+# run the initialization task
+task _init
+
+# confirm the tools are installed
+task ver
+```
 
 The list of available tasks can be shown.
 
-	task --list-all (or just task)
+```sh
+$ task --list-all
 
-To run a local server with live reloading, reflecting any source code changes.
-The task uses the `.env.local` file for configurations which should be in the repository root directory.
-A `example.env.local` file is provided as a template.
+task: Available tasks for this project:
+* _init:                Initialise this project for the first time after a git clone.
+* assets:               Build, compile and compress the web serve CSS and JS assets.
+* build:                Build the binary of the web server.
+* build-race:           Build the binary of the web server with race detection.
+* build-release:        Build the release binary of the web server embeded with the git version tag.  
+* build-snapshot:       Build the release binary of the web server without a git version tag. 
+* default:              Task runner for the Defacto2 web server source code.
+* doc:                  Generate and browse the application module documentation.
+* lint:                 Runs the go formatter and lints the source code.
+* lint+:                Runs the deadcode and betteralign linters on the source code.
+* nil:                  Run the static analysis techniques to catch Nil dereferences.
+* pkg-patch:            Update and apply patches to the web server dependencies.
+* pkg-update:           Update the web server dependencies.
+* serve-dev:            Run the internal web server in development mode with live reload.
+* serve-prod:           Run the internal web server with live reload.
+* test:                 Run the test suite.
+* testr:                Run the test suite with the slower race detection.
+* ver:                  Print the versions of the build and compiler tools.
+```
 
-	task serve
+### Configuration
 
-To reflect any changes to the JS or CSS files, a task is available to minify and copy the assets.
 
-	task assets
+### Run the development server
 
-# Building the source code
+Run the internal web server in fast-start, development mode with live reloading of any changes to the Go source code.
 
-To build a binary for the local machine.
+```sh
+task serve-dev
+```
 
-	task build
+### Run the production server
 
-	# run the binary
-	./df2-server --version
+Run the internal web server in production mode with live reloading of any changes to the Go source code.
 
-To build a collection of binaries for various platforms.
-The resulting packages are in the dist directory in the repository root.
+```sh
+task serve-prod
+```
+### CSS and JS assets
 
-	build-release
+JavaScript and CSS assets are found in `assets/` and are compiled and compressed into the `public/` directory. Changes to the assets will require the assets task to be run.
 
-	# or if the source code has changed
-	build-snapshot
+```sh
+task assets
+```
 
-	# list the contents of the dist directory
-	ls -l dist/
+### Source code linting
 
-# Lint source code changes
+The source code is linted using the [golangci-lint](https://golangci-lint.run/) aggregator that runs a number of linters locally.
 
-The application is configured to use [golangci-lint] as the Go linter aggregator.
+```sh
+task lint
+```
 
-	task lint
+### Testing
+
+The source code has a test suite that can be run.
+
+```sh
+task test
+```
+
+### Documentation
+
+The application configuration documentation can be generated and viewed in a web browser.
+
+```sh
+task doc
+```
+
+Or check for race conditions in the test suite.
+
+```sh
+task testr
+```
+
+### Building the source code
+
+Building the distribution package for the server application is done using a local installation of  [GoReleaser](https://goreleaser.com/install/).
+
+To build a snapshot binary for the local machine without a version tag.
+
+```sh
+task build-snapshot
+```
+
+The resulting binary is in the `dist/` directory in the repository root.
+
+### Building a release binary
+
+```sh
+# check the configuration file
+goreleaser check init/.goreleaser.yaml
+
+# create a new, original tag
+git tag -a v1.0.1 -m "First update to the release version."
+git push origin v1.0.1
+
+# build the release binary
+task build-release
+```
+
+The resulting built package is found in the `dist/` directory in the repository root.
+

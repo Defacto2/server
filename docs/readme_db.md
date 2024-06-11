@@ -100,3 +100,27 @@ postgres psql
 ```sql
 # SELECT * FROM files;
 ```
+
+
+
+#### Database
+
+Firstly, set up the [Defacto2 PostgreSQL database](https://github.com/Defacto2/database-ps).
+
+```sh
+# clone the database repository
+cd ~
+git clone git@github.com:Defacto2/database-ps.git
+cd ~/database-ps
+
+# migrate the Defacto2 data from MySQL to PostgreSQL
+docker compose --profile migrater up
+
+# stop the running database by pressing CTRL+C
+# cleanup the unnecessary volumes and containers
+docker compose rm migrate mysql dbdump --stop
+docker volume rm database-ps_tmpdump database-ps_tmpsql
+
+# restart the database to run in the background
+docker compose up -d
+```
