@@ -171,13 +171,14 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Year: 1976, Month: 3, Title: "The first Apple computer",
-			Lead: "Apple-1", LinkTitle: "about the Apple-1",
+			Year: 1976, Month: 3, Title: "The Apple Computer",
+			Lead: "By the APPLE Computer Company", LinkTitle: "about the Apple-1",
 			Link: "https://www.computerhistory.org/revolution/personal-computers/17/312/1132",
-			Content: "<p>Steve Wozniak and Steve Jobs release the Apple&nbsp;I, a single-board computer with a " +
+			Content: "<p>Steve Wozniak and Steve Jobs released The Apple Computer, later rebranded as the Apple I. It was a single-board device for electronic hobbyists with a " +
 				"<a href=\"https://spectrum.ieee.org/chip-hall-of-fame-mos-technology-6502-microprocessor\">MOS 6502</a> CPU, 4KB of RAM, and a 40-column display controller.</p>" +
-				"<p>Unlike the more popular and earlier Altair&nbsp;8800, the Apple Computer wasn't usable out of the box and didn't come with a case. However, <a href=\"https://upload.wikimedia.org/wikipedia/commons/4/48/Apple_1_Advertisement_Oct_1976.jpg\">it did offer</a> a convenient video terminal, cassette, and keyboard interface, requiring owners to supply peripherals for output, storage, and input." +
-				"</p><p>The choice of the new, powerful, and affordable <strong>MOS 6502</strong> CPU showed foresight, as it later became the basis of far more successful microcomputer and consoles.<p>" +
+				"<p>Unlike the far more popular Altair&nbsp;8800, The Apple Computer wasn't usable out of the box and didn't come with a case. However, <a href=\"https://upload.wikimedia.org/wikipedia/commons/4/48/Apple_1_Advertisement_Oct_1976.jpg\">it did offer</a> a convenient video terminal, cassette, and keyboard interface, but requires owners to supply peripherals for input, output, and storage.</p>" +
+				"<p>The board is a commercial failure, selling less than 200 units, and could be considered more of a prototype for the company and third-party investors. The following year, the product line was <a href=\"https://www.applefritter.com/node/2706\">replaced with circuit boards</a> housing an Apple II.</p>" +
+				"<p>The choice of the new <strong>MOS 6502 CPU</strong> showed foresight, as it became the foundation of many successful microcomputers and consoles.<p>" +
 				ul0 +
 				"<li>Atari&nbsp;2600 <sup>1977</sup></li>" +
 				"<li>Apple&nbsp;II <sup>1977</sup></li>" +
@@ -194,10 +195,10 @@ func Collection() Milestones {
 				"Gary was an occasional consultant for Intel's microprocessor division, which gave him access to hardware and personnel. " +
 				"CP/M became the first successful microcomputer operating system. " +
 				"It dominated the remainder of the 1970s and is the default platform for most computers running an <strong>Intel 8080</strong>, <strong>8085</strong> or its compatible competitor, the <strong>Zilog Z-80</strong>.</p>" +
-				"<p>IBM and Microsoft's later PC-DOS / MS-DOS took a lot of inspiration<sup><a href=\"#cpm-operating-system-fn1\">[1]</a></sup> from CP/M and supplanted " +
-				"it as the dominant, open hardware, microcomputing operating system.</p>" +
+				"<p>IBM's PC-DOS and later, Microsoft's MS-DOS took a lot of inspiration from CP/M<sup><a href=\"#cpm-operating-system-fn1\">[1]</a></sup>, " +
+				"with DOS supplanting it as the dominant, open hardware, microcomputing operating system.</p>" +
 				sect0 +
-				"<div id=\"cpm-operating-system-fn1\">[1] Many <a href=\"https://www.wired.com/2012/08/ms-dos-examined-for-thef/\">argue</a> the design of DOS and even source code was stolen from CP/M.</div>" +
+				"<div id=\"cpm-operating-system-fn1\">[1] <a href=\"https://www.wired.com/2012/08/ms-dos-examined-for-thef/\">Many argue</a> the design of DOS and even parts of the source code was stolen from CP/M.</div>" +
 				sect1,
 		},
 		{
@@ -205,8 +206,8 @@ func Collection() Milestones {
 			Lead: "The second generation of microcomputers", LinkTitle: "about the Apple II, Commodore PET and Tandy TRS-80",
 			Link: "https://cybernews.com/editorial/the-1977-trinity-and-other-era-defining-pcs/",
 			Content: "<p>The <strong>Commodore&nbsp;PET</strong>, <strong>Apple&nbsp;II</strong>, and the <strong>Tandy TRS-80</strong> " +
-				"were released as the first widely available microcomputers. " +
-				"By the end of the year, a potential customer in the USA could walk into a mall or specialist retail shop and walk out with a complete personal computer ready to use.</p>" +
+				"became the first successful microcomputers marketed to a mainstream consumer rather than an electronics hobbyist. " +
+				"By the end of the year, a potential customer in the USA could walk into a mall or specialist retail shop and walk out with a complete personal computer ready to use. However, in 1977, things began slowly for Commodore and Apple.</p>" +
 				"<strong>Commodore PET</strong> <em>Personal Electronic Transactor</em><br>" +
 				"<p>Commodore was the first to announce its machine in January at CES, but shipping only occurred in mid-October. Even then, the numbers were tiny, with the end-of-year batches reaching just 500 boxed machines.</p>" +
 				"<strong>Apple II</strong><br>" +
@@ -354,24 +355,24 @@ func Collection() Milestones {
 			Title: "The birth of wares", Year: 1980, Highlight: true,
 			Lead: "The Apple II", Link: "http://artscene.textfiles.com/intros/APPLEII/", LinkTitle: "and browse the Apple II crack screens",
 			Content: // kids with micros
-			"<p>Without software, microcomputers of the era were <a href=\"http://www.apple-iigs.info/doc/fichiers/Apple%20Price%20List%201978-08.pdf\">expensive</a>, but mostly pointless machines<sup><a href=\"#the-birth-of-warez-fn2\">[2]</a></sup>. " +
+			"<p>Without good software<sup><a href=\"#the-birth-of-warez-fn2\">[2]</a></sup>, the <a href=\"http://www.apple-iigs.info/doc/fichiers/Apple%20Price%20List%201978-08.pdf\">expensive</a> microcomputers of the era were but mostly pointless machines. " +
 				"Getting them online with modems was challenging<sup><a href=\"#the-birth-of-warez-fn5\">[5]</a></sup>. " +
 				"So understandably, the computer owners who were into microcomputing would befriend like-minded people to exchange information and share software.</p>" +
 				// apple modems
-				"<p>1979-1980 saw the sale of the first Apple&nbsp;II <a href=\"https://www.apple2history.org/history/ah13/#09\">modem peripherals</a>, the Hayes&nbsp;Micromodem&nbsp;II and the Novation&nbsp;CAT. " +
-				"These modems and the development of usable modem software such as ASCII Express enabled Apple owners to connect to electronic message boards, communicate, and even exchange files remotely using the telephone.</p>" +
+				"<p>1979 saw the sale of the first Apple&nbsp;II <a href=\"https://www.apple2history.org/history/ah13/#09\">modem peripheral</a>, the Hayes&nbsp;Micromodem&nbsp;II and later, the Novation&nbsp;CAT. " +
+				"These modems and the development of usable modem software such as ASCII&nbsp;Express in 1980, enabled Apple owners to connect to electronic message boards, communicate, and even exchange files remotely using the telephone.</p>" +
 				// telephone costs
-				"<p>One problem with the telephone was the cost; explicitly making calls outside the caller's local area was charged by the minute. " +
-				"So, combining a slow microcomputer with an even slower modem communication device often led to a costly phone bill. But long-distance " +
-				"<a href=\"https://www.slate.com/articles/technology/the_spectator/2011/10/the_article_that_inspired_steve_jobs_secrets_of_the_little_blue_.html\">phone phreaking</a> had been a well-established underground movement, " +
-				" allowing callers to trick the company operating the phone network into misbilling or giving away long-distance phone calls.</p>" +
+				"<p>One problem with telephones was that the expense of making calls outside the caller's local area was charged by the minute. " +
+				"So, combining a slow microcomputer with an even slower modem on the phone network often led to a prohibitively costly phone bill. But " +
+				"<a href=\"https://www.slate.com/articles/technology/the_spectator/2011/10/the_article_that_inspired_steve_jobs_secrets_of_the_little_blue_.html\">phone phreaking</a> had been a well-established, anti-corporate movement, " +
+				" allowing callers to trick a phone company into misbilling or giving away expensive, long-distance phone calls.</p>" +
 				// birth of warez
-				"<p>So when was the birth of wares<sup><a href=\"#the-birth-of-warez-fn1\">[1]</a></sup> and a Warez scene? There's no exact answer, but a good guess would be <strong>sometime&nbsp;in&nbsp;1980</strong> in the USA. " +
-				"By then, microcomputer owners exchanged real-life details online to meet up, duplicate, and exchange software collections. And, importantly, to find ways to remove Apple II disk copy protections and show off the results.</p>" +
+				"<p>So when was the birth of wares<sup><a href=\"#the-birth-of-warez-fn1\">[1]</a></sup> and a Warez scene? " +
+				"There's no exact answer, but a good guess would be <strong>sometime&nbsp;in&nbsp;1980</strong> in the USA, maybe in the New York tri-state area, Massachusetts, California, or elsewhere. " +
+				"By then, microcomputer owners exchanged details to meet in real life and online to duplicate and exchange software collections. And, importantly, to find ways to remove Apple II disk copy protections and show off the results. " +
 				// warez dating
-				"<p>Individual pirates who removed or cracked disk copy protection from software on the Apple&nbsp;II were dating their activity at the end of 1980 and in 1981. " +
-				"Still, many modified, <q>cracked</q>, or <q>broken</q> by ingame title screens<sup><a href=\"#the-birth-of-warez-fn4\">[4]</a></sup> exist for games published in <strong>1980</strong> and 1981. " +
-				"While an unmodified copyright notice doesn't always mean the game crack is from the same year, it is a fair assumption.</p>" +
+				"The pirates, also often identified as phone phreaks, removed or cracked disk copy protection on the Apple&nbsp;II and were dating their activity towards the end of 1980<sup><a href=\"#the-birth-of-warez-fn4\">[4]</a></sup> and in 1981. " +
+				"Likewise, many modified, <q>cracked</q>, or <q>broken</q> ingame title screens exist for games published in those years.</p>" +
 				// other platforms
 				"<p>As for the other microcomputer platforms, the far more <a href=\"http://www.trs-80.org/was-the-trs-80-once-the-top-selling-computer/\">popular</a> " +
 				"TRS-80 from Tandy had a <a href=\"http://www.trs-80.org/telephone-interface/\">modem peripheral</a> available at the end of 1978. " +
@@ -379,8 +380,7 @@ func Collection() Milestones {
 				"Atari&nbsp;400/800 <a href=\"http://www.atarimania.com/faq-atari-400-800-xl-xe-what-other-modems-can-i-use-with-my-atari_47.html\">until 1981</a>, and the famous Commodore&nbsp;64 was years away.</p>" +
 				sect0 +
 				"<div id=\"the-birth-of-warez-fn1\">[1] Warez was originally spelt with an <q>s</q> after the dictionary spelling.</div>" +
-				"<div id=\"the-birth-of-warez-fn2\">[2] The first <q>killer app</q> for the Apple&nbsp;II, <a href=\"https://www.apple2history.org/history/ah18/#07\">VisiCalc</a>," +
-				" the first spreadsheet for microcomputers, was only released in the last few months of 1979.</div>" +
+				"<div id=\"the-birth-of-warez-fn2\">[2] <a href=\"https://www.apple2history.org/history/ah18/#07\">VisiCalc</a>, the first useful <q>killer app</q>, was only published in the last few months of 1979.</div>" +
 				"<div id=\"the-birth-of-warez-fn3\">[3] Mars Cars!! <q>(C) CRACKED 1982</q> <a href=\"http://artscene.textfiles.com/intros/APPLEII/marscars.gif\">crack screen</a>.</div>" +
 				"<div id=\"the-birth-of-warez-fn4\">[4] Crack screens with a Copyright 1980 and 1981 notice " +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/tcommand.gif\">1</a>, " +
