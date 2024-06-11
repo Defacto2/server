@@ -309,6 +309,19 @@ func tlsPort(w *tabwriter.Writer, id, name string, val reflect.Value) {
 	fmt.Fprintf(w, "%d, the web server will use HTTPS, example: https://localhost:%d\n", port, port)
 }
 
+// tlsCert prints the TLS certificate and key locations to the tabwriter.
+func tlsCert(w *tabwriter.Writer, id, name string, val reflect.Value, tlsport uint) {
+	if tlsport == 0 {
+		fmt.Println(w, "Not used")
+		return
+	}
+	if val.String() == "" {
+		fmt.Fprintf(w, "\t%s\t%s\tEmpty, will use a placeholder configuration\n", fmtID(id), name)
+		return
+	}
+	value(w, id, name, val)
+}
+
 // maxProcs prints the number of CPU cores to the tabwriter.
 func maxProcs(w *tabwriter.Writer, id, name string, val reflect.Value) {
 	fmt.Fprintf(w, "\t%s\t%s\t", fmtID(id), name)
@@ -382,6 +395,8 @@ func (c Config) fmtField(w *tabwriter.Writer,
 		httpPort(w, id, name, val)
 	case "TLSPort":
 		tlsPort(w, id, name, val)
+	case "TLSCert", "TLSKey":
+		tlsCert(w, id, name, val, c.TLSPort)
 	case down, prev, thumb, logger:
 		dir(w, id, name, val.String())
 	case "MaxProcs":
