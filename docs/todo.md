@@ -26,3 +26,4 @@
 ### Backend
 
 - [ ] *? Implememnt a [scheduling library for Go](https://github.com/reugn/go-quartz)
+- [ ] [xstrings](https://github.com/huandu/xstrings) for string manipulation.
