@@ -237,10 +237,19 @@ task testr
 
 ### Documentation
 
-The application configuration documentation can be generated and [viewed in a web browser](http://localhost:8090).
+The application configuration documentation can be modified in [`doc.go`](../doc.go) and the changes regenerated and [previewed in a web browser](http://localhost:8090).
 
 ```sh
 task doc
+```
+
+```go
+// Copyright © 2023-2024 Ben Garrett. All rights reserved.
+
+/*
+
+The [Defacto2] application is a self-contained web server first devised in 2023.
+It is built with the Go language and can be easily compiled for significant server 
 ```
 
 ### Building the source code
