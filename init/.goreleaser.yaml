@@ -71,8 +71,6 @@ checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
-signs:
-  - artifacts: checksum
 changelog:
   sort: asc
   filters:
