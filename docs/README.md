@@ -1,7 +1,8 @@
 # Defacto2, <small>web application server</small>
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/Defacto2/server.svg)](https://pkg.go.dev/github.com/Defacto2/server)
-
+[![Go Reference](server.svg)](https://pkg.go.dev/github.com/Defacto2/server)
+[![License](license.svg)](./LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Defacto2/server)](https://goreportcard.com/report/github.com/Defacto2/server)
 
 ```
       ·      ▒██▀ ▀       ▒██▀ ▀              ▀ ▀▒██             ▀ ▀███ ·
@@ -20,7 +21,7 @@ All configurations and modifications to this web application's default settings 
 
 ## Download
 
-Currently the application is available as a [standalone binary for Linux](https://github.com/Defacto2/server/releases/download/v0.5.0/df2-server_0.5.0_linux.zip).
+Currently the application is available as a [standalone binary for Linux](https://github.com/Defacto2/server/releases/download/v0.6.0/df2-server_0.6.0_linux.zip).
 
 ## Installation
 
@@ -31,8 +32,8 @@ Installation instructions are provided for [Ubuntu Server](https://ubuntu.com/se
 cd ~
 
 # download and unzip the latest release
-wget https://github.com/Defacto2/server/releases/latest/download/df2-server_0.5.0_linux.zip
-unzip df2-server_0.5.0_linux.zip
+wget https://github.com/Defacto2/server/releases/latest/download/df2-server_0.6.0_linux.zip
+unzip df2-server_0.6.0_linux.zip
 
 # make the binary executable
 sudo chmod +x df2-server
@@ -120,21 +121,21 @@ task ver
 The list of available tasks can be shown.
 
 ```sh
-$ task --list-all
+$ task # --list-all
 
 task: Available tasks for this project:
 * _init:                Initialise this project for the first time after a git clone.
 * assets:               Build, compile and compress the web serve CSS and JS assets.
 * build:                Build the binary of the web server.
 * build-race:           Build the binary of the web server with race detection.
-* build-release:        Build the release binary of the web server embeded with the git version tag.  
-* build-snapshot:       Build the release binary of the web server without a git version tag. 
 * default:              Task runner for the Defacto2 web server source code.
 * doc:                  Generate and browse the application module documentation.
 * lint:                 Runs the go formatter and lints the source code.
 * lint+:                Runs the deadcode and betteralign linters on the source code.
 * nil:                  Run the static analysis techniques to catch Nil dereferences.
 * pkg-patch:            Update and apply patches to the web server dependencies.
+* pkg-release:          Build the release binary of the web server embeded with the git version tag.  
+* pkg-snapshot:         Build the release binary of the web server without a git version tag. 
 * pkg-update:           Update the web server dependencies.
 * serve-dev:            Run the internal web server in development mode with live reload.
 * serve-prod:           Run the internal web server with live reload.
@@ -228,33 +229,48 @@ The source code has a test suite that can be run.
 task test
 ```
 
-### Documentation
-
-The application configuration documentation can be generated and viewed in a web browser.
-
-```sh
-task doc
-```
-
 Or check for race conditions in the test suite.
 
 ```sh
 task testr
 ```
 
+### Documentation
+
+The application configuration documentation can be generated and [viewed in a web browser](http://localhost:8090).
+
+```sh
+task doc
+```
+
 ### Building the source code
+
+The source code can be built into a binary for the local machine.
+
+```sh
+task build
+
+# or to build with race detection
+task buildx
+```
+
+The resulting `df2-server` binary is built in the repository root directory.
+
+### Packaging a release
 
 Building the distribution package for the server application is done using a local installation of  [GoReleaser](https://goreleaser.com/install/).
 
-To build a snapshot binary for the local machine without a version tag.
+#### Test a package release
+
+To package a snapshot binary for the local machine without a version tag.
 
 ```sh
-task build-snapshot
+task pkg-snapshot
 ```
 
 The resulting binary is in the `dist/` directory in the repository root.
 
-### Building a release binary
+#### Packaging a release
 
 ```sh
 # check the configuration file
@@ -265,8 +281,37 @@ git tag -a v1.0.1 -m "First update to the release version."
 git push origin v1.0.1
 
 # build the release binary
-task build-release
+task pkg-release
 ```
 
 The resulting built package is found in the `dist/` directory in the repository root.
 
+### Modifying the database schema
+
+The web application relies on an Object-relational mapping (ORM) implementation provided by [SQLBoiler](https://github.com/volatiletech/sqlboiler) to simplify development. If the database schema ever changes with a new table column, a modification of an existing column type, or a name change, the ORM code generation requires a rerun.
+
+After modifying the database schema, confirm the local development database connection settings are correct in the SQLBoiler [settings file](../init/.sqlboiler.toml) `init/.sqlboiler.toml`.
+
+```toml
+[psql]
+schema = "public"
+dbname = "defacto2_ps"
+host = "localhost"
+port = 5432
+user = "root"
+pass = "example"
+sslmode = "disable"
+
+[auto-columns]
+created = "createdat"
+updated = "updatedat"
+deleted = "deletedat"
+```
+
+Then in the root of the repository, run go generate.
+
+```sh
+go generate
+```
+
+The generated code is found in the `internal/postgres/model/` directory and is ready for use.
