@@ -7,7 +7,7 @@ require (
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/dustin/go-humanize v1.0.1
-	github.com/evanw/esbuild v0.21.4
+	github.com/evanw/esbuild v0.21.5
 	github.com/friendsofgo/errors v0.9.2
 	github.com/gabriel-vasile/mimetype v1.4.4
 	github.com/google/uuid v1.6.0
@@ -29,7 +29,7 @@ require (
 	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8
 	golang.org/x/image v0.17.0
 	golang.org/x/text v0.16.0
-	google.golang.org/api v0.183.0
+	google.golang.org/api v0.184.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
