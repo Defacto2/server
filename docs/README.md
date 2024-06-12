@@ -283,7 +283,7 @@ The resulting binary is in the `dist/` directory in the repository root.
 
 ```sh
 # check the configuration file
-goreleaser check init/.goreleaser.yaml
+goreleaser check --config init/.goreleaser.yaml
 
 # create a new, original tag
 git tag -a v1.0.1 -m "First update to the release version."

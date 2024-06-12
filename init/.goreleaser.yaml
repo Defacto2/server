@@ -7,11 +7,16 @@
 #
 # The configuration documentation is at https://goreleaser.com.
 #
-# To test any modifications to this configuration:
-# $ goreleaser check
-# $ goreleaser release --clean --snapshot
-# $ goreleaser build --clean --snapshot
+# To install or update GoReleaser:
+# $ go install github.com/goreleaser/goreleaser/v2@latest
 #
+# To test any modifications to this configuration:
+# $ goreleaser check --config init/.goreleaser.yaml
+# $ goreleaser release --clean --snapshot --config init/.goreleaser.yaml
+# $ goreleaser build --clean --snapshot --config init/.goreleaser.yaml
+#
+version: 2
+
 project_name: df2-server
 before:
   hooks:
