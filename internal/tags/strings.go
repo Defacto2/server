@@ -27,6 +27,7 @@ func (t Tag) String() string {
 }
 
 func URIs() URIS {
+
 	return URIS{
 		Announcement: "announcements",
 		ANSIEditor:   "ansieditor",
