@@ -1,7 +1,7 @@
 # Defacto2, <small>web application server</small>
 
 [![Go Reference](server.svg)](https://pkg.go.dev/github.com/Defacto2/server)
-[![License](license.svg)](./LICENSE)
+[![License](license.svg)](../LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Defacto2/server)](https://goreportcard.com/report/github.com/Defacto2/server)
 
 ```
@@ -90,7 +90,7 @@ Clone the source code repository and download the dependencies.
 
 ```sh
 # clone the repository
-git clone
+git clone https://github.com/Defacto2/server.git
 
 # change to the server repository directory
 cd server
@@ -219,7 +219,15 @@ task serve-prod
 ```
 ### CSS and JS assets
 
-JavaScript and CSS assets are found in `assets/` and are compiled and compressed into the `public/` directory. Changes to the assets will require the assets task to be run.
+JavaScript and CSS assets are found in `assets/` and are compiled and compressed into the `public/` directory. 
+
+[ESBuild](https://esbuild.github.io/) is used to compile the JavaScript and it needs to be installed on the local machine. But, ESBuild can be [installed without](https://esbuild.github.io/getting-started/#download-a-build) the need for npm or node.js.
+
+```sh
+curl -fsSL https://esbuild.github.io/dl/latest | sh
+```
+
+Changes to the assets will require the assets task to be run.
 
 ```sh
 task assets
@@ -228,6 +236,8 @@ task assets
 ### Source code linting
 
 The source code is linted using the [golangci-lint](https://golangci-lint.run/) aggregator that runs a number of linters locally.
+
+If you want to optionally lint the CSS and JS assets, you will need to install [Stylelint](https://stylelint.io/) and [ESLint](https://eslint.org/) which will require [node.js](https://nodejs.org/) and a package manager.
 
 ```sh
 task lint

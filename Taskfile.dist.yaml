@@ -176,3 +176,5 @@ tasks:
       - cmd: go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql@latest
       - cmd: go install github.com/dkorunic/betteralign/cmd/betteralign@latest
       - cmd: go install golang.org/x/tools/cmd/deadcode@latest
+      - cmd: go install github.com/daixiang0/gci@latest
+      - cmd: go install golang.org/x/pkgsite/cmd/pkgsite@latest
