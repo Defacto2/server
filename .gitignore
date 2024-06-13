@@ -1,0 +1,25 @@
+# .gitignore
+#
+# Git ignore file for the Defacto2 server repository.
+#
+
+# compiled binary files
+defacto2-server
+df2-server
+server
+
+# temp directories
+dist/
+node_modules/
+tmp/
+
+# taskfile and docker compose
+.env.local
+.env
+
+# Windows
+*.exe
+
+# macOS
+*.DS_Store
+logs/

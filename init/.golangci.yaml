@@ -1,0 +1,158 @@
+# .golangci.yaml
+# Configure the golangci-lint linter that analyzes source code to flag programming errors,
+# bugs, stylistic errors, and suspicious constructs.
+# https://golangci-lint.run/
+#
+# To run the linter use either of the following commands:
+# $ task lint
+# $ golangci-lint run
+#
+linters:
+  enable-all: true
+  fast: false
+  # Disable specific linters.
+  disable:
+    # deprecated
+    - gomnd
+    - execinquery
+    # disabled
+    - depguard # imports are in a list of acceptable packages.
+    - exhaustive # checks exhaustiveness of enum switch statements.
+    - exhaustruct # finds structures with uninitialized fields.
+    - ireturn # conflicts with sqlboiler.
+    - nlreturn # fussy over whitespace.
+    - paralleltest # requires a lot of refactoring.
+    - varnamelen # a popular linter but is not idiomatic.
+    - wsl # fussy over whitespace.
+    # temporary disabled
+    #- godox
+issues:
+  exclude-rules:
+    - path: _test\.go$
+      linters: # Tests are allowed to be longer and don't need error wrapping.
+        - dupl
+        - funlen
+        - wrapcheck
+    - path: handler/router.go
+      linters: # The router is allowed to be longer.
+        - dupl # This causes false positives.
+        - funlen
+        - wrapcheck
+    - path: handler/routerhtmx.go
+      linters: # The router is allowed to be longer.
+        - dupl # This causes false positives.
+        - funlen
+        - wrapcheck
+    - path: handler/routerlock.go
+      linters: # The router is allowed to be longer.
+        - dupl # This causes false positives.
+        - funlen
+        - wrapcheck
+    - path: handler/app/context.go
+      linters: # These cause false positives.
+        - dupl
+        - wrapcheck
+    - path: handler/app/accordion.go
+      linters: # HTML content containing long form text.
+        - funlen
+        - lll
+    - path: handler/app/interview.go
+      linters: # HTML content containing long form text.
+        - funlen
+    - path: handler/app/milestone.go
+      linters: # HTML content containing long form text.
+        - funlen
+        - lll
+        - maintidx
+    - path: handler/htmx/artifact.go
+      linters: # These cause false positives.
+        - dupl
+        - wrapcheck
+    - path: internal/config/config.go
+      linters: # caarlos0/env package uses structs with long declarations.
+        - lll
+        - tagalign
+    - path: internal/demozoo/demozoo.go
+      linters: # false positives with the Demozoo API.
+        - tagliatelle
+    - path: internal/demozoo/demozoo_test.go
+      linters: # false positives with the Demozoo API.
+        - tagliatelle
+    - path: internal/jsdos/jsdos.go
+      linters: # long struct comments.
+        - lll
+    - path: internal/postgres/postgres.go
+      linters: # caarlos0/env package uses structs with long declarations.
+        - lll
+        - tagalign
+    - path: internal/pouet/pouet.go
+      linters: # false positives with the Pouet API.
+        - tagliatelle
+    - path: internal/site/site.go
+      linters: # A custom map that reads easier with long declarations.
+        - funlen
+        - maintidx
+    - path: model/files.*\.go$
+      linters:
+        - dupl
+
+linters-settings:
+  cyclop:
+    # The maximal code complexity to report.
+    # Default: 10
+    max-complexity: 17
+    skip-tests: true
+  funlen:
+    # Maximum function length in lines.
+    # Default: 50
+    lines: 60
+    statements: 45
+    ignore-comments: true
+  mnd:
+    # List of file patterns to exclude from analysis.
+    # Values always ignored: `.+_test.go`
+    # Default: []
+    ignored-files: # magic number false positives.
+      - "milestone.go"
+      - "interview.go"
+      - "zoo.go"
+  gosec:
+    # To select a subset of rules to run.
+    # Available rules: https://github.com/securego/gosec#available-rules
+    excludes:
+      - G203
+  misspell:
+    # Correct spellings using locale preferences for US or UK.
+    # Setting locale to US will correct the British spelling of 'colour' to 'color'.
+    # Default is to use a neutral variety of English.
+    locale: US
+    # Default: []
+    ignore-words:
+      - "Teh" # Teh Scene.
+  wrapcheck:
+    # An array of strings that specify substrings of signatures to ignore.
+    # If this set, it will override the default set of ignored signatures.
+    # See https://github.com/tomarrell/wrapcheck#configuration for more information.
+    # Default: [".Errorf(", "errors.New(", "errors.Unwrap(", "errors.Join(", ".Wrap(", ".Wrapf(", ".WithMessage(", ".WithMessagef(", ".WithStack("]
+    ignoreSigs:
+      - .Errorf(
+      - errors.New(
+      - errors.Unwrap(
+      - errors.Join(
+      - .Wrap(
+      - .Wrapf(
+      - .WithMessage(
+      - .WithMessagef(
+      - .WithStack(
+      - .HTML(
+      - .Inline(
+      - .JSON(
+      - .JSONPretty(
+      - .Redirect(
+      - .Render(
+      - .String(
+      - .Text(
+      - app.StatusErr(
+    ignorePackageGlobs:
+      - github.com/volatiletech/sqlboiler/*
+      - github.com/Defacto2/server/internal/postgres/*

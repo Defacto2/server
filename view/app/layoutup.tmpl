@@ -1,0 +1,25 @@
+{{- /* 
+    layoutup.tmpl ~ Uploader pull-down menu.
+*/ -}}
+{{- define "layoutup" }}
+<div class="btn-group dropstart">
+  <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Uploader
+  </button>
+  <ul class="dropdown-menu">
+    <li><h6 class="dropdown-header">Submit a production</h6></li>
+    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-demozoo-modal">Demozoo</a></li>
+    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-pouet-modal">Pouët</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header">Upload files</h6></li>
+    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-intro-modal">Intro, cracktro, bbstro</a></li>
+    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-trainer-modal">Trainer or installer</a></li>
+    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-text-modal">Text, ANSI or NFO</a></li>
+    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-image-modal">Image or photo</a></li>
+    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-magazine-modal">Magazine</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-advanced-modal">Advanced uploader</a></li>
+    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-about">About</a></li>
+  </ul>
+</div>
+{{- end}}

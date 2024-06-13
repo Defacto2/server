@@ -1,0 +1,14 @@
+{{- /* 
+    website.tmpl ~ Template for displaying a website card.
+*/ -}}
+{{- define "website"}}
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ .Title | safeHTML }}</h5>
+                        <p class="card-text">{{ .Info }}</p>
+                        <a href="{{ .URL }}" class="icon-link icon-link-hover">Go surf{{websiteIcon .URL}}</a>
+                    </div>
+                </div>
+            </div>
+{{- end -}}

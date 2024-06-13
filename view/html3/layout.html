@@ -1,0 +1,25 @@
+{{- /* 
+    layout.tmpl ~ Template layout page for the html3 website.
+*/ -}}
+{{- /*  white space are preserved and is used for formatting  */}}
+{{define "layout" -}}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+{{ "<!-- http://www.w3.org/MarkUp/Wilbur/ -->" | safeHTML }}
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="description" content="{{ index . "description" }}">
+  <link href="/" rev="HTML5" title="Standard website">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{{index . "title"}}</title>
+ </head>
+<body>
+    <h2>{{index . "title"}}</h2>
+    {{if ne (index . "description") ""}}<p>{{index . "description"}}</p>{{end -}}
+    {{if ne (index . "feedback") ""}}<p style="color: crimson;">{{index . "feedback"}}</p>{{end -}}
+    {{if ne (index . "stats") ""}}<small>{{index . "stats"}}</small>{{end -}}
+    {{ block "pagination" . }}{{end -}}
+    {{ block "pre" .}}{{ "<!-- no pre content was defined -->" | safeHTML }}{{end}}
+    {{ block "pagination" . }}{{end -}}
+<p><em>Defacto2 Server at defacto2.net, latency {{index . "latency"}}</em></p>
+</body></html>{{end}}

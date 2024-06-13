@@ -1,0 +1,356 @@
+{{- /* 
+    layout.tmpl ~ Template layout page for the website.
+*/ -}}
+{{define "layout" -}}<!doctype html>
+{{- $descDefault  := "Defacto2 is the premier destination for old school files and historical texts of the underground PC cracking, BBS and art scenes"}}
+{{- $cc           := "https://creativecommons.org/licenses/by/4.0/"}}
+{{- $github       := "https://github.com/defacto2"}}
+{{- $h1sub := index . "h1Sub"}}
+{{- $canonical := index . "canonical"}}
+{{- $desc := index . "description"}}
+{{- $cachef :=  index . "cacheFiles" }}
+{{- $carousel := index . "carousel"}}
+{{- $h1 := index . "h1"}}
+{{- $lead := index . "lead"}}
+{{- $lock := index . "editor"}}
+{{- $jsdos := index . "jsdos6"}}
+{{- $logo := index . "logo"}}
+{{- $pouet := index . "pouet"}}
+{{- $readmeL := index . "readmeLatin1"}}
+{{- $readmeC := index . "readmeCP437"}}
+{{- $databaseErr := index . "dbError"}}
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{if ne $h1sub ""}}{{capitalize $h1sub}} {{toLower .title}}{{else}}{{.title}}{{end}} | Defacto2</title>
+    {{if ne $canonical ""}}<link rel="canonical" href="https://defacto2.net/{{$canonical}}">{{end -}}
+    {{if ne $desc ""}}<meta name="description" content="{{$desc}}">{{end -}}
+    {{if eq $desc ""}}<meta name="description" content="{{$descDefault}}">{{end}}
+    <meta name="theme-color" content="rgb(153, 153, 153)">
+    <meta name="defacto2:file-count" content="{{$cachef}}">
+    <meta name="monetization" content="$ilp.uphold.com/RpWPnb88yLaF">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="address=no">
+    {{- /*  schema.org linked data, 
+      see: https://json-ld.org/playground/
+      and: https://developers.google.com/search/docs/appearance/structured-data/search-gallery  */}}
+    <script type="application/ld+json">
+    {
+      "@graph": [
+        {
+          "@type": "http://schema.org/Organization",
+          "http://schema.org/logo": {
+            "@id": "https://defacto2.net/image/layout/favicon-180x180.png"
+          },
+          "http://schema.org/name": "Defacto2",
+          "http://schema.org/sameAs": [
+            {
+              "@id": "https://facebook.com/Defacto2"
+            },
+            {
+              "@id": "https://twitter.com/Defacto2"
+            },
+            {
+              "@id": "https://www.youtube.com/defacto2"
+            },
+            {
+              "@id": "https://mas.to/@defacto2"
+            },
+            {
+              "@id": "https://github.com/defacto2"
+            },
+            {
+              "@id": "https://defacto2.wordpress.com"
+            }
+          ],
+          "http://schema.org/url": {
+            "@id": "https://defacto2.net/"
+          }
+        },
+        {
+          "@type": "http://schema.org/WebSite",
+          "http://schema.org/license": {
+            "@id": "https://creativecommons.org/licenses/by/4.0/"
+          },
+          "http://schema.org/potentialAction": {
+            "@type": "http://schema.org/SearchAction",
+            "http://schema.org/query-input": "required name=search_term_string",
+            "http://schema.org/target": {
+              "@id": "https://defacto2.net/search/result?query={search_term_string}"
+            }
+          },
+          "http://schema.org/url": {
+            "@id": "https://defacto2.net/"
+          }
+        }
+      ]
+    }
+    </script>
+    {{- /*  bookmark and tab icons  */}}
+    <link rel="icon" type="image/svg+xml" href="/image/layout/favicon.svg">
+    <link rel="icon" type="image/png" href="/image/layout/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/image/layout/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/image/layout/favicon-192x192.png" sizes="192x192">
+    <link rel="apple-touch-icon" href="/image/layout/favicon-180x180.png" sizes="180x180">
+    {{- /*  website manifest  */}}
+    <link rel="manifest" href="/site.webmanifest">
+    {{- /*  relationships  */}}
+    <link rel="alternate" href="{{$github}}" type="text/html" title="Defacto2 organisation on GitHub">
+    <link rel="alternate" href="https://demozoo.org/groups/10000/" type="text/html" title="Defacto2 group profile on Demozoo">
+    <link rel="terms-of-service" href="{{$cc}}" title="CC BY 4.0 DEED">
+    {{- /*  opensearch.org  */}}
+    <link rel="search" href="/osd.xml" type="application/opensearchdescription+xml" title="Defacto2 search">
+    {{- /*  cascading style sheets  */}}
+    <link href="{{ bootstrap5 }}?{{ sri_bootstrap5 }}" rel="stylesheet" integrity="{{ sri_bootstrap5 }}" crossorigin="anonymous">
+    <link href="{{ layout }}?{{ sri_layout }}" rel="stylesheet" integrity="{{ sri_layout }}" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="container-xxl p-0">
+    <nav class="navbar bg-dark sticky-top navbar-expand-md bg-body-tertiary" data-bs-theme="dark">
+      <div class="container-fluid">
+        <img class="me-3" src="/image/layout/under-construction.gif" alt="Under construction animated GIF" width="30" height="30">
+        <span class="navbar-brand mb-0 h1"><a class="nav-link active" aria-current="page" href="/">Defacto2</a></span>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item d-flex d-none d-lg-block">
+              <a class="nav-link active" aria-current="page" href="/">Home</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Files
+              </a>
+              <ul class="dropdown-menu">
+                <li><h6 class="dropdown-header">Artifacts</h6></li>
+                {{- if eq $lock true }}
+                <li><a class="dropdown-item" href="/editor/for-approval">New <em>for approval</em></a></li>
+                {{- end }}
+                <li><a class="dropdown-item" href="/files/new-uploads">New uploads</a></li>
+                <li><a class="dropdown-item" href="/files/new-updates">New changes</a></li>
+                <li><a class="dropdown-item" href="/files/oldest">Oldest</a></li>
+                <li><a class="dropdown-item" href="/files/newest">Newest</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Browse</h6></li>
+                <li><a class="dropdown-item" href="/file">Categories</a></li>    
+                <li><a class="dropdown-item" href="/file/stats">Statistics</a></li>  
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="/html3">Use tables</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Groups
+              </a>
+              <ul class="dropdown-menu">
+                <li><h6 class="dropdown-header">Scene</h6></li>
+                <li><a class="dropdown-item" href="/releaser">Releasers</a></li>
+                <li><a class="dropdown-item" href="/releaser/a-z">Releasers {{az}}</a></li>
+                <li><a class="dropdown-item" href="/releaser/year">Releasers {{year}}</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Products</h6></li>
+                <li><a class="dropdown-item" href="/magazine">Magazines</a></li>
+                <li><a class="dropdown-item" href="/magazine/a-z">Magazines {{az}}</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="/ftp">FTP sites {{az}}</a></li>
+                <li><a class="dropdown-item" href="/bbs">BBS sites</a></li>
+                <li><a class="dropdown-item" href="/bbs/a-z">BBS sites {{az}}</a></li>
+                <li><a class="dropdown-item" href="/bbs/year">BBS sites {{year}}</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                People
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/scener">Sceners</a></li>
+                <li><a class="dropdown-item" href="/interview">Interviews</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Roles</h6></li>
+                <li><a class="dropdown-item" href="/artist">Artists</a></li>
+                <li><a class="dropdown-item" href="/coder">Coders</a></li>
+                <li><a class="dropdown-item" href="/musician">Musicians</a></li>
+                <li><a class="dropdown-item" href="/writer">Writers</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Websites
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/website">List the sites</a></li>
+                <li><a class="dropdown-item" href="/website/hide">Categories</a></li>
+                {{- /*    not yet implemented
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Mirrored</h6></li>
+                <li><a class="dropdown-item" href="#">Historic sites</a></li>*/}}
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Search
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/search/releaser">Releasers</a></li>
+                <li><a class="dropdown-item" href="/search/file">Files</a></li>
+                <li><a class="dropdown-item" href="/search/desc">Descriptions</a></li>
+              </ul>
+            </li>
+          </ul>
+          <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Contacts
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#emailModal"><i class="fal fa-envelope fa-fw" title="Email"></i> Email</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#discordModal"><i class="fab fa-discord fa-fw" title="Discord"></i> Discord</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#mastodonModal"><i class="fab fa-mastodon fa-fw" title="Mastodon"></i> Mastodon</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#facebookModal"><i class="fab fa-facebook fa-fw" title="Facebook"></i> Facebook</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#twitterModal"><i class="fab fa-twitter fa-fw" title="Twitter"></i> Twitter</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#youtubeModal"><i class="fab fa-youtube fa-fw" title="YouTube"></i> YouTube</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                About
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/history">Brand history</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#creditsModal">Credits</a></li>
+                <li class="d-xl-none"><a class="dropdown-item" href="/thanks">Thanks</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#copyrightModal">Copyright</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Source code</h6></li>
+                <li>{{ linkRemote "https://github.com/Defacto2" "GitHub" }}</li>
+                <li>{{ linkRemote "https://github.com/sceners" "Sceners" }}</li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Help
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="/thescene">The Scene</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Glossary of terms</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Using the downloads</h6></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#tavModal">Trojans and viruses</a></li>
+                <li>{{ linkWiki "Can-I-batch-download-the-files" "Batch downloads" }}</li>
+                <li>{{ linkWiki "What-are-DOS-Programs" "DOS programs" }}</li>
+                <li>{{ linkWiki "What-are-RAR-7z-ZIP-ACE-files" "Compressed files" }}</li>
+                <li>{{ linkWiki "What-are-the-best-tools-for-viewing-and-editing-NFO-DIZ-files" "NFO and DIZ files" }}</li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Known errors</h6></li>
+                <li>{{ linkWiki "Troubleshoot-d3drm.dll" "D3DRM.DLL" }}</li>
+                <li>{{ linkWiki "Troubleshoot-npmod32.dll" "NPMOD32.DLL" }}</li>
+                <li>{{ linkWiki "Troubleshoot-runtime-error-200" "Runtime 200" }}</li>
+                <li>{{ linkWiki "Troubleshoot-shrinker.err" "Shrinker.err" }}</li>
+              </ul>
+            </li>
+            <li class="nav-item d-none d-xl-block">
+              <a class="nav-link" href="/thanks">Thanks</a>
+            </li>
+          </ul>
+        </div>
+        {{- template "layoutlock" . }}
+        {{- template "layoutup" . }}
+      </div>
+    </nav>
+  </div>
+  <div class="container-xxl">
+  {{- block "modal" . -}}{{ "<!-- Modal popup content here -->" | safeHTML -}}{{end}}
+  {{- block "uploader" . -}}{{ "<!-- Uploader content here -->" | safeHTML -}}{{end}}
+  {{- block "uploaderhtmx" . -}}{{ "<!-- Uploader htmx content here -->" | safeHTML -}}{{end}}
+  <hr>
+{{- if eq $databaseErr true -}}
+<div class="alert alert-danger" role="alert">
+  The database is down, this means the website is not fully working. We are working on it.
+</div>{{- end}}
+{{- if ne $logo "" -}}
+<div class="d-flex justify-content-center" id="logo-container">
+<pre class="text-start text-bg-dark rounded font-dos px-1 py-2" id="logo-text">
+  {{- /*  
+    the monospace brand logo should be padded with the Bootstrap classes
+    and not with pre whitespace characters */ -}}
+{{- logo }}
+{{logoText $logo -}}
+</pre>
+</div>
+{{- end}}
+{{- if and (.Pagination) (gt (index .Pagination.SumPages) 1)}}
+<nav aria-label="Compact pagination navigation at the header">
+  <ul class="pagination pagination-sm justify-content-end mb-0">
+    {{ template "paginationList" . }}
+  </ul>
+  <div>
+    <input type="range" class="form-range" id="paginationRange" name="paginationRange" 
+      min="1" max="{{index .Pagination.SumPages}}" value="{{index .Pagination.CurrPage}}" step="{{index .Pagination.RangeStep}}" />
+    <label for="paginationRange" id="paginationRangeLabel" class="form-label">&nbsp;</label>
+  </div>
+</nav>
+{{- end }}
+<main>
+    {{- if ne $h1 ""}}
+    <h1 class="fs-1 fw-light">{{$h1}}{{if ne $h1sub ""}} <small>{{$h1sub}}</small>{{end}}</h1>
+    {{- end}}
+    {{- if ne $lead ""}}
+    <p class="lead">
+      {{ $lead | safeHTML }}
+    </p>
+    {{- end}}
+    {{- block "content" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
+</main>
+{{- if and (.Pagination) (gt (index .Pagination.SumPages) 1)}}
+<nav aria-label="Pagination navigation at the footer">
+  <ul class="pagination justify-content-end mt-4">
+    {{ template "paginationList" . }}
+  </ul>
+</nav>
+{{- end }}
+<footer class="font-dos text-end mt-3 me-1">
+  &copy; <span data-bs-toggle="tooltip" data-bs-title="version: {{ version }}">Defacto2</span>
+</footer>
+</div>
+{{- /*  Do not async load the htmx JS  */}}
+<script defer src="{{ htmx }}?{{ sri_htmx }}" integrity="{{ sri_htmx }}" crossorigin="anonymous"></script>
+{{- /*  Do not defer, or async load the Bootstrap 5.x JS  */}}
+<script src="{{ bootstrap5JS }}?{{ sri_bootstrap5JS }}" integrity="{{ sri_bootstrap5JS }}" crossorigin="anonymous"></script>
+{{- /*  FontAwesome Pro v5 */}}
+<script async src="{{ fa5Pro }}?{{ sri_fa5Pro }}" integrity="{{ sri_fa5Pro }}" crossorigin="anonymous"></script>
+{{- if $pouet}}
+<script async src="{{ pouet }}?{{ sri_pouet }}" integrity="{{ sri_pouet }}" crossorigin="anonymous"></script>
+{{- end}}
+{{- if or $readmeL $readmeC}}
+<script async src="{{ readme }}?{{ sri_readme }}" integrity="{{ sri_readme }}" crossorigin="anonymous"></script>
+{{- end}}
+{{- /*  js-dos v6.22  */}}
+{{- if $jsdos}}
+<script async src="{{ jsdos6JS }}?{{ sri_jsdos6JS }}" integrity="{{ sri_jsdos6JS }}" crossorigin="anonymous"></script>
+<script async src="{{ dosboxJS }}?{{ sri_dosboxJS }}" integrity="{{ sri_dosboxJS }}" crossorigin="anonymous"></script>
+{{- end}}
+{{- template "layoutjsup" . }}
+{{- template "layoutjs" . }}
+{{- /*  Layout JS  */}}
+<script defer src="{{ layoutJS }}?{{ sri_layoutJS }}" integrity="{{ sri_layoutJS }}" crossorigin="anonymous"></script>
+{{- /*  Bootstrap carousel initalizer (relies on the template and cannot be moved to a JS file)  */}}
+{{- if ne $carousel ""}}
+<script defer>
+  (() => {
+    const myCarouselElement = document.querySelector('{{$carousel}}');
+    if (myCarouselElement === null) {
+      throw new Error(`Carousel {{$carousel}} element not found`);
+    }
+    const twoSeconds = 2000;
+    const carousel = new bootstrap.Carousel(myCarouselElement, {
+      interval: twoSeconds,
+      touch: false,
+    });
+  })();
+</script>{{end}}
+</body>
+</html>{{end}}

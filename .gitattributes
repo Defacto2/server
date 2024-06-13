@@ -1,0 +1,37 @@
+# .gitattributes
+#
+# Git configuration for the Defacto2 server repository.
+#
+
+# Always use Unix LF line endings.
+* text=auto eol=lf
+
+# Binary file types found in the repository that should never be modified.
+
+# Images
+*.avif binary
+*.gif binary
+*.ico binary
+*.jpg binary
+*.png binary
+*.webp binary
+
+# Fonts
+*.ttf binary
+*.woff binary
+*.woff2 binary
+
+# JS bytecode files
+*.wasm binary
+
+# Testdata
+*.7z binary
+*.ASC binary
+*.ARJ binary
+*.LZH binary
+*.RAR binary
+*.TAR binary
+*.TAR.GZ binary
+*.ZIP binary
+*.zip binary
+*.tar.xz binary

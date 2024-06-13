@@ -1,0 +1,35 @@
+{{- /* 
+    interview.tmpl ~ Generates the content for the people interviews page.
+*/ -}}
+{{- define "content" -}}
+{{- range $relIndex, $releaser := .interviews }}
+{{- if gt $relIndex 0}}
+<br>
+{{- end}}
+<h2 class="fs-3 lead mt-5 mb-5 text-center">
+{{- if eq $releaser.Link ""}}
+Retirements
+{{- else}}
+<a class="link-offset-2 link-underline link-underline-opacity-25" href="/g/{{$releaser.Link}}">{{$releaser.Name}}</a>
+{{- end}}
+</h2>
+<div class="container">
+    <div class="row justify-content-md-center row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {{- range $index, $interview := $releaser.Interviews }}
+      <div class="col">
+        <div class="card h-100">           
+            <div class="card-body">
+                <h5 class="card-title text-center">{{$interview.Scener}}</h5>     
+                <h6 class="card-subtitle mb-2 text-body-secondary text-center">{{$interview.Year}} {{fmtMonth $interview.Month}}</h6>       
+                <p class="card-text">{{$interview.Content}}</p>          
+            </div>
+            <div class="card-footer text-center">
+                <a href="{{$interview.Link}}" class="icon-link icon-link-hover">Read the interview{{linkInterview $interview.Link}}</a>  
+            </div>
+          </div>
+      </div>
+    {{- end}}
+    </div>
+  </div>
+{{- end}}
+{{- end}}

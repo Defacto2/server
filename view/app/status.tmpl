@@ -1,0 +1,20 @@
+{{- /* 
+    status.tmpl ~ Website status and page error template.
+*/ -}}
+{{- define "content" }}
+<div class="m-5">
+    <div class="alert rounded-0 border-0 alert-warning text-center" role="alert">
+        <h1 class="h4">{{ index . "alert" }}</h1>
+        <hr>
+        {{ index . "probl" }}
+        <p class="mt-2 font-monospace text-info-emphasis">
+            <span class="text-warning-emphasis">
+                {{ index . "code" }} error &nbsp; 
+            </span>
+            {{- if ne (index . "uriErr") "" }}
+            defacto2.net/<span>{{ index . "uriOkay" }}</span><span class="text-decoration-underline link-underline-danger link-offset-2">{{ index . "uriErr" }}</span>
+            {{- end}}
+        </p>
+    </div>
+</div>
+{{- end}}

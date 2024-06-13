@@ -1,0 +1,63 @@
+{
+  "name": "Defacto2",
+  "short_name": "Defacto2",
+  "id": "net.defacto2.www",
+  "start_url": "/",
+  "lang": "en",
+  "display-override": [
+    "minimal-ui",
+    "browser"
+  ],
+  "display": "standalone",
+  "background_color": "rgb(0, 0, 0)",
+  "theme_color": "rgb(153, 153, 153)",
+  "description": "Defacto2 is a website maintaining the historic PC cracking and warez scene subcultures. It covers digital objects including text files, demos, music, art, magazines, and other projects.",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/image/layout/favicon-60x60.png",
+      "sizes": "60x60",
+      "type": "image/png"
+    },
+    {
+      "src": "/image/layout/favicon-76x76.png",
+      "sizes": "76x76",
+      "type": "image/png"
+    },
+    {
+      "src": "/image/layout/favicon-120x120.png",
+      "sizes": "120x120",
+      "type": "image/png"
+    },
+    {
+      "src": "/image/layout/favicon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "/image/layout/favicon-180x180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/image/layout/favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/image/layout/favicon-720x720.png",
+      "sizes": "720x720",
+      "type": "image/png"
+    },
+    {
+      "src": "/image/layout/favicon.svg",
+      "sizes": "333x333"
+    },
+    {
+      "src": "/image/layout/maskable_icon_x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

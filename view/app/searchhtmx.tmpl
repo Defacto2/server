@@ -1,0 +1,36 @@
+{{- /* 
+    searchhtmx.tmpl ~ Search for releasers using htmx.
+*/ -}}
+{{- define "content" }} 
+<div class="row justify-content-md-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card border-dark mb-3">      
+            <div class="card-body">
+                <h5 class="card-title text-info-emphasis fs-2 lead">
+                    {{index . "title"}}<br>
+                    <small class="fs-5 fw-lighter">{{index . "info"}}</small>
+                </h5>
+                <p class="card-text">
+                <div class="input-group">
+                    <div class="input-group-text">
+                        <div id="search-releaser-indicator" class="htmx-indicator spinner-border spinner-border-sm text-secondary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>              
+                    <input type="text" spellcheck="false" autofocus 
+                        class="form-control" id="search-releaser-input" name="releaser-search" 
+                        hx-post="/search/releaser" 
+                        hx-target="#search-releaser-results" 
+                        hx-trigger="keyup changed delay:500ms" 
+                        hx-indicator="#search-releaser-indicator"
+                        placeholder="Type to search for a releaser…">
+                    <button type="button" id="search-releaser-clear" class="btn btn-dark">Clear</button>
+                </div>
+                </p>
+            </div>
+        </div>
+        <div id="search-releaser-alert" class="alert alert-danger d-none" role="alert"></div>
+    </div>
+    <div class="col-lg-8" id="search-releaser-results"></div>
+</div>
+{{- end }}

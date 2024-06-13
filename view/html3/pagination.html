@@ -1,0 +1,51 @@
+{{- /* 
+    pagination.tmpl ~ Pagination navigation for html3.
+*/ -}}
+{{- /*  white space are preserved and is used for formatting  */}}
+{{- define "pagination" -}}
+{{- $navi := index . "navigate" }}
+{{- $c := $navi.Current }}
+{{- $p := $navi.Page }}
+{{- $m := $navi.PageMax }}
+{{- $q := $navi.QueryStr }}
+{{- $l1 := $navi.Link1 }}
+{{- $l2 := $navi.Link2 }}
+{{- $l3 := $navi.Link3 }}
+{{- if gt ($navi.Limit) 0 }}
+{{- if gt $m 1 -}}
+<p style="font-family:monospace;">
+<!-- previous page -->
+{{- if eq $p 1 -}}
+<span>&lt;</span>
+{{- else -}}
+<a href="/html3/{{$c}}/{{$navi.PagePrev}}{{$q}}">&lt;</a> 
+{{- end -}}
+<!-- always link the first page -->
+{{- if eq $p 1 }}
+<a href="/html3/{{$c}}/1{{$q}}"><b>1</b></a> 
+{{- else }}
+<a href="/html3/{{$c}}/1{{$q}}">1</a> 
+{{- end -}}
+<!-- dynamic pagination -->
+{{- if gt $m 5}} &#8230; {{end}}
+{{- if gt (index $navi.Link1) 0 }} 
+<a href="/html3/{{$c}}/{{$l1}}{{$q}}">{{- if eq $l1 $p }}<b>{{$l1}}</b>{{else}}{{$l1}}{{end}}</a> {{end}}
+{{- if gt (index $navi.Link2) 0 }}
+<a href="/html3/{{$c}}/{{$l2}}{{$q}}">{{- if eq $l2 $p }}<b>{{$l2}}</b>{{else}}{{$l2}}{{end}}</a> {{end}}
+{{- if gt (index $navi.Link3) 0 }}
+<a href="/html3/{{$c}}/{{$l3}}{{$q}}">{{- if eq $l3 $p }}<b>{{$l3}}</b>{{else}}{{$l3}}{{end}}</a> {{end}}
+{{- if gt $m 5}} &#8230; {{end}}
+<!-- always link the end page -->
+{{- if eq ($p) ($m) -}}
+<a href="/html3/{{$c}}/{{$m}}{{$q}}"><b>{{$m}}</b></a> 
+{{- else -}}
+<a href="/html3/{{$c}}/{{$m}}{{$q}}">{{$m}}</a> 
+{{- end -}}
+<!-- next page -->
+{{- if ge ($p) ($navi.PageNext)}}
+<span>&gt;</span>
+{{- else}}
+<a href="/html3/{{$c}}/{{$navi.PageNext}}/{{$q}}">&gt;</a> 
+{{- end}}
+</p>
+{{ end -}}{{ end -}}{{ end -}}

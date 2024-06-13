@@ -1,0 +1,41 @@
+{{- /* 
+    thanks.tmpl ~ Thankyou! page template.
+*/ -}}
+{{- define "content" }}
+{{- $lsMoney := " bg-light" }}
+{{- $padding := "p-0 m-0 px-5 pb-1" }}
+<p class="lead">
+    As the Defacto2 website costs hundreds of dollars annually, all tips are greatly appreciated and go to the website's operations, no matter how large or small.
+</p>
+<div class="card card border-success mx-1 my-5">
+    <div class="card-body">
+        <p class="card-text mb-2 text-center lead">No signup or accounts are required, and no personal details are given to us.</p>
+        <p class="card-title fs-1 text-secondary">Tip with</p>
+        <div class="container text-center">
+            <div class="row">
+                <div class="col">
+                    <a href="https://ko-fi.com/codebyben" class="btn btn-outline-success text-nowrap fs-1 {{$padding}}" role="button">Ko-fi</a>
+                </div>
+                <div class="col">
+                    <a href="https://www.buymeacoffee.com/4rtEGvUIY" class="btn btn-outline-primary text-nowrap fs-1 {{$padding}}" role="button">Buy me a coffee!</a>
+                </div>
+                <div class="col">
+                    <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PBV5H45GG5L8G" class="btn btn-outline-success fs-1 {{$padding}}" role="button">PayPal</a>
+                </div>
+            </div>
+        </div>
+        <dl class="row fs-5 fw-lighter m-5">
+            <dt class="col-sm-3 fs-3 text-center fw-lighter text-danger{{$lsMoney}} m-0 p-3 rounded-3">$<u class="link-offset-2 link-underline link-underline-opacity-25">142</u></dt>
+            <dd class="col-sm-9 fs-3 p-3">Annual hosting <small>in US dollars</small></dd>
+            <dt class="col-sm-3"></dt>
+            <dd class="col-sm-9"></dd>
+            <dt class="col-sm-3 text-center fw-lighter{{$lsMoney}}">$92.4</dt>
+            <dd class="col-sm-9 ps-4">Website hosting</dd>
+            <dt class="col-sm-3 text-center fw-lighter{{$lsMoney}}">$39.6</dt>
+            <dd class="col-sm-9 ps-4">Website hosting of the the file downloads and images</dd>
+            <dt class="col-sm-3 text-center fw-lighter{{$lsMoney}} rounded-bottom-3">$10</dt>
+            <dd class="col-sm-9 ps-4">Domain name</dd>
+        </dl>
+    </div>
+</div>
+{{- end}}

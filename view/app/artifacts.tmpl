@@ -1,0 +1,98 @@
+{{- /* 
+    artifacts.tmpl ~ the template is for the artifact cards.
+    see the artifact.tmpl for the single artifact page template.
+*/ -}}
+{{- define "content" }}
+{{- $files := index .stats.files }}
+{{- $years := index .stats.years}}
+{{- $cnt := len .records}}
+{{- $web := index .website }}
+{{- $linkWeb := gt (len $web) 0}}
+{{- $zoo := index .demozoo }}
+{{- $linkZoo := ne $zoo "0"}}
+{{- $sixteen := index .sixteen }}
+{{- $link16C := ne $sixteen ""}}
+{{- $scener := index .scener }}
+{{- $noYears := false}}
+{{- $unYears := index .unknownYears }}
+{{- $editor := index .editor}}
+<p class="text-start lead"><small>There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}}{{if ne $years ""}} from {{$years | safeHTML}}{{end}}.</small></p>
+{{- if or $linkZoo $link16C $linkWeb}}
+<p class="text-start text-sm-center text-md-end lead">
+  {{- if $linkZoo}}
+  <small><small>Production and member lists</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://demozoo.org/groups/{{$zoo}}/"><strong>Demozoo</strong>{{linkSVG}}</a></small><br>
+  {{- end}}
+  {{- if $link16C}}
+  <small><small>ANSI and text artworks</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://16colo.rs/{{$sixteen}}"><strong>16colors</strong>{{linkSVG}}</a></small><br>
+  {{- end}}
+  {{- if $linkWeb}}
+    {{- range $web }}
+      {{- if and (ne .URL "") (eq .NotWorking false ) }}
+      <small><a class="link-offset-2 icon-link icon-link-hover" href="{{.URL}}"><strong>{{.Name}}</strong>{{websiteIcon .URL}}</a></small><br>
+      {{- end}}
+      {{- if and (ne .URL "") (eq .NotWorking true ) }}
+      <small><strong>{{.Name}}</strong></a> ex-site, <span class="text-decoration-line-through fw-lighter">{{.URL}}</span></small><br>
+      {{- end}}
+    {{- end}}
+  {{- end}}
+</p>
+{{- end}}
+{{- $rowCols := "row-cols-1 row-cols-md-2 row-cols-lg-3"}}
+<div class="row justify-content-md-center {{$rowCols}} g-4 mt-1">
+  {{- /*  Begin the iteration of the records  */}}
+  {{- range .records }}
+  {{- $filename := .Filename.String}}
+  {{- if eq $filename ""}}{{$filename = "no filename provided"}}{{end}}
+  {{- $forApproval := and (eq .Deletedat.IsZero false) (eq .Deletedby.String "")}}
+  {{- if and (ne $forApproval true) (eq $unYears true) (eq $noYears false) (eq .DateIssuedYear.Int16 0)}}
+    {{- /*  
+        Create a break in the the iteration of the records when $noYears is true.
+        This should never display with search or order by date of records listings.
+    */ -}}
+    {{- $noYears = true}}
+</div>
+<hr class="mt-5 mb-4"><p class="text-center lead"><small>These are files from an unknown year</small></p>
+<div class="row justify-content-md-center {{$rowCols}} g-4 mt-1">
+  {{- end}}
+  {{- /*  Card for an individual artifact record  */}}
+  {{- $attr := attribute .CreditText.String .CreditProgram.String .CreditIllustration.String .CreditAudio.String $scener}}
+  {{- $cardClass := "h-100"}}
+  {{- $forClass := " border border-1 border-info"}}
+  {{if $forApproval}}{{$cardClass = print $cardClass print $forClass}}{{end}}
+  {{- $removedClass := " border border-2 border-danger"}}
+  {{- $removed := and (eq .Deletedat.IsZero false) (ne .Deletedby.String "")}}
+  {{if $removed}}{{$cardClass = print $cardClass print $removedClass}}{{end}}
+  {{- $unwantedClass := " border border-1 border-warning"}}
+  {{- $unwanted := (ne .FileSecurityAlertURL.String "")}}
+  {{if $unwanted}}{{$cardClass = print $cardClass print $unwantedClass}}{{end}}
+  <div class="col">
+    <div class="card {{$cardClass}}">
+      <div class="card-header text-body-secondary text-center">
+        <code>{{$filename}}</code>
+      </div>
+      <div class="card-body">
+        <h2 class="card-title text-truncate fs-5">{{linkRelrs .GroupBrandFor .GroupBrandBy }}</h2>
+        {{subTitle .Section .RecordTitle}}
+        <p class="card-text">{{describe .Platform .Section .DateIssuedYear .DateIssuedMonth}}</p>
+        <p class="card-text"><small class="text-body-secondary">{{lastUpdated .Updatedat}}</small></p>
+        {{- if ne $attr ""}}
+        <p class="card-text"><small class="text-body-secondary">{{$attr}}</small></p>
+        {{- end}}
+        {{- if eq $editor true}}
+          {{- /*  
+            TODO use a template to only render for /editor/for-approval  
+          */ -}}
+          <p class="card-text"><small class="text-body-info" id="editorFeedback{{ .WebIDDemozoo.Int64 }}"></small></p>
+          {{- demozooGetLink .Filename .Filesize .WebIDDemozoo .UUID }}
+        {{- end}}
+        {{- linkPage .ID}}
+        {{- linkDownload .ID .FileSecurityAlertURL.String }}{{ downloadB .Filesize}}
+        {{- linkPreview .ID .Filename.String .Platform.String}}
+      </div>
+      <a href="{{linkHref .ID}}">{{thumb .UUID.String .Filename.String true }}</a>
+    </div>
+  </div>
+  {{- /*  End of the iteration of the records */}}
+  {{- end}}
+</div>
+{{- end}}

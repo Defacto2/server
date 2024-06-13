@@ -1,0 +1,178 @@
+# Taskfile.dist.yaml
+#
+# Task is a task runner / build tool that aims to be simpler and easier to use than, for example, GNU Make.
+# https://taskfile.dev/installation/
+#
+# To see all available tasks:
+# $ task --list
+#
+version: "3"
+
+vars:
+  BINNAME: dist/defacto2-server # build output, binary filename (without any extensions)
+
+dotenv: ["./init/.env.local"]
+
+tasks:
+  default:
+    desc: "Task runner for the Defacto2 web server source code."
+    cmds:
+      - task --list-all
+    silent: true
+  doc:
+    desc: "Generate and browse the application module documentation."
+    cmds:
+      - cmd: pkgsite -http localhost:8090
+    silent: true
+  lint:
+    silent: false
+    desc: Runs the go formatter and lints the source code.
+    ignore_error: true
+    cmds:
+      - cmd: clear
+        platforms: [linux, darwin, freebsd]
+      #- cmd: gci write -s standard -s default .
+      - cmd: gofumpt -l -w .
+      - cmd: pnpm exec eslint assets/js/*.js
+      - cmd: pnpm exec stylelint assets/css/*.css
+      - cmd: golangci-lint run -c init/.golangci.yaml
+  lint+:
+    silent: false
+    desc: Runs the deadcode and betteralign linters on the source code.
+    ignore_error: true
+    cmds:
+      - cmd: clear
+        platforms: [linux, darwin, freebsd]
+      - cmd: betteralign ./...
+      - cmd: deadcode ./...
+  build:
+    desc: "Build the binary of the web server."
+    deps: [assets]
+    cmds:
+      - cmd: echo "Building..."
+      - cmd: go build -o {{.BINNAME}} -v server.go
+        platforms: [linux, darwin, freebsd]
+  build-race:
+    aliases:
+      - "buildx"
+    desc: "Build the binary of the web server with race detection."
+    deps: [assets]
+    cmds:
+      - cmd: echo "Building with race conditions..."
+      - cmd: go build -o {{.BINNAME}} -race -v server.go
+        platforms: [linux, darwin, freebsd]
+      - cmd: ./{{.BINNAME}} --version
+        platforms: [linux, darwin]
+      - cmd: echo "Done!"
+  assets:
+    desc: "Build, compile and compress the web serve CSS and JS assets."
+    cmds:
+      - echo "Building assets..."
+      - go run runner/runner.go
+      - echo "Done!"
+  test:
+    desc: "Run the test suite."
+    cmds:
+      #- set -o pipefail && go test ./... -json | tparse -all
+      - go test -count 1 ./...
+  nil:
+    desc: "Run the static analysis techniques to catch Nil dereferences."
+    cmds:
+      - nilaway ./...
+  testr:
+    desc: "Run the test suite with the slower race detection."
+    cmds:
+      #- set -o pipefail && go test ./... -json | tparse -all
+      - go test -count 1 -race ./...
+  serve-dev:
+    aliases:
+      - "serve"
+    desc: "Run the internal web server in development mode with live reload."
+    cmds:
+      - task: serve-linux
+  serve-prod:
+    aliases:
+      - "server"
+    desc: "Run the internal web server with live reload."
+    cmds:
+      - task: serve-air-prod
+  serve-linux:
+    internal: true
+    platforms: [linux, freebsd, darwin]
+    env:
+      D2_PROD_MODE: false
+      PS_HOST: localhost
+    deps: [assets]
+    cmds:
+      - air -c init/.air.toml
+  serve-air-prod:
+    internal: true
+    platforms: [darwin, linux, freebsd]
+    env:
+      D2_PROD_MODE: true
+    cmds:
+      - air -c init/.air.toml
+  pkg-patch:
+    aliases:
+      - "patch"
+    silent: false
+    desc: Update and apply patches to the web server dependencies.
+    cmds:
+      - cmd: go get -u=patch -x
+      - cmd: go mod verify
+      - cmd: go mod tidy
+  pkg-update:
+    aliases:
+      - "update"
+    silent: false
+    desc: Update the web server dependencies.
+    cmds:
+      - cmd: go get -u -x
+      - cmd: go mod verify
+      - cmd: go mod tidy
+  pkg-snapshot:
+    aliases:
+      - "snap"
+    desc: "Build the release package of the web server without a git version tag."
+    deps: [assets]
+    cmds:
+      - cmd: echo "Building snapshot..."
+      - cmd: goreleaser build --snapshot --clean --config init/.goreleaser.yaml
+      - cmd: echo "Done!"
+  pkg-release:
+    aliases:
+      - "release"
+    desc: "Build the release package of the web server embeded with the git version tag."
+    deps: [assets]
+    cmds:
+      - cmd: echo "Git status results:"
+      - cmd: git status
+      - cmd: echo "Building snapshot..."
+      - cmd: goreleaser build --clean --config init/.goreleaser.yaml
+      - cmd: echo "Done!"
+  ver:
+    silent: false
+    desc: Print the versions of the build and compiler tools.
+    ignore_error: true
+    cmds:
+      - cmd: go version
+      - cmd: gofumpt --version
+      - cmd: gci --version
+      - cmd: task --version
+      - cmd: golangci-lint --version
+      - cmd: goreleaser --version
+      - cmd: air -v
+      - cmd: esbuild --version
+      - cmd: betteralign -V=full
+  _init:
+    silent: false
+    desc: "Initialise this project for the first time after a git clone."
+    cmds:
+      - cmd: go install mvdan.cc/gofumpt@latest
+      - cmd: go install github.com/air-verse/air@latest
+      - cmd: go install github.com/goreleaser/goreleaser/v2@latest
+      - cmd: go install github.com/evanw/esbuild/cmd/esbuild@latest
+      - cmd: go install github.com/volatiletech/sqlboiler/v4@latest
+      - cmd: go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql@latest
+      - cmd: go install github.com/dkorunic/betteralign/cmd/betteralign@latest
+      - cmd: go install golang.org/x/tools/cmd/deadcode@latest

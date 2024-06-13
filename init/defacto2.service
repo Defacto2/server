@@ -1,0 +1,43 @@
+# /etc/systemd/system/defacto2.service
+#
+# For using Defacto2 with a systemd unit file.
+#
+# Reload the systemd configuration and start the service:
+# systemctl daemon-reload
+#
+# Enable the service to start on boot and start it:
+# systemctl enable defacto2.service
+#
+# Star the service:
+# systemctl start defacto2.service
+#
+# Check the status of the service and view the logs:
+# systemctl status defacto2.service
+# journalctl -e -u defacto2.service
+#
+# For more information on these commands, see:
+# https://www.freedesktop.org/software/systemd/man/latest/systemd.directives.html
+
+[Unit]
+Description=Defacto2
+Documentation=https://github.com/Defacto2/server
+After=network.target network-online.target
+Requires=network-online.target
+
+[Service]
+Environment="D2_DATABASE_URL=postgres://root:example@localhost:5432/defacto2_ps"
+Environment="D2_DIR_DOWNLOAD=/mnt/volume/assets/downloads"
+Environment="D2_DIR_PREVIEW=/mnt/volume/assets/images000"
+Environment="D2_DIR_THUMBNAIL=/mnt/volume/assets/images400"
+Environment="D2_DIR_LOG=/var/log"
+Environment="D2_PROD_MODE=true" "D2_READ_ONLY=true" "D2_NO_CRAWL=true"
+User=caddy
+Group=caddy
+ExecStart=/usr/bin/defacto2-server
+ProtectHome=true
+ProtectSystem=full
+PrivateTmp=yes
+TimeoutStopSec=15s
+
+[Install]
+WantedBy=multi-user.target

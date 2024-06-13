@@ -1,0 +1,51 @@
+{{- /* 
+    option_os.tmpl ~ Options and sections for the artifact platform (operating system) field.
+*/ -}}
+{{- define "optionOS" -}}
+{{- $os := (index . "platform") }}
+{{- $windows := tagOption $os "windows" }}
+{{- $dos := tagOption $os "dos" }}
+{{- $text := tagOption $os "text" }}
+{{- $textamiga := tagOption $os "textamiga" }}
+{{- $ansi := tagOption $os "ansi" }}
+{{- $pcb := tagOption $os "pcb" }}
+{{- $pdf := tagOption $os "pdf" }}
+{{- $image := tagOption $os "image" }}
+{{- $audio := tagOption $os "audio" }}
+{{- $video := tagOption $os "video" }}
+{{- $linux := tagOption $os "linux" }}
+{{- $mac10 := tagOption $os "mac10" }}
+{{- $php := tagOption $os "php" }}
+{{- $java := tagOption $os "java" }}
+{{- $markup := tagOption $os "markup" }}
+{{- $database := tagOption $os "database" }}
+{{- if eq $os "" }}
+                <option value="" selected>Choose...</option>
+{{- else }}
+                <option value="">Choose...</option>
+{{- end }}
+                <optgroup label="Programs or apps">
+                    {{$windows}}for Windows PC</option>
+                    {{$dos}}for MsDos PC</option>
+                </optgroup>
+                <optgroup label="Texts or documents">
+                    {{$text}}in regular text</option>
+                    {{$ansi}}in ANSI (color)</option>
+                    {{$textamiga}}for Amiga (Topaz font)</option>
+                    {{$pcb}}for PCBoard</option>
+                    {{$pdf}}PDF document</option>
+                </optgroup>
+                <optgroup label="Multimedia">
+                    {{$image}}Image or photo</option>
+                    {{$audio}}Music or audio</option>
+                    {{$video}}Video</option>
+                </optgroup>
+                <optgroup label="Uncommon">
+                    {{$linux}}Linux app</option>
+                    {{$mac10}}Apple Mac app</option>
+                    {{$php}}Shell script app</option>
+                    {{$java}}Java web app</option>
+                    {{$markup}}Html webpage</option>
+                    {{$database}}Database</option>
+                </optgroup>
+{{- end -}}

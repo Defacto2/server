@@ -1,0 +1,50 @@
+{
+  "@graph": [
+    {
+      "@type": "http://schema.org/Organization",
+      "http://schema.org/logo": {
+        "@id": "https://defacto2.net/image/layout/favicon-180x180.png"
+      },
+      "http://schema.org/name": "Defacto2",
+      "http://schema.org/sameAs": [
+        {
+          "@id": "https://facebook.com/Defacto2"
+        },
+        {
+          "@id": "https://twitter.com/Defacto2"
+        },
+        {
+          "@id": "https://www.youtube.com/defacto2"
+        },
+        {
+          "@id": "https://mas.to/@defacto2"
+        },
+        {
+          "@id": "https://github.com/defacto2"
+        },
+        {
+          "@id": "https://defacto2.wordpress.com"
+        }
+      ],
+      "http://schema.org/url": {
+        "@id": "https://defacto2.net/"
+      }
+    },
+    {
+      "@type": "http://schema.org/WebSite",
+      "http://schema.org/license": {
+        "@id": "https://creativecommons.org/licenses/by/4.0/"
+      },
+      "http://schema.org/potentialAction": {
+        "@type": "http://schema.org/SearchAction",
+        "http://schema.org/query-input": "required name=search_term_string",
+        "http://schema.org/target": {
+          "@id": "https://defacto2.net/search/result?query={search_term_string}"
+        }
+      },
+      "http://schema.org/url": {
+        "@id": "https://defacto2.net/"
+      }
+    }
+  ]
+}

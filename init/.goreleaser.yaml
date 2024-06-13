@@ -1,0 +1,80 @@
+# .goreleaser-release.yaml
+#
+# The GoReleaser configuration for the Defacto2 server.
+# GoReleaser is a release automation tool for Go projects and this file is
+# is intended for use with a GitHub Actions workflow to generate a release build
+# when a new tag is created.
+#
+# The configuration documentation is at https://goreleaser.com.
+#
+# To install or update GoReleaser:
+# $ go install github.com/goreleaser/goreleaser/v2@latest
+#
+# To test any modifications to this configuration:
+# $ goreleaser check --config init/.goreleaser.yaml
+# $ goreleaser release --clean --snapshot --config init/.goreleaser.yaml
+# $ goreleaser build --clean --snapshot --config init/.goreleaser.yaml
+#
+version: 2
+
+project_name: defacto2-server
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - id: server
+    main: server.go
+    env:
+      - CGO_ENABLED=0
+    targets:
+      # keep the number of targets to a minimum to improve the build time.
+      - linux_amd64
+archives:
+  - format: zip # create a zip archive for simplicity
+    name_template: >-
+      {{ tolower .ProjectName }}_{{- tolower .Os }}
+    files:
+      - src: public/text/defacto2.txt
+        dst: defacto2.txt
+        info:
+          mtime: "{{ .CommitDate }}"
+          mode: 0644 # rw-r--r--
+      - src: init/defacto2.service
+        dst: defacto2.service
+        info:
+          mtime: "{{ .CommitDate }}"
+          mode: 0644 # rw-r--r--
+      - src: init/example.env.local
+        dst: example.env
+        info:
+          mtime: "{{ .CommitDate }}"
+          mode: 0644 # rw-r--r--
+nfpms:
+  - id: deb # create a .deb package for use with dpkg
+    builds: ["server"]
+    package_name: defacto2-server
+    file_name_template: "{{ tolower .ProjectName }}_{{- tolower .Os }}"
+    vendor: Defacto2
+    homepage: https://github.com/Defacto2/server
+    maintainer: Ben Garrett <contact@defacto2.net>
+    description: |-
+      Defacto2 web server installer package.
+    license: GPL-3.0
+    formats:
+      - deb
+    dependencies:
+      - git
+    recommends:
+      - caddy
+      - postgresql
+checksum:
+  name_template: "{{ .ProjectName }}_checksums.txt"
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^tmp:"

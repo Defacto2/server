@@ -1,0 +1,71 @@
+# .sqlboiler.toml
+#
+# SQLBoiler configuration file
+# https://github.com/volatiletech/sqlboiler
+#
+# This file is used to configure the SQLBoiler code generation tool.
+# It is used to generate Go code from a PostgreSQL database schema 
+# and requires an active PostgreSQL server to be running.
+#
+# To rebuild run this command in the root of this repository:
+# $ go generate
+#
+
+# Configuration options
+
+# The name of the models package
+pkgname = "models"
+# The folder to generate the models into
+output = "internal/postgres/models"
+# Struct tags to add to the generated models
+tag = []
+# Debug mode
+debug = false
+# Global variants
+add-global-variants = false
+# Panic variants
+add-panic-variants = false
+# Enum types
+add-enum-types = false
+# Enum null prefix
+enum-null-prefix = "Null"
+# No context
+no-context = false
+# No hooks
+no-hooks = true
+# No tests
+no-tests = true
+# No auto timestamps
+no-auto-timestamps = false
+# No rows affected
+no-rows-affected = false
+# No driver templates
+no-driver-templates = false
+# Tag ignore
+tag-ignore = []
+# This should always be kept to true
+wipe = true
+
+# PostgreSQL database connection settings and defaults.
+# https://github.com/volatiletech/sqlboiler?tab=readme-ov-file#database-driver-configuration
+#
+# These values are used by the Go generate command to connect to the PostgreSQL database.
+# It is only required when the database schema has changed and the Go models need to be regenerated.
+# Production deployment SECRETS MUST NOT be stored in this file.
+#
+# example connection URL: postgres://pglogrepl:secret@127.0.0.1/pglogrepl?replication=database
+#
+
+[psql]
+schema = "public"
+dbname = "defacto2_ps"
+host = "localhost"
+port = 5432
+user = "root"
+pass = "example"
+sslmode = "disable"
+
+[auto-columns]
+created = "createdat"
+updated = "updatedat"
+deleted = "deletedat"

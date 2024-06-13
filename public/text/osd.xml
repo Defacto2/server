@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/" 
+                       xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+  <ShortName>Defacto2</ShortName>
+  <Description>Search Defacto2 for historical articles, files and digital artifacts on The Scene, underground and online.</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <Image height="192" width="192" type="image/png">https://defacto2.net/image/layout/favicon-192x192.png</Image>
+  <Image height="16" width="16" type="image/x-icon">https://defacto2.net/favicon.ico</Image>
+  <Url type="application/opensearchdescription+xml" rel="self" template="https://defacto2.net/osd.xml" />
+  <Url type="text/html" rel="results" template="https://defacto2.net/search/result?query={searchTerms}" />
+  <LongName>Search tiltes and descriptions.</LongName>
+  <Query role="example" searchTerms="hello world" />
+  <Query role="example" searchTerms="hello,world" />
+  <Attribution>
+    Search data is licensed under Creative Commons Attribution 4.0 International
+  </Attribution>
+  <SyndicationRight>open</SyndicationRight>
+  <AdultContent>true</AdultContent>
+  <Language>*</Language>
+  <OutputEncoding>UTF-8</OutputEncoding>
+  <InputEncoding>UTF-8</InputEncoding>
+</OpenSearchDescription>

@@ -1,0 +1,13 @@
+{{- /* 
+    groups.tmpl ~ List the releasers for the html3 website.
+*/ -}}
+{{- /*  white space are preserved and is used for formatting  */}}
+{{define "content"}}
+{{- $parent := "Parent Directory" }}
+{{- $padding := 41 }}
+{{- $path := index . "path" }}
+<img src="/image/html3/back.gif" alt="[DIR]"> <a href="/html3">{{$parent}}</a>{{leadStr $padding $parent}}    -          Return to the HTML3 index.
+
+{{ range $index, $rel := .releasers -}} 
+<img src="/image/html3/dir.gif" alt="[DIR]"> <a href="/html3/{{ $path }}/{{ $rel.Unique.URI }}">{{fmtURI $rel.Unique.URI}}</a>{{leadStr $padding $rel.Unique.Name}}{{leadInt 5 $rel.Unique.Count}}{{byteInt 7 $rel.Unique.Bytes}}
+{{end}}{{end}}

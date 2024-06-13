@@ -1,0 +1,41 @@
+{{- /*  
+    releaseryear.tmpl  
+    This template is for the list of the releases organized by the first year of the earliest release.
+    Currently, the template is exclusively used for the magazines.
+*/ -}}
+{{- define "content" }}
+{{- $path := "g" }}
+{{- $name := index .itemName}}
+{{- $pubs := index .stats.pubs }}
+{{- $orderBy := index .stats.orderBy }}
+{{- $class := "row row-cols-1 row-cols-sm-2 row-col-md-3 g-2"}}
+<div class="container px-4 text-center">
+    <p class="text-start lead"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
+{{- $prevYear := 0 }}
+{{- range $index, $rel := .releasers -}}
+    {{- $title := fmtRangeURI $rel.Unique.URI }}
+    {{- $initialism := initialisms $rel.Unique.URI }}
+    {{- $year := $rel.Unique.Year.Int }}
+    {{ if eq $index 0}}
+        {{ if (gt $year 0) }}<h3 class="text-start lead p-3">The first release in {{$year}}</h3>{{end}}
+        <div class="{{$class}}">
+    {{- end}}
+    {{- if and (gt $prevYear 0) (gt $year 0) (gt $year $prevYear) }}
+        {{- $prevYear = $rel.Unique.Year.Int }}
+        </div>
+        <h3 class="text-start lead mt-3 p-3">{{$prevYear}}</h3>
+        <div class="{{$class}}">
+    {{- end}}
+    {{- if eq $prevYear 0}}
+    {{- $prevYear = $rel.Unique.Year.Int }}
+    {{- end}}
+        <div class="col">
+            <div class="p-3 border bg-light h-100"><h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{trimSiteSuffix $title}}</a></h5>
+            <span class="text-muted">{{ $initialism }} &nbsp; </span>
+            {{- byteFileS $name $rel.Unique.Count $rel.Unique.Bytes }}
+            </div>
+        </div>
+{{- end}}
+    </div>
+</div>
+{{- end }}

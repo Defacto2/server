@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "golang.go",
+    "stylelint.vscode-stylelint",
+    "pucelle.run-on-save"
+  ]
+}

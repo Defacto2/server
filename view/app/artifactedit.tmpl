@@ -1,0 +1,540 @@
+{{- /* 
+    artifactedit.tmpl ~ Edit a single artifact file on record.
+*/ -}}
+{{- define "artifactedit" -}}
+{{- if eq false (index . "editor")}}{{/*  render nothing  */}}{{else}}
+{{- $faSize := "fa-fw fa-2x" -}}
+{{- $delay := "500ms" }}
+{{- $lDelay := "1s"}}
+{{- $hundred := "100"}}
+{{- $oneK := "1024" }}
+{{- $key := index . "modID"}}
+{{- $unid := index . "unid"}}
+{{- $record := index . "modOnline"}}
+{{- $rel1 := index . "modReleaser1"}}
+{{- $rel2 := index . "modReleaser2"}}
+{{- $title := index . "modTitle"}}
+{{- $filename := index . "filename"}}
+{{- $os := index . "modOS"}}
+{{- $tag := index . "modTag"}}
+{{- $dateYear := index . "modYear"}}
+{{- $dateMonth := index . "modMonth"}}
+{{- $dateDay := index . "modDay"}}
+{{- $lastMod := index . "modLastMod"}}
+{{- $lmYear := index . "modLMYear"}}
+{{- $lmMonth := index . "modLMMonth"}}
+{{- $lmDay := index . "modLMDay"}}
+{{- $writers := index . "writers"}}
+{{- $artists := index . "artists"}}
+{{- $youtube := index . "youtube"}}
+{{- $sixteen := index . "sixteenColors"}}
+{{- $demozoo := index . "demozoo"}}
+{{- $pouet := index . "pouet"}}
+{{- $github := index . "github"}}
+{{- $comment := index . "comment"}}
+{{- $relations := index . "modRelations"}}
+{{- $websites := index . "modWebsites"}}
+{{- $programmers := index . "programmers"}}
+{{- $musicians := index . "musicians"}}
+{{- $virusTotal := index . "virusTotal"}}
+{{- $previewImg := recordImgSample $unid}}
+{{- $thumbImg := recordThumbSample $unid}}
+{{- $linkExamples := recordLinkPreviews $youtube $demozoo $pouet $sixteen $github $relations $websites | safeHTML }}
+{{- $replace := "refresh the page to see the changes"}}
+{{- $hxClassification := "[name='artifact-editor-categories'],[name='artifact-editor-operatingsystem'],[name='artifact-editor-key']"}}
+{{- /*  Artifact metadata editor  */}}
+<div class="modal fade" id="artifact-editor-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
+  aria-labelledby="artifact-editor-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    {{- /*  Data editor for record key, ...  */}}
+    <div class="modal-content">
+      <div id="artifact-editor-modal-header" class="modal-header {{if eq $record true}}bg-success-subtle{{else}}bg-danger-subtle{{end}}">
+        <i class="fal fa-file-alt {{ $faSize }}" title="Modify the record"></i> &nbsp;
+        <h1 class="modal-title fs-5" id="artifact-editor-modal-label">Data editor for record key, {{$key}}</h1><br>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body container">
+        <div id="artifact-editor-alert" class="alert alert-warning d-none" role="alert">
+          {{/*  Error alerts will be written here  */}}
+        </div>
+        <div class="row">
+          {{- /*  Public or hidden record */}}
+          <div class="col-xl-2">
+            <div class="d-grid">
+              {{radioPublic ($record)}}
+              <label class="btn btn-outline-success" for="artifact-editor-public">Public record</label>
+            </div>
+          </div>
+          <div class="col-xl-2">
+            <div class="d-grid">
+              {{radioHidden ($record)}}
+              <label class="btn btn-outline-danger" for="artifact-editor-hidden">Hidden record</label>
+            </div>
+          </div>
+          {{- /*  Record key and Unique ID  */}}
+          <div class="col-xl-3">
+            <div class="input-group">
+              <span class="input-group-text" id="artifact-editor-key-label">Record Key</span>
+              <input type="text" value='{{$key}}' class="form-control" name="artifact-editor-key" 
+                aria-describedby="artifact-editor-key-label" readonly>
+            </div>
+          </div>
+          <div class="col-xl-5">
+            <div class="input-group">
+              <span class="input-group-text" id="artifact-editor-unique-id">Unique ID</span>
+              <input type="text" value='{{$unid}}' class="form-control" aria-describedby="artifact-editor-unique-id" readonly>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <div class="row align-items-center">
+          <div class="col-xl-6">
+            {{- /*  Classifications  */}}
+            <label class="form-label mt-2"><span class="col-form-label-lg">Classifications</span>, 
+              <small id="artifact-editor-classification-help">{{classification $tag $os | safeHTML}}</small>.
+            </label>
+            <div class="input-group mb-1">
+              <label class="input-group-text w-50" for="artifact-editor-operating-system" id="artifact-editor-os-label">Operating system</label>
+              <select name="artifact-editor-operatingsystem" id="artifact-editor-operating-system" class="form-select"
+                aria-describedby="artifact-editor-os-label" autocomplete="off"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">
+              {{- template "optionOS" . }}
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="input-group-text w-50" for="artifact-editor-category" id="artifact-editor-category-label">Tag as category</label>
+              <select name="artifact-editor-categories" id="artifact-editor-category" class="form-select"
+                aria-describedby="artifact-editor-category-label" autocomplete="off"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">
+              {{- template "optionTag" . }}
+              </select>
+            </div>
+            <div class="btn-group" role="group" aria-label="Reset classifications">
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-reset-classifications" type="button" 
+                data-reset-os="{{$os}}" data-reset-cat="{{$tag}}"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">
+                  Reset classifications <small>to <q>{{$os}}</q> + <q>{{$tag}}</q></small></button>
+            </div>
+          </div>
+          <div class="col-xl-6">
+            <div><label class="col-form-label-lg">Popular</label></div>
+            {{- /*  Popular classifications  */}}
+            <div class="btn-group" role="group">
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-text-for-dos" type="button" 
+                data-reset-os="text" data-reset-cat="releaseinformation"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">Text or NFO</button>
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-text-for-amiga" type="button"
+                data-reset-os="textamiga" data-reset-cat="releaseinformation"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">Text for Amiga</button>
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-magazine-for-text" type="button"
+                data-reset-os="text" data-reset-cat="magazine"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">Text magazine</button>
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-ansi-for-bbs" type="button"
+                data-reset-os="ansi" data-reset-cat="bbs"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">ANSI for BBS</button>
+            </div>
+            <div class="btn-group" role="group">
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-intro-for-dos" type="button"
+                data-reset-os="dos" data-reset-cat="releaseadvert"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">MsDos-tro</button>
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-trainer-for-dos" type="button"
+                data-reset-os="dos" data-reset-cat="gamehack"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">MsDos trainer</button>
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-magazine-for-dos" type="button"
+                data-reset-os="dos" data-reset-cat="magazine"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">MsDos magazine</button>
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-intro-for-bbs" type="button"
+                data-reset-os="dos" data-reset-cat="bbs"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">BBS-tro</button>
+            </div>
+            <div class="btn-group" role="group">
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-intro-for-win" type="button"
+                data-reset-os="windows" data-reset-cat="releaseadvert"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">Windows-tro</button>
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-trainer-for-win" type="button"
+                data-reset-os="windows" data-reset-cat="gamehack"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">Windows trainer</button>
+              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-proof-of-release" type="button"
+                data-reset-os="image" data-reset-cat="releaseproof"
+                hx-post="/editor/classifications" 
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">Proof of release</button>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-3 pb-3">
+          {{/*  Filename  */}}
+          <div class="col-xl-6">
+            <label for="artifact-editor-filename" class="col-form-label-lg">Filename</label>
+            <input type="text" class="form-control{{if eq $filename ""}} is-invalid{{end}}" 
+              name="artifact-editor-filename" id="artifact-editor-filename" autocomplete="off" maxlength="255"
+              value="{{$filename}}" aria-describedby="artifact-editor-filename-help"
+              hx-post="/editor/filename" 
+              hx-trigger="keyup changed delay:{{$lDelay}}"
+              hx-include="[name='artifact-editor-key']">
+            <div id="artifact-editor-filename-help" class="form-text">
+              The filename should usually be left unchanged and is required.<br>
+              <span class="text-warning-emphasis">A file extension is always suggested</span>, for example: <q>example.zip</q>.
+            </div>
+            <div class="btn-group" role="group">
+              <input type="hidden" name="artifact-editor-filename-resetter" value="{{$filename}}" readonly>
+              <button class="btn btn-link" type="button" id="artifact-editor-filename-reset"
+                hx-post="/editor/filename/reset"
+                hx-target="#artifact-editor-filename-quote"
+                hx-include="[name='artifact-editor-key'],
+                            [name='artifact-editor-filename-resetter']">
+                  Reset filename <small>to <q id="artifact-editor-filename-quote">{{$filename}}</q></small></button>
+            </div>
+          </div>
+          {{/*  VirusTotal  */}}
+          <div class="col-xl-6">
+            <label for="artifact-editor-virustotal" class="col-form-label-lg">VirusTotal alert</label>
+            <input type="text" class="form-control" name="artifact-editor-virustotal" id="artifact-editor-virustotal" autocomplete="off" maxlength="256"
+              aria-describedby="artifact-editor-virustotal-help" value="{{$virusTotal}}"
+              hx-post="/editor/virustotal" 
+              hx-trigger="keyup changed delay:{{$lDelay}}"
+              hx-include="[name='artifact-editor-key']">
+            <div id="artifact-editor-virustotal-help" class="form-text">
+              <span class="text-info-emphasis">Provide an link to a VirusTotal report to block the artifact download.</span><br>
+              The VirusTotal alert should usually be left empty.
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          {{- /*  Title or brief description  */}}
+          <div class="col-xl-6">
+            <label for="artifact-editor-title" class="col-form-label-lg">Title</label>
+            <input type="text" name="artifact-editor-title" id="artifact-editor-title" autocomplete="off" maxlength="{{$hundred}}"
+              aria-describedby="artifact-editor-title-help" placeholder="example: 500000th release!" class="form-control form-control-lg" 
+              value="{{$title}}"
+              hx-post="/editor/title" 
+              hx-trigger="keyup changed delay:{{$lDelay}}"
+              hx-include="[name='artifact-editor-key']">
+            <div id="artifact-editor-title-help" class="form-text">An optional brief description or name of the release.</div>
+            <div class="btn-group" role="group">
+              <input type="hidden" name="artifact-editor-title-resetter" value="{{$title}}" readonly>
+              <button class="btn btn-link" type="button" id="artifact-editor-title-reset"
+                hx-post="/editor/title/reset"
+                hx-target="#artifact-editor-title-quote"
+                hx-include="[name='artifact-editor-key'],
+                            [name='artifact-editor-title-resetter']">
+                  Reset title <small>to <q id="artifact-editor-title-quote">{{$title}}</q></small></button>
+            </div>
+          </div>
+          {{/*  Comments  */}}
+          <div class="col-xl-6">
+            <label class="form-label col-form-label-lg">Comment</label>
+              <textarea class="form-control" name="artifact-editor-comment" id="artifact-editor-comment" 
+                style="height:6em;" autocomplete="off" aria-describedby="artifact-editor-comment-help"                
+                hx-post="/editor/comment" 
+                hx-trigger="keyup changed delay:{{$lDelay}}"
+                hx-include="[name='artifact-editor-key']">{{$comment}}</textarea>
+              <div class="form-text" id="artifact-editor-comment-help">Optional, comments can be used to store longer form notes about the artifact.</div>
+              <input type="hidden" id="artifact-editor-comment-resetter" name="artifact-editor-comment-resetter" value="{{$comment}}" readonly>
+              <button type="button" class="btn btn-link" id="artifact-editor-comment-reset"
+                  hx-post="/editor/comment/reset"
+                  hx-include="[name='artifact-editor-key'],
+                              [name='artifact-editor-comment'],
+                              [name='artifact-editor-comment-resetter']">
+                              Undo comment</button>
+          </div>
+        </div>
+        <div class="row mt-3">
+          {{- /*  Releasers  */}}
+          <div class="col-xl-6">
+            <label for="artifact-editor-releaser-1" class="form-label col-form-label-lg"><span class="">Releasers</span> <small>maximum of 2</small></label>
+            <form id="artifact-editor-releasers-form">
+              <div class="input-group col-xl-3">
+                <button class="btn btn-success" type="button" id="artifact-editor-releaser-update"
+                    hx-post="/editor/releasers"
+                    hx-include="[name='artifact-editor-key']"
+                    hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Save</button>
+                <input type="text" list="artifact-editor-list-1" name="artifact-editor-releaser1" id="artifact-editor-releaser-1" autocomplete="off"
+                    aria-describedby="artifact-editor-releasers-help" placeholder="example: Razor 1911" class="form-control{{if eq $rel1 ""}} is-invalid{{end}}" 
+                    value="{{$rel1}}" data-reset-rel1="{{$rel1}}"
+                    hx-post="/uploader/releaser/1" 
+                    hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
+                    hx-target="#artifact-editor-list-1" minlength="2" maxlength="{{$hundred}}" required>
+                <span class="input-group-text">+</span>
+                <input type="text" list="artifact-editor-list-2" name="artifact-editor-releaser2" id="artifact-editor-releaser-2" autocomplete="off"
+                    aria-describedby="artifact-editor-releasers-help" placeholder="example: Titan" class="form-control" 
+                    value="{{$rel2}}" data-reset-rel2="{{$rel2}}"
+                    hx-post="/uploader/releaser/2" 
+                    hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
+                    hx-target="#artifact-editor-list-2" minlength="2" maxlength="{{$hundred}}">
+              </div>
+            </form>
+            <datalist id="artifact-editor-list-1"></datalist>
+            <datalist id="artifact-editor-list-2"></datalist>            
+            <div id="artifact-editor-releasers-error" class="invalid-feedback{{if eq $rel1 ""}} d-block{{end}}">
+              A releaser is required, for example: <q>Razor 1911</q>.
+            </div>
+            <div id="artifact-editor-releasers-help" class="form-text">
+              A releaser can be a group name, bbs name or ftp site.<br> 
+              A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q>,<br>
+              for example: <q>Dark Domain BBS</q> or <q>Dark Domain FTP</q>.
+            </div>
+            <div class="btn-group" role="group">
+              <button class="btn btn-link" type="button" id="artifact-editor-releaser-reset"
+              hx-post="/editor/releasers/reset"
+              hx-target="#artifact-editor-releaser-quotes"
+              hx-include="[name='artifact-editor-key'],
+                          [name='artifact-editor-releaser1'],
+                          [name='artifact-editor-releaser2']"
+              hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>
+                Reset releasers <small>to 
+                  <span name="artifact-editor-releaserquotes" id="artifact-editor-releaser-quotes"><q>{{$rel1}}</q>
+                  {{if ne $rel2 ""}}+<q>{{$rel2}}</q>{{end}}</span></small></button>
+            </div>
+          </div>
+          {{- /*  Date of release  */}}
+          <div class="col-xl-6">
+            <label class="form-label col-form-label-lg">Date of release</label>
+            <div class="btn-toolbar" role="toolbar">
+              <div class="input-group">
+                <span class="input-group-text">Year</span>
+                <input type="hidden" name="artifact-editor-yearval" value="{{$dateYear}}" readonly>
+                <input type="number" name="artifact-editor-year" min="1980" max="{{exampleYear}}" autocomplete="off"
+                  id="artifact-editor-year" aria-label="Year of release" class="form-control input-date" 
+                  value="{{$dateYear}}" placeholder="{{exampleYear}}">
+                <span class="input-group-text">Month</span>
+                <input type="hidden" name="artifact-editor-monthval" value="{{$dateYear}}" readonly>
+                <input type="number" name="artifact-editor-month" min="1" max="12" autocomplete="off"
+                  id="artifact-editor-month" aria-label="Month of release" class="form-control input-date" 
+                  value="{{$dateMonth}}" placeholder="{{exampleMonth}}">
+                <span class="input-group-text">Day</span>
+                <input type="hidden" name="artifact-editor-dayval" value="{{$dateYear}}" readonly>
+                <input type="number" name="artifact-editor-day" min="1" max="31" autocomplete="off"
+                  id="artifact-editor-day" aria-label="Day of release" class="form-control input-date" 
+                  value="{{$dateDay}}" placeholder="{{exampleDay}}">
+                <button class="btn btn-success" type="button" id="artifact-editor-date-update"
+                  hx-post="/editor/date"
+                  hx-include="[name='artifact-editor-key'],
+                              [name='artifact-editor-year'],
+                              [name='artifact-editor-year-resetter']
+                              [name='artifact-editor-month'],
+                              [name='artifact-editor-day']">Save</button>
+              </div>
+            </div>
+            <div id="artifact-editor-date-help" class="form-text">
+              A year of release is recommended.
+            </div>
+            <div class="btn-group" role="group">
+              <input type="hidden" id="artifact-editor-date-resetter" name="artifact-editor-date-resetter" 
+                value="{{$dateYear}}-{{$dateMonth}}-{{$dateDay}}" readonly>
+              <button type="button" class="btn btn-link" id="artifact-editor-date-reset"
+                  hx-post="/editor/date/reset"
+                  hx-target="#artifact-editor-date-quote"
+                  hx-include="[name='artifact-editor-key'],[name='artifact-editor-date-resetter']">
+                  Reset date <small>to 
+                <q id="artifact-editor-date-quote">{{- if ne $dateYear 0}}{{$dateYear}}{{end}}
+                {{- if ne $dateMonth 0}}-{{$dateMonth}}{{end}}
+                {{- if ne $dateDay 0}}-{{$dateDay}}{{end}}</q></small>
+              </button>
+              {{- if eq $lastMod true}}
+              <input type="hidden" id="artifact-editor-date-lastmodder" name="artifact-editor-date-lastmodder" 
+                value="{{$lmYear}}-{{$lmMonth}}-{{$lmDay}}" readonly>
+              <button type="button" class="btn btn-link" id="artifact-editor-date-lastmod"
+                  hx-post="/editor/date/lastmod"
+                  hx-target="#artifact-editor-date-lastmod-quote"
+                  hx-include="[name='artifact-editor-key'],[name='artifact-editor-date-lastmodder']">
+                  Use the last modification date
+                {{- if ne $lmYear 0}}<small><q id="artifact-editor-date-lastmod-quote">{{$lmYear}}
+                {{- if ne $lmMonth 0}}-{{$lmMonth}}{{end}}
+                {{- if ne $lmDay 0}}-{{$lmDay}}{{end}}</q></small>{{end}}
+              </button>
+              {{- end}}
+            </div>
+          </div>
+        </div>
+        <div class="row col-xl-11 mt-3">
+          {{- /*  Creators  */}}
+          <label class="form-label col-form-label-lg">Creators</label>
+          <div class="input-group mb-1">
+            <div class="form-floating">
+              <input type="text" class="form-control" name="artifact-editor-credittext" id="artifact-editor-credit-text" autocomplete="off" maxlength="{{$oneK}}"
+                value="{{$writers}}" data-reset-credit-text="{{$writers}}" placeholder="example: Name" aria-details="artifact-editor-credit-help"
+                hx-post="/editor/creator/text" 
+                hx-trigger="keyup changed delay:{{$lDelay}}"
+                hx-include="[name='artifact-editor-key']">
+              <label for="artifact-editor-credit-text">Writers</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" name="artifact-editor-creditill" id="artifact-editor-credit-ill" autocomplete="off" maxlength="{{$oneK}}"
+                value="{{$artists}}" data-reset-credit-ill="{{$artists}}" placeholder="example: Name" aria-details="artifact-editor-credit-help"
+                hx-post="/editor/creator/ill" 
+                hx-trigger="keyup changed delay:{{$lDelay}}"
+                hx-include="[name='artifact-editor-key']">
+              <label for="artifact-editor-credit-ill">Visual artists</label>
+            </div>
+          </div>
+          <div class="input-group">
+            <div class="form-floating">
+              <input type="text" class="form-control" name="artifact-editor-creditprog" id="artifact-editor-credit-prog" autocomplete="off" maxlength="{{$hundred}}" 
+                value="{{$programmers}}" data-reset-credit-prog="{{$programmers}}" placeholder="example: Name" aria-details="artifact-editor-credit-help"
+                hx-post="/editor/creator/prog" 
+                hx-trigger="keyup changed delay:{{$lDelay}}"
+                hx-include="[name='artifact-editor-key']">
+              <label for="artifact-editor-credit-prog">Programmers</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" name="artifact-editor-creditaudio" id="artifact-editor-credit-audio" autocomplete="off" maxlength="{{$hundred}}"
+                value="{{$musicians}}" data-reset-credit-audio="{{$musicians}}" placeholder="example: Name" aria-details="artifact-editor-credit-help"
+                hx-post="/editor/creator/audio" 
+                hx-trigger="keyup changed delay:{{$lDelay}}"
+                hx-include="[name='artifact-editor-key']">
+              <label for="artifact-editor-credit-audio">Musicians</label>
+            </div>
+          </div>
+          <div class="form-text" id="artifact-editor-credit-help">Join multiple creators with commas, for example: <q>Name,Name two,Name3</q>.</div>
+        </div>
+        <div class="btn-group" role="group">
+          <input type="hidden" id="artifact-editor-credit-resetter" name="artifact-editor-credit-resetter" 
+            value="{{$writers}};{{$artists}};{{$programmers}};{{$musicians}}" readonly>
+          <button type="button" class="btn btn-link" id="artifact-editor-credit-reset"
+              hx-post="/editor/creator/reset"
+              hx-include="[name='artifact-editor-key'],
+              [name='artifact-editor-credit-resetter'],
+              [name='artifact-editor-credittext'],
+              [name='artifact-editor-creditill'],
+              [name='artifact-editor-creditprog'],
+              [name='artifact-editor-creditaudio']">
+              Undo creators
+          </button>
+        </div>
+        {{- /*  Links  */}}
+        <form class="mt-3" autocomplete="off"     
+            hx-post="/editor/links"
+            hx-trigger="input from:#artifact-editor-youtube,
+                        input from:#artifact-editor-demozoo,
+                        input from:#artifact-editor-pouet,
+                        input from:#artifact-editor-16colors,
+                        input from:#artifact-editor-github,
+                        input from:#artifact-editor-releasers,
+                        input from:#artifact-editor-websites"
+            hx-include="[name='artifact-editor-key']"
+            hx-target="#artifact-editor-link-examples">
+        <div class="row">
+          <label class="form-label col-form-label-lg">Links</label>
+          <div class="col-xl-2">
+            <div class="form-floating">
+              <input type="hidden" name="artifact-editor-youtubeval" value="{{$youtube}}" readonly>
+              <input type="text" class="form-control" name="artifact-editor-youtube" id="artifact-editor-youtube" 
+                autocomplete="off" maxlength="11" minlength="11" value="{{$youtube}}" placeholder="62BuDfBIcMo"
+                hx-post="/editor/youtube"
+                hx-trigger="keyup changed delay:{{$lDelay}}"
+                hx-include="[name='artifact-editor-key']">
+              <label for="artifact-editor-youtube">YouTube ID</label>
+            </div>
+          </div>
+          <div class="col-xl-2">
+            <div class="form-floating">
+              <input type="hidden" name="artifact-editor-demozooval" value="{{$demozoo}}" readonly>
+              <input type="number" class="form-control" name="artifact-editor-demozoo" id="artifact-editor-demozoo" 
+                autocomplete="off" min="1" max="{{ demozooSanity }}" value="{{$demozoo}}" placeholder="185828"
+                hx-post="/editor/demozoo"
+                hx-trigger="keyup changed delay:{{$lDelay}}"
+                hx-include="[name='artifact-editor-key']">
+              <label for="artifact-editor-demozoo">Demozoo prod</label>
+            </div>
+          </div>
+          <div class="col-xl-2">
+            <div class="form-floating">
+              <input type="hidden" name="artifact-editor-pouetval" value="{{$pouet}}" readonly>
+              <input type="number" class="form-control" name="artifact-editor-pouet" id="artifact-editor-pouet" 
+                autocomplete="off" min="1" max="{{ pouetSanity }}" value="{{$pouet}}" placeholder="75854"
+                hx-post="/editor/pouet"
+                hx-trigger="keyup changed delay:{{$lDelay}}"
+                hx-include="[name='artifact-editor-key']">
+              <label for="artifact-editor-pouet">Pouet prod</label>
+            </div>
+          </div>
+          <div class="col-xl-3">
+            <div class="form-floating">
+              <input type="hidden" name="artifact-editor-16colorstval" value="{{$sixteen}}" readonly>
+              <input type="text" class="form-control" name="artifact-editor-16colors" id="artifact-editor-16colors" 
+                autocomplete="off" maxlength="{{$oneK}}" value="{{$sixteen}}" placeholder="/tags/magazine/dreadloc"
+                hx-post="/editor/16colors"
+                hx-trigger="keyup changed delay:{{$lDelay}}"
+                hx-include="[name='artifact-editor-key']">
+              <label for="artifact-editor-16colors">16colors partial</label>
+            </div>
+          </div>
+          <div class="col-xl-3">
+            <div class="form-floating">
+              <input type="hidden" name="artifact-editor-githubval" value="{{$github}}" readonly>
+              <input type="text" class="form-control" name="artifact-editor-github" id="artifact-editor-github" 
+                autocomplete="off" maxlength="{{$oneK}}" value="{{$github}}" placeholder="/Defacto2/database"
+                hx-post="/editor/github"
+                hx-trigger="keyup changed delay:{{$lDelay}}"
+                hx-include="[name='artifact-editor-key']">
+              <label for="artifact-editor-github">GitHub repo</label>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-1 pb-3">
+          <div class="col-xl-6">
+            <div class="form-floating">
+              <input type="text" class="form-control" name="artifact-editor-relations" id="artifact-editor-relations" 
+                autocomplete="off" maxlength="255" value="{{$relations}}"
+                placeholder="example: NFO;9f1c2" aria-describedby="artifact-editor-relations-help"
+                hx-post="/editor/relations"
+                hx-trigger="keyup changed delay:{{$lDelay}}"
+                hx-include="[name='artifact-editor-key']">
+              <label for="artifact-editor-relations">Link to releases</label>
+            </div>
+            <div class="form-text" id="artifact-editor-relations-help">Brief description and file ID, for example: 
+              <q>NFO;<a href="/f/9f1c2">9f1c2</a>|Intro;<a href="/f/a92116e">a92116e</a></q>.
+            </div>
+          </div>
+          <div class="col-xl-6">
+            <div class="form-floating">
+              <input type="text" class="form-control" name="artifact-editor-websites" id="artifact-editor-websites" 
+                autocomplete="off" maxlength="2048" value="{{$websites}}"
+                placeholder="Website;example.com" aria-describedby="artifact-editor-websites-help"
+                hx-post="/editor/sites"
+                hx-trigger="keyup changed delay:{{$lDelay}}"
+                hx-include="[name='artifact-editor-key']">
+              <label for="artifact-editor-websites">Link to websites</label>
+            </div>
+            <div class="form-text" id="artifact-editor-websites-help">Description &amp; link, example: 
+              <q>Site;<a href="https://example.com">example.com</a>|Documentation;<a href="https://example.com/doc">example.com/doc</a></q>.
+            </div>
+          </div>
+        </div>
+        <span id="artifact-editor-link-examples">{{$linkExamples}}</span>
+        </form>
+      </div>
+      {{/*  Switch to assets and reset buttons  */}}
+      {{- template "artifactfooter" . }}
+    </div>
+  </div>
+</div>
+{{- end}}
+{{- end}}

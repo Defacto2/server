@@ -1,0 +1,15 @@
+{{- /* 
+    scener.tmpl ~ List of ordered scener names.
+*/ -}}
+{{- define "content" }}
+{{- $path := "p" }}
+{{- $ppl := len .sceners }}
+<div class="container px-4 text-center">
+    <p class="text-start lead"><small>There are {{$ppl}} sceners.</small></p>
+    <div class="row row-cols-1 row-cols-sm-4 row-col-md-6 g-2">
+    {{- range $index, $rel := .sceners -}}
+    <div class="col"><a href="{{ linkScnr $rel }}">{{ fmtName $rel }}</a></div>
+    {{- end}}
+    </div>
+</div>
+{{- end }}

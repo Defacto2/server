@@ -1,0 +1,326 @@
+{{- /* 
+    categoriesmore.tmpl ~ the more-categories template is for the files, browse categories menu.
+*/ -}}
+{{- define "morecategories" -}}
+{{- $otherClass := " h5" }}
+{{- $cardClass := " h-100"}}
+{{- $rels := index . "counter" }}
+{{- $linkClass := "card-link text-nowrap"}}
+<div class="row row-cols-1 row-cols-md-1 g-4 mt-2 collapse" id="moreCategories">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <nav id="navbarPlatforms" class="navbar bg-light-subtle px-3 mt-3">
+                    <a class="navbar-brand" href="#moreCategories">Platforms</a>
+                    <ul class="nav nav-underline justify-content-center" id="platformTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="dos-tab" data-bs-toggle="tab"
+                                data-bs-target="#dos-tab-pane" type="button" role="tab" aria-controls="dos-tab-pane"
+                                aria-selected="true">{{msdos}}</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="windows-tab" data-bs-toggle="tab"
+                                data-bs-target="#windows-tab-pane" type="button" role="tab"
+                                aria-controls="windows-tab-pane" aria-selected="true">Windows</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="mac-tab" data-bs-toggle="tab"
+                                data-bs-target="#mac-tab-pane" type="button" role="tab"
+                                aria-controls="mac-tab-pane" aria-selected="true">macOS</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="linux-tab" data-bs-toggle="tab"
+                                data-bs-target="#linux-tab-pane" type="button" role="tab"
+                                aria-controls="linux-tab-pane" aria-selected="true">Linux</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="script-tab" data-bs-toggle="tab"
+                                data-bs-target="#script-tab-pane" type="button" role="tab"
+                                aria-controls="script-tab-pane" aria-selected="true">Scripts</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="java-tab" data-bs-toggle="tab"
+                                data-bs-target="#java-tab-pane" type="button" role="tab"
+                                aria-controls="java-tab-pane" aria-selected="true">Java</button>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="card-body tab-content" id="nav-tabContent">
+                    <div class="tab-pane fade show active" id="dos-tab-pane" role="tabpanel" aria-labelledby="dos-tab"
+                        tabindex="0">
+                        <h4 class="otherClass">{{msdos}} <small>PC</small></h4>
+                        <p>
+                            Microsoft MS-DOS and IBM PC DOS were interoperable operating systems for the Intel x86 <u>P</u>ersonal <u>C</u>omputer platform of the 1980s. 
+                            In the early days, games listed the platform as <q>IBM</q> or <q>IBM PC</q>, but this naming evolved to <q>IBM/Tandy and compatibles</q> before eventually settling on <q>MS-DOS</q> in the 1990s.
+                        </p>
+                        <p>
+                            <span class="card-link"><a href="/files/msdos" class="card-link">Browse the files for {{msdos}}</a></span>
+                        </p>
+                    </div>
+                    <div class="tab-pane fade" id="windows-tab-pane" role="tabpanel" aria-labelledby="windows-tab"
+                        tabindex="0">
+                        <h4 class="otherClass">Windows <small>PC</small></h4>
+                        <p>
+                            Microsoft Windows became the unavoidable replacement for MS-DOS on the Intel x86 <u>P</u>ersonal <u>C</u>omputer platform. 
+                            Most of the Windows software hosted on this site released in the 1990s will target Windows 95 or 98, while the releases from the 2000s should be for Windows XP or 7.
+                        </p>
+                        <p>
+                            <span class="card-link"><a href="/files/windows" class="card-link">Browse the files for Windows</a></span>
+                        </p>
+                    </div>
+                    <div class="tab-pane fade" id="mac-tab-pane" role="tabpanel" aria-labelledby="mac-tab"
+                        tabindex="0">
+                        <h4 class="otherClass">macOS</h4>
+                        <p>
+                            Software for the proprietary line of computers by Apple, initially created for the Apple Macintosh System Software, but has been renamed to Mac OS and now macOS. 
+                            Unlike Microsoft Windows, Apple has used different hardware architectures over the years, so the Apple platforms lack backward compatibility.
+                        </p>
+                        <p>
+                            <span class="card-link"><a href="/files/macos" class="card-link">Browse the files for macOS</a></span>
+                        </p>
+                    </div>
+                    <div class="tab-pane fade" id="linux-tab-pane" role="tabpanel" aria-labelledby="linux-tab"
+                        tabindex="0">
+                        <h4 class="otherClass">Linux</h4>
+                        <p>
+                            Software created for Linux or Unix platforms. Obsolete software targeting the desktop will likely fail on modern distributions, but terminal apps may still work.
+                        </p>
+                        <p>
+                            <span class="card-link"><a href="/files/linux" class="card-link">Browse the files for Linux</a></span>
+                        </p>
+                    </div>
+                    <div class="tab-pane fade" id="script-tab-pane" role="tabpanel" aria-labelledby="script-tab"
+                        tabindex="0">
+                        <h4 class="otherClass">Scripts</h4>
+                        <p>
+                            Shell scripts and software created in interpreted programming languages such as PHP, Perl, TCL, Python and Ruby.
+                        </p>
+                        <p>
+                            <span class="card-link"><a href="/files/script" class="card-link">Browse the shell scripts and software</a></span>
+                        </p>
+                    </div>
+                    <div class="tab-pane fade" id="java-tab-pane" role="tabpanel" aria-labelledby="java-tab"
+                        tabindex="0">
+                        <h4 class="otherClass">Java</h4>
+                        <p>
+                            Software written in Java is a popular language for cross-platform applications, though unrelated to JavaScript.
+                        </p>
+                        <p>
+                            <span class="card-link"><a href="/files/java" class="card-link">Browse the files for Java</a></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4">
+        <div class="col">
+            <div class="card{{$cardClass}}">
+                <div class="card-body">
+                    <h1 class="card-title {{$otherClass}}">Mainstream news</h1>
+                    <p class="card-text">
+                        Computer magazine and newspaper articles that attempt to report on The Scene are usually image scans or hand-typed text file copies.
+                    </p>
+                    <span class="card-link">Browse the <a href="/files/news-article" class="card-link">news articles</a></span>
+                    
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card{{$cardClass}}">
+                <div class="card-body">
+                    <h1 class="card-title {{$otherClass}}">Community standards</h1>
+                    <p class="card-text">
+                        The community documented rules and agreed standards for the various activities of The Scene.
+                    </p>
+                    <span class="card-link">Browse the <a href="/files/standards" class="card-link">standards</a></span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card{{$cardClass}}">
+                <div class="card-body">
+                    <h1 class="card-title {{$otherClass}}">Announcements</h1>
+                    <p class="card-text">
+                        Group and individual announcements to their respective communities, but more often, these are attention-seeking retirement letters. 
+                    </p>
+                    <span class="card-link">Browse the <a href="/files/announcement" class="card-link">announcements</a></span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card{{$cardClass}}">
+                <div class="card-body">
+                    <h1 class="card-title {{$otherClass}}">Group jobs</h1>
+                    <p class="card-text">
+                        Before Apple repurposed the word with the App Store, The Scene used an app or application to describe a form to apply for a role in a group or to gain access to a board or a site. 
+                        But to avoid confusion, we'll call these jobs or adverts.
+                    </p>
+                    <span class="{{$linkClass}}">Browse the</span>
+                    <div class="container text-left">
+                        <div class="row row-cols-1 row-cols-sm-2 g-3 p-3 g-md-0 p-md-0">
+                            <div class="col">
+                    <a href="/files/job-advert" class="card-link">job adverts</a>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <span class="{{$linkClass}}">Browse the</span>
+                    <div class="container text-left">
+                        <div class="row row-cols-1 row-cols-sm-2 g-3 p-3 g-md-0 p-md-0">
+                            <div class="col">
+                    <a href="/files/trial-crackme" class="card-link">trial crackme(s)</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mt-1">
+        <div class="col">
+            <div class="card{{$cardClass}}">
+                <div class="card-body">
+                    <h1 class="card-title {{$otherClass}}">Game hacks</h1>
+                    <p class="card-text">
+                        A small collection of obsolete hacks, exploits, cheats and trainers for obsolete PC games.
+                    </p>
+                    <span class="card-link">Browse the <a href="/files/hack" class="card-link">hacks</a></span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card{{$cardClass}}">
+                <div class="card-body">
+                    <h1 class="card-title {{$otherClass}}">Computer tools</h1>
+                    <p class="card-text">
+                        Obsolete software to analyse, decrypt, patch and crack other programs.
+                    </p>
+                    <span class="card-link">Browse the <a href="/files/tool" class="card-link">tools</a></span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card{{$cardClass}}">
+                <div class="card-body">
+                    <h1 class="card-title {{$otherClass}}">NFO tools</h1>
+                    <p class="card-text">
+                        Obsolete software designed to create and edit NFO text files.
+                    </p>
+                    <span class="card-link">Browse the <a href="/files/nfo-tool" class="card-link">tools</a></span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card{{$cardClass}}">
+                <div class="card-body">
+                    <h1 class="card-title {{$otherClass}}">Busts and takedowns</h1>
+                    <p class="card-text">
+                        The reports and community alerts that occur from police arrests and raids on individuals. 
+                        While software piracy wasn't a criminal activity until 1999, some sceners, boards, and sites did engage in other illegal activities to support their online lifestyle.
+                    </p>
+                    <span class="card-link">Browse the <a href="/files/takedown" class="card-link">takedowns</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mt-1">
+        <div class="col">
+            <div class="card{{$cardClass}}">
+                <div class="card-body">
+                    <h1 class="card-title {{$otherClass}}">Community drama</h1>
+                    <p class="card-text">
+                        The competitive scene has often led to online flamewars and occasional real-life conflicts. For example, the concept of doxing existed in The Scene long before Twitch or YouTube.
+                    </p>
+                    <span class="card-link">Browse the <a href="/files/drama" class="card-link">drama</a></span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card{{$cardClass}}">
+                <div class="card-body">
+                    <h1 class="card-title {{$otherClass}}">For sale</h1>
+                    <p class="card-text">
+                        Adverts for commercial goods and online services that vary in legality, from novelty T-shirts to CD collections of stolen software.
+                    </p>
+                    <span class="card-link">Browse the <a href="/files/advert" class="card-link">adverts</a></span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card{{$cardClass}}">
+                <div class="card-body">
+                    <h1 class="card-title {{$otherClass}}">Restricted</h1>
+                    <p class="card-text">
+                        Never intended for public consumption, these obsolete internal tools and documents give a great insight into the operations of some long-gone groups.
+                    </p>
+                    <span class="card-link">Browse the <a href="/files/restrict" class="card-link">files</a></span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card{{$cardClass}}">
+                <div class="card-body">
+                    <h1 class="card-title {{$otherClass}}">Guides and how-tos</h1>
+                    <p class="card-text">
+                        Obsolete texts and guides on how to analyse, patch and crack obsolete software.
+                    </p>
+                    <span class="card-link">Browse the <a href="/files/how-to" class="card-link">guides</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mt-1">
+        <div class="col">
+            <div class="card{{$cardClass}}">
+                <div class="card-body">
+                    <h1 class="card-title {{$otherClass}}">ANSI tools</h1>
+                    <p class="card-text">
+                        Obsolete software used to create and edit ANSI art files.
+                    </p>
+                    <span class="card-link">Browse the <a href="/files/nfo-tool" class="card-link">tools</a></span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card{{$cardClass}}">
+                <div class="card-body">
+                    <h1 class="card-title {{$otherClass}}">Images</h1>
+                    <p class="card-text">
+                        Images include pixel art, photoshop creations and various photos.
+                    </p>
+                    <span class="card-link">Browse the <a href="/files/image" class="card-link">images</a></span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card{{$cardClass}}">
+                <div class="card-body">
+                    <h1 class="card-title {{$otherClass}}">Music</h1>
+                    <p class="card-text">
+                        The music tracks are found in productions and songs that are inspired by The Scene.
+                    </p>
+                    <span class="card-link">Browse the <a href="/files/music" class="card-link">music</a></span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card{{$cardClass}}">
+                <div class="card-body">
+                    <h1 class="card-title {{$otherClass}}">Videos</h1>
+                    <p class="card-text">
+                        Videos created in the pre-YouTube era for niche series that dramatized The Scene. Otherwise, there are the recordings of TV news reports and many group logo animations.
+                    </p>
+                    <span class="card-link">Browse the <a href="/files/video" class="card-link">videos</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="d-grid gap-2 col-6 mx-auto">
+    <a class="btn btn-outline-dark btn-lg mt-4" data-bs-toggle="collapse" href="#moreCategories" role="button"
+        aria-expanded="false" aria-controls="moreCategories">
+        All other categories
+    </a>
+</div>
+{{- end}}
