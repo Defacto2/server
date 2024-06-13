@@ -17,7 +17,7 @@
 #
 version: 2
 
-project_name: df2-server
+project_name: defacto2-server
 before:
   hooks:
     - go mod tidy
@@ -52,7 +52,7 @@ archives:
 nfpms:
   - id: deb # create a .deb package for use with dpkg
     builds: ["server"]
-    package_name: df2-server
+    package_name: defacto2-server
     file_name_template: "{{ tolower .ProjectName }}_{{- tolower .Os }}"
     vendor: Defacto2
     homepage: https://github.com/Defacto2/server
