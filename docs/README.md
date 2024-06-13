@@ -21,28 +21,40 @@ All configurations and modifications to this web application's default settings 
 
 ## Download
 
-Currently the application is available as a [standalone binary for Linux](https://github.com/Defacto2/server/releases/download/v0.6.0/df2-server_0.6.0_linux.zip).
+Currently the application is available as a [standalone binary for Linux](https://github.com/Defacto2/server/releases/latest/download/defacto2-server_linux.zip).
 
 ## Installation
 
-Installation instructions are provided for [Ubuntu Server](https://ubuntu.com/server) but should be similar for other Linux distributions.
+Installation instructions are provided for [Ubuntu Server](https://ubuntu.com/server). 
 
 ```sh
-# change to the home directory
-cd ~
+# download the latest release
+wget https://github.com/Defacto2/server/releases/latest/download/defacto2-server_linux.deb
 
-# download and unzip the latest release
-wget https://github.com/Defacto2/server/releases/latest/download/df2-server_0.6.0_linux.zip
-unzip df2-server_0.6.0_linux.zip
-
-# make the binary executable
-sudo chmod +x df2-server
-
-# move the binary to the system path
-sudo mv df2-server /usr/local/bin
+# install (or update) the package
+sudo dpkg -i defacto2-server_linux.deb
 
 # confirm the binary is executable
-df2-server --version
+defacto2-server --version
+```
+
+For other Linux distributions, the binary can be installed manually to a directory in the system's PATH.
+
+```sh
+# download the latest release
+wget https://github.com/Defacto2/server/releases/latest/download/defacto2-server_linux.zip
+
+# unzip the archive
+unzip defacto2-server_linux.zip
+
+# make the binary executable
+sudo chmod +x defacto2-server
+
+# move the binary to a system path
+sudo mv defacto2-server /usr/local/bin
+
+# confirm the binary is executable
+defacto2-server --version
 ```
 
 ## Usage
@@ -50,7 +62,7 @@ df2-server --version
 The web server will run with out any arguments and will be available on the _[localhost](http://localhost)_ with port `1323`.
 
 ```sh
-df2-server
+defacto2-server
 ```
 
 To stop the server, press `CTRL+C`.
@@ -263,7 +275,18 @@ task build
 task buildx
 ```
 
-The resulting `df2-server` binary is built in the repository root directory.
+The resulting `defacto2-server` binary is built in the repository root directory.
+
+#### Or if you want to build the binary for a [different operating system](https://go.dev/doc/install/source#environment) and architecture.
+
+```sh
+# build for macOS on Apple Silicon
+GOOS=darwin GOARCH=arm64 go build -o "defacto2-server" server.go
+
+# build for FreeBSD on AMD64
+GOOS=freebsd GOARCH=amd64 go build -o "defacto2-server" server.go
+```
+
 
 ### Packaging a release
 

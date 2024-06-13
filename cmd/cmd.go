@@ -21,7 +21,7 @@ import (
 const (
 	Title   = "Defacto2 web application" // Title of this program.
 	Domain  = "defacto2.net"             // Domain of the website.
-	Program = "df2-server"               // Program is the command line name of this program.
+	Program = "defacto2-server"          // Program is the command line name of this program.
 	Author  = "Ben Garrett"              // Author is the primary programmer of this program.
 	Email   = "contact@defacto2.net"     // Email contact for public display.
 )
@@ -35,10 +35,10 @@ func App(ver string, c *config.Config) *cli.App {
 		Name:    Title,
 		Version: Version(ver),
 		Usage:   "serve the Defacto2 web site",
-		UsageText: "df2-server" +
-			"\ndf2-server [command]" +
-			"\ndf2-server [command] --help" +
-			"\ndf2-server [flag]",
+		UsageText: "defacto2-server" +
+			"\ndefacto2-server [command]" +
+			"\ndefacto2-server [command] --help" +
+			"\ndefacto2-server [flag]",
 		Description: desc(c),
 		Compiled:    versioninfo.LastCommit,
 		Copyright:   Copyright(),

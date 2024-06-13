@@ -33,7 +33,7 @@ Environment="D2_DIR_LOG=/var/log"
 Environment="D2_PROD_MODE=true" "D2_READ_ONLY=true" "D2_NO_CRAWL=true"
 User=caddy
 Group=caddy
-ExecStart=/usr/bin/df2-server
+ExecStart=/usr/bin/defacto2-server
 ProtectHome=true
 ProtectSystem=full
 PrivateTmp=yes

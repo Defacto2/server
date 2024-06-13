@@ -6,7 +6,7 @@
 # The environment variables are loaded from a file named ".env.local" but 
 # this can be changed by modifying the FILENAME variable below.
 #
-# The df2-server binary should be in the same directory as this script.
+# The defacto2-server binary should be in the same directory as this script.
 #
 
 # Filename containing the environment variables
@@ -17,7 +17,7 @@ echo -e "Loading environment variables from $FILENAME\n"
 export $(grep -E -v '^#' $FILENAME | xargs)
 
 # Run the server
-./df2-server
+./defacto2-server
 
 # Unset environment variables from .env.local
 echo -e "\nUnset environment variables from $FILENAME\n"

@@ -9,7 +9,7 @@
 version: "3"
 
 vars:
-  BINNAME: dist/df2-server # build output, binary filename (without any extensions)
+  BINNAME: dist/defacto2-server # build output, binary filename (without any extensions)
 
 dotenv: ["./init/.env.local"]
 

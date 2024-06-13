@@ -17,7 +17,7 @@ While it will not be fully functional without directory paths or a database conn
 
 Usage:
 
-	df2-server
+	defacto2-server
 
 The web server should be available at the unencrypted address, http://localhost:1323.
 
@@ -27,7 +27,7 @@ There are only two additional commands: one lists the accessible addresses the w
 
 Usage:
 
-	df2-server [command]
+	defacto2-server [command]
 
 The commands are:
 
@@ -40,7 +40,7 @@ The commands are:
 
 Usage:
 
-	df2-server [flags]
+	defacto2-server [flags]
 
 The flags are:
 
@@ -105,7 +105,7 @@ Otherwise, the server will create a subdirectory using [os.UserConfigDir].
 
 An example log setting:
 
-	D2_DIR_LOG=/var/log/df2-server
+	D2_DIR_LOG=/var/log/defacto2-server
 
 # Administrator accounts
 
