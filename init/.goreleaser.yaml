@@ -53,7 +53,7 @@ nfpms:
   - id: deb # create a .deb package for use with dpkg
     builds: ["server"]
     package_name: df2-server
-    file_name_template: "{{ .ConventionalFileName }}"
+    file_name_template: "{{ tolower .ProjectName }}_{{- tolower .Os }}"
     vendor: Defacto2
     homepage: https://github.com/Defacto2/server
     maintainer: Ben Garrett <contact@defacto2.net>
@@ -68,7 +68,7 @@ nfpms:
       - caddy
       - postgresql
 checksum:
-  name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
+  name_template: "{{ .ProjectName }}_checksums.txt"
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
