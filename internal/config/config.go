@@ -248,19 +248,19 @@ func value(w *tabwriter.Writer, id, name string, val reflect.Value) {
 	switch id {
 	case "GoogleClientID":
 		if val.String() == "" {
-			fmt.Fprint(w, "Empty, no account sign-in for web administration\n")
+			fmt.Fprintln(w, "Empty, no account sign-in for web administration")
 			return
 		}
 		fmt.Fprintln(w, hide)
 	case "MatchHost":
 		if val.String() == "" {
-			fmt.Fprint(w, "Empty, no address restrictions\n")
+			fmt.Fprintln(w, "Empty, no address restrictions")
 			return
 		}
 		fmt.Fprintln(w, val.String())
 	case "SessionKey":
 		if val.String() == "" {
-			fmt.Fprint(w, "Empty, a random key will be generated during the server start\n")
+			fmt.Fprintln(w, "Empty, a random key will be generated during the server start")
 			return
 		}
 		fmt.Fprintln(w, hide)
@@ -270,10 +270,12 @@ func value(w *tabwriter.Writer, id, name string, val reflect.Value) {
 		fmt.Fprintln(w, hidePassword(val.String()))
 	default:
 		if val.String() == "" {
-			fmt.Fprint(w, "Empty\n")
+			fmt.Fprintln(w, "Empty")
 			return
 		}
-		fmt.Fprintf(w, "%v\n", val)
+		if val.IsValid() {
+			fmt.Fprintf(w, "%v\n", val)
+		}
 	}
 }
 
@@ -311,13 +313,13 @@ func tlsPort(w *tabwriter.Writer, id, name string, val reflect.Value) {
 
 // tlsCert prints the TLS certificate and key locations to the tabwriter.
 func tlsCert(w *tabwriter.Writer, id, name string, val reflect.Value, tlsport uint) {
+	fmt.Fprintf(w, "\t%s\t%s\t", fmtID(id), name)
 	if tlsport == 0 {
-		fmt.Println(w, "Not used")
+		fmt.Fprintln(w, "Not in use")
 		return
 	}
 	if val.String() == "" {
-		fmt.Fprintf(w, "\t%s\t%s\tEmpty, will use a placeholder configuration\n", fmtID(id), name)
-		return
+		fmt.Fprintln(w, "Empty, will use a placeholder configuration")
 	}
 	value(w, id, name, val)
 }
