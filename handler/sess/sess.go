@@ -1,7 +1,9 @@
-// Package sess provides a function to check if a user is signed in and is an editor.
+// Package sess provides functions for handling session and cookies.
 package sess
 
 import (
+	"strings"
+
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 )
@@ -20,4 +22,13 @@ func Editor(c echo.Context) bool {
 		return true
 	}
 	return false
+}
+
+// Cookie returns true if the cookie with the given name is set to "true".
+func Cookie(c echo.Context, name string) bool {
+	cookie, err := c.Cookie(name)
+	if err != nil {
+		return false
+	}
+	return strings.EqualFold(cookie.Value, "true")
 }

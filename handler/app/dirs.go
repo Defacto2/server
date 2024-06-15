@@ -340,8 +340,20 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 		return data, nil
 	case err != nil:
 		return data, fmt.Errorf("render.Read: %w", err)
-	case b == nil, render.IsUTF16(r), isZip(b):
+	case b == nil, render.UTF16(r), isZip(b):
 		return data, nil
+	}
+	// Scan for HTML incompatible, ANSI cursor escape codes
+	scanner := bufio.NewScanner(r)
+	const movesCursor = `\x1b\[\d+[ABCDEFG]`
+	re := regexp.MustCompile(movesCursor)
+	for scanner.Scan() {
+		if re.Match(scanner.Bytes()) {
+			return data, nil
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("moves cursor scanner: %w", err)
 	}
 	// Remove control codes and metadata from byte array
 	const (
@@ -351,7 +363,7 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 		nlWindows = "\r\n"                  // Windows line endings
 		nlUnix    = "\n"                    // Unix line endings
 	)
-	re := regexp.MustCompile(reAnsi + `|` + reAmiga + `|` + reSauce)
+	re = regexp.MustCompile(reAnsi + `|` + reAmiga + `|` + reSauce)
 	b = re.ReplaceAll(b, []byte{})
 	b = bytes.ReplaceAll(b, []byte(nlWindows), []byte(nlUnix))
 	if len(b) == 0 {
