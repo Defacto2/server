@@ -13,6 +13,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"unicode/utf8"
 )
 
 const (
@@ -359,4 +360,21 @@ func TouchW(name string, data ...byte) (int, error) {
 		return 0, fmt.Errorf("file.Close: %w", err)
 	}
 	return i, nil
+}
+
+// UTF8 returns true if the named file is a valid UTF-8 encoded file.
+// The function reads the first 512 bytes of the file to determine the encoding.
+func UTF8(name string) (bool, error) {
+	f, err := os.Open(name)
+	if err != nil {
+		return false, fmt.Errorf("os.Open: %w", err)
+	}
+	defer f.Close()
+
+	buf := make([]byte, 512)
+	_, err = f.Read(buf)
+	if err != nil {
+		return false, fmt.Errorf("f.Read: %w", err)
+	}
+	return utf8.Valid(buf), nil
 }

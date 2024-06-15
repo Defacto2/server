@@ -10,6 +10,7 @@ import (
 
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -88,6 +89,19 @@ func (d Download) HTTPSend(c echo.Context, logger *zap.SugaredLogger) error {
 	if name == "" {
 		logger.Warnf("No filename exists for the record %d.", art.ID)
 		name = file
+	}
+	if d.Inline && tags.IsText(art.Platform.String) {
+		modernText, err := helper.UTF8(file)
+		if err != nil {
+			return fmt.Errorf("helper.UTF8: %w", err)
+		}
+		if !modernText {
+			c.Response().Header().Set(echo.HeaderContentType, "text/plain; charset=iso-8859-1")
+		}
+		if err := c.Inline(file, name); err != nil {
+			return fmt.Errorf("c.Inline: %w", err)
+		}
+		return nil
 	}
 	if d.Inline {
 		if err := c.Inline(file, name); err != nil {
