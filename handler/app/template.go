@@ -569,9 +569,7 @@ func (web Templ) Thumb(unid, desc string, bottom bool) template.HTML {
 		class = "card-img-top"
 	}
 	if !w && !p {
-		s := "<img src=\"\" loading=\"lazy\" alt=\"thumbnail placeholder\"" +
-			" class=\"" + class + " placeholder\" style=\"" + style + "\" />"
-		return template.HTML(s)
+		return template.HTML("<!-- no thumbnail found -->")
 	}
 	if w && p {
 		elm := "<picture class=\"" + class + "\">" +

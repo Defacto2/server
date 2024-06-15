@@ -27,20 +27,20 @@
 }
 
 @font-face {
-  font-family: font-opensans;
+  font-family: font-cascadia-mono;
   font-display: swap;
   src:
-    url("/font/opensans_variable.woff2") format("woff2"),
-    url("/font/opensans_variable.woff") format("woff"),
-    url("/font/opensans_variable.ttf") format("truetype");
+    url("/font/CascadiaMono.woff2") format("woff2"),
+    url("/font/CascadiaMono.woff") format("woff"),
+    url("/font/CascadiaMono.ttf") format("truetype");
 }
 
-.font-opensans {
-  font-family: font-opensans, sans-serif;
-  font-size: 100%;
+.font-cascadia-mono {
+  font-family: font-cascadia-mono, sans-serif;
+  font-size: 1em;
   font-style: normal;
   font-weight: normal;
-  line-height: 1.5;
+  line-height: 1;
 }
 
 @font-face {

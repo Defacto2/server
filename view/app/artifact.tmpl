@@ -8,7 +8,6 @@
 {{- $classification := brief (index . "platform") (index . "section")}}
 {{- $screenElm := screenshot (index . "unid") ($desc)}}
 {{- $screenNone := index . "noScreenshot"}}
-{{- $opensans := index . "openSansCheck"}}
 {{- $topaz := index . "topazCheck"}}
 {{- $vga := index . "vgaCheck"}}
 {{- $readmeCls := `reader-invert border border-black rounded-1 p-1`}}
@@ -78,9 +77,9 @@
             <h6 class="fs-6 fw-lighter">Textfile content</small></h6>
             {{- end}}
             <div class="m-3">                    
-                <input type="radio" class="btn-check" name="readme-base" id="openSansFont" autocomplete="off" {{$opensans}}>
-                <label class="btn btn-sm btn-outline-dark" for="openSansFont" 
-                    data-bs-toggle="tooltip" data-bs-title="Use the OpenSans font with Latin-1 encoding">Open Sans</label>
+                <input type="radio" class="btn-check" name="readme-base" id="monoFont" autocomplete="off">
+                <label class="btn btn-sm btn-outline-dark" for="monoFont" 
+                    data-bs-toggle="tooltip" data-bs-title="Use the Cascadia Mono font with OEM-US encoding">Cascadia</label>
                 <input type="radio" class="btn-check" name="readme-base" id="topazFont" autocomplete="off" {{$topaz}}>
                 <label class="btn btn-sm btn-outline-dark" for="topazFont" 
                     data-bs-toggle="tooltip" data-bs-title="Use the TopazPlus font with Latin-1 encoding">Amiga style</label>

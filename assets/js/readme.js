@@ -14,14 +14,14 @@ import { clipText, getElmById } from "./helper.mjs";
     cp437 = "readmeCP437",
     pre437 = getElmById(cp437);
 
-  const openSans = document.getElementById(`openSansFont`);
-  if (openSans !== null) {
-    openSans.addEventListener("click", useBrowser);
+  const cascadiaMono = document.getElementById(`monoFont`);
+  if (cascadiaMono !== null) {
+    cascadiaMono.addEventListener("click", useMono);
   }
-  function useBrowser() {
-    preLatin1.classList.remove(none, "font-amiga", ...blackBG);
-    preLatin1.classList.add("font-opensans", wrap);
-    pre437.classList.add(none);
+  function useMono() {
+    preLatin1.classList.add(none);
+    pre437.classList.remove(none, "font-dos", ...blackBG);
+    pre437.classList.add("font-cascadia-mono", wrap);
   }
 
   const topaz = document.getElementById(`topazFont`);
@@ -29,7 +29,7 @@ import { clipText, getElmById } from "./helper.mjs";
     topaz.addEventListener("click", useAmiga);
   }
   function useAmiga() {
-    preLatin1.classList.remove(none, "font-opensans", wrap);
+    preLatin1.classList.remove(none, "font-cascadia-mono", wrap);
     preLatin1.classList.add("font-amiga", ...blackBG);
     pre437.classList.add(none);
   }
@@ -40,8 +40,8 @@ import { clipText, getElmById } from "./helper.mjs";
   }
   function useIBM() {
     preLatin1.classList.add(none);
-    pre437.classList.remove(none);
-    pre437.classList.add(...blackBG);
+    pre437.classList.remove(none, wrap, "font-cascadia-mono");
+    pre437.classList.add("font-dos", ...blackBG);
   }
 
   const copier = getElmById(`copyReadme`);
