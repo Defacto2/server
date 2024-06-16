@@ -235,7 +235,9 @@ func IsTag(name string) bool {
 // IsText returns true if the named tag is a raw or plain text category.
 func IsText(name string) bool {
 	name = strings.TrimSpace(name)
-	return strings.EqualFold(name, Text.String()) || strings.EqualFold(name, TextAmiga.String()) || strings.EqualFold(name, Markup.String())
+	return strings.EqualFold(name, Text.String()) ||
+		strings.EqualFold(name, TextAmiga.String()) ||
+		strings.EqualFold(name, Markup.String())
 }
 
 // Humanize returns the human readable name of the platform and section tags combined.

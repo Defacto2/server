@@ -28,6 +28,9 @@ linters:
     #- godox
 issues:
   exclude-rules:
+    - path: doc.go
+      linters: # Documentation files are allowed to be longer.
+        - lll
     - path: _test\.go$
       linters: # Tests are allowed to be longer and don't need error wrapping.
         - dupl

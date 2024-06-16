@@ -112,7 +112,7 @@ func DownloadFS(logger *zap.SugaredLogger, dir string) error {
 func RenameDownload(basename, absPath string) error {
 	st, err := os.Stat(absPath)
 	if err != nil {
-		return nil
+		return nil //nolint:nilerr
 	}
 	if st.IsDir() {
 		return fmt.Errorf("%w: %s", ErrIsDir, absPath)
@@ -223,11 +223,23 @@ func RemoveImage(basename, path string) error {
 }
 
 func remove(name, info, path string) {
-	fmt.Fprintf(os.Stderr, "%s: %s\n", info, name)
-	defer os.Remove(path)
+	w := os.Stderr
+	fmt.Fprintf(w, "%s: %s\n", info, name)
+	defer func() {
+		err := os.Remove(path)
+		if err != nil {
+			fmt.Fprintf(w, "defer image remove: %s\n", err)
+		}
+	}()
 }
 
 func rename(oldpath, info, newpath string) {
-	fmt.Fprintf(os.Stderr, "%s: %s\n", info, oldpath)
-	defer os.Rename(oldpath, newpath)
+	w := os.Stderr
+	fmt.Fprintf(w, "%s: %s\n", info, oldpath)
+	defer func() {
+		err := os.Rename(oldpath, newpath)
+		if err != nil {
+			fmt.Fprintf(w, "defer image rename: %s\n", err)
+		}
+	}()
 }

@@ -370,8 +370,8 @@ func UTF8(name string) (bool, error) {
 		return false, fmt.Errorf("os.Open: %w", err)
 	}
 	defer f.Close()
-
-	buf := make([]byte, 512)
+	const sample = 512
+	buf := make([]byte, sample)
 	_, err = f.Read(buf)
 	if err != nil {
 		return false, fmt.Errorf("f.Read: %w", err)

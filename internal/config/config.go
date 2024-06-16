@@ -188,50 +188,32 @@ func dir(w *tabwriter.Writer, id, name, val string) {
 }
 
 func fmtID(id string) string {
-	switch id {
-	case down:
-		return "Downloads, directory path"
-	case prev:
-		return "Previews, directory path"
-	case thumb:
-		return "Thumbnails, directory path"
-	case logger:
-		return "Logs, directory path"
-	case "Compression":
-		return "Gzip compression"
-	case "DatabaseURL":
-		return "Database connection, URL"
-	case "GoogleClientID":
-		return "Google OAuth2 client ID"
-	case "GoogleIDs":
-		return "Google IDs for sign-in"
-	case "LogAll":
-		return "Log all HTTP requests"
-	case "MaxProcs":
-		return "Maximum CPU processes"
-	case "MatchHost":
-		return "Match hostname, domain or IP address"
-	case "NoCrawl":
-		return "Disallow search engine crawling"
-	case "ProdMode":
-		return "Production mode"
-	case "Quiet":
-		return "Quiet mode"
-	case "ReadOnly":
-		return "Read-only mode"
-	case "SessionKey":
-		return "Session encryption key"
-	case "SessionMaxAge":
-		return "Session, maximum age"
-	case "TLSCert":
-		return "TLS certificate, file path"
-	case "TLSHost":
-		return "TLS hostname"
-	case "TLSKey":
-		return "TLS key, file path"
-	default:
-		return helper.SplitAsSpaces(id)
+	m := map[string]string{
+		down:             "Downloads, directory path",
+		prev:             "Previews, directory path",
+		thumb:            "Thumbnails, directory path",
+		logger:           "Logs, directory path",
+		"Compression":    "Gzip compression",
+		"DatabaseURL":    "Database connection, URL",
+		"GoogleClientID": "Google OAuth2 client ID",
+		"GoogleIDs":      "Google IDs for sign-in",
+		"LogAll":         "Log all HTTP requests",
+		"MaxProcs":       "Maximum CPU processes",
+		"MatchHost":      "Match hostname, domain or IP address",
+		"NoCrawl":        "Disallow search engine crawling",
+		"ProdMode":       "Production mode",
+		"Quiet":          "Quiet mode",
+		"ReadOnly":       "Read-only mode",
+		"SessionKey":     "Session encryption key",
+		"SessionMaxAge":  "Session, maximum age",
+		"TLSCert":        "TLS certificate, file path",
+		"TLSHost":        "TLS hostname",
+		"TLSKey":         "TLS key, file path",
 	}
+	if desc, found := m[id]; found {
+		return desc
+	}
+	return helper.SplitAsSpaces(id)
 }
 
 // value prints the id, name, value and help text to the tabwriter.

@@ -185,38 +185,38 @@ func UpdateStringFrom(column stringFrom, id int64, val string) error { //nolint:
 	if err != nil {
 		return fmt.Errorf("find file for %q: %w", column, err)
 	}
-	val = strings.TrimSpace(val)
+	s := null.StringFrom(strings.TrimSpace(val))
 	switch column {
 	case colors16:
-		f.WebID16colors = null.StringFrom(val)
+		f.WebID16colors = s
 	case comment:
-		f.Comment = null.StringFrom(val)
+		f.Comment = s
 	case credAudio:
-		f.CreditAudio = null.StringFrom(val)
+		f.CreditAudio = s
 	case credIll:
-		f.CreditIllustration = null.StringFrom(val)
+		f.CreditIllustration = s
 	case credProg:
-		f.CreditProgram = null.StringFrom(val)
+		f.CreditProgram = s
 	case creText:
-		f.CreditText = null.StringFrom(val)
+		f.CreditText = s
 	case filename:
-		f.Filename = null.StringFrom(val)
+		f.Filename = s
 	case github:
-		f.WebIDGithub = null.StringFrom(val)
+		f.WebIDGithub = s
 	case platform:
-		f.Platform = null.StringFrom(val)
+		f.Platform = s
 	case relations:
-		f.ListRelations = null.StringFrom(val)
+		f.ListRelations = s
 	case section:
-		f.Section = null.StringFrom(val)
+		f.Section = s
 	case sites:
-		f.ListLinks = null.StringFrom(val)
+		f.ListLinks = s
 	case title:
-		f.RecordTitle = null.StringFrom(val)
+		f.RecordTitle = s
 	case virusTotal:
-		f.FileSecurityAlertURL = null.StringFrom(val)
+		f.FileSecurityAlertURL = s
 	case youtube:
-		f.WebIDYoutube = null.StringFrom(val)
+		f.WebIDYoutube = s
 	default:
 		return fmt.Errorf("updatestringfrom: %w", ErrColumn)
 	}
