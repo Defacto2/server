@@ -33,7 +33,6 @@ func Encoder(art *models.File, r io.Reader) encoding.Encoding {
 	if art == nil {
 		return nil
 	}
-
 	platform := strings.ToLower(strings.TrimSpace(art.Platform.String))
 	section := strings.ToLower(strings.TrimSpace(art.Section.String))
 	switch platform {

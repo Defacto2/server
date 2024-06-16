@@ -23,7 +23,7 @@ var (
 
 const (
 	// DefaultURL is an example PostgreSQL connection string, it must not be used in production.
-	DefaultURL = "postgres://root:example@localhost:5432/defacto2_ps"
+	DefaultURL = "postgres://root:example@localhost:5432/defacto2_ps" //nolint: gosec
 	// DriverName of the database.
 	DriverName = "pgx"
 	// Protocol of the database driver.

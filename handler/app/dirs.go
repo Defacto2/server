@@ -345,10 +345,28 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	}
 	// Scan for HTML incompatible, ANSI cursor escape codes
 	scanner := bufio.NewScanner(r)
-	const movesCursor = `\x1b\[\d+[ABCDEFG]`
-	re := regexp.MustCompile(movesCursor)
+
+	// match 1B (Escape)
+	// match [ (Left Bracket)
+	// match optional digits (if no digits, then the cursor moves 1 position)
+	// match A-G (cursor movement, up, down, left, right, etc.)
+	const movesCursor = `\x1b\[\d*?[ABCDEFG]`
+
+	// match 1B (Escape)
+	// match [ (Left Bracket)
+	// match digits for line number
+	// match ; (semicolon)
+	// match digits for column number
+	// match H (cursor position) or f (cursor position)
+	const moveCursorToPos = `\x1b\[\d+;\d+[Hf]`
+
+	reMoveCursor := regexp.MustCompile(movesCursor)
+	reMoveCursorToPos := regexp.MustCompile(moveCursorToPos)
 	for scanner.Scan() {
-		if re.Match(scanner.Bytes()) {
+		if reMoveCursor.Match(scanner.Bytes()) {
+			return data, nil
+		}
+		if reMoveCursorToPos.Match(scanner.Bytes()) {
 			return data, nil
 		}
 	}
@@ -363,7 +381,7 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 		nlWindows = "\r\n"                  // Windows line endings
 		nlUnix    = "\n"                    // Unix line endings
 	)
-	re = regexp.MustCompile(reAnsi + `|` + reAmiga + `|` + reSauce)
+	re := regexp.MustCompile(reAnsi + `|` + reAmiga + `|` + reSauce)
 	b = re.ReplaceAll(b, []byte{})
 	b = bytes.ReplaceAll(b, []byte(nlWindows), []byte(nlUnix))
 	if len(b) == 0 {
