@@ -381,8 +381,8 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 		nlWindows = "\r\n"                  // Windows line endings
 		nlUnix    = "\n"                    // Unix line endings
 	)
-	re := regexp.MustCompile(reAnsi + `|` + reAmiga + `|` + reSauce)
-	b = re.ReplaceAll(b, []byte{})
+	controlCodes := regexp.MustCompile(reAnsi + `|` + reAmiga + `|` + reSauce)
+	b = controlCodes.ReplaceAll(b, []byte{})
 	b = bytes.ReplaceAll(b, []byte(nlWindows), []byte(nlUnix))
 	if len(b) == 0 {
 		return data, nil

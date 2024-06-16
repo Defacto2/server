@@ -76,7 +76,9 @@
             {{- if $screenNone}}
             <h6 class="fs-6 fw-lighter">Textfile content</small></h6>
             {{- end}}
-            <div class="m-3">                    
+            <div class="m-3">
+                <button class="btn btn-sm btn-outline-secondary" id="copyReadme" 
+                    data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard">Copy text</button> &nbsp;
                 <input type="radio" class="btn-check" name="readme-base" id="monoFont" autocomplete="off">
                 <label class="btn btn-sm btn-outline-dark" for="monoFont" 
                     data-bs-toggle="tooltip" data-bs-title="Use the Cascadia Mono font with OEM-US encoding">Cascadia</label>
@@ -86,9 +88,6 @@
                 <input type="radio" class="btn-check" name="readme-base" id="vgaFont" autocomplete="off" {{$vga}}>
                 <label class="btn btn-sm btn-outline-dark" for="vgaFont"
                     data-bs-toggle="tooltip" data-bs-title="Use a classic IBM VGA font with OEM-US encoding">DOS style</label>
-                &nbsp;
-                <button class="btn btn-sm btn-outline-secondary" id="copyReadme" 
-                    data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard">Copy</button>
             </div>
             <hr>
         {{- if $readmeL -}}
