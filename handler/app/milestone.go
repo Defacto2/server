@@ -215,7 +215,7 @@ func Collection() Milestones {
 				"Its <a href=\"https://web.archive.org/web/20140124082855/https://www.swtpc.com/mholley/Apple/Apple_IPO.pdf\">December 1980 stock perspective</a> states, <q>Net sales in fiscal 1977 occurred primarily in the fourth fiscal quarter and consisted principally of sales of the basic Apple II mainframe computer.</q> " +
 				"Given the expensive Apple&nbsp;II <a href=\"https://www.applefritter.com/node/2703\">is priced at</a> $1300-2600, the number of machines sold could have been in the hundreds.</p>" +
 				"<strong>Tandy TRS-80</strong><br>" +
-				"<p>The Tandy fared considerably better. It was <a href=\"https://www.radioshackcatalogs.com/flipbook/c1977_rsc-01.html\">announced at</a> the end of July and priced from $400 or $500, including a display. " +
+				"<p>Sales of the Tandy were considerable. It was <a href=\"https://www.radioshackcatalogs.com/flipbook/c1977_rsc-01.html\">announced at</a> the end of July and priced from $400 or $500, including a display. " +
 				"It was widely available nationally through the thousands of RadioShack retail stores, and took 10,000 unit <a href=\"https://www.wired.com/2010/08/0803trs-80-computer-launch/\">orders in the first month</a>, birthing the microcomputer revolution!</p>" +
 				"<strong>CPUs</strong><br>" +
 				"<p>The <strong>MOS 6502</strong> CPU <sup>1975</sup> is found in the Commodore&nbsp;PET and the Apple II.<br>" +
@@ -676,7 +676,7 @@ func Collection() Milestones {
 				// west berlin kids
 				"<p>West Berlin was an isolated city deep within the Soviet-controlled East German Democratic Republic, and its economy depended on mass subsidies from the West German Federal Republic. " +
 				"It is unlikely that several kids from here had early access to the European PAL Commodore&nbsp;64 at the end 1982. " +
-				"It is more believable that the kids formed these Berlin-based cracking groups a year later, in Christmas/New Years 1983-84, " +
+				"It is more believable that the kids formed these Berlin-based cracking groups at the earliest, in Christmas/New Years 1983-84, " +
 				"after the Commodore 64 dropped massively in price and became readily available.</p>" +
 				// citations
 				"</p><strong>citations</strong> <sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup>" +
