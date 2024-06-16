@@ -623,6 +623,9 @@ func artifactRelations(art *models.File) template.HTML {
 			continue
 		}
 		name, href := x[0], x[1]
+		if !strings.HasPrefix(href, "http") {
+			href = "https://" + href
+		}
 		rows += fmt.Sprintf("<tr><th scope=\"row\"><small>Link to</small></th>"+
 			"<td><small><a class=\"text-truncate\" href=\"%s\">%s</a></small></td></tr>", href, name)
 	}
@@ -647,9 +650,12 @@ func artifactWebsites(art *models.File) template.HTML {
 			continue
 		}
 		name, href := x[0], x[1]
+		if !strings.HasPrefix(href, "http") {
+			href = "https://" + href
+		}
 		rows += fmt.Sprintf("<tr><th scope=\"row\"><small>Link to</small></th>"+
 			"<td><small><a class=\"link-offset-3 icon-link icon-link-hover\" "+
-			"href=\"https://%s\">%s %s</a></small></td></tr>", href, name, LinkSVG())
+			"href=\"%s\">%s %s</a></small></td></tr>", href, name, LinkSVG())
 	}
 	return template.HTML(rows)
 }
