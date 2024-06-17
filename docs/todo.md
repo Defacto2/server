@@ -10,8 +10,9 @@
 
 ### Files and assets
 
-- [ ] Create a specific magazines handler with the file editor.
 - [ ] Create a htmx, live _classifications page_ for editors, using the advanced uploader `<select>` fields.
+- [ ] Mobile support for Data editor.
+- [ ] Data editor button should reload the page when data Editor module is active.
 
 ### Menus and layout
 
@@ -27,3 +28,4 @@
 
 - [ ] *? Implememnt a [scheduling library for Go](https://github.com/reugn/go-quartz)
 - [ ] [xstrings](https://github.com/huandu/xstrings) for string manipulation.
+- [ ] Errors cleanup, never return raw errors, always wrap them. And also never use, "xxx failed or broke" as an error message. Instead use "doing xxx" or "while doing xxx".

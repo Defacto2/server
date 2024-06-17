@@ -93,7 +93,7 @@ export function htmxEvents() {
     afterUpdate(event, `artifact-editor-credit-ill`);
     afterUpdate(event, `artifact-editor-credit-prog`);
     afterUpdate(event, `artifact-editor-credit-audio`);
-    afterCreators(event, `artifact-editor-credit-resetter`);
+    afterCreators(event, `artifact-editor-credit-reset"`);
     // record comment.
     afterUpdate(event, `artifact-editor-comment`);
     afterReset(
@@ -109,7 +109,40 @@ export function htmxEvents() {
     afterUpdate(event, `artifact-editor-github`);
     afterUpdate(event, `artifact-editor-relations`);
     afterUpdate(event, `artifact-editor-websites`);
+    afterLinks(event, `artifact-editor-links-reset`);
   });
+}
+
+function afterLinks(event, buttonId) {
+  if (event.detail.elt === null) return;
+  if (event.detail.elt.id !== `${buttonId}`) return;
+
+  const alertId = "artifact-editor-alert";
+  const liveAlert = document.getElementById(alertId);
+  if (typeof liveAlert === "undefined" || liveAlert === null) {
+    throw new Error(`The htmx alert element ${alertId} is null`);
+  }
+  if (event.detail.successful) {
+    console.log("okay");
+    // updateSuccess(liveAlert, `artifact-editor-links-reset`);
+    // updateSuccess(liveAlert, `artifact-editor-demozoo`);
+    // updateSuccess(liveAlert, `artifact-editor-pouet`);
+    // updateSuccess(liveAlert, `artifact-editor-16colors`);
+    // updateSuccess(liveAlert, `artifact-editor-github`);
+    // updateSuccess(liveAlert, `artifact-editor-relations`);
+    // return updateSuccess(liveAlert, `artifact-editor-websites`);
+  }
+  if (event.detail.failed && event.detail.xhr) {
+    console.log("error");
+    // updateError(event, `artifact-editor-links-reset`, liveAlert);
+    // updateError(event, `artifact-editor-demozoo`, liveAlert);
+    // updateError(event, `artifact-editor-pouet`, liveAlert);
+    // updateError(event, `artifact-editor-16colors`, liveAlert);
+    // updateError(event, `artifact-editor-github`, liveAlert);
+    // updateError(event, `artifact-editor-relations`, liveAlert);
+    // return updateError(event, `artifact-editor-websites`, liveAlert);
+  }
+  errorBrowser(liveAlert);
 }
 
 function afterCreators(event, buttonId) {

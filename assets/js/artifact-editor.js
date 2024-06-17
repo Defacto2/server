@@ -7,6 +7,8 @@ import {
   releaser as validateReleaser,
   repository as validateGitHub,
   color16 as validate16color,
+  youtube as validateYouTube,
+  number as validateNumber,
 } from "./artifact-validate.mjs";
 
 (() => {
@@ -312,50 +314,98 @@ import {
 
   const dateLastMod = document.getElementById("artifact-editor-date-lastmod");
   if (dateLastMod === null) {
-    throw new Error("The date last mod input is missing.");
-  }
-  const dateLastModder = document.getElementById(
-    "artifact-editor-date-lastmodder"
-  );
-  if (dateLastModder === null) {
-    throw new Error("The date last modder input is missing.");
-  }
-  dateLastMod.addEventListener("click", () => {
-    yearInput.classList.remove("is-invalid", "is-valid");
-    monthInput.classList.remove("is-invalid", "is-valid");
-    dayInput.classList.remove("is-invalid", "is-valid");
-    const value = dateLastModder.value;
-    const values = value.split("-");
-    if (values.length != 3) {
-      throw new Error("The date last modder values are invalid.");
+    // do nothing as the date last mod input is optional
+  } else {
+    const dateLastModder = document.getElementById(
+      "artifact-editor-date-lastmodder"
+    );
+    if (dateLastModder === null) {
+      throw new Error("The date last modder input is missing.");
     }
-    yearInput.value = values[0];
-    monthInput.value = values[1];
-    dayInput.value = values[2];
-  });
-
-  const github = document.getElementById("artifact-editor-github");
-  if (github === null) {
-    throw new Error("The GitHub input is missing.");
+    dateLastMod.addEventListener("click", () => {
+      yearInput.classList.remove("is-invalid", "is-valid");
+      monthInput.classList.remove("is-invalid", "is-valid");
+      dayInput.classList.remove("is-invalid", "is-valid");
+      const value = dateLastModder.value;
+      const values = value.split("-");
+      if (values.length != 3) {
+        throw new Error("The date last modder values are invalid.");
+      }
+      yearInput.value = values[0];
+      monthInput.value = values[1];
+      dayInput.value = values[2];
+    });
   }
-  github.addEventListener("input", (e) => validateGitHub(e.target));
 
-  const colors16 = document.getElementById("artifact-editor-16colors");
-  if (colors16 === null) {
-    throw new Error("The 16colors input is missing.");
+  const linksReset = document.getElementById("artifact-editor-links-reset");
+  if (linksReset === null) {
+    throw new Error("The links reset is missing.");
   }
-  colors16.addEventListener("input", (e) => validate16color(e.target));
-
   const youtube = document.getElementById("artifact-editor-youtube");
-  if (youtube === null) {
-    throw new Error("The YouTube input is missing.");
+  const youtubeReset = document.getElementById("artifact-editor-youtube-reset");
+  if (youtube === null || youtubeReset === null) {
+    throw new Error("A YouTube input is missing.");
   }
-  youtube.addEventListener("input", (e) => {
-    e.target.classList.remove("is-valid", "is-invalid");
-    const value = e.target.value.trim();
-    const required = 11;
-    if (value.length > 0 && value.length != required) {
-      e.target.classList.add("is-invalid");
-    }
+  const demozoo = document.getElementById("artifact-editor-demozoo");
+  const demozooReset = document.getElementById("artifact-editor-demozoo-reset");
+  if (demozoo === null || demozooReset === null) {
+    throw new Error("A Demozoo input is missing.");
+  }
+  const pouet = document.getElementById("artifact-editor-pouet");
+  const pouetReset = document.getElementById("artifact-editor-pouet-reset");
+  if (pouet === null || pouetReset === null) {
+    throw new Error("A Pouet input is missing.");
+  }
+  const colors16 = document.getElementById("artifact-editor-16colors");
+  const colors16Reset = document.getElementById(
+    "artifact-editor-16colors-reset"
+  );
+  if (colors16 === null || colors16Reset === null) {
+    throw new Error("A 16colors input is missing.");
+  }
+  const github = document.getElementById("artifact-editor-github");
+  const githubReset = document.getElementById("artifact-editor-github-reset");
+  if (github === null || githubReset === null) {
+    throw new Error("A GitHub input is missing.");
+  }
+  const relations = document.getElementById("artifact-editor-relations");
+  const relationsReset = document.getElementById(
+    "artifact-editor-relations-reset"
+  );
+  if (relations === null || relationsReset === null) {
+    throw new Error("A relations input is missing.");
+  }
+  const websites = document.getElementById("artifact-editor-websites");
+  const websitesReset = document.getElementById(
+    "artifact-editor-websites-reset"
+  );
+  if (websites === null || websitesReset === null) {
+    throw new Error("A websites input is missing.");
+  }
+  linksReset.addEventListener("click", () => {
+    youtube.classList.remove("is-invalid", "is-valid");
+    demozoo.classList.remove("is-invalid", "is-valid");
+    pouet.classList.remove("is-invalid", "is-valid");
+    colors16.classList.remove("is-invalid", "is-valid");
+    github.classList.remove("is-invalid", "is-valid");
+    relations.classList.remove("is-invalid", "is-valid");
+    websites.classList.remove("is-invalid", "is-valid");
+    youtube.value = youtubeReset.value;
+    demozoo.value = demozooReset.value;
+    pouet.value = pouetReset.value;
+    colors16.value = colors16Reset.value;
+    github.value = githubReset.value;
+    relations.value = relationsReset.value;
+    websites.value = websitesReset.value;
   });
+  const demozooSanity = 450000,
+    pouetSanity = 200000;
+  youtube.addEventListener("input", (e) => validateYouTube(e.target));
+  demozoo.addEventListener("input", (e) =>
+    validateNumber(e.target, demozooSanity)
+  );
+  pouet.addEventListener("input", (e) => validateNumber(e.target, pouetSanity));
+  colors16.addEventListener("input", (e) => validate16color(e.target));
+  github.addEventListener("input", (e) => validateGitHub(e.target));
+  // relations and websites are optional
 })();

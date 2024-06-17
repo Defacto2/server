@@ -11,7 +11,9 @@ import (
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app"
+	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/form"
+	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -382,22 +384,16 @@ func RecordCreatorReset(c echo.Context) error {
 // RecordYouTube handles the post submission for the file artifact YouTube watch video link.
 func RecordYouTube(c echo.Context) error {
 	key := c.FormValue("artifact-editor-key")
-	watch := c.FormValue("artifact-editor-youtube")
-	val := c.FormValue("artifact-editor-youtubeval")
-	watch = strings.TrimSpace(watch)
-	val = strings.TrimSpace(val)
-	if watch == val {
-		return c.NoContent(http.StatusNoContent)
-	}
+	newVideo := strings.TrimSpace(c.FormValue("artifact-editor-youtube"))
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	const requirement = 11
-	if len(watch) > 0 && len(watch) < requirement {
+	if len(newVideo) != 0 && len(newVideo) != requirement {
 		return c.NoContent(http.StatusNoContent)
 	}
-	if err := model.UpdateYouTube(int64(id), watch); err != nil {
+	if err := model.UpdateYouTube(int64(id), newVideo); err != nil {
 		return badRequest(c, err)
 	}
 	return RecordLinks(c)
@@ -406,16 +402,15 @@ func RecordYouTube(c echo.Context) error {
 // RecordDemozoo handles the post submission for the file artifact Demozoo production link.
 func RecordDemozoo(c echo.Context) error {
 	key := c.FormValue("artifact-editor-key")
-	prod := c.FormValue("artifact-editor-demozoo")
-	val := c.FormValue("artifact-editor-demozooval")
-	if prod == val {
-		return c.NoContent(http.StatusNoContent)
+	newProd := c.FormValue("artifact-editor-demozoo")
+	if newProd == "" {
+		newProd = "0"
 	}
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateDemozoo(int64(id), prod); err != nil {
+	if err := model.UpdateDemozoo(int64(id), newProd); err != nil {
 		return badRequest(c, err)
 	}
 	return RecordLinks(c)
@@ -424,16 +419,15 @@ func RecordDemozoo(c echo.Context) error {
 // RecordPouet handles the post submission for the file artifact Pouet production link.
 func RecordPouet(c echo.Context) error {
 	key := c.FormValue("artifact-editor-key")
-	pouet := c.FormValue("artifact-editor-pouet")
-	val := c.FormValue("artifact-editor-pouetval")
-	if pouet == val {
-		return c.NoContent(http.StatusNoContent)
+	newProd := c.FormValue("artifact-editor-pouet")
+	if newProd == "" {
+		newProd = "0"
 	}
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdatePouet(int64(id), pouet); err != nil {
+	if err := model.UpdatePouet(int64(id), newProd); err != nil {
 		return badRequest(c, err)
 	}
 	return RecordLinks(c)
@@ -442,16 +436,12 @@ func RecordPouet(c echo.Context) error {
 // Record16Colors handles the post submission for the file artifact 16 Colors link.
 func Record16Colors(c echo.Context) error {
 	key := c.FormValue("artifact-editor-key")
-	colors := c.FormValue("artifact-editor-16colors")
-	val := c.FormValue("artifact-editor-16colorsval")
-	if colors == val {
-		return c.NoContent(http.StatusNoContent)
-	}
+	newURL := c.FormValue("artifact-editor-16colors")
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	link := form.SanitizeURLPath(colors)
+	link := form.SanitizeURLPath(newURL)
 	if err := model.Update16Colors(int64(id), link); err != nil {
 		return badRequest(c, err)
 	}
@@ -461,16 +451,12 @@ func Record16Colors(c echo.Context) error {
 // RecordGitHub handles the post submission for the file artifact GitHub repository link.
 func RecordGitHub(c echo.Context) error {
 	key := c.FormValue("artifact-editor-key")
-	github := c.FormValue("artifact-editor-github")
-	val := c.FormValue("artifact-editor-githubval")
-	if github == val {
-		return c.NoContent(http.StatusNoContent)
-	}
+	newRepo := c.FormValue("artifact-editor-github")
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	link := form.SanitizeGitHub(github)
+	link := form.SanitizeGitHub(newRepo)
 	if err := model.UpdateGitHub(int64(id), link); err != nil {
 		return badRequest(c, err)
 	}
@@ -480,12 +466,12 @@ func RecordGitHub(c echo.Context) error {
 // RecordRelations handles the post submission for the file artifact releaser relationships.
 func RecordRelations(c echo.Context) error {
 	key := c.FormValue("artifact-editor-key")
-	rels := c.FormValue("artifact-editor-relations")
+	newRelations := c.FormValue("artifact-editor-relations")
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateRelations(int64(id), rels); err != nil {
+	if err := model.UpdateRelations(int64(id), newRelations); err != nil {
 		return badRequest(c, err)
 	}
 	return RecordLinks(c)
@@ -494,12 +480,12 @@ func RecordRelations(c echo.Context) error {
 // RecordSites handles the post submission for the file artifact website links.
 func RecordSites(c echo.Context) error {
 	key := c.FormValue("artifact-editor-key")
-	rels := c.FormValue("artifact-editor-websites")
+	newSites := c.FormValue("artifact-editor-websites")
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateSites(int64(id), rels); err != nil {
+	if err := model.UpdateSites(int64(id), newSites); err != nil {
 		return badRequest(c, err)
 	}
 	return RecordLinks(c)
@@ -515,8 +501,65 @@ func RecordLinks(c echo.Context) error {
 	github := c.FormValue("artifact-editor-github")
 	rels := c.FormValue("artifact-editor-relations")
 	sites := c.FormValue("artifact-editor-websites")
-	s := app.LinkSamples(youtube, demozoo, pouet, colors16, github, rels, sites)
-	return c.HTML(http.StatusOK, s)
+	links := app.LinkPreviews(youtube, demozoo, pouet, colors16, github, rels, sites)
+	for i, link := range links {
+		links[i] = "<small><strong>Link to</strong></small> &nbsp; " + link
+	}
+	return c.HTML(http.StatusOK, strings.Join(links, "<br>"))
+}
+
+// RecordLinksReset handles the post submission for the file artifact links reset.
+func RecordLinksReset(c echo.Context) error {
+	key := c.FormValue("artifact-editor-key")
+	youtube := c.FormValue("artifact-editor-youtubeval")
+	demozooS := c.FormValue("artifact-editor-demozooval")
+	pouetS := c.FormValue("artifact-editor-pouetval")
+	colors16 := c.FormValue("artifact-editor-16colorstval")
+	github := c.FormValue("artifact-editor-githubval")
+	rels := c.FormValue("artifact-editor-relationsval")
+	sites := c.FormValue("artifact-editor-websitesval")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+	}
+
+	const requirement = 11
+	if len(youtube) != 0 && len(youtube) != requirement {
+		return badRequest(c, fmt.Errorf("%w: %q", ErrYouTube, youtube))
+	}
+	colors16 = form.SanitizeURLPath(colors16)
+	github = form.SanitizeGitHub(github)
+
+	var demozooI int64
+	if demozooS != "" {
+		demozooI, err = strconv.ParseInt(demozooS, 10, 64)
+		if err != nil {
+			return badRequest(c, fmt.Errorf("the demozoo production id must be an int, %w: %q", err, demozooS))
+		}
+		if demozooI > demozoo.Sanity {
+			return badRequest(c, fmt.Errorf("the demozoo production id doesn't exist, %w: %q", err, demozooI))
+		}
+	}
+
+	var pouetI int64
+	if pouetS != "" {
+		pouetI, err = strconv.ParseInt(pouetS, 10, 64)
+		if err != nil {
+			return badRequest(c, fmt.Errorf("the pouet production id must be an int, %w: %q", err, pouetS))
+		}
+		if pouetI > pouet.Sanity {
+			return badRequest(c, fmt.Errorf("the pouet production id doesn't exist, %w: %q", err, pouetI))
+		}
+	}
+
+	if err := model.UpdateLinks(int64(id), youtube, colors16, github, rels, sites, demozooI, pouetI); err != nil {
+		return badRequest(c, err)
+	}
+	links := app.LinkPreviews(youtube, demozooS, pouetS, colors16, github, rels, sites)
+	for i, link := range links {
+		links[i] = "<small><strong>Link to</strong></small> &nbsp; " + link
+	}
+	return c.HTML(http.StatusOK, strings.Join(links, "<br>"))
 }
 
 // badRequest returns an error response with a 400 status code,

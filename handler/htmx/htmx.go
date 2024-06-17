@@ -31,6 +31,7 @@ var (
 	ErrRoutes       = errors.New("echo instance is nil")
 	ErrUploaderDest = errors.New("invalid uploader destination")
 	ErrUploaderSave = errors.New("cannot save a file to the uploader destination")
+	ErrYouTube      = errors.New("youtube watch video id needs to be empty or 11 characters")
 	ErrUUID         = errors.New("invalid or an empty UUID")
 )
 

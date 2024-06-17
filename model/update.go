@@ -236,7 +236,7 @@ func UpdateCreators(id int64, text, ill, prog, audio string) error {
 	ctx := context.Background()
 	f, err := OneFile(ctx, db, id)
 	if err != nil {
-		return fmt.Errorf("find file: %w", err)
+		return fmt.Errorf("updatecreators find file, %d: %w", id, err)
 	}
 	f.CreditText = null.StringFrom(text)
 	f.CreditIllustration = null.StringFrom(ill)
@@ -244,6 +244,31 @@ func UpdateCreators(id int64, text, ill, prog, audio string) error {
 	f.CreditAudio = null.StringFrom(audio)
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
 		return fmt.Errorf("%s: %w", "updatecreators", err)
+	}
+	return nil
+}
+
+// UpdateLinks updates the youtube, 16colors, relations, sites, demozoo, and pouet columns with the values provided.
+func UpdateLinks(id int64, youtube, colors16, github, relations, sites string, demozoo, pouet int64) error {
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	ctx := context.Background()
+	f, err := OneFile(ctx, db, id)
+	if err != nil {
+		return fmt.Errorf("updatelinks find file, %d: %w", id, err)
+	}
+	f.WebIDYoutube = null.StringFrom(youtube)
+	f.WebID16colors = null.StringFrom(colors16)
+	f.WebIDGithub = null.StringFrom(github)
+	f.ListRelations = null.StringFrom(relations)
+	f.ListLinks = null.StringFrom(sites)
+	f.WebIDDemozoo = null.Int64From(demozoo)
+	f.WebIDPouet = null.Int64From(pouet)
+	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", "updatelinks", err)
 	}
 	return nil
 }

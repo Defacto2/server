@@ -70,6 +70,7 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	g.POST("/filename/reset", htmx.RecordFilenameReset)
 	g.POST("/github", htmx.RecordGitHub)
 	g.POST("/links", htmx.RecordLinks)
+	g.POST("/links/reset", htmx.RecordLinksReset)
 	g.POST("/platform", app.PlatformEdit)
 	g.POST("/platform+tag", app.PlatformTagInfo)
 	g.POST("/pouet", htmx.RecordPouet)

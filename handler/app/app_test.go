@@ -390,8 +390,6 @@ func TestDownloadB(t *testing.T) {
 
 func TestLinkSamples(t *testing.T) {
 	t.Parallel()
-	s := app.LinkSamples("", "", "", "", "", "", "")
-	assert.Empty(t, s)
 	x := app.LinkPreviews("1", "2", "3", "4", "5", "6", "7")
 	assert.Len(t, x, 7)
 	assert.Contains(t, x[0], "youtube.com/watch?v=1")

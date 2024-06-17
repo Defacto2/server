@@ -168,3 +168,29 @@ export function releaser(elm) {
   elm.classList.remove("is-invalid");
   error.classList.remove("d-block");
 }
+
+export function youtube(elm) {
+  if (elm == null) {
+    throw new Error("The element of the releaser validator is null.");
+  }
+  elm.classList.remove("is-valid", "is-invalid");
+  const value = elm.value.trim();
+  const required = 11;
+  if (value.length > 0 && value.length != required) {
+    elm.classList.add("is-invalid");
+  }
+}
+
+export function number(elm, max) {
+  if (elm == null) {
+    throw new Error("The element of the number validator is null.");
+  }
+  elm.classList.remove("is-valid", "is-invalid");
+  const value = parseInt(elm.value, 10);
+  if (isNaN(value)) {
+    elm.classList.add("is-invalid");
+  }
+  if (value > max || value < 0) {
+    elm.classList.add("is-invalid");
+  }
+}

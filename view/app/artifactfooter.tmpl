@@ -3,15 +3,18 @@
 */ -}}
 {{- define "artifactfooter" }}
 <div class="modal-footer bg-dark-subtle g-3 mt-1">
-    <div class="row col-12">
-        <div class="col-md-4 text-start">
+    <div id="artifact-editor-alert" class="d-none alert alert-warning w-100" role="alert">
+        <div class="d-none">This is a placeholder <strong>alert text</strong>!</div>
+    </div>
+    <div class="row col-12 gy-1 text-center">
+        <div class="col-lg-4 text-lg-start">
             <button type="button" class="btn btn-warning">Permenently delete record</button>
         </div>
-        <div class="col-md-8 text-end">
+        <div class="col-lg-8 text-lg-end">
             <a href="#" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal"  class="btn btn-outline-primary">Data editor</a>
             <a href="#" data-bs-toggle="modal" data-bs-target="#assetEditorModal"       class="btn btn-outline-primary">File editor</a>
             <a href="#" data-bs-toggle="modal" data-bs-target=""                        class="btn btn-outline-primary">Emulate editor</a>
-            <button type="button" data-bs-dismiss="modal"                               class="btn btn-secondary">Close</button>
+            <button type="button" data-bs-dismiss="modal"                               class="btn btn-secondary d-none d-md-inline">Close</button>
         </div>
     </div>
 </div>

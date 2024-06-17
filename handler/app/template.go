@@ -5,7 +5,6 @@ package app
 import (
 	"embed"
 	"fmt"
-	"html"
 	"html/template"
 	"path/filepath"
 	"reflect"
@@ -95,15 +94,6 @@ func DownloadB(i any) template.HTML {
 	return template.HTML(elm)
 }
 
-// LinkSample returns a collection of HTML formatted links for the artifact editor.
-func LinkSamples(youtube, demozoo, pouet, colors16, github, rels, sites string) string {
-	links := LinkPreviews(youtube, demozoo, pouet, colors16, github, rels, sites)
-	for i, link := range links {
-		links[i] = html.EscapeString(link)
-	}
-	return strings.Join(links, "<br>")
-}
-
 // LinkPreviews returns a slice of HTML formatted links for the artifact editor.
 func LinkPreviews(youtube, demozoo, pouet, colors16, github, rels, sites string) []string {
 	rel := func(url string) string {
@@ -127,10 +117,10 @@ func LinkPreviews(youtube, demozoo, pouet, colors16, github, rels, sites string)
 		links = append(links, rel("github.com/"+github))
 	}
 	if rels != "" {
-		links = append(links, string(LinkRelations(rels)))
+		links = append(links, strings.Split(string(LinkRelations(rels)), "+")...)
 	}
 	if sites != "" {
-		links = append(links, string(LinkSites(sites)))
+		links = append(links, strings.Split(string(LinkSites(sites)), "+")...)
 	}
 	return links
 }
@@ -520,7 +510,7 @@ func (web Templ) TemplateFuncs() template.FuncMap {
 		"recordImgSample":    web.ImageSample,
 		"recordThumbSample":  web.ThumbSample,
 		"recordInfoOSTag":    TagWithOS,
-		"recordLinkPreviews": LinkSamples,
+		"recordLinkPreviews": LinkPreviews,
 		"recordTagInfo":      TagBrief,
 		"safeHTML":           SafeHTML,
 		"safeJS":             SafeJS,
