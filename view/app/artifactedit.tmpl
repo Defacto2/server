@@ -392,18 +392,8 @@
         <hr class="d-block d-lg-none">
         <div class="row">
           {{- /*  Creators  */}}
-          <label class="form-label col-form-label-lg">
-            Creators          
-            <button type="button" class="btn btn-link" id="artifact-editor-credit-reset"
-                hx-post="/editor/creator/reset"
-                hx-include="[name='artifact-editor-key'],
-                [name='artifact-editor-credit-resetter'],
-                [name='artifact-editor-credittext'],
-                [name='artifact-editor-creditill'],
-                [name='artifact-editor-creditprog'],
-                [name='artifact-editor-creditaudio']">
-                Undo changes
-            </button>
+          <label class="form-label col-form-label-lg mb-0 pb-0">
+            Creators
           </label>
           <div class="row row-cols-2 gy-1">
             <div class="col">
@@ -448,6 +438,16 @@
             </div>
           </div>
           <div class="form-text" id="artifact-editor-credit-help">Join multiple creators with commas, for example: <q>Name,Name two,Name3</q>.</div>
+          <div>
+            <button type="button" class="btn btn-link" id="artifact-editor-credit-reset"
+                hx-post="/editor/creator/reset"
+                hx-include="[name='artifact-editor-key'],
+                [name='artifact-editor-credit-resetter'],
+                [name='artifact-editor-credittext'],
+                [name='artifact-editor-creditill'],
+                [name='artifact-editor-creditprog'],
+                [name='artifact-editor-creditaudio']">Undo changes</button>
+            </div>
         </div>
         <div class="btn-group" role="group">
           <input type="hidden" id="artifact-editor-credit-resetter" name="artifact-editor-credit-resetter" 
@@ -467,20 +467,8 @@
             hx-include="[name='artifact-editor-key']"
             hx-target="#artifact-editor-link-examples">
         <div class="row">
-          <label class="form-label col-form-label-lg">
+          <label class="form-label col-form-label-lg mb-0 pb-0">
             Links
-            <button type="button" class="btn btn-link" id="artifact-editor-links-reset"
-                hx-post="/editor/links/reset"
-                hx-include="[name='artifact-editor-key'],
-                [name='artifact-editor-youtubeval'],
-                [name='artifact-editor-demozooval'],
-                [name='artifact-editor-pouetval'],
-                [name='artifact-editor-16colorstval'],
-                [name='artifact-editor-relationsval'],
-                [name='artifact-editor-websitesval']"
-                hx-target="#artifact-editor-link-examples">
-                Undo changes
-            </button>
           </label>
           <div class="row row-cols-2 row-cols-lg-3 row-cols-xl-6 gy-1">
             <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="YouTube watch ID, example: 62BuDfBIcMo">
@@ -581,6 +569,20 @@
           {{range $linkExamples}}
               <small><strong>Link to</strong></small> &nbsp; {{. | safeHTML}}<br>
           {{end}}
+        </div>
+        <div>
+          <button type="button" class="btn btn-link" id="artifact-editor-links-reset"
+              hx-post="/editor/links/reset"
+              hx-include="[name='artifact-editor-key'],
+              [name='artifact-editor-youtubeval'],
+              [name='artifact-editor-demozooval'],
+              [name='artifact-editor-pouetval'],
+              [name='artifact-editor-16colorstval'],
+              [name='artifact-editor-relationsval'],
+              [name='artifact-editor-websitesval']"
+              hx-target="#artifact-editor-link-examples">
+              Undo changes
+          </button>
         </div>
         </form>
         <hr class="d-block d-lg-none">
