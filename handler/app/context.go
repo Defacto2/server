@@ -78,8 +78,9 @@ func Artifacts(c echo.Context, uri, page string) error {
 // It provides different error messages to the standard error page.
 func Artifacts404(c echo.Context, uri string) error {
 	const name = "status"
+	errURL := fmt.Sprint("artifact page not found for,", uri)
 	if c == nil {
-		return InternalErr(c, name, ErrCxt)
+		return InternalErr(c, errURL, ErrCxt)
 	}
 	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, files page not found", http.StatusNotFound)
@@ -92,7 +93,7 @@ func Artifacts404(c echo.Context, uri string) error {
 	data["uriErr"] = uri
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, errURL, err)
 	}
 	return nil
 }
@@ -624,8 +625,9 @@ func Musician(c echo.Context) error {
 // It provides different error messages to the standard error page.
 func Page404(c echo.Context, uri, page string) error {
 	const name = "status"
+	errURL := fmt.Sprintf("page not found for %q at %q", page, uri)
 	if c == nil {
-		return InternalErr(c, name, ErrCxt)
+		return InternalErr(c, errURL, ErrCxt)
 	}
 	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, files page not found", http.StatusNotFound)
@@ -638,7 +640,7 @@ func Page404(c echo.Context, uri, page string) error {
 	data["uriErr"] = page
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, errURL, err)
 	}
 	return nil
 }
@@ -685,10 +687,11 @@ func PostIntro(c echo.Context) error {
 // PostDesc is the handler for the Search for file descriptions form post page.
 func PostDesc(c echo.Context, input string) error {
 	const name = "artifacts"
+	errURL := fmt.Sprint("post desc search for,", input)
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return DatabaseErr(c, name, err)
+		return DatabaseErr(c, errURL, err)
 	}
 	defer db.Close()
 
@@ -708,7 +711,7 @@ func PostDesc(c echo.Context, input string) error {
 	data["stats"] = d
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, errURL, err)
 	}
 	return nil
 }
@@ -721,10 +724,11 @@ func PostFilename(c echo.Context) error {
 // PostName is the handler for the Search for filenames form post page.
 func PostName(c echo.Context, mode FileSearch) error {
 	const name = "artifacts"
+	errURL := fmt.Sprint("post name search for,", mode)
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return DatabaseErr(c, name, err)
+		return DatabaseErr(c, errURL, err)
 	}
 	defer db.Close()
 
@@ -746,7 +750,7 @@ func PostName(c echo.Context, mode FileSearch) error {
 	data["stats"] = d
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, errURL, err)
 	}
 	return nil
 }
@@ -1161,8 +1165,9 @@ func ReleaserYear(c echo.Context) error {
 // Releaser404 renders the files error page for the Groups menu and invalid releasers.
 func Releaser404(c echo.Context, id string) error {
 	const name = "status"
+	errURL := fmt.Sprint("releaser page not found for,", id)
 	if c == nil {
-		return InternalErr(c, name, ErrCxt)
+		return InternalErr(c, errURL, ErrCxt)
 	}
 	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, releaser page not found", http.StatusNotFound)
@@ -1175,7 +1180,7 @@ func Releaser404(c echo.Context, id string) error {
 	data["uriErr"] = id
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, errURL, err)
 	}
 	return nil
 }
@@ -1199,10 +1204,11 @@ func ReleaserEdit(c echo.Context) error {
 // Releasers is the handler for the list and preview of files credited to a releaser.
 func Releasers(c echo.Context, uri string) error {
 	const name = "artifacts"
+	errURL := fmt.Sprint("releasers page for,", uri)
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, errURL, err)
 	}
 	defer db.Close()
 
@@ -1210,7 +1216,7 @@ func Releasers(c echo.Context, uri string) error {
 	rel := model.Releasers{}
 	fs, err := rel.Where(ctx, db, uri)
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, errURL, err)
 	}
 	if len(fs) == 0 {
 		return Releaser404(c, uri)
@@ -1237,12 +1243,12 @@ func Releasers(c echo.Context, uri string) error {
 	}
 	d, err := releaserSum(ctx, db, uri)
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, errURL, err)
 	}
 	data["stats"] = d
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, errURL, err)
 	}
 	return nil
 }
@@ -1277,8 +1283,9 @@ func Scener(c echo.Context) error {
 // Scener404 renders the files error page for the People menu and invalid sceners.
 func Scener404(c echo.Context, id string) error {
 	const name = "status"
+	errURL := fmt.Sprint("scener page not found for,", id)
 	if c == nil {
-		return InternalErr(c, name, ErrCxt)
+		return InternalErr(c, errURL, ErrCxt)
 	}
 	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, scener page not found", http.StatusNotFound)
@@ -1291,7 +1298,7 @@ func Scener404(c echo.Context, id string) error {
 	data["uriErr"] = id
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, errURL, err)
 	}
 	return nil
 }
@@ -1299,10 +1306,11 @@ func Scener404(c echo.Context, id string) error {
 // Sceners is the handler for the list and preview of files credited to a scener.
 func Sceners(c echo.Context, uri string) error {
 	const name = "artifacts"
+	errURL := fmt.Sprint("sceners page for,", uri)
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, errURL, err)
 	}
 	defer db.Close()
 
@@ -1310,7 +1318,7 @@ func Sceners(c echo.Context, uri string) error {
 	var ms model.Scener
 	fs, err := ms.Where(ctx, db, uri)
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, errURL, err)
 	}
 	if len(fs) == 0 {
 		return Scener404(c, uri)
@@ -1325,12 +1333,12 @@ func Sceners(c echo.Context, uri string) error {
 	data[records] = fs
 	d, err := scenerSum(ctx, db, uri)
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, errURL, err)
 	}
 	data["stats"] = d
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, errURL, err)
 	}
 	return nil
 }
@@ -1606,7 +1614,7 @@ func Website(c echo.Context, open string) error {
 	data["accordion"] = acc
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, fmt.Sprint("render open website,", open), err)
 	}
 	return nil
 }
@@ -1767,20 +1775,21 @@ func artifacts(c echo.Context, uri string, page int) error {
 		data["forApproval"] = true
 	}
 
+	errURL := fmt.Sprintf("artifacts page %d for %q", page, uri)
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, errURL, err)
 	}
 	defer db.Close()
 	r, err := Records(ctx, db, uri, page, limit)
 	if err != nil {
-		return DatabaseErr(c, name, err)
+		return DatabaseErr(c, errURL, err)
 	}
 	data[records] = r
 	d, sum, err := stats(ctx, db, uri)
 	if err != nil {
-		return DatabaseErr(c, name, err)
+		return DatabaseErr(c, errURL, err)
 	}
 	data["stats"] = d
 	lastPage := math.Ceil(float64(sum) / float64(limit))
@@ -1801,7 +1810,7 @@ func artifacts(c echo.Context, uri string, page int) error {
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, errURL, err)
 	}
 	return nil
 }

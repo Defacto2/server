@@ -58,11 +58,30 @@ const (
 	epoch = model.EpochYear // epoch is the default year for MS-DOS files without a timestamp
 )
 
+// errorWithID returns an error with the artifact ID appended to the error message.
+// The key string is expected any will always be displayed in the error message.
+// The id can be an integer or string value and should be the database numeric ID.
+func errorWithID(err error, key string, id any) error {
+	if err == nil {
+		return nil
+	}
+	key = strings.TrimSpace(key)
+	const cause = "caused by artifact"
+	switch id.(type) {
+	case int, int64:
+		return fmt.Errorf("%w: %s %s (%d)", err, cause, key, id)
+	case string:
+		return fmt.Errorf("%w: %s %s (%s)", err, cause, key, id)
+	default:
+		return fmt.Errorf("%w: %s %s", err, cause, key)
+	}
+}
+
 // Artifact404 renders the error page for the artifact links.
 func Artifact404(c echo.Context, id string) error {
 	const name = "status"
 	if c == nil {
-		return InternalErr(c, name, ErrCxt)
+		return InternalErr(c, name, errorWithID(ErrCxt, id, nil))
 	}
 	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, artifact page not found", http.StatusNotFound)
@@ -75,7 +94,7 @@ func Artifact404(c echo.Context, id string) error {
 	data["uriErr"] = id
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, name, errorWithID(err, id, nil))
 	}
 	return nil
 }
@@ -147,12 +166,12 @@ func (dir Dirs) Artifact(c echo.Context, logger *zap.SugaredLogger, readonly boo
 	data = filentry(art, data)
 	d, err := dir.artifactReadme(art)
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, name, errorWithID(err, dir.URI, art.ID))
 	}
 	maps.Copy(data, d)
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, name, err)
+		return InternalErr(c, name, errorWithID(err, dir.URI, art.ID))
 	}
 	return nil
 }
@@ -239,13 +258,13 @@ func jsdos(logger *zap.SugaredLogger,
 		data["jsdos6"] = emulate
 		run, err := model.JsDosBinary(art)
 		if err != nil {
-			logger.Error(err)
+			logger.Error(errorWithID(err, "js-dos binary", art.ID))
 			return data
 		}
 		data["jsdos6Run"] = run
 		cfg, err := model.JsDosConfig(art)
 		if err != nil {
-			logger.Error(err)
+			logger.Error(errorWithID(err, "js-dos config", art.ID))
 			return data
 		}
 		data["jsdos6Config"] = cfg
@@ -411,13 +430,13 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	d := charmap.ISO8859_1.NewDecoder().Reader(bytes.NewReader(b))
 	readme, err := decode(d)
 	if err != nil {
-		return data, fmt.Errorf("decode: %w", err)
+		return data, fmt.Errorf("iso8859_1 decode: %w", err)
 	}
 	data["readmeLatin1"] = readme
 	d = charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
 	readme, err = decode(d)
 	if err != nil {
-		return data, fmt.Errorf("decode: %w", err)
+		return data, fmt.Errorf("codepage437 decode: %w", err)
 	}
 	data["readmeCP437"] = readme
 	data["readmeLines"] = strings.Count(readme, "\n")

@@ -17,7 +17,7 @@ func BadRequestErr(c echo.Context, uri string, err error) error {
 	const code = http.StatusBadRequest
 	logger := zaplog.Debug()
 	if err != nil {
-		logger.Error(fmt.Sprintf("%d error for %q: %s", code, uri, err))
+		logger.Error(fmt.Sprintf("%d bad request error for the URL, %q: %s", code, uri, err))
 	}
 	if nilContext := c == nil; nilContext {
 		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, ErrCxt))
@@ -33,6 +33,7 @@ func BadRequestErr(c echo.Context, uri string, err error) error {
 	data["probl"] = "It might be a settings or configuration problem or a legacy browser issue."
 	data["uriErr"] = uri
 	if err := c.Render(code, "status", data); err != nil {
+		logger.Error(fmt.Sprintf("%d bad request render error for the URL, %q: %s", code, uri, err))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
@@ -45,7 +46,7 @@ func DatabaseErr(c echo.Context, uri string, err error) error {
 	const unavailable = http.StatusServiceUnavailable
 	logger := zaplog.Debug()
 	if err != nil {
-		logger.Error(fmt.Sprintf("%d error for %q: %s", unavailable, uri, err))
+		logger.Error(fmt.Sprintf("%d database error for the URL, %q: %s", unavailable, uri, err))
 	}
 	if nilContext := c == nil; nilContext {
 		logger.Warn(fmt.Sprintf("%s: %s", ErrTmpl, ErrCxt))
@@ -61,7 +62,7 @@ func DatabaseErr(c echo.Context, uri string, err error) error {
 	data["uriErr"] = ""
 	data["probl"] = "This is not your fault, but the server cannot communicate with the database to display this page."
 	if err := c.Render(unavailable, "status", data); err != nil {
-		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, err))
+		logger.Error(fmt.Sprintf("%d database render error for the URL, %q: %s", unavailable, uri, err))
 		return echo.NewHTTPError(unavailable, ErrTmpl)
 	}
 	return nil
@@ -73,7 +74,7 @@ func DownloadErr(c echo.Context, uri string, err error) error {
 	id := c.Param("id")
 	logger := zaplog.Debug()
 	if err != nil {
-		logger.Error(fmt.Sprintf("%d error for %q: %s", code, id, err))
+		logger.Error(fmt.Sprintf("%d download error for the URL, %q: %s", code, id, err))
 	}
 	if nilContext := c == nil; nilContext {
 		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, ErrCxt))
@@ -91,7 +92,7 @@ func DownloadErr(c echo.Context, uri string, err error) error {
 		"Is the URL correct?"
 	data["uriErr"] = strings.Join([]string{uri, id}, "/")
 	if err := c.Render(code, "status", data); err != nil {
-		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, err))
+		logger.Error(fmt.Sprintf("%d download render error for the URL, %q: %s", code, id, err))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
@@ -103,7 +104,7 @@ func FileMissingErr(c echo.Context, uri string, err error) error {
 	id := c.Param("id")
 	logger := zaplog.Debug()
 	if err != nil {
-		logger.Error(fmt.Sprintf("%d error for %q: %s", code, id, err))
+		logger.Error(fmt.Sprintf("%d file missing error for the URL, %q: %s", code, id, err))
 	}
 	if nilContext := c == nil; nilContext {
 		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, ErrCxt))
@@ -120,7 +121,7 @@ func FileMissingErr(c echo.Context, uri string, err error) error {
 		"otherwise, there may be a problem with the server configuration, or the file may be lost."
 	data["uriErr"] = strings.Join([]string{uri, id}, "/")
 	if err := c.Render(code, "status", data); err != nil {
-		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, err))
+		logger.Error(fmt.Sprintf("%d file missing render error for the URL, %q: %s", code, id, err))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
@@ -132,7 +133,7 @@ func ForbiddenErr(c echo.Context, uri string, err error) error {
 	const code = http.StatusForbidden
 	logger := zaplog.Debug()
 	if err != nil {
-		logger.Error(fmt.Sprintf("%d error for %q: %s", code, uri, err))
+		logger.Error(fmt.Sprintf("%d forbidden error for the URL, %q: %s", code, uri, err))
 	}
 	if nilContext := c == nil; nilContext {
 		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, ErrCxt))
@@ -148,7 +149,7 @@ func ForbiddenErr(c echo.Context, uri string, err error) error {
 	data["probl"] = fmt.Sprintf("This page is not intended for the general public, %s.", err.Error())
 	data["uriErr"] = uri
 	if err := c.Render(code, "status", data); err != nil {
-		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, err))
+		logger.Error(fmt.Sprintf("%d forbidden render error for the URL, %q: %s", code, uri, err))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
@@ -162,7 +163,7 @@ func InternalErr(c echo.Context, uri string, err error) error {
 	const code = http.StatusInternalServerError
 	logger := zaplog.Debug()
 	if err != nil {
-		logger.Error(fmt.Sprintf("%d error for %q: %s", code, uri, err))
+		logger.Error(fmt.Sprintf("%d internal error for the URL, %q: %s", code, uri, err))
 	}
 	if nilContext := c == nil; nilContext {
 		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, ErrCxt))
@@ -179,7 +180,7 @@ func InternalErr(c echo.Context, uri string, err error) error {
 		" but the server encountered an internal error or misconfiguration and cannot display this page."
 	data["uriErr"] = uri
 	if err := c.Render(code, "status", data); err != nil {
-		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, err))
+		logger.Error(fmt.Sprintf("%d internal render error for the URL, %q: %s", code, uri, ErrTmpl))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
@@ -214,7 +215,7 @@ func StatusErr(c echo.Context, code int, uri string) error {
 	default:
 		s := http.StatusText(code)
 		if s == "" {
-			err := fmt.Errorf("%w: %d", ErrCode, code)
+			err := fmt.Errorf("%d status code error for the URL, %s: %s", code, uri, ErrCode)
 			logger.Error(err.Error())
 			return echo.NewHTTPError(http.StatusInternalServerError, err)
 		}
@@ -230,7 +231,7 @@ func StatusErr(c echo.Context, code int, uri string) error {
 	data["probl"] = probl
 	data["uriErr"] = uri
 	if err := c.Render(code, "status", data); err != nil {
-		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, err))
+		logger.Error(fmt.Sprintf("%d status code render error for the URL, %s: %s", code, uri, ErrCode))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
