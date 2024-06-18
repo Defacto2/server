@@ -11,12 +11,10 @@
 ### Files and assets
 
 - [ ] Create a htmx, live _classifications page_ for editors, using the advanced uploader `<select>` fields.
-- [ ] Mobile support for Data editor.
-- [ ] Data editor button should reload the page when data Editor module is active.
-- [ ] Fix PNG binary being displayed in the text viewer. http://localhost:1323/f/af20fcb,http://localhost:1323/f/a73208,http://localhost:1323/f/b34c2a,
-- [ ] Fix broken Unicode multibyte text being displayed in the text viewer. http://localhost:1323/f/b12d05f,http://localhost:1323/f/b228a8e,
+- [ ] ~~Data editor button should reload the page when data Editor module is active~~. Could not implement.
+- [X] Fix PNG binary being displayed in the text viewer. http://localhost:1323/f/af20fcb,http://localhost:1323/f/a73208,http://localhost:1323/f/b34c2a,
+- [-] Fix broken Unicode multibyte text being displayed in the text viewer. http://localhost:1323/f/b12d05f,http://localhost:1323/f/b228a8e,
 - [ ] Create a new assets path named `extras` and move into it all the uuid files from `downloads` that use file extensions.
-- [ ] http://localhost:1323/files/image not ordering correctly?
 
 ### Menus and layout
 

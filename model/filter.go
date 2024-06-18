@@ -39,7 +39,9 @@ func (a *Advert) List(ctx context.Context, db *sql.DB, offset, limit int) (model
 	return models.Files(
 		expr.AdvertExpr(),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate),
+		qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // Announcement is a the model for the public and community announcements.
@@ -68,7 +70,9 @@ func (a *Announcement) List(ctx context.Context, db *sql.DB, offset, limit int) 
 	return models.Files(
 		expr.AnnouncementExpr(),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate),
+		qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // Ansi is a the model for the ANSI formatted text and art files.
@@ -95,8 +99,8 @@ func (a *Ansi) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 	}
 	return models.Files(
 		expr.AnsiExpr(),
-		qm.OrderBy(ClauseOldDate),
 		qm.Offset(calc(offset, limit)),
+		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
 	).All(ctx, db)
 }
@@ -126,8 +130,8 @@ func (a *AnsiBrand) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 	}
 	return models.Files(
 		expr.AnsiBrandExpr(),
-		qm.OrderBy(ClauseOldDate),
 		qm.Offset(calc(offset, limit)),
+		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
 	).All(ctx, db)
 }
@@ -158,8 +162,8 @@ func (a *AnsiBBS) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 	return models.Files(
 		expr.AnsiBBSExpr(),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
+		qm.Limit(limit),
 	).All(ctx, db)
 }
 
@@ -189,8 +193,8 @@ func (a *AnsiFTP) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 	return models.Files(
 		expr.AnsiFTPExpr(),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
+		qm.Limit(limit),
 	).All(ctx, db)
 }
 
@@ -220,8 +224,8 @@ func (a *AnsiNfo) List(ctx context.Context, db *sql.DB, offset, limit int) (mode
 	return models.Files(
 		expr.AnsiNfoExpr(),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
+		qm.Limit(limit),
 	).All(ctx, db)
 }
 
@@ -251,8 +255,8 @@ func (a *AnsiPack) List(ctx context.Context, db *sql.DB, offset, limit int) (mod
 	return models.Files(
 		expr.AnsiPackExpr(),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
+		qm.Limit(limit),
 	).All(ctx, db)
 }
 
@@ -468,7 +472,9 @@ func (d *Drama) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 	return models.Files(
 		expr.DramaExpr(),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
+	).All(ctx, db)
 }
 
 // FTP is a the model for the FTP files.
@@ -528,7 +534,9 @@ func (h *Hack) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 	return models.Files(
 		expr.HackExpr(),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
+	).All(ctx, db)
 }
 
 // HowTo is a the model for the guides and how-tos.
@@ -557,7 +565,9 @@ func (h *HowTo) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 	return models.Files(
 		expr.HowToExpr(),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
+	).All(ctx, db)
 }
 
 // HTML is a the model for the HTML and markdown files.
@@ -618,8 +628,8 @@ func (i *Image) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 		expr.ImageExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate),
+	).All(ctx, db)
 }
 
 // ImagePack is a the model for the image file packs.
@@ -835,7 +845,9 @@ func (j *JobAdvert) List(ctx context.Context, db *sql.DB, offset, limit int) (mo
 	return models.Files(
 		expr.JobAdvertExpr(),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate),
+		qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // Linux is a the model for the Linux operating system.
@@ -1019,7 +1031,9 @@ func (m *Music) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 	return models.Files(
 		expr.MusicExpr(),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate),
+		qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // NewsArticle is a the model for mainstream news articles.
@@ -1048,7 +1062,9 @@ func (n *NewsArticle) List(ctx context.Context, db *sql.DB, offset, limit int) (
 	return models.Files(
 		expr.NewsArticleExpr(),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate),
+		qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // Nfo is a the model for the NFO files.
@@ -1200,7 +1216,9 @@ func (r *Restrict) List(ctx context.Context, db *sql.DB, offset, limit int) (mod
 	return models.Files(
 		expr.RestrictExpr(),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate),
+		qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // Script is a the model for the script and interpreted languages.
@@ -1260,7 +1278,9 @@ func (s *Standard) List(ctx context.Context, db *sql.DB, offset, limit int) (mod
 	return models.Files(
 		expr.StandardExpr(),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate),
+		qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // Takedown is a the model for the bust and takedowns.
@@ -1283,9 +1303,15 @@ func (t *Takedown) Stat(ctx context.Context, db *sql.DB) error {
 }
 
 func (t *Takedown) List(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	return models.Files(expr.TakedownExpr(),
+	if db == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		expr.TakedownExpr(),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate),
+		qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // Text is a the model for the text files.
@@ -1469,7 +1495,9 @@ func (t *Tool) List(ctx context.Context, db *sql.DB, offset, limit int) (models.
 	return models.Files(
 		expr.ToolExpr(),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate),
+		qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // TrialCrackme is a the model for group job trial crackme releases.
@@ -1498,7 +1526,9 @@ func (t *TrialCrackme) List(ctx context.Context, db *sql.DB, offset, limit int) 
 	return models.Files(
 		expr.TrialCrackmeExpr(),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate),
+		qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // Video is a the model for the videos.
@@ -1527,7 +1557,9 @@ func (v *Video) List(ctx context.Context, db *sql.DB, offset, limit int) (models
 	return models.Files(
 		expr.VideoExpr(),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.OrderBy(ClauseOldDate),
+		qm.Limit(limit),
+	).All(ctx, db)
 }
 
 // Windows is a the model for the Windows operating system.
