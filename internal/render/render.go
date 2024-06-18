@@ -49,7 +49,8 @@ func Encoder(art *models.File, r io.Reader) encoding.Encoding {
 	if strings.Contains(magic, "utf-8") {
 		return unicode.UTF8
 	}
-	return helper.Determine(r)
+	guess := helper.Determine(r)
+	return guess
 }
 
 // Read returns the content of either the file download or an extracted text file.

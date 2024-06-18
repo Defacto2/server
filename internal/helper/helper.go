@@ -176,6 +176,7 @@ func sequences(p []byte) encoding.Encoding {
 		singleHorizBar = 0xc4
 		mediumShade    = 0xb1
 		fullBlock      = 0xdb
+		interpunct     = 0xfa
 	)
 	chars := []byte{
 		lowerHalfBlock,
@@ -184,6 +185,7 @@ func sequences(p []byte) encoding.Encoding {
 		singleHorizBar,
 		mediumShade,
 		fullBlock,
+		interpunct,
 	}
 	for _, char := range chars {
 		const count = 4
@@ -191,6 +193,10 @@ func sequences(p []byte) encoding.Encoding {
 		if bytes.Contains(p, subslice) {
 			return charmap.CodePage437
 		}
+	}
+	guillemets := []byte{0xae, 0xaf} // «»
+	if bytes.Contains(p, guillemets) {
+		return charmap.CodePage437
 	}
 	return charmap.ISO8859_1
 }

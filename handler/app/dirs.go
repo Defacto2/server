@@ -363,6 +363,11 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	case b == nil, render.UTF16(r), isZip(b):
 		return data, nil
 	}
+	// occasionally, an image is flagged as a text file
+	if pngImage(b) {
+		return data, nil
+	}
+
 	// Scan for HTML incompatible, ANSI cursor escape codes
 	scanner := bufio.NewScanner(r)
 
@@ -462,6 +467,15 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	data["readmeLines"] = strings.Count(readme, "\n")
 	data["readmeRows"] = helper.MaxLineLength(readme)
 	return data, nil
+}
+
+// pngImage returns true if the byte slice has a PNG file signature.
+func pngImage(p []byte) bool {
+	if len(p) < 8 {
+		return false
+	}
+	fileSignature := []byte{137, 80, 78, 71, 13, 10, 26, 10}
+	return bytes.EqualFold(p[:8], fileSignature)
 }
 
 // isZip checks if b is a known zip archive.
@@ -656,14 +670,15 @@ func artifactRelations(art *models.File) template.HTML {
 	}
 	rows := ""
 	const expected = 2
+	const route = "/f/"
 	for _, link := range links {
 		x := strings.Split(link, ";")
 		if len(x) != expected {
 			continue
 		}
 		name, href := x[0], x[1]
-		if !strings.HasPrefix(href, "http") {
-			href = "https://" + href
+		if !strings.HasPrefix(href, route) {
+			href = route + href
 		}
 		rows += fmt.Sprintf("<tr><th scope=\"row\"><small>Link to</small></th>"+
 			"<td><small><a class=\"text-truncate\" href=\"%s\">%s</a></small></td></tr>", href, name)

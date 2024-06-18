@@ -41,7 +41,7 @@
 
 #### Future locked file items list for testing features.
 
-- Unknown codepage: http://localhost:1323/f/ac2319e,http://localhost:1323/f/b0269ca [comparison:http://localhost:1323/f/ac1d9d3],
+- Unknown codepage, prob cp437 accidently saved as unicode: http://localhost:1323/f/ac2319e,http://localhost:1323/f/b0269ca [comparison:http://localhost:1323/f/ac1d9d3],
 - GIF image: http://localhost:1323/f/b828636,http://localhost:1323/f/b42e22b,http://localhost:1323/f/ae2a407,
 - Excess tail whitespace: http://localhost:1323/f/b830654,
 - Missing newlines, requires wrap: http://localhost:1323/f/b14bb1,http://localhost:1323/f/b12fe37,http://localhost:1323/f/ad23d9c,http://localhost:1323/f/b122787,
@@ -50,20 +50,20 @@
 - PDF file preview: http://localhost:1323/f/b04139,
 - Block text file: http://localhost:1323/f/ad217af,http://localhost:1323/f/ae2a9cc,http://localhost:1323/f/ad2b193,http://localhost:1323/f/ac1a2dc,
 - [REQUIRES FIX] Multibyte Unicode: http://localhost:1323/f/b12d05f,http://localhost:1323/f/b53028e,
-- IRL Link to: http://localhost:1323/f/b029330,http://localhost:1323/f/ba4805,http://localhost:1323/f/ab27f81,http://localhost:1323/f/b029330,
-- href in text viewer: http://localhost:1323/f/a92c1dc,http://localhost:1323/f/a734e9,http://localhost:1323/f/ac2a79,
+- ~~IRL Link to~~: http://localhost:1323/f/b029330,http://localhost:1323/f/ba4805,http://localhost:1323/f/ab27f81,http://localhost:1323/f/b029330,
+- ~~href in text viewer~~: http://localhost:1323/f/a92c1dc,http://localhost:1323/f/a734e9,http://localhost:1323/f/ac2a79,
 - [REQUIRES FIX] JSDOS unsupported zip archive: http://localhost:1323/f/a22af8,http://localhost:1323/f/b72d52b,http://localhost:1323/f/b52e058,http://localhost:1323/f/b3286a2
-- CP437 text pattern detection: http://localhost:1323/f/ab2f2b4,http://localhost:1323/f/ba2db9e,http://localhost:1323/f/ab43cb,http://localhost:1323/f/b42ccd8,
-- Unicode single byte: http://localhost:1323/f/a5191c3,http://localhost:1323/v/ab1fc8b,http://localhost:1323/f/b61f24f,
-- Text viewer attempting to preview PNG image due to category: http://localhost:1323/f/af20fcb,
+- ~~CP437 text pattern detection~~: http://localhost:1323/f/ab2f2b4,http://localhost:1323/f/ba2db9e,http://localhost:1323/f/ab43cb,http://localhost:1323/f/b42ccd8,
+- ~~Unicode single byte~~: http://localhost:1323/f/a5191c3,http://localhost:1323/v/ab1fc8b,http://localhost:1323/f/b61f24f,
+- ~~Text viewer attempting~~ to preview PNG image due to category: http://localhost:1323/f/af20fcb,
 - Maximum download permitted, 1GB: http://localhost:1323/f/aa256f1,
 - Emulator, .exe file: http://localhost:1323/f/b23b9c,http://localhost:1323/f/ad18cf0,http://localhost:1323/f/b030891,http://localhost:1323/f/b33057
 - Emulator, unsupported .arj: http://localhost:1323/f/ad18c43,http://localhost:1323/f/ae1c87b,http://localhost:1323/f/b41eefb,
 - Emulator, unsupported .arc: http://localhost:1323/f/a418d56,
 - Emulator, unsupported .lha: http://localhost:1323/f/a724be8,
-- Amiga ansi colors: http://localhost:1323/f/b02ecf1,
-- Text viewer, extra big textfiles, 5MB: http://localhost:1323/f/ae219e8,
-- Text viewer UTF-16: http://localhost:1323/f/b22e849,
+- ~~Amiga ansi colors~~: http://localhost:1323/f/b02ecf1,
+- ~~Text viewer~~, extra big textfiles, 5MB: http://localhost:1323/f/ae219e8,
+- ~~Text viewer~~ UTF-16: http://localhost:1323/f/b22e849,
 
 ### MAJOR FREEZE
 
