@@ -15,10 +15,10 @@
     </div>
     <hr class="my-2">
     {{- if $disableRecord}}
-    <p class="{{$alertCls}} text-danger-emphasis">❌ Record is disabled and hidden from public access. ❌</p>
+    <p class="{{$alertCls}} text-danger-emphasis">🚫 Record is disabled and hidden from public access. 🚫</p>
     {{- else if $forApproval}}
     <p class="{{$alertCls}} text-primary-emphasis">
-        ❓ This new record is hidden from public access. ❓<br>
+        ⛔ This new record is hidden from public access.<br>
         {{- /*  todo: create a htmx element to approve and refresh  */}}
         If the data and images are correct, <a href="">it can be approved</a>.
     </p>

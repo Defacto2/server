@@ -15,6 +15,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres/models"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/encoding/unicode"
 )
 
 var (
@@ -43,6 +44,10 @@ func Encoder(art *models.File, r io.Reader) encoding.Encoding {
 		case "appleii", "atarist":
 			return charmap.ISO8859_1
 		}
+	}
+	magic := strings.ToLower(strings.TrimSpace(art.FileMagicType.String))
+	if strings.Contains(magic, "utf-8") {
+		return unicode.UTF8
 	}
 	return helper.Determine(r)
 }

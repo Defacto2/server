@@ -19,6 +19,7 @@ import (
 
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/encoding/unicode"
 )
 
 const (
@@ -126,6 +127,7 @@ func Determine(reader io.Reader) encoding.Encoding {
 	if err != nil {
 		return nil
 	}
+
 	for _, char := range p {
 		r := rune(char)
 		switch {
@@ -157,7 +159,7 @@ func Determine(reader io.Reader) encoding.Encoding {
 			// The maximum value of an 8-bit character is 255 (0xff),
 			// so rune valud above that, 256+ (0x100) is a Unicode multi-byte character,
 			// which we can assume to be UTF-8.
-			return nil
+			return unicode.UTF8
 		}
 	}
 	return sequences(p)

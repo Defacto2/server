@@ -37,6 +37,7 @@ import (
 	"golang.org/x/exp/slices"
 	_ "golang.org/x/image/webp" // webp format decoder
 	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/encoding/unicode"
 )
 
 // Dirs contains the directories used by the artifact pages.
@@ -414,7 +415,8 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 		nbsp437 = 0xff // non-breaking space for CP437
 		space   = " "  // intentional space
 	)
-	switch render.Encoder(art, bytes.NewReader(b)) {
+	textEncoding := render.Encoder(art, bytes.NewReader(b))
+	switch textEncoding {
 	case charmap.ISO8859_1:
 		data["readmeLatin1Cls"] = ""
 		data["readmeCP437Cls"] = "d-none" + space
@@ -426,19 +428,37 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 		data["readmeCP437Cls"] = ""
 		data["vgaCheck"] = "checked"
 		b = bytes.ReplaceAll(b, []byte{nbsp437}, []byte{sp})
+	case unicode.UTF8:
+		// use Cad font as default
+		data["readmeLatin1Cls"] = "d-none" + space
+		data["readmeCP437Cls"] = ""
+		data["vgaCheck"] = "checked"
 	}
-	d := charmap.ISO8859_1.NewDecoder().Reader(bytes.NewReader(b))
-	readme, err := decode(d)
-	if err != nil {
-		return data, fmt.Errorf("iso8859_1 decode: %w", err)
+	readme := ""
+	switch textEncoding {
+	case unicode.UTF8:
+		// unicode should apply to both latin1 and cp437
+		readme, err = decode(bytes.NewReader(b))
+		if err != nil {
+			return data, fmt.Errorf("unicode utf8 decode: %w", err)
+		}
+		data["readmeLatin1"] = readme
+		data["readmeCP437"] = readme
+	default:
+		d := charmap.ISO8859_1.NewDecoder().Reader(bytes.NewReader(b))
+		readme, err = decode(d)
+		if err != nil {
+			return data, fmt.Errorf("iso8859_1 decode: %w", err)
+		}
+		data["readmeLatin1"] = readme
+		d = charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
+		readme, err = decode(d)
+		if err != nil {
+			return data, fmt.Errorf("codepage437 decode: %w", err)
+		}
+		data["readmeCP437"] = readme
 	}
-	data["readmeLatin1"] = readme
-	d = charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
-	readme, err = decode(d)
-	if err != nil {
-		return data, fmt.Errorf("codepage437 decode: %w", err)
-	}
-	data["readmeCP437"] = readme
+
 	data["readmeLines"] = strings.Count(readme, "\n")
 	data["readmeRows"] = helper.MaxLineLength(readme)
 	return data, nil

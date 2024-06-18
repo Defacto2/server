@@ -57,7 +57,7 @@
 - Unicode single byte: http://localhost:1323/f/a5191c3,http://localhost:1323/v/ab1fc8b,http://localhost:1323/f/b61f24f,
 - Text viewer attempting to preview PNG image due to category: http://localhost:1323/f/af20fcb,
 - Maximum download permitted, 1GB: http://localhost:1323/f/aa256f1,
-- Emulator, .exe file: http://localhost:1323/f/b23b9c,http://localhost:1323/f/ad18cf0,http://localhost:1323/f/b030891,
+- Emulator, .exe file: http://localhost:1323/f/b23b9c,http://localhost:1323/f/ad18cf0,http://localhost:1323/f/b030891,http://localhost:1323/f/b33057
 - Emulator, unsupported .arj: http://localhost:1323/f/ad18c43,http://localhost:1323/f/ae1c87b,http://localhost:1323/f/b41eefb,
 - Emulator, unsupported .arc: http://localhost:1323/f/a418d56,
 - Emulator, unsupported .lha: http://localhost:1323/f/a724be8,
