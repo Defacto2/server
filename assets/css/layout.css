@@ -40,7 +40,6 @@
   font-size: 1em;
   font-style: normal;
   font-weight: normal;
-  line-height: 1;
 }
 
 @font-face {
@@ -57,7 +56,6 @@
   font-size: 1em;
   font-style: normal;
   font-weight: normal;
-  line-height: 1;
 }
 
 @font-face {
@@ -74,7 +72,6 @@
   font-size: 1em;
   font-style: normal;
   font-weight: normal;
-  line-height: 1;
 }
 
 .pre-wrap {
@@ -82,7 +79,8 @@
 }
 
 .reader {
-  font-size: 110%;
+  font-size: 125%;
+  line-height: 1;
   white-space: pre-wrap;
   hyphens: manual;
 }

@@ -6,7 +6,6 @@ import { clipText, getElmById } from "./helper.mjs";
 (() => {
   "use strict";
   const none = `d-none`;
-  const wrap = "pre-wrap";
   const blackBG = ["reader-invert", "border", "border-black", "rounded-1"];
 
   const latin = "readmeLatin1",
@@ -21,7 +20,7 @@ import { clipText, getElmById } from "./helper.mjs";
   function useMono() {
     preLatin1.classList.add(none);
     pre437.classList.remove(none, "font-dos", ...blackBG);
-    pre437.classList.add("font-cascadia-mono", wrap);
+    pre437.classList.add("font-cascadia-mono");
   }
 
   const topaz = document.getElementById(`topazFont`);
@@ -29,7 +28,7 @@ import { clipText, getElmById } from "./helper.mjs";
     topaz.addEventListener("click", useAmiga);
   }
   function useAmiga() {
-    preLatin1.classList.remove(none, "font-cascadia-mono", wrap);
+    preLatin1.classList.remove(none, "font-cascadia-mono");
     preLatin1.classList.add("font-amiga", ...blackBG);
     pre437.classList.add(none);
   }
@@ -40,7 +39,7 @@ import { clipText, getElmById } from "./helper.mjs";
   }
   function useIBM() {
     preLatin1.classList.add(none);
-    pre437.classList.remove(none, wrap, "font-cascadia-mono");
+    pre437.classList.remove(none, "font-cascadia-mono");
     pre437.classList.add("font-dos", ...blackBG);
   }
 
