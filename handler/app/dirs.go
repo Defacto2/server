@@ -20,6 +20,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	uni "unicode"
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/sess"
@@ -366,6 +367,12 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	// occasionally, an image is flagged as a text file
 	if pngImage(b) {
 		return data, nil
+	}
+	// trim trailing whitespace and MS-DOS era EOF marker
+	b = bytes.TrimRightFunc(b, uni.IsSpace)
+	const endOfFile = 0x1a // Ctrl+Z
+	if bytes.HasSuffix(b, []byte{endOfFile}) {
+		b = bytes.TrimSuffix(b, []byte{endOfFile})
 	}
 
 	// Scan for HTML incompatible, ANSI cursor escape codes

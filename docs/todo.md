@@ -41,15 +41,15 @@
 
 #### Future locked file items list for testing features.
 
-- Unknown codepage, prob cp437 accidently saved as unicode: http://localhost:1323/f/ac2319e,http://localhost:1323/f/b0269ca [comparison:http://localhost:1323/f/ac1d9d3],
-- GIF image: http://localhost:1323/f/b828636,http://localhost:1323/f/b42e22b,http://localhost:1323/f/ae2a407,
-- Excess tail whitespace: http://localhost:1323/f/b830654,
+- ~~Unknown codepage~~, prob cp437 accidently saved as unicode: http://localhost:1323/f/ac2319e,http://localhost:1323/f/b0269ca [comparison:http://localhost:1323/f/ac1d9d3],
+- ~~GIF image~~: http://localhost:1323/f/b828636,http://localhost:1323/f/b42e22b,http://localhost:1323/f/ae2a407,
+- ~~Excess tail~~ whitespace: http://localhost:1323/f/b830654,
 - Missing newlines, requires wrap: http://localhost:1323/f/b14bb1,http://localhost:1323/f/b12fe37,http://localhost:1323/f/ad23d9c,http://localhost:1323/f/b122787,
 - ?No text preview?: http://localhost:1323/f/af31a9,
 - HTML file preview: http://localhost:1323/f/a722b1f,
 - PDF file preview: http://localhost:1323/f/b04139,
 - Block text file: http://localhost:1323/f/ad217af,http://localhost:1323/f/ae2a9cc,http://localhost:1323/f/ad2b193,http://localhost:1323/f/ac1a2dc,
-- [REQUIRES FIX] Multibyte Unicode: http://localhost:1323/f/b12d05f,http://localhost:1323/f/b53028e,
+- [REQUIRES FIX] Multibyte Unicode [Unicode support is done through filemagic column]: http://localhost:1323/f/b12d05f,http://localhost:1323/f/b53028e,
 - ~~IRL Link to~~: http://localhost:1323/f/b029330,http://localhost:1323/f/ba4805,http://localhost:1323/f/ab27f81,http://localhost:1323/f/b029330,
 - ~~href in text viewer~~: http://localhost:1323/f/a92c1dc,http://localhost:1323/f/a734e9,http://localhost:1323/f/ac2a79,
 - [REQUIRES FIX] JSDOS unsupported zip archive: http://localhost:1323/f/a22af8,http://localhost:1323/f/b72d52b,http://localhost:1323/f/b52e058,http://localhost:1323/f/b3286a2
