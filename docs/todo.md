@@ -18,12 +18,13 @@
 
 ### Menus and layout
 
-- [ ] Create a menu link to DigitalOcean referal page, [or/and] add a link to the thanks page.
+- [X] Create a menu link to DigitalOcean referal page, [or/and] add a link to the thanks page.
 - [ ] Create a locked menu option to search the database by file ID or UUID or ~~URL~~.
 - [ ] Create a locked page with links for various file items that use unique website features,
       for example, DOS emulation for different archives file types and raw executables.
       And also different text file types for the text viewer.
 - [ ] Permenantly delete record should have its own modal dialog, requiring a confirmation and a reason using htmx result. Afterwards, a success message should be displayed and a notice that the active browser tab will now return a 404. Notes on reasons, only if an upload is unwanted, otherwise mention how deletion is permanent and breaks SEO and third-party links.
+- [X] Use DigitalOcean API to display Estimated Droplet Transfer Pool usage and remaining balance.
 
 ### Database
 
