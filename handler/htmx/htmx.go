@@ -15,6 +15,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/model"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -297,6 +298,67 @@ func PouetSubmit(c echo.Context, logger *zap.SugaredLogger) error {
 	return submit(c, logger, "pouet")
 }
 
+// SearchByID is a handler for the /editor/search/id route.
+func SearchByID(c echo.Context, logger *zap.SugaredLogger) error {
+	const maxResults = 50
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		logger.Error(err)
+		return c.String(http.StatusServiceUnavailable,
+			"cannot connect to the database")
+	}
+	defer db.Close()
+
+	ids := []int{}
+	uuids := []uuid.UUID{}
+
+	search := c.FormValue("htmx-search")
+	inputs := strings.Split(search, " ")
+	for _, input := range inputs {
+		x := strings.ToLower(strings.TrimSpace(input))
+		if id, _ := strconv.Atoi(x); id > 0 {
+			ids = append(ids, id)
+			continue
+		}
+		if id := helper.DeobfuscateID(x); id > 0 {
+			ids = append(ids, id)
+			continue
+		}
+		if uid, err := uuid.Parse(x); err == nil {
+			uuids = append(uuids, uid)
+			continue
+		}
+	}
+
+	fmt.Println("IDS", ids)
+	fmt.Println("UUIDS", uuids)
+
+	var r model.Artifacts
+	fs, err := r.ID(ctx, db, maxResults, ids, uuids...)
+	if err != nil {
+		logger.Error(err)
+		return c.String(http.StatusServiceUnavailable,
+			"the search query failed")
+	}
+
+	if len(fs) == 0 {
+		return c.HTML(http.StatusOK, "No artifacts found.")
+	}
+	fmt.Printf("fs: %v\n", len(fs))
+	err = c.Render(http.StatusOK, "searchids", map[string]interface{}{
+		"maximum": maxResults,
+		"name":    search,
+		"result":  fs,
+	})
+	if err != nil {
+		logger.Errorf("search by id htmx template: %v", err)
+		return c.String(http.StatusInternalServerError,
+			"cannot render the htmx template")
+	}
+	return nil
+}
+
 // SearchReleaser is a handler for the /search/releaser route.
 func SearchReleaser(c echo.Context, logger *zap.SugaredLogger) error {
 	const maxResults = 14
@@ -309,7 +371,7 @@ func SearchReleaser(c echo.Context, logger *zap.SugaredLogger) error {
 	}
 	defer db.Close()
 
-	input := c.FormValue("releaser-search")
+	input := c.FormValue("htmx-search")
 	slug := helper.Slug(helper.TrimRoundBraket(input))
 	if slug == "" {
 		return c.HTML(http.StatusOK, "<!-- empty search query -->")
@@ -333,7 +395,7 @@ func SearchReleaser(c echo.Context, logger *zap.SugaredLogger) error {
 	if len(r) == 0 {
 		return c.HTML(http.StatusOK, "No releasers found.")
 	}
-	err = c.Render(http.StatusOK, "releasers", map[string]interface{}{
+	err = c.Render(http.StatusOK, "searchreleasers", map[string]interface{}{
 		"maximum": maxResults,
 		"name":    slug,
 		"result":  r,
@@ -395,7 +457,7 @@ func datalist(c echo.Context, logger *zap.SugaredLogger, input string, magazine 
 	if len(r) == 0 {
 		return c.HTML(http.StatusOK, "")
 	}
-	err = c.Render(http.StatusOK, "releasersdl", map[string]interface{}{
+	err = c.Render(http.StatusOK, "datalistreleasers", map[string]interface{}{
 		"maximum": maxResults,
 		"name":    slug,
 		"result":  r,

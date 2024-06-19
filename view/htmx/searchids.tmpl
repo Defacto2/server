@@ -1,0 +1,33 @@
+{{- /* 
+    searchids.tmpl ~ htmx search releasers results template.
+*/ -}}
+{{- define "content"}}
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">UUID</th>
+        <th scope="col">Key</th>
+        <th scope="col">Filename</th>
+        <th scope="col">Size</th>
+        <th scope="col">Releasers</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+{{- range $index, $rel := .result -}}
+{{- $key := obfuscateID $rel.ID -}}
+{{- $linkClass := "text-nowrap link-offset-2 link-underline link-underline-opacity-25"}}
+      <tr>
+        <th scope="row">{{ $rel.ID }} {{ state $rel.Deletedat.IsZero $rel.Deletedby.IsZero }}</th>
+        <td><var>{{ $rel.UUID.String }}</var></td>
+        <td><a href="/f/{{$key}}" class="{{$linkClass}}">{{$key}}</a></td>
+        <td><a href="/d/{{$key}}" class="{{$linkClass}}">{{ $rel.Filename.String }}</a></td>
+        <td>{{ byteCount $rel.Filesize }}</td>
+        <td>{{ linkRelrs false $rel.GroupBrandFor $rel.GroupBrandBy }}</td>
+        <td>{{ describe $rel.Platform.String $rel.Section.String $rel.DateIssuedYear.Int16 $rel.DateIssuedYear.Int16 }}</td>
+      </tr>
+    </tbody>
+{{- end}}
+</table>
+{{- end}}

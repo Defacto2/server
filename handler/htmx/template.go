@@ -12,6 +12,7 @@ import (
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/handler/app"
+	"github.com/Defacto2/server/internal/helper"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
@@ -25,19 +26,25 @@ func GlobTo(name string) string {
 // Templates returns a map of the templates.
 func Templates(fs embed.FS) map[string]*template.Template {
 	t := make(map[string]*template.Template)
-	t["releasers"] = releasers(fs)
-	t["releasersdl"] = datalistReleasers(fs)
+	t["searchids"] = ids(fs)
+	t["searchreleasers"] = releasers(fs)
+	t["datalistreleasers"] = datalistReleasers(fs)
 	return t
+}
+
+func ids(fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fs,
+		GlobTo("layout.tmpl"), GlobTo("searchids.tmpl")))
 }
 
 func releasers(fs embed.FS) *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fs,
-		GlobTo("layout.tmpl"), GlobTo("releasers.tmpl")))
+		GlobTo("layout.tmpl"), GlobTo("searchreleasers.tmpl")))
 }
 
 func datalistReleasers(fs embed.FS) *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fs,
-		GlobTo("layout.tmpl"), GlobTo("releasersdl.tmpl")))
+		GlobTo("layout.tmpl"), GlobTo("datalistreleasers.tmpl")))
 }
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
@@ -54,7 +61,9 @@ func TemplateFuncMap() template.FuncMap {
 			}
 			return "border"
 		},
+		"byteCount": helper.ByteCount,
 		"byteFileS": app.ByteFileS,
+		"describe":  app.Describe,
 		"fmtPath": func(path string) string {
 			if val := name.Path(path); val.String() != "" {
 				return val.String()
@@ -64,8 +73,19 @@ func TemplateFuncMap() template.FuncMap {
 		"initialisms": func(s string) string {
 			return initialism.Join(initialism.Path(s))
 		},
+		"linkRelrs":   app.LinkRelrs,
+		"obfuscateID": helper.ObfuscateID,
 		"safeHTML": func(s string) template.HTML {
 			return template.HTML(s)
+		},
+		"state": func(deleteat, deleteby bool) template.HTML {
+			if !deleteat && deleteby {
+				return "<span title=\"Not approved\">⛔</span>"
+			}
+			if !deleteat && !deleteby {
+				return "<span title=\"Removed from public\">🚫</span>"
+			}
+			return ""
 		},
 		"suggestion": Suggestion,
 	}

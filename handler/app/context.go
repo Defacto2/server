@@ -1358,6 +1358,23 @@ func SearchDesc(c echo.Context) error {
 	return nil
 }
 
+// SearchID is the handler for the Record by ID Search page.
+func SearchID(c echo.Context) error {
+	const title, name = "Search for artifacts", "searchhtmx"
+	data := empty(c)
+	data["description"] = "Search form to discover artifacts by ID."
+	data["logo"] = title
+	data["title"] = title
+	data["info"] = "search for artifacts by its record id, uuid or URL key"
+	data["hxPost"] = "/editor/search/id"
+	data["inputPlaceholder"] = "Type to search for an artifact…"
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(c, name, err)
+	}
+	return nil
+}
+
 // SearchFile is the handler for the Search for files page.
 func SearchFile(c echo.Context) error {
 	const title, name = "Search for filenames", "searchpost"
@@ -1381,6 +1398,8 @@ func SearchReleaser(c echo.Context) error {
 	data["logo"] = title
 	data["title"] = title
 	data["info"] = "search for a group, initialism, magazine, board, or site"
+	data["hxPost"] = "/search/releaser"
+	data["inputPlaceholder"] = "Type to search for a releaser…"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, name, err)

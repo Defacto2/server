@@ -1,7 +1,9 @@
 {{- /* 
-    searchhtmx.tmpl ~ Search for releasers using htmx.
+    searchhtmx.tmpl ~ Search results using htmx.
 */ -}}
 {{- define "content" }} 
+{{- $hxpost := index . "hxPost" }}
+{{- $placeholder := index . "inputPlaceholder" }}
 <div class="row justify-content-md-center">
     <div class="col-md-8 col-lg-6">
         <div class="card border-dark mb-3">      
@@ -13,24 +15,24 @@
                 <p class="card-text">
                 <div class="input-group">
                     <div class="input-group-text">
-                        <div id="search-releaser-indicator" class="htmx-indicator spinner-border spinner-border-sm text-secondary" role="status">
+                        <div id="search-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm text-secondary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
                     </div>              
                     <input type="text" spellcheck="false" autofocus 
-                        class="form-control" id="search-releaser-input" name="releaser-search" 
-                        hx-post="/search/releaser" 
-                        hx-target="#search-releaser-results" 
+                        class="form-control" id="search-htmx-input" name="htmx-search" 
+                        hx-post="{{$hxpost}}" 
+                        hx-target="#search-htmx-results" 
                         hx-trigger="keyup changed delay:500ms" 
-                        hx-indicator="#search-releaser-indicator"
-                        placeholder="Type to search for a releaser…">
-                    <button type="button" id="search-releaser-clear" class="btn btn-dark">Clear</button>
+                        hx-indicator="#search-htmx-indicator"
+                        placeholder="{{$placeholder}}">
+                    <button type="button" id="search-htmx-clear" class="btn btn-dark">Clear</button>
                 </div>
                 </p>
             </div>
         </div>
-        <div id="search-releaser-alert" class="alert alert-danger d-none" role="alert"></div>
+        <div id="search-htmx-alert" class="alert alert-danger d-none" role="alert"></div>
     </div>
-    <div class="col-lg-8" id="search-releaser-results"></div>
+    <div class="col-lg-12" id="search-htmx-results"></div>
 </div>
 {{- end }}

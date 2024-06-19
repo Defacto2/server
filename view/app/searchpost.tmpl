@@ -9,7 +9,9 @@
                 <h5 class="card-title text-info-emphasis fs-2 lead">
                     {{index . "title"}}<br>
                     <small class="fs-5 fw-lighter">{{index . "info"}}</small>
-                    <p class="fs-6">multiple terms can be seperated with commas</p>
+                    <p class="fs-6">
+                        globs are not supported, use: <code>.gif</code> instead of <code>*.gif</code>
+                    </p>
                 </h5>
                 <p class="card-text p-0">
                 <form class="row g-3 p-0" method="post">

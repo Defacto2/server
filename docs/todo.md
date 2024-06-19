@@ -19,7 +19,7 @@
 ### Menus and layout
 
 - [X] Create a menu link to DigitalOcean referal page, [or/and] add a link to the thanks page.
-- [ ] Create a locked menu option to search the database by file ID or UUID or ~~URL~~.
+- [X] Create a locked menu option to search the database by file ID or UUID or ~~URL~~.
 - [ ] Create a locked page with links for various file items that use unique website features,
       for example, DOS emulation for different archives file types and raw executables.
       And also different text file types for the text viewer.

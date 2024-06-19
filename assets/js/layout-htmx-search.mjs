@@ -1,20 +1,20 @@
 /**
  * @module layout-htmx-search
- * This module provides functions for htmx, search releaser events.
+ * This module provides functions for htmx, search events.
  */
-const releaserAlert = "search-releaser-alert",
-  releaserReset = "search-releaser-clear",
-  releaserIndic = "search-releaser-indicator",
-  releaserInput = "search-releaser-input";
+const searchAlert = "search-htmx-alert",
+  searchReset = "search-htmx-clear",
+  searchIndic = "search-htmx-indicator",
+  searchInput = "search-htmx-input";
 
 /**
- * Handles search releaser specific events such as the Clear button.
+ * Handles search specific events such as the Clear button.
  */
-export function releaserEvents() {
-  const clear = document.getElementById(releaserReset);
+export function searchEvents() {
+  const clear = document.getElementById(searchReset);
   if (clear !== null) {
     clear.addEventListener("click", function () {
-      clearer(releaserAlert, releaserInput, releaserIndic);
+      clearer(searchAlert, searchInput, searchIndic);
     });
   }
 }
@@ -24,23 +24,21 @@ export function releaserEvents() {
  * @throws {Error} If any of the required elements are null.
  */
 export function clearer() {
-  const input = document.getElementById(releaserInput);
+  const input = document.getElementById(searchInput);
   if (input === null) {
-    throw new Error(`The ${releaserInput} element is null`);
+    throw new Error(`The ${searchInput} element is null`);
   }
-  const alert = document.getElementById(releaserAlert);
+  const alert = document.getElementById(searchAlert);
   if (alert === null) {
-    throw new Error(`The htmx alert element ${releaserAlert} is null`);
+    throw new Error(`The htmx alert element ${searchAlert} is null`);
   }
-  const indicator = document.getElementById(releaserIndic);
+  const indicator = document.getElementById(searchIndic);
   if (indicator === null) {
-    throw new Error(
-      `The releaser search indicator element ${releaserIndic} is null`
-    );
+    throw new Error(`The htmx search indicator element ${searchIndic} is null`);
   }
-  const results = document.getElementById("search-releaser-results");
+  const results = document.getElementById("search-htmx-results");
   if (results === null) {
-    throw new Error(`The releaser search indicator element is null`);
+    throw new Error(`The htmx search indicator element is null`);
   }
   input.value = "";
   input.focus();

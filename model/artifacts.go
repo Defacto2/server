@@ -9,6 +9,7 @@ import (
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/google/uuid"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -228,7 +229,7 @@ func (f *Artifacts) Description(ctx context.Context, db *sql.DB, terms []string)
 	mods = append(mods, qm.Limit(Maximum))
 	fs, err := models.Files(mods...).All(ctx, db)
 	if err != nil {
-		return nil, fmt.Errorf("models all files: %w", err)
+		return nil, fmt.Errorf("models all files by description search: %w", err)
 	}
 	return fs, nil
 }
@@ -257,7 +258,33 @@ func (f *Artifacts) Filename(ctx context.Context, db *sql.DB, terms []string) (m
 	mods = append(mods, qm.OrderBy("filename ASC"), qm.Limit(Maximum))
 	fs, err := models.Files(mods...).All(ctx, db)
 	if err != nil {
-		return nil, fmt.Errorf("models all files: %w", err)
+		return nil, fmt.Errorf("models all files by filename search: %w", err)
+	}
+	return fs, nil
+}
+
+// ID returns a list of files that match the list of record ids or uuids.
+func (f *Artifacts) ID(ctx context.Context, db *sql.DB, maxResults int, ids []int, uuids ...uuid.UUID) (models.FileSlice, error) {
+	if db == nil {
+		return nil, ErrDB
+	}
+	if ids == nil && uuids == nil {
+		return models.FileSlice{}, nil
+	}
+	mods := []qm.QueryMod{}
+	for _, id := range ids {
+		if id < 1 {
+			continue
+		}
+		mods = append(mods, qm.Or("id = ?", id))
+	}
+	for _, uuid := range uuids {
+		mods = append(mods, qm.Or("uuid = ?", uuid))
+	}
+	mods = append(mods, qm.Limit(Maximum), qm.WithDeleted())
+	fs, err := models.Files(mods...).All(ctx, db)
+	if err != nil {
+		return nil, fmt.Errorf("models all files by id search: %w", err)
 	}
 	return fs, nil
 }

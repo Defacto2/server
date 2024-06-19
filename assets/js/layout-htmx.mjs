@@ -2,7 +2,7 @@
  * @module layout-htmx
  * This module provides beforeRequest and afterRequest handlers to htmx submissions.
  */
-import { releaserEvents } from "./layout-htmx-search.mjs";
+import { searchEvents } from "./layout-htmx-search.mjs";
 
 export default htmxEvents;
 
@@ -11,7 +11,7 @@ export default htmxEvents;
  */
 export function htmxEvents() {
   //htmx.logAll();
-  releaserEvents();
+  searchEvents();
 
   document.body.addEventListener("htmx:beforeRequest", function (event) {
     removeSelectsValid(event, `artifact-editor-reset-classifications`);
@@ -30,8 +30,8 @@ export function htmxEvents() {
   // This event is triggered after an AJAX request has finished.
   // https://htmx.org/events/#htmx:afterRequest
   document.body.addEventListener("htmx:afterRequest", function (event) {
-    // search releaser.
-    afterRequest(event, `search-releaser-input`, `search-releaser-alert`);
+    // searches.
+    afterRequest(event, `search-htmx-input`, `search-htmx-alert`);
     // image uploader.
     const alertImg = `uploader-image-alert`;
     afterRequest(event, `uploader-image-form`, alertImg);

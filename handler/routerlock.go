@@ -23,6 +23,7 @@ func (c Configuration) lock(e *echo.Echo, logger *zap.SugaredLogger, dir app.Dir
 	images(lock, logger, dir)
 	online(lock)
 	readme(lock, logger, dir)
+	search(lock, logger)
 	return e
 }
 
@@ -131,6 +132,20 @@ func online(g *echo.Group) {
 	online.POST("/false", func(cx echo.Context) error {
 		return htmx.RecordToggle(cx, false)
 	})
+}
+
+func search(g *echo.Group, logger *zap.SugaredLogger) {
+	if g == nil {
+		panic(ErrRoutes)
+	}
+	search := g.Group("/search")
+	search.GET("/id", app.SearchID)
+	search.POST("/id", func(cx echo.Context) error {
+		return htmx.SearchByID(cx, logger)
+	})
+	// search.POST("/reset", func(cx echo.Context) error {
+	// 	return htmx.RecordSearchReset(cx)
+	// })
 }
 
 func readme(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
