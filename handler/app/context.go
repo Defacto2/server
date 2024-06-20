@@ -157,8 +157,36 @@ func Configurations(cx echo.Context, cfg config.Config) error {
 	data["lead"] = "The web application configurations, tools and links to special records."
 	data["title"] = "Configs"
 	data["configurations"] = cfg
-	data["checkLogs"] = config.CheckDir("cfg.AbsLog", "log")
-	data["countLogs"], _ = helper.Count(cfg.AbsDownload)
+
+	// model/count.go
+
+	check := config.CheckDir(cfg.AbsDownload, "downloads")
+	data["checkDownloads"] = check
+	data["countDownloads"] = 0
+	data["extsDownloads"] = nil
+	if check == nil {
+		data["countDownloads"], _ = helper.Count(cfg.AbsDownload)
+		exts, _ := helper.CountExts(cfg.AbsDownload)
+		data["extsDownloads"] = exts
+	}
+	check = config.CheckDir(cfg.AbsPreview, "downloads")
+	data["checkPreviews"] = check
+	data["countPreviews"] = 0
+	data["extsPreviews"] = nil
+	if check == nil {
+		data["countPreviews"], _ = helper.Count(cfg.AbsPreview)
+		exts, _ := helper.CountExts(cfg.AbsPreview)
+		data["extsPreviews"] = exts
+	}
+	check = config.CheckDir(cfg.AbsThumbnail, "downloads")
+	data["checkThumbnails"] = check
+	data["countThumbnails"] = 0
+	data["extsThumbnails"] = nil
+	if check == nil {
+		data["countThumbnails"], _ = helper.Count(cfg.AbsThumbnail)
+		exts, _ := helper.CountExts(cfg.AbsThumbnail)
+		data["extsThumbnails"] = exts
+	}
 	err := cx.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(cx, name, err)

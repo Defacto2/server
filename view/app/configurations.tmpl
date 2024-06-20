@@ -3,31 +3,53 @@
 */ -}}
 {{- define "content" }}
 {{- $configs := index . "configurations"}}
+{{- $checkDownloads := index . "checkDownloads"}}
+{{- $checkPreviews := index . "checkPreviews"}}
+{{- $checkThumbnails := index . "checkThumbnails"}}
 <h1 class="lead mt-5">Web application assets</h1>
 <table class="table">
   <thead>
     <tr>
-      <th scope="col">#</th>
-      <th scope="col">First</th>
-      <th scope="col">Last</th>
-      <th scope="col">Handle</th>
+      <th scope="col">Directory path</th>
+      <th scope="col">Counts</th>
+      <th scope="col">Extensions</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th scope="row">Logs, directory path</th>
-      <td>{{index . "checkLogs"}}</td>
-      <td>{{index . "countLogs"}} logs</td>
-      <td>@mdo</td>
+      <th scope="row">Database artifacts</th>
+      <td>{{index . "countDownloads"}}</td>
+      <td>{{- range $index, $value := index . "extsDownloads"}}<code>{{$value.Name}}</code> <small>{{$value.Count}}</small> · {{end}}</td>
     </tr>
     <tr>
-      <th scope="row">Downloads, directory path</th>
-      <td>Mark</td>
-      <td>Otto</td>
-      <td>@mdo</td>
+      <th scope="row">Downloads</th>
+      <td>{{index . "countDownloads"}}</td>
+      <td>
+        {{if ne nil $checkDownloads}}<span class="text-danger-emphasis">{{$checkDownloads}}</span>{{- else}}
+        {{- range $index, $value := index . "extsDownloads"}}<code>{{$value.Name}}</code> <small>{{$value.Count}}</small> · {{end}}
+        {{- end}}
+      </td>
+    </tr>
+    <tr>
+      <th scope="row">Previews</th>
+      <td>{{index . "countPreviews"}}</td>
+      <td>
+        {{if ne nil $checkPreviews}}<span class="text-danger-emphasis">{{$checkPreviews}}</span>{{- else}}
+        {{- range $index, $value := index . "extsPreviews"}}<code>{{$value.Name}}</code> <small>{{$value.Count}}</small> · {{end}}</td>
+        {{- end}}
+      </tr>
+    <tr>
+      <th scope="row">Thumbnails</th>
+      <td>{{index . "countThumbnails"}}</td>
+      <td>
+        {{if ne nil $checkThumbnails}}<span class="text-danger-emphasis">{{$checkThumbnails}}</span>{{- else}}
+        {{- range $index, $value := index . "extsThumbnails"}}<code>{{$value.Name}}</code> <small>{{$value.Count}}</small> · {{end}}</td>
+        {{- end}}
     </tr>
   </tbody>
 </table>
+
+
 
 <h1 class="lead mt-5">Web application settings</h1>
 <table class="table">

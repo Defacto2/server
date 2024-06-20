@@ -13,6 +13,9 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"path/filepath"
+	"sort"
+	"strings"
 	"unicode/utf8"
 )
 
@@ -23,6 +26,41 @@ const (
 	// TODO: user and group chown of file?
 	DSStore = ".DS_Store" // DSStore is the macOS directory service store file.
 )
+
+type Extension struct {
+	Name  string
+	Count int64
+}
+
+func CountExts(dir string) ([]Extension, error) {
+	exts := make(map[string]int64)
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, fmt.Errorf("count extensions read directory: %w", err)
+	}
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		if file.Name() == DSStore {
+			continue
+		}
+		ext := strings.ToLower(filepath.Ext(file.Name()))
+		exts[ext]++
+	}
+	var extensions []Extension
+	for k, v := range exts {
+		if k == "" {
+			k = "uuid"
+		}
+		extensions = append(extensions, Extension{Name: k, Count: v})
+	}
+	sort.Slice(extensions, func(i, j int) bool {
+		return extensions[i].Count > extensions[j].Count
+	})
+	return extensions, nil
+
+}
 
 // Count returns the number of files in the given directory.
 func Count(dir string) (int, error) {
