@@ -72,6 +72,7 @@ func (s *Summary) ByForApproval(ctx context.Context, db *sql.DB) error {
 	boil.DebugMode = true
 	return models.NewQuery(
 		models.FileWhere.Deletedat.IsNotNull(),
+		models.FileWhere.Deletedby.IsNull(),
 		qm.WithDeleted(),
 		qm.Select(postgres.Columns()...),
 		qm.From(From)).Bind(ctx, db, s)
