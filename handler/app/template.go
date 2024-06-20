@@ -488,6 +488,7 @@ func (web Templ) TemplateFuncs() template.FuncMap {
 		"downloadB":          DownloadB,
 		"byteFile":           ByteFile,
 		"byteFileS":          ByteFileS,
+		"checkDir":           config.CheckDir,
 		"demozooGetLink":     DemozooGetLink,
 		"fmtDay":             Day,
 		"fmtMonth":           Month,

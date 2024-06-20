@@ -157,6 +157,8 @@ func Configurations(cx echo.Context, cfg config.Config) error {
 	data["lead"] = "The web application configurations, tools and links to special records."
 	data["title"] = "Configs"
 	data["configurations"] = cfg
+	data["checkLogs"] = config.CheckDir("cfg.AbsLog", "log")
+	data["countLogs"], _ = helper.Count(cfg.AbsDownload)
 	err := cx.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(cx, name, err)

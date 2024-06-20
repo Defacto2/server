@@ -3,6 +3,32 @@
 */ -}}
 {{- define "content" }}
 {{- $configs := index . "configurations"}}
+<h1 class="lead mt-5">Web application assets</h1>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">First</th>
+      <th scope="col">Last</th>
+      <th scope="col">Handle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">Logs, directory path</th>
+      <td>{{index . "checkLogs"}}</td>
+      <td>{{index . "countLogs"}} logs</td>
+      <td>@mdo</td>
+    </tr>
+    <tr>
+      <th scope="row">Downloads, directory path</th>
+      <td>Mark</td>
+      <td>Otto</td>
+      <td>@mdo</td>
+    </tr>
+  </tbody>
+</table>
+
 <h1 class="lead mt-5">Web application settings</h1>
 <table class="table">
   <caption>A complete list of configurations set using operating system environment variables.</caption>
@@ -26,25 +52,141 @@
 </table>
 
 <h1 class="lead mt-5">Links to special records</h1>
-<dl>
-  <dt>Readme textfile as <code>.PNG</code></dt>
+<caption>These are artifacts that have unusual edge cases, ❎ needs fixing.</caption>
+<dl class="row row-cols-2 g-2 p-2">
+  <div class="col">
+  <dt>❎ Readme using multi-bytes</dt>
+  <dd>
+    To display correctly, the UTF-8 file magic must be set<br>
+    <a href="/f/b12d05f">b12d05f</a> · <a href="/f/b228a8e">b228a8e</a> · <a href="/f/b53028e">b53028e</a>
+  </dd>
+  </div><div class="col">
+  <dt>Readme with unknown encodings</dt>
+  <dd>
+    These are textfiles that are probably corrupt<br>
+    <a href="/f/ac2319e">ac2319e</a> · <a href="/f/b0269ca">b0269ca</a> <small>vs</small> <a href="/f/ac1d9d3">ac1d9d3</a>
+  </dd>  
+  </div><div class="col">
+  <dt>Readme CP-437</dt>
+  <dd>
+    These are textfiles encoded in the IBM PC code page 437<br>
+    <a href="/f/ab2f2b4">ab2f2b4</a> · <a href="/f/ba2db9e">ba2db9e</a> · <a href="/f/ab43cb">ab43cb</a> · <a href="/f/b42ccd8">b42ccd8</a>
+  </dd>  
+  </div><div class="col">
+  <dt>Readme ISO-8859-1</dt>
+  <dd>
+    These are textfiles encoded in Latin-1<br>
+    <a href="/f/a5191c3">a5191c3</a> · <a href="/f/ab1fc8b">ab1fc8b</a> · <a href="/f/b61f24f">b61f24f</a>
+  </dd>
+  </div><div class="col">
+  <dt>Readme UTF-16</dt>
+  <dd>
+    These are textfiles would need transformation<br>
+    <a href="/f/b22e849">b22e849</a>
+  </dd>
+  </div><div class="col">
+  <dt>Readme Amiga ANSI</dt>
+  <dd>
+    Current, all control codes are stripped<br>
+    <a href="/f/b02ecf1">b02ecf1</a>
+  </dd>  
+  </div><div class="col">
+  <dt>Readme requires wrapping</dt>
+  <dd>
+    <a href="/f/b14bb1">b14bb1</a> · <a href="/f/b12fe37">b12fe37</a> · <a href="/f/b61f24f">b61f24f</a> · <a href="/f/b122787">b122787</a>
+  </dd>
+  </div><div class="col">
+  <dt>Readme requires trimming</dt>
+  <dd>
+    <a href="/f/b830654">b830654</a>
+  </dd>  
+  </div><div class="col">
+  <dt>Readme block art</dt>
+  <dd>
+    <a href="/f/ad217af">ad217af</a> · <a href="/f/ae2a9cc">ae2a9cc</a> · <a href="/f/ad2b193">ad2b193</a> · <a href="/f/ac1a2dc">ac1a2dc</a>
+  </dd>
+  </div><div class="col">
+  <dt>Readme archived</dt>
+  <dd>
+    Textfiles contained within an archive that need to be extracted<br>
+    <a href="/f/a92c1dc">a92c1dc</a> · 
+    <a href="/f/a734e9">a734e9</a> · 
+    <a href="/f/ac2a79">ac2a79</a> · 
+    <a href="/f/af31a9">❎ af31a9</a>
+  </dd>
+  </div><div class="col">
+  <dt>Readme extra long</dt>
+  <dd>
+    While a quick download, these files can overload the browser DOM<br>
+    <a href="/f/ae219e8">ae219e8</a> (129178 lines, 5MB)
+  </dd> 
+  </div><div class="col">
+  <dt>❎ Images <code>.PNG</code></dt>
   <dd>
     Images categorized as text should not preview in the readme app<br>
+    <small>These images should be previewed</small><br>
     <a href="/f/af20fcb">af20fcb</a> · <a href="/f/a73208">a73208</a> · <a href="/f/b34c2a">b34c2a</a>
   </dd>
-
-  <dt>Morgawr</dt>
-  <dd>A sea serpent.</dd>
-
-  <dt>Owlman</dt>
-  <dd>A giant owl-like creature.</dd>
+  </div><div class="col">
+  <dt>❎ Images <code>.IFF</code></dt>
+  <dd>
+    Images categorized as text should not preview in the readme app<br>
+    <small>These images should be previewed</small><br>
+    <a href="/f/b522116">b522116</a> · <a href="/f/b526ffe">b526ffe</a> · <a href="/f/b4307c4">b4307c4</a>
+  </dd>
+  </div><div class="col">
+  <dt>Images <code>.GIF</code></dt>
+  <dd>
+    <a href="/f/b828636">b828636</a> · <a href="/f/b42e22b">b42e22b</a> · <a href="/f/ae2a407">ae2a407</a>
+  </dd>
+  </div><div class="col">
+  <dt>Images <code>.RIP</code></dt>
+  <dd>
+    <a href="/f/b02392f">b02392f</a>
+  </dd>
+  </div><div class="col">
+  <dt>Documents <code>.PDF</code></dt>
+  <dd>
+    <a href="/f/b04139">b04139</a>
+  </dd>
+  </div><div class="col">
+  <dt>Documents <var>HTML</var></dt>
+  <dd>
+    <a href="/f/a722b1f">a722b1f</a>
+  </dd>
+  </div><div class="col">
+  <dt>Artifacts with <q>link to</q></dt>
+  <dd>
+    <a href="/f/b029330">b029330</a> · <a href="/f/ab27f81">ab27f81</a> · <a href="/f/ba4805">ba4805</a> · <a href="/f/b029330">b029330</a>
+  </dd>
+  </div><div class="col">
+  <dt>js-dos supported <code>.EXE</code></dt>
+  <dd>
+    <a href="/f/b23b9c">b23b9c</a> · <a href="/f/ad18cf0">ad18cf0</a> · <a href="/f/b030891">b030891</a> · <a href="/f/b33057"><code>COM</code></a>
+  </dd>
+  </div><div class="col">
+  <dt>❎ js-dos unsupported <code>.ZIP</code></dt>
+  <dd>
+    The JS emulator only supports zip archives using the <var>DEFLATE</var> method<br>
+    <small>To fix, these archives need to be recompressed and stored as extras</small><br>
+    <a href="/f/a22af8">a22af8</a> · <a href="/f/b72d52b">b72d52b</a> · <a href="/f/b52e058">b52e058</a> · <a href="/f/b3286a2">b3286a2</a>
+  </dd>
+  </div><div class="col">
+  <dt>❎ js-dos unsupported</dt>
+  <dd>
+    Other archives unsupported<br>
+    <a href="/f/a724be8"><code>lha</code></a> · 
+    <a href="/f/a418d56"><code>arc</code></a> · 
+    <a href="/f/ad18c43"><code>arj</code></a> · 
+    <a href="/f/ae1c87b"><code>arj</code></a> · 
+    <a href="/f/b41eefb"><code>arj</code></a>
+  </dd>
+  </div><div class="col">
+  <dt>Download large</dt>
+  <dd>
+    Cloudflare limits the download size to 1GB<br>
+    <a href="/f/aa256f1">aa256f1</a>
+  </dd>
+  </div>
 </dl>
-
-<div class="card card border-success mx-1 my-5">
-    <div class="card-body">
-        The Defacto2 server configuration:
-
-        Configuration                         Environment variable  Value      
-    </div>
-</div>
 {{- end}}
