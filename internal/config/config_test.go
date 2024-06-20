@@ -253,10 +253,10 @@ func TestConfig_String(t *testing.T) {
 func TestConfig_Addresses(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
-	_, err := c.AddressesCLI()
+	_, err := c.Addresses()
 	require.Error(t, err)
 	c.HTTPPort = 8080
-	s, err := c.AddressesCLI()
+	s, err := c.Addresses()
 	require.NoError(t, err)
 	assert.Contains(t, s, "http://localhost:8080")
 }

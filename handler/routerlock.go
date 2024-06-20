@@ -16,6 +16,9 @@ func (c Configuration) lock(e *echo.Echo, logger *zap.SugaredLogger, dir app.Dir
 	}
 	lock := e.Group("/editor")
 	lock.Use(c.ReadOnlyLock, c.SessionLock)
+	lock.GET("/configs", func(cx echo.Context) error {
+		return app.Configurations(cx, c.Environment)
+	})
 	creator(lock)
 	date(lock)
 	editor(lock, logger, dir)

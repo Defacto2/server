@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"net/url"
 	"reflect"
+	"slices"
 	"sort"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 
@@ -22,7 +24,31 @@ const (
 	hide         = "XXXXXXXX"
 )
 
+const (
+	minwidth = 2
+	tabwidth = 4
+	padding  = 2
+	padchar  = ' '
+	flags    = 0
+	h1       = "Configuration"
+	h2       = "Value"
+	h3       = "Environment variable"
+	line     = "─"
+	down     = "AbsDownload"
+	logger   = "AbsLog"
+	prev     = "AbsPreview"
+	thumb    = "AbsThumbnail"
+)
+
 var ErrNoPort = errors.New("the server cannot start without a http or a tls port")
+
+// Configuration is a struct that holds the configuration options.
+type Configuration struct {
+	Title       string // Title is the name of the configuration option.
+	Variable    string // Variable is the environment variable name.
+	Value       string // Value of the configuration option that is safe to print.
+	Description string // Description is the help text for the configuration option.
+}
 
 // Config options for the Defacto2 server using the [caarlos0/env] package.
 //
@@ -54,55 +80,275 @@ type Config struct {
 	GoogleAccounts [][48]byte
 }
 
-const (
-	minwidth = 2
-	tabwidth = 4
-	padding  = 2
-	padchar  = ' '
-	flags    = 0
-	h1       = "Configuration"
-	h2       = "Value"
-	h3       = "Environment variable"
-	line     = "─"
-	down     = "AbsDownload"
-	logger   = "AbsLog"
-	prev     = "AbsPreview"
-	thumb    = "AbsThumbnail"
-)
+// List returns a list of the configuration options.
+func (c Config) List() []Configuration {
+	skip := []string{"GoogleAccounts"}
+	t := reflect.TypeOf(c)
+	configs := make([]Configuration, t.NumField())
+	for i := 0; i < t.NumField(); i++ {
+		name := t.Field(i).Name
+		switch {
+		case slices.Contains(skip, name):
+			continue
+		case name == "TLSCert", name == "TLSKey":
+			configs[i].Value = valueCert(reflect.ValueOf(c).Field(i), c.TLSPort)
+		case name == "GoogleIDs":
+			configs[i].Value = valueGoogles(c.GoogleAccounts)
+		default:
+			configs[i].Value = reflectValue(t.Field(i), reflect.ValueOf(c).Field(i))
+		}
+		configs[i].Title = Format(name)
+		configs[i].Variable = t.Field(i).Tag.Get("env")
+		configs[i].Description = t.Field(i).Tag.Get("help")
+		if configs[i].Value == hide {
+			configs[i].Value = "In use, but hidden for security"
+		}
+	}
+	return configs
+}
+
+func reflectValue(f reflect.StructField, v reflect.Value) string {
+	// special values that require formatting or hiding
+	switch f.Name {
+	case "GoogleClientID":
+		return valueGoogleIDs(v)
+	case "MatchHost":
+		return valueMatchHost(v)
+	case "SessionKey":
+		return valueSessionKey(v)
+	case "SessionMaxAge":
+		return valueHours(v)
+	case "DatabaseURL":
+		return valueDatabase(v.String())
+	case "HTTPPort":
+		return valueHTTP(v)
+	case "MaxProcs":
+		return valueProcs(v)
+	case "TLSPort":
+		return valueTLS(v)
+	}
+	// empty cases
+	if v.String() == "" {
+		switch f.Name {
+		case down:
+			return "Empty, no downloads will be served"
+		case prev:
+			return "Empty, no preview images will be shown"
+		case thumb:
+			return "Empty, no thumbnails will be shown"
+		case logger:
+			return "Empty, logs print to the terminal (stdout)"
+		}
+	}
+	// generic values
+	switch f.Type.Kind() {
+	case reflect.Bool:
+		return valueBool(v)
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return strconv.FormatUint(v.Uint(), 10)
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return strconv.FormatInt(v.Int(), 10)
+	case reflect.String:
+		return v.String()
+	default:
+		return fmt.Sprintf("%v", v.Interface())
+	}
+}
+
+// Envs returns a list of the environment variable names in the Config struct.
+func (c Config) Envs() []string {
+	t := reflect.TypeOf(c)
+	envNames := make([]string, t.NumField())
+	for i := 0; i < t.NumField(); i++ {
+		envNames[i] = t.Field(i).Tag.Get("env")
+	}
+	return envNames
+}
+
+// Helps returns a list of the help text in the Config struct.
+func (c Config) Helps() []string {
+	t := reflect.TypeOf(c)
+	helpVals := make([]string, t.NumField())
+	for i := 0; i < t.NumField(); i++ {
+		helpVals[i] = t.Field(i).Tag.Get("help")
+	}
+	return helpVals
+}
+
+// Names returns a list of the field names in the Config struct.
+func (c Config) Names() []string {
+	t := reflect.TypeOf(c)
+	fieldNames := make([]string, t.NumField())
+	for i := 0; i < t.NumField(); i++ {
+		fieldNames[i] = t.Field(i).Name
+	}
+	return fieldNames
+}
+
+// Values returns a list of the values in the Config struct.
+// These are not safe to print meaning that they may contain sensitive information.
+func (c Config) Values() []string {
+	var values []string
+	fields := reflect.VisibleFields(reflect.TypeOf(c))
+	sort.Slice(fields, func(i, j int) bool {
+		return fields[i].Name < fields[j].Name
+	})
+	for _, field := range fields {
+		if !field.IsExported() {
+			continue
+		}
+		val := reflect.ValueOf(c).FieldByName(field.Name)
+		values = append(values, val.String())
+	}
+	return values
+}
 
 // String returns a string representation of the Config struct.
 // The output is formatted as a table with the following columns:
 // Environment variable and Value.
 func (c Config) String() string {
 	b := new(strings.Builder)
-	c.configurations(b)
+	c.fprint(b)
 	return b.String()
 }
 
-// AddressesCLI returns a list of urls that the server is accessible from.
-func (c Config) AddressesCLI() (string, error) {
+// fprint prints a list of active configurations options.
+func (c Config) fprint(b *strings.Builder) *strings.Builder {
+	fields := reflect.VisibleFields(reflect.TypeOf(c))
+	sort.Slice(fields, func(i, j int) bool {
+		return fields[i].Name < fields[j].Name
+	})
+	values := reflect.ValueOf(c)
+
+	w := tabwriter.NewWriter(b, minwidth, tabwidth, padding, padchar, flags)
+	fmt.Fprint(b, "The Defacto2 server configuration:\n\n")
+	fmt.Fprintf(w, "\t%s\t%s\t%s\n",
+		h1, h3, h2)
+	fmt.Fprintf(w, "\t%s\t%s\t%s\n",
+		strings.Repeat(line, len(h1)),
+		strings.Repeat(line, len(h3)),
+		strings.Repeat(line, len(h2)))
+
+	for _, field := range fields {
+		if !field.IsExported() {
+			continue
+		}
+		switch field.Name {
+		case "GoogleAccounts":
+			continue
+		default:
+		}
+		val := values.FieldByName(field.Name)
+		id := field.Name
+		name := field.Tag.Get("env")
+		if before, found := strings.CutSuffix(name, ",unset"); found {
+			name = before
+		}
+		c.fprintField(w, id, name, val)
+	}
+	w.Flush()
+	return b
+}
+
+// fprintField prints the id, name, value and help text to the tabwriter.
+func (c Config) fprintField(w *tabwriter.Writer,
+	id, name string,
+	val reflect.Value,
+) {
+	fmt.Fprintf(w, "\t\t\t\t\n")
+	switch id {
+	case "HTTPPort":
+		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueHTTP(val))
+	case "TLSPort":
+		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueTLS(val))
+	case "TLSCert", "TLSKey":
+		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueCert(val, c.TLSPort))
+	case down, prev, thumb, logger:
+		fprintDirs(w, id, name, val.String())
+	case "MaxProcs":
+		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueProcs(val))
+	case "GoogleIDs":
+		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueGoogles(c.GoogleAccounts))
+	default:
+		fprintField2(w, id, name, val)
+	}
+}
+
+// fprintDirs prints the directory path to the tabwriter or a warning if the path is empty.
+func fprintDirs(w *tabwriter.Writer, id, name, val string) {
+	fmt.Fprintf(w, "\t%s\t%s", Format(id), name)
+	if val != "" {
+		// todo: stat the directory
+		fmt.Fprintf(w, "\t%s\n", val)
+		return
+	}
+	switch id {
+	case down:
+		fmt.Fprintf(w, "\tEmpty, no downloads will be served\n")
+	case prev:
+		fmt.Fprintf(w, "\tEmpty, no preview images will be shown\n")
+	case thumb:
+		fmt.Fprintf(w, "\tEmpty, no thumbnails will be shown\n")
+	case logger:
+		fmt.Fprintf(w, "\tEmpty, logs print to the terminal (stdout)\n")
+	default:
+		fmt.Fprintln(w)
+	}
+}
+
+// fprintField2 prints the id, name, value and help text to the tabwriter.
+func fprintField2(w *tabwriter.Writer, id, name string, val reflect.Value) {
+	if val.Kind() == reflect.Bool {
+		fmt.Fprintf(w, "\t%s\t%s\t%v\n", Format(id), name, valueBool(val))
+		return
+	}
+	fmt.Fprintf(w, "\t%s\t%s\t", Format(id), name)
+	switch id {
+	case "GoogleClientID":
+		fmt.Fprintln(w, valueGoogleIDs(val))
+	case "MatchHost":
+		fmt.Fprintln(w, valueMatchHost(val))
+	case "SessionKey":
+		fmt.Fprintln(w, valueSessionKey(val))
+	case "SessionMaxAge":
+		fmt.Fprintln(w, valueHours(val))
+	case "DatabaseURL":
+		fmt.Fprintln(w, valueDatabase(val.String()))
+	default:
+		if val.String() == "" {
+			fmt.Fprintln(w, "Empty")
+			return
+		}
+		if val.IsValid() {
+			fmt.Fprintf(w, "%v\n", val)
+		}
+	}
+}
+
+// Addresses returns a list of urls that the server is accessible from.
+func (c Config) Addresses() (string, error) {
 	b := new(strings.Builder)
 	if err := c.addresses(b, true); err != nil {
-		return "", fmt.Errorf("c.addresses: %w", err)
+		return "", fmt.Errorf("list of server addresses: %w", err)
 	}
 	return b.String(), nil
 }
 
-// Addresses returns a list of urls that the server is accessible from,
-// without any CLI helper text.
-func (c Config) Addresses() (string, error) {
-	b := new(strings.Builder)
-	if err := c.addresses(b, false); err != nil {
-		return "", fmt.Errorf("c.addresses: %w", err)
-	}
-	return b.String(), nil
+func addressesHelper(b *strings.Builder) {
+	fmt.Fprintf(b, "%s\n",
+		"Depending on your firewall, network and certificate setup,")
+	fmt.Fprintf(b, "%s\n",
+		"this web server could be accessible from the following addresses:")
+	fmt.Fprintf(b, "\n")
 }
 
 // addresses prints a list of urls that the server is accessible from.
-func (c Config) addresses(b *strings.Builder, intro bool) error {
+func (c Config) addresses(b *strings.Builder, help bool) error {
 	pad := strings.Repeat(string(padchar), padding)
 	values := reflect.ValueOf(c)
-	addrIntro(b, intro)
+	if help {
+		addressesHelper(b)
+	}
 	hosts, err := helper.LocalHosts()
 	if err != nil {
 		return fmt.Errorf("the server cannot get the local host names: %w", err)
@@ -140,17 +386,6 @@ func (c Config) addresses(b *strings.Builder, intro bool) error {
 	return nil
 }
 
-func addrIntro(b *strings.Builder, intro bool) {
-	if !intro {
-		return
-	}
-	fmt.Fprintf(b, "%s\n",
-		"Depending on your firewall, network and certificate setup,")
-	fmt.Fprintf(b, "%s\n",
-		"this web server could be accessible from the following addresses:")
-	fmt.Fprintf(b, "\n")
-}
-
 func localIPs(b *strings.Builder, port uint64, pad string) error {
 	ips, err := helper.LocalIPs()
 	if err != nil {
@@ -165,29 +400,8 @@ func localIPs(b *strings.Builder, port uint64, pad string) error {
 	return nil
 }
 
-// dir prints the directory path to the tabwriter or a warning if the path is empty.
-func dir(w *tabwriter.Writer, id, name, val string) {
-	fmt.Fprintf(w, "\t%s\t%s", fmtID(id), name)
-	if val != "" {
-		// todo: stat the directory
-		fmt.Fprintf(w, "\t%s\n", val)
-		return
-	}
-	switch id {
-	case down:
-		fmt.Fprintf(w, "\tEmpty, no downloads will be served\n")
-	case prev:
-		fmt.Fprintf(w, "\tEmpty, no preview images will be shown\n")
-	case thumb:
-		fmt.Fprintf(w, "\tEmpty, no thumbnails will be shown\n")
-	case logger:
-		fmt.Fprintf(w, "\tEmpty, logs print to the terminal (stdout)\n")
-	default:
-		fmt.Fprintln(w)
-	}
-}
-
-func fmtID(id string) string {
+// Format returns a human readable description of the named configuration identifier.
+func Format(name string) string {
 	m := map[string]string{
 		down:             "Downloads, directory path",
 		prev:             "Previews, directory path",
@@ -210,114 +424,97 @@ func fmtID(id string) string {
 		"TLSHost":        "TLS hostname",
 		"TLSKey":         "TLS key, file path",
 	}
-	if desc, found := m[id]; found {
+	if desc, found := m[name]; found {
 		return desc
 	}
-	return helper.SplitAsSpaces(id)
+	return helper.SplitAsSpaces(name)
 }
 
-// value prints the id, name, value and help text to the tabwriter.
-func value(w *tabwriter.Writer, id, name string, val reflect.Value) {
-	if val.Kind() == reflect.Bool {
-		status := "Off"
-		if val.Bool() {
-			status = "On"
-		}
-		fmt.Fprintf(w, "\t%s\t%s\t%v\n", fmtID(id), name, status)
-		return
+func valueBool(val reflect.Value) string {
+	if val.Bool() {
+		return "On"
 	}
-	fmt.Fprintf(w, "\t%s\t%s\t", fmtID(id), name)
-	switch id {
-	case "GoogleClientID":
-		if val.String() == "" {
-			fmt.Fprintln(w, "Empty, no account sign-in for web administration")
-			return
-		}
-		fmt.Fprintln(w, hide)
-	case "MatchHost":
-		if val.String() == "" {
-			fmt.Fprintln(w, "Empty, no address restrictions")
-			return
-		}
-		fmt.Fprintln(w, val.String())
-	case "SessionKey":
-		if val.String() == "" {
-			fmt.Fprintln(w, "Empty, a random key will be generated during the server start")
-			return
-		}
-		fmt.Fprintln(w, hide)
-	case "SessionMaxAge":
-		fmt.Fprintf(w, "%v hours\n", val.Int())
-	case "DatabaseURL":
-		fmt.Fprintln(w, hidePassword(val.String()))
-	default:
-		if val.String() == "" {
-			fmt.Fprintln(w, "Empty")
-			return
-		}
-		if val.IsValid() {
-			fmt.Fprintf(w, "%v\n", val)
-		}
-	}
+	return "Off"
 }
 
-// httpPort prints the HTTP port number to the tabwriter.
-func httpPort(w *tabwriter.Writer, id, name string, val reflect.Value) {
-	fmt.Fprintf(w, "\t%s\t%s\t", fmtID(id), name)
+func valueGoogleIDs(val reflect.Value) string {
+	if val.String() == "" {
+		return "Empty, no accounts for web administration"
+	}
+	return hide
+}
+
+func valueMatchHost(val reflect.Value) string {
+	if val.String() == "" {
+		return "Empty, no address restrictions"
+	}
+	return val.String()
+}
+
+func valueSessionKey(val reflect.Value) string {
+	if val.String() == "" {
+		return "Empty, a random key will be generated during the server start"
+	}
+	return hide
+}
+
+func valueHours(val reflect.Value) string {
+	i := val.Int()
+	if i == 1 {
+		return "1 hour"
+	}
+	return fmt.Sprintf("%v hours", i)
+}
+
+// valueHTTP prints the HTTP port number to the tabwriter.
+func valueHTTP(val reflect.Value) string {
 	if val.Kind() == reflect.Uint && val.Uint() == 0 {
-		fmt.Fprintf(w, "%s\n", "0, the web server will not use HTTP")
-		return
+		return "Unused, the web server will not use HTTP"
 	}
 	port := val.Uint()
 	const common = 80
 	if port == common {
-		fmt.Fprintf(w, "%d, the web server will use HTTP, example: http://localhost\n", port)
-		return
+		return fmt.Sprintf("%d, the web server will use HTTP, example: http://localhost", port)
+
 	}
-	fmt.Fprintf(w, "%d, the web server will use HTTP, example: http://localhost:%d\n", port, port)
+	return fmt.Sprintf("%d, the web server will use HTTP, example: http://localhost:%d", port, port)
 }
 
-// tlsPort prints the HTTPS port number to the tabwriter.
-func tlsPort(w *tabwriter.Writer, id, name string, val reflect.Value) {
-	fmt.Fprintf(w, "\t%s\t%s\t", fmtID(id), name)
+// valueTLS prints the HTTPS port number to the tabwriter.
+func valueTLS(val reflect.Value) string {
 	if val.Kind() == reflect.Uint && val.Uint() == 0 {
-		fmt.Fprintf(w, "%s\n", "0, the web server will not use HTTPS")
-		return
+		return "Unused, the web server will not use HTTPS"
 	}
 	port := val.Uint()
 	const common = 443
 	if port == common {
-		fmt.Fprintf(w, "%d, the web server will use HTTPS, example: https://localhost\n", port)
-		return
+		return fmt.Sprintf("%d, the web server will use HTTPS, example: https://localhost", port)
+
 	}
-	fmt.Fprintf(w, "%d, the web server will use HTTPS, example: https://localhost:%d\n", port, port)
+	return fmt.Sprintf("%d, the web server will use HTTPS, example: https://localhost:%d", port, port)
 }
 
-// tlsCert prints the TLS certificate and key locations to the tabwriter.
-func tlsCert(w *tabwriter.Writer, id, name string, val reflect.Value, tlsport uint) {
-	fmt.Fprintf(w, "\t%s\t%s\t", fmtID(id), name)
+// valueCert prints the TLS certificate and key locations to the tabwriter.
+func valueCert(val reflect.Value, tlsport uint) string {
 	if tlsport == 0 {
-		fmt.Fprintln(w, "Not in use")
-		return
+		return "Not in use"
 	}
 	if val.String() == "" {
-		fmt.Fprintln(w, "Empty, will use a placeholder configuration")
+		return "Empty, will use a placeholder configuration"
 	}
-	value(w, id, name, val)
+	return val.String()
 }
 
-// maxProcs prints the number of CPU cores to the tabwriter.
-func maxProcs(w *tabwriter.Writer, id, name string, val reflect.Value) {
-	fmt.Fprintf(w, "\t%s\t%s\t", fmtID(id), name)
+// valueProcs prints the number of CPU cores to the tabwriter.
+func valueProcs(val reflect.Value) string {
 	if val.Kind() == reflect.Uint && val.Uint() == 0 {
-		fmt.Fprintf(w, "%s\n", "0, the application will use all available CPU threads")
-		return
+		return "Unused, the application will use all available CPU threads"
 	}
-	fmt.Fprintf(w, "%d, the application will limit access to CPU threads\n", val.Uint())
+	return fmt.Sprintf("%d, the application will limit access to CPU threads\n", val.Uint())
 }
 
-// hidePassword replaces the password in the URL with XXXXXs.
-func hidePassword(rawURL string) string {
+// valueDatabase replaces the password in the database connection URL with XXXXXs.
+func valueDatabase(rawURL string) string {
 	u, err := url.Parse(rawURL)
 	if err != nil {
 		return rawURL
@@ -330,74 +527,15 @@ func hidePassword(rawURL string) string {
 	return u.String()
 }
 
-// configurations prints a list of active configurations options.
-func (c Config) configurations(b *strings.Builder) *strings.Builder {
-	fields := reflect.VisibleFields(reflect.TypeOf(c))
-	sort.Slice(fields, func(i, j int) bool {
-		return fields[i].Name < fields[j].Name
-	})
-	values := reflect.ValueOf(c)
-
-	w := tabwriter.NewWriter(b, minwidth, tabwidth, padding, padchar, flags)
-	fmt.Fprint(b, "The Defacto2 server configuration:\n\n")
-	fmt.Fprintf(w, "\t%s\t%s\t%s\n",
-		h1, h3, h2)
-	fmt.Fprintf(w, "\t%s\t%s\t%s\n",
-		strings.Repeat(line, len(h1)),
-		strings.Repeat(line, len(h3)),
-		strings.Repeat(line, len(h2)))
-
-	for _, field := range fields {
-		if !field.IsExported() {
-			continue
-		}
-		switch field.Name {
-		case "GoogleAccounts":
-			continue
-		default:
-		}
-		val := values.FieldByName(field.Name)
-		id := field.Name
-		name := field.Tag.Get("env")
-		if before, found := strings.CutSuffix(name, ",unset"); found {
-			name = before
-		}
-		c.fmtField(w, id, name, val)
-	}
-	w.Flush()
-	return b
-}
-
-// fmtField prints the id, name, value and help text to the tabwriter.
-func (c Config) fmtField(w *tabwriter.Writer,
-	id, name string,
-	val reflect.Value,
-) {
-	fmt.Fprintf(w, "\t\t\t\t\n")
-	switch id {
-	case "HTTPPort":
-		httpPort(w, id, name, val)
-	case "TLSPort":
-		tlsPort(w, id, name, val)
-	case "TLSCert", "TLSKey":
-		tlsCert(w, id, name, val, c.TLSPort)
-	case down, prev, thumb, logger:
-		dir(w, id, name, val.String())
-	case "MaxProcs":
-		maxProcs(w, id, name, val)
-	case "GoogleIDs":
-		l := len(c.GoogleAccounts)
-		fmt.Fprintf(w, "\t%s\t%s\t", fmtID(id), name)
-		switch l {
-		case 0:
-			fmt.Fprint(w, "Empty, no accounts for web administration\n")
-		case 1:
-			fmt.Fprint(w, "1 Google account allowed to sign-in\n")
-		default:
-			fmt.Fprintf(w, "%d Google accounts allowed to sign-in\n", l)
-		}
+func valueGoogles(ids [][48]byte) string {
+	l := len(ids)
+	switch l {
+	case 0:
+		return "Empty, no accounts for web administration"
+	case 1:
+		return "1 Google account allowed to sign-in"
 	default:
-		value(w, id, name, val)
+		return fmt.Sprintf("%d Google accounts allowed to sign-in", l)
 	}
 }
 

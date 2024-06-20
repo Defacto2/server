@@ -663,6 +663,7 @@ func templates() map[string]filename {
 		"bbs":           releaser,
 		"bbs-year":      "releaseryear.tmpl",
 		"categories":    "categories.tmpl",
+		"configs":       "configurations.tmpl",
 		"coder":         scener,
 		"ftp":           releaser,
 		"history":       "history.tmpl",

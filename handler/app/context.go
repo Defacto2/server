@@ -22,6 +22,7 @@ import (
 	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/cache"
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
@@ -145,6 +146,22 @@ func Coder(c echo.Context) error {
 	data["h1"] = title
 	data["description"] = demo
 	return scener(c, postgres.Writer, data)
+}
+
+// Configurations is the handler for the Configuration page.
+func Configurations(cx echo.Context, cfg config.Config) error {
+	const name = "configs"
+	data := empty(cx)
+	data["description"] = "Defacto2 configurations."
+	data["h1"] = "Configurations"
+	data["lead"] = "The web application configurations, tools and links to special records."
+	data["title"] = "Configs"
+	data["configurations"] = cfg
+	err := cx.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(cx, name, err)
+	}
+	return nil
 }
 
 // Download is the handler for the Download file record page.
@@ -1365,7 +1382,7 @@ func SearchID(c echo.Context) error {
 	data["description"] = "Search form to discover artifacts by ID."
 	data["logo"] = title
 	data["title"] = title
-	data["info"] = "search for artifacts by its record id, uuid or URL key"
+	data["info"] = "search for artifacts by their record id, uuid or URL key"
 	data["hxPost"] = "/editor/search/id"
 	data["inputPlaceholder"] = "Type to search for an artifact…"
 	err := c.Render(http.StatusOK, name, data)

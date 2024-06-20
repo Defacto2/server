@@ -11,8 +11,7 @@
 ### Files and assets
 
 - [ ] Create a htmx, live _classifications page_ for editors, using the advanced uploader `<select>` fields.
-- [ ] ~~Data editor button should reload the page when data Editor module is active~~. Could not implement.
-- [X] Fix PNG binary being displayed in the text viewer. http://localhost:1323/f/af20fcb,http://localhost:1323/f/a73208,http://localhost:1323/f/b34c2a,
+- [X] Fix PNG binary being displayed in the text viewer. http://localhost:1323,http://localhost:1323,http://localhost:1323,
 - [-] Fix broken Unicode multibyte text being displayed in the text viewer. http://localhost:1323/f/b12d05f,http://localhost:1323/f/b228a8e,
 - [ ] Create a new assets path named `extras` and move into it all the uuid files from `downloads` that use file extensions.
 
@@ -20,11 +19,12 @@
 
 - [X] Create a menu link to DigitalOcean referal page, [or/and] add a link to the thanks page.
 - [X] Create a locked menu option to search the database by file ID or UUID or ~~URL~~.
+- [ ] Create a page to display environment variables and configuration settings.
 - [ ] Create a locked page with links for various file items that use unique website features,
       for example, DOS emulation for different archives file types and raw executables.
       And also different text file types for the text viewer.
 - [ ] Permenantly delete record should have its own modal dialog, requiring a confirmation and a reason using htmx result. Afterwards, a success message should be displayed and a notice that the active browser tab will now return a 404. Notes on reasons, only if an upload is unwanted, otherwise mention how deletion is permanent and breaks SEO and third-party links.
-- [X] Use DigitalOcean API to display Estimated Droplet Transfer Pool usage and remaining balance.
+- [ ] Use DigitalOcean API to display Estimated Droplet Transfer Pool usage and remaining balance.
 
 ### Database
 

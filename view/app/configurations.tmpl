@@ -1,0 +1,50 @@
+{{- /* 
+    configurations.tmpl ~ Configurations page template.
+*/ -}}
+{{- define "content" }}
+{{- $configs := index . "configurations"}}
+<h1 class="lead mt-5">Web application settings</h1>
+<table class="table">
+  <caption>A complete list of configurations set using operating system environment variables.</caption>
+  <thead>
+    <tr>
+      <th scope="col">Configuration</th>
+      <th scope="col">Value</th>
+      <th scope="col">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{- range $config := $configs.List}}
+    {{- if ne $config.Title ""}}
+    <tr>
+      <th scope="row">{{.Title}}<br><var><small>{{.Variable}}</small></var></th>
+      <td>{{.Value}}</td>
+      <td>{{.Description}}</td>
+    </tr>
+    {{- end}}{{end}}
+  </tbody>
+</table>
+
+<h1 class="lead mt-5">Links to special records</h1>
+<dl>
+  <dt>Readme textfile as <code>.PNG</code></dt>
+  <dd>
+    Images categorized as text should not preview in the readme app<br>
+    <a href="/f/af20fcb">af20fcb</a> · <a href="/f/a73208">a73208</a> · <a href="/f/b34c2a">b34c2a</a>
+  </dd>
+
+  <dt>Morgawr</dt>
+  <dd>A sea serpent.</dd>
+
+  <dt>Owlman</dt>
+  <dd>A giant owl-like creature.</dd>
+</dl>
+
+<div class="card card border-success mx-1 my-5">
+    <div class="card-body">
+        The Defacto2 server configuration:
+
+        Configuration                         Environment variable  Value      
+    </div>
+</div>
+{{- end}}
