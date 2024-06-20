@@ -149,45 +149,60 @@ func Coder(c echo.Context) error {
 }
 
 // Configurations is the handler for the Configuration page.
-func Configurations(cx echo.Context, cfg config.Config) error {
+func Configurations(cx echo.Context, conf config.Config) error {
 	const name = "configs"
 	data := empty(cx)
 	data["description"] = "Defacto2 configurations."
 	data["h1"] = "Configurations"
 	data["lead"] = "The web application configurations, tools and links to special records."
 	data["title"] = "Configs"
-	data["configurations"] = cfg
+	data["configurations"] = conf
 
-	// model/count.go
+	data["countArtifacts"] = 0
+	data["countPublic"] = 0
+	data["countNewUpload"] = 0
+	data["countHidden"] = 0
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err == nil {
+		ca, cp, cnu, err := model.Counts(ctx, db)
+		if err == nil {
+			data["countArtifacts"] = ca
+			data["countPublic"] = cp
+			data["countNewUpload"] = cnu
+			data["countHidden"] = ca - cp - cnu
+		}
+	}
+	defer db.Close()
 
-	check := config.CheckDir(cfg.AbsDownload, "downloads")
+	check := config.CheckDir(conf.AbsDownload, "downloads")
 	data["checkDownloads"] = check
 	data["countDownloads"] = 0
 	data["extsDownloads"] = nil
 	if check == nil {
-		data["countDownloads"], _ = helper.Count(cfg.AbsDownload)
-		exts, _ := helper.CountExts(cfg.AbsDownload)
+		data["countDownloads"], _ = helper.Count(conf.AbsDownload)
+		exts, _ := helper.CountExts(conf.AbsDownload)
 		data["extsDownloads"] = exts
 	}
-	check = config.CheckDir(cfg.AbsPreview, "downloads")
+	check = config.CheckDir(conf.AbsPreview, "downloads")
 	data["checkPreviews"] = check
 	data["countPreviews"] = 0
 	data["extsPreviews"] = nil
 	if check == nil {
-		data["countPreviews"], _ = helper.Count(cfg.AbsPreview)
-		exts, _ := helper.CountExts(cfg.AbsPreview)
+		data["countPreviews"], _ = helper.Count(conf.AbsPreview)
+		exts, _ := helper.CountExts(conf.AbsPreview)
 		data["extsPreviews"] = exts
 	}
-	check = config.CheckDir(cfg.AbsThumbnail, "downloads")
+	check = config.CheckDir(conf.AbsThumbnail, "downloads")
 	data["checkThumbnails"] = check
 	data["countThumbnails"] = 0
 	data["extsThumbnails"] = nil
 	if check == nil {
-		data["countThumbnails"], _ = helper.Count(cfg.AbsThumbnail)
-		exts, _ := helper.CountExts(cfg.AbsThumbnail)
+		data["countThumbnails"], _ = helper.Count(conf.AbsThumbnail)
+		exts, _ := helper.CountExts(conf.AbsThumbnail)
 		data["extsThumbnails"] = exts
 	}
-	err := cx.Render(http.StatusOK, name, data)
+	err = cx.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(cx, name, err)
 	}

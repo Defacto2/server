@@ -15,6 +15,26 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
+// Counts returns the total numbers of artifact records.
+// The first result is the total number of public,
+// the second is the number of non-public records.
+// The final number is the number of new uploads waiting for approval.
+func Counts(ctx context.Context, db *sql.DB) (int64, int64, int64, error) {
+	all, err := models.Files(qm.WithDeleted()).Count(ctx, db)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	public, err := models.Files(qm.Where(ClauseNoSoftDel)).Count(ctx, db)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	uploads, err := models.Files(
+		models.FileWhere.Deletedat.IsNotNull(),
+		models.FileWhere.Deletedby.IsNull(),
+		qm.WithDeleted()).Count(ctx, db)
+	return all, public, uploads, err
+}
+
 // CategoryCount counts the files that match the named category.
 func CategoryCount(ctx context.Context, db *sql.DB, name string) (int64, error) {
 	if db == nil {

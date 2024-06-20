@@ -10,16 +10,19 @@
 <table class="table">
   <thead>
     <tr>
-      <th scope="col">Directory path</th>
+      <th scope="col">Asset</th>
       <th scope="col">Counts</th>
       <th scope="col">Extensions</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th scope="row">Database artifacts</th>
-      <td>{{index . "countDownloads"}}</td>
-      <td>{{- range $index, $value := index . "extsDownloads"}}<code>{{$value.Name}}</code> <small>{{$value.Count}}</small> · {{end}}</td>
+      <th scope="row">Artifacts</th>
+      <td>{{index . "countArtifacts"}}</td>
+      <td>
+        <strong>public</strong> {{index . "countPublic"}} &nbsp;·&nbsp; 
+        <strong>new uploads</strong> {{index . "countNewUpload"}}</var> &nbsp;·&nbsp; 
+        <strong>hidden</strong> {{index . "countHidden"}}</td>
     </tr>
     <tr>
       <th scope="row">Downloads</th>
