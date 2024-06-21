@@ -67,6 +67,9 @@ func htmxGroup(e *echo.Echo, logger *zap.SugaredLogger, prod bool, downloadDir s
 	g.POST("/uploader/trainer", func(c echo.Context) error {
 		return htmx.TrainerSubmit(c, logger, prod, downloadDir)
 	})
+	g.POST("/xxx", func(c echo.Context) error {
+		return c.String(200, "Artifact permenantly deleted, reloading this page will return a 404 error.")
+	})
 	return e
 }
 

@@ -1,32 +1,23 @@
 # TODOs and tasks
 
-  * (star) __*__ prefix indicates a *low priority* task.
   * (question) __?__ prefix indicates an *idea* or *doubtful*.
 
 ### Terminal commands and flags
 
-- [ ] *? Command to clean up the database and remove all orphaned records.
-- [ ] *? Command to reindex the database, both to erase and rebuild the indexes.
+- [ ] ? Command to clean up the database and remove all orphaned records.
+- [ ] ? Command to reindex the database, both to erase and rebuild the indexes.
+- [ ] ? Implememnt a [scheduling library for Go](https://github.com/reugn/go-quartz)
 
 ### Files and assets
 
-- [ ] Create a htmx, live _classifications page_ for editors, using the advanced uploader `<select>` fields.
 - [ ] Create a new assets path named `extras` and move into it all the uuid files from `downloads` that use file extensions.
-
-### Menus and layout
-
-- [ ] Permenantly delete record should have its own modal dialog, requiring a confirmation and a reason using htmx result. Afterwards, a success message should be displayed and a notice that the active browser tab will now return a 404. Notes on reasons, only if an upload is unwanted, otherwise mention how deletion is permanent and breaks SEO and third-party links.
-- [ ] Use DigitalOcean API to display Estimated Droplet Transfer Pool usage and remaining balance. https://pkg.go.dev/github.com/digitalocean/godo https://docs.digitalocean.com/reference/api/api-reference/#operation/droplets_get
-
-### Database
-
 - [ ] Create a DB fix to detect and rebadge msdos and windows trainers.
 - [ ] `OrderBy` Name/Count /html3/groups? https://pkg.go.dev/sort#example-package-SortKeys
 
-### Backend
+### Menus and layout
 
-- [ ] *? Implememnt a [scheduling library for Go](https://github.com/reugn/go-quartz)
-- [ ] [xstrings](https://github.com/huandu/xstrings) for string manipulation.
+- [ ] Use DigitalOcean API to display Estimated Droplet Transfer Pool usage and remaining balance. 
+		https://pkg.go.dev/github.com/digitalocean/godo https://docs.digitalocean.com/reference/api/api-reference/#operation/droplets_get
 
 ### MAJOR FREEZE
 
