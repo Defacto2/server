@@ -3,6 +3,7 @@ package app
 
 import (
 	"cmp"
+	"context"
 	"embed"
 	"errors"
 	"fmt"
@@ -18,6 +19,7 @@ import (
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
@@ -1137,14 +1139,20 @@ func YMDEdit(c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Edit(f.ID)
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
 	if err != nil {
-		return fmt.Errorf("model.EditFind: %w", err)
+		return fmt.Errorf("ymdedit connect %w", err)
+	}
+	defer db.Close()
+	r, err := model.One(ctx, db, true, f.ID)
+	if err != nil {
+		return fmt.Errorf("ymdedit model one %w", err)
 	}
 	y := model.ValidY(f.Year)
 	m := model.ValidM(f.Month)
 	d := model.ValidD(f.Day)
-	if err = model.UpdateYMD(int64(f.ID), y, m, d); err != nil {
+	if err = model.UpdateYMD(ctx, db, int64(f.ID), y, m, d); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, r)

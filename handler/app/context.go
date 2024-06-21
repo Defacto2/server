@@ -717,7 +717,13 @@ func PlatformEdit(c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Edit(f.ID)
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return badRequest(c, err)
+	}
+	defer db.Close()
+	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("model.Edit: %w", err)
 	}
@@ -917,7 +923,13 @@ func ReadmeDel(c echo.Context, downloadDir string) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Edit(f.ID)
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return ErrDB
+	}
+	defer db.Close()
+	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("model.Edit: %w", err)
 	}
@@ -938,7 +950,13 @@ func ReadmePost(c echo.Context, logger *zap.SugaredLogger, downloadDir string) e
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Edit(f.ID)
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return badRequest(c, err)
+	}
+	defer db.Close()
+	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -1257,7 +1275,13 @@ func ReleaserEdit(c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Edit(f.ID)
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return badRequest(c, err)
+	}
+	defer db.Close()
+	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("model.Edit: %w", err)
 	}
@@ -1552,7 +1576,13 @@ func TagEdit(c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Edit(f.ID)
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return badRequest(c, err)
+	}
+	defer db.Close()
+	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("model.Edit: %w", err)
 	}
@@ -1618,7 +1648,13 @@ func TitleEdit(c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Edit(f.ID)
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return badRequest(c, err)
+	}
+	defer db.Close()
+	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("model.Edit: %w", err)
 	}

@@ -5,6 +5,7 @@ package app
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"html/template"
@@ -27,6 +28,7 @@ import (
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magic"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/render"
 	"github.com/Defacto2/server/model"
@@ -313,7 +315,13 @@ func (dir Dirs) PreviewDel(c echo.Context) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Edit(f.ID)
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return badRequest(c, err)
+	}
+	defer db.Close()
+	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -514,7 +522,13 @@ func (dir Dirs) extractor(c echo.Context, logger *zap.SugaredLogger, p extract) 
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.Edit(f.ID)
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return badRequest(c, err)
+	}
+	defer db.Close()
+	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
 		return badRequest(c, err)
 	}

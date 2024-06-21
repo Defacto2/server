@@ -16,26 +16,8 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// Edit retrieves a single file record from the database using the record key.
-// This function will also return records that have been marked as deleted.
-//
-// Deprecated?
-func Edit(key int) (*models.File, error) {
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return nil, ErrDB
-	}
-	defer db.Close()
-	const deleted = true
-	art, err := One(ctx, db, deleted, key)
-	if err != nil {
-		return nil, fmt.Errorf("%w, %w: %d", ErrID, err, key)
-	}
-	return art, nil
-}
-
-// One retrieves the single file record for the key ID.
+// One retrieves a single file record from the database using the record key.
+// This function can return records that have been marked as deleted.
 func One(ctx context.Context, db *sql.DB, deleted bool, key int) (*models.File, error) {
 	if db == nil {
 		return nil, ErrDB

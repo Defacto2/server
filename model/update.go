@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
@@ -438,32 +439,32 @@ func UpdateReleasers(id int64, val string) error {
 	return nil
 }
 
-func UpdateYMD(id int64, y, m, d null.Int16) error {
+// UpdateYMD updates the date issued year, month and day columns with the values provided.
+func UpdateYMD(ctx context.Context, db *sql.DB, id int64, y, m, d null.Int16) error {
+	if db == nil {
+		return fmt.Errorf("updateymd %w", ErrDB)
+	}
+	if id <= 0 {
+		return fmt.Errorf("updateymd id value %w: %d", ErrKey, id)
+	}
 	if !y.IsZero() && !helper.Year(int(y.Int16)) {
-		return fmt.Errorf("%d: %w", y.Int16, ErrYear)
+		return fmt.Errorf("updateymd %w: %d", ErrYear, y.Int16)
 	}
 	if !m.IsZero() && helper.ShortMonth(int(m.Int16)) == "" {
-		return fmt.Errorf("%d: %w", m.Int16, ErrMonth)
+		return fmt.Errorf("updateymd %w: %d", ErrMonth, m.Int16)
 	}
 	if !d.IsZero() && !helper.Day(int(d.Int16)) {
-		return fmt.Errorf("%d: %w", d.Int16, ErrDay)
+		return fmt.Errorf("updateymd %w: %d", ErrDay, d.Int16)
 	}
-
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return ErrDB
-	}
-	defer db.Close()
-	ctx := context.Background()
 	f, err := OneFile(ctx, db, id)
 	if err != nil {
-		return fmt.Errorf("find file: %w", err)
+		return fmt.Errorf("updateymd one file %w: %d", err, id)
 	}
 	f.DateIssuedYear = y
 	f.DateIssuedMonth = m
 	f.DateIssuedDay = d
 	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
-		return fmt.Errorf("f.update: %w", err)
+		return fmt.Errorf("updateymd update %w: %d", err, id)
 	}
 	return nil
 }
