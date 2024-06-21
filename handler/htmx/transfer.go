@@ -7,6 +7,7 @@ import (
 	"crypto/sha512"
 	"database/sql"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"html"
 	"io"
@@ -219,22 +220,24 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key, downloadDir string
 // The destination directory is where the file will be copied to.
 func Duplicate(logger *zap.SugaredLogger, uid uuid.UUID, srcPath, dstDir string) {
 	if uid.String() == "" {
-		logger.Errorf("%w, %s", ErrUUID, uid)
+		err := errors.New("invalid or an empty UUID")
+		logger.Errorf("htmx transfer duplicate file: %w, %s", err, uid)
 		return
 	}
 	st, err := os.Stat(srcPath)
 	if err != nil {
-		logger.Errorf("os.Stat: %w, %s", err, srcPath)
+		logger.Errorf("htmx transfer duplicate file: %w, %s", err, srcPath)
 		return
 	}
 	if st.IsDir() {
-		logger.Errorf("%w, %s", ErrDir, srcPath)
+		err := errors.New("cannot be a directory")
+		logger.Errorf("htmx transfer duplicate file, %w: %s", err, srcPath)
 		return
 	}
 	newPath := filepath.Join(dstDir, uid.String())
 	i, err := helper.Duplicate(srcPath, newPath)
 	if err != nil {
-		logger.Errorf("helper.Duplicate: %w,%q,  %s",
+		logger.Errorf("htmx transfer duplicate file: %w,%q,  %s",
 			err, uid.String(), srcPath)
 		return
 	}
@@ -245,16 +248,18 @@ func checkDest(dest string) (string, error) {
 	st, err := os.Stat(dest)
 	if err != nil {
 		return "The uploader is misconfigured and cannot save your file",
-			fmt.Errorf("%w, %w", ErrUploaderDest, err)
+			fmt.Errorf("invalid uploader destination, %w", err)
 	}
 	if !st.IsDir() {
+		err := errors.New("cannot be a file")
 		return "The uploader is misconfigured and cannot save your file",
-			fmt.Errorf("%w, %w", ErrUploaderDest, ErrFile)
+			fmt.Errorf("invalid uploader destination, %w", err)
 	}
 	f, err := os.CreateTemp(dest, "uploader-*.zip")
 	if err != nil {
+		err := errors.New("cannot save a file to the uploader destination")
 		return "The uploader cannot save your file to the host system.",
-			fmt.Errorf("%w, %w", ErrUploaderSave, err)
+			fmt.Errorf("%w, %w", err, err)
 	}
 	defer f.Close()
 	defer os.Remove(f.Name())
@@ -309,7 +314,8 @@ func checkExist(c echo.Context, logger *zap.SugaredLogger, err error) error {
 // copier is a generic file writer that saves the chosen file upload to a temporary file.
 func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeader, key string) (string, error) {
 	if file == nil {
-		return "", ErrFileHead
+		err := errors.New("htmx copier multipart file header is nil")
+		return "", err
 	}
 	const pattern = "upload-*.zip"
 	name := key + "file"
@@ -438,7 +444,7 @@ func submit(c echo.Context, logger *zap.SugaredLogger, prod string) error {
 	}
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return ErrDB
+		return fmt.Errorf("htmx submit: %w", err)
 	}
 	defer db.Close()
 	ctx := context.Background()

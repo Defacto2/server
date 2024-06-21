@@ -6,16 +6,18 @@
 {{- $checkDownloads := index . "checkDownloads"}}
 {{- $checkPreviews := index . "checkPreviews"}}
 {{- $checkThumbnails := index . "checkThumbnails"}}
+{{- $responseRow := "row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-0"}}
+{{- /*  Asset counts  */}}
 <h1 class="lead mt-5">Web application assets</h1>
-<table class="table">
+<table class="table table-striped-columns">
   <thead>
     <tr>
-      <th scope="col">Asset</th>
+      <th scope="col"></th>
+      <th scope="col">Total</th>
       <th scope="col">Counts</th>
-      <th scope="col">Extensions</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody class="table-group-divider">
     <tr>
       <th scope="row">Artifacts</th>
       <td>{{index . "countArtifacts"}}</td>
@@ -29,7 +31,9 @@
       <td>{{index . "countDownloads"}}</td>
       <td>
         {{if ne nil $checkDownloads}}<span class="text-danger-emphasis">{{$checkDownloads}}</span>{{- else}}
-        {{- range $index, $value := index . "extsDownloads"}}<code>{{$value.Name}}</code> <small>{{$value.Count}}</small> · {{end}}
+        <div class="{{$responseRow}}">
+          {{- range $index, $value := index . "extsDownloads"}}<span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>{{end}}
+        </div>
         {{- end}}
       </td>
     </tr>
@@ -38,24 +42,28 @@
       <td>{{index . "countPreviews"}}</td>
       <td>
         {{if ne nil $checkPreviews}}<span class="text-danger-emphasis">{{$checkPreviews}}</span>{{- else}}
-        {{- range $index, $value := index . "extsPreviews"}}<code>{{$value.Name}}</code> <small>{{$value.Count}}</small> · {{end}}</td>
+        <div class="{{$responseRow}}">
+          {{- range $index, $value := index . "extsPreviews"}}<span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>{{end}}
+        </div>
         {{- end}}
+      </td>
       </tr>
     <tr>
       <th scope="row">Thumbnails</th>
       <td>{{index . "countThumbnails"}}</td>
       <td>
         {{if ne nil $checkThumbnails}}<span class="text-danger-emphasis">{{$checkThumbnails}}</span>{{- else}}
-        {{- range $index, $value := index . "extsThumbnails"}}<code>{{$value.Name}}</code> <small>{{$value.Count}}</small> · {{end}}</td>
+        <div class="{{$responseRow}}">
+          {{- range $index, $value := index . "extsThumbnails"}}<span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>{{end}}
+        </div>
         {{- end}}
+      </td>
     </tr>
   </tbody>
 </table>
-
-
-
+{{- /*  Settings  */}}
 <h1 class="lead mt-5">Web application settings</h1>
-<table class="table">
+<table class="table table-striped-columns">
   <caption>A complete list of configurations set using operating system environment variables.</caption>
   <thead>
     <tr>
@@ -64,7 +72,7 @@
       <th scope="col">Description</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody class="table-group-divider">
     {{- range $config := $configs.List}}
     {{- if ne $config.Title ""}}
     <tr>
@@ -75,10 +83,10 @@
     {{- end}}{{end}}
   </tbody>
 </table>
-
+{{- /*  Links to records  */}}
 <h1 class="lead mt-5">Links to special records</h1>
 <caption>These are artifacts that have unusual edge cases, ❎ needs fixing.</caption>
-<dl class="row row-cols-2 g-2 p-2">
+<dl class="row row-cols-2 g-2 p-2 bg-body-tertiary mt-2">
   <div class="col">
   <dt>❎ Readme using multi-bytes</dt>
   <dd>

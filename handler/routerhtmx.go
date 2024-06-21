@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"fmt"
+
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -16,7 +18,7 @@ const rateLimit = 2
 // using the htmx library for AJAX responses.
 func htmxGroup(e *echo.Echo, logger *zap.SugaredLogger, prod bool, downloadDir string) *echo.Echo {
 	if e == nil {
-		panic(ErrRoutes)
+		panic(fmt.Errorf("%w for htmx group router", ErrRoutes))
 	}
 	store := middleware.NewRateLimiterMemoryStore(rateLimit)
 	g := e.Group("", middleware.RateLimiter(store))

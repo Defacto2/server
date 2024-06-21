@@ -475,7 +475,6 @@ func valueHTTP(val reflect.Value) string {
 	const common = 80
 	if port == common {
 		return fmt.Sprintf("%d, the web server will use HTTP, example: http://localhost", port)
-
 	}
 	return fmt.Sprintf("%d, the web server will use HTTP, example: http://localhost:%d", port, port)
 }
@@ -489,7 +488,6 @@ func valueTLS(val reflect.Value) string {
 	const common = 443
 	if port == common {
 		return fmt.Sprintf("%d, the web server will use HTTPS, example: https://localhost", port)
-
 	}
 	return fmt.Sprintf("%d, the web server will use HTTPS, example: https://localhost:%d", port, port)
 }

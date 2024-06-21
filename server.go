@@ -52,11 +52,7 @@ var view embed.FS
 var version string
 
 var (
-	ErrCmd = errors.New("the command given did not work")
-	ErrDB  = errors.New("could not initialize the database data")
-	ErrEnv = errors.New("environment variable probably contains an invalid value")
-	ErrFS  = errors.New("the directories repair broke")
-	ErrLog = errors.New("the server cannot save any logs")
+	ErrLog = errors.New("cannot save logs")
 	ErrVer = errors.New("postgresql version request failed")
 )
 
@@ -76,12 +72,12 @@ func main() {
 
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		logger.Errorf("%s: %s", ErrDB, err)
+		logger.Errorf("main could not initialize the database data: %s", err)
 	}
 	defer db.Close()
 	var ver postgres.Version
 	if err := ver.Query(); err != nil {
-		logger.Errorf("ver.Query: %w", err)
+		logger.Errorf("postgres version query: %w", err)
 	}
 
 	repairChecks(logger, db, configs)
@@ -92,13 +88,13 @@ func main() {
 	router := website.Controller(logger)
 	website.Info(logger, w)
 	if err := website.Start(router, logger, configs); err != nil {
-		logger.Fatalf("%s: please check the environment variables.", err)
+		logger.Fatalf("%s: please check the environment variables", err)
 	}
 
 	go func() {
 		localIPs, err := configs.Addresses()
 		if err != nil {
-			logger.Errorf("%s: %s", ErrEnv, err)
+			logger.Errorf("configs addresses in main: %s", err)
 		}
 		fmt.Fprintf(w, "%s\n", localIPs)
 	}()
@@ -118,7 +114,7 @@ func environmentVars() (*zap.SugaredLogger, config.Config) {
 		SessionMaxAge: config.SessionHours,
 	}
 	if err := env.Parse(&configs); err != nil {
-		logger.Fatalf("%w: %s", ErrEnv, err)
+		logger.Fatalf("could not parse the environment variable, it probably contains an invalid value: %s", err)
 	}
 	configs.Override()
 
@@ -153,7 +149,7 @@ func parseFlags(logger *zap.SugaredLogger, configs config.Config) int {
 	}
 	code, err := cmd.Run(version, &configs)
 	if err != nil {
-		logger.Errorf("%s: %s", ErrCmd, err)
+		logger.Errorf("run command, parse flags: %s", err)
 		return int(code)
 	}
 	useExitCode := code >= cmd.ExitOK
@@ -170,12 +166,12 @@ func sanityChecks(logger *zap.SugaredLogger, configs config.Config) {
 		return
 	}
 	if err := configs.Checks(logger); err != nil {
-		logger.Errorf("%s: %s", ErrEnv, err)
+		logger.Errorf("sanity checks could not read the environment variable, it probably contains an invalid value: %s", err)
 	}
 	checks(logger, configs.ReadOnly)
 	conn, err := postgres.New()
 	if err != nil {
-		logger.Errorf("%s: %s", ErrDB, err)
+		logger.Errorf("sanity checks could not initialize the database data: %s", err)
 		return
 	}
 	_ = conn.Validate(logger)
@@ -206,7 +202,7 @@ func checks(logger *zap.SugaredLogger, readonly bool) {
 				"is unrar-free mistakenly installed?")
 			return
 		}
-		logger.Warnf("%s: %s", ErrCmd, err)
+		logger.Warnf("lookup unrar check: %s", err)
 	}
 }
 
@@ -217,10 +213,14 @@ func repairChecks(logger *zap.SugaredLogger, db *sql.DB, configs config.Config) 
 		return
 	}
 	if err := configs.RepairFS(logger); err != nil {
-		logger.Errorf("%s: %s", ErrFS, err)
+		logger.Errorf("repair checks for the file system directories: %s", err)
 	}
 	if err := repairDB(logger, db); err != nil {
-		repairdb(logger, err)
+		if errors.Is(err, ErrVer) {
+			logger.Warnf("A %s, is the database server down?", ErrVer)
+		} else {
+			logger.Errorf("repair database could not initialize the database data: %s", err)
+		}
 	}
 }
 
@@ -238,7 +238,7 @@ func serverLog(configs config.Config, count int) *zap.SugaredLogger {
 	}
 	if configs.ProdMode {
 		if err := configs.LogStore(); err != nil {
-			logger.Fatalf("%w: %s", ErrLog, err)
+			logger.Fatalf("%w using server log: %s", ErrLog, err)
 		}
 		logger = zaplog.Store(configs.AbsLog).Sugar()
 	}
@@ -248,26 +248,14 @@ func serverLog(configs config.Config, count int) *zap.SugaredLogger {
 // repairDB on startup checks the database connection and make any data corrections.
 func repairDB(logger *zap.SugaredLogger, db *sql.DB) error {
 	if logger == nil {
-		return fmt.Errorf("%w: %s", ErrLog, "no logger")
+		return fmt.Errorf("%w: %s", ErrLog, "the repair database has no logger")
 	}
 	ctx := context.Background()
 	err := fix.All.Run(ctx, logger, db)
 	if err != nil {
-		return fmt.Errorf("fix.All.Run: %w", err)
+		return fmt.Errorf("repair database could not fix all: %w", err)
 	}
 	return nil
-}
-
-// repairdb is used to log the database repair error.
-func repairdb(logger *zap.SugaredLogger, err error) {
-	if logger == nil || err == nil {
-		return
-	}
-	if errors.Is(err, ErrVer) {
-		logger.Warnf("A %s, is the database server down?", ErrVer)
-	} else {
-		logger.Errorf("%s: %s", ErrDB, err)
-	}
 }
 
 // recordCount returns the number of records in the database.

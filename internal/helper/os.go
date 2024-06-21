@@ -59,7 +59,6 @@ func CountExts(dir string) ([]Extension, error) {
 		return extensions[i].Count > extensions[j].Count
 	})
 	return extensions, nil
-
 }
 
 // Count returns the number of files in the given directory.

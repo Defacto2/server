@@ -46,15 +46,12 @@ const (
 )
 
 var (
-	ErrCtx    = errors.New("echo context is nil")
-	ErrData   = errors.New("data interface is nil")
-	ErrFS     = errors.New("embed filesystem instance is empty")
-	ErrName   = errors.New("template name string is empty")
-	ErrPorts  = errors.New("the server ports are not configured")
-	ErrRoutes = errors.New("e echo instance is nil")
-	ErrTmpl   = errors.New("named template cannot be found")
-	ErrW      = errors.New("w io.writer instance is nil")
-	ErrZap    = errors.New("zap logger instance is nil")
+	ErrFS      = errors.New("embed filesystem instance is empty")
+	ErrName    = errors.New("name is empty")
+	ErrName404 = errors.New("named template cannot be found")
+	ErrPorts   = errors.New("the server ports are not configured")
+	ErrRoutes  = errors.New("echo instance is nil")
+	ErrZap     = errors.New("zap logger instance is nil")
 )
 
 // Configuration of the handler.
@@ -126,7 +123,7 @@ func (c Configuration) Controller(logger *zap.SugaredLogger) *echo.Echo {
 // EmbedDirs serves the static files from the directories embed to the binary.
 func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 	if e == nil {
-		panic(ErrRoutes)
+		panic(fmt.Errorf("%w for the embed directories binary", ErrRoutes))
 	}
 	dirs := map[string]string{
 		"/image/artpack":   "public/image/artpack",
@@ -211,7 +208,7 @@ func (c Configuration) Registry(logger *zap.SugaredLogger) (*TemplateRegistry, e
 // The shutdown procedure occurs a few seconds after the key press.
 func (c *Configuration) ShutdownHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 	if e == nil {
-		panic(ErrRoutes)
+		panic(fmt.Errorf("%w for the HTTP shutdown", ErrRoutes))
 	}
 	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)
@@ -259,7 +256,7 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 // Start the HTTP, and-or the TLS servers.
 func (c *Configuration) Start(e *echo.Echo, logger *zap.SugaredLogger, configs config.Config) error {
 	if e == nil {
-		panic(ErrRoutes)
+		panic(fmt.Errorf("%w for the web application startup", ErrRoutes))
 	}
 	switch {
 	case configs.UseTLS() && configs.UseHTTP():
@@ -289,7 +286,7 @@ func (c *Configuration) Start(e *echo.Echo, logger *zap.SugaredLogger, configs c
 // StartHTTP starts the insecure HTTP web server.
 func (c *Configuration) StartHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 	if e == nil {
-		panic(ErrRoutes)
+		panic(fmt.Errorf("%w for the HTTP startup", ErrRoutes))
 	}
 	port := c.Environment.HTTPPort
 	address := c.address(port)
@@ -315,7 +312,7 @@ func (c *Configuration) address(port uint) string {
 // StartTLS starts the encrypted TLS web server.
 func (c *Configuration) StartTLS(e *echo.Echo, logger *zap.SugaredLogger) {
 	if e == nil {
-		panic(ErrRoutes)
+		panic(fmt.Errorf("%w for the TLS startup", ErrRoutes))
 	}
 	port := c.Environment.TLSPort
 	address := c.address(port)
@@ -343,7 +340,7 @@ func (c *Configuration) StartTLS(e *echo.Echo, logger *zap.SugaredLogger) {
 // This should only be triggered when the server is running in local mode.
 func (c *Configuration) StartTLSLocal(e *echo.Echo, logger *zap.SugaredLogger) {
 	if e == nil {
-		panic(ErrRoutes)
+		panic(fmt.Errorf("%w for the TLS local mode startup", ErrRoutes))
 	}
 	port := c.Environment.TLSPort
 	address := c.address(port)
@@ -400,25 +397,25 @@ type TemplateRegistry struct {
 
 // Render the layout template with the core HTML, META and BODY elements.
 func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	const layout = "layout"
+	const layout, info = "layout", "template registery render"
 	if name == "" {
-		return ErrName
+		return fmt.Errorf("%s layout: %w", info, ErrName)
 	}
 	if w == nil {
-		return fmt.Errorf("%w: %w", echo.ErrRendererNotRegistered, ErrW)
+		return fmt.Errorf("%s io.writer is nil: %w", info, echo.ErrRendererNotRegistered)
 	}
 	if data == nil {
-		return fmt.Errorf("%w: %w", echo.ErrRendererNotRegistered, ErrData)
+		return fmt.Errorf("%s data interface is nil: %w", info, echo.ErrRendererNotRegistered)
 	}
 	if c == nil {
-		return fmt.Errorf("%w: %w", echo.ErrRendererNotRegistered, ErrCtx)
+		return fmt.Errorf("%s echo context is nil: %w", info, echo.ErrRendererNotRegistered)
 	}
 	tmpl, exists := t.Templates[name]
 	if !exists {
-		return fmt.Errorf("%w: %s", ErrTmpl, name)
+		return fmt.Errorf("registery render %w: %q", ErrName404, name)
 	}
 	if err := tmpl.ExecuteTemplate(w, layout, data); err != nil {
-		return fmt.Errorf("tmpl.ExecuteTemplate layout: %w", err)
+		return fmt.Errorf("%s execute: %w", info, err)
 	}
 	return nil
 }

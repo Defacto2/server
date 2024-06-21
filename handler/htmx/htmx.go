@@ -21,19 +21,9 @@ import (
 )
 
 var (
-	ErrCreators     = errors.New("invalid reset creators format")
-	ErrDate         = errors.New("invalid reset date format")
-	ErrDB           = errors.New("database connection is nil")
-	ErrDir          = errors.New("cannot be a directory")
-	ErrExist        = errors.New("file already exists")
-	ErrFile         = errors.New("cannot be a file")
-	ErrFileHead     = errors.New("file header is nil")
-	ErrKey          = errors.New("numeric record key is invalid")
-	ErrRoutes       = errors.New("echo instance is nil")
-	ErrUploaderDest = errors.New("invalid uploader destination")
-	ErrUploaderSave = errors.New("cannot save a file to the uploader destination")
-	ErrYouTube      = errors.New("youtube watch video id needs to be empty or 11 characters")
-	ErrUUID         = errors.New("invalid or an empty UUID")
+	ErrDB     = errors.New("database connection is nil")
+	ErrFormat = errors.New("invalid format")
+	ErrKey    = errors.New("numeric record key is invalid")
 )
 
 // DemozooProd fetches the multiple download_links values from the
@@ -54,7 +44,7 @@ func DemozooProd(c echo.Context) error {
 
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return ErrDB
+		return fmt.Errorf("htmx demozoo production: %w", ErrDB)
 	}
 	defer db.Close()
 	ctx := context.Background()
@@ -175,7 +165,7 @@ func PouetProd(c echo.Context) error {
 
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return ErrDB
+		return fmt.Errorf("htmx pouet production: %w", ErrDB)
 	}
 	defer db.Close()
 	ctx := context.Background()

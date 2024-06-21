@@ -16,10 +16,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var (
-	ErrSum  = errors.New("file download checksum was not found")
-	ErrStat = errors.New("file download stored on this server cannot be found")
-)
+var ErrStat = errors.New("file download stored on this server cannot be found")
 
 // Checksum serves the checksums for the requested file.
 // The response is a text file named "checksums.txt" with the checksum and filename.
@@ -38,22 +35,23 @@ func Checksum(c echo.Context, id string) error {
 	// 72f8a29d75993487b7ad5ad3a17d2f65ed4c41be155adbda88258d0458fcfe29f55e2e31b0316f01d57f4427ca9e2422  sk8-01.jpg
 	sum := strings.TrimSpace(art.FileIntegrityStrong.String)
 	if sum == "" {
-		return fmt.Errorf("%w: %d", ErrSum, art.ID)
+		err := errors.New("not found")
+		return fmt.Errorf("file download checksum %w: %d", err, art.ID)
 	}
 	name := art.Filename.String
 	body := []byte(sum + " " + name)
 
 	file, err := os.CreateTemp(os.TempDir(), "checksum-server.*.txt")
 	if err != nil {
-		return fmt.Errorf("os.CreateTemp: %w", err)
+		return fmt.Errorf("file download checksum create tempdir: %w", err)
 	}
 	defer os.Remove(file.Name())
 	if _, err := file.Write(body); err != nil {
-		return fmt.Errorf("file.Write: %w", err)
+		return fmt.Errorf("file download checksum write: %w", err)
 	}
 	err = c.Attachment(file.Name(), "checksums.txt")
 	if err != nil {
-		return fmt.Errorf("c.Attachment: %w", err)
+		return fmt.Errorf("file download checksum attachment: %w", err)
 	}
 	return nil
 }
@@ -73,10 +71,10 @@ func (d Download) HTTPSend(c echo.Context, logger *zap.SugaredLogger) error {
 	case err != nil && sess.Editor(c):
 		art, err = model.OneEditByKey(id)
 		if err != nil {
-			return fmt.Errorf("model.OneEditByKey: %w", err)
+			return fmt.Errorf("http send, one edit by key: %w", err)
 		}
 	case err != nil:
-		return fmt.Errorf("model.OneFileByKey: %w", err)
+		return fmt.Errorf("http send, one file by key: %w", err)
 	}
 	name := art.Filename.String
 	uid := strings.TrimSpace(art.UUID.String)
@@ -84,7 +82,7 @@ func (d Download) HTTPSend(c echo.Context, logger *zap.SugaredLogger) error {
 	if !helper.Stat(file) {
 		logger.Warnf("The hosted file download %q, for record %d does not exist.\n"+
 			"Absolute path: %q", art.Filename.String, art.ID, file)
-		return fmt.Errorf("%w: %s", ErrStat, name)
+		return fmt.Errorf("http send, %w: %s", ErrStat, name)
 	}
 	if name == "" {
 		logger.Warnf("No filename exists for the record %d.", art.ID)
@@ -93,24 +91,24 @@ func (d Download) HTTPSend(c echo.Context, logger *zap.SugaredLogger) error {
 	if d.Inline && tags.IsText(art.Platform.String) {
 		modernText, err := helper.UTF8(file)
 		if err != nil {
-			return fmt.Errorf("helper.UTF8: %w", err)
+			return fmt.Errorf("http send utf-8: %w", err)
 		}
 		if !modernText {
 			c.Response().Header().Set(echo.HeaderContentType, "text/plain; charset=iso-8859-1")
 		}
 		if err := c.Inline(file, name); err != nil {
-			return fmt.Errorf("c.Inline: %w", err)
+			return fmt.Errorf("http send text as inline: %w", err)
 		}
 		return nil
 	}
 	if d.Inline {
 		if err := c.Inline(file, name); err != nil {
-			return fmt.Errorf("c.Inline: %w", err)
+			return fmt.Errorf("http send inline: %w", err)
 		}
 		return nil
 	}
 	if err := c.Attachment(file, name); err != nil {
-		return fmt.Errorf("c.Attachment: %w", err)
+		return fmt.Errorf("http send attachment: %w", err)
 	}
 	return nil
 }

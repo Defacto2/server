@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"fmt"
+
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/labstack/echo/v4"
@@ -12,7 +14,7 @@ import (
 
 func (c Configuration) lock(e *echo.Echo, logger *zap.SugaredLogger, dir app.Dirs) *echo.Echo {
 	if e == nil {
-		panic(ErrRoutes)
+		panic(fmt.Errorf("%w for lock router", ErrRoutes))
 	}
 	lock := e.Group("/editor")
 	lock.Use(c.ReadOnlyLock, c.SessionLock)
@@ -44,7 +46,7 @@ func creator(g *echo.Group) {
 
 func date(g *echo.Group) {
 	if g == nil {
-		panic(ErrRoutes)
+		panic(fmt.Errorf("%w for date router", ErrRoutes))
 	}
 	date := g.Group("/date")
 	date.POST("", htmx.RecordDateIssued)
@@ -58,7 +60,7 @@ func date(g *echo.Group) {
 
 func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	if g == nil {
-		panic(ErrRoutes)
+		panic(fmt.Errorf("%w for editor router", ErrRoutes))
 	}
 	g.POST("/16colors", htmx.Record16Colors)
 	g.POST("/ansilove/copy", func(c echo.Context) error {
@@ -93,7 +95,7 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 
 func get(g *echo.Group, dir app.Dirs) {
 	if g == nil {
-		panic(ErrRoutes)
+		panic(fmt.Errorf("%w for get router", ErrRoutes))
 	}
 	g.GET("/deletions",
 		func(cx echo.Context) error {
@@ -115,7 +117,7 @@ func get(g *echo.Group, dir app.Dirs) {
 
 func images(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	if g == nil {
-		panic(ErrRoutes)
+		panic(fmt.Errorf("%w for images router", ErrRoutes))
 	}
 	images := g.Group("/images")
 	images.POST("/copy", func(c echo.Context) error {
@@ -126,7 +128,7 @@ func images(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 
 func online(g *echo.Group) {
 	if g == nil {
-		panic(ErrRoutes)
+		panic(fmt.Errorf("%w for online router", ErrRoutes))
 	}
 	online := g.Group("/online")
 	online.POST("/true", func(cx echo.Context) error {
@@ -139,7 +141,7 @@ func online(g *echo.Group) {
 
 func search(g *echo.Group, logger *zap.SugaredLogger) {
 	if g == nil {
-		panic(ErrRoutes)
+		panic(fmt.Errorf("%w for search router", ErrRoutes))
 	}
 	search := g.Group("/search")
 	search.GET("/id", app.SearchID)
@@ -153,7 +155,7 @@ func search(g *echo.Group, logger *zap.SugaredLogger) {
 
 func readme(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	if g == nil {
-		panic(ErrRoutes)
+		panic(fmt.Errorf("%w for readme router", ErrRoutes))
 	}
 	readme := g.Group("/readme")
 	readme.POST("/copy", func(cx echo.Context) error {

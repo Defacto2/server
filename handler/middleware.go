@@ -43,7 +43,7 @@ func (c Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
 		e.Response().Header().Set("X-Read-Only-Lock", s)
 		if c.Environment.ReadOnly {
 			if err := app.StatusErr(e, http.StatusForbidden, ""); err != nil {
-				return fmt.Errorf("app.StatusErr: %w", err)
+				return fmt.Errorf("read only lock status: %w", err)
 			}
 			return nil
 		}
@@ -57,12 +57,12 @@ func (c Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 		// https://pkg.go.dev/github.com/gorilla/sessions#Session
 		sess, err := session.Get(sess.Name, e)
 		if err != nil {
-			return fmt.Errorf("session.Get: %w", err)
+			return fmt.Errorf("session lock get: %w", err)
 		}
 		id, subExists := sess.Values["sub"].(string)
 		if !subExists || id == "" {
 			if err := app.StatusErr(e, http.StatusForbidden, ""); err != nil {
-				return fmt.Errorf("app.StatusErr: %w", err)
+				return fmt.Errorf("session lock subexists forbid: %w", err)
 			}
 			return nil
 		}
@@ -75,7 +75,7 @@ func (c Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		if !check {
 			if err := app.StatusErr(e, http.StatusForbidden, ""); err != nil {
-				return fmt.Errorf("app.StatusErr: %w", err)
+				return fmt.Errorf("session lock check forbid: %w", err)
 			}
 			return nil
 		}

@@ -3,6 +3,7 @@ package htmx
 // Package file artifact.go provides functions for handling the HTMX requests for the artifact editor.
 
 import (
+	"errors"
 	"fmt"
 	"html"
 	"net/http"
@@ -263,12 +264,12 @@ func RecordDateIssuedReset(c echo.Context, elmID string) error {
 	vals := strings.Split(reset, "-")
 	const expected = 3
 	if len(vals) != expected {
-		return badRequest(c, fmt.Errorf("%w, requires YYYY-MM-DD", ErrDate))
+		return badRequest(c, fmt.Errorf("%w, record date issued reset requires YYYY-MM-DD", ErrFormat))
 	}
 	year, month, day := vals[0], vals[1], vals[2]
 	y, m, d := form.ValidDate(year, month, day)
 	if !y || !m || !d {
-		return badRequest(c, fmt.Errorf("%w, requires YYYY-MM-DD", ErrDate))
+		return badRequest(c, fmt.Errorf("%w, record date issued reset requires YYYY-MM-DD", ErrFormat))
 	}
 	if err := model.UpdateDateIssued(int64(id), year, month, day); err != nil {
 		return badRequest(c, err)
@@ -366,7 +367,8 @@ func RecordCreatorReset(c echo.Context) error {
 	vals := strings.Split(reset, ";")
 	const expected = 4
 	if len(vals) != expected {
-		return badRequest(c, fmt.Errorf("%w, requires string;string;string;string", ErrCreators))
+		return badRequest(c, fmt.Errorf("%w, record creator reset requires string;string;string;string",
+			ErrFormat))
 	}
 	text := vals[0]
 	ill := vals[1]
@@ -520,12 +522,13 @@ func RecordLinksReset(c echo.Context) error {
 	sites := c.FormValue("artifact-editor-websitesval")
 	id, err := strconv.Atoi(key)
 	if err != nil {
-		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+		return badRequest(c, fmt.Errorf("record links reset, %w: %w: %q", ErrKey, err, key))
 	}
 
 	const requirement = 11
 	if len(youtube) != 0 && len(youtube) != requirement {
-		return badRequest(c, fmt.Errorf("%w: %q", ErrYouTube, youtube))
+		err := errors.New("youtube watch video id needs to be empty or 11 characters")
+		return badRequest(c, fmt.Errorf("record links reset, %w: %q", err, youtube))
 	}
 	colors16 = form.SanitizeURLPath(colors16)
 	github = form.SanitizeGitHub(github)
