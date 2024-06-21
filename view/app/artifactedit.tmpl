@@ -57,14 +57,16 @@ aria-labelledby="artifact-permenent-modal-label" aria-hidden="true">
           You should always keep public artifacts, as removing them is irreversible and will break search engine links and any existing references to the artifact on third-party sites such as Demozoo or Wikipedia. Instead, replacing an existing artifact with new data or files is advised. 
         </p>
         <div class="text-center my-5" id="artifact-permenent-remove">
-          I understand, <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-75-hover" hx-post="/xxx" hx-target="#artifact-permenent-remove" hx-swap="innerHTML">permenently remove</a>, <q>{{$title}}</q>
+          I understand, <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-75-hover" 
+            hx-confirm="Confirm, this is the last chance to back out"
+            hx-post="/editor/permenantly/delete" hx-target="#artifact-permenent-remove" hx-swap="innerHTML">permenently remove</a>, <q>{{$title}}</q>
           <p class="mt-2"><code>{{$filename}}</code></p>
         </div>
       </div>
       <div class="modal-footer bg-dark-subtle mt-1">
         <div class="d-grid col-12 mx-auto">
           <a href="#" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal" class="btn btn-primary">
-          Back to Data editor</a>
+          Back to the Data editor</a>
         </div>
       </div>
     </div>

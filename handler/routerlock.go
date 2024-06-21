@@ -77,6 +77,9 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	g.POST("/github", htmx.RecordGitHub)
 	g.POST("/links", htmx.RecordLinks)
 	g.POST("/links/reset", htmx.RecordLinksReset)
+	g.POST("/permenantly/delete", func(c echo.Context) error {
+		return c.String(200, "This artifact is gone, and reloading this page will result in a 404 error.")
+	})
 	g.POST("/platform", app.PlatformEdit)
 	g.POST("/platform+tag", app.PlatformTagInfo)
 	g.POST("/pouet", htmx.RecordPouet)
