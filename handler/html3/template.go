@@ -62,7 +62,7 @@ func httpErr(logger *zap.SugaredLogger, fs embed.FS) *template.Template {
 func tagByName(name string) (tags.TagData, error) {
 	t, err := tags.Tags().ByName(name)
 	if err != nil {
-		return t, fmt.Errorf("tags.Tags().ByName: %w", err)
+		return t, fmt.Errorf("html3 tag by name: %w", err)
 	}
 	s := strings.TrimSpace(t.Info)
 	const tooSmall = 2

@@ -66,14 +66,14 @@ func Count(dir string) (int, error) {
 	i := 0
 	st, err := os.Stat(dir)
 	if err != nil {
-		return 0, fmt.Errorf("os.Stat: %w", err)
+		return 0, fmt.Errorf("count os.stat %w", err)
 	}
 	if !st.IsDir() {
 		return 0, fmt.Errorf("%w: %s", ErrDirPath, dir)
 	}
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		return 0, fmt.Errorf("os.ReadDir: %w", err)
+		return 0, fmt.Errorf("count os.readdir %w", err)
 	}
 	for _, file := range files {
 		if file.IsDir() {
@@ -92,22 +92,22 @@ func Count(dir string) (int, error) {
 func Duplicate(oldpath, newpath string) (int64, error) {
 	src, err := os.Open(oldpath)
 	if err != nil {
-		return 0, fmt.Errorf("os.Open: %w", err)
+		return 0, fmt.Errorf("duplicate os.open %w", err)
 	}
 	defer src.Close()
 	dst, err := os.Create(newpath)
 	if err != nil {
-		return 0, fmt.Errorf("os.Create: %w", err)
+		return 0, fmt.Errorf("duplicate os.create %w", err)
 	}
 	defer dst.Close()
 
 	written, err := io.Copy(dst, src)
 	if err != nil {
-		return 0, fmt.Errorf("io.Copy: %w", err)
+		return 0, fmt.Errorf("duplicate io.copy %w", err)
 	}
 	if err = os.Chmod(newpath, WriteWriteRead); err != nil {
 		defer os.Remove(newpath)
-		return 0, fmt.Errorf("os.Chmod %d: %w", WriteWriteRead, err)
+		return 0, fmt.Errorf("duplicate os.chmod %d %w", WriteWriteRead, err)
 	}
 	return written, nil
 }
@@ -131,14 +131,14 @@ func File(name string) bool {
 func Files(dir string) ([]string, error) {
 	st, err := os.Stat(dir)
 	if err != nil {
-		return nil, fmt.Errorf("os.Stat: %w", err)
+		return nil, fmt.Errorf("files os.stat %w", err)
 	}
 	if !st.IsDir() {
 		return nil, fmt.Errorf("%w: %s", ErrDirPath, dir)
 	}
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, fmt.Errorf("os.ReadDir: %w", err)
+		return nil, fmt.Errorf("files os.readdir: %w", err)
 	}
 	names := []string{}
 	for _, file := range files {
@@ -160,13 +160,13 @@ func Files(dir string) ([]string, error) {
 func FileMatch(name1, name2 string) (bool, error) {
 	f1, err := os.Open(name1)
 	if err != nil {
-		return false, fmt.Errorf("%w: %w", ErrFileMatch, err)
+		return false, fmt.Errorf("file match os.open %s: %w", name1, err)
 	}
 	defer f1.Close()
 
 	f2, err := os.Open(name2)
 	if err != nil {
-		return false, fmt.Errorf("%w: %w", ErrFileMatch, err)
+		return false, fmt.Errorf("file match os.open %s: %w", name2, err)
 	}
 	defer f2.Close()
 
@@ -183,7 +183,7 @@ func FileMatch(name1, name2 string) (bool, error) {
 			} else if err1 == io.EOF || err2 == io.EOF {
 				return false, ErrDiffLength
 			}
-			return false, fmt.Errorf("%w: %s, %s", ErrRead, name1, name2)
+			return false, fmt.Errorf("file match %w: %s, %s", ErrRead, name1, name2)
 		}
 
 		if n1 != n2 || string(buf1[:n1]) != string(buf2[:n2]) {
@@ -209,7 +209,7 @@ func Finds(name string, names ...string) bool {
 func Integrity(name string, fs embed.FS) (string, error) {
 	b, err := fs.ReadFile(name)
 	if err != nil {
-		return "", fmt.Errorf("fs.ReadFile: %w", err)
+		return "", fmt.Errorf("integrity fs.readfile %w", err)
 	}
 	return IntegrityBytes(b), nil
 }
@@ -219,7 +219,7 @@ func Integrity(name string, fs embed.FS) (string, error) {
 func IntegrityFile(name string) (string, error) {
 	b, err := os.ReadFile(name)
 	if err != nil {
-		return "", fmt.Errorf("os.ReadFile: %w", err)
+		return "", fmt.Errorf("integrity os.readfile %w", err)
 	}
 	return IntegrityBytes(b), nil
 }
@@ -235,7 +235,7 @@ func IntegrityBytes(b []byte) string {
 func Lines(name string) (int, error) {
 	file, err := os.Open(name)
 	if err != nil {
-		return 0, fmt.Errorf("os.Open: %w", err)
+		return 0, fmt.Errorf("integrity os.open %w", err)
 	}
 	defer file.Close()
 
@@ -246,7 +246,7 @@ func Lines(name string) (int, error) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return 0, fmt.Errorf("scanner.Scan: %w", err)
+		return 0, fmt.Errorf("integrity scanner.scan %w", err)
 	}
 
 	return lines, nil
@@ -258,20 +258,20 @@ func Lines(name string) (int, error) {
 func RenameFile(oldpath, newpath string) error {
 	st, err := os.Stat(oldpath)
 	if err != nil {
-		return fmt.Errorf("os.Stat: %w", err)
+		return fmt.Errorf("rename file os.stat %w", err)
 	}
 	if st.IsDir() {
-		return fmt.Errorf("oldpath %w: %s", ErrFilePath, oldpath)
+		return fmt.Errorf("rename file oldpath %w: %s", ErrFilePath, oldpath)
 	}
 	if _, err = os.Stat(newpath); err == nil {
-		return fmt.Errorf("newpath %w: %s", ErrExistPath, newpath)
+		return fmt.Errorf("rename file newpath %w: %s", ErrExistPath, newpath)
 	}
 	if err := os.Rename(oldpath, newpath); err != nil {
 		var linkErr *os.LinkError
 		if errors.As(err, &linkErr) && linkErr.Err.Error() == "invalid cross-device link" {
 			return RenameCrossDevice(oldpath, newpath)
 		}
-		return fmt.Errorf("os.Rename: %w", err)
+		return fmt.Errorf("rename file os.rename %w", err)
 	}
 	return nil
 }
@@ -292,26 +292,26 @@ func RenameFileOW(oldpath, newpath string) error {
 func RenameCrossDevice(oldpath, newpath string) error {
 	src, err := os.Open(oldpath)
 	if err != nil {
-		return fmt.Errorf("os.Open: %w", err)
+		return fmt.Errorf("rename cross device open %w", err)
 	}
 	defer src.Close()
 	dst, err := os.Create(newpath)
 	if err != nil {
-		return fmt.Errorf("os.Create: %w", err)
+		return fmt.Errorf("rename cross device create %w", err)
 	}
 	defer dst.Close()
 
 	if _, err = io.Copy(dst, src); err != nil {
-		return fmt.Errorf("io.Copy: %w", err)
+		return fmt.Errorf("rename cross device copy %w", err)
 	}
 	fi, err := os.Stat(oldpath)
 	if err != nil {
 		defer os.Remove(newpath)
-		return fmt.Errorf("os.Stat: %w", err)
+		return fmt.Errorf("rename cross device stat %w", err)
 	}
 	if err = os.Chmod(newpath, fi.Mode()); err != nil {
 		defer os.Remove(newpath)
-		return fmt.Errorf("os.Chmod: %w", err)
+		return fmt.Errorf("rename cross device chmod %w", err)
 	}
 	defer os.Remove(oldpath)
 	return nil
@@ -340,12 +340,12 @@ func StrongIntegrity(name string) (string, error) {
 	// strong hashes require the named file to be reopened after being read.
 	f, err := os.Open(name)
 	if err != nil {
-		return "", fmt.Errorf("os.Open: %w: %s", err, name)
+		return "", fmt.Errorf("strong integrity open %w: %s", err, name)
 	}
 	defer f.Close()
 	strong, err := Sum386(f)
 	if err != nil {
-		return "", fmt.Errorf("Sum386: %w", err)
+		return "", fmt.Errorf("strong integrity %w", err)
 	}
 	return strong, nil
 }
@@ -357,7 +357,7 @@ func Sum386(f *os.File) (string, error) {
 	}
 	strong := sha512.New384()
 	if _, err := io.Copy(strong, f); err != nil {
-		return "", fmt.Errorf("io.Copy %s: %w", f.Name(), err)
+		return "", fmt.Errorf("sha386 checksum %s: %w", f.Name(), err)
 	}
 	s := hex.EncodeToString(strong.Sum(nil))
 	return s, nil
@@ -368,10 +368,10 @@ func Sum386(f *os.File) (string, error) {
 func Touch(name string) error {
 	file, err := os.OpenFile(name, os.O_CREATE|os.O_EXCL, ReadWrite)
 	if err != nil {
-		return fmt.Errorf("os.OpenFile: %w", err)
+		return fmt.Errorf("touch open file %w", err)
 	}
 	if err := file.Close(); err != nil {
-		return fmt.Errorf("file.Close: %w", err)
+		return fmt.Errorf("touch file close %w", err)
 	}
 	return nil
 }
@@ -381,20 +381,20 @@ func Touch(name string) error {
 func TouchW(name string, data ...byte) (int, error) {
 	file, err := os.OpenFile(name, os.O_CREATE|os.O_WRONLY, ReadWrite)
 	if err != nil {
-		return 0, fmt.Errorf("os.OpenFile: %w", err)
+		return 0, fmt.Errorf("touch write open file %w", err)
 	}
 	if len(data) == 0 {
 		if err := file.Close(); err != nil {
-			return 0, fmt.Errorf("file.Close: %w", err)
+			return 0, fmt.Errorf("touch write open file close %w", err)
 		}
 		return 0, nil
 	}
 	i, err := file.Write(data)
 	if err != nil {
-		return 0, fmt.Errorf("file.Write: %w", err)
+		return 0, fmt.Errorf("touch write file write %w", err)
 	}
 	if err := file.Close(); err != nil {
-		return 0, fmt.Errorf("file.Close: %w", err)
+		return 0, fmt.Errorf("touch write file write close %w", err)
 	}
 	return i, nil
 }
@@ -404,14 +404,14 @@ func TouchW(name string, data ...byte) (int, error) {
 func UTF8(name string) (bool, error) {
 	f, err := os.Open(name)
 	if err != nil {
-		return false, fmt.Errorf("os.Open: %w", err)
+		return false, fmt.Errorf("utf8 open %w", err)
 	}
 	defer f.Close()
 	const sample = 512
 	buf := make([]byte, sample)
 	_, err = f.Read(buf)
 	if err != nil {
-		return false, fmt.Errorf("f.Read: %w", err)
+		return false, fmt.Errorf("utf8 read %w", err)
 	}
 	return utf8.Valid(buf), nil
 }

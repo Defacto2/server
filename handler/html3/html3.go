@@ -62,7 +62,7 @@ var (
 	ErrRoutes = errors.New("echo instance is nil")
 	ErrSQL    = errors.New("database connection problem or a SQL error")
 	ErrTag    = errors.New("no database query was for the tag")
-	ErrTmpl   = errors.New("the server could not render the HTML template for this page")
+	ErrTmpl   = errors.New("cannot render the template")
 	ErrZap    = errors.New("zap logger is nil")
 )
 
@@ -283,7 +283,7 @@ func Query(c echo.Context, tt RecordsBy, offset int) (int, int, int64, models.Fi
 	case AsSoftware:
 		return QueryAsSoftware(ctx, db, clause, offset)
 	}
-	return 0, 0, 0, nil, fmt.Errorf("%w: %d", ErrPage, tt)
+	return 0, 0, 0, nil, fmt.Errorf("html3 query %w: %d", ErrPage, tt)
 }
 
 // QueryAsArt returns a slice of all the records filtered by "Digital + pixel art".

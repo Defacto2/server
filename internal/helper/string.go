@@ -96,7 +96,7 @@ func CFToUUID(cfid string) (string, error) {
 	newid := string(r)
 	err := uuid.Validate(newid)
 	if err != nil {
-		return "", fmt.Errorf("uuid.Validate: %w", err)
+		return "", fmt.Errorf("cftouuid validate %w", err)
 	}
 	return newid, nil
 }
@@ -293,7 +293,7 @@ func ReverseInt(i int) (int, error) {
 
 	reverse, err := strconv.Atoi(str)
 	if err != nil {
-		return 0, fmt.Errorf("reverseInt %d: %w", i, err)
+		return 0, fmt.Errorf("reverse integer %d: %w", i, err)
 	}
 
 	return reverse, nil

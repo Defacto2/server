@@ -47,7 +47,7 @@ func (s *Sugared) Categories(c echo.Context) error {
 		"tags":        tags.Names(),
 	})
 	if err != nil {
-		s.Log.Errorf("%s: %s %d", ErrTmpl, err)
+		s.Log.Errorf("html3 categories %s: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
@@ -114,7 +114,7 @@ func (s *Sugared) Groups(c echo.Context) error {
 	// releasers are the distinct groups from the file table.
 	releasers := model.Releasers{}
 	if err := releasers.Limit(ctx, db, model.Alphabetical, model.Maximum, page); err != nil {
-		s.Log.Errorf("group and releaser list: %w", err)
+		s.Log.Errorf("html3 group and releaser list: %w", err)
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
 	err = c.Render(http.StatusOK, "html3_groups", map[string]interface{}{
@@ -128,7 +128,7 @@ func (s *Sugared) Groups(c echo.Context) error {
 		"navigate":  navi,
 	})
 	if err != nil {
-		s.Log.Errorf("%s: %s %d", ErrTmpl, err)
+		s.Log.Errorf("html3 group and releaser list %w: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
@@ -180,7 +180,7 @@ func (s *Sugared) Index(c echo.Context) error {
 		"latency":     time.Since(*start).String() + ".",
 	})
 	if err != nil {
-		s.Log.Errorf("%s: %s", ErrTmpl, err)
+		s.Log.Errorf("html3 index %w: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
@@ -210,7 +210,7 @@ func (s *Sugared) List(c echo.Context, tt RecordsBy) error { //nolint:funlen
 	// query database to return records and statistics
 	limit, count, byteSum, records, err := Query(c, tt, page)
 	if err != nil {
-		s.Log.Warnf("%s query error: %s", tt, err)
+		s.Log.Warnf("html3 list %s query error: %s", tt, err)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, ErrConn)
 	}
 	if limit > 0 && count == 0 {
@@ -251,7 +251,7 @@ func (s *Sugared) List(c echo.Context, tt RecordsBy) error { //nolint:funlen
 		"navigate":    navi,
 	})
 	if err != nil {
-		s.Log.Errorf("%s: %s %d", ErrTmpl, err, tt)
+		s.Log.Errorf("html3 list %s: %s", ErrTmpl, err, tt)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
@@ -275,7 +275,7 @@ func (s *Sugared) Platforms(c echo.Context) error {
 		"tags":        tags.Names(),
 	})
 	if err != nil {
-		s.Log.Errorf("%s: %s %d", ErrTmpl, err)
+		s.Log.Errorf("html3 platforms %w: %s", ErrTmpl, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil

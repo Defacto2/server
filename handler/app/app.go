@@ -1179,65 +1179,80 @@ type SRI struct {
 func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 	names := Names()
 	var err error
-	s.ArtifactEditor, err = helper.Integrity(names[ArtifactEditor], fs)
+	name := names[ArtifactEditor]
+	s.ArtifactEditor, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("helper.Integrity: %w", err)
+		return fmt.Errorf("%s: %w", name, err)
 	}
-	s.Bootstrap5, err = helper.Integrity(names[Bootstrap5], fs)
+	name = names[Bootstrap5]
+	s.Bootstrap5, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("helper.Integrity: %w", err)
+		return fmt.Errorf("%s: %w", name, err)
 	}
-	s.Bootstrap5JS, err = helper.Integrity(names[Bootstrap5JS], fs)
+	name = names[Bootstrap5JS]
+	s.Bootstrap5JS, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("helper.Integrity: %w", err)
+		return fmt.Errorf("%s: %w", name, err)
 	}
-	s.LayoutJS, err = helper.Integrity(names[LayoutJS], fs)
+	name = names[LayoutJS]
+	s.LayoutJS, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("helper.Integrity: %w", err)
+		return fmt.Errorf("%s: %w", name, err)
 	}
-	s.EditAssets, err = helper.Integrity(names[EditAssets], fs)
+	name = names[EditAssets]
+	s.EditAssets, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("helper.Integrity: %w", err)
+		return fmt.Errorf("%s: %w", name, err)
 	}
-	s.EditArchive, err = helper.Integrity(names[EditArchive], fs)
+	name = names[EditArchive]
+	s.EditArchive, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("helper.Integrity: %w", err)
+		return fmt.Errorf("%s: %w", name, err)
 	}
-	s.EditForApproval, err = helper.Integrity(names[EditForApproval], fs)
+	name = names[EditForApproval]
+	s.EditForApproval, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("helper.Integrity: %w", err)
+		return fmt.Errorf("%s: %w", name, err)
 	}
-	s.FA5Pro, err = helper.Integrity(names[FA5Pro], fs)
+	name = names[FA5Pro]
+	s.FA5Pro, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("helper.Integrity: %w", err)
+		return fmt.Errorf("%s: %w", name, err)
 	}
-	s.Jsdos6JS, err = helper.Integrity(names[Jsdos6JS], fs)
+	name = names[Jsdos6JS]
+	s.Jsdos6JS, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("helper.Integrity: %w", err)
+		return fmt.Errorf("%s: %w", name, err)
 	}
-	s.DosboxJS, err = helper.Integrity(names[DosboxJS], fs)
+	name = names[DosboxJS]
+	s.DosboxJS, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("helper.Integrity: %w", err)
+		return fmt.Errorf("%s: %w", name, err)
 	}
-	s.Layout, err = helper.Integrity(names[Layout], fs)
+	name = names[Layout]
+	s.Layout, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("helper.Integrity: %w", err)
+		return fmt.Errorf("%s: %w", name, err)
 	}
-	s.Pouet, err = helper.Integrity(names[Pouet], fs)
+	name = names[Pouet]
+	s.Pouet, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("helper.Integrity: %w", err)
+		return fmt.Errorf("%s: %w", name, err)
 	}
-	s.Readme, err = helper.Integrity(names[Readme], fs)
+	name = names[Readme]
+	s.Readme, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("helper.Integrity: %w", err)
+		return fmt.Errorf("%s: %w", name, err)
 	}
-	s.Uploader, err = helper.Integrity(names[Uploader], fs)
+	name = names[Uploader]
+	s.Uploader, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("helper.Integrity: %w", err)
+		return fmt.Errorf("%s: %w", name, err)
 	}
-	s.Htmx, err = helper.Integrity(names[Htmx], fs)
+	name = names[Htmx]
+	s.Htmx, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("helper.Integrity: %w", err)
+		return fmt.Errorf("%s: %w", name, err)
 	}
 	return nil
 }
@@ -1245,7 +1260,8 @@ func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 // badRequest returns a JSON response with a 400 status code,
 // the server cannot or will not process the request due to something that is perceived to be a client error.
 func badRequest(c echo.Context, err error) error {
-	return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request " + err.Error()})
+	return c.JSON(http.StatusBadRequest,
+		map[string]string{"error": "bad request " + err.Error()})
 }
 
 func desc(p, s, y, m string) string {

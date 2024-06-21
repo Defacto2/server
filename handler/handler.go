@@ -195,7 +195,7 @@ func (c Configuration) Registry(logger *zap.SugaredLogger) (*TemplateRegistry, e
 	}
 	tmpls, err := webapp.Templates()
 	if err != nil {
-		return nil, fmt.Errorf("webapp.Templates: %w", err)
+		return nil, fmt.Errorf("handler registry, %w", err)
 	}
 	src := html3.Templates(logger, c.View)
 	maps.Copy(tmpls, src)
