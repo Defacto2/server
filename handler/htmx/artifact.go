@@ -20,6 +20,8 @@ import (
 	"go.uber.org/zap"
 )
 
+var ErrYT = errors.New("youtube watch video id needs to be empty or 11 characters")
+
 // RecordToggle handles the post submission for the file artifact record toggle.
 // The return value is either "online" or "offline" depending on the state.
 func RecordToggle(c echo.Context, state bool) error {
@@ -527,8 +529,7 @@ func RecordLinksReset(c echo.Context) error {
 
 	const requirement = 11
 	if len(youtube) != 0 && len(youtube) != requirement {
-		err := errors.New("youtube watch video id needs to be empty or 11 characters")
-		return badRequest(c, fmt.Errorf("record links reset, %w: %q", err, youtube))
+		return badRequest(c, fmt.Errorf("record links reset, %w: %q", ErrYT, youtube))
 	}
 	colors16 = form.SanitizeURLPath(colors16)
 	github = form.SanitizeGitHub(github)

@@ -174,7 +174,15 @@ func Configurations(cx echo.Context, conf config.Config) error {
 		}
 	}
 	defer db.Close()
+	data = configurations(data, conf)
+	err = cx.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(cx, name, err)
+	}
+	return nil
+}
 
+func configurations(data map[string]interface{}, conf config.Config) map[string]interface{} {
 	check := config.CheckDir(conf.AbsDownload, "downloads")
 	data["checkDownloads"] = check
 	data["countDownloads"] = 0
@@ -202,11 +210,7 @@ func Configurations(cx echo.Context, conf config.Config) error {
 		exts, _ := helper.CountExts(conf.AbsThumbnail)
 		data["extsThumbnails"] = exts
 	}
-	err = cx.Render(http.StatusOK, name, data)
-	if err != nil {
-		return InternalErr(cx, name, err)
-	}
-	return nil
+	return data
 }
 
 // Download is the handler for the Download file record page.
@@ -1855,7 +1859,6 @@ func artifacts(c echo.Context, uri string, page int) error {
 	case forApproval.String():
 		data["forApproval"] = true
 	}
-
 	errURL := fmt.Sprintf("artifacts page %d for %q", page, uri)
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()

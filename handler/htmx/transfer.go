@@ -32,6 +32,14 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	ErrDir       = errors.New("cannot be a directory")
+	ErrFile      = errors.New("cannot be a file")
+	ErrSave      = errors.New("cannot save a file")
+	ErrMultiHead = errors.New("multipart file header is nil")
+	ErrUUID      = errors.New("invalid or an empty UUID")
+)
+
 const (
 	dz       = "demozoo"
 	pt       = "pouet"
@@ -220,8 +228,7 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key, downloadDir string
 // The destination directory is where the file will be copied to.
 func Duplicate(logger *zap.SugaredLogger, uid uuid.UUID, srcPath, dstDir string) {
 	if uid.String() == "" {
-		err := errors.New("invalid or an empty UUID")
-		logger.Errorf("htmx transfer duplicate file: %w, %s", err, uid)
+		logger.Errorf("htmx transfer duplicate file: %w, %s", ErrUUID, uid)
 		return
 	}
 	st, err := os.Stat(srcPath)
@@ -230,8 +237,7 @@ func Duplicate(logger *zap.SugaredLogger, uid uuid.UUID, srcPath, dstDir string)
 		return
 	}
 	if st.IsDir() {
-		err := errors.New("cannot be a directory")
-		logger.Errorf("htmx transfer duplicate file, %w: %s", err, srcPath)
+		logger.Errorf("htmx transfer duplicate file, %w: %s", ErrDir, srcPath)
 		return
 	}
 	newPath := filepath.Join(dstDir, uid.String())
@@ -251,15 +257,13 @@ func checkDest(dest string) (string, error) {
 			fmt.Errorf("invalid uploader destination, %w", err)
 	}
 	if !st.IsDir() {
-		err := errors.New("cannot be a file")
 		return "The uploader is misconfigured and cannot save your file",
-			fmt.Errorf("invalid uploader destination, %w", err)
+			fmt.Errorf("invalid uploader destination, %w", ErrFile)
 	}
 	f, err := os.CreateTemp(dest, "uploader-*.zip")
 	if err != nil {
-		err := errors.New("cannot save a file to the uploader destination")
 		return "The uploader cannot save your file to the host system.",
-			fmt.Errorf("%w, %w", err, err)
+			fmt.Errorf("%w: %w", ErrSave, err)
 	}
 	defer f.Close()
 	defer os.Remove(f.Name())
@@ -314,8 +318,7 @@ func checkExist(c echo.Context, logger *zap.SugaredLogger, err error) error {
 // copier is a generic file writer that saves the chosen file upload to a temporary file.
 func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeader, key string) (string, error) {
 	if file == nil {
-		err := errors.New("htmx copier multipart file header is nil")
-		return "", err
+		return "", fmt.Errorf("htmx copier: %w", ErrMultiHead)
 	}
 	const pattern = "upload-*.zip"
 	name := key + "file"

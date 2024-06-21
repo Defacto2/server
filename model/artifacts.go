@@ -264,7 +264,10 @@ func (f *Artifacts) Filename(ctx context.Context, db *sql.DB, terms []string) (m
 }
 
 // ID returns a list of files that match the list of record ids or uuids.
-func (f *Artifacts) ID(ctx context.Context, db *sql.DB, maxResults int, ids []int, uuids ...uuid.UUID) (models.FileSlice, error) {
+func (f *Artifacts) ID(
+	ctx context.Context, db *sql.DB, ids []int, uuids ...uuid.UUID) (
+	models.FileSlice, error,
+) {
 	if db == nil {
 		return nil, ErrDB
 	}

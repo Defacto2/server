@@ -85,7 +85,7 @@ func (c Config) List() []Configuration {
 	skip := []string{"GoogleAccounts"}
 	t := reflect.TypeOf(c)
 	configs := make([]Configuration, t.NumField())
-	for i := 0; i < t.NumField(); i++ {
+	for i := range t.NumField() {
 		name := t.Field(i).Name
 		switch {
 		case slices.Contains(skip, name):
@@ -129,15 +129,8 @@ func reflectValue(f reflect.StructField, v reflect.Value) string {
 	}
 	// empty cases
 	if v.String() == "" {
-		switch f.Name {
-		case down:
-			return "Empty, no downloads will be served"
-		case prev:
-			return "Empty, no preview images will be shown"
-		case thumb:
-			return "Empty, no thumbnails will be shown"
-		case logger:
-			return "Empty, logs print to the terminal (stdout)"
+		if s := emptyCases(f.Name); s != "" {
+			return s
 		}
 	}
 	// generic values
@@ -155,11 +148,26 @@ func reflectValue(f reflect.StructField, v reflect.Value) string {
 	}
 }
 
+func emptyCases(name string) string {
+	switch name {
+	case down:
+		return "Empty, no downloads will be served"
+	case prev:
+		return "Empty, no preview images will be shown"
+	case thumb:
+		return "Empty, no thumbnails will be shown"
+	case logger:
+		return "Empty, logs print to the terminal (stdout)"
+	default:
+		return ""
+	}
+}
+
 // Envs returns a list of the environment variable names in the Config struct.
 func (c Config) Envs() []string {
 	t := reflect.TypeOf(c)
 	envNames := make([]string, t.NumField())
-	for i := 0; i < t.NumField(); i++ {
+	for i := range t.NumField() {
 		envNames[i] = t.Field(i).Tag.Get("env")
 	}
 	return envNames
@@ -169,7 +177,7 @@ func (c Config) Envs() []string {
 func (c Config) Helps() []string {
 	t := reflect.TypeOf(c)
 	helpVals := make([]string, t.NumField())
-	for i := 0; i < t.NumField(); i++ {
+	for i := range t.NumField() {
 		helpVals[i] = t.Field(i).Tag.Get("help")
 	}
 	return helpVals
@@ -179,7 +187,7 @@ func (c Config) Helps() []string {
 func (c Config) Names() []string {
 	t := reflect.TypeOf(c)
 	fieldNames := make([]string, t.NumField())
-	for i := 0; i < t.NumField(); i++ {
+	for i := range t.NumField() {
 		fieldNames[i] = t.Field(i).Name
 	}
 	return fieldNames
@@ -188,11 +196,11 @@ func (c Config) Names() []string {
 // Values returns a list of the values in the Config struct.
 // These are not safe to print meaning that they may contain sensitive information.
 func (c Config) Values() []string {
-	var values []string
 	fields := reflect.VisibleFields(reflect.TypeOf(c))
 	sort.Slice(fields, func(i, j int) bool {
 		return fields[i].Name < fields[j].Name
 	})
+	values := make([]string, 0, len(fields))
 	for _, field := range fields {
 		if !field.IsExported() {
 			continue

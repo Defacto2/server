@@ -397,7 +397,7 @@ type TemplateRegistry struct {
 
 // Render the layout template with the core HTML, META and BODY elements.
 func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	const layout, info = "layout", "template registery render"
+	const layout, info = "layout", "template registry render"
 	if name == "" {
 		return fmt.Errorf("%s layout: %w", info, ErrName)
 	}
@@ -412,7 +412,7 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c 
 	}
 	tmpl, exists := t.Templates[name]
 	if !exists {
-		return fmt.Errorf("registery render %w: %q", ErrName404, name)
+		return fmt.Errorf("registry render %w: %q", ErrName404, name)
 	}
 	if err := tmpl.ExecuteTemplate(w, layout, data); err != nil {
 		return fmt.Errorf("%s execute: %w", info, err)

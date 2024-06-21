@@ -48,7 +48,7 @@ func CountExts(dir string) ([]Extension, error) {
 		ext := strings.ToLower(filepath.Ext(file.Name()))
 		exts[ext]++
 	}
-	var extensions []Extension
+	extensions := make([]Extension, 0, len(exts))
 	for k, v := range exts {
 		if k == "" {
 			k = "uuid"

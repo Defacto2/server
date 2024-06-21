@@ -321,11 +321,8 @@ func SearchByID(c echo.Context, logger *zap.SugaredLogger) error {
 		}
 	}
 
-	fmt.Println("IDS", ids)
-	fmt.Println("UUIDS", uuids)
-
 	var r model.Artifacts
-	fs, err := r.ID(ctx, db, maxResults, ids, uuids...)
+	fs, err := r.ID(ctx, db, ids, uuids...)
 	if err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
@@ -335,7 +332,6 @@ func SearchByID(c echo.Context, logger *zap.SugaredLogger) error {
 	if len(fs) == 0 {
 		return c.HTML(http.StatusOK, "No artifacts found.")
 	}
-	fmt.Printf("fs: %v\n", len(fs))
 	err = c.Render(http.StatusOK, "searchids", map[string]interface{}{
 		"maximum": maxResults,
 		"name":    search,

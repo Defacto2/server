@@ -426,27 +426,28 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 		nbsp    = 0xa0 // non-breaking space for ISO8859-1
 		nbsp437 = 0xff // non-breaking space for CP437
 		space   = " "  // intentional space
+		chk     = "checked"
 	)
 	textEncoding := render.Encoder(art, bytes.NewReader(b))
 	switch textEncoding {
 	case charmap.ISO8859_1:
 		data["readmeLatin1Cls"] = ""
 		data["readmeCP437Cls"] = "d-none" + space
-		data["topazCheck"] = "checked"
+		data["topazCheck"] = chk
 		b = bytes.ReplaceAll(b, []byte{nbsp}, []byte{sp})
 		b = bytes.ReplaceAll(b, []byte{shy}, []byte{hyphen})
 	case charmap.CodePage437:
 		data["readmeLatin1Cls"] = "d-none" + space
 		data["readmeCP437Cls"] = ""
-		data["vgaCheck"] = "checked"
+		data["vgaCheck"] = chk
 		b = bytes.ReplaceAll(b, []byte{nbsp437}, []byte{sp})
 	case unicode.UTF8:
 		// use Cad font as default
 		data["readmeLatin1Cls"] = "d-none" + space
 		data["readmeCP437Cls"] = ""
-		data["vgaCheck"] = "checked"
+		data["vgaCheck"] = chk
 	}
-	readme := ""
+	var readme string
 	switch textEncoding {
 	case unicode.UTF8:
 		// unicode should apply to both latin1 and cp437
@@ -478,10 +479,10 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 
 // pngImage returns true if the byte slice has a PNG file signature.
 func pngImage(p []byte) bool {
-	if len(p) < 8 {
+	fileSignature := []byte{137, 80, 78, 71, 13, 10, 26, 10}
+	if len(p) < len(fileSignature) {
 		return false
 	}
-	fileSignature := []byte{137, 80, 78, 71, 13, 10, 26, 10}
 	return bytes.EqualFold(p[:8], fileSignature)
 }
 

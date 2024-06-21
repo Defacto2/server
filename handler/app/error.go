@@ -215,7 +215,7 @@ func StatusErr(c echo.Context, code int, uri string) error {
 	default:
 		s := http.StatusText(code)
 		if s == "" {
-			err := fmt.Errorf("%d status code error for the URL, %s: %s", code, uri, ErrCode)
+			err := fmt.Errorf("%d status error for the URL, %s: %w", code, uri, ErrCode)
 			logger.Error(err.Error())
 			return echo.NewHTTPError(http.StatusInternalServerError, err)
 		}

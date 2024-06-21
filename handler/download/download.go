@@ -16,7 +16,10 @@ import (
 	"go.uber.org/zap"
 )
 
-var ErrStat = errors.New("file download stored on this server cannot be found")
+var (
+	ErrNone = errors.New("not found")
+	ErrStat = errors.New("file download stored on this server cannot be found")
+)
 
 // Checksum serves the checksums for the requested file.
 // The response is a text file named "checksums.txt" with the checksum and filename.
@@ -35,8 +38,7 @@ func Checksum(c echo.Context, id string) error {
 	// 72f8a29d75993487b7ad5ad3a17d2f65ed4c41be155adbda88258d0458fcfe29f55e2e31b0316f01d57f4427ca9e2422  sk8-01.jpg
 	sum := strings.TrimSpace(art.FileIntegrityStrong.String)
 	if sum == "" {
-		err := errors.New("not found")
-		return fmt.Errorf("file download checksum %w: %d", err, art.ID)
+		return fmt.Errorf("file download checksum %w: %d", ErrNone, art.ID)
 	}
 	name := art.Filename.String
 	body := []byte(sum + " " + name)
