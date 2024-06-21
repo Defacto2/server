@@ -84,7 +84,7 @@ func Read(art *models.File, path string) ([]byte, error) {
 	files.txt = !ext.IsArchive(fname)
 
 	if !files.uutxtOk && !files.filepOk {
-		return nil, fmt.Errorf("%w: %s", ErrDownload, filepath.Join(path, unid))
+		return nil, fmt.Errorf("render read %w: %s", ErrDownload, filepath.Join(path, unid))
 	}
 
 	if !files.uutxtOk && !Viewer(art) {
@@ -99,7 +99,7 @@ func Read(art *models.File, path string) ([]byte, error) {
 
 	b, err := os.ReadFile(name)
 	if err != nil {
-		return nil, fmt.Errorf("os.ReadFile: %w", err)
+		return nil, fmt.Errorf("render read file %w", err)
 	}
 
 	const nul = 0x00

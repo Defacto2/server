@@ -87,10 +87,10 @@ func CheckyPath(p []byte) string {
 func List(src, filename string) ([]string, error) {
 	st, err := os.Stat(src)
 	if errors.Is(err, fs.ErrNotExist) {
-		return nil, fmt.Errorf("read %s: %w", filepath.Base(src), ErrMissing)
+		return nil, fmt.Errorf("archive list %w: %s", ErrMissing, filepath.Base(src))
 	}
 	if st.IsDir() {
-		return nil, fmt.Errorf("read %s: %w", filepath.Base(src), ErrFile)
+		return nil, fmt.Errorf("archive list %w: %s", ErrFile, filepath.Base(src))
 	}
 	files, err := walker(src, filename)
 	if err != nil {
@@ -104,11 +104,11 @@ func walker(src, filename string) ([]string, error) {
 	name := strings.ToLower(filename) // ByExtension is case sensitive
 	format, err := archiver.ByExtension(name)
 	if err != nil {
-		return nil, fmt.Errorf("archiver.ByExtension: %w", err)
+		return nil, fmt.Errorf("walker by extension %w", err)
 	}
 	w, walkerExists := format.(archiver.Walker)
 	if !walkerExists {
-		return nil, fmt.Errorf("%w, %q", ErrExt, filename)
+		return nil, fmt.Errorf("walker %w, %q", ErrExt, filename)
 	}
 	files := []string{}
 	err = w.Walk(src, func(f archiver.File) error {
@@ -123,7 +123,7 @@ func walker(src, filename string) ([]string, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("walk: %w", err)
+		return nil, fmt.Errorf("walker %w", err)
 	}
 	return files, nil
 }
@@ -154,14 +154,14 @@ func Extract(src, dst, filename string, targets ...string) error {
 	// recover from panic caused by mholt/archiver.
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("%w %s: %v", ErrPanic, name, r)
+			err = fmt.Errorf("archive extract %w %s: %v", ErrPanic, name, r)
 		}
 	}()
 	extractAll := len(targets) == 0
 	if extractAll {
 		all, unarchiverExists := f.(archiver.Unarchiver)
 		if !unarchiverExists {
-			return fmt.Errorf("%w, %q", ErrExt, filename)
+			return fmt.Errorf("archive extract %w, %q", ErrExt, filename)
 		}
 		if err = all.Unarchive(src, dst); err == nil {
 			return nil
@@ -170,7 +170,7 @@ func Extract(src, dst, filename string, targets ...string) error {
 	}
 	target, extractorExists := f.(archiver.Extractor)
 	if !extractorExists {
-		return fmt.Errorf("%w, %q", ErrExt, filename)
+		return fmt.Errorf("archive extract %w, %q", ErrExt, filename)
 	}
 	t := strings.Join(targets, " ")
 	if err = target.Extract(src, t, dst); err == nil {
@@ -199,17 +199,17 @@ func extractor(src, dst, filename string, targets ...string) error {
 func MagicExt(src string) (string, error) {
 	prog, err := exec.LookPath("file")
 	if err != nil {
-		return "", fmt.Errorf("magic file type: %w", err)
+		return "", fmt.Errorf("archive magic file lookup %w", err)
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	cmd := exec.CommandContext(ctx, prog, "--brief", src)
 	out, err := cmd.Output()
 	if err != nil {
-		return "", fmt.Errorf("magic file type: %w", err)
+		return "", fmt.Errorf("archive magic file command %w", err)
 	}
 	if len(out) == 0 {
-		return "", fmt.Errorf("magic file type: %w", ErrRead)
+		return "", fmt.Errorf("archive magic file type: %w", ErrRead)
 	}
 	magics := map[string]string{
 		"7-zip archive data":    ".7z",
@@ -230,7 +230,7 @@ func MagicExt(src string) (string, error) {
 			return ext, nil
 		}
 	}
-	return "", fmt.Errorf("%w: %q", ErrExt, magic)
+	return "", fmt.Errorf("archive magic file %w: %q", ErrExt, magic)
 }
 
 // Replace the filename file extension with the ext string.
@@ -264,7 +264,7 @@ type Content struct {
 func (c *Content) ARJ(src string) error {
 	prog, err := exec.LookPath("arj")
 	if err != nil {
-		return fmt.Errorf("arj reader: %w", err)
+		return fmt.Errorf("archive arj reader %w", err)
 	}
 
 	const verboselist = "v"
@@ -275,7 +275,7 @@ func (c *Content) ARJ(src string) error {
 	cmd.Stderr = &b
 	out, err := cmd.Output()
 	if err != nil {
-		return fmt.Errorf("cmd.Output: %w", err)
+		return fmt.Errorf("archive arj output %w", err)
 	}
 	if len(out) == 0 {
 		return ErrRead
@@ -303,7 +303,7 @@ func (c *Content) ARJ(src string) error {
 func (c *Content) LHA(src string) error {
 	prog, err := exec.LookPath("lha")
 	if err != nil {
-		return fmt.Errorf("lha reader: %w", err)
+		return fmt.Errorf("archive lha reader %w", err)
 	}
 
 	const list = "-l"
@@ -314,7 +314,7 @@ func (c *Content) LHA(src string) error {
 	cmd.Stderr = &b
 	out, err := cmd.Output()
 	if err != nil {
-		return fmt.Errorf("cmd.Output: %w", err)
+		return fmt.Errorf("archive lha output %w", err)
 	}
 	if len(out) == 0 {
 		return ErrRead
@@ -356,7 +356,7 @@ func (c *Content) LHA(src string) error {
 func (c *Content) Rar(src string) error {
 	prog, err := exec.LookPath("unrar")
 	if err != nil {
-		return fmt.Errorf("unrar reader: %w", err)
+		return fmt.Errorf("archive unrar reader %w", err)
 	}
 	const (
 		listBrief  = "lb"
@@ -369,7 +369,7 @@ func (c *Content) Rar(src string) error {
 	cmd.Stderr = &b
 	out, err := cmd.Output()
 	if err != nil {
-		return fmt.Errorf("%q: %w", src, err)
+		return fmt.Errorf("archive unrar output %w: %s", err, src)
 	}
 	if len(out) == 0 {
 		return ErrRead
@@ -388,7 +388,7 @@ func (c *Content) Rar(src string) error {
 func (c *Content) Read(src string) error {
 	ext, err := MagicExt(src)
 	if err != nil {
-		return fmt.Errorf("system reader: %w", err)
+		return fmt.Errorf("read %w", err)
 	}
 	// if !strings.EqualFold(ext, filepath.Ext(filename)) {
 	// 	// retry using correct filename extension
@@ -404,7 +404,7 @@ func (c *Content) Read(src string) error {
 	case zipx:
 		return c.Zip(src)
 	}
-	return fmt.Errorf("system reader: %w", ErrRead)
+	return fmt.Errorf("read %w", ErrRead)
 }
 
 // Zip returns the content of the src ZIP archive, credited to Phil Katz,
@@ -414,7 +414,7 @@ func (c *Content) Read(src string) error {
 func (c *Content) Zip(src string) error {
 	prog, err := exec.LookPath("zipinfo")
 	if err != nil {
-		return fmt.Errorf("zipinfo reader: %w", err)
+		return fmt.Errorf("archive zipinfo reader %w", err)
 	}
 	const list = "-1"
 	var b bytes.Buffer
@@ -430,7 +430,7 @@ func (c *Content) Zip(src string) error {
 			return nil
 		}
 		// otherwise the zipinfo threw an error
-		return fmt.Errorf("%q: %w", src, err)
+		return fmt.Errorf("archive zipinfo %w: %s", err, src)
 	}
 	if len(out) == 0 {
 		return ErrRead
@@ -467,7 +467,7 @@ func (x Extractor) ARJ(targets ...string) error {
 	// note: only use arj, as unarj offers limited functionality
 	prog, err := exec.LookPath("arj")
 	if err != nil {
-		return fmt.Errorf("arj extract: %w", err)
+		return fmt.Errorf("archive arj extract %w", err)
 	}
 	var b bytes.Buffer
 	ctx, cancel := context.WithCancel(context.Background())
@@ -480,9 +480,10 @@ func (x Extractor) ARJ(targets ...string) error {
 	cmd.Stderr = &b
 	if err = cmd.Run(); err != nil {
 		if b.String() != "" {
-			return fmt.Errorf("%w: %s: %q", ErrProg, prog, strings.TrimSpace(b.String()))
+			return fmt.Errorf("archive arj %w: %s: %q",
+				ErrProg, prog, strings.TrimSpace(b.String()))
 		}
-		return fmt.Errorf("%w: %s", err, prog)
+		return fmt.Errorf("archive arj %w: %s", err, prog)
 	}
 	return nil
 }
@@ -515,7 +516,7 @@ func (x Extractor) LHA(targets ...string) error {
 	src, dst := x.Source, x.Destination
 	prog, err := exec.LookPath("lha")
 	if err != nil {
-		return fmt.Errorf("lha extract: %w", err)
+		return fmt.Errorf("archive lha extract %w", err)
 	}
 	var b bytes.Buffer
 	ctx, cancel := context.WithCancel(context.Background())
@@ -536,9 +537,9 @@ func (x Extractor) LHA(targets ...string) error {
 	out, err := cmd.Output()
 	if err != nil {
 		if b.String() != "" {
-			return fmt.Errorf("%w: %s: %s", ErrProg, prog, strings.TrimSpace(b.String()))
+			return fmt.Errorf("archive lha %w: %s: %s", ErrProg, prog, strings.TrimSpace(b.String()))
 		}
-		return fmt.Errorf("%s: %w", prog, err)
+		return fmt.Errorf("archive lha %w: %s", err, prog)
 	}
 	if len(out) == 0 {
 		return ErrRead
@@ -555,7 +556,7 @@ func (x Extractor) Zip(targets ...string) error {
 	src, dst := x.Source, x.Destination
 	prog, err := exec.LookPath("unzip")
 	if err != nil {
-		return fmt.Errorf("unzip extract: %w", err)
+		return fmt.Errorf("archive zip extract %w", err)
 	}
 	if dst == "" {
 		return ErrDest
@@ -586,9 +587,9 @@ func (x Extractor) Zip(targets ...string) error {
 	cmd.Stderr = &b
 	if err = cmd.Run(); err != nil {
 		if b.String() != "" {
-			return fmt.Errorf("%w: %s: %s", ErrProg, prog, strings.TrimSpace(b.String()))
+			return fmt.Errorf("archive zip %w: %s: %s", ErrProg, prog, strings.TrimSpace(b.String()))
 		}
-		return fmt.Errorf("%s: %w", prog, err)
+		return fmt.Errorf("archive zip %w: %s", err, prog)
 	}
 	return nil
 }

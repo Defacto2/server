@@ -40,20 +40,20 @@ const (
 func (v *Version) Query() error {
 	conn, err := ConnectDB()
 	if err != nil {
-		return fmt.Errorf("connectDB: %w", err)
+		return fmt.Errorf("postgres version connect %w", err)
 	}
 	rows, err := conn.Query(Ver)
 	if err != nil {
-		return fmt.Errorf("conn.Query: %w", err)
+		return fmt.Errorf("postgres version connect query %w", err)
 	}
 	if rows.Err() != nil {
-		return fmt.Errorf("rows.Err: %w", rows.Err())
+		return fmt.Errorf("postgres version rows %w", rows.Err())
 	}
 	defer rows.Close()
 	defer conn.Close()
 	for rows.Next() {
 		if err := rows.Scan(v); err != nil {
-			return fmt.Errorf("rows.Scan: %w", err)
+			return fmt.Errorf("postgres version rows scan %w", err)
 		}
 	}
 	return nil

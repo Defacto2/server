@@ -27,7 +27,6 @@
 
 - [ ] *? Implememnt a [scheduling library for Go](https://github.com/reugn/go-quartz)
 - [ ] [xstrings](https://github.com/huandu/xstrings) for string manipulation.
-- [ ] Errors cleanup, never return raw errors, always wrap them. And also never use, "xxx failed or broke" as an error message. Instead use "doing xxx" or "while doing xxx".
 
 ### MAJOR FREEZE
 

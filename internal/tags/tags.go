@@ -35,7 +35,7 @@ type T struct {
 func (t *T) ByName(name string) (TagData, error) {
 	if t.List == nil {
 		if err := t.Build(); err != nil {
-			return TagData{}, fmt.Errorf("tags.Build: %w", err)
+			return TagData{}, fmt.Errorf("tags by name %w", err)
 		}
 	}
 	for _, m := range t.List {
@@ -73,7 +73,7 @@ func (t *T) Build() (err error) {
 			t.Mu.Unlock()
 		}(i, tg)
 		if err != nil {
-			return fmt.Errorf("defer counter: %w", err)
+			return fmt.Errorf("tags build defer counter %w", err)
 		}
 	}
 	return nil
@@ -685,7 +685,7 @@ func counter(t Tag) (int64, error) {
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
-		return -1, fmt.Errorf("could not connect to the database: %w", err)
+		return -1, fmt.Errorf("tags counter could not connect to the database: %w", err)
 	}
 	clause := "section = ?"
 	if t >= FirstPlatform {
@@ -694,7 +694,7 @@ func counter(t Tag) (int64, error) {
 	sum, err := models.Files(
 		qm.Where(clause, URIs()[t])).Count(ctx, db)
 	if err != nil {
-		return -1, fmt.Errorf("could not count the records associated with tag: %w", err)
+		return -1, fmt.Errorf("tags counter could not count the tag: %w", err)
 	}
 	return sum, nil
 }

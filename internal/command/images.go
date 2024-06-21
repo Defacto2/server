@@ -163,23 +163,23 @@ func (dir Dirs) AnsiLove(logger *zap.SugaredLogger, src, unid string) error {
 	tmp := BaseNamePath(src) + png // destination
 	arg = append(arg, "-o", tmp)
 	if err := Run(logger, Ansilove, arg...); err != nil {
-		return fmt.Errorf("ansilove: %w", err)
+		return fmt.Errorf("ansilove run %w", err)
 	}
 
 	dst := filepath.Join(dir.Preview, unid+png)
 	if err := CopyFile(logger, tmp, dst); err != nil {
-		return fmt.Errorf("copy file: %w", err)
+		return fmt.Errorf("ansilove copy file %w", err)
 	}
 	defer func() {
 		err := OptimizePNG(dst)
 		if err != nil {
-			logger.Warnln("ansilove: ", err)
+			logger.Warnf("ansilove optimize %w\n", err)
 		}
 	}()
 	defer func() {
 		err := dir.AnsiThumbnail(tmp, unid)
 		if err != nil {
-			logger.Warnln("ansilove: ", err)
+			logger.Warnf("ansilove thumbnail %w\n", err)
 		}
 	}()
 	return nil
@@ -199,18 +199,18 @@ func (dir Dirs) PreviewGIF(logger *zap.SugaredLogger, src, unid string) error {
 	tmp := BaseNamePath(src) + webp // destination
 	arg = append(arg, "-o", tmp)
 	if err := Run(logger, Gwebp, arg...); err != nil {
-		return fmt.Errorf("gif2webp: %w", err)
+		return fmt.Errorf("gif2webp run %w", err)
 	}
 
 	dst := filepath.Join(dir.Preview, unid+webp)
 	if err := CopyFile(logger, tmp, dst); err != nil {
-		return fmt.Errorf("copy file: %w", err)
+		return fmt.Errorf("gif2webp copy file %w", err)
 	}
 
 	defer func() {
 		err := dir.WebpThumbnail(tmp, unid)
 		if err != nil {
-			logger.Warnln("gif: ", err)
+			logger.Warnf("gif2webp thumbnail %w\n", err)
 		}
 	}()
 	return nil
@@ -225,18 +225,18 @@ func (dir Dirs) PreviewPNG(logger *zap.SugaredLogger, src, unid string) error {
 
 	dst := filepath.Join(dir.Preview, unid+png)
 	if err := CopyFile(logger, src, dst); err != nil {
-		return fmt.Errorf("copy file: %w", err)
+		return fmt.Errorf("preview png copy file %w", err)
 	}
 	defer func() {
 		err := OptimizePNG(dst)
 		if err != nil {
-			logger.Warnln("png: ", err)
+			logger.Warnf("optimize png %w\n", err)
 		}
 	}()
 	defer func() {
 		err := dir.WebpThumbnail(src, unid)
 		if err != nil {
-			logger.Warnln("png: ", err)
+			logger.Warnf("thumbnail png %w\n", err)
 		}
 	}()
 	return nil
@@ -259,17 +259,17 @@ func (dir Dirs) PreviewWebP(logger *zap.SugaredLogger, src, unid string) error {
 	tmp := BaseNamePath(src) + webp // destination
 	arg = append(arg, "-o", tmp)
 	if err := RunQuiet(Cwebp, arg...); err != nil {
-		return fmt.Errorf("cwebp: %w", err)
+		return fmt.Errorf("cwebp run %w", err)
 	}
 
 	dst := filepath.Join(dir.Preview, unid+webp)
 	if err := CopyFile(logger, tmp, dst); err != nil {
-		return fmt.Errorf("copy file: %w", err)
+		return fmt.Errorf("preview webp copy file %w", err)
 	}
 	defer func() {
 		err := dir.WebpThumbnail(tmp, unid)
 		if err != nil {
-			logger.Warnln("webp: ", err)
+			logger.Warnf("preview webp: %w\n", err)
 		}
 	}()
 	return nil
@@ -286,7 +286,7 @@ func (dir Dirs) AnsiThumbnail(src, unid string) error {
 	arg = append(arg, args...) // command line arguments
 	arg = append(arg, tmp)     // destination
 	if err := RunQuiet(Convert, arg...); err != nil {
-		return fmt.Errorf("convert: %w", err)
+		return fmt.Errorf("run ansi convert %w", err)
 	}
 
 	dst := filepath.Join(dir.Thumbnail, unid+webp)
@@ -296,7 +296,7 @@ func (dir Dirs) AnsiThumbnail(src, unid string) error {
 	arg = append(arg, args...)   // command line arguments
 	arg = append(arg, "-o", dst) // destination
 	if err := RunQuiet(Cwebp, arg...); err != nil {
-		return fmt.Errorf("cwebp: %w", err)
+		return fmt.Errorf("ansi to cwebp %w", err)
 	}
 	defer os.Remove(tmp)
 	return nil
@@ -313,7 +313,7 @@ func (dir Dirs) WebpThumbnail(src, unid string) error {
 	arg = append(arg, args...) // command line arguments
 	arg = append(arg, tmp)     // destination
 	if err := RunQuiet(Convert, arg...); err != nil {
-		return fmt.Errorf("convert: %w", err)
+		return fmt.Errorf("run webp convert %w", err)
 	}
 
 	dst := filepath.Join(dir.Thumbnail, unid+webp)
@@ -323,7 +323,7 @@ func (dir Dirs) WebpThumbnail(src, unid string) error {
 	arg = append(arg, args...)   // command line arguments
 	arg = append(arg, "-o", dst) // destination
 	if err := RunQuiet(Cwebp, arg...); err != nil {
-		return fmt.Errorf("cwebp: %w", err)
+		return fmt.Errorf("run cwebp %w", err)
 	}
 	defer os.Remove(tmp)
 	return nil
@@ -349,24 +349,24 @@ func (dir Dirs) LosslessScreenshot(logger *zap.SugaredLogger, src, unid string) 
 	name := filepath.Base(src) + png                             // temp file name
 	tmp, err := os.MkdirTemp(os.TempDir(), "losslessscreenshot") // create temp dir
 	if err != nil {
-		return fmt.Errorf("os.MkdirTemp: %w", err)
+		return fmt.Errorf("lossless screenshot make dir temp %w", err)
 	}
 	defer os.RemoveAll(tmp)        // remove temp dir
 	tmp = filepath.Join(tmp, name) // temp output file target
 	arg = append(arg, tmp)
 	if err := RunQuiet(Convert, arg...); err != nil {
-		return fmt.Errorf("convert: %w", err)
+		return fmt.Errorf("lossless screenshot run convert %w", err)
 	}
 
 	dst := filepath.Join(dir.Preview, unid+png)
 	if err := CopyFile(logger, tmp, dst); err != nil {
-		return fmt.Errorf("copy file: %w", err)
+		return fmt.Errorf("lossless screenshot copy file %w", err)
 	}
 
 	defer func() {
 		err := dir.WebpThumbnail(tmp, unid)
 		if err != nil {
-			logger.Warnln("lossless screenshot: ", err)
+			logger.Warnf("lossless screenshot thumbnail %w\n", err)
 		}
 	}()
 	return nil
@@ -392,13 +392,13 @@ func (dir Dirs) PreviewLossy(logger *zap.SugaredLogger, src, unid string) error 
 	name := filepath.Base(src) + jpg                       // temp file name
 	tmp, err := os.MkdirTemp(os.TempDir(), "lossypreview") // create temp dir
 	if err != nil {
-		return fmt.Errorf("os.MkdirTemp: %w", err)
+		return fmt.Errorf("lossy preview make dir temp %w", err)
 	}
 	defer os.RemoveAll(tmp)        // remove temp dir
 	tmp = filepath.Join(tmp, name) // temp output file target
 	arg = append(arg, tmp)         // destination
 	if err := RunQuiet(Convert, arg...); err != nil {
-		return fmt.Errorf("convert: %w", err)
+		return fmt.Errorf("lossy preview convert %w", err)
 	}
 
 	dst := filepath.Join(dir.Preview, unid+webp)
@@ -408,14 +408,14 @@ func (dir Dirs) PreviewLossy(logger *zap.SugaredLogger, src, unid string) error 
 	arg = append(arg, args...)   // command line arguments
 	arg = append(arg, "-o", dst) // destination
 	if err := RunQuiet(Cwebp, arg...); err != nil {
-		return fmt.Errorf("cwebp: %w", err)
+		return fmt.Errorf("lossy preview cwebp %w", err)
 	}
 	defer os.Remove(tmp)
 
 	defer func() {
 		err := dir.WebpThumbnail(tmp, unid)
 		if err != nil {
-			logger.Warnln("lossy screenshot: ", err)
+			logger.Warnf("lossy preview thumbnail %w\n", err)
 		}
 	}()
 	return nil

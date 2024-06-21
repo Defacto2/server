@@ -27,7 +27,7 @@ func HumanizeAndCount(section, platform string) (template.HTML, error) {
 	db, err := postgres.ConnectDB()
 	if err != nil {
 		return "cannot connect to the database",
-			fmt.Errorf("postgres.ConnectDB: %w", err)
+			fmt.Errorf("form humanize and count %w", err)
 	}
 	defer db.Close()
 	s := tags.TagByURI(section)
@@ -48,7 +48,7 @@ func HumanizeAndCount(section, platform string) (template.HTML, error) {
 	count, err := model.ClassificationCount(ctx, db, section, platform)
 	if err != nil {
 		return "cannot count the classification",
-			fmt.Errorf("model.ClassificationCount: %w", err)
+			fmt.Errorf("form humanize and count classification %w", err)
 	}
 	var html string
 	switch count {
@@ -90,7 +90,7 @@ func SanitizeSeparators(rawPath string) string {
 	raw = strings.Trim(raw, separator)
 	u, err := url.Parse(raw)
 	if err != nil {
-		return "url.Parse error: " + err.Error()
+		return "sanitize separators url parse error: " + err.Error()
 	}
 	return u.Path
 }

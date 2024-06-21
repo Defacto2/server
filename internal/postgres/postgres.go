@@ -36,7 +36,7 @@ func New() (Connection, error) {
 		URL: DefaultURL,
 	}
 	if err := env.Parse(&c); err != nil {
-		return Connection{}, fmt.Errorf("%w: %w", ErrEnv, err)
+		return Connection{}, fmt.Errorf("default url %w: %w", ErrEnv, err)
 	}
 	return c, nil
 }
@@ -45,11 +45,11 @@ func New() (Connection, error) {
 func ConnectDB() (*sql.DB, error) {
 	dataSource, err := New()
 	if err != nil {
-		return nil, fmt.Errorf("new connection db: %w", err)
+		return nil, fmt.Errorf("postgres new connection, %w", err)
 	}
 	conn, err := sql.Open(DriverName, dataSource.URL)
 	if err != nil {
-		return nil, fmt.Errorf("sql.Open: %w", err)
+		return nil, fmt.Errorf("postgres open new connection, %w", err)
 	}
 	return conn, nil
 }

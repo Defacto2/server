@@ -40,39 +40,39 @@ func ExtractOne(logger *zap.SugaredLogger, src, dst, extHint, name string) error
 
 	st, err := os.Stat(src)
 	if err != nil {
-		return fmt.Errorf("os.Stat: %w", err)
+		return fmt.Errorf("extract one stat %w", err)
 	}
 	if st.IsDir() {
-		return fmt.Errorf("%w: %q", ErrIsDir, src)
+		return fmt.Errorf("extract one %w: %q", ErrIsDir, src)
 	}
 	if st.Size() == 0 {
-		return fmt.Errorf("%w: %q", ErrEmpty, src)
+		return fmt.Errorf("extract one %w: %q", ErrEmpty, src)
 	}
 
 	tmp, err := os.MkdirTemp(os.TempDir(), pattern)
 	if err != nil {
-		return fmt.Errorf("os.MkdirTemp: %w", err)
+		return fmt.Errorf("extract one make temp dir %w", err)
 	}
 	defer os.RemoveAll(tmp)
 
 	r := runner{src: src, tmp: tmp, name: name, logger: logger}
 	if err = r.extract(extHint); err != nil {
-		return fmt.Errorf("r.extract: %w", err)
+		return fmt.Errorf("extract one extraction %w", err)
 	}
 
 	extracted := filepath.Join(tmp, r.name) // p7zip manipulates the r.name
 	st, err = os.Stat(extracted)
 	if err != nil {
-		return fmt.Errorf("os.Stat: %w", err)
+		return fmt.Errorf("extract one extracted stat %w", err)
 	}
 	if st.IsDir() {
-		return fmt.Errorf("%w: %q", ErrIsDir, extracted)
+		return fmt.Errorf("extract one extracted %w: %q", ErrIsDir, extracted)
 	}
 	if st.Size() == 0 {
-		return fmt.Errorf("%w: %q", ErrEmpty, extracted)
+		return fmt.Errorf("extract one extracted %w: %q", ErrEmpty, extracted)
 	}
 	if err := CopyFile(logger, extracted, dst); err != nil {
-		return fmt.Errorf("CopyFile: %w", err)
+		return fmt.Errorf("extract one copy extracted %w", err)
 	}
 	return nil
 }
@@ -107,7 +107,7 @@ func (r runner) arc() error {
 	// the arc command doesn't offer a target directory option
 	tmpArc := filepath.Join(r.tmp, "archive.arc")
 	if err := CopyFile(r.logger, r.src, tmpArc); err != nil {
-		return fmt.Errorf("CopyFile: %w", err)
+		return fmt.Errorf("decompress arc copy file %w", err)
 	}
 	arg := []string{
 		"xwo",  // Extract files from archive.
@@ -122,7 +122,7 @@ func (r runner) arj() error {
 	// the arj command requires the source archive to have an .arj extension
 	tmpArj := filepath.Join(r.tmp, "archive.arj")
 	if err := CopyFile(r.logger, r.src, tmpArj); err != nil {
-		return fmt.Errorf("CopyFile: %w", err)
+		return fmt.Errorf("decompress arj copy file %w", err)
 	}
 	arg := []string{
 		"e",           // Extract files from archive.
@@ -133,7 +133,7 @@ func (r runner) arj() error {
 	if err := Run(r.logger, Arj, arg...); err != nil {
 		s := ArjExitStatus(err)
 		r.logger.Warnf("arj exit status: %s", s)
-		return fmt.Errorf("%w: %s", err, s)
+		return fmt.Errorf("decompress arj %w: %s", err, s)
 	}
 	return nil
 }
@@ -153,12 +153,12 @@ func (r *runner) p7zip() error {
 		name,         // File to extract from the archive.
 	}
 	if err := Run(r.logger, P7zip, arg...); err != nil {
-		return fmt.Errorf("7z: %w", err)
+		return fmt.Errorf("decompress 7z run %w", err)
 	}
 	// handle file extraction from a directory in the archive
 	r.name = filepath.Base(name)
 	if err := Run(r.logger, P7zip, arg...); err != nil {
-		return fmt.Errorf("7z: %w, %s", err, r.name)
+		return fmt.Errorf("decompress 7z subdirectory run %w, %s", err, r.name)
 	}
 	return nil
 }
@@ -174,7 +174,7 @@ func (r *runner) rar() error {
 	if err := RunWD(r.logger, Unrar, r.tmp, arg...); err != nil {
 		s := UnRarExitStatus(err)
 		r.logger.Warnf("unrar exit status: %s", s)
-		return fmt.Errorf("%w: %s", err, s)
+		return fmt.Errorf("decompress rar run %w: %s", err, s)
 	}
 	// handle file extraction from a directory in the archive
 	r.name = filepath.Base(r.name)
@@ -201,7 +201,7 @@ func (r runner) zip() error {
 	if err := Run(r.logger, Unzip, arg...); err != nil {
 		s := unzipExitStatus(err)
 		r.logger.Warnf("unzip exit status: %s", s)
-		return fmt.Errorf("%w: %s", err, s)
+		return fmt.Errorf("decompress zip run %w: %s", err, s)
 	}
 	return nil
 }
@@ -316,7 +316,7 @@ func (dir Dirs) ExtractAnsiLove(logger *zap.SugaredLogger, src, extHint, unid, n
 
 	dst, err := extract(logger, src, extHint, name)
 	if err != nil {
-		return fmt.Errorf("extract: %w", err)
+		return fmt.Errorf("decompress extract ansilove: %w", err)
 	}
 	defer os.RemoveAll(dst)
 	return dir.AnsiLove(logger, dst, unid)
@@ -332,7 +332,7 @@ func (dir Dirs) ExtractImage(logger *zap.SugaredLogger, src, extHint, unid, name
 
 	dst, err := extract(logger, src, extHint, name)
 	if err != nil {
-		return fmt.Errorf("extract: %w", err)
+		return fmt.Errorf("decompress extract image: %w", err)
 	}
 	defer os.RemoveAll(dst)
 
@@ -351,10 +351,10 @@ func (dir Dirs) ExtractImage(logger *zap.SugaredLogger, src, extHint, unid, name
 		// these format cases are supported by cwebp conversion tool
 		err = dir.PreviewWebP(logger, dst, unid)
 	default:
-		return fmt.Errorf("%w: %q", ErrImg, filepath.Ext(dst))
+		return fmt.Errorf("decompress extract image %w: %q", ErrImg, filepath.Ext(dst))
 	}
 	if err != nil {
-		return fmt.Errorf("dir.Preview%s: %w", ext, err)
+		return fmt.Errorf("decompress extract image preview %s: %w", ext, err)
 	}
 	return nil
 }
@@ -366,19 +366,19 @@ func extract(logger *zap.SugaredLogger, src, extHint, name string) (string, erro
 	}
 	tmp, err := os.MkdirTemp(os.TempDir(), pattern)
 	if err != nil {
-		return "", fmt.Errorf("os.MkdirTemp: %w", err)
+		return "", fmt.Errorf("decompress make dir temp %w", err)
 	}
 
 	dst := filepath.Join(tmp, filepath.Base(name))
 	if err = ExtractOne(logger, src, dst, extHint, name); err != nil {
-		return "", fmt.Errorf("ExtractOne: %w", err)
+		return "", fmt.Errorf("decompress extract one %w", err)
 	}
 	st, err := os.Stat(dst)
 	if err != nil {
-		return "", fmt.Errorf("os.Stat: %w", err)
+		return "", fmt.Errorf("decompress extract stat %w", err)
 	}
 	if st.IsDir() {
-		return "", fmt.Errorf("%w: %q", ErrIsDir, dst)
+		return "", fmt.Errorf("decompress extract %w: %q", ErrIsDir, dst)
 	}
 	return dst, nil
 }

@@ -122,7 +122,7 @@ func RemoveImgs(unid string, dirs ...string) error {
 				return ErrIsDir
 			}
 			if err = os.Remove(name); err != nil {
-				return fmt.Errorf("os.Remove: %w", err)
+				return fmt.Errorf("remove images os.remove %w", err)
 			}
 		}
 	}
@@ -138,13 +138,13 @@ func RemoveMe(unid, dir string) error {
 		if errors.Is(err, os.ErrNotExist) {
 			return nil
 		}
-		return fmt.Errorf("os.Stat: %w", err)
+		return fmt.Errorf("remove readme stat %w", err)
 	}
 	if st.IsDir() {
 		return ErrIsDir
 	}
 	if err := os.Remove(name); err != nil {
-		return fmt.Errorf("os.Remove: %w", err)
+		return fmt.Errorf("remove readme os.remove %w", err)
 	}
 	return nil
 }
@@ -157,24 +157,24 @@ func CopyFile(logger *zap.SugaredLogger, src, dst string) error {
 
 	s, err := os.Open(src)
 	if err != nil {
-		return fmt.Errorf("os.Open: %w", err)
+		return fmt.Errorf("copy file open %w", err)
 	}
 	defer s.Close()
 
 	d, err := os.Create(dst)
 	if err != nil {
-		return fmt.Errorf("os.Create: %w", err)
+		return fmt.Errorf("copy file create %w", err)
 	}
 	defer d.Close()
 
 	i, err := io.Copy(d, s)
 	if err != nil {
-		return fmt.Errorf("io.Copy: %w", err)
+		return fmt.Errorf("copy file io.copy %w", err)
 	}
 	logger.Infof("copyfile: copied %d bytes to %s\n", i, dst)
 
 	if err := d.Sync(); err != nil {
-		return fmt.Errorf("d.Sync: %w", err)
+		return fmt.Errorf("copy file sync %w", err)
 	}
 	return nil
 }
@@ -203,7 +203,7 @@ func LookCmd(name string) error {
 		err = nil
 	}
 	if err != nil {
-		return fmt.Errorf("exec.LookPath: %w", err)
+		return fmt.Errorf("exec look path %w", err)
 	}
 	return nil
 }
@@ -211,7 +211,7 @@ func LookCmd(name string) error {
 // LookVersion returns an error when the match string is not found in the named command output.
 func LookVersion(name, flag, match string) error {
 	if err := LookCmd(name); err != nil {
-		return fmt.Errorf("lookcmd: %w", err)
+		return fmt.Errorf("look version %w", err)
 	}
 	if match == "" {
 		return ErrMatch
@@ -219,20 +219,20 @@ func LookVersion(name, flag, match string) error {
 	cmd := exec.Command(name, flag)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return fmt.Errorf("cmd.StdoutPipe: %w", err)
+		return fmt.Errorf("look version stdout pipe %w", err)
 	}
 	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("cmd.Start: %w", err)
+		return fmt.Errorf("look version start %w", err)
 	}
 	b, err := io.ReadAll(stdout)
 	if err != nil {
-		return fmt.Errorf("io.ReadAll: %w", err)
+		return fmt.Errorf("look version read all %w", err)
 	}
 	if !bytes.Contains(b, []byte(match)) {
-		return fmt.Errorf("%w: %s", ErrVers, name)
+		return fmt.Errorf("look version %w: %s", ErrVers, name)
 	}
 	if err := cmd.Wait(); err != nil {
-		return fmt.Errorf("cmd.Wait: %w", err)
+		return fmt.Errorf("look version wait %w", err)
 	}
 	return nil
 }
@@ -250,13 +250,13 @@ func Run(logger *zap.SugaredLogger, name string, arg ...string) error {
 // Any output is sent to the stdout buffer.
 func RunOut(name string, arg ...string) ([]byte, error) {
 	if err := LookCmd(name); err != nil {
-		return nil, fmt.Errorf("lookcmd: %w", err)
+		return nil, fmt.Errorf("run output %w", err)
 	}
 	var out bytes.Buffer
 	cmd := exec.Command(name, arg...)
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("cmd.Run: %w", err)
+		return nil, fmt.Errorf("run output cmd.run %w", err)
 	}
 	return out.Bytes(), nil
 }
@@ -264,14 +264,14 @@ func RunOut(name string, arg ...string) ([]byte, error) {
 // RunQuiet looks for the command in the system path and executes it with the arguments.
 func RunQuiet(name string, arg ...string) error {
 	if err := LookCmd(name); err != nil {
-		return fmt.Errorf("lookcmd: %w", err)
+		return fmt.Errorf("run quiet %w", err)
 	}
 	cmd := exec.Command(name, arg...)
 	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("cmd.Start: %w", err)
+		return fmt.Errorf("run quiet start %w", err)
 	}
 	if err := cmd.Wait(); err != nil {
-		return fmt.Errorf("cmd.Wait: %w", err)
+		return fmt.Errorf("run quiet wait %w", err)
 	}
 	return nil
 }
@@ -288,27 +288,27 @@ func RunWD(logger *zap.SugaredLogger, name, wdir string, arg ...string) error {
 
 func run(logger *zap.SugaredLogger, name, wdir string, arg ...string) error {
 	if err := LookCmd(name); err != nil {
-		return fmt.Errorf("lookcmd: %w", err)
+		return fmt.Errorf("run %w", err)
 	}
 	cmd := exec.Command(name, arg...)
 	cmd.Dir = wdir
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		return fmt.Errorf("could not get stderr pipe: %w", err)
+		return fmt.Errorf("run could not get stderr pipe %w", err)
 	}
 	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("could not start command: %w", err)
+		return fmt.Errorf("run could not start command %w", err)
 	}
 	b, err := io.ReadAll(stderr)
 	if err != nil {
-		return fmt.Errorf("could not read stderr: %w", err)
+		return fmt.Errorf("run could not read stderr %w", err)
 	}
 	if len(b) > 0 {
 		logger.Debugf("run %q: %s\n", cmd, string(b))
 	}
 
 	if err := cmd.Wait(); err != nil {
-		return fmt.Errorf("cmd.Wait: %w", err)
+		return fmt.Errorf("run wait: %w", err)
 	}
 	return nil
 }

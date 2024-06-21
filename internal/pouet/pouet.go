@@ -30,9 +30,9 @@ const (
 )
 
 var (
-	ErrID      = errors.New("pouet production id is invalid")
-	ErrSuccess = errors.New("pouet production not found")
-	ErrStatus  = errors.New("pouet production status is not ok")
+	ErrID      = errors.New("id is invalid")
+	ErrSuccess = errors.New("not found")
+	ErrStatus  = errors.New("status is not ok")
 )
 
 // Production is the production data from the Pouet API.
@@ -193,12 +193,12 @@ func (r *Response) Get(id int) error {
 	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return fmt.Errorf("http.NewRequestWithContext: %w", err)
+		return fmt.Errorf("get pouet production new request %w", err)
 	}
 	req.Header.Set("User-Agent", helper.UserAgent)
 	res, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("client.Do: %w", err)
+		return fmt.Errorf("get pouet production client do %w", err)
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
@@ -206,14 +206,14 @@ func (r *Response) Get(id int) error {
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return fmt.Errorf("io.ReadAll: %w", err)
+		return fmt.Errorf("get pouet production read all %w", err)
 	}
 	err = json.Unmarshal(body, &r)
 	if err != nil {
-		return fmt.Errorf("json.Unmarshal: %w", err)
+		return fmt.Errorf("get pouet production json unmarshal %w", err)
 	}
 	if !r.Success {
-		return fmt.Errorf("%w: %d", ErrSuccess, id)
+		return fmt.Errorf("get pouet production %w: %d", ErrSuccess, id)
 	}
 	return nil
 }
@@ -228,11 +228,11 @@ func (p *Production) Uploader(id int) error {
 	r := Response{}
 	err := r.Get(id)
 	if err != nil {
-		return fmt.Errorf("response.Get: %w", err)
+		return fmt.Errorf("pouet uploader get %w", err)
 	}
 	p.ID, err = strconv.Atoi(r.Prod.ID)
 	if err != nil {
-		return fmt.Errorf("strconv.Atoi: %w", err)
+		return fmt.Errorf("pouet uploader atoi %w", err)
 	}
 	p.Title = r.Prod.Title
 	p.ReleaseDate = r.Prod.ReleaseDate
@@ -254,28 +254,28 @@ func (v *Votes) Votes(id int) error {
 	r := Response{}
 	err := r.Get(id)
 	if err != nil {
-		return fmt.Errorf("response.Get: %w", err)
+		return fmt.Errorf("pouet votes get %w", err)
 	}
 	v.ID, err = strconv.Atoi(r.Prod.ID)
 	if err != nil {
-		return fmt.Errorf("strconv.Atoi: %w", err)
+		return fmt.Errorf("pouet votes atoi %w", err)
 	}
 	const base, bitSize = 10, 64
 	v.VotesUp, err = strconv.ParseUint(r.Prod.Voteup, base, bitSize)
 	if err != nil {
-		return fmt.Errorf("strconv.ParseUint: %w", err)
+		return fmt.Errorf("pouet votes parse up %w", err)
 	}
 	v.VotesMeh, err = strconv.ParseUint(r.Prod.Votepig, base, bitSize)
 	if err != nil {
-		return fmt.Errorf("strconv.ParseUint: %w", err)
+		return fmt.Errorf("pouet votes parse pig %w", err)
 	}
 	v.VotesDown, err = strconv.ParseUint(r.Prod.Votedown, base, bitSize)
 	if err != nil {
-		return fmt.Errorf("strconv.ParseUint: %w", err)
+		return fmt.Errorf("pouet votes parse down %w", err)
 	}
 	v.VotesAvg, err = strconv.ParseFloat(r.Prod.Voteavg, 64)
 	if err != nil {
-		return fmt.Errorf("strconv.ParseFloat: %w", err)
+		return fmt.Errorf("pouet votes parse average %w", err)
 	}
 	v.Stars = Stars(v.VotesUp, v.VotesMeh, v.VotesDown)
 	return nil
