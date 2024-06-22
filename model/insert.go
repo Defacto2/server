@@ -19,8 +19,8 @@ import (
 // InsertDemozoo inserts a new file record into the database using a Demozoo production ID.
 // This will not check if the Demozoo production ID already exists in the database.
 // When successful the function will return the new record ID.
-func InsertDemozoo(ctx context.Context, db *sql.DB, id int64) (int64, error) {
-	if db == nil {
+func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int64) (int64, error) {
+	if exec == nil {
 		return 0, ErrDB
 	}
 	if id < startID || id > demozoo.Sanity {
@@ -37,7 +37,7 @@ func InsertDemozoo(ctx context.Context, db *sql.DB, id int64) (int64, error) {
 		WebIDDemozoo: null.Int64From(id),
 		Deletedat:    null.TimeFromPtr(&now),
 	}
-	if err = f.Insert(ctx, db, boil.Infer()); err != nil {
+	if err = f.Insert(ctx, exec, boil.Infer()); err != nil {
 		return 0, fmt.Errorf("f.Insert: %w", err)
 	}
 	return f.ID, nil
@@ -46,8 +46,8 @@ func InsertDemozoo(ctx context.Context, db *sql.DB, id int64) (int64, error) {
 // InsertPouet inserts a new file record into the database using a Pouet production ID.
 // This will not check if the Pouet production ID already exists in the database.
 // When successful the function will return the new record ID.
-func InsertPouet(ctx context.Context, db *sql.DB, id int64) (int64, error) {
-	if db == nil {
+func InsertPouet(ctx context.Context, exec boil.ContextExecutor, id int64) (int64, error) {
+	if exec == nil {
 		return 0, ErrDB
 	}
 	if id < startID || id > demozoo.Sanity {
@@ -64,7 +64,7 @@ func InsertPouet(ctx context.Context, db *sql.DB, id int64) (int64, error) {
 		WebIDPouet: null.Int64From(id),
 		Deletedat:  null.TimeFromPtr(&now),
 	}
-	if err = f.Insert(ctx, db, boil.Infer()); err != nil {
+	if err = f.Insert(ctx, exec, boil.Infer()); err != nil {
 		return 0, fmt.Errorf("f.Insert: %w", err)
 	}
 	return f.ID, nil

@@ -2,7 +2,6 @@ package model
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
@@ -440,10 +439,7 @@ func UpdateReleasers(id int64, val string) error {
 }
 
 // UpdateYMD updates the date issued year, month and day columns with the values provided.
-func UpdateYMD(ctx context.Context, db *sql.DB, id int64, y, m, d null.Int16) error {
-	if db == nil {
-		return fmt.Errorf("updateymd %w", ErrDB)
-	}
+func UpdateYMD(ctx context.Context, exec boil.ContextExecutor, id int64, y, m, d null.Int16) error {
 	if id <= 0 {
 		return fmt.Errorf("updateymd id value %w: %d", ErrKey, id)
 	}
@@ -456,14 +452,14 @@ func UpdateYMD(ctx context.Context, db *sql.DB, id int64, y, m, d null.Int16) er
 	if !d.IsZero() && !helper.Day(int(d.Int16)) {
 		return fmt.Errorf("updateymd %w: %d", ErrDay, d.Int16)
 	}
-	f, err := OneFile(ctx, db, id)
+	f, err := OneFile(ctx, exec, id)
 	if err != nil {
 		return fmt.Errorf("updateymd one file %w: %d", err, id)
 	}
 	f.DateIssuedYear = y
 	f.DateIssuedMonth = m
 	f.DateIssuedDay = d
-	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
 		return fmt.Errorf("updateymd update %w: %d", err, id)
 	}
 	return nil

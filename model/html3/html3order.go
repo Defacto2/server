@@ -4,13 +4,13 @@ package html3
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"strings"
 
 	namer "github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
@@ -33,8 +33,8 @@ const (
 const all = 0 // all returns all the records.
 
 // Art returns all the files that could be considered as digital or pixel art.
-func (o Order) Art(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	if db == nil {
+func (o Order) Art(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+	if exec == nil {
 		return nil, ErrDB
 	}
 	if limit == all {
@@ -42,7 +42,7 @@ func (o Order) Art(ctx context.Context, db *sql.DB, offset, limit int) (models.F
 			SelectHTML3(),
 			ArtExpr(),
 			qm.Where(ClauseNoSoftDel),
-			qm.OrderBy(o.String())).All(ctx, db)
+			qm.OrderBy(o.String())).All(ctx, exec)
 	}
 	return models.Files(
 		SelectHTML3(),
@@ -50,33 +50,33 @@ func (o Order) Art(ctx context.Context, db *sql.DB, offset, limit int) (models.F
 		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.Limit(limit)).All(ctx, exec)
 }
 
 // ByCategory returns all the files that match the named category.
 func (o Order) ByCategory(
-	ctx context.Context, db *sql.DB, offset, limit int, name string) (
+	ctx context.Context, exec boil.ContextExecutor, offset, limit int, name string) (
 	models.FileSlice, error,
 ) {
-	if db == nil {
+	if exec == nil {
 		return nil, ErrDB
 	}
 	mods := models.FileWhere.Section.EQ(null.StringFrom(name))
 	if limit == all {
 		return models.Files(mods,
 			qm.Where(ClauseNoSoftDel),
-			qm.OrderBy(o.String())).All(ctx, db)
+			qm.OrderBy(o.String())).All(ctx, exec)
 	}
 	return models.Files(mods,
 		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.Limit(limit)).All(ctx, exec)
 }
 
 // ByGroup returns all the files that match an exact named group.
-func (o Order) ByGroup(ctx context.Context, db *sql.DB, name string) (models.FileSlice, error) {
-	if db == nil {
+func (o Order) ByGroup(ctx context.Context, exec boil.ContextExecutor, name string) (models.FileSlice, error) {
+	if exec == nil {
 		return nil, ErrDB
 	}
 	s, err := namer.Humanize(namer.Path(name))
@@ -87,77 +87,77 @@ func (o Order) ByGroup(ctx context.Context, db *sql.DB, name string) (models.Fil
 	mods := models.FileWhere.GroupBrandFor.EQ(null.StringFrom(n))
 	return models.Files(mods,
 		qm.Where(ClauseNoSoftDel),
-		qm.OrderBy(o.String())).All(ctx, db)
+		qm.OrderBy(o.String())).All(ctx, exec)
 }
 
 // ByPlatform returns all the files that match the named platform.
 func (o Order) ByPlatform(
-	ctx context.Context, db *sql.DB, offset, limit int, name string) (
+	ctx context.Context, exec boil.ContextExecutor, offset, limit int, name string) (
 	models.FileSlice, error,
 ) {
-	if db == nil {
+	if exec == nil {
 		return nil, ErrDB
 	}
 	mods := models.FileWhere.Platform.EQ(null.StringFrom(name))
 	if limit == all {
 		return models.Files(mods,
 			qm.Where(ClauseNoSoftDel),
-			qm.OrderBy(o.String())).All(ctx, db)
+			qm.OrderBy(o.String())).All(ctx, exec)
 	}
 	return models.Files(mods,
 		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.Limit(limit)).All(ctx, exec)
 }
 
 // Document returns all the files that  are considered to be documents.
-func (o Order) Document(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	if db == nil {
+func (o Order) Document(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+	if exec == nil {
 		return nil, ErrDB
 	}
 	if limit == all {
 		return models.Files(
 			DocumentExpr(),
 			qm.Where(ClauseNoSoftDel),
-			qm.OrderBy(o.String())).All(ctx, db)
+			qm.OrderBy(o.String())).All(ctx, exec)
 	}
 	return models.Files(
 		DocumentExpr(),
 		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.Limit(limit)).All(ctx, exec)
 }
 
 // Everything returns all of the file records.
-func (o Order) Everything(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	if db == nil {
+func (o Order) Everything(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+	if exec == nil {
 		return nil, ErrDB
 	}
 	return models.Files(
 		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.Limit(limit)).All(ctx, exec)
 }
 
 // Software returns all the files that  are considered to be software.
-func (o Order) Software(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	if db == nil {
+func (o Order) Software(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+	if exec == nil {
 		return nil, ErrDB
 	}
 	if limit == all {
 		return models.Files(
 			SoftwareExpr(),
 			qm.Where(ClauseNoSoftDel),
-			qm.OrderBy(o.String())).All(ctx, db)
+			qm.OrderBy(o.String())).All(ctx, exec)
 	}
 	return models.Files(
 		SoftwareExpr(),
 		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(o.String()),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, db)
+		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, exec)
 }
 
 func (o Order) String() string {

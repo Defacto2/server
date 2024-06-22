@@ -4,7 +4,6 @@ package html3
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"strconv"
@@ -16,6 +15,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model/expr"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
@@ -183,8 +183,8 @@ type Arts struct {
 }
 
 // Stat sets the total bytes and total count.
-func (a *Arts) Stat(ctx context.Context, db *sql.DB) error {
-	if db == nil {
+func (a *Arts) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if exec == nil {
 		return ErrDB
 	}
 	if a.Bytes > 0 && a.Count > 0 {
@@ -194,7 +194,7 @@ func (a *Arts) Stat(ctx context.Context, db *sql.DB) error {
 		qm.Select(postgres.Stat()...),
 		qm.Where(ClauseNoSoftDel),
 		ArtExpr(),
-		qm.From(From)).Bind(ctx, db, a)
+		qm.From(From)).Bind(ctx, exec, a)
 }
 
 // Documents statistics for releases that are documents.
@@ -204,8 +204,8 @@ type Documents struct {
 }
 
 // Stat sets the total bytes and total count.
-func (d *Documents) Stat(ctx context.Context, db *sql.DB) error {
-	if db == nil {
+func (d *Documents) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if exec == nil {
 		return ErrDB
 	}
 	if d.Bytes > 0 && d.Count > 0 {
@@ -215,7 +215,7 @@ func (d *Documents) Stat(ctx context.Context, db *sql.DB) error {
 		qm.Select(postgres.Stat()...),
 		qm.Where(ClauseNoSoftDel),
 		DocumentExpr(),
-		qm.From(From)).Bind(ctx, db, d)
+		qm.From(From)).Bind(ctx, exec, d)
 }
 
 // Softwares contain statistics for releases that are software.
@@ -225,8 +225,8 @@ type Softwares struct {
 }
 
 // Stat sets the total bytes and total count.
-func (s *Softwares) Stat(ctx context.Context, db *sql.DB) error {
-	if db == nil {
+func (s *Softwares) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if exec == nil {
 		return ErrDB
 	}
 	if s.Bytes > 0 && s.Count > 0 {
@@ -236,5 +236,5 @@ func (s *Softwares) Stat(ctx context.Context, db *sql.DB) error {
 		qm.Select(postgres.Stat()...),
 		qm.Where(ClauseNoSoftDel),
 		SoftwareExpr(),
-		qm.From(From)).Bind(ctx, db, s)
+		qm.From(From)).Bind(ctx, exec, s)
 }

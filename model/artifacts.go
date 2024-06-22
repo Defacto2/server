@@ -4,7 +4,6 @@ package model
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 
 	"github.com/Defacto2/server/internal/postgres"
@@ -23,8 +22,8 @@ type Artifacts struct {
 }
 
 // Public returns the total number of artifacts and the summed filesize of all artifacts that are not hidden.
-func (f *Artifacts) Public(ctx context.Context, db *sql.DB) error {
-	if db == nil {
+func (f *Artifacts) Public(ctx context.Context, exec boil.ContextExecutor) error {
+	if exec == nil {
 		return ErrDB
 	}
 	if f.Bytes > 0 && f.Count > 0 {
@@ -33,15 +32,15 @@ func (f *Artifacts) Public(ctx context.Context, db *sql.DB) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		qm.From(From)).Bind(ctx, db, f)
+		qm.From(From)).Bind(ctx, exec, f)
 }
 
 // ByKey returns the public files reversed ordered by the ID, key column.
-func (f *Artifacts) ByKey(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	if db == nil {
+func (f *Artifacts) ByKey(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+	if exec == nil {
 		return nil, ErrDB
 	}
-	if err := f.Public(ctx, db); err != nil {
+	if err := f.Public(ctx, exec); err != nil {
 		return nil, fmt.Errorf("f.Public: %w", err)
 	}
 	const clause = "id DESC"
@@ -49,15 +48,15 @@ func (f *Artifacts) ByKey(ctx context.Context, db *sql.DB, offset, limit int) (m
 		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.Limit(limit)).All(ctx, exec)
 }
 
 // ByOldest returns all of the file records sorted by the date issued.
-func (f *Artifacts) ByOldest(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	if db == nil {
+func (f *Artifacts) ByOldest(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+	if exec == nil {
 		return nil, ErrDB
 	}
-	if err := f.Public(ctx, db); err != nil {
+	if err := f.Public(ctx, exec); err != nil {
 		return nil, fmt.Errorf("f.Public: %w", err)
 	}
 	const clause = "date_issued_year ASC NULLS LAST, " +
@@ -67,15 +66,15 @@ func (f *Artifacts) ByOldest(ctx context.Context, db *sql.DB, offset, limit int)
 		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.Limit(limit)).All(ctx, exec)
 }
 
 // ByNewest returns all of the file records sorted by the date issued.
-func (f *Artifacts) ByNewest(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	if db == nil {
+func (f *Artifacts) ByNewest(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+	if exec == nil {
 		return nil, ErrDB
 	}
-	if err := f.Public(ctx, db); err != nil {
+	if err := f.Public(ctx, exec); err != nil {
 		return nil, fmt.Errorf("f.Public: %w", err)
 	}
 	const clause = "date_issued_year DESC NULLS LAST, " +
@@ -85,15 +84,15 @@ func (f *Artifacts) ByNewest(ctx context.Context, db *sql.DB, offset, limit int)
 		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.Limit(limit)).All(ctx, exec)
 }
 
 // ByUpdated returns all of the file records sorted by the date updated.
-func (f *Artifacts) ByUpdated(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	if db == nil {
+func (f *Artifacts) ByUpdated(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+	if exec == nil {
 		return nil, ErrDB
 	}
-	if err := f.Public(ctx, db); err != nil {
+	if err := f.Public(ctx, exec); err != nil {
 		return nil, fmt.Errorf("f.Public: %w", err)
 	}
 	const clause = "updatedat DESC"
@@ -101,15 +100,15 @@ func (f *Artifacts) ByUpdated(ctx context.Context, db *sql.DB, offset, limit int
 		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.Limit(limit)).All(ctx, exec)
 }
 
 // ByHidden returns all of the file records that are hidden ~ soft deleted.
-func (f *Artifacts) ByHidden(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	if db == nil {
+func (f *Artifacts) ByHidden(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+	if exec == nil {
 		return nil, ErrDB
 	}
-	if err := f.byHidden(ctx, db); err != nil {
+	if err := f.byHidden(ctx, exec); err != nil {
 		return nil, fmt.Errorf("f.Stat: %w", err)
 	}
 	boil.DebugMode = true
@@ -120,11 +119,11 @@ func (f *Artifacts) ByHidden(ctx context.Context, db *sql.DB, offset, limit int)
 		qm.WithDeleted(),
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.Limit(limit)).All(ctx, exec)
 }
 
-func (f *Artifacts) byHidden(ctx context.Context, db *sql.DB) error {
-	if db == nil {
+func (f *Artifacts) byHidden(ctx context.Context, exec boil.ContextExecutor) error {
+	if exec == nil {
 		return ErrDB
 	}
 	if f.Bytes > 0 && f.Count > 0 {
@@ -135,15 +134,15 @@ func (f *Artifacts) byHidden(ctx context.Context, db *sql.DB) error {
 		models.FileWhere.Deletedby.IsNotNull(),
 		qm.WithDeleted(),
 		qm.Select(postgres.Columns()...),
-		qm.From(From)).Bind(ctx, db, f)
+		qm.From(From)).Bind(ctx, exec, f)
 }
 
 // ByForApproval returns all of the file records that are waiting to be marked for approval.
-func (f *Artifacts) ByForApproval(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	if db == nil {
+func (f *Artifacts) ByForApproval(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+	if exec == nil {
 		return nil, ErrDB
 	}
-	if err := f.byForApproval(ctx, db); err != nil {
+	if err := f.byForApproval(ctx, exec); err != nil {
 		return nil, fmt.Errorf("f.byForApproval: %w", err)
 	}
 	const clause = "id DESC"
@@ -153,11 +152,11 @@ func (f *Artifacts) ByForApproval(ctx context.Context, db *sql.DB, offset, limit
 		qm.WithDeleted(),
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.Limit(limit)).All(ctx, exec)
 }
 
-func (f *Artifacts) byForApproval(ctx context.Context, db *sql.DB) error {
-	if db == nil {
+func (f *Artifacts) byForApproval(ctx context.Context, exec boil.ContextExecutor) error {
+	if exec == nil {
 		return ErrDB
 	}
 	if f.Bytes > 0 && f.Count > 0 {
@@ -168,15 +167,15 @@ func (f *Artifacts) byForApproval(ctx context.Context, db *sql.DB) error {
 		models.FileWhere.Deletedby.IsNull(),
 		qm.WithDeleted(),
 		qm.Select(postgres.Columns()...),
-		qm.From(From)).Bind(ctx, db, f)
+		qm.From(From)).Bind(ctx, exec, f)
 }
 
 // ByUnwanted returns all of the file records that are flagged by Google as unwanted.
-func (f *Artifacts) ByUnwanted(ctx context.Context, db *sql.DB, offset, limit int) (models.FileSlice, error) {
-	if db == nil {
+func (f *Artifacts) ByUnwanted(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+	if exec == nil {
 		return nil, ErrDB
 	}
-	if err := f.byUnwanted(ctx, db); err != nil {
+	if err := f.byUnwanted(ctx, exec); err != nil {
 		return nil, fmt.Errorf("f.StatUnwanted: %w", err)
 	}
 	const clause = "id DESC"
@@ -185,11 +184,11 @@ func (f *Artifacts) ByUnwanted(ctx context.Context, db *sql.DB, offset, limit in
 		qm.WithDeleted(),
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, db)
+		qm.Limit(limit)).All(ctx, exec)
 }
 
-func (f *Artifacts) byUnwanted(ctx context.Context, db *sql.DB) error {
-	if db == nil {
+func (f *Artifacts) byUnwanted(ctx context.Context, exec boil.ContextExecutor) error {
+	if exec == nil {
 		return ErrDB
 	}
 	if f.Bytes > 0 && f.Count > 0 {
@@ -199,14 +198,14 @@ func (f *Artifacts) byUnwanted(ctx context.Context, db *sql.DB) error {
 		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
 		qm.WithDeleted(),
 		qm.Select(postgres.Columns()...),
-		qm.From(From)).Bind(ctx, db, f)
+		qm.From(From)).Bind(ctx, exec, f)
 }
 
 // Description returns a list of files that match the search terms.
 // The search terms are matched against the record_title column.
 // The results are ordered by the filename column in ascending order.
-func (f *Artifacts) Description(ctx context.Context, db *sql.DB, terms []string) (models.FileSlice, error) {
-	if db == nil {
+func (f *Artifacts) Description(ctx context.Context, exec boil.ContextExecutor, terms []string) (models.FileSlice, error) {
+	if exec == nil {
 		return nil, ErrDB
 	}
 	if terms == nil {
@@ -227,7 +226,7 @@ func (f *Artifacts) Description(ctx context.Context, db *sql.DB, terms []string)
 		mods = append(mods, qm.Or(clauseC, term))
 	}
 	mods = append(mods, qm.Limit(Maximum))
-	fs, err := models.Files(mods...).All(ctx, db)
+	fs, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
 		return nil, fmt.Errorf("models all files by description search: %w", err)
 	}
@@ -237,8 +236,8 @@ func (f *Artifacts) Description(ctx context.Context, db *sql.DB, terms []string)
 // Filename returns a list of files that match the search terms.
 // The search terms are matched against the filename column.
 // The results are ordered by the filename column in ascending order.
-func (f *Artifacts) Filename(ctx context.Context, db *sql.DB, terms []string) (models.FileSlice, error) {
-	if db == nil {
+func (f *Artifacts) Filename(ctx context.Context, exec boil.ContextExecutor, terms []string) (models.FileSlice, error) {
+	if exec == nil {
 		return nil, ErrDB
 	}
 	if terms == nil {
@@ -256,7 +255,7 @@ func (f *Artifacts) Filename(ctx context.Context, db *sql.DB, terms []string) (m
 			term, term+"%", "%"+term, "%"+term+"%"))
 	}
 	mods = append(mods, qm.OrderBy("filename ASC"), qm.Limit(Maximum))
-	fs, err := models.Files(mods...).All(ctx, db)
+	fs, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
 		return nil, fmt.Errorf("models all files by filename search: %w", err)
 	}
@@ -265,10 +264,10 @@ func (f *Artifacts) Filename(ctx context.Context, db *sql.DB, terms []string) (m
 
 // ID returns a list of files that match the list of record ids or uuids.
 func (f *Artifacts) ID(
-	ctx context.Context, db *sql.DB, ids []int, uuids ...uuid.UUID) (
+	ctx context.Context, exec boil.ContextExecutor, ids []int, uuids ...uuid.UUID) (
 	models.FileSlice, error,
 ) {
-	if db == nil {
+	if exec == nil {
 		return nil, ErrDB
 	}
 	if ids == nil && uuids == nil {
@@ -285,7 +284,7 @@ func (f *Artifacts) ID(
 		mods = append(mods, qm.Or("uuid = ?", uuid))
 	}
 	mods = append(mods, qm.Limit(Maximum), qm.WithDeleted())
-	fs, err := models.Files(mods...).All(ctx, db)
+	fs, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
 		return nil, fmt.Errorf("models all files by id search: %w", err)
 	}

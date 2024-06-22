@@ -4,7 +4,6 @@ package html3
 
 import (
 	"context"
-	"database/sql"
 	"embed"
 	"errors"
 	"fmt"
@@ -18,13 +17,13 @@ import (
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/html3"
 	"github.com/labstack/echo/v4"
 	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"go.uber.org/zap"
 )
 
@@ -261,46 +260,45 @@ func Pagi(page int, maxPage uint) (int, int, int) {
 // The three integers returned are the limit, the total count of records and the file sizes summed.
 func Query(c echo.Context, tt RecordsBy, offset int) (int, int, int64, models.FileSlice, error) {
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
-		return queryErr("query connect db", err)
+		return queryErr("query begin tx", err)
 	}
 	clause := c.QueryString()
-	defer db.Close()
 	switch tt {
 	case Everything:
-		return QueryEverything(ctx, db, clause, offset)
+		return QueryEverything(ctx, tx, clause, offset)
 	case BySection:
-		return QueryBySection(ctx, db, c, offset)
+		return QueryBySection(ctx, tx, c, offset)
 	case ByPlatform:
-		return QueryByPlatform(ctx, db, c, offset)
+		return QueryByPlatform(ctx, tx, c, offset)
 	case ByGroup:
-		return QueryByGroup(ctx, db, c)
+		return QueryByGroup(ctx, tx, c)
 	case AsArt:
-		return QueryAsArt(ctx, db, clause, offset)
+		return QueryAsArt(ctx, tx, clause, offset)
 	case AsDocument:
-		return QueryAsDocument(ctx, db, clause, offset)
+		return QueryAsDocument(ctx, tx, clause, offset)
 	case AsSoftware:
-		return QueryAsSoftware(ctx, db, clause, offset)
+		return QueryAsSoftware(ctx, tx, clause, offset)
 	}
 	return 0, 0, 0, nil, fmt.Errorf("html3 query %w: %d", ErrPage, tt)
 }
 
 // QueryAsArt returns a slice of all the records filtered by "Digital + pixel art".
-func QueryAsArt(ctx context.Context, db *sql.DB, clause string, offset int) (
+func QueryAsArt(ctx context.Context, exec boil.ContextExecutor, clause string, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if db == nil {
+	if exec == nil {
 		return dbErr()
 	}
 	const limit = model.Maximum
 	order := Clauses(clause)
-	records, err := order.Art(ctx, db, offset, limit)
+	records, err := order.Art(ctx, exec, offset, limit)
 	if err != nil {
 		return queryErr("as art:", err)
 	}
 	var stat html3.Arts
-	if err := stat.Stat(ctx, db); err != nil {
+	if err := stat.Stat(ctx, exec); err != nil {
 		return statErr("as art:", err)
 	}
 	total := stat.Count
@@ -309,20 +307,20 @@ func QueryAsArt(ctx context.Context, db *sql.DB, clause string, offset int) (
 }
 
 // QueryAsDocument returns a slice of all the records filtered by "Document + text art".
-func QueryAsDocument(ctx context.Context, db *sql.DB, clause string, offset int) (
+func QueryAsDocument(ctx context.Context, exec boil.ContextExecutor, clause string, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if db == nil {
+	if exec == nil {
 		return dbErr()
 	}
 	const limit = model.Maximum
 	order := Clauses(clause)
-	records, err := order.Document(ctx, db, offset, limit)
+	records, err := order.Document(ctx, exec, offset, limit)
 	if err != nil {
 		return queryErr("as document:", err)
 	}
 	var stat html3.Documents
-	if err := stat.Stat(ctx, db); err != nil {
+	if err := stat.Stat(ctx, exec); err != nil {
 		return statErr("as document:", err)
 	}
 	total := stat.Count
@@ -331,20 +329,20 @@ func QueryAsDocument(ctx context.Context, db *sql.DB, clause string, offset int)
 }
 
 // QueryAsSoftware returns a slice of all the records filtered by "Software".
-func QueryAsSoftware(ctx context.Context, db *sql.DB, clause string, offset int) (
+func QueryAsSoftware(ctx context.Context, exec boil.ContextExecutor, clause string, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if db == nil {
+	if exec == nil {
 		return dbErr()
 	}
 	const limit = model.Maximum
 	order := Clauses(clause)
-	records, err := order.Software(ctx, db, offset, limit)
+	records, err := order.Software(ctx, exec, offset, limit)
 	if err != nil {
 		return queryErr("as software:", err)
 	}
 	var stat html3.Softwares
-	if err := stat.Stat(ctx, db); err != nil {
+	if err := stat.Stat(ctx, exec); err != nil {
 		return statErr("as software:", err)
 	}
 	total := stat.Count
@@ -354,20 +352,20 @@ func QueryAsSoftware(ctx context.Context, db *sql.DB, clause string, offset int)
 
 // QueryByGroup returns a slice of all the records filtered by the group id, "by Group".
 // The group records do not use pagination limits or offsets.
-func QueryByGroup(ctx context.Context, db *sql.DB, c echo.Context) (
+func QueryByGroup(ctx context.Context, exec boil.ContextExecutor, c echo.Context) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if db == nil {
+	if exec == nil {
 		return dbErr()
 	}
 	order := Clauses(c.QueryString())
 	id := c.Param("id")
-	records, err := order.ByGroup(ctx, db, id)
+	records, err := order.ByGroup(ctx, exec, id)
 	if err != nil {
 		return queryErr("by group:", err)
 	}
 	total := len(records)
-	byteSum, err := model.ReleaserByteSum(ctx, db, id)
+	byteSum, err := model.ReleaserByteSum(ctx, exec, id)
 	// name := releaser.Clean(id)
 	if err != nil {
 		return statErr("bytes by group:", err)
@@ -376,24 +374,24 @@ func QueryByGroup(ctx context.Context, db *sql.DB, c echo.Context) (
 }
 
 // QueryBySection returns a slice of all the records filtered by the section id, "by Category".
-func QueryBySection(ctx context.Context, db *sql.DB, c echo.Context, offset int) (
+func QueryBySection(ctx context.Context, exec boil.ContextExecutor, c echo.Context, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if db == nil {
+	if exec == nil {
 		return dbErr()
 	}
 	const limit = model.Maximum
 	order := Clauses(c.QueryString())
 	id := ID(c)
-	records, err := order.ByCategory(ctx, db, offset, limit, id)
+	records, err := order.ByCategory(ctx, exec, offset, limit, id)
 	if err != nil {
 		return queryErr("by category:", err)
 	}
-	total, err := model.CategoryCount(ctx, db, id)
+	total, err := model.CategoryCount(ctx, exec, id)
 	if err != nil {
 		return statErr("total by category:", err)
 	}
-	byteSum, err := model.CategoryByteSum(ctx, db, id)
+	byteSum, err := model.CategoryByteSum(ctx, exec, id)
 	if err != nil {
 		return statErr("byte by category:", err)
 	}
@@ -401,24 +399,24 @@ func QueryBySection(ctx context.Context, db *sql.DB, c echo.Context, offset int)
 }
 
 // QueryByPlatform returns a slice of all the records filtered by the platform id, "by Platform and media".
-func QueryByPlatform(ctx context.Context, db *sql.DB, c echo.Context, offset int) (
+func QueryByPlatform(ctx context.Context, exec boil.ContextExecutor, c echo.Context, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if db == nil {
+	if exec == nil {
 		return dbErr()
 	}
 	const limit = model.Maximum
 	order := Clauses(c.QueryString())
 	id := ID(c)
-	records, err := order.ByPlatform(ctx, db, offset, limit, id)
+	records, err := order.ByPlatform(ctx, exec, offset, limit, id)
 	if err != nil {
 		return queryErr("by platform:", err)
 	}
-	total, err := model.PlatformCount(ctx, db, id)
+	total, err := model.PlatformCount(ctx, exec, id)
 	if err != nil {
 		return statErr("total by platform:", err)
 	}
-	byteSum, err := model.PlatformByteSum(ctx, db, id)
+	byteSum, err := model.PlatformByteSum(ctx, exec, id)
 	if err != nil {
 		return statErr("bytes by platform:", err)
 	}
@@ -426,20 +424,20 @@ func QueryByPlatform(ctx context.Context, db *sql.DB, c echo.Context, offset int
 }
 
 // QueryEverything returns a slice of all the records, "Everything".
-func QueryEverything(ctx context.Context, db *sql.DB, clause string, offset int) (
+func QueryEverything(ctx context.Context, exec boil.ContextExecutor, clause string, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if db == nil {
+	if exec == nil {
 		return dbErr()
 	}
 	const limit = model.Maximum
 	order := Clauses(clause)
-	records, err := order.Everything(ctx, db, offset, limit)
+	records, err := order.Everything(ctx, exec, offset, limit)
 	if err != nil {
 		return queryErr("all releases:", err)
 	}
 	var stat model.Artifacts
-	if err = stat.Public(ctx, db); err != nil {
+	if err = stat.Public(ctx, exec); err != nil {
 		return statErr("all releases:", err)
 	}
 	total := stat.Count
