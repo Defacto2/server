@@ -78,9 +78,9 @@ func Artifacts(c echo.Context, uri, page string) error {
 // It provides different error messages to the standard error page.
 func Artifacts404(c echo.Context, uri string) error {
 	const name = "status"
-	errURL := fmt.Sprint("artifact page not found for,", uri)
+	errs := fmt.Sprint("artifact page not found for,", uri)
 	if c == nil {
-		return InternalErr(c, errURL, ErrCxt)
+		return InternalErr(c, errs, ErrCxt)
 	}
 	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, files page not found", http.StatusNotFound)
@@ -93,7 +93,7 @@ func Artifacts404(c echo.Context, uri string) error {
 	data["uriErr"] = uri
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(c, errURL, err)
+		return InternalErr(c, errs, err)
 	}
 	return nil
 }
@@ -466,7 +466,7 @@ func (got *DemozooLink) Stat(c echo.Context, downloadDir string) error {
 	if got.FileType == "" {
 		m, err := mimetype.DetectFile(path)
 		if err != nil {
-			return fmt.Errorf("content filemime failure on %q: %w", path, err)
+			return fmt.Errorf("demozoo stat content filemime failure on %q: %w", path, err)
 		}
 		got.FileType = m.String()
 	}
@@ -492,7 +492,7 @@ func (got DemozooLink) Update(c echo.Context) error {
 	}
 	f, err := model.OneByUUID(ctx, tx, true, uid)
 	if err != nil {
-		return fmt.Errorf("model.OneByUUID: %w", err)
+		return fmt.Errorf("demozoolink update by uuid %w: %s", err, uid)
 	}
 	f.Filename = null.StringFrom(got.Filename)
 	f.Filesize = null.Int64From(int64(got.FileSize))
@@ -507,10 +507,10 @@ func (got DemozooLink) Update(c echo.Context) error {
 	yt := strings.TrimSpace(got.YouTube)
 	f.WebIDYoutube = null.StringFrom(yt)
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
-		return fmt.Errorf("f.Update: %w", err)
+		return fmt.Errorf("demozoolink update infer %w: %s", err, uid)
 	}
 	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("tx.Commit: %w", err)
+		return fmt.Errorf("demozoolink update commit %w: %s", err, uid)
 	}
 	return c.JSON(http.StatusOK, got)
 }
@@ -688,9 +688,9 @@ func Musician(c echo.Context) error {
 // It provides different error messages to the standard error page.
 func Page404(c echo.Context, uri, page string) error {
 	const name = "status"
-	errURL := fmt.Sprintf("page not found for %q at %q", page, uri)
+	errs := fmt.Sprintf("page not found for %q at %q", page, uri)
 	if c == nil {
-		return InternalErr(c, errURL, ErrCxt)
+		return InternalErr(c, errs, ErrCxt)
 	}
 	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, files page not found", http.StatusNotFound)
@@ -703,7 +703,7 @@ func Page404(c echo.Context, uri, page string) error {
 	data["uriErr"] = page
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(c, errURL, err)
+		return InternalErr(c, errs, err)
 	}
 	return nil
 }
@@ -721,7 +721,7 @@ func PlatformEdit(c echo.Context) error {
 	}
 	r, err := model.One(ctx, tx, true, f.ID)
 	if err != nil {
-		return fmt.Errorf("model.Edit: %w", err)
+		return fmt.Errorf("platform edit %w: %d", err, f.ID)
 	}
 	if err = model.UpdatePlatform(int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
@@ -755,11 +755,11 @@ func PostIntro(c echo.Context) error {
 // PostDesc is the handler for the Search for file descriptions form post page.
 func PostDesc(c echo.Context, input string) error {
 	const name = "artifacts"
-	errURL := fmt.Sprint("post desc search for,", input)
+	errs := fmt.Sprint("post desc search for,", input)
 	ctx := context.Background()
 	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
-		return DatabaseErr(c, errURL, err)
+		return DatabaseErr(c, errs, err)
 	}
 	terms := helper.SearchTerm(input)
 	rel := model.Artifacts{}
@@ -777,7 +777,7 @@ func PostDesc(c echo.Context, input string) error {
 	data["stats"] = d
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, errURL, err)
+		return InternalErr(c, errs, err)
 	}
 	return nil
 }
@@ -790,11 +790,11 @@ func PostFilename(c echo.Context) error {
 // PostName is the handler for the Search for filenames form post page.
 func PostName(c echo.Context, mode FileSearch) error {
 	const name = "artifacts"
-	errURL := fmt.Sprint("post name search for,", mode)
+	errs := fmt.Sprint("post name search for,", mode)
 	ctx := context.Background()
 	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
-		return DatabaseErr(c, errURL, err)
+		return DatabaseErr(c, errs, err)
 	}
 	input := c.FormValue("search-term-query")
 	terms := helper.SearchTerm(input)
@@ -813,7 +813,7 @@ func PostName(c echo.Context, mode FileSearch) error {
 	data["stats"] = d
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, errURL, err)
+		return InternalErr(c, errs, err)
 	}
 	return nil
 }
@@ -830,23 +830,23 @@ func PouetCache(c echo.Context, data string) error {
 	x := strings.Split(data, sep)
 	const expect = 4
 	if l := len(x); l != expect {
-		return fmt.Errorf("%w: %d, want %d", ErrData, l, expect)
+		return fmt.Errorf("pouet cache %w: %d, want %d", ErrData, l, expect)
 	}
 	stars, err := strconv.ParseFloat(x[0], 64)
 	if err != nil {
-		return fmt.Errorf("%w: %s", err, x[0])
+		return fmt.Errorf("pouet cache %w: %s", err, x[0])
 	}
 	vd, err := strconv.Atoi(x[1])
 	if err != nil {
-		return fmt.Errorf("%w: %s", err, x[1])
+		return fmt.Errorf("pouet cache %w: %s", err, x[1])
 	}
 	vu, err := strconv.Atoi(x[2])
 	if err != nil {
-		return fmt.Errorf("%w: %s", err, x[2])
+		return fmt.Errorf("pouet cache %w: %s", err, x[2])
 	}
 	vm, err := strconv.Atoi(x[3])
 	if err != nil {
-		return fmt.Errorf("%w: %s", err, x[3])
+		return fmt.Errorf("pouet cache %w: %s", err, x[3])
 	}
 	pv.Stars = stars
 	pv.VotesDown = uint64(vd)
@@ -921,7 +921,7 @@ func ReadmeDel(c echo.Context, downloadDir string) error {
 	}
 	r, err := model.One(ctx, tx, true, f.ID)
 	if err != nil {
-		return fmt.Errorf("model.Edit: %w", err)
+		return fmt.Errorf("readme delete %w: %d", err, f.ID)
 	}
 	if err = command.RemoveMe(r.UUID.String, downloadDir); err != nil {
 		return badRequest(c, err)
@@ -1213,7 +1213,7 @@ func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 		r := model.WindowsPack{}
 		return r.List(ctx, exec, page, limit)
 	default:
-		return nil, fmt.Errorf("%w: %s", ErrCategory, uri)
+		return nil, fmt.Errorf("artifacts category %w: %s", ErrCategory, uri)
 	}
 }
 
@@ -1235,9 +1235,9 @@ func ReleaserYear(c echo.Context) error {
 // Releaser404 renders the files error page for the Groups menu and invalid releasers.
 func Releaser404(c echo.Context, id string) error {
 	const name = "status"
-	errURL := fmt.Sprint("releaser page not found for,", id)
+	errs := fmt.Sprint("releaser page not found for,", id)
 	if c == nil {
-		return InternalErr(c, errURL, ErrCxt)
+		return InternalErr(c, errs, ErrCxt)
 	}
 	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, releaser page not found", http.StatusNotFound)
@@ -1250,7 +1250,7 @@ func Releaser404(c echo.Context, id string) error {
 	data["uriErr"] = id
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(c, errURL, err)
+		return InternalErr(c, errs, err)
 	}
 	return nil
 }
@@ -1268,7 +1268,7 @@ func ReleaserEdit(c echo.Context) error {
 	}
 	r, err := model.One(ctx, tx, true, f.ID)
 	if err != nil {
-		return fmt.Errorf("model.Edit: %w", err)
+		return fmt.Errorf("releaser edit  %w: %d", err, f.ID)
 	}
 	if err = model.UpdateReleasers(int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
@@ -1279,18 +1279,18 @@ func ReleaserEdit(c echo.Context) error {
 // Releasers is the handler for the list and preview of files credited to a releaser.
 func Releasers(c echo.Context, uri string) error {
 	const name = "artifacts"
-	errURL := fmt.Sprint("releasers page for,", uri)
+	errs := fmt.Sprint("releasers page for,", uri)
 	ctx := context.Background()
 	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
-		return InternalErr(c, errURL, err)
+		return InternalErr(c, errs, err)
 	}
 
 	s := releaser.Link(uri)
 	rel := model.Releasers{}
 	fs, err := rel.Where(ctx, tx, uri)
 	if err != nil {
-		return InternalErr(c, errURL, err)
+		return InternalErr(c, errs, err)
 	}
 	if len(fs) == 0 {
 		return Releaser404(c, uri)
@@ -1317,12 +1317,12 @@ func Releasers(c echo.Context, uri string) error {
 	}
 	d, err := releaserSum(ctx, tx, uri)
 	if err != nil {
-		return InternalErr(c, errURL, err)
+		return InternalErr(c, errs, err)
 	}
 	data["stats"] = d
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, errURL, err)
+		return InternalErr(c, errs, err)
 	}
 	return nil
 }
@@ -1331,7 +1331,7 @@ func Releasers(c echo.Context, uri string) error {
 func releaserSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[string]string, error) {
 	m := model.Summary{}
 	if err := m.ByReleaser(ctx, exec, uri); err != nil {
-		return nil, fmt.Errorf("m.Releaser: %w", err)
+		return nil, fmt.Errorf("releaser sum %w: %s", err, uri)
 	}
 	d := map[string]string{
 		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
@@ -1354,9 +1354,9 @@ func Scener(c echo.Context) error {
 // Scener404 renders the files error page for the People menu and invalid sceners.
 func Scener404(c echo.Context, id string) error {
 	const name = "status"
-	errURL := fmt.Sprint("scener page not found for,", id)
+	errs := fmt.Sprint("scener page not found for,", id)
 	if c == nil {
-		return InternalErr(c, errURL, ErrCxt)
+		return InternalErr(c, errs, ErrCxt)
 	}
 	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, scener page not found", http.StatusNotFound)
@@ -1369,7 +1369,7 @@ func Scener404(c echo.Context, id string) error {
 	data["uriErr"] = id
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(c, errURL, err)
+		return InternalErr(c, errs, err)
 	}
 	return nil
 }
@@ -1377,18 +1377,18 @@ func Scener404(c echo.Context, id string) error {
 // Sceners is the handler for the list and preview of files credited to a scener.
 func Sceners(c echo.Context, uri string) error {
 	const name = "artifacts"
-	errURL := fmt.Sprint("sceners page for,", uri)
+	errs := fmt.Sprint("sceners page for,", uri)
 	ctx := context.Background()
 	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
-		return InternalErr(c, errURL, err)
+		return InternalErr(c, errs, err)
 	}
 
 	s := releaser.Link(uri)
 	var ms model.Scener
 	fs, err := ms.Where(ctx, tx, uri)
 	if err != nil {
-		return InternalErr(c, errURL, err)
+		return InternalErr(c, errs, err)
 	}
 	if len(fs) == 0 {
 		return Scener404(c, uri)
@@ -1403,12 +1403,12 @@ func Sceners(c echo.Context, uri string) error {
 	data[records] = fs
 	d, err := scenerSum(ctx, tx, uri)
 	if err != nil {
-		return InternalErr(c, errURL, err)
+		return InternalErr(c, errs, err)
 	}
 	data["stats"] = d
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, errURL, err)
+		return InternalErr(c, errs, err)
 	}
 	return nil
 }
@@ -1563,7 +1563,7 @@ func TagEdit(c echo.Context) error {
 	}
 	r, err := model.One(ctx, tx, true, f.ID)
 	if err != nil {
-		return fmt.Errorf("model.Edit: %w", err)
+		return fmt.Errorf("tag edit %w: %d", err, f.ID)
 	}
 	if err = model.UpdateTag(int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
@@ -1634,7 +1634,7 @@ func TitleEdit(c echo.Context) error {
 	}
 	r, err := model.One(ctx, tx, true, f.ID)
 	if err != nil {
-		return fmt.Errorf("model.Edit: %w", err)
+		return fmt.Errorf("title edit %w: %d", err, f.ID)
 	}
 	if err = model.UpdateTitle(int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
@@ -1766,71 +1766,71 @@ type Stats struct {
 // Get and store the database statistics for the artifacts categories.
 func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
 	if err := s.Record.Public(ctx, exec); err != nil {
-		return fmt.Errorf("s.Record.Stat: %w", err)
+		return fmt.Errorf("category get record stat: %w", err)
 	}
 	if err := s.Ansi.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.Ansi.Stat: %w", err)
+		return fmt.Errorf("category get ansi stat: %w", err)
 	}
 	if err := s.AnsiBBS.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.AnsiBBS.Stat: %w", err)
+		return fmt.Errorf("category get ansiBBS stat: %w", err)
 	}
 	if err := s.BBS.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.BBS.Stat: %w", err)
+		return fmt.Errorf("category get bbs stat: %w", err)
 	}
 	if err := s.BBSText.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.BBSText.Stat: %w", err)
+		return fmt.Errorf("category get bbs trext stat: %w", err)
 	}
 	if err := s.BBStro.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.BBStro.Stat: %w", err)
+		return fmt.Errorf("category get bbstro stat: %w", err)
 	}
 	if err := s.MsDos.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.MsDos.Stat: %w", err)
+		return fmt.Errorf("category get msdos stat: %w", err)
 	}
 	if err := s.Intro.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.Intro.Stat: %w", err)
+		return fmt.Errorf("category get intro stat: %w", err)
 	}
 	if err := s.IntroD.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.IntroD.Stat: %w", err)
+		return fmt.Errorf("category get introd stat: %w", err)
 	}
 	if err := s.IntroW.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.IntroW.Stat: %w", err)
+		return fmt.Errorf("category get introw stat: %w", err)
 	}
 	if err := s.Installer.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.Installer.Stat: %w", err)
+		return fmt.Errorf("category get installer stat: %w", err)
 	}
 	if err := s.Java.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.Java.Stat: %w", err)
+		return fmt.Errorf("category get java stat: %w", err)
 	}
 	if err := s.Linux.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.Linux.Stat: %w", err)
+		return fmt.Errorf("category get linux stat: %w", err)
 	}
 	if err := s.Demoscene.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.Demoscene.Stat: %w", err)
+		return fmt.Errorf("category get demoscene stat: %w", err)
 	}
 	return s.get(ctx, exec)
 }
 
 func (s *Stats) get(ctx context.Context, exec boil.ContextExecutor) error {
 	if err := s.Macos.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.Macos.Stat: %w", err)
+		return fmt.Errorf("category get macos stat: %w", err)
 	}
 	if err := s.Magazine.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.Magazine.Stat: %w", err)
+		return fmt.Errorf("category get magazine stat: %w", err)
 	}
 	if err := s.Nfo.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.Nfo.Stat: %w", err)
+		return fmt.Errorf("category get nfo stat: %w", err)
 	}
 	if err := s.NfoTool.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.NfoTool.Stat: %w", err)
+		return fmt.Errorf("category get nfoTool stat: %w", err)
 	}
 	if err := s.Proof.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.Proof.Stat: %w", err)
+		return fmt.Errorf("category get proof stat: %w", err)
 	}
 	if err := s.Script.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.Script.Stat: %w", err)
+		return fmt.Errorf("category get script stat: %w", err)
 	}
 	if err := s.Text.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("s.Text.Stat: %w", err)
+		return fmt.Errorf("category get text stat: %w", err)
 	}
 	return s.Windows.Stat(ctx, exec)
 }
@@ -1870,20 +1870,20 @@ func artifacts(c echo.Context, uri string, page int) error {
 	case forApproval.String():
 		data["forApproval"] = true
 	}
-	errURL := fmt.Sprintf("artifacts page %d for %q", page, uri)
+	errs := fmt.Sprintf("artifacts page %d for %q", page, uri)
 	ctx := context.Background()
 	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
-		return InternalErr(c, errURL, err)
+		return InternalErr(c, errs, err)
 	}
 	r, err := Records(ctx, tx, uri, page, limit)
 	if err != nil {
-		return DatabaseErr(c, errURL, err)
+		return DatabaseErr(c, errs, err)
 	}
 	data[records] = r
 	d, sum, err := stats(ctx, tx, uri)
 	if err != nil {
-		return DatabaseErr(c, errURL, err)
+		return DatabaseErr(c, errs, err)
 	}
 	data["stats"] = d
 	lastPage := math.Ceil(float64(sum) / float64(limit))
@@ -1904,7 +1904,7 @@ func artifacts(c echo.Context, uri string, page int) error {
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, errURL, err)
+		return InternalErr(c, errs, err)
 	}
 	return nil
 }
@@ -1986,11 +1986,11 @@ func counter() (Stats, error) {
 	ctx := context.Background()
 	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
-		return Stats{}, fmt.Errorf("postgres.ConnectDB: %w", err)
+		return Stats{}, fmt.Errorf("cartifacts categories counter tx %w", err)
 	}
 	counter := Stats{}
 	if err := counter.Get(ctx, tx); err != nil {
-		return Stats{}, fmt.Errorf("counter.Get: %w", err)
+		return Stats{}, fmt.Errorf("cartifacts categories counter get %w", err)
 	}
 	return counter, nil
 }
@@ -2161,7 +2161,7 @@ func remove(c echo.Context, name string, data map[string]interface{}) error {
 func scenerSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[string]string, error) {
 	m := model.Summary{}
 	if err := m.ByScener(ctx, exec, uri); err != nil {
-		return nil, fmt.Errorf("m.ByScener: %w", err)
+		return nil, fmt.Errorf("scener sum %w: %s", err, uri)
 	}
 	d := map[string]string{
 		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
@@ -2223,7 +2223,7 @@ func sessionHandler(
 ) error {
 	session, err := session.Get(sess.Name, c)
 	if err != nil {
-		return fmt.Errorf("session.Get: %w", err)
+		return fmt.Errorf("app session get: %w", err)
 	}
 	// session Options are cookie options and are all optional
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
@@ -2259,25 +2259,25 @@ func stats(ctx context.Context, exec boil.ContextExecutor, uri string) (map[stri
 	m := model.Summary{}
 	err := m.ByMatch(ctx, exec, uri)
 	if err != nil && !errors.Is(err, model.ErrURI) {
-		return nil, 0, fmt.Errorf("m.URI: %w", err)
+		return nil, 0, fmt.Errorf("artifacts stats %w: %s", err, uri)
 	}
 	if errors.Is(err, model.ErrURI) {
 		switch uri {
 		case "for-approval":
 			if err := m.ByForApproval(ctx, exec); err != nil {
-				return nil, 0, fmt.Errorf("m.ByForApproval: %w", err)
+				return nil, 0, fmt.Errorf("artifacts stats for approval %w: %s", err, uri)
 			}
 		case "deletions":
 			if err := m.ByHidden(ctx, exec); err != nil {
-				return nil, 0, fmt.Errorf("m.ByHidden: %w", err)
+				return nil, 0, fmt.Errorf("artifacts stats by hidden %w: %s", err, uri)
 			}
 		case "unwanted":
 			if err := m.ByUnwanted(ctx, exec); err != nil {
-				return nil, 0, fmt.Errorf("m.Unwanted: %w", err)
+				return nil, 0, fmt.Errorf("artifacts stats unwanted %w: %s", err, uri)
 			}
 		default:
 			if err := m.ByPublic(ctx, exec); err != nil {
-				return nil, 0, fmt.Errorf("m.ByPublic: %w", err)
+				return nil, 0, fmt.Errorf("artifacts stats by public %w: %s", err, uri)
 			}
 		}
 	}

@@ -46,9 +46,9 @@ var (
 	ErrData     = errors.New("cache data is invalid or corrupt")
 	ErrDB       = errors.New("database connection is nil")
 	ErrExtract  = errors.New("unknown extractor value")
-	ErrLinkID   = errors.New("the id value cannot be a negative number")
 	ErrLinkType = errors.New("the id value is an invalid type")
 	ErrMisMatch = errors.New("token mismatch")
+	ErrNegative = errors.New("value cannot be a negative number")
 	ErrSession  = errors.New("no sub id in session")
 	ErrTarget   = errors.New("target not found")
 	ErrTmpl     = errors.New("the server could not render the html template for this page")
@@ -319,7 +319,7 @@ func LinkDownload(id any, uri string) template.HTML {
 // LinkHref creates a URL path to link to the file page for the record.
 func LinkHref(id any) (string, error) {
 	if id == nil {
-		return "", fmt.Errorf("id is nil, %w", ErrLinkID)
+		return "", fmt.Errorf("id is nil, %w", ErrNegative)
 	}
 	return linkID(id, "f")
 }
@@ -476,7 +476,7 @@ func LinkRelrs(performant bool, a, b any) template.HTML {
 func makeLink(name, class string, performant bool) (string, error) {
 	ref, err := linkRelr(name)
 	if err != nil {
-		return "", fmt.Errorf("linkRelr: %w", err)
+		return "", fmt.Errorf("app make link %w", err)
 	}
 	x := helper.Capitalize(strings.ToLower(name))
 	title := x
@@ -1076,7 +1076,7 @@ func TrimSpace(a any) string {
 		}
 		return ""
 	default:
-		return fmt.Sprintf("%sTrimSpace: %s", typeErr, reflect.TypeOf(a).String())
+		return fmt.Sprintf("%s trim site suffix: %s", typeErr, reflect.TypeOf(a).String())
 	}
 }
 
@@ -1338,14 +1338,14 @@ func linkID(id any, elem string) (string, error) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i = reflect.ValueOf(val).Int()
 		if i <= 0 {
-			return "", fmt.Errorf("%w: %d", ErrLinkID, i)
+			return "", fmt.Errorf("app link id %w: %d", ErrNegative, i)
 		}
 	default:
-		return "", fmt.Errorf("%w: %s", ErrLinkType, reflect.TypeOf(id).String())
+		return "", fmt.Errorf("app link id %w: %s", ErrLinkType, reflect.TypeOf(id).String())
 	}
 	href, err := url.JoinPath("/", elem, helper.ObfuscateID(i))
 	if err != nil {
-		return "", fmt.Errorf("id %d could not be made into a valid url: %w", i, err)
+		return "", fmt.Errorf("app link id %d could not be made into a valid url: %w", i, err)
 	}
 	return href, nil
 }

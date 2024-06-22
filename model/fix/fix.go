@@ -3,7 +3,6 @@ package fix
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"strings"
@@ -49,7 +48,7 @@ func (r Repair) Run(logger *zap.SugaredLogger) error {
 		return fmt.Errorf("%w: %s", ErrLog, "no logger")
 	}
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	exec, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("boil.BeginTx: %w", err)
 	}
@@ -59,33 +58,33 @@ func (r Repair) Run(logger *zap.SugaredLogger) error {
 	if r == None {
 		return nil
 	}
-	if err := invalidUUIDs(ctx, tx); err != nil {
+	if err := invalidUUIDs(ctx, exec); err != nil {
 		return fmt.Errorf("invalid UUIDs: %w", err)
 	}
-	if err := coldfusionIDs(ctx, tx, logger); err != nil {
+	if err := coldfusionIDs(ctx, exec, logger); err != nil {
 		return fmt.Errorf("coldfusion IDs: %w", err)
 	}
 	switch r {
 	case All:
-		if err := contentWhiteSpace(tx); err != nil {
+		if err := contentWhiteSpace(exec); err != nil {
 			return fmt.Errorf("content white space: %w", err)
 		}
-		if err := nullifyEmpty(tx); err != nil {
+		if err := nullifyEmpty(exec); err != nil {
 			return fmt.Errorf("nullify empty: %w", err)
 		}
-		if err := nullifyZero(tx); err != nil {
+		if err := nullifyZero(exec); err != nil {
 			return fmt.Errorf("nullify zero: %w", err)
 		}
-		if err := trimFwdSlash(tx); err != nil {
+		if err := trimFwdSlash(exec); err != nil {
 			return fmt.Errorf("trim forward slash: %w", err)
 		}
 		fallthrough
 	case Releaser:
-		if err := releasers(ctx, tx, logger); err != nil {
+		if err := releasers(ctx, exec, logger); err != nil {
 			return fmt.Errorf("releasers: %w", err)
 		}
 	}
-	if err := optimize(tx); err != nil {
+	if err := optimize(exec); err != nil {
 		return fmt.Errorf("optimize: %w", err)
 	}
 	return nil
@@ -101,9 +100,9 @@ func (r Repair) Run(logger *zap.SugaredLogger) error {
 // A blank CFID is "00000000-0000-0000-0000000000000000".
 //
 // [ColdFusion language syntax]: https://cfdocs.org/createuuid
-func coldfusionIDs(ctx context.Context, tx *sql.Tx, logger *zap.SugaredLogger) error {
+func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor, logger *zap.SugaredLogger) error {
 	mods := qm.SQL("SELECT uuid FROM files WHERE length(uuid)=35")
-	fs, err := models.Files(mods).All(ctx, tx)
+	fs, err := models.Files(mods).All(ctx, exec)
 	if err != nil {
 		return fmt.Errorf("models.Files: %w", err)
 	}
@@ -123,13 +122,13 @@ func coldfusionIDs(ctx context.Context, tx *sql.Tx, logger *zap.SugaredLogger) e
 			logger.Warnln("%d. %q is invalid, %s\n", i, newid, err)
 			continue
 		}
-		file, err := models.Files(qm.Where("uuid = ?", old)).One(ctx, tx)
+		file, err := models.Files(qm.Where("uuid = ?", old)).One(ctx, exec)
 		if err != nil {
 			logger.Warnln("%d. %q failed to find, %s\n", i, old, err)
 			continue
 		}
 		file.UUID = null.StringFrom(newid)
-		_, err = file.Update(ctx, tx, boil.Infer())
+		_, err = file.Update(ctx, exec, boil.Infer())
 		if err != nil {
 			logger.Warnln("%d. %q failed to update, %s\n", i, old, err)
 			continue
@@ -180,15 +179,15 @@ func fixes() map[string]string {
 }
 
 // releasers will repair the group_brand_by and group_brand_for releasers data.
-func releasers(ctx context.Context, tx *sql.Tx, logger *zap.SugaredLogger) error {
+func releasers(ctx context.Context, exec boil.ContextExecutor, logger *zap.SugaredLogger) error {
 	x := null.NewString("", true)
 	f, err := models.Files(
 		qm.Where("group_brand_for = group_brand_by"),
-		qm.WithDeleted()).All(ctx, tx)
+		qm.WithDeleted()).All(ctx, exec)
 	if err != nil {
 		return fmt.Errorf("models.Files group_brand_for = group_brand_by: %w", err)
 	}
-	if _, err = f.UpdateAll(ctx, tx, models.M{"group_brand_by": x}); err != nil {
+	if _, err = f.UpdateAll(ctx, exec, models.M{"group_brand_by": x}); err != nil {
 		return fmt.Errorf("f.UpdateAll group_brand_by: %w", err)
 	}
 	var rowsAff int64
@@ -197,11 +196,11 @@ func releasers(ctx context.Context, tx *sql.Tx, logger *zap.SugaredLogger) error
 		fix = strings.ToUpper(fix)
 		f, err = models.Files(
 			qm.Where("group_brand_for = ?", bad),
-			qm.WithDeleted()).All(ctx, tx)
+			qm.WithDeleted()).All(ctx, exec)
 		if err != nil {
 			return fmt.Errorf("models.Files: %w", err)
 		}
-		rowsAff, err = f.UpdateAll(ctx, tx, models.M{"group_brand_for": fix})
+		rowsAff, err = f.UpdateAll(ctx, exec, models.M{"group_brand_for": fix})
 		if err != nil {
 			return fmt.Errorf("f.UpdateAll group_brand_for: %w", err)
 		}
@@ -210,11 +209,11 @@ func releasers(ctx context.Context, tx *sql.Tx, logger *zap.SugaredLogger) error
 		}
 		f, err = models.Files(
 			qm.Where("group_brand_by = ?", bad),
-			qm.WithDeleted()).All(ctx, tx)
+			qm.WithDeleted()).All(ctx, exec)
 		if err != nil {
 			return fmt.Errorf("models.Files group_brand_by: %w", err)
 		}
-		rowsAff, err = f.UpdateAll(ctx, tx, models.M{"group_brand_by": fix})
+		rowsAff, err = f.UpdateAll(ctx, exec, models.M{"group_brand_by": fix})
 		if err != nil {
 			return fmt.Errorf("f.UpdateAll group_brand_by: %w", err)
 		}
@@ -222,30 +221,30 @@ func releasers(ctx context.Context, tx *sql.Tx, logger *zap.SugaredLogger) error
 			logger.Infoln("updated", rowsAff, "groups by to", fix)
 		}
 	}
-	_, err = queries.Raw(postgres.SetUpper("group_brand_for")).Exec(tx)
+	_, err = queries.Raw(postgres.SetUpper("group_brand_for")).Exec(exec)
 	if err != nil {
 		return fmt.Errorf("set upper group_brand_for: %w", err)
 	}
-	_, err = queries.Raw(postgres.SetUpper("group_brand_by")).Exec(tx)
+	_, err = queries.Raw(postgres.SetUpper("group_brand_by")).Exec(exec)
 	if err != nil {
 		return fmt.Errorf("set upper group_brand_by: %w", err)
 	}
-	_, err = queries.Raw(postgres.SetFilesize0()).Exec(tx)
+	_, err = queries.Raw(postgres.SetFilesize0()).Exec(exec)
 	if err != nil {
 		return fmt.Errorf("set filesize 0: %w", err)
 	}
-	if err := magics(ctx, tx); err != nil {
+	if err := magics(ctx, exec); err != nil {
 		return fmt.Errorf("magics: %w", err)
 	}
 	return nil
 }
 
-func magics(ctx context.Context, tx *sql.Tx) error {
-	magics, err := models.Files(qm.Where("file_magic_type ILIKE ?", "ERROR: %")).All(ctx, tx)
+func magics(ctx context.Context, exec boil.ContextExecutor) error {
+	magics, err := models.Files(qm.Where("file_magic_type ILIKE ?", "ERROR: %")).All(ctx, exec)
 	if err != nil {
 		return fmt.Errorf("models.Files file_magic_type: %w", err)
 	}
-	rowsAff, err := magics.UpdateAll(ctx, tx, models.M{"file_magic_type": ""})
+	rowsAff, err := magics.UpdateAll(ctx, exec, models.M{"file_magic_type": ""})
 	if err != nil {
 		return fmt.Errorf("magics.UpdateAll file_magic_type: %w", err)
 	}
@@ -259,9 +258,9 @@ func magics(ctx context.Context, tx *sql.Tx) error {
 }
 
 // contentWhiteSpace will remove any duplicate newline white space from file_zip_content.
-func contentWhiteSpace(tx *sql.Tx) error {
+func contentWhiteSpace(exec boil.ContextExecutor) error {
 	_, err := queries.Raw("UPDATE files SET file_zip_content = " +
-		"RTRIM(regexp_replace(file_zip_content, '\n+', '\n', 'g'), '\r');").Exec(tx)
+		"RTRIM(regexp_replace(file_zip_content, '\n+', '\n', 'g'), '\r');").Exec(exec)
 	if err != nil {
 		return fmt.Errorf("queries.Raw: %w", err)
 	}
@@ -270,8 +269,8 @@ func contentWhiteSpace(tx *sql.Tx) error {
 
 // optimize reclaims storage occupied by dead tuples in the database and
 // also analyzes the most efficient execution plans for queries.
-func optimize(tx *sql.Tx) error {
-	_, err := queries.Raw("VACUUM ANALYZE files").Exec(tx)
+func optimize(exec boil.ContextExecutor) error {
+	_, err := queries.Raw("VACUUM ANALYZE files").Exec(exec)
 	if err != nil {
 		return fmt.Errorf("queries.Raw: %w", err)
 	}
@@ -280,10 +279,10 @@ func optimize(tx *sql.Tx) error {
 
 // invalidUUIDs will count the number of invalid UUIDs in the database.
 // This should be part of a future function to repair the UUIDs and rename the file assets.
-func invalidUUIDs(ctx context.Context, tx *sql.Tx) error {
+func invalidUUIDs(ctx context.Context, exec boil.ContextExecutor) error {
 	mods := qm.SQL("SELECT COUNT(*) FROM files WHERE files.uuid" +
 		" !~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}';")
-	i, err := models.Files(mods).Count(ctx, tx)
+	i, err := models.Files(mods).Count(ctx, exec)
 	if err != nil {
 		return fmt.Errorf("models.Files: %w", err)
 	}
@@ -297,7 +296,7 @@ func invalidUUIDs(ctx context.Context, tx *sql.Tx) error {
 	return nil
 }
 
-func nullifyEmpty(tx *sql.Tx) error {
+func nullifyEmpty(exec boil.ContextExecutor) error {
 	query := ""
 	columns := []string{
 		"list_relations", "web_id_github", "web_id_youtube",
@@ -308,13 +307,13 @@ func nullifyEmpty(tx *sql.Tx) error {
 	for _, column := range columns {
 		query += UpdateSet + column + " = NULL WHERE " + column + " = ''; "
 	}
-	if _, err := queries.Raw(query).Exec(tx); err != nil {
+	if _, err := queries.Raw(query).Exec(exec); err != nil {
 		return fmt.Errorf("queries.Raw: %w", err)
 	}
 	return nil
 }
 
-func nullifyZero(tx *sql.Tx) error {
+func nullifyZero(exec boil.ContextExecutor) error {
 	query := ""
 	columns := []string{
 		"web_id_pouet", "web_id_demozoo",
@@ -323,19 +322,19 @@ func nullifyZero(tx *sql.Tx) error {
 	for _, column := range columns {
 		query += UpdateSet + column + " = NULL WHERE " + column + " = 0; "
 	}
-	if _, err := queries.Raw(query).Exec(tx); err != nil {
+	if _, err := queries.Raw(query).Exec(exec); err != nil {
 		return fmt.Errorf("queries.Raw: %w", err)
 	}
 	return nil
 }
 
-func trimFwdSlash(tx *sql.Tx) error {
+func trimFwdSlash(exec boil.ContextExecutor) error {
 	query := ""
 	columns := []string{"web_id_16colors"}
 	for _, column := range columns {
 		query += UpdateSet + column + " = LTRIM(web_id_16colors, '/') WHERE web_id_16colors LIKE '/%'; "
 	}
-	if _, err := queries.Raw(query).Exec(tx); err != nil {
+	if _, err := queries.Raw(query).Exec(exec); err != nil {
 		return fmt.Errorf("queries.Raw: %w", err)
 	}
 	return nil

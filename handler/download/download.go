@@ -31,7 +31,7 @@ func Checksum(c echo.Context, id string) error {
 			art, err = model.OneEditByKey(id)
 		}
 		if err != nil {
-			return fmt.Errorf("model.FindObf: %w", err)
+			return fmt.Errorf("file download checksum %w: %s", err, id)
 		}
 	}
 	// an example checksum file body created by `shasum`

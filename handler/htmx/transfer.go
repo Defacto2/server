@@ -205,7 +205,7 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key, downloadDir string
 	creator := creator{
 		file: file, readme: readme, key: key, checksum: checksum, content: content,
 	}
-	id, uid, err := creator.insert(ctx, c, logger, tx)
+	id, uid, err := creator.insert(c, ctx, tx, logger)
 	if err != nil {
 		return fmt.Errorf("creator.insert: %w", err)
 	} else if id == 0 {
@@ -290,15 +290,6 @@ func checkHasher(c echo.Context, logger *zap.SugaredLogger, name string, err err
 		"The chosen file input cannot be hashed")
 }
 
-func checkDB(c echo.Context, logger *zap.SugaredLogger, err error) error {
-	if logger != nil {
-		s := fmt.Sprintf("%s: %s", ErrDB, err)
-		logger.Error(s)
-	}
-	return c.HTML(http.StatusServiceUnavailable,
-		"Cannot connect to the database")
-}
-
 func checkExist(c echo.Context, logger *zap.SugaredLogger, err error) error {
 	if logger != nil {
 		s := fmt.Sprintf("%s: %s", ErrDB, err)
@@ -372,7 +363,7 @@ type creator struct {
 	content  []string
 }
 
-func (cr creator) insert(ctx context.Context, c echo.Context, logger *zap.SugaredLogger, tx *sql.Tx,
+func (cr creator) insert(c echo.Context, ctx context.Context, tx *sql.Tx, logger *zap.SugaredLogger,
 ) (int64, uuid.UUID, error) {
 	noID := uuid.UUID{}
 	values, err := c.FormParams()
