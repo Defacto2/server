@@ -7,8 +7,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
@@ -683,7 +683,7 @@ func OSTags() [5]string {
 // counter counts the number of files with the tag.
 func counter(t Tag) (int64, error) {
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return -1, fmt.Errorf("tags counter could not connect to the database: %w", err)
 	}
@@ -692,7 +692,7 @@ func counter(t Tag) (int64, error) {
 		clause = "platform = ?"
 	}
 	sum, err := models.Files(
-		qm.Where(clause, URIs()[t])).Count(ctx, db)
+		qm.Where(clause, URIs()[t])).Count(ctx, tx)
 	if err != nil {
 		return -1, fmt.Errorf("tags counter could not count the tag: %w", err)
 	}

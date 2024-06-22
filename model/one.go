@@ -9,7 +9,6 @@ import (
 	"fmt"
 
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/google/uuid"
 	"github.com/volatiletech/null/v8"
@@ -122,12 +121,11 @@ func recordObf(deleted bool, key string) (*models.File, error) {
 	}
 	// get record id, filename, uuid
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, ErrDB
 	}
-	defer db.Close()
-	art, err := One(ctx, db, deleted, id)
+	art, err := One(ctx, tx, deleted, id)
 	if err != nil {
 		return nil, fmt.Errorf("%w, %w: %s", ErrID, err, key)
 	}

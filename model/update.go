@@ -10,7 +10,6 @@ import (
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/volatiletech/null/v8"
@@ -114,14 +113,12 @@ func UpdateYouTube(id int64, val string) error {
 // The int64From columns are table columns that can either be null, empty, or have an int64 value.
 // The demoZooProd and pouetProd values are also validated to be within a sane range.
 func UpdateInt64From(column int64From, id int64, val string) error {
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return ErrDB
-	}
-	defer db.Close()
 	ctx := context.Background()
-
-	f, err := OneFile(ctx, db, id)
+	tx, err := boil.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("updateint64from: %w", ErrDB)
+	}
+	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("find file for %q: %w", column, err)
 	}
@@ -145,8 +142,11 @@ func UpdateInt64From(column int64From, id int64, val string) error {
 	if invalid {
 		return fmt.Errorf("%d: %w", i64, ErrID)
 	}
-	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf("%q %s: %w", column, val, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("updateint64from: %w", err)
 	}
 	return nil
 }
@@ -175,13 +175,12 @@ const (
 // UpdateStringFrom updates the column string from value with val.
 // The stringFrom columns are table columns that can either be null, empty, or have a string value.
 func UpdateStringFrom(column stringFrom, id int64, val string) error { //nolint:cyclop
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return ErrDB
-	}
-	defer db.Close()
 	ctx := context.Background()
-	f, err := OneFile(ctx, db, id)
+	tx, err := boil.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("updatestringfrom: %w", ErrDB)
+	}
+	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("find file for %q: %w", column, err)
 	}
@@ -220,21 +219,23 @@ func UpdateStringFrom(column stringFrom, id int64, val string) error { //nolint:
 	default:
 		return fmt.Errorf("updatestringfrom: %w", ErrColumn)
 	}
-	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf("%q %s: %w", column, val, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("updatestringfrom: %w", err)
 	}
 	return nil
 }
 
 // UpdateCreators updates the text, illustration, program, and audio credit columns with the values provided.
 func UpdateCreators(id int64, text, ill, prog, audio string) error {
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return ErrDB
-	}
-	defer db.Close()
 	ctx := context.Background()
-	f, err := OneFile(ctx, db, id)
+	tx, err := boil.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("updatecreators: %w", ErrDB)
+	}
+	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("updatecreators find file, %d: %w", id, err)
 	}
@@ -242,21 +243,23 @@ func UpdateCreators(id int64, text, ill, prog, audio string) error {
 	f.CreditIllustration = null.StringFrom(ill)
 	f.CreditProgram = null.StringFrom(prog)
 	f.CreditAudio = null.StringFrom(audio)
-	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf("%s: %w", "updatecreators", err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("updatecreators: %w", err)
 	}
 	return nil
 }
 
 // UpdateLinks updates the youtube, 16colors, relations, sites, demozoo, and pouet columns with the values provided.
 func UpdateLinks(id int64, youtube, colors16, github, relations, sites string, demozoo, pouet int64) error {
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return ErrDB
-	}
-	defer db.Close()
 	ctx := context.Background()
-	f, err := OneFile(ctx, db, id)
+	tx, err := boil.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("updatelinks: %w", ErrDB)
+	}
+	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("updatelinks find file, %d: %w", id, err)
 	}
@@ -267,8 +270,11 @@ func UpdateLinks(id int64, youtube, colors16, github, relations, sites string, d
 	f.ListLinks = null.StringFrom(sites)
 	f.WebIDDemozoo = null.Int64From(demozoo)
 	f.WebIDPouet = null.Int64From(pouet)
-	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf("%s: %w", "updatelinks", err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("updatelinks: %w", err)
 	}
 	return nil
 }
@@ -290,20 +296,22 @@ func UpdateClassification(id int64, platform, tag string) error {
 	if !tags.IsTag(tag) {
 		return fmt.Errorf("%s: %w", tag, tags.ErrTag)
 	}
-	db, err := postgres.ConnectDB()
+	ctx := context.Background()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return ErrDB
 	}
-	defer db.Close()
-	ctx := context.Background()
-	f, err := OneFile(ctx, db, id)
+	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
 	}
 	f.Platform = null.StringFrom(p.String())
 	f.Section = null.StringFrom(t.String())
-	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf("f.update: %w", err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("tx.commit: %w", err)
 	}
 	return nil
 }
@@ -311,13 +319,12 @@ func UpdateClassification(id int64, platform, tag string) error {
 // UpdateDateIssued updates the date issued year, month and day columns with the values provided.
 // Columns updated are DateIssuedYear, DateIssuedMonth, and DateIssuedDay.
 func UpdateDateIssued(id int64, y, m, d string) error {
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return ErrDB
-	}
-	defer db.Close()
 	ctx := context.Background()
-	f, err := OneFile(ctx, db, id)
+	tx, err := boil.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("update date issued: %w", err)
+	}
+	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
 	}
@@ -325,8 +332,11 @@ func UpdateDateIssued(id int64, y, m, d string) error {
 	f.DateIssuedYear = year
 	f.DateIssuedMonth = month
 	f.DateIssuedDay = day
-	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf("%q %q %q: %w", y, m, d, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("tx.commit: %w", err)
 	}
 	return nil
 }
@@ -335,13 +345,12 @@ func UpdateDateIssued(id int64, y, m, d string) error {
 // It returns nil if the update was successful.
 // Id is the database id of the record.
 func UpdateNoReadme(id int64, val bool) error {
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return ErrDB
-	}
-	defer db.Close()
 	ctx := context.Background()
-	f, err := OneFile(ctx, db, id)
+	tx, err := boil.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("update noreadme: %w", err)
+	}
+	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
 	}
@@ -350,49 +359,56 @@ func UpdateNoReadme(id int64, val bool) error {
 		i = 1
 	}
 	f.RetrotxtNoReadme = null.NewInt16(i, true)
-	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf("f.update: %w", err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("tx.commit: %w", err)
 	}
 	return nil
 }
 
 // UpdateOffline updates the record to be offline and inaccessible to the public.
 func UpdateOffline(id int64) error {
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return ErrDB
-	}
-	defer db.Close()
 	ctx := context.Background()
-	f, err := OneFile(ctx, db, id)
+	tx, err := boil.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("update offline: %w", err)
+	}
+	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
 	}
 	now := time.Now()
 	f.Deletedat = null.TimeFromPtr(&now)
 	f.Deletedby = null.StringFrom(strings.ToLower(uidPlaceholder))
-	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf("f.update: %w", err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("tx.commit: %w", err)
 	}
 	return nil
 }
 
 // UpdateOnline updates the record to be online and public.
 func UpdateOnline(id int64) error {
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return ErrDB
-	}
-	defer db.Close()
 	ctx := context.Background()
-	f, err := OneFile(ctx, db, id)
+	tx, err := boil.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("update online: %w", err)
+	}
+	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
 	}
 	f.Deletedat = null.TimeFromPtr(nil)
 	f.Deletedby = null.String{}
-	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf("f.update: %w", err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("tx.commit: %w", err)
 	}
 	return nil
 }
@@ -410,14 +426,12 @@ func UpdateReleasers(id int64, val string) error {
 	for i, v := range s {
 		s[i] = releaser.Cell(v)
 	}
-
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return ErrDB
-	}
-	defer db.Close()
 	ctx := context.Background()
-	f, err := OneFile(ctx, db, id)
+	tx, err := boil.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("update releasers: %w", err)
+	}
+	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
 	}
@@ -432,8 +446,11 @@ func UpdateReleasers(id int64, val string) error {
 		f.GroupBrandFor = null.StringFrom("")
 		f.GroupBrandBy = null.StringFrom("")
 	}
-	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf("%s: %w", val, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("tx.commit: %w", err)
 	}
 	return nil
 }

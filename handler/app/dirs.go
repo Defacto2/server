@@ -28,13 +28,13 @@ import (
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magic"
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/render"
 	"github.com/Defacto2/server/model"
 	"github.com/dustin/go-humanize"
 	"github.com/h2non/filetype"
 	"github.com/labstack/echo/v4"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -316,12 +316,11 @@ func (dir Dirs) PreviewDel(c echo.Context) error {
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return badRequest(c, err)
 	}
-	defer db.Close()
-	r, err := model.One(ctx, db, true, f.ID)
+	r, err := model.One(ctx, tx, true, f.ID)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -523,12 +522,11 @@ func (dir Dirs) extractor(c echo.Context, logger *zap.SugaredLogger, p extract) 
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return badRequest(c, err)
 	}
-	defer db.Close()
-	r, err := model.One(ctx, db, true, f.ID)
+	r, err := model.One(ctx, tx, true, f.ID)
 	if err != nil {
 		return badRequest(c, err)
 	}

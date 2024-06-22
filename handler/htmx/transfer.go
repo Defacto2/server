@@ -23,12 +23,12 @@ import (
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/form"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"go.uber.org/zap"
 )
 
@@ -76,15 +76,13 @@ func LookupSHA384(c echo.Context, logger *zap.SugaredLogger) error {
 	}
 
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
 			"cannot connect to the database")
 	}
-	defer db.Close()
-
-	exist, err := model.HashExists(ctx, db, hash)
+	exist, err := model.HashExists(ctx, tx, hash)
 	if err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
@@ -179,18 +177,13 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key, downloadDir string
 		return checkHasher(c, logger, name, err)
 	}
 	checksum := hasher.Sum(nil)
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return checkDB(c, logger, err)
-	}
-	defer db.Close()
 	ctx := context.Background()
-	tx, err := db.BeginTx(ctx, nil)
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return c.HTML(http.StatusServiceUnavailable,
 			"Cannot begin the database transaction")
 	}
-	exist, err := model.SHA384Exists(ctx, db, checksum)
+	exist, err := model.SHA384Exists(ctx, tx, checksum)
 	if err != nil {
 		return checkExist(c, logger, err)
 	}
@@ -445,18 +438,17 @@ func submit(c echo.Context, logger *zap.SugaredLogger, prod string) error {
 		return c.String(http.StatusNotAcceptable,
 			"The "+name+" production ID is invalid, "+sid)
 	}
-	db, err := postgres.ConnectDB()
+	ctx := context.Background()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("htmx submit: %w", err)
 	}
-	defer db.Close()
-	ctx := context.Background()
 	var exist bool
 	switch prod {
 	case dz:
-		exist, err = model.DemozooExists(ctx, db, id)
+		exist, err = model.DemozooExists(ctx, tx, id)
 	case pt:
-		exist, err = model.PouetExists(ctx, db, id)
+		exist, err = model.PouetExists(ctx, tx, id)
 	}
 	if err != nil {
 		return c.String(http.StatusServiceUnavailable,
@@ -469,16 +461,20 @@ func submit(c echo.Context, logger *zap.SugaredLogger, prod string) error {
 	var key int64
 	switch prod {
 	case dz:
-		key, err = model.InsertDemozoo(ctx, db, id)
+		key, err = model.InsertDemozoo(ctx, tx, id)
 	case pt:
-		key, err = model.InsertPouet(ctx, db, id)
+		key, err = model.InsertPouet(ctx, tx, id)
 	}
 	if err != nil || key == 0 {
 		logger.Error(err, id)
 		return c.String(http.StatusServiceUnavailable,
 			"error, the database insert failed")
 	}
-
+	if err := tx.Commit(); err != nil {
+		logger.Error(err)
+		return c.String(http.StatusServiceUnavailable,
+			"error, the database commit failed")
+	}
 	html := fmt.Sprintf("Thanks for the submission of %s production: %d", name, id)
 	return c.HTML(http.StatusOK, html)
 }

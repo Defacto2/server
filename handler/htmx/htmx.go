@@ -12,7 +12,6 @@ import (
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/model"
 	"github.com/google/uuid"
@@ -42,15 +41,12 @@ func DemozooProd(c echo.Context) error {
 		return c.String(http.StatusNotAcceptable,
 			"The Demozoo production ID must be a numeric value, "+sid)
 	}
-
-	db, err := postgres.ConnectDB()
+	ctx := context.Background()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("htmx demozoo production: %w", ErrDB)
 	}
-	defer db.Close()
-	ctx := context.Background()
-
-	deleted, key, err := model.OneDemozoo(ctx, db, int64(id))
+	deleted, key, err := model.OneDemozoo(ctx, tx, int64(id))
 	if err != nil {
 		return c.String(http.StatusServiceUnavailable,
 			"error, the database query failed")
@@ -189,15 +185,12 @@ func PouetProd(c echo.Context) error {
 		return c.String(http.StatusNotAcceptable,
 			"The Pouet production ID must be a numeric value, "+sid)
 	}
-
-	db, err := postgres.ConnectDB()
+	ctx := context.Background()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("htmx pouet production: %w", ErrDB)
 	}
-	defer db.Close()
-	ctx := context.Background()
-
-	deleted, key, err := model.OnePouet(ctx, db, int64(id))
+	deleted, key, err := model.OnePouet(ctx, tx, int64(id))
 	if err != nil {
 		return c.String(http.StatusServiceUnavailable,
 			"error, the database query failed")
@@ -319,13 +312,12 @@ func PouetSubmit(c echo.Context, logger *zap.SugaredLogger) error {
 func SearchByID(c echo.Context, logger *zap.SugaredLogger) error {
 	const maxResults = 50
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
 			"cannot connect to the database")
 	}
-	defer db.Close()
 
 	ids := []int{}
 	uuids := []uuid.UUID{}
@@ -349,7 +341,7 @@ func SearchByID(c echo.Context, logger *zap.SugaredLogger) error {
 	}
 
 	var r model.Artifacts
-	fs, err := r.ID(ctx, db, ids, uuids...)
+	fs, err := r.ID(ctx, tx, ids, uuids...)
 	if err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
@@ -376,14 +368,12 @@ func SearchByID(c echo.Context, logger *zap.SugaredLogger) error {
 func SearchReleaser(c echo.Context, logger *zap.SugaredLogger) error {
 	const maxResults = 14
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
 			"cannot connect to the database")
 	}
-	defer db.Close()
-
 	input := c.FormValue("htmx-search")
 	slug := helper.Slug(helper.TrimRoundBraket(input))
 	if slug == "" {
@@ -400,7 +390,7 @@ func SearchReleaser(c echo.Context, logger *zap.SugaredLogger) error {
 	}
 	lookup = append(lookup, slug)
 	var r model.Releasers
-	if err := r.Similar(ctx, db, maxResults, lookup...); err != nil {
+	if err := r.Similar(ctx, tx, maxResults, lookup...); err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
 			"the search query failed")
@@ -434,14 +424,12 @@ func DataListMagazines(c echo.Context, logger *zap.SugaredLogger, input string) 
 func datalist(c echo.Context, logger *zap.SugaredLogger, input string, magazine bool) error {
 	const maxResults = 14
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
 			"cannot connect to the database")
 	}
-	defer db.Close()
-
 	slug := helper.Slug(helper.TrimRoundBraket(input))
 	if slug == "" {
 		return c.HTML(http.StatusOK, "")
@@ -458,9 +446,9 @@ func datalist(c echo.Context, logger *zap.SugaredLogger, input string, magazine 
 	lookup = append(lookup, slug)
 	var r model.Releasers
 	if magazine {
-		err = r.SimilarMagazine(ctx, db, maxResults, lookup...)
+		err = r.SimilarMagazine(ctx, tx, maxResults, lookup...)
 	} else {
-		err = r.Similar(ctx, db, maxResults, lookup...)
+		err = r.Similar(ctx, tx, maxResults, lookup...)
 	}
 	if err != nil {
 		logger.Error(err)

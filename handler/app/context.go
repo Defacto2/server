@@ -5,7 +5,6 @@ package app
 import (
 	"context"
 	"crypto/sha512"
-	"database/sql"
 	"errors"
 	"fmt"
 	"math"
@@ -163,9 +162,8 @@ func Configurations(cx echo.Context, conf config.Config) error {
 	data["countNewUpload"] = 0
 	data["countHidden"] = 0
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err == nil {
-		ca, cp, cnu, err := model.Counts(ctx, db)
+	if tx, err := boil.BeginTx(ctx, nil); err == nil {
+		ca, cp, cnu, err := model.Counts(ctx, tx)
 		if err == nil {
 			data["countArtifacts"] = ca
 			data["countPublic"] = cp
@@ -173,9 +171,8 @@ func Configurations(cx echo.Context, conf config.Config) error {
 			data["countHidden"] = ca - cp - cnu
 		}
 	}
-	defer db.Close()
 	data = configurations(data, conf)
-	err = cx.Render(http.StatusOK, name, data)
+	err := cx.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(cx, name, err)
 	}
@@ -232,6 +229,11 @@ func Download(c echo.Context, logger *zap.SugaredLogger, path string) error {
 // FTP is the handler for the FTP page.
 func FTP(c echo.Context) error {
 	const title, name = "FTP", "ftp"
+	ctx := context.Background()
+	tx, err := boil.BeginTx(ctx, nil)
+	if err != nil {
+		return InternalErr(c, name, err)
+	}
 	data := empty(c)
 	const lead = "FTP sites are historical, internet-based file servers for uploading " +
 		"and downloading \"elite\" scene releases."
@@ -245,14 +247,8 @@ func FTP(c echo.Context) error {
 	data["itemName"] = name
 	data[key] = model.Releasers{}
 	data["stats"] = map[string]string{}
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	defer db.Close()
 	r := model.Releasers{}
-	if err := r.FTP(ctx, db); err != nil {
+	if err := r.FTP(ctx, tx); err != nil {
 		return DatabaseErr(c, name, err)
 	}
 	data[key] = r
@@ -281,7 +277,6 @@ func Categories(c echo.Context, logger *zap.SugaredLogger, stats bool) error {
 	data["lead"] = "This page shows the categories and platforms in the collection of file artifacts."
 	data["stats"] = stats
 	data["counter"] = Stats{}
-
 	data, err := fileWStats(data, stats)
 	if err != nil {
 		logger.Warn(err)
@@ -490,13 +485,12 @@ func (got *DemozooLink) ArchiveContent(c echo.Context, path string) error {
 
 func (got DemozooLink) Update(c echo.Context) error {
 	uid := got.UUID
-	db, err := postgres.ConnectDB()
+	ctx := context.Background()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return ErrDB
 	}
-	defer db.Close()
-	ctx := context.Background()
-	f, err := model.OneByUUID(ctx, db, true, uid)
+	f, err := model.OneByUUID(ctx, tx, true, uid)
 	if err != nil {
 		return fmt.Errorf("model.OneByUUID: %w", err)
 	}
@@ -512,8 +506,11 @@ func (got DemozooLink) Update(c echo.Context) error {
 	f.WebIDPouet = null.Int64From(int64(got.Pouet))
 	yt := strings.TrimSpace(got.YouTube)
 	f.WebIDYoutube = null.StringFrom(yt)
-	if _, err = f.Update(ctx, db, boil.Infer()); err != nil {
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf("f.Update: %w", err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("tx.Commit: %w", err)
 	}
 	return c.JSON(http.StatusOK, got)
 }
@@ -718,12 +715,11 @@ func PlatformEdit(c echo.Context) error {
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return badRequest(c, err)
 	}
-	defer db.Close()
-	r, err := model.One(ctx, db, true, f.ID)
+	r, err := model.One(ctx, tx, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("model.Edit: %w", err)
 	}
@@ -761,16 +757,14 @@ func PostDesc(c echo.Context, input string) error {
 	const name = "artifacts"
 	errURL := fmt.Sprint("post desc search for,", input)
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return DatabaseErr(c, errURL, err)
 	}
-	defer db.Close()
-
 	terms := helper.SearchTerm(input)
 	rel := model.Artifacts{}
-	fs, _ := rel.Description(ctx, db, terms)
-	d := Descriptions.postStats(ctx, db, terms)
+	fs, _ := rel.Description(ctx, tx, terms)
+	d := Descriptions.postStats(ctx, tx, terms)
 	s := strings.Join(terms, ", ")
 	data := emptyFiles(c)
 	data["title"] = "Title and description results"
@@ -798,18 +792,15 @@ func PostName(c echo.Context, mode FileSearch) error {
 	const name = "artifacts"
 	errURL := fmt.Sprint("post name search for,", mode)
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return DatabaseErr(c, errURL, err)
 	}
-	defer db.Close()
-
 	input := c.FormValue("search-term-query")
 	terms := helper.SearchTerm(input)
 	rel := model.Artifacts{}
-
-	fs, _ := rel.Filename(ctx, db, terms)
-	d := mode.postStats(ctx, db, terms)
+	fs, _ := rel.Filename(ctx, tx, terms)
+	d := mode.postStats(ctx, tx, terms)
 	s := strings.Join(terms, ", ")
 	data := emptyFiles(c)
 	data["title"] = "Filename results"
@@ -924,12 +915,11 @@ func ReadmeDel(c echo.Context, downloadDir string) error {
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return ErrDB
 	}
-	defer db.Close()
-	r, err := model.One(ctx, db, true, f.ID)
+	r, err := model.One(ctx, tx, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("model.Edit: %w", err)
 	}
@@ -951,12 +941,11 @@ func ReadmePost(c echo.Context, logger *zap.SugaredLogger, downloadDir string) e
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return badRequest(c, err)
 	}
-	defer db.Close()
-	r, err := model.One(ctx, db, true, f.ID)
+	r, err := model.One(ctx, tx, true, f.ID)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -1018,214 +1007,211 @@ func RecordToggle(c echo.Context, state bool) error {
 
 // Records returns the records for the artifacts category URI.
 // Note that the record statistics and counts get cached.
-func Records(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
-	if db == nil {
-		return nil, ErrDB
-	}
+func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
 	switch Match(uri) {
 	// pulldown editor menu matches
 	case forApproval:
 		r := model.Artifacts{}
-		return r.ByForApproval(ctx, db, page, limit)
+		return r.ByForApproval(ctx, exec, page, limit)
 	case deletions:
 		r := model.Artifacts{}
-		return r.ByHidden(ctx, db, page, limit)
+		return r.ByHidden(ctx, exec, page, limit)
 	case unwanted:
 		r := model.Artifacts{}
-		return r.ByUnwanted(ctx, db, page, limit)
+		return r.ByUnwanted(ctx, exec, page, limit)
 	// pulldown menu matches
 	case newUploads:
 		r := model.Artifacts{}
-		return r.ByKey(ctx, db, page, limit)
+		return r.ByKey(ctx, exec, page, limit)
 	case newUpdates:
 		r := model.Artifacts{}
-		return r.ByUpdated(ctx, db, page, limit)
+		return r.ByUpdated(ctx, exec, page, limit)
 	case oldest:
 		r := model.Artifacts{}
-		return r.ByOldest(ctx, db, page, limit)
+		return r.ByOldest(ctx, exec, page, limit)
 	case newest:
 		r := model.Artifacts{}
-		return r.ByNewest(ctx, db, page, limit)
+		return r.ByNewest(ctx, exec, page, limit)
 	}
-	return recordsZ(ctx, db, uri, page, limit)
+	return recordsZ(ctx, exec, uri, page, limit)
 }
 
-func recordsZ(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
+func recordsZ(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
 	switch Match(uri) {
 	case advert:
 		r := model.Advert{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case announcement:
 		r := model.Announcement{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case ansi:
 		r := model.Ansi{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case ansiBrand:
 		r := model.AnsiBrand{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case ansiBBS:
 		r := model.AnsiBBS{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case ansiFTP:
 		r := model.AnsiFTP{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case ansiNfo:
 		r := model.AnsiNfo{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case ansiPack:
 		r := model.AnsiPack{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case bbs:
 		r := model.BBS{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case bbsImage:
 		r := model.BBSImage{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case bbstro:
 		r := model.BBStro{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case bbsText:
 		r := model.BBSText{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	}
-	return records0(ctx, db, uri, page, limit)
+	return records0(ctx, exec, uri, page, limit)
 }
 
-func records0(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
+func records0(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
 	switch Match(uri) {
 	case database:
 		r := model.Database{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case demoscene:
 		r := model.Demoscene{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case drama:
 		r := model.Drama{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case ftp:
 		r := model.FTP{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case hack:
 		r := model.Hack{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case htm:
 		r := model.HTML{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case howTo:
 		r := model.HowTo{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case imageFile:
 		r := model.Image{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case imagePack:
 		r := model.ImagePack{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case installer:
 		r := model.Installer{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case intro:
 		r := model.Intro{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case linux:
 		r := model.Linux{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case java:
 		r := model.Java{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case jobAdvert:
 		r := model.JobAdvert{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	}
-	return records1(ctx, db, uri, page, limit)
+	return records1(ctx, exec, uri, page, limit)
 }
 
-func records1(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
+func records1(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
 	switch Match(uri) {
 	case macos:
 		r := model.Macos{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case msdosPack:
 		r := model.MsDosPack{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case music:
 		r := model.Music{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case newsArticle:
 		r := model.NewsArticle{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case nfo:
 		r := model.Nfo{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case nfoTool:
 		r := model.NfoTool{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case standards:
 		r := model.Standard{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case script:
 		r := model.Script{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case introMsdos:
 		r := model.IntroMsDos{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case introWindows:
 		r := model.IntroWindows{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case magazine:
 		r := model.Magazine{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case msdos:
 		r := model.MsDos{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case pdf:
 		r := model.PDF{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case proof:
 		r := model.Proof{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	}
-	return records2(ctx, db, uri, page, limit)
+	return records2(ctx, exec, uri, page, limit)
 }
 
-func records2(ctx context.Context, db *sql.DB, uri string, page, limit int) (models.FileSlice, error) {
+func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
 	switch Match(uri) {
 	case restrict:
 		r := model.Restrict{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case takedown:
 		r := model.Takedown{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case text:
 		r := model.Text{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case textAmiga:
 		r := model.TextAmiga{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case textApple2:
 		r := model.TextApple2{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case textAtariST:
 		r := model.TextAtariST{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case textPack:
 		r := model.TextPack{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case tool:
 		r := model.Tool{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case trialCrackme:
 		r := model.TrialCrackme{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case video:
 		r := model.Video{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case windows:
 		r := model.Windows{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	case windowsPack:
 		r := model.WindowsPack{}
-		return r.List(ctx, db, page, limit)
+		return r.List(ctx, exec, page, limit)
 	default:
 		return nil, fmt.Errorf("%w: %s", ErrCategory, uri)
 	}
@@ -1276,12 +1262,11 @@ func ReleaserEdit(c echo.Context) error {
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return badRequest(c, err)
 	}
-	defer db.Close()
-	r, err := model.One(ctx, db, true, f.ID)
+	r, err := model.One(ctx, tx, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("model.Edit: %w", err)
 	}
@@ -1296,15 +1281,14 @@ func Releasers(c echo.Context, uri string) error {
 	const name = "artifacts"
 	errURL := fmt.Sprint("releasers page for,", uri)
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return InternalErr(c, errURL, err)
 	}
-	defer db.Close()
 
 	s := releaser.Link(uri)
 	rel := model.Releasers{}
-	fs, err := rel.Where(ctx, db, uri)
+	fs, err := rel.Where(ctx, tx, uri)
 	if err != nil {
 		return InternalErr(c, errURL, err)
 	}
@@ -1331,7 +1315,7 @@ func Releasers(c echo.Context, uri string) error {
 	default:
 		// placeholder to handle other releaser types
 	}
-	d, err := releaserSum(ctx, db, uri)
+	d, err := releaserSum(ctx, tx, uri)
 	if err != nil {
 		return InternalErr(c, errURL, err)
 	}
@@ -1344,12 +1328,9 @@ func Releasers(c echo.Context, uri string) error {
 }
 
 // releaserSum is a helper function for Releasers that returns the statistics for the files page.
-func releaserSum(ctx context.Context, db *sql.DB, uri string) (map[string]string, error) {
-	if db == nil {
-		return nil, ErrDB
-	}
+func releaserSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[string]string, error) {
 	m := model.Summary{}
-	if err := m.ByReleaser(ctx, db, uri); err != nil {
+	if err := m.ByReleaser(ctx, exec, uri); err != nil {
 		return nil, fmt.Errorf("m.Releaser: %w", err)
 	}
 	d := map[string]string{
@@ -1398,15 +1379,14 @@ func Sceners(c echo.Context, uri string) error {
 	const name = "artifacts"
 	errURL := fmt.Sprint("sceners page for,", uri)
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return InternalErr(c, errURL, err)
 	}
-	defer db.Close()
 
 	s := releaser.Link(uri)
 	var ms model.Scener
-	fs, err := ms.Where(ctx, db, uri)
+	fs, err := ms.Where(ctx, tx, uri)
 	if err != nil {
 		return InternalErr(c, errURL, err)
 	}
@@ -1421,7 +1401,7 @@ func Sceners(c echo.Context, uri string) error {
 	data["description"] = "The collection of files attributed to " + s + "."
 	data["scener"] = s
 	data[records] = fs
-	d, err := scenerSum(ctx, db, uri)
+	d, err := scenerSum(ctx, tx, uri)
 	if err != nil {
 		return InternalErr(c, errURL, err)
 	}
@@ -1577,12 +1557,11 @@ func TagEdit(c echo.Context) error {
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return badRequest(c, err)
 	}
-	defer db.Close()
-	r, err := model.One(ctx, db, true, f.ID)
+	r, err := model.One(ctx, tx, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("model.Edit: %w", err)
 	}
@@ -1649,12 +1628,11 @@ func TitleEdit(c echo.Context) error {
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return badRequest(c, err)
 	}
-	defer db.Close()
-	r, err := model.One(ctx, db, true, f.ID)
+	r, err := model.One(ctx, tx, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("model.Edit: %w", err)
 	}
@@ -1786,78 +1764,75 @@ type Stats struct {
 }
 
 // Get and store the database statistics for the artifacts categories.
-func (s *Stats) Get(ctx context.Context, db *sql.DB) error {
-	if db == nil {
-		return ErrDB
-	}
-	if err := s.Record.Public(ctx, db); err != nil {
+func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := s.Record.Public(ctx, exec); err != nil {
 		return fmt.Errorf("s.Record.Stat: %w", err)
 	}
-	if err := s.Ansi.Stat(ctx, db); err != nil {
+	if err := s.Ansi.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.Ansi.Stat: %w", err)
 	}
-	if err := s.AnsiBBS.Stat(ctx, db); err != nil {
+	if err := s.AnsiBBS.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.AnsiBBS.Stat: %w", err)
 	}
-	if err := s.BBS.Stat(ctx, db); err != nil {
+	if err := s.BBS.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.BBS.Stat: %w", err)
 	}
-	if err := s.BBSText.Stat(ctx, db); err != nil {
+	if err := s.BBSText.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.BBSText.Stat: %w", err)
 	}
-	if err := s.BBStro.Stat(ctx, db); err != nil {
+	if err := s.BBStro.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.BBStro.Stat: %w", err)
 	}
-	if err := s.MsDos.Stat(ctx, db); err != nil {
+	if err := s.MsDos.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.MsDos.Stat: %w", err)
 	}
-	if err := s.Intro.Stat(ctx, db); err != nil {
+	if err := s.Intro.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.Intro.Stat: %w", err)
 	}
-	if err := s.IntroD.Stat(ctx, db); err != nil {
+	if err := s.IntroD.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.IntroD.Stat: %w", err)
 	}
-	if err := s.IntroW.Stat(ctx, db); err != nil {
+	if err := s.IntroW.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.IntroW.Stat: %w", err)
 	}
-	if err := s.Installer.Stat(ctx, db); err != nil {
+	if err := s.Installer.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.Installer.Stat: %w", err)
 	}
-	if err := s.Java.Stat(ctx, db); err != nil {
+	if err := s.Java.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.Java.Stat: %w", err)
 	}
-	if err := s.Linux.Stat(ctx, db); err != nil {
+	if err := s.Linux.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.Linux.Stat: %w", err)
 	}
-	if err := s.Demoscene.Stat(ctx, db); err != nil {
+	if err := s.Demoscene.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.Demoscene.Stat: %w", err)
 	}
-	return s.get(ctx, db)
+	return s.get(ctx, exec)
 }
 
-func (s *Stats) get(ctx context.Context, db *sql.DB) error {
-	if err := s.Macos.Stat(ctx, db); err != nil {
+func (s *Stats) get(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := s.Macos.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.Macos.Stat: %w", err)
 	}
-	if err := s.Magazine.Stat(ctx, db); err != nil {
+	if err := s.Magazine.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.Magazine.Stat: %w", err)
 	}
-	if err := s.Nfo.Stat(ctx, db); err != nil {
+	if err := s.Nfo.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.Nfo.Stat: %w", err)
 	}
-	if err := s.NfoTool.Stat(ctx, db); err != nil {
+	if err := s.NfoTool.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.NfoTool.Stat: %w", err)
 	}
-	if err := s.Proof.Stat(ctx, db); err != nil {
+	if err := s.Proof.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.Proof.Stat: %w", err)
 	}
-	if err := s.Script.Stat(ctx, db); err != nil {
+	if err := s.Script.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.Script.Stat: %w", err)
 	}
-	if err := s.Text.Stat(ctx, db); err != nil {
+	if err := s.Text.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("s.Text.Stat: %w", err)
 	}
-	return s.Windows.Stat(ctx, db)
+	return s.Windows.Stat(ctx, exec)
 }
 
 type Pagination struct {
@@ -1897,17 +1872,16 @@ func artifacts(c echo.Context, uri string, page int) error {
 	}
 	errURL := fmt.Sprintf("artifacts page %d for %q", page, uri)
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return InternalErr(c, errURL, err)
 	}
-	defer db.Close()
-	r, err := Records(ctx, db, uri, page, limit)
+	r, err := Records(ctx, tx, uri, page, limit)
 	if err != nil {
 		return DatabaseErr(c, errURL, err)
 	}
 	data[records] = r
-	d, sum, err := stats(ctx, db, uri)
+	d, sum, err := stats(ctx, tx, uri)
 	if err != nil {
 		return DatabaseErr(c, errURL, err)
 	}
@@ -1967,13 +1941,12 @@ func bbsHandler(c echo.Context, orderBy model.OrderBy) error {
 	data["stats"] = map[string]string{}
 
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return InternalErr(c, name, err)
 	}
-	defer db.Close()
 	r := model.Releasers{}
-	if err := r.BBS(ctx, db, orderBy); err != nil {
+	if err := r.BBS(ctx, tx, orderBy); err != nil {
 		return DatabaseErr(c, name, err)
 	}
 	data[key] = r
@@ -2011,13 +1984,12 @@ func bbsHandler(c echo.Context, orderBy model.OrderBy) error {
 // counter returns the statistics for the artifacts categories.
 func counter() (Stats, error) {
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return Stats{}, fmt.Errorf("postgres.ConnectDB: %w", err)
 	}
-	defer db.Close()
 	counter := Stats{}
-	if err := counter.Get(ctx, db); err != nil {
+	if err := counter.Get(ctx, tx); err != nil {
 		return Stats{}, fmt.Errorf("counter.Get: %w", err)
 	}
 	return counter, nil
@@ -2105,16 +2077,15 @@ func magazines(c echo.Context, chronological bool) error {
 	data["stats"] = map[string]string{}
 
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return InternalErr(c, name, err)
 	}
-	defer db.Close()
 	var order string
 	r := model.Releasers{}
 	switch chronological {
 	case true:
-		if err := r.Magazine(ctx, db); err != nil {
+		if err := r.Magazine(ctx, tx); err != nil {
 			return DatabaseErr(c, name, err)
 		}
 		s := title + byyear
@@ -2122,7 +2093,7 @@ func magazines(c echo.Context, chronological bool) error {
 		data["title"] = title + byyear
 		order = year
 	case false:
-		if err := r.MagazineAZ(ctx, db); err != nil {
+		if err := r.MagazineAZ(ctx, tx); err != nil {
 			return DatabaseErr(c, name, err)
 		}
 		s := title + az
@@ -2143,10 +2114,7 @@ func magazines(c echo.Context, chronological bool) error {
 }
 
 // postStats is a helper function for PostName that returns the statistics for the files page.
-func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string) map[string]string {
-	if db == nil {
-		return nil
-	}
+func (mode FileSearch) postStats(ctx context.Context, exec boil.ContextExecutor, terms []string) map[string]string {
 	none := func() map[string]string {
 		return map[string]string{
 			"files": "no files found",
@@ -2156,11 +2124,11 @@ func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string
 	m := model.Summary{}
 	switch mode {
 	case Filenames:
-		if err := m.ByFilename(ctx, db, terms); err != nil {
+		if err := m.ByFilename(ctx, exec, terms); err != nil {
 			return none()
 		}
 	case Descriptions:
-		if err := m.ByDescription(ctx, db, terms); err != nil {
+		if err := m.ByDescription(ctx, exec, terms); err != nil {
 			return none()
 		}
 	}
@@ -2190,12 +2158,9 @@ func remove(c echo.Context, name string, data map[string]interface{}) error {
 }
 
 // scenerSum is a helper function for Sceners that returns the statistics for the files page.
-func scenerSum(ctx context.Context, db *sql.DB, uri string) (map[string]string, error) {
-	if db == nil {
-		return nil, ErrDB
-	}
+func scenerSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[string]string, error) {
 	m := model.Summary{}
-	if err := m.ByScener(ctx, db, uri); err != nil {
+	if err := m.ByScener(ctx, exec, uri); err != nil {
 		return nil, fmt.Errorf("m.ByScener: %w", err)
 	}
 	d := map[string]string{
@@ -2212,21 +2177,21 @@ func scener(c echo.Context, r postgres.Role,
 	const name = "scener"
 	s := model.Sceners{}
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return InternalErr(c, name, err)
 	}
 	switch r {
 	case postgres.Writer:
-		err = s.Writer(ctx, db)
+		err = s.Writer(ctx, tx)
 	case postgres.Artist:
-		err = s.Artist(ctx, db)
+		err = s.Artist(ctx, tx)
 	case postgres.Musician:
-		err = s.Musician(ctx, db)
+		err = s.Musician(ctx, tx)
 	case postgres.Coder:
-		err = s.Coder(ctx, db)
+		err = s.Coder(ctx, tx)
 	case postgres.Roles():
-		err = s.Distinct(ctx, db)
+		err = s.Distinct(ctx, tx)
 	}
 	if err != nil {
 		return DatabaseErr(c, name, err)
@@ -2287,34 +2252,31 @@ func sessionHandler(
 }
 
 // stats is a helper function for Artifacts that returns the statistics for the files page.
-func stats(ctx context.Context, db *sql.DB, uri string) (map[string]string, int, error) {
-	if db == nil {
-		return nil, 0, ErrDB
-	}
+func stats(ctx context.Context, exec boil.ContextExecutor, uri string) (map[string]string, int, error) {
 	if !Valid(uri) {
 		return nil, 0, nil
 	}
 	m := model.Summary{}
-	err := m.ByMatch(ctx, db, uri)
+	err := m.ByMatch(ctx, exec, uri)
 	if err != nil && !errors.Is(err, model.ErrURI) {
 		return nil, 0, fmt.Errorf("m.URI: %w", err)
 	}
 	if errors.Is(err, model.ErrURI) {
 		switch uri {
 		case "for-approval":
-			if err := m.ByForApproval(ctx, db); err != nil {
+			if err := m.ByForApproval(ctx, exec); err != nil {
 				return nil, 0, fmt.Errorf("m.ByForApproval: %w", err)
 			}
 		case "deletions":
-			if err := m.ByHidden(ctx, db); err != nil {
+			if err := m.ByHidden(ctx, exec); err != nil {
 				return nil, 0, fmt.Errorf("m.ByHidden: %w", err)
 			}
 		case "unwanted":
-			if err := m.ByUnwanted(ctx, db); err != nil {
+			if err := m.ByUnwanted(ctx, exec); err != nil {
 				return nil, 0, fmt.Errorf("m.Unwanted: %w", err)
 			}
 		default:
-			if err := m.ByPublic(ctx, db); err != nil {
+			if err := m.ByPublic(ctx, exec); err != nil {
 				return nil, 0, fmt.Errorf("m.ByPublic: %w", err)
 			}
 		}
@@ -2348,13 +2310,12 @@ func releasers(c echo.Context, orderBy model.OrderBy) error {
 	data["stats"] = map[string]string{}
 
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	tx, err := boil.BeginTx(ctx, nil)
 	if err != nil {
 		return InternalErr(c, name, err)
 	}
-	defer db.Close()
 	var r model.Releasers
-	if err := r.Limit(ctx, db, orderBy, 0, 0); err != nil {
+	if err := r.Limit(ctx, tx, orderBy, 0, 0); err != nil {
 		return DatabaseErr(c, name, err)
 	}
 	data[key] = r
