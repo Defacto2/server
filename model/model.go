@@ -27,6 +27,7 @@ var (
 	ErrPlatform = errors.New("invalid platform")
 	ErrSha384   = errors.New("sha384 value is invalid")
 	ErrTime     = errors.New("time value is invalid")
+	ErrTx       = errors.New("transaction value is nil")
 	ErrURI      = errors.New("uri value is invalid")
 	ErrUUID     = errors.New("could not create a new universial unique identifier")
 	ErrYear     = errors.New("invalid year")

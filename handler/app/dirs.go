@@ -136,7 +136,7 @@ func (dir Dirs) Artifact(c echo.Context, logger *zap.SugaredLogger, readonly boo
 	data["comment"] = art.Comment.String
 	// file metadata
 	data["filename"] = fname
-	data["filesize"] = artifactByteCount(art.Filesize)
+	data["filesize"] = artifactByteCount(art.Filesize.Int64)
 	data["filebyte"] = art.Filesize
 	data["lastmodified"] = artifactLM(art)
 	data["lastmodifiedAgo"] = artifactModAgo(art)

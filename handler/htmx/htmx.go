@@ -17,6 +17,7 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"go.uber.org/zap"
 )
 
@@ -145,6 +146,32 @@ func DemozooValid(c echo.Context, id int) (demozoo.Production, error) {
 // use, an error message is returned.
 func DemozooSubmit(c echo.Context, logger *zap.SugaredLogger) error {
 	return submit(c, logger, "demozoo")
+}
+
+func PermenantDelete(c echo.Context, logger *zap.SugaredLogger) error {
+	ctx := context.Background()
+	tx, err := boil.BeginTx(ctx, nil)
+	if err != nil {
+		logger.Error(err)
+		return c.String(http.StatusServiceUnavailable,
+			"cannot start a database transaction")
+	}
+	if err = model.DeleteOne(ctx, tx, 51002); err != nil {
+		logger.Error(err)
+		return c.String(http.StatusServiceUnavailable,
+			"cannot delete the record")
+	}
+
+	// delete records
+	defer tx.Rollback()
+
+	// if err = tx.Commit(); err != nil {
+	// 	logger.Error(err)
+	// 	return c.String(http.StatusServiceUnavailable,
+	// 		"cannot commit the transaction")
+	// }
+	return c.String(http.StatusOK,
+		"This artifact is gone, and reloading this page will result in a 404 error.")
 }
 
 // PouetProd fetches the multiple download_links values from the

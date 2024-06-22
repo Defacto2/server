@@ -501,7 +501,7 @@ func (got DemozooLink) Update(c echo.Context) error {
 		return fmt.Errorf("model.OneByUUID: %w", err)
 	}
 	f.Filename = null.StringFrom(got.Filename)
-	f.Filesize = int64(got.FileSize)
+	f.Filesize = null.Int64From(int64(got.FileSize))
 	f.FileMagicType = null.StringFrom(got.FileType)
 	f.FileIntegrityStrong = null.StringFrom(got.FileHash)
 	f.FileZipContent = null.StringFrom(got.Content)

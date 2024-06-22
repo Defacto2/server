@@ -71,17 +71,15 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	})
 	g.POST("/comment", htmx.RecordComment)
 	g.POST("/comment/reset", htmx.RecordCommentReset)
+	g.POST("/delete/permenantly", func(c echo.Context) error {
+		return htmx.PermenantDelete(c, logger)
+	})
 	g.POST("/demozoo", htmx.RecordDemozoo)
 	g.POST("/filename", htmx.RecordFilename)
 	g.POST("/filename/reset", htmx.RecordFilenameReset)
 	g.POST("/github", htmx.RecordGitHub)
 	g.POST("/links", htmx.RecordLinks)
 	g.POST("/links/reset", htmx.RecordLinksReset)
-	g.POST("/permenantly/delete", func(c echo.Context) error {
-		// remove the artifact from database
-		// remove assets from downloads, previews, and thumbnails via uuid.*
-		return c.String(200, "This artifact is gone, and reloading this page will result in a 404 error.")
-	})
 	g.POST("/platform", app.PlatformEdit)
 	g.POST("/platform+tag", app.PlatformTagInfo)
 	g.POST("/pouet", htmx.RecordPouet)

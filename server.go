@@ -35,6 +35,7 @@ import (
 	"github.com/Defacto2/server/model/fix"
 	"github.com/caarlos0/env/v10"
 	_ "github.com/lib/pq"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"go.uber.org/zap"
 )
@@ -75,12 +76,13 @@ func main() {
 		logger.Errorf("main could not initialize the database data: %s", err)
 	}
 	defer db.Close()
+	boil.SetDB(db)
 	var ver postgres.Version
 	if err := ver.Query(); err != nil {
 		logger.Errorf("postgres version query: %w", err)
 	}
 
-	repairChecks(logger, db, configs)
+	repairChecks(logger, configs)
 	sanityChecks(logger, configs)
 
 	website := newInstance(configs, db)
@@ -208,14 +210,14 @@ func checks(logger *zap.SugaredLogger, readonly bool) {
 
 // repairChecks is used to fix any known issues with the file assets and the database entries.
 // These are skipped if the Production mode environment variable is set to false.
-func repairChecks(logger *zap.SugaredLogger, db *sql.DB, configs config.Config) {
+func repairChecks(logger *zap.SugaredLogger, configs config.Config) {
 	if !configs.ProdMode || logger == nil {
 		return
 	}
 	if err := configs.RepairFS(logger); err != nil {
 		logger.Errorf("repair checks for the file system directories: %s", err)
 	}
-	if err := repairDB(logger, db); err != nil {
+	if err := repairDB(logger); err != nil {
 		if errors.Is(err, ErrVer) {
 			logger.Warnf("A %s, is the database server down?", ErrVer)
 		} else {
@@ -246,12 +248,11 @@ func serverLog(configs config.Config, count int) *zap.SugaredLogger {
 }
 
 // repairDB on startup checks the database connection and make any data corrections.
-func repairDB(logger *zap.SugaredLogger, db *sql.DB) error {
+func repairDB(logger *zap.SugaredLogger) error {
 	if logger == nil {
 		return fmt.Errorf("%w: %s", ErrLog, "the repair database has no logger")
 	}
-	ctx := context.Background()
-	err := fix.All.Run(ctx, logger, db)
+	err := fix.All.Run(logger)
 	if err != nil {
 		return fmt.Errorf("repair database could not fix all: %w", err)
 	}

@@ -59,7 +59,7 @@ aria-labelledby="artifact-permenent-modal-label" aria-hidden="true">
         <div class="text-center my-5" id="artifact-permenent-remove">
           I understand, <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-75-hover" 
             hx-confirm="Confirm, this is the last chance to back out"
-            hx-post="/editor/permenantly/delete" hx-target="#artifact-permenent-remove" hx-swap="innerHTML">permenently remove</a>, <q>{{$title}}</q>
+            hx-post="/editor/delete/permenantly" hx-target="#artifact-permenent-remove" hx-swap="innerHTML">permenently remove</a>, <q>{{$title}}</q>
           <p class="mt-2"><code>{{$filename}}</code></p>
         </div>
       </div>

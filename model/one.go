@@ -22,7 +22,7 @@ func One(ctx context.Context, db *sql.DB, deleted bool, key int) (*models.File, 
 	if db == nil {
 		return nil, ErrDB
 	}
-	if key <= 0 {
+	if key < -1 {
 		return nil, fmt.Errorf("key value %d: %w", key, ErrKey)
 	}
 	mods := models.FileWhere.ID.EQ(int64(key))
