@@ -3,6 +3,7 @@ package postgres
 // Package file sql.go contains custom SQL statements that cannot be created using the SQLBoiler tool.
 
 import (
+	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
@@ -37,12 +38,11 @@ const (
 )
 
 // Query the database version.
-func (v *Version) Query() error {
-	conn, err := ConnectDB()
-	if err != nil {
-		return fmt.Errorf("postgres version connect %w", err)
+func (v *Version) Query(db *sql.DB) error {
+	if db == nil {
+		return nil
 	}
-	rows, err := conn.Query(Ver)
+	rows, err := db.Query(Ver)
 	if err != nil {
 		return fmt.Errorf("postgres version connect query %w", err)
 	}
@@ -50,7 +50,6 @@ func (v *Version) Query() error {
 		return fmt.Errorf("postgres version rows %w", rows.Err())
 	}
 	defer rows.Close()
-	defer conn.Close()
 	for rows.Next() {
 		if err := rows.Scan(v); err != nil {
 			return fmt.Errorf("postgres version rows scan %w", err)

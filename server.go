@@ -15,7 +15,6 @@ License:
 
 import (
 	"context"
-	"database/sql"
 	"embed"
 	"errors"
 	"fmt"
@@ -76,16 +75,18 @@ func main() {
 		logger.Errorf("main could not initialize the database data: %s", err)
 	}
 	defer db.Close()
-	boil.SetDB(db)
+	if db != nil {
+		boil.SetDB(db)
+	}
 	var ver postgres.Version
-	if err := ver.Query(); err != nil {
+	if err := ver.Query(db); err != nil {
 		logger.Errorf("postgres version query: %w", err)
 	}
 
 	repairChecks(logger, configs)
 	sanityChecks(logger, configs)
 
-	website := newInstance(configs, db)
+	website := newInstance(configs)
 	logger = serverLog(configs, website.RecordCount)
 	router := website.Controller(logger)
 	website.Info(logger, w)
@@ -127,7 +128,7 @@ func environmentVars() (*zap.SugaredLogger, config.Config) {
 }
 
 // newInstance is used to create the server controller instance.
-func newInstance(configs config.Config, db *sql.DB) handler.Configuration {
+func newInstance(configs config.Config) handler.Configuration {
 	c := handler.Configuration{
 		Brand:       brand,
 		Environment: configs,
@@ -138,7 +139,7 @@ func newInstance(configs config.Config, db *sql.DB) handler.Configuration {
 	if c.Version == "" {
 		c.Version = cmd.Commit("")
 	}
-	c.RecordCount = recordCount(db)
+	c.RecordCount = recordCount()
 	return c
 }
 
@@ -260,9 +261,13 @@ func repairDB(logger *zap.SugaredLogger) error {
 }
 
 // recordCount returns the number of records in the database.
-func recordCount(db *sql.DB) int {
+func recordCount() int {
 	ctx := context.Background()
-	fs, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, db)
+	tx, err := boil.BeginTx(ctx, nil)
+	if err != nil {
+		return 0
+	}
+	fs, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, tx)
 	if err != nil {
 		return 0
 	}
