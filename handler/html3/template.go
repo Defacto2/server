@@ -59,16 +59,19 @@ func httpErr(logger *zap.SugaredLogger, fs embed.FS) *template.Template {
 		GlobTo(layout)))
 }
 
-func tagByName(name string) (tags.TagData, error) {
-	t, err := tags.Tags().ByName(name)
-	if err != nil {
-		return t, fmt.Errorf("html3 tag by name: %w", err)
+func tagByName(t *tags.T, name string) (tags.TagData, error) {
+	if t == nil {
+		return tags.TagData{}, fmt.Errorf("html3 template tag by name %w", tags.ErrT)
 	}
-	s := strings.TrimSpace(t.Info)
+	data, err := t.ByName(name)
+	if err != nil {
+		return data, fmt.Errorf("html3 tag by name: %w", err)
+	}
+	s := strings.TrimSpace(data.Info)
 	const tooSmall = 2
 	if len(s) < tooSmall {
-		return t, nil
+		return data, nil
 	}
-	t.Info = strings.ToUpper(string(s[0])) + s[1:]
-	return t, nil
+	data.Info = strings.ToUpper(string(s[0])) + s[1:]
+	return data, nil
 }

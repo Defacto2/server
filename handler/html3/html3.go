@@ -160,8 +160,8 @@ func ID(c echo.Context) string {
 }
 
 // LeadFS formats the file size to the fixed-width length w value.
-func LeadFS(width int, size int64) string {
-	return File{Size: size}.LeadFS(width)
+func LeadFS(width int, size null.Int64) string {
+	return File{Size: size.Int64}.LeadFS(width)
 }
 
 // LeadFSInt formats the file size to the fixed-width length w value.
@@ -513,6 +513,15 @@ func Templates(logger *zap.SugaredLogger, fs embed.FS) map[string]*template.Temp
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func TemplateFuncMap(logger *zap.SugaredLogger) template.FuncMap {
+	ctx := context.Background()
+	tx, err := boil.BeginTx(ctx, nil)
+	if err != nil {
+		logger.Errorf("html3 template func map could not connect to the database %s", err)
+	}
+	t := tags.T{}
+	if err := t.Build(ctx, tx); err != nil {
+		logger.Errorf("html3 template func map could not build the tags %s", err)
+	}
 	return template.FuncMap{
 		"byteInt":  LeadFSInt,
 		"descript": Description,
@@ -530,12 +539,12 @@ func TemplateFuncMap(logger *zap.SugaredLogger) template.FuncMap {
 			return FileHref(logger, id)
 		},
 		"metaByName": func(s string) tags.TagData {
-			t, err := tagByName(s)
+			data, err := tagByName(&t, s)
 			if err != nil {
 				logger.Errorw("tag", "error", err)
 				return tags.TagData{}
 			}
-			return t
+			return data
 		},
 		"safeHTML": func(s string) template.HTML {
 			return template.HTML(s)

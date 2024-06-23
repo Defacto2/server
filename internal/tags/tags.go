@@ -3,6 +3,7 @@ package tags
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -11,6 +12,8 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
+
+var ErrT = errors.New("lockable tags t is nil")
 
 // The dos, app funcmap handler must match the format and syntax of MS-DOS that's used here.
 const msDos = "MS Dos"
@@ -34,9 +37,7 @@ type T struct {
 // It requires the database to be connected to build the tags if they have not already been.
 func (t *T) ByName(name string) (TagData, error) {
 	if t.List == nil {
-		if err := t.Build(); err != nil {
-			return TagData{}, fmt.Errorf("tags by name %w", err)
-		}
+		return TagData{}, fmt.Errorf("tags by name %w", ErrT)
 	}
 	for _, m := range t.List {
 		if strings.EqualFold(m.Name, name) {
@@ -47,9 +48,10 @@ func (t *T) ByName(name string) (TagData, error) {
 }
 
 // Build the tags and collect the statistical data sourced from the database.
-func (t *T) Build() (err error) {
+func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) error {
 	t.List = make([]TagData, LastPlatform+1)
 	i := -1
+	var err error
 	for key, val := range URIs() {
 		i++
 		count := sums()[key]
@@ -68,7 +70,7 @@ func (t *T) Build() (err error) {
 		defer func(i int, tg Tag) {
 			t.Mu.Lock()
 			var val int64
-			val, err = counter(tg)
+			val, err = counter(ctx, exec, tg)
 			t.List[i].Count = int(val)
 			t.Mu.Unlock()
 		}(i, tg)
@@ -77,6 +79,19 @@ func (t *T) Build() (err error) {
 		}
 	}
 	return nil
+}
+
+// counter counts the number of files with the tag.
+func counter(ctx context.Context, exec boil.ContextExecutor, t Tag) (int64, error) {
+	clause := "section = ?"
+	if t >= FirstPlatform {
+		clause = "platform = ?"
+	}
+	sum, err := models.Files(qm.Where(clause, URIs()[t])).Count(ctx, exec)
+	if err != nil {
+		return -1, fmt.Errorf("tags counter could not count the tag: %w", err)
+	}
+	return sum, nil
 }
 
 // Tag is the unique ID.
@@ -678,23 +693,4 @@ func OSTags() [5]string {
 		URIs()[Windows],
 		URIs()[Mac],
 	}
-}
-
-// counter counts the number of files with the tag.
-func counter(t Tag) (int64, error) {
-	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
-	if err != nil {
-		return -1, fmt.Errorf("tags counter could not connect to the database: %w", err)
-	}
-	clause := "section = ?"
-	if t >= FirstPlatform {
-		clause = "platform = ?"
-	}
-	sum, err := models.Files(
-		qm.Where(clause, URIs()[t])).Count(ctx, tx)
-	if err != nil {
-		return -1, fmt.Errorf("tags counter could not count the tag: %w", err)
-	}
-	return sum, nil
 }
