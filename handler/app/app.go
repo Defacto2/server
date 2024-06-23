@@ -19,11 +19,11 @@ import (
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
 	"github.com/volatiletech/null/v8"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
@@ -1140,10 +1140,11 @@ func YMDEdit(c echo.Context) error {
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		return fmt.Errorf("ymdedit connect %w", err)
 	}
+	defer db.Close()
 	r, err := model.One(ctx, tx, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("ymdedit model one %w", err)

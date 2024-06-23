@@ -3,6 +3,7 @@ package fix
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"strings"
@@ -43,14 +44,9 @@ const (
 // In the future we may want to add a Debug or TestRun func.
 
 // Run the database repair based on the repair option.
-func (r Repair) Run(logger *zap.SugaredLogger) error {
+func (r Repair) Run(ctx context.Context, tx *sql.Tx, logger *zap.SugaredLogger) error {
 	if logger == nil {
 		return fmt.Errorf("%w: %s", ErrLog, "no logger")
-	}
-	ctx := context.Background()
-	exec, err := boil.BeginTx(ctx, nil)
-	if err != nil {
-		return fmt.Errorf("boil.BeginTx: %w", err)
 	}
 	if r < None || r > Releaser {
 		return fmt.Errorf("%w: %d", ErrRepair, r)
@@ -58,33 +54,33 @@ func (r Repair) Run(logger *zap.SugaredLogger) error {
 	if r == None {
 		return nil
 	}
-	if err := invalidUUIDs(ctx, exec); err != nil {
+	if err := invalidUUIDs(ctx, tx); err != nil {
 		return fmt.Errorf("invalid UUIDs: %w", err)
 	}
-	if err := coldfusionIDs(ctx, exec, logger); err != nil {
+	if err := coldfusionIDs(ctx, tx, logger); err != nil {
 		return fmt.Errorf("coldfusion IDs: %w", err)
 	}
 	switch r {
 	case All:
-		if err := contentWhiteSpace(exec); err != nil {
+		if err := contentWhiteSpace(tx); err != nil {
 			return fmt.Errorf("content white space: %w", err)
 		}
-		if err := nullifyEmpty(exec); err != nil {
+		if err := nullifyEmpty(tx); err != nil {
 			return fmt.Errorf("nullify empty: %w", err)
 		}
-		if err := nullifyZero(exec); err != nil {
+		if err := nullifyZero(tx); err != nil {
 			return fmt.Errorf("nullify zero: %w", err)
 		}
-		if err := trimFwdSlash(exec); err != nil {
+		if err := trimFwdSlash(tx); err != nil {
 			return fmt.Errorf("trim forward slash: %w", err)
 		}
 		fallthrough
 	case Releaser:
-		if err := releasers(ctx, exec, logger); err != nil {
+		if err := releasers(ctx, tx, logger); err != nil {
 			return fmt.Errorf("releasers: %w", err)
 		}
 	}
-	if err := optimize(exec); err != nil {
+	if err := optimize(tx); err != nil {
 		return fmt.Errorf("optimize: %w", err)
 	}
 	return nil

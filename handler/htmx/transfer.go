@@ -23,12 +23,12 @@ import (
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/form"
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 	"go.uber.org/zap"
 )
 
@@ -76,13 +76,14 @@ func LookupSHA384(c echo.Context, logger *zap.SugaredLogger) error {
 	}
 
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
 			"cannot connect to the database")
 	}
-	exist, err := model.HashExists(ctx, tx, hash)
+	defer db.Close()
+	exist, err := model.HashExists(ctx, db, hash)
 	if err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
@@ -178,11 +179,12 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key, downloadDir string
 	}
 	checksum := hasher.Sum(nil)
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		return c.HTML(http.StatusServiceUnavailable,
 			"Cannot begin the database transaction")
 	}
+	defer db.Close()
 	exist, err := model.SHA384Exists(ctx, tx, checksum)
 	if err != nil {
 		return checkExist(c, logger, err)
@@ -430,10 +432,11 @@ func submit(c echo.Context, logger *zap.SugaredLogger, prod string) error {
 			"The "+name+" production ID is invalid, "+sid)
 	}
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		return fmt.Errorf("htmx submit: %w", err)
 	}
+	defer db.Close()
 	var exist bool
 	switch prod {
 	case dz:

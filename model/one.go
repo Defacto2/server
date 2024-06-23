@@ -38,8 +38,8 @@ func One(ctx context.Context, exec boil.ContextExecutor, deleted bool, key int) 
 
 // OneEditByKey retrieves a single file record from the database using the obfuscated record key.
 // This function will also return records that have been marked as deleted.
-func OneEditByKey(key string) (*models.File, error) {
-	return recordObf(true, key)
+func OneEditByKey(ctx context.Context, exec boil.ContextExecutor, key string) (*models.File, error) {
+	return recordObf(ctx, exec, true, key)
 }
 
 // OneByUUID returns the record associated with the UUID key.
@@ -73,8 +73,8 @@ func OneFile(ctx context.Context, exec boil.ContextExecutor, id int64) (*models.
 }
 
 // OneFileByKey retrieves a single file record from the database using the obfuscated record key.
-func OneFileByKey(key string) (*models.File, error) {
-	return recordObf(false, key)
+func OneFileByKey(ctx context.Context, exec boil.ContextExecutor, key string) (*models.File, error) {
+	return recordObf(ctx, exec, false, key)
 }
 
 // OneDemozoo retrieves the ID or key of a single file record from the database using a Demozoo production ID.
@@ -114,18 +114,13 @@ func OnePouet(ctx context.Context, exec boil.ContextExecutor, id int64) (bool, i
 }
 
 // recordObf retrieves a single file record from the database using the uid URL ID.
-func recordObf(deleted bool, key string) (*models.File, error) {
+func recordObf(ctx context.Context, exec boil.ContextExecutor, deleted bool, key string) (*models.File, error) {
 	id := helper.DeobfuscateID(key)
 	if id < startID {
 		return nil, fmt.Errorf("%w: %d ~ %s", ErrID, id, key)
 	}
 	// get record id, filename, uuid
-	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
-	if err != nil {
-		return nil, ErrDB
-	}
-	art, err := One(ctx, tx, deleted, id)
+	art, err := One(ctx, exec, deleted, id)
 	if err != nil {
 		return nil, fmt.Errorf("%w, %w: %s", ErrID, err, key)
 	}

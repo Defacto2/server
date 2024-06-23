@@ -11,11 +11,11 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/html3"
 	"github.com/labstack/echo/v4"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 	"go.uber.org/zap"
 )
 
@@ -72,10 +72,11 @@ func (s *Sugared) Group(c echo.Context) error {
 func (s *Sugared) Groups(c echo.Context) error {
 	start := helper.Latency()
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, ErrConn)
 	}
+	defer db.Close()
 	page := 1
 	offset := strings.TrimPrefix(c.Param("offset"), "/")
 	if offset != "" {
@@ -90,7 +91,7 @@ func (s *Sugared) Groups(c echo.Context) error {
 	// releasers are the distinct groups from the file table.
 
 	var unique model.ReleaserNames
-	if err := unique.Distinct(ctx, tx); err != nil {
+	if err := unique.Distinct(ctx, db); err != nil {
 		s.Log.Errorf("%s: %w", ErrSQL, err)
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
@@ -111,7 +112,7 @@ func (s *Sugared) Groups(c echo.Context) error {
 
 	// releasers are the distinct groups from the file table.
 	releasers := model.Releasers{}
-	if err := releasers.Limit(ctx, tx, model.Alphabetical, model.Maximum, page); err != nil {
+	if err := releasers.Limit(ctx, db, model.Alphabetical, model.Maximum, page); err != nil {
 		s.Log.Errorf("html3 group and releaser list: %w", err)
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
@@ -144,21 +145,22 @@ func (s *Sugared) Index(c echo.Context) error {
 		Software html3.Softwares
 	}
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		s.Log.Warnf("%s: %s", ErrConn, err)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, ErrConn)
 	}
-	if err := stats.All.Public(ctx, tx); err != nil {
+	defer db.Close()
+	if err := stats.All.Public(ctx, db); err != nil {
 		s.Log.Warnf("index stats all: %s", err)
 	}
-	if err := stats.Art.Stat(ctx, tx); err != nil {
+	if err := stats.Art.Stat(ctx, db); err != nil {
 		s.Log.Warnf("index stats art: %s", err)
 	}
-	if err := stats.Document.Stat(ctx, tx); err != nil {
+	if err := stats.Document.Stat(ctx, db); err != nil {
 		s.Log.Warnf("index stats document: %s", err)
 	}
-	if err := stats.Software.Stat(ctx, tx); err != nil {
+	if err := stats.Software.Stat(ctx, db); err != nil {
 		s.Log.Warnf("index stats software: %s", err)
 	}
 	descs := [4]string{

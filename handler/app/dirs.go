@@ -28,13 +28,13 @@ import (
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magic"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/render"
 	"github.com/Defacto2/server/model"
 	"github.com/dustin/go-humanize"
 	"github.com/h2non/filetype"
 	"github.com/labstack/echo/v4"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -109,12 +109,17 @@ func (dir Dirs) Artifact(c echo.Context, logger *zap.SugaredLogger, readonly boo
 	if logger == nil {
 		return InternalErr(c, name, ErrZap)
 	}
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return DatabaseErr(c, "f/"+dir.URI, err)
+	}
+	defer db.Close()
 	var art *models.File
-	var err error
 	if sess.Editor(c) {
-		art, err = model.OneEditByKey(dir.URI)
+		art, err = model.OneEditByKey(ctx, db, dir.URI)
 	} else {
-		art, err = model.OneFileByKey(dir.URI)
+		art, err = model.OneFileByKey(ctx, db, dir.URI)
 	}
 	if err != nil {
 		if errors.Is(err, model.ErrID) {
@@ -316,11 +321,12 @@ func (dir Dirs) PreviewDel(c echo.Context) error {
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.One(ctx, tx, true, f.ID)
+	defer db.Close()
+	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -522,11 +528,12 @@ func (dir Dirs) extractor(c echo.Context, logger *zap.SugaredLogger, p extract) 
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.One(ctx, tx, true, f.ID)
+	defer db.Close()
+	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
 		return badRequest(c, err)
 	}

@@ -12,11 +12,11 @@ import (
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/model"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 	"go.uber.org/zap"
 )
 
@@ -42,11 +42,12 @@ func DemozooProd(c echo.Context) error {
 			"The Demozoo production ID must be a numeric value, "+sid)
 	}
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return fmt.Errorf("htmx demozoo production: %w", ErrDB)
 	}
-	deleted, key, err := model.OneDemozoo(ctx, tx, int64(id))
+	defer db.Close()
+	deleted, key, err := model.OneDemozoo(ctx, db, int64(id))
 	if err != nil {
 		return c.String(http.StatusServiceUnavailable,
 			"error, the database query failed")
@@ -146,12 +147,13 @@ func DemozooSubmit(c echo.Context, logger *zap.SugaredLogger) error {
 
 func PermenantDelete(c echo.Context, logger *zap.SugaredLogger) error {
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
 			"cannot start a database transaction")
 	}
+	defer db.Close()
 	if err = model.DeleteOne(ctx, tx, 51002); err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
@@ -170,6 +172,101 @@ func PermenantDelete(c echo.Context, logger *zap.SugaredLogger) error {
 		"This artifact is gone, and reloading this page will result in a 404 error.")
 }
 
+// Pings is a handler for the /pings route.
+func Pings(c echo.Context, proto string, port int) error {
+	pings := []string{
+		"/this-is-an-invalid-url",
+		"/html3",
+		"/html3/groups",
+		"/html3/group/2000ad",
+		"/html3/group/2000ad?C=N&O=D",
+		"/html3/platform/audio?C=N&O=A",
+		"/html3/platform/audio?C=N&O=D",
+		"/html3/platform/audio?C=D&O=A",
+		"/html3/platform/audio?C=D&O=D",
+		"/html3/platform/audio?C=P&O=A",
+		"/html3/platform/audio?C=P&O=D",
+		"/html3/platform/audio?C=S&O=A",
+		"/html3/platform/audio?C=S&O=D",
+		"/html3/platform/audio?C=I&O=A",
+		"/html3/platform/audio?C=I&O=D",
+		"/html3/categories",
+		"/html3/category/ansieditor",
+		"/html3/category/ansieditor?C=N&O=D",
+		"/html3/art/1",
+		"/html3/art/1?C=N&O=D",
+		"/html3/documents",
+		"/html3/software",
+		"/html3/all",
+		"/editor/for-approval",
+		"/files/new-uploads",
+		"/files/new-updates",
+		"/files/oldest",
+		"/files/newest",
+		"/file",
+		"/file/stats",
+		"/files/installer",
+		"/files/installer/2",
+		"/releaser",
+		"/releaser/a-z",
+		"/releaser/year",
+		"/g/the-grand-council",
+		"/magazine",
+		"/magazine/a-z",
+		"/ftp",
+		"/bbs",
+		"/bbs/a-z",
+		"/bbs/year",
+		"/scener",
+		"/interview",
+		"/artist",
+		"/coder",
+		"/musician",
+		"/writer",
+		"/p/200mhz",
+		"/website",
+		"/website/hide",
+		"/search/releaser",
+		"/search/file",
+		"/search/desc",
+		"/editor/search/id",
+		"/history",
+		"/thescene",
+		"/thanks",
+	}
+	results := make([]string, 0, len(pings))
+	for _, ping := range pings {
+		code, size, err := helper.LocalHostPing(ping, proto, port)
+		if err != nil {
+			results = append(results, fmt.Sprintf("%s: %v", ping, err))
+			continue
+		}
+		elm := "<div>"
+		switch {
+		case code == 200:
+			elm = "<span class=\"text-success\">"
+		case code >= 500:
+			elm = "<span class=\"text-danger\">"
+		default:
+			elm = "<span class=\"text-warning\">"
+		}
+		results = append(results,
+			"<div>",
+			elm,
+			fmt.Sprintf("%d</span> %s %s", code, ping, helper.ByteCount(size)),
+			"</div>")
+	}
+
+	output := strings.Join(results, "")
+	conns, max, err := postgres.Connections()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Connections:", conns, "of", max)
+
+	return c.HTML(http.StatusOK, output)
+}
+
 // PouetProd fetches the multiple download_links values from the
 // Pouet production API and attempts to download and save one of the
 // linked files. If multiple links are found, the first link is used as
@@ -186,11 +283,12 @@ func PouetProd(c echo.Context) error {
 			"The Pouet production ID must be a numeric value, "+sid)
 	}
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return fmt.Errorf("htmx pouet production: %w", ErrDB)
 	}
-	deleted, key, err := model.OnePouet(ctx, tx, int64(id))
+	defer db.Close()
+	deleted, key, err := model.OnePouet(ctx, db, int64(id))
 	if err != nil {
 		return c.String(http.StatusServiceUnavailable,
 			"error, the database query failed")
@@ -312,12 +410,13 @@ func PouetSubmit(c echo.Context, logger *zap.SugaredLogger) error {
 func SearchByID(c echo.Context, logger *zap.SugaredLogger) error {
 	const maxResults = 50
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
 			"cannot connect to the database")
 	}
+	defer db.Close()
 
 	ids := []int{}
 	uuids := []uuid.UUID{}
@@ -341,7 +440,7 @@ func SearchByID(c echo.Context, logger *zap.SugaredLogger) error {
 	}
 
 	var r model.Artifacts
-	fs, err := r.ID(ctx, tx, ids, uuids...)
+	fs, err := r.ID(ctx, db, ids, uuids...)
 	if err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
@@ -368,12 +467,13 @@ func SearchByID(c echo.Context, logger *zap.SugaredLogger) error {
 func SearchReleaser(c echo.Context, logger *zap.SugaredLogger) error {
 	const maxResults = 14
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
 			"cannot connect to the database")
 	}
+	defer db.Close()
 	input := c.FormValue("htmx-search")
 	slug := helper.Slug(helper.TrimRoundBraket(input))
 	if slug == "" {
@@ -390,7 +490,7 @@ func SearchReleaser(c echo.Context, logger *zap.SugaredLogger) error {
 	}
 	lookup = append(lookup, slug)
 	var r model.Releasers
-	if err := r.Similar(ctx, tx, maxResults, lookup...); err != nil {
+	if err := r.Similar(ctx, db, maxResults, lookup...); err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
 			"the search query failed")
@@ -424,12 +524,13 @@ func DataListMagazines(c echo.Context, logger *zap.SugaredLogger, input string) 
 func datalist(c echo.Context, logger *zap.SugaredLogger, input string, magazine bool) error {
 	const maxResults = 14
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
 			"cannot connect to the database")
 	}
+	defer db.Close()
 	slug := helper.Slug(helper.TrimRoundBraket(input))
 	if slug == "" {
 		return c.HTML(http.StatusOK, "")
@@ -446,9 +547,9 @@ func datalist(c echo.Context, logger *zap.SugaredLogger, input string, magazine 
 	lookup = append(lookup, slug)
 	var r model.Releasers
 	if magazine {
-		err = r.SimilarMagazine(ctx, tx, maxResults, lookup...)
+		err = r.SimilarMagazine(ctx, db, maxResults, lookup...)
 	} else {
-		err = r.Similar(ctx, tx, maxResults, lookup...)
+		err = r.Similar(ctx, db, maxResults, lookup...)
 	}
 	if err != nil {
 		logger.Error(err)

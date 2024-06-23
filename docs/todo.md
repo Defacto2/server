@@ -1,25 +1,24 @@
 # TODOs and tasks
 
-  * (question) __?__ prefix indicates an *idea* or *doubtful*.
+### Ideas or doubleful tasks
 
-### Terminal commands and flags
-
-- [ ] ? Command to clean up the database and remove all orphaned records.
-- [ ] ? Command to reindex the database, both to erase and rebuild the indexes.
+- [ ] ? Terminal command to clean up the database and remove all orphaned records.
+- [ ] ? Terminal command to reindex the database, both to erase and rebuild the indexes.
 - [ ] ? Implememnt a [scheduling library for Go](https://github.com/reugn/go-quartz)
 
-### Files and assets
+### Recommendations
 
 - [ ] Create a new assets path named `extras` and move into it all the uuid files from `downloads` that use file extensions.
 - [ ] Create a DB fix to detect and rebadge msdos and windows trainers.
 - [ ] `OrderBy` Name/Count /html3/groups? https://pkg.go.dev/sort#example-package-SortKeys
-
-### Menus and layout
-
 - [ ] Use DigitalOcean API to display Estimated Droplet Transfer Pool usage and remaining balance. 
 		https://pkg.go.dev/github.com/digitalocean/godo https://docs.digitalocean.com/reference/api/api-reference/#operation/droplets_get
 
-### MAJOR FREEZE
+### Bug fixes
+
+- [ ] Complete PermenantDelete() for artifacts.
+
+#### MAJOR FREEZE BUG
 
 This was only triggered after opening 100s of records.
 

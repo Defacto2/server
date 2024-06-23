@@ -343,6 +343,38 @@ func LocalHosts() ([]string, error) {
 	return hosts, nil
 }
 
+// Ping sends a HTTP GET request to the provided URI and returns the status code and size of the response.
+func Ping(uri string) (int, int64, error) {
+	client := http.Client{
+		Timeout: Timeout,
+	}
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
+	if err != nil {
+		return http.StatusInternalServerError, 0, fmt.Errorf("helper ping new request %w: %s", err, uri)
+	}
+	req.Header.Set("User-Agent", UserAgent)
+	res, err := client.Do(req)
+	if err != nil {
+		return http.StatusInternalServerError, 0, fmt.Errorf("helper ping client do %w: %s", err, uri)
+	}
+	defer res.Body.Close()
+	size, err := io.Copy(io.Discard, res.Body)
+	if err != nil {
+		return http.StatusInternalServerError, 0, fmt.Errorf("helper ping body copy %w: %s", err, uri)
+	}
+	return res.StatusCode, size, nil
+}
+
+// LocalHostPing sends a HTTP GET request to the provided URI on the localhost and returns the status code and size of the response.
+func LocalHostPing(uri string, proto string, port int) (int, int64, error) {
+	if _, err := net.LookupHost("localhost"); err != nil {
+		return http.StatusInternalServerError, 0, fmt.Errorf("helper localhost ping lookup %w", err)
+	}
+	url := fmt.Sprintf("%s://localhost:%d%s", proto, port, uri)
+	return Ping(url)
+}
+
 // TimeDistance describes the difference between two time values.
 // The seconds parameter determines if the string should include seconds.
 func TimeDistance(from, to time.Time, seconds bool) string {

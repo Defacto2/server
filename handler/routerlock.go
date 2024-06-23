@@ -21,6 +21,15 @@ func (c Configuration) lock(e *echo.Echo, logger *zap.SugaredLogger, dir app.Dir
 	lock.GET("/configs", func(cx echo.Context) error {
 		return app.Configurations(cx, c.Environment)
 	})
+	lock.GET("/configs/pings", func(cx echo.Context) error {
+		proto := "http"
+		port := c.Environment.HTTPPort
+		if port == 0 {
+			port = c.Environment.TLSPort
+			proto = "https"
+		}
+		return htmx.Pings(cx, proto, int(port))
+	})
 	creator(lock)
 	date(lock)
 	editor(lock, logger, dir)

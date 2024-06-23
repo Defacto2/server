@@ -17,6 +17,7 @@ import (
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -260,26 +261,27 @@ func Pagi(page int, maxPage uint) (int, int, int) {
 // The three integers returned are the limit, the total count of records and the file sizes summed.
 func Query(c echo.Context, tt RecordsBy, offset int) (int, int, int64, models.FileSlice, error) {
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return queryErr("query begin tx", err)
 	}
+	defer db.Close()
 	clause := c.QueryString()
 	switch tt {
 	case Everything:
-		return QueryEverything(ctx, tx, clause, offset)
+		return QueryEverything(ctx, db, clause, offset)
 	case BySection:
-		return QueryBySection(ctx, tx, c, offset)
+		return QueryBySection(ctx, db, c, offset)
 	case ByPlatform:
-		return QueryByPlatform(ctx, tx, c, offset)
+		return QueryByPlatform(ctx, db, c, offset)
 	case ByGroup:
-		return QueryByGroup(ctx, tx, c)
+		return QueryByGroup(ctx, db, c)
 	case AsArt:
-		return QueryAsArt(ctx, tx, clause, offset)
+		return QueryAsArt(ctx, db, clause, offset)
 	case AsDocument:
-		return QueryAsDocument(ctx, tx, clause, offset)
+		return QueryAsDocument(ctx, db, clause, offset)
 	case AsSoftware:
-		return QueryAsSoftware(ctx, tx, clause, offset)
+		return QueryAsSoftware(ctx, db, clause, offset)
 	}
 	return 0, 0, 0, nil, fmt.Errorf("html3 query %w: %d", ErrPage, tt)
 }
@@ -514,12 +516,13 @@ func Templates(logger *zap.SugaredLogger, fs embed.FS) map[string]*template.Temp
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func TemplateFuncMap(logger *zap.SugaredLogger) template.FuncMap {
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		logger.Errorf("html3 template func map could not connect to the database %s", err)
 	}
+	defer db.Close()
 	t := tags.T{}
-	if err := t.Build(ctx, tx); err != nil {
+	if err := t.Build(ctx, db); err != nil {
 		logger.Errorf("html3 template func map could not build the tags %s", err)
 	}
 	return template.FuncMap{

@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 const ReSanitizePath = "[^a-zA-Z0-9-._/]+" // Regular expression to sanitize the URL path.
@@ -24,11 +24,12 @@ const ReSanitizePath = "[^a-zA-Z0-9-._/]+" // Regular expression to sanitize the
 // count is greater than 1, the text is unmodified.
 func HumanizeAndCount(section, platform string) (template.HTML, error) {
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return "cannot connect to the database",
 			fmt.Errorf("form humanize and count %w", err)
 	}
+	defer db.Close()
 	s := tags.TagByURI(section)
 	p := tags.TagByURI(platform)
 	tag := tags.Humanize(p, s)
@@ -44,7 +45,7 @@ func HumanizeAndCount(section, platform string) (template.HTML, error) {
 			return "unknown classification", nil
 		}
 	}
-	count, err := model.ClassificationCount(ctx, tx, section, platform)
+	count, err := model.ClassificationCount(ctx, db, section, platform)
 	if err != nil {
 		return "cannot count the classification",
 			fmt.Errorf("form humanize and count classification %w", err)

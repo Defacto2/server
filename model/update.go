@@ -10,6 +10,7 @@ import (
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/volatiletech/null/v8"
@@ -114,10 +115,11 @@ func UpdateYouTube(id int64, val string) error {
 // The demoZooProd and pouetProd values are also validated to be within a sane range.
 func UpdateInt64From(column int64From, id int64, val string) error {
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		return fmt.Errorf("updateint64from: %w", ErrDB)
 	}
+	defer db.Close()
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("find file for %q: %w", column, err)
@@ -176,10 +178,11 @@ const (
 // The stringFrom columns are table columns that can either be null, empty, or have a string value.
 func UpdateStringFrom(column stringFrom, id int64, val string) error { //nolint:cyclop
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		return fmt.Errorf("updatestringfrom: %w", ErrDB)
 	}
+	defer db.Close()
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("find file for %q: %w", column, err)
@@ -231,10 +234,11 @@ func UpdateStringFrom(column stringFrom, id int64, val string) error { //nolint:
 // UpdateCreators updates the text, illustration, program, and audio credit columns with the values provided.
 func UpdateCreators(id int64, text, ill, prog, audio string) error {
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		return fmt.Errorf("updatecreators: %w", ErrDB)
 	}
+	defer db.Close()
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("updatecreators find file, %d: %w", id, err)
@@ -255,10 +259,11 @@ func UpdateCreators(id int64, text, ill, prog, audio string) error {
 // UpdateLinks updates the youtube, 16colors, relations, sites, demozoo, and pouet columns with the values provided.
 func UpdateLinks(id int64, youtube, colors16, github, relations, sites string, demozoo, pouet int64) error {
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		return fmt.Errorf("updatelinks: %w", ErrDB)
 	}
+	defer db.Close()
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("updatelinks find file, %d: %w", id, err)
@@ -297,10 +302,11 @@ func UpdateClassification(id int64, platform, tag string) error {
 		return fmt.Errorf("%s: %w", tag, tags.ErrTag)
 	}
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		return ErrDB
 	}
+	defer db.Close()
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
@@ -320,10 +326,11 @@ func UpdateClassification(id int64, platform, tag string) error {
 // Columns updated are DateIssuedYear, DateIssuedMonth, and DateIssuedDay.
 func UpdateDateIssued(id int64, y, m, d string) error {
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		return fmt.Errorf("update date issued: %w", err)
 	}
+	defer db.Close()
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
@@ -346,10 +353,11 @@ func UpdateDateIssued(id int64, y, m, d string) error {
 // Id is the database id of the record.
 func UpdateNoReadme(id int64, val bool) error {
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		return fmt.Errorf("update noreadme: %w", err)
 	}
+	defer db.Close()
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
@@ -371,10 +379,11 @@ func UpdateNoReadme(id int64, val bool) error {
 // UpdateOffline updates the record to be offline and inaccessible to the public.
 func UpdateOffline(id int64) error {
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		return fmt.Errorf("update offline: %w", err)
 	}
+	defer db.Close()
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
@@ -394,10 +403,11 @@ func UpdateOffline(id int64) error {
 // UpdateOnline updates the record to be online and public.
 func UpdateOnline(id int64) error {
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		return fmt.Errorf("update online: %w", err)
 	}
+	defer db.Close()
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)
@@ -427,10 +437,11 @@ func UpdateReleasers(id int64, val string) error {
 		s[i] = releaser.Cell(v)
 	}
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		return fmt.Errorf("update releasers: %w", err)
 	}
+	defer db.Close()
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf("find file: %w", err)

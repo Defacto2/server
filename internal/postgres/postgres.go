@@ -41,7 +41,45 @@ func New() (Connection, error) {
 	return c, nil
 }
 
+func Connections() (int64, int64, error) {
+	// SELECT * FROM pg_stat_activity where datname='defacto2_ps';
+	conn, err := ConnectDB()
+	if err != nil {
+		return 0, 0, fmt.Errorf("postgres connect, %w", err)
+	}
+	defer conn.Close()
+	rows, err := conn.Query("SELECT 'dataname' FROM pg_stat_activity WHERE datname='defacto2_ps';")
+	if err != nil {
+		return 0, 0, fmt.Errorf("postgres query, %w", err)
+	}
+	if err := rows.Err(); err != nil {
+		return 0, 0, fmt.Errorf("postgres rows, %w", err)
+	}
+	defer rows.Close()
+	count := int64(0)
+	for rows.Next() {
+		count++
+	}
+	max, err := conn.Query("SHOW max_connections;")
+	if err != nil {
+		return 0, 0, fmt.Errorf("postgres query, %w", err)
+	}
+	if err := max.Err(); err != nil {
+		return 0, 0, fmt.Errorf("postgres rows, %w", err)
+	}
+	defer max.Close()
+	var maxConnections int64
+	for max.Next() {
+		if err := max.Scan(&maxConnections); err != nil {
+			return 0, 0, fmt.Errorf("postgres scan, %w", err)
+		}
+	}
+	return count, maxConnections, nil
+
+}
+
 // ConnectDB connects to the PostgreSQL database.
+// The connection must be closed after use.
 func ConnectDB() (*sql.DB, error) {
 	dataSource, err := New()
 	if err != nil {
@@ -52,6 +90,20 @@ func ConnectDB() (*sql.DB, error) {
 		return nil, fmt.Errorf("postgres open new connection, %w", err)
 	}
 	return conn, nil
+}
+
+// ConnectTx connects to the PostgreSQL database and starts a transaction.
+// The transaction must be committed or rolled back and the connection closed.
+func ConnectTx() (*sql.DB, *sql.Tx, error) {
+	conn, err := ConnectDB()
+	if err != nil {
+		return nil, nil, fmt.Errorf("postgres connect transaction, %w", err)
+	}
+	tx, err := conn.Begin()
+	if err != nil {
+		return nil, nil, fmt.Errorf("postgres begin transaction, %w", err)
+	}
+	return conn, tx, nil
 }
 
 // Connection details of the PostgreSQL database connection.

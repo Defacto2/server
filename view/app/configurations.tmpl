@@ -6,10 +6,21 @@
 {{- $checkDownloads := index . "checkDownloads"}}
 {{- $checkPreviews := index . "checkPreviews"}}
 {{- $checkThumbnails := index . "checkThumbnails"}}
-{{- $responseRow := "row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-0"}}
+{{- $responseRow := "row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-0"}}
+{{- /*  Ping internal URIs */}}
+<h1 class="lead mt-5">Web application routes</h1>
+<div class="mb-3">
+  <button class="btn btn-outline-primary" hx-get="/editor/configs/pings" hx-target="#ping-response">
+    Ping the routes <span id="ping-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm text-primary" role="status"></span>
+  </button>
+</div>
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2 p-2" id="ping-response">
+  <!-- ping response will be rendered here -->
+</div>
 {{- /*  Asset counts  */}}
 <h1 class="lead mt-5">Web application assets</h1>
-<table class="table table-striped-columns">
+<div class="table-responsive">
+<table class="table align-middle table-striped-columns">
   <thead>
     <tr>
       <th scope="col"></th>
@@ -61,15 +72,17 @@
     </tr>
   </tbody>
 </table>
+</div>
 {{- /*  Settings  */}}
 <h1 class="lead mt-5">Web application settings</h1>
-<table class="table table-striped-columns">
+<div class="table-responsive">
+<table class="table align-middle table-striped-columns">
   <caption>A complete list of configurations set using operating system environment variables.</caption>
   <thead>
     <tr>
       <th scope="col">Configuration</th>
       <th scope="col">Value</th>
-      <th scope="col">Description</th>
+      <th scope="col"><span class="d-none d-lg-block">Description</span></th>
     </tr>
   </thead>
   <tbody class="table-group-divider">
@@ -78,15 +91,16 @@
     <tr>
       <th scope="row">{{.Title}}<br><var><small>{{.Variable}}</small></var></th>
       <td>{{.Value}}</td>
-      <td>{{.Description}}</td>
+      <td class="d-none d-lg-block">{{.Description}}</td>
     </tr>
     {{- end}}{{end}}
   </tbody>
 </table>
+</div>
 {{- /*  Links to records  */}}
 <h1 class="lead mt-5">Links to special records</h1>
 <caption>These are artifacts that have unusual edge cases, ❎ needs fixing.</caption>
-<dl class="row row-cols-2 g-2 p-2 bg-body-tertiary mt-2">
+<dl class="row row-cols-1 row-cols-md-2 g-2 p-2 bg-body-tertiary mt-2">
   <div class="col">
   <dt>❎ Readme using multi-bytes</dt>
   <dd>

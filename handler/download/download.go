@@ -2,6 +2,7 @@
 package download
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
@@ -25,10 +27,16 @@ var (
 // The response is a text file named "checksums.txt" with the checksum and filename.
 // The id string is the UID filename of the requested file.
 func Checksum(c echo.Context, id string) error {
-	art, err := model.OneFileByKey(id)
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return fmt.Errorf("file download checksum connect db: %w", err)
+	}
+	defer db.Close()
+	art, err := model.OneFileByKey(ctx, db, id)
 	if err != nil {
 		if errors.Is(err, model.ErrDB) && sess.Editor(c) {
-			art, err = model.OneEditByKey(id)
+			art, err = model.OneEditByKey(ctx, db, id)
 		}
 		if err != nil {
 			return fmt.Errorf("file download checksum %w: %s", err, id)
@@ -68,10 +76,16 @@ type Download struct {
 // The download relies on the URL ID parameter to determine the requested file.
 func (d Download) HTTPSend(c echo.Context, logger *zap.SugaredLogger) error {
 	id := c.Param("id")
-	art, err := model.OneFileByKey(id)
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return fmt.Errorf("http send connect db: %w", err)
+	}
+	defer db.Close()
+	art, err := model.OneFileByKey(ctx, db, id)
 	switch {
 	case err != nil && sess.Editor(c):
-		art, err = model.OneEditByKey(id)
+		art, err = model.OneEditByKey(ctx, db, id)
 		if err != nil {
 			return fmt.Errorf("http send, one edit by key: %w", err)
 		}

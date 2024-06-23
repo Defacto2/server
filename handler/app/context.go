@@ -162,8 +162,9 @@ func Configurations(cx echo.Context, conf config.Config) error {
 	data["countNewUpload"] = 0
 	data["countHidden"] = 0
 	ctx := context.Background()
-	if tx, err := boil.BeginTx(ctx, nil); err == nil {
-		ca, cp, cnu, err := model.Counts(ctx, tx)
+	db, err := postgres.ConnectDB()
+	if err == nil {
+		ca, cp, cnu, err := model.Counts(ctx, db)
 		if err == nil {
 			data["countArtifacts"] = ca
 			data["countPublic"] = cp
@@ -171,8 +172,9 @@ func Configurations(cx echo.Context, conf config.Config) error {
 			data["countHidden"] = ca - cp - cnu
 		}
 	}
+	defer db.Close()
 	data = configurations(data, conf)
-	err := cx.Render(http.StatusOK, name, data)
+	err = cx.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(cx, name, err)
 	}
@@ -230,10 +232,11 @@ func Download(c echo.Context, logger *zap.SugaredLogger, path string) error {
 func FTP(c echo.Context) error {
 	const title, name = "FTP", "ftp"
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return InternalErr(c, name, err)
 	}
+	defer db.Close()
 	data := empty(c)
 	const lead = "FTP sites are historical, internet-based file servers for uploading " +
 		"and downloading \"elite\" scene releases."
@@ -248,7 +251,7 @@ func FTP(c echo.Context) error {
 	data[key] = model.Releasers{}
 	data["stats"] = map[string]string{}
 	r := model.Releasers{}
-	if err := r.FTP(ctx, tx); err != nil {
+	if err := r.FTP(ctx, db); err != nil {
 		return DatabaseErr(c, name, err)
 	}
 	data[key] = r
@@ -486,10 +489,11 @@ func (got *DemozooLink) ArchiveContent(c echo.Context, path string) error {
 func (got DemozooLink) Update(c echo.Context) error {
 	uid := got.UUID
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		return ErrDB
 	}
+	defer db.Close()
 	f, err := model.OneByUUID(ctx, tx, true, uid)
 	if err != nil {
 		return fmt.Errorf("demozoolink update by uuid %w: %s", err, uid)
@@ -715,11 +719,12 @@ func PlatformEdit(c echo.Context) error {
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.One(ctx, tx, true, f.ID)
+	defer db.Close()
+	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("platform edit %w: %d", err, f.ID)
 	}
@@ -757,14 +762,15 @@ func PostDesc(c echo.Context, input string) error {
 	const name = "artifacts"
 	errs := fmt.Sprint("post desc search for,", input)
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return DatabaseErr(c, errs, err)
 	}
+	defer db.Close()
 	terms := helper.SearchTerm(input)
 	rel := model.Artifacts{}
-	fs, _ := rel.Description(ctx, tx, terms)
-	d := Descriptions.postStats(ctx, tx, terms)
+	fs, _ := rel.Description(ctx, db, terms)
+	d := Descriptions.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
 	data := emptyFiles(c)
 	data["title"] = "Title and description results"
@@ -792,15 +798,16 @@ func PostName(c echo.Context, mode FileSearch) error {
 	const name = "artifacts"
 	errs := fmt.Sprint("post name search for,", mode)
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return DatabaseErr(c, errs, err)
 	}
+	defer db.Close()
 	input := c.FormValue("search-term-query")
 	terms := helper.SearchTerm(input)
 	rel := model.Artifacts{}
-	fs, _ := rel.Filename(ctx, tx, terms)
-	d := mode.postStats(ctx, tx, terms)
+	fs, _ := rel.Filename(ctx, db, terms)
+	d := mode.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
 	data := emptyFiles(c)
 	data["title"] = "Filename results"
@@ -915,11 +922,12 @@ func ReadmeDel(c echo.Context, downloadDir string) error {
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return ErrDB
 	}
-	r, err := model.One(ctx, tx, true, f.ID)
+	defer db.Close()
+	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("readme delete %w: %d", err, f.ID)
 	}
@@ -941,11 +949,12 @@ func ReadmePost(c echo.Context, logger *zap.SugaredLogger, downloadDir string) e
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.One(ctx, tx, true, f.ID)
+	defer db.Close()
+	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -1262,11 +1271,12 @@ func ReleaserEdit(c echo.Context) error {
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.One(ctx, tx, true, f.ID)
+	defer db.Close()
+	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("releaser edit  %w: %d", err, f.ID)
 	}
@@ -1281,14 +1291,15 @@ func Releasers(c echo.Context, uri string) error {
 	const name = "artifacts"
 	errs := fmt.Sprint("releasers page for,", uri)
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return InternalErr(c, errs, err)
 	}
+	defer db.Close()
 
 	s := releaser.Link(uri)
 	rel := model.Releasers{}
-	fs, err := rel.Where(ctx, tx, uri)
+	fs, err := rel.Where(ctx, db, uri)
 	if err != nil {
 		return InternalErr(c, errs, err)
 	}
@@ -1315,7 +1326,7 @@ func Releasers(c echo.Context, uri string) error {
 	default:
 		// placeholder to handle other releaser types
 	}
-	d, err := releaserSum(ctx, tx, uri)
+	d, err := releaserSum(ctx, db, uri)
 	if err != nil {
 		return InternalErr(c, errs, err)
 	}
@@ -1379,14 +1390,15 @@ func Sceners(c echo.Context, uri string) error {
 	const name = "artifacts"
 	errs := fmt.Sprint("sceners page for,", uri)
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return InternalErr(c, errs, err)
 	}
+	defer db.Close()
 
 	s := releaser.Link(uri)
 	var ms model.Scener
-	fs, err := ms.Where(ctx, tx, uri)
+	fs, err := ms.Where(ctx, db, uri)
 	if err != nil {
 		return InternalErr(c, errs, err)
 	}
@@ -1401,7 +1413,7 @@ func Sceners(c echo.Context, uri string) error {
 	data["description"] = "The collection of files attributed to " + s + "."
 	data["scener"] = s
 	data[records] = fs
-	d, err := scenerSum(ctx, tx, uri)
+	d, err := scenerSum(ctx, db, uri)
 	if err != nil {
 		return InternalErr(c, errs, err)
 	}
@@ -1557,11 +1569,12 @@ func TagEdit(c echo.Context) error {
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.One(ctx, tx, true, f.ID)
+	defer db.Close()
+	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("tag edit %w: %d", err, f.ID)
 	}
@@ -1628,11 +1641,12 @@ func TitleEdit(c echo.Context) error {
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return badRequest(c, err)
 	}
-	r, err := model.One(ctx, tx, true, f.ID)
+	defer db.Close()
+	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("title edit %w: %d", err, f.ID)
 	}
@@ -1872,16 +1886,17 @@ func artifacts(c echo.Context, uri string, page int) error {
 	}
 	errs := fmt.Sprintf("artifacts page %d for %q", page, uri)
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return InternalErr(c, errs, err)
 	}
-	r, err := Records(ctx, tx, uri, page, limit)
+	defer db.Close()
+	r, err := Records(ctx, db, uri, page, limit)
 	if err != nil {
 		return DatabaseErr(c, errs, err)
 	}
 	data[records] = r
-	d, sum, err := stats(ctx, tx, uri)
+	d, sum, err := stats(ctx, db, uri)
 	if err != nil {
 		return DatabaseErr(c, errs, err)
 	}
@@ -1941,12 +1956,13 @@ func bbsHandler(c echo.Context, orderBy model.OrderBy) error {
 	data["stats"] = map[string]string{}
 
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return InternalErr(c, name, err)
 	}
+	defer db.Close()
 	r := model.Releasers{}
-	if err := r.BBS(ctx, tx, orderBy); err != nil {
+	if err := r.BBS(ctx, db, orderBy); err != nil {
 		return DatabaseErr(c, name, err)
 	}
 	data[key] = r
@@ -1984,12 +2000,13 @@ func bbsHandler(c echo.Context, orderBy model.OrderBy) error {
 // counter returns the statistics for the artifacts categories.
 func counter() (Stats, error) {
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return Stats{}, fmt.Errorf("cartifacts categories counter tx %w", err)
 	}
+	defer db.Close()
 	counter := Stats{}
-	if err := counter.Get(ctx, tx); err != nil {
+	if err := counter.Get(ctx, db); err != nil {
 		return Stats{}, fmt.Errorf("cartifacts categories counter get %w", err)
 	}
 	return counter, nil
@@ -2077,15 +2094,16 @@ func magazines(c echo.Context, chronological bool) error {
 	data["stats"] = map[string]string{}
 
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return InternalErr(c, name, err)
 	}
+	defer db.Close()
 	var order string
 	r := model.Releasers{}
 	switch chronological {
 	case true:
-		if err := r.Magazine(ctx, tx); err != nil {
+		if err := r.Magazine(ctx, db); err != nil {
 			return DatabaseErr(c, name, err)
 		}
 		s := title + byyear
@@ -2093,7 +2111,7 @@ func magazines(c echo.Context, chronological bool) error {
 		data["title"] = title + byyear
 		order = year
 	case false:
-		if err := r.MagazineAZ(ctx, tx); err != nil {
+		if err := r.MagazineAZ(ctx, db); err != nil {
 			return DatabaseErr(c, name, err)
 		}
 		s := title + az
@@ -2177,21 +2195,22 @@ func scener(c echo.Context, r postgres.Role,
 	const name = "scener"
 	s := model.Sceners{}
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return InternalErr(c, name, err)
 	}
+	defer db.Close()
 	switch r {
 	case postgres.Writer:
-		err = s.Writer(ctx, tx)
+		err = s.Writer(ctx, db)
 	case postgres.Artist:
-		err = s.Artist(ctx, tx)
+		err = s.Artist(ctx, db)
 	case postgres.Musician:
-		err = s.Musician(ctx, tx)
+		err = s.Musician(ctx, db)
 	case postgres.Coder:
-		err = s.Coder(ctx, tx)
+		err = s.Coder(ctx, db)
 	case postgres.Roles():
-		err = s.Distinct(ctx, tx)
+		err = s.Distinct(ctx, db)
 	}
 	if err != nil {
 		return DatabaseErr(c, name, err)
@@ -2310,12 +2329,13 @@ func releasers(c echo.Context, orderBy model.OrderBy) error {
 	data["stats"] = map[string]string{}
 
 	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
+	db, err := postgres.ConnectDB()
 	if err != nil {
 		return InternalErr(c, name, err)
 	}
+	defer db.Close()
 	var r model.Releasers
-	if err := r.Limit(ctx, tx, orderBy, 0, 0); err != nil {
+	if err := r.Limit(ctx, db, orderBy, 0, 0); err != nil {
 		return DatabaseErr(c, name, err)
 	}
 	data[key] = r

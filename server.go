@@ -86,7 +86,8 @@ func main() {
 	repairChecks(logger, configs)
 	sanityChecks(logger, configs)
 
-	website := newInstance(configs)
+	ctx := context.Background()
+	website := newInstance(ctx, db, configs)
 	logger = serverLog(configs, website.RecordCount)
 	router := website.Controller(logger)
 	website.Info(logger, w)
@@ -128,7 +129,7 @@ func environmentVars() (*zap.SugaredLogger, config.Config) {
 }
 
 // newInstance is used to create the server controller instance.
-func newInstance(configs config.Config) handler.Configuration {
+func newInstance(ctx context.Context, exec boil.ContextExecutor, configs config.Config) handler.Configuration {
 	c := handler.Configuration{
 		Brand:       brand,
 		Environment: configs,
@@ -139,7 +140,7 @@ func newInstance(configs config.Config) handler.Configuration {
 	if c.Version == "" {
 		c.Version = cmd.Commit("")
 	}
-	c.RecordCount = recordCount()
+	c.RecordCount = recordCount(ctx, exec)
 	return c
 }
 
@@ -253,21 +254,26 @@ func repairDB(logger *zap.SugaredLogger) error {
 	if logger == nil {
 		return fmt.Errorf("%w: %s", ErrLog, "the repair database has no logger")
 	}
-	err := fix.All.Run(logger)
+	ctx := context.Background()
+	db, tx, err := postgres.ConnectTx()
 	if err != nil {
+		return fmt.Errorf("repair database connection: %w", err)
+	}
+	defer db.Close()
+
+	if err = fix.All.Run(ctx, tx, logger); err != nil {
+		defer tx.Rollback()
 		return fmt.Errorf("repair database could not fix all: %w", err)
+	}
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("repair database commit: %w", err)
 	}
 	return nil
 }
 
 // recordCount returns the number of records in the database.
-func recordCount() int {
-	ctx := context.Background()
-	tx, err := boil.BeginTx(ctx, nil)
-	if err != nil {
-		return 0
-	}
-	fs, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, tx)
+func recordCount(ctx context.Context, exec boil.ContextExecutor) int {
+	fs, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, exec)
 	if err != nil {
 		return 0
 	}
