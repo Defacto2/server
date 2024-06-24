@@ -38,6 +38,7 @@ func (c Configuration) FilesRoutes(e *echo.Echo, logger *zap.SugaredLogger, publ
 		Download:  c.Environment.AbsDownload,
 		Preview:   c.Environment.AbsPreview,
 		Thumbnail: c.Environment.AbsThumbnail,
+		Extra:     c.Environment.AbsExtra,
 	}
 
 	nonce, err := c.nonce(e)

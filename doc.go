@@ -95,6 +95,8 @@ The website will turn off the associated feature if the provided path is invalid
 
 	- D2_DIR_ORPHANED is the absolute path to the orphaned files directory.
 
+	- D2_DIR_EXTRA is the absolute path to the extra files directory.
+
 An example download setting:
 
 	D2_DIR_DOWNLOAD=/mnt/volume/assets/downloads

@@ -48,6 +48,7 @@ type Dirs struct {
 	Download  string // path to the artifact download directory
 	Preview   string // path to the preview and screenshot directory
 	Thumbnail string // path to the file thumbnail directory
+	Extra     string // path to the extra files directory
 	URI       string // the URI of the file record
 }
 

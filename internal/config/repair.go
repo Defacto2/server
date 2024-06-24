@@ -179,7 +179,7 @@ func RemoveDownload(basename, path, destDir string) error {
 	const filedownload = ""
 	ext := filepath.Ext(basename)
 	switch ext {
-	case filedownload, ".chiptune", ".txt", ".zip":
+	case filedownload, ".txt", ".zip", ".chiptune":
 		return nil
 	default:
 		remove(basename, "remove invalid ext", path, destDir)

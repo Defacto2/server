@@ -193,6 +193,9 @@ D2_DIR_PREVIEW=/home/defacto2/previews
 # List the directory path that holds the named UUID files for the artifact thumbnails.
 D2_DIR_THUMBNAIL=/home/defacto2/thumbnails
 
+# List the directory path that holds the generated extra files for the artifacts.
+D2_DIR_EXTRA=/home/defacto2/extras
+
 # List the directory path that holds the named UUID files that are not linked to
 # any database records.
 D2_DIR_ORPHANED=/home/defacto2/orphaned
