@@ -16,6 +16,7 @@ const (
 	EditForApproval              // EditForApproval is the path to the minified Editor for-approval JS file.
 	FA5Pro                       // FA5Pro is the path to the minified Font Awesome Pro v5 JS file.
 	Htmx                         // Htmx is the path to the minified htmx AJAX JS file.
+	HtmxRespTargets              // Htmx is the path to the minified response targets extension file.
 	Jsdos6JS                     // Jsdos6JS is the path to the minified js-dos v6 JS file.
 	Layout                       // Layout is the path to the minified layout CSS file.
 	LayoutJS                     // LayoutJS is the path to the minified layout JS file.
@@ -42,6 +43,7 @@ func Hrefs() Paths {
 		EditForApproval: "/js/editor-forapproval.min.js",
 		FA5Pro:          "/js/fontawesome.min.js",
 		Htmx:            "/js/htmx.min.js",
+		HtmxRespTargets: "/js/htmx-response-targets.min.js",
 		Jsdos6JS:        "/js/js-dos.js",
 		Layout:          "/css/layout.min.css",
 		LayoutJS:        "/js/layout.min.js",

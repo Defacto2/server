@@ -157,7 +157,12 @@ func DBConnections(c echo.Context) error {
 		conns, max, currentTime.Format("15:04:05")))
 }
 
-func PermenantDelete(c echo.Context, logger *zap.SugaredLogger) error {
+// DeleteForever is a handler for the /delete/forever route.
+func DeleteForever(c echo.Context, logger *zap.SugaredLogger, id string) error {
+	key, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		return c.String(http.StatusNotFound, err.Error())
+	}
 	ctx := context.Background()
 	db, tx, err := postgres.ConnectTx()
 	if err != nil {
@@ -166,22 +171,22 @@ func PermenantDelete(c echo.Context, logger *zap.SugaredLogger) error {
 			"cannot start a database transaction")
 	}
 	defer db.Close()
-	if err = model.DeleteOne(ctx, tx, 51002); err != nil {
+	if err = model.DeleteOne(ctx, tx, key); err != nil {
+		defer tx.Rollback()
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
 			"cannot delete the record")
 	}
-
-	// delete records
-	defer tx.Rollback()
-
-	// if err = tx.Commit(); err != nil {
-	// 	logger.Error(err)
-	// 	return c.String(http.StatusServiceUnavailable,
-	// 		"cannot commit the transaction")
-	// }
+	//
+	// TODO: delete file assets from the file system.
+	//
+	if err = tx.Commit(); err != nil {
+		logger.Error(err)
+		return c.String(http.StatusServiceUnavailable,
+			"cannot commit the transaction")
+	}
 	return c.String(http.StatusOK,
-		"This artifact is gone, and reloading this page will result in a 404 error.")
+		"The artifact is gone, and reloading this page will result in a 404 error.")
 }
 
 // Pings is a handler for the /pings route.

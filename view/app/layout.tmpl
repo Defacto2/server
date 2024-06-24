@@ -321,6 +321,7 @@
 </div>
 {{- /*  Do not async load the htmx JS  */}}
 <script defer src="{{ htmx }}?{{ sri_htmx }}" integrity="{{ sri_htmx }}" crossorigin="anonymous"></script>
+<script defer src="{{ htmxRespTargets }}?{{ sri_htmxRespTargets }}" integrity="{{ sri_htmxRespTargets }}" crossorigin="anonymous"></script>
 {{- /*  Do not defer, or async load the Bootstrap 5.x JS  */}}
 <script src="{{ bootstrap5JS }}?{{ sri_bootstrap5JS }}" integrity="{{ sri_bootstrap5JS }}" crossorigin="anonymous"></script>
 {{- /*  FontAwesome Pro v5 */}}

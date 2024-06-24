@@ -31,6 +31,7 @@ func NamedJS() []string {
 		"editor-assets",
 		"editor-archive",
 		"editor-forapproval",
+		"htmx-response-targets",
 		"votes-pouet",
 	}
 }
@@ -112,6 +113,22 @@ func Layout() api.BuildOptions {
 	}
 }
 
+func HtmxExts() api.BuildOptions {
+	min := "htmx-response-targets.min.js"
+	entryjs := filepath.Join("assets", "js", "htmx-response-targets.js")
+	output := filepath.Join("public", "js", min)
+	return api.BuildOptions{
+		EntryPoints:       []string{entryjs},
+		Outfile:           output,
+		Target:            ECMAScript,
+		Write:             true,
+		Bundle:            true,
+		MinifyWhitespace:  true,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+	}
+}
+
 func Readme() api.BuildOptions {
 	min := "readme.min.js"
 	entryjs := filepath.Join("assets", "js", "readme.js")
@@ -165,6 +182,12 @@ func main() {
 	}
 	{
 		result := api.Build(Artifact())
+		if len(result.Errors) > 0 {
+			fmt.Fprintf(os.Stderr, "JS build failed: %v\n", result.Errors)
+		}
+	}
+	{
+		result := api.Build(HtmxExts())
 		if len(result.Errors) > 0 {
 			fmt.Fprintf(os.Stderr, "JS build failed: %v\n", result.Errors)
 		}

@@ -89,8 +89,8 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	})
 	g.POST("/comment", htmx.RecordComment)
 	g.POST("/comment/reset", htmx.RecordCommentReset)
-	g.POST("/delete/permenantly", func(c echo.Context) error {
-		return htmx.PermenantDelete(c, logger)
+	g.POST("/delete/forever/:key", func(c echo.Context) error {
+		return htmx.DeleteForever(c, logger, c.Param("key"))
 	})
 	g.POST("/demozoo", htmx.RecordDemozoo)
 	g.POST("/filename", htmx.RecordFilename)

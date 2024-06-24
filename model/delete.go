@@ -11,7 +11,7 @@ import (
 
 // One retrieves a single file record from the database using the record key.
 // This function can return records that have been marked as deleted.
-func DeleteOne(ctx context.Context, exec boil.ContextExecutor, key int) error {
+func DeleteOne(ctx context.Context, exec boil.ContextExecutor, key uint64) error {
 	if exec == nil {
 		return ErrTx
 	}

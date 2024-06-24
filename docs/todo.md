@@ -8,6 +8,9 @@
 
 ### Recommendations
 - [ ] Create a new assets path named `extras` and move into it all the uuid files from `downloads` that use file extensions.
+- [ ] Create an `orphans` path and move into it all the uuid files from `downloads` that do not have a corresponding database record.
+		This should replace the current os.Remove() pattern in use.
+		If no path is provided, then the cleanups are skipped.
 - [ ] Create a DB fix to detect and rebadge msdos and windows trainers.
 - [ ] `OrderBy` Name/Count /html3/groups? https://pkg.go.dev/sort#example-package-SortKeys
 - [ ] Use DigitalOcean API to display Estimated Droplet Transfer Pool usage and remaining balance. 
@@ -15,7 +18,6 @@
 
 ### Bug fixes
 
-- [ ] Complete PermenantDelete() for artifacts.
 - [ ] Confirm all upload forms and correctly submitting data, currently the Image form is missing fields.
 
 #### MAJOR FREEZE BUG

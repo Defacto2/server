@@ -1183,6 +1183,7 @@ type SRI struct {
 	Readme          string // Readme JS verification hash.
 	Uploader        string // Uploader JS verification hash.
 	Htmx            string // htmx JS verification hash.
+	HtmxRespTargets string // htmx response targets extension JS verification hash.
 }
 
 // Verify checks the integrity of the embedded CSS and JS files.
@@ -1262,6 +1263,11 @@ func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 	}
 	name = names[Htmx]
 	s.Htmx, err = helper.Integrity(name, fs)
+	if err != nil {
+		return fmt.Errorf("%s: %w", name, err)
+	}
+	name = names[HtmxRespTargets]
+	s.HtmxRespTargets, err = helper.Integrity(name, fs)
 	if err != nil {
 		return fmt.Errorf("%s: %w", name, err)
 	}

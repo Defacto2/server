@@ -392,6 +392,9 @@ func (web Templ) TemplateClosures() template.FuncMap { //nolint:funlen
 		"htmx": func() string {
 			return hrefs[Htmx]
 		},
+		"htmxRespTargets": func() string {
+			return hrefs[HtmxRespTargets]
+		},
 		"initialisms": func(s string) string {
 			return initialism.Join(initialism.Path(s))
 		},
@@ -442,6 +445,9 @@ func (web Templ) TemplateClosures() template.FuncMap { //nolint:funlen
 		},
 		"sri_htmx": func() string {
 			return web.Subresource.Htmx
+		},
+		"sri_htmxRespTargets": func() string {
+			return web.Subresource.HtmxRespTargets
 		},
 		"sri_jsdos6JS": func() string {
 			return web.Subresource.Jsdos6JS
