@@ -71,7 +71,7 @@ type Config struct {
 	TLSPort        uint   `env:"D2_TLS_PORT" help:"The port number to be used by the encrypted, HTTPS web server"`
 	Quiet          bool   `env:"D2_QUIET" help:"Suppress most startup output to the terminal, intended for use with systemd or other process managers"`
 	Compression    bool   `env:"D2_COMPRESSION" help:"Enable gzip compression of the HTTP/HTTPS responses; you may turn this off when using a reverse proxy"`
-	ProdMode       bool   `env:"D2_PROD_MODE" help:"Use the production mode to log errors to a file and recover from panics"`
+	ProdMode       bool   `env:"D2_PROD_MODE" help:"Use the production mode to run checks on startup, log errors to files and recover from panics"`
 	ReadOnly       bool   `env:"D2_READ_ONLY" help:"Use the read-only mode to turn off all POST, PUT, and DELETE requests and any related user interface"`
 	NoCrawl        bool   `env:"D2_NO_CRAWL" help:"Tell search engines to not crawl any of website pages or assets"`
 	LogAll         bool   `env:"D2_LOG_ALL" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`

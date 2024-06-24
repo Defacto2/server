@@ -2,9 +2,10 @@
 {{- define "layoutup" -}}
 <div class="btn-group dropstart">
     <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-      Uploader
+      {{- if ne true $lock}}Uploader{{else}}Site editor{{end}}
     </button>
     <ul class="dropdown-menu">
-        <li><h6 class="dropdown-header">Sorry, the database is readonly or offline</h6></li>
+      <li><h6 class="dropdown-header">Sorry, the database is readonly or offline</h6></li>
+      {{- template "layoutlock" . }}
     </ul>
 </div>{{end}}

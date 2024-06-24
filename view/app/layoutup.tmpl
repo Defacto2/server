@@ -2,11 +2,15 @@
     layoutup.tmpl ~ Uploader pull-down menu.
 */ -}}
 {{- define "layoutup" }}
-<div class="btn-group dropstart">
-  <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Uploader
+{{- $lock := index . "editor" }}
+{{- $buttonClass := "btn-primary"}}
+{{- if ne true $lock}}{{ $buttonClass = "btn-secondary"}}{{end}}
+<div class="btn-group">
+  <button class="btn {{$buttonClass}} dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    {{- if ne true $lock}}Uploader{{else}}Site editor{{end}}
   </button>
-  <ul class="dropdown-menu">
+  <ul class="dropdown-menu dropdown-menu-end">
+    {{- template "layoutlock" . }}
     <li><h6 class="dropdown-header">Submit a production</h6></li>
     <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-demozoo-modal">Demozoo</a></li>
     <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-pouet-modal">Pouët</a></li>

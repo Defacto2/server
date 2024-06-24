@@ -24,10 +24,10 @@
 </div>
 <div class="p-2 lead">
   <div><strong>Artifacts available to the public: {{index . "countPublic"}}</strong></div>
-  <div>Active connections to the Postgres database: <span id="database-response">{{$checkDBConns}}</span></div>
-  <div><small>Artifact records {{index . "countArtifacts"}}</small></div>
-  <div><small>New uploads {{index . "countNewUpload"}}</small></div>
-  <div><small>Hidden and unavailable {{index . "countHidden"}}</small></div>
+  <div>Active connections to the database: <span id="database-response">{{$checkDBConns}}</span></div>
+  <div><small>Artifact records in the table: {{index . "countArtifacts"}}</small></div>
+  <div><small class="text-success">New uploads: {{index . "countNewUpload"}}</small></div>
+  <div><small>Hidden and unavailable artifacts: {{index . "countHidden"}}</small></div>
 </div>
 {{- /*  Ping internal URIs */}}
 <h1 class="lead mt-5">Web application routes</h1>
