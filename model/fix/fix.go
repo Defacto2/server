@@ -44,7 +44,7 @@ const (
 // In the future we may want to add a Debug or TestRun func.
 
 // Run the database repair based on the repair option.
-func (r Repair) Run(ctx context.Context, tx *sql.Tx, logger *zap.SugaredLogger) error {
+func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx, logger *zap.SugaredLogger) error {
 	if logger == nil {
 		return fmt.Errorf("%w: %s", ErrLog, "no logger")
 	}
@@ -80,7 +80,7 @@ func (r Repair) Run(ctx context.Context, tx *sql.Tx, logger *zap.SugaredLogger) 
 			return fmt.Errorf("releasers: %w", err)
 		}
 	}
-	if err := optimize(tx); err != nil {
+	if err := optimize(db); err != nil {
 		return fmt.Errorf("optimize: %w", err)
 	}
 	return nil
@@ -265,8 +265,8 @@ func contentWhiteSpace(exec boil.ContextExecutor) error {
 
 // optimize reclaims storage occupied by dead tuples in the database and
 // also analyzes the most efficient execution plans for queries.
-func optimize(exec boil.ContextExecutor) error {
-	_, err := queries.Raw("VACUUM ANALYZE files").Exec(exec)
+func optimize(db *sql.DB) error {
+	_, err := queries.Raw("VACUUM ANALYZE files").Exec(db)
 	if err != nil {
 		return fmt.Errorf("queries.Raw: %w", err)
 	}

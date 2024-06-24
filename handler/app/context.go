@@ -190,29 +190,47 @@ func configurations(data map[string]interface{}, conf config.Config) map[string]
 	check := config.CheckDir(conf.AbsDownload, "downloads")
 	data["checkDownloads"] = check
 	data["countDownloads"] = 0
-	data["extsDownloads"] = nil
+	data["extsDownloads"] = []helper.Extension{}
 	if check == nil {
 		data["countDownloads"], _ = helper.Count(conf.AbsDownload)
 		exts, _ := helper.CountExts(conf.AbsDownload)
 		data["extsDownloads"] = exts
 	}
-	check = config.CheckDir(conf.AbsPreview, "downloads")
+	check = config.CheckDir(conf.AbsPreview, "previews")
 	data["checkPreviews"] = check
 	data["countPreviews"] = 0
-	data["extsPreviews"] = nil
+	data["extsPreviews"] = []helper.Extension{}
 	if check == nil {
 		data["countPreviews"], _ = helper.Count(conf.AbsPreview)
 		exts, _ := helper.CountExts(conf.AbsPreview)
 		data["extsPreviews"] = exts
 	}
-	check = config.CheckDir(conf.AbsThumbnail, "downloads")
+	check = config.CheckDir(conf.AbsThumbnail, "thumbnails")
 	data["checkThumbnails"] = check
 	data["countThumbnails"] = 0
-	data["extsThumbnails"] = nil
+	data["extsThumbnails"] = []helper.Extension{}
 	if check == nil {
 		data["countThumbnails"], _ = helper.Count(conf.AbsThumbnail)
 		exts, _ := helper.CountExts(conf.AbsThumbnail)
 		data["extsThumbnails"] = exts
+	}
+	check = config.CheckDir(conf.AbsExtra, "extra")
+	data["checkExtras"] = check
+	data["countExtras"] = 0
+	data["extsExtras"] = []helper.Extension{}
+	if check == nil {
+		data["countExtras"], _ = helper.Count(conf.AbsExtra)
+		exts, _ := helper.CountExts(conf.AbsExtra)
+		data["extsExtras"] = exts
+	}
+	check = config.CheckDir(conf.AbsOrphaned, "orphaned")
+	data["checkOrphaned"] = check
+	data["countOrphaned"] = 0
+	data["extsOrphaned"] = []helper.Extension{}
+	if check == nil {
+		data["countOrphaned"], _ = helper.Count(conf.AbsOrphaned)
+		exts, _ := helper.CountExts(conf.AbsOrphaned)
+		data["extsOrphaned"] = exts
 	}
 	return data
 }

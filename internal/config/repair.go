@@ -17,8 +17,9 @@ import (
 )
 
 const (
-	unid = "00000000-0000-0000-0000-000000000000" // common universal unique identifier example
-	cfid = "00000000-0000-0000-0000000000000000"  // coldfusion uuid example
+	unid      = "00000000-0000-0000-0000-000000000000" // common universal unique identifier example
+	cfid      = "00000000-0000-0000-0000000000000000"  // coldfusion uuid example
+	syncthing = ".stfolder"                            // syncthing directory name
 )
 
 var (
@@ -39,7 +40,7 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 		return fmt.Errorf("repair fs backup directory %w: %s", ErrNotDir, backupDir)
 	}
 	dirs := []string{c.AbsPreview, c.AbsThumbnail}
-	p, t := 0, 0
+	// remove any subdirectories
 	for _, dir := range dirs {
 		if _, err := os.Stat(dir); err != nil {
 			continue
@@ -51,6 +52,26 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 			name := d.Name()
 			if d.IsDir() {
 				return RemoveDir(name, path, dir)
+			}
+			return nil
+		})
+		if err != nil {
+			return fmt.Errorf("repair fs walk directory %w: %s", err, dir)
+		}
+	}
+	// remove any invalid files
+	p, t := 0, 0
+	for _, dir := range dirs {
+		if _, err := os.Stat(dir); err != nil {
+			continue
+		}
+		err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return fmt.Errorf("repair fs walk path %w: %s", err, path)
+			}
+			name := d.Name()
+			if d.IsDir() {
+				return nil
 			}
 			switch dir {
 			case c.AbsPreview:
@@ -153,7 +174,6 @@ func RemoveDir(name, path, root string) error {
 	if name == "" || path == "" || root == "" {
 		return fmt.Errorf("remove directory %w: %s %s %s", ErrEmpty, name, path, root)
 	}
-	const syncthing = ".stfolder"
 	rootDir := filepath.Base(root)
 	switch name {
 	case rootDir:
@@ -228,7 +248,7 @@ func remove(name, info, path, destDir string) {
 	fmt.Fprintf(w, "%s: %s\n", info, name)
 	defer func() {
 		now := time.Now().Format("2006-01-02_15-04-05")
-		dest := filepath.Join(destDir, fmt.Sprintf("%s_%s", name, now))
+		dest := filepath.Join(destDir, fmt.Sprintf("%s_%s", now, name))
 		err := helper.RenameCrossDevice(path, dest)
 		if err != nil {
 			fmt.Fprintf(w, "defer repair file remove: %s\n", err)

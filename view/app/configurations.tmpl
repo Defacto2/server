@@ -6,9 +6,13 @@
 {{- $checkDownloads := index . "checkDownloads"}}
 {{- $checkPreviews := index . "checkPreviews"}}
 {{- $checkThumbnails := index . "checkThumbnails"}}
+{{- $checkExtras := index . "checkExtras"}}
+{{- $checkOrphaned := index . "checkOrphaned"}}
 {{- $extsDownloads := index . "extsDownloads"}}
 {{- $extsPreviews := index . "extsPreviews"}}
 {{- $extsThumbnails := index . "extsThumbnails"}}
+{{- $extsExtras := index . "extsExtras"}}
+{{- $extsOrphaned := index . "extsOrphaned"}}
 {{- $checkDBConns := index . "dbConnections"}}
 {{- $responseRow := "row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-0"}}
 {{- /*    */}}
@@ -111,6 +115,38 @@
         <div class="{{$responseRow}}">
           {{- range $index, $value := $extsThumbnails}}
           {{- if ne $index 0}}<span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>{{end}}
+          {{- end}}
+        </div>
+        {{- end}}
+      </td>
+    </tr>
+    <tr>
+      <th scope="row">Extras</th>
+      <td>{{index . "countExtras"}}</td>
+      <td>
+        {{- if gt (len $extsExtras) 0 }}{{- $first := index $extsExtras 0 }}
+        <span clas="col"><code>{{$first.Name}}</code> <small>{{$first.Count}}</small></span>
+        {{- end}}
+      </td>
+      <td>
+        {{if ne nil $checkExtras}}<span class="text-danger-emphasis">{{$checkExtras}}</span>{{- else}}
+        <div class="{{$responseRow}}">
+          {{- range $index, $value := $extsExtras}}
+          {{- if ne $index 0}}<span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>{{end}}
+          {{- end}}
+        </div>
+        {{- end}}
+      </td>
+    </tr>
+    <tr>
+      <th scope="row">Orphaned</th>
+      <td>{{index . "countOrphaned"}}</td>
+      <td></td>
+      <td>
+        {{if ne nil $checkOrphaned}}<span class="text-danger-emphasis">{{$checkOrphaned}}</span>{{- else}}
+        <div class="{{$responseRow}}">
+          {{- range $index, $value := $extsOrphaned}}
+          <span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>
           {{- end}}
         </div>
         {{- end}}

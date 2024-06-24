@@ -261,7 +261,7 @@ func repairDB(logger *zap.SugaredLogger) error {
 	}
 	defer db.Close()
 
-	if err = fix.All.Run(ctx, tx, logger); err != nil {
+	if err = fix.All.Run(ctx, db, tx, logger); err != nil {
 		defer tx.Rollback()
 		return fmt.Errorf("repair database could not fix all: %w", err)
 	}
