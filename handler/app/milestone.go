@@ -1306,20 +1306,21 @@ func Collection() Milestones {
 				// thg
 				"<p>While disputed, it is not too important which release from <strong>The&nbsp;Humble&nbsp;Guys</strong> is the first to use the dot <q>nfo</q> file extension. " +
 				// knights
-				"The timestamps of the release files suggest the text file for Knights of Legend predates Bubble Bobble by a few days. " +
-				"But famed, former cracker Fabulous Furlough has always stated Bubble Bobble was the release that first used the naming standard.</p>" +
-				// bubble bobble
-				"<p>Bubble Bobble was the far more notable game of the era and may have been the more memorable game title when recalling the event. " +
-				"Meanwhile, Knights didn't require a crack, and the file naming convention was possibly retroactively applied.</p>" +
+				"The timestamps of the release files suggest the text file for Knights of Legend predates Bubble Bobble by weeks. " +
+				"But famed, founder and former cracker, Fabulous Furlough has always stated Bubble Bobble was the release that first used the naming standard.</p>" +
 				// quote
 				"<figure><blockquote class=\"blockquote\"><q><small>It happened like this, I'd just used " +
 				"<q><a href=\"http://nerdlypleasures.blogspot.com/2011/05/scourge-of-preservation-disk-based-copy.html\">Unguard</a></q> " +
 				"to crack the SuperLock off of <a href=\"/f/ad4195\">Bubble&nbsp;Bobble</a>, and I said " +
 				"<q>I need some file to put the info about the crack in. Hmmm.. Info, NFO!</q>, and that was it.</small></q></blockquote>" +
-				"<figcaption class=\"blockquote-footer\">Famed, former cracker for The&nbsp;Humble&nbsp;Guys, Fabulous&nbsp;Furlough recalls Bubble Bobble as the first THG release that used the .NFO file extension.</figcaption></figure>" +
-				"<p>Notes from BUBBLE.NFO</p>" +
+				"<figcaption class=\"blockquote-footer\">Founder of The&nbsp;Humble&nbsp;Guys, Fabulous&nbsp;Furlough recalls Bubble Bobble as the first THG release that used the .NFO file extension.</figcaption></figure>" +
+				// bubble bobble
+				"<p>Bubble Bobble was the far more notable game of the era and may have been the more memorable game title when recalling the event. " +
+				"Meanwhile, Knights didn't require a crack, and the file naming convention was possibly retroactively applied.</p>" +
+				// content
+				"<p>Notes from BUBBLE.NFO <small>7, Feb 1990</small></p>" +
 				"<p><pre>Bubble Bobble by Nova Logic Through Taito<br>Broken by Fabulous Furlough<br>Normal Taito Loader - 5 minutes</pre></p>" +
-				"<p>Notes from KNIGHTS.NFO</p>" +
+				"<p>Notes from KNIGHTS.NFO <small>21, Jan 1990</small></p>" +
 				"<p><pre>Knights of Legend by Origin Systems<br>It seems to be unprotected, if you find anything leave us a message..</pre></p>",
 		},
 		{
