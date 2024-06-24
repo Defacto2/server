@@ -80,6 +80,7 @@ func TestRepairFS(t *testing.T) {
 	// even though we are only testing the repair function with the AbsDownload directory
 	c.AbsPreview = os.DevNull
 	c.AbsThumbnail = os.DevNull
+	c.AbsExtra = os.DevNull
 	err = c.RepairFS(logger())
 	require.NoError(t, err)
 
@@ -118,14 +119,14 @@ func TestDownloadFS(t *testing.T) {
 	}
 
 	const expectedCount = 24
-	const expectedResult = 12
+	const expectedResult = 3
 
 	i, err := helper.Count(dir)
 	require.NoError(t, err)
 	assert.Equal(t, expectedCount, i)
 
 	// test the images function with invalid parameters
-	err = config.DownloadFS(nil, "", "")
+	err = config.DownloadFS(nil, "", "", "")
 	require.Error(t, err)
 
 	i, err = helper.Count(dir)
@@ -141,7 +142,7 @@ func TestDownloadFS(t *testing.T) {
 			return nil
 		}
 		doNotBackup := os.TempDir()
-		err = config.DownloadFS(nil, path, doNotBackup)
+		err = config.DownloadFS(nil, path, doNotBackup, doNotBackup)
 		fmt.Fprintln(io.Discard, path)
 		require.NoError(t, err)
 		return nil
@@ -184,14 +185,14 @@ func TestRemoveDownload(t *testing.T) {
 	}
 
 	const expectedCount = 24
-	const expectedResult = 12
+	const expectedResult = 3
 
 	i, err := helper.Count(dir)
 	require.NoError(t, err)
 	assert.Equal(t, expectedCount, i)
 
 	// test the images function with invalid parameters
-	err = config.RemoveDownload("", dir, "")
+	err = config.RemoveDownload("", dir, "", "")
 	require.Error(t, err)
 
 	i, err = helper.Count(dir)
@@ -209,7 +210,7 @@ func TestRemoveDownload(t *testing.T) {
 		name := filepath.Base(path)
 		fmt.Fprintln(io.Discard, name, path)
 		doNotBackup := os.TempDir()
-		err = config.RemoveDownload(name, path, doNotBackup)
+		err = config.RemoveDownload(name, path, doNotBackup, doNotBackup)
 		require.NoError(t, err)
 		return nil
 	})

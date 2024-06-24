@@ -55,7 +55,7 @@ func Encoder(art *models.File, r io.Reader) encoding.Encoding {
 
 // Read returns the content of either the file download or an extracted text file.
 // The text is intended to be used as a readme, preview or an in-browser viewer.
-func Read(art *models.File, path string) ([]byte, error) {
+func Read(art *models.File, downloadDir, extraDir string) ([]byte, error) {
 	if art == nil {
 		return nil, ErrFileModel
 	}
@@ -77,14 +77,14 @@ func Read(art *models.File, path string) ([]byte, error) {
 		filepOk bool
 		txt     bool
 	}
-	files.uuidTxt = filepath.Join(path, unid+".txt")
+	files.uuidTxt = filepath.Join(extraDir, unid+".txt")
 	files.uutxtOk = helper.Stat(files.uuidTxt)
-	files.filepth = filepath.Join(path, unid)
+	files.filepth = filepath.Join(downloadDir, unid)
 	files.filepOk = helper.Stat(files.filepth)
 	files.txt = !ext.IsArchive(fname)
 
 	if !files.uutxtOk && !files.filepOk {
-		return nil, fmt.Errorf("render read %w: %s", ErrDownload, filepath.Join(path, unid))
+		return nil, fmt.Errorf("render read %w: %s", ErrDownload, filepath.Join(downloadDir, unid))
 	}
 
 	if !files.uutxtOk && !Viewer(art) {

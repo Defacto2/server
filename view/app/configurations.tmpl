@@ -123,16 +123,12 @@
     <tr>
       <th scope="row">Extras</th>
       <td>{{index . "countExtras"}}</td>
-      <td>
-        {{- if gt (len $extsExtras) 0 }}{{- $first := index $extsExtras 0 }}
-        <span clas="col"><code>{{$first.Name}}</code> <small>{{$first.Count}}</small></span>
-        {{- end}}
-      </td>
+      <td></td>
       <td>
         {{if ne nil $checkExtras}}<span class="text-danger-emphasis">{{$checkExtras}}</span>{{- else}}
         <div class="{{$responseRow}}">
           {{- range $index, $value := $extsExtras}}
-          {{- if ne $index 0}}<span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>{{end}}
+          <span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>
           {{- end}}
         </div>
         {{- end}}

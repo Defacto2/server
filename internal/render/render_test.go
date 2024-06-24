@@ -57,7 +57,7 @@ func TestEncoder(t *testing.T) {
 
 func TestRead(t *testing.T) {
 	t.Parallel()
-	r, err := render.Read(nil, "")
+	r, err := render.Read(nil, "", "")
 	require.Error(t, err)
 	assert.Equal(t, err, render.ErrFileModel)
 	assert.Nil(t, r)
@@ -66,20 +66,20 @@ func TestRead(t *testing.T) {
 		Filename: null.StringFrom(""),
 		UUID:     null.StringFrom(""),
 	}
-	r, err = render.Read(&art, "")
+	r, err = render.Read(&art, "", "")
 	require.Error(t, err)
 	assert.Equal(t, err, render.ErrFilename)
 	assert.Nil(t, r)
 
 	art.Filename = null.StringFrom("../testdata/TEST.DOC")
-	r, err = render.Read(&art, "")
+	r, err = render.Read(&art, "", "")
 	require.Error(t, err)
 	assert.Equal(t, err, render.ErrUUID)
 	assert.Nil(t, r)
 
 	const unid = "5b4c5f6e-8a1e-11e9-9f0e-000000000000"
 	art.UUID = null.StringFrom(unid)
-	r, err = render.Read(&art, "")
+	r, err = render.Read(&art, "", "")
 	require.Error(t, err)
 	assert.Nil(t, r)
 
@@ -92,7 +92,7 @@ func TestRead(t *testing.T) {
 	err = helper.Touch(filepath.Join(dir, unid))
 	require.NoError(t, err)
 
-	r, err = render.Read(&art, dir)
+	r, err = render.Read(&art, dir, dir)
 	require.NoError(t, err)
 	assert.Nil(t, r)
 	assert.Empty(t, r)
@@ -105,7 +105,7 @@ func TestRead(t *testing.T) {
 	require.NoError(t, err)
 	l := len(s)
 	assert.Equal(t, i, l)
-	b, err := render.Read(&art, dir)
+	b, err := render.Read(&art, dir, dir)
 	require.NoError(t, err)
 	assert.NotNil(t, b)
 	assert.Equal(t, string(b), string(s))

@@ -180,10 +180,10 @@ func readme(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	}
 	readme := g.Group("/readme")
 	readme.POST("/copy", func(cx echo.Context) error {
-		return app.ReadmePost(cx, logger, dir.Download)
+		return app.ReadmePost(cx, logger, dir.Download, dir.Extra)
 	})
 	readme.POST("/delete", func(cx echo.Context) error {
-		return app.ReadmeDel(cx, dir.Download)
+		return app.ReadmeDel(cx, dir.Extra)
 	})
 	readme.POST("/hide", func(cx echo.Context) error {
 		dir.URI = cx.Param("id")

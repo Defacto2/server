@@ -167,7 +167,7 @@ func (dir Dirs) Artifact(c echo.Context, logger *zap.SugaredLogger, readonly boo
 	data["youtube"] = strings.TrimSpace(art.WebIDYoutube.String)
 	data["github"] = art.WebIDGithub.String
 	// js-dos emulator
-	data = jsdos(logger, art, data, fname)
+	data = jsdos(data, logger, art, fname)
 	// archive file content
 	data = content(art, data)
 	// record metadata
@@ -252,9 +252,8 @@ func content(art *models.File, data map[string]interface{}) map[string]interface
 	return data
 }
 
-func jsdos(logger *zap.SugaredLogger,
+func jsdos(data map[string]interface{}, logger *zap.SugaredLogger,
 	art *models.File,
-	data map[string]interface{},
 	fname string,
 ) map[string]interface{} {
 	if logger == nil || art == nil {
@@ -365,7 +364,7 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	if filepath.Ext(strings.ToLower(art.Filename.String)) == unsupported {
 		return data, nil
 	}
-	b, err := render.Read(art, dir.Download)
+	b, err := render.Read(art, dir.Download, dir.Extra)
 	r := bufio.NewReader(bytes.NewReader(b))
 	switch {
 	case errors.Is(err, render.ErrDownload):

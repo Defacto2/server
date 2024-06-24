@@ -39,6 +39,17 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 	} else if !st.IsDir() {
 		return fmt.Errorf("repair fs backup directory %w: %s", ErrNotDir, backupDir)
 	}
+	if err := ImagesFS(logger, c); err != nil {
+		return fmt.Errorf("repair fs images %w", err)
+	}
+	if err := DownloadFS(logger, c.AbsDownload, c.AbsOrphaned, c.AbsExtra); err != nil {
+		return fmt.Errorf("repair fs downloads %w", err)
+	}
+	return nil
+}
+
+func ImagesFS(logger *zap.SugaredLogger, c Config) error {
+	backupDir := c.AbsOrphaned
 	dirs := []string{c.AbsPreview, c.AbsThumbnail}
 	// remove any subdirectories
 	for _, dir := range dirs {
@@ -47,7 +58,7 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 		}
 		err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
-				return fmt.Errorf("repair fs walk path %w: %s", err, path)
+				return fmt.Errorf("walk path %w: %s", err, path)
 			}
 			name := d.Name()
 			if d.IsDir() {
@@ -56,7 +67,7 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 			return nil
 		})
 		if err != nil {
-			return fmt.Errorf("repair fs walk directory %w: %s", err, dir)
+			return fmt.Errorf("walk directory %w: %s", err, dir)
 		}
 	}
 	// remove any invalid files
@@ -67,7 +78,7 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 		}
 		err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
-				return fmt.Errorf("repair fs walk path %w: %s", err, path)
+				return fmt.Errorf("walk path %w: %s", err, path)
 			}
 			name := d.Name()
 			if d.IsDir() {
@@ -86,7 +97,7 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 			return RemoveImage(name, path, backupDir)
 		})
 		if err != nil {
-			return fmt.Errorf("repair fs walk directory %w: %s", err, dir)
+			return fmt.Errorf("walk directory %w: %s", err, dir)
 		}
 		switch dir {
 		case c.AbsPreview:
@@ -95,7 +106,7 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 			containsInfo(logger, "thumb", t)
 		}
 	}
-	return DownloadFS(logger, c.AbsDownload, c.AbsOrphaned)
+	return nil
 }
 
 func containsInfo(logger *zap.SugaredLogger, name string, count int) {
@@ -110,22 +121,21 @@ func containsInfo(logger *zap.SugaredLogger, name string, count int) {
 }
 
 // DownloadFS, on startup check the download directory for any invalid or unknown files.
-func DownloadFS(logger *zap.SugaredLogger, srcDir, destDir string) error {
-	if srcDir == "" || destDir == "" {
-		return fmt.Errorf("download fs %w: %s %s", ErrEmpty, srcDir, destDir)
+func DownloadFS(logger *zap.SugaredLogger, srcDir, destDir, extraDir string) error {
+	if srcDir == "" || destDir == "" || extraDir == "" {
+		return fmt.Errorf("%w: %s %s", ErrEmpty, srcDir, destDir)
 	}
-
 	count := 0
 	err := filepath.WalkDir(srcDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			return fmt.Errorf("download fs walk path %w: %s", err, path)
+			return fmt.Errorf("walk path %w: %s", err, path)
 		}
 		name := d.Name()
 		if d.IsDir() {
 			return RemoveDir(name, path, srcDir)
 		}
-		if err = RemoveDownload(name, path, destDir); err != nil {
-			return fmt.Errorf("RemoveDownload: %w", err)
+		if err = RemoveDownload(name, path, destDir, extraDir); err != nil {
+			return fmt.Errorf("remove download: %w", err)
 		}
 		if filepath.Ext(name) == "" {
 			count++
@@ -133,7 +143,7 @@ func DownloadFS(logger *zap.SugaredLogger, srcDir, destDir string) error {
 		return RenameDownload(name, path)
 	})
 	if err != nil {
-		return fmt.Errorf("download fs walk directory %w: %s", err, srcDir)
+		return fmt.Errorf("walk directory %w: %s", err, srcDir)
 	}
 	containsInfo(logger, "downloads", count)
 	return nil
@@ -192,15 +202,18 @@ func RemoveDir(name, path, root string) error {
 // Basename must be the name of the file with a valid file extension.
 //
 // Valid file extensions are none, .chiptune, .txt, and .zip.
-func RemoveDownload(basename, path, destDir string) error {
-	if basename == "" || path == "" || destDir == "" {
-		return fmt.Errorf("remove download %w: %s %s %s", ErrEmpty, basename, path, destDir)
+func RemoveDownload(basename, path, destDir, extraDir string) error {
+	if basename == "" || path == "" || destDir == "" || extraDir == "" {
+		return fmt.Errorf("remove download %w: %s %s %s %s",
+			ErrEmpty, basename, path, destDir, extraDir)
 	}
 	const filedownload = ""
 	ext := filepath.Ext(basename)
 	switch ext {
-	case filedownload, ".txt", ".zip", ".chiptune":
+	case filedownload:
 		return nil
+	case ".txt", ".zip", ".chiptune":
+		rename(path, "rename valid ext", filepath.Join(extraDir, basename))
 	default:
 		remove(basename, "remove invalid ext", path, destDir)
 	}
