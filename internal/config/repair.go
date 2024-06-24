@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/google/uuid"
@@ -20,13 +21,22 @@ const (
 	cfid = "00000000-0000-0000-0000000000000000"  // coldfusion uuid example
 )
 
-var ErrIsDir = errors.New("is directory")
+var (
+	ErrIsDir = errors.New("is directory")
+	ErrEmpty = errors.New("empty path or name")
+)
 
 // RepairFS, on startup check the file system directories for any invalid or unknown files.
 // If any are found, they are removed without warning.
 func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 	if logger == nil {
 		return ErrZap
+	}
+	backupDir := c.AbsOrphaned
+	if st, err := os.Stat(backupDir); err != nil {
+		return fmt.Errorf("repair fs backup directory %w: %s", err, backupDir)
+	} else if !st.IsDir() {
+		return fmt.Errorf("repair fs backup directory %w: %s", ErrNotDir, backupDir)
 	}
 	dirs := []string{c.AbsPreview, c.AbsThumbnail}
 	p, t := 0, 0
@@ -36,7 +46,7 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 		}
 		err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
-				return fmt.Errorf("walk: %w", err)
+				return fmt.Errorf("repair fs walk path %w: %s", err, path)
 			}
 			name := d.Name()
 			if d.IsDir() {
@@ -52,10 +62,10 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 					t++
 				}
 			}
-			return RemoveImage(name, path)
+			return RemoveImage(name, path, backupDir)
 		})
 		if err != nil {
-			return fmt.Errorf("filepath.Walk: %w", err)
+			return fmt.Errorf("repair fs walk directory %w: %s", err, dir)
 		}
 		switch dir {
 		case c.AbsPreview:
@@ -64,7 +74,7 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 			containsInfo(logger, "thumb", t)
 		}
 	}
-	return DownloadFS(logger, c.AbsDownload)
+	return DownloadFS(logger, c.AbsDownload, c.AbsOrphaned)
 }
 
 func containsInfo(logger *zap.SugaredLogger, name string, count int) {
@@ -79,21 +89,21 @@ func containsInfo(logger *zap.SugaredLogger, name string, count int) {
 }
 
 // DownloadFS, on startup check the download directory for any invalid or unknown files.
-func DownloadFS(logger *zap.SugaredLogger, dir string) error {
-	if _, err := os.Stat(dir); err != nil {
-		var exit error
-		return exit //nolint:nilerr
+func DownloadFS(logger *zap.SugaredLogger, srcDir, destDir string) error {
+	if srcDir == "" || destDir == "" {
+		return fmt.Errorf("download fs %w: %s %s", ErrEmpty, srcDir, destDir)
 	}
+
 	count := 0
-	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir(srcDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			return fmt.Errorf("filepath.WalkDir: %w", err)
+			return fmt.Errorf("download fs walk path %w: %s", err, path)
 		}
 		name := d.Name()
 		if d.IsDir() {
-			return RemoveDir(name, path, dir)
+			return RemoveDir(name, path, srcDir)
 		}
-		if err = RemoveDownload(name, path); err != nil {
+		if err = RemoveDownload(name, path, destDir); err != nil {
 			return fmt.Errorf("RemoveDownload: %w", err)
 		}
 		if filepath.Ext(name) == "" {
@@ -102,7 +112,7 @@ func DownloadFS(logger *zap.SugaredLogger, dir string) error {
 		return RenameDownload(name, path)
 	})
 	if err != nil {
-		return fmt.Errorf("filepath.WalkDir: %w", err)
+		return fmt.Errorf("download fs walk directory %w: %s", err, srcDir)
 	}
 	containsInfo(logger, "downloads", count)
 	return nil
@@ -110,12 +120,8 @@ func DownloadFS(logger *zap.SugaredLogger, dir string) error {
 
 // RenameDownload, rename the download file if the basename uses an invalid coldfusion uuid.
 func RenameDownload(basename, absPath string) error {
-	st, err := os.Stat(absPath)
-	if err != nil {
-		return nil //nolint:nilerr
-	}
-	if st.IsDir() {
-		return fmt.Errorf("%w: %s", ErrIsDir, absPath)
+	if basename == "" || absPath == "" {
+		return fmt.Errorf("rename download %w: %s %s", ErrEmpty, basename, absPath)
 	}
 
 	ext := filepath.Ext(basename)
@@ -144,6 +150,9 @@ func RenameDownload(basename, absPath string) error {
 // If any are found, they are printed to stderr.
 // Any directory that matches the name ".stfolder" is removed.
 func RemoveDir(name, path, root string) error {
+	if name == "" || path == "" || root == "" {
+		return fmt.Errorf("remove directory %w: %s %s %s", ErrEmpty, name, path, root)
+	}
 	const syncthing = ".stfolder"
 	rootDir := filepath.Base(root)
 	switch name {
@@ -163,13 +172,9 @@ func RemoveDir(name, path, root string) error {
 // Basename must be the name of the file with a valid file extension.
 //
 // Valid file extensions are none, .chiptune, .txt, and .zip.
-func RemoveDownload(basename, path string) error {
-	st, err := os.Stat(path)
-	if err != nil {
-		return fmt.Errorf("os.Stat: %w", err)
-	}
-	if st.IsDir() {
-		return fmt.Errorf("%w: %s", ErrIsDir, path)
+func RemoveDownload(basename, path, destDir string) error {
+	if basename == "" || path == "" || destDir == "" {
+		return fmt.Errorf("remove download %w: %s %s %s", ErrEmpty, basename, path, destDir)
 	}
 	const filedownload = ""
 	ext := filepath.Ext(basename)
@@ -177,24 +182,20 @@ func RemoveDownload(basename, path string) error {
 	case filedownload, ".chiptune", ".txt", ".zip":
 		return nil
 	default:
-		remove(basename, "remove invalid ext", path)
+		remove(basename, "remove invalid ext", path, destDir)
 	}
 	return nil
 }
 
 // RemoveImage, check the image files for invalid names and extensions.
-// If any are found, they are removed without warning.
+// If any are found, they are moved to the destDir without warning.
 // Basename must be the name of the file with a valid file extension.
 //
 // Valid file extensions are .png and .webp, and basename must be a
 // valid uuid or cfid with the correct length.
-func RemoveImage(basename, path string) error {
-	st, err := os.Stat(path)
-	if err != nil {
-		return fmt.Errorf("os.Stat: %w", err)
-	}
-	if st.IsDir() {
-		return fmt.Errorf("%w: %s", ErrIsDir, path)
+func RemoveImage(basename, path, destDir string) error {
+	if basename == "" || path == "" || destDir == "" {
+		return fmt.Errorf("remove image %w: %s %s %s", ErrEmpty, basename, path, destDir)
 	}
 	const (
 		png   = ".png"    // png file extension
@@ -209,7 +210,7 @@ func RemoveImage(basename, path string) error {
 			filename, _ = helper.CFToUUID(filename)
 		}
 		if err := uuid.Validate(filename); err != nil {
-			remove(basename, "remove invalid uuid", path)
+			remove(basename, "remove invalid uuid", path, destDir)
 			return nil //nolint:nilerr
 		}
 	}
@@ -217,18 +218,20 @@ func RemoveImage(basename, path string) error {
 	case png, webp:
 		return nil
 	default:
-		remove(basename, "remove invalid ext", path)
+		remove(basename, "remove invalid ext", path, destDir)
 	}
 	return nil
 }
 
-func remove(name, info, path string) {
+func remove(name, info, path, destDir string) {
 	w := os.Stderr
 	fmt.Fprintf(w, "%s: %s\n", info, name)
 	defer func() {
-		err := os.Remove(path)
+		now := time.Now().Format("2006-01-02_15-04-05")
+		dest := filepath.Join(destDir, fmt.Sprintf("%s_%s", name, now))
+		err := helper.RenameCrossDevice(path, dest)
 		if err != nil {
-			fmt.Fprintf(w, "defer image remove: %s\n", err)
+			fmt.Fprintf(w, "defer repair file remove: %s\n", err)
 		}
 	}()
 }
@@ -239,7 +242,7 @@ func rename(oldpath, info, newpath string) {
 	defer func() {
 		err := os.Rename(oldpath, newpath)
 		if err != nil {
-			fmt.Fprintf(w, "defer image rename: %s\n", err)
+			fmt.Fprintf(w, "defer repair file rename: %s\n", err)
 		}
 	}()
 }

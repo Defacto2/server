@@ -179,7 +179,7 @@ An example, the `.env.local` file can be configured as follows.
 # ==============================================================================
 #  These are the directory paths serving static files for the artifacts.
 #  All directories must be absolute paths and any empty values will disable the
-#  relevent feature. For example, an invalid D2_DIR_DOWN will disable the 
+#  relevent feature. For example, an invalid D2_DIR_DOWNLOAD will disable the 
 #  artifact downloads.
 #  The directories must be readable and writable by the web server.
 # ==============================================================================
@@ -192,6 +192,10 @@ D2_DIR_PREVIEW=/home/defacto2/previews
 
 # List the directory path that holds the named UUID files for the artifact thumbnails.
 D2_DIR_THUMBNAIL=/home/defacto2/thumbnails
+
+# List the directory path that holds the named UUID files that are not linked to
+# any database records.
+D2_DIR_ORPHANED=/home/defacto2/orphaned
 
 # ==============================================================================
 #  These are the PostgreSQL database connection settings.

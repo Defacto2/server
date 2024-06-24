@@ -53,6 +53,10 @@ func (c *Config) Checks(logger *zap.SugaredLogger) error {
 		s := helper.Capitalize(err.Error())
 		logger.Error(s)
 	}
+	if err := CheckDir(c.AbsOrphaned, "orphaned"); err != nil {
+		s := helper.Capitalize(err.Error())
+		logger.Error(s)
+	}
 
 	// Reminds for the optional configuration values.
 	if c.NoCrawl {

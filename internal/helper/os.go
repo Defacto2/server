@@ -292,12 +292,12 @@ func RenameFileOW(oldpath, newpath string) error {
 func RenameCrossDevice(oldpath, newpath string) error {
 	src, err := os.Open(oldpath)
 	if err != nil {
-		return fmt.Errorf("rename cross device open %w", err)
+		return fmt.Errorf("rename cross device open source, %w", err)
 	}
 	defer src.Close()
 	dst, err := os.Create(newpath)
 	if err != nil {
-		return fmt.Errorf("rename cross device create %w", err)
+		return fmt.Errorf("rename cross device create new, %w", err)
 	}
 	defer dst.Close()
 

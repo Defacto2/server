@@ -22,6 +22,72 @@ const (
 	cfid = "00000000-0000-0000-0000000000000000"  // coldfusion uuid example
 )
 
+func TestRepairFS(t *testing.T) {
+	t.Parallel()
+	unid := uuid.New()
+	dir, err := os.MkdirTemp(os.TempDir(), "testdownloadfs")
+	require.NoError(t, err)
+	defer os.RemoveAll(dir)
+
+	// create and test empty, mock image files
+	const noExt = ""
+	exts := []string{
+		".txt",      // valid
+		".webp",     // invalid
+		".png",      // invalid
+		".chiptune", // valid
+		".zip",      // valid
+		".tiff",     // invalid
+		".svg",      // invalid
+		noExt,       // valid
+	}
+	const invalid = "invalid-base-name"
+	for _, ext := range exts {
+		name := filepath.Join(dir, unid.String()+ext)
+		_ = helper.Touch(name)
+		badName := filepath.Join(dir, invalid+ext)
+		_ = helper.Touch(badName)
+		cfName := filepath.Join(dir, cfid+ext)
+		_ = helper.Touch(cfName)
+	}
+
+	const expectedCount = 24
+	const expectedResult = 12
+
+	i, err := helper.Count(dir)
+	require.NoError(t, err)
+	assert.Equal(t, expectedCount, i)
+
+	c := config.Config{}
+
+	// test the images function with invalid parameters
+	err = c.RepairFS(nil)
+	require.Error(t, err)
+
+	err = c.RepairFS(logger())
+	require.Error(t, err)
+
+	c.AbsOrphaned = os.TempDir()
+	err = c.RepairFS(logger())
+	require.Error(t, err)
+
+	i, err = helper.Count(dir)
+	require.NoError(t, err)
+	assert.Equal(t, expectedCount, i)
+
+	c.AbsDownload = dir
+	// we must provide a valid directory for the repair to work
+	// even though we are only testing the repair function with the AbsDownload directory
+	c.AbsPreview = os.DevNull
+	c.AbsThumbnail = os.DevNull
+	err = c.RepairFS(logger())
+	require.NoError(t, err)
+
+	i, err = helper.Count(dir)
+	require.NoError(t, err)
+	assert.Equal(t, expectedResult, i)
+}
+
 func TestDownloadFS(t *testing.T) {
 	t.Parallel()
 	unid := uuid.New()
@@ -59,8 +125,8 @@ func TestDownloadFS(t *testing.T) {
 	assert.Equal(t, expectedCount, i)
 
 	// test the images function with invalid parameters
-	err = config.DownloadFS(nil, "")
-	require.NoError(t, err)
+	err = config.DownloadFS(nil, "", "")
+	require.Error(t, err)
 
 	i, err = helper.Count(dir)
 	require.NoError(t, err)
@@ -74,7 +140,8 @@ func TestDownloadFS(t *testing.T) {
 		if d.IsDir() {
 			return nil
 		}
-		err = config.DownloadFS(nil, path)
+		doNotBackup := os.TempDir()
+		err = config.DownloadFS(nil, path, doNotBackup)
 		fmt.Fprintln(io.Discard, path)
 		require.NoError(t, err)
 		return nil
@@ -124,7 +191,7 @@ func TestRemoveDownload(t *testing.T) {
 	assert.Equal(t, expectedCount, i)
 
 	// test the images function with invalid parameters
-	err = config.RemoveDownload("", dir)
+	err = config.RemoveDownload("", dir, "")
 	require.Error(t, err)
 
 	i, err = helper.Count(dir)
@@ -141,7 +208,8 @@ func TestRemoveDownload(t *testing.T) {
 		}
 		name := filepath.Base(path)
 		fmt.Fprintln(io.Discard, name, path)
-		err = config.RemoveDownload(name, path)
+		doNotBackup := os.TempDir()
+		err = config.RemoveDownload(name, path, doNotBackup)
 		require.NoError(t, err)
 		return nil
 	})
@@ -186,7 +254,7 @@ func TestRemoveImage(t *testing.T) {
 	assert.Equal(t, expectedCount, i)
 
 	// test the images function with invalid parameters
-	err = config.RemoveImage("", dir)
+	err = config.RemoveImage("", dir, "")
 	require.Error(t, err)
 
 	i, err = helper.Count(dir)
@@ -202,7 +270,8 @@ func TestRemoveImage(t *testing.T) {
 			return nil
 		}
 		name := filepath.Base(path)
-		err = config.RemoveImage(name, path)
+		doNotBackup := os.TempDir()
+		err = config.RemoveImage(name, path, doNotBackup)
 		require.NoError(t, err)
 		return nil
 	})
