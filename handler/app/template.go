@@ -20,6 +20,7 @@ import (
 	"github.com/Defacto2/server/internal/form"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/pouet"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/volatiletech/null/v8"
 )
 
@@ -478,6 +479,14 @@ func (web Templ) TemplateClosures() template.FuncMap { //nolint:funlen
 		"version": func() string {
 			return web.Version
 		},
+		"tagGameHack":  func() string { return tags.GameHack.String() },
+		"tagInstall":   func() string { return tags.Install.String() },
+		"tagWindows":   func() string { return tags.Windows.String() },
+		"tagDOS":       func() string { return tags.DOS.String() },
+		"tagLogo":      func() string { return tags.Logo.String() },
+		"tagProof":     func() string { return tags.Proof.String() },
+		"tagText":      func() string { return tags.Text.String() },
+		"tagTextAmiga": func() string { return tags.TextAmiga.String() },
 	}
 }
 
@@ -703,7 +712,7 @@ func dbTmpls(lock, offline bool, files ...string) []string {
 		GlobTo("layoutup.tmpl"),
 		GlobTo("layoutjsup.tmpl"),
 		GlobTo("uploader.tmpl"),
-		GlobTo("uploaderhtmx.tmpl"),
+		GlobTo("uploader_modal.tmpl"),
 	)
 }
 

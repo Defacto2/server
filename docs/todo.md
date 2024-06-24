@@ -16,7 +16,6 @@
 - [ ] js-dos doesn't yet support `extras` zipped files.
 - [ ] Implement _If the data and images are correct, it can be approved._
 - [ ] After a successful demozoo/pouet upload, defer a sync for the data to the artifact record.
-- [ ] Upload form categories and tags values should use the tags package.
 
 #### Upload tests
 

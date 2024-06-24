@@ -1,7 +1,7 @@
 {{- /* 
-    uploaderhtmx.tmpl ~ About the htmx uploader modals.
+    uploader_modal.tmpl ~ About the htmx uploader modals.
 */ -}}
-{{- define "uploaderhtmx" -}}
+{{- define "uploadermodal" -}}
 {{- /*  
     To add a new form the following JS steps are required for the form element.
     - `uploader-xxxx.mjs`, a dedicated module must be created to handle the form submission.
@@ -9,7 +9,7 @@
     - `layout-htmx.js`, a `afterRequest()` method must be used to handle the server response.
   - */}}
 {{- $screenshot := "A screenshot can be included in the archive."}}
-{{- $delay := "500ms" }}
+{{- $delay := "50ms" }}
     {{- /*  check if the event is a KeyboardEvent to prevent double rendering on datalists
             source: https://turriate.com/articles/using-datalist-for-typeahead-htmx  */ -}}
     <script>
@@ -159,10 +159,10 @@
               <div class="input-group mb-3">
                 <label class="form-label">Operating system</label>
                 <div class="btn-group w-100" role="group" aria-label="Basic radio toggle button group">
-                  <input type="radio" value="windows" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-windows" autocomplete="off" checked>
+                  <input type="radio" value="{{tagWindows}}" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-windows" autocomplete="off" checked>
                   <label class="btn btn-outline-primary" for="uploader-intro-windows" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="Microsoft&nbsp;Windows">Windows PC</label>
-                  <input type="radio" value="dos" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-msdos" autocomplete="off">
+                  <input type="radio" value="{{tagDOS}}" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-msdos" autocomplete="off">
                   <label class="btn btn-outline-primary" for="uploader-intro-msdos" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="IBM&nbsp;PC or MS-DOS compatible">Dos PC</label>
                 </div>
@@ -243,18 +243,18 @@
               <div class="input-group mb-3">
                 <label class="form-label">Type of release and operating system</label>
                 <div class="btn-group w-100" role="group" aria-label="Basic radio toggle button group">
-                  <input type="radio" value="gamehack" class="btn-check" name="uploader-trainer-category" id="uploader-trainer-gamehack" autocomplete="off" checked>
+                  <input type="radio" value="{{tagGameHack}}" class="btn-check" name="uploader-trainer-category" id="uploader-trainer-gamehack" autocomplete="off" checked>
                   <label class="btn btn-outline-primary w-50" for="uploader-trainer-gamehack" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="A game cheat, trainer or hack">Trainer</label>
-                  <input type="radio" value="releaseinstall" class="btn-check" name="uploader-trainer-category" id="uploader-trainer-installer" autocomplete="off">
+                  <input type="radio" value="{{tagInstall}}" class="btn-check" name="uploader-trainer-category" id="uploader-trainer-installer" autocomplete="off">
                   <label class="btn btn-outline-primary w-50" for="uploader-trainer-installer" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="A installation app for a release">Installer</label>
                 </div>
                 <div class="btn-group w-100 mt-1" role="group" aria-label="Basic radio toggle button group">
-                  <input type="radio" value="windows" class="btn-check" name="uploader-trainer-operating-system" id="uploader-trainer-windows" autocomplete="off" checked>
+                  <input type="radio" value="{{tagWindows}}" class="btn-check" name="uploader-trainer-operating-system" id="uploader-trainer-windows" autocomplete="off" checked>
                   <label class="btn btn-outline-primary w-50" for="uploader-trainer-windows" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="Microsoft&nbsp;Windows">Windows PC</label>
-                  <input type="radio" value="dos" class="btn-check" name="uploader-trainer-operating-system" id="uploader-trainer-msdos" autocomplete="off">
+                  <input type="radio" value="{{tagDOS}}" class="btn-check" name="uploader-trainer-operating-system" id="uploader-trainer-msdos" autocomplete="off">
                   <label class="btn btn-outline-primary w-50" for="uploader-trainer-msdos" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="IBM&nbsp;PC or MS-DOS compatible">Dos PC</label>
                 </div>
@@ -345,10 +345,10 @@
               <div class="input-group mb-3">
                 <label class="form-label">Format</label>
                 <div class="btn-group w-100" role="group" aria-label="Basic radio toggle button group">
-                  <input type="radio" value="text" class="btn-check" name="uploader-text-operating-system" id="uploader-text-msdos" autocomplete="off" checked>
+                  <input type="radio" value="{{tagText}}" class="btn-check" name="uploader-text-operating-system" id="uploader-text-msdos" autocomplete="off" checked>
                   <label class="btn btn-outline-primary" for="uploader-text-msdos" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="Text written on Microsoft&nbsp;Windows, IBM&nbsp;PC or MS-DOS">PC text</label>
-                  <input type="radio" value="textamiga" class="btn-check" name="uploader-text-operating-system" id="uploader-text-amiga" autocomplete="off">
+                  <input type="radio" value="{{tagTextAmiga}}" class="btn-check" name="uploader-text-operating-system" id="uploader-text-amiga" autocomplete="off">
                   <label class="btn btn-outline-primary" for="uploader-text-amiga" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="Text written on the Commodore&nbsp;Amiga">Amiga text</label>
                 </div>
@@ -433,10 +433,10 @@
               <div class="input-group mb-3">
                 <label class="form-label">Purpose</label>
                 <div class="btn-group w-100" role="group" aria-label="Basic radio toggle button group">
-                  <input type="radio" value="logo" class="btn-check" name="uploader-image-category" id="uploader-image-adbrand" autocomplete="off" checked>
+                  <input type="radio" value="{{tagLogo}}" class="btn-check" name="uploader-image-category" id="uploader-image-adbrand" autocomplete="off" checked>
                   <label class="btn btn-outline-primary" for="uploader-image-adbrand" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="Advertising, branding or a logo for a releaser">Ad or brand</label>
-                  <input type="radio" value="releaseproof" class="btn-check" name="uploader-image-category" id="uploader-image-proof" autocomplete="off">
+                  <input type="radio" value="{{tagProof}}" class="btn-check" name="uploader-image-category" id="uploader-image-proof" autocomplete="off">
                   <label class="btn btn-outline-primary" for="uploader-image-proof" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="A photo of the phyiscal media used for a scene release">Proof of release</label>
                 </div>
@@ -513,13 +513,13 @@
               <div class="input-group mb-3">
                 <label class="form-label">Operating system</label>
                 <div class="btn-group w-100" role="group" aria-label="Basic radio toggle button group">
-                  <input type="radio" value="text" class="btn-check" name="uploader-magazine-operating-system" id="uploader-magazine-text" autocomplete="off" checked>
+                  <input type="radio" value="{{tagText}}" class="btn-check" name="uploader-magazine-operating-system" id="uploader-magazine-text" autocomplete="off" checked>
                   <label class="btn btn-outline-primary" for="uploader-magazine-text" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="Plain text or stylized text">Universal text</label>
-                  <input type="radio" value="dos" class="btn-check" name="uploader-magazine-operating-system" id="uploader-magazine-msdos" autocomplete="off">
+                  <input type="radio" value="{{tagDOS}}" class="btn-check" name="uploader-magazine-operating-system" id="uploader-magazine-msdos" autocomplete="off">
                   <label class="btn btn-outline-primary" for="uploader-magazine-msdos" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="An application for the IBM&nbsp;PC or MS-DOS">MsDos app</label>
-                  <input type="radio" value="windows" class="btn-check" name="uploader-magazine-operating-system" id="uploader-magazine-windows" autocomplete="off">
+                  <input type="radio" value="{{tagWindows}}" class="btn-check" name="uploader-magazine-operating-system" id="uploader-magazine-windows" autocomplete="off">
                   <label class="btn btn-outline-primary" for="uploader-magazine-windows" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="An application for Microsoft&nbsp;Windows">Windows app</label>
                 </div>
