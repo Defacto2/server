@@ -19,6 +19,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/form"
@@ -52,6 +53,9 @@ const (
 func HumanizeAndCount(c echo.Context, logger *zap.SugaredLogger, name string) error {
 	section := c.FormValue(name + category)
 	platform := c.FormValue(name + "-operatingsystem")
+	if platform == "" {
+		platform = c.FormValue(name + "-operating-system")
+	}
 	html, err := form.HumanizeAndCount(section, platform)
 	if err != nil {
 		logger.Error(err)
@@ -116,6 +120,7 @@ func IntroSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool, downloadD
 	}
 	const key = "uploader-intro"
 	c.Set(key+"-category", tags.Intro.String())
+	fmt.Println(key, "for intro during submission,", tags.Intro.String())
 	return transfer(c, logger, key, downloadDir)
 }
 
@@ -214,7 +219,27 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key, downloadDir string
 		return nil
 	}
 	defer Duplicate(logger, uid, dst, downloadDir)
-	return success(c, logger, file.Filename)
+	return success(c, logger, file.Filename, id)
+}
+
+func success(c echo.Context, logger *zap.SugaredLogger,
+	filename string, id int64) error {
+	html := fmt.Sprintf("<p>Thanks, the chosen file submission was a success.<br> ✓ %s</p>",
+		html.EscapeString(filename))
+	if production := logger == nil; production {
+		return c.HTML(http.StatusOK, html)
+	}
+	if sess.Editor(c) {
+		html += fmt.Sprintf("<p><a href=\"/f/%s\">Go to the new artifact record</a></p>",
+			helper.ObfuscateID(id))
+		info, err := debug(c, html)
+		if err != nil {
+			return c.HTML(http.StatusOK,
+				html+"<p>Could not show the form parameters and values.</p>")
+		}
+		html += info
+	}
+	return c.HTML(http.StatusOK, html)
 }
 
 // Duplicate copies the chosen file to the destination directory.
@@ -382,6 +407,21 @@ func (cr creator) insert(c echo.Context, ctx context.Context, tx *sql.Tx, logger
 	values.Add(cr.key+"-content", strings.Join(cr.content, "\n"))
 	values.Add(cr.key+"-readme", cr.readme)
 
+	if os := values.Get(cr.key + "-operating-system"); os == "" {
+		s, fallback := c.Get(cr.key + "-operating-system").(string)
+		if fallback {
+			values.Add(cr.key+"-operating-system", s)
+		}
+	}
+	if cat := values.Get(cr.key + "-category"); cat == "" {
+		s, fallback := c.Get(cr.key + "-category").(string)
+		if fallback {
+			values.Add(cr.key+"-category", s)
+		}
+	}
+	fmt.Println(cr.key, "for insert")
+	fmt.Printf("%+v\n", values)
+
 	id, uid, err := model.InsertUpload(ctx, tx, values, cr.key)
 	if err != nil {
 		if logger != nil {
@@ -391,20 +431,6 @@ func (cr creator) insert(c echo.Context, ctx context.Context, tx *sql.Tx, logger
 			"The form submission could not be inserted")
 	}
 	return id, uid, nil
-}
-
-func success(c echo.Context, logger *zap.SugaredLogger, filename string) error {
-	html := fmt.Sprintf("<p>Thanks, the chosen file submission was a success.<br> ✓ %s</p>",
-		html.EscapeString(filename))
-	if production := logger == nil; production {
-		return c.HTML(http.StatusOK, html)
-	}
-	html, err := debug(c, html)
-	if err != nil {
-		return c.HTML(http.StatusOK,
-			html+"<p>Could not show the form parameters and values.</p>")
-	}
-	return c.HTML(http.StatusOK, html)
 }
 
 func submit(c echo.Context, logger *zap.SugaredLogger, prod string) error {
@@ -469,6 +495,10 @@ func submit(c echo.Context, logger *zap.SugaredLogger, prod string) error {
 		return c.String(http.StatusServiceUnavailable,
 			"error, the database commit failed")
 	}
-	html := fmt.Sprintf("Thanks for the submission of %s production: %d", name, id)
+	html := fmt.Sprintf("Thanks for the submission of %s production, %d", name, id)
+	if sess.Editor(c) {
+		uri := helper.ObfuscateID(key)
+		html += fmt.Sprintf("<p><a href=\"/f/%s\">Go to the new artifact record</a></p>", uri)
+	}
 	return c.HTML(http.StatusOK, html)
 }

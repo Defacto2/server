@@ -26,7 +26,7 @@
               <button type="button" id="demozoo-submission-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <form>
+              <form hx-ext="response-targets">
                 <p>
                   Know a <a href="https://demozoo.org/productions/?platform=1">Windows</a>, 
                   <a href="https://demozoo.org/productions/?platform=4">MS-Dos</a> production or a 
@@ -47,6 +47,7 @@
                         hx-trigger="input changed delay:{{$delay}}, search" 
                         hx-indicator="#demozoo-indicator"
                         hx-validate="true"
+                        hx-target-error="#demozoo-submission-error"
                         placeholder="Lookup a production…">
                     <button type="reset" id="demozoo-submission-clear" class="btn btn-outline-dark">Clear</button>
                 </div>
@@ -245,7 +246,7 @@
                   <input type="radio" value="gamehack" class="btn-check" name="uploader-trainer-category" id="uploader-trainer-gamehack" autocomplete="off" checked>
                   <label class="btn btn-outline-primary w-50" for="uploader-trainer-gamehack" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="A game cheat, trainer or hack">Trainer</label>
-                  <input type="radio" value="installer" class="btn-check" name="uploader-trainer-category" id="uploader-trainer-installer" autocomplete="off">
+                  <input type="radio" value="releaseinstall" class="btn-check" name="uploader-trainer-category" id="uploader-trainer-installer" autocomplete="off">
                   <label class="btn btn-outline-primary w-50" for="uploader-trainer-installer" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="A installation app for a release">Installer</label>
                 </div>
@@ -432,11 +433,11 @@
               <div class="input-group mb-3">
                 <label class="form-label">Purpose</label>
                 <div class="btn-group w-100" role="group" aria-label="Basic radio toggle button group">
-                  <input type="radio" value="textamiga" class="btn-check" name="uploader-image-operating-system" id="uploader-image-amiga" autocomplete="off" checked>
-                  <label class="btn btn-outline-primary" for="uploader-image-amiga" data-bs-toggle="tooltip" data-bs-placement="top" 
+                  <input type="radio" value="logo" class="btn-check" name="uploader-image-category" id="uploader-image-adbrand" autocomplete="off" checked>
+                  <label class="btn btn-outline-primary" for="uploader-image-adbrand" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="Advertising, branding or a logo for a releaser">Ad or brand</label>
-                  <input type="radio" value="text" class="btn-check" name="uploader-image-operating-system" id="uploader-image-msdos" autocomplete="off">
-                  <label class="btn btn-outline-primary" for="uploader-image-msdos" data-bs-toggle="tooltip" data-bs-placement="top" 
+                  <input type="radio" value="releaseproof" class="btn-check" name="uploader-image-category" id="uploader-image-proof" autocomplete="off">
+                  <label class="btn btn-outline-primary" for="uploader-image-proof" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="A photo of the phyiscal media used for a scene release">Proof of release</label>
                 </div>
               </div>
@@ -621,7 +622,7 @@
               </div>
               <label class="form-label">Classifications</label>
               <div class="input-group mb-1">
-                <select name="uploader-advanced-operatingsystem" id="uploader-advanced-operating-system" class="form-select"
+                <select name="uploader-advanced-operating-system" id="uploader-advanced-operating-system" class="form-select"
                   placeholder="Lookup classifications…" 
                   hx-post="/uploader/classifications" 
                   hx-include="[name='uploader-advanced-category']"
@@ -635,7 +636,7 @@
                 <select name="uploader-advanced-category" id="uploader-advanced-category" class="form-select"
                   placeholder="Lookup classifications…"
                   hx-post="/uploader/classifications" 
-                  hx-include="[name='uploader-advanced-operatingsystem']"
+                  hx-include="[name='uploader-advanced-operating-system']"
                   hx-target="#uploader-advanced-classification-help">
                 {{- template "optionTag" . }}
                 </select>

@@ -4,15 +4,34 @@
 
 - [ ] ? Terminal command to clean up the database and remove all orphaned records.
 - [ ] ? Terminal command to reindex the database, both to erase and rebuild the indexes.
-- [ ] ? Implememnt a [scheduling library for Go](https://github.com/reugn/go-quartz)
+- [ ] ? Implememnt a [scheduling library for Go](https://github.com/reugn/go-quartz).
 
 ### Recommendations
-- [ ] Create a new assets path named `extras` and move into it all the uuid files from `downloads` that use file extensions.
-- [ ] Create a DB fix to detect and rebadge msdos and windows trainers.
+
+- [ ] Create a DB fix to detect and rebadge msdos and windows trainers. `gamehack`
 - [ ] `OrderBy` Name/Count /html3/groups? https://pkg.go.dev/sort#example-package-SortKeys
 - [ ] Use DigitalOcean API to display Estimated Droplet Transfer Pool usage and remaining balance. 
 		https://pkg.go.dev/github.com/digitalocean/godo https://docs.digitalocean.com/reference/api/api-reference/#operation/droplets_get
 - [ ] Replace font awesome with bootstrap SVG icons.
+- [ ] js-dos doesn't yet support `extras` zipped files.
+- [ ] Rename modal ids to remove camel case.
+- [ ] Implement _If the data and images are correct, it can be approved._
+- [ ] After a successful demozoo/pouet upload, defer a sync for the data to the artifact record.
+- [ ] Upload form categories and tags values should use the tags package.
+
+#### Upload tests
+
+24 June.
+
+- [X] Demozoo Prod.
+- [X] Demozoo Graphic.
+- [X] Intros.
+- [X] Trainer.
+- [X] Installer.
+- [X] PC and Amiga text.
+- [X] Image brand, logo or proof.
+- [X] Text, DOS and Windows magazines.
+- [X] Advanced.
 
 ### Bug fixes
 

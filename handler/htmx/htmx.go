@@ -470,7 +470,7 @@ func SearchByID(c echo.Context, logger *zap.SugaredLogger) error {
 	if err != nil {
 		logger.Errorf("search by id htmx template: %v", err)
 		return c.String(http.StatusInternalServerError,
-			"cannot render the htmx template")
+			"cannot render the htmx search by id template")
 	}
 	return nil
 }
@@ -517,7 +517,7 @@ func SearchReleaser(c echo.Context, logger *zap.SugaredLogger) error {
 	})
 	if err != nil {
 		return c.String(http.StatusInternalServerError,
-			"cannot render the htmx template")
+			"cannot render the htmx search releases template")
 	}
 	return nil
 }
@@ -578,7 +578,7 @@ func datalist(c echo.Context, logger *zap.SugaredLogger, input string, magazine 
 	})
 	if err != nil {
 		return c.String(http.StatusInternalServerError,
-			"cannot render the htmx template")
+			"cannot render the htmx datalist releases template")
 	}
 	return nil
 }

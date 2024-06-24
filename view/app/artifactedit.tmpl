@@ -4,7 +4,7 @@
 {{- define "artifactedit" -}}
 {{- if eq false (index . "editor")}}{{/*  render nothing  */}}{{else}}
 {{- $faSize := "fa-fw fa-2x" -}}
-{{- $delay := "500ms" }}
+{{- $delay := "50ms" }}
 {{- $lDelay := "1s"}}
 {{- $hundred := "100"}}
 {{- $oneK := "1024" }}
@@ -297,9 +297,6 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           {{- /*  Releasers  */}}
           <div class="col-xl-6">
             <label for="artifact-editor-releaser-1" class="form-label col-form-label-lg">Releasers <small>maximum of 2</small></label>
-            {{/*  <div class="row row-cols-2 row-cols-lg-4 gy-1">
-              <div class="col-6 col-lg-4 d-grid d-block">
-                d-inline-flex gap-1  */}}
             <form id="artifact-editor-releasers-form" class="row row-cols-2 row-cols-lg-4 gy-1">
               <div class="col-6 col-lg-4 d-grid d-block">
                 <button class="btn btn-success" type="button" id="artifact-editor-releaser-update"

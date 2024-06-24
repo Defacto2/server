@@ -71,14 +71,18 @@
             </div>
             {{- end}}
             {{- /*  Artifact file download link  */}} 
-            <div class="d-grid gap-2 d-xl-block">
+            <div class="row row-cols-1 row-cols-lg-2 g-1">
             {{/*  text-decoration-line-through  */}}
             {{- if eq $alert "" }}
                 {{- /*  standard download  */}}
-                <a class="btn btn-success btn-lg" href="/d/{{$download}}" rel="nofollow" role="button">{{$downloadText | safeHTML}}</a>
+                <div class="col d-grid">
+                    <a class="btn btn-success btn-lg" href="/d/{{$download}}" rel="nofollow" role="button">{{$downloadText | safeHTML}}</a>
+                </div>
             {{- else }}
                 {{- /*  google download warning  */}}
-                <a class="btn btn-outline-danger btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal">{{$downloadText | safeHTML}}</a>
+                <div class="col d-grid">
+                    <a class="btn btn-outline-danger btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal">{{$downloadText | safeHTML}}</a>
+                </div>
                 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
@@ -101,20 +105,22 @@
                 </div>               
             {{- end }}
             {{- if eq $jsdos6 true}}
-                <a href="#" id="jsdosRunLink" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#jsDOSModal">Run app in browser</a>
+            <div class="col d-grid">
+                <a href="#" id="jsdosRunLink" class="btn btn-outline-dark btn-lg" data-bs-toggle="modal" data-bs-target="#jsDOSModal">Run app in browser</a>
+            </div>
             {{- end}}
             </div>
             <div class="mt-2 mb-2 d-grid gap-2 d-xl-flex justify-content-xl-end">
             {{- if ne "" $checksum}}
-                <a class="d-none d-sm-inline btn btn-outline-secondary btn-sm" href="/sum/{{$download}}" role="button" 
+                <a class="d-none d-sm-inline btn btn-outline-secondary" href="/sum/{{$download}}" role="button" 
                     data-bs-toggle="tooltip" data-bs-title="Checksum download">#sum</a>
-                <a class="d-inline d-sm-none btn btn-outline-secondary btn-sm" href="/sum/{{$download}}" role="button">Checksum</a>
+                <a class="d-inline d-sm-none btn btn-outline-secondary" href="/sum/{{$download}}" role="button">Checksum</a>
             {{- end}}
             {{- if $content}}
-                <a class="d-inline btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#viewContentModal">view content</a>
+                <a class="d-inline btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewContentModal">view content</a>
             {{- end}}
             {{- if ne "" $preview}}
-                <a class="d-inline btn btn-outline-secondary btn-sm" href="{{$preview}}" role="button" 
+                <a class="d-inline btn btn-outline-secondary" href="{{$preview}}" role="button" 
                     data-bs-toggle="tooltip" data-bs-title="{{$previewTip}}">preview</a>
             {{- end}}
             </div>

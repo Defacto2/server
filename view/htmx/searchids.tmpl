@@ -20,13 +20,15 @@
 {{- $linkClass := "text-nowrap link-offset-2 link-underline link-underline-opacity-25"}}
       <tr>
         <th scope="row">{{ $rel.ID }} {{ state $rel.Deletedat.IsZero $rel.Deletedby.IsZero }}</th>
-        <td><var>{{ $rel.UUID.String }}</var></td>
+        <td>
+          <var>{{ $rel.UUID.String }}</var>
+        </td>
         <td><a href="/f/{{$key}}" class="{{$linkClass}}">{{$key}}</a></td>
         <td title="{{$rel.Filename.String}}">
             <span class="text-truncate" style="max-width:14em;display:inline-block;">
                 <a href="/d/{{$key}}" class="{{$linkClass}}">{{ $rel.Filename.String }}</a></span>
         </td>
-        <td>{{ byteCount $rel.Filesize }}</td>
+        <td>{{ byteCount $rel.Filesize.Int64 }}</td>
         <td>{{ linkRelrs false $rel.GroupBrandFor $rel.GroupBrandBy }}</td>
         <td>{{ describe $rel.Platform.String $rel.Section.String $rel.DateIssuedYear.Int16 $rel.DateIssuedYear.Int16 }}</td>
       </tr>
