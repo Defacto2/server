@@ -14,7 +14,6 @@
 		https://pkg.go.dev/github.com/digitalocean/godo https://docs.digitalocean.com/reference/api/api-reference/#operation/droplets_get
 - [ ] Replace font awesome with bootstrap SVG icons.
 - [ ] js-dos doesn't yet support `extras` zipped files.
-- [ ] Rename modal ids to remove camel case.
 - [ ] Implement _If the data and images are correct, it can be approved._
 - [ ] After a successful demozoo/pouet upload, defer a sync for the data to the artifact record.
 - [ ] Upload form categories and tags values should use the tags package.
@@ -34,8 +33,6 @@
 - [X] Advanced.
 
 ### Bug fixes
-
-- [ ] Confirm all upload forms and correctly submitting data, currently the Image form is missing fields.
 
 #### MAJOR FREEZE BUG
 

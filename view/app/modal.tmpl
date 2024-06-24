@@ -20,12 +20,12 @@
       </div>
     </div>
     {{- /*  Email  */}}
-    <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+    <div class="modal fade" id="contacts-email-modal" tabindex="-1" aria-labelledby="contacts-email-modal-label" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
             <i class="fal fa-envelope {{ $faSize }}" title="Email"></i> &nbsp;
-            <h1 class="modal-title fs-5" id="emailModalLabel">Email</h1>
+            <h1 class="modal-title fs-5" id="contacts-email-modal-label">Email</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -39,12 +39,12 @@
       </div>
     </div>
     {{- /*  Discord  */}}
-    <div class="modal fade" id="discordModal" tabindex="-1" aria-labelledby="discordModalLabel" aria-hidden="true">
+    <div class="modal fade" id="contacts-discord-modal" tabindex="-1" aria-labelledby="contacts-discord-modal-label" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
             <i class="fab fa-discord {{ $faSize }}" title="Discord"></i> &nbsp;
-            <h1 class="modal-title fs-5" id="discordModalLabel">Discord</h1>
+            <h1 class="modal-title fs-5" id="contacts-discord-modal-label">Discord</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -58,12 +58,12 @@
       </div>
     </div>
     {{- /*  Mastodon  */}}
-    <div class="modal fade" id="mastodonModal" tabindex="-1" aria-labelledby="mastodonModalLabel" aria-hidden="true">
+    <div class="modal fade" id="contacts-mastodon-modal" tabindex="-1" aria-labelledby="contacts-mastodon-modal-label" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
             <i class="fab fa-mastodon {{ $faSize }}" title="Mastodon"></i> &nbsp;
-            <h1 class="modal-title fs-5" id="mastodonModalLabel">Mastodon</h1>
+            <h1 class="modal-title fs-5" id="contacts-mastodon-modal-label">Mastodon</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -77,12 +77,12 @@
       </div>
     </div>
     {{- /*  Twitter  */}}
-    <div class="modal fade" id="twitterModal" tabindex="-1" aria-labelledby="twitterModalLabel" aria-hidden="true">
+    <div class="modal fade" id="contacts-twitter-modal" tabindex="-1" aria-labelledby="contacts-twitter-modal-label" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
             <i class="fab fa-twitter {{ $faSize }}" title="Twitter"></i> &nbsp;
-            <h1 class="modal-title fs-5" id="twitterModalLabel">Twitter</h1>
+            <h1 class="modal-title fs-5" id="contacts-twitter-modal-label">Twitter</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -96,12 +96,12 @@
       </div>
     </div>
     {{- /*  Facebook  */}}
-    <div class="modal fade" id="facebookModal" tabindex="-1" aria-labelledby="facebookModalLabel" aria-hidden="true">
+    <div class="modal fade" id="contacts-facebook-modal" tabindex="-1" aria-labelledby="contacts-facebook-modal-label" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
             <i class="fab fa-facebook {{ $faSize }}" title="Facebook"></i> &nbsp;
-            <h1 class="modal-title fs-5" id="facebookModalLabel">Facebook</h1>
+            <h1 class="modal-title fs-5" id="contacts-facebook-modal-label">Facebook</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -115,12 +115,12 @@
       </div>
     </div>
     {{- /*  YouTube  */}}
-    <div class="modal fade" id="youtubeModal" tabindex="-1" aria-labelledby="youtubeModalLabel" aria-hidden="true">
+    <div class="modal fade" id="contacts-youtube-modal" tabindex="-1" aria-labelledby="contacts-youtube-modal-label" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
             <i class="fab fa-youtube {{ $faSize }}" title="YouTube"></i> &nbsp;
-            <h1 class="modal-title fs-5" id="youtubeModalLabel">YouTube</h1>
+            <h1 class="modal-title fs-5" id="contacts-youtube-modal-label">YouTube</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -134,11 +134,11 @@
       </div>
     </div>
     {{- /*  Privacy  */}}
-    <div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+    <div class="modal fade" id="privacy-modal" tabindex="-1" aria-labelledby="privacy-modal-label" aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="privacyModalLabel">Privacy</h1>
+            <h1 class="modal-title fs-5" id="privacy-modal-label">Privacy</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -153,11 +153,11 @@
       </div>
     </div>
     {{- /*  Common terms  */}}
-    <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal fade" id="terms-modal" tabindex="-1" aria-labelledby="terms-modal-label" aria-hidden="true">
       <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="termsModalLabel">Glossary of common terms</h1>
+            <h1 class="modal-title fs-5" id="terms-modal-label">Glossary of common terms</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">      
@@ -234,11 +234,11 @@
       </div>
     </div>
     {{- /*  Trojans and software viruses  */}}
-    <div class="modal fade" id="tavModal" tabindex="-1" aria-labelledby="tavModalLabel" aria-hidden="true">
+    <div class="modal fade" id="t-a-v-modal" tabindex="-1" aria-labelledby="t-a-v-modal-label" aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="tavModalLabel">Trojans and software viruses</h1>
+            <h1 class="modal-title fs-5" id="t-a-v-modal-label">Trojans and software viruses</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -270,14 +270,14 @@
       </div>
     </div>
     {{- /*  Copyright  */}}
-    <div class="modal fade" id="copyrightModal" tabindex="-1" aria-labelledby="copyrightModalLabel" aria-hidden="true">
+    <div class="modal fade" id="copyright-modal" tabindex="-1" aria-labelledby="copyright-modal-label" aria-hidden="true">
       <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
             <span class="fa-2x fa-as-first-letter">
               <i class="fab fa-creative-commons"></i><i class="fab fa-creative-commons-by"></i>
             </span>
-            &nbsp; <h1 class="modal-title fs-5" id="copyrightModalLabel">Copyright</h1>
+            &nbsp; <h1 class="modal-title fs-5" id="copyright-modal-label">Copyright</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -321,11 +321,11 @@
       </div>
     </div>
     {{- /*  Credits  */}}
-    <div class="modal fade" id="creditsModal" tabindex="-1" aria-labelledby="creditsModalModalLabel" aria-hidden="true">
+    <div class="modal fade" id="credits-modal" tabindex="-1" aria-labelledby="credits-modal-label" aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="creditsModalModalLabel">Credits</h1>
+            <h1 class="modal-title fs-5" id="credits-modal-label">Credits</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">

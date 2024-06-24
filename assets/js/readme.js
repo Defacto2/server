@@ -43,7 +43,7 @@ import { clipText, getElmById } from "./helper.mjs";
     pre437.classList.add("font-dos", ...blackBG);
   }
 
-  const copier = getElmById(`copyReadme`);
+  const copier = getElmById(`artifact-copy-readme-body`);
   if (typeof navigator.clipboard === `undefined`) {
     copier.classList.add(none);
   } else {

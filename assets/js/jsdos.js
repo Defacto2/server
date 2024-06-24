@@ -69,7 +69,7 @@ function startZip(options) {
     });
   });
 }
-const jsdos = document.getElementById("jsdosRunLink");
+const jsdos = document.getElementById("js-dos-run-app");
 jsdos.addEventListener("click", function () {
   this.style.pointerEvents = "none";
   this.textContent = "Running app";

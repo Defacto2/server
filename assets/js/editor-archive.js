@@ -236,14 +236,14 @@
     });
 
   // Modify the metadata, delete readme asset
-  const readmeDel = document.getElementById(`edBtnRead`);
+  const readmeDel = document.getElementById(`asset-editor-delete-text`);
   readmeDel.disabled = false;
   readmeDel.addEventListener(`click`, function () {
     if (!window.confirm("Delete the readme or textfile?")) {
       return;
     }
-    const info = document.getElementById(`edBtnsHide`);
-    const feed = document.getElementById(`edBtnsFeedback`);
+    const info = document.getElementById(`asset-editor-hidden`);
+    const feed = document.getElementById(`asset-editor-feedback`);
     fetch("/editor/readme/delete", {
       method: "POST",
       body: JSON.stringify({

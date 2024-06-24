@@ -17,14 +17,14 @@
 {{- $thumbImg := recordThumbSample $unid}}
 {{- $replace := "refresh the page to see the changes"}}
 {{- /*  File assets and metadata editors  */}}
-<div class="modal fade" id="assetEditorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
-  aria-labelledby="assetEditorModalLabel" aria-hidden="true">
+<div class="modal fade" id="asset-editor-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
+  aria-labelledby="asset-editor-modal-label" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       {{/*  Modify the assets for ID  */}}
       <div class="modal-header">
         <i class="fal fa-file-alt {{ $faSize }}" title="Modify the record"></i> &nbsp;
-        <h1 class="modal-title fs-5" id="assetEditorModalLabel">Modify the assets for ID {{$id}}</h1><br>
+        <h1 class="modal-title fs-5" id="asset-editor-modal-label">Modify the assets for ID {{$id}}</h1><br>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -92,11 +92,11 @@
         <hr class="m-0 mb-3 mt-3">
         {{- /*  Preview from upload  */}}
         <div class="mb-3 row">
-          <label for="edUploadPreview" id="edUploadPreviewLabel" class="col-lg-3 col-form-label"
+          <label for="asset-editor-preview" id="asset-editor-preview-label" class="col-lg-3 col-form-label"
           data-bs-toggle="tooltip" data-bs-title="An included image to use as the preview and thumbnail"><strong>Preview</strong> from upload</label>
           <div class="col-10 col-xl-5">
             {{- /*  TODO: default disabled based on hide value  */}}
-            <input type="file" class="form-control" id="edUploadPreview" value="" 
+            <input type="file" class="form-control" id="asset-editor-preview" value="" 
               accept="image/png, image/jpeg, image/webp, image/bmp, image/gif, image/tiff">
             <div class="valid-feedback">Download artifact replaced, {{$replace}}</div>
           </div>
@@ -110,17 +110,17 @@
         <hr class="m-0 mb-3 mt-3">
         {{- /*  Download artifact */}}
         <div class="mb-3 row">
-          <label for="edUploadArtifact" id="edUploadArtifactLabel" class="col-lg-3 col-form-label"
+          <label for="asset-editor-download" id="asset-editor-download-label" class="col-lg-3 col-form-label"
           data-bs-toggle="tooltip" data-bs-title="An included image to use as the preview and thumbnail"><strong>Download</strong> artifact</label>
           <div class="col-10 col-lg-5">
-            <input type="file" class="form-control" id="edUploadArtifact" value="">
+            <input type="file" class="form-control" id="asset-editor-download" value="">
             <div class="valid-feedback">Download artifact replaced, {{$replace}}</div>
           </div>
           <div class="col-1">
-            <button class="btn btn-outline-danger" id="edUploadArtifactReset">Clear</button>
+            <button class="btn btn-outline-danger" id="asset-editor-download-reset">Clear</button>
           </div>
           <div class="col-8 mt-1 col-lg-3 mt-lg-0 text-start">
-            <button class="btn btn-outline-success" id="edUploadArtifactBtn">Upload and replace</button>   
+            <button class="btn btn-outline-success" id="asset-editor-download-submit">Upload and replace</button>   
           </div>
         </div>
         <hr class="m-0 mb-3 mt-3">
@@ -131,11 +131,11 @@
             {{- /*  <button class="btn btn-sm btn-dark">Regenerate complementary images</button>    */}}
           </div>
           <div class="col-sm-6 text-end">
-            <button class="btn btn-sm btn-danger" id="edBtnImgs">Delete complementary <strong>images</strong></button>  
-            <button class="btn btn-sm btn-danger" id="edBtnRead" disabled>Delete <strong>readme</strong> asset</button>
+            <button class="btn btn-sm btn-danger" id="asset-editor-delete-images">Delete complementary <strong>images</strong></button>  
+            <button class="btn btn-sm btn-danger" id="asset-editor-delete-text" disabled>Delete <strong>readme</strong> asset</button>
           </div>
-          <input type="hidden" id="edBtnsHide">
-          <div id="edBtnsFeedback" class="text-end"></div>
+          <input type="hidden" id="asset-editor-hidden">
+          <div id="asset-editor-feedback" class="text-end"></div>
           {{- /*  Preview and Thumbnail images  */}}
           <div class="row g-3 text-center">
             <div class="col-md">{{$previewImg}}<div class="form-text">Preview</div></div>

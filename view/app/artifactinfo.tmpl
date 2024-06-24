@@ -35,11 +35,11 @@
 {{- if $noDownload}}{{$downloadText = print `<span class="text-decoration-line-through">` print $downloadText print "</span>"}}{{end}}
             {{- /*  [FILENAME] Content  */}}
             {{- if $content}}
-            <div class="modal fade" id="viewContentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal fade" id="view-content-modal" tabindex="-1" aria-labelledby="view-content-modal-label" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="viewContentModalLabel">{{$filename}} <small>content</small></h1>
+                            <h1 class="modal-title fs-5" id="view-content-modal-label">{{$filename}} <small>content</small></h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -81,13 +81,13 @@
             {{- else }}
                 {{- /*  google download warning  */}}
                 <div class="col d-grid">
-                    <a class="btn btn-outline-danger btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal">{{$downloadText | safeHTML}}</a>
+                    <a class="btn btn-outline-danger btn-lg" data-bs-toggle="modal" data-bs-target="#download-unwanted-modal">{{$downloadText | safeHTML}}</a>
                 </div>
-                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal fade" id="download-unwanted-modal" tabindex="-1" aria-labelledby="download-unwanted-modal-label" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="exampleModalLabel">Download warning</h1>
+                                <h1 class="modal-title fs-5" id="download-unwanted-modal-label">Download warning</h1>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body text-start">
@@ -106,7 +106,7 @@
             {{- end }}
             {{- if eq $jsdos6 true}}
             <div class="col d-grid">
-                <a href="#" id="jsdosRunLink" class="btn btn-outline-dark btn-lg" data-bs-toggle="modal" data-bs-target="#jsDOSModal">Run app in browser</a>
+                <a href="#" id="js-dos-run-app" class="btn btn-outline-dark btn-lg" data-bs-toggle="modal" data-bs-target="#js-dos-modal">Run app in browser</a>
             </div>
             {{- end}}
             </div>
@@ -117,10 +117,10 @@
                 <a class="d-inline d-sm-none btn btn-outline-secondary" href="/sum/{{$download}}" role="button">Checksum</a>
             {{- end}}
             {{- if $content}}
-                <a class="d-inline btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewContentModal">view content</a>
+                <a class="d-inline btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#view-content-modal">view content</a>
             {{- end}}
             {{- if ne "" $preview}}
-                <a class="d-inline btn btn-outline-secondary" href="{{$preview}}" role="button" 
+                <a class="d-inline btn btn-outline-secondary btn-sm" href="{{$preview}}" role="button" 
                     data-bs-toggle="tooltip" data-bs-title="{{$previewTip}}">preview</a>
             {{- end}}
             </div>

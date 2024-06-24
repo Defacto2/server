@@ -48,16 +48,16 @@
         <div class="{{$colClass}}">
             {{- /*  Screenshot of the file  */}}
             <div class="p-3 text-center">
-                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#screenshotModal">{{$screenElm}}</a>
-                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#screenshotModal">Enlarge</a>
+                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#artifact-screenshot-modal">{{$screenElm}}</a>
+                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#artifact-screenshot-modal">Enlarge</a>
             </div>
         </div>
         {{- /*  Modal for the full screen screenshot  */}}
-        <div class="modal fade" id="screenshotModal" tabindex="-1" aria-labelledby="screenshotModalLabel" aria-hidden="true">
+        <div class="modal fade" id="artifact-screenshot-modal" tabindex="-1" aria-labelledby="artifact-screenshot-modal-label" aria-hidden="true">
             <div class="modal-dialog modal-fullscreen">
                 <div class="modal-content">
                     <div class="modal-header">
-                    <h5 class="modal-title">{{$desc}} screenshot</h5>
+                    <h5 class="modal-title" id="artifact-screenshot-modal-label">{{$desc}} screenshot</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">{{$screenElm}}</div>
@@ -77,7 +77,7 @@
             <h6 class="fs-6 fw-lighter">Textfile content</small></h6>
             {{- end}}
             <div class="m-3">
-                <button class="btn btn-sm btn-outline-secondary" id="copyReadme" 
+                <button class="btn btn-sm btn-outline-secondary" id="artifact-copy-readme-body" 
                     data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard">Copy text</button> &nbsp;
                 <input type="radio" class="btn-check" name="readme-base" id="monoFont" autocomplete="off">
                 <label class="btn btn-sm btn-outline-dark" for="monoFont" 

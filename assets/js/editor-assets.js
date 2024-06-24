@@ -25,40 +25,42 @@
   }
 
   // Modify the metadata, delete images asset
-  document.getElementById(`edBtnImgs`).addEventListener(`click`, function () {
-    if (!window.confirm("Delete the previews and thumbnail?")) {
-      return;
-    }
-    const info = document.getElementById(`edBtnsHide`);
-    const feed = document.getElementById(`edBtnsFeedback`);
-    fetch("/editor/images/delete", {
-      method: "POST",
-      body: JSON.stringify({
-        id: parseInt(id.value),
-      }),
-      headers: header,
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(saveErr);
-        }
-        info.classList.add(ok);
-        feed.classList.add(fok);
-        feed.textContent = `images deleted, refresh the page to see the change`;
-        return response.json();
+  document
+    .getElementById(`asset-editor-delete-images`)
+    .addEventListener(`click`, function () {
+      if (!window.confirm("Delete the previews and thumbnail?")) {
+        return;
+      }
+      const info = document.getElementById(`asset-editor-hidden`);
+      const feed = document.getElementById(`asset-editor-feedback`);
+      fetch("/editor/images/delete", {
+        method: "POST",
+        body: JSON.stringify({
+          id: parseInt(id.value),
+        }),
+        headers: header,
       })
-      .catch((error) => {
-        info.classList.add(err);
-        feed.classList.add(ferr);
-        feed.textContent = error.message;
-      });
-  });
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(saveErr);
+          }
+          info.classList.add(ok);
+          feed.classList.add(fok);
+          feed.textContent = `images deleted, refresh the page to see the change`;
+          return response.json();
+        })
+        .catch((error) => {
+          info.classList.add(err);
+          feed.classList.add(ferr);
+          feed.textContent = error.message;
+        });
+    });
 
   /// ==============
   /// TODO: below
 
   // Modify the assets, file artifact preview upload
-  const previewUp = document.getElementById(`edUploadPreview`);
+  const previewUp = document.getElementById(`asset-editor-preview`);
   const previewUpB = document.getElementById(`edUploadPreviewBtn`);
   const previewUpR = document.getElementById(`edUploadPreviewReset`);
   previewUp.addEventListener(`change`, function () {
@@ -84,9 +86,9 @@
   });
 
   // Modify the assets, file replacement upload
-  const artifact = document.getElementById(`edUploadArtifact`);
-  const artifactB = document.getElementById(`edUploadArtifactBtn`);
-  const artifactR = document.getElementById(`edUploadArtifactReset`);
+  const artifact = document.getElementById(`asset-editor-download`);
+  const artifactB = document.getElementById(`asset-editor-download-submit`);
+  const artifactR = document.getElementById(`asset-editor-download-reset`);
   artifact.addEventListener(`change`, function () {
     if (artifact.value != ``) {
       artifact.classList.remove(err);

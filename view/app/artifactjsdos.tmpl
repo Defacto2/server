@@ -14,7 +14,7 @@
 {{- $prog := toLower $runProgram}}
 {{- $fname := toLower $filename}}
 {{- /*  js-dos v6.22 ~ canvas and user interface. */}}
-<div class="modal fade" id="jsDOSModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="jsDOSModalLabel" aria-hidden="true">
+<div class="modal fade" id="js-dos-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="jsDOSModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -100,7 +100,7 @@
         });
       });
     }
-    const jsdos = document.getElementById("jsdosRunLink");
+    const jsdos = document.getElementById("js-dos-run-app");
     jsdos.addEventListener("click", function () {
       this.style.pointerEvents = "none";
       this.textContent = "Running app";

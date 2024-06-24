@@ -6,12 +6,12 @@
 {{- $cardClass := " h-100"}}
 {{- $rels := index . "counter" }}
 {{- $linkClass := "card-link text-nowrap"}}
-<div class="row row-cols-1 row-cols-md-1 g-4 mt-2 collapse" id="moreCategories">
+<div class="row row-cols-1 row-cols-md-1 g-4 mt-2 collapse" id="all-other-categories">
     <div class="col">
         <div class="card">
             <div class="card-body">
                 <nav id="navbarPlatforms" class="navbar bg-light-subtle px-3 mt-3">
-                    <a class="navbar-brand" href="#moreCategories">Platforms</a>
+                    <a class="navbar-brand" href="#all-other-categories">Platforms</a>
                     <ul class="nav nav-underline justify-content-center" id="platformTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="dos-tab" data-bs-toggle="tab"
@@ -318,8 +318,8 @@
     </div>
 </div>
 <div class="d-grid gap-2 col-6 mx-auto">
-    <a class="btn btn-outline-dark btn-lg mt-4" data-bs-toggle="collapse" href="#moreCategories" role="button"
-        aria-expanded="false" aria-controls="moreCategories">
+    <a class="btn btn-outline-dark btn-lg mt-4" data-bs-toggle="collapse" href="#all-other-categories" role="button"
+        aria-expanded="false" aria-controls="all-other-categories">
         All other categories
     </a>
 </div>

@@ -20,7 +20,7 @@ export async function clipText(elementId) {
       console.log(
         `Copied ${humanFilesize(element.textContent.length)} to the clipboard`
       );
-      const button = document.getElementById(`copyReadme`);
+      const button = document.getElementById(`artifact-copy-readme-body`);
       if (button === null) return;
       const save = button.textContent;
       button.textContent = `✓ Copied`;
