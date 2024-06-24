@@ -174,6 +174,11 @@ func Configurations(cx echo.Context, conf config.Config) error {
 	}
 	defer db.Close()
 	data = configurations(data, conf)
+	conns, max, err := postgres.Connections()
+	if err != nil {
+		data["dbConnections"] = err.Error()
+	}
+	data["dbConnections"] = fmt.Sprintf("%d of %d", conns, max)
 	err = cx.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(cx, name, err)

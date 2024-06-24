@@ -6,11 +6,38 @@
 {{- $checkDownloads := index . "checkDownloads"}}
 {{- $checkPreviews := index . "checkPreviews"}}
 {{- $checkThumbnails := index . "checkThumbnails"}}
+{{- $extsDownloads := index . "extsDownloads"}}
+{{- $extsPreviews := index . "extsPreviews"}}
+{{- $extsThumbnails := index . "extsThumbnails"}}
+{{- $checkDBConns := index . "dbConnections"}}
 {{- $responseRow := "row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-0"}}
+{{- /*    */}}
+<h1 class="lead mt-5">Database</h1>
+<div class="pb-3">
+  The number of active connections should always be as low as possible. 
+  Having too many connections open are problematic and usually means some SQL queries are waiting to time out.
+</div>
+<div class="mb-3">
+  <button class="btn btn-outline-primary" hx-get="/editor/configurations/dbconns" hx-target="#database-response">
+    Refresh the connections <span id="database-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm text-primary" role="status"></span>
+  </button>
+</div>
+<div class="p-2 lead">
+  <div><strong>Artifacts available to the public: {{index . "countPublic"}}</strong></div>
+  <div>Active connections to the Postgres database: <span id="database-response">{{$checkDBConns}}</span></div>
+  <div><small>Artifact records {{index . "countArtifacts"}}</small></div>
+  <div><small>New uploads {{index . "countNewUpload"}}</small></div>
+  <div><small>Hidden and unavailable {{index . "countHidden"}}</small></div>
+</div>
 {{- /*  Ping internal URIs */}}
 <h1 class="lead mt-5">Web application routes</h1>
+<div class="pb-3">
+  The web application routes runs a stress test that fetches dozens of local URLs to confirm they work. 
+  All the pinged URLs should return <span class="text-success">200</span> HTTP statuses, 
+  except those that require signing in, which returns <span class="text-warning">403</span>, <q>the requested resource is forbidden</q>.
+</div>
 <div class="mb-3">
-  <button class="btn btn-outline-primary" hx-get="/editor/configs/pings" hx-target="#ping-response">
+  <button class="btn btn-outline-primary" hx-get="/editor/configurations/pings" hx-target="#ping-response">
     Ping the routes <span id="ping-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm text-primary" role="status"></span>
   </button>
 </div>
@@ -19,31 +46,36 @@
 </div>
 {{- /*  Asset counts  */}}
 <h1 class="lead mt-5">Web application assets</h1>
+<div class="mb-3">
+  The web application assets are served to the end users as file downloads, images, or other media. 
+  Assets like image previews are available in multiple formats to optimize transfers, such as the original PNG and the newer WEBP. 
+  However, the new formats get skipped in odd cases where the newer format offers no file size improvements.
+</div>
 <div class="table-responsive">
 <table class="table align-middle table-striped-columns">
   <thead>
     <tr>
       <th scope="col"></th>
       <th scope="col">Total</th>
-      <th scope="col">Counts</th>
+      <th scope="col">Assets</th>
+      <th scope="col">Other finds</th>
     </tr>
   </thead>
   <tbody class="table-group-divider">
     <tr>
-      <th scope="row">Artifacts</th>
-      <td>{{index . "countArtifacts"}}</td>
-      <td>
-        <strong>public</strong> {{index . "countPublic"}} &nbsp;·&nbsp; 
-        <strong>new uploads</strong> {{index . "countNewUpload"}}</var> &nbsp;·&nbsp; 
-        <strong>hidden</strong> {{index . "countHidden"}}</td>
-    </tr>
-    <tr>
       <th scope="row">Downloads</th>
       <td>{{index . "countDownloads"}}</td>
       <td>
+        {{- if gt (len $extsDownloads) 0 }}{{- $first := index $extsDownloads 0 }}
+        <span clas="col"><code>{{$first.Name}}</code> <small>{{$first.Count}}</small></span>
+        {{- end}}
+      </td>
+      <td>
         {{if ne nil $checkDownloads}}<span class="text-danger-emphasis">{{$checkDownloads}}</span>{{- else}}
         <div class="{{$responseRow}}">
-          {{- range $index, $value := index . "extsDownloads"}}<span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>{{end}}
+          {{- range $index, $value := $extsDownloads}}
+          {{- if ne $index 0}}<span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>{{end}}
+          {{- end}}
         </div>
         {{- end}}
       </td>
@@ -52,9 +84,16 @@
       <th scope="row">Previews</th>
       <td>{{index . "countPreviews"}}</td>
       <td>
+        {{- if gt (len $extsPreviews) 0 }}{{- $first := index $extsPreviews 0 }}
+        <span clas="col"><code>{{$first.Name}}</code> <small>{{$first.Count}}</small></span>
+        {{- end}}
+      </td>
+      <td>
         {{if ne nil $checkPreviews}}<span class="text-danger-emphasis">{{$checkPreviews}}</span>{{- else}}
         <div class="{{$responseRow}}">
-          {{- range $index, $value := index . "extsPreviews"}}<span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>{{end}}
+          {{- range $index, $value := $extsPreviews}}
+          {{- if ne $index 0}}<span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>{{end}}
+          {{- end}}
         </div>
         {{- end}}
       </td>
@@ -63,9 +102,16 @@
       <th scope="row">Thumbnails</th>
       <td>{{index . "countThumbnails"}}</td>
       <td>
+        {{- if gt (len $extsThumbnails) 0 }}{{- $first := index $extsThumbnails 0 }}
+        <span clas="col"><code>{{$first.Name}}</code> <small>{{$first.Count}}</small></span>
+        {{- end}}
+      </td>
+      <td>
         {{if ne nil $checkThumbnails}}<span class="text-danger-emphasis">{{$checkThumbnails}}</span>{{- else}}
         <div class="{{$responseRow}}">
-          {{- range $index, $value := index . "extsThumbnails"}}<span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>{{end}}
+          {{- range $index, $value := $extsThumbnails}}
+          {{- if ne $index 0}}<span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>{{end}}
+          {{- end}}
         </div>
         {{- end}}
       </td>
@@ -99,7 +145,7 @@
 </div>
 {{- /*  Links to records  */}}
 <h1 class="lead mt-5">Links to special records</h1>
-<caption>These are artifacts that have unusual edge cases, ❎ needs fixing.</caption>
+<div>These are highlighted artifacts that have unusual edge cases.<br>Items with a ❎ icon means they need fixing.</div>
 <dl class="row row-cols-1 row-cols-md-2 g-2 p-2 bg-body-tertiary mt-2">
   <div class="col">
   <dt>❎ Readme using multi-bytes</dt>

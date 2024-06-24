@@ -18,18 +18,7 @@ func (c Configuration) lock(e *echo.Echo, logger *zap.SugaredLogger, dir app.Dir
 	}
 	lock := e.Group("/editor")
 	lock.Use(c.ReadOnlyLock, c.SessionLock)
-	lock.GET("/configs", func(cx echo.Context) error {
-		return app.Configurations(cx, c.Environment)
-	})
-	lock.GET("/configs/pings", func(cx echo.Context) error {
-		proto := "http"
-		port := c.Environment.HTTPPort
-		if port == 0 {
-			port = c.Environment.TLSPort
-			proto = "https"
-		}
-		return htmx.Pings(cx, proto, int(port))
-	})
+	c.configurations(lock)
 	creator(lock)
 	date(lock)
 	editor(lock, logger, dir)
@@ -39,6 +28,26 @@ func (c Configuration) lock(e *echo.Echo, logger *zap.SugaredLogger, dir app.Dir
 	readme(lock, logger, dir)
 	search(lock, logger)
 	return e
+}
+
+func (c Configuration) configurations(g *echo.Group) {
+	if g == nil {
+		panic(fmt.Errorf("%w for configurations router", ErrRoutes))
+	}
+	conf := g.Group("/configurations")
+	conf.GET("", func(cx echo.Context) error {
+		return app.Configurations(cx, c.Environment)
+	})
+	conf.GET("/dbconns", htmx.DBConnections)
+	conf.GET("/pings", func(cx echo.Context) error {
+		proto := "http"
+		port := c.Environment.HTTPPort
+		if port == 0 {
+			port = c.Environment.TLSPort
+			proto = "https"
+		}
+		return htmx.Pings(cx, proto, int(port))
+	})
 }
 
 func creator(g *echo.Group) {

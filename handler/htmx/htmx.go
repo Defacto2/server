@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/server/internal/demozoo"
@@ -145,6 +146,17 @@ func DemozooSubmit(c echo.Context, logger *zap.SugaredLogger) error {
 	return submit(c, logger, "demozoo")
 }
 
+// DBConnections is the handler for the database connections page.
+func DBConnections(c echo.Context) error {
+	conns, max, err := postgres.Connections()
+	if err != nil {
+		return c.String(http.StatusOK, err.Error())
+	}
+	currentTime := time.Now()
+	return c.String(http.StatusOK, fmt.Sprintf("%d of %d, <small>%s</small>",
+		conns, max, currentTime.Format("15:04:05")))
+}
+
 func PermenantDelete(c echo.Context, logger *zap.SugaredLogger) error {
 	ctx := context.Background()
 	db, tx, err := postgres.ConnectTx()
@@ -258,12 +270,7 @@ func Pings(c echo.Context, proto string, port int) error {
 	}
 
 	output := strings.Join(results, "")
-	conns, max, err := postgres.Connections()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Connections:", conns, "of", max)
-
+	output += fmt.Sprintf("<div><small>%d URLs were pinged</small></div>", len(pings))
 	return c.HTML(http.StatusOK, output)
 }
 
