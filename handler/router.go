@@ -112,7 +112,6 @@ func (c Configuration) embed(e *echo.Echo, public embed.FS) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for embed router", ErrRoutes))
 	}
-	e.FileFS("/bootstrap-icons.svg", "public/image/bootstrap-icons.svg", public)
 	e.FileFS("/favicon.ico", "public/image/favicon.ico", public)
 	e.FileFS("/osd.xml", "public/text/osd.xml", public)
 	e.FileFS("/robots.txt", "public/text/robots.txt", public)

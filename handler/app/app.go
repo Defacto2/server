@@ -1106,11 +1106,13 @@ func Updated(t any, s string) string {
 // websiteIcon returns a Bootstrap icon name for the given website url.
 func WebsiteIcon(url string) template.HTML {
 	icon := websiteIcon(url)
+	const svg = `<svg class="bi text-black" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">`
 	if icon == "arrow-right" {
-		return `<svg class="bi" aria-hidden="true"><use xlink:href="/bootstrap-icons.svg#arrow-right"></use></svg>`
+		html := svg + `<use xlink:href="/svg/bootstrap-icons.svg#arrow-right"/></svg>`
+		return template.HTML(html)
 	}
-	return template.HTML(fmt.Sprintf(`<svg class="bi" aria-hidden="true">`+
-		`<use xlink:href="/bootstrap-icons.svg#%s"></use></svg>`, icon))
+	html := svg + fmt.Sprintf(`<use xlink:href="/svg/bootstrap-icons.svg#%s"/></svg>`, icon)
+	return template.HTML(html)
 }
 
 func websiteIcon(url string) string {
@@ -1171,10 +1173,10 @@ type SRI struct {
 	ArtifactEditor  string // Artifact Editor JS verification hash.
 	Bootstrap5      string // Bootstrap CSS verification hash.
 	Bootstrap5JS    string // Bootstrap JS verification hash.
+	BootstrapIcons  string // Bootstrap Icons SVG verification hash.
 	EditAssets      string // Editor Assets JS verification hash.
 	EditArchive     string // Editor Archive JS verification hash.
 	EditForApproval string // Editor For Approval JS verification hash.
-	FA5Pro          string // Font Awesome Pro v5 verification hash.
 	Jsdos6JS        string // js-dos v6 verification hash.
 	DosboxJS        string // DOSBox Emscripten verification hash.
 	Layout          string // Layout CSS verification hash.
@@ -1206,6 +1208,11 @@ func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 	if err != nil {
 		return fmt.Errorf("%s: %w", name, err)
 	}
+	name = names[BootstrapIcons]
+	s.BootstrapIcons, err = helper.Integrity(name, fs)
+	if err != nil {
+		return fmt.Errorf("%s: %w", name, err)
+	}
 	name = names[LayoutJS]
 	s.LayoutJS, err = helper.Integrity(name, fs)
 	if err != nil {
@@ -1223,11 +1230,6 @@ func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 	}
 	name = names[EditForApproval]
 	s.EditForApproval, err = helper.Integrity(name, fs)
-	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
-	}
-	name = names[FA5Pro]
-	s.FA5Pro, err = helper.Integrity(name, fs)
 	if err != nil {
 		return fmt.Errorf("%s: %w", name, err)
 	}
@@ -1414,8 +1416,7 @@ const (
 	typeErr                 = "error: received an invalid type to "
 	webp                    = ".webp"
 	arrowLink template.HTML = `<svg class="bi" aria-hidden="true">` +
-		`<use xlink:href="/bootstrap-icons.svg#arrow-right"></use>` +
-		`</svg>`
+		`<use xlink:href="/svg/bootstrap-icons.svg#arrow-right"></use></svg>`
 )
 
 // archives returns a list of archive file extensions supported by this web application.

@@ -276,7 +276,7 @@ func (web Templ) TemplateElms() template.FuncMap {
 		},
 		"mergeIcon": func() template.HTML {
 			return template.HTML(`<svg class="bi" aria-hidden="true" fill="currentColor">` +
-				`<use xlink:href="/bootstrap-icons.svg#forward"></use></svg>`)
+				`<use xlink:href="/svg/bootstrap-icons.svg#forward"></use></svg>`)
 		},
 		"msdos": func() template.HTML {
 			return template.HTML(`<span class="text-nowrap">MS Dos</span>`)
@@ -351,6 +351,9 @@ func (web Templ) TemplateClosures() template.FuncMap { //nolint:funlen
 		"bootstrap5JS": func() string {
 			return hrefs[Bootstrap5JS]
 		},
+		"bootstrapIcons": func() string {
+			return hrefs[BootstrapIcons]
+		},
 		"capitalize": helper.Capitalize,
 		"classification": func(s, p string) string {
 			count, _ := form.HumanizeAndCount(s, p)
@@ -386,9 +389,6 @@ func (web Templ) TemplateClosures() template.FuncMap { //nolint:funlen
 				return err.Error()
 			}
 			return helper.Titleize(x)
-		},
-		"fa5Pro": func() string {
-			return hrefs[FA5Pro]
 		},
 		"htmx": func() string {
 			return hrefs[Htmx]
@@ -432,6 +432,9 @@ func (web Templ) TemplateClosures() template.FuncMap { //nolint:funlen
 		"sri_bootstrap5JS": func() string {
 			return web.Subresource.Bootstrap5JS
 		},
+		"sri_bootstrapIcons": func() string {
+			return web.Subresource.BootstrapIcons
+		},
 		"sri_editArchive": func() string {
 			return web.Subresource.EditArchive
 		},
@@ -440,9 +443,6 @@ func (web Templ) TemplateClosures() template.FuncMap { //nolint:funlen
 		},
 		"sri_editForApproval": func() string {
 			return web.Subresource.EditForApproval
-		},
-		"sri_fa5Pro": func() string {
-			return web.Subresource.FA5Pro
 		},
 		"sri_htmx": func() string {
 			return web.Subresource.Htmx

@@ -104,6 +104,8 @@
     {{- /*  cascading style sheets  */}}
     <link href="{{ bootstrap5 }}?{{ sri_bootstrap5 }}" rel="stylesheet" integrity="{{ sri_bootstrap5 }}" crossorigin="anonymous">
     <link href="{{ layout }}?{{ sri_layout }}" rel="stylesheet" integrity="{{ sri_layout }}" crossorigin="anonymous">
+    {{- /*  bootstrap svg sprites  */}}
+    <link href="{{ bootstrapIcons }}?{{ sri_bootstrapIcons }}" rel="preload" as="image" type="image/svg+xml" integrity="{{ sri_bootstrapIcons }}" crossorigin="anonymous">
   </head>
   <body>
     <div class="container-xxl p-0">
@@ -204,13 +206,32 @@
                 Contacts
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-email-modal"><i class="fal fa-envelope fa-fw" title="Email"></i> Email</a></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-discord-modal"><i class="fab fa-discord fa-fw" title="Discord"></i> Discord</a></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-mastodon-modal"><i class="fab fa-mastodon fa-fw" title="Mastodon"></i> Mastodon</a></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-facebook-modal"><i class="fab fa-facebook fa-fw" title="Facebook"></i> Facebook</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-email-modal">
+                  <svg class="bi bi-envelope" width="16" height="16" fill="currentColor">
+                    <use xlink:href="/svg/bootstrap-icons.svg#envelope"/>
+                  </svg> Email</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-discord-modal">
+                  <svg class="bi bi-discord" width="16" height="16" fill="currentColor">
+                    <use xlink:href="/svg/bootstrap-icons.svg#discord"/>
+                  </svg> Discord</a>
+                </li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-mastodon-modal">
+                  <svg class="bi bi-mastodon" width="16" height="16" fill="currentColor">
+                    <use xlink:href="/svg/bootstrap-icons.svg#mastodon"/>
+                  </svg> Mastodon</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-facebook-modal">
+                  <svg class="bi bi-facebook" width="16" height="16" fill="currentColor">
+                    <use xlink:href="/svg/bootstrap-icons.svg#facebook"/>
+                  </svg> Facebook</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-twitter-modal"><i class="fab fa-twitter fa-fw" title="Twitter"></i> Twitter</a></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-youtube-modal"><i class="fab fa-youtube fa-fw" title="YouTube"></i> YouTube</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-twitter-modal">
+                  <svg class="bi bi-twitter" width="16" height="16" fill="currentColor">
+                    <use xlink:href="/svg/bootstrap-icons.svg#twitter"/>
+                  </svg> Twitter</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-youtube-modal">
+                  <svg class="bi bi-youtube" width="16" height="16" fill="currentColor">
+                    <use xlink:href="/svg/bootstrap-icons.svg#youtube"/>
+                  </svg> YouTube</a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -319,8 +340,6 @@
 <script defer src="{{ htmxRespTargets }}?{{ sri_htmxRespTargets }}" integrity="{{ sri_htmxRespTargets }}" crossorigin="anonymous"></script>
 {{- /*  Do not defer, or async load the Bootstrap 5.x JS  */}}
 <script src="{{ bootstrap5JS }}?{{ sri_bootstrap5JS }}" integrity="{{ sri_bootstrap5JS }}" crossorigin="anonymous"></script>
-{{- /*  FontAwesome Pro v5 */}}
-<script async src="{{ fa5Pro }}?{{ sri_fa5Pro }}" integrity="{{ sri_fa5Pro }}" crossorigin="anonymous"></script>
 {{- if $pouet}}
 <script async src="{{ pouet }}?{{ sri_pouet }}" integrity="{{ sri_pouet }}" crossorigin="anonymous"></script>
 {{- end}}

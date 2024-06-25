@@ -3,7 +3,6 @@
 */ -}}
 {{- define "artifactedit" -}}
 {{- if eq false (index . "editor")}}{{/*  render nothing  */}}{{else}}
-{{- $faSize := "fa-fw fa-2x" -}}
 {{- $delay := "50ms" }}
 {{- $lDelay := "1s"}}
 {{- $hundred := "100"}}
@@ -85,8 +84,10 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
     {{- /*  Data editor for record key, ...  */}}
     <div class="modal-content">
       <div id="artifact-editor-modal-header" class="modal-header {{if eq $record true}}bg-success-subtle{{else}}bg-danger-subtle{{end}}">
-        <i class="fal fa-file-alt {{ $faSize }}" title="Modify the record"></i> &nbsp;
-        <h1 class="modal-title fs-5" id="artifact-editor-modal-label">Data editor for record key, {{$key}}</h1><br>
+        <svg class="bi" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+          <use xlink:href="/svg/bootstrap-icons.svg#file-binary"/>
+        </svg>
+        <h1 class="modal-title fs-4 ps-2" id="artifact-editor-modal-label">Data editor for record key, {{$key}}</h1><br>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body container">

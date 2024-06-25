@@ -9,12 +9,12 @@ const (
 	ArtifactEditor  Asset = iota // ArtifactEditor is the path to the minified Artifact Editor JS file.
 	Bootstrap5                   // Bootstrap is the path to the minified Bootstrap 5.3 CSS file.
 	Bootstrap5JS                 // BootstrapJS is the path to the minified Bootstrap 5.3 JS file.
+	BootstrapIcons               // BootstrapIcons is the path to the custom Bootstrap Icons SVG sprites file.
 	DosboxJS                     // DosboxJS is the js-dos v6 default variant compiled with emscripten.
 	DosboxWasm                   // DosboxWasm is the js-dos v6 WASM binary file.
 	EditAssets                   // EditAssets is the path to the minified Editor assets JS file.
 	EditArchive                  // EditArchive is the path to the minified Editor archive JS file.
 	EditForApproval              // EditForApproval is the path to the minified Editor for-approval JS file.
-	FA5Pro                       // FA5Pro is the path to the minified Font Awesome Pro v5 JS file.
 	Htmx                         // Htmx is the path to the minified htmx AJAX JS file.
 	HtmxRespTargets              // Htmx is the path to the minified response targets extension file.
 	Jsdos6JS                     // Jsdos6JS is the path to the minified js-dos v6 JS file.
@@ -36,12 +36,12 @@ func Hrefs() Paths {
 		ArtifactEditor:  "/js/artifact-editor.min.js",
 		Bootstrap5:      "/css/bootstrap.min.css",
 		Bootstrap5JS:    "/js/bootstrap.bundle.min.js",
+		BootstrapIcons:  "/svg/bootstrap-icons.svg",
 		DosboxJS:        "/js/wdosbox.js",
 		DosboxWasm:      "/js/wdosbox.wasm",
 		EditAssets:      "/js/editor-assets.min.js",
 		EditArchive:     "/js/editor-archive.min.js",
 		EditForApproval: "/js/editor-forapproval.min.js",
-		FA5Pro:          "/js/fontawesome.min.js",
 		Htmx:            "/js/htmx.min.js",
 		HtmxRespTargets: "/js/htmx-response-targets.min.js",
 		Jsdos6JS:        "/js/js-dos.js",

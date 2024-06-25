@@ -2,27 +2,37 @@
  * File: layout.css
  * This is the main stylesheet for the website.
  */
-.fa-discord {
+
+.bi::before {
+  display: inline-block;
+  content: "";
+  vertical-align: -0.125em;
+  background-image: url("data:image/svg+xml,<svg viewBox='0 0 16 16' fill='%23333' xmlns='http://www.w3.org/2000/svg'><path fill-rule='evenodd' d='M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z' clip-rule='evenodd'/></svg>");
+  background-repeat: no-repeat;
+  background-size: 1rem 1rem;
+}
+
+.bi-discord {
   color: #5865f2;
 }
 
-.fa-envelope {
+.bi-envelope {
   color: #d44638;
 }
 
-.fa-facebook {
+.bi-facebook {
   color: #3b5998;
 }
 
-.fa-mastodon {
+.bi-mastodon {
   color: #5a4fdb;
 }
 
-.fa-twitter {
+.bi-twitter {
   color: #1da1f2;
 }
 
-.fa-youtube {
+.bi-youtube {
   color: #cd201f;
 }
 

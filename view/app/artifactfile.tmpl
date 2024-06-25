@@ -5,7 +5,6 @@
 {{- if eq false (index . "editor")}}
 {{- /* render nothing in the layout   */}}
 {{- else}}
-{{- $faSize := "fa-fw fa-2x" -}}
 {{- $id := index . "modID"}}
 {{- $unid := index . "unid"}}
 {{- $filename := index . "filename"}}
@@ -23,8 +22,10 @@
     <div class="modal-content">
       {{/*  Modify the assets for ID  */}}
       <div class="modal-header">
-        <i class="fal fa-file-alt {{ $faSize }}" title="Modify the record"></i> &nbsp;
-        <h1 class="modal-title fs-5" id="asset-editor-modal-label">Modify the assets for ID {{$id}}</h1><br>
+        <svg class="bi" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+          <use xlink:href="/svg/bootstrap-icons.svg#file-binary"/>
+        </svg>
+        <h1 class="modal-title fs-4 ps-2" id="asset-editor-modal-label">Modify the assets for ID {{$id}}</h1><br>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
