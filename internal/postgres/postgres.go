@@ -75,7 +75,6 @@ func Connections() (int64, int64, error) {
 		}
 	}
 	return count, maxConnections, nil
-
 }
 
 // ConnectDB connects to the PostgreSQL database.

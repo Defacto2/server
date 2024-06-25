@@ -3,16 +3,23 @@ package config
 // Package file repair.go contains the repair functions for assets and downloads.
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/postgres"
+	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/google/uuid"
+	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"go.uber.org/zap"
 )
 
@@ -23,9 +30,91 @@ const (
 )
 
 var (
-	ErrIsDir = errors.New("is directory")
-	ErrEmpty = errors.New("empty path or name")
+	ErrCtxLog = errors.New("context logger is invalid")
+	ErrIsDir  = errors.New("is directory")
+	ErrEmpty  = errors.New("empty path or name")
 )
+
+type contextKey string
+
+const LoggerKey contextKey = "logger"
+
+// Assets, on startup check the file system directories for any invalid or unknown files.
+// These specifically match the base filename against the UUID in the database.
+// When there is no matching UUID, the file is considered orphaned and these are moved
+// to the orphaned directory without warning.
+//
+// There are no checks on the 3 directories that get scanned.
+func (c Config) assets(ctx context.Context, exec boil.ContextExecutor) error {
+	tick := time.Now()
+	logger, useLogger := ctx.Value(LoggerKey).(*zap.SugaredLogger)
+	if !useLogger {
+		return fmt.Errorf("config repair uuids %w", ErrCtxLog)
+	}
+	mods := []qm.QueryMod{}
+	mods = append(mods, qm.Select("uuid"))
+	files, err := models.Files(mods...).All(ctx, exec)
+	if err != nil {
+		return fmt.Errorf("config repair select all uuids: %w", err)
+	}
+
+	size := len(files)
+	logger.Infof("Checking %d UUIDs", size)
+	artifacts := make([]string, size)
+	for i, f := range files {
+		if !f.UUID.Valid || f.UUID.String == "" {
+			continue
+		}
+		artifacts[i] = f.UUID.String
+	}
+	artifacts = slices.Clip(artifacts)
+	slices.Sort(artifacts)
+
+	dirs := []string{c.AbsDownload, c.AbsPreview, c.AbsThumbnail}
+	counters := make([]int, len(dirs))
+
+	var wg sync.WaitGroup
+	wg.Add(len(dirs))
+
+	for i, dir := range dirs {
+		go func(dir string) {
+			defer wg.Done()
+			err = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+				if err != nil {
+					return fmt.Errorf("walk path %w: %s", err, path)
+				}
+				if d.IsDir() {
+					return nil
+				}
+				counters[i]++
+				name := strings.TrimSuffix(d.Name(), filepath.Ext(d.Name()))
+				_, found := slices.BinarySearch(artifacts, name)
+				if !found {
+					logger.Warnf("Unknown file: %s, no matching artifact for UUID: %q", d.Name(), name)
+					defer func() {
+						now := time.Now().Format("2006-01-02_15-04-05")
+						dest := filepath.Join(c.AbsOrphaned, fmt.Sprintf("%s_%s", now, d.Name()))
+						if err := helper.RenameCrossDevice(path, dest); err != nil {
+							logger.Errorf("could not move orphaned artifact asset for %q: %s", d.Name(), err)
+						}
+					}()
+				}
+				return nil
+			})
+			if err != nil {
+				logger.Errorf("walk directory %w: %s", err, dir)
+			}
+		}(dir)
+	}
+
+	wg.Wait()
+	sum := 0
+	for _, count := range counters {
+		sum += count
+	}
+	logger.Infof("Checked %d files for %d UUIDs in %s", sum, size, time.Since(tick))
+	return nil
+}
 
 // RepairFS, on startup check the file system directories for any invalid or unknown files.
 // If any are found, they are removed without warning.
@@ -45,6 +134,16 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 	if err := DownloadFS(logger, c.AbsDownload, c.AbsOrphaned, c.AbsExtra); err != nil {
 		return fmt.Errorf("repair fs downloads %w", err)
 	}
+
+	ctx := context.WithValue(context.Background(), LoggerKey, logger)
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return fmt.Errorf("repair fs connect db %w", err)
+	}
+	if err := c.assets(ctx, db); err != nil {
+		return fmt.Errorf("repair fs assets %w", err)
+	}
+
 	return nil
 }
 

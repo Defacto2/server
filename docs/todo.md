@@ -2,7 +2,6 @@
 
 ### Ideas or doubleful tasks
 
-- [ ] ? Terminal command to clean up the database and remove all orphaned records.
 - [ ] ? Terminal command to reindex the database, both to erase and rebuild the indexes.
 - [ ] ? Implememnt a [scheduling library for Go](https://github.com/reugn/go-quartz).
 

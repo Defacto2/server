@@ -223,7 +223,8 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key, downloadDir string
 }
 
 func success(c echo.Context, logger *zap.SugaredLogger,
-	filename string, id int64) error {
+	filename string, id int64,
+) error {
 	html := fmt.Sprintf("<p>Thanks, the chosen file submission was a success.<br> ✓ %s</p>",
 		html.EscapeString(filename))
 	if production := logger == nil; production {
