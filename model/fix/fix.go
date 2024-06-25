@@ -151,18 +151,18 @@ func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor) error {
 		old := strings.TrimSpace(f.UUID.String)
 		newid, err := helper.CFToUUID(old)
 		if err != nil {
-			logger.Warnln("%d. %q is invalid, %s\n", i, newid, err)
+			logger.Warnf("%d. %q is invalid, %s", i, newid, err)
 			continue
 		}
 		file, err := models.Files(qm.Where("uuid = ?", old)).One(ctx, exec)
 		if err != nil {
-			logger.Warnln("%d. %q failed to find, %s\n", i, old, err)
+			logger.Warnf("%d. %q failed to find, %s", i, old, err)
 			continue
 		}
 		file.UUID = null.StringFrom(newid)
 		_, err = file.Update(ctx, exec, boil.Infer())
 		if err != nil {
-			logger.Warnln("%d. %q failed to update, %s\n", i, old, err)
+			logger.Warnf("%d. %q failed to update, %s", i, old, err)
 			continue
 		}
 	}
@@ -269,7 +269,7 @@ func releasers(ctx context.Context, exec boil.ContextExecutor) error {
 			return fmt.Errorf("update all to null group_brand_by: %w", err)
 		}
 		if rowsAff > 0 {
-			logger.Infof("Updated %d group_brand_by to NULL\n", rowsAff)
+			logger.Infof("Updated %d group_brand_by to NULL", rowsAff)
 		}
 	}
 	for bad, fix := range fixes() {
@@ -281,12 +281,14 @@ func releasers(ctx context.Context, exec boil.ContextExecutor) error {
 		if err != nil {
 			return fmt.Errorf("where group_brand_for is bad: %w", err)
 		}
-		rowsAff, err := f.UpdateAll(ctx, exec, models.M{"group_brand_for": fix})
-		if err != nil {
-			return fmt.Errorf("update all group_brand_for fix: %w", err)
-		}
-		if rowsAff > 0 {
-			logger.Infof("Updated %d groups for to %q", rowsAff, fix)
+		if len(f) > 0 {
+			rowsAff, err := f.UpdateAll(ctx, exec, models.M{"group_brand_for": fix})
+			if err != nil {
+				return fmt.Errorf("update all group_brand_for fix: %w", err)
+			}
+			if rowsAff > 0 {
+				logger.Infof("Updated %d groups for to %q", rowsAff, fix)
+			}
 		}
 		f, err = models.Files(
 			qm.Where("group_brand_by = ?", bad),
@@ -294,12 +296,14 @@ func releasers(ctx context.Context, exec boil.ContextExecutor) error {
 		if err != nil {
 			return fmt.Errorf("where group_brand_by is bad: %w", err)
 		}
-		rowsAff, err = f.UpdateAll(ctx, exec, models.M{"group_brand_by": fix})
-		if err != nil {
-			return fmt.Errorf("update all to null group_brand_by fix: %w", err)
-		}
-		if rowsAff > 0 {
-			logger.Infof("Updated %d groups by to %q", rowsAff, fix)
+		if len(f) > 0 {
+			rowsAff, err := f.UpdateAll(ctx, exec, models.M{"group_brand_by": fix})
+			if err != nil {
+				return fmt.Errorf("update all to null group_brand_by fix: %w", err)
+			}
+			if rowsAff > 0 {
+				logger.Infof("Updated %d groups by to %q", rowsAff, fix)
+			}
 		}
 	}
 	_, err = queries.Raw(postgres.SetUpper("group_brand_for")).Exec(exec)
