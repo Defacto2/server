@@ -254,19 +254,15 @@ func repairDB(logger *zap.SugaredLogger) error {
 	if logger == nil {
 		return fmt.Errorf("%w: %s", ErrLog, "the repair database has no logger")
 	}
-	ctx := context.Background()
+	ctx := context.WithValue(context.Background(), fix.LoggerKey, logger)
 	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		return fmt.Errorf("repair database connection: %w", err)
 	}
 	defer db.Close()
 
-	if err = fix.All.Run(ctx, db, tx, logger); err != nil {
-		defer tx.Rollback()
-		return fmt.Errorf("repair database could not fix all: %w", err)
-	}
-	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("repair database commit: %w", err)
+	if err = fix.Artifacts.Run(ctx, db, tx); err != nil {
+		return fmt.Errorf("repair database could not fix all artifacts: %w", err)
 	}
 	return nil
 }

@@ -25,17 +25,34 @@ var (
 	ErrRepair = errors.New("invalid repair option")
 )
 
+type contextKey string
+
+const LoggerKey contextKey = "logger"
+
 // Repair a column or type of data within the database.
 type Repair int
 
 const (
 	// None does nothing.
 	None Repair = iota - 1
-	// All repairs all the repairable data.
-	All
+	// Artifacts repairs all the artifact data.
+	Artifacts
 	// Releaser focuses on the releaser data using the group_brand_by and group_brand_for columns.
 	Releaser
 )
+
+func (r Repair) String() string {
+	switch r {
+	case None:
+		return "skip"
+	case Artifacts:
+		return "on all artifacts"
+	case Releaser:
+		return "on the releasers"
+	default:
+		return "error, unknown"
+	}
+}
 
 const (
 	UpdateSet = "UPDATE files SET "
@@ -44,39 +61,53 @@ const (
 // In the future we may want to add a Debug or TestRun func.
 
 // Run the database repair based on the repair option.
-func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx, logger *zap.SugaredLogger) error {
-	if logger == nil {
-		return fmt.Errorf("%w: %s", ErrLog, "no logger")
+func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx) error {
+	logger, useLogger := ctx.Value(LoggerKey).(*zap.SugaredLogger)
+	if !useLogger {
+		return fmt.Errorf("%w: %s", ErrCtxLog, "no logger")
 	}
+	logger.Infoln("Running a cleanup of the database", r)
 	if r < None || r > Releaser {
 		return fmt.Errorf("%w: %d", ErrRepair, r)
 	}
 	if r == None {
 		return nil
 	}
-	if err := invalidUUIDs(ctx, tx); err != nil {
+	if err := invalidUUIDs(ctx, db); err != nil {
 		return fmt.Errorf("invalid UUIDs: %w", err)
 	}
-	if err := coldfusionIDs(ctx, tx, logger); err != nil {
+	if err := coldfusionIDs(ctx, db); err != nil {
 		return fmt.Errorf("coldfusion IDs: %w", err)
 	}
 	switch r {
-	case All:
+	case Artifacts:
+		logger.Infoln("Cleaning up the artifacts whitespace and null values")
 		if err := contentWhiteSpace(tx); err != nil {
+			defer tx.Rollback()
 			return fmt.Errorf("content white space: %w", err)
 		}
 		if err := nullifyEmpty(tx); err != nil {
+			defer tx.Rollback()
 			return fmt.Errorf("nullify empty: %w", err)
 		}
 		if err := nullifyZero(tx); err != nil {
+			defer tx.Rollback()
 			return fmt.Errorf("nullify zero: %w", err)
 		}
 		if err := trimFwdSlash(tx); err != nil {
+			defer tx.Rollback()
 			return fmt.Errorf("trim forward slash: %w", err)
+		}
+		if err := trainers(ctx, tx); err != nil {
+			defer tx.Rollback()
+			return fmt.Errorf("trainers: %w", err)
+		}
+		if err := tx.Commit(); err != nil {
+			return fmt.Errorf("artifacts transaction commit %w", err)
 		}
 		fallthrough
 	case Releaser:
-		if err := releasers(ctx, tx, logger); err != nil {
+		if err := releasers(ctx, db); err != nil {
 			return fmt.Errorf("releasers: %w", err)
 		}
 	}
@@ -96,7 +127,12 @@ func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx, logger *zap.Sug
 // A blank CFID is "00000000-0000-0000-0000000000000000".
 //
 // [ColdFusion language syntax]: https://cfdocs.org/createuuid
-func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor, logger *zap.SugaredLogger) error {
+func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor) error {
+	logger, useLogger := ctx.Value(LoggerKey).(*zap.SugaredLogger)
+	if !useLogger {
+		return fmt.Errorf("%w: %s", ErrCtxLog, "no logger")
+	}
+	logger.Infoln("Checking for invalid UUIDs using the ColdFusion syntax")
 	mods := qm.SQL("SELECT uuid FROM files WHERE length(uuid)=35")
 	fs, err := models.Files(mods).All(ctx, exec)
 	if err != nil {
@@ -130,6 +166,45 @@ func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor, logger *zap.S
 			continue
 		}
 	}
+	return nil
+}
+
+func trainers(ctx context.Context, tx *sql.Tx) error {
+	logger, useLogger := ctx.Value(LoggerKey).(*zap.SugaredLogger)
+	if !useLogger {
+		return fmt.Errorf("%w: %s", ErrCtxLog, "no logger")
+	}
+	const trainer = "gamehack"
+	logger.Infof("Checking for trainers that are not categorized as %q", trainer)
+	mods := []qm.QueryMod{}
+	mods = append(mods, qm.Select("id"))
+	mods = append(mods, qm.Where(fmt.Sprintf("section != '%s'", trainer)))
+	mods = append(mods, qm.Where("section != 'magazine'"))
+	mods = append(mods, qm.Where("record_title ILIKE '%trainer%'"))
+	mods = append(mods, qm.Where("platform = 'dos' OR platform = 'windows'"))
+	fs, err := models.Files(mods...).All(ctx, tx)
+	if err != nil {
+		return fmt.Errorf("models.Files: %w", err)
+	}
+	l := len(fs)
+	if l == 0 {
+		return nil
+	}
+	mods = []qm.QueryMod{}
+	for i, f := range fs {
+		if i == 0 {
+			mods = append(mods, qm.Where("id = ?", f.ID))
+			continue
+		}
+		if i < l {
+			mods = append(mods, qm.Or("id = ?", f.ID))
+		}
+	}
+	rowsAff, err := models.Files(mods...).UpdateAll(ctx, tx, models.M{"section": trainer})
+	if err != nil {
+		return fmt.Errorf("models.Files: %w", err)
+	}
+	logger.Infof("Updated %d trainers", rowsAff)
 	return nil
 }
 
@@ -175,18 +250,28 @@ func fixes() map[string]string {
 }
 
 // releasers will repair the group_brand_by and group_brand_for releasers data.
-func releasers(ctx context.Context, exec boil.ContextExecutor, logger *zap.SugaredLogger) error {
-	x := null.NewString("", true)
+func releasers(ctx context.Context, exec boil.ContextExecutor) error {
+	logger, useLogger := ctx.Value(LoggerKey).(*zap.SugaredLogger)
+	if !useLogger {
+		return fmt.Errorf("%w: %s", ErrCtxLog, "no logger")
+	}
+	logger.Infoln("Cleaning up the releasers group_brand_by and group_brand_for")
 	f, err := models.Files(
 		qm.Where("group_brand_for = group_brand_by"),
 		qm.WithDeleted()).All(ctx, exec)
 	if err != nil {
-		return fmt.Errorf("models.Files group_brand_for = group_brand_by: %w", err)
+		return fmt.Errorf("update group_brand_for = group_brand_by: %w", err)
 	}
-	if _, err = f.UpdateAll(ctx, exec, models.M{"group_brand_by": x}); err != nil {
-		return fmt.Errorf("f.UpdateAll group_brand_by: %w", err)
+	if len(f) > 0 {
+		empty := null.NewString("", true)
+		rowsAff, err := f.UpdateAll(ctx, exec, models.M{"group_brand_by": empty})
+		if err != nil {
+			return fmt.Errorf("update all to null group_brand_by: %w", err)
+		}
+		if rowsAff > 0 {
+			logger.Infof("Updated %d group_brand_by to NULL\n", rowsAff)
+		}
 	}
-	var rowsAff int64
 	for bad, fix := range fixes() {
 		bad = strings.ToUpper(bad)
 		fix = strings.ToUpper(fix)
@@ -194,27 +279,27 @@ func releasers(ctx context.Context, exec boil.ContextExecutor, logger *zap.Sugar
 			qm.Where("group_brand_for = ?", bad),
 			qm.WithDeleted()).All(ctx, exec)
 		if err != nil {
-			return fmt.Errorf("models.Files: %w", err)
+			return fmt.Errorf("where group_brand_for is bad: %w", err)
 		}
-		rowsAff, err = f.UpdateAll(ctx, exec, models.M{"group_brand_for": fix})
+		rowsAff, err := f.UpdateAll(ctx, exec, models.M{"group_brand_for": fix})
 		if err != nil {
-			return fmt.Errorf("f.UpdateAll group_brand_for: %w", err)
+			return fmt.Errorf("update all group_brand_for fix: %w", err)
 		}
 		if rowsAff > 0 {
-			logger.Infoln("updated", rowsAff, "groups for to", fix)
+			logger.Infof("Updated %d groups for to %q", rowsAff, fix)
 		}
 		f, err = models.Files(
 			qm.Where("group_brand_by = ?", bad),
 			qm.WithDeleted()).All(ctx, exec)
 		if err != nil {
-			return fmt.Errorf("models.Files group_brand_by: %w", err)
+			return fmt.Errorf("where group_brand_by is bad: %w", err)
 		}
 		rowsAff, err = f.UpdateAll(ctx, exec, models.M{"group_brand_by": fix})
 		if err != nil {
-			return fmt.Errorf("f.UpdateAll group_brand_by: %w", err)
+			return fmt.Errorf("update all to null group_brand_by fix: %w", err)
 		}
 		if rowsAff > 0 {
-			logger.Infoln("updated", rowsAff, "groups by to", fix)
+			logger.Infof("Updated %d groups by to %q", rowsAff, fix)
 		}
 	}
 	_, err = queries.Raw(postgres.SetUpper("group_brand_for")).Exec(exec)
@@ -238,16 +323,16 @@ func releasers(ctx context.Context, exec boil.ContextExecutor, logger *zap.Sugar
 func magics(ctx context.Context, exec boil.ContextExecutor) error {
 	magics, err := models.Files(qm.Where("file_magic_type ILIKE ?", "ERROR: %")).All(ctx, exec)
 	if err != nil {
-		return fmt.Errorf("models.Files file_magic_type: %w", err)
+		return fmt.Errorf("where ilike file_magic_type: %w", err)
 	}
 	rowsAff, err := magics.UpdateAll(ctx, exec, models.M{"file_magic_type": ""})
 	if err != nil {
-		return fmt.Errorf("magics.UpdateAll file_magic_type: %w", err)
+		return fmt.Errorf("update all file_magic_type: %w", err)
 	}
 	if rowsAff > 0 {
 		logger, loggerExists := ctx.Value("logger").(*zap.SugaredLogger)
 		if loggerExists {
-			logger.Infoln("removed", rowsAff, "file magic types with errors")
+			logger.Infof("Removed %d file magic types with errors", rowsAff)
 		}
 	}
 	return nil
@@ -258,7 +343,7 @@ func contentWhiteSpace(exec boil.ContextExecutor) error {
 	_, err := queries.Raw("UPDATE files SET file_zip_content = " +
 		"RTRIM(regexp_replace(file_zip_content, '\n+', '\n', 'g'), '\r');").Exec(exec)
 	if err != nil {
-		return fmt.Errorf("queries.Raw: %w", err)
+		return fmt.Errorf("queries raw %w", err)
 	}
 	return nil
 }
@@ -276,16 +361,19 @@ func optimize(db *sql.DB) error {
 // invalidUUIDs will count the number of invalid UUIDs in the database.
 // This should be part of a future function to repair the UUIDs and rename the file assets.
 func invalidUUIDs(ctx context.Context, exec boil.ContextExecutor) error {
+	logger, loggerExists := ctx.Value(LoggerKey).(*zap.SugaredLogger)
+	if loggerExists {
+		logger.Infof("Checking for records with invalid UUID values")
+	}
 	mods := qm.SQL("SELECT COUNT(*) FROM files WHERE files.uuid" +
 		" !~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}';")
 	i, err := models.Files(mods).Count(ctx, exec)
 	if err != nil {
-		return fmt.Errorf("models.Files: %w", err)
+		return fmt.Errorf("models files count %w", err)
 	}
 	if i == 0 {
 		return nil
 	}
-	logger, loggerExists := ctx.Value("logger").(*zap.SugaredLogger)
 	if loggerExists {
 		logger.Warnf("%d invalid UUIDs found", i)
 	}
@@ -304,7 +392,7 @@ func nullifyEmpty(exec boil.ContextExecutor) error {
 		query += UpdateSet + column + " = NULL WHERE " + column + " = ''; "
 	}
 	if _, err := queries.Raw(query).Exec(exec); err != nil {
-		return fmt.Errorf("queries.Raw: %w", err)
+		return fmt.Errorf("queries raw execute %w", err)
 	}
 	return nil
 }
