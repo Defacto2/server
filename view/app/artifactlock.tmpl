@@ -6,7 +6,10 @@
 {{- if ne true $locked}}{{/*  render nothing  */}}{{else}}
 {{- $alertCls := "w-100 my-0 text-center"}}
 {{- $forApproval := index . "forApproval"}}
+{{- $disableApproval := index . "disableApproval"}}
+{{- $missingAssets := index . "missingAssets"}}
 {{- $disableRecord := index . "disableRecord"}}
+{{- $modID := index . "modID"}}
 <div class="alert alert-light">
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-2">
         <div class="col d-grid"><a href="#" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal"  class="btn btn-primary">Data editor</a></div>
@@ -18,15 +21,22 @@
     {{- if $disableRecord}}
     <p class="{{$alertCls}} text-danger-emphasis">🚫 Record is disabled and hidden from public access. 🚫</p>
     {{- else if $forApproval}}
-    <p class="{{$alertCls}} text-primary-emphasis">
+    <p class="{{$alertCls}} text-primary-emphasis" id="record-is-hidden">
         ⛔ This new record is hidden from public access.<br>
-        {{- /*  todo: create a htmx element to approve and refresh  */}}
-        If the data and images are correct, <a href="">it can be approved</a>.
+        {{- if eq $disableApproval ""}}
+        If the data and images are correct, <a href="#" hx-get="/editor/online/true/{{$modID}}" hx-target="#record-is-hidden">it can be approved</a>.
+        {{- end}}
     </p>
     {{- else}}
     <p class="{{$alertCls}} text-success-emphasis">Record is visible to the public.</p>
     {{- end}}
-    {{- /*  todo: alerts for obvious issues, no cat/platform/releasers/etc  */}}
+    {{- if ne $disableApproval ""}}
+    <div class="text-center"><a href="#" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal">The artifact is missing some required data</a> and should not be public.</div>
+    <div class="text-danger-emphasis text-center">some problems: {{$disableApproval}}.</div>
+    {{- end}}
+    {{- if ne $missingAssets ""}}
+    <div class="text-warning-emphasis text-center">a suggestion: {{$missingAssets}}.</div>
+    {{- end}}
 </div>
 {{- end}}
 {{- end}}

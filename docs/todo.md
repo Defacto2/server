@@ -11,7 +11,6 @@
 - [ ] Use DigitalOcean API to display Estimated Droplet Transfer Pool usage and remaining balance. 
 		https://pkg.go.dev/github.com/digitalocean/godo https://docs.digitalocean.com/reference/api/api-reference/#operation/droplets_get
 - [ ] js-dos doesn't yet support `extras` zipped files.
-- [ ] Implement _If the data and images are correct, it can be approved._
 - [ ] After a successful demozoo/pouet upload, defer a sync for the data to the artifact record.
 
 #### Upload tests

@@ -89,6 +89,8 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	})
 	g.POST("/comment", htmx.RecordComment)
 	g.POST("/comment/reset", htmx.RecordCommentReset)
+
+	// replace with g.DELETE
 	g.POST("/delete/forever/:key", func(c echo.Context) error {
 		return htmx.DeleteForever(c, logger, c.Param("key"))
 	})
@@ -157,6 +159,9 @@ func online(g *echo.Group) {
 	})
 	online.POST("/false", func(cx echo.Context) error {
 		return htmx.RecordToggle(cx, false)
+	})
+	online.GET("/true/:id", func(cx echo.Context) error {
+		return htmx.RecordToggleByID(cx, cx.Param("id"), true)
 	})
 }
 

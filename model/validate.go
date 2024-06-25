@@ -3,6 +3,7 @@ package model
 import (
 	"crypto/sha512"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"mime"
 	"regexp"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/releaser"
+	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/volatiletech/null/v8"
 )
@@ -19,6 +21,41 @@ const (
 	ShortLimit   = 100 // ShortLimit is the maximum length of a short string.
 	LongFilename = 255 // LongFilename is the maximum length of a filename.
 )
+
+// Validate checks the artifact record for any missing or invalid values
+// that should prevent it from being published and public.
+//
+// All found issues will be returned as joined error messages.
+func Validate(art *models.File) error {
+	if art == nil {
+		return fmt.Errorf("model validate: %w", ErrModel)
+	}
+	var err error
+	if !art.Section.Valid || art.Section.String == "" {
+		err = errors.Join(err, errors.New("category tag or section is missing,"))
+	} else if !tags.IsCategory(art.Section.String) {
+		err = errors.Join(err, fmt.Errorf("category tag or section is invalid: %q,", art.Section.String))
+	}
+	fmt.Printf("Validate: %v\n", err)
+	if !art.Platform.Valid || art.Platform.String == "" {
+		err = errors.Join(err, errors.New("operating system or platform is missing,"))
+	} else if !tags.IsPlatform(art.Platform.String) {
+		err = errors.Join(err, fmt.Errorf("operating system or platform is invalid: %q,", art.Platform.String))
+	}
+	fmt.Printf("Validate: %v\n", err)
+	if !art.Filename.Valid || art.Filename.String == "" {
+		err = errors.Join(err, errors.New("the filename is missing,"))
+	}
+	fmt.Printf("Validate: %v\n", err)
+	if (!art.GroupBrandBy.Valid && !art.GroupBrandFor.Valid) || (art.GroupBrandBy.String == "" && art.GroupBrandFor.String == "") {
+		err = errors.Join(err, errors.New("at least one releaser is required,"))
+	}
+	fmt.Printf("Validate: %v\n", err)
+	if art.Section.String == tags.Mag.String() && (!art.RecordTitle.Valid || art.RecordTitle.String == "") {
+		err = errors.Join(err, errors.New("a magazine requires an issue number or a title,"))
+	}
+	return err
+}
 
 // ValidDateIssue returns a valid year, month and day or a null value.
 func ValidDateIssue(y, m, d string) (null.Int16, null.Int16, null.Int16) {

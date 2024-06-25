@@ -26,20 +26,40 @@ var ErrYT = errors.New("youtube watch video id needs to be empty or 11 character
 // The return value is either "online" or "offline" depending on the state.
 func RecordToggle(c echo.Context, state bool) error {
 	key := c.FormValue("artifact-editor-key")
-	id, err := strconv.Atoi(key)
+	id, err := strconv.ParseInt(key, 10, 64)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	if state {
-		if err := model.UpdateOnline(int64(id)); err != nil {
-			return badRequest(c, fmt.Errorf("model.UpdateOnline: %w", err))
+		if err := model.UpdateOnline(id); err != nil {
+			return fmt.Errorf("artifact record toggle online: %w", err)
 		}
 		return c.String(http.StatusOK, "online")
 	}
-	if err := model.UpdateOffline(int64(id)); err != nil {
-		return badRequest(c, fmt.Errorf("model.UpdateOffline: %w", err))
+	if err := model.UpdateOffline(id); err != nil {
+		return fmt.Errorf("artifact record toggle offline: %w", err)
 	}
 	return c.String(http.StatusOK, "offline")
+}
+
+// RecordToggle handles the post submission for the file artifact record toggle.
+// The key string is converted into an integer and used as the artifact id.
+// The return value is either "online" or "offline" depending on the state.
+func RecordToggleByID(c echo.Context, key string, state bool) error {
+	id, err := strconv.ParseInt(key, 10, 64)
+	if err != nil {
+		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+	}
+	if state {
+		if err := model.UpdateOnline(id); err != nil {
+			return fmt.Errorf("artifact record toggle by id online: %w", err)
+		}
+		return c.String(http.StatusOK, "Record is visible to the public.")
+	}
+	if err := model.UpdateOffline(id); err != nil {
+		return fmt.Errorf("artifact record toggle by id offline: %w", err)
+	}
+	return c.String(http.StatusOK, "🚫 Record is disabled and hidden from public access. 🚫")
 }
 
 // RecordClassification handles the post submission for the file artifact classifications,

@@ -31,6 +31,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/render"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/dustin/go-humanize"
 	"github.com/h2non/filetype"
@@ -224,8 +225,51 @@ func (dir Dirs) artifactEditor(art *models.File, data map[string]interface{}, re
 	data["modTag"] = strings.ToLower(strings.TrimSpace(art.Section.String))
 	data["virusTotal"] = strings.TrimSpace(art.FileSecurityAlertURL.String)
 	data["forApproval"] = !art.Deletedat.IsZero() && art.Deletedby.IsZero()
+	data["disableApproval"] = disableApproval(art)
 	data["disableRecord"] = !art.Deletedat.IsZero() && !art.Deletedby.IsZero()
+	data["missingAssets"] = missingAssets(art, dir)
 	return data
+}
+
+func disableApproval(art *models.File) string {
+	validate := model.Validate(art)
+	if validate == nil {
+		return ""
+	}
+	x := strings.Split(validate.Error(), ",")
+	s := make([]string, 0, len(x))
+	for _, v := range x {
+		if strings.TrimSpace(v) == "" {
+			continue
+		}
+		s = append(s, v)
+	}
+	slices.Clip(s)
+	return strings.Join(s, " + ")
+}
+
+func missingAssets(art *models.File, dir Dirs) string {
+	uid := art.UUID.String
+	missing := []string{}
+	d := helper.File(filepath.Join(dir.Download, uid))
+	p := helper.File(filepath.Join(dir.Preview, uid+".png"))
+	t := helper.File(filepath.Join(dir.Thumbnail, uid+".png"))
+	if d && p && t {
+		return ""
+	}
+	if !d {
+		missing = append(missing, "offer a file for download")
+	}
+	if art.Platform.String == tags.Audio.String() {
+		return strings.Join(missing, " + ")
+	}
+	if !p {
+		missing = append(missing, "create a preview image")
+	}
+	if !t {
+		missing = append(missing, "create a thumbnail image")
+	}
+	return strings.Join(missing, " + ")
 }
 
 func content(art *models.File, data map[string]interface{}) map[string]interface{} {
