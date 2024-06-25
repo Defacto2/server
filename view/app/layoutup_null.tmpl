@@ -1,11 +1,12 @@
 {{- /*  layoutup_null.tmpl  */}}
 {{- define "layoutup" -}}
+{{- $lock := index . "editor" }}
 <div class="btn-group dropstart">
     <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
       {{- if ne true $lock}}Uploader{{else}}Site editor{{end}}
     </button>
     <ul class="dropdown-menu">
-      <li><h6 class="dropdown-header">Sorry, the database is readonly or offline</h6></li>
       {{- template "layoutlock" . }}
+      <li><h6 class="dropdown-header">Sorry, the database is readonly or offline</h6></li>
     </ul>
 </div>{{end}}
