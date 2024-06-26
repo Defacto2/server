@@ -422,7 +422,7 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 		return data, nil
 	}
 	// occasionally, an image is flagged as a text file
-	if magicnumber.PNG(b) {
+	if magicnumber.PNG(r) {
 		return data, nil
 	}
 	// trim trailing whitespace and MS-DOS era EOF marker
@@ -691,15 +691,15 @@ func artifactMagic(name string) string {
 		return err.Error()
 	}
 	// ANSI text encoding file type.
-	filetype.AddMatcher(filetype.NewType("ans", "application/x-ansi"), magicnumber.ANSI)
-	filetype.AddMatcher(filetype.NewType("arc", "application/x-arc"), magicnumber.ArcSea)
-	filetype.AddMatcher(filetype.NewType("arj", "application/x-arj"), magicnumber.ARJ)
+	filetype.AddMatcher(filetype.NewType("ans", "application/x-ansi"), magicnumber.ANSIB)
+	filetype.AddMatcher(filetype.NewType("arc", "application/x-arc"), magicnumber.ArcSeaB)
+	filetype.AddMatcher(filetype.NewType("arj", "application/x-arj"), magicnumber.ARJB)
 	// MS-DOS command file type, the .com extension operates like an .exe executable file but is limited to 64KB.
-	filetype.AddMatcher(filetype.NewType("com", "application/x-msdos-program"), magicnumber.DOSCom)
+	filetype.AddMatcher(filetype.NewType("com", "application/x-msdos-program"), magicnumber.DOSComB)
 	// The Interchange File Format (IFF) file type.
-	filetype.AddMatcher(filetype.NewType("bmp", "image/x-iff"), magicnumber.InterchangeFF)
+	filetype.AddMatcher(filetype.NewType("bmp", "image/x-iff"), magicnumber.InterchangeFFB)
 	// ZSoft Corporation PCX (Personal Computer eXchange) file type.
-	filetype.AddMatcher(filetype.NewType("pcx", "image/x-pcx"), magicnumber.PCX)
+	filetype.AddMatcher(filetype.NewType("pcx", "image/x-pcx"), magicnumber.PCXB)
 	kind, err := filetype.Match(head)
 	if err != nil {
 		return err.Error()
