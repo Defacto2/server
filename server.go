@@ -60,9 +60,10 @@ var (
 // By default the web server runs when no arguments are provided.
 // Otherwise, the command-line arguments are parsed and the application exits.
 func main() {
+	const exit = 0
 	logger, configs := environmentVars()
-	if code := parseFlags(logger, configs); code >= 0 {
-		os.Exit(code)
+	if exitCode := parseFlags(logger, configs); exitCode >= exit {
+		os.Exit(exitCode)
 	}
 	var w io.Writer = os.Stdout
 	if configs.Quiet {
@@ -78,8 +79,8 @@ func main() {
 	if db != nil {
 		boil.SetDB(db)
 	}
-	var ver postgres.Version
-	if err := ver.Query(db); err != nil {
+	var database postgres.Version
+	if err := database.Query(db); err != nil {
 		logger.Errorf("postgres version query: %w", err)
 	}
 
@@ -219,7 +220,7 @@ func repairChecks(logger *zap.SugaredLogger, configs config.Config) {
 	if err := configs.RepairFS(logger); err != nil {
 		logger.Errorf("repair checks for the file system directories: %s", err)
 	}
-	if err := repairDB(logger); err != nil {
+	if err := repairDatabase(logger); err != nil {
 		if errors.Is(err, ErrVer) {
 			logger.Warnf("A %s, is the database server down?", ErrVer)
 		} else {
@@ -249,8 +250,8 @@ func serverLog(configs config.Config, count int) *zap.SugaredLogger {
 	return logger
 }
 
-// repairDB on startup checks the database connection and make any data corrections.
-func repairDB(logger *zap.SugaredLogger) error {
+// repairDatabase on startup checks the database connection and make any data corrections.
+func repairDatabase(logger *zap.SugaredLogger) error {
 	if logger == nil {
 		return fmt.Errorf("%w: %s", ErrLog, "the repair database has no logger")
 	}

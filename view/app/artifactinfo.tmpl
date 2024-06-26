@@ -117,10 +117,10 @@
                 <a class="d-inline d-sm-none btn btn-outline-secondary" href="/sum/{{$download}}" role="button">Checksum</a>
             {{- end}}
             {{- if $content}}
-                <a class="d-inline btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#view-content-modal">view content</a>
+                <a class="d-inline btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#view-content-modal">view content</a>
             {{- end}}
             {{- if ne "" $preview}}
-                <a class="d-inline btn btn-outline-secondary btn-sm" href="{{$preview}}" role="button" 
+                <a class="d-inline btn btn-outline-secondary" href="{{$preview}}" role="button" 
                     data-bs-toggle="tooltip" data-bs-title="{{$previewTip}}">preview</a>
             {{- end}}
             </div>
