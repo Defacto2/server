@@ -1,51 +1,17 @@
-// Package magic contains the file register and type matchers.
-package magic
+// Package magicnumber contains the magic number matchers for identifying file types.
+package magicnumber
 
 import (
 	"bytes"
 	"net/http"
 	"strings"
-
-	"github.com/h2non/filetype"
-	"github.com/h2non/filetype/types"
 )
 
-// ANSIType returns the ANSI text file type.
-func ANSIType() types.Type {
-	return filetype.NewType("ans", "application/x-ansi")
-}
-
-// ArcSeaType returns the ARC compression file type.
-func ArcSeaType() types.Type {
-	return filetype.NewType("arc", "application/x-arc")
-}
-
-// ARJType returns the ARJ compression file type.
-func ARJType() types.Type {
-	return filetype.NewType("arj", "application/x-arj")
-}
-
-// DOSComType returns the MS-DOS command file type.
-// The .com extension operates like an .exe executable file but is limited to 64KB.
-func DOSComType() types.Type {
-	return filetype.NewType("com", "application/x-msdos-program")
-}
-
-// InterchangeType returns the Interchange File Format (IFF) file type.
-func InterchangeType() types.Type {
-	return filetype.NewType("bmp", "image/x-iff")
-}
-
-// PCXType returns the ZSoft Corporation PCX (Personal Computer eXchange) file type.
-func PCXType() types.Type {
-	return filetype.NewType("pcx", "image/x-pcx")
-}
-
-// ANSIMatcher matches attempts to match ANSI escape sequences used in text files.
+// ANSI matches attempts to match ANSI escape sequences used in text files.
 // Some BBS text files are prefixed with the reset sequence but are not ANSI encoded texts.
 // For performance, this matcher only looks for reset plus the clean at the start of Amiga
 // texts or incomplete bold or normal text graphics mode sequences for DOS art.
-func ANSIMatcher(buf []byte) bool {
+func ANSI(buf []byte) bool {
 	const min = 4
 	if len(buf) < min {
 		return false
@@ -73,10 +39,10 @@ func ANSIMatcher(buf []byte) bool {
 	return false
 }
 
-// ArcSeaMatcher matches the ARC compression format created by
+// ArcSea matches the ARC compression format created by
 // System Enhancement Associates and used in the MS/PC-DOS and BBS communities.
 // See, http://fileformats.archiveteam.org/wiki/ARC_(compression_format).
-func ArcSeaMatcher(buf []byte) bool {
+func ArcSea(buf []byte) bool {
 	const min = 2
 	if len(buf) < min {
 		return false
@@ -88,9 +54,9 @@ func ArcSeaMatcher(buf []byte) bool {
 	return buf[0] == id && buf[1] <= method
 }
 
-// ARJMatcher matches ARJ compressed files developed by Robert Jung.
+// ARJ matches ARJ compressed files developed by Robert Jung.
 // See, http://fileformats.archiveteam.org/wiki/ARJ.
-func ARJMatcher(buf []byte) bool {
+func ARJ(buf []byte) bool {
 	const min = 11
 	if len(buf) < min {
 		return false
@@ -103,10 +69,10 @@ func ARJMatcher(buf []byte) bool {
 	return buf[0] == id && buf[1] == signature && buf[10] == offset
 }
 
-// DOSComMatcher matches MS-DOS executable files.
+// DOSCom matches MS-DOS executable files.
 // It is not a totally reliable matcher but is a common technique.
 // See, http://fileformats.archiveteam.org/wiki/DOS_executable_(.com).
-func DOSComMatcher(buf []byte) bool {
+func DOSCom(buf []byte) bool {
 	const min = 2
 	if len(buf) < min {
 		return false
@@ -118,11 +84,11 @@ func DOSComMatcher(buf []byte) bool {
 	return buf[0] == shortJumpE9 || buf[0] == shortJumpEB
 }
 
-// InterchangeMatcher matches Interchange File Format (IFF) files.
+// InterchangeFF matches Interchange File Format (IFF) files.
 // This is a generic matcher for IFF bitmap images originally created by
 // Electronic Arts for use on Amiga systems in 1985.
 // See, http://fileformats.archiveteam.org/wiki/IFF.
-func InterchangeMatcher(buf []byte) bool {
+func InterchangeFF(buf []byte) bool {
 	const min = 12
 	if len(buf) < min {
 		return false
@@ -133,9 +99,9 @@ func InterchangeMatcher(buf []byte) bool {
 	return bytes.Equal(buf[8:12], []byte{'I', 'L', 'B', 'M'})
 }
 
-// PCXMatcher matches ZSoft Corporation PCX (Personal Computer eXchange) files.
+// PCX matches ZSoft Corporation PCX (Personal Computer eXchange) files.
 // See, http://fileformats.archiveteam.org/wiki/PCX.
-func PCXMatcher(buf []byte) bool {
+func PCX(buf []byte) bool {
 	if len(buf) < 1 {
 		return false
 	}
@@ -154,4 +120,13 @@ func PCXMatcher(buf []byte) bool {
 		return false
 	}
 	return true
+}
+
+// PNG returns true if the byte slice has a PNG file signature.
+func PNG(buf []byte) bool {
+	fileSignature := []byte{137, 80, 78, 71, 13, 10, 26, 10}
+	if len(buf) < len(fileSignature) {
+		return false
+	}
+	return bytes.EqualFold(buf[:8], fileSignature)
 }

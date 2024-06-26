@@ -27,7 +27,7 @@ import (
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/magic"
+	"github.com/Defacto2/server/internal/magicnumber"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/render"
@@ -422,7 +422,7 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 		return data, nil
 	}
 	// occasionally, an image is flagged as a text file
-	if pngImage(b) {
+	if magicnumber.PNG(b) {
 		return data, nil
 	}
 	// trim trailing whitespace and MS-DOS era EOF marker
@@ -532,15 +532,6 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	data["readmeLines"] = strings.Count(readme, "\n")
 	data["readmeRows"] = helper.MaxLineLength(readme)
 	return data, nil
-}
-
-// pngImage returns true if the byte slice has a PNG file signature.
-func pngImage(p []byte) bool {
-	fileSignature := []byte{137, 80, 78, 71, 13, 10, 26, 10}
-	if len(p) < len(fileSignature) {
-		return false
-	}
-	return bytes.EqualFold(p[:8], fileSignature)
 }
 
 // isZip checks if b is a known zip archive.
@@ -699,12 +690,16 @@ func artifactMagic(name string) string {
 	if err != nil {
 		return err.Error()
 	}
-	filetype.AddMatcher(magic.ANSIType(), magic.ANSIMatcher)
-	filetype.AddMatcher(magic.ArcSeaType(), magic.ArcSeaMatcher)
-	filetype.AddMatcher(magic.ARJType(), magic.ARJMatcher)
-	filetype.AddMatcher(magic.DOSComType(), magic.DOSComMatcher)
-	filetype.AddMatcher(magic.InterchangeType(), magic.InterchangeMatcher)
-	filetype.AddMatcher(magic.PCXType(), magic.PCXMatcher)
+	// ANSI text encoding file type.
+	filetype.AddMatcher(filetype.NewType("ans", "application/x-ansi"), magicnumber.ANSI)
+	filetype.AddMatcher(filetype.NewType("arc", "application/x-arc"), magicnumber.ArcSea)
+	filetype.AddMatcher(filetype.NewType("arj", "application/x-arj"), magicnumber.ARJ)
+	// MS-DOS command file type, the .com extension operates like an .exe executable file but is limited to 64KB.
+	filetype.AddMatcher(filetype.NewType("com", "application/x-msdos-program"), magicnumber.DOSCom)
+	// The Interchange File Format (IFF) file type.
+	filetype.AddMatcher(filetype.NewType("bmp", "image/x-iff"), magicnumber.InterchangeFF)
+	// ZSoft Corporation PCX (Personal Computer eXchange) file type.
+	filetype.AddMatcher(filetype.NewType("pcx", "image/x-pcx"), magicnumber.PCX)
 	kind, err := filetype.Match(head)
 	if err != nil {
 		return err.Error()

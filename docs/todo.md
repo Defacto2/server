@@ -2,14 +2,31 @@
 
 ### Ideas or doubleful tasks
 
-- [ ] ? Implememnt a [scheduling library for Go](https://github.com/reugn/go-quartz).
+- [ ] Implememnt a scheduling library for Go
+- - [gocron](https://github.com/go-co-op/gocron)
+- - [Go Quartz](https://github.com/reugn/go-quartz)
 
 ### Recommendations
 
+- [ ] _Unique ID_ and _Record Key_ buttons should copy the value to the clipboard.
 - [ ] Use DigitalOcean API to display Estimated Droplet Transfer Pool usage and remaining balance. 
 		https://pkg.go.dev/github.com/digitalocean/godo https://docs.digitalocean.com/reference/api/api-reference/#operation/droplets_get
 - [ ] js-dos doesn't yet support `extras` zipped files.
 - [ ] After a successful demozoo/pouet upload, defer a sync for the data to the artifact record.
+- [ ] Find all uuid zip files that use legacy zip encodings, EXPLODE, UNSHRINK, UNREDUCE.
+- [ ] Find all msdos apps that use incompatible archives such as LHA, ARJ, ARC.
+
+Zip magic numbers:
+
+`50 4B 03 B4` - PK.. (PKZIP archive)
+`50 4B 05 06` - PK.. (PKZIP archive)
+`50 4B 07 08` - PK.. (PKZIP archive)
+`50 4B 4C 49` - PKLI (PKLITE archive)
+`50 4B 53 70` - PKSp (PKSFX self-extracting archive)
+`50 4B 55 53` - PKUS (PKSFX self-extracting archive)
+`50 4B 78 78` - PKxx (PKZIP archive)
+
+`50 4B 03 04` - PK␃␄
 
 #### Upload tests
 
