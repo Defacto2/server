@@ -32,7 +32,9 @@ func (a *Advert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, a)
 }
 
-func (a *Advert) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (a *Advert) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -63,7 +65,9 @@ func (a *Announcement) Stat(ctx context.Context, exec boil.ContextExecutor) erro
 		qm.From(From)).Bind(ctx, exec, a)
 }
 
-func (a *Announcement) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (a *Announcement) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -93,7 +97,9 @@ func (a *Ansi) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, a)
 }
 
-func (a *Ansi) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (a *Ansi) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -124,7 +130,9 @@ func (a *AnsiBrand) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, a)
 }
 
-func (a *AnsiBrand) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (a *AnsiBrand) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -155,7 +163,9 @@ func (a *AnsiBBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, a)
 }
 
-func (a *AnsiBBS) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (a *AnsiBBS) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -186,7 +196,9 @@ func (a *AnsiFTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, a)
 }
 
-func (a *AnsiFTP) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (a *AnsiFTP) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -217,7 +229,9 @@ func (a *AnsiNfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, a)
 }
 
-func (a *AnsiNfo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (a *AnsiNfo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -248,7 +262,9 @@ func (a *AnsiPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, a)
 }
 
-func (a *AnsiPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (a *AnsiPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -279,7 +295,9 @@ func (b *BBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, b)
 }
 
-func (b *BBS) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (b *BBS) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -310,7 +328,9 @@ func (b *BBStro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, b)
 }
 
-func (b *BBStro) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (b *BBStro) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -341,7 +361,9 @@ func (b *BBSImage) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, b)
 }
 
-func (b *BBSImage) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (b *BBSImage) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -372,7 +394,9 @@ func (b *BBSText) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, b)
 }
 
-func (b *BBSText) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (b *BBSText) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -403,7 +427,9 @@ func (d *Database) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, d)
 }
 
-func (d *Database) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (d *Database) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -434,7 +460,9 @@ func (d *Demoscene) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, d)
 }
 
-func (d *Demoscene) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (d *Demoscene) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -465,7 +493,9 @@ func (d *Drama) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, d)
 }
 
-func (d *Drama) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (d *Drama) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -496,7 +526,9 @@ func (f *FTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, f)
 }
 
-func (f *FTP) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (f *FTP) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -527,7 +559,9 @@ func (h *Hack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, h)
 }
 
-func (h *Hack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (h *Hack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -558,7 +592,9 @@ func (h *HowTo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, h)
 }
 
-func (h *HowTo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (h *HowTo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -589,7 +625,9 @@ func (h *HTML) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, h)
 }
 
-func (h *HTML) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (h *HTML) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -620,7 +658,9 @@ func (i *Image) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, i)
 }
 
-func (i *Image) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (i *Image) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -651,7 +691,9 @@ func (i *ImagePack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, i)
 }
 
-func (i *ImagePack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (i *ImagePack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -682,7 +724,9 @@ func (i *Intro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, i)
 }
 
-func (i *Intro) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (i *Intro) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -713,7 +757,9 @@ func (i *IntroMsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error 
 		qm.From(From)).Bind(ctx, exec, i)
 }
 
-func (i *IntroMsDos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (i *IntroMsDos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -745,7 +791,9 @@ func (i *IntroWindows) Stat(ctx context.Context, exec boil.ContextExecutor) erro
 		qm.From(From)).Bind(ctx, exec, i)
 }
 
-func (i *IntroWindows) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (i *IntroWindows) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -776,7 +824,9 @@ func (i *Installer) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, i)
 }
 
-func (i *Installer) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (i *Installer) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -807,7 +857,9 @@ func (j *Java) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, j)
 }
 
-func (j *Java) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (j *Java) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -838,7 +890,9 @@ func (j *JobAdvert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, j)
 }
 
-func (j *JobAdvert) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (j *JobAdvert) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -869,7 +923,9 @@ func (l *Linux) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, l)
 }
 
-func (l *Linux) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (l *Linux) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -900,7 +956,9 @@ func (m *Magazine) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, m)
 }
 
-func (m *Magazine) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (m *Magazine) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -931,7 +989,9 @@ func (m *Macos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, m)
 }
 
-func (m *Macos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (m *Macos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -962,7 +1022,9 @@ func (d *MsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, d)
 }
 
-func (d *MsDos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (d *MsDos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -993,7 +1055,9 @@ func (d *MsDosPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, d)
 }
 
-func (d *MsDosPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (d *MsDosPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1024,7 +1088,9 @@ func (m *Music) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, m)
 }
 
-func (m *Music) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (m *Music) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1055,7 +1121,9 @@ func (n *NewsArticle) Stat(ctx context.Context, exec boil.ContextExecutor) error
 		qm.From(From)).Bind(ctx, exec, n)
 }
 
-func (n *NewsArticle) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (n *NewsArticle) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1086,7 +1154,9 @@ func (n *Nfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, n)
 }
 
-func (n *Nfo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (n *Nfo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1117,7 +1187,9 @@ func (n *NfoTool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, n)
 }
 
-func (n *NfoTool) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (n *NfoTool) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1148,7 +1220,9 @@ func (p *PDF) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, p)
 }
 
-func (p *PDF) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (p *PDF) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1179,7 +1253,9 @@ func (p *Proof) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, p)
 }
 
-func (p *Proof) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (p *Proof) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1209,7 +1285,9 @@ func (r *Restrict) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, r)
 }
 
-func (r *Restrict) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (r *Restrict) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1240,7 +1318,9 @@ func (s *Script) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, s)
 }
 
-func (s *Script) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (s *Script) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1271,7 +1351,9 @@ func (s *Standard) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, s)
 }
 
-func (s *Standard) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (s *Standard) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1302,7 +1384,9 @@ func (t *Takedown) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, t)
 }
 
-func (t *Takedown) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (t *Takedown) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1333,7 +1417,9 @@ func (t *Text) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, t)
 }
 
-func (t *Text) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (t *Text) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1364,7 +1450,9 @@ func (t *TextAmiga) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, t)
 }
 
-func (t *TextAmiga) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (t *TextAmiga) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1395,7 +1483,9 @@ func (t *TextApple2) Stat(ctx context.Context, exec boil.ContextExecutor) error 
 		qm.From(From)).Bind(ctx, exec, t)
 }
 
-func (t *TextApple2) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (t *TextApple2) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1426,7 +1516,9 @@ func (t *TextAtariST) Stat(ctx context.Context, exec boil.ContextExecutor) error
 		qm.From(From)).Bind(ctx, exec, t)
 }
 
-func (t *TextAtariST) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (t *TextAtariST) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1457,7 +1549,9 @@ func (t *TextPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, t)
 }
 
-func (t *TextPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (t *TextPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1488,7 +1582,9 @@ func (t *Tool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, t)
 }
 
-func (t *Tool) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (t *Tool) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1519,7 +1615,9 @@ func (t *TrialCrackme) Stat(ctx context.Context, exec boil.ContextExecutor) erro
 		qm.From(From)).Bind(ctx, exec, t)
 }
 
-func (t *TrialCrackme) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (t *TrialCrackme) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1550,7 +1648,9 @@ func (v *Video) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, v)
 }
 
-func (v *Video) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (v *Video) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1581,7 +1681,9 @@ func (w *Windows) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.From(From)).Bind(ctx, exec, w)
 }
 
-func (w *Windows) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (w *Windows) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -1612,7 +1714,9 @@ func (w *WindowsPack) Stat(ctx context.Context, exec boil.ContextExecutor) error
 		qm.From(From)).Bind(ctx, exec, w)
 }
 
-func (w *WindowsPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (w *WindowsPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}

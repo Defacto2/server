@@ -114,7 +114,9 @@ func (r *Releasers) SimilarMagazine(ctx context.Context, exec boil.ContextExecut
 	return r.similar(ctx, exec, limit, "magazine", names...)
 }
 
-func (r *Releasers) similar(ctx context.Context, exec boil.ContextExecutor, limit uint, lookup string, names ...string) error {
+func (r *Releasers) similar(
+	ctx context.Context, exec boil.ContextExecutor, limit uint, lookup string, names ...string,
+) error {
 	if len(names) == 0 {
 		return nil
 	}

@@ -83,23 +83,18 @@ func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx) error {
 	case Artifacts:
 		logger.Infoln("Cleaning up the artifacts whitespace and null values")
 		if err := contentWhiteSpace(tx); err != nil {
-			defer tx.Rollback()
 			return fmt.Errorf("content white space: %w", err)
 		}
 		if err := nullifyEmpty(tx); err != nil {
-			defer tx.Rollback()
 			return fmt.Errorf("nullify empty: %w", err)
 		}
 		if err := nullifyZero(tx); err != nil {
-			defer tx.Rollback()
 			return fmt.Errorf("nullify zero: %w", err)
 		}
 		if err := trimFwdSlash(tx); err != nil {
-			defer tx.Rollback()
 			return fmt.Errorf("trim forward slash: %w", err)
 		}
 		if err := trainers(ctx, tx); err != nil {
-			defer tx.Rollback()
 			return fmt.Errorf("trainers: %w", err)
 		}
 		if err := tx.Commit(); err != nil {
@@ -306,7 +301,11 @@ func releasers(ctx context.Context, exec boil.ContextExecutor) error {
 			}
 		}
 	}
-	_, err = queries.Raw(postgres.SetUpper("group_brand_for")).Exec(exec)
+	return moreReleases(ctx, exec)
+}
+
+func moreReleases(ctx context.Context, exec boil.ContextExecutor) error {
+	_, err := queries.Raw(postgres.SetUpper("group_brand_for")).Exec(exec)
 	if err != nil {
 		return fmt.Errorf("set upper group_brand_for: %w", err)
 	}
@@ -357,7 +356,7 @@ func contentWhiteSpace(exec boil.ContextExecutor) error {
 func optimize(db *sql.DB) error {
 	_, err := queries.Raw("VACUUM ANALYZE files").Exec(db)
 	if err != nil {
-		return fmt.Errorf("queries.Raw: %w", err)
+		return fmt.Errorf("execute vacuum and analyze: %w", err)
 	}
 	return nil
 }
@@ -373,7 +372,7 @@ func invalidUUIDs(ctx context.Context, exec boil.ContextExecutor) error {
 		" !~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}';")
 	i, err := models.Files(mods).Count(ctx, exec)
 	if err != nil {
-		return fmt.Errorf("models files count %w", err)
+		return fmt.Errorf("query couunt: %w", err)
 	}
 	if i == 0 {
 		return nil
@@ -396,7 +395,7 @@ func nullifyEmpty(exec boil.ContextExecutor) error {
 		query += UpdateSet + column + " = NULL WHERE " + column + " = ''; "
 	}
 	if _, err := queries.Raw(query).Exec(exec); err != nil {
-		return fmt.Errorf("queries raw execute %w", err)
+		return fmt.Errorf("query execute: %w", err)
 	}
 	return nil
 }
@@ -411,7 +410,7 @@ func nullifyZero(exec boil.ContextExecutor) error {
 		query += UpdateSet + column + " = NULL WHERE " + column + " = 0; "
 	}
 	if _, err := queries.Raw(query).Exec(exec); err != nil {
-		return fmt.Errorf("queries.Raw: %w", err)
+		return fmt.Errorf("query execute: %w", err)
 	}
 	return nil
 }
@@ -423,7 +422,7 @@ func trimFwdSlash(exec boil.ContextExecutor) error {
 		query += UpdateSet + column + " = LTRIM(web_id_16colors, '/') WHERE web_id_16colors LIKE '/%'; "
 	}
 	if _, err := queries.Raw(query).Exec(exec); err != nil {
-		return fmt.Errorf("queries.Raw: %w", err)
+		return fmt.Errorf("query execute: %w", err)
 	}
 	return nil
 }

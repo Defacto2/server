@@ -11,6 +11,7 @@ import (
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
+	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/volatiletech/null/v8"
@@ -176,7 +177,7 @@ const (
 
 // UpdateStringFrom updates the column string from value with val.
 // The stringFrom columns are table columns that can either be null, empty, or have a string value.
-func UpdateStringFrom(column stringFrom, id int64, val string) error { //nolint:cyclop
+func UpdateStringFrom(column stringFrom, id int64, val string) error {
 	ctx := context.Background()
 	db, tx, err := postgres.ConnectTx()
 	if err != nil {
@@ -187,6 +188,19 @@ func UpdateStringFrom(column stringFrom, id int64, val string) error { //nolint:
 	if err != nil {
 		return fmt.Errorf("find file for %q: %w", column, err)
 	}
+	if err = updateStringCases(f, column, val); err != nil {
+		return fmt.Errorf("updatestringfrom: %w", err)
+	}
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
+		return fmt.Errorf("%q %s: %w", column, val, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("updatestringfrom: %w", err)
+	}
+	return nil
+}
+
+func updateStringCases(f *models.File, column stringFrom, val string) error {
 	s := null.StringFrom(strings.TrimSpace(val))
 	switch column {
 	case colors16:
@@ -220,13 +234,7 @@ func UpdateStringFrom(column stringFrom, id int64, val string) error { //nolint:
 	case youtube:
 		f.WebIDYoutube = s
 	default:
-		return fmt.Errorf("updatestringfrom: %w", ErrColumn)
-	}
-	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
-		return fmt.Errorf("%q %s: %w", column, val, err)
-	}
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("updatestringfrom: %w", err)
+		return ErrColumn
 	}
 	return nil
 }

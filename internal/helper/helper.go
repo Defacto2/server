@@ -366,7 +366,8 @@ func Ping(uri string) (int, int64, error) {
 	return res.StatusCode, size, nil
 }
 
-// LocalHostPing sends a HTTP GET request to the provided URI on the localhost and returns the status code and size of the response.
+// LocalHostPing sends a HTTP GET request to the provided URI on the localhost
+// and returns the status code and size of the response.
 func LocalHostPing(uri string, proto string, port int) (int, int64, error) {
 	if _, err := net.LookupHost("localhost"); err != nil {
 		return http.StatusInternalServerError, 0, fmt.Errorf("helper localhost ping lookup %w", err)

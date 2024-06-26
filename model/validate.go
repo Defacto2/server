@@ -22,6 +22,16 @@ const (
 	LongFilename = 255 // LongFilename is the maximum length of a filename.
 )
 
+var (
+	ErrTag        = errors.New("category tag or section is missing")
+	ErrTagInvalid = errors.New("category tag or section is invalid")
+	ErrOS         = errors.New("operating system or platform is missing")
+	ErrOSInvalid  = errors.New("operating system or platform is invalid")
+	ErrFile       = errors.New("the filename is missing")
+	ErrRel        = errors.New("at least one releaser is required")
+	ErrMag        = errors.New("a magazine requires an issue number or a title")
+)
+
 // Validate checks the artifact record for any missing or invalid values
 // that should prevent it from being published and public.
 //
@@ -32,27 +42,25 @@ func Validate(art *models.File) error {
 	}
 	var err error
 	if !art.Section.Valid || art.Section.String == "" {
-		err = errors.Join(err, errors.New("category tag or section is missing,"))
+		err = errors.Join(err, fmt.Errorf("%w,", ErrTag))
 	} else if !tags.IsCategory(art.Section.String) {
-		err = errors.Join(err, fmt.Errorf("category tag or section is invalid: %q,", art.Section.String))
+		err = errors.Join(err, fmt.Errorf("%w: %q,", ErrTagInvalid, art.Section.String))
 	}
-	fmt.Printf("Validate: %v\n", err)
 	if !art.Platform.Valid || art.Platform.String == "" {
-		err = errors.Join(err, errors.New("operating system or platform is missing,"))
+		err = errors.Join(err, fmt.Errorf("%w,", ErrOS))
 	} else if !tags.IsPlatform(art.Platform.String) {
-		err = errors.Join(err, fmt.Errorf("operating system or platform is invalid: %q,", art.Platform.String))
+		err = errors.Join(err, fmt.Errorf("%w: %q,", ErrOSInvalid, art.Platform.String))
 	}
-	fmt.Printf("Validate: %v\n", err)
 	if !art.Filename.Valid || art.Filename.String == "" {
-		err = errors.Join(err, errors.New("the filename is missing,"))
+		err = errors.Join(err, fmt.Errorf("%w,", ErrFile))
 	}
-	fmt.Printf("Validate: %v\n", err)
-	if (!art.GroupBrandBy.Valid && !art.GroupBrandFor.Valid) || (art.GroupBrandBy.String == "" && art.GroupBrandFor.String == "") {
-		err = errors.Join(err, errors.New("at least one releaser is required,"))
+	if (!art.GroupBrandBy.Valid && !art.GroupBrandFor.Valid) ||
+		(art.GroupBrandBy.String == "" && art.GroupBrandFor.String == "") {
+		err = errors.Join(err, fmt.Errorf("%w,", ErrRel))
 	}
-	fmt.Printf("Validate: %v\n", err)
-	if art.Section.String == tags.Mag.String() && (!art.RecordTitle.Valid || art.RecordTitle.String == "") {
-		err = errors.Join(err, errors.New("a magazine requires an issue number or a title,"))
+	if art.Section.String == tags.Mag.String() &&
+		(!art.RecordTitle.Valid || art.RecordTitle.String == "") {
+		err = errors.Join(err, fmt.Errorf("%w,", ErrMag))
 	}
 	return err
 }

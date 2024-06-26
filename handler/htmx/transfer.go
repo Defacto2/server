@@ -120,7 +120,6 @@ func IntroSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool, downloadD
 	}
 	const key = "uploader-intro"
 	c.Set(key+"-category", tags.Intro.String())
-	fmt.Println(key, "for intro during submission,", tags.Intro.String())
 	return transfer(c, logger, key, downloadDir)
 }
 
@@ -212,7 +211,7 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key, downloadDir string
 	creator := creator{
 		file: file, readme: readme, key: key, checksum: checksum, content: content,
 	}
-	id, uid, err := creator.insert(c, ctx, tx, logger)
+	id, uid, err := creator.insert(ctx, c, tx, logger)
 	if err != nil {
 		return fmt.Errorf("creator.insert: %w", err)
 	} else if id == 0 {
@@ -391,7 +390,7 @@ type creator struct {
 	content  []string
 }
 
-func (cr creator) insert(c echo.Context, ctx context.Context, tx *sql.Tx, logger *zap.SugaredLogger,
+func (cr creator) insert(ctx context.Context, c echo.Context, tx *sql.Tx, logger *zap.SugaredLogger,
 ) (int64, uuid.UUID, error) {
 	noID := uuid.UUID{}
 	values, err := c.FormParams()
@@ -420,9 +419,6 @@ func (cr creator) insert(c echo.Context, ctx context.Context, tx *sql.Tx, logger
 			values.Add(cr.key+"-category", s)
 		}
 	}
-	fmt.Println(cr.key, "for insert")
-	fmt.Printf("%+v\n", values)
-
 	id, uid, err := model.InsertUpload(ctx, tx, values, cr.key)
 	if err != nil {
 		if logger != nil {
@@ -440,23 +436,9 @@ func submit(c echo.Context, logger *zap.SugaredLogger, prod string) error {
 		return c.String(http.StatusInternalServerError,
 			"error, "+prod+" submit logger is nil")
 	}
-
-	sid := c.Param("id")
-	id, err := strconv.ParseInt(sid, 10, 64)
+	id, err := sanitizeID(c, name, prod)
 	if err != nil {
-		return c.String(http.StatusNotAcceptable,
-			"The "+name+" production ID must be a numeric value, "+sid)
-	}
-	var sanity uint64
-	switch prod {
-	case dz:
-		sanity = demozoo.Sanity
-	case pt:
-		sanity = pouet.Sanity
-	}
-	if id < 1 || id > int64(sanity) {
-		return c.String(http.StatusNotAcceptable,
-			"The "+name+" production ID is invalid, "+sid)
+		return err
 	}
 	ctx := context.Background()
 	db, tx, err := postgres.ConnectTx()
@@ -502,4 +484,25 @@ func submit(c echo.Context, logger *zap.SugaredLogger, prod string) error {
 		html += fmt.Sprintf("<p><a href=\"/f/%s\">Go to the new artifact record</a></p>", uri)
 	}
 	return c.HTML(http.StatusOK, html)
+}
+
+func sanitizeID(c echo.Context, name, prod string) (int64, error) {
+	sid := c.Param("id")
+	id, err := strconv.ParseInt(sid, 10, 64)
+	if err != nil {
+		return 0, c.String(http.StatusNotAcceptable,
+			"The "+name+" production ID must be a numeric value, "+sid)
+	}
+	var sanity uint64
+	switch prod {
+	case dz:
+		sanity = demozoo.Sanity
+	case pt:
+		sanity = pouet.Sanity
+	}
+	if id < 1 || id > int64(sanity) {
+		return 0, c.String(http.StatusNotAcceptable,
+			"The "+name+" production ID is invalid, "+sid)
+	}
+	return id, nil
 }

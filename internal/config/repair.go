@@ -87,17 +87,9 @@ func (c Config) assets(ctx context.Context, exec boil.ContextExecutor) error {
 					return nil
 				}
 				counters[i]++
-				name := strings.TrimSuffix(d.Name(), filepath.Ext(d.Name()))
-				_, found := slices.BinarySearch(artifacts, name)
-				if !found {
-					logger.Warnf("Unknown file: %s, no matching artifact for UUID: %q", d.Name(), name)
-					defer func() {
-						now := time.Now().Format("2006-01-02_15-04-05")
-						dest := filepath.Join(c.AbsOrphaned, fmt.Sprintf("%s_%s", now, d.Name()))
-						if err := helper.RenameCrossDevice(path, dest); err != nil {
-							logger.Errorf("could not move orphaned artifact asset for %q: %s", d.Name(), err)
-						}
-					}()
+				uid := strings.TrimSuffix(d.Name(), filepath.Ext(d.Name()))
+				if _, found := slices.BinarySearch(artifacts, uid); !found {
+					unknownAsset(logger, path, c.AbsOrphaned, d.Name(), uid)
 				}
 				return nil
 			})
@@ -114,6 +106,17 @@ func (c Config) assets(ctx context.Context, exec boil.ContextExecutor) error {
 	}
 	logger.Infof("Checked %d files for %d UUIDs in %s", sum, size, time.Since(tick))
 	return nil
+}
+
+func unknownAsset(logger *zap.SugaredLogger, oldpath, orphanedDir, name, uid string) {
+	logger.Warnf("Unknown file: %s, no matching artifact for UUID: %q", name, uid)
+	defer func() {
+		now := time.Now().Format("2006-01-02_15-04-05")
+		dest := filepath.Join(orphanedDir, fmt.Sprintf("%s_%s", now, name))
+		if err := helper.RenameCrossDevice(oldpath, dest); err != nil {
+			logger.Errorf("could not move orphaned artifact asset for %q: %s", name, err)
+		}
+	}()
 }
 
 // RepairFS, on startup check the file system directories for any invalid or unknown files.
@@ -150,24 +153,8 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 func ImagesFS(logger *zap.SugaredLogger, c Config) error {
 	backupDir := c.AbsOrphaned
 	dirs := []string{c.AbsPreview, c.AbsThumbnail}
-	// remove any subdirectories
-	for _, dir := range dirs {
-		if _, err := os.Stat(dir); err != nil {
-			continue
-		}
-		err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return fmt.Errorf("walk path %w: %s", err, path)
-			}
-			name := d.Name()
-			if d.IsDir() {
-				return RemoveDir(name, path, dir)
-			}
-			return nil
-		})
-		if err != nil {
-			return fmt.Errorf("walk directory %w: %s", err, dir)
-		}
+	if err := removeSub(dirs...); err != nil {
+		return fmt.Errorf("remove subdirectories %w", err)
 	}
 	// remove any invalid files
 	p, t := 0, 0
@@ -203,6 +190,29 @@ func ImagesFS(logger *zap.SugaredLogger, c Config) error {
 			containsInfo(logger, "preview", p)
 		case c.AbsThumbnail:
 			containsInfo(logger, "thumb", t)
+		}
+	}
+	return nil
+}
+
+// removeSub removes any subdirectories found in the specified directories.
+func removeSub(dirs ...string) error {
+	for _, dir := range dirs {
+		if _, err := os.Stat(dir); err != nil {
+			continue
+		}
+		err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return fmt.Errorf("walk path %w: %s", err, path)
+			}
+			name := d.Name()
+			if d.IsDir() {
+				return RemoveDir(name, path, dir)
+			}
+			return nil
+		})
+		if err != nil {
+			return fmt.Errorf("walk directory %w: %s", err, dir)
 		}
 	}
 	return nil

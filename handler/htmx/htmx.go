@@ -172,7 +172,11 @@ func DeleteForever(c echo.Context, logger *zap.SugaredLogger, id string) error {
 	}
 	defer db.Close()
 	if err = model.DeleteOne(ctx, tx, key); err != nil {
-		defer tx.Rollback()
+		defer func() {
+			if err := tx.Rollback(); err != nil {
+				logger.Error(err)
+			}
+		}()
 		logger.Error(err)
 		return c.String(http.StatusServiceUnavailable,
 			"cannot delete the record")
@@ -189,9 +193,8 @@ func DeleteForever(c echo.Context, logger *zap.SugaredLogger, id string) error {
 		"The artifact is gone, and reloading this page will result in a 404 error.")
 }
 
-// Pings is a handler for the /pings route.
-func Pings(c echo.Context, proto string, port int) error {
-	pings := []string{
+func pings() []string {
+	return []string{
 		"/this-is-an-invalid-url",
 		"/html3",
 		"/html3/groups",
@@ -251,6 +254,11 @@ func Pings(c echo.Context, proto string, port int) error {
 		"/thescene",
 		"/thanks",
 	}
+}
+
+// Pings is a handler for the /pings route.
+func Pings(c echo.Context, proto string, port int) error {
+	pings := pings()
 	results := make([]string, 0, len(pings))
 	for _, ping := range pings {
 		code, size, err := helper.LocalHostPing(ping, proto, port)
@@ -258,22 +266,20 @@ func Pings(c echo.Context, proto string, port int) error {
 			results = append(results, fmt.Sprintf("%s: %v", ping, err))
 			continue
 		}
-		elm := "<div>"
+		var elm string
 		switch {
-		case code == 200:
+		case code == http.StatusOK:
 			elm = "<span class=\"text-success\">"
-		case code >= 500:
+		case code >= http.StatusInternalServerError:
 			elm = "<span class=\"text-danger\">"
 		default:
 			elm = "<span class=\"text-warning\">"
 		}
 		results = append(results,
-			"<div>",
-			elm,
+			"<div>", elm,
 			fmt.Sprintf("%d</span> %s %s", code, ping, helper.ByteCount(size)),
 			"</div>")
 	}
-
 	output := strings.Join(results, "")
 	output += fmt.Sprintf("<div><small>%d URLs were pinged</small></div>", len(pings))
 	return c.HTML(http.StatusOK, output)

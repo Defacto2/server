@@ -262,6 +262,11 @@ func repairDB(logger *zap.SugaredLogger) error {
 	defer db.Close()
 
 	if err = fix.Artifacts.Run(ctx, db, tx); err != nil {
+		defer func() {
+			if err := tx.Rollback(); err != nil {
+				logger.Error(err)
+			}
+		}()
 		return fmt.Errorf("repair database could not fix all artifacts: %w", err)
 	}
 	return nil

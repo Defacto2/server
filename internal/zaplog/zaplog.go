@@ -14,11 +14,16 @@ import (
 )
 
 const (
-	ServerLog  = "defacto2_server_panics.log" // ServerLog is the filename of the Error, Panic and Fatal level log.
-	InfoLog    = "defacto2_server_info.log"   // InfoLog is the filename of the Warn and Info level log.
-	MaxSizeMB  = 100                          // MaxSizeMB is the maximum file size in megabytes before a log rotation is triggered.
-	MaxBackups = 5                            // MaxBackups is the maximum number of rotated logs to keep, older logs are deleted.
-	MaxDays    = 45                           // MaxDays is the maximum days a log is kept before a log rotation.
+	// ServerLog is the filename of the Error, Panic and Fatal level log.
+	ServerLog = "defacto2_server_panics.log"
+	// InfoLog is the filename of the Warn and Info level log.
+	InfoLog = "defacto2_server_info.log"
+	// MaxSizeMB is the maximum file size in megabytes before a log rotation is triggered.
+	MaxSizeMB = 100
+	// MaxBackups is the maximum number of rotated logs to keep, older logs are deleted.
+	MaxBackups = 5
+	// MaxDays is the maximum days a log is kept before a log rotation.
+	MaxDays = 45
 )
 
 /*

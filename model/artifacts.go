@@ -36,7 +36,9 @@ func (f *Artifacts) Public(ctx context.Context, exec boil.ContextExecutor) error
 }
 
 // ByKey returns the public files reversed ordered by the ID, key column.
-func (f *Artifacts) ByKey(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (f *Artifacts) ByKey(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -52,7 +54,9 @@ func (f *Artifacts) ByKey(ctx context.Context, exec boil.ContextExecutor, offset
 }
 
 // ByOldest returns all of the file records sorted by the date issued.
-func (f *Artifacts) ByOldest(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (f *Artifacts) ByOldest(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -70,7 +74,9 @@ func (f *Artifacts) ByOldest(ctx context.Context, exec boil.ContextExecutor, off
 }
 
 // ByNewest returns all of the file records sorted by the date issued.
-func (f *Artifacts) ByNewest(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (f *Artifacts) ByNewest(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -88,7 +94,9 @@ func (f *Artifacts) ByNewest(ctx context.Context, exec boil.ContextExecutor, off
 }
 
 // ByUpdated returns all of the file records sorted by the date updated.
-func (f *Artifacts) ByUpdated(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (f *Artifacts) ByUpdated(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -104,7 +112,9 @@ func (f *Artifacts) ByUpdated(ctx context.Context, exec boil.ContextExecutor, of
 }
 
 // ByHidden returns all of the file records that are hidden ~ soft deleted.
-func (f *Artifacts) ByHidden(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (f *Artifacts) ByHidden(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -138,7 +148,9 @@ func (f *Artifacts) byHidden(ctx context.Context, exec boil.ContextExecutor) err
 }
 
 // ByForApproval returns all of the file records that are waiting to be marked for approval.
-func (f *Artifacts) ByForApproval(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (f *Artifacts) ByForApproval(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -171,7 +183,9 @@ func (f *Artifacts) byForApproval(ctx context.Context, exec boil.ContextExecutor
 }
 
 // ByUnwanted returns all of the file records that are flagged by Google as unwanted.
-func (f *Artifacts) ByUnwanted(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
+func (f *Artifacts) ByUnwanted(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -204,7 +218,9 @@ func (f *Artifacts) byUnwanted(ctx context.Context, exec boil.ContextExecutor) e
 // Description returns a list of files that match the search terms.
 // The search terms are matched against the record_title column.
 // The results are ordered by the filename column in ascending order.
-func (f *Artifacts) Description(ctx context.Context, exec boil.ContextExecutor, terms []string) (models.FileSlice, error) {
+func (f *Artifacts) Description(ctx context.Context, exec boil.ContextExecutor, terms []string) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
@@ -236,7 +252,9 @@ func (f *Artifacts) Description(ctx context.Context, exec boil.ContextExecutor, 
 // Filename returns a list of files that match the search terms.
 // The search terms are matched against the filename column.
 // The results are ordered by the filename column in ascending order.
-func (f *Artifacts) Filename(ctx context.Context, exec boil.ContextExecutor, terms []string) (models.FileSlice, error) {
+func (f *Artifacts) Filename(ctx context.Context, exec boil.ContextExecutor, terms []string) (
+	models.FileSlice, error,
+) {
 	if exec == nil {
 		return nil, ErrDB
 	}
