@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/caarlos0/env/v10"
+	"github.com/caarlos0/env/v11"
 	_ "github.com/jackc/pgx/v5/stdlib" // Use a lowlevel PostgreSQL driver.
 	"go.uber.org/zap"
 )

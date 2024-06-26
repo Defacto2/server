@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	github.com/Defacto2/releaser v1.0.3
-	github.com/caarlos0/env/v10 v10.0.0
+	github.com/caarlos0/env/v11 v11.1.0
 	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/dustin/go-humanize v1.0.1
 	github.com/evanw/esbuild v0.21.4

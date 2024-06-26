@@ -32,7 +32,7 @@ import (
 	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/fix"
-	"github.com/caarlos0/env/v10"
+	"github.com/caarlos0/env/v11"
 	_ "github.com/lib/pq"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
