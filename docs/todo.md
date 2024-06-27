@@ -36,6 +36,80 @@
 
 #### MAJOR FREEZE BUG
 
+fatal error: concurrent map writes
+fatal error: concurrent map writes
+
+goroutine 508 [running]:
+github.com/h2non/filetype/matchers.NewMatcher(...)
+	/home/ben/go/pkg/mod/github.com/h2non/filetype@v1.1.3/matchers/matchers.go:32
+github.com/h2non/filetype.AddMatcher(...)
+	/home/ben/go/pkg/mod/github.com/h2non/filetype@v1.1.3/match.go:68
+github.com/Defacto2/server/handler/app.artifactMagic({0xc000f52000?, 0xc001367050?})
+
+	/home/ben/github/server/handler/app/dirs.go:694 +0x20a
+github.com/Defacto2/server/handler/app.Dirs.artifactEditor({{0xc00004e110, 0x23}, {0xc00004e00f, 0x23}, {0xc00004e151, 0x23}, {0xc00004c21d, 0x1f}, {0xc000e9f27f, 0x7}}, ...)
+
+	/home/ben/github/server/handler/app/dirs.go:212 +0x925
+github.com/Defacto2/server/handler/app.Dirs.Artifact({{0xc00004e110, 0x23}, {0xc00004e00f, 0x23}, {0xc00004e151, 0x23}, {0xc00004c21d, 0x1f}, {0xc000e9f27f, 0x7}}, ...)
+
+	/home/ben/github/server/handler/app/dirs.go:135 +0x2eb
+github.com/Defacto2/server/handler.Configuration.website.func3({0x2186df8, 0xc000466820})
+
+	/home/ben/github/server/handler/router.go:208 +0xcf
+github.com/labstack/echo/v4.(*Echo).add.func1({0x2186df8, 0xc000466820})
+
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/echo.go:587 +0x4b
+github.com/Defacto2/server/handler.Configuration.nonce.Middleware.MiddlewareWithConfig.func1.1({0x2186df8, 0xc000466820})
+	/home/ben/go/pkg/mod/github.com/labstack/echo-contrib@v0.17.1/session/session.go:73 +0x104
+github.com/Defacto2/server/handler.Configuration.Controller.Recover.RecoverWithConfig.func5.1({0x2186df8, 0xc000466820})
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/middleware/recover.go:130 +0x114
+github.com/Defacto2/server/handler.Configuration.Controller.RemoveTrailingSlashWithConfig.func2.1({0x2186df8, 0xc000466820})
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/middleware/slash.go:117 +0x1fd
+github.com/labstack/echo/v4/middleware.RequestLoggerConfig.ToMiddleware.func1.1({0x2186df8, 0xc000466820})
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/middleware/request_logger.go:286 +0x16b
+github.com/Defacto2/server/handler.Configuration.Controller.Secure.SecureWithConfig.func4.1({0x2186df8, 0xc000466820})
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/middleware/secure.go:141 +0x364
+github.com/labstack/echo/v4.(*Echo).ServeHTTP.func1({0x2186df8, 0xc000466820})
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/echo.go:668 +0x127
+github.com/Defacto2/server/handler.Configuration.Controller.NonWWWRedirect.NonWWWRedirectWithConfig.redirect.func6.1({0x2186df8, 0xc000466820})
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/middleware/redirect.go:152 +0xf3
+github.com/labstack/echo/v4/middleware.RewriteWithConfig.func1.1({0x2186df8, 0xc000466820})
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/middleware/rewrite.go:77 +0x7f
+github.com/labstack/echo/v4.(*Echo).ServeHTTP(0xc001268488, {0x216ede8, 0xc00075f340}, 0xc000b05440)
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/echo.go:674 +0x327
+net/http.serverHandler.ServeHTTP({0xc0013b2360?}, {0x216ede8?, 0xc00075f340?}, 0x6?)
+	/usr/local/go/src/net/http/server.go:3137 +0x8e
+net/http.(*conn).serve(0xc001888bd0, {0x2170f08, 0xc0015196b0})
+	/usr/local/go/src/net/http/server.go:2039 +0x5e8
+created by net/http.(*Server).Serve in goroutine 361
+	/usr/local/go/src/net/http/server.go:3285 +0x4b4
+
+goroutine 1 [chan receive]:
+github.com/Defacto2/server/handler.(*Configuration).ShutdownHTTP(0xc0000460e3?, 0xc001268488, 0xc0000887f0)
+	/home/ben/github/server/handler/handler.go:217 +0xa5
+main.main()
+	/home/ben/github/server/server.go:106 +0x6ce
+
+goroutine 6 [select]:
+go.opencensus.io/stats/view.(*worker).start(0xc0002aef00)
+	/home/ben/go/pkg/mod/go.opencensus.io@v0.24.0/stats/view/worker.go:292 +0x9f
+created by go.opencensus.io/stats/view.init.0 in goroutine 1
+	/home/ben/go/pkg/mod/go.opencensus.io@v0.24.0/stats/view/worker.go:34 +0x8d
+
+goroutine 7 [select]:
+database/sql.(*DB).connectionOpener(0xc00046dad0, {0x2170f40, 0xc000255b30})
+	/usr/local/go/src/database/sql/sql.go:1246 +0x87
+created by database/sql.OpenDB in goroutine 1
+	/usr/local/go/src/database/sql/sql.go:824 +0x14c
+
+goroutine 10 [select]:
+database/sql.(*DB).connectionOpener(0xc0004b84e0, {0x2170f40, 0xc000254280})
+	/usr/local/go/src/database/sql/sql.go:1246 +0x87
+created by database/sql.OpenDB in goroutine 1
+	/usr/local/go/src/database/sql/sql.go:824 +0x14c
+
+
+
 This was only triggered after opening 100s of records.
 
 ```
