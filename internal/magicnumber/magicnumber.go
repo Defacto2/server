@@ -261,8 +261,8 @@ func PkzipComp(name string) ([]pkzip.Compression, error) {
 	return methods, nil
 }
 
-// Zip returns true if the named file is a PKZip file that only uses the
-// Deflated or Stored compression methods. These are  the only methods
+// Zip returns true if the named file is a PKZip file that exclusively
+// uses the Deflated or Stored compression methods. These are the methods
 // supported by the Go standard library's archive/zip package.
 func Zip(name string) (bool, error) {
 	methods, err := PkzipComp(name)

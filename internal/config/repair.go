@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -15,8 +16,11 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/magicnumber"
+	"github.com/Defacto2/server/internal/magicnumber/pkzip"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/google/uuid"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -39,13 +43,7 @@ type contextKey string
 
 const LoggerKey contextKey = "logger"
 
-// Assets, on startup check the file system directories for any invalid or unknown files.
-// These specifically match the base filename against the UUID in the database.
-// When there is no matching UUID, the file is considered orphaned and these are moved
-// to the orphaned directory without warning.
-//
-// There are no checks on the 3 directories that get scanned.
-func (c Config) assets(ctx context.Context, exec boil.ContextExecutor) error {
+func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor) error {
 	tick := time.Now()
 	logger, useLogger := ctx.Value(LoggerKey).(*zap.SugaredLogger)
 	if !useLogger {
@@ -53,7 +51,124 @@ func (c Config) assets(ctx context.Context, exec boil.ContextExecutor) error {
 	}
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("uuid"))
-	files, err := models.Files(mods...).All(ctx, exec)
+	mods = append(mods, qm.Where("platform = ?", tags.DOS.String()))
+	mods = append(mods, qm.Where("filename ILIKE ?", "%.zip"))
+	files, err := models.Files(mods...).All(ctx, ce)
+	if err != nil {
+		return fmt.Errorf("config pkzips select all uuids: %w", err)
+	}
+	size := len(files)
+	logger.Infof("Checking %d %s UUIDs", size, tags.DOS.String())
+	artifacts := make([]string, size)
+	for i, f := range files {
+		if !f.UUID.Valid || f.UUID.String == "" {
+			continue
+		}
+		artifacts[i] = f.UUID.String
+	}
+	artifacts = slices.Clip(artifacts)
+	slices.Sort(artifacts)
+
+	sum := 0
+	dir := c.AbsDownload
+	err = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return fmt.Errorf("walk path %w: %s", err, path)
+		}
+		if d.IsDir() {
+			return nil
+		}
+		uid := strings.TrimSuffix(d.Name(), filepath.Ext(d.Name()))
+		if _, found := slices.BinarySearch(artifacts, uid); !found {
+			return nil
+		}
+		//fmt.Println(filepath.Join(c.AbsExtra, uid))
+		if f, err := os.Stat(filepath.Join(c.AbsExtra, uid)); err == nil && !f.IsDir() {
+			logger.Info("Found extra file:", uid)
+			return nil
+		}
+		methods, err := magicnumber.PkzipComp(path)
+		if err != nil {
+			logger.Errorf("magicnumber.PkzipComp %w: %s", err, path)
+			return nil
+		}
+		usable := true
+		for _, method := range methods {
+			if !method.Zip() {
+				usable = false
+				break
+			}
+		}
+		if usable {
+			return nil
+		}
+		//fmt.Println(path, methods)
+		_, err = exec.Command("/usr/bin/unzip", "-t", path).Output()
+		if err != nil {
+			diag := pkzip.ExitStatus(err)
+			switch diag {
+			case pkzip.Normal, pkzip.Warning:
+				// normal or warnings are fine
+				return nil
+			case pkzip.CompressionMethod:
+				// cannot do anything about this
+				return nil
+				// slices.Sort(methods)
+				// m := slices.Compact(methods)
+				// logger.Warnf("methods used %s", m)
+			}
+			logger.Errorf("unzip -t %s: %s", diag, path)
+		}
+		dest, err := os.MkdirTemp(os.TempDir(), "defacto2-rezip-")
+		if err != nil {
+			logger.Errorf("os.MkdirTemp %w: %s", err, path)
+			return nil
+		}
+		defer os.RemoveAll(dest)
+		err = exec.Command("/usr/bin/unzip", path, "-d", dest).Run()
+		if err != nil {
+			logger.Errorf("unzip -o %w: %s", err, path)
+			return nil
+		}
+		c, err := helper.Count(dest)
+		if err != nil {
+			logger.Errorf("helper.Count %w: %s", err, dest)
+			return nil
+		}
+		logger.Infof("Rezipped %d files for %s", c, uid)
+
+		//fmt.Println(string(out))
+
+		// unzip [-Z] [-cflptTuvz[abjnoqsCDKLMUVWX$/:^]] file[.zip] [file(s) ...]  [-x xfile(s) ...] [-d exdir]
+
+		// /usr/bin/unzip path -d os.MkdirAll(filepath.Join(c.AbsExtra, uid), 0755)
+
+		sum++
+		return nil
+	})
+	if err != nil {
+		logger.Errorf("walk directory %w: %s", err, dir)
+	}
+
+	logger.Infof("Checked %d files for %d UUIDs in %s", sum, size, time.Since(tick))
+	return nil
+}
+
+// Assets, on startup check the file system directories for any invalid or unknown files.
+// These specifically match the base filename against the UUID column in the database.
+// When there is no matching UUID, the file is considered orphaned and these are moved
+// to the orphaned directory without warning.
+//
+// There are no checks on the 3 directories that get scanned.
+func (c Config) assets(ctx context.Context, ce boil.ContextExecutor) error {
+	tick := time.Now()
+	logger, useLogger := ctx.Value(LoggerKey).(*zap.SugaredLogger)
+	if !useLogger {
+		return fmt.Errorf("config repair uuids %w", ErrCtxLog)
+	}
+	mods := []qm.QueryMod{}
+	mods = append(mods, qm.Select("uuid"))
+	files, err := models.Files(mods...).All(ctx, ce)
 	if err != nil {
 		return fmt.Errorf("config repair select all uuids: %w", err)
 	}
@@ -145,6 +260,9 @@ func (c Config) RepairFS(logger *zap.SugaredLogger) error {
 	}
 	if err := c.assets(ctx, db); err != nil {
 		return fmt.Errorf("repair fs assets %w", err)
+	}
+	if err := c.pkzips(ctx, db); err != nil {
+		return fmt.Errorf("repair fs pkzips %w", err)
 	}
 
 	return nil
