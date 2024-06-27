@@ -690,16 +690,7 @@ func artifactMagic(name string) string {
 	if err != nil {
 		return err.Error()
 	}
-	// ANSI text encoding file type.
-	filetype.AddMatcher(filetype.NewType("ans", "application/x-ansi"), magicnumber.ANSIB)
-	filetype.AddMatcher(filetype.NewType("arc", "application/x-arc"), magicnumber.ArcSeaB)
-	filetype.AddMatcher(filetype.NewType("arj", "application/x-arj"), magicnumber.ARJB)
-	// MS-DOS command file type, the .com extension operates like an .exe executable file but is limited to 64KB.
-	filetype.AddMatcher(filetype.NewType("com", "application/x-msdos-program"), magicnumber.DOSComB)
-	// The Interchange File Format (IFF) file type.
-	filetype.AddMatcher(filetype.NewType("bmp", "image/x-iff"), magicnumber.InterchangeFFB)
-	// ZSoft Corporation PCX (Personal Computer eXchange) file type.
-	filetype.AddMatcher(filetype.NewType("pcx", "image/x-pcx"), magicnumber.PCXB)
+
 	kind, err := filetype.Match(head)
 	if err != nil {
 		return err.Error()

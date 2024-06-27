@@ -27,12 +27,14 @@ import (
 	"github.com/Defacto2/server/handler"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/magicnumber"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/fix"
 	"github.com/caarlos0/env/v11"
+	"github.com/h2non/filetype"
 	_ "github.com/lib/pq"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -84,6 +86,7 @@ func main() {
 		logger.Errorf("postgres version query: %w", err)
 	}
 
+	customMatchers()
 	repairChecks(logger, configs)
 	sanityChecks(logger, configs)
 
@@ -104,6 +107,25 @@ func main() {
 		fmt.Fprintf(w, "%s\n", localIPs)
 	}()
 	website.ShutdownHTTP(router, logger)
+}
+
+// customMatchers is used to add custom file type matchers to the file type package.
+// These are used to identify the file type based on the magic number and currently
+// only used in the File editor.
+//
+// This library is not thread-safe and relies on a global map. So it should be called before the server starts.
+// Otherwise it can cause an unrecoverable "fatal error: concurrent map writes" panic.
+func customMatchers() {
+	// ANSI text encoding file type.
+	filetype.AddMatcher(filetype.NewType("ans", "application/x-ansi"), magicnumber.ANSIB)
+	filetype.AddMatcher(filetype.NewType("arc", "application/x-arc"), magicnumber.ArcSeaB)
+	filetype.AddMatcher(filetype.NewType("arj", "application/x-arj"), magicnumber.ARJB)
+	// MS-DOS command file type, the .com extension operates like an .exe executable file but is limited to 64KB.
+	filetype.AddMatcher(filetype.NewType("com", "application/x-msdos-program"), magicnumber.DOSComB)
+	// The Interchange File Format (IFF) file type.
+	filetype.AddMatcher(filetype.NewType("bmp", "image/x-iff"), magicnumber.InterchangeFFB)
+	// ZSoft Corporation PCX (Personal Computer eXchange) file type.
+	filetype.AddMatcher(filetype.NewType("pcx", "image/x-pcx"), magicnumber.PCXB)
 }
 
 // environmentVars is used to parse the environment variables and set the Go runtime.
