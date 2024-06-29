@@ -1,49 +1,768 @@
-// Package magicnumber contains the magic number matchers for identifying file types.
+// Package magicnumber contains the magic number matchers for identifying file types that
+// are expected to be handled by the Defacto2 server application. Magic numbers are not
+// always accurate and should be used as hints combined with other checks such as
+// file extension matching.
+//
+// Usually, the magic number is the first few bytes of a file that uniquely identify the file type.
+// But a number of document formats also check the final few bytes of a file.
+//
+// The sources for the magic numbers byte values are from the following:
+//   - [Gary Kessler's File Signatures Table]
+//   - [Just Solve the File Format Problem]
+//   - [OSDev Wiki]
+//   - [Wikipedia]
+//
+// [Gary Kessler's File Signatures Table]: https://www.garykessler.net/library/file_sigs.html
+// [Just Solve the File Format Problem]: http://fileformats.archiveteam.org/wiki/Electronic_File_Formats
+// [OSDev Wiki]: https://wiki.osdev.org]
+// [Wikipedia]: https://en.wikipedia.org/wiki/List_of_file_signatures
 package magicnumber
 
-/*
-Magic number matchers are used to identify file types by examining the first few bytes of a file.
-The matchers are not foolproof and may return false positives. The matchers are used to help
-determine the file type before attempting to uncompress or decode the file.
-
-Some resources used to create these matchers,
-Wikipedia:
-https://en.wikipedia.org/wiki/List_of_file_signatures
-https://en.wikipedia.org/wiki/ZIP_(file_format)
-The structure of a PKZip file by Florian Buchholz:
-https://users.cs.jmu.edu/buchhofp/forensics/formats/pkzip.html
-PKWARE ZIP APPNOTE.TXT:
-https://pkware.cachefly.net/webdocs/APPNOTE/APPNOTE-2.0.txt
-Shrink, Reduce, and Implode: The Legacy Zip Compression Methods:
-https://www.hanshq.net/zip2.html
-ZIP file tests:
-https://github.com/jvilk/browserfs-zipfs-extras/tree/master/test/fixtures
-*/
-
 import (
-	"archive/zip"
 	"bytes"
+	"errors"
 	"io"
 	"net/http"
+	"slices"
 	"strings"
-
-	"github.com/Defacto2/server/internal/magicnumber/pkzip"
 )
 
-// ANSIB matches attempts to match ANSI escape sequences used in text files.
-// Some BBS text files are prefixed with the reset sequence but are not ANSI encoded texts.
-// For performance, this matcher only looks for reset plus the clean at the start of Amiga
-// texts or incomplete bold or normal text graphics mode sequences for DOS art.
-func ANSI(r io.Reader) bool {
-	buf, err := io.ReadAll(r)
-	if err != nil {
-		return false
+type Signature int
+
+const (
+	Unknown Signature = iota - 1
+	ElectronicArtsIFF
+	AV1ImageFile
+	JPEGFileInterchangeFormat
+	JPEG2000
+	PortableNetworkGraphics
+	GraphicsInterchangeFormat
+	GoogleWebP
+	TaggedImageFileFormat
+	BMPFileFormat
+	PersonalComputereXchange
+	InterleavedBitmap
+	MicrosoftIcon
+	MPEG4
+	QuickTimeMovie
+	QuickTimeM4V
+	MicrosoftAudioVideoInterleave
+	MicrosoftWindowsMedia
+	MPEG
+	FlashVideo
+	RealPlayer
+	MusicalInstrumentDigitalInterface
+	MPEG1AudioLayer3
+	OggVorbisCodec
+	FreeLosslessAudioCodec
+	WaveAudioForWindows
+	PKWAREZip64
+	PKWAREZip
+	PKWAREMultiVolume
+	PKLITE
+	PKSFX
+	TapeARchive
+	RoshalARchive
+	RoshalARchivev5
+	GzipCompressArchive
+	Bzip2CompressArchive
+	x7zCompressArchive
+	XZCompressArchive
+	ZStandardArchive
+	FreeArc
+	ARChiveSEA
+	YoshiLHA
+	ZooArchive
+	ArchiveRobertJung
+	MicrosoftCABinet
+	MicrosoftDOSKWAJ
+	MicrosoftDOSSZDD
+	MicrosoftExecutable
+	MicrosoftCompoundFile
+	ISO9660
+	ISONeroCD
+	ISOPowerISO
+	CDAlcohol120
+	JavaARchive
+	PortableDocumentFormat
+	RichTextFromat
+	UTF8Text
+	UTF16Text
+	UTF32Text
+	ANSIEscapeText
+	PlainText
+)
+
+type Matcher func([]byte) bool
+
+type Finder map[Signature]Matcher
+
+func New() Finder {
+	return Finder{
+		ElectronicArtsIFF:                 Iff,
+		AV1ImageFile:                      Avif,
+		JPEGFileInterchangeFormat:         Jpeg,
+		JPEG2000:                          Jpeg2000,
+		PortableNetworkGraphics:           Png,
+		GraphicsInterchangeFormat:         Gif,
+		GoogleWebP:                        Webp,
+		TaggedImageFileFormat:             Tiff,
+		BMPFileFormat:                     Bmp,
+		PersonalComputereXchange:          Pcx,
+		InterleavedBitmap:                 Ilbm,
+		MicrosoftIcon:                     Ico,
+		MPEG4:                             Mp4,
+		QuickTimeMovie:                    QTMov,
+		QuickTimeM4V:                      M4v,
+		MicrosoftAudioVideoInterleave:     Avi,
+		MicrosoftWindowsMedia:             Wmv,
+		MPEG:                              Mpeg,
+		FlashVideo:                        Flv,
+		RealPlayer:                        Ivr,
+		MusicalInstrumentDigitalInterface: Midi,
+		MPEG1AudioLayer3:                  Mp3,
+		OggVorbisCodec:                    Ogg,
+		FreeLosslessAudioCodec:            Flac,
+		WaveAudioForWindows:               Wave,
+		PKWAREZip64:                       Zip64,
+		PKWAREZip:                         Pkzip,
+		PKWAREMultiVolume:                 PkzipMulti,
+		PKLITE:                            Pklite,
+		PKSFX:                             Pksfx,
+		TapeARchive:                       Tar,
+		RoshalARchive:                     Rar,
+		RoshalARchivev5:                   Rarv5,
+		GzipCompressArchive:               Gzip,
+		Bzip2CompressArchive:              Bzip2,
+		x7zCompressArchive:                X7z,
+		XZCompressArchive:                 XZ,
+		ZStandardArchive:                  ZStd,
+		FreeArc:                           Arc,
+		ARChiveSEA:                        ArcArk,
+		YoshiLHA:                          LzhLha,
+		ZooArchive:                        Zoo,
+		ArchiveRobertJung:                 Arj,
+		MicrosoftCABinet:                  Cab,
+		MicrosoftDOSKWAJ:                  DosKWAJ,
+		MicrosoftDOSSZDD:                  DosSZDD,
+		MicrosoftExecutable:               MSExe,
+		MicrosoftCompoundFile:             MSComp,
+		ISO9660:                           ISO,
+		ISONeroCD:                         Nri,
+		ISOPowerISO:                       Daa,
+		CDAlcohol120:                      Mdf,
+		JavaARchive:                       Jar,
+		PortableDocumentFormat:            Pdf,
+		RichTextFromat:                    Rtf,
+		UTF8Text:                          Utf8,
+		UTF16Text:                         Utf16,
+		UTF32Text:                         Utf32,
+		ANSIEscapeText:                    Ansi,
+		PlainText:                         Txt,
 	}
-	return ANSIB(buf)
 }
 
-// ANSIB matches attempts to match ANSI escape sequences in the byte slice.
-func ANSIB(p []byte) bool {
+func Find(r io.Reader) (Signature, error) {
+	buf, err := io.ReadAll(r)
+	if err != nil {
+		return Unknown, err
+	}
+	return FindBytes(buf), nil
+}
+
+func Find1K(r io.Reader) (Signature, error) {
+	buf := make([]byte, 1024) // 1KB buffer
+	_, err := io.ReadFull(r, buf)
+	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) {
+		return Unknown, err
+	}
+	return FindBytes(buf), nil // create FindBytes1K, where suffix matchers are not used nor is ansi escape lookup
+}
+
+func FindBytes(p []byte) Signature {
+	if p == nil {
+		return Unknown
+	}
+	find := New()
+	for sig, matcher := range find {
+		if matcher(p) {
+			return sig
+		}
+	}
+	return Unknown
+}
+
+func Iff(p []byte) bool {
+	const min = 4
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:4], []byte{'C', 'A', 'T', 0x20})
+}
+
+func Avif(p []byte) bool {
+	const min = 3
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{0x0, 0x0, 0x0})
+}
+
+func Jpeg(p []byte) bool {
+	const min = 4
+	if len(p) < min {
+		return false
+	}
+	if !bytes.Equal(p[:3], []byte{0xff, 0xd8, 0xff}) {
+		return false
+	}
+	if p[4] != 0xe0 && p[4] != 0xe1 {
+		return false
+	}
+	if !bytes.Equal(p[6:11], []byte{'J', 'F', 'I', 'F', 0x0}) &&
+		!bytes.Equal(p[6:11], []byte{'E', 'x', 'i', 'f', 0x0}) {
+		return false
+	}
+	return bytes.HasSuffix(p, []byte{0xff, 0xd9})
+}
+
+func Jpeg2000(p []byte) bool {
+	const min = 10
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{0x0, 0x0, 0x0, 0xc, 0x6a, 0x50, 0x20, 0x20, 0xd, 0xa})
+}
+
+func Png(p []byte) bool {
+	const min = 8
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{0x89, 0x50, 0x4E, 0x47, 0x0d, 0x0a, 0x1a, 0x0a})
+
+}
+
+func Gif(p []byte) bool {
+	const min = 6
+	if len(p) < min {
+		return false
+	}
+	gif87a := []byte{0x47, 0x49, 0x46, 0x38, 0x37, 0x61}
+	gif89a := []byte{0x47, 0x49, 0x46, 0x38, 0x39, 0x61}
+	return bytes.Equal(p[:min], gif87a) ||
+		bytes.Equal(p[:min], gif89a)
+}
+
+func Webp(p []byte) bool {
+	const min = 12
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:4], []byte{'R', 'I', 'F', 'F'}) &&
+		bytes.Equal(p[8:12], []byte{'W', 'E', 'B', 'P'})
+}
+
+func Tiff(p []byte) bool {
+	const min = 4
+	if len(p) < min {
+		return false
+	}
+	le := []byte{0x49, 0x49, 0x2a, 0x0}
+	be := []byte{0x4d, 0x4d, 0x0, 0x2a}
+	return bytes.Equal(p[:min], le) ||
+		bytes.Equal(p[:min], be)
+}
+
+func Bmp(p []byte) bool {
+	const min = 2
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'B', 'M'})
+}
+
+func Pcx(p []byte) bool {
+	const min = 3
+	if len(p) < min {
+		return false
+	}
+	id := p[0]
+	ver := p[1] // version of PCX v0 through to v5
+	enc := p[2] // encoding (0 = uncompressed, 1 = run-length encoding compressed)
+	return id == 0x0a && ver <= 0x5 && (enc == 0x0 || enc == 0x1)
+}
+
+func Ico(p []byte) bool {
+	const min = 4
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{0x0, 0x0, 0x1, 0x0})
+}
+
+func Ilbm(p []byte) bool {
+	const min = 12
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:4], []byte{'F', 'O', 'R', 'M'}) &&
+		bytes.Equal(p[8:12], []byte{'I', 'L', 'B', 'M'})
+}
+
+func QTMov(p []byte) bool {
+	const min = 8
+	if len(p) < min {
+		return false
+	}
+	const offset = 4
+	return bytes.Equal(p[offset:], []byte{'m', 'o', 'o', 'v'}) ||
+		bytes.Equal(p[offset:], []byte{'f', 't', 'y', 'p', 'q', 't'})
+}
+
+func Mp4(p []byte) bool {
+	const min = 8
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'f', 't', 'y', 'p', 'M', 'S', 'N', 'V'})
+}
+
+func M4v(p []byte) bool {
+	const min = 8
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'f', 't', 'y', 'p', 'm', 'p', '4', '2'})
+}
+
+func Avi(p []byte) bool {
+	const min = 16
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:4], []byte{'R', 'I', 'F', 'F'}) &&
+		bytes.Equal(p[8:16], []byte{'A', 'V', 'I', 0x20, 'L', 'I', 'S', 'T'})
+}
+
+func Wmv(p []byte) bool {
+	const min = 16
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min],
+		[]byte{0x30, 0x26, 0xb2, 0x75, 0x8e, 0x66, 0xcf, 0x11,
+			0xa6, 0xd9, 0x0, 0xaa, 0x0, 0x62, 0xce, 0x6c})
+}
+
+func Mpeg(p []byte) bool {
+	const min = 4
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:3], []byte{0x0, 0x0, 0x1}) && p[4] >= 0xba && p[4] <= 0xbf
+}
+
+func Flv(p []byte) bool {
+	const min = 4
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'F', 'L', 'V', 0x1})
+}
+
+func Ivr(p []byte) bool {
+	const min = 4
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{0x2e, 'R', 'E', 'C'}) ||
+		bytes.Equal(p[:min], []byte{0x2e, 'R', 'M', 'F'})
+}
+
+func Midi(p []byte) bool {
+	const min = 4
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'M', 'T', 'h', 'd'})
+}
+
+func Mp3(p []byte) bool {
+	const min = 3
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'I', 'D', '3'})
+}
+
+func Ogg(p []byte) bool {
+	const min = 12
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'O', 'g', 'g', 'S', 0x0, 0x2, 0x0, 0x0,
+		0x0, 0x0, 0x0, 0x0, 0x0, 0x0})
+}
+
+func Flac(p []byte) bool {
+	const min = 8
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'f', 'L', 'a', 'C', 0x0, 0x0, 0x0, 0x2})
+}
+
+func Wave(p []byte) bool {
+	const min = 12
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:4], []byte{'R', 'I', 'F', 'F'}) &&
+		bytes.Equal(p[8:16], []byte{'W', 'A', 'V', 'E', 'f', 'm', 't', 0x20})
+}
+
+func Zip64(p []byte) bool {
+	const min = 30
+	if len(p) < min {
+		return false
+	}
+	localFileHeader := []byte{'P', 'K', 0x3, 0x4}
+	if !bytes.Equal(p[:4], localFileHeader) {
+		return false
+	}
+	centralDirectoryHeader := []byte{0x6, 0x6, 0x4b, 0x50}
+	centralDirectoryEnd := []byte{0x7, 0x6, 0x4b, 0x50}
+	if !bytes.Contains(p, centralDirectoryHeader) || !bytes.Contains(p, centralDirectoryEnd) {
+		return false
+	}
+	return true
+}
+
+func Pkzip(p []byte) bool {
+	const min = 30
+	if len(p) < min {
+		return false
+	}
+	localFileHeader := []byte{'P', 'K', 0x3, 0x4}
+	if !bytes.Equal(p[:4], localFileHeader) {
+		return false
+	}
+	centralDirectoryHeader := []byte{0x2, 0x1, 0x4b, 0x50}
+	centralDirectoryEnd := []byte{0x6, 0x5, 0x4b, 0x50}
+	if !bytes.Contains(p, centralDirectoryHeader) || !bytes.Contains(p, centralDirectoryEnd) {
+		return false
+	}
+	return true
+}
+
+func PkzipMulti(p []byte) bool {
+	const min = 4
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'P', 'K', 0x7, 0x8})
+}
+
+func Pklite(p []byte) bool {
+	const min = 6
+	const offset = 30
+	if len(p) < min+offset {
+		return false
+	}
+	return bytes.Equal(p[offset:min+offset], []byte{0x50, 0x4b, 0x4c, 0x49, 0x54, 0x45})
+}
+
+func Pksfx(p []byte) bool {
+	const min = 5
+	const offset = 526
+	if len(p) < min+offset {
+		return false
+	}
+	return bytes.Equal(p[offset:min+offset], []byte{0x50, 0x4b, 0x53, 0x70, 0x58})
+}
+
+func Tar(p []byte) bool {
+	const min = 5
+	const offset = 257
+	if len(p) < min+offset {
+		return false
+	}
+	return bytes.Equal(p[offset:min+offset], []byte{'u', 's', 't', 'a', 'r'})
+}
+
+func Rar(p []byte) bool {
+	const min = 7
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'R', 'a', 'r', 0x21, 0x1a, 0x7, 0x0})
+}
+
+func Rarv5(p []byte) bool {
+	const min = 8
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'R', 'a', 'r', 0x21, 0x1a, 0x7, 0x1, 0x0})
+}
+
+func Gzip(p []byte) bool {
+	const min = 3
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{0x1f, 0x8b, 0x8})
+}
+
+func Bzip2(p []byte) bool {
+	const min = 3
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'B', 'Z', 'h'})
+}
+
+func X7z(p []byte) bool {
+	const min = 6
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'7', 'z', 0xbc, 0xaf, 0x27, 0x1c})
+}
+
+func XZ(p []byte) bool {
+	const min = 6
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{0xfd, '7', 'z', 'X', 'Z', 0x0})
+}
+
+func Cab(p []byte) bool {
+	const min = 4
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'M', 'S', 'C', 'F'})
+}
+
+func ZStd(p []byte) bool {
+	const min = 4
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{0x28, 0xb5, 0x2f, 0xfd})
+}
+
+func Arc(p []byte) bool {
+	const min = 4
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'A', 'r', 'C', 0x1})
+}
+
+func ArcArk(p []byte) bool {
+	const min = 2
+	if len(p) < min {
+		return false
+	}
+	const (
+		id     = 0x1a
+		method = 0x11 // max method id for ARC compression format
+	)
+	return p[0] == id && p[1] <= method
+}
+
+func LzhLha(p []byte) bool {
+	const min = 5
+	if len(p) < min {
+		return false
+	}
+	const offset = 2
+	return bytes.Equal(p[offset:3], []byte{'-', 'l', 'h'})
+}
+
+func Zoo(p []byte) bool {
+	const min = 4
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'Z', 'O', 'O', 0x20})
+}
+
+// Arj matches ARJ compression format in the byte slice.
+func Arj(p []byte) bool {
+	const min = 11
+	if len(p) < min {
+		return false
+	}
+	const (
+		id        = 0x60
+		signature = 0xea
+		offset    = 0x02
+	)
+	return p[0] == id && p[1] == signature && p[10] == offset
+}
+
+func MSExe(p []byte) bool {
+	const min = 2
+	if len(p) < min {
+		return false
+	}
+	return p[0] == 'M' && p[1] == 'Z' || p[0] == 'Z' && p[1] == 'M'
+}
+
+// DosKWAJ returns true if the reader begins with the KWAJ compression signature,
+// found in some DOS executables.
+func DosKWAJ(p []byte) bool {
+	const min = 8
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'K', 'W', 'A', 'J', 0x88, 0xf0, 0x27, 0xd1})
+}
+
+func DosSZDD(p []byte) bool {
+	const min = 8
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'S', 'Z', 'D', 'D', 0x88, 0xf0, 0x27, 0x33})
+}
+
+func MSComp(p []byte) bool {
+	const min = 8
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1})
+}
+
+// ISO returns true if the reader contains the ISO 9660 CD-ROM filesystem signature.
+// To be accurate, it requires at least 36KB of data to be read.
+func ISO(p []byte) bool {
+	const min = 5
+	if len(p) < min {
+		return false
+	}
+	offsets := []int{0, 32769, 34817, 36865}
+	for _, offset := range offsets {
+		if len(p) < min+offset {
+			return false
+		}
+		if bytes.Equal(p[offset:min+offset], []byte{0x43, 0x44, 0x30, 0x30, 0x31}) {
+			return true
+		}
+	}
+	return false
+}
+
+func Nri(p []byte) bool {
+	const min = 8
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{0x0e, 'N', 'e', 'r', 'o', 'I', 'S', 'O'})
+}
+
+func Daa(p []byte) bool {
+	const min = 8
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{'D', 'A', 'A', 0x0, 0x0, 0x0, 0x0, 0x0})
+}
+
+func Mdf(p []byte) bool {
+	const min = 16
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min],
+		[]byte{0x0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+			0xff, 0xff, 0xff, 0x0, 0x0, 0x2, 0x0, 0x1})
+}
+
+func Jar(p []byte) bool {
+	const min = 10
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{0x50, 0x4b, 0x3, 0x4, 0x14, 0x0, 0x8, 0x0, 0x8, 0x0})
+}
+
+func Pdf(p []byte) bool {
+	const min = 4
+	if len(p) < min {
+		return false
+	}
+	if !bytes.Equal(p[:min], []byte{'%', 'P', 'D', 'F'}) {
+		return false
+	}
+	endoffileMarks := [][]byte{
+		{0x0a, '%', '%', 'E', 'O', 'F'},
+		{0x0a, '%', '%', 'E', 'O', 'F', 0x0a},
+		{0x0d, 0x0a, '%', '%', 'E', 'O', 'F', 0x0d, 0x0a},
+		{0x0d, '%', '%', 'E', 'O', 'F', 0x0d},
+	}
+	for _, eof := range endoffileMarks {
+		if bytes.HasSuffix(p, eof) {
+			return true
+		}
+	}
+	return false
+}
+
+func Rtf(p []byte) bool {
+	const min = 5
+	if len(p) < min {
+		return false
+	}
+	if !bytes.Equal(p[:min], []byte{'{', 0x5c, 'r', 't', 'f'}) {
+		return false
+	}
+	return bytes.HasSuffix(p, []byte{'}'})
+}
+
+func Utf8(p []byte) bool {
+	const min = 3
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{0xef, 0xbb, 0xbf})
+}
+
+func Utf16(p []byte) bool {
+	const min = 2
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{0xff, 0xfe}) || bytes.Equal(p[:min], []byte{0xfe, 0xff})
+}
+
+func Utf32(p []byte) bool {
+	const min = 4
+	if len(p) < min {
+		return false
+	}
+	return bytes.Equal(p[:min], []byte{0xff, 0xfe, 0x0, 0x0}) || bytes.Equal(p[:min], []byte{0x0, 0x0, 0xfe, 0xff})
+}
+
+func Txt(p []byte) bool {
+	return !slices.ContainsFunc(p, NotPlainText)
+}
+
+func TxtLatin1(p []byte) bool {
+	return !slices.ContainsFunc(p, NonISO88951)
+}
+
+func TxtWindows(p []byte) bool {
+	return !slices.ContainsFunc(p, NonWindows1252)
+}
+
+func Ansi(p []byte) bool {
 	const min = 4
 	if len(p) < min {
 		return false
@@ -71,209 +790,45 @@ func ANSIB(p []byte) bool {
 	return false
 }
 
-// ArcSea returns true if the reader uses the ARC compression format created by
-// System Enhancement Associates and used in the MS/PC-DOS and BBS communities.
-// See, http://fileformats.archiveteam.org/wiki/ARC_(compression_format).
-func ArcSea(r io.Reader) bool {
-	buf := make([]byte, 2)
-	if _, err := io.ReadFull(r, buf); err != nil {
-		return false
-	}
-	return ArcSeaB(buf)
+func Ascii(p []byte) bool {
+	return !slices.ContainsFunc(p, NotAscii)
 }
 
-// ArcSeaB matches the ARC compression format in the byte slice.
-func ArcSeaB(p []byte) bool {
-	const min = 2
-	if len(p) < min {
-		return false
-	}
+func NotAscii(b byte) bool {
 	const (
-		id     = 0x1a
-		method = 0x11 // max method id for ARC compression format
+		nul = 0x0
+		tab = byte('\t')
+		nl  = byte('\n')
+		vt  = byte('\v')
+		ff  = byte('\f')
+		cr  = byte('\r')
+		esc = 0x1b
 	)
-	return p[0] == id && p[1] <= method
+	return (b < 0x20 || b > 0x7f) &&
+		b != nul && b != tab && b != nl &&
+		b != vt && b != ff && b != cr && b != esc
 }
 
-// ARJ returns true if the reader uses the ARJ compressed format developed by Robert Jung.
-// See, http://fileformats.archiveteam.org/wiki/ARJ.
-func ARJ(r io.Reader) bool {
-	buf := make([]byte, 11)
-	if _, err := io.ReadFull(r, buf); err != nil {
+func NonISO88951(b byte) bool {
+	if !NotAscii(b) {
 		return false
 	}
-	return ARJB(buf)
+	ExtendedAscii := b >= 0xa0 && b <= 0xff
+	return !ExtendedAscii
 }
 
-// ARJB matches ARJ compression format in the byte slice.
-func ARJB(p []byte) bool {
-	const min = 11
-	if len(p) < min {
+func NonWindows1252(b byte) bool {
+	if !NonISO88951(b) {
 		return false
 	}
-	const (
-		id        = 0x60
-		signature = 0xea
-		offset    = 0x02
-	)
-	return p[0] == id && p[1] == signature && p[10] == offset
+	ExtraTypography := b != 0x81 && b != 0x8d && b != 0x8f && b != 0x90 && b != 0x9d
+	return !(b >= 0x80 && b <= 0xff && ExtraTypography)
 }
 
-// DOSCom returns true if the reader matches a MS-DOS command executable.
-// It is not a reliable matcher but is a common discovery technique.
-// See, http://fileformats.archiveteam.org/wiki/DOS_executable_(.com).
-func DOSCom(r io.Reader) bool {
-	buf := make([]byte, 2)
-	if _, err := io.ReadFull(r, buf); err != nil {
+func NotPlainText(b byte) bool {
+	if !NotAscii(b) {
 		return false
 	}
-	return DOSComB(buf)
-}
-
-// DOSComB matches MS-DOS executable files in the byte slice.
-func DOSComB(p []byte) bool {
-	const min = 2
-	if len(p) < min {
-		return false
-	}
-	const (
-		shortJumpE9 = 0xe9
-		shortJumpEB = 0xeb
-	)
-	return p[0] == shortJumpE9 || p[0] == shortJumpEB
-}
-
-// InterchangeFF returns true if the reader contains a
-// Interchange File Format (IFF) signature.
-// This is a generic matcher for IFF bitmap images originally created by
-// Electronic Arts for use on Amiga systems in 1985.
-// See, http://fileformats.archiveteam.org/wiki/IFF.
-func InterchangeFF(r io.Reader) bool {
-	buf := make([]byte, 12)
-	if _, err := io.ReadFull(r, buf); err != nil {
-		return false
-	}
-	return InterchangeFFB(buf)
-}
-
-// InterchangeFFB matches Interchange File Format (IFF) files in the byte slice.
-func InterchangeFFB(p []byte) bool {
-	const min = 12
-	if len(p) < min {
-		return false
-	}
-	if !bytes.Equal(p[0:4], []byte{'F', 'O', 'R', 'M'}) {
-		return false
-	}
-	return bytes.Equal(p[8:12], []byte{'I', 'L', 'B', 'M'})
-}
-
-// PCX returns true if the reader begins with a
-// ZSoft Corporation PCX (Personal Computer eXchange) signature.
-// See, http://fileformats.archiveteam.org/wiki/PCX.
-func PCX(r io.Reader) bool {
-	buf := make([]byte, 3)
-	if _, err := io.ReadFull(r, buf); err != nil {
-		return false
-	}
-	return PCXB(buf)
-}
-
-// PCXB ,matches the ZSoft Corporation PCX (Personal Computer eXchange) signature in the byte slice.
-func PCXB(p []byte) bool {
-	if len(p) < 1 {
-		return false
-	}
-	id := p[0]  // idenfitier
-	ver := p[1] // version of pcx
-	enc := p[2] // encoding (0 = uncompressed, 1 = run-length encoding compressed)
-
-	const pcx = 0x0a
-	if id != pcx {
-		return false
-	}
-	if ver != 0x00 && ver != 0x02 && ver != 0x03 && ver != 0x04 && ver != 0x05 {
-		return false
-	}
-	if enc != 0x00 && enc != 0x01 {
-		return false
-	}
-	return true
-}
-
-func pngFileSignature() []byte {
-	return []byte{137, 80, 78, 71, 13, 10, 26, 10}
-}
-
-// PNG returns true if the reader beings with a PNG image file signature.
-func PNG(r io.Reader) bool {
-	buf := make([]byte, len(pngFileSignature()))
-	if _, err := io.ReadFull(r, buf); err != nil {
-		return false
-	}
-	return bytes.EqualFold(buf, pngFileSignature())
-}
-
-// PNG returns true if the byte slice has a PNG file signature.
-func PNGB(p []byte) bool {
-	if len(p) < len(pngFileSignature()) {
-		return false
-	}
-	return bytes.EqualFold(p[:8], pngFileSignature())
-}
-
-// Pkzip returns true if the reader begins with a PKZip file signature.
-func Pkzip(r io.Reader) bool {
-	buf := make([]byte, 4)
-	if _, err := io.ReadFull(r, buf); err != nil {
-		return false
-	}
-	return PkzipB(buf)
-}
-
-// PkzipB matches the PKZip file signature in the byte slice.
-func PkzipB(p []byte) bool {
-	const min = 4
-	if len(p) < min {
-		return false
-	}
-	const (
-		id1 = 0x50
-		id2 = 0x4b
-		id3 = 0x03
-		id4 = 0x04
-	)
-	return p[0] == id1 && p[1] == id2 && p[2] == id3 && p[3] == id4
-}
-
-// PkzipComp returns the PKZip compression methods used in the named file.
-func PkzipComp(name string) ([]pkzip.Compression, error) {
-	r, err := zip.OpenReader(name)
-	if err != nil {
-		return nil, err
-	}
-	defer r.Close()
-	methods := []pkzip.Compression{}
-	for _, file := range r.File {
-		fh := file.FileHeader
-		methods = append(methods, pkzip.Compression(fh.Method))
-	}
-	return methods, nil
-}
-
-// Zip returns true if the named file is a PKZip file that exclusively
-// uses the Deflated or Stored compression methods. These are the methods
-// supported by the Go standard library's archive/zip package.
-func Zip(name string) (bool, error) {
-	methods, err := PkzipComp(name)
-	if err != nil {
-		return false, err
-	}
-	for _, m := range methods {
-		if m == pkzip.Deflated || m == pkzip.Stored {
-			continue
-		}
-		return false, nil
-	}
-	return true, nil
+	ExtendedAscii := b >= 0x80 && b <= 0xff
+	return !ExtendedAscii
 }

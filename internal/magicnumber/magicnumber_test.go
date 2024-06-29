@@ -1,13 +1,13 @@
 package magicnumber_test
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
 
 	"github.com/Defacto2/server/internal/magicnumber"
-	"github.com/Defacto2/server/internal/magicnumber/pkzip"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -32,108 +32,108 @@ func tduncompress(name string) string {
 	return x
 }
 
-func TestANSIMatch(t *testing.T) {
-	t.Parallel()
-	b, err := os.ReadFile(td("PKZ204EX.TXT"))
-	require.NoError(t, err)
-	assert.False(t, magicnumber.ANSIB(b))
-	b, err = os.ReadFile(tduncompress("TEST.ANS"))
-	require.NoError(t, err)
-	assert.True(t, magicnumber.ANSIB(b))
-}
-
-func TestArcSeaBMatcher(t *testing.T) {
-	t.Parallel()
-	b, err := os.ReadFile(td("PKZ204EX.TXT"))
-	require.NoError(t, err)
-	assert.False(t, magicnumber.ArcSeaB(b))
-
-	match := []byte{0x1a, 0x10, 0x00, 0x00, 0x00, 0x00}
-	require.NoError(t, err)
-	assert.True(t, magicnumber.ArcSeaB(match))
-
-	b, err = os.ReadFile(td("ARJ310.ARJ"))
-	require.NoError(t, err)
-	assert.True(t, magicnumber.ARJB(b))
-
-	match = []byte{0xe9, 0xeb, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
-	assert.True(t, magicnumber.DOSComB(match))
-}
-
-func TestInterchangeMatcher(t *testing.T) {
-	// Quick note, to create a test .IFF I used XnView MP.
-	t.Parallel()
-	b, err := os.ReadFile(td("PKZ204EX.TXT"))
-	require.NoError(t, err)
-	assert.False(t, magicnumber.InterchangeFFB(b))
-
-	b, err = os.ReadFile(tduncompress("TEST.IFF"))
-	require.NoError(t, err)
-	assert.True(t, magicnumber.InterchangeFFB(b))
-}
-
-func TestPCXMatcher(t *testing.T) {
-	t.Parallel()
-	b, err := os.ReadFile(td("PKZ204EX.TXT"))
-	require.NoError(t, err)
-	assert.False(t, magicnumber.PCXB(b))
-
-	b, err = os.ReadFile(tduncompress("TEST.PCX"))
-	require.NoError(t, err)
-	assert.True(t, magicnumber.PCXB(b))
-
-	f, err := os.Open(tduncompress("TEST.PCX"))
-	require.NoError(t, err)
-	defer f.Close()
-	assert.True(t, magicnumber.PCX(f))
-}
-
-func TestPNGMatcher(t *testing.T) {
+func TestFinds(t *testing.T) {
 	t.Parallel()
 	f, err := os.Open(td("PKZ204EX.TXT"))
 	require.NoError(t, err)
 	defer f.Close()
-	assert.False(t, magicnumber.PNG(f))
+	sign, err := magicnumber.Find(f)
+	require.NoError(t, err)
+	assert.Equal(t, magicnumber.PlainText, sign)
 
 	f, err = os.Open(tduncompress("TEST.PNG"))
 	require.NoError(t, err)
 	defer f.Close()
-	assert.True(t, magicnumber.PNG(f))
+	sign, err = magicnumber.Find(f)
+	require.NoError(t, err)
+	assert.Equal(t, magicnumber.PortableNetworkGraphics, sign)
+
+	f, err = os.Open(tduncompress("TEST.GIF"))
+	require.NoError(t, err)
+	defer f.Close()
+	sign, err = magicnumber.Find(f)
+	require.NoError(t, err)
+	assert.Equal(t, magicnumber.GraphicsInterchangeFormat, sign)
+
+	f, err = os.Open(tduncompress("TEST.PCX"))
+	require.NoError(t, err)
+	defer f.Close()
+	sign, err = magicnumber.Find(f)
+	require.NoError(t, err)
+	assert.Equal(t, magicnumber.PersonalComputereXchange, sign)
+
+	fmt.Println(td("TAR135.TAR"))
+	f, err = os.Open(td("TAR135.TAR"))
+	require.NoError(t, err)
+	defer f.Close()
+	sign, err = magicnumber.Find(f)
+	require.NoError(t, err)
+	assert.Equal(t, magicnumber.TapeARchive, sign)
 }
 
-func TestPkzip(t *testing.T) {
+func TestANSIMatch(t *testing.T) {
 	t.Parallel()
 	b, err := os.ReadFile(td("PKZ204EX.TXT"))
 	require.NoError(t, err)
-	assert.False(t, magicnumber.PkzipB(b))
+	assert.False(t, magicnumber.Ansi(b))
+	b, err = os.ReadFile(tduncompress("TEST.ANS"))
+	require.NoError(t, err)
+	assert.True(t, magicnumber.Ansi(b))
+}
+
+func TestAscii(t *testing.T) {
+	t.Parallel()
+	p := []byte("Hello, World!")
+	assert.True(t, magicnumber.Ascii(p))
+	p = []byte("Hello, World!\x00")
+	assert.True(t, magicnumber.Ascii(p))
+	p = []byte("Hello, World!\x01")
+	assert.False(t, magicnumber.Ascii(p))
+	const esc = "\x1b"
+	p = []byte("Hello, World!" + esc)
+	assert.True(t, magicnumber.Ascii(p))
+
+	b, err := os.ReadFile(td("PKZ204EX.TXT"))
+	require.NoError(t, err)
+	assert.True(t, magicnumber.Txt(b))
+
+	b, err = os.ReadFile(td("PKZ204EX.TXT"))
+	require.NoError(t, err)
+	assert.True(t, magicnumber.TxtWindows(b))
 
 	b, err = os.ReadFile(td("PKZ204EX.ZIP"))
 	require.NoError(t, err)
-	assert.True(t, magicnumber.PkzipB(b))
+	assert.False(t, magicnumber.Txt(b))
+}
 
-	comps, err := magicnumber.PkzipComp(td("PKZ204EX.TXT"))
-	require.Error(t, err)
-	assert.Nil(t, comps)
-
-	comps, err = magicnumber.PkzipComp(td("PKZ204EX.ZIP"))
+func TestTextLatin1(t *testing.T) {
+	t.Parallel()
+	p := []byte("Hello, World!")
+	assert.True(t, magicnumber.TxtLatin1(p))
+	p = []byte("Hello, World! \x92")
+	assert.False(t, magicnumber.TxtLatin1(p))
+	p = []byte("Hello, World! \x03")
+	assert.False(t, magicnumber.TxtLatin1(p))
+	b, err := os.ReadFile(td("PKZ204EX.TXT"))
 	require.NoError(t, err)
-	assert.Equal(t, pkzip.Deflated, comps[0])
-	assert.Equal(t, pkzip.Stored, comps[1])
+	assert.True(t, magicnumber.TxtLatin1(b))
+}
 
-	comps, err = magicnumber.PkzipComp(td("PKZ80A1.ZIP"))
+func TestTxtWindows(t *testing.T) {
+	t.Parallel()
+	p := []byte("Hello, World!")
+	assert.True(t, magicnumber.TxtWindows(p))
+
+	p = []byte("Hello, World! \x92")
+	assert.True(t, magicnumber.TxtWindows(p))
+
+	p = []byte("Hello, World! \x8f")
+	assert.False(t, magicnumber.TxtWindows(p))
+
+	p = []byte("Hello, World! \x03")
+	assert.False(t, magicnumber.TxtWindows(p))
+
+	b, err := os.ReadFile(td("PKZ204EX.TXT"))
 	require.NoError(t, err)
-	assert.Equal(t, pkzip.Shrunk, comps[0])
-	assert.Equal(t, pkzip.Stored, comps[1])
-
-	usable, err := magicnumber.Zip(td("PKZ204EX.TXT"))
-	require.Error(t, err)
-	assert.False(t, usable)
-
-	usable, err = magicnumber.Zip(td("PKZ204EX.ZIP"))
-	require.NoError(t, err)
-	assert.True(t, usable)
-
-	usable, err = magicnumber.Zip(td("PKZ80A1.ZIP"))
-	require.NoError(t, err)
-	assert.False(t, usable)
+	assert.True(t, magicnumber.TxtWindows(b))
 }

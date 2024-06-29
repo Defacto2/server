@@ -1,10 +1,20 @@
+// Package pkzip provides constants and functions for working with PKZip files to determine the compression methods used.
+// Most modern zip files use the Deflated method, which is supported by the Go standard library's archive/zip package and
+// the Stored method, which is uncompressed.
+//
+// But many older zip files use other compression methods, such as Shrunk, Reduced, Imploded, and others. This package
+// provides a way to determine the compression methods used in a zip file and whether the file should be handled by a
+// third-party application installed on the host system.
 package pkzip
 
 import (
+	"archive/zip"
+	"slices"
 	"strconv"
 	"strings"
 )
 
+// Compression is the PKZip compression method used by a ZIP archive file.
 type Compression uint16
 
 const (
@@ -86,6 +96,7 @@ func (c Compression) Zip() bool {
 	return false
 }
 
+// Diagnostic is a diagnostic code returned by the PKZip command-line utilities.
 type Diagnostic uint16
 
 const (
@@ -155,6 +166,19 @@ func (d Diagnostic) String() string {
 	}
 }
 
+// ExitStatus is intended to be used with the exec.Command.Run method to determine
+// the exit status of the PKZip command-line utilities.
+//
+//	err := exec.Command("unzip", "-T", "archive.zip").Run()
+//	if err != nil {
+//		diag := pkzip.ExitStatus(err)
+//		switch diag {
+//		case pkzip.Normal, pkzip.Warning:
+//			// normal or warnings are fine
+//			return nil
+//		}
+//		return fmt.Errorf("unzip test failed: %s", diag)
+//	}
 func ExitStatus(err error) Diagnostic {
 	if err == nil {
 		return Normal
@@ -169,4 +193,36 @@ func ExitStatus(err error) Diagnostic {
 		return Diagnostic(99)
 	}
 	return Diagnostic(code)
+}
+
+// Methods returns the PKZip compression methods used in the named file.
+func Methods(name string) ([]Compression, error) {
+	r, err := zip.OpenReader(name)
+	if err != nil {
+		return nil, err
+	}
+	defer r.Close()
+	methods := []Compression{}
+	for _, file := range r.File {
+		fh := file.FileHeader
+		methods = append(methods, Compression(fh.Method))
+	}
+	slices.Sort(methods)
+	return slices.Compact(methods), nil
+}
+
+// Zip returns true if the named file is a PKZip file that exclusively
+// uses the Deflated or Stored compression methods. These are the methods
+// supported by the Go standard library's archive/zip package.
+func Zip(name string) (bool, error) {
+	methods, err := Methods(name)
+	if err != nil {
+		return false, err
+	}
+	for _, method := range methods {
+		if !method.Zip() {
+			return false, nil
+		}
+	}
+	return true, nil
 }

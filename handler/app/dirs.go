@@ -422,7 +422,7 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 		return data, nil
 	}
 	// occasionally, an image is flagged as a text file
-	if magicnumber.PNG(r) {
+	if magicnumber.Png(b) {
 		return data, nil
 	}
 	// trim trailing whitespace and MS-DOS era EOF marker

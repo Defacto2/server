@@ -16,7 +16,6 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/magicnumber"
 	"github.com/Defacto2/server/internal/magicnumber/pkzip"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -87,9 +86,9 @@ func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor) error {
 			logger.Info("Found extra file:", uid)
 			return nil
 		}
-		methods, err := magicnumber.PkzipComp(path)
+		methods, err := pkzip.Methods(path)
 		if err != nil {
-			logger.Errorf("magicnumber.PkzipComp %w: %s", err, path)
+			logger.Errorf("pkzip methods %w: %s", err, path)
 			return nil
 		}
 		usable := true
