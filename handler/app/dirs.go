@@ -385,84 +385,45 @@ func (dir Dirs) PreviewPost(c echo.Context, logger *zap.SugaredLogger) error {
 	return dir.extractor(c, logger, imgs)
 }
 
-// artifactReadme returns the readme data for the file record.
-func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error) { //nolint:cyclop,funlen
-	data := map[string]interface{}{}
-	if art == nil {
-		return data, nil
-	}
-	if art.RetrotxtNoReadme.Int16 != 0 {
-		return data, nil
-	}
-	platform := strings.TrimSpace(art.Platform.String)
-	switch platform {
-	case "markup", "pdf":
-		return data, nil
-	}
-	if render.NoScreenshot(art, dir.Preview) {
-		data["noScreenshot"] = true
-	}
-	// the bbs era, remote images protcol is not supported
-	// example: /f/b02392f
-	const unsupported = ".rip"
-	if filepath.Ext(strings.ToLower(art.Filename.String)) == unsupported {
-		return data, nil
-	}
-	b, err := render.Read(art, dir.Download, dir.Extra)
-	r := bufio.NewReader(bytes.NewReader(b))
-	switch {
-	case errors.Is(err, render.ErrDownload):
-		data["noDownload"] = true
-		return data, nil
-	case errors.Is(err, render.ErrFilename), r == nil:
-		return data, nil
-	case err != nil:
-		return data, fmt.Errorf("render.Read: %w", err)
-	case b == nil, render.UTF16(r), isZip(b):
-		return data, nil
-	}
-	// occasionally, an image is flagged as a text file
-	if magicnumber.Png(b) {
-		return data, nil
-	}
-	// trim trailing whitespace and MS-DOS era EOF marker
-	b = bytes.TrimRightFunc(b, uni.IsSpace)
-	const endOfFile = 0x1a // Ctrl+Z
-	if bytes.HasSuffix(b, []byte{endOfFile}) {
-		b = bytes.TrimSuffix(b, []byte{endOfFile})
-	}
-
-	// Scan for HTML incompatible, ANSI cursor escape codes
-	scanner := bufio.NewScanner(r)
-
+func moveCursor() string {
 	// match 1B (Escape)
 	// match [ (Left Bracket)
 	// match optional digits (if no digits, then the cursor moves 1 position)
 	// match A-G (cursor movement, up, down, left, right, etc.)
-	const movesCursor = `\x1b\[\d*?[ABCDEFG]`
+	return `\x1b\[\d*?[ABCDEFG]`
+}
 
+func moveCursorToPos() string {
 	// match 1B (Escape)
 	// match [ (Left Bracket)
 	// match digits for line number
 	// match ; (semicolon)
 	// match digits for column number
 	// match H (cursor position) or f (cursor position)
-	const moveCursorToPos = `\x1b\[\d+;\d+[Hf]`
+	return `\x1b\[\d+;\d+[Hf]`
+}
 
-	reMoveCursor := regexp.MustCompile(movesCursor)
-	reMoveCursorToPos := regexp.MustCompile(moveCursorToPos)
+// incompatibleANSI scans for HTML incompatible, ANSI cursor escape codes in the reader.
+func incompatibleANSI(r io.Reader) (bool, error) {
+	scanner := bufio.NewScanner(r)
+	mcur, mpos := moveCursor(), moveCursorToPos()
+	reMoveCursor := regexp.MustCompile(mcur)
+	reMoveCursorToPos := regexp.MustCompile(mpos)
 	for scanner.Scan() {
 		if reMoveCursor.Match(scanner.Bytes()) {
-			return data, nil
+			return true, nil
 		}
 		if reMoveCursorToPos.Match(scanner.Bytes()) {
-			return data, nil
+			return true, nil
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("moves cursor scanner: %w", err)
+		return false, fmt.Errorf("moves cursor scanner: %w", err)
 	}
-	// Remove control codes and metadata from byte array
+	return false, nil
+}
+
+func removeControlCodes(b []byte) []byte {
 	const (
 		reAnsi    = `\x1b\[[0-9;]*[a-zA-Z]` // ANSI escape codes
 		reAmiga   = `\x1b\[[0-9;]*[ ]p`     // unknown control code found in Amiga texts
@@ -473,6 +434,74 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	controlCodes := regexp.MustCompile(reAnsi + `|` + reAmiga + `|` + reSauce)
 	b = controlCodes.ReplaceAll(b, []byte{})
 	b = bytes.ReplaceAll(b, []byte(nlWindows), []byte(nlUnix))
+	return b
+}
+
+func unsupported(art *models.File) bool {
+	const bbsRipImage = ".rip"
+	if filepath.Ext(strings.ToLower(art.Filename.String)) == bbsRipImage {
+		// the bbs era, remote images protcol is not supported
+		// example: /f/b02392f
+		return true
+	}
+	switch strings.TrimSpace(art.Platform.String) {
+	case "markup", "pdf":
+		return true
+	}
+	return false
+}
+
+// artifactReadme returns the readme data for the file record.
+func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error) {
+	data := map[string]interface{}{}
+	if art == nil || art.RetrotxtNoReadme.Int16 != 0 {
+		return data, nil
+	}
+	if unsupported(art) {
+		return data, nil
+	}
+	if skip := render.NoScreenshot(art, dir.Preview); skip {
+		data["noScreenshot"] = true
+	}
+	b, err := render.Read(art, dir.Download, dir.Extra)
+	if err != nil {
+		if errors.Is(err, render.ErrDownload) {
+			data["noDownload"] = true
+			return data, nil
+		}
+		if errors.Is(err, render.ErrFilename) {
+			return data, nil
+		}
+		return data, fmt.Errorf("render.Read: %w", err)
+	}
+	if b == nil {
+		return data, nil
+	}
+	r := bufio.NewReader(bytes.NewReader(b))
+	// check the bytes are plain text but not utf16 or utf32
+	if sign, err := magicnumber.Text(r); err != nil {
+		return data, fmt.Errorf("magicnumber.Text: %w", err)
+	} else if sign != magicnumber.Unknown ||
+		sign == magicnumber.UTF16Text ||
+		sign == magicnumber.UTF32Text {
+		return data, nil
+	}
+	// trim trailing whitespace and MS-DOS era EOF marker
+	b = bytes.TrimRightFunc(b, uni.IsSpace)
+	const endOfFile = 0x1a // Ctrl+Z
+	if bytes.HasSuffix(b, []byte{endOfFile}) {
+		b = bytes.TrimSuffix(b, []byte{endOfFile})
+	}
+	if incompatible, err := incompatibleANSI(r); err != nil {
+		return data, fmt.Errorf("incompatibleANSI: %w", err)
+	} else if incompatible {
+		return data, nil
+	}
+	b = removeControlCodes(b)
+	return readmeEncoding(art, data, b...)
+}
+
+func readmeEncoding(art *models.File, data map[string]interface{}, b ...byte) (map[string]interface{}, error) {
 	if len(b) == 0 {
 		return data, nil
 	}
@@ -505,6 +534,7 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 		data["vgaCheck"] = chk
 	}
 	var readme string
+	var err error
 	switch textEncoding {
 	case unicode.UTF8:
 		// unicode should apply to both latin1 and cp437
@@ -528,21 +558,9 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 		}
 		data["readmeCP437"] = readme
 	}
-
 	data["readmeLines"] = strings.Count(readme, "\n")
 	data["readmeRows"] = helper.MaxLineLength(readme)
 	return data, nil
-}
-
-// isZip checks if b is a known zip archive.
-// when b is unknown, "application/octet-stream" is returned
-// which can be a false positive with other legacy text files.
-func isZip(b []byte) bool {
-	switch http.DetectContentType(b) {
-	case "archive/zip", "application/zip":
-		return true
-	}
-	return false
 }
 
 func decode(src io.Reader) (string, error) {

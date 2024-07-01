@@ -123,440 +123,541 @@ func (s *Summary) ByUnwanted(ctx context.Context, exec boil.ContextExecutor) err
 		qm.From(From)).Bind(ctx, exec, s)
 }
 
-// ByMatch returns the summary statistics for the named uri.
-func (s *Summary) ByMatch(ctx context.Context, exec boil.ContextExecutor, uri string) error { //nolint:lll,funlen,gocognit,gocyclo,cyclop,maintidx
-	var c, b, y0, y1 int
-	var err error
-	switch uri {
-	case "intro-windows":
-		m := IntroWindows{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "intro-msdos":
-		m := IntroMsDos{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "intro":
-		m := Intro{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "installer":
-		m := Installer{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "demoscene":
-		m := Demoscene{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "nfo":
-		m := Nfo{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "proof":
-		m := Proof{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "ansi":
-		m := Ansi{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "ansi-brand":
-		m := AnsiBrand{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "ansi-bbs":
-		m := AnsiBBS{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "ansi-ftp":
-		m := AnsiFTP{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "ansi-pack":
-		m := AnsiPack{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "ansi-nfo":
-		m := AnsiNfo{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "bbs":
-		m := BBS{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "bbstro":
-		m := BBStro{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "bbs-image":
-		m := BBSImage{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "bbs-text":
-		m := BBSText{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "ftp":
-		m := FTP{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "magazine":
-		m := Magazine{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "text":
-		m := Text{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "text-pack":
-		m := TextPack{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "image-pack":
-		m := ImagePack{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "windows-pack":
-		m := WindowsPack{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "msdos-pack":
-		m := MsDosPack{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "database":
-		m := Database{}
-		if err := m.Stat(ctx, exec); err != nil {
-			return err
-		}
-		c, b, y0, y1 = m.Count, m.Bytes, m.MinYear, m.MaxYear
-	case "text-amiga":
-		c, b, y0, y1, err = textAmiga(ctx, exec)
-	case "text-apple2":
-		c, b, y0, y1, err = textApple2(ctx, exec)
-	case "text-atari-st":
-		c, b, y0, y1, err = textAtariST(ctx, exec)
-	case "pdf":
-		c, b, y0, y1, err = pdf(ctx, exec)
-	case "html":
-		c, b, y0, y1, err = html(ctx, exec)
-	case "news-article":
-		c, b, y0, y1, err = newsArticle(ctx, exec)
-	case "standards":
-		c, b, y0, y1, err = standards(ctx, exec)
-	case "announcement":
-		c, b, y0, y1, err = announcement(ctx, exec)
-	case "job-advert":
-		c, b, y0, y1, err = jobAdvert(ctx, exec)
-	case "trial-crackme":
-		c, b, y0, y1, err = trialCrackme(ctx, exec)
-	case "hack":
-		c, b, y0, y1, err = hack(ctx, exec)
-	case "tool":
-		c, b, y0, y1, err = tool(ctx, exec)
-	case "takedown":
-		c, b, y0, y1, err = takedown(ctx, exec)
-	case "drama":
-		c, b, y0, y1, err = drama(ctx, exec)
-	case "advert":
-		c, b, y0, y1, err = advert(ctx, exec)
-	case "restrict":
-		c, b, y0, y1, err = restrict(ctx, exec)
-	case "how-to":
-		c, b, y0, y1, err = howTo(ctx, exec)
-	case "nfo-tool":
-		c, b, y0, y1, err = nfoTool(ctx, exec)
-	case "image":
-		c, b, y0, y1, err = image(ctx, exec)
-	case "music":
-		c, b, y0, y1, err = music(ctx, exec)
-	case "video":
-		c, b, y0, y1, err = video(ctx, exec)
-	case "msdos":
-		c, b, y0, y1, err = msdos(ctx, exec)
-	case "windows":
-		c, b, y0, y1, err = windows(ctx, exec)
-	case "macos":
-		c, b, y0, y1, err = macos(ctx, exec)
-	case "linux":
-		c, b, y0, y1, err = linux(ctx, exec)
-	case "java":
-		c, b, y0, y1, err = java(ctx, exec)
-	case "script":
-		c, b, y0, y1, err = script(ctx, exec)
-	default:
-		return fmt.Errorf("%w: %q", ErrURI, uri)
-	}
-	if err != nil {
-		return err
-	}
-	s.SumBytes = sql.NullInt64{Int64: int64(b)}
+// Update updates the summary statistics.
+func (s *Summary) Update(c, b, y0, y1 int) {
 	s.SumCount = sql.NullInt64{Int64: int64(c)}
+	s.SumBytes = sql.NullInt64{Int64: int64(b)}
 	s.MinYear = sql.NullInt16{Int16: int16(y0)}
 	s.MaxYear = sql.NullInt16{Int16: int16(y1)}
+}
+
+// ByMatch returns the summary statistics for the named uri.
+func (s *Summary) ByMatch(ctx context.Context, exec boil.ContextExecutor, uri string) error {
+	type statFunc func(context.Context, boil.ContextExecutor) error
+	stat := map[string]statFunc{
+		"text-amiga":    s.textAmiga,
+		"text-apple2":   s.textApple2,
+		"text-atari-st": s.textAtariST,
+		"pdf":           s.pdf,
+		"html":          s.html,
+		"news-article":  s.newsArticle,
+		"standards":     s.standards,
+		"announcement":  s.announcement,
+		"job-advert":    s.jobAdvert,
+		"trial-crackme": s.trialCrackme,
+		"hack":          s.hack,
+		"tool":          s.tool,
+		"takedown":      s.takedown,
+		"drama":         s.drama,
+		"advert":        s.advert,
+		"restrict":      s.restrict,
+		"how-to":        s.howTo,
+		"nfo-tool":      s.nfoTool,
+		"image":         s.image,
+		"music":         s.music,
+		"video":         s.video,
+		"msdos":         s.msdos,
+		"windows":       s.windows,
+		"macos":         s.macos,
+		"linux":         s.linux,
+		"java":          s.java,
+		"script":        s.script,
+		"database":      s.database,
+		"msdos-pack":    s.msdosPack,
+		"windows-pack":  s.windowsPack,
+		"image-pack":    s.imagePack,
+		"text-pack":     s.textPack,
+		"text":          s.text,
+		"magazine":      s.magazine,
+		"ftp":           s.ftp,
+		"bbs-text":      s.bbsText,
+		"bbs-image":     s.bbsImage,
+		"bbstro":        s.bbstro,
+		"bbs":           s.bbs,
+		"ansi-nfo":      s.ansiNfo,
+		"ansi-pack":     s.ansiPack,
+		"ansi-ftp":      s.ansiFTP,
+		"ansi-bbs":      s.ansiBBS,
+		"ansi-brand":    s.ansiBrand,
+		"ansi":          s.ansi,
+		"proof":         s.proof,
+		"nfo":           s.nfo,
+		"demoscene":     s.demoscene,
+		"installer":     s.installer,
+		"intro":         s.intro,
+		"intro-msdos":   s.introMsdos,
+		"intro-windows": s.introWindows,
+	}
+	if update, match := stat[uri]; match {
+		return update(ctx, exec)
+	}
+	return fmt.Errorf("%w: %q", ErrURI, uri)
+}
+
+func (s *Summary) introWindows(ctx context.Context, exec boil.ContextExecutor) error {
+	m := IntroWindows{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return err
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
 }
 
-func textAmiga(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) introMsdos(ctx context.Context, exec boil.ContextExecutor) error {
+	m := IntroMsDos{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return err
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) intro(ctx context.Context, exec boil.ContextExecutor) error {
+	m := Intro{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return err
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) installer(ctx context.Context, exec boil.ContextExecutor) error {
+	m := Installer{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return err
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) demoscene(ctx context.Context, exec boil.ContextExecutor) error {
+	m := Demoscene{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return err
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) nfo(ctx context.Context, exec boil.ContextExecutor) error {
+	m := Nfo{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return err
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) proof(ctx context.Context, exec boil.ContextExecutor) error {
+	m := Proof{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return err
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) ansi(ctx context.Context, exec boil.ContextExecutor) error {
+	m := Ansi{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return err
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) ansiBrand(ctx context.Context, exec boil.ContextExecutor) error {
+	m := AnsiBrand{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return err
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) ansiBBS(ctx context.Context, exec boil.ContextExecutor) error {
+	m := AnsiBBS{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return err
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) ansiFTP(ctx context.Context, exec boil.ContextExecutor) error {
+	m := AnsiFTP{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("ansiFTP.Stat: %w", err)
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) ansiPack(ctx context.Context, exec boil.ContextExecutor) error {
+	m := AnsiPack{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("ansiPack.Stat: %w", err)
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) ansiNfo(ctx context.Context, exec boil.ContextExecutor) error {
+	m := AnsiNfo{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("ansiNfo.Stat: %w", err)
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) bbs(ctx context.Context, exec boil.ContextExecutor) error {
+	m := BBS{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("bbs.Stat: %w", err)
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) bbstro(ctx context.Context, exec boil.ContextExecutor) error {
+	m := BBStro{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("bbstro.Stat: %w", err)
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) bbsImage(ctx context.Context, exec boil.ContextExecutor) error {
+	m := BBSImage{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("bbsImage.Stat: %w", err)
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) bbsText(ctx context.Context, exec boil.ContextExecutor) error {
+	m := BBSText{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("bbsText.Stat: %w", err)
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) ftp(ctx context.Context, exec boil.ContextExecutor) error {
+	m := FTP{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("ftp.Stat: %w", err)
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) magazine(ctx context.Context, exec boil.ContextExecutor) error {
+	m := Magazine{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("magazine.Stat: %w", err)
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) text(ctx context.Context, exec boil.ContextExecutor) error {
+	m := Text{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return err
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) textPack(ctx context.Context, exec boil.ContextExecutor) error {
+	m := TextPack{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("textPack.Stat: %w", err)
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) imagePack(ctx context.Context, exec boil.ContextExecutor) error {
+	m := ImagePack{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("imagePack.Stat: %w", err)
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) windowsPack(ctx context.Context, exec boil.ContextExecutor) error {
+	m := WindowsPack{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("windowsPack.Stat: %w", err)
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) msdosPack(ctx context.Context, exec boil.ContextExecutor) error {
+	m := MsDosPack{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("msdosPack.Stat: %w", err)
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) database(ctx context.Context, exec boil.ContextExecutor) error {
+	m := Database{}
+	if err := m.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("database.Stat: %w", err)
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) textAmiga(ctx context.Context, exec boil.ContextExecutor) error {
 	m := TextAmiga{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("textAmiga.Stat: %w", err)
+		return fmt.Errorf("textAmiga.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func textApple2(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) textApple2(ctx context.Context, exec boil.ContextExecutor) error {
 	m := TextApple2{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("textApple2.Stat: %w", err)
+		return fmt.Errorf("textApple2.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func textAtariST(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) textAtariST(ctx context.Context, exec boil.ContextExecutor) error {
 	m := TextAtariST{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("textAtariST.Stat: %w", err)
+		return fmt.Errorf("textAtariST.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func pdf(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) pdf(ctx context.Context, exec boil.ContextExecutor) error {
 	m := PDF{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("pdf.Stat: %w", err)
+		return fmt.Errorf("pdf.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func html(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) html(ctx context.Context, exec boil.ContextExecutor) error {
 	m := HTML{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("html.Stat: %w", err)
+		return fmt.Errorf("html.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func newsArticle(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) newsArticle(ctx context.Context, exec boil.ContextExecutor) error {
 	m := NewsArticle{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("newsArticle.Stat: %w", err)
+		return fmt.Errorf("newsArticle.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func standards(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) standards(ctx context.Context, exec boil.ContextExecutor) error {
 	m := Standard{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("standards.Stat: %w", err)
+		return fmt.Errorf("standards.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func announcement(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) announcement(ctx context.Context, exec boil.ContextExecutor) error {
 	m := Announcement{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("announcement.Stat: %w", err)
+		return fmt.Errorf("announcement.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func jobAdvert(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) jobAdvert(ctx context.Context, exec boil.ContextExecutor) error {
 	m := JobAdvert{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("jobAdvert.Stat: %w", err)
+		return fmt.Errorf("jobAdvert.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func trialCrackme(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) trialCrackme(ctx context.Context, exec boil.ContextExecutor) error {
 	m := TrialCrackme{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("trailCrackme.Stat: %w", err)
+		return fmt.Errorf("trailCrackme.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func hack(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) hack(ctx context.Context, exec boil.ContextExecutor) error {
 	m := Hack{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("hack.Stat: %w", err)
+		return fmt.Errorf("hack.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func tool(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) tool(ctx context.Context, exec boil.ContextExecutor) error {
 	m := Tool{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("tool.Stat: %w", err)
+		return fmt.Errorf("tool.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func takedown(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) takedown(ctx context.Context, exec boil.ContextExecutor) error {
 	m := Takedown{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("takedown.Stat: %w", err)
+		return fmt.Errorf("takedown.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func drama(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) drama(ctx context.Context, exec boil.ContextExecutor) error {
 	m := Drama{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("drama.Stat: %w", err)
+		return fmt.Errorf("drama.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func advert(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) advert(ctx context.Context, exec boil.ContextExecutor) error {
 	m := Advert{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("advert.Stat: %w", err)
+		return fmt.Errorf("advert.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func restrict(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) restrict(ctx context.Context, exec boil.ContextExecutor) error {
 	m := Restrict{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("restrict.Stat: %w", err)
+		return fmt.Errorf("restrict.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func howTo(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) howTo(ctx context.Context, exec boil.ContextExecutor) error {
 	m := HowTo{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("howTo.Stat: %w", err)
+		return fmt.Errorf("howTo.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func nfoTool(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) nfoTool(ctx context.Context, exec boil.ContextExecutor) error {
 	m := NfoTool{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("nfoTool.Stat: %w", err)
+		return fmt.Errorf("nfoTool.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func image(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) image(ctx context.Context, exec boil.ContextExecutor) error {
 	m := Image{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("image.Stat: %w", err)
+		return fmt.Errorf("image.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func music(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) music(ctx context.Context, exec boil.ContextExecutor) error {
 	m := Music{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("music.Stat: %w", err)
+		return fmt.Errorf("music.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func video(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) video(ctx context.Context, exec boil.ContextExecutor) error {
 	m := Video{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("video.Stat: %w", err)
+		return fmt.Errorf("video.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func msdos(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) msdos(ctx context.Context, exec boil.ContextExecutor) error {
 	m := MsDos{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("msdos.Stat: %w", err)
+		return fmt.Errorf("msdos.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func windows(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) windows(ctx context.Context, exec boil.ContextExecutor) error {
 	m := Windows{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("windows.Stat: %w", err)
+		return fmt.Errorf("windows.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func macos(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) macos(ctx context.Context, exec boil.ContextExecutor) error {
 	m := Macos{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("macos.Stat: %w", err)
+		return fmt.Errorf("macos.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func linux(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) linux(ctx context.Context, exec boil.ContextExecutor) error {
 	m := Linux{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("linux.Stat: %w", err)
+		return fmt.Errorf("linux.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func java(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) java(ctx context.Context, exec boil.ContextExecutor) error {
 	m := Java{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("java.Stat: %w", err)
+		return fmt.Errorf("java.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
-func script(ctx context.Context, exec boil.ContextExecutor) (int, int, int, int, error) {
+func (s *Summary) script(ctx context.Context, exec boil.ContextExecutor) error {
 	m := Script{}
 	if err := m.Stat(ctx, exec); err != nil {
-		return 0, 0, 0, 0, fmt.Errorf("script.Stat: %w", err)
+		return fmt.Errorf("script.Stat: %w", err)
 	}
-	return m.Count, m.Bytes, m.MinYear, m.MaxYear, nil
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }

@@ -318,6 +318,17 @@ func Programs() []Signature {
 	}
 }
 
+// Texts returns all the text file type signatures.
+func Texts() []Signature {
+	return []Signature{
+		UTF8Text,
+		UTF16Text,
+		UTF32Text,
+		ANSIEscapeText,
+		PlainText,
+	}
+}
+
 // Videos returns all the video file type signatures.
 func Videos() []Signature {
 	return []Signature{
@@ -475,6 +486,31 @@ func Program(r io.Reader) (Signature, error) {
 		}
 	}
 	return Unknown, nil
+}
+
+// Text reads the first 512 bytes from the reader and returns the file type signature if
+// the file is a known plain text file or Unknown if the file is not a text file.
+func Text(r io.Reader) (Signature, error) {
+	buf := make([]byte, 512)
+	_, err := io.ReadFull(r, buf)
+	if err != nil {
+		return Unknown, fmt.Errorf("magic number text: %w", err)
+	}
+	txts := Texts()
+	find := New()
+	for _, txt := range txts {
+		if find[txt](buf) {
+			return txt, nil
+		}
+	}
+	switch {
+	case Ansi(buf):
+		return ANSIEscapeText, nil
+	case Txt(buf):
+		return PlainText, nil
+	default:
+		return Unknown, nil
+	}
 }
 
 // Video reads all the bytes from the reader and returns the file type signature if

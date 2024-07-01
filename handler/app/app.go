@@ -699,130 +699,66 @@ func Prefix(s string) string {
 }
 
 // RecordsSub returns the records for the artifacts category URI.
-func RecordsSub(uri string) string { //nolint:cyclop
+func RecordsSub(uri string) string {
 	const ignore = -1
-	switch Match(uri) {
-	case advert:
-		return tags.Humanizes(ignore, tags.ForSale)
-	case announcement:
-		return tags.Humanizes(ignore, tags.Announcement)
-	case ansi:
-		return tags.Humanizes(tags.ANSI, ignore)
-	case ansiBrand:
-		return tags.Humanizes(tags.ANSI, tags.Logo)
-	case ansiBBS:
-		return tags.Humanizes(tags.ANSI, tags.BBS)
-	case ansiFTP:
-		return tags.Humanizes(tags.ANSI, tags.Ftp)
-	case ansiNfo:
-		return tags.Humanizes(tags.ANSI, tags.Nfo)
-	case ansiPack:
-		return tags.Humanizes(tags.ANSI, tags.Pack)
-	case bbs:
-		return tags.Humanizes(ignore, tags.BBS)
-	case bbsImage:
-		return tags.Humanizes(tags.Image, tags.BBS)
-	case bbstro:
-		return tags.Humanizes(tags.DOS, tags.BBS)
-	case bbsText:
-		return tags.Humanizes(tags.Text, tags.BBS)
-	case database:
-		return tags.Humanizes(ignore, tags.DataB)
-	case demoscene:
-		return tags.Humanizes(ignore, tags.Demo)
-	case drama:
-		return tags.Humanizes(ignore, tags.Drama)
-	case ftp:
-		return tags.Humanizes(ignore, tags.Ftp)
-	case hack:
-		return tags.Humanizes(ignore, tags.GameHack)
+	subs := map[URI]string{
+		advert:       tags.Humanizes(ignore, tags.ForSale),
+		announcement: tags.Humanizes(ignore, tags.Announcement),
+		ansi:         tags.Humanizes(tags.ANSI, ignore),
+		ansiBrand:    tags.Humanizes(tags.ANSI, tags.Logo),
+		ansiBBS:      tags.Humanizes(tags.ANSI, tags.BBS),
+		ansiFTP:      tags.Humanizes(tags.ANSI, tags.Ftp),
+		ansiNfo:      tags.Humanizes(tags.ANSI, tags.Nfo),
+		ansiPack:     tags.Humanizes(tags.ANSI, tags.Pack),
+		bbs:          tags.Humanizes(ignore, tags.BBS),
+		bbsImage:     tags.Humanizes(tags.Image, tags.BBS),
+		bbstro:       tags.Humanizes(tags.DOS, tags.BBS),
+		bbsText:      tags.Humanizes(tags.Text, tags.BBS),
+		database:     tags.Humanizes(ignore, tags.DataB),
+		demoscene:    tags.Humanizes(ignore, tags.Demo),
+		drama:        tags.Humanizes(ignore, tags.Drama),
+		ftp:          tags.Humanizes(ignore, tags.Ftp),
+		hack:         tags.Humanizes(ignore, tags.GameHack),
+		htm:          uri,
+		howTo:        tags.Humanizes(ignore, tags.Guide),
+		imageFile:    tags.Humanizes(tags.Image, ignore),
+		imagePack:    tags.Humanizes(tags.Image, tags.Pack),
+		installer:    tags.Humanizes(ignore, tags.Install),
+		intro:        tags.Humanizes(ignore, tags.Intro),
+		linux:        tags.Humanizes(tags.Linux, ignore),
+		java:         tags.Humanizes(tags.Java, ignore),
+		jobAdvert:    tags.Humanizes(ignore, tags.Job),
+		macos:        tags.Humanizes(tags.Mac, ignore),
+		msdosPack:    tags.Humanizes(tags.DOS, tags.Pack),
+		music:        tags.Humanizes(tags.Audio, ignore),
+		newsArticle:  tags.Humanizes(ignore, tags.News),
+		nfo:          tags.Humanizes(ignore, tags.Nfo),
+		nfoTool:      tags.Humanizes(ignore, tags.NfoTool),
+		standards:    tags.Humanizes(ignore, tags.Rule),
+		script:       tags.Humanizes(tags.PHP, ignore),
+		introMsdos:   tags.Humanizes(tags.DOS, tags.Intro),
+		introWindows: tags.Humanizes(tags.Windows, tags.Intro),
+		magazine:     tags.Humanizes(ignore, tags.Mag),
+		msdos:        tags.Humanizes(tags.DOS, ignore),
+		pdf:          tags.Humanizes(tags.PDF, ignore),
+		proof:        tags.Humanizes(ignore, tags.Proof),
+		restrict:     tags.Humanizes(ignore, tags.Restrict),
+		takedown:     tags.Humanizes(ignore, tags.Bust),
+		text:         tags.Humanizes(tags.Text, ignore),
+		textAmiga:    tags.Humanizes(tags.TextAmiga, ignore),
+		textApple2:   tags.Humanizes(tags.Text, tags.AppleII),
+		textAtariST:  tags.Humanizes(tags.Text, tags.AtariST),
+		textPack:     tags.Humanizes(tags.Text, tags.Pack),
+		tool:         tags.Humanizes(ignore, tags.Tool),
+		trialCrackme: tags.Humanizes(tags.Windows, tags.Job),
+		video:        tags.Humanizes(tags.Video, ignore),
+		windows:      tags.Humanizes(tags.Windows, ignore),
+		windowsPack:  tags.Humanizes(tags.Windows, tags.Pack),
 	}
-	return recordsSub0(uri)
-}
-
-func recordsSub0(uri string) string {
-	const ignore = -1
-	switch Match(uri) {
-	case htm:
-		return uri
-	case howTo:
-		return tags.Humanizes(ignore, tags.Guide)
-	case imageFile:
-		return tags.Humanizes(tags.Image, ignore)
-	case imagePack:
-		return tags.Humanizes(tags.Image, tags.Pack)
-	case installer:
-		return tags.Humanizes(ignore, tags.Install)
-	case intro:
-		return tags.Humanizes(ignore, tags.Intro)
-	case linux:
-		return tags.Humanizes(tags.Linux, ignore)
-	case java:
-		return tags.Humanizes(tags.Java, ignore)
-	case jobAdvert:
-		return tags.Humanizes(ignore, tags.Job)
-	case macos:
-		return tags.Humanizes(tags.Mac, ignore)
-	case msdosPack:
-		return tags.Humanizes(tags.DOS, tags.Pack)
-	case music:
-		return tags.Humanizes(tags.Audio, ignore)
-	case newsArticle:
-		return tags.Humanizes(ignore, tags.News)
-	case nfo:
-		return tags.Humanizes(ignore, tags.Nfo)
-	case nfoTool:
-		return tags.Humanizes(ignore, tags.NfoTool)
+	if value, found := subs[Match(uri)]; found {
+		return value
 	}
-	return recordsSub1(uri)
-}
-
-func recordsSub1(uri string) string { //nolint:cyclop
-	const ignore = -1
-	switch Match(uri) {
-	case standards:
-		return tags.Humanizes(ignore, tags.Rule)
-	case script:
-		return tags.Humanizes(tags.PHP, ignore)
-	case introMsdos:
-		return tags.Humanizes(tags.DOS, tags.Intro)
-	case introWindows:
-		return tags.Humanizes(tags.Windows, tags.Intro)
-	case magazine:
-		return tags.Humanizes(ignore, tags.Mag)
-	case msdos:
-		return tags.Humanizes(tags.DOS, ignore)
-	case pdf:
-		return tags.Humanizes(tags.PDF, ignore)
-	case proof:
-		return tags.Humanizes(ignore, tags.Proof)
-	case restrict:
-		return tags.Humanizes(ignore, tags.Restrict)
-	case takedown:
-		return tags.Humanizes(ignore, tags.Bust)
-	case text:
-		return tags.Humanizes(tags.Text, ignore)
-	case textAmiga:
-		return tags.Humanizes(tags.TextAmiga, ignore)
-	case textApple2:
-		return tags.Humanizes(tags.Text, tags.AppleII)
-	case textAtariST:
-		return tags.Humanizes(tags.Text, tags.AtariST)
-	case textPack:
-		return tags.Humanizes(tags.Text, tags.Pack)
-	case tool:
-		return tags.Humanizes(ignore, tags.Tool)
-	case trialCrackme:
-		return tags.Humanizes(tags.Windows, tags.Job)
-	case video:
-		return tags.Humanizes(tags.Video, ignore)
-	case windows:
-		return tags.Humanizes(tags.Windows, ignore)
-	case windowsPack:
-		return tags.Humanizes(tags.Windows, tags.Pack)
-	default:
-		return "unknown uri"
-	}
+	return "unknown uri"
 }
 
 // ReadmeSuggest returns a suggested readme file name for the record.
