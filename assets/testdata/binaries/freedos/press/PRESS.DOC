@@ -1,0 +1,96 @@
+        Program:  PRESS.EXE
+     Programmer:  George Kerber
+        Written:  02/03/91 - 07/12/94
+        Purpose:  Replacement for the DOS PAUSE command.
+         Status:  Totally Public Domain, do whatever you want with PRESS.
+
+     +--------------------------------------------------------------------+
+     |                                                                    |
+     |          PRESS is a replacement for the DOS pause command.         |
+     |  By default it darkens the screen and displays an OKAY button box. |
+     |                                                                    |
+     |     Press a key, the box disappears and your screen colors are     |
+     |    restored.  PRESS can do much more than this simple function.    |
+     |          See the list of options below for more information.       |
+     |                                                                    |
+     |                       +--------+   +--------+                      |
+     |                       |  Okay  |   | Cancel |                      |
+     |                       +--------+   +--------+                      |
+     +--------------------------------------------------------------------+
+
+PRESS can display up to 18 lines of text you enter on the command line.
+PRESS can display up to 19 lines of text from a file you specify.
+Text is displayed in the press box with an okay or okay/cancel button and
+set errorlevel so your batch files can make decisions based on user
+response.  Try the sample.bat sample batch file.
+
+Usage:  PRESS [-l "text"] [-l "text" ... ]
+              [-s <text_color>]
+              [-b <background_color>]
+              [-e <box_type>]       ; SINGLE, DOUBLE, NONE, NARROW
+              [-f <box_foreground>]
+              [-t <timeout_seconds>]
+              [-w width]
+              [ -c -z -d -g -m -n -x -r ]
+              [ -i <filename> ]
+
+              All options are optional....
+
+              ? - display helpscreen.
+
+              -c toggle color.
+              -z Add "Cancel" button.
+              -d do not shadow screen.
+              -g flashes the screen.
+              -m do not try and use the mouse.
+                    Some pc's take too long to check for the mouse driver
+                    which causes a long delay before the press box appears.
+                    Use this function to eliminate the delay and use of
+                    the mouse to terminate the press box.
+              -n beeps.
+              -x non-exploding press box.
+              -r reboot computer on termination.
+
+
+        1. BLUE           6. BROWN               11. LIGHTCYAN
+        2. GREEN          7. LIGHTGRAY           12. LIGHTRED
+        3. CYAN           8. DARKGRAY            13. LIGHTMAGENTA
+        4. RED            9. LIGHTBLUE           14. YELLOW
+        5. MAGENTA       10. LIGHTGREEN          15. WHITE
+
+Up to 19 lines of text (each line less than 75 characters) may be specifed
+if stored in an ascii file and specified with the -i option.
+
+PRESS sets the ERRORLEVEL to 0 if:
+   -z is NOT used:
+      Any key other than ESC is pressed.
+   -z is used:
+      RTN is pressed while the Okay button is active.
+
+PRESS sets the ERRORLEVEL to 5 if:
+   -z is NOT used:
+      ESC is pressed.
+   -z is used:
+      RTN is pressed while the Cancel button is active.
+
+Note:  'O' and ALT-O are the same as selecting OKAY.
+       'C' and ALT-C is the same as selecting CANCEL (if -z is used).
+
+
+PRESS is an example program using functions called z_question(), z_flash(),
+z_shadow_screen() and z_reboot() in my C programming library.  The command
+line options are passed to the functions at run time.  The ZLIB C library
+will be released someday for others to use.  Interested parties should
+contact the author.
+
+
+
+                          George Kerber
+                          10728 West Roxbury Ave.
+                          Littleton, CO  80127
+                          (303) 904-3410
+
+                          Compuserve: 74010,2132
+
+/*--------------------------------------------------------------------------*/
+

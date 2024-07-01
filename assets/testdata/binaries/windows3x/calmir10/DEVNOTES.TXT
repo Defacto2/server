@@ -1,0 +1,134 @@
+{**************************************************************************}
+{                                                                          }
+{    Calmira shell for Microsoft® Windows(TM) 3.1                          }
+{    Source Release 1.0                                                    }
+{    Copyright (C) 1997  Li-Hsin Huang, lhh@tribbles.demon.co.uk           }
+{                                                                          }
+{    This program is free software; you can redistribute it and/or modify  }
+{    it under the terms of the GNU General Public License as published by  }
+{    the Free Software Foundation; either version 2 of the License, or     }
+{    (at your option) any later version.                                   }
+{                                                                          }
+{    This program is distributed in the hope that it will be useful,       }
+{    but WITHOUT ANY WARRANTY; without even the implied warranty of        }
+{    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         }
+{    GNU General Public License for more details.                          }
+{                                                                          }
+{    You should have received a copy of the GNU General Public License     }
+{    along with this program; if not, write to the Free Software           }
+{    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             }
+{                                                                          }
+{**************************************************************************}
+
+
+D E V E L O P E R ' S   N O T E S
+=================================
+
+Calmira was created using Borland Delphi for Windows 3.1.  This
+package contains the source files and resources needed to recompile
+the program.
+
+
+Source files
+============
+
+Full source is supplied in SOURCE.ZIP.  Make sure you re-create the
+stored directories when extracting the files -- if you are using
+PKUNZIP, add the -d switch.
+
+Four subdirectories will be created for you:
+
+SRC    the main program covered by the license
+VCL    public domain components
+UTILS  public domain libraries
+HELP   text and graphics to build the help file
+
+Adjust the search path in all the DPR files (Options|Project) to
+reflect your chosen directory structure.  The other project settings
+should be left alone.
+
+All 4 project files should be compiled before attempting to run.
+
+
+Re-deploying
+============
+
+If you wish to release modified versions of Calmira, make sure that
+you read the GNU General Public License in the file LICENSE.TXT that
+is supplied with the binary files.  (The public domain material may,
+of course, be used with no restrictions).
+
+Please do not use the filenames calmirXX.zip for uploading, since
+these might be used to distribute updated versions of the original
+source.  You can your name derivative program anything you like
+for public distribution, so long as you follow the terms in the
+license.
+
+
+Components
+==========
+
+You can compile a working copy of Calmira without installing the
+components, but you must install them in order to open the forms.
+These components are supplied:
+
+Component        File            Description
+-------------------------------------------------------------------------
+TAppHolder       apholder.pas    TApplication visual interface
+TBarGauge        bargauge.pas    Horizontal percentage bar
+TCheckList       chklist.pas     An array of checkboxes
+                 chklist.res
+TDragDrop        dragdrop.pas    Abstract ancestor for file drag-drop
+TDropClient      dropclnt.pas    Accepts files from other programs
+TDropServer      dropserv.pas    Drops files into other programs
+TFormDrag        formdrag.pas    Resizes forms without bsSizeable border
+TIconDialog      icondlg.pas     }
+                 iconsel.pas     } Dialog box for selecting icons
+                 iconsel.dfm     }
+TMultiGrid       multigrd.pas    Main control in icon windows
+TScrollTree      scrtree.pas     TOutline descandant with thumbtracking
+TStyleSpeed      stylsped.pas    TSpeedButton with new border styles
+
+
+To install, select [Options|Install Components], and select CALVCL.PAS,
+which will register all these components for you.  TIconDialog is added
+to your Dialogs palette and the rest are placed on a new Calmira page.
+
+In addition, you must have all of the normal Delphi VCL components
+(except the database tools) and the sample TSpinEdit control in your
+design-time component library.
+
+
+Utilities
+=========
+
+Library        File            Description
+-------------------------------------------------------------------------
+Drives         drives.pas      Disk drive detection
+Environment    environs.pas    Environment string management
+Extended form  extform.pas     Enhanced TForm object
+Files          files.pas       File copying, searching, some string fns
+Miscellaneous  miscutil.pas    Useful routines which enhance the VCL
+Object list    objlist.pas     TList descendant that frees TObjects
+Profile        profile.pas     Extended TIniFile
+Streamer       streamer.pas    TFileStream that reads/writes variables
+Strings        strings.pas     String formatting and manipulation
+Version Info   verinfo.pas     Searches for file version information
+
+
+
+Contacts
+--------
+
+Post : Li-Hsin Huang
+       59 Bromefield
+       Stanmore
+       Middlesex HA7 1AG
+       England, UK
+
+Email: lhh@tribbles.demon.co.uk
+WWW  : http://www.tribbles.demon.co.uk/calmira/calmira.htm
+
+Visit the home page first, since it may contain FAQs, bug lists and
+programming tips.
+

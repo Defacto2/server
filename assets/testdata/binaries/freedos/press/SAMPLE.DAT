@@ -1,0 +1,15 @@
+
+PRESS is a replacement for the DOS pause command.
+By default it darkens the screen and displays an OKAY button box.
+
+Press a key, the box disappears and your screen colors are
+restored.  PRESS can do much more than this simple function.
+See the list of options in press.doc for more information or
+view the press helpscreen by using the -h command line option.
+
+The Software Bin
+George Kerber
+10738 West Roxbury Ave
+Littleton, CO  80127
+(303) 904-3410
+

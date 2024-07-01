@@ -1,0 +1,111 @@
+EXE - Version 3.4                                        PowerPlex - 28/08/97
+
+
+EXE.EXE    20.752 Bytes - Drive browser, file recognition, smart scrolling
+
+
+This program is useful to handle executable files, just type EXE and it lists
+all files colored by extensions, white for folders, yellow for EXE, COM and
+BAT.
+You also can type the 1st letter to go to the file.
+Extensions recognized: Compressed files, graphics, movies, sound, text, etc.
+Type . for CD.. and type \ to go to root.
+Use UP, DOWN, PAGE UP, PAGE DOWN, Home and End to navigate the list.
+You can run, delete, sort and view files.
+You may also set the variable PPEXE with your default parameters.
+
+
+Batch Processing (ERRORLEVEL)
+
+0 - No errors
+1 - More than 3.800 executable files found
+2 - Error while reading file
+
+
+                                   Versions
+
+-----------------------------------------------------------------------------
+Version 3.4 - 28/08/97  *  20.752 Bytes
+
+- Bug fix: No longer shows drives up to LASTDRIVE, only working drives appear
+- Added recognition for more file types
+- Added text mode viewing, use only if necessary because it has many bugs
+- File viewing window is now larger
+- On Information window, if the path is too long it will smart cut it
+
+-----------------------------------------------------------------------------
+Version 3.3 - 10/01/97  *  18.384 Bytes
+
+- Bug fix: Sort options are now working perfect
+           Viewing write protected files like those on CD is now possible
+           Changing drive into CD-ROM drives will now work
+           Pressing letter to go to file won't fail if more than 255 files
+           Space ocupied by files no longer includes folder sizes
+           Folders with ARCHIVE attribute will now show up on the list
+- Added error handling on file viewing and erasing
+- Pressing a letter will go to the next file starting by it
+- Added extension recognition for .Z and .SNG files
+
+-----------------------------------------------------------------------------
+Version 3.2 - 16/12/96  *  19.808 Bytes
+
+- Bug fix: EXE would not run BATCH files properly
+- Smart scrolling and folder changing
+- Added extension recognition for CAB, TXT, RTF and DOC files
+
+-----------------------------------------------------------------------------
+Version 3.1 - 10/12/96  *  19.600 Bytes
+
+- Bug fix: Error when more than 255 files or folders
+- File browsing is easier now, no page listing, it scrolls in a smart way
+- Home and End keys enabled on drive change dialog
+- Removed some code used for debuging on v3.0 beta versions
+- Added sort by type, this is the default sorting now
+- Enabled use of . as shortcut to CD..
+- EXE, COM and BAT files appear in yellow color
+- Graphics/Animations/Movies files appear in green: AVI, MOV, GIF, JPG, etc
+- *.TMP and *.$$$ appear in red
+- Compressed files appear in blue: RAR, ARJ, ZIP, J, etc
+- Sound files appear in pink: WAV, SND, MID, RMI, S3M, etc
+- File description available on the information panel
+
+-----------------------------------------------------------------------------
+Version 3.0 - 28/11/96  *  19.680 Bytes
+
+- All files and folders are listed
+- Run, delete, view and sort files
+- Change drive and folders
+- EXE, COM and BAT files have special colors, folders are white colored
+- Many bug corrections
+- Maximum files readen from folder is now 3500
+- New interface, full colored with windows style
+
+-----------------------------------------------------------------------------
+Version 2.5 - 10/08/96  *  8.768 Bytes
+
+- Added What's New option
+- Added full color support and screen clearing
+- Made 1 color for each file type, EXE, COM, BAT so viewing the list and
+  looking for a file will be easier in long lists
+- Added support for environment variable PPEXE
+
+-----------------------------------------------------------------------------
+
+To subscribe for receiving updates by e-mail, copy this form below and paste
+it in your mail to send to us:
+
+----------------------------------------------------------------------------
+
+Computer model (386, 486, ...)   : Pentium 90 Mhz
+Virus vulnerability (high, ...)  : Caught once only, formated my Hard Drive
+Which programs to receive once   : ALL
+Programs to subscribe for updates: CHECK, EXE, CCD, GO, GODIR
+Requests or comments: I have a problem installing CHECK, could you help me?
+                      (This request was made and replied on CHECK v2.4)
+
+----------------------------------------------------------------------------
+
+
+E-MAIL: brunodomingues@hotmail.com
+
+HOME PAGE: http://members.tripod.com/~powerplex/

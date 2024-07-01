@@ -1,0 +1,78 @@
+                               Exemenu
+                             version 2.2
+                          1991 J.C. Kessels
+
+
+
+EXEMENU will display a menu with all the programs in a directory. You
+select one with the cursor or character keys, and press Enter.....the
+program is started. When you quit the program, you automatically return
+to the EXEMENU.
+
+EXEMENU is designed to be used by the non-tech user. Power users have
+Norton-Commander, PC-tools, and many more. But I have frequently found
+those packages to be too complicated for the majority of the PC users!
+Therefore EXEMENU has:
+
+   - No documentation (well, almost). Run and use!
+   - No settings.
+   - No function keys.
+   - No mouse.
+   - No pull-down or pop-up menu's.
+   - Easy screen layout.
+   - Zero installation: it will run anywhere.
+
+EXEMENU recognises EXE, COM, BAT and BAS programs. You only see programs
+that can be started (lowercase), and subdirectories (uppercase). Nothing
+else. BAS programs (Basic) will only be visible and can only be started
+if the basic interpreter is found in the path when EXEMENU is started:
+GWBASIC.EXE, GWBASIC.COM, BASIC.EXE, BASIC.COM, BASICA.EXE, or
+BASICA.COM.
+
+You can optionally specify a path with EXEMENU:
+
+        EXEMENU [path]
+
+This will cause EXEMENU to startup with that path. If you don't specify
+a path, then EXEMENU will startup with the current directory.
+
+If you switch floppies (new floppy in the drive) while EXEMENU is
+active, then press "ENTER" anywhere and the new floppy will be loaded.
+
+
+
+
+
+Remarks:
+
+Don't worry if you don't see COMMAND.COM, AUTOEXEC.BAT or EXEMENU.EXE,
+they will never be shown.
+
+EXEMENU has been tested on simple XT computers up to 386 systems, with
+DOS versions 3.2, 3.3, and 4.0, with Hercules, CGA, EGA and VGA.
+
+EXEMENU should work well with just about any video hardware. There is
+one exception: if the screen is set to a different width than 80
+characters, then you MAY get a warped screen. Some video modes will
+cause EXEMENU to reset the screen to 80x25 characters. You may see some
+"snow" on the screen, especially with older video hardware.
+
+
+
+
+
+This is freeware. No guarantees whatsoever. You may change it, use it,
+copy it, anything you like.
+
+Please do NOT send any money to the below mentioned address. I don't
+want tax problems. You can use this program absolutely free. I have
+written this program in Borland's Turbo-Pascal v5.5, but it should also
+compile with v4.0 and v5.0. The source is included for the hackers, and
+for virus protection.
+
+
+J.C. Kessels
+Philips de Goedelaan 7
+5615 PN  Eindhoven
+Netherlands
+

@@ -27,3 +27,11 @@ Those files names with the prefix `A[1-4]` used the Reduced ASCII method and the
 * `PKZIP204EF.ZIP` uses *fast*.
 * `PKZIP204ES.ZIP` uses *super fast*.
 * `PKZIP204E0.ZIP` uses *no compression*.
+
+---
+
+# Binaries
+
+A collection of tiny binaries have been included in the `binaries` directory. These are either freeware, open source or public domain. They are included for testing purposes only and should not be redistributed under the terms of the web application's license.
+
+A number of DOS and Windows 9x utilies were created by [Rudolph Loew (Rudy)](https://rloewelectronics.com/).

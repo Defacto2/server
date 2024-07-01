@@ -27,6 +27,7 @@ import (
 	"strings"
 )
 
+// Signature represents a file type signature.
 type Signature int
 
 const (
@@ -66,7 +67,7 @@ const (
 	RoshalARchivev5
 	GzipCompressArchive
 	Bzip2CompressArchive
-	x7zCompressArchive
+	X7zCompressArchive
 	XZCompressArchive
 	ZStandardArchive
 	FreeArc
@@ -84,6 +85,7 @@ const (
 	ISOPowerISO
 	CDAlcohol120
 	JavaARchive
+	WindowsHelpFile
 	PortableDocumentFormat
 	RichTextFromat
 	UTF8Text
@@ -93,10 +95,16 @@ const (
 	PlainText
 )
 
+// Matcher is a function that matches a byte slice to a file type.
 type Matcher func([]byte) bool
 
+// Finder is a map of file type signatures to matchers.
 type Finder map[Signature]Matcher
 
+// New returns a new Finder with all the matchers.
+//
+// ANSIEscapeText and PlainText are not included as they need to be
+// checked separately and in a specific order.
 func New() Finder {
 	return Finder{
 		ElectronicArtsIFF:                 Iff,
@@ -134,7 +142,7 @@ func New() Finder {
 		RoshalARchivev5:                   Rarv5,
 		GzipCompressArchive:               Gzip,
 		Bzip2CompressArchive:              Bzip2,
-		x7zCompressArchive:                X7z,
+		X7zCompressArchive:                X7z,
 		XZCompressArchive:                 XZ,
 		ZStandardArchive:                  ZStd,
 		FreeArc:                           Arc,
@@ -152,16 +160,18 @@ func New() Finder {
 		ISOPowerISO:                       Daa,
 		CDAlcohol120:                      Mdf,
 		JavaARchive:                       Jar,
+		WindowsHelpFile:                   Hlp,
 		PortableDocumentFormat:            Pdf,
 		RichTextFromat:                    Rtf,
 		UTF8Text:                          Utf8,
 		UTF16Text:                         Utf16,
 		UTF32Text:                         Utf32,
-		ANSIEscapeText:                    Ansi,
-		PlainText:                         Txt,
 	}
 }
 
+// Find reads all the bytes from the reader and returns the file type signature.
+// Generally, magic numbers are the first few bytes of a file that uniquely identify the file type.
+// But a number of document formats also check the body content or the final few bytes of a file.
 func Find(r io.Reader) (Signature, error) {
 	buf, err := io.ReadAll(r)
 	if err != nil {
@@ -170,15 +180,7 @@ func Find(r io.Reader) (Signature, error) {
 	return FindBytes(buf), nil
 }
 
-func Find1K(r io.Reader) (Signature, error) {
-	buf := make([]byte, 1024) // 1KB buffer
-	_, err := io.ReadFull(r, buf)
-	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) {
-		return Unknown, err
-	}
-	return FindBytes(buf), nil // create FindBytes1K, where suffix matchers are not used nor is ansi escape lookup
-}
-
+// FindBytes returns the file type signature from the byte slice.
 func FindBytes(p []byte) Signature {
 	if p == nil {
 		return Unknown
@@ -189,9 +191,60 @@ func FindBytes(p []byte) Signature {
 			return sig
 		}
 	}
-	return Unknown
+	switch {
+	case Ansi(p):
+		return ANSIEscapeText
+	case Txt(p):
+		return PlainText
+	default:
+		return Unknown
+	}
 }
 
+// Find512B reads the first 512 bytes from the reader and returns the file type signature.
+// This is a less accurate method than Find but should be faster.
+func Find512B(r io.Reader) (Signature, error) {
+	buf := make([]byte, 512)
+	_, err := io.ReadFull(r, buf)
+	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) {
+		return Unknown, err
+	}
+	return FindBytes512B(buf), nil
+}
+
+// FindBytes512B returns the file type signature and skips the magic number checks
+// that require the entire file to be read.
+func FindBytes512B(p []byte) Signature {
+	if p == nil {
+		return Unknown
+	}
+	find := New()
+	for sig, matcher := range find {
+		switch sig {
+		case RichTextFromat:
+			matcher = RtfNoSuffix
+		case PortableDocumentFormat:
+			matcher = PdfNoSuffix
+		case JPEGFileInterchangeFormat:
+			matcher = JpegNoSuffix
+		}
+		if matcher(p) {
+			return sig
+		}
+	}
+	switch {
+	case Ansi(p):
+		return ANSIEscapeText
+	case Txt(p):
+		return PlainText
+	default:
+		return Unknown
+	}
+}
+
+// Iff matches the Interchange File Format image in the byte slice.
+// This is a generic wrapper format originally created by Electronic Arts
+// for storing data in chunks.
 func Iff(p []byte) bool {
 	const min = 4
 	if len(p) < min {
@@ -200,6 +253,7 @@ func Iff(p []byte) bool {
 	return bytes.Equal(p[:4], []byte{'C', 'A', 'T', 0x20})
 }
 
+// Avif matches the AV1 Image File image format in the byte slice.
 func Avif(p []byte) bool {
 	const min = 3
 	if len(p) < min {
@@ -208,24 +262,39 @@ func Avif(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{0x0, 0x0, 0x0})
 }
 
+// Jpeg matches the JPEG File Interchange Format v1 image in the byte slice.
 func Jpeg(p []byte) bool {
-	const min = 4
+	return jpeg(p, true)
+}
+
+// JpegNoSuffix matches the JPEG File Interchange Format v1 image in the byte slice.
+// This is a less accurate method than Jpeg as it does not check the final bytes.
+func JpegNoSuffix(p []byte) bool {
+	return jpeg(p, false)
+}
+
+func jpeg(p []byte, suffix bool) bool {
+	const min = 11
 	if len(p) < min {
 		return false
 	}
 	if !bytes.Equal(p[:3], []byte{0xff, 0xd8, 0xff}) {
 		return false
 	}
-	if p[4] != 0xe0 && p[4] != 0xe1 {
+	if p[3] != 0xe0 && p[3] != 0xe1 {
 		return false
 	}
 	if !bytes.Equal(p[6:11], []byte{'J', 'F', 'I', 'F', 0x0}) &&
 		!bytes.Equal(p[6:11], []byte{'E', 'x', 'i', 'f', 0x0}) {
 		return false
 	}
+	if !suffix {
+		return true
+	}
 	return bytes.HasSuffix(p, []byte{0xff, 0xd9})
 }
 
+// Jpeg2000 matches the JPEG 2000 image format in the byte slice.
 func Jpeg2000(p []byte) bool {
 	const min = 10
 	if len(p) < min {
@@ -234,6 +303,7 @@ func Jpeg2000(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{0x0, 0x0, 0x0, 0xc, 0x6a, 0x50, 0x20, 0x20, 0xd, 0xa})
 }
 
+// Png matches the Portable Network Graphics image format in the byte slice.
 func Png(p []byte) bool {
 	const min = 8
 	if len(p) < min {
@@ -243,6 +313,8 @@ func Png(p []byte) bool {
 
 }
 
+// Gif matches the image Graphics Interchange Format in the byte slice.
+// There are two versions of the GIF format, GIF87a and GIF89a.
 func Gif(p []byte) bool {
 	const min = 6
 	if len(p) < min {
@@ -254,6 +326,7 @@ func Gif(p []byte) bool {
 		bytes.Equal(p[:min], gif89a)
 }
 
+// Webp matches the Google WebP image format in the byte slice.
 func Webp(p []byte) bool {
 	const min = 12
 	if len(p) < min {
@@ -263,6 +336,7 @@ func Webp(p []byte) bool {
 		bytes.Equal(p[8:12], []byte{'W', 'E', 'B', 'P'})
 }
 
+// Tiff matches the Tagged Image File Format in the byte slice.
 func Tiff(p []byte) bool {
 	const min = 4
 	if len(p) < min {
@@ -274,6 +348,7 @@ func Tiff(p []byte) bool {
 		bytes.Equal(p[:min], be)
 }
 
+// Bmp matches the BMP image format in the byte slice.
 func Bmp(p []byte) bool {
 	const min = 2
 	if len(p) < min {
@@ -282,6 +357,7 @@ func Bmp(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'B', 'M'})
 }
 
+// Pcx matches the Personal Computer eXchange image format in the byte slice.
 func Pcx(p []byte) bool {
 	const min = 3
 	if len(p) < min {
@@ -293,6 +369,7 @@ func Pcx(p []byte) bool {
 	return id == 0x0a && ver <= 0x5 && (enc == 0x0 || enc == 0x1)
 }
 
+// Ico matches the Microsoft Icon image format in the byte slice.
 func Ico(p []byte) bool {
 	const min = 4
 	if len(p) < min {
@@ -301,6 +378,8 @@ func Ico(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{0x0, 0x0, 0x1, 0x0})
 }
 
+// Ilbm matches the InterLeaved Bitmap image format in the byte slice.
+// Created by Electronic Arts it conforms to the IFF standard.
 func Ilbm(p []byte) bool {
 	const min = 12
 	if len(p) < min {
@@ -310,16 +389,18 @@ func Ilbm(p []byte) bool {
 		bytes.Equal(p[8:12], []byte{'I', 'L', 'B', 'M'})
 }
 
+// QTMov matches the QuickTime Movie video format in the byte slice.
 func QTMov(p []byte) bool {
 	const min = 8
 	if len(p) < min {
 		return false
 	}
 	const offset = 4
-	return bytes.Equal(p[offset:], []byte{'m', 'o', 'o', 'v'}) ||
-		bytes.Equal(p[offset:], []byte{'f', 't', 'y', 'p', 'q', 't'})
+	return bytes.Equal(p[offset:8], []byte{'m', 'o', 'o', 'v'}) ||
+		bytes.Equal(p[offset:10], []byte{'f', 't', 'y', 'p', 'q', 't'})
 }
 
+// Mp4 matches the MPEG-4 video format in the byte slice.
 func Mp4(p []byte) bool {
 	const min = 8
 	if len(p) < min {
@@ -328,6 +409,7 @@ func Mp4(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'f', 't', 'y', 'p', 'M', 'S', 'N', 'V'})
 }
 
+// M4v matches the QuickTime M4V video format in the byte slice.
 func M4v(p []byte) bool {
 	const min = 8
 	if len(p) < min {
@@ -336,6 +418,7 @@ func M4v(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'f', 't', 'y', 'p', 'm', 'p', '4', '2'})
 }
 
+// Avi matches the Microsoft Audio Video Interleave video format in the byte slice.
 func Avi(p []byte) bool {
 	const min = 16
 	if len(p) < min {
@@ -345,6 +428,7 @@ func Avi(p []byte) bool {
 		bytes.Equal(p[8:16], []byte{'A', 'V', 'I', 0x20, 'L', 'I', 'S', 'T'})
 }
 
+// Wmv matches the Microsoft Windows Media video format in the byte slice.
 func Wmv(p []byte) bool {
 	const min = 16
 	if len(p) < min {
@@ -355,6 +439,7 @@ func Wmv(p []byte) bool {
 			0xa6, 0xd9, 0x0, 0xaa, 0x0, 0x62, 0xce, 0x6c})
 }
 
+// Mpeg matches the MPEG video format in the byte slice.
 func Mpeg(p []byte) bool {
 	const min = 4
 	if len(p) < min {
@@ -363,6 +448,7 @@ func Mpeg(p []byte) bool {
 	return bytes.Equal(p[:3], []byte{0x0, 0x0, 0x1}) && p[4] >= 0xba && p[4] <= 0xbf
 }
 
+// Flv matches the Shockwave Flash Video format in the byte slice.
 func Flv(p []byte) bool {
 	const min = 4
 	if len(p) < min {
@@ -371,6 +457,7 @@ func Flv(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'F', 'L', 'V', 0x1})
 }
 
+// Ivr matches the RealPlayer video format in the byte slice.
 func Ivr(p []byte) bool {
 	const min = 4
 	if len(p) < min {
@@ -388,6 +475,7 @@ func Midi(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'M', 'T', 'h', 'd'})
 }
 
+// Mp3 matches the MPEG-1 Audio Layer 3 audio format in the byte slice.
 func Mp3(p []byte) bool {
 	const min = 3
 	if len(p) < min {
@@ -396,6 +484,7 @@ func Mp3(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'I', 'D', '3'})
 }
 
+// Ogg matches the Ogg Vorbis audio format in the byte slice.
 func Ogg(p []byte) bool {
 	const min = 12
 	if len(p) < min {
@@ -405,6 +494,7 @@ func Ogg(p []byte) bool {
 		0x0, 0x0, 0x0, 0x0, 0x0, 0x0})
 }
 
+// Flac matches the Free Lossless Audio Codec audio format in the byte slice.
 func Flac(p []byte) bool {
 	const min = 8
 	if len(p) < min {
@@ -413,6 +503,7 @@ func Flac(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'f', 'L', 'a', 'C', 0x0, 0x0, 0x0, 0x2})
 }
 
+// Wave matches the IBM / Microsoft Waveform audio format in the byte slice.
 func Wave(p []byte) bool {
 	const min = 12
 	if len(p) < min {
@@ -422,6 +513,9 @@ func Wave(p []byte) bool {
 		bytes.Equal(p[8:16], []byte{'W', 'A', 'V', 'E', 'f', 'm', 't', 0x20})
 }
 
+// Zip64 matches the PKWARE Zip64 archive format in the byte slice.
+// This is an extension to the original ZIP format that allows for larger files.
+// But it is not widely supported.
 func Zip64(p []byte) bool {
 	const min = 30
 	if len(p) < min {
@@ -439,23 +533,65 @@ func Zip64(p []byte) bool {
 	return true
 }
 
+// Pkzip matches the PKWARE Zip archive format in the byte slice.
+// This is the most common ZIP format and is widely supported and has been
+// tested against many discountinued and legacy ZIP methods and packagers.
 func Pkzip(p []byte) bool {
 	const min = 30
 	if len(p) < min {
 		return false
 	}
+
+	// local file header signature     4 bytes  (0x04034b50)
 	localFileHeader := []byte{'P', 'K', 0x3, 0x4}
 	if !bytes.Equal(p[:4], localFileHeader) {
+		return false // 50 4b 03 04
+	}
+	// version needed to extract       2 bytes
+	versionNeeded := p[4] + p[5]
+	if versionNeeded == 0 {
+		// legacy versions of PKZIP returned either 0x.0a (10) or 0x14 (20).
+		return false // 0a 00
+	}
+	// general purpose bit flag        2 bytes
+	// skip this as there's too many reserved values that might cause false positive rejections
+	//
+	// compression method              2 bytes
+	compresionMethod := p[8] + p[9]
+	const (
+		store       = 0x0
+		shrink      = 0x1
+		reduce1     = 0x2
+		reduce2     = 0x3
+		reduce3     = 0x4
+		reduce4     = 0x5
+		implode     = 0x6
+		deflate     = 0x8
+		deflate64   = 0x9
+		ibmTerse    = 0xa
+		bzip2       = 0xc
+		lzma        = 0xe
+		ibmCMPSC    = 0x10
+		ibmTerseNew = 0x12
+		ibmLZ77z    = 0x13
+		zstd        = 0x5d
+		mp3         = 0x5e
+		xz          = 0x5f
+		jpeg        = 0x60
+		wavPack     = 0x61
+		ppmd        = 0x62
+		ae          = 0x63
+	)
+	switch compresionMethod {
+	case store, shrink, reduce1, reduce2, reduce3, reduce4, implode, deflate, deflate64,
+		ibmTerse, bzip2, lzma, ibmCMPSC, ibmTerseNew, ibmLZ77z, zstd, mp3, xz, jpeg, wavPack, ppmd, ae:
+		return true
+	default:
 		return false
 	}
-	centralDirectoryHeader := []byte{0x2, 0x1, 0x4b, 0x50}
-	centralDirectoryEnd := []byte{0x6, 0x5, 0x4b, 0x50}
-	if !bytes.Contains(p, centralDirectoryHeader) || !bytes.Contains(p, centralDirectoryEnd) {
-		return false
-	}
-	return true
 }
 
+// PkzipMulti matches the PKWARE Multi-Volume Zip archive format in the byte slice.
 func PkzipMulti(p []byte) bool {
 	const min = 4
 	if len(p) < min {
@@ -464,6 +600,8 @@ func PkzipMulti(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'P', 'K', 0x7, 0x8})
 }
 
+// Pklite matches the PKLITE archive format in the byte slice which is a
+// compressed executable format for DOS and 16-bit Windows.
 func Pklite(p []byte) bool {
 	const min = 6
 	const offset = 30
@@ -473,6 +611,8 @@ func Pklite(p []byte) bool {
 	return bytes.Equal(p[offset:min+offset], []byte{0x50, 0x4b, 0x4c, 0x49, 0x54, 0x45})
 }
 
+// Pksfx matches the PKSFX archive format in the byte slice which is a
+// self-extracting archive format.
 func Pksfx(p []byte) bool {
 	const min = 5
 	const offset = 526
@@ -482,6 +622,7 @@ func Pksfx(p []byte) bool {
 	return bytes.Equal(p[offset:min+offset], []byte{0x50, 0x4b, 0x53, 0x70, 0x58})
 }
 
+// Tar matches the Tape ARchive format in the byte slice.
 func Tar(p []byte) bool {
 	const min = 5
 	const offset = 257
@@ -491,6 +632,7 @@ func Tar(p []byte) bool {
 	return bytes.Equal(p[offset:min+offset], []byte{'u', 's', 't', 'a', 'r'})
 }
 
+// Rar matches the Roshal ARchive format in the byte slice.
 func Rar(p []byte) bool {
 	const min = 7
 	if len(p) < min {
@@ -499,6 +641,7 @@ func Rar(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'R', 'a', 'r', 0x21, 0x1a, 0x7, 0x0})
 }
 
+// Rarv5 matches the Roshal ARchive v5 format in the byte slice.
 func Rarv5(p []byte) bool {
 	const min = 8
 	if len(p) < min {
@@ -507,6 +650,7 @@ func Rarv5(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'R', 'a', 'r', 0x21, 0x1a, 0x7, 0x1, 0x0})
 }
 
+// Gzip matches the Gzip Compress archive format in the byte slice.
 func Gzip(p []byte) bool {
 	const min = 3
 	if len(p) < min {
@@ -515,6 +659,7 @@ func Gzip(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{0x1f, 0x8b, 0x8})
 }
 
+// Bzip2 matches the Bzip2 Compress archive format in the byte slice.
 func Bzip2(p []byte) bool {
 	const min = 3
 	if len(p) < min {
@@ -523,6 +668,7 @@ func Bzip2(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'B', 'Z', 'h'})
 }
 
+// X7z matches the 7z Compress archive format in the byte slice.
 func X7z(p []byte) bool {
 	const min = 6
 	if len(p) < min {
@@ -531,6 +677,7 @@ func X7z(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'7', 'z', 0xbc, 0xaf, 0x27, 0x1c})
 }
 
+// XZ matches the XZ Compress archive format in the byte slice.
 func XZ(p []byte) bool {
 	const min = 6
 	if len(p) < min {
@@ -539,6 +686,7 @@ func XZ(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{0xfd, '7', 'z', 'X', 'Z', 0x0})
 }
 
+// Cab matches the Microsoft CABinet archive format in the byte slice.
 func Cab(p []byte) bool {
 	const min = 4
 	if len(p) < min {
@@ -547,6 +695,7 @@ func Cab(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'M', 'S', 'C', 'F'})
 }
 
+// ZStd matches the ZStandard archive format in the byte slice.
 func ZStd(p []byte) bool {
 	const min = 4
 	if len(p) < min {
@@ -555,6 +704,7 @@ func ZStd(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{0x28, 0xb5, 0x2f, 0xfd})
 }
 
+// Arc matches the FreeArc compression format in the byte slice.
 func Arc(p []byte) bool {
 	const min = 4
 	if len(p) < min {
@@ -563,6 +713,7 @@ func Arc(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'A', 'r', 'C', 0x1})
 }
 
+// ArcArk matches the ARChive SEA compression format in the byte slice.
 func ArcArk(p []byte) bool {
 	const min = 2
 	if len(p) < min {
@@ -575,15 +726,17 @@ func ArcArk(p []byte) bool {
 	return p[0] == id && p[1] <= method
 }
 
+// LzhLha matches the LHA and LZH compression formats in the byte slice.
 func LzhLha(p []byte) bool {
 	const min = 5
 	if len(p) < min {
 		return false
 	}
 	const offset = 2
-	return bytes.Equal(p[offset:3], []byte{'-', 'l', 'h'})
+	return bytes.Equal(p[offset:3+offset], []byte{'-', 'l', 'h'})
 }
 
+// Zoo matches the Zoo compression format in the byte slice.
 func Zoo(p []byte) bool {
 	const min = 4
 	if len(p) < min {
@@ -606,6 +759,7 @@ func Arj(p []byte) bool {
 	return p[0] == id && p[1] == signature && p[10] == offset
 }
 
+// MSExe returns true if the reader begins with the Microsoft executable signature.
 func MSExe(p []byte) bool {
 	const min = 2
 	if len(p) < min {
@@ -624,6 +778,7 @@ func DosKWAJ(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'K', 'W', 'A', 'J', 0x88, 0xf0, 0x27, 0xd1})
 }
 
+// DosSZDD returns true if the reader begins with the SZDD compression signature,
 func DosSZDD(p []byte) bool {
 	const min = 8
 	if len(p) < min {
@@ -632,6 +787,7 @@ func DosSZDD(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'S', 'Z', 'D', 'D', 0x88, 0xf0, 0x27, 0x33})
 }
 
+// MSComp returns true if the reader contains the Microsoft Compound File signature.
 func MSComp(p []byte) bool {
 	const min = 8
 	if len(p) < min {
@@ -659,6 +815,7 @@ func ISO(p []byte) bool {
 	return false
 }
 
+// Nri returns true if the reader contains the Nero CD image signature.
 func Nri(p []byte) bool {
 	const min = 8
 	if len(p) < min {
@@ -667,6 +824,7 @@ func Nri(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{0x0e, 'N', 'e', 'r', 'o', 'I', 'S', 'O'})
 }
 
+// Daa returns true if the reader contains the PowerISO DAA CD image signature.
 func Daa(p []byte) bool {
 	const min = 8
 	if len(p) < min {
@@ -675,6 +833,7 @@ func Daa(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'D', 'A', 'A', 0x0, 0x0, 0x0, 0x0, 0x0})
 }
 
+// Mdf returns true if the reader contains the Alcohol 120% MDF CD image signature.
 func Mdf(p []byte) bool {
 	const min = 16
 	if len(p) < min {
@@ -685,6 +844,7 @@ func Mdf(p []byte) bool {
 			0xff, 0xff, 0xff, 0x0, 0x0, 0x2, 0x0, 0x1})
 }
 
+// Jar returns true if the reader contains the Java ARchive signature.
 func Jar(p []byte) bool {
 	const min = 10
 	if len(p) < min {
@@ -693,13 +853,46 @@ func Jar(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{0x50, 0x4b, 0x3, 0x4, 0x14, 0x0, 0x8, 0x0, 0x8, 0x0})
 }
 
+// Hlp returns true if the reader contains the Windows Help File signature.
+// This is a generic signature for Windows help files and does not differentiate between
+// the various versions of the help file format.
+func Hlp(p []byte) bool {
+	const min = 10
+	if len(p) < min {
+		return false
+	}
+	compiledHTML := []byte{'I', 'T', 'S', 'F'}
+	windowsHelpLN := []byte{'L', 'N', 0x2, 0x0}
+	windowsHelp := []byte{'?', 0x5f, 0x3, 0x0}
+	windowsHelp6byte := []byte{0x0, 0x0, 0xff, 0xff, 0xff, 0xff}
+	const offset = 6
+	return bytes.Equal(p[:4], compiledHTML) ||
+		bytes.Equal(p[:4], windowsHelp) ||
+		bytes.Equal(p[:4], windowsHelpLN) ||
+		bytes.Equal(p[offset:offset+4], windowsHelp6byte)
+}
+
+// Pdf returns true if the reader contains the Portable Document Format signature.
 func Pdf(p []byte) bool {
+	return pdf(p, true)
+}
+
+// PdfNoSuffix returns true if the reader contains the Portable Document Format signature.
+// This is a less accurate method than Pdf as it does not check the final bytes.
+func PdfNoSuffix(p []byte) bool {
+	return pdf(p, false)
+}
+
+func pdf(p []byte, suffix bool) bool {
 	const min = 4
 	if len(p) < min {
 		return false
 	}
 	if !bytes.Equal(p[:min], []byte{'%', 'P', 'D', 'F'}) {
 		return false
+	}
+	if !suffix {
+		return true
 	}
 	endoffileMarks := [][]byte{
 		{0x0a, '%', '%', 'E', 'O', 'F'},
@@ -715,7 +908,18 @@ func Pdf(p []byte) bool {
 	return false
 }
 
+// Rtf returns true if the reader contains the Rich Text Format signature.
 func Rtf(p []byte) bool {
+	return rtf(p, true)
+}
+
+// RtfNoSuffix returns true if the reader contains the Rich Text Format signature.
+// This is a less accurate method than Rtf as it does not check the final bytes.
+func RtfNoSuffix(p []byte) bool {
+	return rtf(p, false)
+}
+
+func rtf(p []byte, suffix bool) bool {
 	const min = 5
 	if len(p) < min {
 		return false
@@ -723,9 +927,13 @@ func Rtf(p []byte) bool {
 	if !bytes.Equal(p[:min], []byte{'{', 0x5c, 'r', 't', 'f'}) {
 		return false
 	}
+	if !suffix {
+		return true
+	}
 	return bytes.HasSuffix(p, []byte{'}'})
 }
 
+// Utf8 returns true if the byte slice beings with the UTF-8 Byte Order Mark signature.
 func Utf8(p []byte) bool {
 	const min = 3
 	if len(p) < min {
@@ -734,6 +942,7 @@ func Utf8(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{0xef, 0xbb, 0xbf})
 }
 
+// Utf16 returns true if the byte slice beings with the UTF-16 Byte Order Mark signature.
 func Utf16(p []byte) bool {
 	const min = 2
 	if len(p) < min {
@@ -742,6 +951,7 @@ func Utf16(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{0xff, 0xfe}) || bytes.Equal(p[:min], []byte{0xfe, 0xff})
 }
 
+// Utf32 returns true if the byte slice beings with the UTF-32 Byte Order Mark signature.
 func Utf32(p []byte) bool {
 	const min = 4
 	if len(p) < min {
@@ -750,18 +960,28 @@ func Utf32(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{0xff, 0xfe, 0x0, 0x0}) || bytes.Equal(p[:min], []byte{0x0, 0x0, 0xfe, 0xff})
 }
 
+// Txt returns true if the byte slice exclusively contains plain text ASCII characters,
+// control characters or "extended ASCII characters".
 func Txt(p []byte) bool {
 	return !slices.ContainsFunc(p, NotPlainText)
 }
 
+// TxtLatin1 returns true if the byte slice exclusively contains plain text ISO/IEC-8895-1 characters,
+// commonly known as the Latin-1 character set.
 func TxtLatin1(p []byte) bool {
 	return !slices.ContainsFunc(p, NonISO88951)
 }
 
+// TxtWindows returns true if the byte slice exclusively contains plain text Windows-1252 characters.
+// This is an extension of the Latin-1 character set with additional typography characters and was
+// the default character set for English in Microsoft Windows up to Windows 7?
 func TxtWindows(p []byte) bool {
 	return !slices.ContainsFunc(p, NonWindows1252)
 }
 
+// Ansi returns true if the byte slice contains some common ANSI escape codes.
+// It for speed and to avoid false positives it only matches the ANSI escape codes
+// for bold, normal and reset text.
 func Ansi(p []byte) bool {
 	const min = 4
 	if len(p) < min {
@@ -790,10 +1010,18 @@ func Ansi(p []byte) bool {
 	return false
 }
 
+// Ascii returns true if the byte slice exclusively contains printable ASCII characters.
+// Today, ASCII characters are the first characters of the Unicode character set
+// but historically it was a 7 and 8-bit character encoding standard found on
+// most microcomputers, personal computers, and the early Internet.
 func Ascii(p []byte) bool {
 	return !slices.ContainsFunc(p, NotAscii)
 }
 
+// NotAscii returns true if the byte is not an printable ASCII character.
+// Most control characters are not printable ASCII characters, but an exception
+// is made for the ESC (escape) character which is used in ANSI escape codes and
+// the EOF (end of file) character which is used in DOS.
 func NotAscii(b byte) bool {
 	const (
 		nul = 0x0
@@ -802,13 +1030,14 @@ func NotAscii(b byte) bool {
 		vt  = byte('\v')
 		ff  = byte('\f')
 		cr  = byte('\r')
-		esc = 0x1b
+		eof = 0x1a // end of file character commonly used in DOS
+		esc = 0x1b // escape character used in ANSI escape codes
 	)
 	return (b < 0x20 || b > 0x7f) &&
-		b != nul && b != tab && b != nl &&
-		b != vt && b != ff && b != cr && b != esc
+		b != nul && b != tab && b != nl && b != vt && b != ff && b != cr && b != esc && b != eof
 }
 
+// NonISO88951 returns true if the byte is not a printable ISO/IEC-8895-1 character.
 func NonISO88951(b byte) bool {
 	if !NotAscii(b) {
 		return false
@@ -817,6 +1046,7 @@ func NonISO88951(b byte) bool {
 	return !ExtendedAscii
 }
 
+// NonWindows1252 returns true if the byte is not a printable Windows-1252 character.
 func NonWindows1252(b byte) bool {
 	if !NonISO88951(b) {
 		return false
@@ -825,6 +1055,8 @@ func NonWindows1252(b byte) bool {
 	return !(b >= 0x80 && b <= 0xff && ExtraTypography)
 }
 
+// NotPlainText returns true if the byte is not a printable plain text character.
+// This includes any printable ASCII character as well as any "extended ASCII".
 func NotPlainText(b byte) bool {
 	if !NotAscii(b) {
 		return false
