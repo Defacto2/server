@@ -42,7 +42,8 @@ type contextKey string
 
 const LoggerKey contextKey = "logger"
 
-func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor) error {
+// TODO: complete.
+func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor) error { //nolint:funlen,gocognit
 	tick := time.Now()
 	logger, useLogger := ctx.Value(LoggerKey).(*zap.SugaredLogger)
 	if !useLogger {
@@ -81,7 +82,7 @@ func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor) error {
 		if _, found := slices.BinarySearch(artifacts, uid); !found {
 			return nil
 		}
-		//fmt.Println(filepath.Join(c.AbsExtra, uid))
+		// fmt.Println(filepath.Join(c.AbsExtra, uid))
 		if f, err := os.Stat(filepath.Join(c.AbsExtra, uid)); err == nil && !f.IsDir() {
 			logger.Info("Found extra file:", uid)
 			return nil
@@ -101,7 +102,7 @@ func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor) error {
 		if usable {
 			return nil
 		}
-		//fmt.Println(path, methods)
+		// fmt.Println(path, methods)
 		_, err = exec.Command("/usr/bin/unzip", "-t", path).Output()
 		if err != nil {
 			diag := pkzip.ExitStatus(err)
@@ -136,7 +137,7 @@ func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor) error {
 		}
 		logger.Infof("Rezipped %d files for %s", c, uid)
 
-		//fmt.Println(string(out))
+		// fmt.Println(string(out))
 
 		// unzip [-Z] [-cflptTuvz[abjnoqsCDKLMUVWX$/:^]] file[.zip] [file(s) ...]  [-x xfile(s) ...] [-d exdir]
 

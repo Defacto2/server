@@ -6,6 +6,9 @@
 // Usually, the magic number is the first few bytes of a file that uniquely identify the file type.
 // But a number of document formats also check the final few bytes of a file.
 //
+// At a later stage, the magic number matchers will be used to extract metadata from files
+// and support for module tracking music files will be added.
+//
 // The sources for the magic numbers byte values are from the following:
 //   - [Gary Kessler's File Signatures Table]
 //   - [Just Solve the File Format Problem]
@@ -21,8 +24,10 @@ package magicnumber
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
 	"slices"
 	"strings"
 )
@@ -80,9 +85,9 @@ const (
 	MicrosoftDOSSZDD
 	MicrosoftExecutable
 	MicrosoftCompoundFile
-	ISO9660
-	ISONeroCD
-	ISOPowerISO
+	CDISO9660
+	CDNero
+	CDPowerISO
 	CDAlcohol120
 	JavaARchive
 	WindowsHelpFile
@@ -95,6 +100,76 @@ const (
 	PlainText
 )
 
+// Extension is a map of file type signatures to file extensions.
+type Extension map[Signature][]string
+
+// Ext returns a map of file type signatures to common file extensions.
+func Ext() Extension { //nolint:funlen
+	return Extension{
+		ElectronicArtsIFF:                 []string{".iff"},
+		AV1ImageFile:                      []string{".avif"},
+		JPEGFileInterchangeFormat:         []string{".jpg", ".jpeg"},
+		JPEG2000:                          []string{".jp2", ".j2k", ".jpf", ".jpx", ".jpm", ".mj2"},
+		PortableNetworkGraphics:           []string{".png"},
+		GraphicsInterchangeFormat:         []string{".gif"},
+		GoogleWebP:                        []string{".webp"},
+		TaggedImageFileFormat:             []string{".tif", ".tiff"},
+		BMPFileFormat:                     []string{".bmp"},
+		PersonalComputereXchange:          []string{".pcx"},
+		InterleavedBitmap:                 []string{".ilbm"},
+		MicrosoftIcon:                     []string{".ico"},
+		MPEG4:                             []string{".mp4"},
+		QuickTimeMovie:                    []string{".mov"},
+		QuickTimeM4V:                      []string{".m4v"},
+		MicrosoftAudioVideoInterleave:     []string{".avi"},
+		MicrosoftWindowsMedia:             []string{".wmv"},
+		MPEG:                              []string{".mpg", ".mpeg"},
+		FlashVideo:                        []string{".flv"},
+		RealPlayer:                        []string{".rv", ".rm", ".rmvb"},
+		MusicalInstrumentDigitalInterface: []string{".mid", ".midi"},
+		MPEG1AudioLayer3:                  []string{".mp3"},
+		OggVorbisCodec:                    []string{".ogg"},
+		FreeLosslessAudioCodec:            []string{".flac"},
+		WaveAudioForWindows:               []string{".wav"},
+		PKWAREZip64:                       []string{".zip"},
+		PKWAREZip:                         []string{".zip"},
+		PKWAREMultiVolume:                 []string{".zip"},
+		PKLITE:                            []string{".zip"},
+		PKSFX:                             []string{".zip"},
+		TapeARchive:                       []string{".tar"},
+		RoshalARchive:                     []string{".rar"},
+		RoshalARchivev5:                   []string{".rar"},
+		GzipCompressArchive:               []string{".gz"},
+		Bzip2CompressArchive:              []string{".bz2"},
+		X7zCompressArchive:                []string{".7z"},
+		XZCompressArchive:                 []string{".xz"},
+		ZStandardArchive:                  []string{".zst"},
+		FreeArc:                           []string{".arc"},
+		ARChiveSEA:                        []string{".arc"},
+		YoshiLHA:                          []string{".lzh", ".lha"},
+		ZooArchive:                        []string{".zoo"},
+		ArchiveRobertJung:                 []string{".arj"},
+		MicrosoftCABinet:                  []string{".cab"},
+		MicrosoftDOSKWAJ:                  []string{".com"},
+		MicrosoftDOSSZDD:                  []string{".exe"},
+		MicrosoftExecutable:               []string{".exe"},
+		MicrosoftCompoundFile:             []string{".exe"},
+		CDISO9660:                         []string{".iso"},
+		CDNero:                            []string{".nri"},
+		CDPowerISO:                        []string{".daa"},
+		CDAlcohol120:                      []string{".mdf"},
+		JavaARchive:                       []string{".jar"},
+		WindowsHelpFile:                   []string{".hlp"},
+		PortableDocumentFormat:            []string{".pdf"},
+		RichTextFromat:                    []string{".rtf"},
+		UTF8Text:                          []string{".txt"},
+		UTF16Text:                         []string{".txt"},
+		UTF32Text:                         []string{".txt"},
+		ANSIEscapeText:                    []string{".ans"},
+		PlainText:                         []string{".txt"},
+	}
+}
+
 // Matcher is a function that matches a byte slice to a file type.
 type Matcher func([]byte) bool
 
@@ -105,7 +180,7 @@ type Finder map[Signature]Matcher
 //
 // ANSIEscapeText and PlainText are not included as they need to be
 // checked separately and in a specific order.
-func New() Finder {
+func New() Finder { //nolint:funlen
 	return Finder{
 		ElectronicArtsIFF:                 Iff,
 		AV1ImageFile:                      Avif,
@@ -155,9 +230,9 @@ func New() Finder {
 		MicrosoftDOSSZDD:                  DosSZDD,
 		MicrosoftExecutable:               MSExe,
 		MicrosoftCompoundFile:             MSComp,
-		ISO9660:                           ISO,
-		ISONeroCD:                         Nri,
-		ISOPowerISO:                       Daa,
+		CDISO9660:                         ISO,
+		CDNero:                            Nri,
+		CDPowerISO:                        Daa,
 		CDAlcohol120:                      Mdf,
 		JavaARchive:                       Jar,
 		WindowsHelpFile:                   Hlp,
@@ -169,15 +244,254 @@ func New() Finder {
 	}
 }
 
+// Archives returns all the archive file type signatures.
+func Archives() []Signature {
+	return []Signature{
+		PKWAREZip64,
+		PKWAREZip,
+		PKWAREMultiVolume,
+		PKLITE,
+		PKSFX,
+		TapeARchive,
+		RoshalARchive,
+		RoshalARchivev5,
+		GzipCompressArchive,
+		Bzip2CompressArchive,
+		X7zCompressArchive,
+		XZCompressArchive,
+		ZStandardArchive,
+		FreeArc,
+		ARChiveSEA,
+		YoshiLHA,
+		ZooArchive,
+		ArchiveRobertJung,
+		MicrosoftCABinet,
+	}
+}
+
+// DiscImages returns all the CD disk image file type signatures.
+func DiscImages() []Signature {
+	return []Signature{
+		CDISO9660,
+		CDNero,
+		CDPowerISO,
+		CDAlcohol120,
+	}
+}
+
+func Documents() []Signature {
+	return []Signature{
+		WindowsHelpFile,
+		PortableDocumentFormat,
+		RichTextFromat,
+		UTF8Text,
+		UTF16Text,
+		UTF32Text,
+	}
+}
+
+// Images returns all the image file type signatures.
+func Images() []Signature {
+	return []Signature{
+		AV1ImageFile,
+		JPEGFileInterchangeFormat,
+		JPEG2000,
+		PortableNetworkGraphics,
+		GraphicsInterchangeFormat,
+		GoogleWebP,
+		TaggedImageFileFormat,
+		BMPFileFormat,
+		PersonalComputereXchange,
+		InterleavedBitmap,
+		MicrosoftIcon,
+	}
+}
+
+// Programs returns all the program file type signatures for
+// Microsoft operating systems, DOS and Windows.
+func Programs() []Signature {
+	return []Signature{
+		MicrosoftExecutable,
+		MicrosoftDOSKWAJ,
+		MicrosoftDOSSZDD,
+		MicrosoftCompoundFile,
+	}
+}
+
+// Videos returns all the video file type signatures.
+func Videos() []Signature {
+	return []Signature{
+		MPEG4,
+		QuickTimeMovie,
+		QuickTimeM4V,
+		MicrosoftAudioVideoInterleave,
+		MicrosoftWindowsMedia,
+		MPEG,
+		FlashVideo,
+		RealPlayer,
+	}
+}
+
+// MatchExt determines if the reader matches the file type signature expected
+// from the extension of the filename. It returns true if the file type matches and
+// a found signature is always returned.
+//
+// A PNG encoded image using the filename TEST.PNG will return true
+// and the PortableNetworkGraphics signature.
+// A PNG encoded image using the filename TEST.JPG will return false
+// and the PortableNetworkGraphics signature.
+func MatchExt(filename string, r io.Reader) (bool, Signature, error) {
+	ext := strings.ToLower(filepath.Ext(filename))
+	buf, err := io.ReadAll(r)
+	if err != nil {
+		return false, Unknown, fmt.Errorf("magic number match extension: %w", err)
+	}
+	finds := New()
+	for extSign, exts := range Ext() {
+		if slices.Contains(exts, ext) {
+			for findSign, matcher := range finds {
+				if matcher(buf) {
+					if findSign == extSign {
+						return true, findSign, nil
+					}
+					return false, findSign, nil
+				}
+			}
+		}
+	}
+	sig := FindBytes(buf)
+	return false, sig, nil
+}
+
 // Find reads all the bytes from the reader and returns the file type signature.
 // Generally, magic numbers are the first few bytes of a file that uniquely identify the file type.
 // But a number of document formats also check the body content or the final few bytes of a file.
 func Find(r io.Reader) (Signature, error) {
 	buf, err := io.ReadAll(r)
 	if err != nil {
-		return Unknown, err
+		return Unknown, fmt.Errorf("magic number find: %w", err)
 	}
 	return FindBytes(buf), nil
+}
+
+// Find512B reads the first 512 bytes from the reader and returns the file type signature.
+// This is a less accurate method than Find but should be faster.
+func Find512B(r io.Reader) (Signature, error) {
+	buf := make([]byte, 512)
+	_, err := io.ReadFull(r, buf)
+	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) {
+		return Unknown, fmt.Errorf("magic number find first 512 bytes: %w", err)
+	}
+	return FindBytes512B(buf), nil
+}
+
+// Archive reads all the bytes from the reader and returns the file type signature if
+// the file is a known archive of files or Unknown if the file is not an archive.
+func Archive(r io.Reader) (Signature, error) {
+	buf, err := io.ReadAll(r)
+	if err != nil {
+		return Unknown, fmt.Errorf("magic number archive: %w", err)
+	}
+	archives := Archives()
+	find := New()
+	for _, archive := range archives {
+		if find[archive](buf) {
+			return archive, nil
+		}
+	}
+	return Unknown, nil
+}
+
+// DiscImage reads all the bytes from the reader and returns the file type signature if
+// the file is a known CD disk image or Unknown if the file is not a disk image.
+func DiscImage(r io.Reader) (Signature, error) {
+	buf, err := io.ReadAll(r)
+	if err != nil {
+		return Unknown, fmt.Errorf("magic number disc image: %w", err)
+	}
+	discs := DiscImages()
+	find := New()
+	for _, disc := range discs {
+		if find[disc](buf) {
+			return disc, nil
+		}
+	}
+	return Unknown, nil
+}
+
+// Document reads all the bytes from the reader and returns the file type signature if
+// the file is a known document or Unknown if the file is not a document.
+func Document(r io.Reader) (Signature, error) {
+	buf, err := io.ReadAll(r)
+	if err != nil {
+		return Unknown, fmt.Errorf("magic number document: %w", err)
+	}
+	docs := Documents()
+	find := New()
+	for _, doc := range docs {
+		if find[doc](buf) {
+			return doc, nil
+		}
+	}
+	switch {
+	case Ansi(buf):
+		return ANSIEscapeText, nil
+	case Txt(buf):
+		return PlainText, nil
+	default:
+		return Unknown, nil
+	}
+}
+
+// Image reads all the bytes from the reader and returns the file type signature if
+// the file is a known image or Unknown if the file is not an image.
+func Image(r io.Reader) (Signature, error) {
+	buf, err := io.ReadAll(r)
+	if err != nil {
+		return Unknown, fmt.Errorf("magic number image: %w", err)
+	}
+	imgs := Images()
+	find := New()
+	for _, image := range imgs {
+		if find[image](buf) {
+			return image, nil
+		}
+	}
+	return Unknown, nil
+}
+
+// Program reads all the bytes from the reader and returns the file type signature if
+// the file is a known DOS or Windows program or Unknown if the file is not a program.
+func Program(r io.Reader) (Signature, error) {
+	buf, err := io.ReadAll(r)
+	if err != nil {
+		return Unknown, fmt.Errorf("magic number program: %w", err)
+	}
+	progs := Programs()
+	find := New()
+	for _, prog := range progs {
+		if find[prog](buf) {
+			return prog, nil
+		}
+	}
+	return Unknown, nil
+}
+
+// Video reads all the bytes from the reader and returns the file type signature if
+// the file is a known video or Unknown if the file is not a video.
+func Video(r io.Reader) (Signature, error) {
+	buf, err := io.ReadAll(r)
+	if err != nil {
+		return Unknown, fmt.Errorf("magic number video: %w", err)
+	}
+	vids := Videos()
+	find := New()
+	for _, video := range vids {
+		if find[video](buf) {
+			return video, nil
+		}
+	}
+	return Unknown, nil
 }
 
 // FindBytes returns the file type signature from the byte slice.
@@ -199,17 +513,6 @@ func FindBytes(p []byte) Signature {
 	default:
 		return Unknown
 	}
-}
-
-// Find512B reads the first 512 bytes from the reader and returns the file type signature.
-// This is a less accurate method than Find but should be faster.
-func Find512B(r io.Reader) (Signature, error) {
-	buf := make([]byte, 512)
-	_, err := io.ReadFull(r, buf)
-	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) {
-		return Unknown, err
-	}
-	return FindBytes512B(buf), nil
 }
 
 // FindBytes512B returns the file type signature and skips the magic number checks
@@ -310,7 +613,6 @@ func Png(p []byte) bool {
 		return false
 	}
 	return bytes.Equal(p[:min], []byte{0x89, 0x50, 0x4E, 0x47, 0x0d, 0x0a, 0x1a, 0x0a})
-
 }
 
 // Gif matches the image Graphics Interchange Format in the byte slice.
@@ -435,8 +737,10 @@ func Wmv(p []byte) bool {
 		return false
 	}
 	return bytes.Equal(p[:min],
-		[]byte{0x30, 0x26, 0xb2, 0x75, 0x8e, 0x66, 0xcf, 0x11,
-			0xa6, 0xd9, 0x0, 0xaa, 0x0, 0x62, 0xce, 0x6c})
+		[]byte{
+			0x30, 0x26, 0xb2, 0x75, 0x8e, 0x66, 0xcf, 0x11,
+			0xa6, 0xd9, 0x0, 0xaa, 0x0, 0x62, 0xce, 0x6c,
+		})
 }
 
 // Mpeg matches the MPEG video format in the byte slice.
@@ -490,8 +794,10 @@ func Ogg(p []byte) bool {
 	if len(p) < min {
 		return false
 	}
-	return bytes.Equal(p[:min], []byte{'O', 'g', 'g', 'S', 0x0, 0x2, 0x0, 0x0,
-		0x0, 0x0, 0x0, 0x0, 0x0, 0x0})
+	return bytes.Equal(p[:min], []byte{
+		'O', 'g', 'g', 'S', 0x0, 0x2, 0x0, 0x0,
+		0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+	})
 }
 
 // Flac matches the Free Lossless Audio Codec audio format in the byte slice.
@@ -778,7 +1084,7 @@ func DosKWAJ(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'K', 'W', 'A', 'J', 0x88, 0xf0, 0x27, 0xd1})
 }
 
-// DosSZDD returns true if the reader begins with the SZDD compression signature,
+// DosSZDD returns true if the reader begins with the SZDD compression signature.
 func DosSZDD(p []byte) bool {
 	const min = 8
 	if len(p) < min {
@@ -840,8 +1146,10 @@ func Mdf(p []byte) bool {
 		return false
 	}
 	return bytes.Equal(p[:min],
-		[]byte{0x0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-			0xff, 0xff, 0xff, 0x0, 0x0, 0x2, 0x0, 0x1})
+		[]byte{
+			0x0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+			0xff, 0xff, 0xff, 0x0, 0x0, 0x2, 0x0, 0x1,
+		})
 }
 
 // Jar returns true if the reader contains the Java ARchive signature.
@@ -1010,19 +1318,19 @@ func Ansi(p []byte) bool {
 	return false
 }
 
-// Ascii returns true if the byte slice exclusively contains printable ASCII characters.
+// ASCII returns true if the byte slice exclusively contains printable ASCII characters.
 // Today, ASCII characters are the first characters of the Unicode character set
 // but historically it was a 7 and 8-bit character encoding standard found on
 // most microcomputers, personal computers, and the early Internet.
-func Ascii(p []byte) bool {
-	return !slices.ContainsFunc(p, NotAscii)
+func ASCII(p []byte) bool {
+	return !slices.ContainsFunc(p, NotASCII)
 }
 
-// NotAscii returns true if the byte is not an printable ASCII character.
+// NotASCII returns true if the byte is not an printable ASCII character.
 // Most control characters are not printable ASCII characters, but an exception
 // is made for the ESC (escape) character which is used in ANSI escape codes and
 // the EOF (end of file) character which is used in DOS.
-func NotAscii(b byte) bool {
+func NotASCII(b byte) bool {
 	const (
 		nul = 0x0
 		tab = byte('\t')
@@ -1039,11 +1347,11 @@ func NotAscii(b byte) bool {
 
 // NonISO88951 returns true if the byte is not a printable ISO/IEC-8895-1 character.
 func NonISO88951(b byte) bool {
-	if !NotAscii(b) {
+	if !NotASCII(b) {
 		return false
 	}
-	ExtendedAscii := b >= 0xa0 && b <= 0xff
-	return !ExtendedAscii
+	ExtendedASCII := b >= 0xa0 && b <= 0xff
+	return !ExtendedASCII
 }
 
 // NonWindows1252 returns true if the byte is not a printable Windows-1252 character.
@@ -1058,9 +1366,9 @@ func NonWindows1252(b byte) bool {
 // NotPlainText returns true if the byte is not a printable plain text character.
 // This includes any printable ASCII character as well as any "extended ASCII".
 func NotPlainText(b byte) bool {
-	if !NotAscii(b) {
+	if !NotASCII(b) {
 		return false
 	}
-	ExtendedAscii := b >= 0x80 && b <= 0xff
-	return !ExtendedAscii
+	ExtendedASCII := b >= 0x80 && b <= 0xff
+	return !ExtendedASCII
 }

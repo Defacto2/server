@@ -2,6 +2,7 @@ package rezip
 
 import (
 	"archive/zip"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -14,8 +15,11 @@ const (
 	unzip     = "unzip"
 	unzipTest = "-t"
 
-	createUnique = os.O_RDWR | os.O_CREATE | os.O_EXCL
+	createUnique  = os.O_RDWR | os.O_CREATE | os.O_EXCL
+	filemodeWrite = 0o644
 )
+
+var ErrTest = errors.New("unzip test failed")
 
 // Compress compresses the named file into the dest zip file using the
 // Deflate method. The total number of bytes written to the zip file is returned.
@@ -23,7 +27,7 @@ const (
 // The dest must be a valid file path and should include the .zip extension.
 // If the dest file already exists, an error is returned.
 func Compress(name, dest string) (int, error) {
-	zipfile, err := os.OpenFile(dest, createUnique, 0644)
+	zipfile, err := os.OpenFile(dest, createUnique, filemodeWrite)
 	if err != nil {
 		return 0, fmt.Errorf("unzip compress failed to open file: %w", err)
 	}
@@ -54,7 +58,7 @@ func Compress(name, dest string) (int, error) {
 // The dest must be a valid file path and should include the .zip extension.
 // If the dest file already exists, an error is returned.
 func CompressDir(root, dest string) (int64, error) {
-	zipfile, err := os.OpenFile(dest, createUnique, 0644)
+	zipfile, err := os.OpenFile(dest, createUnique, filemodeWrite)
 	if err != nil {
 		return 0, fmt.Errorf("unzip compress dir failed to open file: %w", err)
 	}
@@ -64,9 +68,9 @@ func CompressDir(root, dest string) (int64, error) {
 	defer w.Close()
 
 	var written int64
-	var addFile = func(path string, info os.FileInfo, err error) error {
+	addFile := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return err
+			return fmt.Errorf("add file: %w", err)
 		}
 		if info.IsDir() {
 			return nil
@@ -76,19 +80,19 @@ func CompressDir(root, dest string) (int64, error) {
 		}
 		rel, err := filepath.Rel(root, path)
 		if err != nil {
-			return err
+			return fmt.Errorf("add file: %w", err)
 		}
 		zipWr, err := w.Create(rel)
 		if err != nil {
-			return err
+			return fmt.Errorf("add file: %w", err)
 		}
 		b, err := os.ReadFile(path)
 		if err != nil {
-			return err
+			return fmt.Errorf("add file: %w", err)
 		}
 		n, err := zipWr.Write(b)
 		if err != nil {
-			return err
+			return fmt.Errorf("add file: %w", err)
 		}
 		written += int64(n)
 		return nil
@@ -107,17 +111,17 @@ func CompressDir(root, dest string) (int64, error) {
 func Test(name string) error {
 	path, err := exec.LookPath(unzip)
 	if err != nil {
-		return err
+		return fmt.Errorf("unzip test failed to find unzip executable: %w", err)
 	}
 	st, err := os.Stat(name)
 	if err != nil {
 		return fmt.Errorf("unzip test failed to stat file: %w", err)
 	}
 	if st.IsDir() {
-		return fmt.Errorf("unzip test failed: %s is a directory", name)
+		return fmt.Errorf("%w: %s is a directory", ErrTest, name)
 	}
 	if st.Size() == 0 {
-		return fmt.Errorf("unzip test failed: %s is empty", name)
+		return fmt.Errorf("%w: %s is empty", ErrTest, name)
 	}
 	err = exec.Command(path, unzipTest, name).Run()
 	if err != nil {
@@ -127,18 +131,20 @@ func Test(name string) error {
 			// normal or warnings are fine
 			return nil
 		}
-		return fmt.Errorf("unzip test failed: %s", diag)
+		return fmt.Errorf("%w: %s", ErrTest, diag)
 	}
 	return nil
 }
 
-// Recompress
+// Recompress placeholder, TODO.
 func Recompress(name, dest string) error {
 	// run tests on paths
 
 	// magicnumber test the named file
 
 	// switch then load a func for each match
+
+	fmt.Fprintln(os.Stdout, "recompress", name, dest)
 
 	return nil
 }

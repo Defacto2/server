@@ -73,7 +73,7 @@ func TestCompressDir(t *testing.T) {
 	// confirm the zip file is smaller than the total size of the files
 	st, err := os.Stat(dest)
 	require.NoError(t, err)
-	assert.Less(t, st.Size(), int64(n))
+	assert.Less(t, st.Size(), n)
 }
 
 func TestUnzip(t *testing.T) {

@@ -29,7 +29,6 @@ func TestPkzip(t *testing.T) {
 	require.Error(t, err)
 	assert.Nil(t, comps)
 
-	fmt.Println(td("PKZ204EX.ZIP"))
 	comps, err = pkzip.Methods(td("PKZ204EX.ZIP"))
 	require.NoError(t, err)
 	assert.Equal(t, pkzip.Deflated, comps[1])
@@ -61,6 +60,10 @@ func TestPkzip(t *testing.T) {
 	usable, err = pkzip.Zip(td("PKZ80A1.ZIP"))
 	require.NoError(t, err)
 	assert.False(t, usable)
+
+	const invalid = 999
+	comp := pkzip.Compression(invalid)
+	assert.Equal(t, "Reserved", comp.String())
 }
 
 func TestExitStatus(t *testing.T) {

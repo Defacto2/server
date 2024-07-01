@@ -35,6 +35,8 @@ issues:
       linters: # Tests are allowed to be longer and don't need error wrapping.
         - dupl
         - funlen
+        - gocyclo
+        - misspell
         - wrapcheck
     - path: handler/router.go
       linters: # The router is allowed to be longer.
@@ -84,6 +86,9 @@ issues:
     - path: internal/jsdos/jsdos.go
       linters: # long struct comments.
         - lll
+    - path: internal/magicnumber/magicnumber.go
+      linters: # magic number false positives.
+        - mnd
     - path: internal/postgres/postgres.go
       linters: # caarlos0/env package uses structs with long declarations.
         - lll

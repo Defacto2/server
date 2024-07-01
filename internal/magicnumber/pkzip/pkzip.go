@@ -1,14 +1,19 @@
-// Package pkzip provides constants and functions for working with PKZip files to determine the compression methods used.
-// Most modern zip files use the Deflated method, which is supported by the Go standard library's archive/zip package and
+// Package pkzip provides constants and functions for working with
+// PKZip files to determine the compression methods used.
+// Most modern zip files use the Deflated method, which is supported
+// by the Go standard library's archive/zip package and
 // the Stored method, which is uncompressed.
 //
-// But many older zip files use other compression methods, such as Shrunk, Reduced, Imploded, and others. This package
-// provides a way to determine the compression methods used in a zip file and whether the file should be handled by a
+// But many older zip files use other compression methods, such as
+// Shrunk, Reduced, Imploded, and others. This package
+// provides a way to determine the compression methods used in a zip
+// file and whether the file should be handled by a
 // third-party application installed on the host system.
 package pkzip
 
 import (
 	"archive/zip"
+	"fmt"
 	"slices"
 	"strconv"
 	"strings"
@@ -42,49 +47,34 @@ const (
 	PPMd1 Compression = iota + 98
 )
 
+const reserved = "Reserved"
+
 func (c Compression) String() string {
-	switch c {
-	case Stored:
-		return "Stored"
-	case Shrunk:
-		return "Shrunk"
-	case ReducedFactor1:
-		return "Reduced with factor 1"
-	case ReducedFactor2:
-		return "Reduced with factor 2"
-	case ReducedFactor3:
-		return "Reduced with factor 3"
-	case ReducedFactor4:
-		return "Reduced with factor 4"
-	case Imploded:
-		return "Imploded"
-	case Reserved:
-		return "Reserved"
-	case Deflated:
-		return "Deflated"
-	case EnhancedDeflated:
-		return "Enhanced Deflated"
-	case PKWareDataCompressionLibraryImplode:
-		return "PKWare Data Compression Library Imploded"
-	case BZIP2:
-		return "BZIP2"
-	case Reserved2:
-		return "Reserved"
-	case LZMA:
-		return "LZMA"
-	case Reserved3:
-		return "Reserved"
-	case Reserved4:
-		return "Reserved"
-	case IBMTERSE:
-		return "IBM TERSE"
-	case IBMLZ77z:
-		return "IBM LZ77z"
-	case PPMd1:
-		return "PPMd version I, Rev 1"
-	default:
-		return "Unknown"
+	compress := map[Compression]string{
+		Stored:                              "Stored",
+		Shrunk:                              "Shrunk",
+		ReducedFactor1:                      "Reduced with factor 1",
+		ReducedFactor2:                      "Reduced with factor 2",
+		ReducedFactor3:                      "Reduced with factor 3",
+		ReducedFactor4:                      "Reduced with factor 4",
+		Imploded:                            "Imploded",
+		Reserved:                            reserved,
+		Deflated:                            "Deflated",
+		EnhancedDeflated:                    "Enhanced Deflated",
+		PKWareDataCompressionLibraryImplode: "PKWare Data Compression Library Imploded",
+		BZIP2:                               "BZIP2",
+		Reserved2:                           reserved,
+		LZMA:                                "LZMA",
+		Reserved3:                           reserved,
+		Reserved4:                           reserved,
+		IBMTERSE:                            "IBM TERSE",
+		IBMLZ77z:                            "IBM LZ77z",
+		PPMd1:                               "PPMd version I, Rev 1",
 	}
+	if name, known := compress[c]; known {
+		return name
+	}
+	return reserved
 }
 
 // Zip returns true if the compression method is Deflated or Stored.
@@ -123,47 +113,39 @@ const (
 	BadDecryption     Diagnostic = 82
 )
 
+const generic = "A generic error in the zipfile format was detected. " +
+	"Processing may have completed successfully anyway; " +
+	"some broken zipfiles created by other archivers have simple work-arounds, " +
+	"but if the zipfile is created by PKZIP, please report the problem to PKWARE, Inc."
+
+const server = "A severe error in the zipfile format was detected. " +
+	"Processing probably failed immediately."
+
 func (d Diagnostic) String() string {
-	switch d {
-	case Normal:
-		return "No errors or warnings"
-	case Warning:
-		return "One or more warning errors were encountered, but processing completed successfully anyway."
-	case GenericError:
-		return "A generic error in the zipfile format was detected. Processing may have completed successfully anyway; some broken zipfiles created by other archivers have simple work-arounds, but if the zipfile is created by PKZIP, please report the problem to PKWARE, Inc."
-	case SevereError:
-		return "A severe error in the zipfile format was detected. Processing probably failed immediately."
-	case BufferError:
-		return "Insufficient memory to perform operation"
-	case TTYError:
-		return "TTY user input error"
-	case DiskError:
-		return "Decompression to disk error"
-	case MemoryError:
-		return "Decompression in-memory error"
-	case Unused:
-		return "Unused"
-	case ZipNotFound:
-		return "Zip file not found"
-	case OptionsError:
-		return "Invalid command line options"
-	case FilesNoFound:
-		return "Zipfiles not found"
-	case ZipBomb:
-		return "Zip bomb detected"
-	case DiskFull:
-		return "Disk full"
-	case PrematureExit:
-		return "Unexpected premature exit"
-	case UserAbort:
-		return "User abort exit using control-C"
-	case CompressionMethod:
-		return "Unsupported ZIP compression method found in the archive"
-	case BadDecryption:
-		return "Bad decryption"
-	default:
-		return "Unknown"
+	diag := map[Diagnostic]string{
+		Normal:            "No errors or warnings",
+		Warning:           "One or more warning errors were encountered, but processing completed successfully anyway.",
+		GenericError:      generic,
+		SevereError:       server,
+		BufferError:       "Insufficient memory to perform operation",
+		TTYError:          "TTY user input error",
+		DiskError:         "Decompression to disk error",
+		MemoryError:       "Decompression in-memory error",
+		Unused:            "Unused",
+		ZipNotFound:       "Zip file not found",
+		OptionsError:      "Invalid command line options",
+		FilesNoFound:      "Zipfiles not found",
+		ZipBomb:           "Zip bomb detected",
+		DiskFull:          "Disk full",
+		PrematureExit:     "Unexpected premature exit",
+		UserAbort:         "User abort exit using control-C",
+		CompressionMethod: "Unsupported ZIP compression method found in the archive",
+		BadDecryption:     "Bad decryption",
 	}
+	if problem, known := diag[d]; known {
+		return problem
+	}
+	return "Unknown"
 }
 
 // ExitStatus is intended to be used with the exec.Command.Run method to determine
@@ -183,14 +165,17 @@ func ExitStatus(err error) Diagnostic {
 	if err == nil {
 		return Normal
 	}
-	const status = "exit status"
+	const (
+		status = "exit status"
+		unused = 99
+	)
 	if !strings.HasPrefix(err.Error(), status) {
-		return Diagnostic(99)
+		return Diagnostic(unused)
 	}
 	s := strings.TrimSpace(strings.TrimPrefix(err.Error(), status))
 	code, err := strconv.Atoi(s)
 	if err != nil {
-		return Diagnostic(99)
+		return Diagnostic(unused)
 	}
 	return Diagnostic(code)
 }
@@ -199,7 +184,7 @@ func ExitStatus(err error) Diagnostic {
 func Methods(name string) ([]Compression, error) {
 	r, err := zip.OpenReader(name)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("pkzip methods: %w", err)
 	}
 	defer r.Close()
 	methods := []Compression{}
@@ -217,7 +202,7 @@ func Methods(name string) ([]Compression, error) {
 func Zip(name string) (bool, error) {
 	methods, err := Methods(name)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("pkzip deflate or store check: %w", err)
 	}
 	for _, method := range methods {
 		if !method.Zip() {

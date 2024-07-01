@@ -63,7 +63,6 @@ func TestFinds(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, magicnumber.PersonalComputereXchange, sign)
 
-	fmt.Println(td("TAR135.TAR"))
 	f, err = os.Open(td("TAR135.TAR"))
 	require.NoError(t, err)
 	defer f.Close()
@@ -85,14 +84,14 @@ func TestANSIMatch(t *testing.T) {
 func TestAscii(t *testing.T) {
 	t.Parallel()
 	p := []byte("Hello, World!")
-	assert.True(t, magicnumber.Ascii(p))
+	assert.True(t, magicnumber.ASCII(p))
 	p = []byte("Hello, World!\x00")
-	assert.True(t, magicnumber.Ascii(p))
+	assert.True(t, magicnumber.ASCII(p))
 	p = []byte("Hello, World!\x01")
-	assert.False(t, magicnumber.Ascii(p))
+	assert.False(t, magicnumber.ASCII(p))
 	const esc = "\x1b"
 	p = []byte("Hello, World!" + esc)
-	assert.True(t, magicnumber.Ascii(p))
+	assert.True(t, magicnumber.ASCII(p))
 
 	b, err := os.ReadFile(td("PKZ204EX.TXT"))
 	require.NoError(t, err)
@@ -143,7 +142,7 @@ func TestFind512B(t *testing.T) {
 	f, err := os.Open(tduncompress("TEST.JPEG"))
 	require.NoError(t, err)
 	defer f.Close()
-	sign, err := magicnumber.Find(f)
+	sign, err := magicnumber.Find512B(f)
 	require.NoError(t, err)
 	assert.Equal(t, magicnumber.JPEGFileInterchangeFormat, sign)
 }
@@ -163,7 +162,7 @@ func TestFind(t *testing.T) {
 			return nil
 		}
 		base := filepath.Base(path)
-		skip := []string{"SAMPLE.DAT"}
+		skip := []string{"SAMPLE.DAT", "uncompress.bin"}
 		for _, s := range skip {
 			if s == base {
 				return nil
@@ -193,12 +192,14 @@ func TestFind(t *testing.T) {
 			assert.Equal(t, magicnumber.ArchiveRobertJung, sign, prob(ext, path))
 		case ".AVIF":
 			assert.Equal(t, magicnumber.AV1ImageFile, sign, prob(ext, path))
-		case ".BAT", ".INI":
+		case ".BAT", ".INI", ".CUE":
 			assert.Equal(t, magicnumber.PlainText, sign, prob(ext, path))
 		case ".BMP":
 			assert.Equal(t, magicnumber.BMPFileFormat, sign, prob(ext, path))
 		case ".CHM", ".HLP":
 			assert.Equal(t, magicnumber.WindowsHelpFile, sign, prob(ext, path))
+		case ".DAA":
+			assert.Equal(t, magicnumber.CDPowerISO, sign, prob(ext, path))
 		case ".EXE", ".DLL":
 			assert.Equal(t, magicnumber.MicrosoftExecutable, sign, prob(ext, path))
 		case ".GIF":
@@ -211,6 +212,8 @@ func TestFind(t *testing.T) {
 			assert.Equal(t, magicnumber.MicrosoftIcon, sign, prob(ext, path))
 		case ".IFF":
 			assert.Equal(t, magicnumber.InterleavedBitmap, sign, prob(ext, path))
+		case ".ISO": // TODO: fix conflicts with AVIF?
+			assert.Equal(t, magicnumber.CDISO9660, sign, prob(ext, path))
 		case ".LZH":
 			assert.Equal(t, magicnumber.YoshiLHA, sign, prob(ext, path)) // not working
 		case ".PCX":
@@ -237,4 +240,113 @@ func TestFind(t *testing.T) {
 		return nil
 	})
 	require.NoError(t, err)
+}
+
+func TestMatchExt(t *testing.T) {
+	t.Parallel()
+	base := "TEST.JPEG"
+	f, err := os.Open(tduncompress(base))
+	require.NoError(t, err)
+	defer f.Close()
+	match, sign, err := magicnumber.MatchExt(base, f)
+	require.NoError(t, err)
+	assert.True(t, match)
+	assert.Equal(t, magicnumber.JPEGFileInterchangeFormat, sign)
+
+	// test a mismatch extension
+	base = "TEST.PNG"
+	f, err = os.Open(tduncompress(base))
+	require.NoError(t, err)
+	defer f.Close()
+	match, sign, err = magicnumber.MatchExt("TEST.JPG", f)
+	require.NoError(t, err)
+	assert.False(t, match)
+	assert.Equal(t, magicnumber.PortableNetworkGraphics, sign)
+}
+
+func TestArchive(t *testing.T) {
+	t.Parallel()
+	f, err := os.Open(td("ARC521P.ARC"))
+	require.NoError(t, err)
+	defer f.Close()
+	sign, err := magicnumber.Archive(f)
+	require.NoError(t, err)
+	assert.Equal(t, magicnumber.ARChiveSEA, sign)
+
+	f, err = os.Open(tduncompress("TEST.PNG"))
+	require.NoError(t, err)
+	defer f.Close()
+	sign, err = magicnumber.Archive(f)
+	require.NoError(t, err)
+	assert.Equal(t, magicnumber.Unknown, sign)
+}
+
+func TestDiscs(t *testing.T) {
+	t.Parallel()
+	f, err := os.Open(td("discimages/uncompress.iso"))
+	require.NoError(t, err)
+	defer f.Close()
+	sign, err := magicnumber.DiscImage(f)
+	require.NoError(t, err)
+	assert.Equal(t, magicnumber.CDISO9660, sign)
+
+	f, err = os.Open(tduncompress("TEST.PNG"))
+	require.NoError(t, err)
+	defer f.Close()
+	sign, err = magicnumber.DiscImage(f)
+	require.NoError(t, err)
+	assert.Equal(t, magicnumber.Unknown, sign)
+}
+
+func TestDocument(t *testing.T) {
+	t.Parallel()
+	f, err := os.Open(td("PKZ204EX.TXT"))
+	require.NoError(t, err)
+	defer f.Close()
+	sign, err := magicnumber.Document(f)
+	require.NoError(t, err)
+	assert.Equal(t, magicnumber.PlainText, sign)
+
+	f, err = os.Open(tduncompress("TEST.PNG"))
+	require.NoError(t, err)
+	defer f.Close()
+	sign, err = magicnumber.Document(f)
+	require.NoError(t, err)
+	assert.Equal(t, magicnumber.Unknown, sign)
+}
+
+func TestImage(t *testing.T) {
+	t.Parallel()
+
+	f, err := os.Open(tduncompress("TEST.PNG"))
+	require.NoError(t, err)
+	defer f.Close()
+	sign, err := magicnumber.Image(f)
+	require.NoError(t, err)
+	assert.Equal(t, magicnumber.PortableNetworkGraphics, sign)
+
+	f, err = os.Open(td("TEST.7z"))
+	require.NoError(t, err)
+	defer f.Close()
+	sign, err = magicnumber.Image(f)
+	require.NoError(t, err)
+	assert.Equal(t, magicnumber.Unknown, sign)
+}
+
+func TestProgram(t *testing.T) {
+	t.Parallel()
+
+	f, err := os.Open(td("binaries/freedos/press/PRESS.EXE"))
+	require.NoError(t, err)
+	defer f.Close()
+	sign, err := magicnumber.Program(f)
+	require.NoError(t, err)
+	assert.Equal(t, magicnumber.MicrosoftExecutable, sign)
+
+	f, err = os.Open(tduncompress("TEST.PNG"))
+	require.NoError(t, err)
+	defer f.Close()
+	sign, err = magicnumber.Program(f)
+	require.NoError(t, err)
+	assert.Equal(t, magicnumber.Unknown, sign)
 }
