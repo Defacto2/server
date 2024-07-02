@@ -37,22 +37,108 @@ var (
 	ErrEmpty  = errors.New("empty path or name")
 )
 
-type contextKey string
-
-// TODO: complete.
-func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor) error { //nolint:funlen,gocognit
-	if ce == nil {
-		return nil
-	}
-	logger := helper.Logger(ctx)
-	tick := time.Now()
+func zipfiles(ctx context.Context, ce boil.ContextExecutor) (models.FileSlice, error) {
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("uuid"))
 	mods = append(mods, qm.Where("platform = ?", tags.DOS.String()))
 	mods = append(mods, qm.Where("filename ILIKE ?", "%.zip"))
 	files, err := models.Files(mods...).All(ctx, ce)
 	if err != nil {
-		return fmt.Errorf("config pkzips select all uuids: %w", err)
+		return nil, fmt.Errorf("select all uuids: %w", err)
+	}
+	return files, nil
+}
+
+func walkPath(ctx context.Context, path, extra string, d fs.DirEntry, artifacts ...string) string {
+	if d.IsDir() {
+		return ""
+	}
+	uid := strings.TrimSuffix(d.Name(), filepath.Ext(d.Name()))
+	if _, found := slices.BinarySearch(artifacts, uid); !found {
+		return ""
+	}
+	logger := helper.Logger(ctx)
+	if f, err := os.Stat(filepath.Join(extra, uid)); err == nil && !f.IsDir() {
+		logger.Info("Found extra file:", uid)
+		return ""
+	}
+	methods, err := pkzip.Methods(path)
+	if err != nil {
+		logger.Errorf("pkzip methods %w: %s", err, path)
+		return ""
+	}
+	usable := true
+	for _, method := range methods {
+		if !method.Zip() {
+			usable = false
+			break
+		}
+	}
+	if usable {
+		return ""
+	}
+	return uid
+}
+
+func zipPassTest(ctx context.Context, path string) bool {
+	logger := helper.Logger(ctx)
+	_, err := exec.Command("/usr/bin/unzip", "-t", path).Output()
+	if err != nil {
+		diag := pkzip.ExitStatus(err)
+		switch diag {
+		case pkzip.Normal, pkzip.Warning:
+			// normal or warnings are fine
+			return true
+		case pkzip.CompressionMethod:
+			// cannot do anything about this
+			return true
+		}
+		logger.Errorf("unzip -t %s: %s", diag, path)
+	}
+	return false
+}
+
+func zipReArchive(ctx context.Context, path, extra, uid string) error {
+	logger := helper.Logger(ctx)
+	tmp, err := os.MkdirTemp(os.TempDir(), "defacto2-rezip-")
+	if err != nil {
+		return fmt.Errorf("os.MkdirTemp %w: %s", err, path)
+	}
+	defer os.RemoveAll(tmp)
+	err = exec.Command("/usr/bin/unzip", path, "-d", tmp).Run()
+	if err != nil {
+		return fmt.Errorf("unzip -o %w: %s", err, path)
+	}
+	c, err := helper.Count(tmp)
+	if err != nil {
+		return fmt.Errorf("helper.Count %w: %s", err, tmp)
+	}
+	logger.Infof("Rezipped %d files for %s found in: %s", c, uid, tmp)
+	st, err := os.Stat(tmp)
+	if err != nil {
+		return fmt.Errorf("os.Stat %w: %s", err, tmp)
+	}
+
+	// TODO rezip to new archive
+
+	// TODO helper duplicate
+
+	logger.Infof("Rezipped %d bytes for %s found in: %s", st.Size(), uid, tmp)
+	// unzip [-Z] [-cflptTuvz[abjnoqsCDKLMUVWX$/:^]] file[.zip] [file(s) ...]  [-x xfile(s) ...] [-d exdir]
+	// /usr/bin/unzip path -d os.MkdirAll(filepath.Join(c.AbsExtra, uid), 0755)
+	return nil
+}
+
+func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor) error { //nolint:funlen,gocognit
+	if ce == nil {
+		return nil
+	}
+	tick := time.Now()
+	logger := helper.Logger(ctx)
+
+	files, err := zipfiles(ctx, ce)
+	if err != nil {
+		return fmt.Errorf("config pkzips zipfiles, %w", err)
 	}
 	size := len(files)
 	logger.Infof("Checking %d %s UUIDs", size, tags.DOS.String())
@@ -72,81 +158,23 @@ func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor) error { //n
 		if err != nil {
 			return fmt.Errorf("walk path %w: %s", err, path)
 		}
-		if d.IsDir() {
+		uid := walkPath(ctx, path, c.AbsExtra, d, artifacts...)
+		if uid == "" {
 			return nil
 		}
-		uid := strings.TrimSuffix(d.Name(), filepath.Ext(d.Name()))
-		if _, found := slices.BinarySearch(artifacts, uid); !found {
+		if zipPassTest(ctx, path) {
 			return nil
 		}
-		// fmt.Println(filepath.Join(c.AbsExtra, uid))
-		if f, err := os.Stat(filepath.Join(c.AbsExtra, uid)); err == nil && !f.IsDir() {
-			logger.Info("Found extra file:", uid)
+		if err := zipReArchive(ctx, path, c.AbsExtra, uid); err != nil {
+			logger.Errorf("zip repair and re-archive %w", err)
 			return nil
 		}
-		methods, err := pkzip.Methods(path)
-		if err != nil {
-			logger.Errorf("pkzip methods %w: %s", err, path)
-			return nil
-		}
-		usable := true
-		for _, method := range methods {
-			if !method.Zip() {
-				usable = false
-				break
-			}
-		}
-		if usable {
-			return nil
-		}
-		// fmt.Println(path, methods)
-		_, err = exec.Command("/usr/bin/unzip", "-t", path).Output()
-		if err != nil {
-			diag := pkzip.ExitStatus(err)
-			switch diag {
-			case pkzip.Normal, pkzip.Warning:
-				// normal or warnings are fine
-				return nil
-			case pkzip.CompressionMethod:
-				// cannot do anything about this
-				return nil
-				// slices.Sort(methods)
-				// m := slices.Compact(methods)
-				// logger.Warnf("methods used %s", m)
-			}
-			logger.Errorf("unzip -t %s: %s", diag, path)
-		}
-		dest, err := os.MkdirTemp(os.TempDir(), "defacto2-rezip-")
-		if err != nil {
-			logger.Errorf("os.MkdirTemp %w: %s", err, path)
-			return nil
-		}
-		defer os.RemoveAll(dest)
-		err = exec.Command("/usr/bin/unzip", path, "-d", dest).Run()
-		if err != nil {
-			logger.Errorf("unzip -o %w: %s", err, path)
-			return nil
-		}
-		c, err := helper.Count(dest)
-		if err != nil {
-			logger.Errorf("helper.Count %w: %s", err, dest)
-			return nil
-		}
-		logger.Infof("Rezipped %d files for %s", c, uid)
-
-		// fmt.Println(string(out))
-
-		// unzip [-Z] [-cflptTuvz[abjnoqsCDKLMUVWX$/:^]] file[.zip] [file(s) ...]  [-x xfile(s) ...] [-d exdir]
-
-		// /usr/bin/unzip path -d os.MkdirAll(filepath.Join(c.AbsExtra, uid), 0755)
-
 		sum++
 		return nil
 	})
 	if err != nil {
 		logger.Errorf("walk directory %w: %s", err, dir)
 	}
-
 	logger.Infof("Checked %d files for %d UUIDs in %s", sum, size, time.Since(tick))
 	return nil
 }

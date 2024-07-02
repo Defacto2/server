@@ -136,7 +136,7 @@ The list of available tasks can be shown.
 $ task # --list-all
 
 task: Available tasks for this project:
-* _init:                Initialise this project for the first time after a git clone.
+* _init:                Initialize this project for the first time after a git clone.
 * assets:               Build, compile and compress the web serve CSS and JS assets.
 * build:                Build the binary of the web server.
 * build-race:           Build the binary of the web server with race detection.

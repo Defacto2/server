@@ -65,7 +65,7 @@ var (
 func main() {
 	const exit = 0
 
-	// initialise a temporary logger, get and print the environment variable configurations.
+	// initialize a temporary logger, get and print the environment variable configurations.
 	logger, configs := environmentVars()
 	if exitCode := parseFlags(logger, configs); exitCode >= exit {
 		os.Exit(exitCode)

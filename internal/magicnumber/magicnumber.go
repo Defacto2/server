@@ -508,7 +508,6 @@ func Text(r io.Reader) (Signature, error) {
 	}
 	txts := Texts()
 	find := New()
-	fmt.Println(txts)
 	for _, txt := range txts {
 		if finder, exists := find[txt]; exists {
 			if finder(buf) {
