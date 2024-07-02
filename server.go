@@ -36,7 +36,6 @@ import (
 	"github.com/Defacto2/server/model/fix"
 	"github.com/caarlos0/env/v11"
 	_ "github.com/lib/pq"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"go.uber.org/zap"
 )
@@ -139,7 +138,7 @@ func environmentVars() (*zap.SugaredLogger, config.Config) {
 }
 
 // newInstance is used to create the server controller instance.
-func newInstance(ctx context.Context, exec boil.ContextExecutor, configs config.Config) handler.Configuration {
+func newInstance(ctx context.Context, db *sql.DB, configs config.Config) handler.Configuration {
 	c := handler.Configuration{
 		Brand:       brand,
 		Environment: configs,
@@ -150,8 +149,8 @@ func newInstance(ctx context.Context, exec boil.ContextExecutor, configs config.
 	if c.Version == "" {
 		c.Version = cmd.Commit("")
 	}
-	if ctx != nil && exec != nil {
-		c.RecordCount = recordCount(ctx, exec)
+	if ctx != nil && db != nil {
+		c.RecordCount = recordCount(ctx, db)
 	}
 	return c
 }
@@ -286,8 +285,11 @@ func repairDatabase(ctx context.Context, db *sql.DB, tx *sql.Tx) error {
 }
 
 // recordCount returns the number of records in the database.
-func recordCount(ctx context.Context, exec boil.ContextExecutor) int {
-	fs, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, exec)
+func recordCount(ctx context.Context, db *sql.DB) int {
+	if db == nil {
+		return 0
+	}
+	fs, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, db)
 	if err != nil {
 		return 0
 	}
