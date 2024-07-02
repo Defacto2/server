@@ -141,7 +141,7 @@ func newInstance(ctx context.Context, exec boil.ContextExecutor, configs config.
 	if c.Version == "" {
 		c.Version = cmd.Commit("")
 	}
-	if ctx == nil || exec == nil {
+	if ctx != nil && exec != nil {
 		c.RecordCount = recordCount(ctx, exec)
 	}
 	return c
@@ -262,7 +262,8 @@ func repairDatabase(ctx context.Context, db *sql.DB, tx *sql.Tx, logger *zap.Sug
 		return fmt.Errorf("%w: %s", ErrPointer,
 			"the repair database is missing a required parameter")
 	}
-	if err := fix.Artifacts.Run(ctx, db, tx, logger); err != nil {
+	ctx = context.WithValue(ctx, fix.LoggerKey, logger)
+	if err := fix.Artifacts.Run(ctx, db, tx); err != nil {
 		defer func() {
 			if err := tx.Rollback(); err != nil {
 				logger.Error(err)

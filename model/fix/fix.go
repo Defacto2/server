@@ -61,7 +61,11 @@ const (
 // In the future we may want to add a Debug or TestRun func.
 
 // Run the database repair based on the repair option.
-func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx, logger *zap.SugaredLogger) error {
+func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx) error {
+	logger, loggerExists := ctx.Value(LoggerKey).(*zap.SugaredLogger)
+	if loggerExists {
+		logger.Infof("Checking for records with invalid UUID values")
+	}
 	logger.Infoln("Running a cleanup of the database", r)
 	if r < None || r > Releaser {
 		return fmt.Errorf("%w: %d", ErrRepair, r)

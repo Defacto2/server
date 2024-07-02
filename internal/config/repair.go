@@ -42,15 +42,11 @@ type contextKey string
 const LoggerKey contextKey = "logger"
 
 // TODO: complete.
-func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor) error { //nolint:funlen,gocognit
+func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor, logger *zap.SugaredLogger) error { //nolint:funlen,gocognit
 	if ce == nil {
 		return nil
 	}
 	tick := time.Now()
-	logger, useLogger := ctx.Value(LoggerKey).(*zap.SugaredLogger)
-	if !useLogger {
-		return fmt.Errorf("config repair uuids %w", ErrCtxLog)
-	}
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("uuid"))
 	mods = append(mods, qm.Where("platform = ?", tags.DOS.String()))
@@ -162,15 +158,15 @@ func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor) error { //n
 // to the orphaned directory without warning.
 //
 // There are no checks on the 3 directories that get scanned.
-func (c Config) assets(ctx context.Context, ce boil.ContextExecutor) error {
+func (c Config) assets(ctx context.Context, ce boil.ContextExecutor, logger *zap.SugaredLogger) error {
 	if ce == nil {
 		return nil
 	}
 	tick := time.Now()
-	logger, useLogger := ctx.Value(LoggerKey).(*zap.SugaredLogger)
-	if !useLogger {
-		return fmt.Errorf("config repair uuids %w", ErrCtxLog)
-	}
+	// logger, useLogger := ctx.Value(LoggerKey).(*zap.SugaredLogger)
+	// if !useLogger {
+	// 	return fmt.Errorf("config repair uuids %w", ErrCtxLog)
+	// }
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("uuid"))
 	files, err := models.Files(mods...).All(ctx, ce)
@@ -257,10 +253,10 @@ func (c Config) RepairFS(ctx context.Context, exec boil.ContextExecutor, logger 
 	if err := DownloadFS(logger, c.AbsDownload, c.AbsOrphaned, c.AbsExtra); err != nil {
 		return fmt.Errorf("repair fs downloads %w", err)
 	}
-	if err := c.assets(ctx, exec); err != nil {
+	if err := c.assets(ctx, exec, logger); err != nil {
 		return fmt.Errorf("repair fs assets %w", err)
 	}
-	if err := c.pkzips(ctx, exec); err != nil {
+	if err := c.pkzips(ctx, exec, logger); err != nil {
 		return fmt.Errorf("repair fs pkzips %w", err)
 	}
 	return nil
