@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
 	"reflect"
 	"slices"
 	"sort"
@@ -288,7 +289,16 @@ func (c Config) fprintField(w *tabwriter.Writer,
 func fprintDirs(w *tabwriter.Writer, id, name, val string) {
 	fmt.Fprintf(w, "\t%s\t%s", Format(id), name)
 	if val != "" {
-		// todo: stat the directory
+		if st, err := os.Stat(val); err != nil && os.IsNotExist(err) {
+			fmt.Fprintf(w, "\t%s\n\t\t\tProblem: DIRECTORY DOES NOT EXIST\n", val)
+			return
+		} else if err != nil {
+			fmt.Fprintf(w, "\t%s\n\t\t\tError: %s\n", val, err)
+			return
+		} else if !st.IsDir() {
+			fmt.Fprintf(w, "\t%s\n\t\t\tProblem: PATH POINTS TO A FILE\n", val)
+			return
+		}
 		fmt.Fprintf(w, "\t%s\n", val)
 		return
 	}
