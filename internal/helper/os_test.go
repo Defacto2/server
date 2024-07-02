@@ -30,6 +30,46 @@ func TestCount(t *testing.T) {
 	assert.Equal(t, testDataFileCount, i)
 }
 
+func TestDuplicate(t *testing.T) {
+	dir, err := filepath.Abs("../../assets/testdata")
+	require.NoError(t, err)
+
+	r, err := helper.Duplicate(dir, "")
+	require.Error(t, err)
+	assert.Empty(t, r)
+	r, err = helper.Duplicate(dir, dir)
+	require.Error(t, err)
+	assert.Empty(t, r)
+
+	file, err := filepath.Abs("../../assets/testdata/uncompress/TEST.NFO")
+	require.NoError(t, err)
+
+	r, err = helper.Duplicate(file, "")
+	require.Error(t, err)
+	assert.Empty(t, r)
+
+	r, err = helper.Duplicate("", file)
+	require.Error(t, err)
+	assert.Empty(t, r)
+
+	r, err = helper.Duplicate(file, file)
+	require.Error(t, err)
+	assert.Empty(t, r)
+
+	dest, err := os.MkdirTemp(os.TempDir(), "test_duplicate")
+	require.NoError(t, err)
+	defer os.RemoveAll(dest)
+
+	r, err = helper.Duplicate(file, dest)
+	require.Error(t, err)
+	assert.Empty(t, r)
+
+	dest = filepath.Join(dest, "TEST.NFO")
+	written, err := helper.Duplicate(file, dest)
+	require.NoError(t, err)
+	assert.Equal(t, written, int64(13))
+}
+
 func TestFiles(t *testing.T) {
 	dir, err := filepath.Abs("../../assets/testdata")
 	require.NoError(t, err)
