@@ -15,6 +15,7 @@ License:
 
 import (
 	"context"
+	"database/sql"
 	"embed"
 	"errors"
 	"fmt"
@@ -52,8 +53,9 @@ var view embed.FS
 var version string
 
 var (
-	ErrLog = errors.New("cannot save logs")
-	ErrVer = errors.New("postgresql version request failed")
+	ErrLog     = errors.New("cannot save logs")
+	ErrPointer = errors.New("pointer is nil")
+	ErrVer     = errors.New("postgresql version request failed")
 )
 
 // main is the entry point for the application.
@@ -71,23 +73,21 @@ func main() {
 	}
 	fmt.Fprintf(w, "%s\n", configs)
 
-	db, err := postgres.ConnectDB()
+	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		logger.Errorf("main could not initialize the database data: %s", err)
 	}
 	defer db.Close()
-	if db != nil {
-		boil.SetDB(db)
-	}
+
+	ctx := context.Background()
 	var database postgres.Version
 	if err := database.Query(db); err != nil {
 		logger.Errorf("postgres version query: %w", err)
 	}
-
-	repairChecks(logger, configs)
+	if db != nil && tx != nil {
+		repairChecks(ctx, db, tx, logger, configs)
+	}
 	sanityChecks(logger, configs)
-
-	ctx := context.Background()
 	website := newInstance(ctx, db, configs)
 	logger = serverLog(configs, website.RecordCount)
 	router := website.Controller(logger)
@@ -141,7 +141,9 @@ func newInstance(ctx context.Context, exec boil.ContextExecutor, configs config.
 	if c.Version == "" {
 		c.Version = cmd.Commit("")
 	}
-	c.RecordCount = recordCount(ctx, exec)
+	if ctx == nil || exec == nil {
+		c.RecordCount = recordCount(ctx, exec)
+	}
 	return c
 }
 
@@ -213,14 +215,18 @@ func checks(logger *zap.SugaredLogger, readonly bool) {
 
 // repairChecks is used to fix any known issues with the file assets and the database entries.
 // These are skipped if the Production mode environment variable is set to false.
-func repairChecks(logger *zap.SugaredLogger, configs config.Config) {
+func repairChecks(ctx context.Context, db *sql.DB, tx *sql.Tx, logger *zap.SugaredLogger, configs config.Config) {
 	if !configs.ProdMode || logger == nil {
 		return
 	}
-	if err := configs.RepairFS(logger); err != nil {
+	if db == nil || tx == nil {
+		logger.Errorf("repair checks is missing a required parameter")
+		return
+	}
+	if err := configs.RepairFS(ctx, db, logger); err != nil {
 		logger.Errorf("repair checks for the file system directories: %s", err)
 	}
-	if err := repairDatabase(logger); err != nil {
+	if err := repairDatabase(ctx, db, tx, logger); err != nil {
 		if errors.Is(err, ErrVer) {
 			logger.Warnf("A %s, is the database server down?", ErrVer)
 		} else {
@@ -251,18 +257,12 @@ func serverLog(configs config.Config, count int) *zap.SugaredLogger {
 }
 
 // repairDatabase on startup checks the database connection and make any data corrections.
-func repairDatabase(logger *zap.SugaredLogger) error {
-	if logger == nil {
-		return fmt.Errorf("%w: %s", ErrLog, "the repair database has no logger")
+func repairDatabase(ctx context.Context, db *sql.DB, tx *sql.Tx, logger *zap.SugaredLogger) error {
+	if db == nil || tx == nil || logger == nil {
+		return fmt.Errorf("%w: %s", ErrPointer,
+			"the repair database is missing a required parameter")
 	}
-	ctx := context.WithValue(context.Background(), fix.LoggerKey, logger)
-	db, tx, err := postgres.ConnectTx()
-	if err != nil {
-		return fmt.Errorf("repair database connection: %w", err)
-	}
-	defer db.Close()
-
-	if err = fix.Artifacts.Run(ctx, db, tx); err != nil {
+	if err := fix.Artifacts.Run(ctx, db, tx, logger); err != nil {
 		defer func() {
 			if err := tx.Rollback(); err != nil {
 				logger.Error(err)

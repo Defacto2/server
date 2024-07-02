@@ -61,11 +61,7 @@ const (
 // In the future we may want to add a Debug or TestRun func.
 
 // Run the database repair based on the repair option.
-func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx) error {
-	logger, useLogger := ctx.Value(LoggerKey).(*zap.SugaredLogger)
-	if !useLogger {
-		return fmt.Errorf("%w: %s", ErrCtxLog, "no logger")
-	}
+func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx, logger *zap.SugaredLogger) error {
 	logger.Infoln("Running a cleanup of the database", r)
 	if r < None || r > Releaser {
 		return fmt.Errorf("%w: %d", ErrRepair, r)
