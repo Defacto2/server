@@ -592,13 +592,22 @@ func Iff(p []byte) bool {
 	return bytes.Equal(p[:4], []byte{'C', 'A', 'T', 0x20})
 }
 
-// Avif matches the AV1 Image File image format in the byte slice.
+// Avif matches the AV1 Image File image format in the byte slice, also known as AVIF.
+// This is a new image format based on the AV1 video codec from the Alliance for Open Media.
+// But the detection method is not accurate and should be used as a hint.
 func Avif(p []byte) bool {
-	const min = 3
-	if len(p) < min {
+	const min, offset = 8, 4
+	if len(p) < min+offset {
 		return false
 	}
-	return bytes.Equal(p[:min], []byte{0x0, 0x0, 0x0})
+	// Gary Kessler's File Signatures suggests the AVIF image format is 0x0A 0x00 0x00
+	// but this maybe out dated and definately causes false positives.
+	// According to the AV1 Image File Format specification there is no magic number.
+	// https://aomediacodec.github.io/av1-avif/v1.0.0.html
+	//
+	// As a workaround, we detect the AVIF image format by checking for the 'ftypavif' string.
+	// 'ftyp' matches the HEIF container and 'avif' is the brand.
+	return bytes.Equal(p[offset:min+offset], []byte{'f', 't', 'y', 'p', 'a', 'v', 'i', 'f'})
 }
 
 // Jpeg matches the JPEG File Interchange Format v1 image in the byte slice.
