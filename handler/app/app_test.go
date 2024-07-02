@@ -266,11 +266,12 @@ func TestTemplateFuncMap(t *testing.T) {
 
 func TestThumbSample(t *testing.T) {
 	t.Parallel()
+	const notfound = "no such file or directory"
 	w := app.Templ{}
 	x := w.ThumbSample("")
-	assert.Contains(t, x, `os.ReadFile`)
+	assert.Contains(t, x, notfound)
 	x = w.ThumbSample("placeholder")
-	assert.Contains(t, x, `os.ReadFile`)
+	assert.Contains(t, x, notfound)
 	x = w.ThumbSample("testdata/test")
 	assert.Contains(t, x, `test.webp?sha384`)
 	assert.Contains(t, x, `integrity="sha384`)
@@ -291,11 +292,12 @@ func TestScreenshot(t *testing.T) {
 
 func TestThumb(t *testing.T) {
 	t.Parallel()
+	const notfound = "<!-- no thumbnail found -->"
 	w := app.Templ{}
 	x := w.Thumb("", "", false)
-	assert.Contains(t, x, `img src=""`)
+	assert.Contains(t, x, notfound)
 	x = w.Thumb("placeholder", "testdata/TEST.PNG", false)
-	assert.Contains(t, x, `img src=""`)
+	assert.Contains(t, x, notfound)
 	x = w.Thumb("testdata/test", "placeholder", false)
 	assert.Contains(t, x, `test.webp`)
 	assert.Contains(t, x, `test.png`)

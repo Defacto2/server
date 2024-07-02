@@ -16,6 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/volatiletech/null/v8"
 	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/encoding/unicode"
 )
 
 const (
@@ -52,7 +53,7 @@ func TestEncoder(t *testing.T) {
 
 	sr = strings.NewReader("Hello\nworld\nthis is some text. 👾\n")
 	ec = render.Encoder(&art, sr)
-	assert.Equal(t, ec, charmap.CodePage437)
+	assert.Equal(t, ec, unicode.UTF8)
 }
 
 func TestRead(t *testing.T) {
