@@ -28,6 +28,7 @@ import (
 	"github.com/Defacto2/server/handler"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/zaplog"
@@ -58,11 +59,13 @@ var (
 	ErrVer     = errors.New("postgresql version request failed")
 )
 
-// main is the entry point for the application.
-// By default the web server runs when no arguments are provided.
-// Otherwise, the command-line arguments are parsed and the application exits.
+// Main is the entry point for the application.
+// By default the web server runs when no arguments are provided,
+// otherwise, the command-line arguments are parsed and the application exits.
 func main() {
 	const exit = 0
+
+	// initialise a temporary logger, get and print the environment variable configurations.
 	logger, configs := environmentVars()
 	if exitCode := parseFlags(logger, configs); exitCode >= exit {
 		os.Exit(exitCode)
@@ -73,21 +76,24 @@ func main() {
 	}
 	fmt.Fprintf(w, "%s\n", configs)
 
+	// connect to the database and perform some repairs and sanity checks.
+	// if the database is cannot connect, the web server will continue.
 	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		logger.Errorf("main could not initialize the database data: %s", err)
 	}
 	defer db.Close()
-
-	ctx := context.Background()
+	ctx := context.WithValue(context.Background(), helper.LoggerKey, logger)
 	var database postgres.Version
 	if err := database.Query(db); err != nil {
 		logger.Errorf("postgres version query: %w", err)
 	}
 	if db != nil && tx != nil {
-		repairChecks(ctx, db, tx, logger, configs)
+		repairChecks(ctx, db, tx, configs)
 	}
-	sanityChecks(logger, configs)
+	sanityChecks(ctx, configs)
+
+	// start the web server and the sugared logger.
 	website := newInstance(ctx, db, configs)
 	logger = serverLog(configs, website.RecordCount)
 	router := website.Controller(logger)
@@ -97,12 +103,15 @@ func main() {
 	}
 
 	go func() {
+		// get the local IP addresses and print them to the console.
 		localIPs, err := configs.Addresses()
 		if err != nil {
 			logger.Errorf("configs addresses in main: %s", err)
 		}
 		fmt.Fprintf(w, "%s\n", localIPs)
 	}()
+
+	// shutdown the web server.
 	website.ShutdownHTTP(router, logger)
 }
 
@@ -168,10 +177,11 @@ func parseFlags(logger *zap.SugaredLogger, configs config.Config) int {
 
 // sanityChecks is used to perform a number of sanity checks on the file assets and database.
 // These are skipped if the Production mode environment variable is set.to false.
-func sanityChecks(logger *zap.SugaredLogger, configs config.Config) {
-	if !configs.ProdMode || logger == nil {
+func sanityChecks(ctx context.Context, configs config.Config) {
+	if !configs.ProdMode {
 		return
 	}
+	logger := helper.Logger(ctx)
 	if err := configs.Checks(logger); err != nil {
 		logger.Errorf("sanity checks could not read the environment variable, it probably contains an invalid value: %s", err)
 	}
@@ -215,18 +225,19 @@ func checks(logger *zap.SugaredLogger, readonly bool) {
 
 // repairChecks is used to fix any known issues with the file assets and the database entries.
 // These are skipped if the Production mode environment variable is set to false.
-func repairChecks(ctx context.Context, db *sql.DB, tx *sql.Tx, logger *zap.SugaredLogger, configs config.Config) {
-	if !configs.ProdMode || logger == nil {
+func repairChecks(ctx context.Context, db *sql.DB, tx *sql.Tx, configs config.Config) {
+	if !configs.ProdMode {
 		return
 	}
+	logger := helper.Logger(ctx)
 	if db == nil || tx == nil {
 		logger.Errorf("repair checks is missing a required parameter")
 		return
 	}
-	if err := configs.RepairFS(ctx, db, logger); err != nil {
+	if err := configs.RepairFS(ctx, db); err != nil {
 		logger.Errorf("repair checks for the file system directories: %s", err)
 	}
-	if err := repairDatabase(ctx, db, tx, logger); err != nil {
+	if err := repairDatabase(ctx, db, tx); err != nil {
 		if errors.Is(err, ErrVer) {
 			logger.Warnf("A %s, is the database server down?", ErrVer)
 		} else {
@@ -257,12 +268,12 @@ func serverLog(configs config.Config, count int) *zap.SugaredLogger {
 }
 
 // repairDatabase on startup checks the database connection and make any data corrections.
-func repairDatabase(ctx context.Context, db *sql.DB, tx *sql.Tx, logger *zap.SugaredLogger) error {
-	if db == nil || tx == nil || logger == nil {
+func repairDatabase(ctx context.Context, db *sql.DB, tx *sql.Tx) error {
+	if db == nil || tx == nil {
 		return fmt.Errorf("%w: %s", ErrPointer,
 			"the repair database is missing a required parameter")
 	}
-	ctx = context.WithValue(ctx, fix.LoggerKey, logger)
+	logger := helper.Logger(ctx)
 	if err := fix.Artifacts.Run(ctx, db, tx); err != nil {
 		defer func() {
 			if err := tx.Rollback(); err != nil {

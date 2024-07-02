@@ -18,6 +18,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"go.uber.org/zap"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/encoding/unicode"
@@ -45,6 +46,21 @@ var (
 	ErrOSFile     = errors.New("os file is nil")
 	ErrRead       = errors.New("could not read files")
 )
+
+type contextKey string
+
+// LoggerKey is the key used to store the logger in the context.
+const LoggerKey contextKey = "logger"
+
+// Logger returns the logger from the context.
+// If the logger is not found, it panics.
+func Logger(ctx context.Context) *zap.SugaredLogger {
+	logger, loggerExists := ctx.Value(LoggerKey).(*zap.SugaredLogger)
+	if !loggerExists {
+		panic("context logger is nil")
+	}
+	return logger
+}
 
 // Add1 returns the value of a + 1.
 // The type of a must be an integer type or the result is 0.

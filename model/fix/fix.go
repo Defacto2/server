@@ -25,10 +25,6 @@ var (
 	ErrRepair = errors.New("invalid repair option")
 )
 
-type contextKey string
-
-const LoggerKey contextKey = "logger"
-
 // Repair a column or type of data within the database.
 type Repair int
 
@@ -62,10 +58,8 @@ const (
 
 // Run the database repair based on the repair option.
 func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx) error {
-	logger, loggerExists := ctx.Value(LoggerKey).(*zap.SugaredLogger)
-	if loggerExists {
-		logger.Infof("Checking for records with invalid UUID values")
-	}
+	logger := helper.Logger(ctx)
+	logger.Infof("Checking for records with invalid UUID values")
 	logger.Infoln("Running a cleanup of the database", r)
 	if r < None || r > Releaser {
 		return fmt.Errorf("%w: %d", ErrRepair, r)
@@ -123,10 +117,7 @@ func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx) error {
 //
 // [ColdFusion language syntax]: https://cfdocs.org/createuuid
 func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor) error {
-	logger, useLogger := ctx.Value(LoggerKey).(*zap.SugaredLogger)
-	if !useLogger {
-		return fmt.Errorf("%w: %s", ErrCtxLog, "no logger")
-	}
+	logger := helper.Logger(ctx)
 	logger.Infoln("Checking for invalid UUIDs using the ColdFusion syntax")
 	mods := qm.SQL("SELECT uuid FROM files WHERE length(uuid)=35")
 	fs, err := models.Files(mods).All(ctx, exec)
@@ -165,10 +156,7 @@ func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func trainers(ctx context.Context, tx *sql.Tx) error {
-	logger, useLogger := ctx.Value(LoggerKey).(*zap.SugaredLogger)
-	if !useLogger {
-		return fmt.Errorf("%w: %s", ErrCtxLog, "no logger")
-	}
+	logger := helper.Logger(ctx)
 	const trainer = "gamehack"
 	logger.Infof("Checking for trainers that are not categorized as %q", trainer)
 	mods := []qm.QueryMod{}
@@ -246,10 +234,7 @@ func fixes() map[string]string {
 
 // releasers will repair the group_brand_by and group_brand_for releasers data.
 func releasers(ctx context.Context, exec boil.ContextExecutor) error {
-	logger, useLogger := ctx.Value(LoggerKey).(*zap.SugaredLogger)
-	if !useLogger {
-		return fmt.Errorf("%w: %s", ErrCtxLog, "no logger")
-	}
+	logger := helper.Logger(ctx)
 	logger.Infoln("Cleaning up the releasers group_brand_by and group_brand_for")
 	f, err := models.Files(
 		qm.Where("group_brand_for = group_brand_by"),
@@ -364,10 +349,7 @@ func optimize(db *sql.DB) error {
 // invalidUUIDs will count the number of invalid UUIDs in the database.
 // This should be part of a future function to repair the UUIDs and rename the file assets.
 func invalidUUIDs(ctx context.Context, exec boil.ContextExecutor) error {
-	logger, loggerExists := ctx.Value(LoggerKey).(*zap.SugaredLogger)
-	if loggerExists {
-		logger.Infof("Checking for records with invalid UUID values")
-	}
+	logger := helper.Logger(ctx)
 	mods := qm.SQL("SELECT COUNT(*) FROM files WHERE files.uuid" +
 		" !~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}';")
 	i, err := models.Files(mods).Count(ctx, exec)
@@ -377,9 +359,7 @@ func invalidUUIDs(ctx context.Context, exec boil.ContextExecutor) error {
 	if i == 0 {
 		return nil
 	}
-	if loggerExists {
-		logger.Warnf("%d invalid UUIDs found", i)
-	}
+	logger.Warnf("%d invalid UUIDs found", i)
 	return nil
 }
 
