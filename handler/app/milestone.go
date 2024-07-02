@@ -672,7 +672,7 @@ func Collection() Milestones {
 				"<sup><a href=\"#berlin-bear-controversy-fn6\">[6]</a></sup><sup><a href=\"#berlin-bear-controversy-fn7\">[7]</a></sup></p>" +
 				// C64 ad quotes
 				"<p><q>Interface adaptors will allow the use of a complete range of hardware peripherals including disk units, plotter, dot matrix and daisy wheel printers, Prestel communications, networking and much, much more.</q> " +
-				"<q>A complete range of business software including word processing, information handling, financial modelling, accounting and many more specific application packages will be available.</q></p>" +
+				"<q>A complete range of business software including word processing, information handling, financial modelling, accounting and many more specific application packages will be available.</q></p>" + //nolint:misspell
 				// west berlin kids
 				"<p>West Berlin was an isolated city deep within the Soviet-controlled East German Democratic Republic, and its economy depended on mass subsidies from the West German Federal Republic. " +
 				"It is unlikely that several kids from here had early access to the European PAL Commodore&nbsp;64 at the end 1982. " +

@@ -23,13 +23,13 @@ const (
 	// WriteWriteRead is the file mode for read and write access.
 	// The file owner and group has read and write access, and others have read access.
 	WriteWriteRead fs.FileMode = 0o664
-	// TODO: user and group chown of file?
-	DSStore = ".DS_Store" // DSStore is the macOS directory service store file.
+	DSStore                    = ".DS_Store" // DSStore is the macOS directory service store file.
 )
 
+// Extension is a file extension with a count of files.
 type Extension struct {
-	Name  string
-	Count int64
+	Name  string // Name is the file extension.
+	Count int64  // Count is the number of files with the extension.
 }
 
 func CountExts(dir string) ([]Extension, error) {

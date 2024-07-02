@@ -601,7 +601,7 @@ func Avif(p []byte) bool {
 		return false
 	}
 	// Gary Kessler's File Signatures suggests the AVIF image format is 0x0A 0x00 0x00
-	// but this maybe out dated and definately causes false positives.
+	// but this maybe out dated and definitely causes false positives.
 	// According to the AV1 Image File Format specification there is no magic number.
 	// https://aomediacodec.github.io/av1-avif/v1.0.0.html
 	//

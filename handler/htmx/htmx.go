@@ -182,7 +182,8 @@ func DeleteForever(c echo.Context, logger *zap.SugaredLogger, id string) error {
 			"cannot delete the record")
 	}
 	//
-	// TODO: delete file assets from the file system.
+	// There is no need to delete any file assets from the file system.
+	// As the file assets will be deleted by the next cleanup job.
 	//
 	if err = tx.Commit(); err != nil {
 		logger.Error(err)

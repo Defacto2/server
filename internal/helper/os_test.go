@@ -67,7 +67,7 @@ func TestDuplicate(t *testing.T) {
 	dest = filepath.Join(dest, "TEST.NFO")
 	written, err := helper.Duplicate(file, dest)
 	require.NoError(t, err)
-	assert.Equal(t, written, int64(13))
+	assert.Equal(t, int64(13), written)
 }
 
 func TestFiles(t *testing.T) {

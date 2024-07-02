@@ -212,10 +212,10 @@ func TestFind(t *testing.T) {
 			assert.Equal(t, magicnumber.MicrosoftIcon, sign, prob(ext, path))
 		case ".IFF":
 			assert.Equal(t, magicnumber.InterleavedBitmap, sign, prob(ext, path))
-		case ".ISO": // TODO: fix conflicts with AVIF?
+		case ".ISO":
 			assert.Equal(t, magicnumber.CDISO9660, sign, prob(ext, path))
 		case ".LZH":
-			assert.Equal(t, magicnumber.YoshiLHA, sign, prob(ext, path)) // not working
+			assert.Equal(t, magicnumber.YoshiLHA, sign, prob(ext, path))
 		case ".PCX":
 			assert.Equal(t, magicnumber.PersonalComputereXchange, sign, prob(ext, path))
 		case ".PNG":
