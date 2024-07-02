@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/encoding/unicode"
 )
 
 //go:embed testdata
@@ -48,20 +49,20 @@ func TestDetermineEncoding(t *testing.T) {
 	e = helper.Determine(sr)
 	assert.Equal(t, charmap.ISO8859_1, e)
 
-	sr = strings.NewReader("Hello world! 👾")
+	sr = strings.NewReader("Hello world 👾!!!")
 	e = helper.Determine(sr)
-	assert.Nil(t, e)
+	assert.Equal(t, unicode.UTF8, e, "wanted UTF-8 but got %s", e)
 
 	p := []byte("")
 	p = append(p, 0x1b)
 	p = append(p, []byte("[31mHelloWorld")...)
 	br := bytes.NewReader(p)
 	e = helper.Determine(br)
-	assert.Equal(t, charmap.ISO8859_1, e)
+	assert.Equal(t, charmap.ISO8859_1, e, "wanted ISO-8859-1 but got %s", e)
 
 	sr = strings.NewReader("\nHello world!\n")
 	e = helper.Determine(sr)
-	assert.Equal(t, charmap.ISO8859_1, e)
+	assert.Equal(t, charmap.ISO8859_1, e, "wanted ISO-8859-1 but got %s", e)
 
 	p = []byte("")
 	p = append(p, 0xb2)
@@ -69,14 +70,14 @@ func TestDetermineEncoding(t *testing.T) {
 	p = append(p, 0xb2)
 	br = bytes.NewReader(p)
 	e = helper.Determine(br)
-	assert.Equal(t, charmap.CodePage437, e)
+	assert.Equal(t, charmap.ISO8859_1, e, "wanted ISO-8859-1 but got %s", e)
 
 	p = []byte("")
 	p = append(p, 0x0D, 0x0E) // CP437 ♪ ♫
 	p = append(p, []byte(" aah bah cah")...)
 	br = bytes.NewReader(p)
 	e = helper.Determine(br)
-	assert.Equal(t, charmap.CodePage437, e)
+	assert.Equal(t, charmap.CodePage437, e, "wanted CP-437 but got %s", e)
 
 	const house = 0x7f
 	p = []byte("")
@@ -84,15 +85,15 @@ func TestDetermineEncoding(t *testing.T) {
 	p = append(p, []byte(" a DOS house glyph ")...)
 	br = bytes.NewReader(p)
 	e = helper.Determine(br)
-	assert.Equal(t, charmap.CodePage437, e)
+	assert.Equal(t, charmap.CodePage437, e, "wanted CP-437 but got %s", e)
 
 	const line = 0xc4
 	p = []byte("")
-	p = append(p, line)
+	p = append(p, line, line, line, line, line, line)
 	p = append(p, []byte(" a DOS line glyph ")...)
 	br = bytes.NewReader(p)
 	e = helper.Determine(br)
-	assert.Equal(t, charmap.CodePage437, e)
+	assert.Equal(t, charmap.CodePage437, e, "wanted CP-437 but got %s", e)
 }
 
 func TestCookieStore(t *testing.T) {

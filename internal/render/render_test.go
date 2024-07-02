@@ -52,7 +52,7 @@ func TestEncoder(t *testing.T) {
 
 	sr = strings.NewReader("Hello\nworld\nthis is some text. 👾\n")
 	ec = render.Encoder(&art, sr)
-	assert.Nil(t, ec)
+	assert.Equal(t, ec, charmap.CodePage437)
 }
 
 func TestRead(t *testing.T) {

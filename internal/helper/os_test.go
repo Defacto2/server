@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const testDataFileCount = 60
+const testDataFileCount = 61
 
 func TestCount(t *testing.T) {
 	dir, err := filepath.Abs("../../assets/testdata")

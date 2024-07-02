@@ -133,7 +133,6 @@ func TestPlatform(t *testing.T) {
 func TestCore(t *testing.T) {
 	t.Parallel()
 	assert.EqualValues(t, "auto", jsdos.AutoCore)
-	assert.EqualValues(t, "dynamic", jsdos.Dynamic)
 	assert.EqualValues(t, "normal", jsdos.Normal)
 	assert.EqualValues(t, "simple", jsdos.Simple)
 }

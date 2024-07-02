@@ -16,6 +16,7 @@ import (
 	"reflect"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/charmap"
@@ -127,16 +128,21 @@ func Determine(reader io.Reader) encoding.Encoding {
 		return nil
 	}
 
+	// Check for Unicode multi-byte characters
+	for _, r := range bytes.Runes(p) {
+		if utf8.RuneLen(r) > 1 && r != unknownRune {
+			return unicode.UTF8
+		}
+	}
+
 	for _, char := range p {
-		r := rune(char)
 		switch {
 		case char == escape:
 			// escape control character commonly used in ANSI escaped sequences
 			continue
 		case // oddball control characters that are sometimes found in Amiga ANSI files
 			char == kcfAltEsc,
-			char == bell,
-			char == house:
+			char == bell:
 			continue
 		case // common whitespace control characters
 			char == formFeed,
@@ -145,20 +151,15 @@ func Determine(reader io.Reader) encoding.Encoding {
 			char == tab,
 			char == verticalTab:
 			continue
-		case r == unknownRune:
-			// when an unknown extended-ASCII character (128-255) is encountered
-			continue
+		// case r == unknownRune:
+		// 	// when an unknown extended-ASCII character (128-255) is encountered
+		// 	continue
 		case char >= undefinedStart && char <= undefinedEnd:
 			// unused ASCII, which we can probably assumed to be CP-437
 			return charmap.CodePage437
 		case char >= controlStart && char <= controlEnd:
 			// ASCII control characters, which we can probably assumed to be CP-437 glyphs
 			return charmap.CodePage437
-		case r > unknownRune:
-			// The maximum value of an 8-bit character is 255 (0xff),
-			// so rune valud above that, 256+ (0x100) is a Unicode multi-byte character,
-			// which we can assume to be UTF-8.
-			return unicode.UTF8
 		}
 	}
 	return sequences(p)

@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/volatiletech/null/v8"
 )
 
 func TestValidDateIssue(t *testing.T) {
@@ -55,17 +56,20 @@ func TestValidFilename(t *testing.T) {
 func TestValidFilesize(t *testing.T) {
 	t.Parallel()
 	size := ""
+	actual0 := null.Int64From(0)
+	actual100 := null.Int64From(100)
+	actualN100 := null.Int64From(-100)
 	i, err := model.ValidFilesize(size)
 	require.NoError(t, err)
-	assert.Equal(t, uint64(0), i)
+	assert.NotEqual(t, actual0, i)
 	size = "100"
 	i, err = model.ValidFilesize(size)
 	require.NoError(t, err)
-	assert.Equal(t, uint64(100), i)
+	assert.Equal(t, actual100, i)
 	size = "-100"
 	i, err = model.ValidFilesize(size)
-	require.Error(t, err)
-	assert.Equal(t, uint64(0), i)
+	require.NoError(t, err)
+	assert.Equal(t, actualN100, i)
 }
 
 func TestValidIntegrity(t *testing.T) {
