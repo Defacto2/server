@@ -406,8 +406,10 @@ func Archive(r io.Reader) (Signature, error) {
 	archives := Archives()
 	find := New()
 	for _, archive := range archives {
-		if find[archive](buf) {
-			return archive, nil
+		if finder, exists := find[archive]; exists {
+			if finder(buf) {
+				return archive, nil
+			}
 		}
 	}
 	return Unknown, nil
@@ -423,8 +425,10 @@ func DiscImage(r io.Reader) (Signature, error) {
 	discs := DiscImages()
 	find := New()
 	for _, disc := range discs {
-		if find[disc](buf) {
-			return disc, nil
+		if finder, exists := find[disc]; exists {
+			if finder(buf) {
+				return disc, nil
+			}
 		}
 	}
 	return Unknown, nil
@@ -440,8 +444,10 @@ func Document(r io.Reader) (Signature, error) {
 	docs := Documents()
 	find := New()
 	for _, doc := range docs {
-		if find[doc](buf) {
-			return doc, nil
+		if finder, exists := find[doc]; exists {
+			if finder(buf) {
+				return doc, nil
+			}
 		}
 	}
 	switch {
@@ -464,8 +470,10 @@ func Image(r io.Reader) (Signature, error) {
 	imgs := Images()
 	find := New()
 	for _, image := range imgs {
-		if find[image](buf) {
-			return image, nil
+		if finder, exists := find[image]; exists {
+			if finder(buf) {
+				return image, nil
+			}
 		}
 	}
 	return Unknown, nil
@@ -481,8 +489,10 @@ func Program(r io.Reader) (Signature, error) {
 	progs := Programs()
 	find := New()
 	for _, prog := range progs {
-		if find[prog](buf) {
-			return prog, nil
+		if finder, exists := find[prog]; exists {
+			if finder(buf) {
+				return prog, nil
+			}
 		}
 	}
 	return Unknown, nil
@@ -498,9 +508,12 @@ func Text(r io.Reader) (Signature, error) {
 	}
 	txts := Texts()
 	find := New()
+	fmt.Println(txts)
 	for _, txt := range txts {
-		if find[txt](buf) {
-			return txt, nil
+		if finder, exists := find[txt]; exists {
+			if finder(buf) {
+				return txt, nil
+			}
 		}
 	}
 	switch {
@@ -523,8 +536,10 @@ func Video(r io.Reader) (Signature, error) {
 	vids := Videos()
 	find := New()
 	for _, video := range vids {
-		if find[video](buf) {
-			return video, nil
+		if finder, exists := find[video]; exists {
+			if finder(buf) {
+				return video, nil
+			}
 		}
 	}
 	return Unknown, nil
