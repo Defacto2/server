@@ -135,16 +135,3 @@ func Test(name string) error {
 	}
 	return nil
 }
-
-// Recompress placeholder, TODO.
-func Recompress(name, dest string) error {
-	// run tests on paths
-
-	// magicnumber test the named file
-
-	// switch then load a func for each match
-
-	fmt.Fprintln(os.Stdout, "recompress", name, dest)
-
-	return nil
-}

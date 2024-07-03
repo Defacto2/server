@@ -920,24 +920,6 @@ func ProdZoo(c echo.Context, id string) error {
 	return nil
 }
 
-// Interview is the handler for the People Interviews page.
-func Reader(c echo.Context) error {
-	const title, name = "Textfile reader", "reader"
-	data := empty(c)
-	data["title"] = title
-	data["description"] = "Discussions with scene members."
-	data["logo"] = title
-	data["h1"] = title
-	data["lead"] = "An incomplete list of discussions and unedited interviews with sceners," +
-		" crackers and demo makers."
-	data["interviews"] = Interviewees()
-	err := c.Render(http.StatusOK, name, data)
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	return nil
-}
-
 // ReadmeDel handles the post submission for the Delete readme asset button.
 func ReadmeDel(c echo.Context, extraDir string) error {
 	var f Form

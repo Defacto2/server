@@ -248,7 +248,6 @@ func (c Configuration) website(e *echo.Echo, logger *zap.SugaredLogger, dir app.
 	s.GET("/zoo/prod/:id", func(cx echo.Context) error {
 		return app.ProdZoo(cx, cx.Param("id"))
 	})
-	s.GET("/r/:id", app.Reader)
 	s.GET("/releaser", app.Releaser)
 	s.GET("/releaser/a-z", app.ReleaserAZ)
 	s.GET("/releaser/year", app.ReleaserYear)

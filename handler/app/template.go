@@ -685,7 +685,6 @@ func templates() map[string]filename {
 		"interview":     "interview.tmpl",
 		"magazine":      "releaseryear.tmpl",
 		"magazine-az":   releaser,
-		"reader":        "reader_todo.tmpl",
 		"releaser":      releaser,
 		"releaser-year": "releaseryear.tmpl",
 		"scener":        scener,
