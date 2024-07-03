@@ -18,6 +18,7 @@ import (
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magicnumber/pkzip"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/Defacto2/server/internal/rezip"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/google/uuid"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -31,12 +32,9 @@ const (
 	syncthing = ".stfolder"                            // syncthing directory name
 )
 
-var (
-	ErrCtxLog = errors.New("context logger is invalid")
-	ErrIsDir  = errors.New("is directory")
-	ErrEmpty  = errors.New("empty path or name")
-)
+var ErrEmpty = errors.New("empty path or name")
 
+// zipfiles returns all the DOS platform artifacts using a .zip extension filename.
 func zipfiles(ctx context.Context, ce boil.ContextExecutor) (models.FileSlice, error) {
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("uuid"))
@@ -49,7 +47,11 @@ func zipfiles(ctx context.Context, ce boil.ContextExecutor) (models.FileSlice, e
 	return files, nil
 }
 
-func walkPath(ctx context.Context, path, extra string, d fs.DirEntry, artifacts ...string) string {
+// requireRearchive returns the UUID of the zipped file if it requires re-archiving because it uses a
+// legacy compression method that is not supported by Go or JS libraries.
+//
+// Rearchived UUID named files are moved to the extra directory and are given a .zip extension.
+func requireRearchive(ctx context.Context, path, extra string, d fs.DirEntry, artifacts ...string) string {
 	if d.IsDir() {
 		return ""
 	}
@@ -58,31 +60,27 @@ func walkPath(ctx context.Context, path, extra string, d fs.DirEntry, artifacts 
 		return ""
 	}
 	logger := helper.Logger(ctx)
-	if f, err := os.Stat(filepath.Join(extra, uid)); err == nil && !f.IsDir() {
-		logger.Info("Found extra file:", uid)
+	extraZip := filepath.Join(extra, uid+".zip")
+	if f, err := os.Stat(extraZip); err == nil && !f.IsDir() {
 		return ""
 	}
 	methods, err := pkzip.Methods(path)
 	if err != nil {
-		logger.Errorf("pkzip methods %w: %s", err, path)
+		logger.Errorf("%s: %s", err, path)
 		return ""
 	}
-	usable := true
 	for _, method := range methods {
 		if !method.Zip() {
-			usable = false
-			break
+			return uid
 		}
 	}
-	if usable {
-		return ""
-	}
-	return uid
+	return ""
 }
 
-func zipPassTest(ctx context.Context, path string) bool {
+// zipPassTest returns true if the zip file passes the unzip test.
+func zipPassTest(ctx context.Context, unzipApp, path string) bool {
 	logger := helper.Logger(ctx)
-	_, err := exec.Command("/usr/bin/unzip", "-t", path).Output()
+	_, err := exec.Command(unzipApp, "-t", path).Output()
 	if err != nil {
 		diag := pkzip.ExitStatus(err)
 		switch diag {
@@ -98,14 +96,17 @@ func zipPassTest(ctx context.Context, path string) bool {
 	return false
 }
 
-func zipReArchive(ctx context.Context, path, extra, uid string) error {
+// zipReArchive re-archives the zip file using the Go standard library's archive/zip package.
+// The re-archived file is then moved to the extra directory and is named using
+// the UUID with a .zip extension. The original file is left untouched.
+func zipReArchive(ctx context.Context, unzipApp, path, extra, uid string) error {
 	logger := helper.Logger(ctx)
 	tmp, err := os.MkdirTemp(os.TempDir(), "defacto2-rezip-")
 	if err != nil {
 		return fmt.Errorf("os.MkdirTemp %w: %s", err, path)
 	}
 	defer os.RemoveAll(tmp)
-	err = exec.Command("/usr/bin/unzip", path, "-d", tmp).Run()
+	err = exec.Command(unzipApp, path, "-d", tmp).Run()
 	if err != nil {
 		return fmt.Errorf("unzip -o %w: %s", err, path)
 	}
@@ -114,27 +115,47 @@ func zipReArchive(ctx context.Context, path, extra, uid string) error {
 		return fmt.Errorf("helper.Count %w: %s", err, tmp)
 	}
 	logger.Infof("Rezipped %d files for %s found in: %s", c, uid, tmp)
-	st, err := os.Stat(tmp)
+	_, err = os.Stat(tmp)
 	if err != nil {
 		return fmt.Errorf("os.Stat %w: %s", err, tmp)
 	}
 
-	// TODO rezip to new archive
+	basename := uid + ".zip"
+	tmpZip := filepath.Join(os.TempDir(), basename)
+	if written, err := rezip.CompressDir(tmp, tmpZip); err != nil {
+		return fmt.Errorf("rezip compress dir %w: %s", err, tmp)
+	} else if written == 0 {
+		return nil
+	}
 
-	// TODO helper duplicate
+	finalZip := filepath.Join(extra, basename)
+	if err = helper.RenameCrossDevice(tmpZip, finalZip); err != nil {
+		defer os.RemoveAll(tmpZip)
+		return fmt.Errorf("helper.RenameCrossDevice %w: %s", err, tmpZip)
+	}
 
-	logger.Infof("Rezipped %d bytes for %s found in: %s", st.Size(), uid, tmp)
-	// unzip [-Z] [-cflptTuvz[abjnoqsCDKLMUVWX$/:^]] file[.zip] [file(s) ...]  [-x xfile(s) ...] [-d exdir]
-	// /usr/bin/unzip path -d os.MkdirAll(filepath.Join(c.AbsExtra, uid), 0755)
+	st, err := os.Stat(finalZip)
+	if err != nil {
+		return fmt.Errorf("os.Stat %w: %s", err, finalZip)
+	}
+	logger.Infof("Extra deflated zipfile created %d bytes: %s", st.Size(), finalZip)
 	return nil
 }
 
-func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor) error { //nolint:funlen,gocognit
+// pkzips checks the DOS platform artifacts for any zip files that require re-archiving.
+// These are identified by the use of a legacy compression method that is not supported by Go or JS libraries.
+// The re-archived files are stored the extra directory and can be used by js-dos and other tools.
+func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor) error {
 	if ce == nil {
 		return nil
 	}
 	tick := time.Now()
 	logger := helper.Logger(ctx)
+
+	unzipApp, err := exec.LookPath("unzip")
+	if err != nil {
+		return fmt.Errorf("cannot find unzip executable: %w", err)
+	}
 
 	files, err := zipfiles(ctx, ce)
 	if err != nil {
@@ -158,15 +179,15 @@ func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor) error { //n
 		if err != nil {
 			return fmt.Errorf("walk path %w: %s", err, path)
 		}
-		uid := walkPath(ctx, path, c.AbsExtra, d, artifacts...)
+		uid := requireRearchive(ctx, path, c.AbsExtra, d, artifacts...)
 		if uid == "" {
 			return nil
 		}
-		if zipPassTest(ctx, path) {
+		if zipPassTest(ctx, unzipApp, path) {
 			return nil
 		}
-		if err := zipReArchive(ctx, path, c.AbsExtra, uid); err != nil {
-			logger.Errorf("zip repair and re-archive %w", err)
+		if err := zipReArchive(ctx, unzipApp, path, c.AbsExtra, uid); err != nil {
+			logger.Errorf("zip repair and re-archive: %s", err)
 			return nil
 		}
 		sum++
@@ -174,6 +195,10 @@ func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor) error { //n
 	})
 	if err != nil {
 		logger.Errorf("walk directory %w: %s", err, dir)
+	}
+	if sum == 0 {
+		logger.Infof("No files were re-archived")
+		return nil
 	}
 	logger.Infof("Checked %d files for %d UUIDs in %s", sum, size, time.Since(tick))
 	return nil
@@ -248,6 +273,7 @@ func (c Config) assets(ctx context.Context, ce boil.ContextExecutor) error {
 	return nil
 }
 
+// unknownAsset logs a warning message for an unknown asset file.
 func unknownAsset(logger *zap.SugaredLogger, oldpath, orphanedDir, name, uid string) {
 	logger.Warnf("Unknown file: %s, no matching artifact for UUID: %q", name, uid)
 	defer func() {
@@ -284,6 +310,7 @@ func (c Config) RepairFS(ctx context.Context, exec boil.ContextExecutor) error {
 	return nil
 }
 
+// ImagesFS, on startup check the image directories for any invalid or unknown files.
 func ImagesFS(logger *zap.SugaredLogger, c Config) error {
 	backupDir := c.AbsOrphaned
 	dirs := []string{c.AbsPreview, c.AbsThumbnail}
@@ -352,12 +379,14 @@ func removeSub(dirs ...string) error {
 	return nil
 }
 
+// containsInfo logs the number of files found in the directory.
 func containsInfo(logger *zap.SugaredLogger, name string, count int) {
 	if logger == nil {
 		return
 	}
 	if MinimumFiles > count {
-		logger.Warnf("The %s directory contains %d files, which is less than the minimum of %d", name, count, MinimumFiles)
+		logger.Warnf("The %s directory contains %d files, which is less than the minimum of %d",
+			name, count, MinimumFiles)
 		return
 	}
 	logger.Infof("The %s directory contains %d files", name, count)
@@ -499,6 +528,7 @@ func RemoveImage(basename, path, destDir string) error {
 	return nil
 }
 
+// remove, remove the file without warning.
 func remove(name, info, path, destDir string) {
 	w := os.Stderr
 	fmt.Fprintf(w, "%s: %s\n", info, name)
@@ -512,6 +542,7 @@ func remove(name, info, path, destDir string) {
 	}()
 }
 
+// rename, rename the file without warning.
 func rename(oldpath, info, newpath string) {
 	w := os.Stderr
 	fmt.Fprintf(w, "%s: %s\n", info, oldpath)

@@ -12,14 +12,14 @@ import (
 )
 
 const (
-	unzip     = "unzip"
-	unzipTest = "-t"
+	rezip     = "rezip"
+	rezipTest = "-t"
 
 	createUnique  = os.O_RDWR | os.O_CREATE | os.O_EXCL
 	filemodeWrite = 0o644
 )
 
-var ErrTest = errors.New("unzip test failed")
+var ErrTest = errors.New("rezip test failed")
 
 // Compress compresses the named file into the dest zip file using the
 // Deflate method. The total number of bytes written to the zip file is returned.
@@ -29,7 +29,7 @@ var ErrTest = errors.New("unzip test failed")
 func Compress(name, dest string) (int, error) {
 	zipfile, err := os.OpenFile(dest, createUnique, filemodeWrite)
 	if err != nil {
-		return 0, fmt.Errorf("unzip compress failed to open file: %w", err)
+		return 0, fmt.Errorf("rezip compress failed to open file: %w", err)
 	}
 	defer zipfile.Close()
 
@@ -38,15 +38,15 @@ func Compress(name, dest string) (int, error) {
 
 	zipWr, err := w.Create(filepath.Base(name))
 	if err != nil {
-		return 0, fmt.Errorf("unzip compress failed to create writer: %w", err)
+		return 0, fmt.Errorf("rezip compress failed to create writer: %w", err)
 	}
 	b, err := os.ReadFile(name)
 	if err != nil {
-		return 0, fmt.Errorf("unzip compress failed to read file: %w", err)
+		return 0, fmt.Errorf("rezip compress failed to read file: %w", err)
 	}
 	n, err := zipWr.Write(b)
 	if err != nil {
-		return 0, fmt.Errorf("unzip compress failed to write bytes: %w", err)
+		return 0, fmt.Errorf("rezip compress failed to write bytes: %w", err)
 	}
 	return n, nil
 }
@@ -60,7 +60,7 @@ func Compress(name, dest string) (int, error) {
 func CompressDir(root, dest string) (int64, error) {
 	zipfile, err := os.OpenFile(dest, createUnique, filemodeWrite)
 	if err != nil {
-		return 0, fmt.Errorf("unzip compress dir failed to open file: %w", err)
+		return 0, fmt.Errorf("rezip compress dir failed to open file: %w", err)
 	}
 	defer zipfile.Close()
 
@@ -100,22 +100,22 @@ func CompressDir(root, dest string) (int64, error) {
 
 	err = filepath.Walk(root, addFile)
 	if err != nil {
-		return 0, fmt.Errorf("unzip compress dir failed to add file: %w", err)
+		return 0, fmt.Errorf("rezip compress dir failed to add file: %w", err)
 	}
 
 	return written, nil
 }
 
-// Test runs the unzip test command on the named file. If the file is a directory
+// Test runs the rezip test command on the named file. If the file is a directory
 // or empty, an error is returned. If the test command fails, an error is returned.
 func Test(name string) error {
-	path, err := exec.LookPath(unzip)
+	path, err := exec.LookPath(rezip)
 	if err != nil {
-		return fmt.Errorf("unzip test failed to find unzip executable: %w", err)
+		return fmt.Errorf("rezip test failed to find rezip executable: %w", err)
 	}
 	st, err := os.Stat(name)
 	if err != nil {
-		return fmt.Errorf("unzip test failed to stat file: %w", err)
+		return fmt.Errorf("rezip test failed to stat file: %w", err)
 	}
 	if st.IsDir() {
 		return fmt.Errorf("%w: %s is a directory", ErrTest, name)
@@ -123,7 +123,7 @@ func Test(name string) error {
 	if st.Size() == 0 {
 		return fmt.Errorf("%w: %s is empty", ErrTest, name)
 	}
-	err = exec.Command(path, unzipTest, name).Run()
+	err = exec.Command(path, rezipTest, name).Run()
 	if err != nil {
 		diag := pkzip.ExitStatus(err)
 		switch diag {
