@@ -121,7 +121,6 @@ func (f *Artifacts) ByHidden(ctx context.Context, exec boil.ContextExecutor, off
 	if err := f.byHidden(ctx, exec); err != nil {
 		return nil, fmt.Errorf("f.Stat: %w", err)
 	}
-	boil.DebugMode = true
 	const clause = "deletedat DESC"
 	return models.Files(
 		models.FileWhere.Deletedat.IsNotNull(),

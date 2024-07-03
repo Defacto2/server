@@ -60,7 +60,6 @@ func (s *Summary) ByFilename(ctx context.Context, exec boil.ContextExecutor, ter
 
 // ByForApproval returns the summary statistics for files that require approval.
 func (s *Summary) ByForApproval(ctx context.Context, exec boil.ContextExecutor) error {
-	boil.DebugMode = true
 	return models.NewQuery(
 		models.FileWhere.Deletedat.IsNotNull(),
 		models.FileWhere.Deletedby.IsNull(),
@@ -71,7 +70,6 @@ func (s *Summary) ByForApproval(ctx context.Context, exec boil.ContextExecutor) 
 
 // ByHidden returns the summary statistics for files that have been deleted.
 func (s *Summary) ByHidden(ctx context.Context, exec boil.ContextExecutor) error {
-	boil.DebugMode = true
 	return models.NewQuery(
 		models.FileWhere.Deletedat.IsNotNull(),
 		models.FileWhere.Deletedby.IsNotNull(),
@@ -115,7 +113,6 @@ func (s *Summary) ByReleaser(ctx context.Context, exec boil.ContextExecutor, nam
 
 // ByUnwanted returns the summary statistics for files that have been marked as unwanted.
 func (s *Summary) ByUnwanted(ctx context.Context, exec boil.ContextExecutor) error {
-	boil.DebugMode = true
 	return models.NewQuery(
 		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
 		qm.WithDeleted(),
