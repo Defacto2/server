@@ -40,6 +40,12 @@ func (r *ReleaserNames) Distinct(ctx context.Context, exec boil.ContextExecutor)
 	return queries.Raw(query).Bind(ctx, exec, r)
 }
 
+// DistinctGroups gets the unique releaser names that are groups.
+func (r *ReleaserNames) DistinctGroups(ctx context.Context, exec boil.ContextExecutor) error {
+	query := string(postgres.ReleasersAlphabetical())
+	return queries.Raw(query).Bind(ctx, exec, r)
+}
+
 // Releasers is a collection of releasers.
 type Releasers []*struct {
 	Unique Releaser `boil:",bind"` // Unique releaser.

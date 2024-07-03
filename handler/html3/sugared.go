@@ -89,9 +89,8 @@ func (s *Sugared) Groups(c echo.Context) error {
 	}
 
 	// releasers are the distinct groups from the file table.
-
 	var unique model.ReleaserNames
-	if err := unique.Distinct(ctx, db); err != nil {
+	if err := unique.DistinctGroups(ctx, db); err != nil {
 		s.Log.Errorf("%s: %w", ErrSQL, err)
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
@@ -99,11 +98,14 @@ func (s *Sugared) Groups(c echo.Context) error {
 
 	maxPage := uint(0)
 	limit := model.Maximum
+
+	fmt.Printf("count: %d\n", count)
+
 	if limit > 0 {
 		maxPage = helper.PageCount(count, limit)
 		if page > int(maxPage) {
 			return echo.NewHTTPError(http.StatusNotFound,
-				fmt.Sprintf("Page %d of %d for %s doesn't exist", page, maxPage, " TODO"))
+				fmt.Sprintf("Page %d of %d for %s doesn't exist", page, maxPage, " groups"))
 		}
 	}
 
