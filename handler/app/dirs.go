@@ -481,7 +481,7 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	// check the bytes are plain text but not utf16 or utf32
 	if sign, err := magicnumber.Text(r); err != nil {
 		return data, fmt.Errorf("magicnumber.Text: %w", err)
-	} else if sign != magicnumber.Unknown ||
+	} else if sign == magicnumber.Unknown ||
 		sign == magicnumber.UTF16Text ||
 		sign == magicnumber.UTF32Text {
 		return data, nil

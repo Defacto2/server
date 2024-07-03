@@ -143,14 +143,21 @@ func Determine(reader io.Reader) encoding.Encoding {
 	if err != nil {
 		return nil
 	}
-
 	// Check for Unicode multi-byte characters
+	// If an unknown rune is encountered then assume the encoding is
+	// using a legacy 8-bit code page encoding, such as CP-437.
+	multibyte := false
 	for _, r := range bytes.Runes(p) {
-		if utf8.RuneLen(r) > 1 && r != unknownRune {
-			return unicode.UTF8
+		if utf8.RuneLen(r) > 1 {
+			if r == unknownRune {
+				break
+			}
+			multibyte = true
 		}
 	}
-
+	if multibyte {
+		return unicode.UTF8
+	}
 	for _, char := range p {
 		switch {
 		case char == escape:
