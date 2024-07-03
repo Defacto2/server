@@ -503,7 +503,7 @@ func Program(r io.Reader) (Signature, error) {
 func Text(r io.Reader) (Signature, error) {
 	buf := make([]byte, 512)
 	_, err := io.ReadFull(r, buf)
-	if err != nil {
+	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) && !errors.Is(err, io.EOF) {
 		return Unknown, fmt.Errorf("magic number text: %w", err)
 	}
 	txts := Texts()
