@@ -1,5 +1,5 @@
 {{- /* 
-    artifactfile.tmpl ~ THIS IS DUE FOR A REWRITE AND DELETE.
+    artifactfile.tmpl ~ TODO, THIS IS DUE FOR A REWRITE AND DELETE.
 */ -}}
 {{- define "artifactfile" }}
 {{- if eq false (index . "editor")}}
@@ -96,7 +96,6 @@
           <label for="asset-editor-preview" id="asset-editor-preview-label" class="col-lg-3 col-form-label"
           data-bs-toggle="tooltip" data-bs-title="An included image to use as the preview and thumbnail"><strong>Preview</strong> from upload</label>
           <div class="col-10 col-xl-5">
-            {{- /*  TODO: default disabled based on hide value  */}}
             <input type="file" class="form-control" id="asset-editor-preview" value="" 
               accept="image/png, image/jpeg, image/webp, image/bmp, image/gif, image/tiff">
             <div class="valid-feedback">Download artifact replaced, {{$replace}}</div>

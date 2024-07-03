@@ -69,8 +69,11 @@ func DemozooGetLink(filename, filesize, demozoo, unid any) template.HTML {
 		return "no id provided"
 	}
 	s := fmt.Sprintf("<button type=\"button\" "+
-		"class=\"btn btn-outline-primary me-2\" name=\"editorGetDemozoo\" "+
-		"data-id=\"%d\" data-uid=\"%s\" id=btn\"%s\">GET from Demozoo</button>", zooID, uID, uID)
+		"class=\"btn btn-success me-2\" name=\"editorGetDemozoo\" "+
+		"data-id=\"%d\" data-uid=\"%s\" id=btn\"%s\">"+
+		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">`+
+		`<use xlink:href="/svg/bootstrap-icons.svg#cloud-download"></use></svg>`+
+		" &nbsp; Use Demozoo</button>", zooID, uID, uID)
 	return template.HTML(s)
 }
 
@@ -634,6 +637,8 @@ func (web Templ) tmpl(name filename) *template.Template {
 	switch name {
 	case "artifact.tmpl":
 		files = artifactTmpls(config.ReadOnly, files...)
+	case "artifacts.tmpl":
+		files = append(files, GlobTo("artifactsedit.tmpl"))
 	case "categories.tmpl":
 		files = append(files, GlobTo("categoriesmore.tmpl"))
 	case "websites.tmpl":
@@ -650,17 +655,20 @@ func artifactTmpls(lock bool, files ...string) []string {
 	files = append(files,
 		GlobTo("artifactinfo.tmpl"),
 		GlobTo("artifactjsdos.tmpl"),
-		GlobTo("artifactzip.tmpl"))
+		GlobTo("artifactzip.tmpl"),
+	)
 	if lock {
 		return append(files,
 			GlobTo("artifactedit_null.tmpl"),
-			GlobTo("artifactlock_null.tmpl"))
+			GlobTo("artifactlock_null.tmpl"),
+		)
 	}
 	return append(files,
 		GlobTo("artifactfile.tmpl"),
 		GlobTo("artifactedit.tmpl"),
 		GlobTo("artifactfooter.tmpl"),
-		GlobTo("artifactlock.tmpl"))
+		GlobTo("artifactlock.tmpl"),
+	)
 }
 
 // img returns a HTML image tag.
