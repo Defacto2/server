@@ -22,6 +22,7 @@ import (
 	"io"
 	"os"
 	"runtime"
+	"slices"
 	"strings"
 
 	"github.com/Defacto2/server/cmd"
@@ -102,12 +103,21 @@ func main() {
 	}
 
 	go func() {
-		// get the local IP addresses and print them to the console.
-		localIPs, err := configs.Addresses()
-		if err != nil {
-			logger.Errorf("configs addresses in main: %s", err)
+		// get the owner and group of the current process and print them to the console.
+		if groups, usr, err := helper.Owner(); err != nil {
+			logger.Errorf("owner in main: %s", err)
+		} else {
+			clean := slices.DeleteFunc(groups, func(e string) bool {
+				return e == ""
+			})
+			fmt.Fprintf(w, "Running as %s for the groups, %s.\n", usr, strings.Join(clean, ","))
 		}
-		fmt.Fprintf(w, "%s\n", localIPs)
+		// get the local IP addresses and print them to the console.
+		if localIPs, err := configs.Addresses(); err != nil {
+			logger.Errorf("configs addresses in main: %s", err)
+		} else {
+			fmt.Fprintf(w, "%s\n", localIPs)
+		}
 	}()
 
 	// shutdown the web server.

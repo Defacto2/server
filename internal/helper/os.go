@@ -13,6 +13,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"os/user"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -249,6 +250,28 @@ func Lines(name string) (int, error) {
 	}
 
 	return lines, nil
+}
+
+// Owner returns the running user and group of the web application.
+// The function returns the group names and the username of the owner.
+func Owner() ([]string, string, error) {
+	curr, err := user.Current()
+	if err != nil {
+		return nil, "", fmt.Errorf("owner user current %w", err)
+	}
+	grps, err := curr.GroupIds()
+	if err != nil {
+		return nil, "", fmt.Errorf("owner user group ids %w", err)
+	}
+	groups := make([]string, len(grps))
+	for i, id := range grps {
+		group, err := user.LookupId(id)
+		if err != nil {
+			continue
+		}
+		groups[i] = group.Name
+	}
+	return groups, curr.Username, nil
 }
 
 // RenameFile renames a file from oldpath to newpath.
