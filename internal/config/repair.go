@@ -547,8 +547,7 @@ func rename(oldpath, info, newpath string) {
 	w := os.Stderr
 	fmt.Fprintf(w, "%s: %s\n", info, oldpath)
 	defer func() {
-		err := os.Rename(oldpath, newpath)
-		if err != nil {
+		if err := helper.RenameCrossDevice(oldpath, newpath); err != nil {
 			fmt.Fprintf(w, "defer repair file rename: %s\n", err)
 		}
 	}()
