@@ -104,58 +104,40 @@ func LookupSHA384(c echo.Context, logger *zap.SugaredLogger) error {
 }
 
 // ImageSubmit is a handler for the /uploader/image route.
-func ImageSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool, downloadDir string) error {
-	if prod {
-		logger = nil
-	}
+func ImageSubmit(c echo.Context, logger *zap.SugaredLogger, downloadDir string) error {
 	const key = "uploader-image"
 	c.Set(key+"-operating-system", tags.Image.String())
 	return transfer(c, logger, key, downloadDir)
 }
 
 // IntroSubmit is a handler for the /uploader/intro route.
-func IntroSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool, downloadDir string) error {
-	if prod {
-		logger = nil
-	}
+func IntroSubmit(c echo.Context, logger *zap.SugaredLogger, downloadDir string) error {
 	const key = "uploader-intro"
 	c.Set(key+"-category", tags.Intro.String())
 	return transfer(c, logger, key, downloadDir)
 }
 
 // MagazineSubmit is a handler for the /uploader/magazine route.
-func MagazineSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool, downloadDir string) error {
-	if prod {
-		logger = nil
-	}
+func MagazineSubmit(c echo.Context, logger *zap.SugaredLogger, downloadDir string) error {
 	const key = "uploader-magazine"
 	c.Set(key+"-category", tags.Mag.String())
 	return transfer(c, logger, key, downloadDir)
 }
 
 // TextSubmit is a handler for the /uploader/text route.
-func TextSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool, downloadDir string) error {
-	if prod {
-		logger = nil
-	}
+func TextSubmit(c echo.Context, logger *zap.SugaredLogger, downloadDir string) error {
 	const key = "uploader-text"
 	return transfer(c, logger, key, downloadDir)
 }
 
 // TrainerSubmit is a handler for the /uploader/trainer route.
-func TrainerSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool, downloadDir string) error {
-	if prod {
-		logger = nil
-	}
+func TrainerSubmit(c echo.Context, logger *zap.SugaredLogger, downloadDir string) error {
 	const key = "uploader-trainer"
 	return transfer(c, logger, key, downloadDir)
 }
 
 // AdvancedSubmit is a handler for the /uploader/advanced route.
-func AdvancedSubmit(c echo.Context, logger *zap.SugaredLogger, prod bool, downloadDir string) error {
-	if prod {
-		logger = nil
-	}
+func AdvancedSubmit(c echo.Context, logger *zap.SugaredLogger, downloadDir string) error {
 	const key = "uploader-advanced"
 	return transfer(c, logger, key, downloadDir)
 }
@@ -218,26 +200,16 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key, downloadDir string
 		return nil
 	}
 	defer Duplicate(logger, uid, dst, downloadDir)
-	return success(c, logger, file.Filename, id)
+	return success(c, file.Filename, id)
 }
 
-func success(c echo.Context, logger *zap.SugaredLogger,
-	filename string, id int64,
+func success(c echo.Context, filename string, id int64,
 ) error {
-	html := fmt.Sprintf("<p>Thanks, the chosen file submission was a success.<br> ✓ %s</p>",
-		html.EscapeString(filename))
-	if production := logger == nil; production {
-		return c.HTML(http.StatusOK, html)
-	}
+	html := fmt.Sprintf("<div>Thanks, the chosen file submission was a success.<br> "+
+		"<span class=\"text-success\">✓</span> <var>%s</var></div>", html.EscapeString(filename))
 	if sess.Editor(c) {
-		html += fmt.Sprintf("<p><a href=\"/f/%s\">Go to the new artifact record</a></p>",
+		html += fmt.Sprintf("<div><a href=\"/f/%s\">Go to the new artifact record</a>.</div>",
 			helper.ObfuscateID(id))
-		info, err := debug(c, html)
-		if err != nil {
-			return c.HTML(http.StatusOK,
-				html+"<p>Could not show the form parameters and values.</p>")
-		}
-		html += info
 	}
 	return c.HTML(http.StatusOK, html)
 }

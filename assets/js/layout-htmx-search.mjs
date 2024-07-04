@@ -26,7 +26,7 @@ export function searchEvents() {
 export function clearer() {
   const input = document.getElementById(searchInput);
   if (input === null) {
-    throw new Error(`The ${searchInput} element is null`);
+    throw new Error(`The ${searchInput} for clearer() element is null`);
   }
   const alert = document.getElementById(searchAlert);
   if (alert === null) {

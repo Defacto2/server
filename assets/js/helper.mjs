@@ -35,6 +35,29 @@ export async function clipText(elementId) {
 }
 
 /**
+ * Copies the value of an HTML element to the clipboard.
+ * @async
+ * @function clipValue
+ * @param {string} elementId - The ID of the HTML element to copy the value from.
+ * @throws {Error} Throws an error if the specified element is missing.
+ * @returns {Promise<void>} A Promise that resolves when the value has been copied to the clipboard.
+ */
+export async function clipValue(elementId) {
+  const element = getElmById(elementId);
+  element.focus(); // select the element to avoid NotAllowedError: Clipboard write is not allowed in this context
+  await navigator.clipboard.writeText(`${element.value}`).then(
+    function () {
+      console.log(
+        `Copied ${humanFilesize(element.value.length)} to the clipboard`
+      );
+    },
+    function (err) {
+      console.error(`could not save any text to the clipboard: ${err}`);
+    }
+  );
+}
+
+/**
  * Retrieves an element from the DOM using its ID.
  *
  * @param {string} elementId - The ID of the element to retrieve.
@@ -44,7 +67,7 @@ export async function clipText(elementId) {
 export function getElmById(elementId) {
   const element = document.getElementById(elementId);
   if (element == null) {
-    throw new Error(`The ${elementId} element is null.`);
+    throw new Error(`The ${elementId} for getElmById() element is null.`);
   }
   return element;
 }

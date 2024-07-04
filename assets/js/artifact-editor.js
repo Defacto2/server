@@ -10,9 +10,34 @@ import {
   youtube as validateYouTube,
   number as validateNumber,
 } from "./artifact-validate.mjs";
+import { clipValue, getElmById } from "./helper.mjs";
 
 (() => {
   "use strict";
+
+  const copyKeyVal = getElmById(`artifact-editor-key-value`);
+  if (copyKeyVal === null) {
+    throw new Error("The key value is missing.");
+  }
+  const copyKeyBtn = getElmById(`artifact-editor-key-label`);
+  if (copyKeyBtn === null) {
+    throw new Error("The key label is missing.");
+  }
+  copyKeyBtn.addEventListener(`click`, () =>
+    clipValue(`artifact-editor-key-value`)
+  );
+
+  const copyUUIDVal = getElmById(`artifact-editor-unique-id-value`);
+  if (copyUUIDVal === null) {
+    throw new Error("The key value is missing.");
+  }
+  const copyUUIDBtn = getElmById(`artifact-editor-unique-id-label`);
+  if (copyUUIDBtn === null) {
+    throw new Error("The key label is missing.");
+  }
+  copyUUIDBtn.addEventListener(`click`, () =>
+    clipValue(`artifact-editor-unique-id-value`)
+  );
 
   const osLabel = document.getElementById("artifact-editor-os-label");
   if (osLabel === null) {

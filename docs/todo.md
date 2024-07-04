@@ -14,7 +14,7 @@
 
 ### Recommendations
 
-- [ ] _Unique ID_ and _Record Key_ buttons should copy the value to the clipboard.
+- [X] _Unique ID_ and _Record Key_ buttons should copy the value to the clipboard.
 - [ ] Use DigitalOcean API to display Estimated Droplet Transfer Pool usage and remaining balance. 
 		https://pkg.go.dev/github.com/digitalocean/godo https://docs.digitalocean.com/reference/api/api-reference/#operation/droplets_get
 - [ ] js-dos doesn't yet support `extras` zipped files.

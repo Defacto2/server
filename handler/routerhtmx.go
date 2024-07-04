@@ -16,7 +16,7 @@ const rateLimit = 2
 
 // htmxGroup is the /htmx sub-route group that returns HTML fragments
 // using the htmx library for AJAX responses.
-func htmxGroup(e *echo.Echo, logger *zap.SugaredLogger, prod bool, downloadDir string) *echo.Echo {
+func htmxGroup(e *echo.Echo, logger *zap.SugaredLogger, downloadDir string) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for htmx group router", ErrRoutes))
 	}
@@ -37,19 +37,19 @@ func htmxGroup(e *echo.Echo, logger *zap.SugaredLogger, prod bool, downloadDir s
 		return htmx.SearchReleaser(c, logger)
 	})
 	g.POST("/uploader/advanced", func(c echo.Context) error {
-		return htmx.AdvancedSubmit(c, logger, prod, downloadDir)
+		return htmx.AdvancedSubmit(c, logger, downloadDir)
 	})
 	g.POST("/uploader/classifications", func(c echo.Context) error {
 		return htmx.HumanizeAndCount(c, logger, "uploader-advanced")
 	})
 	g.POST("/uploader/image", func(c echo.Context) error {
-		return htmx.ImageSubmit(c, logger, prod, downloadDir)
+		return htmx.ImageSubmit(c, logger, downloadDir)
 	})
 	g.POST("/uploader/intro", func(c echo.Context) error {
-		return htmx.IntroSubmit(c, logger, prod, downloadDir)
+		return htmx.IntroSubmit(c, logger, downloadDir)
 	})
 	g.POST("/uploader/magazine", func(c echo.Context) error {
-		return htmx.MagazineSubmit(c, logger, prod, downloadDir)
+		return htmx.MagazineSubmit(c, logger, downloadDir)
 	})
 	g.POST("/uploader/releaser/1", func(c echo.Context) error {
 		return htmx.DataListReleasers(c, logger, releaser1(c))
@@ -62,10 +62,10 @@ func htmxGroup(e *echo.Echo, logger *zap.SugaredLogger, prod bool, downloadDir s
 		return htmx.DataListMagazines(c, logger, lookup)
 	})
 	g.POST("/uploader/text", func(c echo.Context) error {
-		return htmx.TextSubmit(c, logger, prod, downloadDir)
+		return htmx.TextSubmit(c, logger, downloadDir)
 	})
 	g.POST("/uploader/trainer", func(c echo.Context) error {
-		return htmx.TrainerSubmit(c, logger, prod, downloadDir)
+		return htmx.TrainerSubmit(c, logger, downloadDir)
 	})
 	return e
 }

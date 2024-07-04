@@ -868,7 +868,7 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "The earliest text loader", Year: 1985, Month: 5, Day: 26, Highlight: true,
+			Title: "The earliest text loader on PC", Year: 1985, Month: 5, Day: 26, Highlight: true,
 			Lead:      "Spy Hunter cracked by Spartacus ?",
 			LinkTitle: "and view the text loader",
 			Link:      "/f/aa2be75",

@@ -103,15 +103,18 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           </div>
           <div class="col-12 col-xl-2 col-lg-6 offset-xl-1">
             <div class="input-group">
-              <span class="input-group-text" id="artifact-editor-key-label">Record Key</span>
-              <input type="text" value='{{$key}}' class="form-control" name="artifact-editor-key" 
+              <button type="button" class="btn btn-secondary" id="artifact-editor-key-label"
+                data-bs-toggle="tooltip" data-bs-title="Copy the key">Record key</button>
+              <input type="text" value='{{$key}}' class="form-control" name="artifact-editor-key" id="artifact-editor-key-value"
                 aria-describedby="artifact-editor-key-label" readonly>
             </div>
           </div>
           <div class="col-12 col-xl-5 col-lg-6">
             <div class="input-group">
-              <span class="input-group-text" id="artifact-editor-unique-id">Unique ID</span>
-              <input type="text" value='{{$unid}}' class="form-control" aria-describedby="artifact-editor-unique-id" readonly>
+              <button type="button" class="btn btn-secondary" id="artifact-editor-unique-id-label"
+                data-bs-toggle="tooltip" data-bs-title="Copy the ID">Unique ID</button>
+              <input type="text" value='{{$unid}}' class="form-control" 
+                aria-describedby="artifact-editor-unique-id-label" id="artifact-editor-unique-id-value" readonly>
             </div>
           </div>
         </div>
@@ -213,7 +216,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             </div>
           </div>
         </div>
-        <div class="row">
+        <div class="row my-3">
           {{/*  Filename  */}}
           <div class="col-xl-6">
             <label for="artifact-editor-filename" class="col-form-label-lg">Filename</label>
@@ -294,7 +297,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               <input type="hidden" id="artifact-editor-comment-resetter" name="artifact-editor-comment-resetter" value="{{$comment}}" readonly>
           </div>
         </div>
-        <div class="row bg-light">
+        <div class="row my-3">
           {{- /*  Releasers  */}}
           <div class="col-xl-6">
             <label for="artifact-editor-releaser-1" class="form-label col-form-label-lg">Releasers <small>maximum of 2</small></label>
@@ -420,7 +423,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             </div>
           </div>
         </div>
-        <div class="row">
+        <div class="row bg-light">
           {{- /*  Creators  */}}
           <label class="form-label col-form-label-lg mb-0 pb-0">
             Creators
@@ -496,7 +499,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                         input from:#artifact-editor-websites"
             hx-include="[name='artifact-editor-key']"
             hx-target="#artifact-editor-link-examples">
-        <div class="row bg-light">
+        <div class="row">
           <label class="form-label col-form-label-lg mb-0 pb-0">
             Links
           </label>
@@ -561,7 +564,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             </div>
           </div>
         </div>
-        <div class="row bg-light row-cols-1 row-cols-lg-2 gy-2 py-4">
+        <div class="row row-cols-1 row-cols-lg-2 gy-2 py-4">
           <div class="col">
             <div class="form-floating" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Info and a Defacto2 ID, example: NFO;9f1c2">
               <input type="hidden" name="artifact-editor-relationsval" id="artifact-editor-relations-reset" value="{{$relations}}" readonly>

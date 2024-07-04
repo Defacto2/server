@@ -310,6 +310,7 @@ function updateSuccess(alertElm, successId) {
   if (typeof elm === "undefined" || elm === null) {
     return;
   }
+  elm.classList.remove("is-invalid");
   elm.classList.add("is-valid");
 }
 

@@ -59,7 +59,7 @@ export function pagination(elementId) {
   const label = `paginationRangeLabel`;
   const pageRangeLabel = document.getElementById(label);
   if (pageRangeLabel === null) {
-    throw new Error(`The ${label} element is null.`);
+    throw new Error(`The ${label} for pagination() element is null.`);
   }
   pageRange.addEventListener("input", function () {
     pageRangeLabel.textContent = "Jump to page " + pageRange.value;
