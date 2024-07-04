@@ -355,7 +355,7 @@ func Collection() Milestones {
 			Title: "The birth of wares", Year: 1980, Highlight: true,
 			Lead: "The Apple II", Link: "http://artscene.textfiles.com/intros/APPLEII/", LinkTitle: "and browse the Apple II crack screens",
 			Content: // kids with micros
-			"<p>Without good software<sup><a href=\"#the-birth-of-warez-fn2\">[2]</a></sup>, the <a href=\"http://www.apple-iigs.info/doc/fichiers/Apple%20Price%20List%201978-08.pdf\">expensive</a> microcomputers of the era were but mostly pointless machines. " +
+			"<p>Without good software<sup><a href=\"#the-birth-of-warez-fn2\">[2]</a></sup>, the <a href=\"http://www.apple-iigs.info/doc/fichiers/Apple%20Price%20List%201978-08.pdf\">expensive</a> microcomputers of the era were mostly pointless machines. " +
 				"Getting them online with modems was challenging<sup><a href=\"#the-birth-of-warez-fn5\">[5]</a></sup>. " +
 				"So understandably, the computer owners who were into microcomputing would befriend like-minded people to exchange information and share software.</p>" +
 				// apple modems

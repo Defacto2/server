@@ -8,6 +8,8 @@
 - [ ] Print the running user and group on startup.
 - [ ] When running rename to extras, if first error is a permission, abort the range track.
 	  `defer repair file rename: rename /mnt/volume_sfo3_01/assets/downloads/c709d160-c0ed-4acc-8d4b-327eaa1d344e.txt /mnt/volume_sfo3_01/assets/extra/c709d160-c0ed-4acc-8d4b-327eaa1d344e.txt: permission denied`
+- [ ] Enforce 664 permissions on all files within the assets directories.
+- [ ] http://localhost:1323/f/ac1946e not working is Cascadia Code PL.
 
 
 ### Recommendations
