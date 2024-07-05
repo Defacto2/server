@@ -592,12 +592,10 @@ func GoogleCallback(c echo.Context, clientID string, maxAge int, accounts ...[48
 		}
 	}
 	if !check {
-		fullname := playload.Claims["name"]
 		sub := playload.Claims["sub"]
 		return ForbiddenErr(c, name,
-			fmt.Errorf("%w %s. "+
-				"If this is a mistake, contact Defacto2 admin and give them this Google account ID: %s",
-				ErrUser, fullname, sub))
+			fmt.Errorf("%w. If this is a mistake, contact Defacto2 admin and give them this Google account ID: %s",
+				ErrUser, sub))
 	}
 
 	if err = sessionHandler(c, maxAge, playload.Claims); err != nil {

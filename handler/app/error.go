@@ -149,7 +149,7 @@ func ForbiddenErr(c echo.Context, uri string, err error) error {
 	data["probl"] = fmt.Sprintf("This page is not intended for the general public, %s.", err.Error())
 	data["uriErr"] = uri
 	if err := c.Render(code, "status", data); err != nil {
-		logger.Error(fmt.Sprintf("%d forbidden render error for the URL, %q: %s", code, uri, err))
+		logger.Info(fmt.Sprintf("%d forbidden render error for the URL, %q: %s", code, uri, err))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil

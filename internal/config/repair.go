@@ -56,6 +56,9 @@ func requireRearchive(ctx context.Context, path, extra string, d fs.DirEntry, ar
 	if d.IsDir() {
 		return ""
 	}
+	if ext := filepath.Ext(strings.ToLower(d.Name())); ext != ".zip" && ext != "" {
+		return ""
+	}
 	uid := strings.TrimSuffix(d.Name(), filepath.Ext(d.Name()))
 	if _, found := slices.BinarySearch(artifacts, uid); !found {
 		return ""
