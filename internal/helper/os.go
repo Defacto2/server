@@ -326,10 +326,13 @@ func RenameCrossDevice(oldpath, newpath string) error {
 	if _, err = io.Copy(dst, src); err != nil {
 		return fmt.Errorf("rename cross device copy %w", err)
 	}
-	fi, err := os.Stat(oldpath)
-	if err != nil || fi.Size() == 0 {
+	if fi, err := os.Stat(oldpath); err != nil {
 		defer os.Remove(newpath)
 		return fmt.Errorf("rename cross device stat %w", err)
+	} else if fi.Size() == 0 {
+		defer os.Remove(newpath)
+		defer os.Remove(oldpath)
+		return fmt.Errorf("rename cross device empty file, %w", os.ErrNotExist)
 	}
 	defer os.Remove(oldpath)
 	return nil
