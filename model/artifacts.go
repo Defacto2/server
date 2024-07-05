@@ -287,7 +287,7 @@ func (f *Artifacts) ID(
 	if exec == nil {
 		return nil, ErrDB
 	}
-	if ids == nil && uuids == nil {
+	if (ids == nil && uuids == nil) || (len(ids) == 0 && len(uuids) == 0) {
 		return models.FileSlice{}, nil
 	}
 	mods := []qm.QueryMod{}
@@ -298,7 +298,7 @@ func (f *Artifacts) ID(
 		mods = append(mods, qm.Or("id = ?", id))
 	}
 	for _, uuid := range uuids {
-		mods = append(mods, qm.Or("uuid = ?", uuid))
+		mods = append(mods, qm.Or("uuid = ?", uuid.String()))
 	}
 	mods = append(mods, qm.Limit(Maximum), qm.WithDeleted())
 	fs, err := models.Files(mods...).All(ctx, exec)

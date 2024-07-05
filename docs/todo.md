@@ -24,7 +24,7 @@
 
 ### Bug fixes
 
-- [ ] htmx search for id or uuid, incomplete (less than 32 chars) uuid should not trigger a search.
+- [X] htmx search for id or uuid, incomplete (less than 32 chars) uuid should not trigger a search.
 - [ ] Reader is not displaying the textfile. `/f/b62716c`
 - [ ] Change helper.CookieStore behavour when no value is used, the randomized value must be ASCII compatible, as UTF-8 strings break the noice value.
 
