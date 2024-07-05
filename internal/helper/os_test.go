@@ -194,7 +194,7 @@ func TestRenameCrossDevice(t *testing.T) {
 	require.Error(t, err)
 
 	err = helper.RenameCrossDevice(abs, abs+"~")
-	require.NoError(t, err)
+	require.Error(t, err)
 }
 
 func TestSize(t *testing.T) {

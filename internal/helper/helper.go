@@ -84,6 +84,8 @@ func CookieStore(envKey string) ([]byte, error) {
 		key := []byte(envKey)
 		return key, nil
 	}
+
+	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 	const length = 32
 	key := make([]byte, length)
 	n, err := rand.Read(key)
@@ -93,6 +95,11 @@ func CookieStore(envKey string) ([]byte, error) {
 	if n != length {
 		return nil, ErrKey
 	}
+
+	for i, b := range key {
+		key[i] = letters[b%byte(len(letters))]
+	}
+
 	return key, nil
 }
 

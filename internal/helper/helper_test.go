@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	"github.com/Defacto2/server/internal/ext"
 	"github.com/Defacto2/server/internal/helper"
@@ -100,7 +101,8 @@ func TestCookieStore(t *testing.T) {
 	t.Parallel()
 	b, err := helper.CookieStore("")
 	require.NoError(t, err)
-	assert.Len(t, b, 32)
+	l := utf8.RuneCount(b)
+	assert.Equal(t, 32, l)
 
 	const key = "my-secret-key"
 	b, err = helper.CookieStore(key)
