@@ -327,13 +327,9 @@ func RenameCrossDevice(oldpath, newpath string) error {
 		return fmt.Errorf("rename cross device copy %w", err)
 	}
 	fi, err := os.Stat(oldpath)
-	if err != nil {
+	if err != nil || fi.Size() == 0 {
 		defer os.Remove(newpath)
 		return fmt.Errorf("rename cross device stat %w", err)
-	}
-	if err = os.Chmod(newpath, fi.Mode()); err != nil {
-		defer os.Remove(newpath)
-		return fmt.Errorf("rename cross device chmod %w", err)
 	}
 	defer os.Remove(oldpath)
 	return nil
