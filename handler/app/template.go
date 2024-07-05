@@ -58,6 +58,9 @@ func DemozooGetLink(filename, filesize, demozoo, unid any) template.HTML {
 		}
 		zooID = val.Int64
 	}
+	if zooID == 0 {
+		return "no demozoo ID provided"
+	}
 	var uID string
 	if val, valExists := unid.(null.String); valExists {
 		if val.Valid && val.String == "" {
@@ -65,11 +68,11 @@ func DemozooGetLink(filename, filesize, demozoo, unid any) template.HTML {
 		}
 		uID = val.String
 	}
-	if uID == "" || zooID == 0 {
-		return "no id provided"
+	if uID == "" {
+		return "no unid provided"
 	}
 	s := fmt.Sprintf("<button type=\"button\" "+
-		"class=\"btn btn-success me-2\" name=\"editorGetDemozoo\" "+
+		"class=\"btn btn-outline-success me-2\" name=\"editorGetDemozoo\" "+
 		"data-id=\"%d\" data-uid=\"%s\" id=btn\"%s\">"+
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">`+
 		`<use xlink:href="/svg/bootstrap-icons.svg#cloud-download"></use></svg>`+
@@ -88,7 +91,7 @@ func DownloadB(i any) template.HTML {
 		s = fmt.Sprintf("(%s)", s)
 	case null.Int64:
 		if !val.Valid {
-			return "(n/a)"
+			return " <small class=\"text-danger-emphasis\">(n/a)</small>"
 		}
 		s = artifactByteCount(val.Int64)
 	default:

@@ -436,7 +436,7 @@ func submit(c echo.Context, logger *zap.SugaredLogger, prod string) error {
 	var key int64
 	switch prod {
 	case dz:
-		key, err = model.InsertDemozoo(ctx, tx, id)
+		key, _, err = model.InsertDemozoo(ctx, tx, id)
 	case pt:
 		key, err = model.InsertPouet(ctx, tx, id)
 	}

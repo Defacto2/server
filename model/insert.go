@@ -19,17 +19,17 @@ import (
 // InsertDemozoo inserts a new file record into the database using a Demozoo production ID.
 // This will not check if the Demozoo production ID already exists in the database.
 // When successful the function will return the new record ID.
-func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int64) (int64, error) {
+func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int64) (int64, string, error) {
 	if exec == nil {
-		return 0, ErrDB
+		return 0, "", ErrDB
 	}
 	if id < startID || id > demozoo.Sanity {
-		return 0, fmt.Errorf("%w: %d", ErrID, id)
+		return 0, "", fmt.Errorf("%w: %d", ErrID, id)
 	}
 
 	now, uid, err := NewV7()
 	if err != nil {
-		return 0, fmt.Errorf("uuid.NewV7: %w", err)
+		return 0, "", fmt.Errorf("uuid.NewV7: %w", err)
 	}
 
 	f := models.File{
@@ -38,9 +38,9 @@ func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int64) (in
 		Deletedat:    null.TimeFromPtr(&now),
 	}
 	if err = f.Insert(ctx, exec, boil.Infer()); err != nil {
-		return 0, fmt.Errorf("f.Insert: %w", err)
+		return 0, "", fmt.Errorf("f.Insert: %w", err)
 	}
-	return f.ID, nil
+	return f.ID, uid.String(), nil
 }
 
 // InsertPouet inserts a new file record into the database using a Pouet production ID.
