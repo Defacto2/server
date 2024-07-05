@@ -40,6 +40,7 @@ func zipfiles(ctx context.Context, ce boil.ContextExecutor) (models.FileSlice, e
 	mods = append(mods, qm.Select("uuid"))
 	mods = append(mods, qm.Where("platform = ?", tags.DOS.String()))
 	mods = append(mods, qm.Where("filename ILIKE ?", "%.zip"))
+	mods = append(mods, qm.WithDeleted())
 	files, err := models.Files(mods...).All(ctx, ce)
 	if err != nil {
 		return nil, fmt.Errorf("select all uuids: %w", err)
@@ -142,10 +143,10 @@ func zipReArchive(ctx context.Context, unzipApp, path, extra, uid string) error 
 	return nil
 }
 
-// pkzips checks the DOS platform artifacts for any zip files that require re-archiving.
+// ImplodedZips checks the DOS platform artifacts for any zip files that require re-archiving.
 // These are identified by the use of a legacy compression method that is not supported by Go or JS libraries.
 // The re-archived files are stored the extra directory and can be used by js-dos and other tools.
-func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor) error {
+func (c Config) ImplodedZips(ctx context.Context, ce boil.ContextExecutor) error {
 	if ce == nil {
 		return nil
 	}
@@ -210,7 +211,7 @@ func (c Config) pkzips(ctx context.Context, ce boil.ContextExecutor) error {
 // to the orphaned directory without warning.
 //
 // There are no checks on the 3 directories that get scanned.
-func (c Config) assets(ctx context.Context, ce boil.ContextExecutor) error {
+func (c Config) Assets(ctx context.Context, ce boil.ContextExecutor) error {
 	if ce == nil {
 		return nil
 	}
@@ -218,6 +219,7 @@ func (c Config) assets(ctx context.Context, ce boil.ContextExecutor) error {
 	logger := helper.Logger(ctx)
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("uuid"))
+	mods = append(mods, qm.WithDeleted())
 	files, err := models.Files(mods...).All(ctx, ce)
 	if err != nil {
 		return fmt.Errorf("config repair select all uuids: %w", err)
@@ -285,33 +287,33 @@ func unknownAsset(logger *zap.SugaredLogger, oldpath, orphanedDir, name, uid str
 	}()
 }
 
-// RepairFS, on startup check the file system directories for any invalid or unknown files.
+// RepairAssets, on startup check the file system directories for any invalid or unknown files.
 // If any are found, they are removed without warning.
-func (c Config) RepairFS(ctx context.Context, exec boil.ContextExecutor) error {
+func (c Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor) error {
 	logger := helper.Logger(ctx)
 	backupDir := c.AbsOrphaned
 	if st, err := os.Stat(backupDir); err != nil {
-		return fmt.Errorf("repair fs backup directory %w: %s", err, backupDir)
+		return fmt.Errorf("repair backup directory %w: %s", err, backupDir)
 	} else if !st.IsDir() {
-		return fmt.Errorf("repair fs backup directory %w: %s", ErrNotDir, backupDir)
+		return fmt.Errorf("repair backup directory %w: %s", ErrNotDir, backupDir)
 	}
-	if err := ImagesFS(logger, c); err != nil {
-		return fmt.Errorf("repair fs images %w", err)
+	if err := ImageDirs(logger, c); err != nil {
+		return fmt.Errorf("repair the images directories %w", err)
 	}
-	if err := DownloadFS(logger, c.AbsDownload, c.AbsOrphaned, c.AbsExtra); err != nil {
-		return fmt.Errorf("repair fs downloads %w", err)
+	if err := DownloadDir(logger, c.AbsDownload, c.AbsOrphaned, c.AbsExtra); err != nil {
+		return fmt.Errorf("repair the download directory %w", err)
 	}
-	if err := c.assets(ctx, exec); err != nil {
-		return fmt.Errorf("repair fs assets %w", err)
+	if err := c.Assets(ctx, exec); err != nil {
+		return fmt.Errorf("repair assets %w", err)
 	}
-	if err := c.pkzips(ctx, exec); err != nil {
-		return fmt.Errorf("repair fs pkzips %w", err)
+	if err := c.ImplodedZips(ctx, exec); err != nil {
+		return fmt.Errorf("repair imploded zips %w", err)
 	}
 	return nil
 }
 
-// ImagesFS, on startup check the image directories for any invalid or unknown files.
-func ImagesFS(logger *zap.SugaredLogger, c Config) error {
+// ImageDirs, on startup check the image directories for any invalid or unknown files.
+func ImageDirs(logger *zap.SugaredLogger, c Config) error {
 	backupDir := c.AbsOrphaned
 	dirs := []string{c.AbsPreview, c.AbsThumbnail}
 	if err := removeSub(dirs...); err != nil {
@@ -392,8 +394,8 @@ func containsInfo(logger *zap.SugaredLogger, name string, count int) {
 	logger.Infof("The %s directory contains %d files", name, count)
 }
 
-// DownloadFS, on startup check the download directory for any invalid or unknown files.
-func DownloadFS(logger *zap.SugaredLogger, srcDir, destDir, extraDir string) error {
+// DownloadDir, on startup check the download directory for any invalid or unknown files.
+func DownloadDir(logger *zap.SugaredLogger, srcDir, destDir, extraDir string) error {
 	if srcDir == "" || destDir == "" || extraDir == "" {
 		return fmt.Errorf("%w: %s %s", ErrEmpty, srcDir, destDir)
 	}

@@ -89,7 +89,7 @@ func main() {
 		logger.Errorf("postgres version query: %w", err)
 	}
 	if db != nil && tx != nil {
-		repairChecks(ctx, db, tx, configs)
+		repairs(ctx, db, tx, configs)
 	}
 	sanityChecks(ctx, configs)
 
@@ -232,19 +232,19 @@ func checks(logger *zap.SugaredLogger, readonly bool) {
 	}
 }
 
-// repairChecks is used to fix any known issues with the file assets and the database entries.
+// repairs is used to fix any known issues with the file assets and the database entries.
 // These are skipped if the Production mode environment variable is set to false.
-func repairChecks(ctx context.Context, db *sql.DB, tx *sql.Tx, configs config.Config) {
+func repairs(ctx context.Context, db *sql.DB, tx *sql.Tx, configs config.Config) {
 	if !configs.ProdMode {
 		return
 	}
 	logger := helper.Logger(ctx)
 	if db == nil || tx == nil {
-		logger.Errorf("repair checks is missing a required parameter")
+		logger.Errorf("repairs is missing a required parameter")
 		return
 	}
-	if err := configs.RepairFS(ctx, db); err != nil {
-		logger.Errorf("repair checks for the file system directories: %s", err)
+	if err := configs.RepairAssets(ctx, db); err != nil {
+		logger.Errorf("asset repairs: %s", err)
 	}
 	if err := repairDatabase(ctx, db, tx); err != nil {
 		if errors.Is(err, ErrVer) {
