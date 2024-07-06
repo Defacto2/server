@@ -15,9 +15,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Defacto2/server/internal/archive/pkzip"
-	"github.com/Defacto2/server/internal/archive/rezip"
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/config/fixlha"
+	"github.com/Defacto2/server/internal/config/fixzip"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
@@ -35,121 +35,6 @@ const (
 
 var ErrEmpty = errors.New("empty path or name")
 
-// zipfiles returns all the DOS platform artifacts using a .zip extension filename.
-func zipfiles(ctx context.Context, ce boil.ContextExecutor) (models.FileSlice, error) {
-	mods := []qm.QueryMod{}
-	mods = append(mods, qm.Select("uuid"))
-	mods = append(mods, qm.Where("platform = ?", tags.DOS.String()))
-	mods = append(mods, qm.Where("filename ILIKE ?", "%.zip"))
-	mods = append(mods, qm.WithDeleted())
-	files, err := models.Files(mods...).All(ctx, ce)
-	if err != nil {
-		return nil, fmt.Errorf("select all uuids: %w", err)
-	}
-	return files, nil
-}
-
-// requireRearchive returns the UUID of the zipped file if it requires re-archiving because it uses a
-// legacy compression method that is not supported by Go or JS libraries.
-//
-// Rearchived UUID named files are moved to the extra directory and are given a .zip extension.
-func requireRearchive(ctx context.Context, path, extra string, d fs.DirEntry, artifacts ...string) string {
-	if d.IsDir() {
-		return ""
-	}
-	if ext := filepath.Ext(strings.ToLower(d.Name())); ext != ".zip" && ext != "" {
-		return ""
-	}
-	uid := strings.TrimSuffix(d.Name(), filepath.Ext(d.Name()))
-	if _, found := slices.BinarySearch(artifacts, uid); !found {
-		return ""
-	}
-	logger := helper.Logger(ctx)
-	extraZip := filepath.Join(extra, uid+".zip")
-	if f, err := os.Stat(extraZip); err == nil && !f.IsDir() {
-		return ""
-	}
-	methods, err := pkzip.Methods(path)
-	if err != nil {
-		logger.Errorf("%s: %s", err, path)
-		return ""
-	}
-	for _, method := range methods {
-		if !method.Zip() {
-			return uid
-		}
-	}
-	return ""
-}
-
-// hwZipTest returns true if the zip file fails the hwzip list command.
-// The path is the path to the zip file.
-func hwZipTest(ctx context.Context, path string) bool {
-	logger := helper.Logger(ctx)
-	z, err := exec.Command(command.HWZip, "list", path).Output()
-	if err != nil {
-		logger.Errorf("hwzip list %s: %s", err, path)
-		return true
-	}
-	if !strings.Contains(string(z), "Failed to parse ") {
-		return true
-	}
-	return false
-
-}
-
-// hwCompress uses the [hwzip application] by Hans Wennborg to extract zip archives
-// using antiquated compression methods that are not supported by Go, JS or other
-// Linux utilities. The extracted files are then re-archived using Go and moved
-// to the extra directory with a .zip extension.
-//
-// [hwzip application]: https://www.hanshq.net/zip.html
-func hwCompress(ctx context.Context, path, extra, uid string) error {
-	logger := helper.Logger(ctx)
-	tmp, err := os.MkdirTemp(os.TempDir(), "defacto2-rezip-")
-	if err != nil {
-		return fmt.Errorf("hwcompress mkdir temp %w: %s", err, path)
-	}
-	defer os.RemoveAll(tmp)
-
-	cmd := exec.Command(command.HWZip, "extract", path)
-	cmd.Dir = tmp
-	if err = cmd.Run(); err != nil {
-		return fmt.Errorf("hwzip run %w: %s", err, path)
-	}
-
-	c, err := helper.Count(tmp)
-	if err != nil {
-		return fmt.Errorf("hwcompress tmp count %w: %s", err, tmp)
-	}
-	logger.Infof("Rezipped %d files for %s found in: %s", c, uid, tmp)
-	_, err = os.Stat(tmp)
-	if err != nil {
-		return fmt.Errorf("hwcompress tmp stat %w: %s", err, tmp)
-	}
-
-	basename := uid + ".zip"
-	tmpZip := filepath.Join(os.TempDir(), basename)
-	if written, err := rezip.CompressDir(tmp, tmpZip); err != nil {
-		return fmt.Errorf("hwcompress compress dir %w: %s", err, tmp)
-	} else if written == 0 {
-		return nil
-	}
-
-	finalZip := filepath.Join(extra, basename)
-	if err = helper.RenameCrossDevice(tmpZip, finalZip); err != nil {
-		defer os.RemoveAll(tmpZip)
-		return fmt.Errorf("hwcompress rename %w: %s", err, tmpZip)
-	}
-
-	st, err := os.Stat(finalZip)
-	if err != nil {
-		return fmt.Errorf("hwcompress zip stat %w: %s", err, finalZip)
-	}
-	logger.Infof("Extra deflated zipfile created %d bytes: %s", st.Size(), finalZip)
-	return nil
-}
-
 // ImplodedZips checks the DOS platform artifacts for any zip files that require re-archiving.
 // These are identified by the use of a legacy compression method that is not supported by Go or JS libraries.
 // The re-archived files are stored the extra directory and can be used by js-dos and other tools.
@@ -159,16 +44,16 @@ func (c Config) ImplodedZips(ctx context.Context, ce boil.ContextExecutor) error
 	}
 	tick := time.Now()
 	logger := helper.Logger(ctx)
-
 	if _, err := exec.LookPath(command.HWZip); err != nil {
 		return fmt.Errorf("cannot find hwzip executable: %w", err)
 	}
-	files, err := zipfiles(ctx, ce)
+	files, err := fixzip.Files(ctx, ce)
 	if err != nil {
-		return fmt.Errorf("config pkzips zipfiles, %w", err)
+		return fmt.Errorf("config repair zipfiles, %w", err)
 	}
+
 	size := len(files)
-	logger.Infof("Checking %d %s UUIDs", size, tags.DOS.String())
+	logger.Infof("Checking %d %s zip archives", size, tags.DOS.String())
 	artifacts := make([]string, size)
 	for i, f := range files {
 		if !f.UUID.Valid || f.UUID.String == "" {
@@ -178,21 +63,20 @@ func (c Config) ImplodedZips(ctx context.Context, ce boil.ContextExecutor) error
 	}
 	artifacts = slices.Clip(artifacts)
 	slices.Sort(artifacts)
-
 	sum := 0
 	dir := c.AbsDownload
 	err = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return fmt.Errorf("walk path %w: %s", err, path)
 		}
-		uid := requireRearchive(ctx, path, c.AbsExtra, d, artifacts...)
+		uid := fixzip.Check(ctx, path, c.AbsExtra, d, artifacts...)
 		if uid == "" {
 			return nil
 		}
-		if !hwZipTest(ctx, path) {
+		if fixzip.Invalid(ctx, path) {
 			return nil
 		}
-		if err := hwCompress(ctx, path, c.AbsExtra, uid); err != nil {
+		if err := fixzip.Compress(ctx, path, c.AbsExtra, uid); err != nil {
 			logger.Errorf("zip repair and re-archive: %s", err)
 			return nil
 		}
@@ -203,7 +87,60 @@ func (c Config) ImplodedZips(ctx context.Context, ce boil.ContextExecutor) error
 		logger.Errorf("walk directory %w: %s", err, dir)
 	}
 	if sum == 0 {
-		logger.Infof("No files were re-archived")
+		return nil
+	}
+	logger.Infof("Checked %d files for %d UUIDs in %s", sum, size, time.Since(tick))
+	return nil
+}
+
+func (c Config) LHarcs(ctx context.Context, ce boil.ContextExecutor) error {
+	if ce == nil {
+		return nil
+	}
+	tick := time.Now()
+	logger := helper.Logger(ctx)
+	if _, err := exec.LookPath(command.Lha); err != nil {
+		return fmt.Errorf("cannot find lha executable: %w", err)
+	}
+	files, err := fixlha.Files(ctx, ce)
+	if err != nil {
+		return fmt.Errorf("config repair lha files, %w", err)
+	}
+	size := len(files)
+	logger.Infof("Checking %d %s lha/lzh archives", size, tags.DOS.String())
+	artifacts := make([]string, size)
+	for i, f := range files {
+		if !f.UUID.Valid || f.UUID.String == "" {
+			continue
+		}
+		artifacts[i] = f.UUID.String
+	}
+	artifacts = slices.Clip(artifacts)
+	slices.Sort(artifacts)
+	sum := 0
+	dir := c.AbsDownload
+	err = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return fmt.Errorf("walk path %w: %s", err, path)
+		}
+		uid := fixlha.Check(ctx, path, c.AbsExtra, d, artifacts...)
+		if uid == "" {
+			return nil
+		}
+		if fixlha.Invalid(ctx, path) {
+			return nil
+		}
+		if err := fixlha.Compress(ctx, path, c.AbsExtra, uid); err != nil {
+			logger.Errorf("lha/lzh repair and re-archive: %s", err)
+			return nil
+		}
+		sum++
+		return nil
+	})
+	if err != nil {
+		logger.Errorf("walk directory %w: %s", err, dir)
+	}
+	if sum == 0 {
 		return nil
 	}
 	logger.Infof("Checked %d files for %d UUIDs in %s", sum, size, time.Since(tick))
@@ -313,6 +250,9 @@ func (c Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor) err
 	}
 	if err := c.ImplodedZips(ctx, exec); err != nil {
 		return fmt.Errorf("repair imploded zips %w", err)
+	}
+	if err := c.LHarcs(ctx, exec); err != nil {
+		return fmt.Errorf("repair lha/lzh archives")
 	}
 	return nil
 }

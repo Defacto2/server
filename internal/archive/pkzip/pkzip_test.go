@@ -7,8 +7,8 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/Defacto2/server/internal/archive/pkzip"
 	"github.com/Defacto2/server/internal/command"
-	"github.com/Defacto2/server/internal/magicnumber/pkzip"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
