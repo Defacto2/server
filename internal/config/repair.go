@@ -15,6 +15,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magicnumber/pkzip"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -81,53 +82,56 @@ func requireRearchive(ctx context.Context, path, extra string, d fs.DirEntry, ar
 	return ""
 }
 
-// zipPassTest returns true if the zip file passes the unzip test.
-func zipPassTest(ctx context.Context, unzipApp, path string) bool {
+// hwZipTest returns true if the zip file fails the hwzip list command.
+// The path is the path to the zip file.
+func hwZipTest(ctx context.Context, path string) bool {
 	logger := helper.Logger(ctx)
-	_, err := exec.Command(unzipApp, "-t", path).Output()
+	z, err := exec.Command(command.HWZip, "list", path).Output()
 	if err != nil {
-		diag := pkzip.ExitStatus(err)
-		switch diag {
-		case pkzip.Normal, pkzip.Warning:
-			// normal or warnings are fine
-			return true
-		case pkzip.CompressionMethod:
-			// cannot do anything about this
-			return true
-		}
-		logger.Errorf("unzip -t %s: %s", diag, path)
+		logger.Errorf("hwzip list %s: %s", err, path)
+		return true
+	}
+	if !strings.Contains(string(z), "Failed to parse ") {
+		return true
 	}
 	return false
+
 }
 
-// zipReArchive re-archives the zip file using the Go standard library's archive/zip package.
-// The re-archived file is then moved to the extra directory and is named using
-// the UUID with a .zip extension. The original file is left untouched.
-func zipReArchive(ctx context.Context, unzipApp, path, extra, uid string) error {
+// hwCompress uses the [hwzip application] by Hans Wennborg to extract zip archives
+// using antiquated compression methods that are not supported by Go, JS or other
+// Linux utilities. The extracted files are then re-archived using Go and moved
+// to the extra directory with a .zip extension.
+//
+// [hwzip application]: https://www.hanshq.net/zip.html
+func hwCompress(ctx context.Context, path, extra, uid string) error {
 	logger := helper.Logger(ctx)
 	tmp, err := os.MkdirTemp(os.TempDir(), "defacto2-rezip-")
 	if err != nil {
-		return fmt.Errorf("os.MkdirTemp %w: %s", err, path)
+		return fmt.Errorf("hwcompress mkdir temp %w: %s", err, path)
 	}
 	defer os.RemoveAll(tmp)
-	err = exec.Command(unzipApp, path, "-d", tmp).Run()
-	if err != nil {
-		return fmt.Errorf("unzip -o %w: %s", err, path)
+
+	cmd := exec.Command(command.HWZip, "extract", path)
+	cmd.Dir = tmp
+	if err = cmd.Run(); err != nil {
+		return fmt.Errorf("hwzip run %w: %s", err, path)
 	}
+
 	c, err := helper.Count(tmp)
 	if err != nil {
-		return fmt.Errorf("helper.Count %w: %s", err, tmp)
+		return fmt.Errorf("hwcompress tmp count %w: %s", err, tmp)
 	}
 	logger.Infof("Rezipped %d files for %s found in: %s", c, uid, tmp)
 	_, err = os.Stat(tmp)
 	if err != nil {
-		return fmt.Errorf("os.Stat %w: %s", err, tmp)
+		return fmt.Errorf("hwcompress tmp stat %w: %s", err, tmp)
 	}
 
 	basename := uid + ".zip"
 	tmpZip := filepath.Join(os.TempDir(), basename)
 	if written, err := rezip.CompressDir(tmp, tmpZip); err != nil {
-		return fmt.Errorf("rezip compress dir %w: %s", err, tmp)
+		return fmt.Errorf("hwcompress compress dir %w: %s", err, tmp)
 	} else if written == 0 {
 		return nil
 	}
@@ -135,12 +139,12 @@ func zipReArchive(ctx context.Context, unzipApp, path, extra, uid string) error 
 	finalZip := filepath.Join(extra, basename)
 	if err = helper.RenameCrossDevice(tmpZip, finalZip); err != nil {
 		defer os.RemoveAll(tmpZip)
-		return fmt.Errorf("helper.RenameCrossDevice %w: %s", err, tmpZip)
+		return fmt.Errorf("hwcompress rename %w: %s", err, tmpZip)
 	}
 
 	st, err := os.Stat(finalZip)
 	if err != nil {
-		return fmt.Errorf("os.Stat %w: %s", err, finalZip)
+		return fmt.Errorf("hwcompress zip stat %w: %s", err, finalZip)
 	}
 	logger.Infof("Extra deflated zipfile created %d bytes: %s", st.Size(), finalZip)
 	return nil
@@ -156,11 +160,9 @@ func (c Config) ImplodedZips(ctx context.Context, ce boil.ContextExecutor) error
 	tick := time.Now()
 	logger := helper.Logger(ctx)
 
-	unzipApp, err := exec.LookPath("unzip")
-	if err != nil {
-		return fmt.Errorf("cannot find unzip executable: %w", err)
+	if _, err := exec.LookPath(command.HWZip); err != nil {
+		return fmt.Errorf("cannot find hwzip executable: %w", err)
 	}
-
 	files, err := zipfiles(ctx, ce)
 	if err != nil {
 		return fmt.Errorf("config pkzips zipfiles, %w", err)
@@ -187,10 +189,10 @@ func (c Config) ImplodedZips(ctx context.Context, ce boil.ContextExecutor) error
 		if uid == "" {
 			return nil
 		}
-		if zipPassTest(ctx, unzipApp, path) {
+		if !hwZipTest(ctx, path) {
 			return nil
 		}
-		if err := zipReArchive(ctx, unzipApp, path, c.AbsExtra, uid); err != nil {
+		if err := hwCompress(ctx, path, c.AbsExtra, uid); err != nil {
 			logger.Errorf("zip repair and re-archive: %s", err)
 			return nil
 		}
@@ -533,7 +535,7 @@ func RemoveImage(basename, path, destDir string) error {
 	return nil
 }
 
-// remove, remove the file without warning.
+// remove the file without warning.
 func remove(name, info, path, destDir string) {
 	w := os.Stderr
 	fmt.Fprintf(w, "%s: %s\n", info, name)
@@ -547,7 +549,7 @@ func remove(name, info, path, destDir string) {
 	}()
 }
 
-// rename, rename the file without warning.
+// rename the file without warning.
 func rename(oldpath, info, newpath string) {
 	w := os.Stderr
 	fmt.Fprintf(w, "%s: %s\n", info, oldpath)

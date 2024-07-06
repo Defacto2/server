@@ -89,7 +89,7 @@
         fs.createFile("dosbox.conf", "{{$config}}");
         console.log("{{$config}}");
         // fetch the artifact file download and if it is a zip file, extract it to the virtual file system.
-        fs.extract("/d/{{$download}}").then(() => {
+        fs.extract("/jsdos/{{$download}}").then(() => {
           // start the dosbox with the configuration and the extracted artifact file.
           main(["-conf", "dosbox.conf", "-c", "{{$runProgram}}"]).then((ci) => {
             window.ci = ci;

@@ -35,3 +35,6 @@
 *.ZIP binary
 *.zip binary
 *.tar.xz binary
+
+# Executables
+hwzip binary

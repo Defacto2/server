@@ -128,3 +128,45 @@ func (d Download) HTTPSend(c echo.Context, logger *zap.SugaredLogger) error {
 	}
 	return nil
 }
+
+// ExtraZip configuration.
+type ExtraZip struct {
+	ExtraPath    string // ExtraPath is the absolute path to the extra directory.
+	DownloadPath string // DownloadPath is the absolute path to the download directory.
+}
+
+// HTTPSend looks for any zip files in the extra directory and serves them to the client,
+// otherwise it will serve the standard download file.
+//
+// This is used for obsolute file types that have been rearchived into a standard zip file.
+func (e ExtraZip) HTTPSend(c echo.Context, logger *zap.SugaredLogger) error {
+	id := c.Param("id")
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return fmt.Errorf("http extra send connect db: %w", err)
+	}
+	defer db.Close()
+	art, err := model.OneFileByKey(ctx, db, id)
+	switch {
+	case err != nil && sess.Editor(c):
+		art, err = model.OneEditByKey(ctx, db, id)
+		if err != nil {
+			return fmt.Errorf("http extra send, one edit by key: %w", err)
+		}
+	case err != nil:
+		return fmt.Errorf("http extra send, one file by key: %w", err)
+	}
+	ext := ".zip"
+	name := filepath.Base(art.Filename.String) + ext
+	uid := strings.TrimSpace(art.UUID.String)
+	file := filepath.Join(e.ExtraPath, uid) + ext
+	if !helper.Stat(file) {
+		name = art.Filename.String
+		file = filepath.Join(e.DownloadPath, uid)
+	}
+	if err := c.Attachment(file, name); err != nil {
+		return fmt.Errorf("http extra send attachment: %w", err)
+	}
+	return nil
+}

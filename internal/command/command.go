@@ -56,6 +56,7 @@ const (
 	Convert  = "convert"  // Convert is the ImageMagick convert command.
 	Cwebp    = "cwebp"    // Cwebp is the Google create webp command.
 	Gwebp    = "gif2webp" // Gwebp is the Google gif to webp command.
+	HWZip    = "hwzip"    // Hwzip the zip decompression command for files using obsolete methods.
 	Optipng  = "optipng"  // Optipng is the PNG optimizer command.
 	P7zip    = "7z"       // P7zip is the 7-Zip decompression command.
 	Tar      = "tar"      // Tar is the tar decompression command.
@@ -76,6 +77,7 @@ func Lookups() []string {
 		Convert,
 		Cwebp,
 		Gwebp,
+		HWZip,
 		Optipng,
 		P7zip,
 		Tar,
