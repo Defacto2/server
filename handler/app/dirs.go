@@ -515,6 +515,8 @@ func readmeEncoding(art *models.File, data map[string]interface{}, b ...byte) (m
 		chk     = "checked"
 	)
 	textEncoding := render.Encoder(art, bytes.NewReader(b))
+	data["topazCheck"] = ""
+	data["vgaCheck"] = ""
 	switch textEncoding {
 	case charmap.ISO8859_1:
 		data["readmeLatin1Cls"] = ""

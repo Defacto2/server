@@ -13,14 +13,28 @@ import { clipText, getElmById } from "./helper.mjs";
     cp437 = "readmeCP437",
     pre437 = getElmById(cp437);
 
+  const defaultFont = document.querySelector(
+    `input[name="readme-base"]:checked`
+  );
   const cascadiaMono = document.getElementById(`monoFont`);
   if (cascadiaMono !== null) {
     cascadiaMono.addEventListener("click", useMono);
   }
   function useMono() {
-    preLatin1.classList.add(none);
-    pre437.classList.remove(none, "font-dos", ...blackBG);
-    pre437.classList.add("font-cascadia-mono");
+    switch (defaultFont.id) {
+      case `vgaFont`:
+        preLatin1.classList.add(none);
+        pre437.classList.remove(none, "font-dos", ...blackBG);
+        pre437.classList.add("font-cascadia-mono");
+        break;
+      case `topazFont`:
+        pre437.classList.add(none);
+        preLatin1.classList.remove(none, "font-amiga", ...blackBG);
+        preLatin1.classList.add("font-cascadia-mono");
+        break;
+      default:
+        throw new Error(`no default font found for the readme`);
+    }
   }
 
   const topaz = document.getElementById(`topazFont`);
@@ -28,9 +42,9 @@ import { clipText, getElmById } from "./helper.mjs";
     topaz.addEventListener("click", useAmiga);
   }
   function useAmiga() {
+    pre437.classList.add(none);
     preLatin1.classList.remove(none, "font-cascadia-mono");
     preLatin1.classList.add("font-amiga", ...blackBG);
-    pre437.classList.add(none);
   }
 
   const vga = document.getElementById(`vgaFont`);
