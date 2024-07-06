@@ -34,6 +34,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/Defacto2/server/internal/archive/internal"
+	"github.com/Defacto2/server/internal/command"
 	"github.com/mholt/archiver/v3"
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/transform"
@@ -46,7 +47,7 @@ const (
 	lhax = ".lha" // LHarc by Haruyasu Yoshizaki (Yoshi)
 	lhzx = ".lzh" // LHArc by Haruyasu Yoshizaki (Yoshi)
 	rarx = ".rar" // Roshal ARchive by Alexander Roshal
-	zipx = ".zip" // Phil Katz's ZIP for MSDOS systems
+	zipx = ".zip" // Phil Katz's ZIP for MS-DOS systems
 )
 
 var (
@@ -262,7 +263,7 @@ type Content struct {
 //
 // [arj program]: https://arj.sourceforge.net/
 func (c *Content) ARJ(src string) error {
-	prog, err := exec.LookPath("arj")
+	prog, err := exec.LookPath(command.Arj)
 	if err != nil {
 		return fmt.Errorf("archive arj reader %w", err)
 	}
@@ -301,7 +302,7 @@ func (c *Content) ARJ(src string) error {
 //
 // [lha program]: https://fragglet.github.io/lhasa/
 func (c *Content) LHA(src string) error {
-	prog, err := exec.LookPath("lha")
+	prog, err := exec.LookPath(command.Lha)
 	if err != nil {
 		return fmt.Errorf("archive lha reader %w", err)
 	}
@@ -354,7 +355,7 @@ func (c *Content) LHA(src string) error {
 //
 // [unrar program]: https://www.rarlab.com/rar_add.htm
 func (c *Content) Rar(src string) error {
-	prog, err := exec.LookPath("unrar")
+	prog, err := exec.LookPath(command.Unrar)
 	if err != nil {
 		return fmt.Errorf("archive unrar reader %w", err)
 	}
@@ -412,7 +413,7 @@ func (c *Content) Read(src string) error {
 //
 // [zipinfo program]: https://infozip.sourceforge.net/
 func (c *Content) Zip(src string) error {
-	prog, err := exec.LookPath("zipinfo")
+	prog, err := exec.LookPath(command.ZipInfo)
 	if err != nil {
 		return fmt.Errorf("archive zipinfo reader %w", err)
 	}
@@ -465,7 +466,7 @@ func (x Extractor) ARJ(targets ...string) error {
 		return fmt.Errorf("%w: %s", ErrPath, dst)
 	}
 	// note: only use arj, as unarj offers limited functionality
-	prog, err := exec.LookPath("arj")
+	prog, err := exec.LookPath(command.Arj)
 	if err != nil {
 		return fmt.Errorf("archive arj extract %w", err)
 	}
@@ -514,7 +515,7 @@ func (x Extractor) Extract(targets ...string) error {
 // On Linux either the jlha-utils or lhasa work.
 func (x Extractor) LHA(targets ...string) error {
 	src, dst := x.Source, x.Destination
-	prog, err := exec.LookPath("lha")
+	prog, err := exec.LookPath(command.Lha)
 	if err != nil {
 		return fmt.Errorf("archive lha extract %w", err)
 	}
@@ -554,7 +555,7 @@ func (x Extractor) LHA(targets ...string) error {
 // [unzip program]: https://www.linux.org/docs/man1/unzip.html
 func (x Extractor) Zip(targets ...string) error {
 	src, dst := x.Source, x.Destination
-	prog, err := exec.LookPath("unzip")
+	prog, err := exec.LookPath(command.Unzip)
 	if err != nil {
 		return fmt.Errorf("archive zip extract %w", err)
 	}

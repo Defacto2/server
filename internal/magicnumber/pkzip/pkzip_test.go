@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/magicnumber/pkzip"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -68,7 +69,7 @@ func TestPkzip(t *testing.T) {
 
 func TestExitStatus(t *testing.T) {
 	t.Parallel()
-	app, err := exec.LookPath("unzip")
+	app, err := exec.LookPath(command.Unzip)
 	require.NoError(t, err)
 
 	err = exec.Command(app, "-T", "archive.zip").Run()

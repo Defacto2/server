@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magicnumber/pkzip"
 )
@@ -109,7 +110,7 @@ func CompressDir(root, dest string) (int64, error) {
 // Test runs the rezip test command on the named file. If the file is a directory
 // or empty, an error is returned. If the test command fails, an error is returned.
 func Test(name string) error {
-	path, err := exec.LookPath(rezip)
+	path, err := exec.LookPath(command.Unzip)
 	if err != nil {
 		return fmt.Errorf("rezip test failed to find rezip executable: %w", err)
 	}

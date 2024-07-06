@@ -57,6 +57,7 @@ const (
 	Cwebp    = "cwebp"    // Cwebp is the Google create webp command.
 	Gwebp    = "gif2webp" // Gwebp is the Google gif to webp command.
 	HWZip    = "hwzip"    // Hwzip the zip decompression command for files using obsolete methods.
+	Lha      = "lha"      // Lha is the lha/lzh decompression command.
 	Optipng  = "optipng"  // Optipng is the PNG optimizer command.
 	P7zip    = "7z"       // P7zip is the 7-Zip decompression command.
 	Tar      = "tar"      // Tar is the tar decompression command.
@@ -64,8 +65,9 @@ const (
 	// which is a poor substitute for the files this application needs to handle.
 	// The unrar binary should return:
 	// "UNRAR 6.24 freeware, Copyright (c) 1993-2023 Alexander Roshal".
-	Unrar = "unrar" // Unrar is the rar decompression command.
-	Unzip = "unzip" // Unzip is the zip decompression command.
+	Unrar   = "unrar"   // Unrar is the rar decompression command.
+	Unzip   = "unzip"   // Unzip is the zip decompression command.
+	ZipInfo = "zipinfo" // ZipInfo is the zip information command.
 )
 
 // Lookups returns a list of the execute command names used by the application.
@@ -78,11 +80,13 @@ func Lookups() []string {
 		Cwebp,
 		Gwebp,
 		HWZip,
+		Lha,
 		Optipng,
 		P7zip,
 		Tar,
 		Unrar,
 		Unzip,
+		ZipInfo,
 	}
 }
 
@@ -95,11 +99,14 @@ func Infos() []string {
 		"ImageMagick ver 7+",
 		"Google WebP ver 1+",
 		"Google GIF to WebP ver 1+",
+		"HWZip ver 2+",
+		"Lhasa command line LHA tool",
 		"OptiPNG optimizer ver 0.7+",
-		"\t7-Zip ver 16+",
+		"7-Zip ver 16+",
 		"GNU tar ver 1+",
 		"UNRAR freeware (c) Alexander Roshal",
-		"Info-ZIP ver 6+",
+		"UnZip Info-ZIP ver 6+",
+		"ZipInfo Info-ZIP ver 3+",
 	}
 }
 
