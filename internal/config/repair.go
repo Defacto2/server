@@ -15,11 +15,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Defacto2/server/internal/archive/pkzip"
+	"github.com/Defacto2/server/internal/archive/rezip"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/magicnumber/pkzip"
 	"github.com/Defacto2/server/internal/postgres/models"
-	"github.com/Defacto2/server/internal/rezip"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/google/uuid"
 	"github.com/volatiletech/sqlboiler/v4/boil"

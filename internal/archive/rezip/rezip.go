@@ -1,3 +1,5 @@
+// Package rezip provides compression for files and directories to create
+// zip archives using the universal Store and Deflate compression methods.
 package rezip
 
 import (
@@ -8,14 +10,13 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/Defacto2/server/internal/archive/pkzip"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/magicnumber/pkzip"
 )
 
 const (
-	rezip     = "rezip"
-	rezipTest = "-t"
+	testArg = "-t"
 
 	createUnique = os.O_RDWR | os.O_CREATE | os.O_EXCL
 )
@@ -124,7 +125,7 @@ func Test(name string) error {
 	if st.Size() == 0 {
 		return fmt.Errorf("%w: %s is empty", ErrTest, name)
 	}
-	err = exec.Command(path, rezipTest, name).Run()
+	err = exec.Command(path, testArg, name).Run()
 	if err != nil {
 		diag := pkzip.ExitStatus(err)
 		switch diag {

@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/Defacto2/server/internal/rezip"
+	"github.com/Defacto2/server/internal/archive/rezip"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
