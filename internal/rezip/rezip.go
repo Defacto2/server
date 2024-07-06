@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magicnumber/pkzip"
 )
 
@@ -15,8 +16,7 @@ const (
 	rezip     = "rezip"
 	rezipTest = "-t"
 
-	createUnique  = os.O_RDWR | os.O_CREATE | os.O_EXCL
-	filemodeWrite = 0o644
+	createUnique = os.O_RDWR | os.O_CREATE | os.O_EXCL
 )
 
 var ErrTest = errors.New("rezip test failed")
@@ -27,7 +27,7 @@ var ErrTest = errors.New("rezip test failed")
 // The dest must be a valid file path and should include the .zip extension.
 // If the dest file already exists, an error is returned.
 func Compress(name, dest string) (int, error) {
-	zipfile, err := os.OpenFile(dest, createUnique, filemodeWrite)
+	zipfile, err := os.OpenFile(dest, createUnique, helper.WriteWriteRead)
 	if err != nil {
 		return 0, fmt.Errorf("rezip compress failed to open file: %w", err)
 	}
@@ -58,7 +58,7 @@ func Compress(name, dest string) (int, error) {
 // The dest must be a valid file path and should include the .zip extension.
 // If the dest file already exists, an error is returned.
 func CompressDir(root, dest string) (int64, error) {
-	zipfile, err := os.OpenFile(dest, createUnique, filemodeWrite)
+	zipfile, err := os.OpenFile(dest, createUnique, helper.WriteWriteRead)
 	if err != nil {
 		return 0, fmt.Errorf("rezip compress dir failed to open file: %w", err)
 	}

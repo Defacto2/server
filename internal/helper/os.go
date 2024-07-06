@@ -387,7 +387,7 @@ func Sum386(f *os.File) (string, error) {
 // Touch creates a new, empty named file.
 // If the file already exists, an error is returned.
 func Touch(name string) error {
-	file, err := os.OpenFile(name, os.O_CREATE|os.O_EXCL, ReadWrite)
+	file, err := os.OpenFile(name, os.O_CREATE|os.O_EXCL, WriteWriteRead)
 	if err != nil {
 		return fmt.Errorf("touch open file %w", err)
 	}
@@ -400,7 +400,7 @@ func Touch(name string) error {
 // TouchW creates a new named file with the given data.
 // If the file already exists, an error is returned.
 func TouchW(name string, data ...byte) (int, error) {
-	file, err := os.OpenFile(name, os.O_CREATE|os.O_WRONLY, ReadWrite)
+	file, err := os.OpenFile(name, os.O_CREATE|os.O_WRONLY, WriteWriteRead)
 	if err != nil {
 		return 0, fmt.Errorf("touch write open file %w", err)
 	}

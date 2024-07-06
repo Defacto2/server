@@ -15,6 +15,8 @@ import (
 const (
 	PortMax = 65534 // PortMax is the highest valid port number.
 	PortSys = 1024  // PortSys is the lowest valid port number that does not require system access.
+
+	DirWriteWriteBlock = 0o770 // Directory permissions.
 )
 
 var (
@@ -129,7 +131,6 @@ func (c Config) production(logger *zap.SugaredLogger) {
 
 // LogStore determines the local storage path for all log files created by this web application.
 func (c *Config) LogStore() error {
-	const ownerGroupAll = 0o770
 	logs := c.AbsLog
 	if logs == "" {
 		dir, err := os.UserConfigDir()
@@ -139,7 +140,7 @@ func (c *Config) LogStore() error {
 		logs = filepath.Join(dir, ConfigDir)
 	}
 	if logsExists := helper.Stat(logs); !logsExists {
-		if err := os.MkdirAll(logs, ownerGroupAll); err != nil {
+		if err := os.MkdirAll(logs, DirWriteWriteBlock); err != nil {
 			return fmt.Errorf("%w: %s", err, logs)
 		}
 	}
