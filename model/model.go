@@ -78,7 +78,6 @@ func JsDosBinary(f *models.File) (string, error) {
 	if !f.Filename.Valid || f.Filename.IsZero() || f.Filename.String == "" {
 		return "", nil
 	}
-
 	name := strings.ToLower(f.Filename.String)
 	switch filepath.Ext(name) {
 	case ".com", ".exe", ".bat":
@@ -88,7 +87,6 @@ func JsDosBinary(f *models.File) (string, error) {
 			return "", nil
 		}
 	}
-
 	const dosPathSeparator, winPathSeparator = "\\", "/"
 	findname := jsdos.FindBinary(f.Filename.String, f.FileZipContent.String)
 	if !strings.Contains(findname, dosPathSeparator) && !strings.Contains(findname, winPathSeparator) {

@@ -168,7 +168,7 @@ func (dir Dirs) Artifact(c echo.Context, logger *zap.SugaredLogger, readonly boo
 	data["youtube"] = strings.TrimSpace(art.WebIDYoutube.String)
 	data["github"] = art.WebIDGithub.String
 	// js-dos emulator
-	data = jsdos(data, logger, art, fname)
+	data = jsdos(data, logger, art)
 	// archive file content
 	data = content(art, data)
 	// record metadata
@@ -296,9 +296,7 @@ func content(art *models.File, data map[string]interface{}) map[string]interface
 	return data
 }
 
-func jsdos(data map[string]interface{}, logger *zap.SugaredLogger,
-	art *models.File,
-	fname string,
+func jsdos(data map[string]interface{}, logger *zap.SugaredLogger, art *models.File,
 ) map[string]interface{} {
 	if logger == nil || art == nil {
 		return data
@@ -321,7 +319,7 @@ func jsdos(data map[string]interface{}, logger *zap.SugaredLogger,
 			return data
 		}
 		data["jsdos6Config"] = cfg
-		data["jsdos6Zip"] = filepath.Ext(strings.ToLower(fname)) == ".zip"
+		data["jsdos6Zip"] = artifactJSDosArchive(art)
 	}
 	return data
 }
@@ -798,10 +796,11 @@ func artifactJSDos(art *models.File) bool {
 	if strings.TrimSpace(strings.ToLower(art.Platform.String)) != "dos" {
 		return false
 	}
+	if artifactJSDosArchive(art) {
+		return true
+	}
 	ext := filepath.Ext(strings.ToLower(art.Filename.String))
 	switch ext {
-	case ".zip":
-		return true
 	case ".exe", ".com":
 		return true
 	case ".bat", ".cmd":
@@ -809,6 +808,17 @@ func artifactJSDos(art *models.File) bool {
 	default:
 		return false
 	}
+}
+
+func artifactJSDosArchive(art *models.File) bool {
+	if art == nil {
+		return false
+	}
+	switch filepath.Ext(strings.ToLower(art.Filename.String)) {
+	case ".zip", ".lhz", ".lzh", ".arc", ".arj":
+		return true
+	}
+	return false
 }
 
 // artifactID returns the record ID as a string.

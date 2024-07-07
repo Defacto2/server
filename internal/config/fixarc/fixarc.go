@@ -1,4 +1,4 @@
-package fixzip
+package fixarc
 
 import (
 	"context"
@@ -52,16 +52,16 @@ func Check(ctx context.Context, path, extra string, d fs.DirEntry, artifacts ...
 	return ""
 }
 
-// Files returns all the DOS platform artifacts using a .zip extension filename.
+// Files returns all the DOS platform artifacts using a .arc extension filename.
 func Files(ctx context.Context, ce boil.ContextExecutor) (models.FileSlice, error) {
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("uuid"))
 	mods = append(mods, qm.Where("platform = ?", tags.DOS.String()))
-	mods = append(mods, qm.Where("filename ILIKE ?", "%.zip"))
+	mods = append(mods, qm.Where("filename ILIKE ?", "%.arc"))
 	mods = append(mods, qm.WithDeleted())
 	files, err := models.Files(mods...).All(ctx, ce)
 	if err != nil {
-		return nil, fmt.Errorf("fixzip models files: %w", err)
+		return nil, fmt.Errorf("fixarc models files: %w", err)
 	}
 	return files, nil
 }
@@ -70,13 +70,10 @@ func Files(ctx context.Context, ce boil.ContextExecutor) (models.FileSlice, erro
 // The path is the path to the zip file.
 func Invalid(ctx context.Context, path string) bool {
 	logger := helper.Logger(ctx)
-	z, err := exec.Command(command.HWZip, "list", path).Output()
+	b, err := exec.Command(command.Arc, "t", path).Output()
 	if err != nil {
-		logger.Errorf("fixzip invalid %s: %s", err, path)
+		logger.Errorf("fixarc invalid %s: %s", err, path)
 		return true
 	}
-	if !strings.Contains(string(z), "Failed to parse ") {
-		return true
-	}
-	return false
+	return strings.Contains(string(b), "is not an archive")
 }

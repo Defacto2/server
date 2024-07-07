@@ -1,4 +1,4 @@
-package fixzip
+package fixarj
 
 import (
 	"context"
@@ -10,7 +10,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/Defacto2/server/internal/archive/pkzip"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -34,22 +33,11 @@ func Check(ctx context.Context, path, extra string, d fs.DirEntry, artifacts ...
 	if _, found := slices.BinarySearch(artifacts, uid); !found {
 		return ""
 	}
-	logger := helper.Logger(ctx)
 	extraZip := filepath.Join(extra, uid+".zip")
 	if f, err := os.Stat(extraZip); err == nil && !f.IsDir() {
 		return ""
 	}
-	methods, err := pkzip.Methods(path)
-	if err != nil {
-		logger.Errorf("%s: %s", err, path)
-		return ""
-	}
-	for _, method := range methods {
-		if !method.Zip() {
-			return uid
-		}
-	}
-	return ""
+	return uid
 }
 
 // Files returns all the DOS platform artifacts using a .zip extension filename.
@@ -57,11 +45,11 @@ func Files(ctx context.Context, ce boil.ContextExecutor) (models.FileSlice, erro
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("uuid"))
 	mods = append(mods, qm.Where("platform = ?", tags.DOS.String()))
-	mods = append(mods, qm.Where("filename ILIKE ?", "%.zip"))
+	mods = append(mods, qm.Where("filename ILIKE ?", "%.arj"))
 	mods = append(mods, qm.WithDeleted())
 	files, err := models.Files(mods...).All(ctx, ce)
 	if err != nil {
-		return nil, fmt.Errorf("fixzip models files: %w", err)
+		return nil, fmt.Errorf("fixarj models files: %w", err)
 	}
 	return files, nil
 }
@@ -70,13 +58,11 @@ func Files(ctx context.Context, ce boil.ContextExecutor) (models.FileSlice, erro
 // The path is the path to the zip file.
 func Invalid(ctx context.Context, path string) bool {
 	logger := helper.Logger(ctx)
-	z, err := exec.Command(command.HWZip, "list", path).Output()
+	// use 7-ZIP to test and extract the .arj file.
+	z, err := exec.Command(command.Zip7, "t", path).Output()
 	if err != nil {
-		logger.Errorf("fixzip invalid %s: %s", err, path)
+		logger.Errorf("fixarj invalid %s: %s", err, path)
 		return true
 	}
-	if !strings.Contains(string(z), "Failed to parse ") {
-		return true
-	}
-	return false
+	return !strings.Contains(string(z), "Everything is Ok")
 }

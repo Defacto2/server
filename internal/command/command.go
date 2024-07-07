@@ -23,7 +23,6 @@ const (
 	gzip    = ".gz"       // gzip file extension
 	jpg     = ".jpg"      // jpg file extension
 	jpeg    = ".jpeg"     // jpeg file extension
-	p7zip   = ".7z"       // 7zip file extension
 	png     = ".png"      // png file extension
 	rar     = ".rar"      // rar file extension
 	tar     = ".tar"      // tar file extension
@@ -31,6 +30,7 @@ const (
 	txt     = ".txt"      // txt file extension
 	webp    = ".webp"     // webp file extension
 	zip     = ".zip"      // zip file extension
+	zip7    = ".7z"       // 7zip file extension
 )
 
 var (
@@ -59,7 +59,6 @@ const (
 	HWZip    = "hwzip"    // Hwzip the zip decompression command for files using obsolete methods.
 	Lha      = "lha"      // Lha is the lha/lzh decompression command.
 	Optipng  = "optipng"  // Optipng is the PNG optimizer command.
-	P7zip    = "7z"       // P7zip is the 7-Zip decompression command.
 	Tar      = "tar"      // Tar is the tar decompression command.
 	// A note about unrar on linux, the installation cannot use the unrar-free package,
 	// which is a poor substitute for the files this application needs to handle.
@@ -67,6 +66,7 @@ const (
 	// "UNRAR 6.24 freeware, Copyright (c) 1993-2023 Alexander Roshal".
 	Unrar   = "unrar"   // Unrar is the rar decompression command.
 	Unzip   = "unzip"   // Unzip is the zip decompression command.
+	Zip7    = "7zz"     // Zip7 is the 7-Zip decompression command.
 	ZipInfo = "zipinfo" // ZipInfo is the zip information command.
 )
 
@@ -82,10 +82,10 @@ func Lookups() []string {
 		HWZip,
 		Lha,
 		Optipng,
-		P7zip,
 		Tar,
 		Unrar,
 		Unzip,
+		Zip7,
 		ZipInfo,
 	}
 }
@@ -102,10 +102,10 @@ func Infos() []string {
 		"HWZip ver 2+",
 		"Lhasa command line LHA tool",
 		"OptiPNG optimizer ver 0.7+",
-		"7-Zip ver 16+",
 		"GNU tar ver 1+",
 		"UNRAR freeware (c) Alexander Roshal",
 		"UnZip Info-ZIP ver 6+",
+		"7-Zip ver 24+",
 		"ZipInfo Info-ZIP ver 3+",
 	}
 }

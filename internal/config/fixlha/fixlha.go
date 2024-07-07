@@ -11,7 +11,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/Defacto2/server/internal/archive/rezip"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -40,58 +39,6 @@ func Check(ctx context.Context, path, extra string, d fs.DirEntry, artifacts ...
 		return ""
 	}
 	return uid
-}
-
-// Compress uses the Lhasa tool to extract LHA and LZH archives.
-// The extracted files are then re-archived using Go and moved
-// to the extra directory with a .zip extension.
-func Compress(ctx context.Context, path, extra, uid string) error {
-	logger := helper.Logger(ctx)
-	tmp, err := os.MkdirTemp(os.TempDir(), "defacto2-fixlha-")
-	if err != nil {
-		return fmt.Errorf("fixlha compress mkdir temp %w: %s", err, path)
-	}
-	defer os.RemoveAll(tmp)
-
-	const extractForceOW = "xf"
-	cmd := exec.Command(command.Lha, extractForceOW, path)
-	cmd.Dir = tmp
-	if err = cmd.Run(); err != nil {
-		logger.Errorln(cmd.Output())
-		return fmt.Errorf("fixlha compress run %w: %s", err, path)
-	}
-
-	c, err := helper.Count(tmp)
-	if err != nil {
-		return fmt.Errorf("fixlha compress tmp count %w: %s", err, tmp)
-	}
-	logger.Infof("Rezipped %d files for %s found in: %s", c, uid, tmp)
-	_, err = os.Stat(tmp)
-	if err != nil {
-		return fmt.Errorf("fixlha compress tmp stat %w: %s", err, tmp)
-	}
-
-	basename := uid + ".zip"
-	tmpZip := filepath.Join(os.TempDir(), basename)
-	if written, err := rezip.CompressDir(tmp, tmpZip); err != nil {
-		return fmt.Errorf("fixlha compress dir %w: %s", err, tmp)
-	} else if written == 0 {
-		return nil
-	}
-	fmt.Println(tmpZip)
-
-	finalZip := filepath.Join(extra, basename)
-	if err = helper.RenameCrossDevice(tmpZip, finalZip); err != nil {
-		defer os.RemoveAll(tmpZip)
-		return fmt.Errorf("fixlha compress rename %w: %s", err, tmpZip)
-	}
-
-	st, err := os.Stat(finalZip)
-	if err != nil {
-		return fmt.Errorf("fixlha compress zip stat %w: %s", err, finalZip)
-	}
-	logger.Infof("Extra deflated zipfile created %d bytes: %s", st.Size(), finalZip)
-	return nil
 }
 
 // Files returns all the DOS platform artifacts using a .zip extension filename.

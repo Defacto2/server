@@ -411,7 +411,7 @@ func FindBinary(filename, zipContent string) string {
 		return filename
 	}
 
-	archives := []string{".zip"} // js-dos only supports ZIP archives
+	archives := []string{".zip", ".lha", ".lzh", ".arc", ".arj"}
 	ext := strings.ToLower(filepath.Ext(filename))
 	if !slices.Contains(archives, ext) {
 		return filename

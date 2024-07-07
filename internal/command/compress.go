@@ -60,7 +60,7 @@ func ExtractOne(logger *zap.SugaredLogger, src, dst, extHint, name string) error
 		return fmt.Errorf("extract one extraction %w", err)
 	}
 
-	extracted := filepath.Join(tmp, r.name) // p7zip manipulates the r.name
+	extracted := filepath.Join(tmp, r.name)
 	st, err = os.Stat(extracted)
 	if err != nil {
 		return fmt.Errorf("extract one extracted stat %w", err)
@@ -98,7 +98,7 @@ func (r runner) extract(ext string) error {
 	case zip:
 		return r.zip()
 	default:
-		return r.p7zip()
+		return r.zip7()
 	}
 }
 
@@ -138,12 +138,12 @@ func (r runner) arj() error {
 	return nil
 }
 
-// p7zip extracts the named file from the src 7-Zip archive.
+// zip7 extracts the named file from the src 7-Zip archive.
 // The tool also supports the following archive formats:
 // LZMA2, XZ, ZIP, Zip64, CAB, ARJ, GZIP, BZIP2, TAR, CPIO, RPM, ISO,
 // most filesystem images and DEB formats.
-func (r *runner) p7zip() error {
-	// p7zip may use incompatible forward slashes for Windows paths
+func (r *runner) zip7() error {
+	// zip7 may use incompatible forward slashes for Windows paths
 	name := strings.ReplaceAll(r.name, "\\", "/")
 	arg := []string{
 		"e",          // Extract files from archive.
@@ -152,12 +152,12 @@ func (r *runner) p7zip() error {
 		r.src,        // Source archive.
 		name,         // File to extract from the archive.
 	}
-	if err := Run(r.logger, P7zip, arg...); err != nil {
+	if err := Run(r.logger, Zip7, arg...); err != nil {
 		return fmt.Errorf("decompress 7z run %w", err)
 	}
 	// handle file extraction from a directory in the archive
 	r.name = filepath.Base(name)
-	if err := Run(r.logger, P7zip, arg...); err != nil {
+	if err := Run(r.logger, Zip7, arg...); err != nil {
 		return fmt.Errorf("decompress 7z subdirectory run %w, %s", err, r.name)
 	}
 	return nil
