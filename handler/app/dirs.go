@@ -131,6 +131,11 @@ func (dir Dirs) Artifact(c echo.Context, logger *zap.SugaredLogger, readonly boo
 	}
 	fname := art.Filename.String
 	unid := art.UUID.String
+	extraZip := 0
+	st, err := os.Stat(filepath.Join(dir.Extra, unid+".zip"))
+	if err == nil && !st.IsDir() {
+		extraZip = int(st.Size())
+	}
 	data := empty(c)
 	data = dir.artifactEditor(art, data, readonly)
 	// page metadata
@@ -154,6 +159,7 @@ func (dir Dirs) Artifact(c echo.Context, logger *zap.SugaredLogger, readonly boo
 	data["section"] = strings.TrimSpace(art.Section.String)
 	data["platform"] = strings.TrimSpace(art.Platform.String)
 	data["alertURL"] = art.FileSecurityAlertURL.String
+	data["extraZip"] = extraZip > 0
 	// attributions and credits
 	data["writers"] = art.CreditText.String
 	data["artists"] = art.CreditIllustration.String

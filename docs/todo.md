@@ -7,12 +7,15 @@
 - [ ] Use DigitalOcean API to display Estimated Droplet Transfer Pool usage and remaining balance. 
 		https://pkg.go.dev/github.com/digitalocean/godo https://docs.digitalocean.com/reference/api/api-reference/#operation/droplets_get
 - [ ] After a successful demozoo/pouet upload, defer a sync for the data to the artifact record.
-- [ ] add download link for repacked archives contained in extras.
 
 ### Bug fixes
 
 ### Templates
 
+- [ ] `artifactfile.tmpl`
+- [ ] `artifactzip.tmpl`
+- [ ] `layoutjs.tmpl`
+ 
 ---
 
 #### Upload tests
