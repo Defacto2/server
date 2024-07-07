@@ -70,12 +70,14 @@ func Files(ctx context.Context, ce boil.ContextExecutor) (models.FileSlice, erro
 // The path is the path to the zip file.
 func Invalid(ctx context.Context, path string) bool {
 	logger := helper.Logger(ctx)
-	z, err := exec.Command(command.HWZip, "list", path).Output()
+	const name = command.HWZip
+	cmd := exec.Command(name, "list", path)
+	b, err := cmd.Output()
 	if err != nil {
 		logger.Errorf("fixzip invalid %s: %s", err, path)
 		return true
 	}
-	if !strings.Contains(string(z), "Failed to parse ") {
+	if !strings.Contains(string(b), "Failed to parse ") {
 		return true
 	}
 	return false

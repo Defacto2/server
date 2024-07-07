@@ -23,7 +23,7 @@ import (
 // legacy compression method that is not supported by Go or JS libraries.
 //
 // Check UUID named files are moved to the extra directory and are given a .zip extension.
-func Check(ctx context.Context, path, extra string, d fs.DirEntry, artifacts ...string) string {
+func Check(extra string, d fs.DirEntry, artifacts ...string) string {
 	if d.IsDir() {
 		return ""
 	}
@@ -60,7 +60,9 @@ func Files(ctx context.Context, ce boil.ContextExecutor) (models.FileSlice, erro
 // The path is the path to the zip file.
 func Invalid(ctx context.Context, path string) bool {
 	logger := helper.Logger(ctx)
-	b, err := exec.Command(command.Lha, "t", path).Output()
+	const name = command.Lha
+	cmd := exec.Command(name, "t", path)
+	b, err := cmd.Output()
 	if err != nil {
 		logger.Errorf("fixlha invalid %s: %s", err, path)
 		return true

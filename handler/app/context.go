@@ -239,13 +239,13 @@ func configurations(data map[string]interface{}, conf config.Config) map[string]
 // mounted as a C: hard drive in the emulation. js-dos only supports common zip compression methods,
 // so this func first attempts to offer a re-archived zip file found in the extra directory, and
 // only if that fails does it offer the original download file.
-func DownloadJsDos(c echo.Context, logger *zap.SugaredLogger, extraPath, downloadPath string) error {
+func DownloadJsDos(c echo.Context, extraPath, downloadPath string) error {
 	e := download.ExtraZip{
 		ExtraPath:    extraPath,
 		DownloadPath: downloadPath,
 	}
 	const uri = "jsdos"
-	if err := e.HTTPSend(c, logger); err != nil {
+	if err := e.HTTPSend(c); err != nil {
 		if errors.Is(err, download.ErrStat) {
 			return FileMissingErr(c, uri, err)
 		}

@@ -234,7 +234,7 @@ func (c Configuration) website(e *echo.Echo, logger *zap.SugaredLogger, dir app.
 	s.GET("/history", app.History)
 	s.GET("/interview", app.Interview)
 	s.GET("/jsdos/:id", func(cx echo.Context) error {
-		return app.DownloadJsDos(cx, logger,
+		return app.DownloadJsDos(cx,
 			c.Environment.AbsExtra, c.Environment.AbsDownload)
 	})
 	s.GET("/magazine", app.Magazine)

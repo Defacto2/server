@@ -22,7 +22,7 @@ import (
 // legacy compression method that is not supported by Go or JS libraries.
 //
 // Check UUID named files are moved to the extra directory and are given a .zip extension.
-func Check(ctx context.Context, path, extra string, d fs.DirEntry, artifacts ...string) string {
+func Check(extra string, d fs.DirEntry, artifacts ...string) string {
 	if d.IsDir() {
 		return ""
 	}
@@ -59,10 +59,12 @@ func Files(ctx context.Context, ce boil.ContextExecutor) (models.FileSlice, erro
 func Invalid(ctx context.Context, path string) bool {
 	logger := helper.Logger(ctx)
 	// use 7-ZIP to test and extract the .arj file.
-	z, err := exec.Command(command.Zip7, "t", path).Output()
+	const name = command.Zip7
+	cmd := exec.Command(name, "t", path)
+	b, err := cmd.Output()
 	if err != nil {
 		logger.Errorf("fixarj invalid %s: %s", err, path)
 		return true
 	}
-	return !strings.Contains(string(z), "Everything is Ok")
+	return !strings.Contains(string(b), "Everything is Ok")
 }

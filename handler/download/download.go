@@ -139,7 +139,7 @@ type ExtraZip struct {
 // otherwise it will serve the standard download file.
 //
 // This is used for obsolute file types that have been rearchived into a standard zip file.
-func (e ExtraZip) HTTPSend(c echo.Context, logger *zap.SugaredLogger) error {
+func (e ExtraZip) HTTPSend(c echo.Context) error {
 	id := c.Param("id")
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()

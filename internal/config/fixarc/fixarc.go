@@ -70,7 +70,9 @@ func Files(ctx context.Context, ce boil.ContextExecutor) (models.FileSlice, erro
 // The path is the path to the zip file.
 func Invalid(ctx context.Context, path string) bool {
 	logger := helper.Logger(ctx)
-	b, err := exec.Command(command.Arc, "t", path).Output()
+	const name = command.Arc
+	cmd := exec.Command(name, "t", path)
+	b, err := cmd.Output()
 	if err != nil {
 		logger.Errorf("fixarc invalid %s: %s", err, path)
 		return true

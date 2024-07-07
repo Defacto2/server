@@ -125,7 +125,8 @@ func Test_ArjExitStatus(t *testing.T) {
 	t.Parallel()
 	s := command.ArjExitStatus(nil)
 	assert.Equal(t, "", s)
-	cmd := exec.Command(command.Arj, "throwawayarg")
+	const name = command.Arj
+	cmd := exec.Command(name, "throwawayarg")
 	err := cmd.Run()
 	require.Error(t, err)
 	s = command.ArjExitStatus(err)
@@ -136,7 +137,8 @@ func Test_UnRarExitStatus(t *testing.T) {
 	t.Parallel()
 	s := command.UnRarExitStatus(nil)
 	assert.Equal(t, "", s)
-	cmd := exec.Command(command.Unrar, "throwawayarg")
+	const name = command.Unrar
+	cmd := exec.Command(name, "throwawayarg")
 	err := cmd.Run()
 	require.Error(t, err)
 	s = command.UnRarExitStatus(err)

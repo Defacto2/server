@@ -41,7 +41,7 @@ var ErrEmpty = errors.New("empty path or name")
 // Archives, on startup check the download directory for any legacy and obsolete archives.
 // Obsolete archives are those that use a legacy compression method that is not supported
 // by Go or JS libraries used by the website.
-func (c Config) Archives(ctx context.Context, ce boil.ContextExecutor) error {
+func (c Config) Archives(ctx context.Context, ce boil.ContextExecutor) error { //nolint:cyclop,funlen,gocognit
 	if ce == nil {
 		return nil
 	}
@@ -67,7 +67,7 @@ func (c Config) Archives(ctx context.Context, ce boil.ContextExecutor) error {
 		if err != nil {
 			return fmt.Errorf("%w: %s", err, path)
 		}
-		uid := fixlha.Check(ctx, path, c.AbsExtra, d, artifacts...)
+		uid := fixlha.Check(c.AbsExtra, d, artifacts...)
 		if uid == "" || fixlha.Invalid(ctx, path) {
 			return nil
 		}
@@ -93,7 +93,7 @@ func (c Config) Archives(ctx context.Context, ce boil.ContextExecutor) error {
 		if err != nil {
 			return fmt.Errorf("%w: %s", err, path)
 		}
-		uid := fixarj.Check(ctx, path, c.AbsExtra, d, artifacts...)
+		uid := fixarj.Check(c.AbsExtra, d, artifacts...)
 		if uid == "" || fixarj.Invalid(ctx, path) {
 			return nil
 		}
@@ -279,7 +279,6 @@ func (c Config) Assets(ctx context.Context, ce boil.ContextExecutor) error {
 	if err != nil {
 		return fmt.Errorf("config repair select all uuids: %w", err)
 	}
-
 	size := len(files)
 	logger.Infof("Checking %d UUIDs", size)
 	artifacts := make([]string, size)
@@ -294,10 +293,8 @@ func (c Config) Assets(ctx context.Context, ce boil.ContextExecutor) error {
 
 	dirs := []string{c.AbsDownload, c.AbsPreview, c.AbsThumbnail}
 	counters := make([]int, len(dirs))
-
 	var wg sync.WaitGroup
 	wg.Add(len(dirs))
-
 	for i, dir := range dirs {
 		go func(dir string) {
 			defer wg.Done()

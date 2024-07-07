@@ -339,21 +339,6 @@ func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeade
 	return dst.Name(), nil
 }
 
-func debug(c echo.Context, htm string) (string, error) {
-	values, err := c.FormParams()
-	if err != nil {
-		return htm, fmt.Errorf("c.FormParams: %w", err)
-	}
-	htm += "<ul>"
-	for k, v := range values {
-		val := html.EscapeString(strings.Join(v, " "))
-		htm += fmt.Sprintf("<li>%s: %s</li>", k, val)
-	}
-	htm += "</ul>"
-	htm += "<small>The debug information is not shown in production.</small>"
-	return htm, nil
-}
-
 type creator struct {
 	file     *multipart.FileHeader
 	readme   string

@@ -95,12 +95,8 @@ func (s *Sugared) Groups(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
 	count := len(unique)
-
 	maxPage := uint(0)
 	limit := model.Maximum
-
-	fmt.Printf("count: %d\n", count)
-
 	if limit > 0 {
 		maxPage = helper.PageCount(count, limit)
 		if page > int(maxPage) {
@@ -108,10 +104,8 @@ func (s *Sugared) Groups(c echo.Context) error {
 				fmt.Sprintf("Page %d of %d for %s doesn't exist", page, maxPage, " groups"))
 		}
 	}
-
 	navi := Navi(limit, page, maxPage, "groups", qs(c.QueryString()))
 	navi.Link1, navi.Link2, navi.Link3 = Pagi(page, maxPage)
-
 	// releasers are the distinct groups from the file table.
 	releasers := model.Releasers{}
 	if err := releasers.Limit(ctx, db, model.Alphabetical, model.Maximum, page); err != nil {
