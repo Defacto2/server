@@ -7,12 +7,10 @@
 {{- $runProgram := index . "jsdos6Run"}}
 {{- $extract := index . "jsdos6Zip"}}
 {{- if eq false (index . "editor")}}{{/*  render nothing  */}}{{else}}
-{{- /*  Emulate placeholder  */}}
 <div class="modal fade" id="emulate-editor-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
   aria-labelledby="emulate-editor-modal-label" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
-      {{/*  Modify the assets for ID  */}}
       <div class="modal-header">
         <svg class="bi" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
           <use xlink:href="/svg/bootstrap-icons.svg#file-binary"/>
@@ -21,6 +19,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
+        {{- /*  shown when platform != "dos"  */}}
         {{- if eq $msdos false}}
         <div class="alert alert-secondary" role="alert">
             The emulate editor is not in use, as it is for artifacts that run on Microsoft or IBM DOS.
@@ -36,35 +35,38 @@
         </p>
         <div class="alert alert-secondary" role="alert">
             <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                <label class="form-check-label text-warning-emphasis" for="flexSwitchCheckDefault">Flag this artifact as unworking or broken.</label>
+                <input class="form-check-input" type="checkbox" role="switch" id="emulate-is-broken">
+                <label class="form-check-label text-warning-emphasis" for="emulate-is-broken">Flag this artifact as unworking or broken.</label>
                 Some programs cannot be emulated in js-dos and require virtualization or real hardware.
             </div>
         </div>
         <div class="row text-bg-light">
             <div class="col col-6">
             <legend>Program name or commands to run</legend>
-            <label for="inputEmail4" class="form-label"></label>
             <div class="input-group input-group-sm mb-3">
-                <span class="input-group-text" id="inputGroup-sizing-sm">C:\</span>
-                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" value="{{$runProgram}}">
+                <span class="input-group-text">C:\</span>
+                <input type="text" class="form-control" aria-label="Program name to launch" value="{{$runProgram}}" readonly>
             </div>
             </div>
             <div class="col col-6">
-            <div class="form-text">Custom commands will override the above program name, you can separate multiple commands: <code>command1 && command2</code></div>
+            <div class="form-text">
+                Custom commands will override the named program for auto-run,<br>
+                you can separate multiple commands: <code>command1 && command2</code>
+            </div>
             <div class="input-group input-group-sm mb-3">
-                <span class="input-group-text" id="inputGroup-sizing-sm">Custom commands</span>
-                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" value="">
+                <span class="input-group-text" id="emulate-custom-cmds">Custom commands</span>
+                <input type="text" class="form-control" aria-label="Replacement commands to launch" aria-describedby="emulate-custom-cmds" value="">
             </div>
             </div>
         </div>
+        {{- /*  emulator machine (graphics)  */}}
         <div class="row">
             <legend>IBM or PC to emulate</legend>
             <div class="col col-6">
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-auto" checked>
                     <label class="form-check-label" for="emulate-machine-auto">Automatic</label>
-                    The default and recommanded setting, which emulates a machine with the very compatible S3, Trio64 graphic chip from 1994.
+                    <div class="form-text">The default and recommanded setting, which emulates a machine with the very compatible S3, Trio64 graphic chip from 1994.</div>
                 </div>
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-nolfb">
@@ -73,24 +75,24 @@
                 </div>
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-vga">
-                    <label class="form-check-label" for="emulate-machine-vga">A machine with 256 color VGA</label>
+                    <label class="form-check-label" for="emulate-machine-vga"><strong>VGA</strong> machine with 256 color display</label>
                     <div class="form-text">A common fallback for early 1990s software that fail to display correctly with SVGA graphic chips.</div>
                 </div>
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-ega">
-                    <label class="form-check-label" for="emulate-machine-ega">A machine with 16 color EGA</label>
+                    <label class="form-check-label" for="emulate-machine-ega"><strong>EGA</strong> machine with 16 color display</label>
                     <div class="form-text">An uncommon setup of the late 1980s frequently associated with low resolution 16 colors.</div>
                 </div>
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-cga">
-                    <label class="form-check-label" for="emulate-machine-cga">A machine with 4 color CGA</label>
+                    <label class="form-check-label" for="emulate-machine-cga"><strong>CGA</strong> machine with 4 color display</label>
                     <div class="form-text">A common machine setup of the 1980s with 4 colors onscreen.</div>
                 </div>
             </div>
             <div class="col col-6">
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-tandy">
-                    <label class="form-check-label" for="emulate-machine-tandy">Tandy 1000 with 16 color TGA</label>
+                    <label class="form-check-label" for="emulate-machine-tandy">Tandy 1000 with 16 color display</label>
                     <div class="form-text">An uncommon enhanced PC from the mid-late 1980s.</div>
                 </div>
                 <div class="form-check">
@@ -115,8 +117,8 @@
                 </div>
             </div>
         </div>
-        {{/*  below fine tunes  */}}
         <div class="row text-bg-light">
+            {{- /*  CPU  */}}
             <div class="col col-6">
                 <legend>Processor and speed</legend>
                 <div class="form-check">
@@ -127,19 +129,20 @@
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="emulate-cpu" id="emulate-cpu-realmode">
                     <label class="form-check-label" for="emulate-cpu-realmode">Real-mode CPU locked to 5 MHz</label>
-                    <div class="form-text">This attempts to emulate a 4.77Mhz, Intel 8086 or 286 CPU for software from the 1980s.</div>
+                    <div class="form-text">This attempts to emulate a 4.77Mhz, <strong>Intel 8086</strong> or <strong>286</strong> CPU for software from the 1980s.</div>
                 </div>
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="emulate-cpu" id="emulate-cpu-slow-enhanced">
                     <label class="form-check-label" for="emulate-cpu-slow-enhanced">Enhanced-mode but slow CPU</label>
-                    <div class="form-text">This attempts to emulate a 12Mhz, Intel 386 CPU for software from the late 1980s and 1990.</div>
+                    <div class="form-text">This attempts to emulate a 12Mhz, <strong>Intel 386</strong> CPU for software from the late 1980s and 1990.</div>
                 </div>
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="emulate-cpu" id="emulate-cpu-enhanced">
                     <label class="form-check-label" for="emulate-cpu-enhanced">Enhanced-mode CPU</label>
-                    <div class="form-text">This attempts to emulate an Intel 486 CPU for software from the early 1990s.</div>
+                    <div class="form-text">This attempts to emulate an <strong>Intel 486</strong> CPU for software from the early 1990s.</div>
                 </div>
             </div>
+            {{- /*  Soundcard  */}}
              <div class="col col-6">            
                 <legend>Audio and sound addons</legend>
                 <div class="form-check">
@@ -180,6 +183,7 @@
                 </div>
             </div>
         </div>
+        {{- /*  Memory options  */}}
         <div class="row">
             <legend>RAM adjustments</legend>
             <p>
