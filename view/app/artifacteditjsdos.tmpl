@@ -1,0 +1,221 @@
+{{- /* 
+    artifacteditjsdos.tmpl ~ Edit a single artifact configuration for js-dos emulation.
+*/ -}}
+{{- define "artifacteditjsdos" }}
+{{- $msdos := eq (index . "platform") "dos"}}
+{{- $id := index . "modID"}}
+{{- $runProgram := index . "jsdos6Run"}}
+{{- $extract := index . "jsdos6Zip"}}
+{{- if eq false (index . "editor")}}{{/*  render nothing  */}}{{else}}
+{{- /*  Emulate placeholder  */}}
+<div class="modal fade" id="emulate-editor-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
+  aria-labelledby="emulate-editor-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      {{/*  Modify the assets for ID  */}}
+      <div class="modal-header">
+        <svg class="bi" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+          <use xlink:href="/svg/bootstrap-icons.svg#file-binary"/>
+        </svg>
+        <h1 class="modal-title fs-4 ps-2" id="emulate-editor-modal-label">Modify the emulator settings for ID {{$id}}</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {{- if eq $msdos false}}
+        <div class="alert alert-secondary" role="alert">
+            The emulate editor is not in use, as it is for artifacts that run on Microsoft or IBM DOS.
+        </div>
+        {{- else}}
+        <p>
+            This form allows for fine-tuning the hardware configuration used by the <a href="https://github.com/caiiiycuk/js-dos/tree/6.22">js-dos v6.22 emulator</a>. 
+            It is usually optional, but occasionally, DOS programs and artifacts do not emulate correctly 
+            due to the limitations of the PC platform of the 1980s and 1990s. 
+            The operating system had no universal interface to talk to hardware, 
+            and it was up to each program to provide drivers. 
+            This meant software could run incorrectly or crash when dealing with unexpected hardware.
+        </p>
+        <div class="alert alert-secondary" role="alert">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                <label class="form-check-label text-warning-emphasis" for="flexSwitchCheckDefault">Flag this artifact as unworking or broken.</label>
+                Some programs cannot be emulated in js-dos and require virtualization or real hardware.
+            </div>
+        </div>
+        <div class="row text-bg-light">
+            <div class="col col-6">
+            <legend>Program name or commands to run</legend>
+            <label for="inputEmail4" class="form-label"></label>
+            <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text" id="inputGroup-sizing-sm">C:\</span>
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" value="{{$runProgram}}">
+            </div>
+            </div>
+            <div class="col col-6">
+            <div class="form-text">Custom commands will override the above program name, you can separate multiple commands: <code>command1 && command2</code></div>
+            <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text" id="inputGroup-sizing-sm">Custom commands</span>
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" value="">
+            </div>
+            </div>
+        </div>
+        <div class="row">
+            <legend>IBM or PC to emulate</legend>
+            <div class="col col-6">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-auto" checked>
+                    <label class="form-check-label" for="emulate-machine-auto">Automatic</label>
+                    The default and recommanded setting, which emulates a machine with the very compatible S3, Trio64 graphic chip from 1994.
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-nolfb">
+                    <label class="form-check-label" for="emulate-machine-nolfb">s3 Trio64 with no LFB</label>
+                    <div class="form-text">An emulator hack that sometimes improves software performance by not using the Linear Frame Buffer.</div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-vga">
+                    <label class="form-check-label" for="emulate-machine-vga">A machine with 256 color VGA</label>
+                    <div class="form-text">A common fallback for early 1990s software that fail to display correctly with SVGA graphic chips.</div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-ega">
+                    <label class="form-check-label" for="emulate-machine-ega">A machine with 16 color EGA</label>
+                    <div class="form-text">An uncommon setup of the late 1980s frequently associated with low resolution 16 colors.</div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-cga">
+                    <label class="form-check-label" for="emulate-machine-cga">A machine with 4 color CGA</label>
+                    <div class="form-text">A common machine setup of the 1980s with 4 colors onscreen.</div>
+                </div>
+            </div>
+            <div class="col col-6">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-tandy">
+                    <label class="form-check-label" for="emulate-machine-tandy">Tandy 1000 with 16 color TGA</label>
+                    <div class="form-text">An uncommon enhanced PC from the mid-late 1980s.</div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-et3000">
+                    <label class="form-check-label" for="emulate-machine-et3000">1987, ET3000 VGA</label>
+                    <div class="form-text">A fallback for early software with drivers for the Tseng Labs, ET3000 graphic chip.</div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-paradise">
+                    <label class="form-check-label" for="emulate-machine-paradise">1988, Paradise VGA</label>
+                    <div class="form-text">A fallback for early software with drivers for the Paradise, PVGA1A graphic chip.</div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-et4000">
+                    <label class="form-check-label" for="emulate-machine-et4000">1989, ET4000 VGA</label>
+                    <div class="form-text">A fallback for early software with drivers for the Tseng Labs, ET4000 graphic chip.</div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-vbe">
+                    <label class="form-check-label" for="emulate-machine-vbe">1991, VBE 1.2</label>
+                    <div class="form-text">A fallback for software with drivers that support cards with the VESA BIOS Extensions v1.2.</div>
+                </div>
+            </div>
+        </div>
+        {{/*  below fine tunes  */}}
+        <div class="row text-bg-light">
+            <div class="col col-6">
+                <legend>Processor and speed</legend>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-cpu" id="emulate-cpu-auto" checked>
+                    <label class="form-check-label" for="emulate-cpu-auto">Automatic</label>
+                    <div class="form-text">The default setting, which is usually the best choice.</div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-cpu" id="emulate-cpu-realmode">
+                    <label class="form-check-label" for="emulate-cpu-realmode">Real-mode CPU locked to 5 MHz</label>
+                    <div class="form-text">This attempts to emulate a 4.77Mhz, Intel 8086 or 286 CPU for software from the 1980s.</div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-cpu" id="emulate-cpu-slow-enhanced">
+                    <label class="form-check-label" for="emulate-cpu-slow-enhanced">Enhanced-mode but slow CPU</label>
+                    <div class="form-text">This attempts to emulate a 12Mhz, Intel 386 CPU for software from the late 1980s and 1990.</div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-cpu" id="emulate-cpu-enhanced">
+                    <label class="form-check-label" for="emulate-cpu-enhanced">Enhanced-mode CPU</label>
+                    <div class="form-text">This attempts to emulate an Intel 486 CPU for software from the early 1990s.</div>
+                </div>
+            </div>
+             <div class="col col-6">            
+                <legend>Audio and sound addons</legend>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-sfx" id="emulate-sfx-auto" checked>
+                    <label class="form-check-label" for="emulate-sfx-auto">Automatic</label>
+                    <div class="form-text">The default setting, which is usually the best choice.</div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-sfx" id="emulate-sfx-dac">
+                    <label class="form-check-label" for="emulate-sfx-dac">Digital-to-Analog Converter</label>
+                    <div class="form-text">Easy to program and popular in the late 1980s and early 1990s, 
+                    these audio dongles were branded under Covox, Disney, LPT (hardware port) and others.</div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-sfx" id="emulate-sfx-sb1">
+                    <label class="form-check-label" for="emulate-sfx-sb1">AdLib, Sound Blaster 1 or Pro</label>
+                    <div class="form-text">Intercompatible addon sound cards from the late 1980s and popular in the early 1990s.</div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-sfx" id="emulate-sfx-sb16">
+                    <label class="form-check-label" for="emulate-sfx-sb16">Sound Blaster 16</label>
+                    <div class="form-text">An upgrade that offers better sound quality to the Sound Blaster 1 and Pro, but is less compatible.</div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-sfx" id="emulate-sfx-gus">
+                    <label class="form-check-label" for="emulate-sfx-gus">GUS or the Gravis Ultrasound</label>
+                    <div class="form-text">A better sound card than the Sound Blaster 16, but often only used in Demoscene productions of the 1990s.</div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-sfx" id="emulate-sfx-beep">
+                    <label class="form-check-label" for="emulate-sfx-beep">Internal PC speaker</label>
+                    <div class="form-text">A fallback option for software that breaks with sound addons, this is the default audio of the 1981 IBM PC.</div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="emulate-sfx" id="emulate-sfx-mute">
+                    <label class="form-check-label" for="emulate-sfx-mute">Mute, no audio</label>
+                    <div class="form-text">A fallback option for software that breaks the emulator audio.</div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <legend>RAM adjustments</legend>
+            <p>
+                The DOS on PC platform was notorious for its 640KB memory limit, and various complex methods were used to bypass this. 
+                Emulation enables all memory enhancements, but occasionally, these may be incompatible with software and need to be turned off.
+            </p>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="emulate-ram-umb">
+                <label class="form-check-label" for="emulate-ram-umb">Upper memory blocks (UMB)</label>
+                <div class="form-text">
+                    The upper memory area and the tiny high memory area were the RAM between 640KB and 1MB, 
+                    which were unusable by conventional DOS programs but could store hardware drivers and 
+                    tiny background-always-running programs. Sometimes, this needs to be disabled for software compatibility.</div>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="emulate-ram-ems">
+                <label class="form-check-label" for="emulate-ram-ems">Expanded memory (EMS)</label>
+                <div class="form-text">
+                    Expanded memory was a convoluted method that became a standard in the mid-1980s 
+                    to access RAM larger than 1MB. The standard was designed for office and business software, 
+                    while games rarely use it and then only for loading drivers.</div>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="emulate-ram-xms">
+                <label class="form-check-label" for="emulate-ram-xms">Extended memory (XMS)</label>
+                <div class="form-text">
+                    Extended memory is an optimized method of accessing RAM larger than 1MB. 
+                    It required a 286 or newer CPU, and in the early and mid 1990s, 
+                    the XMS was the far more common way for games to access memory.</div>
+        </div>
+        {{- end}}
+      </div>
+      {{/*  Switch to assets and reset buttons  */}}
+      {{- template "artifactfooter" . }}
+    </div>
+  </div>
+</div>    
+{{- end}}
+{{- end}}

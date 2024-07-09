@@ -16,30 +16,6 @@
 {{- $thumbImg := recordThumbSample $unid}}
 {{- $replace := "refresh the page to see the changes"}}
 
-{{- /*  Emulate placeholder  */}}
-<div class="modal fade" id="emulate-editor-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
-  aria-labelledby="emulate-editor-modal-label" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content">
-      {{/*  Modify the assets for ID  */}}
-      <div class="modal-header">
-        <svg class="bi" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
-          <use xlink:href="/svg/bootstrap-icons.svg#file-binary"/>
-        </svg>
-        <h1 class="modal-title fs-4 ps-2" id="emulate-editor-modal-label">Modify the emulator settings for ID {{$id}}</h1><br>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="alert alert-secondary" role="alert">
-          This is a placeholder.
-        </div>        
-      </div>
-      {{/*  Switch to assets and reset buttons  */}}
-      {{- template "artifactfooter" . }}
-    </div>
-  </div>
-</div>    
-
 {{- /*  File assets and metadata editors  */}}
 <div class="modal fade" id="asset-editor-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
   aria-labelledby="asset-editor-modal-label" aria-hidden="true">

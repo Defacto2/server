@@ -10,6 +10,12 @@
 
 ### Bug fixes
 
+- [ ] http://localhost:1323/f/a61e5a2 ~ `error: could not link group`
+- [ ] http://localhost:1323/g/defacto2.net - Something crashed! 
+- -   500 internal error for the URL, "releasers page for,defacto2.net": namer.Humanize: the path contains invalid characters vs https://defacto2.net/g/defacto2net
+- -   todo: do a manual fix, use `defacto2net` but display _Defacto2 .net_ or _Defacto2 website_ in the UI.
+
+
 ### Templates
 
 - [ ] `artifactfile.tmpl`
