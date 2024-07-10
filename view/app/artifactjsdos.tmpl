@@ -19,8 +19,13 @@
         <div class="modal-content">
             <div class="modal-header">
               {{if ne $prog $fname}}{{toLower $prog}} - {{else}}{{end}}{{toLower $fname}}
+              {{if eq true (index . "modEmulateBroken")}}<div class="text-danger-emphasis">This application may not run correctly in the emulator</div>{{end}}
             </div>
             <div class="modal-body">  
+                {{if eq "covox" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for a sound device option, choose "LPT1" for Covox, Disney, Soundplayer or Soundthing</p>{{end}}
+                {{if eq "gus" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for the Gravis Ultrasound config, choose IRQ <var>5</var>, DMA <var>1</var>, Base address <var>240h</var> or Port <var>240</var></p>{{end}}
+                {{if eq "sb1" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for the Sound Blaster config, choose IRQ <var>7</var>, DMA <var>1</var>, Base address <var>220h</var> or Port <var>220</var></p>{{end}}
+                {{if eq "sb16" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for the Sound Blaster 16 config, choose IRQ <var>7</var>, DMA <var>1</var>, HDMA <var>5</var>, Base address <var>220h</var> or Port <var>220</var></p>{{end}}
                 <canvas id="jsdos6"></canvas>  
             </div>
             <div class="modal-footer">

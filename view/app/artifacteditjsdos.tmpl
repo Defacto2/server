@@ -5,7 +5,11 @@
 {{- $msdos := eq (index . "platform") "dos"}}
 {{- $id := index . "modID"}}
 {{- $runProgram := index . "jsdos6Run"}}
+{{- $customRunProgram := index . "modEmulateRun"}}
 {{- $extract := index . "jsdos6Zip"}}
+{{- $cpu := index . "modEmulateCPU"}}
+{{- $machine := index . "modEmulateMachine"}}
+{{- $audio := index . "modEmulateAudio"}}
 {{- if eq false (index . "editor")}}{{/*  render nothing  */}}{{else}}
 <div class="modal fade" id="emulate-editor-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
   aria-labelledby="emulate-editor-modal-label" aria-hidden="true">
@@ -35,7 +39,7 @@
         </p>
         <div class="alert alert-secondary" role="alert">
             <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" id="emulate-is-broken">
+                <input class="form-check-input" autocomplete="off" type="checkbox" role="switch" id="emulate-is-broken"{{if eq true (index . "modEmulateBroken")}} checked{{end}}>
                 <label class="form-check-label text-warning-emphasis" for="emulate-is-broken">Flag this artifact as unworking or broken.</label>
                 Some programs cannot be emulated in js-dos and require virtualization or real hardware.
             </div>
@@ -50,7 +54,7 @@
             </legend>
             <div class="input-group input-group-sm mb-3">
                 <span class="input-group-text">C:\</span>
-                <input type="text" class="form-control" aria-label="Program name to launch" value="{{$runProgram}}" readonly>
+                <input type="text" class="form-control" autocomplete="off" aria-label="Program name to launch" value="{{$runProgram}}" readonly{{if ne "" $customRunProgram}} disabled{{end}}>
             </div>
             </div>
             <div class="col col-12 col-lg-6">
@@ -60,73 +64,77 @@
             </div>
             <div class="input-group input-group-sm mb-3">
                 <span class="input-group-text" id="emulate-custom-cmds">Custom commands</span>
-                <input type="text" class="form-control" aria-label="Replacement commands to launch" aria-describedby="emulate-custom-cmds" value="">
+                <input type="text" class="form-control" autocomplete="off" aria-label="Replacement commands to launch" aria-describedby="emulate-custom-cmds" value="{{$customRunProgram}}">
             </div>
             </div>
         </div>
         {{- /*  emulator machine (graphics)  */}}
-        <div class="row">
+        <fieldset class="row"
+            hx-post="/editor/emulate"
+            hx-target="#emulate-machine-result"
+            hx-trigger="click delay:50ms"
+            hx-include="[name='emulate-machine']">
             <legend>    
                 <svg class="bi" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
                     <use xlink:href="/svg/bootstrap-icons.svg#pc-display-horizontal"/>
                 </svg>
-                IBM machine or PC to emulate
+                IBM machine or PC to emulate <span id="emulate-machine-result">?</span>
             </legend>
             <div class="col col-12 col-lg-6">
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-auto" checked>
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-machine" value="auto" id="emulate-machine-auto" checked>
                     <label class="form-check-label" for="emulate-machine-auto">Automatic</label>
                     <div class="form-text">The default and recommanded setting, which emulates a machine with the very compatible S3, Trio64 graphic chip from 1994.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-cga">
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-machine" value="cga" id="emulate-machine-cga"{{if eq "cga" $machine}} checked{{end}}>
                     <label class="form-check-label" for="emulate-machine-cga"><strong>CGA</strong> machine with 4 color display</label>
                     <div class="form-text">A common machine setup of the 1980s with 4 colors onscreen.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-ega">
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-machine" value="ega" id="emulate-machine-ega"{{if eq "ega" $machine}} checked{{end}}>
                     <label class="form-check-label" for="emulate-machine-ega"><strong>EGA</strong> machine with 16 color display</label>
                     <div class="form-text">An uncommon setup of the late 1980s frequently associated with low resolution 16 colors.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-vga">
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-machine" value="vga" id="emulate-machine-vga"{{if eq "vga" $machine}} checked{{end}}>
                     <label class="form-check-label" for="emulate-machine-vga"><strong>VGA</strong> machine with 256 color display</label>
                     <div class="form-text">A common fallback for early 1990s software that fail to display correctly with SVGA graphic chips.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-tandy">
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-machine" value="tandy" id="emulate-machine-tandy"{{if eq "tandy" $machine}} checked{{end}}>
                     <label class="form-check-label" for="emulate-machine-tandy">Tandy 1000 with 16 color display</label>
                     <div class="form-text">An uncommon enhanced PC from the mid-late 1980s.</div>
                 </div>
             </div>
             <div class="col col-12 col-lg-6">
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-nolfb">
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-machine" value="nolfb" id="emulate-machine-nolfb"{{if eq "nolfb" $machine}} checked{{end}}>
                     <label class="form-check-label" for="emulate-machine-nolfb">s3 Trio64 with no LFB</label>
                     <div class="form-text">An emulator hack that sometimes improves software performance by not using the Linear Frame Buffer.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-et3000">
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-machine" value="et3000" id="emulate-machine-et3000"{{if eq "et3000" $machine}} checked{{end}}>
                     <label class="form-check-label" for="emulate-machine-et3000">1987, ET3000 VGA</label>
                     <div class="form-text">A fallback for early software with drivers for the Tseng Labs, ET3000 graphic chip.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-paradise">
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-machine" value="paradise" id="emulate-machine-paradise"{{if eq "paradise" $machine}} checked{{end}}>
                     <label class="form-check-label" for="emulate-machine-paradise">1988, Paradise VGA</label>
                     <div class="form-text">A fallback for early software with drivers for the Paradise, PVGA1A graphic chip.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-et4000">
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-machine" value="et4000" id="emulate-machine-et4000"{{if eq "et4000" $machine}} checked{{end}}>
                     <label class="form-check-label" for="emulate-machine-et4000">1989, ET4000 VGA</label>
                     <div class="form-text">A fallback for early software with drivers for the Tseng Labs, ET4000 graphic chip.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-machine" id="emulate-machine-vbe">
-                    <label class="form-check-label" for="emulate-machine-vbe">1991, VBE 1.2</label>
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-machine" value="oldvbe" id="emulate-machine-oldvbe"{{if eq "oldvbe" $machine}} checked{{end}}>
+                    <label class="form-check-label" for="emulate-machine-oldvbe">1991, VBE 1.2</label>
                     <div class="form-text">A fallback for software with drivers that support cards with the VESA BIOS Extensions v1.2.</div>
                 </div>
             </div>
-        </div>
+        </fieldset>
         <div class="row text-bg-light">
             {{- /*  CPU  */}}
             <div class="col col-12 col-lg-6">
@@ -137,22 +145,22 @@
                     Processor and speed
                 </legend>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-cpu" id="emulate-cpu-auto" checked>
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-cpu" id="emulate-cpu-auto" checked>
                     <label class="form-check-label" for="emulate-cpu-auto">Automatic</label>
                     <div class="form-text">The default setting, which is the best choice, unless the software runs too fast or too slow.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-cpu" id="emulate-cpu-realmode">
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-cpu" id="emulate-cpu-realmode"{{if eq "8086" $cpu}} checked{{end}}>
                     <label class="form-check-label" for="emulate-cpu-realmode">Real-mode CPU locked to 5 MHz</label>
                     <div class="form-text">This attempts to emulate a 4.77Mhz, <strong>Intel 8086</strong> or <strong>286</strong> CPU for software from the 1980s.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-cpu" id="emulate-cpu-slow-enhanced">
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-cpu" id="emulate-cpu-slow-enhanced"{{if eq "386" $cpu}} checked{{end}}>
                     <label class="form-check-label" for="emulate-cpu-slow-enhanced">Enhanced-mode but slow CPU</label>
                     <div class="form-text">This attempts to emulate a 12Mhz, <strong>Intel 386</strong> CPU for software from the late 1980s and 1990.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-cpu" id="emulate-cpu-enhanced">
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-cpu" id="emulate-cpu-enhanced"{{if eq "486" $cpu}} checked{{end}}>
                     <label class="form-check-label" for="emulate-cpu-enhanced">Enhanced-mode CPU</label>
                     <div class="form-text">This attempts to emulate an <strong>Intel 486</strong> CPU for software from the early 1990s.</div>
                 </div>
@@ -166,38 +174,38 @@
                     Audio and sound addons
                 </legend>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-sfx" id="emulate-sfx-auto" checked>
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" id="emulate-sfx-auto" checked>
                     <label class="form-check-label" for="emulate-sfx-auto">Automatic</label>
                     <div class="form-text">The default setting, which allows for all audio options, but it can break software.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-sfx" id="emulate-sfx-dac">
-                    <label class="form-check-label" for="emulate-sfx-dac">Digital-to-Analog Converter</label>
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" id="emulate-sfx-covox"{{if eq "covox" $audio}} checked{{end}}>
+                    <label class="form-check-label" for="emulate-sfx-covox">Digital-to-Analog Converter</label>
                     <div class="form-text">Easy to program and popular in the late 1980s and early 1990s, 
                     these audio dongles were branded under Covox, Disney, LPT (hardware port) and others.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-sfx" id="emulate-sfx-sb1">
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" id="emulate-sfx-sb1"{{if eq "sb1" $audio}} checked{{end}}>
                     <label class="form-check-label" for="emulate-sfx-sb1">AdLib, Sound Blaster 1 or Pro</label>
                     <div class="form-text">Intercompatible addon sound cards from the late 1980s and popular in the early 1990s.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-sfx" id="emulate-sfx-sb16">
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" id="emulate-sfx-sb16"{{if eq "sb16" $audio}} checked{{end}}>
                     <label class="form-check-label" for="emulate-sfx-sb16">Sound Blaster 16</label>
                     <div class="form-text">An upgrade that offers better sound quality to the Sound Blaster 1 and Pro, but is less compatible.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-sfx" id="emulate-sfx-gus">
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" id="emulate-sfx-gus"{{if eq "gus" $audio}} checked{{end}}>
                     <label class="form-check-label" for="emulate-sfx-gus">GUS or the Gravis Ultrasound</label>
                     <div class="form-text">A better sound card than the Sound Blaster 16, but often only used in Demoscene productions of the 1990s.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-sfx" id="emulate-sfx-beep">
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" id="emulate-sfx-beep"{{if eq "pcspeaker" $audio}} checked{{end}}>
                     <label class="form-check-label" for="emulate-sfx-beep">Internal PC speaker</label>
                     <div class="form-text">A fallback option for software that breaks with sound addons, this is the default audio of the 1981 IBM PC.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="emulate-sfx" id="emulate-sfx-mute">
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" id="emulate-sfx-mute"{{if eq "none" $audio}} checked{{end}}>
                     <label class="form-check-label" for="emulate-sfx-mute">Mute, no audio</label>
                     <div class="form-text">A fallback option for software that breaks the emulator audio.</div>
                 </div>
@@ -216,7 +224,7 @@
                 Emulation enables all memory enhancements, but occasionally, these may be incompatible with software and need to be turned off.
             </p>
             <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" id="emulate-ram-umb">
+                <input class="form-check-input" type="checkbox" autocomplete="off" role="switch" id="emulate-ram-umb"{{if eq true (index . "modEmulateUMB")}} checked{{end}}>
                 <label class="form-check-label" for="emulate-ram-umb">Upper memory blocks (UMB)</label>
                 <div class="form-text">
                     The upper memory area and the tiny high memory area were the RAM between 640KB and 1MB, 
@@ -224,7 +232,7 @@
                     tiny background-always-running programs. Sometimes, this needs to be disabled for software compatibility.</div>
             </div>
             <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" id="emulate-ram-ems">
+                <input class="form-check-input" type="checkbox" autocomplete="off" role="switch" id="emulate-ram-ems"{{if eq true (index . "modEmulateEMS")}} checked{{end}}>
                 <label class="form-check-label" for="emulate-ram-ems">Expanded memory (EMS)</label>
                 <div class="form-text">
                     Expanded memory was a convoluted method that became a standard in the mid-1980s 
@@ -232,7 +240,7 @@
                     while games rarely use it and then only for loading drivers.</div>
             </div>
             <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" id="emulate-ram-xms">
+                <input class="form-check-input" type="checkbox" autocomplete="off" role="switch" id="emulate-ram-xms"{{if eq true (index . "modEmulateXMS")}} checked{{end}}>
                 <label class="form-check-label" for="emulate-ram-xms">Extended memory (XMS)</label>
                 <div class="form-text">
                     Extended memory is an optimized method of accessing RAM larger than 1MB. 

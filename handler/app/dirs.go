@@ -234,6 +234,14 @@ func (dir Dirs) artifactEditor(art *models.File, data map[string]interface{}, re
 	data["disableApproval"] = disableApproval(art)
 	data["disableRecord"] = !art.Deletedat.IsZero() && !art.Deletedby.IsZero()
 	data["missingAssets"] = missingAssets(art, dir)
+	data["modEmulateXMS"] = art.DoseeNoXMS.Int16 == 0
+	data["modEmulateEMS"] = art.DoseeNoEms.Int16 == 0
+	data["modEmulateUMB"] = art.DoseeNoUmb.Int16 == 0
+	data["modEmulateBroken"] = art.DoseeIncompatible.Int16 != 0
+	data["modEmulateRun"] = art.DoseeRunProgram.String
+	data["modEmulateCPU"] = art.DoseeHardwareCPU.String
+	data["modEmulateMachine"] = art.DoseeHardwareGraphic.String
+	data["modEmulateAudio"] = art.DoseeHardwareAudio.String
 	return data
 }
 

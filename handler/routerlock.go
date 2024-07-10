@@ -114,6 +114,11 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	g.POST("/virustotal", htmx.RecordVirusTotal)
 	g.POST("/ymd", app.YMDEdit)
 	g.POST("/youtube", htmx.RecordYouTube)
+
+	g.POST("/emulate", func(c echo.Context) error {
+		value := c.FormValue("emulate-machine")
+		return c.String(200, value)
+	})
 }
 
 func get(g *echo.Group, dir app.Dirs) {
