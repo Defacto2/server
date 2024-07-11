@@ -12,6 +12,15 @@ import (
 // Package file routerlock.go contains the custom router URIs for the website
 // that are locked behind the router middleware and require a user to be logged in.
 
+/*
+	A note about the used request methods:
+	 - GET requests are used for retrieving data from the server.
+	 - PATCH requests are used for updating data on the server.
+	 - PUT requests are used for creating new data on the server.
+	 - POST requests are used for uploading files with or without data.
+	 - DELETE requests are used for removing data from the server.
+*/
+
 func (c Configuration) lock(e *echo.Echo, logger *zap.SugaredLogger, dir app.Dirs) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for lock router", ErrRoutes))
@@ -80,6 +89,10 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	if g == nil {
 		panic(fmt.Errorf("%w for editor router", ErrRoutes))
 	}
+	g.DELETE("/delete/forever/:key", func(c echo.Context) error {
+		return htmx.DeleteForever(c, logger, c.Param("key"))
+	})
+
 	g.POST("/16colors", htmx.Record16Colors)
 	g.POST("/ansilove/copy", func(c echo.Context) error {
 		return dir.AnsiLovePost(c, logger)
@@ -87,13 +100,8 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	g.POST("/classifications", func(c echo.Context) error {
 		return htmx.RecordClassification(c, logger)
 	})
-	g.POST("/comment", htmx.RecordComment)
-	g.POST("/comment/reset", htmx.RecordCommentReset)
-
-	// replace with g.DELETE
-	g.POST("/delete/forever/:key", func(c echo.Context) error {
-		return htmx.DeleteForever(c, logger, c.Param("key"))
-	})
+	g.PATCH("/comment", htmx.RecordComment)
+	g.PATCH("/comment/reset", htmx.RecordCommentReset)
 	g.POST("/demozoo", htmx.RecordDemozoo)
 	g.POST("/filename", htmx.RecordFilename)
 	g.POST("/filename/reset", htmx.RecordFilenameReset)
@@ -115,10 +123,15 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	g.POST("/ymd", app.YMDEdit)
 	g.POST("/youtube", htmx.RecordYouTube)
 
-	g.POST("/emulate", func(c echo.Context) error {
-		value := c.FormValue("emulate-machine")
-		return c.String(200, value)
-	})
+	emu := g.Group("/emulate")
+	emu.PATCH("/broken/:id", htmx.RecordEmulateBroken)
+	emu.PATCH("/runprogram/:id", htmx.RecordEmulateRunProgram)
+	emu.PATCH("/machine/:id", htmx.RecordEmulateMachine)
+	emu.PATCH("/cpu/:id", htmx.RecordEmulateCPU)
+	emu.PATCH("/sfx/:id", htmx.RecordEmulateSFX)
+	emu.PATCH("/umb/:id", htmx.RecordEmulateUMB)
+	emu.PATCH("/ems/:id", htmx.RecordEmulateEMS)
+	emu.PATCH("/xms/:id", htmx.RecordEmulateXMS)
 }
 
 func get(g *echo.Group, dir app.Dirs) {

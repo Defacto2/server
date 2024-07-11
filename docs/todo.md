@@ -22,6 +22,7 @@
 - [ ] Delete emulate no aspect ratio from the database, as it isn't used.
 - [ ] Repack zips that contain programs with bad filenames, for example: http://localhost:1323/f/ab252e4
 - [ ] Create a UTILS zip archive to hold drivers and libraries for the emulator.
+- [ ] Replace PUT with POST/PATCH except for the artifact file upload.
 
 ### Templates
 

@@ -282,3 +282,19 @@ func TestFmt8dot3(t *testing.T) {
 	s = jsdos.Fmt8dot3("filename.zip.exe")
 	assert.Equal(t, "filena~1.exe", s)
 }
+
+func TestFat16Rename(t *testing.T) {
+	t.Parallel()
+	s := jsdos.Fat16Rename("")
+	assert.Equal(t, "", s)
+	s = jsdos.Fat16Rename("filename.xyz")
+	assert.Equal(t, "FILENAME.XYZ", s)
+	s = jsdos.Fat16Rename("résumé-01.zip")
+	assert.Equal(t, "RESUME-01.ZIP", s)
+	s = jsdos.Fat16Rename("résumé 01.zip")
+	assert.Equal(t, "RESUME_01.ZIP", s)
+	s = jsdos.Fat16Rename("A@cd#F$H!.D0C")
+	assert.Equal(t, "A@CD#F$H!.D0C", s)
+	s = jsdos.Fat16Rename("Γεåd.më")
+	assert.Equal(t, "XEAD.ME", s)
+}

@@ -39,7 +39,14 @@
         </p>
         <div class="alert alert-secondary" role="alert">
             <div class="form-check form-switch">
-                <input class="form-check-input" autocomplete="off" type="checkbox" role="switch" id="emulate-is-broken"{{if eq true (index . "modEmulateBroken")}} checked{{end}}>
+                <input class="form-check-input" type="checkbox" autocomplete="off" role="switch" 
+                    hx-patch="/editor/emulate/broken/{{$id}}"
+                    hx-trigger="click delay:50ms" hx-swap="swap:50ms" hx-on:click="document.getElementById('emulate-is-broken-result').textContent=''"
+                    hx-include="[name='emulate-is-broken']"
+                    hx-target="#emulate-is-broken-result"
+                    name="emulate-is-broken"
+                    id="emulate-is-broken"{{if eq true (index . "modEmulateBroken")}} checked{{end}}>
+                <span id="emulate-is-broken-result"></span>
                 <label class="form-check-label text-warning-emphasis" for="emulate-is-broken">Flag this artifact as unworking or broken.</label>
                 Some programs cannot be emulated in js-dos and require virtualization or real hardware.
             </div>
@@ -57,6 +64,14 @@
                 <input type="text" class="form-control" autocomplete="off" aria-label="Program name to launch" value="{{$runProgram}}" readonly{{if ne "" $customRunProgram}} disabled{{end}}>
             </div>
             </div>
+
+            {{/*  <input class="form-control" type="search" 
+       name="search" placeholder="Begin Typing To Search Users..." 
+       hx-post="/search" 
+       hx-trigger="input changed delay:500ms, search" 
+       hx-target="#search-results" 
+       hx-indicator=".htmx-indicator">  */}}
+
             <div class="col col-12 col-lg-6">
             <div class="form-text">
                 Custom commands will override the named program to run automatically,<br>
@@ -64,21 +79,26 @@
             </div>
             <div class="input-group input-group-sm mb-3">
                 <span class="input-group-text" id="emulate-custom-cmds">Custom commands</span>
-                <input type="text" class="form-control" autocomplete="off" aria-label="Replacement commands to launch" aria-describedby="emulate-custom-cmds" value="{{$customRunProgram}}">
+                <input type="text" class="form-control" autocomplete="off" aria-label="Replacement commands to launch" aria-describedby="emulate-custom-cmds" 
+                    hx-patch="/editor/emulate/runprogram/{{$id}}"
+                    hx-trigger="input changed delay:50ms"
+                    name="emulate-run-program"
+                    value="{{$customRunProgram}}">
             </div>
             </div>
         </div>
         {{- /*  emulator machine (graphics)  */}}
         <fieldset class="row"
-            hx-post="/editor/emulate"
+            hx-patch="/editor/emulate/machine/{{$id}}"
             hx-target="#emulate-machine-result"
             hx-trigger="click delay:50ms"
-            hx-include="[name='emulate-machine']">
+            hx-include="[name='emulate-machine']"
+            hx-trigger="click delay:50ms" hx-swap="swap:50ms" hx-on:click="document.getElementById('emulate-machine-result').textContent=''"> 
             <legend>    
                 <svg class="bi" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
                     <use xlink:href="/svg/bootstrap-icons.svg#pc-display-horizontal"/>
                 </svg>
-                IBM machine or PC to emulate <span id="emulate-machine-result">?</span>
+                IBM machine or PC to emulate <small id="emulate-machine-result"></small>
             </legend>
             <div class="col col-12 col-lg-6">
                 <div class="form-check">
@@ -138,77 +158,89 @@
         <div class="row text-bg-light">
             {{- /*  CPU  */}}
             <div class="col col-12 col-lg-6">
+            <fieldset class="row"
+                hx-patch="/editor/emulate/cpu/{{$id}}"
+                hx-target="#emulate-cpu-result"
+                hx-include="[name='emulate-cpu']" 
+                hx-trigger="click delay:50ms" hx-swap="swap:50ms" hx-on:click="document.getElementById('emulate-cpu-result').textContent=''"> 
                 <legend>
                     <svg class="bi" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
                         <use xlink:href="/svg/bootstrap-icons.svg#cpu"/>
                     </svg>
-                    Processor and speed
+                    Processor and speed <small id="emulate-cpu-result"></small>
                 </legend>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-cpu" id="emulate-cpu-auto" checked>
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-cpu" value="auto" id="emulate-cpu-auto" checked>
                     <label class="form-check-label" for="emulate-cpu-auto">Automatic</label>
                     <div class="form-text">The default setting, which is the best choice, unless the software runs too fast or too slow.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-cpu" id="emulate-cpu-realmode"{{if eq "8086" $cpu}} checked{{end}}>
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-cpu" value="8086" id="emulate-cpu-realmode"{{if eq "8086" $cpu}} checked{{end}}>
                     <label class="form-check-label" for="emulate-cpu-realmode">Real-mode CPU locked to 5 MHz</label>
                     <div class="form-text">This attempts to emulate a 4.77Mhz, <strong>Intel 8086</strong> or <strong>286</strong> CPU for software from the 1980s.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-cpu" id="emulate-cpu-slow-enhanced"{{if eq "386" $cpu}} checked{{end}}>
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-cpu" value="386" id="emulate-cpu-slow-enhanced"{{if eq "386" $cpu}} checked{{end}}>
                     <label class="form-check-label" for="emulate-cpu-slow-enhanced">Enhanced-mode but slow CPU</label>
                     <div class="form-text">This attempts to emulate a 12Mhz, <strong>Intel 386</strong> CPU for software from the late 1980s and 1990.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-cpu" id="emulate-cpu-enhanced"{{if eq "486" $cpu}} checked{{end}}>
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-cpu" value="486" id="emulate-cpu-enhanced"{{if eq "486" $cpu}} checked{{end}}>
                     <label class="form-check-label" for="emulate-cpu-enhanced">Enhanced-mode CPU</label>
                     <div class="form-text">This attempts to emulate an <strong>Intel 486</strong> CPU for software from the early 1990s.</div>
                 </div>
+            </fieldset>
             </div>
             {{- /*  Soundcard  */}}
-             <div class="col col-12 col-lg-6">            
+            <div class="col col-12 col-lg-6">   
+            <fieldset class="row"
+                hx-patch="/editor/emulate/sfx/{{$id}}"
+                hx-target="#emulate-sfx-result"
+                hx-include="[name='emulate-sfx']" 
+                hx-trigger="click delay:50ms" hx-swap="swap:50ms" hx-on:click="document.getElementById('emulate-sfx-result').textContent=''">         
                 <legend>
                     <svg class="bi" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
                         <use xlink:href="/svg/bootstrap-icons.svg#pci-card-sound"/>
                     </svg>
-                    Audio and sound addons
-                </legend>
+                    Audio and sound addons <small id="emulate-sfx-result"></small>
+                </legend> 
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" id="emulate-sfx-auto" checked>
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" value="auto" id="emulate-sfx-auto" checked>
                     <label class="form-check-label" for="emulate-sfx-auto">Automatic</label>
                     <div class="form-text">The default setting, which allows for all audio options, but it can break software.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" id="emulate-sfx-covox"{{if eq "covox" $audio}} checked{{end}}>
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" value="covox" id="emulate-sfx-covox"{{if eq "covox" $audio}} checked{{end}}>
                     <label class="form-check-label" for="emulate-sfx-covox">Digital-to-Analog Converter</label>
                     <div class="form-text">Easy to program and popular in the late 1980s and early 1990s, 
                     these audio dongles were branded under Covox, Disney, LPT (hardware port) and others.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" id="emulate-sfx-sb1"{{if eq "sb1" $audio}} checked{{end}}>
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" value="sb1" id="emulate-sfx-sb1"{{if eq "sb1" $audio}} checked{{end}}>
                     <label class="form-check-label" for="emulate-sfx-sb1">AdLib, Sound Blaster 1 or Pro</label>
                     <div class="form-text">Intercompatible addon sound cards from the late 1980s and popular in the early 1990s.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" id="emulate-sfx-sb16"{{if eq "sb16" $audio}} checked{{end}}>
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" value="sb16" id="emulate-sfx-sb16"{{if eq "sb16" $audio}} checked{{end}}>
                     <label class="form-check-label" for="emulate-sfx-sb16">Sound Blaster 16</label>
                     <div class="form-text">An upgrade that offers better sound quality to the Sound Blaster 1 and Pro, but is less compatible.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" id="emulate-sfx-gus"{{if eq "gus" $audio}} checked{{end}}>
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" value="gus" id="emulate-sfx-gus"{{if eq "gus" $audio}} checked{{end}}>
                     <label class="form-check-label" for="emulate-sfx-gus">GUS or the Gravis Ultrasound</label>
                     <div class="form-text">A better sound card than the Sound Blaster 16, but often only used in Demoscene productions of the 1990s.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" id="emulate-sfx-beep"{{if eq "pcspeaker" $audio}} checked{{end}}>
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" value="pcspeaker" id="emulate-sfx-beep"{{if eq "pcspeaker" $audio}} checked{{end}}>
                     <label class="form-check-label" for="emulate-sfx-beep">Internal PC speaker</label>
                     <div class="form-text">A fallback option for software that breaks with sound addons, this is the default audio of the 1981 IBM PC.</div>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" id="emulate-sfx-mute"{{if eq "none" $audio}} checked{{end}}>
+                    <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" value="none" id="emulate-sfx-mute"{{if eq "none" $audio}} checked{{end}}>
                     <label class="form-check-label" for="emulate-sfx-mute">Mute, no audio</label>
                     <div class="form-text">A fallback option for software that breaks the emulator audio.</div>
                 </div>
+            </fieldset>
             </div>
         </div>
         {{- /*  Memory options  */}}
@@ -224,24 +256,45 @@
                 Emulation enables all memory enhancements, but occasionally, these may be incompatible with software and need to be turned off.
             </p>
             <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" autocomplete="off" role="switch" id="emulate-ram-umb"{{if eq true (index . "modEmulateUMB")}} checked{{end}}>
+                <input class="form-check-input" type="checkbox" autocomplete="off" role="switch" 
+                    hx-patch="/editor/emulate/umb/{{$id}}"
+                    hx-trigger="click delay:50ms" hx-swap="swap:50ms" hx-on:click="document.getElementById('emulate-ram-umb-result').textContent=''"
+                    hx-include="[name='emulate-ram-umb']"
+                    hx-target="#emulate-ram-umb-result"
+                    name="emulate-ram-umb"
+                    id="emulate-ram-umb"{{if eq true (index . "modEmulateUMB")}} checked{{end}}>
                 <label class="form-check-label" for="emulate-ram-umb">Upper memory blocks (UMB)</label>
+                <span id="emulate-ram-umb-result"></span>
                 <div class="form-text">
                     The upper memory area and the tiny high memory area were the RAM between 640KB and 1MB, 
                     which were unusable by conventional DOS programs but could store hardware drivers and 
                     tiny background-always-running programs. Sometimes, this needs to be disabled for software compatibility.</div>
             </div>
             <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" autocomplete="off" role="switch" id="emulate-ram-ems"{{if eq true (index . "modEmulateEMS")}} checked{{end}}>
+                    <input class="form-check-input" type="checkbox" autocomplete="off" role="switch" 
+                    hx-patch="/editor/emulate/ems/{{$id}}"
+                    hx-trigger="click delay:50ms" hx-swap="swap:50ms" hx-on:click="document.getElementById('emulate-ram-ems-result').textContent=''"
+                    hx-include="[name='emulate-ram-ems']"
+                    hx-target="#emulate-ram-ems-result"
+                    name="emulate-ram-ems"
+                    id="emulate-ram-ems"{{if eq true (index . "modEmulateEMS")}} checked{{end}}>
                 <label class="form-check-label" for="emulate-ram-ems">Expanded memory (EMS)</label>
+                <span id="emulate-ram-ems-result"></span>
                 <div class="form-text">
                     Expanded memory was a convoluted method that became a standard in the mid-1980s 
                     to access RAM larger than 1MB. The standard was designed for office and business software, 
                     while games rarely use it and then only for loading drivers.</div>
             </div>
             <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" autocomplete="off" role="switch" id="emulate-ram-xms"{{if eq true (index . "modEmulateXMS")}} checked{{end}}>
+                <input class="form-check-input" type="checkbox" autocomplete="off" role="switch" 
+                    hx-patch="/editor/emulate/xms/{{$id}}"
+                    hx-trigger="click delay:50ms" hx-swap="swap:50ms" hx-on:click="document.getElementById('emulate-ram-xms-result').textContent=''"
+                    hx-include="[name='emulate-ram-xms']"
+                    hx-target="#emulate-ram-xms-result"
+                    name="emulate-ram-xms"
+                    id="emulate-ram-xms"{{if eq true (index . "modEmulateXMS")}} checked{{end}}>
                 <label class="form-check-label" for="emulate-ram-xms">Extended memory (XMS)</label>
+                <span id="emulate-ram-xms-result"></span>
                 <div class="form-text">
                     Extended memory is an optimized method of accessing RAM larger than 1MB. 
                     It required a 286 or newer CPU, and in the early and mid 1990s, 

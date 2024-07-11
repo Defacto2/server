@@ -58,7 +58,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
         <div hx-ext="response-targets" class="text-center my-5" id="artifact-delete-forever">
           I understand, <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-75-hover" 
             hx-confirm="Confirm, this is the last chance to back out"
-            hx-post="/editor/delete/forever/{{$key}}" 
+            hx-delete="/editor/delete/forever/{{$key}}" 
             hx-target="#artifact-delete-forever" 
             hx-target-error="#artifact-delete-forever-errors"
             hx-swap="innerHTML">delete and remove forever</a>:
@@ -283,14 +283,14 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             <label class="form-label col-form-label-lg m-0 p-0">
                 Comment
                 <button type="button" class="btn btn-link" id="artifact-editor-comment-reset"
-                    hx-post="/editor/comment/reset"
+                    hx-patch="/editor/comment/reset"
                     hx-include="[name='artifact-editor-key'],
                                 [name='artifact-editor-comment'],
                                 [name='artifact-editor-comment-resetter']">Undo changes</button>
               </label>
               <textarea class="form-control" name="artifact-editor-comment" id="artifact-editor-comment" 
                 style="height:6em;" autocomplete="off" aria-describedby="artifact-editor-comment-help"                
-                hx-post="/editor/comment" 
+                hx-patch="/editor/comment" 
                 hx-trigger="keyup changed delay:{{$lDelay}}"
                 hx-include="[name='artifact-editor-key']">{{$comment}}</textarea>
               <div class="form-text" id="artifact-editor-comment-help">Optional, comments can be used to store longer form notes about the artifact.</div>

@@ -586,6 +586,115 @@ func RecordLinksReset(c echo.Context) error {
 	return c.HTML(http.StatusOK, strings.Join(links, "<br>"))
 }
 
+func recordEmulateRAM(c echo.Context, name string) error {
+	key := c.Param("id")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+	}
+	value := false
+	if c.FormValue(name) == "on" {
+		value = true
+	}
+	switch name {
+	case "emulate-ram-umb":
+		err = model.UpdateEmulateUMB(int64(id), value)
+	case "emulate-ram-ems":
+		err = model.UpdateEmulateEMS(int64(id), value)
+	case "emulate-ram-xms":
+		err = model.UpdateEmulateXMS(int64(id), value)
+	}
+	if err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "<span class=\"text-success\">✓</span>")
+}
+
+func RecordEmulateUMB(c echo.Context) error {
+	return recordEmulateRAM(c, "emulate-ram-umb")
+}
+
+func RecordEmulateEMS(c echo.Context) error {
+	return recordEmulateRAM(c, "emulate-ram-ems")
+}
+
+func RecordEmulateXMS(c echo.Context) error {
+	return recordEmulateRAM(c, "emulate-ram-xms")
+}
+
+// RecordEmulateBroken handles the patch submission for the broken emulation for a file artifact.
+func RecordEmulateBroken(c echo.Context) error {
+	key := c.Param("id")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+	}
+	value := true
+	if c.FormValue("emulate-is-broken") == "on" {
+		value = false
+	}
+	if err = model.UpdateEmulateBroken(int64(id), value); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "<span class=\"text-success\">✓</span>")
+}
+
+func RecordEmulateRunProgram(c echo.Context) error {
+	key := c.Param("id")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+	}
+	value := c.FormValue("emulate-run-program")
+	// TODO: validate the value against FAT16 filenames.
+	if err = model.UpdateEmulateRunProgram(int64(id), value); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "<span class=\"text-success\">✓</span>")
+}
+
+// RecordEmulateMachine handles the patch submission for the machine and graphic emulation for a file artifact.
+func RecordEmulateMachine(c echo.Context) error {
+	key := c.Param("id")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+	}
+	value := c.FormValue("emulate-machine")
+	if err := model.UpdateEmulateMachine(int64(id), value); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "<span class=\"text-success\">✓</span>")
+}
+
+// RecordEmulateCPU handles the patch submission for the CPU emulation for a file artifact.
+func RecordEmulateCPU(c echo.Context) error {
+	key := c.Param("id")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+	}
+	value := c.FormValue("emulate-cpu")
+	if err := model.UpdateEmulateCPU(int64(id), value); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "<span class=\"text-success\">✓</span>")
+}
+
+// RecordEmulateSFX handles the patch submission for the audio emulation for a file artifact.
+func RecordEmulateSFX(c echo.Context) error {
+	key := c.Param("id")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+	}
+	value := c.FormValue("emulate-sfx")
+	if err := model.UpdateEmulateSfx(int64(id), value); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "<span class=\"text-success\">✓</span>")
+}
+
 // badRequest returns an error response with a 400 status code,
 // the server cannot or will not process the request due to something that is perceived to be a client error.
 func badRequest(c echo.Context, err error) error {

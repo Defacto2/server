@@ -18,6 +18,196 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
+const emulateAuto = "" // the dosbox emulator value to use for automatic configuration
+
+// boolFrom is a type for the bool columns that can be updated.
+type boolFrom int
+
+const (
+	emulateUMB boolFrom = iota
+	emulateEMS
+	emulateXMS
+	emulateBroken
+)
+
+// UpdateEmulateUMB updates the column dosee_no_umb with val.
+func UpdateEmulateUMB(id int64, val bool) error {
+	return UpdateBoolFrom(emulateUMB, id, val)
+}
+
+// UpdateEmulateEMS updates the column dosee_no_ems with val.
+func UpdateEmulateEMS(id int64, val bool) error {
+	return UpdateBoolFrom(emulateEMS, id, val)
+}
+
+// UpdateEmulateXMS updates the column dosee_no_xms with val.
+func UpdateEmulateXMS(id int64, val bool) error {
+	return UpdateBoolFrom(emulateXMS, id, val)
+}
+
+// UpdateEmulateBroken updates the column dosee_broken with val.
+func UpdateEmulateBroken(id int64, val bool) error {
+	return UpdateBoolFrom(emulateBroken, id, val)
+}
+
+// UpdateBoolFrom updates the column bool from value with val.
+// The boolFrom columns are table columns that can either be null, empty, or have a smallint value.
+func UpdateBoolFrom(column boolFrom, id int64, val bool) error {
+	ctx := context.Background()
+	db, tx, err := postgres.ConnectTx()
+	if err != nil {
+		return fmt.Errorf("updateboolfrom: %w", ErrDB)
+	}
+	defer db.Close()
+	f, err := OneFile(ctx, tx, id)
+	if err != nil {
+		return fmt.Errorf("find file for %q: %w", column, err)
+	}
+	const yes, no = int16(1), int16(0)
+	i := yes
+	if val {
+		i = no
+	}
+	switch column {
+	case emulateUMB:
+		f.DoseeNoUmb = null.NewInt16(i, true)
+	case emulateEMS:
+		f.DoseeNoEms = null.NewInt16(i, true)
+	case emulateXMS:
+		f.DoseeNoXMS = null.NewInt16(i, true)
+	case emulateBroken:
+		f.DoseeIncompatible = null.NewInt16(i, true)
+	}
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
+		return fmt.Errorf("%q %v: %w", column, val, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("updateboolfrom: %w", err)
+	}
+	return nil
+}
+
+func UpdateEmulateRunProgram(id int64, val string) error {
+	s := strings.TrimSpace(strings.ToUpper(val))
+	ctx := context.Background()
+	db, tx, err := postgres.ConnectTx()
+	if err != nil {
+		return fmt.Errorf("updatestringfrom: %w", ErrDB)
+	}
+	defer db.Close()
+	f, err := OneFile(ctx, tx, id)
+	if err != nil {
+		return fmt.Errorf("find file for: %w", err)
+	}
+	f.DoseeRunProgram = null.StringFrom(s)
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", s, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("updatestringfrom: %w", err)
+	}
+	return nil
+}
+
+var ErrMachine = fmt.Errorf("emulate-machine value must be one of auto, cga, ega, vga, tandy, nolfb, et3000, paradise, et4000, oldvbe")
+
+func UpdateEmulateMachine(id int64, val string) error {
+	s := strings.TrimSpace(strings.ToLower(val))
+	switch s {
+	case "cga", "ega", "vga", "tandy", "nolfb", "et3000", "paradise", "et4000", "oldvbe":
+	// do nothing
+	case "auto":
+		s = emulateAuto
+	default:
+		return fmt.Errorf("%s: %w", val, ErrMachine)
+	}
+
+	ctx := context.Background()
+	db, tx, err := postgres.ConnectTx()
+	if err != nil {
+		return fmt.Errorf("updatestringfrom: %w", ErrDB)
+	}
+	defer db.Close()
+	f, err := OneFile(ctx, tx, id)
+	if err != nil {
+		return fmt.Errorf("find file for: %w", err)
+	}
+	f.DoseeHardwareGraphic = null.StringFrom(s)
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", s, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("updatestringfrom: %w", err)
+	}
+	return nil
+}
+
+var ErrCPU = fmt.Errorf("emulate-cpu value must be one of auto, 8086, 386, 486")
+
+func UpdateEmulateCPU(id int64, val string) error {
+	s := strings.TrimSpace(strings.ToLower(val))
+	switch s {
+	case "8086", "386", "486":
+	// do nothing
+	case "auto":
+		s = emulateAuto
+	default:
+		return fmt.Errorf("%s: %w", val, ErrCPU)
+	}
+
+	ctx := context.Background()
+	db, tx, err := postgres.ConnectTx()
+	if err != nil {
+		return fmt.Errorf("updatestringfrom: %w", ErrDB)
+	}
+	defer db.Close()
+	f, err := OneFile(ctx, tx, id)
+	if err != nil {
+		return fmt.Errorf("find file for: %w", err)
+	}
+	f.DoseeHardwareCPU = null.StringFrom(s)
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", s, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("updatestringfrom: %w", err)
+	}
+	return nil
+}
+
+var ErrSfx = fmt.Errorf("emulate-sfx value must be one of auto, covox, sb1, sb16, gus, pcspeaker, none")
+
+func UpdateEmulateSfx(id int64, val string) error {
+	s := strings.TrimSpace(strings.ToLower(val))
+	switch s {
+	case "covox", "sb1", "sb16", "gus", "pcspeaker", "none":
+		// do nothing
+	case "auto":
+		s = emulateAuto
+	default:
+		return fmt.Errorf("%s: %w", val, ErrSfx)
+	}
+
+	ctx := context.Background()
+	db, tx, err := postgres.ConnectTx()
+	if err != nil {
+		return fmt.Errorf("updatestringfrom: %w", ErrDB)
+	}
+	defer db.Close()
+	f, err := OneFile(ctx, tx, id)
+	if err != nil {
+		return fmt.Errorf("find file for: %w", err)
+	}
+	f.DoseeHardwareAudio = null.StringFrom(s)
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
+		return fmt.Errorf("%s: %w", s, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("updatestringfrom: %w", err)
+	}
+	return nil
+}
+
 // int64From is a type for the int64 columns that can be updated.
 type int64From int
 
