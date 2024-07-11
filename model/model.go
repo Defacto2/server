@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/server/internal/jsdos"
+	"github.com/Defacto2/server/internal/jsdos/msdos"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/subpop/go-ini"
 )
@@ -90,14 +91,14 @@ func JsDosBinary(f *models.File) (string, error) {
 	const dosPathSeparator, winPathSeparator = "\\", "/"
 	findname := jsdos.FindBinary(f.Filename.String, f.FileZipContent.String)
 	if !strings.Contains(findname, dosPathSeparator) && !strings.Contains(findname, winPathSeparator) {
-		return jsdos.Fmt8dot3(findname), nil
+		return msdos.Truncate(findname), nil
 	}
 	dir := filepath.Dir(findname)
 	// replace all windows path separators with dos path separators,
 	// as often the FileZipContent paths use non-dos path separators
 	// despite the zipfile being a DOS file.
 	dir = strings.ReplaceAll(dir, winPathSeparator, dosPathSeparator)
-	base := jsdos.Fmt8dot3(filepath.Base(findname))
+	base := msdos.Truncate(filepath.Base(findname))
 	return strings.Join([]string{dir, base}, dosPathSeparator), nil
 }
 

@@ -6,11 +6,6 @@ import (
 	"slices"
 	"sort"
 	"strings"
-	"unicode"
-
-	"golang.org/x/text/runes"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
 )
 
 const AudioRate = "44100" // AudioRate is the sample rate of the audio that is emulated.
@@ -470,93 +465,6 @@ func Finds(filename string, paths ...string) string {
 		}
 	}
 	return ""
-}
-
-// Fmt8dot3 returns a DOS 8.3 filename format, truncating the filename if necessary.
-// For example, "my backup collection.7zip" would return "my bac~1.7zi".
-func Fmt8dot3(filename string) string {
-	const maxLength, extLength = 8, 4
-	ext := filepath.Ext(filename)
-	name := strings.TrimSuffix(filename, ext)
-
-	if len(name) <= maxLength && len(ext) <= extLength {
-		return filename
-	}
-
-	if len(name) > maxLength {
-		return name[:maxLength-2] + "~1" + ext[:extLength]
-	}
-	return name + ext[:extLength]
-}
-
-func special(r rune) bool {
-	const (
-		underscore  = '_'
-		caret       = '^'
-		dollar      = '$'
-		tilde       = '~'
-		exclamation = '!'
-		number      = '#'
-		percent     = '%'
-		ampersand   = '&'
-		hyphen      = '-'
-		open        = '{'
-		close       = '}'
-		at          = '@'
-		quote       = '`'
-		apostrophe  = '\''
-		openParen   = '('
-		closeParen  = ')'
-	)
-	switch r {
-	case underscore, caret, dollar, tilde, exclamation, number,
-		percent, ampersand, hyphen, open, close, at, quote,
-		apostrophe, openParen, closeParen:
-		return true
-	}
-	return false
-}
-
-func Fat16Rename(filename string) string {
-	if filename == "" {
-		return ""
-	}
-	// A-Z 0-9
-	name := strings.TrimSpace(strings.ToUpper(filename))
-	// Remove diacritics and accents from the filename.
-	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
-	s, _, _ := transform.String(t, name)
-
-	p := []rune(s)
-	l := len(p)
-	const extLength = 3
-	for i, r := range p {
-		if unicode.Is(unicode.Letter, r) || unicode.Is(unicode.Number, r) {
-			continue
-		}
-		if special(r) {
-			continue
-		}
-		if unicode.Is(unicode.Space, r) {
-			p[i] = '_'
-			continue
-		}
-		if r == '.' {
-			continue
-		}
-		p[i] = 'X'
-	}
-	// handle single . for extension by matching the length of the extension vs the i value
-	// ! # $ % & ' ( ) - @ ^ _ ` { } ~
-
-	// none: ", *, +, ,, /, :, ;, <, =, >, ?, \, [, ], |
-
-	// Can contain only the letters A through Z, the numbers 0 through 9, and the following special characters:
-	// underscore (_), caret (^), dollar sign ($), tilde (~), exclamation point (!), number sign (#), percent sign (%), ampersand (&), hyphen (-), braces ({}), at sign (@), single quotation mark (`), apostrophe ('), and parentheses (). No other special characters are acceptable.
-	// Cannot contain spaces, commas, backslashes, or periods (except the period that separates the name from the extension).
-	// Cannot be identical to the name of another file or subdirectory in the same directory.
-
-	return string(p)
 }
 
 // Paths returns a list of file and directory paths from the zip content.
