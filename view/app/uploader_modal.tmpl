@@ -9,7 +9,7 @@
     - `layout-htmx.js`, a `afterRequest()` method must be used to handle the server response.
   - */}}
 {{- $screenshot := "A screenshot can be included in the archive."}}
-{{- $delay := "50ms" }}
+{{- $delay := "200ms" }}
     {{- /*  check if the event is a KeyboardEvent to prevent double rendering on datalists
             source: https://turriate.com/articles/using-datalist-for-typeahead-htmx  */ -}}
     <script>
@@ -42,7 +42,7 @@
                     </div>
                     <input type="number" spellcheck="false" autofocus required min="1" max="{{ demozooSanity }}" value=""
                         class="form-control" id="demozoo-submission" name="demozoo-submission" 
-                        hx-post="/demozoo/production" 
+                        hx-get="/demozoo/production" 
                         hx-target="#demozoo-submission-results" 
                         hx-trigger="input changed delay:{{$delay}}, search" 
                         hx-indicator="#demozoo-indicator"
@@ -83,7 +83,7 @@
                   </div>
                   <input type="number" spellcheck="false" autofocus required min="1" max="{{ pouetSanity }}" value=""
                       class="form-control" id="pouet-submission" name="pouet-submission" 
-                      hx-post="/pouet/production" 
+                      hx-get="/pouet/production" 
                       hx-target="#pouet-submission-results" 
                       hx-trigger="input changed delay:{{$delay}}, search" 
                       hx-indicator="#pouet-indicator"
@@ -125,14 +125,14 @@
                 <div class="input-group">
                   <input type="text" list="uploader-intro-list-1" name="uploader-intro-releaser1" class="form-control" id="uploader-intro-releaser-1" 
                       aria-describedby="uploader-intro-releasers-help" placeholder="example: Razor 1911" 
-                      hx-post="/uploader/releaser/1" 
+                      hx-patch="/uploader/releaser/1" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-intro-list-1" 
                       required>
                   <span class="input-group-text">+</span>
                   <input type="text" list="uploader-intro-list-2" name="uploader-intro-releaser2" class="form-control" id="uploader-intro-releaser-2" 
                       aria-describedby="uploader-intro-releasers-help" placeholder="example: Titan" 
-                      hx-post="/uploader/releaser/2" 
+                      hx-patch="/uploader/releaser/2" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-intro-list-2">
                 </div>
@@ -214,14 +214,14 @@
                 <div class="input-group">
                   <input type="text" list="uploader-trainer-list-1" name="uploader-trainer-releaser1" class="form-control" id="uploader-trainer-releaser-1" 
                       aria-describedby="uploader-trainer-releasers-help" placeholder="example: Razor 1911" 
-                      hx-post="/uploader/releaser/1" 
+                      hx-patch="/uploader/releaser/1" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-trainer-list-1" 
                       required>
                   <span class="input-group-text">+</span>
                   <input type="text" list="uploader-trainer-list-2" name="uploader-trainer-releaser2" class="form-control" id="uploader-trainer-releaser-2" 
                       aria-describedby="uploader-trainer-releasers-help" placeholder="example: Titan" 
-                      hx-post="/uploader/releaser/2" 
+                      hx-get="/uploader/releaser/2" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-trainer-list-2">
                 </div>
@@ -306,14 +306,14 @@
                 <div class="input-group">
                   <input type="text" list="uploader-text-list-1" name="uploader-text-releaser1" class="form-control" id="uploader-text-releaser-1" 
                       aria-describedby="uploader-text-releasers-help" placeholder="example: Razor 1911" 
-                      hx-post="/uploader/releaser/1" 
+                      hx-patch="/uploader/releaser/1" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-text-list-1" 
                       required>
                   <span class="input-group-text">+</span>
                   <input type="text" list="uploader-text-list-2" name="uploader-text-releaser2" class="form-control" id="uploader-text-releaser-2" 
                       aria-describedby="uploader-text-releasers-help" placeholder="example: Titan" 
-                      hx-post="/uploader/releaser/2" 
+                      hx-get="/uploader/releaser/2" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-text-list-2">
                 </div>
@@ -399,14 +399,14 @@
                 <div class="input-group">
                   <input type="text" list="uploader-image-list-1" name="uploader-image-releaser1" class="form-control" id="uploader-image-releaser-1" 
                       aria-describedby="uploader-image-releasers-help" placeholder="example: Razor 1911" 
-                      hx-post="/uploader/releaser/1" 
+                      hx-patch="/uploader/releaser/1" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-image-list-1" 
                       required>
                   <span class="input-group-text">+</span>
                   <input type="text" list="uploader-image-list-2" name="uploader-image-releaser2" class="form-control" id="uploader-image-releaser-2" 
                       aria-describedby="uploader-image-releasers-help" placeholder="example: Titan" 
-                      hx-post="/uploader/releaser/2" 
+                      hx-get="/uploader/releaser/2" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-image-list-2">
                 </div>
@@ -481,7 +481,7 @@
                 <div class="input-group mb-3">
                   <input type="text" list="uploader-magazine-list-1" name="uploader-magazine-releaser1" class="form-control" id="uploader-magazine-releaser-1" 
                       aria-describedby="uploader-magazine-releasers-help" placeholder="example: Reality Check Network" 
-                      hx-post="/uploader/releaser/magazine" 
+                      hx-patch="/uploader/releaser/magazine" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-magazine-list-1" 
                       required>
@@ -570,14 +570,14 @@
                 <div class="input-group">
                   <input type="text" list="uploader-advanced-list-1" name="uploader-advanced-releaser1" class="form-control" id="uploader-advanced-releaser-1" 
                       aria-describedby="uploader-advanced-releasers-help" placeholder="example: Razor 1911" 
-                      hx-post="/uploader/releaser/1" 
+                      hx-patch="/uploader/releaser/1" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-advanced-list-1" 
                       required>
                   <span class="input-group-text">+</span>
                   <input type="text" list="uploader-advanced-list-2" name="uploader-advanced-releaser2" class="form-control" id="uploader-advanced-releaser-2" 
                       aria-describedby="uploader-advanced-releasers-help" placeholder="example: Titan" 
-                      hx-post="/uploader/releaser/2" 
+                      hx-patch="/uploader/releaser/2" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-advanced-list-2">
                 </div>
@@ -624,7 +624,7 @@
               <div class="input-group mb-1">
                 <select name="uploader-advanced-operating-system" id="uploader-advanced-operating-system" class="form-select"
                   placeholder="Lookup classifications…" 
-                  hx-post="/uploader/classifications" 
+                  hx-get="/uploader/classifications" 
                   hx-include="[name='uploader-advanced-category']"
                   hx-target="#uploader-advanced-classification-help">
                 {{- template "optionOS" . }}
@@ -635,7 +635,7 @@
                 <label class="input-group-text" for="uploader-advanced-category">Tag as category</label>
                 <select name="uploader-advanced-category" id="uploader-advanced-category" class="form-select"
                   placeholder="Lookup classifications…"
-                  hx-post="/uploader/classifications" 
+                  hx-get="/uploader/classifications" 
                   hx-include="[name='uploader-advanced-operating-system']"
                   hx-target="#uploader-advanced-classification-help">
                 {{- template "optionTag" . }}

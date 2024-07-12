@@ -21,7 +21,7 @@
                     </div>              
                     <input type="text" spellcheck="false" autofocus 
                         class="form-control" id="search-htmx-input" name="htmx-search" 
-                        hx-post="{{$hxpost}}" 
+                        hx-patch="{{$hxpost}}" 
                         hx-target="#search-htmx-results" 
                         hx-trigger="keyup changed delay:50ms" 
                         hx-indicator="#search-htmx-indicator"

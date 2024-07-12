@@ -77,7 +77,7 @@ export async function checkSHA(file) {
   try {
     const hash = await sha384(file);
     const response = await fetch(`/uploader/sha384/${hash}`, {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         "Content-Type": "text/plain",
       },

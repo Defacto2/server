@@ -18,11 +18,9 @@
 ### Emulate on startup fixes
 
 - [ ] On dosee_hardware_cpu, machine, sound etc set "auto" and all other invalid strings to "" (empty).
-- [ ] Load GUS drivers for the emulator.
 - [ ] Delete emulate no aspect ratio from the database, as it isn't used.
 - [ ] Repack zips that contain programs with bad filenames, for example: http://localhost:1323/f/ab252e4
-- [ ] Create a UTILS zip archive to hold drivers and libraries for the emulator.
-- [ ] Replace PUT with POST/PATCH except for the artifact file upload.
+- [ ] Create a DRIVER.ZIP archive to load in js-dos, it should contain GUS drivers and DOS4GW.EXE etc.
 
 ### Templates
 

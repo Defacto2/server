@@ -129,7 +129,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               <label class="input-group-text w-50" for="artifact-editor-operating-system" id="artifact-editor-os-label">Operating system</label>
               <select name="artifact-editor-operatingsystem" id="artifact-editor-operating-system" class="form-select"
                 aria-describedby="artifact-editor-os-label" autocomplete="off"
-                hx-post="/editor/classifications" 
+                hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">
               {{- template "optionOS" . }}
@@ -139,7 +139,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               <label class="input-group-text w-50" for="artifact-editor-category" id="artifact-editor-category-label">Tag as category</label>
               <select name="artifact-editor-categories" id="artifact-editor-category" class="form-select"
                 aria-describedby="artifact-editor-category-label" autocomplete="off"
-                hx-post="/editor/classifications" 
+                hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">
               {{- template "optionTag" . }}
@@ -148,7 +148,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             <div class="btn-group" role="group" aria-label="Reset classifications">
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-reset-classifications" type="button" 
                 data-reset-os="{{$os}}" data-reset-cat="{{$tag}}"
-                hx-post="/editor/classifications" 
+                hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">
                   Reset classifications <small>to <q>{{$os}}</q> + <q>{{$tag}}</q></small></button>
@@ -160,57 +160,57 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             <div class="row row-cols-2 row-cols-md-3">
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-text-for-dos" type="button" 
                 data-reset-os="text" data-reset-cat="releaseinformation"
-                hx-post="/editor/classifications" 
+                hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">Text or NFO</button>
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-text-for-amiga" type="button"
                 data-reset-os="textamiga" data-reset-cat="releaseinformation"
-                hx-post="/editor/classifications" 
+                hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">Text for Amiga</button>
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-magazine-for-text" type="button"
                 data-reset-os="text" data-reset-cat="magazine"
-                hx-post="/editor/classifications" 
+                hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">Text magazine</button>
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-ansi-for-bbs" type="button"
                 data-reset-os="ansi" data-reset-cat="bbs"
-                hx-post="/editor/classifications" 
+                hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">ANSI for BBS</button>
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-intro-for-dos" type="button"
                 data-reset-os="dos" data-reset-cat="releaseadvert"
-                hx-post="/editor/classifications" 
+                hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">MsDos-tro</button>
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-trainer-for-dos" type="button"
                 data-reset-os="dos" data-reset-cat="gamehack"
-                hx-post="/editor/classifications" 
+                hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">MsDos trainer</button>
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-magazine-for-dos" type="button"
                 data-reset-os="dos" data-reset-cat="magazine"
-                hx-post="/editor/classifications" 
+                hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">MsDos magazine</button>
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-intro-for-bbs" type="button"
                 data-reset-os="dos" data-reset-cat="bbs"
-                hx-post="/editor/classifications" 
+                hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">BBS-tro</button>
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-intro-for-win" type="button"
                 data-reset-os="windows" data-reset-cat="releaseadvert"
-                hx-post="/editor/classifications" 
+                hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">Windows-tro</button>
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-trainer-for-win" type="button"
                 data-reset-os="windows" data-reset-cat="gamehack"
-                hx-post="/editor/classifications" 
+                hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">Windows trainer</button>
               <button class="btn btn-link" name="reset-classifications" id="artifact-editor-proof-of-release" type="button"
                 data-reset-os="image" data-reset-cat="releaseproof"
-                hx-post="/editor/classifications" 
+                hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">Proof of release</button>
             </div>
@@ -223,7 +223,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             <input type="text" class="form-control{{if eq $filename ""}} is-invalid{{end}}" 
               name="artifact-editor-filename" id="artifact-editor-filename" autocomplete="off" maxlength="255"
               value="{{$filename}}" aria-describedby="artifact-editor-filename-help"
-              hx-post="/editor/filename" 
+              hx-patch="/editor/filename" 
               hx-trigger="keyup changed delay:{{$lDelay}}"
               hx-include="[name='artifact-editor-key']">
             <div id="artifact-editor-filename-help" class="form-text">
@@ -233,7 +233,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             <div class="btn-group" role="group">
               <input type="hidden" name="artifact-editor-filename-resetter" value="{{$filename}}" readonly>
               <button class="btn btn-link" type="button" id="artifact-editor-filename-reset"
-                hx-post="/editor/filename/reset"
+                hx-patch="/editor/filename/reset"
                 hx-target="#artifact-editor-filename-quote"
                 hx-include="[name='artifact-editor-key'],
                             [name='artifact-editor-filename-resetter']">
@@ -245,7 +245,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             <label for="artifact-editor-virustotal" class="col-form-label-lg">VirusTotal alert</label>
             <input type="text" class="form-control" name="artifact-editor-virustotal" id="artifact-editor-virustotal" autocomplete="off" maxlength="256"
               aria-describedby="artifact-editor-virustotal-help" value="{{$virusTotal}}"
-              hx-post="/editor/virustotal" 
+              hx-patch="/editor/virustotal" 
               hx-trigger="keyup changed delay:{{$lDelay}}"
               hx-include="[name='artifact-editor-key']">
             <div id="artifact-editor-virustotal-help" class="form-text">
@@ -261,7 +261,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             <input type="text" name="artifact-editor-title" id="artifact-editor-title" autocomplete="off" maxlength="{{$hundred}}"
               aria-describedby="artifact-editor-title-help" placeholder="example: 500000th release!" class="form-control form-control-lg" 
               value="{{$title}}"
-              hx-post="/editor/title" 
+              hx-patch="/editor/title" 
               hx-trigger="keyup changed delay:{{$lDelay}}"
               hx-include="[name='artifact-editor-key']">
             <div id="artifact-editor-title-help" class="form-text">
@@ -271,7 +271,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             <div class="btn-group" role="group">
               <input type="hidden" name="artifact-editor-title-resetter" value="{{$title}}" readonly>
               <button class="btn btn-link" type="button" id="artifact-editor-title-reset"
-                hx-post="/editor/title/reset"
+                hx-patch="/editor/title/reset"
                 hx-target="#artifact-editor-title-quote"
                 hx-include="[name='artifact-editor-key'],
                             [name='artifact-editor-title-resetter']">
@@ -304,7 +304,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             <form id="artifact-editor-releasers-form" class="row row-cols-2 row-cols-lg-4 gy-1">
               <div class="col-6 col-lg-4 d-grid d-block">
                 <button class="btn btn-success" type="button" id="artifact-editor-releaser-update"
-                    hx-post="/editor/releasers"
+                    hx-patch="/editor/releasers"
                     hx-include="[name='artifact-editor-key']"
                     hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Update</button>
               </div>
@@ -313,7 +313,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 <input type="text" list="artifact-editor-list-1" name="artifact-editor-releaser1" id="artifact-editor-releaser-1" autocomplete="off"
                     aria-describedby="artifact-editor-releasers-help" placeholder="example: Razor 1911" class="form-control{{if eq $rel1 ""}} is-invalid{{end}}" 
                     value="{{$rel1}}" data-reset-rel1="{{$rel1}}"
-                    hx-post="/uploader/releaser/1" 
+                    hx-patch="/uploader/releaser/1" 
                     hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                     hx-target="#artifact-editor-list-1" minlength="2" maxlength="{{$hundred}}" required>
               </div>
@@ -321,7 +321,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 <input type="text" list="artifact-editor-list-2" name="artifact-editor-releaser2" id="artifact-editor-releaser-2" autocomplete="off"
                     aria-describedby="artifact-editor-releasers-help" placeholder="example: Titan" class="form-control" 
                     value="{{$rel2}}" data-reset-rel2="{{$rel2}}"
-                    hx-post="/uploader/releaser/2" 
+                    hx-patch="/uploader/releaser/2" 
                     hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                     hx-target="#artifact-editor-list-2" minlength="2" maxlength="{{$hundred}}">
                     <div class="input-group col-xl-3"></div>
@@ -339,7 +339,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             </div>
             <div class="btn-group" role="group">
               <button class="btn btn-link" type="button" id="artifact-editor-releaser-reset"
-              hx-post="/editor/releasers/reset"
+              hx-patch="/editor/releasers/reset"
               hx-target="#artifact-editor-releaser-quotes"
               hx-include="[name='artifact-editor-key'],
                           [name='artifact-editor-releaser1'],
@@ -356,7 +356,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             <div class="row row-cols-2 row-cols-lg-4 gy-1">
               <div class="col-6 col-lg-4 d-grid d-block">
                 <button class="btn btn-success" type="button" id="artifact-editor-date-update"
-                hx-post="/editor/date"
+                hx-patch="/editor/date"
                 hx-include="[name='artifact-editor-key'],
                             [name='artifact-editor-year'],
                             [name='artifact-editor-year-resetter']
@@ -399,7 +399,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               <input type="hidden" id="artifact-editor-date-resetter" name="artifact-editor-date-resetter" 
                 value="{{$dateYear}}-{{$dateMonth}}-{{$dateDay}}" readonly>
               <button type="button" class="btn btn-link" id="artifact-editor-date-reset"
-                  hx-post="/editor/date/reset"
+                  hx-patch="/editor/date/reset"
                   hx-target="#artifact-editor-date-quote"
                   hx-include="[name='artifact-editor-key'],[name='artifact-editor-date-resetter']">
                   Reset date <small>to 
@@ -411,7 +411,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               <input type="hidden" id="artifact-editor-date-lastmodder" name="artifact-editor-date-lastmodder" 
                 value="{{$lmYear}}-{{$lmMonth}}-{{$lmDay}}" readonly>
               <button type="button" class="btn btn-link" id="artifact-editor-date-lastmod"
-                  hx-post="/editor/date/lastmod"
+                  hx-patch="/editor/date/lastmod"
                   hx-target="#artifact-editor-date-lastmod-quote"
                   hx-include="[name='artifact-editor-key'],[name='artifact-editor-date-lastmodder']">
                   Use the last modification date
@@ -433,7 +433,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               <div class="form-floating">
               <input type="text" class="form-control" name="artifact-editor-credittext" id="artifact-editor-credit-text" autocomplete="off" maxlength="{{$oneK}}"
                 value="{{$writers}}" data-reset-credit-text="{{$writers}}" placeholder="example: Name" aria-details="artifact-editor-credit-help"
-                hx-post="/editor/creator/text" 
+                hx-patch="/editor/creator/text" 
                 hx-trigger="keyup changed delay:{{$lDelay}}"
                 hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-credit-text">Writers</label>
@@ -443,7 +443,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             <div class="form-floating">
               <input type="text" class="form-control" name="artifact-editor-creditill" id="artifact-editor-credit-ill" autocomplete="off" maxlength="{{$oneK}}"
                 value="{{$artists}}" data-reset-credit-ill="{{$artists}}" placeholder="example: Name" aria-details="artifact-editor-credit-help"
-                hx-post="/editor/creator/ill" 
+                hx-patch="/editor/creator/ill" 
                 hx-trigger="keyup changed delay:{{$lDelay}}"
                 hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-credit-ill">Visual artists</label>
@@ -453,7 +453,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             <div class="form-floating">
               <input type="text" class="form-control" name="artifact-editor-creditprog" id="artifact-editor-credit-prog" autocomplete="off" maxlength="{{$hundred}}" 
                 value="{{$programmers}}" data-reset-credit-prog="{{$programmers}}" placeholder="example: Name" aria-details="artifact-editor-credit-help"
-                hx-post="/editor/creator/prog" 
+                hx-patch="/editor/creator/prog" 
                 hx-trigger="keyup changed delay:{{$lDelay}}"
                 hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-credit-prog">Programmers</label>
@@ -463,7 +463,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             <div class="form-floating">
               <input type="text" class="form-control" name="artifact-editor-creditaudio" id="artifact-editor-credit-audio" autocomplete="off" maxlength="{{$hundred}}"
                 value="{{$musicians}}" data-reset-credit-audio="{{$musicians}}" placeholder="example: Name" aria-details="artifact-editor-credit-help"
-                hx-post="/editor/creator/audio" 
+                hx-patch="/editor/creator/audio" 
                 hx-trigger="keyup changed delay:{{$lDelay}}"
                 hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-credit-audio">Musicians</label>
@@ -473,7 +473,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           <div class="form-text" id="artifact-editor-credit-help">Join multiple creators with commas, for example: <q>Name,Name two,Name3</q>.</div>
           <div>
             <button type="button" class="btn btn-link" id="artifact-editor-credit-reset"
-                hx-post="/editor/creator/reset"
+                hx-patch="/editor/creator/reset"
                 hx-include="[name='artifact-editor-key'],
                 [name='artifact-editor-credit-resetter'],
                 [name='artifact-editor-credittext'],
@@ -489,7 +489,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
         <hr class="d-block d-lg-none">
         {{- /*  Links  */}}
         <form autocomplete="off"     
-            hx-post="/editor/links"
+            hx-patch="/editor/links"
             hx-trigger="input from:#artifact-editor-youtube,
                         input from:#artifact-editor-demozoo,
                         input from:#artifact-editor-pouet,
@@ -510,7 +510,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 {{- /*  maxlength/minlength values means htmx will only ever trigger with 11 chars  */}}
                 <input type="text" class="form-control" name="artifact-editor-youtube" id="artifact-editor-youtube" 
                   autocomplete="off" maxlength="11" minlength="11" value="{{$youtube}}" placeholder="62BuDfBIcMo"
-                  hx-post="/editor/youtube"
+                  hx-patch="/editor/youtube"
                   hx-validate="true"
                   hx-trigger="keyup changed delay:{{$lDelay}}"
                   hx-include="[name='artifact-editor-key']">
@@ -523,7 +523,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 {{- /*  do not use a min=1 input element, otherwise htmx will never save when deleting a value  */}}
                 <input type="number" class="form-control" name="artifact-editor-demozoo" id="artifact-editor-demozoo" 
                   autocomplete="off" max="{{ demozooSanity }}" value="{{$demozoo}}" placeholder="185828"
-                  hx-post="/editor/demozoo"
+                  hx-patch="/editor/demozoo"
                   hx-trigger="keyup changed delay:{{$lDelay}}"
                   hx-include="[name='artifact-editor-key']">
                 <label for="artifact-editor-demozoo">Demozoo prod</label>
@@ -534,7 +534,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 <input type="hidden" name="artifact-editor-pouetval" id="artifact-editor-pouet-reset" value="{{$pouet}}" readonly>
                 <input type="number" class="form-control" name="artifact-editor-pouet" id="artifact-editor-pouet" 
                   autocomplete="off" max="{{ pouetSanity }}" value="{{$pouet}}" placeholder="75854"
-                  hx-post="/editor/pouet"
+                  hx-patch="/editor/pouet"
                   hx-trigger="keyup changed delay:{{$lDelay}}"
                   hx-include="[name='artifact-editor-key']">
                 <label for="artifact-editor-pouet">Pouet prod</label>
@@ -545,7 +545,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 <input type="hidden" name="artifact-editor-16colorstval" id="artifact-editor-16colors-reset" value="{{$sixteen}}" readonly>
                 <input type="text" class="form-control" name="artifact-editor-16colors" id="artifact-editor-16colors" 
                   autocomplete="off" maxlength="{{$oneK}}" value="{{$sixteen}}" placeholder="/tags/magazine/dreadloc"
-                  hx-post="/editor/16colors"
+                  hx-patch="/editor/16colors"
                   hx-trigger="keyup changed delay:{{$lDelay}}"
                   hx-include="[name='artifact-editor-key']">
                 <label for="artifact-editor-16colors">16colors partial</label>
@@ -556,7 +556,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 <input type="hidden" name="artifact-editor-githubval" id="artifact-editor-github-reset" value="{{$github}}" readonly>
                 <input type="text" class="form-control" name="artifact-editor-github" id="artifact-editor-github" 
                   autocomplete="off" maxlength="{{$oneK}}" value="{{$github}}" placeholder="/Defacto2/database"
-                  hx-post="/editor/github"
+                  hx-patch="/editor/github"
                   hx-trigger="keyup changed delay:{{$lDelay}}"
                   hx-include="[name='artifact-editor-key']">
                 <label for="artifact-editor-github">GitHub repo</label>
@@ -571,7 +571,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               <input type="text" class="form-control" name="artifact-editor-relations" id="artifact-editor-relations" 
                 autocomplete="off" maxlength="255" value="{{$relations}}"
                 placeholder="example: NFO;9f1c2" aria-describedby="artifact-editor-relations-help"
-                hx-post="/editor/relations"
+                hx-patch="/editor/relations"
                 hx-trigger="keyup changed delay:{{$lDelay}}"
                 hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-relations">Link to releases</label>
@@ -587,7 +587,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               <input type="text" class="form-control" name="artifact-editor-websites" id="artifact-editor-websites" 
                 autocomplete="off" maxlength="2048" value="{{$websites}}"
                 placeholder="Website;example.com" aria-describedby="artifact-editor-websites-help"
-                hx-post="/editor/sites"
+                hx-patch="/editor/sites"
                 hx-trigger="keyup changed delay:{{$lDelay}}"
                 hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-websites">Link to websites</label>
@@ -605,7 +605,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
         </div>
         <div>
           <button type="button" class="btn btn-link" id="artifact-editor-links-reset"
-              hx-post="/editor/links/reset"
+              hx-patch="/editor/links/reset"
               hx-include="[name='artifact-editor-key'],
               [name='artifact-editor-youtubeval'],
               [name='artifact-editor-demozooval'],

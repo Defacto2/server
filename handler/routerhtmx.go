@@ -22,49 +22,54 @@ func htmxGroup(e *echo.Echo, logger *zap.SugaredLogger, downloadDir string) *ech
 	}
 	store := middleware.NewRateLimiterMemoryStore(rateLimit)
 	g := e.Group("", middleware.RateLimiter(store))
-	g.PUT("/uploader/sha384/:hash", func(c echo.Context) error {
-		return htmx.LookupSHA384(c, logger)
-	})
-	g.POST("/demozoo/production", htmx.DemozooProd)
-	g.POST("/demozoo/production/submit/:id", func(c echo.Context) error {
-		return htmx.DemozooSubmit(c, logger)
-	})
-	g.POST("/pouet/production", htmx.PouetProd)
-	g.POST("/pouet/production/submit/:id", func(c echo.Context) error {
-		return htmx.PouetSubmit(c, logger)
-	})
-	g.POST("/search/releaser", func(c echo.Context) error {
+	g.PATCH("/search/releaser", func(c echo.Context) error {
 		return htmx.SearchReleaser(c, logger)
 	})
-	g.POST("/uploader/advanced", func(c echo.Context) error {
-		return htmx.AdvancedSubmit(c, logger, downloadDir)
+
+	demozoo := g.Group("/demozoo")
+	demozoo.GET("/production", htmx.DemozooProd)
+	demozoo.PUT("/production/:id", func(c echo.Context) error {
+		return htmx.DemozooSubmit(c, logger)
 	})
-	g.POST("/uploader/classifications", func(c echo.Context) error {
+	pouet := g.Group("/pouet")
+	pouet.GET("/production", htmx.PouetProd)
+	pouet.PUT("/production/:id", func(c echo.Context) error {
+		return htmx.PouetSubmit(c, logger)
+	})
+
+	upload := g.Group("/uploader")
+	upload.GET("/classifications", func(c echo.Context) error {
 		return htmx.HumanizeAndCount(c, logger, "uploader-advanced")
 	})
-	g.POST("/uploader/image", func(c echo.Context) error {
-		return htmx.ImageSubmit(c, logger, downloadDir)
-	})
-	g.POST("/uploader/intro", func(c echo.Context) error {
-		return htmx.IntroSubmit(c, logger, downloadDir)
-	})
-	g.POST("/uploader/magazine", func(c echo.Context) error {
-		return htmx.MagazineSubmit(c, logger, downloadDir)
-	})
-	g.POST("/uploader/releaser/1", func(c echo.Context) error {
+	upload.PATCH("/releaser/1", func(c echo.Context) error {
 		return htmx.DataListReleasers(c, logger, releaser1(c))
 	})
-	g.POST("/uploader/releaser/2", func(c echo.Context) error {
+	upload.PATCH("/releaser/2", func(c echo.Context) error {
 		return htmx.DataListReleasers(c, logger, releaser2(c))
 	})
-	g.POST("/uploader/releaser/magazine", func(c echo.Context) error {
+	upload.PATCH("/releaser/magazine", func(c echo.Context) error {
 		lookup := c.FormValue("uploader-magazine-releaser1")
 		return htmx.DataListMagazines(c, logger, lookup)
 	})
-	g.POST("/uploader/text", func(c echo.Context) error {
+	upload.PATCH("/sha384/:hash", func(c echo.Context) error {
+		return htmx.LookupSHA384(c, logger)
+	})
+	upload.POST("/advanced", func(c echo.Context) error {
+		return htmx.AdvancedSubmit(c, logger, downloadDir)
+	})
+	upload.POST("/image", func(c echo.Context) error {
+		return htmx.ImageSubmit(c, logger, downloadDir)
+	})
+	upload.POST("/intro", func(c echo.Context) error {
+		return htmx.IntroSubmit(c, logger, downloadDir)
+	})
+	upload.POST("/magazine", func(c echo.Context) error {
+		return htmx.MagazineSubmit(c, logger, downloadDir)
+	})
+	upload.POST("/text", func(c echo.Context) error {
 		return htmx.TextSubmit(c, logger, downloadDir)
 	})
-	g.POST("/uploader/trainer", func(c echo.Context) error {
+	upload.POST("/trainer", func(c echo.Context) error {
 		return htmx.TrainerSubmit(c, logger, downloadDir)
 	})
 	return e

@@ -35,7 +35,7 @@ func (c Configuration) NoCrawl(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-// ReadOnlyLock disables all POST, PUT and DELETE requests for the modification
+// ReadOnlyLock disables all PATCH, POST, PUT and DELETE requests for the modification
 // of the database and any related user interface.
 func (c Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(e echo.Context) error {

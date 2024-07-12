@@ -87,7 +87,7 @@ func DemozooProd(c echo.Context) error {
 	}
 	html := `<div class="d-grid gap-2">`
 	html += fmt.Sprintf(`<button type="button" class="btn btn-outline-success" `+
-		`hx-post="/demozoo/production/submit/%d" `+
+		`hx-put="/demozoo/production/%d" `+
 		`hx-target="#demozoo-submission-results" hx-trigger="click once delay:500ms" `+
 		`autofocus>Submit ID %d</button>`, id, id)
 	html += `</div>`
@@ -138,7 +138,7 @@ func DemozooValid(c echo.Context, id int) (demozoo.Production, error) {
 	return prod, nil
 }
 
-// DemozooSubmit is the handler for the /demozoo/production/submit route.
+// DemozooSubmit is the handler for the /demozoo/production put route.
 // This will attempt to insert a new file record into the database using
 // the Demozoo production ID. If the Demozoo production ID is already in
 // use, an error message is returned.
@@ -356,7 +356,7 @@ func PouetProd(c echo.Context) error {
 func htmler(id int, info ...string) string {
 	s := `<div class="d-grid gap-2">`
 	s += fmt.Sprintf(`<button type="button" class="btn btn-outline-success" `+
-		`hx-post="/pouet/production/submit/%d" hx-target="#pouet-submission-results" hx-trigger="click once delay:500ms" `+
+		`hx-put="/pouet/production/%d" hx-target="#pouet-submission-results" hx-trigger="click once delay:500ms" `+
 		`autofocus>Submit ID %d</button>`, id, id)
 	s += `</div>`
 	s += fmt.Sprintf(`<p class="mt-3">%s</p>`, strings.Join(info, " "))
@@ -417,7 +417,7 @@ func PouetValid(c echo.Context, id int) (pouet.Response, error) {
 	return prod, nil
 }
 
-// PouetSubmit is the handler for the /pouet/production/submit route.
+// PouetSubmit is the handler for the /pouet/production PUT route.
 // This will attempt to insert a new file record into the database using
 // the Pouet production ID. If the Pouet production ID is already in
 // use, an error message is returned.

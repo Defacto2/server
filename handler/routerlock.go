@@ -13,9 +13,9 @@ import (
 // that are locked behind the router middleware and require a user to be logged in.
 
 /*
-	A note about the used request methods:
+	A note about the request methods in use:
 	 - GET requests are used for retrieving data from the server.
-	 - PATCH requests are used for updating data on the server.
+	 - PATCH requests are used for updating or retrieving data on the server.
 	 - PUT requests are used for creating new data on the server.
 	 - POST requests are used for uploading files with or without data.
 	 - DELETE requests are used for removing data from the server.
@@ -64,11 +64,11 @@ func creator(g *echo.Group) {
 		panic(ErrRoutes)
 	}
 	creator := g.Group("/creator")
-	creator.POST("/text", htmx.RecordCreatorText)
-	creator.POST("/ill", htmx.RecordCreatorIll)
-	creator.POST("/prog", htmx.RecordCreatorProg)
-	creator.POST("/audio", htmx.RecordCreatorAudio)
-	creator.POST("/reset", htmx.RecordCreatorReset)
+	creator.PATCH("/text", htmx.RecordCreatorText)
+	creator.PATCH("/ill", htmx.RecordCreatorIll)
+	creator.PATCH("/prog", htmx.RecordCreatorProg)
+	creator.PATCH("/audio", htmx.RecordCreatorAudio)
+	creator.PATCH("/reset", htmx.RecordCreatorReset)
 }
 
 func date(g *echo.Group) {
@@ -76,11 +76,11 @@ func date(g *echo.Group) {
 		panic(fmt.Errorf("%w for date router", ErrRoutes))
 	}
 	date := g.Group("/date")
-	date.POST("", htmx.RecordDateIssued)
-	date.POST("/reset", func(cx echo.Context) error {
+	date.PATCH("", htmx.RecordDateIssued)
+	date.PATCH("/reset", func(cx echo.Context) error {
 		return htmx.RecordDateIssuedReset(cx, "artifact-editor-date-resetter")
 	})
-	date.POST("/lastmod", func(cx echo.Context) error {
+	date.PATCH("/lastmod", func(cx echo.Context) error {
 		return htmx.RecordDateIssuedReset(cx, "artifact-editor-date-lastmodder")
 	})
 }
@@ -93,35 +93,35 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 		return htmx.DeleteForever(c, logger, c.Param("key"))
 	})
 
-	g.POST("/16colors", htmx.Record16Colors)
+	g.PATCH("/16colors", htmx.Record16Colors)
 	g.POST("/ansilove/copy", func(c echo.Context) error {
 		return dir.AnsiLovePost(c, logger)
 	})
-	g.POST("/classifications", func(c echo.Context) error {
+	g.PATCH("/classifications", func(c echo.Context) error {
 		return htmx.RecordClassification(c, logger)
 	})
 	g.PATCH("/comment", htmx.RecordComment)
 	g.PATCH("/comment/reset", htmx.RecordCommentReset)
-	g.POST("/demozoo", htmx.RecordDemozoo)
-	g.POST("/filename", htmx.RecordFilename)
-	g.POST("/filename/reset", htmx.RecordFilenameReset)
-	g.POST("/github", htmx.RecordGitHub)
-	g.POST("/links", htmx.RecordLinks)
-	g.POST("/links/reset", htmx.RecordLinksReset)
-	g.POST("/platform", app.PlatformEdit)
-	g.POST("/platform+tag", app.PlatformTagInfo)
-	g.POST("/pouet", htmx.RecordPouet)
-	g.POST("/relations", htmx.RecordRelations)
-	g.POST("/releasers", htmx.RecordReleasers)
-	g.POST("/releasers/reset", htmx.RecordReleasersReset)
-	g.POST("/sites", htmx.RecordSites)
-	g.POST("/tag", app.TagEdit)
-	g.POST("/tag/info", app.TagInfo)
-	g.POST("/title", htmx.RecordTitle)
-	g.POST("/title/reset", htmx.RecordTitleReset)
-	g.POST("/virustotal", htmx.RecordVirusTotal)
-	g.POST("/ymd", app.YMDEdit)
-	g.POST("/youtube", htmx.RecordYouTube)
+	g.PATCH("/demozoo", htmx.RecordDemozoo)
+	g.PATCH("/filename", htmx.RecordFilename)
+	g.PATCH("/filename/reset", htmx.RecordFilenameReset)
+	g.PATCH("/github", htmx.RecordGitHub)
+	g.PATCH("/links", htmx.RecordLinks)
+	g.PATCH("/links/reset", htmx.RecordLinksReset)
+	g.PATCH("/platform", app.PlatformEdit)
+	g.PATCH("/platform+tag", app.PlatformTagInfo)
+	g.PATCH("/pouet", htmx.RecordPouet)
+	g.PATCH("/relations", htmx.RecordRelations)
+	g.PATCH("/releasers", htmx.RecordReleasers)
+	g.PATCH("/releasers/reset", htmx.RecordReleasersReset)
+	g.PATCH("/sites", htmx.RecordSites)
+	g.PATCH("/tag", app.TagEdit)
+	g.PATCH("/tag/info", app.TagInfo)
+	g.PATCH("/title", htmx.RecordTitle)
+	g.PATCH("/title/reset", htmx.RecordTitleReset)
+	g.PATCH("/virustotal", htmx.RecordVirusTotal)
+	g.PATCH("/ymd", app.YMDEdit)
+	g.PATCH("/youtube", htmx.RecordYouTube)
 
 	emu := g.Group("/emulate")
 	emu.PATCH("/broken/:id", htmx.RecordEmulateBroken)
@@ -172,10 +172,10 @@ func online(g *echo.Group) {
 		panic(fmt.Errorf("%w for online router", ErrRoutes))
 	}
 	online := g.Group("/online")
-	online.POST("/true", func(cx echo.Context) error {
+	online.PATCH("/true", func(cx echo.Context) error {
 		return htmx.RecordToggle(cx, true)
 	})
-	online.POST("/false", func(cx echo.Context) error {
+	online.PATCH("/false", func(cx echo.Context) error {
 		return htmx.RecordToggle(cx, false)
 	})
 	online.GET("/true/:id", func(cx echo.Context) error {
@@ -189,12 +189,9 @@ func search(g *echo.Group, logger *zap.SugaredLogger) {
 	}
 	search := g.Group("/search")
 	search.GET("/id", app.SearchID)
-	search.POST("/id", func(cx echo.Context) error {
+	search.PATCH("/id", func(cx echo.Context) error {
 		return htmx.SearchByID(cx, logger)
 	})
-	// search.POST("/reset", func(cx echo.Context) error {
-	// 	return htmx.RecordSearchReset(cx)
-	// })
 }
 
 func readme(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {

@@ -305,7 +305,7 @@ func recordLastMod(b bool) template.HTML {
 }
 
 func radioPublic(b bool) template.HTML {
-	const htmx = ` hx-post="/editor/online/true"
+	const htmx = ` hx-patch="/editor/online/true"
 	hx-include="[name='artifact-editor-key']"`
 	if b {
 		return template.HTML(radio +
@@ -316,7 +316,7 @@ func radioPublic(b bool) template.HTML {
 }
 
 func radioHidden(b bool) template.HTML {
-	const htmx = ` hx-post="/editor/online/false"
+	const htmx = ` hx-patch="/editor/online/false"
 	hx-include="[name='artifact-editor-key']"`
 	if !b {
 		return template.HTML(radio +
