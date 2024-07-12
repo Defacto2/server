@@ -6,6 +6,8 @@ import (
 	"slices"
 	"sort"
 	"strings"
+
+	"github.com/Defacto2/server/internal/jsdos/msdos"
 )
 
 const AudioRate = "44100" // AudioRate is the sample rate of the audio that is emulated.
@@ -480,4 +482,30 @@ func Paths(zipContent string) []string {
 	paths := strings.Split(archive, delimiter)
 	// FOR LATER, convert into DOS 8.3 filename format?
 	return paths
+}
+
+// Valid returns true if the sequence of MS-DOS commands is valid.
+// Multiple commands are separated by the '&&' operator and are case-insensitive.
+// Each command checked for valid FAT 12/16 filenames and paths.
+// MS-DOS and Linux arguments (forward slash and hyphen) are passed but are not checked.
+func Valid(s string) bool {
+	value := strings.ToUpper(s)
+	cmds := strings.Split(value, "&&")
+	const dosArg, linuxArg = '/', '-'
+	for _, cmd := range cmds {
+		cmd := strings.TrimSpace(cmd)
+		args := strings.Split(cmd, " ")
+		for _, arg := range args {
+			if arg == "" || arg[0] == dosArg || arg[0] == linuxArg {
+				continue
+			}
+			if msdos.Rename(arg) != arg {
+				return false
+			}
+			if msdos.Truncate(arg) != arg {
+				return false
+			}
+		}
+	}
+	return true
 }

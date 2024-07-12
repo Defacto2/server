@@ -317,16 +317,23 @@ func jsdos(data map[string]interface{}, logger *zap.SugaredLogger, art *models.F
 	}
 	data["jsdos6"] = false
 	data["jsdos6Run"] = ""
+	data["jsdos6RunGuess"] = ""
 	data["jsdos6Config"] = ""
 	data["jsdos6Zip"] = false
 	if emulate := artifactJSDos(art); emulate {
 		data["jsdos6"] = emulate
-		run, err := model.JsDosBinary(art)
+		cmd, err := model.JsDosCommand(art)
+		if err != nil {
+			logger.Error(errorWithID(err, "js-dos command", art.ID))
+			return data
+		}
+		data["jsdos6Run"] = cmd
+		guess, err := model.JsDosBinary(art)
 		if err != nil {
 			logger.Error(errorWithID(err, "js-dos binary", art.ID))
 			return data
 		}
-		data["jsdos6Run"] = run
+		data["jsdos6RunGuess"] = guess
 		cfg, err := model.JsDosConfig(art)
 		if err != nil {
 			logger.Error(errorWithID(err, "js-dos config", art.ID))

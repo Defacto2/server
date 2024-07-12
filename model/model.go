@@ -64,17 +64,26 @@ func calc(o, l int) int {
 	return (o - 1) * l
 }
 
-// JsDosBinary returns the program executable to run in the js-dos emulator.
+// JsDosCommand returns the program executable or commands to run in the js-dos emulator.
 // If the dosee_run_program is set then it is the preferred executable.
+// If the filename is a .com or .exe then it will return the filename.
+// Otherwise, it will attempt to find the most likely executable in the archive.
+func JsDosCommand(f *models.File) (string, error) {
+	if f == nil {
+		return "", ErrModel
+	}
+	if f.DoseeRunProgram.Valid && f.DoseeRunProgram.String != "" {
+		return f.DoseeRunProgram.String, nil
+	}
+	return JsDosBinary(f)
+}
+
+// JsDosBinary returns the program executable to run in the js-dos emulator.
 // If the filename is a .com or .exe then it will return the filename.
 // Otherwise, it will attempt to find the most likely executable in the archive.
 func JsDosBinary(f *models.File) (string, error) {
 	if f == nil {
 		return "", ErrModel
-	}
-	// if set, the dosee_run_program is the preferred executable to run
-	if f.DoseeRunProgram.Valid && f.DoseeRunProgram.String != "" {
-		return f.DoseeRunProgram.String, nil
 	}
 	if !f.Filename.Valid || f.Filename.IsZero() || f.Filename.String == "" {
 		return "", nil

@@ -5,6 +5,7 @@
 {{- $msdos := eq (index . "platform") "dos"}}
 {{- $id := index . "modID"}}
 {{- $runProgram := index . "jsdos6Run"}}
+{{- $guessProgram := index . "jsdos6RunGuess"}}
 {{- $customRunProgram := index . "modEmulateRun"}}
 {{- $extract := index . "jsdos6Zip"}}
 {{- $cpu := index . "modEmulateCPU"}}
@@ -26,7 +27,7 @@
         {{- /*  shown when platform != "dos"  */}}
         {{- if eq $msdos false}}
         <div class="alert alert-secondary" role="alert">
-            The emulate editor is not in use, as it is for artifacts that run on Microsoft or IBM DOS.
+            The emulate editor is not in use, as it is for artifacts that marked to run on Microsoft or IBM DOS.
         </div>
         {{- else}}
         <p>
@@ -35,7 +36,8 @@
             due to the limitations of the PC platform of the 1980s and 1990s. 
             The operating system had no universal interface to talk to hardware, 
             and it was up to each program to provide drivers. 
-            This meant software could run incorrectly or crash when dealing with unexpected hardware.
+            This meant software could run incorrectly or crash when dealing with unexpected hardware. 
+            <span class="text-info-emphasis">Any configuration changes require the emulator's browser tab to be refreshed.</span>
         </p>
         <div class="alert alert-secondary" role="alert">
             <div class="form-check form-switch">
@@ -61,30 +63,26 @@
             </legend>
             <div class="input-group input-group-sm mb-3">
                 <span class="input-group-text">C:\</span>
-                <input type="text" class="form-control" autocomplete="off" aria-label="Program name to launch" value="{{$runProgram}}" readonly{{if ne "" $customRunProgram}} disabled{{end}}>
+                <input type="text" class="form-control" autocomplete="off" aria-label="Program name to launch" 
+                    id="emulate-guess-program"
+                    value="{{$guessProgram}}" readonly{{if ne "" $customRunProgram}} disabled{{end}}>
             </div>
             </div>
-
-            {{/*  <input class="form-control" type="search" 
-       name="search" placeholder="Begin Typing To Search Users..." 
-       hx-post="/search" 
-       hx-trigger="input changed delay:500ms, search" 
-       hx-target="#search-results" 
-       hx-indicator=".htmx-indicator">  */}}
-
-            <div class="col col-12 col-lg-6">
+            <div class="col col-12 col-lg-6 mb-3">
             <div class="form-text">
                 Custom commands will override the named program to run automatically,<br>
                 you can chain multiple commands: <code>TYPE README && PAUSE && APP.EXE</code>
             </div>
-            <div class="input-group input-group-sm mb-3">
+            <div class="input-group input-group-sm has-validation">
                 <span class="input-group-text" id="emulate-custom-cmds">Custom commands</span>
                 <input type="text" class="form-control" autocomplete="off" aria-label="Replacement commands to launch" aria-describedby="emulate-custom-cmds" 
                     hx-patch="/editor/emulate/runprogram/{{$id}}"
                     hx-trigger="input changed delay:50ms"
-                    name="emulate-run-program"
+                    hx-target="#emulate-run-program-feedback" hx-swap="outerHTML"
+                    name="emulate-run-program" id="emulate-run-program"
                     value="{{$customRunProgram}}">
             </div>
+            <div id="emulate-run-program-feedback"></div>
             </div>
         </div>
         {{- /*  emulator machine (graphics)  */}}

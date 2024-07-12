@@ -15,6 +15,25 @@ import { clipValue, getElmById } from "./helper.mjs";
 (() => {
   "use strict";
 
+  const emulateRunProgram = document.getElementById("emulate-run-program");
+  if (emulateRunProgram !== null) {
+    const emulateGuessProgram = document.getElementById(
+      "emulate-guess-program"
+    );
+    if (emulateGuessProgram === null) {
+      throw new Error("The guess program input is missing.");
+    }
+    emulateRunProgram.addEventListener("input", () => {
+      emulateRunProgram.value = emulateRunProgram.value.toUpperCase();
+      const val = emulateRunProgram.value;
+      if (val !== "") {
+        emulateGuessProgram.disabled = true;
+        return;
+      }
+      emulateGuessProgram.disabled = false;
+    });
+  }
+
   const copyKeyVal = getElmById(`artifact-editor-key-value`);
   if (copyKeyVal === null) {
     throw new Error("The key value is missing.");

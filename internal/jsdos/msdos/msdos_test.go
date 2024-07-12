@@ -7,6 +7,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestDirName(t *testing.T) {
+	s := msdos.DirName("")
+	assert.Equal(t, "", s)
+	s = msdos.DirName("dirname.xyz")
+	assert.Equal(t, "DIRNAME.XYZ", s)
+	s = msdos.DirName("résumés-99")
+	assert.Equal(t, "RESUMES-", s)
+	s = msdos.DirName("résumé99.doc")
+	assert.Equal(t, "RESUME99.DOC", s)
+}
+
 func TestRename(t *testing.T) {
 	t.Parallel()
 	s := msdos.Rename("")
@@ -25,6 +36,10 @@ func TestRename(t *testing.T) {
 	assert.Equal(t, "XXAD.MEX", s)
 	s = msdos.Rename("Γεåd.më.7zip")
 	assert.Equal(t, "XXADXMEX7ZIP", s)
+	s = msdos.Rename(".HIDDEN")
+	assert.Equal(t, "XHIDDEN", s)
+	s = msdos.Rename(".TXT")
+	assert.Equal(t, "XTXT", s)
 }
 
 func TestTruncate(t *testing.T) {
@@ -35,8 +50,20 @@ func TestTruncate(t *testing.T) {
 	s = msdos.Truncate("filename")
 	assert.Equal(t, "filename", s)
 
+	s = msdos.Truncate("filename1")
+	assert.Equal(t, "filena~1", s)
+
+	s = msdos.Truncate("filename12")
+	assert.Equal(t, "filena~1", s)
+
+	s = msdos.Truncate("filename123")
+	assert.Equal(t, "filena~1", s)
+
 	s = msdos.Truncate("filename.exe")
 	assert.Equal(t, "filename.exe", s)
+
+	s = msdos.Truncate("filename.binary")
+	assert.Equal(t, "filename.bin", s)
 
 	s = msdos.Truncate("file_name.exe")
 	assert.Equal(t, "file_n~1.exe", s)

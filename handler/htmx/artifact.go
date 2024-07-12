@@ -14,6 +14,7 @@ import (
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/form"
+	"github.com/Defacto2/server/internal/jsdos"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
@@ -639,18 +640,27 @@ func RecordEmulateBroken(c echo.Context) error {
 	return c.String(http.StatusOK, "<span class=\"text-success\">✓</span>")
 }
 
+// RecordEmulateRunProgram handles the patch submission for the run program emulation.
 func RecordEmulateRunProgram(c echo.Context) error {
 	key := c.Param("id")
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	value := c.FormValue("emulate-run-program")
-	// TODO: validate the value against FAT16 filenames.
+	value := strings.ToUpper(c.FormValue("emulate-run-program"))
+	if !jsdos.Valid(value) {
+		return c.HTML(http.StatusOK, "<div id=\"emulate-run-program-feedback\" class=\"d-block invalid-feedback\">"+
+			"The command or name contains invalid characters, syntax or is too long</div>")
+	}
 	if err = model.UpdateEmulateRunProgram(int64(id), value); err != nil {
 		return badRequest(c, err)
 	}
-	return c.String(http.StatusOK, "<span class=\"text-success\">✓</span>")
+	if value == "" {
+		return c.String(http.StatusOK, "<div id=\"emulate-run-program-feedback\" class=\"text-success\">"+
+			"✓ Custom command(s) removed</div>")
+	}
+	return c.String(http.StatusOK, "<div id=\"emulate-run-program-feedback\" class=\"text-success\">"+
+		"✓ Command(s) saved</div>")
 }
 
 // RecordEmulateMachine handles the patch submission for the machine and graphic emulation for a file artifact.

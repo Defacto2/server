@@ -210,32 +210,6 @@ func TestFinds(t *testing.T) {
 	assert.Equal(t, "FILENAME.EXE", s)
 }
 
-// func TestDosBin(t *testing.T) {
-// t.Parallel()
-// s := jsdos.Binary()
-// assert.Empty(t, s)
-
-// x := mockZipContent
-// p := jsdos.Paths(x)
-// s = jsdos.Binary(p...)
-// assert.Empty(t, s)
-
-// x += "\nfilename.exe\nfilename.xxx"
-// p = jsdos.Paths(x)
-// s = jsdos.Binary(p...)
-// assert.Equal(t, "filename.exe", s)
-
-// x = "FILENAME.COM\n" + x
-// p = jsdos.Paths(x)
-// s = jsdos.Binary(p...)
-// assert.Equal(t, "FILENAME.COM", s)
-
-// x += "\nrunme.bat"
-// p = jsdos.Paths(x)
-// s = jsdos.Binary(p...)
-// assert.Equal(t, "runme.bat", s)
-//}
-
 func TestFindBinary(t *testing.T) {
 	example := "readme.txt\nRUN.BAT\napp.com\ndata.dat"
 
@@ -260,4 +234,17 @@ func TestFindBinary(t *testing.T) {
 
 	s = jsdos.FindBinary("filename.zip", example+"\n"+"filename.exe")
 	assert.Equal(t, "filename.exe", s)
+}
+
+func TestValid(t *testing.T) {
+	t.Parallel()
+	assert.True(t, jsdos.Valid(""))
+	assert.True(t, jsdos.Valid("filename"))
+	assert.True(t, jsdos.Valid("filename.zip"))
+	assert.True(t, jsdos.Valid("dir mygame"))
+	assert.True(t, jsdos.Valid("dir mygame && cd mygame && runme.bat"))
+	assert.False(t, jsdos.Valid("dir mygamë && cd mygamë && runme.bat"))
+	assert.False(t, jsdos.Valid("dir mygame && cd mygame && mysuperlongcommand"))
+	assert.False(t, jsdos.Valid(".TXT"))
+	assert.False(t, jsdos.Valid(".HIDDEN"))
 }

@@ -48,6 +48,20 @@ func special(r rune) bool {
 	return false
 }
 
+// DirName returns a FAT 16 compatible string based on the provided named directory. It uses
+// the Rename function to convert the directory name into a FAT 16 compatible format and trims
+// the result to the maximum length of 8 characters. Directories can have an optional extension
+// of up to 3 characters long.
+func DirName(name string) string {
+	dir := Rename(name)
+	ext := filepath.Ext(dir)
+	base := strings.TrimSuffix(dir, ext)
+	if len(base) > BaseLen {
+		base = base[:BaseLen]
+	}
+	return base + ext
+}
+
 // Rename returns a FAT 16 compatible string based on the provided filename. It replaces
 // accented characters with their closest Latin equivalent and all other unsupported characters
 // with an 'X'. The resulting filename has all spaces replaced with underscores and letters
@@ -80,15 +94,27 @@ func Rename(filename string) string {
 			name[i] = '_'
 			continue
 		}
-		if r == '.' {
-			validExtension := i >= l-ExtensionLen && i < l-1
-			if validExtension {
+		if r == '.' && !linuxHideMarker(i) {
+			if validExtension(i, l) {
 				continue
 			}
 		}
 		name[i] = 'X'
 	}
 	return string(name)
+}
+
+// On many systems, files starting with a dot are marked as hidden.
+// But in MS-DOS, the dot can only be used once as the filename extension separator.
+func linuxHideMarker(i int) bool {
+	return i == 0
+}
+
+// validExtension returns true if the index is within the last 4 characters of the filename and
+// the index is not the last character.
+// MS-DOS only allow a single dot as the extension separator and the extension must be 1-3 characters long.
+func validExtension(i, l int) bool {
+	return i >= l-ExtensionLen && i < l-1
 }
 
 // Truncate returns the filename in a MS-DOS 8.3 friendly format, truncating the name if necessary.
@@ -98,13 +124,11 @@ func Rename(filename string) string {
 func Truncate(filename string) string {
 	ext := filepath.Ext(filename)
 	name := strings.TrimSuffix(filename, ext)
-
-	if len(name) <= BaseLen && len(ext) <= ExtensionLen {
-		return filename
+	if len(ext) > ExtensionLen {
+		ext = ext[:ExtensionLen]
 	}
-
 	if len(name) > BaseLen {
-		return name[:BaseLen-2] + "~1" + ext[:ExtensionLen]
+		return name[:BaseLen-2] + "~1" + ext
 	}
-	return name + ext[:ExtensionLen]
+	return name + ext
 }
