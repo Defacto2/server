@@ -17,10 +17,32 @@
 
 ### Emulate on startup fixes
 
-- [ ] On dosee_hardware_cpu, machine, sound etc set "auto" and all other invalid strings to "" (empty).
-- [ ] Delete emulate no aspect ratio from the database, as it isn't used.
+- [ ] Delete emulate no aspect ratio from the database, as it isn't used, `dosee_no_aspect_ratio_fix`.
 - [ ] Repack zips that contain programs with bad filenames, for example: http://localhost:1323/f/ab252e4
 - [ ] Create a DRIVER.ZIP archive to load in js-dos, it should contain GUS drivers and DOS4GW.EXE etc.
+
+> `dosee_load_utilities`
+
+```js  
+    Dos(canvas).ready((fs, main) => {
+        fs.extractAll([
+            { url: "ultrsound.zip", mountPoint: "/snd" },
+            { url: "game.zip", mountPoint: "/game" },
+        }).then(() => {
+            main(["-c", "cd game", "-c", "game.exe"])
+        });
+    });
+
+	Dos(canvas).ready((fs, main) => {
+        fs.createFile("dosbox.conf", `
+            [autoexec]
+            mount c .
+            c:
+            type dosbox~1.con
+        `);
+        main(["-conf", "dosbox.conf"]);
+    });
+```
 
 ### Templates
 

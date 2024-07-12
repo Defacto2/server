@@ -107,8 +107,6 @@ type File struct { // Primary key
 	DoseeHardwareGraphic null.String `boil:"dosee_hardware_graphic" json:"dosee_hardware_graphic,omitempty" toml:"dosee_hardware_graphic" yaml:"dosee_hardware_graphic,omitempty"`
 	// DOSee audio override
 	DoseeHardwareAudio null.String `boil:"dosee_hardware_audio" json:"dosee_hardware_audio,omitempty" toml:"dosee_hardware_audio" yaml:"dosee_hardware_audio,omitempty"`
-	// DOSee disable aspect ratio corrections
-	DoseeNoAspectRatioFix null.Int16 `boil:"dosee_no_aspect_ratio_fix" json:"dosee_no_aspect_ratio_fix,omitempty" toml:"dosee_no_aspect_ratio_fix" yaml:"dosee_no_aspect_ratio_fix,omitempty"`
 	// Flag DOS program as incompatible for DOSBox
 	DoseeIncompatible null.Int16 `boil:"dosee_incompatible" json:"dosee_incompatible,omitempty" toml:"dosee_incompatible" yaml:"dosee_incompatible,omitempty"`
 	// DOSBox turn off EMS
@@ -125,203 +123,199 @@ type File struct { // Primary key
 }
 
 var FileColumns = struct {
-	ID                    string
-	UUID                  string
-	ListRelations         string
-	WebID16colors         string
-	WebIDGithub           string
-	WebIDYoutube          string
-	WebIDPouet            string
-	WebIDDemozoo          string
-	GroupBrandFor         string
-	GroupBrandBy          string
-	RecordTitle           string
-	DateIssuedYear        string
-	DateIssuedMonth       string
-	DateIssuedDay         string
-	CreditText            string
-	CreditProgram         string
-	CreditIllustration    string
-	CreditAudio           string
-	Filename              string
-	Filesize              string
-	ListLinks             string
-	FileSecurityAlertURL  string
-	FileZipContent        string
-	FileMagicType         string
-	PreviewImage          string
-	FileIntegrityStrong   string
-	FileIntegrityWeak     string
-	FileLastModified      string
-	Platform              string
-	Section               string
-	Comment               string
-	Createdat             string
-	Updatedat             string
-	Deletedat             string
-	Updatedby             string
-	Deletedby             string
-	RetrotxtReadme        string
-	RetrotxtNoReadme      string
-	DoseeRunProgram       string
-	DoseeHardwareCPU      string
-	DoseeHardwareGraphic  string
-	DoseeHardwareAudio    string
-	DoseeNoAspectRatioFix string
-	DoseeIncompatible     string
-	DoseeNoEms            string
-	DoseeNoXMS            string
-	DoseeNoUmb            string
-	DoseeLoadUtilities    string
+	ID                   string
+	UUID                 string
+	ListRelations        string
+	WebID16colors        string
+	WebIDGithub          string
+	WebIDYoutube         string
+	WebIDPouet           string
+	WebIDDemozoo         string
+	GroupBrandFor        string
+	GroupBrandBy         string
+	RecordTitle          string
+	DateIssuedYear       string
+	DateIssuedMonth      string
+	DateIssuedDay        string
+	CreditText           string
+	CreditProgram        string
+	CreditIllustration   string
+	CreditAudio          string
+	Filename             string
+	Filesize             string
+	ListLinks            string
+	FileSecurityAlertURL string
+	FileZipContent       string
+	FileMagicType        string
+	PreviewImage         string
+	FileIntegrityStrong  string
+	FileIntegrityWeak    string
+	FileLastModified     string
+	Platform             string
+	Section              string
+	Comment              string
+	Createdat            string
+	Updatedat            string
+	Deletedat            string
+	Updatedby            string
+	Deletedby            string
+	RetrotxtReadme       string
+	RetrotxtNoReadme     string
+	DoseeRunProgram      string
+	DoseeHardwareCPU     string
+	DoseeHardwareGraphic string
+	DoseeHardwareAudio   string
+	DoseeIncompatible    string
+	DoseeNoEms           string
+	DoseeNoXMS           string
+	DoseeNoUmb           string
+	DoseeLoadUtilities   string
 }{
-	ID:                    "id",
-	UUID:                  "uuid",
-	ListRelations:         "list_relations",
-	WebID16colors:         "web_id_16colors",
-	WebIDGithub:           "web_id_github",
-	WebIDYoutube:          "web_id_youtube",
-	WebIDPouet:            "web_id_pouet",
-	WebIDDemozoo:          "web_id_demozoo",
-	GroupBrandFor:         "group_brand_for",
-	GroupBrandBy:          "group_brand_by",
-	RecordTitle:           "record_title",
-	DateIssuedYear:        "date_issued_year",
-	DateIssuedMonth:       "date_issued_month",
-	DateIssuedDay:         "date_issued_day",
-	CreditText:            "credit_text",
-	CreditProgram:         "credit_program",
-	CreditIllustration:    "credit_illustration",
-	CreditAudio:           "credit_audio",
-	Filename:              "filename",
-	Filesize:              "filesize",
-	ListLinks:             "list_links",
-	FileSecurityAlertURL:  "file_security_alert_url",
-	FileZipContent:        "file_zip_content",
-	FileMagicType:         "file_magic_type",
-	PreviewImage:          "preview_image",
-	FileIntegrityStrong:   "file_integrity_strong",
-	FileIntegrityWeak:     "file_integrity_weak",
-	FileLastModified:      "file_last_modified",
-	Platform:              "platform",
-	Section:               "section",
-	Comment:               "comment",
-	Createdat:             "createdat",
-	Updatedat:             "updatedat",
-	Deletedat:             "deletedat",
-	Updatedby:             "updatedby",
-	Deletedby:             "deletedby",
-	RetrotxtReadme:        "retrotxt_readme",
-	RetrotxtNoReadme:      "retrotxt_no_readme",
-	DoseeRunProgram:       "dosee_run_program",
-	DoseeHardwareCPU:      "dosee_hardware_cpu",
-	DoseeHardwareGraphic:  "dosee_hardware_graphic",
-	DoseeHardwareAudio:    "dosee_hardware_audio",
-	DoseeNoAspectRatioFix: "dosee_no_aspect_ratio_fix",
-	DoseeIncompatible:     "dosee_incompatible",
-	DoseeNoEms:            "dosee_no_ems",
-	DoseeNoXMS:            "dosee_no_xms",
-	DoseeNoUmb:            "dosee_no_umb",
-	DoseeLoadUtilities:    "dosee_load_utilities",
+	ID:                   "id",
+	UUID:                 "uuid",
+	ListRelations:        "list_relations",
+	WebID16colors:        "web_id_16colors",
+	WebIDGithub:          "web_id_github",
+	WebIDYoutube:         "web_id_youtube",
+	WebIDPouet:           "web_id_pouet",
+	WebIDDemozoo:         "web_id_demozoo",
+	GroupBrandFor:        "group_brand_for",
+	GroupBrandBy:         "group_brand_by",
+	RecordTitle:          "record_title",
+	DateIssuedYear:       "date_issued_year",
+	DateIssuedMonth:      "date_issued_month",
+	DateIssuedDay:        "date_issued_day",
+	CreditText:           "credit_text",
+	CreditProgram:        "credit_program",
+	CreditIllustration:   "credit_illustration",
+	CreditAudio:          "credit_audio",
+	Filename:             "filename",
+	Filesize:             "filesize",
+	ListLinks:            "list_links",
+	FileSecurityAlertURL: "file_security_alert_url",
+	FileZipContent:       "file_zip_content",
+	FileMagicType:        "file_magic_type",
+	PreviewImage:         "preview_image",
+	FileIntegrityStrong:  "file_integrity_strong",
+	FileIntegrityWeak:    "file_integrity_weak",
+	FileLastModified:     "file_last_modified",
+	Platform:             "platform",
+	Section:              "section",
+	Comment:              "comment",
+	Createdat:            "createdat",
+	Updatedat:            "updatedat",
+	Deletedat:            "deletedat",
+	Updatedby:            "updatedby",
+	Deletedby:            "deletedby",
+	RetrotxtReadme:       "retrotxt_readme",
+	RetrotxtNoReadme:     "retrotxt_no_readme",
+	DoseeRunProgram:      "dosee_run_program",
+	DoseeHardwareCPU:     "dosee_hardware_cpu",
+	DoseeHardwareGraphic: "dosee_hardware_graphic",
+	DoseeHardwareAudio:   "dosee_hardware_audio",
+	DoseeIncompatible:    "dosee_incompatible",
+	DoseeNoEms:           "dosee_no_ems",
+	DoseeNoXMS:           "dosee_no_xms",
+	DoseeNoUmb:           "dosee_no_umb",
+	DoseeLoadUtilities:   "dosee_load_utilities",
 }
 
 var FileTableColumns = struct {
-	ID                    string
-	UUID                  string
-	ListRelations         string
-	WebID16colors         string
-	WebIDGithub           string
-	WebIDYoutube          string
-	WebIDPouet            string
-	WebIDDemozoo          string
-	GroupBrandFor         string
-	GroupBrandBy          string
-	RecordTitle           string
-	DateIssuedYear        string
-	DateIssuedMonth       string
-	DateIssuedDay         string
-	CreditText            string
-	CreditProgram         string
-	CreditIllustration    string
-	CreditAudio           string
-	Filename              string
-	Filesize              string
-	ListLinks             string
-	FileSecurityAlertURL  string
-	FileZipContent        string
-	FileMagicType         string
-	PreviewImage          string
-	FileIntegrityStrong   string
-	FileIntegrityWeak     string
-	FileLastModified      string
-	Platform              string
-	Section               string
-	Comment               string
-	Createdat             string
-	Updatedat             string
-	Deletedat             string
-	Updatedby             string
-	Deletedby             string
-	RetrotxtReadme        string
-	RetrotxtNoReadme      string
-	DoseeRunProgram       string
-	DoseeHardwareCPU      string
-	DoseeHardwareGraphic  string
-	DoseeHardwareAudio    string
-	DoseeNoAspectRatioFix string
-	DoseeIncompatible     string
-	DoseeNoEms            string
-	DoseeNoXMS            string
-	DoseeNoUmb            string
-	DoseeLoadUtilities    string
+	ID                   string
+	UUID                 string
+	ListRelations        string
+	WebID16colors        string
+	WebIDGithub          string
+	WebIDYoutube         string
+	WebIDPouet           string
+	WebIDDemozoo         string
+	GroupBrandFor        string
+	GroupBrandBy         string
+	RecordTitle          string
+	DateIssuedYear       string
+	DateIssuedMonth      string
+	DateIssuedDay        string
+	CreditText           string
+	CreditProgram        string
+	CreditIllustration   string
+	CreditAudio          string
+	Filename             string
+	Filesize             string
+	ListLinks            string
+	FileSecurityAlertURL string
+	FileZipContent       string
+	FileMagicType        string
+	PreviewImage         string
+	FileIntegrityStrong  string
+	FileIntegrityWeak    string
+	FileLastModified     string
+	Platform             string
+	Section              string
+	Comment              string
+	Createdat            string
+	Updatedat            string
+	Deletedat            string
+	Updatedby            string
+	Deletedby            string
+	RetrotxtReadme       string
+	RetrotxtNoReadme     string
+	DoseeRunProgram      string
+	DoseeHardwareCPU     string
+	DoseeHardwareGraphic string
+	DoseeHardwareAudio   string
+	DoseeIncompatible    string
+	DoseeNoEms           string
+	DoseeNoXMS           string
+	DoseeNoUmb           string
+	DoseeLoadUtilities   string
 }{
-	ID:                    "files.id",
-	UUID:                  "files.uuid",
-	ListRelations:         "files.list_relations",
-	WebID16colors:         "files.web_id_16colors",
-	WebIDGithub:           "files.web_id_github",
-	WebIDYoutube:          "files.web_id_youtube",
-	WebIDPouet:            "files.web_id_pouet",
-	WebIDDemozoo:          "files.web_id_demozoo",
-	GroupBrandFor:         "files.group_brand_for",
-	GroupBrandBy:          "files.group_brand_by",
-	RecordTitle:           "files.record_title",
-	DateIssuedYear:        "files.date_issued_year",
-	DateIssuedMonth:       "files.date_issued_month",
-	DateIssuedDay:         "files.date_issued_day",
-	CreditText:            "files.credit_text",
-	CreditProgram:         "files.credit_program",
-	CreditIllustration:    "files.credit_illustration",
-	CreditAudio:           "files.credit_audio",
-	Filename:              "files.filename",
-	Filesize:              "files.filesize",
-	ListLinks:             "files.list_links",
-	FileSecurityAlertURL:  "files.file_security_alert_url",
-	FileZipContent:        "files.file_zip_content",
-	FileMagicType:         "files.file_magic_type",
-	PreviewImage:          "files.preview_image",
-	FileIntegrityStrong:   "files.file_integrity_strong",
-	FileIntegrityWeak:     "files.file_integrity_weak",
-	FileLastModified:      "files.file_last_modified",
-	Platform:              "files.platform",
-	Section:               "files.section",
-	Comment:               "files.comment",
-	Createdat:             "files.createdat",
-	Updatedat:             "files.updatedat",
-	Deletedat:             "files.deletedat",
-	Updatedby:             "files.updatedby",
-	Deletedby:             "files.deletedby",
-	RetrotxtReadme:        "files.retrotxt_readme",
-	RetrotxtNoReadme:      "files.retrotxt_no_readme",
-	DoseeRunProgram:       "files.dosee_run_program",
-	DoseeHardwareCPU:      "files.dosee_hardware_cpu",
-	DoseeHardwareGraphic:  "files.dosee_hardware_graphic",
-	DoseeHardwareAudio:    "files.dosee_hardware_audio",
-	DoseeNoAspectRatioFix: "files.dosee_no_aspect_ratio_fix",
-	DoseeIncompatible:     "files.dosee_incompatible",
-	DoseeNoEms:            "files.dosee_no_ems",
-	DoseeNoXMS:            "files.dosee_no_xms",
-	DoseeNoUmb:            "files.dosee_no_umb",
-	DoseeLoadUtilities:    "files.dosee_load_utilities",
+	ID:                   "files.id",
+	UUID:                 "files.uuid",
+	ListRelations:        "files.list_relations",
+	WebID16colors:        "files.web_id_16colors",
+	WebIDGithub:          "files.web_id_github",
+	WebIDYoutube:         "files.web_id_youtube",
+	WebIDPouet:           "files.web_id_pouet",
+	WebIDDemozoo:         "files.web_id_demozoo",
+	GroupBrandFor:        "files.group_brand_for",
+	GroupBrandBy:         "files.group_brand_by",
+	RecordTitle:          "files.record_title",
+	DateIssuedYear:       "files.date_issued_year",
+	DateIssuedMonth:      "files.date_issued_month",
+	DateIssuedDay:        "files.date_issued_day",
+	CreditText:           "files.credit_text",
+	CreditProgram:        "files.credit_program",
+	CreditIllustration:   "files.credit_illustration",
+	CreditAudio:          "files.credit_audio",
+	Filename:             "files.filename",
+	Filesize:             "files.filesize",
+	ListLinks:            "files.list_links",
+	FileSecurityAlertURL: "files.file_security_alert_url",
+	FileZipContent:       "files.file_zip_content",
+	FileMagicType:        "files.file_magic_type",
+	PreviewImage:         "files.preview_image",
+	FileIntegrityStrong:  "files.file_integrity_strong",
+	FileIntegrityWeak:    "files.file_integrity_weak",
+	FileLastModified:     "files.file_last_modified",
+	Platform:             "files.platform",
+	Section:              "files.section",
+	Comment:              "files.comment",
+	Createdat:            "files.createdat",
+	Updatedat:            "files.updatedat",
+	Deletedat:            "files.deletedat",
+	Updatedby:            "files.updatedby",
+	Deletedby:            "files.deletedby",
+	RetrotxtReadme:       "files.retrotxt_readme",
+	RetrotxtNoReadme:     "files.retrotxt_no_readme",
+	DoseeRunProgram:      "files.dosee_run_program",
+	DoseeHardwareCPU:     "files.dosee_hardware_cpu",
+	DoseeHardwareGraphic: "files.dosee_hardware_graphic",
+	DoseeHardwareAudio:   "files.dosee_hardware_audio",
+	DoseeIncompatible:    "files.dosee_incompatible",
+	DoseeNoEms:           "files.dosee_no_ems",
+	DoseeNoXMS:           "files.dosee_no_xms",
+	DoseeNoUmb:           "files.dosee_no_umb",
+	DoseeLoadUtilities:   "files.dosee_load_utilities",
 }
 
 // Generated where
@@ -500,103 +494,101 @@ func (w whereHelpernull_Time) IsNull() qm.QueryMod    { return qmhelper.WhereIsN
 func (w whereHelpernull_Time) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
 
 var FileWhere = struct {
-	ID                    whereHelperint64
-	UUID                  whereHelpernull_String
-	ListRelations         whereHelpernull_String
-	WebID16colors         whereHelpernull_String
-	WebIDGithub           whereHelpernull_String
-	WebIDYoutube          whereHelpernull_String
-	WebIDPouet            whereHelpernull_Int64
-	WebIDDemozoo          whereHelpernull_Int64
-	GroupBrandFor         whereHelpernull_String
-	GroupBrandBy          whereHelpernull_String
-	RecordTitle           whereHelpernull_String
-	DateIssuedYear        whereHelpernull_Int16
-	DateIssuedMonth       whereHelpernull_Int16
-	DateIssuedDay         whereHelpernull_Int16
-	CreditText            whereHelpernull_String
-	CreditProgram         whereHelpernull_String
-	CreditIllustration    whereHelpernull_String
-	CreditAudio           whereHelpernull_String
-	Filename              whereHelpernull_String
-	Filesize              whereHelpernull_Int64
-	ListLinks             whereHelpernull_String
-	FileSecurityAlertURL  whereHelpernull_String
-	FileZipContent        whereHelpernull_String
-	FileMagicType         whereHelpernull_String
-	PreviewImage          whereHelpernull_String
-	FileIntegrityStrong   whereHelpernull_String
-	FileIntegrityWeak     whereHelpernull_String
-	FileLastModified      whereHelpernull_Time
-	Platform              whereHelpernull_String
-	Section               whereHelpernull_String
-	Comment               whereHelpernull_String
-	Createdat             whereHelpernull_Time
-	Updatedat             whereHelpernull_Time
-	Deletedat             whereHelpernull_Time
-	Updatedby             whereHelpernull_String
-	Deletedby             whereHelpernull_String
-	RetrotxtReadme        whereHelpernull_String
-	RetrotxtNoReadme      whereHelpernull_Int16
-	DoseeRunProgram       whereHelpernull_String
-	DoseeHardwareCPU      whereHelpernull_String
-	DoseeHardwareGraphic  whereHelpernull_String
-	DoseeHardwareAudio    whereHelpernull_String
-	DoseeNoAspectRatioFix whereHelpernull_Int16
-	DoseeIncompatible     whereHelpernull_Int16
-	DoseeNoEms            whereHelpernull_Int16
-	DoseeNoXMS            whereHelpernull_Int16
-	DoseeNoUmb            whereHelpernull_Int16
-	DoseeLoadUtilities    whereHelpernull_Int16
+	ID                   whereHelperint64
+	UUID                 whereHelpernull_String
+	ListRelations        whereHelpernull_String
+	WebID16colors        whereHelpernull_String
+	WebIDGithub          whereHelpernull_String
+	WebIDYoutube         whereHelpernull_String
+	WebIDPouet           whereHelpernull_Int64
+	WebIDDemozoo         whereHelpernull_Int64
+	GroupBrandFor        whereHelpernull_String
+	GroupBrandBy         whereHelpernull_String
+	RecordTitle          whereHelpernull_String
+	DateIssuedYear       whereHelpernull_Int16
+	DateIssuedMonth      whereHelpernull_Int16
+	DateIssuedDay        whereHelpernull_Int16
+	CreditText           whereHelpernull_String
+	CreditProgram        whereHelpernull_String
+	CreditIllustration   whereHelpernull_String
+	CreditAudio          whereHelpernull_String
+	Filename             whereHelpernull_String
+	Filesize             whereHelpernull_Int64
+	ListLinks            whereHelpernull_String
+	FileSecurityAlertURL whereHelpernull_String
+	FileZipContent       whereHelpernull_String
+	FileMagicType        whereHelpernull_String
+	PreviewImage         whereHelpernull_String
+	FileIntegrityStrong  whereHelpernull_String
+	FileIntegrityWeak    whereHelpernull_String
+	FileLastModified     whereHelpernull_Time
+	Platform             whereHelpernull_String
+	Section              whereHelpernull_String
+	Comment              whereHelpernull_String
+	Createdat            whereHelpernull_Time
+	Updatedat            whereHelpernull_Time
+	Deletedat            whereHelpernull_Time
+	Updatedby            whereHelpernull_String
+	Deletedby            whereHelpernull_String
+	RetrotxtReadme       whereHelpernull_String
+	RetrotxtNoReadme     whereHelpernull_Int16
+	DoseeRunProgram      whereHelpernull_String
+	DoseeHardwareCPU     whereHelpernull_String
+	DoseeHardwareGraphic whereHelpernull_String
+	DoseeHardwareAudio   whereHelpernull_String
+	DoseeIncompatible    whereHelpernull_Int16
+	DoseeNoEms           whereHelpernull_Int16
+	DoseeNoXMS           whereHelpernull_Int16
+	DoseeNoUmb           whereHelpernull_Int16
+	DoseeLoadUtilities   whereHelpernull_Int16
 }{
-	ID:                    whereHelperint64{field: "\"files\".\"id\""},
-	UUID:                  whereHelpernull_String{field: "\"files\".\"uuid\""},
-	ListRelations:         whereHelpernull_String{field: "\"files\".\"list_relations\""},
-	WebID16colors:         whereHelpernull_String{field: "\"files\".\"web_id_16colors\""},
-	WebIDGithub:           whereHelpernull_String{field: "\"files\".\"web_id_github\""},
-	WebIDYoutube:          whereHelpernull_String{field: "\"files\".\"web_id_youtube\""},
-	WebIDPouet:            whereHelpernull_Int64{field: "\"files\".\"web_id_pouet\""},
-	WebIDDemozoo:          whereHelpernull_Int64{field: "\"files\".\"web_id_demozoo\""},
-	GroupBrandFor:         whereHelpernull_String{field: "\"files\".\"group_brand_for\""},
-	GroupBrandBy:          whereHelpernull_String{field: "\"files\".\"group_brand_by\""},
-	RecordTitle:           whereHelpernull_String{field: "\"files\".\"record_title\""},
-	DateIssuedYear:        whereHelpernull_Int16{field: "\"files\".\"date_issued_year\""},
-	DateIssuedMonth:       whereHelpernull_Int16{field: "\"files\".\"date_issued_month\""},
-	DateIssuedDay:         whereHelpernull_Int16{field: "\"files\".\"date_issued_day\""},
-	CreditText:            whereHelpernull_String{field: "\"files\".\"credit_text\""},
-	CreditProgram:         whereHelpernull_String{field: "\"files\".\"credit_program\""},
-	CreditIllustration:    whereHelpernull_String{field: "\"files\".\"credit_illustration\""},
-	CreditAudio:           whereHelpernull_String{field: "\"files\".\"credit_audio\""},
-	Filename:              whereHelpernull_String{field: "\"files\".\"filename\""},
-	Filesize:              whereHelpernull_Int64{field: "\"files\".\"filesize\""},
-	ListLinks:             whereHelpernull_String{field: "\"files\".\"list_links\""},
-	FileSecurityAlertURL:  whereHelpernull_String{field: "\"files\".\"file_security_alert_url\""},
-	FileZipContent:        whereHelpernull_String{field: "\"files\".\"file_zip_content\""},
-	FileMagicType:         whereHelpernull_String{field: "\"files\".\"file_magic_type\""},
-	PreviewImage:          whereHelpernull_String{field: "\"files\".\"preview_image\""},
-	FileIntegrityStrong:   whereHelpernull_String{field: "\"files\".\"file_integrity_strong\""},
-	FileIntegrityWeak:     whereHelpernull_String{field: "\"files\".\"file_integrity_weak\""},
-	FileLastModified:      whereHelpernull_Time{field: "\"files\".\"file_last_modified\""},
-	Platform:              whereHelpernull_String{field: "\"files\".\"platform\""},
-	Section:               whereHelpernull_String{field: "\"files\".\"section\""},
-	Comment:               whereHelpernull_String{field: "\"files\".\"comment\""},
-	Createdat:             whereHelpernull_Time{field: "\"files\".\"createdat\""},
-	Updatedat:             whereHelpernull_Time{field: "\"files\".\"updatedat\""},
-	Deletedat:             whereHelpernull_Time{field: "\"files\".\"deletedat\""},
-	Updatedby:             whereHelpernull_String{field: "\"files\".\"updatedby\""},
-	Deletedby:             whereHelpernull_String{field: "\"files\".\"deletedby\""},
-	RetrotxtReadme:        whereHelpernull_String{field: "\"files\".\"retrotxt_readme\""},
-	RetrotxtNoReadme:      whereHelpernull_Int16{field: "\"files\".\"retrotxt_no_readme\""},
-	DoseeRunProgram:       whereHelpernull_String{field: "\"files\".\"dosee_run_program\""},
-	DoseeHardwareCPU:      whereHelpernull_String{field: "\"files\".\"dosee_hardware_cpu\""},
-	DoseeHardwareGraphic:  whereHelpernull_String{field: "\"files\".\"dosee_hardware_graphic\""},
-	DoseeHardwareAudio:    whereHelpernull_String{field: "\"files\".\"dosee_hardware_audio\""},
-	DoseeNoAspectRatioFix: whereHelpernull_Int16{field: "\"files\".\"dosee_no_aspect_ratio_fix\""},
-	DoseeIncompatible:     whereHelpernull_Int16{field: "\"files\".\"dosee_incompatible\""},
-	DoseeNoEms:            whereHelpernull_Int16{field: "\"files\".\"dosee_no_ems\""},
-	DoseeNoXMS:            whereHelpernull_Int16{field: "\"files\".\"dosee_no_xms\""},
-	DoseeNoUmb:            whereHelpernull_Int16{field: "\"files\".\"dosee_no_umb\""},
-	DoseeLoadUtilities:    whereHelpernull_Int16{field: "\"files\".\"dosee_load_utilities\""},
+	ID:                   whereHelperint64{field: "\"files\".\"id\""},
+	UUID:                 whereHelpernull_String{field: "\"files\".\"uuid\""},
+	ListRelations:        whereHelpernull_String{field: "\"files\".\"list_relations\""},
+	WebID16colors:        whereHelpernull_String{field: "\"files\".\"web_id_16colors\""},
+	WebIDGithub:          whereHelpernull_String{field: "\"files\".\"web_id_github\""},
+	WebIDYoutube:         whereHelpernull_String{field: "\"files\".\"web_id_youtube\""},
+	WebIDPouet:           whereHelpernull_Int64{field: "\"files\".\"web_id_pouet\""},
+	WebIDDemozoo:         whereHelpernull_Int64{field: "\"files\".\"web_id_demozoo\""},
+	GroupBrandFor:        whereHelpernull_String{field: "\"files\".\"group_brand_for\""},
+	GroupBrandBy:         whereHelpernull_String{field: "\"files\".\"group_brand_by\""},
+	RecordTitle:          whereHelpernull_String{field: "\"files\".\"record_title\""},
+	DateIssuedYear:       whereHelpernull_Int16{field: "\"files\".\"date_issued_year\""},
+	DateIssuedMonth:      whereHelpernull_Int16{field: "\"files\".\"date_issued_month\""},
+	DateIssuedDay:        whereHelpernull_Int16{field: "\"files\".\"date_issued_day\""},
+	CreditText:           whereHelpernull_String{field: "\"files\".\"credit_text\""},
+	CreditProgram:        whereHelpernull_String{field: "\"files\".\"credit_program\""},
+	CreditIllustration:   whereHelpernull_String{field: "\"files\".\"credit_illustration\""},
+	CreditAudio:          whereHelpernull_String{field: "\"files\".\"credit_audio\""},
+	Filename:             whereHelpernull_String{field: "\"files\".\"filename\""},
+	Filesize:             whereHelpernull_Int64{field: "\"files\".\"filesize\""},
+	ListLinks:            whereHelpernull_String{field: "\"files\".\"list_links\""},
+	FileSecurityAlertURL: whereHelpernull_String{field: "\"files\".\"file_security_alert_url\""},
+	FileZipContent:       whereHelpernull_String{field: "\"files\".\"file_zip_content\""},
+	FileMagicType:        whereHelpernull_String{field: "\"files\".\"file_magic_type\""},
+	PreviewImage:         whereHelpernull_String{field: "\"files\".\"preview_image\""},
+	FileIntegrityStrong:  whereHelpernull_String{field: "\"files\".\"file_integrity_strong\""},
+	FileIntegrityWeak:    whereHelpernull_String{field: "\"files\".\"file_integrity_weak\""},
+	FileLastModified:     whereHelpernull_Time{field: "\"files\".\"file_last_modified\""},
+	Platform:             whereHelpernull_String{field: "\"files\".\"platform\""},
+	Section:              whereHelpernull_String{field: "\"files\".\"section\""},
+	Comment:              whereHelpernull_String{field: "\"files\".\"comment\""},
+	Createdat:            whereHelpernull_Time{field: "\"files\".\"createdat\""},
+	Updatedat:            whereHelpernull_Time{field: "\"files\".\"updatedat\""},
+	Deletedat:            whereHelpernull_Time{field: "\"files\".\"deletedat\""},
+	Updatedby:            whereHelpernull_String{field: "\"files\".\"updatedby\""},
+	Deletedby:            whereHelpernull_String{field: "\"files\".\"deletedby\""},
+	RetrotxtReadme:       whereHelpernull_String{field: "\"files\".\"retrotxt_readme\""},
+	RetrotxtNoReadme:     whereHelpernull_Int16{field: "\"files\".\"retrotxt_no_readme\""},
+	DoseeRunProgram:      whereHelpernull_String{field: "\"files\".\"dosee_run_program\""},
+	DoseeHardwareCPU:     whereHelpernull_String{field: "\"files\".\"dosee_hardware_cpu\""},
+	DoseeHardwareGraphic: whereHelpernull_String{field: "\"files\".\"dosee_hardware_graphic\""},
+	DoseeHardwareAudio:   whereHelpernull_String{field: "\"files\".\"dosee_hardware_audio\""},
+	DoseeIncompatible:    whereHelpernull_Int16{field: "\"files\".\"dosee_incompatible\""},
+	DoseeNoEms:           whereHelpernull_Int16{field: "\"files\".\"dosee_no_ems\""},
+	DoseeNoXMS:           whereHelpernull_Int16{field: "\"files\".\"dosee_no_xms\""},
+	DoseeNoUmb:           whereHelpernull_Int16{field: "\"files\".\"dosee_no_umb\""},
+	DoseeLoadUtilities:   whereHelpernull_Int16{field: "\"files\".\"dosee_load_utilities\""},
 }
 
 // FileRels is where relationship names are stored.
@@ -616,9 +608,9 @@ func (*fileR) NewStruct() *fileR {
 type fileL struct{}
 
 var (
-	fileAllColumns            = []string{"id", "uuid", "list_relations", "web_id_16colors", "web_id_github", "web_id_youtube", "web_id_pouet", "web_id_demozoo", "group_brand_for", "group_brand_by", "record_title", "date_issued_year", "date_issued_month", "date_issued_day", "credit_text", "credit_program", "credit_illustration", "credit_audio", "filename", "filesize", "list_links", "file_security_alert_url", "file_zip_content", "file_magic_type", "preview_image", "file_integrity_strong", "file_integrity_weak", "file_last_modified", "platform", "section", "comment", "createdat", "updatedat", "deletedat", "updatedby", "deletedby", "retrotxt_readme", "retrotxt_no_readme", "dosee_run_program", "dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio", "dosee_no_aspect_ratio_fix", "dosee_incompatible", "dosee_no_ems", "dosee_no_xms", "dosee_no_umb", "dosee_load_utilities"}
+	fileAllColumns            = []string{"id", "uuid", "list_relations", "web_id_16colors", "web_id_github", "web_id_youtube", "web_id_pouet", "web_id_demozoo", "group_brand_for", "group_brand_by", "record_title", "date_issued_year", "date_issued_month", "date_issued_day", "credit_text", "credit_program", "credit_illustration", "credit_audio", "filename", "filesize", "list_links", "file_security_alert_url", "file_zip_content", "file_magic_type", "preview_image", "file_integrity_strong", "file_integrity_weak", "file_last_modified", "platform", "section", "comment", "createdat", "updatedat", "deletedat", "updatedby", "deletedby", "retrotxt_readme", "retrotxt_no_readme", "dosee_run_program", "dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio", "dosee_incompatible", "dosee_no_ems", "dosee_no_xms", "dosee_no_umb", "dosee_load_utilities"}
 	fileColumnsWithoutDefault = []string{}
-	fileColumnsWithDefault    = []string{"id", "uuid", "list_relations", "web_id_16colors", "web_id_github", "web_id_youtube", "web_id_pouet", "web_id_demozoo", "group_brand_for", "group_brand_by", "record_title", "date_issued_year", "date_issued_month", "date_issued_day", "credit_text", "credit_program", "credit_illustration", "credit_audio", "filename", "filesize", "list_links", "file_security_alert_url", "file_zip_content", "file_magic_type", "preview_image", "file_integrity_strong", "file_integrity_weak", "file_last_modified", "platform", "section", "comment", "createdat", "updatedat", "deletedat", "updatedby", "deletedby", "retrotxt_readme", "retrotxt_no_readme", "dosee_run_program", "dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio", "dosee_no_aspect_ratio_fix", "dosee_incompatible", "dosee_no_ems", "dosee_no_xms", "dosee_no_umb", "dosee_load_utilities"}
+	fileColumnsWithDefault    = []string{"id", "uuid", "list_relations", "web_id_16colors", "web_id_github", "web_id_youtube", "web_id_pouet", "web_id_demozoo", "group_brand_for", "group_brand_by", "record_title", "date_issued_year", "date_issued_month", "date_issued_day", "credit_text", "credit_program", "credit_illustration", "credit_audio", "filename", "filesize", "list_links", "file_security_alert_url", "file_zip_content", "file_magic_type", "preview_image", "file_integrity_strong", "file_integrity_weak", "file_last_modified", "platform", "section", "comment", "createdat", "updatedat", "deletedat", "updatedby", "deletedby", "retrotxt_readme", "retrotxt_no_readme", "dosee_run_program", "dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio", "dosee_incompatible", "dosee_no_ems", "dosee_no_xms", "dosee_no_umb", "dosee_load_utilities"}
 	filePrimaryKeyColumns     = []string{"id"}
 	fileGeneratedColumns      = []string{}
 )

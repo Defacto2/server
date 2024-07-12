@@ -13,6 +13,8 @@ These are only suggestions and may not be necessary if they create too much work
 - [ ] Create a `release_tests` table with a selection of 20 read-only records
 - [ ] Rename `files.createdat`, `deleteat`, `updatedat` etc to `x_at` aka `create_at`...
 - - [ ] __OR__ break convention and use `date_created`, `date_deleted`, `date_updated` etc.
+- [ ] DROP `dosee_no_aspect_ratio_fix`.
+- - > `ALTER TABLE "files" DROP "dosee_no_aspect_ratio_fix"; COMMENT ON TABLE "files" IS '';`
 
 ### [datatypes](https://www.postgresql.org/docs/current/datatype.html) differences
 
