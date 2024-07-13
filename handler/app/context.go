@@ -1264,9 +1264,9 @@ func ReleaserYear(c echo.Context) error {
 }
 
 // Releaser404 renders the files error page for the Groups menu and invalid releasers.
-func Releaser404(c echo.Context, id string) error {
+func Releaser404(c echo.Context, invalidID string) error {
 	const name = "status"
-	errs := fmt.Sprint("releaser page not found for,", id)
+	errs := fmt.Sprint("releaser page not found for,", invalidID)
 	if c == nil {
 		return InternalErr(c, errs, ErrCxt)
 	}
@@ -1275,10 +1275,10 @@ func Releaser404(c echo.Context, id string) error {
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
 	data["code"] = http.StatusNotFound
 	data["logo"] = "Releaser not found"
-	data["alert"] = fmt.Sprintf("Releaser %q cannot be found", releaser.Humanize(id))
+	data["alert"] = fmt.Sprintf("Releaser %q cannot be found", invalidID)
 	data["probl"] = "The releaser page does not exist, there is probably a typo with the URL."
 	data["uriOkay"] = "g/"
-	data["uriErr"] = id
+	data["uriErr"] = invalidID
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
 		return InternalErr(c, errs, err)
@@ -1309,9 +1309,9 @@ func ReleaserEdit(c echo.Context) error {
 }
 
 // Releasers is the handler for the list and preview of files credited to a releaser.
-func Releasers(c echo.Context, uri string) error {
+func Releasers(c echo.Context, logger *zap.SugaredLogger, uri string) error {
 	const name = "artifacts"
-	errs := fmt.Sprint("releasers page for,", uri)
+	errs := fmt.Sprint("releasers page for, ", uri)
 	ctx := context.Background()
 	db, err := postgres.ConnectDB()
 	if err != nil {
@@ -1320,10 +1320,12 @@ func Releasers(c echo.Context, uri string) error {
 	defer db.Close()
 
 	s := releaser.Link(uri)
+	fmt.Println("releaser", s, uri)
 	rel := model.Releasers{}
 	fs, err := rel.Where(ctx, db, uri)
 	if err != nil {
-		return InternalErr(c, errs, err)
+		logger.Error(errs, err)
+		return Releaser404(c, uri)
 	}
 	if len(fs) == 0 {
 		return Releaser404(c, uri)
@@ -1350,7 +1352,8 @@ func Releasers(c echo.Context, uri string) error {
 	}
 	d, err := releaserSum(ctx, db, uri)
 	if err != nil {
-		return InternalErr(c, errs, err)
+		logger.Error(errs, err)
+		return Releaser404(c, uri)
 	}
 	data["stats"] = d
 	err = c.Render(http.StatusOK, name, data)

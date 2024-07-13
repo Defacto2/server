@@ -65,7 +65,7 @@ type Releaser struct {
 func (r *Releasers) Where(ctx context.Context, exec boil.ContextExecutor, name string) (models.FileSlice, error) {
 	s, err := namer.Humanize(namer.Path(name))
 	if err != nil {
-		return nil, fmt.Errorf("namer.Humanize: %w", err)
+		return nil, fmt.Errorf("model releaser name humanize: %w", err)
 	}
 	n := strings.ToUpper(s)
 	x := null.StringFrom(n)

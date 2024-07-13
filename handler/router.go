@@ -229,7 +229,7 @@ func (c Configuration) website(e *echo.Echo, logger *zap.SugaredLogger, dir app.
 	})
 	s.GET("/ftp", app.FTP)
 	s.GET("/g/:id", func(cx echo.Context) error {
-		return app.Releasers(cx, cx.Param("id"))
+		return app.Releasers(cx, logger, cx.Param("id"))
 	})
 	s.GET("/history", app.History)
 	s.GET("/interview", app.Interview)
