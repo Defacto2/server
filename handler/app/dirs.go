@@ -320,6 +320,7 @@ func jsdos(data map[string]interface{}, logger *zap.SugaredLogger, art *models.F
 	data["jsdos6RunGuess"] = ""
 	data["jsdos6Config"] = ""
 	data["jsdos6Zip"] = false
+	data["jsdos6Utilities"] = false
 	if emulate := artifactJSDos(art); emulate {
 		data["jsdos6"] = emulate
 		cmd, err := model.JsDosCommand(art)
@@ -341,6 +342,7 @@ func jsdos(data map[string]interface{}, logger *zap.SugaredLogger, art *models.F
 		}
 		data["jsdos6Config"] = cfg
 		data["jsdos6Zip"] = artifactJSDosArchive(art)
+		data["jsdos6Utilities"] = art.DoseeLoadUtilities.Int16 != 0
 	}
 	return data
 }

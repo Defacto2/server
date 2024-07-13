@@ -128,6 +128,7 @@ func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 		"/image/layout":    "public/image/layout",
 		"/image/milestone": "public/image/milestone",
 		"/svg":             "public/svg",
+		"/jsdos/bin":       "public/bin/dos32",
 	}
 	for path, fsRoot := range dirs {
 		e.StaticFS(path, echo.MustSubFS(currentFs, fsRoot))

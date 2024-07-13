@@ -1,5 +1,14 @@
 {{- /* 
     artifactjsdos.tmpl ~ Artifact JS-DOS v6 emulator template.
+
+    This template includes embedded JavaScript for the JS-DOS v6 emulator.
+    A limited set of API documentation is available at https://js-dos.com/6.22/docs/
+    Some real world examples are available at https://js-dos.com/6.22/examples/
+
+    This template references the DOS32A.EXE app, an open source DOS extender replacement for the proprietary DOS4GW.EXE.
+    DOS4GW.EXE is required for some DOS applications hosted on the website and is mounted as a utility in the emulator.
+    The DOS32A binary is embedded into this web application and is found in the public/bin/dos32/ directory, while the
+    GitHub repository for DOS32A is located at https://github.com/yetmorecode/dos32a-ng.
 */ -}}
 {{- define "artifactjsdos" -}}
 {{- if eq (index . "jsdos6") true}}
@@ -13,19 +22,20 @@
 {{- if eq $extract true}}{{ $runJS = "startZip(DosBoxConfig);" }}{{end}}
 {{- $prog := toLower $runProgram}}
 {{- $fname := toLower $filename}}
+{{- $loadUtils := index . "jsdos6Utilities"}}
 {{- /*  js-dos v6.22 ~ canvas and user interface. */}}
 <div class="modal fade" id="js-dos-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="jsDOSModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-              {{if ne $prog $fname}}{{toLower $prog}} - {{else}}{{end}}{{toLower $fname}}
-              {{if eq true (index . "modEmulateBroken")}}<div class="text-danger-emphasis">This application may not run correctly in the emulator</div>{{end}}
+              {{- if ne $prog $fname}}{{toLower $prog}} - {{else}}{{end}}{{toLower $fname}}
+              {{- if eq true (index . "modEmulateBroken")}}<div class="text-danger-emphasis">This application may not run correctly in the emulator</div>{{end}}
             </div>
             <div class="modal-body">  
-                {{if eq "covox" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for a sound device option, choose "LPT1" for Covox, Disney, Soundplayer or Soundthing</p>{{end}}
-                {{if eq "gus" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for the Gravis Ultrasound config, choose IRQ <var>5</var>, DMA <var>1</var>, Base address <var>240h</var> or Port <var>240</var></p>{{end}}
-                {{if eq "sb1" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for the Sound Blaster config, choose IRQ <var>7</var>, DMA <var>1</var>, Base address <var>220h</var> or Port <var>220</var></p>{{end}}
-                {{if eq "sb16" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for the Sound Blaster 16 config, choose IRQ <var>7</var>, DMA <var>1</var>, HDMA <var>5</var>, Base address <var>220h</var> or Port <var>220</var></p>{{end}}
+                {{- if eq "covox" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for a sound device option, choose "LPT1" for Covox, Disney, Soundplayer or Soundthing</p>{{end}}
+                {{- if eq "gus" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for the Gravis Ultrasound config, choose IRQ <var>5</var>, DMA <var>1</var>, Base address <var>240h</var> or Port <var>240</var></p>{{end}}
+                {{- if eq "sb1" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for the Sound Blaster config, choose IRQ <var>7</var>, DMA <var>1</var>, Base address <var>220h</var> or Port <var>220</var></p>{{end}}
+                {{- if eq "sb16" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for the Sound Blaster 16 config, choose IRQ <var>7</var>, DMA <var>1</var>, HDMA <var>5</var>, Base address <var>220h</var> or Port <var>220</var></p>{{end}}
                 <canvas id="jsdos6"></canvas>  
             </div>
             <div class="modal-footer">
@@ -37,9 +47,22 @@
         </div>
     </div>
 </div>
+<input type="hidden" id="jsdos-utilties" name="jsdos-utilties" value="{{$loadUtils}}">
 <script defer>
     const canvas = document.getElementById("jsdos6");
     const ctx = canvas.getContext("2d");
+    const loadUtils = document.getElementById("jsdos-utilties").value;
+    const mountApp = [{ url: "/jsdos/{{$download}}", mountPoint: "/" }];
+    const mountDOS4GW = { url: "/jsdos/bin/DOS4GW.EXE", mountPoint: "/dos4gw" };
+    const startDOS = [
+      "-conf", "dosbox.conf", 
+      "-c", "{{$runProgram}}",
+      ];
+    const startWithDOS4GW = [
+      "-conf", "dosbox.conf", 
+      "-c", "SET PATH=%PATH%;C:\\DOS4GW",
+      "-c", "{{$runProgram}}",
+      ];
     ctx.font = "16px serif";
     ctx.fillText("Not working?", 10, 50);
     ctx.fillText("Try the browser Console for errors.", 10, 70);
@@ -70,16 +93,12 @@
     }
     function startBinary(options) {
       Dos(canvas, options).ready((fs, main) => {
-        // create a dosbox configuration file within the virtual file system.
-        fs.createFile("dosbox.conf", "{{$config}}");
-        // fetch the artifact file download.
-        fetch("/d/{{$download}}")
+        fs.createFile("dosbox.conf", "{{$config}}");      // create DOSBox configuration file in virtual file system
+        fetch("/d/{{$download}}")                         // fetch the artifact file download
           .then((response) => response.arrayBuffer())
           .then((arrayBuffer) => {
-            // recreate the artifact file download within the virtual file system.
-            fs.createFile("{{$filename}}", arrayBuffer);
-            // start the dosbox with the configuration and the artifact file.
-            main(["-conf", "dosbox.conf", "-c", "{{$runProgram}}"]).then((ci) => {
+            fs.createFile("{{$filename}}", arrayBuffer);  // recreate file in virtual file system
+            main(startDOS).then((ci) => {
               window.ci = ci;
               console.log(
                 `width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.width}`
@@ -90,13 +109,17 @@
     }
     function startZip(options) {
       Dos(canvas, options).ready((fs, main) => {
-        // create a dosbox configuration file within the virtual file system.
-        fs.createFile("dosbox.conf", "{{$config}}");
-        console.log("{{$config}}");
-        // fetch the artifact file download and if it is a zip file, extract it to the virtual file system.
-        fs.extract("/jsdos/{{$download}}").then(() => {
-          // start the dosbox with the configuration and the extracted artifact file.
-          main(["-conf", "dosbox.conf", "-c", "{{$runProgram}}"]).then((ci) => {
+        fs.createFile("dosbox.conf", "{{$config}}");      // create DOSBox configuration file in virtual file system
+        console.log("{{$config}}");                       // print the configuration file to the console
+        if (loadUtils === "true") {
+          mountApp.push(mountDOS4GW);                     // mount the DOS4GW.EXE file
+        }
+        fs.extractAll(mountApp).then(() => {              // download and extract the artifact and any utilities
+          let params = startDOS;
+          if (loadUtils === "true") {
+            params = startWithDOS4GW;
+          }
+          main(params).then((ci) => {                     // start the application
             window.ci = ci;
             console.log(
               `width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.width}`
