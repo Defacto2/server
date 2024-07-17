@@ -22,7 +22,10 @@ const (
 	HTTPPort     = 1323           // HTTPPort is the default port number for the unencrypted HTTP server.
 	SessionHours = 3              // SessionHours is the default number of hours for the session cookie to remain active.
 	MinimumFiles = 40000          // MinimumFiles is the minimum number of unique filenames expected in an asset subdirectory.
-	hide         = "XXXXXXXX"
+	Down         = "AbsDownload"  // AbsDownload means the absolute download asset directory.
+	Logger       = "AbsLog"       // AbsLog means the absolute log directory.
+	Prev         = "AbsPreview"   // AbsPreview means the absolute preview assets directory.
+	Thumb        = "AbsThumbnail" // AbsThumbnail means the absolute thumbnanil assets directory.
 )
 
 const (
@@ -31,14 +34,11 @@ const (
 	padding  = 2
 	padchar  = ' '
 	flags    = 0
+	hide     = "XXXXXXXX"
 	h1       = "Configuration"
 	h2       = "Value"
 	h3       = "Environment variable"
 	line     = "─"
-	down     = "AbsDownload"
-	logger   = "AbsLog"
-	prev     = "AbsPreview"
-	thumb    = "AbsThumbnail"
 )
 
 var ErrNoPort = errors.New("the server cannot start without a http or a tls port")
@@ -153,13 +153,13 @@ func reflectValue(f reflect.StructField, v reflect.Value) string {
 
 func emptyCases(name string) string {
 	switch name {
-	case down:
+	case Down:
 		return "Empty, no downloads will be served"
-	case prev:
+	case Prev:
 		return "Empty, no preview images will be shown"
-	case thumb:
+	case Thumb:
 		return "Empty, no thumbnails will be shown"
-	case logger:
+	case Logger:
 		return "Empty, logs print to the terminal (stdout)"
 	default:
 		return ""
@@ -274,7 +274,7 @@ func (c Config) fprintField(w *tabwriter.Writer,
 		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueTLS(val))
 	case "TLSCert", "TLSKey":
 		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueCert(val, c.TLSPort))
-	case down, prev, thumb, logger:
+	case Down, Prev, Thumb, Logger:
 		fprintDirs(w, id, name, val.String())
 	case "MaxProcs":
 		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueProcs(val))
@@ -303,13 +303,13 @@ func fprintDirs(w *tabwriter.Writer, id, name, val string) {
 		return
 	}
 	switch id {
-	case down:
+	case Down:
 		fmt.Fprintf(w, "\tEmpty, no downloads will be served\n")
-	case prev:
+	case Prev:
 		fmt.Fprintf(w, "\tEmpty, no preview images will be shown\n")
-	case thumb:
+	case Thumb:
 		fmt.Fprintf(w, "\tEmpty, no thumbnails will be shown\n")
-	case logger:
+	case Logger:
 		fmt.Fprintf(w, "\tEmpty, logs print to the terminal (stdout)\n")
 	default:
 		fmt.Fprintln(w)
@@ -423,10 +423,10 @@ func localIPs(b *strings.Builder, port uint64, pad string) error {
 // Format returns a human readable description of the named configuration identifier.
 func Format(name string) string {
 	m := map[string]string{
-		down:             "Downloads, directory path",
-		prev:             "Previews, directory path",
-		thumb:            "Thumbnails, directory path",
-		logger:           "Logs, directory path",
+		Down:             "Downloads, directory path",
+		Prev:             "Previews, directory path",
+		Thumb:            "Thumbnails, directory path",
+		Logger:           "Logs, directory path",
 		"Compression":    "Gzip compression",
 		"DatabaseURL":    "Database connection, URL",
 		"GoogleClientID": "Google OAuth2 client ID",

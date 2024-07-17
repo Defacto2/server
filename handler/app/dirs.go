@@ -25,6 +25,7 @@ import (
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/sess"
+	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magicnumber"
@@ -215,10 +216,13 @@ func (dir Dirs) artifactEditor(art *models.File, data map[string]interface{}, re
 	data["modLMMonth"] = int(art.FileLastModified.Time.Month())
 	data["modLMDay"] = art.FileLastModified.Time.Day()
 	data["modAbsDownload"] = abs
-	data["modKind"] = artifactMagic(abs)
+	data["modMagicNumber"] = artifactMagic(abs)
 	data["modStatModify"] = artifactStat(abs)[0]
 	data["modStatSize"] = artifactStat(abs)[1]
-	data["modAssets"] = dir.artifactAssets(unid)
+	data["modArchiveContent"] = artifactContent(abs)
+	data["modAssetPreview"] = dir.artifactAssets(dir.Preview, unid)
+	data["modAssetThumbnail"] = dir.artifactAssets(dir.Thumbnail, unid)
+	data["modAssetExtra"] = dir.artifactAssets(dir.Extra, unid)
 	data["modNoReadme"] = art.RetrotxtNoReadme.Int16 != 0
 	data["modReadmeList"] = OptionsReadme(art.FileZipContent.String)
 	data["modPreviewList"] = OptionsPreview(art.FileZipContent.String)
@@ -653,6 +657,70 @@ func artifactByteCount(i int64) string {
 	return humanize.Bytes(uint64(i))
 }
 
+func artifactContent(src string) template.HTML {
+	if st, err := os.Stat(src); err != nil {
+		return template.HTML(err.Error())
+	} else if st.IsDir() {
+		return "error, directory"
+	}
+	name := strings.TrimSpace(strings.ToLower(filepath.Base(src)))
+	// TODO: stat the dst and confirm the location exists, is a directory and contains the same files
+	// otherwise maketemp
+	fmt.Println(src, "--------------", name)
+	os.MkdirAll(filepath.Join(os.TempDir(), "defacto2-server"), os.ModePerm)
+	dst, err := os.MkdirTemp(filepath.Join(os.TempDir(), "defacto2-server"), "artifact-content-"+name)
+	if err != nil {
+		fmt.Println(err)
+		return template.HTML(err.Error())
+	}
+	if err := archive.ExtractAll(src, dst); err != nil {
+		return template.HTML(err.Error())
+	}
+	files, err := os.ReadDir(dst)
+	if err != nil {
+		return template.HTML(err.Error())
+	}
+	var b strings.Builder
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		inf, err := file.Info()
+		if err != nil {
+			continue
+		}
+		bytes := inf.Size()
+		size := humanize.Bytes(uint64(inf.Size()))
+		r, err := os.Open(filepath.Join(dst, file.Name()))
+		if err != nil {
+			continue
+		}
+		sign, err := magicnumber.Find512B(r)
+		if err != nil {
+			continue
+		}
+		// <tr>
+		// 	<th scope="row">1</th>
+		// 	<td>filename</td>
+		// 	<td>filesize</td>
+		// 	<td>magic number</td>
+		// </tr>
+		htm := fmt.Sprintf("<td data-bs-toggle=\"tooltip\" data-bs-title=\"%s\" style=\"max-width:10em;\" class=\"d-inline-block text-truncate\">%s</td>", file.Name(), file.Name())
+		htm += fmt.Sprintf("<td data-bs-toggle=\"tooltip\" data-bs-title=\"%d bytes\" class=\"w-25\">%s</td>", bytes, size)
+		htm += fmt.Sprintf("<td data-bs-toggle=\"tooltip\" data-bs-title=\"%s\" style=\"max-width:10em;\" class=\"d-inline-block text-truncate\">%s</td>", sign, sign)
+		htm = fmt.Sprintf("<tr>%s</tr>", htm)
+		b.WriteString(htm)
+	}
+	fmt.Println(b.String())
+	return template.HTML(b.String())
+	// todo:
+	// - magic number the file type
+	// - extract the archive to a known temp location or confirm the location already exists
+	// - stat and magic number the extracted files in location
+	// - return the results, name, size, magic number, readme usage, image usage
+	//return ""
+}
+
 // artifactDesc returns the description for the file record.
 func artifactDesc(art *models.File) string {
 	s := art.Filename.String
@@ -869,90 +937,78 @@ func artifactStat(name string) [2]string {
 
 // artifactAssets returns a list of downloads and image assets belonging to the file record.
 // any errors are appended to the list.
-func (dir Dirs) artifactAssets(unid string) map[string]string {
-	matches := map[string]string{}
-
-	downloads, err := os.ReadDir(dir.Download)
+// The returned map contains a short description of the asset, the file size and extra information,
+// such as image dimensions or the number of lines in a text file.
+func (dir Dirs) artifactAssets(nameDir, unid string) map[string][2]string {
+	matches := map[string][2]string{}
+	files, err := os.ReadDir(nameDir)
 	if err != nil {
-		matches[err.Error()] = ""
+		matches["error"] = [2]string{err.Error(), ""}
 	}
-	images, err := os.ReadDir(dir.Preview)
-	if err != nil {
-		matches[err.Error()] = ""
-	}
-	thumbs, err := os.ReadDir(dir.Thumbnail)
-	if err != nil {
-		matches[err.Error()] = ""
-	}
-
-	for _, file := range downloads {
+	// Provide a string path and use that instead of dir Dirs.
+	const assetDownload = ""
+	for _, file := range files {
 		if strings.HasPrefix(file.Name(), unid) {
-			if filepath.Ext(file.Name()) == "" {
+			if filepath.Ext(file.Name()) == assetDownload {
 				continue
 			}
-			s := strings.ToUpper(filepath.Ext(file.Name()))
+			ext := strings.ToUpper(filepath.Ext(file.Name()))
 			st, err := file.Info()
 			if err != nil {
-				matches[err.Error()] = err.Error()
+				matches["error"] = [2]string{err.Error(), ""}
 			}
-			switch s {
+			s := ""
+			switch ext {
+			case ".AVIF":
+				s = "AVIF"
+				matches[s] = [2]string{humanize.Comma(st.Size()), ""}
+			case ".JPG":
+				s = "Jpeg"
+				matches[s] = artifactImgInfo(filepath.Join(nameDir, file.Name()))
+			case ".PNG":
+				s = "PNG"
+				matches[s] = artifactImgInfo(filepath.Join(nameDir, file.Name()))
 			case ".TXT":
-				s = ".TXT readme"
-				i, _ := helper.Lines(filepath.Join(dir.Download, file.Name()))
-				matches[s] = fmt.Sprintf("%s bytes - %d lines", humanize.Comma(st.Size()), i)
+				s = "README"
+				i, _ := helper.Lines(filepath.Join(dir.Extra, file.Name()))
+				matches[s] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
+			case ".WEBP":
+				s = "WebP"
+				matches[s] = artifactImgInfo(filepath.Join(nameDir, file.Name()))
 			case ".ZIP":
-				s = ".ZIP for emulator"
-				matches[s] = humanize.Comma(st.Size()) + " bytes"
+				s = "Repack ZIP"
+				matches[s] = [2]string{humanize.Comma(st.Size()), ""}
 			}
 		}
 	}
-	for _, file := range images {
-		if strings.HasPrefix(file.Name(), unid) {
-			s := strings.ToUpper(filepath.Ext(file.Name()))
-			if s == ".WEBP" {
-				s = ".WebP"
-			}
-			matches[s+" preview "] = artifactImgInfo(filepath.Join(dir.Preview, file.Name()))
-		}
-	}
-	for _, file := range thumbs {
-		if strings.HasPrefix(file.Name(), unid) {
-			s := strings.ToUpper(filepath.Ext(file.Name()))
-			if s == ".WEBP" {
-				s = ".WebP"
-			}
-			matches[s+" thumb"] = artifactImgInfo(filepath.Join(dir.Thumbnail, file.Name()))
-		}
-	}
-
 	return matches
 }
 
 // artifactImgInfo returns the image file size and dimensions.
-func artifactImgInfo(name string) string {
+func artifactImgInfo(name string) [2]string {
 	switch filepath.Ext(strings.ToLower(name)) {
 	case ".jpg", ".jpeg", ".gif", ".png", ".webp":
 	default:
 		st, err := os.Stat(name)
 		if err != nil {
-			return err.Error()
+			return [2]string{err.Error(), ""}
 		}
-		return humanize.Comma(st.Size()) + " bytes"
+		return [2]string{humanize.Comma(st.Size()), ""}
 	}
 	reader, err := os.Open(name)
 	if err != nil {
-		return err.Error()
+		return [2]string{err.Error(), ""}
 	}
 	defer reader.Close()
 	st, err := reader.Stat()
 	if err != nil {
-		return err.Error()
+		return [2]string{err.Error(), ""}
 	}
 	config, _, err := image.DecodeConfig(reader)
 	if err != nil {
-		return err.Error()
+		return [2]string{err.Error(), ""}
 	}
-	return fmt.Sprintf("%s bytes - %d x %d pixels", humanize.Comma(st.Size()), config.Width, config.Height)
+	return [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%dx%d", config.Width, config.Height)}
 }
 
 // readmeSuggest returns a suggested readme file name for the record.

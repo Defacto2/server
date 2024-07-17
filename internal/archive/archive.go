@@ -35,6 +35,7 @@ import (
 
 	"github.com/Defacto2/server/internal/archive/internal"
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/magicnumber"
 	"github.com/mholt/archiver/v3"
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/transform"
@@ -150,7 +151,7 @@ func Extract(src, dst, filename string, targets ...string) error {
 	name := strings.ToLower(filename)
 	f, err := archiver.ByExtension(name)
 	if err != nil {
-		return extractor(src, dst, filename, targets...)
+		return extractor(src, dst, targets...)
 	}
 	// recover from panic caused by mholt/archiver.
 	defer func() {
@@ -167,7 +168,7 @@ func Extract(src, dst, filename string, targets ...string) error {
 		if err = all.Unarchive(src, dst); err == nil {
 			return nil
 		}
-		return extractor(src, dst, filename, targets...)
+		return extractor(src, dst, targets...)
 	}
 	target, extractorExists := f.(archiver.Extractor)
 	if !extractorExists {
@@ -177,12 +178,12 @@ func Extract(src, dst, filename string, targets ...string) error {
 	if err = target.Extract(src, t, dst); err == nil {
 		return nil
 	}
-	return extractor(src, dst, filename, targets...)
+	return extractor(src, dst, targets...)
 }
 
 // extractor second attempt at extraction using a system archiver program.
-func extractor(src, dst, filename string, targets ...string) error {
-	x := Extractor{Source: src, Destination: dst, Filename: filename}
+func extractor(src, dst string, targets ...string) error {
+	x := Extractor{Source: src, Destination: dst}
 	err := x.Extract(targets...)
 	if err != nil {
 		return fmt.Errorf("command extract: %w", err)
@@ -444,13 +445,18 @@ func (c *Content) Zip(src string) error {
 	return nil
 }
 
+func ExtractAll(src, dst string) error {
+	e := Extractor{Source: src, Destination: dst}
+	if err := e.Extract(); err != nil {
+		return fmt.Errorf("extract all %w", err)
+	}
+	return nil
+}
+
 // Extractor uses system archiver programs to extract the targets from the src file archive.
 type Extractor struct {
 	Source      string // The source archive file.
 	Destination string // The extraction destination directory.
-
-	// The original filename of the archive, used by Extract to determine the archive format.
-	Filename string
 }
 
 // ARJ extracts the targets from the source ARJ archive
@@ -495,17 +501,59 @@ func (x Extractor) ARJ(targets ...string) error {
 //
 // The required Filename string is used to determine the archive format.
 func (x Extractor) Extract(targets ...string) error {
-	ext := strings.ToLower(filepath.Ext(x.Filename))
-	switch ext {
-	case arjx:
-		return x.ARJ(targets...)
-	case lhax, lhzx:
-		return x.LHA(targets...)
-	case zipx:
-		return x.Zip(targets...)
-	default:
-		return ErrExt
+	r, err := os.Open(x.Source)
+	if err != nil {
+		return err
 	}
+	defer r.Close()
+	sign, err := magicnumber.Archive(r)
+	if err != nil {
+		return err
+	}
+	// * PKWAREZip64,
+	// * PKWAREZip,
+	// PKWAREMultiVolume,
+	// PKLITE,
+	// PKSFX,
+	// TapeARchive,
+	// RoshalARchive,
+	// RoshalARchivev5,
+	// GzipCompressArchive,
+	// Bzip2CompressArchive,
+	// X7zCompressArchive,
+	// XZCompressArchive,
+	// ZStandardArchive,
+	// FreeArc,
+	// ARChiveSEA,
+	// * YoshiLHA,
+	// ZooArchive,
+	// * ArchiveRobertJung,
+	// MicrosoftCABinet,
+	switch sign {
+	case magicnumber.ArchiveRobertJung:
+		return x.ARJ(targets...)
+	case magicnumber.YoshiLHA:
+		return x.LHA(targets...)
+	// case magicnumber.RoshalARchive, magicnumber.RoshalARchivev5:
+	// 	return x.Rar(targets...)
+	case magicnumber.PKWAREZip, magicnumber.PKWAREZip64, magicnumber.PKWAREMultiVolume:
+		return x.Zip(targets...)
+	case magicnumber.Unknown:
+		return ErrExt // todo replace with not a archive file
+	default:
+		return ErrExt // todo replace with a not implemented known archive
+	}
+	// ext := strings.ToLower(filepath.Ext(x.Filename))
+	// switch ext {
+	// case arjx:
+	// 	return x.ARJ(targets...)
+	// case lhax, lhzx:
+	// 	return x.LHA(targets...)
+	// case zipx:
+	// 	return x.Zip(targets...)
+	// default:
+	// 	return ErrExt
+	// }
 }
 
 // LHA extracts the targets from the source LHA/LZH archive

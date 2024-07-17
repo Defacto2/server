@@ -54,8 +54,8 @@ func Files(ctx context.Context, ce boil.ContextExecutor) (models.FileSlice, erro
 	return files, nil
 }
 
-// Invalid returns true if the zip file fails the hwzip list command.
-// The path is the path to the zip file.
+// Invalid returns true if the arj file fails the 7zz list command.
+// The path is the path to the arj archive file.
 func Invalid(ctx context.Context, path string) bool {
 	logger := helper.Logger(ctx)
 	// use 7-ZIP to test and extract the .arj file.

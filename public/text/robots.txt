@@ -1,4 +1,20 @@
 User-agent: *
+# How to manually block common AI crawlers
+# https://help.raptive.com/hc/en-us/articles/25756415800987-How-to-manually-block-common-AI-crawlers
+User-agent: anthropic-ai
+Disallow: /
+User-agent: Claude-Web
+Disallow: /
+User-agent: CCbot
+Disallow: /
+User-agent: FacebookBot
+Disallow: /
+User-agent: Google-Extended
+Disallow: /
+User-agent: GPTBot
+Disallow: /
+User-agent: PiplBot
+Disallow: /
 Allow: /
 Disallow: /d/
 Disallow: /v/

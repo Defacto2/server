@@ -92,13 +92,82 @@ const (
 	JavaARchive
 	WindowsHelpFile
 	PortableDocumentFormat
-	RichTextFromat
+	RichTextFormat
 	UTF8Text
 	UTF16Text
 	UTF32Text
 	ANSIEscapeText
 	PlainText
 )
+
+func (sign Signature) String() string {
+	if sign < 0 || sign > PlainText {
+		return "Binary data"
+	}
+	return [...]string{
+		"Electronic Arts IFF",
+		"AV1 Image File",
+		"JPEG File Interchange Format",
+		"JPEG 2000",
+		"Portable Network Graphics",
+		"Graphics Interchange Format",
+		"Google WebP",
+		"Tagged Image File Format",
+		"BMP File Format",
+		"Personal Computer eXchange",
+		"Interleaved Bitmap",
+		"Microsoft Icon",
+		"MPEG-4 video",
+		"QuickTime Movie",
+		"QuickTime M4V",
+		"Microsoft Audio Video Interleave",
+		"Microsoft Windows Media",
+		"MPEG-4 video",
+		"Flash Video",
+		"RealPlayer",
+		"Musical Instrument Digital Interface",
+		"MPEG-1 Audio Layer 3",
+		"Ogg Vorbis Codec",
+		"Free Lossless Audio Codec",
+		"Wave Audio for Windows",
+		"PKWARE Zip64",
+		"PKWARE Zip",
+		"PKWARE Multi-Volume",
+		"PKLITE",
+		"PKSFX",
+		"Tape Archive",
+		"Roshal Archive",
+		"Roshal Archive v5",
+		"Gzip Compress Archive",
+		"Bzip2 Compress Archive",
+		"7z Compress Archive",
+		"XZ Compress Archive",
+		"ZStandard Archive",
+		"FreeArc",
+		"Archive by SEA",
+		"Yoshi LHA",
+		"Zoo Archive",
+		"Archive by Robert Jung",
+		"Microsoft Cabinet",
+		"Microsoft DOS KWAJ",
+		"Microsoft DOS SZDD",
+		"Microsoft Executable",
+		"Microsoft Compound File",
+		"CD ISO 9660",
+		"CD Nero",
+		"CD PowerISO",
+		"CD Alcohol 120",
+		"Java Archive",
+		"Windows Help File",
+		"Portable Document Format",
+		"Rich Text Format",
+		"UTF-8 text",
+		"UTF-16 text",
+		"UTF-32 text",
+		"ANSI escaped text",
+		"Plain text",
+	}[sign]
+}
 
 // Extension is a map of file type signatures to file extensions.
 type Extension map[Signature][]string
@@ -161,7 +230,7 @@ func Ext() Extension { //nolint:funlen
 		JavaARchive:                       []string{".jar"},
 		WindowsHelpFile:                   []string{".hlp"},
 		PortableDocumentFormat:            []string{".pdf"},
-		RichTextFromat:                    []string{".rtf"},
+		RichTextFormat:                    []string{".rtf"},
 		UTF8Text:                          []string{".txt"},
 		UTF16Text:                         []string{".txt"},
 		UTF32Text:                         []string{".txt"},
@@ -237,7 +306,7 @@ func New() Finder { //nolint:funlen
 		JavaARchive:                       Jar,
 		WindowsHelpFile:                   Hlp,
 		PortableDocumentFormat:            Pdf,
-		RichTextFromat:                    Rtf,
+		RichTextFormat:                    Rtf,
 		UTF8Text:                          Utf8,
 		UTF16Text:                         Utf16,
 		UTF32Text:                         Utf32,
@@ -283,7 +352,7 @@ func Documents() []Signature {
 	return []Signature{
 		WindowsHelpFile,
 		PortableDocumentFormat,
-		RichTextFromat,
+		RichTextFormat,
 		UTF8Text,
 		UTF16Text,
 		UTF32Text,
@@ -574,7 +643,7 @@ func FindBytes512B(p []byte) Signature {
 	find := New()
 	for sig, matcher := range find {
 		switch sig {
-		case RichTextFromat:
+		case RichTextFormat:
 			matcher = RtfNoSuffix
 		case PortableDocumentFormat:
 			matcher = PdfNoSuffix

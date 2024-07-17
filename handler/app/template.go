@@ -37,6 +37,27 @@ type Templ struct {
 	Version     string        // Version is the current version of the app.
 }
 
+// ArtifactSrc returns a URL to an artifact asset with an cache busting hash.
+// The named dir is the directory where the asset is stored, the unid is the unique identifier of the asset
+// and the ext is the file extension of the expected asset.
+func AssetSrc(abs, dir, unid, ext string) string {
+	ext = strings.ToLower(ext)
+	name := filepath.Join(dir, unid+ext)
+	hash, err := helper.IntegrityFile(name)
+	if err != nil {
+		return err.Error()
+	}
+	root := ""
+	switch abs {
+	case config.Prev:
+		root = config.StaticOriginal()
+	case config.Thumb:
+		root = config.StaticThumb()
+	}
+	src := strings.Join([]string{root, unid + ext}, "/")
+	return fmt.Sprintf("%s?%s", src, hash)
+}
+
 // DemozooGetLink returns a HTML link to the Demozoo download links.
 func DemozooGetLink(filename, filesize, demozoo, unid any) template.HTML {
 	if val, valExists := filename.(null.String); valExists {
@@ -185,7 +206,7 @@ func LinkRelations(val string) template.HTML {
 // ImageSample returns a HTML image tag for the given unid.
 func (web Templ) ImageSample(unid string) template.HTML {
 	ext, name, src := "", "", ""
-	for _, ext = range []string{webp, png} {
+	for _, ext = range []string{avif, webp, png} {
 		name = filepath.Join(web.Environment.AbsPreview, unid+ext)
 		src = strings.Join([]string{config.StaticOriginal(), unid + ext}, "/")
 		if helper.Stat(name) {
@@ -197,7 +218,7 @@ func (web Templ) ImageSample(unid string) template.HTML {
 		return template.HTML(err.Error())
 	}
 	return template.HTML(fmt.Sprintf("<img src=\"%s?%s\" loading=\"lazy\" "+
-		"class=\"img-fluid\" alt=\"%s sample\" integrity=\"%s\" />",
+		"class=\"card-img-top\" alt=\"%s sample\" integrity=\"%s\" />",
 		src, hash, ext, hash))
 }
 
@@ -477,8 +498,7 @@ func (web Templ) TemplateClosures() template.FuncMap { //nolint:funlen
 		"sri_uploader": func() string {
 			return web.Subresource.Uploader
 		},
-		"tagOption": TagOption,
-		"toLower":   strings.ToLower,
+		"toLower": strings.ToLower,
 		"uploader": func() string {
 			return hrefs[Uploader]
 		},
@@ -493,6 +513,13 @@ func (web Templ) TemplateClosures() template.FuncMap { //nolint:funlen
 		"tagProof":     func() string { return tags.Proof.String() },
 		"tagText":      func() string { return tags.Text.String() },
 		"tagTextAmiga": func() string { return tags.TextAmiga.String() },
+
+		"recordPreviewSrc": func(unid, ext string) string {
+			return AssetSrc(config.Prev, web.Environment.AbsPreview, unid, ext)
+		},
+		"recordThumbnailSrc": func(unid, ext string) string {
+			return AssetSrc(config.Thumb, web.Environment.AbsThumbnail, unid, ext)
+		},
 	}
 }
 
@@ -538,6 +565,7 @@ func (web Templ) TemplateFuncs() template.FuncMap {
 		"screenshot":         web.Screenshot,
 		"slugify":            helper.Slug,
 		"subTitle":           SubTitle,
+		"tagOption":          TagOption,
 		"thumb":              web.Thumb,
 		"trimSiteSuffix":     TrimSiteSuffix,
 		"trimSpace":          TrimSpace,
@@ -600,12 +628,8 @@ func (web Templ) Thumb(unid, desc string, bottom bool) template.HTML {
 
 // ThumbSample returns a HTML image tag for the given unid.
 func (web Templ) ThumbSample(unid string) template.HTML {
-	const (
-		png  = png
-		webp = webp
-	)
 	ext, name, src := "", "", ""
-	for _, ext = range []string{webp, png} {
+	for _, ext = range []string{avif, webp, png} {
 		name = filepath.Join(web.Environment.AbsThumbnail, unid+ext)
 		src = strings.Join([]string{config.StaticThumb(), unid + ext}, "/")
 		if helper.Stat(name) {
@@ -617,7 +641,7 @@ func (web Templ) ThumbSample(unid string) template.HTML {
 		return template.HTML(err.Error())
 	}
 	return template.HTML(fmt.Sprintf("<img src=\"%s?%s\" loading=\"lazy\" "+
-		"class=\"img-fluid\" alt=\"%s sample\" integrity=\"%s\" />",
+		"class=\"card-img-top\" alt=\"%s sample\" integrity=\"%s\" />",
 		src, hash, ext, hash))
 }
 
