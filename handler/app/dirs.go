@@ -220,6 +220,7 @@ func (dir Dirs) artifactEditor(art *models.File, data map[string]interface{}, re
 	data["modStatModify"] = artifactStat(abs)[0]
 	data["modStatSize"] = artifactStat(abs)[1]
 	data["modArchiveContent"] = artifactContent(abs)
+	data["modArchiveContentDst"], _ = artifactContentDst(abs)
 	data["modAssetPreview"] = dir.artifactAssets(dir.Preview, unid)
 	data["modAssetThumbnail"] = dir.artifactAssets(dir.Thumbnail, unid)
 	data["modAssetExtra"] = dir.artifactAssets(dir.Extra, unid)
@@ -657,26 +658,46 @@ func artifactByteCount(i int64) string {
 	return humanize.Bytes(uint64(i))
 }
 
+// artifactContentDst returns the destination directory for the extracted archive content.
+// The directory is created if it does not exist. The directory is named after the source file.
+func artifactContentDst(src string) (string, error) {
+	name := strings.TrimSpace(strings.ToLower(filepath.Base(src)))
+	dir := filepath.Join(os.TempDir(), "defacto2-server")
+
+	pattern := "artifact-content-" + name
+	dst := filepath.Join(dir, pattern)
+	if st, err := os.Stat(dst); err != nil {
+		if os.IsNotExist(err) {
+			if err := os.MkdirAll(dst, os.ModePerm); err != nil {
+				return "", err
+			}
+			return dst, nil
+		}
+		return dst, nil
+	} else if !st.IsDir() {
+		return "", fmt.Errorf("error, not a directory: %s", dir)
+	}
+	return dst, nil
+}
+
 func artifactContent(src string) template.HTML {
 	if st, err := os.Stat(src); err != nil {
 		return template.HTML(err.Error())
 	} else if st.IsDir() {
 		return "error, directory"
 	}
-	name := strings.TrimSpace(strings.ToLower(filepath.Base(src)))
-	// TODO: stat the dst and confirm the location exists, is a directory and contains the same files
-	// otherwise maketemp
-	fmt.Println(src, "--------------", name)
-	os.MkdirAll(filepath.Join(os.TempDir(), "defacto2-server"), os.ModePerm)
-	dst, err := os.MkdirTemp(filepath.Join(os.TempDir(), "defacto2-server"), "artifact-content-"+name)
+	dst, err := artifactContentDst(src)
 	if err != nil {
-		fmt.Println(err)
 		return template.HTML(err.Error())
 	}
-	if err := archive.ExtractAll(src, dst); err != nil {
-		return template.HTML(err.Error())
+	files, _ := os.ReadDir(dst)
+	if len(files) == 0 {
+		if err := archive.ExtractAll(src, dst); err != nil {
+			defer os.RemoveAll(dst)
+			return template.HTML(err.Error())
+		}
 	}
-	files, err := os.ReadDir(dst)
+	files, err = os.ReadDir(dst)
 	if err != nil {
 		return template.HTML(err.Error())
 	}
@@ -699,19 +720,39 @@ func artifactContent(src string) template.HTML {
 		if err != nil {
 			continue
 		}
-		// <tr>
-		// 	<th scope="row">1</th>
-		// 	<td>filename</td>
-		// 	<td>filesize</td>
-		// 	<td>magic number</td>
-		// </tr>
-		htm := fmt.Sprintf("<td data-bs-toggle=\"tooltip\" data-bs-title=\"%s\" style=\"max-width:10em;\" class=\"d-inline-block text-truncate\">%s</td>", file.Name(), file.Name())
-		htm += fmt.Sprintf("<td data-bs-toggle=\"tooltip\" data-bs-title=\"%d bytes\" class=\"w-25\">%s</td>", bytes, size)
-		htm += fmt.Sprintf("<td data-bs-toggle=\"tooltip\" data-bs-title=\"%s\" style=\"max-width:10em;\" class=\"d-inline-block text-truncate\">%s</td>", sign, sign)
-		htm = fmt.Sprintf("<tr>%s</tr>", htm)
+		image := false
+		for _, v := range magicnumber.Images() {
+			if v == sign {
+				image = true
+				break
+			}
+		}
+		texts := false
+		for _, v := range magicnumber.Texts() {
+			if v == sign {
+				texts = true
+				break
+			}
+		}
+
+		htm := fmt.Sprintf(`<div class="col d-inline-block text-truncate" data-bs-toggle="tooltip" data-bs-title="%s">%s</div>`, file.Name(), file.Name())
+		htm += fmt.Sprintf(`<div class="col col-2" data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</div>`, bytes, size)
+		htm += fmt.Sprintf(`<div class="col d-inline-block text-truncate">%s</div>`, sign)
+		if image || texts {
+			htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+				`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></div>`
+		} else {
+			htm += `<div class="col col-1"></div>`
+		}
+		if texts {
+			htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+				`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></div>`
+		} else {
+			htm += `<div class="col col-1"></div>`
+		}
+		htm = fmt.Sprintf(`<div class="border-bottom row mb-1">%s</div>`, htm)
 		b.WriteString(htm)
 	}
-	fmt.Println(b.String())
 	return template.HTML(b.String())
 	// todo:
 	// - magic number the file type

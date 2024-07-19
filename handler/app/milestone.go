@@ -290,14 +290,15 @@ func Collection() Milestones {
 				// Sherwood Forest
 				"<strong>Sherwood Forest</strong><br>" +
 				"<p>A very early, underground ABBS is the 1979-1981 New Jersey-based<sup><a href=\"#the-early-underground-fn3\">[3]</a></sup> board, <strong>Sherwood&nbsp;Forest</strong>, created by Magnetic Surfer. " +
-				"It runs off a floppy disc and a Micromodem and became a hub for some active telephone hackers who were early adopters of microcomputers in the New York Tri-state area—many became Scene pirates and notorious computer phreakers and hackers.</p>" +
+				"It runs off a floppy disk and a Micromodem and became a hub for some active telephone hackers who were early adopters of microcomputers in the New York Tri-state area—many became Scene pirates and notorious computer phreakers and hackers.</p>" +
 				// Modem over Manhattan
 				"<strong>Modem Over Manhattan</strong><br>" +
 				"<p>As its name suggests, <strong>MOM</strong>, or <strong>Modem&nbsp;Over&nbsp;Manhattan</strong> (+212-245-4363, +212-912-9141), was based in Manhattan, New York, and probably went online in 1980. " +
 				"It is another famous open board with lax rules that was popular with the New York phreak community.</p>" +
 				// Pirate Trek
 				"<strong>Pirate-Trek</strong><br>" +
-				"<p>A very early pirate board, the original <strong>Pirate-Trek</strong> out of New York (+914-634-1268), possibly run by the famed Apple&nbsp;II cracker Krakowicz, " +
+				"<p>A very early pirate board, the original <strong>Pirate-Trek</strong> out of New York (+914-634-1268), possibly run by the famed Apple&nbsp;II " +
+				"<a href=\"https://ascii.textfiles.com/archives/828\">cracker Krakowicz</a>, " +
 				"was <a href=\"http://artscene.textfiles.com/intros/APPLEII/cyclod.gif\">first announced</a> in 1981.</p>" +
 				// 8BBS
 				"<strong>8BBS</strong><br>" +

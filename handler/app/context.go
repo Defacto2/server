@@ -646,13 +646,9 @@ func History(c echo.Context) error {
 // Index is the handler for the Home page.
 func Index(c echo.Context) error {
 	const name = "index"
-	const lead = "the website preserving the historic PC cracking scene subculture. " +
-		"It covers digital artifacts including text files, demos, music, art, " +
-		"magazines, and other projects."
-	const desc = "Defacto2 is " + lead
 	data := empty(c)
 	data["title"] = "Milestones"
-	data["description"] = desc
+	//data["description"] = desc
 	data["h1"] = "Welcome,"
 	data["milestones"] = Collection()
 	{

@@ -102,6 +102,75 @@ const (
 
 func (sign Signature) String() string {
 	if sign < 0 || sign > PlainText {
+		return "binary data"
+	}
+	return [...]string{
+		"IFF image",
+		"AV1 image",
+		"JPEG image",
+		"JPEG 2000 image",
+		"PNG image",
+		"GIF image",
+		"WebP image",
+		"TIFF image",
+		"BMP image",
+		"PCX image",
+		"BMP image",
+		"Microsoft icon",
+		"MPEG-4 video",
+		"QuickTime video",
+		"QuickTime video",
+		"AVI video",
+		"Windows Media video",
+		"MPEG-4 video",
+		"Flash video",
+		"RealPlayer video",
+		"MIDI audio",
+		"MP3 audio",
+		"Ogg audio",
+		"FLAC audio",
+		"Wave audio",
+		"zip64 archive",
+		"zip archive",
+		"multivolume zip",
+		"pklite compressed",
+		"self-extracting zip",
+		"Tape archive",
+		"RAR archive",
+		"RAR v5+ archive",
+		"Gzip archive",
+		"Bzip2 archive",
+		"7z archive",
+		"XZ archive",
+		"ZST archive",
+		"FreeARC",
+		"ARC by SEA",
+		"LHA by Yoshi",
+		"Zoo archive",
+		"ARJ archive",
+		"Microsoft cabinet",
+		"MS-DOS KWAJ",
+		"MS-DOS SZDD",
+		"MS-DOS executable",
+		"Microsoft compound fFile",
+		"CD, ISO 9660",
+		"CD, Nero",
+		"CD, PowerISO",
+		"CD, Alcohol 120",
+		"Java archive",
+		"Windows help",
+		"PDF document",
+		"rich text",
+		"UTF-8 text",
+		"UTF-16 text",
+		"UTF-32 text",
+		"ANSI text",
+		"plain text",
+	}[sign]
+}
+
+func (sign Signature) Title() string {
+	if sign < 0 || sign > PlainText {
 		return "Binary data"
 	}
 	return [...]string{
