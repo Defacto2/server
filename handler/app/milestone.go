@@ -100,6 +100,68 @@ func Collection() Milestones {
 				License:     "CC BY-SA 4.0",
 				LicenseLink: "https://creativecommons.org/licenses/by-sa/4.0/",
 			},
+		}, //https://umedia.lib.umn.edu/item/p16022coll91:193
+		{
+			Year: 1972, Title: "The first user-focused platform",
+			Lead: "The PLATO IV", LinkTitle: "about the PLATO", Link: "https://arstechnica.com/gadgets/2023/03/plato-how-an-educational-computer-system-from-the-60s-shaped-the-future/",
+			Content: "<p>In 1972, the PLATO system IV network came online as the second iteration of the University of Illinois's class-room education platform. " +
+				"Its concept is to provide computer-based education on various broad subjects, not just computer literacy. This objective affected the network's design, end-user terminals, and software, leading to many computing and computer game design firsts.</p>" +
+				"<p>The terminals connect to a supercomputer mainframe that eventually could support over 1,000 simultaneous users in various universities, colleges, and schools throughout Illinois and later setups out of state. However, the terminals and the special-purpose programming language used to develop the software make the network unusually special. One can not understate how advanced this platform and software is in its time.</p>" +
+				"<p>Each monochrome terminal supports vector and bitmap graphics and offers an exceedingly high resolution of 512x512 pixels! This was over a decade before the Apple Macintosh System&nbsp;1 operating system, which only provided 512x342 resolution. The terminals and software provided keyboard text and user-friendly touchscreen input almost 40 years before the modern tablet.</p>" +
+				"<p>Equally as important was the " +
+				`<a href="https://distributedmuseum.illinois.edu/exhibit/tutor-programming-language/">TUTOR programming language</a> ` +
+				"used to develop software on the platform. Designed for non-programmers and educators to build coursework delivered on the network, the language allowed easy access to all terminal and network hardware elements, such as vector and sprite graphics, custom fonts, communication, and touch input.</p>" +
+				"<p>The photo shows a boy named Reid playing a touch game called PICTURE SHOW. " +
+				`The PLATO IV had an optional audio peripheral that, in a <a href="https://files.eric.ed.gov/fulltext/ED148298.pdf">1977 report</a>, stated it was of poor quality and unreliable. ` +
+				"Still, the image has to be one of the earliest examples of interactive multimedia, edutainment software and touch-first design. " +
+				`Also, conflicting metadata makes it unknown if the photo is from <a href="https://umedia.lib.umn.edu/item/p16022coll91:445">1972</a>` +
+				` or <a href="https://computerhistory.org/blog/meet-2021-chm-fellow-honoree-raymond-ozzie/">1976</a>,` +
+				` but a <a href="https://umedia.lib.umn.edu/item/p16022coll91:193">1975 photo</a> of a girl of similar age using the same terminal model, headphones and touch exists, maybe interacting with the same software?</p>`,
+			Picture: Picture{
+				Title:       "A child using the PLATO IV system",
+				Alt:         "A photo of a boy using the touch interface of the PLATO IV system.",
+				Jpg:         "plato-iv.jpg",
+				Avif:        "plato-iv.webp",
+				Attribution: `is uncertain; the owner maybe "University of Illinois developer", Raymond Ozzie or a university`,
+				License:     "source",
+				LicenseLink: "https://grainger.illinois.edu/news/magazine/plato",
+			},
+		},
+		{
+			Year: 1973, Title: "The first online communities",
+			Lead:      "PLATO IV Notes, Talkomatic and online games",
+			LinkTitle: "about PLATO emulation delivered over the Internet", Link: "https://www.cyber1.org/",
+			Content: "<p>Not long after the rollout of the PLATO IV system to various locations and the creation of specific software, online communities of friends and users started to develop. Most probably a first, people intentionally used the network outside of class or work to hang out, chitchat with others, and play multiplayer games online.</p>" +
+				`<p>This began with the August release of <a href="https://just.thinkofit.com/plato-the-emergence-of-online-community/">Notes by David Woolley</a>, a 17-year-old student and programmer. ` +
+				`He was <a href="http://www.platohistory.org/blog/2013/08/plato-notes-released-40-years-ago-today.html">asked</a> to develop an app allowing PLATO users to ` +
+				`<a href="https://digital.library.illinois.edu/collections/7bfaf980-0727-0130-c5bb-0019b9e633c5-e/tree">post bug reports</a> ` +
+				`and for staff to reply with <a href="https://just.thinkofit.com/wp-content/uploads/1994/01/plato-base-note-nestedloops.jpg">back-and-forth communication</a>. ` +
+				`A year later, Personal Notes by Kim Mast was released, allowing users to have private notes and, more importantly, to send notes directly to individuals as <strong>electronic messages</strong>.</p>` +
+				"<p>Doug Brown released Talkomatic in the fall of 1973. This program allowed multiple people to occupy a <strong>chat room and talk</strong> in real time. Each user had " +
+				`<a href="https://just.thinkofit.com/wp-content/uploads/1994/01/talko-comb.png">their own window</a>, ` +
+				"and the text characters printed as they typed. After its success, the PLATO staff incorporated a form of direct chat into the system, allowing people to notify and page others for a real-time one-on-one chat like an <strong>instant message service</strong>.</p>" +
+				"<p>At the start of 1976, Group Notes became the final evolution of the Notes concept, with the advice and feedback of many users and David's work. Groups allowed unlimited public and private notefiles for broad subject or <strong>topic-orientated discussions</strong>, such as books, music, movies, religion, science fiction, etc., years before Usenet or the " +
+				`<abbr title="Computerized Bulletin Board System">CBBS</abbr>.` +
+				`<p>Some people also used notefiles as a form of <strong>blogging</strong>, such as ` +
+				`<a href="https://distributedmuseum.illinois.edu/exhibit/bruce-parello/">The Red Sweater</a>'s Newsreport or ` +
+				`Dr. Gräper's <a href="http://www.grapenotes.com/">=grapenotes=</a>, and these could be inserted with <strong><a href="http://www.platopeople.com/emoticons.html">emoticons</a></strong>.</p>` +
+				`<p>It seems out of the gate that various students and possibly staff started using the TUTOR programming language in 1972 to create multiplayer ` +
+				`<a href="https://www.uvlist.net/platforms/games-list/181">games</a> on the PLATO IV. Titles include Chess, Dogfight, Backgammon, LIFE, Darwin1 and Moonwar. ` +
+				`In Computer Lib/Dream Machines, <a href="https://archive.org/details/computer-lib-dream-machines/page/n29/mode/1up">Ted Nelson extensively wrote</a> about his visit and use of the PLATO IV in 1973 and dedicated a couple of pages to the games he uncovered on the network back then.</p>` +
+				`<p>The most famous early multiplayer game on the PLATO was <a href="http://www.daleske.com/plato/empire.php">John Daleske's Empire</a>, released in May 1973. The original game supported up to eight players in a competitive strategic economic simulation.</p>` +
+				`<p>A revised edition of Empire II was released in September and offered <strong>50 simultaneous players</strong> in eight teams a new game mechanic: spaceship tactical combat. The older economic simulation game was taken over by Silas Warner and redeveloped as ` +
+				`<a href="https://datadrivengamer.blogspot.com/2019/07/games-79-80-empire-and-road-to-wizardry.html">Conquest</a>. John gave an optimization update to Empire II, which became known as ` +
+				`<a href="https://datadrivengamer.blogspot.com/2019/07/games-79-80-empire-and-road-to-wizardry.html">Empire III</a>, with the same gameplay but on a much bigger playfield.</p>` +
+				`<p>Inspired by the 1974 publication of Dungeons & Dragons, numerous authors created fantasy, computerized role-playing games (<strong>CRPG</strong>) ` +
+				`<a href="https://crpgaddict.blogspot.com/2021/06/brief-everything-we-know-about-1970s.html">on the PLATO</a> system. Titles such as ` +
+				`<a href="https://crpgaddict.blogspot.com/2019/01/revisiting-dungeon-1975.html">The Dungeon</a>, ` +
+				`<a href="https://crpgaddict.blogspot.com/2019/01/revisiting-game-of-dungeons-1975.html">The Game of Dungeons</a>, ` +
+				`<a href="https://crpgaddict.blogspot.com/2013/11/game-123-orthanc-1977.html">Orthanc</a>, Moria, and various games called Dungeon began in that year or 1975.</p>` +
+				`<p>Unlike the solo CRPG games that were developed on microcomputers years later, these games, even when played solo, had a solid online component with competitive high scores, active player listings and <strong>permadeath</strong>. ` +
+				`Games such as <a href="https://crpgaddict.blogspot.com/2013/11/game-121-moria-1975.html">Moria</a> and later ` +
+				`<a href="https://crpgaddict.blogspot.com/2013/11/game-124-avatar-1979.html">Avatar</a> offered players to <strong>play together in co-op</strong> as members of a party exploring multiple levels on a large playworld.</p>` +
+				`<p>Brand Fortner's Airfight from 1974 was a 3D combat flight simulator in which you did your best to take out the enemy being flown by human opponents in a <strong>multiplayer death match</strong>. The title is believed to be the first of the <strong>flight simulator genre</strong>. Meanwhile, 1975's Panther by John Haefeli looked much like Atari's arcade Battlezone from 1980, except you played against online humans!</p>` +
+				`<p>Yet all games created on PLATO were passion projects by their authors. Unlike the pay-the-hour commercial online services that came much later or the physical media sale opportunities that would eventuate on microcomputers, the PLATO author had no means of monetizing if the thought ever crossed their mind.</p>`,
 		},
 		{
 			Year: 1974, Month: 4, Title: "The first CPU for microcomputers",
