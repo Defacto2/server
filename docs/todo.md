@@ -14,6 +14,7 @@
 - [ ] Complete `internal/archive/archive.go to support all archive types. need to supprt legacy zip via hwzip and arc.
 
 - [ ] - http://www.platohistory.org/
+- [ ] - https://portcommodore.com/dokuwiki/doku.php?id=larry:comp:bbs:about_cbbs
 - [ ] - 8BBS https://everything2.com/title/8BBS
 
 ### Bug fixes

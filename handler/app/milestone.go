@@ -1299,7 +1299,7 @@ func Collection() Milestones {
 			Link: "/f/ab2843",
 			Content: "<p>An <strong>intro</strong>, or the later cracktro, is a small, usually short, demonstration program designed to display text with graphics or animations. " +
 				"Oddly, the <q>First Intro</q> was written by some teenagers in Finland, a country not known for using expensive PC platforms.</p>" +
-				"<p>Other popular 16-bit microcomputers, such as the Commodore&nbsp;Amiga and Atari&nbsp;ST, offered much better graphics and audio than CGA on the PC.</p>",
+				"<p>Other popular 16-bit microcomputers, such as the Commodore&nbsp;Amiga and Atari&nbsp;ST, offered much better graphics and audio than a common PC using CGA graphic hardware.</p>",
 			Picture: Picture{
 				Title: "First intro by Sorcerers",
 				Alt:   "First intro by Sorcerers screenshot",
