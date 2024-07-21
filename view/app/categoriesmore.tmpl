@@ -2,7 +2,7 @@
     categoriesmore.tmpl ~ the more-categories template is for the files, browse categories menu.
 */ -}}
 {{- define "morecategories" -}}
-{{- $otherClass := " h5" }}
+{{- $otherClass := " lead h5" }}
 {{- $cardClass := " h-100"}}
 {{- $rels := index . "counter" }}
 {{- $linkClass := "card-link text-nowrap"}}
@@ -12,7 +12,7 @@
             <div class="card-body">
                 <nav id="navbarPlatforms" class="navbar bg-light-subtle px-3 mt-3">
                     <a class="navbar-brand" href="#all-other-categories">Platforms</a>
-                    <ul class="nav nav-underline justify-content-center" id="platformTabs" role="tablist">
+                    <ul class="nav nav-underline lead justify-content-center" id="platformTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="dos-tab" data-bs-toggle="tab"
                                 data-bs-target="#dos-tab-pane" type="button" role="tab" aria-controls="dos-tab-pane"
@@ -54,7 +54,7 @@
                             In the early days, games listed the platform as <q>IBM</q> or <q>IBM PC</q>, but this naming evolved to <q>IBM/Tandy and compatibles</q> before eventually settling on <q>MS-DOS</q> in the 1990s.
                         </p>
                         <p>
-                            <span class="card-link"><a href="/files/msdos" class="card-link">Browse the files for {{msdos}}</a></span>
+                            <span class="card-link lead">Browse the files for <a href="/files/msdos" class="card-link">{{msdos}}</a></span>
                         </p>
                     </div>
                     <div class="tab-pane fade" id="windows-tab-pane" role="tabpanel" aria-labelledby="windows-tab"
@@ -65,7 +65,7 @@
                             Most of the Windows software hosted on this site released in the 1990s will target Windows 95 or 98, while the releases from the 2000s should be for Windows XP or 7.
                         </p>
                         <p>
-                            <span class="card-link"><a href="/files/windows" class="card-link">Browse the files for Windows</a></span>
+                            <span class="card-link lead">Browse the files for <a href="/files/windows" class="card-link">Windows</a></span>
                         </p>
                     </div>
                     <div class="tab-pane fade" id="mac-tab-pane" role="tabpanel" aria-labelledby="mac-tab"
@@ -76,7 +76,7 @@
                             Unlike Microsoft Windows, Apple has used different hardware architectures over the years, so the Apple platforms lack backward compatibility.
                         </p>
                         <p>
-                            <span class="card-link"><a href="/files/macos" class="card-link">Browse the files for macOS</a></span>
+                            <span class="card-link lead">Browse the files for <a href="/files/macos" class="card-link">macOS</a></span>
                         </p>
                     </div>
                     <div class="tab-pane fade" id="linux-tab-pane" role="tabpanel" aria-labelledby="linux-tab"
@@ -86,7 +86,7 @@
                             Software created for Linux or Unix platforms. Obsolete software targeting the desktop will likely fail on modern distributions, but terminal apps may still work.
                         </p>
                         <p>
-                            <span class="card-link"><a href="/files/linux" class="card-link">Browse the files for Linux</a></span>
+                            <span class="card-link lead">Browse the files for <a href="/files/linux" class="card-link">Linux</a></span>
                         </p>
                     </div>
                     <div class="tab-pane fade" id="script-tab-pane" role="tabpanel" aria-labelledby="script-tab"
@@ -96,7 +96,7 @@
                             Shell scripts and software created in interpreted programming languages such as PHP, Perl, TCL, Python and Ruby.
                         </p>
                         <p>
-                            <span class="card-link"><a href="/files/script" class="card-link">Browse the shell scripts and software</a></span>
+                            <span class="card-link lead">Browse the <a href="/files/script" class="card-link">shell scripts and software</a></span>
                         </p>
                     </div>
                     <div class="tab-pane fade" id="java-tab-pane" role="tabpanel" aria-labelledby="java-tab"
@@ -106,7 +106,7 @@
                             Software written in Java is a popular language for cross-platform applications, though unrelated to JavaScript.
                         </p>
                         <p>
-                            <span class="card-link"><a href="/files/java" class="card-link">Browse the files for Java</a></span>
+                            <span class="card-link lead">Browse the files for <a href="/files/java" class="card-link">Java</a></span>
                         </p>
                     </div>
                 </div>
