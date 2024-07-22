@@ -34,7 +34,9 @@ import (
 	"unicode/utf8"
 
 	"github.com/Defacto2/server/internal/archive/internal"
+	"github.com/Defacto2/server/internal/archive/pkzip"
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magicnumber"
 	"github.com/mholt/archiver/v3"
 	"golang.org/x/text/encoding/charmap"
@@ -52,14 +54,16 @@ const (
 )
 
 var (
-	ErrDest    = errors.New("destination is empty")
-	ErrExt     = errors.New("extension is not a supported archive format")
-	ErrRead    = errors.New("could not read the file archive")
-	ErrProg    = errors.New("program error")
-	ErrFile    = errors.New("path is a directory")
-	ErrPath    = errors.New("path is a file")
-	ErrPanic   = errors.New("extract panic")
-	ErrMissing = errors.New("path does not exist")
+	ErrDest           = errors.New("destination is empty")
+	ErrExt            = errors.New("extension is not a supported archive format")
+	ErrNotArchive     = errors.New("file is not an archive")
+	ErrNotImplemented = errors.New("archive format is not implemented")
+	ErrRead           = errors.New("could not read the file archive")
+	ErrProg           = errors.New("program error")
+	ErrFile           = errors.New("path is a directory")
+	ErrPath           = errors.New("path is a file")
+	ErrPanic          = errors.New("extract panic")
+	ErrMissing        = errors.New("path does not exist")
 )
 
 // CheckyPath checks the byte slice for valid UTF-8 encoding.
@@ -445,6 +449,7 @@ func (c *Content) Zip(src string) error {
 	return nil
 }
 
+// ExtractAll extracts all files from the src archive file to the destination directory.
 func ExtractAll(src, dst string) error {
 	e := Extractor{Source: src, Destination: dst}
 	if err := e.Extract(); err != nil {
@@ -457,6 +462,169 @@ func ExtractAll(src, dst string) error {
 type Extractor struct {
 	Source      string // The source archive file.
 	Destination string // The extraction destination directory.
+}
+
+// Extract the targets from the source file archive
+// to the destination directory a system archive program.
+// If the targets are empty then all files are extracted.
+//
+// The required Filename string is used to determine the archive format.
+//
+// Some archive formats that could be impelmented if needed in the future:
+// freearc, zoo
+func (x Extractor) Extract(targets ...string) error {
+	r, err := os.Open(x.Source)
+	if err != nil {
+		return err
+	}
+	defer r.Close()
+	sign, err := magicnumber.Archive(r)
+	if err != nil {
+		return err
+	}
+	switch sign {
+	case
+		magicnumber.Bzip2CompressArchive,
+		magicnumber.GzipCompressArchive,
+		magicnumber.MicrosoftCABinet,
+		magicnumber.TapeARchive,
+		magicnumber.XZCompressArchive,
+		magicnumber.ZStandardArchive:
+		return x.Bsdtar(targets...)
+	case
+		magicnumber.PKWAREZip,
+		magicnumber.PKWAREZip64,
+		magicnumber.PKWAREMultiVolume:
+		return x.extractZip(targets...)
+	case magicnumber.ARChiveSEA:
+		return x.ARC(targets...)
+	case magicnumber.ArchiveRobertJung:
+		return x.ARJ(targets...)
+	case magicnumber.YoshiLHA:
+		return x.LHA(targets...)
+	case magicnumber.RoshalARchive,
+		magicnumber.RoshalARchivev5:
+		return x.Rar(targets...)
+	case magicnumber.X7zCompressArchive:
+		return x.Zip7(targets...)
+	case magicnumber.Unknown:
+		return fmt.Errorf("%w, %s", ErrNotArchive, sign)
+	default:
+		return fmt.Errorf("%w, %s", ErrNotImplemented, sign)
+	}
+}
+
+// ExtractZip delegates the extraction of the source archive to the correct program
+// based on its compression method and the original operating system used to create it.
+// As some valid filenames set by MS-DOS codepages are not valid UTF-8 filenames.
+func (x Extractor) extractZip(targets ...string) error {
+	if deflate, _ := pkzip.Zip(x.Source); !deflate {
+		return x.ZipHW(targets...)
+	}
+	if err := x.Zip(targets...); err != nil {
+		return x.Bsdtar(targets...)
+	}
+	return nil
+}
+
+// Bsdtar extracts the targets from the source archive
+// to the destination directory using the [bsdtar program].
+// If the targets are empty then all files are extracted.
+// bsdtar uses the performant [libarchive library] for archive extraction
+// and is the recommended program for extracting the following formats:
+//
+// gzip, bzip2, compress, xz, lzip, lzma, tar, iso9660, zip, ar, xar,
+// lha/lzh, rar, rar v5, Microsoft Cabinet, 7-zip.
+//
+// [bsdtar program]: https://man.freebsd.org/cgi/man.cgi?query=bsdtar&sektion=1&format=html
+// [libarchive library]: http://www.libarchive.org/
+func (x Extractor) Bsdtar(targets ...string) error {
+	src, dst := x.Source, x.Destination
+	prog, err := exec.LookPath("bsdtar")
+	if err != nil {
+		return fmt.Errorf("archive tar extract %w", err)
+	}
+	if dst == "" {
+		return ErrDest
+	}
+	var b bytes.Buffer
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	const (
+		extract   = "-x"                    // -x extract files
+		source    = "--file"                // -f file path to extract
+		targetDir = "--cd"                  // -C target directory
+		noAcls    = "--no-acls"             // --no-acls
+		noFlags   = "--no-fflags"           // --no-fflags
+		noModTime = "--modification-time"   // --modification-time
+		noSafeW   = "--no-safe-writes"      // --no-safe-writes
+		noOwner   = "--no-same-owner"       // --no-same-owner
+		noPerms   = "--no-same-permissions" // --no-same-permissions
+		noXattrs  = "--no-xattrs"           // --no-xattrs
+	)
+	args := []string{extract, source, src}
+	args = append(args, noAcls, noFlags, noSafeW, noModTime, noOwner, noPerms, noXattrs)
+	args = append(args, targetDir, dst)
+	args = append(args, targets...)
+	cmd := exec.CommandContext(ctx, prog, args...)
+	cmd.Stderr = &b
+	if err = cmd.Run(); err != nil {
+		if b.String() != "" {
+			return fmt.Errorf("archive tar %w: %s: %s", ErrProg, prog, strings.TrimSpace(b.String()))
+		}
+		return fmt.Errorf("archive tar %w: %s", err, prog)
+	}
+	return nil
+}
+
+// ARC extracts the targets from the source ARC archive
+// to the destination directory using the [arc program].
+// If the targets are empty then all files are extracted.
+//
+// ARC is a DOS era archive format that is not widely supported.
+// It also does not support extracting to a target directory.
+// To work around this, this copies the source archive
+// to the destination directory, uses that as the working directory
+// and extracts the files. The copied source archive is then removed.
+//
+// [arc program]: https://arj.sourceforge.net/
+func (x Extractor) ARC(targets ...string) error {
+	src, dst := x.Source, x.Destination
+	if st, err := os.Stat(dst); err != nil {
+		return fmt.Errorf("%w: %s", err, dst)
+	} else if !st.IsDir() {
+		return fmt.Errorf("%w: %s", ErrPath, dst)
+	}
+	prog, err := exec.LookPath(command.Arc)
+	if err != nil {
+		return fmt.Errorf("archive arc extract %w", err)
+	}
+
+	srcInDst := filepath.Join(dst, filepath.Base(src))
+	if _, err := helper.Duplicate(src, srcInDst); err != nil {
+		return fmt.Errorf("archive arc duplicate %w", err)
+	}
+	defer os.Remove(srcInDst)
+
+	var b bytes.Buffer
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	const (
+		extract = "x" // x extract files
+	)
+	args := []string{extract, filepath.Base(src)}
+	args = append(args, targets...)
+	cmd := exec.CommandContext(ctx, prog, args...)
+	cmd.Dir = dst
+	cmd.Stderr = &b
+	if err = cmd.Run(); err != nil {
+		if b.String() != "" {
+			return fmt.Errorf("archive arc %w: %s: %q",
+				ErrProg, prog, strings.TrimSpace(b.String()))
+		}
+		return fmt.Errorf("archive arc %w: %s", err, prog)
+	}
+	return nil
 }
 
 // ARJ extracts the targets from the source ARJ archive
@@ -476,13 +644,33 @@ func (x Extractor) ARJ(targets ...string) error {
 	if err != nil {
 		return fmt.Errorf("archive arj extract %w", err)
 	}
+
+	// arj REQUIRES a file extension for the source archive
+	srcWithExt := src + arjx
+	if err := os.Symlink(src, srcWithExt); err != nil {
+		defer os.Remove(srcWithExt)
+		return fmt.Errorf("archive arj symlink %w", err)
+	}
+	defer os.Remove(srcWithExt)
+
 	var b bytes.Buffer
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	// example command: arj x archive destdir/ *
-	const extract = "x"
-	args := []string{extract, src, dst}
+	const (
+		extract   = "x"   // x extract files
+		rmPaths   = "r"   // r remove paths
+		yes       = "-y"  // -y assume yes to all queries
+		noProg    = "-i"  // -i do not display progress
+		excBase   = "-e1" // -e exclude base directory
+		noExt     = "-hx" // -hx default extension
+		targetDir = "-ht" // -ht target directory
+		dosCompat = "-2d" // -2d DOS compatibility mode
+	)
+	args := []string{extract, srcWithExt}
 	args = append(args, targets...)
+	args = append(args, targetDir+dst)
+	fmt.Println("arj", args)
 	cmd := exec.CommandContext(ctx, prog, args...)
 	cmd.Stderr = &b
 	if err = cmd.Run(); err != nil {
@@ -493,67 +681,6 @@ func (x Extractor) ARJ(targets ...string) error {
 		return fmt.Errorf("archive arj %w: %s", err, prog)
 	}
 	return nil
-}
-
-// Extract the targets from the source file archive
-// to the destination directory a system archive program.
-// If the targets are empty then all files are extracted.
-//
-// The required Filename string is used to determine the archive format.
-func (x Extractor) Extract(targets ...string) error {
-	r, err := os.Open(x.Source)
-	if err != nil {
-		return err
-	}
-	defer r.Close()
-	sign, err := magicnumber.Archive(r)
-	if err != nil {
-		return err
-	}
-	// * PKWAREZip64,
-	// * PKWAREZip,
-	// PKWAREMultiVolume,
-	// PKLITE,
-	// PKSFX,
-	// TapeARchive,
-	// RoshalARchive,
-	// RoshalARchivev5,
-	// GzipCompressArchive,
-	// Bzip2CompressArchive,
-	// X7zCompressArchive,
-	// XZCompressArchive,
-	// ZStandardArchive,
-	// FreeArc,
-	// ARChiveSEA,
-	// * YoshiLHA,
-	// ZooArchive,
-	// * ArchiveRobertJung,
-	// MicrosoftCABinet,
-	switch sign {
-	case magicnumber.ArchiveRobertJung:
-		return x.ARJ(targets...)
-	case magicnumber.YoshiLHA:
-		return x.LHA(targets...)
-	// case magicnumber.RoshalARchive, magicnumber.RoshalARchivev5:
-	// 	return x.Rar(targets...)
-	case magicnumber.PKWAREZip, magicnumber.PKWAREZip64, magicnumber.PKWAREMultiVolume:
-		return x.Zip(targets...)
-	case magicnumber.Unknown:
-		return ErrExt // todo replace with not a archive file
-	default:
-		return ErrExt // todo replace with a not implemented known archive
-	}
-	// ext := strings.ToLower(filepath.Ext(x.Filename))
-	// switch ext {
-	// case arjx:
-	// 	return x.ARJ(targets...)
-	// case lhax, lhzx:
-	// 	return x.LHA(targets...)
-	// case zipx:
-	// 	return x.Zip(targets...)
-	// default:
-	// 	return ErrExt
-	// }
 }
 
 // LHA extracts the targets from the source LHA/LZH archive
@@ -596,6 +723,50 @@ func (x Extractor) LHA(targets ...string) error {
 	return nil
 }
 
+// Rar extracts the targets from the source RAR archive
+// to the destination directory using the [unrar program].
+// If the targets are empty then all files are extracted.
+//
+// On Linux there are two versions of the unrar program, the freeware
+// version by Alexander Roshal and the feature incomplete [unrar-free].
+// The freeware version is the recommended program for extracting RAR archives.
+//
+// [unrar program]: https://www.rarlab.com/rar_add.htm
+func (x Extractor) Rar(targets ...string) error {
+	src, dst := x.Source, x.Destination
+	prog, err := exec.LookPath(command.Unrar)
+	if err != nil {
+		return fmt.Errorf("archive unrar extract %w", err)
+	}
+	if dst == "" {
+		return ErrDest
+	}
+	var b bytes.Buffer
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	const (
+		eXtract    = "x"   // x extract files with full path
+		noPaths    = "-ep" // -ep do not preserve paths
+		noComments = "-c-" // -c- do not display comments
+		rename     = "-or" // -or rename files automatically
+		yes        = "-y"  // -y assume yes to all queries
+		outputPath = "-op" // -op output path
+	)
+	args := []string{eXtract, noPaths, noComments, rename, yes, src}
+	args = append(args, targets...)
+	args = append(args, outputPath+dst)
+	cmd := exec.CommandContext(ctx, prog, args...)
+	cmd.Stderr = &b
+	if err = cmd.Run(); err != nil {
+		if b.String() != "" {
+			return fmt.Errorf("archive unrar %w: %s: %s", ErrProg, prog, strings.TrimSpace(b.String()))
+		}
+		return fmt.Errorf("archive unrar %w: %s", err, prog)
+	}
+	return nil
+
+}
+
 // Zip extracts the targets from the source Zip archive
 // to the destination directory using the [unzip program].
 // If the targets are empty then all files are extracted.
@@ -617,19 +788,20 @@ func (x Extractor) Zip(targets ...string) error {
 	const (
 		test            = "-t"  // test archive files
 		caseinsensitive = "-C"  // use case-insensitive matching
-		notimestamps    = "-D"  // skip restoration of timestamps
+		notimestamps    = "-DD" // skip restoration of timestamps
 		junkpaths       = "-j"  // junk paths, ignore directory structures
 		overwrite       = "-o"  // overwrite existing files without prompting
 		quiet           = "-q"  // quiet
 		quieter         = "-qq" // quieter
 		targetDir       = "-d"  // target directory to extract files to
+		allowCtrlChars  = "-^"  // allow control characters in filenames
 	)
 	// unzip [-options] file[.zip] [file(s)...] [-x files(s)] [-d exdir]
 	// file[.zip]		path to the zip archive
 	// [file(s)...]		optional list of archived files to process, sep by spaces.
 	// [-x files(s)]	optional files to be excluded.
 	// [-d exdir]		optional target directory to extract files in.
-	args := []string{quieter, junkpaths, overwrite, src}
+	args := []string{quieter, notimestamps, allowCtrlChars, overwrite, src}
 	args = append(args, targets...)
 	args = append(args, targetDir, dst)
 	cmd := exec.CommandContext(ctx, prog, args...)
@@ -639,6 +811,98 @@ func (x Extractor) Zip(targets ...string) error {
 			return fmt.Errorf("archive zip %w: %s: %s", ErrProg, prog, strings.TrimSpace(b.String()))
 		}
 		return fmt.Errorf("archive zip %w: %s", err, prog)
+	}
+	return nil
+}
+
+// Zip7 extracts the targets from the source 7z archive
+// to the destination directory using the [7z program].
+// If the targets are empty then all files are extracted.
+//
+// On some Linux distributions the 7z program is named 7zz.
+// The legacy version of the 7z program, the p7zip package
+// should not be used!
+//
+// [7z program]: https://www.7-zip.org/
+func (x Extractor) Zip7(targets ...string) error {
+	src, dst := x.Source, x.Destination
+	prog, err := exec.LookPath(command.Zip7)
+	if err != nil {
+		return fmt.Errorf("archive 7z extract %w", err)
+	}
+	if dst == "" {
+		return ErrDest
+	}
+	var b bytes.Buffer
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	const (
+		extract   = "x"    // x extract files without paths
+		overwrite = "-aoa" // -aoa overwrite all
+		quiet     = "-bb0" // -bb0 quiet
+		targetDir = "-o"   // -o output directory
+		yes       = "-y"   // -y assume yes to all queries
+	)
+	args := []string{extract, overwrite, quiet, yes, targetDir + dst, src}
+	args = append(args, targets...)
+	cmd := exec.CommandContext(ctx, prog, args...)
+	cmd.Stderr = &b
+	if err = cmd.Run(); err != nil {
+		if b.String() != "" {
+			return fmt.Errorf("archive 7z %w: %s: %s", ErrProg, prog, strings.TrimSpace(b.String()))
+		}
+		return fmt.Errorf("archive 7z %w: %s", err, prog)
+	}
+	return nil
+}
+
+// ZipHW extracts the targets from the source zip archive
+// to the destination directory using the [hwzip program].
+// If the targets are empty then all files are extracted.
+//
+// hwzip is used to handle DOS era, zip archive compression methods
+// that are not widely supported.
+// It also does not support extracting to a target directory.
+// To work around this, this copies the source archive
+// to the destination directory, uses that as the working directory
+// and extracts the files. The copied source archive is then removed.
+//
+// [arc program]: https://arj.sourceforge.net/
+func (x Extractor) ZipHW(targets ...string) error {
+	src, dst := x.Source, x.Destination
+	if st, err := os.Stat(dst); err != nil {
+		return fmt.Errorf("%w: %s", err, dst)
+	} else if !st.IsDir() {
+		return fmt.Errorf("%w: %s", ErrPath, dst)
+	}
+	prog, err := exec.LookPath(command.HWZip)
+	if err != nil {
+		return fmt.Errorf("archive hwzip extract %w", err)
+	}
+
+	srcInDst := filepath.Join(dst, filepath.Base(src))
+	if _, err := helper.Duplicate(src, srcInDst); err != nil {
+		return fmt.Errorf("archive hwzip duplicate %w", err)
+	}
+	defer os.Remove(srcInDst)
+
+	var b bytes.Buffer
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	const (
+		extract = "extract" // x extract files
+	)
+	args := []string{extract, filepath.Base(src)}
+	args = append(args, targets...)
+	cmd := exec.CommandContext(ctx, prog, args...)
+	cmd.Dir = dst
+	cmd.Stderr = &b
+	if err = cmd.Run(); err != nil {
+		if b.String() != "" {
+			return fmt.Errorf("archive arc %w: %s: %q",
+				ErrProg, prog, strings.TrimSpace(b.String()))
+		}
+		return fmt.Errorf("archive arc %w: %s", err, prog)
 	}
 	return nil
 }

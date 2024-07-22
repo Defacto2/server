@@ -1,7 +1,5 @@
 # TODOs and tasks
 
-### Ideas or doubleful tasks
-
 ### Recommendations
 
 - [ ] Use DigitalOcean API to display Estimated Droplet Transfer Pool usage and remaining balance. 
@@ -12,10 +10,19 @@
 - [ ] On startup, run magic numbers on all records to replace the current value in database.
 - [ ] All temp files should be stored in a single unified temp subdirectory, that can be purged during server restarts.
 - [ ] Complete `internal/archive/archive.go to support all archive types. need to supprt legacy zip via hwzip and arc.
+- [ ] Automatic cleanup of tmp/defacto2-server if drive space is low.
+- [ ] When extracting archives for MS-DOS, flag invalid filenames and suggest a repack.
 
 - [ ] - http://www.platohistory.org/
 - [ ] - https://portcommodore.com/dokuwiki/doku.php?id=larry:comp:bbs:about_cbbs
 - [ ] - 8BBS https://everything2.com/title/8BBS
+
+
+
+Magic files to add:
+
+- Excel, http://localhost:1323/f/b02fcc
+- Multipart zip, http://localhost:1323/f/a9247de, http://localhost:1323/f/a619619
 
 ### Bug fixes
 
@@ -51,3 +58,76 @@
 
 - [gocron](https://github.com/go-co-op/gocron)
 - [Go Quartz](https://github.com/reugn/go-quartz)
+
+
+### Error PANIC
+
+```go
+10:27:59	ERROR	app/error.go:166	500 internal error for the URL, "artifact": write tcp 127.0.0.1:1323->127.0.0.1:39474: write: broken pipe: caused by artifact b9442d (8887)
+github.com/Defacto2/server/handler/app.InternalErr
+	/home/ben/github/server/handler/app/error.go:166
+github.com/Defacto2/server/handler/app.Dirs.Artifact
+	/home/ben/github/server/handler/app/dirs.go:192
+github.com/Defacto2/server/handler.Configuration.website.func3
+	/home/ben/github/server/handler/router.go:208
+github.com/labstack/echo/v4.(*Echo).add.func1
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/echo.go:587
+github.com/Defacto2/server/handler.Configuration.nonce.Middleware.MiddlewareWithConfig.func1.1
+	/home/ben/go/pkg/mod/github.com/labstack/echo-contrib@v0.17.1/session/session.go:73
+github.com/Defacto2/server/handler.Configuration.Controller.RemoveTrailingSlashWithConfig.func2.1
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/middleware/slash.go:117
+github.com/labstack/echo/v4/middleware.RequestLoggerConfig.ToMiddleware.func1.1
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/middleware/request_logger.go:286
+github.com/Defacto2/server/handler.Configuration.Controller.Secure.SecureWithConfig.func4.1
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/middleware/secure.go:141
+github.com/labstack/echo/v4.(*Echo).ServeHTTP.func1
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/echo.go:668
+github.com/Defacto2/server/handler.Configuration.Controller.NonWWWRedirect.NonWWWRedirectWithConfig.redirect.func6.1
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/middleware/redirect.go:152
+github.com/labstack/echo/v4/middleware.RewriteWithConfig.func1.1
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/middleware/rewrite.go:77
+github.com/labstack/echo/v4.(*Echo).ServeHTTP
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/echo.go:674
+net/http.serverHandler.ServeHTTP
+	/usr/local/go/src/net/http/server.go:3142
+net/http.(*conn).serve
+	/usr/local/go/src/net/http/server.go:2044
+10:27:59	ERROR	app/error.go:183	500 internal render error for the URL, "artifact": the server could not render the html template for this page
+github.com/Defacto2/server/handler/app.InternalErr
+	/home/ben/github/server/handler/app/error.go:183
+github.com/Defacto2/server/handler/app.Dirs.Artifact
+	/home/ben/github/server/handler/app/dirs.go:192
+github.com/Defacto2/server/handler.Configuration.website.func3
+	/home/ben/github/server/handler/router.go:208
+github.com/labstack/echo/v4.(*Echo).add.func1
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/echo.go:587
+github.com/Defacto2/server/handler.Configuration.nonce.Middleware.MiddlewareWithConfig.func1.1
+	/home/ben/go/pkg/mod/github.com/labstack/echo-contrib@v0.17.1/session/session.go:73
+github.com/Defacto2/server/handler.Configuration.Controller.RemoveTrailingSlashWithConfig.func2.1
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/middleware/slash.go:117
+github.com/labstack/echo/v4/middleware.RequestLoggerConfig.ToMiddleware.func1.1
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/middleware/request_logger.go:286
+github.com/Defacto2/server/handler.Configuration.Controller.Secure.SecureWithConfig.func4.1
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/middleware/secure.go:141
+github.com/labstack/echo/v4.(*Echo).ServeHTTP.func1
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/echo.go:668
+github.com/Defacto2/server/handler.Configuration.Controller.NonWWWRedirect.NonWWWRedirectWithConfig.redirect.func6.1
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/middleware/redirect.go:152
+github.com/labstack/echo/v4/middleware.RewriteWithConfig.func1.1
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/middleware/rewrite.go:77
+github.com/labstack/echo/v4.(*Echo).ServeHTTP
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/echo.go:674
+net/http.serverHandler.ServeHTTP
+	/usr/local/go/src/net/http/server.go:3142
+net/http.(*conn).serve
+	/usr/local/go/src/net/http/server.go:2044
+10:27:59	DPANIC	config/error.go:54	Custom response handler broke: %swrite tcp 127.0.0.1:1323->127.0.0.1:39474: write: broken pipe
+github.com/Defacto2/server/internal/config.Config.CustomErrorHandler
+	/home/ben/github/server/internal/config/error.go:54
+github.com/labstack/echo/v4.(*Echo).ServeHTTP
+	/home/ben/go/pkg/mod/github.com/labstack/echo/v4@v4.12.0/echo.go:675
+net/http.serverHandler.ServeHTTP
+	/usr/local/go/src/net/http/server.go:3142
+net/http.(*conn).serve
+	/usr/local/go/src/net/http/server.go:2044
+```

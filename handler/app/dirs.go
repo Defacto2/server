@@ -14,6 +14,7 @@ import (
 	_ "image/jpeg" // jpeg format decoder
 	_ "image/png"  // png format decoder
 	"io"
+	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -681,63 +682,91 @@ func artifactContentDst(src string) (string, error) {
 }
 
 func artifactContent(src string) template.HTML {
+	const mb150 = 150 * 1024 * 1024
 	if st, err := os.Stat(src); err != nil {
 		return template.HTML(err.Error())
 	} else if st.IsDir() {
 		return "error, directory"
+	} else if st.Size() > mb150 {
+		return "will not decompress this archive as it is very large"
 	}
 	dst, err := artifactContentDst(src)
 	if err != nil {
 		return template.HTML(err.Error())
 	}
-	files, _ := os.ReadDir(dst)
-	if len(files) == 0 {
+
+	if entries, _ := os.ReadDir(dst); len(entries) == 0 {
 		if err := archive.ExtractAll(src, dst); err != nil {
 			defer os.RemoveAll(dst)
 			return template.HTML(err.Error())
 		}
 	}
-	files, err = os.ReadDir(dst)
-	if err != nil {
+
+	files := 0
+	var walkerCount = func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
+		if d.IsDir() {
+			return nil
+		}
+		files++
+		return nil
+	}
+	if err := filepath.WalkDir(dst, walkerCount); err != nil {
 		return template.HTML(err.Error())
 	}
+
 	var b strings.Builder
-	for _, file := range files {
-		if file.IsDir() {
-			continue
-		}
-		inf, err := file.Info()
+	items, zeroByteFiles := 0, 0
+	var walkerFunc = func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			continue
+			return nil
 		}
-		bytes := inf.Size()
-		size := humanize.Bytes(uint64(inf.Size()))
-		r, err := os.Open(filepath.Join(dst, file.Name()))
+		rel, err := filepath.Rel(dst, path)
 		if err != nil {
-			continue
+			debug := fmt.Sprintf(`<div class="border-bottom row mb-1">... %v more files</div>`, err)
+			b.WriteString(debug)
+			return nil
+		}
+		if d.IsDir() {
+			return nil
+		}
+		info, err := d.Info()
+		if err != nil {
+			return nil
+		}
+		bytes := info.Size()
+		if bytes == 0 {
+			zeroByteFiles++
+			return nil
+		}
+		size := humanize.Bytes(uint64(info.Size()))
+		image := false
+		texts := false
+		r, err := os.Open(path)
+		if err != nil {
+			return nil
 		}
 		sign, err := magicnumber.Find512B(r)
 		if err != nil {
-			continue
+			return nil
 		}
-		image := false
 		for _, v := range magicnumber.Images() {
 			if v == sign {
 				image = true
 				break
 			}
 		}
-		texts := false
 		for _, v := range magicnumber.Texts() {
 			if v == sign {
 				texts = true
 				break
 			}
 		}
-
-		htm := fmt.Sprintf(`<div class="col d-inline-block text-truncate" data-bs-toggle="tooltip" data-bs-title="%s">%s</div>`, file.Name(), file.Name())
-		htm += fmt.Sprintf(`<div class="col col-2" data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</div>`, bytes, size)
-		htm += fmt.Sprintf(`<div class="col d-inline-block text-truncate">%s</div>`, sign)
+		items++
+		htm := fmt.Sprintf(`<div class="col d-inline-block text-truncate" data-bs-toggle="tooltip" data-bs-title="%s">%s</div>`,
+			rel, rel)
 		if image || texts {
 			htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 				`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></div>`
@@ -750,16 +779,26 @@ func artifactContent(src string) template.HTML {
 		} else {
 			htm += `<div class="col col-1"></div>`
 		}
+		htm += fmt.Sprintf(`<div><small data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</small>`, bytes, size)
+		htm += fmt.Sprintf(` <small class="">%s</small></div>`, sign)
 		htm = fmt.Sprintf(`<div class="border-bottom row mb-1">%s</div>`, htm)
 		b.WriteString(htm)
+		if items > 200 {
+			more := fmt.Sprintf(`<div class="border-bottom row mb-1">... %d more files</div>`, files-items)
+			b.WriteString(more)
+			return filepath.SkipAll
+		}
+		return nil
+	}
+	err = filepath.WalkDir(dst, walkerFunc)
+	if err != nil {
+		return template.HTML(err.Error())
+	}
+	if zeroByteFiles > 0 {
+		zero := fmt.Sprintf(`<div class="border-bottom row mb-1">... skipped %d empty (0 B) files</div>`, zeroByteFiles)
+		b.WriteString(zero)
 	}
 	return template.HTML(b.String())
-	// todo:
-	// - magic number the file type
-	// - extract the archive to a known temp location or confirm the location already exists
-	// - stat and magic number the extracted files in location
-	// - return the results, name, size, magic number, readme usage, image usage
-	//return ""
 }
 
 // artifactDesc returns the description for the file record.
