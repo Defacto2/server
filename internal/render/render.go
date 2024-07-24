@@ -122,7 +122,7 @@ func Viewer(art *models.File) bool {
 
 // NoScreenshot returns true when the file entry should not attempt to display a screenshot.
 // This is based on the platform, section or if the screenshot is missing on the server.
-func NoScreenshot(art *models.File, path string) bool {
+func NoScreenshot(art *models.File, downloadPath, previewPath string) bool {
 	if art == nil {
 		return true
 	}
@@ -132,8 +132,8 @@ func NoScreenshot(art *models.File, path string) bool {
 		return true
 	}
 	unid := art.UUID.String
-	webp := strings.Join([]string{path, unid + ".webp"}, "/")
-	png := strings.Join([]string{path, unid + ".png"}, "/")
+	webp := strings.Join([]string{previewPath, unid + ".webp"}, "/")
+	png := strings.Join([]string{previewPath, unid + ".png"}, "/")
 	if helper.Stat(webp) || helper.Stat(png) {
 		return false
 	}

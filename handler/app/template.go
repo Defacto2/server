@@ -114,7 +114,7 @@ func DownloadB(i any) template.HTML {
 		if !val.Valid {
 			return " <small class=\"text-danger-emphasis\">(n/a)</small>"
 		}
-		s = artifactByteCount(val.Int64)
+		s = dirsBytes(val.Int64)
 	default:
 		return template.HTML(fmt.Sprintf("%sDownloadB: %s", typeErr, reflect.TypeOf(i).String()))
 	}
@@ -383,7 +383,7 @@ func (web Templ) TemplateClosures() template.FuncMap { //nolint:funlen
 		},
 		"capitalize": helper.Capitalize,
 		"classification": func(s, p string) string {
-			count, _ := form.HumanizeAndCount(s, p)
+			count, _ := form.HumanizeCount(s, p)
 			return string(count)
 		},
 		"demozooSanity": func() string {
@@ -536,6 +536,7 @@ func (web Templ) TemplateFuncs() template.FuncMap {
 		"downloadB":          DownloadB,
 		"byteFile":           ByteFile,
 		"byteFileS":          ByteFileS,
+		"classificationStr":  form.HumanizeCountStr,
 		"demozooGetLink":     DemozooGetLink,
 		"fmtDay":             Day,
 		"fmtMonth":           Month,
@@ -554,7 +555,7 @@ func (web Templ) TemplateFuncs() template.FuncMap {
 		"linkSVG":            LinkSVG,
 		"linkWiki":           LinkWiki,
 		"logoText":           LogoText,
-		"mimeMagic":          MimeMagic,
+		"mimeMagic":          MimeMagic, // TODO: replace
 		"recordImgSample":    web.ImageSample,
 		"recordThumbSample":  web.ThumbSample,
 		"recordInfoOSTag":    TagWithOS,

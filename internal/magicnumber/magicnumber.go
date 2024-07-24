@@ -62,6 +62,9 @@ const (
 	OggVorbisCodec
 	FreeLosslessAudioCodec
 	WaveAudioForWindows
+	PKWAREZipShrink
+	PKWAREZipReduce
+	PKWAREZipImplode
 	PKWAREZip64
 	PKWAREZip
 	PKWAREMultiVolume
@@ -130,6 +133,9 @@ func (sign Signature) String() string {
 		"Ogg audio",
 		"FLAC audio",
 		"Wave audio",
+		"pkzip shrunk archive",
+		"pkzip reduced archive",
+		"pkzip imploded archive",
 		"zip64 archive",
 		"zip archive",
 		"multivolume zip",
@@ -199,19 +205,22 @@ func (sign Signature) Title() string {
 		"Ogg Vorbis Codec",
 		"Free Lossless Audio Codec",
 		"Wave Audio for Windows",
-		"PKWARE Zip64",
-		"PKWARE Zip",
-		"PKWARE Multi-Volume",
-		"PKLITE",
-		"PKSFX",
+		"Shrunked pkzip archive",
+		"Reduced pkzip archive",
+		"Imploded pkzip archive",
+		"PKWARE zip64 archive",
+		"Zip archive",
+		"Zip multi-Volume archive",
+		"PKLITE compressed executable",
+		"PKSFX self-extracting archive",
 		"Tape Archive",
 		"Roshal Archive",
 		"Roshal Archive v5",
-		"Gzip Compress Archive",
-		"Bzip2 Compress Archive",
-		"7z Compress Archive",
-		"XZ Compress Archive",
-		"ZStandard Archive",
+		"Gzip compress archive",
+		"Bzip2 compress archive",
+		"7z compress archive",
+		"XZ compress archive",
+		"ZStandard archive",
 		"FreeArc",
 		"Archive by SEA",
 		"Yoshi LHA",
@@ -220,13 +229,13 @@ func (sign Signature) Title() string {
 		"Microsoft Cabinet",
 		"Microsoft DOS KWAJ",
 		"Microsoft DOS SZDD",
-		"Microsoft Executable",
-		"Microsoft Compound File",
+		"Microsoft executable",
+		"Microsoft compound file",
 		"CD ISO 9660",
 		"CD Nero",
 		"CD PowerISO",
 		"CD Alcohol 120",
-		"Java Archive",
+		"Java archive",
 		"Windows Help File",
 		"Portable Document Format",
 		"Rich Text Format",
@@ -269,6 +278,9 @@ func Ext() Extension { //nolint:funlen
 		OggVorbisCodec:                    []string{".ogg"},
 		FreeLosslessAudioCodec:            []string{".flac"},
 		WaveAudioForWindows:               []string{".wav"},
+		PKWAREZipShrink:                   []string{".zip"},
+		PKWAREZipReduce:                   []string{".zip"},
+		PKWAREZipImplode:                  []string{".zip"},
 		PKWAREZip64:                       []string{".zip"},
 		PKWAREZip:                         []string{".zip"},
 		PKWAREMultiVolume:                 []string{".zip"},
@@ -345,6 +357,9 @@ func New() Finder { //nolint:funlen
 		OggVorbisCodec:                    Ogg,
 		FreeLosslessAudioCodec:            Flac,
 		WaveAudioForWindows:               Wave,
+		PKWAREZipShrink:                   PkShrink,
+		PKWAREZipReduce:                   PkReduce,
+		PKWAREZipImplode:                  PkImplode,
 		PKWAREZip64:                       Zip64,
 		PKWAREZip:                         Pkzip,
 		PKWAREMultiVolume:                 PkzipMulti,
@@ -385,6 +400,9 @@ func New() Finder { //nolint:funlen
 // Archives returns all the archive file type signatures.
 func Archives() []Signature {
 	return []Signature{
+		PKWAREZipShrink,
+		PKWAREZipReduce,
+		PKWAREZipImplode,
 		PKWAREZip64,
 		PKWAREZip,
 		PKWAREMultiVolume,
@@ -404,6 +422,22 @@ func Archives() []Signature {
 		ZooArchive,
 		ArchiveRobertJung,
 		MicrosoftCABinet,
+	}
+}
+
+// Archives returns all the archive file type signatures that were
+// commonly used in the BBS online era of the 1980s and early 1990s.
+// Eventually these were replaced by the universal ZIP format using
+// the Deflate and Store compression methods.
+func ArchivesBBS() []Signature {
+	return []Signature{
+		PKWAREZipShrink,
+		PKWAREZipReduce,
+		PKWAREZipImplode,
+		ARChiveSEA,
+		YoshiLHA,
+		ZooArchive,
+		ArchiveRobertJung,
 	}
 }
 
@@ -1036,25 +1070,62 @@ func Zip64(p []byte) bool {
 	return true
 }
 
-// Pkzip matches the PKWARE Zip archive format in the byte slice.
+func Pkzip(p []byte) bool {
+	return pkzip(p) == pkZip
+}
+
+func PkImplode(p []byte) bool {
+	return pkzip(p) == pkImplode
+}
+
+func PkReduce(p []byte) bool {
+	return pkzip(p) == pkReduce
+}
+
+func PkShrink(p []byte) bool {
+	return pkzip(p) == pkSkrink
+}
+
+type pkComp int
+
+const (
+	pkNone pkComp = iota
+	pkZip
+	pkSkrink
+	pkReduce
+	pkImplode
+)
+
+// pkzip matches the PKWARE Zip archive format in the byte slice.
 // This is the most common ZIP format and is widely supported and has been
 // tested against many discountinued and legacy ZIP methods and packagers.
-func Pkzip(p []byte) bool {
+//
+// Due to the complex history of the ZIP format, 4 possible return values
+// maybe returned.
+//   - pkNone is returned if the file is not a ZIP archive.
+//   - pkOkay is returned if the file is a ZIP archive, except for the compression methods below.
+//   - pkSkrink is returned if the ZIP archive uses the PKWARE shrink method, found in PKZIP v0.9.
+//   - pkReduce is returned if the ZIP archive uses the PKWARE reduction method, found in PKZIP v0.8.
+//   - pkImplode is returned if the ZIP archive uses the PKWARE implode method, found in PKZIP v1.01.
+//
+// Compression methods Shrink, Reduce and Implode are legacy and are generally
+// not supported in modern ZIP tools and libraries.
+func pkzip(p []byte) pkComp {
 	const min = 30
 	if len(p) < min {
-		return false
+		return pkNone
 	}
 
 	// local file header signature     4 bytes  (0x04034b50)
 	localFileHeader := []byte{'P', 'K', 0x3, 0x4}
 	if !bytes.Equal(p[:4], localFileHeader) {
-		return false // 50 4b 03 04
+		return pkNone // 50 4b 03 04
 	}
 	// version needed to extract       2 bytes
 	versionNeeded := p[4] + p[5]
 	if versionNeeded == 0 {
 		// legacy versions of PKZIP returned either 0x.0a (10) or 0x14 (20).
-		return false // 0a 00
+		return pkNone // 0a 00
 	}
 	// general purpose bit flag        2 bytes
 	// skip this as there's too many reserved values that might cause false positive rejections
@@ -1086,11 +1157,18 @@ func Pkzip(p []byte) bool {
 		ae          = 0x63
 	)
 	switch compresionMethod {
-	case store, shrink, reduce1, reduce2, reduce3, reduce4, implode, deflate, deflate64,
-		ibmTerse, bzip2, lzma, ibmCMPSC, ibmTerseNew, ibmLZ77z, zstd, mp3, xz, jpeg, wavPack, ppmd, ae:
-		return true
+	case store, deflate, deflate64:
+		return pkZip
+	case shrink:
+		return pkSkrink
+	case reduce1, reduce2, reduce3, reduce4:
+		return pkReduce
+	case implode:
+		return pkImplode
+	case ibmTerse, bzip2, lzma, ibmCMPSC, ibmTerseNew, ibmLZ77z, zstd, mp3, xz, jpeg, wavPack, ppmd, ae:
+		return pkZip
 	default:
-		return false
+		return pkNone
 	}
 }
 

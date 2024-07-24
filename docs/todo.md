@@ -12,6 +12,9 @@
 - [ ] Complete `internal/archive/archive.go to support all archive types. need to supprt legacy zip via hwzip and arc.
 - [ ] Automatic cleanup of tmp/defacto2-server if drive space is low.
 - [ ] When extracting archives for MS-DOS, flag invalid filenames and suggest a repack.
+- [ ] Render HTML in an iframe instead of readme? Example, http://localhost:1323/f/ad3075
+- [ ] Handle magazines title on artifact page, http://localhost:1323/f/a55ed, this is hard to read, "Issue 4\nThe Pirate Syndicate +\nThe Pirate World"
+- [ ] If artifact is a text file displayed in readme, then delete image preview, these are often super long, large and not needed.
 
 - [ ] - http://www.platohistory.org/
 - [ ] - https://portcommodore.com/dokuwiki/doku.php?id=larry:comp:bbs:about_cbbs
@@ -23,6 +26,7 @@ Magic files to add:
 
 - Excel, http://localhost:1323/f/b02fcc
 - Multipart zip, http://localhost:1323/f/a9247de, http://localhost:1323/f/a619619
+- Convert ms-dos filenames to valid utf-8 names, see http://localhost:1323/f/b323bda
 
 ### Bug fixes
 

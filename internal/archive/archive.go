@@ -494,8 +494,15 @@ func (x Extractor) Extract(targets ...string) error {
 	case
 		magicnumber.PKWAREZip,
 		magicnumber.PKWAREZip64,
-		magicnumber.PKWAREMultiVolume:
+		magicnumber.PKWAREZipShrink,
+		magicnumber.PKWAREZipReduce,
+		magicnumber.PKWAREZipImplode:
 		return x.extractZip(targets...)
+	case
+		magicnumber.PKLITE,
+		magicnumber.PKSFX,
+		magicnumber.PKWAREMultiVolume:
+		return fmt.Errorf("%w, %s", ErrNotImplemented, sign)
 	case magicnumber.ARChiveSEA:
 		return x.ARC(targets...)
 	case magicnumber.ArchiveRobertJung:

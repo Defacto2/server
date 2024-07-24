@@ -40,7 +40,7 @@
         {{- template "artifactlock" . }}
         <div class="{{$colClass}}">
             {{- /*  Lead including published, platform and section  */}}
-            <h4 class="lead">{{$published}}, {{$classification}}</h4>
+            <h4 class="lead mb-4">{{$published}}, {{$classification}}</h4>
             {{- /*  Table of details  */}}
             {{- template "artifactinfo" . }}
         </div>
@@ -68,6 +68,16 @@
             </div>
         </div>
         {{- end}}
+        {{/*  TODO:
+        <iframe
+            src="/v/ad3075"
+            loading="lazy"
+            allow="fullscreen"
+            sandbox="allow-same-origin"
+            height="480"
+            title="iframe Example 1">
+        </iframe>      
+          */}}
         {{- if or ($readmeL) ($readmeC)}}
         <div class="col-12">
         {{- if not $screenNone}}

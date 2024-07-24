@@ -39,7 +39,7 @@ func htmxGroup(e *echo.Echo, logger *zap.SugaredLogger, downloadDir string) *ech
 
 	upload := g.Group("/uploader")
 	upload.GET("/classifications", func(c echo.Context) error {
-		return htmx.HumanizeAndCount(c, logger, "uploader-advanced")
+		return htmx.HumanizeCount(c, logger, "uploader-advanced")
 	})
 	upload.PATCH("/releaser/1", func(c echo.Context) error {
 		return htmx.DataListReleasers(c, logger, releaser1(c))

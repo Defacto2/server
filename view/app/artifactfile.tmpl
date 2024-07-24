@@ -8,8 +8,11 @@
 {{- $id := index . "modID"}}
 {{- $unid := index . "unid"}}
 {{- $filename := index . "filename"}}
+{{- $dbMod := index . "modDBModify"}}
 {{- $statMod := index . "modStatModify"}}
-{{- $statSize := index . "modStatSize"}}
+{{- $statSizeB := index . "modStatSizeB"}}
+{{- $statSizeFmt := index . "modStatSizeF"}}
+{{- $magicMIME := index . "modMagicMime"}}
 {{- $magicNumber := index . "modMagicNumber"}}
 {{- $absDownload := index . "modAbsDownload"}}
 {{- $previewImg := recordImgSample $unid}}
@@ -45,6 +48,12 @@
             <label class="btn btn-outline-danger" for="artifact-editor-public">Recreate assets</label>
           </div>
           <div class="col-12 col-xl-2 col-lg-6 d-grid">
+            {{/*  
+             id="asset-editor-delete-text"
+             id="asset-editor-delete-images"
+                       <input type="hidden" id="asset-editor-hidden">
+          <div id="asset-editor-feedback" class="text-end"></div>
+            */}}
             {{radioHidden ($record)}}
             <label class="btn btn-outline-danger" for="artifact-editor-hidden">Delete assets</label>
           </div>
@@ -79,48 +88,58 @@
             </div>
             <div class="input-group mb-1">
               <label class="input-group-text w-25" for="artifact-editor-operating-system" id="artifact-editor-os-label">Filesize</label>
-              <input type="text" class="form-control" id="artifact-editor-operating-system" value="{{$statSize}}" readonly>
-              <input type="text" class="form-control" id="artifact-editor-operating-systemx" value="{{$statSize}}" readonly>
+              <input type="text" class="form-control" id="artifact-editor-operating-system" value="{{$statSizeB}}" readonly>
+              <input type="text" class="form-control" id="artifact-editor-operating-systemx" value="{{$statSizeFmt}}" readonly>
             </div>
             <div class="input-group mb-1">
               <label class="input-group-text w-25" for="artifact-editor-operating-system" id="artifact-editor-os-label">Last modifed</label>
-              <input type="text" class="form-control" id="artifact-editor-operating-system" value="{{$statMod}}" readonly>
-              <input type="text" class="form-control" id="artifact-editor-operating-systemx" value="{{$statMod}}" readonly>
+              <input type="text" class="form-control" value="{{$statMod}}" data-bs-toggle="tooltip" data-bs-title="On file system" readonly>
+              <input type="text" class="form-control" value="{{$dbMod}}" data-bs-toggle="tooltip" data-bs-title="Stored in the database" readonly>
             </div>
             <div class="input-group mb-1">
               <label class="input-group-text w-25" for="artifact-editor-operating-system" id="artifact-editor-os-label">Magic bytes</label>
-              <input type="text" class="form-control" id="artifact-editor-operating-system" value="{{$magicNumber}}" readonly>
+              <input type="text" class="form-control" value="{{$magicNumber}}" data-bs-toggle="tooltip" data-bs-title="Guessed type of file" readonly>
+              <input type="text" class="form-control" value="{{$magicMIME}}"  data-bs-toggle="tooltip" data-bs-title="Guessed MIME type" readonly>
             </div>
             <div class="input-group mb-1">
               <label class="input-group-text w-25" for="artifact-editor-operating-system" id="artifact-editor-os-label">Classification</label>
-              <input type="text" class="form-control" id="artifact-editor-operating-system" value="{{classification $tag $os}}" readonly>
+              <input type="text" class="form-control" id="artifact-editor-operating-system" value="{{classificationStr $tag $os}}" readonly>
             </div>
             <label for="basic-url" class="form-label mt-3">Replacement</label>
-            <div class="input-group input-group-sm mb-1">  
-              <input type="file" class="form-control w-50" id="artifact-editor-operating-system" value="{{classification $tag $os}}">
+            <div class="input-group input-group-sm mb-1">
+              <input type="file" class="form-control w-50" id="artifact-editor-operating-system" value="">
               <button class="btn btn-outline-secondary" id="asset-editor-download-submit">Upload</button> 
               <button class="btn btn-outline-secondary" id="asset-editor-download-reset">Clear</button>
             </div>
             <div class="form-text" id="basic-addon4">Normally not required, upload and replace the artifact download.</div>
 
             <legend class="mt-3">Download content</legend>
+            {{- if eq "" (index . "modZipContent")}}
+            <div class="input-group mb-3">
+              <div class="alert alert-primary w-100" role="alert">
+                The artifact is not an archive.
+              </div>
+            </div>
+            {{- else}}
             <div class="input-group mb-3">
               <label class="input-group-text w-25" for="artifact-editor-operating-system" id="artifact-editor-os-label">Location</label>
               <input type="text" class="form-control" id="artifact-editor-operating-system" value="{{$modArchiveContentDst}}" readonly>
             </div>
             <div class="container text-begin mb-3">
+              <hr class="m-0 mb-3 mt-3">
               {{$modArchiveContent}}
             </div>
+            {{- end}}
           </div>
           <div class="col-xl-6 bg-light">
             <legend>Image assets</legend>
             <div class="row row-cols-2 g-1">
               <div class="col-6">
                 <div class="card">
-                  {{$previewImg}}
                   <div class="card-body">
                     <p class="card-text">
-                      <span class="lead">Preview image assets.</span><br>
+                      <span class="lead">Preview assets</span><br>
+                      <div class="form-text">These are displayed when viewing the artifact page</div>
                       <table class="table table-hover">
                         <tbody>
                           {{- range $name, $info := .modAssetPreview}}
@@ -131,16 +150,21 @@
                             <td><a href="{{recordPreviewSrc $unid $ext}}">{{index $info 1}}</a></td>
                           </tr>{{- end}}
                       </table>
+                      <div><a href="">Square crop</a></div>
+                      <div><a href="">640x480 crop</a></div>
+                      <div><a href="">640x1280 crop</a></div>
+                      <div><a href="">Delete previews</a></div>
                     </p>
                   </div>
+                  {{$previewImg}}
                 </div>
               </div>
               <div class="col-6">
                 <div class="card">
-                  {{$thumbImg}}
                   <div class="card-body">
                     <p class="card-text">
-                      <span class="lead">Thumbnail image assets.</span><br>
+                      <span class="lead">Thumbnail assets</span><br>
+                      <div class="form-text">These are displayed when listing multiple artifacts on a page</div>
                       <table class="table table-hover">
                         <tbody>
                           {{- range $name, $info := .modAssetThumbnail}}
@@ -151,21 +175,31 @@
                             <td><a href="{{recordThumbnailSrc $unid $ext}}">{{index $info 1}}</a></td>
                           </tr>{{- end}}
                       </table>
+                      <div><a href="">Square crop, align top</a></div>
+                      <div><a href="">Square crop, align center</a></div>
+                      <div><a href="">Square crop, align bottom</a></div>
+                      <div><a href="">Delete thumbnails</a></div>
                     </p>
                   </div>
+                  {{$thumbImg}}
                 </div>
               </div>
             </div>
-            <label for="basic-url" class="form-label mt-3">Replacement</label>
+            <label for="basic-url" class="form-label mt-3">Replacement image</label>
             <div class="input-group input-group-sm mb-1">  
-              <input type="file" class="form-control w-50" id="artifact-editor-operating-system" value="{{classification $tag $os}}">
+              <input type="file" class="form-control w-50" id="artifact-editor-operating-system" 
+                accept="image/png, image/jpeg, image/webp, image/bmp, image/gif, image/tiff" value="">
               <button class="btn btn-outline-secondary" id="asset-editor-download-submit">Upload</button> 
               <button class="btn btn-outline-secondary" id="asset-editor-download-reset">Clear</button>
             </div>
+            {{/*  
+            id="edUploadPreviewReset"
+            id="edUploadPreviewBtn"
+            id="asset-editor-preview"
+            */}}
             <div class="form-text" id="basic-addon4">Select an image, text or ansi file to use as the image asset samples.</div>
 
             <legend class="mt-3">Extras assets</legend>
-            <small>TODO: add MS-DOS only .exe button for use with emulation and show form value</small>
             <div class="row row-cols-2 g-1">
               <div class="col-12">
                 <div class="card">
@@ -196,6 +230,23 @@
                       <div class="form-check form-switch">
                         {{recordReadme (index . "modNoReadme") }}
                         <label class="form-check-label" id="edHideMeLabel" for="edHideMe">Hide readme from view</label>
+                        <div class="form-text">disable the use of the <q>textfile&nbsp;content</q></div>
+                        <div class="valid-feedback">Saved, {{$replace}}</div>
+                        <div class="invalid-feedback" id="edHideMeErr">error placeholder</div>  
+                      </div>
+                    </p>
+                  </div>
+                </div>
+              </div> 
+              <div class="col-6">
+                <div class="card">
+                  <div class="card-body">
+                    <p class="card-text">
+                      <span class="lead">Repacked ZIP</span>
+                      <div class="form-check form-switch">
+                        {{recordReadme (index . "modNoReadme") }}
+                        <label class="form-check-label" id="edHideMeLabel" for="edHideMe">Offer a repacked archive</label>
+                        <div class="form-text">feature not used, download is not an obsolete archive</div>
                         <div class="valid-feedback">Saved, {{$replace}}</div>
                         <div class="invalid-feedback" id="edHideMeErr">error placeholder</div>  
                       </div>
@@ -205,65 +256,10 @@
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="alert alert-danger" role="alert">
-          This tab is intentionally <u>not working and is due for a redesign</u>.
-        </div>        
-
+        </div>     
+          {{/*  
         {{ template "artifactzip" . }}
-        <hr class="m-0 mb-3 mt-3">
-        {{- /*  Preview from upload  */}}
-        <div class="mb-3 row">
-          <label for="asset-editor-preview" id="asset-editor-preview-label" class="col-lg-3 col-form-label"
-          data-bs-toggle="tooltip" data-bs-title="An included image to use as the preview and thumbnail"><strong>Preview</strong> from upload</label>
-          <div class="col-10 col-xl-5">
-            <input type="file" class="form-control" id="asset-editor-preview" value="" 
-              accept="image/png, image/jpeg, image/webp, image/bmp, image/gif, image/tiff">
-            <div class="valid-feedback">Download artifact replaced, {{$replace}}</div>
-          </div>
-          <div class="col-1">
-            <button class="btn btn-outline-danger" id="edUploadPreviewReset">Clear</button>
-          </div>
-          <div class="col-8 mt-1 col-lg-3 mt-lg-0 text-start">
-            <button class="btn btn-outline-success" id="edUploadPreviewBtn">Upload and recreate</button>  
-          </div>
-        </div>
-        <hr class="m-0 mb-3 mt-3">
-        {{- /*  Download artifact */}}
-        <div class="mb-3 row">
-          <label for="asset-editor-download" id="asset-editor-download-label" class="col-lg-3 col-form-label"
-          data-bs-toggle="tooltip" data-bs-title="An included image to use as the preview and thumbnail"><strong>Download</strong> artifact</label>
-          <div class="col-10 col-lg-5">
-            <input type="file" class="form-control" id="asset-editor-download" value="">
-            <div class="valid-feedback">Download artifact replaced, {{$replace}}</div>
-          </div>
-          <div class="col-1">
-            <button class="btn btn-outline-danger" id="asset-editor-download-reset">Clear</button>
-          </div>
-          <div class="col-8 mt-1 col-lg-3 mt-lg-0 text-start">
-            <button class="btn btn-outline-success" id="asset-editor-download-submit">Upload and replace</button>   
-          </div>
-        </div>
-        <hr class="m-0 mb-3 mt-3">
-        {{- /*  Delete complementary images  */}}
-        {{- /*  Delete readme asset  */}}
-        <div class="my-2 row">
-          <div class="col-sm-6 text-start">
-            {{- /*  <button class="btn btn-sm btn-dark">Regenerate complementary images</button>    */}}
-          </div>
-          <div class="col-sm-6 text-end">
-            <button class="btn btn-sm btn-danger" id="asset-editor-delete-images">Delete complementary <strong>images</strong></button>  
-            <button class="btn btn-sm btn-danger" id="asset-editor-delete-text" disabled>Delete <strong>readme</strong> asset</button>
-          </div>
-          <input type="hidden" id="asset-editor-hidden">
-          <div id="asset-editor-feedback" class="text-end"></div>
-          {{- /*  Preview and Thumbnail images  */}}
-          <div class="row g-3 text-center">
-            <div class="col-md">{{$previewImg}}<div class="form-text">Preview</div></div>
-            <div class="col-md">{{$thumbImg}}<div class="form-text">Thumbnail</div></div>
-          </div>
-        </div>
+          */}}
       </div>
       {{/*  Switch to assets and reset buttons  */}}
       {{- template "artifactfooter" . }}

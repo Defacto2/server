@@ -824,6 +824,40 @@ func ReadmeSuggest(filename, group string, content ...string) string {
 	return ""
 }
 
+// Readmes returns a list of readme text files found in the file archive.
+func Readmes(content ...string) []string {
+	finds := []string{}
+	skip := []string{"scene.org", "scene.org.txt"}
+	for _, name := range content {
+		if name == "" {
+			continue
+		}
+		s := strings.ToLower(name)
+		if slices.Contains(skip, s) {
+			continue
+		}
+		ext := filepath.Ext(s)
+		if slices.Contains(priority(), ext) {
+			finds = append(finds, name)
+			continue
+		}
+		if slices.Contains(candidate(), ext) {
+			finds = append(finds, name)
+		}
+	}
+	return finds
+}
+
+// priority returns a list of readme text file extensions in priority order.
+func priority() []string {
+	return []string{".nfo", ".txt", ".unp", ".doc"}
+}
+
+// candidate returns a list of other, common text file extensions in priority order.
+func candidate() []string {
+	return []string{".diz", ".asc", ".1st", ".dox", ".me", ".cap", ".ans", ".pcb"}
+}
+
 // RecordRels returns the groups associated with a release and joins them with a plus sign.
 func RecordRels(a, b any) string {
 	av, bv, s := "", "", ""

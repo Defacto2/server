@@ -18,37 +18,14 @@ import (
 
 const ReSanitizePath = "[^a-zA-Z0-9-._/]+" // Regular expression to sanitize the URL path.
 
-// HumanizeAndCount returns the human readable name of the platform and section tags combined
+// HumanizeCount returns the human readable name of the platform and section tags combined
 // and the number of existing artifacts. The number of existing artifacts is colored based on
 // the count. If the count is 0, the text is red. If the count is 1, the text is blue. If the
 // count is greater than 1, the text is unmodified.
-func HumanizeAndCount(section, platform string) (template.HTML, error) {
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+func HumanizeCount(section, platform string) (template.HTML, error) {
+	count, tag, err := humanizeCount(section, platform)
 	if err != nil {
-		return "cannot connect to the database",
-			fmt.Errorf("form humanize and count %w", err)
-	}
-	defer db.Close()
-	s := tags.TagByURI(section)
-	p := tags.TagByURI(platform)
-	tag := tags.Humanize(p, s)
-	if strings.HasPrefix(tag, "unknown") {
-		switch {
-		case p.String() == "" && s.String() == "":
-			return "please choose both classifcations", nil
-		case s.String() == "":
-			return "please choose a tag as category", nil
-		case p.String() == "":
-			return "please choose an operating system", nil
-		default:
-			return "unknown classification", nil
-		}
-	}
-	count, err := model.ClassificationCount(ctx, db, section, platform)
-	if err != nil {
-		return "cannot count the classification",
-			fmt.Errorf("form humanize and count classification %w", err)
+		return "", err
 	}
 	var html string
 	switch count {
@@ -62,6 +39,47 @@ func HumanizeAndCount(section, platform string) (template.HTML, error) {
 		html = fmt.Sprintf("%s, %d existing artifacts", tag, count)
 	}
 	return template.HTML(html), nil
+}
+
+// HumanizeCountStr returns the human readable name of the platform and section tags combined
+// and the number of existing artifacts. Any errors are returned as a string.
+func HumanizeCountStr(section, platform string) string {
+	count, tag, err := humanizeCount(section, platform)
+	if err != nil {
+		return err.Error()
+	}
+	return fmt.Sprintf("%s, %d existing artifacts", tag, count)
+}
+
+func humanizeCount(section, platform string) (int64, string, error) {
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return 0, "cannot connect to the database",
+			fmt.Errorf("form humanize and count %w", err)
+	}
+	defer db.Close()
+	s := tags.TagByURI(section)
+	p := tags.TagByURI(platform)
+	tag := tags.Humanize(p, s)
+	if strings.HasPrefix(tag, "unknown") {
+		switch {
+		case p.String() == "" && s.String() == "":
+			return 0, "please choose both classifcations", nil
+		case s.String() == "":
+			return 0, "please choose a tag as category", nil
+		case p.String() == "":
+			return 0, "please choose an operating system", nil
+		default:
+			return 0, "unknown classification", nil
+		}
+	}
+	count, err := model.ClassificationCount(ctx, db, section, platform)
+	if err != nil {
+		return 0, "cannot count the classification",
+			fmt.Errorf("form humanize and count classification %w", err)
+	}
+	return count, tag, nil
 }
 
 // SanitizeFilename returns a sanitized version of the filename.

@@ -70,7 +70,7 @@ func RecordClassification(c echo.Context, logger *zap.SugaredLogger) error {
 	section := c.FormValue("artifact-editor-categories")
 	platform := c.FormValue("artifact-editor-operatingsystem")
 	key := c.FormValue("artifact-editor-key")
-	html, err := form.HumanizeAndCount(section, platform)
+	html, err := form.HumanizeCount(section, platform)
 	if err != nil {
 		logger.Error(err)
 		return badRequest(c, err)

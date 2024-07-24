@@ -162,12 +162,12 @@ func TestViewer(t *testing.T) {
 func TestNoScreenshot(t *testing.T) {
 	t.Parallel()
 	var art models.File
-	assert.True(t, render.NoScreenshot(nil, ""))
+	assert.True(t, render.NoScreenshot(nil, "", ""))
 	art = models.File{}
-	assert.True(t, render.NoScreenshot(&art, ""))
+	assert.True(t, render.NoScreenshot(&art, "", ""))
 	art = models.File{}
 	art.Platform = null.StringFrom("textamiga")
-	assert.True(t, render.NoScreenshot(&art, ""))
+	assert.True(t, render.NoScreenshot(&art, "", ""))
 
 	const unid = "5b4c5f6e-8a1e-11e9-9f0e-000000000000"
 	art.Platform = null.StringFrom("")
@@ -176,5 +176,5 @@ func TestNoScreenshot(t *testing.T) {
 	err := helper.Touch(name)
 	require.NoError(t, err)
 	defer os.Remove(name)
-	assert.False(t, render.NoScreenshot(&art, os.TempDir()))
+	assert.False(t, render.NoScreenshot(&art, "", os.TempDir()))
 }
