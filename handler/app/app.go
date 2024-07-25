@@ -2,7 +2,6 @@
 package app
 
 import (
-	"cmp"
 	"context"
 	"embed"
 	"errors"
@@ -17,7 +16,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Defacto2/releaser"
+	"github.com/Defacto2/server/handler/app/internal/mf"
+	"github.com/Defacto2/server/handler/app/internal/str"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/tags"
@@ -297,7 +297,7 @@ func LastUpdated(t any) string {
 		return ""
 	}
 	const s = "Last updated"
-	return Updated(t, s)
+	return str.Updated(t, s)
 }
 
 // LinkDownload creates a URL to link to the file download of the record.
@@ -305,7 +305,7 @@ func LinkDownload(id any, uri string) template.HTML {
 	if id == nil {
 		return ""
 	}
-	s, err := linkID(id, "d")
+	s, err := str.LinkID(id, "d")
 	if err != nil {
 		return template.HTML(err.Error())
 	}
@@ -321,7 +321,7 @@ func LinkHref(id any) (string, error) {
 	if id == nil {
 		return "", fmt.Errorf("id is nil, %w", ErrNegative)
 	}
-	return linkID(id, "f")
+	return str.LinkID(id, "f")
 }
 
 // LinkInterview returns a SVG arrow icon to indicate an interview link hosted on an external website.
@@ -342,7 +342,7 @@ func LinkPage(id any) template.HTML {
 	if id == nil {
 		return ""
 	}
-	s, err := linkID(id, "f")
+	s, err := str.LinkID(id, "f")
 	if err != nil {
 		return template.HTML(err.Error())
 	}
@@ -355,147 +355,12 @@ func LinkPreview(id any, name, platform string) template.HTML {
 	if id == nil || name == "" {
 		return template.HTML("")
 	}
-	s := LinkPreviewHref(id, name, platform)
+	s := mf.LinkPreviewHref(id, name, platform)
 	if s == "" {
 		return template.HTML("")
 	}
 	elm := fmt.Sprintf(`&nbsp; <a class="card-link" href="%s">Preview</a>`, s)
 	return template.HTML(elm)
-}
-
-// LinkPreviewHref creates a URL path to link to the file record in tab, to use as a preview.
-//
-// A list of supported file types: https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
-func LinkPreviewHref(id any, name, platform string) string {
-	if id == nil || name == "" {
-		return ""
-	}
-	platform = strings.TrimSpace(platform)
-	// supported formats
-	// https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
-	ext := strings.ToLower(filepath.Ext(name))
-	switch {
-	case slices.Contains(archives(), ext):
-		// this must always be first
-		return ""
-	case platform == textamiga, platform == "text":
-		break
-	case slices.Contains(documents(), ext):
-		break
-	case slices.Contains(images(), ext):
-		break
-	case slices.Contains(media(), ext):
-		break
-	default:
-		return ""
-	}
-	s, err := linkID(id, "v")
-	if err != nil {
-		return fmt.Sprint("error: ", err)
-	}
-	return s
-}
-
-// LinkPreviewTip returns a tooltip to describe the preview link.
-func LinkPreviewTip(name, platform string) string {
-	if name == "" {
-		return ""
-	}
-	platform = strings.TrimSpace(platform)
-	ext := strings.ToLower(filepath.Ext(name))
-	switch {
-	case slices.Contains(archives(), ext):
-		// this case must always be first
-		return ""
-	case platform == textamiga, platform == "text":
-		return "Read this as text"
-	case slices.Contains(documents(), ext):
-		return "Read this as text"
-	case slices.Contains(images(), ext):
-		return "View this as an image or photo"
-	case slices.Contains(media(), ext):
-		return "Play this as media"
-	}
-	return ""
-}
-
-// LinkRelFast returns the groups associated with a release and a link to each group.
-// It is a faster version of LinkRelrs and should be used with the templates that have large lists of group names.
-func LinkRelFast(a, b any) template.HTML {
-	if a == nil || b == nil {
-		return ""
-	}
-	return LinkRelrs(true, a, b)
-}
-
-// LinkRelrs returns the groups associated with a release and a link to each group.
-// The performant flag will use the group name instead of the much slower group slug formatter.
-func LinkRelrs(performant bool, a, b any) template.HTML {
-	const class = "text-nowrap link-offset-2 link-underline link-underline-opacity-25"
-	var av, bv string
-	switch val := a.(type) {
-	case string:
-		av = reflect.ValueOf(val).String()
-	case null.String:
-		if val.Valid {
-			av = val.String
-		}
-	}
-	switch val := b.(type) {
-	case string:
-		bv = reflect.ValueOf(val).String()
-	case null.String:
-		if val.Valid {
-			bv = val.String
-		}
-	}
-
-	av, bv = strings.TrimSpace(av), strings.TrimSpace(bv)
-	if av == "" && bv != "" {
-		av = bv
-		bv = ""
-	}
-
-	var prime, second string
-	var err error
-	if av != "" {
-		prime, err = makeLink(av, class, performant)
-		if err != nil {
-			return template.HTML(fmt.Sprintf("error: %s", err))
-		}
-	}
-	if bv != "" {
-		second, err = makeLink(bv, class, performant)
-		if err != nil {
-			return template.HTML(fmt.Sprintf("error: %s", err))
-		}
-	}
-	return relHTML(prime, second)
-}
-
-func makeLink(name, class string, performant bool) (string, error) {
-	ref, err := linkRelr(name)
-	if err != nil {
-		return "", fmt.Errorf("app make link %w", err)
-	}
-	x := helper.Capitalize(strings.ToLower(name))
-	title := x
-	if !performant {
-		title = releaser.Link(helper.Slug(name))
-	}
-	s := fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, title)
-	if x != "" && title == "" {
-		s = "error: could not link group"
-	}
-	return s, nil
-}
-
-// LinkRelrs returns the groups associated with a release and a link to each group.
-func LinkRels(a, b any) template.HTML {
-	if a == nil || b == nil {
-		return ""
-	}
-	return LinkRelrs(false, a, b)
 }
 
 // LinkRemote returns a HTML link with an embedded SVG icon to an external website.
@@ -518,11 +383,6 @@ func LinkScnr(name string) (string, error) {
 		return "", fmt.Errorf("name %q could not be made into a valid url: %w", name, err)
 	}
 	return href, nil
-}
-
-// LinkSVG returns an right-arrow SVG icon.
-func LinkSVG() template.HTML {
-	return arrowLink
 }
 
 // LinkWiki returns a HTML link with an embedded SVG icon to the Defacto2 wiki on GitHub.
@@ -761,103 +621,6 @@ func RecordsSub(uri string) string {
 	return "unknown uri"
 }
 
-// ReadmeSuggest returns a suggested readme file name for the record.
-// It prioritizes the filename and group name with a priority extension,
-// such as ".nfo", ".txt", etc. If no priority extension is found,
-// it will return the first textfile in the content list.
-//
-// The filename should be the name of the file archive artifact.
-// The group should be a name or common abbreviation of the group that
-// released the artifact. The content should be a list of files contained
-// in the artifact.
-//
-// This is a port of the CFML function, variables.findTextfile found in File.cfc.
-func ReadmeSuggest(filename, group string, content ...string) string {
-	finds := Readmes(content...)
-	if len(finds) == 1 {
-		return finds[0]
-	}
-	finds = SortContent(finds...)
-
-	// match either the filename or the group name with a priority extension
-	// e.g. .nfo, .txt, .unp, .doc
-	base := filepath.Base(filename)
-	for _, ext := range priority() {
-		for _, name := range finds {
-			if strings.EqualFold(base+ext, name) {
-				return name
-			}
-			if strings.EqualFold(group+ext, name) {
-				return name
-			}
-		}
-	}
-	const matchFileID = "file_id.diz"
-	for _, name := range finds {
-		if strings.EqualFold(matchFileID, name) {
-			return name
-		}
-	}
-	// match either the filename or the group name with a candidate extension
-	for _, ext := range candidate() {
-		for _, name := range finds {
-			if strings.EqualFold(base+ext, name) {
-				return name
-			}
-			if strings.EqualFold(group+ext, name) {
-				return name
-			}
-		}
-	}
-	// match any finds that use a priority extension
-	for _, name := range finds {
-		s := strings.ToLower(name)
-		ext := filepath.Ext(s)
-		if slices.Contains(priority(), ext) {
-			return name
-		}
-	}
-	// match the first file in the list
-	for _, name := range finds {
-		return name
-	}
-	return ""
-}
-
-// Readmes returns a list of readme text files found in the file archive.
-func Readmes(content ...string) []string {
-	finds := []string{}
-	skip := []string{"scene.org", "scene.org.txt"}
-	for _, name := range content {
-		if name == "" {
-			continue
-		}
-		s := strings.ToLower(name)
-		if slices.Contains(skip, s) {
-			continue
-		}
-		ext := filepath.Ext(s)
-		if slices.Contains(priority(), ext) {
-			finds = append(finds, name)
-			continue
-		}
-		if slices.Contains(candidate(), ext) {
-			finds = append(finds, name)
-		}
-	}
-	return finds
-}
-
-// priority returns a list of readme text file extensions in priority order.
-func priority() []string {
-	return []string{".nfo", ".txt", ".unp", ".doc"}
-}
-
-// candidate returns a list of other, common text file extensions in priority order.
-func candidate() []string {
-	return []string{".diz", ".asc", ".1st", ".dox", ".me", ".cap", ".ans", ".pcb"}
-}
-
 // RecordRels returns the groups associated with a release and joins them with a plus sign.
 func RecordRels(a, b any) string {
 	av, bv, s := "", "", ""
@@ -931,25 +694,6 @@ func SafeHTML(s string) template.HTML {
 // This is intended to be used to prevent JS escaping.
 func SafeJS(s string) template.JS {
 	return template.JS(s)
-}
-
-// SortContent sorts the content list by the number of slashes in each string.
-// It prioritizes strings with fewer slashes (i.e., closer to the root).
-// If the number of slashes is the same, it sorts alphabetically.
-func SortContent(content ...string) []string {
-	const windowsPath = "\\"
-	const pathSeparator = "/"
-	slices.SortFunc(content, func(a, b string) int {
-		a = strings.ReplaceAll(a, windowsPath, pathSeparator)
-		b = strings.ReplaceAll(b, windowsPath, pathSeparator)
-		aCount := strings.Count(a, pathSeparator)
-		bCount := strings.Count(b, pathSeparator)
-		if aCount != bCount {
-			return aCount - bCount
-		}
-		return cmp.Compare(strings.ToLower(a), strings.ToLower(b))
-	})
-	return content
 }
 
 // SubTitle returns a secondary element with the record title.
@@ -1047,29 +791,6 @@ func TrimSpace(a any) string {
 		return ""
 	default:
 		return fmt.Sprintf("%s trim site suffix: %s", typeErr, reflect.TypeOf(a).String())
-	}
-}
-
-// Updated returns a string of the time since the given time t.
-// The time is formatted as "Last updated 1 hour ago".
-// If the time is not valid, an empty string is returned.
-func Updated(t any, s string) string {
-	if t == nil {
-		return ""
-	}
-	if s == "" {
-		s = "Time"
-	}
-	switch val := t.(type) {
-	case null.Time:
-		if !val.Valid {
-			return ""
-		}
-		return fmt.Sprintf("%s %s ago", s, helper.TimeDistance(val.Time, time.Now(), true))
-	case time.Time:
-		return fmt.Sprintf("%s %s ago", s, helper.TimeDistance(val, time.Now(), true))
-	default:
-		return fmt.Sprintf("%supdated: %s", typeErr, reflect.TypeOf(t).String())
 	}
 }
 
@@ -1308,58 +1029,12 @@ func fileInfo(uri string) (string, string, string) {
 	return logo, h1sub, lead
 }
 
-// linkID creates a URL to link to the record.
-// The id is obfuscated to prevent direct linking.
-// The elem is the element to link to, such as 'f' for file or 'd' for download.
-func linkID(id any, elem string) (string, error) {
-	var i int64
-	switch val := id.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		i = reflect.ValueOf(val).Int()
-		if i <= 0 {
-			return "", fmt.Errorf("app link id %w: %d", ErrNegative, i)
-		}
-	default:
-		return "", fmt.Errorf("app link id %w: %s", ErrLinkType, reflect.TypeOf(id).String())
-	}
-	href, err := url.JoinPath("/", elem, helper.ObfuscateID(i))
-	if err != nil {
-		return "", fmt.Errorf("app link id %d could not be made into a valid url: %w", i, err)
-	}
-	return href, nil
-}
-
-// linkRelr returns a link to the named group page.
-func linkRelr(name string) (string, error) {
-	href, err := url.JoinPath("/", "g", helper.Slug(name))
-	if err != nil {
-		return "", fmt.Errorf("name %q could not be made into a valid url: %w", name, err)
-	}
-	return href, nil
-}
-
 func names(s string) string {
 	switch s {
 	case "bbs", "ftp":
 		return "file"
 	}
 	return s
-}
-
-// relHTML returns a HTML links for the primary and secondary group names.
-func relHTML(prime, second string) template.HTML {
-	var s string
-	switch {
-	case prime != "" && second != "":
-		s = fmt.Sprintf("%s <strong>+</strong><br>%s", prime, second)
-	case prime != "":
-		s = prime
-	case second != "":
-		s = second
-	default:
-		return ""
-	}
-	return template.HTML(s)
 }
 
 // Form is the form data for the editor.
@@ -1388,28 +1063,3 @@ const (
 	arrowLink template.HTML = `<svg class="bi" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#arrow-right"></use></svg>`
 )
-
-// archives returns a list of archive file extensions supported by this web application.
-func archives() []string {
-	return []string{fzip, ".rar", ".7z", ".tar", ".lha", ".lzh", ".arc", ".arj", ".ace", ".tar"}
-}
-
-// documents returns a list of document file extensions that can be read as text in the browser.
-func documents() []string {
-	return []string{
-		".txt", ".nfo", ".diz", ".asc", ".lit", ".rtf", ".doc", ".docx",
-		".pdf", ".unp", ".htm", ".html", ".xml", ".json", ".csv",
-	}
-}
-
-// images returns a list of image file extensions that can be displayed in the browser.
-func images() []string {
-	return []string{".avif", gif, jpg, jpeg, ".jfif", png, ".svg", webp, ".bmp", ".ico"}
-}
-
-// media returns a list of [media file extensions] that can be played in the browser.
-//
-// [media file extensions]: https://developer.mozilla.org/en-US/docs/Web/Media/Formats
-func media() []string {
-	return []string{".mpeg", ".mp1", ".mp2", ".mp3", ".mp4", ".ogg", ".wmv"}
-}

@@ -12,6 +12,8 @@ import (
 	"strings"
 	uni "unicode"
 
+	"github.com/Defacto2/server/handler/app/internal/mf"
+	"github.com/Defacto2/server/handler/app/internal/str"
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magicnumber"
@@ -39,15 +41,17 @@ func (dir Dirs) Artifact(c echo.Context, logger *zap.SugaredLogger, readonly boo
 	}
 	data := empty(c)
 	// artifact editor
-	data = dir.artifactEditor(art, data, readonly)
+	if !readonly {
+		data = dir.Editor(art, data)
+	}
 	// page metadata
-	data["unid"] = unid(art)
-	data["download"] = downloadID(art)
-	data["title"] = basename(art)
-	data["description"] = description(art)
-	data["h1"] = firstHeader(art)
-	data["lead"] = firstLead(art)
-	data["comment"] = comment(art)
+	data["unid"] = mf.UnID(art)
+	data["download"] = mf.DownloadID(art)
+	data["title"] = mf.Basename(art)
+	data["description"] = mf.Description(art)
+	data["h1"] = mf.FirstHeader(art)
+	data["lead"] = FirstLead(art)
+	data["comment"] = mf.Comment(art)
 	// file metadata
 	data = dir.filemetadata(art, data)
 	// attributions and credits
@@ -97,38 +101,38 @@ func (dir Dirs) modelsFile(c echo.Context) (*models.File, error) {
 }
 
 func (dir Dirs) attributions(art *models.File, data map[string]interface{}) map[string]interface{} {
-	data["writers"] = attrWriter(art)
-	data["artists"] = attrArtist(art)
-	data["programmers"] = attrProg(art)
-	data["musicians"] = attrMusic(art)
+	data["writers"] = mf.AttrWriter(art)
+	data["artists"] = mf.AttrArtist(art)
+	data["programmers"] = mf.AttrProg(art)
+	data["musicians"] = mf.AttrMusic(art)
 	return data
 }
 
 func (dir Dirs) filemetadata(art *models.File, data map[string]interface{}) map[string]interface{} {
-	data["filename"] = basename(art)
+	data["filename"] = mf.Basename(art)
 	data["filesize"] = dirsBytes(art.Filesize.Int64)
 	data["filebyte"] = art.Filesize
-	data["lastmodified"] = lastModification(art)
-	data["lastmodifiedAgo"] = lastModificationAgo(art)
-	data["checksum"] = checksum(art)
-	data["magic"] = magic(art)
-	data["releasers"] = groupReleasers(art)
-	data["published"] = dateIssued(art)
-	data["section"] = section(art)
-	data["platform"] = platform(art)
-	data["alertURL"] = alertURL(art)
-	data["extraZip"] = dir.extraZip(art)
+	data["lastmodified"] = mf.LastModification(art)
+	data["lastmodifiedAgo"] = mf.LastModificationAgo(art)
+	data["checksum"] = mf.Checksum(art)
+	data["magic"] = mf.Magic(art)
+	data["releasers"] = GroupReleasers(art)
+	data["published"] = mf.Date(art)
+	data["section"] = mf.Section(art)
+	data["platform"] = mf.Platform(art)
+	data["alertURL"] = mf.AlertURL(art)
+	data["extraZip"] = mf.ExtraZip(art, dir.Extra)
 	return data
 }
 
 func (dir Dirs) otherRelations(art *models.File, data map[string]interface{}) map[string]interface{} {
-	data["relations"] = relations(art)
-	data["websites"] = websites(art)
-	data["demozoo"] = idenficationDZ(art)
-	data["pouet"] = idenficationPouet(art)
-	data["sixteenColors"] = idenfication16C(art)
-	data["youtube"] = idenficationYT(art)
-	data["github"] = idenficationGitHub(art)
+	data["relations"] = mf.Relations(art)
+	data["websites"] = mf.Websites(art)
+	data["demozoo"] = mf.IdenficationDZ(art)
+	data["pouet"] = mf.IdenficationPouet(art)
+	data["sixteenColors"] = mf.Idenfication16C(art)
+	data["youtube"] = mf.IdenficationYT(art)
+	data["github"] = mf.IdenficationGitHub(art)
 	return data
 }
 
@@ -168,7 +172,7 @@ func jsdos(art *models.File, data map[string]interface{}, logger *zap.SugaredLog
 	data["jsdos6Config"] = ""
 	data["jsdos6Zip"] = false
 	data["jsdos6Utilities"] = false
-	if emulate := jsdosUse(art); !emulate {
+	if emulate := mf.JsdosUse(art); !emulate {
 		return data
 	}
 	data["jsdos6"] = true
@@ -190,8 +194,8 @@ func jsdos(art *models.File, data map[string]interface{}, logger *zap.SugaredLog
 		return data
 	}
 	data["jsdos6Config"] = cfg
-	data["jsdos6Zip"] = jsdosArchive(art)
-	data["jsdos6Utilities"] = jsdosUtilities(art)
+	data["jsdos6Zip"] = mf.JsdosArchive(art)
+	data["jsdos6Utilities"] = mf.JsdosUtilities(art)
 	return data
 }
 
@@ -199,26 +203,26 @@ func recordmetadata(art *models.File, data map[string]interface{}) map[string]in
 	if art == nil {
 		return data
 	}
-	data["linkpreview"] = linkPreview(art)
-	data["linkpreviewTip"] = linkPreviewTip(art)
+	data["linkpreview"] = mf.LinkPreview(art)
+	data["linkpreviewTip"] = mf.LinkPreviewTip(art)
 	data["filentry"] = ""
 	switch {
 	case art.Createdat.Valid && art.Updatedat.Valid:
-		c := Updated(art.Createdat.Time, "")
-		u := Updated(art.Updatedat.Time, "")
+		c := str.Updated(art.Createdat.Time, "")
+		u := str.Updated(art.Updatedat.Time, "")
 		if c != u {
-			c = Updated(art.Createdat.Time, "Created")
-			u = Updated(art.Updatedat.Time, "Updated")
+			c = str.Updated(art.Createdat.Time, "Created")
+			u = str.Updated(art.Updatedat.Time, "Updated")
 			data["filentry"] = c + br + u
 			return data
 		}
-		c = Updated(art.Createdat.Time, "Created")
+		c = str.Updated(art.Createdat.Time, "Created")
 		data["filentry"] = c
 	case art.Createdat.Valid:
-		c := Updated(art.Createdat.Time, "Created")
+		c := str.Updated(art.Createdat.Time, "Created")
 		data["filentry"] = c
 	case art.Updatedat.Valid:
-		u := Updated(art.Updatedat.Time, "Updated")
+		u := str.Updated(art.Updatedat.Time, "Updated")
 		data["filentry"] = u
 	}
 	return data
@@ -230,7 +234,7 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	if art == nil || art.RetrotxtNoReadme.Int16 != 0 {
 		return data, nil
 	}
-	if unsupportedText(art) {
+	if mf.UnsupportedText(art) {
 		return data, nil
 	}
 	if skip := render.NoScreenshot(art, dir.Download, dir.Preview); skip {
@@ -265,12 +269,12 @@ func (dir Dirs) artifactReadme(art *models.File) (map[string]interface{}, error)
 	if bytes.HasSuffix(b, []byte{endOfFile}) {
 		b = bytes.TrimSuffix(b, []byte{endOfFile})
 	}
-	if incompatible, err := incompatibleANSI(r); err != nil {
+	if incompatible, err := mf.IncompatibleANSI(r); err != nil {
 		return data, fmt.Errorf("incompatibleANSI: %w", err)
 	} else if incompatible {
 		return data, nil
 	}
-	b = removeControlCodes(b)
+	b = mf.RemoveCtrls(b)
 	return readmeEncoding(art, data, b...)
 }
 

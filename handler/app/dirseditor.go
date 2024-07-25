@@ -11,6 +11,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/Defacto2/server/handler/app/internal/mf"
 	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magicnumber"
@@ -21,65 +22,107 @@ import (
 	"github.com/h2non/filetype"
 )
 
-func (dir Dirs) artifactEditor(art *models.File, data map[string]interface{}, readonly bool) map[string]interface{} {
-	if readonly || art == nil {
+func (dir Dirs) Editor(art *models.File, data map[string]interface{}) map[string]interface{} {
+	if art == nil {
 		return data
 	}
-	unid := art.UUID.String
+	unid := mf.UnID(art)
 	abs := filepath.Join(dir.Download, unid)
-	mod, sizeB, sizeFmt := artifactStat(abs)
+	data["epochYear"] = epoch
 	data["readOnly"] = false
 	data["modID"] = art.ID
-	data["modTitle"] = art.RecordTitle.String
-	data["modOnline"] = art.Deletedat.Time.IsZero()
+	data["modTitle"] = title(art)
+	data["modOnline"] = public(art)
 	data["modReleasers"] = RecordRels(art.GroupBrandBy, art.GroupBrandFor)
-	rr := RecordReleasers(art.GroupBrandFor, art.GroupBrandBy)
-	data["modReleaser1"] = rr[0]
-	data["modReleaser2"] = rr[1]
-	data["modYear"] = art.DateIssuedYear.Int16
-	data["modMonth"] = art.DateIssuedMonth.Int16
-	data["modDay"] = art.DateIssuedDay.Int16
-	data["modLastMod"] = !art.FileLastModified.IsZero()
-	data["modLMYear"] = art.FileLastModified.Time.Year()
-	data["modLMMonth"] = int(art.FileLastModified.Time.Month())
-	data["modLMDay"] = art.FileLastModified.Time.Day()
+	data["modReleaser1"], data["modReleaser2"] = releaser1_2(art)
+	data["modYear"], data["modMonth"], data["modDay"] = date(art)
+	data["modLMYear"], data["modLMMonth"], data["modLMDay"] = dateLastMod(art)
 	data["modAbsDownload"] = abs
 	data["modMagicMime"] = artifactMIME(abs)
 	data["modMagicNumber"] = magicNumber(abs)
-	data["modStatModify"] = mod
-	data["modDBModify"] = art.FileLastModified.Time.Format("2006-01-02")
-	data["modStatSizeB"] = sizeB
-	data["modStatSizeF"] = sizeFmt
-	data["modArchiveContent"] = artifactContent(abs, art.Platform.String)
-	data["modArchiveContentDst"], _ = artifactContentDst(abs)
-	data["modAssetPreview"] = dir.artifactAssets(dir.Preview, unid)
-	data["modAssetThumbnail"] = dir.artifactAssets(dir.Thumbnail, unid)
-	data["modAssetExtra"] = dir.artifactAssets(dir.Extra, unid)
-	data["modNoReadme"] = art.RetrotxtNoReadme.Int16 != 0
-	data["modReadmeList"] = OptionsReadme(art.FileZipContent.String)
-	data["modPreviewList"] = OptionsPreview(art.FileZipContent.String)
-	data["modAnsiLoveList"] = OptionsAnsiLove(art.FileZipContent.String)
-	data["modReadmeSuggest"] = readmeSuggest(art)
-	data["modZipContent"] = strings.TrimSpace(art.FileZipContent.String)
-	data["modRelations"] = art.ListRelations.String
-	data["modWebsites"] = art.ListLinks.String
-	data["modOS"] = strings.ToLower(strings.TrimSpace(art.Platform.String))
-	data["modTag"] = strings.ToLower(strings.TrimSpace(art.Section.String))
-	data["virusTotal"] = strings.TrimSpace(art.FileSecurityAlertURL.String)
-	data["forApproval"] = !art.Deletedat.IsZero() && art.Deletedby.IsZero()
+	data["modDBModify"] = mf.LastModification(art)
+	data["modStatModify"], data["modStatSizeB"], data["modStatSizeF"] = statHumanize(abs)
+	data["modArchiveContent"] = artifactContent(abs, art.Platform.String) // FIXME
+	data["modArchiveContentDst"], _ = artifactContentDst(abs)             // FIXME, error handling and return empty string
+	data["modAssetPreview"] = dir.assets(dir.Preview, unid)
+	data["modAssetThumbnail"] = dir.assets(dir.Thumbnail, unid)
+	data["modAssetExtra"] = dir.assets(dir.Extra, unid)
+	data["modNoReadme"] = mf.ReadmeNone(art)
+	// data["modReadmeList"] = OptionsReadme(art.FileZipContent.String) // Check if this is needed
+	// data["modPreviewList"] = OptionsPreview(art.FileZipContent.String)
+	// data["modAnsiLoveList"] = OptionsAnsiLove(art.FileZipContent.String)
+	data["modReadmeSuggest"] = mf.Readme(art)
+	data["modZipContent"] = mf.ZipContent(art)
+	data["modRelations"] = mf.RelationsStr(art)
+	data["modWebsites"] = mf.WebsitesStr(art)
+	data["modOS"] = mf.TagOS(art)
+	data["modTag"] = mf.TagCategory(art)
+	data["virusTotal"] = mf.AlertURL(art) // FIXME, virusTotal is a dupe of ["alertURL"] ?
+	data["forApproval"] = recordIsNew(art)
 	data["disableApproval"] = disableApproval(art)
-	data["disableRecord"] = !art.Deletedat.IsZero() && !art.Deletedby.IsZero()
+	data["disableRecord"] = recordOffline(art)
 	data["missingAssets"] = missingAssets(art, dir)
-	data["modEmulateXMS"] = art.DoseeNoXMS.Int16 == 0
-	data["modEmulateEMS"] = art.DoseeNoEms.Int16 == 0
-	data["modEmulateUMB"] = art.DoseeNoUmb.Int16 == 0
-	data["modEmulateBroken"] = art.DoseeIncompatible.Int16 != 0
-	data["modEmulateRun"] = art.DoseeRunProgram.String
-	data["modEmulateCPU"] = art.DoseeHardwareCPU.String
-	data["modEmulateMachine"] = art.DoseeHardwareGraphic.String
-	data["modEmulateAudio"] = art.DoseeHardwareAudio.String
+	// jsdos emulator
+	data["modEmulateXMS"], data["modEmulateEMS"], data["modEmulateUMB"] = jsdosMemory(art)
+	data["modEmulateBroken"] = jsdosBroken(art)
+	data["modEmulateRun"] = jsdosRun(art)
+	data["modEmulateCPU"] = jsdosCPU(art)
+	data["modEmulateMachine"] = jsdosMachine(art)
+	data["modEmulateAudio"] = jsdosSound(art)
 	return data
 }
+
+func date(art *models.File) (int16, int16, int16) {
+	if art == nil {
+		return 0, 0, 0
+	}
+	y, m, d := int16(0), int16(0), int16(0)
+	if art.DateIssuedYear.Valid {
+		y = art.DateIssuedYear.Int16
+	}
+	if art.DateIssuedMonth.Valid {
+		m = art.DateIssuedMonth.Int16
+	}
+	if art.DateIssuedDay.Valid {
+		d = art.DateIssuedDay.Int16
+	}
+	return y, m, d
+}
+
+func dateLastMod(art *models.File) (int, int, int) {
+	if art == nil {
+		return 0, 0, 0
+	}
+	if !art.FileLastModified.Valid || art.FileLastModified.IsZero() {
+		return 0, 0, 0
+	}
+	y := art.FileLastModified.Time.Year()
+	m := int(art.FileLastModified.Time.Month())
+	d := art.FileLastModified.Time.Day()
+	return y, m, d
+}
+
+func public(art *models.File) bool {
+	return art.Deletedat.Time.IsZero()
+}
+
+func releaser1_2(art *models.File) (string, string) {
+	if art == nil {
+		return "", ""
+	}
+	rr := RecordReleasers(art.GroupBrandFor, art.GroupBrandBy)
+	return rr[0], rr[1]
+
+}
+
+func title(art *models.File) string {
+	if art == nil {
+		return ""
+	}
+	return art.RecordTitle.String
+}
+
+///
 
 func magicNumber(name string) string {
 	r, err := os.Open(name)
@@ -317,22 +360,25 @@ func artifactMIME(name string) string {
 	return http.DetectContentType(head)
 }
 
-// artifactStat returns the file last modified date, file size in bytes and formatted.
-func artifactStat(name string) (string, string, string) {
-	stat, err := os.Stat(name)
-	if err != nil {
-		return "", "", err.Error()
+func recordIsNew(art *models.File) bool {
+	if art == nil {
+		return false
 	}
-	return stat.ModTime().Format("2006-Jan-02"),
-		humanize.Comma(stat.Size()),
-		humanize.Bytes(uint64(stat.Size()))
+	return !art.Deletedat.IsZero() && art.Deletedby.IsZero()
+}
+
+func recordOffline(art *models.File) bool {
+	if art == nil {
+		return false
+	}
+	return !art.Deletedat.IsZero() && !art.Deletedby.IsZero()
 }
 
 // artifactAssets returns a list of downloads and image assets belonging to the file record.
 // any errors are appended to the list.
 // The returned map contains a short description of the asset, the file size and extra information,
 // such as image dimensions or the number of lines in a text file.
-func (dir Dirs) artifactAssets(nameDir, unid string) map[string][2]string {
+func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
 	matches := map[string][2]string{}
 	files, err := os.ReadDir(nameDir)
 	if err != nil {
@@ -404,20 +450,81 @@ func artifactImgInfo(name string) [2]string {
 	return [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%dx%d", config.Width, config.Height)}
 }
 
-// readmeSuggest returns a suggested readme file name for the record.
-func readmeSuggest(r *models.File) string {
-	if r == nil {
+func jsdosBroken(art *models.File) bool {
+	if art == nil {
+		return false
+	}
+	if art.DoseeIncompatible.Valid {
+		return art.DoseeIncompatible.Int16 != 0
+	}
+	return false
+}
+
+func jsdosCPU(art *models.File) string {
+	if art == nil {
 		return ""
 	}
-	filename := r.Filename.String
-	group := r.GroupBrandFor.String
-	if group == "" {
-		group = r.GroupBrandBy.String
+	if art.DoseeHardwareCPU.Valid {
+		return art.DoseeHardwareCPU.String
 	}
-	if x := strings.Split(group, " "); len(x) > 1 {
-		group = x[0]
+	return ""
+}
+
+func jsdosMachine(art *models.File) string {
+	if art == nil {
+		return ""
 	}
-	cont := strings.ReplaceAll(r.FileZipContent.String, "\r\n", "\n")
-	content := strings.Split(cont, "\n")
-	return ReadmeSuggest(filename, group, content...)
+	if art.DoseeHardwareGraphic.Valid {
+		return art.DoseeHardwareGraphic.String
+	}
+	return ""
+}
+
+func jsdosMemory(art *models.File) (bool, bool, bool) {
+	if art == nil {
+		return false, false, false
+	}
+	x, e, u := false, false, false
+	if art.DoseeNoXMS.Valid {
+		x = art.DoseeNoXMS.Int16 == 0
+	}
+	if art.DoseeNoEms.Valid {
+		e = art.DoseeNoEms.Int16 == 0
+	}
+	if art.DoseeNoUmb.Valid {
+		u = art.DoseeNoUmb.Int16 == 0
+	}
+	return x, e, u
+}
+
+func jsdosRun(art *models.File) string {
+	if art == nil {
+		return ""
+	}
+	if art.DoseeRunProgram.Valid {
+		return art.DoseeRunProgram.String
+	}
+	return ""
+}
+
+func jsdosSound(art *models.File) string {
+	if art == nil {
+		return ""
+	}
+	if art.DoseeHardwareAudio.Valid {
+		return art.DoseeHardwareAudio.String
+	}
+	return ""
+}
+
+// statHumanize returns the last modified date, size in bytes and size formatted
+// of the named file.
+func statHumanize(name string) (string, string, string) {
+	stat, err := os.Stat(name)
+	if err != nil {
+		return "", "", err.Error()
+	}
+	return stat.ModTime().Format("2006-Jan-02"),
+		humanize.Comma(stat.Size()),
+		humanize.Bytes(uint64(stat.Size()))
 }

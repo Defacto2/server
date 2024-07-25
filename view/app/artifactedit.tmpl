@@ -3,6 +3,7 @@
 */ -}}
 {{- define "artifactedit" -}}
 {{- if eq false (index . "editor")}}{{/*  render nothing  */}}{{else}}
+{{- $epochY := index . "epochYear"}}
 {{- $delay := "50ms" }}
 {{- $lDelay := "1s"}}
 {{- $hundred := "100"}}
@@ -19,10 +20,10 @@
 {{- $dateYear := index . "modYear"}}
 {{- $dateMonth := index . "modMonth"}}
 {{- $dateDay := index . "modDay"}}
-{{- $lastMod := index . "modLastMod"}}
 {{- $lmYear := index . "modLMYear"}}
 {{- $lmMonth := index . "modLMMonth"}}
 {{- $lmDay := index . "modLMDay"}}
+{{- $lastMod := index . "lastmodified"}}
 {{- $writers := index . "writers"}}
 {{- $artists := index . "artists"}}
 {{- $youtube := index . "youtube"}}
@@ -408,7 +409,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 {{- if ne $dateMonth 0}}-{{$dateMonth}}{{end}}
                 {{- if ne $dateDay 0}}-{{$dateDay}}{{end}}</q></small>
               </button>
-              {{- if eq $lastMod true}}
+              {{- if gt $lmYear $epochY}}
               <input type="hidden" id="artifact-editor-date-lastmodder" name="artifact-editor-date-lastmodder" 
                 value="{{$lmYear}}-{{$lmMonth}}-{{$lmDay}}" readonly>
               <button type="button" class="btn btn-link" id="artifact-editor-date-lastmod"

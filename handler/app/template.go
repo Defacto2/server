@@ -15,6 +15,7 @@ import (
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/releaser/name"
+	"github.com/Defacto2/server/handler/app/internal/mf"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/form"
@@ -552,7 +553,7 @@ func (web Templ) TemplateFuncs() template.FuncMap {
 		"linkRemote":         LinkRemote,
 		"linkRelrs":          LinkRelFast,
 		"linkScnr":           LinkScnr,
-		"linkSVG":            LinkSVG,
+		"linkSVG":            mf.LinkSVG,
 		"linkWiki":           LinkWiki,
 		"logoText":           LogoText,
 		"mimeMagic":          MimeMagic, // TODO: replace

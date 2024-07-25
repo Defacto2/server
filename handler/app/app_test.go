@@ -18,14 +18,6 @@ const (
 	exampleWiki = "/some/wiki/page"
 )
 
-func TestUpdated(t *testing.T) {
-	t.Parallel()
-	s := app.Updated(nil, "")
-	assert.Empty(t, s)
-	s = app.Updated(time.Now(), "")
-	assert.Contains(t, s, "Time less than 5 seconds ago")
-}
-
 func TestTrimSpace(t *testing.T) {
 	t.Parallel()
 	s := app.TrimSpace(nil)
@@ -146,26 +138,6 @@ func TestLinkRelrs(t *testing.T) {
 	assert.Contains(t, s, "Group 2")
 	assert.Contains(t, s, `href="/g/group-1"`)
 	assert.Contains(t, s, `href="/g/group-2"`)
-}
-
-func TestLinkPreviewTip(t *testing.T) {
-	t.Parallel()
-	s := app.LinkPreviewTip("", "")
-	assert.Empty(t, s)
-	s = app.LinkPreviewTip(".zip", "windows")
-	assert.Empty(t, s)
-	s = app.LinkPreviewTip(".txt", "windows")
-	assert.Equal(t, "Read this as text", s)
-}
-
-func TestLinkPreviewHref(t *testing.T) {
-	t.Parallel()
-	s := app.LinkPreviewHref(nil, "", "")
-	assert.Empty(t, s)
-	s = app.LinkPreviewHref(1, "filename.xxx", "invalid")
-	assert.Empty(t, s)
-	s = app.LinkPreviewHref(1, "filename.txt", "text")
-	assert.Equal(t, "/v/9b1c6", s)
 }
 
 func TestLastUpdated(t *testing.T) {
@@ -493,121 +465,6 @@ func TestLogoText(t *testing.T) {
 		"What I mean is, I'm meant to be writing something else at this moment."
 	x = app.LogoText(rand)
 	assert.Equal(t, wantR, x)
-}
-
-func TestSortContent(t *testing.T) {
-	tests := []struct {
-		content  []string
-		expected []string
-	}{
-		{
-			content:  nil,
-			expected: nil,
-		},
-		{
-			content: []string{
-				"dir1/file1",
-				"dir2/file2",
-				"dir1/subdir/file3",
-				"file4",
-			},
-			expected: []string{
-				"file4",
-				"dir1/file1",
-				"dir2/file2",
-				"dir1/subdir/file3",
-			},
-		},
-		{
-			content: []string{
-				"dir1/file1",
-				"dir1/subdir/file2",
-				"dir2/file3",
-				"file4",
-			},
-			expected: []string{
-				"file4",
-				"dir1/file1",
-				"dir2/file3",
-				"dir1/subdir/file2",
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(strings.Join(tt.content, ","), func(t *testing.T) {
-			// Make a copy of the original content
-			originalContent := make([]string, len(tt.content))
-			copy(originalContent, tt.content)
-
-			// Sort the content using the SortContent function
-			sortedContent := app.SortContent(tt.content...)
-
-			for i, v := range sortedContent {
-				assert.Equal(t, tt.expected[i], v)
-			}
-		})
-	}
-}
-
-func TestReadmeSuggest(t *testing.T) {
-	tests := []struct {
-		filename string
-		group    string
-		content  []string
-		expected string
-	}{
-		{
-			filename: "file1",
-			group:    "group1",
-			content: []string{
-				"file1.nfo",
-				"file1.txt",
-				"file1.unp",
-				"file1.doc",
-			},
-			expected: "file1.nfo",
-		},
-		{
-			filename: "file2",
-			group:    "group2",
-			content: []string{
-				"file.diz",
-				"file.asc",
-				"file.1st",
-				"group2.dox",
-			},
-			expected: "group2.dox",
-		},
-		{
-			filename: "file3",
-			group:    "group3",
-			content: []string{
-				"file3.nfo",
-				"file.txt",
-				"file30.unp",
-				"file3x.doc",
-				"filex3.diz",
-				"file3.asc",
-				"file3.1st",
-				"file3.dox",
-			},
-			expected: "file3.nfo",
-		},
-		{
-			filename: "file4",
-			group:    "group4",
-			content:  []string{},
-			expected: "",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.filename+"_"+tt.group, func(t *testing.T) {
-			result := app.ReadmeSuggest(tt.filename, tt.group, tt.content...)
-			assert.Equal(t, tt.expected, result)
-		})
-	}
 }
 
 func TestList(t *testing.T) {
