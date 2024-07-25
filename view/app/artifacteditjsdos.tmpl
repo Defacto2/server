@@ -86,7 +86,7 @@
             </div>
         </div>
         {{- /*  emulator machine (graphics)  */}}
-        <fieldset class="row"
+        <fieldset class="row my-2"
             hx-patch="/editor/emulate/machine/{{$id}}"
             hx-target="#emulate-machine-result"
             hx-trigger="click delay:50ms"
@@ -117,15 +117,16 @@
                 <div class="form-check">
                     <input class="form-check-input" type="radio" autocomplete="off" name="emulate-machine" value="vga" id="emulate-machine-vga"{{if eq "vga" $machine}} checked{{end}}>
                     <label class="form-check-label" for="emulate-machine-vga"><strong>VGA</strong> machine with 256 color display</label>
-                    <div class="form-text">A common fallback for early 1990s software that fail to display correctly with SVGA graphic chips.</div>
+                    <div class="form-text">A very common display that helped make the PC the dominant platform of the 1990s. This setting is a
+                        fallback for early 1990s software that fail to display correctly with the default S3 SVGA graphic chip.</div>
                 </div>
+            </div>
+            <div class="col col-12 col-lg-6">
                 <div class="form-check">
                     <input class="form-check-input" type="radio" autocomplete="off" name="emulate-machine" value="tandy" id="emulate-machine-tandy"{{if eq "tandy" $machine}} checked{{end}}>
                     <label class="form-check-label" for="emulate-machine-tandy">Tandy 1000 with 16 color display</label>
                     <div class="form-text">An uncommon enhanced PC from the mid-late 1980s.</div>
                 </div>
-            </div>
-            <div class="col col-12 col-lg-6">
                 <div class="form-check">
                     <input class="form-check-input" type="radio" autocomplete="off" name="emulate-machine" value="nolfb" id="emulate-machine-nolfb"{{if eq "nolfb" $machine}} checked{{end}}>
                     <label class="form-check-label" for="emulate-machine-nolfb">s3 Trio64 with no LFB</label>
@@ -153,7 +154,7 @@
                 </div>
             </div>
         </fieldset>
-        <div class="row text-bg-light">
+        <div class="row my-2 p-3 text-bg-light">
             {{- /*  CPU  */}}
             <div class="col col-12 col-lg-6">
             <fieldset class="row"
@@ -242,7 +243,7 @@
             </div>
         </div>
         {{- /*  Memory options  */}}
-        <div class="row">
+        <div class="row my-2">
             <legend>
                 <svg class="bi" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
                     <use xlink:href="/svg/bootstrap-icons.svg#memory"/>
@@ -250,7 +251,7 @@
                 RAM adjustments
             </legend>
             <p>
-                The DOS on PC platform was notorious for its 640KB memory limit, and various complex methods were used to bypass this. 
+                The Disk Operating System (DOS) on the PC platform was notorious for its 640KB memory limit, and various complex methods were used to bypass this. 
                 Emulation enables all memory enhancements, but occasionally, these may be incompatible with software and need to be turned off.
             </p>
             <div class="form-check form-switch">
