@@ -73,7 +73,7 @@ func TemplateFuncMap() template.FuncMap {
 		"initialisms": func(s string) string {
 			return initialism.Join(initialism.Path(s))
 		},
-		"linkRelrs":   app.LinkRelrs,
+		"linkRelrs":   app.LinkReleasers,
 		"obfuscateID": helper.ObfuscateID,
 		"safeHTML": func(s string) template.HTML {
 			return template.HTML(s)

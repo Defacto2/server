@@ -1,13 +1,25 @@
+// Package readme provides functions for reading and suggesting readme files.
 package readme
 
 import (
+	"bufio"
+	"bytes"
 	"cmp"
+	"errors"
+	"fmt"
+	"io"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strings"
+	uni "unicode"
+
+	"github.com/Defacto2/server/internal/magicnumber"
+	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/Defacto2/server/internal/render"
 )
 
-// ReadmeSuggest returns a suggested readme file name for the record.
+// Suggest returns a suggested readme file name for the record.
 // It prioritizes the filename and group name with a priority extension,
 // such as ".nfo", ".txt", etc. If no priority extension is found,
 // it will return the first textfile in the content list.
@@ -19,7 +31,7 @@ import (
 //
 // This is a port of the CFML function, variables.findTextfile found in File.cfc.
 func Suggest(filename, group string, content ...string) string {
-	finds := Readmes(content...)
+	finds := List(content...)
 	if len(finds) == 1 {
 		return finds[0]
 	}
@@ -70,8 +82,8 @@ func Suggest(filename, group string, content ...string) string {
 	return ""
 }
 
-// Readmes returns a list of readme text files found in the file archive.
-func Readmes(content ...string) []string {
+// List returns a list of readme text files found in the file archive.
+func List(content ...string) []string {
 	finds := []string{}
 	skip := []string{"scene.org", "scene.org.txt"}
 	for _, name := range content {
@@ -121,4 +133,98 @@ func SortContent(content ...string) []string {
 		return cmp.Compare(strings.ToLower(a), strings.ToLower(b))
 	})
 	return content
+}
+
+// Read returns the content of the readme file or the text of the file download.
+func Read(art *models.File, downloadPath, extraPath string) ([]byte, error) {
+	if art == nil || art.RetrotxtNoReadme.Int16 != 0 {
+		return nil, nil
+	}
+	b, err := render.Read(art, downloadPath, extraPath)
+	if err != nil {
+		if errors.Is(err, render.ErrFilename) {
+			return nil, nil
+		}
+		if errors.Is(err, render.ErrDownload) {
+			return nil, render.ErrDownload
+		}
+		return nil, fmt.Errorf("render.Read: %w", err)
+	}
+	if b == nil {
+		return nil, nil
+	}
+	r := bufio.NewReader(bytes.NewReader(b))
+	// check the bytes are plain text but not utf16 or utf32
+	if sign, err := magicnumber.Text(r); err != nil {
+		return nil, fmt.Errorf("magicnumber.Text: %w", err)
+	} else if sign == magicnumber.Unknown ||
+		sign == magicnumber.UTF16Text ||
+		sign == magicnumber.UTF32Text {
+		return nil, nil
+	}
+	// trim trailing whitespace and MS-DOS era EOF marker
+	b = bytes.TrimRightFunc(b, uni.IsSpace)
+	const endOfFile = 0x1a // Ctrl+Z
+	if bytes.HasSuffix(b, []byte{endOfFile}) {
+		b = bytes.TrimSuffix(b, []byte{endOfFile})
+	}
+	if incompatible, err := IncompatibleANSI(r); err != nil {
+		return nil, fmt.Errorf("incompatibleANSI: %w", err)
+	} else if incompatible {
+		return nil, nil
+	}
+	return RemoveCtrls(b), nil
+}
+
+// RemoveCtrls removes ANSI escape codes and converts Windows line endings to Unix.
+func RemoveCtrls(b []byte) []byte {
+	const (
+		reAnsi    = `\x1b\[[0-9;]*[a-zA-Z]` // ANSI escape codes
+		reAmiga   = `\x1b\[[0-9;]*[ ]p`     // unknown control code found in Amiga texts
+		reSauce   = `SAUCE00.*`             // SAUCE metadata that is appended to some files
+		nlWindows = "\r\n"                  // Windows line endings
+		nlUnix    = "\n"                    // Unix line endings
+	)
+	controlCodes := regexp.MustCompile(reAnsi + `|` + reAmiga + `|` + reSauce)
+	b = controlCodes.ReplaceAll(b, []byte{})
+	b = bytes.ReplaceAll(b, []byte(nlWindows), []byte(nlUnix))
+	return b
+}
+
+// IncompatibleANSI scans for HTML incompatible, ANSI cursor escape codes in the reader.
+func IncompatibleANSI(r io.Reader) (bool, error) {
+	scanner := bufio.NewScanner(r)
+	mcur, mpos := moveCursor(), moveCursorToPos()
+	reMoveCursor := regexp.MustCompile(mcur)
+	reMoveCursorToPos := regexp.MustCompile(mpos)
+	for scanner.Scan() {
+		if reMoveCursor.Match(scanner.Bytes()) {
+			return true, nil
+		}
+		if reMoveCursorToPos.Match(scanner.Bytes()) {
+			return true, nil
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return false, fmt.Errorf("moves cursor scanner: %w", err)
+	}
+	return false, nil
+}
+
+func moveCursor() string {
+	// match 1B (Escape)
+	// match [ (Left Bracket)
+	// match optional digits (if no digits, then the cursor moves 1 position)
+	// match A-G (cursor movement, up, down, left, right, etc.)
+	return `\x1b\[\d*?[ABCDEFG]`
+}
+
+func moveCursorToPos() string {
+	// match 1B (Escape)
+	// match [ (Left Bracket)
+	// match digits for line number
+	// match ; (semicolon)
+	// match digits for column number
+	// match H (cursor position) or f (cursor position)
+	return `\x1b\[\d+;\d+[Hf]`
 }

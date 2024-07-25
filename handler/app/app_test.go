@@ -69,18 +69,6 @@ func TestSubTitle(t *testing.T) {
 	assert.Empty(t, s)
 }
 
-func TestRecordReleasers(t *testing.T) {
-	t.Parallel()
-	s := app.RecordReleasers(nil, nil)
-	assert.Empty(t, s)
-	s = app.RecordReleasers("1", "2")
-	assert.Equal(t, "1", s[0])
-	assert.Equal(t, "2", s[1])
-	s = app.RecordReleasers(nil, "2")
-	assert.Equal(t, "2", s[0])
-	assert.Empty(t, s[1])
-}
-
 func TestRecordRels(t *testing.T) {
 	t.Parallel()
 	s := app.RecordRels(nil, nil)
@@ -129,11 +117,11 @@ func TestMod3(t *testing.T) {
 	assert.False(t, s)
 }
 
-func TestLinkRelrs(t *testing.T) {
+func TestLinkRelsPerformant(t *testing.T) {
 	t.Parallel()
-	s := app.LinkRelFast("", "")
+	s := app.LinkRelsPerformant("", "")
 	assert.Empty(t, s)
-	s = app.LinkRelFast("Group 1", "Group 2")
+	s = app.LinkRelsPerformant("Group 1", "Group 2")
 	assert.Contains(t, s, "Group 1")
 	assert.Contains(t, s, "Group 2")
 	assert.Contains(t, s, `href="/g/group-1"`)

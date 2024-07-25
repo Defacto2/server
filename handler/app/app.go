@@ -653,37 +653,6 @@ func RecordRels(a, b any) string {
 	return s
 }
 
-func RecordReleasers(a, b any) [2]string {
-	av, bv := "", ""
-	switch val := a.(type) {
-	case string:
-		av = reflect.ValueOf(val).String()
-	case null.String:
-		if val.Valid {
-			av = val.String
-		}
-	}
-	switch val := b.(type) {
-	case string:
-		bv = reflect.ValueOf(val).String()
-	case null.String:
-		if val.Valid {
-			bv = val.String
-		}
-	}
-	av = strings.TrimSpace(av)
-	bv = strings.TrimSpace(bv)
-	switch {
-	case av != "" && bv != "":
-		return [2]string{av, bv}
-	case bv != "":
-		return [2]string{bv, ""}
-	case av != "":
-		return [2]string{av, ""}
-	}
-	return [2]string{}
-}
-
 // SafeHTML returns a string as a template.HTML type.
 // This is intended to be used to prevent HTML escaping.
 func SafeHTML(s string) template.HTML {

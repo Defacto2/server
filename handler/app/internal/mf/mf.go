@@ -1,14 +1,12 @@
+// Package mf provides functions for the file model which is an artifact record.
 package mf
 
 import (
-	"bufio"
-	"bytes"
 	"fmt"
 	"html/template"
-	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
-	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -18,9 +16,13 @@ import (
 	"github.com/Defacto2/server/handler/app/internal/exts"
 	"github.com/Defacto2/server/handler/app/internal/readme"
 	"github.com/Defacto2/server/handler/app/internal/str"
+	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/magicnumber"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
+	"github.com/dustin/go-humanize"
 )
 
 const (
@@ -28,6 +30,7 @@ const (
 	textamiga               = "textamiga"
 	arrowLink template.HTML = `<svg class="bi" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#arrow-right"></use></svg>`
+	br = "<br>"
 )
 
 func AlertURL(art *models.File) string {
@@ -111,6 +114,150 @@ func Comment(art *models.File) string {
 	return ""
 }
 
+func Content(art *models.File, src string) template.HTML {
+	if art == nil {
+		return template.HTML(model.ErrModel.Error())
+	}
+	if !art.Platform.Valid {
+		return "error, no platform"
+	}
+
+	// TODO: validate against string
+	platform := strings.ToLower(art.Platform.String)
+
+	const mb150 = 150 * 1024 * 1024
+	if st, err := os.Stat(src); err != nil {
+		return template.HTML(err.Error())
+	} else if st.IsDir() {
+		return "error, directory"
+	} else if st.Size() > mb150 {
+		return "will not decompress this archive as it is very large"
+	}
+	dst, err := str.ContentSRC(src)
+	if err != nil {
+		return template.HTML(err.Error())
+	}
+
+	if entries, _ := os.ReadDir(dst); len(entries) == 0 {
+		if err := archive.ExtractAll(src, dst); err != nil {
+			defer os.RemoveAll(dst)
+			return template.HTML(err.Error())
+		}
+	}
+
+	files := 0
+	var walkerCount = func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
+		if d.IsDir() {
+			return nil
+		}
+		files++
+		return nil
+	}
+	if err := filepath.WalkDir(dst, walkerCount); err != nil {
+		return template.HTML(err.Error())
+	}
+
+	var b strings.Builder
+	items, zeroByteFiles := 0, 0
+	var walkerFunc = func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
+		rel, err := filepath.Rel(dst, path)
+		if err != nil {
+			debug := fmt.Sprintf(`<div class="border-bottom row mb-1">... %v more files</div>`, err)
+			b.WriteString(debug)
+			return nil
+		}
+		if d.IsDir() {
+			return nil
+		}
+		info, err := d.Info()
+		if err != nil {
+			return nil
+		}
+		bytes := info.Size()
+		if bytes == 0 {
+			zeroByteFiles++
+			return nil
+		}
+		size := humanize.Bytes(uint64(info.Size()))
+		image := false
+		texts := false
+		program := false
+		r, err := os.Open(path)
+		if err != nil {
+			return nil
+		}
+		defer r.Close()
+		sign, err := magicnumber.Find512B(r)
+		if err != nil {
+			return nil
+		}
+		for _, v := range magicnumber.Images() {
+			if v == sign {
+				image = true
+				break
+			}
+		}
+		for _, v := range magicnumber.Texts() {
+			if v == sign {
+				texts = true
+				break
+			}
+		}
+		for _, v := range magicnumber.Programs() {
+			if strings.EqualFold(platform, tags.DOS.String()) {
+				break
+			}
+			if v == sign {
+				program = true
+				break
+			}
+		}
+		items++
+		htm := fmt.Sprintf(`<div class="col d-inline-block text-truncate" data-bs-toggle="tooltip" data-bs-title="%s">%s</div>`,
+			rel, rel)
+		if image || texts {
+			htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+				`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></div>`
+		} else {
+			htm += `<div class="col col-1"></div>`
+		}
+		if texts {
+			htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+				`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></div>`
+		} else if program {
+			htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+				`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
+		} else {
+			htm += `<div class="col col-1"></div>`
+		}
+		htm += fmt.Sprintf(`<div><small data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</small>`, bytes, size)
+		htm += fmt.Sprintf(` <small class="">%s</small></div>`, sign)
+		htm = fmt.Sprintf(`<div class="border-bottom row mb-1">%s</div>`, htm)
+		b.WriteString(htm)
+		if items > 200 {
+			more := fmt.Sprintf(`<div class="border-bottom row mb-1">... %d more files</div>`, files-items)
+			b.WriteString(more)
+			return filepath.SkipAll
+		}
+		return nil
+	}
+	err = filepath.WalkDir(dst, walkerFunc)
+	if err != nil {
+		return template.HTML(err.Error())
+	}
+	if zeroByteFiles > 0 {
+		zero := fmt.Sprintf(`<div class="border-bottom row mb-1">... skipped %d empty (0 B) files</div>`, zeroByteFiles)
+		b.WriteString(zero)
+	}
+	return template.HTML(b.String())
+}
+
 // Date returns a formatted date string for the artifact's published date.
 func Date(art *models.File) template.HTML {
 	if art == nil {
@@ -145,6 +292,23 @@ func Date(art *models.File) template.HTML {
 		return "unknown date"
 	}
 	return strong(ys) + template.HTML(fmt.Sprintf(" %s %s", ms, ds))
+}
+
+func Dates(art *models.File) (int16, int16, int16) {
+	if art == nil {
+		return 0, 0, 0
+	}
+	y, m, d := int16(0), int16(0), int16(0)
+	if art.DateIssuedYear.Valid {
+		y = art.DateIssuedYear.Int16
+	}
+	if art.DateIssuedMonth.Valid {
+		m = art.DateIssuedMonth.Int16
+	}
+	if art.DateIssuedDay.Valid {
+		d = art.DateIssuedDay.Int16
+	}
+	return y, m, d
 }
 
 func Description(art *models.File) string {
@@ -186,6 +350,28 @@ func ExtraZip(art *models.File, extraDir string) bool {
 		extraZip = int(st.Size())
 	}
 	return extraZip > 0
+}
+
+func FileEntry(art *models.File) string {
+	switch {
+	case art.Createdat.Valid && art.Updatedat.Valid:
+		c := str.Updated(art.Createdat.Time, "")
+		u := str.Updated(art.Updatedat.Time, "")
+		if c != u {
+			c = str.Updated(art.Createdat.Time, "Created")
+			u = str.Updated(art.Updatedat.Time, "Updated")
+			return c + br + u
+		}
+		c = str.Updated(art.Createdat.Time, "Created")
+		return c
+	case art.Createdat.Valid:
+		c := str.Updated(art.Createdat.Time, "Created")
+		return c
+	case art.Updatedat.Valid:
+		u := str.Updated(art.Updatedat.Time, "Updated")
+		return u
+	}
+	return ""
 }
 
 // FirstHeader returns the title of the file,
@@ -254,42 +440,82 @@ func IdenficationYT(art *models.File) string {
 	return ""
 }
 
-func moveCursor() string {
-	// match 1B (Escape)
-	// match [ (Left Bracket)
-	// match optional digits (if no digits, then the cursor moves 1 position)
-	// match A-G (cursor movement, up, down, left, right, etc.)
-	return `\x1b\[\d*?[ABCDEFG]`
+func JsdosArchive(art *models.File) bool {
+	if art == nil {
+		return false
+	}
+	switch filepath.Ext(strings.ToLower(art.Filename.String)) {
+	case ".zip", ".lhz", ".lzh", ".arc", ".arj":
+		return true
+	}
+	return false
 }
 
-func moveCursorToPos() string {
-	// match 1B (Escape)
-	// match [ (Left Bracket)
-	// match digits for line number
-	// match ; (semicolon)
-	// match digits for column number
-	// match H (cursor position) or f (cursor position)
-	return `\x1b\[\d+;\d+[Hf]`
+func JsdosBroken(art *models.File) bool {
+	if art == nil {
+		return false
+	}
+	if art.DoseeIncompatible.Valid {
+		return art.DoseeIncompatible.Int16 != 0
+	}
+	return false
 }
 
-// IncompatibleANSI scans for HTML incompatible, ANSI cursor escape codes in the reader.
-func IncompatibleANSI(r io.Reader) (bool, error) {
-	scanner := bufio.NewScanner(r)
-	mcur, mpos := moveCursor(), moveCursorToPos()
-	reMoveCursor := regexp.MustCompile(mcur)
-	reMoveCursorToPos := regexp.MustCompile(mpos)
-	for scanner.Scan() {
-		if reMoveCursor.Match(scanner.Bytes()) {
-			return true, nil
-		}
-		if reMoveCursorToPos.Match(scanner.Bytes()) {
-			return true, nil
-		}
+func JsdosCPU(art *models.File) string {
+	if art == nil {
+		return ""
 	}
-	if err := scanner.Err(); err != nil {
-		return false, fmt.Errorf("moves cursor scanner: %w", err)
+	if art.DoseeHardwareCPU.Valid {
+		return art.DoseeHardwareCPU.String
 	}
-	return false, nil
+	return ""
+}
+
+func JsdosMachine(art *models.File) string {
+	if art == nil {
+		return ""
+	}
+	if art.DoseeHardwareGraphic.Valid {
+		return art.DoseeHardwareGraphic.String
+	}
+	return ""
+}
+
+func JsdosMemory(art *models.File) (bool, bool, bool) {
+	if art == nil {
+		return false, false, false
+	}
+	x, e, u := false, false, false
+	if art.DoseeNoXMS.Valid {
+		x = art.DoseeNoXMS.Int16 == 0
+	}
+	if art.DoseeNoEms.Valid {
+		e = art.DoseeNoEms.Int16 == 0
+	}
+	if art.DoseeNoUmb.Valid {
+		u = art.DoseeNoUmb.Int16 == 0
+	}
+	return x, e, u
+}
+
+func JsdosRun(art *models.File) string {
+	if art == nil {
+		return ""
+	}
+	if art.DoseeRunProgram.Valid {
+		return art.DoseeRunProgram.String
+	}
+	return ""
+}
+
+func JsdosSound(art *models.File) string {
+	if art == nil {
+		return ""
+	}
+	if art.DoseeHardwareAudio.Valid {
+		return art.DoseeHardwareAudio.String
+	}
+	return ""
 }
 
 // jsdosUse returns true if the file record is a known, MS-DOS executable.
@@ -314,17 +540,6 @@ func JsdosUse(art *models.File) bool {
 	default:
 		return false
 	}
-}
-
-func JsdosArchive(art *models.File) bool {
-	if art == nil {
-		return false
-	}
-	switch filepath.Ext(strings.ToLower(art.Filename.String)) {
-	case ".zip", ".lhz", ".lzh", ".arc", ".arj":
-		return true
-	}
-	return false
 }
 
 func JsdosUtilities(art *models.File) bool {
@@ -352,6 +567,19 @@ func LastModification(art *models.File) string {
 		return none
 	}
 	return lm
+}
+
+func LastModifications(art *models.File) (int, int, int) {
+	if art == nil {
+		return 0, 0, 0
+	}
+	if !art.FileLastModified.Valid || art.FileLastModified.IsZero() {
+		return 0, 0, 0
+	}
+	y := art.FileLastModified.Time.Year()
+	m := int(art.FileLastModified.Time.Month())
+	d := art.FileLastModified.Time.Day()
+	return y, m, d
 }
 
 // lastModificationAgo returns the last modified date in a human readable format.
@@ -489,6 +717,41 @@ func Readme(r *models.File) string {
 	return readme.Suggest(filename, group, content...)
 }
 
+func RecordIsNew(art *models.File) bool {
+	if art == nil {
+		return false
+	}
+	return !art.Deletedat.IsZero() && art.Deletedby.IsZero()
+}
+
+func RecordOffline(art *models.File) bool {
+	if art == nil {
+		return false
+	}
+	return !art.Deletedat.IsZero() && !art.Deletedby.IsZero()
+}
+
+func RecordOnline(art *models.File) bool {
+	return art.Deletedat.Time.IsZero()
+}
+
+func RecordProblems(art *models.File) string {
+	validate := model.Validate(art)
+	if validate == nil {
+		return ""
+	}
+	x := strings.Split(validate.Error(), ",")
+	s := make([]string, 0, len(x))
+	for _, v := range x {
+		if strings.TrimSpace(v) == "" {
+			continue
+		}
+		s = append(s, v)
+	}
+	s = slices.Clip(s)
+	return strings.Join(s, " + ")
+}
+
 // Relations returns the list of relationships for the file record.
 func Relations(art *models.File) template.HTML {
 	s := art.ListRelations.String
@@ -527,18 +790,13 @@ func RelationsStr(art *models.File) string {
 	return ""
 }
 
-func RemoveCtrls(b []byte) []byte {
-	const (
-		reAnsi    = `\x1b\[[0-9;]*[a-zA-Z]` // ANSI escape codes
-		reAmiga   = `\x1b\[[0-9;]*[ ]p`     // unknown control code found in Amiga texts
-		reSauce   = `SAUCE00.*`             // SAUCE metadata that is appended to some files
-		nlWindows = "\r\n"                  // Windows line endings
-		nlUnix    = "\n"                    // Unix line endings
-	)
-	controlCodes := regexp.MustCompile(reAnsi + `|` + reAmiga + `|` + reSauce)
-	b = controlCodes.ReplaceAll(b, []byte{})
-	b = bytes.ReplaceAll(b, []byte(nlWindows), []byte(nlUnix))
-	return b
+func ReleaserPair(art *models.File) (string, string) {
+	if art == nil {
+		return "", ""
+	}
+	pair := str.ReleaserPair(art.GroupBrandFor, art.GroupBrandBy)
+	return pair[0], pair[1]
+
 }
 
 func Section(art *models.File) string {
@@ -574,6 +832,13 @@ func TagOS(art *models.File) string {
 	return ""
 }
 
+func Title(art *models.File) string {
+	if art == nil {
+		return ""
+	}
+	return art.RecordTitle.String
+}
+
 func UnID(art *models.File) string {
 	if art == nil {
 		return ""
@@ -584,18 +849,18 @@ func UnID(art *models.File) string {
 	return ""
 }
 
-func UnsupportedText(art *models.File) bool {
+func EmbedReadme(art *models.File) bool {
 	const bbsRipImage = ".rip"
 	if filepath.Ext(strings.ToLower(art.Filename.String)) == bbsRipImage {
 		// the bbs era, remote images protcol is not supported
 		// example: /f/b02392f
-		return true
+		return false
 	}
 	switch strings.TrimSpace(art.Platform.String) {
 	case "markup", "pdf":
-		return true
+		return false
 	}
-	return false
+	return true
 }
 
 // Websites returns the list of links for the file record.

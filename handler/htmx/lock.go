@@ -1,4 +1,7 @@
-package app
+package htmx
+
+// THIS IS A PLACEHOLDER
+// These funcs used to be under handler/app but have been moved here for now.
 
 import (
 	"context"
@@ -7,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
@@ -14,14 +18,21 @@ import (
 	"go.uber.org/zap"
 )
 
+type extract int // extract target format for the file archive extractor
+
+const (
+	picture  extract = iota // extract a picture or image
+	ansitext                // extract ansilove compatible text
+)
+
 // AnsiLovePost handles the post submission for the Preview from text in archive.
-func (dir Dirs) AnsiLovePost(c echo.Context, logger *zap.SugaredLogger) error {
-	return dir.extractor(c, logger, ansitext)
+func AnsiLovePost(c echo.Context, dir app.Dirs, logger *zap.SugaredLogger) error {
+	return extractor(c, dir, logger, ansitext)
 }
 
 // PreviewDel handles the post submission for the Delete complementary images button.
-func (dir Dirs) PreviewDel(c echo.Context) error {
-	var f Form
+func PreviewDel(c echo.Context, dir app.Dirs) error {
+	var f app.Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
@@ -42,13 +53,13 @@ func (dir Dirs) PreviewDel(c echo.Context) error {
 }
 
 // PreviewPost handles the post submission for the Preview from image in archive.
-func (dir Dirs) PreviewPost(c echo.Context, logger *zap.SugaredLogger) error {
-	return dir.extractor(c, logger, picture)
+func PreviewPost(c echo.Context, dir app.Dirs, logger *zap.SugaredLogger) error {
+	return extractor(c, dir, logger, picture)
 }
 
 // extractor is a helper function for the PreviewPost and AnsiLovePost handlers.
-func (dir Dirs) extractor(c echo.Context, logger *zap.SugaredLogger, p extract) error {
-	var f Form
+func extractor(c echo.Context, dir app.Dirs, logger *zap.SugaredLogger, p extract) error {
+	var f app.Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
@@ -75,7 +86,7 @@ func (dir Dirs) extractor(c echo.Context, logger *zap.SugaredLogger, p extract) 
 		}
 	}
 	if target == "" {
-		return badRequest(c, ErrTarget)
+		return badRequest(c, app.ErrTarget)
 	}
 	src := filepath.Join(dir.Download, r.UUID.String)
 	cmd := command.Dirs{Download: dir.Download, Preview: dir.Preview, Thumbnail: dir.Thumbnail}
@@ -86,7 +97,7 @@ func (dir Dirs) extractor(c echo.Context, logger *zap.SugaredLogger, p extract) 
 	case ansitext:
 		err = cmd.ExtractAnsiLove(logger, src, ext, r.UUID.String, target)
 	default:
-		return InternalErr(c, "extractor", fmt.Errorf("%w: %d", ErrExtract, p))
+		return app.InternalErr(c, "extractor", fmt.Errorf("%w: %d", app.ErrExtract, p))
 	}
 	if err != nil {
 		return badRequest(c, err)

@@ -16,6 +16,7 @@ import (
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/handler/app/internal/mf"
+	"github.com/Defacto2/server/handler/app/internal/str"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/form"
@@ -115,7 +116,7 @@ func DownloadB(i any) template.HTML {
 		if !val.Valid {
 			return " <small class=\"text-danger-emphasis\">(n/a)</small>"
 		}
-		s = dirsBytes(val.Int64)
+		s = bytesHuman(val.Int64)
 	default:
 		return template.HTML(fmt.Sprintf("%sDownloadB: %s", typeErr, reflect.TypeOf(i).String()))
 	}
@@ -152,6 +153,68 @@ func LinkPreviews(youtube, demozoo, pouet, colors16, github, rels, sites string)
 		links = append(links, strings.Split(string(LinkSites(sites)), "+")...)
 	}
 	return links
+}
+
+// LinkRelrs returns the groups associated with a release and a link to each group.
+func LinkRels(a, b any) template.HTML {
+	if a == nil || b == nil {
+		return ""
+	}
+	return LinkReleasers(false, a, b)
+}
+
+// LinkRelsPerformant returns the groups associated with a release and a link to each group.
+// It is a faster version of LinkRelrs and should be used with the templates that have large lists of group names.
+func LinkRelsPerformant(a, b any) template.HTML {
+	if a == nil || b == nil {
+		return ""
+	}
+	return LinkReleasers(true, a, b)
+}
+
+// LinkBothReleasers returns the groups associated with a release and a link to each group.
+// The performant flag will use the group name instead of the much slower group slug formatter.
+func LinkReleasers(performant bool, a, b any) template.HTML {
+	const class = "text-nowrap link-offset-2 link-underline link-underline-opacity-25"
+	var av, bv string
+	switch val := a.(type) {
+	case string:
+		av = reflect.ValueOf(val).String()
+	case null.String:
+		if val.Valid {
+			av = val.String
+		}
+	}
+	switch val := b.(type) {
+	case string:
+		bv = reflect.ValueOf(val).String()
+	case null.String:
+		if val.Valid {
+			bv = val.String
+		}
+	}
+
+	av, bv = strings.TrimSpace(av), strings.TrimSpace(bv)
+	if av == "" && bv != "" {
+		av = bv
+		bv = ""
+	}
+
+	var prime, second string
+	var err error
+	if av != "" {
+		prime, err = str.MakeLink(av, class, performant)
+		if err != nil {
+			return template.HTML(fmt.Sprintf("error: %s", err))
+		}
+	}
+	if bv != "" {
+		second, err = str.MakeLink(bv, class, performant)
+		if err != nil {
+			return template.HTML(fmt.Sprintf("error: %s", err))
+		}
+	}
+	return str.Releasers(prime, second)
 }
 
 // LinkSites returns a collection of HTML anchor links that point to websites.
@@ -551,7 +614,7 @@ func (web Templ) TemplateFuncs() template.FuncMap {
 		"linkPage":           LinkPage,
 		"linkPreview":        LinkPreview,
 		"linkRemote":         LinkRemote,
-		"linkRelrs":          LinkRelFast,
+		"linkRelrs":          LinkRelsPerformant,
 		"linkScnr":           LinkScnr,
 		"linkSVG":            mf.LinkSVG,
 		"linkWiki":           LinkWiki,

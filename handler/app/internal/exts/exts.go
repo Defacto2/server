@@ -1,14 +1,14 @@
+// Package exts provides a list of file extensions used by some functions in app.
 package exts
 
 const (
-	avif      = ".avif"
-	fzip      = ".zip"
-	gif       = ".gif"
-	jpeg      = ".jpeg"
-	jpg       = ".jpg"
-	png       = ".png"
-	textamiga = "textamiga"
-	webp      = ".webp"
+	avif = ".avif"
+	fzip = ".zip"
+	gif  = ".gif"
+	jpeg = ".jpeg"
+	jpg  = ".jpg"
+	png  = ".png"
+	webp = ".webp"
 )
 
 // archives returns a list of archive file extensions supported by this web application.

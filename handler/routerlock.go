@@ -95,7 +95,7 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 
 	g.PATCH("/16colors", htmx.Record16Colors)
 	g.POST("/ansilove/copy", func(c echo.Context) error {
-		return dir.AnsiLovePost(c, logger)
+		return htmx.AnsiLovePost(c, dir, logger)
 	})
 	g.PATCH("/classifications", func(c echo.Context) error {
 		return htmx.RecordClassification(c, logger)
@@ -162,9 +162,11 @@ func images(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	}
 	images := g.Group("/images")
 	images.POST("/copy", func(c echo.Context) error {
-		return dir.PreviewPost(c, logger)
+		return htmx.PreviewPost(c, dir, logger)
 	})
-	images.POST("/delete", dir.PreviewDel)
+	images.POST("/delete", func(c echo.Context) error {
+		return htmx.PreviewDel(c, dir)
+	})
 }
 
 func online(g *echo.Group) {
