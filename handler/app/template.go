@@ -315,8 +315,8 @@ func (t Templ) FuncClosures() template.FuncMap { //nolint:funlen
 		"recordImgSample": func(unid string) template.HTML {
 			return str.ImageSample(unid, t.Environment.AbsPreview)
 		},
-		"recordThumbSample": func(unid, desc string) template.HTML {
-			return str.Screenshot(unid, desc, t.Environment.AbsPreview)
+		"recordThumbSample": func(unid string) template.HTML {
+			return str.ThumbSample(unid, t.Environment.AbsThumbnail)
 		},
 		"screenshot": func(unid, desc string) template.HTML {
 			return str.Screenshot(unid, desc, t.Environment.AbsPreview)

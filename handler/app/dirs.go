@@ -134,7 +134,7 @@ func (dir Dirs) Editor(art *models.File, data map[string]interface{}) map[string
 	unid := mf.UnID(art)
 	abs := filepath.Join(dir.Download, unid)
 	data["epochYear"] = epoch
-	data["readOnly"] = false
+	data["readonlymode"] = false
 	data["modID"] = art.ID
 	data["modTitle"] = mf.Title(art)
 	data["modOnline"] = mf.RecordOnline(art)

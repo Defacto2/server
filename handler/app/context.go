@@ -72,40 +72,44 @@ const (
 	year    = "by year"
 )
 
-// empty is a map of default values for the app templates.
+// Empty is a map of default values for an app template that are used by the layout template,
+// that is the base template for all pages.
+//
+// All keys are optional except for the "description" and "title".
+//   - The "description" is used by the meta description element.
+//   - The "title" is used by the title element.
+//
+// The following optional keys are recommended:
+//   - "h1" is the H1 heading of the page.
+//   - "lead" is the lead or introduction paragraph of the page.
+//   - "logo" is the brief text inserted into the ASCII art logo.
+//
+// Other optional keys are also available:
+//   - "canonical" is the canonical URL of the best representative page from a group of duplicate pages.
+//   - "carousel" is the ID of the carousel to display.
+//   - "databaseErr" is true if the database is not available.
+//   - "subheading" is the H1 sub-heading of the page.
+//   - "jsdos6" is true if the js-dos v6.22 emulator files are to be loaded.
+//   - "readonlymode" is true if the application is in read-only mode.
+//
+// These keys are autofilled:
+//   - "cachefiles" is prefilled with the total number of file records and is used by the defacto2:file-count meta element.
+//   - "editor" is true if the editor mode is enabled for the browser session.
 func empty(c echo.Context) map[string]interface{} {
-	// the keys are listed in order of appearance in the templates.
-	// * marked keys are required.
-	// ! marked keys are suggested.
 	return map[string]interface{}{
-		// The number of records of files in the database.
-		"cacheFiles": Caching.RecordCount,
-		// A canonical URL is the URL of the best representative page from a group of duplicate pages.
-		"canonical": "",
-		// The ID of the carousel to display.
-		"carousel": "",
-		// Empty database counts for files and categories.
-		"counter": mfs.Statistics(),
-		// If true, the database is not available.
-		"dbError": false,
-		// * A short description of the page that get inserted into the description meta element.
-		"description": "",
-		// If true, the editor mode is enabled.
-		"editor": sess.Editor(c),
-		// ! The H1 heading of the page.
-		"h1": "",
-		// The H1 sub-heading of the page.
-		"h1Sub": "",
-		// If true, the large, js-dos v6.22 emulator files will be loaded.
-		"jsdos6": false,
-		// ! The enlarged, lead paragraph of the page.
-		"lead": "",
-		// ! Text to insert into the monospaced, ASCII art logo.
-		"logo": "",
-		// If true, the application is in read-only mode.
-		"readOnly": true,
-		// * The title of the page that get inserted into the title meta element.
-		"title": "",
+		"cachefiles":   Caching.RecordCount,
+		"canonical":    "",
+		"carousel":     "",
+		"databaseErr":  false,
+		"description":  "",
+		"editor":       sess.Editor(c),
+		"h1":           "",
+		"subheading":   "",
+		"jsdos6":       false,
+		"lead":         "",
+		"logo":         "",
+		"readonlymode": true,
+		"title":        "",
 	}
 }
 
@@ -129,13 +133,13 @@ func Artifacts(c echo.Context, uri, page string) error {
 // artifacts is a helper function for Artifacts that returns the data map for the files page.
 func artifacts(c echo.Context, uri string, page int) error {
 	const title, name = "Artifacts", "artifacts"
-	logo, h1sub, lead := mfs.FileInfo(uri)
+	logo, subhead, lead := mfs.FileInfo(uri)
 	data := emptyFiles(c)
 	data["title"] = title
 	data["description"] = "Table of contents for the files."
 	data["logo"] = logo
 	data["h1"] = title
-	data["h1Sub"] = h1sub
+	data["subheading"] = subhead
 	data["lead"] = lead
 	data[records] = []models.FileSlice{}
 	data["unknownYears"] = true
@@ -540,11 +544,11 @@ func Categories(c echo.Context, logger *zap.SugaredLogger, stats bool) error {
 	data["h1"] = title
 	data["lead"] = "This page shows the categories and platforms in the collection of file artifacts."
 	data["stats"] = stats
-	data["counter"] = mfs.Stats{}
+	data["counter"] = mfs.Statistics()
 	data, err := fileWStats(data, stats)
 	if err != nil {
 		logger.Warn(err)
-		data["dbError"] = true
+		data["databaseErr"] = true
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {

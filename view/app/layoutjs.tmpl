@@ -2,7 +2,7 @@
     layoutjs.tmpl ~ Async loaded scripts.
 */ -}}
 {{- define "layoutjs" }}
-{{- $readonly := index . "readOnly"}}
+{{- $readonly := index . "readonlymode"}}
 {{- $editor := index . "editor"}}
 {{- $forApproval := index . "forApproval"}}
 {{- if and (eq true $forApproval) (eq true $editor)}}
