@@ -40,6 +40,25 @@ import (
 	"google.golang.org/api/idtoken"
 )
 
+// FileSearch is the type of search to perform.
+type FileSearch int
+
+const (
+	Filenames    FileSearch = iota // Filenames is the search for filenames.
+	Descriptions                   // Descriptions is the search for file descriptions and titles.
+)
+
+type Pagination struct {
+	BaseURL   string // BaseURL is the base URL for the pagination links.
+	CurrPage  int    // CurrPage is the current page number.
+	SumPages  int    // SumPages is the total number of pages.
+	PrevPage  int    // PrevPage is the previous page number.
+	NextPage  int    // NextPage is the next page number.
+	TwoBelow  int    // TwoBelow is the page number two below the current page.
+	TwoAfter  int    // TwoAfter is the page number two after the current page.
+	RangeStep int    // RangeStep is the number of pages to skip in the pagination range.
+}
+
 const (
 	demo    = "demo"
 	limit   = 198 // per-page record limit
@@ -52,6 +71,43 @@ const (
 	alpha   = "alphabetically"
 	year    = "by year"
 )
+
+// empty is a map of default values for the app templates.
+func empty(c echo.Context) map[string]interface{} {
+	// the keys are listed in order of appearance in the templates.
+	// * marked keys are required.
+	// ! marked keys are suggested.
+	return map[string]interface{}{
+		// The number of records of files in the database.
+		"cacheFiles": Caching.RecordCount,
+		// A canonical URL is the URL of the best representative page from a group of duplicate pages.
+		"canonical": "",
+		// The ID of the carousel to display.
+		"carousel": "",
+		// Empty database counts for files and categories.
+		"counter": mfs.Statistics(),
+		// If true, the database is not available.
+		"dbError": false,
+		// * A short description of the page that get inserted into the description meta element.
+		"description": "",
+		// If true, the editor mode is enabled.
+		"editor": sess.Editor(c),
+		// ! The H1 heading of the page.
+		"h1": "",
+		// The H1 sub-heading of the page.
+		"h1Sub": "",
+		// If true, the large, js-dos v6.22 emulator files will be loaded.
+		"jsdos6": false,
+		// ! The enlarged, lead paragraph of the page.
+		"lead": "",
+		// ! Text to insert into the monospaced, ASCII art logo.
+		"logo": "",
+		// If true, the application is in read-only mode.
+		"readOnly": true,
+		// * The title of the page that get inserted into the title meta element.
+		"title": "",
+	}
+}
 
 // Artifacts is the handler for the list and preview of the files page.
 // The uri is the category or collection of files to display.
@@ -68,6 +124,70 @@ func Artifacts(c echo.Context, uri, page string) error {
 		return Page404(c, uri, page)
 	}
 	return artifacts(c, uri, p)
+}
+
+// artifacts is a helper function for Artifacts that returns the data map for the files page.
+func artifacts(c echo.Context, uri string, page int) error {
+	const title, name = "Artifacts", "artifacts"
+	logo, h1sub, lead := mfs.FileInfo(uri)
+	data := emptyFiles(c)
+	data["title"] = title
+	data["description"] = "Table of contents for the files."
+	data["logo"] = logo
+	data["h1"] = title
+	data["h1Sub"] = h1sub
+	data["lead"] = lead
+	data[records] = []models.FileSlice{}
+	data["unknownYears"] = true
+	data["forApproval"] = false
+	switch mfs.Match(uri) {
+	case
+		mfs.NewUploads,
+		mfs.NewUpdates,
+		mfs.Deletions,
+		mfs.Unwanted:
+		data["unknownYears"] = false
+	case mfs.ForApproval:
+		data["forApproval"] = true
+	}
+	errs := fmt.Sprintf("artifacts page %d for %q", page, uri)
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return InternalErr(c, errs, err)
+	}
+	defer db.Close()
+	r, err := mfs.Records(ctx, db, uri, page, limit)
+	if err != nil {
+		return DatabaseErr(c, errs, err)
+	}
+	data[records] = r
+	d, sum, err := stats(ctx, db, uri)
+	if err != nil {
+		return DatabaseErr(c, errs, err)
+	}
+	data["stats"] = d
+	lastPage := math.Ceil(float64(sum) / float64(limit))
+	if page > int(lastPage) {
+		i := strconv.Itoa(page)
+		return Page404(c, uri, i)
+	}
+	const pages = 2
+	data["Pagination"] = Pagination{
+		TwoAfter:  page + pages,
+		NextPage:  page + 1,
+		CurrPage:  page,
+		PrevPage:  page - 1,
+		TwoBelow:  page - pages,
+		SumPages:  int(lastPage),
+		BaseURL:   "/files/" + uri,
+		RangeStep: steps(lastPage),
+	}
+	err = c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(c, errs, err)
+	}
+	return nil
 }
 
 // Artifacts404 renders the files error page for the Artifacts menu and categories.
@@ -105,6 +225,49 @@ func Artist(c echo.Context) error {
 	return scener(c, postgres.Artist, data)
 }
 
+// scener is the handler for the scener pages.
+func scener(c echo.Context, r postgres.Role,
+	data map[string]interface{},
+) error {
+	const name = "scener"
+	s := model.Sceners{}
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return InternalErr(c, name, err)
+	}
+	defer db.Close()
+	switch r {
+	case postgres.Writer:
+		err = s.Writer(ctx, db)
+	case postgres.Artist:
+		err = s.Artist(ctx, db)
+	case postgres.Musician:
+		err = s.Musician(ctx, db)
+	case postgres.Coder:
+		err = s.Coder(ctx, db)
+	case postgres.Roles():
+		err = s.Distinct(ctx, db)
+	}
+	if err != nil {
+		return DatabaseErr(c, name, err)
+	}
+	data["sceners"] = s.Sort()
+	data["description"] = "Sceners and people who have been credited for their work in The Scene."
+	data["lead"] = "This page shows the sceners and people credited for their work in The Scene." +
+		`<br><small class="fw-lighter">` +
+		"The list will never be complete or accurate due to the amount of data and the lack of a" +
+		" common format for crediting people. " +
+		" Sceners often used different names or spellings on their work, including character" +
+		" swaps, aliases, initials, and even single-letter signatures." +
+		"</small>"
+	err = c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(c, name, err)
+	}
+	return nil
+}
+
 // BBS is the handler for the BBS page ordered by the most files.
 func BBS(c echo.Context) error {
 	return bbsHandler(c, model.Prolific)
@@ -118,6 +281,66 @@ func BBSAZ(c echo.Context) error {
 // BBSYear is the handler for the BBS page ordered by the year.
 func BBSYear(c echo.Context) error {
 	return bbsHandler(c, model.Oldest)
+}
+
+// bbsHandler is the handler for the BBS page.
+func bbsHandler(c echo.Context, orderBy model.OrderBy) error {
+	const title, name = "BBS", "bbs"
+	const lead = "Bulletin Board Systems are historical, " +
+		"networked personal computer servers connected using the landline telephone network and provide forums, " +
+		"real-time chat, mail, and file sharing for The Scene \"elites.\""
+	const logo = "Bulletin Board Systems"
+	const key = "releasers"
+	data := empty(c)
+	data["title"] = title
+	data["description"] = lead
+	data["logo"] = logo
+	data["h1"] = title
+	data["lead"] = lead
+	data["itemName"] = name
+	data[key] = model.Releasers{}
+	data["stats"] = map[string]string{}
+
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return InternalErr(c, name, err)
+	}
+	defer db.Close()
+	r := model.Releasers{}
+	if err := r.BBS(ctx, db, orderBy); err != nil {
+		return DatabaseErr(c, name, err)
+	}
+	data[key] = r
+	tmpl := name
+	var order string
+	switch orderBy {
+	case model.Alphabetical:
+		s := logo + az
+		data["logo"] = s
+		data["title"] = title + az
+		order = alpha
+	case model.Prolific:
+		s := logo + ", by count"
+		data["logo"] = s
+		order = "by file artifact count"
+	case model.Oldest:
+		tmpl = "bbs-year"
+		s := logo + byyear
+		data["title"] = title + byyear
+		data["logo"] = s
+		order = year
+	}
+	data["stats"] = map[string]string{
+		"pubs":    fmt.Sprintf("%d boards", len(r)),
+		"orderBy": order,
+	}
+
+	err = c.Render(http.StatusOK, tmpl, data)
+	if err != nil {
+		return InternalErr(c, name, err)
+	}
+	return nil
 }
 
 // Checksum is the handler for the Checksum file record page.
@@ -317,7 +540,7 @@ func Categories(c echo.Context, logger *zap.SugaredLogger, stats bool) error {
 	data["h1"] = title
 	data["lead"] = "This page shows the categories and platforms in the collection of file artifacts."
 	data["stats"] = stats
-	data["counter"] = Stats{}
+	data["counter"] = mfs.Stats{}
 	data, err := fileWStats(data, stats)
 	if err != nil {
 		logger.Warn(err)
@@ -328,6 +551,22 @@ func Categories(c echo.Context, logger *zap.SugaredLogger, stats bool) error {
 		return InternalErr(c, name, err)
 	}
 	return nil
+}
+
+// fileWStats is a helper function for File that adds the statistics to the data map.
+func fileWStats(data map[string]interface{}, stats bool) (map[string]interface{}, error) {
+	if !stats {
+		return data, nil
+	}
+	c, err := mfs.Counter()
+	if err != nil {
+		return data, fmt.Errorf("counter: %w", err)
+	}
+	data["counter"] = c
+	data["logo"] = "Artifact category statistics"
+	data["lead"] = "This page shows the artifacts categories with selected statistics, " +
+		"such as the number of files in the category or platform."
+	return data, nil
 }
 
 func Deletions(c echo.Context, page string) error {
@@ -477,6 +716,43 @@ func GoogleCallback(c echo.Context, clientID string, maxAge int, accounts ...[48
 	return c.Redirect(http.StatusFound, "/")
 }
 
+// sessionHandler creates a [new session] and populates it with
+// the claims data created by the [ID Tokens for Google HTTP APIs].
+//
+// [new session]: https://pkg.go.dev/github.com/gorilla/sessions
+// [ID Tokens for Google HTTP APIs]: https://pkg.go.dev/google.golang.org/api/idtoken
+func sessionHandler(c echo.Context, maxAge int, claims map[string]interface{},
+) error {
+	session, err := session.Get(sess.Name, c)
+	if err != nil {
+		return fmt.Errorf("app session get: %w", err)
+	}
+	// session Options are cookie options and are all optional
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
+	const hour = 60 * 60
+	session.Options = &sessions.Options{
+		Path:     "/",                  // path that must exist in the requested URL to send the Cookie header
+		Domain:   "",                   // which server can receive a cookie
+		MaxAge:   hour * maxAge,        // maximum age for the cookie, in seconds
+		Secure:   true,                 // cookie requires HTTPS except for localhost
+		HttpOnly: true,                 // stops the cookie being read by JS
+		SameSite: http.SameSiteLaxMode, // LaxMode (default) or StrictMode
+	}
+
+	const uniqueGoogleID = "sub"
+	val, valExists := claims[uniqueGoogleID]
+	if !valExists {
+		return ErrClaims
+	}
+	session.Values[uniqueGoogleID] = val
+	session.Values["givenName"] = claims["given_name"]
+	session.Values["email"] = claims["email"]
+	session.Values["emailVerified"] = claims["email_verified"]
+
+	// save the session
+	return session.Save(c.Request(), c.Response())
+}
+
 // History is the handler for the History page.
 func History(c echo.Context) error {
 	const name = "history"
@@ -565,6 +841,61 @@ func Magazine(c echo.Context) error {
 // MagazineAZ is the handler for the Magazine page ordered chronologically.
 func MagazineAZ(c echo.Context) error {
 	return magazines(c, false)
+}
+
+// magazines is the handler for the magazine page.
+func magazines(c echo.Context, chronological bool) error {
+	const title, name = "Magazines", "magazine"
+	data := empty(c)
+	const lead = "The magazines are newsletters, reports, " +
+		"and publications about activities within The Scene subculture."
+	const issue = "issue"
+	const key = "releasers"
+	data["title"] = title
+	data["description"] = lead
+	data["logo"] = title
+	data["h1"] = title
+	data["lead"] = lead
+	data["itemName"] = issue
+	data[key] = model.Releasers{}
+	data["stats"] = map[string]string{}
+
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return InternalErr(c, name, err)
+	}
+	defer db.Close()
+	var order string
+	r := model.Releasers{}
+	switch chronological {
+	case true:
+		if err := r.Magazine(ctx, db); err != nil {
+			return DatabaseErr(c, name, err)
+		}
+		s := title + byyear
+		data["logo"] = s
+		data["title"] = title + byyear
+		order = year
+	case false:
+		if err := r.MagazineAZ(ctx, db); err != nil {
+			return DatabaseErr(c, name, err)
+		}
+		s := title + az
+		data["logo"] = s
+		data["title"] = title + az
+		order = alpha
+	}
+	data[key] = r
+	data["stats"] = map[string]string{
+		"pubs":    fmt.Sprintf("%d publications", len(r)),
+		"orderBy": order,
+	}
+	err = c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(c, name, err)
+	}
+	return nil
 }
 
 // Musician is the handler for the Musiciansceners page.
@@ -713,6 +1044,35 @@ func PostName(c echo.Context, mode FileSearch) error {
 		return InternalErr(c, errs, err)
 	}
 	return nil
+}
+
+// postStats is a helper function for PostName that returns the statistics for the files page.
+func (mode FileSearch) postStats(ctx context.Context, exec boil.ContextExecutor, terms []string) map[string]string {
+	none := func() map[string]string {
+		return map[string]string{
+			"files": "no files found",
+			"years": "",
+		}
+	}
+	m := model.Summary{}
+	switch mode {
+	case Filenames:
+		if err := m.ByFilename(ctx, exec, terms); err != nil {
+			return none()
+		}
+	case Descriptions:
+		if err := m.ByDescription(ctx, exec, terms); err != nil {
+			return none()
+		}
+	}
+	if m.SumCount.Int64 == 0 {
+		return none()
+	}
+	d := map[string]string{
+		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
+		"years": helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
+	}
+	return d
 }
 
 // PouetCache parses the cached data for the Pouet production votes.
@@ -899,6 +1259,64 @@ func ReleaserAZ(c echo.Context) error {
 // ReleaserYear is the handler for the releaser page ordered by year of the first release.
 func ReleaserYear(c echo.Context) error {
 	return releasers(c, model.Oldest)
+}
+
+// releasers is the handler for the Releaser page.
+func releasers(c echo.Context, orderBy model.OrderBy) error {
+	const title, name = "Releaser", "releaser"
+	data := empty(c)
+	const lead = "A releaser is a brand or a collective group of " +
+		"sceners responsible for releasing or distributing products."
+	const logo = "Groups and releasers"
+	const key = "releasers"
+	data["title"] = title
+	data["description"] = fmt.Sprint(title, " ", lead)
+	data["logo"] = logo
+	data["h1"] = title
+	data["lead"] = lead
+	data["itemName"] = "file"
+	data[key] = model.Releasers{}
+	data["stats"] = map[string]string{}
+
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return InternalErr(c, name, err)
+	}
+	defer db.Close()
+	var r model.Releasers
+	if err := r.Limit(ctx, db, orderBy, 0, 0); err != nil {
+		return DatabaseErr(c, name, err)
+	}
+	data[key] = r
+	tmpl := name
+	var order string
+	switch orderBy {
+	case model.Alphabetical:
+		s := logo + az
+		data["logo"] = s
+		data["title"] = title + az
+		order = alpha
+	case model.Prolific:
+		s := logo + ", by count"
+		data["logo"] = s
+		order = "by file artifact count"
+	case model.Oldest:
+		tmpl = "releaser-year"
+		s := logo + byyear
+		data["logo"] = s
+		data["title"] = title + byyear
+		order = year
+	}
+	data["stats"] = map[string]string{
+		"pubs":    fmt.Sprintf("%d releasers and groups", len(r)),
+		"orderBy": order,
+	}
+	err = c.Render(http.StatusOK, tmpl, data)
+	if err != nil {
+		return InternalErr(c, tmpl, err)
+	}
+	return nil
 }
 
 // Releaser404 renders the files error page for the Groups menu and invalid releasers.
@@ -1088,6 +1506,19 @@ func Sceners(c echo.Context, uri string) error {
 	return nil
 }
 
+// scenerSum is a helper function for Sceners that returns the statistics for the files page.
+func scenerSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[string]string, error) {
+	m := model.Summary{}
+	if err := m.ByScener(ctx, exec, uri); err != nil {
+		return nil, fmt.Errorf("scener sum %w: %s", err, uri)
+	}
+	d := map[string]string{
+		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
+		"years": helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
+	}
+	return d, nil
+}
+
 // SearchDesc is the handler for the Search for file descriptions page.
 func SearchDesc(c echo.Context) error {
 	const title, name = "Search titles and descriptions", "searchpost"
@@ -1220,9 +1651,19 @@ func Signin(c echo.Context, clientID, nonce string) error {
 	return nil
 }
 
-// Statistics returns the empty database statistics for the artifacts categories.
-func Statistics() Stats {
-	return Stats{}
+// remove is a helper function to remove the session cookie by setting the MaxAge to -1.
+func remove(c echo.Context, name string, data map[string]interface{}) error {
+	sess, err := session.Get(sess.Name, c)
+	if err != nil {
+		const remove = -1
+		sess.Options.MaxAge = remove
+		_ = sess.Save(c.Request(), c.Response())
+	}
+	err = c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(c, name, err)
+	}
+	return nil
 }
 
 // TagEdit handles the post submission for the Tag selection field.
@@ -1406,531 +1847,6 @@ func Writer(c echo.Context) error {
 	return scener(c, postgres.Writer, data)
 }
 
-// FileSearch is the type of search to perform.
-type FileSearch int
-
-const (
-	Filenames    FileSearch = iota // Filenames is the search for filenames.
-	Descriptions                   // Descriptions is the search for file descriptions and titles.
-)
-
-// Stats are the database statistics for the artifacts categories.
-type Stats struct {
-	IntroW    model.IntroWindows
-	Record    model.Artifacts
-	Ansi      model.Ansi
-	AnsiBBS   model.AnsiBBS
-	BBS       model.BBS
-	BBSText   model.BBSText
-	BBStro    model.BBStro
-	Demoscene model.Demoscene
-	MsDos     model.MsDos
-	Intro     model.Intro
-	IntroD    model.IntroMsDos
-	Installer model.Installer
-	Java      model.Java
-	Linux     model.Linux
-	Magazine  model.Magazine
-	Macos     model.Macos
-	Nfo       model.Nfo
-	NfoTool   model.NfoTool
-	Proof     model.Proof
-	Script    model.Script
-	Text      model.Text
-	Windows   model.Windows
-}
-
-// Get and store the database statistics for the artifacts categories.
-func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
-	if err := s.Record.Public(ctx, exec); err != nil {
-		return fmt.Errorf("category get record stat: %w", err)
-	}
-	if err := s.Ansi.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get ansi stat: %w", err)
-	}
-	if err := s.AnsiBBS.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get ansiBBS stat: %w", err)
-	}
-	if err := s.BBS.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get bbs stat: %w", err)
-	}
-	if err := s.BBSText.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get bbs trext stat: %w", err)
-	}
-	if err := s.BBStro.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get bbstro stat: %w", err)
-	}
-	if err := s.MsDos.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get msdos stat: %w", err)
-	}
-	if err := s.Intro.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get intro stat: %w", err)
-	}
-	if err := s.IntroD.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get introd stat: %w", err)
-	}
-	if err := s.IntroW.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get introw stat: %w", err)
-	}
-	if err := s.Installer.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get installer stat: %w", err)
-	}
-	if err := s.Java.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get java stat: %w", err)
-	}
-	if err := s.Linux.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get linux stat: %w", err)
-	}
-	if err := s.Demoscene.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get demoscene stat: %w", err)
-	}
-	return s.get(ctx, exec)
-}
-
-func (s *Stats) get(ctx context.Context, exec boil.ContextExecutor) error {
-	if err := s.Macos.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get macos stat: %w", err)
-	}
-	if err := s.Magazine.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get magazine stat: %w", err)
-	}
-	if err := s.Nfo.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get nfo stat: %w", err)
-	}
-	if err := s.NfoTool.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get nfoTool stat: %w", err)
-	}
-	if err := s.Proof.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get proof stat: %w", err)
-	}
-	if err := s.Script.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get script stat: %w", err)
-	}
-	if err := s.Text.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get text stat: %w", err)
-	}
-	return s.Windows.Stat(ctx, exec)
-}
-
-type Pagination struct {
-	BaseURL   string // BaseURL is the base URL for the pagination links.
-	CurrPage  int    // CurrPage is the current page number.
-	SumPages  int    // SumPages is the total number of pages.
-	PrevPage  int    // PrevPage is the previous page number.
-	NextPage  int    // NextPage is the next page number.
-	TwoBelow  int    // TwoBelow is the page number two below the current page.
-	TwoAfter  int    // TwoAfter is the page number two after the current page.
-	RangeStep int    // RangeStep is the number of pages to skip in the pagination range.
-}
-
-// artifacts is a helper function for Artifacts that returns the data map for the files page.
-func artifacts(c echo.Context, uri string, page int) error {
-	const title, name = "Artifacts", "artifacts"
-	logo, h1sub, lead := mfs.FileInfo(uri)
-	data := emptyFiles(c)
-	data["title"] = title
-	data["description"] = "Table of contents for the files."
-	data["logo"] = logo
-	data["h1"] = title
-	data["h1Sub"] = h1sub
-	data["lead"] = lead
-	data[records] = []models.FileSlice{}
-	data["unknownYears"] = true
-	data["forApproval"] = false
-	switch mfs.Match(uri) {
-	case
-		mfs.NewUploads,
-		mfs.NewUpdates,
-		mfs.Deletions,
-		mfs.Unwanted:
-		data["unknownYears"] = false
-	case mfs.ForApproval:
-		data["forApproval"] = true
-	}
-	errs := fmt.Sprintf("artifacts page %d for %q", page, uri)
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return InternalErr(c, errs, err)
-	}
-	defer db.Close()
-	r, err := mfs.Records(ctx, db, uri, page, limit)
-	if err != nil {
-		return DatabaseErr(c, errs, err)
-	}
-	data[records] = r
-	d, sum, err := stats(ctx, db, uri)
-	if err != nil {
-		return DatabaseErr(c, errs, err)
-	}
-	data["stats"] = d
-	lastPage := math.Ceil(float64(sum) / float64(limit))
-	if page > int(lastPage) {
-		i := strconv.Itoa(page)
-		return Page404(c, uri, i)
-	}
-	const pages = 2
-	data["Pagination"] = Pagination{
-		TwoAfter:  page + pages,
-		NextPage:  page + 1,
-		CurrPage:  page,
-		PrevPage:  page - 1,
-		TwoBelow:  page - pages,
-		SumPages:  int(lastPage),
-		BaseURL:   "/files/" + uri,
-		RangeStep: steps(lastPage),
-	}
-	err = c.Render(http.StatusOK, name, data)
-	if err != nil {
-		return InternalErr(c, errs, err)
-	}
-	return nil
-}
-
-func steps(lastPage float64) int {
-	const one, two, four = 1, 2, 4
-	const skip2Pages, skip4Pages = 39, 99
-	switch {
-	case lastPage > skip4Pages:
-		return four
-	case lastPage > skip2Pages:
-		return two
-	default:
-		return one
-	}
-}
-
-// bbsHandler is the handler for the BBS page.
-func bbsHandler(c echo.Context, orderBy model.OrderBy) error {
-	const title, name = "BBS", "bbs"
-	const lead = "Bulletin Board Systems are historical, " +
-		"networked personal computer servers connected using the landline telephone network and provide forums, " +
-		"real-time chat, mail, and file sharing for The Scene \"elites.\""
-	const logo = "Bulletin Board Systems"
-	const key = "releasers"
-	data := empty(c)
-	data["title"] = title
-	data["description"] = lead
-	data["logo"] = logo
-	data["h1"] = title
-	data["lead"] = lead
-	data["itemName"] = name
-	data[key] = model.Releasers{}
-	data["stats"] = map[string]string{}
-
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	defer db.Close()
-	r := model.Releasers{}
-	if err := r.BBS(ctx, db, orderBy); err != nil {
-		return DatabaseErr(c, name, err)
-	}
-	data[key] = r
-	tmpl := name
-	var order string
-	switch orderBy {
-	case model.Alphabetical:
-		s := logo + az
-		data["logo"] = s
-		data["title"] = title + az
-		order = alpha
-	case model.Prolific:
-		s := logo + ", by count"
-		data["logo"] = s
-		order = "by file artifact count"
-	case model.Oldest:
-		tmpl = "bbs-year"
-		s := logo + byyear
-		data["title"] = title + byyear
-		data["logo"] = s
-		order = year
-	}
-	data["stats"] = map[string]string{
-		"pubs":    fmt.Sprintf("%d boards", len(r)),
-		"orderBy": order,
-	}
-
-	err = c.Render(http.StatusOK, tmpl, data)
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	return nil
-}
-
-// counter returns the statistics for the artifacts categories.
-func counter() (Stats, error) {
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return Stats{}, fmt.Errorf("cartifacts categories counter tx %w", err)
-	}
-	defer db.Close()
-	counter := Stats{}
-	if err := counter.Get(ctx, db); err != nil {
-		return Stats{}, fmt.Errorf("cartifacts categories counter get %w", err)
-	}
-	return counter, nil
-}
-
-// empty is a map of default values for the app templates.
-func empty(c echo.Context) map[string]interface{} {
-	// the keys are listed in order of appearance in the templates.
-	// * marked keys are required.
-	// ! marked keys are suggested.
-	return map[string]interface{}{
-		// The number of records of files in the database.
-		"cacheFiles": Caching.RecordCount,
-		// A canonical URL is the URL of the best representative page from a group of duplicate pages.
-		"canonical": "",
-		// The ID of the carousel to display.
-		"carousel": "",
-		// Empty database counts for files and categories.
-		"counter": Statistics(),
-		// If true, the database is not available.
-		"dbError": false,
-		// * A short description of the page that get inserted into the description meta element.
-		"description": "",
-		// If true, the editor mode is enabled.
-		"editor": sess.Editor(c),
-		// ! The H1 heading of the page.
-		"h1": "",
-		// The H1 sub-heading of the page.
-		"h1Sub": "",
-		// If true, the large, js-dos v6.22 emulator files will be loaded.
-		"jsdos6": false,
-		// ! The enlarged, lead paragraph of the page.
-		"lead": "",
-		// ! Text to insert into the monospaced, ASCII art logo.
-		"logo": "",
-		// If true, the application is in read-only mode.
-		"readOnly": true,
-		// * The title of the page that get inserted into the title meta element.
-		"title": "",
-	}
-}
-
-// emptyFiles is a map of default values specific to the files templates.
-func emptyFiles(c echo.Context) map[string]interface{} {
-	data := empty(c)
-	data["demozoo"] = "0"
-	data["sixteen"] = ""
-	data["scener"] = ""
-	data["website"] = ""
-	data["unknownYears"] = true
-	return data
-}
-
-// fileWStats is a helper function for File that adds the statistics to the data map.
-func fileWStats(data map[string]interface{}, stats bool) (map[string]interface{}, error) {
-	if !stats {
-		return data, nil
-	}
-	c, err := counter()
-	if err != nil {
-		return data, fmt.Errorf("counter: %w", err)
-	}
-	data["counter"] = c
-	data["logo"] = "Artifact category statistics"
-	data["lead"] = "This page shows the artifacts categories with selected statistics, " +
-		"such as the number of files in the category or platform."
-	return data, nil
-}
-
-// magazines is the handler for the magazine page.
-func magazines(c echo.Context, chronological bool) error {
-	const title, name = "Magazines", "magazine"
-	data := empty(c)
-	const lead = "The magazines are newsletters, reports, " +
-		"and publications about activities within The Scene subculture."
-	const issue = "issue"
-	const key = "releasers"
-	data["title"] = title
-	data["description"] = lead
-	data["logo"] = title
-	data["h1"] = title
-	data["lead"] = lead
-	data["itemName"] = issue
-	data[key] = model.Releasers{}
-	data["stats"] = map[string]string{}
-
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	defer db.Close()
-	var order string
-	r := model.Releasers{}
-	switch chronological {
-	case true:
-		if err := r.Magazine(ctx, db); err != nil {
-			return DatabaseErr(c, name, err)
-		}
-		s := title + byyear
-		data["logo"] = s
-		data["title"] = title + byyear
-		order = year
-	case false:
-		if err := r.MagazineAZ(ctx, db); err != nil {
-			return DatabaseErr(c, name, err)
-		}
-		s := title + az
-		data["logo"] = s
-		data["title"] = title + az
-		order = alpha
-	}
-	data[key] = r
-	data["stats"] = map[string]string{
-		"pubs":    fmt.Sprintf("%d publications", len(r)),
-		"orderBy": order,
-	}
-	err = c.Render(http.StatusOK, name, data)
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	return nil
-}
-
-// postStats is a helper function for PostName that returns the statistics for the files page.
-func (mode FileSearch) postStats(ctx context.Context, exec boil.ContextExecutor, terms []string) map[string]string {
-	none := func() map[string]string {
-		return map[string]string{
-			"files": "no files found",
-			"years": "",
-		}
-	}
-	m := model.Summary{}
-	switch mode {
-	case Filenames:
-		if err := m.ByFilename(ctx, exec, terms); err != nil {
-			return none()
-		}
-	case Descriptions:
-		if err := m.ByDescription(ctx, exec, terms); err != nil {
-			return none()
-		}
-	}
-	if m.SumCount.Int64 == 0 {
-		return none()
-	}
-	d := map[string]string{
-		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
-		"years": helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
-	}
-	return d
-}
-
-// remove is a helper function to remove the session cookie by setting the MaxAge to -1.
-func remove(c echo.Context, name string, data map[string]interface{}) error {
-	sess, err := session.Get(sess.Name, c)
-	if err != nil {
-		const remove = -1
-		sess.Options.MaxAge = remove
-		_ = sess.Save(c.Request(), c.Response())
-	}
-	err = c.Render(http.StatusOK, name, data)
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	return nil
-}
-
-// scenerSum is a helper function for Sceners that returns the statistics for the files page.
-func scenerSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[string]string, error) {
-	m := model.Summary{}
-	if err := m.ByScener(ctx, exec, uri); err != nil {
-		return nil, fmt.Errorf("scener sum %w: %s", err, uri)
-	}
-	d := map[string]string{
-		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
-		"years": helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
-	}
-	return d, nil
-}
-
-// scener is the handler for the scener pages.
-func scener(c echo.Context, r postgres.Role,
-	data map[string]interface{},
-) error {
-	const name = "scener"
-	s := model.Sceners{}
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	defer db.Close()
-	switch r {
-	case postgres.Writer:
-		err = s.Writer(ctx, db)
-	case postgres.Artist:
-		err = s.Artist(ctx, db)
-	case postgres.Musician:
-		err = s.Musician(ctx, db)
-	case postgres.Coder:
-		err = s.Coder(ctx, db)
-	case postgres.Roles():
-		err = s.Distinct(ctx, db)
-	}
-	if err != nil {
-		return DatabaseErr(c, name, err)
-	}
-	data["sceners"] = s.Sort()
-	data["description"] = "Sceners and people who have been credited for their work in The Scene."
-	data["lead"] = "This page shows the sceners and people credited for their work in The Scene." +
-		`<br><small class="fw-lighter">` +
-		"The list will never be complete or accurate due to the amount of data and the lack of a" +
-		" common format for crediting people. " +
-		" Sceners often used different names or spellings on their work, including character" +
-		" swaps, aliases, initials, and even single-letter signatures." +
-		"</small>"
-	err = c.Render(http.StatusOK, name, data)
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	return nil
-}
-
-// sessionHandler creates a [new session] and populates it with
-// the claims data created by the [ID Tokens for Google HTTP APIs].
-//
-// [new session]: https://pkg.go.dev/github.com/gorilla/sessions
-// [ID Tokens for Google HTTP APIs]: https://pkg.go.dev/google.golang.org/api/idtoken
-func sessionHandler(c echo.Context, maxAge int, claims map[string]interface{},
-) error {
-	session, err := session.Get(sess.Name, c)
-	if err != nil {
-		return fmt.Errorf("app session get: %w", err)
-	}
-	// session Options are cookie options and are all optional
-	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
-	const hour = 60 * 60
-	session.Options = &sessions.Options{
-		Path:     "/",                  // path that must exist in the requested URL to send the Cookie header
-		Domain:   "",                   // which server can receive a cookie
-		MaxAge:   hour * maxAge,        // maximum age for the cookie, in seconds
-		Secure:   true,                 // cookie requires HTTPS except for localhost
-		HttpOnly: true,                 // stops the cookie being read by JS
-		SameSite: http.SameSiteLaxMode, // LaxMode (default) or StrictMode
-	}
-
-	const uniqueGoogleID = "sub"
-	val, valExists := claims[uniqueGoogleID]
-	if !valExists {
-		return ErrClaims
-	}
-	session.Values[uniqueGoogleID] = val
-	session.Values["givenName"] = claims["given_name"]
-	session.Values["email"] = claims["email"]
-	session.Values["emailVerified"] = claims["email_verified"]
-
-	// save the session
-	return session.Save(c.Request(), c.Response())
-}
-
 // stats is a helper function for Artifacts that returns the statistics for the files page.
 func stats(ctx context.Context, exec boil.ContextExecutor, uri string) (map[string]string, int, error) {
 	if !mfs.Valid(uri) {
@@ -1942,16 +1858,16 @@ func stats(ctx context.Context, exec boil.ContextExecutor, uri string) (map[stri
 		return nil, 0, fmt.Errorf("artifacts stats %w: %s", err, uri)
 	}
 	if errors.Is(err, model.ErrURI) {
-		switch uri {
-		case "for-approval":
+		switch mfs.Match(uri) {
+		case mfs.ForApproval:
 			if err := m.ByForApproval(ctx, exec); err != nil {
 				return nil, 0, fmt.Errorf("artifacts stats for approval %w: %s", err, uri)
 			}
-		case "deletions":
+		case mfs.Deletions:
 			if err := m.ByHidden(ctx, exec); err != nil {
 				return nil, 0, fmt.Errorf("artifacts stats by hidden %w: %s", err, uri)
 			}
-		case "unwanted":
+		case mfs.Unwanted:
 			if err := m.ByUnwanted(ctx, exec); err != nil {
 				return nil, 0, fmt.Errorf("artifacts stats unwanted %w: %s", err, uri)
 			}
@@ -1972,60 +1888,26 @@ func stats(ctx context.Context, exec boil.ContextExecutor, uri string) (map[stri
 	return d, int(m.SumCount.Int64), nil
 }
 
-// releasers is the handler for the Releaser page.
-func releasers(c echo.Context, orderBy model.OrderBy) error {
-	const title, name = "Releaser", "releaser"
-	data := empty(c)
-	const lead = "A releaser is a brand or a collective group of " +
-		"sceners responsible for releasing or distributing products."
-	const logo = "Groups and releasers"
-	const key = "releasers"
-	data["title"] = title
-	data["description"] = fmt.Sprint(title, " ", lead)
-	data["logo"] = logo
-	data["h1"] = title
-	data["lead"] = lead
-	data["itemName"] = "file"
-	data[key] = model.Releasers{}
-	data["stats"] = map[string]string{}
+func steps(lastPage float64) int {
+	const one, two, four = 1, 2, 4
+	const skip2Pages, skip4Pages = 39, 99
+	switch {
+	case lastPage > skip4Pages:
+		return four
+	case lastPage > skip2Pages:
+		return two
+	default:
+		return one
+	}
+}
 
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	defer db.Close()
-	var r model.Releasers
-	if err := r.Limit(ctx, db, orderBy, 0, 0); err != nil {
-		return DatabaseErr(c, name, err)
-	}
-	data[key] = r
-	tmpl := name
-	var order string
-	switch orderBy {
-	case model.Alphabetical:
-		s := logo + az
-		data["logo"] = s
-		data["title"] = title + az
-		order = alpha
-	case model.Prolific:
-		s := logo + ", by count"
-		data["logo"] = s
-		order = "by file artifact count"
-	case model.Oldest:
-		tmpl = "releaser-year"
-		s := logo + byyear
-		data["logo"] = s
-		data["title"] = title + byyear
-		order = year
-	}
-	data["stats"] = map[string]string{
-		"pubs":    fmt.Sprintf("%d releasers and groups", len(r)),
-		"orderBy": order,
-	}
-	err = c.Render(http.StatusOK, tmpl, data)
-	if err != nil {
-		return InternalErr(c, tmpl, err)
-	}
-	return nil
+// emptyFiles is a map of default values specific to the files templates.
+func emptyFiles(c echo.Context) map[string]interface{} {
+	data := empty(c)
+	data["demozoo"] = "0"
+	data["sixteen"] = ""
+	data["scener"] = ""
+	data["website"] = ""
+	data["unknownYears"] = true
+	return data
 }

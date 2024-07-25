@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -482,4 +483,122 @@ func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 	default:
 		return nil, fmt.Errorf("artifacts category %w: %s", ErrCategory, uri)
 	}
+}
+
+// Counter returns the statistics for the artifacts categories.
+func Counter() (Stats, error) {
+	ctx := context.Background()
+	db, err := postgres.ConnectDB()
+	if err != nil {
+		return Stats{}, fmt.Errorf("cartifacts categories counter tx %w", err)
+	}
+	defer db.Close()
+	counter := Stats{}
+	if err := counter.Get(ctx, db); err != nil {
+		return Stats{}, fmt.Errorf("cartifacts categories counter get %w", err)
+	}
+	return counter, nil
+}
+
+// Stats are the database statistics for the artifacts categories.
+type Stats struct {
+	IntroW    model.IntroWindows
+	Record    model.Artifacts
+	Ansi      model.Ansi
+	AnsiBBS   model.AnsiBBS
+	BBS       model.BBS
+	BBSText   model.BBSText
+	BBStro    model.BBStro
+	Demoscene model.Demoscene
+	MsDos     model.MsDos
+	Intro     model.Intro
+	IntroD    model.IntroMsDos
+	Installer model.Installer
+	Java      model.Java
+	Linux     model.Linux
+	Magazine  model.Magazine
+	Macos     model.Macos
+	Nfo       model.Nfo
+	NfoTool   model.NfoTool
+	Proof     model.Proof
+	Script    model.Script
+	Text      model.Text
+	Windows   model.Windows
+}
+
+// Statistics returns the empty database statistics for the artifacts categories.
+func Statistics() Stats {
+	return Stats{}
+}
+
+// Get and store the database statistics for the artifacts categories.
+func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := s.Record.Public(ctx, exec); err != nil {
+		return fmt.Errorf("category get record stat: %w", err)
+	}
+	if err := s.Ansi.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get ansi stat: %w", err)
+	}
+	if err := s.AnsiBBS.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get ansiBBS stat: %w", err)
+	}
+	if err := s.BBS.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get bbs stat: %w", err)
+	}
+	if err := s.BBSText.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get bbs trext stat: %w", err)
+	}
+	if err := s.BBStro.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get bbstro stat: %w", err)
+	}
+	if err := s.MsDos.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get msdos stat: %w", err)
+	}
+	if err := s.Intro.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get intro stat: %w", err)
+	}
+	if err := s.IntroD.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get introd stat: %w", err)
+	}
+	if err := s.IntroW.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get introw stat: %w", err)
+	}
+	if err := s.Installer.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get installer stat: %w", err)
+	}
+	if err := s.Java.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get java stat: %w", err)
+	}
+	if err := s.Linux.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get linux stat: %w", err)
+	}
+	if err := s.Demoscene.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get demoscene stat: %w", err)
+	}
+	return s.get(ctx, exec)
+}
+
+func (s *Stats) get(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := s.Macos.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get macos stat: %w", err)
+	}
+	if err := s.Magazine.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get magazine stat: %w", err)
+	}
+	if err := s.Nfo.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get nfo stat: %w", err)
+	}
+	if err := s.NfoTool.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get nfoTool stat: %w", err)
+	}
+	if err := s.Proof.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get proof stat: %w", err)
+	}
+	if err := s.Script.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get script stat: %w", err)
+	}
+	if err := s.Text.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("category get text stat: %w", err)
+	}
+	return s.Windows.Stat(ctx, exec)
 }
