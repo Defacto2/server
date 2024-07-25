@@ -886,7 +886,7 @@ func desc(p, s, y, m string) string {
 	x := tags.Humanize(tags.TagByURI(p), tags.TagByURI(s))
 	x = helper.Capitalize(x)
 	if m != "" && y != "" {
-		x = fmt.Sprintf("%s published in <span class=\"text-nowrap\">%s, %s</a>", x, m, y)
+		x = fmt.Sprintf("%s published in <span class=\"text-nowrap\">%s, %s</span>", x, m, y)
 	} else if y != "" {
 		x = fmt.Sprintf("%s published in %s", x, y)
 	}

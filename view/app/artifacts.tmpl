@@ -58,13 +58,13 @@
   {{- $attr := attribute .CreditText.String .CreditProgram.String .CreditIllustration.String .CreditAudio.String $scener}}
   {{- $cardClass := "h-100"}}
   {{- $forClass := " border border-1 border-info"}}
-  {{if $forApproval}}{{$cardClass = print $cardClass print $forClass}}{{end}}
+  {{- if $forApproval}}{{$cardClass = print $cardClass print $forClass}}{{end}}
   {{- $removedClass := " border border-2 border-danger"}}
   {{- $removed := and (eq .Deletedat.IsZero false) (ne .Deletedby.String "")}}
-  {{if $removed}}{{$cardClass = print $cardClass print $removedClass}}{{end}}
+  {{- if $removed}}{{$cardClass = print $cardClass print $removedClass}}{{end}}
   {{- $unwantedClass := " border border-1 border-warning"}}
   {{- $unwanted := (ne .FileSecurityAlertURL.String "")}}
-  {{if $unwanted}}{{$cardClass = print $cardClass print $unwantedClass}}{{end}}
+  {{- if $unwanted}}{{$cardClass = print $cardClass print $unwantedClass}}{{end}}
   <div class="col">
     <div class="card {{$cardClass}}">
       <div class="card-header text-body-secondary text-center">

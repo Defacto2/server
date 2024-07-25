@@ -5,10 +5,10 @@
 {{- $descDefault  := "Defacto2, preserving the historic and defunct software cracking, wares, and Warez Scene subcultures on obsolete personal computers"}}
 {{- $cc           := "https://creativecommons.org/licenses/by/4.0/"}}
 {{- $github       := "https://github.com/defacto2"}}
-{{- $h1sub := index . "h1Sub"}}
+{{- $h1sub := index . "subheading"}}
 {{- $canonical := index . "canonical"}}
 {{- $desc := index . "description"}}
-{{- $cachef :=  index . "cacheFiles" }}
+{{- $cachefiles :=  index . "cachefiles" }}
 {{- $carousel := index . "carousel"}}
 {{- $h1 := index . "h1"}}
 {{- $lead := index . "lead"}}
@@ -20,70 +20,50 @@
 {{- $readmeC := index . "readmeCP437"}}
 {{- $databaseErr := index . "databaseErr"}}
 {{- $subheading := index . "subheading"}}
+{{- $metatitle := .title}}
+{{- if ne $subheading ""}}{{$metatitle = printf "%s %s" (capitalize $subheading) (toLower .title)}}{{end}}
+{{- $metadesc := $desc}}
+{{- if eq $desc ""}}{{$metadesc = $descDefault}}{{end}}
 <html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{if ne $subheading ""}}{{capitalize $subheading}} {{toLower .title}}{{else}}{{.title}}{{end}} | Defacto2</title>
+    <title>{{$metatitle}} | Defacto2</title>
     {{if ne $canonical ""}}<link rel="canonical" href="https://defacto2.net/{{$canonical}}">{{end -}}
-    {{if ne $desc ""}}<meta name="description" content="{{$desc}}">{{end -}}
-    {{if eq $desc ""}}<meta name="description" content="{{$descDefault}}">{{end}}
+    <meta name="description" content="{{$metadesc}}">
     <meta name="theme-color" content="rgb(153, 153, 153)">
-    <meta name="defacto2:file-count" content="{{$cachef}}">
+    <meta name="defacto2:file-count" content="{{$cachefiles}}">
     <meta name="monetization" content="$ilp.uphold.com/RpWPnb88yLaF">
     <meta name="format-detection" content="telephone=no">
     <meta name="format-detection" content="address=no">
-    {{- /*  schema.org linked data, 
-      see: https://json-ld.org/playground/
-      and: https://developers.google.com/search/docs/appearance/structured-data/search-gallery  */}}
+{{- /*  schema.org linked data, 
+        see https://json-ld.org/playground/ and https://developers.google.com/search/docs/appearance/structured-data/search-gallery  */}}
     <script type="application/ld+json">
     {
       "@graph": [
         {
           "@type": "http://schema.org/Organization",
-          "http://schema.org/logo": {
-            "@id": "https://defacto2.net/image/layout/favicon-180x180.png"
-          },
+          "http://schema.org/logo": { "@id": "https://defacto2.net/image/layout/favicon-180x180.png" },
           "http://schema.org/name": "Defacto2",
           "http://schema.org/sameAs": [
-            {
-              "@id": "https://facebook.com/Defacto2"
-            },
-            {
-              "@id": "https://twitter.com/Defacto2"
-            },
-            {
-              "@id": "https://www.youtube.com/defacto2"
-            },
-            {
-              "@id": "https://mas.to/@defacto2"
-            },
-            {
-              "@id": "https://github.com/defacto2"
-            },
-            {
-              "@id": "https://defacto2.wordpress.com"
-            }
+            { "@id": "https://facebook.com/Defacto2" },
+            { "@id": "https://twitter.com/Defacto2" },
+            { "@id": "https://www.youtube.com/defacto2" },
+            { "@id": "https://mas.to/@defacto2" },
+            { "@id": "https://github.com/defacto2" },
+            { "@id": "https://defacto2.wordpress.com" }
           ],
-          "http://schema.org/url": {
-            "@id": "https://defacto2.net/"
-          }
+          "http://schema.org/url": { "@id": "https://defacto2.net/" }
         },
         {
           "@type": "http://schema.org/WebSite",
-          "http://schema.org/license": {
-            "@id": "https://creativecommons.org/licenses/by/4.0/"
-          },
+          "http://schema.org/license": { "@id": "https://creativecommons.org/licenses/by/4.0/" },
           "http://schema.org/potentialAction": {
             "@type": "http://schema.org/SearchAction",
             "http://schema.org/query-input": "required name=search_term_string",
-            "http://schema.org/target": {
-              "@id": "https://defacto2.net/search/result?query={search_term_string}"
-            }
+            "http://schema.org/target": { "@id": "https://defacto2.net/search/result?query={search_term_string}" }
           },
-          "http://schema.org/url": {
-            "@id": "https://defacto2.net/"
-          }
+          "http://schema.org/url": { "@id": "https://defacto2.net/" }
         }
       ]
     }
