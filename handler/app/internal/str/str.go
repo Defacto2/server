@@ -1,4 +1,4 @@
-// Package str provides functions for handling string or int input data.
+// Package str provides functions for handling string or integer input data.
 package str
 
 import (

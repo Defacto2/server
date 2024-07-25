@@ -781,7 +781,7 @@ func History(c echo.Context) error {
 func Index(c echo.Context) error {
 	const name = "index"
 	data := empty(c)
-	data["title"] = "Milestones"
+	data["title"] = "Welcome"
 	//data["description"] = desc
 	data["h1"] = "Welcome,"
 	data["milestones"] = Collection()

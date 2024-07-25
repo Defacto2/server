@@ -1,3 +1,4 @@
+// Package remote provides the remote download and update of artifact data from third-party sources such as API's.
 package remote
 
 import (

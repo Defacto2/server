@@ -1,3 +1,4 @@
+// Package mfs provides functions that return model FileSlices, which are multiple artifact records.
 package mfs
 
 import (
