@@ -39,7 +39,6 @@ const (
 )
 
 var (
-	ErrCategory = errors.New("unknown artifacts categories")
 	ErrClaims   = errors.New("no sub id in the claims playload")
 	ErrCode     = errors.New("the http status code is not valid")
 	ErrCxt      = errors.New("the server could not create a context")
@@ -558,69 +557,6 @@ func Prefix(s string) string {
 	return s + " "
 }
 
-// RecordsSub returns the records for the artifacts category URI.
-func RecordsSub(uri string) string {
-	const ignore = -1
-	subs := map[URI]string{
-		advert:       tags.Humanizes(ignore, tags.ForSale),
-		announcement: tags.Humanizes(ignore, tags.Announcement),
-		ansi:         tags.Humanizes(tags.ANSI, ignore),
-		ansiBrand:    tags.Humanizes(tags.ANSI, tags.Logo),
-		ansiBBS:      tags.Humanizes(tags.ANSI, tags.BBS),
-		ansiFTP:      tags.Humanizes(tags.ANSI, tags.Ftp),
-		ansiNfo:      tags.Humanizes(tags.ANSI, tags.Nfo),
-		ansiPack:     tags.Humanizes(tags.ANSI, tags.Pack),
-		bbs:          tags.Humanizes(ignore, tags.BBS),
-		bbsImage:     tags.Humanizes(tags.Image, tags.BBS),
-		bbstro:       tags.Humanizes(tags.DOS, tags.BBS),
-		bbsText:      tags.Humanizes(tags.Text, tags.BBS),
-		database:     tags.Humanizes(ignore, tags.DataB),
-		demoscene:    tags.Humanizes(ignore, tags.Demo),
-		drama:        tags.Humanizes(ignore, tags.Drama),
-		ftp:          tags.Humanizes(ignore, tags.Ftp),
-		hack:         tags.Humanizes(ignore, tags.GameHack),
-		htm:          uri,
-		howTo:        tags.Humanizes(ignore, tags.Guide),
-		imageFile:    tags.Humanizes(tags.Image, ignore),
-		imagePack:    tags.Humanizes(tags.Image, tags.Pack),
-		installer:    tags.Humanizes(ignore, tags.Install),
-		intro:        tags.Humanizes(ignore, tags.Intro),
-		linux:        tags.Humanizes(tags.Linux, ignore),
-		java:         tags.Humanizes(tags.Java, ignore),
-		jobAdvert:    tags.Humanizes(ignore, tags.Job),
-		macos:        tags.Humanizes(tags.Mac, ignore),
-		msdosPack:    tags.Humanizes(tags.DOS, tags.Pack),
-		music:        tags.Humanizes(tags.Audio, ignore),
-		newsArticle:  tags.Humanizes(ignore, tags.News),
-		nfo:          tags.Humanizes(ignore, tags.Nfo),
-		nfoTool:      tags.Humanizes(ignore, tags.NfoTool),
-		standards:    tags.Humanizes(ignore, tags.Rule),
-		script:       tags.Humanizes(tags.PHP, ignore),
-		introMsdos:   tags.Humanizes(tags.DOS, tags.Intro),
-		introWindows: tags.Humanizes(tags.Windows, tags.Intro),
-		magazine:     tags.Humanizes(ignore, tags.Mag),
-		msdos:        tags.Humanizes(tags.DOS, ignore),
-		pdf:          tags.Humanizes(tags.PDF, ignore),
-		proof:        tags.Humanizes(ignore, tags.Proof),
-		restrict:     tags.Humanizes(ignore, tags.Restrict),
-		takedown:     tags.Humanizes(ignore, tags.Bust),
-		text:         tags.Humanizes(tags.Text, ignore),
-		textAmiga:    tags.Humanizes(tags.TextAmiga, ignore),
-		textApple2:   tags.Humanizes(tags.Text, tags.AppleII),
-		textAtariST:  tags.Humanizes(tags.Text, tags.AtariST),
-		textPack:     tags.Humanizes(tags.Text, tags.Pack),
-		tool:         tags.Humanizes(ignore, tags.Tool),
-		trialCrackme: tags.Humanizes(tags.Windows, tags.Job),
-		video:        tags.Humanizes(tags.Video, ignore),
-		windows:      tags.Humanizes(tags.Windows, ignore),
-		windowsPack:  tags.Humanizes(tags.Windows, tags.Pack),
-	}
-	if value, found := subs[Match(uri)]; found {
-		return value
-	}
-	return "unknown uri"
-}
-
 // RecordRels returns the groups associated with a release and joins them with a plus sign.
 func RecordRels(a, b any) string {
 	av, bv, s := "", "", ""
@@ -955,47 +891,6 @@ func desc(p, s, y, m string) string {
 		x = fmt.Sprintf("%s published in %s", x, y)
 	}
 	return x + "."
-}
-
-// fileInfo is a helper function for Files that returns the page title, h1 title and lead text.
-func fileInfo(uri string) (string, string, string) {
-	var logo, h1sub, lead string
-	switch uri {
-	case newUploads.String():
-		logo = "new uploads"
-		h1sub = "the new uploads"
-		lead = "These are the recent file artifacts that have been submitted to Defacto2."
-	case newUpdates.String():
-		logo = "new changes"
-		h1sub = "the new changes"
-		lead = "These are the recent file artifacts that have been modified or submitted on Defacto2."
-	case forApproval.String():
-		logo = "new uploads"
-		h1sub = "edit the new uploads"
-		lead = "These are the recent file artifacts that have been submitted for approval on Defacto2."
-	case deletions.String():
-		logo = "deletions"
-		h1sub = "edit the (hidden) deletions"
-		lead = "These are the file artifacts that have been removed from Defacto2."
-	case unwanted.String():
-		logo = "unwanted releases"
-		h1sub = "edit the unwanted software releases"
-		lead = "These are the file artifacts that have been marked as potential unwanted software " +
-			"or containing viruses on Defacto2."
-	case oldest.String():
-		logo = "oldest releases"
-		h1sub = "the oldest releases"
-		lead = "These are the earliest, historical file artifacts in the collection."
-	case newest.String():
-		logo = "newest releases"
-		h1sub = "the newest releases"
-		lead = "These are the most recent file artifacts in the collection."
-	default:
-		s := RecordsSub(uri)
-		h1sub = s
-		logo = s
-	}
-	return logo, h1sub, lead
 }
 
 func names(s string) string {

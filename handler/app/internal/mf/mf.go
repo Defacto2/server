@@ -1,4 +1,4 @@
-// Package mf provides functions for the file model which is an artifact record.
+// Package mf provides functions for the file model which is an artifact record
 package mf
 
 import (

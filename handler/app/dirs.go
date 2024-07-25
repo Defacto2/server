@@ -285,7 +285,7 @@ func (dir Dirs) attributions(art *models.File, data map[string]interface{}) map[
 // filemetadata returns the file metadata for the file record of the artifact.
 func (dir Dirs) filemetadata(art *models.File, data map[string]interface{}) map[string]interface{} {
 	data["filename"] = mf.Basename(art)
-	data["filesize"] = bytesHuman(art.Filesize.Int64)
+	data["filesize"] = str.BytesHuman(art.Filesize.Int64)
 	data["filebyte"] = art.Filesize
 	data["lastmodified"] = mf.LastModification(art)
 	data["lastmodifiedAgo"] = mf.LastModificationAgo(art)
@@ -459,14 +459,6 @@ func embedText(art *models.File, data map[string]interface{}, b ...byte) (map[st
 	data["readmeLines"] = strings.Count(readme, "\n")
 	data["readmeRows"] = helper.MaxLineLength(readme)
 	return data, nil
-}
-
-// bytesHuman returns the file size for the file record.
-func bytesHuman(i int64) string {
-	if i == 0 {
-		return "(n/a)"
-	}
-	return humanize.Bytes(uint64(i))
 }
 
 // decode decodes the text content from the reader.

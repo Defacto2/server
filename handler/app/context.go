@@ -9,16 +9,16 @@ import (
 	"fmt"
 	"math"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/releaser/initialism"
+	"github.com/Defacto2/server/handler/app/internal/mfs"
+	"github.com/Defacto2/server/handler/app/internal/remote"
 	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/handler/sess"
-	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/cache"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/config"
@@ -31,18 +31,14 @@ import (
 	"github.com/Defacto2/server/internal/sixteen"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
-	"github.com/gabriel-vasile/mimetype"
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"go.uber.org/zap"
 	"google.golang.org/api/idtoken"
 )
-
-var ErrExist = errors.New("file already exists")
 
 const (
 	demo    = "demo"
@@ -61,7 +57,7 @@ const (
 // The uri is the category or collection of files to display.
 // The page is the page number of the results to display.
 func Artifacts(c echo.Context, uri, page string) error {
-	if !Valid(uri) {
+	if !mfs.Valid(uri) {
 		return Artifacts404(c, uri)
 	}
 	if page == "" {
@@ -335,8 +331,8 @@ func Categories(c echo.Context, logger *zap.SugaredLogger, stats bool) error {
 }
 
 func Deletions(c echo.Context, page string) error {
-	uri := deletions.String()
-	if !Valid(uri) {
+	uri := mfs.Deletions.String()
+	if !mfs.Valid(uri) {
 		return Artifacts404(c, uri)
 	}
 	if page == "" {
@@ -350,8 +346,8 @@ func Deletions(c echo.Context, page string) error {
 }
 
 func Unwanted(c echo.Context, page string) error {
-	uri := unwanted.String()
-	if !Valid(uri) {
+	uri := mfs.Unwanted.String()
+	if !mfs.Valid(uri) {
 		return Artifacts404(c, uri)
 	}
 	if page == "" {
@@ -368,8 +364,8 @@ func Unwanted(c echo.Context, page string) error {
 // The uri is the category or collection of files to display.
 // The page is the page number of the results to display.
 func ForApproval(c echo.Context, page string) error {
-	uri := forApproval.String()
-	if !Valid(uri) {
+	uri := mfs.ForApproval.String()
+	if !mfs.Valid(uri) {
 		return Artifacts404(c, uri)
 	}
 	if page == "" {
@@ -382,27 +378,6 @@ func ForApproval(c echo.Context, page string) error {
 	return artifacts(c, uri, p)
 }
 
-// DemozooLink is the response from the task of GetDemozooFile.
-//
-//nolint:tagliatelle
-type DemozooLink struct {
-	UUID      string `json:"uuid"`       // UUID is the file production UUID.
-	Filename  string `json:"filename"`   // Filename is the file name of the download.
-	FileType  string `json:"file_type"`  // Type is the file type.
-	FileHash  string `json:"file_hash"`  // Hash is the file integrity hash.
-	Content   string `json:"content"`    // Content is the file archive content.
-	Readme    string `json:"readme"`     // Readme is the file readme, text or NFO file.
-	LinkURL   string `json:"link_url"`   // LinkURL is the download file link used to fetch the file.
-	LinkClass string `json:"link_class"` // LinkClass is the download link class provided by Demozoo.
-	Error     string `json:"error"`      // Error is the error message if the download or record update failed.
-	Github    string `json:"github_repo"`
-	YouTube   string `json:"youtube_video"`
-	ID        int    `json:"id"`        // ID is the Demozoo production ID.
-	FileSize  int    `json:"file_size"` // Size is the file size in bytes.
-	Pouet     int    `json:"pouet_prod"`
-	Success   bool   `json:"success"` // Success is the success status of the download and record update.
-}
-
 // GetDemozooLink fetches the multiple download_links values from the
 // Demozoo production API and attempts to download and save one of the
 // linked files. If multiple links are found, the first link is used as
@@ -412,7 +387,7 @@ type DemozooLink struct {
 // param values are required as params to fetch the production data and
 // to save the file to the correct filename.
 func GetDemozooLink(c echo.Context, downloadDir string) error {
-	got := DemozooLink{
+	got := remote.DemozooLink{
 		Filename:  "",
 		FileSize:  0,
 		FileType:  "",
@@ -438,127 +413,6 @@ func GetDemozooLink(c echo.Context, downloadDir string) error {
 	}
 	got.UUID = sid
 	return got.Download(c, downloadDir)
-}
-
-func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
-	var prod demozoo.Production
-	if _, err := prod.Get(got.ID); err != nil {
-		got.Error = fmt.Errorf("could not get record %d from demozoo api: %w", got.ID, err).Error()
-		return c.JSON(http.StatusInternalServerError, got)
-	}
-	for _, link := range prod.DownloadLinks {
-		if link.URL == "" {
-			continue
-		}
-		df, err := helper.GetFile(link.URL)
-		tryNextLink := err != nil || df.Path == ""
-		if tryNextLink {
-			continue
-		}
-		base := filepath.Base(link.URL)
-		dst := filepath.Join(downloadDir, got.UUID)
-		got.Filename = base
-		got.LinkClass = link.LinkClass
-		got.LinkURL = link.URL
-		if err := helper.RenameFileOW(df.Path, dst); err != nil {
-			sameFiles, err := helper.FileMatch(df.Path, dst)
-			if err != nil {
-				got.Error = fmt.Errorf("could not rename file, %s: %w", dst, err).Error()
-				return c.JSON(http.StatusInternalServerError, got)
-			}
-			if !sameFiles {
-				got.Error = fmt.Errorf("%w, will not overwrite, %s", ErrExist, dst).Error()
-				return c.JSON(http.StatusConflict, got)
-			}
-		}
-		size, err := strconv.Atoi(df.ContentLength)
-		if err == nil {
-			got.FileSize = size
-		}
-		if df.ContentType != "" {
-			got.FileType = df.ContentType
-		}
-		got.Filename = base
-		got.LinkURL = link.URL
-		got.LinkClass = link.LinkClass
-		got.Success = true
-		got.Error = ""
-		got.Github = prod.GithubRepo()
-		got.Pouet = prod.PouetProd()
-		got.YouTube = prod.YouTubeVideo()
-		return got.Stat(c, downloadDir)
-	}
-	got.Error = "no usable download links found, they returned 404 or were empty"
-	return c.JSON(http.StatusNotModified, got)
-}
-
-func (got *DemozooLink) Stat(c echo.Context, downloadDir string) error {
-	path := filepath.Join(downloadDir, got.UUID)
-	if got.FileSize == 0 {
-		stat, err := os.Stat(path)
-		if err != nil {
-			got.Error = fmt.Errorf("could not stat file, %s: %w", path, err).Error()
-			return c.JSON(http.StatusInternalServerError, got)
-		}
-		got.FileSize = int(stat.Size())
-	}
-	strong, err := helper.StrongIntegrity(path)
-	if err != nil {
-		got.Error = fmt.Errorf("could not get strong integrity hash, %s: %w", path, err).Error()
-		return c.JSON(http.StatusInternalServerError, got)
-	}
-	got.FileHash = strong
-	if got.FileType == "" {
-		m, err := mimetype.DetectFile(path)
-		if err != nil {
-			return fmt.Errorf("demozoo stat content filemime failure on %q: %w", path, err)
-		}
-		got.FileType = m.String()
-	}
-	return got.ArchiveContent(c, path)
-}
-
-func (got *DemozooLink) ArchiveContent(c echo.Context, path string) error {
-	files, err := archive.List(path, got.Filename)
-	if err != nil {
-		return c.JSON(http.StatusOK, got)
-	}
-	got.Readme = archive.Readme(got.Filename, files...)
-	got.Content = strings.Join(files, "\n")
-	return got.Update(c)
-}
-
-func (got DemozooLink) Update(c echo.Context) error {
-	uid := got.UUID
-	ctx := context.Background()
-	db, tx, err := postgres.ConnectTx()
-	if err != nil {
-		return ErrDB
-	}
-	defer db.Close()
-	f, err := model.OneByUUID(ctx, tx, true, uid)
-	if err != nil {
-		return fmt.Errorf("demozoolink update by uuid %w: %s", err, uid)
-	}
-	f.Filename = null.StringFrom(got.Filename)
-	f.Filesize = null.Int64From(int64(got.FileSize))
-	f.FileMagicType = null.StringFrom(got.FileType)
-	f.FileIntegrityStrong = null.StringFrom(got.FileHash)
-	f.FileZipContent = null.StringFrom(got.Content)
-	rm := strings.TrimSpace(got.Readme)
-	f.RetrotxtReadme = null.StringFrom(rm)
-	gt := strings.TrimSpace(got.Github)
-	f.WebIDGithub = null.StringFrom(gt)
-	f.WebIDPouet = null.Int64From(int64(got.Pouet))
-	yt := strings.TrimSpace(got.YouTube)
-	f.WebIDYoutube = null.StringFrom(yt)
-	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
-		return fmt.Errorf("demozoolink update infer %w: %s", err, uid)
-	}
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("demozoolink update commit %w: %s", err, uid)
-	}
-	return c.JSON(http.StatusOK, got)
 }
 
 // GoogleCallback is the handler for the Google OAuth2 callback page to verify
@@ -1030,218 +884,6 @@ func RecordToggle(c echo.Context, state bool) error {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, f)
-}
-
-// Records returns the records for the artifacts category URI.
-// Note that the record statistics and counts get cached.
-func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	switch Match(uri) {
-	// pulldown editor menu matches
-	case forApproval:
-		r := model.Artifacts{}
-		return r.ByForApproval(ctx, exec, page, limit)
-	case deletions:
-		r := model.Artifacts{}
-		return r.ByHidden(ctx, exec, page, limit)
-	case unwanted:
-		r := model.Artifacts{}
-		return r.ByUnwanted(ctx, exec, page, limit)
-	// pulldown menu matches
-	case newUploads:
-		r := model.Artifacts{}
-		return r.ByKey(ctx, exec, page, limit)
-	case newUpdates:
-		r := model.Artifacts{}
-		return r.ByUpdated(ctx, exec, page, limit)
-	case oldest:
-		r := model.Artifacts{}
-		return r.ByOldest(ctx, exec, page, limit)
-	case newest:
-		r := model.Artifacts{}
-		return r.ByNewest(ctx, exec, page, limit)
-	}
-	return recordsZ(ctx, exec, uri, page, limit)
-}
-
-func recordsZ(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	switch Match(uri) {
-	case advert:
-		r := model.Advert{}
-		return r.List(ctx, exec, page, limit)
-	case announcement:
-		r := model.Announcement{}
-		return r.List(ctx, exec, page, limit)
-	case ansi:
-		r := model.Ansi{}
-		return r.List(ctx, exec, page, limit)
-	case ansiBrand:
-		r := model.AnsiBrand{}
-		return r.List(ctx, exec, page, limit)
-	case ansiBBS:
-		r := model.AnsiBBS{}
-		return r.List(ctx, exec, page, limit)
-	case ansiFTP:
-		r := model.AnsiFTP{}
-		return r.List(ctx, exec, page, limit)
-	case ansiNfo:
-		r := model.AnsiNfo{}
-		return r.List(ctx, exec, page, limit)
-	case ansiPack:
-		r := model.AnsiPack{}
-		return r.List(ctx, exec, page, limit)
-	case bbs:
-		r := model.BBS{}
-		return r.List(ctx, exec, page, limit)
-	case bbsImage:
-		r := model.BBSImage{}
-		return r.List(ctx, exec, page, limit)
-	case bbstro:
-		r := model.BBStro{}
-		return r.List(ctx, exec, page, limit)
-	case bbsText:
-		r := model.BBSText{}
-		return r.List(ctx, exec, page, limit)
-	}
-	return records0(ctx, exec, uri, page, limit)
-}
-
-func records0(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	switch Match(uri) {
-	case database:
-		r := model.Database{}
-		return r.List(ctx, exec, page, limit)
-	case demoscene:
-		r := model.Demoscene{}
-		return r.List(ctx, exec, page, limit)
-	case drama:
-		r := model.Drama{}
-		return r.List(ctx, exec, page, limit)
-	case ftp:
-		r := model.FTP{}
-		return r.List(ctx, exec, page, limit)
-	case hack:
-		r := model.Hack{}
-		return r.List(ctx, exec, page, limit)
-	case htm:
-		r := model.HTML{}
-		return r.List(ctx, exec, page, limit)
-	case howTo:
-		r := model.HowTo{}
-		return r.List(ctx, exec, page, limit)
-	case imageFile:
-		r := model.Image{}
-		return r.List(ctx, exec, page, limit)
-	case imagePack:
-		r := model.ImagePack{}
-		return r.List(ctx, exec, page, limit)
-	case installer:
-		r := model.Installer{}
-		return r.List(ctx, exec, page, limit)
-	case intro:
-		r := model.Intro{}
-		return r.List(ctx, exec, page, limit)
-	case linux:
-		r := model.Linux{}
-		return r.List(ctx, exec, page, limit)
-	case java:
-		r := model.Java{}
-		return r.List(ctx, exec, page, limit)
-	case jobAdvert:
-		r := model.JobAdvert{}
-		return r.List(ctx, exec, page, limit)
-	}
-	return records1(ctx, exec, uri, page, limit)
-}
-
-func records1(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	switch Match(uri) {
-	case macos:
-		r := model.Macos{}
-		return r.List(ctx, exec, page, limit)
-	case msdosPack:
-		r := model.MsDosPack{}
-		return r.List(ctx, exec, page, limit)
-	case music:
-		r := model.Music{}
-		return r.List(ctx, exec, page, limit)
-	case newsArticle:
-		r := model.NewsArticle{}
-		return r.List(ctx, exec, page, limit)
-	case nfo:
-		r := model.Nfo{}
-		return r.List(ctx, exec, page, limit)
-	case nfoTool:
-		r := model.NfoTool{}
-		return r.List(ctx, exec, page, limit)
-	case standards:
-		r := model.Standard{}
-		return r.List(ctx, exec, page, limit)
-	case script:
-		r := model.Script{}
-		return r.List(ctx, exec, page, limit)
-	case introMsdos:
-		r := model.IntroMsDos{}
-		return r.List(ctx, exec, page, limit)
-	case introWindows:
-		r := model.IntroWindows{}
-		return r.List(ctx, exec, page, limit)
-	case magazine:
-		r := model.Magazine{}
-		return r.List(ctx, exec, page, limit)
-	case msdos:
-		r := model.MsDos{}
-		return r.List(ctx, exec, page, limit)
-	case pdf:
-		r := model.PDF{}
-		return r.List(ctx, exec, page, limit)
-	case proof:
-		r := model.Proof{}
-		return r.List(ctx, exec, page, limit)
-	}
-	return records2(ctx, exec, uri, page, limit)
-}
-
-func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	switch Match(uri) {
-	case restrict:
-		r := model.Restrict{}
-		return r.List(ctx, exec, page, limit)
-	case takedown:
-		r := model.Takedown{}
-		return r.List(ctx, exec, page, limit)
-	case text:
-		r := model.Text{}
-		return r.List(ctx, exec, page, limit)
-	case textAmiga:
-		r := model.TextAmiga{}
-		return r.List(ctx, exec, page, limit)
-	case textApple2:
-		r := model.TextApple2{}
-		return r.List(ctx, exec, page, limit)
-	case textAtariST:
-		r := model.TextAtariST{}
-		return r.List(ctx, exec, page, limit)
-	case textPack:
-		r := model.TextPack{}
-		return r.List(ctx, exec, page, limit)
-	case tool:
-		r := model.Tool{}
-		return r.List(ctx, exec, page, limit)
-	case trialCrackme:
-		r := model.TrialCrackme{}
-		return r.List(ctx, exec, page, limit)
-	case video:
-		r := model.Video{}
-		return r.List(ctx, exec, page, limit)
-	case windows:
-		r := model.Windows{}
-		return r.List(ctx, exec, page, limit)
-	case windowsPack:
-		r := model.WindowsPack{}
-		return r.List(ctx, exec, page, limit)
-	default:
-		return nil, fmt.Errorf("artifacts category %w: %s", ErrCategory, uri)
-	}
 }
 
 // Releaser is the handler for the releaser page ordered by the most files.
@@ -1884,7 +1526,7 @@ type Pagination struct {
 // artifacts is a helper function for Artifacts that returns the data map for the files page.
 func artifacts(c echo.Context, uri string, page int) error {
 	const title, name = "Artifacts", "artifacts"
-	logo, h1sub, lead := fileInfo(uri)
+	logo, h1sub, lead := mfs.FileInfo(uri)
 	data := emptyFiles(c)
 	data["title"] = title
 	data["description"] = "Table of contents for the files."
@@ -1895,14 +1537,14 @@ func artifacts(c echo.Context, uri string, page int) error {
 	data[records] = []models.FileSlice{}
 	data["unknownYears"] = true
 	data["forApproval"] = false
-	switch uri {
+	switch mfs.Match(uri) {
 	case
-		newUploads.String(),
-		newUpdates.String(),
-		deletions.String(),
-		unwanted.String():
+		mfs.NewUploads,
+		mfs.NewUpdates,
+		mfs.Deletions,
+		mfs.Unwanted:
 		data["unknownYears"] = false
-	case forApproval.String():
+	case mfs.ForApproval:
 		data["forApproval"] = true
 	}
 	errs := fmt.Sprintf("artifacts page %d for %q", page, uri)
@@ -1912,7 +1554,7 @@ func artifacts(c echo.Context, uri string, page int) error {
 		return InternalErr(c, errs, err)
 	}
 	defer db.Close()
-	r, err := Records(ctx, db, uri, page, limit)
+	r, err := mfs.Records(ctx, db, uri, page, limit)
 	if err != nil {
 		return DatabaseErr(c, errs, err)
 	}
@@ -2257,9 +1899,7 @@ func scener(c echo.Context, r postgres.Role,
 //
 // [new session]: https://pkg.go.dev/github.com/gorilla/sessions
 // [ID Tokens for Google HTTP APIs]: https://pkg.go.dev/google.golang.org/api/idtoken
-func sessionHandler(
-	c echo.Context, maxAge int,
-	claims map[string]interface{},
+func sessionHandler(c echo.Context, maxAge int, claims map[string]interface{},
 ) error {
 	session, err := session.Get(sess.Name, c)
 	if err != nil {
@@ -2293,7 +1933,7 @@ func sessionHandler(
 
 // stats is a helper function for Artifacts that returns the statistics for the files page.
 func stats(ctx context.Context, exec boil.ContextExecutor, uri string) (map[string]string, int, error) {
-	if !Valid(uri) {
+	if !mfs.Valid(uri) {
 		return nil, 0, nil
 	}
 	m := model.Summary{}

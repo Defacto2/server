@@ -1,7 +1,6 @@
 package app_test
 
 import (
-	"html/template"
 	"strings"
 	"testing"
 	"time"
@@ -75,14 +74,6 @@ func TestRecordRels(t *testing.T) {
 	assert.Empty(t, s)
 	s = app.RecordRels("1", "2")
 	assert.Equal(t, "1 + 2", s)
-}
-
-func TestRecordsSubs(t *testing.T) {
-	t.Parallel()
-	s := app.RecordsSub("")
-	assert.Equal(t, "unknown uri", s)
-	s = app.RecordsSub("hack")
-	assert.Equal(t, "game trainers or hacks", s)
 }
 
 func TestMonth(t *testing.T) {
@@ -214,140 +205,14 @@ func TestByteFileS(t *testing.T) {
 	assert.Contains(t, s, "(1023B)")
 }
 
-func TestTemplateFuncMap(t *testing.T) {
+func TestFuncMap(t *testing.T) {
 	t.Parallel()
 	w := app.Templ{}
-	x := w.TemplateFuncMap()
+	x := w.FuncMap()
 	assert.Contains(t, x, "artifactEditor")
 	assert.Contains(t, x, "version")
 	assert.Contains(t, x, "az")
 	assert.Contains(t, x, "msdos")
-}
-
-func TestThumbSample(t *testing.T) {
-	t.Parallel()
-	const notfound = "no such file or directory"
-	w := app.Templ{}
-	x := w.ThumbSample("")
-	assert.Contains(t, x, notfound)
-	x = w.ThumbSample("placeholder")
-	assert.Contains(t, x, notfound)
-	x = w.ThumbSample("testdata/test")
-	assert.Contains(t, x, `test.webp?sha384`)
-	assert.Contains(t, x, `integrity="sha384`)
-}
-
-func TestScreenshot(t *testing.T) {
-	t.Parallel()
-	w := app.Templ{}
-	x := w.Screenshot("", "")
-	assert.Empty(t, x)
-	x = w.Screenshot("placeholder", "testdata/TEST.PNG")
-	assert.Empty(t, x)
-	x = w.Screenshot("testdata/1/test", "placeholder")
-	assert.Contains(t, x, `alt="placeholder screenshot"`)
-	x = w.Screenshot("testdata/test", "placeholder")
-	assert.Contains(t, x, `alt="placeholder screenshot"`)
-}
-
-func TestThumb(t *testing.T) {
-	t.Parallel()
-	const notfound = "<!-- no thumbnail found -->"
-	w := app.Templ{}
-	x := w.Thumb("", "", false)
-	assert.Contains(t, x, notfound)
-	x = w.Thumb("placeholder", "testdata/TEST.PNG", false)
-	assert.Contains(t, x, notfound)
-	x = w.Thumb("testdata/test", "placeholder", false)
-	assert.Contains(t, x, `test.webp`)
-	assert.Contains(t, x, `test.png`)
-}
-
-func TestImageSample(t *testing.T) {
-	t.Parallel()
-	w := app.Templ{}
-	x := w.ImageSample("")
-	assert.Contains(t, x, "no such file")
-	x = w.ImageSample("testdata/TEST.PNG")
-	assert.Contains(t, x, "no such file")
-	x = w.ImageSample("testdata/test")
-	assert.Contains(t, x, "sha384-SK3qCpS11QMhNxUUnyeUeWWXBMPORDgLTI")
-}
-
-func TestLinkSites(t *testing.T) {
-	t.Parallel()
-	x := app.LinkSites("")
-	assert.Empty(t, x)
-	x = app.LinkSites("a string")
-	assert.Empty(t, x)
-	x = app.LinkSites("example.com")
-	assert.Empty(t, x)
-	x = app.LinkSites("example.com|example.org")
-	assert.Empty(t, x)
-	x = app.LinkSites("example;example.org")
-	assert.Contains(t, x, "https://example.org")
-	x = app.LinkSites("example;example.org|another example;example.net")
-	assert.Contains(t, x, "https://example.org")
-	assert.Contains(t, x, "https://example.net")
-	x = app.LinkSites("example.com|||example.org")
-	assert.Empty(t, x)
-	x = app.LinkSites("example.com;;;example.org")
-	assert.Empty(t, x)
-}
-
-func TestLinkRelations(t *testing.T) {
-	t.Parallel()
-	x := app.LinkRelations("")
-	assert.Empty(t, x)
-	x = app.LinkRelations("nfo file;aa2165c")
-	assert.Contains(t, x, "/f/aa2165c")
-	x = app.LinkRelations("nfo file;aa2165c|readme;a822ea8")
-	assert.Contains(t, x, "/f/aa2165c")
-	assert.Contains(t, x, "/f/a822ea8")
-	x = app.LinkRelations("nfo file;xxxxx")
-	assert.Contains(t, x, "invalid download path")
-}
-
-func TestDemozooGetLink(t *testing.T) {
-	t.Parallel()
-	html := app.DemozooGetLink("", "", "", "")
-	assert.Equal(t, template.HTML("no id provided"), html)
-	fn := null.String{}
-	fs := null.Int64{}
-	dz := null.Int64{}
-	un := null.String{}
-	html = app.DemozooGetLink(fn, fs, dz, un)
-	assert.Empty(t, html)
-
-	fn = null.StringFrom("file")
-	html = app.DemozooGetLink(fn, fs, dz, un)
-	assert.Empty(t, html)
-
-	fn = null.String{}
-	fs = null.Int64From(1000)
-	html = app.DemozooGetLink(fn, fs, dz, un)
-	assert.Empty(t, html)
-
-	fn = null.String{}
-	fs = null.Int64{}
-	dz = null.Int64From(1)
-	un = null.StringFrom("user")
-	html = app.DemozooGetLink(fn, fs, dz, un)
-	assert.NotEmpty(t, html)
-}
-
-func TestDownloadB(t *testing.T) {
-	t.Parallel()
-	x := app.DownloadB("")
-	assert.Contains(t, x, "received an invalid type")
-	x = app.DownloadB("a string")
-	assert.Contains(t, x, "received an invalid type")
-	x = app.DownloadB("1")
-	assert.Contains(t, x, "received an invalid type")
-	x = app.DownloadB(null.Int64From(1))
-	assert.Contains(t, x, "1 B")
-	x = app.DownloadB(1024)
-	assert.Contains(t, x, "(1k)")
 }
 
 func TestLinkSamples(t *testing.T) {
@@ -356,32 +221,6 @@ func TestLinkSamples(t *testing.T) {
 	assert.Len(t, x, 7)
 	assert.Contains(t, x[0], "youtube.com/watch?v=1")
 	assert.Contains(t, x[1], "demozoo.org/productions/2")
-}
-
-func TestValid(t *testing.T) {
-	t.Parallel()
-	assert.False(t, app.Valid("not-a-valid-uri"))
-	assert.False(t, app.Valid("/files/newest"))
-	assert.True(t, app.Valid("newest"))
-	assert.True(t, app.Valid("windows-pack"))
-	assert.True(t, app.Valid("advert"))
-}
-
-func TestMatch(t *testing.T) {
-	t.Parallel()
-	assert.Equal(t, app.URI(-1), app.Match("not-a-valid-uri"))
-	assert.Equal(t, app.URI(37), app.Match("newest"))
-	assert.Equal(t, app.URI(60), app.Match("windows-pack"))
-	assert.Equal(t, app.URI(1), app.Match("advert"))
-}
-
-func TestRecordsSub(t *testing.T) {
-	t.Parallel()
-	s := app.RecordsSub("")
-	assert.Equal(t, "unknown uri", s)
-	for i := range 57 {
-		assert.NotEqual(t, "unknown uri", app.URI(i).String())
-	}
 }
 
 func TestMilestone(t *testing.T) {
