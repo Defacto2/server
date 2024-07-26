@@ -496,8 +496,8 @@ func Thumb(unid, desc, thumbDir string, bottom bool) template.HTML {
 	if helper.Stat(fp) {
 		p = true
 	}
-	const style = "min-height:5em;max-height:20em;"
-	class := "card-img-bottom"
+	const style = "max-height:400px;"
+	class := "m-2 img-fluid rounded mx-auto d-block"
 	if !bottom {
 		class = "card-img-top"
 	}
