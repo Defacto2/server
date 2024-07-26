@@ -107,9 +107,9 @@ func (dir Dirs) Artifact(c echo.Context, logger *zap.SugaredLogger, readonly boo
 		if err != nil {
 			if errors.Is(err, render.ErrDownload) {
 				data["noDownload"] = true
-				return nil
+			} else {
+				return InternalErr(c, name, errorWithID(err, dir.URI, art.ID))
 			}
-			return InternalErr(c, name, errorWithID(err, dir.URI, art.ID))
 		}
 		d, err := embedText(art, data, p...)
 		if err != nil {
