@@ -1,32 +1,39 @@
-{{- /* 
-    artifactfile.tmpl ~ TODO, THIS IS DUE FOR A REWRITE AND DELETE.
+{{- /*
+  artifactfile.tmpl
+
+  To toggle the visibility of the asset editor modal using a URL link,
+  create a link with a hash reference to the modal ID. Then match the hash value
+  on a JS onload event to trigger the modal to open.
+
+  const myModal = document.getElementById('myModal')
+  const myInput = document.getElementById('myInput')
+
+  myModal.addEventListener('shown.bs.modal', () => {
+    myInput.focus()
+  })
 */ -}}
 {{- define "artifactfile" }}
-{{- if eq false (index . "editor")}}
-{{- /* render nothing in the layout   */}}
-{{- else}}
-{{- $id := index . "modID"}}
-{{- $unid := index . "unid"}}
-{{- $filename := index . "filename"}}
-{{- $dbMod := index . "modDBModify"}}
-{{- $statMod := index . "modStatModify"}}
-{{- $statSizeB := index . "modStatSizeB"}}
-{{- $statSizeFmt := index . "modStatSizeF"}}
-{{- $magicMIME := index . "modMagicMime"}}
-{{- $magicNumber := index . "modMagicNumber"}}
-{{- $absDownload := index . "modAbsDownload"}}
-{{- $previewImg := recordImgSample $unid}}
-{{- $thumbImg := recordThumbSample $unid}}
-{{- $replace := "refresh the page to see the changes"}}
-
+{{- if eq false (index . "editor")}}{{/* render nothing */}}{{else}}
+{{- $refreshPage := "refresh the page to see the changes"}}
+{{- $notFound := "file not found"}}
 {{- $key := index . "modID"}}
-{{- $record := index . "modOnline"}}
+{{- $unid := index . "unid"}}
+{{- $online := index . "modOnline"}}
+{{- $filename := index . "filename"}}
 {{- $tag := index . "modTag"}}
 {{- $os := index . "modOS"}}
-{{- $modArchiveContent := index . "modArchiveContent"}}
-{{- $modArchiveContentDst := index . "modArchiveContentDst"}}
-
-
+{{- $databaseMod := index . "modDBModify"}}
+{{- $statMod := index . "modStatModify"}}
+{{- $statSizeB := index . "modStatSizeB"}}
+{{- $statSizeS := index . "modStatSizeF"}}
+{{- $magicMIME := index . "modMagicMime"}}
+{{- $magicNum := index . "modMagicNumber"}}
+{{- $downloadPath := index . "modAbsDownload"}}
+{{- $previewImg := recordImgSample $unid}}
+{{- $previewImgStat := recordImgSampleStat $unid}}
+{{- $thumbImg := recordThumbSample $unid}}
+{{- $modDecompress := index . "modArchiveContent"}}
+{{- $modDecompressLoc := index . "modArchiveContentDst"}}
 {{- /*  File assets and metadata editors  */}}
 <div class="modal fade" id="asset-editor-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
   aria-labelledby="asset-editor-modal-label" aria-hidden="true">
@@ -44,7 +51,7 @@
         <div class="row row-cols-4 g-1 mb-3">
           {{- /*  Public or hidden record */}}
           <div class="col-12 col-xl-2 col-lg-6 d-grid">
-            {{radioPublic ($record)}}
+            {{radioPublic ($online)}}
             <label class="btn btn-outline-danger" for="artifact-editor-public">Recreate assets</label>
           </div>
           <div class="col-12 col-xl-2 col-lg-6 d-grid">
@@ -54,7 +61,7 @@
                        <input type="hidden" id="asset-editor-hidden">
           <div id="asset-editor-feedback" class="text-end"></div>
             */}}
-            {{radioHidden ($record)}}
+            {{radioHidden ($online)}}
             <label class="btn btn-outline-danger" for="artifact-editor-hidden">Delete assets</label>
           </div>
           <div class="col-12 col-xl-2 col-lg-6 offset-xl-1">
@@ -62,7 +69,7 @@
               <button type="button" class="btn btn-secondary" id="artifact-editor-key-label"
                 data-bs-toggle="tooltip" data-bs-title="Copy the key">Record key</button>
               <input type="text" value='{{$key}}' class="form-control" name="artifact-editor-key" id="artifact-editor-key-value"
-                aria-describedby="artifact-editor-key-label" readonly>
+                aria-describedby="artifact-editor-key-label" autocomplete="false" readonly>
             </div>
           </div>
           <div class="col-12 col-xl-5 col-lg-6">
@@ -70,73 +77,105 @@
               <button type="button" class="btn btn-secondary" id="artifact-editor-unique-id-label"
                 data-bs-toggle="tooltip" data-bs-title="Copy the ID">Unique ID</button>
               <input type="text" value='{{$unid}}' class="form-control" 
-                aria-describedby="artifact-editor-unique-id-label" id="artifact-editor-unique-id-value" readonly>
+                aria-describedby="artifact-editor-unique-id-label" id="artifact-editor-unique-id-value" autocomplete="false" readonly>
             </div>
           </div>
         </div>
-
+        {{- /*  Artifact for download  */}}
         <div class="row mt-3 align-items-top">
           <div class="col-xl-6">
             <legend>Artifact for download</legend>
             <div class="input-group mb-1">
-              <label class="input-group-text w-25" for="artifact-editor-operating-system" id="artifact-editor-os-label">Location</label>
-              <input type="text" class="form-control" id="artifact-editor-operating-system" value="{{$absDownload}}" readonly>
+              <label class="input-group-text w-25" for="artifact-editor-dl-loc">Location</label>
+              <input type="text" class="form-control" id="artifact-editor-dl-loc" value="{{$downloadPath}}" autocomplete="false" readonly>
             </div>
             <div class="input-group mb-1">
-              <label class="input-group-text w-25" for="artifact-editor-operating-system" id="artifact-editor-os-label">Filename</label>
-              <input type="text" class="form-control w-25" id="artifact-editor-operating-system" value="{{$filename}}" readonly>
+              <label class="input-group-text w-25" for="artifact-editor-dl-fn">Filename</label>
+              <input type="text" class="form-control w-25" id="artifact-editor-dl-fn" value="{{$filename}}" autocomplete="false" readonly>
             </div>
             <div class="input-group mb-1">
-              <label class="input-group-text w-25" for="artifact-editor-operating-system" id="artifact-editor-os-label">Filesize</label>
-              <input type="text" class="form-control" id="artifact-editor-operating-system" value="{{$statSizeB}}" readonly>
-              <input type="text" class="form-control" id="artifact-editor-operating-systemx" value="{{$statSizeFmt}}" readonly>
+              <label class="input-group-text w-25" for="artifact-editor-dl-fs">Filesize</label>
+              <input type="text" class="form-control" id="artifact-editor-dl-fs" value="{{$statSizeB}}" autocomplete="false" readonly>
+              <input type="text" class="form-control" id="artifact-editor-dl-fsf" value="{{$statSizeS}}" autocomplete="false" readonly>
             </div>
             <div class="input-group mb-1">
-              <label class="input-group-text w-25" for="artifact-editor-operating-system" id="artifact-editor-os-label">Last modifed</label>
-              <input type="text" class="form-control" value="{{$statMod}}" data-bs-toggle="tooltip" data-bs-title="On file system" readonly>
-              <input type="text" class="form-control" value="{{$dbMod}}" data-bs-toggle="tooltip" data-bs-title="Stored in the database" readonly>
+              <label class="input-group-text w-25" for="artifact-editor-dl-lm">Last modifed</label>
+              <input type="text" class="form-control" id="artifact-editor-dl-lm" value="{{$statMod}}" 
+                data-bs-toggle="tooltip" data-bs-title="On file system" autocomplete="false" readonly>
+              <input type="text" class="form-control" id="artifact-editor-dl-lmdb" value="{{$databaseMod}}" 
+                data-bs-toggle="tooltip" data-bs-title="Stored in the database" autocomplete="false" readonly>
             </div>
             <div class="input-group mb-1">
-              <label class="input-group-text w-25" for="artifact-editor-operating-system" id="artifact-editor-os-label">Magic bytes</label>
-              <input type="text" class="form-control" value="{{$magicNumber}}" data-bs-toggle="tooltip" data-bs-title="Guessed type of file" readonly>
-              <input type="text" class="form-control" value="{{$magicMIME}}"  data-bs-toggle="tooltip" data-bs-title="Guessed MIME type" readonly>
+              <label class="input-group-text w-25" for="artifact-editor-dl-mb">Magic bytes</label>
+              <input type="text" class="form-control" id="artifact-editor-dl-mb" value="{{$magicNum}}" 
+                data-bs-toggle="tooltip" data-bs-title="Guessed type of file" autocomplete="false" readonly>
+              <input type="text" class="form-control" id="artifact-editor-dl-mime" value="{{$magicMIME}}"
+                data-bs-toggle="tooltip" data-bs-title="Guessed MIME type" autocomplete="false" readonly>
             </div>
             <div class="input-group mb-1">
-              <label class="input-group-text w-25" for="artifact-editor-operating-system" id="artifact-editor-os-label">Classification</label>
-              <input type="text" class="form-control" id="artifact-editor-operating-system" value="{{classificationStr $tag $os}}" readonly>
+              <label class="input-group-text w-25" for="artifact-editor-dl-classify">Classification</label>
+              <input type="text" class="form-control" id="artifact-editor-dl-classify" 
+                value="{{classificationStr $tag $os}}" autocomplete="false" readonly>
             </div>
-            <label for="basic-url" class="form-label mt-3 text-warning-emphasis">Replacement</label>
+            {{- if eq $notFound $statSizeB}}
+            <label for="artifact-editor-dl-up" class="form-label mt-3 text-success-emphasis">Upload the missing download</label>
+            {{- else}}
+            <label for="artifact-editor-dl-up" class="form-label mt-3 text-warning-emphasis">Replacement</label>
+            {{- end}}
+            {{- /*  Replacement download input  */}}
             <div class="input-group input-group-sm mb-1">
-              <input type="file" class="form-control w-50" id="artifact-editor-operating-system" value="">
-              <button class="btn btn-outline-secondary" id="asset-editor-download-submit">Upload</button> 
-              <button class="btn btn-outline-secondary" id="asset-editor-download-reset">Clear</button>
+              <input type="file" class="form-control w-50" id="artifact-editor-dl-up" autocomplete="false" value="">
+              <button class="btn btn-outline-secondary" id="artifact-editor-dl-submit">Upload</button> 
+              <button class="btn btn-outline-secondary" id="artifact-editor-dl-reset">Clear</button>
             </div>
-            <div class="form-text" id="basic-addon4"><span class="text-warning-emphasis">Normally not required</span>, upload and replace the artifact download.</div>
+
+            <form id='form' hx-encoding='multipart/form-data' hx-post='/upload' class="was-validated">
+              <input type='file' name='file' class="form-control is-invalid">
+              <button>
+                  Upload
+              </button>
+              <progress id='progress' value='0' max='100'></progress>
+              <div id="invalidCheck3Feedback" class="invalid-feedback">
+                You must agree before submitting.
+              </div>        
+          </form>
+          <script>
+              htmx.on('#form', 'htmx:xhr:progress', function(evt) {
+                htmx.find('#progress').setAttribute('value', evt.detail.loaded/evt.detail.total * 100)
+              });
+          </script>
+
+            {{- if eq $notFound $statSizeB}}
+            <div class="form-text"><span class="text-success-emphasis">Upload a new file to use as the artifact download.</span></div>
+            {{- else}}
+            <div class="form-text"><span class="text-warning-emphasis">Normally not required</span>, upload and replace the artifact download.</div>
+            {{- end}}
+            {{- /*  Download content  */}}
             <legend class="mt-3">Download content</legend>
-            {{- if eq "" (index . "modZipContent")}}
-            <div class="input-group mb-3">
-              <div class="alert alert-primary w-100" role="alert">
-                The artifact is not an archive.
-              </div>
-            </div>
+            {{- if eq $notFound $statSizeB}}
+            <div class="input-group mb-3"><span class="text-warning-emphasis">download file not found</span></div>
+            {{- else if eq "" (index . "modZipContent")}}
+            <div class="input-group mb-3"><span class="text-info-emphasis">nothing to show as the artifact is not an archive (a ZIP or RAR file, etc.)</span></div>
             {{- else}}
             <div class="input-group mb-3">
-              <label class="input-group-text w-25" for="artifact-editor-operating-system" id="artifact-editor-os-label">Location</label>
-              <input type="text" class="form-control" id="artifact-editor-operating-system" value="{{$modArchiveContentDst}}" readonly>
+              <label class="input-group-text w-25" for="artifact-editor-decompress-loc" id="artifact-editor-os-label">Location</label>
+              <input type="text" class="form-control" id="artifact-editor-decompress-loc" value="{{$modDecompressLoc}}" readonly>
             </div>
             <div class="container text-begin mb-3">
               <hr class="m-0 mb-3 mt-3">
-              {{$modArchiveContent}}
+              {{$modDecompress}}
             </div>
             {{- end}}
           </div>
           <div class="col-xl-6 pb-3 bg-light">
+            {{- /*  Image assets  */}}
             <legend>Image assets</legend>
             <div class="row row-cols-2 g-1">
               <div class="col-6">
                 <div class="card">
                   <div class="card-body">
                     <p class="card-text">
+                      {{- /*  Preview assets  */}}
                       <span class="lead">Preview assets</span><br>
                       <div class="form-text">These are displayed when viewing the artifact page</div>
                       <table class="table table-hover">
@@ -162,6 +201,7 @@
                 <div class="card">
                   <div class="card-body">
                     <p class="card-text">
+                      {{- /*  Thumbnail assets  */}}
                       <span class="lead">Thumbnail assets</span><br>
                       <div class="form-text">These are displayed when listing multiple artifacts on a page</div>
                       <table class="table table-hover">
@@ -184,12 +224,17 @@
                 </div>
               </div>
             </div>
+            {{- /*  Upload a new image  */}}
+            {{- if eq false $previewImgStat}}
+            <label for="basic-url" class="form-label mt-3 text-success-emphasis">Upload a new image or picture</label>
+            {{- else}}
             <label for="basic-url" class="form-label mt-3">Replacement image</label>
+            {{- end}}
             <div class="input-group input-group-sm mb-1">  
-              <input type="file" class="form-control w-50" id="artifact-editor-operating-system" 
+              <input type="file" class="form-control w-50" id="zartifact-editor-operating-system" 
                 accept="image/png, image/jpeg, image/webp, image/bmp, image/gif, image/tiff" value="">
-              <button class="btn btn-outline-secondary" id="asset-editor-download-submit">Upload</button> 
-              <button class="btn btn-outline-secondary" id="asset-editor-download-reset">Clear</button>
+              <button class="btn btn-outline-secondary" id="zasset-editor-download-submit">Upload</button> 
+              <button class="btn btn-outline-secondary" id="zasset-editor-download-reset">Clear</button>
             </div>
             {{/*  
             id="edUploadPreviewReset"
@@ -197,7 +242,7 @@
             id="asset-editor-preview"
             */}}
             <div class="form-text" id="basic-addon4">Select an image, text or ansi file to use as the image asset samples.</div>
-
+            {{- /*  Extras assets  */}}
             <legend class="mt-3">Extras assets</legend>
             <div class="row row-cols-2 g-1">
               <div class="col-12">
@@ -205,6 +250,7 @@
                   <div class="card-body">
                     <p class="card-text">
                       <span class="lead">Files</span><br>
+                    {{- if eq (len .modAssetExtra) 0}}No extras in use{{else}}
                       <table class="table table-hover">
                         <tbody>
                           {{- range $name, $info := .modAssetExtra}}
@@ -217,6 +263,7 @@
                             <td>{{index $info 1}}</td>
                           </tr>{{- end}}
                       </table>
+                    {{- end}}
                     </p>
                   </div>
                 </div>
@@ -226,13 +273,15 @@
                   <div class="card-body">
                     <p class="card-text">
                       <span class="lead">README</span>
+                      {{- if eq (len .modAssetExtra) 0}}<div>No extras in use</div>{{else}}
                       <div class="form-check form-switch">
                         {{recordReadme (index . "modNoReadme") }}
                         <label class="form-check-label" id="edHideMeLabel" for="edHideMe">Hide readme from view</label>
                         <div class="form-text">disable the use of the <q>textfile&nbsp;content</q></div>
-                        <div class="valid-feedback">Saved, {{$replace}}</div>
+                        <div class="valid-feedback">Saved, {{$refreshPage}}</div>
                         <div class="invalid-feedback" id="edHideMeErr">error placeholder</div>  
                       </div>
+                      {{- end}}
                     </p>
                   </div>
                 </div>
@@ -242,23 +291,22 @@
                   <div class="card-body">
                     <p class="card-text">
                       <span class="lead">Repacked ZIP</span>
+                      {{- if eq $notFound $statSizeB}}<div class="text-warning-emphasis">download file not found</div>{{else}}
                       <div class="form-check form-switch">
                         {{recordReadme (index . "modNoReadme") }}
                         <label class="form-check-label" id="edHideMeLabel" for="edHideMe">Offer a repacked archive</label>
                         <div class="form-text">feature not used, download is not an obsolete archive</div>
-                        <div class="valid-feedback">Saved, {{$replace}}</div>
+                        <div class="valid-feedback">Saved, {{$refreshPage}}</div>
                         <div class="invalid-feedback" id="edHideMeErr">error placeholder</div>  
                       </div>
+                      {{- end}}
                     </p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>     
-          {{/*  
-        {{ template "artifactzip" . }}
-          */}}
+        </div>
       </div>
       {{/*  Switch to assets and reset buttons  */}}
       {{- template "artifactfooter" . }}

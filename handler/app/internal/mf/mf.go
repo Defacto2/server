@@ -26,6 +26,8 @@ import (
 )
 
 const (
+	YYYYMMDD = "2006-Jan-02"
+
 	epoch                   = model.EpochYear // epoch is the default year for MS-DOS files without a timestamp
 	textamiga               = "textamiga"
 	arrowLink template.HTML = `<svg class="bi" aria-hidden="true">` +
@@ -552,7 +554,7 @@ func JsdosUtilities(art *models.File) bool {
 	return false
 }
 
-// LastModification returns the last modified date for the file record.
+// LastModification returns the last modified date and time for the file record.
 func LastModification(art *models.File) string {
 	const none = "no timestamp"
 	if !art.FileLastModified.Valid {
@@ -564,6 +566,23 @@ func LastModification(art *models.File) string {
 	}
 	lm := art.FileLastModified.Time.Format("2006 Jan 2, 15:04")
 	if lm == "0001 Jan 1, 00:00" {
+		return none
+	}
+	return lm
+}
+
+// LastModificationDate returns the last modified date for the file record.
+func LastModificationDate(art *models.File) string {
+	const none = "no timestamp"
+	if !art.FileLastModified.Valid {
+		return none
+	}
+	year, _ := strconv.Atoi(art.FileLastModified.Time.Format("2006"))
+	if year <= epoch {
+		return none
+	}
+	lm := art.FileLastModified.Time.Format(YYYYMMDD)
+	if lm == "0001-01-01" {
 		return none
 	}
 	return lm

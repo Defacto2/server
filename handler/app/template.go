@@ -312,6 +312,9 @@ func (t Templ) FuncClosures() template.FuncMap { //nolint:funlen
 		"readme": func() string {
 			return hrefs[Readme]
 		},
+		"recordImgSampleStat": func(unid string) bool {
+			return str.ImageSampleStat(unid, t.Environment.AbsPreview)
+		},
 		"recordImgSample": func(unid string) template.HTML {
 			return str.ImageSample(unid, t.Environment.AbsPreview)
 		},

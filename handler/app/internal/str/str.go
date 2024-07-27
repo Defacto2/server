@@ -40,6 +40,8 @@ const (
 	textamiga   = "textamiga"
 	typeErr     = "error: received an invalid type to "
 	closeAnchor = "</a>"
+	noFile      = "file not found"
+	YYYYMMDD    = "2006-Jan-02"
 )
 
 // ArtifactSrc returns a URL to an artifact asset with an cache busting hash.
@@ -169,11 +171,27 @@ func ImageSample(unid, previewDir string) template.HTML {
 	}
 	hash, err := helper.IntegrityFile(name)
 	if err != nil {
-		return template.HTML(err.Error())
+		return template.HTML(`<div class="card-body">No preview image file</div>`)
 	}
 	return template.HTML(fmt.Sprintf("<img src=\"%s?%s\" loading=\"lazy\" "+
-		"class=\"card-img-top\" alt=\"%s sample\" integrity=\"%s\" />",
+		"class=\"p-2 img-fluid rounded mx-auto d-block\" alt=\"%s sample\" integrity=\"%s\" />",
 		src, hash, ext, hash))
+}
+
+// ImageSampleStat returns true if the image sample file exists and is not a 0 byte file.
+func ImageSampleStat(unid, previewDir string) bool {
+	ext, name := "", ""
+	for _, ext = range []string{avif, webp, png} {
+		name = filepath.Join(previewDir, unid+ext)
+		if helper.Stat(name) {
+			break
+		}
+	}
+	st, err := os.Stat(name)
+	if err != nil {
+		return false
+	}
+	return st.Size() > 0
 }
 
 // ImageXY returns the image file size and dimensions.
@@ -326,7 +344,7 @@ func MakeLink(name, class string, performant bool) (string, error) {
 func MagicAsTitle(name string) string {
 	r, err := os.Open(name)
 	if err != nil {
-		return err.Error()
+		return noFile
 	}
 	defer r.Close()
 	sign, err := magicnumber.Find(r)
@@ -340,7 +358,7 @@ func MagicAsTitle(name string) string {
 func MIME(name string) string {
 	file, err := os.Open(name)
 	if err != nil {
-		return err.Error()
+		return noFile
 	}
 	defer file.Close()
 
@@ -473,9 +491,9 @@ func img(src, alt, class, style string) template.HTML {
 func StatHumanize(name string) (string, string, string) {
 	stat, err := os.Stat(name)
 	if err != nil {
-		return "", "", err.Error()
+		return noFile, noFile, noFile
 	}
-	return stat.ModTime().Format("2006-Jan-02"),
+	return stat.ModTime().Format(YYYYMMDD),
 		humanize.Comma(stat.Size()),
 		humanize.Bytes(uint64(stat.Size()))
 }
@@ -532,10 +550,10 @@ func ThumbSample(unid, thumbDir string) template.HTML {
 	}
 	hash, err := helper.IntegrityFile(name)
 	if err != nil {
-		return template.HTML(err.Error())
+		return template.HTML(`<div class="card-body">No thumbnail picture file</div>`)
 	}
 	return template.HTML(fmt.Sprintf("<img src=\"%s?%s\" loading=\"lazy\" "+
-		"class=\"card-img-top\" alt=\"%s sample\" integrity=\"%s\" />",
+		"class=\"p-2 img-fluid rounded mx-auto d-block\" alt=\"%s sample\" integrity=\"%s\" />",
 		src, hash, ext, hash))
 }
 
