@@ -2,19 +2,52 @@
 (() => {
   "use strict";
 
-  alert(`editor assets script is running`);
+  //alert(`editor assets script is running`);
 
   //const danger = `text-danger`;
-  const err = `is-invalid`;
-  const ok = `is-valid`;
-  const fok = `valid-feedback`;
-  const ferr = `invalid-feedback`;
+  // const err = `is-invalid`;
+  // const ok = `is-valid`;
+  // const fok = `valid-feedback`;
+  // const ferr = `invalid-feedback`;
 
-  const header = {
-    "Content-type": "application/json; charset=UTF-8",
-  };
+  // const header = {
+  //   "Content-type": "application/json; charset=UTF-8",
+  // };
 
-  const saveErr = `server could not save the change`;
+  // const saveErr = `server could not save the change`;
+
+  const dataEditor = document.getElementById("artifact-editor-modal");
+  if (dataEditor == null) {
+    console.error(`the data editor modal is missing`);
+    return;
+  }
+  const assetEditor = document.getElementById("asset-editor-modal");
+  if (assetEditor == null) {
+    console.error(`the asset editor modal is missing`);
+    return;
+  }
+  const jsdosEditor = document.getElementById("emulate-editor-modal");
+  if (jsdosEditor == null) {
+    console.error(`the emulate editor modal is missing`);
+    return;
+  }
+  const dataModal = new bootstrap.Modal(dataEditor);
+  const assetModal = new bootstrap.Modal(assetEditor);
+  const emulateModal = new bootstrap.Modal(jsdosEditor);
+
+  const parsedUrl = new URL(window.location.href);
+  switch (parsedUrl.hash) {
+    case `#data-editor`:
+      dataModal.show();
+      break;
+    case `#file-editor`:
+      assetModal.show();
+      break;
+    case `#emulate-editor`:
+      emulateModal.show();
+      break;
+    default:
+  }
 
   // The table record id and key value, used for all fetch requests
   // It is also used to confirm the existence of the editor modal
