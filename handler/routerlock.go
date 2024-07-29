@@ -132,6 +132,13 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	emu.PATCH("/umb/:id", htmx.RecordEmulateUMB)
 	emu.PATCH("/ems/:id", htmx.RecordEmulateEMS)
 	emu.PATCH("/xms/:id", htmx.RecordEmulateXMS)
+
+	// these POSTs should only be used for editor, htmx file uploads,
+	// and not for general file uploads or data edits.
+	upload := g.Group("/upload")
+	upload.POST("/file", func(c echo.Context) error {
+		return htmx.EditorFileUpload(c, logger, dir.Download)
+	})
 }
 
 func get(g *echo.Group, dir app.Dirs) {

@@ -1,6 +1,92 @@
-// THIS FILE IS SET FOR DELETION
+import { progress } from "./uploader.mjs";
+
 (() => {
-  "use strict";
+  // THIS FILE IS SET FOR DELETION
+
+  //"use strict";
+
+  progress(`artifact-editor-dl-form`, `artifact-editor-dl-progress`);
+
+  document.body.addEventListener("htmx:beforeRequest", function (event) {
+    console.log(`before request`, event);
+  });
+
+  document.body.addEventListener("htmx:afterRequest", function (event) {
+    afterRequest(
+      event,
+      `artifact-editor-dl-form`,
+      `artifact-editor-dl-up`,
+      `artifact-editor-dl-feedback`
+    );
+  });
+
+  function afterRequest(event, formId, inputName, feedbackName) {
+    if (event.detail.elt === null) return;
+    if (event.detail.elt.id !== `${formId}`) return;
+    const input = document.getElementById(inputName);
+    if (input === null) {
+      throw new Error(`The htmx successful input element ${inputName} is null`);
+    }
+    const feedback = document.getElementById(feedbackName);
+    if (feedback === null) {
+      throw new Error(
+        `The htmx successful feedback element ${feedbackName} is null`
+      );
+    }
+    if (event.detail.successful) {
+      return successful(event, input, feedback);
+    }
+    if (event.detail.failed && event.detail.xhr) {
+      return errorXhr(event, input, feedback);
+    }
+    errorBrowser(input, feedback);
+  }
+
+  function successful(event, input, feedback) {
+    const xhr = event.detail.xhr;
+    feedback.innerText = `${xhr.responseText}`;
+    feedback.classList.remove("invalid-feedback");
+    feedback.classList.add("valid-feedback");
+    input.classList.remove("is-invalid");
+    input.classList.add("is-valid");
+  }
+
+  function errorXhr(event, input, feedback) {
+    const xhr = event.detail.xhr;
+    feedback.innerText = `Something on the server is not working, ${xhr.status} status: ${xhr.responseText}.`;
+    feedback.classList.remove("valid-feedback");
+    feedback.classList.add("invalid-feedback");
+    input.classList.remove("is-valid");
+    input.classList.add("is-invalid");
+  }
+
+  /**
+   * Displays an error message usually caused by the browser.
+   * @param {HTMLElement} alertElm - The alert element where the error message will be displayed.
+   */
+  function errorBrowser(input, feedback) {
+    input.classList.remove("is-valid");
+    input.classList.add("is-invalid");
+    feedback.innerText =
+      "Something with the browser is not working, please try again or refresh the page.";
+    feedback.classList.remove("d-none");
+  }
+
+  const reset = document.getElementById(`artifact-editor-dl-reset`);
+  if (reset == null) {
+    console.error(`the reset button is missing`);
+    return;
+  }
+  const artifact = document.getElementById(`artifact-editor-dl-up`);
+  if (artifact == null) {
+    console.error(`the artifact file input is missing`);
+    return;
+  }
+  reset.addEventListener(`click`, function () {
+    artifact.value = ``;
+    artifact.classList.remove(`is-invalid`);
+    artifact.classList.remove(`is-valid`);
+  });
 
   //alert(`editor assets script is running`);
 

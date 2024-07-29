@@ -91,15 +91,29 @@ func Count(dir string) (int, error) {
 // Duplicate is a workaround for renaming files across different devices.
 // A cross device can also be a different file system such as a Docker volume.
 // It returns the number of bytes written to the new file.
+// The function returns an error if the newpath already exists.
 func Duplicate(oldpath, newpath string) (int64, error) {
+	const createNoTruncate = os.O_CREATE | os.O_WRONLY | os.O_EXCL
+	return duplicate(oldpath, newpath, createNoTruncate)
+}
+
+// DuplicateOW is a workaround for renaming files across different devices.
+// A cross device can also be a different file system such as a Docker volume.
+// It returns the number of bytes written to the new file.
+// The function will truncate and overwrite the newpath if it already exists.
+func DuplicateOW(oldpath, newpath string) (int64, error) {
+	const createTruncate = os.O_CREATE | os.O_WRONLY | os.O_TRUNC
+	return duplicate(oldpath, newpath, createTruncate)
+}
+
+func duplicate(oldpath, newpath string, flag int) (int64, error) {
 	src, err := os.Open(oldpath)
 	if err != nil {
 		return 0, fmt.Errorf("duplicate os.open %w", err)
 	}
 	defer src.Close()
 
-	const createNoTruncate = os.O_CREATE | os.O_WRONLY | os.O_EXCL
-	dst, err := os.OpenFile(newpath, createNoTruncate, WriteWriteRead)
+	dst, err := os.OpenFile(newpath, flag, WriteWriteRead)
 	if err != nil {
 		return 0, fmt.Errorf("duplicate os.create %w", err)
 	}

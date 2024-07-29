@@ -49,7 +49,6 @@ func (c Configuration) FilesRoutes(e *echo.Echo, logger *zap.SugaredLogger, publ
 	e = c.custom404(e)
 	e = c.debugInfo(e)
 	e = c.static(e)
-	e = c.uploader(e)
 	e = c.html(e, public)
 	e = c.font(e, public)
 	e = c.embed(e, public)
@@ -297,17 +296,6 @@ func (c Configuration) search(e *echo.Echo, logger *zap.SugaredLogger) *echo.Ech
 	search.POST("/releaser", func(cx echo.Context) error {
 		return htmx.SearchReleaser(cx, logger)
 	})
-	return e
-}
-
-// uploader for anonymous client uploads.
-func (c Configuration) uploader(e *echo.Echo) *echo.Echo {
-	if e == nil {
-		panic(fmt.Errorf("%w for uploader router", ErrRoutes))
-	}
-	uploader := e.Group("/uploader")
-	uploader.Use(c.ReadOnlyLock)
-	uploader.GET("", app.PostIntro)
 	return e
 }
 

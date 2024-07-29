@@ -356,6 +356,7 @@ const (
 	creText
 	filename
 	github
+	integrity
 	platform
 	relations
 	section
@@ -363,6 +364,7 @@ const (
 	title
 	virusTotal
 	youtube
+	zipContent
 )
 
 // UpdateStringFrom updates the column string from value with val.
@@ -409,6 +411,8 @@ func updateStringCases(f *models.File, column stringFrom, val string) error {
 		f.Filename = s
 	case github:
 		f.WebIDGithub = s
+	case integrity:
+		f.FileIntegrityStrong = s
 	case platform:
 		f.Platform = s
 	case relations:
@@ -423,6 +427,8 @@ func updateStringCases(f *models.File, column stringFrom, val string) error {
 		f.FileSecurityAlertURL = s
 	case youtube:
 		f.WebIDYoutube = s
+	case zipContent:
+		f.FileZipContent = s
 	default:
 		return ErrColumn
 	}
@@ -687,6 +693,37 @@ func UpdateYMD(ctx context.Context, exec boil.ContextExecutor, id int64, y, m, d
 	f.DateIssuedDay = d
 	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
 		return fmt.Errorf("updateymd update %w: %d", err, id)
+	}
+	return nil
+}
+
+type FileUpload struct {
+	Filename  string
+	Integrity string
+	Content   string
+	Filesize  int64
+}
+
+func (fu FileUpload) Update(ctx context.Context, exec boil.ContextExecutor, id int64) error {
+	if id <= 0 {
+		return fmt.Errorf("updateuploadfile id value %w: %d", ErrKey, id)
+	}
+	f, err := OneFile(ctx, exec, id)
+	if err != nil {
+		return fmt.Errorf("updateuploadfile one file %w: %d", err, id)
+	}
+	if err = updateStringCases(f, filename, fu.Filename); err != nil {
+		return fmt.Errorf("updatestringfrom: %w", err)
+	}
+	if err = updateStringCases(f, integrity, fu.Integrity); err != nil {
+		return fmt.Errorf("updatestringfrom: %w", err)
+	}
+	if err = updateStringCases(f, zipContent, fu.Content); err != nil {
+		return fmt.Errorf("updatestringfrom: %w", err)
+	}
+	f.Filesize = null.Int64From(fu.Filesize)
+	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
+		return fmt.Errorf("updateuploadfile update %w: %d", err, id)
 	}
 	return nil
 }

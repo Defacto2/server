@@ -1,16 +1,5 @@
 {{- /*
   artifactfile.tmpl
-
-  To toggle the visibility of the asset editor modal using a URL link,
-  create a link with a hash reference to the modal ID. Then match the hash value
-  on a JS onload event to trigger the modal to open.
-
-  const myModal = document.getElementById('myModal')
-  const myInput = document.getElementById('myInput')
-
-  myModal.addEventListener('shown.bs.modal', () => {
-    myInput.focus()
-  })
 */ -}}
 {{- define "artifactfile" }}
 {{- if eq false (index . "editor")}}{{/* render nothing */}}{{else}}
@@ -69,7 +58,7 @@
               <button type="button" class="btn btn-secondary" id="artifact-editor-key-label"
                 data-bs-toggle="tooltip" data-bs-title="Copy the key">Record key</button>
               <input type="text" value='{{$key}}' class="form-control" name="artifact-editor-key" id="artifact-editor-key-value"
-                aria-describedby="artifact-editor-key-label" autocomplete="false" readonly>
+                aria-describedby="artifact-editor-key-label" autocomplete="off" readonly>
             </div>
           </div>
           <div class="col-12 col-xl-5 col-lg-6">
@@ -77,7 +66,7 @@
               <button type="button" class="btn btn-secondary" id="artifact-editor-unique-id-label"
                 data-bs-toggle="tooltip" data-bs-title="Copy the ID">Unique ID</button>
               <input type="text" value='{{$unid}}' class="form-control" 
-                aria-describedby="artifact-editor-unique-id-label" id="artifact-editor-unique-id-value" autocomplete="false" readonly>
+                aria-describedby="artifact-editor-unique-id-label" id="artifact-editor-unique-id-value" autocomplete="off" readonly>
             </div>
           </div>
         </div>
@@ -87,35 +76,35 @@
             <legend>Artifact for download</legend>
             <div class="input-group mb-1">
               <label class="input-group-text w-25" for="artifact-editor-dl-loc">Location</label>
-              <input type="text" class="form-control" id="artifact-editor-dl-loc" value="{{$downloadPath}}" autocomplete="false" readonly>
+              <input type="text" class="form-control" id="artifact-editor-dl-loc" value="{{$downloadPath}}" autocomplete="off" readonly>
             </div>
             <div class="input-group mb-1">
               <label class="input-group-text w-25" for="artifact-editor-dl-fn">Filename</label>
-              <input type="text" class="form-control w-25" id="artifact-editor-dl-fn" value="{{$filename}}" autocomplete="false" readonly>
+              <input type="text" class="form-control w-25" id="artifact-editor-dl-fn" value="{{$filename}}" autocomplete="off" readonly>
             </div>
             <div class="input-group mb-1">
               <label class="input-group-text w-25" for="artifact-editor-dl-fs">Filesize</label>
-              <input type="text" class="form-control" id="artifact-editor-dl-fs" value="{{$statSizeB}}" autocomplete="false" readonly>
-              <input type="text" class="form-control" id="artifact-editor-dl-fsf" value="{{$statSizeS}}" autocomplete="false" readonly>
+              <input type="text" class="form-control" id="artifact-editor-dl-fs" value="{{$statSizeB}}" autocomplete="off" readonly>
+              <input type="text" class="form-control" id="artifact-editor-dl-fsf" value="{{$statSizeS}}" autocomplete="off" readonly>
             </div>
             <div class="input-group mb-1">
               <label class="input-group-text w-25" for="artifact-editor-dl-lm">Last modifed</label>
               <input type="text" class="form-control" id="artifact-editor-dl-lm" value="{{$statMod}}" 
-                data-bs-toggle="tooltip" data-bs-title="On file system" autocomplete="false" readonly>
+                data-bs-toggle="tooltip" data-bs-title="On file system" autocomplete="off" readonly>
               <input type="text" class="form-control" id="artifact-editor-dl-lmdb" value="{{$databaseMod}}" 
-                data-bs-toggle="tooltip" data-bs-title="Stored in the database" autocomplete="false" readonly>
+                data-bs-toggle="tooltip" data-bs-title="Stored in the database" autocomplete="off" readonly>
             </div>
             <div class="input-group mb-1">
               <label class="input-group-text w-25" for="artifact-editor-dl-mb">Magic bytes</label>
               <input type="text" class="form-control" id="artifact-editor-dl-mb" value="{{$magicNum}}" 
-                data-bs-toggle="tooltip" data-bs-title="Guessed type of file" autocomplete="false" readonly>
+                data-bs-toggle="tooltip" data-bs-title="Guessed type of file" autocomplete="off" readonly>
               <input type="text" class="form-control" id="artifact-editor-dl-mime" value="{{$magicMIME}}"
-                data-bs-toggle="tooltip" data-bs-title="Guessed MIME type" autocomplete="false" readonly>
+                data-bs-toggle="tooltip" data-bs-title="Guessed MIME type" autocomplete="off" readonly>
             </div>
             <div class="input-group mb-1">
               <label class="input-group-text w-25" for="artifact-editor-dl-classify">Classification</label>
               <input type="text" class="form-control" id="artifact-editor-dl-classify" 
-                value="{{classificationStr $tag $os}}" autocomplete="false" readonly>
+                value="{{classificationStr $tag $os}}" autocomplete="off" readonly>
             </div>
             {{- if eq $notFound $statSizeB}}
             <label for="artifact-editor-dl-up" class="form-label mt-3 text-success-emphasis">Upload the missing download</label>
@@ -123,33 +112,30 @@
             <label for="artifact-editor-dl-up" class="form-label mt-3 text-warning-emphasis">Replacement</label>
             {{- end}}
             {{- /*  Replacement download input  */}}
-            <div class="input-group input-group-sm mb-1">
-              <input type="file" class="form-control w-50" id="artifact-editor-dl-up" autocomplete="false" value="">
-              <button class="btn btn-outline-secondary" id="artifact-editor-dl-submit">Upload</button> 
-              <button class="btn btn-outline-secondary" id="artifact-editor-dl-reset">Clear</button>
-            </div>
-
-            <form id='form' hx-encoding='multipart/form-data' hx-post='/upload' class="was-validated">
-              <input type='file' name='file' class="form-control is-invalid">
-              <button>
-                  Upload
-              </button>
-              <progress id='progress' value='0' max='100'></progress>
-              <div id="invalidCheck3Feedback" class="invalid-feedback">
-                You must agree before submitting.
-              </div>        
-          </form>
-          <script>
-              htmx.on('#form', 'htmx:xhr:progress', function(evt) {
-                htmx.find('#progress').setAttribute('value', evt.detail.loaded/evt.detail.total * 100)
-              });
-          </script>
-
-            {{- if eq $notFound $statSizeB}}
-            <div class="form-text"><span class="text-success-emphasis">Upload a new file to use as the artifact download.</span></div>
-            {{- else}}
-            <div class="form-text"><span class="text-warning-emphasis">Normally not required</span>, upload and replace the artifact download.</div>
-            {{- end}}
+            {{/*  TODO: confirm replacement if file already exists  */}}
+            <form id="artifact-editor-dl-form" 
+              hx-encoding="multipart/form-data" 
+              hx-post="/editor/upload/file"
+              hx-target="#artifact-editor-dl-feedback"
+              hx-validate="true">
+              <input type="hidden" name="artifact-editor-record-key" value="{{$key}}">
+              <input type="hidden" name="artifact-editor-unid" value="{{$unid}}">
+              {{/*  artifact-editor-unique-id-value  */}}
+              <div class="input-group input-group-sm mb-1 has-validation">
+                <input type="file" name="editor-uploadfile" 
+                  class="form-control w-50" id="artifact-editor-dl-up" autocomplete="on" aria-describedby="artifact-editor-dl-feedback" required>
+                <button class="btn btn-outline-secondary w-25" id="artifact-editor-dl-submit">Upload</button> 
+                <button class="btn btn-outline-secondary" id="artifact-editor-dl-reset">Clear</button>
+                <div id="artifact-editor-dl-feedback" class="invalid-feedback"></div>
+              </div>
+              {{- if eq $notFound $statSizeB}}
+              <div class="form-text" id="artifact-editor-dl-results"><span class="text-success-emphasis">Upload a new file to use as the artifact download.</span></div>
+              {{- else}}
+              <div class="form-text" id="artifact-editor-dl-results"><span class="text-warning-emphasis">Normally not required</span>, upload and replace the artifact download.</div>
+              {{- end}}
+              <progress class="w-100" id="artifact-editor-dl-progress" value="0" max="100"></progress>
+              {{/*  <div id="artifact-editor-dl-error-div" class="invalid-feedback">The new file upload didn't work, <span id="artifact-editor-dl-error"></span>.</div>  */}}
+            </form>
             {{- /*  Download content  */}}
             <legend class="mt-3">Download content</legend>
             {{- if eq $notFound $statSizeB}}

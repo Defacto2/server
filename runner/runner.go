@@ -28,7 +28,7 @@ func NamedCSS() []string {
 // The files are located in the assets/js directory.
 func NamedJS() []string {
 	return []string{
-		"editor-assets",
+		//		"editor-assets",
 		"editor-archive",
 		"editor-forapproval",
 		"htmx-response-targets",
@@ -66,6 +66,26 @@ func JS(name string) api.BuildOptions {
 		Target:            ECMAScript,
 		Write:             true,
 		Bundle:            false,
+		MinifyWhitespace:  true,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		Banner: map[string]string{
+			"js": fmt.Sprintf("/* %s %s %s */", min, C, time.Now().Format("2006")),
+		},
+	}
+}
+
+// editor-assets
+func EditorAssetsTODO() api.BuildOptions {
+	min := "editor-assets.min.js"
+	entryjs := filepath.Join("assets", "js", "editor-assets.js")
+	output := filepath.Join("public", "js", min)
+	return api.BuildOptions{
+		EntryPoints:       []string{entryjs},
+		Outfile:           output,
+		Target:            ECMAScript,
+		Write:             true,
+		Bundle:            true,
 		MinifyWhitespace:  true,
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
@@ -176,6 +196,12 @@ func main() {
 	}
 	for _, name := range NamedJS() {
 		result := api.Build(JS(name))
+		if len(result.Errors) > 0 {
+			fmt.Fprintf(os.Stderr, "JS build failed: %v\n", result.Errors)
+		}
+	}
+	{
+		result := api.Build(EditorAssetsTODO())
 		if len(result.Errors) > 0 {
 			fmt.Fprintf(os.Stderr, "JS build failed: %v\n", result.Errors)
 		}

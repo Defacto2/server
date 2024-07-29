@@ -972,16 +972,6 @@ func PlatformTagInfo(c echo.Context) error {
 	return c.String(http.StatusOK, info)
 }
 
-// PostIntro handles the POST request for the intro upload form.
-func PostIntro(c echo.Context) error {
-	const name = "post intro"
-	x, err := c.FormParams()
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	return c.JSON(http.StatusOK, x)
-}
-
 // PostDesc is the handler for the Search for file descriptions form post page.
 func PostDesc(c echo.Context, input string) error {
 	const name = "artifacts"
