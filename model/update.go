@@ -697,6 +697,8 @@ func UpdateYMD(ctx context.Context, exec boil.ContextExecutor, id int64, y, m, d
 	return nil
 }
 
+// FileUpload is a struct that contains the values needed to update an existing file record
+// after a new file has been uploaded to the server.
 type FileUpload struct {
 	Filename  string
 	Integrity string
@@ -704,26 +706,28 @@ type FileUpload struct {
 	Filesize  int64
 }
 
+// Update the file record with the values provided in the FileUpload struct.
+// The id is the database id key of the record.
 func (fu FileUpload) Update(ctx context.Context, exec boil.ContextExecutor, id int64) error {
 	if id <= 0 {
-		return fmt.Errorf("updateuploadfile id value %w: %d", ErrKey, id)
+		return fmt.Errorf("file upload id value %w: %d", ErrKey, id)
 	}
 	f, err := OneFile(ctx, exec, id)
 	if err != nil {
-		return fmt.Errorf("updateuploadfile one file %w: %d", err, id)
+		return fmt.Errorf("file upload one file %w: %d", err, id)
 	}
 	if err = updateStringCases(f, filename, fu.Filename); err != nil {
-		return fmt.Errorf("updatestringfrom: %w", err)
+		return fmt.Errorf("file upload filename: %w", err)
 	}
 	if err = updateStringCases(f, integrity, fu.Integrity); err != nil {
-		return fmt.Errorf("updatestringfrom: %w", err)
+		return fmt.Errorf("file upload integrity: %w", err)
 	}
 	if err = updateStringCases(f, zipContent, fu.Content); err != nil {
-		return fmt.Errorf("updatestringfrom: %w", err)
+		return fmt.Errorf("file upload zip content: %w", err)
 	}
 	f.Filesize = null.Int64From(fu.Filesize)
 	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
-		return fmt.Errorf("updateuploadfile update %w: %d", err, id)
+		return fmt.Errorf("file upload update record %w: %d", err, id)
 	}
 	return nil
 }

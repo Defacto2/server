@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io/fs"
+	"net/url"
 	"os"
 	"path/filepath"
 	"slices"
@@ -116,7 +117,7 @@ func Comment(art *models.File) string {
 	return ""
 }
 
-func Content(art *models.File, src string) template.HTML {
+func ListContent(art *models.File, src string) template.HTML {
 	if art == nil {
 		return template.HTML(model.ErrModel.Error())
 	}
@@ -127,6 +128,11 @@ func Content(art *models.File, src string) template.HTML {
 	// TODO: validate against string
 	platform := strings.ToLower(art.Platform.String)
 
+	unid := art.UUID.String
+	if !art.UUID.Valid {
+		return "error, no UUID"
+	}
+
 	const mb150 = 150 * 1024 * 1024
 	if st, err := os.Stat(src); err != nil {
 		return template.HTML(err.Error())
@@ -135,7 +141,7 @@ func Content(art *models.File, src string) template.HTML {
 	} else if st.Size() > mb150 {
 		return "will not decompress this archive as it is very large"
 	}
-	dst, err := str.ContentSRC(src)
+	dst, err := helper.MkContent(src)
 	if err != nil {
 		return template.HTML(err.Error())
 	}
@@ -230,8 +236,11 @@ func Content(art *models.File, src string) template.HTML {
 			htm += `<div class="col col-1"></div>`
 		}
 		if texts {
-			htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-				`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></div>`
+			name := url.QueryEscape(rel)
+			htm += `<div class="col col-1 text-end">` +
+				fmt.Sprintf(`<a class="icon-link align-text-bottom" hx-patch="/editor/readme/copy/%s/%s">`, unid, name) +
+				`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
+				`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></a></div>`
 		} else if program {
 			htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 				`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`

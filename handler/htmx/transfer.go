@@ -352,6 +352,7 @@ type creator struct {
 var (
 	ErrForm   = errors.New("form parameters could not be read")
 	ErrInsert = errors.New("form submission could not be inserted into the database")
+	ErrUpdate = errors.New("form submission could not update the database record")
 )
 
 func (cr creator) insert(ctx context.Context, c echo.Context, tx *sql.Tx, logger *zap.SugaredLogger,
@@ -471,16 +472,14 @@ func sanitizeID(c echo.Context, name, prod string) (int64, error) {
 
 // ------------------------------------------------------------
 
-// EditorFileUpload is a handler for the /editor/upload/file route.
+// TODO: add magic to db
+// copy readme to extras if none exists
+
+// EditorFileUpload is the file transfer handler that uploads, validates a new file upload
+// and updates the existing artifact record with the new file information.
+// The logger is optional and if nil then the function will not log any debug information.
 func EditorFileUpload(c echo.Context, logger *zap.SugaredLogger, downloadDir string) error {
 	name := "editor-uploadfile" // TODO, rename
-	return editorTransfer(c, logger, name, downloadDir)
-}
-
-// Transfer is a generic file transfer handler that uploads and validates a chosen file upload.
-// The provided name is that of the form input field. The logger is optional and if nil then
-// the function will not log any debug information.
-func editorTransfer(c echo.Context, logger *zap.SugaredLogger, name, downloadDir string) error {
 	if s, err := checkDest(downloadDir); err != nil {
 		return c.HTML(http.StatusInternalServerError, s)
 	}
@@ -499,7 +498,6 @@ func editorTransfer(c echo.Context, logger *zap.SugaredLogger, name, downloadDir
 		return c.String(http.StatusBadRequest,
 			"The editor file upload record key is invalid")
 	}
-
 	file, err := c.FormFile(name)
 	if err != nil {
 		return checkFormFile(c, logger, name, err)
@@ -521,18 +519,10 @@ func editorTransfer(c echo.Context, logger *zap.SugaredLogger, name, downloadDir
 			"Cannot begin the database transaction")
 	}
 	defer db.Close()
-	// exist, err := model.SHA384Exists(ctx, tx, checksum)
-	// if err != nil {
-	// 	return checkExist(c, logger, err)
-	// }
-	// if exist {
-	// 	return c.HTML(http.StatusOK,
-	// 		"<p>Thanks, but the chosen file already exists on Defacto2.</p>"+
-	// 			html.EscapeString(file.Filename))
-	// }
 	dst, err := copier(c, logger, file, key)
 	if err != nil {
-		return fmt.Errorf("copier: %w", err)
+		return c.HTML(http.StatusInternalServerError,
+			"The temporary save cannot be copied")
 	}
 	if dst == "" {
 		return c.HTML(http.StatusInternalServerError,
@@ -542,6 +532,8 @@ func editorTransfer(c echo.Context, logger *zap.SugaredLogger, name, downloadDir
 	if list, err := archive.List(dst, file.Filename); err == nil {
 		content = strings.Join(list, "\n")
 	}
+
+	// look for readme in extras
 	// readme := archive.Readme(file.Filename, content...)
 
 	fu := model.FileUpload{
@@ -554,7 +546,7 @@ func editorTransfer(c echo.Context, logger *zap.SugaredLogger, name, downloadDir
 		if logger != nil {
 			logger.Error(err)
 		}
-		return ErrInsert // TODO: replace
+		return ErrUpdate
 	}
 
 	downloadFile := filepath.Join(downloadDir, unid)
@@ -569,14 +561,11 @@ func editorTransfer(c echo.Context, logger *zap.SugaredLogger, name, downloadDir
 		return c.HTML(http.StatusInternalServerError, "The database commit failed")
 	}
 
-	// defer Duplicate(uid, dst, downloadDir)
-	// func Duplicate(uid uuid.UUID, srcPath, dstDir string) {
-	// newPath := filepath.Join(dstDir, uid.String())
-	// i, err := helper.Duplicate(srcPath, newPath)
+	abs := filepath.Join(downloadDir, unid)
+	if x, err := helper.MkContent(abs); err == nil {
+		defer os.RemoveAll(x)
+	}
 
-	// return success(c, file.Filename, id)
-
-	c.Response().Header().Set("HX-Refresh", "false")
 	return c.String(http.StatusOK,
-		fmt.Sprintf("The file %s was uploaded, about to reload the page", file.Filename))
+		fmt.Sprintf("The new file %s is in use, about to reload this page", file.Filename))
 }

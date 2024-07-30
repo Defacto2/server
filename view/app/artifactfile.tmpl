@@ -21,8 +21,9 @@
 {{- $previewImg := recordImgSample $unid}}
 {{- $previewImgStat := recordImgSampleStat $unid}}
 {{- $thumbImg := recordThumbSample $unid}}
-{{- $modDecompress := index . "modArchiveContent"}}
-{{- $modDecompressLoc := index . "modArchiveContentDst"}}
+{{- $modDecompress := index . "modDecompress"}}
+{{- $modDecompressLoc := index . "modDecompressLoc"}}
+{{- $modReadmeSuggest := index . "modReadmeSuggest"}}
 {{- /*  File assets and metadata editors  */}}
 <div class="modal fade" id="asset-editor-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
   aria-labelledby="asset-editor-modal-label" aria-hidden="true">
@@ -117,6 +118,7 @@
               hx-encoding="multipart/form-data" 
               hx-post="/editor/upload/file"
               hx-target="#artifact-editor-dl-feedback"
+              {{- if ne $notFound $statSizeB}}hx-confirm="OK, to replace the existing artifact file download on the server?"{{end}}
               hx-validate="true">
               <input type="hidden" name="artifact-editor-record-key" value="{{$key}}">
               <input type="hidden" name="artifact-editor-unid" value="{{$unid}}">
@@ -141,10 +143,10 @@
             {{- if eq $notFound $statSizeB}}
             <div class="input-group mb-3"><span class="text-warning-emphasis">download file not found</span></div>
             {{- else if eq "" (index . "modZipContent")}}
-            <div class="input-group mb-3"><span class="text-info-emphasis">nothing to show as the artifact is not an archive (a ZIP or RAR file, etc.)</span></div>
+            <div class="input-group mb-3"><span class="text-info-emphasis">Nothing to show as the artifact is not an archive (a ZIP or RAR file, etc.)</span></div>
             {{- else}}
             <div class="input-group mb-3">
-              <label class="input-group-text w-25" for="artifact-editor-decompress-loc" id="artifact-editor-os-label">Location</label>
+              <label class="input-group-text w-25" for="artifact-editor-decompress-loc" id="aartifact-editor-decompress-loc-label">Temp location</label>
               <input type="text" class="form-control" id="artifact-editor-decompress-loc" value="{{$modDecompressLoc}}" readonly>
             </div>
             <div class="container text-begin mb-3">
@@ -260,13 +262,29 @@
                     <p class="card-text">
                       <span class="lead">README</span>
                       {{- if eq (len .modAssetExtra) 0}}<div>No extras in use</div>{{else}}
-                      <div class="form-check form-switch">
+                      {{/*  <div class="form-check form-switch">
                         {{recordReadme (index . "modNoReadme") }}
                         <label class="form-check-label" id="edHideMeLabel" for="edHideMe">Hide readme from view</label>
                         <div class="form-text">disable the use of the <q>textfile&nbsp;content</q></div>
                         <div class="valid-feedback">Saved, {{$refreshPage}}</div>
                         <div class="invalid-feedback" id="edHideMeErr">error placeholder</div>  
+                      </div>  */}}
+                      <div>
+                        <button class="btn btn-link" 
+                          hx-target="#editor-copy-readme-result"
+                          hx-delete="/editor/readme/{{$unid}}">
+                          Delete README</button>
                       </div>
+                      {{- end}}
+                      {{- if ne "" (index . "modReadmeSuggest")}}
+                      <div>
+                        <button class="btn btn-link" 
+                          hx-target="#editor-copy-readme-result"
+                          hx-patch="/editor/readme/copy/{{$unid}}/{{$modReadmeSuggest | urlEncode }}">
+                          Use guessed README file</button>
+                      </div>
+                      <div><code>{{$modReadmeSuggest}}</code></div>
+                      <div class="form-text" id="editor-copy-readme-result"></div>
                       {{- end}}
                     </p>
                   </div>
@@ -277,7 +295,10 @@
                   <div class="card-body">
                     <p class="card-text">
                       <span class="lead">Repacked ZIP</span>
-                      {{- if eq $notFound $statSizeB}}<div class="text-warning-emphasis">download file not found</div>{{else}}
+                      {{- if eq $notFound $statSizeB}}<div class="text-warning-emphasis">download file not found</div>
+                      {{- else if eq "" (index . "modZipContent")}}<div>The download is not an archive</div>
+                      {{- else if eq "Zip archive" $magicNum}}<div>Repacking is not required</div>
+                      {{- else}}
                       <div class="form-check form-switch">
                         {{recordReadme (index . "modNoReadme") }}
                         <label class="form-check-label" id="edHideMeLabel" for="edHideMe">Offer a repacked archive</label>

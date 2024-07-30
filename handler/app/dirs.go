@@ -147,8 +147,8 @@ func (dir Dirs) Editor(art *models.File, data map[string]interface{}) map[string
 	data["modMagicNumber"] = str.MagicAsTitle(abs)
 	data["modDBModify"] = mf.LastModificationDate(art)
 	data["modStatModify"], data["modStatSizeB"], data["modStatSizeF"] = str.StatHumanize(abs)
-	data["modArchiveContent"] = mf.Content(art, abs)
-	data["modArchiveContentDst"], _ = str.ContentSRC(abs) // FIXME, error handling and return empty string
+	data["modDecompress"] = mf.ListContent(art, abs)
+	data["modDecompressLoc"] = str.MkContent(abs)
 	data["modAssetPreview"] = dir.assets(dir.Preview, unid)
 	data["modAssetThumbnail"] = dir.assets(dir.Thumbnail, unid)
 	data["modAssetExtra"] = dir.assets(dir.Extra, unid)

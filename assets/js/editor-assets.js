@@ -1,16 +1,60 @@
+/**
+ * @file editor-assets.js
+ * This script is the entry point for the artifact editor assets page.
+ */
 import { progress } from "./uploader.mjs";
 
 (() => {
-  // THIS FILE IS SET FOR DELETION
+  "use strict";
 
-  //"use strict";
-
+  // New file download progress bar.
   progress(`artifact-editor-dl-form`, `artifact-editor-dl-progress`);
 
-  document.body.addEventListener("htmx:beforeRequest", function (event) {
-    console.log(`before request`, event);
-  });
+  const reset = document.getElementById(`artifact-editor-dl-reset`);
+  if (reset == null) {
+    console.error(`the reset button is missing`);
+    return;
+  }
+  const artifact = document.getElementById(`artifact-editor-dl-up`);
+  if (artifact == null) {
+    console.error(`the artifact file input is missing`);
+    return;
+  }
+  const dataEditor = document.getElementById("artifact-editor-modal");
+  if (dataEditor == null) {
+    console.error(`the data editor modal is missing`);
+    return;
+  }
+  const assetEditor = document.getElementById("asset-editor-modal");
+  if (assetEditor == null) {
+    console.error(`the asset editor modal is missing`);
+    return;
+  }
+  const jsdosEditor = document.getElementById("emulate-editor-modal");
+  if (jsdosEditor == null) {
+    console.error(`the emulate editor modal is missing`);
+    return;
+  }
 
+  // Automatically open the editor modals based on the URL hash.
+  const dataModal = new bootstrap.Modal(dataEditor);
+  const assetModal = new bootstrap.Modal(assetEditor);
+  const emulateModal = new bootstrap.Modal(jsdosEditor);
+  const parsedUrl = new URL(window.location.href);
+  switch (parsedUrl.hash) {
+    case `#data-editor`:
+      dataModal.show();
+      break;
+    case `#file-editor`:
+      assetModal.show();
+      break;
+    case `#emulate-editor`:
+      emulateModal.show();
+      break;
+    default:
+  }
+
+  // New file download form event listener.
   document.body.addEventListener("htmx:afterRequest", function (event) {
     afterRequest(
       event,
@@ -20,6 +64,14 @@ import { progress } from "./uploader.mjs";
     );
   });
 
+  /**
+   * The htmx event listener for the artifact editor upload a new file download form.
+   * @param {Event} event - The htmx event.
+   * @param {string} formId - The form id.
+   * @param {string} inputName - The input name.
+   * @param {string} feedbackName - The feedback name.
+   * @returns {void}
+   **/
   function afterRequest(event, formId, inputName, feedbackName) {
     if (event.detail.elt === null) return;
     if (event.detail.elt.id !== `${formId}`) return;
@@ -49,6 +101,9 @@ import { progress } from "./uploader.mjs";
     feedback.classList.add("valid-feedback");
     input.classList.remove("is-invalid");
     input.classList.add("is-valid");
+    setTimeout(() => {
+      location.reload();
+    }, 500);
   }
 
   function errorXhr(event, input, feedback) {
@@ -60,10 +115,6 @@ import { progress } from "./uploader.mjs";
     input.classList.add("is-invalid");
   }
 
-  /**
-   * Displays an error message usually caused by the browser.
-   * @param {HTMLElement} alertElm - The alert element where the error message will be displayed.
-   */
   function errorBrowser(input, feedback) {
     input.classList.remove("is-valid");
     input.classList.add("is-invalid");
@@ -72,16 +123,7 @@ import { progress } from "./uploader.mjs";
     feedback.classList.remove("d-none");
   }
 
-  const reset = document.getElementById(`artifact-editor-dl-reset`);
-  if (reset == null) {
-    console.error(`the reset button is missing`);
-    return;
-  }
-  const artifact = document.getElementById(`artifact-editor-dl-up`);
-  if (artifact == null) {
-    console.error(`the artifact file input is missing`);
-    return;
-  }
+  // New file download form reset button.
   reset.addEventListener(`click`, function () {
     artifact.value = ``;
     artifact.classList.remove(`is-invalid`);
@@ -101,39 +143,6 @@ import { progress } from "./uploader.mjs";
   // };
 
   // const saveErr = `server could not save the change`;
-
-  const dataEditor = document.getElementById("artifact-editor-modal");
-  if (dataEditor == null) {
-    console.error(`the data editor modal is missing`);
-    return;
-  }
-  const assetEditor = document.getElementById("asset-editor-modal");
-  if (assetEditor == null) {
-    console.error(`the asset editor modal is missing`);
-    return;
-  }
-  const jsdosEditor = document.getElementById("emulate-editor-modal");
-  if (jsdosEditor == null) {
-    console.error(`the emulate editor modal is missing`);
-    return;
-  }
-  const dataModal = new bootstrap.Modal(dataEditor);
-  const assetModal = new bootstrap.Modal(assetEditor);
-  const emulateModal = new bootstrap.Modal(jsdosEditor);
-
-  const parsedUrl = new URL(window.location.href);
-  switch (parsedUrl.hash) {
-    case `#data-editor`:
-      dataModal.show();
-      break;
-    case `#file-editor`:
-      assetModal.show();
-      break;
-    case `#emulate-editor`:
-      emulateModal.show();
-      break;
-    default:
-  }
 
   // The table record id and key value, used for all fetch requests
   // It is also used to confirm the existence of the editor modal

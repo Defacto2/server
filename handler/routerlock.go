@@ -139,6 +139,14 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	upload.POST("/file", func(c echo.Context) error {
 		return htmx.EditorFileUpload(c, logger, dir.Download)
 	})
+
+	me := g.Group("/readme")
+	me.PATCH("/copy/:unid/:path", func(c echo.Context) error {
+		return htmx.RecordReadmeCopier(c, dir.Extra)
+	})
+	me.DELETE("/:unid", func(c echo.Context) error {
+		return htmx.RecordReadmeDeleter(c, dir.Extra)
+	})
 }
 
 func get(g *echo.Group, dir app.Dirs) {

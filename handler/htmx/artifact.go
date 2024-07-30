@@ -7,6 +7,9 @@ import (
 	"fmt"
 	"html"
 	"net/http"
+	"net/url"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -14,6 +17,7 @@ import (
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/form"
+	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/jsdos"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/model"
@@ -22,6 +26,51 @@ import (
 )
 
 var ErrYT = errors.New("youtube watch video id needs to be empty or 11 characters")
+
+func RecordReadmeCopier(c echo.Context, extraDir string) error {
+	path := c.Param("path")
+	name, err := url.QueryUnescape(path)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	unid := c.Param("unid")
+	tmp, err := helper.MkContent(unid)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	src := filepath.Join(tmp, name)
+	st, err := os.Stat(src)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if st.Size() == 0 {
+		return c.String(http.StatusOK, "The file is empty and was not copied.")
+	}
+	dst := filepath.Join(extraDir, unid+".txt")
+	i, err := helper.DuplicateOW(src, dst)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	c.Response().Header().Set("HX-Refresh", "true")
+	return c.String(http.StatusOK, fmt.Sprintf("Copied %d bytes, refresh the browser.", i))
+}
+
+func RecordReadmeDeleter(c echo.Context, extraDir string) error {
+	unid := c.Param("unid")
+	dst := filepath.Join(extraDir, unid+".txt")
+	st, err := os.Stat(dst)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if st.IsDir() {
+		return badRequest(c, fmt.Errorf("the file is a directory"))
+	}
+	if err := os.Remove(dst); err != nil {
+		return badRequest(c, err)
+	}
+	c.Response().Header().Set("HX-Refresh", "true")
+	return c.String(http.StatusOK, "Deleted, refresh the browser.")
+}
 
 // RecordToggle handles the post submission for the file artifact record toggle.
 // The return value is either "online" or "offline" depending on the state.

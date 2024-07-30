@@ -73,28 +73,6 @@ func BytesHuman(i int64) string {
 	return humanize.Bytes(uint64(i))
 }
 
-// ContentSRC returns the destination directory for the extracted archive content.
-// The directory is created if it does not exist. The directory is named after the source file.
-func ContentSRC(src string) (string, error) {
-	name := strings.TrimSpace(strings.ToLower(filepath.Base(src)))
-	dir := filepath.Join(os.TempDir(), "defacto2-server")
-
-	pattern := "artifact-content-" + name
-	dst := filepath.Join(dir, pattern)
-	if st, err := os.Stat(dst); err != nil {
-		if os.IsNotExist(err) {
-			if err := os.MkdirAll(dst, os.ModePerm); err != nil {
-				return "", err
-			}
-			return dst, nil
-		}
-		return dst, nil
-	} else if !st.IsDir() {
-		return "", fmt.Errorf("error, not a directory: %s", dir)
-	}
-	return dst, nil
-}
-
 // DemozooGetLink returns a HTML link to the Demozoo download links.
 func DemozooGetLink(filename, filesize, demozoo, unid any) template.HTML {
 	if val, valExists := filename.(null.String); valExists {
@@ -378,6 +356,19 @@ func MIME(name string) string {
 	}
 
 	return http.DetectContentType(head)
+}
+
+// MkContent makes and/or returns the path a unique directory path in the temp directory
+// that is used to extract the contents of the content of the file download archive.
+func MkContent(name string) string {
+	if name == "" {
+		return ""
+	}
+	path, err := helper.MkContent(name)
+	if err != nil {
+		return err.Error()
+	}
+	return path
 }
 
 // Releasers returns a HTML links for the primary and secondary group names.

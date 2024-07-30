@@ -266,6 +266,28 @@ func Lines(name string) (int, error) {
 	return lines, nil
 }
 
+// MkContent returns the destination directory for the extracted archive content.
+// The directory is created if it does not exist. The directory is named after the source file.
+func MkContent(src string) (string, error) {
+	name := strings.TrimSpace(strings.ToLower(filepath.Base(src)))
+	dir := filepath.Join(os.TempDir(), "defacto2-server")
+
+	pattern := "artifact-content-" + name
+	dst := filepath.Join(dir, pattern)
+	if st, err := os.Stat(dst); err != nil {
+		if os.IsNotExist(err) {
+			if err := os.MkdirAll(dst, os.ModePerm); err != nil {
+				return "", err
+			}
+			return dst, nil
+		}
+		return dst, nil
+	} else if !st.IsDir() {
+		return "", fmt.Errorf("error, not a directory: %s", dir)
+	}
+	return dst, nil
+}
+
 // Owner returns the running user and group of the web application.
 // The function returns the group names and the username of the owner.
 func Owner() ([]string, string, error) {

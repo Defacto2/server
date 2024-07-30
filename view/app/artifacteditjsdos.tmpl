@@ -27,12 +27,12 @@
         {{- /*  shown when platform != "dos"  */}}
         {{- if eq $msdos false}}
         <div class="alert alert-secondary" role="alert">
-            The emulate editor is not in use, as it is for artifacts that marked to run on Microsoft or IBM DOS.
+            The emulator editor is not in use, only the artifacts set as <strong title="use Microsoft or IBM DOS">for MsDos PC</strong> use this
         </div>
         {{- else}}
         <p>
             This form allows for fine-tuning the hardware configuration used by the <a href="https://github.com/caiiiycuk/js-dos/tree/6.22">js-dos v6.22 emulator</a>. 
-            It is usually optional, but occasionally, DOS programs and artifacts do not emulate correctly 
+            These are usually optional, but occasionally, DOS programs and artifacts do not emulate correctly 
             due to the limitations of the PC platform of the 1980s and 1990s. 
             The operating system had no universal interface to talk to hardware, 
             and it was up to each program to provide drivers. 
@@ -298,12 +298,12 @@
                     Extended memory is an optimized method of accessing RAM larger than 1MB. 
                     It required a 286 or newer CPU, and in the early and mid 1990s, 
                     the XMS was the far more common way for games to access memory.</div>
-        </div>
+            </div>
         {{- end}}
       </div>
-      {{/*  Switch to assets and reset buttons  */}}
-      {{- template "artifactfooter" . }}
     </div>
+    {{/*  Switch to assets and reset buttons  */}}
+    {{- template "artifactfooter" . }}
   </div>
 </div>    
 {{- end}}

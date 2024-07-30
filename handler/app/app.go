@@ -699,6 +699,25 @@ func TrimSpace(a any) string {
 	}
 }
 
+// UrlEncode returns a URL encoded string from the given string.
+// This can be used to pass filenames as URL parameters.
+func UrlEncode(a any) string {
+	if a == nil {
+		return ""
+	}
+	switch val := a.(type) {
+	case string:
+		return url.QueryEscape(val)
+	case null.String:
+		if val.Valid {
+			return url.QueryEscape(val.String)
+		}
+		return ""
+	default:
+		return fmt.Sprintf("%s url encode: %s", typeErr, reflect.TypeOf(a).String())
+	}
+}
+
 // websiteIcon returns a Bootstrap icon name for the given website url.
 func WebsiteIcon(url string) template.HTML {
 	icon := websiteIcon(url)
