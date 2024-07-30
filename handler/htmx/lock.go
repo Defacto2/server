@@ -97,7 +97,8 @@ func extractor(c echo.Context, dir app.Dirs, logger *zap.SugaredLogger, p extrac
 	case ansitext:
 		err = cmd.ExtractAnsiLove(logger, src, ext, r.UUID.String, target)
 	default:
-		return app.InternalErr(c, "extractor", fmt.Errorf("%w: %d", app.ErrExtract, p))
+		err1 := fmt.Errorf("%w: %d", app.ErrExtract, p)
+		return app.InternalErr(c, "extractor", err1) //nolint:wrapcheck
 	}
 	if err != nil {
 		return badRequest(c, err)

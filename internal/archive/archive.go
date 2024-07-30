@@ -771,7 +771,6 @@ func (x Extractor) Rar(targets ...string) error {
 		return fmt.Errorf("archive unrar %w: %s", err, prog)
 	}
 	return nil
-
 }
 
 // Zip extracts the targets from the source Zip archive

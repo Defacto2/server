@@ -73,6 +73,12 @@ issues:
       linters: # These cause false positives.
         - dupl
         - wrapcheck
+    - path: handler/app/internal/mfs/mfs.go
+      linters:
+        - dupl
+    - path: internal/archive/archive.go
+      linters:
+        - dupl
     - path: internal/config/config.go
       linters: # caarlos0/env package uses structs with long declarations.
         - lll

@@ -32,7 +32,7 @@ func special(r rune) bool {
 		ampersand   = '&'
 		hyphen      = '-'
 		open        = '{'
-		close       = '}'
+		closer      = '}'
 		at          = '@'
 		quote       = '`'
 		apostrophe  = '\''
@@ -41,7 +41,7 @@ func special(r rune) bool {
 	)
 	switch r {
 	case underscore, caret, dollar, tilde, exclamation, number,
-		percent, ampersand, hyphen, open, close, at, quote,
+		percent, ampersand, hyphen, open, closer, at, quote,
 		apostrophe, openParen, closeParen:
 		return true
 	}

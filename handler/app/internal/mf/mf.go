@@ -154,12 +154,9 @@ func ListContent(art *models.File, src string) template.HTML {
 	}
 
 	files := 0
-	var walkerCount = func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return nil
-		}
-		if d.IsDir() {
-			return nil
+	walkerCount := func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return fs.SkipDir
 		}
 		files++
 		return nil
@@ -170,27 +167,28 @@ func ListContent(art *models.File, src string) template.HTML {
 
 	var b strings.Builder
 	items, zeroByteFiles := 0, 0
-	var walkerFunc = func(path string, d fs.DirEntry, err error) error {
+	const maxItems = 200
+	walkerFunc := func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			return nil
+			return fs.SkipDir
 		}
 		rel, err := filepath.Rel(dst, path)
 		if err != nil {
 			debug := fmt.Sprintf(`<div class="border-bottom row mb-1">... %v more files</div>`, err)
 			b.WriteString(debug)
-			return nil
+			return fs.SkipDir
 		}
 		if d.IsDir() {
-			return nil
+			return fs.SkipDir
 		}
 		info, err := d.Info()
 		if err != nil {
-			return nil
+			return fs.SkipDir
 		}
 		bytes := info.Size()
 		if bytes == 0 {
 			zeroByteFiles++
-			return nil
+			return fs.SkipDir
 		}
 		size := humanize.Bytes(uint64(info.Size()))
 		image := false
@@ -198,12 +196,12 @@ func ListContent(art *models.File, src string) template.HTML {
 		program := false
 		r, err := os.Open(path)
 		if err != nil {
-			return nil
+			return fs.SkipDir
 		}
 		defer r.Close()
 		sign, err := magicnumber.Find512B(r)
 		if err != nil {
-			return nil
+			return fs.SkipDir
 		}
 		for _, v := range magicnumber.Images() {
 			if v == sign {
@@ -251,7 +249,7 @@ func ListContent(art *models.File, src string) template.HTML {
 		htm += fmt.Sprintf(` <small class="">%s</small></div>`, sign)
 		htm = fmt.Sprintf(`<div class="border-bottom row mb-1">%s</div>`, htm)
 		b.WriteString(htm)
-		if items > 200 {
+		if items > maxItems {
 			more := fmt.Sprintf(`<div class="border-bottom row mb-1">... %d more files</div>`, files-items)
 			b.WriteString(more)
 			return filepath.SkipAll
@@ -688,7 +686,6 @@ func LinkPreviewTip(art *models.File) string {
 		platform = art.Platform.String
 	}
 	return str.LinkPreviewTip(name, platform)
-
 }
 
 // LinkSVG returns an right-arrow SVG icon.
@@ -824,7 +821,6 @@ func ReleaserPair(art *models.File) (string, string) {
 	}
 	pair := str.ReleaserPair(art.GroupBrandFor, art.GroupBrandBy)
 	return pair[0], pair[1]
-
 }
 
 func Section(art *models.File) string {

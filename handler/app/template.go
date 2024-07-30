@@ -129,6 +129,7 @@ func (t Templ) parseFS(name filename) *template.Template {
 	return template.Must(template.New("").Funcs(
 		t.FuncMap()).ParseFS(t.View, files...))
 }
+
 func (t Templ) locked(lock bool, files ...string) []string {
 	if lock {
 		return append(files,

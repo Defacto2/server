@@ -100,7 +100,7 @@ func Collection() Milestones {
 				License:     "CC BY-SA 4.0",
 				LicenseLink: "https://creativecommons.org/licenses/by-sa/4.0/",
 			},
-		}, //https://umedia.lib.umn.edu/item/p16022coll91:193
+		}, // https://umedia.lib.umn.edu/item/p16022coll91:193
 		{
 			Year: 1972, Title: "The first user-focused platform",
 			Lead: "The PLATO IV", LinkTitle: "about the PLATO", Link: "https://arstechnica.com/gadgets/2023/03/plato-how-an-educational-computer-system-from-the-60s-shaped-the-future/",

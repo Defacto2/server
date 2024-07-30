@@ -25,7 +25,10 @@ import (
 	"go.uber.org/zap"
 )
 
-var ErrYT = errors.New("youtube watch video id needs to be empty or 11 characters")
+var (
+	ErrIsDir = errors.New("the file is a directory")
+	ErrYT    = errors.New("youtube watch video id needs to be empty or 11 characters")
+)
 
 func RecordReadmeCopier(c echo.Context, extraDir string) error {
 	path := c.Param("path")
@@ -63,7 +66,7 @@ func RecordReadmeDeleter(c echo.Context, extraDir string) error {
 		return badRequest(c, err)
 	}
 	if st.IsDir() {
-		return badRequest(c, fmt.Errorf("the file is a directory"))
+		return badRequest(c, ErrIsDir)
 	}
 	if err := os.Remove(dst); err != nil {
 		return badRequest(c, err)

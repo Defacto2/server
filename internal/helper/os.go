@@ -277,13 +277,13 @@ func MkContent(src string) (string, error) {
 	if st, err := os.Stat(dst); err != nil {
 		if os.IsNotExist(err) {
 			if err := os.MkdirAll(dst, os.ModePerm); err != nil {
-				return "", err
+				return "", fmt.Errorf("make content dir %w", err)
 			}
 			return dst, nil
 		}
 		return dst, nil
 	} else if !st.IsDir() {
-		return "", fmt.Errorf("error, not a directory: %s", dir)
+		return "", fmt.Errorf("not a directory: %s", dir)
 	}
 	return dst, nil
 }

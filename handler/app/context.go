@@ -782,7 +782,7 @@ func Index(c echo.Context) error {
 	const name = "index"
 	data := empty(c)
 	data["title"] = "Welcome"
-	//data["description"] = desc
+	// data["description"] = desc
 	data["h1"] = "Welcome,"
 	data["milestones"] = Collection()
 	{

@@ -546,24 +546,25 @@ func EditorFileUpload(c echo.Context, logger *zap.SugaredLogger, downloadDir str
 		if logger != nil {
 			logger.Error(err)
 		}
-		return ErrUpdate
+		return badRequest(c, ErrUpdate)
 	}
 
 	downloadFile := filepath.Join(downloadDir, unid)
 	_, err = helper.DuplicateOW(dst, downloadFile)
 	if err != nil {
-		tx.Rollback()
+		err1 := tx.Rollback()
 		logger.Errorf("htmx transfer duplicate file: %w,%q,  %s",
 			err, unid, downloadFile)
-		return err
+		logger.Errorf("failed to rollback the database transaction: %w", err1)
+		return badRequest(c, err)
 	}
 	if err := tx.Commit(); err != nil {
 		return c.HTML(http.StatusInternalServerError, "The database commit failed")
 	}
 
 	abs := filepath.Join(downloadDir, unid)
-	if x, err := helper.MkContent(abs); err == nil {
-		defer os.RemoveAll(x)
+	if mkc, err := helper.MkContent(abs); err == nil {
+		defer os.RemoveAll(mkc)
 	}
 
 	return c.String(http.StatusOK,

@@ -1,4 +1,6 @@
 // Package mfs provides functions that return model FileSlices, which are multiple artifact records.
+//
+//nolint:wrapcheck
 package mfs
 
 import (
