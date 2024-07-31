@@ -137,7 +137,7 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	// and not for general file uploads or data edits.
 	upload := g.Group("/upload")
 	upload.POST("/file", func(c echo.Context) error {
-		return htmx.EditorFileUpload(c, logger, dir.Download)
+		return htmx.UploadReplacement(c, logger, dir.Download)
 	})
 
 	me := g.Group("/readme")

@@ -363,6 +363,7 @@ const (
 	github
 	integrity
 	platform
+	magic
 	relations
 	section
 	sites
@@ -418,6 +419,8 @@ func updateStringCases(f *models.File, column stringFrom, val string) error { //
 		f.WebIDGithub = s
 	case integrity:
 		f.FileIntegrityStrong = s
+	case magic:
+		f.FileMagicType = s
 	case platform:
 		f.Platform = s
 	case relations:
@@ -705,10 +708,11 @@ func UpdateYMD(ctx context.Context, exec boil.ContextExecutor, id int64, y, m, d
 // FileUpload is a struct that contains the values needed to update an existing file record
 // after a new file has been uploaded to the server.
 type FileUpload struct {
-	Filename  string
-	Integrity string
-	Content   string
-	Filesize  int64
+	Filename    string
+	Integrity   string
+	MagicNumber string
+	Content     string
+	Filesize    int64
 }
 
 // Update the file record with the values provided in the FileUpload struct.
@@ -726,6 +730,9 @@ func (fu FileUpload) Update(ctx context.Context, exec boil.ContextExecutor, id i
 	}
 	if err = updateStringCases(f, integrity, fu.Integrity); err != nil {
 		return fmt.Errorf("file upload integrity: %w", err)
+	}
+	if err = updateStringCases(f, magic, fu.MagicNumber); err != nil {
+		return fmt.Errorf("file upload magic number: %w", err)
 	}
 	if err = updateStringCases(f, zipContent, fu.Content); err != nil {
 		return fmt.Errorf("file upload zip content: %w", err)

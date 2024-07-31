@@ -188,27 +188,28 @@ func ListContent(art *models.File, src string) template.HTML {
 	var b strings.Builder
 	items, zeroByteFiles := 0, 0
 	const maxItems = 200
+	var skipEntry error
 	walkerFunc := func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			return fs.SkipDir
+			return filepath.SkipDir
 		}
 		rel, err := filepath.Rel(dst, path)
 		if err != nil {
 			debug := fmt.Sprintf(`<div class="border-bottom row mb-1">... %v more files</div>`, err)
 			b.WriteString(debug)
-			return fs.SkipDir
+			return skipEntry
 		}
 		if d.IsDir() {
-			return fs.SkipDir
+			return skipEntry
 		}
 		info, err := d.Info()
 		if err != nil {
-			return fs.SkipDir
+			return skipEntry
 		}
 		bytes := info.Size()
 		if bytes == 0 {
 			zeroByteFiles++
-			return fs.SkipDir
+			return skipEntry
 		}
 		size := humanize.Bytes(uint64(info.Size()))
 		image := false
@@ -216,12 +217,12 @@ func ListContent(art *models.File, src string) template.HTML {
 		program := false
 		r, err := os.Open(path)
 		if err != nil {
-			return fs.SkipDir
+			return skipEntry
 		}
 		defer r.Close()
 		sign, err := magicnumber.Find512B(r)
 		if err != nil {
-			return fs.SkipDir
+			return skipEntry
 		}
 		for _, v := range magicnumber.Images() {
 			if v == sign {

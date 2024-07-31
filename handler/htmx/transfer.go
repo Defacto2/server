@@ -24,6 +24,7 @@ import (
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/form"
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/magicnumber"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/internal/tags"
@@ -470,16 +471,11 @@ func sanitizeID(c echo.Context, name, prod string) (int64, error) {
 	return id, nil
 }
 
-// ------------------------------------------------------------
-
-// TODO: add magic to db
-// copy readme to extras if none exists
-
-// EditorFileUpload is the file transfer handler that uploads, validates a new file upload
+// UploadReplacement is the file transfer handler that uploads, validates a new file upload
 // and updates the existing artifact record with the new file information.
 // The logger is optional and if nil then the function will not log any debug information.
-func EditorFileUpload(c echo.Context, logger *zap.SugaredLogger, downloadDir string) error {
-	name := "editor-uploadfile" // TODO, rename
+func UploadReplacement(c echo.Context, logger *zap.SugaredLogger, downloadDir string) error {
+	name := "artifact-editor-replace-file"
 	if s, err := checkDest(downloadDir); err != nil {
 		return c.HTML(http.StatusInternalServerError, s)
 	}
@@ -512,6 +508,15 @@ func EditorFileUpload(c echo.Context, logger *zap.SugaredLogger, downloadDir str
 		return checkHasher(c, logger, name, err)
 	}
 	checksum := hasher.Sum(nil)
+	src, err = file.Open()
+	if err != nil {
+		return checkFileOpen(c, logger, name, err)
+	}
+	defer src.Close()
+	magicTitle := ""
+	if mn, err := magicnumber.Find(src); err == nil {
+		magicTitle = mn.Title()
+	}
 	ctx := context.Background()
 	db, tx, err := postgres.ConnectTx()
 	if err != nil {
@@ -532,15 +537,12 @@ func EditorFileUpload(c echo.Context, logger *zap.SugaredLogger, downloadDir str
 	if list, err := archive.List(dst, file.Filename); err == nil {
 		content = strings.Join(list, "\n")
 	}
-
-	// look for readme in extras
-	// readme := archive.Readme(file.Filename, content...)
-
 	fu := model.FileUpload{
-		Filename:  file.Filename,
-		Integrity: hex.EncodeToString(checksum),
-		Content:   content,
-		Filesize:  file.Size,
+		Filename:    file.Filename,
+		Integrity:   hex.EncodeToString(checksum),
+		MagicNumber: magicTitle,
+		Content:     content,
+		Filesize:    file.Size,
 	}
 	if err := fu.Update(ctx, tx, id); err != nil {
 		if logger != nil {

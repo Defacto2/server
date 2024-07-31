@@ -122,11 +122,11 @@ func (dir Dirs) embed(art *models.File, data map[string]interface{}) (map[string
 			data["noDownload"] = true
 			return data, nil
 		}
-		return nil, fmt.Errorf("dirs.embed: %w", err)
+		return nil, fmt.Errorf("dirs.embed read: %w", err)
 	}
 	d, err := embedText(art, data, p...)
 	if err != nil {
-		return nil, fmt.Errorf("dirs.embed: %w", err)
+		return nil, fmt.Errorf("dirs.embed text: %w", err)
 	}
 	maps.Copy(data, d)
 	return d, nil
