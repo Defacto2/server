@@ -36,17 +36,30 @@ const (
 	br = "<br>"
 )
 
+// AlertURL returns the VirusTotal URL for the security alert for the file record.
+// This will normally return an empty string unless the file has a security alert.
 func AlertURL(art *models.File) string {
 	if art == nil {
 		return ""
 	}
-	// todo: confirm link is a valid url?
-	if art.FileSecurityAlertURL.Valid {
-		return strings.TrimSpace(art.FileSecurityAlertURL.String)
+	if !art.FileSecurityAlertURL.Valid {
+		return ""
 	}
-	return ""
+	raw := strings.TrimSpace(art.FileSecurityAlertURL.String)
+	u, err := url.ParseRequestURI(raw)
+	if err != nil {
+		return ""
+	}
+	if host := u.Hostname(); host == "" {
+		u.Host = "www.virustotal.com"
+	}
+	if u.Scheme != "https" {
+		u.Scheme = "https"
+	}
+	return u.String()
 }
 
+// AttrArtist returns the attributed artist names for the file record.
 func AttrArtist(art *models.File) string {
 	if art == nil {
 		return ""
@@ -57,6 +70,7 @@ func AttrArtist(art *models.File) string {
 	return ""
 }
 
+// AttrMusic returns the attributed musician names for the file record.
 func AttrMusic(art *models.File) string {
 	if art == nil {
 		return ""
@@ -67,6 +81,7 @@ func AttrMusic(art *models.File) string {
 	return ""
 }
 
+// AttrProg returns the attributed programmer names for the file record.
 func AttrProg(art *models.File) string {
 	if art == nil {
 		return ""
@@ -77,6 +92,7 @@ func AttrProg(art *models.File) string {
 	return ""
 }
 
+// AttrWriter returns the attributed text writer names for the file record.
 func AttrWriter(art *models.File) string {
 	if art == nil {
 		return ""
@@ -87,6 +103,7 @@ func AttrWriter(art *models.File) string {
 	return ""
 }
 
+// Basename returns the name of the file given to the artifact file record.
 func Basename(art *models.File) string {
 	if art == nil {
 		return ""
@@ -97,6 +114,7 @@ func Basename(art *models.File) string {
 	return ""
 }
 
+// Checksum returns the strong SHA386 hash checksum for the file record.
 func Checksum(art *models.File) string {
 	if art == nil {
 		return ""
@@ -107,6 +125,7 @@ func Checksum(art *models.File) string {
 	return ""
 }
 
+// Comment returns the optional comment for the file record.
 func Comment(art *models.File) string {
 	if art == nil {
 		return ""
@@ -117,6 +136,7 @@ func Comment(art *models.File) string {
 	return ""
 }
 
+// ListContent returns a list of the files contained in the archive file.
 func ListContent(art *models.File, src string) template.HTML {
 	if art == nil {
 		return template.HTML(model.ErrModel.Error())
@@ -233,16 +253,17 @@ func ListContent(art *models.File, src string) template.HTML {
 		} else {
 			htm += `<div class="col col-1"></div>`
 		}
-		if texts {
+		switch {
+		case texts:
 			name := url.QueryEscape(rel)
 			htm += `<div class="col col-1 text-end">` +
 				fmt.Sprintf(`<a class="icon-link align-text-bottom" hx-patch="/editor/readme/copy/%s/%s">`, unid, name) +
 				`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
 				`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></a></div>`
-		} else if program {
+		case program:
 			htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 				`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
-		} else {
+		default:
 			htm += `<div class="col col-1"></div>`
 		}
 		htm += fmt.Sprintf(`<div><small data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</small>`, bytes, size)
@@ -267,7 +288,7 @@ func ListContent(art *models.File, src string) template.HTML {
 	return template.HTML(b.String())
 }
 
-// Date returns a formatted date string for the artifact's published date.
+// Date returns a formatted date string for the published date for the artifact.
 func Date(art *models.File) template.HTML {
 	if art == nil {
 		return template.HTML(model.ErrModel.Error())
@@ -303,6 +324,7 @@ func Date(art *models.File) template.HTML {
 	return strong(ys) + template.HTML(fmt.Sprintf(" %s %s", ms, ds))
 }
 
+// Dates returns the year, month and day for the published date for the artifact.
 func Dates(art *models.File) (int16, int16, int16) {
 	if art == nil {
 		return 0, 0, 0
@@ -320,6 +342,8 @@ func Dates(art *models.File) (int16, int16, int16) {
 	return y, m, d
 }
 
+// Description returns a human readable description for the artifact.
+// This includes the title, the releaser and the year of release.
 func Description(art *models.File) string {
 	s := art.Filename.String
 	if art.RecordTitle.String != "" {
@@ -344,6 +368,8 @@ func Description(art *models.File) string {
 	return s
 }
 
+// DownloadID returns the obfuscated ID for the file record.
+// This is used to create a unique download link for the file based on its ID database key.
 func DownloadID(art *models.File) string {
 	if art == nil {
 		return ""
@@ -351,6 +377,12 @@ func DownloadID(art *models.File) string {
 	return helper.ObfuscateID(art.ID)
 }
 
+// ExtraZip returns true if the file record has repacked zip file offering in the extra directory.
+// This repackage gets used by the DOS emulator and also offered as an secondary download when
+// the original artifact file uses a defunct compression method or format.
+//
+// The original artifact must always be preserved and offered as the primary download.
+// But the extra zip file is a convenience for users who may not have the tools to decompress the original.
 func ExtraZip(art *models.File, extraDir string) bool {
 	extraZip := 0
 	unid := UnID(art)
@@ -361,6 +393,10 @@ func ExtraZip(art *models.File, extraDir string) bool {
 	return extraZip > 0
 }
 
+// FileEntry returns the created and updated date and time for the file record using
+// the "time ago" format.
+//
+// For example, "Created 2 days ago" or "Updated 1 month ago".
 func FileEntry(art *models.File) string {
 	switch {
 	case art.Createdat.Valid && art.Updatedat.Valid:
@@ -384,7 +420,7 @@ func FileEntry(art *models.File) string {
 }
 
 // FirstHeader returns the title of the file,
-// unless the file is a magazine issue, in which case it returns the issue number.
+// unless the artifact is marked as a magazine issue, in which case it returns the issue number.
 func FirstHeader(art *models.File) string {
 	sect := strings.TrimSpace(strings.ToLower(art.Section.String))
 	if sect != "magazine" {
@@ -397,6 +433,8 @@ func FirstHeader(art *models.File) string {
 	return s
 }
 
+// Idenfication16C returns the 16 color identification for the file record.
+// This is usually a partial URL to the 16 color website.
 func Idenfication16C(art *models.File) string {
 	if art == nil {
 		return ""
@@ -407,6 +445,7 @@ func Idenfication16C(art *models.File) string {
 	return ""
 }
 
+// IdenficationDZ returns the Demozoo production ID for the file record.
 func IdenficationDZ(art *models.File) string {
 	if art == nil {
 		return ""
@@ -418,6 +457,7 @@ func IdenficationDZ(art *models.File) string {
 	return ""
 }
 
+// IdenficationGitHub returns the GitHub repository for the file record.
 func IdenficationGitHub(art *models.File) string {
 	if art == nil {
 		return ""
@@ -428,6 +468,7 @@ func IdenficationGitHub(art *models.File) string {
 	return ""
 }
 
+// IdenficationPouet returns the Pouet production ID for the file record.
 func IdenficationPouet(art *models.File) string {
 	if art == nil {
 		return ""
@@ -439,6 +480,7 @@ func IdenficationPouet(art *models.File) string {
 	return ""
 }
 
+// IdenficationYT returns the YouTube video watch ID for the file record.
 func IdenficationYT(art *models.File) string {
 	if art == nil {
 		return ""
@@ -449,6 +491,7 @@ func IdenficationYT(art *models.File) string {
 	return ""
 }
 
+// JsdosArchive returns true if the file record is a known MS-DOS archive file.
 func JsdosArchive(art *models.File) bool {
 	if art == nil {
 		return false
@@ -460,6 +503,7 @@ func JsdosArchive(art *models.File) bool {
 	return false
 }
 
+// JsdosBroken returns true if the MsDos artifact is known to be incompatible with the js-dos emulator.
 func JsdosBroken(art *models.File) bool {
 	if art == nil {
 		return false
@@ -470,6 +514,7 @@ func JsdosBroken(art *models.File) bool {
 	return false
 }
 
+// JsdosCPU returns the js-dos CPU type for the file record.
 func JsdosCPU(art *models.File) string {
 	if art == nil {
 		return ""
@@ -480,6 +525,9 @@ func JsdosCPU(art *models.File) string {
 	return ""
 }
 
+// JsdosMachine returns the js-dos machine type for the file record.
+// This is usually the graphic card type but can also be a unique machine
+// type such as "tandy" that is range of hardware.
 func JsdosMachine(art *models.File) string {
 	if art == nil {
 		return ""
@@ -490,6 +538,7 @@ func JsdosMachine(art *models.File) string {
 	return ""
 }
 
+// JsdosMemory returns true if js-dos should disable the XMS, EMS and UMB memory options.
 func JsdosMemory(art *models.File) (bool, bool, bool) {
 	if art == nil {
 		return false, false, false
@@ -507,6 +556,7 @@ func JsdosMemory(art *models.File) (bool, bool, bool) {
 	return x, e, u
 }
 
+// JsdosRun returns the program name or sequence of commands to launch in the js-dos emulator.
 func JsdosRun(art *models.File) string {
 	if art == nil {
 		return ""
@@ -517,6 +567,7 @@ func JsdosRun(art *models.File) string {
 	return ""
 }
 
+// JsdosSound returns the js-dos sound card or built-in audio for the file record.
 func JsdosSound(art *models.File) string {
 	if art == nil {
 		return ""
@@ -551,6 +602,8 @@ func JsdosUse(art *models.File) bool {
 	}
 }
 
+// JsdosUtilities returns true the js-dos emulator should also load the utilities archive
+// as an internal hard disk drive.
 func JsdosUtilities(art *models.File) bool {
 	if art == nil {
 		return false
@@ -595,6 +648,7 @@ func LastModificationDate(art *models.File) string {
 	return lm
 }
 
+// LastModifications returns the year, month and day for the last modified date for the file record.
 func LastModifications(art *models.File) (int, int, int) {
 	if art == nil {
 		return 0, 0, 0
@@ -608,7 +662,7 @@ func LastModifications(art *models.File) (int, int, int) {
 	return y, m, d
 }
 
-// lastModificationAgo returns the last modified date in a human readable format.
+// LastModificationAgo returns the last modified date in a human readable format.
 func LastModificationAgo(art *models.File) string {
 	const none = "No recorded timestamp"
 	if !art.FileLastModified.Valid {
@@ -621,6 +675,9 @@ func LastModificationAgo(art *models.File) string {
 	return str.Updated(art.FileLastModified.Time, "Modified")
 }
 
+// LinkPreview returns a URL path to link to the file record in tab, to use as a preview.
+// A preview link is only available for certain file types such as images, text, documents, and
+// renders the whole item in its own browser tab without any HTML or CSS from the website.
 func LinkPreview(art *models.File) string {
 	if art == nil {
 		return ""
@@ -673,6 +730,7 @@ func LinkPreviewHref(id any, name, platform string) string {
 	return s
 }
 
+// LinkPreviewTip returns a tooltip for the link preview.
 func LinkPreviewTip(art *models.File) string {
 	if art == nil {
 		return ""
@@ -693,6 +751,7 @@ func LinkSVG() template.HTML {
 	return arrowLink
 }
 
+// Magic returns the magic number or guessed file type for the file record.
 func Magic(art *models.File) string {
 	if art == nil {
 		return ""
@@ -703,17 +762,7 @@ func Magic(art *models.File) string {
 	return ""
 }
 
-func Platform(art *models.File) string {
-	if art == nil {
-		return ""
-	}
-	// todo test against tag library
-	if art.Platform.Valid {
-		return strings.TrimSpace(art.Platform.String)
-	}
-	return ""
-}
-
+// ReadmeNone returns true if the file record should not display the text file content in the artifact page.
 func ReadmeNone(art *models.File) bool {
 	if art == nil {
 		return false
@@ -724,7 +773,7 @@ func ReadmeNone(art *models.File) bool {
 	return false
 }
 
-// Readme returns a suggested readme file name for the record.
+// Readme returns a guessed or suggested readme file name to use for the record.
 func Readme(r *models.File) string {
 	if r == nil {
 		return ""
@@ -742,6 +791,7 @@ func Readme(r *models.File) string {
 	return readme.Suggest(filename, group, content...)
 }
 
+// RecordIsNew returns true if the file record is a new upload.
 func RecordIsNew(art *models.File) bool {
 	if art == nil {
 		return false
@@ -749,6 +799,8 @@ func RecordIsNew(art *models.File) bool {
 	return !art.Deletedat.IsZero() && art.Deletedby.IsZero()
 }
 
+// RecordOffline returns true if the file record is marked as offline.
+// This means the artifact has been soft deleted and is no longer available for download.
 func RecordOffline(art *models.File) bool {
 	if art == nil {
 		return false
@@ -756,10 +808,12 @@ func RecordOffline(art *models.File) bool {
 	return !art.Deletedat.IsZero() && !art.Deletedby.IsZero()
 }
 
+// RecordOnline returns true if the artifact file record is available for download.
 func RecordOnline(art *models.File) bool {
 	return art.Deletedat.Time.IsZero()
 }
 
+// RecordProblems returns a list of validation problems for the file record.
 func RecordProblems(art *models.File) string {
 	validate := model.Validate(art)
 	if validate == nil {
@@ -805,6 +859,7 @@ func Relations(art *models.File) template.HTML {
 	return template.HTML(rows)
 }
 
+// RelationsStr returns the list of relationships for the file record as a string.
 func RelationsStr(art *models.File) string {
 	if art == nil {
 		return ""
@@ -815,6 +870,8 @@ func RelationsStr(art *models.File) string {
 	return ""
 }
 
+// ReleaserPair returns the pair of releaser names for the file record.
+// The first name is the releaser "for" and the second name is the releaser "by".
 func ReleaserPair(art *models.File) (string, string) {
 	if art == nil {
 		return "", ""
@@ -823,39 +880,39 @@ func ReleaserPair(art *models.File) (string, string) {
 	return pair[0], pair[1]
 }
 
-func Section(art *models.File) string {
-	if art == nil {
-		return ""
-	}
-	// TODO: validate using the tag pkg?
-	if art.Section.Valid {
-		return strings.TrimSpace(art.Section.String)
-	}
-	return ""
-}
-
+// TagCategory returns the "Tag as category" for the file record,
+// which is used to group similar artifacts together.
 func TagCategory(art *models.File) string {
 	if art == nil {
 		return ""
 	}
-	// todo: validate against tags library
-	if art.Section.Valid {
-		return strings.ToLower(strings.TrimSpace(art.Section.String))
+	if !art.Section.Valid {
+		return ""
+	}
+	name := strings.ToLower(strings.TrimSpace(art.Section.String))
+	if tags.IsCategory(name) {
+		return name
 	}
 	return ""
 }
 
-func TagOS(art *models.File) string {
+// TagProgram returns the "Programs or apps" for the file record,
+// which is the platform or operating system the artifact is intended for.
+func TagProgram(art *models.File) string {
 	if art == nil {
 		return ""
 	}
-	// todo: validate against tags library
-	if art.Platform.Valid {
-		return strings.ToLower(strings.TrimSpace(art.Platform.String))
+	if !art.Platform.Valid {
+		return ""
+	}
+	name := strings.ToLower(strings.TrimSpace(art.Platform.String))
+	if tags.IsPlatform(name) {
+		return name
 	}
 	return ""
 }
 
+// Title returns the brief title of the file record or a issue number for a magazine.
 func Title(art *models.File) string {
 	if art == nil {
 		return ""
@@ -863,6 +920,7 @@ func Title(art *models.File) string {
 	return art.RecordTitle.String
 }
 
+// UnID returns the universal unique ID for the file record commonly known as a UUID.
 func UnID(art *models.File) string {
 	if art == nil {
 		return ""
@@ -873,6 +931,8 @@ func UnID(art *models.File) string {
 	return ""
 }
 
+// EmbedReadme returns false if a text file artifact should not be displayed in the page as a readme or textfile.
+// This includes artifacts that are set as documents such a HTML, PDF or BBS RIP images.
 func EmbedReadme(art *models.File) bool {
 	const bbsRipImage = ".rip"
 	if filepath.Ext(strings.ToLower(art.Filename.String)) == bbsRipImage {
@@ -915,6 +975,7 @@ func Websites(art *models.File) template.HTML {
 	return template.HTML(rows)
 }
 
+// WebsitesStr returns the list of links for the file record as a string.
 func WebsitesStr(art *models.File) string {
 	if art == nil {
 		return ""
@@ -925,6 +986,7 @@ func WebsitesStr(art *models.File) string {
 	return ""
 }
 
+// ZipContent returns the archive content of the file download, or an empty string if not an archive file.
 func ZipContent(art *models.File) string {
 	if art == nil {
 		return ""

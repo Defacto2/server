@@ -176,7 +176,6 @@ func (j *Jsdos) CPU(value string) {
 // The value can be "vga", "tandy", "svga", "paradise", "oldvbe", "nolfb", "et4000", "et3000", "ega", or "cga".
 // The "tandy" machine will also enable the Tandy 3-channel sound chip.
 func (j *Jsdos) Machine(value string) {
-	// todo: fix, DEFAULT (svga_s3)
 	// Possible values: hercules, cga, tandy, pcjr, ega, vgaonly, svga_s3, svga_et3000, svga_et4000, svga_paradise, vesa_nolfb, vesa_oldvbe
 	switch strings.ToLower(value) {
 	case "vga":

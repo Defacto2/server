@@ -271,7 +271,6 @@ func Lines(name string) (int, error) {
 func MkContent(src string) (string, error) {
 	name := strings.TrimSpace(strings.ToLower(filepath.Base(src)))
 	dir := filepath.Join(os.TempDir(), "defacto2-server")
-
 	pattern := "artifact-content-" + name
 	dst := filepath.Join(dir, pattern)
 	if st, err := os.Stat(dst); err != nil {

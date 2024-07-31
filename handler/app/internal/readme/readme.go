@@ -211,20 +211,22 @@ func IncompatibleANSI(r io.Reader) (bool, error) {
 	return false, nil
 }
 
+// moveCursor returns a regular expression for ANSI cursor movement escape codes.
+//   - match "1B" (Escape)
+//   - match "[" (Left Bracket)
+//   - match optional digits or if no digits, then the cursor moves 1 position
+//   - match "A", "B", "C", "D", "E", "F", "G" for cursor movement up, down, left, right, etc.
 func moveCursor() string {
-	// match 1B (Escape)
-	// match [ (Left Bracket)
-	// match optional digits (if no digits, then the cursor moves 1 position)
-	// match A-G (cursor movement, up, down, left, right, etc.)
 	return `\x1b\[\d*?[ABCDEFG]`
 }
 
+// moveCursorToPos returns a regular expression for ANSI cursor position escape codes.
+//   - match "1B" (Escape)
+//   - match "[" (Left Bracket)
+//   - match the digits for line number
+//   - match ";" (semicolon)
+//   - match the digits for column number
+//   - match "H" cursor position or "f" cursor position
 func moveCursorToPos() string {
-	// match 1B (Escape)
-	// match [ (Left Bracket)
-	// match digits for line number
-	// match ; (semicolon)
-	// match digits for column number
-	// match H (cursor position) or f (cursor position)
 	return `\x1b\[\d+;\d+[Hf]`
 }

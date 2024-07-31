@@ -302,23 +302,31 @@ func LinkSites(val string) template.HTML {
 	return template.HTML(html)
 }
 
+// MakeLink returns a HTML anchor link to the named group page.
+// When the performant flag is false, the link will apply additional typography to the group name.
+// But this should not be used for large lists of links as it will significantly slow down the page rendering.
+//
+// For example supplying the name "tport"
+//   - with performant false will return a link displaying "tPORt"
+//   - with performant true will return a link displaying "Tport"
 func MakeLink(name, class string, performant bool) (string, error) {
 	ref, err := LinkRelr(name)
 	if err != nil {
 		return "", fmt.Errorf("app make link %w", err)
 	}
-	x := helper.Capitalize(strings.ToLower(name))
-	title := x
+	capt := helper.Capitalize(strings.ToLower(name))
+	title := capt
 	if !performant {
 		title = releaser.Link(helper.Slug(name))
 	}
 	s := fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, title)
-	if x != "" && title == "" {
+	if capt != "" && title == "" {
 		s = "error: could not link group"
 	}
 	return s, nil
 }
 
+// MagicAsTitle returns the the magic number description for the named file.
 func MagicAsTitle(name string) string {
 	r, err := os.Open(name)
 	if err != nil {
@@ -332,7 +340,9 @@ func MagicAsTitle(name string) string {
 	return sign.Title()
 }
 
-// MIME returns the MIME type for the file record.
+// MIME returns the [MIME type] for the named file.
+//
+// [MIME type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
 func MIME(name string) string {
 	file, err := os.Open(name)
 	if err != nil {
@@ -358,13 +368,14 @@ func MIME(name string) string {
 	return http.DetectContentType(head)
 }
 
-// MkContent makes and/or returns the path a unique directory path in the temp directory
+// MkContent makes and/or returns a distinct directory path in the temp directory
 // that is used to extract the contents of the content of the file download archive.
-func MkContent(name string) string {
-	if name == "" {
+// To make the directory distinct it is prefixed with the basename of the src file.
+func MkContent(src string) string {
+	if src == "" {
 		return ""
 	}
-	path, err := helper.MkContent(name)
+	path, err := helper.MkContent(src)
 	if err != nil {
 		return err.Error()
 	}
@@ -387,6 +398,7 @@ func Releasers(prime, second string) template.HTML {
 	return template.HTML(s)
 }
 
+// ReleaserPair returns the primary and secondary releaser groups as two strings.
 func ReleaserPair(a, b any) [2]string {
 	av, bv := "", ""
 	switch val := a.(type) {

@@ -48,6 +48,8 @@ type DemozooLink struct {
 	Success   bool   `json:"success"` // Success is the success status of the download and record update.
 }
 
+// Download fetches the download link from Demozoo and saves it to the download directory.
+// It then runs Update to modify the database record with various metadata from the file and Demozoo record API data.
 func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 	var prod demozoo.Production
 	if _, err := prod.Get(got.ID); err != nil {
@@ -100,34 +102,37 @@ func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 	return c.JSON(http.StatusNotModified, got)
 }
 
+// Stat sets the file size, hash, type, and archive content of the file.
+// The UUID is used to locate the file in the download directory.
 func (got *DemozooLink) Stat(c echo.Context, downloadDir string) error {
-	path := filepath.Join(downloadDir, got.UUID)
+	name := filepath.Join(downloadDir, got.UUID)
 	if got.FileSize == 0 {
-		stat, err := os.Stat(path)
+		stat, err := os.Stat(name)
 		if err != nil {
-			got.Error = fmt.Errorf("could not stat file, %s: %w", path, err).Error()
+			got.Error = fmt.Errorf("could not stat file, %s: %w", name, err).Error()
 			return c.JSON(http.StatusInternalServerError, got)
 		}
 		got.FileSize = int(stat.Size())
 	}
-	strong, err := helper.StrongIntegrity(path)
+	strong, err := helper.StrongIntegrity(name)
 	if err != nil {
-		got.Error = fmt.Errorf("could not get strong integrity hash, %s: %w", path, err).Error()
+		got.Error = fmt.Errorf("could not get strong integrity hash, %s: %w", name, err).Error()
 		return c.JSON(http.StatusInternalServerError, got)
 	}
 	got.FileHash = strong
 	if got.FileType == "" {
-		m, err := mimetype.DetectFile(path)
+		m, err := mimetype.DetectFile(name)
 		if err != nil {
-			return fmt.Errorf("demozoo stat content filemime failure on %q: %w", path, err)
+			return fmt.Errorf("demozoo stat content filemime failure on %q: %w", name, err)
 		}
 		got.FileType = m.String()
 	}
-	return got.ArchiveContent(c, path)
+	return got.ArchiveContent(c, name)
 }
 
-func (got *DemozooLink) ArchiveContent(c echo.Context, path string) error {
-	files, err := archive.List(path, got.Filename)
+// ArchiveContent sets the archive content and readme text of the source file.
+func (got *DemozooLink) ArchiveContent(c echo.Context, src string) error {
+	files, err := archive.List(src, got.Filename)
 	if err != nil {
 		return c.JSON(http.StatusOK, got)
 	}
@@ -136,6 +141,8 @@ func (got *DemozooLink) ArchiveContent(c echo.Context, path string) error {
 	return got.Update(c)
 }
 
+// Update modifies the database record using data provided by the DemozooLink struct.
+// A JSON response is returned with the success status of the update.
 func (got DemozooLink) Update(c echo.Context) error {
 	uid := got.UUID
 	ctx := context.Background()

@@ -160,7 +160,7 @@ func (dir Dirs) Editor(art *models.File, data map[string]interface{}) map[string
 	data["modZipContent"] = mf.ZipContent(art)
 	data["modRelations"] = mf.RelationsStr(art)
 	data["modWebsites"] = mf.WebsitesStr(art)
-	data["modOS"] = mf.TagOS(art)
+	data["modOS"] = mf.TagProgram(art)
 	data["modTag"] = mf.TagCategory(art)
 	data["virusTotal"] = mf.AlertURL(art) // FIXME, virusTotal is a dupe of ["alertURL"] ?
 	data["forApproval"] = mf.RecordIsNew(art)
@@ -293,8 +293,8 @@ func (dir Dirs) filemetadata(art *models.File, data map[string]interface{}) map[
 	data["magic"] = mf.Magic(art)
 	data["releasers"] = releasersHrefs(art)
 	data["published"] = mf.Date(art)
-	data["section"] = mf.Section(art)
-	data["platform"] = mf.Platform(art)
+	data["section"] = mf.TagCategory(art)
+	data["platform"] = mf.TagProgram(art)
 	data["alertURL"] = mf.AlertURL(art)
 	data["extraZip"] = mf.ExtraZip(art, dir.Extra)
 	return data
