@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -18,7 +19,17 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
-const emulateAuto = "" // the dosbox emulator value to use for automatic configuration
+var (
+	ErrCPU     = errors.New("emulate-cpu value must be one of auto, 8086, 386, 486")
+	ErrMachine = errors.New("emulate-machine value must be one of auto, " +
+		"cga, ega, vga, tandy, nolfb, et3000, paradise, et4000, oldvbe")
+	ErrSfx = errors.New("emulate-sfx value must be one of auto, covox, sb1, sb16, gus, pcspeaker, none")
+)
+
+const (
+	auto        = "auto" // the auto value for the dosbox emulator
+	emulateAuto = ""     // the dosbox emulator value to use for automatic configuration
+)
 
 // boolFrom is a type for the bool columns that can be updated.
 type boolFrom int
@@ -109,14 +120,12 @@ func UpdateEmulateRunProgram(id int64, val string) error {
 	return nil
 }
 
-var ErrMachine = fmt.Errorf("emulate-machine value must be one of auto, cga, ega, vga, tandy, nolfb, et3000, paradise, et4000, oldvbe")
-
 func UpdateEmulateMachine(id int64, val string) error {
 	s := strings.TrimSpace(strings.ToLower(val))
 	switch s {
 	case "cga", "ega", "vga", "tandy", "nolfb", "et3000", "paradise", "et4000", "oldvbe":
 	// do nothing
-	case "auto":
+	case auto:
 		s = emulateAuto
 	default:
 		return fmt.Errorf("%s: %w", val, ErrMachine)
@@ -142,14 +151,12 @@ func UpdateEmulateMachine(id int64, val string) error {
 	return nil
 }
 
-var ErrCPU = fmt.Errorf("emulate-cpu value must be one of auto, 8086, 386, 486")
-
 func UpdateEmulateCPU(id int64, val string) error {
 	s := strings.TrimSpace(strings.ToLower(val))
 	switch s {
 	case "8086", "386", "486":
 	// do nothing
-	case "auto":
+	case auto:
 		s = emulateAuto
 	default:
 		return fmt.Errorf("%s: %w", val, ErrCPU)
@@ -175,14 +182,12 @@ func UpdateEmulateCPU(id int64, val string) error {
 	return nil
 }
 
-var ErrSfx = fmt.Errorf("emulate-sfx value must be one of auto, covox, sb1, sb16, gus, pcspeaker, none")
-
 func UpdateEmulateSfx(id int64, val string) error {
 	s := strings.TrimSpace(strings.ToLower(val))
 	switch s {
 	case "covox", "sb1", "sb16", "gus", "pcspeaker", "none":
 		// do nothing
-	case "auto":
+	case auto:
 		s = emulateAuto
 	default:
 		return fmt.Errorf("%s: %w", val, ErrSfx)
@@ -392,7 +397,7 @@ func UpdateStringFrom(column stringFrom, id int64, val string) error {
 	return nil
 }
 
-func updateStringCases(f *models.File, column stringFrom, val string) error {
+func updateStringCases(f *models.File, column stringFrom, val string) error { //nolint:cyclop
 	s := null.StringFrom(strings.TrimSpace(val))
 	switch column {
 	case colors16:

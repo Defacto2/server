@@ -103,7 +103,7 @@ const (
 	PlainText
 )
 
-func (sign Signature) String() string {
+func (sign Signature) String() string { //nolint:funlen
 	if sign < 0 || sign > PlainText {
 		return "binary data"
 	}
@@ -175,7 +175,7 @@ func (sign Signature) String() string {
 	}[sign]
 }
 
-func (sign Signature) Title() string {
+func (sign Signature) Title() string { //nolint:funlen
 	if sign < 0 || sign > PlainText {
 		return "Binary data"
 	}

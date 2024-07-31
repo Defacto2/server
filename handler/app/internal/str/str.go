@@ -158,8 +158,8 @@ func ImageSample(unid, previewDir string) template.HTML {
 
 // ImageSampleStat returns true if the image sample file exists and is not a 0 byte file.
 func ImageSampleStat(unid, previewDir string) bool {
-	ext, name := "", ""
-	for _, ext = range []string{avif, webp, png} {
+	name := ""
+	for _, ext := range []string{avif, webp, png} {
 		name = filepath.Join(previewDir, unid+ext)
 		if helper.Stat(name) {
 			break
@@ -326,7 +326,7 @@ func MakeLink(name, class string, performant bool) (string, error) {
 	return s, nil
 }
 
-// MagicAsTitle returns the the magic number description for the named file.
+// MagicAsTitle returns the magic number description for the named file.
 func MagicAsTitle(name string) string {
 	r, err := os.Open(name)
 	if err != nil {

@@ -470,17 +470,17 @@ type Extractor struct {
 //
 // The required Filename string is used to determine the archive format.
 //
-// Some archive formats that could be impelmented if needed in the future:
-// freearc, zoo
+// Some archive formats that could be impelmented if needed in the future,
+// "freearc", "zoo".
 func (x Extractor) Extract(targets ...string) error {
 	r, err := os.Open(x.Source)
 	if err != nil {
-		return err
+		return fmt.Errorf("extractor extract open %w", err)
 	}
 	defer r.Close()
 	sign, err := magicnumber.Archive(r)
 	if err != nil {
-		return err
+		return fmt.Errorf("extractor extract magic %w", err)
 	}
 	switch sign {
 	case
@@ -677,7 +677,6 @@ func (x Extractor) ARJ(targets ...string) error {
 	args := []string{extract, srcWithExt}
 	args = append(args, targets...)
 	args = append(args, targetDir+dst)
-	fmt.Println("arj", args)
 	cmd := exec.CommandContext(ctx, prog, args...)
 	cmd.Stderr = &b
 	if err = cmd.Run(); err != nil {

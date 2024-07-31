@@ -99,29 +99,37 @@ func (dir Dirs) Artifact(c echo.Context, logger *zap.SugaredLogger, readonly boo
 	data["linkpreview"] = mf.LinkPreview(art)
 	data["linkpreviewTip"] = mf.LinkPreviewTip(art)
 	data["filentry"] = mf.FileEntry(art)
-	if skip := render.NoScreenshot(art, dir.Download, dir.Preview); skip {
+	if skip := render.NoScreenshot(art, dir.Preview); skip {
 		data["noScreenshot"] = true
 	}
 	if mf.EmbedReadme(art) {
-		p, err := readme.Read(art, dir.Download, dir.Extra)
-		if err != nil {
-			if errors.Is(err, render.ErrDownload) {
-				data["noDownload"] = true
-			} else {
-				return InternalErr(c, name, errorWithID(err, dir.URI, art.ID))
-			}
-		}
-		d, err := embedText(art, data, p...)
+		data, err = dir.embed(art, data)
 		if err != nil {
 			return InternalErr(c, name, errorWithID(err, dir.URI, art.ID))
 		}
-		maps.Copy(data, d)
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, name, errorWithID(err, dir.URI, art.ID))
 	}
 	return nil
+}
+
+func (dir Dirs) embed(art *models.File, data map[string]interface{}) (map[string]interface{}, error) {
+	p, err := readme.Read(art, dir.Download, dir.Extra)
+	if err != nil {
+		if errors.Is(err, render.ErrDownload) {
+			data["noDownload"] = true
+			return data, nil
+		}
+		return nil, fmt.Errorf("dirs.embed: %w", err)
+	}
+	d, err := embedText(art, data, p...)
+	if err != nil {
+		return nil, fmt.Errorf("dirs.embed: %w", err)
+	}
+	maps.Copy(data, d)
+	return d, nil
 }
 
 // Editor returns the editor data for the file record of the artifact.
@@ -221,26 +229,25 @@ func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
 			if err != nil {
 				matches["error"] = [2]string{err.Error(), ""}
 			}
-			s := ""
 			switch ext {
 			case ".AVIF":
-				s = "AVIF"
+				s := "AVIF"
 				matches[s] = [2]string{humanize.Comma(st.Size()), ""}
 			case ".JPG":
-				s = "Jpeg"
+				s := "Jpeg"
 				matches[s] = str.ImageXY(filepath.Join(nameDir, file.Name()))
 			case ".PNG":
-				s = "PNG"
+				s := "PNG"
 				matches[s] = str.ImageXY(filepath.Join(nameDir, file.Name()))
 			case ".TXT":
-				s = "README"
+				s := "README"
 				i, _ := helper.Lines(filepath.Join(dir.Extra, file.Name()))
 				matches[s] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
 			case ".WEBP":
-				s = "WebP"
+				s := "WebP"
 				matches[s] = str.ImageXY(filepath.Join(nameDir, file.Name()))
 			case ".ZIP":
-				s = "Repacked ZIP"
+				s := "Repacked ZIP"
 				matches[s] = [2]string{humanize.Comma(st.Size()), "Deflate compression"}
 			}
 		}

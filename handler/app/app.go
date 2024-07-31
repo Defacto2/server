@@ -320,7 +320,7 @@ func LinkHref(id any) (string, error) {
 	if id == nil {
 		return "", fmt.Errorf("id is nil, %w", ErrNegative)
 	}
-	return str.LinkID(id, "f")
+	return str.LinkID(id, "f") //nolint:wrapcheck
 }
 
 // LinkInterview returns a SVG arrow icon to indicate an interview link hosted on an external website.
@@ -699,9 +699,9 @@ func TrimSpace(a any) string {
 	}
 }
 
-// UrlEncode returns a URL encoded string from the given string.
+// URLEncode returns a URL encoded string from the given string.
 // This can be used to pass filenames as URL parameters.
-func UrlEncode(a any) string {
+func URLEncode(a any) string {
 	if a == nil {
 		return ""
 	}

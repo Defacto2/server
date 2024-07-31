@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Defacto2/server/internal/ext"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"golang.org/x/text/encoding"
@@ -75,13 +74,11 @@ func Read(art *models.File, downloadDir, extraDir string) ([]byte, error) {
 		filepth string
 		uutxtOk bool
 		filepOk bool
-		txt     bool
 	}
 	files.uuidTxt = filepath.Join(extraDir, unid+".txt")
 	files.uutxtOk = helper.Stat(files.uuidTxt)
 	files.filepth = filepath.Join(downloadDir, unid)
 	files.filepOk = helper.Stat(files.filepth)
-	files.txt = !ext.IsArchive(fname)
 
 	if !files.uutxtOk && !files.filepOk {
 		return nil, fmt.Errorf("render read %w: %s", ErrDownload, filepath.Join(downloadDir, unid))
@@ -122,7 +119,7 @@ func Viewer(art *models.File) bool {
 
 // NoScreenshot returns true when the file entry should not attempt to display a screenshot.
 // This is based on the platform, section or if the screenshot is missing on the server.
-func NoScreenshot(art *models.File, downloadPath, previewPath string) bool {
+func NoScreenshot(art *models.File, previewPath string) bool {
 	if art == nil {
 		return true
 	}

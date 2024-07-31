@@ -225,7 +225,7 @@ func (t Templ) Funcs() template.FuncMap {
 		"trimSiteSuffix":     TrimSiteSuffix,
 		"trimSpace":          TrimSpace,
 		"websiteIcon":        WebsiteIcon,
-		"urlEncode":          UrlEncode,
+		"urlEncode":          URLEncode,
 	}
 }
 

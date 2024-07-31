@@ -144,10 +144,10 @@ func ListContent(art *models.File, src string) template.HTML {
 	if !art.Platform.Valid {
 		return "error, no platform"
 	}
-
-	// TODO: validate against string
 	platform := strings.ToLower(art.Platform.String)
-
+	if !tags.IsPlatform(platform) {
+		return "error, invalid platform"
+	}
 	unid := art.UUID.String
 	if !art.UUID.Valid {
 		return "error, no UUID"
@@ -174,7 +174,7 @@ func ListContent(art *models.File, src string) template.HTML {
 	}
 
 	files := 0
-	walkerCount := func(path string, d fs.DirEntry, err error) error {
+	walkerCount := func(_ string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return fs.SkipDir
 		}
@@ -245,8 +245,8 @@ func ListContent(art *models.File, src string) template.HTML {
 			}
 		}
 		items++
-		htm := fmt.Sprintf(`<div class="col d-inline-block text-truncate" data-bs-toggle="tooltip" data-bs-title="%s">%s</div>`,
-			rel, rel)
+		htm := fmt.Sprintf(`<div class="col d-inline-block text-truncate" data-bs-toggle="tooltip" `+
+			`data-bs-title="%s">%s</div>`, rel, rel)
 		if image || texts {
 			htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 				`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></div>`

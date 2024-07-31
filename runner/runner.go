@@ -75,7 +75,7 @@ func JS(name string) api.BuildOptions {
 	}
 }
 
-// editor-assets
+// TODO editor-assets placeholder.
 func EditorAssetsTODO() api.BuildOptions {
 	min := "editor-assets.min.js"
 	entryjs := filepath.Join("assets", "js", "editor-assets.js")

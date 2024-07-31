@@ -93,7 +93,7 @@ const (
 //   - "readonlymode" is true if the application is in read-only mode.
 //
 // These keys are autofilled:
-//   - "cachefiles" is prefilled with the total number of file records and is used by the defacto2:file-count meta element.
+//   - "cachefiles" is the total number of records and used by the defacto2:file-count meta element.
 //   - "editor" is true if the editor mode is enabled for the browser session.
 func empty(c echo.Context) map[string]interface{} {
 	return map[string]interface{}{
@@ -1370,7 +1370,6 @@ func Releasers(c echo.Context, logger *zap.SugaredLogger, uri string) error {
 	defer db.Close()
 
 	s := releaser.Link(uri)
-	fmt.Println("releaser", s, uri)
 	rel := model.Releasers{}
 	fs, err := rel.Where(ctx, db, uri)
 	if err != nil {
