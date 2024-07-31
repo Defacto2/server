@@ -2,8 +2,10 @@
 package mf
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
+	"io"
 	"io/fs"
 	"net/url"
 	"os"
@@ -152,27 +154,10 @@ func ListContent(art *models.File, src string) template.HTML {
 	if !art.UUID.Valid {
 		return "error, no UUID"
 	}
-
-	const mb150 = 150 * 1024 * 1024
-	if st, err := os.Stat(src); err != nil {
-		return template.HTML(err.Error())
-	} else if st.IsDir() {
-		return "error, directory"
-	} else if st.Size() > mb150 {
-		return "will not decompress this archive as it is very large"
-	}
-	dst, err := helper.MkContent(src)
+	dst, err := extractSrc(src)
 	if err != nil {
 		return template.HTML(err.Error())
 	}
-
-	if entries, _ := os.ReadDir(dst); len(entries) == 0 {
-		if err := archive.ExtractAll(src, dst); err != nil {
-			defer os.RemoveAll(dst)
-			return template.HTML(err.Error())
-		}
-	}
-
 	files := 0
 	walkerCount := func(_ string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
@@ -184,15 +169,14 @@ func ListContent(art *models.File, src string) template.HTML {
 	if err := filepath.WalkDir(dst, walkerCount); err != nil {
 		return template.HTML(err.Error())
 	}
-
 	var b strings.Builder
-	items, zeroByteFiles := 0, 0
+	entries, zeroByteFiles := 0, 0
 	const maxItems = 200
-	var skipEntry error
 	walkerFunc := func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return filepath.SkipDir
 		}
+		var skipEntry error
 		rel, err := filepath.Rel(dst, path)
 		if err != nil {
 			debug := fmt.Sprintf(`<div class="border-bottom row mb-1">... %v more files</div>`, err)
@@ -202,8 +186,8 @@ func ListContent(art *models.File, src string) template.HTML {
 		if d.IsDir() {
 			return skipEntry
 		}
-		info, err := d.Info()
-		if err != nil {
+		info, _ := d.Info()
+		if info == nil {
 			return skipEntry
 		}
 		bytes := info.Size()
@@ -212,74 +196,28 @@ func ListContent(art *models.File, src string) template.HTML {
 			return skipEntry
 		}
 		size := humanize.Bytes(uint64(info.Size()))
-		image := false
-		texts := false
-		program := false
-		r, err := os.Open(path)
-		if err != nil {
+		r, _ := os.Open(path)
+		if r == nil {
 			return skipEntry
 		}
 		defer r.Close()
 		sign, err := magicnumber.Find512B(r)
 		if err != nil {
+			fmt.Fprintf(io.Discard, "ignore this error, %v", err)
 			return skipEntry
 		}
-		for _, v := range magicnumber.Images() {
-			if v == sign {
-				image = true
-				break
-			}
-		}
-		for _, v := range magicnumber.Texts() {
-			if v == sign {
-				texts = true
-				break
-			}
-		}
-		for _, v := range magicnumber.Programs() {
-			if strings.EqualFold(platform, tags.DOS.String()) {
-				break
-			}
-			if v == sign {
-				program = true
-				break
-			}
-		}
-		items++
-		htm := fmt.Sprintf(`<div class="col d-inline-block text-truncate" data-bs-toggle="tooltip" `+
-			`data-bs-title="%s">%s</div>`, rel, rel)
-		if image || texts {
-			htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-				`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></div>`
-		} else {
-			htm += `<div class="col col-1"></div>`
-		}
-		switch {
-		case texts:
-			name := url.QueryEscape(rel)
-			htm += `<div class="col col-1 text-end">` +
-				fmt.Sprintf(`<a class="icon-link align-text-bottom" hx-patch="/editor/readme/copy/%s/%s">`, unid, name) +
-				`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
-				`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></a></div>`
-		case program:
-			htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-				`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
-		default:
-			htm += `<div class="col col-1"></div>`
-		}
-		htm += fmt.Sprintf(`<div><small data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</small>`, bytes, size)
-		htm += fmt.Sprintf(` <small class="">%s</small></div>`, sign)
-		htm = fmt.Sprintf(`<div class="border-bottom row mb-1">%s</div>`, htm)
+		images, texts, program := isImage(sign), isText(sign), isProgram(sign, platform)
+		entries++
+		htm := entryHTML(images, program, texts, rel, sign.String(), size, unid, bytes)
 		b.WriteString(htm)
-		if items > maxItems {
-			more := fmt.Sprintf(`<div class="border-bottom row mb-1">... %d more files</div>`, files-items)
+		if entries > maxItems {
+			more := fmt.Sprintf(`<div class="border-bottom row mb-1">... %d more files</div>`, files-entries)
 			b.WriteString(more)
 			return filepath.SkipAll
 		}
 		return nil
 	}
-	err = filepath.WalkDir(dst, walkerFunc)
-	if err != nil {
+	if err = filepath.WalkDir(dst, walkerFunc); err != nil {
 		return template.HTML(err.Error())
 	}
 	if zeroByteFiles > 0 {
@@ -287,6 +225,91 @@ func ListContent(art *models.File, src string) template.HTML {
 		b.WriteString(zero)
 	}
 	return template.HTML(b.String())
+}
+
+func isImage(sign magicnumber.Signature) bool {
+	for _, v := range magicnumber.Images() {
+		if v == sign {
+			return true
+		}
+	}
+	return false
+}
+
+func isProgram(sign magicnumber.Signature, platform string) bool {
+	for _, v := range magicnumber.Programs() {
+		if strings.EqualFold(platform, tags.DOS.String()) {
+			break
+		}
+		if v == sign {
+			return true
+		}
+	}
+	return false
+}
+
+func isText(sign magicnumber.Signature) bool {
+	for _, v := range magicnumber.Texts() {
+		if v == sign {
+			return true
+		}
+	}
+	return false
+}
+
+func entryHTML(images, programs, texts bool, rel, sign, size, unid string, bytes int64) string {
+	htm := fmt.Sprintf(`<div class="col d-inline-block text-truncate" data-bs-toggle="tooltip" `+
+		`data-bs-title="%s">%s</div>`, rel, rel)
+	if images || texts {
+		htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+			`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></div>`
+	} else {
+		htm += `<div class="col col-1"></div>`
+	}
+	switch {
+	case texts:
+		name := url.QueryEscape(rel)
+		htm += `<div class="col col-1 text-end">` +
+			fmt.Sprintf(`<a class="icon-link align-text-bottom" hx-patch="/editor/readme/copy/%s/%s">`, unid, name) +
+			`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
+			`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></a></div>`
+	case programs:
+		htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+			`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
+	default:
+		htm += `<div class="col col-1"></div>`
+	}
+	htm += fmt.Sprintf(`<div><small data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</small>`, bytes, size)
+	htm += fmt.Sprintf(` <small class="">%s</small></div>`, sign)
+	htm = fmt.Sprintf(`<div class="border-bottom row mb-1">%s</div>`, htm)
+	return htm
+}
+
+var (
+	errIsDir   = errors.New("error, directory")
+	errTooMany = errors.New("will not decompress this archive as it is very large")
+)
+
+func extractSrc(src string) (string, error) {
+	const mb150 = 150 * 1024 * 1024
+	if st, err := os.Stat(src); err != nil {
+		return "", fmt.Errorf("cannot stat file: %w", err)
+	} else if st.IsDir() {
+		return "", errIsDir
+	} else if st.Size() > mb150 {
+		return "", errTooMany
+	}
+	dst, err := helper.MkContent(src)
+	if err != nil {
+		return "", fmt.Errorf("cannot create content directory: %w", err)
+	}
+	if entries, _ := os.ReadDir(dst); len(entries) == 0 {
+		if err := archive.ExtractAll(src, dst); err != nil {
+			defer os.RemoveAll(dst)
+			return "", fmt.Errorf("cannot read extracted archive: %w", err)
+		}
+	}
+	return dst, nil
 }
 
 // Date returns a formatted date string for the published date for the artifact.

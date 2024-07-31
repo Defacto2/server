@@ -75,10 +75,9 @@ func JS(name string) api.BuildOptions {
 	}
 }
 
-// TODO editor-assets placeholder.
-func EditorAssetsTODO() api.BuildOptions {
-	min := "editor-assets.min.js"
-	entryjs := filepath.Join("assets", "js", "editor-assets.js")
+func Artifact() api.BuildOptions {
+	min := "artifact-editor.min.js"
+	entryjs := filepath.Join("assets", "js", "artifact-editor.js")
 	output := filepath.Join("public", "js", min)
 	return api.BuildOptions{
 		EntryPoints:       []string{entryjs},
@@ -95,9 +94,9 @@ func EditorAssetsTODO() api.BuildOptions {
 	}
 }
 
-func Artifact() api.BuildOptions {
-	min := "artifact-editor.min.js"
-	entryjs := filepath.Join("assets", "js", "artifact-editor.js")
+func EditorAssets() api.BuildOptions {
+	min := "editor-assets.min.js"
+	entryjs := filepath.Join("assets", "js", "editor-assets.js")
 	output := filepath.Join("public", "js", min)
 	return api.BuildOptions{
 		EntryPoints:       []string{entryjs},
@@ -201,7 +200,7 @@ func main() {
 		}
 	}
 	{
-		result := api.Build(EditorAssetsTODO())
+		result := api.Build(EditorAssets())
 		if len(result.Errors) > 0 {
 			fmt.Fprintf(os.Stderr, "JS build failed: %v\n", result.Errors)
 		}

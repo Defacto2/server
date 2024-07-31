@@ -474,101 +474,85 @@ func sanitizeID(c echo.Context, name, prod string) (int64, error) {
 // UploadReplacement is the file transfer handler that uploads, validates a new file upload
 // and updates the existing artifact record with the new file information.
 // The logger is optional and if nil then the function will not log any debug information.
-func UploadReplacement(c echo.Context, logger *zap.SugaredLogger, downloadDir string) error {
+func UploadReplacement(c echo.Context, downloadDir string) error {
 	name := "artifact-editor-replace-file"
 	if s, err := checkDest(downloadDir); err != nil {
 		return c.HTML(http.StatusInternalServerError, s)
 	}
-	unid := c.FormValue("artifact-editor-unid")
-	if unid == "" {
-		return c.String(http.StatusBadRequest,
-			"The editor file upload is missing the unique identifier")
-	}
-	key := c.FormValue("artifact-editor-record-key")
-	if key == "" {
-		return c.String(http.StatusBadRequest,
-			"The editor file upload is missing the record key")
-	}
-	id, err := strconv.ParseInt(key, 10, 64)
-	if err != nil {
-		return c.String(http.StatusBadRequest,
-			"The editor file upload record key is invalid")
+	up := upIDs{}
+	if s := up.get(c); s != "" {
+		return c.HTML(http.StatusBadRequest, s)
 	}
 	file, err := c.FormFile(name)
 	if err != nil {
-		return checkFormFile(c, logger, name, err)
+		return checkFormFile(c, nil, name, err)
 	}
 	src, err := file.Open()
 	if err != nil {
-		return checkFileOpen(c, logger, name, err)
+		return checkFileOpen(c, nil, name, err)
 	}
 	defer src.Close()
+	fu := model.FileUpload{Filename: file.Filename, Filesize: file.Size}
 	hasher := sha512.New384()
 	if _, err := io.Copy(hasher, src); err != nil {
-		return checkHasher(c, logger, name, err)
+		return checkHasher(c, nil, name, err)
 	}
-	checksum := hasher.Sum(nil)
+	fu.Integrity = hex.EncodeToString(hasher.Sum(nil))
 	src, err = file.Open()
 	if err != nil {
-		return checkFileOpen(c, logger, name, err)
+		return checkFileOpen(c, nil, name, err)
 	}
 	defer src.Close()
-	magicTitle := ""
 	if mn, err := magicnumber.Find(src); err == nil {
-		magicTitle = mn.Title()
+		fu.MagicNumber = mn.Title()
 	}
-	ctx := context.Background()
+	dst, err := copier(c, nil, file, up.key)
+	if err != nil || dst == "" {
+		return c.HTML(http.StatusInternalServerError, "The temporary save cannot be copied")
+	}
+	if list, err := archive.List(dst, file.Filename); err == nil {
+		fu.Content = strings.Join(list, "\n")
+	}
 	db, tx, err := postgres.ConnectTx()
 	if err != nil {
 		return c.HTML(http.StatusServiceUnavailable,
 			"Cannot begin the database transaction")
 	}
 	defer db.Close()
-	dst, err := copier(c, logger, file, key)
-	if err != nil {
-		return c.HTML(http.StatusInternalServerError,
-			"The temporary save cannot be copied")
-	}
-	if dst == "" {
-		return c.HTML(http.StatusInternalServerError,
-			"The temporary save cannot be created")
-	}
-	content := ""
-	if list, err := archive.List(dst, file.Filename); err == nil {
-		content = strings.Join(list, "\n")
-	}
-	fu := model.FileUpload{
-		Filename:    file.Filename,
-		Integrity:   hex.EncodeToString(checksum),
-		MagicNumber: magicTitle,
-		Content:     content,
-		Filesize:    file.Size,
-	}
-	if err := fu.Update(ctx, tx, id); err != nil {
-		if logger != nil {
-			logger.Error(err)
-		}
+	if err := fu.Update(context.Background(), tx, up.id); err != nil {
 		return badRequest(c, ErrUpdate)
 	}
-
-	downloadFile := filepath.Join(downloadDir, unid)
-	_, err = helper.DuplicateOW(dst, downloadFile)
-	if err != nil {
-		err1 := tx.Rollback()
-		logger.Errorf("htmx transfer duplicate file: %w,%q,  %s",
-			err, unid, downloadFile)
-		logger.Errorf("failed to rollback the database transaction: %w", err1)
+	abs := filepath.Join(downloadDir, up.unid)
+	if _, err = helper.DuplicateOW(dst, abs); err != nil {
+		_ = tx.Rollback()
 		return badRequest(c, err)
 	}
 	if err := tx.Commit(); err != nil {
 		return c.HTML(http.StatusInternalServerError, "The database commit failed")
 	}
-
-	abs := filepath.Join(downloadDir, unid)
 	if mkc, err := helper.MkContent(abs); err == nil {
 		defer os.RemoveAll(mkc)
 	}
-
 	return c.String(http.StatusOK,
 		fmt.Sprintf("The new file %s is in use, about to reload this page", file.Filename))
+}
+
+type upIDs struct {
+	unid string
+	key  string
+	id   int64
+}
+
+func (i *upIDs) get(c echo.Context) string {
+	i.unid = c.FormValue("artifact-editor-unid")
+	if i.unid == "" {
+		return "The editor file upload is missing the unique identifier"
+	}
+	i.key = c.FormValue("artifact-editor-record-key")
+	id, err := strconv.ParseInt(i.key, 10, 64)
+	if err != nil {
+		return "The editor file upload record key is invalid"
+	}
+	i.id = id
+	return ""
 }
