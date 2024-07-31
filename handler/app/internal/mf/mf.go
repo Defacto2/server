@@ -138,27 +138,64 @@ func Comment(art *models.File) string {
 	return ""
 }
 
+type entry struct {
+	sign    magicnumber.Signature
+	size    string
+	zeros   int
+	bytes   int64
+	image   bool
+	text    bool
+	program bool
+}
+
+func (e *entry) parse(path string, d fs.DirEntry, platform string) bool {
+	const skipEntry = true
+	if d.IsDir() {
+		return skipEntry
+	}
+	info, _ := d.Info()
+	if info == nil {
+		return skipEntry
+	}
+	e.bytes = info.Size()
+	if e.bytes == 0 {
+		e.zeros++
+		return skipEntry
+	}
+	e.size = humanize.Bytes(uint64(info.Size()))
+	r, _ := os.Open(path)
+	if r == nil {
+		return skipEntry
+	}
+	defer r.Close()
+	var err error
+	e.sign, err = magicnumber.Find512B(r)
+	if err != nil {
+		fmt.Fprintf(io.Discard, "ignore this error, %v", err)
+		return skipEntry
+	}
+	e.image, e.text, e.program = isImage(e.sign), isText(e.sign), isProgram(e.sign, platform)
+	return !skipEntry
+}
+
 // ListContent returns a list of the files contained in the archive file.
 func ListContent(art *models.File, src string) template.HTML {
 	if art == nil {
-		return template.HTML(model.ErrModel.Error())
+		return "error, no artifact"
 	}
-	if !art.Platform.Valid {
-		return "error, no platform"
+	entries, files, zeroByteFiles := 0, 0, 0
+	unid := art.UUID.String
+	if !art.UUID.Valid {
+		return "error, no UUID"
 	}
 	platform := strings.ToLower(art.Platform.String)
 	if !tags.IsPlatform(platform) {
 		return "error, invalid platform"
 	}
-	unid := art.UUID.String
-	if !art.UUID.Valid {
-		return "error, no UUID"
-	}
 	dst, err := extractSrc(src)
 	if err != nil {
 		return template.HTML(err.Error())
 	}
-	files := 0
 	walkerCount := func(_ string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return fs.SkipDir
@@ -170,8 +207,6 @@ func ListContent(art *models.File, src string) template.HTML {
 		return template.HTML(err.Error())
 	}
 	var b strings.Builder
-	entries, zeroByteFiles := 0, 0
-	const maxItems = 200
 	walkerFunc := func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return filepath.SkipDir
@@ -183,34 +218,14 @@ func ListContent(art *models.File, src string) template.HTML {
 			b.WriteString(debug)
 			return skipEntry
 		}
-		if d.IsDir() {
+		e := entry{zeros: zeroByteFiles}
+		if e.parse(path, d, platform) {
+			zeroByteFiles = e.zeros
 			return skipEntry
 		}
-		info, _ := d.Info()
-		if info == nil {
-			return skipEntry
-		}
-		bytes := info.Size()
-		if bytes == 0 {
-			zeroByteFiles++
-			return skipEntry
-		}
-		size := humanize.Bytes(uint64(info.Size()))
-		r, _ := os.Open(path)
-		if r == nil {
-			return skipEntry
-		}
-		defer r.Close()
-		sign, err := magicnumber.Find512B(r)
-		if err != nil {
-			fmt.Fprintf(io.Discard, "ignore this error, %v", err)
-			return skipEntry
-		}
-		images, texts, program := isImage(sign), isText(sign), isProgram(sign, platform)
 		entries++
-		htm := entryHTML(images, program, texts, rel, sign.String(), size, unid, bytes)
-		b.WriteString(htm)
-		if entries > maxItems {
+		b.WriteString(entryHTML(e.image, e.program, e.text, rel, e.sign.String(), e.size, unid, e.bytes))
+		if maxItems := 200; entries > maxItems {
 			more := fmt.Sprintf(`<div class="border-bottom row mb-1">... %d more files</div>`, files-entries)
 			b.WriteString(more)
 			return filepath.SkipAll
@@ -220,11 +235,15 @@ func ListContent(art *models.File, src string) template.HTML {
 	if err = filepath.WalkDir(dst, walkerFunc); err != nil {
 		return template.HTML(err.Error())
 	}
-	if zeroByteFiles > 0 {
-		zero := fmt.Sprintf(`<div class="border-bottom row mb-1">... skipped %d empty (0 B) files</div>`, zeroByteFiles)
-		b.WriteString(zero)
-	}
+	b.WriteString(skippedEmpty(zeroByteFiles))
 	return template.HTML(b.String())
+}
+
+func skippedEmpty(zeroByteFiles int) string {
+	if zeroByteFiles == 0 {
+		return ""
+	}
+	return fmt.Sprintf(`<div class="border-bottom row mb-1">... skipped %d empty (0 B) files</div>`, zeroByteFiles)
 }
 
 func isImage(sign magicnumber.Signature) bool {

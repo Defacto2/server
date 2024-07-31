@@ -435,21 +435,6 @@ func LogoText(s string) string {
 	return indent + text
 }
 
-// MimeMagic overrides some of the default linux file (magic) results.
-// This is intended to be used to provide a more human readable description.
-func MimeMagic(s string) string {
-	x := strings.ToLower(s)
-	const zipV1 = "zip archive data, at least v1.0 to extract"
-	if strings.Contains(x, zipV1) {
-		return "Obsolete zip archive, implode or shrink"
-	}
-	const zipV2 = "zip archive data, at least v2.0 to extract"
-	if strings.Contains(x, zipV2) {
-		return "Zip archive"
-	}
-	return s
-}
-
 // Mod returns true if the given integer is a multiple of the given max integer.
 func Mod(i any, max int) bool {
 	if max == 0 {

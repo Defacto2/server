@@ -170,7 +170,7 @@ func (dir Dirs) Editor(art *models.File, data map[string]interface{}) map[string
 	data["modWebsites"] = mf.WebsitesStr(art)
 	data["modOS"] = mf.TagProgram(art)
 	data["modTag"] = mf.TagCategory(art)
-	data["virusTotal"] = mf.AlertURL(art) // FIXME, virusTotal is a dupe of ["alertURL"] ?
+	data["alertURL"] = mf.AlertURL(art)
 	data["forApproval"] = mf.RecordIsNew(art)
 	data["disableApproval"] = mf.RecordProblems(art)
 	data["disableRecord"] = mf.RecordOffline(art)

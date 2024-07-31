@@ -36,7 +36,7 @@
 {{- $websites := index . "modWebsites"}}
 {{- $programmers := index . "programmers"}}
 {{- $musicians := index . "musicians"}}
-{{- $virusTotal := index . "virusTotal"}}
+{{- $alertURL := index . "alertURL"}}
 {{- $previewImg := recordImgSample $unid}}
 {{- $thumbImg := recordThumbSample $unid}}
 {{- $linkExamples := recordLinkPreviews $youtube $demozoo $pouet $sixteen $github $relations $websites }}
@@ -416,7 +416,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           <div class="col-xl-6">
             <label for="artifact-editor-virustotal" class="col-form-label-lg">VirusTotal alert</label>
             <input type="text" class="form-control" name="artifact-editor-virustotal" id="artifact-editor-virustotal" autocomplete="off" maxlength="256"
-              aria-describedby="artifact-editor-virustotal-help" value="{{$virusTotal}}"
+              aria-describedby="artifact-editor-virustotal-help" value="{{$alertURL}}"
               hx-patch="/editor/virustotal" 
               hx-trigger="keyup changed delay:{{$lDelay}}"
               hx-include="[name='artifact-editor-key']">

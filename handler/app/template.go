@@ -213,7 +213,6 @@ func (t Templ) Funcs() template.FuncMap {
 		"linkSVG":            mf.LinkSVG,
 		"linkWiki":           LinkWiki,
 		"logoText":           LogoText,
-		"mimeMagic":          MimeMagic, // TODO: replace
 		"recordInfoOSTag":    TagWithOS,
 		"recordLinkPreviews": LinkPreviews,
 		"recordTagInfo":      TagBrief,
