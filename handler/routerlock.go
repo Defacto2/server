@@ -5,6 +5,7 @@ import (
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/htmx"
+	"github.com/Defacto2/server/internal/command"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -140,11 +141,27 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 		return htmx.UploadReplacement(c, dir.Download)
 	})
 
+	dirs := command.Dirs{
+		Download:  dir.Download,
+		Preview:   dir.Preview,
+		Thumbnail: dir.Thumbnail,
+	}
 	me := g.Group("/readme")
 	me.PATCH("/copy/:unid/:path", func(c echo.Context) error {
 		return htmx.RecordReadmeCopier(c, dir.Extra)
 	})
+	me.PATCH("/preview/:unid/:path", func(c echo.Context) error {
+		return htmx.RecordReadmeImager(c, logger, dirs)
+	})
 	me.DELETE("/:unid", func(c echo.Context) error {
+		return htmx.RecordReadmeDeleter(c, dir.Extra)
+	})
+
+	pre := g.Group("/preview")
+	pre.PATCH("/copy/:unid/:path", func(c echo.Context) error {
+		return htmx.RecordImageCopier(c, dir.Extra)
+	})
+	pre.DELETE("/:unid", func(c echo.Context) error {
 		return htmx.RecordReadmeDeleter(c, dir.Extra)
 	})
 }

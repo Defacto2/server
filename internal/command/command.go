@@ -248,11 +248,8 @@ func LookVersion(name, flag, match string) error {
 
 // Run looks for the command in the system path and executes it with the arguments.
 // Any output to stderr is logged as a debug message.
-func Run(logger *zap.SugaredLogger, name string, arg ...string) error {
-	if logger == nil {
-		return ErrZap
-	}
-	return run(logger, name, "", arg...)
+func Run(debug *zap.SugaredLogger, name string, arg ...string) error {
+	return run(debug, name, "", arg...)
 }
 
 // RunOut looks for the command in the system path and executes it with the arguments.
@@ -288,14 +285,11 @@ func RunQuiet(name string, arg ...string) error {
 // RunWD looks for the command in the system path and executes it with the arguments.
 // An optional working directory is set for the command.
 // Any output to stderr is logged as a debug message.
-func RunWD(logger *zap.SugaredLogger, name, wdir string, arg ...string) error {
-	if logger == nil {
-		return ErrZap
-	}
-	return run(logger, name, wdir, arg...)
+func RunWD(debug *zap.SugaredLogger, name, wdir string, arg ...string) error {
+	return run(debug, name, wdir, arg...)
 }
 
-func run(logger *zap.SugaredLogger, name, wdir string, arg ...string) error {
+func run(debug *zap.SugaredLogger, name, wdir string, arg ...string) error {
 	if err := LookCmd(name); err != nil {
 		return fmt.Errorf("run %w", err)
 	}
@@ -312,8 +306,8 @@ func run(logger *zap.SugaredLogger, name, wdir string, arg ...string) error {
 	if err != nil {
 		return fmt.Errorf("run could not read stderr %w", err)
 	}
-	if len(b) > 0 {
-		logger.Debugf("run %q: %s\n", cmd, string(b))
+	if debug != nil && len(b) > 0 {
+		debug.Debugf("run %q: %s\n", cmd, string(b))
 	}
 
 	if err := cmd.Wait(); err != nil {

@@ -48,15 +48,37 @@ import { clipValue, getElmById } from "./helper.mjs";
 
   const copyUUIDVal = getElmById(`artifact-editor-unique-id-value`);
   if (copyUUIDVal === null) {
-    throw new Error("The key value is missing.");
+    throw new Error("The unique id value is missing.");
   }
   const copyUUIDBtn = getElmById(`artifact-editor-unique-id-label`);
   if (copyUUIDBtn === null) {
-    throw new Error("The key label is missing.");
+    throw new Error("The unique id label is missing.");
   }
   copyUUIDBtn.addEventListener(`click`, () =>
     clipValue(`artifact-editor-unique-id-value`)
   );
+
+  const copyLocation = getElmById(`artifact-editor-location-value`);
+  if (copyLocation === null) {
+    throw new Error("The location value is missing.");
+  }
+  const copyLocationBtn = getElmById(`artifact-editor-location-label`);
+  if (copyLocationBtn === null) {
+    throw new Error("The location label is missing.");
+  }
+  copyLocationBtn.addEventListener(`click`, () =>
+    clipValue(`artifact-editor-location-value`)
+  );
+
+  const copyTempLocation = getElmById(`artifact-editor-templocation`);
+  if (copyTempLocation !== null) {
+    const copyTempLocationBtn = getElmById(
+      `artifact-editor-templocation-label`
+    );
+    copyTempLocationBtn.addEventListener(`click`, () =>
+      clipValue(`artifact-editor-templocation`)
+    );
+  }
 
   const osLabel = document.getElementById("artifact-editor-os-label");
   if (osLabel === null) {

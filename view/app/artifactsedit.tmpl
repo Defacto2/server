@@ -1,11 +1,20 @@
 {{- /* artifactsedit.tmpl */}}
 {{- define "artifactsedit" }}
 {{- $zooID := .WebIDDemozoo.Int64 }}
-{{- if gt $zooID 0}}
-  {{- /*  Demozoo production ID  */}}
-  <p class="card-text"><small class="text-body-info" id="editorFeedback{{ .WebIDDemozoo.Int64 }}">
-    <a href="https://demozoo.org/productions/{{ .WebIDDemozoo.Int64 }}">Lookup Demozoo</a>, production #{{ .WebIDDemozoo.Int64 }}</small>
-  </p>
-  {{- demozooGetLink .Filename .Filesize .WebIDDemozoo .UUID }}
-{{- end}}
+{{- $editorLink := "link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"}}
+{{- $syncLink := demozooGetLink .Filename .Filesize .WebIDDemozoo .UUID}}
+  <div class="card-footer">
+    <strong>Editor</strong>, 
+    <a class="{{$editorLink}}" href="{{linkHref .ID}}#data-editor">metadata</a>, 
+    <a class="{{$editorLink}}" href="{{linkHref .ID}}#file-editor">file assets</a>, 
+    <a class="{{$editorLink}}" href="{{linkHref .ID}}#emulate-editor">emulator</a> settings
+    <br>
+  {{- if gt $zooID 0}}
+    {{- /*  Demozoo production ID  */}}
+    <div class="card-text"><small class="text-body-info" id="editorFeedback{{ .WebIDDemozoo.Int64 }}">
+      Demozoo production <a class="{{$editorLink}}" href="https://demozoo.org/productions/{{ .WebIDDemozoo.Int64 }}">{{ .WebIDDemozoo.Int64 }}</a>
+      {{- if ne $syncLink ""}}, <a class="{{$editorLink}}" href="">{{$syncLink}}</a>{{end}}</small>
+    </div>
+  {{- end}}
+  </div>
 {{- end}}

@@ -277,17 +277,24 @@ func isText(sign magicnumber.Signature) bool {
 }
 
 func entryHTML(images, programs, texts bool, rel, sign, size, unid string, bytes int64) string {
+	name := url.QueryEscape(rel)
 	htm := fmt.Sprintf(`<div class="col d-inline-block text-truncate" data-bs-toggle="tooltip" `+
 		`data-bs-title="%s">%s</div>`, rel, rel)
-	if images || texts {
-		htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-			`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></div>`
+	if images {
+		htm += `<div class="col col-1 text-end">` +
+			fmt.Sprintf(`<a class="icon-link align-text-bottom" hx-patch="/editor/preview/copy/%s/%s">`, unid, name) +
+			`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+			`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
+	} else if texts {
+		htm += `<div class="col col-1 text-end">` +
+			fmt.Sprintf(`<a class="icon-link align-text-bottom" hx-patch="/editor/readme/preview/%s/%s">`, unid, name) +
+			`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+			`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
 	} else {
 		htm += `<div class="col col-1"></div>`
 	}
 	switch {
 	case texts:
-		name := url.QueryEscape(rel)
 		htm += `<div class="col col-1 text-end">` +
 			fmt.Sprintf(`<a class="icon-link align-text-bottom" hx-patch="/editor/readme/copy/%s/%s">`, unid, name) +
 			`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +

@@ -76,8 +76,10 @@
           <div class="col-xl-6">
             <legend>Artifact for download</legend>
             <div class="input-group mb-1">
-              <label class="input-group-text w-25" for="artifact-editor-dl-loc">Location</label>
-              <input type="text" class="form-control" id="artifact-editor-dl-loc" value="{{$downloadPath}}" autocomplete="off" readonly>
+              <button type="button" class="btn btn-secondary w-25" id="artifact-editor-location-label"
+                data-bs-toggle="tooltip" data-bs-title="Copy the path">Location</button>
+              <input type="text" class="form-control" name="artifact-editor-location-value" id="artifact-editor-location-value" 
+                aria-describedby="artifact-editor-location-label" value="{{$downloadPath}}" autocomplete="off" readonly>
             </div>
             <div class="input-group mb-1">
               <label class="input-group-text w-25" for="artifact-editor-dl-fn">Filename</label>
@@ -146,8 +148,19 @@
             <div class="input-group mb-3"><span class="text-info-emphasis">Nothing to show as the artifact is not an archive (a ZIP or RAR file, etc.)</span></div>
             {{- else}}
             <div class="input-group mb-3">
-              <label class="input-group-text w-25" for="artifact-editor-decompress-loc" id="aartifact-editor-decompress-loc-label">Temp location</label>
-              <input type="text" class="form-control" id="artifact-editor-decompress-loc" value="{{$modDecompressLoc}}" readonly>
+              <button type="button" class="btn btn-secondary w-25" id="artifact-editor-templocation-label"
+                data-bs-toggle="tooltip" data-bs-title="Copy the path">Temp location</button>
+              <input type="text" class="form-control" name="artifact-editor-templocation" id="artifact-editor-templocation" 
+                aria-describedby="artifact-editor-templocation-label" value="{{$modDecompressLoc}}" readonly>
+
+              {{/*  
+            <div class="input-group">
+              <button type="button" class="btn btn-secondary" id="artifact-editor-key-label"
+                data-bs-toggle="tooltip" data-bs-title="Copy the key">Record key</button>
+              <input type="text" value='{{$key}}' class="form-control" name="artifact-editor-key" id="artifact-editor-key-value"
+                aria-describedby="artifact-editor-key-label" readonly>
+            </div>  */}}
+
             </div>
             <div class="container text-begin mb-3">
               <hr class="m-0 mb-3 mt-3">
@@ -270,7 +283,7 @@
                         <div class="invalid-feedback" id="edHideMeErr">error placeholder</div>  
                       </div>  */}}
                       <div>
-                        <button class="btn btn-link" 
+                        <button class="btn btn-link m-0 p-0" 
                           hx-target="#editor-copy-readme-result"
                           hx-delete="/editor/readme/{{$unid}}">
                           Delete README</button>
@@ -278,7 +291,7 @@
                       {{- end}}
                       {{- if ne "" (index . "modReadmeSuggest")}}
                       <div>
-                        <button class="btn btn-link" 
+                        <button class="btn btn-link m-0 p-0" 
                           hx-target="#editor-copy-readme-result"
                           hx-patch="/editor/readme/copy/{{$unid}}/{{$modReadmeSuggest | urlEncode }}">
                           Use guessed README file</button>

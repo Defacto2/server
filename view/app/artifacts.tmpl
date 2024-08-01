@@ -78,12 +78,12 @@
         {{- if ne $attr ""}}
         <p class="card-text"><small class="text-body-secondary">{{$attr}}</small></p>
         {{- end}}
-        {{- if eq $editor true}}{{ template "artifactsedit" . }}{{end}}
         {{- linkPage .ID}}
         {{- linkDownload .ID .FileSecurityAlertURL.String }}{{ downloadB .Filesize}}
         {{- linkPreview .ID .Filename.String .Platform.String}}
       </div>
       <a href="{{linkHref .ID}}">{{thumb .UUID.String .Filename.String true }}</a>
+      {{- if eq $editor true}}{{ template "artifactsedit" . }}{{end}}
     </div>
   </div>
   {{- /*  End of the iteration of the records */}}

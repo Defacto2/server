@@ -15,6 +15,7 @@ import (
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app"
+	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/form"
 	"github.com/Defacto2/server/internal/helper"
@@ -29,6 +30,74 @@ var (
 	ErrIsDir = errors.New("the file is a directory")
 	ErrYT    = errors.New("youtube watch video id needs to be empty or 11 characters")
 )
+
+func RecordImageCopier(c echo.Context, extraDir string) error {
+	path := c.Param("path")
+	name, err := url.QueryUnescape(path)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	unid := c.Param("unid")
+	tmp, err := helper.MkContent(unid)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	src := filepath.Join(tmp, name)
+	st, err := os.Stat(src)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if st.Size() == 0 {
+		return c.String(http.StatusOK, "The file is empty and was not copied.")
+	}
+	// TODO make images, png or avi?
+	// make thumbnails for images
+	// compress images
+
+	// dst := filepath.Join(extraDir, unid+".png")
+	// i, err := helper.DuplicateOW(src, dst)
+	// if err != nil {
+	// 	return badRequest(c, err)
+	// }
+	// c.Response().Header().Set("HX-Refresh", "true")
+	// return c.String(http.StatusOK, fmt.Sprintf("Copied %d bytes, refresh the browser.", i))
+	return c.String(http.StatusOK, "Not implemented.")
+}
+
+func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, dirs command.Dirs) error {
+	path := c.Param("path")
+	name, err := url.QueryUnescape(path)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	unid := c.Param("unid")
+	tmp, err := helper.MkContent(unid)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	src := filepath.Join(tmp, name)
+	st, err := os.Stat(src)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if st.Size() == 0 {
+		return c.String(http.StatusOK, "The file is empty and was not used.")
+	}
+
+	if err := dirs.AnsiLove(logger, src, unid); err != nil {
+		return badRequest(c, err)
+	}
+	// TODO: REMOVE PNG created by ANSILOVE in working directory
+
+	return c.String(http.StatusOK, src)
+	// dst := filepath.Join(extraDir, unid+".txt")
+	// i, err := helper.DuplicateOW(src, dst)
+	// if err != nil {
+	// 	return badRequest(c, err)
+	// }
+	// c.Response().Header().Set("HX-Refresh", "true")
+	// return c.String(http.StatusOK, fmt.Sprintf("Copied %d bytes, refresh the browser.", i))
+}
 
 func RecordReadmeCopier(c echo.Context, extraDir string) error {
 	path := c.Param("path")

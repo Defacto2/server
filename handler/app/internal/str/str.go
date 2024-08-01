@@ -95,7 +95,7 @@ func DemozooGetLink(filename, filesize, demozoo, unid any) template.HTML {
 		zooID = val.Int64
 	}
 	if zooID == 0 {
-		return "no demozoo ID provided"
+		return ""
 	}
 	var uID string
 	if val, valExists := unid.(null.String); valExists {
@@ -105,15 +105,11 @@ func DemozooGetLink(filename, filesize, demozoo, unid any) template.HTML {
 		uID = val.String
 	}
 	if uID == "" {
-		return "no unid provided"
+		return ""
 	}
-	s := fmt.Sprintf("<button type=\"button\" "+
-		"class=\"btn btn-outline-success me-2\" name=\"editorGetDemozoo\" "+
-		"data-id=\"%d\" data-uid=\"%s\" id=btn\"%s\">"+
-		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">`+
-		`<use xlink:href="/svg/bootstrap-icons.svg#cloud-download"></use></svg>`+
-		" &nbsp; Use Demozoo</button>", zooID, uID, uID)
-	return template.HTML(s)
+	// s := fmt.Sprintf(`, <a href="" name="editorGetDemozoo"`+
+	// 	` data-id="%d" data-uid="%s" id=btn"%s">Use demozoo assets</a>`, zooID, uID, uID)
+	return template.HTML(`clone the demozoo assets`)
 }
 
 // DownloadB returns a human readable string of the file size.

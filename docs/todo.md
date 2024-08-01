@@ -16,6 +16,7 @@
 - [ ] Handle magazines title on artifact page, http://localhost:1323/f/a55ed, this is hard to read, "Issue 4\nThe Pirate Syndicate +\nThe Pirate World"
 - [ ] If artifact is a text file displayed in readme, then delete image preview, these are often super long, large and not needed.
 - [ ] If a #hash is appended to a /f/<id> URL while signed out, then return a 404 or a redirect to the sign in page. Post signing should return to the #hash URL?
+- [ ] Delete all previews that are unused, such as textfiles that are displayed as a readme.
 
 - [ ] - http://www.platohistory.org/
 - [ ] - https://portcommodore.com/dokuwiki/doku.php?id=larry:comp:bbs:about_cbbs
