@@ -231,7 +231,7 @@ func Test_ExtractImage(t *testing.T) {
 	}
 }
 
-func Test_LosslessScreenshot(t *testing.T) {
+func Test_PreviewPixels(t *testing.T) {
 	t.Parallel()
 	prev, err := os.MkdirTemp(os.TempDir(), "preview")
 	require.NoError(t, err)
@@ -247,10 +247,10 @@ func Test_LosslessScreenshot(t *testing.T) {
 	imgs := []string{"TEST.BMP", "TEST.GIF", "TEST.JPG", "TEST.PCX", "TEST.PNG"}
 	for _, name := range imgs {
 		fp := tduncompress(name)
-		err = dir.LosslessScreenshot(logr(), fp, "000000ABCDE")
+		err = dir.PreviewPixels(logr(), fp, "000000ABCDE")
 		require.NoError(t, err)
 	}
 
-	err = dir.LosslessScreenshot(logr(), "", "")
+	err = dir.PreviewPixels(logr(), "", "")
 	require.Error(t, err)
 }

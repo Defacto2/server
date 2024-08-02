@@ -192,11 +192,12 @@
                       <div><a href="">Square crop</a></div>
                       <div><a href="">640x480 crop</a></div>
                       <div><a href="">640x1280 crop</a></div>
-                      <div><a href="">Delete previews</a></div>
+                      <div><a href="#file-editor" hx-delete="/editor/preview/{{$unid}}">Delete previews</a></div>
                     </p>
                   </div>
                   {{$previewImg}}
                 </div>
+                <div class="mt-1"><a href="#file-editor" hx-delete="/editor/images/{{$unid}}">Delete image assets</a></div>
               </div>
               <div class="col-6">
                 <div class="card">
@@ -218,7 +219,7 @@
                       <div><a href="">Square crop, align top</a></div>
                       <div><a href="">Square crop, align center</a></div>
                       <div><a href="">Square crop, align bottom</a></div>
-                      <div><a href="">Delete thumbnails</a></div>
+                      <div><a href="#file-editor" hx-delete="/editor/thumbnail/{{$unid}}">Delete thumbnails</a></div>
                     </p>
                   </div>
                   {{$thumbImg}}

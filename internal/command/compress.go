@@ -319,7 +319,7 @@ func (dir Dirs) ExtractAnsiLove(logger *zap.SugaredLogger, src, extHint, unid, n
 		return fmt.Errorf("decompress extract ansilove: %w", err)
 	}
 	defer os.RemoveAll(dst)
-	return dir.AnsiLove(logger, dst, unid)
+	return dir.TextImager(logger, dst, unid)
 }
 
 // ExtractImage extracts the named image file from a zip archive.
@@ -336,15 +336,16 @@ func (dir Dirs) ExtractImage(logger *zap.SugaredLogger, src, extHint, unid, name
 	}
 	defer os.RemoveAll(dst)
 
+	// TODO: replace this with PictureImager() method
 	ext := filepath.Ext(strings.ToLower(dst))
 	switch ext {
 	case gif:
 		err = dir.PreviewGIF(logger, dst, unid)
 	case bmp:
-		err = dir.PreviewLossy(logger, dst, unid)
+		err = dir.PreviewPhoto(logger, dst, unid)
 	case png:
 		// optimize but keep the original png file as preview
-		err = dir.PreviewPNG(logger, dst, unid)
+		err = dir.PreviewPixels(logger, dst, unid)
 	case jpeg, jpg, tiff, webp:
 		// convert to the optimal webp format
 		// as of 2023, webp is supported by all current browsers

@@ -160,10 +160,6 @@ func RemoveMe(unid, dir string) error {
 
 // CopyFile copies the src file to the dst file and path.
 func CopyFile(logger *zap.SugaredLogger, src, dst string) error {
-	if logger == nil {
-		return ErrZap
-	}
-
 	s, err := os.Open(src)
 	if err != nil {
 		return fmt.Errorf("copy file open %w", err)
@@ -180,8 +176,9 @@ func CopyFile(logger *zap.SugaredLogger, src, dst string) error {
 	if err != nil {
 		return fmt.Errorf("copy file io.copy %w", err)
 	}
-	logger.Infof("copyfile: copied %d bytes to %s\n", i, dst)
-
+	if logger != nil {
+		logger.Infof("copyfile: copied %d bytes to %s\n", i, dst)
+	}
 	if err := d.Sync(); err != nil {
 		return fmt.Errorf("copy file sync %w", err)
 	}
@@ -295,23 +292,16 @@ func run(debug *zap.SugaredLogger, name, wdir string, arg ...string) error {
 	}
 	cmd := exec.Command(name, arg...)
 	cmd.Dir = wdir
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		return fmt.Errorf("run could not get stderr pipe %w", err)
+	if debug != nil {
+		p, err := cmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("run could not start command %w", err)
+		}
+		debug.Debugf("run %q: %s\n", cmd, string(p))
+		return nil
 	}
-	if err := cmd.Start(); err != nil {
+	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("run could not start command %w", err)
-	}
-	b, err := io.ReadAll(stderr)
-	if err != nil {
-		return fmt.Errorf("run could not read stderr %w", err)
-	}
-	if debug != nil && len(b) > 0 {
-		debug.Debugf("run %q: %s\n", cmd, string(b))
-	}
-
-	if err := cmd.Wait(); err != nil {
-		return fmt.Errorf("run wait: %w", err)
 	}
 	return nil
 }

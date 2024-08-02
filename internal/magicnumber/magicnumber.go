@@ -35,6 +35,19 @@ import (
 // Signature represents a file type signature.
 type Signature int
 
+// Signature aliases for common file type signatures.
+const (
+	IFF  = ElectronicArtsIFF
+	JPG  = JPEGFileInterchangeFormat
+	PNG  = PortableNetworkGraphics
+	GIF  = GraphicsInterchangeFormat
+	WebP = GoogleWebP
+	TIFF = TaggedImageFileFormat
+	BMP  = BMPFileFormat
+	PCX  = PersonalComputereXchange
+	AVI  = MicrosoftAudioVideoInterleave
+)
+
 const (
 	Unknown Signature = iota - 1
 	ElectronicArtsIFF

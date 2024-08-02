@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"html"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -31,7 +32,7 @@ var (
 	ErrYT    = errors.New("youtube watch video id needs to be empty or 11 characters")
 )
 
-func RecordImageCopier(c echo.Context, extraDir string) error {
+func RecordImageCopier(c echo.Context, logger *zap.SugaredLogger, dirs command.Dirs) error {
 	path := c.Param("path")
 	name, err := url.QueryUnescape(path)
 	if err != nil {
@@ -50,9 +51,10 @@ func RecordImageCopier(c echo.Context, extraDir string) error {
 	if st.Size() == 0 {
 		return c.String(http.StatusOK, "The file is empty and was not copied.")
 	}
-	// TODO make images, png or avi?
-	// make thumbnails for images
-	// compress images
+	if err := dirs.PictureImager(logger, src, unid); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, src)
 
 	// dst := filepath.Join(extraDir, unid+".png")
 	// i, err := helper.DuplicateOW(src, dst)
@@ -61,7 +63,7 @@ func RecordImageCopier(c echo.Context, extraDir string) error {
 	// }
 	// c.Response().Header().Set("HX-Refresh", "true")
 	// return c.String(http.StatusOK, fmt.Sprintf("Copied %d bytes, refresh the browser.", i))
-	return c.String(http.StatusOK, "Not implemented.")
+	//return c.String(http.StatusOK, "Not implemented.")
 }
 
 func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, dirs command.Dirs) error {
@@ -83,20 +85,10 @@ func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, dirs command.
 	if st.Size() == 0 {
 		return c.String(http.StatusOK, "The file is empty and was not used.")
 	}
-
-	if err := dirs.AnsiLove(logger, src, unid); err != nil {
+	if err := dirs.TextImager(logger, src, unid); err != nil {
 		return badRequest(c, err)
 	}
-	// TODO: REMOVE PNG created by ANSILOVE in working directory
-
 	return c.String(http.StatusOK, src)
-	// dst := filepath.Join(extraDir, unid+".txt")
-	// i, err := helper.DuplicateOW(src, dst)
-	// if err != nil {
-	// 	return badRequest(c, err)
-	// }
-	// c.Response().Header().Set("HX-Refresh", "true")
-	// return c.String(http.StatusOK, fmt.Sprintf("Copied %d bytes, refresh the browser.", i))
 }
 
 func RecordReadmeCopier(c echo.Context, extraDir string) error {
@@ -125,6 +117,30 @@ func RecordReadmeCopier(c echo.Context, extraDir string) error {
 	}
 	c.Response().Header().Set("HX-Refresh", "true")
 	return c.String(http.StatusOK, fmt.Sprintf("Copied %d bytes, refresh the browser.", i))
+}
+
+func RecordImagesDeleter(c echo.Context, dirs ...string) error {
+	unid := c.Param("unid")
+	exts := []string{".jpg", ".jpeg", ".gif", ".png", ".webp", ".avif"}
+	for _, dir := range dirs {
+		st, err := os.Stat(dir)
+		if err != nil {
+			return badRequest(c, err)
+		}
+		if !st.IsDir() {
+			return badRequest(c, ErrIsDir)
+		}
+		for _, ext := range exts {
+			name := filepath.Join(dir, unid+ext)
+			if _, err := os.Stat(name); err != nil {
+				fmt.Fprint(io.Discard, err)
+				continue
+			}
+			defer os.Remove(name)
+		}
+	}
+	c.Response().Header().Set("HX-Refresh", "true")
+	return c.String(http.StatusOK, "Deleted, refresh the browser.")
 }
 
 func RecordReadmeDeleter(c echo.Context, extraDir string) error {

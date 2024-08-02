@@ -159,10 +159,23 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 
 	pre := g.Group("/preview")
 	pre.PATCH("/copy/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordImageCopier(c, dir.Extra)
+		return htmx.RecordImageCopier(c, logger, dirs)
 	})
 	pre.DELETE("/:unid", func(c echo.Context) error {
-		return htmx.RecordReadmeDeleter(c, dir.Extra)
+		return htmx.RecordImagesDeleter(c, dir.Preview)
+	})
+
+	thumb := g.Group("/thumbnail")
+	thumb.PATCH("/copy/:unid/:path", func(c echo.Context) error {
+		return htmx.RecordImageCopier(c, logger, dirs)
+	})
+	thumb.DELETE("/:unid", func(c echo.Context) error {
+		return htmx.RecordImagesDeleter(c, dir.Thumbnail)
+	})
+
+	imgs := g.Group("/images")
+	imgs.DELETE("/:unid", func(c echo.Context) error {
+		return htmx.RecordImagesDeleter(c, dir.Preview, dir.Thumbnail)
 	})
 }
 
