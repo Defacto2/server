@@ -42,7 +42,7 @@ func (dir Dirs) PictureImager(debug *zap.SugaredLogger, src, unid string) error 
 	case magicnumber.GIF:
 		return dir.PreviewGIF(debug, src, unid)
 	case magicnumber.WebP:
-		return nil // TODO
+		return dir.PreviewWebP(debug, src, unid)
 	case magicnumber.PNG:
 		return dir.PreviewPNG(debug, src, unid)
 	case magicnumber.TIFF,

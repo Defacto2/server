@@ -159,7 +159,7 @@ func RemoveMe(unid, dir string) error {
 }
 
 // CopyFile copies the src file to the dst file and path.
-func CopyFile(logger *zap.SugaredLogger, src, dst string) error {
+func CopyFile(debug *zap.SugaredLogger, src, dst string) error {
 	s, err := os.Open(src)
 	if err != nil {
 		return fmt.Errorf("copy file open %w", err)
@@ -176,8 +176,8 @@ func CopyFile(logger *zap.SugaredLogger, src, dst string) error {
 	if err != nil {
 		return fmt.Errorf("copy file io.copy %w", err)
 	}
-	if logger != nil {
-		logger.Infof("copyfile: copied %d bytes to %s\n", i, dst)
+	if debug != nil {
+		debug.Infof("copyfile: copied %d bytes to %s\n", i, dst)
 	}
 	if err := d.Sync(); err != nil {
 		return fmt.Errorf("copy file sync %w", err)
