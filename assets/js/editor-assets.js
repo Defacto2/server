@@ -56,13 +56,86 @@ import { progress } from "./uploader.mjs";
 
   // New file download form event listener.
   document.body.addEventListener("htmx:afterRequest", function (event) {
-    afterRequest(
+    afterFormRequest(
       event,
       `artifact-editor-dl-form`,
       `artifact-editor-dl-up`,
       `artifact-editor-dl-feedback`
     );
+    afterDeleteRequest(
+      event,
+      "artifact-editor-image-delete",
+      "artifact-editor-image-feedback"
+    );
+    afterLinkRequest(
+      event,
+      "artifact-editor-link-delete",
+      "artifact-editor-link-feedback"
+    );
   });
+
+  function afterDeleteRequest(event, inputId, feedbackId) {
+    if (event.detail.elt === null) return;
+    if (event.detail.elt.id !== `${inputId}`) return;
+    const feedback = document.getElementById(feedbackId);
+    if (feedback === null) {
+      throw new Error(
+        `The htmx successful feedback element ${feedbackId} is null`
+      );
+    }
+    const errClass = "text-danger";
+    const okClass = "text-success";
+    const xhr = event.detail.xhr;
+    if (event.detail.successful) {
+      feedback.innerText = `The delete request was successful, about to refresh the page.`;
+      feedback.classList.remove(errClass);
+      feedback.classList.add(okClass);
+      setTimeout(() => {
+        location.reload();
+      }, 500);
+      return;
+    }
+    if (event.detail.failed && event.detail.xhr) {
+      feedback.classList.add(errClass);
+      feedback.innerText =
+        `Something on the server is not working, ` +
+        `${xhr.status} status: ${xhr.responseText}.`;
+      return;
+    }
+    feedback.classList.add(errClass);
+    feedback.innerText =
+      "Something with the browser is not working," +
+      " please try again or refresh the page.";
+  }
+
+  function afterLinkRequest(event, inputId, feedbackId) {
+    if (event.detail.elt === null) return;
+    if (event.detail.elt.id !== `${inputId}`) return;
+    const feedback = document.getElementById(feedbackId);
+    if (feedback === null) {
+      throw new Error(
+        `The htmx successful feedback element ${feedbackId} is null`
+      );
+    }
+    const errClass = "text-danger";
+    const xhr = event.detail.xhr;
+    if (event.detail.successful) {
+      feedback.innerText = `${xhr.responseText}`;
+      feedback.classList.remove(errClass);
+      return;
+    }
+    if (event.detail.failed && event.detail.xhr) {
+      feedback.classList.add(errClass);
+      feedback.innerText =
+        `Something on the server is not working, ` +
+        `${xhr.status} status: ${xhr.responseText}.`;
+      return;
+    }
+    feedback.classList.add(errClass);
+    feedback.innerText =
+      "Something with the browser is not working," +
+      " please try again or refresh the page.";
+  }
 
   /**
    * The htmx event listener for the artifact editor upload a new file download form.
@@ -72,7 +145,7 @@ import { progress } from "./uploader.mjs";
    * @param {string} feedbackName - The feedback name.
    * @returns {void}
    **/
-  function afterRequest(event, formId, inputName, feedbackName) {
+  function afterFormRequest(event, formId, inputName, feedbackName) {
     if (event.detail.elt === null) return;
     if (event.detail.elt.id !== `${formId}`) return;
     const input = document.getElementById(inputName);

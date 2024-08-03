@@ -163,6 +163,7 @@
 
             </div>
             <div class="container text-begin mb-3">
+              <div class="form-text" id="artifact-editor-comp-feedback"></div>
               <hr class="m-0 mb-3 mt-3">
               {{$modDecompress}}
             </div>
@@ -171,6 +172,11 @@
           <div class="col-xl-6 pb-3 bg-light">
             {{- /*  Image assets  */}}
             <legend>Image assets</legend>
+            <div>
+              <button id="artifact-editor-image-delete" hx-target="#artifact-editor-image-feedback" 
+              hx-delete="/editor/images/{{$unid}}" class="btn btn-link m-0 p-0">Delete image assets</button>
+            </div>
+            <div class="form-text" id="artifact-editor-image-feedback"></div>
             <div class="row row-cols-2 g-1">
               <div class="col-6">
                 <div class="card">
@@ -197,7 +203,6 @@
                   </div>
                   {{$previewImg}}
                 </div>
-                <div class="mt-1"><a href="#file-editor" hx-delete="/editor/images/{{$unid}}">Delete image assets</a></div>
               </div>
               <div class="col-6">
                 <div class="card">

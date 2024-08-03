@@ -139,8 +139,8 @@ func RecordImagesDeleter(c echo.Context, dirs ...string) error {
 			defer os.Remove(name)
 		}
 	}
-	c.Response().Header().Set("HX-Refresh", "true")
-	return c.String(http.StatusOK, "Deleted, refresh the browser.")
+	//c.Response().Header().Set("HX-Refresh", "true")
+	return c.NoContent(http.StatusOK)
 }
 
 func RecordReadmeDeleter(c echo.Context, extraDir string) error {

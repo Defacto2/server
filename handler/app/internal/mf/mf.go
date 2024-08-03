@@ -282,12 +282,14 @@ func entryHTML(images, programs, texts bool, rel, sign, size, unid string, bytes
 		`data-bs-title="%s">%s</div>`, rel, rel)
 	if images {
 		htm += `<div class="col col-1 text-end">` +
-			fmt.Sprintf(`<a class="icon-link align-text-bottom" hx-patch="/editor/preview/copy/%s/%s">`, unid, name) +
+			fmt.Sprintf(`<a class="icon-link align-text-bottom" id="" `+
+				`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/preview/copy/%s/%s">`, unid, name) +
 			`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 			`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
 	} else if texts {
 		htm += `<div class="col col-1 text-end">` +
-			fmt.Sprintf(`<a class="icon-link align-text-bottom" hx-patch="/editor/readme/preview/%s/%s">`, unid, name) +
+			fmt.Sprintf(`<a class="icon-link align-text-bottom" `+
+				`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/readme/preview/%s/%s">`, unid, name) +
 			`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 			`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
 	} else {
@@ -296,7 +298,8 @@ func entryHTML(images, programs, texts bool, rel, sign, size, unid string, bytes
 	switch {
 	case texts:
 		htm += `<div class="col col-1 text-end">` +
-			fmt.Sprintf(`<a class="icon-link align-text-bottom" hx-patch="/editor/readme/copy/%s/%s">`, unid, name) +
+			fmt.Sprintf(`<a class="icon-link align-text-bottom" `+
+				`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/readme/copy/%s/%s">`, unid, name) +
 			`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
 			`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></a></div>`
 	case programs:
