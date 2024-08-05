@@ -49,7 +49,8 @@ const (
 )
 
 const (
-	Unknown Signature = iota - 1
+	ZeroByte Signature = iota - 2
+	Unknown
 	ElectronicArtsIFF
 	AV1ImageFile
 	JPEGFileInterchangeFormat
@@ -117,8 +118,13 @@ const (
 )
 
 func (sign Signature) String() string { //nolint:funlen
-	if sign < 0 || sign > PlainText {
+	switch {
+	case sign <= ZeroByte:
+		return "0-byte data"
+	case sign == Unknown:
 		return "binary data"
+	case sign > PlainText:
+		return "error"
 	}
 	return [...]string{
 		"IFF image",
@@ -189,8 +195,13 @@ func (sign Signature) String() string { //nolint:funlen
 }
 
 func (sign Signature) Title() string { //nolint:funlen
-	if sign < 0 || sign > PlainText {
+	switch {
+	case sign <= ZeroByte:
+		return "Zero-byte data"
+	case sign == Unknown:
 		return "Binary data"
+	case sign > PlainText:
+		return "Error"
 	}
 	return [...]string{
 		"Electronic Arts IFF",
@@ -731,8 +742,8 @@ func Video(r io.Reader) (Signature, error) {
 
 // FindBytes returns the file type signature from the byte slice.
 func FindBytes(p []byte) Signature {
-	if p == nil {
-		return Unknown
+	if len(p) == 0 {
+		return ZeroByte
 	}
 	find := New()
 	for sig, matcher := range find {
@@ -753,8 +764,8 @@ func FindBytes(p []byte) Signature {
 // FindBytes512B returns the file type signature and skips the magic number checks
 // that require the entire file to be read.
 func FindBytes512B(p []byte) Signature {
-	if p == nil {
-		return Unknown
+	if len(p) == 0 {
+		return ZeroByte
 	}
 	find := New()
 	for sig, matcher := range find {
