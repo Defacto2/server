@@ -7,6 +7,7 @@ package command
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"slices"
@@ -16,25 +17,216 @@ import (
 	"go.uber.org/zap"
 )
 
+const X400 = "400x400" // X400 returns a  400 x 400 pixel image size
+
+// ImagesExt returns a slice of image file extensions used by the website
+// preview and thumbnail images, including the legacy and modern formats.
+func ImagesExt() []string {
+	return []string{gif, jpg, jpeg, png, webp, ".avif"}
+}
+
+// ImagesDelete removes images from the specified directories that match the unid.
+// The unid is the unique identifier for the image file and shared between the preview
+// and thumbnail images.
+func ImagesDelete(unid string, dirs ...string) error {
+	for _, dir := range dirs {
+		st, err := os.Stat(dir)
+		if err != nil {
+			return fmt.Errorf("images delete %w", err)
+		}
+		if !st.IsDir() {
+			return fmt.Errorf("images delete %w", ErrIsFile)
+		}
+		for _, ext := range ImagesExt() {
+			name := filepath.Join(dir, unid+ext)
+			if _, err := os.Stat(name); err != nil {
+				fmt.Fprint(io.Discard, err)
+				continue
+			}
+			os.Remove(name)
+		}
+	}
+	return nil
+}
+
+// Thumb is a type that represents the type of thumbnail image to create.
+type Thumb int
+
+const (
+	Pixel Thumb = iota // Pixel art or images with text
+	Photo              // Photographs or images with gradients
+)
+
+// Thumbs creates a thumbnail image for the preview image based on the type of image.
+func (dir Dirs) Thumbs(unid string, thumb Thumb) error {
+	if err := ImagesDelete(unid, dir.Thumbnail); err != nil {
+		return fmt.Errorf("dirs thumbs %w", err)
+	}
+	for _, ext := range ImagesExt() {
+		src := filepath.Join(dir.Preview, unid+ext)
+		_, err := os.Stat(src)
+		if err != nil {
+			continue
+		}
+		switch thumb {
+		case Pixel:
+			err = dir.ThumbPixels(src, unid)
+		case Photo:
+			err = dir.ThumbPhoto(src, unid)
+		}
+		if err != nil {
+			return fmt.Errorf("dirs thumbs %w", err)
+		}
+	}
+	return nil
+}
+
+// Align is a type that represents the alignment of the thumbnail image.
+type Align int
+
+const (
+	Top    Align = iota // Top uses the top alignment of the preview image
+	Middle              // Middle uses the center alignment of the preview image
+	Bottom              // Bottom uses the bottom alignment of the preview image
+	Left                // Left uses the left alignment of the preview image
+	Right               // Right uses the right alignment of the preview image
+)
+
+// Thumbs creates a thumbnail image for the preview image based on the crop position of the image.
+func (align Align) Thumbs(unid string, previewDir, thumbnailDir string) error {
+	tmpDir := filepath.Join(os.TempDir(), patternS)
+	pattern := "images-thumb-" + unid
+	path := filepath.Join(tmpDir, pattern)
+	if st, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			if err := os.MkdirAll(path, os.ModePerm); err != nil {
+				return fmt.Errorf("align thumbs %w", err)
+			}
+		}
+	} else if !st.IsDir() {
+		return fmt.Errorf("align thumbs %w", ErrIsFile)
+	}
+	if err := ImagesDelete(unid, thumbnailDir); err != nil {
+		return fmt.Errorf("dirs thumbs %w", err)
+	}
+	for _, ext := range ImagesExt() {
+		args := Args{}
+		switch align {
+		case Top:
+			args.Topx400()
+		case Middle:
+			args.Middlex400()
+		case Bottom:
+			args.Bottomx400()
+		case Left:
+			args.Leftx400()
+		case Right:
+			args.Rightx400()
+		}
+		src := filepath.Join(previewDir, unid+ext)
+		if _, err := os.Stat(src); err != nil {
+			continue
+		}
+		arg := []string{src}
+		arg = append(arg, args...)
+		tmp := filepath.Join(path, unid+ext)
+		arg = append(arg, tmp)
+		err := Run(nil, Magick, arg...)
+		if err != nil {
+			return fmt.Errorf("align thumbs run %w", err)
+		}
+		dst := filepath.Join(thumbnailDir, unid+ext)
+		if err := CopyFile(nil, tmp, dst); err != nil {
+			fmt.Fprint(io.Discard, err)
+			return nil
+		}
+	}
+	return nil
+}
+
+// Crop is a type that represents the crop position of the preview image.
+type Crop int
+
+const (
+	SqaureTop Crop = iota // SquareTop crops the top of the image using a 1:1 ratio
+	FourThree             // FourThree crops the top of the image using a 4:3 ratio
+	OneTwo                // OneTwo crops the top of the image using a 1:2 ratio
+)
+
+// Images crops the preview image based on the crop position and ratio of the image.
+func (crop Crop) Images(unid string, previewDir string) error {
+	st, err := os.Stat(previewDir)
+	if err != nil {
+		return fmt.Errorf("crop images %w", err)
+	}
+	if !st.IsDir() {
+		return fmt.Errorf("crop images %w", ErrIsFile)
+	}
+	tmpDir := filepath.Join(os.TempDir(), patternS)
+	pattern := "images-crop-" + unid
+	path := filepath.Join(tmpDir, pattern)
+	if st, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			if err := os.MkdirAll(path, os.ModePerm); err != nil {
+				return fmt.Errorf("crop images %w", err)
+			}
+		}
+	} else if !st.IsDir() {
+		return fmt.Errorf("crop images %w", ErrIsFile)
+	}
+	for _, ext := range ImagesExt() {
+		args := Args{}
+		switch crop {
+		case SqaureTop:
+			args.CropTop()
+		case FourThree:
+			args.FourThree()
+		case OneTwo:
+			args.OneTwo()
+		}
+		src := filepath.Join(previewDir, unid+ext)
+		if _, err := os.Stat(src); err != nil {
+			continue
+		}
+		arg := []string{src}
+		arg = append(arg, args...)
+		tmp := filepath.Join(path, unid+ext)
+		arg = append(arg, tmp)
+		err := Run(nil, Magick, arg...)
+		if err != nil {
+			return fmt.Errorf("crop images %w", err)
+		}
+		dst := filepath.Join(previewDir, unid+ext)
+		if err := CopyFile(nil, tmp, dst); err != nil {
+			fmt.Fprint(io.Discard, err)
+			return nil
+		}
+	}
+	return nil
+}
+
 // PictureImager converts the src image file and creates a image in the preview directory
 // and a thumbnail image in the thumbnail directory.
 //
-// The image formats created depend on the type of image file. But thumbnanils will always
+// The image formats created depend on the type of image file. But thumbnails will always
 // either be a .webp or .png image. While the preview image will be legacy
 // .png, .jpeg images or modern .avif or .webp images or a combination of both.
 func (dir Dirs) PictureImager(debug *zap.SugaredLogger, src, unid string) error {
 	r, err := os.Open(src)
 	if err != nil {
-		return fmt.Errorf("open %w", err)
+		return fmt.Errorf("dir picture imager %w", err)
 	}
 	magic, err := magicnumber.Find(r)
 	if err != nil {
-		return fmt.Errorf("magic number %w", err)
+		return fmt.Errorf("dir picture imager %w", err)
 	}
 	imgs := magicnumber.Images()
 	slices.Sort(imgs)
 	if !slices.Contains(imgs, magic) {
-		return fmt.Errorf("not an image")
+		return fmt.Errorf("dir picture imager %w, %s", ErrImg, magic.Title())
+	}
+	if err = ImagesDelete(unid, dir.Preview, dir.Thumbnail); err != nil {
+		return fmt.Errorf("picture imager pre-delete %w", err)
 	}
 	switch magic {
 	case magicnumber.AVI:
@@ -45,12 +237,9 @@ func (dir Dirs) PictureImager(debug *zap.SugaredLogger, src, unid string) error 
 		return dir.PreviewWebP(debug, src, unid)
 	case magicnumber.PNG:
 		return dir.PreviewPNG(debug, src, unid)
-	case magicnumber.TIFF,
-		magicnumber.JPG:
+	case magicnumber.TIFF, magicnumber.JPG:
 		return dir.PreviewPhoto(debug, src, unid)
-	case
-		magicnumber.BMP,
-		magicnumber.PCX:
+	case magicnumber.BMP, magicnumber.PCX:
 		return dir.PreviewPixels(debug, src, unid)
 	}
 	return nil
@@ -66,7 +255,7 @@ func (dir Dirs) TextImager(debug *zap.SugaredLogger, src, unid string) error {
 	tmp := BaseNamePath(src) + png // destination
 	arg = append(arg, "-o", tmp)
 	if err := Run(nil, Ansilove, arg...); err != nil {
-		return fmt.Errorf("ansilove run %w", err)
+		return fmt.Errorf("dirs text imager %w", err)
 	}
 	return dir.textImagers(debug, unid, tmp)
 }
@@ -82,12 +271,15 @@ func (dir Dirs) AmiTextImager(debug *zap.SugaredLogger, src, unid string) error 
 	tmp := BaseNamePath(src) + png // destination
 	arg = append(arg, "-o", tmp)
 	if err := Run(nil, Ansilove, arg...); err != nil {
-		return fmt.Errorf("ansilove run %w", err)
+		return fmt.Errorf("dirs ami text imager %w", err)
 	}
 	return dir.textImagers(debug, unid, tmp)
 }
 
 func (dir Dirs) textImagers(debug *zap.SugaredLogger, unid, tmp string) error {
+	if err := ImagesDelete(unid, dir.Preview, dir.Thumbnail); err != nil {
+		return fmt.Errorf("text imagers predelete %w", err)
+	}
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	var errs error
@@ -212,7 +404,10 @@ func (dir Dirs) PreviewPhoto(debug *zap.SugaredLogger, src, unid string) error {
 		err = dir.ThumbPhoto(srcPath, unid)
 	}()
 	wg.Wait()
-	return err
+	if err != nil {
+		return fmt.Errorf("preview photo %w", err)
+	}
+	return nil
 }
 
 // PreviewGIF converts the src GIF image to a webp image the screenshot directory.
@@ -231,7 +426,9 @@ func (dir Dirs) PreviewGIF(debug *zap.SugaredLogger, src, unid string) error {
 	if err := CopyFile(debug, tmp, dst); err != nil {
 		return fmt.Errorf("gif2webp copy file %w", err)
 	}
-	defer OptimizePNG(dst)
+	defer func() {
+		_ = OptimizePNG(dst)
+	}()
 	var err error
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -241,7 +438,10 @@ func (dir Dirs) PreviewGIF(debug *zap.SugaredLogger, src, unid string) error {
 	}()
 	wg.Wait()
 	defer os.Remove(tmp)
-	return err
+	if err != nil {
+		return fmt.Errorf("gif2webp thumbnail %w", err)
+	}
+	return nil
 }
 
 // PreviewPNG copies and optimizes the src PNG image to the screenshot directory.
@@ -254,7 +454,7 @@ func (dir Dirs) PreviewPNG(debug *zap.SugaredLogger, src, unid string) error {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	var errs error
-	const groups = 3
+	const groups = 2
 	wg.Add(groups)
 	go func() {
 		defer wg.Done()
@@ -274,7 +474,8 @@ func (dir Dirs) PreviewPNG(debug *zap.SugaredLogger, src, unid string) error {
 			mu.Unlock()
 		}
 	}()
-	return nil
+	wg.Wait()
+	return errs
 }
 
 // PreviewWebP runs cwebp text preset on a supported image and copies the result to the screenshot directory.
@@ -305,6 +506,94 @@ func (dir Dirs) PreviewWebP(debug *zap.SugaredLogger, src, unid string) error {
 // Args is a slice of strings that represents the command line arguments.
 // Each argument and its value is a separate string in the slice.
 type Args []string
+
+// Topx400 appends the command line arguments for the magick command to transform
+// an image into a 400x400 pixel image using the "North" top alignment.
+func (a *Args) Topx400() {
+	// Set the gravity suggestion for various other settings and options.
+	gravity := []string{"-gravity", "North"}
+	*a = append(*a, gravity...)
+	// Set the image size and offset.
+	extent := []string{"-trim", "-extent", X400}
+	*a = append(*a, extent...)
+}
+
+// Middlex400 appends the command line arguments for the magick command to transform
+// an image into a 400x400 pixel image using the "Center" alignment.
+func (a *Args) Middlex400() {
+	// Set the gravity suggestion for various other settings and options.
+	gravity := []string{"-gravity", "center"}
+	*a = append(*a, gravity...)
+	// Set the image size and offset.
+	extent := []string{"-trim", "-extent", X400}
+	*a = append(*a, extent...)
+}
+
+// Bottomx400 appends the command line arguments for the magick command to transform
+// an image into a 400x400 pixel image using the "South" bottom alignment.
+func (a *Args) Bottomx400() {
+	// Set the gravity suggestion for various other settings and options.
+	gravity := []string{"-gravity", "South"}
+	*a = append(*a, gravity...)
+	// Set the image size and offset.
+	extent := []string{"-trim", "-extent", X400}
+	*a = append(*a, extent...)
+}
+
+// Leftx400 appends the command line arguments for the magick command to transform
+// an image into a 400x400 pixel image using the "South" bottom alignment.
+func (a *Args) Leftx400() {
+	// Set the gravity suggestion for various other settings and options.
+	gravity := []string{"-gravity", "West"}
+	*a = append(*a, gravity...)
+	// Set the image size and offset.
+	extent := []string{"-trim", "-extent", X400}
+	*a = append(*a, extent...)
+}
+
+// Rightx400 appends the command line arguments for the magick command to transform
+// an image into a 400x400 pixel image using the "South" bottom alignment.
+func (a *Args) Rightx400() {
+	// Set the gravity suggestion for various other settings and options.
+	gravity := []string{"-gravity", "East"}
+	*a = append(*a, gravity...)
+	// Set the image size and offset.
+	extent := []string{"-trim", "-extent", X400}
+	*a = append(*a, extent...)
+}
+
+// CropTop appends the command line arguments for the magick command to transform
+// an image into a 1:1 square image using the "North" top alignment.
+func (a *Args) CropTop() {
+	// Set the gravity suggestion for various other settings and options.
+	gravity := []string{"-gravity", "North"}
+	*a = append(*a, gravity...)
+	// Set the image size and offset.
+	extent := []string{"-extent", "1:1"}
+	*a = append(*a, extent...)
+}
+
+// FourThree appends the command line arguments for the magick command to transform
+// an image into a 4:3 image using the "North" top alignment.
+func (a *Args) FourThree() {
+	// Set the gravity suggestion for various other settings and options.
+	gravity := []string{"-gravity", "North"}
+	*a = append(*a, gravity...)
+	// Set the image size and offset.
+	extent := []string{"-extent", "4:3"}
+	*a = append(*a, extent...)
+}
+
+// OneTwo appends the command line arguments for the magick command to transform
+// an image into a 1:2 image using the "North" top alignment.
+func (a *Args) OneTwo() {
+	// Set the gravity suggestion for various other settings and options.
+	gravity := []string{"-gravity", "North"}
+	*a = append(*a, gravity...)
+	// Set the image size and offset.
+	extent := []string{"-extent", "1:2"}
+	*a = append(*a, extent...)
+}
 
 // AnsiAmiga appends the command line arguments for the [ansilove command]
 // to transform an Commodore Amiga ANSI text file into a PNG image.
@@ -392,7 +681,7 @@ func (a *Args) Thumbnail() {
 	filter := []string{"-filter", "Triangle"}
 	*a = append(*a, filter...)
 	// Create a thumbnail of the image, more performant than -resize.
-	thumbnail := []string{"-thumbnail", "400x400"}
+	thumbnail := []string{"-thumbnail", X400}
 	*a = append(*a, thumbnail...)
 	// Set the background color.
 	background := []string{"-background", "#999"}
@@ -401,7 +690,7 @@ func (a *Args) Thumbnail() {
 	gravity := []string{"-gravity", "center"}
 	*a = append(*a, gravity...)
 	// Set the image size and offset.
-	extent := []string{"-extent", "400x400"}
+	extent := []string{"-extent", X400}
 	*a = append(*a, extent...)
 }
 

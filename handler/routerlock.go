@@ -140,6 +140,9 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	upload.POST("/file", func(c echo.Context) error {
 		return htmx.UploadReplacement(c, dir.Download)
 	})
+	upload.POST("/preview", func(c echo.Context) error {
+		return htmx.UploadPreview(c, dir.Preview, dir.Thumbnail)
+	})
 
 	dirs := command.Dirs{
 		Download:  dir.Download,
@@ -161,6 +164,15 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	pre.PATCH("/copy/:unid/:path", func(c echo.Context) error {
 		return htmx.RecordImageCopier(c, logger, dirs)
 	})
+	pre.PATCH("/crop11/:unid", func(c echo.Context) error {
+		return htmx.RecordImageCropper(c, command.SqaureTop, dirs)
+	})
+	pre.PATCH("/crop43/:unid", func(c echo.Context) error {
+		return htmx.RecordImageCropper(c, command.FourThree, dirs)
+	})
+	pre.PATCH("/crop12/:unid", func(c echo.Context) error {
+		return htmx.RecordImageCropper(c, command.OneTwo, dirs)
+	})
 	pre.DELETE("/:unid", func(c echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dir.Preview)
 	})
@@ -168,6 +180,27 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	thumb := g.Group("/thumbnail")
 	thumb.PATCH("/copy/:unid/:path", func(c echo.Context) error {
 		return htmx.RecordImageCopier(c, logger, dirs)
+	})
+	thumb.PATCH("/top/:unid", func(c echo.Context) error {
+		return htmx.RecordThumbAlignment(c, command.Top, dirs)
+	})
+	thumb.PATCH("/middle/:unid", func(c echo.Context) error {
+		return htmx.RecordThumbAlignment(c, command.Middle, dirs)
+	})
+	thumb.PATCH("/bottom/:unid", func(c echo.Context) error {
+		return htmx.RecordThumbAlignment(c, command.Bottom, dirs)
+	})
+	thumb.PATCH("/left/:unid", func(c echo.Context) error {
+		return htmx.RecordThumbAlignment(c, command.Left, dirs)
+	})
+	thumb.PATCH("/right/:unid", func(c echo.Context) error {
+		return htmx.RecordThumbAlignment(c, command.Right, dirs)
+	})
+	thumb.PATCH("/pixel/:unid", func(c echo.Context) error {
+		return htmx.RecordThumb(c, command.Pixel, dirs)
+	})
+	thumb.PATCH("/photo/:unid", func(c echo.Context) error {
+		return htmx.RecordThumb(c, command.Photo, dirs)
 	})
 	thumb.DELETE("/:unid", func(c echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dir.Thumbnail)

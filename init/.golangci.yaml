@@ -79,6 +79,9 @@ issues:
     - path: internal/archive/archive.go
       linters:
         - dupl
+    - path: internal/command/images.go
+      linters:
+        - dupl
     - path: internal/config/config.go
       linters: # caarlos0/env package uses structs with long declarations.
         - lll

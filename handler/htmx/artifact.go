@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"html"
-	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -32,7 +31,46 @@ var (
 	ErrYT    = errors.New("youtube watch video id needs to be empty or 11 characters")
 )
 
-func RecordImageCopier(c echo.Context, logger *zap.SugaredLogger, dirs command.Dirs) error {
+// pageRefresh is a helper function to set the HTTP HTMX header for the browser to refresh the page.
+func pageRefresh(c echo.Context) echo.Context {
+	c.Response().Header().Set("HX-Refresh", "true")
+	return c
+}
+
+func RecordThumb(c echo.Context, thumb command.Thumb, dirs command.Dirs) error {
+	unid := c.Param("unid")
+	err := dirs.Thumbs(unid, thumb)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	c = pageRefresh(c)
+	return c.String(http.StatusOK,
+		`<span class="text-success">Thumb created, the browser will refresh.</span>`)
+}
+
+func RecordThumbAlignment(c echo.Context, align command.Align, dirs command.Dirs) error {
+	unid := c.Param("unid")
+	err := align.Thumbs(unid, dirs.Preview, dirs.Thumbnail)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	c = pageRefresh(c)
+	return c.String(http.StatusOK,
+		`<span class="text-success">Thumb realigned, the browser will refresh.</span>`)
+}
+
+func RecordImageCropper(c echo.Context, crop command.Crop, dirs command.Dirs) error {
+	unid := c.Param("unid")
+	err := crop.Images(unid, dirs.Preview)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	c = pageRefresh(c)
+	return c.String(http.StatusOK,
+		`<span class="text-success">Images cropped, the browser will refresh.</span>`)
+}
+
+func RecordImageCopier(c echo.Context, debug *zap.SugaredLogger, dirs command.Dirs) error {
 	path := c.Param("path")
 	name, err := url.QueryUnescape(path)
 	if err != nil {
@@ -51,19 +89,12 @@ func RecordImageCopier(c echo.Context, logger *zap.SugaredLogger, dirs command.D
 	if st.Size() == 0 {
 		return c.String(http.StatusOK, "The file is empty and was not copied.")
 	}
-	if err := dirs.PictureImager(logger, src, unid); err != nil {
+	if err := dirs.PictureImager(debug, src, unid); err != nil {
 		return badRequest(c, err)
 	}
-	return c.String(http.StatusOK, src)
-
-	// dst := filepath.Join(extraDir, unid+".png")
-	// i, err := helper.DuplicateOW(src, dst)
-	// if err != nil {
-	// 	return badRequest(c, err)
-	// }
-	// c.Response().Header().Set("HX-Refresh", "true")
-	// return c.String(http.StatusOK, fmt.Sprintf("Copied %d bytes, refresh the browser.", i))
-	//return c.String(http.StatusOK, "Not implemented.")
+	c = pageRefresh(c)
+	return c.String(http.StatusOK,
+		`<span class="text-success">Images copied, the browser will refresh.</span>`)
 }
 
 func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, dirs command.Dirs) error {
@@ -88,7 +119,9 @@ func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, dirs command.
 	if err := dirs.TextImager(logger, src, unid); err != nil {
 		return badRequest(c, err)
 	}
-	return c.String(http.StatusOK, src)
+	c = pageRefresh(c)
+	return c.String(http.StatusOK,
+		`<span class="text-success">Text filed imaged, the browser will refresh.</span>`)
 }
 
 func RecordReadmeCopier(c echo.Context, extraDir string) error {
@@ -111,35 +144,21 @@ func RecordReadmeCopier(c echo.Context, extraDir string) error {
 		return c.String(http.StatusOK, "The file is empty and was not copied.")
 	}
 	dst := filepath.Join(extraDir, unid+".txt")
-	i, err := helper.DuplicateOW(src, dst)
-	if err != nil {
+	if _, err = helper.DuplicateOW(src, dst); err != nil {
 		return badRequest(c, err)
 	}
-	c.Response().Header().Set("HX-Refresh", "true")
-	return c.String(http.StatusOK, fmt.Sprintf("Copied %d bytes, refresh the browser.", i))
+	c = pageRefresh(c)
+	return c.String(http.StatusOK,
+		`<span class="text-success">Images copied, the browser will refresh.</span>`)
 }
 
 func RecordImagesDeleter(c echo.Context, dirs ...string) error {
 	unid := c.Param("unid")
-	exts := []string{".jpg", ".jpeg", ".gif", ".png", ".webp", ".avif"}
-	for _, dir := range dirs {
-		st, err := os.Stat(dir)
-		if err != nil {
-			return badRequest(c, err)
-		}
-		if !st.IsDir() {
-			return badRequest(c, ErrIsDir)
-		}
-		for _, ext := range exts {
-			name := filepath.Join(dir, unid+ext)
-			if _, err := os.Stat(name); err != nil {
-				fmt.Fprint(io.Discard, err)
-				continue
-			}
-			defer os.Remove(name)
-		}
+	if err := command.ImagesDelete(unid, dirs...); err != nil {
+		return badRequest(c, err)
 	}
-	//c.Response().Header().Set("HX-Refresh", "true")
+	// HTMX requires an empty response to confirm a successful deletion.
+	// It also doesn't support the HX-Refresh header, so that is handled in JS.
 	return c.NoContent(http.StatusOK)
 }
 
@@ -156,8 +175,8 @@ func RecordReadmeDeleter(c echo.Context, extraDir string) error {
 	if err := os.Remove(dst); err != nil {
 		return badRequest(c, err)
 	}
-	c.Response().Header().Set("HX-Refresh", "true")
-	return c.String(http.StatusOK, "Deleted, refresh the browser.")
+	c = pageRefresh(c)
+	return c.NoContent(http.StatusOK)
 }
 
 // RecordToggle handles the post submission for the file artifact record toggle.

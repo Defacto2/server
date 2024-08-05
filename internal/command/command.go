@@ -15,31 +15,33 @@ import (
 )
 
 const (
-	pattern = "defacto2-" // prefix for temporary directories
-	arc     = ".arc"      // arc file extension
-	arj     = ".arj"      // arj file extension
-	bmp     = ".bmp"      // bmp file extension
-	gif     = ".gif"      // gif file extension
-	gzip    = ".gz"       // gzip file extension
-	jpg     = ".jpg"      // jpg file extension
-	jpeg    = ".jpeg"     // jpeg file extension
-	png     = ".png"      // png file extension
-	rar     = ".rar"      // rar file extension
-	tar     = ".tar"      // tar file extension
-	tiff    = ".tiff"     // tiff file extension
-	txt     = ".txt"      // txt file extension
-	webp    = ".webp"     // webp file extension
-	zip     = ".zip"      // zip file extension
-	zip7    = ".7z"       // 7zip file extension
+	pattern  = "defacto2-" // prefix for temporary directories
+	patternS = "defacto2-server"
+	arc      = ".arc"  // arc file extension
+	arj      = ".arj"  // arj file extension
+	bmp      = ".bmp"  // bmp file extension
+	gif      = ".gif"  // gif file extension
+	gzip     = ".gz"   // gzip file extension
+	jpg      = ".jpg"  // jpg file extension
+	jpeg     = ".jpeg" // jpeg file extension
+	png      = ".png"  // png file extension
+	rar      = ".rar"  // rar file extension
+	tar      = ".tar"  // tar file extension
+	tiff     = ".tiff" // tiff file extension
+	txt      = ".txt"  // txt file extension
+	webp     = ".webp" // webp file extension
+	zip      = ".zip"  // zip file extension
+	zip7     = ".7z"   // 7zip file extension
 )
 
 var (
-	ErrEmpty = errors.New("file is empty")
-	ErrImg   = errors.New("file is not an known image format")
-	ErrIsDir = errors.New("file is a directory")
-	ErrMatch = errors.New("no match value is present")
-	ErrVers  = errors.New("version mismatch")
-	ErrZap   = errors.New("zap logger instance is nil")
+	ErrEmpty  = errors.New("file is empty")
+	ErrImg    = errors.New("file is not an known image format")
+	ErrIsDir  = errors.New("file is a directory")
+	ErrIsFile = errors.New("directory path points to a file")
+	ErrMatch  = errors.New("no match value is present")
+	ErrVers   = errors.New("version mismatch")
+	ErrZap    = errors.New("zap logger instance is nil")
 )
 
 // Dirs is a struct of the download, preview and thumbnail directories.
@@ -53,11 +55,12 @@ const (
 	Arc      = "arc"      // Arc is the arc decompression command.
 	Arj      = "arj"      // Arj is the arj decompression command.
 	Ansilove = "ansilove" // Ansilove is the ansilove text to image command.
-	Convert  = "convert"  // Convert is the ImageMagick convert command.
+	Convert  = "convert"  // Convert is the ImageMagick legacy convert command.
 	Cwebp    = "cwebp"    // Cwebp is the Google create webp command.
 	Gwebp    = "gif2webp" // Gwebp is the Google gif to webp command.
 	HWZip    = "hwzip"    // Hwzip the zip decompression command for files using obsolete methods.
 	Lha      = "lha"      // Lha is the lha/lzh decompression command.
+	Magick   = "magick"   // Magick is the ImageMagick v7+ command.
 	Optipng  = "optipng"  // Optipng is the PNG optimizer command.
 	Tar      = "tar"      // Tar is the tar decompression command.
 	// A note about unrar on linux, the installation cannot use the unrar-free package,
@@ -81,6 +84,7 @@ func Lookups() []string {
 		Gwebp,
 		HWZip,
 		Lha,
+		Magick,
 		Optipng,
 		Tar,
 		Unrar,
@@ -96,11 +100,12 @@ func Infos() []string {
 		"archive utility ver 5+",
 		"arj32 ver 3+",
 		"ansilove/c ver 4+",
-		"ImageMagick ver 7+",
+		"ImageMagick ver 6+",
 		"Google WebP ver 1+",
 		"Google GIF to WebP ver 1+",
 		"HWZip ver 2+",
 		"Lhasa command line LHA tool",
+		"ImageMagick ver 7+",
 		"OptiPNG optimizer ver 0.7+",
 		"GNU tar ver 1+",
 		"UNRAR freeware (c) Alexander Roshal",

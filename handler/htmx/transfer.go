@@ -16,11 +16,13 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/archive"
+	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/form"
 	"github.com/Defacto2/server/internal/helper"
@@ -320,7 +322,7 @@ func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeade
 	}
 	defer src.Close()
 
-	dst, err := os.CreateTemp("tmp", pattern)
+	dst, err := os.CreateTemp(os.TempDir(), pattern)
 	if err != nil {
 		if logger != nil {
 			s := fmt.Sprintf("Cannot create a temporary destination file, %s: %s", name, err)
@@ -469,6 +471,73 @@ func sanitizeID(c echo.Context, name, prod string) (int64, error) {
 			"The "+name+" production ID is invalid, "+sid)
 	}
 	return id, nil
+}
+
+func UploadPreview(c echo.Context, previewDir, thumbnailDir string) error {
+	name := "artifact-editor-replace-preview"
+	if s, err := checkDest(previewDir); err != nil {
+		return c.HTML(http.StatusInternalServerError, s)
+	}
+	if s, err := checkDest(thumbnailDir); err != nil {
+		return c.HTML(http.StatusInternalServerError, s)
+	}
+	up := upIDs{}
+	if s := up.get(c); s != "" {
+		return c.HTML(http.StatusBadRequest, s)
+	}
+	file, err := c.FormFile(name)
+	if err != nil {
+		return checkFormFile(c, nil, name, err)
+	}
+	src, err := file.Open()
+	if err != nil {
+		return checkFileOpen(c, nil, name, err)
+	}
+	defer src.Close()
+	pattern := name + "-*"
+	dst, err := os.CreateTemp(os.TempDir(), pattern)
+	if err != nil {
+		return c.HTML(http.StatusInternalServerError,
+			"The temporary save cannot be created")
+	}
+	defer dst.Close()
+	if _, err := io.Copy(dst, src); err != nil {
+		return c.HTML(http.StatusInternalServerError,
+			"The temporary save cannot be written")
+	}
+	defer os.Remove(dst.Name())
+
+	dirs := command.Dirs{Preview: previewDir, Thumbnail: thumbnailDir}
+	src, err = file.Open()
+	if err != nil {
+		return checkFileOpen(c, nil, name, err)
+	}
+	defer src.Close()
+	magic, err := magicnumber.Find(src)
+	if err != nil {
+		return c.HTML(http.StatusInternalServerError,
+			"The magic number could not be found")
+	}
+	imgs := magicnumber.Images()
+	slices.Sort(imgs)
+	if slices.Contains(imgs, magic) {
+		if err := dirs.PictureImager(nil, dst.Name(), up.unid); err != nil {
+			return badRequest(c, err)
+		}
+		return c.String(http.StatusOK,
+			fmt.Sprintf("The new preview %s is in use, about to reload this page", file.Filename))
+	}
+	txts := magicnumber.Texts()
+	slices.Sort(txts)
+	if slices.Contains(txts, magic) {
+		if err := dirs.TextImager(nil, dst.Name(), up.unid); err != nil {
+			return badRequest(c, err)
+		}
+		return c.String(http.StatusOK,
+			fmt.Sprintf("The new preview %s is in use, about to reload this page", file.Filename))
+	}
+	return c.HTML(http.StatusBadRequest,
+		"The chosen file is not a valid image or text file")
 }
 
 // UploadReplacement is the file transfer handler that uploads, validates a new file upload

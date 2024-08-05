@@ -115,7 +115,6 @@
             <label for="artifact-editor-dl-up" class="form-label mt-3 text-warning-emphasis">Replacement</label>
             {{- end}}
             {{- /*  Replacement download input  */}}
-            {{/*  TODO: confirm replacement if file already exists  */}}
             <form id="artifact-editor-dl-form" 
               hx-encoding="multipart/form-data" 
               hx-post="/editor/upload/file"
@@ -195,10 +194,10 @@
                             <td><a href="{{recordPreviewSrc $unid $ext}}">{{index $info 1}}</a></td>
                           </tr>{{- end}}
                       </table>
-                      <div><a href="">Square crop</a></div>
-                      <div><a href="">640x480 crop</a></div>
-                      <div><a href="">640x1280 crop</a></div>
-                      <div><a href="#file-editor" hx-delete="/editor/preview/{{$unid}}">Delete previews</a></div>
+                      <div><a href="#file-editor" hx-patch="/editor/preview/crop11/{{$unid}}">1:1 crop</a> <small>square</small></div>
+                      <div><a href="#file-editor" hx-patch="/editor/preview/crop12/{{$unid}}">1:2 crop</a> <small>i.e. 640x1280</small></div>
+                      <div><a href="#file-editor" hx-patch="/editor/preview/crop43/{{$unid}}">4:3 crop</a> <small>i.e. 640x480</small></div>
+                      <div><a href="#file-editor" hx-delete="/editor/preview/{{$unid}}">Delete</a></div>
                     </p>
                   </div>
                   {{$previewImg}}
@@ -221,10 +220,20 @@
                             <td><a href="{{recordThumbnailSrc $unid $ext}}">{{index $info 1}}</a></td>
                           </tr>{{- end}}
                       </table>
-                      <div><a href="">Square crop, align top</a></div>
-                      <div><a href="">Square crop, align center</a></div>
-                      <div><a href="">Square crop, align bottom</a></div>
-                      <div><a href="#file-editor" hx-delete="/editor/thumbnail/{{$unid}}">Delete thumbnails</a></div>
+                      <div>
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/top/{{$unid}}">Top</a>
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/middle/{{$unid}}">Middle</a>
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/bottom/{{$unid}}">Bottom</a> <small>crop</small>
+                      </div>
+                      <div>
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/left/{{$unid}}">Left</a>
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/right/{{$unid}}">Right</a> <small>crop</small>
+                      </div>
+                      <div>
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/pixel/{{$unid}}">Pixel</a>
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/photo/{{$unid}}">Photo</a> <small>thumbnail</small>
+                      </div>
+                      <div><a href="#file-editor" hx-delete="/editor/thumbnail/{{$unid}}">Delete</a></div>
                     </p>
                   </div>
                   {{$thumbImg}}
@@ -237,18 +246,26 @@
             {{- else}}
             <label for="basic-url" class="form-label mt-3">Replacement image</label>
             {{- end}}
-            <div class="input-group input-group-sm mb-1">  
-              <input type="file" class="form-control w-50" id="zartifact-editor-operating-system" 
-                accept="image/png, image/jpeg, image/webp, image/bmp, image/gif, image/tiff" value="">
-              <button class="btn btn-outline-secondary" id="zasset-editor-download-submit">Upload</button> 
-              <button class="btn btn-outline-secondary" id="zasset-editor-download-reset">Clear</button>
-            </div>
-            {{/*  
-            id="edUploadPreviewReset"
-            id="edUploadPreviewBtn"
-            id="asset-editor-preview"
-            */}}
-            <div class="form-text" id="basic-addon4">Select an image, text or ansi file to use as the image asset samples.</div>
+            <form id="artifact-editor-preview-form" 
+              hx-encoding="multipart/form-data" 
+              hx-post="/editor/upload/preview"
+              hx-target="#artifact-editor-preview-feedback"
+              {{- if ne $notFound $statSizeB}}hx-confirm="OK, to replace the existing preview image on the server?"{{end}}
+              hx-validate="true">
+              <input type="hidden" name="artifact-editor-record-key" value="{{$key}}">
+              <input type="hidden" name="artifact-editor-unid" value="{{$unid}}">
+              {{/*  artifact-editor-unique-id-value  */}}
+              <div class="input-group input-group-sm mb-1 has-validation">
+                <input type="file" name="artifact-editor-replace-preview" 
+                  class="form-control w-50" id="artifact-editor-replace-preview" autocomplete="on" 
+                    aria-describedby="artifact-editor-preview-feedback" required>
+                <button class="btn btn-outline-secondary w-25" id="artifact-editor-preview-submit">Upload</button> 
+                <button class="btn btn-outline-secondary" id="artifact-editor-preview-reset">Clear</button>
+                <div id="artifact-editor-preview-feedback"></div>
+              </div>
+              <div class="form-text" id="basic-addon4">Select an image, text or ansi file to use as the image asset samples.</div>
+              <progress class="w-100" id="artifact-editor-preview-progress" value="0" max="100"></progress>
+            </form>
             {{- /*  Extras assets  */}}
             <legend class="mt-3">Extras assets</legend>
             <div class="row row-cols-2 g-1">

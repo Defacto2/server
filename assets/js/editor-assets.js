@@ -9,6 +9,20 @@ import { progress } from "./uploader.mjs";
 
   // New file download progress bar.
   progress(`artifact-editor-dl-form`, `artifact-editor-dl-progress`);
+  progress(`artifact-editor-preview-form`, `artifact-editor-preview-progress`);
+
+  const previewReset = document.getElementById(`artifact-editor-preview-reset`);
+  if (previewReset == null) {
+    console.error(`the reset preview button is missing`);
+    return;
+  }
+  const previewInput = document.getElementById(
+    `artifact-editor-replace-preview`
+  );
+  if (previewInput == null) {
+    console.error(`the form preview input is missing`);
+    return;
+  }
 
   const reset = document.getElementById(`artifact-editor-dl-reset`);
   if (reset == null) {
@@ -61,6 +75,12 @@ import { progress } from "./uploader.mjs";
       `artifact-editor-dl-form`,
       `artifact-editor-dl-up`,
       `artifact-editor-dl-feedback`
+    );
+    afterFormRequest(
+      event,
+      `artifact-editor-preview-form`,
+      `artifact-editor-replace-preview`,
+      `artifact-editor-preview-feedback`
     );
     afterDeleteRequest(
       event,
@@ -199,8 +219,12 @@ import { progress } from "./uploader.mjs";
   // New file download form reset button.
   reset.addEventListener(`click`, function () {
     artifact.value = ``;
-    artifact.classList.remove(`is-invalid`);
-    artifact.classList.remove(`is-valid`);
+    artifact.classList.remove(`is-invalid`, `is-valid`);
+  });
+
+  previewReset.addEventListener(`click`, function () {
+    previewInput.value = ``;
+    previewInput.classList.remove(`is-invalid`, `is-valid`);
   });
 
   //alert(`editor assets script is running`);

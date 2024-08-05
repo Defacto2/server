@@ -280,19 +280,20 @@ func entryHTML(images, programs, texts bool, rel, sign, size, unid string, bytes
 	name := url.QueryEscape(rel)
 	htm := fmt.Sprintf(`<div class="col d-inline-block text-truncate" data-bs-toggle="tooltip" `+
 		`data-bs-title="%s">%s</div>`, rel, rel)
-	if images {
+	switch {
+	case images:
 		htm += `<div class="col col-1 text-end">` +
 			fmt.Sprintf(`<a class="icon-link align-text-bottom" id="" `+
 				`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/preview/copy/%s/%s">`, unid, name) +
 			`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 			`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
-	} else if texts {
+	case texts:
 		htm += `<div class="col col-1 text-end">` +
 			fmt.Sprintf(`<a class="icon-link align-text-bottom" `+
 				`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/readme/preview/%s/%s">`, unid, name) +
 			`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 			`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
-	} else {
+	default:
 		htm += `<div class="col col-1"></div>`
 	}
 	switch {
