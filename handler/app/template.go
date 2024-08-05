@@ -163,7 +163,7 @@ func (t Templ) artifact(lock bool, files ...string) []string {
 	files = append(files,
 		GlobTo("artifactinfo.tmpl"),
 		GlobTo("artifactjsdos.tmpl"),
-		GlobTo("artifactzip.tmpl"),
+		//GlobTo("artifactzip.tmpl"),
 	)
 	if lock {
 		return append(files,

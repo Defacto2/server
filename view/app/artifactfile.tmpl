@@ -45,12 +45,6 @@
             <label class="btn btn-outline-danger" for="artifact-editor-public">Recreate assets</label>
           </div>
           <div class="col-12 col-xl-2 col-lg-6 d-grid">
-            {{/*  
-             id="asset-editor-delete-text"
-             id="asset-editor-delete-images"
-                       <input type="hidden" id="asset-editor-hidden">
-          <div id="asset-editor-feedback" class="text-end"></div>
-            */}}
             {{radioHidden ($online)}}
             <label class="btn btn-outline-danger" for="artifact-editor-hidden">Delete assets</label>
           </div>
@@ -137,6 +131,7 @@
               <div class="form-text" id="artifact-editor-dl-results"><span class="text-warning-emphasis">Normally not required</span>, upload and replace the artifact download.</div>
               {{- end}}
               <progress class="w-100" id="artifact-editor-dl-progress" value="0" max="100"></progress>
+              {{/* TODO: Upload new download FORM feedback */}}
               {{/*  <div id="artifact-editor-dl-error-div" class="invalid-feedback">The new file upload didn't work, <span id="artifact-editor-dl-error"></span>.</div>  */}}
             </form>
             {{- /*  Download content  */}}
@@ -151,15 +146,6 @@
                 data-bs-toggle="tooltip" data-bs-title="Copy the path">Temp location</button>
               <input type="text" class="form-control" name="artifact-editor-templocation" id="artifact-editor-templocation" 
                 aria-describedby="artifact-editor-templocation-label" value="{{$modDecompressLoc}}" readonly>
-
-              {{/*  
-            <div class="input-group">
-              <button type="button" class="btn btn-secondary" id="artifact-editor-key-label"
-                data-bs-toggle="tooltip" data-bs-title="Copy the key">Record key</button>
-              <input type="text" value='{{$key}}' class="form-control" name="artifact-editor-key" id="artifact-editor-key-value"
-                aria-describedby="artifact-editor-key-label" readonly>
-            </div>  */}}
-
             </div>
             <div class="container text-begin mb-3">
               <div class="form-text" id="artifact-editor-comp-feedback"></div>
@@ -298,13 +284,6 @@
                     <p class="card-text">
                       <span class="lead">README</span>
                       {{- if eq (len .modAssetExtra) 0}}<div>No extras in use</div>{{else}}
-                      {{/*  <div class="form-check form-switch">
-                        {{recordReadme (index . "modNoReadme") }}
-                        <label class="form-check-label" id="edHideMeLabel" for="edHideMe">Hide readme from view</label>
-                        <div class="form-text">disable the use of the <q>textfile&nbsp;content</q></div>
-                        <div class="valid-feedback">Saved, {{$refreshPage}}</div>
-                        <div class="invalid-feedback" id="edHideMeErr">error placeholder</div>  
-                      </div>  */}}
                       <div>
                         <button class="btn btn-link m-0 p-0" 
                           hx-target="#editor-copy-readme-result"

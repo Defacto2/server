@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"math"
 	"net/http"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -1142,6 +1141,7 @@ func ProdZoo(c echo.Context, id string) error {
 }
 
 // ReadmeDel handles the post submission for the Delete readme asset button.
+// TODO: duplicate, find the other func
 func ReadmeDel(c echo.Context, extraDir string) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
@@ -1158,53 +1158,6 @@ func ReadmeDel(c echo.Context, extraDir string) error {
 		return fmt.Errorf("readme delete %w: %d", err, f.ID)
 	}
 	if err = command.RemoveMe(r.UUID.String, extraDir); err != nil {
-		return badRequest(c, err)
-	}
-	return c.JSON(http.StatusOK, r)
-}
-
-// ReadmePost handles the post submission for the Readme in archive.
-func ReadmePost(c echo.Context, logger *zap.SugaredLogger, downloadDir, extraDir string) error {
-	const name = "editor readme"
-	if logger == nil {
-		return InternalErr(c, name, ErrZap)
-	}
-
-	var f Form
-	if err := c.Bind(&f); err != nil {
-		return badRequest(c, err)
-	}
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return badRequest(c, err)
-	}
-	defer db.Close()
-	r, err := model.One(ctx, db, true, f.ID)
-	if err != nil {
-		return badRequest(c, err)
-	}
-
-	list := strings.Split(r.FileZipContent.String, "\n")
-	target := ""
-	for _, x := range list {
-		s := strings.TrimSpace(x)
-		if s == "" {
-			continue
-		}
-		if strings.EqualFold(s, f.Target) {
-			target = s
-		}
-	}
-	if target == "" {
-		return badRequest(c, ErrTarget)
-	}
-
-	src := filepath.Join(downloadDir, r.UUID.String)
-	dst := filepath.Join(extraDir, r.UUID.String+txt)
-	ext := filepath.Ext(strings.ToLower(r.Filename.String))
-	err = command.ExtractOne(logger, src, dst, ext, target)
-	if err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, r)

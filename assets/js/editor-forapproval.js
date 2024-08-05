@@ -1,4 +1,6 @@
-// THIS FILE IS SET FOR DELETION
+// THIS FILE IS SET FOR REWRITING
+// it was used to pull a download from Demozoo, but needs to be rewritten.
+// See: handler/app/internal/str/str.go, DemozooGetLink()
 (() => {
   "use strict";
   const buttons = document.getElementsByName("editorGetDemozoo");

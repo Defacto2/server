@@ -33,9 +33,7 @@ func (c Configuration) lock(e *echo.Echo, logger *zap.SugaredLogger, dir app.Dir
 	date(lock)
 	editor(lock, logger, dir)
 	get(lock, dir)
-	images(lock, logger, dir)
 	online(lock)
-	readme(lock, logger, dir)
 	search(lock, logger)
 	return e
 }
@@ -93,11 +91,7 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	g.DELETE("/delete/forever/:key", func(c echo.Context) error {
 		return htmx.DeleteForever(c, logger, c.Param("key"))
 	})
-
 	g.PATCH("/16colors", htmx.Record16Colors)
-	g.POST("/ansilove/copy", func(c echo.Context) error {
-		return htmx.AnsiLovePost(c, dir, logger)
-	})
 	g.PATCH("/classifications", func(c echo.Context) error {
 		return htmx.RecordClassification(c, logger)
 	})
@@ -159,6 +153,10 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	me.DELETE("/:unid", func(c echo.Context) error {
 		return htmx.RecordReadmeDeleter(c, dir.Extra)
 	})
+	// readme.POST("/hide", func(cx echo.Context) error {
+	// 	dir.URI = cx.Param("id")
+	// 	return app.ReadmeToggle(cx)
+	// })
 
 	pre := g.Group("/preview")
 	pre.PATCH("/copy/:unid/:path", func(c echo.Context) error {
@@ -234,19 +232,6 @@ func get(g *echo.Group, dir app.Dirs) {
 		})
 }
 
-func images(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
-	if g == nil {
-		panic(fmt.Errorf("%w for images router", ErrRoutes))
-	}
-	images := g.Group("/images")
-	images.POST("/copy", func(c echo.Context) error {
-		return htmx.PreviewPost(c, dir, logger)
-	})
-	images.POST("/delete", func(c echo.Context) error {
-		return htmx.PreviewDel(c, dir)
-	})
-}
-
 func online(g *echo.Group) {
 	if g == nil {
 		panic(fmt.Errorf("%w for online router", ErrRoutes))
@@ -271,22 +256,5 @@ func search(g *echo.Group, logger *zap.SugaredLogger) {
 	search.GET("/id", app.SearchID)
 	search.PATCH("/id", func(cx echo.Context) error {
 		return htmx.SearchByID(cx, logger)
-	})
-}
-
-func readme(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
-	if g == nil {
-		panic(fmt.Errorf("%w for readme router", ErrRoutes))
-	}
-	readme := g.Group("/readme")
-	readme.POST("/copy", func(cx echo.Context) error {
-		return app.ReadmePost(cx, logger, dir.Download, dir.Extra)
-	})
-	readme.POST("/delete", func(cx echo.Context) error {
-		return app.ReadmeDel(cx, dir.Extra)
-	})
-	readme.POST("/hide", func(cx echo.Context) error {
-		dir.URI = cx.Param("id")
-		return app.ReadmeToggle(cx)
 	})
 }
