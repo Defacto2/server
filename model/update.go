@@ -308,7 +308,8 @@ func UpdateYouTube(id int64, val string) error {
 
 // UpdateInt64From updates the column int64 from value with val.
 // The int64From columns are table columns that can either be null, empty, or have an int64 value.
-// The demoZooProd and pouetProd values are also validated to be within a sane range.
+// The demozooProd and pouetProd values are validated to be within a sane range
+// and a zero value will set their column's to null.
 func UpdateInt64From(column int64From, id int64, val string) error {
 	ctx := context.Background()
 	db, tx, err := postgres.ConnectTx()
@@ -325,18 +326,22 @@ func UpdateInt64From(column int64From, id int64, val string) error {
 	if err != nil {
 		return fmt.Errorf("%s: %w", val, err)
 	}
-
 	var invalid bool
-	switch column {
-	case demozooProd:
+	switch {
+	case i64 == 0 && column == demozooProd:
+		f.WebIDDemozoo = null.Int64FromPtr(nil)
+	case i64 == 0 && column == pouetProd:
+		f.WebIDPouet = null.Int64FromPtr(nil)
+	case column == demozooProd:
 		invalid = i64 < 0 || i64 > demozoo.Sanity
 		f.WebIDDemozoo = null.Int64From(i64)
-	case pouetProd:
+	case column == pouetProd:
 		invalid = i64 < 0 || i64 > pouet.Sanity
 		f.WebIDPouet = null.Int64From(i64)
 	default:
 		return fmt.Errorf("updateint64from: %w", ErrColumn)
 	}
+	fmt.Println(i64, invalid, column)
 	if invalid {
 		return fmt.Errorf("%d: %w", i64, ErrID)
 	}

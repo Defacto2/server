@@ -495,10 +495,10 @@ func LinkPreviews(youtube, demozoo, pouet, colors16, github, rels, sites string)
 	if youtube != "" {
 		links = append(links, rel("youtube.com/watch?v="+youtube))
 	}
-	if demozoo != "" {
+	if demozoo != "" && demozoo != "0" {
 		links = append(links, rel("demozoo.org/productions/"+demozoo))
 	}
-	if pouet != "" {
+	if pouet != "" && pouet != "0" {
 		links = append(links, rel("pouet.net/prod.php?which="+pouet))
 	}
 	if colors16 != "" {
