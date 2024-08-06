@@ -15,276 +15,270 @@ import { clipValue, getElmById } from "./helper.mjs";
 (() => {
   "use strict";
 
-  const emulateRunProgram = document.getElementById("emulate-run-program");
-  if (emulateRunProgram !== null) {
-    const emulateGuessProgram = document.getElementById(
-      "emulate-guess-program"
-    );
-    if (emulateGuessProgram === null) {
+  const erp = document.getElementById("emulate-run-program");
+  if (erp !== null) {
+    const egp = document.getElementById("emulate-guess-program");
+    if (egp === null) {
       throw new Error("The guess program input is missing.");
     }
-    emulateRunProgram.addEventListener("input", () => {
-      emulateRunProgram.value = emulateRunProgram.value.toUpperCase();
-      const val = emulateRunProgram.value;
+    erp.addEventListener("input", () => {
+      erp.value = erp.value.toUpperCase();
+      const val = erp.value;
       if (val !== "") {
-        emulateGuessProgram.disabled = true;
+        egp.disabled = true;
         return;
       }
-      emulateGuessProgram.disabled = false;
+      egp.disabled = false;
     });
   }
 
-  const copyKeyVal = getElmById(`artifact-editor-key-value`);
-  if (copyKeyVal === null) {
+  const aekv = getElmById(`artifact-editor-key-value`);
+  if (aekv === null) {
     throw new Error("The key value is missing.");
   }
-  const copyKeyBtn = getElmById(`artifact-editor-key-label`);
-  if (copyKeyBtn === null) {
+  const aekl = getElmById(`artifact-editor-key-label`);
+  if (aekl === null) {
     throw new Error("The key label is missing.");
   }
-  copyKeyBtn.addEventListener(`click`, () =>
-    clipValue(`artifact-editor-key-value`)
-  );
+  aekl.addEventListener(`click`, () => clipValue(`artifact-editor-key-value`));
 
-  const copyUUIDVal = getElmById(`artifact-editor-unique-id-value`);
-  if (copyUUIDVal === null) {
+  const uid = getElmById(`artifact-editor-unique-id-value`);
+  if (uid === null) {
     throw new Error("The unique id value is missing.");
   }
-  const copyUUIDBtn = getElmById(`artifact-editor-unique-id-label`);
-  if (copyUUIDBtn === null) {
+  const uidl = getElmById(`artifact-editor-unique-id-label`);
+  if (uidl === null) {
     throw new Error("The unique id label is missing.");
   }
-  copyUUIDBtn.addEventListener(`click`, () =>
+  uidl.addEventListener(`click`, () =>
     clipValue(`artifact-editor-unique-id-value`)
   );
 
-  const copyLocation = getElmById(`artifact-editor-location-value`);
-  if (copyLocation === null) {
+  const locv = getElmById(`artifact-editor-location-value`);
+  if (locv === null) {
     throw new Error("The location value is missing.");
   }
-  const copyLocationBtn = getElmById(`artifact-editor-location-label`);
-  if (copyLocationBtn === null) {
+  const locvl = getElmById(`artifact-editor-location-label`);
+  if (locvl === null) {
     throw new Error("The location label is missing.");
   }
-  copyLocationBtn.addEventListener(`click`, () =>
+  locvl.addEventListener(`click`, () =>
     clipValue(`artifact-editor-location-value`)
   );
 
-  const copyTempLocation = getElmById(`artifact-editor-templocation`);
-  if (copyTempLocation !== null) {
-    const copyTempLocationBtn = getElmById(
-      `artifact-editor-templocation-label`
-    );
-    copyTempLocationBtn.addEventListener(`click`, () =>
+  const tmploc = getElmById(`artifact-editor-templocation`);
+  if (tmploc !== null) {
+    const tmplocl = getElmById(`artifact-editor-templocation-label`);
+    tmplocl.addEventListener(`click`, () =>
       clipValue(`artifact-editor-templocation`)
     );
   }
 
-  const osLabel = document.getElementById("artifact-editor-os-label");
-  if (osLabel === null) {
+  const osl = document.getElementById("artifact-editor-os-label");
+  if (osl === null) {
     throw new Error("The operating system label is missing.");
   }
-  const osInput = document.getElementById("artifact-editor-operating-system");
-  if (osInput === null) {
+  const osv = document.getElementById("artifact-editor-operating-system");
+  if (osv === null) {
     throw new Error("The operating system input is missing.");
   }
-  osInput.addEventListener("input", relabelOS);
-  const catInput = document.getElementById("artifact-editor-category");
-  if (catInput === null) {
+  osv.addEventListener("input", newOSLabel);
+  const tagv = document.getElementById("artifact-editor-category");
+  if (tagv === null) {
     throw new Error("The category input is missing.");
   }
-  catInput.addEventListener("input", relabelCat);
-  relabelOS();
-  relabelCat();
+  tagv.addEventListener("input", newTagLabel);
+  newOSLabel();
+  newTagLabel();
   /**
-   * Relabels the operating system label based on the selected option in the dropdown.
+   * New operating system label based on the selected option in the dropdown.
    */
-  function relabelOS() {
-    const index = osInput.selectedIndex;
-    const sel = osInput.options[index];
+  function newOSLabel() {
+    const index = osv.selectedIndex;
+    const sel = osv.options[index];
     let group = sel.parentNode.label;
     if (typeof group == "undefined" || group == "") {
-      osInput.classList.add("is-invalid");
-      osInput.classList.remove("is-valid");
+      osv.classList.add("is-invalid");
+      osv.classList.remove("is-valid");
       group = `Operating system`;
     }
-    osLabel.textContent = `${group}`;
+    osv.textContent = `${group}`;
   }
   /**
-   * Relabels the category input based on the selected index.
+   * New tag or category label based on the selected option in the dropdown.
    */
-  function relabelCat() {
-    const index = catInput.selectedIndex;
+  function newTagLabel() {
+    const index = tagv.selectedIndex;
     if (index == 0) {
-      catInput.classList.remove("is-valid");
-      catInput.classList.add("is-invalid");
+      tagv.classList.remove("is-valid");
+      tagv.classList.add("is-invalid");
     }
   }
 
-  const classifications = document.getElementsByName("reset-classifications");
-  if (classifications.length === 0) {
-    throw new Error("The reset classifications are missing.");
+  const presetTags = document.getElementsByName("prereset-classifications");
+  if (presetTags.length === 0) {
+    throw new Error("The preset classifications are missing.");
   }
-  for (let i = 0; i < classifications.length; i++) {
-    undoClassification(i);
+  for (let i = 0; i < presetTags.length; i++) {
+    presetTag(i);
   }
   /**
    * Undo the classification for a given element.
    *
    * @param {number} i - The index of the element in the classifications array.
    */
-  function undoClassification(i) {
-    const elm = classifications[i];
-    const os = elm.getAttribute("data-reset-os");
+  function presetTag(i) {
+    const elm = presetTags[i];
+    const os = elm.getAttribute("data-preset-os");
     if (os === null) {
-      throw new Error("data-reset-os attribute is required for ${elm.id}.");
+      throw new Error("data-preset-os attribute is required for ${elm.id}.");
     }
-    const cat = elm.getAttribute("data-reset-cat");
+    const cat = elm.getAttribute("data-preset-tag");
     if (cat === null) {
-      throw new Error("data-reset-cat attribute is required for ${elm.id}.");
+      throw new Error("data-preset-tag attribute is required for ${elm.id}.");
     }
     elm.addEventListener("click", (e) => {
       e.preventDefault();
-      osInput.value = os;
-      osInput.classList.remove("is-invalid");
-      catInput.value = cat;
-      catInput.classList.remove("is-invalid");
-      relabelOS();
-      relabelCat();
+      osv.value = os;
+      osv.classList.remove("is-invalid");
+      tagv.value = cat;
+      tagv.classList.remove("is-invalid");
+      newOSLabel();
+      newTagLabel();
     });
   }
 
-  const name = "artifact-editor-filename";
-  const nameInput = document.getElementById(name);
-  if (nameInput === null) {
+  const filename = document.getElementById("artifact-editor-filename");
+  if (filename === null) {
     throw new Error("The filename input is missing.");
   }
-  nameInput.addEventListener("input", (e) => {
+  filename.addEventListener("input", (e) => {
     e.target.classList.remove("is-valid");
     e.target.classList.remove("is-invalid");
     if (e.target.value.trim().length === 0) {
       e.target.classList.add("is-invalid");
     }
   });
-  const nameReset = document.getElementById(name + "-reset");
-  if (nameReset === null) {
+  const fnr = document.getElementById("artifact-editor-filename-reset");
+  if (fnr === null) {
     throw new Error("The filename reset is missing.");
   }
-  const nameResetter = document.getElementsByName(name + "-resetter");
-  if (nameResetter.length === 0) {
+  const fnUndo = document.getElementsByName("artifact-editor-filename-undo");
+  if (fnUndo.length === 0) {
     throw new Error("The filename resetter is missing.");
   }
-  nameReset.addEventListener("click", () => {
-    nameInput.classList.remove("is-valid");
-    if (nameResetter.length === 0) {
+  fnr.addEventListener("click", () => {
+    filename.classList.remove("is-valid");
+    if (fnUndo.length === 0) {
       throw new Error("The filename resetter is missing.");
     }
-    nameInput.value = nameResetter[0].value;
-    nameInput.classList.add("is-valid");
-    nameInput.classList.remove("is-invalid");
-    if (nameInput.value.trim().length === 0) {
-      nameInput.classList.add("is-invalid");
+    filename.value = fnUndo[0].value;
+    filename.classList.add("is-valid");
+    filename.classList.remove("is-invalid");
+    if (filename.value.trim().length === 0) {
+      filename.classList.add("is-invalid");
     }
   });
 
-  const rel = "artifact-editor-releaser";
-  const rel1Input = document.getElementById(rel + "-1");
-  if (rel1Input === null) {
+  const rel1 = document.getElementById("artifact-editor-releaser-1");
+  if (rel1 === null) {
     throw new Error("The releaser 1 input is missing.");
   }
-  rel1Input.addEventListener("input", (e) => validateReleaser(e.target));
-  const rel2Input = document.getElementById(rel + "-2");
-  if (rel2Input === null) {
+  rel1.addEventListener("input", (e) => validateReleaser(e.target));
+  const rel2 = document.getElementById("artifact-editor-releaser-2");
+  if (rel2 === null) {
     throw new Error("The releaser 2 input is missing.");
   }
-  rel2Input.addEventListener("input", (e) => validateReleaser(e.target));
-  const relsReset = document.getElementById(rel + "-reset");
-  if (relsReset === null) {
+  rel2.addEventListener("input", (e) => validateReleaser(e.target));
+  const relUndo = document.getElementById("artifact-editor-releaser-undo");
+  if (relUndo === null) {
     throw new Error("The releasers reset is missing.");
   }
-  relsReset.addEventListener("click", undoRels);
+  relUndo.addEventListener("click", undoRels);
   function undoRels() {
-    const revert1 = rel1Input.getAttribute("data-reset-rel1");
+    const revert1 = rel1.getAttribute("data-reset-rel1");
     if (revert1 === null) {
-      throw new Error("data-reset-rel1 attribute is required for rel1Input.");
+      throw new Error(
+        "data-reset-rel1 attribute is required for artifact-editor-releaser-1."
+      );
     }
-    rel1Input.value = revert1;
-    validateReleaser(rel1Input);
-    const revert2 = rel2Input.getAttribute("data-reset-rel2");
+    rel1.value = revert1;
+    validateReleaser(rel1);
+    const revert2 = rel2.getAttribute("data-reset-rel2");
     if (revert2 === null) {
-      throw new Error("data-reset-rel2 attribute is required for rel2Input.");
+      throw new Error(
+        "data-reset-rel2 attribute is required for artifact-editor-releaser-2."
+      );
     }
-    rel2Input.value = revert2;
-    validateReleaser(rel2Input);
+    rel2.value = revert2;
+    validateReleaser(rel2);
   }
 
-  const title = "artifact-editor-title";
-  const titleInput = document.getElementById(title);
-  if (titleInput === null) {
+  const title = document.getElementById("artifact-editor-title");
+  if (title === null) {
     throw new Error("The title input is missing.");
   }
-  titleInput.addEventListener("input", (e) => {
+  title.addEventListener("input", (e) => {
     e.target.classList.remove("is-valid");
   });
-  const titleReset = document.getElementById(title + "-reset");
-  if (titleReset === null) {
+  const titleUndo = document.getElementById("artifact-editor-title-undo");
+  if (titleUndo === null) {
     throw new Error("The title reset is missing.");
   }
-  const titleResetter = document.getElementsByName(title + "-resetter");
-  if (titleResetter.length === 0) {
+  const titleU = document.getElementsByName("artifact-editor-titleundo");
+  if (titleU.length === 0) {
     throw new Error("The title resetter is missing.");
   }
-  titleReset.addEventListener("click", () => {
-    titleInput.classList.remove("is-valid");
-    if (titleResetter.length === 0) {
+  titleUndo.addEventListener("click", () => {
+    title.classList.remove("is-valid");
+    if (titleU.length === 0) {
       throw new Error("The title resetter is missing.");
     }
-    titleInput.value = titleResetter[0].value;
-    titleInput.classList.add("is-valid");
+    title.value = titleU[0].value;
+    title.classList.add("is-valid");
   });
 
-  const credit = "artifact-editor-credit";
-  const creTextInput = document.getElementById(credit + "-text");
-  if (creTextInput === null) {
+  const ct = document.getElementById("artifact-editor-credit-text");
+  if (ct === null) {
     throw new Error("The creator text input is missing.");
   }
-  creTextInput.addEventListener("input", (e) => {
+  ct.addEventListener("input", (e) => {
     e.target.classList.remove("is-valid");
   });
-  const creIllInput = document.getElementById(credit + "-ill");
-  if (creIllInput === null) {
+  const ci = document.getElementById("artifact-editor-credit-ill");
+  if (ci === null) {
     throw new Error("The creator illustrator input is missing.");
   }
-  creIllInput.addEventListener("input", (e) => {
+  ci.addEventListener("input", (e) => {
     e.target.classList.remove("is-valid");
   });
-  const creProgInput = document.getElementById(credit + "-prog");
-  if (creProgInput === null) {
+  const cp = document.getElementById("artifact-editor-credit-prog");
+  if (cp === null) {
     throw new Error("The creator programmer input is missing.");
   }
-  creProgInput.addEventListener("input", (e) => {
+  cp.addEventListener("input", (e) => {
     e.target.classList.remove("is-valid");
   });
-  const creAudioInput = document.getElementById(credit + "-audio");
-  if (creAudioInput === null) {
+  const ca = document.getElementById("artifact-editor-credit-audio");
+  if (ca === null) {
     throw new Error("The creator audio input is missing.");
   }
-  creAudioInput.addEventListener("input", (e) => {
+  ca.addEventListener("input", (e) => {
     e.target.classList.remove("is-valid");
   });
-  const creResetter = document.getElementById(credit + "-resetter");
-  if (creResetter === null) {
+  const cUndos = document.getElementById("artifact-editor-credits-undo");
+  if (cUndos === null) {
     throw new Error("The creator resetter is missing.");
   }
-  const creReset = document.getElementById(credit + "-reset");
-  if (creReset === null) {
+  const cUndo = document.getElementById("artifact-editor-credit-undo");
+  if (cUndo === null) {
     throw new Error("The creator reset is missing.");
   }
-  creReset.addEventListener("click", () => {
-    if (creResetter.length === 0) {
+  cUndo.addEventListener("click", () => {
+    if (cUndos.length === 0) {
       throw new Error("The creator resetter is missing.");
     }
-    const creators = creResetter.value.split(";");
+    const creators = cUndos.value.split(";");
     if (creators.length != 4) {
       throw new Error("The creator resetter values are invalid.");
     }
@@ -292,20 +286,20 @@ import { clipValue, getElmById } from "./helper.mjs";
     const ill = creators[1];
     const prog = creators[2];
     const audio = creators[3];
-    creTextInput.value = text;
-    creIllInput.value = ill;
-    creProgInput.value = prog;
-    creAudioInput.value = audio;
+    ct.value = text;
+    ci.value = ill;
+    cp.value = prog;
+    ca.value = audio;
   });
 
-  const cmmtInput = document.getElementById("artifact-editor-comment");
-  if (cmmtInput === null) {
+  const cmmt = document.getElementById("artifact-editor-comment");
+  if (cmmt === null) {
     throw new Error("The comment input is missing.");
   }
-  cmmtInput.addEventListener("input", (e) => {
+  cmmt.addEventListener("input", (e) => {
     e.target.classList.remove("is-valid");
   });
-  const cmmtReset = document.getElementById("artifact-editor-comment-reset");
+  const cmmtReset = document.getElementById("artifact-editor-comment-undo");
   if (cmmtReset === null) {
     throw new Error("The comment reset is missing.");
   }
@@ -316,15 +310,15 @@ import { clipValue, getElmById } from "./helper.mjs";
     throw new Error("The comment resetter is missing.");
   }
   cmmtReset.addEventListener("click", () => {
-    cmmtInput.classList.remove("is-valid");
-    cmmtInput.value = cmmtResetter.value;
+    cmmt.classList.remove("is-valid");
+    cmmt.value = cmmtResetter.value;
   });
 
-  const virustotalInput = document.getElementById("artifact-editor-virustotal");
-  if (virustotalInput === null) {
+  const vt = document.getElementById("artifact-editor-virustotal");
+  if (vt === null) {
     throw new Error("The virustotal input is missing.");
   }
-  virustotalInput.addEventListener("input", (e) => {
+  vt.addEventListener("input", (e) => {
     e.target.classList.remove("is-valid", "is-invalid");
     const value = e.target.value.trim();
     if (value.length != 0) {
@@ -334,26 +328,26 @@ import { clipValue, getElmById } from "./helper.mjs";
     }
   });
 
-  const yearInput = document.getElementById("artifact-editor-year");
-  if (yearInput === null) {
+  const year = document.getElementById("artifact-editor-year");
+  if (year === null) {
     throw new Error("The year input is missing.");
   }
-  yearInput.addEventListener("input", () => {
-    validateDate(yearInput, monthInput, dayInput);
+  year.addEventListener("input", () => {
+    validateDate(year, month, day);
   });
-  const monthInput = document.getElementById("artifact-editor-month");
-  if (monthInput === null) {
+  const month = document.getElementById("artifact-editor-month");
+  if (month === null) {
     throw new Error("The month input is missing.");
   }
-  monthInput.addEventListener("input", () => {
-    validateDate(yearInput, monthInput, dayInput);
+  month.addEventListener("input", () => {
+    validateDate(year, month, day);
   });
-  const dayInput = document.getElementById("artifact-editor-day");
-  if (dayInput === null) {
+  const day = document.getElementById("artifact-editor-day");
+  if (day === null) {
     throw new Error("The day input is missing.");
   }
-  dayInput.addEventListener("input", () => {
-    validateDate(yearInput, monthInput, dayInput);
+  day.addEventListener("input", () => {
+    validateDate(year, month, day);
   });
 
   const dateReset = document.getElementById("artifact-editor-date-reset");
@@ -365,17 +359,17 @@ import { clipValue, getElmById } from "./helper.mjs";
     throw new Error("The date resetter is missing.");
   }
   dateReset.addEventListener("click", () => {
-    yearInput.classList.remove("is-invalid", "is-valid");
-    monthInput.classList.remove("is-invalid", "is-valid");
-    dayInput.classList.remove("is-invalid", "is-valid");
+    year.classList.remove("is-invalid", "is-valid");
+    month.classList.remove("is-invalid", "is-valid");
+    day.classList.remove("is-invalid", "is-valid");
     const value = dateResetter.value;
     const values = value.split("-");
     if (values.length != 3) {
       throw new Error("The date resetter values are invalid.");
     }
-    yearInput.value = values[0];
-    monthInput.value = values[1];
-    dayInput.value = values[2];
+    year.value = values[0];
+    month.value = values[1];
+    day.value = values[2];
   });
 
   const dateLastMod = document.getElementById("artifact-editor-date-lastmod");
@@ -389,17 +383,17 @@ import { clipValue, getElmById } from "./helper.mjs";
       throw new Error("The date last modder input is missing.");
     }
     dateLastMod.addEventListener("click", () => {
-      yearInput.classList.remove("is-invalid", "is-valid");
-      monthInput.classList.remove("is-invalid", "is-valid");
-      dayInput.classList.remove("is-invalid", "is-valid");
+      year.classList.remove("is-invalid", "is-valid");
+      month.classList.remove("is-invalid", "is-valid");
+      day.classList.remove("is-invalid", "is-valid");
       const value = dateLastModder.value;
       const values = value.split("-");
       if (values.length != 3) {
         throw new Error("The date last modder values are invalid.");
       }
-      yearInput.value = values[0];
-      monthInput.value = values[1];
-      dayInput.value = values[2];
+      year.value = values[0];
+      month.value = values[1];
+      day.value = values[2];
     });
   }
 

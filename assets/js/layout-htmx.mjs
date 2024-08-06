@@ -14,7 +14,7 @@ export function htmxEvents() {
   searchEvents();
 
   document.body.addEventListener("htmx:beforeRequest", function (event) {
-    removeSelectsValid(event, `artifact-editor-reset-classifications`);
+    removeSelectsValid(event, `artifact-editor-classifications-undo`);
     removeSelectsValid(event, `artifact-editor-text-for-dos`);
     removeSelectsValid(event, `artifact-editor-text-for-amiga`);
     removeSelectsValid(event, `artifact-editor-proof-of-release`);
@@ -70,7 +70,7 @@ export function htmxEvents() {
     afterClassifications(event, `artifact-editor-magazine-for-text`);
     afterClassifications(event, `artifact-editor-magazine-for-dos`);
     // record releaser.
-    afterUpdate(event, `artifact-editor-releaser-reset`);
+    afterUpdate(event, `artifact-editor-releaser-undo`);
     afterUpdateRels(event, `artifact-editor-releaser-update`);
     // record title.
     afterUpdate(event, `artifact-editor-title`);
@@ -93,12 +93,12 @@ export function htmxEvents() {
     afterUpdate(event, `artifact-editor-credit-ill`);
     afterUpdate(event, `artifact-editor-credit-prog`);
     afterUpdate(event, `artifact-editor-credit-audio`);
-    afterCreators(event, `artifact-editor-credit-reset"`);
+    afterCreators(event, `artifact-editor-credit-undo"`);
     // record comment.
     afterUpdate(event, `artifact-editor-comment`);
     afterReset(
       event,
-      `artifact-editor-comment-reset`,
+      `artifact-editor-comment-undo`,
       `artifact-editor-comment`
     );
     // record links.

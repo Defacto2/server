@@ -262,7 +262,7 @@ func RecordFilename(c echo.Context) error {
 
 // RecordFilenameReset handles the post submission for the file artifact filename reset.
 func RecordFilenameReset(c echo.Context) error {
-	val := c.FormValue("artifact-editor-filename-resetter")
+	val := c.FormValue("artifact-editor-filename-undo")
 	key := c.FormValue("artifact-editor-key")
 	id, err := strconv.Atoi(key)
 	if err != nil {
@@ -307,7 +307,7 @@ func RecordTitle(c echo.Context) error {
 
 // RecordTitleReset handles the post submission for the file artifact title reset.
 func RecordTitleReset(c echo.Context) error {
-	val := c.FormValue("artifact-editor-title-resetter")
+	val := c.FormValue("artifact-editor-titleundo")
 	key := c.FormValue("artifact-editor-key")
 	id, err := strconv.Atoi(key)
 	if err != nil {
@@ -533,7 +533,7 @@ func creatorFix(s string) string {
 
 // RecordCreatorReset handles the post submission for the file artifact creators reset.
 func RecordCreatorReset(c echo.Context) error {
-	reset := c.FormValue("artifact-editor-credit-resetter")
+	reset := c.FormValue("artifact-editor-credit-undo")
 	textval := c.FormValue("artifact-editor-credittext")
 	illval := c.FormValue("artifact-editor-creditill")
 	progval := c.FormValue("artifact-editor-creditprog")

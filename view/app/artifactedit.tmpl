@@ -148,8 +148,8 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               </select>
             </div>
             <div class="btn-group" role="group" aria-label="Reset classifications">
-              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-reset-classifications" type="button" 
-                data-reset-os="{{$os}}" data-reset-cat="{{$tag}}"
+              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-classifications-undo" type="button" 
+                data-preset-os="{{$os}}" data-preset-tag="{{$tag}}"
                 hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">
@@ -160,58 +160,58 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             <div><label class="col-form-label-lg">Popular</label></div>
             {{- /*  Popular classifications  */}}
             <div class="row row-cols-2 row-cols-md-3">
-              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-text-for-dos" type="button" 
-                data-reset-os="text" data-reset-cat="releaseinformation"
+              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-text-for-dos" type="button" 
+                data-preset-os="text" data-preset-tag="releaseinformation"
                 hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">Text or NFO</button>
-              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-text-for-amiga" type="button"
-                data-reset-os="textamiga" data-reset-cat="releaseinformation"
+              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-text-for-amiga" type="button"
+                data-preset-os="textamiga" data-preset-tag="releaseinformation"
                 hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">Text for Amiga</button>
-              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-magazine-for-text" type="button"
-                data-reset-os="text" data-reset-cat="magazine"
+              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-magazine-for-text" type="button"
+                data-preset-os="text" data-preset-tag="magazine"
                 hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">Text magazine</button>
-              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-ansi-for-bbs" type="button"
-                data-reset-os="ansi" data-reset-cat="bbs"
+              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-ansi-for-bbs" type="button"
+                data-preset-os="ansi" data-preset-tag="bbs"
                 hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">ANSI for BBS</button>
-              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-intro-for-dos" type="button"
-                data-reset-os="dos" data-reset-cat="releaseadvert"
+              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-intro-for-dos" type="button"
+                data-preset-os="dos" data-preset-tag="releaseadvert"
                 hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">MsDos-tro</button>
-              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-trainer-for-dos" type="button"
-                data-reset-os="dos" data-reset-cat="gamehack"
+              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-trainer-for-dos" type="button"
+                data-preset-os="dos" data-preset-tag="gamehack"
                 hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">MsDos trainer</button>
-              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-magazine-for-dos" type="button"
-                data-reset-os="dos" data-reset-cat="magazine"
+              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-magazine-for-dos" type="button"
+                data-preset-os="dos" data-preset-tag="magazine"
                 hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">MsDos magazine</button>
-              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-intro-for-bbs" type="button"
-                data-reset-os="dos" data-reset-cat="bbs"
+              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-intro-for-bbs" type="button"
+                data-preset-os="dos" data-preset-tag="bbs"
                 hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">BBS-tro</button>
-              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-intro-for-win" type="button"
-                data-reset-os="windows" data-reset-cat="releaseadvert"
+              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-intro-for-win" type="button"
+                data-preset-os="windows" data-preset-tag="releaseadvert"
                 hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">Windows-tro</button>
-              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-trainer-for-win" type="button"
-                data-reset-os="windows" data-reset-cat="gamehack"
+              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-trainer-for-win" type="button"
+                data-preset-os="windows" data-preset-tag="gamehack"
                 hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">Windows trainer</button>
-              <button class="btn btn-link" name="reset-classifications" id="artifact-editor-proof-of-release" type="button"
-                data-reset-os="image" data-reset-cat="releaseproof"
+              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-proof-of-release" type="button"
+                data-preset-os="image" data-preset-tag="releaseproof"
                 hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">Proof of release</button>
@@ -233,12 +233,12 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               Or a magazine issue, example: <q>1</q>, or include a volume, example: <q>1, volume 1</q>.
             </div>
             <div class="btn-group" role="group">
-              <input type="hidden" name="artifact-editor-title-resetter" value="{{$title}}" readonly>
-              <button class="btn btn-link" type="button" id="artifact-editor-title-reset"
+              <input type="hidden" name="artifact-editor-titleundo" value="{{$title}}" readonly>
+              <button class="btn btn-link" type="button" id="artifact-editor-title-undo"
                 hx-patch="/editor/title/reset"
                 hx-target="#artifact-editor-title-quote"
                 hx-include="[name='artifact-editor-key'],
-                            [name='artifact-editor-title-resetter']">
+                            [name='artifact-editor-titleundo']">
                   Reset title <small>to <q id="artifact-editor-title-quote">{{$title}}</q></small></button>
             </div>
           </div>
@@ -246,7 +246,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           <div class="col-xl-6">
             <label class="form-label col-form-label-lg m-0 p-0">
                 Comment
-                <button type="button" class="btn btn-link" id="artifact-editor-comment-reset"
+                <button type="button" class="btn btn-link" id="artifact-editor-comment-undo"
                     hx-patch="/editor/comment/reset"
                     hx-include="[name='artifact-editor-key'],
                                 [name='artifact-editor-comment'],
@@ -303,7 +303,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               for example: <q>Dark Domain BBS</q> or <q>Dark Domain FTP</q>.
             </div>
             <div class="btn-group" role="group">
-              <button class="btn btn-link" type="button" id="artifact-editor-releaser-reset"
+              <button class="btn btn-link" type="button" id="artifact-editor-releaser-undo"
               hx-patch="/editor/releasers/reset"
               hx-target="#artifact-editor-releaser-quotes"
               hx-include="[name='artifact-editor-key'],
@@ -403,12 +403,12 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               <span class="text-warning-emphasis">A file extension is always advisable</span>, for example: <q>example.zip</q>.
             </div>
             <div class="btn-group" role="group">
-              <input type="hidden" name="artifact-editor-filename-resetter" value="{{$filename}}" readonly>
+              <input type="hidden" name="artifact-editor-filename-undo" value="{{$filename}}" readonly>
               <button class="btn btn-link" type="button" id="artifact-editor-filename-reset"
                 hx-patch="/editor/filename/reset"
                 hx-target="#artifact-editor-filename-quote"
                 hx-include="[name='artifact-editor-key'],
-                            [name='artifact-editor-filename-resetter']">
+                            [name='artifact-editor-filename-undo']">
                   Reset filename <small>to <q id="artifact-editor-filename-quote">{{$filename}}</q></small></button>
             </div>
           </div>
@@ -475,10 +475,10 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           </div>
           <div class="form-text" id="artifact-editor-credit-help">Join multiple creators with commas, for example: <q>Name,Name two,Name3</q>.</div>
           <div>
-            <button type="button" class="btn btn-link" id="artifact-editor-credit-reset"
+            <button type="button" class="btn btn-link" id="artifact-editor-credit-undo"
                 hx-patch="/editor/creator/reset"
                 hx-include="[name='artifact-editor-key'],
-                [name='artifact-editor-credit-resetter'],
+                [name='artifact-editor-creditundo'],
                 [name='artifact-editor-credittext'],
                 [name='artifact-editor-creditill'],
                 [name='artifact-editor-creditprog'],
@@ -486,7 +486,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             </div>
         </div>
         <div class="btn-group" role="group">
-          <input type="hidden" id="artifact-editor-credit-resetter" name="artifact-editor-credit-resetter" 
+          <input type="hidden" id="artifact-editor-credits-undo" name="artifact-editor-credits-undo" 
             value="{{$writers}};{{$artists}};{{$programmers}};{{$musicians}}" readonly>
         </div>
         <hr class="d-block d-lg-none">
