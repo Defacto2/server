@@ -6,7 +6,6 @@
 {{- $editor := index . "editor"}}
 {{- $forApproval := index . "forApproval"}}
 {{- if and (eq true $forApproval) (eq true $editor)}}
-{{- /*  TODO: replace with htmx?  */}}
 <script async src="{{ editForApproval }}?{{ sri_editForApproval }}" integrity="{{ sri_editForApproval }}" crossorigin="anonymous"></script>
 {{- end}}
 {{- if and (eq false $readonly) (eq true $editor)}}

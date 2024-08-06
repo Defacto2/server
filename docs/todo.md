@@ -39,7 +39,6 @@ Magic files to add:
 ### Templates
 
 - [ ] `artifactfile.tmpl`
-- [ ] `artifactzip.tmpl`
 - [ ] `layoutjs.tmpl`
  
 ---
