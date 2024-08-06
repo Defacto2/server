@@ -209,7 +209,7 @@ func TestFuncMap(t *testing.T) {
 	t.Parallel()
 	w := app.Templ{}
 	x := w.FuncMap()
-	assert.Contains(t, x, "artifactEditor")
+	assert.Contains(t, x, "editArtifact")
 	assert.Contains(t, x, "version")
 	assert.Contains(t, x, "az")
 	assert.Contains(t, x, "msdos")
@@ -305,7 +305,7 @@ func TestNames(t *testing.T) {
 	t.Parallel()
 
 	x := app.Names()
-	assert.Equal(t, "public/js/artifact-editor.min.js", x[0])
+	assert.Equal(t, "public/js/editor-artifact.min.js", x[0])
 }
 
 func TestFontRefs(t *testing.T) {

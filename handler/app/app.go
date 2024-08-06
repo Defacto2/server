@@ -770,12 +770,11 @@ type Cache struct {
 
 // SRI are the Subresource Integrity hashes for the layout.
 type SRI struct {
-	ArtifactEditor  string // Artifact Editor JS verification hash.
 	Bootstrap5      string // Bootstrap CSS verification hash.
 	Bootstrap5JS    string // Bootstrap JS verification hash.
 	BootstrapIcons  string // Bootstrap Icons SVG verification hash.
+	EditArtifact    string // Artifact Editor JS verification hash.
 	EditAssets      string // Editor Assets JS verification hash.
-	EditArchive     string // Editor Archive JS verification hash.
 	EditForApproval string // Editor For Approval JS verification hash.
 	Jsdos6JS        string // js-dos v6 verification hash.
 	DosboxJS        string // DOSBox Emscripten verification hash.
@@ -793,12 +792,7 @@ type SRI struct {
 func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 	names := Names()
 	var err error
-	name := names[ArtifactEditor]
-	s.ArtifactEditor, err = helper.Integrity(name, fs)
-	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
-	}
-	name = names[Bootstrap5]
+	name := names[Bootstrap5]
 	s.Bootstrap5, err = helper.Integrity(name, fs)
 	if err != nil {
 		return fmt.Errorf("%s: %w", name, err)
@@ -818,13 +812,13 @@ func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 	if err != nil {
 		return fmt.Errorf("%s: %w", name, err)
 	}
-	name = names[EditAssets]
-	s.EditAssets, err = helper.Integrity(name, fs)
+	name = names[EditArtifact]
+	s.EditArtifact, err = helper.Integrity(name, fs)
 	if err != nil {
 		return fmt.Errorf("%s: %w", name, err)
 	}
-	name = names[EditArchive]
-	s.EditArchive, err = helper.Integrity(name, fs)
+	name = names[EditAssets]
+	s.EditAssets, err = helper.Integrity(name, fs)
 	if err != nil {
 		return fmt.Errorf("%s: %w", name, err)
 	}

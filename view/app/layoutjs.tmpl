@@ -10,8 +10,7 @@
 <script async src="{{ editForApproval }}?{{ sri_editForApproval }}" integrity="{{ sri_editForApproval }}" crossorigin="anonymous"></script>
 {{- end}}
 {{- if and (eq false $readonly) (eq true $editor)}}
-<script async src="{{ artifactEditor }}?{{ sri_artifactEditor }}" integrity="{{ sri_artifactEditor }}" crossorigin="anonymous"></script>
+<script async src="{{ editArtifact }}?{{ sri_editArtifact }}" integrity="{{ sri_editArtifact }}" crossorigin="anonymous"></script>
 <script async src="{{ editAssets }}?{{ sri_editAssets }}" integrity="{{ sri_editAssets }}" crossorigin="anonymous"></script>
-<script async src="{{ editArchive }}?{{ sri_editArchive }}" integrity="{{ sri_editArchive }}" crossorigin="anonymous"></script>
 {{- end}}
 {{- end}}

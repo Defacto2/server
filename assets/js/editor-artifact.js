@@ -1,5 +1,5 @@
 /**
- * @file artifact-editor.js
+ * @file editor-artifact.js
  * This script is the entry point for the artifact editor page.
  */
 import {

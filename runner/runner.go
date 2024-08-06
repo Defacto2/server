@@ -28,8 +28,6 @@ func NamedCSS() []string {
 // The files are located in the assets/js directory.
 func NamedJS() []string {
 	return []string{
-		//		"editor-assets",
-		"editor-archive",
 		"editor-forapproval",
 		"htmx-response-targets",
 		"votes-pouet",
@@ -76,8 +74,8 @@ func JS(name string) api.BuildOptions {
 }
 
 func Artifact() api.BuildOptions {
-	min := "artifact-editor.min.js"
-	entryjs := filepath.Join("assets", "js", "artifact-editor.js")
+	min := "editor-artifact.min.js"
+	entryjs := filepath.Join("assets", "js", "editor-artifact.js")
 	output := filepath.Join("public", "js", min)
 	return api.BuildOptions{
 		EntryPoints:       []string{entryjs},

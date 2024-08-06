@@ -231,9 +231,6 @@ func (t Templ) Funcs() template.FuncMap {
 func (t Templ) FuncClosures() template.FuncMap { //nolint:funlen
 	hrefs := Hrefs()
 	return template.FuncMap{
-		"artifactEditor": func() string {
-			return hrefs[ArtifactEditor]
-		},
 		"bootstrap5": func() string {
 			return hrefs[Bootstrap5]
 		},
@@ -251,8 +248,8 @@ func (t Templ) FuncClosures() template.FuncMap { //nolint:funlen
 		"demozooSanity": func() string {
 			return strconv.Itoa(demozoo.Sanity)
 		},
-		"editArchive": func() string {
-			return hrefs[EditArchive]
+		"editArtifact": func() string {
+			return hrefs[EditArtifact]
 		},
 		"editAssets": func() string {
 			return hrefs[EditAssets]
@@ -324,9 +321,6 @@ func (t Templ) FuncClosures() template.FuncMap { //nolint:funlen
 		"screenshot": func(unid, desc string) template.HTML {
 			return str.Screenshot(unid, desc, t.Environment.AbsPreview)
 		},
-		"sri_artifactEditor": func() string {
-			return t.Subresource.ArtifactEditor
-		},
 		"sri_bootstrap5": func() string {
 			return t.Subresource.Bootstrap5
 		},
@@ -336,8 +330,8 @@ func (t Templ) FuncClosures() template.FuncMap { //nolint:funlen
 		"sri_bootstrapIcons": func() string {
 			return t.Subresource.BootstrapIcons
 		},
-		"sri_editArchive": func() string {
-			return t.Subresource.EditArchive
+		"sri_editArtifact": func() string {
+			return t.Subresource.EditArtifact
 		},
 		"sri_editAssets": func() string {
 			return t.Subresource.EditAssets
