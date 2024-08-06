@@ -153,7 +153,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-patch="/editor/classifications" 
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">
-                  Reset classifications <small>to <q>{{$os}}</q> + <q>{{$tag}}</q></small></button>
+                  Reset<small class="link-dark"> classifications to <q>{{$os}}</q> + <q>{{$tag}}</q></small></button>
             </div>
           </div>
           <div class="col-xl-6">
@@ -239,18 +239,13 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-target="#artifact-editor-title-quote"
                 hx-include="[name='artifact-editor-key'],
                             [name='artifact-editor-titleundo']">
-                  Reset title <small>to <q id="artifact-editor-title-quote">{{$title}}</q></small></button>
+                  Reset<small class="link-dark"> title to <q id="artifact-editor-title-quote">{{$title}}</q></small></button>
             </div>
           </div>
           {{/*  Comments  */}}
           <div class="col-xl-6">
-            <label class="form-label col-form-label-lg m-0 p-0">
+            <label class="form-label col-form-label-lg">
                 Comment
-                <button type="button" class="btn btn-link" id="artifact-editor-comment-undo"
-                    hx-patch="/editor/comment/reset"
-                    hx-include="[name='artifact-editor-key'],
-                                [name='artifact-editor-comment'],
-                                [name='artifact-editor-comment-resetter']">Undo changes</button>
               </label>
               <textarea class="form-control" name="artifact-editor-comment" id="artifact-editor-comment" 
                 style="height:6em;" autocomplete="off" aria-describedby="artifact-editor-comment-help"                
@@ -259,6 +254,13 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-include="[name='artifact-editor-key']">{{$comment}}</textarea>
               <div class="form-text" id="artifact-editor-comment-help">Optional, comments can be used to store longer form notes about the artifact.</div>
               <input type="hidden" id="artifact-editor-comment-resetter" name="artifact-editor-comment-resetter" value="{{$comment}}" readonly>
+              <div>
+                <button type="button" class="btn btn-link" id="artifact-editor-comment-undo"
+                hx-patch="/editor/comment/reset"
+                hx-include="[name='artifact-editor-key'],
+                            [name='artifact-editor-comment'],
+                            [name='artifact-editor-comment-resetter']">Undo<small class="link-dark"> changes</small></button>
+              </div>
           </div>
         </div>
         <div class="row bg-light my-3">
@@ -310,7 +312,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                           [name='artifact-editor-releaser1'],
                           [name='artifact-editor-releaser2']"
               hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>
-                Reset releasers <small>to 
+                Reset<small class="link-dark"> releasers to 
                   <span name="artifact-editor-releaserquotes" id="artifact-editor-releaser-quotes"><q>{{$rel1}}</q>
                   {{if ne $rel2 ""}}+<q>{{$rel2}}</q>{{end}}</span></small></button>
             </div>
@@ -367,7 +369,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                   hx-patch="/editor/date/reset"
                   hx-target="#artifact-editor-date-quote"
                   hx-include="[name='artifact-editor-key'],[name='artifact-editor-date-resetter']">
-                  Reset date <small>to 
+                  Reset<small class="link-dark"> date to 
                 <q id="artifact-editor-date-quote">{{- if ne $dateYear 0}}{{$dateYear}}{{end}}
                 {{- if ne $dateMonth 0}}-{{$dateMonth}}{{end}}
                 {{- if ne $dateDay 0}}-{{$dateDay}}{{end}}</q></small>
@@ -379,7 +381,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                   hx-patch="/editor/date/lastmod"
                   hx-target="#artifact-editor-date-lastmod-quote"
                   hx-include="[name='artifact-editor-key'],[name='artifact-editor-date-lastmodder']">
-                  Use the last modification date
+                  Use<small class="link-dark"> the last modification date 
                 {{- if ne $lmYear 0}}<small><q id="artifact-editor-date-lastmod-quote">{{$lmYear}}
                 {{- if ne $lmMonth 0}}-{{$lmMonth}}{{end}}
                 {{- if ne $lmDay 0}}-{{$lmDay}}{{end}}</q></small>{{end}}
@@ -409,7 +411,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-target="#artifact-editor-filename-quote"
                 hx-include="[name='artifact-editor-key'],
                             [name='artifact-editor-filename-undo']">
-                  Reset filename <small>to <q id="artifact-editor-filename-quote">{{$filename}}</q></small></button>
+                  Reset<small class="link-dark"> filename to <q id="artifact-editor-filename-quote">{{$filename}}</q></small></button>
             </div>
           </div>
           {{/*  VirusTotal  */}}
@@ -482,7 +484,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 [name='artifact-editor-credittext'],
                 [name='artifact-editor-creditill'],
                 [name='artifact-editor-creditprog'],
-                [name='artifact-editor-creditaudio']">Undo changes</button>
+                [name='artifact-editor-creditaudio']">Undo<small class="link-dark"> changes</small></button>
             </div>
         </div>
         <div class="btn-group" role="group">
@@ -567,7 +569,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             </div>
           </div>
         </div>
-        <div class="row row-cols-1 row-cols-lg-2 gy-2 py-4">
+        <div class="row row-cols-1 row-cols-lg-2 gy-2 pt-2">
           <div class="col">
             <div class="form-floating" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Info and a Defacto2 ID, example: NFO;9f1c2">
               <input type="hidden" name="artifact-editor-relationsval" id="artifact-editor-relations-reset" value="{{$relations}}" readonly>
@@ -617,7 +619,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               [name='artifact-editor-relationsval'],
               [name='artifact-editor-websitesval']"
               hx-target="#artifact-editor-link-examples">
-              Undo changes
+              Undo<small class="link-dark"> changes</small>
           </button>
         </div>
         </form>
