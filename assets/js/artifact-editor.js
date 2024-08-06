@@ -15,6 +15,44 @@ import { clipValue, getElmById } from "./helper.mjs";
 (() => {
   "use strict";
 
+  const options = {
+    backdrop: "static",
+    keyboard: false,
+  };
+  const artifactModal = new bootstrap.Modal("#artifact-editor-modal", options);
+  const assetModal = new bootstrap.Modal("#asset-editor-modal", options);
+  const emulateModal = new bootstrap.Modal("#emulate-editor-modal", options);
+  const dataEditors = document.getElementsByName("artifact-editor-dataeditor");
+  if (dataEditors.length > 0) {
+    for (let i = 0; i < dataEditors.length; i++) {
+      dataEditors[i].addEventListener("click", (evt) => {
+        assetModal.hide();
+        emulateModal.hide();
+        artifactModal.show();
+      });
+    }
+  }
+  const fileEditors = document.getElementsByName("artifact-editor-fileeditor");
+  if (fileEditors.length > 0) {
+    for (let i = 0; i < fileEditors.length; i++) {
+      fileEditors[i].addEventListener("click", (evt) => {
+        artifactModal.hide();
+        emulateModal.hide();
+        assetModal.show();
+      });
+    }
+  }
+  const emuEditors = document.getElementsByName("artifact-editor-emueditor");
+  if (emuEditors.length > 0) {
+    for (let i = 0; i < emuEditors.length; i++) {
+      emuEditors[i].addEventListener("click", (evt) => {
+        artifactModal.hide();
+        assetModal.hide();
+        emulateModal.show();
+      });
+    }
+  }
+
   const erp = document.getElementById("emulate-run-program");
   if (erp !== null) {
     const egp = document.getElementById("emulate-guess-program");
