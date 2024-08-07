@@ -33,6 +33,39 @@ func tduncompress(name string) string {
 	return x
 }
 
+func TestXXX(t *testing.T) {
+	t.Parallel()
+	// test the test data paths
+	p, err := os.ReadFile("TGDEMO.EXE")
+	require.NoError(t, err)
+	b, maj, min := magicnumber.NE(p)
+	assert.Equal(t, b, magicnumber.Windows286Exe)
+	assert.Equal(t, 3, maj)
+	assert.Equal(t, 0, min)
+
+	p, err = os.ReadFile("XXX.exe")
+	require.NoError(t, err)
+	pe, _, _ := magicnumber.PE(p)
+	assert.Equal(t, pe, magicnumber.Intel386PE)
+
+	p, err = os.ReadFile("7z.exe")
+	require.NoError(t, err)
+	pe, _, _ = magicnumber.PE(p)
+	assert.Equal(t, pe, magicnumber.Intel386PE)
+
+	p, err = os.ReadFile("7za.exe")
+	require.NoError(t, err)
+	pe, _, _ = magicnumber.PE(p)
+	assert.Equal(t, pe, magicnumber.AMD64PE)
+
+	var x = uint8(2)
+	for _, v := range magicnumber.Indexes(x) {
+		fmt.Println(v)
+	}
+	fmt.Printf("%08b\n", x)
+
+}
+
 func TestFinds(t *testing.T) {
 	t.Parallel()
 	f, err := os.Open(td("PKZ204EX.TXT"))

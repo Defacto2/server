@@ -23,9 +23,11 @@ package magicnumber
 
 import (
 	"bytes"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"io"
+	"math/bits"
 	"net/http"
 	"path/filepath"
 	"slices"
@@ -789,6 +791,135 @@ func FindBytes512B(p []byte) Signature {
 	default:
 		return Unknown
 	}
+}
+
+// NewExe represents the New Executable file type, a format used by Microsoft and IBM
+// to improve on the limitations of the MS-DOS MZ executable format.
+type NewExe int
+
+const (
+	NotNewExe     NewExe = iota - 1 // Not a New Executable
+	UnknownExe                      // Unknown New Executable
+	OS2Exe                          // Microsoft IBM OS/2 New Executable
+	Windows286Exe                   // Windows requiring an Intel 286 CPU New Executable
+	DOSv4Exe                        // MS-DOS v4 New Executable
+	Windows386Exe                   // Windows requiring an Intel 386 CPU New Executable
+)
+
+// NE returns the New Executable file type from the byte slice
+// or NotNewExe if the file is not a New Executable.
+//
+// Windows programs that are New Executables are usually for the ancient Windows 2 or 3.x versions.
+// Windows v2 came in two versions, Windows 2 (for the 286 CPU) and Windows/386,
+// while Windows v3 unified support for both CPUs.
+// The New Executable format was replaced by the Portable Executable format in Windows 95.
+//
+// If a Windows program is detected, the major and minor version numbers are returned,
+// for example, a Windows 3.0 requirement would return 3 and 0.
+func NE(p []byte) (NewExe, int, int) {
+	const min = 64
+	if len(p) < min {
+		return NotNewExe, 0, 0
+	}
+	if p[0] != 'M' || p[1] != 'Z' {
+		return NotNewExe, 0, 0
+	}
+	const segmentedHeaderIndex = 0x3c // the location of the segmented header
+	const executableTypeIndex = 0x36  // the executable type aka the operating system
+	const winMinorIndex = 0x3e        // the location of the Windows minor version
+	const winMajorIndex = 0x3f        // the location of the Windows major version
+	location := int16(binary.LittleEndian.Uint16(p[segmentedHeaderIndex:]))
+	if len(p) < int(location)+int(winMajorIndex) {
+		return NotNewExe, 0, 0
+	}
+	segmentedHeader := [2]byte{
+		p[location],
+		p[location+1],
+	}
+	if segmentedHeader != [2]byte{'N', 'E'} {
+		return NotNewExe, 0, 0
+	}
+	minor := int(p[location+winMinorIndex])
+	major := int(p[location+winMajorIndex])
+	newType := NewExe(p[location+executableTypeIndex])
+	switch newType {
+	case Windows286Exe, Windows386Exe, OS2Exe, DOSv4Exe:
+		return newType, major, minor
+	case UnknownExe:
+		return newType, 0, 0
+	default:
+		return NotNewExe, 0, 0
+	}
+}
+
+type PortableExecutable uint16
+
+const (
+	UnknownPE  PortableExecutable = 0x0    // Unknown Portable Executable
+	Intel386PE PortableExecutable = 0x14c  // Intel 386 Portable Executable
+	AMD64PE    PortableExecutable = 0x8664 // AMD64 Portable Executable
+	ARMPE      PortableExecutable = 0x1c0  // ARM Portable Executable
+	ARM64PE    PortableExecutable = 0xaa64 // ARM64 Portable Executable
+	ItaniumPE  PortableExecutable = 0x200  // Itanium Portable Executable
+	NotPE      PortableExecutable = 0xffff // Not a Portable Executable
+)
+
+func PE(p []byte) (PortableExecutable, int, int) {
+	const min = 64
+	if len(p) < min {
+		return NotPE, 0, 0
+	}
+	if p[0] != 'M' || p[1] != 'Z' {
+		return NotPE, 0, 0
+	}
+	const segmentedHeaderIndex = 0x3c // the location of the segmented header
+	location := int16(binary.LittleEndian.Uint16(p[segmentedHeaderIndex:]))
+	if len(p) < int(location) {
+		return NotPE, 0, 0
+	}
+	signature := [4]byte{
+		p[location+0],
+		p[location+1],
+		p[location+2],
+		p[location+3],
+	}
+	if signature != [4]byte{'P', 'E', 0, 0} {
+		return NotPE, 0, 0
+	}
+	const coffLen = 20
+	coffHeaderIndex := location + int16(len(signature))
+	if len(p) < int(coffHeaderIndex)+coffLen {
+		return NotPE, 0, 0
+	}
+	machine := [2]byte{
+		p[coffHeaderIndex],
+		p[coffHeaderIndex+1],
+	}
+	pem := binary.LittleEndian.Uint16(machine[:])
+	switch PortableExecutable(pem) {
+	case AMD64PE:
+		return AMD64PE, 0, 0
+	case ARMPE:
+		return ARMPE, 0, 0
+	case ARM64PE:
+		return ARM64PE, 0, 0
+	case Intel386PE:
+		return Intel386PE, 0, 0
+	case ItaniumPE:
+		return ItaniumPE, 0, 0
+	}
+	return UnknownPE, 0, 0
+}
+
+func Indexes(x uint8) []int {
+	var ind = make([]int, bits.OnesCount8(x))
+	pos := 0
+	for x != 0 {
+		ind[pos] = bits.TrailingZeros8(x)
+		x &= x - 1
+		pos += 1
+	}
+	return ind
 }
 
 // Iff matches the Interchange File Format image in the byte slice.

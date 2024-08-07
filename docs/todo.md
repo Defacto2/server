@@ -18,6 +18,8 @@
 - [ ] If a #hash is appended to a /f/<id> URL while signed out, then return a 404 or a redirect to the sign in page. Post signing should return to the #hash URL?
 - [ ] Delete all previews that are unused, such as textfiles that are displayed as a readme.
 
+- [ ] On Demozoo or Pouet upload or reach, locally cache the JSON to the temp directory.
+
 - [ ] - http://www.platohistory.org/
 - [ ] - https://portcommodore.com/dokuwiki/doku.php?id=larry:comp:bbs:about_cbbs
 - [ ] - 8BBS https://everything2.com/title/8BBS
@@ -29,6 +31,7 @@ Magic files to add:
 - Excel, http://localhost:1323/f/b02fcc
 - Multipart zip, http://localhost:1323/f/a9247de, http://localhost:1323/f/a619619
 - Convert ms-dos filenames to valid utf-8 names, see http://localhost:1323/f/b323bda
+- Windows binaries
 
 ### Bug fixes
 
