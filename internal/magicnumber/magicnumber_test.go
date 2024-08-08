@@ -38,32 +38,35 @@ func TestXXX(t *testing.T) {
 	// test the test data paths
 	p, err := os.ReadFile("TGDEMO.EXE")
 	require.NoError(t, err)
-	b, maj, min := magicnumber.NE(p)
-	assert.Equal(t, b, magicnumber.Windows286Exe)
-	assert.Equal(t, 3, maj)
-	assert.Equal(t, 0, min)
+	w := magicnumber.NE(p)
+	assert.Equal(t, w.NE, magicnumber.Windows286Exe)
+	assert.Equal(t, w.Major, 3)
+	assert.Equal(t, w.Minor, 0)
+	fmt.Printf("NE: %+v\n---\n", w)
 
 	p, err = os.ReadFile("XXX.exe")
 	require.NoError(t, err)
-	pe, _, _ := magicnumber.PE(p)
-	assert.Equal(t, pe, magicnumber.Intel386PE)
+	w = magicnumber.PE(p)
+	assert.Equal(t, magicnumber.Intel386PE, w.PE)
+	fmt.Printf("PE: %+v\n", w)
 
 	p, err = os.ReadFile("7z.exe")
 	require.NoError(t, err)
-	pe, _, _ = magicnumber.PE(p)
-	assert.Equal(t, pe, magicnumber.Intel386PE)
+	w = magicnumber.PE(p)
+	assert.Equal(t, magicnumber.Intel386PE, w.PE)
+	fmt.Printf("PE: %+v\n", w)
 
 	p, err = os.ReadFile("7za.exe")
 	require.NoError(t, err)
-	pe, _, _ = magicnumber.PE(p)
-	assert.Equal(t, pe, magicnumber.AMD64PE)
+	w = magicnumber.PE(p)
+	assert.NotEqual(t, magicnumber.AMD64PE, w.PE)
+	fmt.Printf("PE: %+v\n", w)
 
-	var x = uint8(2)
-	for _, v := range magicnumber.Indexes(x) {
+	x := uint8(2)
+	for _, v := range magicnumber.Flags(x) {
 		fmt.Println(v)
 	}
 	fmt.Printf("%08b\n", x)
-
 }
 
 func TestFinds(t *testing.T) {
