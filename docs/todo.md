@@ -18,6 +18,7 @@
 - [ ] If artifact is a text file displayed in readme, then delete image preview, these are often super long, large and not needed.
 - [ ] If a #hash is appended to a /f/<id> URL while signed out, then return a 404 or a redirect to the sign in page. Post signing should return to the #hash URL?
 - [ ] Delete all previews that are unused, such as textfiles that are displayed as a readme.
+- [ ] REPLACE DOWNLOAD CONTENT, "Nothing to show as the artifact is not an archive (a ZIP or RAR file, etc.)" with a magic number check on a single file.
 
 - [ ] On Demozoo or Pouet upload or reach, locally cache the JSON to the temp directory.
 

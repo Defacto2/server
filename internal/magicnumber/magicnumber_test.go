@@ -33,10 +33,10 @@ func tduncompress(name string) string {
 	return x
 }
 
-func TestFindExecutable(t *testing.T) {
+func TestFindBytesExecutable(t *testing.T) {
 	t.Parallel()
 
-	w := magicnumber.FindExecutable([]byte{})
+	w := magicnumber.FindBytesExecutable([]byte{})
 	assert.Equal(t, magicnumber.UnknownPE, w.PE)
 	assert.Equal(t, magicnumber.NoneNE, w.NE)
 
@@ -44,7 +44,7 @@ func TestFindExecutable(t *testing.T) {
 	for _, v := range freedos {
 		p, err := os.ReadFile(td("binaries/freedos" + v))
 		require.NoError(t, err)
-		w = magicnumber.FindExecutable(p)
+		w = magicnumber.FindBytesExecutable(p)
 		assert.Equal(t, magicnumber.UnknownPE, w.PE)
 		assert.Equal(t, magicnumber.NoneNE, w.NE)
 	}
@@ -53,7 +53,7 @@ func TestFindExecutable(t *testing.T) {
 	for _, v := range vista {
 		p, err := os.ReadFile(td("binaries/windows" + v))
 		require.NoError(t, err)
-		w = magicnumber.FindExecutable(p)
+		w = magicnumber.FindBytesExecutable(p)
 		assert.Equal(t, magicnumber.AMD64PE, w.PE)
 		assert.Equal(t, 6, w.Major)
 		assert.Equal(t, 0, w.Minor)
@@ -66,7 +66,7 @@ func TestFindExecutable(t *testing.T) {
 	for _, v := range winv3 {
 		p, err := os.ReadFile(td("binaries/windows3x" + v))
 		require.NoError(t, err)
-		w = magicnumber.FindExecutable(p)
+		w = magicnumber.FindBytesExecutable(p)
 		assert.Equal(t, magicnumber.UnknownPE, w.PE)
 		assert.Equal(t, magicnumber.Windows286Exe, w.NE)
 		assert.Equal(t, 3, w.Major)
@@ -76,7 +76,7 @@ func TestFindExecutable(t *testing.T) {
 
 	p, err := os.ReadFile(td("binaries/windowsXP/CoreTempv13/32bit/Core Temp.exe"))
 	require.NoError(t, err)
-	w = magicnumber.FindExecutable(p)
+	w = magicnumber.FindBytesExecutable(p)
 	assert.Equal(t, magicnumber.Intel386PE, w.PE)
 	assert.Equal(t, magicnumber.NoneNE, w.NE)
 	assert.Equal(t, 5, w.Major)
@@ -85,7 +85,7 @@ func TestFindExecutable(t *testing.T) {
 
 	p, err = os.ReadFile(td("binaries/windowsXP/CoreTempv13/64bit/Core Temp.exe"))
 	require.NoError(t, err)
-	w = magicnumber.FindExecutable(p)
+	w = magicnumber.FindBytesExecutable(p)
 	assert.Equal(t, magicnumber.AMD64PE, w.PE)
 	assert.Equal(t, magicnumber.NoneNE, w.NE)
 	assert.Equal(t, 5, w.Major)
@@ -104,7 +104,7 @@ func TestFindExecutableWinNT(t *testing.T) {
 	for _, v := range win9x {
 		p, err := os.ReadFile(td("binaries/windows9x" + v))
 		require.NoError(t, err)
-		w := magicnumber.FindExecutable(p)
+		w := magicnumber.FindBytesExecutable(p)
 		assert.Equal(t, magicnumber.Intel386PE, w.PE)
 		assert.Equal(t, 4, w.Major)
 		assert.Equal(t, 0, w.Minor)
@@ -120,7 +120,7 @@ func TestFindExecutableWinNT(t *testing.T) {
 	for _, v := range unknown {
 		p, err := os.ReadFile(td("binaries/windows9x" + v))
 		require.NoError(t, err)
-		w := magicnumber.FindExecutable(p)
+		w := magicnumber.FindBytesExecutable(p)
 		assert.Equal(t, magicnumber.UnknownPE, w.PE)
 		assert.Equal(t, 0, w.Major)
 		assert.Equal(t, 0, w.Minor)
@@ -131,7 +131,7 @@ func TestFindExecutableWinNT(t *testing.T) {
 
 	p, err := os.ReadFile(td("binaries/windows9x/7z1604-extra/x64/7za.exe"))
 	require.NoError(t, err)
-	w := magicnumber.FindExecutable(p)
+	w := magicnumber.FindBytesExecutable(p)
 	assert.Equal(t, magicnumber.AMD64PE, w.PE)
 	assert.Equal(t, 4, w.Major)
 	assert.Equal(t, 0, w.Minor)
@@ -171,17 +171,17 @@ func TestXXX(t *testing.T) {
 
 	p, err = os.ReadFile("life.com")
 	require.NoError(t, err)
-	w = magicnumber.FindExecutable(p)
+	w = magicnumber.FindBytesExecutable(p)
 	fmt.Printf(">>%+v\n", w)
 
 	p, err = os.ReadFile("hello.com")
 	require.NoError(t, err)
-	w = magicnumber.FindExecutable(p)
+	w = magicnumber.FindBytesExecutable(p)
 	fmt.Printf(">>%+v\n", w)
 
 	p, err = os.ReadFile("hellojs.com")
 	require.NoError(t, err)
-	w = magicnumber.FindExecutable(p)
+	w = magicnumber.FindBytesExecutable(p)
 	fmt.Printf(">>%+v\n", w)
 
 	x := uint8(2)

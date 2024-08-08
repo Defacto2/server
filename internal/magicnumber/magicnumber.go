@@ -587,12 +587,31 @@ func Find(r io.Reader) (Signature, error) {
 // Find512B reads the first 512 bytes from the reader and returns the file type signature.
 // This is a less accurate method than Find but should be faster.
 func Find512B(r io.Reader) (Signature, error) {
-	buf := make([]byte, 512)
+	const size = 512
+	buf := make([]byte, size)
 	_, err := io.ReadFull(r, buf)
 	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) {
-		return Unknown, fmt.Errorf("magic number find first 512 bytes: %w", err)
+		return Unknown, fmt.Errorf("magic number find first %d bytes: %w", size, err)
 	}
 	return FindBytes512B(buf), nil
+}
+
+// FindExecutable reads the first 1KB from the reader and returns the specific information contained
+// within the executable headers. Both the New Executable and Portable Executable formats are supported,
+// which are commonly used by IBM and Microsoft desktop operating systems from PC/MS-DOS to modern Windows.
+func FindExecutable(r io.Reader) (Windows, error) {
+	win := Default()
+	const size = 1024
+	buf := make([]byte, size)
+	_, err := io.ReadFull(r, buf)
+	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) {
+		return win, fmt.Errorf("magic number find first %d bytes: %w", size, err)
+	}
+	win = NE(buf)
+	if win.NE == NoneNE {
+		win = PE(buf)
+	}
+	return win, nil
 }
 
 // Archive reads all the bytes from the reader and returns the file type signature if
@@ -794,7 +813,7 @@ func FindBytes512B(p []byte) Signature {
 	}
 }
 
-// FindExecutable returns the specific information contained within the executable headers.
+// FindBytesExecutable returns the specific information contained within the executable headers.
 // Both the New Executable and Portable Executable formats are supported, which are commonly
 // used by IBM and Microsoft desktop operating systems from PC/MS-DOS to modern Windows.
 //
@@ -806,7 +825,7 @@ func FindBytes512B(p []byte) Signature {
 // a standard library that was not available until Windows XP (5.1).
 //
 // If the file is not a known executable format, an empty Windows struct is returned.
-func FindExecutable(p []byte) Windows {
+func FindBytesExecutable(p []byte) Windows {
 	win := NE(p)
 	if win.NE == NoneNE {
 		win = PE(p)
@@ -863,8 +882,10 @@ func (w Windows) String() string {
 		WindowsNT   = 4
 	)
 	switch {
-	case w.NE == DOSv4Exe, w.NE == OS2Exe, w.NE == UnknownNE:
+	case w.NE == DOSv4Exe, w.NE == OS2Exe:
 		return fmt.Sprintf("%s v%d.%d", w.NE, w.Major, w.Minor)
+	case w.NE == UnknownNE:
+		return "Unknown NE executable"
 	}
 	switch {
 	case w.Major == Windows2x && w.NE == Windows286Exe:
@@ -951,13 +972,10 @@ func (ne NewExecutable) String() string {
 // for example, a Windows 3.0 requirement would return 3 and 0.
 func NE(p []byte) Windows {
 	none := Default()
-	fmt.Println("MZ", none.NE)
 	const min = 64
 	if len(p) < min {
-		fmt.Println("???")
 		return none
 	}
-	fmt.Println("MZ", none)
 	if p[0] != 'M' || p[1] != 'Z' {
 		return none
 	}
@@ -965,7 +983,7 @@ func NE(p []byte) Windows {
 	const executableTypeIndex = 0x36  // the executable type aka the operating system
 	const winMinorIndex = 0x3e        // the location of the Windows minor version
 	const winMajorIndex = 0x3f        // the location of the Windows major version
-	offset := int16(binary.LittleEndian.Uint16(p[segmentedHeaderIndex:]))
+	offset := uint16(binary.LittleEndian.Uint16(p[segmentedHeaderIndex:]))
 	if len(p) < int(offset)+int(winMajorIndex) {
 		return none
 	}
@@ -1044,7 +1062,7 @@ func PE(p []byte) Windows {
 	}
 	// the location of the portable executable header
 	const peHeaderIndex = 0x3c
-	offset := int16(binary.LittleEndian.Uint16(p[peHeaderIndex:]))
+	offset := uint16(binary.LittleEndian.Uint16(p[peHeaderIndex:]))
 	if len(p) < int(offset) {
 		return none
 	}
@@ -1058,7 +1076,7 @@ func PE(p []byte) Windows {
 		return none
 	}
 	// the location of the COFF (Common Object File Format) header
-	coffHeaderIndex := offset + int16(len(signature))
+	coffHeaderIndex := offset + uint16(len(signature))
 	const coffLen = 20
 	if len(p) < int(coffHeaderIndex)+coffLen {
 		return none

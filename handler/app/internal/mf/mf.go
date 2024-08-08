@@ -140,6 +140,7 @@ func Comment(art *models.File) string {
 
 type entry struct {
 	sign    magicnumber.Signature
+	exec    magicnumber.Windows
 	size    string
 	zeros   int
 	bytes   int64
@@ -175,6 +176,17 @@ func (e *entry) parse(path string, d fs.DirEntry, platform string) bool {
 		return skipEntry
 	}
 	e.image, e.text, e.program = isImage(e.sign), isText(e.sign), isProgram(e.sign, platform)
+	if e.program {
+		r, _ := os.Open(path)
+		if r == nil {
+			return skipEntry
+		}
+		defer r.Close()
+		exec, err := magicnumber.FindExecutable(r)
+		if err == nil {
+			e.exec = exec
+		}
+	}
 	return !skipEntry
 }
 
@@ -224,7 +236,7 @@ func ListContent(art *models.File, src string) template.HTML {
 			return skipEntry
 		}
 		entries++
-		b.WriteString(entryHTML(e.image, e.program, e.text, rel, e.sign.String(), e.size, unid, e.bytes))
+		b.WriteString(entryHTML(e.exec, e.image, e.program, e.text, rel, e.sign.String(), e.size, unid, e.bytes))
 		if maxItems := 200; entries > maxItems {
 			more := fmt.Sprintf(`<div class="border-bottom row mb-1">... %d more files</div>`, files-entries)
 			b.WriteString(more)
@@ -276,8 +288,9 @@ func isText(sign magicnumber.Signature) bool {
 	return false
 }
 
-func entryHTML(images, programs, texts bool, rel, sign, size, unid string, bytes int64) string {
+func entryHTML(exec magicnumber.Windows, images, programs, texts bool, rel, sign, size, unid string, bytes int64) string {
 	name := url.QueryEscape(rel)
+	ext := strings.ToLower(filepath.Ext(name))
 	htm := fmt.Sprintf(`<div class="col d-inline-block text-truncate" data-bs-toggle="tooltip" `+
 		`data-bs-title="%s">%s</div>`, rel, rel)
 	switch {
@@ -287,6 +300,8 @@ func entryHTML(images, programs, texts bool, rel, sign, size, unid string, bytes
 				`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/preview/copy/%s/%s">`, unid, name) +
 			`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 			`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
+	case texts && (ext == ".bat" || ext == ".cmd" || ext == ".ini"):
+		htm += `<div class="col col-1"></div>`
 	case texts:
 		htm += `<div class="col col-1 text-end">` +
 			fmt.Sprintf(`<a class="icon-link align-text-bottom" `+
@@ -297,21 +312,64 @@ func entryHTML(images, programs, texts bool, rel, sign, size, unid string, bytes
 		htm += `<div class="col col-1"></div>`
 	}
 	switch {
+	case texts && (ext == ".bat" || ext == ".cmd" || ext == ".ini"):
+		htm += `<div class="col col-1"></div>`
 	case texts:
 		htm += `<div class="col col-1 text-end">` +
 			fmt.Sprintf(`<a class="icon-link align-text-bottom" `+
 				`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/readme/copy/%s/%s">`, unid, name) +
 			`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
 			`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></a></div>`
-	case programs:
+	case programs && ext == ".exe", programs && ext == ".com":
 		htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 			`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
 	default:
 		htm += `<div class="col col-1"></div>`
 	}
 	htm += fmt.Sprintf(`<div><small data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</small>`, bytes, size)
-	htm += fmt.Sprintf(` <small class="">%s</small></div>`, sign)
+	switch {
+	case texts && (ext == ".bat" || ext == ".cmd"):
+		htm += fmt.Sprintf(` <small class="">%s</small></div>`, "command script")
+	case texts && (ext == ".ini"):
+		htm += fmt.Sprintf(` <small class="">%s</small></div>`, "configuration textfile")
+	case programs || ext == ".com":
+		htm = progr(exec, ext, htm, bytes)
+	default:
+		htm += fmt.Sprintf(` <small class="">%s</small></div>`, sign)
+	}
 	htm = fmt.Sprintf(`<div class="border-bottom row mb-1">%s</div>`, htm)
+	return htm
+}
+
+func progr(exec magicnumber.Windows, ext, htm string, bytes int64) string {
+	const epochYear = 1980
+	const x8086 = 64 * 1024
+	s := ""
+	fmt.Printf("exec: %+v %+v %s\n", exec.PE, exec.NE, ext)
+	switch {
+	case (ext == ".exe" || ext == ".com") && exec.PE != magicnumber.UnknownPE:
+		s = fmt.Sprintf("%s executable", exec)
+	case (ext == ".exe" || ext == ".com") && exec.NE == magicnumber.UnknownNE:
+		if x8086 >= bytes {
+			s = "Dos command"
+		} else {
+			s = "Dos executable"
+		}
+	case (ext == ".exe" || ext == ".com") && exec.NE != magicnumber.NoneNE:
+		s = fmt.Sprintf("%s executable", exec)
+	case ext == ".exe" || ext == ".com":
+		s = "MS Dos program"
+	case ext == ".dll" && exec.PE != magicnumber.UnknownPE:
+		s = "Windows dynamic-link library"
+	case exec.NE != magicnumber.NoneNE:
+		s = "NE program data"
+	default:
+		s = "PE program data"
+	}
+	if y := exec.TimeDateStamp.Year(); y >= epochYear && y <= time.Now().Year() {
+		s += fmt.Sprintf(", built %s", exec.TimeDateStamp.Format("2006-01-2"))
+	}
+	htm += fmt.Sprintf(` <small class="">%s</small></div>`, s)
 	return htm
 }
 
