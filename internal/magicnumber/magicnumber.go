@@ -808,7 +808,7 @@ func FindBytes512B(p []byte) Signature {
 // If the file is not a known executable format, an empty Windows struct is returned.
 func FindExecutable(p []byte) Windows {
 	win := NE(p)
-	if win == (Windows{}) {
+	if win.NE == NoneNE {
 		win = PE(p)
 	}
 	return win
@@ -845,6 +845,17 @@ type Windows struct {
 	NE            NewExecutable      // The New Executable, a legacy format replaced by the Portable Executable format
 }
 
+func Default() Windows {
+	return Windows{
+		Major:         0,
+		Minor:         0,
+		TimeDateStamp: time.Time{},
+		PE64:          false,
+		PE:            UnknownPE,
+		NE:            NoneNE,
+	}
+}
+
 func (w Windows) String() string {
 	const (
 		Windows2x   = 2
@@ -872,7 +883,7 @@ func (w Windows) String() string {
 	case w.PE == Intel386PE && w.Major <= WindowsNT:
 		return fmt.Sprintf("Windows NT v%d.%d", w.Major, w.Minor)
 	}
-	os := ""
+	os := fmt.Sprintf("Windows NT v%d.%d", w.Major, w.Minor)
 	for name, ver := range WindowsNames() {
 		if w.Major == ver[0] && w.Minor == ver[1] {
 			os = name
@@ -884,8 +895,6 @@ func (w Windows) String() string {
 		return "Unknown PE+ executable"
 	case w.PE == UnknownPE:
 		return "Unknown PE executable"
-	case os == "":
-		return "Unknown Windows version"
 	case w.PE == Intel386PE:
 		return fmt.Sprintf("%s 32-bit", os)
 	case w.PE == AMD64PE:
@@ -905,22 +914,30 @@ func (w Windows) String() string {
 type NewExecutable int
 
 const (
-	NoneNE        NewExecutable = iota // Not a New Executable
-	UnknownNE                          // Unknown New Executable
-	OS2Exe                             // Microsoft IBM OS/2 New Executable
-	Windows286Exe                      // Windows requiring an Intel 286 CPU New Executable
-	DOSv4Exe                           // MS-DOS v4 New Executable
-	Windows386Exe                      // Windows requiring an Intel 386 CPU New Executable
+	NoneNE        NewExecutable = iota - 1 // Not a New Executable
+	UnknownNE                              // Unknown New Executable
+	OS2Exe                                 // Microsoft IBM OS/2 New Executable
+	Windows286Exe                          // Windows requiring an Intel 286 CPU New Executable
+	DOSv4Exe                               // MS-DOS v4 New Executable
+	Windows386Exe                          // Windows requiring an Intel 386 CPU New Executable
 )
 
 func (ne NewExecutable) String() string {
-	return [...]string{
-		"Unknown NE executable",
-		"OS/2",
-		"Windows for 286",
-		"MS-DOS",
-		"Windows for 386+",
-	}[ne]
+	switch ne {
+	case NoneNE:
+		return "Not a New Executable"
+	case UnknownNE:
+		return "Unknown New Executable"
+	case OS2Exe:
+		return "OS/2 New Executable"
+	case Windows286Exe:
+		return "Windows for 286 New Executable"
+	case DOSv4Exe:
+		return "MS-DOS v4 New Executable"
+	case Windows386Exe:
+		return "Windows for 386+ New Executable"
+	}
+	return ""
 }
 
 // NE returns the New Executable file type from the byte slice.
@@ -933,12 +950,16 @@ func (ne NewExecutable) String() string {
 // If a Windows program is detected, the major and minor version numbers are returned,
 // for example, a Windows 3.0 requirement would return 3 and 0.
 func NE(p []byte) Windows {
+	none := Default()
+	fmt.Println("MZ", none.NE)
 	const min = 64
 	if len(p) < min {
-		return Windows{}
+		fmt.Println("???")
+		return none
 	}
+	fmt.Println("MZ", none)
 	if p[0] != 'M' || p[1] != 'Z' {
-		return Windows{}
+		return none
 	}
 	const segmentedHeaderIndex = 0x3c // the location of the segmented header
 	const executableTypeIndex = 0x36  // the executable type aka the operating system
@@ -946,14 +967,14 @@ func NE(p []byte) Windows {
 	const winMajorIndex = 0x3f        // the location of the Windows major version
 	offset := int16(binary.LittleEndian.Uint16(p[segmentedHeaderIndex:]))
 	if len(p) < int(offset)+int(winMajorIndex) {
-		return Windows{}
+		return none
 	}
 	segmentedHeader := [2]byte{
 		p[offset+0],
 		p[offset+1],
 	}
 	if segmentedHeader != [2]byte{'N', 'E'} {
-		return Windows{}
+		return none
 	}
 	minor := int(p[offset+winMinorIndex])
 	major := int(p[offset+winMajorIndex])
@@ -964,8 +985,9 @@ func NE(p []byte) Windows {
 		w.Major = major
 		w.Minor = minor
 		w.NE = newType
+		return w
 	}
-	return w
+	return none
 }
 
 // PortableExecutable represents the Portable Executable file type, a format used by Microsoft
@@ -1012,18 +1034,19 @@ func (pe PortableExecutable) String() string {
 //
 // [Portable Executable format]: https://learn.microsoft.com/en-us/windows/win32/debug/pe-format
 func PE(p []byte) Windows {
+	none := Default()
 	const min = 64
 	if len(p) < min {
-		return Windows{}
+		return none
 	}
 	if p[0] != 'M' || p[1] != 'Z' {
-		return Windows{}
+		return none
 	}
 	// the location of the portable executable header
 	const peHeaderIndex = 0x3c
 	offset := int16(binary.LittleEndian.Uint16(p[peHeaderIndex:]))
 	if len(p) < int(offset) {
-		return Windows{}
+		return none
 	}
 	signature := [4]byte{
 		p[offset+0],
@@ -1032,13 +1055,13 @@ func PE(p []byte) Windows {
 		p[offset+3],
 	}
 	if signature != [4]byte{'P', 'E', 0, 0} {
-		return Windows{}
+		return none
 	}
 	// the location of the COFF (Common Object File Format) header
 	coffHeaderIndex := offset + int16(len(signature))
 	const coffLen = 20
 	if len(p) < int(coffHeaderIndex)+coffLen {
-		return Windows{}
+		return none
 	}
 	machine := [2]byte{
 		p[coffHeaderIndex],
@@ -1072,6 +1095,7 @@ func PE(p []byte) Windows {
 		Minor:         osMinor,
 		TimeDateStamp: compiled,
 		PE64:          magic == [2]byte{0x0b, 0x02},
+		NE:            NoneNE,
 	}
 	pem := binary.LittleEndian.Uint16(machine[:])
 	switch PortableExecutable(pem) {

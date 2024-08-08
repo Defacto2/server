@@ -33,6 +33,113 @@ func tduncompress(name string) string {
 	return x
 }
 
+func TestFindExecutable(t *testing.T) {
+	t.Parallel()
+
+	w := magicnumber.FindExecutable([]byte{})
+	assert.Equal(t, magicnumber.UnknownPE, w.PE)
+	assert.Equal(t, magicnumber.NoneNE, w.NE)
+
+	freedos := []string{"/exe/EXE.EXE", "/exemenu/exemenu.exe", "/press/PRESS.EXE", "/rread/rread.exe"}
+	for _, v := range freedos {
+		p, err := os.ReadFile(td("binaries/freedos" + v))
+		require.NoError(t, err)
+		w = magicnumber.FindExecutable(p)
+		assert.Equal(t, magicnumber.UnknownPE, w.PE)
+		assert.Equal(t, magicnumber.NoneNE, w.NE)
+	}
+
+	vista := []string{"/hello.com", "/hellojs.com", "/life.com"}
+	for _, v := range vista {
+		p, err := os.ReadFile(td("binaries/windows" + v))
+		require.NoError(t, err)
+		w = magicnumber.FindExecutable(p)
+		assert.Equal(t, magicnumber.AMD64PE, w.PE)
+		assert.Equal(t, 6, w.Major)
+		assert.Equal(t, 0, w.Minor)
+		assert.Equal(t, 2019, w.TimeDateStamp.Year())
+		assert.Equal(t, "Windows Vista 64-bit", fmt.Sprint(w))
+		assert.Equal(t, magicnumber.NoneNE, w.NE)
+	}
+
+	winv3 := []string{"/calmir10/CALMIRA.EXE", "/calmir10/TASKBAR.EXE", "/dskutl21/DISKUTIL.EXE"}
+	for _, v := range winv3 {
+		p, err := os.ReadFile(td("binaries/windows3x" + v))
+		require.NoError(t, err)
+		w = magicnumber.FindExecutable(p)
+		assert.Equal(t, magicnumber.UnknownPE, w.PE)
+		assert.Equal(t, magicnumber.Windows286Exe, w.NE)
+		assert.Equal(t, 3, w.Major)
+		assert.Equal(t, 10, w.Minor)
+		assert.Equal(t, "Windows v3.10 for 286", fmt.Sprint(w))
+	}
+
+	p, err := os.ReadFile(td("binaries/windowsXP/CoreTempv13/32bit/Core Temp.exe"))
+	require.NoError(t, err)
+	w = magicnumber.FindExecutable(p)
+	assert.Equal(t, magicnumber.Intel386PE, w.PE)
+	assert.Equal(t, magicnumber.NoneNE, w.NE)
+	assert.Equal(t, 5, w.Major)
+	assert.Equal(t, 0, w.Minor)
+	assert.Equal(t, "Windows 2000 32-bit", fmt.Sprint(w))
+
+	p, err = os.ReadFile(td("binaries/windowsXP/CoreTempv13/64bit/Core Temp.exe"))
+	require.NoError(t, err)
+	w = magicnumber.FindExecutable(p)
+	assert.Equal(t, magicnumber.AMD64PE, w.PE)
+	assert.Equal(t, magicnumber.NoneNE, w.NE)
+	assert.Equal(t, 5, w.Major)
+	assert.Equal(t, 2, w.Minor)
+	assert.Equal(t, "Windows XP Professional x64 Edition 64-bit", fmt.Sprint(w))
+}
+
+func TestFindExecutableWinNT(t *testing.T) {
+	win9x := []string{
+		"/rlowe-encrypt/DEMOCD.EXE",
+		"/rlowe-encrypt/DISKDVR.EXE",
+		"/rlowe-cdrools/DEMOCD.EXE",
+		"/7za920/7za.exe",
+		"/7z1604-extra/7za.exe",
+	}
+	for _, v := range win9x {
+		p, err := os.ReadFile(td("binaries/windows9x" + v))
+		require.NoError(t, err)
+		w := magicnumber.FindExecutable(p)
+		assert.Equal(t, magicnumber.Intel386PE, w.PE)
+		assert.Equal(t, 4, w.Major)
+		assert.Equal(t, 0, w.Minor)
+		assert.Greater(t, w.TimeDateStamp.Year(), 2000)
+		assert.Equal(t, "Windows NT v4.0", fmt.Sprint(w))
+		assert.Equal(t, magicnumber.NoneNE, w.NE)
+	}
+	unknown := []string{
+		"/rlowe-rformat/RFORMATD.EXE",
+		"/rlowe-encrypt/DFMINST.COM",
+		"/rlowe-encrypt/UNINST.COM",
+	}
+	for _, v := range unknown {
+		p, err := os.ReadFile(td("binaries/windows9x" + v))
+		require.NoError(t, err)
+		w := magicnumber.FindExecutable(p)
+		assert.Equal(t, magicnumber.UnknownPE, w.PE)
+		assert.Equal(t, 0, w.Major)
+		assert.Equal(t, 0, w.Minor)
+		assert.Equal(t, w.TimeDateStamp.Year(), 1)
+		assert.Equal(t, "Unknown PE executable", fmt.Sprint(w))
+		assert.Equal(t, magicnumber.NoneNE, w.NE)
+	}
+
+	p, err := os.ReadFile(td("binaries/windows9x/7z1604-extra/x64/7za.exe"))
+	require.NoError(t, err)
+	w := magicnumber.FindExecutable(p)
+	assert.Equal(t, magicnumber.AMD64PE, w.PE)
+	assert.Equal(t, 4, w.Major)
+	assert.Equal(t, 0, w.Minor)
+	assert.Equal(t, w.TimeDateStamp.Year(), 2016)
+	assert.Equal(t, "Windows NT v4.0 64-bit", fmt.Sprint(w))
+	assert.Equal(t, magicnumber.NoneNE, w.NE)
+}
+
 func TestXXX(t *testing.T) {
 	t.Parallel()
 	// test the test data paths
@@ -61,6 +168,21 @@ func TestXXX(t *testing.T) {
 	w = magicnumber.PE(p)
 	assert.NotEqual(t, magicnumber.AMD64PE, w.PE)
 	fmt.Printf("PE: %+v\n", w)
+
+	p, err = os.ReadFile("life.com")
+	require.NoError(t, err)
+	w = magicnumber.FindExecutable(p)
+	fmt.Printf(">>%+v\n", w)
+
+	p, err = os.ReadFile("hello.com")
+	require.NoError(t, err)
+	w = magicnumber.FindExecutable(p)
+	fmt.Printf(">>%+v\n", w)
+
+	p, err = os.ReadFile("hellojs.com")
+	require.NoError(t, err)
+	w = magicnumber.FindExecutable(p)
+	fmt.Printf(">>%+v\n", w)
 
 	x := uint8(2)
 	for _, v := range magicnumber.Flags(x) {
