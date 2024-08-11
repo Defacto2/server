@@ -63,8 +63,9 @@ func MusicMTM(p []byte) string {
 	}
 	s := "MultiTrack song"
 	song := string(bytes.Trim(p[offset:headerLen+offset], "\x00"))
+	song = strings.TrimSpace(song)
 	if song != "" {
-		s += fmt.Sprintf(", %q", strings.TrimSpace(song))
+		s += fmt.Sprintf(", %q", song)
 	}
 	return s
 }
@@ -81,8 +82,9 @@ func MusicIT(p []byte) string {
 	}
 	s := "Impulse Tracker song"
 	song := string(bytes.Trim(p[offset:headerLen+offset], "\x00"))
+	song = strings.TrimSpace(song)
 	if song != "" {
-		s += fmt.Sprintf(", %q", strings.TrimSpace(song))
+		s += fmt.Sprintf(", %q", song)
 	}
 	return s
 }
@@ -103,8 +105,9 @@ func MusicXM(p []byte) string {
 	}
 	s := "extended module tracked music"
 	song := string(bytes.Trim(p[offset:headerLen+offset], "\x00"))
+	song = strings.TrimSpace(song)
 	if song != "" {
-		s += fmt.Sprintf(", %q", strings.TrimSpace(song))
+		s += fmt.Sprintf(", %q", song)
 	}
 	return s
 }
