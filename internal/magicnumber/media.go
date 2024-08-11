@@ -198,14 +198,14 @@ func Mpeg(p []byte) bool {
 
 // Ogg matches the Ogg Vorbis audio format in the byte slice.
 func Ogg(p []byte) bool {
-	const min = 12
+	b := []byte{
+		'O', 'g', 'g', 'S', 0x0, 0x2, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+	}
+	min := len(b)
 	if len(p) < min {
 		return false
 	}
-	return bytes.Equal(p[:min], []byte{
-		'O', 'g', 'g', 'S', 0x0, 0x2, 0x0, 0x0,
-		0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-	})
+	return bytes.Equal(p[:min], b)
 }
 
 // Pcx matches the Personal Computer eXchange image format in the byte slice.

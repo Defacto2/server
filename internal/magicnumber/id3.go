@@ -3,7 +3,10 @@ package magicnumber
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 	"strings"
+
+	"golang.org/x/text/encoding/charmap"
 )
 
 // Package file id3.go contains the functions that parse bytes as common ID3 tag formats usually found in MP3 files.
@@ -87,7 +90,11 @@ func ID3v220(data ...byte) string {
 	} else if ab := ID3v22Frame(albumTitle, data...); ab == "" {
 		return ""
 	}
+	s = strings.TrimSpace(s)
 	if y := ID3v22Frame(year, data...); y != "" {
+		if _, err := strconv.Atoi(y); err != nil {
+			return s
+		}
 		s += fmt.Sprintf(" (%s)", y)
 	}
 	return strings.TrimSpace(s)
@@ -110,11 +117,19 @@ func ID3v22Frame(id [3]byte, data ...byte) string {
 		return ""
 	}
 	b := bytes.Trim(data[offset+header:offset+header+frameLen], nul)
-	return strings.TrimSpace(string(b))
+	s, _ := ISO8859_1(b)
+	return strings.TrimSpace(s)
 }
 
-// TODO: handle non-ascii characters, look for extended iso-8859-1 1 byte characters and replace them with utf-8.
-// https://en.wikipedia.org/wiki/ISO/IEC_8859-1
+// ISO8859_1 converts a byte slice to a Latin-1 (ISO-8859-1) string.
+func ISO8859_1(b []byte) (string, error) {
+	decoder := charmap.ISO8859_1.NewDecoder()
+	s, err := decoder.Bytes(b)
+	if err != nil {
+		return "", err
+	}
+	return string(s), nil
+}
 
 // ID3v230 reads the [ID3 v2.3] and ID3 v2.4 tags in the byte slice and returns the song, artist and year.
 // The v2.3 and v2.4 tags are the most common ID3 tags found in MP3 files.
@@ -137,7 +152,11 @@ func ID3v230(data ...byte) string {
 	} else if ab := ID3v23Frame(albumTitle, data...); ab == "" {
 		return ""
 	}
+	s = strings.TrimSpace(s)
 	if y := ID3v23Frame(year, data...); y != "" {
+		if _, err := strconv.Atoi(y); err != nil {
+			return s
+		}
 		s += fmt.Sprintf(" (%s)", y)
 	}
 	return strings.TrimSpace(s)
@@ -161,5 +180,6 @@ func ID3v23Frame(id [4]byte, data ...byte) string {
 		return ""
 	}
 	b := bytes.Trim(data[offset+header:offset+header+frameLen], nul)
-	return strings.TrimSpace(string(b))
+	s, _ := ISO8859_1(b)
+	return strings.TrimSpace(s)
 }
