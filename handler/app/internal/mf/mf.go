@@ -150,7 +150,19 @@ type entry struct {
 	program bool
 }
 
-func (e *entry) parseDirEntry(path string, d fs.DirEntry, platform string) bool {
+func (e *entry) ParseFile(path string, platform string) bool {
+	const skipEntry = true
+	info, err := os.Stat(path)
+	if err != nil {
+		return skipEntry
+	}
+	if info.IsDir() {
+		return skipEntry
+	}
+	return e.parse(path, platform, info)
+}
+
+func (e *entry) ParseDirEntry(path string, d fs.DirEntry, platform string) bool {
 	const skipEntry = true
 	if d.IsDir() {
 		return skipEntry
@@ -159,6 +171,11 @@ func (e *entry) parseDirEntry(path string, d fs.DirEntry, platform string) bool 
 	if info == nil {
 		return skipEntry
 	}
+	return e.parse(path, platform, info)
+}
+
+func (e *entry) parse(path, platform string, info fs.FileInfo) bool {
+	const skipEntry = true
 	e.bytes = info.Size()
 	if e.bytes == 0 {
 		e.zeros++
@@ -176,110 +193,76 @@ func (e *entry) parseDirEntry(path string, d fs.DirEntry, platform string) bool 
 		fmt.Fprintf(io.Discard, "ignore this error, %v", err)
 		return skipEntry
 	}
-	e.image, e.text, e.program = isImage(e.sign), isText(e.sign), isProgram(e.sign, platform)
-	if e.program {
-		r, _ := os.Open(path)
-		if r == nil {
-			return skipEntry
-		}
-		defer r.Close()
-		exec, err := magicnumber.FindExecutable(r)
-		if err == nil {
-			e.exec = exec
-		}
-	}
-	if e.sign == magicnumber.MusicModule {
-		r, _ := os.Open(path)
-		if r == nil {
-			return skipEntry
-		}
-		defer r.Close()
-		size := 1100
-		buf := make([]byte, size)
-		if _, err := io.ReadFull(r, buf); err == nil {
-			e.module = magicnumber.MusicMod(buf)
-		}
+	e.image = isImage(e.sign)
+	e.text = isText(e.sign)
+	e.program = isProgram(e.sign, platform)
+	switch {
+	case e.program:
+		return e.parseProgram(path)
+	case e.sign == magicnumber.MusicModule:
+		return e.parseMusicMod(path)
+	case e.sign == magicnumber.MPEG1AudioLayer3:
+		return e.parseMusicID3(path)
 	}
 	return !skipEntry
 }
 
-func (e *entry) parseFile(path string, platform string) bool {
+func (e *entry) parseProgram(path string) bool {
 	const skipEntry = true
-	info, err := os.Stat(path)
-	if err != nil {
-		return skipEntry
-	}
-	if info.IsDir() {
-		return skipEntry
-	}
-	e.bytes = info.Size()
-	if e.bytes == 0 {
-		e.zeros++
-		return skipEntry
-	}
-	e.size = humanize.Bytes(uint64(info.Size()))
 	r, _ := os.Open(path)
 	if r == nil {
 		return skipEntry
 	}
 	defer r.Close()
-	e.sign, err = magicnumber.Find1500B(r)
-	if err != nil {
-		fmt.Fprintf(io.Discard, "ignore this error, %v", err)
+	exec, err := magicnumber.FindExecutable(r)
+	if err == nil {
+		e.exec = exec
+	}
+	return !skipEntry
+}
+
+func (e *entry) parseMusicMod(path string) bool {
+	const skipEntry = true
+	r, _ := os.Open(path)
+	if r == nil {
 		return skipEntry
 	}
-	e.image, e.text, e.program = isImage(e.sign), isText(e.sign), isProgram(e.sign, platform)
-	if e.program {
-		r, _ := os.Open(path)
-		if r == nil {
-			return skipEntry
-		}
-		defer r.Close()
-		exec, err := magicnumber.FindExecutable(r)
-		if err == nil {
-			e.exec = exec
-		}
+	defer r.Close()
+	buf := make([]byte, magicnumber.MusicTrackerSize)
+	if _, err := io.ReadFull(r, buf); err == nil {
+		e.module = magicnumber.MusicTracker(buf)
 	}
-	if e.sign == magicnumber.MusicModule {
-		r, _ := os.Open(path)
-		if r == nil {
-			return skipEntry
-		}
-		defer r.Close()
-		size := 1100
-		buf := make([]byte, size)
-		if _, err := io.ReadFull(r, buf); err == nil {
-			e.module = magicnumber.MusicMod(buf)
-		}
-	}
-	if e.sign == magicnumber.MPEG1AudioLayer3 {
-		r, _ := os.Open(path)
-		if r == nil {
-			return skipEntry
-		}
-		defer r.Close()
-		size, offset := 128, int64(-128)
-		_, err = r.Seek(offset, io.SeekEnd)
-		if err != nil {
-			return skipEntry
-		}
-		buf := make([]byte, size)
-		if _, err := io.ReadFull(r, buf); err == nil {
-			e.module = magicnumber.MusicID3v1(buf)
-		}
+	return !skipEntry
+}
 
-		rr, _ := os.Open(path)
-		if r == nil {
-			return skipEntry
-		}
-		defer r.Close()
-		buf = make([]byte, 1024*10)
-		x := ""
-		if _, err := io.ReadFull(rr, buf); err == nil {
-			x = magicnumber.MusicID3v2(buf)
-		}
-		fmt.Println("ID3v2.3:", x)
+func (e *entry) parseMusicID3(path string) bool {
+	const skipEntry = true
+	r1, _ := os.Open(path)
+	if r1 == nil {
+		return skipEntry
 	}
+	defer r1.Close()
+	size, offset := 128, int64(-128)
+	_, err := r1.Seek(offset, io.SeekEnd)
+	if err != nil {
+		return skipEntry
+	}
+	buf := make([]byte, size)
+	if _, err := io.ReadFull(r1, buf); err == nil {
+		e.module = magicnumber.MusicID3v1(buf)
+	}
+
+	rr, _ := os.Open(path)
+	if rr == nil {
+		return skipEntry
+	}
+	defer rr.Close()
+	buf = make([]byte, 1024*10)
+	x := ""
+	if _, err := io.ReadFull(rr, buf); err == nil {
+		x = magicnumber.MusicID3v2(buf)
+	}
+	fmt.Println("ID3v2.3:", x)
 	return !skipEntry
 }
 
@@ -303,7 +286,7 @@ func ListContent(art *models.File, src string) template.HTML {
 			return template.HTML(err.Error())
 		}
 		e := entry{zeros: zeroByteFiles}
-		if e.parseFile(src, platform) {
+		if e.ParseFile(src, platform) {
 			return "error, empty byte file"
 		}
 		var b strings.Builder
@@ -333,7 +316,7 @@ func ListContent(art *models.File, src string) template.HTML {
 			return skipEntry
 		}
 		e := entry{zeros: zeroByteFiles}
-		if e.parseDirEntry(path, d, platform) {
+		if e.ParseDirEntry(path, d, platform) {
 			zeroByteFiles = e.zeros
 			return skipEntry
 		}
