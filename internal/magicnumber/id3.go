@@ -8,13 +8,15 @@ import (
 
 // Package file id3.go contains the functions that parse bytes as common ID3 tag formats usually found in MP3 files.
 
+// ID3v1Size is the minimum buffer size of an ID3 v1 tag.
+const ID3v1Size = 128
+
 // MusicID3v1 reads the [ID3 v1] tag in the byte slice and returns the title and artist.
 // The ID3 v1 tag is a 128 byte tag at the end of an MP3 audio file.
 //
 // [ID3 v1]: http://id3.org/ID3v1
 func MusicID3v1(p []byte) string {
-	const length = 128
-	if len(p) < length {
+	if len(p) < ID3v1Size {
 		return ""
 	}
 	if !bytes.Equal(p[0:3], []byte{'T', 'A', 'G'}) {
@@ -36,6 +38,18 @@ func MusicID3v1(p []byte) string {
 	return strings.TrimSpace(s)
 }
 
+func headerSize(p []byte) int {
+	const length = 10
+	if len(p) < length {
+		return 0
+	}
+	b0 := int(p[6]) * 2097152
+	b1 := int(p[7]) * 16384
+	b2 := int(p[8]) * 128
+	b3 := int(p[9]) * 1
+	return b0 + b1 + b2 + b3
+}
+
 func MusicID3v2(p []byte) string {
 	const length = 10
 	if len(p) < length {
@@ -44,74 +58,45 @@ func MusicID3v2(p []byte) string {
 	if !bytes.Equal(p[0:3], []byte{'I', 'D', '3'}) {
 		return ""
 	}
-	ha := int(p[6]) * 2097152
-	hb := int(p[7]) * 16384
-	hc := int(p[8]) * 128
-	hd := int(p[9])
-	headerSize := ha + hb + hc + hd
-	fmt.Println(headerSize, "header size", headerSize, "length", len(p))
-	if headerSize+length > len(p) {
+	hsize := headerSize(p)
+	if hsize+length > len(p) {
 		return ""
 	}
-	data := p[length : headerSize+length]
-	fmt.Println(headerSize, "header size", headerSize)
-
-	// frame id 4 bytes
-	// size 4 bytes
-	// flags 2 bytes
-	talb := bytes.Index(data, []byte{'T', 'A', 'L', 'B'})
-	fmt.Println("talb", talb)
-	// if talb != -1 && talb+10 < len(data) {
-	// 	//tablSize := binary.LittleEndian.Uint32(data[talb+4 : talb+8])
-	// 	b0 := int(data[talb+4]) * 2097152
-	// 	b1 := int(data[talb+5]) * 16384
-	// 	b2 := int(data[talb+6]) * 128
-	// 	b3 := int(data[talb+7])
-	// 	tablSize := b0 + b1 + b2 + b3
-	// 	fmt.Println("tabl size u32", tablSize)
-	// 	title := string(data[talb+10 : talb+10+tablSize])
-	// 	fmt.Println("title", title)
-	// }
-	// h0 := p[6]*2 ^ 21
-	// h1 := p[7]*2 ^ 14
-	// h2 := p[8]*2 ^ 7
-	// headerSize := int(h0) + int(h1) + int(h2) + int(p[9])
-	//b := p[0x06:0xa]
-	//
-	//headerSize := binary.LittleEndian.Uint16(b)
-	// An easy way of calculating the tag size is
-	// A*2^21+B*2^14+C*2^7+D = A*2097152+B*16384+C*128+D,
-	//where A is the first byte, B the second, C the third and D the fourth byte.
-	tabl := [4]byte{'T', 'A', 'L', 'B'}
-	fmt.Println("TABL", ID3v3Frame(tabl, data...))
-	tpe1 := [4]byte{'T', 'P', 'E', '1'}
-	fmt.Println("TPE1", ID3v3Frame(tpe1, data...))
-	tit1 := [4]byte{'T', 'I', 'T', '1'}
-	fmt.Println("TIT1", ID3v3Frame(tit1, data...))
-	tit2 := [4]byte{'T', 'I', 'T', '2'}
-	fmt.Println("TIT2", ID3v3Frame(tit2, data...))
-	tyer := [4]byte{'T', 'Y', 'E', 'R'}
-	fmt.Println("TYER", ID3v3Frame(tyer, data...))
-
-	fmt.Println(headerSize, "header size", p[6], p[7], p[8], p[9])
-	// lookup version
-	version := p[3]
-	switch version {
+	data := p[length : length+hsize]
+	switch version := p[3]; version {
 	case 0x2:
 		return "ID3v2.2"
 	case 0x3:
-		return "ID3v2.3"
+		return ID3v230(data...)
 	case 0x4:
 		return "ID3v2.4"
 	}
-	// 0 * 2^21 = 0
-	// 0 * 2^14 = 0
-	// 2 * 2^7 = 256
-	// 1 = 1
 	return ""
 }
 
-func ID3v3Frame(id [4]byte, data ...byte) string {
+func ID3v230(data ...byte) string {
+	ablumTitle := [4]byte{'T', 'A', 'L', 'B'}
+	leadPerformer := [4]byte{'T', 'P', 'E', '1'}
+	contentGroup := [4]byte{'T', 'I', 'T', '1'}
+	songName := [4]byte{'T', 'I', 'T', '2'}
+	year := [4]byte{'T', 'Y', 'E', 'R'}
+	s := ID3v2Frame(songName, data...)
+	if s != "" {
+		if lp := ID3v2Frame(leadPerformer, data...); lp != "" {
+			s += fmt.Sprintf(" by %s", lp)
+		} else if cg := ID3v2Frame(contentGroup, data...); cg != "" {
+			s += fmt.Sprintf(" by %s", cg)
+		}
+	} else if ab := ID3v2Frame(ablumTitle, data...); ab == "" {
+		return ""
+	}
+	if y := ID3v2Frame(year, data...); y != "" {
+		s += fmt.Sprintf(" (%s)", y)
+	}
+	return strings.TrimSpace(s)
+}
+
+func ID3v2Frame(id [4]byte, data ...byte) string {
 	const header = 10
 	frameID := []byte{id[0], id[1], id[2], id[3]}
 	offset := bytes.Index(data, frameID)

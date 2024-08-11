@@ -585,16 +585,15 @@ func Find(r io.Reader) (Signature, error) {
 	return FindBytes(buf), nil
 }
 
-// Find1500B reads the first 1536 bytes from the reader and returns the file type signature.
+// Find2K reads the first 2048 bytes from the reader and returns the file type signature.
 // This is a less accurate method than Find but should be faster.
-func Find1500B(r io.Reader) (Signature, error) {
-	const size = 512 * 3
-	buf := make([]byte, size)
+func Find2K(r io.Reader) (Signature, error) {
+	buf := make([]byte, MusicTrackerSize)
 	_, err := io.ReadFull(r, buf)
 	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) {
-		return Unknown, fmt.Errorf("magic number find first %d bytes: %w", size, err)
+		return Unknown, fmt.Errorf("magic number find first %d bytes: %w", MusicTrackerSize, err)
 	}
-	return FindBytes512B(buf), nil
+	return FindBytes2K(buf), nil
 }
 
 // FindBytes returns the file type signature from the byte slice.
@@ -618,9 +617,9 @@ func FindBytes(p []byte) Signature {
 	}
 }
 
-// FindBytes512B returns the file type signature and skips the magic number checks
+// FindBytes2K returns the file type signature and skips the magic number checks
 // that require the entire file to be read.
-func FindBytes512B(p []byte) Signature {
+func FindBytes2K(p []byte) Signature {
 	if len(p) == 0 {
 		return ZeroByte
 	}

@@ -118,18 +118,57 @@ func MusicXM(p []byte) string {
 //
 // [ProTracker]: https://ftp.modland.com/pub/documents/format_documentation/ProTracker%20v1.0%20(.mod).html
 func MusicMK(p []byte) string {
-	const offset, length, headerLen = 1080, 4, 20
-	if len(p) < offset+length+headerLen {
+	const offset, length, healder = 1080, 4, 20
+	if len(p) < offset+length+healder {
 		return ""
 	}
 	modHeader := p[offset : offset+length]
-	if !bytes.Equal(modHeader, []byte{'M', '.', 'K', '.'}) {
+	switch {
+	case
+		bytes.Equal(modHeader, []byte{'2', 'C', 'H', 'N'}):
+		return music2Chan(p[0:healder])
+	case
+		bytes.Equal(modHeader, []byte{'M', '.', 'K', '.'}),
+		bytes.Equal(modHeader, []byte{'M', '!', 'K', '!'}),
+		bytes.Equal(modHeader, []byte{'F', 'L', 'T', '4'}),
+		bytes.Equal(modHeader, []byte{'4', 'C', 'H', 'N'}):
+		return music4Chan(p[0:healder])
+	case
+		bytes.Equal(modHeader, []byte{'6', 'C', 'H', 'N'}):
+		return music6Chan(p[0:healder])
+	case
+		bytes.Equal(modHeader, []byte{'8', 'C', 'H', 'N'}),
+		bytes.Equal(modHeader, []byte{'O', 'C', 'T', 'A'}):
+		return music8Chan(p[0:healder])
+	default:
 		return ""
 	}
-	s := "ProTracker song"
-	song := string(bytes.Trim(p[0:headerLen], "\x00"))
+}
+
+func music2Chan(b []byte) string {
+	s := "ProTracker 2-channel song"
+	return modSong(s, b)
+}
+
+func music4Chan(b []byte) string {
+	s := "ProTracker 4-channel song"
+	return modSong(s, b)
+}
+
+func music6Chan(b []byte) string {
+	s := "ProTracker 6-channel song"
+	return modSong(s, b)
+}
+
+func music8Chan(b []byte) string {
+	s := "ProTracker 8-channel song"
+	return modSong(s, b)
+}
+
+func modSong(info string, b []byte) string {
+	s := info
+	song := string(bytes.Trim(b, "\x00"))
 	song = strings.TrimSpace(song)
-	fmt.Println("MusicMK", string(modHeader), "<>", song)
 	if song != "" {
 		s += fmt.Sprintf(", %q", song)
 	}

@@ -188,7 +188,7 @@ func (e *entry) parse(path, platform string, info fs.FileInfo) bool {
 	}
 	defer r.Close()
 	var err error
-	e.sign, err = magicnumber.Find1500B(r)
+	e.sign, err = magicnumber.Find2K(r)
 	if err != nil {
 		fmt.Fprintf(io.Discard, "ignore this error, %v", err)
 		return skipEntry
@@ -235,34 +235,49 @@ func (e *entry) parseMusicMod(path string) bool {
 	return !skipEntry
 }
 
+// ParseMusicID3 parses the ID3 tag in the byte slice and returns the title, artist and year if available.
+// It looks up in order the ID3v2.3, ID3v2.2 and ID3v1 tags in the byte slice with the priority being
+// the newer versions of the tag.
+//
+// ID3v1 is a completely different tag format to ID3v2 and has serious limitations,
+// so it is only used as a last resort.
 func (e *entry) parseMusicID3(path string) bool {
 	const skipEntry = true
-	r1, _ := os.Open(path)
-	if r1 == nil {
+
+	// ID3 v2.x tags are located at the start of the file.
+	id3, _ := os.Open(path)
+	if id3 == nil {
 		return skipEntry
 	}
-	defer r1.Close()
-	size, offset := 128, int64(-128)
-	_, err := r1.Seek(offset, io.SeekEnd)
+	defer id3.Close()
+	buf := make([]byte, magicnumber.MusicTrackerSize)
+	if _, err := io.ReadFull(id3, buf); err == nil {
+		if s := magicnumber.MusicID3v2(buf); s != "" {
+			e.module = s
+			return !skipEntry
+		}
+	}
+
+	// ID3 v1 tags are located at the end of the file.
+	id3v1, _ := os.Open(path)
+	if id3v1 == nil {
+		return skipEntry
+	}
+	defer id3v1.Close()
+
+	size := magicnumber.ID3v1Size
+	offset := -int64(size)
+	_, err := id3v1.Seek(offset, io.SeekEnd)
 	if err != nil {
 		return skipEntry
 	}
-	buf := make([]byte, size)
-	if _, err := io.ReadFull(r1, buf); err == nil {
-		e.module = magicnumber.MusicID3v1(buf)
+	buf = make([]byte, size)
+	if _, err := io.ReadFull(id3v1, buf); err == nil {
+		if s := magicnumber.MusicID3v1(buf); s != "" {
+			e.module = s
+			return !skipEntry
+		}
 	}
-
-	rr, _ := os.Open(path)
-	if rr == nil {
-		return skipEntry
-	}
-	defer rr.Close()
-	buf = make([]byte, 1024*10)
-	x := ""
-	if _, err := io.ReadFull(rr, buf); err == nil {
-		x = magicnumber.MusicID3v2(buf)
-	}
-	fmt.Println("ID3v2.3:", x)
 	return !skipEntry
 }
 

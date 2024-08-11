@@ -296,11 +296,11 @@ func TestTxtWindows(t *testing.T) {
 	assert.True(t, magicnumber.TxtWindows(b))
 }
 
-func TestFind1500B(t *testing.T) {
+func TestFind2K(t *testing.T) {
 	f, err := os.Open(tduncompress("TEST.JPEG"))
 	require.NoError(t, err)
 	defer f.Close()
-	sign, err := magicnumber.Find1500B(f)
+	sign, err := magicnumber.Find2K(f)
 	require.NoError(t, err)
 	assert.Equal(t, magicnumber.JPEGFileInterchangeFormat, sign)
 }
