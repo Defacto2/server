@@ -193,6 +193,7 @@ func (e *entry) parse(path, platform string, info fs.FileInfo) bool {
 		fmt.Fprintf(io.Discard, "ignore this error, %v", err)
 		return skipEntry
 	}
+	platform = strings.TrimSpace(platform)
 	e.image = isImage(e.sign)
 	e.text = isText(e.sign)
 	e.program = isProgram(e.sign, platform)
@@ -201,7 +202,9 @@ func (e *entry) parse(path, platform string, info fs.FileInfo) bool {
 		return e.parseProgram(path)
 	case e.sign == magicnumber.MusicModule:
 		return e.parseMusicMod(path)
-	case e.sign == magicnumber.MPEG1AudioLayer3:
+	case
+		e.sign == magicnumber.MPEG1AudioLayer3,
+		platform == tags.Audio.String():
 		return e.parseMusicID3(path)
 	}
 	return !skipEntry
@@ -257,7 +260,6 @@ func (e *entry) parseMusicID3(path string) bool {
 			return !skipEntry
 		}
 	}
-
 	// ID3 v1 tags are located at the end of the file.
 	id3v1, _ := os.Open(path)
 	if id3v1 == nil {

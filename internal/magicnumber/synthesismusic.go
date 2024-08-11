@@ -133,15 +133,16 @@ func MusicMK(p []byte) string {
 	case
 		bytes.Equal(modHeader, []byte{'M', '.', 'K', '.'}),
 		bytes.Equal(modHeader, []byte{'M', '!', 'K', '!'}),
-		bytes.Equal(modHeader, []byte{'F', 'L', 'T', '4'}),
-		bytes.Equal(modHeader, []byte{'4', 'C', 'H', 'N'}):
+		bytes.Equal(modHeader, []byte{'4', 'C', 'H', 'N'}),
+		bytes.Equal(modHeader, []byte{'F', 'L', 'T', '4'}):
 		return music4Chan(p[0:healder])
 	case
 		bytes.Equal(modHeader, []byte{'6', 'C', 'H', 'N'}):
 		return music6Chan(p[0:healder])
 	case
-		bytes.Equal(modHeader, []byte{'8', 'C', 'H', 'N'}),
-		bytes.Equal(modHeader, []byte{'O', 'C', 'T', 'A'}):
+		bytes.Equal(modHeader, []byte{'F', 'L', 'T', '8'}),
+		bytes.Equal(modHeader, []byte{'O', 'C', 'T', 'A'}),
+		bytes.Equal(modHeader, []byte{'8', 'C', 'H', 'N'}):
 		return music8Chan(p[0:healder])
 	default:
 		return ""

@@ -1,6 +1,8 @@
 package magicnumber
 
-import "bytes"
+import (
+	"bytes"
+)
 
 // Package file media.go contains the functions that parse bytes as commom image, digital audio and video formats.
 // A number of these media containers could support multiple modes,
@@ -175,6 +177,8 @@ func Mp4(p []byte) bool {
 }
 
 // Mp3 matches the MPEG-1 Audio Layer 3 audio format in the byte slice.
+// This only checks for the ID3v2 tag and not the audio data.
+// Songs with no ID3v2 tag will not be detected including files with ID3v1 tags.
 func Mp3(p []byte) bool {
 	const min = 3
 	if len(p) < min {
