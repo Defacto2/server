@@ -136,15 +136,15 @@
             <legend class="mt-3">Download content</legend>
             {{- if eq $notFound $statSizeB}}
             <div class="input-group mb-3"><span class="text-warning-emphasis">download file not found</span></div>
-            {{- else if eq "" (index . "modZipContent")}}
-            <div class="input-group mb-3"><span class="text-info-emphasis">Nothing to show as the artifact is not an archive (a ZIP or RAR file, etc.)</span></div>
             {{- else}}
+            {{- if ne "" (index . "modZipContent")}}
             <div class="input-group mb-3">
               <button type="button" class="btn btn-secondary w-25" id="artifact-editor-templocation-label"
                 data-bs-toggle="tooltip" data-bs-title="Copy the path">Temp location</button>
               <input type="text" class="form-control" name="artifact-editor-templocation" id="artifact-editor-templocation" 
                 aria-describedby="artifact-editor-templocation-label" value="{{$modDecompressLoc}}" readonly>
             </div>
+            {{- end}}
             <div class="container text-begin mb-3">
               <div class="form-text" id="artifact-editor-comp-feedback"></div>
               <hr class="m-0 mb-3 mt-3">

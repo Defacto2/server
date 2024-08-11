@@ -141,6 +141,7 @@ func Comment(art *models.File) string {
 type entry struct {
 	sign    magicnumber.Signature
 	exec    magicnumber.Windows
+	module  string
 	size    string
 	zeros   int
 	bytes   int64
@@ -149,7 +150,7 @@ type entry struct {
 	program bool
 }
 
-func (e *entry) parse(path string, d fs.DirEntry, platform string) bool {
+func (e *entry) parseDirEntry(path string, d fs.DirEntry, platform string) bool {
 	const skipEntry = true
 	if d.IsDir() {
 		return skipEntry
@@ -170,7 +171,7 @@ func (e *entry) parse(path string, d fs.DirEntry, platform string) bool {
 	}
 	defer r.Close()
 	var err error
-	e.sign, err = magicnumber.Find512B(r)
+	e.sign, err = magicnumber.Find1500B(r)
 	if err != nil {
 		fmt.Fprintf(io.Discard, "ignore this error, %v", err)
 		return skipEntry
@@ -186,6 +187,98 @@ func (e *entry) parse(path string, d fs.DirEntry, platform string) bool {
 		if err == nil {
 			e.exec = exec
 		}
+	}
+	if e.sign == magicnumber.MusicModule {
+		r, _ := os.Open(path)
+		if r == nil {
+			return skipEntry
+		}
+		defer r.Close()
+		size := 1100
+		buf := make([]byte, size)
+		if _, err := io.ReadFull(r, buf); err == nil {
+			e.module = magicnumber.MusicMod(buf)
+		}
+	}
+	return !skipEntry
+}
+
+func (e *entry) parseFile(path string, platform string) bool {
+	const skipEntry = true
+	info, err := os.Stat(path)
+	if err != nil {
+		return skipEntry
+	}
+	if info.IsDir() {
+		return skipEntry
+	}
+	e.bytes = info.Size()
+	if e.bytes == 0 {
+		e.zeros++
+		return skipEntry
+	}
+	e.size = humanize.Bytes(uint64(info.Size()))
+	r, _ := os.Open(path)
+	if r == nil {
+		return skipEntry
+	}
+	defer r.Close()
+	e.sign, err = magicnumber.Find1500B(r)
+	if err != nil {
+		fmt.Fprintf(io.Discard, "ignore this error, %v", err)
+		return skipEntry
+	}
+	e.image, e.text, e.program = isImage(e.sign), isText(e.sign), isProgram(e.sign, platform)
+	if e.program {
+		r, _ := os.Open(path)
+		if r == nil {
+			return skipEntry
+		}
+		defer r.Close()
+		exec, err := magicnumber.FindExecutable(r)
+		if err == nil {
+			e.exec = exec
+		}
+	}
+	if e.sign == magicnumber.MusicModule {
+		r, _ := os.Open(path)
+		if r == nil {
+			return skipEntry
+		}
+		defer r.Close()
+		size := 1100
+		buf := make([]byte, size)
+		if _, err := io.ReadFull(r, buf); err == nil {
+			e.module = magicnumber.MusicMod(buf)
+		}
+	}
+	if e.sign == magicnumber.MPEG1AudioLayer3 {
+		r, _ := os.Open(path)
+		if r == nil {
+			return skipEntry
+		}
+		defer r.Close()
+		size, offset := 128, int64(-128)
+		_, err = r.Seek(offset, io.SeekEnd)
+		if err != nil {
+			return skipEntry
+		}
+		buf := make([]byte, size)
+		if _, err := io.ReadFull(r, buf); err == nil {
+			e.module = magicnumber.MusicID3v1(buf)
+		}
+
+		rr, _ := os.Open(path)
+		if r == nil {
+			return skipEntry
+		}
+		defer r.Close()
+		buf = make([]byte, 1024*10)
+		x := ""
+		if _, err := io.ReadFull(rr, buf); err == nil {
+			x = magicnumber.MusicID3v2(buf)
+		}
+		fmt.Println("ID3v2.3:", x)
 	}
 	return !skipEntry
 }
@@ -206,7 +299,16 @@ func ListContent(art *models.File, src string) template.HTML {
 	}
 	dst, err := extractSrc(src)
 	if err != nil {
-		return template.HTML(err.Error())
+		if !errors.Is(err, archive.ErrNotArchive) && !errors.Is(err, archive.ErrNotImplemented) {
+			return template.HTML(err.Error())
+		}
+		e := entry{zeros: zeroByteFiles}
+		if e.parseFile(src, platform) {
+			return "error, empty byte file"
+		}
+		var b strings.Builder
+		b.WriteString(entryHTML(e.exec, e.image, e.program, e.text, e.module, art.Filename.String, e.sign.String(), e.size, unid, e.bytes))
+		return template.HTML(b.String())
 	}
 	walkerCount := func(_ string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
@@ -231,12 +333,12 @@ func ListContent(art *models.File, src string) template.HTML {
 			return skipEntry
 		}
 		e := entry{zeros: zeroByteFiles}
-		if e.parse(path, d, platform) {
+		if e.parseDirEntry(path, d, platform) {
 			zeroByteFiles = e.zeros
 			return skipEntry
 		}
 		entries++
-		b.WriteString(entryHTML(e.exec, e.image, e.program, e.text, rel, e.sign.String(), e.size, unid, e.bytes))
+		b.WriteString(entryHTML(e.exec, e.image, e.program, e.text, e.module, rel, e.sign.String(), e.size, unid, e.bytes))
 		if maxItems := 200; entries > maxItems {
 			more := fmt.Sprintf(`<div class="border-bottom row mb-1">... %d more files</div>`, files-entries)
 			b.WriteString(more)
@@ -288,7 +390,7 @@ func isText(sign magicnumber.Signature) bool {
 	return false
 }
 
-func entryHTML(exec magicnumber.Windows, images, programs, texts bool, rel, sign, size, unid string, bytes int64) string {
+func entryHTML(exec magicnumber.Windows, images, programs, texts bool, musicMod, rel, sign, size, unid string, bytes int64) string {
 	name := url.QueryEscape(rel)
 	ext := strings.ToLower(filepath.Ext(name))
 	htm := fmt.Sprintf(`<div class="col d-inline-block text-truncate" data-bs-toggle="tooltip" `+
@@ -334,6 +436,8 @@ func entryHTML(exec magicnumber.Windows, images, programs, texts bool, rel, sign
 		htm += fmt.Sprintf(` <small class="">%s</small></div>`, "configuration textfile")
 	case programs || ext == ".com":
 		htm = progr(exec, ext, htm, bytes)
+	case musicMod != "":
+		htm += fmt.Sprintf(` <small class="">%s</small></div>`, musicMod)
 	default:
 		htm += fmt.Sprintf(` <small class="">%s</small></div>`, sign)
 	}
