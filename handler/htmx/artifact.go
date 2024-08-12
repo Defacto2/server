@@ -152,6 +152,16 @@ func RecordReadmeCopier(c echo.Context, extraDir string) error {
 		`<span class="text-success">Images copied, the browser will refresh.</span>`)
 }
 
+func RecordImagePixelator(c echo.Context, dirs ...string) error {
+	unid := c.Param("unid")
+	if err := command.ImagesPixelate(unid, dirs...); err != nil {
+		return badRequest(c, err)
+	}
+	c = pageRefresh(c)
+	return c.String(http.StatusOK,
+		`<span class="text-success">Images pixelated, the browser will refresh.</span>`)
+}
+
 func RecordImagesDeleter(c echo.Context, dirs ...string) error {
 	unid := c.Param("unid")
 	if err := command.ImagesDelete(unid, dirs...); err != nil {

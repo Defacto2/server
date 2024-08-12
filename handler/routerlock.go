@@ -205,6 +205,9 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	})
 
 	imgs := g.Group("/images")
+	imgs.PATCH("/pixelate/:unid", func(c echo.Context) error {
+		return htmx.RecordImagePixelator(c, dir.Preview, dir.Thumbnail)
+	})
 	imgs.DELETE("/:unid", func(c echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dir.Preview, dir.Thumbnail)
 	})

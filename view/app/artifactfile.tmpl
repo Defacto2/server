@@ -137,14 +137,12 @@
             {{- if eq $notFound $statSizeB}}
             <div class="input-group mb-3"><span class="text-warning-emphasis">download file not found</span></div>
             {{- else}}
-            {{- if ne "" (index . "modZipContent")}}
             <div class="input-group mb-3">
               <button type="button" class="btn btn-secondary w-25" id="artifact-editor-templocation-label"
                 data-bs-toggle="tooltip" data-bs-title="Copy the path">Temp location</button>
               <input type="text" class="form-control" name="artifact-editor-templocation" id="artifact-editor-templocation" 
                 aria-describedby="artifact-editor-templocation-label" value="{{$modDecompressLoc}}" readonly>
             </div>
-            {{- end}}
             <div class="container text-begin mb-3">
               <div class="form-text" id="artifact-editor-comp-feedback"></div>
               <hr class="m-0 mb-3 mt-3">
@@ -157,7 +155,10 @@
             <legend>Image assets</legend>
             <div>
               <button id="artifact-editor-image-delete" hx-target="#artifact-editor-image-feedback" 
-              hx-delete="/editor/images/{{$unid}}" class="btn btn-link m-0 p-0">Delete image assets</button>
+              hx-delete="/editor/images/{{$unid}}" class="btn btn-link m-0 p-0"><strong>Delete</strong> images</button>
+            <button id="artifact-editor-image-pixelate" hx-target="#artifact-editor-image-feedback" 
+              hx-patch="/editor/images/pixelate/{{$unid}}" class="btn btn-link m-0 p-0"><strong>Pixelate</strong> images</button>
+            <div class="form-text">The delete and pixelate options are irreversible</div>
             </div>
             <div class="form-text" id="artifact-editor-image-feedback"></div>
             <div class="row row-cols-2 g-1">
@@ -214,8 +215,8 @@
                         <a href="#file-editor" hx-patch="/editor/thumbnail/right/{{$unid}}">Right</a> <small>crop</small>
                       </div>
                       <div>
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/pixel/{{$unid}}">Pixel</a>
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/photo/{{$unid}}">Photo</a> <small>thumbnail</small>
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/pixel/{{$unid}}">Pixel art</a>
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/photo/{{$unid}}">Photograph</a> <small>thumbnail</small>
                       </div>
                       <div><a href="#file-editor" hx-delete="/editor/thumbnail/{{$unid}}">Delete</a></div>
                     </p>

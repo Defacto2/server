@@ -87,6 +87,11 @@ import { progress } from "./uploader.mjs";
       "artifact-editor-image-delete",
       "artifact-editor-image-feedback"
     );
+    afterDeleteRequest(
+      event,
+      "artifact-editor-image-pixelate",
+      "artifact-editor-preview-feedback"
+    );
     afterLinkRequest(
       event,
       "artifact-editor-link-delete",
