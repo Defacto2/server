@@ -2,6 +2,9 @@ package magicnumber
 
 import (
 	"bytes"
+	"encoding/hex"
+	"io"
+	"strconv"
 )
 
 // Package file media.go contains the functions that parse bytes as commom image, digital audio and video formats.
@@ -158,6 +161,35 @@ func Ilbm(p []byte) bool {
 		bytes.Equal(p[8:12], []byte{'I', 'L', 'B', 'M'})
 }
 
+// IlbmDecode reads the InterLeaved Bitmap image format in the reader and returns the width and height.
+func IlbmDecode(r io.Reader) (width, height int) {
+	const min = 24
+	p := make([]byte, min)
+	if _, err := io.ReadFull(r, p); err != nil {
+		return 0, 0
+	}
+	return IlbmConfig(p)
+}
+
+// IlbmConfig reads the InterLeaved Bitmap image format in the byte slice and returns the width and height.
+func IlbmConfig(p []byte) (width, height int) {
+	const min = 24
+	if len(p) < min {
+		return 0, 0
+	}
+	hw := hex.EncodeToString([]byte{p[20], p[21]})
+	hh := hex.EncodeToString([]byte{p[22], p[23]})
+	w, err := strconv.ParseInt(hw, 16, 64)
+	if err != nil {
+		return 0, 0
+	}
+	h, err := strconv.ParseInt(hh, 16, 64)
+	if err != nil {
+		return 0, 0
+	}
+	return int(w), int(h)
+}
+
 // M4v matches the QuickTime M4V video format in the byte slice.
 func M4v(p []byte) bool {
 	const min = 8
@@ -238,6 +270,21 @@ func QTMov(p []byte) bool {
 	const offset = 4
 	return bytes.Equal(p[offset:8], []byte{'m', 'o', 'o', 'v'}) ||
 		bytes.Equal(p[offset:10], []byte{'f', 't', 'y', 'p', 'q', 't'})
+}
+
+// Ripscrip returns true if the reader contains the RIPscrip signature.
+// This is a vector graphics format used in BBS systems in the early 1990s.
+func Ripscrip(p []byte) bool {
+	const min = 3
+	if len(p) < min {
+		return false
+	}
+	head := bytes.Equal(p[:2], []byte{'!', '|'})
+	if !head {
+		return false
+	}
+	i := p[2]
+	return i >= '0' && i <= '9'
 }
 
 // Tiff matches the Tagged Image File Format in the byte slice.

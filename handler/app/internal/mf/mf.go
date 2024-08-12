@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"image"
 	"io"
 	"io/fs"
 	"net/url"
@@ -14,6 +15,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	_ "golang.org/x/image/bmp"
+	_ "golang.org/x/image/tiff"
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app/internal/exts"
@@ -143,6 +147,7 @@ type entry struct {
 	exec    magicnumber.Windows
 	module  string
 	size    string
+	format  string
 	zeros   int
 	bytes   int64
 	image   bool
@@ -198,6 +203,8 @@ func (e *entry) parse(path, platform string, info fs.FileInfo) bool {
 	e.text = isText(e.sign)
 	e.program = isProgram(e.sign, platform)
 	switch {
+	case e.image:
+		return e.parseImage(e.sign, path)
 	case e.program:
 		return e.parseProgram(path)
 	case e.sign == magicnumber.MusicModule:
@@ -206,6 +213,34 @@ func (e *entry) parse(path, platform string, info fs.FileInfo) bool {
 		e.sign == magicnumber.MPEG1AudioLayer3,
 		platform == tags.Audio.String():
 		return e.parseMusicID3(path)
+	}
+	return !skipEntry
+}
+
+func (e *entry) parseImage(sign magicnumber.Signature, path string) bool {
+	const skipEntry = true
+	r, _ := os.Open(path)
+	if r == nil {
+		return skipEntry
+	}
+	defer r.Close()
+	config, format, err := image.DecodeConfig(r)
+	if err == nil {
+		e.format = fmt.Sprintf("%s image, %dx%d", format, config.Width, config.Height)
+		return !skipEntry
+	}
+	switch sign {
+	case magicnumber.InterleavedBitmap:
+		fmt.Print("InterleavedBitmap")
+		r, _ := os.Open(path)
+		if r == nil {
+			return skipEntry
+		}
+		defer r.Close()
+		x, y := magicnumber.IlbmDecode(r)
+		e.format = fmt.Sprintf("ILBM image, %dx%d", x, y)
+	default:
+		e.format = fmt.Sprintf("%s image", sign.Title())
 	}
 	return !skipEntry
 }
@@ -307,7 +342,19 @@ func ListContent(art *models.File, src string) template.HTML {
 			return "error, empty byte file"
 		}
 		var b strings.Builder
-		b.WriteString(entryHTML(e.exec, e.image, e.program, e.text, e.module, art.Filename.String, e.sign.String(), e.size, unid, e.bytes))
+		m := meta{
+			exec:        e.exec,
+			images:      e.image,
+			programs:    e.program,
+			texts:       e.text,
+			musicMod:    e.module,
+			imageConfig: e.format,
+			rel:         art.Filename.String,
+			sign:        e.sign.String(),
+			size:        e.size,
+			unid:        unid,
+		}
+		b.WriteString(m.entryHTML(e.bytes))
 		return template.HTML(b.String())
 	}
 	walkerCount := func(_ string, d fs.DirEntry, err error) error {
@@ -338,7 +385,19 @@ func ListContent(art *models.File, src string) template.HTML {
 			return skipEntry
 		}
 		entries++
-		b.WriteString(entryHTML(e.exec, e.image, e.program, e.text, e.module, rel, e.sign.String(), e.size, unid, e.bytes))
+		m := meta{
+			exec:        e.exec,
+			images:      e.image,
+			programs:    e.program,
+			texts:       e.text,
+			musicMod:    e.module,
+			imageConfig: e.format,
+			rel:         rel,
+			sign:        e.sign.String(),
+			size:        e.size,
+			unid:        unid,
+		}
+		b.WriteString(m.entryHTML(e.bytes))
 		if maxItems := 200; entries > maxItems {
 			more := fmt.Sprintf(`<div class="border-bottom row mb-1">... %d more files</div>`, files-entries)
 			b.WriteString(more)
@@ -390,56 +449,65 @@ func isText(sign magicnumber.Signature) bool {
 	return false
 }
 
-func entryHTML(exec magicnumber.Windows, images, programs, texts bool, musicMod, rel, sign, size, unid string, bytes int64) string {
-	name := url.QueryEscape(rel)
+type meta struct {
+	exec                            magicnumber.Windows
+	images, programs, texts         bool
+	musicMod, rel, sign, size, unid string
+	imageConfig                     string
+}
+
+func (m meta) entryHTML(bytes int64) string {
+	name := url.QueryEscape(m.rel)
 	ext := strings.ToLower(filepath.Ext(name))
 	htm := fmt.Sprintf(`<div class="col d-inline-block text-truncate" data-bs-toggle="tooltip" `+
-		`data-bs-title="%s">%s</div>`, rel, rel)
+		`data-bs-title="%s">%s</div>`, m.rel, m.rel)
 	switch {
-	case images:
+	case m.images:
 		htm += `<div class="col col-1 text-end">` +
 			fmt.Sprintf(`<a class="icon-link align-text-bottom" id="" `+
-				`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/preview/copy/%s/%s">`, unid, name) +
+				`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/preview/copy/%s/%s">`, m.unid, name) +
 			`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 			`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
-	case texts && (ext == ".bat" || ext == ".cmd" || ext == ".ini"):
+	case m.texts && (ext == ".bat" || ext == ".cmd" || ext == ".ini"):
 		htm += `<div class="col col-1"></div>`
-	case texts:
+	case m.texts:
 		htm += `<div class="col col-1 text-end">` +
 			fmt.Sprintf(`<a class="icon-link align-text-bottom" `+
-				`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/readme/preview/%s/%s">`, unid, name) +
+				`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/readme/preview/%s/%s">`, m.unid, name) +
 			`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 			`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
 	default:
 		htm += `<div class="col col-1"></div>`
 	}
 	switch {
-	case texts && (ext == ".bat" || ext == ".cmd" || ext == ".ini"):
+	case m.texts && (ext == ".bat" || ext == ".cmd" || ext == ".ini"):
 		htm += `<div class="col col-1"></div>`
-	case texts:
+	case m.texts:
 		htm += `<div class="col col-1 text-end">` +
 			fmt.Sprintf(`<a class="icon-link align-text-bottom" `+
-				`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/readme/copy/%s/%s">`, unid, name) +
+				`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/readme/copy/%s/%s">`, m.unid, name) +
 			`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
 			`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></a></div>`
-	case programs && ext == ".exe", programs && ext == ".com":
+	case m.programs && ext == ".exe", m.programs && ext == ".com":
 		htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 			`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
 	default:
 		htm += `<div class="col col-1"></div>`
 	}
-	htm += fmt.Sprintf(`<div><small data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</small>`, bytes, size)
+	htm += fmt.Sprintf(`<div><small data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</small>`, bytes, m.size)
 	switch {
-	case texts && (ext == ".bat" || ext == ".cmd"):
+	case m.texts && (ext == ".bat" || ext == ".cmd"):
 		htm += fmt.Sprintf(` <small class="">%s</small></div>`, "command script")
-	case texts && (ext == ".ini"):
+	case m.texts && (ext == ".ini"):
 		htm += fmt.Sprintf(` <small class="">%s</small></div>`, "configuration textfile")
-	case programs || ext == ".com":
-		htm = progr(exec, ext, htm, bytes)
-	case musicMod != "":
-		htm += fmt.Sprintf(` <small class="">%s</small></div>`, musicMod)
+	case m.programs || ext == ".com":
+		htm = progr(m.exec, ext, htm, bytes)
+	case m.musicMod != "":
+		htm += fmt.Sprintf(` <small class="">%s</small></div>`, m.musicMod)
+	case m.images:
+		htm += fmt.Sprintf(` <small class="">%s</small></div>`, m.imageConfig)
 	default:
-		htm += fmt.Sprintf(` <small class="">%s</small></div>`, sign)
+		htm += fmt.Sprintf(` <small class="">%s</small></div>`, m.sign)
 	}
 	htm = fmt.Sprintf(`<div class="border-bottom row mb-1">%s</div>`, htm)
 	return htm

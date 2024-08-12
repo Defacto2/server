@@ -62,6 +62,7 @@ const (
 	PersonalComputereXchange
 	InterleavedBitmap
 	MicrosoftIcon
+	RIPscrip
 	MPEG4
 	QuickTimeMovie
 	QuickTimeM4V
@@ -139,6 +140,7 @@ func (sign Signature) String() string { //nolint:funlen
 		"PCX image",
 		"BMP image",
 		"Microsoft icon",
+		"RIPscrip",
 		"MPEG-4 video",
 		"QuickTime video",
 		"QuickTime video",
@@ -217,6 +219,7 @@ func (sign Signature) Title() string { //nolint:funlen
 		"Personal Computer eXchange",
 		"Interleaved Bitmap",
 		"Microsoft Icon",
+		"RIPscrip vector graphic",
 		"MPEG-4 video",
 		"QuickTime Movie",
 		"QuickTime M4V",
@@ -291,6 +294,7 @@ func Ext() Extension { //nolint:funlen
 		PersonalComputereXchange:          []string{".pcx"},
 		InterleavedBitmap:                 []string{".ilbm"},
 		MicrosoftIcon:                     []string{".ico"},
+		RIPscrip:                          []string{".rip"},
 		MPEG4:                             []string{".mp4"},
 		QuickTimeMovie:                    []string{".mov"},
 		QuickTimeM4V:                      []string{".m4v"},
@@ -371,6 +375,7 @@ func New() Finder { //nolint:funlen
 		PersonalComputereXchange:          Pcx,
 		InterleavedBitmap:                 Ilbm,
 		MicrosoftIcon:                     Ico,
+		RIPscrip:                          Ripscrip,
 		MPEG4:                             Mp4,
 		QuickTimeMovie:                    QTMov,
 		QuickTimeM4V:                      M4v,
@@ -504,6 +509,7 @@ func Images() []Signature {
 		PersonalComputereXchange,
 		InterleavedBitmap,
 		MicrosoftIcon,
+		RIPscrip,
 	}
 }
 
