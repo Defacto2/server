@@ -70,6 +70,7 @@
       <div class="card-header text-body-secondary text-center">
         <code class="h6">{{$filename}}</code>
       </div>
+      {{- if eq $editor true}}{{ template "artifactsedit" . }}{{end}}
       <div class="card-body">
         <h2 class="card-title text-truncate fs-5">{{linkRelrs .GroupBrandFor .GroupBrandBy }}</h2>
         {{subTitle .Section .RecordTitle}}
@@ -83,7 +84,6 @@
         {{- linkPreview .ID .Filename.String .Platform.String}}
       </div>
       <a href="{{linkHref .ID}}">{{thumb .UUID.String .Filename.String true }}</a>
-      {{- if eq $editor true}}{{ template "artifactsedit" . }}{{end}}
     </div>
   </div>
   {{- /*  End of the iteration of the records */}}
