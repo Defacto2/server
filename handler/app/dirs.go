@@ -259,22 +259,24 @@ func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
 func (dir Dirs) missingAssets(art *models.File) string {
 	uid := art.UUID.String
 	missing := []string{}
-	d := helper.File(filepath.Join(dir.Download, uid))
-	p := helper.File(filepath.Join(dir.Preview, uid+".png"))
-	t := helper.File(filepath.Join(dir.Thumbnail, uid+".png"))
-	if d && p && t {
+	dl := helper.File(filepath.Join(dir.Download, uid))
+	pv := helper.File(filepath.Join(dir.Preview, uid+".png")) ||
+		helper.File(filepath.Join(dir.Preview, uid+".webp"))
+	th := helper.File(filepath.Join(dir.Thumbnail, uid+".png")) ||
+		helper.File(filepath.Join(dir.Thumbnail, uid+".webp"))
+	if dl && pv && th {
 		return ""
 	}
-	if !d {
+	if !dl {
 		missing = append(missing, "offer a file for download")
 	}
 	if art.Platform.String == tags.Audio.String() {
 		return strings.Join(missing, " + ")
 	}
-	if !p {
+	if !pv {
 		missing = append(missing, "create a preview image")
 	}
-	if !t {
+	if !th {
 		missing = append(missing, "create a thumbnail image")
 	}
 	return strings.Join(missing, " + ")
