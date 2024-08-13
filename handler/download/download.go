@@ -3,6 +3,7 @@ package download
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"os"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
@@ -26,13 +26,8 @@ var (
 // Checksum serves the checksums for the requested file.
 // The response is a text file named "checksums.txt" with the checksum and filename.
 // The id string is the UID filename of the requested file.
-func Checksum(c echo.Context, id string) error {
+func Checksum(c echo.Context, db *sql.DB, id string) error {
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return fmt.Errorf("file download checksum connect db: %w", err)
-	}
-	defer db.Close()
 	art, err := model.OneFileByKey(ctx, db, id)
 	if err != nil {
 		if errors.Is(err, model.ErrDB) && sess.Editor(c) {
@@ -74,14 +69,9 @@ type Download struct {
 
 // HTTPSend serves files to the client and prompts for a save location.
 // The download relies on the URL ID parameter to determine the requested file.
-func (d Download) HTTPSend(c echo.Context, logger *zap.SugaredLogger) error {
+func (d Download) HTTPSend(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 	id := c.Param("id")
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return fmt.Errorf("http send connect db: %w", err)
-	}
-	defer db.Close()
 	art, err := model.OneFileByKey(ctx, db, id)
 	switch {
 	case err != nil && sess.Editor(c):
@@ -139,14 +129,9 @@ type ExtraZip struct {
 // otherwise it will serve the standard download file.
 //
 // This is used for obsolute file types that have been rearchived into a standard zip file.
-func (e ExtraZip) HTTPSend(c echo.Context) error {
+func (e ExtraZip) HTTPSend(c echo.Context, db *sql.DB) error {
 	id := c.Param("id")
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return fmt.Errorf("http extra send connect db: %w", err)
-	}
-	defer db.Close()
 	art, err := model.OneFileByKey(ctx, db, id)
 	switch {
 	case err != nil && sess.Editor(c):

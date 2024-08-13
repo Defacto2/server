@@ -5,6 +5,7 @@ package app
 import (
 	"context"
 	"crypto/sha512"
+	"database/sql"
 	"errors"
 	"fmt"
 	"math"
@@ -19,7 +20,6 @@ import (
 	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/cache"
-	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/helper"
@@ -115,22 +115,22 @@ func empty(c echo.Context) map[string]interface{} {
 // Artifacts is the handler for the list and preview of the files page.
 // The uri is the category or collection of files to display.
 // The page is the page number of the results to display.
-func Artifacts(c echo.Context, uri, page string) error {
+func Artifacts(c echo.Context, db *sql.DB, uri, page string) error {
 	if !mfs.Valid(uri) {
 		return Artifacts404(c, uri)
 	}
 	if page == "" {
-		return artifacts(c, uri, 1)
+		return artifacts(c, db, uri, 1)
 	}
 	p, err := strconv.Atoi(page)
 	if err != nil {
 		return Page404(c, uri, page)
 	}
-	return artifacts(c, uri, p)
+	return artifacts(c, db, uri, p)
 }
 
 // artifacts is a helper function for Artifacts that returns the data map for the files page.
-func artifacts(c echo.Context, uri string, page int) error {
+func artifacts(c echo.Context, db *sql.DB, uri string, page int) error {
 	const title, name = "Artifacts", "artifacts"
 	logo, subhead, lead := mfs.FileInfo(uri)
 	data := emptyFiles(c)
@@ -155,11 +155,6 @@ func artifacts(c echo.Context, uri string, page int) error {
 	}
 	errs := fmt.Sprintf("artifacts page %d for %q", page, uri)
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return InternalErr(c, errs, err)
-	}
-	defer db.Close()
 	r, err := mfs.Records(ctx, db, uri, page, limit)
 	if err != nil {
 		return DatabaseErr(c, errs, err)
@@ -218,28 +213,24 @@ func Artifacts404(c echo.Context, uri string) error {
 }
 
 // Artist is the handler for the Artist sceners page.
-func Artist(c echo.Context) error {
+func Artist(c echo.Context, db *sql.DB) error {
 	data := empty(c)
 	title := "Pixel artists and graphic designers"
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
 	data["description"] = demo
-	return scener(c, postgres.Artist, data)
+	return scener(c, db, postgres.Artist, data)
 }
 
 // scener is the handler for the scener pages.
-func scener(c echo.Context, r postgres.Role,
+func scener(c echo.Context, db *sql.DB, r postgres.Role,
 	data map[string]interface{},
 ) error {
 	const name = "scener"
 	s := model.Sceners{}
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	defer db.Close()
+	var err error
 	switch r {
 	case postgres.Writer:
 		err = s.Writer(ctx, db)
@@ -272,22 +263,22 @@ func scener(c echo.Context, r postgres.Role,
 }
 
 // BBS is the handler for the BBS page ordered by the most files.
-func BBS(c echo.Context) error {
-	return bbsHandler(c, model.Prolific)
+func BBS(c echo.Context, db *sql.DB) error {
+	return bbsHandler(c, db, model.Prolific)
 }
 
 // BBSAZ is the handler for the BBS page ordered alphabetically.
-func BBSAZ(c echo.Context) error {
-	return bbsHandler(c, model.Alphabetical)
+func BBSAZ(c echo.Context, db *sql.DB) error {
+	return bbsHandler(c, db, model.Alphabetical)
 }
 
 // BBSYear is the handler for the BBS page ordered by the year.
-func BBSYear(c echo.Context) error {
-	return bbsHandler(c, model.Oldest)
+func BBSYear(c echo.Context, db *sql.DB) error {
+	return bbsHandler(c, db, model.Oldest)
 }
 
 // bbsHandler is the handler for the BBS page.
-func bbsHandler(c echo.Context, orderBy model.OrderBy) error {
+func bbsHandler(c echo.Context, db *sql.DB, orderBy model.OrderBy) error {
 	const title, name = "BBS", "bbs"
 	const lead = "Bulletin Board Systems are historical, " +
 		"networked personal computer servers connected using the landline telephone network and provide forums, " +
@@ -305,11 +296,6 @@ func bbsHandler(c echo.Context, orderBy model.OrderBy) error {
 	data["stats"] = map[string]string{}
 
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	defer db.Close()
 	r := model.Releasers{}
 	if err := r.BBS(ctx, db, orderBy); err != nil {
 		return DatabaseErr(c, name, err)
@@ -338,8 +324,7 @@ func bbsHandler(c echo.Context, orderBy model.OrderBy) error {
 		"pubs":    fmt.Sprintf("%d boards", len(r)),
 		"orderBy": order,
 	}
-
-	err = c.Render(http.StatusOK, tmpl, data)
+	err := c.Render(http.StatusOK, tmpl, data)
 	if err != nil {
 		return InternalErr(c, name, err)
 	}
@@ -347,9 +332,9 @@ func bbsHandler(c echo.Context, orderBy model.OrderBy) error {
 }
 
 // Checksum is the handler for the Checksum file record page.
-func Checksum(c echo.Context, id string) error {
+func Checksum(c echo.Context, db *sql.DB, id string) error {
 	const uri = "sum"
-	if err := download.Checksum(c, id); err != nil {
+	if err := download.Checksum(c, db, id); err != nil {
 		if errors.Is(err, download.ErrStat) {
 			return FileMissingErr(c, uri, err)
 		}
@@ -359,18 +344,18 @@ func Checksum(c echo.Context, id string) error {
 }
 
 // Code is the handler for the Coder sceners page.
-func Coder(c echo.Context) error {
+func Coder(c echo.Context, db *sql.DB) error {
 	data := empty(c)
 	title := "Coder and programmers"
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
 	data["description"] = demo
-	return scener(c, postgres.Writer, data)
+	return scener(c, db, postgres.Writer, data)
 }
 
 // Configurations is the handler for the Configuration page.
-func Configurations(cx echo.Context, conf config.Config) error {
+func Configurations(cx echo.Context, db *sql.DB, conf config.Config) error {
 	const name = "configs"
 	data := empty(cx)
 	data["description"] = "Defacto2 configurations."
@@ -378,25 +363,20 @@ func Configurations(cx echo.Context, conf config.Config) error {
 	data["lead"] = "The web application configurations, tools and links to special records."
 	data["title"] = "Configs"
 	data["configurations"] = conf
-
 	data["countArtifacts"] = 0
 	data["countPublic"] = 0
 	data["countNewUpload"] = 0
 	data["countHidden"] = 0
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
+	ca, cp, cnu, err := model.Counts(ctx, db)
 	if err == nil {
-		ca, cp, cnu, err := model.Counts(ctx, db)
-		if err == nil {
-			data["countArtifacts"] = ca
-			data["countPublic"] = cp
-			data["countNewUpload"] = cnu
-			data["countHidden"] = ca - cp - cnu
-		}
+		data["countArtifacts"] = ca
+		data["countPublic"] = cp
+		data["countNewUpload"] = cnu
+		data["countHidden"] = ca - cp - cnu
 	}
-	defer db.Close()
 	data = configurations(data, conf)
-	conns, max, err := postgres.Connections()
+	conns, max, err := postgres.Connections(db)
 	if err != nil {
 		data["dbConnections"] = err.Error()
 	}
@@ -461,13 +441,13 @@ func configurations(data map[string]interface{}, conf config.Config) map[string]
 // mounted as a C: hard drive in the emulation. js-dos only supports common zip compression methods,
 // so this func first attempts to offer a re-archived zip file found in the extra directory, and
 // only if that fails does it offer the original download file.
-func DownloadJsDos(c echo.Context, extraPath, downloadPath string) error {
+func DownloadJsDos(c echo.Context, db *sql.DB, extraPath, downloadPath string) error {
 	e := download.ExtraZip{
 		ExtraPath:    extraPath,
 		DownloadPath: downloadPath,
 	}
 	const uri = "jsdos"
-	if err := e.HTTPSend(c); err != nil {
+	if err := e.HTTPSend(c, db); err != nil {
 		if errors.Is(err, download.ErrStat) {
 			return FileMissingErr(c, uri, err)
 		}
@@ -477,13 +457,13 @@ func DownloadJsDos(c echo.Context, extraPath, downloadPath string) error {
 }
 
 // Download is the handler for the Download file record page.
-func Download(c echo.Context, logger *zap.SugaredLogger, path string) error {
+func Download(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, path string) error {
 	d := download.Download{
 		Inline: false,
 		Path:   path,
 	}
 	const uri = "d"
-	if err := d.HTTPSend(c, logger); err != nil {
+	if err := d.HTTPSend(c, db, logger); err != nil {
 		if errors.Is(err, download.ErrStat) {
 			return FileMissingErr(c, uri, err)
 		}
@@ -493,14 +473,9 @@ func Download(c echo.Context, logger *zap.SugaredLogger, path string) error {
 }
 
 // FTP is the handler for the FTP page.
-func FTP(c echo.Context) error {
+func FTP(c echo.Context, db *sql.DB) error {
 	const title, name = "FTP", "ftp"
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	defer db.Close()
 	data := empty(c)
 	const lead = "FTP sites are historical, internet-based file servers for uploading " +
 		"and downloading \"elite\" scene releases."
@@ -523,7 +498,7 @@ func FTP(c echo.Context) error {
 		"pubs":    fmt.Sprintf("%d sites", len(r)),
 		"orderBy": alpha,
 	}
-	err = c.Render(http.StatusOK, name, data)
+	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, name, err)
 	}
@@ -531,7 +506,7 @@ func FTP(c echo.Context) error {
 }
 
 // Categories is the handler for the artifact categories page.
-func Categories(c echo.Context, logger *zap.SugaredLogger, stats bool) error {
+func Categories(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, stats bool) error {
 	const title, name = "Artifact categories", "categories"
 	if logger == nil {
 		return InternalErr(c, "name", ErrZap)
@@ -544,7 +519,7 @@ func Categories(c echo.Context, logger *zap.SugaredLogger, stats bool) error {
 	data["lead"] = "This page shows the categories and platforms in the collection of file artifacts."
 	data["stats"] = stats
 	data["counter"] = mfs.Statistics()
-	data, err := fileWStats(data, stats)
+	data, err := fileWStats(db, data, stats)
 	if err != nil {
 		logger.Warn(err)
 		data["databaseErr"] = true
@@ -557,11 +532,11 @@ func Categories(c echo.Context, logger *zap.SugaredLogger, stats bool) error {
 }
 
 // fileWStats is a helper function for File that adds the statistics to the data map.
-func fileWStats(data map[string]interface{}, stats bool) (map[string]interface{}, error) {
+func fileWStats(db *sql.DB, data map[string]interface{}, stats bool) (map[string]interface{}, error) {
 	if !stats {
 		return data, nil
 	}
-	c, err := mfs.Counter()
+	c, err := mfs.Counter(db)
 	if err != nil {
 		return data, fmt.Errorf("counter: %w", err)
 	}
@@ -572,52 +547,52 @@ func fileWStats(data map[string]interface{}, stats bool) (map[string]interface{}
 	return data, nil
 }
 
-func Deletions(c echo.Context, page string) error {
+func Deletions(c echo.Context, db *sql.DB, page string) error {
 	uri := mfs.Deletions.String()
 	if !mfs.Valid(uri) {
 		return Artifacts404(c, uri)
 	}
 	if page == "" {
-		return artifacts(c, uri, 1)
+		return artifacts(c, db, uri, 1)
 	}
 	p, err := strconv.Atoi(page)
 	if err != nil {
 		return Page404(c, uri, page)
 	}
-	return artifacts(c, uri, p)
+	return artifacts(c, db, uri, p)
 }
 
-func Unwanted(c echo.Context, page string) error {
+func Unwanted(c echo.Context, db *sql.DB, page string) error {
 	uri := mfs.Unwanted.String()
 	if !mfs.Valid(uri) {
 		return Artifacts404(c, uri)
 	}
 	if page == "" {
-		return artifacts(c, uri, 1)
+		return artifacts(c, db, uri, 1)
 	}
 	p, err := strconv.Atoi(page)
 	if err != nil {
 		return Page404(c, uri, page)
 	}
-	return artifacts(c, uri, p)
+	return artifacts(c, db, uri, p)
 }
 
 // ForApproval is the handler for the list and preview of the files page.
 // The uri is the category or collection of files to display.
 // The page is the page number of the results to display.
-func ForApproval(c echo.Context, page string) error {
+func ForApproval(c echo.Context, db *sql.DB, page string) error {
 	uri := mfs.ForApproval.String()
 	if !mfs.Valid(uri) {
 		return Artifacts404(c, uri)
 	}
 	if page == "" {
-		return artifacts(c, uri, 1)
+		return artifacts(c, db, uri, 1)
 	}
 	p, err := strconv.Atoi(page)
 	if err != nil {
 		return Page404(c, uri, page)
 	}
-	return artifacts(c, uri, p)
+	return artifacts(c, db, uri, p)
 }
 
 // GetDemozooLink fetches the multiple download_links values from the
@@ -803,13 +778,13 @@ func Index(c echo.Context) error {
 }
 
 // Inline is the handler for the Download file record page.
-func Inline(c echo.Context, logger *zap.SugaredLogger, path string) error {
+func Inline(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, path string) error {
 	d := download.Download{
 		Inline: true,
 		Path:   path,
 	}
 	const uri = "v"
-	if err := d.HTTPSend(c, logger); err != nil {
+	if err := d.HTTPSend(c, db, logger); err != nil {
 		if errors.Is(err, download.ErrStat) {
 			return FileMissingErr(c, uri, err)
 		}
@@ -837,17 +812,17 @@ func Interview(c echo.Context) error {
 }
 
 // Magazine is the handler for the Magazine page.
-func Magazine(c echo.Context) error {
-	return magazines(c, true)
+func Magazine(c echo.Context, db *sql.DB) error {
+	return magazines(c, db, true)
 }
 
 // MagazineAZ is the handler for the Magazine page ordered chronologically.
-func MagazineAZ(c echo.Context) error {
-	return magazines(c, false)
+func MagazineAZ(c echo.Context, db *sql.DB) error {
+	return magazines(c, db, false)
 }
 
 // magazines is the handler for the magazine page.
-func magazines(c echo.Context, chronological bool) error {
+func magazines(c echo.Context, db *sql.DB, chronological bool) error {
 	const title, name = "Magazines", "magazine"
 	data := empty(c)
 	const lead = "The magazines are newsletters, reports, " +
@@ -864,11 +839,6 @@ func magazines(c echo.Context, chronological bool) error {
 	data["stats"] = map[string]string{}
 
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	defer db.Close()
 	var order string
 	r := model.Releasers{}
 	switch chronological {
@@ -894,7 +864,7 @@ func magazines(c echo.Context, chronological bool) error {
 		"pubs":    fmt.Sprintf("%d publications", len(r)),
 		"orderBy": order,
 	}
-	err = c.Render(http.StatusOK, name, data)
+	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, name, err)
 	}
@@ -902,14 +872,14 @@ func magazines(c echo.Context, chronological bool) error {
 }
 
 // Musician is the handler for the Musiciansceners page.
-func Musician(c echo.Context) error {
+func Musician(c echo.Context, db *sql.DB) error {
 	data := empty(c)
 	title := "Musicians and composers"
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
 	data["description"] = demo
-	return scener(c, postgres.Musician, data)
+	return scener(c, db, postgres.Musician, data)
 }
 
 // Page404 renders the files page error page for the Artifacts menu and categories.
@@ -937,17 +907,12 @@ func Page404(c echo.Context, uri, page string) error {
 }
 
 // PlatformEdit handles the post submission for the Platform selection field.
-func PlatformEdit(c echo.Context) error {
+func PlatformEdit(c echo.Context, db *sql.DB) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return badRequest(c, err)
-	}
-	defer db.Close()
 	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("platform edit %w: %d", err, f.ID)
@@ -972,15 +937,10 @@ func PlatformTagInfo(c echo.Context) error {
 }
 
 // PostDesc is the handler for the Search for file descriptions form post page.
-func PostDesc(c echo.Context, input string) error {
+func PostDesc(c echo.Context, db *sql.DB, input string) error {
 	const name = "artifacts"
 	errs := fmt.Sprint("post desc search for,", input)
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return DatabaseErr(c, errs, err)
-	}
-	defer db.Close()
 	terms := helper.SearchTerm(input)
 	rel := model.Artifacts{}
 	fs, _ := rel.Description(ctx, db, terms)
@@ -995,7 +955,7 @@ func PostDesc(c echo.Context, input string) error {
 	data["unknownYears"] = false
 	data[records] = fs
 	data["stats"] = d
-	err = c.Render(http.StatusOK, name, data)
+	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, errs, err)
 	}
@@ -1003,20 +963,15 @@ func PostDesc(c echo.Context, input string) error {
 }
 
 // PostFilename is the handler for the Search for filenames form post page.
-func PostFilename(c echo.Context) error {
-	return PostName(c, Filenames)
+func PostFilename(c echo.Context, db *sql.DB) error {
+	return PostName(c, db, Filenames)
 }
 
 // PostName is the handler for the Search for filenames form post page.
-func PostName(c echo.Context, mode FileSearch) error {
+func PostName(c echo.Context, db *sql.DB, mode FileSearch) error {
 	const name = "artifacts"
 	errs := fmt.Sprint("post name search for,", mode)
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return DatabaseErr(c, errs, err)
-	}
-	defer db.Close()
 	input := c.FormValue("search-term-query")
 	terms := helper.SearchTerm(input)
 	rel := model.Artifacts{}
@@ -1032,7 +987,7 @@ func PostName(c echo.Context, mode FileSearch) error {
 	data["unknownYears"] = false
 	data[records] = fs
 	data["stats"] = d
-	err = c.Render(http.StatusOK, name, data)
+	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, errs, err)
 	}
@@ -1140,29 +1095,6 @@ func ProdZoo(c echo.Context, id string) error {
 	return nil
 }
 
-// ReadmeDel handles the post submission for the Delete readme asset button.
-// TODO: duplicate, find the other func
-func ReadmeDel(c echo.Context, extraDir string) error {
-	var f Form
-	if err := c.Bind(&f); err != nil {
-		return badRequest(c, err)
-	}
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return ErrDB
-	}
-	defer db.Close()
-	r, err := model.One(ctx, db, true, f.ID)
-	if err != nil {
-		return fmt.Errorf("readme delete %w: %d", err, f.ID)
-	}
-	if err = command.RemoveMe(r.UUID.String, extraDir); err != nil {
-		return badRequest(c, err)
-	}
-	return c.JSON(http.StatusOK, r)
-}
-
 // ReadmeToggle handles the post submission for the Hide readme from view toggle.
 func ReadmeToggle(c echo.Context) error {
 	var f Form
@@ -1194,22 +1126,22 @@ func RecordToggle(c echo.Context, state bool) error {
 }
 
 // Releaser is the handler for the releaser page ordered by the most files.
-func Releaser(c echo.Context) error {
-	return releasers(c, model.Prolific)
+func Releaser(c echo.Context, db *sql.DB) error {
+	return releasers(c, db, model.Prolific)
 }
 
 // ReleaserAZ is the handler for the releaser page ordered alphabetically.
-func ReleaserAZ(c echo.Context) error {
-	return releasers(c, model.Alphabetical)
+func ReleaserAZ(c echo.Context, db *sql.DB) error {
+	return releasers(c, db, model.Alphabetical)
 }
 
 // ReleaserYear is the handler for the releaser page ordered by year of the first release.
-func ReleaserYear(c echo.Context) error {
-	return releasers(c, model.Oldest)
+func ReleaserYear(c echo.Context, db *sql.DB) error {
+	return releasers(c, db, model.Oldest)
 }
 
 // releasers is the handler for the Releaser page.
-func releasers(c echo.Context, orderBy model.OrderBy) error {
+func releasers(c echo.Context, db *sql.DB, orderBy model.OrderBy) error {
 	const title, name = "Releaser", "releaser"
 	data := empty(c)
 	const lead = "A releaser is a brand or a collective group of " +
@@ -1226,11 +1158,6 @@ func releasers(c echo.Context, orderBy model.OrderBy) error {
 	data["stats"] = map[string]string{}
 
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return InternalErr(c, name, err)
-	}
-	defer db.Close()
 	var r model.Releasers
 	if err := r.Limit(ctx, db, orderBy, 0, 0); err != nil {
 		return DatabaseErr(c, name, err)
@@ -1259,7 +1186,7 @@ func releasers(c echo.Context, orderBy model.OrderBy) error {
 		"pubs":    fmt.Sprintf("%d releasers and groups", len(r)),
 		"orderBy": order,
 	}
-	err = c.Render(http.StatusOK, tmpl, data)
+	err := c.Render(http.StatusOK, tmpl, data)
 	if err != nil {
 		return InternalErr(c, tmpl, err)
 	}
@@ -1289,39 +1216,11 @@ func Releaser404(c echo.Context, invalidID string) error {
 	return nil
 }
 
-// ReleaserEdit handles the post submission for the Platform selection field.
-func ReleaserEdit(c echo.Context) error {
-	var f Form
-	if err := c.Bind(&f); err != nil {
-		return badRequest(c, err)
-	}
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return badRequest(c, err)
-	}
-	defer db.Close()
-	r, err := model.One(ctx, db, true, f.ID)
-	if err != nil {
-		return fmt.Errorf("releaser edit  %w: %d", err, f.ID)
-	}
-	if err = model.UpdateReleasers(int64(f.ID), f.Value); err != nil {
-		return badRequest(c, err)
-	}
-	return c.JSON(http.StatusOK, r)
-}
-
 // Releasers is the handler for the list and preview of files credited to a releaser.
-func Releasers(c echo.Context, logger *zap.SugaredLogger, uri string) error {
+func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string) error {
 	const name = "artifacts"
 	errs := fmt.Sprint("releasers page for, ", uri)
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return InternalErr(c, errs, err)
-	}
-	defer db.Close()
-
 	s := releaser.Link(uri)
 	rel := model.Releasers{}
 	fs, err := rel.Where(ctx, db, uri)
@@ -1379,14 +1278,14 @@ func releaserSum(ctx context.Context, exec boil.ContextExecutor, uri string) (ma
 }
 
 // Scener is the handler for the page to list all the sceners.
-func Scener(c echo.Context) error {
+func Scener(c echo.Context, db *sql.DB) error {
 	data := empty(c)
 	title := "Sceners, the people of The Scene"
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
 	data["description"] = demo
-	return scener(c, postgres.Roles(), data)
+	return scener(c, db, postgres.Roles(), data)
 }
 
 // Scener404 renders the files error page for the People menu and invalid sceners.
@@ -1413,16 +1312,10 @@ func Scener404(c echo.Context, id string) error {
 }
 
 // Sceners is the handler for the list and preview of files credited to a scener.
-func Sceners(c echo.Context, uri string) error {
+func Sceners(c echo.Context, db *sql.DB, uri string) error {
 	const name = "artifacts"
 	errs := fmt.Sprint("sceners page for,", uri)
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return InternalErr(c, errs, err)
-	}
-	defer db.Close()
-
 	s := releaser.Link(uri)
 	var ms model.Scener
 	fs, err := ms.Where(ctx, db, uri)
@@ -1613,17 +1506,12 @@ func remove(c echo.Context, name string, data map[string]interface{}) error {
 }
 
 // TagEdit handles the post submission for the Tag selection field.
-func TagEdit(c echo.Context) error {
+func TagEdit(c echo.Context, db *sql.DB) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return badRequest(c, err)
-	}
-	defer db.Close()
 	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("tag edit %w: %d", err, f.ID)
@@ -1682,28 +1570,6 @@ func TheScene(c echo.Context) error {
 		return InternalErr(c, name, err)
 	}
 	return nil
-}
-
-// TitleEdit handles the post submission for the Delete readme asset button.
-func TitleEdit(c echo.Context) error {
-	var f Form
-	if err := c.Bind(&f); err != nil {
-		return badRequest(c, err)
-	}
-	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return badRequest(c, err)
-	}
-	defer db.Close()
-	r, err := model.One(ctx, db, true, f.ID)
-	if err != nil {
-		return fmt.Errorf("title edit %w: %d", err, f.ID)
-	}
-	if err = model.UpdateTitle(int64(f.ID), f.Value); err != nil {
-		return badRequest(c, err)
-	}
-	return c.JSON(http.StatusOK, r)
 }
 
 // VotePouet is the handler for the Pouet production votes JSON page.
@@ -1783,14 +1649,14 @@ func Website(c echo.Context, open string) error {
 }
 
 // Writer is the handler for the Writer page.
-func Writer(c echo.Context) error {
+func Writer(c echo.Context, db *sql.DB) error {
 	data := empty(c)
 	title := "Writers, editors and authors"
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
 	data["description"] = demo
-	return scener(c, postgres.Writer, data)
+	return scener(c, db, postgres.Writer, data)
 }
 
 // stats is a helper function for Artifacts that returns the statistics for the files page.

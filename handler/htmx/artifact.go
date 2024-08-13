@@ -3,6 +3,7 @@ package htmx
 // Package file artifact.go provides functions for handling the HTMX requests for the artifact editor.
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"html"
@@ -232,11 +233,11 @@ func RecordToggleByID(c echo.Context, key string, state bool) error {
 // RecordClassification handles the post submission for the file artifact classifications,
 // such as the platform, operating system, section or category tags.
 // The return value is either the humanized and counted classification or an error.
-func RecordClassification(c echo.Context, logger *zap.SugaredLogger) error {
+func RecordClassification(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 	section := c.FormValue("artifact-editor-categories")
 	platform := c.FormValue("artifact-editor-operatingsystem")
 	key := c.FormValue("artifact-editor-key")
-	html, err := form.HumanizeCount(section, platform)
+	html, err := form.HumanizeCount(db, section, platform)
 	if err != nil {
 		logger.Error(err)
 		return badRequest(c, err)

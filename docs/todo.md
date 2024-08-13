@@ -27,6 +27,8 @@
 - [ ] Delete all previews that are unused, such as textfiles that are displayed as a readme.
 - [ ] 
 - [ ] On Demozoo or Pouet upload or reach, locally cache the JSON to the temp directory.
+- [ ] 
+- [ ] Fix, file editor menu close links not working when #hash is appended to the URL.
 
 - [ ] - http://www.platohistory.org/
 - [ ] - https://portcommodore.com/dokuwiki/doku.php?id=larry:comp:bbs:about_cbbs

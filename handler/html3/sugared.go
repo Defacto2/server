@@ -4,6 +4,7 @@ package html3
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -11,7 +12,6 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/html3"
@@ -25,13 +25,13 @@ type Sugared struct {
 }
 
 // All method lists every release.
-func (s *Sugared) All(c echo.Context) error {
-	return s.List(c, Everything)
+func (s *Sugared) All(c echo.Context, db *sql.DB) error {
+	return s.List(c, db, Everything)
 }
 
 // Art lists the file records described as art are digital + pixel art files.
-func (s *Sugared) Art(c echo.Context) error {
-	return s.List(c, AsArt)
+func (s *Sugared) Art(c echo.Context, db *sql.DB) error {
+	return s.List(c, db, AsArt)
 }
 
 // Categories lists the names, descriptions and sums of the category (section) tags.
@@ -54,29 +54,24 @@ func (s *Sugared) Categories(c echo.Context) error {
 }
 
 // Category lists the file records associated with the category tag that is provided by the ID param in the URL.
-func (s *Sugared) Category(c echo.Context) error {
-	return s.List(c, BySection)
+func (s *Sugared) Category(c echo.Context, db *sql.DB) error {
+	return s.List(c, db, BySection)
 }
 
 // Documents lists the file records described as document + text art files.
-func (s *Sugared) Documents(c echo.Context) error {
-	return s.List(c, AsDocument)
+func (s *Sugared) Documents(c echo.Context, db *sql.DB) error {
+	return s.List(c, db, AsDocument)
 }
 
 // Group lists the file records associated with the group that is provided by the ID param in the URL.
-func (s *Sugared) Group(c echo.Context) error {
-	return s.List(c, ByGroup)
+func (s *Sugared) Group(c echo.Context, db *sql.DB) error {
+	return s.List(c, db, ByGroup)
 }
 
 // Groups lists the names and sums of all the distinct scene groups.
-func (s *Sugared) Groups(c echo.Context) error {
+func (s *Sugared) Groups(c echo.Context, db *sql.DB) error {
 	start := helper.Latency()
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, ErrConn)
-	}
-	defer db.Close()
 	page := 1
 	offset := strings.TrimPrefix(c.Param("offset"), "/")
 	if offset != "" {
@@ -87,7 +82,6 @@ func (s *Sugared) Groups(c echo.Context) error {
 				fmt.Sprintf("Page %d of %s doesn't exist", page, "/groups"))
 		}
 	}
-
 	// releasers are the distinct groups from the file table.
 	var unique model.ReleaserNames
 	if err := unique.DistinctGroups(ctx, db); err != nil {
@@ -112,7 +106,7 @@ func (s *Sugared) Groups(c echo.Context) error {
 		s.Log.Errorf("html3 group and releaser list: %w", err)
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
-	err = c.Render(http.StatusOK, "html3_groups", map[string]interface{}{
+	err := c.Render(http.StatusOK, "html3_groups", map[string]interface{}{
 		"title": title + "/groups",
 		"description": "Listed is an exhaustive, distinct collection of scene groups and site brands." +
 			" Do note that Defacto2 is a file-serving site, so the list doesn't distinguish between" +
@@ -130,7 +124,7 @@ func (s *Sugared) Groups(c echo.Context) error {
 }
 
 // Index method is the homepage of the /html3 sub-route.
-func (s *Sugared) Index(c echo.Context) error {
+func (s *Sugared) Index(c echo.Context, db *sql.DB) error {
 	start := helper.Latency()
 	const desc = firefox
 	// Stats are the database statistics.
@@ -141,12 +135,6 @@ func (s *Sugared) Index(c echo.Context) error {
 		Software html3.Softwares
 	}
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		s.Log.Warnf("%s: %s", ErrConn, err)
-		return echo.NewHTTPError(http.StatusServiceUnavailable, ErrConn)
-	}
-	defer db.Close()
 	if err := stats.All.Public(ctx, db); err != nil {
 		s.Log.Warnf("index stats all: %s", err)
 	}
@@ -165,7 +153,7 @@ func (s *Sugared) Index(c echo.Context) error {
 		helper.Capitalize(textSof),
 		helper.Capitalize(textAll),
 	}
-	err = c.Render(http.StatusOK, "html3_index", map[string]interface{}{
+	err := c.Render(http.StatusOK, "html3_index", map[string]interface{}{
 		"title":       title,
 		"description": desc,
 		"descs":       descs,
@@ -182,7 +170,7 @@ func (s *Sugared) Index(c echo.Context) error {
 }
 
 // List all the records associated with the RecordsBy grouping.
-func (s *Sugared) List(c echo.Context, tt RecordsBy) error { //nolint:funlen
+func (s *Sugared) List(c echo.Context, db *sql.DB, tt RecordsBy) error { //nolint:funlen
 	start := helper.Latency()
 	var id string
 	switch tt {
@@ -203,7 +191,7 @@ func (s *Sugared) List(c echo.Context, tt RecordsBy) error { //nolint:funlen
 		}
 	}
 	// query database to return records and statistics
-	limit, count, byteSum, records, err := Query(c, tt, page)
+	limit, count, byteSum, records, err := Query(c, db, tt, page)
 	if err != nil {
 		s.Log.Warnf("html3 list %s query error: %s", tt, err)
 		return echo.NewHTTPError(http.StatusServiceUnavailable, ErrConn)
@@ -253,8 +241,8 @@ func (s *Sugared) List(c echo.Context, tt RecordsBy) error { //nolint:funlen
 }
 
 // Platform lists the file records associated with the platform tag that is provided by the ID param in the URL.
-func (s *Sugared) Platform(c echo.Context) error {
-	return s.List(c, ByPlatform)
+func (s *Sugared) Platform(c echo.Context, db *sql.DB) error {
+	return s.List(c, db, ByPlatform)
 }
 
 // Platforms lists the names, descriptions and sums of the platform tags.
@@ -277,6 +265,6 @@ func (s *Sugared) Platforms(c echo.Context) error {
 }
 
 // Software lists the file records described as software files.
-func (s *Sugared) Software(c echo.Context) error {
-	return s.List(c, AsSoftware)
+func (s *Sugared) Software(c echo.Context, db *sql.DB) error {
+	return s.List(c, db, AsSoftware)
 }

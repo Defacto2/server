@@ -53,13 +53,13 @@ const (
 // HumanizeCount handles the post submission for the Uploader classification,
 // such as the platform, operating system, section or category tags.
 // The return value is either the humanized and counted classification or an error.
-func HumanizeCount(c echo.Context, logger *zap.SugaredLogger, name string) error {
+func HumanizeCount(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, name string) error {
 	section := c.FormValue(name + category)
 	platform := c.FormValue(name + "-operatingsystem")
 	if platform == "" {
 		platform = c.FormValue(name + "-operating-system")
 	}
-	html, err := form.HumanizeCount(section, platform)
+	html, err := form.HumanizeCount(db, section, platform)
 	if err != nil {
 		logger.Error(err)
 		return badRequest(c, err)
@@ -68,7 +68,7 @@ func HumanizeCount(c echo.Context, logger *zap.SugaredLogger, name string) error
 }
 
 // LookupSHA384 is a handler for the /uploader/sha384 route.
-func LookupSHA384(c echo.Context, logger *zap.SugaredLogger) error {
+func LookupSHA384(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 	hash := c.Param("hash")
 	if hash == "" {
 		return c.String(http.StatusBadRequest, "empty hash error")
@@ -81,15 +81,7 @@ func LookupSHA384(c echo.Context, logger *zap.SugaredLogger) error {
 	if !match {
 		return c.String(http.StatusBadRequest, "invalid hash error: "+hash)
 	}
-
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		logger.Error(err)
-		return c.String(http.StatusServiceUnavailable,
-			"cannot connect to the database")
-	}
-	defer db.Close()
 	exist, err := model.HashExists(ctx, db, hash)
 	if err != nil {
 		logger.Error(err)

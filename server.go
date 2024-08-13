@@ -97,7 +97,7 @@ func main() {
 	// start the web server and the sugared logger.
 	website := newInstance(ctx, db, configs)
 	logger = serverLog(configs, website.RecordCount)
-	router := website.Controller(logger)
+	router := website.Controller(db, logger)
 	website.Info(logger, w)
 	if err := website.Start(router, logger, configs); err != nil {
 		logger.Fatalf("%s: please check the environment variables", err)

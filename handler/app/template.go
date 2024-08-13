@@ -3,6 +3,7 @@ package app
 // Package file template.go contains the template functions for the application.
 
 import (
+	"database/sql"
 	"embed"
 	"fmt"
 	"html/template"
@@ -43,13 +44,13 @@ type Templ struct {
 }
 
 // Templates returns a map of the templates used by the route.
-func (t *Templ) Templates() (map[string]*template.Template, error) {
+func (t *Templ) Templates(db *sql.DB) (map[string]*template.Template, error) {
 	if err := t.Subresource.Verify(t.Public); err != nil {
 		return nil, fmt.Errorf("app templates verify, %w", err)
 	}
 	tmpls := make(map[string]*template.Template)
 	for k, name := range t.pages() {
-		tmpl := t.parseFS(name)
+		tmpl := t.parseFS(db, name)
 		tmpls[k] = tmpl
 	}
 	return tmpls, nil
@@ -108,7 +109,7 @@ func (t Templ) layout(name filename) []string {
 
 // parseFS returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory.
-func (t Templ) parseFS(name filename) *template.Template {
+func (t Templ) parseFS(db *sql.DB, name filename) *template.Template {
 	files := t.layout(name)
 	config := t.Environment
 	files = t.locked(config.ReadOnly, files...)
@@ -127,7 +128,7 @@ func (t Templ) parseFS(name filename) *template.Template {
 		files = append(files, GlobTo(individualWebsite))
 	}
 	return template.Must(template.New("").Funcs(
-		t.FuncMap()).ParseFS(t.View, files...))
+		t.FuncMap(db)).ParseFS(t.View, files...))
 }
 
 func (t Templ) locked(lock bool, files ...string) []string {
@@ -228,7 +229,7 @@ func (t Templ) Funcs() template.FuncMap {
 }
 
 // FuncClosures returns a map of closures that return converted type or modified strings.
-func (t Templ) FuncClosures() template.FuncMap { //nolint:funlen
+func (t Templ) FuncClosures(db *sql.DB) template.FuncMap { //nolint:funlen
 	hrefs := Hrefs()
 	return template.FuncMap{
 		"bootstrap5": func() string {
@@ -242,7 +243,7 @@ func (t Templ) FuncClosures() template.FuncMap { //nolint:funlen
 		},
 		"capitalize": helper.Capitalize,
 		"classification": func(s, p string) string {
-			count, _ := form.HumanizeCount(s, p)
+			count, _ := form.HumanizeCount(db, s, p)
 			return string(count)
 		},
 		"demozooSanity": func() string {
@@ -418,9 +419,9 @@ func (t Templ) Elements() template.FuncMap {
 }
 
 // FuncMap returns a map of all the template functions.
-func (t Templ) FuncMap() template.FuncMap {
+func (t Templ) FuncMap(db *sql.DB) template.FuncMap {
 	funcs := t.Funcs()
-	for k, v := range t.FuncClosures() {
+	for k, v := range t.FuncClosures(db) {
 		funcs[k] = v
 	}
 	for k, v := range t.Elements() {

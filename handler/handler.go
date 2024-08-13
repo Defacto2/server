@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"database/sql"
 	"embed"
 	"errors"
 	"fmt"
@@ -65,14 +66,14 @@ type Configuration struct {
 }
 
 // Controller is the primary instance of the Echo router.
-func (c Configuration) Controller(logger *zap.SugaredLogger) *echo.Echo {
+func (c Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger) *echo.Echo {
 	configs := c.Environment
 
 	e := echo.New()
 	e.HideBanner = true
 	e.HTTPErrorHandler = configs.CustomErrorHandler
 
-	if tmpl, err := c.Registry(logger); err != nil {
+	if tmpl, err := c.Registry(db, logger); err != nil {
 		logger.Fatal(err)
 	} else {
 		e.Renderer = tmpl
@@ -105,14 +106,14 @@ func (c Configuration) Controller(logger *zap.SugaredLogger) *echo.Echo {
 
 	e = EmbedDirs(e, c.Public)
 	e = MovedPermanently(e)
-	e = htmxGroup(e, logger, c.Environment.AbsDownload)
-	e, err := c.FilesRoutes(e, logger, c.Public)
+	e = htmxGroup(e, db, logger, c.Environment.AbsDownload)
+	e, err := c.FilesRoutes(e, db, logger, c.Public)
 	if err != nil {
 		logger.Fatal(err)
 	}
-	group := html3.Routes(e, logger)
+	group := html3.Routes(e, db, logger)
 	group.GET(Downloader, func(cx echo.Context) error {
-		return c.downloader(cx, logger)
+		return c.downloader(cx, db, logger)
 	})
 	return e
 }
@@ -183,7 +184,7 @@ func (c Configuration) PortErr(logger *zap.SugaredLogger, port uint, err error) 
 }
 
 // Registry returns the template renderer.
-func (c Configuration) Registry(logger *zap.SugaredLogger) (*TemplateRegistry, error) {
+func (c Configuration) Registry(db *sql.DB, logger *zap.SugaredLogger) (*TemplateRegistry, error) {
 	webapp := app.Templ{
 		Environment: c.Environment,
 		Brand:       c.Brand,
@@ -192,11 +193,11 @@ func (c Configuration) Registry(logger *zap.SugaredLogger) (*TemplateRegistry, e
 		Version:     c.Version,
 		View:        c.View,
 	}
-	tmpls, err := webapp.Templates()
+	tmpls, err := webapp.Templates(db)
 	if err != nil {
 		return nil, fmt.Errorf("handler registry, %w", err)
 	}
-	src := html3.Templates(logger, c.View)
+	src := html3.Templates(db, logger, c.View)
 	maps.Copy(tmpls, src)
 	src = htmx.Templates(c.View)
 	maps.Copy(tmpls, src)
@@ -362,12 +363,12 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo, logger *zap.SugaredLogger) {
 }
 
 // downloader route for the file download handler under the html3 group.
-func (c Configuration) downloader(cx echo.Context, logger *zap.SugaredLogger) error {
+func (c Configuration) downloader(cx echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 	d := download.Download{
 		Inline: false,
 		Path:   c.Environment.AbsDownload,
 	}
-	if err := d.HTTPSend(cx, logger); err != nil {
+	if err := d.HTTPSend(cx, db, logger); err != nil {
 		return fmt.Errorf("d.HTTPSend: %w", err)
 	}
 	return nil

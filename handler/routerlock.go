@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/Defacto2/server/handler/app"
@@ -22,31 +23,33 @@ import (
 	 - DELETE requests are used for removing data from the server.
 */
 
-func (c Configuration) lock(e *echo.Echo, logger *zap.SugaredLogger, dir app.Dirs) *echo.Echo {
+func (c Configuration) lock(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for lock router", ErrRoutes))
 	}
 	lock := e.Group("/editor")
 	lock.Use(c.ReadOnlyLock, c.SessionLock)
-	c.configurations(lock)
+	c.configurations(lock, db)
 	creator(lock)
 	date(lock)
-	editor(lock, logger, dir)
-	get(lock, dir)
+	editor(lock, db, logger, dir)
+	get(lock, db, dir)
 	online(lock)
-	search(lock, logger)
+	search(lock, db, logger)
 	return e
 }
 
-func (c Configuration) configurations(g *echo.Group) {
+func (c Configuration) configurations(g *echo.Group, db *sql.DB) {
 	if g == nil {
 		panic(fmt.Errorf("%w for configurations router", ErrRoutes))
 	}
 	conf := g.Group("/configurations")
 	conf.GET("", func(cx echo.Context) error {
-		return app.Configurations(cx, c.Environment)
+		return app.Configurations(cx, db, c.Environment)
 	})
-	conf.GET("/dbconns", htmx.DBConnections)
+	conf.GET("/dbconns", func(c echo.Context) error {
+		return htmx.DBConnections(c, db)
+	})
 	conf.GET("/pings", func(cx echo.Context) error {
 		proto := "http"
 		port := c.Environment.HTTPPort
@@ -84,7 +87,7 @@ func date(g *echo.Group) {
 	})
 }
 
-func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
+func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) {
 	if g == nil {
 		panic(fmt.Errorf("%w for editor router", ErrRoutes))
 	}
@@ -93,7 +96,7 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	})
 	g.PATCH("/16colors", htmx.Record16Colors)
 	g.PATCH("/classifications", func(c echo.Context) error {
-		return htmx.RecordClassification(c, logger)
+		return htmx.RecordClassification(c, db, logger)
 	})
 	g.PATCH("/comment", htmx.RecordComment)
 	g.PATCH("/comment/reset", htmx.RecordCommentReset)
@@ -103,14 +106,18 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	g.PATCH("/github", htmx.RecordGitHub)
 	g.PATCH("/links", htmx.RecordLinks)
 	g.PATCH("/links/reset", htmx.RecordLinksReset)
-	g.PATCH("/platform", app.PlatformEdit)
+	g.PATCH("/platform", func(c echo.Context) error {
+		return app.PlatformEdit(c, db)
+	})
 	g.PATCH("/platform+tag", app.PlatformTagInfo)
 	g.PATCH("/pouet", htmx.RecordPouet)
 	g.PATCH("/relations", htmx.RecordRelations)
 	g.PATCH("/releasers", htmx.RecordReleasers)
 	g.PATCH("/releasers/reset", htmx.RecordReleasersReset)
 	g.PATCH("/sites", htmx.RecordSites)
-	g.PATCH("/tag", app.TagEdit)
+	g.PATCH("/tag", func(c echo.Context) error {
+		return app.TagEdit(c, db)
+	})
 	g.PATCH("/tag/info", app.TagInfo)
 	g.PATCH("/title", htmx.RecordTitle)
 	g.PATCH("/title/reset", htmx.RecordTitleReset)
@@ -213,13 +220,13 @@ func editor(g *echo.Group, logger *zap.SugaredLogger, dir app.Dirs) {
 	})
 }
 
-func get(g *echo.Group, dir app.Dirs) {
+func get(g *echo.Group, db *sql.DB, dir app.Dirs) {
 	if g == nil {
 		panic(fmt.Errorf("%w for get router", ErrRoutes))
 	}
 	g.GET("/deletions",
 		func(cx echo.Context) error {
-			return app.Deletions(cx, "1")
+			return app.Deletions(cx, db, "1")
 		})
 	g.GET("/get/demozoo/download/:id",
 		func(cx echo.Context) error {
@@ -227,11 +234,11 @@ func get(g *echo.Group, dir app.Dirs) {
 		})
 	g.GET("/for-approval",
 		func(cx echo.Context) error {
-			return app.ForApproval(cx, "1")
+			return app.ForApproval(cx, db, "1")
 		})
 	g.GET("/unwanted",
 		func(cx echo.Context) error {
-			return app.Unwanted(cx, "1")
+			return app.Unwanted(cx, db, "1")
 		})
 }
 
@@ -251,13 +258,13 @@ func online(g *echo.Group) {
 	})
 }
 
-func search(g *echo.Group, logger *zap.SugaredLogger) {
+func search(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger) {
 	if g == nil {
 		panic(fmt.Errorf("%w for search router", ErrRoutes))
 	}
 	search := g.Group("/search")
 	search.GET("/id", app.SearchID)
 	search.PATCH("/id", func(cx echo.Context) error {
-		return htmx.SearchByID(cx, logger)
+		return htmx.SearchByID(cx, db, logger)
 	})
 }

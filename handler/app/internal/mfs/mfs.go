@@ -5,10 +5,10 @@ package mfs
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -489,13 +489,8 @@ func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 }
 
 // Counter returns the statistics for the artifacts categories.
-func Counter() (Stats, error) {
+func Counter(db *sql.DB) (Stats, error) {
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return Stats{}, fmt.Errorf("cartifacts categories counter tx %w", err)
-	}
-	defer db.Close()
 	counter := Stats{}
 	if err := counter.Get(ctx, db); err != nil {
 		return Stats{}, fmt.Errorf("cartifacts categories counter get %w", err)

@@ -4,6 +4,7 @@ package html3
 
 import (
 	"context"
+	"database/sql"
 	"embed"
 	"errors"
 	"fmt"
@@ -17,7 +18,6 @@ import (
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -259,13 +259,8 @@ func Pagi(page int, maxPage uint) (int, int, int) {
 
 // Query returns a slice of records based on the RecordsBy grouping.
 // The three integers returned are the limit, the total count of records and the file sizes summed.
-func Query(c echo.Context, tt RecordsBy, offset int) (int, int, int64, models.FileSlice, error) {
+func Query(c echo.Context, db *sql.DB, tt RecordsBy, offset int) (int, int, int64, models.FileSlice, error) {
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return queryErr("query begin tx", err)
-	}
-	defer db.Close()
 	clause := c.QueryString()
 	switch tt {
 	case Everything:
@@ -497,30 +492,25 @@ func Sortings() map[Sort]string {
 }
 
 // Templates returns a map of the templates used by the HTML3 sub-group route.
-func Templates(logger *zap.SugaredLogger, fs embed.FS) map[string]*template.Template {
+func Templates(db *sql.DB, logger *zap.SugaredLogger, fs embed.FS) map[string]*template.Template {
 	t := make(map[string]*template.Template)
-	t["html3_index"] = index(logger, fs)
-	t["html3_all"] = list(logger, fs)
-	t["html3_art"] = list(logger, fs)
-	t["html3_documents"] = list(logger, fs)
-	t["html3_software"] = list(logger, fs)
-	t["html3_groups"] = listGroups(logger, fs)
-	t["html3_group"] = list(logger, fs)
-	t[string(tag)] = listTags(logger, fs)
-	t["html3_platform"] = list(logger, fs)
-	t["html3_category"] = list(logger, fs)
-	t["html3_error"] = httpErr(logger, fs)
+	t["html3_index"] = index(db, logger, fs)
+	t["html3_all"] = list(db, logger, fs)
+	t["html3_art"] = list(db, logger, fs)
+	t["html3_documents"] = list(db, logger, fs)
+	t["html3_software"] = list(db, logger, fs)
+	t["html3_groups"] = listGroups(db, logger, fs)
+	t["html3_group"] = list(db, logger, fs)
+	t[string(tag)] = listTags(db, logger, fs)
+	t["html3_platform"] = list(db, logger, fs)
+	t["html3_category"] = list(db, logger, fs)
+	t["html3_error"] = httpErr(db, logger, fs)
 	return t
 }
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
-func TemplateFuncMap(logger *zap.SugaredLogger) template.FuncMap {
+func TemplateFuncMap(db *sql.DB, logger *zap.SugaredLogger) template.FuncMap {
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		logger.Errorf("html3 template func map could not connect to the database %s", err)
-	}
-	defer db.Close()
 	t := tags.T{}
 	if err := t.Build(ctx, db); err != nil {
 		logger.Errorf("html3 template func map could not build the tags %s", err)

@@ -5,6 +5,7 @@ package app
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	_ "image/gif"  // gif format decoder
@@ -23,7 +24,6 @@ import (
 	"github.com/Defacto2/server/handler/app/internal/str"
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/render"
 	"github.com/Defacto2/server/internal/tags"
@@ -70,12 +70,12 @@ type Dirs struct {
 }
 
 // Artifact is the handler for the of the file record.
-func (dir Dirs) Artifact(c echo.Context, logger *zap.SugaredLogger, readonly bool) error {
+func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, readonly bool) error {
 	const name = "artifact"
 	if logger == nil {
 		return InternalErr(c, name, ErrZap)
 	}
-	art, err := dir.modelsFile(c)
+	art, err := dir.modelsFile(c, db)
 	if err != nil {
 		return err
 	}
@@ -185,14 +185,10 @@ func (dir Dirs) Editor(art *models.File, data map[string]interface{}) map[string
 }
 
 // modelsFile returns the URI artifact record from the file table.
-func (dir Dirs) modelsFile(c echo.Context) (*models.File, error) {
+func (dir Dirs) modelsFile(c echo.Context, db *sql.DB) (*models.File, error) {
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return nil, DatabaseErr(c, "f/"+dir.URI, err)
-	}
-	defer db.Close()
 	var art *models.File
+	var err error
 	if sess.Editor(c) {
 		art, err = model.OneEditByKey(ctx, db, dir.URI)
 	} else {

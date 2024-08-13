@@ -208,7 +208,7 @@ func TestByteFileS(t *testing.T) {
 func TestFuncMap(t *testing.T) {
 	t.Parallel()
 	w := app.Templ{}
-	x := w.FuncMap()
+	x := w.FuncMap(nil)
 	assert.Contains(t, x, "editArtifact")
 	assert.Contains(t, x, "version")
 	assert.Contains(t, x, "az")
@@ -329,7 +329,7 @@ func TestTemplates(t *testing.T) {
 	t.Parallel()
 
 	w := app.Templ{}
-	_, err := w.Templates()
+	_, err := w.Templates(nil)
 	require.Error(t, err)
 }
 

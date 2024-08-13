@@ -3,6 +3,7 @@ package html3
 // Package file template.go contains the HTML3 website template functions.
 
 import (
+	"database/sql"
 	"embed"
 	"fmt"
 	"html/template"
@@ -30,32 +31,32 @@ func GlobTo(name string) string {
 }
 
 // Index template.
-func index(logger *zap.SugaredLogger, fs embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(logger)).ParseFS(fs,
+func index(db *sql.DB, logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap(db, logger)).ParseFS(fs,
 		GlobTo(layout), GlobTo(dirs), GlobTo("index.html")))
 }
 
 // List file records template.
-func list(logger *zap.SugaredLogger, fs embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(logger)).ParseFS(fs,
+func list(db *sql.DB, logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap(db, logger)).ParseFS(fs,
 		GlobTo(layout), GlobTo(files), GlobTo(pagination), GlobTo(files)))
 }
 
 // List and filter the tags template.
-func listTags(logger *zap.SugaredLogger, fs embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(logger)).ParseFS(fs,
+func listTags(db *sql.DB, logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap(db, logger)).ParseFS(fs,
 		GlobTo(layout), GlobTo(subDirs), GlobTo("tags.html")))
 }
 
 // List the distinct groups template.
-func listGroups(logger *zap.SugaredLogger, fs embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(logger)).ParseFS(fs,
+func listGroups(db *sql.DB, logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap(db, logger)).ParseFS(fs,
 		GlobTo(layout), GlobTo(dirs), GlobTo(pagination), GlobTo("groups.html")))
 }
 
 // Template for displaying HTTP error codes and feedback.
-func httpErr(logger *zap.SugaredLogger, fs embed.FS) *template.Template {
-	return template.Must(template.New("").Funcs(TemplateFuncMap(logger)).ParseFS(fs,
+func httpErr(db *sql.DB, logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+	return template.Must(template.New("").Funcs(TemplateFuncMap(db, logger)).ParseFS(fs,
 		GlobTo(layout)))
 }
 

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/Defacto2/server/handler/htmx"
@@ -16,43 +17,47 @@ const rateLimit = 2
 
 // htmxGroup is the /htmx sub-route group that returns HTML fragments
 // using the htmx library for AJAX responses.
-func htmxGroup(e *echo.Echo, logger *zap.SugaredLogger, downloadDir string) *echo.Echo {
+func htmxGroup(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for htmx group router", ErrRoutes))
 	}
 	store := middleware.NewRateLimiterMemoryStore(rateLimit)
 	g := e.Group("", middleware.RateLimiter(store))
 	g.PATCH("/search/releaser", func(c echo.Context) error {
-		return htmx.SearchReleaser(c, logger)
+		return htmx.SearchReleaser(c, db, logger)
 	})
 
 	demozoo := g.Group("/demozoo")
-	demozoo.GET("/production", htmx.DemozooProd)
+	demozoo.GET("/production", func(c echo.Context) error {
+		return htmx.DemozooProd(c, db)
+	})
 	demozoo.PUT("/production/:id", func(c echo.Context) error {
 		return htmx.DemozooSubmit(c, logger)
 	})
 	pouet := g.Group("/pouet")
-	pouet.GET("/production", htmx.PouetProd)
+	pouet.GET("/production", func(c echo.Context) error {
+		return htmx.PouetProd(c, db)
+	})
 	pouet.PUT("/production/:id", func(c echo.Context) error {
 		return htmx.PouetSubmit(c, logger)
 	})
 
 	upload := g.Group("/uploader")
 	upload.GET("/classifications", func(c echo.Context) error {
-		return htmx.HumanizeCount(c, logger, "uploader-advanced")
+		return htmx.HumanizeCount(c, db, logger, "uploader-advanced")
 	})
 	upload.PATCH("/releaser/1", func(c echo.Context) error {
-		return htmx.DataListReleasers(c, logger, releaser1(c))
+		return htmx.DataListReleasers(c, db, logger, releaser1(c))
 	})
 	upload.PATCH("/releaser/2", func(c echo.Context) error {
-		return htmx.DataListReleasers(c, logger, releaser2(c))
+		return htmx.DataListReleasers(c, db, logger, releaser2(c))
 	})
 	upload.PATCH("/releaser/magazine", func(c echo.Context) error {
 		lookup := c.FormValue("uploader-magazine-releaser1")
-		return htmx.DataListMagazines(c, logger, lookup)
+		return htmx.DataListMagazines(c, db, logger, lookup)
 	})
 	upload.PATCH("/sha384/:hash", func(c echo.Context) error {
-		return htmx.LookupSHA384(c, logger)
+		return htmx.LookupSHA384(c, db, logger)
 	})
 	upload.POST("/advanced", func(c echo.Context) error {
 		return htmx.AdvancedSubmit(c, logger, downloadDir)

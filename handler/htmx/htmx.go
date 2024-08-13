@@ -3,6 +3,7 @@ package htmx
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
@@ -35,7 +36,7 @@ var (
 // Both the Demozoo production ID param and the Defacto2 UUID query
 // param values are required as params to fetch the production data and
 // to save the file to the correct filename.
-func DemozooProd(c echo.Context) error {
+func DemozooProd(c echo.Context, db *sql.DB) error {
 	sid := c.FormValue("demozoo-submission")
 	id, err := strconv.Atoi(sid)
 	if err != nil {
@@ -43,11 +44,6 @@ func DemozooProd(c echo.Context) error {
 			"The Demozoo production ID must be a numeric value, "+sid)
 	}
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return fmt.Errorf("htmx demozoo production: %w", ErrDB)
-	}
-	defer db.Close()
 	deleted, key, err := model.OneDemozoo(ctx, db, int64(id))
 	if err != nil {
 		return c.String(http.StatusServiceUnavailable,
@@ -147,8 +143,8 @@ func DemozooSubmit(c echo.Context, logger *zap.SugaredLogger) error {
 }
 
 // DBConnections is the handler for the database connections page.
-func DBConnections(c echo.Context) error {
-	conns, max, err := postgres.Connections()
+func DBConnections(c echo.Context, db *sql.DB) error {
+	conns, max, err := postgres.Connections(db)
 	if err != nil {
 		return c.String(http.StatusOK, err.Error())
 	}
@@ -294,7 +290,7 @@ func Pings(c echo.Context, proto string, port int) error {
 // Both the Pouet production ID param and the Defacto2 UUID query
 // param values are required as params to fetch the production data and
 // to save the file to the correct filename.
-func PouetProd(c echo.Context) error {
+func PouetProd(c echo.Context, db *sql.DB) error {
 	sid := c.FormValue("pouet-submission")
 	id, err := strconv.Atoi(sid)
 	if err != nil {
@@ -302,11 +298,6 @@ func PouetProd(c echo.Context) error {
 			"The Pouet production ID must be a numeric value, "+sid)
 	}
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		return fmt.Errorf("htmx pouet production: %w", ErrDB)
-	}
-	defer db.Close()
 	deleted, key, err := model.OnePouet(ctx, db, int64(id))
 	if err != nil {
 		return c.String(http.StatusServiceUnavailable,
@@ -426,20 +417,11 @@ func PouetSubmit(c echo.Context, logger *zap.SugaredLogger) error {
 }
 
 // SearchByID is a handler for the /editor/search/id route.
-func SearchByID(c echo.Context, logger *zap.SugaredLogger) error {
+func SearchByID(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 	const maxResults = 50
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		logger.Error(err)
-		return c.String(http.StatusServiceUnavailable,
-			"cannot connect to the database")
-	}
-	defer db.Close()
-
 	ids := []int{}
 	uuids := []uuid.UUID{}
-
 	search := c.FormValue("htmx-search")
 	inputs := strings.Split(search, " ")
 	for _, input := range inputs {
@@ -483,16 +465,9 @@ func SearchByID(c echo.Context, logger *zap.SugaredLogger) error {
 }
 
 // SearchReleaser is a handler for the /search/releaser route.
-func SearchReleaser(c echo.Context, logger *zap.SugaredLogger) error {
+func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 	const maxResults = 14
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		logger.Error(err)
-		return c.String(http.StatusServiceUnavailable,
-			"cannot connect to the database")
-	}
-	defer db.Close()
 	input := c.FormValue("htmx-search")
 	slug := helper.Slug(helper.TrimRoundBraket(input))
 	if slug == "" {
@@ -517,7 +492,7 @@ func SearchReleaser(c echo.Context, logger *zap.SugaredLogger) error {
 	if len(r) == 0 {
 		return c.HTML(http.StatusOK, "No releasers found.")
 	}
-	err = c.Render(http.StatusOK, "searchreleasers", map[string]interface{}{
+	err := c.Render(http.StatusOK, "searchreleasers", map[string]interface{}{
 		"maximum": maxResults,
 		"name":    slug,
 		"result":  r,
@@ -530,26 +505,19 @@ func SearchReleaser(c echo.Context, logger *zap.SugaredLogger) error {
 }
 
 // DataListReleasers is a handler for the /datalist/releasers route.
-func DataListReleasers(c echo.Context, logger *zap.SugaredLogger, input string) error {
-	return datalist(c, logger, input, false)
+func DataListReleasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, input string) error {
+	return datalist(c, db, logger, input, false)
 }
 
 // DataListMagazines is a handler for the /datalist/magazines route.
-func DataListMagazines(c echo.Context, logger *zap.SugaredLogger, input string) error {
-	return datalist(c, logger, input, true)
+func DataListMagazines(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, input string) error {
+	return datalist(c, db, logger, input, true)
 }
 
 // datalist is a shared handler for the /datalist/releasers and /datalist/magazines routes.
-func datalist(c echo.Context, logger *zap.SugaredLogger, input string, magazine bool) error {
+func datalist(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, input string, magazine bool) error {
 	const maxResults = 14
 	ctx := context.Background()
-	db, err := postgres.ConnectDB()
-	if err != nil {
-		logger.Error(err)
-		return c.String(http.StatusServiceUnavailable,
-			"cannot connect to the database")
-	}
-	defer db.Close()
 	slug := helper.Slug(helper.TrimRoundBraket(input))
 	if slug == "" {
 		return c.HTML(http.StatusOK, "")
@@ -565,6 +533,7 @@ func datalist(c echo.Context, logger *zap.SugaredLogger, input string, magazine 
 	}
 	lookup = append(lookup, slug)
 	var r model.Releasers
+	var err error
 	if magazine {
 		err = r.SimilarMagazine(ctx, db, maxResults, lookup...)
 	} else {
