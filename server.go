@@ -192,7 +192,8 @@ func sanityChecks(ctx context.Context, configs config.Config) {
 	}
 	logger := helper.Logger(ctx)
 	if err := configs.Checks(logger); err != nil {
-		logger.Errorf("sanity checks could not read the environment variable, it probably contains an invalid value: %s", err)
+		logger.Errorf("sanity checks could not read the environment variable, "+
+			"it probably contains an invalid value: %s", err)
 	}
 	checks(logger, configs.ReadOnly)
 	conn, err := postgres.New()

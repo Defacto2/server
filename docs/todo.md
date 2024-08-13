@@ -3,23 +3,35 @@
 ### Recommendations
 
 - [ ] Create only one DB connection sitewide, and use .Ping() to test the connection on startup.
+- [ ] 
 - [ ] Use DigitalOcean API to display Estimated Droplet Transfer Pool usage and remaining balance. 
 		https://pkg.go.dev/github.com/digitalocean/godo https://docs.digitalocean.com/reference/api/api-reference/#operation/droplets_get
 - [ ] After a successful demozoo/pouet upload, defer a sync for the data to the artifact record.
+- [ ] 
 - [ ] Missing screenshots and downloads: https://go.defacto2.net/g/millennium-ftp
+- [ ] 
 - [ ] On startup, modify downloads to use database stored, last modified value.
+- [ ] 
 - [ ] On startup, run magic numbers on all records to replace the current value in database.
+- [ ] 
 - [ ] All temp files should be stored in a single unified temp subdirectory, that can be purged during server restarts.
+- [ ] 
 - [ ] Complete `internal/archive/archive.go to support all archive types. need to supprt legacy zip via hwzip and arc.
+- [ ] 
 - [ ] Automatic cleanup of tmp/defacto2-server if drive space is low.
+- [ ] 
 - [ ] When extracting archives for MS-DOS, flag invalid filenames and suggest a repack.
+- [ ] 
 - [ ] Render HTML in an iframe instead of readme? Example, http://localhost:1323/f/ad3075
+- [ ] 
 - [ ] Handle magazines title on artifact page, http://localhost:1323/f/a55ed, this is hard to read, "Issue 4\nThe Pirate Syndicate +\nThe Pirate World"
+- [ ] 
 - [ ] If artifact is a text file displayed in readme, then delete image preview, these are often super long, large and not needed.
+- [ ] 
 - [ ] If a #hash is appended to a /f/<id> URL while signed out, then return a 404 or a redirect to the sign in page. Post signing should return to the #hash URL?
+- [ ] 
 - [ ] Delete all previews that are unused, such as textfiles that are displayed as a readme.
-- [ ] REPLACE DOWNLOAD CONTENT, "Nothing to show as the artifact is not an archive (a ZIP or RAR file, etc.)" with a magic number check on a single file.
-
+- [ ] 
 - [ ] On Demozoo or Pouet upload or reach, locally cache the JSON to the temp directory.
 
 - [ ] - http://www.platohistory.org/
@@ -34,6 +46,15 @@ Magic files to add:
 - Multipart zip, http://localhost:1323/f/a9247de, http://localhost:1323/f/a619619
 - Convert ms-dos filenames to valid utf-8 names, see http://localhost:1323/f/b323bda
 - Windows binaries
+
+### Locations
+
+#### On startup tasks
+
+ - `server.go` 
+ - - checks()
+ - - repairs() ~ 
+ - - repairDatabase() ~ /model/fix/fix.go ~ Artifacts.Run()
 
 ### Bug fixes
 
