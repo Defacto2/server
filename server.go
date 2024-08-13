@@ -88,9 +88,7 @@ func main() {
 	if err := database.Query(db); err != nil {
 		logger.Errorf("postgres version query: %w", err)
 	}
-	if db != nil {
-		repairs(ctx, db, configs)
-	}
+	repairs(ctx, db, configs)
 	sanityChecks(ctx, configs)
 	sanityTmpDir()
 
@@ -105,20 +103,21 @@ func main() {
 
 	go func() {
 		// get the owner and group of the current process and print them to the console.
-		if groups, usr, err := helper.Owner(); err != nil {
+		groups, usr, err := helper.Owner()
+		if err != nil {
 			logger.Errorf("owner in main: %s", err)
-		} else {
-			clean := slices.DeleteFunc(groups, func(e string) bool {
-				return e == ""
-			})
-			fmt.Fprintf(w, "Running as %s for the groups, %s.\n", usr, strings.Join(clean, ","))
 		}
+		clean := slices.DeleteFunc(groups, func(e string) bool {
+			return e == ""
+		})
+		fmt.Fprintf(w, "Running as %s for the groups, %s.\n",
+			usr, strings.Join(clean, ","))
 		// get the local IP addresses and print them to the console.
-		if localIPs, err := configs.Addresses(); err != nil {
+		localIPs, err := configs.Addresses()
+		if err != nil {
 			logger.Errorf("configs addresses in main: %s", err)
-		} else {
-			fmt.Fprintf(w, "%s\n", localIPs)
 		}
+		fmt.Fprintf(w, "%s\n", localIPs)
 	}()
 
 	// shutdown the web server.
@@ -249,23 +248,19 @@ func checks(logger *zap.SugaredLogger, readonly bool) {
 // repairs is used to fix any known issues with the file assets and the database entries.
 // These are skipped if the Production mode environment variable is set to false.
 func repairs(ctx context.Context, db *sql.DB, configs config.Config) {
-	if !configs.ProdMode {
+	if !configs.ProdMode || db == nil {
 		return
 	}
 	logger := helper.Logger(ctx)
-	if db == nil {
-		logger.Errorf("repairs is missing a required parameter")
-		return
-	}
 	if err := configs.RepairAssets(ctx, db); err != nil {
 		logger.Errorf("asset repairs: %s", err)
 	}
-	if err := repairDatabase(ctx, db); err != nil {
+	err := repairDatabase(ctx, db)
+	if err != nil {
 		if errors.Is(err, ErrVer) {
 			logger.Warnf("A %s, is the database server down?", ErrVer)
-		} else {
-			logger.Errorf("repair database could not initialize the database data: %s", err)
 		}
+		logger.Errorf("repair database could not initialize the database data: %s", err)
 	}
 }
 
