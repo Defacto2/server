@@ -3,6 +3,7 @@ package app
 
 import (
 	"context"
+	"database/sql"
 	"embed"
 	"errors"
 	"fmt"
@@ -19,7 +20,6 @@ import (
 	"github.com/Defacto2/server/handler/app/internal/mf"
 	"github.com/Defacto2/server/handler/app/internal/str"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
@@ -736,17 +736,16 @@ func websiteIcon(url string) string {
 }
 
 // YMDEdit handles the post submission for the Year, Month, Day selection fields.
-func YMDEdit(c echo.Context) error {
+func YMDEdit(c echo.Context, db *sql.DB) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
 	ctx := context.Background()
-	db, tx, err := postgres.ConnectTx()
+	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("ymdedit connect %w", err)
+		return fmt.Errorf("ymdedit begin tx %w", err)
 	}
-	defer db.Close()
 	r, err := model.One(ctx, tx, true, f.ID)
 	if err != nil {
 		return fmt.Errorf("ymdedit model one %w", err)

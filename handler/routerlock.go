@@ -30,11 +30,11 @@ func (c Configuration) lock(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger,
 	lock := e.Group("/editor")
 	lock.Use(c.ReadOnlyLock, c.SessionLock)
 	c.configurations(lock, db)
-	creator(lock)
-	date(lock)
+	creator(lock, db)
+	date(lock, db)
 	editor(lock, db, logger, dir)
 	get(lock, db, dir)
-	online(lock)
+	online(lock, db)
 	search(lock, db, logger)
 	return e
 }
@@ -61,29 +61,41 @@ func (c Configuration) configurations(g *echo.Group, db *sql.DB) {
 	})
 }
 
-func creator(g *echo.Group) {
+func creator(g *echo.Group, db *sql.DB) {
 	if g == nil {
 		panic(ErrRoutes)
 	}
 	creator := g.Group("/creator")
-	creator.PATCH("/text", htmx.RecordCreatorText)
-	creator.PATCH("/ill", htmx.RecordCreatorIll)
-	creator.PATCH("/prog", htmx.RecordCreatorProg)
-	creator.PATCH("/audio", htmx.RecordCreatorAudio)
-	creator.PATCH("/reset", htmx.RecordCreatorReset)
+	creator.PATCH("/text", func(c echo.Context) error {
+		return htmx.RecordCreatorText(c, db)
+	})
+	creator.PATCH("/ill", func(c echo.Context) error {
+		return htmx.RecordCreatorIll(c, db)
+	})
+	creator.PATCH("/prog", func(c echo.Context) error {
+		return htmx.RecordCreatorProg(c, db)
+	})
+	creator.PATCH("/audio", func(c echo.Context) error {
+		return htmx.RecordCreatorAudio(c, db)
+	})
+	creator.PATCH("/reset", func(c echo.Context) error {
+		return htmx.RecordCreatorReset(c, db)
+	})
 }
 
-func date(g *echo.Group) {
+func date(g *echo.Group, db *sql.DB) {
 	if g == nil {
 		panic(fmt.Errorf("%w for date router", ErrRoutes))
 	}
 	date := g.Group("/date")
-	date.PATCH("", htmx.RecordDateIssued)
+	date.PATCH("", func(c echo.Context) error {
+		return htmx.RecordDateIssued(c, db)
+	})
 	date.PATCH("/reset", func(cx echo.Context) error {
-		return htmx.RecordDateIssuedReset(cx, "artifact-editor-date-resetter")
+		return htmx.RecordDateIssuedReset(cx, db, "artifact-editor-date-resetter")
 	})
 	date.PATCH("/lastmod", func(cx echo.Context) error {
-		return htmx.RecordDateIssuedReset(cx, "artifact-editor-date-lastmodder")
+		return htmx.RecordDateIssuedReset(cx, db, "artifact-editor-date-lastmodder")
 	})
 }
 
@@ -92,54 +104,106 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) 
 		panic(fmt.Errorf("%w for editor router", ErrRoutes))
 	}
 	g.DELETE("/delete/forever/:key", func(c echo.Context) error {
-		return htmx.DeleteForever(c, logger, c.Param("key"))
+		return htmx.DeleteForever(c, db, logger, c.Param("key"))
 	})
-	g.PATCH("/16colors", htmx.Record16Colors)
+	g.PATCH("/16colors", func(c echo.Context) error {
+		return htmx.Record16Colors(c, db)
+	})
 	g.PATCH("/classifications", func(c echo.Context) error {
 		return htmx.RecordClassification(c, db, logger)
 	})
-	g.PATCH("/comment", htmx.RecordComment)
-	g.PATCH("/comment/reset", htmx.RecordCommentReset)
-	g.PATCH("/demozoo", htmx.RecordDemozoo)
-	g.PATCH("/filename", htmx.RecordFilename)
-	g.PATCH("/filename/reset", htmx.RecordFilenameReset)
-	g.PATCH("/github", htmx.RecordGitHub)
+	g.PATCH("/comment", func(c echo.Context) error {
+		return htmx.RecordComment(c, db)
+	})
+	g.PATCH("/comment/reset", func(c echo.Context) error {
+		return htmx.RecordCommentReset(c, db)
+	})
+	g.PATCH("/demozoo", func(c echo.Context) error {
+		return htmx.RecordDemozoo(c, db)
+	})
+	g.PATCH("/filename", func(c echo.Context) error {
+		return htmx.RecordFilename(c, db)
+	})
+	g.PATCH("/filename/reset", func(c echo.Context) error {
+		return htmx.RecordFilenameReset(c, db)
+	})
+	g.PATCH("/github", func(c echo.Context) error {
+		return htmx.RecordGitHub(c, db)
+	})
 	g.PATCH("/links", htmx.RecordLinks)
-	g.PATCH("/links/reset", htmx.RecordLinksReset)
+	g.PATCH("/links/reset", func(c echo.Context) error {
+		return htmx.RecordLinksReset(c, db)
+	})
 	g.PATCH("/platform", func(c echo.Context) error {
 		return app.PlatformEdit(c, db)
 	})
 	g.PATCH("/platform+tag", app.PlatformTagInfo)
-	g.PATCH("/pouet", htmx.RecordPouet)
-	g.PATCH("/relations", htmx.RecordRelations)
-	g.PATCH("/releasers", htmx.RecordReleasers)
-	g.PATCH("/releasers/reset", htmx.RecordReleasersReset)
-	g.PATCH("/sites", htmx.RecordSites)
+	g.PATCH("/pouet", func(c echo.Context) error {
+		return htmx.RecordPouet(c, db)
+	})
+	g.PATCH("/relations", func(c echo.Context) error {
+		return htmx.RecordRelations(c, db)
+	})
+	g.PATCH("/releasers", func(c echo.Context) error {
+		return htmx.RecordReleasers(c, db)
+	})
+	g.PATCH("/releasers/reset", func(c echo.Context) error {
+		return htmx.RecordReleasersReset(c, db)
+	})
+	g.PATCH("/sites", func(c echo.Context) error {
+		return htmx.RecordSites(c, db)
+	})
 	g.PATCH("/tag", func(c echo.Context) error {
 		return app.TagEdit(c, db)
 	})
 	g.PATCH("/tag/info", app.TagInfo)
-	g.PATCH("/title", htmx.RecordTitle)
-	g.PATCH("/title/reset", htmx.RecordTitleReset)
-	g.PATCH("/virustotal", htmx.RecordVirusTotal)
-	g.PATCH("/ymd", app.YMDEdit)
-	g.PATCH("/youtube", htmx.RecordYouTube)
+	g.PATCH("/title", func(c echo.Context) error {
+		return htmx.RecordTitle(c, db)
+	})
+	g.PATCH("/title/reset", func(c echo.Context) error {
+		return htmx.RecordTitleReset(c, db)
+	})
+	g.PATCH("/virustotal", func(c echo.Context) error {
+		return htmx.RecordVirusTotal(c, db)
+	})
+	g.PATCH("/ymd", func(c echo.Context) error {
+		return app.YMDEdit(c, db)
+	})
+	g.PATCH("/youtube", func(c echo.Context) error {
+		return htmx.RecordYouTube(c, db)
+	})
 
 	emu := g.Group("/emulate")
-	emu.PATCH("/broken/:id", htmx.RecordEmulateBroken)
-	emu.PATCH("/runprogram/:id", htmx.RecordEmulateRunProgram)
-	emu.PATCH("/machine/:id", htmx.RecordEmulateMachine)
-	emu.PATCH("/cpu/:id", htmx.RecordEmulateCPU)
-	emu.PATCH("/sfx/:id", htmx.RecordEmulateSFX)
-	emu.PATCH("/umb/:id", htmx.RecordEmulateUMB)
-	emu.PATCH("/ems/:id", htmx.RecordEmulateEMS)
-	emu.PATCH("/xms/:id", htmx.RecordEmulateXMS)
+	emu.PATCH("/broken/:id", func(c echo.Context) error {
+		return htmx.RecordEmulateBroken(c, db)
+	})
+	emu.PATCH("/runprogram/:id", func(c echo.Context) error {
+		return htmx.RecordEmulateRunProgram(c, db)
+	})
+	emu.PATCH("/machine/:id", func(c echo.Context) error {
+		return htmx.RecordEmulateMachine(c, db)
+	})
+	emu.PATCH("/cpu/:id", func(c echo.Context) error {
+		return htmx.RecordEmulateCPU(c, db)
+	})
+	emu.PATCH("/sfx/:id", func(c echo.Context) error {
+		return htmx.RecordEmulateSFX(c, db)
+	})
+	emu.PATCH("/umb/:id", func(c echo.Context) error {
+		return htmx.RecordEmulateUMB(c, db)
+	})
+	emu.PATCH("/ems/:id", func(c echo.Context) error {
+		return htmx.RecordEmulateEMS(c, db)
+	})
+	emu.PATCH("/xms/:id", func(c echo.Context) error {
+		return htmx.RecordEmulateXMS(c, db)
+	})
 
 	// these POSTs should only be used for editor, htmx file uploads,
 	// and not for general file uploads or data edits.
 	upload := g.Group("/upload")
 	upload.POST("/file", func(c echo.Context) error {
-		return htmx.UploadReplacement(c, dir.Download)
+		return htmx.UploadReplacement(c, db, dir.Download)
 	})
 	upload.POST("/preview", func(c echo.Context) error {
 		return htmx.UploadPreview(c, dir.Preview, dir.Thumbnail)
@@ -230,7 +294,7 @@ func get(g *echo.Group, db *sql.DB, dir app.Dirs) {
 		})
 	g.GET("/get/demozoo/download/:id",
 		func(cx echo.Context) error {
-			return app.GetDemozooLink(cx, dir.Download)
+			return app.GetDemozooLink(cx, db, dir.Download)
 		})
 	g.GET("/for-approval",
 		func(cx echo.Context) error {
@@ -242,19 +306,19 @@ func get(g *echo.Group, db *sql.DB, dir app.Dirs) {
 		})
 }
 
-func online(g *echo.Group) {
+func online(g *echo.Group, db *sql.DB) {
 	if g == nil {
 		panic(fmt.Errorf("%w for online router", ErrRoutes))
 	}
 	online := g.Group("/online")
 	online.PATCH("/true", func(cx echo.Context) error {
-		return htmx.RecordToggle(cx, true)
+		return htmx.RecordToggle(cx, db, true)
 	})
 	online.PATCH("/false", func(cx echo.Context) error {
-		return htmx.RecordToggle(cx, false)
+		return htmx.RecordToggle(cx, db, false)
 	})
 	online.GET("/true/:id", func(cx echo.Context) error {
-		return htmx.RecordToggleByID(cx, cx.Param("id"), true)
+		return htmx.RecordToggleByID(cx, db, cx.Param("id"), true)
 	})
 }
 

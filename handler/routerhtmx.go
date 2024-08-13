@@ -32,14 +32,14 @@ func htmxGroup(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, downloadDir 
 		return htmx.DemozooProd(c, db)
 	})
 	demozoo.PUT("/production/:id", func(c echo.Context) error {
-		return htmx.DemozooSubmit(c, logger)
+		return htmx.DemozooSubmit(c, db, logger)
 	})
 	pouet := g.Group("/pouet")
 	pouet.GET("/production", func(c echo.Context) error {
 		return htmx.PouetProd(c, db)
 	})
 	pouet.PUT("/production/:id", func(c echo.Context) error {
-		return htmx.PouetSubmit(c, logger)
+		return htmx.PouetSubmit(c, db, logger)
 	})
 
 	upload := g.Group("/uploader")
@@ -60,22 +60,22 @@ func htmxGroup(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, downloadDir 
 		return htmx.LookupSHA384(c, db, logger)
 	})
 	upload.POST("/advanced", func(c echo.Context) error {
-		return htmx.AdvancedSubmit(c, logger, downloadDir)
+		return htmx.AdvancedSubmit(c, db, logger, downloadDir)
 	})
 	upload.POST("/image", func(c echo.Context) error {
-		return htmx.ImageSubmit(c, logger, downloadDir)
+		return htmx.ImageSubmit(c, db, logger, downloadDir)
 	})
 	upload.POST("/intro", func(c echo.Context) error {
-		return htmx.IntroSubmit(c, logger, downloadDir)
+		return htmx.IntroSubmit(c, db, logger, downloadDir)
 	})
 	upload.POST("/magazine", func(c echo.Context) error {
-		return htmx.MagazineSubmit(c, logger, downloadDir)
+		return htmx.MagazineSubmit(c, db, logger, downloadDir)
 	})
 	upload.POST("/text", func(c echo.Context) error {
-		return htmx.TextSubmit(c, logger, downloadDir)
+		return htmx.TextSubmit(c, db, logger, downloadDir)
 	})
 	upload.POST("/trainer", func(c echo.Context) error {
-		return htmx.TrainerSubmit(c, logger, downloadDir)
+		return htmx.TrainerSubmit(c, db, logger, downloadDir)
 	})
 	return e
 }

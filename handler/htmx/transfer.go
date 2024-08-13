@@ -27,7 +27,6 @@ import (
 	"github.com/Defacto2/server/internal/form"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magicnumber"
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -99,48 +98,48 @@ func LookupSHA384(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 }
 
 // ImageSubmit is a handler for the /uploader/image route.
-func ImageSubmit(c echo.Context, logger *zap.SugaredLogger, downloadDir string) error {
+func ImageSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
 	const key = "uploader-image"
 	c.Set(key+"-operating-system", tags.Image.String())
-	return transfer(c, logger, key, downloadDir)
+	return transfer(c, db, logger, key, downloadDir)
 }
 
 // IntroSubmit is a handler for the /uploader/intro route.
-func IntroSubmit(c echo.Context, logger *zap.SugaredLogger, downloadDir string) error {
+func IntroSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
 	const key = "uploader-intro"
 	c.Set(key+"-category", tags.Intro.String())
-	return transfer(c, logger, key, downloadDir)
+	return transfer(c, db, logger, key, downloadDir)
 }
 
 // MagazineSubmit is a handler for the /uploader/magazine route.
-func MagazineSubmit(c echo.Context, logger *zap.SugaredLogger, downloadDir string) error {
+func MagazineSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
 	const key = "uploader-magazine"
 	c.Set(key+"-category", tags.Mag.String())
-	return transfer(c, logger, key, downloadDir)
+	return transfer(c, db, logger, key, downloadDir)
 }
 
 // TextSubmit is a handler for the /uploader/text route.
-func TextSubmit(c echo.Context, logger *zap.SugaredLogger, downloadDir string) error {
+func TextSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
 	const key = "uploader-text"
-	return transfer(c, logger, key, downloadDir)
+	return transfer(c, db, logger, key, downloadDir)
 }
 
 // TrainerSubmit is a handler for the /uploader/trainer route.
-func TrainerSubmit(c echo.Context, logger *zap.SugaredLogger, downloadDir string) error {
+func TrainerSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
 	const key = "uploader-trainer"
-	return transfer(c, logger, key, downloadDir)
+	return transfer(c, db, logger, key, downloadDir)
 }
 
 // AdvancedSubmit is a handler for the /uploader/advanced route.
-func AdvancedSubmit(c echo.Context, logger *zap.SugaredLogger, downloadDir string) error {
+func AdvancedSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
 	const key = "uploader-advanced"
-	return transfer(c, logger, key, downloadDir)
+	return transfer(c, db, logger, key, downloadDir)
 }
 
 // Transfer is a generic file transfer handler that uploads and validates a chosen file upload.
 // The provided name is that of the form input field. The logger is optional and if nil then
 // the function will not log any debug information.
-func transfer(c echo.Context, logger *zap.SugaredLogger, key, downloadDir string) error {
+func transfer(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, key, downloadDir string) error {
 	if s, err := checkDest(downloadDir); err != nil {
 		return c.HTML(http.StatusInternalServerError, s)
 	}
@@ -160,12 +159,10 @@ func transfer(c echo.Context, logger *zap.SugaredLogger, key, downloadDir string
 	}
 	checksum := hasher.Sum(nil)
 	ctx := context.Background()
-	db, tx, err := postgres.ConnectTx()
+	tx, err := db.Begin()
 	if err != nil {
-		return c.HTML(http.StatusServiceUnavailable,
-			"Cannot begin the database transaction")
+		return c.HTML(http.StatusInternalServerError, "The database transaction could not begin")
 	}
-	defer db.Close()
 	exist, err := model.SHA384Exists(ctx, tx, checksum)
 	if err != nil {
 		return checkExist(c, logger, err)
@@ -388,7 +385,7 @@ func (cr creator) insert(ctx context.Context, c echo.Context, tx *sql.Tx, logger
 	return id, uid, nil
 }
 
-func submit(c echo.Context, logger *zap.SugaredLogger, prod string) error {
+func submit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, prod string) error {
 	name := strings.ToTitle(prod)
 	if logger == nil {
 		return c.String(http.StatusInternalServerError,
@@ -399,11 +396,12 @@ func submit(c echo.Context, logger *zap.SugaredLogger, prod string) error {
 		return err
 	}
 	ctx := context.Background()
-	db, tx, err := postgres.ConnectTx()
+	tx, err := db.Begin()
 	if err != nil {
-		return fmt.Errorf("htmx submit: %w", err)
+		logger.Error(err)
+		return c.String(http.StatusServiceUnavailable,
+			"error, the database transaction could not begin")
 	}
-	defer db.Close()
 	var exist bool
 	switch prod {
 	case dz:
@@ -535,7 +533,7 @@ func UploadPreview(c echo.Context, previewDir, thumbnailDir string) error {
 // UploadReplacement is the file transfer handler that uploads, validates a new file upload
 // and updates the existing artifact record with the new file information.
 // The logger is optional and if nil then the function will not log any debug information.
-func UploadReplacement(c echo.Context, downloadDir string) error {
+func UploadReplacement(c echo.Context, db *sql.DB, downloadDir string) error {
 	name := "artifact-editor-replace-file"
 	if s, err := checkDest(downloadDir); err != nil {
 		return c.HTML(http.StatusInternalServerError, s)
@@ -574,12 +572,10 @@ func UploadReplacement(c echo.Context, downloadDir string) error {
 	if list, err := archive.List(dst, file.Filename); err == nil {
 		fu.Content = strings.Join(list, "\n")
 	}
-	db, tx, err := postgres.ConnectTx()
+	tx, err := db.Begin()
 	if err != nil {
-		return c.HTML(http.StatusServiceUnavailable,
-			"Cannot begin the database transaction")
+		return c.HTML(http.StatusInternalServerError, "The database transaction could not begin")
 	}
-	defer db.Close()
 	if err := fu.Update(context.Background(), tx, up.id); err != nil {
 		return badRequest(c, ErrUpdate)
 	}

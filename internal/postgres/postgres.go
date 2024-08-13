@@ -30,17 +30,7 @@ const (
 	Protocol = "postgres"
 )
 
-// New initializes the connection with default values or values from the environment.
-func New() (Connection, error) {
-	c := Connection{
-		URL: DefaultURL,
-	}
-	if err := env.Parse(&c); err != nil {
-		return Connection{}, fmt.Errorf("default url %w: %w", ErrEnv, err)
-	}
-	return c, nil
-}
-
+// Connections returns the number of active connections and the maximum allowed connections.
 func Connections(db *sql.DB) (int64, int64, error) {
 	rows, err := db.Query("SELECT 'dataname' FROM pg_stat_activity WHERE datname='defacto2_ps';")
 	if err != nil {
@@ -88,18 +78,15 @@ func Open() (*sql.DB, error) {
 	return conn, nil
 }
 
-// ConnectTx connects to the PostgreSQL database and starts a transaction.
-// The transaction must be committed or rolled back and the connection closed.
-func ConnectTx() (*sql.DB, *sql.Tx, error) {
-	conn, err := Open()
-	if err != nil {
-		return nil, nil, fmt.Errorf("postgres connect transaction, %w", err)
+// New initializes the connection with default values or values from the environment.
+func New() (Connection, error) {
+	c := Connection{
+		URL: DefaultURL,
 	}
-	tx, err := conn.Begin()
-	if err != nil {
-		return nil, nil, fmt.Errorf("postgres begin transaction, %w", err)
+	if err := env.Parse(&c); err != nil {
+		return Connection{}, fmt.Errorf("default url %w: %w", ErrEnv, err)
 	}
-	return conn, tx, nil
+	return c, nil
 }
 
 // Connection details of the PostgreSQL database connection.

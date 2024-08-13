@@ -194,7 +194,6 @@ func (t Templ) Funcs() template.FuncMap {
 		"downloadB":          str.DownloadB,
 		"byteFile":           ByteFile,
 		"byteFileS":          ByteFileS,
-		"classificationStr":  form.HumanizeCountStr,
 		"demozooGetLink":     str.DemozooGetLink,
 		"fmtDay":             Day,
 		"fmtMonth":           Month,
@@ -245,6 +244,9 @@ func (t Templ) FuncClosures(db *sql.DB) template.FuncMap { //nolint:funlen
 		"classification": func(s, p string) string {
 			count, _ := form.HumanizeCount(db, s, p)
 			return string(count)
+		},
+		"classificationStr": func(s, p string) string {
+			return form.HumanizeCountStr(db, s, p)
 		},
 		"demozooSanity": func() string {
 			return strconv.Itoa(demozoo.Sanity)

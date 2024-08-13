@@ -603,7 +603,7 @@ func ForApproval(c echo.Context, db *sql.DB, page string) error {
 // Both the Demozoo production ID param and the Defacto2 UUID query
 // param values are required as params to fetch the production data and
 // to save the file to the correct filename.
-func GetDemozooLink(c echo.Context, downloadDir string) error {
+func GetDemozooLink(c echo.Context, db *sql.DB, downloadDir string) error {
 	got := remote.DemozooLink{
 		Filename:  "",
 		FileSize:  0,
@@ -629,7 +629,7 @@ func GetDemozooLink(c echo.Context, downloadDir string) error {
 		return c.JSON(http.StatusBadRequest, got)
 	}
 	got.UUID = sid
-	return got.Download(c, downloadDir)
+	return got.Download(c, db, downloadDir)
 }
 
 // GoogleCallback is the handler for the Google OAuth2 callback page to verify
@@ -917,7 +917,7 @@ func PlatformEdit(c echo.Context, db *sql.DB) error {
 	if err != nil {
 		return fmt.Errorf("platform edit %w: %d", err, f.ID)
 	}
-	if err = model.UpdatePlatform(int64(f.ID), f.Value); err != nil {
+	if err = model.UpdatePlatform(db, int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, r)
@@ -1096,30 +1096,30 @@ func ProdZoo(c echo.Context, id string) error {
 }
 
 // ReadmeToggle handles the post submission for the Hide readme from view toggle.
-func ReadmeToggle(c echo.Context) error {
+func ReadmeToggle(c echo.Context, db *sql.DB) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	if err := model.UpdateNoReadme(int64(f.ID), f.Readme); err != nil {
+	if err := model.UpdateNoReadme(db, int64(f.ID), f.Readme); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, f)
 }
 
 // RecordToggle handles the post submission for the File artifact is online and public toggle.
-func RecordToggle(c echo.Context, state bool) error {
+func RecordToggle(c echo.Context, db *sql.DB, state bool) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
 	if state {
-		if err := model.UpdateOnline(int64(f.ID)); err != nil {
+		if err := model.UpdateOnline(db, int64(f.ID)); err != nil {
 			return badRequest(c, err)
 		}
 		return c.JSON(http.StatusOK, f)
 	}
-	if err := model.UpdateOffline(int64(f.ID)); err != nil {
+	if err := model.UpdateOffline(db, int64(f.ID)); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, f)
@@ -1516,7 +1516,7 @@ func TagEdit(c echo.Context, db *sql.DB) error {
 	if err != nil {
 		return fmt.Errorf("tag edit %w: %d", err, f.ID)
 	}
-	if err = model.UpdateTag(int64(f.ID), f.Value); err != nil {
+	if err = model.UpdateTag(db, int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
 	}
 	return c.JSON(http.StatusOK, r)

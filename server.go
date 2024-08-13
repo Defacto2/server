@@ -78,7 +78,7 @@ func main() {
 
 	// connect to the database and perform some repairs and sanity checks.
 	// if the database is cannot connect, the web server will continue.
-	db, tx, err := postgres.ConnectTx()
+	db, err := postgres.Open()
 	if err != nil {
 		logger.Errorf("main could not initialize the database data: %s", err)
 	}
@@ -88,8 +88,8 @@ func main() {
 	if err := database.Query(db); err != nil {
 		logger.Errorf("postgres version query: %w", err)
 	}
-	if db != nil && tx != nil {
-		repairs(ctx, db, tx, configs)
+	if db != nil {
+		repairs(ctx, db, configs)
 	}
 	sanityChecks(ctx, configs)
 	sanityTmpDir()
@@ -248,19 +248,19 @@ func checks(logger *zap.SugaredLogger, readonly bool) {
 
 // repairs is used to fix any known issues with the file assets and the database entries.
 // These are skipped if the Production mode environment variable is set to false.
-func repairs(ctx context.Context, db *sql.DB, tx *sql.Tx, configs config.Config) {
+func repairs(ctx context.Context, db *sql.DB, configs config.Config) {
 	if !configs.ProdMode {
 		return
 	}
 	logger := helper.Logger(ctx)
-	if db == nil || tx == nil {
+	if db == nil {
 		logger.Errorf("repairs is missing a required parameter")
 		return
 	}
 	if err := configs.RepairAssets(ctx, db); err != nil {
 		logger.Errorf("asset repairs: %s", err)
 	}
-	if err := repairDatabase(ctx, db, tx); err != nil {
+	if err := repairDatabase(ctx, db); err != nil {
 		if errors.Is(err, ErrVer) {
 			logger.Warnf("A %s, is the database server down?", ErrVer)
 		} else {
@@ -291,12 +291,16 @@ func serverLog(configs config.Config, count int) *zap.SugaredLogger {
 }
 
 // repairDatabase on startup checks the database connection and make any data corrections.
-func repairDatabase(ctx context.Context, db *sql.DB, tx *sql.Tx) error {
-	if db == nil || tx == nil {
+func repairDatabase(ctx context.Context, db *sql.DB) error {
+	if db == nil {
 		return fmt.Errorf("%w: %s", ErrPointer,
 			"the repair database is missing a required parameter")
 	}
 	logger := helper.Logger(ctx)
+	tx, err := db.Begin()
+	if err != nil {
+		return fmt.Errorf("repair database could not begin a transaction: %w", err)
+	}
 	if err := fix.Artifacts.Run(ctx, db, tx); err != nil {
 		defer func() {
 			if err := tx.Rollback(); err != nil {

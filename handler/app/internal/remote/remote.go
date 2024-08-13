@@ -3,6 +3,7 @@ package remote
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
@@ -14,7 +15,6 @@ import (
 	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/labstack/echo/v4"
@@ -50,7 +50,7 @@ type DemozooLink struct {
 
 // Download fetches the download link from Demozoo and saves it to the download directory.
 // It then runs Update to modify the database record with various metadata from the file and Demozoo record API data.
-func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
+func (got *DemozooLink) Download(c echo.Context, db *sql.DB, downloadDir string) error {
 	var prod demozoo.Production
 	if _, err := prod.Get(got.ID); err != nil {
 		got.Error = fmt.Errorf("could not get record %d from demozoo api: %w", got.ID, err).Error()
@@ -96,7 +96,7 @@ func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 		got.Github = prod.GithubRepo()
 		got.Pouet = prod.PouetProd()
 		got.YouTube = prod.YouTubeVideo()
-		return got.Stat(c, downloadDir)
+		return got.Stat(c, db, downloadDir)
 	}
 	got.Error = "no usable download links found, they returned 404 or were empty"
 	return c.JSON(http.StatusNotModified, got)
@@ -104,7 +104,7 @@ func (got *DemozooLink) Download(c echo.Context, downloadDir string) error {
 
 // Stat sets the file size, hash, type, and archive content of the file.
 // The UUID is used to locate the file in the download directory.
-func (got *DemozooLink) Stat(c echo.Context, downloadDir string) error {
+func (got *DemozooLink) Stat(c echo.Context, db *sql.DB, downloadDir string) error {
 	name := filepath.Join(downloadDir, got.UUID)
 	if got.FileSize == 0 {
 		stat, err := os.Stat(name)
@@ -127,30 +127,29 @@ func (got *DemozooLink) Stat(c echo.Context, downloadDir string) error {
 		}
 		got.FileType = m.String()
 	}
-	return got.ArchiveContent(c, name)
+	return got.ArchiveContent(c, db, name)
 }
 
 // ArchiveContent sets the archive content and readme text of the source file.
-func (got *DemozooLink) ArchiveContent(c echo.Context, src string) error {
+func (got *DemozooLink) ArchiveContent(c echo.Context, db *sql.DB, src string) error {
 	files, err := archive.List(src, got.Filename)
 	if err != nil {
 		return c.JSON(http.StatusOK, got)
 	}
 	got.Readme = archive.Readme(got.Filename, files...)
 	got.Content = strings.Join(files, "\n")
-	return got.Update(c)
+	return got.Update(c, db)
 }
 
 // Update modifies the database record using data provided by the DemozooLink struct.
 // A JSON response is returned with the success status of the update.
-func (got DemozooLink) Update(c echo.Context) error {
+func (got DemozooLink) Update(c echo.Context, db *sql.DB) error {
 	uid := got.UUID
 	ctx := context.Background()
-	db, tx, err := postgres.ConnectTx()
+	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
-		return ErrDB
+		return fmt.Errorf("demozoolink update begin tx %w: %s", err, uid)
 	}
-	defer db.Close()
 	f, err := model.OneByUUID(ctx, tx, true, uid)
 	if err != nil {
 		return fmt.Errorf("demozoolink update by uuid %w: %s", err, uid)
