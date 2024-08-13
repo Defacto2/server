@@ -13,6 +13,7 @@ import (
 	"slices"
 	"sync"
 
+	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magicnumber"
 	"go.uber.org/zap"
 )
@@ -134,7 +135,7 @@ const (
 
 // Thumbs creates a thumbnail image for the preview image based on the crop position of the image.
 func (align Align) Thumbs(unid string, previewDir, thumbnailDir string) error {
-	tmpDir := filepath.Join(os.TempDir(), patternS)
+	tmpDir := filepath.Join(helper.TmpDir(), patternS)
 	pattern := "images-thumb-" + unid
 	path := filepath.Join(tmpDir, pattern)
 	if st, err := os.Stat(path); err != nil {
@@ -202,7 +203,7 @@ func (crop Crop) Images(unid string, previewDir string) error {
 	if !st.IsDir() {
 		return fmt.Errorf("crop images %w", ErrIsFile)
 	}
-	tmpDir := filepath.Join(os.TempDir(), patternS)
+	tmpDir := filepath.Join(helper.TmpDir(), patternS)
 	pattern := "images-crop-" + unid
 	path := filepath.Join(tmpDir, pattern)
 	if st, err := os.Stat(path); err != nil {
@@ -373,10 +374,10 @@ func (dir Dirs) textImagers(debug *zap.SugaredLogger, unid, tmp string) error {
 func (dir Dirs) PreviewPixels(debug *zap.SugaredLogger, src, unid string) error {
 	args := Args{}
 	args.PortablePixel()
-	arg := []string{src}                                       // source file
-	arg = append(arg, args...)                                 // command line arguments
-	name := filepath.Base(src) + png                           // temp file name
-	tmpDir, err := os.MkdirTemp(os.TempDir(), "previewpixels") // create temp dir
+	arg := []string{src}                                          // source file
+	arg = append(arg, args...)                                    // command line arguments
+	name := filepath.Base(src) + png                              // temp file name
+	tmpDir, err := os.MkdirTemp(helper.TmpDir(), "previewpixels") // create temp dir
 	if err != nil {
 		return fmt.Errorf("preview pixel make dir temp %w", err)
 	}
@@ -403,10 +404,10 @@ func (dir Dirs) PreviewPixels(debug *zap.SugaredLogger, src, unid string) error 
 func (dir Dirs) PreviewPhoto(debug *zap.SugaredLogger, src, unid string) error {
 	jargs := Args{}
 	jargs.JpegPhoto()
-	arg := []string{src}                                      // source file
-	arg = append(arg, jargs...)                               // command line arguments
-	name := filepath.Base(src) + jpg                          // temp file name
-	tmpDir, err := os.MkdirTemp(os.TempDir(), "previewphoto") // create temp dir
+	arg := []string{src}                                         // source file
+	arg = append(arg, jargs...)                                  // command line arguments
+	name := filepath.Base(src) + jpg                             // temp file name
+	tmpDir, err := os.MkdirTemp(helper.TmpDir(), "previewphoto") // create temp dir
 	if err != nil {
 		return fmt.Errorf("preview photo make dir temp %w", err)
 	}

@@ -84,7 +84,7 @@ func TestRead(t *testing.T) {
 	require.Error(t, err)
 	assert.Nil(t, r)
 
-	dir, err := os.MkdirTemp(os.TempDir(), unid)
+	dir, err := os.MkdirTemp(helper.TmpDir(), unid)
 	require.NoError(t, err)
 	defer os.RemoveAll(dir)
 
@@ -172,9 +172,9 @@ func TestNoScreenshot(t *testing.T) {
 	const unid = "5b4c5f6e-8a1e-11e9-9f0e-000000000000"
 	art.Platform = null.StringFrom("")
 	art.UUID = null.StringFrom(unid)
-	name := filepath.Join(os.TempDir(), unid) + ".webp"
+	name := filepath.Join(helper.TmpDir(), unid) + ".webp"
 	err := helper.Touch(name)
 	require.NoError(t, err)
 	defer os.Remove(name)
-	assert.False(t, render.NoScreenshot(&art, os.TempDir()))
+	assert.False(t, render.NoScreenshot(&art, helper.TmpDir()))
 }

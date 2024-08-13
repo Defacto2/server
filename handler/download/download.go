@@ -51,7 +51,7 @@ func Checksum(c echo.Context, id string) error {
 	name := art.Filename.String
 	body := []byte(sum + " " + name)
 
-	file, err := os.CreateTemp(os.TempDir(), "checksum-server.*.txt")
+	file, err := os.CreateTemp(helper.TmpDir(), "checksum-server.*.txt")
 	if err != nil {
 		return fmt.Errorf("file download checksum create tempdir: %w", err)
 	}

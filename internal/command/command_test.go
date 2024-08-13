@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/helper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
@@ -28,7 +29,7 @@ func TestRemoveImgs(t *testing.T) {
 	t.Parallel()
 	err := command.RemoveImgs("", "", "")
 	require.NoError(t, err)
-	td := os.TempDir()
+	td := helper.TmpDir()
 
 	tmp, err := os.CreateTemp(td, "command_test")
 	require.NoError(t, err)
@@ -49,7 +50,7 @@ func TestRemoveMe(t *testing.T) {
 	err := command.RemoveMe("", "")
 	require.NoError(t, err)
 
-	td := os.TempDir()
+	td := helper.TmpDir()
 	tmp, err := os.CreateTemp(td, "command_test")
 	require.NoError(t, err)
 	defer os.Remove(tmp.Name())
@@ -68,7 +69,7 @@ func TestCopyFile(t *testing.T) {
 	err := command.CopyFile(nil, "", "")
 	assert.Equal(t, command.ErrZap, err)
 
-	td := os.TempDir()
+	td := helper.TmpDir()
 	tmp, err := os.CreateTemp(td, "command_test")
 	require.NoError(t, err)
 	defer os.Remove(tmp.Name())

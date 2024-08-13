@@ -53,12 +53,12 @@ func Test_ExtractOne(t *testing.T) {
 	err = command.ExtractOne(logr(), src, "", ".zip", "TEST.ASC")
 	require.Error(t, err)
 
-	dst = os.TempDir()
+	dst = helper.TmpDir()
 	err = command.ExtractOne(logr(), src, dst, ".zip", "TEST.ASC")
 	require.Error(t, err)
 
 	src = td("PKZ204EX.ZIP")
-	dst, _ = filepath.Abs(filepath.Join(os.TempDir(), "PKZ204EX.ZIP"))
+	dst, _ = filepath.Abs(filepath.Join(helper.TmpDir(), "PKZ204EX.ZIP"))
 	err = command.ExtractOne(logr(), src, dst, ".zip", "TEST.ASC")
 	require.NoError(t, err)
 
@@ -67,7 +67,7 @@ func Test_ExtractOne(t *testing.T) {
 	defer os.Remove(dst)
 
 	src = td("PKZ80A1.ZIP")
-	dst, _ = filepath.Abs(filepath.Join(os.TempDir(), "PKZ80A1.ZIP"))
+	dst, _ = filepath.Abs(filepath.Join(helper.TmpDir(), "PKZ80A1.ZIP"))
 	err = command.ExtractOne(logr(), src, dst, ".zip", "TEST.ASC")
 	require.NoError(t, err)
 
@@ -76,7 +76,7 @@ func Test_ExtractOne(t *testing.T) {
 	defer os.Remove(dst)
 
 	src = td("ARC521P.ARC")
-	dst, _ = filepath.Abs(filepath.Join(os.TempDir(), "ARC521P.ARC"))
+	dst, _ = filepath.Abs(filepath.Join(helper.TmpDir(), "ARC521P.ARC"))
 	err = command.ExtractOne(logr(), src, dst, ".arc", "TEST.JPG")
 	require.NoError(t, err)
 
@@ -85,7 +85,7 @@ func Test_ExtractOne(t *testing.T) {
 	defer os.Remove(dst)
 
 	src = td("ARJ310.ARJ")
-	dst, _ = filepath.Abs(filepath.Join(os.TempDir(), "ARJ310.ARJ"))
+	dst, _ = filepath.Abs(filepath.Join(helper.TmpDir(), "ARJ310.ARJ"))
 	err = command.ExtractOne(logr(), src, dst, ".arj", "TEST.JPEG")
 	require.NoError(t, err)
 
@@ -94,7 +94,7 @@ func Test_ExtractOne(t *testing.T) {
 	defer os.Remove(dst)
 
 	src = td("RAR624.RAR")
-	dst, _ = filepath.Abs(filepath.Join(os.TempDir(), "RAR624.RAR"))
+	dst, _ = filepath.Abs(filepath.Join(helper.TmpDir(), "RAR624.RAR"))
 	err = command.ExtractOne(logr(), src, dst, ".rar", "TEST.JPG")
 	require.NoError(t, err)
 
@@ -103,7 +103,7 @@ func Test_ExtractOne(t *testing.T) {
 	defer os.Remove(dst)
 
 	src = td("TAR135.TAR")
-	dst, _ = filepath.Abs(filepath.Join(os.TempDir(), "TAR135.TAR"))
+	dst, _ = filepath.Abs(filepath.Join(helper.TmpDir(), "TAR135.TAR"))
 	err = command.ExtractOne(logr(), src, dst, ".tar", "TEST.JPG")
 	require.NoError(t, err)
 
@@ -112,7 +112,7 @@ func Test_ExtractOne(t *testing.T) {
 	defer os.Remove(dst)
 
 	src = td("TAR135.GZ")
-	dst, _ = filepath.Abs(filepath.Join(os.TempDir(), "TAR135.GZ"))
+	dst, _ = filepath.Abs(filepath.Join(helper.TmpDir(), "TAR135.GZ"))
 	err = command.ExtractOne(logr(), src, dst, ".gz", "TEST.JPG")
 	require.NoError(t, err)
 
@@ -171,11 +171,11 @@ func Test_ExtractAnsiLove(t *testing.T) {
 
 func Test_ExtractImage(t *testing.T) {
 	t.Parallel()
-	prev, err := os.MkdirTemp(os.TempDir(), "preview")
+	prev, err := os.MkdirTemp(helper.TmpDir(), "preview")
 	require.NoError(t, err)
-	thumb, err := os.MkdirTemp(os.TempDir(), "thumb")
+	thumb, err := os.MkdirTemp(helper.TmpDir(), "thumb")
 	require.NoError(t, err)
-	dl, err := os.MkdirTemp(os.TempDir(), "download")
+	dl, err := os.MkdirTemp(helper.TmpDir(), "download")
 	require.NoError(t, err)
 	dir := command.Dirs{
 		Download:  dl,    // this prefixes to UUID
@@ -233,11 +233,11 @@ func Test_ExtractImage(t *testing.T) {
 
 func Test_PreviewPixels(t *testing.T) {
 	t.Parallel()
-	prev, err := os.MkdirTemp(os.TempDir(), "preview")
+	prev, err := os.MkdirTemp(helper.TmpDir(), "preview")
 	require.NoError(t, err)
-	thumb, err := os.MkdirTemp(os.TempDir(), "thumb")
+	thumb, err := os.MkdirTemp(helper.TmpDir(), "thumb")
 	require.NoError(t, err)
-	dl, err := os.MkdirTemp(os.TempDir(), "download")
+	dl, err := os.MkdirTemp(helper.TmpDir(), "download")
 	require.NoError(t, err)
 	dir := command.Dirs{
 		Download:  dl,    // this prefixes to UUID

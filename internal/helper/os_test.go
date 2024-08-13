@@ -56,7 +56,7 @@ func TestDuplicate(t *testing.T) {
 	require.Error(t, err)
 	assert.Empty(t, r)
 
-	dest, err := os.MkdirTemp(os.TempDir(), "test_duplicate")
+	dest, err := os.MkdirTemp(helper.TmpDir(), "test_duplicate")
 	require.NoError(t, err)
 	defer os.RemoveAll(dest)
 
@@ -125,7 +125,7 @@ func TestRenameFile(t *testing.T) {
 	err := helper.RenameFile("", "")
 	require.Error(t, err)
 
-	dir, err := os.MkdirTemp(os.TempDir(), "test")
+	dir, err := os.MkdirTemp(helper.TmpDir(), "test")
 	require.NoError(t, err)
 	defer os.RemoveAll(dir)
 
@@ -152,7 +152,7 @@ func TestRenameFileOW(t *testing.T) {
 	err := helper.RenameFileOW("", "")
 	require.Error(t, err)
 
-	dir, err := os.MkdirTemp(os.TempDir(), "test")
+	dir, err := os.MkdirTemp(helper.TmpDir(), "test")
 	require.NoError(t, err)
 	defer os.RemoveAll(dir)
 
@@ -179,7 +179,7 @@ func TestRenameCrossDevice(t *testing.T) {
 	err := helper.RenameCrossDevice("", "")
 	require.Error(t, err)
 
-	dir, err := os.MkdirTemp(os.TempDir(), "test")
+	dir, err := os.MkdirTemp(helper.TmpDir(), "test")
 	require.NoError(t, err)
 	defer os.RemoveAll(dir)
 
@@ -208,7 +208,7 @@ func TestSize(t *testing.T) {
 	i = helper.Size("nosuchfile")
 	assert.Equal(t, none, i)
 
-	dir, err := os.MkdirTemp(os.TempDir(), "test")
+	dir, err := os.MkdirTemp(helper.TmpDir(), "test")
 	require.NoError(t, err)
 	defer os.RemoveAll(dir)
 	abs := filepath.Join(dir, name)
@@ -233,7 +233,7 @@ func TestStrongIntegrity(t *testing.T) {
 	require.Error(t, err)
 	assert.Empty(t, s)
 
-	dir, err := os.MkdirTemp(os.TempDir(), "test")
+	dir, err := os.MkdirTemp(helper.TmpDir(), "test")
 	require.NoError(t, err)
 	defer os.RemoveAll(dir)
 	abs := filepath.Join(dir, name)

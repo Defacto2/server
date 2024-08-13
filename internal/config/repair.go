@@ -205,7 +205,7 @@ func (r Repair) artifacts(ctx context.Context, ce boil.ContextExecutor, logger *
 
 func (r Repair) rearchive(ctx context.Context, path, extra, uid string) error {
 	logger := helper.Logger(ctx)
-	tmp, err := os.MkdirTemp(os.TempDir(), "defacto2-rearchive-")
+	tmp, err := os.MkdirTemp(helper.TmpDir(), "rearchive-")
 	if err != nil {
 		return fmt.Errorf("rearchive mkdir temp %w: %s", err, path)
 	}
@@ -239,7 +239,7 @@ func (r Repair) rearchive(ctx context.Context, path, extra, uid string) error {
 	}
 
 	basename := uid + ".zip"
-	tmpArc := filepath.Join(os.TempDir(), basename)
+	tmpArc := filepath.Join(helper.TmpDir(), basename)
 	if written, err := rezip.CompressDir(tmp, tmpArc); err != nil {
 		return fmt.Errorf("rearchive dir %w: %s", err, tmp)
 	} else if written == 0 {

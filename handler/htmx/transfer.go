@@ -322,7 +322,7 @@ func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeade
 	}
 	defer src.Close()
 
-	dst, err := os.CreateTemp(os.TempDir(), pattern)
+	dst, err := os.CreateTemp(helper.TmpDir(), pattern)
 	if err != nil {
 		if logger != nil {
 			s := fmt.Sprintf("Cannot create a temporary destination file, %s: %s", name, err)
@@ -495,7 +495,7 @@ func UploadPreview(c echo.Context, previewDir, thumbnailDir string) error {
 	}
 	defer src.Close()
 	pattern := name + "-*"
-	dst, err := os.CreateTemp(os.TempDir(), pattern)
+	dst, err := os.CreateTemp(helper.TmpDir(), pattern)
 	if err != nil {
 		return c.HTML(http.StatusInternalServerError,
 			"The temporary save cannot be created")

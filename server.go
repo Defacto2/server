@@ -92,6 +92,7 @@ func main() {
 		repairs(ctx, db, tx, configs)
 	}
 	sanityChecks(ctx, configs)
+	sanityTmpDir()
 
 	// start the web server and the sugared logger.
 	website := newInstance(ctx, db, configs)
@@ -202,6 +203,18 @@ func sanityChecks(ctx context.Context, configs config.Config) {
 		return
 	}
 	_ = conn.Validate(logger)
+}
+
+// sanityTmpDir is used to print the temporary directory and its disk usage.
+func sanityTmpDir() {
+	tmpdir := helper.TmpDir()
+	du, err := helper.DiskUsage(tmpdir)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
+	hdu := helper.ByteCountFloat(du)
+	fmt.Fprintf(os.Stdout, "Temporary directory using, %s: %s\n\n", hdu, tmpdir)
 }
 
 // checks is used to confirm the required commands are available.

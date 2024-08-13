@@ -23,8 +23,10 @@ import (
 const (
 	// WriteWriteRead is the file mode for read and write access.
 	// The file owner and group has read and write access, and others have read access.
-	WriteWriteRead fs.FileMode = 0o664
-	DSStore                    = ".DS_Store" // DSStore is the macOS directory service store file.
+	WriteWriteRead   fs.FileMode = 0o664
+	DSStore                      = ".DS_Store"       // DSStore is the macOS directory service store file.
+	TempBase                     = "defacto2-server" // TempBase is the base subdirectory for temporary files.
+	DirWriteReadRead             = 0o755             // Directory permissions.
 )
 
 // Extension is a file extension with a count of files.
@@ -86,6 +88,25 @@ func Count(dir string) (int, error) {
 		i++
 	}
 	return i, nil
+}
+
+// DiskUsage returns the total size of the files in the given directory.
+func DiskUsage(path string) (int64, error) {
+	var size int64
+	var skipItem = errors.New("skip item")
+	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
+		if err != nil {
+			return skipItem
+		}
+		if !info.IsDir() {
+			size += info.Size()
+		}
+		return nil
+	})
+	if err != nil {
+		return 0, fmt.Errorf("disk usage %w", err)
+	}
+	return size, nil
 }
 
 // Duplicate is a workaround for renaming files across different devices.
@@ -270,12 +291,12 @@ func Lines(name string) (int, error) {
 // The directory is created if it does not exist. The directory is named after the source file.
 func MkContent(src string) (string, error) {
 	name := strings.TrimSpace(strings.ToLower(filepath.Base(src)))
-	dir := filepath.Join(os.TempDir(), "defacto2-server")
+	dir := TmpDir()
 	pattern := "artifact-content-" + name
 	dst := filepath.Join(dir, pattern)
 	if st, err := os.Stat(dst); err != nil {
 		if os.IsNotExist(err) {
-			if err := os.MkdirAll(dst, os.ModePerm); err != nil {
+			if err := os.MkdirAll(dst, DirWriteReadRead); err != nil {
 				return "", fmt.Errorf("mkcontent %w", err)
 			}
 			return dst, nil
@@ -417,6 +438,16 @@ func Sum386(f *os.File) (string, error) {
 	}
 	s := hex.EncodeToString(strong.Sum(nil))
 	return s, nil
+}
+
+// TempDir returns the temporary directory for the server,
+// which is a subdirectory of the system temp directory.
+func TmpDir() string {
+	path := filepath.Join(os.TempDir(), TempBase)
+	if err := os.MkdirAll(path, DirWriteReadRead); err != nil {
+		return os.TempDir()
+	}
+	return path
 }
 
 // Touch creates a new, empty named file.

@@ -6,12 +6,13 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/cache"
+	"github.com/Defacto2/server/internal/helper"
 )
 
 func TestCache(t *testing.T) {
 	t.Cleanup(func() {
 		// Remove cacheDB directory
-		path := filepath.Join(os.TempDir(), cache.SubDir)
+		path := filepath.Join(helper.TmpDir(), cache.SubDir)
 		os.RemoveAll(path)
 	})
 

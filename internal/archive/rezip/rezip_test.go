@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/archive/rezip"
+	"github.com/Defacto2/server/internal/helper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -26,7 +27,7 @@ func TestCompress(t *testing.T) {
 
 	src := td("TEST.EXE")
 
-	dir, err := os.MkdirTemp(os.TempDir(), "unzip_test")
+	dir, err := os.MkdirTemp(helper.TmpDir(), "unzip_test")
 	require.NoError(t, err)
 	defer os.RemoveAll(dir)
 	dest := filepath.Join(dir, "zip_test.zip")
@@ -59,7 +60,7 @@ func TestCompressDir(t *testing.T) {
 	t.Parallel()
 
 	srcDir := td("")
-	dir, err := os.MkdirTemp(os.TempDir(), "unzip_test")
+	dir, err := os.MkdirTemp(helper.TmpDir(), "unzip_test")
 	require.NoError(t, err)
 	defer os.RemoveAll(dir)
 	dest := filepath.Join(dir, "unzip_test.zip")

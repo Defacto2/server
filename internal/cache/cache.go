@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/Defacto2/server/internal/helper"
 	"github.com/rosedblabs/rosedb/v2"
 )
 
@@ -23,9 +24,8 @@ func (c Cache) String() string {
 }
 
 const (
-	DirWriteReadRead = 0o755              // Directory permissions.
-	ExpiredAt        = 7 * 24 * time.Hour // The expiry time for storage engine entries.
-	SubDir           = "cacheDB"          // The name of the storage engine subdirectory.
+	ExpiredAt = 7 * 24 * time.Hour // The expiry time for storage engine entries.
+	SubDir    = "cacheDB"          // The name of the storage engine subdirectory.
 )
 
 // Path returns the absolute path to the storage engine directory.
@@ -39,7 +39,7 @@ func (c Cache) Path() (string, error) {
 	if err == nil {
 		return tmp, nil
 	}
-	err = os.MkdirAll(tmp, DirWriteReadRead)
+	err = os.MkdirAll(tmp, helper.DirWriteReadRead)
 	if err != nil {
 		return "", fmt.Errorf("cache path, make directory %w", err)
 	}

@@ -12,6 +12,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/Defacto2/server/internal/helper"
 	"go.uber.org/zap"
 )
 
@@ -45,7 +46,7 @@ func ExtractOne(debug *zap.SugaredLogger, src, dst, extHint, name string) error 
 		return fmt.Errorf("extract one %w: %q", ErrEmpty, src)
 	}
 
-	tmp, err := os.MkdirTemp(os.TempDir(), pattern)
+	tmp, err := os.MkdirTemp(helper.TmpDir(), pattern)
 	if err != nil {
 		return fmt.Errorf("extract one make temp dir %w", err)
 	}
@@ -326,7 +327,7 @@ func (dir Dirs) ExtractImage(debug *zap.SugaredLogger, src, extHint, unid, name 
 
 // extract extracts the named file from a zip archive and returns the path to the file.
 func extract(debug *zap.SugaredLogger, src, extHint, name string) (string, error) {
-	tmp, err := os.MkdirTemp(os.TempDir(), pattern)
+	tmp, err := os.MkdirTemp(helper.TmpDir(), pattern)
 	if err != nil {
 		return "", fmt.Errorf("decompress make dir temp %w", err)
 	}

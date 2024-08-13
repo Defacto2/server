@@ -110,13 +110,13 @@ func TestExtractAll(t *testing.T) {
 	err = archive.Extract(td(""), "", "")
 	require.Error(t, err)
 
-	err = archive.Extract(td(""), os.TempDir(), "")
+	err = archive.Extract(td(""), helper.TmpDir(), "")
 	require.Error(t, err)
 
-	err = archive.Extract(td("PKZ204EX.ZIP"), os.TempDir(), "")
+	err = archive.Extract(td("PKZ204EX.ZIP"), helper.TmpDir(), "")
 	require.Error(t, err)
 
-	err = archive.Extract(td("PKZ204EX.ZIP"), os.TempDir(), "test.exe")
+	err = archive.Extract(td("PKZ204EX.ZIP"), helper.TmpDir(), "test.exe")
 	require.Error(t, err)
 
 	tmp, err := os.MkdirTemp("", "testextractall-")
@@ -147,13 +147,13 @@ func TestExtract(t *testing.T) {
 	require.Error(t, err)
 
 	// Extract(src, dst, filename, target string) error {
-	err = archive.Extract(td(""), os.TempDir(), "", "")
+	err = archive.Extract(td(""), helper.TmpDir(), "", "")
 	require.Error(t, err)
 
-	err = archive.Extract(td("PKZ204EX.ZIP"), os.TempDir(), "", "")
+	err = archive.Extract(td("PKZ204EX.ZIP"), helper.TmpDir(), "", "")
 	require.Error(t, err)
 
-	err = archive.Extract(td("PKZ204EX.ZIP"), os.TempDir(), "", "test.exe")
+	err = archive.Extract(td("PKZ204EX.ZIP"), helper.TmpDir(), "", "test.exe")
 	require.Error(t, err)
 
 	tmp, err := os.MkdirTemp("", "test-")
