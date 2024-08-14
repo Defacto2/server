@@ -508,26 +508,37 @@ func UploadPreview(c echo.Context, previewDir, thumbnailDir string) error {
 		return c.HTML(http.StatusInternalServerError,
 			"The magic number could not be found")
 	}
-	imgs := magicnumber.Images()
-	slices.Sort(imgs)
-	if slices.Contains(imgs, magic) {
+	if imagers(magic) {
 		if err := dirs.PictureImager(nil, dst.Name(), up.unid); err != nil {
 			return badRequest(c, err)
 		}
-		return c.String(http.StatusOK,
-			fmt.Sprintf("The new preview %s is in use, about to reload this page", file.Filename))
+		return reloader(c, file.Filename)
 	}
-	txts := magicnumber.Texts()
-	slices.Sort(txts)
-	if slices.Contains(txts, magic) {
+	if texters(magic) {
 		if err := dirs.TextImager(nil, dst.Name(), up.unid); err != nil {
 			return badRequest(c, err)
 		}
-		return c.String(http.StatusOK,
-			fmt.Sprintf("The new preview %s is in use, about to reload this page", file.Filename))
+		return reloader(c, file.Filename)
 	}
 	return c.HTML(http.StatusBadRequest,
 		"The chosen file is not a valid image or text file")
+}
+
+func imagers(magic magicnumber.Signature) bool {
+	imgs := magicnumber.Images()
+	slices.Sort(imgs)
+	return slices.Contains(imgs, magic)
+}
+
+func texters(magic magicnumber.Signature) bool {
+	txts := magicnumber.Texts()
+	slices.Sort(txts)
+	return slices.Contains(txts, magic)
+}
+
+func reloader(c echo.Context, filename string) error {
+	return c.String(http.StatusOK,
+		fmt.Sprintf("The new preview %s is in use, about to reload this page", filename))
 }
 
 // UploadReplacement is the file transfer handler that uploads, validates a new file upload

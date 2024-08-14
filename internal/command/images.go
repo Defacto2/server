@@ -51,7 +51,6 @@ func ImagesDelete(unid string, dirs ...string) error {
 }
 
 // Pixelate appends the command line arguments for the convert command to transform an image into a PNG image.
-// magick qqq.webp -scale 5% -scale 2000% zzz.webp
 func (a *Args) Pixelate() {
 	// Create a canvas the size of the first images virtual canvas using the
 	// current -background color, and -compose each image in turn onto that canvas.
@@ -61,6 +60,9 @@ func (a *Args) Pixelate() {
 	*a = append(*a, scale2K...)
 }
 
+// ImagesPixelate converts the images in the specified directories to pixelated images.
+// The unid is the unique identifier for the image file and shared between the preview
+// and thumbnail images.
 func ImagesPixelate(unid string, dirs ...string) error {
 	for _, dir := range dirs {
 		st, err := os.Stat(dir)
@@ -84,7 +86,6 @@ func ImagesPixelate(unid string, dirs ...string) error {
 			if err := RunQuiet(Magick, arg...); err != nil {
 				return fmt.Errorf("run pixelate convert %w", err)
 			}
-			//os.Remove(name)
 		}
 	}
 	return nil

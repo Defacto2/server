@@ -99,8 +99,10 @@ func MusicXM(p []byte) string {
 		return ""
 	}
 	xmHeader := p[0:id]
-	if !bytes.Equal(xmHeader, []byte{'E', 'x', 't', 'e', 'n', 'd', 'e', 'd', 0x20,
-		'M', 'o', 'd', 'u', 'l', 'e', ':', 0x20}) {
+	if !bytes.Equal(xmHeader, []byte{
+		'E', 'x', 't', 'e', 'n', 'd', 'e', 'd', 0x20,
+		'M', 'o', 'd', 'u', 'l', 'e', ':', 0x20,
+	}) {
 		return ""
 	}
 	s := "extended module tracked music"

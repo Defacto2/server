@@ -1,7 +1,8 @@
 package str_test
 
 import (
-	"html/template"
+	"fmt"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -91,7 +92,7 @@ func TestUpdated(t *testing.T) {
 func TestDemozooGetLink(t *testing.T) {
 	t.Parallel()
 	html := str.DemozooGetLink("", "", "", "")
-	assert.Equal(t, template.HTML("no id provided"), html)
+	assert.Empty(t, html)
 	fn := null.String{}
 	fs := null.Int64{}
 	dz := null.Int64{}
@@ -118,10 +119,15 @@ func TestDemozooGetLink(t *testing.T) {
 
 func TestImageSample(t *testing.T) {
 	t.Parallel()
+	const missing = "No preview image file"
 	x := str.ImageSample("", "")
-	assert.Contains(t, x, "no such file")
+	assert.Contains(t, x, missing)
 	x = str.ImageSample("", "testdata/TEST.PNG")
-	assert.Contains(t, x, "no such file")
-	x = str.ImageSample("", "testdata/test")
+	assert.Contains(t, x, missing)
+	abs, err := filepath.Abs("../../testdata")
+	assert.NoError(t, err)
+	const filenameNoExt = "test"
+	x = str.ImageSample(filenameNoExt, abs)
+	fmt.Println(x)
 	assert.Contains(t, x, "sha384-SK3qCpS11QMhNxUUnyeUeWWXBMPORDgLTI")
 }

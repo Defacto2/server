@@ -25,7 +25,7 @@ import { clipValue, getElmById } from "./helper.mjs";
   const dataEditors = document.getElementsByName("artifact-editor-dataeditor");
   if (dataEditors.length > 0) {
     for (let i = 0; i < dataEditors.length; i++) {
-      dataEditors[i].addEventListener("click", (evt) => {
+      dataEditors[i].addEventListener("click", () => {
         assetModal.hide();
         emulateModal.hide();
         artifactModal.show();
@@ -35,7 +35,7 @@ import { clipValue, getElmById } from "./helper.mjs";
   const fileEditors = document.getElementsByName("artifact-editor-fileeditor");
   if (fileEditors.length > 0) {
     for (let i = 0; i < fileEditors.length; i++) {
-      fileEditors[i].addEventListener("click", (evt) => {
+      fileEditors[i].addEventListener("click", () => {
         artifactModal.hide();
         emulateModal.hide();
         assetModal.show();
@@ -45,7 +45,7 @@ import { clipValue, getElmById } from "./helper.mjs";
   const emuEditors = document.getElementsByName("artifact-editor-emueditor");
   if (emuEditors.length > 0) {
     for (let i = 0; i < emuEditors.length; i++) {
-      emuEditors[i].addEventListener("click", (evt) => {
+      emuEditors[i].addEventListener("click", () => {
         artifactModal.hide();
         assetModal.hide();
         emulateModal.show();

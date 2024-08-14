@@ -40,7 +40,12 @@ const (
 	textamiga               = "textamiga"
 	arrowLink template.HTML = `<svg class="bi" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#arrow-right"></use></svg>`
-	br = "<br>"
+	br  = "<br>"
+	bat = ".bat"
+	cmd = ".cmd"
+	com = ".com"
+	exe = ".exe"
+	ini = ".ini"
 )
 
 // ListEntry is a struct for the directory item that is used to generate the HTML.
@@ -57,6 +62,7 @@ type ListEntry struct {
 
 // HTML returns the HTML for an file item in the "Download content" section of the File editor.
 func (m ListEntry) HTML(bytes int64, platform string) string {
+	const blank = `<div class="col col-1"></div>`
 	name := url.QueryEscape(m.RelativeName)
 	ext := strings.ToLower(filepath.Ext(name))
 	titlename := m.RelativeName
@@ -75,8 +81,8 @@ func (m ListEntry) HTML(bytes int64, platform string) string {
 				`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/preview/copy/%s/%s">`, m.UniqueID, name) +
 			`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 			`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
-	case m.Texts && (ext == ".bat" || ext == ".cmd" || ext == ".ini"):
-		htm += `<div class="col col-1"></div>`
+	case m.Texts && (ext == bat || ext == cmd || ext == ini):
+		htm += blank
 	case m.Texts:
 		htm += `<div class="col col-1 text-end">` +
 			fmt.Sprintf(`<a class="icon-link align-text-bottom" `+
@@ -84,30 +90,30 @@ func (m ListEntry) HTML(bytes int64, platform string) string {
 			`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 			`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
 	default:
-		htm += `<div class="col col-1"></div>`
+		htm += blank
 	}
 	switch {
-	case m.Texts && (ext == ".bat" || ext == ".cmd" || ext == ".ini"):
-		htm += `<div class="col col-1"></div>`
+	case m.Texts && (ext == bat || ext == cmd || ext == ini):
+		htm += blank
 	case m.Texts:
 		htm += `<div class="col col-1 text-end">` +
 			fmt.Sprintf(`<a class="icon-link align-text-bottom" `+
 				`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/readme/copy/%s/%s">`, m.UniqueID, name) +
 			`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
 			`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></a></div>`
-	case m.Programs && ext == ".exe", m.Programs && ext == ".com":
+	case m.Programs && ext == exe, m.Programs && ext == com:
 		htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 			`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
 	default:
-		htm += `<div class="col col-1"></div>`
+		htm += blank
 	}
 	htm += fmt.Sprintf(`<div><small data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</small>`, bytes, m.Filesize)
 	switch {
-	case m.Texts && (ext == ".bat" || ext == ".cmd"):
+	case m.Texts && (ext == bat || ext == cmd):
 		htm += fmt.Sprintf(` <small class="">%s</small></div>`, "command script")
-	case m.Texts && (ext == ".ini"):
+	case m.Texts && (ext == ini):
 		htm += fmt.Sprintf(` <small class="">%s</small></div>`, "configuration textfile")
-	case m.Programs || ext == ".com":
+	case m.Programs || ext == com:
 		htm = progr(m.Executable, ext, htm, bytes)
 	case m.MusicConfig != "":
 		htm += fmt.Sprintf(` <small class="">%s</small></div>`, m.MusicConfig)
@@ -123,20 +129,16 @@ func (m ListEntry) HTML(bytes int64, platform string) string {
 func progr(exec magicnumber.Windows, ext, htm string, bytes int64) string {
 	const epochYear = 1980
 	const x8086 = 64 * 1024
-	s := ""
-	fmt.Printf("exec: %+v %+v %s\n", exec.PE, exec.NE, ext)
+	dosProg := (ext == exe || ext == com)
+	var s string
 	switch {
-	case (ext == ".exe" || ext == ".com") && exec.PE != magicnumber.UnknownPE:
-		s = fmt.Sprintf("%s executable", exec)
-	case (ext == ".exe" || ext == ".com") && exec.NE == magicnumber.UnknownNE:
-		if x8086 >= bytes {
-			s = "Dos command"
-		} else {
-			s = "Dos executable"
-		}
-	case (ext == ".exe" || ext == ".com") && exec.NE != magicnumber.NoneNE:
-		s = fmt.Sprintf("%s executable", exec)
-	case ext == ".exe" || ext == ".com":
+	case dosProg && exec.PE != magicnumber.UnknownPE:
+		s = exec.String() + " executable"
+	case dosProg && exec.NE == magicnumber.UnknownNE:
+		s = progrDos(x8086, bytes)
+	case dosProg && exec.NE != magicnumber.NoneNE:
+		s = exec.String() + " executable"
+	case dosProg:
 		s = "MS Dos program"
 	case ext == ".dll" && exec.PE != magicnumber.UnknownPE:
 		s = "Windows dynamic-link library"
@@ -146,10 +148,17 @@ func progr(exec magicnumber.Windows, ext, htm string, bytes int64) string {
 		s = "PE program data"
 	}
 	if y := exec.TimeDateStamp.Year(); y >= epochYear && y <= time.Now().Year() {
-		s += fmt.Sprintf(", built %s", exec.TimeDateStamp.Format("2006-01-2"))
+		s += ", built " + exec.TimeDateStamp.Format("2006-01-2")
 	}
 	htm += fmt.Sprintf(` <small class="">%s</small></div>`, s)
 	return htm
+}
+
+func progrDos(x8086 int, bytes int64) string {
+	if x8086 >= int(bytes) {
+		return "Dos command"
+	}
+	return "Dos executable"
 }
 
 // AlertURL returns the VirusTotal URL for the security alert for the file record.
@@ -341,7 +350,6 @@ func (e *entry) parseImage(sign magicnumber.Signature, path string) bool {
 	}
 	switch sign {
 	case magicnumber.InterleavedBitmap:
-		fmt.Print("InterleavedBitmap")
 		r, _ := os.Open(path)
 		if r == nil {
 			return skipEntry
@@ -350,7 +358,7 @@ func (e *entry) parseImage(sign magicnumber.Signature, path string) bool {
 		x, y := magicnumber.IlbmDecode(r)
 		e.format = fmt.Sprintf("ILBM image, %dx%d", x, y)
 	default:
-		e.format = fmt.Sprintf("%s image", sign.Title())
+		e.format = sign.Title() + " image"
 	}
 	return !skipEntry
 }
@@ -915,9 +923,9 @@ func JsdosUse(art *models.File) bool {
 	}
 	ext := filepath.Ext(strings.ToLower(art.Filename.String))
 	switch ext {
-	case ".exe", ".com":
+	case exe, com:
 		return true
-	case ".bat", ".cmd":
+	case bat, cmd:
 		return false
 	default:
 		return false

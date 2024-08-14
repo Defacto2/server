@@ -463,7 +463,8 @@ func UpdateCreators(db *sql.DB, id int64, text, ill, prog, audio string) error {
 // UpdateLinks updates the youtube, 16colors, relations, sites, demozoo, and pouet columns with the values provided.
 func UpdateLinks(db *sql.DB, id int64,
 	youtube, colors16, github, relations, sites string,
-	demozoo, pouet int64) error {
+	demozoo, pouet int64,
+) error {
 	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {

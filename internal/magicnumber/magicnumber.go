@@ -660,7 +660,7 @@ func Flags(x uint8) []int {
 	for x != 0 {
 		ones[i] = bits.TrailingZeros8(x)
 		x &= x - 1
-		i += 1
+		i++
 	}
 	return ones
 }

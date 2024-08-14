@@ -22,9 +22,11 @@ import (
 	"github.com/Defacto2/server/internal/config/fixlha"
 	"github.com/Defacto2/server/internal/config/fixzip"
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/magicnumber"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/google/uuid"
+	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"go.uber.org/zap"
@@ -260,6 +262,37 @@ func (r Repair) rearchive(ctx context.Context, path, extra, uid string) error {
 	return nil
 }
 
+// TODO:
+func (c Config) magics(ctx context.Context, exec boil.ContextExecutor) error {
+	empty := models.FileWhere.FileMagicType.EQ(null.StringFrom(""))
+	generic := models.FileWhere.FileMagicType.EQ(null.StringFrom("application/octet-stream"))
+	qmMods := []qm.QueryMod{empty, generic}
+	for _, mod := range qmMods {
+		nuls, err := models.Files(mod).All(ctx, exec)
+		if err != nil {
+			return fmt.Errorf("where file_magic_type is null: %w", err)
+		}
+		fmt.Fprintln(os.Stdout, "Files with null magic type:", len(nuls))
+		for _, f := range nuls {
+			// fmt.Fprintln(os.Stdout, f.UUID.String, f.Filename)
+			name := filepath.Join(c.AbsDownload, f.UUID.String)
+			x, err := os.Open(name)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				continue
+			}
+			defer x.Close()
+			magic, err := magicnumber.Find(x)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				continue
+			}
+			fmt.Fprintln(os.Stdout, magic.Title(), magic.String(), f.Filename.String)
+		}
+	}
+	return nil
+}
+
 // Assets, on startup check the file system directories for any invalid or unknown files.
 // These specifically match the base filename against the UUID column in the database.
 // When there is no matching UUID, the file is considered orphaned and these are moved
@@ -361,6 +394,10 @@ func (c Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor) err
 	if err := c.Archives(ctx, exec); err != nil {
 		return fmt.Errorf("repair archives %w", err)
 	}
+	// TODO:
+	// if err := c.Magics(ctx, exec); err != nil {
+	// 	return fmt.Errorf("repair magics %w", err)
+	// }
 	return nil
 }
 

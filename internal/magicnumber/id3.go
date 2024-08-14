@@ -35,7 +35,7 @@ func MusicID3v1(p []byte) string {
 	year = strings.TrimSpace(year)
 	s := song
 	if artist != "" {
-		s += fmt.Sprintf(" by %s", artist)
+		s += " by " + artist
 	}
 	if year != "" {
 		s += fmt.Sprintf(" (%s)", year)
@@ -59,12 +59,15 @@ func MusicID3v2(p []byte) string {
 		return ""
 	}
 	data := p[length:]
+	const (
+		ver220 = 0x02
+		ver230 = 0x03
+		ver240 = 0x04
+	)
 	switch version := p[3]; version {
-	case 0x2:
+	case ver220:
 		return ID3v220(data...)
-	case 0x3:
-		return ID3v230(data...)
-	case 0x4:
+	case ver230, ver240:
 		return ID3v230(data...)
 	}
 	return ""
@@ -83,9 +86,9 @@ func ID3v220(data ...byte) string {
 	s := ID3v22Frame(songName, data...)
 	if s != "" {
 		if lp := ID3v22Frame(leadPerformer, data...); lp != "" {
-			s += fmt.Sprintf(" by %s", lp)
+			s += " by " + lp
 		} else if band := ID3v22Frame(band, data...); band != "" {
-			s += fmt.Sprintf(" by %s", band)
+			s += " by " + band
 		}
 	} else if ab := ID3v22Frame(albumTitle, data...); ab == "" {
 		return ""
@@ -109,24 +112,29 @@ func ID3v22Frame(id [3]byte, data ...byte) string {
 	if offset == -1 || offset+10 > len(data) {
 		return ""
 	}
-	b0 := int(data[offset+3]) * 16384
-	b1 := int(data[offset+4]) * 128
-	b2 := int(data[offset+5])
+	const (
+		n0 = 16384
+		n1 = 128
+		n2 = 1
+	)
+	b0 := int(data[offset+3]) * n0
+	b1 := int(data[offset+4]) * n1
+	b2 := int(data[offset+5]) * n2
 	frameLen := b0 + b1 + b2
 	if offset+header+frameLen > len(data) {
 		return ""
 	}
 	b := bytes.Trim(data[offset+header:offset+header+frameLen], nul)
-	s, _ := ISO8859_1(b)
+	s, _ := Str8859_1(b)
 	return strings.TrimSpace(s)
 }
 
-// ISO8859_1 converts a byte slice to a Latin-1 (ISO-8859-1) string.
-func ISO8859_1(b []byte) (string, error) {
+// Str8859_1 converts a byte slice to a Latin-1 (ISO-8859-1) string.
+func Str8859_1(b []byte) (string, error) {
 	decoder := charmap.ISO8859_1.NewDecoder()
 	s, err := decoder.Bytes(b)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("magicnumber iso 8859-1 decoder: %w", err)
 	}
 	return string(s), nil
 }
@@ -145,9 +153,9 @@ func ID3v230(data ...byte) string {
 	s := ID3v23Frame(songName, data...)
 	if s != "" {
 		if lp := ID3v23Frame(leadPerformer, data...); lp != "" {
-			s += fmt.Sprintf(" by %s", lp)
+			s += " by %s" + lp
 		} else if cg := ID3v23Frame(contentGroup, data...); cg != "" {
-			s += fmt.Sprintf(" by %s", cg)
+			s += " by %s" + cg
 		}
 	} else if ab := ID3v23Frame(albumTitle, data...); ab == "" {
 		return ""
@@ -171,15 +179,21 @@ func ID3v23Frame(id [4]byte, data ...byte) string {
 	if offset == -1 || offset+10 > len(data) {
 		return ""
 	}
-	b0 := int(data[offset+4]) * 2097152
-	b1 := int(data[offset+5]) * 16384
-	b2 := int(data[offset+6]) * 128
-	b3 := int(data[offset+7])
+	const (
+		n0 = 2097152
+		n1 = 16384
+		n2 = 128
+		n3 = 1
+	)
+	b0 := int(data[offset+4]) * n0
+	b1 := int(data[offset+5]) * n1
+	b2 := int(data[offset+6]) * n2
+	b3 := int(data[offset+7]) * n1
 	frameLen := b0 + b1 + b2 + b3
 	if offset+header+frameLen > len(data) {
 		return ""
 	}
 	b := bytes.Trim(data[offset+header:offset+header+frameLen], nul)
-	s, _ := ISO8859_1(b)
+	s, _ := Str8859_1(b)
 	return strings.TrimSpace(s)
 }

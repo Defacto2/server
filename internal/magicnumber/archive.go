@@ -286,7 +286,7 @@ func ZStd(p []byte) bool {
 }
 
 //
-// Phyiscal media disk image formats
+// Physical media disk image formats
 //
 
 // Daa returns true if the reader contains the PowerISO DAA CD image signature.

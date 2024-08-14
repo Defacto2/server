@@ -159,22 +159,26 @@ func NotPlainText(b byte) bool {
 	if !NotASCII(b) {
 		return false
 	}
-	ExtendedASCII := b >= 0x80 && b <= 0xff
+	const extendedBegin = 0x80
+	const extendedEnd = 0xff
+	ExtendedASCII := b >= extendedBegin && b <= extendedEnd
 	return !ExtendedASCII
 }
 
 // TxtLatin1 returns true if the byte slice exclusively contains plain text ISO/IEC-8895-1 characters,
 // commonly known as the Latin-1 character set.
 func TxtLatin1(p []byte) bool {
-	return !slices.ContainsFunc(p, NonISO88951)
+	return !slices.ContainsFunc(p, NonISO889591)
 }
 
-// NonISO88951 returns true if the byte is not a printable ISO/IEC-8895-1 character.
-func NonISO88951(b byte) bool {
+// NonISO889591 returns true if the byte is not a printable ISO/IEC-8895-1 character.
+func NonISO889591(b byte) bool {
 	if !NotASCII(b) {
 		return false
 	}
-	ExtendedASCII := b >= 0xa0 && b <= 0xff
+	const extendedBegin = 0xa0
+	const extendedEnd = 0xff
+	ExtendedASCII := b >= extendedBegin && b <= extendedEnd
 	return !ExtendedASCII
 }
 
@@ -187,11 +191,20 @@ func TxtWindows(p []byte) bool {
 
 // NonWindows1252 returns true if the byte is not a printable Windows-1252 character.
 func NonWindows1252(b byte) bool {
-	if !NonISO88951(b) {
+	if !NonISO889591(b) {
 		return false
 	}
-	ExtraTypography := b != 0x81 && b != 0x8d && b != 0x8f && b != 0x90 && b != 0x9d
-	return !(b >= 0x80 && b <= 0xff && ExtraTypography)
+	const (
+		extendedBegin = 0x80
+		extendedEnd   = 0xff
+		unused81      = 0x81
+		unused8d      = 0x8d
+		unused8f      = 0x8f
+		unused90      = 0x90
+		unused9d      = 0x9d
+	)
+	ExtraTypography := b != unused81 && b != unused8d && b != unused8f && b != unused90 && b != unused9d
+	return !(b >= extendedBegin && b <= extendedEnd && ExtraTypography)
 }
 
 // Utf8 returns true if the byte slice beings with the UTF-8 Byte Order Mark signature.

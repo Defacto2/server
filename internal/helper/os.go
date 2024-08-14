@@ -93,10 +93,10 @@ func Count(dir string) (int, error) {
 // DiskUsage returns the total size of the files in the given directory.
 func DiskUsage(path string) (int64, error) {
 	var size int64
-	var skipItem = errors.New("skip item")
 	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
 		if err != nil {
-			return skipItem
+			fmt.Fprintln(io.Discard, err)
+			return nil
 		}
 		if !info.IsDir() {
 			size += info.Size()

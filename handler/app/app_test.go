@@ -305,7 +305,7 @@ func TestNames(t *testing.T) {
 	t.Parallel()
 
 	x := app.Names()
-	assert.Equal(t, "public/js/editor-artifact.min.js", x[0])
+	assert.Equal(t, "public/css/bootstrap.min.css", x[0])
 }
 
 func TestFontRefs(t *testing.T) {

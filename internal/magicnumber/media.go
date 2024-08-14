@@ -162,7 +162,7 @@ func Ilbm(p []byte) bool {
 }
 
 // IlbmDecode reads the InterLeaved Bitmap image format in the reader and returns the width and height.
-func IlbmDecode(r io.Reader) (width, height int) {
+func IlbmDecode(r io.Reader) (int, int) {
 	const min = 24
 	p := make([]byte, min)
 	if _, err := io.ReadFull(r, p); err != nil {
@@ -172,7 +172,7 @@ func IlbmDecode(r io.Reader) (width, height int) {
 }
 
 // IlbmConfig reads the InterLeaved Bitmap image format in the byte slice and returns the width and height.
-func IlbmConfig(p []byte) (width, height int) {
+func IlbmConfig(p []byte) (int, int) {
 	const min = 24
 	if len(p) < min {
 		return 0, 0

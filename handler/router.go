@@ -23,7 +23,9 @@ import (
 const code = http.StatusMovedPermanently
 
 // FilesRoutes defines the file locations and routes for the web server.
-func (c Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, public embed.FS) (*echo.Echo, error) {
+func (c Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger,
+	public embed.FS,
+) (*echo.Echo, error) {
 	if e == nil {
 		panic(fmt.Errorf("%w for files routes router", ErrRoutes))
 	}

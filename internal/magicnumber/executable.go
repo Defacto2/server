@@ -187,21 +187,25 @@ func (w Windows) String() string {
 			break
 		}
 	}
+	return pe(w.PE, w.PE64, os)
+}
+
+func pe(pe PortableExecutable, pe64 bool, os string) string {
 	switch {
-	case w.PE == UnknownPE && w.PE64:
+	case pe == UnknownPE && pe64:
 		return "Unknown PE+ executable"
-	case w.PE == UnknownPE:
+	case pe == UnknownPE:
 		return "Unknown PE executable"
-	case w.PE == Intel386PE:
-		return fmt.Sprintf("%s 32-bit", os)
-	case w.PE == AMD64PE:
-		return fmt.Sprintf("%s 64-bit", os)
-	case w.PE == ARMPE:
-		return fmt.Sprintf("%s for ARM", os)
-	case w.PE == ARM64PE:
-		return fmt.Sprintf("%s for ARM64", os)
-	case w.PE == ItaniumPE:
-		return fmt.Sprintf("%s for Itanium", os)
+	case pe == Intel386PE:
+		return os + " 32-bit"
+	case pe == AMD64PE:
+		return os + " 64-bit"
+	case pe == ARMPE:
+		return os + " for ARM"
+	case pe == ARM64PE:
+		return os + " for ARM64"
+	case pe == ItaniumPE:
+		return os + " for Itanium"
 	}
 	return ""
 }
@@ -259,7 +263,7 @@ func NE(p []byte) Windows {
 	const executableTypeIndex = 0x36  // the executable type aka the operating system
 	const winMinorIndex = 0x3e        // the location of the Windows minor version
 	const winMajorIndex = 0x3f        // the location of the Windows major version
-	offset := uint16(binary.LittleEndian.Uint16(p[segmentedHeaderIndex:]))
+	offset := binary.LittleEndian.Uint16(p[segmentedHeaderIndex:])
 	if len(p) < int(offset)+int(winMajorIndex) {
 		return none
 	}
@@ -338,16 +342,11 @@ func PE(p []byte) Windows {
 	}
 	// the location of the portable executable header
 	const peHeaderIndex = 0x3c
-	offset := uint16(binary.LittleEndian.Uint16(p[peHeaderIndex:]))
+	offset := binary.LittleEndian.Uint16(p[peHeaderIndex:])
 	if len(p) < int(offset) {
 		return none
 	}
-	signature := [4]byte{
-		p[offset+0],
-		p[offset+1],
-		p[offset+2],
-		p[offset+3],
-	}
+	signature := [4]byte{p[offset+0], p[offset+1], p[offset+2], p[offset+3]}
 	if signature != [4]byte{'P', 'E', 0, 0} {
 		return none
 	}
@@ -392,19 +391,23 @@ func PE(p []byte) Windows {
 		NE:            NoneNE,
 	}
 	pem := binary.LittleEndian.Uint16(machine[:])
+	w.PE = portexec(pem)
+	return w
+}
+
+func portexec(pem uint16) PortableExecutable {
 	switch PortableExecutable(pem) {
 	case Intel386PE:
-		w.PE = Intel386PE
+		return Intel386PE
 	case AMD64PE:
-		w.PE = AMD64PE
+		return AMD64PE
 	case ARMPE:
-		w.PE = ARMPE
+		return ARMPE
 	case ARM64PE:
-		w.PE = ARM64PE
+		return ARM64PE
 	case ItaniumPE:
-		w.PE = ItaniumPE
+		return ItaniumPE
 	default:
-		w.PE = UnknownPE
+		return UnknownPE
 	}
-	return w
 }

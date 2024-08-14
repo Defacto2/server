@@ -144,6 +144,7 @@ func ImageSample(unid, previewDir string) template.HTML {
 			break
 		}
 	}
+	fmt.Println(name)
 	hash, err := helper.IntegrityFile(name)
 	if err != nil {
 		return template.HTML(`<div class="card-body">No preview image file</div>`)
