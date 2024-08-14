@@ -57,11 +57,11 @@ var (
 
 // Configuration of the handler.
 type Configuration struct {
-	Environment config.Config // Environment configurations from the host system.
-	Brand       []byte        // Brand contains the Defacto2 ASCII logo.
 	Public      embed.FS      // Public facing files.
 	View        embed.FS      // View contains Go templates.
 	Version     string        // Version is the results of GoReleaser build command.
+	Brand       []byte        // Brand contains the Defacto2 ASCII logo.
+	Environment config.Config // Environment configurations from the host system.
 	RecordCount int           // The total number of file records in the database.
 }
 

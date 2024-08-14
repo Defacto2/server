@@ -50,14 +50,14 @@ const (
 
 // ListEntry is a struct for the directory item that is used to generate the HTML.
 type ListEntry struct {
-	Executable              magicnumber.Windows
-	Images, Programs, Texts bool
 	RelativeName            string
 	Signature               string
 	Filesize                string
 	ImageConfig             string
 	MusicConfig             string
 	UniqueID                string
+	Executable              magicnumber.Windows
+	Images, Programs, Texts bool
 }
 
 // HTML returns the HTML for an file item in the "Download content" section of the File editor.
@@ -262,11 +262,11 @@ func Comment(art *models.File) string {
 }
 
 type entry struct {
-	sign    magicnumber.Signature
-	exec    magicnumber.Windows
 	module  string
 	size    string
 	format  string
+	exec    magicnumber.Windows
+	sign    magicnumber.Signature
 	zeros   int
 	bytes   int64
 	image   bool

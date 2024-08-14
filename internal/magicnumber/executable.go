@@ -132,12 +132,12 @@ func WindowsNames() WindowsName {
 
 // Windows represents the Windows specific information in the executable header.
 type Windows struct {
+	TimeDateStamp time.Time          // The time the executable was compiled, only included in PE files
 	Major         int                // Major minimum version, for example, Windows 3.0 would be 3
 	Minor         int                // Minor minimum version, for example, Windows 3.0 would be 0
-	TimeDateStamp time.Time          // The time the executable was compiled, only included in PE files
-	PE64          bool               // True if the executable is a 64-bit Portable Executable (PE32+)
-	PE            PortableExecutable // The Portable Executable CPU architecture
 	NE            NewExecutable      // The New Executable, a legacy format replaced by the Portable Executable format
+	PE            PortableExecutable // The Portable Executable CPU architecture
+	PE64          bool               // True if the executable is a 64-bit Portable Executable (PE32+)
 }
 
 func Default() Windows {

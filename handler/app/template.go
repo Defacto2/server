@@ -34,13 +34,13 @@ const (
 
 // Templ is the configuration and status of the web application templates.
 type Templ struct {
-	Brand       []byte        // Brand contains to the Defacto2 ASCII logo.
-	Environment config.Config // Environment configurations from the host system environment.
 	Public      embed.FS      // Public facing files.
 	View        embed.FS      // Views are Go templates.
-	RecordCount int           // RecordCount is the total number of records in the database.
 	Subresource SRI           // SRI are the Subresource Integrity hashes for the layout.
 	Version     string        // Version is the current version of the app.
+	Brand       []byte        // Brand contains to the Defacto2 ASCII logo.
+	Environment config.Config // Environment configurations from the host system environment.
+	RecordCount int           // RecordCount is the total number of records in the database.
 }
 
 // Templates returns a map of the templates used by the route.

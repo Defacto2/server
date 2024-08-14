@@ -73,10 +73,10 @@ func ExtractOne(debug *zap.SugaredLogger, src, dst, extHint, name string) error 
 }
 
 type runner struct {
+	debug *zap.SugaredLogger
 	src   string // src is the absolute path to the source archive.
 	tmp   string // tmp is the absolute path to a temporary, destination directory.
 	name  string // name is the name of the file to extract from the archive.
-	debug *zap.SugaredLogger
 }
 
 // extract extracts the named file from the src archive.
