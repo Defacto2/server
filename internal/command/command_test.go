@@ -2,6 +2,8 @@ package command_test
 
 import (
 	"os"
+	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/Defacto2/server/internal/command"
@@ -13,6 +15,16 @@ import (
 
 func logr() *zap.SugaredLogger {
 	return zap.NewExample().Sugar()
+}
+
+func tduncompress(name string) string {
+	_, file, _, ok := runtime.Caller(0)
+	if !ok {
+		panic("runtime.Caller failed")
+	}
+	d := filepath.Join(filepath.Dir(file), "../..")
+	x := filepath.Join(d, "assets", "testdata", "uncompress", name)
+	return x
 }
 
 func TestLookups(t *testing.T) {
@@ -162,4 +174,28 @@ func TestRunWD(t *testing.T) {
 	require.NoError(t, err)
 	err = command.RunWorkdir(logr(), "go", wd, "version")
 	require.NoError(t, err)
+}
+
+func Test_PreviewPixels(t *testing.T) {
+	t.Parallel()
+	prev, err := os.MkdirTemp(helper.TmpDir(), "preview")
+	require.NoError(t, err)
+	thumb, err := os.MkdirTemp(helper.TmpDir(), "thumb")
+	require.NoError(t, err)
+	dl, err := os.MkdirTemp(helper.TmpDir(), "download")
+	require.NoError(t, err)
+	dir := command.Dirs{
+		Download:  dl,    // this prefixes to UUID
+		Preview:   prev,  // this is the output dest
+		Thumbnail: thumb, // this is the cropped output dest
+	}
+	imgs := []string{"TEST.BMP", "TEST.GIF", "TEST.JPG", "TEST.PCX", "TEST.PNG"}
+	for _, name := range imgs {
+		fp := tduncompress(name)
+		err = dir.PreviewPixels(logr(), fp, "000000ABCDE")
+		require.NoError(t, err)
+	}
+
+	err = dir.PreviewPixels(logr(), "", "")
+	require.Error(t, err)
 }

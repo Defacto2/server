@@ -12,8 +12,6 @@
 - [ ] 
 - [ ] On startup, run magic numbers on all records to replace the current value in database.
 - [ ] 
-- [ ] Complete `internal/archive/archive.go to support all archive types. need to supprt legacy zip via hwzip and arc.
-- [ ] 
 - [ ] Render HTML in an iframe instead of readme? Example, http://localhost:1323/f/ad3075
 - [ ] 
 - [ ] Handle magazines title on artifact page, http://localhost:1323/f/a55ed, this is hard to read, "Issue 4\nThe Pirate Syndicate +\nThe Pirate World"
