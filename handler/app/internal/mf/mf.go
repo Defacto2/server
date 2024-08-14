@@ -450,7 +450,7 @@ func ListContent(art *models.File, src string) template.HTML {
 	if !tags.IsPlatform(platform) {
 		return "error, invalid platform"
 	}
-	dst, err := extractSrc(art.Filename.String, src)
+	dst, err := archive.ExtractSource(art.Filename.String, src)
 	if err != nil {
 		if !errors.Is(err, archive.ErrNotArchive) && !errors.Is(err, archive.ErrNotImplemented) {
 			return template.HTML(err.Error())
@@ -565,57 +565,6 @@ func isText(sign magicnumber.Signature) bool {
 		}
 	}
 	return false
-}
-
-var (
-	errIsDir   = errors.New("error, directory")
-	errTooMany = errors.New("will not decompress this archive as it is very large")
-)
-
-func extractSrc(name, src string) (string, error) {
-	const mb150 = 150 * 1024 * 1024
-	if st, err := os.Stat(src); err != nil {
-		return "", fmt.Errorf("cannot stat file: %w", err)
-	} else if st.IsDir() {
-		return "", errIsDir
-	} else if st.Size() > mb150 {
-		return "", errTooMany
-	}
-	dst, err := helper.MkContent(src)
-	if err != nil {
-		return "", fmt.Errorf("cannot create content directory: %w", err)
-	}
-	entries, _ := os.ReadDir(dst)
-	const extracted = 2
-	if len(entries) >= extracted {
-		return dst, nil
-	}
-	switch filearchive(src) {
-	case false:
-		newpath := filepath.Join(dst, name)
-		if _, err := helper.DuplicateOW(src, newpath); err != nil {
-			defer os.RemoveAll(dst)
-			return "", fmt.Errorf("cannot duplicate file: %w", err)
-		}
-	case true:
-		if err := archive.ExtractAll(src, dst); err != nil {
-			defer os.RemoveAll(dst)
-			return "", fmt.Errorf("cannot read extracted archive: %w", err)
-		}
-	}
-	return dst, nil
-}
-
-func filearchive(src string) bool {
-	r, err := os.Open(src)
-	if err != nil {
-		return false
-	}
-	sign, err := magicnumber.Archive(r)
-	if err != nil {
-		return false
-	}
-	return sign != magicnumber.Unknown
 }
 
 // Date returns a formatted date string for the published date for the artifact.

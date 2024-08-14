@@ -10,7 +10,6 @@
 //  3. [unrar] - 6.24 freeware by Alexander Roshal, not the common [unrar-free] which is feature incomplete
 //  4. [zipinfo] - ZipInfo v3 by the Info-ZIP workgroup
 //
-// [mholt/archiver/v3]: https://github.com/mholt/archiver/tree/v3.5.1
 // [arj]: https://arj.sourceforge.net/
 // [lha]: https://fragglet.github.io/lhasa/
 // [unrar]: https://www.rarlab.com/rar_add.htm
@@ -23,24 +22,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
-	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"slices"
 	"strconv"
 	"strings"
-	"unicode/utf8"
 
 	"github.com/Defacto2/server/internal/archive/internal"
 	"github.com/Defacto2/server/internal/archive/pkzip"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magicnumber"
-	"github.com/mholt/archiver/v3"
-	"golang.org/x/text/encoding/charmap"
-	"golang.org/x/text/transform"
 )
 
 const (
@@ -65,135 +58,6 @@ var (
 	ErrPanic          = errors.New("extract panic")
 	ErrMissing        = errors.New("path does not exist")
 )
-
-// CheckyPath checks the byte slice for valid UTF-8 encoding.
-// If the byte slice is not valid, it will attempt to decode
-// the byte slice using the MS-DOS, [charmap.CodePage437] character set.
-//
-// Needed for historical oddities found in BBS file archives, the
-// file and folders were sometimes named in [leetspeak] using untypable
-// characters and symbols. For example the valid filename ¿ædmé.ñôw could not be
-// easily typed out on a standard North American keyboard in MS-DOS.
-//
-// [leetspeak]: https://www.oed.com/dictionary/leetspeak_n
-func CheckyPath(p []byte) string {
-	if utf8.Valid(p) {
-		return string(p)
-	}
-	r := transform.NewReader(bytes.NewReader(p), charmap.CodePage437.NewDecoder())
-	result, err := io.ReadAll(r)
-	if err != nil {
-		return ""
-	}
-	return string(result)
-}
-
-// List returns the files within an rar, tar, lha, or zip archive.
-// This filename extension is used to determine the archive format.
-func List(src, filename string) ([]string, error) {
-	st, err := os.Stat(src)
-	if errors.Is(err, fs.ErrNotExist) {
-		return nil, fmt.Errorf("archive list %w: %s", ErrMissing, filepath.Base(src))
-	}
-	if st.IsDir() {
-		return nil, fmt.Errorf("archive list %w: %s", ErrFile, filepath.Base(src))
-	}
-	files, err := walker(src, filename)
-	if err != nil {
-		return commander(src, filename)
-	}
-	return files, nil
-}
-
-// walker uses the mholt/archiver package to walk the src archive file.
-func walker(src, filename string) ([]string, error) {
-	name := strings.ToLower(filename) // ByExtension is case sensitive
-	format, err := archiver.ByExtension(name)
-	if err != nil {
-		return nil, fmt.Errorf("walker by extension %w", err)
-	}
-	w, walkerExists := format.(archiver.Walker)
-	if !walkerExists {
-		return nil, fmt.Errorf("walker %w, %q", ErrExt, filename)
-	}
-	files := []string{}
-	err = w.Walk(src, func(f archiver.File) error {
-		if f.IsDir() {
-			return nil
-		}
-		if strings.TrimSpace(f.Name()) == "" {
-			return nil
-		}
-		name := CheckyPath([]byte(f.Name()))
-		files = append(files, name)
-		return nil
-	})
-	if err != nil {
-		return nil, fmt.Errorf("walker %w", err)
-	}
-	return files, nil
-}
-
-// commander uses system archiver and decompression programs to read the src archive file.
-func commander(src, filename string) ([]string, error) {
-	c := Content{}
-	if err := c.Read(src); err != nil {
-		return nil, fmt.Errorf("commander failed with %s (%q): %w", filename, c.Ext, err)
-	}
-	// remove empty entries
-	files := c.Files
-	files = slices.DeleteFunc(files, func(s string) bool {
-		return strings.TrimSpace(s) == ""
-	})
-	return files, nil
-}
-
-// Extract the filename targets from the source archive file to the destination folder.
-// If no targets are provided, all files are extracted.
-// The filename extension is used to determine the archive format.
-func Extract(src, dst, filename string, targets ...string) error {
-	name := strings.ToLower(filename)
-	f, err := archiver.ByExtension(name)
-	if err != nil {
-		return extractor(src, dst, targets...)
-	}
-	// recover from panic caused by mholt/archiver.
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf("archive extract %w %s: %v", ErrPanic, name, r)
-		}
-	}()
-	extractAll := len(targets) == 0
-	if extractAll {
-		all, unarchiverExists := f.(archiver.Unarchiver)
-		if !unarchiverExists {
-			return fmt.Errorf("archive extract %w, %q", ErrExt, filename)
-		}
-		if err = all.Unarchive(src, dst); err == nil {
-			return nil
-		}
-		return extractor(src, dst, targets...)
-	}
-	target, extractorExists := f.(archiver.Extractor)
-	if !extractorExists {
-		return fmt.Errorf("archive extract %w, %q", ErrExt, filename)
-	}
-	t := strings.Join(targets, " ")
-	if err = target.Extract(src, t, dst); err == nil {
-		return nil
-	}
-	return extractor(src, dst, targets...)
-}
-
-// extractor second attempt at extraction using a system archiver program.
-func extractor(src, dst string, targets ...string) error {
-	x := Extractor{Source: src, Destination: dst}
-	err := x.Extract(targets...)
-	if err != nil {
-		return fmt.Errorf("command extract: %w", err)
-	}
-	return nil
-}
 
 // MagicExt uses the Linux [file] program to determine the src archive file type.
 // The returned string will be a file separator and extension.

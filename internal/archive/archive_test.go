@@ -64,7 +64,6 @@ func filenames() []string {
 
 func TestContent(t *testing.T) {
 	t.Parallel()
-
 	const wantFiles = 15
 
 	files, err := archive.List("", "")
@@ -75,21 +74,23 @@ func TestContent(t *testing.T) {
 	require.Error(t, err)
 	assert.Empty(t, files)
 
-	// test the unsupported file types
 	files, err = archive.List(td("ARC521P.ARC"), "ARC521P.ARC")
-	require.Error(t, err)
-	assert.Empty(t, files)
-	files, err = archive.List(td("TEST.7z"), "TEST.7z")
-	require.Error(t, err)
-	assert.Empty(t, files)
+	require.NoError(t, err)
+	assert.Len(t, files, wantFiles)
 
-	// test the tar.gz handler
+	files, err = archive.List(td("TEST.7z"), "TEST.7z")
+	require.NoError(t, err)
+	assert.Len(t, files, wantFiles)
+
+	files, err = archive.List(td("TEST.7z"), "TEST.7z")
+	require.NoError(t, err)
+	assert.Len(t, files, wantFiles)
+
 	finename := "TAR135.TAR.GZ"
 	files, err = archive.List(td("TAR135.GZ"), finename)
 	require.NoError(t, err)
 	assert.Len(t, files, wantFiles)
 
-	// test unicode filename
 	files, err = archive.List(td("τεχτƒιℓε.zip"), "τεχτƒιℓε.zip")
 	require.NoError(t, err)
 	assert.Len(t, files, 1)
@@ -100,85 +101,6 @@ func TestContent(t *testing.T) {
 		require.NoError(t, err)
 		assert.Len(t, files, wantFiles)
 	}
-}
-
-func TestExtractAll(t *testing.T) {
-	t.Parallel()
-	err := archive.Extract("", "", "")
-	require.Error(t, err)
-
-	err = archive.Extract(td(""), "", "")
-	require.Error(t, err)
-
-	err = archive.Extract(td(""), helper.TmpDir(), "")
-	require.Error(t, err)
-
-	err = archive.Extract(td("PKZ204EX.ZIP"), helper.TmpDir(), "")
-	require.NoError(t, err)
-
-	err = archive.Extract(td("PKZ204EX.ZIP"), helper.TmpDir(), "test.exe")
-	require.NoError(t, err)
-
-	tmp, err := os.MkdirTemp("", "testextractall-")
-	require.NoError(t, err)
-	defer os.RemoveAll(tmp)
-
-	err = archive.Extract(td("PKZ204EX.ZIP"), tmp, "PKZ204EX.ZIP")
-	require.NoError(t, err)
-
-	tmp1, err := os.MkdirTemp("", "testextractall1-")
-	require.NoError(t, err)
-	defer os.RemoveAll(tmp1)
-
-	name := "ARJ310.ARJ"
-	err = archive.Extract(td(name), tmp1, name)
-	require.NoError(t, err)
-	count, err := helper.Count(tmp1)
-	require.NoError(t, err)
-	assert.Equal(t, 15, count)
-}
-
-func TestExtract(t *testing.T) {
-	t.Parallel()
-	err := archive.Extract("", "", "", "")
-	require.Error(t, err)
-
-	err = archive.Extract(td(""), "", "", "")
-	require.Error(t, err)
-
-	// Extract(src, dst, filename, target string) error {
-	err = archive.Extract(td(""), helper.TmpDir(), "", "")
-	require.Error(t, err)
-
-	err = archive.Extract(td("PKZ204EX.ZIP"), helper.TmpDir(), "", "")
-	require.Error(t, err)
-
-	err = archive.Extract(td("PKZ204EX.ZIP"), helper.TmpDir(), "", "test.exe")
-	require.Error(t, err)
-
-	tmp, err := os.MkdirTemp("", "test-")
-	require.NoError(t, err)
-
-	err = archive.Extract(td("PKZ204EX.ZIP"), tmp, "PKZ204EX.ZIP", "")
-	require.NoError(t, err)
-
-	err = archive.Extract(td("PKZ204EX.ZIP"), tmp, "PKZ204EX.ZIP", "test.me")
-	require.NoError(t, err)
-	st, err := os.Stat(filepath.Join(tmp, "TEST.ME"))
-	require.Error(t, err)
-	assert.Nil(t, st)
-
-	tmp1, err := os.MkdirTemp("", "test-")
-	require.NoError(t, err)
-
-	err = archive.Extract(td("PKZ204EX.ZIP"), tmp1, "PKZ204EX.ZIP", "TEST.ME")
-	require.NoError(t, err)
-	st, err = os.Stat(filepath.Join(tmp1, "TEST.ME"))
-	require.NoError(t, err)
-	assert.Greater(t, st.Size(), int64(0))
-
-	defer os.RemoveAll(tmp)
-	defer os.RemoveAll(tmp1)
 }
 
 func TestARJ(t *testing.T) {
