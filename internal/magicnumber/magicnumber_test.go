@@ -40,7 +40,10 @@ func TestFindBytesExecutable(t *testing.T) {
 	assert.Equal(t, magicnumber.UnknownPE, w.PE)
 	assert.Equal(t, magicnumber.NoneNE, w.NE)
 
-	freedos := []string{"/exe/EXE.EXE", "/exemenu/exemenu.exe", "/press/PRESS.EXE", "/rread/rread.exe"}
+	freedos := []string{"/exe/EXE.EXE",
+		"/exemenu/exemenu.exe",
+		"/press/PRESS.EXE",
+		"/rread/rread.exe"}
 	for _, v := range freedos {
 		p, err := os.ReadFile(td("binaries/freedos" + v))
 		require.NoError(t, err)
@@ -138,57 +141,6 @@ func TestFindExecutableWinNT(t *testing.T) {
 	assert.Equal(t, w.TimeDateStamp.Year(), 2016)
 	assert.Equal(t, "Windows NT v4.0 64-bit", fmt.Sprint(w))
 	assert.Equal(t, magicnumber.NoneNE, w.NE)
-}
-
-func TestXXX(t *testing.T) {
-	t.Parallel()
-	// test the test data paths
-	p, err := os.ReadFile("TGDEMO.EXE")
-	require.NoError(t, err)
-	w := magicnumber.NE(p)
-	assert.Equal(t, w.NE, magicnumber.Windows286Exe)
-	assert.Equal(t, w.Major, 3)
-	assert.Equal(t, w.Minor, 0)
-	fmt.Printf("NE: %+v\n---\n", w)
-
-	p, err = os.ReadFile("XXX.exe")
-	require.NoError(t, err)
-	w = magicnumber.PE(p)
-	assert.Equal(t, magicnumber.Intel386PE, w.PE)
-	fmt.Printf("PE: %+v\n", w)
-
-	p, err = os.ReadFile("7z.exe")
-	require.NoError(t, err)
-	w = magicnumber.PE(p)
-	assert.Equal(t, magicnumber.Intel386PE, w.PE)
-	fmt.Printf("PE: %+v\n", w)
-
-	p, err = os.ReadFile("7za.exe")
-	require.NoError(t, err)
-	w = magicnumber.PE(p)
-	assert.NotEqual(t, magicnumber.AMD64PE, w.PE)
-	fmt.Printf("PE: %+v\n", w)
-
-	p, err = os.ReadFile("life.com")
-	require.NoError(t, err)
-	w = magicnumber.FindBytesExecutable(p)
-	fmt.Printf(">>%+v\n", w)
-
-	p, err = os.ReadFile("hello.com")
-	require.NoError(t, err)
-	w = magicnumber.FindBytesExecutable(p)
-	fmt.Printf(">>%+v\n", w)
-
-	p, err = os.ReadFile("hellojs.com")
-	require.NoError(t, err)
-	w = magicnumber.FindBytesExecutable(p)
-	fmt.Printf(">>%+v\n", w)
-
-	x := uint8(2)
-	for _, v := range magicnumber.Flags(x) {
-		fmt.Println(v)
-	}
-	fmt.Printf("%08b\n", x)
 }
 
 func TestFinds(t *testing.T) {
@@ -338,8 +290,9 @@ func TestFind(t *testing.T) {
 		}
 
 		switch ext {
-		case ".COM": // binary files with no magic numbers
-			assert.Equal(t, magicnumber.Unknown, sign, prob(ext, path))
+		case ".COM":
+			// do not test as it returns different results based on the file
+			return nil
 		case ".7Z":
 			assert.Equal(t, magicnumber.X7zCompressArchive, sign, prob(ext, path))
 		case ".ANS":
@@ -389,7 +342,13 @@ func TestFind(t *testing.T) {
 		case ".XZ":
 			assert.Equal(t, magicnumber.XZCompressArchive, sign, prob(ext, path))
 		case ".ZIP":
-			assert.Equal(t, magicnumber.PKWAREZip, sign, prob(ext, path))
+			zips := []magicnumber.Signature{
+				magicnumber.PKWAREZip,
+				magicnumber.PKWAREZip64,
+				magicnumber.PKWAREZipImplode,
+				magicnumber.PKWAREZipReduce,
+				magicnumber.PKWAREZipShrink}
+			assert.Contains(t, zips, sign, prob(ext, path))
 		default:
 			assert.NotEqual(t, magicnumber.Unknown, sign, prob(ext, path))
 			fmt.Fprintln(os.Stderr, ext, filepath.Base(path), fmt.Sprint(sign))

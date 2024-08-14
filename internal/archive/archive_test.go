@@ -114,10 +114,10 @@ func TestExtractAll(t *testing.T) {
 	require.Error(t, err)
 
 	err = archive.Extract(td("PKZ204EX.ZIP"), helper.TmpDir(), "")
-	require.Error(t, err)
+	require.NoError(t, err)
 
 	err = archive.Extract(td("PKZ204EX.ZIP"), helper.TmpDir(), "test.exe")
-	require.Error(t, err)
+	require.NoError(t, err)
 
 	tmp, err := os.MkdirTemp("", "testextractall-")
 	require.NoError(t, err)

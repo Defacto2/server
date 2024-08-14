@@ -319,9 +319,7 @@ func (dir Dirs) AmiTextImager(debug *zap.SugaredLogger, src, unid string) error 
 }
 
 func (dir Dirs) textImagers(debug *zap.SugaredLogger, unid, tmp string) error {
-	if err := ImagesDelete(unid, dir.Preview, dir.Thumbnail); err != nil {
-		return fmt.Errorf("text imagers predelete %w", err)
-	}
+	_ = ImagesDelete(unid, dir.Preview, dir.Thumbnail)
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	var errs error

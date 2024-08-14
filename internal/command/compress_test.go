@@ -159,6 +159,7 @@ func Test_ExtractAnsiLove(t *testing.T) {
 	err = dir.ExtractAnsiLove(logr(),
 		src, ".zip", "000000ABCDE", "TEST.ANS")
 	require.NoError(t, err)
+
 	ok := helper.File("000000ABCDE.webp")
 	assert.True(t, ok)
 	err = os.Remove("000000ABCDE.webp")

@@ -1,6 +1,7 @@
 package rezip_test
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -17,7 +18,7 @@ func td(name string) string {
 	if !usable {
 		panic("runtime.Caller failed")
 	}
-	d := filepath.Join(filepath.Dir(file), "../")
+	d := filepath.Join(filepath.Dir(file), "../../")
 	x := filepath.Join(d, "testdata", name)
 	return x
 }
@@ -33,6 +34,7 @@ func TestCompress(t *testing.T) {
 	dest := filepath.Join(dir, "zip_test.zip")
 
 	st, err := os.Stat(src)
+	fmt.Println(src)
 	require.NoError(t, err)
 
 	n, err := rezip.Compress(src, dest)
