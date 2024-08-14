@@ -88,26 +88,6 @@ func TestMonth(t *testing.T) {
 	assert.Contains(t, s, "error")
 }
 
-func TestMod(t *testing.T) {
-	t.Parallel()
-	s := app.Mod(nil, 0)
-	assert.Empty(t, s)
-	s = app.Mod(0, 0)
-	assert.Empty(t, s)
-	s = app.Mod(0, 1)
-	assert.True(t, s)
-	s = app.Mod(1, 3)
-	assert.False(t, s)
-}
-
-func TestMod3(t *testing.T) {
-	t.Parallel()
-	s := app.Mod3(nil)
-	assert.Empty(t, s)
-	s = app.Mod3(1)
-	assert.False(t, s)
-}
-
 func TestLinkRelsPerformant(t *testing.T) {
 	t.Parallel()
 	s := app.LinkRelsPerformant("", "")

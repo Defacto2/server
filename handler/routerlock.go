@@ -224,11 +224,6 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) 
 	me.DELETE("/:unid", func(c echo.Context) error {
 		return htmx.RecordReadmeDeleter(c, dir.Extra)
 	})
-	// readme.POST("/hide", func(cx echo.Context) error {
-	// 	dir.URI = cx.Param("id")
-	// 	return app.ReadmeToggle(cx)
-	// })
-
 	pre := g.Group("/preview")
 	pre.PATCH("/copy/:unid/:path", func(c echo.Context) error {
 		return htmx.RecordImageCopier(c, logger, dirs)

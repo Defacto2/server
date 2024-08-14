@@ -161,9 +161,6 @@ func (dir Dirs) Editor(art *models.File, data map[string]interface{}) map[string
 	data["modAssetThumbnail"] = dir.assets(dir.Thumbnail, unid)
 	data["modAssetExtra"] = dir.assets(dir.Extra, unid)
 	data["modNoReadme"] = mf.ReadmeNone(art)
-	// data["modReadmeList"] = OptionsReadme(art.FileZipContent.String) // Check if this is needed
-	// data["modPreviewList"] = OptionsPreview(art.FileZipContent.String)
-	// data["modAnsiLoveList"] = OptionsAnsiLove(art.FileZipContent.String)
 	data["modReadmeSuggest"] = mf.Readme(art)
 	data["modZipContent"] = mf.ZipContent(art)
 	data["modRelations"] = mf.RelationsStr(art)

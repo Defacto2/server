@@ -1095,36 +1095,6 @@ func ProdZoo(c echo.Context, id string) error {
 	return nil
 }
 
-// ReadmeToggle handles the post submission for the Hide readme from view toggle.
-func ReadmeToggle(c echo.Context, db *sql.DB) error {
-	var f Form
-	if err := c.Bind(&f); err != nil {
-		return badRequest(c, err)
-	}
-	if err := model.UpdateNoReadme(db, int64(f.ID), f.Readme); err != nil {
-		return badRequest(c, err)
-	}
-	return c.JSON(http.StatusOK, f)
-}
-
-// RecordToggle handles the post submission for the File artifact is online and public toggle.
-func RecordToggle(c echo.Context, db *sql.DB, state bool) error {
-	var f Form
-	if err := c.Bind(&f); err != nil {
-		return badRequest(c, err)
-	}
-	if state {
-		if err := model.UpdateOnline(db, int64(f.ID)); err != nil {
-			return badRequest(c, err)
-		}
-		return c.JSON(http.StatusOK, f)
-	}
-	if err := model.UpdateOffline(db, int64(f.ID)); err != nil {
-		return badRequest(c, err)
-	}
-	return c.JSON(http.StatusOK, f)
-}
-
 // Releaser is the handler for the releaser page ordered by the most files.
 func Releaser(c echo.Context, db *sql.DB) error {
 	return releasers(c, db, model.Prolific)

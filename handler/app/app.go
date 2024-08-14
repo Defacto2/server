@@ -10,7 +10,6 @@ import (
 	"html/template"
 	"net/http"
 	"net/url"
-	"path/filepath"
 	"reflect"
 	"slices"
 	"strconv"
@@ -435,27 +434,6 @@ func LogoText(s string) string {
 	return indent + text
 }
 
-// Mod returns true if the given integer is a multiple of the given max integer.
-func Mod(i any, max int) bool {
-	if max == 0 {
-		return false
-	}
-	switch val := i.(type) {
-	case int, int8, int16, int32, int64,
-		uint, uint8, uint16, uint32, uint64:
-		v := reflect.ValueOf(val).Int()
-		return v%int64(max) == 0
-	default:
-		return false
-	}
-}
-
-// Mod3 returns true if the given integer is a multiple of 3.
-func Mod3(i any) bool {
-	const max = 3
-	return Mod(i, max)
-}
-
 // Month returns a string of the month name from the month m number between 1 and 12.
 func Month(m any) string {
 	if m == nil {
@@ -478,60 +456,6 @@ func Month(m any) string {
 		s = fmt.Sprintf("%sFmtMonth: %s", typeErr, reflect.TypeOf(m).String())
 	}
 	return s
-}
-
-// OptionsAnsiLove returns a list of possible text or ANSI files in the archive content.
-// In general, all file extensions are valid except for well known archives and executables.
-// Due to the CP/M and DOS platform, 8.3 filename limitations, the file extension is not always reliable.
-func OptionsAnsiLove(zipContent string) template.HTML {
-	list := strings.Split(zipContent, "\n")
-	s := ""
-	for _, v := range list {
-		x := strings.TrimSpace(strings.ToLower(v))
-		switch filepath.Ext(x) {
-		case ".com", ".exe", ".dll", gif, png, jpg, jpeg, webp, ".bmp",
-			".ico", ".avi", ".mpg", ".mpeg", ".mp1", ".mp2", ".mp3", ".mp4", ".ogg", ".wmv",
-			fzip, ".arc", ".arj", ".ace", ".lha", ".lzh", ".7z", ".tar", ".gz", ".bz2", ".xz", ".z",
-			".───", ".──-", ".-", ".--", ".---":
-			continue
-		}
-		s += fmt.Sprintf("<option>%s</option>", v)
-	}
-	return template.HTML(s)
-}
-
-// OptionsPreview returns a list of preview images or textfiles in the archive content.
-func OptionsPreview(zipContent string) template.HTML {
-	list := strings.Split(zipContent, "\n")
-	s := ""
-	for _, v := range list {
-		x := strings.TrimSpace(strings.ToLower(v))
-		switch filepath.Ext(x) {
-		case gif, png, jpg, jpeg, webp, ".bmp":
-			s += fmt.Sprintf("<option>%s</option>", v)
-		}
-	}
-	return template.HTML(s)
-}
-
-// OptionsReadme returns a list of readme and known textfiles in the archive content.
-func OptionsReadme(zipContent string) template.HTML {
-	list := strings.Split(zipContent, "\n")
-	s := ""
-	for _, v := range list {
-		x := strings.TrimSpace(strings.ToLower(v))
-		switch filepath.Ext(x) {
-		case ".txt", ".nfo", ".diz", ".me", ".asc", ".doc":
-			s += fmt.Sprintf("<option>%s</option>", v)
-			continue
-		}
-		x = strings.ToLower(v)
-		if strings.Contains(x, "readme") {
-			s += fmt.Sprintf("<option>%s</option>", v)
-			continue
-		}
-	}
-	return template.HTML(s)
 }
 
 // Prefix returns a string prefixed with a space.
