@@ -15,17 +15,17 @@ const (
 	cfid = "00000000-0000-0000-0000000000000000"  // coldfusion uuid example
 )
 
-func TestCFToUUID(t *testing.T) {
+func TestCfUUID(t *testing.T) {
 	t.Parallel()
 	err := uuid.Validate(unid)
 	require.NoError(t, err)
 
-	newid, err := helper.CFToUUID(unid)
+	newid, err := helper.CfUUID(unid)
 	require.NoError(t, err)
 	err = uuid.Validate(newid)
 	require.NoError(t, err)
 
-	newid, err = helper.CFToUUID(cfid)
+	newid, err = helper.CfUUID(cfid)
 	require.NoError(t, err)
 	err = uuid.Validate(newid)
 	require.NoError(t, err)
@@ -94,7 +94,7 @@ func TestFmtSlice(t *testing.T) {
 	assert.Equal(t, "A, B, Abcde", s)
 }
 
-func TestLastChr(t *testing.T) {
+func TestChrLast(t *testing.T) {
 	tests := []struct {
 		s    string
 		want string
@@ -107,8 +107,8 @@ func TestLastChr(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.s, func(t *testing.T) {
-			if got := helper.LastChr(tt.s); got != tt.want {
-				t.Errorf("LastChr() = %v, want %v", got, tt.want)
+			if got := helper.ChrLast(tt.s); got != tt.want {
+				t.Errorf("ChrLast() = %v, want %v", got, tt.want)
 			}
 		})
 	}

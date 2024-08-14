@@ -135,7 +135,7 @@ func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor) error {
 		}
 		// 35 character UUIDs in a 36 character fixed length string will have a tailing space.
 		old := strings.TrimSpace(f.UUID.String)
-		newid, err := helper.CFToUUID(old)
+		newid, err := helper.CfUUID(old)
 		if err != nil {
 			logger.Warnf("%d. %q is invalid, %s", i, newid, err)
 			continue

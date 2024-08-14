@@ -2,8 +2,6 @@ package command_test
 
 import (
 	"os"
-	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/internal/command"
@@ -23,45 +21,6 @@ func TestLookups(t *testing.T) {
 	t2 := command.Infos()
 	assert.Equal(t, len(t1), len(t2))
 	assert.Contains(t, t2[0], command.Arc)
-}
-
-func TestRemoveImgs(t *testing.T) {
-	t.Parallel()
-	err := command.RemoveImgs("", "", "")
-	require.NoError(t, err)
-	td := helper.TmpDir()
-
-	tmp, err := os.CreateTemp(td, "command_test")
-	require.NoError(t, err)
-	defer os.Remove(tmp.Name())
-
-	nname := tmp.Name() + ".jpg"
-	err = os.Rename(tmp.Name(), nname)
-	require.NoError(t, err)
-
-	name := strings.TrimSuffix(filepath.Base(tmp.Name()), filepath.Ext(tmp.Name()))
-
-	err = command.RemoveImgs(name, td, "somerandomname")
-	require.NoError(t, err)
-}
-
-func TestRemoveMe(t *testing.T) {
-	t.Parallel()
-	err := command.RemoveMe("", "")
-	require.NoError(t, err)
-
-	td := helper.TmpDir()
-	tmp, err := os.CreateTemp(td, "command_test")
-	require.NoError(t, err)
-	defer os.Remove(tmp.Name())
-
-	nname := tmp.Name() + ".txt"
-	err = os.Rename(tmp.Name(), nname)
-	require.NoError(t, err)
-
-	name := strings.TrimSuffix(filepath.Base(tmp.Name()), filepath.Ext(tmp.Name()))
-	err = command.RemoveMe(name, td)
-	require.NoError(t, err)
 }
 
 func TestCopyFile(t *testing.T) {
@@ -195,12 +154,12 @@ func TestRunQuiet(t *testing.T) {
 func TestRunWD(t *testing.T) {
 	t.Parallel()
 	const noWD = ""
-	err := command.RunWD(logr(), "go", noWD, "")
+	err := command.RunWorkdir(logr(), "go", noWD, "")
 	// go without args will return an unknown command error
 	require.Error(t, err)
 
 	wd, err := os.Getwd()
 	require.NoError(t, err)
-	err = command.RunWD(logr(), "go", wd, "version")
+	err = command.RunWorkdir(logr(), "go", wd, "version")
 	require.NoError(t, err)
 }

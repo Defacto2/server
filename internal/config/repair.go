@@ -528,7 +528,7 @@ func RenameDownload(basename, absPath string) error {
 		return nil
 	}
 
-	newname, _ := helper.CFToUUID(rawname)
+	newname, _ := helper.CfUUID(rawname)
 	if err := uuid.Validate(newname); err != nil {
 		return fmt.Errorf("uuid.Validate %q: %w", newname, err)
 	}
@@ -603,7 +603,7 @@ func RemoveImage(basename, path, destDir string) error {
 	ext := filepath.Ext(basename)
 	if filename, found := strings.CutSuffix(basename, ext); found {
 		if len(filename) == cflen {
-			filename, _ = helper.CFToUUID(filename)
+			filename, _ = helper.CfUUID(filename)
 		}
 		if err := uuid.Validate(filename); err != nil {
 			remove(basename, "remove invalid uuid", path, destDir)

@@ -82,9 +82,19 @@ func Capitalize(s string) string {
 	return caser.String(x[0]) + sep + strings.Join(x[1:], sep)
 }
 
-// CFToUUID formats a 35 character, Coldfusion Universally Unique Identifier
+// ChrLast returns the last character or rune of the string.
+func ChrLast(s string) string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return ""
+	}
+	r, _ := utf8.DecodeLastRuneInString(s)
+	return string(r)
+}
+
+// CfUUID formats a 35 character, Coldfusion Universally Unique Identifier
 // to a standard, 36 character, Universally Unique Identifier.
-func CFToUUID(cfid string) (string, error) {
+func CfUUID(cfid string) (string, error) {
 	if err := uuid.Validate(cfid); err == nil {
 		return cfid, nil
 	}
@@ -206,16 +216,6 @@ func FmtSlice(s string) string {
 		x = append(x, Capitalize(z))
 	}
 	return strings.Join(x, ", ")
-}
-
-// LastChr returns the last character or rune of the string.
-func LastChr(s string) string {
-	s = strings.TrimSpace(s)
-	if s == "" {
-		return ""
-	}
-	r, _ := utf8.DecodeLastRuneInString(s)
-	return string(r)
 }
 
 // MaxLineLength counts the character length of the longest line in a string.

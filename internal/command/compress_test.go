@@ -35,31 +35,31 @@ func tduncompress(name string) string {
 
 func Test_ExtractOne(t *testing.T) {
 	t.Parallel()
-	err := command.ExtractOne(nil, "", "", "", "")
+	err := command.ExtractFile(nil, "", "", "", "")
 	require.Error(t, err)
 
 	src, dst, hint, name := "", "", "", ""
-	err = command.ExtractOne(logr(), src, dst, hint, name)
+	err = command.ExtractFile(logr(), src, dst, hint, name)
 	require.Error(t, err)
 
 	src = td("PKZ80A1.TXT")
-	err = command.ExtractOne(logr(), src, "", "", "")
+	err = command.ExtractFile(logr(), src, "", "", "")
 	require.Error(t, err)
 
 	src = td("PKZ80A1.ZIP")
-	err = command.ExtractOne(logr(), src, "", ".zip", "")
+	err = command.ExtractFile(logr(), src, "", ".zip", "")
 	require.Error(t, err)
 
-	err = command.ExtractOne(logr(), src, "", ".zip", "TEST.ASC")
+	err = command.ExtractFile(logr(), src, "", ".zip", "TEST.ASC")
 	require.Error(t, err)
 
 	dst = helper.TmpDir()
-	err = command.ExtractOne(logr(), src, dst, ".zip", "TEST.ASC")
+	err = command.ExtractFile(logr(), src, dst, ".zip", "TEST.ASC")
 	require.Error(t, err)
 
 	src = td("PKZ204EX.ZIP")
 	dst, _ = filepath.Abs(filepath.Join(helper.TmpDir(), "PKZ204EX.ZIP"))
-	err = command.ExtractOne(logr(), src, dst, ".zip", "TEST.ASC")
+	err = command.ExtractFile(logr(), src, dst, ".zip", "TEST.ASC")
 	require.NoError(t, err)
 
 	ok := helper.File(dst)
@@ -68,7 +68,7 @@ func Test_ExtractOne(t *testing.T) {
 
 	src = td("PKZ80A1.ZIP")
 	dst, _ = filepath.Abs(filepath.Join(helper.TmpDir(), "PKZ80A1.ZIP"))
-	err = command.ExtractOne(logr(), src, dst, ".zip", "TEST.ASC")
+	err = command.ExtractFile(logr(), src, dst, ".zip", "TEST.ASC")
 	require.NoError(t, err)
 
 	ok = helper.File(dst)
@@ -77,7 +77,7 @@ func Test_ExtractOne(t *testing.T) {
 
 	src = td("ARC521P.ARC")
 	dst, _ = filepath.Abs(filepath.Join(helper.TmpDir(), "ARC521P.ARC"))
-	err = command.ExtractOne(logr(), src, dst, ".arc", "TEST.JPG")
+	err = command.ExtractFile(logr(), src, dst, ".arc", "TEST.JPG")
 	require.NoError(t, err)
 
 	ok = helper.File(dst)
@@ -86,7 +86,7 @@ func Test_ExtractOne(t *testing.T) {
 
 	src = td("ARJ310.ARJ")
 	dst, _ = filepath.Abs(filepath.Join(helper.TmpDir(), "ARJ310.ARJ"))
-	err = command.ExtractOne(logr(), src, dst, ".arj", "TEST.JPEG")
+	err = command.ExtractFile(logr(), src, dst, ".arj", "TEST.JPEG")
 	require.NoError(t, err)
 
 	ok = helper.File(dst)
@@ -95,7 +95,7 @@ func Test_ExtractOne(t *testing.T) {
 
 	src = td("RAR624.RAR")
 	dst, _ = filepath.Abs(filepath.Join(helper.TmpDir(), "RAR624.RAR"))
-	err = command.ExtractOne(logr(), src, dst, ".rar", "TEST.JPG")
+	err = command.ExtractFile(logr(), src, dst, ".rar", "TEST.JPG")
 	require.NoError(t, err)
 
 	ok = helper.File(dst)
@@ -104,7 +104,7 @@ func Test_ExtractOne(t *testing.T) {
 
 	src = td("TAR135.TAR")
 	dst, _ = filepath.Abs(filepath.Join(helper.TmpDir(), "TAR135.TAR"))
-	err = command.ExtractOne(logr(), src, dst, ".tar", "TEST.JPG")
+	err = command.ExtractFile(logr(), src, dst, ".tar", "TEST.JPG")
 	require.NoError(t, err)
 
 	ok = helper.File(dst)
@@ -113,7 +113,7 @@ func Test_ExtractOne(t *testing.T) {
 
 	src = td("TAR135.GZ")
 	dst, _ = filepath.Abs(filepath.Join(helper.TmpDir(), "TAR135.GZ"))
-	err = command.ExtractOne(logr(), src, dst, ".gz", "TEST.JPG")
+	err = command.ExtractFile(logr(), src, dst, ".gz", "TEST.JPG")
 	require.NoError(t, err)
 
 	ok = helper.File(dst)

@@ -678,12 +678,6 @@ func sums() Sum {
 	return s
 }
 
-// Tags contains data for all the tags used by the web application.
-func Tags() *T {
-	// var Tags = T{} // replacement
-	return &T{}
-}
-
 // OSTags returns the tags that flag an operating system.
 func OSTags() [5]string {
 	return [5]string{

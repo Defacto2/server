@@ -120,49 +120,6 @@ func LookupUnrar() error {
 	return LookVersion(Unrar, "", "Alexander Roshal")
 }
 
-// RemoveImgs removes unid named images with .jpg, .png and .webp extensions from the directory paths.
-// A nil is returned if the directory or the named unid files do not exist.
-func RemoveImgs(unid string, dirs ...string) error {
-	exts := []string{jpg, png, webp}
-	for _, path := range dirs {
-		// remove images
-		for _, ext := range exts {
-			name := filepath.Join(path, unid+ext)
-			st, err := os.Stat(name)
-			if errors.Is(err, os.ErrNotExist) {
-				continue
-			}
-			if st.IsDir() {
-				return ErrIsDir
-			}
-			if err = os.Remove(name); err != nil {
-				return fmt.Errorf("remove images os.remove %w", err)
-			}
-		}
-	}
-	return nil
-}
-
-// RemoveMe removes the file with the unid name combined with a ".txt" extension
-// from the download directory path. It returns nil if the file does not exist.
-func RemoveMe(unid, dir string) error {
-	name := filepath.Join(dir, unid+txt)
-	st, err := os.Stat(name)
-	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return nil
-		}
-		return fmt.Errorf("remove readme stat %w", err)
-	}
-	if st.IsDir() {
-		return ErrIsDir
-	}
-	if err := os.Remove(name); err != nil {
-		return fmt.Errorf("remove readme os.remove %w", err)
-	}
-	return nil
-}
-
 // CopyFile copies the src file to the dst file and path.
 func CopyFile(debug *zap.SugaredLogger, src, dst string) error {
 	s, err := os.Open(src)
@@ -254,9 +211,9 @@ func Run(debug *zap.SugaredLogger, name string, arg ...string) error {
 	return run(debug, name, "", arg...)
 }
 
-// RunOut looks for the command in the system path and executes it with the arguments.
+// RunStdOut looks for the command in the system path and executes it with the arguments.
 // Any output is sent to the stdout buffer.
-func RunOut(name string, arg ...string) ([]byte, error) {
+func RunStdOut(name string, arg ...string) ([]byte, error) {
 	if err := LookCmd(name); err != nil {
 		return nil, fmt.Errorf("run output %w", err)
 	}
@@ -284,10 +241,10 @@ func RunQuiet(name string, arg ...string) error {
 	return nil
 }
 
-// RunWD looks for the command in the system path and executes it with the arguments.
+// RunWorkdir looks for the command in the system path and executes it with the arguments.
 // An optional working directory is set for the command.
 // Any output to stderr is logged as a debug message.
-func RunWD(debug *zap.SugaredLogger, name, wdir string, arg ...string) error {
+func RunWorkdir(debug *zap.SugaredLogger, name, wdir string, arg ...string) error {
 	return run(debug, name, wdir, arg...)
 }
 
