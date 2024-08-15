@@ -139,8 +139,8 @@ import { clipValue, getElmById } from "./helper.mjs";
       osv.classList.add("is-invalid");
       osv.classList.remove("is-valid");
       group = `Operating system`;
+      osv.textContent = `${group}`;
     }
-    osv.textContent = `${group}`;
   }
   /**
    * New tag or category label based on the selected option in the dropdown.
