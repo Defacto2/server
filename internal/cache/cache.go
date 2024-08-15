@@ -14,13 +14,19 @@ import (
 type Cache int // Cache is the type of storage engine.
 
 const (
-	Pouet Cache = iota // data cache for the Pouet website, API requests
-	Test               // test cache
+	PouetVote         Cache = iota // data cache for the Pouet website, API requests
+	PouetProduction                // data cache for invalid Pouet productions, API requests
+	DemozooProduction              // data cache for invalid Demozoo productions, API requests
+	Test                           // test cache
 )
 
 // String returns the name of the cache.
 func (c Cache) String() string {
-	return [...]string{"pouet", "test"}[c]
+	return [...]string{
+		"pouet",
+		"pouetproduction",
+		"demozooproduction",
+		"test"}[c]
 }
 
 const (
@@ -51,7 +57,6 @@ func (c Cache) Path() (string, error) {
 // If ttl is 0 then the key/value pair will immediately expire.
 func (c Cache) Write(key, value string, ttl time.Duration) error {
 	var err error
-
 	options := rosedb.DefaultOptions
 	options.DirPath, err = c.Path()
 	if err != nil {
@@ -73,7 +78,6 @@ func (c Cache) Write(key, value string, ttl time.Duration) error {
 // The key/value pair will not expire.
 func (c Cache) WriteNoExpire(key, value string) error {
 	var err error
-
 	options := rosedb.DefaultOptions
 	options.DirPath, err = c.Path()
 	if err != nil {
@@ -97,7 +101,6 @@ func (c Cache) Read(id string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("cache read %w", err)
 	}
-
 	options := rosedb.DefaultOptions
 	options.DirPath = path
 	db, err := rosedb.Open(options)
@@ -105,7 +108,6 @@ func (c Cache) Read(id string) (string, error) {
 		return "", fmt.Errorf("cache read open rosedb %w", err)
 	}
 	defer db.Close()
-
 	key := []byte(id)
 	value, err := db.Get(key)
 	if err != nil {
@@ -120,7 +122,6 @@ func (c Cache) Delete(id string) error {
 	if err != nil {
 		return fmt.Errorf("cache delete %w", err)
 	}
-
 	options := rosedb.DefaultOptions
 	options.DirPath = path
 	db, err := rosedb.Open(options)

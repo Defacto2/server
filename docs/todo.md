@@ -20,9 +20,7 @@
 - [ ] 
 - [ ] If a #hash is appended to a /f/<id> URL while signed out, then return a 404 or a redirect to the sign in page. Post signing should return to the #hash URL?
 - [ ] 
-- [ ] Delete all previews that are unused, such as textfiles that are displayed as a readme.
-- [ ] 
-- [ ] On Demozoo or Pouet upload or reach, locally cache the JSON to the temp directory.
+- [ ] Delete all previews that are unused, such as textfiles that are displayed as a readm
 - [ ] 
 - [ ] Fix, file editor menu close links not working when #hash is appended to the URL.
 

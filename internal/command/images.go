@@ -302,10 +302,10 @@ func (dir Dirs) TextImager(debug *zap.SugaredLogger, src, unid string) error {
 	return dir.textImagers(debug, unid, tmp)
 }
 
-// AmiTextImager converts the src text file and creates a PNG image using an Amiga Topaz+ font
+// TextImager converts the src text file and creates a PNG image using an Amiga Topaz+ font
 // and stores it in the preview directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
-func (dir Dirs) AmiTextImager(debug *zap.SugaredLogger, src, unid string) error {
+func (dir Dirs) TextAmigaImager(debug *zap.SugaredLogger, src, unid string) error {
 	args := Args{}
 	args.AnsiMsDos()
 	arg := []string{src}           // source file

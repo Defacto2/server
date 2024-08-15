@@ -1554,7 +1554,7 @@ func VotePouet(c echo.Context, logger *zap.SugaredLogger, id string) error {
 		return c.String(http.StatusNotFound, err.Error())
 	}
 
-	cp := cache.Pouet
+	cp := cache.PouetVote
 	if s, err := cp.Read(id); err == nil {
 		if err := PouetCache(c, s); err == nil {
 			logger.Debugf("cache hit for pouet id %s", id)
@@ -1562,15 +1562,12 @@ func VotePouet(c echo.Context, logger *zap.SugaredLogger, id string) error {
 		}
 	}
 	logger.Debugf("cache miss for pouet id %s", id)
-
 	if err = pv.Votes(i); err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
-
 	if err = c.JSON(http.StatusOK, pv); err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
-
 	val := fmt.Sprintf("%.1f%s%d%s%d%s%d",
 		pv.Stars, sep, pv.VotesDown, sep, pv.VotesUp, sep, pv.VotesMeh)
 	if err := cp.Write(id, val, cache.ExpiredAt); err != nil {

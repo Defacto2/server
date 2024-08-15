@@ -35,7 +35,6 @@ func (c Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, logger *zap.Sugared
 	if d, err := public.ReadDir("."); err != nil || len(d) == 0 {
 		return nil, fmt.Errorf("%w: %s", ErrFS, "handler files routes")
 	}
-
 	app.Caching.Records(c.RecordCount)
 	dir := app.Dirs{
 		Download:  c.Environment.AbsDownload,
@@ -43,7 +42,6 @@ func (c Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, logger *zap.Sugared
 		Thumbnail: c.Environment.AbsThumbnail,
 		Extra:     c.Environment.AbsExtra,
 	}
-
 	nonce, err := c.nonce(e)
 	if err != nil {
 		return nil, fmt.Errorf("files routes nonce session key: %w", err)

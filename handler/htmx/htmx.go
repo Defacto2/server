@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/releaser/initialism"
+	"github.com/Defacto2/server/internal/cache"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
@@ -28,15 +29,11 @@ var (
 	ErrKey    = errors.New("numeric record key is invalid")
 )
 
-// DemozooProd fetches the multiple download_links values from the
-// Demozoo production API and attempts to download and save one of the
-// linked files. If multiple links are found, the first link is used as
-// they should all point to the same asset.
-//
-// Both the Demozoo production ID param and the Defacto2 UUID query
-// param values are required as params to fetch the production data and
-// to save the file to the correct filename.
-func DemozooProd(c echo.Context, db *sql.DB) error {
+// DemozooLookup is the handler for the /demozoo/production route.
+// This looks up the Demozoo production ID and returns a form button to submit
+// the ID to the server for processing. If the Demozoo production ID is
+// already in use, an error message is returned.
+func DemozooLookup(c echo.Context, db *sql.DB) error {
 	sid := c.FormValue("demozoo-submission")
 	id, err := strconv.Atoi(sid)
 	if err != nil {
@@ -49,22 +46,20 @@ func DemozooProd(c echo.Context, db *sql.DB) error {
 		return c.String(http.StatusServiceUnavailable,
 			"error, the database query failed")
 	}
-	if key != 0 && !deleted {
+	if prodInUse := key != 0 && !deleted; prodInUse {
 		html := fmt.Sprintf("This Demozoo production is already <a href=\"/f/%s\">in use</a>.", helper.ObfuscateID(key))
 		return c.HTML(http.StatusOK, html)
 	}
-	if key != 0 && deleted {
+	if prodInUse := key != 0 && deleted; prodInUse {
 		return c.HTML(http.StatusOK, "This Demozoo production is already in use.")
 	}
-
 	prod, err := DemozooValid(c, id)
 	if err != nil {
-		return fmt.Errorf("demozoo.DemozooValid: %w", err)
+		return err
 	}
-	if prod.ID < 1 {
+	if invalid := prod.ID < 1; invalid {
 		return nil
 	}
-
 	info := []string{prod.Title}
 	if len(prod.Authors) > 0 {
 		info = append(info, "by")
@@ -81,27 +76,37 @@ func DemozooProd(c echo.Context, db *sql.DB) error {
 			info = append(info, p.Name)
 		}
 	}
-	html := `<div class="d-grid gap-2">`
-	html += fmt.Sprintf(`<button type="button" class="btn btn-outline-success" `+
+	htm := `<div class="d-grid gap-2">`
+	htm += fmt.Sprintf(`<button type="button" class="btn btn-outline-success" `+
 		`hx-put="/demozoo/production/%d" `+
 		`hx-target="#demozoo-submission-results" hx-trigger="click once delay:500ms" `+
 		`autofocus>Submit ID %d</button>`, id, id)
-	html += `</div>`
-	html += fmt.Sprintf(`<p class="mt-3">%s</p>`, strings.Join(info, " "))
-	return c.HTML(http.StatusOK, html)
+	htm += `</div>`
+	htm += fmt.Sprintf(`<p class="mt-3">%s</p>`, strings.Join(info, " "))
+	return c.HTML(http.StatusOK, htm)
 }
 
-// DemozooValid fetches the first usable download link from the Demozoo API.
-// The production ID is validated and the production is checked to see if it
-// is suitable for Defacto2. If the production is not suitable, an empty
-// production is returned with a htmx message.
+// DemozooValid looks up the Demozoo production ID and confirms that the
+// production is suitable for Defacto2. If a production is not suitable,
+// an message is returned.
+//
+// A valid production requires at least one download link and must be a suitable type
+// such as an intro, demo or cracktro for MS-DOS, Windows etc.
 func DemozooValid(c echo.Context, id int) (demozoo.Production, error) {
-	if id < 1 {
+	if invalid := id < 1; invalid {
 		return demozoo.Production{},
 			c.String(http.StatusNotAcceptable, fmt.Sprintf("invalid id: %d", id))
 	}
-
+	if s, err := cache.DemozooProduction.Read(string(id)); err == nil {
+		if s != "" {
+			return demozoo.Production{},
+				c.String(http.StatusOK,
+					fmt.Sprintf("Production %d is probably not suitable for Defacto2!<br>Types: %s", id, s))
+		}
+	}
 	var prod demozoo.Production
+	// Get the production data from Demozoo.
+	// This func can be found in /internal/demozoo/demozoo.go
 	if code, err := prod.Get(id); err != nil {
 		return demozoo.Production{}, c.String(code, err.Error())
 	}
@@ -114,11 +119,11 @@ func DemozooValid(c echo.Context, id int) (demozoo.Production, error) {
 		for _, t := range prod.Types {
 			s = append(s, t.Name)
 		}
+		_ = cache.DemozooProduction.WriteNoExpire(string(id), strings.Join(s, " - "))
 		return demozoo.Production{}, c.HTML(http.StatusOK,
 			fmt.Sprintf("Production %d is probably not suitable for Defacto2.<br>Types: %s",
 				id, strings.Join(s, " - ")))
 	}
-
 	var valid string
 	for _, link := range prod.DownloadLinks {
 		if link.URL == "" {
@@ -129,7 +134,8 @@ func DemozooValid(c echo.Context, id int) (demozoo.Production, error) {
 	}
 	if valid == "" {
 		return demozoo.Production{},
-			c.String(http.StatusOK, "This Demozoo production has no suitable download links.")
+			c.String(http.StatusOK,
+				"This Demozoo production has no suitable download links.")
 	}
 	return prod, nil
 }
@@ -281,7 +287,7 @@ func Pings(c echo.Context, proto string, port int) error {
 	return c.HTML(http.StatusOK, output)
 }
 
-// PouetProd fetches the multiple download_links values from the
+// PouetLookup fetches the multiple download_links values from the
 // Pouet production API and attempts to download and save one of the
 // linked files. If multiple links are found, the first link is used as
 // they should all point to the same asset.
@@ -289,7 +295,7 @@ func Pings(c echo.Context, proto string, port int) error {
 // Both the Pouet production ID param and the Defacto2 UUID query
 // param values are required as params to fetch the production data and
 // to save the file to the correct filename.
-func PouetProd(c echo.Context, db *sql.DB) error {
+func PouetLookup(c echo.Context, db *sql.DB) error {
 	sid := c.FormValue("pouet-submission")
 	id, err := strconv.Atoi(sid)
 	if err != nil {
@@ -358,29 +364,34 @@ func htmler(id int, info ...string) string {
 // is suitable for Defacto2. If the production is not suitable, an empty
 // production is returned with a htmx message.
 func PouetValid(c echo.Context, id int) (pouet.Response, error) {
-	if id < 1 {
+	if invalid := id < 1; invalid {
 		return pouet.Response{},
 			c.String(http.StatusNotAcceptable, fmt.Sprintf("invalid id: %d", id))
 	}
-
+	if s, err := cache.PouetProduction.Read(string(id)); err == nil {
+		if s != "" {
+			return pouet.Response{},
+				c.String(http.StatusOK,
+					fmt.Sprintf("Production %d is probably not suitable for Defacto2.", id)+
+						"<br>A production must an intro, demo or cracktro either for MsDos or Windows.")
+		}
+	}
 	var prod pouet.Response
 	if err := prod.Get(id); err != nil {
 		return pouet.Response{}, c.String(http.StatusNotFound, err.Error())
 	}
-
 	plat := prod.Prod.Platfs
 	sect := prod.Prod.Types
 	if !plat.Valid() || !sect.Valid() {
+		_ = cache.PouetProduction.WriteNoExpire(string(id), "invalid")
 		return pouet.Response{}, c.HTML(http.StatusOK,
-			fmt.Sprintf("Production %d is probably not suitable for Defacto2."+
-				"<br>A production must an intro, demo or cracktro either for MsDos or Windows.", id))
+			fmt.Sprintf("Production %d is probably not suitable for Defacto2.", id)+
+				"<br>A production must an intro, demo or cracktro either for MsDos or Windows.")
 	}
-
 	var valid string
 	if prod.Prod.Download != "" {
 		valid = prod.Prod.Download
 	}
-
 	for _, link := range prod.Prod.DownloadLinks {
 		if valid != "" {
 			break
