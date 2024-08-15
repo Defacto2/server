@@ -6,8 +6,6 @@
 		https://pkg.go.dev/github.com/digitalocean/godo https://docs.digitalocean.com/reference/api/api-reference/#operation/droplets_get
 - [ ] After a successful demozoo/pouet upload, defer a sync for the data to the artifact record.
 - [ ] 
-- [ ] Missing screenshots and downloads: https://go.defacto2.net/g/millennium-ftp
-- [ ] 
 - [ ] On startup, modify downloads to use database stored, last modified value.
 - [ ] 
 - [ ] On startup, run magic numbers on all records to replace the current value in database.
@@ -20,15 +18,13 @@
 - [ ] 
 - [ ] If a #hash is appended to a /f/<id> URL while signed out, then return a 404 or a redirect to the sign in page. Post signing should return to the #hash URL?
 - [ ] 
-- [ ] Delete all previews that are unused, such as textfiles that are displayed as a readm
+- [ ] Delete all previews that are unused, such as textfiles that are displayed as a readme
 - [ ] 
 - [ ] Fix, file editor menu close links not working when #hash is appended to the URL.
 
 - [ ] - http://www.platohistory.org/
 - [ ] - https://portcommodore.com/dokuwiki/doku.php?id=larry:comp:bbs:about_cbbs
 - [ ] - 8BBS https://everything2.com/title/8BBS
-
-
 
 Magic files to add:
 
@@ -45,6 +41,10 @@ Magic files to add:
  - - checks()
  - - repairs() ~ 
  - - repairDatabase() ~ /model/fix/fix.go ~ Artifacts.Run()
+
+### Live go.defacto2.net issues.
+
+- [ ] Missing screenshots and downloads: https://go.defacto2.net/g/millennium-ftp
 
 ### Bug fixes
 

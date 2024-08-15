@@ -20,6 +20,7 @@ import (
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/magicnumber"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/dustin/go-humanize"
 	"github.com/h2non/filetype"
 	"github.com/volatiletech/null/v8"
@@ -229,7 +230,9 @@ func LinkPreviewTip(name, platform string) string {
 	case slices.Contains(exts.Archives(), ext):
 		// this case must always be first
 		return ""
-	case platform == textamiga, platform == "text":
+	case platform == tags.Markup.String():
+		return "Read this as HTML"
+	case platform == textamiga, platform == tags.Text.String():
 		return "Read this as text"
 	case slices.Contains(exts.Documents(), ext):
 		return "Read this as text"
