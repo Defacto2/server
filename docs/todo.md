@@ -21,12 +21,6 @@
 - [ ] - https://portcommodore.com/dokuwiki/doku.php?id=larry:comp:bbs:about_cbbs
 - [ ] - 8BBS https://everything2.com/title/8BBS
 
-Magic files to add:
-
-- Excel, http://localhost:1323/f/b02fcc
-- Multipart zip, http://localhost:1323/f/a9247de, http://localhost:1323/f/a619619
-- Windows binaries
-
 ### Locations
 
 #### On startup tasks

@@ -534,16 +534,16 @@ func ListContent(art *models.File, src string) template.HTML {
 
 // LegacyString returns a string that is converted to UTF-8 if it is not already.
 // Intended for filenames in archives that may have been encoded using a legacy charset,
-// such as ISO-8859-1 or Windows-1252 and using non-ASCII characters.
+// such as ISO-8859-1 (Commodore Amiga) or Windows-1252 (Windows 9x) and using non-ASCII characters.
 func LegacyString(s string) string {
 	if valid := utf8.ValidString(s); valid {
 		return s
 	}
-	const undefinedStart, undefinedEnd = 0x80, 0x9f
-	f := func(b byte) bool {
-		return b >= undefinedStart && b <= undefinedEnd
+	undefinedChr := func(b byte) bool {
+		const euroSymbol, ÿDiaeresis = 0x80, 0x9f
+		return b >= euroSymbol && b <= ÿDiaeresis
 	}
-	if windows1252 := slices.ContainsFunc([]byte(s), f); windows1252 {
+	if windows1252 := slices.ContainsFunc([]byte(s), undefinedChr); windows1252 {
 		decoder := charmap.Windows1252.NewDecoder()
 		x, _ := decoder.String(s)
 		if valid := utf8.ValidString(x); valid {
