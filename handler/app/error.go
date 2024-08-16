@@ -3,9 +3,12 @@ package app
 // Package file error.go contains the error handlers for the application.
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
+	"syscall"
 
 	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/labstack/echo/v4"
@@ -160,6 +163,12 @@ func ForbiddenErr(c echo.Context, uri string, err error) error {
 // The optional error value is logged using the zap sugared logger.
 // If the echo context is nil then a user hostile, fallback error in raw text is returned.
 func InternalErr(c echo.Context, uri string, err error) error {
+	if errors.Is(err, syscall.EPIPE) {
+		// This is a common error when the client disconnects before the response is sent,
+		// and commonly happens when using developer hot reloading.
+		fmt.Fprintf(io.Discard, "nothing to render due to the \"write: broken pipe\" error\n")
+		return nil
+	}
 	const code = http.StatusInternalServerError
 	logger := zaplog.Debug()
 	if err != nil {
