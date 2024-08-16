@@ -16,3 +16,20 @@ func TestLinkPreviewHref(t *testing.T) {
 	s = mf.LinkPreviewHref(1, "filename.txt", "text")
 	assert.Equal(t, "/v/9b1c6", s)
 }
+
+func TestLegacyString(t *testing.T) {
+	t.Parallel()
+	s := mf.LegacyString("")
+	assert.Empty(t, s)
+	s = mf.LegacyString("Hello world 123.")
+	assert.Equal(t, "Hello world 123.", s)
+	s = mf.LegacyString("£100")
+	assert.Equal(t, "£100", s)
+	s = mf.LegacyString("\xa3100")
+	assert.Equal(t, "£100", s)
+	s = mf.LegacyString("€100")
+	assert.Equal(t, "€100", s)
+	s = mf.LegacyString("\x80100")
+	assert.Equal(t, "€100", s)
+
+}

@@ -15,9 +15,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	_ "golang.org/x/image/bmp"
 	_ "golang.org/x/image/tiff"
+	"golang.org/x/text/encoding/charmap"
 
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app/internal/exts"
@@ -510,7 +512,7 @@ func ListContent(art *models.File, src string) template.HTML {
 			Texts:        e.text,
 			MusicConfig:  e.module,
 			ImageConfig:  e.format,
-			RelativeName: rel,
+			RelativeName: LegacyString(rel),
 			Signature:    e.sign.String(),
 			Filesize:     e.size,
 			UniqueID:     unid,
@@ -528,6 +530,32 @@ func ListContent(art *models.File, src string) template.HTML {
 	}
 	b.WriteString(skippedEmpty(zeroByteFiles))
 	return template.HTML(b.String())
+}
+
+// LegacyString returns a string that is converted to UTF-8 if it is not already.
+// Intended for filenames in archives that may have been encoded using a legacy charset,
+// such as ISO-8859-1 or Windows-1252 and using non-ASCII characters.
+func LegacyString(s string) string {
+	if valid := utf8.ValidString(s); valid {
+		return s
+	}
+	const undefinedStart, undefinedEnd = 0x80, 0x9f
+	f := func(b byte) bool {
+		return b >= undefinedStart && b <= undefinedEnd
+	}
+	if windows1252 := slices.ContainsFunc([]byte(s), f); windows1252 {
+		decoder := charmap.Windows1252.NewDecoder()
+		x, _ := decoder.String(s)
+		if valid := utf8.ValidString(x); valid {
+			return x
+		}
+	}
+	decoder := charmap.ISO8859_1.NewDecoder()
+	x, _ := decoder.String(s)
+	if valid := utf8.ValidString(x); valid {
+		return x
+	}
+	return s
 }
 
 func skippedEmpty(zeroByteFiles int) string {
