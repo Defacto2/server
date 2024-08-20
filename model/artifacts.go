@@ -9,6 +9,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/google/uuid"
+	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -33,6 +34,19 @@ func (f *Artifacts) Public(ctx context.Context, exec boil.ContextExecutor) error
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
 		qm.From(From)).Bind(ctx, exec, f)
+}
+
+func (f *Artifacts) NoPreview(ctx context.Context, exec boil.ContextExecutor) (
+	models.FileSlice, error,
+) {
+	if exec == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		qm.Select(models.FileColumns.UUID, models.FileColumns.ID),
+		models.FileWhere.Platform.EQ(null.StringFrom("text")),
+		qm.Or2(models.FileWhere.Platform.EQ(null.StringFrom("textamiga"))),
+		qm.WithDeleted()).All(ctx, exec)
 }
 
 // ByKey returns the public files reversed ordered by the ID, key column.

@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -25,6 +26,7 @@ import (
 	"github.com/Defacto2/server/internal/magicnumber"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
+	"github.com/Defacto2/server/model"
 	"github.com/google/uuid"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -394,10 +396,50 @@ func (c Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor) err
 	if err := c.Archives(ctx, exec); err != nil {
 		return fmt.Errorf("repair archives %w", err)
 	}
+	if err := c.Previews(ctx, exec, logger); err != nil {
+		return fmt.Errorf("repair previews %w", err)
+	}
 	// TODO:
 	// if err := c.Magics(ctx, exec); err != nil {
 	// 	return fmt.Errorf("repair magics %w", err)
 	// }
+	return nil
+}
+
+// Previews, on startup check the preview directory for any unnecessary preview images such as textfile artifacts.
+func (c Config) Previews(ctx context.Context, ce boil.ContextExecutor, logger *zap.SugaredLogger) error {
+	r := model.Artifacts{}
+	artifacts, err := r.NoPreview(ctx, ce)
+	if err != nil {
+		return fmt.Errorf("nopreview %w", err)
+	}
+	var count, totals int64
+	for _, v := range artifacts {
+		png := filepath.Join(c.AbsPreview, v.UUID.String) + ".png"
+		st, err := os.Stat(png)
+		if err != nil {
+			fmt.Fprintln(io.Discard, err)
+			continue
+		}
+		_ = os.Remove(png)
+		count++
+		totals += st.Size()
+	}
+	for _, v := range artifacts {
+		webp := filepath.Join(c.AbsPreview, v.UUID.String) + ".webp"
+		st, err := os.Stat(webp)
+		if err != nil {
+			fmt.Fprintln(io.Discard, err)
+			continue
+		}
+		_ = os.Remove(webp)
+		count++
+		totals += st.Size()
+	}
+	if count == 0 || logger == nil {
+		return nil
+	}
+	logger.Infof("Erased %d textfile preview images, totaling %s", count, helper.ByteCountFloat(totals))
 	return nil
 }
 

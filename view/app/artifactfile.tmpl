@@ -11,6 +11,7 @@
 {{- $filename := index . "filename"}}
 {{- $tag := index . "modTag"}}
 {{- $os := index . "modOS"}}
+{{- $textFile := or (eq $os "text") (eq $os "textamiga")}}
 {{- $databaseMod := index . "modDBModify"}}
 {{- $statMod := index . "modStatModify"}}
 {{- $statSizeB := index . "modStatSizeB"}}
@@ -169,6 +170,9 @@
                       {{- /*  Preview assets  */}}
                       <span class="lead">Preview assets</span><br>
                       <div class="form-text">These are displayed when viewing the artifact page</div>
+                      {{- if eq $textFile true}}
+                      <div class="form-text text-warning-emphasis">This textfile preview image will be erased on the next startup</div>
+                      {{- end}}
                       <table class="table table-hover">
                         <tbody>
                           {{- range $name, $info := .modAssetPreview}}

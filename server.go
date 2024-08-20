@@ -120,6 +120,37 @@ func main() {
 		fmt.Fprintf(w, "%s\n", localIPs)
 	}()
 
+	// r := model.Artifacts{}
+	// x, err := r.NoPreview(ctx, db)
+	// if err != nil {
+	// 	logger.Errorf("no preview: %s", err)
+	// }
+	// fmt.Fprintln(os.Stdout, len(x))
+	// var (
+	// 	totals int64
+	// )
+	// for _, v := range x {
+	// 	fmt.Fprintln(os.Stdout, v.UUID, helper.ObfuscateID(v.ID))
+	// 	png := filepath.Join(configs.AbsPreview, v.UUID.String) + ".png"
+	// 	st, err := os.Stat(png)
+	// 	if err != nil {
+	// 		fmt.Fprintln(os.Stdout, err)
+	// 		continue
+	// 	}
+	// 	totals += st.Size()
+	// }
+	// for _, v := range x {
+	// 	fmt.Fprintln(os.Stdout, v.UUID, helper.ObfuscateID(v.ID))
+	// 	png := filepath.Join(configs.AbsPreview, v.UUID.String) + ".webp"
+	// 	st, err := os.Stat(png)
+	// 	if err != nil {
+	// 		fmt.Fprintln(os.Stdout, err)
+	// 		continue
+	// 	}
+	// 	totals += st.Size()
+	// }
+	// fmt.Fprintln(os.Stdout, totals, helper.ByteCountFloat(totals))
+
 	// shutdown the web server.
 	website.ShutdownHTTP(router, logger)
 }

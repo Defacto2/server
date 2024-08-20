@@ -263,10 +263,12 @@ func (dir Dirs) missingAssets(art *models.File) string {
 	if !dl {
 		missing = append(missing, "offer a file for download")
 	}
-	if art.Platform.String == tags.Audio.String() {
+	platform := strings.TrimSpace(art.Platform.String)
+	if platform == tags.Audio.String() {
 		return strings.Join(missing, " + ")
 	}
-	if !pv {
+	textfiles := platform == tags.Text.String() || platform == tags.TextAmiga.String()
+	if !pv && !textfiles {
 		missing = append(missing, "create a preview image")
 	}
 	if !th {

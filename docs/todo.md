@@ -4,7 +4,6 @@
 
 * On startup, modify downloads to use database stored, last modified value.
 * On startup, run magic numbers on all records to replace the current value in database, lookup `application/octet-stream` or `application/...` and empty vales.
-* If artifact is a text file displayed in readme, then delete image preview, these are often super long, large and not needed.
 
 * After a successful demozoo/pouet upload, defer a sync for the data to the artifact record.
 
