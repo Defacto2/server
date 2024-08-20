@@ -72,7 +72,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
       </div>
       <div class="modal-footer bg-dark-subtle mt-1">
         <div class="d-grid col-12 mx-auto">
-          <a href="#" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal" class="btn btn-primary">
+          <a href="#artifact-editor-modal" data-bs-toggle="modal" class="btn btn-primary">
           Back to the Data editor</a>
         </div>
       </div>
@@ -90,7 +90,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           <use xlink:href="/svg/bootstrap-icons.svg#file-binary"/>
         </svg>
         <h1 class="modal-title fs-4 ps-2" id="artifact-editor-modal-label">Data editor for record key, {{$key}}</h1><br>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" data-bs-target="#artifact-editor-modal" aria-label="Close"></button>
       </div>
       <div class="modal-body container">
         <div class="row row-cols-4 g-1">

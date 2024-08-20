@@ -12,10 +12,10 @@
 {{- $modID := index . "modID"}}
 <div class="alert alert-light">
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-2">
-        <div class="col d-grid"><a href="#" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal"  class="btn btn-primary">Data editor</a></div>
-        <div class="col d-grid"><a href="#" data-bs-toggle="modal" data-bs-target="#asset-editor-modal"     class="btn btn-primary">File editor</a></div>
-        <div class="col d-grid"><a href="#" data-bs-toggle="modal" data-bs-target="#emulate-editor-modal"   class="btn btn-primary">Emulate editor</a></div>
-        <div class="col d-grid"><a href="#" data-bs-toggle="modal" data-bs-target="#artifact-delete-forever-modal" class="btn btn-warning">Delete forever</a></div>
+        <div class="col d-grid"><a href="#artifact-editor-modal" data-bs-toggle="modal" class="btn btn-primary">Data editor</a></div>
+        <div class="col d-grid"><a href="#asset-editor-modal" data-bs-toggle="modal" class="btn btn-primary">File editor</a></div>
+        <div class="col d-grid"><a href="#emulate-editor-modal" data-bs-toggle="modal" class="btn btn-primary">Emulate editor</a></div>
+        <div class="col d-grid"><a href="#artifact-delete-forever-modal" data-bs-toggle="modal" class="btn btn-warning">Delete forever</a></div>
     </div>
     <hr class="my-2">
     {{- if $disableRecord}}

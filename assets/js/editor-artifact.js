@@ -15,43 +15,55 @@ import { clipValue, getElmById } from "./helper.mjs";
 (() => {
   "use strict";
 
-  const options = {
-    backdrop: "static",
-    keyboard: false,
-  };
-  const artifactModal = new bootstrap.Modal("#artifact-editor-modal", options);
-  const assetModal = new bootstrap.Modal("#asset-editor-modal", options);
-  const emulateModal = new bootstrap.Modal("#emulate-editor-modal", options);
-  const dataEditors = document.getElementsByName("artifact-editor-dataeditor");
-  if (dataEditors.length > 0) {
-    for (let i = 0; i < dataEditors.length; i++) {
-      dataEditors[i].addEventListener("click", () => {
-        assetModal.hide();
-        emulateModal.hide();
-        artifactModal.show();
+  /**
+   * Footer buttons to toggle the editor modals
+   */
+  function activeBtn(elms) {
+    return function () {
+      elms.forEach((e) => {
+        e.disabled = true;
+        e.classList.remove("btn-outline-primary");
+        e.classList.add("btn-light");
       });
-    }
+    };
   }
-  const fileEditors = document.getElementsByName("artifact-editor-fileeditor");
-  if (fileEditors.length > 0) {
-    for (let i = 0; i < fileEditors.length; i++) {
-      fileEditors[i].addEventListener("click", () => {
-        artifactModal.hide();
-        emulateModal.hide();
-        assetModal.show();
+  function inactiveBtn(elms) {
+    return function () {
+      elms.forEach((e) => {
+        e.disabled = false;
+        e.classList.remove("btn-light");
+        e.classList.add("btn-outline-primary");
       });
-    }
+    };
   }
-  const emuEditors = document.getElementsByName("artifact-editor-emueditor");
-  if (emuEditors.length > 0) {
-    for (let i = 0; i < emuEditors.length; i++) {
-      emuEditors[i].addEventListener("click", () => {
-        artifactModal.hide();
-        assetModal.hide();
-        emulateModal.show();
-      });
-    }
-  }
+  const artifactEditor = document.getElementById("artifact-editor-modal");
+  const artifactEditors = document.getElementsByName(
+    "artifact-editor-dataeditor"
+  );
+  artifactEditor.addEventListener("shown.bs.modal", () => {
+    activeBtn(artifactEditors)();
+  });
+  artifactEditor.addEventListener("hidden.bs.modal", () => {
+    inactiveBtn(artifactEditors)();
+  });
+  const assetEditor = document.getElementById("asset-editor-modal");
+  const assetEditors = document.getElementsByName("artifact-editor-fileeditor");
+  assetEditor.addEventListener("shown.bs.modal", () => {
+    activeBtn(assetEditors)();
+  });
+  assetEditor.addEventListener("hidden.bs.modal", () => {
+    inactiveBtn(assetEditors)();
+  });
+  const emulateEditor = document.getElementById("emulate-editor-modal");
+  const emulateEditors = document.getElementsByName(
+    "artifact-editor-emueditor"
+  );
+  emulateEditor.addEventListener("shown.bs.modal", () => {
+    activeBtn(emulateEditors)();
+  });
+  emulateEditor.addEventListener("hidden.bs.modal", () => {
+    inactiveBtn(emulateEditors)();
+  });
 
   const erp = document.getElementById("emulate-run-program");
   if (erp !== null) {

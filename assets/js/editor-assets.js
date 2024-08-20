@@ -65,8 +65,9 @@ import { progress } from "./uploader.mjs";
     case `#emulate-editor`:
       emulateModal.show();
       break;
-    default:
   }
+  if (parsedUrl.hash !== "")
+    history.replaceState(null, "", window.location.pathname);
 
   // New file download form event listener.
   document.body.addEventListener("htmx:afterRequest", function (event) {

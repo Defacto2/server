@@ -13,9 +13,9 @@
         </div>
         <div class="col-lg-8 text-lg-end">
             <a href="/f/{{$download}}" class="btn btn-link">Refresh &amp; view artifact</a>
-            <a class="btn btn-outline-primary" name="artifact-editor-dataeditor">Data editor</a>
-            <a class="btn btn-outline-primary" name="artifact-editor-fileeditor">File editor</a>
-            <a class="btn btn-outline-primary" name="artifact-editor-emueditor">Emulate editor</a>
+            <button name="artifact-editor-dataeditor" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal" class="btn btn-outline-primary">Data editor</button>
+            <button name="artifact-editor-fileeditor" data-bs-toggle="modal" data-bs-target="#asset-editor-modal" class="btn btn-outline-primary">File editor</button>
+            <button name="artifact-editor-emueditor" data-bs-toggle="modal" data-bs-target="#emulate-editor-modal" class="btn btn-outline-primary">Emulate editor</button>
             <button type="button" data-bs-dismiss="modal"                               
                 class="btn btn-secondary d-none d-lg-inline">Close</button>
         </div>
