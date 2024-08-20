@@ -409,7 +409,7 @@ func (c Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor) err
 // Previews, on startup check the preview directory for any unnecessary preview images such as textfile artifacts.
 func (c Config) Previews(ctx context.Context, ce boil.ContextExecutor, logger *zap.SugaredLogger) error {
 	r := model.Artifacts{}
-	artifacts, err := r.NoPreview(ctx, ce)
+	artifacts, err := r.ByTextPlatform(ctx, ce)
 	if err != nil {
 		return fmt.Errorf("nopreview %w", err)
 	}

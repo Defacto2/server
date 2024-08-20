@@ -36,19 +36,6 @@ func (f *Artifacts) Public(ctx context.Context, exec boil.ContextExecutor) error
 		qm.From(From)).Bind(ctx, exec, f)
 }
 
-func (f *Artifacts) NoPreview(ctx context.Context, exec boil.ContextExecutor) (
-	models.FileSlice, error,
-) {
-	if exec == nil {
-		return nil, ErrDB
-	}
-	return models.Files(
-		qm.Select(models.FileColumns.UUID, models.FileColumns.ID),
-		models.FileWhere.Platform.EQ(null.StringFrom("text")),
-		qm.Or2(models.FileWhere.Platform.EQ(null.StringFrom("textamiga"))),
-		qm.WithDeleted()).All(ctx, exec)
-}
-
 // ByKey returns the public files reversed ordered by the ID, key column.
 func (f *Artifacts) ByKey(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
@@ -193,6 +180,20 @@ func (f *Artifacts) byForApproval(ctx context.Context, exec boil.ContextExecutor
 		qm.WithDeleted(),
 		qm.Select(postgres.Columns()...),
 		qm.From(From)).Bind(ctx, exec, f)
+}
+
+// ByTextPlatform returns all of the file records that are text based, either text or textamiga.
+func (f *Artifacts) ByTextPlatform(ctx context.Context, exec boil.ContextExecutor) (
+	models.FileSlice, error,
+) {
+	if exec == nil {
+		return nil, ErrDB
+	}
+	return models.Files(
+		qm.Select(models.FileColumns.UUID, models.FileColumns.ID),
+		models.FileWhere.Platform.EQ(null.StringFrom("text")),
+		qm.Or2(models.FileWhere.Platform.EQ(null.StringFrom("textamiga"))),
+		qm.WithDeleted()).All(ctx, exec)
 }
 
 // ByUnwanted returns all of the file records that are flagged by Google as unwanted.
