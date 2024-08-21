@@ -347,6 +347,18 @@ func LinkPage(id any) template.HTML {
 	return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">Artifact</a>`, s))
 }
 
+// LinkRunApp creates a URL anchor element to link to the artifact page to launch the js-dos emulator.
+func LinkRunApp(id any) template.HTML {
+	if id == nil {
+		return ""
+	}
+	s, err := str.LinkID(id, "f")
+	if err != nil {
+		return template.HTML(err.Error())
+	}
+	return template.HTML(fmt.Sprintf(`&nbsp; &nbsp; <a class="card-link" href="%s#runapp">Run app</a>`, s))
+}
+
 // LinkPreview creates a URL to link to the file record in tab, to use as a preview.
 // The preview link will only show with compatible file types based on their extension.
 func LinkPreview(id any, name, platform string) template.HTML {

@@ -331,6 +331,19 @@
 {{- if $jsdos}}
 <script async src="{{ jsdos6JS }}?{{ sri_jsdos6JS }}" integrity="{{ sri_jsdos6JS }}" crossorigin="anonymous"></script>
 <script async src="{{ dosboxJS }}?{{ sri_dosboxJS }}" integrity="{{ sri_dosboxJS }}" crossorigin="anonymous"></script>
+<script defer>
+  document.addEventListener("DOMContentLoaded", () => {
+    const jsdosModal = document.getElementById("js-dos-modal");
+    if (jsdosModal != null) {
+      const parsedUrl = new URL(window.location.href);
+      if (parsedUrl.hash == `#runapp`) {
+        console.info(`Do an automatic launch and run of the DOS application.`)
+        document.getElementById("js-dos-run-app").click();
+        history.replaceState(null, "", window.location.pathname);
+      }
+    }
+  });
+</script>
 {{- end}}
 {{- template "layoutjsup" . }}
 {{- template "layoutjs" . }}
@@ -349,6 +362,15 @@
       interval: twoSeconds,
       touch: false,
     });
+    const jsdosModal = document.getElementById("js-dos-modal");
+    if (jsdosModal != null) {
+      const parsedUrl = new URL(window.location.href);
+      if (parsedUrl.hash == `#runapp`) {
+        const modal = new bootstrap.Modal(jsdosModal);
+        modal.show();
+        history.replaceState(null, "", window.location.pathname);
+      }
+    }
   })();
 </script>{{end}}
 </body>

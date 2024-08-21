@@ -7,8 +7,6 @@
 
 * After a successful demozoo/pouet upload, defer a sync for the data to the artifact record.
 
-* Create a #hash link next that launches the jsdos emulation. The link sits next to > "Artifact" "Download 701 Byte" in the lists of artifacts.
-
 * Handle magazines title on artifact page, http://localhost:1323/f/a55ed, this is hard to read, "Issue 4\nThe Pirate Syndicate +\nThe Pirate World"
 
 * Use DigitalOcean API to display Estimated Droplet Transfer Pool usage and remaining balance. 

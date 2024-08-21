@@ -58,17 +58,19 @@ import { progress } from "./uploader.mjs";
   switch (parsedUrl.hash) {
     case `#data-editor`:
       dataModal.show();
+      history.replaceState(null, "", window.location.pathname);
       break;
     case `#file-editor`:
       assetModal.show();
+      history.replaceState(null, "", window.location.pathname);
       break;
     case `#emulate-editor`:
       emulateModal.show();
+      history.replaceState(null, "", window.location.pathname);
       break;
+    default:
+    // note, the #runapp hash is used by js-dos
   }
-  if (parsedUrl.hash !== "")
-    history.replaceState(null, "", window.location.pathname);
-
   // New file download form event listener.
   document.body.addEventListener("htmx:afterRequest", function (event) {
     afterFormRequest(

@@ -909,6 +909,27 @@ func JsdosUse(art *models.File) bool {
 	}
 }
 
+func JsdosUsage(filename, platform string) bool {
+	filename = strings.ToLower(filename)
+	ext := filepath.Ext(filename)
+	platform = strings.TrimSpace(strings.ToLower(platform))
+	if platform != "dos" {
+		return false
+	}
+	switch ext {
+	case ".zip", ".lhz", ".lzh", ".arc", ".arj":
+		return true
+	}
+	switch ext {
+	case exe, com:
+		return true
+	case bat, cmd:
+		return false
+	default:
+		return false
+	}
+}
+
 // JsdosUtilities returns true the js-dos emulator should also load the utilities archive
 // as an internal hard disk drive.
 func JsdosUtilities(art *models.File) bool {

@@ -41,6 +41,7 @@
 <div class="row justify-content-md-center {{$rowCols}} g-4 mt-1">
   {{- /*  Begin the iteration of the records  */}}
   {{- range .records }}
+  {{- $jsdos := jsdosUsage .Filename.String .Platform.String}}
   {{- $filename := .Filename.String}}
   {{- if eq $filename ""}}{{$filename = "no filename provided"}}{{end}}
   {{- $forApproval := and (eq .Deletedat.IsZero false) (eq .Deletedby.String "")}}
@@ -82,6 +83,7 @@
         {{- linkPage .ID}}
         {{- linkDownload .ID .FileSecurityAlertURL.String }}{{ downloadB .Filesize}}
         {{- linkPreview .ID .Filename.String .Platform.String}}
+        {{- if eq $jsdos true}} {{- linkRunApp .ID}}{{end}}
       </div>
       <a href="{{linkHref .ID}}">{{thumb .UUID.String .Filename.String true }}</a>
     </div>
