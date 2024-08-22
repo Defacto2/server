@@ -693,6 +693,22 @@ func UpdateYMD(ctx context.Context, exec boil.ContextExecutor, id int64, y, m, d
 	return nil
 }
 
+// UpdateMagic updates the file magictype (magic number) column with the magic value provided.
+func UpdateMagic(ctx context.Context, exec boil.ContextExecutor, id int64, magic string) error {
+	if id <= 0 {
+		return fmt.Errorf("updatemagic id value %w: %d", ErrKey, id)
+	}
+	f, err := OneFile(ctx, exec, id)
+	if err != nil {
+		return fmt.Errorf("updatecreators find file, %d: %w", id, err)
+	}
+	f.FileMagicType = null.StringFrom(magic)
+	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
+		return fmt.Errorf("updatemagic update %w: %d", err, id)
+	}
+	return nil
+}
+
 // FileUpload is a struct that contains the values needed to update an existing file record
 // after a new file has been uploaded to the server.
 type FileUpload struct {

@@ -73,10 +73,15 @@ const (
 	RealPlayer
 	MusicalInstrumentDigitalInterface
 	MPEG1AudioLayer3
+	MPEGAdvancedAudioCoding
 	OggVorbisCodec
 	FreeLosslessAudioCodec
 	WaveAudioForWindows
 	MusicModule
+	MusicExtendedModule
+	MusicMultiTrackModule
+	MusicImpulseTracker
+	MusicProTracker
 	PKWAREZipShrink
 	PKWAREZipReduce
 	PKWAREZipImplode
@@ -107,7 +112,6 @@ const (
 	CDNero
 	CDPowerISO
 	CDAlcohol120
-	JavaARchive
 	WindowsHelpFile
 	PortableDocumentFormat
 	RichTextFormat
@@ -151,10 +155,15 @@ func (sign Signature) String() string { //nolint:funlen
 		"RealPlayer video",
 		"MIDI audio",
 		"MP3 audio",
+		"ACC audio",
 		"Ogg audio",
 		"FLAC audio",
 		"Wave audio",
-		"Tracker music",
+		"Tracker music mod",
+		"Tracker music extended mod",
+		"Tracker music multi-track mod",
+		"Tracker music Impulse mod",
+		"Tracker music ProTracker mod",
 		"pkzip shrunk archive",
 		"pkzip reduced archive",
 		"pkzip imploded archive",
@@ -185,7 +194,6 @@ func (sign Signature) String() string { //nolint:funlen
 		"CD, Nero",
 		"CD, PowerISO",
 		"CD, Alcohol 120",
-		"Java archive",
 		"Windows help",
 		"PDF document",
 		"rich text",
@@ -215,7 +223,7 @@ func (sign Signature) Title() string { //nolint:funlen
 		"Graphics Interchange Format",
 		"Google WebP",
 		"Tagged Image File Format",
-		"BMP File Format",
+		"Bitmap image file",
 		"Personal Computer eXchange",
 		"Interleaved Bitmap",
 		"Microsoft Icon",
@@ -230,10 +238,15 @@ func (sign Signature) Title() string { //nolint:funlen
 		"RealPlayer",
 		"Musical Instrument Digital Interface",
 		"MPEG-1 Audio Layer 3",
+		"MPEG Advanced Audio Coding",
 		"Ogg Vorbis Codec",
 		"Free Lossless Audio Codec",
 		"Wave Audio for Windows",
-		"Tracker music",
+		"Tracker music module",
+		"Tracker music extended module",
+		"Tracker music multi-track module",
+		"Tracker music Impulse module",
+		"Tracked music ProTracker module",
 		"Shrunked pkzip archive",
 		"Reduced pkzip archive",
 		"Imploded pkzip archive",
@@ -264,7 +277,6 @@ func (sign Signature) Title() string { //nolint:funlen
 		"CD Nero",
 		"CD PowerISO",
 		"CD Alcohol 120",
-		"Java archive",
 		"Windows Help File",
 		"Portable Document Format",
 		"Rich Text Format",
@@ -305,10 +317,15 @@ func Ext() Extension { //nolint:funlen
 		RealPlayer:                        []string{".rv", ".rm", ".rmvb"},
 		MusicalInstrumentDigitalInterface: []string{".mid", ".midi"},
 		MPEG1AudioLayer3:                  []string{".mp3"},
+		MPEGAdvancedAudioCoding:           []string{".aac", ".mp3"},
 		OggVorbisCodec:                    []string{".ogg"},
 		FreeLosslessAudioCodec:            []string{".flac"},
 		WaveAudioForWindows:               []string{".wav"},
-		MusicModule:                       []string{".mod", ".s3m", ".xm", ".it", ".mtm", ".mo3"},
+		MusicModule:                       []string{".mod", ".s3m", ".mo3"},
+		MusicExtendedModule:               []string{".xm"},
+		MusicMultiTrackModule:             []string{".mtm"},
+		MusicImpulseTracker:               []string{".it"},
+		MusicProTracker:                   []string{".mod"},
 		PKWAREZipShrink:                   []string{".zip"},
 		PKWAREZipReduce:                   []string{".zip"},
 		PKWAREZipImplode:                  []string{".zip"},
@@ -339,15 +356,15 @@ func Ext() Extension { //nolint:funlen
 		CDNero:                            []string{".nri"},
 		CDPowerISO:                        []string{".daa"},
 		CDAlcohol120:                      []string{".mdf"},
-		JavaARchive:                       []string{".jar"},
-		WindowsHelpFile:                   []string{".hlp"},
-		PortableDocumentFormat:            []string{".pdf"},
-		RichTextFormat:                    []string{".rtf"},
-		UTF8Text:                          []string{".txt"},
-		UTF16Text:                         []string{".txt"},
-		UTF32Text:                         []string{".txt"},
-		ANSIEscapeText:                    []string{".ans"},
-		PlainText:                         []string{".txt"},
+		//JavaARchive:                       []string{".jar"},
+		WindowsHelpFile:        []string{".hlp"},
+		PortableDocumentFormat: []string{".pdf"},
+		RichTextFormat:         []string{".rtf"},
+		UTF8Text:               []string{".txt"},
+		UTF16Text:              []string{".txt"},
+		UTF32Text:              []string{".txt"},
+		ANSIEscapeText:         []string{".ans"},
+		PlainText:              []string{".txt"},
 	}
 }
 
@@ -386,10 +403,15 @@ func New() Finder { //nolint:funlen
 		RealPlayer:                        Ivr,
 		MusicalInstrumentDigitalInterface: Midi,
 		MPEG1AudioLayer3:                  Mp3,
+		MPEGAdvancedAudioCoding:           AAC,
 		OggVorbisCodec:                    Ogg,
 		FreeLosslessAudioCodec:            Flac,
 		WaveAudioForWindows:               Wave,
 		MusicModule:                       Mod,
+		MusicExtendedModule:               XM,
+		MusicMultiTrackModule:             MTM,
+		MusicImpulseTracker:               IT,
+		MusicProTracker:                   MK,
 		PKWAREZipShrink:                   PkShrink,
 		PKWAREZipReduce:                   PkReduce,
 		PKWAREZipImplode:                  PkImplode,
@@ -420,7 +442,6 @@ func New() Finder { //nolint:funlen
 		CDNero:                            Nri,
 		CDPowerISO:                        Daa,
 		CDAlcohol120:                      Mdf,
-		JavaARchive:                       Jar,
 		WindowsHelpFile:                   Hlp,
 		PortableDocumentFormat:            Pdf,
 		RichTextFormat:                    Rtf,

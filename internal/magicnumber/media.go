@@ -11,6 +11,24 @@ import (
 // A number of these media containers could support multiple modes,
 // such as audio only, audio+video, video only, static images, animated images, etc.
 
+// AAC matches the Advanced Audio Coding audio format in the byte slice.
+func AAC(p []byte) bool {
+	const twoBytes = 2
+	const min = twoBytes + 1
+	if len(p) < min {
+		return false
+	}
+	if !bytes.Equal(p[:twoBytes], []byte{0xff, 0xfb}) {
+		return false
+	}
+	switch p[twoBytes] {
+	case 0x90, 0xb0, 0xe0:
+		return true
+	default:
+		return false
+	}
+}
+
 // Avi matches the Microsoft Audio Video Interleave video format in the byte slice.
 func Avi(p []byte) bool {
 	const min = 16
@@ -192,20 +210,29 @@ func IlbmConfig(p []byte) (int, int) {
 
 // M4v matches the QuickTime M4V video format in the byte slice.
 func M4v(p []byte) bool {
-	const min = 8
-	if len(p) < min {
+	const min, offset = 8, 4
+	if len(p) < min+offset {
 		return false
 	}
-	return bytes.Equal(p[:min], []byte{'f', 't', 'y', 'p', 'm', 'p', '4', '2'})
+	return bytes.Equal(p[offset:min+offset], []byte{'f', 't', 'y', 'p', 'm', 'p', '4', '2'})
 }
 
 // Mp4 matches the MPEG-4 video format in the byte slice.
 func Mp4(p []byte) bool {
-	const min = 8
-	if len(p) < min {
+	const min, offset = 8, 4
+	if len(p) < min+offset {
 		return false
 	}
-	return bytes.Equal(p[:min], []byte{'f', 't', 'y', 'p', 'M', 'S', 'N', 'V'})
+	ftypMSNV := []byte{'f', 't', 'y', 'p', 'M', 'S', 'N', 'V'}
+	ftypisom := []byte{'f', 't', 'y', 'p', 'i', 's', 'o', 'm'}
+	switch {
+	case bytes.Equal(p[offset:min+offset], ftypMSNV):
+		return true
+	case bytes.Equal(p[offset:min+offset], ftypisom):
+		return true
+	default:
+		return false
+	}
 }
 
 // Mp3 matches the MPEG-1 Audio Layer 3 audio format in the byte slice.

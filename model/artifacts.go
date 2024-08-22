@@ -182,6 +182,36 @@ func (f *Artifacts) byForApproval(ctx context.Context, exec boil.ContextExecutor
 		qm.From(From)).Bind(ctx, exec, f)
 }
 
+// ByMagicErr returns all of the file records that require new magic numbers.
+func (f *Artifacts) ByMagicErr(ctx context.Context, exec boil.ContextExecutor, binaryData bool) (
+	models.FileSlice, error,
+) {
+	if exec == nil {
+		return nil, ErrDB
+	}
+	equals := []string{"data", "tar archive", "Microsoft ASF"}
+	ilikes := []string{"application/%", "Zip archive data%", "ARC archive data%", "ARJ archive data%", "RAR archive data%",
+		"7-zip archive data%", "gzip compressed data%", "ASCII text%", "HTML document%", "Pascal source%", "ISO-8859 text%",
+		"JPEG image data%", "GIF image data%", "PNG image data%", "PDF document%", "RIFF (little-endian) data%",
+		"ISO Media%", "Fasttracker II%", "Ogg data%", "Audio file with%", "MPEG ADTS%"}
+	mods := []qm.QueryMod{
+		qm.Select(models.FileColumns.UUID, models.FileColumns.ID, models.FileColumns.FileMagicType),
+		models.FileWhere.FileMagicType.EQ(null.StringFrom("")),
+	}
+	for _, s := range equals {
+		mods = append(mods, qm.Or2(models.FileWhere.FileMagicType.EQ(null.StringFrom(s))))
+	}
+	for _, s := range ilikes {
+		mods = append(mods, qm.Or2(models.FileWhere.FileMagicType.ILIKE(null.StringFrom(s))))
+	}
+	if binaryData {
+		mods = append(mods,
+			qm.Or2(models.FileWhere.FileMagicType.EQ(null.StringFrom("Binary data"))))
+	}
+	mods = append(mods, qm.WithDeleted())
+	return models.Files(mods...).All(ctx, exec)
+}
+
 // ByTextPlatform returns all of the file records that are text based, either text or textamiga.
 func (f *Artifacts) ByTextPlatform(ctx context.Context, exec boil.ContextExecutor) (
 	models.FileSlice, error,

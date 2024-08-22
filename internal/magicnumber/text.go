@@ -22,6 +22,8 @@ func ASCII(p []byte) bool {
 // is made for the ESC (escape) character which is used in ANSI escape codes and
 // the EOF (end of file) character which is used in DOS.
 func NotASCII(b byte) bool {
+	// a list of rune literals for the control characters
+	// https://go.dev/ref/spec#Rune_literals
 	const (
 		nul = 0x0
 		tab = byte('\t')
@@ -29,11 +31,14 @@ func NotASCII(b byte) bool {
 		vt  = byte('\v')
 		ff  = byte('\f')
 		cr  = byte('\r')
+		bel = byte('\a')
+		bak = byte('\b')
 		eof = 0x1a // end of file character commonly used in DOS
 		esc = 0x1b // escape character used in ANSI escape codes
 	)
 	return (b < 0x20 || b > 0x7f) &&
-		b != nul && b != tab && b != nl && b != vt && b != ff && b != cr && b != esc && b != eof
+		b != nul && b != tab && b != nl && b != vt && b != ff && b != cr && b != bel && b != bak &&
+		b != esc && b != eof
 }
 
 // Ansi returns true if the byte slice contains some common ANSI escape codes.

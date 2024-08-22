@@ -24,6 +24,25 @@ func Mod(p []byte) bool {
 	return MusicTracker(p) != ""
 }
 
+// MTM matches the MultiTracker music format in the byte slice.
+func MTM(p []byte) bool {
+	return MusicMTM(p) != ""
+}
+
+// XM matches the eXtended Module tracked music format in the byte slice.
+func XM(p []byte) bool {
+	return MusicXM(p) != ""
+}
+
+// IT matches the Impulse Tracker music format in the byte slice.
+func IT(p []byte) bool {
+	return MusicIT(p) != ""
+}
+
+func MK(p []byte) bool {
+	return MusicMK(p) != ""
+}
+
 // MusicMod returns the tracked music format in the byte slice and
 // the name or title of the song if available.
 // The tracked music formats include MultiTracker, Impulse Tracker,

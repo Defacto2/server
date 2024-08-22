@@ -3,8 +3,6 @@
 ### Recommendations
 
 * On startup, modify downloads to use database stored, last modified value.
-* On startup, run magic numbers on all records to replace the current value in database, lookup `application/octet-stream` or `application/...` and empty vales.
-
 * After a successful demozoo/pouet upload, defer a sync for the data to the artifact record.
 
 * Handle magazines title on artifact page, http://localhost:1323/f/a55ed, this is hard to read, "Issue 4\nThe Pirate Syndicate +\nThe Pirate World"
@@ -15,6 +13,8 @@
 - [ ] - http://www.platohistory.org/
 - [ ] - https://portcommodore.com/dokuwiki/doku.php?id=larry:comp:bbs:about_cbbs
 - [ ] - 8BBS https://everything2.com/title/8BBS
+
+* create a what's new page with comparision screenshots etc.
 
 ### Locations
 

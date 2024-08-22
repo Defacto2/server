@@ -64,7 +64,14 @@ func Gzip(p []byte) bool {
 	if len(p) < min {
 		return false
 	}
-	return bytes.Equal(p[:min], []byte{0x1f, 0x8b, 0x8})
+	if bytes.Equal(p[:min], []byte{0x1f, 0x8b, 0x08}) {
+		return true
+	}
+	const offset = 512
+	if len(p) < offset+min {
+		return false
+	}
+	return bytes.Equal(p[offset:offset+min], []byte{0x1f, 0x8b, 0x08})
 }
 
 // Jar returns true if the reader contains the Java ARchive signature.
