@@ -3,8 +3,8 @@
 */ -}}
 {{- define "layoutup" }}
 {{- $lock := index . "editor" }}
-{{- $buttonClass := "btn-primary"}}
-{{- if ne true $lock}}{{ $buttonClass = "btn-secondary"}}{{end}}
+{{- $buttonClass := "btn-link"}}
+{{- if ne true $lock}}{{ $buttonClass = "btn-link"}}{{end}}
 <div class="btn-group">
   <button class="btn {{$buttonClass}} dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
     {{- if ne true $lock}}Uploader{{else}}Site editor{{end}}
