@@ -384,9 +384,11 @@ func MkContent(src string) string {
 }
 
 // Releasers returns a HTML links for the primary and secondary group names.
-func Releasers(prime, second string) template.HTML {
+func Releasers(prime, second string, magazine bool) template.HTML {
 	var s string
 	switch {
+	case magazine && prime != "" && second != "":
+		s = fmt.Sprintf("%s <small>published by</small> %s", second, prime)
 	case prime != "" && second != "":
 		s = fmt.Sprintf("%s <strong>+</strong><br>%s", prime, second)
 	case prime != "":

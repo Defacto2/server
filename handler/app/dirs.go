@@ -481,8 +481,7 @@ func decode(src io.Reader) (string, error) {
 func firstLead(art *models.File) string {
 	fname := art.Filename.String
 	span := fmt.Sprintf("<span class=\"font-monospace fs-6 fw-light\">%s</span> ", fname)
-	rels := string(LinkRels(art.GroupBrandBy, art.GroupBrandFor))
-	return fmt.Sprintf("%s<br>%s", rels, span)
+	return fmt.Sprintf("%s<br>%s", releasersHrefs(art), span)
 }
 
 // releasersHrefs returns the releasers for the file record as a string of HTML links.
@@ -490,5 +489,6 @@ func releasersHrefs(art *models.File) string {
 	if art == nil {
 		return ""
 	}
-	return string(LinkRels(art.GroupBrandBy, art.GroupBrandFor))
+	magazine := strings.TrimSpace(art.Section.String) == tags.Mag.String()
+	return string(LinkRels(magazine, art.GroupBrandBy, art.GroupBrandFor))
 }

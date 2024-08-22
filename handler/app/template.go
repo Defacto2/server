@@ -515,11 +515,11 @@ func LinkPreviews(youtube, demozoo, pouet, colors16, github, rels, sites string)
 }
 
 // LinkRelrs returns the groups associated with a release and a link to each group.
-func LinkRels(a, b any) template.HTML {
+func LinkRels(magazine bool, a, b any) template.HTML {
 	if a == nil || b == nil {
 		return ""
 	}
-	return LinkReleasers(false, a, b)
+	return LinkReleasers(false, magazine, a, b)
 }
 
 // LinkRelsPerformant returns the groups associated with a release and a link to each group.
@@ -528,12 +528,12 @@ func LinkRelsPerformant(a, b any) template.HTML {
 	if a == nil || b == nil {
 		return ""
 	}
-	return LinkReleasers(true, a, b)
+	return LinkReleasers(true, false, a, b)
 }
 
 // LinkBothReleasers returns the groups associated with a release and a link to each group.
 // The performant flag will use the group name instead of the much slower group slug formatter.
-func LinkReleasers(performant bool, a, b any) template.HTML {
+func LinkReleasers(performant, magazine bool, a, b any) template.HTML {
 	const class = "text-nowrap link-offset-2 link-underline link-underline-opacity-25"
 	var av, bv string
 	switch val := a.(type) {
@@ -573,5 +573,5 @@ func LinkReleasers(performant bool, a, b any) template.HTML {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
 	}
-	return str.Releasers(prime, second)
+	return str.Releasers(prime, second, magazine)
 }

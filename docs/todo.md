@@ -2,10 +2,7 @@
 
 ### Recommendations
 
-* On startup, modify downloads to use database stored, last modified value.
 * After a successful demozoo/pouet upload, defer a sync for the data to the artifact record.
-
-* Handle magazines title on artifact page, http://localhost:1323/f/a55ed, this is hard to read, "Issue 4\nThe Pirate Syndicate +\nThe Pirate World"
 
 * Use DigitalOcean API to display Estimated Droplet Transfer Pool usage and remaining balance. 
 		https://pkg.go.dev/github.com/digitalocean/godo https://docs.digitalocean.com/reference/api/api-reference/#operation/droplets_get
