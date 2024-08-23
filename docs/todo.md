@@ -1,45 +1,18 @@
 # TODOs and tasks
 
-### Recommendations
+### Stuff to do
 
 * After a successful demozoo/pouet upload, defer a sync for the data to the artifact record.
 
-* Use DigitalOcean API to display Estimated Droplet Transfer Pool usage and remaining balance. 
-		https://pkg.go.dev/github.com/digitalocean/godo https://docs.digitalocean.com/reference/api/api-reference/#operation/droplets_get
-
-- [ ] - http://www.platohistory.org/
-- [ ] - https://portcommodore.com/dokuwiki/doku.php?id=larry:comp:bbs:about_cbbs
-- [ ] - 8BBS https://everything2.com/title/8BBS
+* Repack zips that contain programs with bad filenames, for example: http://localhost:1323/f/ab252e4
 
 * create a what's new page with comparision screenshots etc.
 
-### Locations
-
-#### On startup tasks
-
- - `server.go` 
- - - checks()
- - - repairs() ~ 
- - - repairDatabase() ~ /model/fix/fix.go ~ Artifacts.Run()
-
 ### Live go.defacto2.net issues.
 
-- [ ] Missing screenshots and downloads: https://go.defacto2.net/g/millennium-ftp
+* Missing screenshots and downloads: https://go.defacto2.net/g/millennium-ftp
 
-### Bug fixes
-
-### Emulate on startup fixes
-
-- [ ] Repack zips that contain programs with bad filenames, for example: http://localhost:1323/f/ab252e4
-
-### Templates
-
-- [ ] `artifactfile.tmpl`
-- [ ] `layoutjs.tmpl`
- 
----
-
-#### Upload tests
+### Upload tests
 
 24 June.
 
@@ -52,6 +25,8 @@
 - [X] Image brand, logo or proof.
 - [X] Text, DOS and Windows magazines.
 - [X] Advanced.
+
+---
 
 #### Software libraries
 

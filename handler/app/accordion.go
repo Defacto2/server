@@ -232,6 +232,10 @@ func bbses() []Site {
 			"The BBS Software Directory", "http://www.bbsdocumentary.com/software/",
 			"A canonical list of BBS software packages for all platforms.",
 		},
+		Site{
+			"PLATO History", "http://www.platohistory.org/",
+			"A decade before the first BBS, the far more advanced PLATO IV network of interactive touch terminals existed and birthed today's online culture.",
+		},
 	}
 }
 
