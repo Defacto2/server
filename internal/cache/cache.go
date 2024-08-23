@@ -26,7 +26,8 @@ func (c Cache) String() string {
 		"pouet",
 		"pouetproduction",
 		"demozooproduction",
-		"test"}[c]
+		"test",
+	}[c]
 }
 
 const (

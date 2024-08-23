@@ -31,5 +31,4 @@ func TestLegacyString(t *testing.T) {
 	assert.Equal(t, "€100", s)
 	s = mf.LegacyString("\x80100")
 	assert.Equal(t, "€100", s)
-
 }

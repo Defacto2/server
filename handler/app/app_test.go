@@ -120,7 +120,7 @@ func TestLinkHref(t *testing.T) {
 
 	s, err = app.LinkHref(1)
 	assert.Contains(t, s, "/f/9b1c6")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestDescribe(t *testing.T) {

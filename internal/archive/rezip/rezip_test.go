@@ -1,7 +1,6 @@
 package rezip_test
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -34,7 +33,6 @@ func TestCompress(t *testing.T) {
 	dest := filepath.Join(dir, "zip_test.zip")
 
 	st, err := os.Stat(src)
-	fmt.Println(src)
 	require.NoError(t, err)
 
 	n, err := rezip.Compress(src, dest)

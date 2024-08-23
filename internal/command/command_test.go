@@ -38,7 +38,8 @@ func TestLookups(t *testing.T) {
 func TestCopyFile(t *testing.T) {
 	t.Parallel()
 	err := command.CopyFile(nil, "", "")
-	assert.ErrorContains(t, err, "no such file or directory")
+	require.Error(t, err)
+	require.ErrorContains(t, err, "no such file or directory")
 
 	td := helper.TmpDir()
 	tmp, err := os.CreateTemp(td, "command_test")
@@ -131,7 +132,8 @@ func TestLookVersion(t *testing.T) {
 func TestRun(t *testing.T) {
 	t.Parallel()
 	err := command.Run(nil, "", "")
-	assert.ErrorContains(t, err, "executable file not found in $PATH")
+	require.Error(t, err)
+	require.ErrorContains(t, err, "executable file not found in $PATH")
 
 	logr := zap.NewExample().Sugar()
 	err = command.Run(logr, "", "")

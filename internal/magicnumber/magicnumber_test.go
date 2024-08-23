@@ -40,10 +40,12 @@ func TestFindBytesExecutable(t *testing.T) {
 	assert.Equal(t, magicnumber.UnknownPE, w.PE)
 	assert.Equal(t, magicnumber.NoneNE, w.NE)
 
-	freedos := []string{"/exe/EXE.EXE",
+	freedos := []string{
+		"/exe/EXE.EXE",
 		"/exemenu/exemenu.exe",
 		"/press/PRESS.EXE",
-		"/rread/rread.exe"}
+		"/rread/rread.exe",
+	}
 	for _, v := range freedos {
 		p, err := os.ReadFile(td("binaries/freedos" + v))
 		require.NoError(t, err)
@@ -127,7 +129,7 @@ func TestFindExecutableWinNT(t *testing.T) {
 		assert.Equal(t, magicnumber.UnknownPE, w.PE)
 		assert.Equal(t, 0, w.Major)
 		assert.Equal(t, 0, w.Minor)
-		assert.Equal(t, w.TimeDateStamp.Year(), 1)
+		assert.Equal(t, 1, w.TimeDateStamp.Year())
 		assert.Equal(t, "Unknown PE executable", fmt.Sprint(w))
 		assert.Equal(t, magicnumber.NoneNE, w.NE)
 	}
@@ -138,7 +140,7 @@ func TestFindExecutableWinNT(t *testing.T) {
 	assert.Equal(t, magicnumber.AMD64PE, w.PE)
 	assert.Equal(t, 4, w.Major)
 	assert.Equal(t, 0, w.Minor)
-	assert.Equal(t, w.TimeDateStamp.Year(), 2016)
+	assert.Equal(t, 2016, w.TimeDateStamp.Year())
 	assert.Equal(t, "Windows NT v4.0 64-bit", fmt.Sprint(w))
 	assert.Equal(t, magicnumber.NoneNE, w.NE)
 }
@@ -347,7 +349,8 @@ func TestFind(t *testing.T) {
 				magicnumber.PKWAREZip64,
 				magicnumber.PKWAREZipImplode,
 				magicnumber.PKWAREZipReduce,
-				magicnumber.PKWAREZipShrink}
+				magicnumber.PKWAREZipShrink,
+			}
 			assert.Contains(t, zips, sign, prob(ext, path))
 		default:
 			assert.NotEqual(t, magicnumber.Unknown, sign, prob(ext, path))

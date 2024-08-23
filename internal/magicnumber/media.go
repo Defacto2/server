@@ -21,8 +21,9 @@ func AAC(p []byte) bool {
 	if !bytes.Equal(p[:twoBytes], []byte{0xff, 0xfb}) {
 		return false
 	}
+	const x90, xb0, xe0 = 0x90, 0xb0, 0xe0
 	switch p[twoBytes] {
-	case 0x90, 0xb0, 0xe0:
+	case x90, xb0, xe0:
 		return true
 	default:
 		return false

@@ -190,10 +190,12 @@ func (f *Artifacts) ByMagicErr(ctx context.Context, exec boil.ContextExecutor, b
 		return nil, ErrDB
 	}
 	equals := []string{"data", "tar archive", "Microsoft ASF"}
-	ilikes := []string{"application/%", "Zip archive data%", "ARC archive data%", "ARJ archive data%", "RAR archive data%",
+	ilikes := []string{
+		"application/%", "Zip archive data%", "ARC archive data%", "ARJ archive data%", "RAR archive data%",
 		"7-zip archive data%", "gzip compressed data%", "ASCII text%", "HTML document%", "Pascal source%", "ISO-8859 text%",
 		"JPEG image data%", "GIF image data%", "PNG image data%", "PDF document%", "RIFF (little-endian) data%",
-		"ISO Media%", "Fasttracker II%", "Ogg data%", "Audio file with%", "MPEG ADTS%"}
+		"ISO Media%", "Fasttracker II%", "Ogg data%", "Audio file with%", "MPEG ADTS%",
+	}
 	mods := []qm.QueryMod{
 		qm.Select(models.FileColumns.UUID, models.FileColumns.ID, models.FileColumns.FileMagicType),
 		models.FileWhere.FileMagicType.EQ(null.StringFrom("")),

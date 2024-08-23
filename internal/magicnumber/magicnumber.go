@@ -356,7 +356,7 @@ func Ext() Extension { //nolint:funlen
 		CDNero:                            []string{".nri"},
 		CDPowerISO:                        []string{".daa"},
 		CDAlcohol120:                      []string{".mdf"},
-		//JavaARchive:                       []string{".jar"},
+		// JavaARchive:                       []string{".jar"},
 		WindowsHelpFile:        []string{".hlp"},
 		PortableDocumentFormat: []string{".pdf"},
 		RichTextFormat:         []string{".rtf"},

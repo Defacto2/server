@@ -17,10 +17,6 @@ import (
 	"time"
 	"unicode/utf8"
 
-	_ "golang.org/x/image/bmp"
-	_ "golang.org/x/image/tiff"
-	"golang.org/x/text/encoding/charmap"
-
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app/internal/exts"
 	"github.com/Defacto2/server/handler/app/internal/readme"
@@ -33,6 +29,9 @@ import (
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/dustin/go-humanize"
+	_ "golang.org/x/image/bmp"  // Register BMP image format
+	_ "golang.org/x/image/tiff" // Register TIFF image format
+	"golang.org/x/text/encoding/charmap"
 )
 
 const (
@@ -78,19 +77,11 @@ func (m ListEntry) HTML(bytes int64, platform string) string {
 		`data-bs-title="%s">%s</div>`, titlename, displayname)
 	switch {
 	case m.Images:
-		htm += `<div class="col col-1 text-end">` +
-			fmt.Sprintf(`<a class="icon-link align-text-bottom" id="" `+
-				`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/preview/copy/%s/%s">`, m.UniqueID, name) +
-			`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-			`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
+		htm += previewcopy(m.UniqueID, name)
 	case m.Texts && (ext == bat || ext == cmd || ext == ini):
 		htm += blank
 	case m.Texts:
-		htm += `<div class="col col-1 text-end">` +
-			fmt.Sprintf(`<a class="icon-link align-text-bottom" `+
-				`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/readme/preview/%s/%s">`, m.UniqueID, name) +
-			`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-			`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
+		htm += readmepreview(m.UniqueID, name)
 	default:
 		htm += blank
 	}
@@ -98,11 +89,7 @@ func (m ListEntry) HTML(bytes int64, platform string) string {
 	case m.Texts && (ext == bat || ext == cmd || ext == ini):
 		htm += blank
 	case m.Texts:
-		htm += `<div class="col col-1 text-end">` +
-			fmt.Sprintf(`<a class="icon-link align-text-bottom" `+
-				`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/readme/copy/%s/%s">`, m.UniqueID, name) +
-			`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
-			`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></a></div>`
+		htm += readmecopy(m.UniqueID, name)
 	case m.Programs && ext == exe, m.Programs && ext == com:
 		htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 			`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
@@ -126,6 +113,30 @@ func (m ListEntry) HTML(bytes int64, platform string) string {
 	}
 	htm = fmt.Sprintf(`<div class="border-bottom row mb-1">%s</div>`, htm)
 	return htm
+}
+
+func previewcopy(uniqueID, name string) string {
+	return `<div class="col col-1 text-end">` +
+		fmt.Sprintf(`<a class="icon-link align-text-bottom" id="" `+
+			`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/preview/copy/%s/%s">`, uniqueID, name) +
+		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
+}
+
+func readmepreview(uniqueID, name string) string {
+	return `<div class="col col-1 text-end">` +
+		fmt.Sprintf(`<a class="icon-link align-text-bottom" `+
+			`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/readme/preview/%s/%s">`, uniqueID, name) +
+		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
+}
+
+func readmecopy(uniqueID, name string) string {
+	return `<div class="col col-1 text-end">` +
+		fmt.Sprintf(`<a class="icon-link align-text-bottom" `+
+			`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/readme/copy/%s/%s">`, uniqueID, name) +
+		`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
+		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></a></div>`
 }
 
 func progr(exec magicnumber.Windows, ext, htm string, bytes int64) string {
@@ -454,28 +465,7 @@ func ListContent(art *models.File, src string) template.HTML {
 	}
 	dst, err := archive.ExtractSource(art.Filename.String, src)
 	if err != nil {
-		if !errors.Is(err, archive.ErrNotArchive) && !errors.Is(err, archive.ErrNotImplemented) {
-			return template.HTML(err.Error())
-		}
-		e := entry{zeros: zeroByteFiles}
-		if e.ParseFile(src, platform) {
-			return "error, empty byte file"
-		}
-		le := ListEntry{
-			Executable:   e.exec,
-			Images:       e.image,
-			Programs:     e.program,
-			Texts:        e.text,
-			MusicConfig:  e.module,
-			ImageConfig:  e.format,
-			RelativeName: art.Filename.String,
-			Signature:    e.sign.String(),
-			Filesize:     e.size,
-			UniqueID:     unid,
-		}
-		var b strings.Builder
-		b.WriteString(le.HTML(e.bytes, platform))
-		return template.HTML(b.String())
+		return extractErr(src, platform, zeroByteFiles, err)
 	}
 	walkerCount := func(_ string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
@@ -505,18 +495,7 @@ func ListContent(art *models.File, src string) template.HTML {
 			return skipEntry
 		}
 		entries++
-		le := ListEntry{
-			Executable:   e.exec,
-			Images:       e.image,
-			Programs:     e.program,
-			Texts:        e.text,
-			MusicConfig:  e.module,
-			ImageConfig:  e.format,
-			RelativeName: LegacyString(rel),
-			Signature:    e.sign.String(),
-			Filesize:     e.size,
-			UniqueID:     unid,
-		}
+		le := listEntry(e, rel, unid)
 		b.WriteString(le.HTML(e.bytes, platform))
 		if maxItems := 200; entries > maxItems {
 			more := fmt.Sprintf(`<div class="border-bottom row mb-1">... %d more files</div>`, files-entries)
@@ -532,6 +511,50 @@ func ListContent(art *models.File, src string) template.HTML {
 	return template.HTML(b.String())
 }
 
+func extractErr(src, platform string, zeroByteFiles int, err error) template.HTML {
+	if !errors.Is(err, archive.ErrNotArchive) && !errors.Is(err, archive.ErrNotImplemented) {
+		return template.HTML(err.Error())
+	}
+	e := entry{zeros: zeroByteFiles}
+	if e.ParseFile(src, platform) {
+		return "error, empty byte file"
+	}
+	le := listErr(e)
+	var b strings.Builder
+	b.WriteString(le.HTML(e.bytes, platform))
+	return template.HTML(b.String())
+}
+
+func listErr(e entry) ListEntry {
+	return ListEntry{
+		Executable:   e.exec,
+		Images:       e.image,
+		Programs:     e.program,
+		Texts:        e.text,
+		MusicConfig:  e.module,
+		ImageConfig:  e.format,
+		RelativeName: "",
+		Signature:    e.sign.String(),
+		Filesize:     e.size,
+		UniqueID:     "",
+	}
+}
+
+func listEntry(e entry, rel, unid string) ListEntry {
+	return ListEntry{
+		Executable:   e.exec,
+		Images:       e.image,
+		Programs:     e.program,
+		Texts:        e.text,
+		MusicConfig:  e.module,
+		ImageConfig:  e.format,
+		RelativeName: LegacyString(rel),
+		Signature:    e.sign.String(),
+		Filesize:     e.size,
+		UniqueID:     unid,
+	}
+}
+
 // LegacyString returns a string that is converted to UTF-8 if it is not already.
 // Intended for filenames in archives that may have been encoded using a legacy charset,
 // such as ISO-8859-1 (Commodore Amiga) or Windows-1252 (Windows 9x) and using non-ASCII characters.
@@ -540,8 +563,8 @@ func LegacyString(s string) string {
 		return s
 	}
 	undefinedChr := func(b byte) bool {
-		const euroSymbol, ÿDiaeresis = 0x80, 0x9f
-		return b >= euroSymbol && b <= ÿDiaeresis
+		const euroSymbol, yDiaeresis = 0x80, 0x9f
+		return b >= euroSymbol && b <= yDiaeresis
 	}
 	if windows1252 := slices.ContainsFunc([]byte(s), undefinedChr); windows1252 {
 		decoder := charmap.Windows1252.NewDecoder()

@@ -2,7 +2,8 @@ package magicnumber
 
 import "bytes"
 
-// Package file archive.go contains the functions that parse bytes as common file archive, compression and disk image formats.
+// Package file archive.go contains the functions that parse bytes as common file archive,
+// compression and disk image formats.
 
 // Arc matches the FreeArc compression format in the byte slice.
 func Arc(p []byte) bool {

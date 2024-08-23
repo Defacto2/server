@@ -1,13 +1,13 @@
 package str_test
 
 import (
-	"fmt"
 	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/Defacto2/server/handler/app/internal/str"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/volatiletech/null/v8"
 )
 
@@ -125,9 +125,8 @@ func TestImageSample(t *testing.T) {
 	x = str.ImageSample("", "testdata/TEST.PNG")
 	assert.Contains(t, x, missing)
 	abs, err := filepath.Abs("../../testdata")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	const filenameNoExt = "test"
 	x = str.ImageSample(filenameNoExt, abs)
-	fmt.Println(x)
 	assert.Contains(t, x, "sha384-SK3qCpS11QMhNxUUnyeUeWWXBMPORDgLTI")
 }

@@ -97,7 +97,8 @@ func DemozooValid(c echo.Context, id int) (demozoo.Production, error) {
 		return demozoo.Production{},
 			c.String(http.StatusNotAcceptable, fmt.Sprintf("invalid id: %d", id))
 	}
-	if s, err := cache.DemozooProduction.Read(string(id)); err == nil {
+	sid := strconv.Itoa(id)
+	if s, err := cache.DemozooProduction.Read(sid); err == nil {
 		if s != "" {
 			return demozoo.Production{},
 				c.String(http.StatusOK,
@@ -119,7 +120,8 @@ func DemozooValid(c echo.Context, id int) (demozoo.Production, error) {
 		for _, t := range prod.Types {
 			s = append(s, t.Name)
 		}
-		_ = cache.DemozooProduction.WriteNoExpire(string(id), strings.Join(s, " - "))
+		sid := strconv.Itoa(id)
+		_ = cache.DemozooProduction.WriteNoExpire(sid, strings.Join(s, " - "))
 		return demozoo.Production{}, c.HTML(http.StatusOK,
 			fmt.Sprintf("Production %d is probably not suitable for Defacto2.<br>Types: %s",
 				id, strings.Join(s, " - ")))
@@ -368,7 +370,8 @@ func PouetValid(c echo.Context, id int) (pouet.Response, error) {
 		return pouet.Response{},
 			c.String(http.StatusNotAcceptable, fmt.Sprintf("invalid id: %d", id))
 	}
-	if s, err := cache.PouetProduction.Read(string(id)); err == nil {
+	sid := strconv.Itoa(id)
+	if s, err := cache.PouetProduction.Read(sid); err == nil {
 		if s != "" {
 			return pouet.Response{},
 				c.String(http.StatusOK,
@@ -383,7 +386,8 @@ func PouetValid(c echo.Context, id int) (pouet.Response, error) {
 	plat := prod.Prod.Platfs
 	sect := prod.Prod.Types
 	if !plat.Valid() || !sect.Valid() {
-		_ = cache.PouetProduction.WriteNoExpire(string(id), "invalid")
+		sid := strconv.Itoa(id)
+		_ = cache.PouetProduction.WriteNoExpire(sid, "invalid")
 		return pouet.Response{}, c.HTML(http.StatusOK,
 			fmt.Sprintf("Production %d is probably not suitable for Defacto2.", id)+
 				"<br>A production must an intro, demo or cracktro either for MsDos or Windows.")
