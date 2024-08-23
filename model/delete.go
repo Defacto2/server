@@ -11,14 +11,14 @@ import (
 
 // One retrieves a single file record from the database using the record key.
 // This function can return records that have been marked as deleted.
-func DeleteOne(ctx context.Context, exec boil.ContextExecutor, key uint64) error {
+func DeleteOne(ctx context.Context, exec boil.ContextExecutor, key int64) error {
 	if exec == nil {
 		return ErrTx
 	}
 	if key < 1 {
 		return fmt.Errorf("key value %d: %w", key, ErrKey)
 	}
-	mods := models.FileWhere.ID.EQ(int64(key))
+	mods := models.FileWhere.ID.EQ(key)
 	_, err := models.Files(mods, qm.WithDeleted()).DeleteAll(ctx, exec, true)
 	if err != nil {
 		return fmt.Errorf("one record %d: %w", key, err)

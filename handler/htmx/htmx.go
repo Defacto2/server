@@ -163,7 +163,7 @@ func DBConnections(c echo.Context, db *sql.DB) error {
 
 // DeleteForever is a handler for the /delete/forever route.
 func DeleteForever(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, id string) error {
-	key, err := strconv.ParseUint(id, 10, 64)
+	key, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
