@@ -2,6 +2,7 @@
     interview.tmpl ~ Generates the content for the people interviews page.
 */ -}}
 {{- define "content" -}}
+<div>This list of interviews is far from complete.</div>
 {{- range $relIndex, $releaser := .interviews }}
 {{- if gt $relIndex 0}}
 <br>

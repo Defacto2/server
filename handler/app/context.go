@@ -799,7 +799,7 @@ func Interview(c echo.Context) error {
 	data["logo"] = title
 	data["h1"] = title
 	data["lead"] = "Here is a centralized page for the site's discussions and unedited" +
-		" interviews with sceners, crackers, and demo makers. Currently, incomplete."
+		" interviews with sceners, crackers, and demo makers."
 	data["interviews"] = Interviewees()
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
