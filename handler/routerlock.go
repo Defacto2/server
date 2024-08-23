@@ -287,9 +287,9 @@ func get(g *echo.Group, db *sql.DB, dir app.Dirs) {
 		func(cx echo.Context) error {
 			return app.Deletions(cx, db, "1")
 		})
-	g.GET("/get/demozoo/download/:id",
+	g.GET("/get/demozoo/download/:unid/:id",
 		func(cx echo.Context) error {
-			return app.GetDemozooLink(cx, db, dir.Download)
+			return app.GetDemozooParam(cx, db, dir.Download)
 		})
 	g.GET("/for-approval",
 		func(cx echo.Context) error {

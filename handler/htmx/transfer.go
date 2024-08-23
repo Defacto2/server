@@ -20,6 +20,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/command"
@@ -385,7 +386,7 @@ func (cr creator) insert(ctx context.Context, c echo.Context, tx *sql.Tx, logger
 	return id, uid, nil
 }
 
-func submit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, prod string) error {
+func submit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, prod, downloadDir string) error {
 	name := strings.ToTitle(prod)
 	if logger == nil {
 		return c.String(http.StatusInternalServerError,
@@ -418,9 +419,10 @@ func submit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, prod string) 
 			"error, the "+prod+" key is already in use")
 	}
 	var key int64
+	var unid string
 	switch prod {
 	case dz:
-		key, _, err = model.InsertDemozoo(ctx, tx, id)
+		key, unid, err = model.InsertDemozoo(ctx, tx, id)
 	case pt:
 		key, err = model.InsertPouet(ctx, tx, id)
 	}
@@ -436,6 +438,13 @@ func submit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, prod string) 
 	}
 	html := fmt.Sprintf("Thanks for the submission of %s production, %d", name, id)
 	if sess.Editor(c) {
+		defer func() {
+			// TODO: fix app.GetDemozoo
+			if err := app.GetDemozoo(c, db, int(id), unid, downloadDir); err != nil {
+				logger.Error(err)
+			}
+			logger.Infof("The %s production %d has been submitted", name, id)
+		}()
 		uri := helper.ObfuscateID(key)
 		html += fmt.Sprintf("<p><a href=\"/f/%s\">Go to the new artifact record</a></p>", uri)
 	}

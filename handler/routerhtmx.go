@@ -34,7 +34,7 @@ func htmxGroup(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, downloadDir 
 		return htmx.DemozooLookup(c, db)
 	})
 	demozoo.PUT("/production/:id", func(c echo.Context) error {
-		return htmx.DemozooSubmit(c, db, logger)
+		return htmx.DemozooSubmit(c, db, logger, downloadDir)
 	})
 	// htmx/pouet/production
 	pouet := g.Group("/pouet")
@@ -42,7 +42,7 @@ func htmxGroup(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, downloadDir 
 		return htmx.PouetLookup(c, db)
 	})
 	pouet.PUT("/production/:id", func(c echo.Context) error {
-		return htmx.PouetSubmit(c, db, logger)
+		return htmx.PouetSubmit(c, db, logger, downloadDir)
 	})
 	// htmx/uploader
 	upload := g.Group("/uploader")

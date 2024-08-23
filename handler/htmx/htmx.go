@@ -144,8 +144,8 @@ func DemozooValid(c echo.Context, id int) (demozoo.Production, error) {
 // This will attempt to insert a new file record into the database using
 // the Demozoo production ID. If the Demozoo production ID is already in
 // use, an error message is returned.
-func DemozooSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
-	return submit(c, db, logger, "demozoo")
+func DemozooSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
+	return submit(c, db, logger, "demozoo", downloadDir)
 }
 
 // DBConnections is the handler for the database connections page.
@@ -422,8 +422,8 @@ func PouetValid(c echo.Context, id int) (pouet.Response, error) {
 // This will attempt to insert a new file record into the database using
 // the Pouet production ID. If the Pouet production ID is already in
 // use, an error message is returned.
-func PouetSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
-	return submit(c, db, logger, "pouet")
+func PouetSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
+	return submit(c, db, logger, "pouet", downloadDir)
 }
 
 // SearchByID is a handler for the /editor/search/id route.

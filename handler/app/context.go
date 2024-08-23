@@ -595,7 +595,7 @@ func ForApproval(c echo.Context, db *sql.DB, page string) error {
 	return artifacts(c, db, uri, p)
 }
 
-// GetDemozooLink fetches the multiple download_links values from the
+// GetDemozooParam fetches the multiple download_links values from the
 // Demozoo production API and attempts to download and save one of the
 // linked files. If multiple links are found, the first link is used as
 // they should all point to the same asset.
@@ -603,19 +603,8 @@ func ForApproval(c echo.Context, db *sql.DB, page string) error {
 // Both the Demozoo production ID param and the Defacto2 UUID query
 // param values are required as params to fetch the production data and
 // to save the file to the correct filename.
-func GetDemozooLink(c echo.Context, db *sql.DB, downloadDir string) error {
-	got := remote.DemozooLink{
-		Filename:  "",
-		FileSize:  0,
-		FileType:  "",
-		FileHash:  "",
-		Content:   "",
-		Readme:    "",
-		LinkURL:   "",
-		LinkClass: "",
-		Success:   false,
-		Error:     "",
-	}
+func GetDemozooParam(c echo.Context, db *sql.DB, downloadDir string) error {
+	got := remote.DemozooLink{}
 	sid := c.Param("id")
 	id, err := strconv.Atoi(sid)
 	if err != nil {
@@ -623,12 +612,20 @@ func GetDemozooLink(c echo.Context, db *sql.DB, downloadDir string) error {
 		return c.JSON(http.StatusBadRequest, got)
 	}
 	got.ID = id
-	sid = c.QueryParam("uuid")
-	if err = uuid.Validate(sid); err != nil {
-		got.Error = "uuid syntax did not validate, " + sid
+	unid := c.QueryParam("unid")
+	if err = uuid.Validate(unid); err != nil {
+		got.Error = "uuid syntax did not validate, " + unid
 		return c.JSON(http.StatusBadRequest, got)
 	}
-	got.UUID = sid
+	got.UUID = unid
+	return got.Download(c, db, downloadDir)
+}
+
+func GetDemozoo(c echo.Context, db *sql.DB, demozooID int, defacto2UNID, downloadDir string) error {
+	got := remote.DemozooLink{
+		ID:   demozooID,
+		UUID: defacto2UNID,
+	}
 	return got.Download(c, db, downloadDir)
 }
 
