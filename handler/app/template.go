@@ -82,6 +82,7 @@ func (t *Templ) pages() map[string]filename {
 		"interview":     "interview.tmpl",
 		"magazine":      "releaseryear.tmpl",
 		"magazine-az":   releaserTmpl,
+		"new":           "new.tmpl",
 		"releaser":      releaserTmpl,
 		"releaser-year": "releaseryear.tmpl",
 		"scener":        scenerTmpl,

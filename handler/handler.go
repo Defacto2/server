@@ -128,6 +128,7 @@ func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 		"/image/html3":     "public/image/html3",
 		"/image/layout":    "public/image/layout",
 		"/image/milestone": "public/image/milestone",
+		"/image/new":       "public/image/new",
 		"/svg":             "public/svg",
 		"/jsdos/bin":       "public/bin/dos32",
 	}

@@ -255,6 +255,7 @@ func (c Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogg
 	s.GET("/magazine/a-z", func(c echo.Context) error {
 		return app.MagazineAZ(c, db)
 	})
+	s.GET("/new", app.New)
 	s.GET("/musician", func(c echo.Context) error {
 		return app.Musician(c, db)
 	})

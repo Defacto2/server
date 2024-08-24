@@ -879,6 +879,25 @@ func Musician(c echo.Context, db *sql.DB) error {
 	return scener(c, db, postgres.Musician, data)
 }
 
+// New is the handler for the what is new page.
+func New(c echo.Context) error {
+	const name = "new"
+	data := empty(c)
+	data["description"] = "What is new on the Defacto2 website?"
+	data["logo"] = "New stuff"
+	data["h1"] = "What is new?"
+	data["lead"] = "This quaint what-is-new discovery page does not appeal to algorithms, use 👍 likes, " +
+		"subscriptions, follows, #hashtags, social features, or AI, and is tracker—and advertising-free" +
+		", so no one will ever see this page."
+	data["title"] = "New stuff"
+	data["carousel"] = "#carouselWhatsNew"
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(c, name, err)
+	}
+	return nil
+}
+
 // Page404 renders the files page error page for the Artifacts menu and categories.
 // It provides different error messages to the standard error page.
 func Page404(c echo.Context, uri, page string) error {

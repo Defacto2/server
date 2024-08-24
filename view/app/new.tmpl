@@ -1,0 +1,123 @@
+{{- /* 
+    new.tmpl ~ What is new page template.
+*/ -}}
+{{- define "content" }}
+{{- $lsMoney := " bg-light" }}
+{{- $padding := "p-0 m-0 px-5 pb-1" }}
+<div id="carouselWhatsNew" class="carousel slide mx-auto p-2" style="max-width: 50rem;" data-bs-theme="dark">
+<div class="carousel-indicators">
+    <button type="button" data-bs-target="#carouselWhatsNew" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+    <button type="button" data-bs-target="#carouselWhatsNew" data-bs-slide-to="1" aria-label="Slide 2"></button>
+    <button type="button" data-bs-target="#carouselWhatsNew" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    <button type="button" data-bs-target="#carouselWhatsNew" data-bs-slide-to="3" aria-label="Slide 4"></button>
+    <button type="button" data-bs-target="#carouselWhatsNew" data-bs-slide-to="4" aria-label="Slide 5"></button>
+    <button type="button" data-bs-target="#carouselWhatsNew" data-bs-slide-to="5" aria-label="Slide 6"></button>
+    <button type="button" data-bs-target="#carouselWhatsNew" data-bs-slide-to="6" aria-label="Slide 7"></button>
+    <button type="button" data-bs-target="#carouselWhatsNew" data-bs-slide-to="7" aria-label="Slide 8"></button>
+    <button type="button" data-bs-target="#carouselWhatsNew" data-bs-slide-to="8" aria-label="Slide 9"></button>
+    <button type="button" data-bs-target="#carouselWhatsNew" data-bs-slide-to="9" aria-label="Slide 10"></button>
+    <button type="button" data-bs-target="#carouselWhatsNew" data-bs-slide-to="10" aria-label="Slide 11"></button>
+</div>
+<div class="carousel-inner ratio ratio-4x3">
+    <div class="carousel-item active">
+    <img src="/image/new/navbar-old.webp" class="d-block w-100" alt="...">
+    <div class="carousel-caption d-none d-md-block text-bg-secondary lead">
+        OG site, confusing icon based navigation.
+    </div>
+    </div>
+    <div class="carousel-item">
+    <img src="/image/new/navbar.webp" class="d-block w-100" alt="...">
+    <div class="carousel-caption d-none d-md-block text-bg-secondary lead">
+        New, text pulldown menu navigation.
+    </div>
+    </div>
+    <div class="carousel-item">
+    <img src="/image/new/jump-to-page.webp" class="d-block w-100" alt="...">
+    <div class="carousel-caption d-none d-md-block text-bg-secondary lead">
+        New, jump to page scrubber.
+    </div>
+    </div>
+    <div class="carousel-item">
+    <img src="/image/new/releasers.webp" class="d-block w-100" alt="...">
+    <div class="carousel-caption d-none d-md-block text-bg-secondary lead">
+        New, list of releasers.
+    </div>
+    </div>
+    <div class="carousel-item">
+    <img src="/image/new/releasers-by-year.webp" class="d-block w-100" alt="...">
+    <div class="carousel-caption d-none d-md-block text-bg-secondary lead">
+        New, chronological list of releasers.
+    </div>
+    </div>
+    <div class="carousel-item">
+    <img src="/image/new/emulator.webp" class="d-block w-100" alt="...">
+    <div class="carousel-caption d-none d-md-block text-bg-secondary lead">
+        New, dos emulator in a popup modal.
+    </div>
+    </div>
+    <div class="carousel-item">
+    <img src="/image/new/zip-content.webp" class="d-block w-100" alt="...">
+    <div class="carousel-caption d-none d-md-block text-bg-secondary lead">
+        New, zip file content in a popup modal.
+    </div>
+    </div>
+    <div class="carousel-item">
+    <img src="/image/new/websites.webp" class="d-block w-100" alt="...">
+    <div class="carousel-caption d-none d-md-block text-bg-secondary lead">
+        New, websites are minimal and merged.
+    </div>
+    </div>
+    <div class="carousel-item">
+    <img src="/image/new/og-search.webp" class="d-block w-100" alt="...">
+    <div class="carousel-caption d-none d-md-block text-bg-secondary lead">
+        OG site, search is busy.
+    </div>
+    </div>
+    <div class="carousel-item">
+    <img src="/image/new/search.webp" class="d-block w-100" alt="...">
+    <div class="carousel-caption d-none d-md-block text-bg-secondary lead">
+        New, search is simplified and instant.
+    </div>
+    </div>
+    <div class="carousel-item">
+    <img src="/image/new/search-filename.webp" class="d-block w-100" alt="...">
+    <div class="carousel-caption d-none d-md-block text-bg-secondary lead">
+        New, search by filename takes you straight to the files.
+    </div>
+    </div>
+</div>
+<button class="carousel-control-prev" type="button" data-bs-target="#carouselWhatsNew" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+</button>
+<button class="carousel-control-next" type="button" data-bs-target="#carouselWhatsNew" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+</button>
+</div>
+<h1 class="lead">New in 2024</h1>
+<p>In 2024, the website was rebuilt from scratch using a new programming language and database platforms. 
+    The <abbr title="original">OG</abbr> site, which has operated for the past decades, has been scrapped, but the files, images, and database records have remained untouched.</p>
+<p>Given that some of the site's audience is nostalgic and nostalgia often leads to resistance to change, some people may not like the new redesign, 
+    but for those, unfortunately, too bad. Change can be good, and change was sorely needed for the site.</p>
+<p>The scrapped OG code is in ColdFusion, a programming language from an aged web server platform first developed by Macromedia in the 1990s. 
+    It sat on top of Java, required a web server and a Java Servlet, and is very demanding of computing resources and costly to keep online. 
+    Its setup also needed a lot of unnecessary complexity compared with modern programming languages, meaning maintaining and adding features took far longer.</p>
+<p>Some features may be missing or broken due to the rewrite, and these will be worked on if necessary.</p>
+<h1 class="lead">Navigation 😵‍💫</h1>
+<p>The other major issue with the OG site was the poor design of the user interface. 
+    It is terrible to navigate, and discoverability is poor, primarily due to the mishmash of an icon-based navigation bar and hidden links within different pages. 
+    In this new design, the navigation bar links to all the site pages and always sits at the top of each page.</p>
+<p>Also new is a page scrubber for a multipage collection of file artifacts, allowing users to jump to a different page quickly.</p>
+<h1 class="lead">Groups</h1>
+<p>The group listings have been reworked and are more practical. 
+    By default, releaser groups are sorted to see the most prolific releasers in the collection. 
+    There is also a page to list the groups chronologically, which should be a boon for history nerds. 
+    Finally, individual group pages now display all the releases on a single page without the need for pagination.</p>
+<h1 class="lead">Files</h1>
+<p>The artifact file pages have been cleaned and speeded up and should load quickly. The OG pages could become extremely busy and verbose. Now, many of the features, like the DOS emulator, are hidden behind buttons that launch modals.</p>
+<h1 class="lead">Search</h1>
+<p>The search feature has been completely rewritten and simplified, as the OG search was again, far too busy. Now, the search is broken into Releaser name, Filename, or Title and description, and the results are instantaneous.</p>
+<h1 class="lead">Websites</h1>
+<p>The collection of websites and links to the scene merchandise sold by various people has been cleaned up, simplified, and merged into a single page.</p>
+{{- end}}
