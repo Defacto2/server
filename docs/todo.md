@@ -6,8 +6,6 @@
 
 * Repack zips that contain programs with bad filenames, for example: http://localhost:1323/f/ab252e4
 
-* create a what's new page with comparision screenshots etc.
-
 ### Live go.defacto2.net issues.
 
 * Missing screenshots and downloads: https://go.defacto2.net/g/millennium-ftp
