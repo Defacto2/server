@@ -175,38 +175,66 @@ func (got DemozooLink) Update(c echo.Context, db *sql.DB) error {
 	if err != nil {
 		return fmt.Errorf("demozoolink update by uuid %w: %s", err, uid)
 	}
-
-	// https://pkg.go.dev/github.com/volatiletech/null/v8@v8.1.2#StringFrom
-
-	f.Filename = null.StringFrom(got.Filename)
-	f.Filesize = null.Int64From(int64(got.FileSize))
-	f.FileMagicType = null.StringFrom(got.FileType)
-	f.FileIntegrityStrong = null.StringFrom(got.FileHash)
-	f.FileZipContent = null.StringFrom(got.Content)
-	// rm := strings.TrimSpace(got.Readme)
-	// f.RetrotxtReadme = null.StringFrom(rm)
-	gt := strings.TrimSpace(got.Github)
-	f.WebIDGithub = null.StringFrom(gt)
-	f.WebIDPouet = null.Int64From(int64(got.Pouet))
-	yt := strings.TrimSpace(got.YouTube)
-	f.WebIDYoutube = null.StringFrom(yt)
-
-	f.DateIssuedDay = null.Int16From(got.IssuedDay)
-	f.DateIssuedMonth = null.Int16From(got.IssuedMonth)
-	f.DateIssuedYear = null.Int16From(got.IssuedYear)
-
-	f.GroupBrandFor = null.StringFrom(got.Releaser1)
-	f.GroupBrandBy = null.StringFrom(got.Releaser2)
-
-	f.RecordTitle = null.StringFrom(got.Title)
-
-	f.CreditAudio = null.StringFrom(strings.Join(got.CreditAudio, ","))
-	f.CreditIllustration = null.StringFrom(strings.Join(got.CreditArt, ","))
-	f.CreditProgram = null.StringFrom(strings.Join(got.CreditCode, ","))
-	f.CreditText = null.StringFrom(strings.Join(got.CreditText, ","))
-
-	f.Platform = null.StringFrom(got.Platform)
-	f.Section = null.StringFrom(got.Section)
+	if s := strings.TrimSpace(got.Github); s != "" {
+		f.WebIDGithub = null.StringFrom(s)
+	}
+	if s := strings.TrimSpace(got.YouTube); s != "" {
+		f.WebIDYoutube = null.StringFrom(s)
+	}
+	if i := int64(got.Pouet); i > 0 {
+		f.WebIDPouet = null.Int64From(i)
+	}
+	if s := strings.TrimSpace(got.Releaser1); s != "" {
+		f.GroupBrandFor = null.StringFrom(s)
+	}
+	if s := strings.TrimSpace(got.Releaser2); s != "" {
+		f.GroupBrandBy = null.StringFrom(s)
+	}
+	if s := strings.TrimSpace(got.Title); s != "" {
+		f.RecordTitle = null.StringFrom(s)
+	}
+	if i := int16(got.IssuedDay); i > 0 {
+		f.DateIssuedDay = null.Int16From(i)
+	}
+	if i := int16(got.IssuedMonth); i > 0 {
+		f.DateIssuedMonth = null.Int16From(i)
+	}
+	if i := int16(got.IssuedYear); i > 0 {
+		f.DateIssuedYear = null.Int16From(i)
+	}
+	if s := strings.Join(got.CreditAudio, ","); s != "" {
+		f.CreditAudio = null.StringFrom(s)
+	}
+	if s := strings.Join(got.CreditArt, ","); s != "" {
+		f.CreditIllustration = null.StringFrom(s)
+	}
+	if s := strings.Join(got.CreditCode, ","); s != "" {
+		f.CreditProgram = null.StringFrom(s)
+	}
+	if s := strings.Join(got.CreditText, ","); s != "" {
+		f.CreditText = null.StringFrom(s)
+	}
+	if s := strings.TrimSpace(got.Filename); s != "" {
+		f.Filename = null.StringFrom(s)
+	}
+	if i := int64(got.FileSize); i > 0 {
+		f.Filesize = null.Int64From(i)
+	}
+	if s := strings.TrimSpace(got.FileType); s != "" {
+		f.FileMagicType = null.StringFrom(s)
+	}
+	if s := strings.TrimSpace(got.FileHash); s != "" {
+		f.FileIntegrityStrong = null.StringFrom(s)
+	}
+	if s := strings.TrimSpace(got.Content); s != "" {
+		f.FileZipContent = null.StringFrom(s)
+	}
+	if s := strings.TrimSpace(got.Platform); s != "" {
+		f.Platform = null.StringFrom(s)
+	}
+	if s := strings.TrimSpace(got.Section); s != "" {
+		f.Section = null.StringFrom(s)
+	}
 
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf("demozoolink update infer %w: %s", err, uid)
@@ -214,5 +242,5 @@ func (got DemozooLink) Update(c echo.Context, db *sql.DB) error {
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("demozoolink update commit %w: %s", err, uid)
 	}
-	return c.JSON(http.StatusOK, got)
+	return c.HTML(http.StatusOK, `<p class="text-success">New artifact update, okay</p>`)
 }
