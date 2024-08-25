@@ -463,7 +463,7 @@ func ListContent(art *models.File, src string) template.HTML {
 	if !tags.IsPlatform(platform) {
 		return "error, invalid platform"
 	}
-	dst, err := archive.ExtractSource(art.Filename.String, src)
+	dst, err := archive.ExtractSource(src, art.Filename.String)
 	if err != nil {
 		return extractErr(src, platform, zeroByteFiles, err)
 	}

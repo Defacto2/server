@@ -12,11 +12,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Defacto2/server/handler/app/internal/str"
 	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/model"
-	"github.com/gabriel-vasile/mimetype"
 	"github.com/labstack/echo/v4"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -31,6 +31,7 @@ var (
 //
 //nolint:tagliatelle
 type DemozooLink struct {
+	//Readme    string `json:"readme"`     // Readme is the file readme, text or NFO file.
 	ID          int      `json:"id"`            // ID is the Demozoo production ID.
 	UUID        string   `json:"uuid"`          // UUID is the file production UUID.
 	Github      string   `json:"github_repo"`   // GitHub is the GitHub repository URI.
@@ -49,18 +50,11 @@ type DemozooLink struct {
 	Filename    string   `json:"filename"`      // Filename is the file name of the download.
 	FileSize    int      `json:"file_size"`     // Size is the file size in bytes.
 	Content     string   `json:"content"`       // Content is the file archive content.
-
-	Platform string `json:"platform"` // Platform is the file platform.
-	Section  string `json:"section"`  // Section is the file section.
-
-	FileType  string `json:"file_type"`  // Type is the file type.
-	FileHash  string `json:"file_hash"`  // Hash is the file integrity hash.
-	Readme    string `json:"readme"`     // Readme is the file readme, text or NFO file.
-	LinkURL   string `json:"link_url"`   // LinkURL is the download file link used to fetch the file.
-	LinkClass string `json:"link_class"` // LinkClass is the download link class provided by Demozoo.
-	Error     string `json:"error"`      // Error is the error message if the download or record update failed.
-
-	Success bool `json:"success"` // Success is the success status of the download and record update.
+	FileType    string   `json:"file_type"`     // Type is the file type.
+	FileHash    string   `json:"file_hash"`     // Hash is the file integrity hash.
+	Platform    string   `json:"platform"`      // Platform is the file platform.
+	Section     string   `json:"section"`       // Section is the file section.
+	Error       string   `json:"error"`         // Error is the error message if the download or record update failed.
 }
 
 // Download fetches the download link from Demozoo and saves it to the download directory.
@@ -83,8 +77,6 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, downloadDir string)
 		base := filepath.Base(link.URL)
 		dst := filepath.Join(downloadDir, got.UUID)
 		got.Filename = base
-		got.LinkClass = link.LinkClass
-		got.LinkURL = link.URL
 		if err := helper.RenameFileOW(df.Path, dst); err != nil {
 			sameFiles, err := helper.FileMatch(df.Path, dst)
 			if err != nil {
@@ -101,15 +93,7 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, downloadDir string)
 			got.FileSize = size
 		}
 
-		// TODO: replace with magicnumber package.
-		if df.ContentType != "" {
-			got.FileType = df.ContentType
-		}
-
 		got.Filename = base
-		got.LinkURL = link.URL
-		got.LinkClass = link.LinkClass
-		got.Success = true
 		got.Error = ""
 
 		got.Github = prod.GithubRepo()
@@ -162,11 +146,7 @@ func (got *DemozooLink) Stat(c echo.Context, db *sql.DB, downloadDir string) err
 	}
 	got.FileHash = strong
 	if got.FileType == "" {
-		m, err := mimetype.DetectFile(name)
-		if err != nil {
-			return fmt.Errorf("demozoo stat content filemime failure on %q: %w", name, err)
-		}
-		got.FileType = m.String()
+		got.FileType = str.MagicAsTitle(name)
 	}
 	return got.ArchiveContent(c, db, name)
 }
@@ -177,7 +157,7 @@ func (got *DemozooLink) ArchiveContent(c echo.Context, db *sql.DB, src string) e
 	if err != nil {
 		return c.JSON(http.StatusOK, got)
 	}
-	got.Readme = archive.Readme(got.Filename, files...)
+	//got.Readme = archive.Readme(got.Filename, files...)
 	got.Content = strings.Join(files, "\n")
 	return got.Update(c, db)
 }
@@ -203,8 +183,8 @@ func (got DemozooLink) Update(c echo.Context, db *sql.DB) error {
 	f.FileMagicType = null.StringFrom(got.FileType)
 	f.FileIntegrityStrong = null.StringFrom(got.FileHash)
 	f.FileZipContent = null.StringFrom(got.Content)
-	rm := strings.TrimSpace(got.Readme)
-	f.RetrotxtReadme = null.StringFrom(rm)
+	// rm := strings.TrimSpace(got.Readme)
+	// f.RetrotxtReadme = null.StringFrom(rm)
 	gt := strings.TrimSpace(got.Github)
 	f.WebIDGithub = null.StringFrom(gt)
 	f.WebIDPouet = null.Int64From(int64(got.Pouet))

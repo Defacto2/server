@@ -3,6 +3,7 @@ package archive
 import (
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -21,7 +22,7 @@ var (
 // ExtractSource extracts the source file into a temporary directory.
 // The named file is used as part of the extracted directory path.
 // The src is the source file to extract.
-func ExtractSource(name, src string) (string, error) {
+func ExtractSource(src, name string) (string, error) {
 	const mb150 = 150 * 1024 * 1024
 	if st, err := os.Stat(src); err != nil {
 		return "", fmt.Errorf("cannot stat file: %w", err)
@@ -77,7 +78,7 @@ func List(src, filename string) ([]string, error) {
 	if st.IsDir() {
 		return nil, fmt.Errorf("archive list %w: %s", ErrFile, filepath.Base(src))
 	}
-	path, err := ExtractSource(filename, src)
+	path, err := ExtractSource(src, filename)
 	if err != nil {
 		return commander(src, filename)
 	}
@@ -87,7 +88,13 @@ func List(src, filename string) ([]string, error) {
 			return err
 		}
 		if !info.IsDir() {
-			files = append(files, filePath)
+			rel, err := filepath.Rel(path, filePath)
+			if err != nil {
+				fmt.Fprint(io.Discard, err)
+				files = append(files, filePath)
+				return nil
+			}
+			files = append(files, rel)
 		}
 		return nil
 	})
