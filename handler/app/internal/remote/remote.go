@@ -31,21 +31,36 @@ var (
 //
 //nolint:tagliatelle
 type DemozooLink struct {
-	UUID      string `json:"uuid"`       // UUID is the file production UUID.
-	Filename  string `json:"filename"`   // Filename is the file name of the download.
+	ID          int      `json:"id"`            // ID is the Demozoo production ID.
+	UUID        string   `json:"uuid"`          // UUID is the file production UUID.
+	Github      string   `json:"github_repo"`   // GitHub is the GitHub repository URI.
+	YouTube     string   `json:"youtube_video"` // YouTube is the YouTube watch video URI.
+	Pouet       int      `json:"pouet_prod"`    // Pouet is the Pouet production ID.
+	Releaser1   string   `json:"releaser1"`     // Releaser1 is the first releaser of the file.
+	Releaser2   string   `json:"releaser2"`     // Releaser2 is the second releaser of the file.
+	Title       string   `json:"title"`         // Title is the file title.
+	IssuedYear  int16    `json:"issued_year"`   // Year is the year the file was issued.
+	IssuedMonth int16    `json:"issued_month"`  // Month is the month the file was issued.
+	IssuedDay   int16    `json:"issued_day"`    // Day is the day the file was issued.
+	CreditText  []string `json:"credit_text"`   // credit_text, writer
+	CreditCode  []string `json:"credit_code"`   // credit_program, programmer/coder
+	CreditArt   []string `json:"credit_art"`    // credit_illustration, artist/graphics
+	CreditAudio []string `json:"credit_audio"`  // credit_audio, musician/sound
+	Filename    string   `json:"filename"`      // Filename is the file name of the download.
+	FileSize    int      `json:"file_size"`     // Size is the file size in bytes.
+	Content     string   `json:"content"`       // Content is the file archive content.
+
+	Platform string `json:"platform"` // Platform is the file platform.
+	Section  string `json:"section"`  // Section is the file section.
+
 	FileType  string `json:"file_type"`  // Type is the file type.
 	FileHash  string `json:"file_hash"`  // Hash is the file integrity hash.
-	Content   string `json:"content"`    // Content is the file archive content.
 	Readme    string `json:"readme"`     // Readme is the file readme, text or NFO file.
 	LinkURL   string `json:"link_url"`   // LinkURL is the download file link used to fetch the file.
 	LinkClass string `json:"link_class"` // LinkClass is the download link class provided by Demozoo.
 	Error     string `json:"error"`      // Error is the error message if the download or record update failed.
-	Github    string `json:"github_repo"`
-	YouTube   string `json:"youtube_video"`
-	ID        int    `json:"id"`        // ID is the Demozoo production ID.
-	FileSize  int    `json:"file_size"` // Size is the file size in bytes.
-	Pouet     int    `json:"pouet_prod"`
-	Success   bool   `json:"success"` // Success is the success status of the download and record update.
+
+	Success bool `json:"success"` // Success is the success status of the download and record update.
 }
 
 // Download fetches the download link from Demozoo and saves it to the download directory.
@@ -85,17 +100,43 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, downloadDir string)
 		if err == nil {
 			got.FileSize = size
 		}
+
+		// TODO: replace with magicnumber package.
 		if df.ContentType != "" {
 			got.FileType = df.ContentType
 		}
+
 		got.Filename = base
 		got.LinkURL = link.URL
 		got.LinkClass = link.LinkClass
 		got.Success = true
 		got.Error = ""
+
 		got.Github = prod.GithubRepo()
+		fmt.Printf("github: %q %q\n", got.Github, strings.TrimSpace(got.Github))
 		got.Pouet = prod.PouetProd()
 		got.YouTube = prod.YouTubeVideo()
+
+		y, m, d := prod.Released()
+		got.IssuedYear = int16(y)
+		got.IssuedMonth = int16(m)
+		got.IssuedDay = int16(d)
+
+		r1, r2 := prod.Groups()
+		got.Releaser1 = r1
+		got.Releaser2 = r2
+		got.Title = prod.Title
+
+		ctext, ccode, cart, caudio := prod.Releasers() // TODO: rename to be more descriptive.
+		got.CreditText = ctext
+		got.CreditCode = ccode
+		got.CreditArt = cart
+		got.CreditAudio = caudio
+
+		plat, sect := prod.SuperType()
+		got.Platform = plat.String()
+		got.Section = sect.String()
+
 		return got.Stat(c, db, downloadDir)
 	}
 	got.Error = "no usable download links found, they returned 404 or were empty"
@@ -154,6 +195,9 @@ func (got DemozooLink) Update(c echo.Context, db *sql.DB) error {
 	if err != nil {
 		return fmt.Errorf("demozoolink update by uuid %w: %s", err, uid)
 	}
+
+	// https://pkg.go.dev/github.com/volatiletech/null/v8@v8.1.2#StringFrom
+
 	f.Filename = null.StringFrom(got.Filename)
 	f.Filesize = null.Int64From(int64(got.FileSize))
 	f.FileMagicType = null.StringFrom(got.FileType)
@@ -166,6 +210,24 @@ func (got DemozooLink) Update(c echo.Context, db *sql.DB) error {
 	f.WebIDPouet = null.Int64From(int64(got.Pouet))
 	yt := strings.TrimSpace(got.YouTube)
 	f.WebIDYoutube = null.StringFrom(yt)
+
+	f.DateIssuedDay = null.Int16From(got.IssuedDay)
+	f.DateIssuedMonth = null.Int16From(got.IssuedMonth)
+	f.DateIssuedYear = null.Int16From(got.IssuedYear)
+
+	f.GroupBrandFor = null.StringFrom(got.Releaser1)
+	f.GroupBrandBy = null.StringFrom(got.Releaser2)
+
+	f.RecordTitle = null.StringFrom(got.Title)
+
+	f.CreditAudio = null.StringFrom(strings.Join(got.CreditAudio, ","))
+	f.CreditIllustration = null.StringFrom(strings.Join(got.CreditArt, ","))
+	f.CreditProgram = null.StringFrom(strings.Join(got.CreditCode, ","))
+	f.CreditText = null.StringFrom(strings.Join(got.CreditText, ","))
+
+	f.Platform = null.StringFrom(got.Platform)
+	f.Section = null.StringFrom(got.Section)
+
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf("demozoolink update infer %w: %s", err, uid)
 	}

@@ -621,6 +621,10 @@ func GetDemozooParam(c echo.Context, db *sql.DB, downloadDir string) error {
 	return got.Download(c, db, downloadDir)
 }
 
+// GetDemozoo fetches the download link from Demozoo and saves it to the download directory.
+// It then runs Update to modify the database record with various metadata from the file and Demozoo record API data.
+//
+// This function is a wrapper for the remote.DemozooLink.Download method.
 func GetDemozoo(c echo.Context, db *sql.DB, demozooID int, defacto2UNID, downloadDir string) error {
 	got := remote.DemozooLink{
 		ID:   demozooID,

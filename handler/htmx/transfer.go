@@ -439,7 +439,7 @@ func submit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, prod, downloa
 	html := fmt.Sprintf("Thanks for the submission of %s production, %d", name, id)
 	if sess.Editor(c) {
 		defer func() {
-			// TODO: fix app.GetDemozoo
+			// see Download in handler/app/internal/remote/remote.go
 			if err := app.GetDemozoo(c, db, int(id), unid, downloadDir); err != nil {
 				logger.Error(err)
 			}

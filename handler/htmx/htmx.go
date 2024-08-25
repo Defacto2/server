@@ -76,10 +76,15 @@ func DemozooLookup(c echo.Context, db *sql.DB) error {
 			info = append(info, p.Name)
 		}
 	}
+	// Submit ID button saves the Demozoo production ID to the database and fetches the file.
+	// htmx.DemozooSubmit is the handler for the /demozoo/production put route,
+	// which uses htmx.submit, found in transfer.go, to insert the new file record into the database.
 	htm := `<div class="d-grid gap-2">`
 	htm += fmt.Sprintf(`<button type="button" class="btn btn-outline-success" `+
 		`hx-put="/demozoo/production/%d" `+
+		`hx-indicator="#demozoo-indicator" `+
 		`hx-target="#demozoo-submission-results" hx-trigger="click once delay:500ms" `+
+		`hx-target-error="#demozoo-submission-error" `+
 		`autofocus>Submit ID %d</button>`, id, id)
 	htm += `</div>`
 	htm += fmt.Sprintf(`<p class="mt-3">%s</p>`, strings.Join(info, " "))

@@ -19,6 +19,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Defacto2/server/internal/helper"
@@ -92,6 +93,20 @@ type Production struct {
 		Name string `json:"name"`
 		ID   int    `json:"id"`
 	} `json:"types"`
+	Credits []struct {
+		Nick struct {
+			Name         string `json:"name"`
+			Abbreviation string `json:"abbreviation"`
+			Releaser     struct {
+				URL     string `json:"url"`
+				ID      int    `json:"id"`
+				Name    string `json:"name"`
+				IsGroup bool   `json:"is_group"`
+			} `json:"releaser"`
+		} `json:"nick"`
+		Category string `json:"category"`
+		Role     string `json:"role"`
+	} `json:"credits"`
 	// Download links to the remotely hosted files.
 	DownloadLinks []struct {
 		LinkClass string `json:"link_class"`
@@ -444,4 +459,131 @@ func Find(uri string) GroupID {
 		return groups()[URI(uri)]
 	}
 	return 0
+}
+
+// Released returns the production's release date as date_issued_ year, month, day values.
+func (p Production) Released() ( //nolint:nonamedreturns
+	year int, month int, day int,
+) {
+	dates := strings.Split(p.ReleaseDate, "-")
+	const (
+		y    = 0
+		m    = 1
+		d    = 2
+		ymd  = 3
+		ym   = 2
+		yyyy = 1
+	)
+	switch len(dates) {
+	case ymd:
+		year, _ = strconv.Atoi(dates[y])
+		month, _ = strconv.Atoi(dates[m])
+		day, _ = strconv.Atoi(dates[d])
+	case ym:
+		year, _ = strconv.Atoi(dates[y])
+		month, _ = strconv.Atoi(dates[m])
+	case yyyy:
+		year, _ = strconv.Atoi(dates[y])
+	default:
+	}
+	return year, month, day
+}
+
+// Groups returns the first two names in the production that have is_group as true.
+// The one exception is if the production title contains a reference to a BBS or FTP site name.
+// Then that title will be used as the first group returned.
+func (p Production) Groups() (string, string) {
+	// find any reference to BBS or FTP in the production title to
+	// obtain a possible site name.
+	var a, b string
+	if s := Site(p.Title); s != "" {
+		a = s
+	}
+	// range through author nicks for any group matches
+	for _, nick := range p.Authors {
+		if !nick.Releaser.IsGroup {
+			continue
+		}
+		if a == "" {
+			a = nick.Releaser.Name
+			continue
+		}
+		if b == "" {
+			b = nick.Releaser.Name
+			break
+		}
+	}
+	return a, b
+}
+
+// Site parses a production title to see if it is suitable as a BBS or FTP site name,
+// otherwise an empty string is returned.
+func Site(title string) string {
+	s := strings.Split(title, " ")
+	if s[0] == "The" {
+		s = s[1:]
+	}
+	for i, n := range s {
+		if n == "BBS" {
+			return strings.Join(s[0:i], " ") + " BBS"
+		}
+		if n == "FTP" {
+			return strings.Join(s[0:i], " ") + " FTP"
+		}
+	}
+	return ""
+}
+
+// Authors parses Demozoo authors and reclassifies them into Defacto2 people rolls.
+func (p *Production) Releasers() ([]string, []string, []string, []string) {
+	tx, co, gx, mu := []string{}, []string{}, []string{}, []string{}
+	for _, c := range p.Credits {
+		if c.Nick.Releaser.IsGroup {
+			continue
+		}
+		switch category(c.Category) {
+		case TextC:
+			tx = append(tx, c.Nick.Name)
+		case CodeC:
+			co = append(co, c.Nick.Name)
+		case GraphicsC:
+			gx = append(gx, c.Nick.Name)
+		case MusicC:
+			mu = append(mu, c.Nick.Name)
+		case MagazineC:
+			// do nothing.
+		}
+	}
+	return tx, co, gx, mu
+}
+
+// Category are tags for production imports.
+type Category int
+
+const (
+	TextC     Category = iota // Text based files.
+	CodeC                     // Code are binary files.
+	GraphicsC                 // Graphics are images.
+	MusicC                    // Music is audio.
+	MagazineC                 // Magazine are publications.
+)
+
+func (c Category) String() string {
+	return [...]string{"text", "code", "graphics", "music", "magazine"}[c]
+}
+
+func category(s string) Category {
+	switch strings.ToLower(s) {
+	case TextC.String():
+		return TextC
+	case CodeC.String():
+		return CodeC
+	case GraphicsC.String():
+		return GraphicsC
+	case MusicC.String():
+		return MusicC
+	case MagazineC.String():
+		return MagazineC
+	}
+	return -1
 }
