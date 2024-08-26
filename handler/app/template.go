@@ -114,8 +114,7 @@ func (t Templ) parseFS(db *sql.DB, name filename) *template.Template {
 	files := t.layout(name)
 	config := t.Environment
 	files = t.locked(config.ReadOnly, files...)
-	offline := t.RecordCount < 1
-	files = t.lockLayout(config.ReadOnly, offline, files...)
+	files = t.lockLayout(config.ReadOnly, files...)
 	// append any additional and embedded templates
 	switch name {
 	case artifactTmpl:
@@ -145,8 +144,8 @@ func (t Templ) locked(lock bool, files ...string) []string {
 	)
 }
 
-func (t Templ) lockLayout(lock, offline bool, files ...string) []string {
-	if offline || lock {
+func (t Templ) lockLayout(lock bool, files ...string) []string {
+	if lock {
 		return append(files,
 			GlobTo("layoutup_null.tmpl"),
 			GlobTo("layoutjsup_null.tmpl"),
