@@ -16,6 +16,7 @@ import (
 	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
 	"github.com/volatiletech/null/v8"
@@ -31,7 +32,6 @@ var (
 //
 //nolint:tagliatelle
 type DemozooLink struct {
-	//Readme    string `json:"readme"`     // Readme is the file readme, text or NFO file.
 	ID          int      `json:"id"`            // ID is the Demozoo production ID.
 	UUID        string   `json:"uuid"`          // UUID is the file production UUID.
 	Github      string   `json:"github_repo"`   // GitHub is the GitHub repository URI.
@@ -92,35 +92,27 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, downloadDir string)
 		if err == nil {
 			got.FileSize = size
 		}
-
 		got.Filename = base
 		got.Error = ""
-
 		got.Github = prod.GithubRepo()
-		fmt.Printf("github: %q %q\n", got.Github, strings.TrimSpace(got.Github))
 		got.Pouet = prod.PouetProd()
 		got.YouTube = prod.YouTubeVideo()
-
 		y, m, d := prod.Released()
 		got.IssuedYear = int16(y)
 		got.IssuedMonth = int16(m)
 		got.IssuedDay = int16(d)
-
 		r1, r2 := prod.Groups()
 		got.Releaser1 = r1
 		got.Releaser2 = r2
 		got.Title = prod.Title
-
-		ctext, ccode, cart, caudio := prod.Releasers() // TODO: rename to be more descriptive.
+		ctext, ccode, cart, caudio := prod.Releasers()
 		got.CreditText = ctext
 		got.CreditCode = ccode
 		got.CreditArt = cart
 		got.CreditAudio = caudio
-
 		plat, sect := prod.SuperType()
 		got.Platform = plat.String()
 		got.Section = sect.String()
-
 		return got.Stat(c, db, downloadDir)
 	}
 	got.Error = "no usable download links found, they returned 404 or were empty"
@@ -243,4 +235,72 @@ func (got DemozooLink) Update(c echo.Context, db *sql.DB) error {
 		return fmt.Errorf("demozoolink update commit %w: %s", err, uid)
 	}
 	return c.HTML(http.StatusOK, `<p class="text-success">New artifact update, okay</p>`)
+}
+
+// PouetLink is the response from the task of GetDemozooFile.
+//
+//nolint:tagliatelle
+type PouetLink struct {
+	ID          int    `json:"id"`           // ID is the Demozoo production ID.
+	UUID        string `json:"uuid"`         // UUID is the file production UUID.
+	Releaser1   string `json:"releaser1"`    // Releaser1 is the first releaser of the file.
+	Releaser2   string `json:"releaser2"`    // Releaser2 is the second releaser of the file.
+	Title       string `json:"title"`        // Title is the file title.
+	IssuedYear  int16  `json:"issued_year"`  // Year is the year the file was issued.
+	IssuedMonth int16  `json:"issued_month"` // Month is the month the file was issued.
+	IssuedDay   int16  `json:"issued_day"`   // Day is the day the file was issued.
+	Filename    string `json:"filename"`     // Filename is the file name of the download.
+	FileSize    int    `json:"file_size"`    // Size is the file size in bytes.
+	Content     string `json:"content"`      // Content is the file archive content.
+	FileType    string `json:"file_type"`    // Type is the file type.
+	FileHash    string `json:"file_hash"`    // Hash is the file integrity hash.
+	Platform    string `json:"platform"`     // Platform is the file platform.
+	Section     string `json:"section"`      // Section is the file section.
+	Error       string `json:"error"`        // Error is the error message if the download or record update failed.
+}
+
+func (got *PouetLink) Download(c echo.Context, db *sql.DB, downloadDir string) error {
+	var prod pouet.Production
+	if _, err := prod.Get(got.ID); err != nil {
+		got.Error = fmt.Errorf("could not get record %d from demozoo api: %w", got.ID, err).Error()
+		return c.JSON(http.StatusInternalServerError, got)
+	}
+	downloadURL := prod.Download
+	if downloadURL == "" {
+		return nil
+	}
+	df, err := helper.GetFile(downloadURL)
+	if err != nil {
+		got.Error = fmt.Errorf("could not get file, %s: %w", downloadURL, err).Error()
+		return c.JSON(http.StatusInternalServerError, got)
+	}
+	base := filepath.Base(downloadURL)
+	dst := filepath.Join(downloadDir, got.UUID)
+	got.Filename = base
+	if err := helper.RenameFileOW(df.Path, dst); err != nil {
+		sameFiles, err := helper.FileMatch(df.Path, dst)
+		if err != nil {
+			got.Error = fmt.Errorf("could not rename file, %s: %w", dst, err).Error()
+			return c.JSON(http.StatusInternalServerError, got)
+		}
+		if !sameFiles {
+			got.Error = fmt.Errorf("%w, will not overwrite, %s", ErrExist, dst).Error()
+			return c.JSON(http.StatusConflict, got)
+		}
+	}
+	got.Filename = base
+	got.Error = ""
+	y, m, d := prod.Released()
+	got.IssuedYear = int16(y)
+	got.IssuedMonth = int16(m)
+	got.IssuedDay = int16(d)
+	r1, r2 := prod.Releasers()
+	got.Releaser1 = r1
+	got.Releaser2 = r2
+	got.Title = prod.Title
+	plat, sect := prod.PlatformType()
+	got.Platform = plat.String()
+	got.Section = sect.String()
+	fmt.Printf("pouet: %+v\n", prod)
+	return nil
 }
