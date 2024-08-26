@@ -145,13 +145,9 @@ import { clipValue, getElmById } from "./helper.mjs";
    */
   function newOSLabel() {
     const index = osv.selectedIndex;
-    const sel = osv.options[index];
-    let group = sel.parentNode.label;
-    if (typeof group == "undefined" || group == "") {
-      osv.classList.add("is-invalid");
+    if (index == 0) {
       osv.classList.remove("is-valid");
-      group = `Operating system`;
-      osv.textContent = `${group}`;
+      osv.classList.add("is-invalid");
     }
   }
   /**
