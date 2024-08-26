@@ -642,6 +642,7 @@ func GetPouet(c echo.Context, db *sql.DB, pouetID int, defacto2UNID, downloadDir
 		ID:   pouetID,
 		UUID: defacto2UNID,
 	}
+	fmt.Println("GetPouet ID:", pouetID, defacto2UNID, downloadDir)
 	return got.Download(c, db, downloadDir)
 }
 

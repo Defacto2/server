@@ -152,7 +152,7 @@ func DemozooValid(c echo.Context, id int) (demozoo.Production, error) {
 // the Demozoo production ID. If the Demozoo production ID is already in
 // use, an error message is returned.
 func DemozooSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
-	return submit(c, db, logger, "demozoo", downloadDir)
+	return Demozoo.Submit(c, db, logger, downloadDir)
 }
 
 // DBConnections is the handler for the database connections page.
@@ -323,7 +323,7 @@ func PouetLookup(c echo.Context, db *sql.DB) error {
 		return c.HTML(http.StatusOK, "This Pouet production is already in use.")
 	}
 
-	resp, err := PouetValid(c, id)
+	resp, err := PouetValid(c, id, false) // TODO: replace
 	if err != nil {
 		return fmt.Errorf("PouetValid: %w", err)
 	} else if resp.Prod.ID == "" {
@@ -339,7 +339,6 @@ func PouetLookup(c echo.Context, db *sql.DB) error {
 	} else if pid < 1 {
 		return nil
 	}
-
 	info := []string{prod.Title}
 	if len(prod.Groups) > 0 {
 		info = append(info, "by")
@@ -350,8 +349,12 @@ func PouetLookup(c echo.Context, db *sql.DB) error {
 	if prod.ReleaseDate != "" {
 		info = append(info, "on", prod.ReleaseDate)
 	}
-	if prod.Platfs.String() != "" {
-		info = append(info, "for", prod.Platfs.String())
+	platforms := strings.Split(prod.Platforms.String(), ",")
+	if len(platforms) > 0 {
+		info = append(info, "for")
+		for _, s := range platforms {
+			info = append(info, " ", strings.TrimSpace(s))
+		}
 	}
 	return c.HTML(http.StatusOK, htmler(id, info...))
 }
@@ -370,27 +373,35 @@ func htmler(id int, info ...string) string {
 // The production ID is validated and the production is checked to see if it
 // is suitable for Defacto2. If the production is not suitable, an empty
 // production is returned with a htmx message.
-func PouetValid(c echo.Context, id int) (pouet.Response, error) {
+func PouetValid(c echo.Context, id int, useCache bool) (pouet.Response, error) {
 	if invalid := id < 1; invalid {
 		return pouet.Response{},
 			c.String(http.StatusNotAcceptable, fmt.Sprintf("invalid id: %d", id))
 	}
-	sid := strconv.Itoa(id)
-	if s, err := cache.PouetProduction.Read(sid); err == nil {
-		if s != "" {
-			return pouet.Response{},
-				c.String(http.StatusOK,
-					fmt.Sprintf("Production %d is probably not suitable for Defacto2.", id)+
-						"<br>A production must an intro, demo or cracktro either for MsDos or Windows.")
+	if useCache {
+		sid := strconv.Itoa(id)
+		if s, err := cache.PouetProduction.Read(sid); err == nil {
+			if s != "" {
+				return pouet.Response{},
+					c.String(http.StatusOK,
+						fmt.Sprintf("Production %d is probably not suitable for Defacto2.", id)+
+							"<br>A production must an intro, demo or cracktro either for MsDos or Windows.")
+			}
 		}
 	}
 	var prod pouet.Response
-	if err := prod.Get(id); err != nil {
-		return pouet.Response{}, c.String(http.StatusNotFound, err.Error())
+	if _, err := prod.Get(id); err != nil {
+		return pouet.Response{}, c.String(http.StatusInternalServerError, err.Error())
 	}
-	plat := prod.Prod.Platfs
-	sect := prod.Prod.Types
-	if !plat.Valid() || !sect.Valid() {
+	platOkay := pouet.PlatformsValid(prod.Prod.Platforms.String())
+	typeOkay := false
+	for _, typ := range prod.Prod.Types {
+		if typ.Valid() {
+			typeOkay = true
+			break
+		}
+	}
+	if valid := platOkay && typeOkay; !valid {
 		sid := strconv.Itoa(id)
 		_ = cache.PouetProduction.WriteNoExpire(sid, "invalid")
 		return pouet.Response{}, c.HTML(http.StatusOK,
@@ -432,7 +443,7 @@ func PouetValid(c echo.Context, id int) (pouet.Response, error) {
 // the Pouet production ID. If the Pouet production ID is already in
 // use, an error message is returned.
 func PouetSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
-	return submit(c, db, logger, "pouet", downloadDir)
+	return Pouet.Submit(c, db, logger, downloadDir)
 }
 
 // SearchByID is a handler for the /editor/search/id route.

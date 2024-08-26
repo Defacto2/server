@@ -274,9 +274,11 @@ func (got *PouetLink) Download(c echo.Context, db *sql.DB, downloadDir string) e
 		got.Error = fmt.Errorf("could not get file, %s: %w", downloadURL, err).Error()
 		return c.JSON(http.StatusInternalServerError, got)
 	}
+	fmt.Printf("pouet: %+v\n", df)
 	base := filepath.Base(downloadURL)
 	dst := filepath.Join(downloadDir, got.UUID)
 	got.Filename = base
+	fmt.Println(base, " - ", base, " -- ", dst)
 	if err := helper.RenameFileOW(df.Path, dst); err != nil {
 		sameFiles, err := helper.FileMatch(df.Path, dst)
 		if err != nil {
@@ -302,5 +304,124 @@ func (got *PouetLink) Download(c echo.Context, db *sql.DB, downloadDir string) e
 	got.Platform = plat.String()
 	got.Section = sect.String()
 	fmt.Printf("pouet: %+v\n", prod)
-	return nil
+	return got.Stat(c, db, downloadDir)
+}
+
+// Stat sets the file size, hash, type, and archive content of the file.
+// The UUID is used to locate the file in the download directory.
+func (got *PouetLink) Stat(c echo.Context, db *sql.DB, downloadDir string) error {
+	// TODO: make internal function
+	name := filepath.Join(downloadDir, got.UUID)
+	if got.FileSize == 0 {
+		stat, err := os.Stat(name)
+		if err != nil {
+			got.Error = fmt.Errorf("could not stat file, %s: %w", name, err).Error()
+			return c.JSON(http.StatusInternalServerError, got)
+		}
+		got.FileSize = int(stat.Size())
+	}
+	strong, err := helper.StrongIntegrity(name)
+	if err != nil {
+		got.Error = fmt.Errorf("could not get strong integrity hash, %s: %w", name, err).Error()
+		return c.JSON(http.StatusInternalServerError, got)
+	}
+	got.FileHash = strong
+	if got.FileType == "" {
+		got.FileType = str.MagicAsTitle(name)
+	}
+	return got.ArchiveContent(c, db, name)
+}
+
+// ArchiveContent sets the archive content and readme text of the source file.
+func (got *PouetLink) ArchiveContent(c echo.Context, db *sql.DB, src string) error {
+	files, err := archive.List(src, got.Filename)
+	if err != nil {
+		return c.JSON(http.StatusOK, got)
+	}
+	//got.Readme = archive.Readme(got.Filename, files...)
+	got.Content = strings.Join(files, "\n")
+	return got.Update(c, db)
+}
+
+// Update modifies the database record using data provided by the DemozooLink struct.
+// A JSON response is returned with the success status of the update.
+func (got PouetLink) Update(c echo.Context, db *sql.DB) error {
+	uid := got.UUID
+	ctx := context.Background()
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("demozoolink update begin tx %w: %s", err, uid)
+	}
+	f, err := model.OneByUUID(ctx, tx, true, uid)
+	if err != nil {
+		return fmt.Errorf("demozoolink update by uuid %w: %s", err, uid)
+	}
+	// if s := strings.TrimSpace(got.Github); s != "" {
+	// 	f.WebIDGithub = null.StringFrom(s)
+	// }
+	// if s := strings.TrimSpace(got.YouTube); s != "" {
+	// 	f.WebIDYoutube = null.StringFrom(s)
+	// }
+	// if i := int64(got.Pouet); i > 0 {
+	// 	f.WebIDPouet = null.Int64From(i)
+	// }
+	if s := strings.TrimSpace(got.Releaser1); s != "" {
+		f.GroupBrandFor = null.StringFrom(s)
+	}
+	if s := strings.TrimSpace(got.Releaser2); s != "" {
+		f.GroupBrandBy = null.StringFrom(s)
+	}
+	if s := strings.TrimSpace(got.Title); s != "" {
+		f.RecordTitle = null.StringFrom(s)
+	}
+	if i := int16(got.IssuedDay); i > 0 {
+		f.DateIssuedDay = null.Int16From(i)
+	}
+	if i := int16(got.IssuedMonth); i > 0 {
+		f.DateIssuedMonth = null.Int16From(i)
+	}
+	if i := int16(got.IssuedYear); i > 0 {
+		f.DateIssuedYear = null.Int16From(i)
+	}
+	// if s := strings.Join(got.CreditAudio, ","); s != "" {
+	// 	f.CreditAudio = null.StringFrom(s)
+	// }
+	// if s := strings.Join(got.CreditArt, ","); s != "" {
+	// 	f.CreditIllustration = null.StringFrom(s)
+	// }
+	// if s := strings.Join(got.CreditCode, ","); s != "" {
+	// 	f.CreditProgram = null.StringFrom(s)
+	// }
+	// if s := strings.Join(got.CreditText, ","); s != "" {
+	// 	f.CreditText = null.StringFrom(s)
+	// }
+	if s := strings.TrimSpace(got.Filename); s != "" {
+		f.Filename = null.StringFrom(s)
+	}
+	if i := int64(got.FileSize); i > 0 {
+		f.Filesize = null.Int64From(i)
+	}
+	if s := strings.TrimSpace(got.FileType); s != "" {
+		f.FileMagicType = null.StringFrom(s)
+	}
+	if s := strings.TrimSpace(got.FileHash); s != "" {
+		f.FileIntegrityStrong = null.StringFrom(s)
+	}
+	if s := strings.TrimSpace(got.Content); s != "" {
+		f.FileZipContent = null.StringFrom(s)
+	}
+	if s := strings.TrimSpace(got.Platform); s != "" {
+		f.Platform = null.StringFrom(s)
+	}
+	if s := strings.TrimSpace(got.Section); s != "" {
+		f.Section = null.StringFrom(s)
+	}
+
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
+		return fmt.Errorf("demozoolink update infer %w: %s", err, uid)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("demozoolink update commit %w: %s", err, uid)
+	}
+	return c.HTML(http.StatusOK, `<p class="text-success">New artifact update, okay</p>`)
 }

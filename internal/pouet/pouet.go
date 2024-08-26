@@ -14,19 +14,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/internal/helper"
-)
-
-const (
-	// ProdURL is the base URL for the Pouet production API.
-	ProdURL = "https://api.pouet.net/v1/prod/?id="
-	// Timeout is the HTTP client timeout.
-	Timeout = 5 * time.Second
-	// StarRounder is the rounding value for the stars rating.
-	StarRounder = 0.5
-	// Sanity is to check the maximum permitted production ID.
-	Sanity = 200000
-	// firstID is the first production ID on Pouet.
-	firstID = 1
+	"github.com/Defacto2/server/internal/tags"
 )
 
 var (
@@ -35,30 +23,179 @@ var (
 	ErrStatus  = errors.New("status is not ok")
 )
 
+const (
+	ProdURL     = "https://api.pouet.net/v1/prod/?id=" // ProdURL is the base URL for the Pouet production API.
+	Timeout     = 5 * time.Second                      // Timeout is the HTTP client timeout.
+	StarRounder = 0.5                                  // StarRounder is the rounding value for the stars rating.
+	Sanity      = 200000                               // Sanity is to check the maximum permitted production ID.
+	firstID     = 1                                    // firstID is the first production ID on Pouet.
+)
+
 // Production is the production data from the Pouet API.
 // The Pouet API returns values as null or string, so this struct
 // is used to normalize the data types.
 type Production struct {
-	// Platforms are the platforms the prod runs on.
-	Platforms Platfs `json:"platforms"`
-	// Title is the prod title.
-	Title string `json:"title"`
-	// ReleaseDate is the prod release date.
-	ReleaseDate string `json:"release_date"`
-	// Platform is the prod platforms as a string.
-	// If the string is empty then the prod is not supported.
-	Platform string `json:"platform"`
-	// Groups are the releasers that produced the prod.
-	Groups []struct {
+	ID          int    `json:"id"`           // ID is the prod ID.
+	Title       string `json:"title"`        // Title is the prod title.
+	ReleaseDate string `json:"release_date"` // ReleaseDate is the prod release date.
+	Download    string `json:"download"`     // Download is the first download link.
+	Demozoo     string `json:"demozoo"`      // Demozoo is the Demozoo identifier.
+	Groups      []struct {
 		ID   string `json:"id"`
 		Name string `json:"name"`
-	} `json:"groups"`
-	// Types are the prod types.
-	Types Types `json:"types"`
-	// ID is the prod ID.
-	ID int `json:"id"`
-	// Valid is true if this prod is a supported type and platform.
-	Valid bool `json:"valid"`
+	} `json:"groups"` // Groups are the releasers that produced the prod.
+	Platforms Platforms `json:"platforms"` // Platforms are the platforms the prod runs on.
+	Platform  string    `json:"platform"`  // Platform is the prod platforms as a string.
+	Types     Types     `json:"types"`     // Types are the prod types.
+	Links     []struct {
+		Type string `json:"type"`
+		Link string `json:"link"`
+	} `json:"downloads"` // Downloads are the additional download links.
+	Valid bool `json:"valid"` // Valid is true if this prod is a supported type and platform.
+}
+
+// Get requests data for a production record from the [Pouet API].
+// It returns an error if the production ID is invalid, when the request
+// reaches a [Timeout] or fails.
+// A status code is returned when the response status is not OK.
+//
+// [Pouet API]: https://api.pouet.net/v1/prod/?id=
+func (p *Production) Get(id int) (int, error) {
+	if id < firstID {
+		return 0, fmt.Errorf("get pouet production %w: %d", ErrID, id)
+	}
+	resp := Response{}
+	if code, err := resp.Get(id); err != nil {
+		return code, fmt.Errorf("pouet uploader get %w", err)
+	}
+	id, err := strconv.Atoi(resp.Prod.ID)
+	if err != nil {
+		return 0, fmt.Errorf("pouet uploader atoi %w", err)
+	}
+	platOkay := PlatformsValid(resp.Prod.Platforms.String())
+	typeOkay := TypesValid(resp.Prod.Types.String())
+	p.ID = id
+	p.Title = resp.Prod.Title
+	p.ReleaseDate = resp.Prod.ReleaseDate
+	p.Download = resp.Prod.Download
+	p.Demozoo = resp.Prod.Demozoo
+	p.Groups = resp.Prod.Groups
+	p.Platforms = resp.Prod.Platforms
+	p.Types = resp.Prod.Types
+	p.Links = resp.Prod.DownloadLinks
+	p.Valid = platOkay && typeOkay
+	return 0, nil
+}
+
+func PlatformsValid(s string) bool {
+	platforms := strings.Split(strings.ToLower(s), ",")
+	for _, platform := range platforms {
+		switch strings.TrimSpace(platform) {
+		case "msdosgus", "msdos", "windows":
+			return true
+		}
+	}
+	return false
+}
+
+func TypesValid(s string) bool {
+	types := strings.Split(strings.ToLower(s), ",")
+	for _, t := range types {
+		s := Type(strings.TrimSpace(t))
+		if s.Valid() {
+			return true
+		}
+	}
+	return false
+}
+
+// Releasers returns the first two names in the production that have is_group as true.
+// The one exception is if the production title contains a reference to a BBS or FTP site name.
+// Then that title will be used as the first group returned.
+func (p Production) Releasers() (string, string) {
+	// find any reference to BBS or FTP in the production title to
+	// obtain a possible site name.
+	var a, b string
+	// range through author nicks for any group matches
+	for _, group := range p.Groups {
+		if a == "" {
+			a = group.Name
+			continue
+		}
+		if b == "" {
+			b = group.Name
+			break
+		}
+	}
+	return a, b
+}
+
+// Released returns the production's release date as date_issued_ year, month, day values.
+func (p Production) Released() ( //nolint:nonamedreturns
+	year int, month int, day int,
+) {
+	// 	"2024-07-15"
+	dates := strings.Split(p.ReleaseDate, "-")
+	const (
+		y    = 0
+		m    = 1
+		d    = 2
+		ymd  = 3
+		ym   = 2
+		yyyy = 1
+	)
+	switch len(dates) {
+	case ymd:
+		year, _ = strconv.Atoi(dates[y])
+		month, _ = strconv.Atoi(dates[m])
+		day, _ = strconv.Atoi(dates[d])
+	case ym:
+		year, _ = strconv.Atoi(dates[y])
+		month, _ = strconv.Atoi(dates[m])
+	case yyyy:
+		year, _ = strconv.Atoi(dates[y])
+	default:
+	}
+	return year, month, day
+}
+
+// PlatformType parses the Pouet "platform" and "type" data
+// and returns the corresponding platform and section tags.
+// It returns -1 for an unknown platform or section.
+func (d Production) PlatformType() (tags.Tag, tags.Tag) {
+	var platform tags.Tag = -1
+	platforms := strings.Split(d.Platform, ",")
+	for _, p := range platforms {
+		switch strings.TrimSpace(p) {
+		case "msdosgus", "msdos":
+			platform = tags.DOS
+		case "windows":
+			platform = tags.Windows
+		}
+		if platform != -1 {
+			break
+		}
+	}
+	var section tags.Tag = -1
+	types := strings.Split(d.Types.String(), ",")
+	for _, t := range types {
+		switch strings.TrimSpace(t) {
+		case "artpack":
+			section = tags.Pack
+		case "bbstro":
+			section = tags.BBS
+		case "demo":
+			section = tags.Demo
+		case "diskmag":
+			section = tags.Mag
+		default:
+			section = tags.Intro
+		}
+		if section != -1 {
+			break
+		}
+	}
+	return platform, section
 }
 
 // Votes is the production voting data from the Pouet API.
@@ -86,19 +223,20 @@ type Votes struct {
 type Response struct {
 	Prod struct {
 		ID          string `json:"id"`          // ID is the prod ID.
+		Title       string `json:"name"`        // Title is the prod title.
+		ReleaseDate string `json:"releaseDate"` // ReleaseDate is the prod release date.
 		Voteup      string `json:"voteup"`      // Voteup is the number of thumbs up votes.
 		Votepig     string `json:"votepig"`     // Votepig is the number of meh votes.
 		Votedown    string `json:"votedown"`    // Votedown is the number of thumbs down votes.
 		Voteavg     string `json:"voteavg"`     // Voteavg is the average votes, the maximum value is 1.0.
-		Title       string `json:"name"`        // Title is the prod title.
-		ReleaseDate string `json:"releaseDate"` // ReleaseDate is the prod release date.
+		Download    string `json:"download"`    // Download is the first download link.
+		Demozoo     string `json:"demozoo"`     // Demozoo is the first Demozoo link.
 		Groups      []struct {
 			ID   string `json:"id"`
 			Name string `json:"name"`
 		} `json:"groups"` // Groups are the releasers that produced the prod.
-		Platfs        Platfs `json:"platforms"` // Platforms are the platforms the prod runs on.
-		Types         Types  `json:"types"`     // Types are the prod types.
-		Download      string `json:"download"`  // Download is the first download link.
+		Platforms     Platforms `json:"platforms"` // Platforms are the platforms the prod runs on.
+		Types         Types     `json:"types"`     // Types are the prod types.
 		DownloadLinks []struct {
 			Type string `json:"type"`
 			Link string `json:"link"`
@@ -107,28 +245,28 @@ type Response struct {
 	Success bool `json:"success"` // Success is true if the prod data was found.
 }
 
-// Platfs are the supported platforms from the Pouet API.
-type Platfs struct {
-	DosGus  Platf `json:"69"` // MS-Dos with GUS
-	Windows Platf `json:"68"` // Windows
-	MSDos   Platf `json:"67"` // MS-Dos
+// Platforms are the supported platforms from the Pouet API.
+type Platforms struct {
+	DosGus  Platform `json:"69"` // MS-Dos with GUS
+	Windows Platform `json:"68"` // Windows
+	MSDos   Platform `json:"67"` // MS-Dos
 }
 
-func (p Platfs) String() string {
+func (p Platforms) String() string {
 	s := []string{}
 	if p.DosGus.Name != "" {
-		s = append(s, p.DosGus.Name)
+		s = append(s, p.DosGus.Slug)
 	}
 	if p.MSDos.Name != "" {
-		s = append(s, p.MSDos.Name)
+		s = append(s, p.MSDos.Slug)
 	}
 	if p.Windows.Name != "" {
-		s = append(s, p.Windows.Name)
+		s = append(s, p.Windows.Slug)
 	}
 	return strings.Join(s, ", ")
 }
 
-func (p Platfs) Valid() bool {
+func (p Platforms) Valid() bool {
 	if p.DosGus.Slug == "msdosgus" {
 		return true
 	}
@@ -141,8 +279,8 @@ func (p Platfs) Valid() bool {
 	return false
 }
 
-// Platf is the production platform data from the Pouet API.
-type Platf struct {
+// Platform is the production platform data from the Pouet API.
+type Platform struct {
 	Name string `json:"name"`
 	Slug string `json:"slug"`
 }
@@ -182,9 +320,9 @@ func (t Types) String() string {
 
 // Get retrieves the production voting data from the Pouet API.
 // The id value is the Pouet production ID and must be greater than 0.
-func (r *Response) Get(id int) error {
+func (r *Response) Get(id int) (int, error) {
 	if id < firstID {
-		return fmt.Errorf("%w: %d", ErrID, id)
+		return 0, fmt.Errorf("%w: %d", ErrID, id)
 	}
 	client := http.Client{
 		Timeout: Timeout,
@@ -193,55 +331,29 @@ func (r *Response) Get(id int) error {
 	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return fmt.Errorf("get pouet production new request %w", err)
+		return 0, fmt.Errorf("get pouet production new request %w", err)
 	}
 	req.Header.Set("User-Agent", helper.UserAgent)
 	res, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("get pouet production client do %w", err)
+		return 0, fmt.Errorf("get pouet production client do %w", err)
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("%w: %d - %s", ErrStatus, res.StatusCode, res.Status)
+		return res.StatusCode, fmt.Errorf("get pouet production %w: %s", ErrStatus, res.Status)
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return fmt.Errorf("get pouet production read all %w", err)
+		return 0, fmt.Errorf("get pouet production read all %w", err)
 	}
 	err = json.Unmarshal(body, &r)
 	if err != nil {
-		return fmt.Errorf("get pouet production json unmarshal %w", err)
+		return 0, fmt.Errorf("get pouet production json unmarshal %w", err)
 	}
 	if !r.Success {
-		return fmt.Errorf("get pouet production %w: %d", ErrSuccess, id)
+		return 0, fmt.Errorf("get pouet production %w: %d", ErrSuccess, id)
 	}
-	return nil
-}
-
-// Uploader retrieves and parses the production data from the Pouet API.
-// The id value is the Pouet production ID and must be greater than 0.
-// The data is intended for the Pouet Uploader.
-func (p *Production) Uploader(id int) error {
-	if id < firstID {
-		return fmt.Errorf("%w: %d", ErrID, id)
-	}
-	r := Response{}
-	err := r.Get(id)
-	if err != nil {
-		return fmt.Errorf("pouet uploader get %w", err)
-	}
-	p.ID, err = strconv.Atoi(r.Prod.ID)
-	if err != nil {
-		return fmt.Errorf("pouet uploader atoi %w", err)
-	}
-	p.Title = r.Prod.Title
-	p.ReleaseDate = r.Prod.ReleaseDate
-	p.Groups = r.Prod.Groups
-	p.Platforms = r.Prod.Platfs
-	p.Types = r.Prod.Types
-	p.Platform = r.Prod.Platfs.String()
-	p.Valid = r.Prod.Platfs.Valid() && r.Prod.Types.Valid()
-	return nil
+	return 0, nil
 }
 
 // Votes retrieves the production voting data from the Pouet API.
@@ -252,7 +364,7 @@ func (v *Votes) Votes(id int) error {
 		return fmt.Errorf("%w: %d", ErrID, id)
 	}
 	r := Response{}
-	err := r.Get(id)
+	_, err := r.Get(id)
 	if err != nil {
 		return fmt.Errorf("pouet votes get %w", err)
 	}
