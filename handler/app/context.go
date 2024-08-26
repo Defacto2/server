@@ -633,6 +633,18 @@ func GetDemozoo(c echo.Context, db *sql.DB, demozooID int, defacto2UNID, downloa
 	return got.Download(c, db, downloadDir)
 }
 
+// GetPouet fetches the download link from Pouet and saves it to the download directory.
+// It then runs Update to modify the database record with various metadata from the file and Pouet record API data.
+//
+// This function is a wrapper for the remote.PouetLink.Download method.
+func GetPouet(c echo.Context, db *sql.DB, pouetID int, defacto2UNID, downloadDir string) error {
+	got := remote.PouetLink{
+		ID:   pouetID,
+		UUID: defacto2UNID,
+	}
+	return got.Download(c, db, downloadDir)
+}
+
 // GoogleCallback is the handler for the Google OAuth2 callback page to verify
 // the [Google ID token].
 //
@@ -1090,7 +1102,7 @@ func ProdPouet(c echo.Context, id string) error {
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
-	if err = p.Uploader(i); err != nil {
+	if _, err = p.Get(i); err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
 	if err = c.JSON(http.StatusOK, p); err != nil {
