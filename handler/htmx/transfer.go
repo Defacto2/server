@@ -386,13 +386,24 @@ func (cr creator) insert(ctx context.Context, c echo.Context, tx *sql.Tx, logger
 	return id, uid, nil
 }
 
-func submit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, prod, downloadDir string) error {
-	name := strings.ToTitle(prod)
+type Submission int
+
+const (
+	Demozoo Submission = iota
+	Pouet
+)
+
+func (prod Submission) String() string {
+	return [...]string{dz, pt}[prod]
+}
+
+func (prod Submission) Submit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
+	name := strings.ToTitle(prod.String())
 	if logger == nil {
 		return c.String(http.StatusInternalServerError,
-			"error, "+prod+" submit logger is nil")
+			"error, "+prod.String()+" submit logger is nil")
 	}
-	id, err := sanitizeID(c, name, prod)
+	id, err := sanitizeID(c, name, prod.String())
 	if err != nil {
 		return err
 	}
@@ -405,9 +416,9 @@ func submit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, prod, downloa
 	}
 	var exist bool
 	switch prod {
-	case dz:
+	case Demozoo:
 		exist, err = model.DemozooExists(ctx, tx, id)
-	case pt:
+	case Pouet:
 		exist, err = model.PouetExists(ctx, tx, id)
 	}
 	if err != nil {
@@ -416,15 +427,15 @@ func submit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, prod, downloa
 	}
 	if exist {
 		return c.String(http.StatusForbidden,
-			"error, the "+prod+" key is already in use")
+			"error, the "+prod.String()+" key is already in use")
 	}
 	var key int64
 	var unid string
 	switch prod {
-	case dz:
+	case Demozoo:
 		key, unid, err = model.InsertDemozoo(ctx, tx, id)
-	case pt:
-		key, err = model.InsertPouet(ctx, tx, id)
+	case Pouet:
+		key, unid, err = model.InsertPouet(ctx, tx, id)
 	}
 	if err != nil || key == 0 {
 		logger.Error(err, id)
@@ -439,8 +450,15 @@ func submit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, prod, downloa
 	html := fmt.Sprintf("Thanks for the submission of %s production, %d", name, id)
 	defer func() {
 		// see Download in handler/app/internal/remote/remote.go
-		if err := app.GetDemozoo(c, db, int(id), unid, downloadDir); err != nil {
-			logger.Error(err)
+		switch prod {
+		case Demozoo:
+			if err := app.GetDemozoo(c, db, int(id), unid, downloadDir); err != nil {
+				logger.Error(err)
+			}
+		case Pouet:
+			if err := app.GetPouet(c, db, int(id), unid, downloadDir); err != nil {
+				logger.Error(err)
+			}
 		}
 		logger.Infof("The %s production %d has been submitted", name, id)
 	}()
