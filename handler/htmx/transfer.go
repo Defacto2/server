@@ -437,14 +437,14 @@ func submit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, prod, downloa
 			"error, the database commit failed")
 	}
 	html := fmt.Sprintf("Thanks for the submission of %s production, %d", name, id)
+	defer func() {
+		// see Download in handler/app/internal/remote/remote.go
+		if err := app.GetDemozoo(c, db, int(id), unid, downloadDir); err != nil {
+			logger.Error(err)
+		}
+		logger.Infof("The %s production %d has been submitted", name, id)
+	}()
 	if sess.Editor(c) {
-		defer func() {
-			// see Download in handler/app/internal/remote/remote.go
-			if err := app.GetDemozoo(c, db, int(id), unid, downloadDir); err != nil {
-				logger.Error(err)
-			}
-			logger.Infof("The %s production %d has been submitted", name, id)
-		}()
 		uri := helper.ObfuscateID(key)
 		html += fmt.Sprintf("<p><a href=\"/f/%s\">Go to the new artifact record</a></p>", uri)
 	}
