@@ -26,10 +26,17 @@ import (
 	"github.com/Defacto2/server/internal/tags"
 )
 
+var (
+	ErrID      = errors.New("id is invalid")
+	ErrSuccess = errors.New("not found")
+	ErrStatus  = errors.New("status is not ok")
+)
+
 const (
 	ProdURL = "https://demozoo.org/api/v1/productions/" // ProdURL is the base URL for the Demozoo production API.
 	Timeout = 10 * time.Second                          // HTTP client timeout, Demozoo replies can be slow.
 	Sanity  = 450000                                    // Sanity is to check the maximum permitted production ID.
+	firstID = 1                                         // firstID is the first production ID on Pouet.
 )
 
 const (
@@ -121,12 +128,6 @@ type Production struct {
 	ID int `json:"id"`
 }
 
-var (
-	ErrID      = errors.New("id is invalid")
-	ErrSuccess = errors.New("not found")
-	ErrStatus  = errors.New("status is not ok")
-)
-
 // Get requests data for a production record from the [Demozoo API].
 // It returns an error if the production ID is invalid, when the request
 // reaches a [Timeout] or fails.
@@ -134,7 +135,7 @@ var (
 //
 // [Demozoo API]: https://demozoo.org/api/v1/productions/
 func (d *Production) Get(id int) (int, error) {
-	if id < 1 {
+	if id < firstID {
 		return 0, fmt.Errorf("get demozoo production %w: %d", ErrID, id)
 	}
 	client := http.Client{
@@ -219,7 +220,7 @@ func (d *Production) Unmarshal(r io.Reader) error {
 	if err := json.NewDecoder(r).Decode(d); err != nil {
 		return fmt.Errorf("demozoo production json decode: %w", err)
 	}
-	if d.ID < 1 {
+	if d.ID < firstID {
 		return fmt.Errorf("demozoo production %w: %d", ErrID, d.ID)
 	}
 	return nil
