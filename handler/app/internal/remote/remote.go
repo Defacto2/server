@@ -243,6 +243,7 @@ func (got DemozooLink) Update(c echo.Context, db *sql.DB) error {
 type PouetLink struct {
 	ID          int    `json:"id"`           // ID is the Demozoo production ID.
 	UUID        string `json:"uuid"`         // UUID is the file production UUID.
+	Demozoo     int    `json:"demozoo_prod"` // Demozoo production ID.
 	Releaser1   string `json:"releaser1"`    // Releaser1 is the first releaser of the file.
 	Releaser2   string `json:"releaser2"`    // Releaser2 is the second releaser of the file.
 	Title       string `json:"title"`        // Title is the file title.
@@ -272,13 +273,11 @@ func (got *PouetLink) Download(c echo.Context, db *sql.DB, downloadDir string) e
 	df, err := helper.GetFile(downloadURL)
 	if err != nil {
 		got.Error = fmt.Errorf("could not get file, %s: %w", downloadURL, err).Error()
-		return c.JSON(http.StatusInternalServerError, got)
+		return c.HTML(http.StatusInternalServerError, got.Error)
 	}
-	fmt.Printf("pouet: %+v\n", df)
 	base := filepath.Base(downloadURL)
 	dst := filepath.Join(downloadDir, got.UUID)
 	got.Filename = base
-	fmt.Println(base, " - ", base, " -- ", dst)
 	if err := helper.RenameFileOW(df.Path, dst); err != nil {
 		sameFiles, err := helper.FileMatch(df.Path, dst)
 		if err != nil {
@@ -292,6 +291,9 @@ func (got *PouetLink) Download(c echo.Context, db *sql.DB, downloadDir string) e
 	}
 	got.Filename = base
 	got.Error = ""
+	if i, err := strconv.Atoi(prod.Demozoo); err == nil && i > 0 {
+		got.Demozoo = i
+	}
 	y, m, d := prod.Released()
 	got.IssuedYear = int16(y)
 	got.IssuedMonth = int16(m)
@@ -303,14 +305,12 @@ func (got *PouetLink) Download(c echo.Context, db *sql.DB, downloadDir string) e
 	plat, sect := prod.PlatformType()
 	got.Platform = plat.String()
 	got.Section = sect.String()
-	fmt.Printf("pouet: %+v\n", prod)
 	return got.Stat(c, db, downloadDir)
 }
 
 // Stat sets the file size, hash, type, and archive content of the file.
 // The UUID is used to locate the file in the download directory.
 func (got *PouetLink) Stat(c echo.Context, db *sql.DB, downloadDir string) error {
-	// TODO: make internal function
 	name := filepath.Join(downloadDir, got.UUID)
 	if got.FileSize == 0 {
 		stat, err := os.Stat(name)
@@ -338,7 +338,6 @@ func (got *PouetLink) ArchiveContent(c echo.Context, db *sql.DB, src string) err
 	if err != nil {
 		return c.JSON(http.StatusOK, got)
 	}
-	//got.Readme = archive.Readme(got.Filename, files...)
 	got.Content = strings.Join(files, "\n")
 	return got.Update(c, db)
 }
@@ -356,15 +355,9 @@ func (got PouetLink) Update(c echo.Context, db *sql.DB) error {
 	if err != nil {
 		return fmt.Errorf("demozoolink update by uuid %w: %s", err, uid)
 	}
-	// if s := strings.TrimSpace(got.Github); s != "" {
-	// 	f.WebIDGithub = null.StringFrom(s)
-	// }
-	// if s := strings.TrimSpace(got.YouTube); s != "" {
-	// 	f.WebIDYoutube = null.StringFrom(s)
-	// }
-	// if i := int64(got.Pouet); i > 0 {
-	// 	f.WebIDPouet = null.Int64From(i)
-	// }
+	if i := got.Demozoo; i > 0 {
+		f.WebIDDemozoo = null.Int64From(int64(i))
+	}
 	if s := strings.TrimSpace(got.Releaser1); s != "" {
 		f.GroupBrandFor = null.StringFrom(s)
 	}
@@ -383,18 +376,6 @@ func (got PouetLink) Update(c echo.Context, db *sql.DB) error {
 	if i := int16(got.IssuedYear); i > 0 {
 		f.DateIssuedYear = null.Int16From(i)
 	}
-	// if s := strings.Join(got.CreditAudio, ","); s != "" {
-	// 	f.CreditAudio = null.StringFrom(s)
-	// }
-	// if s := strings.Join(got.CreditArt, ","); s != "" {
-	// 	f.CreditIllustration = null.StringFrom(s)
-	// }
-	// if s := strings.Join(got.CreditCode, ","); s != "" {
-	// 	f.CreditProgram = null.StringFrom(s)
-	// }
-	// if s := strings.Join(got.CreditText, ","); s != "" {
-	// 	f.CreditText = null.StringFrom(s)
-	// }
 	if s := strings.TrimSpace(got.Filename); s != "" {
 		f.Filename = null.StringFrom(s)
 	}
@@ -416,7 +397,6 @@ func (got PouetLink) Update(c echo.Context, db *sql.DB) error {
 	if s := strings.TrimSpace(got.Section); s != "" {
 		f.Section = null.StringFrom(s)
 	}
-
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf("demozoolink update infer %w: %s", err, uid)
 	}

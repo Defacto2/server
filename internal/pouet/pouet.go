@@ -164,17 +164,13 @@ func (p Production) Released() ( //nolint:nonamedreturns
 // It returns -1 for an unknown platform or section.
 func (d Production) PlatformType() (tags.Tag, tags.Tag) {
 	var platform tags.Tag = -1
-	platforms := strings.Split(d.Platform, ",")
-	for _, p := range platforms {
-		switch strings.TrimSpace(p) {
-		case "msdosgus", "msdos":
-			platform = tags.DOS
-		case "windows":
-			platform = tags.Windows
-		}
-		if platform != -1 {
-			break
-		}
+	switch {
+	case d.Platforms.Windows.Slug != "":
+		platform = tags.Windows
+	case d.Platforms.MSDos.Slug != "":
+		platform = tags.DOS
+	case d.Platforms.DosGus.Slug != "":
+		platform = tags.DOS
 	}
 	var section tags.Tag = -1
 	types := strings.Split(d.Types.String(), ",")

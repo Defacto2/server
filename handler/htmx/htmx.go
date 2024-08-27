@@ -362,7 +362,10 @@ func PouetLookup(c echo.Context, db *sql.DB) error {
 func htmler(id int, info ...string) string {
 	s := `<div class="d-grid gap-2">`
 	s += fmt.Sprintf(`<button type="button" class="btn btn-outline-success" `+
-		`hx-put="/pouet/production/%d" hx-target="#pouet-submission-results" hx-trigger="click once delay:500ms" `+
+		`hx-put="/pouet/production/%d" `+
+		`hx-indicator="#pouet-indicator" `+
+		`hx-target="#pouet-submission-results" hx-trigger="click once delay:500ms" `+
+		`hx-target-error="#pouet-submission-error" `+
 		`autofocus>Submit ID %d</button>`, id, id)
 	s += `</div>`
 	s += fmt.Sprintf(`<p class="mt-3">%s</p>`, strings.Join(info, " "))

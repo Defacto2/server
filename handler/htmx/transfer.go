@@ -448,9 +448,7 @@ func (prod Submission) Submit(c echo.Context, db *sql.DB, logger *zap.SugaredLog
 			"error, the database commit failed")
 	}
 	html := fmt.Sprintf("Thanks for the submission of %s production, %d", name, id)
-	fmt.Println("DEFER FUNC")
 	defer func() {
-		fmt.Println("defer func() called")
 		// see Download in handler/app/internal/remote/remote.go
 		switch prod {
 		case Demozoo:
