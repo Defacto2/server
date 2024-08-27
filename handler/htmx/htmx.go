@@ -323,7 +323,7 @@ func PouetLookup(c echo.Context, db *sql.DB) error {
 		return c.HTML(http.StatusOK, "This Pouet production is already in use.")
 	}
 
-	resp, err := PouetValid(c, id, false) // TODO: replace
+	resp, err := PouetValid(c, id, false)
 	if err != nil {
 		return fmt.Errorf("PouetValid: %w", err)
 	} else if resp.Prod.ID == "" {

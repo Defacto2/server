@@ -85,6 +85,13 @@ func (m ListEntry) HTML(bytes int64, platform string) string {
 	default:
 		htm += blank
 	}
+	return m.readme(bytes, htm)
+}
+
+func (m ListEntry) readme(bytes int64, htm string) string {
+	const blank = `<div class="col col-1"></div>`
+	name := url.QueryEscape(m.RelativeName)
+	ext := strings.ToLower(filepath.Ext(name))
 	switch {
 	case m.Texts && (ext == bat || ext == cmd || ext == ini):
 		htm += blank
@@ -97,6 +104,10 @@ func (m ListEntry) HTML(bytes int64, platform string) string {
 		htm += blank
 	}
 	htm += fmt.Sprintf(`<div><small data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</small>`, bytes, m.Filesize)
+	return m.binaries(bytes, ext, htm)
+}
+
+func (m ListEntry) binaries(bytes int64, ext, htm string) string {
 	switch {
 	case m.Texts && (ext == bat || ext == cmd):
 		htm += fmt.Sprintf(` <small class="">%s</small></div>`, "command script")

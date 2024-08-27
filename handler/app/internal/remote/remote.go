@@ -173,7 +173,7 @@ func (got DemozooLink) Update(c echo.Context, db *sql.DB) error {
 	return c.HTML(http.StatusOK, `<p class="text-success">New artifact update, okay</p>`)
 }
 
-func (got DemozooLink) updates(f *models.File) {
+func (got DemozooLink) updates(f *models.File) { //nolint:cyclop
 	if s := strings.TrimSpace(got.Github); s != "" {
 		f.WebIDGithub = null.StringFrom(s)
 	}

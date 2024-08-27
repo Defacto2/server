@@ -108,9 +108,6 @@ func DemozooGetLink(filename, filesize, demozoo, unid any) template.HTML {
 	if uID == "" {
 		return ""
 	}
-	// TODO DO NOT DELETE UNTIL JS REWRITE
-	// s := fmt.Sprintf(`, <a href="" name="editorGetDemozoo"`+
-	// 	` data-id="%d" data-uid="%s" id=btn"%s">Use demozoo assets</a>`, zooID, uID, uID)
 	return template.HTML(`clone the demozoo assets`)
 }
 
