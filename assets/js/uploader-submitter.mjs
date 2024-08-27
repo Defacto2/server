@@ -82,15 +82,10 @@ function beforeReset(alert, results) {
   alert.classList.add(none);
 }
 
-function successful(alert) {
-  alert.classList.add(none);
-  alert.innerText = "";
-}
+function successful() {}
 
 function error404(alert, results, api) {
   results.innerText = `Production not found on ${api}.`;
-  alert.classList.add(none);
-  alert.innerText = "";
 }
 
 function errorBrowser(alert) {

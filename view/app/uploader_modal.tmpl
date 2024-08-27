@@ -25,8 +25,8 @@
               <h1 class="modal-title fs-5" id="uploader-demozoo-label">Demozoo production or graphic</h1>
               <button type="button" id="demozoo-submission-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-              <form hx-ext="response-targets">
+            <div class="modal-body" hx-ext="response-targets">
+              <form>
                 <p>
                   Know a <a href="https://demozoo.org/productions/?platform=1">Windows</a>, 
                   <a href="https://demozoo.org/productions/?platform=4">MS-Dos</a> production or a 
@@ -44,15 +44,15 @@
                         class="form-control" id="demozoo-submission" name="demozoo-submission" 
                         hx-get="/demozoo/production" 
                         hx-target="#demozoo-submission-results" 
+                        hx-target-error="#demozoo-submission-error"
                         hx-trigger="input changed delay:{{$delay}}, search" 
                         hx-indicator="#demozoo-indicator"
                         hx-validate="true"
-                        hx-target-error="#demozoo-submission-error"
                         placeholder="Lookup a production…">
                     <button type="reset" id="demozoo-submission-clear" class="btn btn-outline-dark">Clear</button>
                 </div>
               </form>
-              <div id="demozoo-submission-error" class="d-none text-danger mt-3"></div>
+              <div id="demozoo-submission-error" class="text-danger mt-3"></div>
               <div id="demozoo-submission-results" class="justify-content-center mt-3"></div>
             </div>
             <div class="modal-footer"></div>
@@ -67,7 +67,7 @@
             <h1 class="modal-title fs-5" id="uploader-pouet-label">Pouët production</h1>
             <button type="button" id="pouet-submission-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body" hx-ext="response-targets">
             <form>
               <p>
                 Know a <a href="https://www.pouet.net/prodlist.php?platform%5B%5D=Windows&page=1">Windows</a>, 
@@ -85,6 +85,7 @@
                       class="form-control" id="pouet-submission" name="pouet-submission" 
                       hx-get="/pouet/production" 
                       hx-target="#pouet-submission-results" 
+                      hx-target-error="#pouet-submission-error"
                       hx-trigger="input changed delay:{{$delay}}, search" 
                       hx-indicator="#pouet-indicator"
                       hx-validate="true"
@@ -92,7 +93,7 @@
                   <button type="reset" id="pouet-submission-clear" class="btn btn-outline-dark">Clear</button>
               </div>
             </form>
-            <div id="pouet-submission-error" class="d-none text-danger mt-3"></div>
+            <div id="pouet-submission-error" class="text-danger mt-3"></div>
             <div id="pouet-submission-results" class="justify-content-center mt-3"></div>
           </div>
           <div class="modal-footer"></div>

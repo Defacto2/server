@@ -25,7 +25,7 @@ var (
 
 const (
 	ProdURL     = "https://api.pouet.net/v1/prod/?id=" // ProdURL is the base URL for the Pouet production API.
-	Timeout     = 5 * time.Second                      // Timeout is the HTTP client timeout.
+	Timeout     = 10 * time.Second                     // Timeout is the HTTP client timeout.
 	StarRounder = 0.5                                  // StarRounder is the rounding value for the stars rating.
 	Sanity      = 200000                               // Sanity is to check the maximum permitted production ID.
 	firstID     = 1                                    // firstID is the first production ID on Pouet.
@@ -162,18 +162,18 @@ func (p Production) Released() ( //nolint:nonamedreturns
 // PlatformType parses the Pouet "platform" and "type" data
 // and returns the corresponding platform and section tags.
 // It returns -1 for an unknown platform or section.
-func (d Production) PlatformType() (tags.Tag, tags.Tag) {
+func (p Production) PlatformType() (tags.Tag, tags.Tag) {
 	var platform tags.Tag = -1
 	switch {
-	case d.Platforms.Windows.Slug != "":
+	case p.Platforms.Windows.Slug != "":
 		platform = tags.Windows
-	case d.Platforms.MSDos.Slug != "":
+	case p.Platforms.MSDos.Slug != "":
 		platform = tags.DOS
-	case d.Platforms.DosGus.Slug != "":
+	case p.Platforms.DosGus.Slug != "":
 		platform = tags.DOS
 	}
 	var section tags.Tag = -1
-	types := strings.Split(d.Types.String(), ",")
+	types := strings.Split(p.Types.String(), ",")
 	for _, t := range types {
 		switch strings.TrimSpace(t) {
 		case "artpack":

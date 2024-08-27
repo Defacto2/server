@@ -411,6 +411,14 @@ func PouetValid(c echo.Context, id int, useCache bool) (pouet.Response, error) {
 			fmt.Sprintf("Production %d is probably not suitable for Defacto2.", id)+
 				"<br>A production must an intro, demo or cracktro either for MsDos or Windows.")
 	}
+	if valid := validation(prod); valid == "" {
+		return pouet.Response{},
+			c.String(http.StatusOK, "This Pouet production has no suitable download links.")
+	}
+	return prod, nil
+}
+
+func validation(prod pouet.Response) string {
 	var valid string
 	if prod.Prod.Download != "" {
 		valid = prod.Prod.Download
@@ -434,11 +442,7 @@ func PouetValid(c echo.Context, id int, useCache bool) (pouet.Response, error) {
 		valid = link.Link
 		break
 	}
-	if valid == "" {
-		return pouet.Response{},
-			c.String(http.StatusOK, "This Pouet production has no suitable download links.")
-	}
-	return prod, nil
+	return valid
 }
 
 // PouetSubmit is the handler for the /pouet/production PUT route.

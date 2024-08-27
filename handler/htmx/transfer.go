@@ -397,7 +397,9 @@ func (prod Submission) String() string {
 	return [...]string{dz, pt}[prod]
 }
 
-func (prod Submission) Submit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
+func (prod Submission) Submit( //nolint:cyclop,funlen
+	c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string,
+) error {
 	name := strings.ToTitle(prod.String())
 	if logger == nil {
 		return c.String(http.StatusInternalServerError,
@@ -411,8 +413,7 @@ func (prod Submission) Submit(c echo.Context, db *sql.DB, logger *zap.SugaredLog
 	tx, err := db.Begin()
 	if err != nil {
 		logger.Error(err)
-		return c.String(http.StatusServiceUnavailable,
-			"error, the database transaction could not begin")
+		return c.String(http.StatusServiceUnavailable, "error, the database transaction could not begin")
 	}
 	var exist bool
 	switch prod {
@@ -422,12 +423,10 @@ func (prod Submission) Submit(c echo.Context, db *sql.DB, logger *zap.SugaredLog
 		exist, err = model.PouetExists(ctx, tx, id)
 	}
 	if err != nil {
-		return c.String(http.StatusServiceUnavailable,
-			"error, the database query failed")
+		return c.String(http.StatusServiceUnavailable, "error, the database query failed")
 	}
 	if exist {
-		return c.String(http.StatusForbidden,
-			"error, the "+prod.String()+" key is already in use")
+		return c.String(http.StatusForbidden, "error, the "+prod.String()+" key is already in use")
 	}
 	var key int64
 	var unid string
@@ -448,25 +447,27 @@ func (prod Submission) Submit(c echo.Context, db *sql.DB, logger *zap.SugaredLog
 			"error, the database commit failed")
 	}
 	html := fmt.Sprintf("Thanks for the submission of %s production, %d", name, id)
-	defer func() {
-		// see Download in handler/app/internal/remote/remote.go
-		switch prod {
-		case Demozoo:
-			if err := app.GetDemozoo(c, db, int(id), unid, downloadDir); err != nil {
-				logger.Error(err)
-			}
-		case Pouet:
-			if err := app.GetPouet(c, db, int(id), unid, downloadDir); err != nil {
-				logger.Error(err)
-			}
-		}
-		logger.Infof("The %s production %d has been submitted", name, id)
-	}()
 	if sess.Editor(c) {
 		uri := helper.ObfuscateID(key)
 		html += fmt.Sprintf("<p><a href=\"/f/%s\">Go to the new artifact record</a></p>", uri)
 	}
-	return c.HTML(http.StatusOK, html)
+	// see Download in handler/app/internal/remote/remote.go
+	switch prod {
+	case Demozoo:
+		if err := app.GetDemozoo(c, db, int(id), unid, downloadDir); err != nil {
+			logger.Error(err)
+			html += fmt.Sprintf(`<p class="text-danger">error, the %s download failed</p>`, prod.String())
+			return c.String(http.StatusServiceUnavailable, html)
+		}
+	case Pouet:
+		if err := app.GetPouet(c, db, int(id), unid, downloadDir); err != nil {
+			logger.Error(err)
+			html += fmt.Sprintf(`<p class="text-danger">error, the %s download failed</p>`, prod.String())
+			return c.String(http.StatusServiceUnavailable, html)
+		}
+	}
+	logger.Infof("The %s production %d has been submitted", name, id)
+	return c.String(http.StatusOK, html)
 }
 
 func sanitizeID(c echo.Context, name, prod string) (int64, error) {

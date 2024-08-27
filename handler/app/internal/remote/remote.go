@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -16,6 +17,7 @@ import (
 	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
@@ -62,16 +64,14 @@ type DemozooLink struct {
 func (got *DemozooLink) Download(c echo.Context, db *sql.DB, downloadDir string) error {
 	var prod demozoo.Production
 	if _, err := prod.Get(got.ID); err != nil {
-		got.Error = fmt.Errorf("could not get record %d from demozoo api: %w", got.ID, err).Error()
-		return c.JSON(http.StatusInternalServerError, got)
+		return fmt.Errorf("could not get record %d from demozoo api: %w", got.ID, err)
 	}
 	for _, link := range prod.DownloadLinks {
 		if link.URL == "" {
 			continue
 		}
 		df, err := helper.GetFile(link.URL)
-		tryNextLink := err != nil || df.Path == ""
-		if tryNextLink {
+		if tryNextLink := err != nil || df.Path == ""; tryNextLink {
 			continue
 		}
 		base := filepath.Base(link.URL)
@@ -80,12 +80,10 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, downloadDir string)
 		if err := helper.RenameFileOW(df.Path, dst); err != nil {
 			sameFiles, err := helper.FileMatch(df.Path, dst)
 			if err != nil {
-				got.Error = fmt.Errorf("could not rename file, %s: %w", dst, err).Error()
-				return c.JSON(http.StatusInternalServerError, got)
+				return fmt.Errorf("could not rename file, %s: %w", dst, err)
 			}
 			if !sameFiles {
-				got.Error = fmt.Errorf("%w, will not overwrite, %s", ErrExist, dst).Error()
-				return c.JSON(http.StatusConflict, got)
+				return fmt.Errorf("%w, will not overwrite, %s", ErrExist, dst)
 			}
 		}
 		size, err := strconv.Atoi(df.ContentLength)
@@ -126,15 +124,13 @@ func (got *DemozooLink) Stat(c echo.Context, db *sql.DB, downloadDir string) err
 	if got.FileSize == 0 {
 		stat, err := os.Stat(name)
 		if err != nil {
-			got.Error = fmt.Errorf("could not stat file, %s: %w", name, err).Error()
-			return c.JSON(http.StatusInternalServerError, got)
+			return fmt.Errorf("could not stat file, %s: %w", name, err)
 		}
 		got.FileSize = int(stat.Size())
 	}
 	strong, err := helper.StrongIntegrity(name)
 	if err != nil {
-		got.Error = fmt.Errorf("could not get strong integrity hash, %s: %w", name, err).Error()
-		return c.JSON(http.StatusInternalServerError, got)
+		return fmt.Errorf("could not get strong integrity hash, %s: %w", name, err)
 	}
 	got.FileHash = strong
 	if got.FileType == "" {
@@ -147,9 +143,9 @@ func (got *DemozooLink) Stat(c echo.Context, db *sql.DB, downloadDir string) err
 func (got *DemozooLink) ArchiveContent(c echo.Context, db *sql.DB, src string) error {
 	files, err := archive.List(src, got.Filename)
 	if err != nil {
-		return c.JSON(http.StatusOK, got)
+		fmt.Fprint(io.Discard, err)
+		return nil
 	}
-	//got.Readme = archive.Readme(got.Filename, files...)
 	got.Content = strings.Join(files, "\n")
 	return got.Update(c, db)
 }
@@ -167,6 +163,17 @@ func (got DemozooLink) Update(c echo.Context, db *sql.DB) error {
 	if err != nil {
 		return fmt.Errorf("demozoolink update by uuid %w: %s", err, uid)
 	}
+	got.updates(f)
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
+		return fmt.Errorf("demozoolink update infer %w: %s", err, uid)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("demozoolink update commit %w: %s", err, uid)
+	}
+	return c.HTML(http.StatusOK, `<p class="text-success">New artifact update, okay</p>`)
+}
+
+func (got DemozooLink) updates(f *models.File) {
 	if s := strings.TrimSpace(got.Github); s != "" {
 		f.WebIDGithub = null.StringFrom(s)
 	}
@@ -185,13 +192,13 @@ func (got DemozooLink) Update(c echo.Context, db *sql.DB) error {
 	if s := strings.TrimSpace(got.Title); s != "" {
 		f.RecordTitle = null.StringFrom(s)
 	}
-	if i := int16(got.IssuedDay); i > 0 {
+	if i := (got.IssuedDay); i > 0 {
 		f.DateIssuedDay = null.Int16From(i)
 	}
-	if i := int16(got.IssuedMonth); i > 0 {
+	if i := (got.IssuedMonth); i > 0 {
 		f.DateIssuedMonth = null.Int16From(i)
 	}
-	if i := int16(got.IssuedYear); i > 0 {
+	if i := (got.IssuedYear); i > 0 {
 		f.DateIssuedYear = null.Int16From(i)
 	}
 	if s := strings.Join(got.CreditAudio, ","); s != "" {
@@ -227,14 +234,6 @@ func (got DemozooLink) Update(c echo.Context, db *sql.DB) error {
 	if s := strings.TrimSpace(got.Section); s != "" {
 		f.Section = null.StringFrom(s)
 	}
-
-	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
-		return fmt.Errorf("demozoolink update infer %w: %s", err, uid)
-	}
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("demozoolink update commit %w: %s", err, uid)
-	}
-	return c.HTML(http.StatusOK, `<p class="text-success">New artifact update, okay</p>`)
 }
 
 // PouetLink is the response from the task of GetDemozooFile.
@@ -263,8 +262,7 @@ type PouetLink struct {
 func (got *PouetLink) Download(c echo.Context, db *sql.DB, downloadDir string) error {
 	var prod pouet.Production
 	if _, err := prod.Get(got.ID); err != nil {
-		got.Error = fmt.Errorf("could not get record %d from demozoo api: %w", got.ID, err).Error()
-		return c.JSON(http.StatusInternalServerError, got)
+		return fmt.Errorf("could not get record %d from demozoo api: %w", got.ID, err)
 	}
 	downloadURL := prod.Download
 	if downloadURL == "" {
@@ -272,8 +270,7 @@ func (got *PouetLink) Download(c echo.Context, db *sql.DB, downloadDir string) e
 	}
 	df, err := helper.GetFile(downloadURL)
 	if err != nil {
-		got.Error = fmt.Errorf("could not get file, %s: %w", downloadURL, err).Error()
-		return c.HTML(http.StatusInternalServerError, got.Error)
+		return fmt.Errorf("could not get file, %s: %w", downloadURL, err)
 	}
 	base := filepath.Base(downloadURL)
 	dst := filepath.Join(downloadDir, got.UUID)
@@ -281,12 +278,10 @@ func (got *PouetLink) Download(c echo.Context, db *sql.DB, downloadDir string) e
 	if err := helper.RenameFileOW(df.Path, dst); err != nil {
 		sameFiles, err := helper.FileMatch(df.Path, dst)
 		if err != nil {
-			got.Error = fmt.Errorf("could not rename file, %s: %w", dst, err).Error()
-			return c.JSON(http.StatusInternalServerError, got)
+			return fmt.Errorf("could not rename file, %s: %w", dst, err)
 		}
 		if !sameFiles {
-			got.Error = fmt.Errorf("%w, will not overwrite, %s", ErrExist, dst).Error()
-			return c.JSON(http.StatusConflict, got)
+			return fmt.Errorf("%w, will not overwrite, %s", ErrExist, dst)
 		}
 	}
 	got.Filename = base
@@ -315,15 +310,13 @@ func (got *PouetLink) Stat(c echo.Context, db *sql.DB, downloadDir string) error
 	if got.FileSize == 0 {
 		stat, err := os.Stat(name)
 		if err != nil {
-			got.Error = fmt.Errorf("could not stat file, %s: %w", name, err).Error()
-			return c.JSON(http.StatusInternalServerError, got)
+			return fmt.Errorf("could not stat file, %s: %w", name, err)
 		}
 		got.FileSize = int(stat.Size())
 	}
 	strong, err := helper.StrongIntegrity(name)
 	if err != nil {
-		got.Error = fmt.Errorf("could not get strong integrity hash, %s: %w", name, err).Error()
-		return c.JSON(http.StatusInternalServerError, got)
+		return fmt.Errorf("could not get strong integrity hash, %s: %w", name, err)
 	}
 	got.FileHash = strong
 	if got.FileType == "" {
@@ -355,6 +348,17 @@ func (got PouetLink) Update(c echo.Context, db *sql.DB) error {
 	if err != nil {
 		return fmt.Errorf("demozoolink update by uuid %w: %s", err, uid)
 	}
+	got.updates(f)
+	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
+		return fmt.Errorf("demozoolink update infer %w: %s", err, uid)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("demozoolink update commit %w: %s", err, uid)
+	}
+	return c.HTML(http.StatusOK, `<p class="text-success">New artifact update, okay</p>`)
+}
+
+func (got PouetLink) updates(f *models.File) {
 	if i := got.Demozoo; i > 0 {
 		f.WebIDDemozoo = null.Int64From(int64(i))
 	}
@@ -367,13 +371,13 @@ func (got PouetLink) Update(c echo.Context, db *sql.DB) error {
 	if s := strings.TrimSpace(got.Title); s != "" {
 		f.RecordTitle = null.StringFrom(s)
 	}
-	if i := int16(got.IssuedDay); i > 0 {
+	if i := (got.IssuedDay); i > 0 {
 		f.DateIssuedDay = null.Int16From(i)
 	}
-	if i := int16(got.IssuedMonth); i > 0 {
+	if i := (got.IssuedMonth); i > 0 {
 		f.DateIssuedMonth = null.Int16From(i)
 	}
-	if i := int16(got.IssuedYear); i > 0 {
+	if i := (got.IssuedYear); i > 0 {
 		f.DateIssuedYear = null.Int16From(i)
 	}
 	if s := strings.TrimSpace(got.Filename); s != "" {
@@ -397,11 +401,4 @@ func (got PouetLink) Update(c echo.Context, db *sql.DB) error {
 	if s := strings.TrimSpace(got.Section); s != "" {
 		f.Section = null.StringFrom(s)
 	}
-	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
-		return fmt.Errorf("demozoolink update infer %w: %s", err, uid)
-	}
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("demozoolink update commit %w: %s", err, uid)
-	}
-	return c.HTML(http.StatusOK, `<p class="text-success">New artifact update, okay</p>`)
 }

@@ -134,7 +134,7 @@ type Production struct {
 // A status code is returned when the response status is not OK.
 //
 // [Demozoo API]: https://demozoo.org/api/v1/productions/
-func (d *Production) Get(id int) (int, error) {
+func (p *Production) Get(id int) (int, error) {
 	if id < firstID {
 		return 0, fmt.Errorf("get demozoo production %w: %d", ErrID, id)
 	}
@@ -160,11 +160,11 @@ func (d *Production) Get(id int) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("get demozoo production read all %w", err)
 	}
-	err = json.Unmarshal(body, &d)
+	err = json.Unmarshal(body, &p)
 	if err != nil {
 		return 0, fmt.Errorf("get demozoo production json unmarshal %w", err)
 	}
-	if d.ID != id {
+	if p.ID != id {
 		return 0, fmt.Errorf("get demozoo production %w: %d", ErrSuccess, id)
 	}
 	return 0, nil
@@ -173,8 +173,8 @@ func (d *Production) Get(id int) (int, error) {
 // GithubRepo returns the Github repository path of the production using
 // the Production struct. It searches the external links for a link class that
 // matches GithubRepo.
-func (d Production) GithubRepo() string {
-	for _, link := range d.ExternalLinks {
+func (p Production) GithubRepo() string {
+	for _, link := range p.ExternalLinks {
 		if link.LinkClass != "GithubRepo" {
 			continue
 		}
@@ -195,8 +195,8 @@ func (d Production) GithubRepo() string {
 // link class that matches PouetProduction.
 // A 0 is returned whenever the production does not have a recognized
 // Pouet production link.
-func (d Production) PouetProd() int {
-	for _, link := range d.ExternalLinks {
+func (p Production) PouetProd() int {
+	for _, link := range p.ExternalLinks {
 		if link.LinkClass != "PouetProduction" {
 			continue
 		}
@@ -216,12 +216,12 @@ func (d Production) PouetProd() int {
 // Unmarshal parses the JSON-encoded data and stores the result
 // in the Production struct. It returns an error if the JSON data is
 // invalid or the production ID is invalid.
-func (d *Production) Unmarshal(r io.Reader) error {
-	if err := json.NewDecoder(r).Decode(d); err != nil {
+func (p *Production) Unmarshal(r io.Reader) error {
+	if err := json.NewDecoder(r).Decode(p); err != nil {
 		return fmt.Errorf("demozoo production json decode: %w", err)
 	}
-	if d.ID < firstID {
-		return fmt.Errorf("demozoo production %w: %d", ErrID, d.ID)
+	if p.ID < firstID {
+		return fmt.Errorf("demozoo production %w: %d", ErrID, p.ID)
 	}
 	return nil
 }
@@ -230,35 +230,35 @@ func (d *Production) Unmarshal(r io.Reader) error {
 // and returns the corresponding platform and section tags.
 // It returns -1 for an unknown platform or section, in which case the
 // caller should invalidate the Demozoo production.
-func (d Production) SuperType() (tags.Tag, tags.Tag) {
-	superType := func(s, p tags.Tag) bool {
-		return s > -1 && p > -1
+func (p Production) SuperType() (tags.Tag, tags.Tag) {
+	superType := func(pl, se tags.Tag) bool {
+		return pl > -1 && se > -1
 	}
 	var platform tags.Tag = -1
 	var section tags.Tag = -1
 
-	platform, section = d.platforms(platform, section)
-	if superType(section, platform) {
+	platform, section = p.platforms(platform, section)
+	if superType(platform, section) {
 		return platform, section
 	}
 
-	platform, section = d.prodSuperType(platform, section)
-	if superType(section, platform) {
+	platform, section = p.prodSuperType(platform, section)
+	if superType(platform, section) {
 		return platform, section
 	}
 
-	platform, section = d.graphicsSuperType(platform, section)
-	if superType(section, platform) {
+	platform, section = p.graphicsSuperType(platform, section)
+	if superType(platform, section) {
 		return platform, section
 	}
 
-	platform, section = d.musicSuperType(platform, section)
+	platform, section = p.musicSuperType(platform, section)
 	return platform, section
 }
 
 // platforms returns the platform and section tags for "platforms".
 // A list of the types can be found at https://demozoo.org/api/v1/platforms/?ordering=id
-func (d Production) platforms(platform, section tags.Tag) (tags.Tag, tags.Tag) {
+func (p Production) platforms(platform, section tags.Tag) (tags.Tag, tags.Tag) {
 	const (
 		Windows = 1
 		MsDos   = 4
@@ -271,8 +271,8 @@ func (d Production) platforms(platform, section tags.Tag) (tags.Tag, tags.Tag) {
 		Macintosh  = 94
 	)
 	// Handle platforms.
-	for _, p := range d.Platforms {
-		switch p.ID {
+	for _, item := range p.Platforms {
+		switch item.ID {
 		case Windows:
 			platform = tags.Windows
 		case MsDos:
@@ -293,9 +293,9 @@ func (d Production) platforms(platform, section tags.Tag) (tags.Tag, tags.Tag) {
 
 // prodSuperType returns the platform and section tags for the "production" supertype.
 // A list of the types can be found at https://demozoo.org/api/v1/production_types/?ordering=id
-func (d Production) prodSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
-	for _, p := range d.Platforms {
-		switch p.ID {
+func (p Production) prodSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
+	for _, item := range p.Platforms {
+		switch item.ID {
 		case Demo:
 			section = tags.Demo
 		case Intro64K, Intro4K, Intro, Intro40K, Intro32b,
@@ -330,7 +330,7 @@ func (d Production) prodSuperType(platform, section tags.Tag) (tags.Tag, tags.Ta
 }
 
 // graphicsSuperType returns the platform and section tags for the "graphics" supertype.
-func (d Production) graphicsSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
+func (p Production) graphicsSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
 	const (
 		Graphics   = 23
 		ASCII      = 24
@@ -342,8 +342,8 @@ func (d Production) graphicsSuperType(platform, section tags.Tag) (tags.Tag, tag
 		ExeGFX256b = 56
 		ExeGFX1K   = 58
 	)
-	for _, p := range d.Platforms {
-		switch p.ID {
+	for _, item := range p.Platforms {
+		switch item.ID {
 		case Graphics:
 			platform = tags.Image
 			section = tags.Logo
@@ -370,7 +370,7 @@ func (d Production) graphicsSuperType(platform, section tags.Tag) (tags.Tag, tag
 }
 
 // musicSuperType returns the platform and section tags for the "music" supertype.
-func (d Production) musicSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
+func (p Production) musicSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
 	const (
 		ChipMusic   = 29
 		ExeMusic    = 31
@@ -378,8 +378,8 @@ func (d Production) musicSuperType(platform, section tags.Tag) (tags.Tag, tags.T
 		ExeMusic64K = 38
 		MusicPack   = 52
 	)
-	for _, p := range d.Platforms {
-		switch p.ID {
+	for _, item := range p.Platforms {
+		switch item.ID {
 		case ChipMusic:
 			platform = tags.Audio
 			section = tags.Intro
@@ -400,8 +400,8 @@ func (d Production) musicSuperType(platform, section tags.Tag) (tags.Tag, tags.T
 // for a link class that matches YoutubeVideo.
 // An empty string is returned whenever the production does not have a recognized
 // YouTube video link.
-func (d Production) YouTubeVideo() string {
-	for _, link := range d.ExternalLinks {
+func (p Production) YouTubeVideo() string {
+	for _, link := range p.ExternalLinks {
 		if link.LinkClass != "YoutubeVideo" {
 			continue
 		}

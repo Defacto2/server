@@ -2,8 +2,6 @@
 
 ### Stuff to do
 
-* After a successful demozoo/pouet upload, defer a sync for the data to the artifact record.
-
 * Repack zips that contain programs with bad filenames, for example: http://localhost:1323/f/ab252e4
 
 ### Live go.defacto2.net issues.
