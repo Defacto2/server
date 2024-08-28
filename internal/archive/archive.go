@@ -103,24 +103,6 @@ func MagicExt(src string) (string, error) {
 	return "", fmt.Errorf("archive magic file %w: %q", ErrExt, magic)
 }
 
-// Replace the filename file extension with the ext string.
-// Leaving ext empty returns the filename without a file extension.
-func Replace(ext, filename string) string {
-	const sep = "."
-	s := strings.Split(filename, sep)
-	if ext == "" && len(s) == 1 {
-		return filename
-	}
-	if ext == "" {
-		return strings.Join(s[:len(s)-1], sep)
-	}
-	if len(s) == 1 {
-		s = append(s, ".tmp")
-	}
-	s[len(s)-1] = strings.Join(strings.Split(ext, sep), "")
-	return strings.Join(s, sep)
-}
-
 // Content are the result of using system programs to read the file archives.
 type Content struct {
 	Ext   string   // Ext returns file extension of the archive.

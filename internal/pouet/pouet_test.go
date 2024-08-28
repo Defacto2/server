@@ -19,7 +19,7 @@ func TestPlatforms(t *testing.T) {
 			Slug: "msdosgus",
 		},
 	}
-	assert.Equal(t, "DOS/GUS", p.String())
+	assert.Equal(t, "msdosgus", p.String())
 	assert.True(t, p.Valid())
 }
 

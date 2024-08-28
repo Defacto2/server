@@ -686,8 +686,6 @@ func Flags(x uint8) []int {
 	return ones
 }
 
-// TODO Seek end?
-
 // Archive reads all the bytes from the reader and returns the file type signature if
 // the file is a known archive of files or Unknown if the file is not an archive.
 func Archive(r io.Reader) (Signature, error) {

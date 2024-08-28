@@ -28,19 +28,6 @@ func DemozooExists(ctx context.Context, exec boil.ContextExecutor, id int64) (bo
 	return ok, nil
 }
 
-// FileExists returns true if the file record exists in the database.
-// This function will also return true for records that have been marked as deleted.
-func FileExists(ctx context.Context, exec boil.ContextExecutor, id int64) (bool, error) {
-	if exec == nil {
-		return false, ErrDB
-	}
-	ok, err := models.Files(models.FileWhere.ID.EQ(id), qm.WithDeleted()).Exists(ctx, exec)
-	if err != nil {
-		return false, fmt.Errorf("models file exist %d: %w", id, err)
-	}
-	return ok, nil
-}
-
 // PouetExists returns true if the file record exists in the database using a Pouet production ID.
 // This function will also return true for records that have been marked as deleted.
 func PouetExists(ctx context.Context, exec boil.ContextExecutor, id int64) (bool, error) {

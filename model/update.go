@@ -552,33 +552,6 @@ func UpdateDateIssued(db *sql.DB, id int64, y, m, d string) error {
 	return nil
 }
 
-// UpdateNoReadme updates the retrotxt_no_readme column value with val.
-// It returns nil if the update was successful.
-// Id is the database id of the record.
-func UpdateNoReadme(db *sql.DB, id int64, val bool) error {
-	ctx := context.Background()
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		return fmt.Errorf("update no readme: %w", err)
-	}
-	f, err := OneFile(ctx, tx, id)
-	if err != nil {
-		return fmt.Errorf("find file: %w", err)
-	}
-	i := int16(0)
-	if val {
-		i = 1
-	}
-	f.RetrotxtNoReadme = null.NewInt16(i, true)
-	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
-		return fmt.Errorf("f.update: %w", err)
-	}
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("tx.commit: %w", err)
-	}
-	return nil
-}
-
 // UpdateOffline updates the record to be offline and inaccessible to the public.
 func UpdateOffline(db *sql.DB, id int64) error {
 	ctx := context.Background()

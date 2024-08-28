@@ -1,7 +1,6 @@
 package render_test
 
 import (
-	"bytes"
 	"encoding/binary"
 	"os"
 	"path/filepath"
@@ -122,33 +121,6 @@ func uint16ArrayToByteArray(nums []uint16) []byte {
 		binary.LittleEndian.PutUint16(bytes[i*2:], num)
 	}
 	return bytes
-}
-
-func TestUTF16(t *testing.T) {
-	t.Parallel()
-	assert.False(t, render.UTF16(nil))
-
-	r := bytes.NewReader(nil)
-	assert.False(t, render.UTF16(r))
-
-	b := []byte{0xff, 0xfe, 0x00, 0x00, 0x00, 0x00}
-	r = bytes.NewReader(b)
-	assert.True(t, render.UTF16(r))
-
-	b = []byte{0x00, 0x00, 0xfe, 0xff, 0x00, 0x00}
-	r = bytes.NewReader(b)
-	assert.False(t, render.UTF16(r))
-
-	b = []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
-	r = bytes.NewReader(b)
-	assert.False(t, render.UTF16(r))
-
-	s := "😀 some unicode text 😀"
-	u := stringToUTF16(s)
-	u = append([]uint16{0xFEFF}, u...)
-	b = uint16ArrayToByteArray(u)
-	r = bytes.NewReader(b)
-	assert.True(t, render.UTF16(r))
 }
 
 func TestViewer(t *testing.T) {

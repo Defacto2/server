@@ -136,25 +136,3 @@ func NoScreenshot(art *models.File, previewPath string) bool {
 	}
 	return true
 }
-
-// UTF16 returns true if the byte slice is embedded with a UTF-16 BOM (byte order mark).
-func UTF16(r io.Reader) bool {
-	if r == nil {
-		return false
-	}
-	const minimum = 2
-	p := make([]byte, minimum)
-	if _, err := io.ReadFull(r, p); err != nil {
-		return false
-	}
-	if len(p) < minimum {
-		return false
-	}
-	const y, thorn = 0xff, 0xfe
-	littleEndian := p[0] == y && p[1] == thorn
-	if littleEndian {
-		return true
-	}
-	bigEndian := p[0] == thorn && p[1] == y
-	return bigEndian
-}
