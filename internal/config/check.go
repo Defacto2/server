@@ -3,12 +3,17 @@ package config
 // Package file check.go contains the sanity check functions for the configuration values.
 
 import (
+	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/Defacto2/server/model"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"go.uber.org/zap"
 )
 
@@ -203,6 +208,30 @@ func CheckDir(name, desc string) error {
 		return fmt.Errorf("%w, %s: %s", ErrDirIs, desc, dir.Name())
 	}
 	return nil
+}
+
+// RecordCount returns the number of records in the database.
+func RecordCount(ctx context.Context, db *sql.DB) int {
+	if db == nil {
+		return 0
+	}
+	fs, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, db)
+	if err != nil {
+		return 0
+	}
+	return int(fs)
+}
+
+// SanityTmpDir is used to print the temporary directory and its disk usage.
+func SanityTmpDir() {
+	tmpdir := helper.TmpDir()
+	du, err := helper.DiskUsage(tmpdir)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
+	hdu := helper.ByteCountFloat(du)
+	fmt.Fprintf(os.Stdout, "Temporary directory using, %s: %s\n", hdu, tmpdir)
 }
 
 // Validate returns an error if the HTTP or TLS port is invalid.

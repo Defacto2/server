@@ -19,11 +19,12 @@ import (
 )
 
 const (
-	Title   = "Defacto2 web application" // Title of this program.
-	Domain  = "defacto2.net"             // Domain of the website.
-	Program = "defacto2-server"          // Program is the command line name of this program.
-	Author  = "Ben Garrett"              // Author is the primary programmer of this program.
-	Email   = "contact@defacto2.net"     // Email contact for public display.
+	Title      = "Defacto2 web application" // Title of this program.
+	Domain     = "defacto2.net"             // Domain of the website.
+	Program    = "defacto2-server"          // Program is the command line name of this program.
+	Author     = "Ben Garrett"              // Author is the primary programmer of this program.
+	Email      = "contact@defacto2.net"     // Email contact for public display.
+	RecentYear = 2024                       // Most recent year of compilation for this program.
 )
 
 var ErrCmd = errors.New("cannot run command as config is nil")
@@ -35,12 +36,11 @@ func App(ver string, c *config.Config) *cli.App {
 		Name:    Title,
 		Version: Version(ver),
 		Usage:   "serve the Defacto2 web site",
-		UsageText: "defacto2-server" +
-			"\ndefacto2-server [command]" +
-			"\ndefacto2-server [command] --help" +
-			"\ndefacto2-server [flag]",
+		UsageText: Program +
+			"\n" + Program + " [command]" +
+			"\n" + Program + " [command] --help" +
+			"\n" + Program + " [flag]",
 		Description: desc(c),
-		Compiled:    versioninfo.LastCommit,
 		Copyright:   Copyright(),
 		HelpName:    Program,
 		Authors: []*cli.Author{
@@ -50,11 +50,26 @@ func App(ver string, c *config.Config) *cli.App {
 			},
 		},
 		Commands: []*cli.Command{
-			Config(c),
-			Address(c),
+			Config(c), Address(c), Fix(c),
 		},
 	}
 	return app
+}
+
+// Fix is the `fix` command help and action.
+func Fix(c *config.Config) *cli.Command {
+	return &cli.Command{
+		Name:        "fix",
+		Aliases:     []string{"f"},
+		Usage:       "fix the database and assets",
+		Description: "Fix the database entries and file assets by running scans and checks.",
+		Action: func(_ *cli.Context) error {
+			if err := c.Fixer(); err != nil {
+				return fmt.Errorf("command fix: %w", err)
+			}
+			return nil
+		},
+	}
 }
 
 // Address is the `address` command help and action.
@@ -120,10 +135,6 @@ func Commit(ver string) string {
 	} else if s != "" {
 		x = append(x, s)
 	}
-	built := "built at"
-	if l := LastCommit(); l != "" && !strings.Contains(ver, built) {
-		x = append(x, built+" "+l)
-	}
 	if len(x) == 0 || x[0] == "devel" {
 		return "n/a (not a build)"
 	}
@@ -135,21 +146,12 @@ func Commit(ver string) string {
 func Copyright() string {
 	const initYear = 2023
 	years := strconv.Itoa(initYear)
-	t := versioninfo.LastCommit
-	if t.Year() > initYear {
-		years += "-" + t.Local().Format("06") //nolint:gosmopolitan
+	if RecentYear > initYear {
+		const endDigits = RecentYear % 100
+		years += "-" + strconv.Itoa(endDigits)
 	}
 	s := fmt.Sprintf("© %s Defacto2 & %s", years, Author)
 	return s
-}
-
-// LastCommit returns the date of the last repository commit.
-func LastCommit() string {
-	d := versioninfo.LastCommit
-	if d.IsZero() {
-		return ""
-	}
-	return d.Local().Format("2006 Jan 2 15:04") //nolint:gosmopolitan
 }
 
 // OS returns the program operating system.

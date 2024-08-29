@@ -1,12 +1,10 @@
 package render_test
 
 import (
-	"encoding/binary"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
-	"unicode/utf16"
 
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -109,18 +107,6 @@ func TestRead(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotNil(t, b)
 	assert.Equal(t, string(b), string(s))
-}
-
-func stringToUTF16(s string) []uint16 {
-	return utf16.Encode([]rune(s))
-}
-
-func uint16ArrayToByteArray(nums []uint16) []byte {
-	bytes := make([]byte, len(nums)*2)
-	for i, num := range nums {
-		binary.LittleEndian.PutUint16(bytes[i*2:], num)
-	}
-	return bytes
 }
 
 func TestViewer(t *testing.T) {

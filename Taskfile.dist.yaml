@@ -132,6 +132,12 @@ tasks:
     desc: "Run the internal web server in development mode with live reload."
     cmds:
       - task: serve-linux
+  serve-fix:
+    aliases:
+      - "fix"
+    desc: "Run the internal web server with the fix flag."
+    cmds:
+      - cmd: go run server.go fix
   serve-linux:
     internal: true
     platforms: [linux, freebsd, darwin]
