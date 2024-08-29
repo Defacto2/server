@@ -589,6 +589,7 @@ func MatchExt(filename string, r io.Reader) (bool, Signature, error) {
 		if slices.Contains(exts, ext) {
 			for findSign, matcher := range finds {
 				if matcher(buf) {
+					buf = nil
 					if findSign == extSign {
 						return true, findSign, nil
 					}
@@ -598,6 +599,7 @@ func MatchExt(filename string, r io.Reader) (bool, Signature, error) {
 		}
 	}
 	sig := FindBytes(buf)
+	buf = nil
 	return false, sig, nil
 }
 
@@ -631,15 +633,19 @@ func FindBytes(p []byte) Signature {
 	find := New()
 	for sig, matcher := range find {
 		if matcher(p) {
+			p = nil
 			return sig
 		}
 	}
 	switch {
 	case Ansi(p):
+		p = nil
 		return ANSIEscapeText
 	case Txt(p):
+		p = nil
 		return PlainText
 	default:
+		p = nil
 		return Unknown
 	}
 }
@@ -661,15 +667,19 @@ func FindBytes2K(p []byte) Signature {
 			matcher = JpegNoSuffix
 		}
 		if matcher(p) {
+			p = nil
 			return sig
 		}
 	}
 	switch {
 	case Ansi(p):
+		p = nil
 		return ANSIEscapeText
 	case Txt(p):
+		p = nil
 		return PlainText
 	default:
+		p = nil
 		return Unknown
 	}
 }
@@ -698,10 +708,12 @@ func Archive(r io.Reader) (Signature, error) {
 	for _, archive := range archives {
 		if finder, exists := find[archive]; exists {
 			if finder(buf) {
+				buf = nil
 				return archive, nil
 			}
 		}
 	}
+	buf = nil
 	return Unknown, nil
 }
 
@@ -717,10 +729,12 @@ func DiscImage(r io.Reader) (Signature, error) {
 	for _, disc := range discs {
 		if finder, exists := find[disc]; exists {
 			if finder(buf) {
+				buf = nil
 				return disc, nil
 			}
 		}
 	}
+	buf = nil
 	return Unknown, nil
 }
 
@@ -736,16 +750,20 @@ func Document(r io.Reader) (Signature, error) {
 	for _, doc := range docs {
 		if finder, exists := find[doc]; exists {
 			if finder(buf) {
+				buf = nil
 				return doc, nil
 			}
 		}
 	}
 	switch {
 	case Ansi(buf):
+		buf = nil
 		return ANSIEscapeText, nil
 	case Txt(buf):
+		buf = nil
 		return PlainText, nil
 	default:
+		buf = nil
 		return Unknown, nil
 	}
 }
@@ -762,10 +780,12 @@ func Image(r io.Reader) (Signature, error) {
 	for _, image := range imgs {
 		if finder, exists := find[image]; exists {
 			if finder(buf) {
+				buf = nil
 				return image, nil
 			}
 		}
 	}
+	buf = nil
 	return Unknown, nil
 }
 
@@ -781,10 +801,12 @@ func Program(r io.Reader) (Signature, error) {
 	for _, prog := range progs {
 		if finder, exists := find[prog]; exists {
 			if finder(buf) {
+				buf = nil
 				return prog, nil
 			}
 		}
 	}
+	buf = nil
 	return Unknown, nil
 }
 
@@ -801,16 +823,20 @@ func Text(r io.Reader) (Signature, error) {
 	for _, txt := range txts {
 		if finder, exists := find[txt]; exists {
 			if finder(buf) {
+				buf = nil
 				return txt, nil
 			}
 		}
 	}
 	switch {
 	case Ansi(buf):
+		buf = nil
 		return ANSIEscapeText, nil
 	case Txt(buf):
+		buf = nil
 		return PlainText, nil
 	default:
+		buf = nil
 		return Unknown, nil
 	}
 }
@@ -827,9 +853,11 @@ func Video(r io.Reader) (Signature, error) {
 	for _, video := range vids {
 		if finder, exists := find[video]; exists {
 			if finder(buf) {
+				buf = nil
 				return video, nil
 			}
 		}
 	}
+	buf = nil
 	return Unknown, nil
 }

@@ -26,6 +26,7 @@ func FindExecutable(r io.Reader) (Windows, error) {
 	if win.NE == NoneNE {
 		win = PE(buf)
 	}
+	buf = nil
 	return win, nil
 }
 

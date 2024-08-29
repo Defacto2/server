@@ -390,19 +390,19 @@ func (c Config) MagicNumbers(ctx context.Context, ce boil.ContextExecutor, logge
 	count := 0
 	for _, v := range magics {
 		name := filepath.Join(c.AbsDownload, v.UUID.String)
-		r, _ := os.Open(name)
-		if r == nil {
+		r, err := os.Open(name)
+		if err != nil {
+			_ = r.Close()
 			continue
 		}
-		defer r.Close()
 		magic, err := magicnumber.Find(r)
 		if err != nil {
+			_ = r.Close()
 			continue
 		}
 		count++
-		if err := model.UpdateMagic(ctx, ce, v.ID, magic.Title()); err != nil {
-			continue
-		}
+		_ = model.UpdateMagic(ctx, ce, v.ID, magic.Title())
+		_ = r.Close()
 	}
 	if count == 0 || logger == nil {
 		return nil
