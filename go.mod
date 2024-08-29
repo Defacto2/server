@@ -1,6 +1,6 @@
 module github.com/Defacto2/server
 
-go 1.22
+go 1.22.0
 
 require (
 	github.com/Defacto2/releaser v1.0.3
