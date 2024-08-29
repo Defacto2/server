@@ -463,31 +463,8 @@ func Find(uri string) GroupID {
 }
 
 // Released returns the production's release date as date_issued_ year, month, day values.
-func (p Production) Released() ( //nolint:nonamedreturns
-	year int, month int, day int,
-) {
-	dates := strings.Split(p.ReleaseDate, "-")
-	const (
-		y    = 0
-		m    = 1
-		d    = 2
-		ymd  = 3
-		ym   = 2
-		yyyy = 1
-	)
-	switch len(dates) {
-	case ymd:
-		year, _ = strconv.Atoi(dates[y])
-		month, _ = strconv.Atoi(dates[m])
-		day, _ = strconv.Atoi(dates[d])
-	case ym:
-		year, _ = strconv.Atoi(dates[y])
-		month, _ = strconv.Atoi(dates[m])
-	case yyyy:
-		year, _ = strconv.Atoi(dates[y])
-	default:
-	}
-	return year, month, day
+func (p Production) Released() (int16, int16, int16) {
+	return helper.Released(p.ReleaseDate)
 }
 
 // Groups returns the first two names in the production that have is_group as true.

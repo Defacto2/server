@@ -96,9 +96,9 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, downloadDir string)
 		got.Pouet = prod.PouetProd()
 		got.YouTube = prod.YouTubeVideo()
 		y, m, d := prod.Released()
-		got.IssuedYear = int16(y)
-		got.IssuedMonth = int16(m)
-		got.IssuedDay = int16(d)
+		got.IssuedYear = y
+		got.IssuedMonth = m
+		got.IssuedDay = d
 		r1, r2 := prod.Groups()
 		got.Releaser1 = r1
 		got.Releaser2 = r2
@@ -290,9 +290,9 @@ func (got *PouetLink) Download(c echo.Context, db *sql.DB, downloadDir string) e
 		got.Demozoo = i
 	}
 	y, m, d := prod.Released()
-	got.IssuedYear = int16(y)
-	got.IssuedMonth = int16(m)
-	got.IssuedDay = int16(d)
+	got.IssuedYear = y
+	got.IssuedMonth = m
+	got.IssuedDay = d
 	r1, r2 := prod.Releasers()
 	got.Releaser1 = r1
 	got.Releaser2 = r2

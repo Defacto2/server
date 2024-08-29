@@ -282,6 +282,38 @@ func PageCount(sum, limit int) uint {
 	return uint(x)
 }
 
+// Released returns a string release date as year, month, day int16 values.
+// The string is expected to be in the format "2024-07-15" or "2024-07" or "2024".
+func Released(s string) (int16, int16, int16) {
+	dates := strings.Split(s, "-") // "2024-07-15"
+	l := len(dates)
+	if l == 0 || l > 3 {
+		return 0, 0, 0
+	}
+	const (
+		y = 0
+		m = 1
+		d = 2
+	)
+	var year, month, day int16
+	if yv, _ := strconv.ParseInt(dates[y], 10, 16); yv > 0 && yv <= math.MaxInt16 {
+		year = int16(yv)
+	}
+	if l < m+1 {
+		return year, 0, 0
+	}
+	if mv, _ := strconv.ParseInt(dates[m], 10, 16); mv > 0 && mv <= 12 {
+		month = int16(mv)
+	}
+	if l < d+1 {
+		return year, month, 0
+	}
+	if dv, _ := strconv.ParseInt(dates[d], 10, 16); dv > 0 && dv <= 31 {
+		day = int16(dv)
+	}
+	return year, month, day
+}
+
 // ReverseInt reverses an integer.
 func ReverseInt(i int) (int, error) {
 	// credit: Wade73
