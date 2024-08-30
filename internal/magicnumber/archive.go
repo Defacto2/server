@@ -5,8 +5,8 @@ import "bytes"
 // Package file archive.go contains the functions that parse bytes as common file archive,
 // compression and disk image formats.
 
-// Arc matches the FreeArc compression format in the byte slice.
-func Arc(p []byte) bool {
+// ArcFree matches the FreeArc compression format in the byte slice.
+func ArcFree(p []byte) bool {
 	const min = 4
 	if len(p) < min {
 		return false
@@ -14,8 +14,8 @@ func Arc(p []byte) bool {
 	return bytes.Equal(p[:min], []byte{'A', 'r', 'C', 0x1})
 }
 
-// ArcArk matches the ARChive SEA compression format in the byte slice.
-func ArcArk(p []byte) bool {
+// ArcSEA matches the ARChive SEA compression format in the byte slice.
+func ArcSEA(p []byte) bool {
 	const min = 2
 	if len(p) < min {
 		return false
