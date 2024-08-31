@@ -52,25 +52,28 @@ func MusicID3v1(r io.ReaderAt) string {
 	if !bytes.Equal(p, []byte{'T', 'A', 'G'}) {
 		return ""
 	}
+	const songOff = 3
 	const songSize = 30
 	p = make([]byte, songSize)
-	sr = io.NewSectionReader(r, offset+3, songSize)
+	sr = io.NewSectionReader(r, offset+songOff, songSize)
 	if n, err := sr.Read(p); err != nil || n < size {
 		return ""
 	}
 	song := string(bytes.Trim(p, nul))
 	song = strings.TrimSpace(song)
+	const artistOff = 33
 	const artistSize = 30
 	p = make([]byte, artistSize)
-	sr = io.NewSectionReader(r, offset+33, artistSize)
+	sr = io.NewSectionReader(r, offset+artistOff, artistSize)
 	if n, err := sr.Read(p); err != nil || n < size {
 		return ""
 	}
 	artist := string(bytes.Trim(p, nul))
 	artist = strings.TrimSpace(artist)
+	const yearOff = 93
 	const yearSize = 4
 	p = make([]byte, yearSize)
-	sr = io.NewSectionReader(r, offset+93, yearSize)
+	sr = io.NewSectionReader(r, offset+yearOff, yearSize)
 	if n, err := sr.Read(p); err != nil || n < size {
 		return ""
 	}

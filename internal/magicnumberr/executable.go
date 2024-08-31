@@ -223,7 +223,7 @@ const (
 func FindExecutable(r io.ReaderAt) (Windows, error) {
 	win := Default()
 	if r == nil {
-		return win, fmt.Errorf("nil reader")
+		return win, ErrNilReader
 	}
 	const size = 1024 * 3
 	p := make([]byte, size)

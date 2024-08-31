@@ -81,9 +81,10 @@ func MusicMTM(r io.ReaderAt) string {
 	if !bytes.Equal(p, []byte{'M', 'T', 'M'}) {
 		return ""
 	}
+	const offset = 4
 	const size = 20
 	p = make([]byte, size)
-	sr = io.NewSectionReader(r, 4, size)
+	sr = io.NewSectionReader(r, offset, size)
 	if n, err := sr.Read(p); err != nil || n < size {
 		return ""
 	}
@@ -110,9 +111,10 @@ func MusicIT(r io.ReaderAt) string {
 	if !bytes.Equal(p, []byte{'I', 'M', 'P', 'M'}) {
 		return ""
 	}
+	const offset = 4
 	const size = 20
 	p = make([]byte, size)
-	sr = io.NewSectionReader(r, 4, size)
+	sr = io.NewSectionReader(r, offset, size)
 	if n, err := sr.Read(p); err != nil || n < size {
 		return ""
 	}

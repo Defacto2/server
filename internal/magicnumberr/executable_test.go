@@ -19,7 +19,7 @@ func TestMSExe(t *testing.T) {
 	t.Parallel()
 	t.Log("TestMSExe")
 	r, err := os.Open(windows("hellojs.com"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer r.Close()
 	assert.True(t, magicnumberr.MSExe(r))
 }
@@ -27,7 +27,7 @@ func TestMSExe(t *testing.T) {
 func TestFindBytesExecutableFreeDOS(t *testing.T) {
 	t.Parallel()
 	w, err := magicnumberr.FindExecutable(nil)
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Equal(t, magicnumberr.UnknownPE, w.PE)
 	assert.Equal(t, magicnumberr.NoneNE, w.NE)
 
@@ -42,11 +42,11 @@ func TestFindBytesExecutableFreeDOS(t *testing.T) {
 		require.NoError(t, err)
 		defer p.Close()
 		w, err = magicnumberr.FindExecutable(p)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, magicnumberr.UnknownPE, w.PE)
 		assert.Equal(t, magicnumberr.NoneNE, w.NE)
 		sign, err := magicnumberr.Program(p)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, magicnumberr.MicrosoftExecutable, sign)
 	}
 }
@@ -71,7 +71,7 @@ func TestFindBytesExecutableWinVista(t *testing.T) {
 		assert.Equal(t, "Windows Vista 64-bit", fmt.Sprint(w))
 		assert.Equal(t, magicnumberr.NoneNE, w.NE)
 		sign, err := magicnumberr.Program(p)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, magicnumberr.MicrosoftExecutable, sign)
 	}
 }
@@ -87,14 +87,14 @@ func TestFindBytesExecutableWin3(t *testing.T) {
 		require.NoError(t, err)
 		defer p.Close()
 		w, err := magicnumberr.FindExecutable(p)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, magicnumberr.UnknownPE, w.PE)
 		assert.Equal(t, magicnumberr.Windows286Exe, w.NE)
 		assert.Equal(t, 3, w.Major)
 		assert.Equal(t, 10, w.Minor)
 		assert.Equal(t, "Windows v3.10 for 286", fmt.Sprint(w))
 		sign, err := magicnumberr.Program(p)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, magicnumberr.MicrosoftExecutable, sign)
 	}
 
@@ -109,7 +109,7 @@ func TestFindBytesExecutableWin3(t *testing.T) {
 	assert.Equal(t, 0, w.Minor)
 	assert.Equal(t, "Windows 2000 32-bit", fmt.Sprint(w))
 	sign, err := magicnumberr.Program(p)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, magicnumberr.MicrosoftExecutable, sign)
 
 	p, err = os.Open(td(filepath.Join("binaries", "windowsXP", "CoreTempv13", "64bit", "Core Temp.exe")))
@@ -124,7 +124,7 @@ func TestFindBytesExecutableWin3(t *testing.T) {
 	assert.Equal(t, 2, w.Minor)
 	assert.Equal(t, "Windows XP Professional x64 Edition 64-bit", fmt.Sprint(w))
 	sign, err = magicnumberr.Program(p)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, magicnumberr.MicrosoftExecutable, sign)
 }
 

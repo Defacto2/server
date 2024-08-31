@@ -35,6 +35,8 @@ const (
 	pdfFile    = "TEST.pdf"
 	utf16File  = "TEST-U16.txt"
 	iso7File   = "TEST-8859-7.txt"
+	modFile    = "TEST.mod"
+	xmFile     = "TEST.xm"
 )
 
 func uncompress(name string) string {
@@ -83,22 +85,21 @@ func TestUnknowns(t *testing.T) {
 	data := "some binary data"
 	nr := strings.NewReader(data)
 	sign, err := magicnumberr.Archive(nr)
-	assert.NoError(t, err)
-	assert.True(t, sign == magicnumberr.Unknown)
+	require.NoError(t, err)
 	assert.Equal(t, magicnumberr.Unknown, sign)
 	assert.Equal(t, "binary data", sign.String())
 	assert.Equal(t, "Binary data", sign.Title())
 
 	b, sign, err := magicnumberr.MatchExt(emptyFile, nr)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, b)
-	assert.True(t, sign == magicnumberr.PlainText)
+	assert.Equal(t, magicnumberr.PlainText, sign)
 
 	r, err := os.Open(uncompress(emptyFile))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer r.Close()
 	sign = magicnumberr.Find(r)
-	assert.True(t, sign == magicnumberr.ZeroByte)
+	assert.Equal(t, magicnumberr.ZeroByte, sign)
 }
 
 func TestFind(t *testing.T) {

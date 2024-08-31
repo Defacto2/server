@@ -172,7 +172,8 @@ func jpeg(r io.ReaderAt, suffix bool) bool {
 		return false
 	}
 	p = make([]byte, 1)
-	sr = io.NewSectionReader(r, 3, 1)
+	const offset = 3
+	sr = io.NewSectionReader(r, offset, 1)
 	if n, err := sr.Read(p); err != nil || n < 1 {
 		return false
 	}
@@ -180,8 +181,9 @@ func jpeg(r io.ReaderAt, suffix bool) bool {
 		return false
 	}
 	const jsize = 5
+	const joffset = 6
 	p = make([]byte, jsize)
-	sr = io.NewSectionReader(r, 6, jsize)
+	sr = io.NewSectionReader(r, joffset, jsize)
 	if n, err := sr.Read(p); err != nil || n < jsize {
 		return false
 	}
@@ -194,9 +196,9 @@ func jpeg(r io.ReaderAt, suffix bool) bool {
 	}
 	length := Length(r)
 	const sufSize = int64(2)
-	offset := length - sufSize
+	suffOff := length - sufSize
 	p = make([]byte, sufSize)
-	sr = io.NewSectionReader(r, offset, sufSize)
+	sr = io.NewSectionReader(r, suffOff, sufSize)
 	if n, err := sr.Read(p); err != nil || int64(n) < sufSize {
 		return false
 	}

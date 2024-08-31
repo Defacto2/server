@@ -87,7 +87,7 @@ func ASCII(r io.ReaderAt) bool {
 		if err != nil && err != io.EOF {
 			return false
 		}
-		for i := 0; i < n; i++ {
+		for i := range n {
 			if NotASCII(buf[i]) {
 				return false
 			}
@@ -250,7 +250,7 @@ func Txt(r io.ReaderAt) bool {
 		if err != nil && err != io.EOF {
 			return false
 		}
-		for i := 0; i < n; i++ {
+		for i := range n {
 			if NotPlainText(buf[i]) {
 				return false
 			}
@@ -277,7 +277,7 @@ func TxtLatin1(r io.ReaderAt) bool {
 		if err != nil && err != io.EOF {
 			return false
 		}
-		for i := 0; i < n; i++ {
+		for i := range n {
 			if NonISO889591(buf[i]) {
 				return false
 			}
@@ -305,7 +305,7 @@ func TxtWindows(r io.ReaderAt) bool {
 		if err != nil && err != io.EOF {
 			return false
 		}
-		for i := 0; i < n; i++ {
+		for i := range n {
 			if NonWindows1252(buf[i]) {
 				return false
 			}

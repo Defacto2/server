@@ -1,11 +1,14 @@
 package magicnumberr
 
 import (
+	"errors"
 	"io"
 	"path/filepath"
 	"slices"
 	"strings"
 )
+
+var ErrNilReader = errors.New("nil reader")
 
 // Signature represents a file type signature.
 type Signature int
@@ -422,6 +425,9 @@ func New() Finder { //nolint:funlen
 // A PNG encoded image using the filename TEST.JPG will return false
 // and the PortableNetworkGraphics signature.
 func MatchExt(filename string, r io.ReaderAt) (bool, Signature, error) {
+	if Empty(r) {
+		return false, Unknown, ErrNilReader
+	}
 	ext := strings.ToLower(filepath.Ext(filename))
 	finds := New()
 	for extSign, exts := range Ext() {

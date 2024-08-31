@@ -6,6 +6,7 @@ import (
 
 	"github.com/Defacto2/server/internal/magicnumberr"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -17,7 +18,7 @@ func TestMusicID3v1(t *testing.T) {
 	t.Parallel()
 	t.Log("TestMusicID3v1")
 	r, err := os.Open(mp3file(IDv1File))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer r.Close()
 	assert.Equal(t, "Title by Artist (2003)", magicnumberr.MusicID3v1(r))
 	assert.Equal(t, "", magicnumberr.MusicID3v2(r))
@@ -27,7 +28,7 @@ func TestMusicID3v2(t *testing.T) {
 	t.Parallel()
 	t.Log("TestMusicID3v2")
 	r, err := os.Open(mp3file(IDv2File))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer r.Close()
 	assert.Equal(t, "", magicnumberr.MusicID3v1(r))
 	assert.Equal(t, "Title by Artist (2003)", magicnumberr.MusicID3v2(r))
