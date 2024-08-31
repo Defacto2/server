@@ -5,21 +5,6 @@ import (
 	"io"
 )
 
-// Archive reads all the bytes from the reader and returns the file type signature if
-// the file is a known archive of files or Unknown if the file is not an archive.
-func Archive(r io.ReaderAt) (Signature, error) {
-	archives := Archives()
-	find := New()
-	for _, archive := range archives {
-		if finder, exists := find[archive]; exists {
-			if finder(r) {
-				return archive, nil
-			}
-		}
-	}
-	return Unknown, nil
-}
-
 //
 // Pksfx and Pklite functions can be found in internal/magicnumber/executable.go
 //

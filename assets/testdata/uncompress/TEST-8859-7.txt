@@ -1,0 +1,2 @@
+Hello world, this is a sample document.
+Γεια σου κόσμο, αυτό είναι ένα δείγμα κειμένου κειμένου.

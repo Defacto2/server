@@ -342,65 +342,74 @@ type Finder map[Signature]Matcher
 // checked separately and in a specific order.
 func New() Finder { //nolint:funlen
 	return Finder{
-		ZeroByte:              Empty,
-		PKWAREZipShrink:       PkShrink,
-		PKWAREZipReduce:       PkReduce,
-		PKWAREZipImplode:      PkImplode,
-		PKWAREZip64:           Zip64,
-		PKWAREZip:             Pkzip,
-		PKWAREMultiVolume:     PkzipMulti,
-		PKLITE:                Pklite,
-		PKSFX:                 Pksfx,
-		TapeARchive:           Tar,
-		RoshalARchive:         Rar,
-		RoshalARchivev5:       Rarv5,
-		GzipCompressArchive:   Gzip,
-		Bzip2CompressArchive:  Bzip2,
-		X7zCompressArchive:    X7z,
-		XZCompressArchive:     XZ,
-		ZStandardArchive:      ZStd,
-		FreeArc:               ArcFree,
-		ARChiveSEA:            ArcSEA,
-		YoshiLHA:              LzhLha,
-		ZooArchive:            Zoo,
-		ArchiveRobertJung:     Arj,
-		MicrosoftCABinet:      Cab,
-		MicrosoftDOSKWAJ:      DosKWAJ,
-		MicrosoftDOSSZDD:      DosSZDD,
-		MicrosoftExecutable:   MSExe,
-		MicrosoftCompoundFile: MSComp,
-		CDISO9660:             ISO,
-		CDNero:                Nri,
-		CDPowerISO:            Daa,
-		CDAlcohol120:          Mdf,
-	}
-}
-
-// Archives returns all the archive file type signatures.
-func Archives() []Signature {
-	return []Signature{
-		PKWAREZipShrink,
-		PKWAREZipReduce,
-		PKWAREZipImplode,
-		PKWAREZip64,
-		PKWAREZip,
-		PKWAREMultiVolume,
-		PKLITE,
-		PKSFX,
-		TapeARchive,
-		RoshalARchive,
-		RoshalARchivev5,
-		GzipCompressArchive,
-		Bzip2CompressArchive,
-		X7zCompressArchive,
-		XZCompressArchive,
-		ZStandardArchive,
-		FreeArc,
-		ARChiveSEA,
-		YoshiLHA,
-		ZooArchive,
-		ArchiveRobertJung,
-		MicrosoftCABinet,
+		ElectronicArtsIFF:                 Iff,
+		AV1ImageFile:                      Avif,
+		JPEGFileInterchangeFormat:         Jpeg,
+		JPEG2000:                          Jpeg2000,
+		PortableNetworkGraphics:           Png,
+		GraphicsInterchangeFormat:         Gif,
+		GoogleWebP:                        Webp,
+		TaggedImageFileFormat:             Tiff,
+		BMPFileFormat:                     Bmp,
+		PersonalComputereXchange:          Pcx,
+		InterleavedBitmap:                 Ilbm,
+		MicrosoftIcon:                     Ico,
+		RIPscrip:                          Ripscrip,
+		MPEG4:                             Mp4,
+		QuickTimeMovie:                    QTMov,
+		QuickTimeM4V:                      M4v,
+		MicrosoftAudioVideoInterleave:     Avi,
+		MicrosoftWindowsMedia:             Wmv,
+		MPEG:                              Mpeg,
+		FlashVideo:                        Flv,
+		RealPlayer:                        Ivr,
+		MusicalInstrumentDigitalInterface: Midi,
+		MPEG1AudioLayer3:                  Mp3,
+		MPEGAdvancedAudioCoding:           AAC,
+		OggVorbisCodec:                    Ogg,
+		FreeLosslessAudioCodec:            Flac,
+		WaveAudioForWindows:               Wave,
+		MusicModule:                       Mod,
+		MusicExtendedModule:               XM,
+		MusicMultiTrackModule:             MTM,
+		MusicImpulseTracker:               IT,
+		MusicProTracker:                   MK,
+		PKWAREZipShrink:                   PkShrink,
+		PKWAREZipReduce:                   PkReduce,
+		PKWAREZipImplode:                  PkImplode,
+		PKWAREZip64:                       Zip64,
+		PKWAREZip:                         Pkzip,
+		PKWAREMultiVolume:                 PkzipMulti,
+		PKLITE:                            Pklite,
+		PKSFX:                             Pksfx,
+		TapeARchive:                       Tar,
+		RoshalARchive:                     Rar,
+		RoshalARchivev5:                   Rarv5,
+		GzipCompressArchive:               Gzip,
+		Bzip2CompressArchive:              Bzip2,
+		X7zCompressArchive:                X7z,
+		XZCompressArchive:                 XZ,
+		ZStandardArchive:                  ZStd,
+		FreeArc:                           ArcFree,
+		ARChiveSEA:                        ArcSEA,
+		YoshiLHA:                          LzhLha,
+		ZooArchive:                        Zoo,
+		ArchiveRobertJung:                 Arj,
+		MicrosoftCABinet:                  Cab,
+		MicrosoftDOSKWAJ:                  DosKWAJ,
+		MicrosoftDOSSZDD:                  DosSZDD,
+		MicrosoftExecutable:               MSExe,
+		MicrosoftCompoundFile:             MSComp,
+		CDISO9660:                         ISO,
+		CDNero:                            Nri,
+		CDPowerISO:                        Daa,
+		CDAlcohol120:                      Mdf,
+		WindowsHelpFile:                   Hlp,
+		PortableDocumentFormat:            Pdf,
+		RichTextFormat:                    Rtf,
+		UTF8Text:                          Utf8,
+		UTF16Text:                         Utf16,
+		UTF32Text:                         Utf32,
 	}
 }
 
@@ -424,25 +433,25 @@ func MatchExt(filename string, r io.ReaderAt) (bool, Signature, error) {
 			}
 		}
 	}
-	sig := Find(r)
-	return false, sig, nil
+	return false, Find(r), nil
 }
 
 // Find returns the file type signature from the byte slice.
 func Find(r io.ReaderAt) Signature {
-	find := New()
-	for sig, matcher := range find {
+	if Empty(r) {
+		return ZeroByte
+	}
+	matchers := New()
+	for sign, matcher := range matchers {
 		if matcher(r) {
-			return sig
+			return sign
 		}
 	}
 	switch {
-	// case Ansi(p):
-	// 	p = nil
-	// 	return ANSIEscapeText
-	// case Txt(p):
-	// 	p = nil
-	// 	return PlainText
+	case Ansi(r):
+		return ANSIEscapeText
+	case Txt(r):
+		return PlainText
 	default:
 		return Unknown
 	}
