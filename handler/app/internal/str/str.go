@@ -15,11 +15,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app/internal/exts"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/magicnumber"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/dustin/go-humanize"
 	"github.com/h2non/filetype"
@@ -330,10 +330,7 @@ func MagicAsTitle(name string) string {
 		return noFile
 	}
 	defer r.Close()
-	sign, err := magicnumber.Find(r)
-	if err != nil {
-		return err.Error()
-	}
+	sign := magicnumber.Find(r)
 	return sign.Title()
 }
 

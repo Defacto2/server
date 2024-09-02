@@ -21,6 +21,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/archive"
@@ -28,7 +29,6 @@ import (
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/form"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/magicnumber"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -537,11 +537,7 @@ func UploadPreview(c echo.Context, previewDir, thumbnailDir string) error {
 		return checkFileOpen(c, nil, name, err)
 	}
 	defer src.Close()
-	magic, err := magicnumber.Find(src)
-	if err != nil {
-		return c.HTML(http.StatusInternalServerError,
-			"The magic number could not be found")
-	}
+	magic := magicnumber.Find(src)
 	if imagers(magic) {
 		if err := dirs.PictureImager(nil, dst.Name(), up.unid); err != nil {
 			return badRequest(c, err)
@@ -607,9 +603,8 @@ func UploadReplacement(c echo.Context, db *sql.DB, downloadDir string) error {
 		return checkFileOpen(c, nil, name, err)
 	}
 	defer src.Close()
-	if mn, err := magicnumber.Find(src); err == nil {
-		fu.MagicNumber = mn.Title()
-	}
+	sign := magicnumber.Find(src)
+	fu.MagicNumber = sign.Title()
 	dst, err := copier(c, nil, file, up.key)
 	if err != nil || dst == "" {
 		return c.HTML(http.StatusInternalServerError, "The temporary save cannot be copied")

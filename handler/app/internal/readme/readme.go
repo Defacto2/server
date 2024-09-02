@@ -14,7 +14,7 @@ import (
 	"strings"
 	uni "unicode"
 
-	"github.com/Defacto2/server/internal/magicnumber"
+	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/render"
 )
@@ -153,7 +153,7 @@ func Read(art *models.File, downloadPath, extraPath string) ([]byte, error) {
 	if b == nil {
 		return nil, nil
 	}
-	r := bufio.NewReader(bytes.NewReader(b))
+	r := bytes.NewReader(b)
 	// check the bytes are plain text but not utf16 or utf32
 	if sign, err := magicnumber.Text(r); err != nil {
 		return nil, fmt.Errorf("magicnumber.Text: %w", err)

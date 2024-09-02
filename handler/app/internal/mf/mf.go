@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"html/template"
 	"image"
-	"io"
 	"io/fs"
 	"net/url"
 	"os"
@@ -17,6 +16,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app/internal/exts"
 	"github.com/Defacto2/server/handler/app/internal/readme"
@@ -24,7 +24,6 @@ import (
 	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/jsdos/msdos"
-	"github.com/Defacto2/server/internal/magicnumber"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -335,12 +334,7 @@ func (e *entry) parse(path, platform string, info fs.FileInfo) bool {
 		return skipEntry
 	}
 	defer r.Close()
-	var err error
-	e.sign, err = magicnumber.Find2K(r)
-	if err != nil {
-		fmt.Fprintf(io.Discard, "ignore this error, %v", err)
-		return skipEntry
-	}
+	e.sign = magicnumber.Find(r)
 	platform = strings.TrimSpace(platform)
 	e.image = isImage(e.sign)
 	e.text = isText(e.sign)
@@ -350,7 +344,11 @@ func (e *entry) parse(path, platform string, info fs.FileInfo) bool {
 		return e.parseImage(e.sign, path)
 	case e.program:
 		return e.parseProgram(path)
-	case e.sign == magicnumber.MusicModule:
+	case
+		e.sign == magicnumber.MusicExtendedModule,
+		e.sign == magicnumber.MusicMultiTrackModule,
+		e.sign == magicnumber.MusicImpulseTracker,
+		e.sign == magicnumber.MusicProTracker:
 		return e.parseMusicMod(path)
 	case
 		e.sign == magicnumber.MPEG1AudioLayer3,
@@ -408,10 +406,7 @@ func (e *entry) parseMusicMod(path string) bool {
 		return skipEntry
 	}
 	defer r.Close()
-	buf := make([]byte, magicnumber.MusicTrackerSize)
-	if _, err := io.ReadFull(r, buf); err == nil {
-		e.module = magicnumber.MusicTracker(buf)
-	}
+	e.module = magicnumber.MusicTracker(r)
 	return !skipEntry
 }
 
@@ -423,39 +418,20 @@ func (e *entry) parseMusicMod(path string) bool {
 // so it is only used as a last resort.
 func (e *entry) parseMusicID3(path string) bool {
 	const skipEntry = true
-
 	// ID3 v2.x tags are located at the start of the file.
 	id3, _ := os.Open(path)
 	if id3 == nil {
 		return skipEntry
 	}
 	defer id3.Close()
-	buf := make([]byte, magicnumber.MusicTrackerSize)
-	if _, err := io.ReadFull(id3, buf); err == nil {
-		if s := magicnumber.MusicID3v2(buf); s != "" {
-			e.module = s
-			return !skipEntry
-		}
+	if s := magicnumber.MusicID3v2(id3); s != "" {
+		e.module = s
+		return !skipEntry
 	}
 	// ID3 v1 tags are located at the end of the file.
-	id3v1, _ := os.Open(path)
-	if id3v1 == nil {
-		return skipEntry
-	}
-	defer id3v1.Close()
-
-	size := magicnumber.ID3v1Size
-	offset := -int64(size)
-	_, err := id3v1.Seek(offset, io.SeekEnd)
-	if err != nil {
-		return skipEntry
-	}
-	buf = make([]byte, size)
-	if _, err := io.ReadFull(id3v1, buf); err == nil {
-		if s := magicnumber.MusicID3v1(buf); s != "" {
-			e.module = s
-			return !skipEntry
-		}
+	if s := magicnumber.MusicID3v1(id3); s != "" {
+		e.module = s
+		return !skipEntry
 	}
 	return !skipEntry
 }
