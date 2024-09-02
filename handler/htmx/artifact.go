@@ -14,12 +14,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/form"
-	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/jsdos"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/model"

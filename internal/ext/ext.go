@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/helper"
 )
 
 const (

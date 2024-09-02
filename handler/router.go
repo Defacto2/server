@@ -9,11 +9,11 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/config"
-	"github.com/Defacto2/server/internal/helper"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"

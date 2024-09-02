@@ -11,10 +11,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/server/internal/cache"
 	"github.com/Defacto2/server/internal/demozoo"
-	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/model"

@@ -8,7 +8,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/google/uuid"
 	"github.com/volatiletech/null/v8"

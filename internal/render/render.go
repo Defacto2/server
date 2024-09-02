@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/charmap"

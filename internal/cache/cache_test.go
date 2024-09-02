@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/cache"
-	"github.com/Defacto2/server/internal/helper"
 )
 
 func TestCache(t *testing.T) {

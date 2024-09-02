@@ -8,11 +8,11 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/handler/app"
-	"github.com/Defacto2/server/internal/helper"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )

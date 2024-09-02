@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/server/handler/app/internal/mfs"
@@ -22,7 +23,6 @@ import (
 	"github.com/Defacto2/server/internal/cache"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/demozoo"
-	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/pouet"

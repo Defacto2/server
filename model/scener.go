@@ -6,7 +6,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/volatiletech/sqlboiler/v4/boil"

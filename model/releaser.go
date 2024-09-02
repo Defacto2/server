@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Defacto2/helper"
 	namer "github.com/Defacto2/releaser/name"
-	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/volatiletech/null/v8"

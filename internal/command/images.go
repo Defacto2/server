@@ -13,8 +13,8 @@ import (
 	"slices"
 	"sync"
 
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
-	"github.com/Defacto2/server/internal/helper"
 	"go.uber.org/zap"
 )
 

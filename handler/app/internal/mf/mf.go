@@ -17,12 +17,12 @@ import (
 	"unicode/utf8"
 
 	"github.com/Defacto2/archive"
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app/internal/exts"
 	"github.com/Defacto2/server/handler/app/internal/readme"
 	"github.com/Defacto2/server/handler/app/internal/str"
-	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/jsdos/msdos"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"

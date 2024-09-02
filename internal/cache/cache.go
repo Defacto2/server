@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/helper"
 	"github.com/rosedblabs/rosedb/v2"
 )
 

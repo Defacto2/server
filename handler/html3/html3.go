@@ -16,8 +16,8 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/releaser"
-	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"

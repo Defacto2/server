@@ -14,9 +14,9 @@ import (
 	"strings"
 
 	"github.com/Defacto2/archive"
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/app/internal/str"
 	"github.com/Defacto2/server/internal/demozoo"
-	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/model"

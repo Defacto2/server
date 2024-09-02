@@ -6,8 +6,8 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/command"
-	"github.com/Defacto2/server/internal/helper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"

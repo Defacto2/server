@@ -7,7 +7,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/Defacto2/server/internal/helper"
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model/html3"
 )

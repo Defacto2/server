@@ -25,10 +25,10 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/cmd"
 	"github.com/Defacto2/server/handler"
 	"github.com/Defacto2/server/internal/config"
-	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/caarlos0/env/v11"

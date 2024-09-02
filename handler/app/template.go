@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/releaser/name"
@@ -20,7 +21,6 @@ import (
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/form"
-	"github.com/Defacto2/server/internal/helper"
 	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/volatiletech/null/v8"
