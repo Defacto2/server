@@ -3,7 +3,7 @@ package msdos_test
 import (
 	"testing"
 
-	"github.com/Defacto2/server/internal/jsdos/msdos"
+	"github.com/Defacto2/server/handler/jsdos/msdos"
 	"github.com/stretchr/testify/assert"
 )
 

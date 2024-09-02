@@ -3,7 +3,7 @@ package ext_test
 import (
 	"testing"
 
-	"github.com/Defacto2/server/internal/ext"
+	"github.com/Defacto2/server/handler/html3/ext"
 	"github.com/stretchr/testify/assert"
 )
 

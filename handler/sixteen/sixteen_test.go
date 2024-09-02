@@ -3,7 +3,7 @@ package sixteen_test
 import (
 	"testing"
 
-	"github.com/Defacto2/server/internal/sixteen"
+	"github.com/Defacto2/server/handler/sixteen"
 	"github.com/stretchr/testify/assert"
 )
 
