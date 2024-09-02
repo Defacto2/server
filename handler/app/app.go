@@ -17,8 +17,8 @@ import (
 	"time"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/server/handler/app/internal/mf"
-	"github.com/Defacto2/server/handler/app/internal/str"
+	"github.com/Defacto2/server/handler/app/internal/filerecord"
+	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
@@ -295,7 +295,7 @@ func LastUpdated(t any) string {
 		return ""
 	}
 	const s = "Last updated"
-	return str.Updated(t, s)
+	return simple.Updated(t, s)
 }
 
 // LinkDownload creates a URL to link to the file download of the record.
@@ -303,7 +303,7 @@ func LinkDownload(id any, uri string) template.HTML {
 	if id == nil {
 		return ""
 	}
-	s, err := str.LinkID(id, "d")
+	s, err := simple.LinkID(id, "d")
 	if err != nil {
 		return template.HTML(err.Error())
 	}
@@ -319,7 +319,7 @@ func LinkHref(id any) (string, error) {
 	if id == nil {
 		return "", fmt.Errorf("id is nil, %w", ErrNegative)
 	}
-	return str.LinkID(id, "f") //nolint:wrapcheck
+	return simple.LinkID(id, "f") //nolint:wrapcheck
 }
 
 // LinkInterview returns a SVG arrow icon to indicate an interview link hosted on an external website.
@@ -340,7 +340,7 @@ func LinkPage(id any) template.HTML {
 	if id == nil {
 		return ""
 	}
-	s, err := str.LinkID(id, "f")
+	s, err := simple.LinkID(id, "f")
 	if err != nil {
 		return template.HTML(err.Error())
 	}
@@ -352,7 +352,7 @@ func LinkRunApp(id any) template.HTML {
 	if id == nil {
 		return ""
 	}
-	s, err := str.LinkID(id, "f")
+	s, err := simple.LinkID(id, "f")
 	if err != nil {
 		return template.HTML(err.Error())
 	}
@@ -365,7 +365,7 @@ func LinkPreview(id any, name, platform string) template.HTML {
 	if id == nil || name == "" {
 		return template.HTML("")
 	}
-	s := mf.LinkPreviewHref(id, name, platform)
+	s := filerecord.LinkPreviewHref(id, name, platform)
 	if s == "" {
 		return template.HTML("")
 	}

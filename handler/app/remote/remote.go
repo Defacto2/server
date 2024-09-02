@@ -15,7 +15,7 @@ import (
 
 	"github.com/Defacto2/archive"
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/server/handler/app/internal/str"
+	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/Defacto2/server/handler/demozoo"
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -134,7 +134,7 @@ func (got *DemozooLink) Stat(c echo.Context, db *sql.DB, downloadDir string) err
 	}
 	got.FileHash = strong
 	if got.FileType == "" {
-		got.FileType = str.MagicAsTitle(name)
+		got.FileType = simple.MagicAsTitle(name)
 	}
 	return got.ArchiveContent(c, db, name)
 }
@@ -320,7 +320,7 @@ func (got *PouetLink) Stat(c echo.Context, db *sql.DB, downloadDir string) error
 	}
 	got.FileHash = strong
 	if got.FileType == "" {
-		got.FileType = str.MagicAsTitle(name)
+		got.FileType = simple.MagicAsTitle(name)
 	}
 	return got.ArchiveContent(c, db, name)
 }

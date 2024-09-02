@@ -1,11 +1,11 @@
-package str_test
+package simple_test
 
 import (
 	"path/filepath"
 	"testing"
 	"time"
 
-	"github.com/Defacto2/server/handler/app/internal/str"
+	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/volatiletech/null/v8"
@@ -13,121 +13,121 @@ import (
 
 func TestDownloadB(t *testing.T) {
 	t.Parallel()
-	x := str.DownloadB("")
+	x := simple.DownloadB("")
 	assert.Contains(t, x, "received an invalid type")
-	x = str.DownloadB("a string")
+	x = simple.DownloadB("a string")
 	assert.Contains(t, x, "received an invalid type")
-	x = str.DownloadB("1")
+	x = simple.DownloadB("1")
 	assert.Contains(t, x, "received an invalid type")
-	x = str.DownloadB(null.Int64From(1))
+	x = simple.DownloadB(null.Int64From(1))
 	assert.Contains(t, x, "1 B")
-	x = str.DownloadB(1024)
+	x = simple.DownloadB(1024)
 	assert.Contains(t, x, "(1k)")
 }
 
 func TestLinkRelations(t *testing.T) {
 	t.Parallel()
-	x := str.LinkRelations("")
+	x := simple.LinkRelations("")
 	assert.Empty(t, x)
-	x = str.LinkRelations("nfo file;aa2165c")
+	x = simple.LinkRelations("nfo file;aa2165c")
 	assert.Contains(t, x, "/f/aa2165c")
-	x = str.LinkRelations("nfo file;aa2165c|readme;a822ea8")
+	x = simple.LinkRelations("nfo file;aa2165c|readme;a822ea8")
 	assert.Contains(t, x, "/f/aa2165c")
 	assert.Contains(t, x, "/f/a822ea8")
-	x = str.LinkRelations("nfo file;xxxxx")
+	x = simple.LinkRelations("nfo file;xxxxx")
 	assert.Contains(t, x, "invalid download path")
 }
 
 func TestLinkSites(t *testing.T) {
 	t.Parallel()
-	x := str.LinkSites("")
+	x := simple.LinkSites("")
 	assert.Empty(t, x)
-	x = str.LinkSites("a string")
+	x = simple.LinkSites("a string")
 	assert.Empty(t, x)
-	x = str.LinkSites("example.com")
+	x = simple.LinkSites("example.com")
 	assert.Empty(t, x)
-	x = str.LinkSites("example.com|example.org")
+	x = simple.LinkSites("example.com|example.org")
 	assert.Empty(t, x)
-	x = str.LinkSites("example;example.org")
+	x = simple.LinkSites("example;example.org")
 	assert.Contains(t, x, "https://example.org")
-	x = str.LinkSites("example;example.org|another example;example.net")
+	x = simple.LinkSites("example;example.org|another example;example.net")
 	assert.Contains(t, x, "https://example.org")
 	assert.Contains(t, x, "https://example.net")
-	x = str.LinkSites("example.com|||example.org")
+	x = simple.LinkSites("example.com|||example.org")
 	assert.Empty(t, x)
-	x = str.LinkSites("example.com;;;example.org")
+	x = simple.LinkSites("example.com;;;example.org")
 	assert.Empty(t, x)
 }
 
 func TestLinkPreviewTip(t *testing.T) {
 	t.Parallel()
-	s := str.LinkPreviewTip("", "")
+	s := simple.LinkPreviewTip("", "")
 	assert.Empty(t, s)
-	s = str.LinkPreviewTip(".zip", "windows")
+	s = simple.LinkPreviewTip(".zip", "windows")
 	assert.Empty(t, s)
-	s = str.LinkPreviewTip(".txt", "windows")
+	s = simple.LinkPreviewTip(".txt", "windows")
 	assert.Equal(t, "Read this as text", s)
 }
 
 func TestReleaserPair(t *testing.T) {
 	t.Parallel()
-	s := str.ReleaserPair(nil, nil)
+	s := simple.ReleaserPair(nil, nil)
 	assert.Empty(t, s)
-	s = str.ReleaserPair("1", "2")
+	s = simple.ReleaserPair("1", "2")
 	assert.Equal(t, "1", s[0])
 	assert.Equal(t, "2", s[1])
-	s = str.ReleaserPair(nil, "2")
+	s = simple.ReleaserPair(nil, "2")
 	assert.Equal(t, "2", s[0])
 	assert.Empty(t, s[1])
 }
 
 func TestUpdated(t *testing.T) {
 	t.Parallel()
-	s := str.Updated(nil, "")
+	s := simple.Updated(nil, "")
 	assert.Empty(t, s)
-	s = str.Updated(time.Now(), "")
+	s = simple.Updated(time.Now(), "")
 	assert.Contains(t, s, "Time less than 5 seconds ago")
 }
 
 func TestDemozooGetLink(t *testing.T) {
 	t.Parallel()
-	html := str.DemozooGetLink("", "", "", "")
+	html := simple.DemozooGetLink("", "", "", "")
 	assert.Empty(t, html)
 	fn := null.String{}
 	fs := null.Int64{}
 	dz := null.Int64{}
 	un := null.String{}
-	html = str.DemozooGetLink(fn, fs, dz, un)
+	html = simple.DemozooGetLink(fn, fs, dz, un)
 	assert.Empty(t, html)
 
 	fn = null.StringFrom("file")
-	html = str.DemozooGetLink(fn, fs, dz, un)
+	html = simple.DemozooGetLink(fn, fs, dz, un)
 	assert.Empty(t, html)
 
 	fn = null.String{}
 	fs = null.Int64From(1000)
-	html = str.DemozooGetLink(fn, fs, dz, un)
+	html = simple.DemozooGetLink(fn, fs, dz, un)
 	assert.Empty(t, html)
 
 	fn = null.String{}
 	fs = null.Int64{}
 	dz = null.Int64From(1)
 	un = null.StringFrom("user")
-	html = str.DemozooGetLink(fn, fs, dz, un)
+	html = simple.DemozooGetLink(fn, fs, dz, un)
 	assert.NotEmpty(t, html)
 }
 
 func TestImageSample(t *testing.T) {
 	t.Parallel()
 	const missing = "No preview image file"
-	x := str.ImageSample("", "")
+	x := simple.ImageSample("", "")
 	assert.Contains(t, x, missing)
 	// note: the filename extension is case-sensitive.
-	x = str.ImageSample("", filepath.Join("testdata", "TEST.png"))
+	x = simple.ImageSample("", filepath.Join("testdata", "TEST.png"))
 	assert.Contains(t, x, missing)
 	abs, err := filepath.Abs("testdata")
 	require.NoError(t, err)
 	const filenameNoExt = "TEST"
-	x = str.ImageSample(filenameNoExt, abs)
+	x = simple.ImageSample(filenameNoExt, abs)
 	assert.Contains(t, x, "sha384-SK3qCpS11QMhNxUUnyeUeWWXBMPORDgLTI")
 }

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Defacto2/server/handler/app/internal/readme"
+	"github.com/Defacto2/server/handler/readme"
 	"github.com/stretchr/testify/assert"
 )
 

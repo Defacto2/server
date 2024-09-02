@@ -16,8 +16,8 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/releaser/initialism"
-	"github.com/Defacto2/server/handler/app/internal/mfs"
-	"github.com/Defacto2/server/handler/app/internal/remote"
+	"github.com/Defacto2/server/handler/app/internal/fileslice"
+	"github.com/Defacto2/server/handler/app/remote"
 	"github.com/Defacto2/server/handler/cache"
 	"github.com/Defacto2/server/handler/demozoo"
 	"github.com/Defacto2/server/handler/download"
@@ -116,7 +116,7 @@ func empty(c echo.Context) map[string]interface{} {
 // The uri is the category or collection of files to display.
 // The page is the page number of the results to display.
 func Artifacts(c echo.Context, db *sql.DB, uri, page string) error {
-	if !mfs.Valid(uri) {
+	if !fileslice.Valid(uri) {
 		return Artifacts404(c, uri)
 	}
 	if page == "" {
@@ -132,7 +132,7 @@ func Artifacts(c echo.Context, db *sql.DB, uri, page string) error {
 // artifacts is a helper function for Artifacts that returns the data map for the files page.
 func artifacts(c echo.Context, db *sql.DB, uri string, page int) error {
 	const title, name = "Artifacts", "artifacts"
-	logo, subhead, lead := mfs.FileInfo(uri)
+	logo, subhead, lead := fileslice.FileInfo(uri)
 	data := emptyFiles(c)
 	data["title"] = title
 	data["description"] = "Table of contents for the files."
@@ -143,19 +143,19 @@ func artifacts(c echo.Context, db *sql.DB, uri string, page int) error {
 	data[records] = []models.FileSlice{}
 	data["unknownYears"] = true
 	data["forApproval"] = false
-	switch mfs.Match(uri) {
+	switch fileslice.Match(uri) {
 	case
-		mfs.NewUploads,
-		mfs.NewUpdates,
-		mfs.Deletions,
-		mfs.Unwanted:
+		fileslice.NewUploads,
+		fileslice.NewUpdates,
+		fileslice.Deletions,
+		fileslice.Unwanted:
 		data["unknownYears"] = false
-	case mfs.ForApproval:
+	case fileslice.ForApproval:
 		data["forApproval"] = true
 	}
 	errs := fmt.Sprintf("artifacts page %d for %q", page, uri)
 	ctx := context.Background()
-	r, err := mfs.Records(ctx, db, uri, page, limit)
+	r, err := fileslice.Records(ctx, db, uri, page, limit)
 	if err != nil {
 		return DatabaseErr(c, errs, err)
 	}
@@ -518,7 +518,7 @@ func Categories(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, stats boo
 	data["h1"] = title
 	data["lead"] = "This page shows the categories and platforms in the collection of file artifacts."
 	data["stats"] = stats
-	data["counter"] = mfs.Statistics()
+	data["counter"] = fileslice.Statistics()
 	data, err := fileWStats(db, data, stats)
 	if err != nil {
 		logger.Warn(err)
@@ -536,7 +536,7 @@ func fileWStats(db *sql.DB, data map[string]interface{}, stats bool) (map[string
 	if !stats {
 		return data, nil
 	}
-	c, err := mfs.Counter(db)
+	c, err := fileslice.Counter(db)
 	if err != nil {
 		return data, fmt.Errorf("counter: %w", err)
 	}
@@ -548,8 +548,8 @@ func fileWStats(db *sql.DB, data map[string]interface{}, stats bool) (map[string
 }
 
 func Deletions(c echo.Context, db *sql.DB, page string) error {
-	uri := mfs.Deletions.String()
-	if !mfs.Valid(uri) {
+	uri := fileslice.Deletions.String()
+	if !fileslice.Valid(uri) {
 		return Artifacts404(c, uri)
 	}
 	if page == "" {
@@ -563,8 +563,8 @@ func Deletions(c echo.Context, db *sql.DB, page string) error {
 }
 
 func Unwanted(c echo.Context, db *sql.DB, page string) error {
-	uri := mfs.Unwanted.String()
-	if !mfs.Valid(uri) {
+	uri := fileslice.Unwanted.String()
+	if !fileslice.Valid(uri) {
 		return Artifacts404(c, uri)
 	}
 	if page == "" {
@@ -581,8 +581,8 @@ func Unwanted(c echo.Context, db *sql.DB, page string) error {
 // The uri is the category or collection of files to display.
 // The page is the page number of the results to display.
 func ForApproval(c echo.Context, db *sql.DB, page string) error {
-	uri := mfs.ForApproval.String()
-	if !mfs.Valid(uri) {
+	uri := fileslice.ForApproval.String()
+	if !fileslice.Valid(uri) {
 		return Artifacts404(c, uri)
 	}
 	if page == "" {
@@ -1660,7 +1660,7 @@ func Writer(c echo.Context, db *sql.DB) error {
 
 // stats is a helper function for Artifacts that returns the statistics for the files page.
 func stats(ctx context.Context, exec boil.ContextExecutor, uri string) (map[string]string, int, error) {
-	if !mfs.Valid(uri) {
+	if !fileslice.Valid(uri) {
 		return nil, 0, nil
 	}
 	m := model.Summary{}
@@ -1669,16 +1669,16 @@ func stats(ctx context.Context, exec boil.ContextExecutor, uri string) (map[stri
 		return nil, 0, fmt.Errorf("artifacts stats %w: %s", err, uri)
 	}
 	if errors.Is(err, model.ErrURI) {
-		switch mfs.Match(uri) {
-		case mfs.ForApproval:
+		switch fileslice.Match(uri) {
+		case fileslice.ForApproval:
 			if err := m.ByForApproval(ctx, exec); err != nil {
 				return nil, 0, fmt.Errorf("artifacts stats for approval %w: %s", err, uri)
 			}
-		case mfs.Deletions:
+		case fileslice.Deletions:
 			if err := m.ByHidden(ctx, exec); err != nil {
 				return nil, 0, fmt.Errorf("artifacts stats by hidden %w: %s", err, uri)
 			}
-		case mfs.Unwanted:
+		case fileslice.Unwanted:
 			if err := m.ByUnwanted(ctx, exec); err != nil {
 				return nil, 0, fmt.Errorf("artifacts stats unwanted %w: %s", err, uri)
 			}

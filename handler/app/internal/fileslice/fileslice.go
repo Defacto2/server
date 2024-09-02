@@ -1,7 +1,7 @@
-// Package mfs provides functions that return model FileSlices, which are multiple artifact records.
+// Package fileslice provides functions that return model FileSlices, which are multiple artifact records.
 //
 //nolint:wrapcheck
-package mfs
+package fileslice
 
 import (
 	"context"

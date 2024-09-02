@@ -1,5 +1,5 @@
-// Package str provides functions for handling string or integer input data.
-package str
+// Package simple provides functions for handling string or integer input data.
+package simple
 
 import (
 	"errors"
@@ -18,7 +18,7 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/releaser"
-	"github.com/Defacto2/server/handler/app/internal/exts"
+	"github.com/Defacto2/server/handler/app/internal/extensions"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/dustin/go-humanize"
@@ -223,18 +223,18 @@ func LinkPreviewTip(name, platform string) string {
 	platform = strings.TrimSpace(platform)
 	ext := strings.ToLower(filepath.Ext(name))
 	switch {
-	case slices.Contains(exts.Archives(), ext):
+	case slices.Contains(extensions.Archive(), ext):
 		// this case must always be first
 		return ""
 	case platform == tags.Markup.String():
 		return "Read this as HTML"
 	case platform == textamiga, platform == tags.Text.String():
 		return "Read this as text"
-	case slices.Contains(exts.Documents(), ext):
+	case slices.Contains(extensions.Document(), ext):
 		return "Read this as text"
-	case slices.Contains(exts.Images(), ext):
+	case slices.Contains(extensions.Image(), ext):
 		return "View this as an image or photo"
-	case slices.Contains(exts.Media(), ext):
+	case slices.Contains(extensions.Media(), ext):
 		return "Play this as media"
 	}
 	return ""

@@ -1,5 +1,5 @@
-// Package mf provides functions for the file model which is an artifact record.
-package mf
+// Package filerecord provides functions for the file model which is an artifact record.
+package filerecord
 
 import (
 	"errors"
@@ -20,10 +20,10 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/releaser"
-	"github.com/Defacto2/server/handler/app/internal/exts"
-	"github.com/Defacto2/server/handler/app/internal/readme"
-	"github.com/Defacto2/server/handler/app/internal/str"
+	"github.com/Defacto2/server/handler/app/internal/extensions"
+	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/Defacto2/server/handler/jsdos/msdos"
+	"github.com/Defacto2/server/handler/readme"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -717,20 +717,20 @@ func ExtraZip(art *models.File, extraDir string) bool {
 func FileEntry(art *models.File) string {
 	switch {
 	case art.Createdat.Valid && art.Updatedat.Valid:
-		c := str.Updated(art.Createdat.Time, "")
-		u := str.Updated(art.Updatedat.Time, "")
+		c := simple.Updated(art.Createdat.Time, "")
+		u := simple.Updated(art.Updatedat.Time, "")
 		if c != u {
-			c = str.Updated(art.Createdat.Time, "Created")
-			u = str.Updated(art.Updatedat.Time, "Updated")
+			c = simple.Updated(art.Createdat.Time, "Created")
+			u = simple.Updated(art.Updatedat.Time, "Updated")
 			return c + br + u
 		}
-		c = str.Updated(art.Createdat.Time, "Created")
+		c = simple.Updated(art.Createdat.Time, "Created")
 		return c
 	case art.Createdat.Valid:
-		c := str.Updated(art.Createdat.Time, "Created")
+		c := simple.Updated(art.Createdat.Time, "Created")
 		return c
 	case art.Updatedat.Valid:
-		u := str.Updated(art.Updatedat.Time, "Updated")
+		u := simple.Updated(art.Updatedat.Time, "Updated")
 		return u
 	}
 	return ""
@@ -1010,7 +1010,7 @@ func LastModificationAgo(art *models.File) string {
 	if year <= epoch {
 		return none
 	}
-	return str.Updated(art.FileLastModified.Time, "Modified")
+	return simple.Updated(art.FileLastModified.Time, "Modified")
 }
 
 // LinkPreview returns a URL path to link to the file record in tab, to use as a preview.
@@ -1047,21 +1047,21 @@ func LinkPreviewHref(id any, name, platform string) string {
 	// https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
 	ext := strings.ToLower(filepath.Ext(name))
 	switch {
-	case slices.Contains(exts.Archives(), ext):
+	case slices.Contains(extensions.Archive(), ext):
 		// this must always be first
 		return ""
 	case platform == textamiga, platform == "text":
 		break
-	case slices.Contains(exts.Documents(), ext):
+	case slices.Contains(extensions.Document(), ext):
 		break
-	case slices.Contains(exts.Images(), ext):
+	case slices.Contains(extensions.Image(), ext):
 		break
-	case slices.Contains(exts.Media(), ext):
+	case slices.Contains(extensions.Media(), ext):
 		break
 	default:
 		return ""
 	}
-	s, err := str.LinkID(id, "v")
+	s, err := simple.LinkID(id, "v")
 	if err != nil {
 		return fmt.Sprint("error: ", err)
 	}
@@ -1081,7 +1081,7 @@ func LinkPreviewTip(art *models.File) string {
 	if art.Platform.Valid {
 		platform = art.Platform.String
 	}
-	return str.LinkPreviewTip(name, platform)
+	return simple.LinkPreviewTip(name, platform)
 }
 
 // LinkSVG returns an right-arrow SVG icon.
@@ -1214,7 +1214,7 @@ func ReleaserPair(art *models.File) (string, string) {
 	if art == nil {
 		return "", ""
 	}
-	pair := str.ReleaserPair(art.GroupBrandFor, art.GroupBrandBy)
+	pair := simple.ReleaserPair(art.GroupBrandFor, art.GroupBrandBy)
 	return pair[0], pair[1]
 }
 

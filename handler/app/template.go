@@ -16,8 +16,8 @@ import (
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/releaser/name"
-	"github.com/Defacto2/server/handler/app/internal/mf"
-	"github.com/Defacto2/server/handler/app/internal/str"
+	"github.com/Defacto2/server/handler/app/internal/filerecord"
+	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/Defacto2/server/handler/demozoo"
 	"github.com/Defacto2/server/handler/form"
 	"github.com/Defacto2/server/handler/pouet"
@@ -191,10 +191,10 @@ func (t Templ) Funcs() template.FuncMap {
 		"attribute":          Attribute,
 		"brief":              Brief,
 		"describe":           Describe,
-		"downloadB":          str.DownloadB,
+		"downloadB":          simple.DownloadB,
 		"byteFile":           ByteFile,
 		"byteFileS":          ByteFileS,
-		"demozooGetLink":     str.DemozooGetLink,
+		"demozooGetLink":     simple.DemozooGetLink,
 		"fmtDay":             Day,
 		"fmtMonth":           Month,
 		"fmtPrefix":          Prefix,
@@ -210,10 +210,10 @@ func (t Templ) Funcs() template.FuncMap {
 		"linkRunApp":         LinkRunApp,
 		"linkRelrs":          LinkRelsPerformant,
 		"linkScnr":           LinkScnr,
-		"linkSVG":            mf.LinkSVG,
+		"linkSVG":            filerecord.LinkSVG,
 		"linkWiki":           LinkWiki,
 		"logoText":           LogoText,
-		"jsdosUsage":         mf.JsdosUsage,
+		"jsdosUsage":         filerecord.JsdosUsage,
 		"recordInfoOSTag":    TagWithOS,
 		"recordLinkPreviews": LinkPreviews,
 		"recordTagInfo":      TagBrief,
@@ -315,16 +315,16 @@ func (t Templ) FuncClosures(db *sql.DB) template.FuncMap { //nolint:funlen
 			return hrefs[Readme]
 		},
 		"recordImgSampleStat": func(unid string) bool {
-			return str.ImageSampleStat(unid, t.Environment.AbsPreview)
+			return simple.ImageSampleStat(unid, t.Environment.AbsPreview)
 		},
 		"recordImgSample": func(unid string) template.HTML {
-			return str.ImageSample(unid, t.Environment.AbsPreview)
+			return simple.ImageSample(unid, t.Environment.AbsPreview)
 		},
 		"recordThumbSample": func(unid string) template.HTML {
-			return str.ThumbSample(unid, t.Environment.AbsThumbnail)
+			return simple.ThumbSample(unid, t.Environment.AbsThumbnail)
 		},
 		"screenshot": func(unid, desc string) template.HTML {
-			return str.Screenshot(unid, desc, t.Environment.AbsPreview)
+			return simple.Screenshot(unid, desc, t.Environment.AbsPreview)
 		},
 		"sri_bootstrap5": func() string {
 			return t.Subresource.Bootstrap5
@@ -387,13 +387,13 @@ func (t Templ) FuncClosures(db *sql.DB) template.FuncMap { //nolint:funlen
 		"tagText":      func() string { return tags.Text.String() },
 		"tagTextAmiga": func() string { return tags.TextAmiga.String() },
 		"thumb": func(unid, desc string, bottom bool) template.HTML {
-			return str.Thumb(unid, desc, t.Environment.AbsThumbnail, bottom)
+			return simple.Thumb(unid, desc, t.Environment.AbsThumbnail, bottom)
 		},
 		"recordPreviewSrc": func(unid, ext string) string {
-			return str.AssetSrc(config.Prev, t.Environment.AbsPreview, unid, ext)
+			return simple.AssetSrc(config.Prev, t.Environment.AbsPreview, unid, ext)
 		},
 		"recordThumbnailSrc": func(unid, ext string) string {
-			return str.AssetSrc(config.Thumb, t.Environment.AbsThumbnail, unid, ext)
+			return simple.AssetSrc(config.Thumb, t.Environment.AbsThumbnail, unid, ext)
 		},
 	}
 }
@@ -506,10 +506,10 @@ func LinkPreviews(youtube, demozoo, pouet, colors16, github, rels, sites string)
 		links = append(links, rel("github.com/"+github))
 	}
 	if rels != "" {
-		links = append(links, strings.Split(string(str.LinkRelations(rels)), "+")...)
+		links = append(links, strings.Split(string(simple.LinkRelations(rels)), "+")...)
 	}
 	if sites != "" {
-		links = append(links, strings.Split(string(str.LinkSites(sites)), "+")...)
+		links = append(links, strings.Split(string(simple.LinkSites(sites)), "+")...)
 	}
 	return links
 }
@@ -562,16 +562,16 @@ func LinkReleasers(performant, magazine bool, a, b any) template.HTML {
 	var prime, second string
 	var err error
 	if av != "" {
-		prime, err = str.MakeLink(av, class, performant)
+		prime, err = simple.MakeLink(av, class, performant)
 		if err != nil {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
 	}
 	if bv != "" {
-		second, err = str.MakeLink(bv, class, performant)
+		second, err = simple.MakeLink(bv, class, performant)
 		if err != nil {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
 	}
-	return str.Releasers(prime, second, magazine)
+	return simple.Releasers(prime, second, magazine)
 }

@@ -20,9 +20,9 @@ import (
 	"strings"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/server/handler/app/internal/mf"
-	"github.com/Defacto2/server/handler/app/internal/readme"
-	"github.com/Defacto2/server/handler/app/internal/str"
+	"github.com/Defacto2/server/handler/app/internal/filerecord"
+	"github.com/Defacto2/server/handler/app/internal/simple"
+	"github.com/Defacto2/server/handler/readme"
 	"github.com/Defacto2/server/handler/render"
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -84,25 +84,25 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 		data = dir.Editor(art, data)
 	}
 	// page metadata
-	data["unid"] = mf.UnID(art)
-	data["download"] = mf.DownloadID(art)
-	data["title"] = mf.Basename(art)
-	data["description"] = mf.Description(art)
-	data["h1"] = mf.FirstHeader(art)
+	data["unid"] = filerecord.UnID(art)
+	data["download"] = filerecord.DownloadID(art)
+	data["title"] = filerecord.Basename(art)
+	data["description"] = filerecord.Description(art)
+	data["h1"] = filerecord.FirstHeader(art)
 	data["lead"] = firstLead(art)
-	data["comment"] = mf.Comment(art)
+	data["comment"] = filerecord.Comment(art)
 	data = dir.filemetadata(art, data)
 	data = dir.attributions(art, data)
 	data = dir.otherRelations(art, data)
 	data = jsdos(art, data, logger)
 	data = content(art, data)
-	data["linkpreview"] = mf.LinkPreview(art)
-	data["linkpreviewTip"] = mf.LinkPreviewTip(art)
-	data["filentry"] = mf.FileEntry(art)
+	data["linkpreview"] = filerecord.LinkPreview(art)
+	data["linkpreviewTip"] = filerecord.LinkPreviewTip(art)
+	data["filentry"] = filerecord.FileEntry(art)
 	if skip := render.NoScreenshot(art, dir.Preview); skip {
 		data["noScreenshot"] = true
 	}
-	if mf.EmbedReadme(art) {
+	if filerecord.EmbedReadme(art) {
 		data, err = dir.embed(art, data)
 		if err != nil {
 			return InternalErr(c, name, errorWithID(err, dir.URI, art.ID))
@@ -139,45 +139,45 @@ func (dir Dirs) Editor(art *models.File, data map[string]interface{}) map[string
 	if art == nil {
 		return data
 	}
-	unid := mf.UnID(art)
+	unid := filerecord.UnID(art)
 	abs := filepath.Join(dir.Download, unid)
 	data["epochYear"] = epoch
 	data["readonlymode"] = false
 	data["modID"] = art.ID
-	data["modTitle"] = mf.Title(art)
-	data["modOnline"] = mf.RecordOnline(art)
+	data["modTitle"] = filerecord.Title(art)
+	data["modOnline"] = filerecord.RecordOnline(art)
 	data["modReleasers"] = RecordRels(art.GroupBrandBy, art.GroupBrandFor)
-	data["modReleaser1"], data["modReleaser2"] = mf.ReleaserPair(art)
-	data["modYear"], data["modMonth"], data["modDay"] = mf.Dates(art)
-	data["modLMYear"], data["modLMMonth"], data["modLMDay"] = mf.LastModifications(art)
+	data["modReleaser1"], data["modReleaser2"] = filerecord.ReleaserPair(art)
+	data["modYear"], data["modMonth"], data["modDay"] = filerecord.Dates(art)
+	data["modLMYear"], data["modLMMonth"], data["modLMDay"] = filerecord.LastModifications(art)
 	data["modAbsDownload"] = abs
-	data["modMagicMime"] = str.MIME(abs)
-	data["modMagicNumber"] = str.MagicAsTitle(abs)
-	data["modDBModify"] = mf.LastModificationDate(art)
-	data["modStatModify"], data["modStatSizeB"], data["modStatSizeF"] = str.StatHumanize(abs)
-	data["modDecompress"] = mf.ListContent(art, abs)
-	data["modDecompressLoc"] = str.MkContent(abs)
+	data["modMagicMime"] = simple.MIME(abs)
+	data["modMagicNumber"] = simple.MagicAsTitle(abs)
+	data["modDBModify"] = filerecord.LastModificationDate(art)
+	data["modStatModify"], data["modStatSizeB"], data["modStatSizeF"] = simple.StatHumanize(abs)
+	data["modDecompress"] = filerecord.ListContent(art, abs)
+	data["modDecompressLoc"] = simple.MkContent(abs)
 	data["modAssetPreview"] = dir.assets(dir.Preview, unid)
 	data["modAssetThumbnail"] = dir.assets(dir.Thumbnail, unid)
 	data["modAssetExtra"] = dir.assets(dir.Extra, unid)
-	data["modNoReadme"] = mf.ReadmeNone(art)
-	data["modReadmeSuggest"] = mf.Readme(art)
-	data["modZipContent"] = mf.ZipContent(art)
-	data["modRelations"] = mf.RelationsStr(art)
-	data["modWebsites"] = mf.WebsitesStr(art)
-	data["modOS"] = mf.TagProgram(art)
-	data["modTag"] = mf.TagCategory(art)
-	data["alertURL"] = mf.AlertURL(art)
-	data["forApproval"] = mf.RecordIsNew(art)
-	data["disableApproval"] = mf.RecordProblems(art)
-	data["disableRecord"] = mf.RecordOffline(art)
+	data["modNoReadme"] = filerecord.ReadmeNone(art)
+	data["modReadmeSuggest"] = filerecord.Readme(art)
+	data["modZipContent"] = filerecord.ZipContent(art)
+	data["modRelations"] = filerecord.RelationsStr(art)
+	data["modWebsites"] = filerecord.WebsitesStr(art)
+	data["modOS"] = filerecord.TagProgram(art)
+	data["modTag"] = filerecord.TagCategory(art)
+	data["alertURL"] = filerecord.AlertURL(art)
+	data["forApproval"] = filerecord.RecordIsNew(art)
+	data["disableApproval"] = filerecord.RecordProblems(art)
+	data["disableRecord"] = filerecord.RecordOffline(art)
 	data["missingAssets"] = dir.missingAssets(art)
-	data["modEmulateXMS"], data["modEmulateEMS"], data["modEmulateUMB"] = mf.JsdosMemory(art)
-	data["modEmulateBroken"] = mf.JsdosBroken(art)
-	data["modEmulateRun"] = mf.JsdosRun(art)
-	data["modEmulateCPU"] = mf.JsdosCPU(art)
-	data["modEmulateMachine"] = mf.JsdosMachine(art)
-	data["modEmulateAudio"] = mf.JsdosSound(art)
+	data["modEmulateXMS"], data["modEmulateEMS"], data["modEmulateUMB"] = filerecord.JsdosMemory(art)
+	data["modEmulateBroken"] = filerecord.JsdosBroken(art)
+	data["modEmulateRun"] = filerecord.JsdosRun(art)
+	data["modEmulateCPU"] = filerecord.JsdosCPU(art)
+	data["modEmulateMachine"] = filerecord.JsdosMachine(art)
+	data["modEmulateAudio"] = filerecord.JsdosSound(art)
 	return data
 }
 
@@ -228,17 +228,17 @@ func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
 				matches[s] = [2]string{humanize.Comma(st.Size()), ""}
 			case ".JPG":
 				s := "Jpeg"
-				matches[s] = str.ImageXY(filepath.Join(nameDir, file.Name()))
+				matches[s] = simple.ImageXY(filepath.Join(nameDir, file.Name()))
 			case ".PNG":
 				s := "PNG"
-				matches[s] = str.ImageXY(filepath.Join(nameDir, file.Name()))
+				matches[s] = simple.ImageXY(filepath.Join(nameDir, file.Name()))
 			case ".TXT":
 				s := "README"
 				i, _ := helper.Lines(filepath.Join(dir.Extra, file.Name()))
 				matches[s] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
 			case ".WEBP":
 				s := "WebP"
-				matches[s] = str.ImageXY(filepath.Join(nameDir, file.Name()))
+				matches[s] = simple.ImageXY(filepath.Join(nameDir, file.Name()))
 			case ".ZIP":
 				s := "Repacked ZIP"
 				matches[s] = [2]string{humanize.Comma(st.Size()), "Deflate compression"}
@@ -279,40 +279,40 @@ func (dir Dirs) missingAssets(art *models.File) string {
 
 // attributions returns the author attributions for the file record of the artifact.
 func (dir Dirs) attributions(art *models.File, data map[string]interface{}) map[string]interface{} {
-	data["writers"] = mf.AttrWriter(art)
-	data["artists"] = mf.AttrArtist(art)
-	data["programmers"] = mf.AttrProg(art)
-	data["musicians"] = mf.AttrMusic(art)
+	data["writers"] = filerecord.AttrWriter(art)
+	data["artists"] = filerecord.AttrArtist(art)
+	data["programmers"] = filerecord.AttrProg(art)
+	data["musicians"] = filerecord.AttrMusic(art)
 	return data
 }
 
 // filemetadata returns the file metadata for the file record of the artifact.
 func (dir Dirs) filemetadata(art *models.File, data map[string]interface{}) map[string]interface{} {
-	data["filename"] = mf.Basename(art)
-	data["filesize"] = str.BytesHuman(art.Filesize.Int64)
+	data["filename"] = filerecord.Basename(art)
+	data["filesize"] = simple.BytesHuman(art.Filesize.Int64)
 	data["filebyte"] = art.Filesize
-	data["lastmodified"] = mf.LastModification(art)
-	data["lastmodifiedAgo"] = mf.LastModificationAgo(art)
-	data["checksum"] = mf.Checksum(art)
-	data["magic"] = mf.Magic(art)
+	data["lastmodified"] = filerecord.LastModification(art)
+	data["lastmodifiedAgo"] = filerecord.LastModificationAgo(art)
+	data["checksum"] = filerecord.Checksum(art)
+	data["magic"] = filerecord.Magic(art)
 	data["releasers"] = releasersHrefs(art)
-	data["published"] = mf.Date(art)
-	data["section"] = mf.TagCategory(art)
-	data["platform"] = mf.TagProgram(art)
-	data["alertURL"] = mf.AlertURL(art)
-	data["extraZip"] = mf.ExtraZip(art, dir.Extra)
+	data["published"] = filerecord.Date(art)
+	data["section"] = filerecord.TagCategory(art)
+	data["platform"] = filerecord.TagProgram(art)
+	data["alertURL"] = filerecord.AlertURL(art)
+	data["extraZip"] = filerecord.ExtraZip(art, dir.Extra)
 	return data
 }
 
 // otherRelations returns the other relations and external links for the file record of the artifact.
 func (dir Dirs) otherRelations(art *models.File, data map[string]interface{}) map[string]interface{} {
-	data["relations"] = mf.Relations(art)
-	data["websites"] = mf.Websites(art)
-	data["demozoo"] = mf.IdenficationDZ(art)
-	data["pouet"] = mf.IdenficationPouet(art)
-	data["sixteenColors"] = mf.Idenfication16C(art)
-	data["youtube"] = mf.IdenficationYT(art)
-	data["github"] = mf.IdenficationGitHub(art)
+	data["relations"] = filerecord.Relations(art)
+	data["websites"] = filerecord.Websites(art)
+	data["demozoo"] = filerecord.IdenficationDZ(art)
+	data["pouet"] = filerecord.IdenficationPouet(art)
+	data["sixteenColors"] = filerecord.Idenfication16C(art)
+	data["youtube"] = filerecord.IdenficationYT(art)
+	data["github"] = filerecord.IdenficationGitHub(art)
 	return data
 }
 
@@ -328,7 +328,7 @@ func jsdos(art *models.File, data map[string]interface{}, logger *zap.SugaredLog
 	data["jsdos6Config"] = ""
 	data["jsdos6Zip"] = false
 	data["jsdos6Utilities"] = false
-	if emulate := mf.JsdosUse(art); !emulate {
+	if emulate := filerecord.JsdosUse(art); !emulate {
 		return data
 	}
 	data["jsdos6"] = true
@@ -350,8 +350,8 @@ func jsdos(art *models.File, data map[string]interface{}, logger *zap.SugaredLog
 		return data
 	}
 	data["jsdos6Config"] = cfg
-	data["jsdos6Zip"] = mf.JsdosArchive(art)
-	data["jsdos6Utilities"] = mf.JsdosUtilities(art)
+	data["jsdos6Zip"] = filerecord.JsdosArchive(art)
+	data["jsdos6Utilities"] = filerecord.JsdosUtilities(art)
 	return data
 }
 

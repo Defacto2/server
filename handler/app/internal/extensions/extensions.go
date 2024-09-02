@@ -1,5 +1,5 @@
-// Package exts provides a list of file extensions used by some functions in app.
-package exts
+// Package extensions provides a list of file extensions used by some functions in app.
+package extensions
 
 const (
 	avif = ".avif"
@@ -11,25 +11,25 @@ const (
 	webp = ".webp"
 )
 
-// Archives returns a list of archive file extensions supported by this web application.
-func Archives() []string {
+// Archive returns a list of archive file extensions supported by this web application.
+func Archive() []string {
 	return []string{fzip, ".rar", ".7z", ".tar", ".lha", ".lzh", ".arc", ".arj", ".ace", ".tar"}
 }
 
-// Documents returns a list of document file extensions that can be read as text in the browser.
-func Documents() []string {
+// Document returns a list of document file extensions that can be read as text in the browser.
+func Document() []string {
 	return []string{
 		".txt", ".nfo", ".diz", ".asc", ".lit", ".rtf", ".doc", ".docx",
 		".pdf", ".unp", ".htm", ".html", ".xml", ".json", ".csv",
 	}
 }
 
-// Images returns a list of image file extensions that can be displayed in the browser.
-func Images() []string {
+// Image returns a list of image file extensions that can be displayed in the browser.
+func Image() []string {
 	return []string{".avif", gif, jpg, jpeg, ".jfif", png, ".svg", webp, ".bmp", ".ico"}
 }
 
-// <edia returns a list of [media file extensions] that can be played in the browser.
+// Media returns a list of [media file extensions] that can be played in the browser.
 //
 // [media file extensions]: https://developer.mozilla.org/en-US/docs/Web/Media/Formats
 func Media() []string {
