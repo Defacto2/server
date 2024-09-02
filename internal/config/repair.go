@@ -16,6 +16,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/archive/rezip"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/config/fixarc"
@@ -23,7 +24,6 @@ import (
 	"github.com/Defacto2/server/internal/config/fixlha"
 	"github.com/Defacto2/server/internal/config/fixzip"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/magicnumber"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -395,11 +395,7 @@ func (c Config) MagicNumbers(ctx context.Context, ce boil.ContextExecutor, logge
 			_ = r.Close()
 			continue
 		}
-		magic, err := magicnumber.Find(r)
-		if err != nil {
-			_ = r.Close()
-			continue
-		}
+		magic := magicnumber.Find(r)
 		count++
 		_ = model.UpdateMagic(ctx, ce, v.ID, magic.Title())
 		_ = r.Close()

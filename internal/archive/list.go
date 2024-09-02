@@ -10,8 +10,8 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/magicnumber"
 )
 
 var (

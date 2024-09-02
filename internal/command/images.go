@@ -13,8 +13,8 @@ import (
 	"slices"
 	"sync"
 
+	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/magicnumber"
 	"go.uber.org/zap"
 )
 
@@ -258,10 +258,7 @@ func (dir Dirs) PictureImager(debug *zap.SugaredLogger, src, unid string) error 
 	if err != nil {
 		return fmt.Errorf("dir picture imager %w", err)
 	}
-	magic, err := magicnumber.Find(r)
-	if err != nil {
-		return fmt.Errorf("dir picture imager %w", err)
-	}
+	magic := magicnumber.Find(r)
 	imgs := magicnumber.Images()
 	slices.Sort(imgs)
 	if !slices.Contains(imgs, magic) {
@@ -270,18 +267,31 @@ func (dir Dirs) PictureImager(debug *zap.SugaredLogger, src, unid string) error 
 	if err = ImagesDelete(unid, dir.Preview, dir.Thumbnail); err != nil {
 		return fmt.Errorf("picture imager pre-delete %w", err)
 	}
+
+	// Signature aliases for common file type signatures.
+	const (
+		IFF  = magicnumber.ElectronicArtsIFF
+		JPG  = magicnumber.JPEGFileInterchangeFormat
+		PNG  = magicnumber.PortableNetworkGraphics
+		GIF  = magicnumber.GraphicsInterchangeFormat
+		WebP = magicnumber.GoogleWebP
+		TIFF = magicnumber.TaggedImageFileFormat
+		BMP  = magicnumber.BMPFileFormat
+		PCX  = magicnumber.PersonalComputereXchange
+		AVI  = magicnumber.MicrosoftAudioVideoInterleave
+	)
 	switch magic {
-	case magicnumber.AVI:
+	case AVI:
 		return nil
-	case magicnumber.GIF:
+	case GIF:
 		return dir.PreviewGIF(debug, src, unid)
-	case magicnumber.WebP:
+	case WebP:
 		return dir.PreviewWebP(debug, src, unid)
-	case magicnumber.PNG:
+	case PNG:
 		return dir.PreviewPNG(debug, src, unid)
-	case magicnumber.TIFF, magicnumber.JPG:
+	case TIFF, JPG:
 		return dir.PreviewPhoto(debug, src, unid)
-	case magicnumber.BMP, magicnumber.PCX:
+	case BMP, PCX:
 		return dir.PreviewPixels(debug, src, unid)
 	}
 	return nil

@@ -29,11 +29,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/archive/internal"
 	"github.com/Defacto2/server/internal/archive/pkzip"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/helper"
-	"github.com/Defacto2/server/internal/magicnumber"
 )
 
 const (
