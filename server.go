@@ -26,7 +26,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/server/cmd"
+	"github.com/Defacto2/server/command"
 	"github.com/Defacto2/server/handler"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/postgres"
@@ -142,7 +142,7 @@ func newInstance(ctx context.Context, db *sql.DB, configs config.Config) handler
 		View:        view,
 	}
 	if c.Version == "" {
-		c.Version = cmd.Commit("")
+		c.Version = command.Commit("")
 	}
 	if ctx != nil && db != nil {
 		c.RecordCount = config.RecordCount(ctx, db)
@@ -157,12 +157,12 @@ func parseFlags(logger *zap.SugaredLogger, configs config.Config) int {
 	if logger == nil {
 		return -1
 	}
-	code, err := cmd.Run(version, &configs)
+	code, err := command.Run(version, &configs)
 	if err != nil {
 		logger.Errorf("run command, parse flags: %s", err)
 		return int(code)
 	}
-	useExitCode := code >= cmd.ExitOK
+	useExitCode := code >= command.ExitOK
 	if useExitCode {
 		return int(code)
 	}
