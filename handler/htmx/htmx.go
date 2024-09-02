@@ -13,10 +13,10 @@ import (
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/releaser/initialism"
-	"github.com/Defacto2/server/internal/cache"
-	"github.com/Defacto2/server/internal/demozoo"
+	"github.com/Defacto2/server/handler/cache"
+	"github.com/Defacto2/server/handler/demozoo"
+	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/postgres"
-	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/model"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"

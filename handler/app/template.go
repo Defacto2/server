@@ -18,10 +18,10 @@ import (
 	"github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/handler/app/internal/mf"
 	"github.com/Defacto2/server/handler/app/internal/str"
+	"github.com/Defacto2/server/handler/demozoo"
+	"github.com/Defacto2/server/handler/form"
+	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/config"
-	"github.com/Defacto2/server/internal/demozoo"
-	"github.com/Defacto2/server/internal/form"
-	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/volatiletech/null/v8"
 )

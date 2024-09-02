@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Defacto2/server/internal/form"
+	"github.com/Defacto2/server/handler/form"
 	"github.com/stretchr/testify/assert"
 )
 

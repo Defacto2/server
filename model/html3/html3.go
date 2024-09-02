@@ -11,7 +11,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/server/internal/ext"
+	"github.com/Defacto2/server/handler/html3/ext"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model/expr"

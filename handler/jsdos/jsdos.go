@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Defacto2/server/internal/jsdos/msdos"
+	"github.com/Defacto2/server/handler/jsdos/msdos"
 )
 
 const AudioRate = "44100" // AudioRate is the sample rate of the audio that is emulated.

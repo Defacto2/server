@@ -23,7 +23,7 @@ import (
 	"github.com/Defacto2/server/handler/app/internal/exts"
 	"github.com/Defacto2/server/handler/app/internal/readme"
 	"github.com/Defacto2/server/handler/app/internal/str"
-	"github.com/Defacto2/server/internal/jsdos/msdos"
+	"github.com/Defacto2/server/handler/jsdos/msdos"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"

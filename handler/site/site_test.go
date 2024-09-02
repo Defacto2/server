@@ -3,7 +3,7 @@ package site_test
 import (
 	"testing"
 
-	"github.com/Defacto2/server/internal/site"
+	"github.com/Defacto2/server/handler/site"
 	"github.com/stretchr/testify/assert"
 )
 

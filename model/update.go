@@ -11,9 +11,8 @@ import (
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/releaser"
-	"github.com/Defacto2/server/internal/demozoo"
+	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/postgres/models"
-	"github.com/Defacto2/server/internal/pouet"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -323,7 +322,7 @@ func UpdateInt64From(db *sql.DB, column int64From, id int64, val string) error {
 	case i64 == 0 && column == pouetProd:
 		f.WebIDPouet = null.Int64FromPtr(nil)
 	case column == demozooProd:
-		invalid = i64 < 0 || i64 > demozoo.Sanity
+		invalid = i64 < 0 || i64 > DemozooSanity
 		f.WebIDDemozoo = null.Int64From(i64)
 	case column == pouetProd:
 		invalid = i64 < 0 || i64 > pouet.Sanity

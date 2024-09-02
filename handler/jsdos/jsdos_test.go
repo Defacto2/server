@@ -3,7 +3,7 @@ package jsdos_test
 import (
 	"testing"
 
-	"github.com/Defacto2/server/internal/jsdos"
+	"github.com/Defacto2/server/handler/jsdos"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/subpop/go-ini"

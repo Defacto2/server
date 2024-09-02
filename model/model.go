@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Defacto2/server/internal/jsdos"
-	"github.com/Defacto2/server/internal/jsdos/msdos"
+	"github.com/Defacto2/server/handler/jsdos"
+	"github.com/Defacto2/server/handler/jsdos/msdos"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/subpop/go-ini"
 )
@@ -56,6 +56,10 @@ const ClauseOldDate = "date_issued_year ASC NULLS LAST, " +
 
 // ClauseNoSoftDel is the clause to exclude soft deleted records.
 const ClauseNoSoftDel = "deletedat IS NULL"
+
+const (
+	DemozooSanity = 450000 // Sanity is to check the maximum permitted production ID.
+)
 
 func calc(o, l int) int {
 	if o < 1 {

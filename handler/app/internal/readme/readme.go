@@ -15,8 +15,8 @@ import (
 	uni "unicode"
 
 	"github.com/Defacto2/magicnumber"
+	"github.com/Defacto2/server/handler/render"
 	"github.com/Defacto2/server/internal/postgres/models"
-	"github.com/Defacto2/server/internal/render"
 )
 
 // Suggest returns a suggested readme file name for the record.

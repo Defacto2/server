@@ -9,9 +9,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/Defacto2/server/internal/demozoo"
+	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/postgres/models"
-	"github.com/Defacto2/server/internal/pouet"
 	"github.com/google/uuid"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -24,7 +23,7 @@ func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int64) (in
 	if exec == nil {
 		return 0, "", ErrDB
 	}
-	if id < startID || id > demozoo.Sanity {
+	if id < startID || id > DemozooSanity {
 		return 0, "", fmt.Errorf("%w: %d", ErrID, id)
 	}
 

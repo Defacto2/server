@@ -34,8 +34,8 @@ var (
 
 const (
 	ProdURL = "https://demozoo.org/api/v1/productions/" // ProdURL is the base URL for the Demozoo production API.
-	Timeout = 10 * time.Second                          // HTTP client timeout, Demozoo replies can be slow.
 	Sanity  = 450000                                    // Sanity is to check the maximum permitted production ID.
+	Timeout = 10 * time.Second                          // HTTP client timeout, Demozoo replies can be slow.
 	firstID = 1                                         // firstID is the first production ID on Pouet.
 )
 
