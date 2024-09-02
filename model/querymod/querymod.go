@@ -1,5 +1,5 @@
-// Package expr provides the query mod expressions for the file database.
-package expr
+// Package querymod provides the query mod expressions for the file database.
+package querymod
 
 import (
 	"github.com/Defacto2/server/internal/postgres/models"

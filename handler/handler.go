@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/server/command"
+	"github.com/Defacto2/server/flags"
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/handler/html3"
@@ -150,7 +150,7 @@ func (c Configuration) Info(logger *zap.SugaredLogger, w io.Writer) {
 		fmt.Fprint(w, "\n\n")
 	}
 
-	fmt.Fprintf(w, "  %s.\n", command.Copyright())
+	fmt.Fprintf(w, "  %s.\n", flags.Copyright())
 	fmt.Fprintf(w, "%s\n", c.versionBrief())
 
 	cpuInfo := fmt.Sprintf("  %d active routines sharing %d usable threads on %d CPU cores.",
@@ -158,7 +158,7 @@ func (c Configuration) Info(logger *zap.SugaredLogger, w io.Writer) {
 	fmt.Fprintln(w, cpuInfo)
 
 	golangInfo := fmt.Sprintf("  Compiled on Go %s for %s with %s.\n",
-		runtime.Version()[2:], command.OS(), command.Arch())
+		runtime.Version()[2:], flags.OS(), flags.Arch())
 	fmt.Fprintln(w, golangInfo)
 	//
 	// All additional feedback should go in internal/config/check.go (c *Config) Checks()
@@ -380,7 +380,7 @@ func (c Configuration) versionBrief() string {
 	if c.Version == "" {
 		return "  no version info, app compiled binary directly."
 	}
-	return fmt.Sprintf("  %s.", command.Commit(c.Version))
+	return fmt.Sprintf("  %s.", flags.Commit(c.Version))
 }
 
 // Rewrites for assets.

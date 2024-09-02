@@ -8,7 +8,7 @@ import (
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
-	"github.com/Defacto2/server/model/expr"
+	"github.com/Defacto2/server/model/querymod"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -28,7 +28,7 @@ func (a *Advert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.AdvertExpr(),
+		querymod.AdvertExpr(),
 		qm.From(From)).Bind(ctx, exec, a)
 }
 
@@ -39,7 +39,7 @@ func (a *Advert) List(ctx context.Context, exec boil.ContextExecutor, offset, li
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.AdvertExpr(),
+		querymod.AdvertExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
@@ -61,7 +61,7 @@ func (a *Announcement) Stat(ctx context.Context, exec boil.ContextExecutor) erro
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.AnnouncementExpr(),
+		querymod.AnnouncementExpr(),
 		qm.From(From)).Bind(ctx, exec, a)
 }
 
@@ -72,7 +72,7 @@ func (a *Announcement) List(ctx context.Context, exec boil.ContextExecutor, offs
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.AnnouncementExpr(),
+		querymod.AnnouncementExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
@@ -93,7 +93,7 @@ func (a *Ansi) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
-		expr.AnsiExpr(),
+		querymod.AnsiExpr(),
 		qm.From(From)).Bind(ctx, exec, a)
 }
 
@@ -104,7 +104,7 @@ func (a *Ansi) List(ctx context.Context, exec boil.ContextExecutor, offset, limi
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.AnsiExpr(),
+		querymod.AnsiExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
@@ -126,7 +126,7 @@ func (a *AnsiBrand) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.AnsiBrandExpr(),
+		querymod.AnsiBrandExpr(),
 		qm.From(From)).Bind(ctx, exec, a)
 }
 
@@ -137,7 +137,7 @@ func (a *AnsiBrand) List(ctx context.Context, exec boil.ContextExecutor, offset,
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.AnsiBrandExpr(),
+		querymod.AnsiBrandExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
@@ -159,7 +159,7 @@ func (a *AnsiBBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.AnsiBBSExpr(),
+		querymod.AnsiBBSExpr(),
 		qm.From(From)).Bind(ctx, exec, a)
 }
 
@@ -170,7 +170,7 @@ func (a *AnsiBBS) List(ctx context.Context, exec boil.ContextExecutor, offset, l
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.AnsiBBSExpr(),
+		querymod.AnsiBBSExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
@@ -192,7 +192,7 @@ func (a *AnsiFTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.AnsiFTPExpr(),
+		querymod.AnsiFTPExpr(),
 		qm.From(From)).Bind(ctx, exec, a)
 }
 
@@ -203,7 +203,7 @@ func (a *AnsiFTP) List(ctx context.Context, exec boil.ContextExecutor, offset, l
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.AnsiFTPExpr(),
+		querymod.AnsiFTPExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
@@ -225,7 +225,7 @@ func (a *AnsiNfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.AnsiNfoExpr(),
+		querymod.AnsiNfoExpr(),
 		qm.From(From)).Bind(ctx, exec, a)
 }
 
@@ -236,7 +236,7 @@ func (a *AnsiNfo) List(ctx context.Context, exec boil.ContextExecutor, offset, l
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.AnsiNfoExpr(),
+		querymod.AnsiNfoExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
@@ -258,7 +258,7 @@ func (a *AnsiPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.AnsiPackExpr(),
+		querymod.AnsiPackExpr(),
 		qm.From(From)).Bind(ctx, exec, a)
 }
 
@@ -269,7 +269,7 @@ func (a *AnsiPack) List(ctx context.Context, exec boil.ContextExecutor, offset, 
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.AnsiPackExpr(),
+		querymod.AnsiPackExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
@@ -291,7 +291,7 @@ func (b *BBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.BBSExpr(),
+		querymod.BBSExpr(),
 		qm.From(From)).Bind(ctx, exec, b)
 }
 
@@ -302,7 +302,7 @@ func (b *BBS) List(ctx context.Context, exec boil.ContextExecutor, offset, limit
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.BBSExpr(),
+		querymod.BBSExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -324,7 +324,7 @@ func (b *BBStro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.BBStroExpr(),
+		querymod.BBStroExpr(),
 		qm.From(From)).Bind(ctx, exec, b)
 }
 
@@ -335,7 +335,7 @@ func (b *BBStro) List(ctx context.Context, exec boil.ContextExecutor, offset, li
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.BBStroExpr(),
+		querymod.BBStroExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -357,7 +357,7 @@ func (b *BBSImage) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.BBSImageExpr(),
+		querymod.BBSImageExpr(),
 		qm.From(From)).Bind(ctx, exec, b)
 }
 
@@ -368,7 +368,7 @@ func (b *BBSImage) List(ctx context.Context, exec boil.ContextExecutor, offset, 
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.BBSImageExpr(),
+		querymod.BBSImageExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -390,7 +390,7 @@ func (b *BBSText) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.BBSTextExpr(),
+		querymod.BBSTextExpr(),
 		qm.From(From)).Bind(ctx, exec, b)
 }
 
@@ -401,7 +401,7 @@ func (b *BBSText) List(ctx context.Context, exec boil.ContextExecutor, offset, l
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.BBSTextExpr(),
+		querymod.BBSTextExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -423,7 +423,7 @@ func (d *Database) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.DatabaseExpr(),
+		querymod.DatabaseExpr(),
 		qm.From(From)).Bind(ctx, exec, d)
 }
 
@@ -434,7 +434,7 @@ func (d *Database) List(ctx context.Context, exec boil.ContextExecutor, offset, 
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.DatabaseExpr(),
+		querymod.DatabaseExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -456,7 +456,7 @@ func (d *Demoscene) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.DemoExpr(),
+		querymod.DemoExpr(),
 		qm.From(From)).Bind(ctx, exec, d)
 }
 
@@ -467,7 +467,7 @@ func (d *Demoscene) List(ctx context.Context, exec boil.ContextExecutor, offset,
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.DemoExpr(),
+		querymod.DemoExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -489,7 +489,7 @@ func (d *Drama) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.DramaExpr(),
+		querymod.DramaExpr(),
 		qm.From(From)).Bind(ctx, exec, d)
 }
 
@@ -500,7 +500,7 @@ func (d *Drama) List(ctx context.Context, exec boil.ContextExecutor, offset, lim
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.DramaExpr(),
+		querymod.DramaExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -522,7 +522,7 @@ func (f *FTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.FTPExpr(),
+		querymod.FTPExpr(),
 		qm.From(From)).Bind(ctx, exec, f)
 }
 
@@ -533,7 +533,7 @@ func (f *FTP) List(ctx context.Context, exec boil.ContextExecutor, offset, limit
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.FTPExpr(),
+		querymod.FTPExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -555,7 +555,7 @@ func (h *Hack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.HackExpr(),
+		querymod.HackExpr(),
 		qm.From(From)).Bind(ctx, exec, h)
 }
 
@@ -566,7 +566,7 @@ func (h *Hack) List(ctx context.Context, exec boil.ContextExecutor, offset, limi
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.HackExpr(),
+		querymod.HackExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -588,7 +588,7 @@ func (h *HowTo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.HowToExpr(),
+		querymod.HowToExpr(),
 		qm.From(From)).Bind(ctx, exec, h)
 }
 
@@ -599,7 +599,7 @@ func (h *HowTo) List(ctx context.Context, exec boil.ContextExecutor, offset, lim
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.HowToExpr(),
+		querymod.HowToExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -621,7 +621,7 @@ func (h *HTML) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.HTMLExpr(),
+		querymod.HTMLExpr(),
 		qm.From(From)).Bind(ctx, exec, h)
 }
 
@@ -632,7 +632,7 @@ func (h *HTML) List(ctx context.Context, exec boil.ContextExecutor, offset, limi
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.HTMLExpr(),
+		querymod.HTMLExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -654,7 +654,7 @@ func (i *Image) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.ImageExpr(),
+		querymod.ImageExpr(),
 		qm.From(From)).Bind(ctx, exec, i)
 }
 
@@ -665,7 +665,7 @@ func (i *Image) List(ctx context.Context, exec boil.ContextExecutor, offset, lim
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.ImageExpr(),
+		querymod.ImageExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -687,7 +687,7 @@ func (i *ImagePack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.ImagePackExpr(),
+		querymod.ImagePackExpr(),
 		qm.From(From)).Bind(ctx, exec, i)
 }
 
@@ -698,7 +698,7 @@ func (i *ImagePack) List(ctx context.Context, exec boil.ContextExecutor, offset,
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.ImagePackExpr(),
+		querymod.ImagePackExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -720,7 +720,7 @@ func (i *Intro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.IntroExpr(),
+		querymod.IntroExpr(),
 		qm.From(From)).Bind(ctx, exec, i)
 }
 
@@ -731,7 +731,7 @@ func (i *Intro) List(ctx context.Context, exec boil.ContextExecutor, offset, lim
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.IntroExpr(),
+		querymod.IntroExpr(),
 		qm.OrderBy(ClauseOldDate),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
@@ -753,7 +753,7 @@ func (i *IntroMsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error 
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.IntroDOSExpr(),
+		querymod.IntroDOSExpr(),
 		qm.From(From)).Bind(ctx, exec, i)
 }
 
@@ -764,7 +764,7 @@ func (i *IntroMsDos) List(ctx context.Context, exec boil.ContextExecutor, offset
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.IntroDOSExpr(),
+		querymod.IntroDOSExpr(),
 		qm.OrderBy(ClauseOldDate),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
@@ -787,7 +787,7 @@ func (i *IntroWindows) Stat(ctx context.Context, exec boil.ContextExecutor) erro
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.IntroWindowsExpr(),
+		querymod.IntroWindowsExpr(),
 		qm.From(From)).Bind(ctx, exec, i)
 }
 
@@ -798,7 +798,7 @@ func (i *IntroWindows) List(ctx context.Context, exec boil.ContextExecutor, offs
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.IntroWindowsExpr(),
+		querymod.IntroWindowsExpr(),
 		qm.OrderBy(ClauseOldDate),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
@@ -820,7 +820,7 @@ func (i *Installer) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.InstallExpr(),
+		querymod.InstallExpr(),
 		qm.From(From)).Bind(ctx, exec, i)
 }
 
@@ -831,7 +831,7 @@ func (i *Installer) List(ctx context.Context, exec boil.ContextExecutor, offset,
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.InstallExpr(),
+		querymod.InstallExpr(),
 		qm.OrderBy(ClauseOldDate),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
@@ -853,7 +853,7 @@ func (j *Java) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.JavaExpr(),
+		querymod.JavaExpr(),
 		qm.From(From)).Bind(ctx, exec, j)
 }
 
@@ -864,7 +864,7 @@ func (j *Java) List(ctx context.Context, exec boil.ContextExecutor, offset, limi
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.JavaExpr(),
+		querymod.JavaExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -886,7 +886,7 @@ func (j *JobAdvert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.JobAdvertExpr(),
+		querymod.JobAdvertExpr(),
 		qm.From(From)).Bind(ctx, exec, j)
 }
 
@@ -897,7 +897,7 @@ func (j *JobAdvert) List(ctx context.Context, exec boil.ContextExecutor, offset,
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.JobAdvertExpr(),
+		querymod.JobAdvertExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
@@ -919,7 +919,7 @@ func (l *Linux) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.LinuxExpr(),
+		querymod.LinuxExpr(),
 		qm.From(From)).Bind(ctx, exec, l)
 }
 
@@ -930,7 +930,7 @@ func (l *Linux) List(ctx context.Context, exec boil.ContextExecutor, offset, lim
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.LinuxExpr(),
+		querymod.LinuxExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -952,7 +952,7 @@ func (m *Magazine) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.MagExpr(),
+		querymod.MagExpr(),
 		qm.From(From)).Bind(ctx, exec, m)
 }
 
@@ -963,7 +963,7 @@ func (m *Magazine) List(ctx context.Context, exec boil.ContextExecutor, offset, 
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.MagExpr(),
+		querymod.MagExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -985,7 +985,7 @@ func (m *Macos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.MacExpr(),
+		querymod.MacExpr(),
 		qm.From(From)).Bind(ctx, exec, m)
 }
 
@@ -996,7 +996,7 @@ func (m *Macos) List(ctx context.Context, exec boil.ContextExecutor, offset, lim
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.MacExpr(),
+		querymod.MacExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -1018,7 +1018,7 @@ func (d *MsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.DOSExpr(),
+		querymod.DOSExpr(),
 		qm.From(From)).Bind(ctx, exec, d)
 }
 
@@ -1029,7 +1029,7 @@ func (d *MsDos) List(ctx context.Context, exec boil.ContextExecutor, offset, lim
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.DOSExpr(),
+		querymod.DOSExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -1051,7 +1051,7 @@ func (d *MsDosPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.DosPackExpr(),
+		querymod.DosPackExpr(),
 		qm.From(From)).Bind(ctx, exec, d)
 }
 
@@ -1062,7 +1062,7 @@ func (d *MsDosPack) List(ctx context.Context, exec boil.ContextExecutor, offset,
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.DosPackExpr(),
+		querymod.DosPackExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -1084,7 +1084,7 @@ func (m *Music) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.MusicExpr(),
+		querymod.MusicExpr(),
 		qm.From(From)).Bind(ctx, exec, m)
 }
 
@@ -1095,7 +1095,7 @@ func (m *Music) List(ctx context.Context, exec boil.ContextExecutor, offset, lim
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.MusicExpr(),
+		querymod.MusicExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
@@ -1117,7 +1117,7 @@ func (n *NewsArticle) Stat(ctx context.Context, exec boil.ContextExecutor) error
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.NewsArticleExpr(),
+		querymod.NewsArticleExpr(),
 		qm.From(From)).Bind(ctx, exec, n)
 }
 
@@ -1128,7 +1128,7 @@ func (n *NewsArticle) List(ctx context.Context, exec boil.ContextExecutor, offse
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.NewsArticleExpr(),
+		querymod.NewsArticleExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
@@ -1150,7 +1150,7 @@ func (n *Nfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.NfoExpr(),
+		querymod.NfoExpr(),
 		qm.From(From)).Bind(ctx, exec, n)
 }
 
@@ -1161,7 +1161,7 @@ func (n *Nfo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.NfoExpr(),
+		querymod.NfoExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -1183,7 +1183,7 @@ func (n *NfoTool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.NfoToolExpr(),
+		querymod.NfoToolExpr(),
 		qm.From(From)).Bind(ctx, exec, n)
 }
 
@@ -1194,7 +1194,7 @@ func (n *NfoTool) List(ctx context.Context, exec boil.ContextExecutor, offset, l
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.NfoToolExpr(),
+		querymod.NfoToolExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -1216,7 +1216,7 @@ func (p *PDF) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.PDFExpr(),
+		querymod.PDFExpr(),
 		qm.From(From)).Bind(ctx, exec, p)
 }
 
@@ -1227,7 +1227,7 @@ func (p *PDF) List(ctx context.Context, exec boil.ContextExecutor, offset, limit
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.PDFExpr(),
+		querymod.PDFExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -1249,7 +1249,7 @@ func (p *Proof) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.ProofExpr(),
+		querymod.ProofExpr(),
 		qm.From(From)).Bind(ctx, exec, p)
 }
 
@@ -1260,7 +1260,7 @@ func (p *Proof) List(ctx context.Context, exec boil.ContextExecutor, offset, lim
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.ProofExpr(),
+		querymod.ProofExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -1281,7 +1281,7 @@ func (r *Restrict) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.RestrictExpr(),
+		querymod.RestrictExpr(),
 		qm.From(From)).Bind(ctx, exec, r)
 }
 
@@ -1292,7 +1292,7 @@ func (r *Restrict) List(ctx context.Context, exec boil.ContextExecutor, offset, 
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.RestrictExpr(),
+		querymod.RestrictExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
@@ -1314,7 +1314,7 @@ func (s *Script) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.ScriptExpr(),
+		querymod.ScriptExpr(),
 		qm.From(From)).Bind(ctx, exec, s)
 }
 
@@ -1325,7 +1325,7 @@ func (s *Script) List(ctx context.Context, exec boil.ContextExecutor, offset, li
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.ScriptExpr(),
+		querymod.ScriptExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -1347,7 +1347,7 @@ func (s *Standard) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.StandardExpr(),
+		querymod.StandardExpr(),
 		qm.From(From)).Bind(ctx, exec, s)
 }
 
@@ -1358,7 +1358,7 @@ func (s *Standard) List(ctx context.Context, exec boil.ContextExecutor, offset, 
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.StandardExpr(),
+		querymod.StandardExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
@@ -1380,7 +1380,7 @@ func (t *Takedown) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.TakedownExpr(),
+		querymod.TakedownExpr(),
 		qm.From(From)).Bind(ctx, exec, t)
 }
 
@@ -1391,7 +1391,7 @@ func (t *Takedown) List(ctx context.Context, exec boil.ContextExecutor, offset, 
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.TakedownExpr(),
+		querymod.TakedownExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
@@ -1413,7 +1413,7 @@ func (t *Text) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.TextExpr(),
+		querymod.TextExpr(),
 		qm.From(From)).Bind(ctx, exec, t)
 }
 
@@ -1424,7 +1424,7 @@ func (t *Text) List(ctx context.Context, exec boil.ContextExecutor, offset, limi
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.TextExpr(),
+		querymod.TextExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -1446,7 +1446,7 @@ func (t *TextAmiga) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.TextAmigaExpr(),
+		querymod.TextAmigaExpr(),
 		qm.From(From)).Bind(ctx, exec, t)
 }
 
@@ -1457,7 +1457,7 @@ func (t *TextAmiga) List(ctx context.Context, exec boil.ContextExecutor, offset,
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.TextAmigaExpr(),
+		querymod.TextAmigaExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -1479,7 +1479,7 @@ func (t *TextApple2) Stat(ctx context.Context, exec boil.ContextExecutor) error 
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.AppleIIExpr(),
+		querymod.AppleIIExpr(),
 		qm.From(From)).Bind(ctx, exec, t)
 }
 
@@ -1490,7 +1490,7 @@ func (t *TextApple2) List(ctx context.Context, exec boil.ContextExecutor, offset
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.AppleIIExpr(),
+		querymod.AppleIIExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -1512,7 +1512,7 @@ func (t *TextAtariST) Stat(ctx context.Context, exec boil.ContextExecutor) error
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.AtariSTExpr(),
+		querymod.AtariSTExpr(),
 		qm.From(From)).Bind(ctx, exec, t)
 }
 
@@ -1523,7 +1523,7 @@ func (t *TextAtariST) List(ctx context.Context, exec boil.ContextExecutor, offse
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.AtariSTExpr(),
+		querymod.AtariSTExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -1545,7 +1545,7 @@ func (t *TextPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.TextPackExpr(),
+		querymod.TextPackExpr(),
 		qm.From(From)).Bind(ctx, exec, t)
 }
 
@@ -1556,7 +1556,7 @@ func (t *TextPack) List(ctx context.Context, exec boil.ContextExecutor, offset, 
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.TextPackExpr(),
+		querymod.TextPackExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -1578,7 +1578,7 @@ func (t *Tool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.ToolExpr(),
+		querymod.ToolExpr(),
 		qm.From(From)).Bind(ctx, exec, t)
 }
 
@@ -1589,7 +1589,7 @@ func (t *Tool) List(ctx context.Context, exec boil.ContextExecutor, offset, limi
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.ToolExpr(),
+		querymod.ToolExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
@@ -1611,7 +1611,7 @@ func (t *TrialCrackme) Stat(ctx context.Context, exec boil.ContextExecutor) erro
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.TrialCrackmeExpr(),
+		querymod.TrialCrackmeExpr(),
 		qm.From(From)).Bind(ctx, exec, t)
 }
 
@@ -1622,7 +1622,7 @@ func (t *TrialCrackme) List(ctx context.Context, exec boil.ContextExecutor, offs
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.TrialCrackmeExpr(),
+		querymod.TrialCrackmeExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
@@ -1644,7 +1644,7 @@ func (v *Video) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.VideoExpr(),
+		querymod.VideoExpr(),
 		qm.From(From)).Bind(ctx, exec, v)
 }
 
@@ -1655,7 +1655,7 @@ func (v *Video) List(ctx context.Context, exec boil.ContextExecutor, offset, lim
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.VideoExpr(),
+		querymod.VideoExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),
@@ -1677,7 +1677,7 @@ func (w *Windows) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.WindowsExpr(),
+		querymod.WindowsExpr(),
 		qm.From(From)).Bind(ctx, exec, w)
 }
 
@@ -1688,7 +1688,7 @@ func (w *Windows) List(ctx context.Context, exec boil.ContextExecutor, offset, l
 		return nil, ErrDB
 	}
 	return models.Files(
-		expr.WindowsExpr(),
+		querymod.WindowsExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
 		qm.OrderBy(ClauseOldDate),
@@ -1710,7 +1710,7 @@ func (w *WindowsPack) Stat(ctx context.Context, exec boil.ContextExecutor) error
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		expr.WindowsPackExpr(),
+		querymod.WindowsPackExpr(),
 		qm.From(From)).Bind(ctx, exec, w)
 }
 
@@ -1723,7 +1723,7 @@ func (w *WindowsPack) List(ctx context.Context, exec boil.ContextExecutor, offse
 	return models.Files(
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
-		expr.WindowsPackExpr(),
+		querymod.WindowsPackExpr(),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, exec)
 }

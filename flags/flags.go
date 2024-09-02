@@ -1,7 +1,7 @@
-// Package command provides the command line interface for the Defacto2 server application.
+// Package flags provides the command line interface for the Defacto2 server application.
 // With the configuration of the application done using the environment variables,
 // the use of commands should be kept to a minimum.
-package command
+package flags
 
 import (
 	"errors"

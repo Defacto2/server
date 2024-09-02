@@ -14,7 +14,7 @@ import (
 	"github.com/Defacto2/server/handler/html3/ext"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
-	"github.com/Defacto2/server/model/expr"
+	"github.com/Defacto2/server/model/querymod"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -37,8 +37,8 @@ var (
 func ArtExpr() qm.QueryMod {
 	return qm.Expr(
 		qm.Where(ClauseNoSoftDel),
-		models.FileWhere.Section.NEQ(expr.SBbs()),
-		models.FileWhere.Platform.EQ(expr.PImage()),
+		models.FileWhere.Section.NEQ(querymod.SBbs()),
+		models.FileWhere.Platform.EQ(querymod.PImage()),
 	)
 }
 
@@ -63,10 +63,10 @@ func Created(f *models.File) string {
 func DocumentExpr() qm.QueryMod {
 	return qm.Expr(
 		qm.Where(ClauseNoSoftDel),
-		models.FileWhere.Platform.EQ(expr.PAnsi()),
-		qm.Or2(models.FileWhere.Platform.EQ(expr.PText())),
-		qm.Or2(models.FileWhere.Platform.EQ(expr.PTextAmiga())),
-		qm.Or2(models.FileWhere.Platform.EQ(expr.PPdf())),
+		models.FileWhere.Platform.EQ(querymod.PAnsi()),
+		qm.Or2(models.FileWhere.Platform.EQ(querymod.PText())),
+		qm.Or2(models.FileWhere.Platform.EQ(querymod.PTextAmiga())),
+		qm.Or2(models.FileWhere.Platform.EQ(querymod.PPdf())),
 	)
 }
 
@@ -168,11 +168,11 @@ func SelectHTML3() qm.QueryMod {
 func SoftwareExpr() qm.QueryMod {
 	return qm.Expr(
 		qm.Where(ClauseNoSoftDel),
-		models.FileWhere.Platform.EQ(expr.PJava()),
-		qm.Or2(models.FileWhere.Platform.EQ(expr.PLinux())),
-		qm.Or2(models.FileWhere.Platform.EQ(expr.PDos())),
-		qm.Or2(models.FileWhere.Platform.EQ(expr.PScript())),
-		qm.Or2(models.FileWhere.Platform.EQ(expr.PWindows())),
+		models.FileWhere.Platform.EQ(querymod.PJava()),
+		qm.Or2(models.FileWhere.Platform.EQ(querymod.PLinux())),
+		qm.Or2(models.FileWhere.Platform.EQ(querymod.PDos())),
+		qm.Or2(models.FileWhere.Platform.EQ(querymod.PScript())),
+		qm.Or2(models.FileWhere.Platform.EQ(querymod.PWindows())),
 	)
 }
 

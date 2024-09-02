@@ -1,6 +1,6 @@
-package expr
+package querymod
 
-// Package expr contains functions that return a null.String type for use in SQL queries.
+// Package querymod contains functions that return a null.String type for use in SQL queries.
 
 import (
 	"github.com/Defacto2/server/internal/tags"

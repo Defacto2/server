@@ -1,9 +1,9 @@
-package command_test
+package flags_test
 
 import (
 	"testing"
 
-	"github.com/Defacto2/server/command"
+	"github.com/Defacto2/server/flags"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -11,11 +11,11 @@ import (
 
 func TestRun(t *testing.T) {
 	t.Parallel()
-	ec, err := command.Run("", nil)
+	ec, err := flags.Run("", nil)
 	require.Error(t, err)
-	assert.Equal(t, command.UsageError, ec)
+	assert.Equal(t, flags.UsageError, ec)
 	c := config.Config{}
-	ec, err = command.Run("", &c)
+	ec, err = flags.Run("", &c)
 	require.Error(t, err)
-	assert.Equal(t, command.GenericError, ec)
+	assert.Equal(t, flags.GenericError, ec)
 }
