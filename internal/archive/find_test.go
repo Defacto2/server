@@ -18,7 +18,7 @@ func TestReadme(t *testing.T) {
 
 	require.NoError(t, err)
 	l := len(files)
-	const expectedFiles = 21
+	const expectedFiles = 28
 	assert.GreaterOrEqual(t, expectedFiles, l)
 
 	s = archive.Readme("", files...)
