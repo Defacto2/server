@@ -1,6 +1,0 @@
-
- *** Rinaldo's Read history file ***
-
-
-v0.5 [12 Apr 2015]:
- - first public release

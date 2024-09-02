@@ -17,14 +17,12 @@ func logr() *zap.SugaredLogger {
 	return zap.NewExample().Sugar()
 }
 
-func tduncompress(name string) string {
+func testdata(name string) string {
 	_, file, _, ok := runtime.Caller(0)
 	if !ok {
 		panic("runtime.Caller failed")
 	}
-	d := filepath.Join(filepath.Dir(file), "../..")
-	x := filepath.Join(d, "assets", "testdata", "uncompress", name)
-	return x
+	return filepath.Join(filepath.Dir(file), "testdata", name)
 }
 
 func TestLookups(t *testing.T) {
@@ -193,7 +191,7 @@ func Test_PreviewPixels(t *testing.T) {
 	}
 	imgs := []string{"TEST.BMP", "TEST.GIF", "TEST.JPG", "TEST.PCX", "TEST.PNG"}
 	for _, name := range imgs {
-		fp := tduncompress(name)
+		fp := testdata(name)
 		err = dir.PreviewPixels(logr(), fp, "000000ABCDE")
 		require.NoError(t, err)
 	}

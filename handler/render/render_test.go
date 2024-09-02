@@ -69,7 +69,7 @@ func TestRead(t *testing.T) {
 	assert.Equal(t, err, render.ErrFilename)
 	assert.Nil(t, r)
 
-	art.Filename = null.StringFrom("../testdata/TEST.DOC")
+	art.Filename = null.StringFrom(filepath.Join("testdata", "TEST.DOC"))
 	r, err = render.Read(&art, "", "")
 	require.Error(t, err)
 	assert.Equal(t, err, render.ErrUUID)

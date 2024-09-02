@@ -122,11 +122,12 @@ func TestImageSample(t *testing.T) {
 	const missing = "No preview image file"
 	x := str.ImageSample("", "")
 	assert.Contains(t, x, missing)
-	x = str.ImageSample("", "testdata/TEST.PNG")
+	// note: the filename extension is case-sensitive.
+	x = str.ImageSample("", filepath.Join("testdata", "TEST.png"))
 	assert.Contains(t, x, missing)
-	abs, err := filepath.Abs("../../testdata")
+	abs, err := filepath.Abs("testdata")
 	require.NoError(t, err)
-	const filenameNoExt = "test"
+	const filenameNoExt = "TEST"
 	x = str.ImageSample(filenameNoExt, abs)
 	assert.Contains(t, x, "sha384-SK3qCpS11QMhNxUUnyeUeWWXBMPORDgLTI")
 }
