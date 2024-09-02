@@ -21,10 +21,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Defacto2/archive"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/sess"
-	"github.com/Defacto2/server/internal/archive"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/demozoo"
 	"github.com/Defacto2/server/internal/form"

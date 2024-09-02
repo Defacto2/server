@@ -16,8 +16,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Defacto2/archive/rezip"
 	"github.com/Defacto2/magicnumber"
-	"github.com/Defacto2/server/internal/archive/rezip"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/config/fixarc"
 	"github.com/Defacto2/server/internal/config/fixarj"
