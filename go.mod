@@ -1,7 +1,6 @@
 module github.com/Defacto2/server
 
 go 1.22.5
-toolchain go1.23.0
 
 require (
 	github.com/Defacto2/archive v1.0.0
@@ -14,7 +13,7 @@ require (
 	github.com/evanw/esbuild v0.23.1
 	github.com/friendsofgo/errors v0.9.2
 	github.com/google/uuid v1.6.0
-	github.com/gorilla/sessions v1.4.0
+	github.com/gorilla/sessions v1.3.0
 	github.com/h2non/filetype v1.1.3
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/labstack/echo-contrib v0.17.1

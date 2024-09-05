@@ -76,9 +76,6 @@ issues:
     - path: handler/app/internal/mfs/mfs.go
       linters:
         - dupl
-    - path: internal/archive/archive.go
-      linters:
-        - dupl
     - path: internal/command/images.go
       linters:
         - dupl
@@ -86,30 +83,30 @@ issues:
       linters: # caarlos0/env package uses structs with long declarations.
         - lll
         - tagalign
-    - path: internal/demozoo/demozoo.go
+    - path: handler/demozoo/demozoo.go
       linters: # false positives with the Demozoo API.
         - tagliatelle
-    - path: internal/demozoo/demozoo_test.go
+    - path: handler/demozoo/demozoo_test.go
       linters: # false positives with the Demozoo API.
         - tagliatelle
-    - path: internal/jsdos/jsdos.go
+    - path: handler/jsdos/jsdos.go
       linters: # long struct comments.
         - lll
-    - path: internal/magicnumber/magicnumber.go
-      linters: # magic number false positives.
-        - mnd
     - path: internal/postgres/postgres.go
       linters: # caarlos0/env package uses structs with long declarations.
         - lll
         - tagalign
-    - path: internal/pouet/pouet.go
+    - path: handler/pouet/pouet.go
       linters: # false positives with the Pouet API.
         - tagliatelle
-    - path: internal/site/site.go
+    - path: handler/site/site.go
       linters: # A custom map that reads easier with long declarations.
         - funlen
         - maintidx
     - path: model/files.*\.go$
+      linters:
+        - dupl
+    - path: handler/app/internal/fileslice/fileslice.go
       linters:
         - dupl
 
