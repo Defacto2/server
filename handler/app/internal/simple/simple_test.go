@@ -2,6 +2,7 @@ package simple_test
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -104,6 +105,8 @@ func TestUpdated(t *testing.T) {
 	t.Parallel()
 	s := simple.Updated(nil, "")
 	assert.Empty(t, s)
+	s = simple.Updated("9:30pm", "")
+	assert.Contains(t, s, "error")
 	s = simple.Updated(time.Now(), "")
 	assert.Contains(t, s, "Time less than 5 seconds ago")
 }
@@ -184,4 +187,111 @@ func TestLinkID(t *testing.T) {
 	s, err = simple.LinkID(1, "")
 	assert.NoError(t, err)
 	assert.Equal(t, "/9b1c6", s)
+}
+
+func TestLinkRelr(t *testing.T) {
+	t.Parallel()
+	s, err := simple.LinkRelr("")
+	require.Error(t, err)
+	assert.Empty(t, s)
+	s, err = simple.LinkRelr("a string")
+	require.NoError(t, err)
+	assert.Equal(t, "/g/a-string", s)
+}
+
+func TestMakeLink(t *testing.T) {
+	t.Parallel()
+	s, err := simple.MakeLink("", "", true)
+	require.Error(t, err)
+	assert.Empty(t, s)
+	s, err = simple.MakeLink("tport", "", true)
+	require.NoError(t, err)
+	assert.Contains(t, s, "Tport")
+	s, err = simple.MakeLink("tport", "", false)
+	require.NoError(t, err)
+	assert.Contains(t, s, "tPORt")
+}
+
+func TestMagicAsTitle(t *testing.T) {
+	t.Parallel()
+	s := simple.MagicAsTitle("")
+	assert.Equal(t, "file not found", s)
+	s = simple.MagicAsTitle(testImage(t))
+	assert.Contains(t, s, "Portable Network Graphics")
+}
+
+func TestMIME(t *testing.T) {
+	t.Parallel()
+	s := simple.MIME("")
+	assert.Equal(t, "file not found", s)
+	s = simple.MIME(testImage(t))
+	assert.Equal(t, "image/png", s)
+}
+
+func TestMkContent(t *testing.T) {
+	t.Parallel()
+	s := simple.MkContent("")
+	assert.Empty(t, s)
+	s = simple.MkContent("a string")
+	assert.Contains(t, s, "a string")
+	defer os.Remove(s)
+}
+
+func TestReleasers(t *testing.T) {
+	t.Parallel()
+	s := simple.Releasers("", "", true)
+	assert.Empty(t, s)
+	s = simple.Releasers("group 1", "group 2", false)
+	assert.Contains(t, s, "group 1")
+	assert.Contains(t, s, "group 2")
+	s = simple.Releasers("group 1", "group 2", true)
+	assert.Contains(t, s, "group 1")
+	assert.Contains(t, s, "group 2")
+	assert.Contains(t, s, "published by")
+}
+
+func TestScreenshot(t *testing.T) {
+	t.Parallel()
+	s := simple.Screenshot("", "", "")
+	assert.Empty(t, s)
+	dir := filepath.Dir(testImage(t))
+	s = simple.Screenshot("TEST", "test", dir)
+	assert.Contains(t, s, `alt="test screenshot"`)
+	assert.Contains(t, s, `<img src="/public/image`)
+}
+
+func TestStatHumanize(t *testing.T) {
+	t.Parallel()
+	x, y, z := simple.StatHumanize("")
+	const none = "file not found"
+	assert.Equal(t, none, x)
+	assert.Equal(t, none, y)
+	assert.Equal(t, none, z)
+	x, y, z = simple.StatHumanize(testImage(t))
+	assert.Equal(t, "2024-Sep-03", x)
+	assert.Equal(t, "4,163", y)
+	assert.Contains(t, z, "4.2 kB")
+}
+
+func TestThumb(t *testing.T) {
+	t.Parallel()
+	s := simple.Thumb("", "", "", false)
+	assert.Contains(t, "<!-- no thumbnail found -->", s)
+	name := filepath.Base(testImage(t))
+	name = strings.TrimSuffix(name, filepath.Ext(name))
+	dir := filepath.Dir(testImage(t))
+	s = simple.Thumb(name, "a description", dir, false)
+	assert.Contains(t, s, `alt="a description thumbnail"`)
+}
+
+func TestThumbSample(t *testing.T) {
+	t.Parallel()
+	const missing = "No thumbnail"
+	x := simple.ThumbSample("", "")
+	assert.Contains(t, x, missing)
+	name := filepath.Base(testImage(t))
+	name = strings.TrimSuffix(name, filepath.Ext(name))
+	dir := filepath.Dir(testImage(t))
+	x = simple.ThumbSample(name, dir)
+	assert.Contains(t, x, "sha384-SK3qCpS11QMhNxUUnyeUeWWXBMPORDgLTI")
 }

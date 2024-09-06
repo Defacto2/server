@@ -34,6 +34,7 @@ import (
 
 var (
 	ErrLinkType = errors.New("the id value is an invalid type")
+	ErrName     = errors.New("name is an empty string")
 	ErrNegative = errors.New("value cannot be a negative number")
 )
 
@@ -82,6 +83,9 @@ func BytesHuman(i int64) string {
 }
 
 // DemozooGetLink returns a HTML link to the Demozoo download links.
+// The filename and filesize are used to determine if the file exists.
+// The demozoo is the ID for the production on Demozoo.
+// The unid is the unique identifier for the file record.
 func DemozooGetLink(filename, filesize, demozoo, unid any) template.HTML {
 	if val, valExists := filename.(null.String); valExists {
 		fileExists := val.Valid && val.String != ""
@@ -119,6 +123,7 @@ func DemozooGetLink(filename, filesize, demozoo, unid any) template.HTML {
 }
 
 // DownloadB returns a human readable string of the file size.
+// The i value must be an integer or a null.Int64.
 func DownloadB(i any) template.HTML {
 	var s string
 	switch val := i.(type) {
@@ -140,6 +145,7 @@ func DownloadB(i any) template.HTML {
 }
 
 // ImageSample returns a HTML image tag for the given unid.
+// The previewDir is the directory where the preview images are stored.
 func ImageSample(unid, previewDir string) template.HTML {
 	ext, name, src := "", "", ""
 	for _, ext = range []string{avif, webp, png} {
@@ -159,6 +165,7 @@ func ImageSample(unid, previewDir string) template.HTML {
 }
 
 // ImageSampleStat returns true if the image sample file exists and is not a 0 byte file.
+// The previewDir is the directory where the preview images are stored.
 func ImageSampleStat(unid, previewDir string) bool {
 	name := ""
 	for _, ext := range []string{avif, webp, png} {
@@ -174,7 +181,7 @@ func ImageSampleStat(unid, previewDir string) bool {
 	return st.Size() > 0
 }
 
-// ImageXY returns the image file size and dimensions.
+// ImageXY returns the named image filesize and dimensions.
 func ImageXY(name string) [2]string {
 	switch filepath.Ext(strings.ToLower(name)) {
 	case ".jpg", ".jpeg", ".gif", ".png", ".webp":
@@ -224,6 +231,8 @@ func LinkID(id any, elem string) (string, error) {
 }
 
 // LinkPreviewTip returns a tooltip to describe the preview link.
+// The name is the filename of the file to preview and does not require path information.
+// The platform is the platform or format of the file.
 func LinkPreviewTip(name, platform string) string {
 	if name == "" {
 		return ""
@@ -276,7 +285,12 @@ func LinkRelations(val string) template.HTML {
 }
 
 // LinkRelr returns a link to the named group page.
+//
+// Providing the name "a group" will return "/g/a-group".
 func LinkRelr(name string) (string, error) {
+	if name == "" {
+		return "", ErrName
+	}
 	href, err := url.JoinPath("/", "g", helper.Slug(name))
 	if err != nil {
 		return "", fmt.Errorf("name %q could not be made into a valid url: %w", name, err)
@@ -373,6 +387,8 @@ func MIME(name string) string {
 // MkContent makes and/or returns a distinct directory path in the temp directory
 // that is used to extract the contents of the content of the file download archive.
 // To make the directory distinct it is prefixed with the basename of the src file.
+//
+// The returned path should be removed after use.
 func MkContent(src string) string {
 	if src == "" {
 		return ""
@@ -434,9 +450,15 @@ func ReleaserPair(a, b any) [2]string {
 	return [2]string{}
 }
 
-// Screenshot returns a picture elment with screenshots for the given unid.
+// Screenshot returns a image elment with screenshots for the given unid.
+// If a webp or avif image is available, and a legacy png or jpg image is available,
+// a picture element is used to provide multiple sources for the image. Otherwise,
+// a single img element is used.
+//
 // The unid is the filename of the screenshot image without an extension.
 // The desc is the description of the image used for the alt attribute in the img tag.
+// The previewDir is the directory where the preview images are stored.
+//
 // Supported formats are webp, png, jpg and avif.
 func Screenshot(unid, desc, previewDir string) template.HTML {
 	const separator = "/"
@@ -448,40 +470,41 @@ func Screenshot(unid, desc, previewDir string) template.HTML {
 	srcJ := strings.Join([]string{config.StaticOriginal(), unid + jpg}, separator)
 	srcA := strings.Join([]string{config.StaticOriginal(), unid + avif}, separator)
 
-	sizeA := helper.Size(filepath.Join(previewDir, unid+avif))
-	sizeJ := helper.Size(filepath.Join(previewDir, unid+jpg))
-	sizeP := helper.Size(filepath.Join(previewDir, unid+png))
 	sizeW := helper.Size(filepath.Join(previewDir, unid+webp))
+	sizeP := helper.Size(filepath.Join(previewDir, unid+png))
+	sizeJ := helper.Size(filepath.Join(previewDir, unid+jpg))
+	sizeA := helper.Size(filepath.Join(previewDir, unid+avif))
 
-	useLegacyJpg := sizeJ > 0 && sizeJ < sizeA && sizeJ < sizeP && sizeJ < sizeW
-	if useLegacyJpg {
-		return img(srcJ, alt, class, "")
-	}
-	useLegacyPng := sizeP > 0 && sizeP < sizeA && sizeP < sizeW
-	if useLegacyPng {
-		return img(srcP, alt, class, "")
-	}
-	useModernFmts := sizeA > 0 || sizeW > 0
-	if useModernFmts {
+	usePicture := (sizeA > 0 || sizeW > 0) && (sizeJ > 0 || sizeP > 0)
+	if usePicture {
 		elm := template.HTML("<picture>")
-		if sizeA > 0 {
+		switch {
+		case sizeA > 0:
 			elm += template.HTML(fmt.Sprintf("<source srcset=\"%s\" type=\"image/avif\" />", srcA))
-		}
-		if sizeW > 0 {
+		case sizeW > 0:
 			elm += template.HTML(fmt.Sprintf("<source srcset=\"%s\" type=\"image/webp\" />", srcW))
 		}
-		if sizeJ > 0 && sizeJ < sizeP {
+		// the <picture> element is used to provide multiple sources for an image.
+		// if no <img> element is provided, the <picture> element won't be rendered by the browser.
+		useSmallerJpg := sizeJ > 0 && sizeJ < sizeP
+		switch {
+		case useSmallerJpg:
 			elm += img(srcJ, alt, class, "")
-		} else if sizeP > 0 {
+		case sizeP > 0:
 			elm += img(srcP, alt, class, "")
+		default:
+			elm += img(srcJ, alt, class, "")
 		}
-		elm += "</picture>"
-		return elm
+		return elm + "</picture>"
 	}
-	if sizeJ > 0 {
+	switch {
+	case sizeA > 0:
+		return img(srcA, alt, class, "")
+	case sizeW > 0:
+		return img(srcW, alt, class, "")
+	case sizeJ > 0:
 		return img(srcJ, alt, class, "")
-	}
-	if sizeP > 0 {
+	case sizeP > 0:
 		return img(srcP, alt, class, "")
 	}
 	return ""
@@ -495,6 +518,11 @@ func img(src, alt, class, style string) template.HTML {
 
 // StatHumanize returns the last modified date, size in bytes and size formatted
 // of the named file.
+// If the file does not exist, the string "file not found" is returned.
+//
+// An example of the returned values are:
+//
+//	"2024-Sep-03", "4,163", "4.2 kB"
 func StatHumanize(name string) (string, string, string) {
 	stat, err := os.Stat(name)
 	if err != nil {
@@ -508,6 +536,8 @@ func StatHumanize(name string) (string, string, string) {
 // Thumb returns a HTML image tag or picture element for the given unid.
 // The unid is the filename of the thumbnail image without an extension.
 // The desc is the description of the image.
+// The thumbDir is the directory where the thumbnail images are stored.
+// The bottom flag is true if the image should be displayed at the bottom of the container element.
 func Thumb(unid, desc, thumbDir string, bottom bool) template.HTML {
 	fw := filepath.Join(thumbDir, unid+webp)
 	fp := filepath.Join(thumbDir, unid+png)
@@ -521,13 +551,13 @@ func Thumb(unid, desc, thumbDir string, bottom bool) template.HTML {
 	if helper.Stat(fp) {
 		p = true
 	}
+	if !w && !p {
+		return template.HTML("<!-- no thumbnail found -->")
+	}
 	const style = "max-height:400px;"
 	class := "m-2 img-fluid rounded mx-auto d-block"
 	if !bottom {
 		class = "card-img-top"
-	}
-	if !w && !p {
-		return template.HTML("<!-- no thumbnail found -->")
 	}
 	if w && p {
 		elm := "<picture class=\"" + class + "\">" +
@@ -536,16 +566,16 @@ func Thumb(unid, desc, thumbDir string, bottom bool) template.HTML {
 			"</picture>"
 		return template.HTML(elm)
 	}
-	if w {
-		return img(webp, alt, class, style)
-	}
+	src := webp
 	if p {
-		return img(png, alt, class, style)
+		src = png
 	}
-	return ""
+	return img(src, alt, class, style)
 }
 
 // ThumbSample returns a HTML image tag for the given unid.
+// The unid is the filename of the thumbnail image without an extension.
+// The thumbDir is the directory where the thumbnail images are stored.
 func ThumbSample(unid, thumbDir string) template.HTML {
 	ext, name, src := "", "", ""
 	for _, ext = range []string{avif, webp, png} {
@@ -565,8 +595,10 @@ func ThumbSample(unid, thumbDir string) template.HTML {
 }
 
 // Updated returns a string of the time since the given time t.
-// The time is formatted as "Last updated 1 hour ago".
 // If the time is not valid, an empty string is returned.
+// An example of the returned string is:
+//
+//	"Time 1 day ago"
 func Updated(t any, s string) string {
 	if t == nil {
 		return ""
