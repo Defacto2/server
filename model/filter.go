@@ -22,7 +22,7 @@ type Advert struct {
 }
 
 func (a *Advert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -35,7 +35,7 @@ func (a *Advert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (a *Advert) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -55,7 +55,7 @@ type Announcement struct {
 }
 
 func (a *Announcement) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -68,7 +68,7 @@ func (a *Announcement) Stat(ctx context.Context, exec boil.ContextExecutor) erro
 func (a *Announcement) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -88,7 +88,7 @@ type Ansi struct {
 }
 
 func (a *Ansi) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -100,7 +100,7 @@ func (a *Ansi) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (a *Ansi) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -120,7 +120,7 @@ type AnsiBrand struct {
 }
 
 func (a *AnsiBrand) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -133,7 +133,7 @@ func (a *AnsiBrand) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (a *AnsiBrand) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -153,7 +153,7 @@ type AnsiBBS struct {
 }
 
 func (a *AnsiBBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -166,7 +166,7 @@ func (a *AnsiBBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (a *AnsiBBS) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -186,7 +186,7 @@ type AnsiFTP struct {
 }
 
 func (a *AnsiFTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -199,7 +199,7 @@ func (a *AnsiFTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (a *AnsiFTP) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -219,7 +219,7 @@ type AnsiNfo struct {
 }
 
 func (a *AnsiNfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -232,7 +232,7 @@ func (a *AnsiNfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (a *AnsiNfo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -252,7 +252,7 @@ type AnsiPack struct {
 }
 
 func (a *AnsiPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -265,7 +265,7 @@ func (a *AnsiPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (a *AnsiPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -285,7 +285,7 @@ type BBS struct {
 }
 
 func (b *BBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -298,7 +298,7 @@ func (b *BBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (b *BBS) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -318,7 +318,7 @@ type BBStro struct {
 }
 
 func (b *BBStro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -331,7 +331,7 @@ func (b *BBStro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (b *BBStro) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -351,7 +351,7 @@ type BBSImage struct {
 }
 
 func (b *BBSImage) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -364,7 +364,7 @@ func (b *BBSImage) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (b *BBSImage) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -384,7 +384,7 @@ type BBSText struct {
 }
 
 func (b *BBSText) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -397,7 +397,7 @@ func (b *BBSText) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (b *BBSText) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -417,7 +417,7 @@ type Database struct {
 }
 
 func (d *Database) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -430,7 +430,7 @@ func (d *Database) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (d *Database) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -450,7 +450,7 @@ type Demoscene struct {
 }
 
 func (d *Demoscene) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -463,7 +463,7 @@ func (d *Demoscene) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (d *Demoscene) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -483,7 +483,7 @@ type Drama struct {
 }
 
 func (d *Drama) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -496,7 +496,7 @@ func (d *Drama) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (d *Drama) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -516,7 +516,7 @@ type FTP struct {
 }
 
 func (f *FTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -529,7 +529,7 @@ func (f *FTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (f *FTP) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -549,7 +549,7 @@ type Hack struct {
 }
 
 func (h *Hack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -562,7 +562,7 @@ func (h *Hack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (h *Hack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -582,7 +582,7 @@ type HowTo struct {
 }
 
 func (h *HowTo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -595,7 +595,7 @@ func (h *HowTo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (h *HowTo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -615,7 +615,7 @@ type HTML struct {
 }
 
 func (h *HTML) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -628,7 +628,7 @@ func (h *HTML) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (h *HTML) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -648,7 +648,7 @@ type Image struct {
 }
 
 func (i *Image) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -661,7 +661,7 @@ func (i *Image) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (i *Image) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -681,7 +681,7 @@ type ImagePack struct {
 }
 
 func (i *ImagePack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -694,7 +694,7 @@ func (i *ImagePack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (i *ImagePack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -714,7 +714,7 @@ type Intro struct {
 }
 
 func (i *Intro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -727,7 +727,7 @@ func (i *Intro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (i *Intro) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -747,7 +747,7 @@ type IntroMsDos struct {
 }
 
 func (i *IntroMsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -760,7 +760,7 @@ func (i *IntroMsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error 
 func (i *IntroMsDos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -781,7 +781,7 @@ type IntroWindows struct {
 }
 
 func (i *IntroWindows) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -794,7 +794,7 @@ func (i *IntroWindows) Stat(ctx context.Context, exec boil.ContextExecutor) erro
 func (i *IntroWindows) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -814,7 +814,7 @@ type Installer struct {
 }
 
 func (i *Installer) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -827,7 +827,7 @@ func (i *Installer) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (i *Installer) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -847,7 +847,7 @@ type Java struct {
 }
 
 func (j *Java) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -860,7 +860,7 @@ func (j *Java) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (j *Java) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -880,7 +880,7 @@ type JobAdvert struct {
 }
 
 func (j *JobAdvert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -893,7 +893,7 @@ func (j *JobAdvert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (j *JobAdvert) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -913,7 +913,7 @@ type Linux struct {
 }
 
 func (l *Linux) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -926,7 +926,7 @@ func (l *Linux) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (l *Linux) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -946,7 +946,7 @@ type Magazine struct {
 }
 
 func (m *Magazine) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -959,7 +959,7 @@ func (m *Magazine) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (m *Magazine) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -979,7 +979,7 @@ type Macos struct {
 }
 
 func (m *Macos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -992,7 +992,7 @@ func (m *Macos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (m *Macos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1012,7 +1012,7 @@ type MsDos struct {
 }
 
 func (d *MsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1025,7 +1025,7 @@ func (d *MsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (d *MsDos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1045,7 +1045,7 @@ type MsDosPack struct {
 }
 
 func (d *MsDosPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1058,7 +1058,7 @@ func (d *MsDosPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (d *MsDosPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1078,7 +1078,7 @@ type Music struct {
 }
 
 func (m *Music) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1091,7 +1091,7 @@ func (m *Music) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (m *Music) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1111,7 +1111,7 @@ type NewsArticle struct {
 }
 
 func (n *NewsArticle) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1124,7 +1124,7 @@ func (n *NewsArticle) Stat(ctx context.Context, exec boil.ContextExecutor) error
 func (n *NewsArticle) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1144,7 +1144,7 @@ type Nfo struct {
 }
 
 func (n *Nfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1157,7 +1157,7 @@ func (n *Nfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (n *Nfo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1177,7 +1177,7 @@ type NfoTool struct {
 }
 
 func (n *NfoTool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1190,7 +1190,7 @@ func (n *NfoTool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (n *NfoTool) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1210,7 +1210,7 @@ type PDF struct {
 }
 
 func (p *PDF) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1223,7 +1223,7 @@ func (p *PDF) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (p *PDF) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1243,7 +1243,7 @@ type Proof struct {
 }
 
 func (p *Proof) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1256,7 +1256,7 @@ func (p *Proof) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (p *Proof) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1275,7 +1275,7 @@ type Restrict struct {
 }
 
 func (r *Restrict) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1288,7 +1288,7 @@ func (r *Restrict) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (r *Restrict) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1308,7 +1308,7 @@ type Script struct {
 }
 
 func (s *Script) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1321,7 +1321,7 @@ func (s *Script) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (s *Script) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1341,7 +1341,7 @@ type Standard struct {
 }
 
 func (s *Standard) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1354,7 +1354,7 @@ func (s *Standard) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (s *Standard) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1374,7 +1374,7 @@ type Takedown struct {
 }
 
 func (t *Takedown) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1387,7 +1387,7 @@ func (t *Takedown) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (t *Takedown) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1407,7 +1407,7 @@ type Text struct {
 }
 
 func (t *Text) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1420,7 +1420,7 @@ func (t *Text) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (t *Text) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1440,7 +1440,7 @@ type TextAmiga struct {
 }
 
 func (t *TextAmiga) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1453,7 +1453,7 @@ func (t *TextAmiga) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (t *TextAmiga) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1473,7 +1473,7 @@ type TextApple2 struct {
 }
 
 func (t *TextApple2) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1486,7 +1486,7 @@ func (t *TextApple2) Stat(ctx context.Context, exec boil.ContextExecutor) error 
 func (t *TextApple2) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1506,7 +1506,7 @@ type TextAtariST struct {
 }
 
 func (t *TextAtariST) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1519,7 +1519,7 @@ func (t *TextAtariST) Stat(ctx context.Context, exec boil.ContextExecutor) error
 func (t *TextAtariST) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1539,7 +1539,7 @@ type TextPack struct {
 }
 
 func (t *TextPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1552,7 +1552,7 @@ func (t *TextPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (t *TextPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1572,7 +1572,7 @@ type Tool struct {
 }
 
 func (t *Tool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1585,7 +1585,7 @@ func (t *Tool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (t *Tool) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1605,7 +1605,7 @@ type TrialCrackme struct {
 }
 
 func (t *TrialCrackme) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1618,7 +1618,7 @@ func (t *TrialCrackme) Stat(ctx context.Context, exec boil.ContextExecutor) erro
 func (t *TrialCrackme) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1638,7 +1638,7 @@ type Video struct {
 }
 
 func (v *Video) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1651,7 +1651,7 @@ func (v *Video) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (v *Video) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1671,7 +1671,7 @@ type Windows struct {
 }
 
 func (w *Windows) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1684,7 +1684,7 @@ func (w *Windows) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (w *Windows) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -1704,7 +1704,7 @@ type WindowsPack struct {
 }
 
 func (w *WindowsPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	return models.NewQuery(
@@ -1717,7 +1717,7 @@ func (w *WindowsPack) Stat(ctx context.Context, exec boil.ContextExecutor) error
 func (w *WindowsPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(

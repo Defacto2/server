@@ -31,7 +31,7 @@ const (
 	// Welcome is the default logo monospace text,
 	// each side contains 20 whitespace characters.
 	// The welcome to defacto2 text is 19 characters long.
-	// The letter 'O' of TO is the center of the text.
+	// The letter O of the word "TO" is the center of the text.
 	Welcome = `:                    ` +
 		`·· WELCOME TO DEFACTO2 ··` +
 		`                    ·`
@@ -79,6 +79,10 @@ func (c *Cache) Records(i int) {
 }
 
 // Attribute returns a formatted string of the roles for the given scener name.
+// For example if the name is "ben", write is "ben" and code is "bianca,ben" then
+// the following would return:
+//
+//	"Writer and programmer attributions"
 func Attribute(write, code, art, music, name string) string {
 	name = strings.ToLower(name)
 	w, c, a, m := strings.Split(strings.ToLower(write), ","),
@@ -121,8 +125,10 @@ func Attribute(write, code, art, music, name string) string {
 	return strings.Join(match, ", ") + attr
 }
 
-// Brief returns a human readable brief description of a release.
-// Based on the platform, section, year and month.
+// Brief returns a human readable brief description of the combined platform and section.
+// For example providing "windows" and "intro" would return:
+//
+//	"a Windows intro"
 func Brief(platform, section any) string {
 	p, s := "", ""
 	switch val := platform.(type) {
@@ -210,7 +216,7 @@ func ByteFileS(name string, count, bytes any) template.HTML {
 	return template.HTML(s)
 }
 
-// Day returns a string of the day number from the day d number between 1 and 31.
+// Day returns a string representation of the day number, a value between 1 and 31.
 func Day(d any) string {
 	var s string
 	switch val := d.(type) {
@@ -232,6 +238,10 @@ func Day(d any) string {
 
 // Describe returns a human readable description of a release.
 // Based on the platform, section, year and month.
+//
+// For example providing "windows", "intro", 1990 and 1 would return:
+//
+//	"a Windows intro published in Jan, 1990."
 func Describe(platform, section, year, month any) template.HTML {
 	const tmpl = "describe"
 	p, s, y, m := "", "", "", ""
@@ -299,7 +309,12 @@ func LastUpdated(t any) string {
 }
 
 // LinkDownload creates a URL to link to the file download of the record.
-func LinkDownload(id any, uri string) template.HTML {
+// The id needs to be a valid integer.
+// If the security alert is not empty, then a strikethrough warning is returned.
+// For example providing 1 and an empty security alert would return:
+//
+//	<a class="card-link" href="/d/9b1c6">Download</a>
+func LinkDownload(id any, securityAlert string) template.HTML {
 	if id == nil {
 		return ""
 	}
@@ -307,7 +322,7 @@ func LinkDownload(id any, uri string) template.HTML {
 	if err != nil {
 		return template.HTML(err.Error())
 	}
-	if uri != "" {
+	if securityAlert != "" {
 		return template.HTML(`<s class="card-link text-warning-emphasis" data-bs-toggle="tooltip" ` +
 			`data-bs-title="Use the link to access this file download">Download</s>`)
 	}
@@ -315,6 +330,7 @@ func LinkDownload(id any, uri string) template.HTML {
 }
 
 // LinkHref creates a URL path to link to the file page for the record.
+// The id needs to be a valid integer.
 func LinkHref(id any) (string, error) {
 	if id == nil {
 		return "", fmt.Errorf("id is nil, %w", ErrNegative)
@@ -323,6 +339,7 @@ func LinkHref(id any) (string, error) {
 }
 
 // LinkInterview returns a SVG arrow icon to indicate an interview link hosted on an external website.
+// If the href is not a valid URL then an empty string is returned.
 func LinkInterview(href string) template.HTML {
 	if href == "" {
 		return errVal("href")
@@ -336,6 +353,9 @@ func LinkInterview(href string) template.HTML {
 }
 
 // LinkPage creates a URL anchor element to link to the file page for the record.
+// The id needs to be a valid integer. For example providing 1 would return:
+//
+//	<a class="card-link" href="/f/9b1c6">Artifact</a>
 func LinkPage(id any) template.HTML {
 	if id == nil {
 		return ""
@@ -348,6 +368,9 @@ func LinkPage(id any) template.HTML {
 }
 
 // LinkRunApp creates a URL anchor element to link to the artifact page to launch the js-dos emulator.
+// The id needs to be a valid integer. For example providing 1 would return:
+//
+//	&nbsp; &nbsp; <a class="card-link" href="/f/9b1c6#runapp">Run app</a>
 func LinkRunApp(id any) template.HTML {
 	if id == nil {
 		return ""
@@ -359,8 +382,16 @@ func LinkRunApp(id any) template.HTML {
 	return template.HTML(fmt.Sprintf(`&nbsp; &nbsp; <a class="card-link" href="%s#runapp">Run app</a>`, s))
 }
 
-// LinkPreview creates a URL to link to the file record in tab, to use as a preview.
-// The preview link will only show with compatible file types based on their extension.
+// LinkPreview creates a URL to link to the file record in-tab to use as a preview.
+// The preview link will only show with compatible file types based on the platform and filename extension.
+// The id needs to be a valid integer, the name is the filename and the platform is the platform of the release.
+// Any invalid values will return an empty string.
+//
+// For example providing 1, "readme.txt" and "text" would return:
+//
+//	&nbsp; <a class="card-link" href="/v/9b1c6">Preview</a>
+//
+// But providing 1, "file.zip" and "text" would return an empty string.
 func LinkPreview(id any, name, platform string) template.HTML {
 	if id == nil || name == "" {
 		return template.HTML("")
@@ -374,6 +405,7 @@ func LinkPreview(id any, name, platform string) template.HTML {
 }
 
 // LinkRemote returns a HTML link with an embedded SVG icon to an external website.
+// There are no checks for the href or name values other than they are not empty.
 func LinkRemote(href, name string) template.HTML {
 	if href == "" {
 		return errVal("href")
@@ -387,7 +419,14 @@ func LinkRemote(href, name string) template.HTML {
 }
 
 // LinkScnr returns a link to the named scener page.
+// If the name is empty then an empty string is returned with no error.
+// An example of providing "some scener" would return:
+//
+//	"/p/some-scener", nil
 func LinkScnr(name string) (string, error) {
+	if name == "" {
+		return "", nil
+	}
 	href, err := url.JoinPath("/", "p", helper.Slug(name))
 	if err != nil {
 		return "", fmt.Errorf("name %q could not be made into a valid url: %w", name, err)
@@ -396,6 +435,7 @@ func LinkScnr(name string) (string, error) {
 }
 
 // LinkWiki returns a HTML link with an embedded SVG icon to the Defacto2 wiki on GitHub.
+// The uri must be a valid URI path to a wiki page and the name must not be empty.
 func LinkWiki(uri, name string) template.HTML {
 	if uri == "" {
 		return errVal("uri")
@@ -413,6 +453,11 @@ func LinkWiki(uri, name string) template.HTML {
 }
 
 // LogoText returns a string of text padded with spaces to center it in the logo.
+// If the string is empty then the default logo text is returned.
+// The text is converted to uppercase and truncated if it is longer than the limit.
+// An example of providing "abc" would return:
+//
+//	"      :                            ·· ABC ··                            ·"
 func LogoText(s string) string {
 	const spaces = 6
 	indent := strings.Repeat(" ", spaces)
@@ -446,7 +491,11 @@ func LogoText(s string) string {
 	return indent + text
 }
 
-// Month returns a string of the month name from the month m number between 1 and 12.
+// Month returns a short string of the month.
+// If the month number is not a valid then an empty string is returned.
+// For example providing 1 would return:
+//
+//	"Jan"
 func Month(m any) string {
 	if m == nil {
 		return ""
@@ -478,7 +527,10 @@ func Prefix(s string) string {
 	return s + " "
 }
 
-// RecordRels returns the groups associated with a release and joins them with a plus sign.
+// RecordRels returns the groups associated with a release and joins them using a plus sign.
+// For example providing "Group 1" and "Group 2" would return:
+//
+//	"Group 1 + Group 2"
 func RecordRels(a, b any) string {
 	av, bv, s := "", "", ""
 	switch val := a.(type) {
@@ -510,22 +562,28 @@ func RecordRels(a, b any) string {
 	return s
 }
 
-// SafeHTML returns a string as a template.HTML type.
-// This is intended to be used to prevent HTML escaping.
+// SafeHTML returns a string as a template.HTML type to prevent HTML escaping in the template.
 func SafeHTML(s string) template.HTML {
 	return template.HTML(s)
 }
 
-// SafeJS returns a string as a template.JS type.
-// This is intended to be used to prevent JS escaping.
+// SafeJS returns a string as a template.JS type to prevent JavaScript escaping in the template.
 func SafeJS(s string) template.JS {
 	return template.JS(s)
 }
 
 // SubTitle returns a secondary element with the record title.
-func SubTitle(section null.String, s any) template.HTML {
+// If the section is "magazine" and the title is a number then it is prefixed with "Issue".
+// For example providing "magazine" and 1 would return:
+//
+//	`<h3 class="card-subtitle mb-2 text-body-secondary fs-6">Issue 1</h3>`
+//
+// Otherwise providing "text" and "Some Cool Stuff" would return:
+//
+//	`<h3 class="card-subtitle mb-2 text-body-secondary fs-6">Some Cool Stuff</h3>`
+func SubTitle(section null.String, title any) template.HTML {
 	val := ""
-	switch v := s.(type) {
+	switch v := title.(type) {
 	case string:
 		val = v
 	case null.String:
@@ -548,16 +606,22 @@ func SubTitle(section null.String, s any) template.HTML {
 }
 
 // TagBrief returns a small summary of the tag.
+// For example providing "interview" would return:
+//
+//	"Conversations with the personalities of The Scene"
 func TagBrief(tag string) string {
 	t := tags.TagByURI(tag)
 	s := tags.Infos()[t]
 	return s
 }
 
-// TagOption returns a HTML option tag with the selected attribute if the selected matches the value.
-func TagOption(selected, value any) template.HTML {
+// TagOption returns a HTML option tag with a "selected" attribute if the s matches the value.
+// For example providing "interview" and "interview" would return:
+//
+//	`<option value="interview" selected>`
+func TagOption(s, value any) template.HTML {
 	sel, val := "", ""
-	switch i := selected.(type) {
+	switch i := s.(type) {
 	case string:
 		sel = reflect.ValueOf(i).String()
 	case null.String:
@@ -582,6 +646,10 @@ func TagOption(selected, value any) template.HTML {
 }
 
 // TagWithOS returns a small summary of the tag with the operating system.
+// If either the os or tags are unknown then a message is returned.
+// For example providing "dos" and "magazine" would return:
+//
+//	"a Dos magazine"
 func TagWithOS(os, tag string) string {
 	p, t := tags.TagByURI(os), tags.TagByURI(tag)
 	s := tags.Humanize(p, t)
@@ -589,6 +657,9 @@ func TagWithOS(os, tag string) string {
 }
 
 // TrimSiteSuffix returns a string with the last 4 characters removed if they are " FTP" or " BBS".
+// For example providing "My super FTP" would return:
+//
+//	"My super"
 func TrimSiteSuffix(s string) string {
 	n := strings.ToLower(strings.TrimSpace(s))
 	const chrs = 4
@@ -603,6 +674,7 @@ func TrimSiteSuffix(s string) string {
 }
 
 // TrimSpace returns a string with all leading and trailing whitespace removed.
+// If the value is a null.String then the value is checked for validity.
 func TrimSpace(a any) string {
 	if a == nil {
 		return ""
@@ -639,7 +711,8 @@ func URLEncode(a any) string {
 	}
 }
 
-// websiteIcon returns a Bootstrap icon name for the given website url.
+// WebsiteIcon returns a Bootstrap icon name for the given website url.
+// For example if the url contains "archive.org" then the Bootstrap icon "bank2" svg icon is returned.
 func WebsiteIcon(url string) template.HTML {
 	icon := websiteIcon(url)
 	const svg = `<svg class="bi text-black" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">`
@@ -673,6 +746,9 @@ func websiteIcon(url string) string {
 
 // YMDEdit handles the post submission for the Year, Month, Day selection fields.
 func YMDEdit(c echo.Context, db *sql.DB) error {
+	if db == nil {
+		return fmt.Errorf("ymdedit: %w", ErrDB)
+	}
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
@@ -698,7 +774,8 @@ func YMDEdit(c echo.Context, db *sql.DB) error {
 	return c.JSON(http.StatusOK, r)
 }
 
-// Cache contains database values that are used throughout the app or layouts.
+// Cache contains database values that are used throughout the app or layouts,
+// but do not change frequently enough to warrant a database query on every page load.
 type Cache struct {
 	RecordCount int // The total number of file records in the database.
 }
@@ -724,6 +801,7 @@ type SRI struct {
 
 // Verify checks the integrity of the embedded CSS and JS files.
 // These are required for Subresource Integrity (SRI) verification in modern browsers.
+// The fs is the embedded file system that contains the public facing file assets.
 func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 	names := Names()
 	var err error

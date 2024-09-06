@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -184,7 +185,7 @@ type Arts struct {
 
 // Stat sets the total bytes and total count.
 func (a *Arts) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if InvalidExec(exec) {
 		return ErrDB
 	}
 	if a.Bytes > 0 && a.Count > 0 {
@@ -205,7 +206,7 @@ type Documents struct {
 
 // Stat sets the total bytes and total count.
 func (d *Documents) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if InvalidExec(exec) {
 		return ErrDB
 	}
 	if d.Bytes > 0 && d.Count > 0 {
@@ -226,7 +227,7 @@ type Softwares struct {
 
 // Stat sets the total bytes and total count.
 func (s *Softwares) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if InvalidExec(exec) {
 		return ErrDB
 	}
 	if s.Bytes > 0 && s.Count > 0 {
@@ -237,4 +238,17 @@ func (s *Softwares) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Where(ClauseNoSoftDel),
 		SoftwareExpr(),
 		qm.From(From)).Bind(ctx, exec, s)
+}
+
+// InvalidExec returns true if the database context executor is invalid such as nil.
+func InvalidExec(exec boil.ContextExecutor) bool {
+	v := reflect.ValueOf(exec)
+	switch v.Kind() {
+	case reflect.Ptr, reflect.Interface:
+		if v.IsNil() {
+			return true
+		}
+		return false
+	}
+	return true
 }

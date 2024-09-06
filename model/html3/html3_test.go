@@ -1,6 +1,7 @@
 package html3_test
 
 import (
+	"database/sql"
 	"testing"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/Defacto2/server/model/html3"
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 func TestCreated(t *testing.T) {
@@ -120,4 +122,12 @@ func TestOrder_String(t *testing.T) {
 			tt.assertion(t, tt.expect, tt.o.String())
 		})
 	}
+}
+
+func TestInvalidExec(t *testing.T) {
+	assert.True(t, html3.InvalidExec(nil))
+	var x boil.ContextExecutor
+	assert.True(t, html3.InvalidExec(x))
+	db := sql.DB{}
+	assert.False(t, html3.InvalidExec(&db))
 }

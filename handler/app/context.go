@@ -112,6 +112,11 @@ func empty(c echo.Context) map[string]interface{} {
 	}
 }
 
+// EmptyTester is a map of defaults for the app template tests.
+func EmptyTester(c echo.Context) map[string]interface{} {
+	return empty(c)
+}
+
 // Artifacts is the handler for the list and preview of the files page.
 // The uri is the category or collection of files to display.
 // The page is the page number of the results to display.
@@ -376,6 +381,14 @@ func Configurations(cx echo.Context, db *sql.DB, conf config.Config) error {
 		data["countHidden"] = ca - cp - cnu
 	}
 	data = configurations(data, conf)
+	if db == nil {
+		data["dbConnections"] = "database not set"
+		err := cx.Render(http.StatusOK, name, data)
+		if err != nil {
+			return InternalErr(cx, name, err)
+		}
+		return nil
+	}
 	conns, max, err := postgres.Connections(db)
 	if err != nil {
 		data["dbConnections"] = err.Error()
@@ -940,6 +953,9 @@ func Page404(c echo.Context, uri, page string) error {
 
 // PlatformEdit handles the post submission for the Platform selection field.
 func PlatformEdit(c echo.Context, db *sql.DB) error {
+	if db == nil {
+		return InternalErr(c, "platform edit", ErrDB)
+	}
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
@@ -1027,7 +1043,7 @@ func PostName(c echo.Context, db *sql.DB, mode FileSearch) error {
 }
 
 // postStats is a helper function for PostName that returns the statistics for the files page.
-func (mode FileSearch) postStats(ctx context.Context, exec boil.ContextExecutor, terms []string) map[string]string {
+func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string) map[string]string {
 	none := func() map[string]string {
 		return map[string]string{
 			"files": "no files found",
@@ -1037,11 +1053,11 @@ func (mode FileSearch) postStats(ctx context.Context, exec boil.ContextExecutor,
 	m := model.Summary{}
 	switch mode {
 	case Filenames:
-		if err := m.ByFilename(ctx, exec, terms); err != nil {
+		if err := m.ByFilename(ctx, db, terms); err != nil {
 			return none()
 		}
 	case Descriptions:
-		if err := m.ByDescription(ctx, exec, terms); err != nil {
+		if err := m.ByDescription(ctx, db, terms); err != nil {
 			return none()
 		}
 	}
@@ -1227,7 +1243,9 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 	rel := model.Releasers{}
 	fs, err := rel.Where(ctx, db, uri)
 	if err != nil {
-		logger.Error(errs, err)
+		if logger != nil {
+			logger.Error(errs, err)
+		}
 		return Releaser404(c, uri)
 	}
 	if len(fs) == 0 {
@@ -1255,7 +1273,9 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 	}
 	d, err := releaserSum(ctx, db, uri)
 	if err != nil {
-		logger.Error(errs, err)
+		if logger != nil {
+			logger.Error(errs, err)
+		}
 		return Releaser404(c, uri)
 	}
 	data["stats"] = d
@@ -1495,10 +1515,12 @@ func Signin(c echo.Context, clientID, nonce string) error {
 // remove is a helper function to remove the session cookie by setting the MaxAge to -1.
 func remove(c echo.Context, name string, data map[string]interface{}) error {
 	sess, err := session.Get(sess.Name, c)
-	if err != nil {
+	if err == nil {
 		const remove = -1
-		sess.Options.MaxAge = remove
-		_ = sess.Save(c.Request(), c.Response())
+		if sess != nil {
+			sess.Options.MaxAge = remove
+			_ = sess.Save(c.Request(), c.Response())
+		}
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -1512,6 +1534,9 @@ func TagEdit(c echo.Context, db *sql.DB) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
+	}
+	if db == nil {
+		return InternalErr(c, "tag edit", ErrDB)
 	}
 	ctx := context.Background()
 	r, err := model.One(ctx, db, true, f.ID)
@@ -1577,9 +1602,6 @@ func TheScene(c echo.Context) error {
 // VotePouet is the handler for the Pouet production votes JSON page.
 func VotePouet(c echo.Context, logger *zap.SugaredLogger, id string) error {
 	const title, name, sep = "Pouet", "pouet", ";"
-	if logger == nil {
-		return InternalErr(c, name, ErrZap)
-	}
 	pv := pouet.Votes{}
 	i, err := strconv.Atoi(id)
 	if err != nil {
@@ -1589,11 +1611,15 @@ func VotePouet(c echo.Context, logger *zap.SugaredLogger, id string) error {
 	cp := cache.PouetVote
 	if s, err := cp.Read(id); err == nil {
 		if err := PouetCache(c, s); err == nil {
-			logger.Debugf("cache hit for pouet id %s", id)
+			if logger != nil {
+				logger.Debugf("cache hit for pouet id %s", id)
+			}
 			return nil
 		}
 	}
-	logger.Debugf("cache miss for pouet id %s", id)
+	if logger != nil {
+		logger.Debugf("cache miss for pouet id %s", id)
+	}
 	if err = pv.Votes(i); err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
@@ -1603,7 +1629,9 @@ func VotePouet(c echo.Context, logger *zap.SugaredLogger, id string) error {
 	val := fmt.Sprintf("%.1f%s%d%s%d%s%d",
 		pv.Stars, sep, pv.VotesDown, sep, pv.VotesUp, sep, pv.VotesMeh)
 	if err := cp.Write(id, val, cache.ExpiredAt); err != nil {
-		logger.Errorf("failed to write pouet id %s to cache db: %s", id, err)
+		if logger != nil {
+			logger.Errorf("failed to write pouet id %s to cache db: %s", id, err)
+		}
 	}
 	return nil
 }

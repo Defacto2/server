@@ -24,6 +24,9 @@ type Sceners []*struct {
 
 // Where gets the records of all files that have been credited to the named scener.
 func (s *Scener) Where(ctx context.Context, exec boil.ContextExecutor, name string) (models.FileSlice, error) {
+	if invalidExec(exec) {
+		return nil, ErrDB
+	}
 	return models.Files(
 		qm.Where(postgres.ScenerSQL(name)),
 		qm.OrderBy(ClauseOldDate),
@@ -35,6 +38,9 @@ func (s *Sceners) Distinct(ctx context.Context, exec boil.ContextExecutor) error
 	if len(*s) > 0 {
 		return nil
 	}
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	query := string(postgres.Sceners())
 	return queries.Raw(query).Bind(ctx, exec, s)
 }
@@ -43,6 +49,9 @@ func (s *Sceners) Distinct(ctx context.Context, exec boil.ContextExecutor) error
 func (s *Sceners) Writer(ctx context.Context, exec boil.ContextExecutor) error {
 	if len(*s) > 0 {
 		return nil
+	}
+	if invalidExec(exec) {
+		return ErrDB
 	}
 	query := string(postgres.Writers())
 	return queries.Raw(query).Bind(ctx, exec, s)
@@ -53,6 +62,9 @@ func (s *Sceners) Artist(ctx context.Context, exec boil.ContextExecutor) error {
 	if len(*s) > 0 {
 		return nil
 	}
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	query := string(postgres.Artists())
 	return queries.Raw(query).Bind(ctx, exec, s)
 }
@@ -62,6 +74,9 @@ func (s *Sceners) Coder(ctx context.Context, exec boil.ContextExecutor) error {
 	if len(*s) > 0 {
 		return nil
 	}
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	query := string(postgres.Coders())
 	return queries.Raw(query).Bind(ctx, exec, s)
 }
@@ -70,6 +85,9 @@ func (s *Sceners) Coder(ctx context.Context, exec boil.ContextExecutor) error {
 func (s *Sceners) Musician(ctx context.Context, exec boil.ContextExecutor) error {
 	if len(*s) > 0 {
 		return nil
+	}
+	if invalidExec(exec) {
+		return ErrDB
 	}
 	query := string(postgres.Musicians())
 	return queries.Raw(query).Bind(ctx, exec, s)

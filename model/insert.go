@@ -20,7 +20,7 @@ import (
 // This will not check if the Demozoo production ID already exists in the database.
 // When successful the function will return the new record ID.
 func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int64) (int64, string, error) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return 0, "", ErrDB
 	}
 	if id < startID || id > DemozooSanity {
@@ -47,7 +47,7 @@ func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int64) (in
 // This will not check if the Pouet production ID already exists in the database.
 // When successful the function will return the new record ID.
 func InsertPouet(ctx context.Context, exec boil.ContextExecutor, id int64) (int64, string, error) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return 0, "", ErrDB
 	}
 	if id < startID || id > pouet.Sanity {

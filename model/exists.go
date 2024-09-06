@@ -17,7 +17,7 @@ import (
 // DemozooExists returns true if the file record exists in the database using a Demozoo production ID.
 // This function will also return true for records that have been marked as deleted.
 func DemozooExists(ctx context.Context, exec boil.ContextExecutor, id int64) (bool, error) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return false, ErrDB
 	}
 	ok, err := models.Files(models.FileWhere.WebIDDemozoo.EQ(null.Int64From(id)),
@@ -31,7 +31,7 @@ func DemozooExists(ctx context.Context, exec boil.ContextExecutor, id int64) (bo
 // PouetExists returns true if the file record exists in the database using a Pouet production ID.
 // This function will also return true for records that have been marked as deleted.
 func PouetExists(ctx context.Context, exec boil.ContextExecutor, id int64) (bool, error) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return false, ErrDB
 	}
 	ok, err := models.Files(models.FileWhere.WebIDPouet.EQ(null.Int64From(id)),
@@ -44,7 +44,7 @@ func PouetExists(ctx context.Context, exec boil.ContextExecutor, id int64) (bool
 
 // SHA384Exists returns true if the file record exists in the database using a SHA-384 hash.
 func SHA384Exists(ctx context.Context, exec boil.ContextExecutor, sha384 []byte) (bool, error) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return false, ErrDB
 	}
 	hash := hex.EncodeToString(sha384)
@@ -53,7 +53,7 @@ func SHA384Exists(ctx context.Context, exec boil.ContextExecutor, sha384 []byte)
 
 // HashExists returns true if the file record exists in the database using a SHA-384 hexadecimal hash.
 func HashExists(ctx context.Context, exec boil.ContextExecutor, hash string) (bool, error) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return false, ErrDB
 	}
 	if len(hash) != sha512.Size384*2 {

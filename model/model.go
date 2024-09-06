@@ -10,7 +10,9 @@ import (
 	"github.com/Defacto2/server/handler/jsdos"
 	"github.com/Defacto2/server/handler/jsdos/msdos"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/Defacto2/server/model/html3"
 	"github.com/subpop/go-ini"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 var (
@@ -150,4 +152,9 @@ func JsDosConfig(f *models.File) (string, error) {
 		return "", fmt.Errorf("ini.Marshal: %w", err)
 	}
 	return string(b), nil
+}
+
+// invalidExec returns true if the database context executor is invalid such as nil.
+func invalidExec(exec boil.ContextExecutor) bool {
+	return html3.InvalidExec(exec)
 }

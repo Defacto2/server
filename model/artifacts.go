@@ -24,7 +24,7 @@ type Artifacts struct {
 
 // Public returns the total number of artifacts and the summed filesize of all artifacts that are not hidden.
 func (f *Artifacts) Public(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	if f.Bytes > 0 && f.Count > 0 {
@@ -40,7 +40,7 @@ func (f *Artifacts) Public(ctx context.Context, exec boil.ContextExecutor) error
 func (f *Artifacts) ByKey(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	if err := f.Public(ctx, exec); err != nil {
@@ -58,7 +58,7 @@ func (f *Artifacts) ByKey(ctx context.Context, exec boil.ContextExecutor, offset
 func (f *Artifacts) ByOldest(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	if err := f.Public(ctx, exec); err != nil {
@@ -78,7 +78,7 @@ func (f *Artifacts) ByOldest(ctx context.Context, exec boil.ContextExecutor, off
 func (f *Artifacts) ByNewest(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	if err := f.Public(ctx, exec); err != nil {
@@ -98,7 +98,7 @@ func (f *Artifacts) ByNewest(ctx context.Context, exec boil.ContextExecutor, off
 func (f *Artifacts) ByUpdated(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	if err := f.Public(ctx, exec); err != nil {
@@ -116,7 +116,7 @@ func (f *Artifacts) ByUpdated(ctx context.Context, exec boil.ContextExecutor, of
 func (f *Artifacts) ByHidden(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	if err := f.byHidden(ctx, exec); err != nil {
@@ -133,7 +133,7 @@ func (f *Artifacts) ByHidden(ctx context.Context, exec boil.ContextExecutor, off
 }
 
 func (f *Artifacts) byHidden(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	if f.Bytes > 0 && f.Count > 0 {
@@ -151,7 +151,8 @@ func (f *Artifacts) byHidden(ctx context.Context, exec boil.ContextExecutor) err
 func (f *Artifacts) ByForApproval(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	fmt.Println("\n\n\n\nByForApproval", invalidExec(exec))
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	if err := f.byForApproval(ctx, exec); err != nil {
@@ -168,7 +169,7 @@ func (f *Artifacts) ByForApproval(ctx context.Context, exec boil.ContextExecutor
 }
 
 func (f *Artifacts) byForApproval(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	if f.Bytes > 0 && f.Count > 0 {
@@ -186,7 +187,7 @@ func (f *Artifacts) byForApproval(ctx context.Context, exec boil.ContextExecutor
 func (f *Artifacts) ByMagicErr(ctx context.Context, exec boil.ContextExecutor, binaryData bool) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	equals := []string{"data", "tar archive", "Microsoft ASF"}
@@ -218,7 +219,7 @@ func (f *Artifacts) ByMagicErr(ctx context.Context, exec boil.ContextExecutor, b
 func (f *Artifacts) ByTextPlatform(ctx context.Context, exec boil.ContextExecutor) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -232,7 +233,7 @@ func (f *Artifacts) ByTextPlatform(ctx context.Context, exec boil.ContextExecuto
 func (f *Artifacts) ByUnwanted(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	if err := f.byUnwanted(ctx, exec); err != nil {
@@ -248,7 +249,7 @@ func (f *Artifacts) ByUnwanted(ctx context.Context, exec boil.ContextExecutor, o
 }
 
 func (f *Artifacts) byUnwanted(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
+	if invalidExec(exec) {
 		return ErrDB
 	}
 	if f.Bytes > 0 && f.Count > 0 {
@@ -267,7 +268,7 @@ func (f *Artifacts) byUnwanted(ctx context.Context, exec boil.ContextExecutor) e
 func (f *Artifacts) Description(ctx context.Context, exec boil.ContextExecutor, terms []string) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	if terms == nil {
@@ -301,7 +302,7 @@ func (f *Artifacts) Description(ctx context.Context, exec boil.ContextExecutor, 
 func (f *Artifacts) Filename(ctx context.Context, exec boil.ContextExecutor, terms []string) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	if terms == nil {
@@ -331,7 +332,7 @@ func (f *Artifacts) ID(
 	ctx context.Context, exec boil.ContextExecutor, ids []int, uuids ...uuid.UUID) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	if (ids == nil && uuids == nil) || (len(ids) == 0 && len(uuids) == 0) {

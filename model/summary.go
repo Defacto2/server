@@ -27,6 +27,9 @@ type Summary struct {
 
 // ByDescription saves the summary statistics for the file description search.
 func (s *Summary) ByDescription(ctx context.Context, exec boil.ContextExecutor, terms []string) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	sum := string(postgres.Summary())
 	for i := range terms {
 		const clauseT = "to_tsvector('english', concat_ws(' ', files.record_title, files.comment)) @@ to_tsquery"
@@ -43,6 +46,9 @@ func (s *Summary) ByDescription(ctx context.Context, exec boil.ContextExecutor, 
 
 // ByFilename saves the summary statistics for the filename search.
 func (s *Summary) ByFilename(ctx context.Context, exec boil.ContextExecutor, terms []string) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	sum := string(postgres.Summary())
 	for i, term := range terms {
 		if i == 0 {
@@ -60,6 +66,9 @@ func (s *Summary) ByFilename(ctx context.Context, exec boil.ContextExecutor, ter
 
 // ByForApproval returns the summary statistics for files that require approval.
 func (s *Summary) ByForApproval(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	return models.NewQuery(
 		models.FileWhere.Deletedat.IsNotNull(),
 		models.FileWhere.Deletedby.IsNull(),
@@ -70,6 +79,9 @@ func (s *Summary) ByForApproval(ctx context.Context, exec boil.ContextExecutor) 
 
 // ByHidden returns the summary statistics for files that have been deleted.
 func (s *Summary) ByHidden(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	return models.NewQuery(
 		models.FileWhere.Deletedat.IsNotNull(),
 		models.FileWhere.Deletedby.IsNotNull(),
@@ -80,6 +92,9 @@ func (s *Summary) ByHidden(ctx context.Context, exec boil.ContextExecutor) error
 
 // ByPublic selects the summary statistics for all public files.
 func (s *Summary) ByPublic(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -88,6 +103,9 @@ func (s *Summary) ByPublic(ctx context.Context, exec boil.ContextExecutor) error
 
 // ByScener selects the summary statistics for the named sceners.
 func (s *Summary) ByScener(ctx context.Context, exec boil.ContextExecutor, name string) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(postgres.ScenerSQL(name)),
@@ -98,6 +116,9 @@ func (s *Summary) ByScener(ctx context.Context, exec boil.ContextExecutor, name 
 // ByReleaser returns the summary statistics for the named releaser.
 // The name is case insensitive and should be the URI slug of the releaser.
 func (s *Summary) ByReleaser(ctx context.Context, exec boil.ContextExecutor, name string) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	ns, err := namer.Humanize(namer.Path(name))
 	if err != nil {
 		return fmt.Errorf("namer.Humanize: %w", err)
@@ -113,6 +134,9 @@ func (s *Summary) ByReleaser(ctx context.Context, exec boil.ContextExecutor, nam
 
 // ByUnwanted returns the summary statistics for files that have been marked as unwanted.
 func (s *Summary) ByUnwanted(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	return models.NewQuery(
 		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
 		qm.WithDeleted(),
@@ -192,6 +216,9 @@ func (s *Summary) ByMatch(ctx context.Context, exec boil.ContextExecutor, uri st
 }
 
 func (s *Summary) introWindows(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := IntroWindows{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return err
@@ -201,6 +228,9 @@ func (s *Summary) introWindows(ctx context.Context, exec boil.ContextExecutor) e
 }
 
 func (s *Summary) introMsdos(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := IntroMsDos{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return err
@@ -210,6 +240,9 @@ func (s *Summary) introMsdos(ctx context.Context, exec boil.ContextExecutor) err
 }
 
 func (s *Summary) intro(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Intro{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return err
@@ -219,6 +252,9 @@ func (s *Summary) intro(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) installer(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Installer{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return err
@@ -228,6 +264,9 @@ func (s *Summary) installer(ctx context.Context, exec boil.ContextExecutor) erro
 }
 
 func (s *Summary) demoscene(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Demoscene{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return err
@@ -237,6 +276,9 @@ func (s *Summary) demoscene(ctx context.Context, exec boil.ContextExecutor) erro
 }
 
 func (s *Summary) nfo(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Nfo{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return err
@@ -246,6 +288,9 @@ func (s *Summary) nfo(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) proof(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Proof{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return err
@@ -255,6 +300,9 @@ func (s *Summary) proof(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) ansi(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Ansi{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return err
@@ -264,6 +312,9 @@ func (s *Summary) ansi(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) ansiBrand(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := AnsiBrand{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return err
@@ -273,6 +324,9 @@ func (s *Summary) ansiBrand(ctx context.Context, exec boil.ContextExecutor) erro
 }
 
 func (s *Summary) ansiBBS(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := AnsiBBS{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return err
@@ -282,6 +336,9 @@ func (s *Summary) ansiBBS(ctx context.Context, exec boil.ContextExecutor) error 
 }
 
 func (s *Summary) ansiFTP(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := AnsiFTP{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("ansiFTP.Stat: %w", err)
@@ -291,6 +348,9 @@ func (s *Summary) ansiFTP(ctx context.Context, exec boil.ContextExecutor) error 
 }
 
 func (s *Summary) ansiPack(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := AnsiPack{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("ansiPack.Stat: %w", err)
@@ -300,6 +360,9 @@ func (s *Summary) ansiPack(ctx context.Context, exec boil.ContextExecutor) error
 }
 
 func (s *Summary) ansiNfo(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := AnsiNfo{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("ansiNfo.Stat: %w", err)
@@ -309,6 +372,9 @@ func (s *Summary) ansiNfo(ctx context.Context, exec boil.ContextExecutor) error 
 }
 
 func (s *Summary) bbs(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := BBS{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("bbs.Stat: %w", err)
@@ -318,6 +384,9 @@ func (s *Summary) bbs(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) bbstro(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := BBStro{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("bbstro.Stat: %w", err)
@@ -327,6 +396,9 @@ func (s *Summary) bbstro(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) bbsImage(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := BBSImage{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("bbsImage.Stat: %w", err)
@@ -336,6 +408,9 @@ func (s *Summary) bbsImage(ctx context.Context, exec boil.ContextExecutor) error
 }
 
 func (s *Summary) bbsText(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := BBSText{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("bbsText.Stat: %w", err)
@@ -345,6 +420,9 @@ func (s *Summary) bbsText(ctx context.Context, exec boil.ContextExecutor) error 
 }
 
 func (s *Summary) ftp(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := FTP{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("ftp.Stat: %w", err)
@@ -354,6 +432,9 @@ func (s *Summary) ftp(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) magazine(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Magazine{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("magazine.Stat: %w", err)
@@ -363,6 +444,9 @@ func (s *Summary) magazine(ctx context.Context, exec boil.ContextExecutor) error
 }
 
 func (s *Summary) text(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Text{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return err
@@ -372,6 +456,9 @@ func (s *Summary) text(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) textPack(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := TextPack{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("textPack.Stat: %w", err)
@@ -381,6 +468,9 @@ func (s *Summary) textPack(ctx context.Context, exec boil.ContextExecutor) error
 }
 
 func (s *Summary) imagePack(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := ImagePack{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("imagePack.Stat: %w", err)
@@ -390,6 +480,9 @@ func (s *Summary) imagePack(ctx context.Context, exec boil.ContextExecutor) erro
 }
 
 func (s *Summary) windowsPack(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := WindowsPack{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("windowsPack.Stat: %w", err)
@@ -399,6 +492,9 @@ func (s *Summary) windowsPack(ctx context.Context, exec boil.ContextExecutor) er
 }
 
 func (s *Summary) msdosPack(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := MsDosPack{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("msdosPack.Stat: %w", err)
@@ -408,6 +504,9 @@ func (s *Summary) msdosPack(ctx context.Context, exec boil.ContextExecutor) erro
 }
 
 func (s *Summary) database(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Database{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("database.Stat: %w", err)
@@ -417,6 +516,9 @@ func (s *Summary) database(ctx context.Context, exec boil.ContextExecutor) error
 }
 
 func (s *Summary) textAmiga(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := TextAmiga{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("textAmiga.Stat: %w", err)
@@ -426,6 +528,9 @@ func (s *Summary) textAmiga(ctx context.Context, exec boil.ContextExecutor) erro
 }
 
 func (s *Summary) textApple2(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := TextApple2{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("textApple2.Stat: %w", err)
@@ -435,6 +540,9 @@ func (s *Summary) textApple2(ctx context.Context, exec boil.ContextExecutor) err
 }
 
 func (s *Summary) textAtariST(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := TextAtariST{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("textAtariST.Stat: %w", err)
@@ -444,6 +552,9 @@ func (s *Summary) textAtariST(ctx context.Context, exec boil.ContextExecutor) er
 }
 
 func (s *Summary) pdf(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := PDF{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("pdf.Stat: %w", err)
@@ -453,6 +564,9 @@ func (s *Summary) pdf(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) html(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := HTML{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("html.Stat: %w", err)
@@ -462,6 +576,9 @@ func (s *Summary) html(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) newsArticle(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := NewsArticle{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("newsArticle.Stat: %w", err)
@@ -471,6 +588,9 @@ func (s *Summary) newsArticle(ctx context.Context, exec boil.ContextExecutor) er
 }
 
 func (s *Summary) standards(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Standard{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("standards.Stat: %w", err)
@@ -480,6 +600,9 @@ func (s *Summary) standards(ctx context.Context, exec boil.ContextExecutor) erro
 }
 
 func (s *Summary) announcement(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Announcement{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("announcement.Stat: %w", err)
@@ -489,6 +612,9 @@ func (s *Summary) announcement(ctx context.Context, exec boil.ContextExecutor) e
 }
 
 func (s *Summary) jobAdvert(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := JobAdvert{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("jobAdvert.Stat: %w", err)
@@ -498,6 +624,9 @@ func (s *Summary) jobAdvert(ctx context.Context, exec boil.ContextExecutor) erro
 }
 
 func (s *Summary) trialCrackme(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := TrialCrackme{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("trailCrackme.Stat: %w", err)
@@ -507,6 +636,9 @@ func (s *Summary) trialCrackme(ctx context.Context, exec boil.ContextExecutor) e
 }
 
 func (s *Summary) hack(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Hack{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("hack.Stat: %w", err)
@@ -516,6 +648,9 @@ func (s *Summary) hack(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) tool(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Tool{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("tool.Stat: %w", err)
@@ -525,6 +660,9 @@ func (s *Summary) tool(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) takedown(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Takedown{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("takedown.Stat: %w", err)
@@ -534,6 +672,9 @@ func (s *Summary) takedown(ctx context.Context, exec boil.ContextExecutor) error
 }
 
 func (s *Summary) drama(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Drama{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("drama.Stat: %w", err)
@@ -543,6 +684,9 @@ func (s *Summary) drama(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) advert(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Advert{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("advert.Stat: %w", err)
@@ -552,6 +696,9 @@ func (s *Summary) advert(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) restrict(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Restrict{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("restrict.Stat: %w", err)
@@ -561,6 +708,9 @@ func (s *Summary) restrict(ctx context.Context, exec boil.ContextExecutor) error
 }
 
 func (s *Summary) howTo(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := HowTo{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("howTo.Stat: %w", err)
@@ -570,6 +720,9 @@ func (s *Summary) howTo(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) nfoTool(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := NfoTool{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("nfoTool.Stat: %w", err)
@@ -579,6 +732,9 @@ func (s *Summary) nfoTool(ctx context.Context, exec boil.ContextExecutor) error 
 }
 
 func (s *Summary) image(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Image{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("image.Stat: %w", err)
@@ -588,6 +744,9 @@ func (s *Summary) image(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) music(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Music{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("music.Stat: %w", err)
@@ -597,6 +756,9 @@ func (s *Summary) music(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) video(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Video{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("video.Stat: %w", err)
@@ -615,6 +777,9 @@ func (s *Summary) msdos(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) windows(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Windows{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("windows.Stat: %w", err)
@@ -624,6 +789,9 @@ func (s *Summary) windows(ctx context.Context, exec boil.ContextExecutor) error 
 }
 
 func (s *Summary) macos(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Macos{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("macos.Stat: %w", err)
@@ -633,6 +801,9 @@ func (s *Summary) macos(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) linux(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Linux{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("linux.Stat: %w", err)
@@ -642,6 +813,9 @@ func (s *Summary) linux(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) java(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Java{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("java.Stat: %w", err)
@@ -651,6 +825,9 @@ func (s *Summary) java(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) script(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
 	m := Script{}
 	if err := m.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("script.Stat: %w", err)

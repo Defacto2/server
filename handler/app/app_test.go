@@ -1,6 +1,7 @@
 package app_test
 
 import (
+	"embed"
 	"strings"
 	"testing"
 	"time"
@@ -11,6 +12,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/volatiletech/null/v8"
 )
+
+//go:embed*
+var emptyFS embed.FS
 
 const (
 	exampleURL  = "https://example.com"
@@ -272,6 +276,8 @@ func TestLogoText(t *testing.T) {
 		"What I mean is, I'm meant to be writing something else at this moment."
 	x = app.LogoText(rand)
 	assert.Equal(t, wantR, x)
+	x = app.LogoText("abc")
+	assert.Contains(t, x, "      :                            ·· ABC ··                            ·")
 }
 
 func TestList(t *testing.T) {
@@ -329,6 +335,9 @@ func TestAttribute(t *testing.T) {
 	s = app.Attribute("another person,writer,some scener",
 		"", "some scener", "", "some scener")
 	assert.Equal(t, "Writer and artist attributions", s)
+	s = app.Attribute("another person,writer,ben",
+		"ben", "", "", "ben")
+	assert.Equal(t, "Writer and programmer attributions", s)
 }
 
 func TestBrief(t *testing.T) {
@@ -346,4 +355,81 @@ func TestBrief(t *testing.T) {
 	sect := null.StringFrom(tags.Intro.String())
 	s = app.Brief(plat, sect)
 	assert.Contains(t, s, "a Windows intro")
+}
+
+func TestLinkDownload(t *testing.T) {
+	t.Parallel()
+	s := app.LinkDownload("", "")
+	assert.Contains(t, s, "invalid")
+	s = app.LinkDownload(1, "")
+	assert.Contains(t, s, "/d/9b1c6")
+}
+
+func TestLinkInterview(t *testing.T) {
+	t.Parallel()
+	s := app.LinkInterview("")
+	assert.Contains(t, s, "error")
+	s = app.LinkInterview("x")
+	assert.Empty(t, s)
+	s = app.LinkInterview("https://example.com")
+	assert.Contains(t, s, "#arrow-right")
+}
+
+func TestLinkPreview(t *testing.T) {
+	t.Parallel()
+	s := app.LinkPreview("", "", "")
+	assert.Empty(t, s)
+	s = app.LinkPreview(1, "readme.txt", "text")
+	assert.Contains(t, s, "Preview")
+}
+
+func TestLinkScnr(t *testing.T) {
+	t.Parallel()
+	s, err := app.LinkScnr("")
+	require.NoError(t, err)
+	assert.Empty(t, s)
+	s, err = app.LinkScnr("some scener")
+	require.NoError(t, err)
+	assert.Equal(t, "/p/some-scener", s)
+}
+
+func TestTagWithOS(t *testing.T) {
+	t.Parallel()
+	s := app.TagWithOS("", "")
+	assert.Contains(t, s, "unknown")
+	s = app.TagWithOS("windows", "")
+	assert.Contains(t, s, "unknown")
+	s = app.TagWithOS("dos", "magazine")
+	assert.Equal(t, "a Dos magazine", s)
+}
+
+func TestTrimSiteSuffix(t *testing.T) {
+	t.Parallel()
+	s := app.TrimSiteSuffix("Some text")
+	assert.Equal(t, "Some text", s)
+	s = app.TrimSiteSuffix("abc")
+	assert.Equal(t, "abc", s)
+	s = app.TrimSiteSuffix("My super BBS")
+	assert.Equal(t, "My super", s)
+}
+
+func TestURLEncode(t *testing.T) {
+	t.Parallel()
+	s := app.URLEncode("")
+	assert.Empty(t, s)
+	s = app.URLEncode("Some text.txt")
+	assert.Equal(t, "Some+text.txt", s)
+}
+
+func TestYMDEdit(t *testing.T) {
+	t.Parallel()
+	s := app.YMDEdit(nil, nil)
+	require.NotEmpty(t, s)
+}
+
+func TestVerify(t *testing.T) {
+	t.Parallel()
+	sri := app.SRI{}
+	err := sri.Verify(emptyFS)
+	require.Error(t, err)
 }

@@ -34,7 +34,7 @@ const all = 0 // all returns all the records.
 
 // Art returns all the files that could be considered as digital or pixel art.
 func (o Order) Art(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
-	if exec == nil {
+	if InvalidExec(exec) {
 		return nil, ErrDB
 	}
 	if limit == all {
@@ -58,7 +58,7 @@ func (o Order) ByCategory(
 	ctx context.Context, exec boil.ContextExecutor, offset, limit int, name string) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if InvalidExec(exec) {
 		return nil, ErrDB
 	}
 	mods := models.FileWhere.Section.EQ(null.StringFrom(name))
@@ -76,7 +76,7 @@ func (o Order) ByCategory(
 
 // ByGroup returns all the files that match an exact named group.
 func (o Order) ByGroup(ctx context.Context, exec boil.ContextExecutor, name string) (models.FileSlice, error) {
-	if exec == nil {
+	if InvalidExec(exec) {
 		return nil, ErrDB
 	}
 	s, err := namer.Humanize(namer.Path(name))
@@ -95,7 +95,7 @@ func (o Order) ByPlatform(
 	ctx context.Context, exec boil.ContextExecutor, offset, limit int, name string) (
 	models.FileSlice, error,
 ) {
-	if exec == nil {
+	if InvalidExec(exec) {
 		return nil, ErrDB
 	}
 	mods := models.FileWhere.Platform.EQ(null.StringFrom(name))
@@ -113,7 +113,7 @@ func (o Order) ByPlatform(
 
 // Document returns all the files that  are considered to be documents.
 func (o Order) Document(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
-	if exec == nil {
+	if InvalidExec(exec) {
 		return nil, ErrDB
 	}
 	if limit == all {
@@ -132,7 +132,7 @@ func (o Order) Document(ctx context.Context, exec boil.ContextExecutor, offset, 
 
 // Everything returns all of the file records.
 func (o Order) Everything(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
-	if exec == nil {
+	if InvalidExec(exec) {
 		return nil, ErrDB
 	}
 	return models.Files(
@@ -144,7 +144,7 @@ func (o Order) Everything(ctx context.Context, exec boil.ContextExecutor, offset
 
 // Software returns all the files that  are considered to be software.
 func (o Order) Software(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
-	if exec == nil {
+	if InvalidExec(exec) {
 		return nil, ErrDB
 	}
 	if limit == all {

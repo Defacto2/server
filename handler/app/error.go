@@ -174,6 +174,9 @@ func InternalErr(c echo.Context, uri string, err error) error {
 	if err != nil {
 		logger.Error(fmt.Sprintf("%d internal error for the URL, %q: %s", code, uri, err))
 	}
+	if errors.Is(err, echo.ErrRendererNotRegistered) {
+		return echo.NewHTTPError(code, err)
+	}
 	if nilContext := c == nil; nilContext {
 		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, ErrCxt))
 		return echo.NewHTTPError(http.StatusInternalServerError,

@@ -153,6 +153,9 @@ func (got *DemozooLink) ArchiveContent(c echo.Context, db *sql.DB, src string) e
 // Update modifies the database record using data provided by the DemozooLink struct.
 // A JSON response is returned with the success status of the update.
 func (got DemozooLink) Update(c echo.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	uid := got.UUID
 	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
@@ -338,6 +341,9 @@ func (got *PouetLink) ArchiveContent(c echo.Context, db *sql.DB, src string) err
 // Update modifies the database record using data provided by the DemozooLink struct.
 // A JSON response is returned with the success status of the update.
 func (got PouetLink) Update(c echo.Context, db *sql.DB) error {
+	if db == nil {
+		return ErrDB
+	}
 	uid := got.UUID
 	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
