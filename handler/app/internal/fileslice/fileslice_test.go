@@ -1,10 +1,12 @@
 package fileslice_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/Defacto2/server/handler/app/internal/fileslice"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRecordsSubs(t *testing.T) {
@@ -39,4 +41,36 @@ func TestRecordsSub(t *testing.T) {
 	for i := range 57 {
 		assert.NotEqual(t, "unknown uri", fileslice.URI(i).String())
 	}
+}
+
+func TestFileInfo(t *testing.T) {
+	t.Parallel()
+	a, b, c := fileslice.FileInfo("")
+	assert.Equal(t, "unknown uri", a)
+	assert.Equal(t, "unknown uri", b)
+	assert.Equal(t, "", c)
+
+	a, b, c = fileslice.FileInfo("newest")
+	assert.Equal(t, "newest releases", a)
+	assert.Equal(t, "the newest releases", b)
+	assert.NotEmpty(t, c)
+}
+
+func TestRecords(t *testing.T) {
+	t.Parallel()
+	x, err := fileslice.Records(context.TODO(), nil, "", 0, 0)
+	require.Error(t, err)
+	assert.Nil(t, x)
+
+	var proof = fileslice.URI(45).String()
+	x, err = fileslice.Records(context.TODO(), nil, proof, 1, 1)
+	require.Error(t, err)
+	assert.Nil(t, x)
+}
+
+func TestCounter(t *testing.T) {
+	t.Parallel()
+	x, err := fileslice.Counter(nil)
+	require.Error(t, err)
+	assert.Empty(t, x)
 }

@@ -19,3 +19,13 @@ func TestRun(t *testing.T) {
 	require.Error(t, err)
 	assert.Equal(t, flags.GenericError, ec)
 }
+
+func TestVers(t *testing.T) {
+	t.Parallel()
+	s := flags.Vers("")
+	assert.Equal(t, "defacto2-server version 0.0.0 αlpha", s)
+	s = flags.Vers("1.2.3")
+	assert.Equal(t, "defacto2-server version 1.2.3", s)
+	s = flags.Vers("1.2.3-next")
+	assert.Equal(t, "defacto2-server version 1.2.3 βeta", s)
+}

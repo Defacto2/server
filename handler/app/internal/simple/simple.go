@@ -15,6 +15,12 @@ import (
 	"strings"
 	"time"
 
+	_ "image/gif"  // gif format decoder
+	_ "image/jpeg" // jpeg format decoder
+	_ "image/png"  // png format decoder
+
+	_ "golang.org/x/image/webp" // webp format decoder
+
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/releaser"
@@ -45,8 +51,9 @@ const (
 	YYYYMMDD    = "2006-Jan-02"
 )
 
-// ArtifactSrc returns a URL to an artifact asset with an cache busting hash.
-// The named dir is the directory where the asset is stored, the unid is the unique identifier of the asset
+// AssetSrc returns a URL to an artifact asset with an cache busting hash.
+// The named dir is the directory where the asset is stored,
+// the unid is the unique identifier of the asset,
 // and the ext is the file extension of the expected asset.
 func AssetSrc(abs, dir, unid, ext string) string {
 	ext = strings.ToLower(ext)
@@ -191,7 +198,8 @@ func ImageXY(name string) [2]string {
 	if err != nil {
 		return [2]string{err.Error(), ""}
 	}
-	return [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%dx%d", config.Width, config.Height)}
+	return [2]string{humanize.Comma(st.Size()),
+		fmt.Sprintf("%dx%d", config.Width, config.Height)}
 }
 
 // LinkID creates a URL to link to the record.

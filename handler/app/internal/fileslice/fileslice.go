@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"reflect"
 
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
@@ -493,7 +494,7 @@ func Counter(db *sql.DB) (Stats, error) {
 	ctx := context.Background()
 	counter := Stats{}
 	if err := counter.Get(ctx, db); err != nil {
-		return Stats{}, fmt.Errorf("cartifacts categories counter get %w", err)
+		return Stats{}, fmt.Errorf("artifacts categories counter get %w", err)
 	}
 	return counter, nil
 }
@@ -531,6 +532,13 @@ func Statistics() Stats {
 
 // Get and store the database statistics for the artifacts categories.
 func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
+	v := reflect.ValueOf(exec)
+	switch v.Kind() {
+	case reflect.Ptr, reflect.Interface:
+		if v.IsNil() {
+			return model.ErrDB
+		}
+	}
 	if err := s.Record.Public(ctx, exec); err != nil {
 		return fmt.Errorf("category get record stat: %w", err)
 	}

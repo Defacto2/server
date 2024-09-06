@@ -1,7 +1,10 @@
 package simple_test
 
 import (
+	"fmt"
 	"path/filepath"
+	"runtime"
+	"strings"
 	"testing"
 	"time"
 
@@ -10,6 +13,22 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/volatiletech/null/v8"
 )
+
+func testImage(t *testing.T) string {
+	_, file, _, ok := runtime.Caller(0)
+	require.True(t, ok)
+	return filepath.Join(filepath.Dir(file), "testdata", "TEST.png")
+}
+
+func TestAssetSrc(t *testing.T) {
+	t.Parallel()
+	s := simple.AssetSrc("", "", "", "")
+	assert.Equal(t, "integrity os.readfile open : no such file or directory", s)
+	_, file, _, ok := runtime.Caller(0)
+	require.True(t, ok)
+	s = simple.AssetSrc("", file, "", "")
+	assert.Contains(t, s, "sha384-")
+}
 
 func TestDownloadB(t *testing.T) {
 	t.Parallel()
@@ -130,4 +149,39 @@ func TestImageSample(t *testing.T) {
 	const filenameNoExt = "TEST"
 	x = simple.ImageSample(filenameNoExt, abs)
 	assert.Contains(t, x, "sha384-SK3qCpS11QMhNxUUnyeUeWWXBMPORDgLTI")
+}
+
+func TestImageSampleStat(t *testing.T) {
+	t.Parallel()
+	x := simple.ImageSampleStat("", "")
+	assert.False(t, x)
+	name := filepath.Base(testImage(t))
+	name = strings.TrimSuffix(name, filepath.Ext(name))
+	dir := filepath.Dir(testImage(t))
+	x = simple.ImageSampleStat(name, dir)
+	assert.True(t, x)
+}
+
+func TestImageXY(t *testing.T) {
+	t.Parallel()
+	s := simple.ImageXY("")
+	assert.Contains(t, s, "stat : no such file or directory")
+	img := testImage(t)
+	s = simple.ImageXY(img)
+	fmt.Println(img)
+	assert.Equal(t, s[0], "4,163")
+	assert.Equal(t, s[1], "500x500")
+}
+
+func TestLinkID(t *testing.T) {
+	t.Parallel()
+	s, err := simple.LinkID("", "")
+	require.Error(t, err)
+	assert.Empty(t, s)
+	s, err = simple.LinkID("a string", "a string")
+	require.Error(t, err)
+	assert.Empty(t, s)
+	s, err = simple.LinkID(1, "")
+	assert.NoError(t, err)
+	assert.Equal(t, "/9b1c6", s)
 }

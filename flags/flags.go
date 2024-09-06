@@ -30,7 +30,9 @@ const (
 var ErrCmd = errors.New("cannot run command as config is nil")
 
 // App returns the command line interface for this program.
-// It uses the [github.com/urfave.cli] package.
+// It uses the [github.com/urfave.cli/v2] package.
+//
+// [github.com/urfave.cli/v2]: https://github.com/urfave/cli
 func App(ver string, c *config.Config) *cli.App {
 	app := &cli.App{
 		Name:    Title,
@@ -56,7 +58,7 @@ func App(ver string, c *config.Config) *cli.App {
 	return app
 }
 
-// Fix is the `fix` command help and action.
+// Fix command the database and assets.
 func Fix(c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "fix",
@@ -72,7 +74,7 @@ func Fix(c *config.Config) *cli.Command {
 	}
 }
 
-// Address is the `address` command help and action.
+// Address command lists the server addresses.
 func Address(c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "address",
@@ -90,7 +92,7 @@ func Address(c *config.Config) *cli.Command {
 	}
 }
 
-// Config is the `config` command help and action.
+// Config command lists the server configuration.
 func Config(c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "config",
@@ -126,7 +128,7 @@ func Arch() string {
 }
 
 // Commit returns a formatted, git commit description for the repository,
-// including tag version and date.
+// including git tag version and git commit date.
 func Commit(ver string) string {
 	x := []string{}
 	s := versioninfo.Short()
@@ -141,8 +143,9 @@ func Commit(ver string) string {
 	return strings.Join(x, ", ")
 }
 
-// Copyright returns the © symbol, years and author of this program.
-// The final year is generated from the last commit date.
+// Copyright returns a "©" copyright symbol, the respective years and author of this program.
+//
+// The most recent copyright year is generated from the last commit date.
 func Copyright() string {
 	const initYear = 2023
 	years := strconv.Itoa(initYear)

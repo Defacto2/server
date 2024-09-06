@@ -26,7 +26,7 @@ func Document() []string {
 
 // Image returns a list of image file extensions that can be displayed in the browser.
 func Image() []string {
-	return []string{".avif", gif, jpg, jpeg, ".jfif", png, ".svg", webp, ".bmp", ".ico"}
+	return []string{avif, gif, jpg, jpeg, ".jfif", png, ".svg", webp, ".bmp", ".ico"}
 }
 
 // Media returns a list of [media file extensions] that can be played in the browser.

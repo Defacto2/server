@@ -297,6 +297,7 @@ type entry struct {
 	program bool
 }
 
+// ParseFile parses the file at the given path and returns true if it should be skipped.
 func (e *entry) ParseFile(path string, platform string) bool {
 	const skipEntry = true
 	info, err := os.Stat(path)
@@ -309,6 +310,7 @@ func (e *entry) ParseFile(path string, platform string) bool {
 	return e.parse(path, platform, info)
 }
 
+// ParseDirEntry parses the directory entry and returns true if it should be skipped.
 func (e *entry) ParseDirEntry(path string, d fs.DirEntry, platform string) bool {
 	const skipEntry = true
 	if d.IsDir() {
@@ -919,6 +921,7 @@ func JsdosUse(art *models.File) bool {
 	}
 }
 
+// JsdosUsage returns true if the js-dos emulator should be used with the filename.
 func JsdosUsage(filename, platform string) bool {
 	filename = strings.ToLower(filename)
 	ext := filepath.Ext(filename)
@@ -1014,8 +1017,8 @@ func LastModificationAgo(art *models.File) string {
 }
 
 // LinkPreview returns a URL path to link to the file record in tab, to use as a preview.
-// A preview link is only available for certain file types such as images, text, documents, and
-// renders the whole item in its own browser tab without any HTML or CSS from the website.
+// A preview link is only available for certain file types such as images, text, documents,
+// and renders the whole item in its own browser tab without any HTML or CSS from the website.
 func LinkPreview(art *models.File) string {
 	if art == nil {
 		return ""

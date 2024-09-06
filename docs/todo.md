@@ -12,6 +12,7 @@
 * 404 errors :/ /editor/thumbnail/top/ ~ /editor/preview/crop11/ etc.
 * When listing a single text file, do not display the /editor/readme/copy/ link.
 * Local file timestamp for file uploads is not being set.
+* Redirect `/link/list` to wayback.defacto2.net.
 
 ### Live go.defacto2.net issues.
 
