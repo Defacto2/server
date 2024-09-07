@@ -5,6 +5,13 @@
 import { getElmById, validId } from "./helper.mjs";
 export default submitter;
 
+/**
+ * To test some error handling, use the following IDs:
+ *
+ * Pouët ID: 16, deleted from the database
+ * Pouët ID: 15, not suitable for Defacto2
+ */
+
 const invalid = "is-invalid",
   none = "d-none";
 
@@ -44,19 +51,31 @@ export function submitter(elementId, api) {
       break;
   }
 
+  // The htmx:beforeRequest event is triggered before the request is made.
   document.body.addEventListener("htmx:beforeRequest", function () {
     beforeReset(alert, results);
   });
 
-  document.body.addEventListener("htmx:afterRequest", function (event) {
-    if (event.detail.elt === null || event.detail.elt.id !== `${elementId}`) {
+  // The htmx:beforeSwap event is triggered before the content is swapped.
+  // This is the best place to check the status of the request and display an error message.
+  document.body.addEventListener("htmx:beforeSwap", function (evt) {
+    const badRequest = 400;
+    if (evt.detail.xhr.status >= badRequest) {
+      alert.classList.remove(none);
+    }
+  });
+
+  // The htmx:afterRequest event is triggered after the request is completed.
+  // Multiple requests can be made, so we need to check if the request is the one we are interested in.
+  document.body.addEventListener("htmx:afterRequest", function (evt) {
+    if (evt.detail.elt === null || evt.detail.elt.id !== `${elementId}`) {
       return;
     }
-    if (event.detail.successful) {
-      return successful(alert);
+    if (evt.detail.successful) {
+      return successful(input);
     }
-    const xhr = event.detail.xhr;
-    if (event.detail.failed && xhr) {
+    const xhr = evt.detail.xhr;
+    if (evt.detail.failed && xhr) {
       if (xhr.status === 404) {
         return error404(alert, results, api);
       }
@@ -82,7 +101,9 @@ function beforeReset(alert, results) {
   alert.classList.add(none);
 }
 
-function successful() {}
+function successful(input) {
+  input.focus();
+}
 
 function error404(alert, results, api) {
   results.innerText = `Production not found on ${api}.`;

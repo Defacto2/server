@@ -2,16 +2,19 @@
 package model_test
 
 import (
+	"context"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 func TestValidDateIssue(t *testing.T) {
@@ -294,4 +297,316 @@ func TestValidNewV7(t *testing.T) {
 
 	err = uuid.Validate(unid.String())
 	require.NoError(t, err)
+}
+
+func TestArtifacts(t *testing.T) {
+	t.Parallel()
+	ctx := context.TODO()
+	a := model.Artifacts{}
+	err := a.Public(ctx, nil)
+	assert.Error(t, err)
+	x, err := a.ByKey(ctx, nil, -1, -1)
+	assert.Nil(t, x)
+	assert.Error(t, err)
+	x, err = a.ByNewest(ctx, nil, -1, -1)
+	assert.Nil(t, x)
+	assert.Error(t, err)
+	x, err = a.ByUpdated(ctx, nil, -1, -1)
+	assert.Nil(t, x)
+	assert.Error(t, err)
+	x, err = a.ByHidden(ctx, nil, -1, -1)
+	assert.Nil(t, x)
+	assert.Error(t, err)
+	x, err = a.ByForApproval(ctx, nil, -1, -1)
+	assert.Nil(t, x)
+	assert.Error(t, err)
+	x, err = a.ByMagicErr(ctx, nil, true)
+	assert.Nil(t, x)
+	assert.Error(t, err)
+	x, err = a.ByTextPlatform(ctx, nil)
+	assert.Nil(t, x)
+	assert.Error(t, err)
+	x, err = a.ByUnwanted(ctx, nil, -1, -1)
+	assert.Nil(t, x)
+	assert.Error(t, err)
+	x, err = a.Description(ctx, nil, nil)
+	assert.Nil(t, x)
+	assert.Error(t, err)
+	x, err = a.Filename(ctx, nil, nil)
+	assert.Nil(t, x)
+	assert.Error(t, err)
+	x, err = a.ID(ctx, nil, nil)
+	assert.Nil(t, x)
+	assert.Error(t, err)
+}
+
+func TestCount(t *testing.T) {
+	t.Parallel()
+	ctx := context.TODO()
+	_, _, _, err := model.Counts(ctx, nil)
+	assert.Error(t, err)
+	_, err = model.CategoryCount(ctx, nil, "")
+	assert.Error(t, err)
+	_, err = model.CategoryByteSum(ctx, nil, "")
+	assert.Error(t, err)
+	_, err = model.ClassificationCount(ctx, nil, "", "")
+	assert.Error(t, err)
+	_, err = model.PlatformCount(ctx, nil, "")
+	assert.Error(t, err)
+	_, err = model.PlatformByteSum(ctx, nil, "")
+	assert.Error(t, err)
+	_, err = model.ReleaserByteSum(ctx, nil, "")
+	assert.Error(t, err)
+}
+
+func TestDelete(t *testing.T) {
+	t.Parallel()
+	ctx := context.TODO()
+	err := model.DeleteOne(ctx, nil, -1)
+	assert.Error(t, err)
+}
+
+func TestExists(t *testing.T) {
+	t.Parallel()
+	ctx := context.TODO()
+	_, err := model.DemozooExists(ctx, nil, -1)
+	assert.Error(t, err)
+	_, err = model.PouetExists(ctx, nil, -1)
+	assert.Error(t, err)
+	_, err = model.SHA384Exists(ctx, nil, nil)
+	assert.Error(t, err)
+	_, err = model.HashExists(ctx, nil, "")
+	assert.Error(t, err)
+}
+
+func TestFilter(t *testing.T) {
+	t.Parallel()
+	ctx := context.TODO()
+
+	// Define a slice of structs that implement Stat and List methods
+	models := []interface {
+		Stat(context.Context, boil.ContextExecutor) error
+		List(context.Context, boil.ContextExecutor, int, int) (models.FileSlice, error)
+	}{
+		&model.Advert{},
+		&model.Announcement{},
+		&model.Ansi{},
+		&model.AnsiBrand{},
+		&model.AnsiBBS{},
+		&model.AnsiFTP{},
+		&model.AnsiNfo{},
+		&model.AnsiPack{},
+		&model.BBS{},
+		&model.BBStro{},
+		&model.BBSImage{},
+		&model.BBSText{},
+		&model.Database{},
+		&model.Demoscene{},
+		&model.Drama{},
+		&model.FTP{},
+		&model.Hack{},
+		&model.HowTo{},
+		&model.HTML{},
+		&model.Image{},
+		&model.ImagePack{},
+		&model.Intro{},
+		&model.IntroMsDos{},
+		&model.IntroWindows{},
+		&model.Installer{},
+		&model.Java{},
+		&model.JobAdvert{},
+		&model.Linux{},
+		&model.Magazine{},
+		&model.Macos{},
+		&model.MsDosPack{},
+		&model.Music{},
+		&model.NewsArticle{},
+		&model.Nfo{},
+		&model.NfoTool{},
+		&model.PDF{},
+		&model.Proof{},
+		&model.Restrict{},
+		&model.Script{},
+		&model.Standard{},
+		&model.Takedown{},
+		&model.Text{},
+		&model.TextAmiga{},
+		&model.TextApple2{},
+		&model.TextAtariST{},
+		&model.TextPack{},
+		&model.Tool{},
+		&model.TrialCrackme{},
+		&model.Video{},
+		&model.Windows{},
+		&model.WindowsPack{},
+	}
+	for _, m := range models {
+		err := m.Stat(ctx, nil)
+		assert.Error(t, err)
+		_, err = m.List(ctx, nil, -1, -1)
+		assert.Error(t, err)
+	}
+}
+
+func TestInsert(t *testing.T) {
+	t.Parallel()
+	ctx := context.TODO()
+	_, _, err := model.InsertDemozoo(ctx, nil, -1)
+	assert.Error(t, err)
+	_, _, err = model.InsertPouet(ctx, nil, -1)
+	assert.Error(t, err)
+	_, _, err = model.InsertUpload(ctx, nil, nil, "")
+	assert.Error(t, err)
+}
+
+func TestModel(t *testing.T) {
+	t.Parallel()
+	_, err := model.JsDosBinary(nil)
+	assert.Error(t, err)
+	_, err = model.JsDosConfig(nil)
+	assert.Error(t, err)
+	_, err = model.JsDosCommand(nil)
+	assert.Error(t, err)
+}
+
+func TestOne(t *testing.T) {
+	t.Parallel()
+	ctx := context.TODO()
+	_, err := model.One(ctx, nil, false, -1)
+	assert.Error(t, err)
+	_, err = model.OneEditByKey(ctx, nil, "")
+	assert.Error(t, err)
+	_, err = model.OneByUUID(ctx, nil, false, "")
+	assert.Error(t, err)
+	_, err = model.OneFile(ctx, nil, -1)
+	assert.Error(t, err)
+	_, err = model.OneFileByKey(ctx, nil, "")
+	assert.Error(t, err)
+	_, _, err = model.OneDemozoo(ctx, nil, -1)
+	assert.Error(t, err)
+	_, _, err = model.OnePouet(ctx, nil, -1)
+	assert.Error(t, err)
+}
+
+func TestReleaser(t *testing.T) {
+	t.Parallel()
+	ctx := context.TODO()
+	r := model.ReleaserNames{}
+	err := r.Distinct(ctx, nil)
+	assert.Error(t, err)
+	err = r.DistinctGroups(ctx, nil)
+	assert.Error(t, err)
+	rls := model.Releasers{}
+	_, err = rls.Where(ctx, nil, "")
+	assert.Error(t, err)
+	err = rls.Limit(ctx, nil, 0, -1, -1)
+	assert.Error(t, err)
+	err = rls.Similar(ctx, nil, 0)
+	assert.Error(t, err)
+	err = rls.SimilarMagazine(ctx, nil, 0)
+	assert.Error(t, err)
+	err = rls.FTP(ctx, nil)
+	assert.Error(t, err)
+	err = rls.MagazineAZ(ctx, nil)
+	assert.Error(t, err)
+	err = rls.Magazine(ctx, nil)
+	assert.Error(t, err)
+	rls.Slugs()
+}
+
+func TestScener(t *testing.T) {
+	t.Parallel()
+	ctx := context.TODO()
+	s := model.Sceners{}
+	err := s.Distinct(ctx, nil)
+	assert.Error(t, err)
+	err = s.Writer(ctx, nil)
+	assert.Error(t, err)
+	err = s.Artist(ctx, nil)
+	assert.Error(t, err)
+	err = s.Coder(ctx, nil)
+	assert.Error(t, err)
+	err = s.Musician(ctx, nil)
+	assert.Error(t, err)
+	x := s.Sort()
+	assert.Empty(t, x)
+	var o model.Scener
+	_, err = o.Where(ctx, nil, "")
+	assert.Error(t, err)
+}
+
+func TestSummary(t *testing.T) {
+	t.Parallel()
+	ctx := context.TODO()
+	s := model.Summary{}
+	err := s.ByDescription(ctx, nil, nil)
+	assert.Error(t, err)
+	err = s.ByFilename(ctx, nil, nil)
+	assert.Error(t, err)
+	err = s.ByForApproval(ctx, nil)
+	assert.Error(t, err)
+	err = s.ByHidden(ctx, nil)
+	assert.Error(t, err)
+	err = s.ByPublic(ctx, nil)
+	assert.Error(t, err)
+	err = s.ByReleaser(ctx, nil, "")
+	assert.Error(t, err)
+	err = s.ByUnwanted(ctx, nil)
+	assert.Error(t, err)
+
+	err = s.ByMatch(ctx, nil, "")
+	assert.Error(t, err)
+	for uri := range s.Matches() {
+		err = s.ByMatch(ctx, nil, uri)
+		assert.Error(t, err)
+	}
+}
+
+func TestUpdateBoolFrom(t *testing.T) {
+	t.Parallel()
+	err := model.UpdateBoolFrom(nil, -1, -1, false)
+	assert.Error(t, err)
+	err = model.UpdateEmulateRunProgram(nil, -1, "")
+	assert.Error(t, err)
+	err = model.UpdateEmulateMachine(nil, -1, "")
+	assert.Error(t, err)
+	err = model.UpdateEmulateCPU(nil, -1, "")
+	assert.Error(t, err)
+	err = model.UpdateEmulateSfx(nil, -1, "")
+	assert.Error(t, err)
+	err = model.UpdateInt64From(nil, -1, -1, "")
+	assert.Error(t, err)
+	err = model.UpdateStringFrom(nil, -1, -1, "")
+	assert.Error(t, err)
+	err = model.UpdateCreators(nil, -1, "", "", "", "")
+	assert.Error(t, err)
+	err = model.UpdateLinks(nil, -1, "", "", "", "", "", -1, -1)
+	assert.Error(t, err)
+	err = model.UpdateClassification(nil, -1, "", "")
+	assert.Error(t, err)
+	err = model.UpdateDateIssued(nil, -1, "", "", "")
+	assert.Error(t, err)
+	err = model.UpdateOffline(nil, -1)
+	assert.Error(t, err)
+	err = model.UpdatePlatform(nil, -1, "")
+	assert.Error(t, err)
+	err = model.UpdateOnline(nil, -1)
+	assert.Error(t, err)
+	err = model.UpdateReleasers(nil, -1, "")
+	assert.Error(t, err)
+	x := null.Int16From(-1)
+	ctx := context.TODO()
+	err = model.UpdateYMD(ctx, nil, -1, x, x, x)
+	assert.Error(t, err)
+	err = model.UpdateMagic(ctx, nil, -1, "")
+	assert.Error(t, err)
+	fu := model.FileUpload{}
+	err = fu.Update(ctx, nil, 1)
+	assert.Error(t, err)
+}
+
+func TestValidate(t *testing.T) {
+	t.Parallel()
+	err := model.Validate(nil)
+	assert.Error(t, err)
 }

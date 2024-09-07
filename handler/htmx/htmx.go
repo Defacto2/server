@@ -168,6 +168,9 @@ func DBConnections(c echo.Context, db *sql.DB) error {
 
 // DeleteForever is a handler for the /delete/forever route.
 func DeleteForever(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, id string) error {
+	if db == nil {
+		return c.String(http.StatusServiceUnavailable, ErrDB.Error())
+	}
 	key, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
@@ -175,17 +178,21 @@ func DeleteForever(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, id str
 	ctx := context.Background()
 	tx, err := db.Begin()
 	if err != nil {
-		logger.Error(err)
+		if logger != nil {
+			logger.Error(err)
+		}
 		return c.String(http.StatusServiceUnavailable,
 			"cannot begin a transaction")
 	}
 	if err = model.DeleteOne(ctx, tx, key); err != nil {
 		defer func() {
-			if err := tx.Rollback(); err != nil {
+			if err := tx.Rollback(); err != nil && logger != nil {
 				logger.Error(err)
 			}
 		}()
-		logger.Error(err)
+		if logger != nil {
+			logger.Error(err)
+		}
 		return c.String(http.StatusServiceUnavailable,
 			"cannot delete the record")
 	}
@@ -194,7 +201,9 @@ func DeleteForever(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, id str
 	// As the file assets will be deleted by the next cleanup job.
 	//
 	if err = tx.Commit(); err != nil {
-		logger.Error(err)
+		if logger != nil {
+			logger.Error(err)
+		}
 		return c.String(http.StatusServiceUnavailable,
 			"cannot commit the transaction")
 	}
@@ -480,7 +489,9 @@ func SearchByID(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 	var r model.Artifacts
 	fs, err := r.ID(ctx, db, ids, uuids...)
 	if err != nil {
-		logger.Error(err)
+		if logger != nil {
+			logger.Error(err)
+		}
 		return c.String(http.StatusServiceUnavailable,
 			"the search query failed")
 	}
@@ -494,7 +505,9 @@ func SearchByID(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 		"result":  fs,
 	})
 	if err != nil {
-		logger.Errorf("search by id htmx template: %v", err)
+		if logger != nil {
+			logger.Errorf("search by id htmx template: %v", err)
+		}
 		return c.String(http.StatusInternalServerError,
 			"cannot render the htmx search by id template")
 	}
@@ -522,7 +535,9 @@ func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error
 	lookup = append(lookup, slug)
 	var r model.Releasers
 	if err := r.Similar(ctx, db, maxResults, lookup...); err != nil {
-		logger.Error(err)
+		if logger != nil {
+			logger.Error(err)
+		}
 		return c.String(http.StatusServiceUnavailable,
 			"the search query failed")
 	}
@@ -559,7 +574,6 @@ func datalist(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, input strin
 	if slug == "" {
 		return c.HTML(http.StatusOK, "")
 	}
-
 	lookup := []string{}
 	for key, values := range initialism.Initialisms() {
 		for _, value := range values {
@@ -577,7 +591,9 @@ func datalist(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, input strin
 		err = r.Similar(ctx, db, maxResults, lookup...)
 	}
 	if err != nil {
-		logger.Error(err)
+		if logger != nil {
+			logger.Error(err)
+		}
 		return c.String(http.StatusServiceUnavailable,
 			"cannot connect to the database")
 	}

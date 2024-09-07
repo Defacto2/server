@@ -26,6 +26,7 @@ func (t Tag) String() string {
 	return URIs()[t]
 }
 
+// URIs returns the URI slugs for the tags.
 func URIs() URIS {
 	return URIS{
 		Announcement: "announcements",
@@ -191,6 +192,7 @@ func NameByURI(slug string) string {
 	return fmt.Sprintf("error: unknown slug %q", slug)
 }
 
+// Infos returns short descriptions of the tags.
 func Infos() Info {
 	return Info{
 		Announcement: "public announcements by Scene groups and organizations",

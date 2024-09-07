@@ -3,6 +3,7 @@ package fixlha
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -18,6 +19,8 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
+
+var ErrNoExecutor = errors.New("no context executor")
 
 // Check returns the UUID of the zipped file if it requires re-archiving because it uses a
 // legacy compression method that is not supported by Go or JS libraries.
@@ -42,14 +45,17 @@ func Check(extra string, d fs.DirEntry, artifacts ...string) string {
 }
 
 // Files returns all the DOS platform artifacts using a .zip extension filename.
-func Files(ctx context.Context, ce boil.ContextExecutor) (models.FileSlice, error) {
+func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, error) {
+	if exec == nil {
+		return nil, fmt.Errorf("config fixlha files %w", ErrNoExecutor)
+	}
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("uuid"))
 	mods = append(mods, qm.Where("platform = ?", tags.DOS.String()))
 	mods = append(mods, qm.Where("filename ILIKE ?", "%.lha"))
 	mods = append(mods, qm.Or("filename ILIKE ?", "%.lzh"))
 	mods = append(mods, qm.WithDeleted())
-	files, err := models.Files(mods...).All(ctx, ce)
+	files, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
 		return nil, fmt.Errorf("fixlha models files: %w", err)
 	}

@@ -152,10 +152,10 @@ func (s *Summary) Update(c, b, y0, y1 int) {
 	s.MaxYear = sql.NullInt16{Int16: int16(y1)}
 }
 
-// ByMatch returns the summary statistics for the named uri.
-func (s *Summary) ByMatch(ctx context.Context, exec boil.ContextExecutor, uri string) error {
-	type statFunc func(context.Context, boil.ContextExecutor) error
-	stat := map[string]statFunc{
+type statFunc func(context.Context, boil.ContextExecutor) error
+
+func (s *Summary) Matches() map[string]statFunc {
+	return map[string]statFunc{
 		"text-amiga":    s.textAmiga,
 		"text-apple2":   s.textApple2,
 		"text-atari-st": s.textAtariST,
@@ -209,6 +209,11 @@ func (s *Summary) ByMatch(ctx context.Context, exec boil.ContextExecutor, uri st
 		"intro-msdos":   s.introMsdos,
 		"intro-windows": s.introWindows,
 	}
+}
+
+// ByMatch returns the summary statistics for the named uri.
+func (s *Summary) ByMatch(ctx context.Context, exec boil.ContextExecutor, uri string) error {
+	stat := s.Matches()
 	if update, match := stat[uri]; match {
 		return update(ctx, exec)
 	}

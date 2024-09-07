@@ -19,6 +19,8 @@ import (
 	"github.com/Defacto2/server/internal/postgres/models"
 )
 
+var ErrNoModel = errors.New("no model")
+
 // Suggest returns a suggested readme file name for the record.
 // It prioritizes the filename and group name with a priority extension,
 // such as ".nfo", ".txt", etc. If no priority extension is found,
@@ -137,7 +139,10 @@ func SortContent(content ...string) []string {
 
 // Read returns the content of the readme file or the text of the file download.
 func Read(art *models.File, downloadPath, extraPath string) ([]byte, error) {
-	if art == nil || art.RetrotxtNoReadme.Int16 != 0 {
+	if art == nil {
+		return nil, fmt.Errorf("art in read, %w", ErrNoModel)
+	}
+	if art.RetrotxtNoReadme.Int16 != 0 {
 		return nil, nil
 	}
 	b, err := render.Read(art, downloadPath, extraPath)
@@ -193,6 +198,9 @@ func RemoveCtrls(b []byte) []byte {
 
 // IncompatibleANSI scans for HTML incompatible, ANSI cursor escape codes in the reader.
 func IncompatibleANSI(r io.Reader) (bool, error) {
+	if r == nil {
+		return false, nil
+	}
 	scanner := bufio.NewScanner(r)
 	mcur, mpos := moveCursor(), moveCursorToPos()
 	reMoveCursor := regexp.MustCompile(mcur)

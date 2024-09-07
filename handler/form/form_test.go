@@ -9,6 +9,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestHumanizeCount(t *testing.T) {
+	t.Parallel()
+	html, err := form.HumanizeCount(nil, "", "")
+	assert.NoError(t, err)
+	assert.Contains(t, html, `0 existing artifacts`)
+	htm := form.HumanizeCountStr(nil, "", "")
+	assert.NoError(t, err)
+	assert.Contains(t, htm, `0 existing artifacts`)
+
+}
+
 func TestSanitizeFilename(t *testing.T) {
 	t.Parallel()
 	s := form.SanitizeFilename("")

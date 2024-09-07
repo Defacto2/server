@@ -39,14 +39,17 @@ const (
 	syncthing = ".stfolder"                            // syncthing directory name
 )
 
-var ErrEmpty = errors.New("empty path or name")
+var (
+	ErrCE    = errors.New("nil context executor")
+	ErrEmpty = errors.New("empty path or name")
+)
 
 // Archives, on startup check the download directory for any legacy and obsolete archives.
 // Obsolete archives are those that use a legacy compression method that is not supported
 // by Go or JS libraries used by the website.
-func (c Config) Archives(ctx context.Context, ce boil.ContextExecutor) error { //nolint:cyclop,funlen,gocognit
-	if ce == nil {
-		return nil
+func (c Config) Archives(ctx context.Context, exec boil.ContextExecutor) error { //nolint:cyclop,funlen,gocognit
+	if exec == nil {
+		return fmt.Errorf("config repair archives %w", ErrCE)
 	}
 	tick := time.Now()
 	downloadDir, logger := c.AbsDownload, helper.Logger(ctx)
@@ -111,7 +114,7 @@ func (c Config) Archives(ctx context.Context, ce boil.ContextExecutor) error { /
 			logger.Errorf("repair %s archives: %s", r.String(), err)
 			continue
 		}
-		artifacts, err = r.artifacts(ctx, ce, logger)
+		artifacts, err = r.artifacts(ctx, exec, logger)
 		if err != nil {
 			logger.Errorf("repair %s archives: %s", r.String(), err)
 			continue
@@ -175,18 +178,18 @@ func (r Repair) lookPath() error {
 	return nil
 }
 
-func (r Repair) artifacts(ctx context.Context, ce boil.ContextExecutor, logger *zap.SugaredLogger) ([]string, error) {
+func (r Repair) artifacts(ctx context.Context, exec boil.ContextExecutor, logger *zap.SugaredLogger) ([]string, error) {
 	var files models.FileSlice
 	var err error
 	switch r {
 	case Zip:
-		files, err = fixzip.Files(ctx, ce)
+		files, err = fixzip.Files(ctx, exec)
 	case LHA:
-		files, err = fixlha.Files(ctx, ce)
+		files, err = fixlha.Files(ctx, exec)
 	case Arc:
-		files, err = fixarc.Files(ctx, ce)
+		files, err = fixarc.Files(ctx, exec)
 	case Arj:
-		files, err = fixarj.Files(ctx, ce)
+		files, err = fixarj.Files(ctx, exec)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("artifacts %s files, %w", r.String(), err)
@@ -269,16 +272,16 @@ func (r Repair) rearchive(ctx context.Context, path, extra, uid string) error {
 // to the orphaned directory without warning.
 //
 // There are no checks on the 3 directories that get scanned.
-func (c Config) Assets(ctx context.Context, ce boil.ContextExecutor) error {
-	if ce == nil {
-		return nil
+func (c Config) Assets(ctx context.Context, exec boil.ContextExecutor) error {
+	if exec == nil {
+		return fmt.Errorf("config repair assets %w", ErrCE)
 	}
 	tick := time.Now()
 	logger := helper.Logger(ctx)
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("uuid"))
 	mods = append(mods, qm.WithDeleted())
-	files, err := models.Files(mods...).All(ctx, ce)
+	files, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
 		return fmt.Errorf("config repair select all uuids: %w", err)
 	}
@@ -345,6 +348,9 @@ func unknownAsset(logger *zap.SugaredLogger, oldpath, orphanedDir, name, uid str
 // RepairAssets, on startup check the file system directories for any invalid or unknown files.
 // If any are found, they are removed without warning.
 func (c Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor) error {
+	if exec == nil {
+		return fmt.Errorf("config repair assets %w", ErrCE)
+	}
 	logger := helper.Logger(ctx)
 	backupDir := c.AbsOrphaned
 	if st, err := os.Stat(backupDir); err != nil {
@@ -376,10 +382,13 @@ func (c Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor) err
 // MagicNumbers checks the magic numbers of the artifacts and replaces any missing or
 // legacy values with the current method of detection. Previous detection methods were
 // done using the `file` command line utility, which is a bit to verbose for our needs.
-func (c Config) MagicNumbers(ctx context.Context, ce boil.ContextExecutor, logger *zap.SugaredLogger) error {
+func (c Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, logger *zap.SugaredLogger) error {
+	if exec == nil {
+		return fmt.Errorf("config repair magic numbers %w", ErrCE)
+	}
 	tick := time.Now()
 	r := model.Artifacts{}
-	magics, err := r.ByMagicErr(ctx, ce, false)
+	magics, err := r.ByMagicErr(ctx, exec, false)
 	if err != nil {
 		return fmt.Errorf("magicnumbers %w", err)
 	}
@@ -397,7 +406,7 @@ func (c Config) MagicNumbers(ctx context.Context, ce boil.ContextExecutor, logge
 		}
 		magic := magicnumber.Find(r)
 		count++
-		_ = model.UpdateMagic(ctx, ce, v.ID, magic.Title())
+		_ = model.UpdateMagic(ctx, exec, v.ID, magic.Title())
 		_ = r.Close()
 	}
 	if count == 0 || logger == nil {
@@ -408,9 +417,12 @@ func (c Config) MagicNumbers(ctx context.Context, ce boil.ContextExecutor, logge
 }
 
 // Previews, on startup check the preview directory for any unnecessary preview images such as textfile artifacts.
-func (c Config) Previews(ctx context.Context, ce boil.ContextExecutor, logger *zap.SugaredLogger) error {
+func (c Config) Previews(ctx context.Context, exec boil.ContextExecutor, logger *zap.SugaredLogger) error {
+	if exec == nil {
+		return fmt.Errorf("config repair previews %w", ErrCE)
+	}
 	r := model.Artifacts{}
-	artifacts, err := r.ByTextPlatform(ctx, ce)
+	artifacts, err := r.ByTextPlatform(ctx, exec)
 	if err != nil {
 		return fmt.Errorf("nopreview %w", err)
 	}

@@ -17,6 +17,7 @@ import (
 )
 
 var (
+	ErrDB  = errors.New("database connection is nil")
 	ErrEnv = errors.New("environment variable probably contains an invalid value")
 	ErrZap = errors.New("zap logger instance is nil")
 )
@@ -32,6 +33,9 @@ const (
 
 // Connections returns the number of active connections and the maximum allowed connections.
 func Connections(db *sql.DB) (int64, int64, error) {
+	if db == nil {
+		return 0, 0, fmt.Errorf("postgres connections, %w", ErrDB)
+	}
 	rows, err := db.Query("SELECT 'dataname' FROM pg_stat_activity WHERE datname='defacto2_ps';")
 	if err != nil {
 		return 0, 0, fmt.Errorf("postgres query, %w", err)

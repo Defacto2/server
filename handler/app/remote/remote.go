@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/archive"
 	"github.com/Defacto2/helper"
@@ -70,7 +71,7 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, downloadDir string)
 		if link.URL == "" {
 			continue
 		}
-		df, err := helper.GetFile(link.URL)
+		df, err := GetFile(link.URL, 0)
 		if tryNextLink := err != nil || df.Path == ""; tryNextLink {
 			continue
 		}
@@ -173,7 +174,7 @@ func (got DemozooLink) Update(c echo.Context, db *sql.DB) error {
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("demozoolink update commit %w: %s", err, uid)
 	}
-	return c.HTML(http.StatusOK, `<p class="text-success">New artifact update, okay</p>`)
+	return c.HTML(http.StatusOK, `<p class="text-success">Successful Demozoo update</p>`)
 }
 
 func (got DemozooLink) updates(f *models.File) { //nolint:cyclop
@@ -271,7 +272,7 @@ func (got *PouetLink) Download(c echo.Context, db *sql.DB, downloadDir string) e
 	if downloadURL == "" {
 		return nil
 	}
-	df, err := helper.GetFile(downloadURL)
+	df, err := GetFile(downloadURL, 10*time.Second)
 	if err != nil {
 		return fmt.Errorf("could not get file, %s: %w", downloadURL, err)
 	}
@@ -361,7 +362,7 @@ func (got PouetLink) Update(c echo.Context, db *sql.DB) error {
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("demozoolink update commit %w: %s", err, uid)
 	}
-	return c.HTML(http.StatusOK, `<p class="text-success">New artifact update, okay</p>`)
+	return c.HTML(http.StatusOK, `<p class="text-success">Successful Pouet update</p>`)
 }
 
 func (got PouetLink) updates(f *models.File) {

@@ -19,6 +19,9 @@ import (
 // One retrieves a single file record from the database using the record key.
 // This function can return records that have been marked as deleted.
 func One(ctx context.Context, exec boil.ContextExecutor, deleted bool, key int) (*models.File, error) {
+	if invalidExec(exec) {
+		return nil, fmt.Errorf("model one: %w", ErrDB)
+	}
 	if key < -1 {
 		return nil, fmt.Errorf("key value %d: %w", key, ErrKey)
 	}
@@ -65,6 +68,9 @@ func OneByUUID(ctx context.Context, exec boil.ContextExecutor, deleted bool, uid
 // OneFile retrieves a single file record from the database using the record key.
 // This function will also return records that have been marked as deleted.
 func OneFile(ctx context.Context, exec boil.ContextExecutor, id int64) (*models.File, error) {
+	if invalidExec(exec) {
+		return nil, fmt.Errorf("model one: %w", ErrDB)
+	}
 	f, err := models.Files(models.FileWhere.ID.EQ(id), qm.WithDeleted()).One(ctx, exec)
 	if err != nil {
 		return nil, fmt.Errorf("models file one %d: %w", id, err)
@@ -81,6 +87,9 @@ func OneFileByKey(ctx context.Context, exec boil.ContextExecutor, key string) (*
 // This function will also return records that have been marked as deleted and flag those with the boolean.
 // If the record is not found then the function will return an ID of 0 but without an error.
 func OneDemozoo(ctx context.Context, exec boil.ContextExecutor, id int64) (bool, int64, error) {
+	if invalidExec(exec) {
+		return false, 0, fmt.Errorf("model one demozoo: %w", ErrDB)
+	}
 	f, err := models.Files(
 		qm.Select("id", "deletedat"),
 		models.FileWhere.WebIDDemozoo.EQ(null.Int64From(id)),
@@ -99,6 +108,9 @@ func OneDemozoo(ctx context.Context, exec boil.ContextExecutor, id int64) (bool,
 // This function will also return records that have been marked as deleted and flag those with the boolean.
 // If the record is not found then the function will return an ID of 0 but without an error.
 func OnePouet(ctx context.Context, exec boil.ContextExecutor, id int64) (bool, int64, error) {
+	if invalidExec(exec) {
+		return false, 0, fmt.Errorf("invalid context executor")
+	}
 	f, err := models.Files(
 		qm.Select("id", "deletedat"),
 		models.FileWhere.WebIDPouet.EQ(null.Int64From(id)),

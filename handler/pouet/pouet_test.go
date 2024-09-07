@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler/pouet"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -95,4 +96,33 @@ func TestStars(t *testing.T) {
 			assert.InEpsilon(t, tt.want, f, 2)
 		})
 	}
+}
+
+func TestValids(t *testing.T) {
+	t.Parallel()
+	assert.False(t, pouet.PlatformsValid(""))
+	assert.True(t, pouet.PlatformsValid("msdos"))
+	assert.True(t, pouet.TypesValid(""))
+	assert.False(t, pouet.TypesValid("fastdemo"))
+	assert.True(t, pouet.TypesValid("msdos,random,placeholder"))
+}
+
+func TestReleasers(t *testing.T) {
+	t.Parallel()
+	pp := pouet.Production{}
+	a, b := pp.Releasers()
+	assert.Empty(t, a)
+	assert.Empty(t, b)
+	x, y, z := pp.Released()
+	assert.Empty(t, x)
+	assert.Empty(t, y)
+	assert.Empty(t, z)
+}
+
+func TestPlatformType(t *testing.T) {
+	t.Parallel()
+	pp := pouet.Production{}
+	a, b := pp.PlatformType()
+	assert.Equal(t, tags.Tag(-1), a)
+	assert.Equal(t, tags.Tag(tags.Intro), b)
 }

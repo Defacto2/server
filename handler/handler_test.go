@@ -26,3 +26,17 @@ func TestRender(t *testing.T) {
 	err = tr.Render(w, "name", "data", c)
 	require.Error(t, err)
 }
+
+func TestInfo(t *testing.T) {
+	t.Parallel()
+	c := handler.Configuration{}
+	c.Info(nil, nil)
+}
+
+func TestRegistry(t *testing.T) {
+	t.Parallel()
+	c := handler.Configuration{}
+	x, err := c.Registry(nil, nil)
+	require.Error(t, err)
+	require.Nil(t, x)
+}

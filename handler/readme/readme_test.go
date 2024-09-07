@@ -122,3 +122,32 @@ func TestReadmeSuggest(t *testing.T) {
 		})
 	}
 }
+
+func TestRead(t *testing.T) {
+	t.Parallel()
+	p, err := readme.Read(nil, "", "")
+	assert.Error(t, err)
+	assert.Empty(t, p)
+}
+
+func TestRemoveCtrls(t *testing.T) {
+	t.Parallel()
+	p := []byte("a\x1b[1;cabc")
+	r := readme.RemoveCtrls(p)
+	assert.Equal(t, []byte("aabc"), r)
+}
+
+func TestIncompatibleANSI(t *testing.T) {
+	t.Parallel()
+	b, err := readme.IncompatibleANSI(nil)
+	assert.NoError(t, err)
+	assert.False(t, b)
+	r := strings.NewReader("a\x1b[1;cabc")
+	b, err = readme.IncompatibleANSI(r)
+	assert.NoError(t, err)
+	assert.False(t, b)
+	r = strings.NewReader("a\x1b[Acabc")
+	b, err = readme.IncompatibleANSI(r)
+	assert.NoError(t, err)
+	assert.True(t, b)
+}

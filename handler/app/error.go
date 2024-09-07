@@ -149,7 +149,9 @@ func ForbiddenErr(c echo.Context, uri string, err error) error {
 	data["code"] = code
 	data["logo"] = "Forbidden"
 	data["alert"] = "This page is locked"
-	data["probl"] = fmt.Sprintf("This page is not intended for the general public, %s.", err.Error())
+	if err != nil {
+		data["probl"] = fmt.Sprintf("This page is not intended for the general public, %s.", err.Error())
+	}
 	data["uriErr"] = uri
 	if err := c.Render(code, "status", data); err != nil {
 		logger.Info(fmt.Sprintf("%d forbidden render error for the URL, %q: %s", code, uri, err))

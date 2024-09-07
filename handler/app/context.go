@@ -560,6 +560,7 @@ func fileWStats(db *sql.DB, data map[string]interface{}, stats bool) (map[string
 	return data, nil
 }
 
+// Deletions is the handler to list the files that have been marked for deletion.
 func Deletions(c echo.Context, db *sql.DB, page string) error {
 	uri := fileslice.Deletions.String()
 	if !fileslice.Valid(uri) {
@@ -575,6 +576,7 @@ func Deletions(c echo.Context, db *sql.DB, page string) error {
 	return artifacts(c, db, uri, p)
 }
 
+// Unwanted is the handler to list the files that have been marked as unwanted.
 func Unwanted(c echo.Context, db *sql.DB, page string) error {
 	uri := fileslice.Unwanted.String()
 	if !fileslice.Valid(uri) {

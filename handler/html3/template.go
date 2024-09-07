@@ -24,6 +24,11 @@ const (
 	tag        Templ = "html3_tag"
 )
 
+func emptyFS(fs embed.FS) bool {
+	entries, err := fs.ReadDir(".")
+	return err != nil || len(entries) == 0
+}
+
 // GlobTo returns the path to the template file.
 func GlobTo(name string) string {
 	const pathSeparator = "/"
@@ -32,30 +37,45 @@ func GlobTo(name string) string {
 
 // Index template.
 func index(db *sql.DB, logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+	if emptyFS(fs) {
+		return nil
+	}
 	return template.Must(template.New("").Funcs(TemplateFuncMap(db, logger)).ParseFS(fs,
 		GlobTo(layout), GlobTo(dirs), GlobTo("index.html")))
 }
 
 // List file records template.
 func list(db *sql.DB, logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+	if emptyFS(fs) {
+		return nil
+	}
 	return template.Must(template.New("").Funcs(TemplateFuncMap(db, logger)).ParseFS(fs,
 		GlobTo(layout), GlobTo(files), GlobTo(pagination), GlobTo(files)))
 }
 
 // List and filter the tags template.
 func listTags(db *sql.DB, logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+	if emptyFS(fs) {
+		return nil
+	}
 	return template.Must(template.New("").Funcs(TemplateFuncMap(db, logger)).ParseFS(fs,
 		GlobTo(layout), GlobTo(subDirs), GlobTo("tags.html")))
 }
 
 // List the distinct groups template.
 func listGroups(db *sql.DB, logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+	if emptyFS(fs) {
+		return nil
+	}
 	return template.Must(template.New("").Funcs(TemplateFuncMap(db, logger)).ParseFS(fs,
 		GlobTo(layout), GlobTo(dirs), GlobTo(pagination), GlobTo("groups.html")))
 }
 
 // Template for displaying HTTP error codes and feedback.
 func httpErr(db *sql.DB, logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+	if emptyFS(fs) {
+		return nil
+	}
 	return template.Must(template.New("").Funcs(TemplateFuncMap(db, logger)).ParseFS(fs,
 		GlobTo(layout)))
 }
