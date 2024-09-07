@@ -63,10 +63,13 @@ func UpdateEmulateBroken(db *sql.DB, id int64, val bool) error {
 // UpdateBoolFrom updates the column bool from value with val.
 // The boolFrom columns are table columns that can either be null, empty, or have a smallint value.
 func UpdateBoolFrom(db *sql.DB, column boolFrom, id int64, val bool) error {
+	if db == nil {
+		return fmt.Errorf("update bool from: %w", ErrDB)
+	}
 	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("updateboolfrom: %w", err)
+		return fmt.Errorf("update bool from: %w", err)
 	}
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
@@ -97,6 +100,9 @@ func UpdateBoolFrom(db *sql.DB, column boolFrom, id int64, val bool) error {
 }
 
 func UpdateEmulateRunProgram(db *sql.DB, id int64, val string) error {
+	if db == nil {
+		return fmt.Errorf("update emulate run program: %w", ErrDB)
+	}
 	s := strings.TrimSpace(strings.ToUpper(val))
 	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
@@ -302,6 +308,9 @@ func UpdateYouTube(db *sql.DB, id int64, val string) error {
 // The demozooProd and pouetProd values are validated to be within a sane range
 // and a zero value will set their column's to null.
 func UpdateInt64From(db *sql.DB, column int64From, id int64, val string) error {
+	if db == nil {
+		return fmt.Errorf("update int64 from: %w", ErrDB)
+	}
 	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
@@ -369,6 +378,9 @@ const (
 // UpdateStringFrom updates the column string from value with val.
 // The stringFrom columns are table columns that can either be null, empty, or have a string value.
 func UpdateStringFrom(db *sql.DB, column stringFrom, id int64, val string) error {
+	if db == nil {
+		return fmt.Errorf("update string from: %w", ErrDB)
+	}
 	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
@@ -437,24 +449,27 @@ func updateStringCases(f *models.File, column stringFrom, val string) error { //
 
 // UpdateCreators updates the text, illustration, program, and audio credit columns with the values provided.
 func UpdateCreators(db *sql.DB, id int64, text, ill, prog, audio string) error {
+	if db == nil {
+		return fmt.Errorf("update creators: %w", ErrDB)
+	}
 	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("updatecreators: %w", err)
+		return fmt.Errorf("update creators: %w", err)
 	}
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
-		return fmt.Errorf("updatecreators find file, %d: %w", id, err)
+		return fmt.Errorf("update creators find file, %d: %w", id, err)
 	}
 	f.CreditText = null.StringFrom(text)
 	f.CreditIllustration = null.StringFrom(ill)
 	f.CreditProgram = null.StringFrom(prog)
 	f.CreditAudio = null.StringFrom(audio)
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
-		return fmt.Errorf("%s: %w", "updatecreators", err)
+		return fmt.Errorf("%s: %w", "update creators", err)
 	}
 	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("updatecreators: %w", err)
+		return fmt.Errorf("update creators: %w", err)
 	}
 	return nil
 }
@@ -464,6 +479,9 @@ func UpdateLinks(db *sql.DB, id int64,
 	youtube, colors16, github, relations, sites string,
 	demozoo, pouet int64,
 ) error {
+	if db == nil {
+		return fmt.Errorf("update links: %w", ErrDB)
+	}
 	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
@@ -493,6 +511,9 @@ func UpdateLinks(db *sql.DB, id int64,
 // It takes an ID, platform, and tag as parameters and returns an error if any.
 // Both platform and tag must be valid values.
 func UpdateClassification(db *sql.DB, id int64, platform, tag string) error {
+	if db == nil {
+		return fmt.Errorf("update classification: %w", ErrDB)
+	}
 	p, t := tags.TagByURI(platform), tags.TagByURI(tag)
 	if p == -1 {
 		return fmt.Errorf("%s: %w", platform, ErrPlatform)
@@ -529,6 +550,9 @@ func UpdateClassification(db *sql.DB, id int64, platform, tag string) error {
 // UpdateDateIssued updates the date issued year, month and day columns with the values provided.
 // Columns updated are DateIssuedYear, DateIssuedMonth, and DateIssuedDay.
 func UpdateDateIssued(db *sql.DB, id int64, y, m, d string) error {
+	if db == nil {
+		return fmt.Errorf("update date issued: %w", ErrDB)
+	}
 	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
@@ -553,6 +577,9 @@ func UpdateDateIssued(db *sql.DB, id int64, y, m, d string) error {
 
 // UpdateOffline updates the record to be offline and inaccessible to the public.
 func UpdateOffline(db *sql.DB, id int64) error {
+	if db == nil {
+		return fmt.Errorf("update offline: %w", ErrDB)
+	}
 	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
@@ -576,6 +603,9 @@ func UpdateOffline(db *sql.DB, id int64) error {
 
 // UpdateOnline updates the record to be online and public.
 func UpdateOnline(db *sql.DB, id int64) error {
+	if db == nil {
+		return fmt.Errorf("update online: %w", ErrDB)
+	}
 	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
@@ -600,6 +630,9 @@ func UpdateOnline(db *sql.DB, id int64) error {
 // Two releases can be separated by a + (plus) character.
 // The columns updated are GroupBrandFor and GroupBrandBy.
 func UpdateReleasers(db *sql.DB, id int64, val string) error {
+	if db == nil {
+		return fmt.Errorf("update releasers: %w", ErrDB)
+	}
 	const max = 2
 	val = strings.TrimSpace(val)
 	s := strings.Split(val, "+")
@@ -640,6 +673,9 @@ func UpdateReleasers(db *sql.DB, id int64, val string) error {
 
 // UpdateYMD updates the date issued year, month and day columns with the values provided.
 func UpdateYMD(ctx context.Context, exec boil.ContextExecutor, id int64, y, m, d null.Int16) error {
+	if invalidExec(exec) {
+		return fmt.Errorf("updateymd %w: %d", ErrDB, id)
+	}
 	if id <= 0 {
 		return fmt.Errorf("updateymd id value %w: %d", ErrKey, id)
 	}
@@ -667,6 +703,9 @@ func UpdateYMD(ctx context.Context, exec boil.ContextExecutor, id int64, y, m, d
 
 // UpdateMagic updates the file magictype (magic number) column with the magic value provided.
 func UpdateMagic(ctx context.Context, exec boil.ContextExecutor, id int64, magic string) error {
+	if invalidExec(exec) {
+		return fmt.Errorf("updatemagic %w: %d", ErrDB, id)
+	}
 	if id <= 0 {
 		return fmt.Errorf("updatemagic id value %w: %d", ErrKey, id)
 	}
