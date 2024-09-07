@@ -86,12 +86,16 @@ func (d Download) HTTPSend(c echo.Context, db *sql.DB, logger *zap.SugaredLogger
 	uid := strings.TrimSpace(art.UUID.String)
 	file := filepath.Join(d.Path, uid)
 	if !helper.Stat(file) {
-		logger.Warnf("The hosted file download %q, for record %d does not exist.\n"+
-			"Absolute path: %q", art.Filename.String, art.ID, file)
+		if logger != nil {
+			logger.Warnf("The hosted file download %q, for record %d does not exist.\n"+
+				"Absolute path: %q", art.Filename.String, art.ID, file)
+		}
 		return fmt.Errorf("http send, %w: %s", ErrStat, name)
 	}
 	if name == "" {
-		logger.Warnf("No filename exists for the record %d.", art.ID)
+		if logger != nil {
+			logger.Warnf("No filename exists for the record %d.", art.ID)
+		}
 		name = file
 	}
 	if d.Inline && tags.IsText(art.Platform.String) {

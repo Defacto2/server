@@ -96,7 +96,7 @@ func IsApp(name string) bool {
 	return IsExt(name, s...)
 }
 
-// IsApp returns true if the named file uses a common compressed or archived filename.
+// IsArchive returns true if the named file uses a common compressed or archived filename.
 func IsArchive(name string) bool {
 	s := []string{z7, arc, ark, arj, cab, gz, lha, lzh, rar, tar, tgz, zip}
 	return IsExt(name, s...)
@@ -120,19 +120,19 @@ func IsHTML(name string) bool {
 	return IsExt(name, s...)
 }
 
-// IsImage returns true if the named file uses a common digital audio filename.
+// IsAudio returns true if the named file uses a common digital audio filename.
 func IsAudio(name string) bool {
 	s := []string{au, fla, mla, m2a, mid, midi, mp1, mp2, mp3, mpa, mpga, mpeg, ogg, snd, wav, wave, wma}
 	return IsExt(name, s...)
 }
 
-// IsImage returns true if the named file uses a common tracker music filename.
+// IsTune returns true if the named file uses a common tracker music filename.
 func IsTune(name string) bool {
 	s := []string{it, mod, s3m, xm}
 	return IsExt(name, s...)
 }
 
-// IsImage returns true if the named file uses a common video filename.
+// IsVideo returns true if the named file uses a common video filename.
 func IsVideo(name string) bool {
 	s := []string{avi, divx, flv, gt, mov, m4a, m4v, mp4, swf, rm, ram, wmv, xvid}
 	return IsExt(name, s...)

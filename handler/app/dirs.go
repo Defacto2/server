@@ -72,9 +72,6 @@ type Dirs struct {
 // Artifact is the handler for the of the file record.
 func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, readonly bool) error {
 	const name = "artifact"
-	if logger == nil {
-		return InternalErr(c, name, ErrZap)
-	}
 	art, err := dir.modelsFile(c, db)
 	if err != nil {
 		return err
@@ -319,7 +316,7 @@ func (dir Dirs) otherRelations(art *models.File, data map[string]interface{}) ma
 // jsdos returns the js-dos emulator data for the file record of the artifact.
 func jsdos(art *models.File, data map[string]interface{}, logger *zap.SugaredLogger,
 ) map[string]interface{} {
-	if logger == nil || art == nil {
+	if art == nil {
 		return data
 	}
 	data["jsdos6"] = false
@@ -334,19 +331,25 @@ func jsdos(art *models.File, data map[string]interface{}, logger *zap.SugaredLog
 	data["jsdos6"] = true
 	cmd, err := model.JsDosCommand(art)
 	if err != nil {
-		logger.Error(errorWithID(err, "js-dos command", art.ID))
+		if logger != nil {
+			logger.Error(errorWithID(err, "js-dos command", art.ID))
+		}
 		return data
 	}
 	data["jsdos6Run"] = cmd
 	guess, err := model.JsDosBinary(art)
 	if err != nil {
-		logger.Error(errorWithID(err, "js-dos binary", art.ID))
+		if logger != nil {
+			logger.Error(errorWithID(err, "js-dos binary", art.ID))
+		}
 		return data
 	}
 	data["jsdos6RunGuess"] = guess
 	cfg, err := model.JsDosConfig(art)
 	if err != nil {
-		logger.Error(errorWithID(err, "js-dos config", art.ID))
+		if logger != nil {
+			logger.Error(errorWithID(err, "js-dos config", art.ID))
+		}
 		return data
 	}
 	data["jsdos6Config"] = cfg

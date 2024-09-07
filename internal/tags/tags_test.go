@@ -1,6 +1,7 @@
 package tags_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/Defacto2/server/internal/tags"
@@ -15,6 +16,21 @@ const (
 	lastPlatform  = "windows"
 	noname        = "non-existing-name"
 )
+
+func TestByName(t *testing.T) {
+	t.Parallel()
+	tt := tags.T{}
+	x, err := tt.ByName("")
+	require.Error(t, err)
+	assert.Empty(t, x)
+}
+
+func TestTBuild(t *testing.T) {
+	t.Parallel()
+	tt := tags.T{}
+	err := tt.Build(context.TODO(), nil)
+	require.Error(t, err)
+}
 
 func TestNameByURI(t *testing.T) {
 	uri := "programmingtool"

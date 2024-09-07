@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 	"sync"
 
@@ -13,7 +14,10 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-var ErrT = errors.New("lockable tags t is nil")
+var (
+	ErrDB = errors.New("database value is nil")
+	ErrT  = errors.New("lockable tags t is nil")
+)
 
 // The dos, app funcmap handler must match the format and syntax of MS-DOS that's used here.
 const msDos = "MS Dos"
@@ -49,6 +53,9 @@ func (t *T) ByName(name string) (TagData, error) {
 
 // Build the tags and collect the statistical data sourced from the database.
 func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) error {
+	if InvalidExec(exec) {
+		return fmt.Errorf("tags build %w", ErrDB)
+	}
 	t.List = make([]TagData, LastPlatform+1)
 	i := -1
 	var err error
@@ -687,4 +694,17 @@ func OSTags() [5]string {
 		URIs()[Windows],
 		URIs()[Mac],
 	}
+}
+
+// InvalidExec returns true if the database context executor is invalid such as nil.
+func InvalidExec(exec boil.ContextExecutor) bool {
+	v := reflect.ValueOf(exec)
+	switch v.Kind() {
+	case reflect.Ptr, reflect.Interface:
+		if v.IsNil() {
+			return true
+		}
+		return false
+	}
+	return true
 }

@@ -513,7 +513,10 @@ func TemplateFuncMap(db *sql.DB, logger *zap.SugaredLogger) template.FuncMap {
 	ctx := context.Background()
 	t := tags.T{}
 	if err := t.Build(ctx, db); err != nil {
-		logger.Errorf("html3 template func map could not build the tags %s", err)
+		if logger != nil {
+			logger.Errorf("html3 template func map could not build the tags %s", err)
+		}
+		return nil
 	}
 	return template.FuncMap{
 		"byteInt":  LeadFSInt,

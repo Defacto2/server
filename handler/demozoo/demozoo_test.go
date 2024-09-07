@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler/demozoo"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -88,4 +89,72 @@ func TestExternalLinks(t *testing.T) {
 		URL:       "https://www.youtube.com/watch?v=x6QrKsBOERA",
 	})
 	assert.Equal(t, "x6QrKsBOERA", d.YouTubeVideo())
+}
+
+func TestUnmarshal(t *testing.T) {
+	t.Parallel()
+	prod := demozoo.Production{}
+	err := prod.Unmarshal(nil)
+	require.NoError(t, err)
+}
+
+func TestSuperType(t *testing.T) {
+	t.Parallel()
+	prod := demozoo.Production{}
+	x, y := prod.SuperType()
+	const want tags.Tag = -1
+	assert.Equal(t, want, x)
+	assert.Equal(t, want, y)
+}
+
+func TestReleased(t *testing.T) {
+	t.Parallel()
+	prod := demozoo.Production{}
+	y, m, d := prod.Released()
+	const want int16 = 0
+	assert.Equal(t, want, y)
+	assert.Equal(t, want, m)
+	assert.Equal(t, want, d)
+}
+
+func TestGroups(t *testing.T) {
+	t.Parallel()
+	prod := demozoo.Production{}
+	a, b := prod.Groups()
+	assert.Equal(t, "", a)
+	assert.Equal(t, "", b)
+}
+
+func TestSite(t *testing.T) {
+	t.Parallel()
+	s := demozoo.Site("")
+	assert.Equal(t, "", s)
+	s = demozoo.Site("the cool bbs")
+	assert.Equal(t, "", s)
+	s = demozoo.Site("Cool BBS")
+	assert.Equal(t, "", s)
+}
+
+func TestReleasers(t *testing.T) {
+	t.Parallel()
+	prod := demozoo.Production{}
+	a, b, c, d := prod.Releasers()
+	assert.Empty(t, a)
+	assert.Empty(t, b)
+	assert.Empty(t, c)
+	assert.Empty(t, d)
+}
+
+func TestCategory(t *testing.T) {
+	t.Parallel()
+	c := demozoo.TextC.String()
+	assert.Equal(t, "text", c)
+	c = demozoo.CodeC.String()
+	assert.Equal(t, "code", c)
+	c = demozoo.GraphicsC.String()
+	assert.Equal(t, "graphics", c)
+	c = demozoo.MusicC.String()
+	assert.Equal(t, "music", c)
+	c = demozoo.MagazineC.String()
+	assert.Equal(t, "magazine", c)
 }

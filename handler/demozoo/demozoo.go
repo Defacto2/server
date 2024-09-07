@@ -217,6 +217,9 @@ func (p Production) PouetProd() int {
 // in the Production struct. It returns an error if the JSON data is
 // invalid or the production ID is invalid.
 func (p *Production) Unmarshal(r io.Reader) error {
+	if r == nil {
+		return nil
+	}
 	if err := json.NewDecoder(r).Decode(p); err != nil {
 		return fmt.Errorf("demozoo production json decode: %w", err)
 	}
@@ -462,7 +465,7 @@ func Find(uri string) GroupID {
 	return 0
 }
 
-// Released returns the production's release date as date_issued_ year, month, day values.
+// Released returns the production's release date as date_issued_year, month, day values.
 func (p Production) Released() (int16, int16, int16) {
 	return helper.Released(p.ReleaseDate)
 }

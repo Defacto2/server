@@ -1,17 +1,155 @@
 package html3_test
 
 import (
+	"embed"
 	"math"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/handler/html3"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/volatiletech/null/v8"
 	"go.uber.org/zap"
 )
 
 func logr() *zap.SugaredLogger {
 	return zap.NewExample().Sugar()
+}
+
+func newContext() echo.Context {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader("{}"))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	return e.NewContext(req, rec)
+}
+
+func TestSugared(t *testing.T) {
+	sug := html3.Sugared{}
+	err := sug.Category(newContext(), nil)
+	require.Error(t, err)
+	err = sug.Documents(newContext(), nil)
+	require.Error(t, err)
+	err = sug.Group(newContext(), nil)
+	require.Error(t, err)
+	err = sug.Platform(newContext(), nil)
+	require.Error(t, err)
+	err = sug.Platforms(newContext())
+	require.Error(t, err)
+	err = sug.Software(newContext(), nil)
+	require.Error(t, err)
+}
+
+func TestGroups(t *testing.T) {
+	sug := html3.Sugared{}
+	err := sug.Groups(newContext(), nil)
+	require.Error(t, err)
+}
+
+func TestIndex(t *testing.T) {
+	sug := html3.Sugared{}
+	err := sug.Index(newContext(), nil)
+	require.Error(t, err)
+}
+
+func TestRoutes(t *testing.T) {
+	t.Parallel()
+	e := echo.New()
+	g := html3.Routes(e, nil, nil)
+	assert.NotNil(t, g)
+}
+
+func TestSugaredAll(t *testing.T) {
+	sug := html3.Sugared{}
+	err := sug.All(newContext(), nil)
+	require.Error(t, err)
+}
+
+func TestSugaredArt(t *testing.T) {
+	sug := html3.Sugared{}
+	err := sug.Art(newContext(), nil)
+	require.Error(t, err)
+}
+
+func TestIsCategories(t *testing.T) {
+	sug := html3.Sugared{}
+	err := sug.Categories(newContext())
+	require.Error(t, err)
+}
+
+func TestGlobTo(t *testing.T) {
+	s := html3.GlobTo("file")
+	assert.Equal(t, "view/html3/file", s)
+}
+
+func TestTemplates(t *testing.T) {
+	t.Parallel()
+	x := html3.Templates(nil, nil, embed.FS{})
+	assert.NotEmpty(t, x)
+}
+
+func TestError(t *testing.T) {
+	err := html3.Error(newContext(), nil)
+	require.Error(t, err)
+}
+
+func TestID(t *testing.T) {
+	s := html3.ID(newContext())
+	assert.Equal(t, "", s)
+}
+
+func TestLeadFS(t *testing.T) {
+	x := html3.LeadFS(0, null.Int64From(0))
+	assert.Equal(t, "0B", x)
+	x = html3.LeadFS(10, null.Int64From(3))
+	assert.Equal(t, strings.Repeat(" ", 8)+"3B", x)
+}
+
+func TestLeadInt(t *testing.T) {
+	x := html3.LeadInt(0, 0)
+	assert.Equal(t, "-", x)
+	x = html3.LeadInt(10, 3)
+	assert.Equal(t, strings.Repeat(" ", 9)+"3", x)
+}
+
+func TestQuery(t *testing.T) {
+	a, b, c, fs, err := html3.Query(newContext(), nil, -1, -1)
+	assert.Empty(t, a)
+	assert.Empty(t, b)
+	assert.Empty(t, c)
+	assert.Empty(t, fs)
+	assert.Error(t, err)
+	a, b, c, fs, err = html3.Query(newContext(), nil, html3.Everything, -1)
+	assert.Empty(t, a)
+	assert.Empty(t, b)
+	assert.Empty(t, c)
+	assert.Empty(t, fs)
+	assert.Error(t, err)
+	_, _, _, _, err = html3.Query(newContext(), nil, html3.BySection, -1)
+	assert.Error(t, err)
+	_, _, _, _, err = html3.Query(newContext(), nil, html3.ByPlatform, -1)
+	assert.Error(t, err)
+	_, _, _, _, err = html3.Query(newContext(), nil, html3.ByGroup, -1)
+	assert.Error(t, err)
+	_, _, _, _, err = html3.Query(newContext(), nil, html3.AsArt, -1)
+	assert.Error(t, err)
+	_, _, _, _, err = html3.Query(newContext(), nil, html3.AsDocument, -1)
+	assert.Error(t, err)
+	_, _, _, _, err = html3.Query(newContext(), nil, html3.AsSoftware, -1)
+	assert.Error(t, err)
+}
+
+func TestListInfo(t *testing.T) {
+	a, b := html3.ListInfo(0, "", "")
+	assert.Equal(t, "Index of /html3/", a)
+	assert.Equal(t, "", b)
+	a, b = html3.ListInfo(10, "aaa", "bbb")
+	assert.Equal(t, "Index of /html3/aaa", a)
+	assert.Equal(t, "", b)
 }
 
 func TestRecordsBy(t *testing.T) {
@@ -230,4 +368,10 @@ func TestNavi(t *testing.T) {
 	if result != expected {
 		t.Errorf("Navi(%d, %d, %d, %s, %s) = %v; want %v", limit, page, maxPage, current, qs, result, expected)
 	}
+}
+
+func TestTemplateFuncMap(t *testing.T) {
+	t.Parallel()
+	fm := html3.TemplateFuncMap(nil, nil)
+	assert.Nil(t, fm)
 }
