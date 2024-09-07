@@ -62,7 +62,9 @@ func HumanizeCount(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, name s
 	}
 	html, err := form.HumanizeCount(db, section, platform)
 	if err != nil {
-		logger.Error(err)
+		if logger != nil {
+			logger.Error(err)
+		}
 		return badRequest(c, err)
 	}
 	return c.HTML(http.StatusOK, string(html))
@@ -76,7 +78,9 @@ func LookupSHA384(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 	}
 	match, err := regexp.MatchString("^[a-fA-F0-9]{96}$", hash)
 	if err != nil {
-		logger.Error(err)
+		if logger != nil {
+			logger.Error(err)
+		}
 		return c.String(http.StatusBadRequest, "regex match error")
 	}
 	if !match {
@@ -85,7 +89,9 @@ func LookupSHA384(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 	ctx := context.Background()
 	exist, err := model.HashExists(ctx, db, hash)
 	if err != nil {
-		logger.Error(err)
+		if logger != nil {
+			logger.Error(err)
+		}
 		return c.String(http.StatusServiceUnavailable,
 			"cannot confirm the hash with the database")
 	}
@@ -214,26 +220,36 @@ func success(c echo.Context, filename string, id int64,
 // The destination directory is where the file will be copied to.
 func Duplicate(logger *zap.SugaredLogger, uid uuid.UUID, srcPath, dstDir string) {
 	if uid.String() == "" {
-		logger.Errorf("htmx transfer duplicate file: %w, %s", ErrUUID, uid)
+		if logger != nil {
+			logger.Errorf("htmx transfer duplicate file: %w, %s", ErrUUID, uid)
+		}
 		return
 	}
 	st, err := os.Stat(srcPath)
 	if err != nil {
-		logger.Errorf("htmx transfer duplicate file: %w, %s", err, srcPath)
+		if logger != nil {
+			logger.Errorf("htmx transfer duplicate file: %w, %s", err, srcPath)
+		}
 		return
 	}
 	if st.IsDir() {
-		logger.Errorf("htmx transfer duplicate file, %w: %s", ErrDir, srcPath)
+		if logger != nil {
+			logger.Errorf("htmx transfer duplicate file, %w: %s", ErrDir, srcPath)
+		}
 		return
 	}
 	newPath := filepath.Join(dstDir, uid.String())
 	i, err := helper.Duplicate(srcPath, newPath)
 	if err != nil {
-		logger.Errorf("htmx transfer duplicate file: %w,%q,  %s",
-			err, uid.String(), srcPath)
+		if logger != nil {
+			logger.Errorf("htmx transfer duplicate file: %w,%q,  %s",
+				err, uid.String(), srcPath)
+		}
 		return
 	}
-	logger.Infof("Uploader copied %d bytes for %s, to the destination dir", i, uid.String())
+	if logger != nil {
+		logger.Infof("Uploader copied %d bytes for %s, to the destination dir", i, uid.String())
+	}
 }
 
 // checkDest validates the destination directory for the chosen file upload,
@@ -401,6 +417,9 @@ func (prod Submission) String() string {
 func (prod Submission) Submit( //nolint:cyclop,funlen
 	c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string,
 ) error {
+	if db == nil {
+		return c.String(http.StatusInternalServerError, "error, the database connection is nil")
+	}
 	name := strings.ToTitle(prod.String())
 	if logger == nil {
 		return c.String(http.StatusInternalServerError,
@@ -575,6 +594,9 @@ func reloader(c echo.Context, filename string) error {
 // and updates the existing artifact record with the new file information.
 // The logger is optional and if nil then the function will not log any debug information.
 func UploadReplacement(c echo.Context, db *sql.DB, downloadDir string) error {
+	if db == nil {
+		return c.HTML(http.StatusInternalServerError, "error, the database connection is nil")
+	}
 	name := "artifact-editor-replace-file"
 	if s, err := checkDest(downloadDir); err != nil {
 		return c.HTML(http.StatusInternalServerError, s)

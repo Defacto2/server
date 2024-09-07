@@ -19,6 +19,8 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
+var ErrNoExecutor = fmt.Errorf("no context executor")
+
 // Check returns the UUID of the zipped file if it requires re-archiving because it uses a
 // legacy compression method that is not supported by Go or JS libraries.
 //
@@ -53,13 +55,16 @@ func Check(ctx context.Context, path, extra string, d fs.DirEntry, artifacts ...
 }
 
 // Files returns all the DOS platform artifacts using a .arc extension filename.
-func Files(ctx context.Context, ce boil.ContextExecutor) (models.FileSlice, error) {
+func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, error) {
+	if exec == nil {
+		return nil, fmt.Errorf("config fixarc files %w", ErrNoExecutor)
+	}
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("uuid"))
 	mods = append(mods, qm.Where("platform = ?", tags.DOS.String()))
 	mods = append(mods, qm.Where("filename ILIKE ?", "%.arc"))
 	mods = append(mods, qm.WithDeleted())
-	files, err := models.Files(mods...).All(ctx, ce)
+	files, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
 		return nil, fmt.Errorf("fixarc models files: %w", err)
 	}

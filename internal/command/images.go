@@ -135,7 +135,7 @@ const (
 )
 
 // Thumbs creates a thumbnail image for the preview image based on the crop position of the image.
-func (align Align) Thumbs(unid string, previewDir, thumbnailDir string) error {
+func (align Align) Thumbs(unid, previewDir, thumbnailDir string) error {
 	tmpDir := filepath.Join(helper.TmpDir(), patternS)
 	pattern := "images-thumb-" + unid
 	path := filepath.Join(tmpDir, pattern)
@@ -196,7 +196,7 @@ const (
 )
 
 // Images crops the preview image based on the crop position and ratio of the image.
-func (crop Crop) Images(unid string, previewDir string) error {
+func (crop Crop) Images(unid, previewDir string) error {
 	st, err := os.Stat(previewDir)
 	if err != nil {
 		return fmt.Errorf("crop images %w", err)

@@ -23,6 +23,11 @@ func GlobTo(name string) string {
 	return strings.Join([]string{"view", "htmx", name}, pathSeparator)
 }
 
+func emptyFS(fs embed.FS) bool {
+	entries, err := fs.ReadDir(".")
+	return err != nil || len(entries) == 0
+}
+
 // Templates returns a map of the templates.
 func Templates(fs embed.FS) map[string]*template.Template {
 	t := make(map[string]*template.Template)
@@ -33,16 +38,25 @@ func Templates(fs embed.FS) map[string]*template.Template {
 }
 
 func ids(fs embed.FS) *template.Template {
+	if emptyFS(fs) {
+		return nil
+	}
 	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fs,
 		GlobTo("layout.tmpl"), GlobTo("searchids.tmpl")))
 }
 
 func releasers(fs embed.FS) *template.Template {
+	if emptyFS(fs) {
+		return nil
+	}
 	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fs,
 		GlobTo("layout.tmpl"), GlobTo("searchreleasers.tmpl")))
 }
 
 func datalistReleasers(fs embed.FS) *template.Template {
+	if emptyFS(fs) {
+		return nil
+	}
 	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fs,
 		GlobTo("layout.tmpl"), GlobTo("datalistreleasers.tmpl")))
 }

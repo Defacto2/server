@@ -68,17 +68,20 @@ type Configuration struct {
 // Controller is the primary instance of the Echo router.
 func (c Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger) *echo.Echo {
 	configs := c.Environment
+	if logger == nil {
+		logger, _ := zap.NewProduction()
+		defer logger.Sync()
+	}
 
 	e := echo.New()
 	e.HideBanner = true
 	e.HTTPErrorHandler = configs.CustomErrorHandler
 
-	if tmpl, err := c.Registry(db, logger); err != nil {
+	tmpl, err := c.Registry(db, logger)
+	if err != nil {
 		logger.Fatal(err)
-	} else {
-		e.Renderer = tmpl
 	}
-
+	e.Renderer = tmpl
 	middlewares := []echo.MiddlewareFunc{
 		middleware.Rewrite(rewrites()),
 		middleware.NonWWWRedirect(),
@@ -107,7 +110,7 @@ func (c Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger) *echo.E
 	e = EmbedDirs(e, c.Public)
 	e = MovedPermanently(e)
 	e = htmxGroup(e, db, logger, c.Environment.AbsDownload)
-	e, err := c.FilesRoutes(e, db, logger, c.Public)
+	e, err = c.FilesRoutes(e, db, logger, c.Public)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -143,9 +146,14 @@ func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 
 // Info prints the application information to the console.
 func (c Configuration) Info(logger *zap.SugaredLogger, w io.Writer) {
+	if w == nil {
+		w = io.Discard
+	}
 	nr := bytes.NewReader(c.Brand)
 	if l, err := io.Copy(w, nr); err != nil {
-		logger.Warnf("Could not print the brand logo: %s.", err)
+		if logger != nil {
+			logger.Warnf("Could not print the brand logo: %s.", err)
+		}
 	} else if l > 0 {
 		fmt.Fprint(w, "\n\n")
 	}
@@ -167,6 +175,10 @@ func (c Configuration) Info(logger *zap.SugaredLogger, w io.Writer) {
 
 // PortErr handles the error when the HTTP or HTTPS server cannot start.
 func (c Configuration) PortErr(logger *zap.SugaredLogger, port uint, err error) {
+	if logger == nil {
+		logger, _ := zap.NewProduction()
+		defer logger.Sync()
+	}
 	s := "HTTP"
 	if port == c.Environment.TLSPort {
 		s = "TLS"
@@ -210,6 +222,10 @@ func (c Configuration) Registry(db *sql.DB, logger *zap.SugaredLogger) (*Templat
 func (c *Configuration) ShutdownHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 	if e == nil {
 		panic(fmt.Errorf("%w for the HTTP shutdown", ErrRoutes))
+	}
+	if logger == nil {
+		logger, _ := zap.NewProduction()
+		defer logger.Sync()
 	}
 	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)
@@ -258,6 +274,10 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 func (c *Configuration) Start(e *echo.Echo, logger *zap.SugaredLogger, configs config.Config) error {
 	if e == nil {
 		panic(fmt.Errorf("%w for the web application startup", ErrRoutes))
+	}
+	if logger == nil {
+		logger, _ := zap.NewProduction()
+		defer logger.Sync()
 	}
 	switch {
 	case configs.UseTLS() && configs.UseHTTP():
@@ -315,6 +335,10 @@ func (c *Configuration) StartTLS(e *echo.Echo, logger *zap.SugaredLogger) {
 	if e == nil {
 		panic(fmt.Errorf("%w for the TLS startup", ErrRoutes))
 	}
+	if logger == nil {
+		logger, _ := zap.NewProduction()
+		defer logger.Sync()
+	}
 	port := c.Environment.TLSPort
 	address := c.address(port)
 	if address == "" {
@@ -342,6 +366,10 @@ func (c *Configuration) StartTLS(e *echo.Echo, logger *zap.SugaredLogger) {
 func (c *Configuration) StartTLSLocal(e *echo.Echo, logger *zap.SugaredLogger) {
 	if e == nil {
 		panic(fmt.Errorf("%w for the TLS local mode startup", ErrRoutes))
+	}
+	if logger == nil {
+		logger, _ := zap.NewProduction()
+		defer logger.Sync()
 	}
 	port := c.Environment.TLSPort
 	address := c.address(port)

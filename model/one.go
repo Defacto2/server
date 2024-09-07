@@ -99,6 +99,9 @@ func OneDemozoo(ctx context.Context, exec boil.ContextExecutor, id int64) (bool,
 // This function will also return records that have been marked as deleted and flag those with the boolean.
 // If the record is not found then the function will return an ID of 0 but without an error.
 func OnePouet(ctx context.Context, exec boil.ContextExecutor, id int64) (bool, int64, error) {
+	if invalidExec(exec) {
+		return false, 0, fmt.Errorf("invalid context executor")
+	}
 	f, err := models.Files(
 		qm.Select("id", "deletedat"),
 		models.FileWhere.WebIDPouet.EQ(null.Int64From(id)),

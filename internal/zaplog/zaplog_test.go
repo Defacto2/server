@@ -15,6 +15,8 @@ func TestCLI(t *testing.T) {
 func TestLog(t *testing.T) {
 	logr := zaplog.Debug()
 	assert.NotNil(t, logr)
+	logr = zaplog.Timestamp()
+	assert.NotNil(t, logr)
 }
 
 func TestProduction(t *testing.T) {
