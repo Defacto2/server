@@ -3,8 +3,6 @@
 ### Stuff to do
 
 * Repack zips that contain programs with bad filenames, for example: http://localhost:1323/f/ab252e4
-* Fix (or remove) Pouet submission, it is not at all working.
-* Review all comments for functions etc.
 * _Replacement image_ *ALWAYS* prompts for a confirmation. This should only occur if there is an existing image.
 * _Thumbnail assets_ links need better separation.
 * `<div class="modal-body"><picture><source srcset="/public/image/original/0191c3fc-a387-7715-ab41-441ea337f316.webp" type="image/webp" /></picture></div>`

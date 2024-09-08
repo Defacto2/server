@@ -466,7 +466,7 @@ func (prod Submission) Submit( //nolint:cyclop,funlen
 		return c.String(http.StatusServiceUnavailable,
 			"error, the database commit failed")
 	}
-	html := fmt.Sprintf("Thanks for the submission of %s production, %d", name, id)
+	html := fmt.Sprintf("<div class=\"text-success\">Thanks for the submission of %s production, %d</div>", name, id)
 	if sess.Editor(c) {
 		uri := helper.ObfuscateID(key)
 		html += fmt.Sprintf("<p><a href=\"/f/%s\">Go to the new artifact record</a></p>", uri)
