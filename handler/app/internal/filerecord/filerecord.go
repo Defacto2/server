@@ -61,7 +61,7 @@ type ListEntry struct {
 }
 
 // HTML returns the HTML for an file item in the "Download content" section of the File editor.
-func (m ListEntry) HTML(bytes int64, platform string) string {
+func (m ListEntry) HTML(bytes int64, platform, section string) string {
 	const blank = `<div class="col col-1"></div>`
 	name := url.QueryEscape(m.RelativeName)
 	ext := strings.ToLower(filepath.Ext(name))
@@ -84,17 +84,23 @@ func (m ListEntry) HTML(bytes int64, platform string) string {
 	default:
 		htm += blank
 	}
-	return m.readme(bytes, htm)
+	return m.readme(bytes, htm, platform, section)
 }
 
-func (m ListEntry) readme(bytes int64, htm string) string {
+func (m ListEntry) readme(bytes int64, htm, platform, section string) string {
+	soloText := func() bool {
+		if !strings.EqualFold(platform, tags.Text.String()) && !strings.EqualFold(platform, textamiga) {
+			return false
+		}
+		return strings.EqualFold(section, tags.Nfo.String())
+	}
 	const blank = `<div class="col col-1"></div>`
 	name := url.QueryEscape(m.RelativeName)
 	ext := strings.ToLower(filepath.Ext(name))
 	switch {
 	case m.Texts && (ext == bat || ext == cmd || ext == ini):
 		htm += blank
-	case m.Texts:
+	case m.Texts && !soloText():
 		htm += readmecopy(m.UniqueID, name)
 	case m.Programs && ext == exe, m.Programs && ext == com:
 		htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
@@ -452,9 +458,10 @@ func ListContent(art *models.File, src string) template.HTML {
 	if !tags.IsPlatform(platform) {
 		return "error, invalid platform"
 	}
+	section := strings.TrimSpace(strings.ToLower(art.Section.String))
 	dst, err := archive.ExtractSource(src, art.Filename.String)
 	if err != nil {
-		return extractErr(src, platform, zeroByteFiles, err)
+		return extractErr(src, platform, section, zeroByteFiles, err)
 	}
 	walkerCount := func(_ string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
@@ -485,7 +492,7 @@ func ListContent(art *models.File, src string) template.HTML {
 		}
 		entries++
 		le := listEntry(e, rel, unid)
-		b.WriteString(le.HTML(e.bytes, platform))
+		b.WriteString(le.HTML(e.bytes, platform, section))
 		if maxItems := 200; entries > maxItems {
 			more := fmt.Sprintf(`<div class="border-bottom row mb-1">... %d more files</div>`, files-entries)
 			b.WriteString(more)
@@ -500,7 +507,7 @@ func ListContent(art *models.File, src string) template.HTML {
 	return template.HTML(b.String())
 }
 
-func extractErr(src, platform string, zeroByteFiles int, err error) template.HTML {
+func extractErr(src, platform, section string, zeroByteFiles int, err error) template.HTML {
 	if !errors.Is(err, archive.ErrNotArchive) && !errors.Is(err, archive.ErrNotImplemented) {
 		return template.HTML(err.Error())
 	}
@@ -510,7 +517,7 @@ func extractErr(src, platform string, zeroByteFiles int, err error) template.HTM
 	}
 	le := listErr(e)
 	var b strings.Builder
-	b.WriteString(le.HTML(e.bytes, platform))
+	b.WriteString(le.HTML(e.bytes, platform, section))
 	return template.HTML(b.String())
 }
 

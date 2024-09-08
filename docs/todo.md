@@ -8,7 +8,6 @@
 * `<div class="modal-body"><picture><source srcset="/public/image/original/0191c3fc-a387-7715-ab41-441ea337f316.webp" type="image/webp" /></picture></div>`
 * * Does not work, need to use `img` tag.
 * 404 errors :/ /editor/thumbnail/top/ ~ /editor/preview/crop11/ etc.
-* When listing a single text file, do not display the /editor/readme/copy/ link.
 * Local file timestamp for file uploads is not being set.
 * Redirect `/link/list` to wayback.defacto2.net.
 
