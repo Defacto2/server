@@ -386,6 +386,9 @@ func nginx(e *echo.Echo) *echo.Echo {
 	nginx.GET("/wayback/:url", func(c echo.Context) error {
 		return c.Redirect(code, "https://wayback.defacto2.net/"+c.Param("url"))
 	})
+	nginx.GET("/link/list", func(c echo.Context) error {
+		return c.Redirect(code, "https://wayback.defacto2.net/")
+	})
 	return e
 }
 

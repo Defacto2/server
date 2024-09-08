@@ -373,7 +373,7 @@ func (dir Dirs) textImagers(debug *zap.SugaredLogger, unid, tmp string) error {
 	return errs
 }
 
-// PreviewPixels converts the src image to a PNG and  webp images in the screenshot directory.
+// PreviewPixels converts the src image to a PNG and webp images in the screenshot directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
 // The conversion is useful for screenshots of text, terminals interfaces and pixel art.
 //
@@ -393,7 +393,7 @@ func (dir Dirs) PreviewPixels(debug *zap.SugaredLogger, src, unid string) error 
 	defer os.RemoveAll(tmpDir)         // remove temp dir
 	tmp := filepath.Join(tmpDir, name) // temp output file target
 	arg = append(arg, tmp)
-	if err := RunQuiet(Convert, arg...); err != nil {
+	if err := RunQuiet(Magick, arg...); err != nil {
 		return fmt.Errorf("preview pixel run convert %w", err)
 	}
 	dst := filepath.Join(dir.Preview, unid+png)
@@ -424,7 +424,7 @@ func (dir Dirs) PreviewPhoto(debug *zap.SugaredLogger, src, unid string) error {
 
 	jtmp := filepath.Join(tmpDir, name) // temp output file target
 	arg = append(arg, jtmp)             // destination
-	if err := RunQuiet(Convert, arg...); err != nil {
+	if err := RunQuiet(Magick, arg...); err != nil {
 		return fmt.Errorf("preview photo convert %w", err)
 	}
 	wtmp := filepath.Join(tmpDir, unid+webp)
@@ -797,7 +797,7 @@ func (dir Dirs) ThumbPixels(src, unid string) error {
 	arg := []string{src}       // source file
 	arg = append(arg, args...) // command line arguments
 	arg = append(arg, tmp)     // destination
-	if err := RunQuiet(Convert, arg...); err != nil {
+	if err := RunQuiet(Magick, arg...); err != nil {
 		return fmt.Errorf("run ansi convert %w", err)
 	}
 
@@ -824,7 +824,7 @@ func (dir Dirs) ThumbPhoto(src, unid string) error {
 	arg := []string{src}       // source file
 	arg = append(arg, args...) // command line arguments
 	arg = append(arg, tmp)     // destination
-	if err := RunQuiet(Convert, arg...); err != nil {
+	if err := RunQuiet(Magick, arg...); err != nil {
 		return fmt.Errorf("run webp convert %w", err)
 	}
 

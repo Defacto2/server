@@ -210,16 +210,16 @@
                           </tr>{{- end}}
                       </table>
                       <div>
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/top/{{$unid}}">Top</a>
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/middle/{{$unid}}">Middle</a>
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/top/{{$unid}}">Top</a> &nbsp;
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/middle/{{$unid}}">Middle</a> &nbsp;
                         <a href="#file-editor" hx-patch="/editor/thumbnail/bottom/{{$unid}}">Bottom</a> <small>crop</small>
                       </div>
                       <div>
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/left/{{$unid}}">Left</a>
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/left/{{$unid}}">Left</a> &nbsp;
                         <a href="#file-editor" hx-patch="/editor/thumbnail/right/{{$unid}}">Right</a> <small>crop</small>
                       </div>
                       <div>
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/pixel/{{$unid}}">Pixel art</a>
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/pixel/{{$unid}}">Pixel art</a> &nbsp;
                         <a href="#file-editor" hx-patch="/editor/thumbnail/photo/{{$unid}}">Photograph</a> <small>thumbnail</small>
                       </div>
                       <div><a href="#file-editor" hx-delete="/editor/thumbnail/{{$unid}}">Delete</a></div>
@@ -239,7 +239,7 @@
               hx-encoding="multipart/form-data" 
               hx-post="/editor/upload/preview"
               hx-target="#artifact-editor-preview-feedback"
-              {{- if ne $notFound $statSizeB}}hx-confirm="OK, to replace the existing preview image on the server?"{{end}}
+              {{- if eq $previewImgStat true}}hx-confirm="OK, to replace the existing preview image on the server?"{{end}}
               hx-validate="true">
               <input type="hidden" name="artifact-editor-record-key" value="{{$key}}">
               <input type="hidden" name="artifact-editor-unid" value="{{$unid}}">
