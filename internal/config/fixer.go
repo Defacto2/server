@@ -52,14 +52,15 @@ func (c Config) repairer(ctx context.Context, db *sql.DB) {
 		panic(fmt.Errorf("%w: repairer", ErrPointer))
 	}
 	logger := helper.Logger(ctx)
-	if err := c.RepairAssets(ctx, db); err != nil {
-		logger.Errorf("asset repairs: %s", err)
-	}
 	if err := repairDatabase(ctx, db); err != nil {
 		if errors.Is(err, ErrVer) {
 			logger.Warnf("A %s, is the database server down?", ErrVer)
 		}
 		logger.Errorf("repair database could not initialize the database data: %s", err)
+	}
+	// repair assets should be run after the database has been repaired, as it may rely on database data.
+	if err := c.RepairAssets(ctx, db); err != nil {
+		logger.Errorf("asset repairs: %s", err)
 	}
 }
 

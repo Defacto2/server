@@ -272,7 +272,8 @@ func (got *PouetLink) Download(c echo.Context, db *sql.DB, downloadDir string) e
 	if downloadURL == "" {
 		return nil
 	}
-	df, err := GetFile(downloadURL, 10*time.Second)
+	const timeout = 10 * time.Second
+	df, err := GetFile(downloadURL, timeout)
 	if err != nil {
 		return fmt.Errorf("could not get file, %s: %w", downloadURL, err)
 	}

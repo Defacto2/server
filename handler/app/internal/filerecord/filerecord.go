@@ -445,7 +445,7 @@ func (e *entry) parseMusicID3(path string) bool {
 }
 
 // ListContent returns a list of the files contained in the archive file.
-func ListContent(art *models.File, src string) template.HTML {
+func ListContent(art *models.File, src string) template.HTML { //nolint:funlen
 	if art == nil {
 		return "error, no artifact"
 	}

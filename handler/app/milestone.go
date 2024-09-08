@@ -132,7 +132,7 @@ func Collection() Milestones {
 			Lead:      "PLATO IV Notes, Talkomatic and online games",
 			LinkTitle: "about PLATO emulation delivered over the Internet", Link: "https://www.cyber1.org/",
 			Content: "<p>Not long after the rollout of the PLATO IV system to various locations and the creation of specific software, online communities of friends and users started to develop. Most probably a first, people intentionally used the network outside of class or work to hang out, chitchat with others, and play multiplayer games online.</p>" +
-				`<p>This began with the August release of <a href="https://just.thinkofit.com/plato-the-emergence-of-online-community/">Notes by David Woolley</a>, a 17-year-old student and programmer. ` +
+				`<p>This all began with the August release of <a href="https://just.thinkofit.com/plato-the-emergence-of-online-community/">Notes by David Woolley</a>, a 17-year-old student and programmer. ` +
 				`He was <a href="http://www.platohistory.org/blog/2013/08/plato-notes-released-40-years-ago-today.html">asked</a> to develop an app allowing PLATO users to ` +
 				`<a href="https://digital.library.illinois.edu/collections/7bfaf980-0727-0130-c5bb-0019b9e633c5-e/tree">post bug reports</a> ` +
 				`and for staff to reply with <a href="https://just.thinkofit.com/wp-content/uploads/1994/01/plato-base-note-nestedloops.jpg">back-and-forth communication</a>. ` +
@@ -385,6 +385,8 @@ func Collection() Milestones {
 				"The drive offered new benefits for software developers, including speed and reliability and complete control of the floppy drive hardware using software that the developers could write themselves. " +
 				"This ability encouraged them to embed <a href=\"https://www.bigmessowires.com/2015/08/27/apple-ii-copy-protection/\">disk copy protection methods</a> into software that are " +
 				"<a href=\"https://paleotronic.com/2024/01/28/confessions-of-a-disk-cracker-the-secrets-of-4am/\">still problematic</a> for computer historians today!</p>" +
+				"<hr>" +
+				"<strong>Early possible examples</strong><br>" +
 				// yahtzee
 				"<p>A computerized version of the popular board game Yahtzee was completed in April 1978 and published by Apple Computer. " +
 				"The original media seems lost, but the <a href=\"https://archive.org/details/a2_Yahtzee_1978_Apple_cr\">surviving digital image</a> has been noted as being <q>cracked</q> due to its loader message, <q>Yahtzee - for the moose!</q>. " +
@@ -396,7 +398,6 @@ func Collection() Milestones {
 				"<a href=\"https://ia600901.us.archive.org/BookReader/BookReaderImages.php?zip=/28/items/1980-01-compute-magazine/Compute_Issue_002_1980_Jan_Feb_jp2.zip&file=Compute_Issue_002_1980_Jan_Feb_jp2/Compute_Issue_002_1980_Jan_Feb_0096.jp2&id=1980-01-compute-magazine&scale=2&rotate=0\">It is also unsure</a> " +
 				"if the <a href=\"https://archive.org/details/wozaday_Dunjonquest_The_Temple_of_Apshai_v1\">first Apple edition</a> was available in 1979 or more likely, <a href=\"https://retro365.blog/2023/09/27/automated-simulations-one-of-the-first-a-revisit/\">later in 1980</a>.</p>" +
 				// unbroken quote
-				"<hr>" +
 				"<p>A December 1980 the post on 8BBS from Brain Litzinger<sup><a href=\"#the-first-crackers-fn1\">[1]</a></sup> includes," +
 				"<q>I also have <u>unbroken</u>: Galaxion, <a href=\"http://artscene.textfiles.com/intros/APPLEII/mlab.gif\">Dogfight</a>, Hi-res shootout, and Astro-Apple</q>. " +
 				"The casual use of <em>unbroken</em> in the post indicates that knowledge of cracking or removing disk copy protection was already commonplace, at least among the online, underground communities.</p>" +
@@ -418,9 +419,10 @@ func Collection() Milestones {
 			Title: "The birth of wares", Year: 1980, Highlight: true,
 			Lead: "The Apple II", Link: "http://artscene.textfiles.com/intros/APPLEII/", LinkTitle: "and browse the Apple II crack screens",
 			Content: // kids with micros
-			"<p>Without good software<sup><a href=\"#the-birth-of-warez-fn2\">[2]</a></sup>, the <a href=\"http://www.apple-iigs.info/doc/fichiers/Apple%20Price%20List%201978-08.pdf\">expensive</a> microcomputers of the era were mostly pointless machines. " +
-				"Getting them online with modems was challenging<sup><a href=\"#the-birth-of-warez-fn5\">[5]</a></sup>. " +
-				"So understandably, the computer owners who were into microcomputing would befriend like-minded people to exchange information and share software.</p>" +
+			"<p>Without good software, the <a href=\"http://www.apple-iigs.info/doc/fichiers/Apple%20Price%20List%201978-08.pdf\">expensive</a> microcomputers of the era were mostly pointless machines, " +
+				"and getting them online with modems was challenging<sup><a href=\"#the-birth-of-warez-fn2\">[2]</a></sup><sup><a href=\"#the-birth-of-warez-fn5\">[5]</a></sup>. " +
+				"So understandably, the computer owners who were into microcomputing would befriend like-minded people to form communities to exchange information and share software.</p>" +
+				"<strong>How did this come about?</strong><br>" +
 				// apple modems
 				"<p>1979 saw the sale of the first Apple&nbsp;II <a href=\"https://www.apple2history.org/history/ah13/#09\">modem peripheral</a>, the Hayes&nbsp;Micromodem&nbsp;II and later, the Novation&nbsp;CAT. " +
 				"These modems and the development of usable modem software such as ASCII&nbsp;Express in 1980, enabled Apple owners to connect to electronic message boards, communicate, and even exchange files remotely using the telephone.</p>" +
@@ -465,10 +467,10 @@ func Collection() Milestones {
 			Title: "The first group", Year: 1980, Highlight: true,
 			Lead: "The Apple Mafia, Super Pirates of Minneapolis, or ?",
 			Content: // the apple marfia story
-			"<p>Various discussions on groups from the Apple II era suggest they existed in 1981 or even 1980. " +
-				"Yet, from the irregular cracked Scene releases that exist online today, the earliest groups only have releases from 1982 onwards. " +
-				"While there are many 1980 and 1981 cracks, the surviving evidence says they all were released from individuals rather than collectives.</p>" +
-				"<p>Famed groups, Super Pirates of Minneapolis, The Apple Mafia, The Software Pirates, Digital Gang, The Dirty Dozen, Untouchables, and Apple Pirated Program Library Exchange all have releases for games published in 1982.</p>" +
+			"<p>Discussions of the groups from the Apple II era often mention they existed in 1981 or even 1980. " +
+				"Yet, from the cracked Scene releases that exist online today, the earliest groups only have releases from 1982 onwards. " +
+				"While there are many 1980 and 1981 cracks, the surviving evidence says they all were released by individuals rather than formal collaborations.</p>" +
+				"<p>The famed, original Scene groups, Super Pirates of Minneapolis, The Apple Mafia, The Software Pirates, Digital Gang, The Dirty Dozen, Untouchables, and Apple Pirated Program Library Exchange earliest releases are for games first published in 1982.</p>" +
 				"<p><strong>The Apple Mafia</strong><br>" +
 				"In 1986, Red Ghost posted <a href=\"/f/a430f7\">The Apple Mafia Story</a>, claiming " +
 				"The&nbsp;Untouchables<sup><a href=\"#the-first-group-fn1\">[1]</a></sup>, The&nbsp;Apple&nbsp;Mafia<sup><a href=\"#the-first-group-fn2\">[2]</a></sup>, and&nbsp;The&nbsp;Dirty&nbsp;Dozen<sup><a href=\"#the-first-group-fn3\">[3]</a></sup> " +
@@ -491,7 +493,7 @@ func Collection() Milestones {
 				"Apple Mafia, which was, in our minds, really cool sounding and actually became " +
 				"the first WAreZ gRoUP to exist for the Apple&nbsp;II.</q>" +
 				"<p>However, the first AppleFest was held in Boston on the weekend of June 6-7, 1981<sup><a href=\"#the-first-group-fn5\">[5]</a></sup>. " +
-				"Given the inconsistencies in the various stories about The Apple Mafia, it is safe to suggest that they were an early group from late 1981.</p>" +
+				"Given the inconsistencies in the various stories about The Apple Mafia, it is safe to suggest that they were an early group formed in late 1981.</p>" +
 				// super pirates
 				"<p><strong>Super Pirates of Minneapolis</strong><sup><a href=\"#the-first-group-fn6\">[6]</a></sup>" +
 				"<br>The Super Pirates were a famous, early group outside of New York. " +
@@ -524,9 +526,10 @@ func Collection() Milestones {
 			Title: "8BBS", Year: 1980, Month: 3, Highlight: true,
 			Lead: "+408-296-5799", LinkTitle: "the thousands of message logs", Link: "https://archive.org/details/8BBSArchiveP1V1/mode/1up",
 			Content: "<p>In San Jose, CA, <strong>8BBS</strong> (+408-296-5799) came online in March 1980. It is one of the first electronic <a href=\"https://everything2.com/title/8BBS\">message boards</a>," +
-				" which early microcomputer hobbyists used, including posts by some early hackers, pirates, and named-drop phreaker personalities of the era<sup><a href=\"#8bbs-fn1\">[1]</a></sup>. " +
+				" that early microcomputer hobbyists used, including posts by some early hackers, pirates, and named-drop phreaker personalities of the era<sup><a href=\"#8bbs-fn1\">[1]</a></sup>. " +
 				// message logs
-				"But what stands out about the board today, we have surviving, <a href=\"https://silent700.blogspot.com/2014/12/is-this-something.html\">thousands of posts</a> from the earliest open online community that anyone in 1980 with the proper hardware could access from home. " +
+				"But what stands out about the board today is that we have survived <a href=\"https://silent700.blogspot.com/2014/12/is-this-something.html\">thousands of posts</a> " +
+				"from the earliest open online community that anyone in 1980 with the proper hardware could access from home—allowing for a more relaxed conversation that may not have been available in a work or academic environment. " +
 				"These posts existed before Reddit, the web, Usenet, and the Internet.</p>" +
 				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n30/mode/1up\">Message number 3964 from CHUCK HUBERT</a><br>To ALL at 12:52 on 20-Nov-80.<br>Subject! CP/M BBS AND SOFTWARE EXCHANGE</p>" +
 				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n43/mode/1up\">Message number 4177 from Kevin O'Hare</a><br>To SF (SAN FRANCISCO) PHREAKS at 23:54 on 28-Nov-80.<br>Subject: HELP?</p>" +
@@ -616,13 +619,14 @@ func Collection() Milestones {
 		{
 			Title: "The earliest cracktro", Year: 1981, Highlight: true,
 			Lead: "STARBLASTER cracked by: Mr. Xerox, from 1981 ?",
-			Content: "A cracktro or <strong>crack-intro</strong> definition should be an introduction advertising the crackers of a pirated software release. " +
-				"So, <q><a href=\"http://artscene.textfiles.com/intros/APPLEII/thepirate.gif\">broken&nbsp;by</a></q> texts and hacked <a href=\"http://artscene.textfiles.com/intros/APPLEII/flockland.gif\"> game title screens</a> probably do not apply to this example.</p>" +
+			Content: "A cracktro or <strong>crack-intro</strong> definition could be a programmed introduction branding the crackers to a pirated software release. " +
+				"So, <q><a href=\"http://artscene.textfiles.com/intros/APPLEII/thepirate.gif\">broken&nbsp;by</a></q> texts and <a href=\"http://artscene.textfiles.com/intros/APPLEII/flockland.gif\">hacked</a> game title screens probably should not apply.</p>" +
 				// apple ii
 				"<p>Unfortunately, it is challenging to date early pirated releases for the PC, Commodore&nbsp;64, or Apple&nbsp;II. " +
 				"Many crackers didn't date their releases, and the systems themselves didn't track time or stamp the files. " +
-				"But given the <a href=\"http://artscene.textfiles.com/intros/APPLEII/.thumbs.html\">proliferation</a> of <q>broken by</q> texts and graphic hacks in 1980, 1981 and 1982 on the Apple&nbsp;II in the USA, the early cracktro probably evolved here.</p>" +
+				"But given the <a href=\"http://artscene.textfiles.com/intros/APPLEII/.thumbs.html\">proliferation</a> of <q>broken by</q> texts and graphic hacks during 1980-82 in the US on the Apple&nbsp;II, the early cracktro probably evolved here.</p>" +
 				// mr xerox
+				"<strong>Candidates</strong><br>" +
 				"<p>The prolific, early Apple cracker <strong>Mr. Xerox</strong> probably created one of the first introductions and scrollers in his animated " +
 				"<a href=\"https://archive.org/details/a2_Starblaster_19xx_C_G_cr_Star_Trek_1983_Sega_cr_Shuttle_Intercept_19xx__cr\">crack by introduction</a> " +
 				"for <strong>Star Blaster</strong> (c) 1981, which you can compare to the <a href=\"https://archive.org/details/Starblaster4amCrack\">original opening</a>.</p>" +
@@ -726,13 +730,13 @@ func Collection() Milestones {
 				"But this seems far-fetched, and anecdotal proof suggests it originates from 1984.</p>" +
 				// us and japan
 				"<p>But even taking the claim at its face value, back in late 1982 and selling at $595<sup><a href=\"#berlin-bear-controversy-fn14\">[14]</a></sup>, the Commodore&nbsp;64 was a pricey machine that <a href=\"https://www.power8bit.com/assets/images/screen-shot-2023-03-27-at-5.27.40-pm-508x698.webp\">targeted</a> business users in the USA and Japan. " +
-				"Due to last-minute design changes and poor quality assurance issues, the machine had limited distribution and software that year. <sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a><a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup></p>" +
+				"Due to last-minute design changes and poor quality assurance issues, the machine had limited distribution and software that year<sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a><a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup>. " +
 				// germany and uk
-				"<p>By all accounts, the Commodore Braunschweig factory didn't have the European PAL Commodore&nbsp;64 machines " +
+				"By all accounts, the Commodore Braunschweig factory didn't have the European PAL Commodore&nbsp;64 machines " +
 				"ready for retail <a href=\"https://www.zock.com/8-Bit/D_C64.HTML\">until&nbsp;1983</a>. " +
 				"Advertising in the UK first hit Commodore&nbsp;Computing<sup><a href=\"#berlin-bear-controversy-fn5\">[5]</a></sup> in February 1983, " +
-				"and throughout that year focused on developers but primarily on the <a href=\"https://static.nosher.net/archives/computers/images/comm64_comci_1983-02-m.jpg\">business&nbsp;market</a>. " +
-				"<sup><a href=\"#berlin-bear-controversy-fn6\">[6]</a></sup><sup><a href=\"#berlin-bear-controversy-fn7\">[7]</a></sup></p>" +
+				"and throughout that year focused on developers but primarily on the <a href=\"https://static.nosher.net/archives/computers/images/comm64_comci_1983-02-m.jpg\">business&nbsp;market</a>" +
+				"<sup><a href=\"#berlin-bear-controversy-fn6\">[6]</a></sup><sup><a href=\"#berlin-bear-controversy-fn7\">[7]</a></sup>.</p>" +
 				// C64 ad quotes
 				"<p><q>Interface adaptors will allow the use of a complete range of hardware peripherals including disk units, plotter, dot matrix and daisy wheel printers, Prestel communications, networking and much, much more.</q> " +
 				"<q>A complete range of business software including word processing, information handling, financial modelling, accounting and many more specific application packages will be available.</q></p>" + //nolint:misspell
@@ -742,7 +746,7 @@ func Collection() Milestones {
 				"It is more believable that the kids formed these Berlin-based cracking groups at the earliest, in Christmas/New Years 1983-84, " +
 				"after the Commodore 64 dropped massively in price and became readily available.</p>" +
 				// citations
-				"</p><strong>citations</strong> <sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup>" +
+				"</p><strong>The controversial citations</strong> <sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup>" +
 				ul0 +
 				"<li><q>The first intro was a picture of the Berlin Bear from the city flag and was released by <abbr title=\"Berlin Cracking Service\">BCS</abbr> in <strong>1982</strong>. " +
 				"It was a kind of co-production by several people...</q> <sup><a href=\"#berlin-bear-controversy-fn9\">[9]</a></sup></li>" +
@@ -830,7 +834,7 @@ func Collection() Milestones {
 			Lead: "Atarisoft presents: Galaxian broken by The Koyote Kid ?", LinkTitle: "and view the crack",
 			Link: "/f/ab2edbc", Highlight: true,
 			Content: "<p>This modified Galaxian title screen is known as a <strong>crack&nbsp;screen</strong> and was a typical way for crackers on the Apple&nbsp;II to credit themselves. Crackers modified and removed disk copy protection from software for the sole purpose of allowing duplication.</p>" +
-				"<p>The online Apple&nbsp;II community commonly used the verbs \"broken\" or unprotected, cracked, and kracked. Given the popularity of the IBM&nbsp;PC in the USA, it is most likely The Koyote Kid was based in the USA and also interacted in the <a href=\"#the-first-crackers\">Apple&nbsp;II underground</a> Scene.</p>" +
+				"<p>The online Apple&nbsp;II community commonly used the verbs \"broken\" or unprotected, cracked, and kracked. Given the popularity of the IBM&nbsp;PC in the USA, it is likely that The Koyote Kid was based here and interacted in the <a href=\"#the-first-crackers\">Apple&nbsp;II underground</a> Scene.</p>" +
 				"<p>Atarisoft released Galaxian on a floppy disk for IBM&nbsp;PC in 1983. Compared to the many other console and microcomputer ports, the PC conversion of a highly successful arcade title lacked color and sound.</p>" +
 				"<p><a href=\"https://www.mobygames.com/game/137/galaxian/screenshots/pc-booter/951/\">The original text</a> read <code>(C) 1983 ATARI, INC. PRESS SPACE TO CONTINUE.</code></p>",
 			Picture: Picture{

@@ -62,7 +62,7 @@ func TestRecords(t *testing.T) {
 	require.Error(t, err)
 	assert.Nil(t, x)
 
-	var proof = fileslice.URI(45).String()
+	proof := fileslice.URI(45).String()
 	x, err = fileslice.Records(context.TODO(), nil, proof, 1, 1)
 	require.Error(t, err)
 	assert.Nil(t, x)

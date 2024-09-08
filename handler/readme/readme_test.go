@@ -6,6 +6,7 @@ import (
 
 	"github.com/Defacto2/server/handler/readme"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSortContent(t *testing.T) {
@@ -126,7 +127,7 @@ func TestReadmeSuggest(t *testing.T) {
 func TestRead(t *testing.T) {
 	t.Parallel()
 	p, err := readme.Read(nil, "", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Empty(t, p)
 }
 
@@ -140,14 +141,14 @@ func TestRemoveCtrls(t *testing.T) {
 func TestIncompatibleANSI(t *testing.T) {
 	t.Parallel()
 	b, err := readme.IncompatibleANSI(nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, b)
 	r := strings.NewReader("a\x1b[1;cabc")
 	b, err = readme.IncompatibleANSI(r)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, b)
 	r = strings.NewReader("a\x1b[Acabc")
 	b, err = readme.IncompatibleANSI(r)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, b)
 }

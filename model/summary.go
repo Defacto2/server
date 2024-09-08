@@ -152,10 +152,11 @@ func (s *Summary) Update(c, b, y0, y1 int) {
 	s.MaxYear = sql.NullInt16{Int16: int16(y1)}
 }
 
-type statFunc func(context.Context, boil.ContextExecutor) error
+// StatFunc is a function that updates the summary statistics.
+type StatFunc func(context.Context, boil.ContextExecutor) error
 
-func (s *Summary) Matches() map[string]statFunc {
-	return map[string]statFunc{
+func (s *Summary) Matches() map[string]StatFunc {
+	return map[string]StatFunc{
 		"text-amiga":    s.textAmiga,
 		"text-apple2":   s.textApple2,
 		"text-atari-st": s.textAtariST,

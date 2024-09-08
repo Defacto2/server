@@ -171,6 +171,12 @@ func artifacts(c echo.Context, db *sql.DB, uri string, page int) error {
 	}
 	data["stats"] = d
 	lastPage := math.Ceil(float64(sum) / float64(limit))
+	if len(r) == 0 {
+		if err = c.Render(http.StatusOK, name, data); err != nil {
+			return InternalErr(c, errs, err)
+		}
+		return nil
+	}
 	if page > int(lastPage) {
 		i := strconv.Itoa(page)
 		return Page404(c, uri, i)
@@ -186,8 +192,7 @@ func artifacts(c echo.Context, db *sql.DB, uri string, page int) error {
 		BaseURL:   "/files/" + uri,
 		RangeStep: steps(lastPage),
 	}
-	err = c.Render(http.StatusOK, name, data)
-	if err != nil {
+	if err = c.Render(http.StatusOK, name, data); err != nil {
 		return InternalErr(c, errs, err)
 	}
 	return nil

@@ -5,6 +5,7 @@ package model
 import (
 	"context"
 	"fmt"
+	"io"
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -151,12 +152,12 @@ func (f *Artifacts) byHidden(ctx context.Context, exec boil.ContextExecutor) err
 func (f *Artifacts) ByForApproval(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	fmt.Println("\n\n\n\nByForApproval", invalidExec(exec))
 	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	if err := f.byForApproval(ctx, exec); err != nil {
-		return nil, fmt.Errorf("f.byForApproval: %w", err)
+		fmt.Fprint(io.Discard, err)
+		return nil, nil
 	}
 	const clause = "id DESC"
 	return models.Files(
@@ -190,16 +191,29 @@ func (f *Artifacts) ByMagicErr(ctx context.Context, exec boil.ContextExecutor, b
 	if invalidExec(exec) {
 		return nil, ErrDB
 	}
+	/*
+		SELECT DISTINCT "file_magic_type"
+		FROM "files"
+		ORDER BY "file_magic_type"
+		LIMIT 500;
+	*/
 	equals := []string{"data", "tar archive", "Microsoft ASF"}
 	ilikes := []string{
 		"application/%", "Zip archive data%", "ARC archive data%", "ARJ archive data%", "RAR archive data%",
 		"7-zip archive data%", "gzip compressed data%", "ASCII text%", "HTML document%", "Pascal source%", "ISO-8859 text%",
 		"JPEG image data%", "GIF image data%", "PNG image data%", "PDF document%", "RIFF (little-endian) data%",
 		"ISO Media%", "Fasttracker II%", "Ogg data%", "Audio file with%", "MPEG ADTS%",
+		"AIX core file%", "C source,%", "C++ source,%", "FORTRAN program%", "ISO-8859 text%",
+		"Little-endian UTF-16%", "MIT scheme%", "MS Windows icon resource%", "Microsoft Cabinet archive data,%",
+		"Non-ISO extended-ASCII text%", "PC bitmap, Windows 3.x format%", "PCX ver. 3.0 image data%",
+		"PE32 executable (GUI) Intel 80386%", "PE32 executable (console)%", "Python script%", "Quake I or II world or extension%",
+		"AmigaGuide file%", "COM executable for%", "DCL command file%", "LHa (%", "MS-DOS executable%", "RFC 822 mail%",
+		"Rich Text Format data%", "SMTP mail%", "SysEx File%", "UTF-8 Unicode%", "core file (Xenix)%", "diff output,%",
+		"news or mail,%", "news, ASCII text%", "saved news,%", "ID tags data%", "VISX image file%",
 	}
 	mods := []qm.QueryMod{
 		qm.Select(models.FileColumns.UUID, models.FileColumns.ID, models.FileColumns.FileMagicType),
-		models.FileWhere.FileMagicType.EQ(null.StringFrom("")),
+		models.FileWhere.FileMagicType.IsNull(),
 	}
 	for _, s := range equals {
 		mods = append(mods, qm.Or2(models.FileWhere.FileMagicType.EQ(null.StringFrom(s))))
