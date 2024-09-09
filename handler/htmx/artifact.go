@@ -78,7 +78,7 @@ func RecordImageCopier(c echo.Context, debug *zap.SugaredLogger, dirs command.Di
 	if err != nil {
 		return badRequest(c, err)
 	}
-	if strings.Contains(path, "/") || strings.Contains(path, "\\") || strings.Contains(path, "..") {
+	if strings.Contains(name, "/") || strings.Contains(name, "\\") || strings.Contains(name, "..") {
 		return badRequest(c, ErrName)
 	}
 	unid := c.Param("unid")
