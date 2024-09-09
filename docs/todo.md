@@ -3,10 +3,7 @@
 ### Stuff to do
 
 * Repack zips that contain programs with bad filenames, for example: http://localhost:1323/f/ab252e4
-* _Thumbnail assets_ links need better separation.
 * 404 errors :/ /editor/thumbnail/top/ ~ /editor/preview/crop11/ etc.
-* Local file timestamp for file uploads is not being set.
-* Redirect `/link/list` to wayback.defacto2.net.
 
 ### Live go.defacto2.net issues.
 
