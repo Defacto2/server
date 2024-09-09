@@ -14,7 +14,7 @@ import (
 )
 
 //go:embed*
-var emptyFS embed.FS
+var emptyFS embed.FS //nolint:gochecknoglobals
 
 const (
 	exampleURL  = "https://example.com"

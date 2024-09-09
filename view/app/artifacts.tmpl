@@ -16,7 +16,9 @@
 {{- $noYears := false}}
 {{- $unYears := index .unknownYears }}
 {{- $editor := index .editor}}
+{{- if eq $cnt 0}}<p class="text-start lead"><small>There are no artifacts to display.</small></p>{{else -}}
 <p class="text-start lead"><small>There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}}{{if ne $years ""}} from {{$years | safeHTML}}{{end}}.</small></p>
+{{- end}}
 {{- if or $linkZoo $link16C $linkWeb}}
 <p class="text-start text-sm-center text-md-end lead">
   {{- if $linkZoo}}

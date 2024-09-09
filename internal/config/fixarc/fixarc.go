@@ -2,6 +2,7 @@ package fixarc
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -19,7 +20,7 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-var ErrNoExecutor = fmt.Errorf("no context executor")
+var ErrNoExecutor = errors.New("no context executor")
 
 // Check returns the UUID of the zipped file if it requires re-archiving because it uses a
 // legacy compression method that is not supported by Go or JS libraries.

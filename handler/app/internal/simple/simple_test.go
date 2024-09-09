@@ -1,7 +1,6 @@
 package simple_test
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -15,7 +14,8 @@ import (
 	"github.com/volatiletech/null/v8"
 )
 
-func testImage(t *testing.T) string {
+func imagefiler(t *testing.T) string {
+	t.Helper()
 	_, file, _, ok := runtime.Caller(0)
 	require.True(t, ok)
 	return filepath.Join(filepath.Dir(file), "testdata", "TEST.png")
@@ -158,9 +158,9 @@ func TestImageSampleStat(t *testing.T) {
 	t.Parallel()
 	x := simple.ImageSampleStat("", "")
 	assert.False(t, x)
-	name := filepath.Base(testImage(t))
+	name := filepath.Base(imagefiler(t))
 	name = strings.TrimSuffix(name, filepath.Ext(name))
-	dir := filepath.Dir(testImage(t))
+	dir := filepath.Dir(imagefiler(t))
 	x = simple.ImageSampleStat(name, dir)
 	assert.True(t, x)
 }
@@ -169,11 +169,10 @@ func TestImageXY(t *testing.T) {
 	t.Parallel()
 	s := simple.ImageXY("")
 	assert.Contains(t, s, "stat : no such file or directory")
-	img := testImage(t)
+	img := imagefiler(t)
 	s = simple.ImageXY(img)
-	fmt.Println(img)
-	assert.Equal(t, s[0], "4,163")
-	assert.Equal(t, s[1], "500x500")
+	assert.Equal(t, "4,163", s[0])
+	assert.Equal(t, "500x500", s[1])
 }
 
 func TestLinkID(t *testing.T) {
@@ -185,7 +184,7 @@ func TestLinkID(t *testing.T) {
 	require.Error(t, err)
 	assert.Empty(t, s)
 	s, err = simple.LinkID(1, "")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "/9b1c6", s)
 }
 
@@ -216,7 +215,7 @@ func TestMagicAsTitle(t *testing.T) {
 	t.Parallel()
 	s := simple.MagicAsTitle("")
 	assert.Equal(t, "file not found", s)
-	s = simple.MagicAsTitle(testImage(t))
+	s = simple.MagicAsTitle(imagefiler(t))
 	assert.Contains(t, s, "Portable Network Graphics")
 }
 
@@ -224,7 +223,7 @@ func TestMIME(t *testing.T) {
 	t.Parallel()
 	s := simple.MIME("")
 	assert.Equal(t, "file not found", s)
-	s = simple.MIME(testImage(t))
+	s = simple.MIME(imagefiler(t))
 	assert.Equal(t, "image/png", s)
 }
 
@@ -254,7 +253,7 @@ func TestScreenshot(t *testing.T) {
 	t.Parallel()
 	s := simple.Screenshot("", "", "")
 	assert.Empty(t, s)
-	dir := filepath.Dir(testImage(t))
+	dir := filepath.Dir(imagefiler(t))
 	s = simple.Screenshot("TEST", "test", dir)
 	assert.Contains(t, s, `alt="test screenshot"`)
 	assert.Contains(t, s, `<img src="/public/image`)
@@ -267,7 +266,7 @@ func TestStatHumanize(t *testing.T) {
 	assert.Equal(t, none, x)
 	assert.Equal(t, none, y)
 	assert.Equal(t, none, z)
-	x, y, z = simple.StatHumanize(testImage(t))
+	x, y, z = simple.StatHumanize(imagefiler(t))
 	assert.Equal(t, "2024-Sep-03", x)
 	assert.Equal(t, "4,163", y)
 	assert.Contains(t, z, "4.2 kB")
@@ -277,9 +276,9 @@ func TestThumb(t *testing.T) {
 	t.Parallel()
 	s := simple.Thumb("", "", "", false)
 	assert.Contains(t, "<!-- no thumbnail found -->", s)
-	name := filepath.Base(testImage(t))
+	name := filepath.Base(imagefiler(t))
 	name = strings.TrimSuffix(name, filepath.Ext(name))
-	dir := filepath.Dir(testImage(t))
+	dir := filepath.Dir(imagefiler(t))
 	s = simple.Thumb(name, "a description", dir, false)
 	assert.Contains(t, s, `alt="a description thumbnail"`)
 }
@@ -289,9 +288,9 @@ func TestThumbSample(t *testing.T) {
 	const missing = "No thumbnail"
 	x := simple.ThumbSample("", "")
 	assert.Contains(t, x, missing)
-	name := filepath.Base(testImage(t))
+	name := filepath.Base(imagefiler(t))
 	name = strings.TrimSuffix(name, filepath.Ext(name))
-	dir := filepath.Dir(testImage(t))
+	dir := filepath.Dir(imagefiler(t))
 	x = simple.ThumbSample(name, dir)
 	assert.Contains(t, x, "sha384-SK3qCpS11QMhNxUUnyeUeWWXBMPORDgLTI")
 }

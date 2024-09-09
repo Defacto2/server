@@ -5,13 +5,14 @@ import (
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestTemplTemplates(t *testing.T) {
 	t.Parallel()
 	tpl := app.Templ{}
 	x, err := tpl.Templates(nil)
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Nil(t, x)
 }
 

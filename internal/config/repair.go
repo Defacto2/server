@@ -286,7 +286,7 @@ func (c Config) Assets(ctx context.Context, exec boil.ContextExecutor) error {
 		return fmt.Errorf("config repair select all uuids: %w", err)
 	}
 	size := len(files)
-	logger.Infof("Checking %d UUIDs", size)
+	logger.Infof("Check %d UUIDs", size)
 	artifacts := make([]string, size)
 	for i, f := range files {
 		if !f.UUID.Valid || f.UUID.String == "" {
@@ -394,7 +394,7 @@ func (c Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, log
 	}
 	const large = 1000
 	if len(magics) > large && logger != nil {
-		logger.Warnf("Checking %d magic number values for artifacts, this could take a while", len(magics))
+		logger.Warnf("Check %d magic number values for artifacts, this could take a while", len(magics))
 	}
 	count := 0
 	for _, v := range magics {
@@ -644,9 +644,9 @@ func RemoveDownload(basename, path, destDir, extraDir string) error {
 //
 // Valid file extensions are .png and .webp, and basename must be a
 // valid uuid or cfid with the correct length.
-func RemoveImage(basename, path, destDir string) error {
-	if basename == "" || path == "" || destDir == "" {
-		return fmt.Errorf("remove image %w: %s %s %s", ErrEmpty, basename, path, destDir)
+func RemoveImage(basename, path, backupDir string) error {
+	if basename == "" || path == "" || backupDir == "" {
+		return fmt.Errorf("remove image %w: %s %s %s", ErrEmpty, basename, path, backupDir)
 	}
 	const (
 		png   = ".png"    // png file extension
@@ -659,9 +659,15 @@ func RemoveImage(basename, path, destDir string) error {
 	if filename, found := strings.CutSuffix(basename, ext); found {
 		if len(filename) == cflen {
 			filename, _ = helper.CfUUID(filename)
+			newpath := filepath.Dir(path)
+			switch ext {
+			case png, webp:
+				rename(path, "rename cfid "+ext, filepath.Join(newpath, filename+ext))
+				return nil
+			}
 		}
 		if err := uuid.Validate(filename); err != nil {
-			remove(basename, "remove invalid uuid", path, destDir)
+			remove(basename, "remove invalid uuid image", path, backupDir)
 			return nil //nolint:nilerr
 		}
 	}
@@ -669,7 +675,7 @@ func RemoveImage(basename, path, destDir string) error {
 	case png, webp:
 		return nil
 	default:
-		remove(basename, "remove invalid ext", path, destDir)
+		remove(basename, "remove invalid uuid ext", path, backupDir)
 	}
 	return nil
 }

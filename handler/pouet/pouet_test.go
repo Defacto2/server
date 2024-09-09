@@ -124,5 +124,5 @@ func TestPlatformType(t *testing.T) {
 	pp := pouet.Production{}
 	a, b := pp.PlatformType()
 	assert.Equal(t, tags.Tag(-1), a)
-	assert.Equal(t, tags.Tag(tags.Intro), b)
+	assert.Equal(t, tags.Intro, b)
 }
