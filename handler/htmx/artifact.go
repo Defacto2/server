@@ -29,6 +29,7 @@ import (
 
 var (
 	ErrIsDir = errors.New("the file is a directory")
+	ErrName  = errors.New("the file name is invalid")
 	ErrYT    = errors.New("youtube watch video id needs to be empty or 11 characters")
 )
 
@@ -76,6 +77,9 @@ func RecordImageCopier(c echo.Context, debug *zap.SugaredLogger, dirs command.Di
 	name, err := url.QueryUnescape(path)
 	if err != nil {
 		return badRequest(c, err)
+	}
+	if strings.Contains(path, "/") || strings.Contains(path, "\\") || strings.Contains(path, "..") {
+		return badRequest(c, ErrName)
 	}
 	unid := c.Param("unid")
 	tmp, err := helper.MkContent(unid)
