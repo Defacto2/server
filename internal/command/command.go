@@ -55,7 +55,6 @@ const (
 	Arc      = "arc"      // Arc is the arc decompression command.
 	Arj      = "arj"      // Arj is the arj decompression command.
 	Ansilove = "ansilove" // Ansilove is the ansilove text to image command.
-	Convert  = "convert"  // Convert is the ImageMagick legacy convert command.
 	Cwebp    = "cwebp"    // Cwebp is the Google create webp command.
 	Gwebp    = "gif2webp" // Gwebp is the Google gif to webp command.
 	HWZip    = "hwzip"    // Hwzip the zip decompression command for files using obsolete methods.
@@ -79,7 +78,6 @@ func Lookups() []string {
 		Arc,
 		Arj,
 		Ansilove,
-		Convert,
 		Cwebp,
 		Gwebp,
 		HWZip,
@@ -100,7 +98,6 @@ func Infos() []string {
 		"archive utility ver 5+",
 		"arj32 ver 3+",
 		"ansilove/c ver 4+",
-		"ImageMagick ver 6+",
 		"Google WebP ver 1+",
 		"Google GIF to WebP ver 1+",
 		"HWZip ver 2+",

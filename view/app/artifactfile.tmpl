@@ -239,7 +239,7 @@
               hx-encoding="multipart/form-data" 
               hx-post="/editor/upload/preview"
               hx-target="#artifact-editor-preview-feedback"
-              {{- if ne $notFound $statSizeB}}hx-confirm="OK, to replace the existing preview image on the server?"{{end}}
+              {{- if eq $previewImgStat true}}hx-confirm="OK, to replace the existing preview image on the server?"{{end}}
               hx-validate="true">
               <input type="hidden" name="artifact-editor-record-key" value="{{$key}}">
               <input type="hidden" name="artifact-editor-unid" value="{{$unid}}">
