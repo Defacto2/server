@@ -286,7 +286,7 @@ func (c Config) Assets(ctx context.Context, exec boil.ContextExecutor) error {
 		return fmt.Errorf("config repair select all uuids: %w", err)
 	}
 	size := len(files)
-	logger.Infof("Checking %d UUIDs", size)
+	logger.Infof("Check %d UUIDs", size)
 	artifacts := make([]string, size)
 	for i, f := range files {
 		if !f.UUID.Valid || f.UUID.String == "" {
@@ -394,7 +394,7 @@ func (c Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, log
 	}
 	const large = 1000
 	if len(magics) > large && logger != nil {
-		logger.Warnf("Checking %d magic number values for artifacts, this could take a while", len(magics))
+		logger.Warnf("Check %d magic number values for artifacts, this could take a while", len(magics))
 	}
 	count := 0
 	for _, v := range magics {

@@ -15,7 +15,6 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
-	"go.uber.org/zap"
 )
 
 var (
@@ -59,8 +58,8 @@ const (
 // Run the database repair based on the repair option.
 func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx) error {
 	logger := helper.Logger(ctx)
-	logger.Infof("Checking for records with invalid UUID values")
-	logger.Infoln("Running a cleanup of the database", r)
+	logger.Infof("Check for records with invalid UUID values")
+	logger.Infoln("Run a cleanup of the database", r)
 	if r < None || r > Releaser {
 		return fmt.Errorf("%w: %d", ErrRepair, r)
 	}
@@ -75,7 +74,7 @@ func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx) error {
 	}
 	switch r {
 	case Artifacts:
-		logger.Infoln("Cleaning up the artifacts whitespace and null values")
+		logger.Infoln("Clean the artifacts whitespace and null values")
 		if err := contentWhiteSpace(tx); err != nil {
 			return fmt.Errorf("content white space: %w", err)
 		}
@@ -118,7 +117,7 @@ func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx) error {
 // [ColdFusion language syntax]: https://cfdocs.org/createuuid
 func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor) error {
 	logger := helper.Logger(ctx)
-	logger.Infoln("Checking for invalid UUIDs using the ColdFusion syntax")
+	logger.Infoln("Check for invalid UUIDs using the ColdFusion syntax")
 	mods := qm.SQL("SELECT uuid FROM files WHERE length(uuid)=35")
 	fs, err := models.Files(mods).All(ctx, exec)
 	if err != nil {
@@ -158,7 +157,7 @@ func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor) error {
 func trainers(ctx context.Context, tx *sql.Tx) error {
 	logger := helper.Logger(ctx)
 	const trainer = "gamehack"
-	logger.Infof("Checking for trainers that are not categorized as %q", trainer)
+	logger.Infof("Check for trainers that are not categorized as %q", trainer)
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("id"))
 	mods = append(mods, qm.Where(fmt.Sprintf("section != '%s'", trainer)))
@@ -302,26 +301,20 @@ func moreReleases(ctx context.Context, exec boil.ContextExecutor) error {
 	if err != nil {
 		return fmt.Errorf("set filesize 0: %w", err)
 	}
-	if err := magics(ctx, exec); err != nil {
+	if err := Magics(ctx, exec); err != nil {
 		return fmt.Errorf("magics: %w", err)
 	}
 	return nil
 }
 
-func magics(ctx context.Context, exec boil.ContextExecutor) error {
-	magics, err := models.Files(qm.Where("file_magic_type ILIKE ?", "ERROR: %")).All(ctx, exec)
+// Magics will set invalid file_magic_type to NULL.
+// Invalid file_magic_type values are those that start with "ERROR: " or contain a "/"
+// such as a mimetype.
+func Magics(ctx context.Context, exec boil.ContextExecutor) error {
+	_, err := queries.Raw(`UPDATE files SET file_magic_type = NULL ` +
+		`WHERE file_magic_type ILIKE ANY(ARRAY['ERROR: %', '%/%']);`).Exec(exec)
 	if err != nil {
-		return fmt.Errorf("where ilike file_magic_type: %w", err)
-	}
-	rowsAff, err := magics.UpdateAll(ctx, exec, models.M{"file_magic_type": ""})
-	if err != nil {
-		return fmt.Errorf("update all file_magic_type: %w", err)
-	}
-	if rowsAff > 0 {
-		logger, loggerExists := ctx.Value("logger").(*zap.SugaredLogger)
-		if loggerExists {
-			logger.Infof("Removed %d file magic types with errors", rowsAff)
-		}
+		return fmt.Errorf("set invalid file_magic_type to \"\": %w", err)
 	}
 	return nil
 }
