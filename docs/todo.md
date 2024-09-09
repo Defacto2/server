@@ -3,7 +3,6 @@
 ### Stuff to do
 
 * Repack zips that contain programs with bad filenames, for example: http://localhost:1323/f/ab252e4
-* 404 errors :/ /editor/thumbnail/top/ ~ /editor/preview/crop11/ etc.
 
 ### Live go.defacto2.net issues.
 
