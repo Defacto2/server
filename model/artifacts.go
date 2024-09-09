@@ -151,12 +151,11 @@ func (f *Artifacts) byHidden(ctx context.Context, exec boil.ContextExecutor) err
 func (f *Artifacts) ByForApproval(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	fmt.Println("\n\n\n\nByForApproval", invalidExec(exec))
 	if invalidExec(exec) {
 		return nil, ErrDB
 	}
 	if err := f.byForApproval(ctx, exec); err != nil {
-		return nil, fmt.Errorf("f.byForApproval: %w", err)
+		return nil, nil
 	}
 	const clause = "id DESC"
 	return models.Files(
