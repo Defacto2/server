@@ -746,7 +746,7 @@ func Collection() Milestones {
 				"It is more believable that the kids formed these Berlin-based cracking groups at the earliest, in Christmas/New Years 1983-84, " +
 				"after the Commodore 64 dropped massively in price and became readily available.</p>" +
 				// citations
-				"</p><strong>The controversal citations</strong> <sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup>" +
+				"</p><strong>The controversial citations</strong> <sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup>" +
 				ul0 +
 				"<li><q>The first intro was a picture of the Berlin Bear from the city flag and was released by <abbr title=\"Berlin Cracking Service\">BCS</abbr> in <strong>1982</strong>. " +
 				"It was a kind of co-production by several people...</q> <sup><a href=\"#berlin-bear-controversy-fn9\">[9]</a></sup></li>" +

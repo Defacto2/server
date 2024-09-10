@@ -285,10 +285,10 @@ func releasers(ctx context.Context, exec boil.ContextExecutor) error {
 			}
 		}
 	}
-	return moreReleases(ctx, exec)
+	return moreReleases(exec)
 }
 
-func moreReleases(ctx context.Context, exec boil.ContextExecutor) error {
+func moreReleases(exec boil.ContextExecutor) error {
 	_, err := queries.Raw(postgres.SetUpper("group_brand_for")).Exec(exec)
 	if err != nil {
 		return fmt.Errorf("set upper group_brand_for: %w", err)
@@ -301,7 +301,7 @@ func moreReleases(ctx context.Context, exec boil.ContextExecutor) error {
 	if err != nil {
 		return fmt.Errorf("set filesize 0: %w", err)
 	}
-	if err := Magics(ctx, exec); err != nil {
+	if err := Magics(exec); err != nil {
 		return fmt.Errorf("magics: %w", err)
 	}
 	return nil
@@ -310,7 +310,7 @@ func moreReleases(ctx context.Context, exec boil.ContextExecutor) error {
 // Magics will set invalid file_magic_type to NULL.
 // Invalid file_magic_type values are those that start with "ERROR: " or contain a "/"
 // such as a mimetype.
-func Magics(ctx context.Context, exec boil.ContextExecutor) error {
+func Magics(exec boil.ContextExecutor) error {
 	_, err := queries.Raw(`UPDATE files SET file_magic_type = NULL ` +
 		`WHERE file_magic_type ILIKE ANY(ARRAY['ERROR: %', '%/%']);`).Exec(exec)
 	if err != nil {

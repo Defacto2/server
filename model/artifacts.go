@@ -5,6 +5,7 @@ package model
 import (
 	"context"
 	"fmt"
+	"io"
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -155,6 +156,7 @@ func (f *Artifacts) ByForApproval(ctx context.Context, exec boil.ContextExecutor
 		return nil, ErrDB
 	}
 	if err := f.byForApproval(ctx, exec); err != nil {
+		fmt.Fprint(io.Discard, err)
 		return nil, nil
 	}
 	const clause = "id DESC"

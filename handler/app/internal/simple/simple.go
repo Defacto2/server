@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"html/template"
 	"image"
+	_ "image/gif"  // gif format decoder
+	_ "image/jpeg" // jpeg format decoder
+	_ "image/png"  // png format decoder
 	"net/http"
 	"net/url"
 	"os"
@@ -14,12 +17,6 @@ import (
 	"slices"
 	"strings"
 	"time"
-
-	_ "image/gif"  // gif format decoder
-	_ "image/jpeg" // jpeg format decoder
-	_ "image/png"  // png format decoder
-
-	_ "golang.org/x/image/webp" // webp format decoder
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
@@ -30,6 +27,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/h2non/filetype"
 	"github.com/volatiletech/null/v8"
+	_ "golang.org/x/image/webp" // webp format decoder
 )
 
 var (
@@ -205,8 +203,10 @@ func ImageXY(name string) [2]string {
 	if err != nil {
 		return [2]string{err.Error(), ""}
 	}
-	return [2]string{humanize.Comma(st.Size()),
-		fmt.Sprintf("%dx%d", config.Width, config.Height)}
+	return [2]string{
+		humanize.Comma(st.Size()),
+		fmt.Sprintf("%dx%d", config.Width, config.Height),
+	}
 }
 
 // LinkID creates a URL to link to the record.
@@ -462,7 +462,6 @@ func ReleaserPair(a, b any) [2]string {
 // Supported formats are webp, png, jpg and avif.
 func Screenshot(unid, desc, previewDir string) template.HTML {
 	const separator = "/"
-	class := "rounded mx-auto d-block img-fluid"
 	alt := strings.ToLower(desc) + " screenshot"
 
 	srcW := strings.Join([]string{config.StaticOriginal(), unid + webp}, separator)
@@ -485,40 +484,43 @@ func Screenshot(unid, desc, previewDir string) template.HTML {
 		elm := template.HTML("<picture>")
 		switch {
 		case sizeA > 0:
-			elm += template.HTML(fmt.Sprintf("<source srcset=\"%s?%s\" type=\"image/avif\" integrity=\"%s\" />", srcA, hashA, hashA))
+			elm += template.HTML(fmt.Sprintf("<source srcset=\"%s?%s\""+
+				" type=\"image/avif\" integrity=\"%s\" />", srcA, hashA, hashA))
 		case sizeW > 0:
-			elm += template.HTML(fmt.Sprintf("<source srcset=\"%s?%s\" type=\"image/webp\" integrity=\"%s\" />", srcW, hashW, hashW))
+			elm += template.HTML(fmt.Sprintf("<source srcset=\"%s?%s\""+
+				" type=\"image/webp\" integrity=\"%s\" />", srcW, hashW, hashW))
 		}
 		// the <picture> element is used to provide multiple sources for an image.
 		// if no <img> element is provided, the <picture> element won't be rendered by the browser.
 		useSmallerJpg := sizeJ > 0 && sizeJ < sizeP
 		switch {
 		case useSmallerJpg:
-			elm += img(srcJ, alt, class, hashJ)
+			elm += img(srcJ, alt, hashJ)
 		case sizeP > 0:
-			elm += img(srcP, alt, class, hashP)
+			elm += img(srcP, alt, hashP)
 		default:
-			elm += img(srcJ, alt, class, hashJ)
+			elm += img(srcJ, alt, hashJ)
 		}
 		return elm + "</picture>"
 	}
 	switch {
 	case sizeA > 0:
-		return img(srcA, alt, class, hashA)
+		return img(srcA, alt, hashA)
 	case sizeW > 0:
-		return img(srcW, alt, class, hashW)
+		return img(srcW, alt, hashW)
 	case sizeJ > 0:
-		return img(srcJ, alt, class, hashJ)
+		return img(srcJ, alt, hashJ)
 	case sizeP > 0:
-		return img(srcP, alt, class, hashP)
+		return img(srcP, alt, hashP)
 	}
 	return ""
 }
 
 // img returns a HTML image tag.
-func img(src, alt, class, integrity string) template.HTML {
-	return template.HTML(fmt.Sprintf("<img src=\"%s?%s\" loading=\"lazy\" alt=\"%s\" class=\"%s\" integrity=\"%s\" />",
-		src, integrity, alt, class, integrity))
+func img(src, alt, integrity string) template.HTML {
+	return template.HTML(fmt.Sprintf("<img src=\"%s?%s\" loading=\"lazy\" alt=\"%s\""+
+		" class=\"rounded mx-auto d-block img-fluid\" integrity=\"%s\" />",
+		src, integrity, alt, integrity))
 }
 
 // StatHumanize returns the last modified date, size in bytes and size formatted

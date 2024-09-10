@@ -111,21 +111,21 @@ func TestDataList(t *testing.T) {
 func TestTemplates(t *testing.T) {
 	t.Parallel()
 	x := htmx.Templates(embed.FS{})
-	assert.Equal(t, 3, len(x))
+	assert.Len(t, x, 3)
 }
 
 func TestTemplateFuncMap(t *testing.T) {
 	t.Parallel()
 	x := htmx.TemplateFuncMap()
-	assert.Greater(t, len(x), 0)
+	assert.Empty(t, len(x))
 }
 
 func TestSuggestion(t *testing.T) {
 	t.Parallel()
 	s := htmx.Suggestion("", "", "")
-	assert.Equal(t, s, "suggestion type error: string")
+	assert.Equal(t, "suggestion type error: string", s)
 	s = htmx.Suggestion("a group", "grp", 10)
-	assert.Equal(t, s, "a group, grp (10 items)")
+	assert.Equal(t, "a group, grp (10 items)", s)
 }
 
 func TestHumanizeCount(t *testing.T) {

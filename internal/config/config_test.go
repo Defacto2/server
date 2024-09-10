@@ -27,7 +27,7 @@ func TestConfig(t *testing.T) {
 	cs := c.String()
 	assert.Contains(t, cs, "configuration")
 	cs, err := c.Addresses()
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Empty(t, cs)
 }
 
@@ -35,11 +35,11 @@ func TestChecks(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
 	err := c.Checks(nil)
-	assert.Error(t, err)
+	require.Error(t, err)
 	err = c.LogStore()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	err = c.SetupLogDir(nil)
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestCheckDir(t *testing.T) {
@@ -76,10 +76,10 @@ func TestSanityTmpDir(t *testing.T) {
 func TestValidate(t *testing.T) {
 	t.Parallel()
 	err := config.Validate(0)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	const tooLarge = 10000000
 	err = config.Validate(tooLarge)
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestError(t *testing.T) {
@@ -87,39 +87,39 @@ func TestError(t *testing.T) {
 	i, s, err := config.StringErr(nil)
 	assert.Zero(t, i)
 	assert.Empty(t, s)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	i, s, err = config.StringErr(assert.AnError)
 	assert.Equal(t, 500, i)
 	assert.Contains(t, s, "internal server error")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestRepair(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
 	err := c.Archives(context.TODO(), nil)
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	r := config.Zip
 	assert.Equal(t, "zip", r.String())
 
 	err = c.Assets(context.TODO(), nil)
-	assert.Error(t, err)
+	require.Error(t, err)
 	err = c.MagicNumbers(context.TODO(), nil, nil)
-	assert.Error(t, err)
+	require.Error(t, err)
 	err = c.Previews(context.TODO(), nil, nil)
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	err = config.ImageDirs(nil, c)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	err = config.DownloadDir(nil, "", "", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 	err = config.RenameDownload("", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 	err = config.RemoveDir("", "", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 	err = config.RemoveDownload("", "", "", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 	err = config.RemoveImage("", "", "")
-	assert.Error(t, err)
+	require.Error(t, err)
 }

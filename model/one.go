@@ -109,7 +109,7 @@ func OneDemozoo(ctx context.Context, exec boil.ContextExecutor, id int64) (bool,
 // If the record is not found then the function will return an ID of 0 but without an error.
 func OnePouet(ctx context.Context, exec boil.ContextExecutor, id int64) (bool, int64, error) {
 	if invalidExec(exec) {
-		return false, 0, fmt.Errorf("invalid context executor")
+		return false, 0, fmt.Errorf("model one pouet: %w", ErrDB)
 	}
 	f, err := models.Files(
 		qm.Select("id", "deletedat"),

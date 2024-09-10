@@ -192,8 +192,7 @@ func artifacts(c echo.Context, db *sql.DB, uri string, page int) error {
 		BaseURL:   "/files/" + uri,
 		RangeStep: steps(lastPage),
 	}
-	err = c.Render(http.StatusOK, name, data)
-	if err != nil {
+	if err = c.Render(http.StatusOK, name, data); err != nil {
 		return InternalErr(c, errs, err)
 	}
 	return nil
