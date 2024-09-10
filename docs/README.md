@@ -80,7 +80,7 @@ The source code requires a local [installation of Go](https://go.dev/doc/install
 ```sh
 $ go version
 
-> go version go1.22.3 linux/amd64
+> go version go1.22.6 linux/amd64
 ```
 
 > [!IMPORTANT]
