@@ -70,7 +70,7 @@ func (c Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger) *echo.E
 	configs := c.Environment
 	if logger == nil {
 		logger, _ := zap.NewProduction()
-		defer logger.Sync()
+		defer func() { _ = logger.Sync() }()
 	}
 
 	e := echo.New()
@@ -177,7 +177,7 @@ func (c Configuration) Info(logger *zap.SugaredLogger, w io.Writer) {
 func (c Configuration) PortErr(logger *zap.SugaredLogger, port uint, err error) {
 	if logger == nil {
 		logger, _ := zap.NewProduction()
-		defer logger.Sync()
+		defer func() { _ = logger.Sync() }()
 	}
 	s := "HTTP"
 	if port == c.Environment.TLSPort {
@@ -225,7 +225,7 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 	}
 	if logger == nil {
 		logger, _ := zap.NewProduction()
-		defer logger.Sync()
+		defer func() { _ = logger.Sync() }()
 	}
 	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)
@@ -277,7 +277,7 @@ func (c *Configuration) Start(e *echo.Echo, logger *zap.SugaredLogger, configs c
 	}
 	if logger == nil {
 		logger, _ := zap.NewProduction()
-		defer logger.Sync()
+		defer func() { _ = logger.Sync() }()
 	}
 	switch {
 	case configs.UseTLS() && configs.UseHTTP():
@@ -337,7 +337,7 @@ func (c *Configuration) StartTLS(e *echo.Echo, logger *zap.SugaredLogger) {
 	}
 	if logger == nil {
 		logger, _ := zap.NewProduction()
-		defer logger.Sync()
+		defer func() { _ = logger.Sync() }()
 	}
 	port := c.Environment.TLSPort
 	address := c.address(port)
@@ -369,7 +369,7 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo, logger *zap.SugaredLogger) {
 	}
 	if logger == nil {
 		logger, _ := zap.NewProduction()
-		defer logger.Sync()
+		defer func() { _ = logger.Sync() }()
 	}
 	port := c.Environment.TLSPort
 	address := c.address(port)
