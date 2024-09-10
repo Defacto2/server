@@ -659,23 +659,23 @@ func RemoveImage(basename, path, backupDir string) error {
 	if filename, found := strings.CutSuffix(basename, ext); found {
 		if len(filename) == cflen {
 			filename, _ = helper.CfUUID(filename)
+			newpath := filepath.Dir(path)
+			switch ext {
+			case png, webp:
+				rename(path, "rename cfid "+ext, filepath.Join(newpath, filename+ext))
+				return nil
+			}
 		}
 		if err := uuid.Validate(filename); err != nil {
-			remove(basename, "remove invalid cfid to uuid", path, backupDir)
+			remove(basename, "remove invalid uuid image", path, backupDir)
 			return nil //nolint:nilerr
-		}
-		newpath := filepath.Dir(path)
-		switch ext {
-		case png, webp:
-			rename(path, "rename cfid "+ext, filepath.Join(newpath, filename+ext))
-			return nil
 		}
 	}
 	switch ext {
 	case png, webp:
 		return nil
 	default:
-		remove(basename, "remove invalid ext", path, backupDir)
+		remove(basename, "remove invalid uuid ext", path, backupDir)
 	}
 	return nil
 }
