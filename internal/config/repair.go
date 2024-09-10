@@ -644,9 +644,9 @@ func RemoveDownload(basename, path, destDir, extraDir string) error {
 //
 // Valid file extensions are .png and .webp, and basename must be a
 // valid uuid or cfid with the correct length.
-func RemoveImage(basename, path, destDir string) error {
-	if basename == "" || path == "" || destDir == "" {
-		return fmt.Errorf("remove image %w: %s %s %s", ErrEmpty, basename, path, destDir)
+func RemoveImage(basename, path, backupDir string) error {
+	if basename == "" || path == "" || backupDir == "" {
+		return fmt.Errorf("remove image %w: %s %s %s", ErrEmpty, basename, path, backupDir)
 	}
 	const (
 		png   = ".png"    // png file extension
@@ -661,15 +661,21 @@ func RemoveImage(basename, path, destDir string) error {
 			filename, _ = helper.CfUUID(filename)
 		}
 		if err := uuid.Validate(filename); err != nil {
-			remove(basename, "remove invalid uuid", path, destDir)
+			remove(basename, "remove invalid cfid to uuid", path, backupDir)
 			return nil //nolint:nilerr
+		}
+		newpath := filepath.Dir(path)
+		switch ext {
+		case png, webp:
+			rename(path, "rename cfid "+ext, filepath.Join(newpath, filename+ext))
+			return nil
 		}
 	}
 	switch ext {
 	case png, webp:
 		return nil
 	default:
-		remove(basename, "remove invalid ext", path, destDir)
+		remove(basename, "remove invalid ext", path, backupDir)
 	}
 	return nil
 }
