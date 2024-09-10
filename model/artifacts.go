@@ -209,7 +209,7 @@ func (f *Artifacts) ByMagicErr(ctx context.Context, exec boil.ContextExecutor, b
 		"PE32 executable (GUI) Intel 80386%", "PE32 executable (console)%", "Python script%", "Quake I or II world or extension%",
 		"AmigaGuide file%", "COM executable for%", "DCL command file%", "LHa (%", "MS-DOS executable%", "RFC 822 mail%",
 		"Rich Text Format data%", "SMTP mail%", "SysEx File%", "UTF-8 Unicode%", "core file (Xenix)%", "diff output,%",
-		"news or mail,%", "news, ASCII text%", "saved news,%",
+		"news or mail,%", "news, ASCII text%", "saved news,%", "ID tags data%", "VISX image file%",
 	}
 	mods := []qm.QueryMod{
 		qm.Select(models.FileColumns.UUID, models.FileColumns.ID, models.FileColumns.FileMagicType),
