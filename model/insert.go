@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/Defacto2/server/handler/pouet"
@@ -84,6 +85,11 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 		return 0, noID, fmt.Errorf("uuid.NewV7: %w", err)
 	}
 	unique := null.StringFrom(uid.String())
+	if exist, err := UUIDExists(ctx, tx, uid.String()); err != nil {
+		return 0, noID, fmt.Errorf("UUIDExists: %w", err)
+	} else if exist {
+		return 0, noID, fmt.Errorf("insert uload %w, does the uuid already exist in the table?: %s", ErrUUID, uid.String())
+	}
 	deleteT := null.TimeFromPtr(&now)
 	if !deleteT.Valid || deleteT.Time.IsZero() {
 		return 0, noID, fmt.Errorf("%w: %v", ErrTime, deleteT.Time)
@@ -101,11 +107,12 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 	if err != nil {
 		return 0, noID, fmt.Errorf("upload: %w", err)
 	}
+	fmt.Fprintf(os.Stderr, "\ninsert upload f.Insert: %+v\n", f)
 	if err = f.Insert(ctx, tx, boil.Infer()); err != nil {
-		return 0, noID, fmt.Errorf("f.Insert: %w", err)
+		return 0, noID, fmt.Errorf("insert upload key %q: %w", key, err)
 	}
 	if err = tx.Commit(); err != nil {
-		return 0, noID, fmt.Errorf("tx.Commit: %w", err)
+		return 0, noID, fmt.Errorf("insert upload key %q tx.commit: %w", key, err)
 	}
 	return f.ID, uid, nil
 }

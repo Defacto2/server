@@ -66,3 +66,16 @@ func HashExists(ctx context.Context, exec boil.ContextExecutor, hash string) (bo
 	}
 	return ok, nil
 }
+
+// UUIDExists returns true if the file record exists in the database using a UUID.
+func UUIDExists(ctx context.Context, exec boil.ContextExecutor, uuid string) (bool, error) {
+	if invalidExec(exec) {
+		return false, ErrDB
+	}
+	ok, err := models.Files(models.FileWhere.UUID.EQ(null.StringFrom(uuid)),
+		qm.WithDeleted()).Exists(ctx, exec)
+	if err != nil {
+		return false, fmt.Errorf("exist file uuid %s: %w", uuid, err)
+	}
+	return ok, nil
+}
