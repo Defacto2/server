@@ -1259,7 +1259,7 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 		return Releaser404(c, uri)
 	}
 	data := emptyFiles(c)
-	data["title"] = "Artifacts for " + s
+	data["title"] = s + " artifacts"
 	data["h1"] = s
 	data["lead"] = initialism.Join(initialism.Path(uri))
 	data["logo"] = s

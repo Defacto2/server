@@ -447,7 +447,7 @@ func (e *entry) parseMusicID3(path string) bool {
 // ListContent returns a list of the files contained in the archive file.
 func ListContent(art *models.File, src string) template.HTML { //nolint:funlen
 	if art == nil {
-		return "error, no artifact"
+		return ""
 	}
 	entries, files, zeroByteFiles := 0, 0, 0
 	unid := art.UUID.String
@@ -671,6 +671,9 @@ func Dates(art *models.File) (int16, int16, int16) {
 // Description returns a human readable description for the artifact.
 // This includes the title, the releaser and the year of release.
 func Description(art *models.File) string {
+	if art == nil {
+		return ""
+	}
 	s := art.Filename.String
 	if art.RecordTitle.String != "" {
 		s = FirstHeader(art)
@@ -710,6 +713,9 @@ func DownloadID(art *models.File) string {
 // The original artifact must always be preserved and offered as the primary download.
 // But the extra zip file is a convenience for users who may not have the tools to decompress the original.
 func ExtraZip(art *models.File, extraDir string) bool {
+	if art == nil {
+		return false
+	}
 	extraZip := 0
 	unid := UnID(art)
 	st, err := os.Stat(filepath.Join(extraDir, unid+".zip"))
@@ -724,6 +730,9 @@ func ExtraZip(art *models.File, extraDir string) bool {
 //
 // For example, "Created 2 days ago" or "Updated 1 month ago".
 func FileEntry(art *models.File) string {
+	if art == nil {
+		return ""
+	}
 	switch {
 	case art.Createdat.Valid && art.Updatedat.Valid:
 		c := simple.Updated(art.Createdat.Time, "")
@@ -748,6 +757,9 @@ func FileEntry(art *models.File) string {
 // FirstHeader returns the title of the file,
 // unless the artifact is marked as a magazine issue, in which case it returns the issue number.
 func FirstHeader(art *models.File) string {
+	if art == nil {
+		return ""
+	}
 	sect := strings.TrimSpace(strings.ToLower(art.Section.String))
 	if sect != "magazine" {
 		return art.RecordTitle.String
@@ -964,6 +976,9 @@ func JsdosUtilities(art *models.File) bool {
 
 // LastModification returns the last modified date and time for the file record.
 func LastModification(art *models.File) string {
+	if art == nil {
+		return ""
+	}
 	const none = "no timestamp"
 	if !art.FileLastModified.Valid {
 		return none
@@ -981,6 +996,9 @@ func LastModification(art *models.File) string {
 
 // LastModificationDate returns the last modified date for the file record.
 func LastModificationDate(art *models.File) string {
+	if art == nil {
+		return ""
+	}
 	const none = "no timestamp"
 	if !art.FileLastModified.Valid {
 		return none
@@ -1012,6 +1030,9 @@ func LastModifications(art *models.File) (int, int, int) {
 
 // LastModificationAgo returns the last modified date in a human readable format.
 func LastModificationAgo(art *models.File) string {
+	if art == nil {
+		return ""
+	}
 	const none = "No recorded timestamp"
 	if !art.FileLastModified.Valid {
 		return none
@@ -1158,11 +1179,17 @@ func RecordOffline(art *models.File) bool {
 
 // RecordOnline returns true if the artifact file record is available for download.
 func RecordOnline(art *models.File) bool {
+	if art == nil {
+		return false
+	}
 	return art.Deletedat.Time.IsZero()
 }
 
 // RecordProblems returns a list of validation problems for the file record.
 func RecordProblems(art *models.File) string {
+	if art == nil {
+		return ""
+	}
 	validate := model.Validate(art)
 	if validate == nil {
 		return ""
@@ -1181,6 +1208,9 @@ func RecordProblems(art *models.File) string {
 
 // Relations returns the list of relationships for the file record.
 func Relations(art *models.File) template.HTML {
+	if art == nil {
+		return ""
+	}
 	s := art.ListRelations.String
 	if s == "" {
 		return ""
@@ -1282,6 +1312,9 @@ func UnID(art *models.File) string {
 // EmbedReadme returns false if a text file artifact should not be displayed in the page as a readme or textfile.
 // This includes artifacts that are set as documents such a HTML, PDF or BBS RIP images.
 func EmbedReadme(art *models.File) bool {
+	if art == nil {
+		return false
+	}
 	const bbsRipImage = ".rip"
 	if filepath.Ext(strings.ToLower(art.Filename.String)) == bbsRipImage {
 		// the bbs era, remote images protcol is not supported
@@ -1297,6 +1330,9 @@ func EmbedReadme(art *models.File) bool {
 
 // Websites returns the list of links for the file record.
 func Websites(art *models.File) template.HTML {
+	if art == nil {
+		return ""
+	}
 	s := art.ListLinks.String
 	if s == "" {
 		return ""
