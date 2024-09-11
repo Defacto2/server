@@ -439,7 +439,8 @@ func RecordDateIssued(c echo.Context, db *sql.DB) error {
 	}
 	y, m, d := form.ValidDate(year, month, day)
 	if !y || !m || !d {
-		return c.NoContent(http.StatusNoContent)
+		return badRequest(c, fmt.Errorf("%w, date failed to validate: Y %q %v ; M %q %v ; D %q %v ",
+			ErrFormat, year, y, month, m, day, d))
 	}
 	if err := model.UpdateDateIssued(db, int64(id), year, month, day); err != nil {
 		return badRequest(c, err)

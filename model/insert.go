@@ -7,7 +7,6 @@ import (
 	"database/sql"
 	"fmt"
 	"net/url"
-	"os"
 	"time"
 
 	"github.com/Defacto2/server/handler/pouet"
@@ -107,7 +106,6 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 	if err != nil {
 		return 0, noID, fmt.Errorf("upload: %w", err)
 	}
-	fmt.Fprintf(os.Stderr, "\ninsert upload f.Insert: %+v\n", f)
 	if err = f.Insert(ctx, tx, boil.Infer()); err != nil {
 		return 0, noID, fmt.Errorf("insert upload key %q: %w", key, err)
 	}
