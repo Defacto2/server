@@ -64,7 +64,7 @@ func (c Config) Archives(ctx context.Context, exec boil.ContextExecutor) error {
 		if uid == "" || fixzip.Invalid(ctx, path) {
 			return nil
 		}
-		if err := Zip.rearchive(ctx, path, c.AbsExtra, uid); err != nil {
+		if err := Zip.ReArchive(ctx, path, c.AbsExtra, uid); err != nil {
 			return fmt.Errorf("zip repair and re-archive: %w", err)
 		}
 		return nil
@@ -77,7 +77,7 @@ func (c Config) Archives(ctx context.Context, exec boil.ContextExecutor) error {
 		if uid == "" || fixlha.Invalid(ctx, path) {
 			return nil
 		}
-		if err := LHA.rearchive(ctx, path, c.AbsExtra, uid); err != nil {
+		if err := LHA.ReArchive(ctx, path, c.AbsExtra, uid); err != nil {
 			return fmt.Errorf("lha/lzh repair and re-archive: %w", err)
 		}
 		return nil
@@ -90,7 +90,7 @@ func (c Config) Archives(ctx context.Context, exec boil.ContextExecutor) error {
 		if uid == "" || fixarc.Invalid(ctx, path) {
 			return nil
 		}
-		if err := Arc.rearchive(ctx, path, c.AbsExtra, uid); err != nil {
+		if err := Arc.ReArchive(ctx, path, c.AbsExtra, uid); err != nil {
 			return fmt.Errorf("arc repair and re-archive: %w", err)
 		}
 		return nil
@@ -103,7 +103,7 @@ func (c Config) Archives(ctx context.Context, exec boil.ContextExecutor) error {
 		if uid == "" || fixarj.Invalid(ctx, path) {
 			return nil
 		}
-		if err := Arj.rearchive(ctx, path, c.AbsExtra, uid); err != nil {
+		if err := Arj.ReArchive(ctx, path, c.AbsExtra, uid); err != nil {
 			return fmt.Errorf("arj repair and re-archive: %w", err)
 		}
 		return nil
@@ -209,11 +209,14 @@ func (r Repair) artifacts(ctx context.Context, exec boil.ContextExecutor, logger
 	return artifacts, nil
 }
 
-func (r Repair) rearchive(ctx context.Context, path, extra, uid string) error {
+func (r Repair) ReArchive(ctx context.Context, src, destDir, uid string) error {
+	if src == "" || destDir == "" || uid == "" {
+		return fmt.Errorf("rearchive %s %w: %q %q %q", r, ErrEmpty, src, destDir, uid)
+	}
 	logger := helper.Logger(ctx)
 	tmp, err := os.MkdirTemp(helper.TmpDir(), "rearchive-")
 	if err != nil {
-		return fmt.Errorf("rearchive mkdir temp %w: %s", err, path)
+		return fmt.Errorf("rearchive mkdir temp %w: %s", err, src)
 	}
 	defer os.RemoveAll(tmp)
 
@@ -228,12 +231,14 @@ func (r Repair) rearchive(ctx context.Context, path, extra, uid string) error {
 	case Arj:
 		extractCmd, extractArg = command.Zip7, "x"
 	}
-	cmd := exec.Command(extractCmd, extractArg, path)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, extractCmd, extractArg, src)
 	cmd.Dir = tmp
-	if err = cmd.Run(); err != nil {
-		return fmt.Errorf("rearchive run %w: %s", err, path)
+	if stdoutStderr, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("rearchive run %w: %s: dump: %q",
+			err, src, stdoutStderr)
 	}
-
 	c, err := helper.Count(tmp)
 	if err != nil {
 		return fmt.Errorf("rearchive tmp count %w: %s", err, tmp)
@@ -252,7 +257,7 @@ func (r Repair) rearchive(ctx context.Context, path, extra, uid string) error {
 		return nil
 	}
 
-	finalArc := filepath.Join(extra, basename)
+	finalArc := filepath.Join(destDir, basename)
 	if err = helper.RenameCrossDevice(tmpArc, finalArc); err != nil {
 		defer os.RemoveAll(tmpArc)
 		return fmt.Errorf("rearchive rename %w: %s", err, tmpArc)

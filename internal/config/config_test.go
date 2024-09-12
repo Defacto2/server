@@ -4,9 +4,13 @@ import (
 	"bytes"
 	"context"
 	"os"
+	"path/filepath"
 	"testing"
 
+	"github.com/Defacto2/helper"
+	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -122,4 +126,39 @@ func TestRepair(t *testing.T) {
 	require.Error(t, err)
 	err = config.RemoveImage("", "", "")
 	require.Error(t, err)
+}
+
+func TestReArchive(t *testing.T) {
+	t.Parallel()
+	r := config.Zip
+	logger := zaplog.Timestamp().Sugar()
+	ctx := context.WithValue(context.Background(), helper.LoggerKey, logger)
+	err := r.ReArchive(ctx, "", "", "")
+	require.Error(t, err)
+
+	// test the archive that uses the defunct implode method
+	src, err := filepath.Abs(filepath.Join("testdata", "IMPLODE.ZIP"))
+	require.NoError(t, err)
+	readr, err := os.Open(src)
+	require.NoError(t, err)
+	defer readr.Close()
+	sign := magicnumber.Find(readr)
+	assert.Equal(t, magicnumber.PKWAREZipImplode, sign)
+
+	err = r.ReArchive(ctx, src, "", "")
+	require.Error(t, err)
+	dst := filepath.Dir(src)
+	err = r.ReArchive(ctx, src, dst, "")
+	require.Error(t, err)
+	err = r.ReArchive(ctx, src, dst, "newfile")
+	require.NoError(t, err)
+
+	// test the new, re-created archive that uses the common deflate method
+	name := filepath.Join(dst, "newfile.zip")
+	readr, err = os.Open(name)
+	require.NoError(t, err)
+	defer readr.Close()
+	sign = magicnumber.Find(readr)
+	assert.Equal(t, magicnumber.PKWAREZip, sign)
+	defer os.Remove(name)
 }
