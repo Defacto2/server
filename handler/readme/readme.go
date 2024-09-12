@@ -201,10 +201,31 @@ func IncompatibleANSI(r io.Reader) (bool, error) {
 	if r == nil {
 		return false, nil
 	}
-	scanner := bufio.NewScanner(r)
 	mcur, mpos := moveCursor(), moveCursorToPos()
 	reMoveCursor := regexp.MustCompile(mcur)
 	reMoveCursorToPos := regexp.MustCompile(mpos)
+
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		if reMoveCursor.Match(scanner.Bytes()) {
+			return true, nil
+		}
+		if reMoveCursorToPos.Match(scanner.Bytes()) {
+			return true, nil
+		}
+	}
+	err := scanner.Err()
+	if err != nil && !errors.Is(err, bufio.ErrTooLong) {
+		return false, fmt.Errorf("incompatible ansi cursor scanner: %w", err)
+	} else if err == nil {
+		return false, nil
+	}
+	// handle files that are too long for the scanner buffer
+	// examples would be texts or ansi files with no newlines
+	scanner = bufio.NewScanner(r)
+	buf := make([]byte, 0, 64*1024)
+	scanner.Buffer(buf, 1024*1024)
+	scanner = bufio.NewScanner(r)
 	for scanner.Scan() {
 		if reMoveCursor.Match(scanner.Bytes()) {
 			return true, nil
@@ -214,7 +235,7 @@ func IncompatibleANSI(r io.Reader) (bool, error) {
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		return false, fmt.Errorf("moves cursor scanner: %w", err)
+		return false, fmt.Errorf("incompatible ansi large, 1MB scanner: %w", err)
 	}
 	return false, nil
 }

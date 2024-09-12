@@ -102,6 +102,24 @@ func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx) error {
 	if err := optimize(db); err != nil {
 		return fmt.Errorf("optimize: %w", err)
 	}
+	if err := SyncFilesIDSeq(db); err != nil {
+		return fmt.Errorf("sync files ID sequence: %w", err)
+	}
+	return nil
+}
+
+// SyncFilesIDSeq will synchronize the files ID sequence with the current maximum ID.
+func SyncFilesIDSeq(db *sql.DB) error {
+	if db == nil {
+		return fmt.Errorf("fix sync ID: %w", ErrDB)
+	}
+	query := `SELECT MAX(id) FROM files;` +
+		`SELECT nextVal('"files_id_seq"');` +
+		`SELECT setval('"files_id_seq"', (SELECT MAX(id) FROM files)+1);`
+	_, err := queries.Raw(query).Exec(db)
+	if err != nil {
+		return fmt.Errorf("execute setval: %w", err)
+	}
 	return nil
 }
 
@@ -332,6 +350,9 @@ func contentWhiteSpace(exec boil.ContextExecutor) error {
 // optimize reclaims storage occupied by dead tuples in the database and
 // also analyzes the most efficient execution plans for queries.
 func optimize(db *sql.DB) error {
+	if db == nil {
+		return fmt.Errorf("fix optimize: %w", ErrDB)
+	}
 	_, err := queries.Raw("VACUUM ANALYZE files").Exec(db)
 	if err != nil {
 		return fmt.Errorf("execute vacuum and analyze: %w", err)

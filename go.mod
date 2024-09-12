@@ -4,8 +4,8 @@ go 1.22.5
 
 require (
 	github.com/Defacto2/archive v1.0.1
-	github.com/Defacto2/helper v1.1.0
-	github.com/Defacto2/magicnumber v1.0.0
+	github.com/Defacto2/helper v1.1.1
+	github.com/Defacto2/magicnumber v1.0.1
 	github.com/Defacto2/releaser v1.0.3
 	github.com/caarlos0/env/v11 v11.2.2
 	github.com/carlmjohnson/versioninfo v0.22.5
@@ -75,7 +75,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.29.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.27.0 // indirect
-	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e // indirect
+	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
 	golang.org/x/net v0.29.0 // indirect
 	golang.org/x/oauth2 v0.23.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect

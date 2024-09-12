@@ -71,10 +71,10 @@ github.com/DATA-DOG/go-sqlmock v1.4.1/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/Defacto2/archive v1.0.1 h1:f6qli42DWJWwNLbcB6SS0MSmVmaUzCJGXzTRsk8PskE=
 github.com/Defacto2/archive v1.0.1/go.mod h1:0/aa1BwDOBp4d87R/N33Lcr3+WzELv041wunK8R5A5c=
-github.com/Defacto2/helper v1.1.0 h1:wYIfA77H7zVRUNaaGc0uksB0op6avOHv+lCV273o2mk=
-github.com/Defacto2/helper v1.1.0/go.mod h1:8qsxi/1kq65p0mGJ5RX1aH++IsWUucPngaO0xOZlhQ8=
-github.com/Defacto2/magicnumber v1.0.0 h1:VPlMIijboYKoN0EJitv7/YXaxkNVWoCjdmplzylCCew=
-github.com/Defacto2/magicnumber v1.0.0/go.mod h1:hCoEZ+1a6bxrjxvItP0T3DYYC+187k1IFdCLXaNEuQs=
+github.com/Defacto2/helper v1.1.1 h1:wu8ynKF4ZXruTZNrDumzPVyXxFwhCvtWlsdimPNSXXc=
+github.com/Defacto2/helper v1.1.1/go.mod h1:vtHe6R1Pl3YsxsqXe/UZldvNx1n1Y6dM1JUL9Uczr6g=
+github.com/Defacto2/magicnumber v1.0.1 h1:UmiBUrYwTk3NPR1lGaaQ3Js+3YllBRf9XxSKInE3Da4=
+github.com/Defacto2/magicnumber v1.0.1/go.mod h1:SIr4UUO0htkx89FNTdUIpuCbuZqW9uYC5spvWl9bBtk=
 github.com/Defacto2/releaser v1.0.3 h1:F9q/Lfiq77mCi0puXbK/PFyAJ7zv/RHea74eq6o2/m0=
 github.com/Defacto2/releaser v1.0.3/go.mod h1:sw2ot/BH/3lydcN/Sach64ZBUGDi7DTLrXNzAxLmcR4=
 github.com/Masterminds/goutils v1.1.1/go.mod h1:8cTjp+g8YejhMuvIA5y2vz3BpJxksy863GQaJW2MFNU=
@@ -596,8 +596,8 @@ golang.org/x/exp v0.0.0-20191227195350-da58074b4299/go.mod h1:2RIsYlXP63K8oxa1u0
 golang.org/x/exp v0.0.0-20200119233911-0405dc783f0a/go.mod h1:2RIsYlXP63K8oxa1u096TMicItID8zy7Y6sNkU49FU4=
 golang.org/x/exp v0.0.0-20200207192155-f17229e696bd/go.mod h1:J/WKrq2StrnmMY6+EHIKF9dgMWnmCNThgcyBT1FY9mM=
 golang.org/x/exp v0.0.0-20200224162631-6cc2880d07d6/go.mod h1:3jZMyOhIsHpP37uCMkUooju7aAi5cS1Q23tOzKc+0MU=
-golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e h1:I88y4caeGeuDQxgdoFPUq097j7kNfw6uvuiNxUBfcBk=
-golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e/go.mod h1:akd2r19cwCdwSwWeIdzYQGa/EZZyqcOdwWiwj5L5eKQ=
+golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 h1:e66Fs6Z+fZTbFBAxKfP3PALWBtpfqks2bwGcexMxgtk=
+golang.org/x/exp v0.0.0-20240909161429-701f63a606c0/go.mod h1:2TbTHSBQa924w8M6Xs1QcRcFwyucIwBGpK1p2f1YFFY=
 golang.org/x/image v0.0.0-20190227222117-0694c2d4d067/go.mod h1:kZ7UVZpmo3dzQBMxlp+ypCbDeSB+sBbTgSJuh5dn5js=
 golang.org/x/image v0.0.0-20190802002840-cff245a6509b/go.mod h1:FeLwcggjj3mMvU+oOTbSwawSJRM1uh48EjtB4UJZlP0=
 golang.org/x/image v0.20.0 h1:7cVCUjQwfL18gyBJOmYvptfSHS8Fb3YUDtfLIZ7Nbpw=

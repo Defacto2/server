@@ -73,7 +73,7 @@ type Dirs struct {
 func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, readonly bool) error {
 	const name = "artifact"
 	art, err := dir.modelsFile(c, db)
-	if err != nil {
+	if art404 := art == nil || err != nil; art404 {
 		return err
 	}
 	data := empty(c)
@@ -113,6 +113,9 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 }
 
 func (dir Dirs) embed(art *models.File, data map[string]interface{}) (map[string]interface{}, error) {
+	if art == nil {
+		return data, nil
+	}
 	p, err := readme.Read(art, dir.Download, dir.Extra)
 	if err != nil {
 		if errors.Is(err, render.ErrDownload) {
@@ -247,6 +250,9 @@ func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
 
 // missingAssets returns a string of missing assets for the file record of the artifact.
 func (dir Dirs) missingAssets(art *models.File) string {
+	if art == nil {
+		return ""
+	}
 	uid := art.UUID.String
 	missing := []string{}
 	dl := helper.File(filepath.Join(dir.Download, uid))
@@ -276,6 +282,9 @@ func (dir Dirs) missingAssets(art *models.File) string {
 
 // attributions returns the author attributions for the file record of the artifact.
 func (dir Dirs) attributions(art *models.File, data map[string]interface{}) map[string]interface{} {
+	if art == nil {
+		return data
+	}
 	data["writers"] = filerecord.AttrWriter(art)
 	data["artists"] = filerecord.AttrArtist(art)
 	data["programmers"] = filerecord.AttrProg(art)
@@ -285,6 +294,9 @@ func (dir Dirs) attributions(art *models.File, data map[string]interface{}) map[
 
 // filemetadata returns the file metadata for the file record of the artifact.
 func (dir Dirs) filemetadata(art *models.File, data map[string]interface{}) map[string]interface{} {
+	if art == nil {
+		return data
+	}
 	data["filename"] = filerecord.Basename(art)
 	data["filesize"] = simple.BytesHuman(art.Filesize.Int64)
 	data["filebyte"] = art.Filesize
@@ -303,6 +315,9 @@ func (dir Dirs) filemetadata(art *models.File, data map[string]interface{}) map[
 
 // otherRelations returns the other relations and external links for the file record of the artifact.
 func (dir Dirs) otherRelations(art *models.File, data map[string]interface{}) map[string]interface{} {
+	if art == nil {
+		return data
+	}
 	data["relations"] = filerecord.Relations(art)
 	data["websites"] = filerecord.Websites(art)
 	data["demozoo"] = filerecord.IdenficationDZ(art)
@@ -405,7 +420,7 @@ func errorWithID(err error, key string, id any) error {
 
 // embedText embeds the readme or file download text content for the file record of the artifact.
 func embedText(art *models.File, data map[string]interface{}, b ...byte) (map[string]interface{}, error) {
-	if len(b) == 0 {
+	if len(b) == 0 || art == nil {
 		return data, nil
 	}
 	const (
@@ -482,6 +497,9 @@ func decode(src io.Reader) (string, error) {
 
 // firstLead returns the lead for the file record which is the filename and releasers.
 func firstLead(art *models.File) string {
+	if art == nil {
+		return ""
+	}
 	fname := art.Filename.String
 	span := fmt.Sprintf("<span class=\"font-monospace fs-6 fw-light\">%s</span> ", fname)
 	return fmt.Sprintf("%s<br>%s", releasersHrefs(art), span)

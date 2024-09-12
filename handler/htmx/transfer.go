@@ -32,6 +32,7 @@ import (
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
+	"github.com/Defacto2/server/model/fix"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -195,7 +196,14 @@ func transfer(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, key, downlo
 	}
 	id, uid, err := creator.insert(ctx, c, tx, logger)
 	if err != nil {
-		return c.HTML(http.StatusInternalServerError, err.Error())
+		// resync the files table sequence if the insert failed and try again
+		if err := fix.SyncFilesIDSeq(db); err != nil {
+			return c.HTML(http.StatusInternalServerError, err.Error())
+		}
+		id, uid, err = creator.insert(ctx, c, tx, logger)
+		if err != nil {
+			return c.HTML(http.StatusInternalServerError, err.Error())
+		}
 	} else if id == 0 {
 		return nil
 	}
