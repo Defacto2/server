@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/releaser/fix"
 	namer "github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -55,6 +56,14 @@ func (r *ReleaserNames) DistinctGroups(ctx context.Context, exec boil.ContextExe
 // Releasers is a collection of releasers.
 type Releasers []*struct {
 	Unique Releaser `boil:",bind"` // Unique releaser.
+}
+
+func (r *Releasers) String() string {
+	var names []string
+	for _, name := range *r {
+		names = append(names, name.Unique.Name)
+	}
+	return strings.Join(names, ", ")
 }
 
 // Releaser is a collective, group or individual, that releases files.
@@ -141,6 +150,7 @@ func (r *Releasers) SimilarMagazine(ctx context.Context, exec boil.ContextExecut
 func (r *Releasers) similar(
 	ctx context.Context, exec boil.ContextExecutor, limit uint, lookup string, names ...string,
 ) error {
+	boil.DebugMode = true
 	if len(names) == 0 {
 		return nil
 	}
@@ -153,9 +163,10 @@ func (r *Releasers) similar(
 
 	like := names
 	for i, name := range names {
+		name := fix.StripChars(name)
 		x, err := namer.Humanize(namer.Path(name))
 		if err != nil {
-			return fmt.Errorf("namer.Humanize: %w", err)
+			return fmt.Errorf("similar magazine namer humanize: %w", err)
 		}
 		like[i] = strings.ToUpper(x)
 	}
@@ -172,7 +183,7 @@ func (r *Releasers) similar(
 		query += fmt.Sprintf(" LIMIT %d OFFSET %d", val, offset)
 	}
 	if err := queries.Raw(query).Bind(ctx, exec, r); err != nil {
-		return fmt.Errorf("queries.Raw: %w", err)
+		return fmt.Errorf("similar magazine queries raw: %w", err)
 	}
 	r.Slugs()
 	return nil

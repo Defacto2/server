@@ -81,7 +81,7 @@ func (o Order) ByGroup(ctx context.Context, exec boil.ContextExecutor, name stri
 	}
 	s, err := namer.Humanize(namer.Path(name))
 	if err != nil {
-		return nil, fmt.Errorf("namer.Humanize: %w", err)
+		return nil, fmt.Errorf("order by group namer humanize: %w", err)
 	}
 	n := strings.ToUpper(s)
 	mods := models.FileWhere.GroupBrandFor.EQ(null.StringFrom(n))

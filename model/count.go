@@ -129,7 +129,7 @@ func ReleaserByteSum(ctx context.Context, exec boil.ContextExecutor, name string
 	}
 	s, err := namer.Humanize(namer.Path(name))
 	if err != nil {
-		return 0, fmt.Errorf("namer.Humanize: %w", err)
+		return 0, fmt.Errorf("releaser byte sum namer humanize: %w", err)
 	}
 	n := strings.ToUpper(s)
 	mods := qm.SQL(string(postgres.SumGroup()), null.StringFrom(n))

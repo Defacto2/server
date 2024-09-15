@@ -121,7 +121,7 @@ func (s *Summary) ByReleaser(ctx context.Context, exec boil.ContextExecutor, nam
 	}
 	ns, err := namer.Humanize(namer.Path(name))
 	if err != nil {
-		return fmt.Errorf("namer.Humanize: %w", err)
+		return fmt.Errorf("summary by releaser namer humanize: %w", err)
 	}
 	n := strings.ToUpper(ns)
 	x := null.StringFrom(n)

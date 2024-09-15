@@ -445,6 +445,7 @@ func (e *entry) parseMusicID3(path string) bool {
 }
 
 // ListContent returns a list of the files contained in the archive file.
+// This is used to generate the HTML for the "Download content" section of the File editor.
 func ListContent(art *models.File, src string) template.HTML { //nolint:funlen
 	if art == nil {
 		return ""
