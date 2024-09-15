@@ -133,7 +133,7 @@ export function releaser(elm) {
   elm.classList.remove("is-valid", "is-invalid");
 
   let value = elm.value.trim().toUpperCase();
-  value = value.replace(/[^A-ZÀ-ÖØ-Þ0-9\-,& ]/g, "");
+  value = value.replace(/[^ A-ZÀ-ÖØ-Þ0-9\-,&]/g, "");
   elm.value = value;
 
   const min = elm.getAttribute("minlength");
