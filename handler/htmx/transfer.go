@@ -567,7 +567,10 @@ func UploadPreview(c echo.Context, previewDir, thumbnailDir string) error {
 	magic := magicnumber.Find(src)
 	if imagers(magic) {
 		if err := dirs.PictureImager(nil, dst.Name(), up.unid); err != nil {
-			return badRequest(c, err)
+			return c.HTML(http.StatusBadRequest,
+				err.Error()+
+					"\nThe uploaded image file could not be converted, "+
+					"please try converting it on your local machine into a PNG or JPG file")
 		}
 		return reloader(c, file.Filename)
 	}
