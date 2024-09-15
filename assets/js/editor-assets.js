@@ -71,6 +71,7 @@ import { progress } from "./uploader.mjs";
     default:
     // note, the #runapp hash is used by js-dos
   }
+
   // New file download form event listener.
   document.body.addEventListener("htmx:afterRequest", function (event) {
     afterFormRequest(
@@ -92,6 +93,16 @@ import { progress } from "./uploader.mjs";
     );
     afterDeleteRequest(
       event,
+      "artifact-editor-imagepreview-delete",
+      "artifact-editor-image-feedback"
+    );
+    afterDeleteRequest(
+      event,
+      "artifact-editor-imagethumb-delete",
+      "artifact-editor-image-feedback"
+    );
+    afterDeleteRequest(
+      event,
       "artifact-editor-image-pixelate",
       "artifact-editor-preview-feedback"
     );
@@ -100,7 +111,63 @@ import { progress } from "./uploader.mjs";
       "artifact-editor-link-delete",
       "artifact-editor-link-feedback"
     );
+    afterLinkRequest(
+      event,
+      "artifact-editor-comp-previewcopy",
+      "artifact-editor-comp-feedback"
+    );
+    afterLinkRequest(
+      event,
+      "artifact-editor-comp-previewtext",
+      "artifact-editor-comp-feedback"
+    );
+    afterLinkRequest(
+      event,
+      "artifact-editor-comp-textcopy",
+      "artifact-editor-comp-feedback"
+    );
   });
+
+  /**
+   * After link request event listener.
+   * @param {Event} event - The htmx event.
+   * @param {string} inputId - The inputId is the id of the input element that triggered the request,
+   * or the name of the input element that triggered the request.
+   * @param {string} feedbackId - The feedback name.
+   * @returns {void}
+   **/
+  function afterLinkRequest(event, inputId, feedbackId) {
+    if (event.detail.elt === null) return;
+    if (
+      event.detail.elt.id !== `${inputId}` &&
+      event.detail.elt.name !== inputId
+    )
+      return;
+    const feedback = document.getElementById(feedbackId);
+    if (feedback === null) {
+      throw new Error(
+        `The htmx successful feedback element ${feedbackId} is null`
+      );
+    }
+    const errClass = "text-danger";
+    const xhr = event.detail.xhr;
+    if (event.detail.successful) {
+      feedback.innerText = `${xhr.responseText}`;
+      feedback.classList.remove(errClass);
+      return;
+    }
+    if (event.detail.failed && event.detail.xhr) {
+      feedback.classList.add(errClass);
+      feedback.innerText =
+        `Something on the server is not working, ` +
+        `${xhr.status} status: ${xhr.responseText}.`;
+      return;
+    }
+    feedback.classList.add(errClass);
+    feedback.innerText =
+      "Something with the browser is not working," +
+      " please try again or refresh the page.";
+  }
 
   function afterDeleteRequest(event, inputId, feedbackId) {
     if (event.detail.elt === null) return;
@@ -121,35 +188,6 @@ import { progress } from "./uploader.mjs";
       setTimeout(() => {
         location.reload();
       }, 500);
-      return;
-    }
-    if (event.detail.failed && event.detail.xhr) {
-      feedback.classList.add(errClass);
-      feedback.innerText =
-        `Something on the server is not working, ` +
-        `${xhr.status} status: ${xhr.responseText}.`;
-      return;
-    }
-    feedback.classList.add(errClass);
-    feedback.innerText =
-      "Something with the browser is not working," +
-      " please try again or refresh the page.";
-  }
-
-  function afterLinkRequest(event, inputId, feedbackId) {
-    if (event.detail.elt === null) return;
-    if (event.detail.elt.id !== `${inputId}`) return;
-    const feedback = document.getElementById(feedbackId);
-    if (feedback === null) {
-      throw new Error(
-        `The htmx successful feedback element ${feedbackId} is null`
-      );
-    }
-    const errClass = "text-danger";
-    const xhr = event.detail.xhr;
-    if (event.detail.successful) {
-      feedback.innerText = `${xhr.responseText}`;
-      feedback.classList.remove(errClass);
       return;
     }
     if (event.detail.failed && event.detail.xhr) {

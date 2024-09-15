@@ -58,68 +58,85 @@ type ListEntry struct {
 	UniqueID                string
 	Executable              magicnumber.Windows
 	Images, Programs, Texts bool
+	name                    string
+	platform                string
+	section                 string
+	bytes                   int64
 }
 
 // HTML returns the HTML for an file item in the "Download content" section of the File editor.
-func (m ListEntry) HTML(bytes int64, platform, section string) string {
-	const blank = `<div class="col col-1"></div>`
-	name := url.QueryEscape(m.RelativeName)
-	ext := strings.ToLower(filepath.Ext(name))
-	titlename := m.RelativeName
+func (m *ListEntry) HTML(bytes int64, platform, section string) string {
+	m.name = url.QueryEscape(m.RelativeName)
+	m.bytes = bytes
+	m.platform = platform
+	m.section = section
 	displayname := m.RelativeName
 	if strings.EqualFold(platform, tags.DOS.String()) {
 		if msdos.Rename(displayname) != displayname {
 			displayname = `<span class="text-danger">` + displayname + `</span>`
 		}
 	}
-	htm := fmt.Sprintf(`<div class="col d-inline-block text-truncate" data-bs-toggle="tooltip" `+
-		`data-bs-title="%s">%s</div>`, titlename, displayname)
+	htm := fmt.Sprintf(`<div class="col d-inline-block text-truncate">%s</div>`,
+		displayname)
+	return m.Column1(htm)
+}
+
+func (m ListEntry) Column1(htm string) string {
+	const blank = `<div class="col col-1"></div>`
+	ext := strings.ToLower(filepath.Ext(m.name))
 	switch {
-	case m.Images:
-		htm += previewcopy(m.UniqueID, name)
-	case m.Texts && (ext == bat || ext == cmd || ext == ini):
+	case osTool(ext):
 		htm += blank
+	case m.Images:
+		htm += previewcopy(m.UniqueID, m.name)
 	case m.Texts:
-		htm += readmepreview(m.UniqueID, name)
+		htm += readmepreview(m.UniqueID, m.name)
 	default:
 		htm += blank
 	}
-	return m.readme(bytes, htm, platform, section)
+	return m.Column2(htm)
 }
 
-func (m ListEntry) readme(bytes int64, htm, platform, section string) string {
+func (m ListEntry) Column2(htm string) string {
 	soloText := func() bool {
-		if !strings.EqualFold(platform, tags.Text.String()) && !strings.EqualFold(platform, textamiga) {
+		if !strings.EqualFold(m.platform, tags.Text.String()) &&
+			!strings.EqualFold(m.platform, textamiga) {
 			return false
 		}
-		return strings.EqualFold(section, tags.Nfo.String())
+		return strings.EqualFold(m.section, tags.Nfo.String())
 	}
 	const blank = `<div class="col col-1"></div>`
 	name := url.QueryEscape(m.RelativeName)
 	ext := strings.ToLower(filepath.Ext(name))
 	switch {
-	case m.Texts && (ext == bat || ext == cmd || ext == ini):
+	case
+		m.Programs,
+		ext == exe,
+		ext == com:
+		htm += `<div class="col col-1 text-end" ` +
+			`data-bs-toggle="tooltip" data-bs-title="Known program or executable">` +
+			`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+			`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
+	case osTool(ext):
 		htm += blank
 	case m.Texts && !soloText():
 		htm += readmecopy(m.UniqueID, name)
-	case m.Programs && ext == exe, m.Programs && ext == com:
-		htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-			`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
 	default:
 		htm += blank
 	}
-	htm += fmt.Sprintf(`<div><small data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</small>`, bytes, m.Filesize)
-	return m.binaries(bytes, ext, htm)
+	htm += fmt.Sprintf(`<div><small data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</small>`,
+		m.bytes, m.Filesize)
+	return m.Column1and2(ext, htm)
 }
 
-func (m ListEntry) binaries(bytes int64, ext, htm string) string {
+func (m ListEntry) Column1and2(ext, htm string) string {
 	switch {
 	case m.Texts && (ext == bat || ext == cmd):
 		htm += fmt.Sprintf(` <small class="">%s</small></div>`, "command script")
 	case m.Texts && (ext == ini):
 		htm += fmt.Sprintf(` <small class="">%s</small></div>`, "configuration textfile")
 	case m.Programs || ext == com:
-		htm = progr(m.Executable, ext, htm, bytes)
+		htm = progr(m.Executable, ext, htm, m.bytes)
 	case m.MusicConfig != "":
 		htm += fmt.Sprintf(` <small class="">%s</small></div>`, m.MusicConfig)
 	case m.Images:
@@ -132,25 +149,31 @@ func (m ListEntry) binaries(bytes int64, ext, htm string) string {
 }
 
 func previewcopy(uniqueID, name string) string {
-	return `<div class="col col-1 text-end">` +
-		fmt.Sprintf(`<a class="icon-link align-text-bottom" id="" `+
-			`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/preview/copy/%s/%s">`, uniqueID, name) +
+	return `<div class="col col-1 text-end" ` +
+		`data-bs-toggle="tooltip" data-bs-title="Use image for preview">` +
+		fmt.Sprintf(`<a class="icon-link align-text-bottom" name="artifact-editor-comp-previewcopy" `+
+			`hx-target="#artifact-editor-comp-feedback" `+
+			`hx-patch="/editor/preview/copy/%s/%s">`, uniqueID, name) +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
 }
 
 func readmepreview(uniqueID, name string) string {
-	return `<div class="col col-1 text-end">` +
-		fmt.Sprintf(`<a class="icon-link align-text-bottom" `+
-			`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/readme/preview/%s/%s">`, uniqueID, name) +
+	return `<div class="col col-1 text-end" ` +
+		`data-bs-toggle="tooltip" data-bs-title="Use file for preview">` +
+		fmt.Sprintf(`<a class="icon-link align-text-bottom" name="artifact-editor-comp-previewtext" `+
+			`hx-target="#artifact-editor-comp-feedback" `+
+			`hx-patch="/editor/readme/preview/%s/%s">`, uniqueID, name) +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
 }
 
 func readmecopy(uniqueID, name string) string {
-	return `<div class="col col-1 text-end">` +
-		fmt.Sprintf(`<a class="icon-link align-text-bottom" `+
-			`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/readme/copy/%s/%s">`, uniqueID, name) +
+	return `<div class="col col-1 text-end" ` +
+		`data-bs-toggle="tooltip" data-bs-title="Use file as readme">` +
+		fmt.Sprintf(`<a class="icon-link align-text-bottom" name="artifact-editor-comp-textcopy" `+
+			`hx-target="#artifact-editor-comp-feedback" `+
+			`hx-patch="/editor/readme/copy/%s/%s">`, uniqueID, name) +
 		`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></a></div>`
 }
@@ -188,6 +211,17 @@ func progrDos(x8086 int, bytes int64) string {
 		return "Dos command"
 	}
 	return "Dos executable"
+}
+
+// osTool returns true if the file extension matches the known operating system tools.
+// This includes batch scripts, executables, commands and ini configurations files.
+func osTool(ext string) bool {
+	switch ext {
+	case bat, exe, com, ini:
+		return true
+	default:
+		return false
+	}
 }
 
 // AlertURL returns the VirusTotal URL for the security alert for the file record.
@@ -445,6 +479,7 @@ func (e *entry) parseMusicID3(path string) bool {
 }
 
 // ListContent returns a list of the files contained in the archive file.
+// This is used to generate the HTML for the "Download content" section of the File editor.
 func ListContent(art *models.File, src string) template.HTML { //nolint:funlen
 	if art == nil {
 		return ""

@@ -158,7 +158,7 @@
               <button id="artifact-editor-image-delete" hx-target="#artifact-editor-image-feedback" 
               hx-delete="/editor/images/{{$unid}}" class="btn btn-link m-0 p-0"><strong>Delete</strong> images</button>
             <button id="artifact-editor-image-pixelate" hx-target="#artifact-editor-image-feedback" 
-              hx-patch="/editor/images/pixelate/{{$unid}}" class="btn btn-link m-0 p-0"><strong>Pixelate</strong> images</button>
+              hx-patch="/editor/images/pixelate/{{$unid}}" class="btn btn-link m-0 p-0"><strong>Pixelate</strong> NSFW images</button>
             <div class="form-text">The delete and pixelate options are irreversible</div>
             </div>
             <div class="form-text" id="artifact-editor-image-feedback"></div>
@@ -186,7 +186,7 @@
                       <div><a href="#file-editor" hx-patch="/editor/preview/crop11/{{$unid}}">1:1 crop</a> <small>square</small></div>
                       <div><a href="#file-editor" hx-patch="/editor/preview/crop12/{{$unid}}">1:2 crop</a> <small>i.e. 640x1280</small></div>
                       <div><a href="#file-editor" hx-patch="/editor/preview/crop43/{{$unid}}">4:3 crop</a> <small>i.e. 640x480</small></div>
-                      <div><a href="#file-editor" hx-delete="/editor/preview/{{$unid}}">Delete</a></div>
+                      <div><a href="#file-editor" id="artifact-editor-imagepreview-delete" hx-delete="/editor/preview/{{$unid}}">Delete</a></div>
                     </p>
                   </div>
                   {{$previewImg}}
@@ -222,7 +222,7 @@
                         <a href="#file-editor" hx-patch="/editor/thumbnail/pixel/{{$unid}}">Pixel art</a> &nbsp;
                         <a href="#file-editor" hx-patch="/editor/thumbnail/photo/{{$unid}}">Photograph</a> <small>thumbnail</small>
                       </div>
-                      <div><a href="#file-editor" hx-delete="/editor/thumbnail/{{$unid}}">Delete</a></div>
+                      <div><a href="#file-editor" id="artifact-editor-imagethumb-delete" hx-delete="/editor/thumbnail/{{$unid}}">Delete</a></div>
                     </p>
                   </div>
                   {{$thumbImg}}
@@ -281,54 +281,35 @@
                   </div>
                 </div>
               </div>
-              <div class="col-6">
+              <div class="col-12">
                 <div class="card">
                   <div class="card-body">
                     <p class="card-text">
                       <span class="lead">README</span>
+                      <div class="row">
                       {{- if eq (len .modAssetExtra) 0}}<div>No extras in use</div>{{else}}
-                      <div>
-                        <button class="btn btn-link m-0 p-0" 
-                          hx-target="#editor-copy-readme-result"
-                          hx-delete="/editor/readme/{{$unid}}">
-                          Delete README</button>
+                        <div class="col-6">
+                          <button class="btn btn-link m-0 p-0" 
+                            hx-target="#editor-copy-readme-result"
+                            hx-delete="/editor/readme/{{$unid}}">
+                            Delete README</button>
+                        </div>
+                        {{- end}}
+                        {{- if ne "" (index . "modReadmeSuggest")}}
+                        <div class="col-6">
+                          <button class="btn btn-link m-0 p-0" 
+                            hx-target="#editor-copy-readme-result"
+                            hx-patch="/editor/readme/copy/{{$unid}}/{{$modReadmeSuggest | urlEncode }}">
+                            Use guessed README file</button>
+                          <div>> <code>{{$modReadmeSuggest}}</code></div>
+                        </div>
                       </div>
-                      {{- end}}
-                      {{- if ne "" (index . "modReadmeSuggest")}}
-                      <div>
-                        <button class="btn btn-link m-0 p-0" 
-                          hx-target="#editor-copy-readme-result"
-                          hx-patch="/editor/readme/copy/{{$unid}}/{{$modReadmeSuggest | urlEncode }}">
-                          Use guessed README file</button>
-                      </div>
-                      <div>> <code>{{$modReadmeSuggest}}</code></div>
                       <div class="form-text" id="editor-copy-readme-result"></div>
                       {{- end}}
                     </p>
                   </div>
                 </div>
               </div> 
-              <div class="col-6">
-                <div class="card">
-                  <div class="card-body">
-                    <p class="card-text">
-                      <span class="lead">Repacked ZIP</span>
-                      {{- if eq $notFound $statSizeB}}<div class="text-warning-emphasis">download file not found</div>
-                      {{- else if eq "" (index . "modZipContent")}}<div>The download is not an archive</div>
-                      {{- else if eq "Zip archive" $magicNum}}<div>Repacking is not required</div>
-                      {{- else}}
-                      <div class="form-check form-switch">
-                        {{recordReadme (index . "modNoReadme") }}
-                        <label class="form-check-label" id="edHideMeLabel" for="edHideMe">Offer a repacked archive</label>
-                        <div class="form-text">feature not used, download is not an obsolete archive</div>
-                        <div class="valid-feedback">Saved, {{$refreshPage}}</div>
-                        <div class="invalid-feedback" id="edHideMeErr">error placeholder</div>  
-                      </div>
-                      {{- end}}
-                    </p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>

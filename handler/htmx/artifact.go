@@ -33,9 +33,14 @@ var (
 	ErrYT    = errors.New("youtube watch video id needs to be empty or 11 characters")
 )
 
-// pageRefresh is a helper function to set the HTTP HTMX header for the browser to refresh the page.
+// pageRefresh is a helper function to set the HTTP [HTMX header] for the browser to refresh the page.
+//
+// [HTMX header]: https://htmx.org/reference/#response_headers
 func pageRefresh(c echo.Context) echo.Context {
-	c.Response().Header().Set("HX-Refresh", "true")
+	res := c.Response()
+	const htmxRefresh = "HX-Refresh"
+	res.Header().Set(htmxRefresh, "true")
+	res.WriteHeader(http.StatusOK)
 	return c
 }
 
@@ -47,7 +52,7 @@ func RecordThumb(c echo.Context, thumb command.Thumb, dirs command.Dirs) error {
 	}
 	c = pageRefresh(c)
 	return c.String(http.StatusOK,
-		`<span class="text-success">Thumb created, the browser will refresh.</span>`)
+		`Thumb created, the browser will refresh.`)
 }
 
 func RecordThumbAlignment(c echo.Context, align command.Align, dirs command.Dirs) error {
@@ -58,7 +63,7 @@ func RecordThumbAlignment(c echo.Context, align command.Align, dirs command.Dirs
 	}
 	c = pageRefresh(c)
 	return c.String(http.StatusOK,
-		`<span class="text-success">Thumb realigned, the browser will refresh.</span>`)
+		`Thumb realigned, the browser will refresh.`)
 }
 
 func RecordImageCropper(c echo.Context, crop command.Crop, dirs command.Dirs) error {
@@ -69,7 +74,7 @@ func RecordImageCropper(c echo.Context, crop command.Crop, dirs command.Dirs) er
 	}
 	c = pageRefresh(c)
 	return c.String(http.StatusOK,
-		`<span class="text-success">Images cropped, the browser will refresh.</span>`)
+		`Images cropped, the browser will refresh.`)
 }
 
 func RecordImageCopier(c echo.Context, debug *zap.SugaredLogger, dirs command.Dirs) error {
@@ -99,7 +104,7 @@ func RecordImageCopier(c echo.Context, debug *zap.SugaredLogger, dirs command.Di
 	}
 	c = pageRefresh(c)
 	return c.String(http.StatusOK,
-		`<span class="text-success">Images copied, the browser will refresh.</span>`)
+		`Images copied, the browser will refresh.`)
 }
 
 func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, dirs command.Dirs) error {
@@ -126,7 +131,7 @@ func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, dirs command.
 	}
 	c = pageRefresh(c)
 	return c.String(http.StatusOK,
-		`<span class="text-success">Text filed imaged, the browser will refresh.</span>`)
+		`Text filed imaged, the browser will refresh.`)
 }
 
 func RecordReadmeCopier(c echo.Context, extraDir string) error {
@@ -154,7 +159,7 @@ func RecordReadmeCopier(c echo.Context, extraDir string) error {
 	}
 	c = pageRefresh(c)
 	return c.String(http.StatusOK,
-		`<span class="text-success">Images copied, the browser will refresh.</span>`)
+		`Images copied, the browser will refresh.`)
 }
 
 func RecordImagePixelator(c echo.Context, dirs ...string) error {
@@ -164,7 +169,7 @@ func RecordImagePixelator(c echo.Context, dirs ...string) error {
 	}
 	c = pageRefresh(c)
 	return c.String(http.StatusOK,
-		`<span class="text-success">Images pixelated, the browser will refresh.</span>`)
+		`Images pixelated, the browser will refresh.`)
 }
 
 func RecordImagesDeleter(c echo.Context, dirs ...string) error {
