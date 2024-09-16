@@ -1,4 +1,4 @@
-// THIS FILE IS SET FOR REWRITING
+// THIS FILE IS SET FOR A REWRITE
 // it was used to pull a download from Demozoo, but needs to be rewritten.
 // See: handler/app/internal/str/str.go, DemozooGetLink()
 (() => {
@@ -11,7 +11,6 @@
     if (!uuid) console.error("No UUID found");
     else workQueue.push(uuid);
   }
-  console.log("workQueue", workQueue);
 
   function removeClick(event) {
     console.log("event listener removed");
@@ -36,7 +35,6 @@
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        //'X-CSRFToken': getCookie('csrftoken')
       },
     })
       .then((response) => response.json())
