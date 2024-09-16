@@ -63,9 +63,10 @@
       "-c", "SET PATH=%PATH%;C:\\DOS4GW",
       "-c", "{{$runProgram}}",
       ];
-    ctx.font = "16px serif";
-    ctx.fillText("Not working?", 10, 50);
-    ctx.fillText("Try the browser Console for errors.", 10, 70);
+    ctx.font = "14px serif";
+    ctx.fillText("Stuck and not loading?", 10, 50);
+    ctx.fillText("1) try refreshing this tab.", 13, 70);
+    ctx.fillText("2) view the the tab Console for errors.", 13, 90);
     const stopButton = document.getElementById("jsdosStop");
     stopButton.addEventListener("click", () => {
       try {
