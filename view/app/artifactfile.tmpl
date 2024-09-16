@@ -114,7 +114,7 @@
               hx-encoding="multipart/form-data" 
               hx-post="/editor/upload/file"
               hx-target="#artifact-editor-dl-feedback"
-              {{- if ne $notFound $statSizeB}}hx-confirm="OK, to replace the existing artifact file download on the server?"{{end}}
+              {{- if ne $notFound $statSizeB}} hx-confirm="OK, to replace the existing artifact file download on the server?"{{end}}
               hx-validate="true">
               <input type="hidden" name="artifact-editor-record-key" value="{{$key}}">
               <input type="hidden" name="artifact-editor-unid" value="{{$unid}}">
@@ -284,6 +284,8 @@
                 </div>
               </div>
               {{- /*  Readme UI  */}}
+              {{- /*  Be careful about the dynamic HTML elements here,
+                      as they can break the modal rendering, disabling all the Editor UI!  */ -}}
               <div class="col-12">
                 <div class="card">
                   <div class="card-body">
@@ -291,8 +293,6 @@
                     <span class="lead">README</span>
                       <div class="form-text" id="editor-copy-readme-result"></div>
                       <div class="row">
-                    {{- /*  be careful about the dynamic HTML elements here,
-                        as they can break the modal rendering, disabling all the Editor UI!  */ -}}
                       {{- if eq (len .modAssetExtra) 0}}
                         <div>No extras in use</div>
                       {{- else}}
@@ -309,8 +309,8 @@
                             hx-target="#editor-copy-readme-result"
                             hx-patch="/editor/readme/copy/{{$unid}}/{{$modReadmeSuggest | urlEncode }}">
                             Use guessed README file</button>
-                          <div> &rsaquo; <code>{{$modReadmeSuggest}}</code>
-                        </div>
+                            <br> &nbsp; &rsaquo; <code>{{$modReadmeSuggest}}</code>
+                        </div> 
                       {{- end}}
                       </div>
                     </p>
