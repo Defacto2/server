@@ -4,6 +4,40 @@
  */
 
 /**
+ * Titleizes a string of text but keeps common adverbs in lowercase.
+ *
+ * @param {string} text - The input text to be titleized.
+ * @returns {string} - The titleized text.
+ */
+export function titleize(text) {
+  const commonAdverbs = [
+    "a",
+    "an",
+    "and",
+    "as",
+    "but",
+    "for",
+    "if",
+    "of",
+    "or",
+    "so",
+    "the",
+    "to",
+  ];
+  return text
+    .split(" ")
+    .map((word, index) => {
+      // Capitalize the first word and any word not in the common adverbs list
+      if (index === 0 || !commonAdverbs.includes(word.toLowerCase())) {
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      }
+      // Keep common adverbs in lowercase
+      return word.toLowerCase();
+    })
+    .join(" ");
+}
+
+/**
  * Copies the text content of an HTML element to the clipboard.
  * @async
  * @function clipText

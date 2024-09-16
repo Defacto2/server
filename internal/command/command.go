@@ -3,6 +3,7 @@ package command
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -10,28 +11,30 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"go.uber.org/zap"
 )
 
 const (
-	pattern  = "defacto2-" // prefix for temporary directories
-	patternS = "defacto2-server"
-	arc      = ".arc"  // arc file extension
-	arj      = ".arj"  // arj file extension
-	bmp      = ".bmp"  // bmp file extension
-	gif      = ".gif"  // gif file extension
-	gzip     = ".gz"   // gzip file extension
-	jpg      = ".jpg"  // jpg file extension
-	jpeg     = ".jpeg" // jpeg file extension
-	png      = ".png"  // png file extension
-	rar      = ".rar"  // rar file extension
-	tar      = ".tar"  // tar file extension
-	tiff     = ".tiff" // tiff file extension
-	txt      = ".txt"  // txt file extension
-	webp     = ".webp" // webp file extension
-	zip      = ".zip"  // zip file extension
-	zip7     = ".7z"   // 7zip file extension
+	cmdTimeout = 10 * time.Second
+	pattern    = "defacto2-" // prefix for temporary directories
+	patternS   = "defacto2-server"
+	arc        = ".arc"  // arc file extension
+	arj        = ".arj"  // arj file extension
+	bmp        = ".bmp"  // bmp file extension
+	gif        = ".gif"  // gif file extension
+	gzip       = ".gz"   // gzip file extension
+	jpg        = ".jpg"  // jpg file extension
+	jpeg       = ".jpeg" // jpeg file extension
+	png        = ".png"  // png file extension
+	rar        = ".rar"  // rar file extension
+	tar        = ".tar"  // tar file extension
+	tiff       = ".tiff" // tiff file extension
+	txt        = ".txt"  // txt file extension
+	webp       = ".webp" // webp file extension
+	zip        = ".zip"  // zip file extension
+	zip7       = ".7z"   // 7zip file extension
 )
 
 var (
@@ -215,7 +218,9 @@ func RunStdOut(name string, arg ...string) ([]byte, error) {
 		return nil, fmt.Errorf("run output %w", err)
 	}
 	var out bytes.Buffer
-	cmd := exec.Command(name, arg...)
+	ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, name, arg...)
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
 		return nil, fmt.Errorf("run output cmd.run %w", err)
@@ -228,7 +233,9 @@ func RunQuiet(name string, arg ...string) error {
 	if err := LookCmd(name); err != nil {
 		return fmt.Errorf("run quiet %w", err)
 	}
-	cmd := exec.Command(name, arg...)
+	ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, name, arg...)
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("run quiet start %w", err)
 	}
@@ -249,7 +256,9 @@ func run(debug *zap.SugaredLogger, name, wdir string, arg ...string) error {
 	if err := LookCmd(name); err != nil {
 		return fmt.Errorf("run %w", err)
 	}
-	cmd := exec.Command(name, arg...)
+	ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, name, arg...)
 	cmd.Dir = wdir
 	if debug != nil {
 		p, err := cmd.CombinedOutput()
