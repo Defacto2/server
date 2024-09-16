@@ -33,9 +33,14 @@ var (
 	ErrYT    = errors.New("youtube watch video id needs to be empty or 11 characters")
 )
 
-// pageRefresh is a helper function to set the HTTP HTMX header for the browser to refresh the page.
+// pageRefresh is a helper function to set the HTTP [HTMX header] for the browser to refresh the page.
+//
+// [HTMX header]: https://htmx.org/reference/#response_headers
 func pageRefresh(c echo.Context) echo.Context {
-	c.Response().Header().Set("HX-Refresh", "true")
+	res := c.Response()
+	const htmxRefresh = "HX-Refresh"
+	res.Header().Set(htmxRefresh, "true")
+	res.WriteHeader(http.StatusOK)
 	return c
 }
 
