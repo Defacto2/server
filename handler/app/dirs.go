@@ -19,7 +19,10 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/Defacto2/archive/pkzip"
+	"github.com/Defacto2/archive/rezip"
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/handler/app/internal/filerecord"
 	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/Defacto2/server/handler/readme"
@@ -90,7 +93,7 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 	data["comment"] = filerecord.Comment(art)
 	data = dir.filemetadata(art, data)
 	if !readonly {
-		data = dir.updateMagics(db, logger, art.ID, data)
+		data = dir.updateMagics(db, logger, art.ID, art.UUID.String, data)
 	}
 	data = dir.attributions(art, data)
 	data = dir.otherRelations(art, data)
@@ -115,7 +118,47 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 	return nil
 }
 
-func (dir Dirs) updateMagics(db *sql.DB, logger *zap.SugaredLogger, id int64, data map[string]interface{}) map[string]interface{} {
+func repackZIP(name string) bool {
+	x, err := pkzip.Methods(name)
+	if err != nil {
+		return false
+	}
+	for _, method := range x {
+		if !method.Zip() {
+			return true
+		}
+	}
+	return false
+}
+
+func (dir Dirs) compressZIP(root, uid string) (int64, error) {
+	basename := uid + ".zip"
+	tmpArc := filepath.Join(helper.TmpDir(), basename)
+	finalArc := filepath.Join(dir.Extra, basename)
+	os.Remove(finalArc)
+
+	fmt.Println("modDecompressLoc", root, "tmpArc", tmpArc)
+	i, err := rezip.CompressDir(root, tmpArc)
+	if err != nil {
+		return 0, err
+	}
+	fmt.Println("rezipped extra files written:", i)
+
+	if err = helper.RenameCrossDevice(tmpArc, finalArc); err != nil {
+		defer os.RemoveAll(tmpArc)
+		return 0, err
+	}
+	st, err := os.Stat(finalArc)
+	if err != nil {
+		return 0, err
+	}
+	return st.Size(), nil
+}
+
+// updateMagics updates the magic number for the file record of the artifact.
+// It must be called after both the dir.filemetadata and dir.Editor functions.
+func (dir Dirs) updateMagics(db *sql.DB, logger *zap.SugaredLogger,
+	id int64, uid string, data map[string]interface{}) map[string]interface{} {
 	if db == nil {
 		return data
 	}
@@ -128,6 +171,43 @@ func (dir Dirs) updateMagics(db *sql.DB, logger *zap.SugaredLogger, id int64, da
 			logger.Error(errorWithID(err, "update artifact editor magic", id))
 		}
 	}
+	if findRepack := data["extraZip"].(bool); findRepack {
+		return data
+	}
+	name := filepath.Join(dir.Download, uid)
+	decompDir := data["modDecompressLoc"].(string)
+	if st, err := os.Stat(decompDir); err != nil || !st.IsDir() {
+		if logger != nil {
+			logger.Error(errorWithID(err, "decompress directory", uid))
+		}
+		return data
+	}
+	switch modMagic {
+	case
+		magicnumber.ARChiveSEA.Title(),
+		magicnumber.YoshiLHA.Title(),
+		magicnumber.ArchiveRobertJung.Title(),
+		magicnumber.PKWAREZipImplode.Title(),
+		magicnumber.PKWAREZipReduce.Title(),
+		magicnumber.PKWAREZipShrink.Title():
+	case magicnumber.PKWAREZip.Title():
+		if !repackZIP(name) {
+			return data
+		}
+	default:
+		return data
+	}
+	i, err := dir.compressZIP(decompDir, uid)
+	if err != nil {
+		if logger != nil {
+			logger.Error(errorWithID(err, "compress directory", uid))
+		}
+		return data
+	}
+	if logger != nil {
+		logger.Infof("Extra deflated zipfile created %d bytes: %s", i, uid)
+	}
+	data["extraZip"] = true
 	return data
 }
 

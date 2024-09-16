@@ -209,6 +209,10 @@ func (r Repair) artifacts(ctx context.Context, exec boil.ContextExecutor, logger
 	return artifacts, nil
 }
 
+// ReArchive, re-archive the file using the specified compression method.
+// The source file is extracted to a temporary directory, then re-compressed
+// and saved to the destination directory using the uid as the new named file.
+// The original src file is not removed.
 func (r Repair) ReArchive(ctx context.Context, src, destDir, uid string) error {
 	if src == "" || destDir == "" || uid == "" {
 		return fmt.Errorf("rearchive %s %w: %q %q %q", r, ErrEmpty, src, destDir, uid)
