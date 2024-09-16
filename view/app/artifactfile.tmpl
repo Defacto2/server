@@ -281,54 +281,35 @@
                   </div>
                 </div>
               </div>
-              <div class="col-6">
+              <div class="col-12">
                 <div class="card">
                   <div class="card-body">
                     <p class="card-text">
                       <span class="lead">README</span>
+                      <div class="row">
                       {{- if eq (len .modAssetExtra) 0}}<div>No extras in use</div>{{else}}
-                      <div>
-                        <button class="btn btn-link m-0 p-0" 
-                          hx-target="#editor-copy-readme-result"
-                          hx-delete="/editor/readme/{{$unid}}">
-                          Delete README</button>
+                        <div class="col-6">
+                          <button class="btn btn-link m-0 p-0" 
+                            hx-target="#editor-copy-readme-result"
+                            hx-delete="/editor/readme/{{$unid}}">
+                            Delete README</button>
+                        </div>
+                        {{- end}}
+                        {{- if ne "" (index . "modReadmeSuggest")}}
+                        <div class="col-6">
+                          <button class="btn btn-link m-0 p-0" 
+                            hx-target="#editor-copy-readme-result"
+                            hx-patch="/editor/readme/copy/{{$unid}}/{{$modReadmeSuggest | urlEncode }}">
+                            Use guessed README file</button>
+                          <div>> <code>{{$modReadmeSuggest}}</code></div>
+                        </div>
                       </div>
-                      {{- end}}
-                      {{- if ne "" (index . "modReadmeSuggest")}}
-                      <div>
-                        <button class="btn btn-link m-0 p-0" 
-                          hx-target="#editor-copy-readme-result"
-                          hx-patch="/editor/readme/copy/{{$unid}}/{{$modReadmeSuggest | urlEncode }}">
-                          Use guessed README file</button>
-                      </div>
-                      <div>> <code>{{$modReadmeSuggest}}</code></div>
                       <div class="form-text" id="editor-copy-readme-result"></div>
                       {{- end}}
                     </p>
                   </div>
                 </div>
               </div> 
-              <div class="col-6">
-                <div class="card">
-                  <div class="card-body">
-                    <p class="card-text">
-                      <span class="lead">Repacked ZIP</span>
-                      {{- if eq $notFound $statSizeB}}<div class="text-warning-emphasis">download file not found</div>
-                      {{- else if eq "" (index . "modZipContent")}}<div>The download is not an archive</div>
-                      {{- else if eq "Zip archive" $magicNum}}<div>Repacking is not required</div>
-                      {{- else}}
-                      <div class="form-check form-switch">
-                        {{recordReadme (index . "modNoReadme") }}
-                        <label class="form-check-label" id="edHideMeLabel" for="edHideMe">Offer a repacked archive</label>
-                        <div class="form-text">feature not used, download is not an obsolete archive</div>
-                        <div class="valid-feedback">Saved, {{$refreshPage}}</div>
-                        <div class="invalid-feedback" id="edHideMeErr">error placeholder</div>  
-                      </div>
-                      {{- end}}
-                    </p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>

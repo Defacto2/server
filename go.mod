@@ -3,7 +3,7 @@ module github.com/Defacto2/server
 go 1.22.7
 
 require (
-	github.com/Defacto2/archive v1.0.1
+	github.com/Defacto2/archive v1.0.2
 	github.com/Defacto2/helper v1.1.1
 	github.com/Defacto2/magicnumber v1.0.1
 	github.com/Defacto2/releaser v1.0.4
@@ -31,6 +31,11 @@ require (
 	golang.org/x/text v0.18.0
 	google.golang.org/api v0.197.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
+)
+
+replace (
+	github.com/Defacto2/archive => /home/ben/github/archive
+	github.com/Defacto2/helper => /home/ben/github/helper
 )
 
 require (
