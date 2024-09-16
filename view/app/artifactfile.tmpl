@@ -258,12 +258,14 @@
             {{- /*  Extras assets  */}}
             <legend class="mt-3">Extras assets</legend>
             <div class="row row-cols-2 g-1">
+              {{- /*  List of files  */}}
               <div class="col-12">
                 <div class="card">
                   <div class="card-body">
                     <p class="card-text">
                       <span class="lead">Files</span><br>
-                    {{- if eq (len .modAssetExtra) 0}}No extras in use{{else}}
+                      {{- if eq (len .modAssetExtra) 0}}No extras in use
+                      {{- else}}
                       <table class="table table-hover">
                         <tbody>
                           {{- range $name, $info := .modAssetExtra}}
@@ -276,45 +278,50 @@
                             <td>{{index $info 1}}</td>
                           </tr>{{- end}}
                       </table>
-                    {{- end}}
+                      {{- end}}
                     </p>
                   </div>
                 </div>
               </div>
+              {{- /*  Readme UI  */}}
               <div class="col-12">
                 <div class="card">
                   <div class="card-body">
                     <p class="card-text">
-                      <span class="lead">README</span>
+                    <span class="lead">README</span>
+                      <div class="form-text" id="editor-copy-readme-result"></div>
                       <div class="row">
-                      {{- if eq (len .modAssetExtra) 0}}<div>No extras in use</div>{{else}}
+                    {{- /*  be careful about the dynamic HTML elements here,
+                        as they can break the modal rendering, disabling all the Editor UI!  */ -}}
+                      {{- if eq (len .modAssetExtra) 0}}
+                        <div>No extras in use</div>
+                      {{- else}}
                         <div class="col-6">
                           <button class="btn btn-link m-0 p-0" 
                             hx-target="#editor-copy-readme-result"
                             hx-delete="/editor/readme/{{$unid}}">
                             Delete README</button>
                         </div>
-                        {{- end}}
-                        {{- if ne "" (index . "modReadmeSuggest")}}
+                      {{- end}}
+                      {{- if ne "" (index . "modReadmeSuggest")}}
                         <div class="col-6">
                           <button class="btn btn-link m-0 p-0" 
                             hx-target="#editor-copy-readme-result"
                             hx-patch="/editor/readme/copy/{{$unid}}/{{$modReadmeSuggest | urlEncode }}">
                             Use guessed README file</button>
-                          <div>> <code>{{$modReadmeSuggest}}</code></div>
+                          <div> &rsaquo; <code>{{$modReadmeSuggest}}</code>
                         </div>
-                      </div>
-                      <div class="form-text" id="editor-copy-readme-result"></div>
                       {{- end}}
+                      </div>
                     </p>
                   </div>
                 </div>
-              </div> 
+              </div>
             </div>
           </div>
         </div>
       </div>
-      {{/*  Switch to assets and reset buttons  */}}
+      {{- /*  Switch to assets and reset buttons  */}}
       {{- template "artifactfooter" . }}
     </div>
   </div>
