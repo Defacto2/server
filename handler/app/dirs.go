@@ -89,6 +89,9 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 	data["lead"] = firstLead(art)
 	data["comment"] = filerecord.Comment(art)
 	data = dir.filemetadata(art, data)
+	if !readonly {
+		data = dir.updateMagics(db, logger, art.ID, data)
+	}
 	data = dir.attributions(art, data)
 	data = dir.otherRelations(art, data)
 	data = jsdos(art, data, logger)
@@ -110,6 +113,22 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 		return InternalErr(c, name, errorWithID(err, dir.URI, art.ID))
 	}
 	return nil
+}
+
+func (dir Dirs) updateMagics(db *sql.DB, logger *zap.SugaredLogger, id int64, data map[string]interface{}) map[string]interface{} {
+	if db == nil {
+		return data
+	}
+	recMagic, modMagic := data["magic"], data["modMagicNumber"]
+	if recMagic != modMagic {
+		data["magic"] = modMagic
+		magic := modMagic.(string)
+		ctx := context.Background()
+		if err := model.UpdateMagic(ctx, db, id, magic); err != nil && logger != nil {
+			logger.Error(errorWithID(err, "update artifact editor magic", id))
+		}
+	}
+	return data
 }
 
 func (dir Dirs) embed(art *models.File, data map[string]interface{}) (map[string]interface{}, error) {
