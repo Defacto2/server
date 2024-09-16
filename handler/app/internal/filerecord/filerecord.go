@@ -62,9 +62,7 @@ type ListEntry struct {
 
 // HTML returns the HTML for an file item in the "Download content" section of the File editor.
 func (m ListEntry) HTML(bytes int64, platform, section string) string {
-	const blank = `<div class="col col-1"></div>`
 	name := url.QueryEscape(m.RelativeName)
-	ext := strings.ToLower(filepath.Ext(name))
 	titlename := m.RelativeName
 	displayname := m.RelativeName
 	if strings.EqualFold(platform, tags.DOS.String()) {
@@ -74,11 +72,28 @@ func (m ListEntry) HTML(bytes int64, platform, section string) string {
 	}
 	htm := fmt.Sprintf(`<div class="col d-inline-block text-truncate" data-bs-toggle="tooltip" `+
 		`data-bs-title="%s">%s</div>`, titlename, displayname)
+	return m.Column1(bytes, htm, name, platform, section)
+}
+
+// osTool returns true if the file extension matches the known operating system tools.
+// This includes batch scripts, executables, commands and ini configurations files.
+func osTool(ext string) bool {
+	switch ext {
+	case bat, exe, com, ini:
+		return true
+	default:
+		return false
+	}
+}
+
+func (m ListEntry) Column1(bytes int64, htm, name, platform, section string) string {
+	const blank = `<div class="col col-1"></div>`
+	ext := strings.ToLower(filepath.Ext(name))
 	switch {
+	case osTool(ext):
+		htm += blank
 	case m.Images:
 		htm += previewcopy(m.UniqueID, name)
-	case m.Texts && (ext == bat || ext == cmd || ext == ini):
-		htm += blank
 	case m.Texts:
 		htm += readmepreview(m.UniqueID, name)
 	default:
@@ -98,13 +113,15 @@ func (m ListEntry) readme(bytes int64, htm, platform, section string) string {
 	name := url.QueryEscape(m.RelativeName)
 	ext := strings.ToLower(filepath.Ext(name))
 	switch {
-	case m.Texts && (ext == bat || ext == cmd || ext == ini):
+	case
+		m.Programs && ext == exe,
+		ext == com:
+		htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+			`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
+	case osTool(ext):
 		htm += blank
 	case m.Texts && !soloText():
 		htm += readmecopy(m.UniqueID, name)
-	case m.Programs && ext == exe, m.Programs && ext == com:
-		htm += `<div class="col col-1 text-end"><svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-			`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
 	default:
 		htm += blank
 	}
