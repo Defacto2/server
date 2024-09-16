@@ -186,7 +186,7 @@
                       <div><a href="#file-editor" hx-patch="/editor/preview/crop11/{{$unid}}">1:1 crop</a> <small>square</small></div>
                       <div><a href="#file-editor" hx-patch="/editor/preview/crop12/{{$unid}}">1:2 crop</a> <small>i.e. 640x1280</small></div>
                       <div><a href="#file-editor" hx-patch="/editor/preview/crop43/{{$unid}}">4:3 crop</a> <small>i.e. 640x480</small></div>
-                      <div><a href="#file-editor" hx-delete="/editor/preview/{{$unid}}">Delete</a></div>
+                      <div><a href="#file-editor" id="artifact-editor-imagepreview-delete" hx-delete="/editor/preview/{{$unid}}">Delete</a></div>
                     </p>
                   </div>
                   {{$previewImg}}
@@ -222,7 +222,7 @@
                         <a href="#file-editor" hx-patch="/editor/thumbnail/pixel/{{$unid}}">Pixel art</a> &nbsp;
                         <a href="#file-editor" hx-patch="/editor/thumbnail/photo/{{$unid}}">Photograph</a> <small>thumbnail</small>
                       </div>
-                      <div><a href="#file-editor" hx-delete="/editor/thumbnail/{{$unid}}">Delete</a></div>
+                      <div><a href="#file-editor" id="artifact-editor-imagethumb-delete" hx-delete="/editor/thumbnail/{{$unid}}">Delete</a></div>
                     </p>
                   </div>
                   {{$thumbImg}}
