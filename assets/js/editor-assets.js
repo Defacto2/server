@@ -92,6 +92,16 @@ import { progress } from "./uploader.mjs";
     );
     afterDeleteRequest(
       event,
+      "artifact-editor-imagepreview-delete",
+      "artifact-editor-image-feedback"
+    );
+    afterDeleteRequest(
+      event,
+      "artifact-editor-imagethumb-delete",
+      "artifact-editor-image-feedback"
+    );
+    afterDeleteRequest(
+      event,
       "artifact-editor-image-pixelate",
       "artifact-editor-preview-feedback"
     );

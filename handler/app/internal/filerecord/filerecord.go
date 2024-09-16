@@ -134,7 +134,8 @@ func (m ListEntry) binaries(bytes int64, ext, htm string) string {
 func previewcopy(uniqueID, name string) string {
 	return `<div class="col col-1 text-end">` +
 		fmt.Sprintf(`<a class="icon-link align-text-bottom" id="" `+
-			`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/preview/copy/%s/%s">`, uniqueID, name) +
+			`hx-target="#artifact-editor-comp-feedback" `+
+			`hx-patch="/editor/preview/copy/%s/%s">`, uniqueID, name) +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
 }
@@ -142,7 +143,8 @@ func previewcopy(uniqueID, name string) string {
 func readmepreview(uniqueID, name string) string {
 	return `<div class="col col-1 text-end">` +
 		fmt.Sprintf(`<a class="icon-link align-text-bottom" `+
-			`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/readme/preview/%s/%s">`, uniqueID, name) +
+			`hx-target="#artifact-editor-comp-feedback" `+
+			`hx-patch="/editor/readme/preview/%s/%s">`, uniqueID, name) +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
 }
@@ -150,7 +152,8 @@ func readmepreview(uniqueID, name string) string {
 func readmecopy(uniqueID, name string) string {
 	return `<div class="col col-1 text-end">` +
 		fmt.Sprintf(`<a class="icon-link align-text-bottom" `+
-			`hx-target="#artifact-editor-comp-feedback" hx-patch="/editor/readme/copy/%s/%s">`, uniqueID, name) +
+			`hx-target="#artifact-editor-comp-feedback" `+
+			`hx-patch="/editor/readme/copy/%s/%s">`, uniqueID, name) +
 		`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></a></div>`
 }
