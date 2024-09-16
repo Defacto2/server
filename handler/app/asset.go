@@ -38,7 +38,7 @@ func Hrefs() Paths {
 		Bootstrap5JS:    "/js/bootstrap.bundle.min.js",
 		BootstrapIcons:  "/svg/bootstrap-icons.svg",
 		DosboxJS:        "/js/wdosbox.js",
-		DosboxWasm:      "/js/wdosbox.wasm.js",
+		DosboxWasm:      "/js/wdosbox.wasm",
 		EditArtifact:    "/js/editor-artifact.min.js",
 		EditAssets:      "/js/editor-assets.min.js",
 		EditForApproval: "/js/editor-forapproval.min.js",
