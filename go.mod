@@ -33,10 +33,10 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
-replace (
-	github.com/Defacto2/archive => /home/ben/github/archive
-	github.com/Defacto2/helper => /home/ben/github/helper
-)
+// replace (
+// 	github.com/Defacto2/archive => /home/ben/github/archive
+// 	github.com/Defacto2/helper => /home/ben/github/helper
+// )
 
 require (
 	cloud.google.com/go/auth v0.9.4 // indirect
