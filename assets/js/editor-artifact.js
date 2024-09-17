@@ -10,7 +10,7 @@ import {
   youtube as validateYouTube,
   number as validateNumber,
 } from "./artifact-validate.mjs";
-import { clipValue, getElmById } from "./helper.mjs";
+import { clipValue, getElmById, titleize } from "./helper.mjs";
 
 (() => {
   "use strict";
@@ -282,6 +282,15 @@ import { clipValue, getElmById } from "./helper.mjs";
     }
     title.value = titleU[0].value;
     title.classList.add("is-valid");
+  });
+  const titleizeBtn = document.getElementById("artifact-editor-titleize");
+  if (titleizeBtn.length === 0) {
+    throw new Error("The titleize button is missing.");
+  }
+  titleizeBtn.addEventListener("click", () => {
+    title.value = titleize(title.value);
+    let event = new Event("keyup");
+    title.dispatchEvent(event);
   });
 
   const ct = document.getElementById("artifact-editor-credit-text");
