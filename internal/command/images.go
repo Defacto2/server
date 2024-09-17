@@ -12,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"strings"
 	"sync"
 
 	"github.com/Defacto2/helper"
@@ -307,9 +306,6 @@ func (dir Dirs) PictureImager(debug *zap.SugaredLogger, src, unid string) error 
 // can be used by the ANSILOVE command to create a PNG image. 80 columns and 29 rows are
 // works well with a 400x400 pixel thumbnail.
 func Write80x29(src, dst string) error {
-	if !validPath(src) || !validPath(dst) {
-		return fmt.Errorf("write 80x29 src or dst %w", ErrName)
-	}
 	srcFile, err := os.Open(src)
 	if err != nil {
 		return fmt.Errorf("write 80x29 open %w", err)
@@ -361,10 +357,6 @@ func Write80x29(src, dst string) error {
 		return fmt.Errorf("write 80x29 scanner %w", err)
 	}
 	return nil
-}
-
-func validPath(path string) bool {
-	return !strings.Contains(path, "/") && !strings.Contains(path, "\\") && !strings.Contains(path, "..")
 }
 
 // TextImager converts the src text file and creates a PNG image in the preview directory.

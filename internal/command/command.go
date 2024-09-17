@@ -43,7 +43,6 @@ var (
 	ErrIsDir  = errors.New("file is a directory")
 	ErrIsFile = errors.New("directory path points to a file")
 	ErrMatch  = errors.New("no match value is present")
-	ErrName   = errors.New("the file name is invalid")
 	ErrVers   = errors.New("version mismatch")
 	ErrZap    = errors.New("zap logger instance is nil")
 )
