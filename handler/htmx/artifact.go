@@ -126,7 +126,7 @@ func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, dirs command.
 	if st.Size() == 0 {
 		return c.String(http.StatusOK, "The file is empty and was not used.")
 	}
-	if err := dirs.TextImager(logger, src, unid); err != nil {
+	if err := dirs.TextImager(logger, src, unid, false); err != nil {
 		return badRequest(c, err)
 	}
 	c = pageRefresh(c)
