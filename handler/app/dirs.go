@@ -195,6 +195,10 @@ func (dir Dirs) updateMagics(db *sql.DB, logger *zap.SugaredLogger,
 			Preview:   dir.Preview,
 			Thumbnail: dir.Thumbnail,
 		}
+		if helper.File(filepath.Join(dirs.Thumbnail, uid+".png")) ||
+			helper.File(filepath.Join(dirs.Thumbnail, uid+".webp")) {
+			return data
+		}
 		if err := dirs.TextImager(logger, name, uid); err != nil {
 			logger.Error(errorWithID(err, "text imager", uid))
 		}
