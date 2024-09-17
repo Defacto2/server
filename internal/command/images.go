@@ -361,18 +361,20 @@ func Write80x29(src, dst string) error {
 
 // TextImager converts the src text file and creates a PNG image in the preview directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
-func (dir Dirs) TextImager(debug *zap.SugaredLogger, src, unid string) error {
+func (dir Dirs) TextImager(debug *zap.SugaredLogger, src, unid string, crop bool) error {
 	args := Args{}
 	args.AnsiMsDos()
-
-	path, err := helper.MkContent(src)
-	if err != nil {
-		return err
-	}
-	defer os.RemoveAll(path)
-	tmpText := filepath.Join(path, unid+".txt")
-	if err = Write80x29(src, tmpText); err != nil {
-		return fmt.Errorf("dirs text imager %w", err)
+	tmpText := src
+	if crop {
+		path, err := helper.MkContent(src)
+		if err != nil {
+			return err
+		}
+		defer os.RemoveAll(path)
+		tmpText := filepath.Join(path, unid+".txt")
+		if err = Write80x29(src, tmpText); err != nil {
+			return fmt.Errorf("dirs text imager %w", err)
+		}
 	}
 	arg := []string{tmpText}       // source text file
 	arg = append(arg, args...)     // command line arguments
@@ -387,20 +389,21 @@ func (dir Dirs) TextImager(debug *zap.SugaredLogger, src, unid string) error {
 // TextImager converts the src text file and creates a PNG image using an Amiga Topaz+ font
 // and stores it in the preview directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
-func (dir Dirs) TextAmigaImager(debug *zap.SugaredLogger, src, unid string) error {
+func (dir Dirs) TextAmigaImager(debug *zap.SugaredLogger, src, unid string, crop bool) error {
 	args := Args{}
 	args.AnsiMsDos()
-
-	path, err := helper.MkContent(src)
-	if err != nil {
-		return err
+	tmpText := src
+	if crop {
+		path, err := helper.MkContent(src)
+		if err != nil {
+			return err
+		}
+		defer os.RemoveAll(path)
+		tmpText := filepath.Join(path, unid+".txt")
+		if err = Write80x29(src, tmpText); err != nil {
+			return fmt.Errorf("dirs text imager %w", err)
+		}
 	}
-	defer os.RemoveAll(path)
-	tmpText := filepath.Join(path, unid+".txt")
-	if err = Write80x29(src, tmpText); err != nil {
-		return fmt.Errorf("dirs text imager %w", err)
-	}
-
 	arg := []string{tmpText}       // source text file
 	arg = append(arg, args...)     // command line arguments
 	tmp := BaseNamePath(src) + png // destination file

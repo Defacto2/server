@@ -199,7 +199,11 @@ func (dir Dirs) updateMagics(db *sql.DB, logger *zap.SugaredLogger,
 			helper.File(filepath.Join(dirs.Thumbnail, uid+".webp")) {
 			return data
 		}
-		if err := dirs.TextImager(logger, name, uid); err != nil {
+		crop := true
+		if modMagic == magicnumber.ANSIEscapeText.Title() {
+			crop = false
+		}
+		if err := dirs.TextImager(logger, name, uid, crop); err != nil {
 			logger.Error(errorWithID(err, "text imager", uid))
 		}
 		data["missingAssets"] = ""
