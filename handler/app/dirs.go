@@ -28,6 +28,7 @@ import (
 	"github.com/Defacto2/server/handler/readme"
 	"github.com/Defacto2/server/handler/render"
 	"github.com/Defacto2/server/handler/sess"
+	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -182,18 +183,23 @@ func (dir Dirs) updateMagics(db *sql.DB, logger *zap.SugaredLogger,
 		}
 		return data
 	}
-	switch modMagic {
-	case
-		magicnumber.ARChiveSEA.Title(),
-		magicnumber.YoshiLHA.Title(),
-		magicnumber.ArchiveRobertJung.Title(),
-		magicnumber.PKWAREZipImplode.Title(),
-		magicnumber.PKWAREZipReduce.Title(),
-		magicnumber.PKWAREZipShrink.Title():
-	case magicnumber.PKWAREZip.Title():
+	switch {
+	case redundantArchive(modMagic):
+	case modMagic == magicnumber.PKWAREZip.Title():
 		if !repackZIP(name) {
 			return data
 		}
+	case plainText(modMagic):
+		dirs := command.Dirs{
+			Download:  dir.Download,
+			Preview:   dir.Preview,
+			Thumbnail: dir.Thumbnail,
+		}
+		if err := dirs.TextImager(logger, name, uid); err != nil {
+			logger.Error(errorWithID(err, "text imager", uid))
+		}
+		data["missingAssets"] = ""
+		return data
 	default:
 		return data
 	}
@@ -209,6 +215,43 @@ func (dir Dirs) updateMagics(db *sql.DB, logger *zap.SugaredLogger,
 	}
 	data["extraZip"] = true
 	return data
+}
+
+func redundantArchive(modMagic interface{}) bool {
+	switch modMagic.(type) {
+	case string:
+	default:
+		return false
+	}
+	switch modMagic.(string) {
+	case
+		magicnumber.ARChiveSEA.Title(),
+		magicnumber.YoshiLHA.Title(),
+		magicnumber.ArchiveRobertJung.Title(),
+		magicnumber.PKWAREZipImplode.Title(),
+		magicnumber.PKWAREZipReduce.Title(),
+		magicnumber.PKWAREZipShrink.Title():
+		return true
+	default:
+		return false
+	}
+}
+
+func plainText(modMagic interface{}) bool {
+	switch modMagic.(type) {
+	case string:
+	default:
+		return false
+	}
+	switch modMagic.(string) {
+	case
+		magicnumber.UTF8Text.Title(),
+		magicnumber.ANSIEscapeText.Title(),
+		magicnumber.PlainText.Title():
+		return true
+	default:
+		return false
+	}
 }
 
 func (dir Dirs) embed(art *models.File, data map[string]interface{}) (map[string]interface{}, error) {
