@@ -314,7 +314,7 @@
                   <span class="input-group-text">+</span>
                   <input type="text" list="uploader-text-list-2" name="uploader-text-releaser2" class="form-control" id="uploader-text-releaser-2" 
                       aria-describedby="uploader-text-releasers-help" placeholder="example: Titan" 
-                      hx-get="/uploader/releaser/2" 
+                      hx-patch="/uploader/releaser/2" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-text-list-2">
                 </div>
