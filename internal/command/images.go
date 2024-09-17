@@ -5,6 +5,7 @@ package command
 // and other command-line tools.
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"io"
@@ -297,14 +298,85 @@ func (dir Dirs) PictureImager(debug *zap.SugaredLogger, src, unid string) error 
 	return nil
 }
 
+// Write80x29 reads the src text file and writes the first 29 lines of text to the dst file.
+// The text is truncated to 80 characters per line. Empty newlines at the start of the file
+// are ignored.
+//
+// The function is useful for creating a preview of text files in the 80x29 format that
+// can be used by the ANSILOVE command to create a PNG image. 80 columns and 29 rows are
+// works well with a 400x400 pixel thumbnail.
+func Write80x29(src, dst string) error {
+	srcFile, err := os.Open(src)
+	if err != nil {
+		return fmt.Errorf("write 80x29 open %w", err)
+	}
+	defer srcFile.Close()
+	dstFile, err := os.Create(dst)
+	if err != nil {
+		return fmt.Errorf("write 80x29 create %w", err)
+	}
+	defer dstFile.Close()
+
+	scanner := bufio.NewScanner(srcFile)
+	writer := bufio.NewWriter(dstFile)
+	defer writer.Flush()
+
+	const maxColumns, maxRows = 80, 29
+	rowCount := 0
+	skipNL := true
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" || line == "\n" || line == "\r" || line == "\r\n" {
+			if skipNL {
+				continue
+			}
+			line = ""
+		}
+		if rowCount >= maxRows {
+			break
+		}
+
+		if len(line) > maxColumns {
+			trimmedLine := line[:maxColumns]
+			line = trimmedLine
+		}
+		_, err := writer.WriteString(line + "\n")
+		if err != nil {
+			return fmt.Errorf("write 80x29 writer string %w", err)
+		}
+		// intentionally skip the first line in a file
+		// as sometimes these contain non-printable characters and control codes.
+		fileLine := rowCount == 0
+		if skipNL && !fileLine {
+			skipNL = false
+		}
+		rowCount++
+	}
+	if err := scanner.Err(); err != nil {
+		return fmt.Errorf("write 80x29 scanner %w", err)
+	}
+	return nil
+}
+
 // TextImager converts the src text file and creates a PNG image in the preview directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
 func (dir Dirs) TextImager(debug *zap.SugaredLogger, src, unid string) error {
 	args := Args{}
 	args.AnsiMsDos()
-	arg := []string{src}           // source file
+
+	path, err := helper.MkContent(src)
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(path)
+	tmpText := filepath.Join(path, unid+".txt")
+	if err = Write80x29(src, tmpText); err != nil {
+		return fmt.Errorf("dirs text imager %w", err)
+	}
+	arg := []string{tmpText}       // source text file
 	arg = append(arg, args...)     // command line arguments
-	tmp := BaseNamePath(src) + png // destination
+	tmp := BaseNamePath(src) + png // destination file
 	arg = append(arg, "-o", tmp)
 	if err := Run(nil, Ansilove, arg...); err != nil {
 		return fmt.Errorf("dirs text imager %w", err)
@@ -318,9 +390,20 @@ func (dir Dirs) TextImager(debug *zap.SugaredLogger, src, unid string) error {
 func (dir Dirs) TextAmigaImager(debug *zap.SugaredLogger, src, unid string) error {
 	args := Args{}
 	args.AnsiMsDos()
-	arg := []string{src}           // source file
+
+	path, err := helper.MkContent(src)
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(path)
+	tmpText := filepath.Join(path, unid+".txt")
+	if err = Write80x29(src, tmpText); err != nil {
+		return fmt.Errorf("dirs text imager %w", err)
+	}
+
+	arg := []string{tmpText}       // source text file
 	arg = append(arg, args...)     // command line arguments
-	tmp := BaseNamePath(src) + png // destination
+	tmp := BaseNamePath(src) + png // destination file
 	arg = append(arg, "-o", tmp)
 	if err := Run(nil, Ansilove, arg...); err != nil {
 		return fmt.Errorf("dirs ami text imager %w", err)

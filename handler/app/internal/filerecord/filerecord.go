@@ -119,7 +119,7 @@ func (m ListEntry) Column2(htm string) string {
 			`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
 	case osTool(ext):
 		htm += blank
-	case m.Texts && !soloText():
+	case m.Texts || soloText():
 		htm += readmecopy(m.UniqueID, name)
 	default:
 		htm += blank
