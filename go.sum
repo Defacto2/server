@@ -69,10 +69,10 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/DATA-DOG/go-sqlmock v1.4.1 h1:ThlnYciV1iM/V0OSF/dtkqWb6xo5qITT1TJBG1MRDJM=
 github.com/DATA-DOG/go-sqlmock v1.4.1/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
-github.com/Defacto2/archive v1.0.2 h1:kibNK3ZFoB87XIeDolxQ6uDbdCnBvDNygJtgngE3prM=
-github.com/Defacto2/archive v1.0.2/go.mod h1:0/aa1BwDOBp4d87R/N33Lcr3+WzELv041wunK8R5A5c=
-github.com/Defacto2/helper v1.1.2 h1:HVJnWI9a0nA7vOcfO3BZTSPGNftNS678wf6daMrjbE0=
-github.com/Defacto2/helper v1.1.2/go.mod h1:IikMmXvNy3uOcLk4/cEi9mb+xcx8AHPsSmVGd8SKpB0=
+github.com/Defacto2/archive v1.0.3 h1:7iidbFf3yBJ0e2XWsx/uhB4ciWysE5nMejzRCQSgops=
+github.com/Defacto2/archive v1.0.3/go.mod h1:1nM/bBCir4nz1t/HFYnZk9tXc/yaWzJTEu1+CDoGyUE=
+github.com/Defacto2/helper v1.1.3 h1:BS7PqOR31AtXC+BTKM9oL2OE+NLrdLqd8xyBxwAsCps=
+github.com/Defacto2/helper v1.1.3/go.mod h1:IikMmXvNy3uOcLk4/cEi9mb+xcx8AHPsSmVGd8SKpB0=
 github.com/Defacto2/magicnumber v1.0.2 h1:zElw+GCZiS0n4xta6g7WDp9ovx1RZKRYL+q9zj0l4dk=
 github.com/Defacto2/magicnumber v1.0.2/go.mod h1:U64FNRfNyv5tBE6jPU00ortSbrIAVO5V34tZFwaeA3s=
 github.com/Defacto2/releaser v1.0.4 h1:dM7epo3Rk+l2NAH4/dMHzo9QCIC6VejhptlhPUtfg3U=
