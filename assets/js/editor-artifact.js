@@ -388,6 +388,10 @@ import { clipValue, getElmById, titleize } from "./helper.mjs";
     throw new Error("The year input is missing.");
   }
   year.addEventListener("input", () => {
+    const val = parseInt(year.value, 10);
+    if (val >= 79 && val <= 99) {
+      year.value = 1900 + val;
+    }
     validateDate(year, month, day);
   });
   const month = document.getElementById("artifact-editor-month");
