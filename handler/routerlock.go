@@ -214,14 +214,15 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) 
 		Preview:   dir.Preview,
 		Thumbnail: dir.Thumbnail,
 	}
-	me := g.Group("/readme")
-	me.PATCH("/copy/:unid/:path", func(c echo.Context) error {
+	readme := g.Group("/readme")
+	readme.PATCH("/copy/:unid/:path", func(c echo.Context) error {
 		return htmx.RecordReadmeCopier(c, dir.Extra)
 	})
-	me.PATCH("/preview/:unid/:path", func(c echo.Context) error {
+	// /editor/readme/preview
+	readme.PATCH("/preview/:unid/:path", func(c echo.Context) error {
 		return htmx.RecordReadmeImager(c, logger, dirs)
 	})
-	me.DELETE("/:unid", func(c echo.Context) error {
+	readme.DELETE("/:unid", func(c echo.Context) error {
 		return htmx.RecordReadmeDeleter(c, dir.Extra)
 	})
 	pre := g.Group("/preview")
