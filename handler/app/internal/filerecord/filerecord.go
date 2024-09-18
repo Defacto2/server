@@ -1166,17 +1166,6 @@ func Magic(art *models.File) string {
 	return ""
 }
 
-// ReadmeNone returns true if the file record should not display the text file content in the artifact page.
-func ReadmeNone(art *models.File) bool {
-	if art == nil {
-		return false
-	}
-	if art.RetrotxtNoReadme.Valid {
-		return art.RetrotxtNoReadme.Int16 != 0
-	}
-	return false
-}
-
 // Readme returns a guessed or suggested readme file name to use for the record.
 func Readme(r *models.File) string {
 	if r == nil {

@@ -267,6 +267,7 @@ func (dir Dirs) embed(art *models.File, data map[string]interface{}) (map[string
 		return data, nil
 	}
 	p, err := readme.Read(art, dir.Download, dir.Extra)
+	fmt.Println("readme.Read", p)
 	if err != nil {
 		if errors.Is(err, render.ErrDownload) {
 			data["noDownload"] = true
@@ -310,7 +311,6 @@ func (dir Dirs) Editor(art *models.File, data map[string]interface{}) map[string
 	data["modAssetPreview"] = dir.assets(dir.Preview, unid)
 	data["modAssetThumbnail"] = dir.assets(dir.Thumbnail, unid)
 	data["modAssetExtra"] = dir.assets(dir.Extra, unid)
-	data["modNoReadme"] = filerecord.ReadmeNone(art)
 	data["modReadmeSuggest"] = filerecord.Readme(art)
 	data["modZipContent"] = filerecord.ZipContent(art)
 	data["modRelations"] = filerecord.RelationsStr(art)

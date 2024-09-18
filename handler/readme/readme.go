@@ -142,9 +142,6 @@ func Read(art *models.File, downloadPath, extraPath string) ([]byte, error) {
 	if art == nil {
 		return nil, fmt.Errorf("art in read, %w", ErrNoModel)
 	}
-	if art.RetrotxtNoReadme.Int16 != 0 {
-		return nil, nil
-	}
 	b, err := render.Read(art, downloadPath, extraPath)
 	if err != nil {
 		if errors.Is(err, render.ErrFilename) {
