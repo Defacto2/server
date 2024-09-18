@@ -101,7 +101,7 @@
             </div>
             <div class="input-group mb-1">
               <label class="input-group-text w-25" for="artifact-editor-dl-classify">Classification</label>
-              <input type="text" class="form-control" id="artifact-editor-dl-classify" 
+              <input type="text" class="form-control" id="artifact-editor-dl-classify"
                 value="{{classificationStr $tag $os}}" autocomplete="off" readonly>
             </div>
             {{- if eq $notFound $statSizeB}}
@@ -118,6 +118,7 @@
               hx-validate="true">
               <input type="hidden" name="artifact-editor-record-key" value="{{$key}}">
               <input type="hidden" name="artifact-editor-unid" value="{{$unid}}">
+              <input type="hidden" name="artifact-editor-download-classify" value="{{$os}}">
               {{/*  artifact-editor-unique-id-value  */}}
               <div class="input-group input-group-sm mb-1 has-validation">
                 <input type="file" name="artifact-editor-replace-file" 
@@ -243,6 +244,7 @@
               hx-validate="true">
               <input type="hidden" name="artifact-editor-record-key" value="{{$key}}">
               <input type="hidden" name="artifact-editor-unid" value="{{$unid}}">
+              <input type="hidden" name="artifact-editor-download-classify" value="{{$os}}">
               {{/*  artifact-editor-unique-id-value  */}}
               <div class="input-group input-group-sm mb-1 has-validation">
                 <input type="file" name="artifact-editor-replace-preview" 

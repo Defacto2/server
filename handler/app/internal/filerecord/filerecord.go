@@ -90,7 +90,7 @@ func (m ListEntry) Column1(htm string) string {
 	case m.Images:
 		htm += previewcopy(m.UniqueID, m.name)
 	case m.Texts:
-		htm += readmepreview(m.UniqueID, m.name)
+		htm += readmepreview(m.UniqueID, m.name, m.platform)
 	default:
 		htm += blank
 	}
@@ -155,12 +155,16 @@ func previewcopy(uniqueID, name string) string {
 		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
 }
 
-func readmepreview(uniqueID, name string) string {
+func readmepreview(uniqueID, name, platform string) string {
+	uri := "preview"
+	if strings.EqualFold(platform, tags.TextAmiga.String()) {
+		uri = "preview-amiga"
+	}
 	return `<div class="col col-1 text-end" ` +
 		`data-bs-toggle="tooltip" data-bs-title="Use file for preview">` +
 		fmt.Sprintf(`<a class="icon-link align-text-bottom" name="artifact-editor-comp-previewtext" `+
 			`hx-target="#artifact-editor-comp-feedback" `+
-			`hx-patch="/editor/readme/preview/%s/%s">`, uniqueID, name) +
+			`hx-patch="/editor/readme/%s/%s/%s">`, uri, uniqueID, name) +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
 }

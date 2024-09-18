@@ -94,7 +94,8 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 	data["comment"] = filerecord.Comment(art)
 	data = dir.filemetadata(art, data)
 	if !readonly {
-		data = dir.updateMagics(db, logger, art.ID, art.UUID.String, data)
+		platform := filerecord.TagProgram(art)
+		data = dir.updateMagics(db, logger, art.ID, art.UUID.String, platform, data)
 	}
 	data = dir.attributions(art, data)
 	data = dir.otherRelations(art, data)
@@ -134,18 +135,18 @@ func repackZIP(name string) bool {
 
 func (dir Dirs) compressZIP(root, uid string) (int64, error) {
 	basename := uid + ".zip"
-	tmpArc := filepath.Join(helper.TmpDir(), basename)
-	finalArc := filepath.Join(dir.Extra, basename)
-	os.Remove(finalArc)
-	_, err := rezip.CompressDir(root, tmpArc)
+	src := filepath.Join(helper.TmpDir(), basename)
+	dest := filepath.Join(dir.Extra, basename)
+	os.Remove(dest)
+	_, err := rezip.CompressDir(root, src)
 	if err != nil {
 		return 0, fmt.Errorf("dirs compress zip: %w", err)
 	}
-	if err = helper.RenameCrossDevice(tmpArc, finalArc); err != nil {
-		defer os.RemoveAll(tmpArc)
+	if err = helper.RenameCrossDevice(src, dest); err != nil {
+		defer os.RemoveAll(src)
 		return 0, fmt.Errorf("dirs compress zip: %w", err)
 	}
-	st, err := os.Stat(finalArc)
+	st, err := os.Stat(dest)
 	if err != nil {
 		return 0, fmt.Errorf("dirs compress zip: %w", err)
 	}
@@ -155,7 +156,7 @@ func (dir Dirs) compressZIP(root, uid string) (int64, error) {
 // updateMagics updates the magic number for the file record of the artifact.
 // It must be called after both the dir.filemetadata and dir.Editor functions.
 func (dir Dirs) updateMagics(db *sql.DB, logger *zap.SugaredLogger,
-	id int64, uid string, data map[string]interface{},
+	id int64, uid, platform string, data map[string]interface{},
 ) map[string]interface{} {
 	if db == nil {
 		return data
@@ -198,11 +199,11 @@ func (dir Dirs) updateMagics(db *sql.DB, logger *zap.SugaredLogger,
 		}
 		return data
 	}
-	return dir.checkMagics(logger, uid, decompDir, modMagic, data)
+	return dir.checkMagics(logger, uid, decompDir, platform, modMagic, data)
 }
 
 func (dir Dirs) checkMagics(logger *zap.SugaredLogger,
-	uid, decompDir string,
+	uid, decompDir, platform string,
 	modMagic interface{},
 	data map[string]interface{},
 ) map[string]interface{} {
@@ -214,7 +215,7 @@ func (dir Dirs) checkMagics(logger *zap.SugaredLogger,
 			return data
 		}
 	case plainText(modMagic):
-		return dir.plainTexts(logger, uid, data)
+		return dir.plainTexts(logger, uid, platform, data)
 	default:
 		return data
 	}
@@ -231,10 +232,9 @@ func (dir Dirs) checkMagics(logger *zap.SugaredLogger,
 }
 
 func (dir Dirs) plainTexts(logger *zap.SugaredLogger,
-	uid string, data map[string]interface{},
+	uid, platform string, data map[string]interface{},
 ) map[string]interface{} {
 	name := filepath.Join(dir.Download, uid)
-	// TODO: check for Amiga Platform and handle it correctly,
 	dirs := command.Dirs{
 		Download:  dir.Download,
 		Preview:   dir.Preview,
@@ -244,7 +244,8 @@ func (dir Dirs) plainTexts(logger *zap.SugaredLogger,
 		helper.File(filepath.Join(dirs.Thumbnail, uid+".webp")) {
 		return data
 	}
-	if err := dirs.TextImager(logger, name, uid); err != nil {
+	amigaFont := strings.EqualFold(platform, tags.TextAmiga.String())
+	if err := dirs.TextImager(logger, name, uid, amigaFont); err != nil {
 		logger.Error(errorWithID(err, "text imager", uid))
 	}
 	data["missingAssets"] = ""

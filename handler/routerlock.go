@@ -202,13 +202,14 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) 
 	// these POSTs should only be used for editor, htmx file uploads,
 	// and not for general file uploads or data edits.
 	upload := g.Group("/upload")
+	// /upload/file
 	upload.POST("/file", func(c echo.Context) error {
 		return htmx.UploadReplacement(c, db, dir.Download)
 	})
+	// /upload/preview
 	upload.POST("/preview", func(c echo.Context) error {
 		return htmx.UploadPreview(c, dir.Preview, dir.Thumbnail)
 	})
-
 	dirs := command.Dirs{
 		Download:  dir.Download,
 		Preview:   dir.Preview,
@@ -220,7 +221,11 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) 
 	})
 	// /editor/readme/preview
 	readme.PATCH("/preview/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordReadmeImager(c, logger, dirs)
+		return htmx.RecordReadmeImager(c, logger, false, dirs)
+	})
+	// /editor/readme/preview-amiga
+	readme.PATCH("/preview-amiga/:unid/:path", func(c echo.Context) error {
+		return htmx.RecordReadmeImager(c, logger, true, dirs)
 	})
 	readme.DELETE("/:unid", func(c echo.Context) error {
 		return htmx.RecordReadmeDeleter(c, dir.Extra)

@@ -53,9 +53,9 @@ func TestDirs(t *testing.T) {
 	dir := command.Dirs{}
 	err := dir.PictureImager(nil, "", "")
 	require.Error(t, err)
-	err = dir.TextImager(nil, "", "")
+	err = dir.TextImager(nil, "", "", false)
 	require.Error(t, err)
-	err = dir.TextAmigaImager(nil, "", "")
+	err = dir.TextImager(nil, "", "", true)
 	require.Error(t, err)
 	err = dir.PreviewPhoto(nil, "", "")
 	require.Error(t, err)
