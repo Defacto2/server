@@ -131,13 +131,15 @@ export function releaser(elm) {
     throw new Error("The element of the releaser validator is null.");
   }
   elm.classList.remove("is-valid", "is-invalid");
-  // enforce uppercase
-  let value = elm.value.trim().toUpperCase();
+  // enforce uppercase and remove leading spaces
+  let value = elm.value.trimStart().toUpperCase();
   // replace + with a comma and space for convenience
   value = value.replace("+", ", ");
   // valid characters were determined by this document,
   // space, A-Z, À-Ö, Ø-Þ, 0-9, -, comma, &
   value = value.replace(/[^ A-ZÀ-ÖØ-Þ0-9\-,&]/g, "");
+  // replace multiple spaces with a single space
+  value = value.replace(/[ ]{2,}/g, " ");
   elm.value = value;
 
   const min = elm.getAttribute("minlength");
