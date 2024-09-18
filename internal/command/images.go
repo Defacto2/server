@@ -311,6 +311,10 @@ func Write80x29(src, dst string) error {
 		return fmt.Errorf("write 80x29 open %w", err)
 	}
 	defer srcFile.Close()
+
+	if magicnumber.Ansi(srcFile) {
+		return nil
+	}
 	dstFile, err := os.Create(dst)
 	if err != nil {
 		return fmt.Errorf("write 80x29 create %w", err)
@@ -336,7 +340,6 @@ func Write80x29(src, dst string) error {
 		if rowCount >= maxRows {
 			break
 		}
-
 		if len(line) > maxColumns {
 			trimmedLine := line[:maxColumns]
 			line = trimmedLine
@@ -361,21 +364,20 @@ func Write80x29(src, dst string) error {
 
 // TextImager converts the src text file and creates a PNG image in the preview directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
-func (dir Dirs) TextImager(debug *zap.SugaredLogger, src, unid string, crop bool) error {
+func (dir Dirs) TextImager(debug *zap.SugaredLogger, src, unid string) error {
 	args := Args{}
 	args.AnsiMsDos()
-	tmpText := src
-	if crop {
-		path, err := helper.MkContent(src)
-		if err != nil {
-			return err
-		}
-		defer os.RemoveAll(path)
-		tmpText := filepath.Join(path, unid+".txt")
-		if err = Write80x29(src, tmpText); err != nil {
-			return fmt.Errorf("dirs text imager %w", err)
-		}
+
+	path, err := helper.MkContent(src)
+	if err != nil {
+		return fmt.Errorf("dirs text imager %w", err)
 	}
+	defer os.RemoveAll(path)
+	tmpText := filepath.Join(path, unid+".txt")
+	if err := Write80x29(src, tmpText); err != nil {
+		return fmt.Errorf("dirs text imager %w", err)
+	}
+
 	arg := []string{tmpText}       // source text file
 	arg = append(arg, args...)     // command line arguments
 	tmp := BaseNamePath(src) + png // destination file
@@ -389,20 +391,17 @@ func (dir Dirs) TextImager(debug *zap.SugaredLogger, src, unid string, crop bool
 // TextImager converts the src text file and creates a PNG image using an Amiga Topaz+ font
 // and stores it in the preview directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
-func (dir Dirs) TextAmigaImager(debug *zap.SugaredLogger, src, unid string, crop bool) error {
+func (dir Dirs) TextAmigaImager(debug *zap.SugaredLogger, src, unid string) error {
 	args := Args{}
-	args.AnsiMsDos()
-	tmpText := src
-	if crop {
-		path, err := helper.MkContent(src)
-		if err != nil {
-			return err
-		}
-		defer os.RemoveAll(path)
-		tmpText := filepath.Join(path, unid+".txt")
-		if err = Write80x29(src, tmpText); err != nil {
-			return fmt.Errorf("dirs text imager %w", err)
-		}
+	args.AnsiAmiga()
+	path, err := helper.MkContent(src)
+	if err != nil {
+		return fmt.Errorf("dirs text imager %w", err)
+	}
+	defer os.RemoveAll(path)
+	tmpText := filepath.Join(path, unid+".txt")
+	if err := Write80x29(src, tmpText); err != nil {
+		return fmt.Errorf("dirs text imager %w", err)
 	}
 	arg := []string{tmpText}       // source text file
 	arg = append(arg, args...)     // command line arguments

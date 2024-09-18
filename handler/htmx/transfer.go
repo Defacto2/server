@@ -575,11 +575,8 @@ func UploadPreview(c echo.Context, previewDir, thumbnailDir string) error {
 		return reloader(c, file.Filename)
 	}
 	if texters(magic) {
-		crop := true
-		if magic == magicnumber.ANSIEscapeText {
-			crop = false
-		}
-		if err := dirs.TextImager(nil, dst.Name(), up.unid, crop); err != nil {
+		// TODO: Handle Amiga texts
+		if err := dirs.TextImager(nil, dst.Name(), up.unid); err != nil {
 			return badRequest(c, err)
 		}
 		return reloader(c, file.Filename)

@@ -109,10 +109,7 @@ func (m ListEntry) Column2(htm string) string {
 	name := url.QueryEscape(m.RelativeName)
 	ext := strings.ToLower(filepath.Ext(name))
 	switch {
-	case
-		m.Programs,
-		ext == exe,
-		ext == com:
+	case m.Programs, ext == exe, ext == com:
 		htm += `<div class="col col-1 text-end" ` +
 			`data-bs-toggle="tooltip" data-bs-title="Known program or executable">` +
 			`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +

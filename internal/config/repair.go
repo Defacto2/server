@@ -235,9 +235,9 @@ func (r Repair) ReArchive(ctx context.Context, src, destDir, uid string) error {
 	case Arj:
 		extractCmd, extractArg = command.Zip7, "x"
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	ctx1min, cancel := context.WithTimeout(ctx, 1*time.Minute)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, extractCmd, extractArg, src)
+	cmd := exec.CommandContext(ctx1min, extractCmd, extractArg, src)
 	cmd.Dir = tmp
 	if stdoutStderr, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("rearchive run %w: %s: dump: %q",
