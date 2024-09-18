@@ -231,11 +231,13 @@ import { clipValue, getElmById, titleize } from "./helper.mjs";
     throw new Error("The releaser 1 input is missing.");
   }
   rel1.addEventListener("input", (e) => validateReleaser(e.target));
+
   const rel2 = document.getElementById("artifact-editor-releaser-2");
   if (rel2 === null) {
     throw new Error("The releaser 2 input is missing.");
   }
   rel2.addEventListener("input", (e) => validateReleaser(e.target));
+
   const relUndo = document.getElementById("artifact-editor-releaser-undo");
   if (relUndo === null) {
     throw new Error("The releasers reset is missing.");
@@ -388,6 +390,10 @@ import { clipValue, getElmById, titleize } from "./helper.mjs";
     throw new Error("The year input is missing.");
   }
   year.addEventListener("input", () => {
+    const val = parseInt(year.value, 10);
+    if (val >= 79 && val <= 99) {
+      year.value = 1900 + val;
+    }
     validateDate(year, month, day);
   });
   const month = document.getElementById("artifact-editor-month");

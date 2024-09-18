@@ -173,6 +173,8 @@ func UpdateNoReadme(db *sql.DB, id int64, val bool) error {
 	}
 	return nil
 }
+
+// art.RetrotxtNoReadme.Int16
 ```
 
 > "internal/render/render.go"

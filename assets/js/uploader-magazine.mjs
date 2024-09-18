@@ -97,7 +97,7 @@ async function checkFile() {
 
 function checkMime(file) {
   if (!mime(file.type)) {
-    return `The chosen file mime type ${file.type} is probably not suitable for an image.`;
+    return `The chosen file mime type ${file.type} might not be suitable for an image.`;
   }
   return ``;
 }

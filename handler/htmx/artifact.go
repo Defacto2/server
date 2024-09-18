@@ -107,7 +107,7 @@ func RecordImageCopier(c echo.Context, debug *zap.SugaredLogger, dirs command.Di
 		`Images copied, the browser will refresh.`)
 }
 
-func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, dirs command.Dirs) error {
+func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, amigaFont bool, dirs command.Dirs) error {
 	path := c.Param("path")
 	name, err := url.QueryUnescape(path)
 	if err != nil {
@@ -126,7 +126,7 @@ func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, dirs command.
 	if st.Size() == 0 {
 		return c.String(http.StatusOK, "The file is empty and was not used.")
 	}
-	if err := dirs.TextImager(logger, src, unid, false); err != nil {
+	if err := dirs.TextImager(logger, src, unid, amigaFont); err != nil {
 		return badRequest(c, err)
 	}
 	c = pageRefresh(c)

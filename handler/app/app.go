@@ -50,6 +50,7 @@ var (
 	ErrSession  = errors.New("no sub id in session")
 	ErrTarget   = errors.New("target not found")
 	ErrTmpl     = errors.New("the server could not render the html template for this page")
+	ErrType     = errors.New("value is the wrong type")
 	ErrUser     = errors.New("unknown user")
 	ErrVal      = errors.New("value is empty")
 	ErrZap      = errors.New("the zap logger cannot be nil")

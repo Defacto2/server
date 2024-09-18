@@ -59,7 +59,7 @@ type Releasers []*struct {
 }
 
 func (r *Releasers) String() string {
-	var names []string
+	names := make([]string, 0, len(*r))
 	for _, name := range *r {
 		names = append(names, name.Unique.Name)
 	}

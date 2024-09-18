@@ -94,7 +94,8 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 	data["comment"] = filerecord.Comment(art)
 	data = dir.filemetadata(art, data)
 	if !readonly {
-		data = dir.updateMagics(db, logger, art.ID, art.UUID.String, data)
+		platform := filerecord.TagProgram(art)
+		data = dir.updateMagics(db, logger, art.ID, art.UUID.String, platform, data)
 	}
 	data = dir.attributions(art, data)
 	data = dir.otherRelations(art, data)
@@ -134,24 +135,20 @@ func repackZIP(name string) bool {
 
 func (dir Dirs) compressZIP(root, uid string) (int64, error) {
 	basename := uid + ".zip"
-	tmpArc := filepath.Join(helper.TmpDir(), basename)
-	finalArc := filepath.Join(dir.Extra, basename)
-	os.Remove(finalArc)
-
-	fmt.Println("modDecompressLoc", root, "tmpArc", tmpArc)
-	i, err := rezip.CompressDir(root, tmpArc)
+	src := filepath.Join(helper.TmpDir(), basename)
+	dest := filepath.Join(dir.Extra, basename)
+	os.Remove(dest)
+	_, err := rezip.CompressDir(root, src)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("dirs compress zip: %w", err)
 	}
-	fmt.Println("rezipped extra files written:", i)
-
-	if err = helper.RenameCrossDevice(tmpArc, finalArc); err != nil {
-		defer os.RemoveAll(tmpArc)
-		return 0, err
+	if err = helper.RenameCrossDevice(src, dest); err != nil {
+		defer os.RemoveAll(src)
+		return 0, fmt.Errorf("dirs compress zip: %w", err)
 	}
-	st, err := os.Stat(finalArc)
+	st, err := os.Stat(dest)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("dirs compress zip: %w", err)
 	}
 	return st.Size(), nil
 }
@@ -159,30 +156,58 @@ func (dir Dirs) compressZIP(root, uid string) (int64, error) {
 // updateMagics updates the magic number for the file record of the artifact.
 // It must be called after both the dir.filemetadata and dir.Editor functions.
 func (dir Dirs) updateMagics(db *sql.DB, logger *zap.SugaredLogger,
-	id int64, uid string, data map[string]interface{}) map[string]interface{} {
+	id int64, uid, platform string, data map[string]interface{},
+) map[string]interface{} {
 	if db == nil {
 		return data
 	}
 	recMagic, modMagic := data["magic"], data["modMagicNumber"]
 	if recMagic != modMagic {
 		data["magic"] = modMagic
-		magic := modMagic.(string)
+		magic, valid := modMagic.(string)
+		if !valid {
+			if logger != nil {
+				logger.Error(errorWithID(ErrType, "modMagicNumber is string", uid))
+			}
+			return data
+		}
 		ctx := context.Background()
 		if err := model.UpdateMagic(ctx, db, id, magic); err != nil && logger != nil {
 			logger.Error(errorWithID(err, "update artifact editor magic", id))
 		}
 	}
-	if findRepack := data["extraZip"].(bool); findRepack {
+	findRepack, valid := data["extraZip"].(bool)
+	if !valid {
+		if logger != nil {
+			logger.Error(errorWithID(ErrType, "extraZip is bool", uid))
+		}
 		return data
 	}
-	name := filepath.Join(dir.Download, uid)
-	decompDir := data["modDecompressLoc"].(string)
+	if findRepack {
+		return data
+	}
+	decompDir, valid := data["modDecompressLoc"].(string)
+	if !valid {
+		if logger != nil {
+			logger.Error(errorWithID(ErrType, "modDecompressLoc is string", uid))
+		}
+		return data
+	}
 	if st, err := os.Stat(decompDir); err != nil || !st.IsDir() {
 		if logger != nil {
 			logger.Error(errorWithID(err, "decompress directory", uid))
 		}
 		return data
 	}
+	return dir.checkMagics(logger, uid, decompDir, platform, modMagic, data)
+}
+
+func (dir Dirs) checkMagics(logger *zap.SugaredLogger,
+	uid, decompDir, platform string,
+	modMagic interface{},
+	data map[string]interface{},
+) map[string]interface{} {
+	name := filepath.Join(dir.Download, uid)
 	switch {
 	case redundantArchive(modMagic):
 	case modMagic == magicnumber.PKWAREZip.Title():
@@ -190,38 +215,40 @@ func (dir Dirs) updateMagics(db *sql.DB, logger *zap.SugaredLogger,
 			return data
 		}
 	case plainText(modMagic):
-		dirs := command.Dirs{
-			Download:  dir.Download,
-			Preview:   dir.Preview,
-			Thumbnail: dir.Thumbnail,
-		}
-		if helper.File(filepath.Join(dirs.Thumbnail, uid+".png")) ||
-			helper.File(filepath.Join(dirs.Thumbnail, uid+".webp")) {
-			return data
-		}
-		crop := true
-		if modMagic == magicnumber.ANSIEscapeText.Title() {
-			crop = false
-		}
-		if err := dirs.TextImager(logger, name, uid, crop); err != nil {
-			logger.Error(errorWithID(err, "text imager", uid))
-		}
-		data["missingAssets"] = ""
-		return data
+		return dir.plainTexts(logger, uid, platform, data)
 	default:
 		return data
 	}
-	i, err := dir.compressZIP(decompDir, uid)
-	if err != nil {
+	if i, err := dir.compressZIP(decompDir, uid); err != nil {
 		if logger != nil {
 			logger.Error(errorWithID(err, "compress directory", uid))
 		}
 		return data
-	}
-	if logger != nil {
+	} else if logger != nil {
 		logger.Infof("Extra deflated zipfile created %d bytes: %s", i, uid)
 	}
 	data["extraZip"] = true
+	return data
+}
+
+func (dir Dirs) plainTexts(logger *zap.SugaredLogger,
+	uid, platform string, data map[string]interface{},
+) map[string]interface{} {
+	name := filepath.Join(dir.Download, uid)
+	dirs := command.Dirs{
+		Download:  dir.Download,
+		Preview:   dir.Preview,
+		Thumbnail: dir.Thumbnail,
+	}
+	if helper.File(filepath.Join(dirs.Thumbnail, uid+".png")) ||
+		helper.File(filepath.Join(dirs.Thumbnail, uid+".webp")) {
+		return data
+	}
+	amigaFont := strings.EqualFold(platform, tags.TextAmiga.String())
+	if err := dirs.TextImager(logger, name, uid, amigaFont); err != nil {
+		logger.Error(errorWithID(err, "text imager", uid))
+	}
+	data["missingAssets"] = ""
 	return data
 }
 
@@ -231,7 +258,11 @@ func redundantArchive(modMagic interface{}) bool {
 	default:
 		return false
 	}
-	switch modMagic.(string) {
+	val, valid := modMagic.(string)
+	if !valid {
+		return false
+	}
+	switch val {
 	case
 		magicnumber.ARChiveSEA.Title(),
 		magicnumber.YoshiLHA.Title(),
@@ -251,7 +282,11 @@ func plainText(modMagic interface{}) bool {
 	default:
 		return false
 	}
-	switch modMagic.(string) {
+	val, valid := modMagic.(string)
+	if !valid {
+		return false
+	}
+	switch val {
 	case
 		magicnumber.UTF8Text.Title(),
 		magicnumber.ANSIEscapeText.Title(),
@@ -310,7 +345,6 @@ func (dir Dirs) Editor(art *models.File, data map[string]interface{}) map[string
 	data["modAssetPreview"] = dir.assets(dir.Preview, unid)
 	data["modAssetThumbnail"] = dir.assets(dir.Thumbnail, unid)
 	data["modAssetExtra"] = dir.assets(dir.Extra, unid)
-	data["modNoReadme"] = filerecord.ReadmeNone(art)
 	data["modReadmeSuggest"] = filerecord.Readme(art)
 	data["modZipContent"] = filerecord.ZipContent(art)
 	data["modRelations"] = filerecord.RelationsStr(art)

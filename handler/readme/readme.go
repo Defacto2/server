@@ -142,9 +142,6 @@ func Read(art *models.File, downloadPath, extraPath string) ([]byte, error) {
 	if art == nil {
 		return nil, fmt.Errorf("art in read, %w", ErrNoModel)
 	}
-	if art.RetrotxtNoReadme.Int16 != 0 {
-		return nil, nil
-	}
 	b, err := render.Read(art, downloadPath, extraPath)
 	if err != nil {
 		if errors.Is(err, render.ErrFilename) {
@@ -223,8 +220,10 @@ func IncompatibleANSI(r io.Reader) (bool, error) {
 	// handle files that are too long for the scanner buffer
 	// examples would be texts or ansi files with no newlines
 	scanner = bufio.NewScanner(r)
-	buf := make([]byte, 0, 64*1024)
-	scanner.Buffer(buf, 1024*1024)
+	const sixtyFourK = 64 * 1024
+	buf := make([]byte, 0, sixtyFourK)
+	const oneMegabyte = 1024 * 1024
+	scanner.Buffer(buf, oneMegabyte)
 	scanner = bufio.NewScanner(r)
 	for scanner.Scan() {
 		if reMoveCursor.Match(scanner.Bytes()) {

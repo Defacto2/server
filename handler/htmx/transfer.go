@@ -575,11 +575,9 @@ func UploadPreview(c echo.Context, previewDir, thumbnailDir string) error {
 		return reloader(c, file.Filename)
 	}
 	if texters(magic) {
-		crop := true
-		if magic == magicnumber.ANSIEscapeText {
-			crop = false
-		}
-		if err := dirs.TextImager(nil, dst.Name(), up.unid, crop); err != nil {
+		amigaFont := strings.EqualFold(up.platform, tags.TextAmiga.String())
+		err = dirs.TextImager(nil, dst.Name(), up.unid, amigaFont)
+		if err != nil {
 			return badRequest(c, err)
 		}
 		return reloader(c, file.Filename)
@@ -672,9 +670,10 @@ func UploadReplacement(c echo.Context, db *sql.DB, downloadDir string) error {
 }
 
 type upIDs struct {
-	unid string
-	key  string
-	id   int64
+	unid     string
+	key      string
+	platform string
+	id       int64
 }
 
 func (i *upIDs) get(c echo.Context) string {
@@ -688,5 +687,6 @@ func (i *upIDs) get(c echo.Context) string {
 		return "The editor file upload record key is invalid"
 	}
 	i.id = id
+	i.platform = c.FormValue("artifact-editor-download-classify")
 	return ""
 }
