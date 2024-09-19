@@ -12,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"strings"
 	"sync"
 
 	"github.com/Defacto2/helper"
@@ -309,9 +308,6 @@ func (dir Dirs) PictureImager(debug *zap.SugaredLogger, src, unid string) error 
 // can be used by the ANSILOVE command to create a PNG image. 80 columns and 29 rows are
 // works well with a 400x400 pixel thumbnail.
 func TextCrop(src, dst string) error {
-	if !validDst(dst) {
-		return fmt.Errorf("text crop dst %w", ErrPath)
-	}
 	srcFile, err := os.Open(src)
 	if err != nil {
 		return fmt.Errorf("text crop open %w", err)
@@ -366,15 +362,6 @@ func TextCrop(src, dst string) error {
 		return fmt.Errorf("text crop scanner %w", err)
 	}
 	return nil
-}
-
-func validDst(name string) bool {
-	tempDir := os.TempDir()
-	if absPath, err := filepath.Abs(filepath.Join(tempDir, name)); err != nil ||
-		!strings.HasPrefix(absPath, tempDir) {
-		return false
-	}
-	return true
 }
 
 func textCropper(src, unid string) (string, error) {
