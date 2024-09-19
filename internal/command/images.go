@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"sync"
 
 	"github.com/Defacto2/helper"
@@ -308,18 +309,21 @@ func (dir Dirs) PictureImager(debug *zap.SugaredLogger, src, unid string) error 
 // can be used by the ANSILOVE command to create a PNG image. 80 columns and 29 rows are
 // works well with a 400x400 pixel thumbnail.
 func TextCrop(src, dst string) error {
+	if !validDst(dst) {
+		return fmt.Errorf("text crop dst %w", ErrPath)
+	}
 	srcFile, err := os.Open(src)
 	if err != nil {
-		return fmt.Errorf("write 80x29 open %w", err)
+		return fmt.Errorf("text crop open %w", err)
 	}
 	defer srcFile.Close()
 
-	if magicnumber.Ansi(srcFile) {
+	if magicnumber.CSI(srcFile) {
 		return nil
 	}
 	dstFile, err := os.Create(dst)
 	if err != nil {
-		return fmt.Errorf("write 80x29 create %w", err)
+		return fmt.Errorf("text crop create %w", err)
 	}
 	defer dstFile.Close()
 
@@ -348,7 +352,7 @@ func TextCrop(src, dst string) error {
 		}
 		_, err := writer.WriteString(line + "\n")
 		if err != nil {
-			return fmt.Errorf("write 80x29 writer string %w", err)
+			return fmt.Errorf("text crop writer string %w", err)
 		}
 		// intentionally skip the first line in a file
 		// as sometimes these contain non-printable characters and control codes.
@@ -359,9 +363,18 @@ func TextCrop(src, dst string) error {
 		rowCount++
 	}
 	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("write 80x29 scanner %w", err)
+		return fmt.Errorf("text crop scanner %w", err)
 	}
 	return nil
+}
+
+func validDst(name string) bool {
+	tempDir := os.TempDir()
+	if absPath, err := filepath.Abs(filepath.Join(tempDir, name)); err != nil ||
+		!strings.HasPrefix(absPath, tempDir) {
+		return false
+	}
+	return true
 }
 
 func textCropper(src, unid string) (string, error) {
