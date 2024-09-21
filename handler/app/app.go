@@ -299,6 +299,11 @@ func GlobTo(name string) string {
 	return strings.Join([]string{"view", "app", name}, pathSeparator)
 }
 
+// HasPrefix returns true if the string s ends with the suffix.
+func HasSuffix(s, suffix string) bool {
+	return strings.HasSuffix(s, suffix)
+}
+
 // LastUpdated returns a string of the time since the given time t.
 // The time is formatted as "Last updated 1 hour ago".
 // If the time is not valid, an empty string is returned.
@@ -604,7 +609,7 @@ func SafeJS(s string) template.JS {
 // Otherwise providing "text" and "Some Cool Stuff" would return:
 //
 //	`<h3 class="card-subtitle mb-2 text-body-secondary fs-6">Some Cool Stuff</h3>`
-func SubTitle(section null.String, title any) template.HTML {
+func SubTitle(section null.String, title any, large bool) template.HTML {
 	val := ""
 	switch v := title.(type) {
 	case string:
@@ -623,7 +628,11 @@ func SubTitle(section null.String, title any) template.HTML {
 			val = fmt.Sprintf("Issue %d", i)
 		}
 	}
-	cls := "card-subtitle mb-2 text-body-secondary fs-6"
+	fs := "fs-6"
+	if large {
+		fs = "fs-5"
+	}
+	cls := "card-subtitle mb-2 text-body-secondary " + fs
 	elem := fmt.Sprintf("<h3 class=\"%s\">%s</h3>", cls, val)
 	return template.HTML(elem)
 }

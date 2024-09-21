@@ -200,6 +200,7 @@ func (t Templ) Funcs() template.FuncMap {
 		"fmtPrefix":          Prefix,
 		"fmtRoles":           helper.FmtSlice,
 		"fmtURI":             releaser.Link,
+		"hasSuffix":          HasSuffix,
 		"lastUpdated":        LastUpdated,
 		"linkDownload":       LinkDownload,
 		"linkHref":           LinkHref,
