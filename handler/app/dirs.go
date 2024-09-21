@@ -85,8 +85,10 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 		data = dir.Editor(art, data)
 	}
 	// page metadata
+	uri := filerecord.DownloadID(art)
+	data["canonical"] = strings.Join([]string{"f", uri}, "/")
 	data["unid"] = filerecord.UnID(art)
-	data["download"] = filerecord.DownloadID(art)
+	data["download"] = uri
 	data["title"] = filerecord.Basename(art)
 	data["description"] = filerecord.Description(art)
 	data["h1"] = filerecord.FirstHeader(art)

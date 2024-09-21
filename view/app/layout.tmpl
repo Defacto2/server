@@ -29,7 +29,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{$metatitle}} | Defacto2</title>
-    {{if ne $canonical ""}}<link rel="canonical" href="https://defacto2.net/{{$canonical}}">{{end -}}
+    {{- if ne $canonical ""}}
+    {{- if eq $canonical "/" -}}{{$canonical = ""}}{{end}} {{/* remove the trailing slash for Home */}}
+    <link rel="canonical" href="https://defacto2.net/{{$canonical}}">{{end}}
     <meta name="description" content="{{$metadesc}}">
     <meta name="theme-color" content="rgb(153, 153, 153)">
     <meta name="defacto2:file-count" content="{{$cachefiles}}">
