@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"io"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -433,6 +434,27 @@ func LinkScnr(name string) (string, error) {
 		return "", fmt.Errorf("name %q could not be made into a valid url: %w", name, err)
 	}
 	return href, nil
+}
+
+// LinkScnr...
+func LinkScnrs(s string) template.HTML {
+	x := []string{}
+	y := strings.Split(s, ",")
+	cls := "link-dark link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+	for _, z := range y {
+		z = strings.TrimSpace(z)
+		if z == "" {
+			continue
+		}
+		scnr, err := LinkScnr(z)
+		if err != nil {
+			fmt.Fprint(io.Discard, err)
+			continue
+		}
+		linkr := fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, cls, scnr, z)
+		x = append(x, linkr)
+	}
+	return template.HTML(strings.Join(x, ", "))
 }
 
 // LinkWiki returns a HTML link with an embedded SVG icon to the Defacto2 wiki on GitHub.

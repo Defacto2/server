@@ -210,6 +210,7 @@ func (t Templ) Funcs() template.FuncMap {
 		"linkRunApp":         LinkRunApp,
 		"linkRelrs":          LinkRelsPerformant,
 		"linkScnr":           LinkScnr,
+		"linkScnrs":          LinkScnrs,
 		"linkSVG":            filerecord.LinkSVG,
 		"linkWiki":           LinkWiki,
 		"logoText":           LogoText,
