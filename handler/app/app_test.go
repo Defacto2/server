@@ -57,18 +57,18 @@ func TestTagBrief(t *testing.T) {
 func TestSubTitle(t *testing.T) {
 	t.Parallel()
 	x := null.StringFrom("")
-	s := app.SubTitle(x, nil)
+	s := app.SubTitle(x, nil, false)
 	assert.Empty(t, s)
 
 	const sub = "A second title."
-	s = app.SubTitle(x, sub)
+	s = app.SubTitle(x, sub, false)
 	assert.Contains(t, s, sub)
 
 	mag := null.StringFrom("magazine")
-	s = app.SubTitle(mag, "1")
+	s = app.SubTitle(mag, "1", false)
 	assert.Contains(t, s, "Issue 1")
 
-	s = app.SubTitle(mag, 1)
+	s = app.SubTitle(mag, 1, false)
 	assert.Empty(t, s)
 }
 

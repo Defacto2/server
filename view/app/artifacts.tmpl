@@ -16,6 +16,7 @@
 {{- $noYears := false}}
 {{- $unYears := index .unknownYears }}
 {{- $editor := index .editor}}
+{{- $group := hasSuffix (index .title) " artifacts"}}
 {{- if eq $cnt 0}}<p class="text-start lead"><small>There are no artifacts to display.</small></p>{{else -}}
 <p class="text-start lead"><small>There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}}{{if ne $years ""}} from {{$years | safeHTML}}{{end}}.</small></p>
 {{- end}}
@@ -75,8 +76,13 @@
       </div>
       {{- if eq $editor true}}{{ template "artifactsedit" . }}{{end}}
       <div class="card-body">
+        {{- if eq $group true}}
+        <h2 class="card-title text-truncate fs-6">{{linkRelrs .GroupBrandFor .GroupBrandBy }}</h2>
+        {{subTitle .Section .RecordTitle true}}
+        {{- else}}
         <h2 class="card-title text-truncate fs-5">{{linkRelrs .GroupBrandFor .GroupBrandBy }}</h2>
-        {{subTitle .Section .RecordTitle}}
+        {{subTitle .Section .RecordTitle false}}
+        {{- end}}
         <p class="card-text">{{describe .Platform .Section .DateIssuedYear .DateIssuedMonth}}</p>
         <p class="card-text"><small class="text-body-secondary">{{lastUpdated .Updatedat}}</small></p>
         {{- if ne $attr ""}}

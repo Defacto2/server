@@ -29,44 +29,52 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{$metatitle}} | Defacto2</title>
-    {{if ne $canonical ""}}<link rel="canonical" href="https://defacto2.net/{{$canonical}}">{{end -}}
+    {{- if ne $canonical ""}}
+    {{- if eq $canonical "/" -}}{{$canonical = ""}}{{end}} {{/* remove the trailing slash for Home */}}
+    <link rel="canonical" href="https://defacto2.net/{{$canonical}}">{{end}}
     <meta name="description" content="{{$metadesc}}">
     <meta name="theme-color" content="rgb(153, 153, 153)">
     <meta name="defacto2:file-count" content="{{$cachefiles}}">
     <meta name="monetization" content="$ilp.uphold.com/RpWPnb88yLaF">
     <meta name="format-detection" content="telephone=no">
     <meta name="format-detection" content="address=no">
-{{- /*  schema.org linked data, 
-        see https://json-ld.org/playground/ and https://developers.google.com/search/docs/appearance/structured-data/search-gallery  */}}
+{{- /*  https://schema.org linked data, see:
+        - https://json-ld.org/playground/
+        - https://developers.google.com/search/docs/appearance/structured-data/search-gallery
+        - https://search.google.com/test/rich-results
+*/ -}}
     <script type="application/ld+json">
+{
+  "@graph": [
     {
-      "@graph": [
-        {
-          "@type": "http://schema.org/Organization",
-          "http://schema.org/logo": { "@id": "https://defacto2.net/image/layout/favicon-180x180.png" },
-          "http://schema.org/name": "Defacto2",
-          "http://schema.org/sameAs": [
-            { "@id": "https://facebook.com/Defacto2" },
-            { "@id": "https://twitter.com/Defacto2" },
-            { "@id": "https://www.youtube.com/defacto2" },
-            { "@id": "https://mas.to/@defacto2" },
-            { "@id": "https://github.com/defacto2" },
-            { "@id": "https://defacto2.wordpress.com" }
-          ],
-          "http://schema.org/url": { "@id": "https://defacto2.net/" }
+      "@type": "Organization",
+      "logo": { "@id": "https://defacto2.net/image/layout/favicon-180x180.png" },
+      "name": "Defacto2",
+      "sameAs": [
+        { "@id": "https://facebook.com/Defacto2" },
+        { "@id": "https://twitter.com/Defacto2" },
+        { "@id": "https://www.youtube.com/defacto2" },
+        { "@id": "https://mas.to/@defacto2" },
+        { "@id": "https://github.com/defacto2" },
+        { "@id": "https://defacto2.wordpress.com" }
+      ],
+      "url": { "@id": "https://defacto2.net/" }
+    },
+    {
+      "@type": "WebSite",
+      "license": { "@id": "https://creativecommons.org/licenses/by/4.0/" },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://defacto2.net/search/result?query={search_term_string}"
         },
-        {
-          "@type": "http://schema.org/WebSite",
-          "http://schema.org/license": { "@id": "https://creativecommons.org/licenses/by/4.0/" },
-          "http://schema.org/potentialAction": {
-            "@type": "http://schema.org/SearchAction",
-            "http://schema.org/query-input": "required name=search_term_string",
-            "http://schema.org/target": { "@id": "https://defacto2.net/search/result?query={search_term_string}" }
-          },
-          "http://schema.org/url": { "@id": "https://defacto2.net/" }
-        }
-      ]
+        "query-input": "required name=search_term_string"
+      },
+      "url": { "@id": "https://defacto2.net/" }
     }
+  ]
+}
     </script>
     {{- /*  bookmark and tab icons  */}}
     <link rel="icon" type="image/svg+xml" href="/image/layout/favicon.svg">

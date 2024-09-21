@@ -140,6 +140,7 @@ func artifacts(c echo.Context, db *sql.DB, uri string, page int) error {
 	logo, subhead, lead := fileslice.FileInfo(uri)
 	data := emptyFiles(c)
 	data["title"] = title
+	data["canonical"] = strings.Join([]string{"files", uri}, "/")
 	data["description"] = "Table of contents for the files."
 	data["logo"] = logo
 	data["h1"] = title
@@ -789,7 +790,7 @@ func Index(c echo.Context) error {
 	const name = "index"
 	data := empty(c)
 	data["title"] = "Welcome"
-	// data["description"] = desc
+	data["canonical"] = "/"
 	data["h1"] = "Welcome,"
 	data["milestones"] = Collection()
 	{
@@ -1260,6 +1261,7 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 	}
 	data := emptyFiles(c)
 	data["title"] = s + " artifacts"
+	data["canonical"] = strings.Join([]string{"g", uri}, "/")
 	data["h1"] = s
 	data["lead"] = initialism.Join(initialism.Path(uri))
 	data["logo"] = s
@@ -1355,6 +1357,7 @@ func Sceners(c echo.Context, db *sql.DB, uri string) error {
 		return Scener404(c, uri)
 	}
 	data := emptyFiles(c)
+	data["canonical"] = strings.Join([]string{"p", uri}, "/")
 	data["title"] = s + attr
 	data["h1"] = s
 	data["lead"] = "Artifacts attributed to " + s + "."

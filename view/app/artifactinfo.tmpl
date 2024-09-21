@@ -175,22 +175,22 @@
                     {{- if ne $writers "" }}
                     <tr>
                         <th scope="row">Writers</th>
-                        <td>{{fmtRoles $writers}}</td>
+                        <td>{{linkScnrs $writers}}</td>
                     </tr>{{- end}}
                     {{- if ne $artists "" }}
                     <tr>
                         <th scope="row">Artists</th>
-                        <td>{{fmtRoles $artists}}</td>
+                        <td>{{linkScnrs $artists}}</td>
                     </tr>{{- end}}
                     {{- if ne $programmers "" }}
                     <tr>
                         <th scope="row">Programmers</th>
-                        <td>{{fmtRoles $programmers}}</td>
+                        <td>{{linkScnrs $programmers}}</td>
                     </tr>{{- end}}
                     {{- if ne $musicians "" }}
                     <tr>
                         <th scope="row">Musicians</th>
-                        <td>{{fmtRoles $musicians}}</td>
+                        <td>{{linkScnrs $musicians}}</td>
                     </tr>{{- end}}
                     {{- /*  Pouet, Demozoo, 16colors links  */}}
                     {{- if ne $pouet ""}}
