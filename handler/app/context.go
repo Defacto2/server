@@ -482,6 +482,10 @@ func Download(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, path string
 		Path:   path,
 	}
 	const uri = "d"
+	if id := c.Param("id"); id != "" {
+		r := c.Response()
+		r.Header().Set("Link", fmt.Sprintf(`<https://defacto2.net/%s/%s; rel="canonical">`, uri, id))
+	}
 	if err := d.HTTPSend(c, db, logger); err != nil {
 		if errors.Is(err, download.ErrStat) {
 			return FileMissingErr(c, uri, err)

@@ -20,6 +20,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/archive"
 	"github.com/Defacto2/helper"
@@ -606,7 +607,7 @@ func reloader(c echo.Context, filename string) error {
 // UploadReplacement is the file transfer handler that uploads, validates a new file upload
 // and updates the existing artifact record with the new file information.
 // The logger is optional and if nil then the function will not log any debug information.
-func UploadReplacement(c echo.Context, db *sql.DB, downloadDir string) error {
+func UploadReplacement(c echo.Context, db *sql.DB, downloadDir, extraDir string) error {
 	if db == nil {
 		return c.HTML(http.StatusInternalServerError, "error, the database connection is nil")
 	}
@@ -638,6 +639,12 @@ func UploadReplacement(c echo.Context, db *sql.DB, downloadDir string) error {
 		return checkFileOpen(c, nil, name, err)
 	}
 	defer src.Close()
+	lastmod := c.FormValue("artifact-editor-lastmodified")
+	lm, err := strconv.ParseInt(lastmod, 10, 64)
+	if err == nil && lm > 0 {
+		lmod := time.UnixMilli(lm)
+		fu.LastMod = lmod
+	}
 	sign := magicnumber.Find(src)
 	fu.MagicNumber = sign.Title()
 	dst, err := copier(c, nil, file, up.key)
@@ -662,6 +669,8 @@ func UploadReplacement(c echo.Context, db *sql.DB, downloadDir string) error {
 	if err := tx.Commit(); err != nil {
 		return c.HTML(http.StatusInternalServerError, "The database commit failed")
 	}
+	repack := filepath.Join(extraDir, up.unid+".zip")
+	defer os.Remove(repack)
 	if mkc, err := helper.MkContent(abs); err == nil {
 		defer os.RemoveAll(mkc)
 	}

@@ -119,6 +119,7 @@
               <input type="hidden" name="artifact-editor-record-key" value="{{$key}}">
               <input type="hidden" name="artifact-editor-unid" value="{{$unid}}">
               <input type="hidden" name="artifact-editor-download-classify" value="{{$os}}">
+              <input type="hidden" name="artifact-editor-lastmodified" id="artifact-editor-last-modified">
               {{/*  artifact-editor-unique-id-value  */}}
               <div class="input-group input-group-sm mb-1 has-validation">
                 <input type="file" name="artifact-editor-replace-file" 
@@ -133,6 +134,7 @@
               <div class="form-text" id="artifact-editor-dl-results"><span class="text-warning-emphasis">Normally not required</span>, upload and replace the artifact download.</div>
               {{- end}}
               <progress class="w-100" id="artifact-editor-dl-progress" value="0" max="100"></progress>
+              <div class="d-none alert alert-warning mt-2" role="alert" id="artifact-editor-dl-alert"></div>
             </form>
             {{- /*  Download content  */}}
             <legend class="mt-3">Download content</legend>
@@ -211,17 +213,15 @@
                           </tr>{{- end}}
                       </table>
                       <div>
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/top/{{$unid}}">Top</a> &nbsp;
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/middle/{{$unid}}">Middle</a> &nbsp;
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/bottom/{{$unid}}">Bottom</a> <small>crop</small>
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/pixel/{{$unid}}">Good</a> &nbsp;
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/photo/{{$unid}}">Poor</a> <small>quality</small>
                       </div>
                       <div>
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/left/{{$unid}}">Left</a> &nbsp;
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/right/{{$unid}}">Right</a> <small>crop</small>
-                      </div>
-                      <div>
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/pixel/{{$unid}}">Pixel art</a> &nbsp;
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/photo/{{$unid}}">Photograph</a> <small>thumbnail</small>
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/left/{{$unid}}">Left</a> 
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/right/{{$unid}}">Right</a> &nbsp;
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/top/{{$unid}}">Top</a>
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/middle/{{$unid}}">Middle</a>
+                        <a href="#file-editor" hx-patch="/editor/thumbnail/bottom/{{$unid}}">Bottom</a>
                       </div>
                       <div><a href="#file-editor" id="artifact-editor-imagethumb-delete" hx-delete="/editor/thumbnail/{{$unid}}">Delete</a></div>
                     </p>

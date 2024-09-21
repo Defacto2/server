@@ -83,6 +83,7 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 	data := empty(c)
 	if !readonly {
 		data = dir.Editor(art, data)
+		data = detectANSI(db, logger, art.ID, data)
 	}
 	// page metadata
 	uri := filerecord.DownloadID(art)
@@ -120,6 +121,28 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 		return InternalErr(c, name, errorWithID(err, dir.URI, art.ID))
 	}
 	return nil
+}
+
+func detectANSI(db *sql.DB, logger *zap.SugaredLogger, id int64, data map[string]interface{}) map[string]interface{} {
+	if db == nil {
+		return data
+	}
+	mos, valid := data["modOS"].(string)
+	if !valid {
+		return data
+	}
+	numb, valid := data["modMagicNumber"].(string)
+	if !valid {
+		return data
+	}
+	textfile := strings.EqualFold(mos, tags.Text.String())
+	if textfile && numb == magicnumber.ANSIEscapeText.Title() {
+		if err := model.UpdatePlatform(db, id, tags.ANSI.String()); err != nil && logger != nil {
+			logger.Error(errorWithID(err, "update artifact editor platform", id))
+		}
+		data["platform"] = tags.ANSI.String()
+	}
+	return data
 }
 
 func repackZIP(name string) bool {

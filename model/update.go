@@ -728,6 +728,7 @@ type FileUpload struct {
 	MagicNumber string
 	Content     string
 	Filesize    int64
+	LastMod     time.Time
 }
 
 // Update the file record with the values provided in the FileUpload struct.
@@ -753,6 +754,7 @@ func (fu FileUpload) Update(ctx context.Context, exec boil.ContextExecutor, id i
 		return fmt.Errorf("file upload zip content: %w", err)
 	}
 	f.Filesize = null.Int64From(fu.Filesize)
+	f.FileLastModified = null.TimeFrom(fu.LastMod)
 	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
 		return fmt.Errorf("file upload update record %w: %d", err, id)
 	}
