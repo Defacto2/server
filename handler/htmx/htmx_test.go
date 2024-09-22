@@ -169,10 +169,10 @@ func TestUploadPreview(t *testing.T) {
 
 func TestUploadReplacement(t *testing.T) {
 	t.Parallel()
-	err := htmx.UploadReplacement(newContext(), nil, "")
+	err := htmx.UploadReplacement(newContext(), nil, "", "")
 	require.NoError(t, err)
 	dir, err := os.Getwd()
 	require.NoError(t, err)
-	err = htmx.UploadReplacement(newContext(), nil, dir)
+	err = htmx.UploadReplacement(newContext(), nil, dir, "")
 	require.NoError(t, err)
 }

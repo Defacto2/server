@@ -204,7 +204,7 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) 
 	upload := g.Group("/upload")
 	// /upload/file
 	upload.POST("/file", func(c echo.Context) error {
-		return htmx.UploadReplacement(c, db, dir.Download)
+		return htmx.UploadReplacement(c, db, dir.Download, dir.Extra)
 	})
 	// /upload/preview
 	upload.POST("/preview", func(c echo.Context) error {
