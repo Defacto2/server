@@ -119,6 +119,7 @@
               <input type="hidden" name="artifact-editor-record-key" value="{{$key}}">
               <input type="hidden" name="artifact-editor-unid" value="{{$unid}}">
               <input type="hidden" name="artifact-editor-download-classify" value="{{$os}}">
+              <input type="hidden" name="artifact-editor-lastmodified" id="artifact-editor-last-modified">
               {{/*  artifact-editor-unique-id-value  */}}
               <div class="input-group input-group-sm mb-1 has-validation">
                 <input type="file" name="artifact-editor-replace-file" 
@@ -133,6 +134,7 @@
               <div class="form-text" id="artifact-editor-dl-results"><span class="text-warning-emphasis">Normally not required</span>, upload and replace the artifact download.</div>
               {{- end}}
               <progress class="w-100" id="artifact-editor-dl-progress" value="0" max="100"></progress>
+              <div class="d-none alert alert-warning mt-2" role="alert" id="artifact-editor-dl-alert"></div>
             </form>
             {{- /*  Download content  */}}
             <legend class="mt-3">Download content</legend>

@@ -2,7 +2,14 @@
  * @file editor-assets.js
  * This script is the entry point for the artifact editor assets page.
  */
-import { progress } from "./uploader.mjs";
+import {
+  checkDuplicate,
+  checkErrors,
+  checkSize,
+  progress,
+  resetInput,
+} from "./uploader.mjs";
+import { getElmById } from "./helper.mjs";
 
 (() => {
   "use strict";
@@ -11,29 +18,31 @@ import { progress } from "./uploader.mjs";
   progress(`artifact-editor-dl-form`, `artifact-editor-dl-progress`);
   progress(`artifact-editor-preview-form`, `artifact-editor-preview-progress`);
 
-  const previewReset = document.getElementById(`artifact-editor-preview-reset`);
-  if (previewReset == null) {
-    console.error(`the reset preview button is missing`);
-    return;
-  }
-  const previewInput = document.getElementById(
-    `artifact-editor-replace-preview`
-  );
-  if (previewInput == null) {
-    console.error(`the form preview input is missing`);
-    return;
+  const previewReset = getElmById(`artifact-editor-preview-reset`);
+  const previewInput = getElmById(`artifact-editor-replace-preview`);
+  const alert = getElmById(`artifact-editor-dl-alert`);
+  const reset = getElmById(`artifact-editor-dl-reset`);
+  const lastMod = getElmById(`artifact-editor-last-modified`);
+  const results = getElmById("artifact-editor-dl-results");
+  const fileInput = getElmById(`artifact-editor-dl-up`);
+  fileInput.addEventListener("change", checkFile);
+
+  async function checkFile() {
+    resetInput(fileInput, alert, results);
+    const file1 = this.files[0];
+    let errors = [checkSize(file1)];
+    checkErrors(errors, alert, fileInput, results);
+    checkDuplicate(file1, alert, fileInput, results);
+
+    const lastModified = file1.lastModified,
+      currentTime = new Date().getTime(),
+      oneHourMs = 60 * 60 * 1000;
+    const underOneHour = currentTime - lastModified < oneHourMs;
+    if (!underOneHour) {
+      lastMod.value = lastModified;
+    }
   }
 
-  const reset = document.getElementById(`artifact-editor-dl-reset`);
-  if (reset == null) {
-    console.error(`the reset button is missing`);
-    return;
-  }
-  const artifact = document.getElementById(`artifact-editor-dl-up`);
-  if (artifact == null) {
-    console.error(`the artifact file input is missing`);
-    return;
-  }
   const dataEditor = document.getElementById("artifact-editor-modal");
   if (dataEditor == null) {
     console.error(`the data editor modal is missing`);
@@ -264,8 +273,10 @@ import { progress } from "./uploader.mjs";
 
   // New file download form reset button.
   reset.addEventListener(`click`, function () {
-    artifact.value = ``;
-    artifact.classList.remove(`is-invalid`, `is-valid`);
+    alert.innerText = "";
+    alert.classList.add("d-none");
+    fileInput.value = ``;
+    fileInput.classList.remove(`is-invalid`, `is-valid`);
   });
 
   previewReset.addEventListener(`click`, function () {

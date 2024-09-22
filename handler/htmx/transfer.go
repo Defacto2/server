@@ -20,6 +20,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/archive"
 	"github.com/Defacto2/helper"
@@ -638,6 +639,12 @@ func UploadReplacement(c echo.Context, db *sql.DB, downloadDir string) error {
 		return checkFileOpen(c, nil, name, err)
 	}
 	defer src.Close()
+	lastmod := c.FormValue("artifact-editor-lastmodified")
+	lm, err := strconv.ParseInt(lastmod, 10, 64)
+	if err == nil && lm > 0 {
+		lmod := time.UnixMilli(lm)
+		fu.LastMod = lmod
+	}
 	sign := magicnumber.Find(src)
 	fu.MagicNumber = sign.Title()
 	dst, err := copier(c, nil, file, up.key)

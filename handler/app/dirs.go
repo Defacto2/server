@@ -127,7 +127,14 @@ func detectANSI(db *sql.DB, logger *zap.SugaredLogger, id int64, data map[string
 	if db == nil {
 		return data
 	}
-	mos, numb := data["modOS"].(string), data["modMagicNumber"].(string)
+	mos, valid := data["modOS"].(string)
+	if !valid {
+		return data
+	}
+	numb, valid := data["modMagicNumber"].(string)
+	if !valid {
+		return data
+	}
 	textfile := strings.EqualFold(mos, tags.Text.String())
 	if textfile && numb == magicnumber.ANSIEscapeText.Title() {
 		if err := model.UpdatePlatform(db, id, tags.ANSI.String()); err != nil && logger != nil {

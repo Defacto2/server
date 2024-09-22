@@ -445,7 +445,8 @@ func LinkScnr(name string) (string, error) {
 func LinkScnrs(s string) template.HTML {
 	x := []string{}
 	y := strings.Split(s, ",")
-	cls := "link-dark link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+	cls := "link-dark link-offset-2 link-offset-3-hover link-underline " +
+		"link-underline-opacity-0 link-underline-opacity-75-hover"
 	for _, z := range y {
 		z = strings.TrimSpace(z)
 		if z == "" {
