@@ -670,9 +670,6 @@ func UploadReplacement(c echo.Context, db *sql.DB, downloadDir, extraDir string)
 		return c.HTML(http.StatusInternalServerError, "The database commit failed")
 	}
 	repack := filepath.Join(extraDir, up.unid+".zip")
-	if err := command.UncontrolledPath(repack); err != nil {
-		return fmt.Errorf("upload replacement %w", err)
-	}
 	defer os.Remove(repack)
 	if mkc, err := helper.MkContent(abs); err == nil {
 		defer os.RemoveAll(mkc)
