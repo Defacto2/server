@@ -607,7 +607,7 @@ func reloader(c echo.Context, filename string) error {
 // UploadReplacement is the file transfer handler that uploads, validates a new file upload
 // and updates the existing artifact record with the new file information.
 // The logger is optional and if nil then the function will not log any debug information.
-func UploadReplacement(c echo.Context, db *sql.DB, downloadDir, extraDir string) error {
+func UploadReplacement(c echo.Context, db *sql.DB, downloadDir, extraDir string) error { //nolint:cyclop,funlen
 	if db == nil {
 		return c.HTML(http.StatusInternalServerError, "error, the database connection is nil")
 	}
@@ -670,6 +670,9 @@ func UploadReplacement(c echo.Context, db *sql.DB, downloadDir, extraDir string)
 		return c.HTML(http.StatusInternalServerError, "The database commit failed")
 	}
 	repack := filepath.Join(extraDir, up.unid+".zip")
+	if err := command.UncontrolledPath(repack); err != nil {
+		return fmt.Errorf("upload replacement %w", err)
+	}
 	defer os.Remove(repack)
 	if mkc, err := helper.MkContent(abs); err == nil {
 		defer os.RemoveAll(mkc)

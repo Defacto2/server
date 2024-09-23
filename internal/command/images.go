@@ -308,6 +308,9 @@ func (dir Dirs) PictureImager(debug *zap.SugaredLogger, src, unid string) error 
 // can be used by the ANSILOVE command to create a PNG image. 80 columns and 29 rows are
 // works well with a 400x400 pixel thumbnail.
 func TextCrop(src, dst string) error {
+	if err := UncontrolledPath(src); err != nil {
+		return fmt.Errorf("text crop %w", err)
+	}
 	srcFile, err := os.Open(src)
 	if err != nil {
 		return fmt.Errorf("text crop open %w", err)
@@ -383,6 +386,9 @@ func textCropper(src, unid string) (string, error) {
 // A webp thumbnail image is also created and copied to the thumbnail directory.
 // If the amigaFont is true, the image is created using an Amiga Topaz+ font.
 func (dir Dirs) TextImager(debug *zap.SugaredLogger, src, unid string, amigaFont bool) error {
+	if err := UncontrolledPath(src); err != nil {
+		return fmt.Errorf("dirs text imager %w", err)
+	}
 	if amigaFont {
 		return dir.textAmigaImager(debug, src, unid)
 	}
