@@ -275,3 +275,16 @@ func run(debug *zap.SugaredLogger, name, wdir string, arg ...string) error {
 	}
 	return nil
 }
+
+// UncontrolledPath returns an error if the path contains any of the following characters:
+//   - /
+//   - \
+//   - ..
+//
+// This is to prevent directory traversal attacks.
+func UncontrolledPath(path string) error {
+	if strings.Contains(path, "/") || strings.Contains(path, "\\") || strings.Contains(path, "..") {
+		return ErrPath
+	}
+	return nil
+}
