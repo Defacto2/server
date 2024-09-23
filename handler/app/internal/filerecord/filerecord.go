@@ -24,6 +24,7 @@ import (
 	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/Defacto2/server/handler/jsdos/msdos"
 	"github.com/Defacto2/server/handler/readme"
+	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -481,7 +482,7 @@ func (e *entry) parseMusicID3(path string) bool {
 
 // ListContent returns a list of the files contained in the archive file.
 // This is used to generate the HTML for the "Download content" section of the File editor.
-func ListContent(art *models.File, src string) template.HTML { //nolint:funlen
+func ListContent(art *models.File, dirs command.Dirs, src string) template.HTML { //nolint:funlen
 	if art == nil {
 		return ""
 	}
@@ -510,6 +511,7 @@ func ListContent(art *models.File, src string) template.HTML { //nolint:funlen
 		return template.HTML(err.Error())
 	}
 	var b strings.Builder
+	name := ""
 	walkerFunc := func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return filepath.SkipDir
@@ -527,6 +529,9 @@ func ListContent(art *models.File, src string) template.HTML { //nolint:funlen
 			return skipEntry
 		}
 		entries++
+		if e.text {
+			name = d.Name()
+		}
 		le := listEntry(e, rel, unid)
 		b.WriteString(le.HTML(e.bytes, platform, section))
 		if maxItems := 200; entries > maxItems {
@@ -538,6 +543,10 @@ func ListContent(art *models.File, src string) template.HTML { //nolint:funlen
 	}
 	if err = filepath.WalkDir(dst, walkerFunc); err != nil {
 		return template.HTML(err.Error())
+	}
+	if entries == 1 && name != "" {
+		src := filepath.Join(dst, name)
+		defer func() { _ = dirs.TextDeferred(src, unid) }()
 	}
 	b.WriteString(skippedEmpty(zeroByteFiles))
 	return template.HTML(b.String())
