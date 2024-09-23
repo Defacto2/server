@@ -349,6 +349,12 @@ func (dir Dirs) Editor(art *models.File, data map[string]interface{}) map[string
 	if art == nil {
 		return data
 	}
+	d := command.Dirs{
+		Download:  dir.Download,
+		Preview:   dir.Preview,
+		Thumbnail: dir.Thumbnail,
+		Extra:     dir.Extra,
+	}
 	unid := filerecord.UnID(art)
 	abs := filepath.Join(dir.Download, unid)
 	data["epochYear"] = epoch
@@ -365,7 +371,7 @@ func (dir Dirs) Editor(art *models.File, data map[string]interface{}) map[string
 	data["modMagicNumber"] = simple.MagicAsTitle(abs)
 	data["modDBModify"] = filerecord.LastModificationDate(art)
 	data["modStatModify"], data["modStatSizeB"], data["modStatSizeF"] = simple.StatHumanize(abs)
-	data["modDecompress"] = filerecord.ListContent(art, abs)
+	data["modDecompress"] = filerecord.ListContent(art, d, abs)
 	data["modDecompressLoc"] = simple.MkContent(abs)
 	data["modAssetPreview"] = dir.assets(dir.Preview, unid)
 	data["modAssetThumbnail"] = dir.assets(dir.Thumbnail, unid)

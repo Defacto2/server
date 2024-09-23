@@ -53,6 +53,7 @@ type Dirs struct {
 	Download  string // Download is the directory path for the file downloads.
 	Preview   string // Preview is the directory path for the image previews.
 	Thumbnail string // Thumbnail is the directory path for the image thumbnails.
+	Extra     string // Extra is the directory path for the extra files.
 }
 
 const (
