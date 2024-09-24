@@ -37,10 +37,8 @@ var (
 //
 // [HTMX header]: https://htmx.org/reference/#response_headers
 func pageRefresh(c echo.Context) echo.Context {
-	res := c.Response()
-	const htmxRefresh = "HX-Refresh"
-	res.Header().Set(htmxRefresh, "true")
-	res.WriteHeader(http.StatusOK)
+	c.Response().Header().Set("HX-Refresh", "true")
+	c.Response().WriteHeader(http.StatusFound)
 	return c
 }
 

@@ -160,12 +160,18 @@ import { getElmById } from "./helper.mjs";
     }
     const errClass = "text-danger";
     const xhr = event.detail.xhr;
-    if (event.detail.successful) {
+    const statusFound = xhr.status === 200 || xhr.status === 302;
+    if ((event.detail && event.detail.successful) || statusFound) {
       feedback.innerText = `${xhr.responseText}`;
       feedback.classList.remove(errClass);
       return;
     }
-    if (event.detail.failed && event.detail.xhr) {
+    if (
+      event.detail &&
+      event.detail.failed !== undefined &&
+      event.detail.failed &&
+      event.detail.xhr
+    ) {
       feedback.classList.add(errClass);
       feedback.innerText =
         `Something on the server is not working, ` +
