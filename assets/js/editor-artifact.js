@@ -349,28 +349,6 @@ import { clipValue, getElmById, titleize } from "./helper.mjs";
     ca.value = audio;
   });
 
-  const cmmt = document.getElementById("artifact-editor-comment");
-  if (cmmt === null) {
-    throw new Error("The comment input is missing.");
-  }
-  cmmt.addEventListener("input", (e) => {
-    e.target.classList.remove("is-valid");
-  });
-  const cmmtReset = document.getElementById("artifact-editor-comment-undo");
-  if (cmmtReset === null) {
-    throw new Error("The comment reset is missing.");
-  }
-  const cmmtResetter = document.getElementById(
-    "artifact-editor-comment-resetter"
-  );
-  if (cmmtResetter === null) {
-    throw new Error("The comment resetter is missing.");
-  }
-  cmmtReset.addEventListener("click", () => {
-    cmmt.classList.remove("is-valid");
-    cmmt.value = cmmtResetter.value;
-  });
-
   const vt = document.getElementById("artifact-editor-virustotal");
   if (vt === null) {
     throw new Error("The virustotal input is missing.");
@@ -431,6 +409,48 @@ import { clipValue, getElmById, titleize } from "./helper.mjs";
     year.value = values[0];
     month.value = values[1];
     day.value = values[2];
+  });
+
+  const cmmt = document.getElementById("artifact-editor-comment");
+  if (cmmt === null) {
+    throw new Error("The comment input is missing.");
+  }
+  cmmt.addEventListener("input", (e) => {
+    e.target.classList.remove("is-valid");
+    const unsetDateOfRelease =
+      year.value == 0 && month.value == 0 && day.value == 0;
+    if (unsetDateOfRelease == false) {
+      return;
+    }
+    const mmddyyDatePattern =
+      /(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/(\d{2})/;
+    const match = mmddyyDatePattern.exec(e.target.value);
+    if (match) {
+      const mm = match[1];
+      const md = match[2];
+      const my = match[3];
+      const val = parseInt(my, 10);
+      year.value = 2000 + val;
+      if (val >= 79 && val <= 99) {
+        year.value = 1900 + val;
+      }
+      month.value = mm;
+      day.value = md;
+    }
+  });
+  const cmmtReset = document.getElementById("artifact-editor-comment-undo");
+  if (cmmtReset === null) {
+    throw new Error("The comment reset is missing.");
+  }
+  const cmmtResetter = document.getElementById(
+    "artifact-editor-comment-resetter"
+  );
+  if (cmmtResetter === null) {
+    throw new Error("The comment resetter is missing.");
+  }
+  cmmtReset.addEventListener("click", () => {
+    cmmt.classList.remove("is-valid");
+    cmmt.value = cmmtResetter.value;
   });
 
   const dateLastMod = document.getElementById("artifact-editor-date-lastmod");
