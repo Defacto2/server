@@ -143,7 +143,12 @@
             {{- else}}
             <div class="input-group mb-3">
               <button type="button" class="btn btn-secondary w-25" id="artifact-editor-templocation-label"
-                data-bs-toggle="tooltip" data-bs-title="Copy the path">Temp location</button>
+                data-bs-toggle="tooltip" data-bs-title="Copy the path">
+                <span role="status">Location</span>
+                <span id="artifact-editor-comp-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </span>
+              </button>
               <input type="text" class="form-control" name="artifact-editor-templocation" id="artifact-editor-templocation" 
                 aria-describedby="artifact-editor-templocation-label" value="{{$modDecompressLoc}}" readonly>
             </div>
