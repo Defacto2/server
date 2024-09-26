@@ -71,12 +71,8 @@ type File struct { // Primary key
 	FileZipContent null.String `boil:"file_zip_content" json:"file_zip_content,omitempty" toml:"file_zip_content" yaml:"file_zip_content,omitempty"`
 	// File type meta data
 	FileMagicType null.String `boil:"file_magic_type" json:"file_magic_type,omitempty" toml:"file_magic_type" yaml:"file_magic_type,omitempty"`
-	// Internal file to use as a screenshot
-	PreviewImage null.String `boil:"preview_image" json:"preview_image,omitempty" toml:"preview_image" yaml:"preview_image,omitempty"`
 	// SHA384 hash of file
 	FileIntegrityStrong null.String `boil:"file_integrity_strong" json:"file_integrity_strong,omitempty" toml:"file_integrity_strong" yaml:"file_integrity_strong,omitempty"`
-	// MD5 hash of file
-	FileIntegrityWeak null.String `boil:"file_integrity_weak" json:"file_integrity_weak,omitempty" toml:"file_integrity_weak" yaml:"file_integrity_weak,omitempty"`
 	// Date last modified attribute saved to file
 	FileLastModified null.Time `boil:"file_last_modified" json:"file_last_modified,omitempty" toml:"file_last_modified" yaml:"file_last_modified,omitempty"`
 	// Computer platform
@@ -91,14 +87,10 @@ type File struct { // Primary key
 	Updatedat null.Time `boil:"updatedat" json:"updatedat,omitempty" toml:"updatedat" yaml:"updatedat,omitempty"`
 	// Timestamp used to ignore record
 	Deletedat null.Time `boil:"deletedat" json:"deletedat,omitempty" toml:"deletedat" yaml:"deletedat,omitempty"`
-	// UUID of the user who last updated this record
-	Updatedby null.String `boil:"updatedby" json:"updatedby,omitempty" toml:"updatedby" yaml:"updatedby,omitempty"`
 	// UUID of the user who removed this record
 	Deletedby null.String `boil:"deletedby" json:"deletedby,omitempty" toml:"deletedby" yaml:"deletedby,omitempty"`
 	// Text file contained in archive to display
 	RetrotxtReadme null.String `boil:"retrotxt_readme" json:"retrotxt_readme,omitempty" toml:"retrotxt_readme" yaml:"retrotxt_readme,omitempty"`
-	// Disable the use of RetroTxt
-	RetrotxtNoReadme null.Int16 `boil:"retrotxt_no_readme" json:"retrotxt_no_readme,omitempty" toml:"retrotxt_no_readme" yaml:"retrotxt_no_readme,omitempty"`
 	// Program contained in archive to run in DOSBox
 	DoseeRunProgram null.String `boil:"dosee_run_program" json:"dosee_run_program,omitempty" toml:"dosee_run_program" yaml:"dosee_run_program,omitempty"`
 	// DOSee turn off expanded memory (EMS)
@@ -147,9 +139,7 @@ var FileColumns = struct {
 	FileSecurityAlertURL string
 	FileZipContent       string
 	FileMagicType        string
-	PreviewImage         string
 	FileIntegrityStrong  string
-	FileIntegrityWeak    string
 	FileLastModified     string
 	Platform             string
 	Section              string
@@ -157,10 +147,8 @@ var FileColumns = struct {
 	Createdat            string
 	Updatedat            string
 	Deletedat            string
-	Updatedby            string
 	Deletedby            string
 	RetrotxtReadme       string
-	RetrotxtNoReadme     string
 	DoseeRunProgram      string
 	DoseeHardwareCPU     string
 	DoseeHardwareGraphic string
@@ -195,9 +183,7 @@ var FileColumns = struct {
 	FileSecurityAlertURL: "file_security_alert_url",
 	FileZipContent:       "file_zip_content",
 	FileMagicType:        "file_magic_type",
-	PreviewImage:         "preview_image",
 	FileIntegrityStrong:  "file_integrity_strong",
-	FileIntegrityWeak:    "file_integrity_weak",
 	FileLastModified:     "file_last_modified",
 	Platform:             "platform",
 	Section:              "section",
@@ -205,10 +191,8 @@ var FileColumns = struct {
 	Createdat:            "createdat",
 	Updatedat:            "updatedat",
 	Deletedat:            "deletedat",
-	Updatedby:            "updatedby",
 	Deletedby:            "deletedby",
 	RetrotxtReadme:       "retrotxt_readme",
-	RetrotxtNoReadme:     "retrotxt_no_readme",
 	DoseeRunProgram:      "dosee_run_program",
 	DoseeHardwareCPU:     "dosee_hardware_cpu",
 	DoseeHardwareGraphic: "dosee_hardware_graphic",
@@ -245,9 +229,7 @@ var FileTableColumns = struct {
 	FileSecurityAlertURL string
 	FileZipContent       string
 	FileMagicType        string
-	PreviewImage         string
 	FileIntegrityStrong  string
-	FileIntegrityWeak    string
 	FileLastModified     string
 	Platform             string
 	Section              string
@@ -255,10 +237,8 @@ var FileTableColumns = struct {
 	Createdat            string
 	Updatedat            string
 	Deletedat            string
-	Updatedby            string
 	Deletedby            string
 	RetrotxtReadme       string
-	RetrotxtNoReadme     string
 	DoseeRunProgram      string
 	DoseeHardwareCPU     string
 	DoseeHardwareGraphic string
@@ -293,9 +273,7 @@ var FileTableColumns = struct {
 	FileSecurityAlertURL: "files.file_security_alert_url",
 	FileZipContent:       "files.file_zip_content",
 	FileMagicType:        "files.file_magic_type",
-	PreviewImage:         "files.preview_image",
 	FileIntegrityStrong:  "files.file_integrity_strong",
-	FileIntegrityWeak:    "files.file_integrity_weak",
 	FileLastModified:     "files.file_last_modified",
 	Platform:             "files.platform",
 	Section:              "files.section",
@@ -303,10 +281,8 @@ var FileTableColumns = struct {
 	Createdat:            "files.createdat",
 	Updatedat:            "files.updatedat",
 	Deletedat:            "files.deletedat",
-	Updatedby:            "files.updatedby",
 	Deletedby:            "files.deletedby",
 	RetrotxtReadme:       "files.retrotxt_readme",
-	RetrotxtNoReadme:     "files.retrotxt_no_readme",
 	DoseeRunProgram:      "files.dosee_run_program",
 	DoseeHardwareCPU:     "files.dosee_hardware_cpu",
 	DoseeHardwareGraphic: "files.dosee_hardware_graphic",
@@ -518,9 +494,7 @@ var FileWhere = struct {
 	FileSecurityAlertURL whereHelpernull_String
 	FileZipContent       whereHelpernull_String
 	FileMagicType        whereHelpernull_String
-	PreviewImage         whereHelpernull_String
 	FileIntegrityStrong  whereHelpernull_String
-	FileIntegrityWeak    whereHelpernull_String
 	FileLastModified     whereHelpernull_Time
 	Platform             whereHelpernull_String
 	Section              whereHelpernull_String
@@ -528,10 +502,8 @@ var FileWhere = struct {
 	Createdat            whereHelpernull_Time
 	Updatedat            whereHelpernull_Time
 	Deletedat            whereHelpernull_Time
-	Updatedby            whereHelpernull_String
 	Deletedby            whereHelpernull_String
 	RetrotxtReadme       whereHelpernull_String
-	RetrotxtNoReadme     whereHelpernull_Int16
 	DoseeRunProgram      whereHelpernull_String
 	DoseeHardwareCPU     whereHelpernull_String
 	DoseeHardwareGraphic whereHelpernull_String
@@ -566,9 +538,7 @@ var FileWhere = struct {
 	FileSecurityAlertURL: whereHelpernull_String{field: "\"files\".\"file_security_alert_url\""},
 	FileZipContent:       whereHelpernull_String{field: "\"files\".\"file_zip_content\""},
 	FileMagicType:        whereHelpernull_String{field: "\"files\".\"file_magic_type\""},
-	PreviewImage:         whereHelpernull_String{field: "\"files\".\"preview_image\""},
 	FileIntegrityStrong:  whereHelpernull_String{field: "\"files\".\"file_integrity_strong\""},
-	FileIntegrityWeak:    whereHelpernull_String{field: "\"files\".\"file_integrity_weak\""},
 	FileLastModified:     whereHelpernull_Time{field: "\"files\".\"file_last_modified\""},
 	Platform:             whereHelpernull_String{field: "\"files\".\"platform\""},
 	Section:              whereHelpernull_String{field: "\"files\".\"section\""},
@@ -576,10 +546,8 @@ var FileWhere = struct {
 	Createdat:            whereHelpernull_Time{field: "\"files\".\"createdat\""},
 	Updatedat:            whereHelpernull_Time{field: "\"files\".\"updatedat\""},
 	Deletedat:            whereHelpernull_Time{field: "\"files\".\"deletedat\""},
-	Updatedby:            whereHelpernull_String{field: "\"files\".\"updatedby\""},
 	Deletedby:            whereHelpernull_String{field: "\"files\".\"deletedby\""},
 	RetrotxtReadme:       whereHelpernull_String{field: "\"files\".\"retrotxt_readme\""},
-	RetrotxtNoReadme:     whereHelpernull_Int16{field: "\"files\".\"retrotxt_no_readme\""},
 	DoseeRunProgram:      whereHelpernull_String{field: "\"files\".\"dosee_run_program\""},
 	DoseeHardwareCPU:     whereHelpernull_String{field: "\"files\".\"dosee_hardware_cpu\""},
 	DoseeHardwareGraphic: whereHelpernull_String{field: "\"files\".\"dosee_hardware_graphic\""},
@@ -608,9 +576,9 @@ func (*fileR) NewStruct() *fileR {
 type fileL struct{}
 
 var (
-	fileAllColumns            = []string{"id", "uuid", "list_relations", "web_id_16colors", "web_id_github", "web_id_youtube", "web_id_pouet", "web_id_demozoo", "group_brand_for", "group_brand_by", "record_title", "date_issued_year", "date_issued_month", "date_issued_day", "credit_text", "credit_program", "credit_illustration", "credit_audio", "filename", "filesize", "list_links", "file_security_alert_url", "file_zip_content", "file_magic_type", "preview_image", "file_integrity_strong", "file_integrity_weak", "file_last_modified", "platform", "section", "comment", "createdat", "updatedat", "deletedat", "updatedby", "deletedby", "retrotxt_readme", "retrotxt_no_readme", "dosee_run_program", "dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio", "dosee_incompatible", "dosee_no_ems", "dosee_no_xms", "dosee_no_umb", "dosee_load_utilities"}
+	fileAllColumns            = []string{"id", "uuid", "list_relations", "web_id_16colors", "web_id_github", "web_id_youtube", "web_id_pouet", "web_id_demozoo", "group_brand_for", "group_brand_by", "record_title", "date_issued_year", "date_issued_month", "date_issued_day", "credit_text", "credit_program", "credit_illustration", "credit_audio", "filename", "filesize", "list_links", "file_security_alert_url", "file_zip_content", "file_magic_type", "file_integrity_strong", "file_last_modified", "platform", "section", "comment", "createdat", "updatedat", "deletedat", "deletedby", "retrotxt_readme", "dosee_run_program", "dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio", "dosee_incompatible", "dosee_no_ems", "dosee_no_xms", "dosee_no_umb", "dosee_load_utilities"}
 	fileColumnsWithoutDefault = []string{}
-	fileColumnsWithDefault    = []string{"id", "uuid", "list_relations", "web_id_16colors", "web_id_github", "web_id_youtube", "web_id_pouet", "web_id_demozoo", "group_brand_for", "group_brand_by", "record_title", "date_issued_year", "date_issued_month", "date_issued_day", "credit_text", "credit_program", "credit_illustration", "credit_audio", "filename", "filesize", "list_links", "file_security_alert_url", "file_zip_content", "file_magic_type", "preview_image", "file_integrity_strong", "file_integrity_weak", "file_last_modified", "platform", "section", "comment", "createdat", "updatedat", "deletedat", "updatedby", "deletedby", "retrotxt_readme", "retrotxt_no_readme", "dosee_run_program", "dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio", "dosee_incompatible", "dosee_no_ems", "dosee_no_xms", "dosee_no_umb", "dosee_load_utilities"}
+	fileColumnsWithDefault    = []string{"id", "uuid", "list_relations", "web_id_16colors", "web_id_github", "web_id_youtube", "web_id_pouet", "web_id_demozoo", "group_brand_for", "group_brand_by", "record_title", "date_issued_year", "date_issued_month", "date_issued_day", "credit_text", "credit_program", "credit_illustration", "credit_audio", "filename", "filesize", "list_links", "file_security_alert_url", "file_zip_content", "file_magic_type", "file_integrity_strong", "file_last_modified", "platform", "section", "comment", "createdat", "updatedat", "deletedat", "deletedby", "retrotxt_readme", "dosee_run_program", "dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio", "dosee_incompatible", "dosee_no_ems", "dosee_no_xms", "dosee_no_umb", "dosee_load_utilities"}
 	filePrimaryKeyColumns     = []string{"id"}
 	fileGeneratedColumns      = []string{}
 )

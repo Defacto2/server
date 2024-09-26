@@ -64,6 +64,14 @@ port = 5432
 user = "root"
 pass = "example"
 sslmode = "disable"
+# These columns should be set for removal in the database schema
+blacklist = [
+    "files.dosee_no_aspect_ratio_fix",
+    "files.file_integrity_weak",
+    "files.preview_image",
+    "files.retrotxt_no_readme",
+    "files.updatedby",
+]
 
 [auto-columns]
 created = "createdat"
