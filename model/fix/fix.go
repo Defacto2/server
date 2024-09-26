@@ -231,6 +231,10 @@ const (
 	dsifix    = "DARKSIDE INCORPORATED"
 	rss       = "RSS"
 	rssfix    = "renaissance"
+	coop0     = "Public Enemy, Tristar & Red Sector Inc, The Dream Team"
+	coop0fix  = "PE, TRSI, TDT"
+	coop1     = "The Dream Team, Tristar & Red Sector Inc"
+	coop1fix  = "COOP"
 )
 
 func fixes() map[string]string {
@@ -246,6 +250,8 @@ func fixes() map[string]string {
 		ofg1:    ofgfix,
 		dsi:     dsifix,
 		rss:     rssfix,
+		coop0:   coop0fix,
+		coop1:   coop1fix,
 	}
 }
 

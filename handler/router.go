@@ -116,7 +116,7 @@ func (c Configuration) embed(e *echo.Echo, public embed.FS) *echo.Echo {
 	e.FileFS("/osd.xml", "public/text/osd.xml", public)
 	e.FileFS("/robots.txt", "public/text/robots.txt", public)
 	e.FileFS("/site.webmanifest", "public/text/site.webmanifest.json", public)
-	e.FileFS("/wdosbox.wasm.js", "public/js/wdosbox.wasm", public) // this is required by `js-dos.js`
+	e.FileFS("/js/wdosbox.wasm.js", "public/js/wdosbox.wasm", public) // this is required by `js-dos.js`
 	return e
 }
 
@@ -433,5 +433,12 @@ func fixes(e *echo.Echo) *echo.Echo {
 	fixes.GET("/"+releaser.Obfuscate("RSS"), func(c echo.Context) error {
 		return c.Redirect(code, g+releaser.Obfuscate("renaissance"))
 	})
+	// THESE ARE NOT WORKING, /the-dream-team/, /public-enemy/ get redirected
+	// fixes.GET(`/public-enemy*tristar-ampersand-red-sector-inc*the-dream-team`, func(c echo.Context) error {
+	// 	return c.Redirect(code, g+"pe*trsi*tdt")
+	// })
+	// fixes.GET(`/the-dream-team*tristar-ampersand-red-sector-inc`, func(c echo.Context) error {
+	// 	return c.Redirect(code, g+"coop")
+	// })
 	return e
 }

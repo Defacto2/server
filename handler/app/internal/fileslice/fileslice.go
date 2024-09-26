@@ -187,7 +187,7 @@ func FileInfo(uri string) (string, string, string) {
 		lead = "These are the recent file artifacts that have been modified or submitted on Defacto2."
 	case ForApproval:
 		logo = "new uploads"
-		h1sub = "edit the new uploads"
+		h1sub = "edit the new uploads for approval"
 		lead = "These are the recent file artifacts that have been submitted for approval on Defacto2."
 	case Deletions:
 		logo = "deletions"
@@ -283,8 +283,7 @@ func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, l
 	switch Match(uri) {
 	// pulldown editor menu matches
 	case ForApproval:
-		r := model.Artifacts{}
-		return r.ByForApproval(ctx, exec, page, limit)
+		return model.ByForApproval(ctx, exec, page, limit)
 	case Deletions:
 		r := model.Artifacts{}
 		return r.ByHidden(ctx, exec, page, limit)

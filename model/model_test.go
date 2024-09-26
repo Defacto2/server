@@ -317,7 +317,7 @@ func TestArtifacts(t *testing.T) {
 	x, err = a.ByHidden(ctx, nil, -1, -1)
 	assert.Nil(t, x)
 	require.Error(t, err)
-	x, err = a.ByForApproval(ctx, nil, -1, -1)
+	x, err = model.ByForApproval(ctx, nil, -1, -1)
 	assert.Nil(t, x)
 	require.Error(t, err)
 	x, err = a.ByMagicErr(ctx, nil, true)

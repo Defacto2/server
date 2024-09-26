@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -165,7 +166,9 @@ func artifacts(c echo.Context, db *sql.DB, uri string, page int) error {
 	if err != nil {
 		return DatabaseErr(c, errs, err)
 	}
+	boil.DebugMode = false // TODO remove
 	data[records] = r
+	fmt.Fprintln(os.Stderr, "RECORDS OF ARTIFACTS: ", len(r))
 	d, sum, err := stats(ctx, db, uri)
 	if err != nil {
 		return DatabaseErr(c, errs, err)
