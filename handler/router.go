@@ -433,11 +433,12 @@ func fixes(e *echo.Echo) *echo.Echo {
 	fixes.GET("/"+releaser.Obfuscate("RSS"), func(c echo.Context) error {
 		return c.Redirect(code, g+releaser.Obfuscate("renaissance"))
 	})
-	fixes.GET("/public-enemy*tristar-ampersand-red-sector-inc*the-dream-team", func(c echo.Context) error {
-		return c.Redirect(code, g+"pe*trsi*tdt")
-	})
-	fixes.GET("/the-dream-team*tristar-ampersand-red-sector-inc", func(c echo.Context) error {
-		return c.Redirect(code, g+"coop")
-	})
+	// THESE ARE NOT WORKING, /the-dream-team/, /public-enemy/ get redirected
+	// fixes.GET(`/public-enemy*tristar-ampersand-red-sector-inc*the-dream-team`, func(c echo.Context) error {
+	// 	return c.Redirect(code, g+"pe*trsi*tdt")
+	// })
+	// fixes.GET(`/the-dream-team*tristar-ampersand-red-sector-inc`, func(c echo.Context) error {
+	// 	return c.Redirect(code, g+"coop")
+	// })
 	return e
 }
