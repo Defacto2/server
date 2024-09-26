@@ -116,7 +116,7 @@ func (c Configuration) embed(e *echo.Echo, public embed.FS) *echo.Echo {
 	e.FileFS("/osd.xml", "public/text/osd.xml", public)
 	e.FileFS("/robots.txt", "public/text/robots.txt", public)
 	e.FileFS("/site.webmanifest", "public/text/site.webmanifest.json", public)
-	e.FileFS("/wdosbox.wasm.js", "public/js/wdosbox.wasm", public) // this is required by `js-dos.js`
+	e.FileFS("/js/wdosbox.wasm.js", "public/js/wdosbox.wasm", public) // this is required by `js-dos.js`
 	return e
 }
 
