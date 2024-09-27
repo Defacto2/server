@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -155,12 +156,14 @@ func (f *Artifacts) ByForApproval(ctx context.Context, exec boil.ContextExecutor
 	if invalidExec(exec) {
 		return nil, ErrDB
 	}
+	fmt.Fprintln(os.Stderr, "========================ByForApproval===============================")
 	boil.DebugMode = true // TODO: remove this debug line
 	if err := f.byForApproval(ctx, exec); err != nil {
+		fmt.Fprintln(os.Stderr, "BYFORAPPROVAL", err)
 		fmt.Fprint(io.Discard, err)
 		return nil, nil
 	}
-	fmt.Println("B", f.Bytes, "C", f.Count)
+	fmt.Fprintln(os.Stderr, "B", f.Bytes, "C", f.Count)
 	const clause = "id DESC"
 	return models.Files(
 		qm.WithDeleted(),
