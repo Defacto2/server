@@ -166,6 +166,7 @@ func artifacts(c echo.Context, db *sql.DB, uri string, page int) error {
 		return DatabaseErr(c, errs, err)
 	}
 	data[records] = r
+	fmt.Println("RECORDS OF ARTIFACTS: ", len(r))
 	d, sum, err := stats(ctx, db, uri)
 	if err != nil {
 		return DatabaseErr(c, errs, err)

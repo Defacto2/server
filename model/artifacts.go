@@ -159,6 +159,7 @@ func (f *Artifacts) ByForApproval(ctx context.Context, exec boil.ContextExecutor
 		fmt.Fprint(io.Discard, err)
 		return nil, nil
 	}
+	fmt.Println("B", f.Bytes, "C", f.Count)
 	const clause = "id DESC"
 	return models.Files(
 		qm.WithDeleted(),
@@ -173,9 +174,9 @@ func (f *Artifacts) byForApproval(ctx context.Context, exec boil.ContextExecutor
 	if invalidExec(exec) {
 		return ErrDB
 	}
-	// if f.Bytes > 0 && f.Count > 0 {
-	// 	return nil
-	// }
+	if f.Bytes > 0 && f.Count > 0 {
+		return nil
+	}
 	return models.NewQuery(
 		qm.WithDeleted(),
 		models.FileWhere.Deletedat.IsNotNull(),
