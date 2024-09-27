@@ -283,8 +283,7 @@ func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, l
 	switch Match(uri) {
 	// pulldown editor menu matches
 	case ForApproval:
-		r := model.Artifacts{}
-		return r.ByForApproval(ctx, exec, page, limit)
+		return model.ByForApproval(ctx, exec, page, limit)
 	case Deletions:
 		r := model.Artifacts{}
 		return r.ByHidden(ctx, exec, page, limit)

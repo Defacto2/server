@@ -5,8 +5,6 @@ package model
 import (
 	"context"
 	"fmt"
-	"io"
-	"os"
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -145,46 +143,6 @@ func (f *Artifacts) byHidden(ctx context.Context, exec boil.ContextExecutor) err
 		models.FileWhere.Deletedat.IsNotNull(),
 		models.FileWhere.Deletedby.IsNotNull(),
 		qm.WithDeleted(),
-		qm.Select(postgres.Columns()...),
-		qm.From(From)).Bind(ctx, exec, f)
-}
-
-// ByForApproval returns all of the file records that are waiting to be marked for approval.
-func (f *Artifacts) ByForApproval(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
-	models.FileSlice, error,
-) {
-	if invalidExec(exec) {
-		return nil, ErrDB
-	}
-	fmt.Fprintln(os.Stderr, "========================ByForApproval===============================")
-	boil.DebugMode = true // TODO: remove this debug line
-	if err := f.byForApproval(ctx, exec); err != nil {
-		fmt.Fprintln(os.Stderr, "BYFORAPPROVAL", err)
-		fmt.Fprint(io.Discard, err)
-		return nil, nil
-	}
-	fmt.Fprintln(os.Stderr, "B", f.Bytes, "C", f.Count)
-	const clause = "id DESC"
-	return models.Files(
-		qm.WithDeleted(),
-		models.FileWhere.Deletedat.IsNotNull(),
-		models.FileWhere.Deletedby.IsNull(),
-		qm.OrderBy(clause),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, exec)
-}
-
-func (f *Artifacts) byForApproval(ctx context.Context, exec boil.ContextExecutor) error {
-	if invalidExec(exec) {
-		return ErrDB
-	}
-	if f.Bytes > 0 && f.Count > 0 {
-		return nil
-	}
-	return models.NewQuery(
-		qm.WithDeleted(),
-		models.FileWhere.Deletedat.IsNotNull(),
-		models.FileWhere.Deletedby.IsNull(),
 		qm.Select(postgres.Columns()...),
 		qm.From(From)).Bind(ctx, exec, f)
 }
@@ -374,4 +332,24 @@ func (f *Artifacts) ID(
 		return nil, fmt.Errorf("models all files by id search: %w", err)
 	}
 	return fs, nil
+}
+
+// ByForApproval returns all of the file records that are waiting to be marked for approval.
+//
+// This should not bind values to Artifacts struct as it can fail with a scan error due to unapproved files
+// missing bytes and minyear/maxyear values.
+func ByForApproval(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
+	if invalidExec(exec) {
+		return nil, ErrDB
+	}
+	const clause = "id DESC"
+	return models.Files(
+		qm.WithDeleted(),
+		models.FileWhere.Deletedat.IsNotNull(),
+		models.FileWhere.Deletedby.IsNull(),
+		qm.OrderBy(clause),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, exec)
 }
