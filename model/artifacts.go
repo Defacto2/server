@@ -161,9 +161,9 @@ func (f *Artifacts) ByForApproval(ctx context.Context, exec boil.ContextExecutor
 	}
 	const clause = "id DESC"
 	return models.Files(
+		qm.WithDeleted(),
 		models.FileWhere.Deletedat.IsNotNull(),
 		models.FileWhere.Deletedby.IsNull(),
-		qm.WithDeleted(),
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit)).All(ctx, exec)
@@ -173,13 +173,13 @@ func (f *Artifacts) byForApproval(ctx context.Context, exec boil.ContextExecutor
 	if invalidExec(exec) {
 		return ErrDB
 	}
-	if f.Bytes > 0 && f.Count > 0 {
-		return nil
-	}
+	// if f.Bytes > 0 && f.Count > 0 {
+	// 	return nil
+	// }
 	return models.NewQuery(
+		qm.WithDeleted(),
 		models.FileWhere.Deletedat.IsNotNull(),
 		models.FileWhere.Deletedby.IsNull(),
-		qm.WithDeleted(),
 		qm.Select(postgres.Columns()...),
 		qm.From(From)).Bind(ctx, exec, f)
 }
