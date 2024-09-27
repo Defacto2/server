@@ -155,6 +155,7 @@ func (f *Artifacts) ByForApproval(ctx context.Context, exec boil.ContextExecutor
 	if invalidExec(exec) {
 		return nil, ErrDB
 	}
+	boil.DebugMode = true // TODO: remove this debug line
 	if err := f.byForApproval(ctx, exec); err != nil {
 		fmt.Fprint(io.Discard, err)
 		return nil, nil
