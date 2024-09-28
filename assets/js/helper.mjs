@@ -27,14 +27,45 @@ export function titleize(text) {
   return text
     .split(" ")
     .map((word, index) => {
+      const x = romanFix(word);
+      if (index > 0 && Number.isInteger(x)) {
+        return x;
+      }
       // Capitalize the first word and any word not in the common adverbs list
       if (index === 0 || !commonAdverbs.includes(word.toLowerCase())) {
         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
       }
-      // Keep common adverbs in lowercase
       return word.toLowerCase();
     })
     .join(" ");
+}
+
+/**
+ * Converts an I,V or X based Roman numeral to an integer or returns the original string if it is not a valid Roman numeral.
+ * @param {string} word - The Roman numeral to be converted.
+ * @returns {number|string} - The integer equivalent of the Roman numeral.
+ */
+export function romanFix(word) {
+  const romanNumeralMap = {
+    I: 1,
+    V: 5,
+    X: 10,
+  };
+  let total = 0;
+  let prevValue = 0;
+  for (let i = word.length - 1; i >= 0; i--) {
+    const currentValue = romanNumeralMap[word[i].toUpperCase()];
+    if (currentValue < prevValue) {
+      total -= currentValue;
+    } else {
+      total += currentValue;
+    }
+    prevValue = currentValue;
+  }
+  if (total == 0) {
+    return word;
+  }
+  return total;
 }
 
 /**

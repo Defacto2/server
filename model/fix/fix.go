@@ -109,6 +109,8 @@ func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx) error {
 }
 
 // SyncFilesIDSeq will synchronize the files ID sequence with the current maximum ID.
+//
+// This will only work with the correct database account permissions.
 func SyncFilesIDSeq(db *sql.DB) error {
 	if db == nil {
 		return fmt.Errorf("fix sync ID: %w", ErrDB)
