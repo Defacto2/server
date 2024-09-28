@@ -117,11 +117,13 @@ import { clipValue, getElmById, titleize } from "./helper.mjs";
   );
 
   const tmploc = getElmById(`artifact-editor-templocation`);
-  if (tmploc !== null) {
+  if (tmploc !== null && tmploc !== undefined) {
     const tmplocl = getElmById(`artifact-editor-templocation-label`);
-    tmplocl.addEventListener(`click`, () =>
-      clipValue(`artifact-editor-templocation`)
-    );
+    if (tmplocl !== null) {
+      tmplocl.addEventListener(`click`, () =>
+        clipValue(`artifact-editor-templocation`)
+      );
+    }
   }
 
   const osl = document.getElementById("artifact-editor-os-label");
@@ -436,6 +438,12 @@ import { clipValue, getElmById, titleize } from "./helper.mjs";
       }
       month.value = mm;
       day.value = md;
+      const submitValues = document.getElementById(
+        "artifact-editor-date-update"
+      );
+      if (submitValues !== null) {
+        submitValues.click();
+      }
     }
   });
   const cmmtReset = document.getElementById("artifact-editor-comment-undo");

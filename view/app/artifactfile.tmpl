@@ -165,8 +165,9 @@
             <div>
               <button id="artifact-editor-image-delete" hx-target="#artifact-editor-image-feedback" 
               hx-delete="/editor/images/{{$unid}}" class="btn btn-link m-0 p-0"><strong>Delete</strong> images</button>
-            <button id="artifact-editor-image-pixelate" hx-target="#artifact-editor-image-feedback" 
-              hx-patch="/editor/images/pixelate/{{$unid}}" class="btn btn-link m-0 p-0"><strong>Pixelate</strong> NSFW images</button>
+              <button id="artifact-editor-image-pixelate" hx-target="#artifact-editor-image-feedback" 
+                hx-patch="/editor/images/pixelate/{{$unid}}" class="btn btn-link m-0 p-0"><strong>Pixelate</strong> NSFW images</button>
+              <button hx-patch="/editor/thumbnail/pixel/{{$unid}}" class="btn btn-link m-0 p-0"><strong>Good</strong> quality thumbnail</button> 
             <div class="form-text">The delete and pixelate options are irreversible</div>
             </div>
             <div class="form-text" id="artifact-editor-image-feedback"></div>

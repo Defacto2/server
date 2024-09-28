@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"math"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 
@@ -166,9 +165,7 @@ func artifacts(c echo.Context, db *sql.DB, uri string, page int) error {
 	if err != nil {
 		return DatabaseErr(c, errs, err)
 	}
-	boil.DebugMode = false // TODO remove
 	data[records] = r
-	fmt.Fprintln(os.Stderr, "RECORDS OF ARTIFACTS: ", len(r))
 	d, sum, err := stats(ctx, db, uri)
 	if err != nil {
 		return DatabaseErr(c, errs, err)
@@ -1276,6 +1273,7 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 	data["demozoo"] = strconv.Itoa(int(demozoo.Find(uri)))
 	data["sixteen"] = sixteen.Find(uri)
 	data["website"] = site.Find(uri)
+	data["uploader-releaser"] = s
 	data[records] = fs
 	switch uri {
 	case "independent":
