@@ -436,6 +436,12 @@ import { clipValue, getElmById, titleize } from "./helper.mjs";
       }
       month.value = mm;
       day.value = md;
+      const submitValues = document.getElementById(
+        "artifact-editor-date-update"
+      );
+      if (submitValues !== null) {
+        submitValues.click();
+      }
     }
   });
   const cmmtReset = document.getElementById("artifact-editor-comment-undo");
