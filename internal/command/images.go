@@ -461,7 +461,7 @@ func (dir Dirs) textImagers(debug *zap.SugaredLogger, unid, tmp string) error {
 	}()
 	go func() { // Thumbnail of the ansilove PNG image
 		defer wg.Done()
-		if err := dir.ThumbPixels(tmp, unid); err != nil {
+		if err := dir.ThumbPhoto(tmp, unid); err != nil {
 			mu.Lock()
 			errs = errors.Join(errs, fmt.Errorf("ansilove thumbnail %w", err))
 			mu.Unlock()
