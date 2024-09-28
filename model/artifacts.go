@@ -218,8 +218,10 @@ func (f *Artifacts) ByUnwanted(ctx context.Context, exec boil.ContextExecutor, o
 		return nil, fmt.Errorf("f.StatUnwanted: %w", err)
 	}
 	const clause = "id DESC"
+	empty := null.StringFrom("")
 	return models.Files(
 		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
+		models.FileWhere.FileSecurityAlertURL.NEQ(empty),
 		qm.WithDeleted(),
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),

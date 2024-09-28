@@ -137,8 +137,10 @@ func (s *Summary) ByUnwanted(ctx context.Context, exec boil.ContextExecutor) err
 	if invalidExec(exec) {
 		return ErrDB
 	}
+	empty := null.StringFrom("")
 	return models.NewQuery(
 		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
+		models.FileWhere.FileSecurityAlertURL.NEQ(empty),
 		qm.WithDeleted(),
 		qm.Select(postgres.Columns()...),
 		qm.From(From)).Bind(ctx, exec, s)
