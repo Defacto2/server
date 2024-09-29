@@ -461,7 +461,7 @@ func (dir Dirs) textImagers(debug *zap.SugaredLogger, unid, tmp string) error {
 	}()
 	go func() { // Thumbnail of the ansilove PNG image
 		defer wg.Done()
-		if err := dir.ThumbPhoto(tmp, unid); err != nil {
+		if err := dir.ThumbPixels(tmp, unid); err != nil {
 			mu.Lock()
 			errs = errors.Join(errs, fmt.Errorf("ansilove thumbnail %w", err))
 			mu.Unlock()
@@ -584,7 +584,7 @@ func (dir Dirs) PreviewGIF(debug *zap.SugaredLogger, src, unid string) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err = dir.ThumbPhoto(tmp, unid)
+		err = dir.ThumbPixels(tmp, unid)
 	}()
 	wg.Wait()
 	defer os.Remove(tmp)
@@ -617,7 +617,7 @@ func (dir Dirs) PreviewPNG(debug *zap.SugaredLogger, src, unid string) error {
 	}()
 	go func() {
 		defer wg.Done()
-		err := dir.ThumbPhoto(src, unid)
+		err := dir.ThumbPixels(src, unid)
 		if err != nil {
 			mu.Lock()
 			errs = errors.Join(errs, fmt.Errorf("thumbnail png %w", err))
@@ -889,6 +889,8 @@ func (a *Args) GWebp() {
 
 // ThumbPixels converts the src image to a 400x400 pixel, webp image in the thumbnail directory.
 // The conversion is done using a temporary, lossless PNG image.
+//
+// This is used for text and pixel art images and increases the image file size.
 func (dir Dirs) ThumbPixels(src, unid string) error {
 	tmp := filepath.Join(dir.Thumbnail, unid+png)
 	args := Args{}
@@ -916,6 +918,8 @@ func (dir Dirs) ThumbPixels(src, unid string) error {
 
 // ThumbPhoto converts the src image to a 400x400 pixel, webp image in the thumbnail directory.
 // The conversion is done using a temporary, lossy PNG image.
+//
+// This is used for photographs and images that are not text or pixel art.
 func (dir Dirs) ThumbPhoto(src, unid string) error {
 	tmp := BaseNamePath(src) + jpg
 	args := Args{}
