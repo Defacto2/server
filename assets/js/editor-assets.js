@@ -20,6 +20,7 @@ import { getElmById } from "./helper.mjs";
 
   const previewReset = getElmById(`artifact-editor-preview-reset`);
   const previewInput = getElmById(`artifact-editor-replace-preview`);
+  const previewSubmit = getElmById(`artifact-editor-preview-submit`);
   const alert = getElmById(`artifact-editor-dl-alert`);
   const reset = getElmById(`artifact-editor-dl-reset`);
   const lastMod = getElmById(`artifact-editor-last-modified`);
@@ -288,5 +289,14 @@ import { getElmById } from "./helper.mjs";
   previewReset.addEventListener(`click`, function () {
     previewInput.value = ``;
     previewInput.classList.remove(`is-invalid`, `is-valid`);
+  });
+
+  // Automatically submit the preview form when a file is selected.
+  previewInput.addEventListener("change", function (evt) {
+    if (evt.target.value.trim() === ``) {
+      return;
+    }
+    console.log(`Submitting the image or photo preview form`);
+    previewSubmit.click();
   });
 })();

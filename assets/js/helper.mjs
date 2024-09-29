@@ -132,7 +132,9 @@ export async function clipValue(elementId) {
 export function getElmById(elementId) {
   const element = document.getElementById(elementId);
   if (element == null) {
-    throw new Error(`The ${elementId} for getElmById() element is null.`);
+    console.error(`The ${elementId} for getElmById() element is null.`);
+    return;
+    //    throw new Error(`The ${elementId} for getElmById() element is null.`);
   }
   return element;
 }
