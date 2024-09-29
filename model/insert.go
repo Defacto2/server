@@ -3,17 +3,22 @@ package model
 // Package file inserts.go contains the database queries for inserting new file records.
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"fmt"
+	"io"
 	"net/url"
 	"time"
+	"unicode/utf8"
 
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/google/uuid"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/transform"
 )
 
 // InsertDemozoo inserts a new file record into the database using a Demozoo production ID.
@@ -160,11 +165,11 @@ func upload(f models.File, values url.Values, key string) (models.File, error) {
 	f.DateIssuedDay = day
 	f.Filename = filename
 	f.Filesize = filesize
-	f.FileZipContent = content
 	f.RetrotxtReadme = readme
 	f.FileMagicType = filemagic
 	f.FileIntegrityStrong = integrity
 	f.FileLastModified = lastMod
+	f.FileZipContent = fileZipFix(content)
 	f.Platform = platform
 	f.Section = section
 	f.CreditText = creditT
@@ -172,6 +177,37 @@ func upload(f models.File, values url.Values, key string) (models.File, error) {
 	f.CreditProgram = creditP
 	f.CreditAudio = creditA
 	return f, nil
+}
+
+// fileZipFix fixes the file content for ZIP files that have DOS file or directory names
+// encoded in CP437 or Windows-1252, which sometimes have invalid UTF-8 characters.
+func fileZipFix(content null.String) null.String {
+	if !content.Valid {
+		return content
+	}
+	s := content.String
+	p, err := decodeDOSNames([]byte(s))
+	if err != nil {
+		return null.StringFrom("")
+	}
+	return null.StringFrom(string(p))
+}
+
+func decodeDOSNames(b []byte) ([]byte, error) {
+	if utf8.Valid(b) {
+		return b, nil
+	}
+	decoder := charmap.CodePage437.NewDecoder()
+	p, err := io.ReadAll(transform.NewReader(bytes.NewReader(b), decoder))
+	if err == nil {
+		return p, nil
+	}
+	decoder = charmap.Windows1252.NewDecoder()
+	p, err = io.ReadAll(transform.NewReader(bytes.NewReader(b), decoder))
+	if err != nil {
+		return nil, err
+	}
+	return p, nil
 }
 
 // NewV7 generates a new UUID version 7, if that fails then it will fallback to version 1.
