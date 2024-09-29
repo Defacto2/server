@@ -1273,6 +1273,7 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 	data["demozoo"] = strconv.Itoa(int(demozoo.Find(uri)))
 	data["sixteen"] = sixteen.Find(uri)
 	data["website"] = site.Find(uri)
+	data["uploader-releaser"] = s
 	data[records] = fs
 	switch uri {
 	case "independent":

@@ -9,6 +9,7 @@
     - `layout-htmx.js`, a `afterRequest()` method must be used to handle the server response.
   - */}}
 {{- $screenshot := "A screenshot can be included in the archive."}}
+{{- $releasername := index . "uploader-releaser"}}
 {{- $delay := "200ms" }}
     {{- /*  check if the event is a KeyboardEvent to prevent double rendering on datalists
             source: https://turriate.com/articles/using-datalist-for-typeahead-htmx  */ -}}
@@ -125,7 +126,7 @@
                 <label for="uploader-intro-releaser-1" class="form-label">Releasers <small>maximum of 2</small></label>
                 <div class="input-group">
                   <input type="text" list="uploader-intro-list-1" name="uploader-intro-releaser1" class="form-control" id="uploader-intro-releaser-1" 
-                      aria-describedby="uploader-intro-releasers-help" placeholder="example: Razor 1911" 
+                      aria-describedby="uploader-intro-releasers-help" placeholder="example: Razor 1911" value="{{$releasername}}" 
                       hx-patch="/uploader/releaser/1" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-intro-list-1" 
@@ -214,7 +215,7 @@
                 <label for="uploader-trainer-releaser-1" class="form-label">Releasers <small>maximum of 2</small></label>
                 <div class="input-group">
                   <input type="text" list="uploader-trainer-list-1" name="uploader-trainer-releaser1" class="form-control" id="uploader-trainer-releaser-1" 
-                      aria-describedby="uploader-trainer-releasers-help" placeholder="example: Razor 1911" 
+                      aria-describedby="uploader-trainer-releasers-help" placeholder="example: Razor 1911" value="{{$releasername}}"
                       hx-patch="/uploader/releaser/1" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-trainer-list-1" 
@@ -306,7 +307,7 @@
                 <label for="uploader-text-releaser-1" class="form-label">Releasers <small>maximum of 2</small></label>
                 <div class="input-group">
                   <input type="text" list="uploader-text-list-1" name="uploader-text-releaser1" class="form-control" id="uploader-text-releaser-1" 
-                      aria-describedby="uploader-text-releasers-help" placeholder="example: Razor 1911" 
+                      aria-describedby="uploader-text-releasers-help" placeholder="example: Razor 1911" value="{{$releasername}}" 
                       hx-patch="/uploader/releaser/1" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-text-list-1" 
@@ -400,7 +401,7 @@
                 <label for="uploader-image-releaser-1" class="form-label">Releasers <small>maximum of 2</small></label>
                 <div class="input-group">
                   <input type="text" list="uploader-image-list-1" name="uploader-image-releaser1" class="form-control" id="uploader-image-releaser-1" 
-                      aria-describedby="uploader-image-releasers-help" placeholder="example: Razor 1911" 
+                      aria-describedby="uploader-image-releasers-help" placeholder="example: Razor 1911" value="{{$releasername}}"
                       hx-patch="/uploader/releaser/1" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-image-list-1" 
@@ -482,7 +483,7 @@
                 <label for="uploader-magazine-releaser-1" class="form-label">Title, <small>name of the magazine</small></label>
                 <div class="input-group mb-3">
                   <input type="text" list="uploader-magazine-list-1" name="uploader-magazine-releaser1" class="form-control" id="uploader-magazine-releaser-1" 
-                      aria-describedby="uploader-magazine-releasers-help" placeholder="example: Reality Check Network" 
+                      aria-describedby="uploader-magazine-releasers-help" placeholder="example: Reality Check Network" value="{{$releasername}}"
                       hx-patch="/uploader/releaser/magazine" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-magazine-list-1" 
@@ -571,7 +572,7 @@
                 <label for="uploader-advanced-releaser-1" class="form-label">Releasers <small>maximum of 2</small></label>
                 <div class="input-group">
                   <input type="text" list="uploader-advanced-list-1" name="uploader-advanced-releaser1" class="form-control" id="uploader-advanced-releaser-1" 
-                      aria-describedby="uploader-advanced-releasers-help" placeholder="example: Razor 1911" 
+                      aria-describedby="uploader-advanced-releasers-help" placeholder="example: Razor 1911" value="{{$releasername}}" 
                       hx-patch="/uploader/releaser/1" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-advanced-list-1" 
