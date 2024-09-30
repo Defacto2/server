@@ -132,7 +132,7 @@ func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, amigaFont boo
 		`Text filed imaged, the browser will refresh.`)
 }
 
-func RecordReadmeCopier(c echo.Context, extraDir string) error {
+func RecordReadmeCopier(c echo.Context, dirs command.Dirs) error {
 	path := c.Param("path")
 	name, err := url.QueryUnescape(path)
 	if err != nil {
@@ -151,9 +151,13 @@ func RecordReadmeCopier(c echo.Context, extraDir string) error {
 	if st.Size() == 0 {
 		return c.String(http.StatusOK, "The file is empty and was not copied.")
 	}
-	dst := filepath.Join(extraDir, unid+".txt")
+	dst := filepath.Join(dirs.Extra, unid+".txt")
 	if _, err = helper.DuplicateOW(src, dst); err != nil {
 		return badRequest(c, err)
+	}
+	if !helper.File(filepath.Join(dirs.Thumbnail, unid+".png")) &&
+		!helper.File(filepath.Join(dirs.Thumbnail, unid+".webp")) {
+		return RecordReadmeImager(c, nil, false, dirs)
 	}
 	c = pageRefresh(c)
 	return c.String(http.StatusOK,

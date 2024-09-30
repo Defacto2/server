@@ -217,7 +217,7 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) 
 	}
 	readme := g.Group("/readme")
 	readme.PATCH("/copy/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordReadmeCopier(c, dir.Extra)
+		return htmx.RecordReadmeCopier(c, dirs)
 	})
 	// /editor/readme/preview
 	readme.PATCH("/preview/:unid/:path", func(c echo.Context) error {
