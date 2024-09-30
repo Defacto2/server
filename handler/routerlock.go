@@ -214,6 +214,7 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) 
 		Download:  dir.Download,
 		Preview:   dir.Preview,
 		Thumbnail: dir.Thumbnail,
+		Extra:     dir.Extra,
 	}
 	readme := g.Group("/readme")
 	readme.PATCH("/copy/:unid/:path", func(c echo.Context) error {

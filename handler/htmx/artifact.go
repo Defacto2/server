@@ -139,7 +139,7 @@ func RecordReadmeCopier(c echo.Context, dirs command.Dirs) error {
 		return badRequest(c, err)
 	}
 	unid := c.Param("unid")
-	tmp, err := helper.MkContent(unid + "-copier")
+	tmp, err := helper.MkContent(unid)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -157,7 +157,9 @@ func RecordReadmeCopier(c echo.Context, dirs command.Dirs) error {
 	}
 	if !helper.File(filepath.Join(dirs.Thumbnail, unid+".png")) &&
 		!helper.File(filepath.Join(dirs.Thumbnail, unid+".webp")) {
-		return RecordReadmeImager(c, nil, false, dirs)
+		if err := dirs.TextImager(nil, src, unid, false); err != nil {
+			return badRequest(c, err)
+		}
 	}
 	c = pageRefresh(c)
 	return c.String(http.StatusOK,
