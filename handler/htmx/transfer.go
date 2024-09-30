@@ -36,7 +36,6 @@ import (
 	"github.com/Defacto2/server/model/fix"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 	"go.uber.org/zap"
 )
 
@@ -403,9 +402,7 @@ func (cr creator) insert(ctx context.Context, c echo.Context, tx *sql.Tx, logger
 			values.Add(cr.key+"-category", s)
 		}
 	}
-	boil.DebugMode = true
 	id, uid, err := model.InsertUpload(ctx, tx, values, cr.key)
-	boil.DebugMode = false
 	if err != nil {
 		if logger != nil {
 			logger.Error(err)

@@ -150,7 +150,7 @@ func (r *Releasers) SimilarMagazine(ctx context.Context, exec boil.ContextExecut
 func (r *Releasers) similar(
 	ctx context.Context, exec boil.ContextExecutor, limit uint, lookup string, names ...string,
 ) error {
-	boil.DebugMode = false
+	boil.DebugMode = false // Enable to see the raw SQL queries.
 	if len(names) == 0 {
 		return nil
 	}

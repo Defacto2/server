@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	_ "net/http/pprof" // pprof is used for profiling and can be commented out.
 	"os"
 	"runtime"
 	"slices"
