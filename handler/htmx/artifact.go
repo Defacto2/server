@@ -139,7 +139,7 @@ func RecordReadmeCopier(c echo.Context, dirs command.Dirs) error {
 		return badRequest(c, err)
 	}
 	unid := c.Param("unid")
-	tmp, err := helper.MkContent(unid)
+	tmp, err := helper.MkContent(unid + "-copier")
 	if err != nil {
 		return badRequest(c, err)
 	}
