@@ -168,8 +168,35 @@
               <button id="artifact-editor-image-pixelate" hx-target="#artifact-editor-image-feedback" 
                 hx-patch="/editor/images/pixelate/{{$unid}}" class="btn btn-link m-0 p-0"><strong>Pixelate</strong> NSFW images</button>
               <button hx-patch="/editor/thumbnail/pixel/{{$unid}}" class="btn btn-link m-0 p-0"><strong>Good</strong> quality thumbnail</button> 
-            <div class="form-text">The delete and pixelate options are irreversible</div>
+              <div class="form-text">The delete and pixelate options are irreversible</div>
             </div>
+            {{- /*  Upload a new image  */}}
+            {{- if eq false $previewImgStat}}
+            <label for="basic-url" class="form-label mt-3 text-success-emphasis">Upload a new image or picture</label>
+            {{- else}}
+            <label for="basic-url" class="form-label mt-3">Replacement image</label>
+            {{- end}}
+            <form id="artifact-editor-preview-form" 
+              hx-encoding="multipart/form-data" 
+              hx-post="/editor/upload/preview"
+              hx-target="#artifact-editor-preview-feedback"
+              {{- if eq $previewImgStat true}}hx-confirm="OK, to replace the existing preview image on the server?"{{end}}
+              hx-validate="true">
+              <input type="hidden" name="artifact-editor-record-key" value="{{$key}}">
+              <input type="hidden" name="artifact-editor-unid" value="{{$unid}}">
+              <input type="hidden" name="artifact-editor-download-classify" value="{{$os}}">
+              {{/*  artifact-editor-unique-id-value  */}}
+              <div class="input-group input-group-sm mb-1 has-validation">
+                <input type="file" name="artifact-editor-replace-preview" 
+                  class="form-control w-50" id="artifact-editor-replace-preview" autocomplete="on" 
+                    aria-describedby="artifact-editor-preview-feedback" required>
+                <button class="btn btn-outline-secondary w-25" id="artifact-editor-preview-submit">Upload</button> 
+                <button class="btn btn-outline-secondary" id="artifact-editor-preview-reset">Clear</button>
+                <div id="artifact-editor-preview-feedback"></div>
+              </div>
+              <div class="form-text" id="basic-addon4">Select an image, text or ansi file to use as the image asset samples.</div>
+              <progress class="w-100" id="artifact-editor-preview-progress" value="0" max="100"></progress>
+            </form>
             <div class="form-text" id="artifact-editor-image-feedback"></div>
             <div class="row row-cols-2 g-1">
               <div class="col-6">
@@ -236,33 +263,6 @@
                 </div>
               </div>
             </div>
-            {{- /*  Upload a new image  */}}
-            {{- if eq false $previewImgStat}}
-            <label for="basic-url" class="form-label mt-3 text-success-emphasis">Upload a new image or picture</label>
-            {{- else}}
-            <label for="basic-url" class="form-label mt-3">Replacement image</label>
-            {{- end}}
-            <form id="artifact-editor-preview-form" 
-              hx-encoding="multipart/form-data" 
-              hx-post="/editor/upload/preview"
-              hx-target="#artifact-editor-preview-feedback"
-              {{- if eq $previewImgStat true}}hx-confirm="OK, to replace the existing preview image on the server?"{{end}}
-              hx-validate="true">
-              <input type="hidden" name="artifact-editor-record-key" value="{{$key}}">
-              <input type="hidden" name="artifact-editor-unid" value="{{$unid}}">
-              <input type="hidden" name="artifact-editor-download-classify" value="{{$os}}">
-              {{/*  artifact-editor-unique-id-value  */}}
-              <div class="input-group input-group-sm mb-1 has-validation">
-                <input type="file" name="artifact-editor-replace-preview" 
-                  class="form-control w-50" id="artifact-editor-replace-preview" autocomplete="on" 
-                    aria-describedby="artifact-editor-preview-feedback" required>
-                <button class="btn btn-outline-secondary w-25" id="artifact-editor-preview-submit">Upload</button> 
-                <button class="btn btn-outline-secondary" id="artifact-editor-preview-reset">Clear</button>
-                <div id="artifact-editor-preview-feedback"></div>
-              </div>
-              <div class="form-text" id="basic-addon4">Select an image, text or ansi file to use as the image asset samples.</div>
-              <progress class="w-100" id="artifact-editor-preview-progress" value="0" max="100"></progress>
-            </form>
             {{- /*  Extras assets  */}}
             <legend class="mt-3">Extras assets</legend>
             <div class="row row-cols-2 g-1">
