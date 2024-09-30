@@ -426,7 +426,12 @@ import { clipValue, getElmById, titleize } from "./helper.mjs";
     }
     const mmddyyDatePattern =
       /(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/(\d{2})/;
-    const match = mmddyyDatePattern.exec(e.target.value);
+    let match = mmddyyDatePattern.exec(e.target.value);
+    if (!match) {
+      const mmddyyDatePatternDash =
+        /(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])-(\d{2})/;
+      match = mmddyyDatePatternDash.exec(e.target.value);
+    }
     if (match) {
       const mm = match[1];
       const md = match[2];
