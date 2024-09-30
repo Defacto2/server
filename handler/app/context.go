@@ -150,8 +150,7 @@ func artifacts(c echo.Context, db *sql.DB, uri string, page int) error {
 	data["unknownYears"] = true
 	data["forApproval"] = false
 	switch fileslice.Match(uri) {
-	case
-		fileslice.NewUploads,
+	case fileslice.NewUploads,
 		fileslice.NewUpdates,
 		fileslice.Deletions,
 		fileslice.Unwanted:

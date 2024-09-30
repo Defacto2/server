@@ -205,7 +205,7 @@ func decodeDOSNames(b []byte) ([]byte, error) {
 	decoder = charmap.Windows1252.NewDecoder()
 	p, err = io.ReadAll(transform.NewReader(bytes.NewReader(b), decoder))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("decode dos names: %w", err)
 	}
 	return p, nil
 }
