@@ -89,6 +89,9 @@ func TemplateFuncMap() template.FuncMap {
 		},
 		"linkRelrs":   app.LinkReleasers,
 		"obfuscateID": helper.ObfuscateID,
+		"releaserIndex": func(name string) string {
+			return releaser.Index(name)
+		},
 		"safeHTML": func(s string) template.HTML {
 			return template.HTML(s)
 		},

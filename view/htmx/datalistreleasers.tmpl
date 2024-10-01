@@ -5,7 +5,8 @@
 {{- $slug := index . "name" }}
     {{- range $index, $rel := .result -}}
         {{- $title := fmtPath $rel.Unique.URI }}
+        {{- $value := releaserIndex $rel.Unique.URI }}
         {{- $initialism := initialisms $rel.Unique.URI }}
-        <option value="{{ $title }}">{{ suggestion $title $initialism $rel.Unique.Count }}</option>
+        <option value="{{ $value }}">{{ suggestion $title $initialism $rel.Unique.Count }}</option>
     {{- end}}
 {{end}}

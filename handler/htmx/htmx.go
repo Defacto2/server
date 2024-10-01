@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/server/handler/cache"
 	"github.com/Defacto2/server/handler/demozoo"
@@ -574,21 +575,20 @@ func datalist(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, input strin
 	if slug == "" {
 		return c.HTML(http.StatusOK, "")
 	}
-	lookup := []string{}
-	for key, values := range initialism.Initialisms() {
-		for _, value := range values {
-			if strings.Contains(strings.ToLower(value), strings.ToLower(slug)) {
-				lookup = append(lookup, string(key))
-			}
+	lookups := []string{releaser.Cell(input)}
+	if inits := initialism.Match(slug); len(inits) > 0 {
+		for _, uri := range inits {
+			val := releaser.Humanize(string(uri))
+			lookups = append(lookups, string(val))
 		}
 	}
-	lookup = append(lookup, slug)
+	lookups = append(lookups, slug) // slug is the last lookup and must be present.
 	var r model.Releasers
 	var err error
 	if magazine {
-		err = r.SimilarMagazine(ctx, db, maxResults, lookup...)
+		err = r.SimilarMagazine(ctx, db, maxResults, lookups...)
 	} else {
-		err = r.Similar(ctx, db, maxResults, lookup...)
+		err = r.Similar(ctx, db, maxResults, lookups...)
 	}
 	if err != nil {
 		if logger != nil {

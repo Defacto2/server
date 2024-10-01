@@ -5,10 +5,11 @@ package model
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/releaser/fix"
+	"github.com/Defacto2/releaser"
 	namer "github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -161,20 +162,18 @@ func (r *Releasers) similar(
 		return ErrDB
 	}
 
-	like := names
-	for i, name := range names {
-		name := fix.StripChars(name)
-		x, err := namer.Humanize(namer.Path(name))
-		if err != nil {
-			return fmt.Errorf("similar magazine namer humanize: %w", err)
-		}
-		like[i] = strings.ToUpper(x)
+	likes := names
+	for _, name := range names {
+		likes = append(likes, releaser.Title(name))
+		likes = append(likes, releaser.Cell(name))
 	}
+	slices.Sort(likes)
+	likes = slices.Compact(likes)
 	var query string
 	if lookup == "magazine" {
-		query = string(postgres.SimilarToMagazine(like...))
+		query = string(postgres.SimilarToMagazine(likes...))
 	} else {
-		query = string(postgres.SimilarToReleaser(like...))
+		query = string(postgres.SimilarToReleaser(likes...))
 	}
 	{
 		const page, max = 1, 10
