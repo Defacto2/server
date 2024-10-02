@@ -12,18 +12,68 @@
 export function titleize(text) {
   const commonAdverbs = [
     "a",
+    "aka",
     "an",
     "and",
     "as",
+    "at",
     "but",
+    "docs",
+    "fix",
     "for",
     "if",
+    "in",
     "of",
     "or",
     "so",
     "the",
     "to",
+    "from",
+    "part",
+    "trainer",
+    "v1",
+    "v2",
+    "v3",
+    "v4",
+    "v5",
+    "v6",
+    "v7",
+    "v8",
+    "v9",
+    "v10",
+    "vs",
+    "with",
   ];
+  const uppers = [
+    "2d",
+    "3d",
+    "4d",
+    "bbs",
+    "cga",
+    "dox",
+    "ega",
+    "ehq",
+    "f1",
+    "ftp",
+    "hq",
+    "id",
+    "la",
+    "ls",
+    "mbl",
+    "nascar",
+    "nba",
+    "ncaa",
+    "nfl",
+    "nhl",
+    "nt",
+    "ushq",
+    "vga",
+    "xp",
+  ];
+  text = text.trim();
+  // Insert a space after a colon following an alphanumeric string
+  text = text.replace(/([a-zA-Z0-9]): /g, "$1 : ");
+  const wordCount = text.split(" ").length;
   return text
     .split(" ")
     .map((word, index) => {
@@ -31,13 +81,47 @@ export function titleize(text) {
       if (index > 0 && Number.isInteger(x)) {
         return x;
       }
+      const y = replacementFix(word);
+      if (index > 0 && y !== word) {
+        return y;
+      }
+      const z = tailFix(word, index, wordCount);
+      if (z !== word) {
+        return z;
+      }
+      if (uppers.includes(word.toLowerCase())) {
+        return word.toUpperCase();
+      }
       // Capitalize the first word and any word not in the common adverbs list
+      // Convert all other words to lowercase
       if (index === 0 || !commonAdverbs.includes(word.toLowerCase())) {
         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
       }
       return word.toLowerCase();
     })
-    .join(" ");
+    .join(" ")
+    .trim();
+}
+
+/**
+ * Removes the last word in a string if it is a common suffix.
+ * @param {string} word - The word to be checked.
+ * @param {number} index - The index of the word in the string.
+ * @param {number} length - The total number of words in the string.
+ * @returns {string} - The word with the suffix removed if it is a common suffix.
+ * @example
+ * tailFix("cracktro", 0, 2) // returns "cracktro"
+ * tailFix("cracktro", 1, 2) // returns ""
+ */
+export function tailFix(word, index, length) {
+  if (index != length - 1) {
+    return word;
+  }
+  const removers = ["cheat", "cracktro", "loader", "trainer"];
+  if (removers.includes(word.toLowerCase())) {
+    return "";
+  }
+  return word;
 }
 
 /**
@@ -66,6 +150,54 @@ export function romanFix(word) {
     return word;
   }
   return total;
+}
+
+/**
+ * Converts elite words and symbols to English or numerals.
+ * @param {string} word - The string to be converted.
+ * @returns {string} - The converted string.
+ * @example
+ * replacementFix("][") // returns "2"
+ */
+export function replacementFix(word) {
+  switch (word) {
+    case "&":
+      return "and";
+    case "V1.0":
+      return "v1";
+    case "V2.0":
+      return "v2";
+    case "V3.0":
+      return "v3";
+    case "V4.0":
+      return "v4";
+    case "V5.0":
+      return "v5";
+    case "V6.0":
+      return "v6";
+    case "V7.0":
+      return "v7";
+    case "V8.0":
+      return "v8";
+    case "V9.0":
+      return "v9";
+    case "V10.0":
+      return "v10";
+    case ("][", "||"):
+      return "2";
+    case "]|[":
+      return "3";
+    case "]||[":
+      return "4";
+    case " I:":
+      return " 1 :";
+    case " II:":
+      return " 2 :";
+    case " III:":
+      return " 3 :";
+    default:
+      return word;
+  }
 }
 
 /**
