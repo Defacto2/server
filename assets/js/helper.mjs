@@ -17,19 +17,30 @@ export function titleize(text) {
     "and",
     "as",
     "at",
+    "beta",
     "but",
+    "by",
+    "crack",
+    "cracks",
+    "demo",
     "docs",
+    "documentation",
     "fix",
     "for",
     "if",
     "in",
+    "is",
     "of",
     "or",
     "so",
     "the",
     "to",
+    "final",
     "from",
     "part",
+    "prerelease",
+    "pre-release",
+    "preview",
     "trainer",
     "v1",
     "v2",
@@ -49,7 +60,9 @@ export function titleize(text) {
     "3d",
     "4d",
     "bbs",
+    "cd",
     "cga",
+    "dos",
     "dox",
     "ega",
     "ehq",
@@ -60,21 +73,28 @@ export function titleize(text) {
     "la",
     "ls",
     "mbl",
+    "ms",
     "nascar",
     "nba",
     "ncaa",
     "nfl",
     "nhl",
     "nt",
+    "os",
+    "pc",
+    "psx",
+    "usa",
     "ushq",
+    "uss",
     "vga",
+    "whq",
     "xp",
   ];
   text = text.trim();
   // Insert a space after a colon following an alphanumeric string
   text = text.replace(/([a-zA-Z0-9]): /g, "$1 : ");
   const wordCount = text.split(" ").length;
-  return text
+  text = text
     .split(" ")
     .map((word, index) => {
       const x = romanFix(word);
@@ -101,6 +121,9 @@ export function titleize(text) {
     })
     .join(" ")
     .trim();
+  // Remove suffix (1) (2) (3) etc. (a) (b) (c) etc.
+  text = text.replace(/ \([0-9a-z]\)/g, "");
+  return text;
 }
 
 /**
@@ -195,6 +218,8 @@ export function replacementFix(word) {
       return " 2 :";
     case " III:":
       return " 3 :";
+    case "war-craft":
+      return "Warcraft";
     default:
       return word;
   }
