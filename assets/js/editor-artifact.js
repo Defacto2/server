@@ -296,6 +296,15 @@ import { clipValue, getElmById, titleize } from "./helper.mjs";
     let event = new Event("keyup");
     title.dispatchEvent(event);
   });
+  const titleDelete = document.getElementById("artifact-editor-title-delete");
+  if (titleDelete.length === 0) {
+    throw new Error("The title delete button is missing.");
+  }
+  titleDelete.addEventListener("click", () => {
+    title.value = "";
+    let event = new Event("keyup");
+    title.dispatchEvent(event);
+  });
 
   const ct = document.getElementById("artifact-editor-credit-text");
   if (ct === null) {
