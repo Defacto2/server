@@ -12,6 +12,7 @@
 export function titleize(text) {
   const commonAdverbs = [
     "a",
+    "addon",
     "aka",
     "an",
     "and",
@@ -29,18 +30,25 @@ export function titleize(text) {
     "for",
     "if",
     "in",
+    "installer",
     "is",
     "of",
+    "on",
     "or",
     "so",
     "the",
     "to",
     "final",
     "from",
+    "patch",
     "part",
     "prerelease",
     "pre-release",
     "preview",
+    "proper",
+    "release",
+    "repack",
+    "rip",
     "trainer",
     "v1",
     "v2",
@@ -59,6 +67,7 @@ export function titleize(text) {
     "2d",
     "3d",
     "4d",
+    "ad&d",
     "bbs",
     "cd",
     "cga",
@@ -70,6 +79,7 @@ export function titleize(text) {
     "ftp",
     "hq",
     "id",
+    "iso",
     "la",
     "ls",
     "mbl",
@@ -78,6 +88,7 @@ export function titleize(text) {
     "nba",
     "ncaa",
     "nfl",
+    "nfo",
     "nhl",
     "nt",
     "os",
@@ -88,9 +99,12 @@ export function titleize(text) {
     "uss",
     "vga",
     "whq",
+    "wwf",
     "xp",
   ];
   text = text.trim();
+  // Replace all underscores with spaces
+  text = text.replace(/_/g, " ");
   // Insert a space after a colon following an alphanumeric string
   text = text.replace(/([a-zA-Z0-9]): /g, "$1 : ");
   const wordCount = text.split(" ").length;
@@ -140,7 +154,15 @@ export function tailFix(word, index, length) {
   if (index != length - 1) {
     return word;
   }
-  const removers = ["cheat", "cracktro", "loader", "trainer"];
+  const removers = [
+    "cheat",
+    "cheater",
+    "cracktro",
+    "loader",
+    "installer",
+    "trainer",
+    "version",
+  ];
   if (removers.includes(word.toLowerCase())) {
     return "";
   }
@@ -186,6 +208,8 @@ export function replacementFix(word) {
   switch (word) {
     case "&":
       return "and";
+    case "ad+d":
+      return "AD&D";
     case "V1.0":
       return "v1";
     case "V2.0":
