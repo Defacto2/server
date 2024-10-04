@@ -21,6 +21,7 @@ export function titleize(text) {
     "beta",
     "but",
     "by",
+    "cd-rip",
     "crack",
     "cracks",
     "demo",
@@ -67,6 +68,7 @@ export function titleize(text) {
     "2d",
     "3d",
     "4d",
+    "abc",
     "ad&d",
     "bbs",
     "cd",
@@ -91,6 +93,7 @@ export function titleize(text) {
     "nfo",
     "nhl",
     "nt",
+    "oem",
     "os",
     "pc",
     "psx",
@@ -105,6 +108,8 @@ export function titleize(text) {
   text = text.trim();
   // Replace all underscores with spaces
   text = text.replace(/_/g, " ");
+  // Remove suffix (1) (2) (3) etc. (a) (b) (c) etc.
+  text = text.replace(/ \([0-9a-z]\)/g, "");
   // Insert a space after a colon following an alphanumeric string
   text = text.replace(/([a-zA-Z0-9]): /g, "$1 : ");
   const wordCount = text.split(" ").length;
@@ -135,8 +140,6 @@ export function titleize(text) {
     })
     .join(" ")
     .trim();
-  // Remove suffix (1) (2) (3) etc. (a) (b) (c) etc.
-  text = text.replace(/ \([0-9a-z]\)/g, "");
   return text;
 }
 
@@ -206,6 +209,8 @@ export function romanFix(word) {
  */
 export function replacementFix(word) {
   switch (word) {
+    case "cdrip":
+      return "cd-rip";
     case "&":
       return "and";
     case "ad+d":
