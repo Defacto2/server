@@ -265,7 +265,7 @@ func (r *Releasers) Magazine(ctx context.Context, exec boil.ContextExecutor) err
 	return nil
 }
 
-// Slugs saves URL friendly strings to the Group names.
+// Slugs sets URL friendly strings to the Group names.
 func (r *Releasers) Slugs() {
 	for _, releaser := range *r {
 		releaser.Unique.URI = helper.Slug(releaser.Unique.Name)
