@@ -526,12 +526,21 @@ func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error
 	}
 
 	lookup := []string{}
+	// example key and values: "tristar-ampersand-red-sector-inc": {"TRSi", "TRS", "Tristar"},
 	for key, values := range initialism.Initialisms() {
 		for _, value := range values {
+			name := releaser.Humanize(string(key))
+			if strings.EqualFold(value, slug) {
+				lookup = append(lookup, name)
+				continue
+			}
 			if strings.Contains(strings.ToLower(value), strings.ToLower(slug)) {
-				lookup = append(lookup, string(key))
+				lookup = append(lookup, name)
 			}
 		}
+	}
+	if name := releaser.Humanize(string(slug)); !strings.EqualFold(name, slug) {
+		lookup = append(lookup, name)
 	}
 	lookup = append(lookup, slug)
 	var r model.Releasers

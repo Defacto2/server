@@ -80,6 +80,7 @@ export function titleize(text) {
     "f1",
     "ftp",
     "hq",
+    "ibm",
     "id",
     "iso",
     "la",
