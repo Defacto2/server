@@ -223,7 +223,7 @@
                   <span class="input-group-text">+</span>
                   <input type="text" list="uploader-trainer-list-2" name="uploader-trainer-releaser2" class="form-control" id="uploader-trainer-releaser-2" 
                       aria-describedby="uploader-trainer-releasers-help" placeholder="example: Titan" 
-                      hx-get="/uploader/releaser/2" 
+                      hx-patch="/uploader/releaser/2" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-trainer-list-2">
                 </div>
@@ -409,7 +409,7 @@
                   <span class="input-group-text">+</span>
                   <input type="text" list="uploader-image-list-2" name="uploader-image-releaser2" class="form-control" id="uploader-image-releaser-2" 
                       aria-describedby="uploader-image-releasers-help" placeholder="example: Titan" 
-                      hx-get="/uploader/releaser/2" 
+                      hx-patch="/uploader/releaser/2" 
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-image-list-2">
                 </div>
