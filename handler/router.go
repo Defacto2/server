@@ -409,10 +409,10 @@ func fixes(e *echo.Echo) *echo.Echo {
 	fixes.GET("/ice", func(c echo.Context) error {
 		return c.Redirect(code, g+releaser.Obfuscate("INSANE CREATORS ENTERPRISE"))
 	})
-	fixes.GET("/"+releaser.Obfuscate("pirates with attitude"), func(c echo.Context) error {
-		return c.Redirect(code, g+releaser.Obfuscate("pirates with attitudes"))
+	fixes.GET("/rss", func(c echo.Context) error {
+		return c.Redirect(code, g+"renaissance")
 	})
-	fixes.GET("/"+releaser.Obfuscate("TRISTAR AND RED SECTOR INC"), func(c echo.Context) error {
+	fixes.GET("/trsi", func(c echo.Context) error {
 		return c.Redirect(code, g+releaser.Obfuscate("TRISTAR & RED SECTOR INC"))
 	})
 	fixes.GET("/x-pression", func(c echo.Context) error {
@@ -420,6 +420,12 @@ func fixes(e *echo.Echo) *echo.Echo {
 	})
 	fixes.GET("/"+releaser.Obfuscate("DAMN EXCELLENT ANSI DESIGNERS"), func(c echo.Context) error {
 		return c.Redirect(code, g+releaser.Obfuscate("DAMN EXCELLENT ANSI DESIGN"))
+	})
+	fixes.GET("/"+releaser.Obfuscate("pirates with attitude"), func(c echo.Context) error {
+		return c.Redirect(code, g+releaser.Obfuscate("pirates with attitudes"))
+	})
+	fixes.GET("/"+releaser.Obfuscate("TRISTAR AND RED SECTOR INC"), func(c echo.Context) error {
+		return c.Redirect(code, g+releaser.Obfuscate("TRISTAR & RED SECTOR INC"))
 	})
 	fixes.GET("/"+releaser.Obfuscate("THE ORIGINAL FUNNY GUYS"), func(c echo.Context) error {
 		return c.Redirect(code, g+releaser.Obfuscate("ORIGINALLY FUNNY GUYS"))
@@ -430,10 +436,7 @@ func fixes(e *echo.Echo) *echo.Echo {
 	fixes.GET("/"+releaser.Obfuscate("DARKSIDE INC"), func(c echo.Context) error {
 		return c.Redirect(code, g+releaser.Obfuscate("DARKSIDE INCORPORATED"))
 	})
-	fixes.GET("/"+releaser.Obfuscate("RSS"), func(c echo.Context) error {
-		return c.Redirect(code, g+releaser.Obfuscate("renaissance"))
-	})
-	// THESE ARE NOT WORKING, /the-dream-team/, /public-enemy/ get redirected
+	// THESE ARE NOT WORKING, public-enemy/ and the-dream-team/ get redirected
 	// fixes.GET(`/public-enemy*tristar-ampersand-red-sector-inc*the-dream-team`, func(c echo.Context) error {
 	// 	return c.Redirect(code, g+"pe*trsi*tdt")
 	// })
