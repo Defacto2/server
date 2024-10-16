@@ -780,11 +780,11 @@ func Collection() Milestones {
 			Content: "<p>The first set of published games on the PC platform is sold without IBM's involvement.</p>" +
 				"Some early publishers include" +
 				ul0 +
-				"<li><a href=\"//s3data.computerhistory.org/brochures/broderbund.software.1982.102646180.pdf\">Brøderbund</a></li>" +
-				"<li><a href=\"//archive.org/details/avalon-hill-game-company-catal-fall-1982\">The Avalon Hill Game Company</a></li>" +
-				"<li><a href=\"//archive.org/details/strategic-simulations-inc-summer-1982-catalog/mode/2up\">Strategic Simulations</a>, Inc.</li>" +
-				"<li><a href=\"//www.uvlist.net/companies/info/1023-Windmill+Software\">Windmill Software</a></li>" +
-				"<li><a href=\"//retro365.blog/2019/09/23/bits-from-my-personal-collection-the-original-ibm-pc-and-orion-software/\">Orion Software</a></li>" +
+				"<li><a href=\"//s3data.computerhistory.org/brochures/broderbund.software.1982.102646180.pdf\">Brøderbund</a> was one of the major publishers of the Apple II.</li>" +
+				"<li><a href=\"//archive.org/details/avalon-hill-game-company-catal-fall-1982\">The Avalon Hill Game Company</a> is the famed war and strategic board game publisher. </li>" +
+				"<li><a href=\"//archive.org/details/strategic-simulations-inc-summer-1982-catalog/mode/2up\">Strategic Simulations</a>, Inc. acquired the Dungeons and Dragons computer game license and became a pioneer of the CRPG genre.</li>" +
+				"<li><a href=\"//www.uvlist.net/companies/info/1023-Windmill+Software\">Windmill Software</a> was one of the first developers to create games exclusively on the PC.</li>" +
+				"<li><a href=\"//retro365.blog/2019/09/23/bits-from-my-personal-collection-the-original-ibm-pc-and-orion-software/\">Orion Software</a> created some of the earliest games on the PC.</li>" +
 				"<li><a href=\"//www.uvlist.net/companies/info/1029-Spinnaker+Software\">Spinnaker Software</a>" +
 				ul1,
 		},
@@ -849,11 +849,11 @@ func Collection() Milestones {
 			Content: "<p>1983 saw some major arcade and video game publishers release software on the PC. Despite the business-centric marketing of the platform, game software sold on a floppy disk was a popular seller. " +
 				"For publishers, it is less risky than manufacturing the expensive cartridges required by some other game systems.</p>" +
 				ul0 +
-				"<li><a href=\"//dfarq.homeip.net/atarisoft-if-you-cant-beat-em-join-em/\">Atarisoft</a></li>" +
-				"<li><a href=\"//www.uvlist.net/companies/info/243-Infocom\">Infocom</a></li>" +
-				"<li><a href=\"//www.resetera.com/threads/lets-look-back-at-game-company-datasoft.587093/##post-87110411\">Datasoft</a></li>" +
-				"<li><a href=\"//www.uvlist.net/companies/info/83-Mattel%20Electronics\">Mattel</a></li>" +
-				"<li><a href=\"//www.wired.com/story/sierra-online-ken-williams-interview-memoir/\">Sierra On-Line</a></li>" +
+				"<li><a href=\"//dfarq.homeip.net/atarisoft-if-you-cant-beat-em-join-em/\">Atarisoft</a> was the publishing arm of the computer, console, and arcade game maker.</li>" +
+				"<li><a href=\"//www.uvlist.net/companies/info/243-Infocom\">Infocom</a> founded by the Massachusetts Institute of Technology staff and students to create story narrative games.</li>" +
+				"<li><a href=\"//www.resetera.com/threads/lets-look-back-at-game-company-datasoft.587093/##post-87110411\">Datasoft</a> created licensed film, television assets, and arcade ports.</li>" +
+				"<li><a href=\"//www.uvlist.net/companies/info/83-Mattel%20Electronics\">Mattel</a> was the creator of the Intellivision console and numerous games.</li>" +
+				"<li><a href=\"//www.wired.com/story/sierra-online-ken-williams-interview-memoir/\">Sierra On-Line</a> became one of the biggest PC publishers of the 1980s and the flag-barrier of the graphic adventure genre.</li>" +
 				ul1,
 		},
 		{
@@ -931,7 +931,7 @@ func Collection() Milestones {
 			Prefix: "The earliest PC groups,", Year: 1984,
 			List: Links{
 				{LinkTitle: "Against Software Protection <small>ASP</small>", Link: "/g/against-software-protection"},
-				{LinkTitle: "Software Pirates Inc <small>SPi</small>", Link: "/g/software-pirates-inc"},
+				{LinkTitle: "Software Pirates Inc <small>SPi</small>", Link: "/g/software-pirates-inc", Forward: "Texas"},
 			},
 		},
 		{
@@ -1076,8 +1076,8 @@ func Collection() Milestones {
 		{
 			Year: 1986, Prefix: notable,
 			List: Links{
-				{LinkTitle: "ESP Pirates", Link: "/g/esp-pirates"},
-				{LinkTitle: "Five-O", Link: "/g/five-o"},
+				{LinkTitle: "ESP Pirates", Link: "/g/esp-pirates", Forward: "Arizona"},
+				{LinkTitle: "Five-O", Link: "/g/five-o", Forward: "Minnesota"},
 			},
 			Picture: Picture{
 				Title: "Five O Presents",
@@ -1135,11 +1135,14 @@ func Collection() Milestones {
 			List: Links{
 				{
 					LinkTitle: `Boys from Company C <small>(BBC)</small>`, Link: "/g/boys-from-company-c",
-					Forward: "Five-O",
+					Forward: "Virginia and D.C. region",
 				},
-				{LinkTitle: "🇨🇦 Canadian Pirates Inc <small>(CPI)</small>", Link: "g/canadian-pirates-inc"},
-				{LinkTitle: "KGB", Link: "/g/ptl-club"},
-				{LinkTitle: "The PTL Club", Link: "/g/ptl-club"},
+				{LinkTitle: "Canadian Pirates Inc <small>(CPI)</small>", Link: "g/canadian-pirates-inc",
+					Forward: "🇨🇦 Ontario"},
+				{LinkTitle: "KGB", Link: "/g/kgb",
+					Forward: "🇨🇦 Ontario"},
+				{LinkTitle: "The PTL Club", Link: "/g/ptl-club",
+					Forward: "Illinois"},
 			},
 			Picture: Picture{
 				Title: "The PTL Club",
@@ -1252,15 +1255,18 @@ func Collection() Milestones {
 		{
 			Year: 1988, Prefix: notable,
 			List: Links{
-				{LinkTitle: "Bentley Sidwell Productions", Link: "/g/bentley-sidwell-productions", SubTitle: "BSP"},
-				{LinkTitle: "Boys from Company C", Link: "/g/boys-from-company-c", SubTitle: "BCC", Forward: "Five-O"},
-				{LinkTitle: "Crackers in Action", Link: "/g/crackers-in-action", SubTitle: "CIA"},
-				{LinkTitle: "Miami Cracking Machine", Link: "/g/miami-cracking-machine", SubTitle: "MCM"},
-				{LinkTitle: "Sprint", Link: "/g/sprint"},
-				{LinkTitle: "The Grand Council", Link: "/g/the-grand-council", SubTitle: "TGC", Forward: "Dude Man Dude HQ"},
+				{LinkTitle: "Bentley Sidwell Productions", Link: "/g/bentley-sidwell-productions",
+					SubTitle: "BSP", Forward: "Texas"},
+				{LinkTitle: "Crackers in Action", Link: "/g/crackers-in-action",
+					SubTitle: "CIA", Forward: "Colorado"},
+				{LinkTitle: "Miami Cracking Machine", Link: "/g/miami-cracking-machine",
+					SubTitle: "MCM", Forward: "Florida"},
+				{LinkTitle: "Sprint", Link: "/g/sprint", Forward: "Ohio and 🇨🇦 Ontario"},
+				{LinkTitle: "The Grand Council", Link: "/g/the-grand-council",
+					SubTitle: "TGC", Forward: "Michigan"},
 				{
 					LinkTitle: "The North West Connection", Link: "/g/the-north-west-connection",
-					SubTitle: "TNWC", Forward: "The Neutral Zone",
+					SubTitle: "TNWC", Forward: "Washington",
 				},
 				{LinkTitle: "The Sysops Association Network", Link: "/g/the-sysops-association-network", SubTitle: "TSAN"},
 			},
@@ -1343,7 +1349,8 @@ func Collection() Milestones {
 			List: Links{
 				{LinkTitle: "Aces of ANSI Art", Link: "/g/aces-of-ansi-art", SubTitle: "AAA",
 					Forward: "The beginning of The Art Scene"},
-				{LinkTitle: "American Pirate Industries", Link: "/g/american-pirate-industries", SubTitle: "API"},
+				{LinkTitle: "American Pirate Industries", Link: "/g/american-pirate-industries",
+					SubTitle: "API", Forward: "California"},
 				{LinkTitle: "Future Brain Inc.", Link: "/g/future-brain-inc",
 					SubTitle: "FBi", Forward: "🇳🇱 First Dutch group on the PC"},
 				{LinkTitle: "Future Crew", Link: "/g/future-crew",
@@ -1352,7 +1359,8 @@ func Collection() Milestones {
 					LinkTitle: "International Network of Crackers", Link: "/g/international-network-of-crackers",
 					SubTitle: "INC", Forward: "MCM, NYC, NCC",
 				},
-				{LinkTitle: "New York Crackers", Link: "/g/new-york-crackers", SubTitle: "NYC"},
+				{LinkTitle: "New York Crackers", Link: "/g/new-york-crackers",
+					SubTitle: "NYC", Forward: "New York"},
 				{LinkTitle: "Norwegian Cracking Company", Link: "/g/norwegian-cracking-company",
 					SubTitle: "NCC", Forward: "🇳🇴 First Norwegian group on the PC"},
 				{LinkTitle: "Pirates Sick of Initials", Link: "/g/pirates-sick-of-initials", SubTitle: "PSi"},
@@ -1438,11 +1446,15 @@ func Collection() Milestones {
 				{LinkTitle: "Bitchin ANSI Design", Link: "/g/bitchin-ansi-design", SubTitle: "BAD"},
 				{LinkTitle: "Damn Excellent ANSI Design", Link: "/g/damn-excellent-ansi-design", SubTitle: "Damn"},
 				{LinkTitle: "Katharsis", Link: "/g/katharsis", Forward: "🇵🇱 First Polish group on the PC"},
-				{LinkTitle: "National Elite Underground Alliance", Link: "/g/national-elite-underground-alliance", SubTitle: "NEUA"},
+				{LinkTitle: "National Elite Underground Alliance", Link: "/g/national-elite-underground-alliance",
+					SubTitle: "NEUA", Forward: "New York"},
 				{LinkTitle: "🇺🇸 Public Enemy", Link: "/g/public-enemy", SubTitle: "PE", Forward: "🇩🇪 First German PC group, Red Sector Inc."},
 				{LinkTitle: "🇺🇸 Razor 1911", Link: "/g/razor-1911", SubTitle: "RZR", Forward: "🇳🇴 Razor / 🇪🇺 Skillion"},
-				{LinkTitle: "Software Chronicles Digest", Link: "/g/software-chronicles-digest", SubTitle: "SCD"},
+				{LinkTitle: "Software Chronicles Digest", Link: "/g/software-chronicles-digest",
+					SubTitle: "SCD", Forward: "California"},
 				{LinkTitle: "The Dream Team", Link: "/g/the-dream-team", SubTitle: "TDT", Forward: "🇸🇪 First PC group from Sweden"},
+				{LinkTitle: "The Humble Guys", Link: "/g/the-humble-guys",
+					SubTitle: "THG", Forward: "Tennessee"},
 				{
 					LinkTitle: "🇩🇪 Tristar & Red Sector Inc.", Link: "/g/tristar-ampersand-red-sector-inc",
 					SubTitle: "TRSi", Forward: "🇩🇪 Red Sector, then in 1991 Skid Row, TDT",
@@ -1506,8 +1518,10 @@ func Collection() Milestones {
 				{LinkTitle: "Insane Creators Enterprise", Link: "/g/insane-creators-enterprise", SubTitle: "iCE"},
 				{LinkTitle: "🇸🇪 Fairlight PC", Link: "/g/fairlight", SubTitle: "FLT"},
 				{LinkTitle: "Licensed to Draw", Link: "/g/licensed-to-draw", SubTitle: "LTD"},
-				{LinkTitle: "Nokturnal Trading Alliance", Link: "/g/nokturnal-trading-alliance", SubTitle: "NTA", Forward: "The Humble Guys"},
-				{LinkTitle: "Pirates with Attitude", Link: "/g/pirates-with-attitude", SubTitle: "PWA"},
+				{LinkTitle: "Nokturnal Trading Alliance", Link: "/g/nokturnal-trading-alliance",
+					SubTitle: "NTA", Forward: "California"},
+				{LinkTitle: "Pirates with Attitude", Link: "/g/pirates-with-attitude",
+					SubTitle: "PWA", Forward: "Michigan and Minnesota"},
 				{LinkTitle: "Relentless Pursuit of Magnificence", Link: "/g/relentless-pursuit-of-magnificence", SubTitle: "RPM"},
 				{LinkTitle: "🇪🇺 Skid Row", Link: "/g/skid-row", SubTitle: "SR"},
 				{LinkTitle: "🇩🇪🇨🇭 Scoopex", Link: "/g/scoopex"},
@@ -1547,7 +1561,8 @@ func Collection() Milestones {
 				{LinkTitle: "Pyradical", Link: "/g/pyradical"},
 				{LinkTitle: "Razor Dox", Link: "/g/razordox", SubTitle: "RZR"},
 				{LinkTitle: "🇩🇪 Superior Art Creations", Link: "/g/superior-art-creations", SubTitle: "SAC"},
-				{LinkTitle: "The One and Only", Link: "/g/the-one-and-only", SubTitle: "TOAO"},
+				{LinkTitle: "The One and Only", Link: "/g/the-one-and-only",
+					SubTitle: "TOAO", Forward: "New Jersey"},
 			},
 			Picture: Picture{
 				Title: "The One and Only",
