@@ -3,10 +3,10 @@ module github.com/Defacto2/server
 go 1.22.7
 
 require (
-	github.com/Defacto2/archive v1.0.6
+	github.com/Defacto2/archive v1.0.7
 	github.com/Defacto2/helper v1.1.5
 	github.com/Defacto2/magicnumber v1.0.4
-	github.com/Defacto2/releaser v1.1.0
+	github.com/Defacto2/releaser v1.1.1
 	github.com/caarlos0/env/v11 v11.2.2
 	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/dustin/go-humanize v1.0.1
