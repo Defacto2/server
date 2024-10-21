@@ -521,7 +521,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 <input type="hidden" name="artifact-editor-youtubeval" id="artifact-editor-youtube-reset" value="{{$youtube}}" readonly>
                 {{- /*  maxlength/minlength values means htmx will only ever trigger with 11 chars  */}}
                 <input type="text" class="form-control" name="artifact-editor-youtube" id="artifact-editor-youtube" 
-                  autocomplete="off" maxlength="11" minlength="11" value="{{$youtube}}" placeholder="62BuDfBIcMo"
+                  autocomplete="off" minlength="11" value="{{$youtube}}" placeholder="62BuDfBIcMo"
                   hx-patch="/editor/youtube"
                   hx-validate="true"
                   hx-trigger="keyup changed delay:{{$lDelay}}"
@@ -552,22 +552,22 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 <label for="artifact-editor-pouet">Pouet prod</label>
               </div>
             </div>
-            <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A URL path, example: /tags/magazine/dreadloc">
+            <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A URL path, example: tags/magazine/dreadloc">
               <div class="form-floating">
                 <input type="hidden" name="artifact-editor-16colorstval" id="artifact-editor-16colors-reset" value="{{$sixteen}}" readonly>
                 <input type="text" class="form-control" name="artifact-editor-16colors" id="artifact-editor-16colors" 
-                  autocomplete="off" maxlength="{{$oneK}}" value="{{$sixteen}}" placeholder="/tags/magazine/dreadloc"
+                  autocomplete="off" maxlength="{{$oneK}}" value="{{$sixteen}}" placeholder="tags/magazine/dreadloc"
                   hx-patch="/editor/16colors"
                   hx-trigger="keyup changed delay:{{$lDelay}}"
                   hx-include="[name='artifact-editor-key']">
                 <label for="artifact-editor-16colors">16colors partial</label>
               </div>
             </div>
-            <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A repository path, example: /Defacto2/database">
+            <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A repository path, example: Defacto2/server">
               <div class="form-floating">
                 <input type="hidden" name="artifact-editor-githubval" id="artifact-editor-github-reset" value="{{$github}}" readonly>
                 <input type="text" class="form-control" name="artifact-editor-github" id="artifact-editor-github" 
-                  autocomplete="off" maxlength="{{$oneK}}" value="{{$github}}" placeholder="/Defacto2/database"
+                  autocomplete="off" maxlength="{{$oneK}}" value="{{$github}}" placeholder="Defacto2/server"
                   hx-patch="/editor/github"
                   hx-trigger="keyup changed delay:{{$lDelay}}"
                   hx-include="[name='artifact-editor-key']">

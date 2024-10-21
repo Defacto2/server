@@ -545,6 +545,13 @@ import { clipValue, getElmById, titleize } from "./helper.mjs";
   if (websites === null || websitesReset === null) {
     throw new Error("A websites input is missing.");
   }
+  // on paste event for websites remove any http:// or https:// protcols
+  websites.addEventListener("paste", () => {
+    setTimeout(() => {
+      websites.value = websites.value.replace(/https?:\/\//, "");
+    }, 0);
+  });
+
   linksReset.addEventListener("click", () => {
     youtube.classList.remove("is-invalid", "is-valid");
     demozoo.classList.remove("is-invalid", "is-valid");
@@ -563,12 +570,34 @@ import { clipValue, getElmById, titleize } from "./helper.mjs";
   });
   const demozooSanity = 450000,
     pouetSanity = 200000;
+
+  // on paste event for websites remove the watch url: https://www.youtube.com/watch?v=
+  youtube.addEventListener("paste", () => {
+    setTimeout(() => {
+      youtube.value = youtube.value.replace(
+        /https?:\/\/www.youtube.com\/watch\?v=/,
+        ""
+      );
+    }, 0);
+  });
   youtube.addEventListener("input", (e) => validateYouTube(e.target));
   demozoo.addEventListener("input", (e) =>
     validateNumber(e.target, demozooSanity)
   );
   pouet.addEventListener("input", (e) => validateNumber(e.target, pouetSanity));
+  // on paste event for websites remove the https://16colo.rs/ URL
+  colors16.addEventListener("paste", () => {
+    setTimeout(() => {
+      colors16.value = colors16.value.replace(/https?:\/\/16colo.rs\//, "");
+    }, 0);
+  });
   colors16.addEventListener("input", (e) => validate16color(e.target));
+  // on paste event for github remove the https://github.com/ URL
+  github.addEventListener("paste", () => {
+    setTimeout(() => {
+      github.value = github.value.replace(/https?:\/\/github.com\//, "");
+    }, 0);
+  });
   github.addEventListener("input", (e) => validateGitHub(e.target));
   // relations and websites are optional
 })();
