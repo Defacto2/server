@@ -19,58 +19,71 @@ export function titleize(text) {
     "as",
     "at",
     "beta",
+    "betas",
     "but",
     "by",
-    "cd-rip",
+    "compatibility",
     "crack",
     "cracks",
     "demo",
+    "demos",
+    "doc",
     "docs",
     "documentation",
     "fix",
+    "fixes",
     "for",
+    "final",
+    "from",
     "if",
     "in",
     "installer",
+    "installers",
     "is",
+    "hint",
+    "hints",
+    "map",
+    "maps",
+    "mod",
+    "mods",
     "of",
     "on",
     "or",
-    "so",
-    "the",
-    "to",
-    "final",
-    "from",
     "patch",
+    "patches",
     "part",
     "prerelease",
-    "pre-release",
+    "prereleases",
     "preview",
+    "previews",
     "proper",
     "release",
+    "releases",
     "repack",
+    "repacks",
     "rip",
+    "rips",
+    "so",
+    "solve",
+    "solves",
+    "the",
     "trainer",
-    "v1",
-    "v2",
-    "v3",
-    "v4",
-    "v5",
-    "v6",
-    "v7",
-    "v8",
-    "v9",
-    "v10",
+    "trainers",
+    "to",
     "vs",
     "with",
   ];
   const uppers = [
+    ".com",
+    ".exe",
     "2d",
     "3d",
     "4d",
     "abc",
     "ad&d",
+    "api",
     "bbs",
+    "bios",
     "cd",
     "cga",
     "dos",
@@ -85,6 +98,7 @@ export function titleize(text) {
     "iso",
     "la",
     "ls",
+    "masm",
     "mbl",
     "ms",
     "nascar",
@@ -97,51 +111,110 @@ export function titleize(text) {
     "oem",
     "os",
     "pc",
+    "pfs",
+    "pkarc",
+    "pkzip",
     "psx",
+    "rac",
+    "rom",
     "usa",
     "ushq",
     "uss",
     "vga",
     "whq",
+    "ww1",
+    "ww2",
+    "ww3",
     "wwf",
     "xp",
+    "ys",
   ];
   text = text.trim();
   // Replace all underscores with spaces
   text = text.replace(/_/g, " ");
+  // if text contains 4 or more periods, place all periods with spaces
+  if (text.match(/\./g) && text.match(/\./g).length > 4) {
+    text = text.replace(/\./g, " ");
+  }
+  // Replace all single quotes, double quotes and graves with nothing
+  text = text.replace(/['"`]/g, "");
   // Remove suffix (1) (2) (3) etc. (a) (b) (c) etc.
   text = text.replace(/ \([0-9a-z]\)/g, "");
   // Insert a space after a colon following an alphanumeric string
   text = text.replace(/([a-zA-Z0-9]): /g, "$1 : ");
+  // Special fixes for specific strings
+  text = text.replace(/([xX][-| ][Mm]en)/g, "X-Men"); // avoid roman numeral conversion
+  // Insert temporary spaces between parentheses
+  text = text.replace(/\(/g, "( ");
+  text = text.replace(/\)/g, " )");
   const wordCount = text.split(" ").length;
   text = text
     .split(" ")
     .map((word, index) => {
-      const x = romanFix(word);
-      if (index > 0 && Number.isInteger(x)) {
-        return x;
+      console.log(`word: ${word} ${index} ${typeof word}`);
+      var edit = word;
+      if (versionMatch(edit) === true) {
+        return edit.toLowerCase();
       }
-      const y = replacementFix(word);
-      if (index > 0 && y !== word) {
+      if (uppers.includes(edit.toLowerCase())) {
+        return edit.toUpperCase();
+      }
+      const y = replacementFix(edit);
+      if (y !== "") {
         return y;
       }
-      const z = tailFix(word, index, wordCount);
-      if (z !== word) {
-        return z;
+      const x = romanFix(edit);
+      if (index > 0 && Number.isInteger(x)) {
+        edit = `${x}`;
       }
-      if (uppers.includes(word.toLowerCase())) {
-        return word.toUpperCase();
+      const z = tailFix(edit, index, wordCount);
+      if (z !== edit) {
+        edit = z;
+      }
+      console.log(`edit: ${edit} ${word}`, word !== edit);
+      // return any edits
+      if (word !== edit) {
+        return edit;
       }
       // Capitalize the first word and any word not in the common adverbs list
       // Convert all other words to lowercase
-      if (index === 0 || !commonAdverbs.includes(word.toLowerCase())) {
-        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      if (index === 0 || !commonAdverbs.includes(edit.toLowerCase())) {
+        return edit.charAt(0).toUpperCase() + edit.slice(1).toLowerCase();
       }
       return word.toLowerCase();
     })
     .join(" ")
     .trim();
+  // replace word pairs
+  text = text.replace(/(Lotus 123)/g, "Lotus 1-2-3");
+  text = text.replace(/(Falcon at )/g, "Falcon AT ");
+  text = text.replace(/(the Games)/g, "The Games");
+  // replace formatting quirks
+  text = text.replace(/( : a)/g, " : A");
+  text = text.replace(/( - a)/g, " - A");
+  text = text.replace(/( : t)/g, " : T");
+  text = text.replace(/( - t)/g, " - T");
+  text = text.replace(/(f-)/g, "F-");
+  text = text.replace(/(3-d)/g, "3D");
+  text = text.replace(/(Pfs-)/g, "PFS-");
+  text = text.replace(/(Mean-18)/g, "Mean 18");
+  // remove temporary space between parentheses
+  text = text.replace(/\( /g, "(");
+  text = text.replace(/ \)/g, ")");
+  // lowercase all text between square brackets
+  text = text.replace(/\[([^)]+)\]/g, function (match) {
+    return match.toUpperCase();
+  });
   return text;
+}
+
+// Matches a version string.
+// @param {string} word - The word to be checked.
+// @returns {boolean} - The string matching the version syntax.
+export function versionMatch(word) {
+  // regex that matches V1.0, V1.1, V11, V2.11, V2.11a etc.
+  const regex = /^[vV]\d+(\.\d+)?[a-z]?$/i;
+  return regex.test(word);
 }
 
 /**
@@ -202,45 +275,40 @@ export function romanFix(word) {
 }
 
 /**
- * Converts elite words and symbols to English or numerals.
+ * Converts brands or elite words and symbols to English or numerals.
  * @param {string} word - The string to be converted.
  * @returns {string} - The converted string.
  * @example
  * replacementFix("][") // returns "2"
  */
 export function replacementFix(word) {
-  switch (word) {
+  const s = word.toLowerCase();
+  switch (s) {
+    case "dr.":
+      return "Dr";
+    case "jr.":
+      return "Jr";
+    case "ms.":
+      return "Ms";
+    case "abcs":
+      return "ABCs";
     case "cdrip":
-      return "cd-rip";
+    case "cd-rip":
+      return "CD RIP";
+    case "pre-release":
+      return "prerelease";
     case "&":
       return "and";
     case "ad+d":
       return "AD&D";
-    case "V1.0":
-      return "v1";
-    case "V2.0":
-      return "v2";
-    case "V3.0":
-      return "v3";
-    case "V4.0":
-      return "v4";
-    case "V5.0":
-      return "v5";
-    case "V6.0":
-      return "v6";
-    case "V7.0":
-      return "v7";
-    case "V8.0":
-      return "v8";
-    case "V9.0":
-      return "v9";
-    case "V10.0":
-      return "v10";
-    case ("][", "||"):
+    case "][":
+    case "||":
       return "2";
     case "]|[":
+    case "]I[":
       return "3";
     case "]||[":
+    case "]II[":
       return "4";
     case " I:":
       return " 1 :";
@@ -248,10 +316,41 @@ export function replacementFix(word) {
       return " 2 :";
     case " III:":
       return " 3 :";
+    case "at&t":
+      return "AT&T";
+    case "dbase":
+      return "dBase";
+    case "doubledos":
+      return "DoubleDOS";
+    case "fastback":
+      return "FastBack";
+    case "loadit":
+      return "LoadIt";
+    case "memoryshift":
+      return "Memory Shift";
+    case "multilink":
+      return "MultiLink";
+    case "paperboy":
+      return "PaperBoy";
+    case "pc-draw":
+      return "PC-Draw";
+    case "pcjr":
+      return "PCjr";
+    case "prokey":
+      return "ProKey";
+    case "rbase":
+    case "r:base":
+      return "R:Base";
+    case "sidekick":
+      return "SideKick";
+    case "visicalc":
+      return "VisiCalc";
     case "war-craft":
       return "Warcraft";
+    case "wordstar":
+      return "WordStar";
     default:
-      return word;
+      return "";
   }
 }
 
