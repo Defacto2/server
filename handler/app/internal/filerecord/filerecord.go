@@ -1401,7 +1401,7 @@ func WebsitesStr(art *models.File) string {
 	if art == nil {
 		return ""
 	}
-	if !art.ListLinks.Valid {
+	if art.ListLinks.Valid {
 		return strings.TrimSpace(art.ListLinks.String)
 	}
 	return ""
