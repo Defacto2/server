@@ -472,9 +472,14 @@ func LinkWiki(uri, name string) template.HTML {
 	if name == "" {
 		return errVal("name")
 	}
-	href, err := url.JoinPath("https://github.com/Defacto2/defacto2.net/wiki/", uri)
+	var href string
+	base := "https://github.com/Defacto2/defacto2.net/wiki"
+	href, err := url.JoinPath(base, uri)
 	if err != nil {
 		return template.HTML(err.Error())
+	}
+	if strings.HasPrefix(uri, "#") {
+		href = fmt.Sprintf("%s%s", base, uri)
 	}
 	a := fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover link-light" href="%s">%s %s</a>`,
 		href, name, arrowLink)

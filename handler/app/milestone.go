@@ -1667,7 +1667,8 @@ func Collection() Milestones {
 			List: Links{
 				{LinkTitle: "Eclipse", Link: "/g/eclipse", SubTitle: "ECL", Forward: "Hybrid"},
 				{LinkTitle: "Hoodlum", Link: "/g/hoodlum", SubTitle: "HLM"},
-				{LinkTitle: "Prestige", Link: "/g/prestige", SubTitle: "PTG"},
+				{LinkTitle: "Prestige", Link: "/g/prestige",
+					SubTitle: "PTG", Forward: "Ohio and 🇳🇱 The Netherlands"},
 				{LinkTitle: "Inquisition", Link: "/g/inquisition", SubTitle: "INQ", Forward: "Week in Warez"},
 				{LinkTitle: "The Naked Truth", Link: "/g/the-naked-truth-magazine", SubTitle: "NTM"},
 				{LinkTitle: "Razor 1911 CD Division", Link: "/g/razor-1911-cd-division", SubTitle: "RZR", Forward: "Razor 1911"},
