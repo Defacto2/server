@@ -249,13 +249,12 @@ func RecordClassification(c echo.Context, db *sql.DB, logger *zap.SugaredLogger)
 	section := c.FormValue("artifact-editor-categories")
 	platform := c.FormValue("artifact-editor-operatingsystem")
 	key := c.FormValue("artifact-editor-key")
-	html, err := form.HumanizeCount(db, section, platform)
-	if err != nil {
-		logger.Error(err)
-		return badRequest(c, err)
-	}
-	invalid := section == "" || platform == ""
-	if invalid {
+	if invalid := section == "" || platform == ""; invalid {
+		html, err := form.HumanizeCount(db, section, platform)
+		if err != nil {
+			logger.Error(err)
+			return badRequest(c, err)
+		}
 		return c.HTML(http.StatusOK, string(html))
 	}
 	id, err := strconv.Atoi(key)
@@ -263,6 +262,11 @@ func RecordClassification(c echo.Context, db *sql.DB, logger *zap.SugaredLogger)
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	if err := model.UpdateClassification(db, int64(id), platform, section); err != nil {
+		return badRequest(c, err)
+	}
+	html, err := form.HumanizeCount(db, section, platform)
+	if err != nil {
+		logger.Error(err)
 		return badRequest(c, err)
 	}
 	return c.HTML(http.StatusOK, string(html))
