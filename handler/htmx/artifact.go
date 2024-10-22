@@ -255,7 +255,7 @@ func RecordClassification(c echo.Context, db *sql.DB, logger *zap.SugaredLogger)
 			logger.Error(err)
 			return badRequest(c, err)
 		}
-		return c.HTML(http.StatusOK, string(html))
+		return c.HTML(http.StatusOK, string(html)+" did not update")
 	}
 	id, err := strconv.Atoi(key)
 	if err != nil {
