@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"html"
 	"net/http"
 	"net/url"
 	"os"
@@ -403,16 +402,11 @@ func RecordReleasersReset(c echo.Context, db *sql.DB) error {
 	if unchanged {
 		return c.String(http.StatusNoContent, "")
 	}
-	val, err := recordReleases(db, val1, val2, key)
+	_, err := recordReleases(db, val1, val2, key)
 	if err != nil {
 		return badRequest(c, err)
 	}
-	s := strings.Split(val, "+")
-	for i, x := range s {
-		s[i] = "<q>" + html.EscapeString(x) + "</q>"
-	}
-	html := strings.Join(s, " + ")
-	return c.HTML(http.StatusOK, html)
+	return c.HTML(http.StatusOK, "&#x2713;")
 }
 
 func recordReleases(db *sql.DB, rel1, rel2, key string) (string, error) {
@@ -478,14 +472,7 @@ func RecordDateIssuedReset(c echo.Context, db *sql.DB, elmID string) error {
 	if err := model.UpdateDateIssued(db, int64(id), year, month, day); err != nil {
 		return badRequest(c, err)
 	}
-	s := year
-	if month != "0" {
-		s += "-" + month
-	}
-	if day != "0" {
-		s += "-" + day
-	}
-	return c.String(http.StatusOK, s)
+	return c.String(http.StatusOK, " &#x2713;")
 }
 
 // RecordCreatorText handles the post submission for the file artifact creator text.
