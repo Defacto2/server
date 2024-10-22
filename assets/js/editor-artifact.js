@@ -82,26 +82,52 @@ import { clipValue, getElmById, titleize } from "./helper.mjs";
     });
   }
 
-  const aekv = getElmById(`artifact-editor-key-value`);
+  const aekv = getElmById(`artifact-dataeditor-key-value`);
   if (aekv === null) {
     throw new Error("The key value is missing.");
   }
-  const aekl = getElmById(`artifact-editor-key-label`);
+  const aekl = getElmById(`artifact-dataeditor-key-label`);
   if (aekl === null) {
     throw new Error("The key label is missing.");
   }
-  aekl.addEventListener(`click`, () => clipValue(`artifact-editor-key-value`));
+  aekl.addEventListener(`click`, () =>
+    clipValue(`artifact-dataeditor-key-value`)
+  );
 
-  const uid = getElmById(`artifact-editor-unique-id-value`);
-  if (uid === null) {
+  const afkv = getElmById(`artifact-fileeditor-key-value`);
+  if (afkv === null) {
+    throw new Error("The key value is missing.");
+  }
+  const afkl = getElmById(`artifact-fileeditor-key-label`);
+  if (aekl === null) {
+    throw new Error("The key label is missing.");
+  }
+  afkl.addEventListener(`click`, () =>
+    clipValue(`artifact-fileeditor-key-value`)
+  );
+
+  const udid = getElmById(`artifact-dataeditor-unique-id-value`);
+  if (udid === null) {
     throw new Error("The unique id value is missing.");
   }
-  const uidl = getElmById(`artifact-editor-unique-id-label`);
-  if (uidl === null) {
+  const udidl = getElmById(`artifact-dataeditor-unique-id-label`);
+  if (udidl === null) {
     throw new Error("The unique id label is missing.");
   }
-  uidl.addEventListener(`click`, () =>
-    clipValue(`artifact-editor-unique-id-value`)
+  udidl.addEventListener(`click`, () =>
+    clipValue(`artifact-dataeditor-unique-id-value`)
+  );
+
+  const ufid = getElmById(`artifact-fileeditor-unique-id-value`);
+  if (ufid === null) {
+    throw new Error("The unique id value is missing.");
+  }
+  const ufidl = getElmById(`artifact-fileeditor-unique-id-label`);
+  if (ufidl === null) {
+    throw new Error("The unique id label is missing.");
+  }
+  ufidl.addEventListener(`click`, () =>
+    clipValue(`artifact-fileeditor-unique-id-value`)
   );
 
   const locv = getElmById(`artifact-editor-location-value`);
