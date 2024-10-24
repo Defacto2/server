@@ -18,14 +18,23 @@
                         <div id="search-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm text-secondary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
-                    </div>              
-                    <input type="text" spellcheck="false" autofocus 
-                        class="form-control" id="search-htmx-input" name="htmx-search" 
-                        hx-patch="{{$hxpost}}" 
-                        hx-target="#search-htmx-results" 
-                        hx-trigger="keyup changed delay:50ms" 
-                        hx-indicator="#search-htmx-indicator"
-                        placeholder="{{$placeholder}}">
+                    </div>
+                    {{/*  
+                        1. use "input changed" to allow triggering from copy/paste text.
+                        2. use "delay:500ms" to reduce the number of requests.
+                        3. use "type:search" purely for asthetics.
+                        4. autofocus is used as the search is the main focus.
+                        5. spellcheck is disabled to prevent red underlines with oddball scene names.
+                        6. hx-post is a requirement otherwise the search will signifcantly slow down.
+                    */}}
+                    <input class="form-control"  type="search"
+                        spellcheck="false" autofocus
+                        name="htmx-search" placeholder="{{$placeholder}}"
+                        id="search-htmx-input"
+                        hx-post="{{$hxpost}}"
+                        hx-trigger="input changed delay:500ms, search"
+                        hx-target="#search-htmx-results"
+                        hx-indicator="#search-htmx-indicator">
                     <button type="button" id="search-htmx-clear" class="btn btn-dark">Clear</button>
                 </div>
                 </p>

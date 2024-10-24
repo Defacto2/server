@@ -25,7 +25,7 @@ func htmxGroup(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, downloadDir 
 	// htmx/
 	g := e.Group("", middleware.RateLimiter(store))
 	// htmx/search/releaser
-	g.PATCH("/search/releaser", func(c echo.Context) error {
+	g.POST("/search/releaser", func(c echo.Context) error {
 		return htmx.SearchReleaser(c, db, logger)
 	})
 	// htmx/demozoo/production

@@ -324,13 +324,14 @@ func online(g *echo.Group, db *sql.DB) {
 	})
 }
 
+// /editor/search/id
 func search(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger) {
 	if g == nil {
 		panic(fmt.Errorf("%w for search router", ErrRoutes))
 	}
 	search := g.Group("/search")
 	search.GET("/id", app.SearchID)
-	search.PATCH("/id", func(cx echo.Context) error {
+	search.POST("/id", func(cx echo.Context) error {
 		return htmx.SearchByID(cx, db, logger)
 	})
 }
