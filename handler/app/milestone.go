@@ -857,15 +857,19 @@ func Collection() Milestones {
 				ul1,
 		},
 		{
-			Title: "Earliest unprotect text", Year: 1983, Month: 5, Day: 12, Highlight: true,
-			Lead: "Directions by Randy Day for unprotecting SPOC the Chess Master ?", LinkTitle: "the unprotect text",
-			Link: "/f/a91c702",
-			Content: "<code>SPOC.UNP</code><br>" +
-				"<p><strong>Unprotects</strong> were text documents describing methods to remove software (floppy) disk copy protection. " +
-				"Many authors were legitimate owners frustrated that publishers would not permit them to create backup copies of their expensive but fragile 5¼-inch floppy disks for daily driving.</p>" +
-				"<p><q>The disk is close to a normal disk. There is one file in the directory, spoc.exe, which is most of the program. However, track 20, sector 5 is a bad sector. In what manner it is bad, I don't know, but nothing can read it.</q></p>" +
-				"<p>The origins of the unprotected document go back to the Apple&nbsp;II and other early microcomputer platforms, where BBS users would publically post simple hacks to defeat basic disk copy protection schemes, such as this <a href=\"http://www.textfiles.com/apple/parameters.txt\">1982 log</a>.</p>",
-		},
+			Title: "Earliest Unprotect texts", Year: 1983, Highlight: true,
+			Lead: "Unprotects for Lotus 1-2-3", LinkTitle: "the Unprotect texts",
+			Link: "/files/how-to",
+			Content: "<code>123.UNP</code><br>" +
+				"<p>The January release of <a href=\"https://www.wired.com/2009/01/jan-26-1983-spreadsheet-as-easy-as-1-2-3-2/\">1-2-3</a> from Lotus " +
+				"became the killer application for the IBM PC and helped the platform dominate in business and the home in the USA. " +
+				"Like VisiCalc on the Apple 2, it was a spreadsheet application running on the powerful IBM personal computer that allowed for a more extensive feature set and usability.</p>" +
+				"<p>All the early editions of the 1-2-3 came with floppy disk copy protection, which allowed for hard drive installation but required the original purchased floppy disk when loading the program. " +
+				"The loss or easy damage of this key disk left a buyer unable to use their expensive 1983-$500 software.</p>" +
+				"<p>Many Unprotect texts provide instructions on how end users can <a href=\"/f/af29fa4\">hack and edit</a> Lotus 1-2-3 to remove its copy protection. " +
+				"It seems that so many people were frustrated with this copy protection that Lotus eventually abandoned it. " +
+				"However, it is not sure if 1-2-3 is the origin of Unprotect on PC or if it merely popularized. " +
+				"But the form of removal was also used on the Apple 2, such as in this <a href=\"http://www.textfiles.com/apple/parameters.txt\">1982 log</a>.</p>"},
 		{
 			Title: "Microsoft Windows announced", Year: 1983, Month: 11, Day: 10,
 			Link:      "https://www.poynter.org/reporting-editing/2014/today-in-media-history-in-1983-bill-gates-and-microsoft-introduced-windows/",
@@ -1460,6 +1464,18 @@ func Collection() Milestones {
 					SubTitle: "TRSi", Forward: "🇩🇪 Red Sector, then in 1991 Skid Row, TDT",
 				},
 			},
+		},
+		{
+			Title: "The first application and utility groups", Year: 1991, Month: 1, Highlight: true,
+			Lead: "Nokturnal Trading Alliance and IUD",
+			Content: "<p>The PC's first dedicated application and software utility groups emerged at the beginning of 1991. " +
+				"Groups such as <a href=\"/g/nokturnal-trading-alliance\">Nokturnal Trading Alliance</a> and " +
+				"<a href=\"/g/inc-utility-division\">IUD</a> <em><a href=\"/g/international-network-of-crackers\">International Network of Crackers</a> Utility Division</em> started to package, " +
+				"crack and exclusively release the commercial software that was available but was not considered gaming titles.</p>" +
+				"<p>Yet this form of software piracy <a href=\"f/ab25292\">dominated</a> the elite bulletin boards for the PC and had done so for a long while. " +
+				"Typically, individuals compiled these \"app\" releases anonymously or for upload to their local bulletin boards instead of under a Scene group for competition. " +
+				"Was this solo anonymity the legacy of do-it-yourself cracking and <a href=\"/files/how-to\">Unprotection documentation</a> common on the PC in the 1980s, or maybe a fear of big tech and their lawyers?</p>" +
+				"<p>The most famous application group, <a href=\"/g/pirates-with-attitudes\">Pirates with Attitudes</a> (PWA), was founded in 1991 but focused on game titles for their first two years.</p>",
 		},
 		{
 			Title: "Earliest BBS VGA loader", Year: 1991, Month: 3,
