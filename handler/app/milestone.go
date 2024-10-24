@@ -729,14 +729,14 @@ func Collection() Milestones {
 				"Berlin Cracking Service image <sup><a href=\"#berlin-bear-controversy-fn1\">[1]</a><a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup> of the <a href=\"https://www.atlantis-prophecy.org/recollection/gfx/BCS.png\">Berlin&nbsp;Bear</a> was the first cracktro. " +
 				"But this seems far-fetched, and anecdotal proof suggests it originates from 1984.</p>" +
 				// us and japan
-				"<p>But even taking the claim at its face value, back in late 1982 and selling at $595<sup><a href=\"#berlin-bear-controversy-fn14\">[14]</a></sup>, the Commodore&nbsp;64 was a pricey machine that <a href=\"https://www.power8bit.com/assets/images/screen-shot-2023-03-27-at-5.27.40-pm-508x698.webp\">targeted</a> business users in the USA and Japan. " +
+				"<p>But even taking the claim at its face value, back in late 1982 and selling at $595<sup><a href=\"#berlin-bear-controversy-fn9\">[9]</a></sup>, the Commodore&nbsp;64 was a pricey machine that <a href=\"https://www.power8bit.com/assets/images/screen-shot-2023-03-27-at-5.27.40-pm-508x698.webp\">targeted</a> business users in the USA and Japan. " +
 				"Due to last-minute design changes and poor quality assurance issues, the machine had limited distribution and software that year<sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a><a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup>. " +
 				// germany and uk
 				"By all accounts, the Commodore Braunschweig factory didn't have the European PAL Commodore&nbsp;64 machines " +
 				"ready for retail <a href=\"https://www.zock.com/8-Bit/D_C64.HTML\">until&nbsp;1983</a>. " +
 				"Advertising in the UK first hit Commodore&nbsp;Computing<sup><a href=\"#berlin-bear-controversy-fn5\">[5]</a></sup> in February 1983, " +
 				"and throughout that year focused on developers but primarily on the <a href=\"https://static.nosher.net/archives/computers/images/comm64_comci_1983-02-m.jpg\">business&nbsp;market</a>" +
-				"<sup><a href=\"#berlin-bear-controversy-fn6\">[6]</a></sup><sup><a href=\"#berlin-bear-controversy-fn7\">[7]</a></sup>.</p>" +
+				"<sup><a href=\"#berlin-bear-controversy-fn6\">[6]</a>.</p>" +
 				// C64 ad quotes
 				"<p><q>Interface adaptors will allow the use of a complete range of hardware peripherals including disk units, plotter, dot matrix and daisy wheel printers, Prestel communications, networking and much, much more.</q> " +
 				"<q>A complete range of business software including word processing, information handling, financial modelling, accounting and many more specific application packages will be available.</q></p>" + //nolint:misspell
@@ -746,13 +746,13 @@ func Collection() Milestones {
 				"It is more believable that the kids formed these Berlin-based cracking groups at the earliest, in Christmas/New Years 1983-84, " +
 				"after the Commodore 64 dropped massively in price and became readily available.</p>" +
 				// citations
-				"</p><strong>The controversial citations</strong> <sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup>" +
+				"</p><strong>Some of the controversial <a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">citations</a></strong>" +
 				ul0 +
 				"<li><q>The first intro was a picture of the Berlin Bear from the city flag and was released by <abbr title=\"Berlin Cracking Service\">BCS</abbr> in <strong>1982</strong>. " +
-				"It was a kind of co-production by several people...</q> <sup><a href=\"#berlin-bear-controversy-fn9\">[9]</a></sup></li>" +
+				"It was a kind of co-production by several people...</q></li>" +
 				"<li><q>Some of our close friends/posse in Berlin started their C64 scene-careers nearly at the same time. " +
-				"I'm speaking of Cracking Force Berlin (CFB)... and&nbsp;Berlin&nbsp;Cracking&nbsp;Service&nbsp;(BCS).</q> <sup><a href=\"#berlin-bear-controversy-fn11\">[11]</a></sup></li>" +
-				"<li><q>We were primarily cracking games from 1982 until late 1987.</q> <sup><a href=\"#berlin-bear-controversy-fn12\">[12]</a></sup></li>" +
+				"I'm speaking of Cracking Force Berlin (CFB)... and&nbsp;Berlin&nbsp;Cracking&nbsp;Service&nbsp;(BCS).</q> <sup><a href=\"#berlin-bear-controversy-fn7\">[7]</a></sup></li>" +
+				"<li><q>We were primarily cracking games from 1982 until late 1987.</q> <sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup></li>" +
 				"<li><q>Copying games wasn't really illegal in most countries back in 1982 or 1983. ... Most early releases weren't <q>cracked</q>, they were just released or spread.</q></li>" +
 				ul1 +
 				sect0 +
@@ -763,16 +763,13 @@ func Collection() Milestones {
 				"<a href=\"https://intros.c64.org/main.php?module=showintro&iid=156\">conversation on intros.c64.org</a>." +
 				div1 +
 				"<div id=\"berlin-bear-controversy-fn2\">[2] Jazzcat <a href=\"https://www.atlantis-prophecy.org/recollection/?load=crackers_map&country=germany\">writes</a> the image was created in an paint application that first came out in 1983.</div>" +
-				"<div id=\"berlin-bear-controversy-fn3\">[3] Commodore priced the $199 VIC-20 for home users. It is the Business Machines department of Commodore that advertises the $595 Commodore&nbsp;64, <a href=\"https://www.power8bit.com/C64.html\">ad source</a>.</div>" +
+				"<div id=\"berlin-bear-controversy-fn3\">[3] Commodore Business Machines <a href=\"https://www.power8bit.com/C64.html\">advertises the $595</a> Commodore&nbsp;64.</div>" +
 				"<div id=\"berlin-bear-controversy-fn4\">[4] Commodore: a company on the edge.</div>" +
 				"<div id=\"berlin-bear-controversy-fn5\">[5] See the February 1983 issue of Commodore Computing, <a href=\"https://web.archive.org/web/20160611085947if_/http://archive.6502.org/publications/commodore_computing_intl/commodore_computing_intl_1983_02.pdf\">pages 36-37</a>.</div>" +
-				"<div id=\"berlin-bear-controversy-fn6\">[6] Advert source <a href=\"https://nosher.net/archives/computers/comm64_comci_1983-02?idx=Designed\">nosher.net</a>.</div>" +
-				"<div id=\"berlin-bear-controversy-fn7\">[7] See the October 1993 issue of Practical Computing, <a href=\"https://worldradiohistory.com/UK/Practical-Computing/80s/Practical-Computing-1983-10-S-OCR.pdf\">pages 74-75</a>.</div>" +
-				"<div id=\"berlin-bear-controversy-fn8\">[8] Select quotes from an often referenced <a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">interview conducted in 2005-06</a>.</div>" +
-				"<div id=\"berlin-bear-controversy-fn9\">[9] This quote claims multiple Berlin-based sceners had early access to the Commodore&nbsp;64 in 1982 and were knowledgeable enough to program on it.</div>" +
-				"<div id=\"berlin-bear-controversy-fn11\">[11] This quote suggests multiple Berlin cracking groups existed on the Commodore&nbsp;64 in 1982 despite this and other sources stating the machine was unavailable in Germany.</div>" +
-				"<div id=\"berlin-bear-controversy-fn12\">[12] Cracking games in this era means removing <q>disk</q> copy protection. The German manual for the VC-1541 floppy disk drive is dated June 1983, which suggests it didn't sell in Germany until the latter half of 1983. Other early noteworthy titles on the Commodore&nbsp;64 came on cartridges.</div>" +
-				"<div id=\"berlin-bear-controversy-fn14\">[14] With inflation, it is priced at $1,900 in mid-2024, or more expensive than a new Apple 14-inch MacBook Pro laptop selling at $1,599.</div>" +
+				"<div id=\"berlin-bear-controversy-fn6\">[6] Advert source <a href=\"https://nosher.net/archives/computers/comm64_comci_1983-02?idx=Designed\">nosher.net</a>. See the October 1993 issue of Practical Computing, <a href=\"https://worldradiohistory.com/UK/Practical-Computing/80s/Practical-Computing-1983-10-S-OCR.pdf\">pages 74-75</a>.</div>" +
+				"<div id=\"berlin-bear-controversy-fn7\">[7] The machine was unavailable in West and East Germany.</div>" +
+				"<div id=\"berlin-bear-controversy-fn8\">[8] Cracking means removing <q>disk</q> copy protection. But the German VC-1541 disk drive manual is dated June 1983 and many games in the era came on cartridges.</div>" +
+				"<div id=\"berlin-bear-controversy-fn9\">[9] With inflation, that's $1,900 USD in mid-2024 without accessories, software or a screen.</div>" +
 				sect1,
 		},
 		{
