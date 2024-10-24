@@ -33,5 +33,11 @@
       "command": "task assets"
       //"runIn": "terminal"
     }
-  ]
+  ],
+  "files.exclude": {
+    "**/.min.js": true
+  },
+  "search.exclude": {
+    "**/*.min.js": true
+  }
 }
