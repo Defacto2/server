@@ -1687,7 +1687,9 @@ func Collection() Milestones {
 			Content: "<p>The first major <strong>Scene merchandise</strong> was selling a CD-ROM by <a href=\"/g/razor-1911\">Razor 1911</a> to celebrate their 10th anniversary. " +
 				"The disc was a collection of their PC releases from 1991 to 1995 and, including worldwide postage, sold for $40 each, or about the cost of a full-priced, boxed PC game. " +
 				"Before online or consumer digital transactions, buyers had to post the physical cash and an order form in an envelope to a PO Box in Florida.</p>" +
-				"<p>The disc was controversial as <strong>reselling</strong> scene-released software was criminal and frowned upon. But its success meant other group merchandise soon followed suit, with the most popular items being branded <a href=\"/f/b4484e\">t-shirts</a>.</p>",
+				"<p>The disc was controversial as <strong>reselling</strong> scene-released software was criminal and frowned upon. " +
+				"But its success meant other group merchandise soon followed suit, with the most popular items being branded <a href=\"/f/b4484e\">t-shirts</a>. " +
+				"Though the t-shirt merch was probably first introduced on the PC scene by <a href=\"/g/the-dream-team\">The Dream Team</a> with their 1992 <a href=\"/f/b32f0c\">T-Shirt Series #1</a>.</p>",
 			Picture: Picture{
 				Title: "Razor 1911 Tenth Anniversary CD-ROM",
 				Alt:   "Razor 1911 Tenth Anniversary CD-ROM disc",
