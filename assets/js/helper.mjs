@@ -101,6 +101,7 @@ export function titleize(text) {
     "masm",
     "mbl",
     "ms",
+    "mtv",
     "nascar",
     "nba",
     "ncaa",
@@ -171,7 +172,6 @@ export function titleize(text) {
       if (z !== edit) {
         edit = z;
       }
-      console.log(`edit: ${edit} ${word}`, word !== edit);
       // return any edits
       if (word !== edit) {
         return edit;
@@ -198,6 +198,8 @@ export function titleize(text) {
   text = text.replace(/(3-d)/g, "3D");
   text = text.replace(/(Pfs-)/g, "PFS-");
   text = text.replace(/(Mean-18)/g, "Mean 18");
+  // replace v1.0 with v1, v2.0 with v2 etc.
+  text = text.replace(/(v\d+)\.0/g, "$1");
   // remove temporary space between parentheses
   text = text.replace(/\( /g, "(");
   text = text.replace(/ \)/g, ")");
@@ -290,6 +292,8 @@ export function replacementFix(word) {
       return "Jr";
     case "ms.":
       return "Ms";
+    case "u.s.a.":
+      return "USA";
     case "abcs":
       return "ABCs";
     case "cdrip":
