@@ -1466,9 +1466,9 @@ func Collection() Milestones {
 			Title: "The first application and utility groups", Year: 1991, Month: 1, Highlight: true,
 			Lead: "Nokturnal Trading Alliance and IUD",
 			Content: "<p>The PC's first dedicated application and software utility groups emerged at the beginning of 1991. " +
-				"Groups such as <a href=\"/g/nokturnal-trading-alliance\">Nokturnal Trading Alliance</a> and " +
-				"<a href=\"/g/inc-utility-division\">IUD</a> <em><a href=\"/g/international-network-of-crackers\">International Network of Crackers</a> Utility Division</em> started to package, " +
-				"crack and exclusively release the commercial software that was available but was not considered gaming titles.</p>" +
+				"Groups such as <a href=\"/g/nokturnal-trading-alliance\">Nokturnal Trading Alliance</a>, and later, <a href=\"/g/the-hill-people\">The Hill People</a> and " +
+				"<a href=\"/g/inc-utility-division\">IUD</a> <em><a href=\"/g/international-network-of-crackers\">International Network of Crackers</a> Utility Division</em> start to package, " +
+				"crack and exclusively release the commercial software that were not considered games.</p>" +
 				"<p>Yet this form of software piracy <a href=\"f/ab25292\">dominated</a> the elite bulletin boards for the PC and had done so for a long while. " +
 				"Typically, individuals compiled these \"app\" releases anonymously or for upload to their local bulletin boards instead of under a Scene group for competition. " +
 				"Was this solo anonymity the legacy of do-it-yourself cracking and <a href=\"/files/how-to\">Unprotection documentation</a> common on the PC in the 1980s, or maybe a fear of big tech and their lawyers?</p>" +
