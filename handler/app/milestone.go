@@ -1057,15 +1057,15 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "The earliest PC loaders", Year: 1986, Month: 6, Highlight: true,
+			Title: "The earliest PC loaders", Year: 1986, Month: 3, Highlight: true,
 			Content: "<p><strong>Loaders</strong> acted as they were named, given that they would be the first thing to load and display each time the cracked game was run. " +
 				"These screens were static images in the early days and sometimes contained ripped screens from other games. Some users found these annoying and a cause of unwanted file bloat.</p>" +
 				"<p>The first static loaders originated on the Apple&nbsp;II underground, such as <a href=\"http://artscene.textfiles.com/intros/APPLEII/cbaseball.gif\">this example</a> " +
 				"by The&nbsp;Digital&nbsp;Gang for the crack release of Championship&nbsp;Baseball that likely came out in 1983.</p>",
 			List: Links{
-				{LinkTitle: "Atarisoft's Gremlins by Mr. Turbo", Link: "/f/b44cac"},
-				{LinkTitle: "Exodus: Ultima 3 by ESP Pirates", Link: "/f/a83eec"},
-				{LinkTitle: "Sega's Frogger II by SPI", Link: "/f/b33404"},
+				{LinkTitle: "Alley Cat from Five O", Link: "/f/b01c518"},
+				{LinkTitle: "Conquest from T.O.A.D.S.", Link: "/f/bb2e428"},
+				{LinkTitle: "Tapper from T.O.A.D.S.", Link: "/f/a6197ae"},
 			},
 			Picture: Picture{
 				Title: "Software Pirates, Inc presents",
