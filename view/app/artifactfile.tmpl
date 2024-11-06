@@ -211,13 +211,14 @@
                       {{- end}}
                       <table class="table table-hover">
                         <tbody>
-                          {{- range $name, $info := .modAssetPreview}}
+                          {{- with .modAssetPreview }}{{- if . }}
+                          {{- range $name, $info := . }}
                           <tr>
                             <th scope="row">{{$name}}</th>
                             <td>{{index $info 0}}B</td>
                             {{- $ext := printf ".%s" $name}}
                             <td><a href="{{recordPreviewSrc $unid $ext}}">{{index $info 1}}</a></td>
-                          </tr>{{- end}}
+                          </tr>{{- end}}{{- end}}{{- end}}
                       </table>
                       <div><a href="#file-editor" hx-patch="/editor/preview/crop11/{{$unid}}">1:1 crop</a> <small>square</small></div>
                       <div><a href="#file-editor" hx-patch="/editor/preview/crop12/{{$unid}}">1:2 crop</a> <small>i.e. 640x1280</small></div>
@@ -237,13 +238,14 @@
                       <div class="form-text">These are displayed when listing multiple artifacts on a page</div>
                       <table class="table table-hover">
                         <tbody>
+                          {{- with .modAssetThumbnail }}{{- if . }}
                           {{- range $name, $info := .modAssetThumbnail}}
                           <tr>
                             <th scope="row">{{$name}}</th>
                             <td>{{index $info 0}}B</td>
                             {{- $ext := printf ".%s" $name}}
                             <td><a href="{{recordThumbnailSrc $unid $ext}}">{{index $info 1}}</a></td>
-                          </tr>{{- end}}
+                          </tr>{{- end}}{{- end}}{{- end}}
                       </table>
                       <div>
                         <a href="#file-editor" hx-patch="/editor/thumbnail/pixel/{{$unid}}">Good</a> &nbsp;
@@ -276,6 +278,7 @@
                       {{- else}}
                       <table class="table table-hover">
                         <tbody>
+                          {{- with .modAssetExtra }}{{- if . }}
                           {{- range $name, $info := .modAssetExtra}}
                           <tr>
                             <th scope="row">{{$name}}</th>
@@ -284,7 +287,7 @@
                             {{- if eq $name "README"}}{{- $ext := printf ".txt"}}
                             {{- else if eq $name "Repack ZIP"}}{{- $ext := ".zip"}}{{end}}
                             <td>{{index $info 1}}</td>
-                          </tr>{{- end}}
+                          </tr>{{- end}}{{- end}}{{- end}}
                       </table>
                       {{- end}}
                     </p>
