@@ -38,6 +38,7 @@ const (
 )
 
 var (
+	ErrANSI   = errors.New("text is ansi encoded, cannot crop")
 	ErrEmpty  = errors.New("file is empty")
 	ErrImg    = errors.New("file is not an known image format")
 	ErrIsDir  = errors.New("file is a directory")

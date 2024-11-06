@@ -19,7 +19,10 @@ import (
 	"go.uber.org/zap"
 )
 
-const X400 = "400x400" // X400 returns a  400 x 400 pixel image size
+const (
+	ANSICap = 350000    // CapBytes is the maximum file size in bytes for an ANSI encoded text file.
+	X400    = "400x400" // X400 returns a  400 x 400 pixel image size
+)
 
 // ImagesExt returns a slice of image file extensions used by the website
 // preview and thumbnail images, including the legacy and modern formats.
@@ -313,9 +316,8 @@ func TextCrop(src, dst string) error {
 		return fmt.Errorf("text crop open %w", err)
 	}
 	defer srcFile.Close()
-
 	if magicnumber.CSI(srcFile) {
-		return nil
+		return fmt.Errorf("text crop %w: %s", ErrANSI, src)
 	}
 	dstFile, err := os.Create(dst)
 	if err != nil {
@@ -367,11 +369,18 @@ func TextCrop(src, dst string) error {
 func textCropper(src, unid string) (string, error) {
 	path, err := helper.MkContent(src + "-textimager")
 	if err != nil {
-		return "", fmt.Errorf("dirs text imager %w", err)
+		return "", fmt.Errorf("make content %w", err)
 	}
 	tmpText := filepath.Join(path, unid+".txt")
 	if err := TextCrop(src, tmpText); err != nil {
-		return "", fmt.Errorf("dirs text imager %w", err)
+		if errors.Is(err, ErrANSI) {
+			if st, err := os.Stat(src); err != nil {
+				return "", fmt.Errorf("stat %w", err)
+			} else if st.Size() > ANSICap {
+				return "", fmt.Errorf("%w as the ansi file is too big", ErrANSI)
+			}
+		}
+		return "", fmt.Errorf("text crop %w", err)
 	}
 	if _, err := os.Stat(tmpText); err != nil {
 		tmpText = src
@@ -972,13 +981,13 @@ func (dir Dirs) TextDeferred(src, unid string) error {
 	}
 	if !thumb {
 		if err := dir.TextImager(nil, src, unid, false); err != nil {
-			return fmt.Errorf("text deferred %w", err)
+			return fmt.Errorf("text deferred, %w: %s", err, src)
 		}
 	}
 	newpath := filepath.Join(dir.Extra, unid+".txt")
 	if st, err := os.Stat(newpath); err != nil || st.Size() == 0 {
 		if _, err1 := helper.DuplicateOW(src, newpath); err1 != nil {
-			return fmt.Errorf("text deferred %w", err1)
+			return fmt.Errorf("text deferred, %w: %s", err1, src)
 		}
 	}
 	return nil

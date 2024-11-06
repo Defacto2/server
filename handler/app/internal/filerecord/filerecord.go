@@ -545,11 +545,15 @@ func ListContent(art *models.File, dirs command.Dirs, src string) template.HTML 
 		return nil
 	}
 	if err = filepath.WalkDir(dst, walkerFunc); err != nil {
+		b.Reset()
 		return template.HTML(err.Error())
 	}
 	if entries == 1 && name != "" {
 		src := filepath.Join(dst, name)
-		defer func() { _ = dirs.TextDeferred(src, unid) }()
+		if err := dirs.TextDeferred(src, unid); err != nil {
+			b.Reset()
+			return template.HTML(err.Error())
+		}
 	}
 	b.WriteString(skippedEmpty(zeroByteFiles))
 	return template.HTML(b.String())

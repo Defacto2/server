@@ -8,6 +8,9 @@ defacto2-server
 df2-server
 server
 
+# debug and log files
+profile*.*
+
 # temp directories
 dist/
 node_modules/
