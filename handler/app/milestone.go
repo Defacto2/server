@@ -827,19 +827,13 @@ func Collection() Milestones {
 				"<p>ANSI was a text terminal display standard from the mid-1970s that formatted onscreen text and controlled cursor movement. The implementation in DOS was only partially complete but became its own sub-standard over time.</p>",
 		},
 		{
-			Title: "The earliest cracked PC game", Year: 1983,
-			Lead: "Atarisoft presents: Galaxian broken by The Koyote Kid ?", LinkTitle: "and view the crack",
-			Link: "/f/ab2edbc", Highlight: true,
-			Content: "<p>This modified Galaxian title screen is known as a <strong>crack&nbsp;screen</strong> and was a typical way for crackers on the Apple&nbsp;II to credit themselves. Crackers modified and removed disk copy protection from software for the sole purpose of allowing duplication.</p>" +
-				"<p>The online Apple&nbsp;II community commonly used the verbs \"broken\" or unprotected, cracked, and kracked. Given the popularity of the IBM&nbsp;PC in the USA, it is likely that The Koyote Kid was based here and interacted in the <a href=\"#the-first-crackers\">Apple&nbsp;II underground</a> Scene.</p>" +
-				"<p>Atarisoft released Galaxian on a floppy disk for IBM&nbsp;PC in 1983. Compared to the many other console and microcomputer ports, the PC conversion of a highly successful arcade title lacked color and sound.</p>" +
-				"<p><a href=\"https://www.mobygames.com/game/137/galaxian/screenshots/pc-booter/951/\">The original text</a> read <code>(C) 1983 ATARI, INC. PRESS SPACE TO CONTINUE.</code></p>",
-			Picture: Picture{
-				Title: "Galaxian broken by Koyote Kid",
-				Alt:   "Galaxian broken screenshot",
-				Webp:  "ab2edbc.webp",
-				Png:   "ab2edbc.png",
-			},
+			Title: "Microsoft Windows announced", Year: 1983, Month: 11, Day: 10,
+			Link:      "https://www.poynter.org/reporting-editing/2014/today-in-media-history-in-1983-bill-gates-and-microsoft-introduced-windows/",
+			LinkTitle: "the announcement",
+			Content: "<p>Around this time, <abbr title=\"graphical user interface\" class=\"initialism\">GUI</abbr> for microcomputing was all the hype within the technology industry and media. " +
+				"In hindsight, this premature announcement from Microsoft aimed to keep customers from jumping ship to competitor platforms and GUI offerings.</p>" +
+				"<p>It took a decade before graphical interfaces on the PC replaced text in business computing with Windows&nbsp;NT&nbsp;<sup>1993</sup> and even longer with Windows&nbsp;95&nbsp;<sup>1995</sup> before it became commonplace in the home." +
+				" Other microcomputer platforms, such as the <span class=\"text-nowrap\">Apple&nbsp;Macintosh <sup>1984</sup></span>, <span class=\"text-nowrap\">Commodore&nbsp;Amiga</span> and <span class=\"text-nowrap\">Atari&nbsp;ST&nbsp;<sup>1985</sup></span> came with a GUI as standard.</p>",
 		},
 		{
 			Title: "Major videogame publishers enter the PC market", Year: 1983,
@@ -866,34 +860,7 @@ func Collection() Milestones {
 				"<p>Many Unprotect texts provide instructions on how end users can <a href=\"/f/af29fa4\">hack and edit</a> Lotus 1-2-3 to remove its copy protection. " +
 				"It seems that so many people were frustrated with this copy protection that Lotus eventually abandoned it. " +
 				"However, it is not sure if 1-2-3 is the origin of Unprotect on PC or if it merely popularized. " +
-				"But the form of removal was also used on the Apple 2, such as in this <a href=\"http://www.textfiles.com/apple/parameters.txt\">1982 log</a>.</p>"},
-		{
-			Title: "Microsoft Windows announced", Year: 1983, Month: 11, Day: 10,
-			Link:      "https://www.poynter.org/reporting-editing/2014/today-in-media-history-in-1983-bill-gates-and-microsoft-introduced-windows/",
-			LinkTitle: "the announcement",
-			Content: "<p>Around this time, <abbr title=\"graphical user interface\" class=\"initialism\">GUI</abbr> for microcomputing was all the hype within the technology industry and media. " +
-				"In hindsight, this premature announcement from Microsoft aimed to keep customers from jumping ship to competitor platforms and GUI offerings.</p>" +
-				"<p>It took a decade before graphical interfaces on the PC replaced text in business computing with Windows&nbsp;NT&nbsp;<sup>1993</sup> and even longer with Windows&nbsp;95&nbsp;<sup>1995</sup> before it became commonplace in the home." +
-				" Other microcomputer platforms, such as the <span class=\"text-nowrap\">Apple&nbsp;Macintosh <sup>1984</sup></span>, <span class=\"text-nowrap\">Commodore&nbsp;Amiga</span> and <span class=\"text-nowrap\">Atari&nbsp;ST&nbsp;<sup>1985</sup></span> came with a GUI as standard.</p>",
-		},
-		{
-			Title: "First, dial-up Internet connections", Year: 1984,
-			Link:      "https://networkencyclopedia.com/serial-line-internet-protocol-slip/",
-			LinkTitle: "about SLIP",
-			Content: "Rick Adams created the Serial Line Internet Protocol (<strong>SLIP</strong>), the industry-standard protocol to connect dial-up modems to the Internet. " +
-				"This protocol allowed for the creation of Internet Service Providers, which provided Internet connections over standard copper telephone lines." +
-				"<br>In 1987, Rick would also go on to found one of the earliest ISPs, UUNET. " +
-				"Which in the following year would offer the first commercial connection to the Internet.",
-		},
-		{
-			Title: "Major game publishers enter the PC market", Year: 1984,
-			Content: "<p>Electronic Arts, Activision, Sega, and MicroProse Software publish on the platform.</p>" +
-				ul0 +
-				"<li><a href=\"//www.polygon.com/a/how-ea-lost-its-soul/\">Electronic Arts</a> was founded in 1982 by former Apple employee Trip Hawkins and initially developed for the Atari&nbsp;400/800 and later Commodore&nbsp;64.</li>" +
-				"<li><a href=\"//www.ign.com/articles/2010/10/01/the-history-of-activision\">Activision</a> originated in late 1979 as the first 3rd-party developer for the Atari&nbsp;2600, comprising former Atari employees.</li>" +
-				"<li><a href=\"//segaretro.org/IBM_PC\">Sega</a> was a significant arcade game developer.</li>" +
-				"<li><a href=\"//corporate-ient.com/microprose/\">MicroProse Software</a> was the company founded by Sid Meier and Bill Stealey in 1982 to create games for the Atari&nbsp;400/800.</li>" +
-				ul1,
+				"But the form of removal was also used on the Apple 2, such as in this <a href=\"http://www.textfiles.com/apple/parameters.txt\">1982 log</a>.</p>",
 		},
 		{
 			Title: "The first 16 color PC game", Year: 1984, Month: 8,
@@ -927,6 +894,42 @@ func Collection() Milestones {
 			Link: "https://www.pcjs.org/software/pcx86/demo/ibm/ega/",
 			Content: "The first <strong>demo program</strong> on the PC, Fantasy Land, is created by IBM to demonstrate the new <strong>EGA</strong> graphics standard. " +
 				"The idea of a demo is to have the program run automatically, without user input, to show off the capabilities of the hardware.",
+		},
+		{
+			Title: "The earliest PC cracked releases", Year: 1984, Highlight: true,
+			Content: "<p>This modified, tagged, or graffitied title screen is a <strong>crack&nbsp;screen</strong> " +
+				"and was a typical way for crackers on the Apple, Atari microcomputers, and the IBM PC to credit themselves. " +
+				"Crackers altered games and removed disk copy protection from software to permit copying and redistribution.</p>" +
+				"<p>The earliest examples (we have) on the IBM PC are cracked games from late 1984, attributed to <a href=\"/g/the-duplicators\">(C) 1984 The Duplicators</a>. " +
+				"The plurality in the name suggests it was a group, but it could have been a solo cracker.</p>" +
+				"<p>An oddity on the IBM PC is anonymous cracked games where the copyright information gets replaced with text proclaiming the game is public domain, such as this 1984 " +
+				"<a href=\"/f/ab27d16\">example of Stargate</a>. " +
+				"The reasoning for this is uncertain.</p>",
+			Picture: Picture{
+				Title: "Galaxian broken by Koyote Kid",
+				Alt:   "Galaxian broken screenshot",
+				Webp:  "ab2edbc.webp",
+				Png:   "ab2edbc.png",
+			},
+		},
+		{
+			Title: "First, dial-up Internet connections", Year: 1984,
+			Link:      "https://networkencyclopedia.com/serial-line-internet-protocol-slip/",
+			LinkTitle: "about SLIP",
+			Content: "Rick Adams created the Serial Line Internet Protocol (<strong>SLIP</strong>), the industry-standard protocol to connect dial-up modems to the Internet. " +
+				"This protocol allowed for the creation of Internet Service Providers, which provided Internet connections over standard copper telephone lines." +
+				"<br>In 1987, Rick would also go on to found one of the earliest ISPs, UUNET. " +
+				"Which in the following year would offer the first commercial connection to the Internet.",
+		},
+		{
+			Title: "Major game publishers enter the PC market", Year: 1984,
+			Content: "<p>Electronic Arts, Activision, Sega, and MicroProse Software publish on the platform.</p>" +
+				ul0 +
+				"<li><a href=\"//www.polygon.com/a/how-ea-lost-its-soul/\">Electronic Arts</a> was founded in 1982 by former Apple employee Trip Hawkins and initially developed for the Atari&nbsp;400/800 and later Commodore&nbsp;64.</li>" +
+				"<li><a href=\"//www.ign.com/articles/2010/10/01/the-history-of-activision\">Activision</a> originated in late 1979 as the first 3rd-party developer for the Atari&nbsp;2600, comprising former Atari employees.</li>" +
+				"<li><a href=\"//segaretro.org/IBM_PC\">Sega</a> was a significant arcade game developer.</li>" +
+				"<li><a href=\"//corporate-ient.com/microprose/\">MicroProse Software</a> was the company founded by Sid Meier and Bill Stealey in 1982 to create games for the Atari&nbsp;400/800.</li>" +
+				ul1,
 		},
 		{
 			Prefix: "The earliest PC groups,", Year: 1984,
@@ -1057,15 +1060,15 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "The earliest PC loaders", Year: 1986, Month: 6, Highlight: true,
+			Title: "The earliest PC loaders", Year: 1986, Month: 3, Highlight: true,
 			Content: "<p><strong>Loaders</strong> acted as they were named, given that they would be the first thing to load and display each time the cracked game was run. " +
 				"These screens were static images in the early days and sometimes contained ripped screens from other games. Some users found these annoying and a cause of unwanted file bloat.</p>" +
 				"<p>The first static loaders originated on the Apple&nbsp;II underground, such as <a href=\"http://artscene.textfiles.com/intros/APPLEII/cbaseball.gif\">this example</a> " +
 				"by The&nbsp;Digital&nbsp;Gang for the crack release of Championship&nbsp;Baseball that likely came out in 1983.</p>",
 			List: Links{
-				{LinkTitle: "Atarisoft's Gremlins by Mr. Turbo", Link: "/f/b44cac"},
-				{LinkTitle: "Exodus: Ultima 3 by ESP Pirates", Link: "/f/a83eec"},
-				{LinkTitle: "Sega's Frogger II by SPI", Link: "/f/b33404"},
+				{LinkTitle: "Alley Cat from Five O", Link: "/f/b01c518"},
+				{LinkTitle: "Conquest from T.O.A.D.S.", Link: "/f/bb2e428"},
+				{LinkTitle: "Tapper from T.O.A.D.S.", Link: "/f/a6197ae"},
 			},
 			Picture: Picture{
 				Title: "Software Pirates, Inc presents",
@@ -1107,13 +1110,6 @@ func Collection() Milestones {
 			Lead: "256 color graphics", LinkTitle: "about the VGA graphics standard",
 			Link:    "https://www.computer.org/publications/tech-news/chasing-pixels/Famous-Graphics-Chips-IBMs-VGA",
 			Content: "The Video Graphics Array (<strong>VGA</strong>) graphics standard is released. It is the first graphics standard to support <strong>256 colors</strong> and resolutions up to 640x480.",
-		},
-		{
-			Title: "The earliest PC demo", Year: 1987, Month: 6, Day: 22, Highlight: true,
-			Lead:      "3 Dimensional EGA Demonstration",
-			LinkTitle: "and view the demo", Link: "/f/ac21460",
-			Content: "A demo is a piece of software created purely for aesthetics, usually to show art and animation. " +
-				"While earlier demonstration software existed on the PC, they were intended for retailers or distributors and usually not given to the public.",
 		},
 		{
 			Title: "Music audio standard", Year: 1987,
