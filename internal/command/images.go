@@ -379,8 +379,10 @@ func textCropper(src, unid string) (string, error) {
 			} else if st.Size() > ANSICap {
 				return "", fmt.Errorf("%w as the ansi file is too big", ErrANSI)
 			}
+			// continue with the ANSI file
+		} else {
+			return "", fmt.Errorf("text crop %w", err)
 		}
-		return "", fmt.Errorf("text crop %w", err)
 	}
 	if _, err := os.Stat(tmpText); err != nil {
 		tmpText = src
