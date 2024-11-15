@@ -20,7 +20,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	_ "net/http/pprof" // pprof is used for profiling and can be commented out.
+
+	//_ "net/http/pprof" // pprof is used for profiling and can be commented out.
 	"os"
 	"runtime"
 	"slices"
@@ -107,6 +108,11 @@ func main() {
 		}
 		fmt.Fprintf(w, "%s\n", localIPs)
 	}()
+
+	// go func() {
+	// 	log.Println(http.ListenAndServe("localhost:6060", nil))
+	// }()
+
 	// shutdown the web server after a signal is received.
 	website.ShutdownHTTP(router, logger)
 }
