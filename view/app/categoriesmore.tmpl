@@ -6,7 +6,7 @@
 {{- $cardClass := " h-100"}}
 {{- $rels := index . "counter" }}
 {{- $linkClass := "card-link text-nowrap"}}
-<div class="row row-cols-1 row-cols-md-1 g-4 mt-2 collapse" id="all-other-categories">
+<div class="row row-cols-1 row-cols-md-1 g-4 mt-2" id="all-other-categories">
     <div class="col">
         <div class="card">
             <div class="card-body">
@@ -316,11 +316,5 @@
             </div>
         </div>
     </div>
-</div>
-<div class="d-grid gap-2 col-6 mx-auto">
-    <a class="btn btn-outline-dark btn-lg mt-4" data-bs-toggle="collapse" href="#all-other-categories" role="button"
-        aria-expanded="false" aria-controls="all-other-categories">
-        All other categories
-    </a>
 </div>
 {{- end}}
