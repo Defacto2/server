@@ -1134,12 +1134,18 @@ func Collection() Milestones {
 					LinkTitle: `Boys from Company C <small>(BBC)</small>`, Link: "/g/boys-from-company-c",
 					Forward: "Virginia and D.C. region",
 				},
-				{LinkTitle: "Canadian Pirates Inc <small>(CPI)</small>", Link: "g/canadian-pirates-inc",
-					Forward: "🇨🇦 Ontario"},
-				{LinkTitle: "KGB", Link: "/g/kgb",
-					Forward: "🇨🇦 Ontario"},
-				{LinkTitle: "The PTL Club", Link: "/g/ptl-club",
-					Forward: "Illinois"},
+				{
+					LinkTitle: "Canadian Pirates Inc <small>(CPI)</small>", Link: "g/canadian-pirates-inc",
+					Forward: "🇨🇦 Ontario",
+				},
+				{
+					LinkTitle: "KGB", Link: "/g/kgb",
+					Forward: "🇨🇦 Ontario",
+				},
+				{
+					LinkTitle: "The PTL Club", Link: "/g/ptl-club",
+					Forward: "Illinois",
+				},
 			},
 			Picture: Picture{
 				Title: "The PTL Club",
@@ -1252,15 +1258,23 @@ func Collection() Milestones {
 		{
 			Year: 1988, Prefix: notable,
 			List: Links{
-				{LinkTitle: "Bentley Sidwell Productions", Link: "/g/bentley-sidwell-productions",
-					SubTitle: "BSP", Forward: "Texas"},
-				{LinkTitle: "Crackers in Action", Link: "/g/crackers-in-action",
-					SubTitle: "CIA", Forward: "Colorado"},
-				{LinkTitle: "Miami Cracking Machine", Link: "/g/miami-cracking-machine",
-					SubTitle: "MCM", Forward: "Florida"},
+				{
+					LinkTitle: "Bentley Sidwell Productions", Link: "/g/bentley-sidwell-productions",
+					SubTitle: "BSP", Forward: "Texas",
+				},
+				{
+					LinkTitle: "Crackers in Action", Link: "/g/crackers-in-action",
+					SubTitle: "CIA", Forward: "Colorado",
+				},
+				{
+					LinkTitle: "Miami Cracking Machine", Link: "/g/miami-cracking-machine",
+					SubTitle: "MCM", Forward: "Florida",
+				},
 				{LinkTitle: "Sprint", Link: "/g/sprint", Forward: "Ohio and 🇨🇦 Ontario"},
-				{LinkTitle: "The Grand Council", Link: "/g/the-grand-council",
-					SubTitle: "TGC", Forward: "Michigan"},
+				{
+					LinkTitle: "The Grand Council", Link: "/g/the-grand-council",
+					SubTitle: "TGC", Forward: "Michigan",
+				},
 				{
 					LinkTitle: "The North West Connection", Link: "/g/the-north-west-connection",
 					SubTitle: "TNWC", Forward: "Washington",
@@ -1344,25 +1358,39 @@ func Collection() Milestones {
 		{
 			Year: 1989, Prefix: notable,
 			List: Links{
-				{LinkTitle: "Aces of ANSI Art", Link: "/g/aces-of-ansi-art", SubTitle: "AAA",
-					Forward: "The beginning of The Art Scene"},
-				{LinkTitle: "American Pirate Industries", Link: "/g/american-pirate-industries",
-					SubTitle: "API", Forward: "California"},
-				{LinkTitle: "Future Brain Inc.", Link: "/g/future-brain-inc",
-					SubTitle: "FBi", Forward: "🇳🇱 First Dutch group on the PC"},
-				{LinkTitle: "Future Crew", Link: "/g/future-crew",
-					SubTitle: "FC", Forward: "🇫🇮 The first mainstream PC group"},
+				{
+					LinkTitle: "Aces of ANSI Art", Link: "/g/aces-of-ansi-art", SubTitle: "AAA",
+					Forward: "The beginning of The Art Scene",
+				},
+				{
+					LinkTitle: "American Pirate Industries", Link: "/g/american-pirate-industries",
+					SubTitle: "API", Forward: "California",
+				},
+				{
+					LinkTitle: "Future Brain Inc.", Link: "/g/future-brain-inc",
+					SubTitle: "FBi", Forward: "🇳🇱 First Dutch group on the PC",
+				},
+				{
+					LinkTitle: "Future Crew", Link: "/g/future-crew",
+					SubTitle: "FC", Forward: "🇫🇮 The first mainstream PC group",
+				},
 				{
 					LinkTitle: "International Network of Crackers", Link: "/g/international-network-of-crackers",
 					SubTitle: "INC", Forward: "MCM, NYC, NCC",
 				},
-				{LinkTitle: "New York Crackers", Link: "/g/new-york-crackers",
-					SubTitle: "NYC", Forward: "New York"},
-				{LinkTitle: "Norwegian Cracking Company", Link: "/g/norwegian-cracking-company",
-					SubTitle: "NCC", Forward: "🇳🇴 First Norwegian group on the PC"},
+				{
+					LinkTitle: "New York Crackers", Link: "/g/new-york-crackers",
+					SubTitle: "NYC", Forward: "New York",
+				},
+				{
+					LinkTitle: "Norwegian Cracking Company", Link: "/g/norwegian-cracking-company",
+					SubTitle: "NCC", Forward: "🇳🇴 First Norwegian group on the PC",
+				},
 				{LinkTitle: "Pirates Sick of Initials", Link: "/g/pirates-sick-of-initials", SubTitle: "PSi"},
-				{LinkTitle: "Sorcerers", Link: "/g/sorcerers",
-					Forward: "🇫🇮 First demo and Finnish group on the PC"},
+				{
+					LinkTitle: "Sorcerers", Link: "/g/sorcerers",
+					Forward: "🇫🇮 First demo and Finnish group on the PC",
+				},
 				{LinkTitle: "The Firm", Link: "/g/the-firm", Forward: "BCC, Bentley Sidwell Productions"},
 				{LinkTitle: "The Underground Council", Link: "/g/the-underground-council", SubTitle: "UGC"},
 				{LinkTitle: "Triad", Link: "/g/triad", Forward: "PTL, PSi, Sprint, UGC"},
@@ -1443,15 +1471,21 @@ func Collection() Milestones {
 				{LinkTitle: "Bitchin ANSI Design", Link: "/g/bitchin-ansi-design", SubTitle: "BAD"},
 				{LinkTitle: "Damn Excellent ANSI Design", Link: "/g/damn-excellent-ansi-design", SubTitle: "Damn"},
 				{LinkTitle: "Katharsis", Link: "/g/katharsis", Forward: "🇵🇱 First Polish group on the PC"},
-				{LinkTitle: "National Elite Underground Alliance", Link: "/g/national-elite-underground-alliance",
-					SubTitle: "NEUA", Forward: "New York"},
+				{
+					LinkTitle: "National Elite Underground Alliance", Link: "/g/national-elite-underground-alliance",
+					SubTitle: "NEUA", Forward: "New York",
+				},
 				{LinkTitle: "🇺🇸 Public Enemy", Link: "/g/public-enemy", SubTitle: "PE", Forward: "🇩🇪 First German PC group, Red Sector Inc."},
 				{LinkTitle: "🇺🇸 Razor 1911", Link: "/g/razor-1911", SubTitle: "RZR", Forward: "🇳🇴 Razor / 🇪🇺 Skillion"},
-				{LinkTitle: "Software Chronicles Digest", Link: "/g/software-chronicles-digest",
-					SubTitle: "SCD", Forward: "California"},
+				{
+					LinkTitle: "Software Chronicles Digest", Link: "/g/software-chronicles-digest",
+					SubTitle: "SCD", Forward: "California",
+				},
 				{LinkTitle: "The Dream Team", Link: "/g/the-dream-team", SubTitle: "TDT", Forward: "🇸🇪 First PC group from Sweden"},
-				{LinkTitle: "The Humble Guys", Link: "/g/the-humble-guys",
-					SubTitle: "THG", Forward: "Tennessee"},
+				{
+					LinkTitle: "The Humble Guys", Link: "/g/the-humble-guys",
+					SubTitle: "THG", Forward: "Tennessee",
+				},
 				{
 					LinkTitle: "🇩🇪 Tristar & Red Sector Inc.", Link: "/g/tristar-ampersand-red-sector-inc",
 					SubTitle: "TRSi", Forward: "🇩🇪 Red Sector, then in 1991 Skid Row, TDT",
@@ -1527,15 +1561,21 @@ func Collection() Milestones {
 				{LinkTitle: "Insane Creators Enterprise", Link: "/g/insane-creators-enterprise", SubTitle: "iCE"},
 				{LinkTitle: "🇸🇪 Fairlight PC", Link: "/g/fairlight", SubTitle: "FLT"},
 				{LinkTitle: "Licensed to Draw", Link: "/g/licensed-to-draw", SubTitle: "LTD"},
-				{LinkTitle: "Nokturnal Trading Alliance", Link: "/g/nokturnal-trading-alliance",
-					SubTitle: "NTA", Forward: "California"},
-				{LinkTitle: "Pirates with Attitude", Link: "/g/pirates-with-attitude",
-					SubTitle: "PWA", Forward: "Michigan and Minnesota"},
+				{
+					LinkTitle: "Nokturnal Trading Alliance", Link: "/g/nokturnal-trading-alliance",
+					SubTitle: "NTA", Forward: "California",
+				},
+				{
+					LinkTitle: "Pirates with Attitude", Link: "/g/pirates-with-attitude",
+					SubTitle: "PWA", Forward: "Michigan and Minnesota",
+				},
 				{LinkTitle: "Relentless Pursuit of Magnificence", Link: "/g/relentless-pursuit-of-magnificence", SubTitle: "RPM"},
 				{LinkTitle: "🇪🇺 Skid Row", Link: "/g/skid-row", SubTitle: "SR"},
 				{LinkTitle: "🇩🇪🇨🇭 Scoopex", Link: "/g/scoopex"},
-				{LinkTitle: "The Cracking Lords", Link: "/g/the-cracking-lords", SubTitle: "TCL",
-					Forward: "🇮🇹 First PC group from Italy"},
+				{
+					LinkTitle: "The Cracking Lords", Link: "/g/the-cracking-lords", SubTitle: "TCL",
+					Forward: "🇮🇹 First PC group from Italy",
+				},
 				{LinkTitle: "The Humble Guys F/X", Link: "/g/thg-fx", SubTitle: "THG-FX"},
 				{LinkTitle: "Ultra Tech", Link: "/g/ultra-tech", SubTitle: "UT"},
 				{
@@ -1570,8 +1610,10 @@ func Collection() Milestones {
 				{LinkTitle: "Pyradical", Link: "/g/pyradical"},
 				{LinkTitle: "Razor Dox", Link: "/g/razordox", SubTitle: "RZR"},
 				{LinkTitle: "🇩🇪 Superior Art Creations", Link: "/g/superior-art-creations", SubTitle: "SAC"},
-				{LinkTitle: "The One and Only", Link: "/g/the-one-and-only",
-					SubTitle: "TOAO", Forward: "New Jersey"},
+				{
+					LinkTitle: "The One and Only", Link: "/g/the-one-and-only",
+					SubTitle: "TOAO", Forward: "New Jersey",
+				},
 			},
 			Picture: Picture{
 				Title: "The One and Only",
@@ -1676,8 +1718,10 @@ func Collection() Milestones {
 			List: Links{
 				{LinkTitle: "Eclipse", Link: "/g/eclipse", SubTitle: "ECL", Forward: "Hybrid"},
 				{LinkTitle: "Hoodlum", Link: "/g/hoodlum", SubTitle: "HLM"},
-				{LinkTitle: "Prestige", Link: "/g/prestige",
-					SubTitle: "PTG", Forward: "Ohio and 🇳🇱 The Netherlands"},
+				{
+					LinkTitle: "Prestige", Link: "/g/prestige",
+					SubTitle: "PTG", Forward: "Ohio and 🇳🇱 The Netherlands",
+				},
 				{LinkTitle: "Inquisition", Link: "/g/inquisition", SubTitle: "INQ", Forward: "Week in Warez"},
 				{LinkTitle: "The Naked Truth", Link: "/g/the-naked-truth-magazine", SubTitle: "NTM"},
 				{LinkTitle: "Razor 1911 CD Division", Link: "/g/razor-1911-cd-division", SubTitle: "RZR", Forward: "Razor 1911"},
