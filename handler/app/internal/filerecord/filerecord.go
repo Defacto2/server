@@ -110,6 +110,8 @@ func (m ListEntry) Column2(htm string) string {
 	name := url.QueryEscape(m.RelativeName)
 	ext := strings.ToLower(filepath.Ext(name))
 	switch {
+	case strings.EqualFold(m.RelativeName, "file_id.diz"):
+		htm += dizcopy(m.UniqueID, name)
 	case m.Programs, ext == exe, ext == com:
 		htm += `<div class="col col-1 text-end" ` +
 			`data-bs-toggle="tooltip" data-bs-title="Known program or executable">` +
@@ -179,6 +181,17 @@ func readmecopy(uniqueID, name string) string {
 			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
 			`hx-target="#artifact-editor-comp-feedback" `+
 			`hx-patch="/editor/readme/copy/%s/%s">`, uniqueID, name) +
+		`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
+		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></a></div>`
+}
+
+func dizcopy(uniqueID, name string) string {
+	return `<div class="col col-1 text-end" ` +
+		`data-bs-toggle="tooltip" data-bs-title="Use file as the FILE_ID.DIZ">` +
+		fmt.Sprintf(`<a class="icon-link align-text-bottom" name="artifact-editor-comp-dizcopy" `+
+			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
+			`hx-target="#artifact-editor-comp-feedback" `+
+			`hx-patch="/editor/diz/copy/%s/%s">`, uniqueID, name) +
 		`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></a></div>`
 }
@@ -515,6 +528,7 @@ func ListContent(art *models.File, dirs command.Dirs, src string) template.HTML 
 	}
 	var b strings.Builder
 	name := ""
+	names := []string{}
 	walkerFunc := func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return filepath.SkipDir
@@ -534,6 +548,7 @@ func ListContent(art *models.File, dirs command.Dirs, src string) template.HTML 
 		entries++
 		if e.text {
 			name = d.Name()
+			names = append(names, name)
 		}
 		le := listEntry(e, rel, unid)
 		b.WriteString(le.HTML(e.bytes, platform, section))
@@ -548,15 +563,44 @@ func ListContent(art *models.File, dirs command.Dirs, src string) template.HTML 
 		b.Reset()
 		return template.HTML(err.Error())
 	}
-	if entries == 1 && name != "" {
-		src := filepath.Join(dst, name)
-		if err := dirs.TextDeferred(src, unid); err != nil {
-			b.Reset()
-			return template.HTML(err.Error())
+	const maxItems = 2
+	if l := len(names); l > 0 && l <= maxItems {
+		i := indexDiz(names...)
+		diz, src := "", ""
+		useDizAndTxt := l == 2 && i != -1
+		useTxt := l == 1
+		if useDizAndTxt {
+			diz = names[i]
+			x := 1 - i
+			src = filepath.Join(dst, names[x])
+		}
+		if useTxt {
+			src = filepath.Join(dst, name)
+		}
+		if src != "" {
+			if err := dirs.TextDeferred(src, unid); err != nil {
+				b.Reset()
+				return template.HTML(err.Error())
+			}
+		}
+		if diz != "" {
+			if err := dirs.DizDeferred(src, unid); err != nil {
+				b.Reset()
+				return template.HTML(err.Error())
+			}
 		}
 	}
 	b.WriteString(skippedEmpty(zeroByteFiles))
 	return template.HTML(b.String())
+}
+
+func indexDiz(names ...string) int {
+	for i, name := range names {
+		if strings.EqualFold(name, "file_id.diz") {
+			return i
+		}
+	}
+	return -1
 }
 
 func extractErr(src, platform, section string, zeroByteFiles int, err error) template.HTML {

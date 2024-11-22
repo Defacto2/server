@@ -131,6 +131,34 @@ func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, amigaFont boo
 		`Text filed imaged, the browser will refresh.`)
 }
 
+func RecordDizCopier(c echo.Context, dirs command.Dirs) error {
+	path := c.Param("path")
+	name, err := url.QueryUnescape(path)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	unid := c.Param("unid")
+	tmp, err := helper.MkContent(unid)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	src := filepath.Join(tmp, name)
+	st, err := os.Stat(src)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if st.Size() == 0 {
+		return c.String(http.StatusOK, "The file is empty and was not copied.")
+	}
+	dst := filepath.Join(dirs.Extra, unid+".diz")
+	if _, err = helper.DuplicateOW(src, dst); err != nil {
+		return badRequest(c, err)
+	}
+	c = pageRefresh(c)
+	return c.String(http.StatusOK,
+		`DIZ copied, the browser will refresh.`)
+}
+
 func RecordReadmeCopier(c echo.Context, dirs command.Dirs) error {
 	path := c.Param("path")
 	name, err := url.QueryUnescape(path)
@@ -182,6 +210,23 @@ func RecordImagesDeleter(c echo.Context, dirs ...string) error {
 	}
 	// HTMX requires an empty response to confirm a successful deletion.
 	// It also doesn't support the HX-Refresh header, so that is handled in JS.
+	return c.NoContent(http.StatusOK)
+}
+
+func RecordDizDeleter(c echo.Context, extraDir string) error {
+	unid := c.Param("unid")
+	dst := filepath.Join(extraDir, unid+".diz")
+	st, err := os.Stat(dst)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if st.IsDir() {
+		return badRequest(c, ErrIsDir)
+	}
+	if err := os.Remove(dst); err != nil {
+		return badRequest(c, err)
+	}
+	c = pageRefresh(c)
 	return c.NoContent(http.StatusOK)
 }
 

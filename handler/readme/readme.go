@@ -52,12 +52,6 @@ func Suggest(filename, group string, content ...string) string {
 			}
 		}
 	}
-	const matchFileID = "file_id.diz"
-	for _, name := range finds {
-		if strings.EqualFold(matchFileID, name) {
-			return name
-		}
-	}
 	// match either the filename or the group name with a candidate extension
 	for _, ext := range candidate() {
 		for _, name := range finds {
@@ -170,10 +164,19 @@ func Read(art *models.File, downloadPath, extraPath string) ([]byte, error) {
 	if bytes.HasSuffix(b, []byte{endOfFile}) {
 		b = bytes.TrimSuffix(b, []byte{endOfFile})
 	}
-	if incompatible, err := IncompatibleANSI(r); err != nil {
+	incompatible, err := IncompatibleANSI(r)
+	if err != nil {
 		return nil, fmt.Errorf("incompatibleANSI: %w", err)
 	} else if incompatible {
-		return nil, nil
+		b = nil
+	}
+	// insert the file_id.diz content into the readme text
+	diz, err := render.Diz(art, extraPath)
+	if err != nil {
+		return nil, fmt.Errorf("render.Diz: %w", err)
+	}
+	if diz != nil {
+		b = render.InsertDiz(b, diz)
 	}
 	return RemoveCtrls(b), nil
 }
@@ -183,11 +186,12 @@ func RemoveCtrls(b []byte) []byte {
 	const (
 		reAnsi    = `\x1b\[[0-9;]*[a-zA-Z]` // ANSI escape codes
 		reAmiga   = `\x1b\[[0-9;]*[ ]p`     // unknown control code found in Amiga texts
+		reDEC     = `\x1b\[\?[0-9+]h`       // DEC control codes
 		reSauce   = `SAUCE00.*`             // SAUCE metadata that is appended to some files
 		nlWindows = "\r\n"                  // Windows line endings
 		nlUnix    = "\n"                    // Unix line endings
 	)
-	controlCodes := regexp.MustCompile(reAnsi + `|` + reAmiga + `|` + reSauce)
+	controlCodes := regexp.MustCompile(reAnsi + `|` + reDEC + `|` + reAmiga + `|` + reSauce)
 	b = controlCodes.ReplaceAll(b, []byte{})
 	b = bytes.ReplaceAll(b, []byte(nlWindows), []byte(nlUnix))
 	return b

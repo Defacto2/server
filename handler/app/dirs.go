@@ -427,7 +427,7 @@ func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
 	}
 	// Provide a string path and use that instead of dir Dirs.
 	const assetDownload = ""
-	for _, file := range files {
+	for i, file := range files {
 		if strings.HasPrefix(file.Name(), unid) {
 			if filepath.Ext(file.Name()) == assetDownload {
 				continue
@@ -437,6 +437,7 @@ func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
 			if err != nil {
 				matches["error"] = [2]string{err.Error(), ""}
 			}
+			fmt.Println("ext", i, ext)
 			switch ext {
 			case ".AVIF":
 				s := "AVIF"
@@ -447,6 +448,10 @@ func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
 			case ".PNG":
 				s := "PNG"
 				matches[s] = simple.ImageXY(filepath.Join(nameDir, file.Name()))
+			case ".DIZ":
+				s := "FILEID"
+				i, _ := helper.Lines(filepath.Join(dir.Extra, file.Name()))
+				matches[s] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
 			case ".TXT":
 				s := "README"
 				i, _ := helper.Lines(filepath.Join(dir.Extra, file.Name()))

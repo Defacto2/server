@@ -136,6 +136,11 @@ import { getElmById } from "./helper.mjs";
       "artifact-editor-comp-textcopy",
       "artifact-editor-comp-feedback"
     );
+    afterLinkRequest(
+      event,
+      "artifact-editor-comp-dizcopy",
+      "artifact-editor-comp-feedback"
+    );
   });
 
   /**

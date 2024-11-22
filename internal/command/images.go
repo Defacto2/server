@@ -994,3 +994,15 @@ func (dir Dirs) TextDeferred(src, unid string) error {
 	}
 	return nil
 }
+
+// DizDeferred is used to copy a FILE_ID.DIZ text file to the extra directory.
+// It is intended to be used with the filerecord.ListContent function.
+func (dir Dirs) DizDeferred(src, unid string) error {
+	newpath := filepath.Join(dir.Extra, unid+".diz")
+	if st, err := os.Stat(newpath); err != nil || st.Size() == 0 {
+		if _, err1 := helper.DuplicateOW(src, newpath); err1 != nil {
+			return fmt.Errorf("text deferred, %w: %s", err1, src)
+		}
+	}
+	return nil
+}

@@ -96,12 +96,53 @@ func Read(art *models.File, downloadDir, extraDir string) ([]byte, error) {
 
 	b, err := os.ReadFile(name)
 	if err != nil {
-		return nil, fmt.Errorf("render read file %w", err)
+		b = []byte("error could not read the readme text file")
 	}
 
 	const nul = 0x00
 	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
 	return b, nil
+}
+
+// Diz returns the content of the FILE_ID.DIZ file.
+// The text is intended to be used as a readme, preview or an in-browser viewer.
+func Diz(art *models.File, extraDir string) ([]byte, error) {
+	if art == nil {
+		return nil, ErrFileModel
+	}
+
+	unid := art.UUID.String
+	if unid == "" {
+		return nil, ErrUUID
+	}
+
+	diz := filepath.Join(extraDir, unid+".diz")
+	if !helper.Stat(diz) {
+		return nil, nil
+	}
+
+	b, err := os.ReadFile(diz)
+	if err != nil {
+		b = []byte("error could not read the diz file")
+	}
+
+	const nul = 0x00
+	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
+	return b, nil
+}
+
+// InsertDiz inserts the FILE_ID.DIZ content into the extisting byte content.
+func InsertDiz(b []byte, diz []byte) []byte {
+	if bytes.TrimSpace(diz) == nil {
+		return b
+	}
+	x := diz
+	if bytes.TrimSpace(b) == nil {
+		return x
+	}
+	x = append(x, []byte("\n\n")...)
+	x = append(x, b...)
+	return x
 }
 
 // Viewer returns true if the file entry should display the file download in the browser plain text viewer.

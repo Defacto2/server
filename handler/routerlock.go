@@ -216,6 +216,13 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) 
 		Thumbnail: dir.Thumbnail,
 		Extra:     dir.Extra,
 	}
+	diz := g.Group("/diz")
+	diz.PATCH("/copy/:unid/:path", func(c echo.Context) error {
+		return htmx.RecordDizCopier(c, dirs)
+	})
+	diz.DELETE("/:unid", func(c echo.Context) error {
+		return htmx.RecordDizDeleter(c, dir.Extra)
+	})
 	readme := g.Group("/readme")
 	readme.PATCH("/copy/:unid/:path", func(c echo.Context) error {
 		return htmx.RecordReadmeCopier(c, dirs)

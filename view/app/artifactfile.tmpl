@@ -278,7 +278,6 @@
                       {{- else}}
                       <table class="table table-hover">
                         <tbody>
-                          {{- with .modAssetExtra }}{{- if . }}
                           {{- range $name, $info := .modAssetExtra}}
                           <tr>
                             <th scope="row">{{$name}}</th>
@@ -287,7 +286,7 @@
                             {{- if eq $name "README"}}{{- $ext := printf ".txt"}}
                             {{- else if eq $name "Repack ZIP"}}{{- $ext := ".zip"}}{{end}}
                             <td>{{index $info 1}}</td>
-                          </tr>{{- end}}{{- end}}{{- end}}
+                          </tr>{{- end}}
                       </table>
                       {{- end}}
                     </p>
@@ -312,6 +311,10 @@
                             hx-target="#editor-copy-readme-result"
                             hx-delete="/editor/readme/{{$unid}}">
                             Delete README</button>
+                          <button class="btn btn-link m-0 p-0" 
+                            hx-target="#editor-copy-readme-result"
+                            hx-delete="/editor/diz/{{$unid}}">
+                            Delete FILE_ID.DIZ</button>
                         </div>
                       {{- end}}
                       {{- if ne "" (index . "modReadmeSuggest")}}
