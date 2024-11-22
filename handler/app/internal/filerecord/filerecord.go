@@ -523,6 +523,9 @@ func ListContent(art *models.File, dirs command.Dirs, src string) template.HTML 
 		files++
 		return nil
 	}
+	if err := filepath.WalkDir(dst, walkerChmod); err != nil {
+		return template.HTML(err.Error())
+	}
 	if err := filepath.WalkDir(dst, walkerCount); err != nil {
 		return template.HTML(err.Error())
 	}
@@ -601,6 +604,25 @@ func indexDiz(names ...string) int {
 		}
 	}
 	return -1
+}
+
+// walkerChmod changes the file permissions for the extracted files.
+// There are odd cases where the extracted files from DOS era ZIP files have no permissions.
+func walkerChmod(path string, d fs.DirEntry, err error) error {
+	const dirRW, fileRW = 0755, 0644
+	if err != nil {
+		return fs.SkipDir
+	}
+	if d.IsDir() {
+		if err := os.Chmod(path, dirRW); err != nil {
+			return fmt.Errorf("failed to chmod directory %s: %w", path, err)
+		}
+		return nil
+	}
+	if err := os.Chmod(path, fileRW); err != nil {
+		return err
+	}
+	return nil
 }
 
 func extractErr(src, platform, section string, zeroByteFiles int, err error) template.HTML {
