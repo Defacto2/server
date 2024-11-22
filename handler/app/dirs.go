@@ -427,7 +427,7 @@ func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
 	}
 	// Provide a string path and use that instead of dir Dirs.
 	const assetDownload = ""
-	for i, file := range files {
+	for _, file := range files {
 		if strings.HasPrefix(file.Name(), unid) {
 			if filepath.Ext(file.Name()) == assetDownload {
 				continue
@@ -437,7 +437,6 @@ func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
 			if err != nil {
 				matches["error"] = [2]string{err.Error(), ""}
 			}
-			fmt.Println("ext", i, ext)
 			switch ext {
 			case ".AVIF":
 				s := "AVIF"

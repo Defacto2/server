@@ -609,7 +609,7 @@ func indexDiz(names ...string) int {
 // walkerChmod changes the file permissions for the extracted files.
 // There are odd cases where the extracted files from DOS era ZIP files have no permissions.
 func walkerChmod(path string, d fs.DirEntry, err error) error {
-	const dirRW, fileRW = 0755, 0644
+	const dirRW, fileRW = 0o755, 0o644
 	if err != nil {
 		return fs.SkipDir
 	}
