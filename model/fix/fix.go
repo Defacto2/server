@@ -330,6 +330,56 @@ func moreReleases(exec boil.ContextExecutor) error {
 	if err := Magics(exec); err != nil {
 		return fmt.Errorf("magics: %w", err)
 	}
+	return demozooTitles(exec)
+}
+
+// demozooTitles fixes the redundant titles from Demozoo data imports
+// where the title matches the name of the group, for example:
+//
+//	"Awesome Cool BBS (1) for Awesome Cool BBS"
+func demozooTitles(exec boil.ContextExecutor) error {
+	// cleanup the XXX (?) titles
+	// UPDATE files
+	// SET record_title = NULL
+	// WHERE record_title ILIKE group_brand_for || ' (%)';
+	_, err := queries.Raw(`UPDATE files SET record_title = NULL ` +
+		`WHERE record_title ILIKE group_brand_for || ' (%)';`).Exec(exec)
+	if err != nil {
+		return fmt.Errorf("set title reduntant group for: %w", err)
+	}
+	_, err = queries.Raw(`UPDATE files SET record_title = NULL ` +
+		`WHERE record_title ILIKE group_brand_by || ' (%)';`).Exec(exec)
+	if err != nil {
+		return fmt.Errorf("set title reduntant group by: %w", err)
+	}
+	// cleanup the XXX == titles
+	// UPDATE files
+	// SET record_title = NULL
+	// WHERE record_title ILIKE group_brand_for;
+	_, err = queries.Raw(`UPDATE files SET record_title = NULL ` +
+		`WHERE record_title ILIKE group_brand_for;`).Exec(exec)
+	if err != nil {
+		return fmt.Errorf("set title reduntant title = group for: %w", err)
+	}
+	_, err = queries.Raw(`UPDATE files SET record_title = NULL ` +
+		`WHERE record_title ILIKE group_brand_by;`).Exec(exec)
+	if err != nil {
+		return fmt.Errorf("set title reduntant title = group by: %w", err)
+	}
+	// cleanup the The XXX (?) titles
+	// UPDATE files
+	// SET record_title = NULL
+	// WHERE record_title ILIKE 'the ' || group_brand_for || ' (%)';
+	_, err = queries.Raw(`UPDATE files SET record_title = NULL ` +
+		`WHERE record_title ILIKE 'the ' || group_brand_for || ' (%)';`).Exec(exec)
+	if err != nil {
+		return fmt.Errorf("set title reduntant the group for: %w", err)
+	}
+	_, err = queries.Raw(`UPDATE files SET record_title = NULL ` +
+		`WHERE record_title ILIKE 'the ' || group_brand_by || ' (%)';`).Exec(exec)
+	if err != nil {
+		return fmt.Errorf("set title reduntant the group by: %w", err)
+	}
 	return nil
 }
 
