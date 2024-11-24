@@ -288,7 +288,7 @@ func Summary() SQL {
 		"WHERE "
 }
 
-// SimilarToReleaser selects a list of distinct releasers or groups,
+// SimilarToReleaser selects a similar list of distinct releasers or groups,
 // like the query strings and ordered by the file count.
 func SimilarToReleaser(like ...string) SQL {
 	query := like
@@ -300,7 +300,7 @@ func SimilarToReleaser(like ...string) SQL {
 		" ORDER BY sub.count_sum DESC"
 }
 
-// SimilarToMagazine selects a list of distinct magazine titles,
+// SimilarToMagazine selects a similar list of distinct magazine titles,
 // like the query strings and ordered by the file count.
 func SimilarToMagazine(like ...string) SQL {
 	query := like
@@ -309,6 +309,18 @@ func SimilarToMagazine(like ...string) SQL {
 	}
 	return "SELECT * FROM (" + releaserSEL + magazine + releaserBy +
 		SQL(fmt.Sprintf(") sub WHERE sub.releaser SIMILAR TO '%%(%s)%%'", strings.Join(query, "|"))) +
+		" ORDER BY sub.count_sum DESC"
+}
+
+// SimilarInitialism selects an exact list of distinct releasers or groups,
+// like the query strings and ordered by the file count.
+func SimilarInitialism(like ...string) SQL {
+	query := like
+	for i, val := range query {
+		query[i] = strings.ToUpper(strings.TrimSpace(val))
+	}
+	return "SELECT * FROM (" + releaserSEL + releaserBy +
+		SQL(fmt.Sprintf(") sub WHERE sub.releaser SIMILAR TO '(%s)'", strings.Join(query, "|"))) +
 		" ORDER BY sub.count_sum DESC"
 }
 

@@ -524,7 +524,7 @@ func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error
 	if slug == "" {
 		return c.HTML(http.StatusOK, "<!-- empty search query -->")
 	}
-
+	const initalism = 4
 	lookup := []string{}
 	// example key and values: "tristar-ampersand-red-sector-inc": {"TRSi", "TRS", "Tristar"},
 	for key, values := range initialism.Initialisms() {
@@ -532,6 +532,9 @@ func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error
 			name := releaser.Humanize(string(key))
 			if strings.EqualFold(value, slug) {
 				lookup = append(lookup, name)
+				continue
+			}
+			if len(slug) < initalism {
 				continue
 			}
 			if strings.Contains(strings.ToLower(value), strings.ToLower(slug)) {
@@ -544,7 +547,15 @@ func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error
 	}
 	lookup = append(lookup, slug)
 	var r model.Releasers
-	if err := r.Similar(ctx, db, maxResults, lookup...); err != nil {
+	if len(slug) < initalism {
+		if err := r.Initialism(ctx, db, maxResults, lookup...); err != nil {
+			if logger != nil {
+				logger.Error(err)
+			}
+			return c.String(http.StatusServiceUnavailable,
+				"the search query failed")
+		}
+	} else if err := r.Similar(ctx, db, maxResults, lookup...); err != nil {
 		if logger != nil {
 			logger.Error(err)
 		}

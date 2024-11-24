@@ -138,6 +138,16 @@ func (r *Releasers) Similar(ctx context.Context, exec boil.ContextExecutor, limi
 	return r.similar(ctx, exec, limit, "releaser", names...)
 }
 
+// Initialism finds the unique releaser names that match the named strings.
+// The results are ordered by the total file counts.
+// The required limit is the maximum number of results to return or defaults to 10.
+func (r *Releasers) Initialism(ctx context.Context, exec boil.ContextExecutor, limit uint, names ...string) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
+	return r.similar(ctx, exec, limit, "initialism", names...)
+}
+
 // SimilarMagazine finds the unique releaser names that are similar to the named strings.
 // The results are ordered by the total file counts.
 // The required limit is the maximum number of results to return or defaults to 10.
@@ -167,12 +177,19 @@ func (r *Releasers) similar(
 		likes = append(likes, releaser.Title(name))
 		likes = append(likes, releaser.Cell(name))
 	}
+	for i := range likes {
+		likes[i] = strings.ToUpper(likes[i])
+	}
 	slices.Sort(likes)
+	likes = removeDuplicates(likes)
 	likes = slices.Compact(likes)
 	var query string
-	if lookup == "magazine" {
+	switch lookup {
+	case "initialism":
+		query = string(postgres.SimilarInitialism(likes...))
+	case "magazine":
 		query = string(postgres.SimilarToMagazine(likes...))
-	} else {
+	default:
 		query = string(postgres.SimilarToReleaser(likes...))
 	}
 	{
@@ -186,6 +203,18 @@ func (r *Releasers) similar(
 	}
 	r.Slugs()
 	return nil
+}
+
+func removeDuplicates(strings []string) []string {
+	unique := make(map[string]struct{})
+	var result []string
+	for _, str := range strings {
+		if _, exists := unique[str]; !exists {
+			unique[str] = struct{}{}
+			result = append(result, str)
+		}
+	}
+	return result
 }
 
 func calculateLimitAndOffset(pageNumber int, pageSize int) (int, int) {
