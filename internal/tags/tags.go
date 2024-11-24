@@ -272,6 +272,8 @@ func Humanize(platform, section Tag) string {
 		return fmt.Sprintf("unknown section tag: %q", s)
 	}
 	switch section {
+	case Bust:
+		return takedown(platform)
 	case News:
 		return news(platform)
 	case Restrict:
@@ -291,7 +293,7 @@ func Humanize(platform, section Tag) string {
 	case Image:
 		return humImg(platform, section)
 	case PDF:
-		return fmt.Sprintf("%s %s as a PDF document", Determiner()[section], Names()[section])
+		return fmt.Sprintf("A PDF document about %s", Names()[section])
 	case Text:
 		return humText(platform, section)
 	case TextAmiga:
@@ -349,6 +351,8 @@ func humDB(section Tag) string {
 
 func humImg(platform, section Tag) string {
 	switch section {
+	case AppleII:
+		return "an Apple II screen or capture"
 	case BBS:
 		return "a BBS advert image"
 	case ForSale:
@@ -365,9 +369,9 @@ func humImg(platform, section Tag) string {
 func humText(platform, section Tag) string {
 	switch section {
 	case AtariST:
-		return "a textfile for the Atari ST"
+		return "a textfile about the Atari ST"
 	case AppleII:
-		return "a textfile for the Apple II"
+		return "a textfile about the Apple II"
 	case BBS:
 		return "a text advert for a BBS"
 	case ForSale:
@@ -467,6 +471,21 @@ func restrict(platform Tag) string {
 		return "an insider Amiga textfile"
 	default:
 		return fmt.Sprintf("an insider %s file", Names()[platform])
+	}
+}
+
+func takedown(platform Tag) string {
+	switch platform {
+	case TextAmiga, Text:
+		return "a bust or takedown text"
+	case Audio:
+		return "audio about a bust or takedown"
+	case Video:
+		return "video about a bust or takedown"
+	case Image:
+		return "a scan or photo about a bust or takedown"
+	default:
+		return fmt.Sprintf("a %s takedown notice", Names()[platform])
 	}
 }
 
@@ -636,6 +655,8 @@ func dos(section Tag) string {
 		return msDos + " installers"
 	case Intro:
 		return "intros for " + msDos
+	case Job:
+		return "job or application generators for " + msDos
 	case Pack:
 		return "filepacks of " + msDos + " programs"
 	default:
