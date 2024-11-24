@@ -342,6 +342,21 @@ func (b *BBStro) List(ctx context.Context, exec boil.ContextExecutor, offset, li
 	).All(ctx, exec)
 }
 
+func (b *BBStro) Sensenstahl(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
+	if invalidExec(exec) {
+		return nil, ErrDB
+	}
+	const clauseNewUpload = "id DESC"
+	return models.Files(
+		querymod.BBStroExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
+		qm.OrderBy(clauseNewUpload),
+	).All(ctx, exec)
+}
+
 // BBSImage is a the model for the Bulletin Board System image files.
 type BBSImage struct {
 	Bytes   int `boil:"size_total"`

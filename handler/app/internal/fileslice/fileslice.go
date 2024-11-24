@@ -70,6 +70,7 @@ const (
 	proof
 	restrict
 	script
+	sensenstahl
 	standards
 	takedown
 	text
@@ -135,6 +136,7 @@ func (u URI) String() string { //nolint:funlen
 		"proof",
 		"restrict",
 		"script",
+		"sensenstahl",
 		"standards",
 		"takedown",
 		"text",
@@ -206,6 +208,10 @@ func FileInfo(uri string) (string, string, string) {
 		logo = "newest releases"
 		h1sub = "the newest releases"
 		lead = "These are the most recent file artifacts in the collection."
+	case sensenstahl:
+		logo = "sensenstahl 🎁"
+		h1sub = "the bbstros for sensenstahl"
+		lead = "These are the newest BBStros addded to the collection."
 	default:
 		s := RecordsSub(uri)
 		h1sub = s
@@ -483,6 +489,9 @@ func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 	case windowsPack:
 		r := model.WindowsPack{}
 		return r.List(ctx, exec, page, limit)
+	case sensenstahl:
+		r := model.BBStro{}
+		return r.Sensenstahl(ctx, exec, page, limit)
 	default:
 		return nil, fmt.Errorf("artifacts category %w: %s", ErrCategory, uri)
 	}

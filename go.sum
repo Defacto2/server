@@ -75,8 +75,8 @@ github.com/Defacto2/helper v1.1.5 h1:N/D7kRk7IEeJeQ8o6kgHITWLR8t+qGDvZ8X2feBek1Q
 github.com/Defacto2/helper v1.1.5/go.mod h1:IikMmXvNy3uOcLk4/cEi9mb+xcx8AHPsSmVGd8SKpB0=
 github.com/Defacto2/magicnumber v1.0.5 h1:aIFlbr5kF81VYqAx3ZweFvMqwRrjtw/KBxfHkcpC9Mo=
 github.com/Defacto2/magicnumber v1.0.5/go.mod h1:8d1RG1EUGWXYiIu4gTtOFm6K4CkoV6em0BpFPByKzgY=
-github.com/Defacto2/releaser v1.1.2 h1:5UPqYsEDkik8dd5VsRsZc4lzQ/Jx3tndIIuVyLz+qb8=
-github.com/Defacto2/releaser v1.1.2/go.mod h1:dvHNOnc73fHCWPvVnhsYUeNTX+vQ5z01AnZFwitX6Ck=
+github.com/Defacto2/releaser v1.1.3 h1:rQxbUFLFOTN6yJc9JKOrD1GoDxLP1nctm8Y53Gd1ylE=
+github.com/Defacto2/releaser v1.1.3/go.mod h1:dvHNOnc73fHCWPvVnhsYUeNTX+vQ5z01AnZFwitX6Ck=
 github.com/Masterminds/goutils v1.1.1/go.mod h1:8cTjp+g8YejhMuvIA5y2vz3BpJxksy863GQaJW2MFNU=
 github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
 github.com/Masterminds/sprig/v3 v3.2.2/go.mod h1:UoaO7Yp8KlPnJIYWTFkMaqPUYKTfGFPhxNuwnnxkKlk=
