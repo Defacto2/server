@@ -68,31 +68,28 @@ export function focusModalById(elementId, submissionId) {
  * If the client browser does not support the required APIs,
  * it does not matter as the hash is rechecked on the server after uploading.
  * @param {File} file - The file to be hashed.
- * @returns {Promise<boolean>} - A promise that resolves to true if the server confirms the hash, false otherwise.
+ * @returns {Promise<string>} - A promise that returns an ID if the file is already in the database, otherwise an empty string.
  */
 export async function checkSHA(file) {
   if (file == null) {
     throw new Error(`The file value of checkSHA is null.`);
   }
-  try {
-    const hash = await sha384(file);
-    const response = await fetch(`/uploader/sha384/${hash}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "text/plain",
-      },
-      body: hash,
-    });
-    if (!response.ok) {
-      throw new Error(
-        `Hashing is not possible, server response: ${response.status}`
-      );
-    }
-    const responseText = await response.text();
-    return responseText == "true";
-  } catch (e) {
-    console.log(`Hashing is not possible: ${e}`);
+
+  const hash = await sha384(file);
+  const response = await fetch(`/uploader/sha384/${hash}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "text/plain",
+    },
+    body: hash,
+  });
+  if (!response.ok) {
+    throw new Error(
+      `Hashing is not possible, server response: ${response.status}`
+    );
   }
+  const responseText = await response.text();
+  return responseText;
 }
 
 /**
@@ -253,15 +250,34 @@ export async function checkDuplicate(file, alert, fileInput, results) {
     throw new Error(`The results value of checkDuplicate is null.`);
   }
 
-  const alreadyExists = await checkSHA(file);
-  if (alreadyExists == false) {
+  const alerter = () => {
+    alert.classList.remove(none);
+    fileInput.innerText = "";
+    fileInput.classList.add(invalid);
+    results.classList.add(none);
+  };
+
+  let uriID = ``;
+  try {
+    const alreadyExists = await checkSHA(file);
+    if (alreadyExists == "") {
+      alert.innerText = ``;
+      return;
+    }
+    uriID = alreadyExists;
+  } catch (e) {
+    console.log(`${e}`);
+    alert.innerText = `${e}`;
+    alerter();
     return;
   }
-  alert.innerText = `The chosen file already exists in the database: ${file.name}`;
-  alert.classList.remove(none);
-  fileInput.innerText = "";
-  fileInput.classList.add(invalid);
-  results.classList.add(none);
+
+  alert.innerText = `The chosen file already exists in the database: `;
+  const anchor = document.createElement("a");
+  anchor.href = `/f/${uriID}`;
+  anchor.innerText = `${file.name}`;
+  alert.appendChild(anchor);
+  alerter();
 }
 
 /**

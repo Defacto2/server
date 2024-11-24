@@ -72,7 +72,9 @@ func HumanizeCount(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, name s
 	return c.HTML(http.StatusOK, string(html))
 }
 
-// LookupSHA384 is a handler for the /uploader/sha384 route.
+// LookupSHA384 is a handler for the /uploader/sha384 route. It checks the SHA-384 hash
+// against the database to see if the file already exists, and returns the URI if it does.
+// Otherwise, if it does not exist, it returns an empty string.
 func LookupSHA384(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 	hash := c.Param("hash")
 	if hash == "" {
@@ -89,7 +91,7 @@ func LookupSHA384(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 		return c.String(http.StatusBadRequest, "invalid hash error: "+hash)
 	}
 	ctx := context.Background()
-	exist, err := model.HashExists(ctx, db, hash)
+	uri, err := model.HashFind(ctx, db, hash)
 	if err != nil {
 		if logger != nil {
 			logger.Error(err)
@@ -97,14 +99,7 @@ func LookupSHA384(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 		return c.String(http.StatusServiceUnavailable,
 			"cannot confirm the hash with the database")
 	}
-	switch exist {
-	case true:
-		return c.String(http.StatusOK, "true")
-	case false:
-		return c.String(http.StatusOK, "false")
-	}
-	return c.String(http.StatusServiceUnavailable,
-		"unexpected boolean error occurred")
+	return c.String(http.StatusOK, uri)
 }
 
 // ImageSubmit is a handler for the /uploader/image route.

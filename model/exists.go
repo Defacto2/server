@@ -5,9 +5,12 @@ package model
 import (
 	"context"
 	"crypto/sha512"
+	"database/sql"
 	"encoding/hex"
+	"errors"
 	"fmt"
 
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -65,6 +68,25 @@ func HashExists(ctx context.Context, exec boil.ContextExecutor, hash string) (bo
 		return false, fmt.Errorf("models file hash %s: %w", hash, err)
 	}
 	return ok, nil
+}
+
+// HashFind returns the obfuscated ID of the file record in the database that was matched
+// using a SHA-384 hexadecimal hash. If the hash does not exist in the database then an empty string is returned.
+func HashFind(ctx context.Context, exec boil.ContextExecutor, hash string) (string, error) {
+	if invalidExec(exec) {
+		return "", ErrDB
+	}
+	if len(hash) != sha512.Size384*2 {
+		return "", fmt.Errorf("%w: %d characters", ErrSha384, len(hash))
+	}
+	file, err := models.Files(models.FileWhere.FileIntegrityStrong.EQ(null.StringFrom(hash)),
+		qm.WithDeleted()).One(ctx, exec)
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", nil
+	} else if err != nil {
+		return "", fmt.Errorf("models file hash %s: %w", hash, err)
+	}
+	return helper.ObfuscateID(file.ID), nil
 }
 
 // UUIDExists returns true if the file record exists in the database using a UUID.
