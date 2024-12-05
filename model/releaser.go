@@ -84,7 +84,8 @@ func (r *Releasers) Where(ctx context.Context, exec boil.ContextExecutor, name s
 	}
 	s, err := namer.Humanize(namer.Path(name))
 	if err != nil {
-		return nil, fmt.Errorf("model releaser name humanize: %w", err)
+		// if the name is invalid, then return 0 results, but there is no need to return an error.
+		return nil, nil
 	}
 	n := strings.ToUpper(s)
 	x := null.StringFrom(n)
