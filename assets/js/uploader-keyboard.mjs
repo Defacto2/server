@@ -1,6 +1,6 @@
 /**
  * @module uploader-keyboard
- * This module provides keyboard shortcuts for handling file uploads.
+ * This module provides keyboard shortcuts for handling file uploads and jump to searches.
  */
 import { focusModalById } from "./uploader.mjs";
 export default keyboardShortcuts;
@@ -39,7 +39,10 @@ const demozoo = "d",
   nfo = "n",
   graphic = "g",
   magazine = "m",
-  advanced = "a";
+  advanced = "a",
+  releasers = "r",
+  files = "f",
+  descriptions = "x";
 
 /**
  * Binds keyboard shortcuts to specific actions.
@@ -73,6 +76,18 @@ export function keyboardShortcuts() {
         break;
       case advanced:
         advancedModal.show();
+        break;
+      case releasers:
+        event.preventDefault();
+        window.location.href = "/search/releaser";
+        break;
+      case files:
+        event.preventDefault();
+        window.location.href = "/search/file";
+        break;
+      case descriptions:
+        event.preventDefault();
+        window.location.href = "/search/desc";
         break;
     }
   });
