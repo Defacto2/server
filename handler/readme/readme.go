@@ -224,8 +224,8 @@ func IncompatibleANSI(r io.Reader) (bool, error) {
 	// handle files that are too long for the scanner buffer
 	// examples would be texts or ansi files with no newlines
 	scanner = bufio.NewScanner(r)
-	const sixtyFourK = 64 * 1024
-	buf := make([]byte, 0, sixtyFourK)
+	const sixtyfourK = 64 * 1024
+	buf := make([]byte, 0, sixtyfourK)
 	const oneMegabyte = 1024 * 1024
 	scanner.Buffer(buf, oneMegabyte)
 	scanner = bufio.NewScanner(r)
@@ -238,7 +238,7 @@ func IncompatibleANSI(r io.Reader) (bool, error) {
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		return false, fmt.Errorf("incompatible ansi large, 1MB scanner: %w", err)
+		return false, fmt.Errorf("incompatible ansi, file is too large for the 1MB scanner: %w", err)
 	}
 	return false, nil
 }
