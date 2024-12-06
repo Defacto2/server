@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/sess"
@@ -94,36 +95,69 @@ func configRTS() middleware.TrailingSlashConfig {
 // based on the application configuration. The logger is set to the CLI
 // logger for development mode and the Production logger for production mode.
 func (c Configuration) configZapLogger() middleware.RequestLoggerConfig {
-	if !c.Environment.LogAll {
-		return middleware.RequestLoggerConfig{
-			LogValuesFunc: func(_ echo.Context, _ middleware.RequestLoggerValues) error {
-				return nil
-			},
-		}
+	noLogging := func(_ echo.Context, _ middleware.RequestLoggerValues) error {
+		return nil
 	}
+	if logAllRequests := c.Environment.LogAll; !logAllRequests {
+		return middleware.RequestLoggerConfig{LogValuesFunc: noLogging}
+	}
+
 	logger := zaplog.Status().Sugar()
 	if c.Environment.ProdMode {
-		root := c.Environment.AbsLog
-		logger = zaplog.Store(root).Sugar()
+		absPath := c.Environment.AbsLog
+		logger = zaplog.Store(absPath).Sugar()
 	}
 	defer func() {
 		_ = logger.Sync()
 	}()
-	return middleware.RequestLoggerConfig{
-		LogURI:          true,
-		LogStatus:       true,
-		LogLatency:      true,
-		LogResponseSize: true,
-		LogValuesFunc: func(_ echo.Context, v middleware.RequestLoggerValues) error {
-			const template = "HTTP %s %d: %s %s %dB"
-			if v.Status > http.StatusAlreadyReported {
-				logger.Warnf(template,
-					v.Method, v.Status, v.URI, v.Latency, v.ResponseSize)
-				return nil
-			}
-			logger.Infof(template,
-				v.Method, v.Status, v.URI, v.Latency, v.ResponseSize)
+
+	logValues := func(_ echo.Context, v middleware.RequestLoggerValues) error {
+		const template = "HTTP-%s %d > %s %s %s %dB ~ %s"
+		if v.Status > http.StatusAlreadyReported {
+			logger.Warnf(template, v.Method, v.Status, v.URI,
+				v.RoutePath, v.Latency, v.ResponseSize, v.UserAgent)
 			return nil
-		},
+		}
+		logger.Infof(template, v.Method, v.Status, v.URIPath,
+			v.RoutePath, v.Latency, v.ResponseSize, v.UserAgent)
+		return nil
 	}
+	return middleware.RequestLoggerConfig{
+		Skipper:          skipPaths,
+		LogLatency:       true,
+		LogProtocol:      false,
+		LogRemoteIP:      false,
+		LogHost:          false,
+		LogMethod:        true,
+		LogURI:           true,
+		LogURIPath:       true,
+		LogRoutePath:     true,
+		LogRequestID:     false,
+		LogReferer:       false,
+		LogUserAgent:     true,
+		LogStatus:        true,
+		LogError:         false,
+		LogContentLength: false,
+		LogResponseSize:  true,
+		LogHeaders:       nil,
+		LogQueryParams:   nil,
+		LogFormValues:    nil,
+		LogValuesFunc:    logValues,
+	}
+}
+
+func skipPaths(e echo.Context) bool {
+	uri := e.Request().RequestURI
+	statusOk := e.Response().Status == http.StatusOK
+	switch {
+	case strings.HasPrefix(uri, "/public/"),
+		strings.HasPrefix(uri, "/css/"),
+		strings.HasPrefix(uri, "/js/"),
+		strings.HasPrefix(uri, "/image/"),
+		strings.HasPrefix(uri, "/svg/"):
+		if statusOk {
+			return true
+		}
+	}
+	return false
 }
