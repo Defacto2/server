@@ -32,7 +32,7 @@ tasks:
     desc: "Build, compile and compress the web serve CSS and JS assets."
     cmds:
       - echo "Building assets..."
-      - go run runner/runner.go
+      - go run -modfile=runner/go.mod runner/runner.go
       - echo "Done!"
   build:
     desc: "Build the binary of the web server."
