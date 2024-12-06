@@ -53,6 +53,11 @@ tasks:
       - cmd: ./{{.BINNAME}} --version
         platforms: [linux, darwin]
       - cmd: echo "Done!"
+  build-run:
+    desc: "Run the previously built binary."
+    cmds:
+      - ./dist/defacto2-server
+    platforms: [linux, darwin, freebsd]
   default:
     desc: "Task runner for the Defacto2 web server source code."
     cmds:

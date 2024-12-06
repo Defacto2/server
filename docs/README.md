@@ -302,6 +302,22 @@ The mutex profile tracks contention on mutexes, such as sync.Mutex, sync.RWMutex
 - `https://defacto2.net/debug/pprof/threadcreate` for the threadcreate profile.
 - `https://defacto2.net/debug/pprof/trace` for the trace profile.
 
+### Stress testing
+
+The application can be stress tested using the [crawley](https://github.com/s0rg/crawley) tool.
+
+```sh
+task build-race
+task build-run
+crawley -all -brute -depth -1 -headless http://localhost:1323
+```
+
+In another terminal, you can view the server's performance using the `top` command, `htop` or view the logs.
+
+```sh
+tail -f ~/defacto2_server_info.log
+```
+
 ### Documentation
 
 The application configuration documentation can be modified in [`doc.go`](../doc.go) and the changes regenerated and [previewed in a web browser](http://localhost:8090).
