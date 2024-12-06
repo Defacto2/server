@@ -423,45 +423,50 @@ func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
 	matches := map[string][2]string{}
 	files, err := os.ReadDir(nameDir)
 	if err != nil {
+		clear(files)
 		matches["error"] = [2]string{err.Error(), ""}
+		return matches
 	}
 	// Provide a string path and use that instead of dir Dirs.
 	const assetDownload = ""
 	for _, file := range files {
-		if strings.HasPrefix(file.Name(), unid) {
-			if filepath.Ext(file.Name()) == assetDownload {
-				continue
-			}
-			ext := strings.ToUpper(filepath.Ext(file.Name()))
-			st, err := file.Info()
-			if err != nil {
-				matches["error"] = [2]string{err.Error(), ""}
-			}
-			switch ext {
-			case ".AVIF":
-				s := "AVIF"
-				matches[s] = [2]string{humanize.Comma(st.Size()), ""}
-			case ".JPG":
-				s := "Jpeg"
-				matches[s] = simple.ImageXY(filepath.Join(nameDir, file.Name()))
-			case ".PNG":
-				s := "PNG"
-				matches[s] = simple.ImageXY(filepath.Join(nameDir, file.Name()))
-			case ".DIZ":
-				s := "FILEID"
-				i, _ := helper.Lines(filepath.Join(dir.Extra, file.Name()))
-				matches[s] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
-			case ".TXT":
-				s := "README"
-				i, _ := helper.Lines(filepath.Join(dir.Extra, file.Name()))
-				matches[s] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
-			case ".WEBP":
-				s := "WebP"
-				matches[s] = simple.ImageXY(filepath.Join(nameDir, file.Name()))
-			case ".ZIP":
-				s := "Repacked ZIP"
-				matches[s] = [2]string{humanize.Comma(st.Size()), "Deflate compression"}
-			}
+		if !strings.HasPrefix(file.Name(), unid) {
+			continue
+		}
+		if filepath.Ext(file.Name()) == assetDownload {
+			continue
+		}
+		st, err := file.Info()
+		if err != nil {
+			clear(files)
+			matches["error"] = [2]string{err.Error(), ""}
+			return matches
+		}
+		ext := strings.ToUpper(filepath.Ext(file.Name()))
+		switch ext {
+		case ".AVIF":
+			s := "AVIF"
+			matches[s] = [2]string{humanize.Comma(st.Size()), ""}
+		case ".JPG":
+			s := "Jpeg"
+			matches[s] = simple.ImageXY(filepath.Join(nameDir, file.Name()))
+		case ".PNG":
+			s := "PNG"
+			matches[s] = simple.ImageXY(filepath.Join(nameDir, file.Name()))
+		case ".DIZ":
+			s := "FILEID"
+			i, _ := helper.Lines(filepath.Join(dir.Extra, file.Name()))
+			matches[s] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
+		case ".TXT":
+			s := "README"
+			i, _ := helper.Lines(filepath.Join(dir.Extra, file.Name()))
+			matches[s] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
+		case ".WEBP":
+			s := "WebP"
+			matches[s] = simple.ImageXY(filepath.Join(nameDir, file.Name()))
+		case ".ZIP":
+			s := "Repacked ZIP"
+			matches[s] = [2]string{humanize.Comma(st.Size()), "Deflate compression"}
 		}
 	}
 	clear(files)
