@@ -264,6 +264,44 @@ Or check for race conditions in the test suite.
 task testr
 ```
 
+### Profiling
+
+The application can be [profiled](https://pkg.go.dev/runtime/pprof) to [check](https://stackademic.com/blog/profiling-go-applications-in-the-right-way-with-examples) for performance bottlenecks or resource usage.
+
+The configuration `D2_LOG_ALL` environment variable must be set to `true` to enable the profiling.
+
+Use the `go tool pprof` to profile the application.
+
+```sh
+go tool pprof -http=:8000 -lines -unit=mb https://defacto2.net/debug/pprof/heap
+```
+
+- `http=:8000` is the port to view the profile in a local web browser.
+- `-lines` will show the source code line numbers in the profile.
+- `-unit=mb` will show the memory usage in megabytes.
+- `https://defacto2.net/debug/pprof/heap` is the URL to the profile.
+
+Other profiles can be viewed by changing the URL.
+
+The allocs profile, reports statistics as of the total amount of allocated space.
+- `https://defacto2.net/debug/pprof/allocs`
+
+Block profile tracks time spent blocked on synchronization primitives, such as sync.Mutex, sync.RWMutex, sync.WaitGroup, sync.Cond, and channel send/receive/select. 
+- `https://defacto2.net/debug/pprof/block` for the block profile.
+  
+The heap profile, it reports statistics as of the most recently completed garbage collection.
+- `https://defacto2.net/debug/pprof/heap`
+  
+The mutex profile tracks contention on mutexes, such as sync.Mutex, sync.RWMutex, and runtime-internal locks.
+- `https://defacto2.net/debug/pprof/mutex`
+
+- `https://defacto2.net/debug/pprof/cmdline` for the command line arguments.
+- `https://defacto2.net/debug/pprof/goroutine` for the goroutine profile.
+- `https://defacto2.net/debug/pprof/profile` for the CPU profile.
+- `https://defacto2.net/debug/pprof/symbol` for the symbol profile.
+- `https://defacto2.net/debug/pprof/threadcreate` for the threadcreate profile.
+- `https://defacto2.net/debug/pprof/trace` for the trace profile.
+
 ### Documentation
 
 The application configuration documentation can be modified in [`doc.go`](../doc.go) and the changes regenerated and [previewed in a web browser](http://localhost:8090).
