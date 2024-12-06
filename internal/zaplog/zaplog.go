@@ -64,7 +64,7 @@ const (
 
 // Status logger prints all log levels to stdout but without callers.
 func Status() *zap.Logger {
-	enc := consoleNoTime()
+	enc := TextNoTime()
 	defaultLogLevel := zapcore.InfoLevel
 	core := zapcore.NewTee(
 		zapcore.NewCore(
@@ -78,7 +78,7 @@ func Status() *zap.Logger {
 
 // Timestamp logger prints all log levels to stdout but without callers.
 func Timestamp() *zap.Logger {
-	enc := consoleWithTime()
+	enc := Text()
 	defaultLogLevel := zapcore.InfoLevel
 	core := zapcore.NewTee(
 		zapcore.NewCore(
@@ -92,7 +92,7 @@ func Timestamp() *zap.Logger {
 
 // Debug logger prints all log levels to stdout.
 func Debug() *zap.Logger {
-	enc := consoleWithTime()
+	enc := Text()
 	defaultLogLevel := zapcore.DebugLevel
 	core := zapcore.NewTee(
 		zapcore.NewCore(
@@ -104,17 +104,14 @@ func Debug() *zap.Logger {
 	return zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
 }
 
-// Store logger prints all info and higher log levels to files.
+// Store logger prints all info and higher log levels to files using the encoder.
+// Either the zaplog.JSON, zaplog.Text, or zaplog.TextNoTime encoders can be used.
 // Fatal and Panics are also returned to os.Stderr.
-func Store(absPath string) *zap.Logger {
-	config := zap.NewProductionEncoderConfig()
-	config.EncodeTime = zapcore.TimeEncoderOfLayout("Jan-02-15:04:05.00")
-	jsonEnc := zapcore.NewJSONEncoder(config)
-	enc := consoleWithTime()
-
+func Store(enc zapcore.Encoder, logPath string) *zap.Logger {
+	errs := Text()
 	// server breakage log
 	serverWr := zapcore.AddSync(&lumberjack.Logger{
-		Filename:   filepath.Join(absPath, ServerLog),
+		Filename:   filepath.Join(logPath, ServerLog),
 		MaxSize:    MaxSizeMB,
 		MaxBackups: MaxBackups,
 		MaxAge:     MaxDays,
@@ -124,7 +121,7 @@ func Store(absPath string) *zap.Logger {
 
 	// information and warning log
 	infoWr := zapcore.AddSync(&lumberjack.Logger{
-		Filename:   filepath.Join(absPath, InfoLog),
+		Filename:   filepath.Join(logPath, InfoLog),
 		MaxSize:    MaxSizeMB,
 		MaxBackups: MaxBackups,
 		MaxAge:     MaxDays,
@@ -132,29 +129,36 @@ func Store(absPath string) *zap.Logger {
 
 	core := zapcore.NewTee(
 		// log to stderr
-		zapcore.NewCore(enc, errWr, zapcore.FatalLevel),
-		zapcore.NewCore(enc, errWr, zapcore.PanicLevel),
+		zapcore.NewCore(errs, errWr, zapcore.FatalLevel),
+		zapcore.NewCore(errs, errWr, zapcore.PanicLevel),
 		// log to "server.log"
-		zapcore.NewCore(jsonEnc, serverWr, zapcore.FatalLevel),
-		zapcore.NewCore(jsonEnc, serverWr, zapcore.PanicLevel),
-		zapcore.NewCore(jsonEnc, serverWr, zapcore.ErrorLevel),
+		zapcore.NewCore(enc, serverWr, zapcore.FatalLevel),
+		zapcore.NewCore(enc, serverWr, zapcore.PanicLevel),
+		zapcore.NewCore(enc, serverWr, zapcore.ErrorLevel),
 		// log to "info.log"
-		zapcore.NewCore(jsonEnc, infoWr, zapcore.WarnLevel),
-		zapcore.NewCore(jsonEnc, infoWr, zapcore.InfoLevel),
+		zapcore.NewCore(enc, infoWr, zapcore.WarnLevel),
+		zapcore.NewCore(enc, infoWr, zapcore.InfoLevel),
 	)
 	return zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
 }
 
-// console returns a logger in color and time.
-func consoleWithTime() zapcore.Encoder {
+// Json returns a logger in JSON format.
+func Json() zapcore.Encoder {
+	config := zap.NewProductionEncoderConfig()
+	config.EncodeTime = zapcore.TimeEncoderOfLayout("Jan-02-15:04:05.00")
+	return zapcore.NewJSONEncoder(config)
+}
+
+// Text returns a logger in color and time.
+func Text() zapcore.Encoder {
 	config := zap.NewDevelopmentEncoderConfig()
 	config.EncodeTime = zapcore.TimeEncoderOfLayout("15:04:05")
 	config.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	return zapcore.NewConsoleEncoder(config)
 }
 
-// consoleNoTime returns a logger in color but without the time.
-func consoleNoTime() zapcore.Encoder {
+// TextNoTime returns a logger in color but without the time.
+func TextNoTime() zapcore.Encoder {
 	config := zap.NewDevelopmentEncoderConfig()
 	// config.EncodeTime = nil  // use nil to remove the leading console separator
 	config.EncodeTime = zapcore.TimeEncoderOfLayout("")

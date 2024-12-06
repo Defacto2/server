@@ -29,7 +29,7 @@ func (c Config) CustomErrorHandler(err error, ctx echo.Context) {
 	logger := zaplog.Debug().Sugar()
 	if c.ProdMode {
 		root := c.AbsLog
-		logger = zaplog.Store(root).Sugar()
+		logger = zaplog.Store(zaplog.Text(), root).Sugar()
 	}
 	defer func() {
 		_ = logger.Sync()

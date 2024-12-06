@@ -30,6 +30,7 @@ import (
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/config"
+	"github.com/labstack/echo-contrib/pprof"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
@@ -74,6 +75,9 @@ func (c Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger) *echo.E
 	}
 
 	e := echo.New()
+	if configs.LogAll {
+		pprof.Register(e)
+	}
 	e.HideBanner = true
 	e.HTTPErrorHandler = configs.CustomErrorHandler
 

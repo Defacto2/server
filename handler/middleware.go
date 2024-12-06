@@ -106,8 +106,8 @@ func (c Configuration) configZapLogger() middleware.RequestLoggerConfig {
 
 	logger := zaplog.Status().Sugar()
 	if c.Environment.ProdMode {
-		absPath := c.Environment.AbsLog
-		logger = zaplog.Store(absPath).Sugar()
+		logPath := c.Environment.AbsLog
+		logger = zaplog.Store(zaplog.Text(), logPath).Sugar()
 	}
 	defer func() {
 		_ = logger.Sync()

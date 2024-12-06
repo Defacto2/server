@@ -20,8 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-
-	//_ "net/http/pprof" // pprof is used for profiling and can be commented out.
 	"os"
 	"runtime"
 	"slices"
@@ -109,10 +107,6 @@ func main() {
 		fmt.Fprintf(w, "%s\n", localIPs)
 	}()
 
-	// go func() {
-	// 	log.Println(http.ListenAndServe("localhost:6060", nil))
-	// }()
-
 	// shutdown the web server after a signal is received.
 	website.ShutdownHTTP(router, logger)
 }
@@ -192,7 +186,7 @@ func serverLog(configs config.Config, count int) *zap.SugaredLogger {
 		if err := configs.LogStore(); err != nil {
 			logger.Fatalf("%w using server log: %s", ErrLog, err)
 		}
-		logger = zaplog.Store(configs.AbsLog).Sugar()
+		logger = zaplog.Store(zaplog.Text(), configs.AbsLog).Sugar()
 	}
 	return logger
 }
