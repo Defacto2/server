@@ -215,7 +215,11 @@ func (c Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogg
 		return app.Download(cx, db, logger, c.Environment.AbsDownload)
 	})
 	s.GET("/f/:id", func(cx echo.Context) error {
-		dir.URI = cx.Param("id")
+		id := cx.Param("id")
+		if qs := cx.QueryString(); qs != "" {
+			return cx.Redirect(http.StatusMovedPermanently, "/f/"+id)
+		}
+		dir.URI = id
 		return dir.Artifact(cx, db, logger, c.Environment.ReadOnly)
 	})
 	s.GET("/file/stats", func(cx echo.Context) error {
@@ -242,6 +246,9 @@ func (c Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogg
 		return app.FTP(c, db)
 	})
 	s.GET("/g/:id", func(cx echo.Context) error {
+		if qs := cx.QueryString(); qs != "" {
+			return cx.Redirect(http.StatusMovedPermanently, "/g/"+cx.Param("id"))
+		}
 		return app.Releasers(cx, db, logger, cx.Param("id"))
 	})
 	s.GET("/history", app.History)
@@ -261,6 +268,9 @@ func (c Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogg
 		return app.Musician(c, db)
 	})
 	s.GET("/p/:id", func(cx echo.Context) error {
+		if qs := cx.QueryString(); qs != "" {
+			return cx.Redirect(http.StatusMovedPermanently, "/p/"+cx.Param("id"))
+		}
 		return app.Sceners(cx, db, cx.Param("id"))
 	})
 	s.GET("/pouet/vote/:id", func(cx echo.Context) error {

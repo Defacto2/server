@@ -147,6 +147,9 @@ func (c Configuration) configZapLogger() middleware.RequestLoggerConfig {
 }
 
 func skipPaths(e echo.Context) bool {
+	if redirect := e.Response().Status == http.StatusMovedPermanently; redirect {
+		return true
+	}
 	uri := e.Request().RequestURI
 	statusOk := e.Response().Status == http.StatusOK
 	switch {
