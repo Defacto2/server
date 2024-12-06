@@ -113,13 +113,16 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 	if filerecord.EmbedReadme(art) {
 		data, err = dir.embed(art, data)
 		if err != nil {
+			clear(data)
 			logger.Error(errorWithID(err, dir.URI, art.ID))
 		}
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
+		clear(data)
 		return InternalErr(c, name, errorWithID(err, dir.URI, art.ID))
 	}
+	clear(data)
 	return nil
 }
 
