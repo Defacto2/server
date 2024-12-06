@@ -1,6 +1,6 @@
 module github.com/Defacto2/server
 
-go 1.23.2
+go 1.23.4 // latest: https://go.dev/dl/
 
 require (
 	github.com/Defacto2/archive v1.0.9
