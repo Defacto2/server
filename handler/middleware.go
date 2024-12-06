@@ -10,12 +10,14 @@ import (
 	"crypto/sha512"
 	"fmt"
 	"net/http"
+	"runtime"
 	"strconv"
 	"strings"
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/zaplog"
+	"github.com/dustin/go-humanize"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -112,14 +114,19 @@ func (c Configuration) configZapLogger() middleware.RequestLoggerConfig {
 	}()
 
 	logValues := func(_ echo.Context, v middleware.RequestLoggerValues) error {
-		const template = "HTTP-%s %d > %s %s %s %dB ~ %s"
+
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		rsize := uint64(v.ResponseSize)
+		alloc := humanize.Bytes(m.Alloc)
+		const template = "%d %s %s > %s [%s][%s][%s] %s"
 		if v.Status > http.StatusAlreadyReported {
-			logger.Warnf(template, v.Method, v.Status, v.URI,
-				v.RoutePath, v.Latency, v.ResponseSize, v.UserAgent)
+			logger.Warnf(template, v.Status, v.Method, v.URI,
+				v.RoutePath, v.Latency, humanize.Bytes(rsize), alloc, v.UserAgent)
 			return nil
 		}
-		logger.Infof(template, v.Method, v.Status, v.URIPath,
-			v.RoutePath, v.Latency, v.ResponseSize, v.UserAgent)
+		logger.Infof(template, v.Status, v.Method, v.URIPath,
+			v.RoutePath, v.Latency, humanize.Bytes(rsize), alloc, v.UserAgent)
 		return nil
 	}
 	return middleware.RequestLoggerConfig{
