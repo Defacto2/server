@@ -12,6 +12,7 @@ import (
 	_ "image/jpeg" // jpeg format decoder
 	_ "image/png"  // png format decoder
 	"io"
+	"io/fs"
 	"maps"
 	"net/http"
 	"os"
@@ -424,55 +425,57 @@ func (dir Dirs) modelsFile(c echo.Context, db *sql.DB) (*models.File, error) {
 // such as image dimensions or the number of lines in a text file.
 func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
 	matches := map[string][2]string{}
-	files, err := os.ReadDir(nameDir)
-	if err != nil {
-		clear(files)
-		matches["error"] = [2]string{err.Error(), ""}
-		return matches
-	}
-	// Provide a string path and use that instead of dir Dirs.
-	const assetDownload = ""
-	for _, file := range files {
-		if !strings.HasPrefix(file.Name(), unid) {
-			continue
-		}
-		if filepath.Ext(file.Name()) == assetDownload {
-			continue
-		}
-		st, err := file.Info()
+	// NOTE: In Go 1.23 the use of os.ReadDir would occasionally cause a memory leak while sorting the files.
+	// So the func has been replace with this WalkDir function.
+	err := filepath.WalkDir(nameDir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
-			clear(files)
 			matches["error"] = [2]string{err.Error(), ""}
-			return matches
+			return err
 		}
-		ext := strings.ToUpper(filepath.Ext(file.Name()))
+		if d.IsDir() {
+			return fs.SkipDir
+		}
+		noExtension := filepath.Ext(d.Name()) == ""
+		notUUIDName := !strings.HasPrefix(d.Name(), unid)
+		if noExtension || notUUIDName {
+			return nil
+		}
+		st, err := d.Info()
+		if err != nil {
+			matches["error"] = [2]string{err.Error(), ""}
+			return err
+		}
+		ext := strings.ToUpper(filepath.Ext(d.Name()))
 		switch ext {
 		case ".AVIF":
 			s := "AVIF"
 			matches[s] = [2]string{humanize.Comma(st.Size()), ""}
 		case ".JPG":
 			s := "Jpeg"
-			matches[s] = simple.ImageXY(filepath.Join(nameDir, file.Name()))
+			matches[s] = simple.ImageXY(filepath.Join(nameDir, d.Name()))
 		case ".PNG":
 			s := "PNG"
-			matches[s] = simple.ImageXY(filepath.Join(nameDir, file.Name()))
+			matches[s] = simple.ImageXY(filepath.Join(nameDir, d.Name()))
 		case ".DIZ":
 			s := "FILEID"
-			i, _ := helper.Lines(filepath.Join(dir.Extra, file.Name()))
+			i, _ := helper.Lines(filepath.Join(dir.Extra, d.Name()))
 			matches[s] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
 		case ".TXT":
 			s := "README"
-			i, _ := helper.Lines(filepath.Join(dir.Extra, file.Name()))
+			i, _ := helper.Lines(filepath.Join(dir.Extra, d.Name()))
 			matches[s] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
 		case ".WEBP":
 			s := "WebP"
-			matches[s] = simple.ImageXY(filepath.Join(nameDir, file.Name()))
+			matches[s] = simple.ImageXY(filepath.Join(nameDir, d.Name()))
 		case ".ZIP":
 			s := "Repacked ZIP"
 			matches[s] = [2]string{humanize.Comma(st.Size()), "Deflate compression"}
 		}
+		return nil
+	})
+	if err != nil {
+		matches["error"] = [2]string{err.Error(), ""}
 	}
-	clear(files)
 	return matches
 }
 
