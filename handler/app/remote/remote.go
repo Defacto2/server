@@ -12,7 +12,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/Defacto2/archive"
 	"github.com/Defacto2/helper"
@@ -71,7 +70,7 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, downloadDir string)
 		if link.URL == "" {
 			continue
 		}
-		df, err := GetFile(link.URL, 0)
+		df, err := GetFile5sec(link.URL)
 		if tryNextLink := err != nil || df.Path == ""; tryNextLink {
 			continue
 		}
@@ -272,8 +271,7 @@ func (got *PouetLink) Download(c echo.Context, db *sql.DB, downloadDir string) e
 	if downloadURL == "" {
 		return nil
 	}
-	const timeout = 10 * time.Second
-	df, err := GetFile(downloadURL, timeout)
+	df, err := GetFile10sec(downloadURL)
 	if err != nil {
 		return fmt.Errorf("could not get file, %s: %w", downloadURL, err)
 	}

@@ -14,11 +14,17 @@ import (
 )
 
 const (
-	// Timeout is the HTTP client default timeout.
-	Timeout = 5 * time.Second
 	// User-Agent to send with the HTTP request.
 	UserAgent = "Defacto2 Uploader form submission, thanks!"
 )
+
+var client5sec = http.Client{
+	Timeout: 5 * time.Second,
+}
+
+var client10sec = http.Client{
+	Timeout: 10 * time.Second,
+}
 
 // FixSceneOrg returns a working URL if the provided rawURL is a known,
 // broken link to a scene.org file. Otherwise it returns the original URL.
@@ -62,18 +68,25 @@ type DownloadResponse struct {
 	Path          string // Path is the path to the downloaded file.
 }
 
-// GetFile downloads a file from a remote URL and saves it to the default temp directory.
-// If timeout is 0, it uses the default timeout of 5 seconds, otherwise it uses the provided timeout.
+// GetFile5sec downloads a file from a remote URL and saves it to the default temp directory.
+// It uses a timeout of 5 seconds.
 // It returns the path to the downloaded file and it should be removed after use.
-func GetFile(rawURL string, timeout time.Duration) (DownloadResponse, error) {
+func GetFile5sec(rawURL string) (DownloadResponse, error) {
+	return GetFile(rawURL, client5sec)
+}
+
+// GetFile10sec downloads a file from a remote URL and saves it to the default temp directory.
+// It uses a timeout of 10 seconds.
+// It returns the path to the downloaded file and it should be removed after use.
+func GetFile10sec(rawURL string) (DownloadResponse, error) {
+	return GetFile(rawURL, client10sec)
+}
+
+// GetFile downloads a file from a remote URL and saves it to the default temp directory.
+// It returns the path to the downloaded file and it should be removed after use.
+func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
 	url := FixSceneOrg(rawURL)
 	// Get the remote file
-	if timeout == 0 {
-		timeout = Timeout
-	}
-	client := http.Client{
-		Timeout: timeout,
-	}
 	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
@@ -94,12 +107,16 @@ func GetFile(rawURL string, timeout time.Duration) (DownloadResponse, error) {
 	// Create the file in the default temp directory
 	dst, err := os.CreateTemp(helper.TmpDir(), "get-remotefile-*")
 	if err != nil {
+		io.Copy(io.Discard, res.Body) // discard and close the client
+		res.Body.Close()
 		return DownloadResponse{}, fmt.Errorf("get file create temp: %w", err)
 	}
 	defer dst.Close()
 
 	// Write the body to file
 	if _, err := io.Copy(dst, res.Body); err != nil {
+		io.Copy(io.Discard, res.Body) // discard and close the client
+		res.Body.Close()
 		defer os.Remove(dst.Name())
 		return DownloadResponse{}, fmt.Errorf("get file io copy: %w", err)
 	}

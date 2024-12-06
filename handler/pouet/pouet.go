@@ -23,9 +23,12 @@ var (
 	ErrStatus  = errors.New("status is not ok")
 )
 
+var client = http.Client{
+	Timeout: 10 * time.Second,
+}
+
 const (
 	ProdURL     = "https://api.pouet.net/v1/prod/?id=" // ProdURL is the base URL for the Pouet production API.
-	Timeout     = 10 * time.Second                     // Timeout is the HTTP client timeout.
 	StarRounder = 0.5                                  // StarRounder is the rounding value for the stars rating.
 	Sanity      = 200000                               // Sanity is to check the maximum permitted production ID.
 	firstID     = 1                                    // firstID is the first production ID on Pouet.
@@ -296,9 +299,6 @@ func (r *Response) Get(id int) (int, error) {
 	if id < firstID {
 		return 0, fmt.Errorf("%w: %d", ErrID, id)
 	}
-	client := http.Client{
-		Timeout: Timeout,
-	}
 	url := ProdURL + strconv.Itoa(id)
 	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
@@ -312,13 +312,18 @@ func (r *Response) Get(id int) (int, error) {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
+		io.Copy(io.Discard, res.Body)
+		res.Body.Close()
 		return res.StatusCode, fmt.Errorf("get pouet production %w: %s", ErrStatus, res.Status)
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
+		io.Copy(io.Discard, res.Body)
+		res.Body.Close()
 		return 0, fmt.Errorf("get pouet production read all %w", err)
 	}
 	err = json.Unmarshal(body, &r)
+	body = nil
 	if err != nil {
 		return 0, fmt.Errorf("get pouet production json unmarshal %w", err)
 	}

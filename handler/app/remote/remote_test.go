@@ -3,8 +3,8 @@ package remote_test
 // This is a test file is to confirm there's no panics with nil values.
 
 import (
+	"net/http"
 	"testing"
-	"time"
 
 	"github.com/Defacto2/server/handler/app/remote"
 	"github.com/stretchr/testify/assert"
@@ -43,13 +43,12 @@ func TestFixSceneOrg(t *testing.T) {
 
 func TestGetExampleCom(t *testing.T) {
 	t.Parallel()
-	const testDefaultTimeout = 0
-	r, err := remote.GetFile("http://example.com", testDefaultTimeout)
+	r, err := remote.GetFile5sec("http://example.com")
 	assert.NotEqual(t, "", r.Path)
 	assert.Equal(t, "text/html; charset=UTF-8", r.ContentType)
 	require.NoError(t, err)
-
-	const invalidTimeout = 1 * time.Microsecond
-	_, err = remote.GetFile("http://example.com", invalidTimeout)
+	_, err = remote.GetFile("http://example.com", *http.DefaultClient)
+	require.NoError(t, err)
+	_, err = remote.GetFile("://example.com", *http.DefaultClient)
 	require.Error(t, err)
 }

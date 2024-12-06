@@ -32,10 +32,13 @@ var (
 	ErrStatus  = errors.New("status is not ok")
 )
 
+var client = http.Client{
+	Timeout: 10 * time.Second,
+}
+
 const (
 	ProdURL = "https://demozoo.org/api/v1/productions/" // ProdURL is the base URL for the Demozoo production API.
 	Sanity  = 450000                                    // Sanity is to check the maximum permitted production ID.
-	Timeout = 10 * time.Second                          // HTTP client timeout, Demozoo replies can be slow.
 	firstID = 1                                         // firstID is the first production ID on Pouet.
 )
 
@@ -138,9 +141,6 @@ func (p *Production) Get(id int) (int, error) {
 	if id < firstID {
 		return 0, fmt.Errorf("get demozoo production %w: %d", ErrID, id)
 	}
-	client := http.Client{
-		Timeout: Timeout,
-	}
 	url := ProdURL + strconv.Itoa(id)
 	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
@@ -154,13 +154,18 @@ func (p *Production) Get(id int) (int, error) {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
+		io.Copy(io.Discard, res.Body)
+		res.Body.Close()
 		return res.StatusCode, fmt.Errorf("get demozoo production %w: %s", ErrStatus, res.Status)
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
+		io.Copy(io.Discard, res.Body)
+		res.Body.Close()
 		return 0, fmt.Errorf("get demozoo production read all %w", err)
 	}
 	err = json.Unmarshal(body, &p)
+	body = nil
 	if err != nil {
 		return 0, fmt.Errorf("get demozoo production json unmarshal %w", err)
 	}
