@@ -26,7 +26,9 @@ const (
 
 func emptyFS(fs embed.FS) bool {
 	entries, err := fs.ReadDir(".")
-	return err != nil || len(entries) == 0
+	result := err != nil || len(entries) == 0
+	clear(entries)
+	return result
 }
 
 // GlobTo returns the path to the template file.

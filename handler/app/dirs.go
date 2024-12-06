@@ -464,6 +464,7 @@ func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
 			}
 		}
 	}
+	clear(files)
 	return matches
 }
 

@@ -25,7 +25,9 @@ func GlobTo(name string) string {
 
 func emptyFS(fs embed.FS) bool {
 	entries, err := fs.ReadDir(".")
-	return err != nil || len(entries) == 0
+	result := err != nil || len(entries) == 0
+	clear(entries)
+	return result
 }
 
 // Templates returns a map of the templates.
