@@ -742,5 +742,5 @@ func releasersHrefs(art *models.File) string {
 		return ""
 	}
 	magazine := strings.TrimSpace(art.Section.String) == tags.Mag.String()
-	return string(LinkRels(magazine, art.GroupBrandBy, art.GroupBrandFor))
+	return string(LinkRelrs(magazine, art.GroupBrandBy, art.GroupBrandFor))
 }

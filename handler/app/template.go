@@ -209,7 +209,7 @@ func (t Templ) Funcs() template.FuncMap {
 		"linkPreview":        LinkPreview,
 		"linkRemote":         LinkRemote,
 		"linkRunApp":         LinkRunApp,
-		"linkRelrs":          LinkRelsPerformant,
+		"linkRelrs":          LinkRels,
 		"linkScnr":           LinkScnr,
 		"linkScnrs":          LinkScnrs,
 		"linkSVG":            filerecord.LinkSVG,
@@ -224,7 +224,6 @@ func (t Templ) Funcs() template.FuncMap {
 		"slugify":            helper.Slug,
 		"subTitle":           SubTitle,
 		"tagOption":          TagOption,
-		"trimSiteSuffix":     TrimSiteSuffix,
 		"trimSpace":          TrimSpace,
 		"websiteIcon":        WebsiteIcon,
 		"urlEncode":          URLEncode,
@@ -517,16 +516,24 @@ func LinkPreviews(youtube, demozoo, pouet, colors16, github, rels, sites string)
 }
 
 // LinkRelrs returns the groups associated with a release and a link to each group.
-func LinkRels(magazine bool, a, b any) template.HTML {
+func LinkRelrs(magazine bool, a, b any) template.HTML {
 	if a == nil || b == nil {
 		return ""
 	}
 	return LinkReleasers(false, magazine, a, b)
 }
 
-// LinkRelsPerformant returns the groups associated with a release and a link to each group.
-// It is a faster version of LinkRelrs and should be used with the templates that have large lists of group names.
-func LinkRelsPerformant(a, b any) template.HTML {
+// LinkRels returns the groups associated with a release and a link to each group.
+func LinkRels(a, b any) template.HTML {
+	if a == nil || b == nil {
+		return ""
+	}
+	return LinkReleasers(false, false, a, b)
+}
+
+// LinkRelsPerf returns the groups associated with a release and a link to each group.
+// It is a faster version of LinkRels and can be used with the templates that have large lists of group names.
+func LinkRelsPerf(a, b any) template.HTML {
 	if a == nil || b == nil {
 		return ""
 	}

@@ -92,11 +92,11 @@ func TestMonth(t *testing.T) {
 	assert.Contains(t, s, "error")
 }
 
-func TestLinkRelsPerformant(t *testing.T) {
+func TestLinkRelsPerf(t *testing.T) {
 	t.Parallel()
-	s := app.LinkRelsPerformant("", "")
+	s := app.LinkRelsPerf("", "")
 	assert.Empty(t, s)
-	s = app.LinkRelsPerformant("Group 1", "Group 2")
+	s = app.LinkRelsPerf("Group 1", "Group 2")
 	assert.Contains(t, s, "Group 1")
 	assert.Contains(t, s, "Group 2")
 	assert.Contains(t, s, `href="/g/group-1"`)

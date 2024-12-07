@@ -23,11 +23,11 @@ func TestFuncClosures(t *testing.T) {
 	assert.NotNil(t, x)
 }
 
-func TestLinkRels(t *testing.T) {
+func TestLinkRelrs(t *testing.T) {
 	t.Parallel()
-	x := app.LinkRels(false, nil, nil)
+	x := app.LinkRelrs(false, nil, nil)
 	assert.NotNil(t, x)
-	x = app.LinkRelsPerformant(nil, nil)
+	x = app.LinkRelsPerf(nil, nil)
 	assert.NotNil(t, x)
 	x = app.LinkReleasers(false, false, nil, nil)
 	assert.NotNil(t, x)
