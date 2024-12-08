@@ -547,7 +547,7 @@ func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error
 	}
 	lookup = append(lookup, slug)
 	var r model.Releasers
-	if len(slug) < initalism {
+	if len(slug) <= initalism {
 		if err := r.Initialism(ctx, db, maxResults, lookup...); err != nil {
 			if logger != nil {
 				logger.Error(err)
@@ -555,15 +555,18 @@ func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error
 			return c.String(http.StatusServiceUnavailable,
 				"the search query failed")
 		}
-	} else if err := r.Similar(ctx, db, maxResults, lookup...); err != nil {
-		if logger != nil {
-			logger.Error(err)
-		}
-		return c.String(http.StatusServiceUnavailable,
-			"the search query failed")
 	}
 	if len(r) == 0 {
-		return c.HTML(http.StatusOK, "No releasers found.")
+		if err := r.Similar(ctx, db, maxResults, lookup...); err != nil {
+			if logger != nil {
+				logger.Error(err)
+			}
+			return c.String(http.StatusServiceUnavailable,
+				"the search query failed")
+		}
+	}
+	if len(r) == 0 {
+		return c.HTML(http.StatusOK, "No initialisms or releasers found.")
 	}
 	err := c.Render(http.StatusOK, "searchreleasers", map[string]interface{}{
 		"maximum": maxResults,

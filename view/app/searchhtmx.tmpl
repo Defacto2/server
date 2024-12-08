@@ -4,6 +4,7 @@
 {{- define "content" }} 
 {{- $hxpost := index . "hxPost" }}
 {{- $placeholder := index . "inputPlaceholder" }}
+{{- $helper := index . "helpText"}}
 <div class="row justify-content-md-center">
     <div class="col-md-8 col-lg-6">
         <div class="card border-dark mb-3">      
@@ -13,6 +14,7 @@
                     <small class="fs-5 fw-lighter">{{index . "info"}}</small>
                 </h5>
                 <p class="card-text">
+                {{- if ne "" $helper}}<small class="text-muted">{{index . "helpText"}}</small>{{end}}
                 <div class="input-group">
                     <div class="input-group-text">
                         <div id="search-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm text-secondary" role="status">

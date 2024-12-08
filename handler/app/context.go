@@ -1449,6 +1449,8 @@ func SearchReleaser(c echo.Context) error {
 	data["logo"] = title
 	data["title"] = title
 	data["info"] = "search for a group, initialism, magazine, board, or site"
+	data["helpText"] = "searching for 4 or fewer characters triggers an initialism lookup, " +
+		"if no results are found, a new search is made for the releaser names"
 	data["hxPost"] = "/search/releaser"
 	data["inputPlaceholder"] = "Type to search for a releaser…"
 	err := c.Render(http.StatusOK, name, data)
