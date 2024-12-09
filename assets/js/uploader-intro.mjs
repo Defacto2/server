@@ -2,8 +2,7 @@
  * @module uploader-intro
  * This module provides functions for handling file uploads intro UI.
  */
-import { validYear, validMonth } from "./helper.mjs";
-import { getElmById } from "./helper.mjs";
+import { formatPaste, getElmById, validYear, validMonth } from "./helper.mjs";
 import { checkIntro as mime } from "./uploader-mime.mjs";
 import {
   checkDuplicate,
@@ -33,6 +32,7 @@ const form = getElmById(formId),
   month = getElmById("uploader-intro-month"),
   releaser1 = getElmById("uploader-intro-releaser-1"),
   results = getElmById("uploader-intro-results"),
+  title = getElmById("uploader-intro-title"),
   year = getElmById("uploader-intro-year"),
   youtube = getElmById("uploader-intro-youtube");
 
@@ -43,6 +43,7 @@ form.addEventListener("reset", function () {
 });
 
 fileInput.addEventListener("change", checkFile);
+title.addEventListener("paste", formatPaste);
 releaser1.addEventListener("input", checkValue);
 year.addEventListener("input", checkYear);
 month.addEventListener("input", checkMonth);

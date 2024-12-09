@@ -2,8 +2,7 @@
  * @module uploader-trainer
  * This module provides functions for handling file uploads trainer and installer UI.
  */
-import { validYear, validMonth } from "./helper.mjs";
-import { getElmById } from "./helper.mjs";
+import { getElmById, formatPaste, validYear, validMonth } from "./helper.mjs";
 import { checkIntro as mime } from "./uploader-mime.mjs";
 import {
   checkDuplicate,
@@ -42,6 +41,7 @@ form.addEventListener("reset", function () {
 });
 
 fileInput.addEventListener("change", checkFile);
+title.addEventListener("paste", formatPaste);
 releaser1.addEventListener("input", checkValue);
 year.addEventListener("input", checkYear);
 month.addEventListener("input", checkMonth);

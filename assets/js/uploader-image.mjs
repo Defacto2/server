@@ -2,7 +2,7 @@
  * @module uploader-image
  * This module provides functions for handling file uploads image UI.
  */
-import { getElmById } from "./helper.mjs";
+import { formatPaste, getElmById, validYear, validMonth } from "./helper.mjs";
 import { checkImage as mime } from "./uploader-mime.mjs";
 import {
   checkDuplicate,
@@ -15,7 +15,6 @@ import {
   submitError,
   resetInput,
 } from "./uploader.mjs";
-import { validYear, validMonth } from "./helper.mjs";
 export default submit;
 
 const formId = `uploader-image-form`,
@@ -32,6 +31,7 @@ const form = getElmById(formId),
   month = getElmById("uploader-image-month"),
   releaser1 = getElmById("uploader-image-releaser-1"),
   results = getElmById("uploader-image-results"),
+  title = getElmById("uploader-image-title"),
   year = getElmById("uploader-image-year");
 
 form.addEventListener("reset", function () {
@@ -41,6 +41,7 @@ form.addEventListener("reset", function () {
 });
 
 fileInput.addEventListener("change", checkFile);
+title.addEventListener("paste", formatPaste);
 releaser1.addEventListener("input", checkValue);
 year.addEventListener("input", checkYear);
 month.addEventListener("input", checkMonth);

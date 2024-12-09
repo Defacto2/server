@@ -4,6 +4,34 @@
  */
 
 /**
+ * Intercepts the paste event and formats the pasted text.
+ * @param {Event} evt - The paste event.
+ */
+export function formatPaste(evt) {
+  // Prevent the default paste action
+  evt.preventDefault();
+
+  // Get the pasted text from the clipboard
+  const pastedText = (evt.clipboardData || window.Clipboard).getData("text");
+  const title = this;
+  const start = title.selectionStart;
+  const end = title.selectionEnd;
+  title.value =
+    title.value.slice(0, start) + pastedText + title.value.slice(end);
+  title.setSelectionRange(start + pastedText.length, start + pastedText.length);
+
+  const formatted = titleize(title.value);
+  if (title.value != formatted) {
+    console.log(
+      `Formatted input text "%s" is formatted to "%s".`,
+      title.value,
+      formatted
+    );
+    title.value = formatted;
+  }
+}
+
+/**
  * Titleizes a string of text but keeps common adverbs in lowercase.
  *
  * @param {string} text - The input text to be titleized.
@@ -84,13 +112,16 @@ export function titleize(text) {
     "api",
     "bbs",
     "bios",
+    "bsa",
     "cd",
     "cga",
     "dos",
     "dox",
+    "dvd",
     "ega",
     "ehq",
     "f1",
+    "fbi",
     "ftp",
     "hq",
     "ibm",
@@ -112,12 +143,15 @@ export function titleize(text) {
     "oem",
     "os",
     "pc",
+    "ppe",
     "pfs",
     "pkarc",
     "pkzip",
     "psx",
     "rac",
     "rom",
+    "sfx",
+    "spa",
     "usa",
     "ushq",
     "uss",
@@ -130,6 +164,9 @@ export function titleize(text) {
     "xp",
     "ys",
   ];
+
+  // TODO: replace trailing full stops
+
   text = text.trim();
   // Replace all underscores with spaces
   text = text.replace(/_/g, " ");
@@ -152,7 +189,6 @@ export function titleize(text) {
   text = text
     .split(" ")
     .map((word, index) => {
-      console.log(`word: ${word} ${index} ${typeof word}`);
       var edit = word;
       if (versionMatch(edit) === true) {
         return edit.toLowerCase();

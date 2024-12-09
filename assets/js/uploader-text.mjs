@@ -2,7 +2,6 @@
  * @module uploader-text
  * This module provides functions for handling file uploads text UI.
  */
-import { getElmById } from "./helper.mjs";
 import { checkText as mime } from "./uploader-mime.mjs";
 import {
   checkDuplicate,
@@ -15,7 +14,7 @@ import {
   submitError,
   resetInput,
 } from "./uploader.mjs";
-import { validYear, validMonth } from "./helper.mjs";
+import { getElmById, formatPaste, validYear, validMonth } from "./helper.mjs";
 export default submit;
 
 const formId = `uploader-text-form`,
@@ -42,6 +41,7 @@ form.addEventListener("reset", function () {
 });
 
 fileInput.addEventListener("change", checkFile);
+title.addEventListener("paste", formatPaste);
 releaser1.addEventListener("input", checkValue);
 year.addEventListener("input", checkYear);
 month.addEventListener("input", checkMonth);
@@ -54,10 +54,10 @@ export function submit(elementId) {
   const element = getElmById(elementId);
   element.addEventListener("click", function () {
     let pass = true;
-    if (title.value == "") {
-      title.classList.add(invalid);
-      pass = false;
-    }
+    // if (title.value == "") {
+    //   title.classList.add(invalid);
+    //   pass = false;
+    // }
     if (releaser1.value == "") {
       releaser1.classList.add(invalid);
       pass = false;

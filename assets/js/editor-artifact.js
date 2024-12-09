@@ -10,7 +10,7 @@ import {
   youtube as validateYouTube,
   number as validateNumber,
 } from "./artifact-validate.mjs";
-import { clipValue, getElmById, titleize } from "./helper.mjs";
+import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
 
 (() => {
   "use strict";
@@ -294,6 +294,7 @@ import { clipValue, getElmById, titleize } from "./helper.mjs";
   if (title === null) {
     throw new Error("The title input is missing.");
   }
+  title.addEventListener("paste", formatPaste);
   title.addEventListener("input", (e) => {
     e.target.classList.remove("is-valid");
   });

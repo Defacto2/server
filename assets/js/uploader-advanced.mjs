@@ -2,8 +2,13 @@
  * @module uploader-advanced
  * This module provides functions for handling file uploads advanced UI.
  */
-import { validYear, validMonth, validDay } from "./helper.mjs";
-import { getElmById } from "./helper.mjs";
+import {
+  formatPaste,
+  getElmById,
+  validYear,
+  validMonth,
+  validDay,
+} from "./helper.mjs";
 import { checkAdvanced as mime } from "./uploader-mime.mjs";
 import {
   checkDuplicate,
@@ -38,8 +43,8 @@ const form = getElmById(formId),
   os = getElmById("uploader-advanced-operating-system"),
   releaser1 = getElmById("uploader-advanced-releaser-1"),
   results = getElmById("uploader-advanced-results"),
-  year = getElmById("uploader-advanced-year"); //,
-//youtube = getElmById("uploader-advanced-youtube");
+  title = getElmById("uploader-advanced-title"),
+  year = getElmById("uploader-advanced-year");
 
 form.addEventListener("reset", function () {
   lastMod.value = "";
@@ -48,6 +53,7 @@ form.addEventListener("reset", function () {
 });
 
 fileInput.addEventListener("change", checkFile);
+title.addEventListener("paste", formatPaste);
 releaser1.addEventListener("input", checkValue);
 year.addEventListener("input", checkYear);
 month.addEventListener("input", checkMonth);

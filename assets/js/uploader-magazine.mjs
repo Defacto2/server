@@ -2,7 +2,6 @@
  * @module uploader-magazine
  * This module provides functions for handling file uploads magazine UI.
  */
-import { getElmById } from "./helper.mjs";
 import { checkMagazine as mime } from "./uploader-mime.mjs";
 import {
   checkDuplicate,
@@ -15,7 +14,7 @@ import {
   submitError,
   resetInput,
 } from "./uploader.mjs";
-import { validYear, validMonth } from "./helper.mjs";
+import { getElmById, validYear, validMonth } from "./helper.mjs";
 export default submit;
 
 const formId = `uploader-magazine-form`,
