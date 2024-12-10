@@ -245,9 +245,11 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               hx-patch="/editor/title" 
               hx-trigger="keyup changed delay:{{$lDelay}}"
               hx-include="[name='artifact-editor-key']">
-            <div id="artifact-editor-title-help" class="form-text">
+            <div id="artifact-editor-title-help" class="form-text mb-2">
               An optional brief description or name of the release.<br>
               Or a magazine issue, example: <q>1</q>, or include a volume, example: <q>1, volume 1</q>.
+              <div><strong>Good titles are important</strong>, 
+                <a href="/titles">please follow this guide</a>.</div>
             </div>
             <div class="btn-group" role="group">
               <input type="hidden" name="artifact-editor-titleundo" value="{{$title}}" readonly>

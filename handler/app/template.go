@@ -93,6 +93,7 @@ func (t *Templ) pages() map[string]filename {
 		"status":        "status.tmpl",
 		"thanks":        "thanks.tmpl",
 		"thescene":      "thescene.tmpl",
+		"titles":        "titles.tmpl",
 		"websites":      websitesTmpl,
 	}
 }

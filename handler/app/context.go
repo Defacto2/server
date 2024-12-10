@@ -1578,6 +1578,21 @@ func TagInfo(c echo.Context) error {
 	return c.String(http.StatusOK, info)
 }
 
+// Titles is the handler for the Titles page.
+func Titles(c echo.Context) error {
+	const name = "titles"
+	data := empty(c)
+	data["title"] = "Titles"
+	data["description"] = "Titles are important."
+	data["logo"] = "Artefact Titles"
+	data["h1"] = "Titles"
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(c, name, err)
+	}
+	return nil
+}
+
 // Thanks is the handler for the Thanks page.
 func Thanks(c echo.Context) error {
 	const name = "thanks"

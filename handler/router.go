@@ -299,6 +299,7 @@ func (c Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogg
 	})
 	s.GET("/thanks", app.Thanks)
 	s.GET("/thescene", app.TheScene)
+	s.GET("/titles", app.Titles)
 	s.GET("/website/:id", func(cx echo.Context) error {
 		return app.Website(cx, cx.Param("id"))
 	})
