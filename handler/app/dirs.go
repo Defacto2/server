@@ -12,7 +12,6 @@ import (
 	_ "image/jpeg" // jpeg format decoder
 	_ "image/png"  // png format decoder
 	"io"
-	"io/fs"
 	"maps"
 	"net/http"
 	"os"
@@ -431,9 +430,6 @@ func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
 		if err != nil {
 			matches["error"] = [2]string{err.Error(), ""}
 			return err
-		}
-		if d.IsDir() {
-			return fs.SkipDir
 		}
 		noExtension := filepath.Ext(d.Name()) == ""
 		notUUIDName := !strings.HasPrefix(d.Name(), unid)

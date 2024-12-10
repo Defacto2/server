@@ -566,31 +566,39 @@ func ListContent(art *models.File, dirs command.Dirs, src string) template.HTML 
 		b.Reset()
 		return template.HTML(err.Error())
 	}
+	// always render a file_id.diz if it is found
+	diz := indexDiz(names...)
+	l := len(names)
+	if l == 0 {
+		b.WriteString(skippedEmpty(zeroByteFiles))
+		return template.HTML(b.String())
+	}
+	if useDiz := diz > -1; useDiz {
+		srcDiz := filepath.Join(dst, names[diz])
+		if err := dirs.DizDeferred(srcDiz, unid); err != nil {
+			b.Reset()
+			return template.HTML(err.Error())
+		}
+		if l == 1 {
+			b.WriteString(skippedEmpty(zeroByteFiles))
+			return template.HTML(b.String())
+		}
+	}
+	// render an NFO or text if only a single text is found,
+	// excluding any file_id.diz files
+	srcNFO := ""
+	if onlyNFO := diz == -1 && l == 1; onlyNFO {
+		srcNFO = filepath.Join(dst, names[0])
+	}
 	const maxItems = 2
-	if l := len(names); l > 0 && l <= maxItems {
-		i := indexDiz(names...)
-		diz, src := "", ""
-		useDizAndTxt := l == 2 && i != -1
-		useTxt := l == 1
-		if useDizAndTxt {
-			diz = names[i]
-			x := 1 - i
-			src = filepath.Join(dst, names[x])
-		}
-		if useTxt {
-			src = filepath.Join(dst, name)
-		}
-		if src != "" {
-			if err := dirs.TextDeferred(src, unid); err != nil {
-				b.Reset()
-				return template.HTML(err.Error())
-			}
-		}
-		if diz != "" {
-			if err := dirs.DizDeferred(src, unid); err != nil {
-				b.Reset()
-				return template.HTML(err.Error())
-			}
+	if textPair := diz != -1 && l == maxItems; textPair {
+		invert := 1 - diz
+		srcNFO = filepath.Join(dst, names[invert])
+	}
+	if srcNFO != "" {
+		if err := dirs.TextDeferred(srcNFO, unid); err != nil {
+			b.Reset()
+			return template.HTML(err.Error())
 		}
 	}
 	b.WriteString(skippedEmpty(zeroByteFiles))
