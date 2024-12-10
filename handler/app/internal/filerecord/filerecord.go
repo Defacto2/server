@@ -369,6 +369,8 @@ func (e *entry) ParseFile(path string, platform string) bool {
 }
 
 // ParseDirEntry parses the directory entry and returns true if it should be skipped.
+// This is used to skip directories and files that are not relevant to the artifact,
+// such as common DOS file extensions like .bat, .com, .exe, .cmd and .ini files.
 func (e *entry) ParseDirEntry(path string, d fs.DirEntry, platform string) bool {
 	const skipEntry = true
 	if d.IsDir() {
@@ -376,6 +378,18 @@ func (e *entry) ParseDirEntry(path string, d fs.DirEntry, platform string) bool 
 	}
 	info, _ := d.Info()
 	if info == nil {
+		return skipEntry
+	}
+	ext := strings.ToLower(filepath.Ext(path))
+	const (
+		batchScript = ".bat"
+		batchCmd    = ".cmd"
+		command     = ".com"
+		executable  = ".exe"
+		config      = ".ini"
+	)
+	switch ext {
+	case batchScript, batchCmd, command, executable, config:
 		return skipEntry
 	}
 	return e.parse(path, platform, info)
@@ -566,6 +580,7 @@ func ListContent(art *models.File, dirs command.Dirs, src string) template.HTML 
 		b.Reset()
 		return template.HTML(err.Error())
 	}
+	fmt.Println(entries, names)
 	// always render a file_id.diz if it is found
 	diz := indexDiz(names...)
 	l := len(names)
