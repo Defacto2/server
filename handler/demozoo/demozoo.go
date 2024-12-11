@@ -428,48 +428,6 @@ func (p Production) YouTubeVideo() string {
 	return ""
 }
 
-// URI is a the URL slug of the releaser.
-type URI string
-
-// GroupID is the Demozoo ID of the group.
-type GroupID uint
-
-// Groups is a map of releasers URIs mapped to their Demozoo IDs.
-type Groups map[URI]GroupID
-
-// groups returns a map of releasers URIs mapped to their Demozoo IDs.
-func groups() Groups {
-	return Groups{
-		"acid-productions":                  7647,
-		"class":                             16508,
-		"defacto2":                          10000,
-		"fairlight":                         239,
-		"international-network-of-crackers": 12175,
-		"insane-creators-enterprise":        2169,
-		"mirage":                            45887,
-		"paradigm":                          26612,
-		"quartex":                           1430,
-		"razor-1911":                        519,
-		"silicon-dream-artists":             25795,
-		"scoopex":                           361,
-		"superior-art-creations":            7050,
-		"titan":                             2883,
-		"the-dream-team":                    20609,
-		"the-humble-guys":                   7421,
-		"the-silents":                       101,
-		"tristar-ampersand-red-sector-inc":  69,
-	}
-}
-
-// Find returns the Demozoo group ID for the given uri.
-// It returns 0 if the uri is not known.
-func Find(uri string) GroupID {
-	if _, groupExists := groups()[URI(uri)]; groupExists {
-		return groups()[URI(uri)]
-	}
-	return 0
-}
-
 // Released returns the production's release date as date_issued_year, month, day values.
 func (p Production) Released() (int16, int16, int16) {
 	return helper.Released(p.ReleaseDate)
@@ -572,4 +530,156 @@ func category(s string) Category {
 		return MagazineC
 	}
 	return -1
+}
+
+// URI is a the URL slug of the releaser.
+type URI string
+
+// GroupID is the Demozoo ID of the group.
+type GroupID uint
+
+// Groups is a map of releasers URIs mapped to their Demozoo IDs.
+type Groups map[URI]GroupID
+
+// Find returns the Demozoo group ID for the given uri.
+// It returns 0 if the uri is not known.
+func Find(uri string) GroupID {
+	if group, exist := groups[URI(uri)]; exist {
+		return group
+	}
+	return 0
+}
+
+const (
+	cpc   = "corporation-for-public-cybercasting-2001"
+	nappa = "north-american-pirate_phreak-association"
+)
+
+// groups returns a map of releasers URIs mapped to their Demozoo IDs.
+var groups = Groups{
+	"2000ad":                                20,
+	"aces-of-ansi-art":                      14208,
+	"acid-productions":                      7647,
+	"advanced-pirate-technology":            46652,
+	"alpha-flight":                          1492,
+	"adrenalin":                             46669,
+	"anthrox":                               1218,
+	"bentley-sidwell-productions":           46300,
+	"bitchin-ansi-design":                   81373,
+	"boys-from-company-c":                   47088,
+	"canadian-pirates-inc":                  69325,
+	"cascada":                               7926,
+	"class":                                 16508,
+	"c-ampersand-m":                         146439,
+	cpc:                                     146445,
+	"codex":                                 114419,
+	"club-elan":                             82987,
+	"crackers-in-action":                    59013,
+	"creators-of-intense-art":               17338,
+	"cybrix":                                70314,
+	"damn-excellent-ansi-design":            25642,
+	"defacto2":                              10000,
+	"dead-memory":                           76576,
+	"digital-noise-alliance":                75943,
+	"dread":                                 76438,
+	"drink-or-die":                          46616,
+	"dynamix":                               68008,
+	"dytec":                                 6698,
+	"eclipse":                               67881,
+	"esp-pirates":                           55436,
+	"electro-magnetic-crackers":             76266,
+	"electromotive-force":                   7702,
+	"electronic-rats":                       17164,
+	"extinct":                               131861,
+	"fairlight":                             239,
+	"friendship":                            76473,
+	"five-o":                                123441,
+	"future-brain-inc":                      59015,
+	"future-crew":                           357,
+	"genesis":                               37525,
+	"graphic-revolution-in-progress":        23211,
+	"graphics-rendered-in-magnificence":     25682,
+	"kosmic-loader-foundation":              30739,
+	"hype":                                  111124,
+	"illuminatus":                           120174,
+	"international-network-of-crackers":     12175,
+	"insane-creators-enterprise":            2169,
+	"insanity":                              130208,
+	"katharsis":                             37053,
+	"kgb":                                   69323,
+	"knights-of-the-round-table":            47158,
+	"lancelot":                              131757,
+	"lancelot-2":                            131699,
+	"legacy":                                86436,
+	"legend":                                2075,
+	"licensed-to-draw":                      25816,
+	"lkcc":                                  904,
+	"mai-review":                            145041,
+	"masters-of-abstractions-and-illusions": 145041,
+	"malicious-art-denomination":            86862,
+	"malice":                                46350,
+	"majic-12":                              870,
+	"mea-culpa":                             76417,
+	"mercury":                               113031,
+	"miami-cracking-machine":                45877,
+	"mirage":                                45887,
+	"new-york-crackers":                     53704,
+	nappa:                                   122784,
+	"norwegian-cracking-company":            82964,
+	"outlaws":                               2335,
+	"originally-funny-guys":                 76260,
+	"paradox":                               1853,
+	"pyradical":                             83958,
+	"paradigm":                              26612,
+	"pentagram":                             46472,
+	"pirates-sick-of-initials":              59019,
+	"pirates-with-attitudes":                46360,
+	"propaganda":                            145592,
+	"prevues":                               130455,
+	"ptl-club":                              53053,
+	"quartex":                               1430,
+	"razor-1911":                            519,
+	"rebels":                                628,
+	"relentless-pursuit-of-magnificence":    45917,
+	"rise-in-superior-couriering":           45969,
+	"skillion":                              46362,
+	"skid-row":                              14943,
+	"silicon-dream-artists":                 25795,
+	"sma-posse":                             58173,
+	"scoopex":                               361,
+	"software-pirates-inc":                  123017,
+	"sorcerers":                             37044,
+	"superior-art-creations":                7050,
+	"surprise-productions":                  1536,
+	"sprint":                                112416,
+	"technobrains":                          75071,
+	"titan":                                 2883,
+	"the-brain-slayer":                      59156,
+	"the-dream-team":                        20609,
+	"the-duplicators":                       146432,
+	"the-humble-guys":                       7421,
+	"the-firm":                              45892,
+	"the-grand-council":                     84582,
+	"the-north-west-connection":             131124,
+	"the-phoney-coders":                     6627,
+	"the-silents":                           101,
+	"the-space-pigs":                        55023,
+	"the-sysops-association-network":        76382,
+	"the-underground-council":               68127,
+	"the-untouchables":                      76042,
+	"thg-fx":                                46356,
+	"toads":                                 146433,
+	"tristar-ampersand-red-sector-inc":      69,
+	"triad":                                 131111,
+	"untouchables":                          112780,
+	"ultra-force":                           37076,
+	"ultra-tech":                            75375,
+	"union":                                 58739,
+	"united-artist-association":             118271,
+	"united-software-association":           45881,
+	"united-software-association*fairlight": 45881,
+	"velocity-couriers":                     83317,
+	"visions-of-reality":                    86454,
+	"vortex-software":                       146440,
+	"xerox":                                 59161,
 }
