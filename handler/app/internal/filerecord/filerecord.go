@@ -580,7 +580,6 @@ func ListContent(art *models.File, dirs command.Dirs, src string) template.HTML 
 		b.Reset()
 		return template.HTML(err.Error())
 	}
-	fmt.Println(entries, names)
 	// always render a file_id.diz if it is found
 	diz := indexDiz(names...)
 	l := len(names)

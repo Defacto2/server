@@ -376,9 +376,9 @@ func (dir Dirs) Editor(art *models.File, data map[string]interface{}) map[string
 	data["modStatModify"], data["modStatSizeB"], data["modStatSizeF"] = simple.StatHumanize(abs)
 	data["modDecompress"] = filerecord.ListContent(art, d, abs)
 	data["modDecompressLoc"] = simple.MkContent(abs)
-	data["modAssetPreview"] = dir.assets(dir.Preview, unid)
-	data["modAssetThumbnail"] = dir.assets(dir.Thumbnail, unid)
-	data["modAssetExtra"] = dir.assets(dir.Extra, unid)
+	data["modAssetPreview"] = dir.assets(dir.Preview, unid)     // issue 1
+	data["modAssetThumbnail"] = dir.assets(dir.Thumbnail, unid) // issue 2
+	data["modAssetExtra"] = dir.assets(dir.Extra, unid)         // issue 3
 	data["modReadmeSuggest"] = filerecord.Readme(art)
 	data["modZipContent"] = filerecord.ZipContent(art)
 	data["modRelations"] = filerecord.RelationsStr(art)
@@ -423,12 +423,12 @@ func (dir Dirs) modelsFile(c echo.Context, db *sql.DB) (*models.File, error) {
 // The returned map contains a short description of the asset, the file size and extra information,
 // such as image dimensions or the number of lines in a text file.
 func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
-	matches := map[string][2]string{}
+	const maxAssetVariants = 7 // this must match the number of "ext" switch cases
+	matches := make(map[string][2]string, maxAssetVariants)
 	// NOTE: In Go 1.23 the use of os.ReadDir would occasionally cause a memory leak while sorting the files.
 	// So the func has been replace with this WalkDir function.
 	err := filepath.WalkDir(nameDir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
-			matches["error"] = [2]string{err.Error(), ""}
 			return err
 		}
 		noExtension := filepath.Ext(d.Name()) == ""
@@ -438,7 +438,6 @@ func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
 		}
 		st, err := d.Info()
 		if err != nil {
-			matches["error"] = [2]string{err.Error(), ""}
 			return err
 		}
 		ext := strings.ToUpper(filepath.Ext(d.Name()))
@@ -470,8 +469,14 @@ func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
 		return nil
 	})
 	if err != nil {
-		matches["error"] = [2]string{err.Error(), ""}
+		clear(matches)
+		return map[string][2]string{
+			"error": {err.Error(), ""},
+		}
 	}
+	// matches occasionally cause issues with Go and the garbage collector.
+	// so this is an attempt to always clear the map after the function has completed.
+	defer clear(matches)
 	return matches
 }
 
