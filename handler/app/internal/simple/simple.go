@@ -180,12 +180,16 @@ func ImageSampleStat(unid, previewDir string) bool {
 }
 
 // ImageXY returns the named image filesize and dimensions.
+// The dimensions are returned as a string in the format "width x height".
+// If the file does not exist, an empty string array is returned.
 func ImageXY(name string) [2]string {
 	switch filepath.Ext(strings.ToLower(name)) {
 	case ".jpg", ".jpeg", ".gif", ".png", ".webp":
 	default:
 		st, err := os.Stat(name)
-		if err != nil {
+		if os.IsNotExist(err) {
+			return [2]string{}
+		} else if err != nil {
 			return [2]string{err.Error(), ""}
 		}
 		return [2]string{humanize.Comma(st.Size()), ""}

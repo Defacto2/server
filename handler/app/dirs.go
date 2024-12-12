@@ -113,16 +113,15 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 	if filerecord.EmbedReadme(art) {
 		data, err = dir.embed(art, data)
 		if err != nil {
-			clear(data)
+			defer clear(data)
 			logger.Error(errorWithID(err, dir.URI, art.ID))
 		}
 	}
 	err = c.Render(http.StatusOK, name, data)
+	defer clear(data)
 	if err != nil {
-		clear(data)
 		return InternalErr(c, name, errorWithID(err, dir.URI, art.ID))
 	}
-	clear(data)
 	return nil
 }
 
@@ -376,9 +375,14 @@ func (dir Dirs) Editor(art *models.File, data map[string]interface{}) map[string
 	data["modStatModify"], data["modStatSizeB"], data["modStatSizeF"] = simple.StatHumanize(abs)
 	data["modDecompress"] = filerecord.ListContent(art, d, abs)
 	data["modDecompressLoc"] = simple.MkContent(abs)
-	data["modAssetPreview"] = dir.assets(dir.Preview, unid)     // issue 1
-	data["modAssetThumbnail"] = dir.assets(dir.Thumbnail, unid) // issue 2
-	data["modAssetExtra"] = dir.assets(dir.Extra, unid)         // issue 3
+	// These operations must be done using os.Stat and not os.ReadDir or filepath.WalkDir.
+	// Previous attempts to use a shared function with WalkDir caused a memory leakages when
+	// the site was under heavy load.
+	data["modAssetPreview"] = dir.previews(unid)
+	data["modAssetThumbnail"] = dir.thumbnails(unid)
+	data["modAssetExtra"] = dir.extras(unid)
+	data["missingAssets"] = dir.missingAssets(art)
+	//
 	data["modReadmeSuggest"] = filerecord.Readme(art)
 	data["modZipContent"] = filerecord.ZipContent(art)
 	data["modRelations"] = filerecord.RelationsStr(art)
@@ -389,7 +393,6 @@ func (dir Dirs) Editor(art *models.File, data map[string]interface{}) map[string
 	data["forApproval"] = filerecord.RecordIsNew(art)
 	data["disableApproval"] = filerecord.RecordProblems(art)
 	data["disableRecord"] = filerecord.RecordOffline(art)
-	data["missingAssets"] = dir.missingAssets(art)
 	data["modEmulateXMS"], data["modEmulateEMS"], data["modEmulateUMB"] = filerecord.JsdosMemory(art)
 	data["modEmulateBroken"] = filerecord.JsdosBroken(art)
 	data["modEmulateRun"] = filerecord.JsdosRun(art)
@@ -418,13 +421,66 @@ func (dir Dirs) modelsFile(c echo.Context, db *sql.DB) (*models.File, error) {
 	return art, nil
 }
 
+// Previews returns a map of preview assets for the file record of the artifact.
+// Up to four preview assets are returned, JPEG, PNG, WebP and AVIF.
+func (dir Dirs) previews(unid string) map[string][2]string {
+	unid = strings.ToLower(unid)
+	avif := filepath.Join(dir.Preview, unid+".avif")
+	jpg := filepath.Join(dir.Preview, unid+".jpg")
+	png := filepath.Join(dir.Preview, unid+".png")
+	webp := filepath.Join(dir.Preview, unid+".webp")
+	matches := make(map[string][2]string, 4)
+	matches["Jpeg"] = simple.ImageXY(jpg)
+	matches["PNG"] = simple.ImageXY(png)
+	matches["WebP"] = simple.ImageXY(webp)
+	if s, err := os.Stat(avif); err == nil {
+		matches["AVIF"] = [2]string{humanize.Comma(s.Size()), ""}
+	}
+	return matches
+}
+
+// Thumbnails returns a map of thumbnail assets for the file record of the artifact.
+// Two thumbnail assets are returned, PNG and WebP.
+func (dir Dirs) thumbnails(unid string) map[string][2]string {
+	unid = strings.ToLower(unid)
+	png := filepath.Join(dir.Thumbnail, unid+".png")
+	webp := filepath.Join(dir.Thumbnail, unid+".webp")
+	matches := make(map[string][2]string, 2)
+	matches["PNG"] = simple.ImageXY(png)
+	matches["WebP"] = simple.ImageXY(webp)
+	return matches
+}
+
+// Extras returns a map of extra assets for the file record of the artifact.
+// Up to three extra assets are returned, FILEID, README and Repacked ZIP.
+func (dir Dirs) extras(unid string) map[string][2]string {
+	unid = strings.ToLower(unid)
+	matches := make(map[string][2]string, 3)
+	diz := filepath.Join(dir.Extra, unid+".diz")
+	if s, err := os.Stat(diz); err == nil {
+		i, _ := helper.Lines(diz)
+		matches["FILEID"] = [2]string{humanize.Comma(s.Size()), fmt.Sprintf("%d lines", i)}
+	}
+	txt := filepath.Join(dir.Extra, unid+".txt")
+	if s, err := os.Stat(txt); err == nil {
+		i, _ := helper.Lines(txt)
+		matches["README"] = [2]string{humanize.Comma(s.Size()), fmt.Sprintf("%d lines", i)}
+	}
+	zip := filepath.Join(dir.Extra, unid+".zip")
+	if s, err := os.Stat(zip); err == nil {
+		matches["Repacked ZIP"] = [2]string{humanize.Comma(s.Size()), "Deflate compression"}
+	}
+	return matches
+}
+
 // Assets returns a list of downloads and images belonging to the file record.
 // Any errors are appended to the list.
 // The returned map contains a short description of the asset, the file size and extra information,
 // such as image dimensions or the number of lines in a text file.
-func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
+// TODO: this function is marked for removal as it is no longer used.
+func (dir Dirs) redundantAssetsFunc(nameDir, unid string) map[string][2]string {
 	const maxAssetVariants = 7 // this must match the number of "ext" switch cases
-	matches := make(map[string][2]string, maxAssetVariants)
+	matches := map[string][2]string{}
 	// NOTE: In Go 1.23 the use of os.ReadDir would occasionally cause a memory leak while sorting the files.
 	// So the func has been replace with this WalkDir function.
 	err := filepath.WalkDir(nameDir, func(path string, d os.DirEntry, err error) error {
@@ -469,14 +525,11 @@ func (dir Dirs) assets(nameDir, unid string) map[string][2]string {
 		return nil
 	})
 	if err != nil {
-		clear(matches)
-		return map[string][2]string{
-			"error": {err.Error(), ""},
-		}
+		matches["error"] = [2]string{err.Error(), ""}
+		return matches
 	}
 	// matches occasionally cause issues with Go and the garbage collector.
 	// so this is an attempt to always clear the map after the function has completed.
-	defer clear(matches)
 	return matches
 }
 
