@@ -114,19 +114,23 @@ func (c Configuration) configZapLogger() middleware.RequestLoggerConfig {
 	}()
 
 	logValues := func(_ echo.Context, v middleware.RequestLoggerValues) error {
-
+		// memory usage
 		var m runtime.MemStats
 		runtime.ReadMemStats(&m)
 		rsize := uint64(v.ResponseSize)
 		alloc := humanize.Bytes(m.Alloc)
-		const template = "%d %s %s > %s [%s][%s][%s] %s"
+		// cpu usage
+		numCPU := runtime.NumCPU()
+		numGoroutine := runtime.NumGoroutine()
+		// log template
+		const template = "%d %s %s > %s [%s][%s][%s][CPU %d of %d] %s"
 		if v.Status > http.StatusAlreadyReported {
 			logger.Warnf(template, v.Status, v.Method, v.URI,
-				v.RoutePath, v.Latency, humanize.Bytes(rsize), alloc, v.UserAgent)
+				v.RoutePath, v.Latency, humanize.Bytes(rsize), alloc, numGoroutine, numCPU, v.UserAgent)
 			return nil
 		}
 		logger.Infof(template, v.Status, v.Method, v.URIPath,
-			v.RoutePath, v.Latency, humanize.Bytes(rsize), alloc, v.UserAgent)
+			v.RoutePath, v.Latency, humanize.Bytes(rsize), alloc, numGoroutine, numCPU, v.UserAgent)
 		return nil
 	}
 	return middleware.RequestLoggerConfig{
