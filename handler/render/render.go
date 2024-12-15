@@ -146,8 +146,14 @@ func InsertDiz(b []byte, diz []byte) []byte {
 }
 
 // Viewer returns true if the file entry should display the file download in the browser plain text viewer.
+// The result is based on the platform and section such as "text" or "textamiga" will return true.
+// If the filename is "file_id.diz" then it will return false.
 func Viewer(art *models.File) bool {
 	if art == nil {
+		return false
+	}
+	if strings.EqualFold(art.Filename.String, "file_id.diz") {
+		// avoid displaying the file_id.diz twice in the browser viewer
 		return false
 	}
 	platform := strings.ToLower(strings.TrimSpace(art.Platform.String))
