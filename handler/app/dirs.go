@@ -452,14 +452,14 @@ func (dir Dirs) thumbnails(unid string) map[string][2]string {
 }
 
 // Extras returns a map of extra assets for the file record of the artifact.
-// Up to three extra assets are returned, FILEID, README and Repacked ZIP.
+// Up to three extra assets are returned, FILE_ID, README and Repacked ZIP.
 func (dir Dirs) extras(unid string) map[string][2]string {
 	unid = strings.ToLower(unid)
 	matches := make(map[string][2]string, 3)
 	diz := filepath.Join(dir.Extra, unid+".diz")
 	if s, err := os.Stat(diz); err == nil {
 		i, _ := helper.Lines(diz)
-		matches["FILEID"] = [2]string{humanize.Comma(s.Size()), fmt.Sprintf("%d lines", i)}
+		matches["FILE_ID"] = [2]string{humanize.Comma(s.Size()), fmt.Sprintf("%d lines", i)}
 	}
 	txt := filepath.Join(dir.Extra, unid+".txt")
 	if s, err := os.Stat(txt); err == nil {
@@ -470,66 +470,6 @@ func (dir Dirs) extras(unid string) map[string][2]string {
 	if s, err := os.Stat(zip); err == nil {
 		matches["Repacked ZIP"] = [2]string{humanize.Comma(s.Size()), "Deflate compression"}
 	}
-	return matches
-}
-
-// Assets returns a list of downloads and images belonging to the file record.
-// Any errors are appended to the list.
-// The returned map contains a short description of the asset, the file size and extra information,
-// such as image dimensions or the number of lines in a text file.
-// TODO: this function is marked for removal as it is no longer used.
-func (dir Dirs) redundantAssetsFunc(nameDir, unid string) map[string][2]string {
-	const maxAssetVariants = 7 // this must match the number of "ext" switch cases
-	matches := map[string][2]string{}
-	// NOTE: In Go 1.23 the use of os.ReadDir would occasionally cause a memory leak while sorting the files.
-	// So the func has been replace with this WalkDir function.
-	err := filepath.WalkDir(nameDir, func(path string, d os.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		noExtension := filepath.Ext(d.Name()) == ""
-		notUUIDName := !strings.HasPrefix(d.Name(), unid)
-		if noExtension || notUUIDName {
-			return nil
-		}
-		st, err := d.Info()
-		if err != nil {
-			return err
-		}
-		ext := strings.ToUpper(filepath.Ext(d.Name()))
-		switch ext {
-		case ".AVIF":
-			s := "AVIF"
-			matches[s] = [2]string{humanize.Comma(st.Size()), ""}
-		case ".JPG":
-			s := "Jpeg"
-			matches[s] = simple.ImageXY(filepath.Join(nameDir, d.Name()))
-		case ".PNG":
-			s := "PNG"
-			matches[s] = simple.ImageXY(filepath.Join(nameDir, d.Name()))
-		case ".DIZ":
-			s := "FILEID"
-			i, _ := helper.Lines(filepath.Join(dir.Extra, d.Name()))
-			matches[s] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
-		case ".TXT":
-			s := "README"
-			i, _ := helper.Lines(filepath.Join(dir.Extra, d.Name()))
-			matches[s] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
-		case ".WEBP":
-			s := "WebP"
-			matches[s] = simple.ImageXY(filepath.Join(nameDir, d.Name()))
-		case ".ZIP":
-			s := "Repacked ZIP"
-			matches[s] = [2]string{humanize.Comma(st.Size()), "Deflate compression"}
-		}
-		return nil
-	})
-	if err != nil {
-		matches["error"] = [2]string{err.Error(), ""}
-		return matches
-	}
-	// matches occasionally cause issues with Go and the garbage collector.
-	// so this is an attempt to always clear the map after the function has completed.
 	return matches
 }
 
