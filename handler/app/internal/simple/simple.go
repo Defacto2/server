@@ -183,19 +183,23 @@ func ImageSampleStat(unid, previewDir string) bool {
 // The dimensions are returned as a string in the format "width x height".
 // If the file does not exist, an empty string array is returned.
 func ImageXY(name string) [2]string {
+	zero := [2]string{"0", ""}
 	switch filepath.Ext(strings.ToLower(name)) {
 	case ".jpg", ".jpeg", ".gif", ".png", ".webp":
 	default:
 		st, err := os.Stat(name)
-		if os.IsNotExist(err) {
-			return [2]string{}
+		// open /mnt/volume_sfo3_01/assets/images000/ca6cf279-3758-4e1e-8e8b-f60871e877be.jpg: no such file or directoryB
+		if errors.Is(err, os.ErrNotExist) {
+			return zero
 		} else if err != nil {
 			return [2]string{err.Error(), ""}
 		}
 		return [2]string{humanize.Comma(st.Size()), ""}
 	}
 	reader, err := os.Open(name)
-	if err != nil {
+	if errors.Is(err, os.ErrNotExist) {
+		return zero
+	} else if err != nil {
 		return [2]string{err.Error(), ""}
 	}
 	defer reader.Close()
