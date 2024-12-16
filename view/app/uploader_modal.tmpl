@@ -346,11 +346,11 @@
               </div>
               <div class="input-group mb-3">
                 <label class="form-label">Format</label>
+                <input type="hidden" value="releaseinformation" name="uploader-text-category" id="uploader-text-category" autocomplete="off">
                 <div class="btn-group w-100" role="group" aria-label="Basic radio toggle button group">
-                  <input type="hidden" value="releaseinformation" name="uploader-text-category" id="uploader-text-category" autocomplete="off">
                   <input type="radio" value="{{tagText}}" class="btn-check" name="uploader-text-operating-system" id="uploader-text-msdos" autocomplete="off" checked>
                   <label class="btn btn-outline-primary" for="uploader-text-msdos" data-bs-toggle="tooltip" data-bs-placement="top" 
-                      data-bs-title="Text written on Microsoft&nbsp;Windows, IBM&nbsp;PC or MS-DOS">PC text</label>
+                      data-bs-title="Text written on Microsoft&nbsp;Windows, IBM&nbsp;PC, or MS-DOS">PC text</label>
                   <input type="radio" value="{{tagTextAmiga}}" class="btn-check" name="uploader-text-operating-system" id="uploader-text-amiga" autocomplete="off">
                   <label class="btn btn-outline-primary" for="uploader-text-amiga" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="Text written on the Commodore&nbsp;Amiga">Amiga text</label>
@@ -364,7 +364,11 @@
                 <div class="d-none alert alert-danger mt-2" role="alert" id="uploader-text-alert"></div>
                 <progress id="uploader-text-progress" value="0" max="100"></progress>
                 <button id="uploader-text-submit" class="btn btn-success">Upload</button>     
-                <div class="col text-end">
+                <div class="col-8 form-text">
+                  <strong>Do not upload separate .NFO and .DIZ files</strong>!
+                  Keep the texts of a release in a single zip archive and upload that here.
+                </div>
+                <div class="col-4 text-end">
                   <button type="reset" id="uploader-text-reset" class="btn btn-outline-danger">Reset</button>
                   <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
