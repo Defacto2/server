@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/command"
@@ -16,7 +17,7 @@ import (
 )
 
 // Fixer is used to fix any known issues with the file assets and the database entries.
-func (c Config) Fixer() error {
+func (c Config) Fixer(d time.Time) error {
 	logger := zaplog.Timestamp().Sugar()
 	db, err := postgres.Open()
 	if err != nil {
@@ -42,6 +43,7 @@ func (c Config) Fixer() error {
 	c.repairer(ctx, db)
 	c.sanityChecks(ctx)
 	SanityTmpDir()
+	logger.Infof("Fixer completed in %.1fs", time.Since(d).Seconds())
 	return nil
 }
 

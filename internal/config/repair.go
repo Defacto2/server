@@ -51,7 +51,7 @@ func (c Config) Archives(ctx context.Context, exec boil.ContextExecutor) error {
 	if exec == nil {
 		return fmt.Errorf("config repair archives %w", ErrCE)
 	}
-	tick := time.Now()
+	d := time.Now()
 	downloadDir, logger := c.AbsDownload, helper.Logger(ctx)
 	artifacts := []string{}
 	var err error
@@ -133,7 +133,7 @@ func (c Config) Archives(ctx context.Context, exec boil.ContextExecutor) error {
 			logger.Errorf("walk directory %s: %s", err, downloadDir)
 		}
 	}
-	logger.Infof("Completed UUID archive checks in %s", time.Since(tick))
+	logger.Infof("Completed UUID archive checks in %.1fs", time.Since(d).Seconds())
 	return nil
 }
 
@@ -285,7 +285,7 @@ func (c Config) Assets(ctx context.Context, exec boil.ContextExecutor) error {
 	if exec == nil {
 		return fmt.Errorf("config repair assets %w", ErrCE)
 	}
-	tick := time.Now()
+	d := time.Now()
 	logger := helper.Logger(ctx)
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("uuid"))
@@ -338,7 +338,7 @@ func (c Config) Assets(ctx context.Context, exec boil.ContextExecutor) error {
 	for _, count := range counters {
 		sum += count
 	}
-	logger.Infof("Checked %d files for %d UUIDs in %s", sum, size, time.Since(tick))
+	logger.Infof("Checked %d files for %d UUIDs in %.1fs", sum, size, time.Since(d).Seconds())
 	return nil
 }
 
@@ -384,6 +384,53 @@ func (c Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor) err
 	}
 	if err := c.MagicNumbers(ctx, exec, logger); err != nil {
 		return fmt.Errorf("repair magics %w", err)
+	}
+	if err := c.TextFiles(ctx, exec, logger); err != nil {
+		return fmt.Errorf("repair textfiles %w", err)
+	}
+	return nil
+}
+
+// TextFiles, on startup check the extra directory for any readme text files that are duplicates of the diz text files.
+func (c Config) TextFiles(ctx context.Context, exec boil.ContextExecutor, logger *zap.SugaredLogger) error {
+	if exec == nil {
+		return fmt.Errorf("config %w", ErrCE)
+	}
+	uuids, err := model.UUID(ctx, exec)
+	if err != nil {
+		return fmt.Errorf("config %w", err)
+	}
+	dizes := 0
+	for _, v := range uuids {
+		name := filepath.Join(c.AbsExtra, v.UUID.String)
+		diz := name + ".diz"
+		txt := name + ".txt"
+		filed, err := os.Stat(diz)
+		if err != nil || filed.Size() == 0 {
+			continue
+		}
+		filet, err := os.Stat(txt)
+		if err != nil || filet.Size() == 0 {
+			continue
+		}
+		if filed.Size() != filet.Size() {
+			continue
+		}
+		dizSI, err := helper.StrongIntegrity(diz)
+		if err != nil {
+			continue
+		}
+		txtSI, err := helper.StrongIntegrity(txt)
+		if err != nil {
+			continue
+		}
+		if dizSI == txtSI {
+			dizes++
+			_ = os.Remove(txt)
+		}
+	}
+	if dizes > 0 {
+		logger.Infof("Found and removed %d readme text files that are duplicates of the diz text files", dizes)
 	}
 	return nil
 }

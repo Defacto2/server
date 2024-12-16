@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/server/internal/config"
 	"github.com/carlmjohnson/versioninfo"
@@ -66,7 +67,8 @@ func Fix(c *config.Config) *cli.Command {
 		Usage:       "fix the database and assets",
 		Description: "Fix the database entries and file assets by running scans and checks.",
 		Action: func(_ *cli.Context) error {
-			if err := c.Fixer(); err != nil {
+			d := time.Now()
+			if err := c.Fixer(d); err != nil {
 				return fmt.Errorf("command fix: %w", err)
 			}
 			return nil

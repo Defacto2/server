@@ -2,6 +2,7 @@
 package model
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"path/filepath"
@@ -13,6 +14,7 @@ import (
 	"github.com/Defacto2/server/model/html3"
 	"github.com/subpop/go-ini"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 var (
@@ -157,4 +159,12 @@ func JsDosConfig(f *models.File) (string, error) {
 // invalidExec returns true if the database context executor is invalid such as nil.
 func invalidExec(exec boil.ContextExecutor) bool {
 	return html3.InvalidExec(exec)
+}
+
+// UUID returns a slice of all the UUIDs in the database.
+func UUID(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, error) {
+	if invalidExec(exec) {
+		return nil, ErrDB
+	}
+	return models.Files(qm.Select("uuid")).All(ctx, exec)
 }
