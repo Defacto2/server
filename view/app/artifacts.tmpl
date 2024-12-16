@@ -3,6 +3,7 @@
     see the artifact.tmpl for the single artifact page template.
 */ -}}
 {{- define "content" }}
+{{- $counter := 0}}
 {{- $files := index .stats.files }}
 {{- $years := index .stats.years}}
 {{- $cnt := len .records}}
@@ -44,6 +45,7 @@
 <div class="row justify-content-md-center {{$rowCols}} g-4 mt-1">
   {{- /*  Begin the iteration of the records  */}}
   {{- range .records }}
+  {{- if eq true $editor}}{{- $counter = add $counter}}{{end}}
   {{- $jsdos := jsdosUsage .Filename.String .Platform.String}}
   {{- $filename := .Filename.String}}
   {{- if eq $filename ""}}{{$filename = "no filename provided"}}{{end}}
@@ -72,7 +74,7 @@
   <div class="col">
     <div class="card {{$cardClass}}">
       <div class="card-header text-body-secondary text-center">
-        <code class="h6">{{$filename}}</code>
+        <code class="h6">{{if gt $counter 0}}{{$counter}} {{end}}{{$filename}}</code>
       </div>
       {{- if eq $editor true}}{{ template "artifactsedit" . }}{{end}}
       <div class="card-body">
