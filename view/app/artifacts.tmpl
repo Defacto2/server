@@ -13,6 +13,8 @@
 {{- $linkZoo := ne $zoo "0"}}
 {{- $sixteen := index .sixteen }}
 {{- $link16C := ne $sixteen ""}}
+{{- $tidbit := index .tidbits}}
+{{- $linkTidbit := gt (len $tidbit) 0}}
 {{- $scener := index .scener }}
 {{- $noYears := false}}
 {{- $unYears := index .unknownYears }}
@@ -20,6 +22,9 @@
 {{- $group := hasSuffix (index .title) " artifacts"}}
 {{- if eq $cnt 0}}<p class="text-start lead"><small>There are no artifacts to display.</small></p>{{else -}}
 <p class="text-start lead"><small>There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}}{{if ne $years "0 - 0"}} from {{$years | safeHTML}}{{end}}.</small></p>
+{{- end}}
+{{- if $linkTidbit}}
+<p class="lead"><small><small>Additional information</small><br>{{$tidbit}}<br>{{index .tidbitL}}</small></p>
 {{- end}}
 {{- if or $linkZoo $link16C $linkWeb}}
 <p class="text-start text-sm-center text-md-end lead">

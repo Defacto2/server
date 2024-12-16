@@ -25,6 +25,7 @@ import (
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/handler/site"
 	"github.com/Defacto2/server/handler/sixteen"
+	"github.com/Defacto2/server/handler/tidbit"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -1272,6 +1273,9 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 	data["demozoo"] = strconv.Itoa(int(demozoo.Find(uri)))
 	data["sixteen"] = sixteen.Find(uri)
 	data["website"] = site.Find(uri)
+	tidbits := tidbit.Find(uri)
+	data["tidbits"] = tidbits.String()
+	data["tidbitL"] = tidbits.URL(uri)
 	data["uploader-releaser-index"] = releaser.Index(uri)
 	data[records] = fs
 	switch uri {
