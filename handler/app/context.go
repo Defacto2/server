@@ -1787,6 +1787,7 @@ func emptyFiles(c echo.Context) map[string]interface{} {
 	data["demozoo"] = "0"
 	data["sixteen"] = ""
 	data["scener"] = ""
+	data["tidbits"] = ""
 	data["website"] = ""
 	data["unknownYears"] = true
 	return data
