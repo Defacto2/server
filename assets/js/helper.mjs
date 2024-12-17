@@ -100,6 +100,8 @@ export function titleize(text) {
     "to",
     "update",
     "updates",
+    "unprotect",
+    "unprotects",
     "vs",
     "with",
   ];
@@ -233,6 +235,10 @@ export function titleize(text) {
   text = text.replace(/(Lotus 123)/g, "Lotus 1-2-3");
   text = text.replace(/(Falcon at )/g, "Falcon AT ");
   text = text.replace(/(the Games)/g, "The Games");
+  // Move "Unprotect for" to the suffix if it is the prefix
+  text = text.replace(/^(Unprotect for )(.+)/, "$2 unprotect");
+  text = text.replace(/^(Unprotecting )(.+)/, "$2 unprotect");
+  text = text.replace(/^(Unprotect )(.+)/, "$2 unprotect");
   // replace formatting quirks
   text = text.replace(/( : a)/g, " : A");
   text = text.replace(/( - a)/g, " - A");
@@ -251,6 +257,7 @@ export function titleize(text) {
   text = text.replace(/\[([^)]+)\]/g, function (match) {
     return match.toUpperCase();
   });
+
   return text;
 }
 
