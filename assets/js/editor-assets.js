@@ -99,7 +99,15 @@ import { getElmById } from "./helper.mjs";
     const emulateEditor = "F11";
     const deleteEditor = "Delete";
     const closeEditors = "F12";
+    const approveRecord = "ArrowDown";
+    let approve = document.getElementById("editor-online-true");
     switch (event.key) {
+      case approveRecord:
+        if (approve) {
+          event.preventDefault();
+          approve.click();
+        }
+        break;
       case refresher:
         event.preventDefault();
         location.reload();
