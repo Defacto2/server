@@ -162,6 +162,7 @@ export function titleize(text) {
     "sfx",
     "spa",
     "tv",
+    "ufo",
     "usa",
     "ushq",
     "uss",

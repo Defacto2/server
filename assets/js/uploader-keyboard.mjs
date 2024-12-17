@@ -33,6 +33,7 @@ const advancedModal = focusModalById(
 );
 
 const bs = "Backspace",
+  enter = "Enter",
   demozoo = "d",
   pouet = "p",
   intro = "i",
@@ -57,6 +58,7 @@ export function keyboardShortcuts() {
     if (!event.ctrlKey || !event.altKey) {
       return;
     }
+    const gotoRecord = document.getElementById("go-to-the-new-artifact-record");
     switch (event.key) {
       case bs:
         event.preventDefault();
@@ -68,6 +70,12 @@ export function keyboardShortcuts() {
         graphicModal.hide();
         magazineModal.hide();
         advancedModal.hide();
+        break;
+      case enter:
+        event.preventDefault();
+        if (gotoRecord) {
+          gotoRecord.click();
+        }
         break;
       case demozoo:
         demozooModal.show();

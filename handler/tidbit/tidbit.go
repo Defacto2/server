@@ -74,6 +74,7 @@ var groups = Tibits{
 	16: []URI{"c-ampersand-m", "boys-from-company-c"},
 	17: []URI{"canadian-pirates-inc", "ptl-club"},
 	18: []URI{"canadian-pirates-inc", "kgb", "ptl-club"},
+	19: []URI{"ptl-club", "sprint", "the-underground-council", "byte-bandits-bbs", "triad"},
 }
 
 var tidbits = Tidbit{
@@ -103,6 +104,7 @@ var tidbits = Tidbit{
 	16: "There is no information on C&M other than the credited cracker and CGA artist Zanna Martin would join BCC at the end of 1987.",
 	17: "Canadian Pirates Inc were an early Ontario, Canada group that was active in the 1980s and often collaborated with PTL Club before eventually merging.",
 	18: "According to the Church Chat Volume 4 text file, KGB was was an offshoot group formed by the merger of Canadian Pirates Inc and PTL Club but soon faded away.",
+	19: "In November 1989, a number of groups including PTL Club, $print, The Underground Council, and the Byte Bandits merged and became Traid.",
 }
 
 // Find returns the tidbit IDs for the given URI.
