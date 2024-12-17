@@ -682,4 +682,5 @@ var groups = Groups{
 	"visions-of-reality":                    86454,
 	"vortex-software":                       146440,
 	"xerox":                                 59161,
+	"chicago-bbs":                           12584,
 }

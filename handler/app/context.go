@@ -1282,6 +1282,9 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 		htm += fmt.Sprintf(`<li class="list-group-item">%s<br>%s</li>`, v.String(), v.URL(uri))
 	}
 	data["tidbits"] = template.HTML(htm)
+	if strings.HasSuffix(uri, "-bbs") {
+		data["bbs"] = true
+	}
 	data["uploader-releaser-index"] = releaser.Index(uri)
 	data[records] = fs
 	switch uri {
@@ -1291,6 +1294,9 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 			`<br><small class="fw-lighter">In the scene's early years,` +
 			` releasing documents or software cracks under a personal alias or a` +
 			` real-name attribution was commonplace.</small>`
+	case "none":
+		data["lead"] = "None, are files which were never intended for the scene." +
+			`<br><small class="fw-lighter">These can include commercial or free software applications or online texts for public forums.</small>`
 	default:
 		// placeholder to handle other releaser types
 	}
@@ -1784,6 +1790,7 @@ func steps(lastPage float64) int {
 // emptyFiles is a map of default values specific to the files templates.
 func emptyFiles(c echo.Context) map[string]interface{} {
 	data := empty(c)
+	data["bbs"] = false
 	data["demozoo"] = "0"
 	data["sixteen"] = ""
 	data["scener"] = ""

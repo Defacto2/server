@@ -10,6 +10,7 @@
 {{- $web := index .website }}
 {{- $linkWeb := gt (len $web) 0}}
 {{- $zoo := index .demozoo }}
+{{- $bbs := index .bbs }}
 {{- $linkZoo := ne $zoo "0"}}
 {{- $sixteen := index .sixteen }}
 {{- $link16C := ne $sixteen ""}}
@@ -29,8 +30,10 @@
 {{- end}}
 {{- if or $linkZoo $link16C $linkWeb}}
 <p class="text-start text-sm-center text-md-end lead">
-  {{- if $linkZoo}}
-  <small><small>Production and member lists</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://demozoo.org/groups/{{$zoo}}/"><strong>Demozoo</strong>{{linkSVG}}</a></small><br>
+  {{-  if and (eq $bbs false) (eq $linkZoo true)}}
+  <small><small>Production and member lists</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://demozoo.org/groups{/{{$zoo}}/"><strong>Demozoo</strong>{{linkSVG}}</a></small><br>
+  {{- else if and (eq $bbs true) (eq $linkZoo true)}}
+  <small><small>Staff, numbers, and affiliations</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://demozoo.org/bbs/{{$zoo}}/"><strong>Demozoo</strong>{{linkSVG}}</a></small><br>
   {{- end}}
   {{- if $link16C}}
   <small><small>ANSI and text artworks</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://16colo.rs/{{$sixteen}}"><strong>16colors</strong>{{linkSVG}}</a></small><br>
