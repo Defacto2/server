@@ -8,8 +8,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"html/template"
 	"math"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -1274,8 +1276,12 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 	data["sixteen"] = sixteen.Find(uri)
 	data["website"] = site.Find(uri)
 	tidbits := tidbit.Find(uri)
-	data["tidbits"] = tidbits.String()
-	data["tidbitL"] = tidbits.URL(uri)
+	slices.Sort(tidbits)
+	htm := ""
+	for _, v := range tidbits {
+		htm += fmt.Sprintf(`<li class="list-group-item">%s<br>%s</li>`, v.String(), v.URL(uri))
+	}
+	data["tidbits"] = template.HTML(htm)
 	data["uploader-releaser-index"] = releaser.Index(uri)
 	data[records] = fs
 	switch uri {

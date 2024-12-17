@@ -24,7 +24,8 @@
 <p class="text-start lead"><small>There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}}{{if ne $years "0 - 0"}} from {{$years | safeHTML}}{{end}}.</small></p>
 {{- end}}
 {{- if $linkTidbit}}
-<p class="lead"><small><small>Additional information</small><br>{{$tidbit}}<br>{{index .tidbitL}}</small></p>
+  <small class="fw-light">Additional information</small>
+  <ul class="list-group list-group-flush">{{$tidbit}}</ul>
 {{- end}}
 {{- if or $linkZoo $link16C $linkWeb}}
 <p class="text-start text-sm-center text-md-end lead">
