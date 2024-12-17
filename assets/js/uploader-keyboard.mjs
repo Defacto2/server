@@ -32,7 +32,8 @@ const advancedModal = focusModalById(
   "uploader-advanced-file"
 );
 
-const demozoo = "d",
+const bs = "Backspace",
+  demozoo = "d",
   pouet = "p",
   intro = "i",
   trainer = "t",
@@ -46,6 +47,10 @@ const demozoo = "d",
 
 /**
  * Binds keyboard shortcuts to specific actions.
+ *
+ * Key values for keyboard events:
+ * https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values
+ *
  */
 export function keyboardShortcuts() {
   document.addEventListener("keydown", function (event) {
@@ -53,6 +58,17 @@ export function keyboardShortcuts() {
       return;
     }
     switch (event.key) {
+      case bs:
+        event.preventDefault();
+        demozooModal.hide();
+        pouetModal.hide();
+        introModal.hide();
+        trainerModal.hide();
+        textModal.hide();
+        graphicModal.hide();
+        magazineModal.hide();
+        advancedModal.hide();
+        break;
       case demozoo:
         demozooModal.show();
         break;

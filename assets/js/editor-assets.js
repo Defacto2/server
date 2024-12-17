@@ -59,11 +59,17 @@ import { getElmById } from "./helper.mjs";
     console.error(`the emulate editor modal is missing`);
     return;
   }
+  const deleteEditor = document.getElementById("artifact-delete-forever-modal");
+  if (deleteEditor == null) {
+    console.error(`the delete editor modal is missing`);
+    return;
+  }
 
   // Automatically open the editor modals based on the URL hash.
   const dataModal = new bootstrap.Modal(dataEditor);
   const assetModal = new bootstrap.Modal(assetEditor);
   const emulateModal = new bootstrap.Modal(jsdosEditor);
+  const deleteModal = new bootstrap.Modal(deleteEditor);
   const parsedUrl = new URL(window.location.href);
   switch (parsedUrl.hash) {
     case `#data-editor`:
@@ -81,6 +87,60 @@ import { getElmById } from "./helper.mjs";
     default:
     // note, the #runapp hash is used by js-dos
   }
+
+  // Keyboard shortcuts for the editor modals.
+  document.addEventListener("keydown", function (event) {
+    if (!event.altKey || !event.shiftKey) {
+      return;
+    }
+    const refresher = "Enter";
+    const dataEditor = "F9";
+    const assetEditor = "F10";
+    const emulateEditor = "F11";
+    const deleteEditor = "Delete";
+    const closeEditors = "F12";
+    switch (event.key) {
+      case refresher:
+        event.preventDefault();
+        location.reload();
+        break;
+      case dataEditor:
+        event.preventDefault();
+        assetModal.hide();
+        emulateModal.hide();
+        deleteModal.hide();
+        dataModal.show();
+        break;
+      case assetEditor:
+        event.preventDefault();
+        dataModal.hide();
+        emulateModal.hide();
+        deleteModal.hide();
+        assetModal.show();
+        break;
+      case emulateEditor:
+        event.preventDefault();
+        dataModal.hide();
+        assetModal.hide();
+        deleteModal.hide();
+        emulateModal.show();
+        break;
+      case deleteEditor:
+        event.preventDefault();
+        dataModal.hide();
+        assetModal.hide();
+        emulateModal.hide();
+        deleteModal.show();
+        break;
+      case closeEditors:
+        event.preventDefault();
+        dataModal.hide();
+        assetModal.hide();
+        emulateModal.hide();
+        deleteModal.hide();
+        break;
+    }
+  });
 
   // New file download form event listener.
   document.body.addEventListener("htmx:afterRequest", function (event) {
