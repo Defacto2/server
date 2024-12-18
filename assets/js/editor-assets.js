@@ -94,12 +94,12 @@ import { getElmById } from "./helper.mjs";
       return;
     }
     const refresher = "Enter";
-    const dataEditor = "F9";
-    const assetEditor = "F10";
-    const emulateEditor = "F11";
+    const dataEditor = "Home";
+    const assetEditor = "PageDown";
+    const emulateEditor = "PageUp";
     const deleteEditor = "Delete";
-    const closeEditors = "F12";
-    const approveRecord = "ArrowDown";
+    const closeEditors = "Backspace";
+    const approveRecord = "ArrowUp";
     let approve = document.getElementById("editor-online-true");
     switch (event.key) {
       case approveRecord:

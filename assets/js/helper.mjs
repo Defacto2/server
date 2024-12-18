@@ -175,9 +175,6 @@ export function titleize(text) {
     "xp",
     "ys",
   ];
-
-  // TODO: replace trailing full stops
-
   text = text.trim();
   // Replace all underscores with spaces
   text = text.replace(/_/g, " ");
