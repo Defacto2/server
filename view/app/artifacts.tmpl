@@ -31,7 +31,7 @@
 {{- if or $linkZoo $link16C $linkWeb}}
 <p class="text-start text-sm-center text-md-end lead">
   {{-  if and (eq $bbs false) (eq $linkZoo true)}}
-  <small><small>Production and member lists</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://demozoo.org/groups{/{{$zoo}}/"><strong>Demozoo</strong>{{linkSVG}}</a></small><br>
+  <small><small>Production and member lists</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://demozoo.org/groups/{{$zoo}}/"><strong>Demozoo</strong>{{linkSVG}}</a></small><br>
   {{- else if and (eq $bbs true) (eq $linkZoo true)}}
   <small><small>Staff, numbers, and affiliations</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://demozoo.org/bbs/{{$zoo}}/"><strong>Demozoo</strong>{{linkSVG}}</a></small><br>
   {{- end}}
