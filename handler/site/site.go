@@ -326,6 +326,12 @@ func groups() Groups {
 				NotWorking: true,
 			},
 		},
+		"the-humble-guys": []Website{
+			{
+				URL:  "fabulousfurlough.blogspot.com/",
+				Name: "Fabulous Furlough's - My Life Behind The Patch",
+			},
+		},
 		"tristar-ampersand-red-sector-inc": []Website{
 			{
 				URL:        "www.trsi.de",
@@ -359,11 +365,23 @@ func groups() Groups {
 				NotWorking: true,
 			},
 		},
+		"ultra-force": []Website{
+			{
+				URL:  "ultraforce.com/en/demogroup.html",
+				Name: "Ultra Force",
+			},
+		},
 		"x_pression-design": []Website{
 			{
 				URL:        "www.xpression.org",
 				Name:       "X-Pression Design",
 				NotWorking: true,
+			},
+		},
+		"pirates-cove": []Website{
+			{
+				URL:  "phrack.org",
+				Name: "Phrack Magazine",
 			},
 		},
 	}

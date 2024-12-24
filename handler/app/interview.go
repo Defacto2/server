@@ -50,6 +50,12 @@ func Interviewees() Groups {
 					Content: "The former member of The Humble Guys talks about his side group, \"Lamers of Power\".",
 					Link:    "/f/ae2f55",
 				},
+				{
+					Scener: "The Candy Man",
+					Year:   1998, Month: 11,
+					Content: "The co-founder of The Humble Guys talks about the group's history and their impact on the PC.",
+					Link:    "https://wayback.defacto2.net/the-scene-news-from-1999-september-14/interview-002.html",
+				},
 			},
 		},
 		{
