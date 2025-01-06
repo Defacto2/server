@@ -217,6 +217,7 @@ func RecordImagesDeleter(c echo.Context, dirs ...string) error {
 func RecordDizDeleter(c echo.Context, extraDir string) error {
 	unid := c.Param("unid")
 	dst := filepath.Join(extraDir, unid+".diz")
+	dst = filepath.Clean(dst)
 	st, err := os.Stat(dst)
 	if err != nil {
 		return badRequest(c, err)
@@ -234,6 +235,7 @@ func RecordDizDeleter(c echo.Context, extraDir string) error {
 func RecordReadmeDeleter(c echo.Context, extraDir string) error {
 	unid := c.Param("unid")
 	dst := filepath.Join(extraDir, unid+".txt")
+	dst = filepath.Clean(dst)
 	st, err := os.Stat(dst)
 	if err != nil {
 		return badRequest(c, err)
