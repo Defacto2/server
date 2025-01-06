@@ -602,7 +602,7 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
   youtube.addEventListener("paste", () => {
     setTimeout(() => {
       youtube.value = youtube.value.replace(
-        /https?:\/\/www.youtube.com\/watch\?v=/,
+        /https?:\/\/www\.youtube\.com\/watch\?v=/,
         ""
       );
     }, 0);
@@ -615,14 +615,14 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
   // on paste event for websites remove the https://16colo.rs/ URL
   colors16.addEventListener("paste", () => {
     setTimeout(() => {
-      colors16.value = colors16.value.replace(/https?:\/\/16colo.rs\//, "");
+      colors16.value = colors16.value.replace(/https?:\/\/16colo\.rs\//, "");
     }, 0);
   });
   colors16.addEventListener("input", (e) => validate16color(e.target));
   // on paste event for github remove the https://github.com/ URL
   github.addEventListener("paste", () => {
     setTimeout(() => {
-      github.value = github.value.replace(/https?:\/\/github.com\//, "");
+      github.value = github.value.replace(/https?:\/\/github\.com\//, "");
     }, 0);
   });
   github.addEventListener("input", (e) => validateGitHub(e.target));
