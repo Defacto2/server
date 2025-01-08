@@ -83,11 +83,15 @@ var groups = Tibits{
 	25: []URI{"future-crew"},
 	26: []URI{"international-network-of-crackers"},
 	28: []URI{"the-firm", "mutual-assured-destruction", "public-enemy"},
-	27: []URI{"the-firm", "swat", "national-underground-application-alliance"},
+	27: []URI{"the-firm", "swat", "national-underground-application-alliance", "fairlight"},
 	29: []URI{"international-network-of-crackers", "triad"},
 	30: []URI{"cmen"},
 	31: []URI{"erkle"},
 	32: []URI{"extasy", "xerox", "fairlight"},
+	33: []URI{"norwegian-cracking-company", "international-network-of-crackers", "the-humble-guys"},
+	34: []URI{"scd_dox", "software-chronicles-digest"},
+	35: []URI{"software-chronicles-digest"},
+	36: []URI{"the-humble-guys"},
 }
 
 var tidbits = Tidbit{
@@ -132,13 +136,21 @@ var tidbits = Tidbit{
 	24: "Fairlight PC only released games published on floppy disks. The group faded away the mid-1990s as the game industry moved exclusively to CD ROM, and piracy to CD RIPs. It wasn't until November 1998 that Fairlight returned as one of the earlier ISO groups releasing complete CD images of games. In the 2000s the Fairlight brand went in two unrelated directions, with a demoscene component seeing great success in that community that weirdly, was juxtaposed with a now criminal piracy group that was getting unwanted attention due to the rise of BitTorrent and sites like The Pirate Bay.",
 	25: "Future Crew was the most famous demoscene group on the PC in the 1990s. The PC was primarily a business platform and games or multimedia were always secondary. But early demos by the Future Crew helped to change the mindset some, that the PC wasn't only for productivity and would become the platform of the future for general computing, gaming and multimedia." +
 		"<br>The founding information on the Future Crew has been muddled over the years by incorrect and conflicting dates put out by the group themselves in different documents. Their first release, <strong>GR8</strong> came out in July 1989 and their second <strong>Yo!</strong> sometime in 1990.",
-	26: "The first CD RIP was probably created by INC with their March 1992 release of Battle Chess Multimedia. Though the packaging of the release was so jank that Fairlight felt the need to create their own custom fix to simplify the install process.",
-	27: "CyberChrist of SWAT briefly stole the FiRM brand in October 1993 for use as a game release group, while NUAA was to be used for productivity and utility software.",
+	26: "The first CD RIP was probably created by INC with their March 1992 release of " +
+		`<a href="/f/aa209be">Battle Chess Multimedia</a>.` +
+		" Though the packaging of the release was so jank that Fairlight felt the need to create their " +
+		`<a href="/f/a91e0ae">own custom fix</a> to simplify the install process.`,
+	27: "CyberChrist of SWAT briefly stole the FiRM brand in October 1993 for use as a game release group, while NUAA was to be used for productivity and utility software. " +
+		"This was short-lived and a week later the game group became the USA based division of Fairlight PC.",
 	28: "In August 1994, Public Enemy and MAD join under the unauthorised name of The FiRM, though this only lasted a few months.",
-	29: `TRIAD went quiet in early 1990 but with some key members <a href="/f/a9229aa">quietly turning up in INC</a>.`,
+	29: `TRIAD went quiet in early 1990 but with some key members <a href="/f/a9229aa">turning up in INC</a>.`,
 	30: "CMEN was a parody group that pretended to be Australian, but was run out of the Midnite Oil BBS in 214 (Dallas).",
 	31: "According to BAD News #7, ERKle was a brief, pretend group created by The Pieman of The Humble Guys.",
 	32: "Xerox was a German release group that rebranded as Extasy before merging with Fairlight.",
+	33: "NCC would focus in Europe and collaborate with US groups for cracked software exchanges, first with INC, and eventually with The Humble Guys. ",
+	34: "SCD-DoX was a shortlived documentation group created by the Software Chronicles Digest Magazine.",
+	35: "For its first 5 issues, SCD stood for Southern Califoria Distribution and was part of a larger regional release group.",
+	36: "According to a published retirement letter, The Humble Guys were founded on the 22 Jan 1990 and became the source of the first use of the _.nfo_ file extension. ",
 }
 
 // Find returns the tidbit IDs for the given URI.
