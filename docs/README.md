@@ -1,4 +1,4 @@
-# Defacto2, <small>web application server</small>
+# Defacto2, <small>website software</small>
 
 [![Go Reference](server.svg)](https://pkg.go.dev/github.com/Defacto2/server)
 [![License](license.svg)](../LICENSE)
@@ -13,7 +13,7 @@
       │                                                                 :
 ```
 
-The Defacto2 application is a self-contained web server first devised in 2023.
+The Defacto2 website is a self-contained application first devised in 2023.
 It is built with the Go language and can be easily compiled for significant server operating systems.
 The application relies on a [PostgreSQL](https://www.postgresql.org/) database setup for data queries using a PostgreSQL [database connection](https://www.postgresql.org/docs/current/ecpg-sql-connect.html).
 
@@ -75,12 +75,12 @@ There are examples of the environment variables in the [example .env](../init/ex
 
 ## Source code
 
-The source code requires a local [installation of Go](https://go.dev/doc/install) version 1.22 or newer. 
+The source code requires a local [installation](https://go.dev/doc/install) of [Go version 1.x](https://github.com/Defacto2/server/blob/main/go.mod).
 
 ```sh
 $ go version
 
-> go version go1.22.6 linux/amd64
+> go version go1.23.4 linux/amd64
 ```
 
 > [!IMPORTANT]
@@ -327,7 +327,7 @@ task doc
 ```
 
 ```go
-// Copyright © 2023-2024 Ben Garrett. All rights reserved.
+// Copyright © 2023-2025 Ben Garrett. All rights reserved.
 
 /*
 
