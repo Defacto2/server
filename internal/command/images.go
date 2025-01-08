@@ -311,6 +311,8 @@ func (dir Dirs) PictureImager(debug *zap.SugaredLogger, src, unid string) error 
 // can be used by the ANSILOVE command to create a PNG image. 80 columns and 29 rows are
 // works well with a 400x400 pixel thumbnail.
 func TextCrop(src, dst string) error {
+	src = filepath.Clean(src)
+	dst = filepath.Clean(dst)
 	srcFile, err := os.Open(src)
 	if err != nil {
 		return fmt.Errorf("text crop open %w", err)
@@ -367,6 +369,7 @@ func TextCrop(src, dst string) error {
 }
 
 func textCropper(src, unid string) (string, error) {
+	src = filepath.Clean(src)
 	path, err := helper.MkContent(src + "-textimager")
 	if err != nil {
 		return "", fmt.Errorf("make content %w", err)
@@ -401,6 +404,7 @@ func (dir Dirs) TextImager(debug *zap.SugaredLogger, src, unid string, amigaFont
 }
 
 func (dir Dirs) textDOSImager(debug *zap.SugaredLogger, src, unid string) error {
+	src = filepath.Clean(src)
 	args := Args{}
 	args.AnsiMsDos()
 	srcPath, err := textCropper(src, unid)

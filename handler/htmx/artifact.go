@@ -80,9 +80,7 @@ func RecordImageCopier(c echo.Context, debug *zap.SugaredLogger, dirs command.Di
 	if err != nil {
 		return badRequest(c, err)
 	}
-	if strings.Contains(name, "/") || strings.Contains(name, "\\") || strings.Contains(name, "..") {
-		return badRequest(c, ErrName)
-	}
+	name = filepath.Clean(name)
 	unid := c.Param("unid")
 	tmp, err := helper.MkContent(unid)
 	if err != nil {
@@ -110,6 +108,7 @@ func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, amigaFont boo
 	if err != nil {
 		return badRequest(c, err)
 	}
+	name = filepath.Clean(name)
 	unid := c.Param("unid")
 	tmp, err := helper.MkContent(unid)
 	if err != nil {
@@ -137,6 +136,7 @@ func RecordDizCopier(c echo.Context, dirs command.Dirs) error {
 	if err != nil {
 		return badRequest(c, err)
 	}
+	name = filepath.Clean(name)
 	unid := c.Param("unid")
 	tmp, err := helper.MkContent(unid)
 	if err != nil {
@@ -165,6 +165,7 @@ func RecordReadmeCopier(c echo.Context, dirs command.Dirs) error {
 	if err != nil {
 		return badRequest(c, err)
 	}
+	name = filepath.Clean(name)
 	unid := c.Param("unid")
 	tmp, err := helper.MkContent(unid)
 	if err != nil {
@@ -216,6 +217,7 @@ func RecordImagesDeleter(c echo.Context, dirs ...string) error {
 func RecordDizDeleter(c echo.Context, extraDir string) error {
 	unid := c.Param("unid")
 	dst := filepath.Join(extraDir, unid+".diz")
+	dst = filepath.Clean(dst)
 	st, err := os.Stat(dst)
 	if err != nil {
 		return badRequest(c, err)
@@ -233,6 +235,7 @@ func RecordDizDeleter(c echo.Context, extraDir string) error {
 func RecordReadmeDeleter(c echo.Context, extraDir string) error {
 	unid := c.Param("unid")
 	dst := filepath.Join(extraDir, unid+".txt")
+	dst = filepath.Clean(dst)
 	st, err := os.Stat(dst)
 	if err != nil {
 		return badRequest(c, err)
