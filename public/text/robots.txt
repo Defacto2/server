@@ -18,6 +18,8 @@ User-agent: *
 Allow: /
 Disallow: /d/
 Disallow: /v/
+Disallow: /jsdos/
+Disallow: /sum/
 Disallow: /wayback/
 Disallow: /file/data-json/
 Disallow: /file/feed-atom/
