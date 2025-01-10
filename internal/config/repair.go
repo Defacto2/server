@@ -405,15 +405,15 @@ func (c Config) TextFiles(ctx context.Context, exec boil.ContextExecutor, logger
 		name := filepath.Join(c.AbsExtra, v.UUID.String)
 		diz := name + ".diz"
 		txt := name + ".txt"
-		filed, err := os.Stat(diz)
-		if err != nil || filed.Size() == 0 {
+		dizF, err := os.Stat(diz)
+		if err != nil || dizF.Size() == 0 {
 			continue
 		}
-		filet, err := os.Stat(txt)
-		if err != nil || filet.Size() == 0 {
+		txtF, err := os.Stat(txt)
+		if err != nil || txtF.Size() == 0 {
 			continue
 		}
-		if filed.Size() != filet.Size() {
+		if dizF.Size() != txtF.Size() {
 			continue
 		}
 		dizSI, err := helper.StrongIntegrity(diz)
@@ -426,7 +426,7 @@ func (c Config) TextFiles(ctx context.Context, exec boil.ContextExecutor, logger
 		}
 		if dizSI == txtSI {
 			dizes++
-			_ = os.Remove(txt)
+			_ = os.Remove(diz) // generally the diz file is the bad duplicate
 		}
 	}
 	if dizes > 0 {
