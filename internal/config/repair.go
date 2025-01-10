@@ -426,11 +426,16 @@ func (c Config) TextFiles(ctx context.Context, exec boil.ContextExecutor, logger
 		}
 		if dizSI == txtSI {
 			dizes++
-			_ = os.Remove(diz) // generally the diz file is the bad duplicate
+			// generally the diz file is the bad duplicate
+			if err = os.Remove(diz); err != nil {
+				logger.Errorf("Could not remove duplicate diz file: %s", diz)
+				continue
+			}
+			logger.Infoln("Removed duplicate diz file:", diz)
 		}
 	}
 	if dizes > 0 {
-		logger.Infof("Found and removed %d readme text files that are duplicates of the diz text files", dizes)
+		logger.Infof("Found %d diz text files that are duplicates of the readme texts", dizes)
 	}
 	return nil
 }
