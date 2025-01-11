@@ -92,6 +92,8 @@ type File struct {
 	Deletedby null.String `boil:"deletedby" json:"deletedby,omitempty" toml:"deletedby" yaml:"deletedby,omitempty"`
 	// Text file contained in archive to display
 	RetrotxtReadme null.String `boil:"retrotxt_readme" json:"retrotxt_readme,omitempty" toml:"retrotxt_readme" yaml:"retrotxt_readme,omitempty"`
+	// Disable the use of RetroTxt
+	RetrotxtNoReadme null.Int16 `boil:"retrotxt_no_readme" json:"retrotxt_no_readme,omitempty" toml:"retrotxt_no_readme" yaml:"retrotxt_no_readme,omitempty"`
 	// Program contained in archive to run in DOSBox
 	DoseeRunProgram null.String `boil:"dosee_run_program" json:"dosee_run_program,omitempty" toml:"dosee_run_program" yaml:"dosee_run_program,omitempty"`
 	// DOSee turn off expanded memory (EMS)
@@ -150,6 +152,7 @@ var FileColumns = struct {
 	Deletedat            string
 	Deletedby            string
 	RetrotxtReadme       string
+	RetrotxtNoReadme     string
 	DoseeRunProgram      string
 	DoseeHardwareCPU     string
 	DoseeHardwareGraphic string
@@ -194,6 +197,7 @@ var FileColumns = struct {
 	Deletedat:            "deletedat",
 	Deletedby:            "deletedby",
 	RetrotxtReadme:       "retrotxt_readme",
+	RetrotxtNoReadme:     "retrotxt_no_readme",
 	DoseeRunProgram:      "dosee_run_program",
 	DoseeHardwareCPU:     "dosee_hardware_cpu",
 	DoseeHardwareGraphic: "dosee_hardware_graphic",
@@ -240,6 +244,7 @@ var FileTableColumns = struct {
 	Deletedat            string
 	Deletedby            string
 	RetrotxtReadme       string
+	RetrotxtNoReadme     string
 	DoseeRunProgram      string
 	DoseeHardwareCPU     string
 	DoseeHardwareGraphic string
@@ -284,6 +289,7 @@ var FileTableColumns = struct {
 	Deletedat:            "files.deletedat",
 	Deletedby:            "files.deletedby",
 	RetrotxtReadme:       "files.retrotxt_readme",
+	RetrotxtNoReadme:     "files.retrotxt_no_readme",
 	DoseeRunProgram:      "files.dosee_run_program",
 	DoseeHardwareCPU:     "files.dosee_hardware_cpu",
 	DoseeHardwareGraphic: "files.dosee_hardware_graphic",
@@ -511,6 +517,7 @@ var FileWhere = struct {
 	Deletedat            whereHelpernull_Time
 	Deletedby            whereHelpernull_String
 	RetrotxtReadme       whereHelpernull_String
+	RetrotxtNoReadme     whereHelpernull_Int16
 	DoseeRunProgram      whereHelpernull_String
 	DoseeHardwareCPU     whereHelpernull_String
 	DoseeHardwareGraphic whereHelpernull_String
@@ -555,6 +562,7 @@ var FileWhere = struct {
 	Deletedat:            whereHelpernull_Time{field: "\"files\".\"deletedat\""},
 	Deletedby:            whereHelpernull_String{field: "\"files\".\"deletedby\""},
 	RetrotxtReadme:       whereHelpernull_String{field: "\"files\".\"retrotxt_readme\""},
+	RetrotxtNoReadme:     whereHelpernull_Int16{field: "\"files\".\"retrotxt_no_readme\""},
 	DoseeRunProgram:      whereHelpernull_String{field: "\"files\".\"dosee_run_program\""},
 	DoseeHardwareCPU:     whereHelpernull_String{field: "\"files\".\"dosee_hardware_cpu\""},
 	DoseeHardwareGraphic: whereHelpernull_String{field: "\"files\".\"dosee_hardware_graphic\""},
@@ -583,9 +591,9 @@ func (*fileR) NewStruct() *fileR {
 type fileL struct{}
 
 var (
-	fileAllColumns            = []string{"id", "uuid", "list_relations", "web_id_16colors", "web_id_github", "web_id_youtube", "web_id_pouet", "web_id_demozoo", "group_brand_for", "group_brand_by", "record_title", "date_issued_year", "date_issued_month", "date_issued_day", "credit_text", "credit_program", "credit_illustration", "credit_audio", "filename", "filesize", "list_links", "file_security_alert_url", "file_zip_content", "file_magic_type", "file_integrity_strong", "file_last_modified", "platform", "section", "comment", "createdat", "updatedat", "deletedat", "deletedby", "retrotxt_readme", "dosee_run_program", "dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio", "dosee_incompatible", "dosee_no_ems", "dosee_no_xms", "dosee_no_umb", "dosee_load_utilities"}
+	fileAllColumns            = []string{"id", "uuid", "list_relations", "web_id_16colors", "web_id_github", "web_id_youtube", "web_id_pouet", "web_id_demozoo", "group_brand_for", "group_brand_by", "record_title", "date_issued_year", "date_issued_month", "date_issued_day", "credit_text", "credit_program", "credit_illustration", "credit_audio", "filename", "filesize", "list_links", "file_security_alert_url", "file_zip_content", "file_magic_type", "file_integrity_strong", "file_last_modified", "platform", "section", "comment", "createdat", "updatedat", "deletedat", "deletedby", "retrotxt_readme", "retrotxt_no_readme", "dosee_run_program", "dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio", "dosee_incompatible", "dosee_no_ems", "dosee_no_xms", "dosee_no_umb", "dosee_load_utilities"}
 	fileColumnsWithoutDefault = []string{}
-	fileColumnsWithDefault    = []string{"id", "uuid", "list_relations", "web_id_16colors", "web_id_github", "web_id_youtube", "web_id_pouet", "web_id_demozoo", "group_brand_for", "group_brand_by", "record_title", "date_issued_year", "date_issued_month", "date_issued_day", "credit_text", "credit_program", "credit_illustration", "credit_audio", "filename", "filesize", "list_links", "file_security_alert_url", "file_zip_content", "file_magic_type", "file_integrity_strong", "file_last_modified", "platform", "section", "comment", "createdat", "updatedat", "deletedat", "deletedby", "retrotxt_readme", "dosee_run_program", "dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio", "dosee_incompatible", "dosee_no_ems", "dosee_no_xms", "dosee_no_umb", "dosee_load_utilities"}
+	fileColumnsWithDefault    = []string{"id", "uuid", "list_relations", "web_id_16colors", "web_id_github", "web_id_youtube", "web_id_pouet", "web_id_demozoo", "group_brand_for", "group_brand_by", "record_title", "date_issued_year", "date_issued_month", "date_issued_day", "credit_text", "credit_program", "credit_illustration", "credit_audio", "filename", "filesize", "list_links", "file_security_alert_url", "file_zip_content", "file_magic_type", "file_integrity_strong", "file_last_modified", "platform", "section", "comment", "createdat", "updatedat", "deletedat", "deletedby", "retrotxt_readme", "retrotxt_no_readme", "dosee_run_program", "dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio", "dosee_incompatible", "dosee_no_ems", "dosee_no_xms", "dosee_no_umb", "dosee_load_utilities"}
 	filePrimaryKeyColumns     = []string{"id"}
 	fileGeneratedColumns      = []string{}
 )

@@ -224,6 +224,9 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) 
 		return htmx.RecordDizDeleter(c, dir.Extra)
 	})
 	readme := g.Group("/readme")
+	readme.PATCH("/disable/:id", func(c echo.Context) error {
+		return htmx.RecordReadmeDisable(c, db)
+	})
 	readme.PATCH("/copy/:unid/:path", func(c echo.Context) error {
 		return htmx.RecordReadmeCopier(c, dirs)
 	})

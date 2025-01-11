@@ -69,7 +69,7 @@ blacklist = [
     "files.dosee_no_aspect_ratio_fix",
     "files.file_integrity_weak",
     "files.preview_image",
-    "files.retrotxt_no_readme",
+    #"files.retrotxt_no_readme",
     "files.updatedby",
 ]
 

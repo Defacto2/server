@@ -384,6 +384,7 @@ func (dir Dirs) Editor(art *models.File, data map[string]interface{}) map[string
 	data["missingAssets"] = dir.missingAssets(art)
 	//
 	data["modReadmeSuggest"] = filerecord.Readme(art)
+	data["disableReadme"] = filerecord.DisableReadme(art)
 	data["modZipContent"] = filerecord.ZipContent(art)
 	data["modRelations"] = filerecord.RelationsStr(art)
 	data["modWebsites"] = filerecord.WebsitesStr(art)
@@ -645,7 +646,7 @@ func errorWithID(err error, key string, id any) error {
 
 // embedText embeds the readme or file download text content for the file record of the artifact.
 func embedText(art *models.File, data map[string]interface{}, b ...byte) (map[string]interface{}, error) {
-	if len(b) == 0 || art == nil {
+	if len(b) == 0 || art == nil || art.RetrotxtNoReadme.Int16 != 0 {
 		return data, nil
 	}
 	const (

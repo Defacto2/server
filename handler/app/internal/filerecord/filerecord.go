@@ -1458,6 +1458,15 @@ func EmbedReadme(art *models.File) bool {
 	return true
 }
 
+// DisableReadme returns true if the readme or diz text files should not be displayed in the artifact page.
+// This should be used sparingly and only for artifacts that have a readme file that is not useful or relevant.
+func DisableReadme(art *models.File) bool {
+	if art == nil {
+		return false
+	}
+	return art.RetrotxtNoReadme.Int16 != 0
+}
+
 // Websites returns the list of links for the file record.
 func Websites(art *models.File) template.HTML {
 	if art == nil {

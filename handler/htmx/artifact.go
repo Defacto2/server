@@ -194,6 +194,23 @@ func RecordReadmeCopier(c echo.Context, dirs command.Dirs) error {
 		`Images copied, the browser will refresh.`)
 }
 
+// RecordReadmeDisable handles the patch submission to disable the display of the readme and diz texts for a file artifact.
+func RecordReadmeDisable(c echo.Context, db *sql.DB) error {
+	key := c.Param("id")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+	}
+	value := true
+	if c.FormValue("readme-is-off") == "on" {
+		value = false
+	}
+	if err = model.UpdateReadmeDisable(db, int64(id), value); err != nil {
+		return badRequest(c, err)
+	}
+	return c.String(http.StatusOK, "<span class=\"text-success\">✓</span>")
+}
+
 func RecordImagePixelator(c echo.Context, dirs ...string) error {
 	unid := c.Param("unid")
 	if err := command.ImagesPixelate(unid, dirs...); err != nil {

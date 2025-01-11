@@ -38,6 +38,7 @@ const (
 	emulateEMS
 	emulateXMS
 	emulateBroken
+	readmeDisable
 )
 
 // UpdateEmulateUMB updates the column dosee_no_umb with val.
@@ -58,6 +59,11 @@ func UpdateEmulateXMS(db *sql.DB, id int64, val bool) error {
 // UpdateEmulateBroken updates the column dosee_broken with val.
 func UpdateEmulateBroken(db *sql.DB, id int64, val bool) error {
 	return UpdateBoolFrom(db, emulateBroken, id, val)
+}
+
+// UpdateReadmeDisable updates the column retrotxt_no_readme with val.
+func UpdateReadmeDisable(db *sql.DB, id int64, val bool) error {
+	return UpdateBoolFrom(db, readmeDisable, id, val)
 }
 
 // UpdateBoolFrom updates the column bool from value with val.
@@ -89,6 +95,8 @@ func UpdateBoolFrom(db *sql.DB, column boolFrom, id int64, val bool) error {
 		f.DoseeNoXMS = null.NewInt16(i, true)
 	case emulateBroken:
 		f.DoseeIncompatible = null.NewInt16(i, true)
+	case readmeDisable:
+		f.RetrotxtNoReadme = null.NewInt16(i, true)
 	}
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf("%q %v: %w", column, val, err)

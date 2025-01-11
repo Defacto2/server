@@ -25,6 +25,7 @@
 {{- $modDecompress := index . "modDecompress"}}
 {{- $modDecompressLoc := index . "modDecompressLoc"}}
 {{- $modReadmeSuggest := index . "modReadmeSuggest"}}
+{{- $noReadme := index . "disableReadme"}}
 {{- /*  File assets and metadata editors  */}}
 <div class="modal fade" id="asset-editor-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" 
   aria-labelledby="asset-editor-modal-label" aria-hidden="true">
@@ -268,6 +269,23 @@
             {{- /*  Extras assets  */}}
             <legend class="mt-3">Extras assets</legend>
             <div class="row row-cols-2 g-1">
+              {{/*  Never display README  */}}
+              <div class="col-12">
+                <div class="alert alert-secondary" role="alert">
+                  <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" autocomplete="off" role="switch" 
+                          hx-patch="/editor/readme/disable/{{$key}}"
+                          hx-trigger="click delay:50ms" hx-swap="swap:50ms" hx-on:click="document.getElementById('readme-is-off-result').textContent=''"
+                          hx-include="[name='readme-is-broken']"
+                          hx-target="#readme-is-off-result"
+                          name="readme-is-off"
+                          id="readme-is-off"{{if eq true $noReadme}} checked{{end}}>
+                      <span id="readme-is-off-result"></span>
+                      <label class="form-check-label text-warning-emphasis" for="readme-is-off"><u>Never</u> display README or DIZ.</label>
+                      Toggle this to workaround the auto-extracted texts that are unrelated, ads, or broken.
+                  </div>
+                </div>
+              </div>
               {{- /*  List of files  */}}
               <div class="col-12">
                 <div class="card">
