@@ -73,8 +73,8 @@ github.com/Defacto2/archive v1.0.9 h1:/9iSmcrmlEjyN1RxVtykFtV3bC2xcYBXnHdw7Pooiu
 github.com/Defacto2/archive v1.0.9/go.mod h1:PFBZqhCX1VRbxh282KsdxBM5oYfaGfxnGiXMNHdRGv0=
 github.com/Defacto2/helper v1.2.0 h1:jDQYp3R5b00VgFzaUb759aYfWqw/e39VgS+/7CF/tQU=
 github.com/Defacto2/helper v1.2.0/go.mod h1:F4dGCDhc6+LA6XH4iySJjJY/A2d1sTowsjKTPN39adg=
-github.com/Defacto2/magicnumber v1.0.5 h1:aIFlbr5kF81VYqAx3ZweFvMqwRrjtw/KBxfHkcpC9Mo=
-github.com/Defacto2/magicnumber v1.0.5/go.mod h1:8d1RG1EUGWXYiIu4gTtOFm6K4CkoV6em0BpFPByKzgY=
+github.com/Defacto2/magicnumber v1.0.6 h1:q7pShqBqjHJxuSedWhyBTo7dQDk5APNeWVShETNlW4Q=
+github.com/Defacto2/magicnumber v1.0.6/go.mod h1:nY5o4n8fLlajprK9iWanTjQF9EoYtG28zMQmHx5rcks=
 github.com/Defacto2/releaser v1.2.4 h1:5tJFusBTI59h6Sqxx1czx+USClCmWO4G6CmtmA0W3lk=
 github.com/Defacto2/releaser v1.2.4/go.mod h1:ytSKd04QcXf4JUrCaaUUK37mAVXY8it2kMQDKGp397I=
 github.com/Masterminds/goutils v1.1.1/go.mod h1:8cTjp+g8YejhMuvIA5y2vz3BpJxksy863GQaJW2MFNU=
