@@ -92,6 +92,7 @@ var groups = Tibits{
 	34: []URI{"scd_dox", "software-chronicles-digest"},
 	35: []URI{"software-chronicles-digest"},
 	36: []URI{"the-humble-guys"},
+	37: []URI{"netrunners", "minor-threat", "nexus"},
 }
 
 var tidbits = Tidbit{
@@ -151,6 +152,7 @@ var tidbits = Tidbit{
 	34: "SCD-DoX was a shortlived documentation group created by the Software Chronicles Digest Magazine.",
 	35: "For its first 5 issues, SCD stood for Southern Califoria Distribution and was part of a larger regional release group.",
 	36: "According to a published retirement letter, The Humble Guys were founded on the 22 Jan 1990 and became the source of the first use of the _.nfo_ file extension. ",
+	37: "Netrunners merged into the Minor Threat and Nexus collaboration at the end of October 1993. Minor Threat focused on applications and Nexus on game releases.",
 }
 
 // Find returns the tidbit IDs for the given URI.

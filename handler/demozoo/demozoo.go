@@ -733,4 +733,10 @@ var groups = Groups{
 	"rescue-raider":                         131347,
 	"idiots-creations-unlimited":            147108,
 	"more-stupid-initials":                  147104,
+	"quantum":                               76350,
+	"sniper":                                147175,
+	"delirium-of-disorder":                  66642,
+	"needful-things":                        147177,
+	"police":                                76598,
+	"netrunners":                            83424,
 }
