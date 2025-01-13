@@ -9,16 +9,11 @@ import (
 	"strings"
 )
 
-// NANP
-// https://defacto2.net/f/ac1cb6a North American Pirate-Phreak Association from 1990
-// FINDAC.ZIP         4681 08/12/91 Find Area Code v1.0  [1/1]  TWA
-// (c) 1991 by MPM Enterprises
-// https://en.wikipedia.org/wiki/Area_codes_602,_480,_and_623
-
-type NANPCode uint
+// NAN represents a North American Numbering Plan area code.
+type NAN uint
 
 // Valid returns true if the NANP code is a valid area code.
-func (c NANPCode) Valid() bool {
+func (c NAN) Valid() bool {
 	ac := AreaCodes()
 	return slices.Contains(ac, c)
 }
@@ -28,7 +23,7 @@ func (c NANPCode) Valid() bool {
 // Example:
 //
 //	212 - New York (NY)
-func (c NANPCode) HTML() template.HTML {
+func (c NAN) HTML() template.HTML {
 	empty := template.HTML(``)
 	if !c.Valid() {
 		return empty
@@ -39,7 +34,7 @@ func (c NANPCode) HTML() template.HTML {
 	}
 	html := "<span>"
 	for i, t := range ts {
-		ac := t.Alpha
+		ac := t.AlphaCode
 		s := ""
 		if i == 0 {
 			s = fmt.Sprintf(`%d - %s`, c, t.Name)
@@ -60,19 +55,19 @@ func (c NANPCode) HTML() template.HTML {
 	return template.HTML(html + "</span><br>")
 }
 
-// AlphaCode represents a two-letter alphabetic code for a territory in the North American Numbering Plan.
-type AlphaCode string
+// AC represents a two-letter alphabetic code for a territory in the North American Numbering Plan.
+type AC string
 
-func (a AlphaCode) HTML() template.HTML {
+func (a AC) HTML() template.HTML {
 	t := TerritoryByAlpha(a)
 	html := "<span>"
-	html += string(t.Alpha) + " (" + t.Name + ")"
-	if len(t.AreaCode) == 0 {
+	html += string(t.AlphaCode) + " (" + t.Name + ")"
+	if len(t.AreaCodes) == 0 {
 		html += " - n/a</span><br>"
 		return template.HTML(html)
 	}
 	html += " - "
-	for i, ac := range t.AreaCode {
+	for i, ac := range t.AreaCodes {
 		if i > 0 {
 			html += ", "
 		}
@@ -83,23 +78,23 @@ func (a AlphaCode) HTML() template.HTML {
 
 // Territory represents a territory in the North American Numbering Plan.
 type Territory struct {
-	Name     string     // Name of the state, province, or territory.
-	Alpha    AlphaCode  // Two-letter alphabetic code.
-	AreaCode []NANPCode // Three-digit NANP code used for telephone area codes.
+	Name      string // Name of the state, province, or territory.
+	AlphaCode AC     // Two-letter alphabetic code.
+	AreaCodes []NAN  // Three-digit NAN code used for telephone area codes.
 }
 
 func (t Territory) HTML() template.HTML {
 	html := "<span>" + t.Name
-	if len(t.Alpha) > 0 {
-		html += " (" + string(t.Alpha) + ") "
+	if len(t.AlphaCode) > 0 {
+		html += " (" + string(t.AlphaCode) + ") "
 	}
 	// join area codes with commas
-	if len(t.AreaCode) == 0 {
+	if len(t.AreaCodes) == 0 {
 		html += "- n/a</span><br>"
 		return template.HTML(html)
 	}
 	html += " - "
-	for i, ac := range t.AreaCode {
+	for i, ac := range t.AreaCodes {
 		if i > 0 {
 			html += ", "
 		}
@@ -111,55 +106,52 @@ func (t Territory) HTML() template.HTML {
 
 const (
 	njsplit = "however in June 1991, the 201 and the 609 area codes were split to create the 908 area code."
-	bronx   = "In July 1992, the Bronx was moved to the 718 area code."
+	bronx   = "On July 1992, the Bronx moved from 212 to 718."
 )
 
-var notes = map[NANPCode]string{
-	// see: https://www.nytimes.com/1991/06/02/nyregion/201-609-and-now-oh-my-908.html
-	201: "Northern NJ, " + njsplit,
-	609: "Southern NJ, " + njsplit,
-	908: "Central NJ, however it came online on June 1991.",
+var notes = map[NAN]string{
+	201: "Northern NJ, including Newark, " + njsplit,
+	609: "Southern NJ, including Trenton, " + njsplit,
+	908: "Central NJ, including Union and Somerset counties, however it came online on June 1991.",
 	206: "Western Washington state, including Seattle.",
-	509: "Eastern Washington state.",
-	// see: https://www.cpuc.ca.gov/industries-and-topics/internet-and-phone/area-codes-and-numbering
+	509: "Eastern Washington state, including Spokane and the Tri-Cities.",
 	// 209, 213, 408, 415, 510, 619, 707, 714, 805, 818, 909, 916
-	209: "Central California, including Fresno and Stockton.",                                              //1947
-	213: "Parts of Los Angeles County.",                                                                    //1947
-	916: "Sacramento.",                                                                                     //1947
-	714: "Orange County.",                                                                                  //1951
-	805: "Central California, including Santa Barbara and Ventura Counties.",                               //1957
-	415: "San Francisco Bay Area, until September 1991 when East Bay and Oakland moved to 510.",            //1958
-	408: "Silicon Valley including San Benito, Santa Cruz, Santa Clara.",                                   //1959
-	707: "Northern California, including Napa and Sonoma.",                                                 //1959
-	619: "Southern California, including San Diego, however it came online in 1982.",                       //1982
-	818: "San Fernando Valley within Los Angeles County, however it came online in 1984.",                  //1984
-	510: "East Bay and Oakland, however it came online in September 1991.",                                 //1991
-	310: "Northern Los Angeles County, however it came online in November 1991.",                           //1991
-	909: "Parts of Los Angeles County and San Bernardino County, however it came online in November 1992.", //1992
-	// see: https://www.nytimes.com/1984/12/29/nyregion/shift-from-212-to-718-code-pains-3-boroughs.html
+	209: "Central California, including Fresno and Stockton.",                                                      //1947
+	213: "Parts of Los Angeles County.",                                                                            //1947
+	916: "Sacramento.",                                                                                             //1947
+	714: "Orange County.",                                                                                          //1951
+	805: "Central California, including Santa Barbara and Ventura Counties.",                                       //1957
+	415: "San Francisco Bay Area, until September 1991 when East Bay and Oakland split to from the 510 area code.", //1958
+	408: "Silicon Valley including San Benito, Santa Cruz, Santa Clara.",                                           //1959
+	707: "Northern California, including Napa and Sonoma.",                                                         //1959
+	619: "Southern California, including San Diego, however it came online in 1982.",                               //1982
+	818: "San Fernando Valley within Los Angeles County, however it came online in 1984.",                          //1984
+	510: "East Bay and Oakland, however it came online in September 1991.",                                         //1991
+	310: "Northern Los Angeles County, however it came online in November 1991.",                                   //1991
+	909: "Parts of Los Angeles County and San Bernardino County, however it came online in November 1992.",         //1992
 	// 212, 315, 516, 518, 607, 716, 718, 914
-	212: "New York City, but after December 1984 it split to 212 (Manhattan and the Bronx) and 718.",                                  // 1947
-	315: "Northern New York, including Syracuse.",                                                                                     // 1947
-	516: "Long Island, including Nassau County.",                                                                                      // 1951
-	518: "Eastern New York, including Albany.",                                                                                        // 1947
-	607: "Southern New York, including Binghamton.",                                                                                   // 1954
-	716: "Western New York, including Buffalo.",                                                                                       // 1954
-	718: "New York City, created on December 1984 to serve Brooklyn, Queens, and Staten Island." + bronx,                              // 1984
-	914: "Southern New York, including Westchester County.",                                                                           // 1947
-	917: "New York City, it was the first overlay code and exclusively used for cellphones, however it came online in February 1992.", // 1992
+	212: "New York City, but after December 1984 it split to 212 (Manhattan and the Bronx) and 718 (Brooklyn, Queens, and Staten Island). " + bronx, // 1947
+	315: "Northern New York, including Syracuse.",                                                                                                   // 1947
+	516: "Long Island, including Nassau County.",                                                                                                    // 1951
+	518: "Eastern New York, including Albany.",                                                                                                      // 1947
+	607: "Southern New York, including Binghamton.",                                                                                                 // 1954
+	716: "Western New York, including Buffalo.",                                                                                                     // 1954
+	718: "New York City, created on December 1984 to serve Brooklyn, Queens, and Staten Island. " + bronx,                                           // 1984
+	914: "Southern New York, including Westchester County.",                                                                                         // 1947
+	917: "New York City, coming online in February 1992 and the first overlay area code, however it is exclusively for cellphones.",                 // 1992
 	// 210, 214, 409, 512, 713, 806, 817, 903, 915
-	214: "Northern Texas, including Dallas, however after November 1990 it split to form 903.",   // 1947
-	409: "Southeastern Texas, including Beaumont and Galveston, however it came online in 1983.", // 1983
-	512: "Central Texas, including Austin, however in November 1992 it split to form 210.",       // 1947
-	713: "Southern Texas, including Houston, however in 1983 it split to from 409.",              // 1947
-	806: "Northern Texas, including Amarillo.",                                                   // 1957
-	817: "Western Texas, including Fort Worth.",                                                  // 1953
-	903: "Northeastern Texas, including Tyler, however it came online in November 1990." + // 1990
-		" However, in until October 1980 this area code was used for northwestern Mexico.",
+	214: "Northern Texas, including Dallas, however after November 1990 it split to form 903.",                                     // 1947
+	409: "Southeastern Texas, including Beaumont and Galveston, however it came online in 1983.",                                   // 1983
+	512: "Central Texas, including Austin, however in November 1992, the Southern region including San Antonio split to form 210.", // 1947
+	713: "Southern Texas, including Houston, however in 1983 it split to from the 409 area code.",                                  // 1947
+	806: "Northern Texas, including Amarillo.",                                                                                     // 1957
+	817: "Western Texas, including Fort Worth.",                                                                                    // 1953
+	903: "Northeastern Texas, including Tyler, and coming online in November 1990. " + // 1990
+		"However, up until October 1980 this area code was used for calling northwestern Mexico.",
 	210: "Southern Texas, including San Antonio, however it came online in November 1992.", // 1992
 	915: "Western Texas, including El Paso.",                                               // 1953
 	// 215, 412, 610, 717, 814
-	215: "Philadelphia tri-state area, however in 1994 it split to form 610.",
+	215: "Philadelphia tri-state area, however in 1994 the Western region split to form the 610 area code.",
 	412: "Western Pennsylvania, including Pittsburgh.",
 	717: "Central Pennsylvania, including Harrisburg.",
 	814: "Western Pennsylvania, including Erie.",
@@ -197,7 +189,7 @@ var notes = map[NANPCode]string{
 	813: "Western Florida, including Tampa City.",                                                                   //1953
 	904: "Northern Florida, including Jacksonville.",                                                                //1965
 	// 313, 517, 616, 906
-	313: "Detroit and Flint, however in December 1993 it split to form 810.",
+	313: "Detroit and Flint, however in December 1993 the Northern region split to form 810.",
 	517: "Central Michigan, including Lansing.",
 	616: "Western Michigan, including Grand Rapids.",
 	810: "Northern Detroit and Flint, however it came online in December 1993.",
@@ -230,15 +222,14 @@ var notes = map[NANPCode]string{
 	414: "Southeastern Wisconsin, including Milwaukee.",
 	608: "Southwestern Wisconsin, including Madison.",
 	715: "Northern Wisconsin, including Eau Claire.",
-	// https://areacode416homes.com/history-of-the-416-area-code
 	// 416, 519
 	416: "Toronto, however in October 1993 the suburbs surrounding Toronto City split to form the 905 area code.", // 1947
 	519: "Southwestern Ontario, including Windsor and London.",                                                    // 1953
 	613: "Eastern Ontario, including Ottawa.",
 	705: "Northern Ontario, including Sudbury.",
 	807: "Northwestern Ontario, including Thunder Bay.",
-	905: "Suburbs surrounding Toronto City, however it came online in October 1993." +
-		"However, from the 1960s until February 1991 the 905 area code was used by NANP users to call Mexico City.", // 1993
+	905: "Suburbs surrounding Toronto City, coming online in October 1993. " +
+		"However, up until February 1991 the 905 area code was used to call Mexico City.", // 1993
 	// 418, 514, 819
 	418: "Eastern Quebec, including Quebec City.",
 	514: "Montreal.",
@@ -267,83 +258,78 @@ var notes = map[NANPCode]string{
 		"and the other islands obtained their own area codes from 1995 onwards.",
 }
 
-// discontinued area codes (Feb 1991)
-// 903 north west mexico
-// 905 mexico city
-
 // territories is a list of territories in the North American Numbering Plan.
 // These can be checked against official lists to ensure accuracy.
 var territories = []Territory{
-	// Caribbean Islands including non-US territories
-	// note, these changed in 1994-99
-	{"Caribbean Islands", "", []NANPCode{809}},
-	{"United States Government", "", []NANPCode{710}},
+	// Miscellaneous
+	{"Caribbean Islands", "", []NAN{809}},
+	{"United States Government", "", []NAN{710}},
 	// Canada
-	{"Alberta", "AB", []NANPCode{403}},
-	{"British Columbia", "BC", []NANPCode{604}},
-	{"Manitoba", "MB", []NANPCode{204}},
-	{"New Brunswick", "NB", []NANPCode{506}},
-	{"Newfoundland and Labrador", "NL", []NANPCode{709}},
-	{"Northwest Territories", "NT", []NANPCode{819}},
-	{"Nova Scotia", "NS", []NANPCode{902}},
-	{"Nunavut", "NU", []NANPCode{}}, // became a territory in 1999
-	{"Ontario", "ON", []NANPCode{416, 519, 613, 705, 807, 905}},
-	{"Prince Edward Island", "PE", []NANPCode{902}},
-	{"Quebec", "QC", []NANPCode{418, 514, 819}},
-	{"Saskatchewan", "SK", []NANPCode{306}},
-	{"Yukon", "YT", []NANPCode{403}},
+	{"Alberta", "AB", []NAN{403}},
+	{"British Columbia", "BC", []NAN{604}},
+	{"Manitoba", "MB", []NAN{204}},
+	{"New Brunswick", "NB", []NAN{506}},
+	{"Newfoundland and Labrador", "NL", []NAN{709}},
+	{"Northwest Territories", "NT", []NAN{819}},
+	{"Nova Scotia", "NS", []NAN{902}},
+	{"Nunavut", "NU", []NAN{}}, // became a territory in 1999
+	{"Ontario", "ON", []NAN{416, 519, 613, 705, 807, 905}},
+	{"Prince Edward Island", "PE", []NAN{902}},
+	{"Quebec", "QC", []NAN{418, 514, 819}},
+	{"Saskatchewan", "SK", []NAN{306}},
+	{"Yukon", "YT", []NAN{403}},
 	// United States
-	{"Alabama", "AL", []NANPCode{205}},
-	{"Alaska", "AK", []NANPCode{907}},
-	{"Arizona", "AZ", []NANPCode{602}},
-	{"Arkansas", "AR", []NANPCode{501}},
-	{"California", "CA", []NANPCode{209, 213, 408, 415, 510, 619, 707, 714, 805, 818, 909, 916}},
-	{"Colorado", "CO", []NANPCode{303, 719}},
-	{"Connecticut", "CT", []NANPCode{203}},
-	{"Delaware", "DE", []NANPCode{302}},
-	{"District of Columbia", "DC", []NANPCode{202}},
-	{"Florida", "FL", []NANPCode{305, 407, 813, 904}},
-	{"Georgia", "GA", []NANPCode{404, 706, 912}},
-	{"Hawaii", "HI", []NANPCode{808}},
-	{"Idaho", "ID", []NANPCode{208}},
-	{"Illinois", "IL", []NANPCode{217, 309, 312, 618, 708, 815}},
-	{"Indiana", "IN", []NANPCode{219, 317, 812}},
-	{"Iowa", "IA", []NANPCode{319, 515, 712}},
-	{"Kansas", "KS", []NANPCode{316, 913}},
-	{"Kentucky", "KY", []NANPCode{502, 606}},
-	{"Louisiana", "LA", []NANPCode{318, 504}},
-	{"Maine", "ME", []NANPCode{207}},
-	{"Maryland", "MD", []NANPCode{301, 410}},
-	{"Massachusetts", "MA", []NANPCode{413, 508, 617}},
-	{"Michigan", "MI", []NANPCode{313, 517, 616, 810, 906}},
-	{"Minnesota", "MN", []NANPCode{218, 507, 612}},
-	{"Mississippi", "MS", []NANPCode{601}},
-	{"Missouri", "MO", []NANPCode{314, 417, 816}},
-	{"Montana", "MT", []NANPCode{406}},
-	{"Nebraska", "NE", []NANPCode{308, 402}},
-	{"Nevada", "NV", []NANPCode{702}},
-	{"New Hampshire", "NH", []NANPCode{603}},
-	{"New Jersey", "NJ", []NANPCode{201, 609, 908}},
-	{"New Mexico", "NM", []NANPCode{505}},
-	{"New York", "NY", []NANPCode{212, 315, 516, 518, 607, 716, 718, 914, 917}},
-	{"North Carolina", "NC", []NANPCode{704, 919}},
-	{"North Dakota", "ND", []NANPCode{701}},
-	{"Ohio", "OH", []NANPCode{216, 419, 513, 614}},
-	{"Oklahoma", "OK", []NANPCode{405, 918}},
-	{"Oregon", "OR", []NANPCode{503}},
-	{"Pennsylvania", "PA", []NANPCode{215, 412, 610, 717, 814}},
-	{"Rhode Island", "RI", []NANPCode{401}},
-	{"South Carolina", "SC", []NANPCode{803}},
-	{"South Dakota", "SD", []NANPCode{605}},
-	{"Tennessee", "TN", []NANPCode{615, 901}},
-	{"Texas", "TX", []NANPCode{210, 214, 409, 512, 713, 806, 817, 903, 915}},
-	{"Utah", "UT", []NANPCode{801}},
-	{"Vermont", "VT", []NANPCode{802}},
-	{"Virginia", "VA", []NANPCode{703, 804}},
-	{"Washington", "WA", []NANPCode{206, 509}},
-	{"West Virginia", "WV", []NANPCode{304}},
-	{"Wisconsin", "WI", []NANPCode{414, 608, 715}},
-	{"Wyoming", "WY", []NANPCode{307}},
+	{"Alabama", "AL", []NAN{205}},
+	{"Alaska", "AK", []NAN{907}},
+	{"Arizona", "AZ", []NAN{602}},
+	{"Arkansas", "AR", []NAN{501}},
+	{"California", "CA", []NAN{209, 213, 408, 415, 510, 619, 707, 714, 805, 818, 909, 916}},
+	{"Colorado", "CO", []NAN{303, 719}},
+	{"Connecticut", "CT", []NAN{203}},
+	{"Delaware", "DE", []NAN{302}},
+	{"District of Columbia", "DC", []NAN{202}},
+	{"Florida", "FL", []NAN{305, 407, 813, 904}},
+	{"Georgia", "GA", []NAN{404, 706, 912}},
+	{"Hawaii", "HI", []NAN{808}},
+	{"Idaho", "ID", []NAN{208}},
+	{"Illinois", "IL", []NAN{217, 309, 312, 618, 708, 815}},
+	{"Indiana", "IN", []NAN{219, 317, 812}},
+	{"Iowa", "IA", []NAN{319, 515, 712}},
+	{"Kansas", "KS", []NAN{316, 913}},
+	{"Kentucky", "KY", []NAN{502, 606}},
+	{"Louisiana", "LA", []NAN{318, 504}},
+	{"Maine", "ME", []NAN{207}},
+	{"Maryland", "MD", []NAN{301, 410}},
+	{"Massachusetts", "MA", []NAN{413, 508, 617}},
+	{"Michigan", "MI", []NAN{313, 517, 616, 810, 906}},
+	{"Minnesota", "MN", []NAN{218, 507, 612}},
+	{"Mississippi", "MS", []NAN{601}},
+	{"Missouri", "MO", []NAN{314, 417, 816}},
+	{"Montana", "MT", []NAN{406}},
+	{"Nebraska", "NE", []NAN{308, 402}},
+	{"Nevada", "NV", []NAN{702}},
+	{"New Hampshire", "NH", []NAN{603}},
+	{"New Jersey", "NJ", []NAN{201, 609, 908}},
+	{"New Mexico", "NM", []NAN{505}},
+	{"New York", "NY", []NAN{212, 315, 516, 518, 607, 716, 718, 914, 917}},
+	{"North Carolina", "NC", []NAN{704, 910, 919}},
+	{"North Dakota", "ND", []NAN{701}},
+	{"Ohio", "OH", []NAN{216, 419, 513, 614}},
+	{"Oklahoma", "OK", []NAN{405, 918}},
+	{"Oregon", "OR", []NAN{503}},
+	{"Pennsylvania", "PA", []NAN{215, 412, 610, 717, 814}},
+	{"Rhode Island", "RI", []NAN{401}},
+	{"South Carolina", "SC", []NAN{803}},
+	{"South Dakota", "SD", []NAN{605}},
+	{"Tennessee", "TN", []NAN{615, 901}},
+	{"Texas", "TX", []NAN{210, 214, 409, 512, 713, 806, 817, 903, 915}},
+	{"Utah", "UT", []NAN{801}},
+	{"Vermont", "VT", []NAN{802}},
+	{"Virginia", "VA", []NAN{703, 804}},
+	{"Washington", "WA", []NAN{206, 509}},
+	{"West Virginia", "WV", []NAN{304}},
+	{"Wisconsin", "WI", []NAN{414, 608, 715}},
+	{"Wyoming", "WY", []NAN{307}},
 }
 
 // Territories returns a list of all territories in the North American Numbering Plan
@@ -357,19 +343,19 @@ func Territories() []Territory {
 }
 
 // Lookup returns a list of territories that match the given input.
-// The input can be a string, integer, or NANPCode.
+// The input can be a string, integer, or NAN.
 // If the input is a string, it will match against territory names and alpha codes.
 // If the input is an integer, it will match against NANP codes.
 func Lookup(a any) []Territory {
 	switch v := a.(type) {
 	case string:
 		if len(v) == 2 {
-			return []Territory{TerritoryByAlpha(AlphaCode(v))}
+			return []Territory{TerritoryByAlpha(AC(v))}
 		}
 		return TerritoryMatch(v)
 	case int, uint:
-		return TerritoryByCode(NANPCode(v.(int)))
-	case NANPCode:
+		return TerritoryByCode(NAN(v.(int)))
+	case NAN:
 		return TerritoryByCode(v)
 	default:
 		return nil
@@ -408,13 +394,13 @@ func Contains(t Territory, ts ...Territory) bool {
 
 // AlphaCodes returns a list of all two-letter alphabetic codes for territories
 // in the North American Numbering Plan sorted in ascending order.
-func AlphaCodes() []AlphaCode {
-	var codes []AlphaCode
+func AlphaCodes() []AC {
+	var codes []AC
 	for _, t := range territories {
-		if t.Alpha == "" {
+		if t.AlphaCode == "" {
 			continue
 		}
-		codes = append(codes, t.Alpha)
+		codes = append(codes, t.AlphaCode)
 	}
 	slices.Sort(codes)
 	codes = slices.Compact(codes) // remove empty strings
@@ -422,10 +408,10 @@ func AlphaCodes() []AlphaCode {
 }
 
 // AreaCodes returns a list of all NANP area codes sorted in ascending order.
-func AreaCodes() []NANPCode {
-	var codes []NANPCode
+func AreaCodes() []NAN {
+	var codes []NAN
 	for _, t := range territories {
-		codes = append(codes, t.AreaCode...)
+		codes = append(codes, t.AreaCodes...)
 	}
 	slices.Sort(codes)
 	codes = slices.Compact(codes)
@@ -433,9 +419,9 @@ func AreaCodes() []NANPCode {
 }
 
 // TerritoryByAlpha returns the territory with the given two-letter alphabetic code.
-func TerritoryByAlpha(ac AlphaCode) Territory {
+func TerritoryByAlpha(ac AC) Territory {
 	for _, t := range territories {
-		if strings.EqualFold(string(t.Alpha), string(ac)) {
+		if strings.EqualFold(string(t.AlphaCode), string(ac)) {
 			return t
 		}
 	}
@@ -446,13 +432,13 @@ func TerritoryByAlpha(ac AlphaCode) Territory {
 //
 // Generally, this will return a single territory, but it is possible for
 // a NANP code to be used in multiple territories, such as provinces in Canada.
-func TerritoryByCode(code NANPCode) []Territory {
+func TerritoryByCode(code NAN) []Territory {
 	if !code.Valid() {
 		return nil
 	}
 	var finds []Territory
 	for _, t := range territories {
-		for _, ac := range t.AreaCode {
+		for _, ac := range t.AreaCodes {
 			if ac == code {
 				finds = append(finds, t)
 			}

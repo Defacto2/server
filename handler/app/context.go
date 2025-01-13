@@ -228,11 +228,11 @@ func Artifacts404(c echo.Context, uri string) error {
 
 func Areacodes(c echo.Context, db *sql.DB) error {
 	data := empty(c)
-	data["title"] = "Area codes"
-	data["description"] = "North American Numbering Plan area codes."
-	data["logo"] = "Area codes"
-	data["h1"] = "Area codes"
-	data["lead"] = "North American Numbering Plan (NANP) telephone area codes from 1990-91 for finding US and Canadian Bulletin Board locations."
+	data["title"] = "BBS and telephone area codes"
+	data["description"] = "North American Numbering Plan area codes until 1994."
+	data["logo"] = "BBS area codes"
+	data["h1"] = "BBS area codes"
+	data["lead"] = "North American Numbering Plan (+1-XXX) telephone area codes until 1994."
 	//data["areacodes"] = areacode.Territories()
 
 	data["nanps"] = areacode.AreaCodes()

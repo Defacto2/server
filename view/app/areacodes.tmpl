@@ -1,17 +1,38 @@
 {{- define "content" }}
 {{- $nanps := index . "nanps"}}
-<p class="lead">By area code</p>
+{{- $hcls := "h4 my-3"}}
+<h2 class="{{$hcls}}">By area code</h2>
 {{- if $nanps}}
 {{- range $index, $code := .nanps }}
 {{$code.HTML}}
 {{- end}}
 {{- end}}
-<p class="lead">By state, province, or territory</p>
+<h2 class="{{$hcls}}">By state, province, or territory</h2>
 {{- range $index, $territory := index . "territories" }}
 {{$territory.HTML}}
 {{- end}}
-<p class="lead">By 2-letter code</p>
+<h2 class="{{$hcls}}">By 2-letter code</h2>
 {{- range $index, $code := index . "alphacodes" }}
 {{$code.HTML}}
 {{- end}}
+
+<h2 class="lead mt-5">About</h2>
+<p>
+    The telephone numbering plan uses a 3-digit area code and a 7-digit telephone number within the United States, Canada, the Caribbean and the U.S. territories.
+    Until the end of 1994 the codes used the format of <em>2xx ... 8xx, 9xx</em>, but XX could only be <em>01-19</em>, ie 201-219, 301-319, etc.
+    This page lists the area codes that were in use from the 1970s until the end of 1994. 
+    In 1995 and the following years an introduction of new area codes began,
+    but are not covered here, as they are not part of the BBS era.
+</p>
+<h2 class="lead mt-5">Data sources</h2>
+<ul class="list-unstyled">
+    <li>The inital area code data was sourced from the 1990, <a href="https://defacto2.net/f/ac1cb6a">NAP/PA Area Code Listing</a> which was somewhat incomplete.</li>
+    <li>The data was then cross-referenced with a 1991 MS-DOS application titled Find Area Code v1.0 (c) 1991 by MPM Enterprises.</li>
+    <li>Complicated data for California was sourced from the <a href="https://www.cpuc.ca.gov/industries-and-topics/internet-and-phone/area-codes-and-numbering">CA Public Utilities Commision</a>.</li>
+    <li>Finally the gaps between 1990 and 1994 were filled with <a href="https://en.wikipedia.org/wiki/List_of_North_American_Numbering_Plan_area_codes">Wikipedia data</a>.</li>
+    <li>Also some old articles <small>(<a href="https://www.nytimes.com/1984/12/29/nyregion/shift-from-212-to-718-code-pains-3-boroughs.html">1984</a>,<a href="https://www.nytimes.com/1991/06/02/nyregion/201-609-and-now-oh-my-908.html">1991</a>)</small> in the New York Times helped confirm some dates.</li>
+</ul>
+<p>
+    If you're after other international dialing codes the <a href="https://www.itu.int/oth/T0202.aspx?parent=T0202">International Telecommunication Union has a complete list</a>.
+</p>
 {{- end}}

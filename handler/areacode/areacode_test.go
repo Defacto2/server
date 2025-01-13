@@ -6,9 +6,9 @@ import (
 	"github.com/Defacto2/server/handler/areacode"
 )
 
-func ExampleNANPCode_Valid() {
-	fmt.Println(areacode.NANPCode(212).Valid())
-	fmt.Println(areacode.NANPCode(999999).Valid())
+func ExampleNAN_Valid() {
+	fmt.Println(areacode.NAN(212).Valid())
+	fmt.Println(areacode.NAN(999999).Valid())
 	// Output: true
 	// false
 }
@@ -16,8 +16,8 @@ func ExampleNANPCode_Valid() {
 func ExampleTerritories() {
 	t := areacode.Territories()
 	name := t[0].Name
-	alpha := t[0].Alpha
-	area := t[0].AreaCode
+	alpha := t[0].AlphaCode
+	area := t[0].AreaCodes
 	fmt.Printf("%s %s %d\n", name, alpha, area)
 	fmt.Println(len(t), "territories")
 	// Output: Alabama AL [205]
@@ -32,17 +32,17 @@ func ExampleAlphaCodes() {
 
 func ExampleTerritoryByAlpha() {
 	t := areacode.TerritoryByAlpha("CT")
-	fmt.Println(t.Name, t.Alpha, t.AreaCode)
+	fmt.Println(t.Name, t.AlphaCode, t.AreaCodes)
 	// Output: Connecticut CT [203]
 }
 
 func ExampleTerritoryByCode() {
 	t := areacode.TerritoryByCode(212)
-	fmt.Println(t[0].Name, t[0].Alpha, t[0].AreaCode)
+	fmt.Println(t[0].Name, t[0].AlphaCode, t[0].AreaCodes)
 
 	t = areacode.TerritoryByCode(902)
 	for _, v := range t {
-		fmt.Println(v.Name, v.Alpha, v.AreaCode)
+		fmt.Println(v.Name, v.AlphaCode, v.AreaCodes)
 	}
 	// Output: New York NY [212 315 516 518 607 716 718 914 917]
 	// Nova Scotia NS [902]
@@ -51,7 +51,7 @@ func ExampleTerritoryByCode() {
 
 func ExampleTerritoryByName() {
 	t := areacode.TerritoryByName("ontario")
-	fmt.Println(t.AreaCode)
+	fmt.Println(t.AreaCodes)
 	// Output: [416 519 613 705 807 905]
 }
 
@@ -88,13 +88,13 @@ func ExampleLookups() {
 	// {District of Columbia DC [202]}
 }
 
-func ExampleNANPCode_HTML() {
-	fmt.Println(areacode.NANPCode(403).HTML())
+func ExampleNAN_HTML() {
+	fmt.Println(areacode.NAN(403).HTML())
 	// Output: <span>403 - Alberta (AB) + Yukon (YT)</span><br>
 }
 
-func ExampleAlphaCode_HTML() {
-	fmt.Println(areacode.AlphaCode("AB").HTML())
+func ExampleAC_HTML() {
+	fmt.Println(areacode.AC("AB").HTML())
 	// Output: <span>AB (Alberta) - 403</span><br>
 }
 
