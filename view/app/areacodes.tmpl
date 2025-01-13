@@ -1,0 +1,17 @@
+{{- define "content" }}
+{{- $nanps := index . "nanps"}}
+<p class="lead">By area code</p>
+{{- if $nanps}}
+{{- range $index, $code := .nanps }}
+{{$code.HTML}}
+{{- end}}
+{{- end}}
+<p class="lead">By state, province, or territory</p>
+{{- range $index, $territory := index . "territories" }}
+{{$territory.HTML}}
+{{- end}}
+<p class="lead">By 2-letter code</p>
+{{- range $index, $code := index . "alphacodes" }}
+{{$code.HTML}}
+{{- end}}
+{{- end}}

@@ -196,6 +196,9 @@ func (c Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogg
 	})
 	s := e.Group("")
 	s.GET("/", app.Index)
+	s.GET("/areacodes", func(c echo.Context) error {
+		return app.Areacodes(c, db)
+	})
 	s.GET("/artist", func(c echo.Context) error {
 		return app.Artist(c, db)
 	})

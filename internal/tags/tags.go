@@ -120,7 +120,8 @@ const (
 )
 
 const (
-	Announcement Tag = iota
+	AreaCodes Tag = iota
+	Announcement
 	ANSIEditor
 	AppleII
 	AtariST

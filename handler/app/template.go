@@ -69,6 +69,7 @@ type filename string // filename is the name of the template file in the view di
 
 func (t *Templ) pages() map[string]filename {
 	return map[string]filename{
+		"areacodes":     "areacodes.tmpl",
 		"artifact":      artifactTmpl,
 		"artifacts":     artifactsTmpl,
 		"bbs":           releaserTmpl,

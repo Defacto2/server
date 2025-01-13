@@ -29,6 +29,7 @@ func (t Tag) String() string {
 // URIs returns the URI slugs for the tags.
 func URIs() URIS {
 	return URIS{
+		AreaCodes:    "areacodes",
 		Announcement: "announcements",
 		ANSIEditor:   "ansieditor",
 		AppleII:      "appleii",

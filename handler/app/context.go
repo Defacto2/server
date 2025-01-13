@@ -20,6 +20,7 @@ import (
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/server/handler/app/internal/fileslice"
 	"github.com/Defacto2/server/handler/app/remote"
+	"github.com/Defacto2/server/handler/areacode"
 	"github.com/Defacto2/server/handler/cache"
 	"github.com/Defacto2/server/handler/demozoo"
 	"github.com/Defacto2/server/handler/download"
@@ -221,6 +222,26 @@ func Artifacts404(c echo.Context, uri string) error {
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
 		return InternalErr(c, errs, err)
+	}
+	return nil
+}
+
+func Areacodes(c echo.Context, db *sql.DB) error {
+	data := empty(c)
+	data["title"] = "Area codes"
+	data["description"] = "North American Numbering Plan area codes."
+	data["logo"] = "Area codes"
+	data["h1"] = "Area codes"
+	data["lead"] = "North American Numbering Plan (NANP) telephone area codes from 1990-91 for finding US and Canadian Bulletin Board locations."
+	//data["areacodes"] = areacode.Territories()
+
+	data["nanps"] = areacode.AreaCodes()
+	data["territories"] = areacode.Territories()
+	data["alphacodes"] = areacode.AlphaCodes()
+
+	err := c.Render(http.StatusOK, "areacodes", data)
+	if err != nil {
+		return InternalErr(c, "areacodes", err)
 	}
 	return nil
 }
