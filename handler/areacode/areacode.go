@@ -34,7 +34,7 @@ func (c NAN) HTML() template.HTML {
 	}
 	html := "<span>"
 	for i, t := range ts {
-		ac := t.AlphaCode
+		ac := t.Abbreviation
 		s := ""
 		if i == 0 {
 			s = fmt.Sprintf(`%d - %s`, c, t.Name)
@@ -55,13 +55,13 @@ func (c NAN) HTML() template.HTML {
 	return template.HTML(html + "</span><br>")
 }
 
-// AC represents a two-letter alphabetic code for a territory in the North American Numbering Plan.
-type AC string
+// Abbreviation represents a two-letter abbreviation for a territory in the North American Numbering Plan.
+type Abbreviation string
 
-func (a AC) HTML() template.HTML {
-	t := TerritoryByAlpha(a)
+func (a Abbreviation) HTML() template.HTML {
+	t := TerritoryByAbbr(a)
 	html := "<span>"
-	html += string(t.AlphaCode) + " (" + t.Name + ")"
+	html += string(t.Abbreviation) + " (" + t.Name + ")"
 	if len(t.AreaCodes) == 0 {
 		html += " - n/a</span><br>"
 		return template.HTML(html)
@@ -78,15 +78,15 @@ func (a AC) HTML() template.HTML {
 
 // Territory represents a territory in the North American Numbering Plan.
 type Territory struct {
-	Name      string // Name of the state, province, or territory.
-	AlphaCode AC     // Two-letter alphabetic code.
-	AreaCodes []NAN  // Three-digit NAN code used for telephone area codes.
+	Name         string       // Name of the state, province, or territory.
+	Abbreviation Abbreviation // Two-letter abbreviation.
+	AreaCodes    []NAN        // Three-digit NAN code used for telephone area codes.
 }
 
 func (t Territory) HTML() template.HTML {
 	html := "<span>" + t.Name
-	if len(t.AlphaCode) > 0 {
-		html += " (" + string(t.AlphaCode) + ") "
+	if len(t.Abbreviation) > 0 {
+		html += " (" + string(t.Abbreviation) + ") "
 	}
 	// join area codes with commas
 	if len(t.AreaCodes) == 0 {
@@ -138,7 +138,7 @@ var notes = map[NAN]string{
 	716: "Western New York, including Buffalo.",                                                                                                     // 1954
 	718: "New York City, created on December 1984 to serve Brooklyn, Queens, and Staten Island. " + bronx,                                           // 1984
 	914: "Southern New York, including Westchester County.",                                                                                         // 1947
-	917: "New York City, coming online in February 1992 and the first overlay area code, however it is exclusively for cellphones.",                 // 1992
+	917: "New York City, coming online in February 1992 and the first overlay area code, however it is exclusive for cellphones.",                   // 1992
 	// 210, 214, 409, 512, 713, 806, 817, 903, 915
 	214: "Northern Texas, including Dallas, however after November 1990 it split to form 903.",                                     // 1947
 	409: "Southeastern Texas, including Beaumont and Galveston, however it came online in 1983.",                                   // 1983
@@ -349,10 +349,13 @@ func Territories() []Territory {
 func Lookup(a any) []Territory {
 	switch v := a.(type) {
 	case string:
-		if len(v) == 2 {
-			return []Territory{TerritoryByAlpha(AC(v))}
+		switch len(v) {
+		case 0, 1:
+			return nil
+		case 2:
+			return []Territory{TerritoryByAbbr(Abbreviation(v))}
 		}
-		return TerritoryMatch(v)
+		return TerritoryContains(v)
 	case int, uint:
 		return TerritoryByCode(NAN(v.(int)))
 	case NAN:
@@ -382,6 +385,58 @@ func Lookups(a ...any) []Territory {
 	return t
 }
 
+// Result represents the result of a query, which can be an area code or a list of territories.
+type Result struct {
+	AreaCode NAN
+	Terr     []Territory
+}
+
+// Query returns the result of a query from a form input.
+func Query(a any) Result {
+	switch val := a.(type) {
+	case string:
+		if c, err := strconv.Atoi(val); err == nil {
+			return Result{AreaCode: NAN(c)}
+		}
+		return Result{Terr: Lookup(val)}
+	case int, uint:
+		return Result{AreaCode: NAN(val.(int))}
+	case NAN:
+		return Result{AreaCode: val}
+	default:
+		return Result{}
+	}
+}
+
+// Queries returns a list of results for multiple queries from a form input.
+func Queries(s ...string) []Result {
+	queries := make([]any, len(s))
+	for i, val := range s {
+		val = strings.TrimSpace(val)
+		if x, err := strconv.Atoi(val); err == nil {
+			queries[i] = x
+			continue
+		}
+		queries[i] = val
+	}
+	var r []Result
+	for _, query := range queries {
+		find := Query(query)
+		if !find.AreaCode.Valid() {
+			none := len(find.Terr) == 0
+			if none {
+				continue
+			}
+			none = len(find.Terr) == 1 && find.Terr[0].Name == ""
+			if none {
+				continue
+			}
+		}
+		r = append(r, find)
+	}
+	return r
+}
+
 // Contains returns true if the territory is in the list of territories.
 func Contains(t Territory, ts ...Territory) bool {
 	for _, x := range ts {
@@ -392,19 +447,19 @@ func Contains(t Territory, ts ...Territory) bool {
 	return false
 }
 
-// AlphaCodes returns a list of all two-letter alphabetic codes for territories
+// Abbreviations returns a list of all two-letter abbreviations for territories
 // in the North American Numbering Plan sorted in ascending order.
-func AlphaCodes() []AC {
-	var codes []AC
+func Abbreviations() []Abbreviation {
+	var abbr []Abbreviation
 	for _, t := range territories {
-		if t.AlphaCode == "" {
+		if t.Abbreviation == "" {
 			continue
 		}
-		codes = append(codes, t.AlphaCode)
+		abbr = append(abbr, t.Abbreviation)
 	}
-	slices.Sort(codes)
-	codes = slices.Compact(codes) // remove empty strings
-	return codes
+	slices.Sort(abbr)
+	abbr = slices.Compact(abbr) // remove empty strings
+	return abbr
 }
 
 // AreaCodes returns a list of all NANP area codes sorted in ascending order.
@@ -418,20 +473,23 @@ func AreaCodes() []NAN {
 	return codes
 }
 
-// TerritoryByAlpha returns the territory with the given two-letter alphabetic code.
-func TerritoryByAlpha(ac AC) Territory {
+// TerritoryByAbbr returns the territory with the given two-letter abbreviation.
+func TerritoryByAbbr(abbr Abbreviation) Territory {
+	if len(abbr) == 0 {
+		return Territory{}
+	}
 	for _, t := range territories {
-		if strings.EqualFold(string(t.AlphaCode), string(ac)) {
+		if strings.EqualFold(string(t.Abbreviation), string(abbr)) {
 			return t
 		}
 	}
 	return Territory{}
 }
 
-// TerritoryByCode returns the territories for the given NANP code.
+// TerritoryByCode returns the territories for the given North American Numbering code.
 //
 // Generally, this will return a single territory, but it is possible for
-// a NANP code to be used in multiple territories, such as provinces in Canada.
+// a NAN code to be used in multiple territories, such as provinces in Canada.
 func TerritoryByCode(code NAN) []Territory {
 	if !code.Valid() {
 		return nil
@@ -458,11 +516,12 @@ func TerritoryByName(name string) Territory {
 	return Territory{}
 }
 
-// TerritoryMatch returns a list of territories that contain the given name.
-func TerritoryMatch(name string) []Territory {
+// TerritoryContains returns a list of territories with names that contain the given string.
+func TerritoryContains(s string) []Territory {
 	m := []Territory{}
 	for _, t := range territories {
-		if strings.Contains(strings.ToLower(t.Name), strings.ToLower(name)) {
+		substr := strings.ToLower(s)
+		if strings.Contains(strings.ToLower(t.Name), substr) {
 			m = append(m, t)
 		}
 	}

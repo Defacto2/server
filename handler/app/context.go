@@ -226,6 +226,7 @@ func Artifacts404(c echo.Context, uri string) error {
 	return nil
 }
 
+// Areacodes is the handler for the BBS and telephone area codes page.
 func Areacodes(c echo.Context, db *sql.DB) error {
 	data := empty(c)
 	data["title"] = "BBS and telephone area codes"
@@ -233,12 +234,9 @@ func Areacodes(c echo.Context, db *sql.DB) error {
 	data["logo"] = "BBS area codes"
 	data["h1"] = "BBS area codes"
 	data["lead"] = "North American Numbering Plan (+1-XXX) telephone area codes until 1994."
-	//data["areacodes"] = areacode.Territories()
-
-	data["nanps"] = areacode.AreaCodes()
+	data["telephonecodes"] = areacode.AreaCodes()
 	data["territories"] = areacode.Territories()
-	data["alphacodes"] = areacode.AlphaCodes()
-
+	data["abbreviations"] = areacode.Abbreviations()
 	err := c.Render(http.StatusOK, "areacodes", data)
 	if err != nil {
 		return InternalErr(c, "areacodes", err)
