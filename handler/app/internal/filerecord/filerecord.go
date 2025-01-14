@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"image"
 	"io/fs"
+	"math"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -82,7 +83,7 @@ func (m *ListEntry) HTML(bytes int64, platform, section string) string {
 	return m.Column1(htm)
 }
 
-func (m ListEntry) Column1(htm string) string {
+func (m *ListEntry) Column1(htm string) string {
 	const blank = `<div class="col col-1"></div>`
 	ext := strings.ToLower(filepath.Ext(m.name))
 	switch {
@@ -98,7 +99,7 @@ func (m ListEntry) Column1(htm string) string {
 	return m.Column2(htm)
 }
 
-func (m ListEntry) Column2(htm string) string {
+func (m *ListEntry) Column2(htm string) string {
 	soloText := func() bool {
 		if !strings.EqualFold(m.platform, tags.Text.String()) &&
 			!strings.EqualFold(m.platform, textamiga) {
@@ -129,7 +130,7 @@ func (m ListEntry) Column2(htm string) string {
 	return m.Column1and2(ext, htm)
 }
 
-func (m ListEntry) Column1and2(ext, htm string) string {
+func (m *ListEntry) Column1and2(ext, htm string) string {
 	switch {
 	case m.Texts && (ext == bat || ext == cmd):
 		htm += fmt.Sprintf(` <small class="">%s</small></div>`, "command script")
@@ -402,7 +403,7 @@ func (e *entry) parse(path, platform string, info fs.FileInfo) bool {
 		e.zeros++
 		return skipEntry
 	}
-	e.size = humanize.Bytes(uint64(info.Size()))
+	e.size = humanize.Bytes(uint64(math.Abs(float64(info.Size()))))
 	r, _ := os.Open(path)
 	if r == nil {
 		return skipEntry
@@ -580,22 +581,41 @@ func ListContent(art *models.File, dirs command.Dirs, src string) template.HTML 
 		b.Reset()
 		return template.HTML(err.Error())
 	}
+	c := content{
+		dirs:          dirs,
+		zeroByteFiles: zeroByteFiles,
+		dst:           dst,
+		src:           src,
+		unid:          unid,
+	}
+	return c.renderContent(&b, names...)
+}
+
+type content struct {
+	dirs          command.Dirs
+	zeroByteFiles int
+	dst           string
+	src           string
+	unid          string
+}
+
+func (c content) renderContent(b *strings.Builder, names ...string) template.HTML {
 	// always render a file_id.diz if it is found
 	diz := indexDiz(names...)
 	l := len(names)
 	if l == 0 {
-		b.WriteString(skippedEmpty(zeroByteFiles))
+		b.WriteString(skippedEmpty(c.zeroByteFiles))
 		// b.Reset()
 		return template.HTML(b.String())
 	}
 	if useDiz := diz > -1; useDiz {
-		srcDiz := filepath.Join(dst, names[diz])
-		if err := dirs.DizDeferred(srcDiz, unid); err != nil {
+		srcDiz := filepath.Join(c.dst, names[diz])
+		if err := c.dirs.DizDeferred(srcDiz, c.unid); err != nil {
 			b.Reset()
 			return template.HTML(err.Error())
 		}
 		if l == 1 {
-			b.WriteString(skippedEmpty(zeroByteFiles))
+			b.WriteString(skippedEmpty(c.zeroByteFiles))
 			return template.HTML(b.String())
 		}
 	}
@@ -603,20 +623,20 @@ func ListContent(art *models.File, dirs command.Dirs, src string) template.HTML 
 	// excluding any file_id.diz files
 	srcNFO := ""
 	if onlyNFO := diz == -1 && l == 1; onlyNFO {
-		srcNFO = filepath.Join(dst, names[0])
+		srcNFO = filepath.Join(c.dst, names[0])
 	}
 	const maxItems = 2
 	if textPair := diz != -1 && l == maxItems; textPair {
 		invert := 1 - diz
-		srcNFO = filepath.Join(dst, names[invert])
+		srcNFO = filepath.Join(c.dst, names[invert])
 	}
 	if srcNFO != "" {
-		if err := dirs.TextDeferred(srcNFO, unid); err != nil {
+		if err := c.dirs.TextDeferred(srcNFO, c.unid); err != nil {
 			b.Reset()
 			return template.HTML(err.Error())
 		}
 	}
-	b.WriteString(skippedEmpty(zeroByteFiles))
+	b.WriteString(skippedEmpty(c.zeroByteFiles))
 	return template.HTML(b.String())
 }
 
@@ -643,7 +663,7 @@ func walkerChmod(path string, d fs.DirEntry, err error) error {
 		return nil
 	}
 	if err := os.Chmod(path, fileRW); err != nil {
-		return err
+		return fmt.Errorf("failed to chmod file %s: %w", path, err)
 	}
 	return nil
 }

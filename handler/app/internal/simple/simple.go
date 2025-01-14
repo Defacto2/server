@@ -9,6 +9,7 @@ import (
 	_ "image/gif"  // gif format decoder
 	_ "image/jpeg" // jpeg format decoder
 	_ "image/png"  // png format decoder
+	"math"
 	"net/http"
 	"net/url"
 	"os"
@@ -77,7 +78,7 @@ func BytesHuman(i int64) string {
 	if i == 0 {
 		return "(n/a)"
 	}
-	return humanize.Bytes(uint64(i))
+	return humanize.Bytes(uint64(math.Abs(float64(i))))
 }
 
 // DemozooGetLink returns a HTML link to the Demozoo download links.
@@ -543,9 +544,10 @@ func StatHumanize(name string) (string, string, string) {
 	if err != nil {
 		return noFile, noFile, noFile
 	}
+	u := uint64(math.Abs(float64(stat.Size())))
 	return stat.ModTime().Format(YYYYMMDD),
 		humanize.Comma(stat.Size()),
-		humanize.Bytes(uint64(stat.Size()))
+		humanize.Bytes(u)
 }
 
 // Thumb returns a HTML image tag or picture element for the given unid.

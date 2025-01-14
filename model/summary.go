@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"math"
 	"strings"
 
 	namer "github.com/Defacto2/releaser/name"
@@ -150,8 +151,8 @@ func (s *Summary) ByUnwanted(ctx context.Context, exec boil.ContextExecutor) err
 func (s *Summary) Update(c, b, y0, y1 int) {
 	s.SumCount = sql.NullInt64{Int64: int64(c)}
 	s.SumBytes = sql.NullInt64{Int64: int64(b)}
-	s.MinYear = sql.NullInt16{Int16: int16(y0)}
-	s.MaxYear = sql.NullInt16{Int16: int16(y1)}
+	s.MinYear = sql.NullInt16{Int16: int16(math.Abs(float64(y0)))}
+	s.MaxYear = sql.NullInt16{Int16: int16(math.Abs(float64(y1)))}
 }
 
 // StatFunc is a function that updates the summary statistics.

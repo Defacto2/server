@@ -17,7 +17,7 @@ import (
 )
 
 // Fixer is used to fix any known issues with the file assets and the database entries.
-func (c Config) Fixer(d time.Time) error {
+func (c *Config) Fixer(d time.Time) error {
 	logger := zaplog.Timestamp().Sugar()
 	db, err := postgres.Open()
 	if err != nil {
@@ -49,7 +49,7 @@ func (c Config) Fixer(d time.Time) error {
 
 // repairer is used to fix any known issues with the file assets and the database entries.
 // These are skipped if the Production mode environment variable is set to false.
-func (c Config) repairer(ctx context.Context, db *sql.DB) {
+func (c *Config) repairer(ctx context.Context, db *sql.DB) {
 	if db == nil {
 		panic(fmt.Errorf("%w: repairer", ErrPointer))
 	}
@@ -89,7 +89,7 @@ func repairDatabase(ctx context.Context, db *sql.DB) error {
 
 // sanityChecks is used to perform a number of sanity checks on the file assets and database.
 // These are skipped if the Production mode environment variable is set.to false.
-func (c Config) sanityChecks(ctx context.Context) {
+func (c *Config) sanityChecks(ctx context.Context) {
 	logger := helper.Logger(ctx)
 	if err := c.Checks(logger); err != nil {
 		logger.Errorf("sanity checks could not read the environment variable, "+

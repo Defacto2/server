@@ -17,14 +17,14 @@ type Navigate struct {
 }
 
 // Navi returns a populated Navigate struct for pagination.
-func Navi(limit, page int, maxPage uint, current, qs string) Navigate {
+func Navi(limit, page, maxPage int, current, qs string) Navigate {
 	return Navigate{
 		Current:  current,
 		Limit:    limit,
 		Page:     page,
 		PagePrev: previous(page),
 		PageNext: next(page, maxPage),
-		PageMax:  int(maxPage),
+		PageMax:  maxPage,
 		QueryStr: qs,
 	}
 }
@@ -46,10 +46,9 @@ func previous(page int) int {
 }
 
 // next returns the next page number.
-func next(page int, maxPage uint) int {
-	max := int(maxPage)
-	if page >= max {
-		return max
+func next(page, maxPage int) int {
+	if page >= maxPage {
+		return maxPage
 	}
 	return page + 1
 }

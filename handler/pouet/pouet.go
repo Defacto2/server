@@ -23,8 +23,11 @@ var (
 	ErrStatus  = errors.New("status is not ok")
 )
 
-var client = http.Client{
-	Timeout: 10 * time.Second,
+func client() http.Client {
+	const ten = 10
+	return http.Client{
+		Timeout: ten * time.Second,
+	}
 }
 
 const (
@@ -115,7 +118,7 @@ func TypesValid(s string) bool {
 // Releasers returns the first two names in the production that have is_group as true.
 // The one exception is if the production title contains a reference to a BBS or FTP site name.
 // Then that title will be used as the first group returned.
-func (p Production) Releasers() (string, string) {
+func (p *Production) Releasers() (string, string) {
 	// find any reference to BBS or FTP in the production title to
 	// obtain a possible site name.
 	var a, b string
@@ -134,14 +137,14 @@ func (p Production) Releasers() (string, string) {
 }
 
 // Released returns the production's release date as date_issued_ year, month, day values.
-func (p Production) Released() (int16, int16, int16) {
+func (p *Production) Released() (int16, int16, int16) {
 	return helper.Released(p.ReleaseDate)
 }
 
 // PlatformType parses the Pouet "platform" and "type" data
 // and returns the corresponding platform and section tags.
 // It returns -1 for an unknown platform or section.
-func (p Production) PlatformType() (tags.Tag, tags.Tag) {
+func (p *Production) PlatformType() (tags.Tag, tags.Tag) {
 	var platform tags.Tag = -1
 	switch {
 	case p.Platforms.Windows.Slug != "":
@@ -306,7 +309,8 @@ func (r *Response) Get(id int) (int, error) {
 		return 0, fmt.Errorf("get pouet production new request %w", err)
 	}
 	req.Header.Set("User-Agent", helper.UserAgent)
-	res, err := client.Do(req)
+	c := client()
+	res, err := c.Do(req)
 	if err != nil {
 		return 0, fmt.Errorf("get pouet production client do %w", err)
 	}

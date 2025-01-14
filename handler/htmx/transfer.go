@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"html"
 	"io"
-	"math"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -431,7 +430,7 @@ func (prod Submission) Submit( //nolint:cyclop,funlen
 		return c.String(http.StatusInternalServerError,
 			"error, "+prod.String()+" submit logger is nil")
 	}
-	id, idInt32, err := sanitizeID(c, name, prod.String())
+	id, err := sanitizeID(c, name, prod.String())
 	if err != nil {
 		return err
 	}
@@ -481,13 +480,13 @@ func (prod Submission) Submit( //nolint:cyclop,funlen
 	// see Download in handler/app/internal/remote/remote.go
 	switch prod {
 	case Demozoo:
-		if err := app.GetDemozoo(c, db, int(idInt32), unid, downloadDir); err != nil {
+		if err := app.GetDemozoo(c, db, id, unid, downloadDir); err != nil {
 			logger.Error(err)
 			html += fmt.Sprintf(`<p class="text-danger">error, the %s download failed</p>`, prod.String())
 			return c.String(http.StatusServiceUnavailable, html)
 		}
 	case Pouet:
-		if err := app.GetPouet(c, db, int(idInt32), unid, downloadDir); err != nil {
+		if err := app.GetPouet(c, db, id, unid, downloadDir); err != nil {
 			logger.Error(err)
 			html += fmt.Sprintf(`<p class="text-danger">error, the %s download failed</p>`, prod.String())
 			return c.String(http.StatusServiceUnavailable, html)
@@ -498,29 +497,25 @@ func (prod Submission) Submit( //nolint:cyclop,funlen
 }
 
 // sanitizeID validates the production ID and ensures that it is a valid numeric value.
-// The ID returned as both an int64 and int32 value.
-func sanitizeID(c echo.Context, name, prod string) (int64, int32, error) {
+func sanitizeID(c echo.Context, name, prod string) (int, error) {
 	sid := c.Param("id")
-	id, err := strconv.ParseInt(sid, 10, 64)
+	id, err := strconv.Atoi(sid)
 	if err != nil {
-		return 0, 0, c.String(http.StatusNotAcceptable,
+		return 0, c.String(http.StatusNotAcceptable,
 			"The "+name+" production ID must be a numeric value, "+sid)
 	}
-	var sanity uint64
+	var sanity int
 	switch prod {
 	case dz:
 		sanity = demozoo.Sanity
 	case pt:
 		sanity = pouet.Sanity
 	}
-	if id < 1 || id > int64(sanity) {
-		return 0, 0, c.String(http.StatusNotAcceptable,
+	if id < 1 || id > sanity {
+		return 0, c.String(http.StatusNotAcceptable,
 			"The "+name+" production ID is invalid, "+sid)
 	}
-	if id > math.MaxInt32 {
-		return id, 0, nil
-	}
-	return id, int32(id), nil
+	return id, nil
 }
 
 func UploadPreview(c echo.Context, previewDir, thumbnailDir string) error {

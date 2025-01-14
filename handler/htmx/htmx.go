@@ -187,13 +187,13 @@ func DemozooSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downlo
 
 // DBConnections is the handler for the database connections page.
 func DBConnections(c echo.Context, db *sql.DB) error {
-	conns, max, err := postgres.Connections(db)
+	conns, maxConn, err := postgres.Connections(db)
 	if err != nil {
 		return c.String(http.StatusOK, err.Error())
 	}
 	currentTime := time.Now()
 	return c.String(http.StatusOK, fmt.Sprintf("%d of %d, <small>%s</small>",
-		conns, max, currentTime.Format("15:04:05")))
+		conns, maxConn, currentTime.Format("15:04:05")))
 }
 
 // DeleteForever is a handler for the /delete/forever route.

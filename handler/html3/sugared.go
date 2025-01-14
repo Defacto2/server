@@ -93,11 +93,11 @@ func (s *Sugared) Groups(c echo.Context, db *sql.DB) error {
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
 	count := len(unique)
-	maxPage := uint(0)
+	maxPage := 0
 	limit := model.Maximum
 	if limit > 0 {
 		maxPage = helper.PageCount(count, limit)
-		if page > int(maxPage) {
+		if page > maxPage {
 			return echo.NewHTTPError(http.StatusNotFound,
 				fmt.Sprintf("Page %d of %d for %s doesn't exist", page, maxPage, " groups"))
 		}
@@ -213,10 +213,10 @@ func (s *Sugared) List(c echo.Context, db *sql.DB, tt RecordsBy) error { //nolin
 			fmt.Sprintf("The %s %q doesn't exist", tt, id))
 	}
 	// pagination maximum page number
-	maxPage := uint(0)
+	maxPage := 0
 	if limit > 0 {
 		maxPage = helper.PageCount(count, limit)
-		if page > int(maxPage) {
+		if page > maxPage {
 			return echo.NewHTTPError(http.StatusNotFound,
 				fmt.Sprintf("Page %d of %d for %s doesn't exist", page, maxPage, tt))
 		}

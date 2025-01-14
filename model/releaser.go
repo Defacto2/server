@@ -82,9 +82,8 @@ func (r *Releasers) Where(ctx context.Context, exec boil.ContextExecutor, name s
 	if invalidExec(exec) {
 		return nil, ErrDB
 	}
-	s, err := namer.Humanize(namer.Path(name))
-	if err != nil {
-		// if the name is invalid, then return 0 results, but there is no need to return an error.
+	s, _ := namer.Humanize(namer.Path(name))
+	if s == "" {
 		return nil, nil
 	}
 	n := strings.ToUpper(s)
@@ -132,7 +131,7 @@ func (r *Releasers) Limit(ctx context.Context, exec boil.ContextExecutor, order 
 // Similar finds the unique releaser names that are similar to the named strings.
 // The results are ordered by the total file counts.
 // The required limit is the maximum number of results to return or defaults to 10.
-func (r *Releasers) Similar(ctx context.Context, exec boil.ContextExecutor, limit uint, names ...string) error {
+func (r *Releasers) Similar(ctx context.Context, exec boil.ContextExecutor, limit int, names ...string) error {
 	if invalidExec(exec) {
 		return ErrDB
 	}
@@ -142,7 +141,7 @@ func (r *Releasers) Similar(ctx context.Context, exec boil.ContextExecutor, limi
 // Initialism finds the unique releaser names that match the named strings.
 // The results are ordered by the total file counts.
 // The required limit is the maximum number of results to return or defaults to 10.
-func (r *Releasers) Initialism(ctx context.Context, exec boil.ContextExecutor, limit uint, names ...string) error {
+func (r *Releasers) Initialism(ctx context.Context, exec boil.ContextExecutor, limit int, names ...string) error {
 	if invalidExec(exec) {
 		return ErrDB
 	}
@@ -152,7 +151,7 @@ func (r *Releasers) Initialism(ctx context.Context, exec boil.ContextExecutor, l
 // SimilarMagazine finds the unique releaser names that are similar to the named strings.
 // The results are ordered by the total file counts.
 // The required limit is the maximum number of results to return or defaults to 10.
-func (r *Releasers) SimilarMagazine(ctx context.Context, exec boil.ContextExecutor, limit uint, names ...string) error {
+func (r *Releasers) SimilarMagazine(ctx context.Context, exec boil.ContextExecutor, limit int, names ...string) error {
 	if invalidExec(exec) {
 		return ErrDB
 	}
@@ -160,7 +159,7 @@ func (r *Releasers) SimilarMagazine(ctx context.Context, exec boil.ContextExecut
 }
 
 func (r *Releasers) similar(
-	ctx context.Context, exec boil.ContextExecutor, limit uint, lookup string, names ...string,
+	ctx context.Context, exec boil.ContextExecutor, limit int, lookup string, names ...string,
 ) error {
 	boil.DebugMode = false // Enable to see the raw SQL queries.
 	if len(names) == 0 {
@@ -194,8 +193,8 @@ func (r *Releasers) similar(
 		query = string(postgres.SimilarToReleaser(likes...))
 	}
 	{
-		const page, max = 1, 10
-		size := int(limit) | max
+		const page, maxPages = 1, 10
+		size := limit | maxPages
 		val, offset := calculateLimitAndOffset(page, size)
 		query += fmt.Sprintf(" LIMIT %d OFFSET %d", val, offset)
 	}

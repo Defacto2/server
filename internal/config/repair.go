@@ -47,7 +47,7 @@ var (
 // Archives, on startup check the download directory for any legacy and obsolete archives.
 // Obsolete archives are those that use a legacy compression method that is not supported
 // by Go or JS libraries used by the website.
-func (c Config) Archives(ctx context.Context, exec boil.ContextExecutor) error { //nolint:cyclop,funlen,gocognit
+func (c *Config) Archives(ctx context.Context, exec boil.ContextExecutor) error { //nolint:cyclop,funlen,gocognit
 	if exec == nil {
 		return fmt.Errorf("config repair archives %w", ErrCE)
 	}
@@ -281,7 +281,7 @@ func (r Repair) ReArchive(ctx context.Context, src, destDir, uid string) error {
 // to the orphaned directory without warning.
 //
 // There are no checks on the 3 directories that get scanned.
-func (c Config) Assets(ctx context.Context, exec boil.ContextExecutor) error {
+func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor) error {
 	if exec == nil {
 		return fmt.Errorf("config repair assets %w", ErrCE)
 	}
@@ -356,7 +356,7 @@ func unknownAsset(logger *zap.SugaredLogger, oldpath, orphanedDir, name, uid str
 
 // RepairAssets, on startup check the file system directories for any invalid or unknown files.
 // If any are found, they are removed without warning.
-func (c Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor) error {
+func (c *Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor) error {
 	if exec == nil {
 		return fmt.Errorf("config repair assets %w", ErrCE)
 	}
@@ -367,7 +367,7 @@ func (c Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor) err
 	} else if !st.IsDir() {
 		return fmt.Errorf("repair backup directory %w: %s", ErrNotDir, backupDir)
 	}
-	if err := ImageDirs(logger, c); err != nil {
+	if err := c.ImageDirs(logger); err != nil {
 		return fmt.Errorf("repair the images directories %w", err)
 	}
 	if err := DownloadDir(logger, c.AbsDownload, c.AbsOrphaned, c.AbsExtra); err != nil {
@@ -392,7 +392,7 @@ func (c Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor) err
 }
 
 // TextFiles, on startup check the extra directory for any readme text files that are duplicates of the diz text files.
-func (c Config) TextFiles(ctx context.Context, exec boil.ContextExecutor, logger *zap.SugaredLogger) error {
+func (c *Config) TextFiles(ctx context.Context, exec boil.ContextExecutor, logger *zap.SugaredLogger) error {
 	if exec == nil {
 		return fmt.Errorf("config %w", ErrCE)
 	}
@@ -443,7 +443,7 @@ func (c Config) TextFiles(ctx context.Context, exec boil.ContextExecutor, logger
 // MagicNumbers checks the magic numbers of the artifacts and replaces any missing or
 // legacy values with the current method of detection. Previous detection methods were
 // done using the `file` command line utility, which is a bit to verbose for our needs.
-func (c Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, logger *zap.SugaredLogger) error {
+func (c *Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, logger *zap.SugaredLogger) error {
 	if exec == nil {
 		return fmt.Errorf("config repair magic numbers %w", ErrCE)
 	}
@@ -478,7 +478,7 @@ func (c Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, log
 }
 
 // Previews, on startup check the preview directory for any unnecessary preview images such as textfile artifacts.
-func (c Config) Previews(ctx context.Context, exec boil.ContextExecutor, logger *zap.SugaredLogger) error {
+func (c *Config) Previews(ctx context.Context, exec boil.ContextExecutor, logger *zap.SugaredLogger) error {
 	if exec == nil {
 		return fmt.Errorf("config repair previews %w", ErrCE)
 	}
@@ -518,7 +518,7 @@ func (c Config) Previews(ctx context.Context, exec boil.ContextExecutor, logger 
 }
 
 // ImageDirs, on startup check the image directories for any invalid or unknown files.
-func ImageDirs(logger *zap.SugaredLogger, c Config) error {
+func (c *Config) ImageDirs(logger *zap.SugaredLogger) error {
 	backupDir := c.AbsOrphaned
 	dirs := []string{c.AbsPreview, c.AbsThumbnail}
 	if err := removeSub(dirs...); err != nil {

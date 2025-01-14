@@ -9,6 +9,7 @@ package handler
 import (
 	"crypto/sha512"
 	"fmt"
+	"math"
 	"net/http"
 	"runtime"
 	"strconv"
@@ -40,7 +41,7 @@ func (c *Configuration) NoCrawl(next echo.HandlerFunc) echo.HandlerFunc {
 
 // ReadOnlyLock disables all PATCH, POST, PUT and DELETE requests for the modification
 // of the database and any related user interface.
-func (c Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
+func (c *Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(e echo.Context) error {
 		s := strconv.FormatBool(c.Environment.ReadOnly)
 		e.Response().Header().Set("X-Read-Only-Lock", s)
@@ -55,7 +56,7 @@ func (c Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
 }
 
 // SessionLock middleware checks the session cookie for a valid signed in client.
-func (c Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
+func (c *Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(e echo.Context) error {
 		// https://pkg.go.dev/github.com/gorilla/sessions#Session
 		sess, err := session.Get(sess.Name, e)
@@ -96,7 +97,7 @@ func configRTS() middleware.TrailingSlashConfig {
 // configZapLogger returns the RequestLogger middleware configuration
 // based on the application configuration. The logger is set to the CLI
 // logger for development mode and the Production logger for production mode.
-func (c Configuration) configZapLogger() middleware.RequestLoggerConfig {
+func (c *Configuration) configZapLogger() middleware.RequestLoggerConfig {
 	noLogging := func(_ echo.Context, _ middleware.RequestLoggerValues) error {
 		return nil
 	}
@@ -117,7 +118,7 @@ func (c Configuration) configZapLogger() middleware.RequestLoggerConfig {
 		// memory usage
 		var m runtime.MemStats
 		runtime.ReadMemStats(&m)
-		rsize := uint64(v.ResponseSize)
+		rsize := uint64(math.Abs(float64(v.ResponseSize)))
 		alloc := humanize.Bytes(m.Alloc)
 		// cpu usage
 		numCPU := runtime.NumCPU()

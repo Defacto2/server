@@ -317,7 +317,7 @@ func TestFormattings(t *testing.T) {
 func TestPagi(t *testing.T) {
 	type args struct {
 		page    int
-		maxPage uint
+		maxPage int
 	}
 	tests := []struct {
 		name  string
@@ -349,7 +349,7 @@ func TestPagi(t *testing.T) {
 func TestNavi(t *testing.T) {
 	limit := 10
 	page := 2
-	maxPage := uint(5)
+	maxPage := 5
 	current := "current"
 	qs := "query"
 

@@ -110,11 +110,11 @@ function urlPath(elm, github) {
   value = value.replace(regLeadSeparators, "");
   elm.value = value;
 
-  const max = elm.getAttribute("maxlength");
-  if (max === null) {
+  const maxLen = elm.getAttribute("maxlength");
+  if (maxLen === null) {
     throw new Error(`The maxlength attribute is required for ${elm.id}.`);
   }
-  if (value.length > max) {
+  if (value.length > maxLen) {
     elm.classList.add("is-invalid");
     return;
   }
@@ -142,13 +142,13 @@ export function releaser(elm) {
   value = value.replace(/[ ]{2,}/g, " ");
   elm.value = value;
 
-  const min = elm.getAttribute("minlength");
-  const max = elm.getAttribute("maxlength");
+  const minLen = elm.getAttribute("minlength");
+  const maxLen = elm.getAttribute("maxlength");
   const req = elm.getAttribute("required");
-  if (min === null) {
+  if (minLen === null) {
     throw new Error(`The minlength attribute is required for ${elm.id}.`);
   }
-  if (max === null) {
+  if (maxLen === null) {
     throw new Error(`The maxlength attribute is required for ${elm.id}.`);
   }
 
@@ -157,7 +157,7 @@ export function releaser(elm) {
     throw new Error("The releasers error element is null.");
   }
 
-  const requireBounds = value.length < min || value.length > max;
+  const requireBounds = value.length < minLen || value.length > maxLen;
   if (req != null && requireBounds) {
     elm.classList.add("is-invalid");
     if (elm.id === "-1") {
@@ -166,7 +166,7 @@ export function releaser(elm) {
     return;
   }
   const emptyBounds =
-    value.length > 0 && (value.length < min || value.length > max);
+    value.length > 0 && (value.length < minLen || value.length > maxLen);
   if (req == null && emptyBounds) {
     elm.classList.add("is-invalid");
     return;

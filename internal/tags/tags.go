@@ -263,14 +263,20 @@ func IsText(name string) bool {
 		strings.EqualFold(name, Markup.String())
 }
 
-// Humanize returns the human readable name of the platform and section tags combined.
-func Humanize(platform, section Tag) string {
-	p, s := platform.String(), section.String()
+func humChecks(platform, section Tag) string {
 	if !IsPlatform(platform.String()) {
-		return fmt.Sprintf("unknown platform tag: %q", p)
+		return fmt.Sprintf("unknown platform tag: %q", platform)
 	}
 	if !IsCategory(section.String()) {
-		return fmt.Sprintf("unknown section tag: %q", s)
+		return fmt.Sprintf("unknown section tag: %q", section)
+	}
+	return ""
+}
+
+// Humanize returns the human readable name of the platform and section tags combined.
+func Humanize(platform, section Tag) string {
+	if s := humChecks(platform, section); s != "" {
+		return s
 	}
 	switch section {
 	case Bust:
@@ -294,7 +300,7 @@ func Humanize(platform, section Tag) string {
 	case Image:
 		return humImg(platform, section)
 	case PDF:
-		return fmt.Sprintf("A PDF document about %s", Names()[section])
+		return "A PDF document about " + Names()[section]
 	case Text:
 		return humText(platform, section)
 	case TextAmiga:

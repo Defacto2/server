@@ -81,10 +81,7 @@ func TestRead(t *testing.T) {
 	require.Error(t, err)
 	assert.Nil(t, r)
 
-	dir, err := os.MkdirTemp(helper.TmpDir(), unid)
-	require.NoError(t, err)
-	defer os.RemoveAll(dir)
-
+	dir := t.TempDir()
 	err = helper.Touch(filepath.Join(dir, unid+txt))
 	require.NoError(t, err)
 	err = helper.Touch(filepath.Join(dir, unid))

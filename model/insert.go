@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
+	"math"
 	"net/url"
 	"time"
 	"unicode/utf8"
@@ -24,7 +25,7 @@ import (
 // InsertDemozoo inserts a new file record into the database using a Demozoo production ID.
 // This will not check if the Demozoo production ID already exists in the database.
 // When successful the function will return the new record ID.
-func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int64) (int64, string, error) {
+func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int) (int64, string, error) {
 	if invalidExec(exec) {
 		return 0, "", ErrDB
 	}
@@ -39,7 +40,7 @@ func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int64) (in
 
 	f := models.File{
 		UUID:         null.StringFrom(uid.String()),
-		WebIDDemozoo: null.Int64From(id),
+		WebIDDemozoo: null.Int64From(int64(math.Abs(float64(id)))),
 		Deletedat:    null.TimeFromPtr(&now),
 	}
 	if err = f.Insert(ctx, exec, boil.Infer()); err != nil {
@@ -51,7 +52,7 @@ func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int64) (in
 // InsertPouet inserts a new file record into the database using a Pouet production ID.
 // This will not check if the Pouet production ID already exists in the database.
 // When successful the function will return the new record ID.
-func InsertPouet(ctx context.Context, exec boil.ContextExecutor, id int64) (int64, string, error) {
+func InsertPouet(ctx context.Context, exec boil.ContextExecutor, id int) (int64, string, error) {
 	if invalidExec(exec) {
 		return 0, "", ErrDB
 	}
@@ -66,7 +67,7 @@ func InsertPouet(ctx context.Context, exec boil.ContextExecutor, id int64) (int6
 
 	f := models.File{
 		UUID:       null.StringFrom(uid.String()),
-		WebIDPouet: null.Int64From(id),
+		WebIDPouet: null.Int64From(int64(math.Abs(float64(id)))),
 		Deletedat:  null.TimeFromPtr(&now),
 	}
 	if err = f.Insert(ctx, exec, boil.Infer()); err != nil {

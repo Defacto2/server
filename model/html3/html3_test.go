@@ -78,9 +78,9 @@ func TestPublished(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			y := null.Int16{Int16: int16(tt.args.y), Valid: true}
-			m := null.Int16{Int16: int16(tt.args.m), Valid: true}
-			d := null.Int16{Int16: int16(tt.args.d), Valid: true}
+			y := null.Int16{Int16: int16(tt.args.y), Valid: true} //nolint:gosec
+			m := null.Int16{Int16: int16(tt.args.m), Valid: true} //nolint:gosec
+			d := null.Int16{Int16: int16(tt.args.d), Valid: true} //nolint:gosec
 			f := models.File{
 				DateIssuedYear:  y,
 				DateIssuedMonth: m,

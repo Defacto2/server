@@ -71,8 +71,8 @@ github.com/DATA-DOG/go-sqlmock v1.4.1/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/Defacto2/archive v1.0.9 h1:/9iSmcrmlEjyN1RxVtykFtV3bC2xcYBXnHdw7Pooiu0=
 github.com/Defacto2/archive v1.0.9/go.mod h1:PFBZqhCX1VRbxh282KsdxBM5oYfaGfxnGiXMNHdRGv0=
-github.com/Defacto2/helper v1.2.0 h1:jDQYp3R5b00VgFzaUb759aYfWqw/e39VgS+/7CF/tQU=
-github.com/Defacto2/helper v1.2.0/go.mod h1:F4dGCDhc6+LA6XH4iySJjJY/A2d1sTowsjKTPN39adg=
+github.com/Defacto2/helper v1.3.0 h1:HsIdvfVGUQUTcJ0PVPiCrjR0XusY00ZGx1eHr4U4Hls=
+github.com/Defacto2/helper v1.3.0/go.mod h1:F4dGCDhc6+LA6XH4iySJjJY/A2d1sTowsjKTPN39adg=
 github.com/Defacto2/magicnumber v1.0.6 h1:q7pShqBqjHJxuSedWhyBTo7dQDk5APNeWVShETNlW4Q=
 github.com/Defacto2/magicnumber v1.0.6/go.mod h1:nY5o4n8fLlajprK9iWanTjQF9EoYtG28zMQmHx5rcks=
 github.com/Defacto2/releaser v1.2.4 h1:5tJFusBTI59h6Sqxx1czx+USClCmWO4G6CmtmA0W3lk=
@@ -1041,8 +1041,8 @@ google.golang.org/grpc v1.44.0/go.mod h1:k+4IHHFw41K8+bbowsex27ge2rCb65oeWqe4jJ5
 google.golang.org/grpc v1.45.0/go.mod h1:lN7owxKUQEqMfSyQikvvk5tf/6zMPsrK+ONuO11+0rQ=
 google.golang.org/grpc v1.46.0/go.mod h1:vN9eftEi1UMyUsIF80+uQXhHjbXYbm0uXoFCACuMGWk=
 google.golang.org/grpc v1.46.2/go.mod h1:vN9eftEi1UMyUsIF80+uQXhHjbXYbm0uXoFCACuMGWk=
-google.golang.org/grpc v1.69.2 h1:U3S9QEtbXC0bYNvRtcoklF3xGtLViumSYxWykJS+7AU=
-google.golang.org/grpc v1.69.2/go.mod h1:vyjdE6jLBI76dgpDojsFGNaHlxdjXN9ghpnd2o7JGZ4=
+google.golang.org/grpc v1.69.4 h1:MF5TftSMkd8GLw/m0KM6V8CMOCY6NZ1NQDPGFgbTt4A=
+google.golang.org/grpc v1.69.4/go.mod h1:vyjdE6jLBI76dgpDojsFGNaHlxdjXN9ghpnd2o7JGZ4=
 google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.1.0/go.mod h1:6Kw0yEErY5E/yWrBtf03jp27GLLJujG4z/JK95pnjjw=
 google.golang.org/protobuf v0.0.0-20200109180630-ec00e32a8dfd/go.mod h1:DFci5gLYBciE7Vtevhsrf46CRTquxDuWsQurQQe4oz8=
 google.golang.org/protobuf v0.0.0-20200221191635-4d8936d0db64/go.mod h1:kwYJMbMJ01Woi6D6+Kah6886xMZcty6N08ah7+eCXa0=

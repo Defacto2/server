@@ -20,6 +20,6 @@ func TestLog(t *testing.T) {
 }
 
 func TestProduction(t *testing.T) {
-	logr := zaplog.Store(zaplog.Json(), "")
+	logr := zaplog.Store(zaplog.JSON(), "")
 	assert.NotNil(t, logr)
 }

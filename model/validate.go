@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"math"
 	"mime"
 	"regexp"
 	"strconv"
@@ -100,7 +101,7 @@ func ValidM(m int16) null.Int16 {
 
 // ValidY returns a valid year or a null value.
 func ValidY(y int16) null.Int16 {
-	current := int16(time.Now().Year())
+	current := int16(math.Abs(float64(time.Now().Year())))
 	if y < EpochYear || y > current {
 		return null.Int16{Int16: 0, Valid: false}
 	}

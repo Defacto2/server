@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"runtime"
 	"slices"
@@ -128,7 +129,7 @@ func environmentVars() (*zap.SugaredLogger, config.Config) {
 	}
 	configs.Override()
 	if i := configs.MaxProcs; i > 0 {
-		runtime.GOMAXPROCS(int(i))
+		runtime.GOMAXPROCS(int(math.Abs(float64(i))))
 	}
 	return logger, configs
 }

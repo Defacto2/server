@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"math"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -19,11 +20,12 @@ import (
 
 // DemozooExists returns true if the file record exists in the database using a Demozoo production ID.
 // This function will also return true for records that have been marked as deleted.
-func DemozooExists(ctx context.Context, exec boil.ContextExecutor, id int64) (bool, error) {
+func DemozooExists(ctx context.Context, exec boil.ContextExecutor, id int) (bool, error) {
 	if invalidExec(exec) {
 		return false, ErrDB
 	}
-	ok, err := models.Files(models.FileWhere.WebIDDemozoo.EQ(null.Int64From(id)),
+	x := null.Int64From(int64(math.Abs(float64(id))))
+	ok, err := models.Files(models.FileWhere.WebIDDemozoo.EQ(x),
 		qm.WithDeleted()).Exists(ctx, exec)
 	if err != nil {
 		return false, fmt.Errorf("exist demozoo file %d: %w", id, err)
@@ -33,11 +35,12 @@ func DemozooExists(ctx context.Context, exec boil.ContextExecutor, id int64) (bo
 
 // PouetExists returns true if the file record exists in the database using a Pouet production ID.
 // This function will also return true for records that have been marked as deleted.
-func PouetExists(ctx context.Context, exec boil.ContextExecutor, id int64) (bool, error) {
+func PouetExists(ctx context.Context, exec boil.ContextExecutor, id int) (bool, error) {
 	if invalidExec(exec) {
 		return false, ErrDB
 	}
-	ok, err := models.Files(models.FileWhere.WebIDPouet.EQ(null.Int64From(id)),
+	x := null.Int64From(int64(math.Abs(float64(id))))
+	ok, err := models.Files(models.FileWhere.WebIDPouet.EQ(x),
 		qm.WithDeleted()).Exists(ctx, exec)
 	if err != nil {
 		return false, fmt.Errorf("exist pouet file %d: %w", id, err)

@@ -142,8 +142,8 @@ func Store(enc zapcore.Encoder, logPath string) *zap.Logger {
 	return zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
 }
 
-// Json returns a logger in JSON format.
-func Json() zapcore.Encoder {
+// JSON returns a logger in JSON format.
+func JSON() zapcore.Encoder {
 	config := zap.NewProductionEncoderConfig()
 	config.EncodeTime = zapcore.TimeEncoderOfLayout("Jan-02-15:04:05.00")
 	return zapcore.NewJSONEncoder(config)

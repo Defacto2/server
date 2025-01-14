@@ -48,17 +48,17 @@ func Connections(db *sql.DB) (int64, int64, error) {
 	for rows.Next() {
 		count++
 	}
-	max, err := db.Query("SHOW max_connections;")
+	maxConn, err := db.Query("SHOW max_connections;")
 	if err != nil {
 		return 0, 0, fmt.Errorf("postgres query, %w", err)
 	}
-	if err := max.Err(); err != nil {
+	if err := maxConn.Err(); err != nil {
 		return 0, 0, fmt.Errorf("postgres rows, %w", err)
 	}
-	defer max.Close()
+	defer maxConn.Close()
 	var maxConnections int64
-	for max.Next() {
-		if err := max.Scan(&maxConnections); err != nil {
+	for maxConn.Next() {
+		if err := maxConn.Scan(&maxConnections); err != nil {
 			return 0, 0, fmt.Errorf("postgres scan, %w", err)
 		}
 	}

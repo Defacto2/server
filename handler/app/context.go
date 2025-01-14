@@ -416,11 +416,11 @@ func Configurations(cx echo.Context, db *sql.DB, conf config.Config) error {
 		}
 		return nil
 	}
-	conns, max, err := postgres.Connections(db)
+	conns, maxConn, err := postgres.Connections(db)
 	if err != nil {
 		data["dbConnections"] = err.Error()
 	}
-	data["dbConnections"] = fmt.Sprintf("%d of %d", conns, max)
+	data["dbConnections"] = fmt.Sprintf("%d of %d", conns, maxConn)
 	err = cx.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(cx, name, err)
@@ -1135,9 +1135,9 @@ func PouetCache(c echo.Context, data string) error {
 		return fmt.Errorf("pouet cache %w: %s", err, x[3])
 	}
 	pv.Stars = stars
-	pv.VotesDown = uint64(vd)
-	pv.VotesUp = uint64(vu)
-	pv.VotesMeh = uint64(vm)
+	pv.VotesDown = uint64(math.Abs(float64(vd)))
+	pv.VotesUp = uint64(math.Abs(float64(vu)))
+	pv.VotesMeh = uint64(math.Abs(float64(vm)))
 	if err = c.JSON(http.StatusOK, pv); err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}

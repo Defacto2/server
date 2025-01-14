@@ -81,7 +81,7 @@ func (c *Config) Checks(logger *zap.SugaredLogger) error {
 }
 
 // httpPort returns an error if the HTTP port is invalid.
-func (c Config) httpPort(logger *zap.SugaredLogger) {
+func (c *Config) httpPort(logger *zap.SugaredLogger) {
 	if c.HTTPPort == 0 {
 		return
 	}
@@ -98,7 +98,7 @@ func (c Config) httpPort(logger *zap.SugaredLogger) {
 }
 
 // tlsPort returns an error if the TLS port is invalid.
-func (c Config) tlsPort(logger *zap.SugaredLogger) {
+func (c *Config) tlsPort(logger *zap.SugaredLogger) {
 	if c.TLSPort == 0 {
 		return
 	}
@@ -117,7 +117,7 @@ func (c Config) tlsPort(logger *zap.SugaredLogger) {
 // The production mode checks when not in read-only mode. It
 // expects the server to be configured with OAuth2 and Google IDs.
 // The server should be running over HTTPS and not unencrypted HTTP.
-func (c Config) production(logger *zap.SugaredLogger) {
+func (c *Config) production(logger *zap.SugaredLogger) {
 	if !c.ProdMode || c.ReadOnly {
 		return
 	}

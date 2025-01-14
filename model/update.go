@@ -641,10 +641,10 @@ func UpdateReleasers(db *sql.DB, id int64, val string) error {
 	if db == nil {
 		return fmt.Errorf("update releasers: %w", ErrDB)
 	}
-	const max = 2
+	const maxReleasers = 2
 	val = strings.TrimSpace(val)
 	s := strings.Split(val, "+")
-	if len(s) > max {
+	if len(s) > maxReleasers {
 		return fmt.Errorf("%s: %w", s, ErrRels)
 	}
 	for i, v := range s {
@@ -660,7 +660,7 @@ func UpdateReleasers(db *sql.DB, id int64, val string) error {
 		return fmt.Errorf("find file: %w", err)
 	}
 	switch len(s) {
-	case max:
+	case maxReleasers:
 		f.GroupBrandFor = null.StringFrom(s[0])
 		f.GroupBrandBy = null.StringFrom(s[1])
 	case 1:

@@ -114,7 +114,7 @@ func TestRepair(t *testing.T) {
 	err = c.Previews(context.TODO(), nil, nil)
 	require.Error(t, err)
 
-	err = config.ImageDirs(nil, c)
+	err = c.ImageDirs(nil)
 	require.NoError(t, err)
 	err = config.DownloadDir(nil, "", "", "")
 	require.Error(t, err)
