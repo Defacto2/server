@@ -143,7 +143,7 @@ var tidbits = Tidbit{
 		`<a href="/f/a91e0ae">own custom fix</a> to simplify the install process.`,
 	27: "CyberChrist of SWAT briefly stole the FiRM brand in October 1993 for use as a game release group, while NUAA was to be used for productivity and utility software. " +
 		"This was short-lived and a week later the game group became the USA based division of Fairlight PC.",
-	28: "In August 1994, Public Enemy and MAD join under the unauthorised name of The FiRM, though this only lasted a few months.",
+	28: "In August 1994, Public Enemy and MAD join under the unauthorized name of The FiRM, though this only lasted a few months.",
 	29: `TRIAD went quiet in early 1990 but with some key members <a href="/f/a9229aa">turning up in INC</a>.`,
 	30: "CMEN was a parody group that pretended to be Australian, but was run out of the Midnite Oil BBS in 214 (Dallas).",
 	31: "According to BAD News #7, ERKle was a brief, pretend group created by The Pieman of The Humble Guys.",

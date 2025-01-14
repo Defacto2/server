@@ -116,19 +116,19 @@ var notes = map[NAN]string{
 	206: "Western Washington state, including Seattle.",
 	509: "Eastern Washington state, including Spokane and the Tri-Cities.",
 	// 209, 213, 408, 415, 510, 619, 707, 714, 805, 818, 909, 916
-	209: "Central California, including Fresno and Stockton.",                                                      //1947
-	213: "Parts of Los Angeles County.",                                                                            //1947
-	916: "Sacramento.",                                                                                             //1947
-	714: "Orange County.",                                                                                          //1951
-	805: "Central California, including Santa Barbara and Ventura Counties.",                                       //1957
-	415: "San Francisco Bay Area, until September 1991 when East Bay and Oakland split to from the 510 area code.", //1958
-	408: "Silicon Valley including San Benito, Santa Cruz, Santa Clara.",                                           //1959
-	707: "Northern California, including Napa and Sonoma.",                                                         //1959
-	619: "Southern California, including San Diego, however it came online in 1982.",                               //1982
-	818: "San Fernando Valley within Los Angeles County, however it came online in 1984.",                          //1984
-	510: "East Bay and Oakland, however it came online in September 1991.",                                         //1991
-	310: "Northern Los Angeles County, however it came online in November 1991.",                                   //1991
-	909: "Parts of Los Angeles County and San Bernardino County, however it came online in November 1992.",         //1992
+	209: "Central California, including Fresno and Stockton.",                                                      // 1947
+	213: "Parts of Los Angeles County.",                                                                            // 1947
+	916: "Sacramento.",                                                                                             // 1947
+	714: "Orange County.",                                                                                          // 1951
+	805: "Central California, including Santa Barbara and Ventura Counties.",                                       // 1957
+	415: "San Francisco Bay Area, until September 1991 when East Bay and Oakland split to from the 510 area code.", // 1958
+	408: "Silicon Valley including San Benito, Santa Cruz, Santa Clara.",                                           // 1959
+	707: "Northern California, including Napa and Sonoma.",                                                         // 1959
+	619: "Southern California, including San Diego, however it came online in 1982.",                               // 1982
+	818: "San Fernando Valley within Los Angeles County, however it came online in 1984.",                          // 1984
+	510: "East Bay and Oakland, however it came online in September 1991.",                                         // 1991
+	310: "Northern Los Angeles County, however it came online in November 1991.",                                   // 1991
+	909: "Parts of Los Angeles County and San Bernardino County, however it came online in November 1992.",         // 1992
 	// 212, 315, 516, 518, 607, 716, 718, 914
 	212: "New York City, but after December 1984 it split to 212 (Manhattan and the Bronx) and 718 (Brooklyn, Queens, and Staten Island). " + bronx, // 1947
 	315: "Northern New York, including Syracuse.",                                                                                                   // 1947
@@ -184,10 +184,10 @@ var notes = map[NAN]string{
 	303: "Central Colorado, including Denver.",
 	719: "Southern Colorado, including Colorado Springs, however it came online in March 1988.",
 	// 305, 407, 813, 904
-	305: "Southern Florida, including Miami. However, Central Florida was split in 1988 to form the 407 area code.", //1947
-	407: "Central Florida, including Orlando and Palm Beach, however it came online in 1988.",                       //1988
-	813: "Western Florida, including Tampa City.",                                                                   //1953
-	904: "Northern Florida, including Jacksonville.",                                                                //1965
+	305: "Southern Florida, including Miami. However, Central Florida was split in 1988 to form the 407 area code.", // 1947
+	407: "Central Florida, including Orlando and Palm Beach, however it came online in 1988.",                       // 1988
+	813: "Western Florida, including Tampa City.",                                                                   // 1953
+	904: "Northern Florida, including Jacksonville.",                                                                // 1965
 	// 313, 517, 616, 906
 	313: "Detroit and Flint, however in December 1993 the Northern region split to form 810.",
 	517: "Central Michigan, including Lansing.",

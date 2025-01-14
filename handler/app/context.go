@@ -1315,7 +1315,8 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 			` real-name attribution was commonplace.</small>`
 	case "none":
 		data["lead"] = "None, are files which were never intended for the scene." +
-			`<br><small class="fw-lighter">These can include commercial or free software applications or online texts for public forums.</small>`
+			`<br><small class="fw-lighter">These can include commercial or free software"+
+			" applications or online texts for public forums.</small>`
 	default:
 		// placeholder to handle other releaser types
 	}
@@ -1619,7 +1620,7 @@ func Titles(c echo.Context) error {
 	data := empty(c)
 	data["title"] = "Titles"
 	data["description"] = "Titles are important."
-	data["logo"] = "Artefact Titles"
+	data["logo"] = "Artifact Titles"
 	data["h1"] = "Titles"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {

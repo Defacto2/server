@@ -376,21 +376,29 @@ func textCropper(src, unid string) (string, error) {
 	}
 	tmpText := filepath.Join(path, unid+".txt")
 	if err := TextCrop(src, tmpText); err != nil {
-		if errors.Is(err, ErrANSI) {
-			if st, err := os.Stat(src); err != nil {
-				return "", fmt.Errorf("stat %w", err)
-			} else if st.Size() > ANSICap {
-				return "", fmt.Errorf("%w as the ansi file is too big", ErrANSI)
-			}
-			// continue with the ANSI file
-		} else {
-			return "", fmt.Errorf("text crop %w", err)
+		if err1 := textCropperErr(src, err); err1 != nil {
+			return "", err1
 		}
 	}
 	if _, err := os.Stat(tmpText); err != nil {
 		tmpText = src
 	}
 	return tmpText, nil
+}
+
+func textCropperErr(src string, err error) error {
+	if errors.Is(err, ErrANSI) {
+		st, err := os.Stat(src)
+		if err != nil {
+			return fmt.Errorf("stat %w", err)
+		}
+		if st.Size() > ANSICap {
+			return fmt.Errorf("%w as the ansi file is too big", ErrANSI)
+		}
+		// continue with the ANSI file
+		return nil
+	}
+	return fmt.Errorf("text crop %w", err)
 }
 
 // TextImager converts the src text file and creates a PNG image in the preview directory.

@@ -13,8 +13,7 @@ linters:
   # Disable specific linters.
   disable:
     # deprecated
-    - gomnd
-    - execinquery
+    - exportloopref
     # disabled
     - depguard # imports are in a list of acceptable packages.
     - exhaustive # checks exhaustiveness of enum switch statements.
@@ -24,8 +23,6 @@ linters:
     - paralleltest # requires a lot of refactoring.
     - varnamelen # a popular linter but is not idiomatic.
     - wsl # fussy over whitespace.
-    # temporary disabled
-    #- godox
 issues:
   exclude-rules:
     - path: doc.go
@@ -110,6 +107,13 @@ issues:
     - path: handler/app/internal/fileslice/fileslice.go
       linters:
         - dupl
+    - path: handler/tidbit/tidbit.go
+      linters: # HTML content containing long form text.
+        - funlen
+        - lll
+    - path: handler/areacode/areacode.go
+      linters:
+        - lll
 
 linters-settings:
   cyclop:

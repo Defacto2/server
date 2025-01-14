@@ -32,7 +32,8 @@ var (
 	ErrKey    = errors.New("numeric record key is invalid")
 )
 
-func Areacodes(c echo.Context, logger *zap.SugaredLogger) error {
+// Areacodes is the handler for the /areacodes route.
+func Areacodes(c echo.Context) error {
 	htm := template.HTML("")
 	search := c.FormValue("htmx-search")
 	search = strings.TrimSpace(search)
@@ -40,9 +41,7 @@ func Areacodes(c echo.Context, logger *zap.SugaredLogger) error {
 		return c.HTML(http.StatusOK, "")
 	}
 	searches := strings.Split(search, ",")
-	fmt.Println(searches, len(searches))
 	r := areacode.Queries(searches...)
-	fmt.Println(r, len(r))
 	if len(r) == 0 {
 		return c.HTML(http.StatusOK, "<small>No results.</small><br>")
 	}
@@ -59,58 +58,6 @@ func Areacodes(c echo.Context, logger *zap.SugaredLogger) error {
 	htm += "<hr>"
 	return c.HTML(http.StatusOK, string(htm))
 }
-
-// // SearchByID is a handler for the /editor/search/id route.
-// func SearchByID(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
-// 	const maxResults = 50
-// 	ctx := context.Background()
-// 	ids := []int{}
-// 	uuids := []uuid.UUID{}
-// 	search := c.FormValue("htmx-search")
-// 	inputs := strings.Split(search, " ")
-// 	for _, input := range inputs {
-// 		x := strings.ToLower(strings.TrimSpace(input))
-// 		if id, _ := strconv.Atoi(x); id > 0 {
-// 			ids = append(ids, id)
-// 			continue
-// 		}
-// 		if id := helper.DeobfuscateID(x); id > 0 {
-// 			ids = append(ids, id)
-// 			continue
-// 		}
-// 		if uid, err := uuid.Parse(x); err == nil {
-// 			uuids = append(uuids, uid)
-// 			continue
-// 		}
-// 	}
-
-// 	var r model.Artifacts
-// 	fs, err := r.ID(ctx, db, ids, uuids...)
-// 	if err != nil {
-// 		if logger != nil {
-// 			logger.Error(err)
-// 		}
-// 		return c.String(http.StatusServiceUnavailable,
-// 			"the search query failed")
-// 	}
-
-// 	if len(fs) == 0 {
-// 		return c.HTML(http.StatusOK, "No artifacts found.")
-// 	}
-// 	err = c.Render(http.StatusOK, "searchids", map[string]interface{}{
-// 		"maximum": maxResults,
-// 		"name":    search,
-// 		"result":  fs,
-// 	})
-// 	if err != nil {
-// 		if logger != nil {
-// 			logger.Errorf("search by id htmx template: %v", err)
-// 		}
-// 		return c.String(http.StatusInternalServerError,
-// 			"cannot render the htmx search by id template")
-// 	}
-// 	return nil
-// }
 
 // DemozooLookup is the handler for the /demozoo/production route.
 // This looks up the Demozoo production ID and returns a form button to submit
@@ -606,7 +553,7 @@ func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error
 	if slug == "" {
 		return c.HTML(http.StatusOK, "<!-- empty search query -->")
 	}
-	const initalism = 4
+	const minChars = 4
 	lookup := []string{}
 	// example key and values: "tristar-ampersand-red-sector-inc": {"TRSi", "TRS", "Tristar"},
 	for key, values := range initialism.Initialisms() {
@@ -616,7 +563,7 @@ func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error
 				lookup = append(lookup, name)
 				continue
 			}
-			if len(slug) < initalism {
+			if len(slug) < minChars {
 				continue
 			}
 			if strings.Contains(strings.ToLower(value), strings.ToLower(slug)) {
@@ -629,7 +576,7 @@ func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error
 	}
 	lookup = append(lookup, slug)
 	var r model.Releasers
-	if len(slug) <= initalism {
+	if len(slug) <= minChars {
 		if err := r.Initialism(ctx, db, maxResults, lookup...); err != nil {
 			if logger != nil {
 				logger.Error(err)

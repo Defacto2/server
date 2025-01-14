@@ -212,7 +212,9 @@ func success(c echo.Context, filename string, id int64,
 	html := fmt.Sprintf("<div>Thanks, the chosen file submission was a success.<br> "+
 		"<span class=\"text-success\">✓</span> <var>%s</var></div>", html.EscapeString(filename))
 	if sess.Editor(c) {
-		html += fmt.Sprintf("<div data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" data-bs-title=\"ctrl + alt + enter\"><a id=\"go-to-the-new-artifact-record\" href=\"/f/%s\">Go to the new artifact record</a>.</div>",
+		html += fmt.Sprintf("<div data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" "+
+			"data-bs-title=\"ctrl + alt + enter\"><a id=\"go-to-the-new-artifact-record\" "+
+			"href=\"/f/%s\">Go to the new artifact record</a>.</div>",
 			helper.ObfuscateID(id))
 	}
 	return c.HTML(http.StatusOK, html)
@@ -473,7 +475,8 @@ func (prod Submission) Submit( //nolint:cyclop,funlen
 	html := fmt.Sprintf("<div class=\"text-success\">Thanks for the submission of %s production, %d</div>", name, id)
 	if sess.Editor(c) {
 		uri := helper.ObfuscateID(key)
-		html += fmt.Sprintf("<p data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" data-bs-title=\"ctrl + alt + enter\"><a id=\"go-to-the-new-artifact-record\" href=\"/f/%s\">Go to the new artifact record</a></p>", uri)
+		html += fmt.Sprintf("<p data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" data-bs-title=\"ctrl + alt + enter\">"+
+			"<a id=\"go-to-the-new-artifact-record\" href=\"/f/%s\">Go to the new artifact record</a></p>", uri)
 	}
 	// see Download in handler/app/internal/remote/remote.go
 	switch prod {

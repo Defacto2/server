@@ -25,9 +25,7 @@ func htmxGroup(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, downloadDir 
 	// htmx/
 	g := e.Group("", middleware.RateLimiter(store))
 	// htmx/areacodes
-	g.POST("/areacodes", func(c echo.Context) error {
-		return htmx.Areacodes(c, logger)
-	})
+	g.POST("/areacodes", htmx.Areacodes)
 	// htmx/search/releaser
 	g.POST("/search/releaser", func(c echo.Context) error {
 		return htmx.SearchReleaser(c, db, logger)

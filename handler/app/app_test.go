@@ -424,7 +424,7 @@ func TestURLEncode(t *testing.T) {
 func TestYMDEdit(t *testing.T) {
 	t.Parallel()
 	s := app.YMDEdit(nil, nil)
-	require.NotEmpty(t, s)
+	require.Error(t, s)
 }
 
 func TestVerify(t *testing.T) {

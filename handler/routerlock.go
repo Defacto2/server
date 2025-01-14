@@ -334,7 +334,6 @@ func online(g *echo.Group, db *sql.DB) {
 	})
 }
 
-// /editor/search/id
 func search(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger) {
 	if g == nil {
 		panic(fmt.Errorf("%w for search router", ErrRoutes))

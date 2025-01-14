@@ -117,7 +117,7 @@ func TestTemplates(t *testing.T) {
 func TestTemplateFuncMap(t *testing.T) {
 	t.Parallel()
 	x := htmx.TemplateFuncMap()
-	assert.Empty(t, len(x))
+	assert.NotEmpty(t, x)
 }
 
 func TestSuggestion(t *testing.T) {

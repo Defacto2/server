@@ -312,18 +312,18 @@ func (r *Response) Get(id int) (int, error) {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		io.Copy(io.Discard, res.Body)
+		_, _ = io.Copy(io.Discard, res.Body)
 		res.Body.Close()
 		return res.StatusCode, fmt.Errorf("get pouet production %w: %s", ErrStatus, res.Status)
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		io.Copy(io.Discard, res.Body)
+		_, _ = io.Copy(io.Discard, res.Body)
 		res.Body.Close()
 		return 0, fmt.Errorf("get pouet production read all %w", err)
 	}
 	err = json.Unmarshal(body, &r)
-	body = nil
+	clear(body)
 	if err != nil {
 		return 0, fmt.Errorf("get pouet production json unmarshal %w", err)
 	}

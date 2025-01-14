@@ -15,7 +15,6 @@ func ExampleQuery() {
 	// <span>Arizona (AZ)  - 602</span><br>
 	// <span>Utah (UT)  - 801</span><br>
 	// <span>602 - Arizona (AZ)</span><br>
-
 }
 
 func ExampleQueries() {

@@ -194,7 +194,8 @@ func RecordReadmeCopier(c echo.Context, dirs command.Dirs) error {
 		`Images copied, the browser will refresh.`)
 }
 
-// RecordReadmeDisable handles the patch submission to disable the display of the readme and diz texts for a file artifact.
+// RecordReadmeDisable handles the patch submission to disable the display of
+// the readme and diz texts for a file artifact.
 func RecordReadmeDisable(c echo.Context, db *sql.DB) error {
 	key := c.Param("id")
 	id, err := strconv.Atoi(key)
@@ -452,7 +453,7 @@ func RecordReleasers(c echo.Context, db *sql.DB) error {
 	if unchanged {
 		return c.NoContent(http.StatusNoContent)
 	}
-	if _, err := recordReleases(db, rel1, rel2, key); err != nil {
+	if err := recordReleases(db, rel1, rel2, key); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "Save")
@@ -471,26 +472,25 @@ func RecordReleasersReset(c echo.Context, db *sql.DB) error {
 	if unchanged {
 		return c.String(http.StatusNoContent, "")
 	}
-	_, err := recordReleases(db, val1, val2, key)
-	if err != nil {
+	if err := recordReleases(db, val1, val2, key); err != nil {
 		return badRequest(c, err)
 	}
 	return c.HTML(http.StatusOK, "&#x2713;")
 }
 
-func recordReleases(db *sql.DB, rel1, rel2, key string) (string, error) {
+func recordReleases(db *sql.DB, rel1, rel2, key string) error {
 	id, err := strconv.Atoi(key)
 	if err != nil {
-		return "", fmt.Errorf("%w: %w: %q", ErrKey, err, key)
+		return fmt.Errorf("%w: %w: %q", ErrKey, err, key)
 	}
 	val := rel1
 	if rel2 != "" {
 		val = rel1 + "+" + rel2
 	}
 	if err := model.UpdateReleasers(db, int64(id), val); err != nil {
-		return "", fmt.Errorf("model.UpdateReleasers: %w", err)
+		return fmt.Errorf("model.UpdateReleasers: %w", err)
 	}
-	return val, nil
+	return nil
 }
 
 // RecordDateIssued handles the post submission for the file artifact date of release.

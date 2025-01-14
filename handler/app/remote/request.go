@@ -107,7 +107,7 @@ func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
 	// Create the file in the default temp directory
 	dst, err := os.CreateTemp(helper.TmpDir(), "get-remotefile-*")
 	if err != nil {
-		io.Copy(io.Discard, res.Body) // discard and close the client
+		_, _ = io.Copy(io.Discard, res.Body) // discard and close the client
 		res.Body.Close()
 		return DownloadResponse{}, fmt.Errorf("get file create temp: %w", err)
 	}
@@ -115,7 +115,7 @@ func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
 
 	// Write the body to file
 	if _, err := io.Copy(dst, res.Body); err != nil {
-		io.Copy(io.Discard, res.Body) // discard and close the client
+		_, _ = io.Copy(io.Discard, res.Body) // discard and close the client
 		res.Body.Close()
 		defer os.Remove(dst.Name())
 		return DownloadResponse{}, fmt.Errorf("get file io copy: %w", err)

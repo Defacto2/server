@@ -430,7 +430,8 @@ func (dir Dirs) previews(unid string) map[string][2]string {
 	jpg := filepath.Join(dir.Preview, unid+".jpg")
 	png := filepath.Join(dir.Preview, unid+".png")
 	webp := filepath.Join(dir.Preview, unid+".webp")
-	matches := make(map[string][2]string, 4)
+	const size = 4
+	matches := make(map[string][2]string, size)
 	matches["Jpeg"] = simple.ImageXY(jpg)
 	matches["PNG"] = simple.ImageXY(png)
 	matches["WebP"] = simple.ImageXY(webp)
@@ -446,7 +447,8 @@ func (dir Dirs) thumbnails(unid string) map[string][2]string {
 	unid = strings.ToLower(unid)
 	png := filepath.Join(dir.Thumbnail, unid+".png")
 	webp := filepath.Join(dir.Thumbnail, unid+".webp")
-	matches := make(map[string][2]string, 2)
+	const size = 2
+	matches := make(map[string][2]string, size)
 	matches["PNG"] = simple.ImageXY(png)
 	matches["WebP"] = simple.ImageXY(webp)
 	return matches
@@ -456,7 +458,8 @@ func (dir Dirs) thumbnails(unid string) map[string][2]string {
 // Up to three extra assets are returned, FILE_ID, README and Repacked ZIP.
 func (dir Dirs) extras(unid string) map[string][2]string {
 	unid = strings.ToLower(unid)
-	matches := make(map[string][2]string, 3)
+	size := 3
+	matches := make(map[string][2]string, size)
 	diz := filepath.Join(dir.Extra, unid+".diz")
 	if s, err := os.Stat(diz); err == nil {
 		i, _ := helper.Lines(diz)

@@ -113,7 +113,7 @@ func TestForApproval(t *testing.T) {
 func TestGetDemozooParam(t *testing.T) {
 	t.Parallel()
 	x := app.GetDemozooParam(newContext(), nil, "")
-	assert.Empty(t, x)
+	require.NoError(t, x)
 }
 
 func TestGetDemozoo(t *testing.T) {
@@ -193,7 +193,7 @@ func TestPlatformEdit(t *testing.T) {
 func TestPlatformTagInfo(t *testing.T) {
 	t.Parallel()
 	x := app.PlatformTagInfo(newContext())
-	assert.Empty(t, x)
+	require.NoError(t, x)
 }
 
 func TestPostDesc(t *testing.T) {
@@ -211,27 +211,27 @@ func TestPostFilename(t *testing.T) {
 func TestPouetCache(t *testing.T) {
 	t.Parallel()
 	x := app.PouetCache(newContext(), "")
-	assert.Empty(t, x)
+	require.NoError(t, x)
 	x = app.PouetCache(newContext(), "abc")
 	require.Error(t, x)
 	x = app.PouetCache(newContext(), "3;1;1;1")
-	assert.Empty(t, x)
+	require.NoError(t, x)
 }
 
 func TestProdPouet(t *testing.T) {
 	t.Parallel()
 	x := app.ProdPouet(newContext(), "")
-	assert.Empty(t, x)
+	require.NoError(t, x)
 	x = app.ProdPouet(newContext(), "abc")
-	assert.Empty(t, x)
+	require.NoError(t, x)
 }
 
 func TestProdZoo(t *testing.T) {
 	t.Parallel()
 	x := app.ProdZoo(newContext(), "")
-	assert.Empty(t, x)
+	require.NoError(t, x)
 	x = app.ProdZoo(newContext(), "abc")
-	assert.Empty(t, x)
+	require.NoError(t, x)
 }
 
 func TestReleaser(t *testing.T) {
@@ -327,7 +327,7 @@ func TestTagEdit(t *testing.T) {
 func TestTagInfo(t *testing.T) {
 	t.Parallel()
 	x := app.TagInfo(newContext())
-	assert.Empty(t, x)
+	require.NoError(t, x)
 }
 
 func TestThanks(t *testing.T) {
@@ -345,13 +345,13 @@ func TestTheScene(t *testing.T) {
 func TestVotePouet(t *testing.T) {
 	t.Parallel()
 	x := app.VotePouet(newContext(), nil, "")
-	assert.Empty(t, x)
+	require.NoError(t, x)
 	const testNoCache = "1"
 	x = app.VotePouet(newContext(), nil, testNoCache)
-	assert.Empty(t, x)
+	require.NoError(t, x)
 	const testNewCache = "1"
 	x = app.VotePouet(newContext(), nil, testNewCache)
-	assert.Empty(t, x)
+	require.NoError(t, x)
 }
 
 func TestWebsite(t *testing.T) {

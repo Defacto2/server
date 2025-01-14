@@ -585,7 +585,7 @@ func ListContent(art *models.File, dirs command.Dirs, src string) template.HTML 
 	l := len(names)
 	if l == 0 {
 		b.WriteString(skippedEmpty(zeroByteFiles))
-		//b.Reset()
+		// b.Reset()
 		return template.HTML(b.String())
 	}
 	if useDiz := diz > -1; useDiz {
