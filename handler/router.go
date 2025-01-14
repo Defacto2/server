@@ -23,7 +23,7 @@ import (
 const code = http.StatusMovedPermanently
 
 // FilesRoutes defines the file locations and routes for the web server.
-func (c Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger,
+func (c *Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger,
 	public embed.FS,
 ) (*echo.Echo, error) {
 	if e == nil {
@@ -61,7 +61,7 @@ func (c Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, logger *zap.Sugared
 
 // nonce configures and returns the session key for the cookie store.
 // If the read mode is enabled then an empty session key is returned.
-func (c Configuration) nonce(e *echo.Echo) (string, error) {
+func (c *Configuration) nonce(e *echo.Echo) (string, error) {
 	if e == nil {
 		panic(fmt.Errorf("%w for router nonce", ErrRoutes))
 	}
@@ -77,7 +77,7 @@ func (c Configuration) nonce(e *echo.Echo) (string, error) {
 }
 
 // html serves the embedded CSS, JS, WASM, and source map files for the HTML website layout.
-func (c Configuration) html(e *echo.Echo, public embed.FS) *echo.Echo {
+func (c *Configuration) html(e *echo.Echo, public embed.FS) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for html router", ErrRoutes))
 	}
@@ -94,7 +94,7 @@ func (c Configuration) html(e *echo.Echo, public embed.FS) *echo.Echo {
 }
 
 // font serves the embedded woff2, woff, and ttf font files for the website layout.
-func (c Configuration) font(e *echo.Echo, public embed.FS) *echo.Echo {
+func (c *Configuration) font(e *echo.Echo, public embed.FS) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for font router", ErrRoutes))
 	}
@@ -108,7 +108,7 @@ func (c Configuration) font(e *echo.Echo, public embed.FS) *echo.Echo {
 
 // embed serves the miscellaneous embedded files for the website layout.
 // This includes the favicon, robots.txt, site.webmanifest, osd.xml, and the SVG icons.
-func (c Configuration) embed(e *echo.Echo, public embed.FS) *echo.Echo {
+func (c *Configuration) embed(e *echo.Echo, public embed.FS) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for embed router", ErrRoutes))
 	}
@@ -121,7 +121,7 @@ func (c Configuration) embed(e *echo.Echo, public embed.FS) *echo.Echo {
 }
 
 // static serves the static assets for the website such as the thumbnail and preview images.
-func (c Configuration) static(e *echo.Echo) *echo.Echo {
+func (c *Configuration) static(e *echo.Echo) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for static router", ErrRoutes))
 	}
@@ -132,7 +132,7 @@ func (c Configuration) static(e *echo.Echo) *echo.Echo {
 
 // custom404 is a custom 404 error handler for the website,
 // "The page cannot be found".
-func (c Configuration) custom404(e *echo.Echo) *echo.Echo {
+func (c *Configuration) custom404(e *echo.Echo) *echo.Echo {
 	if e == nil {
 		panic(ErrRoutes)
 	}
@@ -143,7 +143,7 @@ func (c Configuration) custom404(e *echo.Echo) *echo.Echo {
 }
 
 // debugInfo returns detailed information about the HTTP request.
-func (c Configuration) debugInfo(e *echo.Echo) *echo.Echo {
+func (c *Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for debug info router", ErrRoutes))
 	}
@@ -187,7 +187,7 @@ func (c Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 }
 
 // website routes for the main site.
-func (c Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) *echo.Echo {
+func (c *Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for website router", ErrRoutes))
 	}
@@ -196,9 +196,7 @@ func (c Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogg
 	})
 	s := e.Group("")
 	s.GET("/", app.Index)
-	s.GET("/areacodes", func(c echo.Context) error {
-		return app.Areacodes(c, db)
-	})
+	s.GET("/areacodes", app.Areacodes)
 	s.GET("/artist", func(c echo.Context) error {
 		return app.Artist(c, db)
 	})
@@ -319,7 +317,7 @@ func (c Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogg
 }
 
 // search forms and the results for database queries.
-func (c Configuration) search(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) *echo.Echo {
+func (c *Configuration) search(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for search router", ErrRoutes))
 	}
@@ -347,7 +345,7 @@ func (c Configuration) search(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogge
 }
 
 // signin for operators.
-func (c Configuration) signin(e *echo.Echo, nonce string) *echo.Echo {
+func (c *Configuration) signin(e *echo.Echo, nonce string) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for signin router", ErrRoutes))
 	}

@@ -546,14 +546,13 @@ func SearchByID(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 
 // SearchReleaser is a handler for the /search/releaser route.
 func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
-	const maxResults = 14
+	const minChars, maxResults = 4, 14
 	ctx := context.Background()
 	input := c.FormValue("htmx-search")
 	slug := helper.Slug(helper.TrimRoundBraket(input))
 	if slug == "" {
 		return c.HTML(http.StatusOK, "<!-- empty search query -->")
 	}
-	const minChars = 4
 	lookup := []string{}
 	// example key and values: "tristar-ampersand-red-sector-inc": {"TRSi", "TRS", "Tristar"},
 	for key, values := range initialism.Initialisms() {
@@ -571,7 +570,7 @@ func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error
 			}
 		}
 	}
-	if name := releaser.Humanize(string(slug)); !strings.EqualFold(name, slug) {
+	if name := releaser.Humanize(slug); !strings.EqualFold(name, slug) {
 		lookup = append(lookup, name)
 	}
 	lookup = append(lookup, slug)
@@ -631,7 +630,7 @@ func datalist(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, input strin
 	if inits := initialism.Match(slug); len(inits) > 0 {
 		for _, uri := range inits {
 			val := releaser.Humanize(string(uri))
-			lookups = append(lookups, string(val))
+			lookups = append(lookups, val)
 		}
 	}
 	lookups = append(lookups, slug) // slug is the last lookup and must be present.

@@ -647,20 +647,21 @@ func errorWithID(err error, key string, id any) error {
 	}
 }
 
+const (
+	sp      = 0x20 // space
+	hyphen  = 0x2d // hyphen-minus
+	shy     = 0xad // soft hyphen for ISO8859-1
+	nbsp    = 0xa0 // non-breaking space for ISO8859-1
+	nbsp437 = 0xff // non-breaking space for CP437
+	space   = " "  // intentional space
+	chk     = "checked"
+)
+
 // embedText embeds the readme or file download text content for the file record of the artifact.
 func embedText(art *models.File, data map[string]interface{}, b ...byte) (map[string]interface{}, error) {
 	if len(b) == 0 || art == nil || art.RetrotxtNoReadme.Int16 != 0 {
 		return data, nil
 	}
-	const (
-		sp      = 0x20 // space
-		hyphen  = 0x2d // hyphen-minus
-		shy     = 0xad // soft hyphen for ISO8859-1
-		nbsp    = 0xa0 // non-breaking space for ISO8859-1
-		nbsp437 = 0xff // non-breaking space for CP437
-		space   = " "  // intentional space
-		chk     = "checked"
-	)
 	textEncoding := render.Encoder(art, bytes.NewReader(b))
 	data["topazCheck"] = ""
 	data["vgaCheck"] = ""

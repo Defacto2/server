@@ -27,7 +27,7 @@ import (
 // The header contains the noindex and nofollow values that tell search engine
 // crawlers to not index or crawl the page or asset.
 // See https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag#xrobotstag
-func (c Configuration) NoCrawl(next echo.HandlerFunc) echo.HandlerFunc {
+func (c *Configuration) NoCrawl(next echo.HandlerFunc) echo.HandlerFunc {
 	if !c.Environment.NoCrawl {
 		return next
 	}

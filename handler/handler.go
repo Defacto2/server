@@ -67,7 +67,7 @@ type Configuration struct {
 }
 
 // Controller is the primary instance of the Echo router.
-func (c Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger) *echo.Echo {
+func (c *Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger) *echo.Echo {
 	configs := c.Environment
 	if logger == nil {
 		logger, _ := zap.NewProduction()
@@ -149,7 +149,7 @@ func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 }
 
 // Info prints the application information to the console.
-func (c Configuration) Info(logger *zap.SugaredLogger, w io.Writer) {
+func (c *Configuration) Info(logger *zap.SugaredLogger, w io.Writer) {
 	if w == nil {
 		w = io.Discard
 	}
@@ -178,7 +178,7 @@ func (c Configuration) Info(logger *zap.SugaredLogger, w io.Writer) {
 }
 
 // PortErr handles the error when the HTTP or HTTPS server cannot start.
-func (c Configuration) PortErr(logger *zap.SugaredLogger, port uint, err error) {
+func (c *Configuration) PortErr(logger *zap.SugaredLogger, port uint, err error) {
 	if logger == nil {
 		logger, _ := zap.NewProduction()
 		defer func() { _ = logger.Sync() }()
@@ -201,7 +201,7 @@ func (c Configuration) PortErr(logger *zap.SugaredLogger, port uint, err error) 
 }
 
 // Registry returns the template renderer.
-func (c Configuration) Registry(db *sql.DB, logger *zap.SugaredLogger) (*TemplateRegistry, error) {
+func (c *Configuration) Registry(db *sql.DB, logger *zap.SugaredLogger) (*TemplateRegistry, error) {
 	webapp := app.Templ{
 		Environment: c.Environment,
 		Brand:       c.Brand,
@@ -396,7 +396,7 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo, logger *zap.SugaredLogger) {
 }
 
 // downloader route for the file download handler under the html3 group.
-func (c Configuration) downloader(cx echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
+func (c *Configuration) downloader(cx echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 	d := download.Download{
 		Inline: false,
 		Path:   c.Environment.AbsDownload,
@@ -408,7 +408,7 @@ func (c Configuration) downloader(cx echo.Context, db *sql.DB, logger *zap.Sugar
 }
 
 // versionBrief returns the application version string.
-func (c Configuration) versionBrief() string {
+func (c *Configuration) versionBrief() string {
 	if c.Version == "" {
 		return "  no version info, app compiled binary directly."
 	}

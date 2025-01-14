@@ -152,7 +152,7 @@ func (got *DemozooLink) ArchiveContent(c echo.Context, db *sql.DB, src string) e
 
 // Update modifies the database record using data provided by the DemozooLink struct.
 // A JSON response is returned with the success status of the update.
-func (got DemozooLink) Update(c echo.Context, db *sql.DB) error {
+func (got *DemozooLink) Update(c echo.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -176,7 +176,7 @@ func (got DemozooLink) Update(c echo.Context, db *sql.DB) error {
 	return c.HTML(http.StatusOK, `<p class="text-success">Successful Demozoo update</p>`)
 }
 
-func (got DemozooLink) updates(f *models.File) { //nolint:cyclop
+func (got *DemozooLink) updates(f *models.File) { //nolint:cyclop
 	if s := strings.TrimSpace(got.Github); s != "" {
 		f.WebIDGithub = null.StringFrom(s)
 	}
@@ -340,7 +340,7 @@ func (got *PouetLink) ArchiveContent(c echo.Context, db *sql.DB, src string) err
 
 // Update modifies the database record using data provided by the DemozooLink struct.
 // A JSON response is returned with the success status of the update.
-func (got PouetLink) Update(c echo.Context, db *sql.DB) error {
+func (got *PouetLink) Update(c echo.Context, db *sql.DB) error {
 	if db == nil {
 		return ErrDB
 	}
@@ -364,7 +364,7 @@ func (got PouetLink) Update(c echo.Context, db *sql.DB) error {
 	return c.HTML(http.StatusOK, `<p class="text-success">Successful Pouet update</p>`)
 }
 
-func (got PouetLink) updates(f *models.File) {
+func (got *PouetLink) updates(f *models.File) {
 	if i := got.Demozoo; i > 0 {
 		f.WebIDDemozoo = null.Int64From(int64(i))
 	}

@@ -94,9 +94,9 @@ func (s *Sceners) Musician(ctx context.Context, exec boil.ContextExecutor) error
 }
 
 // Sort gets a sorted slice of unique sceners.
-func (s Sceners) Sort() []string {
+func (s *Sceners) Sort() []string {
 	var sceners []string
-	for _, scener := range s {
+	for _, scener := range *s {
 		sceners = append(sceners, strings.Split(string(scener.Name), ",")...)
 	}
 	return helper.DeleteDupe(sceners...)

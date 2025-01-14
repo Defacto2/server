@@ -23,7 +23,7 @@ import (
 	 - DELETE requests are used for removing data from the server.
 */
 
-func (c Configuration) lock(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) *echo.Echo {
+func (c *Configuration) lock(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for lock router", ErrRoutes))
 	}
@@ -39,7 +39,7 @@ func (c Configuration) lock(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger,
 	return e
 }
 
-func (c Configuration) configurations(g *echo.Group, db *sql.DB) {
+func (c *Configuration) configurations(g *echo.Group, db *sql.DB) {
 	if g == nil {
 		panic(fmt.Errorf("%w for configurations router", ErrRoutes))
 	}

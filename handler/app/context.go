@@ -227,7 +227,7 @@ func Artifacts404(c echo.Context, uri string) error {
 }
 
 // Areacodes is the handler for the BBS and telephone area codes page.
-func Areacodes(c echo.Context, db *sql.DB) error {
+func Areacodes(c echo.Context) error {
 	data := empty(c)
 	data["title"] = "BBS and telephone area codes"
 	data["description"] = "North American Numbering Plan area codes until 1994."
@@ -1306,6 +1306,23 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 	}
 	data["uploader-releaser-index"] = releaser.Index(uri)
 	data[records] = fs
+	data = releaserLead(uri, data)
+	d, err := releaserSum(ctx, db, uri)
+	if err != nil {
+		if logger != nil {
+			logger.Error(errs, err)
+		}
+		return Releaser404(c, uri)
+	}
+	data["stats"] = d
+	err = c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(c, errs, err)
+	}
+	return nil
+}
+
+func releaserLead(uri string, data map[string]interface{}) map[string]interface{} {
 	switch uri {
 	case "independent":
 		data["lead"] = initialism.Join(initialism.Path(uri)) +
@@ -1320,19 +1337,7 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 	default:
 		// placeholder to handle other releaser types
 	}
-	d, err := releaserSum(ctx, db, uri)
-	if err != nil {
-		if logger != nil {
-			logger.Error(errs, err)
-		}
-		return Releaser404(c, uri)
-	}
-	data["stats"] = d
-	err = c.Render(http.StatusOK, name, data)
-	if err != nil {
-		return InternalErr(c, errs, err)
-	}
-	return nil
+	return data
 }
 
 // releaserSum is a helper function for Releasers that returns the statistics for the files page.

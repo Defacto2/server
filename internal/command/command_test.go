@@ -6,7 +6,6 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -39,7 +38,7 @@ func TestCopyFile(t *testing.T) {
 	require.Error(t, err)
 	require.ErrorContains(t, err, "no such file or directory")
 
-	td := helper.TmpDir()
+	td := t.TempDir()
 	tmp, err := os.CreateTemp(td, "command_test")
 	require.NoError(t, err)
 	defer os.Remove(tmp.Name())
@@ -178,24 +177,17 @@ func TestRunWD(t *testing.T) {
 
 func Test_PreviewPixels(t *testing.T) {
 	t.Parallel()
-	prev, err := os.MkdirTemp(helper.TmpDir(), "preview")
-	require.NoError(t, err)
-	thumb, err := os.MkdirTemp(helper.TmpDir(), "thumb")
-	require.NoError(t, err)
-	dl, err := os.MkdirTemp(helper.TmpDir(), "download")
-	require.NoError(t, err)
 	dir := command.Dirs{
-		Download:  dl,    // this prefixes to UUID
-		Preview:   prev,  // this is the output dest
-		Thumbnail: thumb, // this is the cropped output dest
+		Download:  t.TempDir(), // this prefixes to UUID
+		Preview:   t.TempDir(), // this is the output dest
+		Thumbnail: t.TempDir(), // this is the cropped output dest
 	}
 	imgs := []string{"TEST.BMP", "TEST.GIF", "TEST.JPG", "TEST.PCX", "TEST.PNG"}
 	for _, name := range imgs {
 		fp := testdata(name)
-		err = dir.PreviewPixels(logr(), fp, "000000ABCDE")
+		err := dir.PreviewPixels(logr(), fp, "000000ABCDE")
 		require.NoError(t, err)
 	}
-
-	err = dir.PreviewPixels(logr(), "", "")
+	err := dir.PreviewPixels(logr(), "", "")
 	require.Error(t, err)
 }

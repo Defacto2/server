@@ -178,7 +178,7 @@ func (p *Production) Get(id int) (int, error) {
 // GithubRepo returns the Github repository path of the production using
 // the Production struct. It searches the external links for a link class that
 // matches GithubRepo.
-func (p Production) GithubRepo() string {
+func (p *Production) GithubRepo() string {
 	for _, link := range p.ExternalLinks {
 		if link.LinkClass != "GithubRepo" {
 			continue
@@ -200,7 +200,7 @@ func (p Production) GithubRepo() string {
 // link class that matches PouetProduction.
 // A 0 is returned whenever the production does not have a recognized
 // Pouet production link.
-func (p Production) PouetProd() int {
+func (p *Production) PouetProd() int {
 	for _, link := range p.ExternalLinks {
 		if link.LinkClass != "PouetProduction" {
 			continue
@@ -238,7 +238,7 @@ func (p *Production) Unmarshal(r io.Reader) error {
 // and returns the corresponding platform and section tags.
 // It returns -1 for an unknown platform or section, in which case the
 // caller should invalidate the Demozoo production.
-func (p Production) SuperType() (tags.Tag, tags.Tag) {
+func (p *Production) SuperType() (tags.Tag, tags.Tag) {
 	superType := func(pl, se tags.Tag) bool {
 		return pl > -1 && se > -1
 	}
@@ -266,7 +266,7 @@ func (p Production) SuperType() (tags.Tag, tags.Tag) {
 
 // platforms returns the platform and section tags for "platforms".
 // A list of the types can be found at https://demozoo.org/api/v1/platforms/?ordering=id
-func (p Production) platforms(platform, section tags.Tag) (tags.Tag, tags.Tag) {
+func (p *Production) platforms(platform, section tags.Tag) (tags.Tag, tags.Tag) {
 	const (
 		Windows = 1
 		MsDos   = 4
@@ -301,7 +301,7 @@ func (p Production) platforms(platform, section tags.Tag) (tags.Tag, tags.Tag) {
 
 // prodSuperType returns the platform and section tags for the "production" supertype.
 // A list of the types can be found at https://demozoo.org/api/v1/production_types/?ordering=id
-func (p Production) prodSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
+func (p *Production) prodSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
 	for _, item := range p.Platforms {
 		switch item.ID {
 		case Demo:
@@ -338,7 +338,7 @@ func (p Production) prodSuperType(platform, section tags.Tag) (tags.Tag, tags.Ta
 }
 
 // graphicsSuperType returns the platform and section tags for the "graphics" supertype.
-func (p Production) graphicsSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
+func (p *Production) graphicsSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
 	const (
 		Graphics   = 23
 		ASCII      = 24
@@ -378,7 +378,7 @@ func (p Production) graphicsSuperType(platform, section tags.Tag) (tags.Tag, tag
 }
 
 // musicSuperType returns the platform and section tags for the "music" supertype.
-func (p Production) musicSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
+func (p *Production) musicSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
 	const (
 		ChipMusic   = 29
 		ExeMusic    = 31
@@ -408,7 +408,7 @@ func (p Production) musicSuperType(platform, section tags.Tag) (tags.Tag, tags.T
 // for a link class that matches YoutubeVideo.
 // An empty string is returned whenever the production does not have a recognized
 // YouTube video link.
-func (p Production) YouTubeVideo() string {
+func (p *Production) YouTubeVideo() string {
 	for _, link := range p.ExternalLinks {
 		if link.LinkClass != "YoutubeVideo" {
 			continue
@@ -429,14 +429,14 @@ func (p Production) YouTubeVideo() string {
 }
 
 // Released returns the production's release date as date_issued_year, month, day values.
-func (p Production) Released() (int16, int16, int16) {
+func (p *Production) Released() (int16, int16, int16) {
 	return helper.Released(p.ReleaseDate)
 }
 
 // Groups returns the first two names in the production that have is_group as true.
 // The one exception is if the production title contains a reference to a BBS or FTP site name.
 // Then that title will be used as the first group returned.
-func (p Production) Groups() (string, string) {
+func (p *Production) Groups() (string, string) {
 	// find any reference to BBS or FTP in the production title to
 	// obtain a possible site name.
 	var a, b string

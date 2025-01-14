@@ -99,7 +99,7 @@ func (t *Templ) pages() map[string]filename {
 	}
 }
 
-func (t Templ) layout(name filename) []string {
+func (t *Templ) layout(name filename) []string {
 	return []string{
 		GlobTo("layout.tmpl"),
 		GlobTo("modal.tmpl"),
@@ -112,7 +112,7 @@ func (t Templ) layout(name filename) []string {
 
 // parseFS returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory.
-func (t Templ) parseFS(db *sql.DB, name filename) *template.Template {
+func (t *Templ) parseFS(db *sql.DB, name filename) *template.Template {
 	files := t.layout(name)
 	config := t.Environment
 	files = t.locked(config.ReadOnly, files...)
@@ -133,7 +133,7 @@ func (t Templ) parseFS(db *sql.DB, name filename) *template.Template {
 		t.FuncMap(db)).ParseFS(t.View, files...))
 }
 
-func (t Templ) locked(lock bool, files ...string) []string {
+func (t *Templ) locked(lock bool, files ...string) []string {
 	if lock {
 		return append(files,
 			GlobTo("layoutlock_null.tmpl"),
@@ -146,7 +146,7 @@ func (t Templ) locked(lock bool, files ...string) []string {
 	)
 }
 
-func (t Templ) lockLayout(lock bool, files ...string) []string {
+func (t *Templ) lockLayout(lock bool, files ...string) []string {
 	if lock {
 		return append(files,
 			GlobTo("layoutup_null.tmpl"),
@@ -162,7 +162,7 @@ func (t Templ) lockLayout(lock bool, files ...string) []string {
 	)
 }
 
-func (t Templ) artifact(lock bool, files ...string) []string {
+func (t *Templ) artifact(lock bool, files ...string) []string {
 	files = append(files,
 		GlobTo("artifactinfo.tmpl"),
 		GlobTo("artifactjsdos.tmpl"),
@@ -187,7 +187,7 @@ func (t Templ) artifact(lock bool, files ...string) []string {
 //
 // The "fmtURI" function is not performant for large lists,
 // instead use "fmtRangeURI" in TemplateStrings().
-func (t Templ) Funcs() template.FuncMap {
+func (t *Templ) Funcs() template.FuncMap {
 	return template.FuncMap{
 		"add":                helper.Add1,
 		"attribute":          Attribute,
@@ -233,7 +233,7 @@ func (t Templ) Funcs() template.FuncMap {
 }
 
 // FuncClosures returns a map of closures that return converted type or modified strings.
-func (t Templ) FuncClosures(db *sql.DB) template.FuncMap { //nolint:funlen
+func (t *Templ) FuncClosures(db *sql.DB) template.FuncMap { //nolint:funlen
 	hrefs := Hrefs()
 	return template.FuncMap{
 		"bootstrap5": func() string {
@@ -402,7 +402,7 @@ func (t Templ) FuncClosures(db *sql.DB) template.FuncMap { //nolint:funlen
 }
 
 // Elements returns a map of functions that return HTML elements.
-func (t Templ) Elements() template.FuncMap {
+func (t *Templ) Elements() template.FuncMap {
 	return template.FuncMap{
 		"az": func() template.HTML {
 			return template.HTML(`<small><small class="fw-lighter">A-Z</small></small>`)
@@ -426,7 +426,7 @@ func (t Templ) Elements() template.FuncMap {
 }
 
 // FuncMap returns a map of all the template functions.
-func (t Templ) FuncMap(db *sql.DB) template.FuncMap {
+func (t *Templ) FuncMap(db *sql.DB) template.FuncMap {
 	funcs := t.Funcs()
 	for k, v := range t.FuncClosures(db) {
 		funcs[k] = v

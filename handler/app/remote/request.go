@@ -16,14 +16,21 @@ import (
 const (
 	// User-Agent to send with the HTTP request.
 	UserAgent = "Defacto2 Uploader form submission, thanks!"
+
+	five = 5
+	ten  = 10
 )
 
-var client5sec = http.Client{
-	Timeout: 5 * time.Second,
+func client5sec() http.Client {
+	return http.Client{
+		Timeout: five * time.Second,
+	}
 }
 
-var client10sec = http.Client{
-	Timeout: 10 * time.Second,
+func client10sec() http.Client {
+	return http.Client{
+		Timeout: ten * time.Second,
+	}
 }
 
 // FixSceneOrg returns a working URL if the provided rawURL is a known,
@@ -72,14 +79,14 @@ type DownloadResponse struct {
 // It uses a timeout of 5 seconds.
 // It returns the path to the downloaded file and it should be removed after use.
 func GetFile5sec(rawURL string) (DownloadResponse, error) {
-	return GetFile(rawURL, client5sec)
+	return GetFile(rawURL, client5sec())
 }
 
 // GetFile10sec downloads a file from a remote URL and saves it to the default temp directory.
 // It uses a timeout of 10 seconds.
 // It returns the path to the downloaded file and it should be removed after use.
 func GetFile10sec(rawURL string) (DownloadResponse, error) {
-	return GetFile(rawURL, client10sec)
+	return GetFile(rawURL, client10sec())
 }
 
 // GetFile downloads a file from a remote URL and saves it to the default temp directory.
