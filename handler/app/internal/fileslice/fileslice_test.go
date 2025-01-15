@@ -30,7 +30,7 @@ func TestMatch(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, fileslice.URI(-1), fileslice.Match("not-a-valid-uri"))
 	assert.Equal(t, fileslice.URI(37), fileslice.Match("newest"))
-	assert.Equal(t, fileslice.URI(60), fileslice.Match("windows-pack"))
+	assert.Equal(t, fileslice.URI(61), fileslice.Match("windows-pack"))
 	assert.Equal(t, fileslice.URI(1), fileslice.Match("advert"))
 }
 

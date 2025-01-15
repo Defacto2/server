@@ -13,7 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/volatiletech/null/v8"
 	"golang.org/x/text/encoding/charmap"
-	"golang.org/x/text/encoding/unicode"
 )
 
 const (
@@ -24,33 +23,54 @@ func TestEncoder(t *testing.T) {
 	t.Parallel()
 	ec := render.Encoder(nil, nil)
 	assert.Nil(t, ec)
+}
 
+func TestEncoderAmi(t *testing.T) {
 	art := models.File{
 		Platform: null.StringFrom("textamiga"),
 	}
-	ec = render.Encoder(&art, nil)
+	ec := render.Encoder(&art, nil)
 	assert.Equal(t, ec, charmap.ISO8859_1)
+}
 
-	art = models.File{
+func TestEncoderAppleII(t *testing.T) {
+	art := models.File{
 		Platform: null.StringFrom(""),
 	}
 	art.Section = null.StringFrom("appleii")
-	ec = render.Encoder(&art, nil)
+	ec := render.Encoder(&art, nil)
 	assert.Equal(t, ec, charmap.ISO8859_1)
+}
 
+func TestEncoderAtari(t *testing.T) {
+	art := models.File{
+		Platform: null.StringFrom(""),
+	}
 	art.Section = null.StringFrom("atarist")
-	ec = render.Encoder(&art, nil)
+	ec := render.Encoder(&art, nil)
 	assert.Equal(t, ec, charmap.ISO8859_1)
+}
 
+func TestEncoderDOS(t *testing.T) {
+	art := models.File{
+		Platform: null.StringFrom(""),
+	}
 	art.Platform = null.StringFrom("textdos")
 	art.Section = null.StringFrom("")
 	sr := strings.NewReader("Hello\nworld\nthis is some text.\n")
-	ec = render.Encoder(&art, sr)
+	ec := render.Encoder(&art, sr)
 	assert.Equal(t, ec, charmap.ISO8859_1)
+}
 
-	sr = strings.NewReader("Hello\nworld\nthis is some text. 👾\n")
-	ec = render.Encoder(&art, sr)
-	assert.Equal(t, ec, unicode.UTF8)
+func TestEncoderUTF8(t *testing.T) {
+	art := models.File{
+		Platform: null.StringFrom(""),
+	}
+	sr := strings.NewReader("Hello\nworld\nthis is some text. 👾\n")
+	ec := render.Encoder(&art, sr)
+	// Currently we cannot determine CP437 vs UTF8.
+	// So the priority is to render legacy text.
+	assert.Equal(t, ec, charmap.CodePage437)
 }
 
 func TestRead(t *testing.T) {

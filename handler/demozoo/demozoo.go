@@ -468,14 +468,15 @@ func (p *Production) Groups() (string, string) {
 // otherwise an empty string is returned.
 func Site(title string) string {
 	s := strings.Split(title, " ")
-	if s[0] == "The" {
+	fmt.Println(s)
+	if strings.EqualFold(s[0], "the") {
 		s = s[1:]
 	}
 	for i, n := range s {
-		if n == "BBS" {
+		if strings.EqualFold(n, "BBS") {
 			return strings.Join(s[0:i], " ") + " BBS"
 		}
-		if n == "FTP" {
+		if strings.EqualFold(n, "FTP") {
 			return strings.Join(s[0:i], " ") + " FTP"
 		}
 	}

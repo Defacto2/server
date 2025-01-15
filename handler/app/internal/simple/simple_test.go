@@ -167,8 +167,9 @@ func TestImageSampleStat(t *testing.T) {
 
 func TestImageXY(t *testing.T) {
 	t.Parallel()
+	missing := [2]string{"0", ""}
 	s := simple.ImageXY("")
-	assert.Contains(t, s, "stat : no such file or directory")
+	assert.Equal(t, missing, s)
 	img := imagefiler(t)
 	s = simple.ImageXY(img)
 	assert.Equal(t, "4,163", s[0])

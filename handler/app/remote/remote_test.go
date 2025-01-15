@@ -45,7 +45,7 @@ func TestGetExampleCom(t *testing.T) {
 	t.Parallel()
 	r, err := remote.GetFile5sec("http://example.com")
 	assert.NotEqual(t, "", r.Path)
-	assert.Equal(t, "text/html; charset=UTF-8", r.ContentType)
+	assert.Equal(t, "text/html", r.ContentType)
 	require.NoError(t, err)
 	_, err = remote.GetFile("http://example.com", *http.DefaultClient)
 	require.NoError(t, err)

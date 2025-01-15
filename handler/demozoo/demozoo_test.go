@@ -130,9 +130,9 @@ func TestSite(t *testing.T) {
 	s := demozoo.Site("")
 	assert.Equal(t, "", s)
 	s = demozoo.Site("the cool bbs")
-	assert.Equal(t, "", s)
+	assert.Equal(t, "cool BBS", s)
 	s = demozoo.Site("Cool BBS")
-	assert.Equal(t, "", s)
+	assert.Equal(t, "Cool BBS", s)
 }
 
 func TestReleasers(t *testing.T) {

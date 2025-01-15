@@ -180,9 +180,17 @@ func ImageSampleStat(unid, previewDir string) bool {
 	return st.Size() > 0
 }
 
-// ImageXY returns the named image filesize and dimensions.
+// ImageXY returns the named image filesize and dimensions as a styled string array.
 // The dimensions are returned as a string in the format "width x height".
 // If the file does not exist, an empty string array is returned.
+//
+// For example, the returned values are:
+//
+//	["4,163", "500x500"]
+//
+// However, if the file does not exist, the returned values are:
+//
+//	["0", ""]
 func ImageXY(name string) [2]string {
 	zero := [2]string{"0", ""}
 	switch filepath.Ext(strings.ToLower(name)) {

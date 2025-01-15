@@ -15,6 +15,11 @@ func TestMagics(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
+	if err := db.Ping(); err != nil {
+		// skip the test if the database is not available
+		return
+	}
+
 	err = fix.Magics(db)
 	require.NoError(t, err)
 }

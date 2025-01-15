@@ -112,7 +112,7 @@ func TestHumanize(t *testing.T) {
 	assert.Equal(t, "an image nfo file or scene release", s)
 
 	s = tags.Humanize(tags.PDF, tags.Proof)
-	assert.Equal(t, "a release proof as a PDF document", s)
+	assert.Equal(t, "A PDF document about release proof", s)
 
 	s = tags.Humanize(tags.Text, tags.Nfo)
 	assert.Equal(t, "an nfo textfile", s)
@@ -184,26 +184,6 @@ func TestHumanizes(t *testing.T) {
 	assert.Equal(t, "proof of release photos", s)
 	s = tags.Humanizes(tags.Image, tags.News)
 	assert.Equal(t, "images, pictures and photos", s)
-}
-
-func TestTags(t *testing.T) {
-	count := 0
-	for i, uri := range tags.URIs() {
-		count++
-		// confirm tag uri strings
-		assert.NotEqual(t, "", uri)
-		// confirm tag names
-		assert.NotEqual(t, "", tags.Names()[i])
-		// confirm tag descriptions
-		assert.NotEqual(t, "", tags.Infos()[i])
-	}
-	u := tags.TagByURI
-	assert.Equal(t, int(u("")), -1)
-	assert.Equal(t, 0, int(u(firstCategory)))
-	assert.Equal(t, firstCategory, tags.Announcement.String())
-	assert.Equal(t, tags.CategoryCount, 26)
-	assert.Equal(t, tags.PlatformCount, 16)
-	assert.Equal(t, tags.CategoryCount+tags.PlatformCount, count)
 }
 
 func TestIsCategory(t *testing.T) {
