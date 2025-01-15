@@ -10,9 +10,9 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/config"
-	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 )
 
 func TestConfig(t *testing.T) {
@@ -131,10 +131,19 @@ func TestRepair(t *testing.T) {
 func TestReArchive(t *testing.T) {
 	t.Parallel()
 	r := config.Zip
-	logger := zaplog.Timestamp().Sugar()
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
 	ctx := context.WithValue(context.Background(), helper.LoggerKey, logger)
 	err := r.ReArchive(ctx, "", "", "")
 	require.Error(t, err)
+}
+
+func TestReArchiveImplode(t *testing.T) {
+	r := config.Zip
+	l, _ := zap.NewProduction()
+	defer l.Sync()
+	logger := l.Sugar()
+	ctx := context.WithValue(context.Background(), helper.LoggerKey, logger)
 
 	// test the archive that uses the defunct implode method
 	src, err := filepath.Abs(filepath.Join("testdata", "IMPLODE.ZIP"))
