@@ -1378,6 +1378,10 @@ func Relations(art *models.File) template.HTML {
 			continue
 		}
 		name, href := x[0], x[1]
+		id := helper.DeObfuscate(href)
+		if invalidID := id == href; invalidID {
+			continue
+		}
 		if !strings.HasPrefix(href, route) {
 			href = route + href
 		}
