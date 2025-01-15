@@ -1512,6 +1512,9 @@ func Websites(art *models.File) template.HTML {
 			continue
 		}
 		name, href := x[0], x[1]
+		if x, err := url.Parse(href); err != nil || x.Host == "" {
+			continue
+		}
 		if !strings.HasPrefix(href, "http") {
 			href = "https://" + href
 		}

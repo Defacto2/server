@@ -108,7 +108,7 @@ func TestUpdated(t *testing.T) {
 	s = simple.Updated("9:30pm", "")
 	assert.Contains(t, s, "error")
 	s = simple.Updated(time.Now(), "")
-	assert.Contains(t, s, "Time less than 5 seconds ago")
+	assert.Contains(t, s, "Time just now")
 }
 
 func TestDemozooGetLink(t *testing.T) {

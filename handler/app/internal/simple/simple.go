@@ -637,14 +637,23 @@ func Updated(t any, s string) string {
 	if s == "" {
 		s = "Time"
 	}
+	justnow := "less than a minute"
 	switch val := t.(type) {
 	case null.Time:
 		if !val.Valid {
 			return ""
 		}
-		return fmt.Sprintf("%s %s ago", s, helper.TimeDistance(val.Time, time.Now(), true))
+		x := helper.TimeDistance(val.Time, time.Now(), false)
+		if x == justnow {
+			return s + " just now"
+		}
+		return s + " " + x + " ago"
 	case time.Time:
-		return fmt.Sprintf("%s %s ago", s, helper.TimeDistance(val, time.Now(), true))
+		x := helper.TimeDistance(val, time.Now(), false)
+		if x == justnow {
+			return s + " just now"
+		}
+		return s + " " + x + " ago"
 	default:
 		return fmt.Sprintf("%supdated: %s", typeErr, reflect.TypeOf(t).String())
 	}
