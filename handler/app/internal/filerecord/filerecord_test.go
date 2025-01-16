@@ -11,6 +11,7 @@ import (
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/volatiletech/null/v8"
 )
 
@@ -259,7 +260,7 @@ func TestExtraZip(t *testing.T) {
 	err := command.CopyFile(nil,
 		filepath.Join("testdata", "archive.zip"),
 		filepath.Join(extraDir, r0+".zip"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	ok := filerecord.ExtraZip(&x, extraDir)
 	assert.True(t, ok)
@@ -326,14 +327,14 @@ func TestListContent(t *testing.T) {
 	s = filerecord.ListContent(&x, dirs, "")
 	assert.Contains(t, s, "cannot stat file")
 
-	src, err := filepath.Abs(filepath.Join("testdata"))
-	assert.NoError(t, err)
+	src, err := filepath.Abs("testdata")
+	require.NoError(t, err)
 	s = filerecord.ListContent(&x, dirs, src)
 	assert.Contains(t, s, "error, directory")
 
 	tmpDir := t.TempDir()
 	err = command.CopyFile(nil, filepath.Join("testdata", "archive.zip"), filepath.Join(tmpDir, "archive.zip"))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	src = filepath.Join(tmpDir, "archive.zip")
 	s = filerecord.ListContent(&x, dirs, tmpDir)
 	assert.Contains(t, s, "error, directory")
@@ -369,7 +370,6 @@ func TestAlertURL(t *testing.T) {
 	x.FileSecurityAlertURL = null.StringFrom("https://example.com")
 	s = filerecord.AlertURL(&x)
 	assert.Equal(t, "https://example.com", s)
-
 }
 
 func TestListEntry(t *testing.T) {

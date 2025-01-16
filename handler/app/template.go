@@ -67,9 +67,11 @@ const (
 
 type filename string // filename is the name of the template file in the view directory.
 
+type Page map[string]filename
+
 // Pages returns a map of the template names and their corresponding filenames.
-func (t *Templ) Pages() map[string]filename {
-	return map[string]filename{
+func (t *Templ) Pages() Page {
+	return Page{
 		"areacodes":     "areacodes.tmpl",
 		"artifact":      artifactTmpl,
 		"artifacts":     artifactsTmpl,

@@ -31,8 +31,8 @@ func TestValid(t *testing.T) {
 func TestMatch(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, fileslice.URI(-1), fileslice.Match("not-a-valid-uri"))
-	assert.Equal(t, fileslice.URI(fileslice.Newest), fileslice.Match("newest"))
-	assert.Equal(t, fileslice.URI(fileslice.WindowsPack), fileslice.Match("windows-pack"))
+	assert.Equal(t, fileslice.Newest, fileslice.Match("newest"))
+	assert.Equal(t, fileslice.WindowsPack, fileslice.Match("windows-pack"))
 	assert.Equal(t, fileslice.URI(1), fileslice.Match("advert"))
 }
 
@@ -85,15 +85,15 @@ func TestRecords(t *testing.T) {
 
 	uris := []fileslice.URI{}
 	for i := range fileslice.WindowsPack {
-		uris = append(uris, fileslice.URI(i))
+		uris = append(uris, i)
 	}
 	for _, uri := range uris {
 		if uri.String() == "" {
 			continue
 		}
-		x, err = fileslice.Records(context.TODO(), nil, uri.String(), 1, 1)
-		assert.Equal(t, model.ErrDB.Error(), err.Error(),
-			fmt.Sprintf("this uri caused an issue: %q", uri))
+		_, err = fileslice.Records(context.TODO(), nil, uri.String(), 1, 1)
+		msg := fmt.Sprintf("this uri caused an issue: %q %d", uri, uri)
+		assert.Equal(t, model.ErrDB.Error(), err.Error(), msg)
 	}
 }
 

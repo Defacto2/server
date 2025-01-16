@@ -468,7 +468,6 @@ func (p *Production) Groups() (string, string) {
 // otherwise an empty string is returned.
 func Site(title string) string {
 	s := strings.Split(title, " ")
-	fmt.Println(s)
 	if strings.EqualFold(s[0], "the") {
 		s = s[1:]
 	}

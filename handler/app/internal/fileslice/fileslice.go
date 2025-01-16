@@ -31,7 +31,6 @@ const (
 	ansiFTP
 	ansiPack
 	ansiNfo
-	//ansiTool
 	bbs
 	bbstro
 	bbsImage
@@ -97,7 +96,6 @@ func (u URI) String() string { //nolint:funlen
 		"ansi-ftp",
 		"ansi-pack",
 		"ansi-nfo",
-		//"ansi-tool",
 		"bbs",
 		"bbstro",
 		"bbs-image",

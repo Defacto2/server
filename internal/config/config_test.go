@@ -132,7 +132,7 @@ func TestReArchive(t *testing.T) {
 	t.Parallel()
 	r := config.Zip
 	logger, _ := zap.NewProduction()
-	defer logger.Sync()
+	_ = logger.Sync()
 	ctx := context.WithValue(context.Background(), helper.LoggerKey, logger)
 	err := r.ReArchive(ctx, "", "", "")
 	require.Error(t, err)
@@ -141,7 +141,7 @@ func TestReArchive(t *testing.T) {
 func TestReArchiveImplode(t *testing.T) {
 	r := config.Zip
 	l, _ := zap.NewProduction()
-	defer l.Sync()
+	_ = l.Sync()
 	logger := l.Sugar()
 	ctx := context.WithValue(context.Background(), helper.LoggerKey, logger)
 
