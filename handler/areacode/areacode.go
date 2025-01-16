@@ -433,8 +433,12 @@ func Query(a any) Result {
 
 // Queries returns a list of results for multiple queries from a form input.
 func Queries(s ...string) []Result {
+	const maximum = 99
 	queries := make([]any, len(s))
 	for i, val := range s {
+		if i > maximum {
+			break
+		}
 		val = strings.TrimSpace(val)
 		if x, err := strconv.Atoi(val); err == nil {
 			queries[i] = x
