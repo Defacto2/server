@@ -2,8 +2,10 @@ package areacode_test
 
 import (
 	"fmt"
+	"testing"
 
 	"github.com/Defacto2/server/handler/areacode"
+	"github.com/stretchr/testify/assert"
 )
 
 func ExampleQuery() {
@@ -130,4 +132,12 @@ func ExampleTerritory_HTML() {
 	t := areacode.TerritoryByCode(710)
 	fmt.Println(t[0].HTML())
 	// Output: <span>United States Government - 710</span><br>
+}
+
+func TestTerritories(t *testing.T) {
+	notes := areacode.Notes()
+	for nan := range notes {
+		terr := areacode.TerritoryByCode(nan)
+		assert.GreaterOrEqual(t, len(terr), 1, "%d should return at least one []Territory", nan)
+	}
 }

@@ -49,7 +49,7 @@ func (c NAN) HTML() template.HTML {
 			html += fmt.Sprintf(` (%s)`, ac)
 		}
 	}
-	if note, ok := notes()[c]; ok {
+	if note, ok := Notes()[c]; ok {
 		html += fmt.Sprintf(" <small><em>%s</em></small>", note)
 	}
 	return template.HTML(html + "</span><br>")
@@ -109,14 +109,16 @@ const (
 	bronx   = "On July 1992, the Bronx moved from 212 to 718."
 )
 
-func notes() map[NAN]string { //nolint:funlen
+// Notes returns a map of North American Numbering Plan area codes notes that provide additional information,
+// such as when an area code was split or created and the regions it serves.
+func Notes() map[NAN]string { //nolint:funlen
 	return map[NAN]string{
 		201: "Northern NJ, including Newark, " + njsplit,
 		609: "Southern NJ, including Trenton, " + njsplit,
 		908: "Central NJ, including Union and Somerset counties, however it came online on June 1991.",
 		206: "Western Washington state, including Seattle.",
 		509: "Eastern Washington state, including Spokane and the Tri-Cities.",
-		// 209, 213, 408, 415, 510, 619, 707, 714, 805, 818, 909, 916
+		// 209, 213, 310, 408, 415, 510, 619, 707, 714, 805, 818, 909, 916
 		209: "Central California, including Fresno and Stockton.",                                                      // 1947
 		213: "Parts of Los Angeles County.",                                                                            // 1947
 		916: "Sacramento.",                                                                                             // 1947
@@ -286,7 +288,7 @@ func territories() []Territory { //nolint:funlen
 		{"Alaska", "AK", []NAN{907}},
 		{"Arizona", "AZ", []NAN{602}},
 		{"Arkansas", "AR", []NAN{501}},
-		{"California", "CA", []NAN{209, 213, 408, 415, 510, 619, 707, 714, 805, 818, 909, 916}},
+		{"California", "CA", []NAN{209, 213, 310, 408, 415, 510, 619, 707, 714, 805, 818, 909, 916}},
 		{"Colorado", "CO", []NAN{303, 719}},
 		{"Connecticut", "CT", []NAN{203}},
 		{"Delaware", "DE", []NAN{302}},
