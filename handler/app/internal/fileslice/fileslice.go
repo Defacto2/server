@@ -31,7 +31,7 @@ const (
 	ansiFTP
 	ansiPack
 	ansiNfo
-	ansiTool
+	//ansiTool
 	bbs
 	bbstro
 	bbsImage
@@ -59,18 +59,18 @@ const (
 	msdos
 	msdosPack
 	music
-	newest
+	Newest
 	newsArticle
 	NewUpdates
 	NewUploads
 	nfo
 	nfoTool
-	oldest
+	Oldest
 	pdf
 	proof
 	restrict
 	script
-	sensenstahl
+	Sensenstahl
 	standards
 	takedown
 	text
@@ -83,7 +83,7 @@ const (
 	Unwanted
 	video
 	windows
-	windowsPack
+	WindowsPack // last value needs to be a global to allow testing
 )
 
 func (u URI) String() string { //nolint:funlen
@@ -97,7 +97,7 @@ func (u URI) String() string { //nolint:funlen
 		"ansi-ftp",
 		"ansi-pack",
 		"ansi-nfo",
-		"ansi-tool",
+		//"ansi-tool",
 		"bbs",
 		"bbstro",
 		"bbs-image",
@@ -155,7 +155,7 @@ func (u URI) String() string { //nolint:funlen
 
 // Match path to a URI type or return -1 if not found.
 func Match(path string) URI {
-	for val := range int(windowsPack) {
+	for val := range int(WindowsPack) {
 		i := val + 1
 		if URI(i).String() == path {
 			return URI(i)
@@ -166,7 +166,7 @@ func Match(path string) URI {
 
 // Valid returns true if path is a valid URI for the list of files.
 func Valid(path string) bool {
-	for val := range int(windowsPack) {
+	for val := range int(WindowsPack) {
 		i := val + 1
 		if URI(i).String() == path {
 			return true
@@ -200,15 +200,15 @@ func FileInfo(uri string) (string, string, string) {
 		h1sub = "edit the unwanted software releases"
 		lead = "These are the file artifacts that have been marked as potential unwanted software " +
 			"or containing viruses on Defacto2."
-	case oldest:
+	case Oldest:
 		logo = "oldest releases"
 		h1sub = "the oldest releases"
 		lead = "These are the earliest, historical file artifacts in the collection."
-	case newest:
+	case Newest:
 		logo = "newest releases"
 		h1sub = "the newest releases"
 		lead = "These are the most recent file artifacts in the collection."
-	case sensenstahl:
+	case Sensenstahl:
 		logo = "sensenstahl 🎁"
 		h1sub = "the bbstros for sensenstahl"
 		lead = "These are the newest BBStros addded to the collection."
@@ -275,7 +275,7 @@ func RecordsSub(uri string) string {
 		trialCrackme: tags.Humanizes(tags.Windows, tags.Job),
 		video:        tags.Humanizes(tags.Video, ignore),
 		windows:      tags.Humanizes(tags.Windows, ignore),
-		windowsPack:  tags.Humanizes(tags.Windows, tags.Pack),
+		WindowsPack:  tags.Humanizes(tags.Windows, tags.Pack),
 	}
 	if value, found := subs[Match(uri)]; found {
 		return value
@@ -303,10 +303,10 @@ func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, l
 	case NewUpdates:
 		r := model.Artifacts{}
 		return r.ByUpdated(ctx, exec, page, limit)
-	case oldest:
+	case Oldest:
 		r := model.Artifacts{}
 		return r.ByOldest(ctx, exec, page, limit)
-	case newest:
+	case Newest:
 		r := model.Artifacts{}
 		return r.ByNewest(ctx, exec, page, limit)
 	}
@@ -486,10 +486,10 @@ func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 	case windows:
 		r := model.Windows{}
 		return r.List(ctx, exec, page, limit)
-	case windowsPack:
+	case WindowsPack:
 		r := model.WindowsPack{}
 		return r.List(ctx, exec, page, limit)
-	case sensenstahl:
+	case Sensenstahl:
 		r := model.BBStro{}
 		return r.Sensenstahl(ctx, exec, page, limit)
 	default:

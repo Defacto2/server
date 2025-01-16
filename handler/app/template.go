@@ -49,7 +49,7 @@ func (t *Templ) Templates(db *sql.DB) (map[string]*template.Template, error) {
 		return nil, fmt.Errorf("app templates verify, %w", err)
 	}
 	tmpls := make(map[string]*template.Template)
-	for k, name := range t.pages() {
+	for k, name := range t.Pages() {
 		tmpl := t.parseFS(db, name)
 		tmpls[k] = tmpl
 	}
@@ -67,7 +67,8 @@ const (
 
 type filename string // filename is the name of the template file in the view directory.
 
-func (t *Templ) pages() map[string]filename {
+// Pages returns a map of the template names and their corresponding filenames.
+func (t *Templ) Pages() map[string]filename {
 	return map[string]filename{
 		"areacodes":     "areacodes.tmpl",
 		"artifact":      artifactTmpl,
@@ -99,7 +100,7 @@ func (t *Templ) pages() map[string]filename {
 	}
 }
 
-func (t *Templ) layout(name filename) []string {
+func (t *Templ) Layout(name filename) []string {
 	return []string{
 		GlobTo("layout.tmpl"),
 		GlobTo("modal.tmpl"),
@@ -113,7 +114,7 @@ func (t *Templ) layout(name filename) []string {
 // parseFS returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory.
 func (t *Templ) parseFS(db *sql.DB, name filename) *template.Template {
-	files := t.layout(name)
+	files := t.Layout(name)
 	config := t.Environment
 	files = t.locked(config.ReadOnly, files...)
 	files = t.lockLayout(config.ReadOnly, files...)
