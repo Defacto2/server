@@ -1,11 +1,11 @@
 package areacode
 
 import (
+	"cmp"
 	"fmt"
 	"html/template"
 	"math"
 	"slices"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -122,7 +122,7 @@ func notes() map[NAN]string { //nolint:funlen
 		916: "Sacramento.",                                                                                             // 1947
 		714: "Orange County.",                                                                                          // 1951
 		805: "Central California, including Santa Barbara and Ventura Counties.",                                       // 1957
-		415: "San Francisco Bay Area, until September 1991 when East Bay and Oakland split to from the 510 area code.", // 1958
+		415: "San Francisco Bay Area, however in September 1991 East Bay and Oakland split to from the 510 area code.", // 1958
 		408: "Silicon Valley including San Benito, Santa Cruz, Santa Clara.",                                           // 1959
 		707: "Northern California, including Napa and Sonoma.",                                                         // 1959
 		619: "Southern California, including San Diego, however it came online in 1982.",                               // 1982
@@ -147,7 +147,7 @@ func notes() map[NAN]string { //nolint:funlen
 		713: "Southern Texas, including Houston, however in 1983 it split to from the 409 area code.",                                  // 1947
 		806: "Northern Texas, including Amarillo.",                                                                                     // 1957
 		817: "Western Texas, including Fort Worth.",                                                                                    // 1953
-		903: "Northeastern Texas, including Tyler, and coming online in November 1990. " + // 1990
+		903: "Northeastern Texas, including Tyler, coming online in November 1990. " + // 1990
 			"However, up until October 1980 this area code was used for calling northwestern Mexico.",
 		210: "Southern Texas, including San Antonio, however it came online in November 1992.", // 1992
 		915: "Western Texas, including El Paso.",                                               // 1953
@@ -340,8 +340,11 @@ func territories() []Territory { //nolint:funlen
 // sorted by name in ascending order.
 func Territories() []Territory {
 	terr := territories()
-	sort.Slice(terr, func(i, j int) bool {
-		return territories()[i].Name < territories()[j].Name
+	slices.SortFunc(terr, func(i, j Territory) int {
+		if n := strings.Compare(i.Name, j.Name); n != 0 {
+			return n
+		}
+		return cmp.Compare(i.Abbreviation, j.Abbreviation)
 	})
 	return terr
 }

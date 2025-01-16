@@ -754,5 +754,8 @@ func groups() Groups { //nolint:funlen
 		"pandemonium":                           147258,
 		"guild-of-distributors":                 124507,
 		"the-documentation-network":             79191,
+		"infinity":                              68081,
+		"infinity-crew":                         108528,
+		"very-strange-warez":                    107595,
 	}
 }
