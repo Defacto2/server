@@ -94,6 +94,8 @@ func groups() Tibits {
 		35: []URI{"software-chronicles-digest"},
 		36: []URI{"the-humble-guys"},
 		37: []URI{"netrunners", "minor-threat", "nexus"},
+		38: []URI{"mai-review", "sda-review", "silicon-dream-artists"},
+		39: []URI{"silicon-dream-artists"},
 	}
 }
 
@@ -156,6 +158,9 @@ func tidbits() Tidbit {
 		35: "For its first 5 issues, SCD stood for Southern Califoria Distribution and was part of a larger regional release group.",
 		36: "According to a published retirement letter, The Humble Guys were founded on the 22 Jan 1990 and became the source of the first use of the _.nfo_ file extension. ",
 		37: "Netrunners merged into the Minor Threat and Nexus collaboration at the end of October 1993. Minor Threat focused on applications and Nexus on game releases.",
+		38: "SDA Review published by Silicon Dream Artists was DOS magazine that reviewed scene PC game releases. " +
+			"The first 4 issues were under the name MAI Review, but the title was changed after the November 1991 merger of Masters of Abstractions and Illusions and MaD.",
+		39: "Silicon Dream Artists was formed after the merging of Masters of Abstractions and Illusions and Maximized ANSi Designers in November 1991.",
 	}
 }
 
