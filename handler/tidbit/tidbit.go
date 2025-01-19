@@ -96,6 +96,7 @@ func groups() Tibits {
 		37: []URI{"netrunners", "minor-threat", "nexus"},
 		38: []URI{"mai-review", "sda-review", "silicon-dream-artists"},
 		39: []URI{"silicon-dream-artists"},
+		40: []URI{"hype"},
 	}
 }
 
@@ -161,6 +162,7 @@ func tidbits() Tidbit {
 		38: "SDA Review published by Silicon Dream Artists was DOS magazine that reviewed scene PC game releases. " +
 			"The first 4 issues were under the name MAI Review, but the title was changed after the November 1991 merger of Masters of Abstractions and Illusions and MaD.",
 		39: "Silicon Dream Artists was formed after the merging of Masters of Abstractions and Illusions and Maximized ANSi Designers in November 1991.",
+		40: "HYPE from 1992 created elite BBS ads both in ANSI and as PC loaders. The brand was later reused by an unrelated warez release group in 1995.",
 	}
 }
 

@@ -562,6 +562,7 @@ const (
 // groups returns a map of releasers URIs mapped to their Demozoo IDs.
 func groups() Groups { //nolint:funlen
 	return Groups{
+		"not-newsletter":                        131373,
 		"2000ad":                                20,
 		"aces-of-ansi-art":                      14208,
 		"acid-productions":                      7647,
@@ -605,7 +606,7 @@ func groups() Groups { //nolint:funlen
 		"graphic-revolution-in-progress":        23211,
 		"graphics-rendered-in-magnificence":     25682,
 		"kosmic-loader-foundation":              30739,
-		"hype":                                  111124,
+		"hype":                                  47074,
 		"illuminatus":                           120174,
 		"international-network-of-crackers":     12175,
 		"insane-creators-enterprise":            2169,
@@ -748,7 +749,6 @@ func groups() Groups { //nolint:funlen
 		"the-review-crew":                       118702,
 		"partners-in-crime":                     77681,
 		"scape":                                 130052,
-		"quantum-traders":                       76350,
 		"teknosis":                              120503,
 		"edge":                                  118746,
 		"pandemonium":                           147258,
@@ -764,6 +764,7 @@ func groups() Groups { //nolint:funlen
 		"bad-ass-dudes":                         89660,
 		"rabid":                                 145297,
 		"legion-of-dynamic-discord":             145538,
+		"storm-inc":                             147490,
 		"sda-review":                            131596,
 		"micropirates-inc":                      122627,
 		"nuke":                                  47046,
@@ -772,5 +773,11 @@ func groups() Groups { //nolint:funlen
 		"galactic-review":                       46590,
 		"the-wondertwins":                       59070,
 		"toxic-shock":                           145023,
+		"apex":                                  87378,
+		"apex-reviewers":                        147434,
+		"masters-of-the-art-experience":         76670,
+		"destined-masters-of-zines":             123572,
+		"excretion-anarchy":                     123606,
+		"graphically-enhanced-magazine":         146070,
 	}
 }

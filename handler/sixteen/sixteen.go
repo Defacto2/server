@@ -19,6 +19,7 @@ func groups() Groups {
 		"insane-creators-enterprise":        "group/ice",
 		"superior-art-creations":            "group/sac",
 		"razor-1911":                        "tags/content/razor 1911",
+		"hype":                              "pack/hype/",
 	}
 }
 
