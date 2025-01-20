@@ -779,5 +779,11 @@ func groups() Groups { //nolint:funlen
 		"destined-masters-of-zines":             123572,
 		"excretion-anarchy":                     123606,
 		"graphically-enhanced-magazine":         146070,
+		"eternal":                               124348,
+		"foundation":                            124323,
+		"the-ground-crew":                       147504,
+		"infinity-93":                           147505,
+		"poison-control":                        147512,
+		"dead-weight":                           79322,
 	}
 }

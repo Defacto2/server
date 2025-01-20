@@ -97,6 +97,8 @@ func groups() Tibits {
 		38: []URI{"mai-review", "sda-review", "silicon-dream-artists"},
 		39: []URI{"silicon-dream-artists"},
 		40: []URI{"hype"},
+		41: []URI{"alpha-flight", "outlaws", "storm-inc"},
+		42: []URI{"thhg"},
 	}
 }
 
@@ -163,6 +165,9 @@ func tidbits() Tidbit {
 			"The first 4 issues were under the name MAI Review, but the title was changed after the November 1991 merger of Masters of Abstractions and Illusions and MaD.",
 		39: "Silicon Dream Artists was formed after the merging of Masters of Abstractions and Illusions and Maximized ANSi Designers in November 1991.",
 		40: "HYPE from 1992 created elite BBS ads both in ANSI and as PC loaders. The brand was later reused by an unrelated warez release group in 1995.",
+		41: "The German Alpha Flight started releasing on the Commodore 64 in at least 1986. The team joined the Amiga platform the following year. But on the PC, AFL didn’t release until many years later, with a team in Belgium waiting until Christmas 1992. The Belgium group changed brands to the Outlaws by mid-1993. And regular AFL releases didn’t occur until late 1993 under a new German lead team. But for reasons unknown, this group re-branded themselves as Storm Inc. However, AFL PC returned in 1994 under new, international membership being lead out of the USA and Australia.",
+		42: "THHG may have been 2 separate groups led by Tom Tom from Germany, or maybe it is just the same group with numerous name changes. " +
+			"But THHG has stood for The Hugo Husten Group and The Horrible Hackers from Germany.",
 	}
 }
 

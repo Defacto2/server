@@ -1332,8 +1332,8 @@ func releaserLead(uri string, data map[string]interface{}) map[string]interface{
 			` real-name attribution was commonplace.</small>`
 	case "none":
 		data["lead"] = "None, are files which were never intended for the scene." +
-			`<br><small class="fw-lighter">These can include commercial or free software"+
-			" applications or online texts for public forums.</small>`
+			`<br><small class="fw-lighter">These can include commercial or free software` +
+			` applications or online texts for public forums.</small>`
 	default:
 		// placeholder to handle other releaser types
 	}
