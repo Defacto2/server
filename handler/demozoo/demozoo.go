@@ -557,6 +557,7 @@ func Find(uri string) GroupID {
 const (
 	cpc   = "corporation-for-public-cybercasting-2001"
 	nappa = "north-american-pirate_phreak-association"
+	mash  = "microcomputer-assembly-software-hackers"
 )
 
 // groups returns a map of releasers URIs mapped to their Demozoo IDs.
@@ -785,5 +786,14 @@ func groups() Groups { //nolint:funlen
 		"infinity-93":                           147505,
 		"poison-control":                        147512,
 		"dead-weight":                           79322,
+		"world-wide-couriers":                   131037,
+		"arcane-corporate-elite":                76332,
+		"new-order":                             147539,
+		"crimson":                               124112,
+		"atari-pirates-incorporated":            128614,
+		mash:                                    147544,
+		"the-buyers-group":                      146471,
+		"new-age":                               70338,
+		"the-codeblasters":                      16503,
 	}
 }

@@ -20,6 +20,16 @@ type Groups map[URI][]Website
 
 func groups() Groups {
 	return Groups{
+		"legion-of-doom": []Website{
+			{
+				URL:  "https://en.wikipedia.org/wiki/Legion_of_Doom_(hacker_group)",
+				Name: "Wikipedia - Legion of Doom (hacker group)",
+			},
+			{
+				URL:  "http://textfiles.com/magazines/LOD/",
+				Name: "The Legion of Doom/Hackers Technical Journal",
+			},
+		},
 		"acid-productions": []Website{
 			{
 				URL:  "https://www.acid.org",

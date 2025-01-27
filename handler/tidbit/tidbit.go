@@ -99,12 +99,22 @@ func groups() Tibits {
 		40: []URI{"hype"},
 		41: []URI{"alpha-flight", "outlaws", "storm-inc"},
 		42: []URI{"thhg"},
+		43: []URI{"tmh"},
+		44: []URI{"the-racketeers"},
+		45: []URI{"crackers-in-action"},
+		46: []URI{"legion-of-doom"},
+		47: []URI{"the-grand-council"},
+		48: []URI{"untouchables", "uniq", "xap", "pentagram"},
 	}
 }
 
 func tidbits() Tidbit {
 	return Tidbit{
-		1: "Untouchables were a famed US based game release group. The Untouchables were a 1990s scene group from Norway.",
+		1: `Confusingly, numerous groups used the name, "The Untouchables" or the initialism "UNT". ` +
+			`"Untouchables" were a USA based release and trainer group. But there were 3 other "The Untouchables" or "UNT",<br>` +
+			`1. A Dutch demo and trainer group from 1990+<br>` +
+			`2. A UK based Atari ST group<br>` +
+			`3. A Dutch PC release group from 1994-95`,
 		2: "Five-O and BCC were a US based game release groups that merged in December 1988. " +
 			"The next month they joined with Pirates R Us and changed their name to The Firm, who became the first prolific game release group on the PC.",
 		3: "Fairlight, founded on the Commodore 64 in 1987 is one of the oldest brands in the scene. " +
@@ -168,6 +178,14 @@ func tidbits() Tidbit {
 		41: "The German Alpha Flight started releasing on the Commodore 64 in at least 1986. The team joined the Amiga platform the following year. But on the PC, AFL didn’t release until many years later, with a team in Belgium waiting until Christmas 1992. The Belgium group changed brands to the Outlaws by mid-1993. And regular AFL releases didn’t occur until late 1993 under a new German lead team. But for reasons unknown, this group re-branded themselves as Storm Inc. However, AFL PC returned in 1994 under new, international membership being lead out of the USA and Australia.",
 		42: "THHG may have been 2 separate groups led by Tom Tom from Germany, or maybe it is just the same group with numerous name changes. " +
 			"But THHG has stood for The Hugo Husten Group and The Horrible Hackers from Germany.",
+		43: "TMH was an early unprotect document writer, who may have been an individual or a group.",
+		44: "The Racketeers were an Apple II pirate group from the early 1980s.",
+		45: "Crackers in Action probably started as a personal brand for the cracker Live Wire based in Denver, but later became a national group.",
+		46: "The Legion of Doom was a well known phreaking and hacker group (LOD/H) that was active in the 1980s and early 1990s, " +
+			"with some of the earliest members having their start in the early Apple II piracy and phreaking community.",
+		47: "The Grand Council a local 1980s release group from the <em>313</em> Detroit and Flint region of Michigan.",
+		48: "Untouchables were founded on the 13th February 1993 with the joining of two groups, XAP and UNiQ. " +
+			"The new release group lasted less than half a year before abandoning the name and reforming as Pentagram in July.",
 	}
 }
 

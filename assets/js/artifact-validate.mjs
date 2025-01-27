@@ -131,8 +131,11 @@ export function releaser(elm) {
     throw new Error("The element of the releaser validator is null.");
   }
   elm.classList.remove("is-valid", "is-invalid");
+  // Save the cursor position
+  const start = elm.selectionStart;
+  const end = elm.selectionEnd;
   // enforce uppercase and remove leading spaces
-  let value = elm.value.trimStart().toUpperCase();
+  let value = elm.value.toUpperCase();
   // replace + with a comma and space for convenience
   value = value.replace("+", ", ");
   // valid characters were determined by this document,
@@ -141,6 +144,7 @@ export function releaser(elm) {
   // replace multiple spaces with a single space
   value = value.replace(/[ ]{2,}/g, " ");
   elm.value = value;
+  elm.setSelectionRange(start, end);
 
   const minLen = elm.getAttribute("minlength");
   const maxLen = elm.getAttribute("maxlength");
