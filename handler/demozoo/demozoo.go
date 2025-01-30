@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/internal/tags"
 )
 
@@ -452,16 +453,17 @@ func (p *Production) Groups() (string, string) {
 		if !nick.Releaser.IsGroup {
 			continue
 		}
-		if a == "" {
+		unused1, unused2 := a == "", b == ""
+		if unused1 {
 			a = nick.Releaser.Name
 			continue
 		}
-		if b == "" {
+		if unused2 {
 			b = nick.Releaser.Name
 			break
 		}
 	}
-	return a, b
+	return releaser.Cell(a), releaser.Cell(b)
 }
 
 // Site parses a production title to see if it is suitable as a BBS or FTP site name,
