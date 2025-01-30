@@ -63,8 +63,12 @@ type DemozooLink struct {
 // It then runs Update to modify the database record with various metadata from the file and Demozoo record API data.
 func (got *DemozooLink) Download(c echo.Context, db *sql.DB, downloadDir string) error {
 	var prod demozoo.Production
-	if _, err := prod.Get(got.ID); err != nil {
+	prodID, err := prod.Get(got.ID)
+	if err != nil {
 		return fmt.Errorf("could not get record %d from demozoo api: %w", got.ID, err)
+	}
+	if prodID <= 0 {
+		return fmt.Errorf("could not find record %d from demozoo api, returned %d", got.ID, prodID)
 	}
 	for _, link := range prod.DownloadLinks {
 		if link.URL == "" {
