@@ -27,14 +27,14 @@ func newContext() echo.Context {
 func TestDemozooLookup(t *testing.T) {
 	t.Parallel()
 	c := newContext()
-	err := htmx.DemozooLookup(c, nil)
+	err := htmx.DemozooLookup(c, false, nil)
 	require.NoError(t, err)
 }
 
 func TestDemozooValid(t *testing.T) {
 	t.Parallel()
 	c := newContext()
-	x, err := htmx.DemozooValid(c, 0)
+	x, err := htmx.DemozooValid(c, false, 0)
 	require.NoError(t, err)
 	assert.Empty(t, x)
 }

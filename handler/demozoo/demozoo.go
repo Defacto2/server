@@ -239,32 +239,29 @@ func (p *Production) Unmarshal(r io.Reader) error {
 	return nil
 }
 
-// SuperType parses the Demozoo "production", "graphics" and "music" supertypes
-// and returns the corresponding platform and section tags.
+// SuperType and validates parses the Demozoo "production", "graphics" and "music"
+// supertypes and returns the corresponding platform and section tags.
+//
 // It returns -1 for an unknown platform or section, in which case the
 // caller should invalidate the Demozoo production.
 func (p *Production) SuperType() (tags.Tag, tags.Tag) {
-	superType := func(pl, se tags.Tag) bool {
+	confirm := func(pl, se tags.Tag) bool {
 		return pl > -1 && se > -1
 	}
 	var platform tags.Tag = -1
 	var section tags.Tag = -1
-
 	platform, section = p.platforms(platform, section)
-	if superType(platform, section) {
+	if confirm(platform, section) {
 		return platform, section
 	}
-
 	platform, section = p.prodSuperType(platform, section)
-	if superType(platform, section) {
+	if confirm(platform, section) {
 		return platform, section
 	}
-
 	platform, section = p.graphicsSuperType(platform, section)
-	if superType(platform, section) {
+	if confirm(platform, section) {
 		return platform, section
 	}
-
 	platform, section = p.musicSuperType(platform, section)
 	return platform, section
 }
@@ -306,8 +303,14 @@ func (p *Production) platforms(platform, section tags.Tag) (tags.Tag, tags.Tag) 
 
 // prodSuperType returns the platform and section tags for the "production" supertype.
 // A list of the types can be found at https://demozoo.org/api/v1/production_types/?ordering=id
+//
+// Example productions:
+//   - https://demozoo.org/api/v1/productions/354298/ (demo)
+//   - https://demozoo.org/api/v1/productions/338041/ (intro 256B)
+//   - https://demozoo.org/api/v1/productions/366489/ (musicdisk)
+//   - https://demozoo.org/api/v1/productions/280982/ (textmag)
 func (p *Production) prodSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
-	for _, item := range p.Platforms {
+	for _, item := range p.Types {
 		switch item.ID {
 		case Demo:
 			section = tags.Demo
@@ -316,8 +319,11 @@ func (p *Production) prodSuperType(platform, section tags.Tag) (tags.Tag, tags.T
 			Intro32K, Intro16K, Intro2K, Intro100K, Intro8K,
 			Intro96K, Intro8b, Intro16b:
 			section = tags.Intro
-		case DiskMag, Magazine, TextMag:
+		case DiskMag, Magazine:
 			section = tags.Mag
+		case TextMag:
+			section = tags.Mag
+			platform = tags.Text
 		case Tool:
 			section = tags.Tool
 		case MusicDisk, ChipMusicPack:
@@ -343,6 +349,11 @@ func (p *Production) prodSuperType(platform, section tags.Tag) (tags.Tag, tags.T
 }
 
 // graphicsSuperType returns the platform and section tags for the "graphics" supertype.
+//
+// Example productions:
+//   - https://demozoo.org/api/v1/productions/269595/ (artpack)
+//   - https://demozoo.org/api/v1/productions/270473/ (artpack)
+//   - https://demozoo.org/api/v1/productions/30570/ (graphics)
 func (p *Production) graphicsSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
 	const (
 		Graphics   = 23
@@ -355,7 +366,7 @@ func (p *Production) graphicsSuperType(platform, section tags.Tag) (tags.Tag, ta
 		ExeGFX256b = 56
 		ExeGFX1K   = 58
 	)
-	for _, item := range p.Platforms {
+	for _, item := range p.Types {
 		switch item.ID {
 		case Graphics:
 			platform = tags.Image
@@ -383,6 +394,10 @@ func (p *Production) graphicsSuperType(platform, section tags.Tag) (tags.Tag, ta
 }
 
 // musicSuperType returns the platform and section tags for the "music" supertype.
+//
+// Example productions:
+//   - https://demozoo.org/api/v1/productions/192593/ (chipmusic)
+//   - https://demozoo.org/api/v1/productions/205797/ (chipmusic but with no download link)
 func (p *Production) musicSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
 	const (
 		ChipMusic   = 29
@@ -391,7 +406,7 @@ func (p *Production) musicSuperType(platform, section tags.Tag) (tags.Tag, tags.
 		ExeMusic64K = 38
 		MusicPack   = 52
 	)
-	for _, item := range p.Platforms {
+	for _, item := range p.Types {
 		switch item.ID {
 		case ChipMusic:
 			platform = tags.Audio

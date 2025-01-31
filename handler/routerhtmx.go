@@ -17,7 +17,7 @@ const rateLimit = 2
 
 // htmxGroup is the /htmx sub-route group that returns HTML fragments
 // using the htmx library for AJAX responses.
-func htmxGroup(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) *echo.Echo {
+func htmxGroup(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, prodMode bool, downloadDir string) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for htmx group router", ErrRoutes))
 	}
@@ -33,7 +33,7 @@ func htmxGroup(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, downloadDir 
 	// htmx/demozoo/production
 	demozoo := g.Group("/demozoo")
 	demozoo.GET("/production", func(c echo.Context) error {
-		return htmx.DemozooLookup(c, db)
+		return htmx.DemozooLookup(c, prodMode, db)
 	})
 	demozoo.PUT("/production/:id", func(c echo.Context) error {
 		return htmx.DemozooSubmit(c, db, logger, downloadDir)

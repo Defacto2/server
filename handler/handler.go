@@ -113,7 +113,7 @@ func (c *Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger) *echo.
 
 	e = EmbedDirs(e, c.Public)
 	e = MovedPermanently(e)
-	e = htmxGroup(e, db, logger, c.Environment.AbsDownload)
+	e = htmxGroup(e, db, logger, configs.ProdMode, c.Environment.AbsDownload)
 	e, err = c.FilesRoutes(e, db, logger, c.Public)
 	if err != nil {
 		logger.Fatal(err)

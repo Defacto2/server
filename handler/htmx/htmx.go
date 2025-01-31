@@ -63,7 +63,10 @@ func Areacodes(c echo.Context) error {
 // This looks up the Demozoo production ID and returns a form button to submit
 // the ID to the server for processing. If the Demozoo production ID is
 // already in use, an error message is returned.
-func DemozooLookup(c echo.Context, db *sql.DB) error {
+//
+// This also acts as the string constructor for the summary of a successful lookup
+// for the "Demozoo production or graphic" form.
+func DemozooLookup(c echo.Context, prodMode bool, db *sql.DB) error {
 	sid := c.FormValue("demozoo-submission")
 	id, err := strconv.Atoi(sid)
 	if err != nil {
@@ -83,27 +86,34 @@ func DemozooLookup(c echo.Context, db *sql.DB) error {
 	if prodInUse := key != 0 && deleted; prodInUse {
 		return c.HTML(http.StatusOK, "This Demozoo production is already in use.")
 	}
-	prod, err := DemozooValid(c, id)
+	prod, err := DemozooValid(c, prodMode, id)
 	if err != nil {
 		return err
 	}
 	if invalid := prod.ID < 1; invalid {
 		return nil
 	}
-	info := []string{prod.Title}
+	info := []string{prod.Title, "<br>"}
 	if len(prod.Authors) > 0 {
 		info = append(info, "by")
 		for _, a := range prod.Authors {
-			info = append(info, a.Name)
+			name := strings.TrimSpace(a.Name)
+			if name == "" {
+				continue
+			}
+			info = append(info, name)
 		}
 	}
-	if prod.ReleaseDate != "" {
-		info = append(info, "on", prod.ReleaseDate)
+	if relDate := strings.TrimSpace(prod.ReleaseDate); relDate != "" {
+		info = append(info, "on", relDate)
 	}
 	if prod.Platforms != nil {
-		info = append(info, "for")
 		for _, p := range prod.Platforms {
-			info = append(info, p.Name)
+			name := strings.TrimSpace(p.Name)
+			if name == "" {
+				continue
+			}
+			info = append(info, "for", name)
 		}
 	}
 	// Submit ID button saves the Demozoo production ID to the database and fetches the file.
@@ -127,14 +137,14 @@ func DemozooLookup(c echo.Context, db *sql.DB) error {
 //
 // A valid production requires at least one download link and must be a suitable type
 // such as an intro, demo or cracktro for MS-DOS, Windows etc.
-func DemozooValid(c echo.Context, id int) (demozoo.Production, error) {
+func DemozooValid(c echo.Context, prodMode bool, id int) (demozoo.Production, error) {
 	if invalid := id < 1; invalid {
 		return demozoo.Production{},
 			c.String(http.StatusNotAcceptable, fmt.Sprintf("invalid id: %d", id))
 	}
 	sid := strconv.Itoa(id)
 	if s, err := cache.DemozooProduction.Read(sid); err == nil {
-		if s != "" {
+		if prodMode && s != "" {
 			return demozoo.Production{},
 				c.String(http.StatusOK,
 					fmt.Sprintf("Production %d is probably not suitable for Defacto2!<br>Types: %s", id, s))
