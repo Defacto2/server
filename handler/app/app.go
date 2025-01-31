@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -22,6 +23,7 @@ import (
 	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
+	"github.com/bengarrett/bbs"
 	"github.com/labstack/echo/v4"
 	"github.com/volatiletech/null/v8"
 	"golang.org/x/text/language"
@@ -594,6 +596,24 @@ func RecordRels(a, b any) string {
 		s = bv
 	}
 	return s
+}
+
+// SafeBBS returns a string as a template.HTML type to prevent HTML escaping in the template,
+// but also removes any PCBoard sequences from the string.
+func SafeBBS(s string) template.HTML {
+	b := []byte(s)
+	if !bbs.IsPCBoard(b) {
+		clear(b)
+		return SafeHTML(s)
+	}
+	b = RemovePCBoard(b)
+	return SafeHTML(string(b))
+}
+
+// RemovePCBoard removes any PCBoard sequences from the byte slice.
+func RemovePCBoard(b []byte) []byte {
+	re := regexp.MustCompile(bbs.PCBoardRe)
+	return re.ReplaceAll(b, []byte(""))
 }
 
 // SafeHTML returns a string as a template.HTML type to prevent HTML escaping in the template.

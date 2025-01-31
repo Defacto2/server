@@ -7,6 +7,7 @@ require (
 	github.com/Defacto2/helper v1.3.0
 	github.com/Defacto2/magicnumber v1.0.6
 	github.com/Defacto2/releaser v1.2.5
+	github.com/bengarrett/bbs v1.0.2
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/dustin/go-humanize v1.0.1

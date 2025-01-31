@@ -224,6 +224,7 @@ func (t *Templ) Funcs() template.FuncMap {
 		"recordInfoOSTag":    TagWithOS,
 		"recordLinkPreviews": LinkPreviews,
 		"recordTagInfo":      TagBrief,
+		"safeBBS":            SafeBBS,
 		"safeHTML":           SafeHTML,
 		"safeJS":             SafeJS,
 		"slugify":            helper.Slug,

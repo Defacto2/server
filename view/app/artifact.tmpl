@@ -11,9 +11,9 @@
 {{- $topaz := index . "topazCheck"}}
 {{- $vga := index . "vgaCheck"}}
 {{- $readmeCls := `reader reader-invert border border-black rounded-1 p-1`}}
-{{- $readmeL := index . "readmeLatin1"}}
+{{- $readmeL := index . "readmeLatin1" | safeBBS}}
 {{- $readmeLS := index . "readmeLatin1Cls"}}
-{{- $readmeC := index . "readmeCP437"}}
+{{- $readmeC := index . "readmeCP437" | safeBBS}}
 {{- $readmeCS := index . "readmeCP437Cls"}}
 {{- $alertURL := index . "alertURL"}}
 {{- $noDownload := index . "noDownload"}}
