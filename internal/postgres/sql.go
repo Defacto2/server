@@ -90,6 +90,15 @@ const (
 		combineGroup +
 		whereRelNull
 
+	// releaserForSEL is a partial SQL statement to select the releasers for name, file count, filesize sum,
+	// and is used for magazine titles.
+	releaserForSEL SQL = distReleaser +
+		countSum +
+		sumSize +
+		fromFiles +
+		onlyGroup +
+		whereRelNull
+
 	// all SQL statements must have a tailing space,
 	// otherwise the statement can break when concatenated with other SQL statements.
 
@@ -120,6 +129,8 @@ const (
 	minYear SQL = "MIN(files.date_issued_year) AS min_year "
 	// combine the group_brand_for and group_brand_by columns as releasers.
 	combineGroup SQL = "CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) "
+	// only group is a replacement for combineGroup when only the group_brand_for column is required such as for magazines titles.
+	onlyGroup = SQL("CROSS JOIN LATERAL (values(group_brand_for)) AS T(releaser) ")
 	// filter the results by the file count and the oldest year,
 	// this is to exclude releasers with less than 1 file or an unknown release year.
 	filterCountAndYear SQL = "HAVING (COUNT(files.filename) > 0) AND (MIN(files.date_issued_year) > 1970) "
@@ -165,7 +176,7 @@ func FTPsAlphabetical() SQL {
 
 // MagazinesAlphabetical selects a list of distinct magazine titles.
 func MagazinesAlphabetical() SQL {
-	return releaserSEL +
+	return releaserForSEL + // we previously used: releaserSEL +
 		magazine +
 		groupbyRel +
 		havingCount +
@@ -237,7 +248,7 @@ func MagazinesOldest() SQL {
 		sumSizeComma +
 		minYear +
 		fromFiles +
-		combineGroup +
+		onlyGroup + // we previously used: combineGroup +
 		whereRelNull +
 		magazine +
 		groupbyRel +
