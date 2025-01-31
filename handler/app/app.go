@@ -600,14 +600,22 @@ func RecordRels(a, b any) string {
 
 // SafeBBS returns a string as a template.HTML type to prevent HTML escaping in the template,
 // but also removes any PCBoard sequences from the string.
-func SafeBBS(s string) template.HTML {
-	b := []byte(s)
-	if !bbs.IsPCBoard(b) {
+//
+// If any value is not a valid string then an empty string is returned.
+func SafeBBS(a any) template.HTML {
+	switch val := a.(type) {
+	case string:
+		b := []byte(val)
+		if !bbs.IsPCBoard(b) {
+			clear(b)
+			return SafeHTML(val)
+		}
+		s := string(RemovePCBoard(b))
 		clear(b)
 		return SafeHTML(s)
+	default:
+		return template.HTML("")
 	}
-	b = RemovePCBoard(b)
-	return SafeHTML(string(b))
 }
 
 // RemovePCBoard removes any PCBoard sequences from the byte slice.
