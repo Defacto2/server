@@ -104,6 +104,14 @@ func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
 	if err != nil {
 		return DownloadResponse{}, fmt.Errorf("get file client do: %w", err)
 	}
+	if res.Body == nil {
+		return DownloadResponse{}, fmt.Errorf("get file body is nil, status code: %d", res.StatusCode)
+	}
+	if res.StatusCode != http.StatusOK {
+		_, _ = io.Copy(io.Discard, res.Body) // discard and close the client
+		res.Body.Close()
+		return DownloadResponse{}, fmt.Errorf("get file status code: %d", res.StatusCode)
+	}
 	defer res.Body.Close()
 
 	download := DownloadResponse{

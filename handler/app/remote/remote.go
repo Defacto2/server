@@ -63,26 +63,28 @@ type DemozooLink struct {
 // It then runs Update to modify the database record with various metadata from the file and Demozoo record API data.
 func (got *DemozooLink) Download(c echo.Context, db *sql.DB, downloadDir string) error {
 	var prod demozoo.Production
-	prodID, err := prod.Get(got.ID)
+	statusCode, err := prod.Get(got.ID)
 	if err != nil {
 		return fmt.Errorf("could not get record %d from demozoo api: %w", got.ID, err)
 	}
-	if prodID <= 0 {
-		return fmt.Errorf("could not find record %d from demozoo api, returned %d", got.ID, prodID)
+	if statusCode > 0 {
+		return fmt.Errorf("could not find record %d from demozoo api, returned: %d", got.ID, statusCode)
 	}
-	for _, link := range prod.DownloadLinks {
+	for i, link := range prod.DownloadLinks {
 		if link.URL == "" {
 			continue
 		}
-		df, err := GetFile5sec(link.URL)
-		if tryNextLink := err != nil || df.Path == ""; tryNextLink {
+		dlr, err := getRemoteFile(prod, i, link.URL)
+		if err != nil {
+			return err
+		} else if dlr == (DownloadResponse{}) {
 			continue
 		}
 		base := filepath.Base(link.URL)
 		dst := filepath.Join(downloadDir, got.UUID)
 		got.Filename = base
-		if err := helper.RenameFileOW(df.Path, dst); err != nil {
-			sameFiles, err := helper.FileMatch(df.Path, dst)
+		if err := helper.RenameFileOW(dlr.Path, dst); err != nil {
+			sameFiles, err := helper.FileMatch(dlr.Path, dst)
 			if err != nil {
 				return fmt.Errorf("could not rename file, %s: %w", dst, err)
 			}
@@ -90,7 +92,7 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, downloadDir string)
 				return fmt.Errorf("%w, will not overwrite, %s", ErrExist, dst)
 			}
 		}
-		size, err := strconv.Atoi(df.ContentLength)
+		size, err := strconv.Atoi(dlr.ContentLength)
 		if err == nil {
 			got.FileSize = size
 		}
@@ -119,6 +121,27 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, downloadDir string)
 	}
 	got.Error = "no usable download links found, they returned 404 or were empty"
 	return c.JSON(http.StatusNotModified, got)
+}
+
+// getRemoteFile fetches the download link from Demozoo and saves it to the download directory.
+// If the DownloadResponse is empty due to a production without a download link or a timeout,
+// then it should be handled as a continue in the calling function.
+func getRemoteFile(prod demozoo.Production, i int, linkURL string) (DownloadResponse, error) {
+	var err error
+	dlr := DownloadResponse{}
+	if len(prod.DownloadLinks) == 1 {
+		dlr, err = GetFile10sec(linkURL)
+	} else {
+		dlr, err = GetFile5sec(linkURL)
+	}
+	if skip := err != nil || dlr.Path == ""; skip {
+		// If the last link failed then return the error, otherwise this will fail silently.
+		if lastLink := i+1 >= len(prod.DownloadLinks); lastLink {
+			return DownloadResponse{}, fmt.Errorf("could not get file, %s: %w", linkURL, err)
+		}
+		return DownloadResponse{}, nil
+	}
+	return dlr, nil
 }
 
 // Stat sets the file size, hash, type, and archive content of the file.

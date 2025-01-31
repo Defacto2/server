@@ -157,6 +157,9 @@ func (p *Production) Get(id int) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("get demozoo production client do %w", err)
 	}
+	if res.Body == nil {
+		return res.StatusCode, fmt.Errorf("get demozoo production client do returned nothing %w: %s", ErrStatus, res.Status)
+	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
 		_, _ = io.Copy(io.Discard, res.Body)
