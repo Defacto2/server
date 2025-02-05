@@ -18,8 +18,32 @@ type Website struct {
 // Groups is a map of releasers URIs mapped to their websites.
 type Groups map[URI][]Website
 
-func groups() Groups {
+// Websites returns a map of releasers URIs mapped to their websites.
+//
+//   - URL should be the absolute URL of the website including the required protocol.
+//     But non-working sites should exclude the protocol, e.g. www.example.com.
+//   - Name should be the name of the website.
+//   - NotWorking will not apply a hyperlink to the URL.
+func Websites() Groups {
 	return Groups{
+		"future-crew": []Website{
+			{
+				URL:  "https://en.wikipedia.org/wiki/Future_Crew",
+				Name: "Wikipedia - Future Crew",
+			},
+		},
+		"eagle-soft-incorporated": []Website{
+			{
+				URL:  "https://csdb.dk/group/?id=696",
+				Name: "Eagle Soft Incorporated on CSDb",
+			},
+		},
+		"myth-inc": []Website{
+			{
+				URL:  "https://demozoo.org/bbs/12549",
+				Name: "Myth Inc BBS on Demozoo",
+			},
+		},
 		"legion-of-doom": []Website{
 			{
 				URL:  "https://en.wikipedia.org/wiki/Legion_of_Doom_(hacker_group)",
@@ -243,8 +267,9 @@ func groups() Groups {
 		},
 		"rebels": []Website{
 			{
-				URL:  "www.rebels.dk",
-				Name: "Rebels Island",
+				URL:        "www.rebels.dk",
+				Name:       "Rebels Island",
+				NotWorking: true,
 			},
 			{
 				URL:        "www.rebels.org",
@@ -338,7 +363,7 @@ func groups() Groups {
 		},
 		"the-humble-guys": []Website{
 			{
-				URL:  "fabulousfurlough.blogspot.com/",
+				URL:  "https://fabulousfurlough.blogspot.com",
 				Name: "Fabulous Furlough's - My Life Behind The Patch",
 			},
 		},
@@ -377,7 +402,7 @@ func groups() Groups {
 		},
 		"ultra-force": []Website{
 			{
-				URL:  "ultraforce.com/en/demogroup.html",
+				URL:  "https://ultraforce.com/en/demogroup.html",
 				Name: "Ultra Force",
 			},
 		},
@@ -390,7 +415,7 @@ func groups() Groups {
 		},
 		"pirates-cove": []Website{
 			{
-				URL:  "phrack.org",
+				URL:  "https://phrack.org",
 				Name: "Phrack Magazine",
 			},
 		},
@@ -400,8 +425,8 @@ func groups() Groups {
 // Find returns the website for the given uri.
 // It returns an empty string if the uri is not known.
 func Find(uri string) []Website {
-	if _, groupExists := groups()[URI(uri)]; groupExists {
-		return groups()[URI(uri)]
+	if _, groupExists := Websites()[URI(uri)]; groupExists {
+		return Websites()[URI(uri)]
 	}
 	return []Website{}
 }
