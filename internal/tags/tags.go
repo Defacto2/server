@@ -278,6 +278,9 @@ func Humanize(platform, section Tag) string {
 	if s := humChecks(platform, section); s != "" {
 		return s
 	}
+	if PPE := platform == PCB && section == Tool; PPE {
+		return "a PCBoard application (PPE)"
+	}
 	switch section {
 	case Bust:
 		return takedown(platform)
@@ -300,7 +303,7 @@ func Humanize(platform, section Tag) string {
 	case Image:
 		return humImg(platform, section)
 	case PDF:
-		return "A PDF document about " + Names()[section]
+		return "a PDF document about " + Names()[section]
 	case Text:
 		return humText(platform, section)
 	case TextAmiga:

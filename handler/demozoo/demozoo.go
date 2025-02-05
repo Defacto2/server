@@ -75,6 +75,7 @@ const (
 	Magazine       = 47
 	TextMag        = 49
 	Intro96K       = 50
+	BBSDoor        = 53
 	Intro8b        = 54
 	Intro16b       = 55
 )
@@ -343,6 +344,9 @@ func (p *Production) prodSuperType(platform, section tags.Tag) (tags.Tag, tags.T
 			section = tags.Demo
 		case BBStro:
 			section = tags.BBS
+		case BBSDoor:
+			section = tags.Tool
+			platform = tags.PCB
 		}
 		if section > -1 {
 			break
@@ -583,6 +587,36 @@ const (
 // groups returns a map of releasers URIs mapped to their Demozoo IDs.
 func groups() Groups { //nolint:funlen
 	return Groups{
+		"187":                                   60731,
+		"corosion":                              78035,
+		"shallow-grounds":                       108955,
+		"wildsider":                             146120,
+		"lucifer-enterprises":                   123274,
+		"the-mental-midgets":                    78793,
+		"quick-silver":                          147847,
+		"il_legal":                              111630,
+		"international-software-alliance":       35002,
+		"indigo":                                77634,
+		"unity":                                 147716,
+		"romkids":                               39889,
+		"vla":                                   60811,
+		"ntt":                                   129588,
+		"art-creation-enterprise":               108273,
+		"cybrix":                                70314,
+		"malfunction-system-group":              77549,
+		"wizard-couriers":                       68145,
+		"mack-crack-corporation":                78537,
+		"pyrodex":                               1995,
+		"psychedelic-excretion-international":   108422,
+		"the-dominators":                        5067,
+		"cyber-force":                           36492,
+		"contour":                               83427,
+		"cosmic-press":                          129471,
+		"acronym":                               147749,
+		"the-sure-logic-syndicate":              147747,
+		"software-pirating-coalition":           126629,
+		"gainseville-pirates-association":       146655,
+		"ffa":                                   147744,
 		"not-newsletter":                        131373,
 		"2000ad":                                20,
 		"aces-of-ansi-art":                      14208,
@@ -603,7 +637,6 @@ func groups() Groups { //nolint:funlen
 		"club-elan":                             82987,
 		"crackers-in-action":                    59013,
 		"creators-of-intense-art":               17338,
-		"cybrix":                                70314,
 		"damn-excellent-ansi-design":            25642,
 		"defacto2":                              10000,
 		"dead-memory":                           76576,
@@ -723,7 +756,6 @@ func groups() Groups { //nolint:funlen
 		"the-illinois-pirates":                  146676,
 		"silicon-valley-swappe-shoppe":          146458,
 		"occult-network":                        146546,
-		"myth-inc":                              12549,
 		"crime-syndicate-net":                   131344,
 		"eagle-soft-incorporated":               1540,
 		"the-elementals-piratelist":             146549,
