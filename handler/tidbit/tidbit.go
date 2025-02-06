@@ -105,6 +105,11 @@ func groups() Tibits {
 		46: []URI{"legion-of-doom"},
 		47: []URI{"the-grand-council"},
 		48: []URI{"untouchables", "uniq", "xap", "pentagram"},
+		49: []URI{"italsoft"},
+		50: []URI{"future-brain-inc", "the-humble-guys"},
+		51: []URI{"pirate"},
+		52: []URI{"creators-of-intense-art", "art-creation-enterprise"},
+		53: []URI{"vla"},
 	}
 }
 
@@ -122,7 +127,7 @@ func tidbits() Tidbit {
 			"Late January 1992 saw a major piracy bust in Detroit that forced USA to disband and Fairlight to go solo.",
 		4: "In 1992 Fairlight briefly ran the artgroup Artists In Revolt, sometimes referenced as the Fairlight Art Division. ",
 		5: "Fairlight DOX (FLTDOX) was a sub-group of Fairlight that specialised in releasing documentation and trainers for games.",
-		6: "Aces of ANSI Art is credited as one of the first art groups, that in mid-1990 reformed as the famous ANSi Creators in Demand, aka ACiD Productions.",
+		6: "Aces of ANSI Art is credited as one of the first art groups. In mid-1990 they reformed as the ANSi Creators in Demand, and later known as ACiD Productions, the most prolific art group in the North American scene of the era.",
 		7: "The Duplicators are the earliest game crackers on the PC that offer reliable dated releases.",
 		8: "Pirates Club Inc from 1983 is the oldest known pirate group on the PC.",
 		9: "ASP was a group that specialised in writing original and also resharing UNPROTECT text instructions for PC applications and later games. " +
@@ -186,6 +191,12 @@ func tidbits() Tidbit {
 		47: "The Grand Council a local 1980s release group from the <em>313</em> Detroit and Flint region of Michigan.",
 		48: "Untouchables were founded on the 13th February 1993 with the joining of two groups, XAP and UNiQ. " +
 			"The new release group lasted less than half a year before abandoning the name and reforming as Pentagram in July.",
+		49: "Italsoft was an odd entity out of Argentina that would modify existing pirated games and then claim them as their own. " +
+			"But oddly, they would often change the copyright notices in the documentation and software to fake the publisher and the release year.",
+		50: "FBI were a Dutch group that created some of the first cracktros on the PC. In 1990 they would collaborate with THG to release European games in the USA.",
+		51: "PIRATE was a USA text magazine that covered the Apple II and IBM PC scenes.",
+		52: "CiA was an artgroup founded in July 1993 and in the following month, they doubled in size after absorbing ACE.",
+		53: "VLA were an early PC programming and demogroup from the USA.",
 	}
 }
 

@@ -13,13 +13,17 @@ type Groups map[GroupTag]GroupTag
 
 func groups() Groups {
 	return Groups{
+		"hype":                              "pack/hype/",
+		"international-network-of-crackers": "tags/content/inc",
+		"razor-1911":                        "tags/content/razor 1911",
 		"acid-productions":                  "group/acid",
 		"defacto2":                          "group/defacto 2",
-		"international-network-of-crackers": "tags/content/inc",
 		"insane-creators-enterprise":        "group/ice",
 		"superior-art-creations":            "group/sac",
-		"razor-1911":                        "tags/content/razor 1911",
-		"hype":                              "pack/hype/",
+		"aces-of-ansi-art":                  "group/aaa",
+		"bitchin-ansi-designs":              "group/bad",
+		"creators-of-intense-art":           "group/cia",
+		"art-creation-enterprises":          "group/ace",
 	}
 }
 
