@@ -94,6 +94,11 @@ async function checkFile() {
   checkErrors(errors, alert, fileInput, results);
   checkDuplicate(file1, alert, fileInput, results);
   hiddenDetails(file1, lastMod, magic);
+  if (errors[0] === "" && errors[1] === "") {
+    document
+      .getElementById("uploader-trainer-submit")
+      .focus({ focusVisible: true });
+  }
 }
 
 function checkMime(file) {
