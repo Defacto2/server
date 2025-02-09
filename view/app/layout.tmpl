@@ -186,13 +186,15 @@
                 Search
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="/search/releaser">Releasers</a></li>
-                <li><a class="dropdown-item" href="/search/file">Files</a></li>
+                <li><a class="dropdown-item" href="/search/file">Filenames</a></li>
                 <li><a class="dropdown-item" href="/search/desc">Descriptions</a></li>
-                <li><a class="dropdown-item" href="/areacodes">BBS area codes</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Lookup</h6></li>
+                <li><a class="dropdown-item" href="/search/releaser">Releasers</a></li>
                 {{- if eq $lock true }}
-                <li><a class="dropdown-item" href="/editor/search/id">By <em>ID</em> or <em>UUID</em></a></li>
+                <li><a class="dropdown-item" href="/editor/search/id"><em>ID</em> or <em>UUID</em></a></li>
                 {{- end }}
+                <li><a class="dropdown-item" href="/areacodes">BBS area codes</a></li>
               </ul>
             </li>
           </ul>
