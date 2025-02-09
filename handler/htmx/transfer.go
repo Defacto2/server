@@ -213,7 +213,7 @@ func success(c echo.Context, filename string, id int64,
 	if sess.Editor(c) {
 		html += fmt.Sprintf("<div data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" "+
 			"data-bs-title=\"ctrl + alt + enter\"><a id=\"go-to-the-new-artifact-record\" "+
-			"href=\"/f/%s\">Go to the new artifact record</a>.</div>",
+			"href=\"/f/%s\" autofocus>Go to the new artifact record</a>.</div>",
 			helper.ObfuscateID(id))
 	}
 	return c.HTML(http.StatusOK, html)
@@ -475,7 +475,7 @@ func (prod Submission) Submit( //nolint:cyclop,funlen
 	if sess.Editor(c) {
 		uri := helper.ObfuscateID(key)
 		html += fmt.Sprintf("<p data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" data-bs-title=\"ctrl + alt + enter\">"+
-			"<a id=\"go-to-the-new-artifact-record\" href=\"/f/%s\">Go to the new artifact record</a></p>", uri)
+			"<a id=\"go-to-the-new-artifact-record\" href=\"/f/%s\" autofocus>Go to the new artifact record</a></p>", uri)
 	}
 	// see Download in handler/app/internal/remote/remote.go
 	switch prod {
