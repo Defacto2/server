@@ -54,10 +54,6 @@ export function submit(elementId) {
   const element = getElmById(elementId);
   element.addEventListener("click", function () {
     let pass = true;
-    // if (title.value == "") {
-    //   title.classList.add(invalid);
-    //   pass = false;
-    // }
     if (releaser1.value == "") {
       releaser1.classList.add(invalid);
       pass = false;

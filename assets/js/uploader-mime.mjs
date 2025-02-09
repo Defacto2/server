@@ -85,6 +85,7 @@ export function checkAdvanced(mime) {
  * @returns {boolean} - Returns true if the MIME type is allowed for images, otherwise false.
  */
 export function checkImage(mime) {
+  if (mime === "") return true;
   const allowedTypes = images().concat(archives());
   return allowedTypes.includes(mime);
 }
@@ -96,6 +97,7 @@ export function checkImage(mime) {
  * @returns {boolean} - Returns true if the MIME type is allowed, otherwise false.
  */
 export function checkIntro(mime) {
+  if (mime === "") return true;
   const allowedTypes = apps().concat(archives(), binaries());
   return allowedTypes.includes(mime);
 }
@@ -107,6 +109,7 @@ export function checkIntro(mime) {
  * @returns {boolean} - Returns true if the MIME type is allowed, otherwise false.
  */
 export function checkMagazine(mime) {
+  if (mime === "") return true;
   const allowedTypes = texts().concat(archives(), apps(), binaries());
   return allowedTypes.includes(mime);
 }
@@ -118,6 +121,7 @@ export function checkMagazine(mime) {
  * @returns {boolean} - Returns true if the MIME type is allowed for text files, otherwise false.
  */
 export function checkText(mime) {
+  if (mime === "") return true;
   const allowedTypes = texts().concat(archives());
   return allowedTypes.includes(mime);
 }

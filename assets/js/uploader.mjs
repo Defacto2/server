@@ -216,7 +216,7 @@ export function checkErrors(errors, alert, fileInput, results) {
   if (results == null) {
     throw new Error(`The results value of checkErrors is null.`);
   }
-  errors = errors.filter((error) => error != "");
+  errors = errors.filter((error) => error.trim() != "");
   if (errors.length <= 0) {
     return;
   }
