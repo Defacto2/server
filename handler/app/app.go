@@ -2,6 +2,7 @@
 package app
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"embed"
@@ -603,14 +604,17 @@ func RecordRels(a, b any) string {
 //
 // If any value is not a valid string then an empty string is returned.
 func SafeBBS(a any) template.HTML {
+	const lessThan = "<"
+	const ltEntity = "&lt;"
 	switch val := a.(type) {
 	case string:
 		b := []byte(val)
+		b = bytes.ReplaceAll(b, []byte(lessThan), []byte(ltEntity))
+		s := string(b)
 		if !bbs.IsPCBoard(b) {
-			clear(b)
-			return SafeHTML(val)
+			return SafeHTML(string(b))
 		}
-		s := string(RemovePCBoard(b))
+		s = string(RemovePCBoard(b))
 		clear(b)
 		return SafeHTML(s)
 	default:
