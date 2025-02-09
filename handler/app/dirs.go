@@ -648,13 +648,14 @@ func errorWithID(err error, key string, id any) error {
 }
 
 const (
-	sp      = 0x20 // space
-	hyphen  = 0x2d // hyphen-minus
-	shy     = 0xad // soft hyphen for ISO8859-1
-	nbsp    = 0xa0 // non-breaking space for ISO8859-1
-	nbsp437 = 0xff // non-breaking space for CP437
-	space   = " "  // intentional space
-	chk     = "checked"
+	sp       = 0x20 // space
+	hyphen   = 0x2d // hyphen-minus
+	shy      = 0xad // soft hyphen for ISO8859-1
+	nbsp     = 0xa0 // non-breaking space for ISO8859-1
+	nbsp437  = 0xff // non-breaking space for CP437
+	space    = " "  // intentional space
+	chk      = "checked"
+	maxWidth = 80
 )
 
 // embedText embeds the readme or file download text content for the file record of the artifact.
@@ -662,6 +663,7 @@ func embedText(art *models.File, data map[string]interface{}, b ...byte) (map[st
 	if len(b) == 0 || art == nil || art.RetrotxtNoReadme.Int16 != 0 {
 		return data, nil
 	}
+	b = lockWidth(maxWidth, b)
 	textEncoding := render.Encoder(art, bytes.NewReader(b))
 	data["topazCheck"] = ""
 	data["vgaCheck"] = ""
@@ -711,6 +713,22 @@ func embedText(art *models.File, data map[string]interface{}, b ...byte) (map[st
 	data["readmeLines"] = strings.Count(readme, "\n")
 	data["readmeRows"] = helper.MaxLineLength(readme)
 	return data, nil
+}
+
+// lockWidth returns the byte array with an enforced maximum width of printed characters per line.
+//
+// The maxWidth should usually be a value of 80 representing the standard terminal column value.
+func lockWidth(maxWidth int, b []byte) []byte {
+	var builder strings.Builder
+	for _, line := range strings.Split(string(b), "\n") {
+		for len(line) > maxWidth {
+			s := line[:maxWidth]
+			builder.WriteString(s + "\n")
+			line = line[maxWidth:]
+		}
+		builder.WriteString(line + "\n")
+	}
+	return []byte(builder.String())
 }
 
 // decode decodes the text content from the reader.
