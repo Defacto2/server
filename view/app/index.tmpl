@@ -2,6 +2,7 @@
     index.tmpl ~ Introductory page for the website.
 */ -}}
 {{- define "content" }}
+{{- $fragmentCls := "link-offset-2 link-offset-3-hover link-underline link-underline-opacity-25 link-underline-opacity-75-hover" }}
 {{- $listCls := "link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover icon-link icon-link-hover"}}
 <p class="lead">
   You're at the website conserving defunct software cracking, wares, and Warez Scene subcultures on obsolete Personal Computers. 
@@ -99,6 +100,33 @@
   Yet, the Scene on PC and Ataris existed well before the famed, Commodore Amiga 500, and the Scene on the Apple II thrived long before the Commodore 64 microcomputer was ever popular.
 </p>
 <h1 class="mt-4 mb-4 text-center">Milestones<small class="fw-light"> the personal computer industry and the Scene</small> </h1>
+{{/*  These links use url fragments: https://developer.mozilla.org/en-US/docs/Web/URI/Fragment  */}}
+<div class="d-flex justify-content-around flex-wrap mb-5 lead">
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=PLATO IV Notes%2C Talkomatic and online games">The first online communities</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=An Open Letter to Hobbyists">Bill Gates and his letter to pirates</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=The first Bulletin Board System">The first BBS?</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=CBBS%2C ABBS%2C and the Apple II">The early online underground</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=We have yet to learn when or who started cracking, or why">The first crackers?</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=The birth of wares">Why wares?</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=The Apple Mafia%2C Super Pirates of Minneapolis%2C or ?">The first group?</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=Cyber Strike broken by The Tornato">Earliest dated crack?</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=STARBLASTER cracked by: Mr. Xerox">The earliest cracktro?</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=Merry Christmas CB'81">The first demo?</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=IBM Personal Computer">The first PC!</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=Unprotects for Lotus 1%2D2%2D3">Unprotect texts for the PC</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=The earliest PC loaders">Loaders on the PC</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=First intro by Sorcerers ?">Earliest PC intro?</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=Future Brain Inc. ?">Earliest PC cracktro?</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=The Humble Guys, Knights of Legend or Bubble Booble">Origins of the <u>.nfo</u></a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=Nokturnal Trading Alliance and IUD">Earliest app and util groups</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=The Dream Team Presents Blues Brothers">Contemporary PC cracktro?</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=Razor 1911 Tenth Anniversary CD%2DROM">Scene Merch</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=Standards of Piracy Association">First release standards</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=CD Images For the Elite ~ CiFE ?">Earliest ISO release?</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=No Electronic Theft (NET) Act">Wares becomes criminal</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=Counter%2DStrike%3A%20Source Final from Emporio">Digital only releases</a></div>
+  <div class="p-2"><a class="{{$fragmentCls}}" href="#:~:text=The twilight of the cracktro">The end</a></div>
+</div>
 {{- /*  
   to add 3 columns, use class "row-cols-xl-3"   
 */ -}}
@@ -108,22 +136,8 @@
     <a id="{{slugify .Title}}"></a>
     <div class="card h-100{{ if eq true .Highlight}} border-dark text-bg-light{{end}}">
       {{- /*  Header & pictures  */}}
-      {{- if and (eq "" .Picture.Png) (eq "" .Picture.Jpg)}}
+      {{- if and (eq "" .Picture.Png) (eq "" .Picture.Jpg)}}{{- end}}
       <div class="card-header">{{fmtPrefix .Prefix}}<strong>{{.Year}}</strong>{{fmtMonth .Month}}{{fmtDay .Day}}</div>
-      {{- end}}
-      <picture title="{{.Picture.Title}}">
-        {{- if ne "" .Picture.Avif}}
-        <source srcset="/image/milestone/{{.Picture.Avif}}" type="image/avif" class="card-img-top">
-        {{- end}}
-        {{- if ne "" .Picture.Webp}}
-        <source srcset="/image/milestone/{{.Picture.Webp}}" type="image/webp" class="card-img-top">
-        {{- end}}
-        {{- if ne "" .Picture.Jpg}}
-        <img src="/image/milestone/{{.Picture.Jpg}}" loading="lazy" class="card-img-top" alt="{{.Picture.Alt}}">
-        {{- else if ne "" .Picture.Png}}
-        <img src="/image/milestone/{{.Picture.Png}}" loading="lazy" class="card-img-top" alt="{{.Picture.Alt}}">
-        {{- end}}
-      </picture>
       {{- /*  Lists, aligned to the top  */}}
       {{- if and (.List) (eq "" .Content)}}
       <ul class="list-group list-group-flush text-center">
@@ -153,7 +167,6 @@
         {{- if or (ne "" .Link) (ne "" .Picture.Attribution) (ne "" .Title)}}
         <p class="card-text">
           <small>
-          {{- if ne "" .Title}}<a href="#{{slugify .Title}}" class="link-underline-secondary">Bookmark this milestone</a><br>{{- end}}
           {{- if ne "" .Link}}<a href="{{.Link}}" class="link-offset-2 link-underline link-underline-opacity-50">Read {{.LinkTitle}}</a>{{- end}}
           {{- if ne "" .Picture.Attribution}}
             <br>
@@ -181,7 +194,20 @@
       {{- end}}   
       {{- /*  Footer  */}}
       {{- if or (ne "" .Picture.Png) (ne "" .Picture.Jpg)}}
-      <div class="card-footer">{{fmtPrefix .Prefix}}<strong>{{.Year}}</strong>{{fmtMonth .Month}}{{fmtDay .Day}}</div>
+      <div class="card-footer">
+      <picture title="{{.Picture.Title}}">
+        {{- if ne "" .Picture.Avif}}
+        <source srcset="/image/milestone/{{.Picture.Avif}}" type="image/avif" class="card-img-bottom">
+        {{- end}}
+        {{- if ne "" .Picture.Webp}}
+        <source srcset="/image/milestone/{{.Picture.Webp}}" type="image/webp" class="card-img-bottom">
+        {{- end}}
+        {{- if ne "" .Picture.Jpg}}
+        <img src="/image/milestone/{{.Picture.Jpg}}" loading="lazy" class="card-img-bottom" alt="{{.Picture.Alt}}">
+        {{- else if ne "" .Picture.Png}}
+        <img src="/image/milestone/{{.Picture.Png}}" loading="lazy" class="card-img-bottom" alt="{{.Picture.Alt}}">
+        {{- end}}
+      </picture></div>
       {{- end}}
     </div>
   </div>

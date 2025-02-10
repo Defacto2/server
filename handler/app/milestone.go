@@ -349,6 +349,7 @@ func Collection() Milestones {
 				"<p>In the early days of the BBS, the mainstream computer press paid attention to boards, " +
 				"<a href=\" https://books.google.com.au/books?id=3j4EAAAAMBAJ&pg=PA10&lpg=PA10&dq=%22Modem+Over+Manhattan%22&source=bl&ots=smYwZj_okV&sig=ACfU3U0kYG9RX-3uPfGTakGgtP_mVDcAhA&hl=en&sa=X&ved=2ahUKEwiVs-yi6-qEAxX-oWMGHYpwAPA4ChDoAXoECAIQAw#v=onepage&q=%22Modem%20Over%20Manhattan%22&f=false\">including write-ups</a>" +
 				"<sup><a href=\"#the-early-underground-fn2\">[2]</a></sup> and listings of the phone numbers for known underground boards.</p>" +
+				"<p>Some of the earliest underground boards and communities include:</p>" +
 				// Sherwood Forest
 				"<strong>Sherwood Forest</strong><br>" +
 				"<p>A very early, underground ABBS is the 1979-1981 New Jersey-based<sup><a href=\"#the-early-underground-fn3\">[3]</a></sup> board, <strong>Sherwood&nbsp;Forest</strong>, created by Magnetic Surfer. " +
@@ -365,7 +366,7 @@ func Collection() Milestones {
 				// 8BBS
 				"<strong>8BBS</strong><br>" +
 				"<p>There is also the renowned <strong>8BBS</strong> out of San Jose, CA, which ran on a <a href=\"https://www.computerhistory.org/revolution/minicomputers/11/331\">PDP-8 minicomputer</a> " +
-				"in 1980-82 and <a href=\"#8bbs\">has a separate article</a>.</p>" +
+				"in 1980-82 and <a href=\"#8bbs\">has its own individual article</a>.</p>" +
 				sect0 +
 				"<div id=\"the-early-underground-fn1\">[1] See page 3 under <em>MODEMania</em> in the <a href=\"https://mirrors.apple2.org.za/ftp.apple.asimov.net/documentation/magazines/washington_apple_journal/washingtonapplepijournal1979v1no8sep79.pdf\">Washington Apple Journal</a>.</div>" +
 				"<div id=\"the-early-underground-fn2\">[2] In the Innovative Bulletin Boards list, InfoWorld mislabels <strong>8</strong>BBS as BBBS.</div>" +
@@ -374,7 +375,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The first crackers", Year: 1979, Highlight: true,
-			Content: "<p>We have yet to learn when or who started cracking, but it must have been after discovering disk copy protection in Apple&nbsp;II software. " +
+			Content: "<p>We have yet to learn when or who started cracking, or why. But it must have been after the discovery of disk copy protection in Apple&nbsp;II software. " +
 				"Andrew McFadden wrote about early <a href=\"https://fadden.com/apple2/cassette-protect.html\">copy protection on cassette tapes</a>. " +
 				"This form of copy protection was uncommon, but the games include Microchess 2 from Personal Software, Module 6 from Softape in 1978, and 1979's Sargon II from Hayden.</p>" +
 				// disk ii drive
@@ -394,7 +395,7 @@ func Collection() Milestones {
 				// dunjonquest
 				"<p><a href=\"https://retro365.blog/wp-content/uploads/2023/09/automated_simulations_8828.jpg\">Dunjonquest Temple of Apshai</a> from Automated Simulations could be one of the oldest titles with disk copy protection. " +
 				"However, the game has been reprinted a few times under the Epyx branding, which complicates things. " +
-				"The <a href=\"https://archive.org/details/wozaday_Dunjonquest_The_Temple_of_Apshai_v2\">second reprint</a> from 1980 included a title screen and possibly disk copy protection, but the first edition with a (c) 1979 Automated Simulations notice seems free of copy protection? " +
+				"The <a href=\"https://archive.org/details/wozaday_Dunjonquest_The_Temple_of_Apshai_v2\">second reprint</a> from 1980 included a title screen and possibly disk copy protection, but the first edition with a \"(c) 1979 Automated Simulations\" notice seems free of copy protection? " +
 				"<a href=\"https://ia600901.us.archive.org/BookReader/BookReaderImages.php?zip=/28/items/1980-01-compute-magazine/Compute_Issue_002_1980_Jan_Feb_jp2.zip&file=Compute_Issue_002_1980_Jan_Feb_jp2/Compute_Issue_002_1980_Jan_Feb_0096.jp2&id=1980-01-compute-magazine&scale=2&rotate=0\">It is also unsure</a> " +
 				"if the <a href=\"https://archive.org/details/wozaday_Dunjonquest_The_Temple_of_Apshai_v1\">first Apple edition</a> was available in 1979 or more likely, <a href=\"https://retro365.blog/2023/09/27/automated-simulations-one-of-the-first-a-revisit/\">later in 1980</a>.</p>" +
 				// unbroken quote
@@ -432,12 +433,16 @@ func Collection() Milestones {
 				"<a href=\"https://www.slate.com/articles/technology/the_spectator/2011/10/the_article_that_inspired_steve_jobs_secrets_of_the_little_blue_.html\">phone phreaking</a> had been a well-established, anti-corporate movement, " +
 				" allowing callers to trick a phone company into misbilling or giving away expensive, long-distance phone calls.</p>" +
 				// birth of warez
-				"<p>So when was the birth of wares<sup><a href=\"#the-birth-of-warez-fn1\">[1]</a></sup> and a Warez scene? " +
+				"<p>So when was the birth of wares<sup><a href=\"#the-birth-of-warez-fn6\">[1]</a></sup> and a Warez scene? " +
 				"There's no exact answer, but a good guess would be <strong>sometime&nbsp;in&nbsp;1980</strong> in the USA, maybe in the New York tri-state area, Massachusetts, California, or elsewhere. " +
 				"By then, microcomputer owners exchanged details to meet in real life and online to duplicate and exchange software collections. And, importantly, to find ways to remove Apple II disk copy protections and show off the results. " +
 				// warez dating
 				"The pirates, also often identified as phone phreaks, removed or cracked disk copy protection on the Apple&nbsp;II and were dating their activity towards the end of 1980<sup><a href=\"#the-birth-of-warez-fn4\">[4]</a></sup> and in 1981. " +
 				"Likewise, many modified, <q>cracked</q>, or <q>broken</q> ingame title screens exist for games published in those years.</p>" +
+				// byter interview
+				`<p>In a 1991 interview<sup><a href="#the-birth-of-warez-fn6">[6]</a></sup> for The Humble Review, Byter briefly talks about his early time on the Apple II scene he discovered in 1981. ` +
+				`He states in those early Apple II days the boards were mostly message systems and occasional file transfer systems. However, the limited storage and slow modem speeds in those days meant most people chatted rather than pirated software. ` +
+				`He goes on to confirm "In those days there wasn't any such thing as cracking groups... most everything which was cracked was credited solely to individuals."</p>` +
 				// other platforms
 				"<p>As for the other microcomputer platforms, the far more <a href=\"http://www.trs-80.org/was-the-trs-80-once-the-top-selling-computer/\">popular</a> " +
 				"TRS-80 from Tandy had a <a href=\"http://www.trs-80.org/telephone-interface/\">modem peripheral</a> available at the end of 1978. " +
@@ -454,6 +459,9 @@ func Collection() Milestones {
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/torax.gif\">4</a>.</div>" +
 				"<div id=\"the-birth-of-warez-fn5\">[5] Early microcomputer peripherals' included software was often barebones and only intended to confirm the hardware's operation. " +
 				"New owners were expected to <a href=\"https://mirrors.apple2.org.za/ftp.apple.asimov.net/documentation/hardware/io/Hayes%20Micromodem%20II%20Manual.pdf\">program their own software</a> to use with their purchase.</div>" +
+				"<div id=\"the-birth-of-warez-fn6\">[6] " +
+				"<a href=\"https://defacto2.net/f/a56d0\">The Humble Review</a> issue #1, an interview with byter (1/2)." +
+				div1 +
 				sect1,
 			Picture: Picture{
 				Title: "Tank Command - Kraked By Copy/Cat - No Rights Reserved",
@@ -466,16 +474,20 @@ func Collection() Milestones {
 		{
 			Title: "The first group", Year: 1980, Highlight: true,
 			Lead: "The Apple Mafia, Super Pirates of Minneapolis, or ?",
-			Content: // the apple marfia story
-			"<p>Discussions of the groups from the Apple II era often mention they existed in 1981 or even 1980. " +
+			Content: "<p>Discussions of the groups from the Apple II era often mention they existed in 1981 or even 1980. " +
 				"Yet, from the cracked Scene releases that exist online today, the earliest groups only have releases from 1982 onwards. " +
 				"While there are many 1980 and 1981 cracks, the surviving evidence says they all were released by individuals rather than formal collaborations.</p>" +
-				"<p>The famed, original Scene groups, Super Pirates of Minneapolis, The Apple Mafia, The Software Pirates, Digital Gang, The Dirty Dozen, Untouchables, and Apple Pirated Program Library Exchange earliest releases are for games first published in 1982.</p>" +
+				"<p>The famous cracking groups of the era, Super Pirates of Minneapolis, The Apple Mafia, The Software Pirates, Digital Gang, The Dirty Dozen, Untouchables, and Apple Pirated Program Library Exchange earliest releases are for games first sold in 1982.</p>" +
+				// byter interview
+				`<p>In a 1991 interview<sup><a href="#the-first-group-fn7">[7]</a></sup> for The Humble Review, Byter talks about the early Apple II scene. He confirms, "In those days (1981-) there wasn't any such thing as cracking groups... most everything which was cracked was credited solely to individuals."` +
+				` He continues, "As for cracking groups, they're changed as well. Apple ][ cracking groups (when they weren't simply individuals), were always small. Only members essential to the groups activities were members. This included (at times) a leader, a cracker or two and sometimes an artist and a programmer. ` +
+				`It was rare for a group to have more than five members. Suppliers were never part of the group, nor were sysops or boards."</p>` +
+				// the apple marfia story
 				"<p><strong>The Apple Mafia</strong><br>" +
 				"In 1986, Red Ghost posted <a href=\"/f/a430f7\">The Apple Mafia Story</a>, claiming " +
 				"The&nbsp;Untouchables<sup><a href=\"#the-first-group-fn1\">[1]</a></sup>, The&nbsp;Apple&nbsp;Mafia<sup><a href=\"#the-first-group-fn2\">[2]</a></sup>, and&nbsp;The&nbsp;Dirty&nbsp;Dozen<sup><a href=\"#the-first-group-fn3\">[3]</a></sup> " +
 				"were some of the first-ever pirate groups. But he admits he wasn't there and wasn't even into computers then. He grew up in Queens, New York, and suggests that is where many <q>original</q> phreakers and pirates originated. " +
-				"But we know in the 1970s, people nationwide were <a href=\"http://www.flyingsnail.com/images/YIPL/YIPL_002.jpg\">already</a> phone freaking, and the pirate groups mentioned hit their stride in 1982-83.</p>" +
+				"But we know in the 1970s, people were <a href=\"http://www.flyingsnail.com/images/YIPL/YIPL_002.jpg\">phone freaking nationwide</a>, and these pirate groups mentioned only hit their stride in 1982-83.</p>" +
 				// godfather quote
 				"<p>In the same post, an early 1984 quote from The Godfather states he founded The Apple Mafia in 1980, initially as a joke, but it became a more serious project in 1981. Strangely, Godfather states that it is the oldest active group rather than simply the oldest group. " +
 				"<q style=\"text-transform: lowercase;\">BRIEF HISTORY OF THE APPLE MAFIA. FOUNDED IN 1980 BY THE GODFATHER AS A JOKE. REDONE IN 1981 AS A SEMI SERIOUS GROUP. " +
@@ -519,6 +531,9 @@ func Collection() Milestones {
 				"<div id=\"the-first-group-fn5\">[5] <q>For the first time ever, a computer show devoted exclusively to the Apple computers. Applefest '81</q> advert in the <a href=\"https://www.wap.org/journal/showcase/washingtonapplepijournal1981v3no4apr81.pdf\">April 1981 issue of Washington Apple Pi</a>.</div>" +
 				"<div id=\"the-first-group-fn6\">[6] Super Pirates of Minneapolis crack screen examples, " +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/ribbitc.gif\">1</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/spirates.gif\">2</a>, <a href=\"http://artscene.textfiles.com/intros/APPLEII/succession.gif\">3</a>." +
+				div1 +
+				"<div id=\"the-first-group-fn7\">[7] " +
+				"<a href=\"https://defacto2.net/f/a56d0\">The Humble Review</a> issue #1, an interview with byter (1/2)." +
 				div1 +
 				sect1,
 		},
@@ -619,20 +634,20 @@ func Collection() Milestones {
 		{
 			Title: "The earliest cracktro", Year: 1981, Highlight: true,
 			Lead: "STARBLASTER cracked by: Mr. Xerox, from 1981 ?",
-			Content: "A cracktro or <strong>crack-intro</strong> definition could be a programmed introduction branding the crackers to a pirated software release. " +
-				"So, <q><a href=\"http://artscene.textfiles.com/intros/APPLEII/thepirate.gif\">broken&nbsp;by</a></q> texts and <a href=\"http://artscene.textfiles.com/intros/APPLEII/flockland.gif\">hacked</a> game title screens probably should not apply.</p>" +
+			Content: "Our definition of a cracktro or <strong>crack-intro</strong> is a programmed and animated vanity title screen, giving credit to the cracker(s) of a pirated piece of software. " +
+				"But this means the common static <q><a href=\"http://artscene.textfiles.com/intros/APPLEII/thepirate.gif\">broken&nbsp;by</a></q> texts and <a href=\"http://artscene.textfiles.com/intros/APPLEII/flockland.gif\">hacked</a> game title screens do not apply.</p>" +
 				// apple ii
 				"<p>Unfortunately, it is challenging to date early pirated releases for the PC, Commodore&nbsp;64, or Apple&nbsp;II. " +
-				"Many crackers didn't date their releases, and the systems themselves didn't track time or stamp the files. " +
-				"But given the <a href=\"http://artscene.textfiles.com/intros/APPLEII/.thumbs.html\">proliferation</a> of <q>broken by</q> texts and graphic hacks during 1980-82 in the US on the Apple&nbsp;II, the early cracktro probably evolved here.</p>" +
+				"Many early crackers didn't date their releases, and the systems themselves didn't track time or stamp the files. " +
+				"But given the <a href=\"http://artscene.textfiles.com/intros/APPLEII/.thumbs.html\">proliferation</a> of <q>broken by</q> texts and graphic hacks by Apple&nbsp;II crackers based in the USA during 1980-82, the early cracktro probably evolved there.</p>" +
 				// mr xerox
 				"<strong>Candidates</strong><br>" +
-				"<p>The prolific, early Apple cracker <strong>Mr. Xerox</strong> probably created one of the first introductions and scrollers in his animated " +
+				"<p>The prolific, early Apple cracker <strong>Mr. Xerox</strong> probably created one of the first crack-intros and scroller in his animated " +
 				"<a href=\"https://archive.org/details/a2_Starblaster_19xx_C_G_cr_Star_Trek_1983_Sega_cr_Shuttle_Intercept_19xx__cr\">crack by introduction</a> " +
-				"for <strong>Star Blaster</strong> (c) 1981, which you can compare to the <a href=\"https://archive.org/details/Starblaster4amCrack\">original opening</a>.</p>" +
+				"for <strong>Star Blaster</strong> (c) 1981. When compared to the <a href=\"https://archive.org/details/Starblaster4amCrack\">startup of the original</a> game, this Mr. Xerox animation clearly involved additional code injected by the cracker.</p>" +
 				// others
-				"<p>Or cracker <strong>Copycatter</strong> <a href=\"https://archive.org/details/a2_Pro_Football_The_Gold_Edition_1982_System_Design_Lab_cr_Copycatter\">may have created</a> the first scroller in a release of <strong>Pro Football</strong> (c) 1982.</p>" +
-				"<p>While younger, the February 1984 <strong>Black Belt</strong> release is from <strong>The Apple Mafia</strong> is a <a href=\"https://archive.org/details/3d0g_022b_Black_Belt\">candidate</a> for an early crack-intro, given it is animated, timestamp and from a well-known group.</p>" +
+				"<p>Or, cracker <strong>Copycatter</strong> <a href=\"https://archive.org/details/a2_Pro_Football_The_Gold_Edition_1982_System_Design_Lab_cr_Copycatter\">may have created</a> the first scroller in a release of <strong>Pro Football</strong> (c) 1982.</p>" +
+				"<p>While younger, the February 1984 <strong>Black Belt</strong> release is from <strong>The Apple Mafia</strong> is a <a href=\"https://archive.org/details/3d0g_022b_Black_Belt\">candidate</a> for an early dated crack-intro, given it is animated, timestamp and from a well-known group.</p>" +
 				"<p>Penqueriel Mazes by Electronic Dimension initially looked like a <a href=\"https://archive.org/details/a2_Penqueriel_Mazes_19xx_Sadistic_cr_Electronic_Dimension\">candidate</a>, but the intro-loader effects are far too modern for the <q>(c) 1982</q> notice.</p>",
 			Picture: Picture{
 				Title: "Mr. Xerox's Star Blaster cracktro",
@@ -1585,6 +1600,17 @@ func Collection() Milestones {
 			},
 		},
 		{
+			Title: "Earliest CD release", Year: 1992, Month: 3, Day: 3, Highlight: true,
+			Lead: "Battle Chess MPC", LinkTitle: "about the release", Link: "/f/aa209be",
+			Content: "<p>The first known release of a game on CD was probably Battle Chess MPC (multimedia PC) released by International Network of Crackers on the 3rd of March 1992. " +
+				"Being a novel medium for software distribution, the INC release was a mess requiring the user to have access to 28 floppy disks and then a third party tool to copy and \"splice\" the disks to a hard drive. " +
+				"Copying to this many floppy disks for a single game would have been slow, tedious, and expensive, both in time and hardware.</p>" +
+				"<p>Later in the month $yndicate would release the " +
+				`<a href="/f/b126bd6">CD ROM edition</a> ` + "of Wing Commander that didn't have complex installation process, and INC would attempt some other MPC titles. But in 1992, CD piracy didn't make sense or take off.</p>" +
+				"<p>However in late 1994, scene personalities, The Renegade Chemist and Zeus would team up to form ROM 1911 : Razor 1911 CD-ROM Division. An early or possibly the first CD release from this pair was a game named " +
+				`<a href="/f/ab3e0b">Slob Zone</a>` + ", an 8 floppy disk release. But because game publishers often didn't add copy protection on their CD titles, Razor 1911 didn't want any scene credit for the release.</p>",
+		},
+		{
 			Title: "First SuperVGA / VESA game", Year: 1992, Month: 6,
 			Lead: "Links 386 Pro", LinkTitle: "the mobygames page", Link: "https://www.mobygames.com/game/3757/links-386-pro/",
 			Content: "<p>The first widely available <strong>SuperVGA</strong> game was Links 386 Pro from Access. Here, another popular golf simulation pushed the baseline PC gaming requirements with the need for higher-end hardware. " +
@@ -1637,16 +1663,6 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest CD image release", Year: 1994, Month: 11, Day: 17, Highlight: true,
-			Lead: "ROM 1911 ?", LinkTitle: "about the release", Link: "/f/ab3e0b",
-			Content: "<p>The earliest known release was a <strong>CD image</strong> of the game " +
-				"<a href=\"https://www.mobygames.com/game/3350/hurl/cover/group-2469/cover-13273/\">Slob Zone</a> later known as HURL. " +
-				"CD images were generally disliked in the Scene, as they had no copy protection to crack and occupied too much space on the file site or bulletin board's costly hard drives. " +
-				"<p>The <q>ROM 1911</q> brand was used by Razor 1911 as a dumping ground for CD titles.</p>" +
-				"<q>ROM 1911 is dedicated to bringing you the best CD titles available on PC, with a catch : we must be able to zip these games down to 10 1.44 meg files or less, or we won't release it. " +
-				"We know that a large portion of the scene would like to play these games, but the size of many CD titles is prohibitive to the pirate gamer. But not all games are too big to release! Which brings us here ..</q>",
-		},
-		{
 			Title: "Copyright infringement legal precedent", Year: 1994, Month: 12, Day: 28, Highlight: true,
 			Lead: "No criminal liability for the sharing of software", LinkTitle: "the David LaMacchia Defense Fund with press releases", Link: "https://web.archive.org/web/19990224000548/http://photo.net/dldf/home.html",
 			Content: "<p>In April 1994, David LaMacchia, a 20-year-old junior at the Massachusetts Institute of Technology, was <a href=\"/f/b628640\">indicted</a> for conspiring to commit wire fraud. " +
@@ -1674,7 +1690,7 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest CD-RIP release", Year: 1995, Month: 6, Day: 3, Highlight: true,
+			Title: "Earliest use of the expression \"CD-RIP\"", Year: 1995, Month: 6, Day: 3, Highlight: true,
 			Lead: "Hybrid ?", LinkTitle: "about the release", Link: "/f/a938e5",
 			Content: "<p>A play on the media, CD-ROM, the earliest known <strong>CD-RIP</strong> (later simplified to <q>rip</q>) release, was by Hybrid for the game <a href=\"https://www.mobygames.com/game/3328/virtual-pool/cover/group-119259/cover-316591/\">Virtual Pool</a> from Interplay. " +
 				"Hybrid was a group formed by ex-members of <a href=\"/g/pyradical\">Pyradical</a> and <a href=\"/g/pentagram\">Pentagram</a>.</p>" +

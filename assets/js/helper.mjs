@@ -150,6 +150,7 @@ export function titleize(text) {
     "oem",
     "os",
     "pc",
+    "pcb",
     "pga",
     "ppe",
     "pfs",
