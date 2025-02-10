@@ -5,14 +5,15 @@
 <form class="row">
     <div class="col">
       <input type="search" class="form-control" name="htmx-search" 
+        id="areacodes-search"
         placeholder="{{$placeholder}}" 
         aria-label="{{$placeholder}} and display the results below"
-        hx-trigger="input delay:500ms, keyup[key=='Enter'], load"
+        hx-trigger="input delay:25ms, keyup[key=='Enter'], load"
         hx-post="/areacodes"
-        hx-target="#areacodes-results">
+        hx-target="#areacodes-results" autofocus>
     </div>
     <div class="col">
-        <button type="reset" class="btn btn-link" onclick="document.getElementById('areacodes-results').innerHTML = ''">Clear</button>
+        <button type="reset" class="btn btn-link" onclick="document.getElementById('areacodes-results').innerHTML = '';document.getElementById('areacodes-search').focus({focusVisible:true})">Clear</button>
     </div>
 </form>
 
