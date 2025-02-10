@@ -25,7 +25,7 @@ const (
 	Program    = "defacto2-server"          // Program is the command line name of this program.
 	Author     = "Ben Garrett"              // Author is the primary programmer of this program.
 	Email      = "contact@defacto2.net"     // Email contact for public display.
-	RecentYear = 2024                       // Most recent year of compilation for this program.
+	RecentYear = 2025                       // Most recent year of compilation for this program.
 )
 
 var ErrCmd = errors.New("cannot run command as config is nil")

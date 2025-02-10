@@ -587,6 +587,9 @@ const (
 // groups returns a map of releasers URIs mapped to their Demozoo IDs.
 func groups() Groups { //nolint:funlen
 	return Groups{
+		"inter-active":                          53952,
+		"the-newcomers":                         147961,
+		"spectrum-couriers":                     132291,
 		"sliver-art-products":                   109597,
 		"virtual-shock":                         66769,
 		"5th-dynasty":                           23746,
