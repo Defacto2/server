@@ -637,7 +637,7 @@ func Collection() Milestones {
 			Content: "Our definition of a cracktro or <strong>crack-intro</strong> is a programmed and animated vanity title screen, giving credit to the cracker(s) of a pirated piece of software. " +
 				"But this means the common static <q><a href=\"http://artscene.textfiles.com/intros/APPLEII/thepirate.gif\">broken&nbsp;by</a></q> texts and <a href=\"http://artscene.textfiles.com/intros/APPLEII/flockland.gif\">hacked</a> game title screens do not apply.</p>" +
 				// apple ii
-				"<p>Unfortunately, it is challenging to date early pirated releases for the PC, Commodore&nbsp;64, or Apple&nbsp;II. " +
+				"<p>Unfortunately, it is challenging to place early pirated releases for the PC, Commodore&nbsp;64, or Apple&nbsp;II. " +
 				"Many early crackers didn't date their releases, and the systems themselves didn't track time or stamp the files. " +
 				"But given the <a href=\"http://artscene.textfiles.com/intros/APPLEII/.thumbs.html\">proliferation</a> of <q>broken by</q> texts and graphic hacks by Apple&nbsp;II crackers based in the USA during 1980-82, the early cracktro probably evolved there.</p>" +
 				// mr xerox

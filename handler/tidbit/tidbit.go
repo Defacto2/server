@@ -121,6 +121,10 @@ func groups() Tibits {
 		62: []URI{"public-enemy", "pe*trsi*tdt", "north-american-society-of-anarchists", "red-sector-inc", "the-dream-team"},
 		63: []URI{"public-enemy"},
 		64: []URI{"razor-1911"},
+		65: []URI{"tristar-ampersand-red-sector-inc", "red-sector-inc"},
+		66: []URI{"tristar-ampersand-red-sector-inc", "pe*trsi*tdt", "the-dream-team", "skid-row", "coop"},
+		67: []URI{"tristar-ampersand-red-sector-inc"},
+		68: []URI{"the-dream-team"},
 	}
 }
 
@@ -187,7 +191,7 @@ func tidbits() Tidbit {
 		34: "SCD-DoX was a shortlived documentation group created by the Software Chronicles Digest Magazine.",
 		35: "For its first 5 issues, SCD stood for Southern Califoria Distribution and was part of a larger regional release group.",
 		36: "<p>According to a public <a href=\"/f/b144a1\">retirement letter</a>, The Humble Guys were founded on the 22 Jan 1990.</p><p>We believe THG is the source of the <strong><code>.NFO</code></strong> file extension " +
-			"with the textfile <code>KNIGHTS.NFO</code> found in the release of Knights of Legend from the 23rd of January 1990. " +
+			"with the minimal textfile <code>KNIGHTS.NFO</code> found in the release of Knights of Legend from the 23rd of January 1990. " +
 			"Knights of Legend required <a href=\"/f/b02d22e\">a fix</a> due to <a href=\"/f/b228b1a\">an installation quirk</a> and maybe that is why it is forgotten. " +
 			"The following day, the release of White Death would include a tiny <code>WHITEDET.NFO</code> textfile and so too <code>STUNT.NFO</code> for Stunt Track Racer on the 25th. " +
 			"By early February the <code>BUBBLE.NFO</code> textfile for Bubble Bobble had become bloated, with additional group greets, a big yahoo, multiple boards, a Nashville voicemail phone number and PO BOX." +
@@ -260,6 +264,15 @@ func tidbits() Tidbit {
 			" To raise funds, and decades before the mainstream influencers did the same, Razor 1911 created, advertised and sold merch directly to its online fans. " +
 			"Initially, they <a href=\"f/a82163f\">shipped a t-shirt</a> that sold well, but later in the year, they developed a commemorative CD ROM with a large collection of their PC and Amiga releases! " +
 			"And to solve the dwindling supply of games being published on floppy disks, Razor <a href=\"/f/ad4a55\">released Tyran</a>, the full compact disc under the new <strong>CD Division</strong> label.</p>",
+		65: "<p>While founded in 1985 in North America, by 1990, Red Sector were mostly a European cracking and demo group releasing both on the Commodore 64 and Amiga. " +
+			"Their 1990 entry onto the PC was solely wares related, but they <a href=\"/f/b01d2f2\">lacked an experienced PC cracker</a> and would team with existing groups to supply titles and have them crack and release under a cooperation. This collaboration was mostly done with Public Enemy from Canada.</p>" +
+			"Over in Europe, Red Sector and the German group Tristar decided to merge mid-year forming the famous Tristar & Red Sector Inc. or TRSi. However, this new branding wasn't reflected on the PC until months later in December with a comical collaboration of five groups and " +
+			"the release of <a href=\"/f/a74ac6\">4D Sports Driving presented by</a> Public&nbsp;Enemy&nbsp;/&nbsp;TRSi&nbsp;/&nbsp;Defjam&nbsp;/&nbsp;The Dream Team.",
+		66: "Most of 1991 would see TRSi working with the PC in a group collaboration. Initially with Public Enemy and the Swedish based The Dream Team together. But then exclusively with TDT under a TDT / TRSi brand that often got referred to as The Cooperation or the coop. " +
+			"That was until September when it was publicly <a href=\"/f/af2c09f\">announced by TDT</a> that this cooperation “is now broken”. And within a month, TDT were opting to instead co-release with fellow Europeans, Skid Row.",
+		67: "The remainder of the early 1990s saw TRSi mostly releasing European published titles despite wanting to pivot to to North America where the AAA tier PC development was occurring. Unfortunately in Europe, the PC was a secondary platform for many game developers, often used to dump quick ports of games developed for the Commodore or Atari microcomputers." +
+			" And this meant the quality of TRSi brand suffered, though there were <a href=\"/f/ae466d\">exceptions</a>.",
+		68: "The Dream Team was based in Sweden and was a name frequently associated with its founder, Hard Core. A programmer who had somewhat of an infamous reputation for creating second-rate intros on the PC on behalf of the group. Though, we do credit him with creating the first contemporary PC cracktro with this great <a href=\"/f/b01ca10\">musical skull intro</a> from November 1991. As a side note, his intros are the most annoying pieces of shit to preserve, as they have numerous dependencies that were intentionally hidden in releases. If an intro on this page doesn't work right, it is probably missing a file or two.",
 	}
 }
 
