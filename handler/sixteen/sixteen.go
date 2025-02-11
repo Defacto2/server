@@ -24,6 +24,8 @@ func groups() Groups {
 		"bitchin-ansi-designs":              "group/bad",
 		"creators-of-intense-art":           "group/cia",
 		"art-creation-enterprises":          "group/ace",
+		"damn-excellent-ansi-design":        "group/dead",
+		"katharsis":                         "/group/katharsis",
 	}
 }
 

@@ -1335,7 +1335,7 @@ func Collection() Milestones {
 			Link: "/f/ab2843",
 			Content: "<p>An <strong>intro</strong>, or the later cracktro, is a small, usually short, demonstration program designed to display text with graphics or animations. " +
 				"Oddly, the <q>First Intro</q> was written by some teenagers in Finland, a country not known for using expensive PC platforms.</p>" +
-				"<p>Other popular 16-bit microcomputers, such as the Commodore&nbsp;Amiga and Atari&nbsp;ST, offered much better graphics and audio than a common PC using CGA graphic hardware.</p>",
+				"<p>Intros on the other popular 16-bit microcomputers had a higher creative expectation, with the machines offering much better graphics and audio capabilities than a common 1980's PC using a 4-color graphics adapter.</p>",
 			Picture: Picture{
 				Title: "First intro by Sorcerers",
 				Alt:   "First intro by Sorcerers screenshot",
@@ -1419,17 +1419,17 @@ func Collection() Milestones {
 		},
 		{
 			Title: "\".NFO\" file extension origins", Year: 1990, Month: 1, Day: 23, Highlight: true,
-			Lead: "The Humble Guys, Knights of Legend or Bubble Booble", LinkTitle: "the Knights text file",
-			Link: "/f/ab3945",
-			Content: "<code>KNIGHTS.NFO</code> <small>or</small> <code>BUBBLE.NFO</code><br>" +
+			Lead: "The Humble Guys", LinkTitle: "the list of THG releases",
+			Link: "/g/the-humble-guys",
+			Content: "<p><code>KNIGHTS.NFO WHITEDET.NFO STUNT.NFO TRUMP.NFO DEJAVUII.NFO AJAX.NFO TERRAIN.NFO BUBBLE.NFO TREK.NFO CRMEWAVE.NFO STRIDER.NFO GUNBOAT.NFO 1989STAT.NFO ...</code></p>" +
 				// extension
 				"<p>The <strong>.NFO</strong> file extension denotes a text file containing information about a release. " +
 				"Still in use today, the dot nfo file contains information about the release group, the release itself, and how to install.</p>" +
 				// thg
 				"<p>While disputed, it is not too important which release from <strong>The&nbsp;Humble&nbsp;Guys</strong> is the first to use the dot <q>nfo</q> file extension. " +
 				// knights
-				"The timestamps of the release files suggest the text file for Knights of Legend predates Bubble Bobble by weeks. " +
-				"But famed, founder and former cracker, Fabulous Furlough has always stated Bubble Bobble was the release that first used the naming standard.</p>" +
+				"The timestamps of the release files and BBS tape backups suggest there were a number of THG game releases that predate Bubble Bobble by weeks. " +
+				"But famed THG founder and former cracker, <a href=\"/p/fabulous-furlough\">Fabulous Furlough</a> has often stated Bubble Bobble was the release that first used the naming standard.</p>" +
 				// quote
 				"<figure><blockquote class=\"blockquote\"><q><small>It happened like this, I'd just used " +
 				"<q><a href=\"http://nerdlypleasures.blogspot.com/2011/05/scourge-of-preservation-disk-based-copy.html\">Unguard</a></q> " +
@@ -1437,13 +1437,7 @@ func Collection() Milestones {
 				"<q>I need some file to put the info about the crack in. Hmmm.. Info, NFO!</q>, and that was it.</small></q></blockquote>" +
 				"<figcaption class=\"blockquote-footer\">Founder of The&nbsp;Humble&nbsp;Guys, Fabulous&nbsp;Furlough recalls Bubble Bobble as the first THG release that used the .NFO file extension.</figcaption></figure>" +
 				// bubble bobble
-				"<p>Bubble Bobble was the far more notable game of the era and may have been the more memorable game title when recalling the event. " +
-				"Meanwhile, Knights didn't require a crack, and the file naming convention was possibly retroactively applied.</p>" +
-				// content
-				"<p>Notes from BUBBLE.NFO <small>7, Feb 1990</small></p>" +
-				"<p><pre>Bubble Bobble by Nova Logic Through Taito<br>Broken by Fabulous Furlough<br>Normal Taito Loader - 5 minutes</pre></p>" +
-				"<p>Notes from KNIGHTS.NFO <small>21, Jan 1990</small></p>" +
-				"<p><pre>Knights of Legend by Origin Systems<br>It seems to be unprotected, if you find anything leave us a message..</pre></p>",
+				"<p>Bubble Bobble was the more notable game of the period and may have been a more memorable game title when recalling the event.</p>",
 		},
 		{
 			Title: "Earliest PC cracktro with music", Year: 1990, Month: 12, Day: 2,
@@ -1483,7 +1477,6 @@ func Collection() Milestones {
 			Year: 1990, Prefix: notable,
 			List: Links{
 				{LinkTitle: "ANSI Creators in Demand", Link: "/g/acid-productions", SubTitle: "ACiD", Forward: "Aces of ANSI Art"},
-				{LinkTitle: "Bitchin ANSI Design", Link: "/g/bitchin-ansi-design", SubTitle: "BAD"},
 				{LinkTitle: "Damn Excellent ANSI Design", Link: "/g/damn-excellent-ansi-design", SubTitle: "Damn"},
 				{LinkTitle: "Katharsis", Link: "/g/katharsis", Forward: "🇵🇱 First Polish group on the PC"},
 				{
@@ -1513,11 +1506,32 @@ func Collection() Milestones {
 			Content: "<p>The PC's first dedicated application and software utility groups emerged at the beginning of 1991. " +
 				"Groups such as <a href=\"/g/nokturnal-trading-alliance\">Nokturnal Trading Alliance</a>, and later, <a href=\"/g/the-hill-people\">The Hill People</a> and " +
 				"<a href=\"/g/inc-utility-division\">IUD</a> <em><a href=\"/g/international-network-of-crackers\">International Network of Crackers</a> Utility Division</em> start to package, " +
-				"crack and exclusively release the commercial software that were not considered games.</p>" +
+				"crack and exclusively release commercial applications, system utilities and productivity software.</p>" +
 				"<p>Yet this form of software piracy <a href=\"f/ab25292\">dominated</a> the elite bulletin boards for the PC and had done so for a long while. " +
 				"Typically, individuals compiled these \"app\" releases anonymously or for upload to their local bulletin boards instead of under a Scene group for competition. " +
 				"Was this solo anonymity the legacy of do-it-yourself cracking and <a href=\"/files/how-to\">Unprotection documentation</a> common on the PC in the 1980s, or maybe a fear of big tech and their lawyers?</p>" +
-				"<p>The most famous application group, <a href=\"/g/pirates-with-attitudes\">Pirates with Attitudes</a> (PWA), was founded in 1991 but focused on game titles for their first two years.</p>",
+				"<p>The most famous application group, <a href=\"/g/pirates-with-attitudes\">Pirates with Attitudes</a> (PWA), also was founded in 1991 but focused on game titles for their first two years.</p>" +
+				"<p>A typical PC piracy BBS from the 1980s would mostly have system utilities and the occasional application uploaded with no individual or group credited and no additional help textfiles." +
+				"<p><pre>" +
+				"IBMSPLIT.ARC   9200 01/05/89 Get WARPUTIL instead - handles MFM too!!\n" +
+				"COPY606.ARC   28672 01/18/89 \n" +
+				"NODMON25.ZIP  45028 01/18/89 \n" +
+				"DSZREG.ARC     9216 02/12/89 Registers your DSZ. Press space when flashes\n" +
+				"DSZ0223.ARC   81870 02/23/89 Latest DSZ\n" +
+				"HELP33.ARC   140596 02/26/89 This is a nice utility to have around for | DOS 3.3\n" +
+				"PRODOR29.ZIP 170833 03/01/89 \n" +
+				"ARC601.EXE   138807 03/16/89 Latest vers. of IBM ARC - run to unpack..\n" +
+				"PKZ092.EXE   102499 03/16/89 Latest vers. - run to unpack...\n" +
+				"OPTUNE.ZIP    74741 03/17/89 OPTune Disk Optimizer From Gazelle Systems\n" +
+				"PROD30B1.ZIP  88688 03/22/89 PCB PRODOOR V3.01B\n" +
+				"COBOL.ZIP    163831 04/05/89 \n" +
+				"AM42.ZIP     115180 04/13/89 Arcmaster 4.2\n" +
+				"VARISLOW.ZIP   1922 04/20/89 Slow down the AT toplay games..\n" +
+				"NORTCOM.ARC   54070 04/21/89 Norton Commander\n" +
+				"TDRAW320.EXE 189659 04/27/89 \n" +
+				"DRDOOM1.ZIP  269384 05/25/89  \n" +
+				"DRDOOM2.ZIP  340992 05/25/89 " +
+				"</pre></p>",
 		},
 		{
 			Title: "Earliest BBS VGA loader", Year: 1991, Month: 3,

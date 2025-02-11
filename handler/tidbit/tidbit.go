@@ -110,6 +110,17 @@ func groups() Tibits {
 		51: []URI{"pirate"},
 		52: []URI{"creators-of-intense-art", "art-creation-enterprise"},
 		53: []URI{"vla"},
+		54: []URI{"the-north-west-connection"},
+		55: []URI{"the-sysops-association-network"},
+		56: []URI{"american-pirate-industries"},
+		57: []URI{"pirates-sick-of-initials"},
+		58: []URI{"byte-bandits-bbs"},
+		59: []URI{"sorcerers"},
+		60: []URI{"katharsis"},
+		61: []URI{"national-elite-underground-alliance"},
+		62: []URI{"public-enemy", "pe*trsi*tdt", "north-american-society-of-anarchists", "red-sector-inc", "the-dream-team"},
+		63: []URI{"public-enemy"},
+		64: []URI{"razor-1911"},
 	}
 }
 
@@ -127,13 +138,14 @@ func tidbits() Tidbit {
 			"Late January 1992 saw a major piracy bust in Detroit that forced USA to disband and Fairlight to go solo.",
 		4: "In 1992 Fairlight briefly ran the artgroup Artists In Revolt, sometimes referenced as the Fairlight Art Division. ",
 		5: "Fairlight DOX (FLTDOX) was a sub-group of Fairlight that specialised in releasing documentation and trainers for games.",
-		6: "Aces of ANSI Art is credited as one of the first art groups. In mid-1990 they reformed as the ANSi Creators in Demand, and later known as ACiD Productions, the most prolific art group in the North American scene of the era.",
+		6: "Aces of ANSI Art is credited as one of the first organized art groups in the elite BBS scene. " +
+			"After becoming disorganized and demotivated, key members in mid-1990 reformed as the ANSi Creators in Demand, and later known as ACiD Productions, the most prolific art group of the era in the North American scene.",
 		7: "The Duplicators are the earliest game crackers on the PC that offer reliable dated releases.",
 		8: "Pirates Club Inc from 1983 is the oldest known pirate group on the PC.",
 		9: "ASP was a group that specialised in writing original and also resharing UNPROTECT text instructions for PC applications and later games. " +
 			"These instructions were used to bypass disk copy protection and were shared on legitimate BBSes, Compuserve, and elite pirate boards.",
-		10: "SPI is once of the oldest groups on the PC and one of the first enduring brands of the 1980s that created numerous custom utilities in addition to PC game releases." +
-			"Their most celebrated tool was SnatchIT, which when combined with the commercial tool, " +
+		10: "SPI from Texas is once of the oldest groups on the PC and one of the first enduring brands of the 1980s that created numerous custom utilities in addition to PC game releases." +
+			" Their most celebrated tool was SnatchIT, which when combined with the commercial tool, " +
 			`<a href="https://winworldpc.com/product/copy-ii-pc/2xx">Central Point Copy II PC</a> allowed (the then common) self-booting games to duplicated.`,
 		11: "The Illinois Pirates release of their King's Quest walkthrough is the earliest known scene documentation for a PC exclusive game.",
 		12: "Buckaroo Banzai was a prolific game hacker and trainer maker who was most famous for his 1980s cracking tutorials on the PC and Apple II." +
@@ -145,10 +157,10 @@ func tidbits() Tidbit {
 			"These screens were probably done in PC Paint from Mouse Systems and were the first known scene art for the PC. " +
 			"It is unsure if the images were drawn by the credited crackers or by a separate artist.",
 		16: "There is no information on C&M other than the credited cracker and CGA artist Zanna Martin would join BCC at the end of 1987.",
-		17: "Canadian Pirates Inc were an early Ontario, Canada group that was active in the 1980s and often collaborated with PTL Club before eventually merging.",
+		17: "Canadian Pirates Inc were an early Ontario, Canada group that was active in the 1980s and often collaborated with PTL Club from Illinois before eventually merging.",
 		18: "According to the Church Chat Volume 4 text file, KGB was an offshoot group formed by the merger of Canadian Pirates Inc and PTL Club but soon faded away.",
 		19: "In November 1989, a number of groups including PTL Club, $print, The Underground Council, and the Byte Bandits merged and became Traid.",
-		20: "INC was formed in September 1989 by the merger of the New York Crackers, ECA (currently unknown), and the Miami Cracking Machine. " +
+		20: "INC was formed in September 1989 by the merger of the New York Crackers, ECA (currently unknown but maybe <em>Elite Crackers Association</em>), and the Miami Cracking Machine. " +
 			"NYC would leave a few months later after disagreements on the structure with the new group leaving MCM as the direct ancestor of INC.",
 		21: "Fake public domain releases were a common tactic in the early-mid 1980s and used by pirates to distribute their warez on legitimate BBSes.",
 		22: "BSP was a Texas-centric group, probably founded in 1988. The key members of BSP would join The FiRM in March 1989 and would occasionally " +
@@ -174,7 +186,29 @@ func tidbits() Tidbit {
 		33: "NCC would focus in Europe and collaborate with US groups for cracked software exchanges, first with INC, and eventually with The Humble Guys. ",
 		34: "SCD-DoX was a shortlived documentation group created by the Software Chronicles Digest Magazine.",
 		35: "For its first 5 issues, SCD stood for Southern Califoria Distribution and was part of a larger regional release group.",
-		36: "According to a published retirement letter, The Humble Guys were founded on the 22 Jan 1990 and became the source of the first use of the _.nfo_ file extension. ",
+		36: "<p>According to a public <a href=\"/f/b144a1\">retirement letter</a>, The Humble Guys were founded on the 22 Jan 1990.</p><p>We believe THG is the source of the <strong><code>.NFO</code></strong> file extension " +
+			"with the textfile <code>KNIGHTS.NFO</code> found in the release of Knights of Legend from the 23rd of January 1990. " +
+			"Knights of Legend required <a href=\"/f/b02d22e\">a fix</a> due to <a href=\"/f/b228b1a\">an installation quirk</a> and maybe that is why it is forgotten. " +
+			"The following day, the release of White Death would include a tiny <code>WHITEDET.NFO</code> textfile and so too <code>STUNT.NFO</code> for Stunt Track Racer on the 25th. " +
+			"By early February the <code>BUBBLE.NFO</code> textfile for Bubble Bobble had become bloated, with additional group greets, a big yahoo, multiple boards, a Nashville voicemail phone number and PO BOX." +
+			"</p><p>A 1991 backup from the HMS Bounty BBS had the following listings, but note, these 1990 uploads were before the era of <em>0-day</em> wares:</p>" +
+			"<pre>" +
+			"FAERY-1.ZIP  246086 09/18/89 Faery Tale Adventure.  1 of 3\n" +
+			"KNIGHTS0.ZIP 289790 01/25/90 Knights of Legend - Fabulous Furlough's new group - The Humble Guys - 1 of 6\n" +
+			"WHTEDTH1.ZIP 128461 01/25/90 White Death - The Humble Guys - 1 of 2\n" +
+			"STUNT1.ZIP   268403 01/25/90 Stunt Track Racer - 1 of 2\n" +
+			"KOLNSTAL.ZIP    458 01/27/90 Knights of Legend install info -needed\n" +
+			"TRUMPS1.ZIP  163611 01/30/90 Trumps Castle - The Humble Guys - 1 of 2\n" +
+			"DEJAEGA1.ZIP 173387 01/30/90 Deja Vu II - The Humble Guys - 1 of 2\n" +
+			"AJAX1.ZIP    209468 02/01/90 Ajax from The Humble Guys | Uploaded by: Sysop\n" +
+			"TERRNHG1.ZIP 166340 02/03/90 Terrain Editor for Sim City from The Humble Guys - 1 of 2 | Uploaded by: Sysop\n" +
+			"BUBBLE1.ZIP  262079 02/08/90 Bubble Bobble - The Humble Guys - 1/2\n" +
+			"BUBBLCHT.ZIP  42996 02/11/90 Bubble Bobble cheat | Uploaded by: Grebo Guru\n" +
+			"CRMEWAV1.ZIP 618772 02/20/90 CRIME WAVE - The Humble Guys - 1 of 4 | cracked\n" +
+			"                             2/20/90 by Fabulous Furlough. | Check here on\n" +
+			"                             the Bounty for ALL cracks and | releases from\n" +
+			"                             The Humble Guys\n" +
+			"1989STAT.ZIP  82212 02/23/90 1989 Stats for Earl Weaver - The Humble Guys! | Uploaded by: Fabulous Furlough</pre>",
 		37: "Netrunners merged into the Minor Threat and Nexus collaboration at the end of October 1993. Minor Threat focused on applications and Nexus on game releases.",
 		38: "SDA Review published by Silicon Dream Artists was DOS magazine that reviewed scene PC game releases. " +
 			"The first 4 issues were under the name MAI Review, but the title was changed after the November 1991 merger of Masters of Abstractions and Illusions and MaD.",
@@ -188,7 +222,7 @@ func tidbits() Tidbit {
 		45: "Crackers in Action probably started as a personal brand for the cracker Live Wire based in Denver, but later became a national group.",
 		46: "The Legion of Doom was a well known phreaking and hacker group (LOD/H) that was active in the 1980s and early 1990s, " +
 			"with some of the earliest members having their start in the early Apple II piracy and phreaking community.",
-		47: "The Grand Council a local 1980s release group from the <em>313</em> Detroit and Flint region of Michigan.",
+		47: "The Grand Council were a local 1980s release group from the <em>313</em> Detroit and Flint region of Michigan.",
 		48: "Untouchables were founded on the 13th February 1993 with the joining of two groups, XAP and UNiQ. " +
 			"The new release group lasted less than half a year before abandoning the name and reforming as Pentagram in July.",
 		49: "Italsoft was an odd entity out of Argentina that would modify existing pirated games and then claim them as their own. " +
@@ -197,6 +231,35 @@ func tidbits() Tidbit {
 		51: "PIRATE was a USA text magazine that covered the Apple II and IBM PC scenes.",
 		52: "CiA was an artgroup founded in July 1993 and in the following month, they doubled in size after absorbing ACE.",
 		53: "VLA were an early PC programming and demogroup from the USA.",
+		54: "The North West Connection was a local group from Washington state, aka the Pacific North West.",
+		55: "The Sysops Association Network was collective of elite BBS sysops that exchanged information " +
+			"and forums on the latest bulletin board news and technical goings. " +
+			"The organisation at some stages grew quite large until the Internet abruptly made it and the member boards redundant. " +
+			"At times TSAN claimed it was founded in 1984, but whether this was a single BBS or an actual organisation is unknown.",
+		56: "Based in California, American Pirate Industries was an early or possibly first example of a text magazine for the PC BBS Scene.",
+		57: "Pirates Sick of Initials formed as a late 1980s cracking group but after the competition became to competitive in early 1990, " +
+			"they <a href=\"/f/ad1f4f6\">transitioned</a> into a games utility group releasing cheats, documentation, fixes and tools.",
+		58: "Byte Bandits was a lose collection of sysops from North America that supplied games to Sam Brown's Californian BBS, the Byte Bandits for cracking and redistribution.",
+		59: "Sorcerers were a Finnish group of teenage programmers who created some of the earliest demos on the PC." +
+			" However, this was years after the intros and demos were commonplace on other microcomputer platforms.",
+		60: "Katharsis was an Amiga cracking and demo group from Poland that expanded onto both the PC and into the ASCII artscene.",
+		61: "NEUA were originally from New York state and went by the name North Eastern Underground Alliance but changed to National Elite in November 1990.",
+		62: "Public Enemy probably formed in Janurary 1990 or in 1989 around Montreal and for its first iteration identified as a Canadian group. " +
+			"They frequently collaborated with fellow Canadians NASA, the German Amiga group Red Sector Inc. and The Dream Team from Sweden but stopped releasing in mid-1991. ",
+		63: "The second iteration of Public Enemy came about out of the USA in February 1993 and lasted until year's end, but with the Blade Runner (514) returning from the original Canadian group.",
+		64: "<p>Razor 1911 was a cracking group that was founded in Norway in 1985 on the Commodore 64. " +
+			"Some of the founding members jumped to the PC in mid-1991 and unlike other European groups, Razor heavily focused on North American releases. " +
+			"For much of 1992, the group expanded and with the exception of their <a href=\"/f/aa4ba1\">7th-anniversary release</a>, they often didn't list members, only couriers and boards. However the growth in the group can be seen in the number of BBS affiliations.</p>" +
+			"<p>A comprehensive member list was returned to the May 1993 release of <a href=\"/f/b126c88\">SiLk!</a>, but within a week it got <a href=\"/f/ad1d0c8\">abruptly censored</a>, probably due to unrelated European busts. " +
+			"Before finally <a href=\"/f/a8222bc\">listing a reduced membership</a> but with useful roles for the group. However, the original Norwegian members faded into the background and references to the Razor's European origins were removed.</p>" +
+			"<p>March 1994 saw the release of the <strong>first demo</strong> by Razor on the PC, named <a href=\"/f/ab445e\">RED</a>. " +
+			"It was well received and saw a new <em>Razor 1911 Coding/Training/Art Departments</em> in the <a href=\"/f/af2e8ab\">NFO listings</a> and the return of the PO Box in Norway. " +
+			"The famous text Razor 1911 logo by &ltJED> of ACiD was prototyped in <a href=\"/f/b31a533\">Battle Isle 2</a> and revised into its final form for the release of <a href=\"/f/b31a533\">Doom II</a> in August.</p>" +
+			"<p>The start of 1995 saw the outspoken The Renegade Chemist leave Razor and <a href=\"/f/ab3a82\">attempt to kill the group</a> as he departed, but apparently he forgot to get consensus and <a href=\"/f/af1aaf1\">Razor happily continued</a>." +
+			" Yet he saw a couple of issues including a lack of money to obtain new games and the reduced number of game releases being published to floppy disks which Razor 1911 worked with." +
+			" To raise funds, and decades before the mainstream influencers did the same, Razor 1911 created, advertised and sold merch directly to its online fans. " +
+			"Initially, they <a href=\"f/a82163f\">shipped a t-shirt</a> that sold well, but later in the year, they developed a commemorative CD ROM with a large collection of their PC and Amiga releases! " +
+			"And to solve the dwindling supply of games being published on floppy disks, Razor <a href=\"/f/ad4a55\">released Tyran</a>, the full compact disc under the new <strong>CD Division</strong> label.</p>",
 	}
 }
 
